@@ -191,3 +191,40 @@ test('ordinary advice to avoid a thing is not a builder warning', async () => {
     assert.equal(v.some(x => x.kind === 'unfounded_warning'), false, `flagged honest advice: ${text}`)
   }
 })
+
+test('a raw JSON payload is not an answer', () => {
+  // Measured: "Show me 3 BHK projects in Sector 150 under 2 crore" was answered
+  // with 1,400 characters of pretty-printed rows, internal ids and all, cut off
+  // mid-array by the reply ceiling. Every existing check passed it — it names
+  // only real projects, quotes no rule and claims no score.
+  const dump = `[
+    {
+        "id": "88319d1f-5049-410e-9c2a-2913c1f373b3",
+        "name": "ATS Pious Hideaways / Orchards",
+        "sector": { "name": "Sector 150" },
+        "status": "under_construction",
+        "price_min_cr": 1.85,
+        "rera_number": "UPRERAPRJ1503"
+    }`
+  assert.ok(scanDisclosure(dump).some(v => v.kind === 'raw_payload'), 'JSON dump slipped through')
+})
+
+test('an internal id never reaches the buyer', () => {
+  for (const text of [
+    '- **[Godrej Nest](#entity:09f087b6-5288-488d-8482-e572f09e4181)** (Sector 150) — ₹2.1–₹3.1 Cr',
+    'The project id is 88319d1f-5049-410e-9c2a-2913c1f373b3.',
+  ]) {
+    assert.ok(scanDisclosure(text).some(v => v.kind === 'raw_payload'), `id leaked: ${text.slice(0, 50)}`)
+  }
+})
+
+test('ordinary prose with numbers, quotes and brackets is untouched', () => {
+  for (const text of [
+    'ATS Pristine is priced from ₹2.2 Cr and its RERA number is UPRERAPRJ1503.',
+    'The builder said "possession by June 2026", which is a claim, not a guarantee.',
+    'Three options [ready to move] sit inside your band: 1.85, 1.96 and 2.08 crore.',
+    '| Project | Price |\n| :--- | :--- |\n| **ACE Parkway** | ₹1.55 Cr |',
+  ]) {
+    assert.deepEqual(scanDisclosure(text).filter(v => v.kind === 'raw_payload'), [], `flagged prose: ${text.slice(0, 50)}`)
+  }
+})

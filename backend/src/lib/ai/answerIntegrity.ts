@@ -38,7 +38,43 @@
 
 import { checkToolBlindAnswer, type ToolBlindViolation } from './toolBlindGuard'
 
-export type IntegrityKind = 'fabrication' | 'meta_leak' | 'inventory_size' | 'unfounded_warning'
+export type IntegrityKind =
+  | 'fabrication'
+  | 'meta_leak'
+  | 'inventory_size'
+  | 'unfounded_warning'
+  | 'raw_payload'
+
+/**
+ * The answer is not an answer — it is the data we handed the model.
+ *
+ * Measured in a demo replay, "Show me 3 BHK projects in Sector 150 under 2
+ * crore" was answered with 1,400 characters of pretty-printed JSON, opening:
+ *
+ *     [
+ *         {
+ *             "id": "88319d1f-5049-410e-9c2a-2913c1f373b3",
+ *             "name": "ATS Pious Hideaways / Orchards",
+ *
+ * — every internal id included, cut off mid-array by the reply ceiling. A leg
+ * echoed its tool result instead of writing prose. Nothing caught it: it names
+ * only real projects, quotes no rule, claims no score, so every existing check
+ * passed it.
+ *
+ * The same turn also produced `[Godrej Nest](#entity:09f087b6-5288-...)` —
+ * internal UUIDs as link targets in buyer-visible markdown.
+ *
+ * Both are the same defect: our internal representation reaching the screen.
+ */
+const RAW_PAYLOAD: Array<[RegExp, string]> = [
+  // A JSON object or array as the body of the answer, not an inline snippet.
+  [/^\s*[[{][\s\S]{0,80}"\w+"\s*:/, 'the answer opens as a JSON payload'],
+  // Structural JSON anywhere in quantity: three or more quoted keys.
+  [/("(?:id|name|slug|sector|status|price_min_cr|rera_number|builder|unit_types|amenities)"\s*:[\s\S]{0,120}){3,}/, 'the answer contains a JSON row dump'],
+  // A UUID is ours and means nothing to a buyer.
+  [/\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\b/i, 'exposes an internal id'],
+  [/#entity:/i, 'exposes an internal entity link'],
+]
 
 /**
  * Telling a buyer to avoid a developer we hold no legal finding against.
@@ -225,6 +261,7 @@ export function scanDisclosure(text: string): IntegrityViolation[] {
   return [
     ...scan(text, META_LEAK, 'meta_leak'),
     ...scan(text, INVENTORY_SIZE, 'inventory_size'),
+    ...scan(text, RAW_PAYLOAD, 'raw_payload'),
   ]
 }
 

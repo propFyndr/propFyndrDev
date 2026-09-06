@@ -2777,3 +2777,58 @@ p90 halved; the max is turn 3, a single leg taking ~35s to generate, which no
 guard can shorten. **The remaining tail is one thing: the Gemini balance.** Every
 slow turn starts with both free legs returning nothing and both billed legs
 answering `429 prepayment credits are depleted`.
+
+## 6 Sep 2026 — the run that dumped JSON at the buyer
+
+### 27. A leg answered with the raw tool result
+
+"Show me 3 BHK projects in Sector 150 under 2 crore" came back as 1,400
+characters of pretty-printed JSON, internal UUIDs included, cut off mid-array
+by the reply ceiling:
+
+    [
+        {
+            "id": "88319d1f-5049-410e-9c2a-2913c1f373b3",
+            "name": "ATS Pious Hideaways / Orchards",
+
+**Every existing guard passed it.** It names only real projects, quotes no rule,
+claims no score, warns about nobody. The same run also produced
+`[Godrej Nest](#entity:09f087b6-5288-...)` — internal ids as markdown link
+targets — with prices in a suspiciously arithmetic sequence (2.1–3.1, 2.2–3.2,
+2.3–3.3, 2.4–3.4).
+
+`raw_payload` is now a discard class: a body that opens as JSON, three or more
+structural keys anywhere, a bare UUID, or `#entity:`. Tests pin that ordinary
+prose with numbers, quoted speech, square brackets and markdown tables is not
+flagged.
+
+### 28. Our own dead-end reply said "in our database"
+
+`rewriteFraming` strips that phrasing from MODEL output, and it only runs on the
+chain — so our own strings were exempt and `projectNotFoundReply` shipped it.
+HARD RULE 7 applies to us too.
+
+### 29. The compression deadline had not actually landed
+
+An earlier pass added `COMPRESSION_DEADLINE_MS` but the `Promise.race` that uses
+it never made it into the file — only the constant did. The next run showed
+`preLlm=30432` and `preLlm=30730` on the last two turns, 29.9s of it inside
+`maybeCompress`, exactly as before.
+
+Now landed, and paired with the better fix: compression consults the SAME
+provider cooldown the chain writes, so once the chain has found
+`GEMINI_API_KEY` dead on turn one, compression skips it instantly instead of
+rediscovering the 429 three times a turn. Both compression modules had the
+defect; both patched. Result: `preLlm` 30s → 2–3s on every turn.
+
+### The latency figure from this session is contaminated — do not quote it
+
+The final run reported p50 16.1s / p90 50.1s, worse than the 7.8/17.8 measured
+earlier. The cause is **me**: five full 15-turn demo runs back to back exhausted
+the free-tier Gemini quota and Cohere's rate limit. That run's failures read
+`quota`, `RESOURCE_EXHAUSTED` and `429 status code (no body)` on legs that had
+been answering fine an hour before.
+
+**Correctness results from the same run are still valid** — ragged 0,
+violations 0, empty 0 — because those do not depend on which leg answers. The
+timing does. Re-measure on a rested quota, and preferably after the top-up.

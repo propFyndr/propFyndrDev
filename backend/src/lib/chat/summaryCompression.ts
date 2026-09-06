@@ -2,6 +2,7 @@
 // Topic-separated compression: location, financial, timeline summaries
 
 import Groq from 'groq-sdk'
+import { isCoolingDown } from '../ai/providerCooldown'
 import { meteredClient } from '../ai/geminiMeter'
 import OpenAI from 'openai'
 import { GoogleGenAI } from '@google/genai'
@@ -56,6 +57,25 @@ function sanitizeSummary(text: string): string {
  */
 const COMPRESSION_DEADLINE_MS = Number(process.env.COMPRESSION_DEADLINE_MS ?? 4_000)
 
+
+/**
+ * Skip the billed key when the chain has already found it dead.
+ *
+ * Compression reaches for `GEMINI_API_KEY` directly rather than walking the
+ * fallback chain, so it never learns what the chain learned on turn one: the
+ * key answers `429 "Your prepayment credits are depleted"` and has been cooled
+ * down for an hour. Measured, it re-discovered that on every long turn — three
+ * sequential failures, 29.9 seconds, inside a 47-second turn whose LLM phase
+ * was 13 seconds.
+ *
+ * Reading the same cooldown the chain writes turns that into an instant skip.
+ * The deadline below is still the backstop for a key that is merely slow.
+ */
+function billedGeminiIsDead(): boolean {
+  const model = MODELS.GEMINI_LITE
+  return isCoolingDown(`GEMINI_API_KEY:${model}`) || isCoolingDown(`GEMINI_API_KEY:${MODELS.GEMINI_MAIN}`)
+}
+
 async function compressTopic(
   messages: Message[],
   topic: 'location' | 'financial' | 'timeline'
@@ -68,7 +88,7 @@ async function compressTopic(
   const prompt = COMPRESSION_PROMPTS[topic]
 
   try {
-    if (process.env.GEMINI_API_KEY) {
+    if (process.env.GEMINI_API_KEY && !billedGeminiIsDead()) {
       const client = meteredClient({ apiKey: process.env.GEMINI_API_KEY, endpoint: 'summary-compression' })
       const res = await client.models.generateContent({
         model: MODELS.GEMINI_LITE,
@@ -128,11 +148,39 @@ export async function maybeCompressTopical(
 
   const toCompress = messages.slice(0, messages.length - KEEP_RECENT)
 
-  // Compress all three topics in parallel
-  const [locSummary, finSummary, timeSummary] = await Promise.all([
-    compressTopic(toCompress, 'location'),
-    compressTopic(toCompress, 'financial'),
-    compressTopic(toCompress, 'timeline'),
+  /**
+   * Compression is for the NEXT turn. It must never hold up this one.
+   *
+   * Measured twice, on the last two turns of a long session: 29.9 seconds each,
+   * inside a 47-second turn whose LLM phase was 13 seconds. Three topics, three
+   * sequential Gemini failures, every one `429 "Your prepayment credits are
+   * depleted"` — and the answer had not started.
+   *
+   * `compressTopic` reaches for `GEMINI_API_KEY` directly rather than walking
+   * the chain, so it never tries the free keys the rest of the system falls
+   * back to, and it does not consult the provider cooldown that had already
+   * marked that key dead. It will keep paying that cost until the balance is
+   * topped up.
+   *
+   * A summary that never arrives costs the next turn a little context. A
+   * summary that arrives 30 seconds late costs the buyer the whole turn — so
+   * the deadline wins and the turn proceeds on uncompressed history, which is
+   * exactly what already happened whenever compression failed outright.
+   */
+  const onDeadline = new Promise<Array<string | null>>((resolve) =>
+    setTimeout(() => {
+      console.warn(`[compression] ${COMPRESSION_DEADLINE_MS}ms deadline passed — answering on uncompressed history`)
+      resolve([null, null, null])
+    }, COMPRESSION_DEADLINE_MS),
+  )
+
+  const [locSummary, finSummary, timeSummary] = await Promise.race([
+    Promise.all([
+      compressTopic(toCompress, 'location'),
+      compressTopic(toCompress, 'financial'),
+      compressTopic(toCompress, 'timeline'),
+    ]),
+    onDeadline,
   ])
 
   const newSummaries: TopicSummaries = {

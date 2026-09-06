@@ -50,7 +50,10 @@ export function sanitizeProjectName(raw: string): string | null {
 
 /** The honest dead end. Asks what they meant; never offers inventory instead. */
 export function projectNotFoundReply(name: string): string {
-  return `I don't have a verified record for **${name}** in our database.
+  // "in our database" is the phrasing `rewriteFraming` strips from model
+  // output. It only runs on the chain, so our own strings were exempt — and
+  // this one shipped it. HARD RULE 7 applies to us too.
+  return `I don't have a verified record for **${name}**.
 
 Is that a project name, a builder, or a consultancy? Tell me which and what you wanted to know, and I'll check it properly rather than guess.`
 }

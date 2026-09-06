@@ -1,5 +1,6 @@
 // backend/src/lib/ai/compression.ts
 import Groq from 'groq-sdk'
+import { isCoolingDown } from './providerCooldown'
 import { meteredClient } from './geminiMeter'
 import { GoogleGenAI } from '@google/genai'
 import { MODELS } from '../config'
@@ -26,6 +27,25 @@ function sanitizeSummary(text: string): string {
     : cleaned
 }
 
+
+/**
+ * Skip the billed key when the chain has already found it dead.
+ *
+ * Compression reaches for `GEMINI_API_KEY` directly rather than walking the
+ * fallback chain, so it never learns what the chain learned on turn one: the
+ * key answers `429 "Your prepayment credits are depleted"` and has been cooled
+ * down for an hour. Measured, it re-discovered that on every long turn — three
+ * sequential failures, 29.9 seconds, inside a 47-second turn whose LLM phase
+ * was 13 seconds.
+ *
+ * Reading the same cooldown the chain writes turns that into an instant skip.
+ * The deadline below is still the backstop for a key that is merely slow.
+ */
+function billedGeminiIsDead(): boolean {
+  const model = MODELS.GEMINI_LITE
+  return isCoolingDown(`GEMINI_API_KEY:${model}`) || isCoolingDown(`GEMINI_API_KEY:${MODELS.GEMINI_MAIN}`)
+}
+
 export async function maybeCompress(
   messages: Message[],
   existingSummary?: string | null
@@ -44,7 +64,7 @@ export async function maybeCompress(
   const context = toCompress.map((m) => `${m.role}: ${m.content}`).join('\n')
 
   try {
-    if (process.env.GEMINI_API_KEY) {
+    if (process.env.GEMINI_API_KEY && !billedGeminiIsDead()) {
       const client = meteredClient({ apiKey: process.env.GEMINI_API_KEY, endpoint: 'compression' })
       const res = await client.models.generateContent({
         model: MODELS.GEMINI_LITE,
