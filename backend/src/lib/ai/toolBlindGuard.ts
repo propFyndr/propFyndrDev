@@ -175,6 +175,33 @@ export function setKnownNamesForTest(
  * it was not given — it does NOT mean the answer is good.
  */
 export async function checkToolBlindAnswer(text: string, systemPrompt: string): Promise<ToolBlindViolation[]> {
+  return runCheck(text, systemPrompt, await loadKnownNames())
+}
+
+/**
+ * The same check, without the database round-trip.
+ *
+ * Returns `null` when the name cache is cold, which means "cannot judge" and is
+ * not the same as "clean". Paragraph-level release depends on this distinction:
+ * an answer may only be shown early on a check that actually ran, so a cold
+ * cache falls back to buffering the whole answer exactly as before.
+ */
+export function checkToolBlindAnswerSync(text: string, systemPrompt: string): ToolBlindViolation[] | null {
+  const held = nameCache && Date.now() - nameCache.at < NAME_CACHE_TTL_MS ? nameCache : null
+  if (!held) return null
+  return runCheck(text, systemPrompt, held)
+}
+
+/** Fills the name cache so the sync check can run. Failure is not fatal. */
+export function warmKnownNames(): void {
+  void loadKnownNames().catch(() => {})
+}
+
+function runCheck(
+  text: string,
+  systemPrompt: string,
+  held: { projects: string[]; builders: string[]; rera: string[] } | null,
+): ToolBlindViolation[] {
   const violations: ToolBlindViolation[] = []
   const lower = text.toLowerCase()
 
@@ -185,7 +212,6 @@ export async function checkToolBlindAnswer(text: string, systemPrompt: string): 
   }
 
   const facts = extractFactsFromPrompt(systemPrompt)
-  const held = await loadKnownNames()
   const builderNames = [...facts.builders, ...(held?.builders ?? [])]
     .map(n => n.trim())
     .filter(n => n.length >= 3)

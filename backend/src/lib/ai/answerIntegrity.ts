@@ -36,7 +36,7 @@
 // provider failure does. Rewrite means the phrase is replaced in place, because
 // binning a good answer over a house-style slip is the more expensive error.
 
-import { checkToolBlindAnswer, type ToolBlindViolation } from './toolBlindGuard'
+import { checkToolBlindAnswer, checkToolBlindAnswerSync, type ToolBlindViolation } from './toolBlindGuard'
 
 export type IntegrityKind =
   | 'fabrication'
@@ -310,6 +310,28 @@ function scan(text: string, table: Array<[RegExp, string]>, kind: IntegrityKind)
  * point. A leg that CAN look something up and invents it anyway is worse than
  * one that cannot, not better.
  */
+/**
+ * The same gate, without the database round-trip.
+ *
+ * Returns `null` for "cannot judge" - the known-name cache is cold, so the
+ * fabrication half never ran. A caller releasing text early must treat that as
+ * a reason to keep buffering, never as a pass.
+ */
+export function checkAnswerIntegritySync(text: string, prompt: string): IntegrityViolation[] | null {
+  const body = text.trim()
+  if (!body) return []
+
+  const violations: IntegrityViolation[] = [
+    ...scanDisclosure(body),
+    ...unfoundedWarnings(body, prompt),
+  ]
+  if (violations.length > 0) return violations
+
+  const fabrications = checkToolBlindAnswerSync(body, prompt)
+  if (fabrications === null) return null
+  return fabrications.map((f) => ({ kind: 'fabrication' as const, detail: `${f.kind}(${f.detail})` }))
+}
+
 export async function checkAnswerIntegrity(
   text: string,
   prompt: string,

@@ -1,6 +1,15 @@
 // backend/src/lib/ai/fallbackChain.ts
 import { FALLBACK_CHAIN, FallbackKeyConfig, isFreeTierKey, vendorOf } from '../config'
-import { checkAnswerIntegrity, rewriteFraming } from './answerIntegrity'
+import { checkAnswerIntegrity, checkAnswerIntegritySync, rewriteFraming } from './answerIntegrity'
+import { warmKnownNames } from './toolBlindGuard'
+
+/**
+ * Release each gated paragraph as it finishes instead of the whole answer at
+ * the end. Env-gated so a corpus run can measure both without a rebuild;
+ * default on, because the blank screen it removes is on the turns that matter
+ * most.
+ */
+const PARAGRAPH_STREAMING = process.env.PARAGRAPH_STREAMING !== 'false'
 import { streamWithGemini } from './gemini'
 import { streamWithOpenAI } from './openai'
 import { streamWithGroq } from './groq'
@@ -163,11 +172,37 @@ const STREAM_TAIL_HOLD_CHARS = Number(process.env.STREAM_TAIL_HOLD_CHARS ?? 180)
  */
 const TURN_BUDGET_MS = Number(process.env.FALLBACK_TURN_BUDGET_MS ?? 30_000)
 
+/**
+ * How the answer reaches the buyer while still being gated.
+ *
+ * Full buffering was the price of the integrity gate: the whole answer has to
+ * be in hand and unsent for a fabrication to be discarded and the turn rolled
+ * to the next leg. Measured, that gate fires on about 4% of turns - and the
+ * other 96% paid a blank screen for a recovery they never used. On advisory
+ * and comparison turns, which carry their reasoning in prose and have no cards
+ * or table to stream first, that blank screen is five to twenty seconds.
+ *
+ * A paragraph is the unit because every violation class measured in production
+ * is contained in one: an invented project name, a registration number, the
+ * prompt's scaffolding read aloud, a count of what we hold, an opaque score.
+ * None of them span a blank line.
+ *
+ * What this trades is recovery, not detection. Before the first paragraph
+ * leaves, the whole answer is still ours and a violation rolls legs exactly as
+ * before. After it leaves, a violation in a later paragraph stops the answer
+ * where it stands rather than silently replacing it - the buyer sees a short
+ * answer instead of a wrong one, which is the stated preference.
+ *
+ * The check must actually have run. `checkAnswerIntegritySync` returns null
+ * when the known-name cache is cold, and null holds the paragraph back; a
+ * guard that could not read the database must not wave text through.
+ */
 function createBufferedSend(
   originalSend: SendFn,
   systemPrompt: string,
   bufferLimit = STREAM_BUFFER_CHARS,
   suppressTables = false,
+  releaseByParagraph = false,
 ) {
   // Sits between the buffer and the client, so it sees whole chunks and can
   // reassemble the lines a table is made of.
@@ -181,6 +216,10 @@ function createBufferedSend(
   let buffer = ''
   let flushed = false
   let tokensSent = false
+  /** Everything already forwarded, so each gate call sees the whole answer. */
+  let releasedText = ''
+  /** A violation was found after text had already left. Send no more. */
+  let poisoned = false
   // Post-flush tail. Everything after the prefix buffer lands here first and
   // only the excess beyond STREAM_TAIL_HOLD_CHARS is forwarded, so the answer's
   // last ~180 characters are still ours to edit when the stream ends.
@@ -220,11 +259,64 @@ function createBufferedSend(
 
     buffer += data.token
 
+    if (releaseByParagraph) {
+      releaseCompleteParagraphs()
+      return
+    }
+
     // Length only. The newline trigger that used to sit here closed the
     // failover window on the first line of every markdown answer.
     if (buffer.length >= bufferLimit) {
       validateAndFlush()
     }
+  }
+
+  /**
+   * Forward every paragraph that is finished and clean, keeping the last.
+   *
+   * The final partial paragraph is never released here, so `endCleanly` still
+   * has something to trim at the end - which is what repairs an answer cut off
+   * by its reply ceiling, the truncation half of this file's job.
+   */
+  function releaseCompleteParagraphs() {
+    if (poisoned) return
+    let cut = buffer.lastIndexOf('\n\n')
+    if (cut < 0) return
+
+    const complete = buffer.slice(0, cut + 2)
+    const verdict = checkAnswerIntegritySync(releasedText + complete, systemPrompt)
+    // null is "cannot judge", not "clean" - hold, and the end-of-stream gate
+    // will make the call with the database available.
+    if (verdict === null) return
+    if (verdict.length > 0) {
+      // Nothing has left yet, so the turn can still roll to another leg. Say
+      // nothing and let the end-of-stream gate throw with the full answer.
+      if (!tokensSent) return
+      poisoned = true
+      console.warn(
+        '[FALLBACK:INTEGRITY_MIDSTREAM] stopping the answer where it stands: ' +
+        verdict.map(v => `${v.kind}(${v.detail})`).join(', '),
+      )
+      return
+    }
+
+    buffer = buffer.slice(cut + 2)
+    releasedText += complete
+    flushed = true
+    tokensSent = true
+    /**
+     * Gated on the raw words, forwarded in house style.
+     *
+     * The scan above reads what the model actually wrote, so a rewrite can
+     * never file the edge off the phrase the scan exists to catch - the same
+     * ordering the end-of-stream path uses, and there is a test pinning it.
+     * The rewrite has to happen HERE rather than at the end, because by then
+     * this paragraph has already been read: `replaceBufferedText` is a no-op
+     * once anything has left. Per-paragraph rewriting reaches the same result
+     * as rewriting the whole answer, so the screen, the transcript and the
+     * cache still agree.
+     */
+    forwardToken(rewriteFraming(complete).text)
   }
 
   /**
@@ -237,6 +329,32 @@ function createBufferedSend(
    * can reach a different cut, and then the three disagree.
    */
   const flushRemaining = (): { trimmedChars: number } => {
+    // A mid-stream violation ends the answer where it stands. The tail is
+    // dropped rather than repaired: it is the part the gate objected to.
+    if (poisoned) {
+      const dropped = buffer.length
+      buffer = ''
+      endStripper()
+      return { trimmedChars: dropped }
+    }
+
+    if (releaseByParagraph && flushed) {
+      // The held partial paragraph is the only thing left, and it is where a
+      // reply ceiling cuts, so it gets the same end repair the tail used to.
+      let trimmed = 0
+      if (buffer.length > 0) {
+        const cleaned = endCleanly(buffer, { maxTrimChars: buffer.length })
+        trimmed = buffer.length - cleaned.length
+        if (trimmed > 0) {
+          console.log(`[CHAT:TRUNCATED_TAIL] dropped ${trimmed} dangling chars before they reached the buyer`)
+        }
+        if (cleaned.length > 0) forwardToken(cleaned)
+        buffer = ''
+      }
+      endStripper()
+      return { trimmedChars: trimmed }
+    }
+
     if (!flushed && buffer.length > 0) {
       // Nothing has left for the client yet, so the whole answer is still
       // editable — the prefix buffer held it all, which happens on short
@@ -413,16 +531,35 @@ export async function executeWithFallbackChain(options: FallbackChainOptions): P
      * **Supertech Limited**", and no guard ran, because the leg had tools.
      * Having a tool is not the same as using it.
      *
-     * So the whole answer is held until `checkAnswerIntegrity` has read it. The
-     * cost is time-to-first-token on every leg; the buyer sees a thinking
-     * indicator for a second or two longer and then the complete answer. Two
-     * things come free with it: `endCleanly` now runs on the full text rather
-     * than only on a prefix that happened to fit the buffer, which is the
-     * mid-sentence ending that showed up in every corpus run measured; and the
-     * screen, the transcript and the cache are built from one identical string.
+     * So the whole answer is held until `checkAnswerIntegrity` has read it.
+     *
+     * "A second or two" was optimistic, and the measurement says so: advisory
+     * and comparison turns run on the smart model with the largest reply
+     * ceiling and have no cards or rendered table to stream ahead of the prose,
+     * so the buyer watches an empty screen for five to twenty seconds and then
+     * receives everything at once. That is the whole answer arriving as a
+     * block, which is the opposite of how every assistant these buyers already
+     * use behaves.
+     *
+     * `releaseByParagraph` keeps the gate and gives back the streaming: each
+     * finished paragraph is checked and forwarded, the last partial one is
+     * held so `endCleanly` still has something to repair, and a violation
+     * before anything has left still rolls the turn to the next leg. See
+     * `createBufferedSend` for what that trades.
+     *
+     * `warmKnownNames` matters here: the sync check refuses to judge on a cold
+     * cache, so without it the first turn after a restart would buffer whole
+     * and look like a regression rather than a cold start.
      */
     const bufferLimit = Number.MAX_SAFE_INTEGER
-    const { bufferedSend, getTokensSent, flushRemaining, replaceBufferedText } = createBufferedSend(send, effectivePrompt, bufferLimit, options.suppressTables === true)
+    warmKnownNames()
+    const { bufferedSend, getTokensSent, flushRemaining, replaceBufferedText } = createBufferedSend(
+      send,
+      effectivePrompt,
+      bufferLimit,
+      options.suppressTables === true,
+      PARAGRAPH_STREAMING,
+    )
 
     const effectiveConfig = options.config || { maxTokens: 3000 }
     // Gemini ignores its FALLBACK_CHAIN item.model unless we thread it through here — without
