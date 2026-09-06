@@ -2580,3 +2580,76 @@ integrity gate on every leg, deterministic extraction the model cannot overrule,
 whole-word sector matching, opaque scores unreachable. The residual risk is a
 fabricated name carrying neither a place word nor a known builder, which the
 guard documents as a deliberate ceiling.
+
+## 6 Sep 2026 — hardcoded answers, the fallback card, and unit symmetry
+
+### 19. "sectors 1 and 2" matched nothing at all
+
+`\bsector\s*` requires whitespace after "sector", so every PLURAL phrasing
+extracted ZERO sectors — "sectors 1 and 2", "compare sectors 75 and 78",
+"which is better sectors 137 or 150". The turn then fell through to whatever
+sticky state it had. Reported from live use, reproduced exactly.
+
+Fixed, and generalised while there: the word carries across a whole LIST, not
+just one neighbour. "sectors 150, 137 and 128" resolves all three. That is the
+same convention that already made "1 crore and 2 crores" a band and "2 and 3
+BHK" two configurations — sectors were the one place it was not applied. A list
+still stops at an item carrying its own unit, so "sector 150 and 2 crore" is one
+sector and a budget.
+
+### 20. The outage notice was pushing an unrelated project card
+
+On total chain failure the code reached for `projects[0]` — whatever retrieval
+happened to return — and wrote "Here are the verified details for **X** in Y:
+Price range is Z. Please review the property card." Nothing about it was
+verified: every leg had just failed, so no model had read the question. There
+was also a payment-plan variant inventing a paragraph about "flexible payment
+structures including CLP and Down Payment" for a project nobody had looked up.
+
+A failed turn now names nothing, and carries `degraded: true` so callers
+suppress the card behind it.
+
+### 21. Two hardcoded branches deleted, one rewritten
+
+`citywideQuery.ts` is a wall of hand-written answers. Three were indefensible:
+
+* **Builder reputation** — a table of four developers with invented labels
+  ("Godrej Properties | Corporate Governance / Tier 1", "ATS Infrastructure |
+  Renowned Architectural Design") under the heading "Based on delivery track
+  records, construction quality ratings, and RERA compliance". Not one row
+  behind any of it, and the prompt forbids the model from doing this on the same
+  turn. Deleted — `builderReputationHandler` already answers from rows and sat
+  one position below, shadowed.
+* **Investment allocation** — asserted "12% – 15% p.a." CAGR, recommended Godrej
+  and ATS by name, and **crashed**: a missing `+` between two template literals
+  made it a tagged template, so every "where should I invest" turn threw
+  `TypeError: budget is not a function`. TypeScript does not flag that shape and
+  no test covered it. Deleted (investment analysis is out of V1 scope anyway).
+* **Commercial retail** — four projects we hold no rows for, each with an
+  asserted rental yield. Commercial property is out of V1 scope. Deleted.
+* **UC vs RTM** — kept, percentages stripped. The question is a real one and the
+  GST content is statutory; only the invented CAGR and yield rows went.
+
+**The lesson that cost a live regression:** deleting a branch from a wall of
+`if`s left its trigger still claimed by `matches` and answered by nobody —
+"Which builders in Noida have the best on-time delivery?" came back COMPLETELY
+EMPTY, `[CHAT:TOPIC_LANE_CLOSED]` with zero bytes sent. `citywideQueryHandler`
+now returns `false` when no branch matches, so the next handler gets the turn.
+
+`hardcodedClaims.test.ts` pins the class: no reply string may assert a projected
+return, none may grade a named developer, and the count of hardcoded brand lines
+cannot rise above 17.
+
+### 22. The integrity guard missed the model reading its rulebook aloud
+
+"sectors 1 and 2" produced: *"The user simply said... Wait, looking at the
+rules: - **One question max.**"* The `the user (asks|said)` pattern was too
+tight for "the user **simply** said", and nothing covered rule recitation.
+Both added; live, the guard now discards that answer and the next leg replies
+"I found Sectors 1 and 2 across Greater Noida West and Greater Noida. Which city
+are you looking in?"
+
+### 23. `heuristicIsSufficient` removed
+
+Superseded by `deterministicCoversMessage`. Deleted rather than left dormant —
+a dead gate reads like a live one to whoever edits next.

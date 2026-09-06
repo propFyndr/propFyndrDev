@@ -67,6 +67,14 @@ export interface FallbackChainResult {
   model: string
   envKey: string
   is_verified: boolean // true if from verified database, false if from AI provider
+  /**
+   * Every leg failed and this is the outage notice, not an answer.
+   *
+   * Callers must not decorate it — no property card, no "review the card" chip,
+   * nothing implying we looked something up. The text names no project for the
+   * same reason.
+   */
+  degraded?: boolean
 }
 
 import { validateAgainstFactsSync } from './guardrails-v2'
@@ -592,21 +600,34 @@ export async function executeWithFallbackChain(options: FallbackChainOptions): P
   console.error('[FALLBACK:EXHAUSTED] All fallback chain providers exhausted or misconfigured')
   console.error(`[FALLBACK:EXHAUSTED] Total providers tried: ${chainConfig.length}, context: ${messages.length} messages`)
 
-  let fallbackMessage = ''
-  if (projects.length > 0) {
-    const p = projects[0]
-    if (userMessage.toLowerCase().includes('payment') || userMessage.toLowerCase().includes('plan')) {
-      fallbackMessage = `Payment plan details for **${p.name}** are available on request. Flexible payment structures (including CLP and Down Payment) can be configured with our team. Connect with our PropFyndr team via **Book Site Visit** for custom payment slabs.\n\n*(Note: Our AI services are currently experiencing high traffic or are out of service. Please try your request again shortly or connect directly with our sales team.)*`
-    } else {
-      fallbackMessage = `Here are the verified details for **${p.name}** in ${p.sector}: Price range is ${p.price_range_label || 'available on request'}. Please review the property card.\n\n*(Note: Our AI services are currently experiencing high traffic or are out of service. Please try your request again shortly or connect directly with our team.)*`
-    }
-  } else {
-    fallbackMessage = 'Our AI services are currently experiencing high traffic or are out of service. Please check back shortly or connect with our PropFyndr team directly via **Book Site Visit** or **Callback**.'
-  }
+  /**
+   * A failed turn names nothing.
+   *
+   * This used to reach for `projects[0]` — whatever retrieval happened to
+   * return — and write "Here are the verified details for **X** in Y: Price
+   * range is Z. Please review the property card." Nothing about that was
+   * verified: every leg had just failed, so no model had read the question, and
+   * `projects[0]` is only related to the buyer's message if retrieval happened
+   * to be about it. Reported from live use as an unrelated card appearing
+   * during an outage, and that is exactly the mechanism — the outage notice
+   * promoted an arbitrary row into the answer and pointed at its card.
+   *
+   * There is also a payment-plan variant that invented a whole paragraph about
+   * "flexible payment structures including CLP and Down Payment" for a project
+   * whose payment plans nobody had looked up. On the one path where we know we
+   * have no answer, asserting a fact is the worst available option.
+   *
+   * So: say we could not answer, offer the humans, name nothing.
+   */
+  const fallbackMessage =
+    "I couldn't get you a reliable answer just now — our AI service is briefly unavailable, " +
+    "and I'd rather say so than guess.\n\n" +
+    'Ask me again in a moment, or use **Book Site Visit** or **Callback** and our advisory team ' +
+    'will pick it up directly.'
 
   send('token', { token: fallbackMessage })
   // `is_verified: false`. Every leg failed; nothing about this reply was verified
   // against anything, and the flag travels — it is what made the answer cache log
   // an outage notice as a "verified advisory response" when it stored one.
-  return { text: fallbackMessage, provider: 'database', model: 'fallback', envKey: 'FALLBACK_MODE', is_verified: false }
+  return { text: fallbackMessage, provider: 'database', model: 'fallback', envKey: 'FALLBACK_MODE', is_verified: false, degraded: true }
 }

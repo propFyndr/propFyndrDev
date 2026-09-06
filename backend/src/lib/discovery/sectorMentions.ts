@@ -30,8 +30,13 @@ export function extractSectorMentions(msg: string, knownSectorNumbers: Iterable<
   const normalized = String(msg ?? '').toLowerCase()
   const found = new Set<string>()
 
-  // 1. Explicit "sector N".
-  for (const m of normalized.matchAll(/\bsector\s*(\d+[a-z]?)\b/gi)) {
+  // 1. Explicit "sector N" — and "sectorS N", which matched nothing at all.
+  //
+  // `\bsector\s*` requires whitespace after "sector", so the plural form failed
+  // outright: "sectors 1 and 2" and "compare sectors 75 and 78" both extracted
+  // ZERO sectors, and the turn fell through to whatever sticky state it had.
+  // Reported from live use, reproduced exactly.
+  for (const m of normalized.matchAll(/\bsectors?\s*(\d+[a-z]?)\b/gi)) {
     found.add(`Sector ${m[1]}`)
   }
 
@@ -56,13 +61,31 @@ export function extractSectorMentions(msg: string, knownSectorNumbers: Iterable<
     return seen
   }
 
-  // 2. "sector 76 vs 75" — the second number inherits the word "sector".
-  const relative = normalized.match(
-    /\bsector\s*(\d+[a-z]?)\s*(?:vs\.?|versus|with|and|or|compared to|to)\s*(?:sector\s*)?(\d+[a-z]?)\b/i,
+  /**
+   * 2. The word "sector" carries across a whole list, not just one neighbour.
+   *
+   * "Sector 76 vs 75" was handled as a special case for exactly two numbers,
+   * which left "sectors 150, 137 and 128" extracting only the first. The unit
+   * a buyer states once governs every item in the run — the same convention
+   * that makes "1 crore and 2 crores" a band and "2 and 3 BHK" two
+   * configurations. Sectors were the one place it was not applied.
+   *
+   * Each continuation is still checked for a unit of its own, so "sector 150
+   * and 2 crore" adds Sector 150 and stops.
+   */
+  const LIST_JOINER = String.raw`\s*(?:,|&|vs\.?|versus|with|and|or|to|compared\s+to)\s*`
+  const listRun = new RegExp(
+    String.raw`\bsectors?\s*(\d+[a-z]?)((?:${LIST_JOINER}(?:sectors?\s*)?\d+[a-z]?)+)`,
+    'gi',
   )
-  if (relative && !carriesUnit(relative[2], relative.index ?? 0)) {
-    found.add(`Sector ${relative[1]}`)
-    found.add(`Sector ${relative[2]}`)
+  for (const m of normalized.matchAll(listRun)) {
+    found.add(`Sector ${m[1]}`)
+    const tail = m[2] ?? ''
+    const from = (m.index ?? 0) + m[1].length
+    for (const item of tail.matchAll(/(\d+[a-z]?)/gi)) {
+      const num = item[1]
+      if (!carriesUnit(num, from)) found.add(`Sector ${num}`)
+    }
   }
 
   // 3. A bare number is a sector only alongside a sector we already named.

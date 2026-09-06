@@ -3661,6 +3661,9 @@ USING THE FACTS:
       const projectDataMsg = `User question: "${askedForModel.text}"\n\nVerified facts available:\n${factsJson}\n\nProvide an authoritative, clear breakdown based on these verified facts. Answer the user's specific question completely, highlighting exact figures (carpet area, super built-up area, carpet efficiency %, maintenance ₹/sqft, RERA IDs, extra charges, builder track record) wherever present.`
 
       let componentSummary = ''
+      // Survives the try/catch so the card guard below can see it: a degraded
+      // result is an outage notice and must not be decorated with a card.
+      let turnDegraded = false
       try {
         const systemMsg = `You are RealtyPal — an expert real estate advisor analyzing verified project data for Noida and Greater Noida.
 EXECUTIVE RESPONSE INSTRUCTIONS:
@@ -3668,7 +3671,7 @@ EXECUTIVE RESPONSE INSTRUCTIONS:
 2. If asked about floor plans, configurations, or carpet area efficiency: extract or calculate the ratio of carpet area to super built-up area (e.g. Carpet Area / Super Area * 100) and present carpet area, super area, and carpet efficiency percentage clearly.
 3. If asked about maintenance, extra charges, or cost sheet: state the monthly maintenance charges (e.g. ₹/sqft/month), parking, IFMS, club fees, power backup rates, GST, and stamp duty.
 4. If asked about RERA or possession date: provide the exact RERA registration number and possession timeline from the verified facts.
-5. If asked about builder credentials or delivery score: explain the key factors behind the score (on-time track record, average delay, delivered communities, and active pipeline).
+5. If asked about builder credentials or track record: give the recorded facts — on-time record, average handover delay, communities delivered, active pipeline. Never state a numeric score; we do not show one.
 6. Do NOT add meta-disclaimers or negative statements about unrequested topics (e.g. NEVER write "Please note that the provided information does not include details on payment plans or connectivity").
 7. Do NOT use emojis like 📌 or pushpins. Do NOT output raw HTML tags.
 8. ALWAYS end your response with an intelligent, context-aware follow-up question offering the logical next step (e.g. asking if they want to view payment plans, check another configuration, or explore site visit options).`
@@ -3685,6 +3688,7 @@ EXECUTIVE RESPONSE INSTRUCTIONS:
           config: { maxTokens: 1500, tools: false },
         })
         componentSummary = fallbackResult.text
+        turnDegraded = fallbackResult.degraded === true
       } catch (err) {
         console.warn('[CHAT:PROJECT_DETAIL:LLM_ERROR]', (err as Error).message)
         // Track LLM error (Phase 11)
@@ -3768,13 +3772,18 @@ EXECUTIVE RESPONSE INSTRUCTIONS:
         }
       })
 
-      if (matchedCardProject) {
+      // No card behind an outage notice. `degraded` means every provider
+      // failed and the reply names nothing; attaching a project card to it is
+      // how an unrelated project ends up on screen during a service failure.
+      if (matchedCardProject && !turnDegraded) {
         send('properties', {
           exactResults: [matchedCardProject],
           nearbyResults: [],
           expansion: null,
           renderTarget: 'cards'
         })
+      } else if (matchedCardProject) {
+        console.log('[CHAT:CARD_SUPPRESSED] degraded turn — not rendering a card behind an outage notice')
       }
       
       // Re-emit ui_state to populate chips AFTER the component response

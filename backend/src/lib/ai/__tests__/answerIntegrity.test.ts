@@ -102,3 +102,29 @@ test('a reframed denial is still caught — the rewrite must not launder it', ()
   const v = scanDisclosure('Our verified data currently contains details for only one project, Samridhi Daksh Avenue.')
   assert.ok(v.length > 0, 'reframed denial slipped through')
 })
+
+test('the model reading its own rulebook aloud is discarded', () => {
+  // Measured live on "sectors 1 and 2". The tight `the user (asks|said)`
+  // pattern missed "The user simply said", and nothing at all covered the
+  // model reciting prompt rules as bullets to the buyer.
+  const leaked = [
+    'The user simply said "sectors 1 and 2". Since no search was run this turn, I need to ask a clarifying question.',
+    'Wait, looking at the rules:\n- **One question max.** Ask for the single thing that changes what we show next.',
+    '- **No search was run this turn.** Do not say a sector is absent or not tracked.',
+    'The user mentioned Sector 150, so per the rules I should show projects.',
+  ]
+  for (const text of leaked) {
+    assert.ok(scanDisclosure(text).length > 0, `slipped through: ${text.slice(0, 60)}`)
+  }
+})
+
+test('ordinary advisory prose about a buyer is not a meta-leak', () => {
+  // "Wait" mid-sentence, and talking ABOUT the buyer's situation, are fine.
+  for (const text of [
+    'Sector 150 suits a buyer who can wait for possession and wants low density.',
+    'If you would rather not wait two years, Sector 137 is ready to move today.',
+    'Buyers in this band usually weigh the metro against the extra carpet area.',
+  ]) {
+    assert.deepEqual(scanDisclosure(text), [], `honest prose flagged: ${text.slice(0, 60)}`)
+  }
+})

@@ -47,3 +47,31 @@ test('a budget beside a real sector does not become a second sector', () => {
     ['Sector 150'],
   )
 })
+
+test('the plural form resolves — it used to extract nothing at all', () => {
+  // Reported from live use. `\bsector\s*` requires whitespace after "sector",
+  // so every plural phrasing matched zero sectors and the turn fell through to
+  // whatever sticky state it had.
+  assert.deepEqual(extractSectorMentions('sectors 1 and 2', HELD).sort(), ['Sector 1', 'Sector 2'])
+  assert.deepEqual(extractSectorMentions('compare sectors 75 and 78', HELD).sort(), ['Sector 75', 'Sector 78'])
+  assert.deepEqual(extractSectorMentions('which is better sectors 137 or 150', HELD).sort(), ['Sector 137', 'Sector 150'])
+})
+
+test('the word carries across a whole list, not just one neighbour', () => {
+  // The same convention that makes "1 crore and 2 crores" a band and
+  // "2 and 3 BHK" two configurations: a unit stated once governs the run.
+  assert.deepEqual(
+    extractSectorMentions('flats in sectors 150, 137 and 128', HELD).sort(),
+    ['Sector 128', 'Sector 137', 'Sector 150'],
+  )
+  assert.deepEqual(
+    extractSectorMentions('sector 75, 76 or 78', HELD).sort(),
+    ['Sector 75', 'Sector 76', 'Sector 78'],
+  )
+})
+
+test('a list stops at an item carrying its own unit', () => {
+  // "sector 150 and 2 crore" is one sector and a budget, not two sectors.
+  assert.deepEqual(extractSectorMentions('sector 150 and 2 crore', HELD), ['Sector 150'])
+  assert.deepEqual(extractSectorMentions('sector 137 and 3 BHK', HELD), ['Sector 137'])
+})

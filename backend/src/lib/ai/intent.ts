@@ -282,41 +282,6 @@ import { isKeyFailed, markKeyFailed } from './providerStatus'
 
 import { GoogleGenAI } from '@google/genai'
 
-/**
- * True when regex extraction is as good as the model on this message, so the
- * LLM round trip buys nothing.
- *
- * Intent extraction runs to completion before the answering call starts, and it
- * measures p50 3.4s / p90 6.7s — a fifth to a third of total turn latency,
- * spent in front of the buyer. Most of what it is asked to parse is a keyword
- * phrase: "2 bhk in sector 75 noida", "property rates in noida extension".
- * There is no ambiguity in those for a model to resolve.
- *
- * The bar is deliberately conservative, because everything the heuristic cannot
- * see — a second constraint, a comparison, a stated life situation — is exactly
- * what makes an answer good. A message qualifies only if it is short, has a
- * single clause, and yielded at least one hard field. Anything else pays for
- * the model.
- */
-function heuristicIsSufficient(message: string, extracted: Intent, previous: Intent): boolean {
-  const words = message.trim().split(/\s+/).length
-  if (words > 10) return false
-
-  // Multi-clause, comparative or conversational phrasing needs the model:
-  // commas and "vs" carry constraints the regexes above do not look for, and a
-  // follow-up ("make that 2 crore") is only meaningful against previous intent.
-  if (/[,;?]|\bvs\b|\bversus\b|\bcompare\b|\bor\b|\band\b|\bbut\b|\bactually\b|\binstead\b|\bwhat about\b/i.test(message)) {
-    return false
-  }
-
-  // Refinement of an existing search is the model's job — the heuristic cannot
-  // tell "show me something bigger" from a fresh query.
-  if (Object.keys(previous).length > 0) return false
-
-  const gained =
-    (extracted.bhk?.length ?? 0) > 0 || !!extracted.sector || !!extracted.budgetMax
-  return gained
-}
 
 /**
  * Words that are capitalised in a buyer's message but carry no intent.
@@ -452,10 +417,13 @@ export async function extractIntent(message: string, previousIntent: Intent): Pr
       console.log(`[INTENT:DETERMINISTIC] read outright, no model call — "${message.slice(0, 60)}"`)
       return { intent: heuristic, degraded: false }
     }
-    if (heuristicIsSufficient(message, heuristic, previousIntent)) {
-      console.log(`[INTENT:FAST_PATH] regex-only extraction for "${message.slice(0, 60)}"`)
-      return { intent: heuristic, degraded: false }
-    }
+    // `heuristicIsSufficient` used to sit here. It asked "did the regexes gain
+    // a constraint, and is the message simple enough to trust them" — two
+    // guesses stacked, and it answered no for any message with a comma, "and"
+    // or previous intent, which is most of them. `deterministicCoversMessage`
+    // above answers the question that actually matters: is anything left that
+    // only the model can read. Removed rather than left dormant; a dead gate
+    // reads like a live one to whoever edits this next.
     if (nothingToExtract(message)) {
       console.log(`[INTENT:NO_SIGNAL] skipped extraction for "${message.slice(0, 60)}"`)
       return { intent: heuristic, degraded: false }

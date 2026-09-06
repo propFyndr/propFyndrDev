@@ -156,7 +156,6 @@ export const citywideQueryHandler: ChatTopicHandler = {
       CENTRAL_SECTORS_FAMILY_FIT.test(msg) ||
       EMI_AFFORDABILITY_FEASIBILITY.test(msg) ||
       SEC150_VS_SEC128_COMPARISON.test(msg) ||
-      INVESTMENT_ALLOCATION_REGEX.test(msg) ||
       TEMPORAL_INFRA_REGEX.test(msg) ||
       RISK_GEOGRAPHY_REGEX.test(msg) ||
       PERSONAL_FINANCE_EMI_REGEX.test(msg) ||
@@ -166,10 +165,8 @@ export const citywideQueryHandler: ChatTopicHandler = {
       FAMILY_LIVABILITY_REGEX.test(msg) ||
       METRO_TRANSIT_REGEX.test(msg) ||
       SECTOR_PROS_CONS_REGEX.test(msg) ||
-      (!projectScoped && BUILDER_REPUTATION_CITYWIDE_REGEX.test(msg)) ||
       (!projectScoped && RERA_VERIFY_CITYWIDE_REGEX.test(msg)) ||
       GOLF_LUXURY_REGEX.test(msg) ||
-      COMMERCIAL_RETAIL_REGEX.test(msg) ||
       NRI_LEGAL_FEMA_REGEX.test(msg) ||
       OC_CC_TM_REGEX.test(msg) ||
       STUDENT_COLIVING_REGEX.test(msg) ||
@@ -749,48 +746,29 @@ export const citywideQueryHandler: ChatTopicHandler = {
     }
 
     // ── 10. Investment Budget Allocation & Capital Growth ─────────────────────────
-    if (INVESTMENT_ALLOCATION_REGEX.test(msgLower)) {
-      const budget = ctx.intent?.budgetMax ? `₹${ctx.intent.budgetMax} Cr` : '₹1 Cr'
-
-      const replyText = `### Real Estate Investment Strategy: ${budget} Capital Allocation\n\n` +
-        `Allocating **${budget}** in the Noida & Greater Noida real estate market for a 5-year horizon provides strong risk-adjusted returns when structured across key growth corridors:\n\n` +
-        `#### Recommended Allocation Matrix (${budget} Capital)\n\n` +
-        `| Asset Class / Corridor | Target Sectors | Rental Yield | 5-Year Capital CAGR | Risk Profile & Trade-Off |\n` +
-        `| :--- | :--- | :--- | :--- | :--- |\n` +
-        `| **Expressway Sports City (High Growth)** | **Sector 150 / 152** | 3.5% – 4.0% | 12% – 15% p.a. | Under-construction timelines; pick top RERA-compliant builders (Godrej, ATS). |\n` +
-        `| **Established Central Belts (Low Risk)** | **Sector 75 / 76 / 137** | 3.8% – 4.5% | 8% – 10% p.a. | Mature market with stable rental occupancy & functional metro. |\n` +
-        `| **Greater Noida West (Value Appreciation)** | **Sector 10 / Techzone 4** | 4.2% – 5.0% | 10% – 14% p.a. | Rapidly expanding corridor; high overall inventory choices. |\n\n` +
-        `#### Key Strategic Insights:\n` +
-        `1. **For Steady Cash Flow & Immediate Rent**: Focus on ready-to-move 2/3 BHK units near Metro stations in Sector 137 or Sector 75.\n` +
-        `2. **For Maximum 5-Year Appreciation**: Allocate into RERA-compliant under-construction 3 BHK units along Sector 150 / Sector 152 Expressway.\n\n` +
-        `*Would you like to compare specific project cost sheets or analyze historical price growth trends in Sector 150 vs Noida Extension?*`
-
-      const chips = [
-        {
-          id: `chip_inv_sec150_${Date.now()}`,
-          actionType: 'TEXT_MESSAGE',
-          label: 'Sector 150 Growth Projects',
-          icon: 'trending-up',
-          analyticsId: 'chip_sec150_growth',
-          priority: 1,
-          payload: { text: 'Show top investment projects in Sector 150 Noida' },
-        },
-        {
-          id: `chip_inv_gnw_${Date.now()}`,
-          actionType: 'TEXT_MESSAGE',
-          label: 'Noida Extension Value Units',
-          icon: 'building',
-          analyticsId: 'chip_gnw_investment',
-          priority: 2,
-          payload: { text: 'Show best 3 BHK investment projects under 1 crore in Noida Extension' },
-        },
-      ]
-
-      ctx.send('token', { token: replyText })
-      ctx.emitUiState({ stage: 'DISCOVERY', thinking: `Calculated ${budget} real estate investment allocation strategy`, chips })
-      ctx.send('done', { sessionId: ctx.sessionId, intentState: 'GATHERING', intent: ctx.intent })
-      return
-    }
+    /**
+     * ── 10. Investment allocation — deleted ─────────────────────────────────
+     *
+     * Three reasons, any one of which is sufficient.
+     *
+     * It CRASHED. Line 756 ended a template literal and the next line opened
+     * another with no `+` between them, which JavaScript reads as a tagged
+     * template — so the branch threw `TypeError: budget is not a function` for
+     * every buyer who asked "where should I invest". TypeScript does not flag
+     * it and no test covered it.
+     *
+     * It fabricated returns. The table asserted "12% – 15% p.a." capital CAGR
+     * and rental yields per corridor, none of it from a row. `guardrails.ts`
+     * blocks the model from writing exactly those claims; this was our own
+     * string, so nothing checked it. It also named Godrej and ATS as the
+     * builders to pick, which BUILDER DATA RULES forbid.
+     *
+     * And it is out of scope. CLAUDE.md lists "Investment analysis" under
+     * Explicitly Out Of Scope for V1.
+     *
+     * "Where should I invest" now falls through to the ordinary advisory path,
+     * which answers from rows and the rendered market tables.
+     */
 
     // ── 11. Average Property Price per Sq Ft Inquiries ────────────────────────────
     if (AVERAGE_PRICE_REGEX.test(msgLower)) {
@@ -965,44 +943,29 @@ export const citywideQueryHandler: ChatTopicHandler = {
       return
     }
 
-    // ── 15. Builder Reputation & Track Record ──────────────────────────────────────
-    if (BUILDER_REPUTATION_CITYWIDE_REGEX.test(msgLower)) {
-      const replyText = `### Top-Rated Real Estate Developers in Noida & Greater Noida\n\n` +
-        `Based on delivery track records, construction quality ratings, and RERA compliance:\n\n` +
-        `| Developer | Market Reputation | Flagship Noida Projects | Key Strength |\n` +
-        `| :--- | :--- | :--- | :--- |\n` +
-        `| **Godrej Properties** | Corporate Governance / Tier 1 | Godrej Woods (Sec 43), Godrej Palm Retreat (Sec 150) | Timely construction execution & institutional backing. |\n` +
-        `| **Mahagun Group** | Established Luxury Pioneer | Mahagun Manorialle (Sec 128), Mahagun Medalleo (Sec 107) | Architectural quality and premium clubhouse delivery. |\n` +
-        `| **ATS Infrastructure** | Renowned Architectural Design | ATS Pristine (Sec 150), ATS Picturesque (Sec 150) | Superior floor layouts and green landscaping. |\n` +
-        `| **ACE Group** | High Delivery Track Record | ACE Parkway (Sec 150), ACE Golfshire (Sec 150) | On-time delivery reputation across central and expressway sectors. |\n\n` +
-        `*Would you like to check the RERA registration number and construction status for any specific builder?*`
-
-      const chips = [
-        {
-          id: `chip_bld_godrej_${Date.now()}`,
-          actionType: 'TEXT_MESSAGE',
-          label: 'Godrej Noida Projects',
-          icon: 'building',
-          analyticsId: 'chip_bld_godrej',
-          priority: 1,
-          payload: { text: 'Show Godrej projects in Noida' },
-        },
-        {
-          id: `chip_bld_mahagun_${Date.now()}`,
-          actionType: 'TEXT_MESSAGE',
-          label: 'Mahagun Luxury Projects',
-          icon: 'crown',
-          analyticsId: 'chip_bld_mahagun',
-          priority: 2,
-          payload: { text: 'Show Mahagun projects in Noida' },
-        },
-      ]
-
-      ctx.send('token', { token: replyText })
-      ctx.emitUiState({ stage: 'RESEARCH', thinking: 'Evaluated builder delivery track records and RERA compliance', chips })
-      ctx.send('done', { sessionId: ctx.sessionId, intentState: 'GATHERING', intent: ctx.intent })
-      return
-    }
+    /**
+     * ── 15. Builder reputation — deleted, not rewritten ──────────────────────
+     *
+     * A hardcoded table of four developers stood here, headed "Based on
+     * delivery track records, construction quality ratings, and RERA
+     * compliance" and reading "Godrej Properties | Corporate Governance / Tier
+     * 1", "ATS Infrastructure | Renowned Architectural Design". None of it came
+     * from a row. The labels were written by hand, the flagship projects were
+     * typed from memory, and the four names were an editorial ranking of the
+     * Noida market baked into a string literal.
+     *
+     * The prompt's own BUILDER DATA RULES forbid exactly this — "never rank,
+     * score, or compare builders by quality from training memory" — and this
+     * branch was the reason the rule could be obeyed by the model and broken by
+     * us on the same turn.
+     *
+     * `builderReputationHandler` already answers this question from
+     * `projects_delivered_count`, `delivered_units`, `average_delay_months` and
+     * `founded_year`, ordered by delivery record. It sits one position below
+     * `citywideQueryHandler` in the registry, so this branch was shadowing it.
+     * Removing the branch is the whole fix; the query now reaches the handler
+     * that reads rows.
+     */
 
     // ── 16. Step-by-Step UP-RERA Compliance Verification Guide ───────────────────
     if (RERA_VERIFY_CITYWIDE_REGEX.test(msgLower)) {
@@ -1087,46 +1050,22 @@ export const citywideQueryHandler: ChatTopicHandler = {
     }
 
     // ── 18. Commercial & High-Street Retail Investments ───────────────────────────
-    if (COMMERCIAL_RETAIL_REGEX.test(msgLower)) {
-      const replyText = `### Commercial Real Estate & Pre-Leased Retail in Noida\n\n` +
-        `Commercial investments in Noida offer **6.5% – 9.0% gross rental yields** with long-term lease lock-ins across prime high-street and Grade-A office hubs:\n\n` +
-        `| Commercial Project | Location | Format & Asset Class | Entry Investment | Expected Rental Yield |\n` +
-        `| :--- | :--- | :--- | :--- | :--- |\n` +
-        `| **Spectrum Metro** | **Sector 75 (Central Noida)** | High-Street Retail & Food Court | ₹35 Lakh – ₹1.5 Cr | 7.5% – 8.5% p.a. |\n` +
-        `| **Bhutani Grandthum** | **Greater Noida West** | Iconic Retail, Waterbody Dining & IT Office | ₹40 Lakh – ₹1.2 Cr | 8.0% – 9.2% p.a. |\n` +
-        `| **Paras One33** | **Sector 133 (Expressway)** | Boutique Low-Rise High Street & Anchor Stores | ₹50 Lakh – ₹2.0 Cr | 7.0% – 8.0% p.a. |\n` +
-        `| **Gulshan One29** | **Sector 129 (Expressway)** | First organized commercial hub opposite Jaypee Hospital | ₹60 Lakh – ₹2.5 Cr | 7.2% – 8.2% p.a. |\n\n` +
-        `#### Key Commercial Due Diligence Checklist:\n` +
-        `- **Lease Lock-in**: Look for 9-year leases with a 3-year hard lock-in and 15% escalation every 3 years.\n` +
-        `- **Footfall Driver**: Front-facing ground floor units and food court spaces maintain highest rental occupancy.\n\n` +
-        `*Would you like to explore pre-leased retail shops with immediate rental returns?*`
-
-      const chips = [
-        {
-          id: `chip_comm_spectrum_${Date.now()}`,
-          actionType: 'TEXT_MESSAGE',
-          label: 'Spectrum Metro Shops',
-          icon: 'tag',
-          analyticsId: 'chip_comm_spectrum',
-          priority: 1,
-          payload: { text: 'Show commercial shops in Spectrum Metro Sector 75' },
-        },
-        {
-          id: `chip_comm_bhutani_${Date.now()}`,
-          actionType: 'TEXT_MESSAGE',
-          label: 'Bhutani Grandthum Retail',
-          icon: 'building',
-          analyticsId: 'chip_comm_bhutani',
-          priority: 2,
-          payload: { text: 'Show pre-leased retail in Bhutani Grandthum' },
-        },
-      ]
-
-      ctx.send('token', { token: replyText })
-      ctx.emitUiState({ stage: 'RESEARCH', thinking: 'Calculated commercial yields and pre-leased retail options', chips })
-      ctx.send('done', { sessionId: ctx.sessionId, intentState: 'GATHERING', intent: ctx.intent })
-      return
-    }
+    /**
+     * ── 18. Commercial & retail — deleted ───────────────────────────────────
+     *
+     * CLAUDE.md lists "Commercial properties" under Explicitly Out Of Scope
+     * for V1, and this branch answered commercial questions with a table of
+     * four projects we hold no rows for, each carrying an asserted rental
+     * yield — "7.5% – 8.5% p.a.", "8.0% – 9.2% p.a." — and a headline claim of
+     * "6.5% – 9.0% gross rental yields" for the city.
+     *
+     * `guardrails.ts` blocks the MODEL from writing a percentage return. This
+     * was our own string, so it shipped unchecked, about an asset class we do
+     * not cover, naming buildings we cannot verify.
+     *
+     * A commercial question now reaches the ordinary scope handling, which
+     * says what we cover and offers the advisory team.
+     */
 
     // ── 19. NRI Real Estate, FEMA & TDS u/s 195 ──────────────────────────────────
     if (NRI_LEGAL_FEMA_REGEX.test(msgLower)) {
@@ -1378,14 +1317,21 @@ export const citywideQueryHandler: ChatTopicHandler = {
         `For purely investment-focused buyers, the choice depends on whether your priority is **immediate cash flow** or **maximum capital appreciation**:\n\n` +
         `| Evaluation Dimension | Under-Construction (UC) | Ready-to-Move (RTM) |\n` +
         `| :--- | :--- | :--- |\n` +
-        `| **Capital Appreciation (CAGR)** | **High (12% – 16% p.a.)**: Staged builder price increases across construction milestones. | **Moderate (7% – 10% p.a.)**: Stable mature baseline. |\n` +
-        `| **Cash Flow & Rental Yield** | **Zero rental income** until delivery (2–4 years gestation). | **Immediate 3.8% – 4.5% yield** from day one. |\n` +
+        // The two rows here used to read "Capital Appreciation (CAGR) | High
+        // (12% – 16% p.a.)" against "Moderate (7% – 10% p.a.)", and "Immediate
+        // 3.8% – 4.5% yield". Those figures came from nobody. `guardrails.ts`
+        // blocks the MODEL from writing a percentage return; a string literal
+        // walked straight past it, and a range that precise reads as measured.
+        // What is left says the same thing in facts we hold.
+        `| **When you can move or let it** | Not until handover — typically a 2–4 year wait. | Immediately. |\n` +
+        `| **Entry price** | Usually lower, staged across construction milestones. | Usually higher, with nothing left to wait for. |\n` +
         `| **GST & Tax Outflow** | **5% GST** on agreement value. | **0% GST** (exempt if Occupancy Certificate is issued). |\n` +
         `| **Delivery & Completion Risk** | Moderate to High; strictly demand **UP-RERA registered projects** from Tier-1 builders. | **Zero delivery risk**; inspect actual physical flat & society before buying. |\n\n` +
         `#### Strategic Verdict:\n` +
-        `- **Choose Under-Construction in Sector 150**: If you have a 3–5 year horizon and want to capture appreciation from Jewar Airport and upcoming infrastructure.\n` +
-        `- **Choose Ready-to-Move in Sector 75 / 137**: If you want instant rental yield and loan tax deductions under Section 24b immediately.\n\n` +
-        `*What is your target investment horizon and budget?*`
+        `- **Choose under-construction** if you can wait, want the lower entry price, and will do the UP-RERA and builder-handover checks properly.\n` +
+        `- **Choose ready-to-move** if you need to occupy or let it now, or want to see exactly what you are buying before paying for it.\n\n` +
+        `I have not put appreciation or rental-yield figures against either — we do not hold verified ones, and anyone quoting you a precise percentage is estimating.\n\n` +
+        `*What is your timeline for moving in?*`
 
       const chips = [
         {
@@ -1862,5 +1808,22 @@ However, **pure builder-funded Possession-Linked Plans (PLP)** — where you pay
       // is what makes payment plans dynamic — every one of those runs after
       // this handler in `CHAT_TOPIC_HANDLERS` and could never be reached.
     }
+
+    /**
+     * Nothing matched — decline, do not close the lane.
+     *
+     * `runTopicHandlers` treats `false` as "not mine, try the next one" and
+     * anything else as handled. This handler is a wall of independent `if`
+     * branches, so deleting one used to leave its trigger still claimed by
+     * `matches` and answered by nobody: measured after removing the hardcoded
+     * builder table, "Which builders in Noida have the best on-time delivery?"
+     * came back COMPLETELY EMPTY — matched here, fell through every branch,
+     * and `[CHAT:TOPIC_LANE_CLOSED]` ended the response with zero bytes sent,
+     * while `builderReputationHandler` sat one position below ready to answer
+     * it from rows.
+     *
+     * Returning false makes that impossible for the next branch anyone deletes.
+     */
+    return false
   },
 }

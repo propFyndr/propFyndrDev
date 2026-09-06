@@ -58,7 +58,20 @@ const META_LEAK: Array<[RegExp, string]> = [
   [/\b(?:verified\s+)?facts?\s+block\b/i, 'names the facts block'],
   [/\bsystem\s+(?:prompt|instruction)/i, 'names the system prompt'],
   [/\b(?:the|my)\s+(?:instructions?|prompt)\s+(?:say|says|state|states|tell|told)/i, 'quotes its instructions'],
-  [/\bthe\s+user\s+(?:asks|asked|is\s+asking|says|said|wants|wanted)\b/i, 'narrates the request in the third person'],
+  // An adverb may sit between. Measured: "The user **simply** said 'sectors 1
+  // and 2'" walked past the tight version of this pattern.
+  [/\bthe\s+user\s+(?:\w+\s+){0,2}(?:asks|asked|is\s+asking|says|said|wants|wanted|mentioned|provided)\b/i, 'narrates the request in the third person'],
+  /**
+   * The model reading its own rulebook aloud.
+   *
+   * Measured on "sectors 1 and 2": the reply opened "The user simply said…",
+   * then "Wait, looking at the rules:" and recited three of them as bullets —
+   * "**No search was run this turn.** Do not say a sector is absent",
+   * "**One question max.**" That is the prompt, verbatim, delivered to a buyer.
+   */
+  [/\b(?:looking\s+at|according\s+to|per|checking)\s+the\s+rules\b/i, 'reads its rulebook aloud'],
+  [/^\s*wait,/im, 'thinks out loud in the answer'],
+  [/\b(?:one\s+question\s+max|no\s+search\s+was\s+run\s+this\s+turn|do\s+not\s+say\s+a\s+sector\s+is\s+absent)\b/i, 'quotes a prompt rule verbatim'],
   [/\bas\s+an\s+AI\b|\blanguage\s+model\b/i, 'breaks character'],
   // "…was not provided in the database". The trailing noun is what makes this a
   // complaint about our input rather than a fact about a builder: "the builder

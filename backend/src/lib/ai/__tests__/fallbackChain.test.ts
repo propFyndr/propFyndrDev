@@ -82,10 +82,38 @@ describe('Multi-Provider Fallback Chain Engine', () => {
       chainConfig: customChain,
     })
 
-    assert.ok(result.text.includes('Our AI services are currently experiencing high traffic or are out of service'))
+    assert.ok(result.text.includes("couldn't get you a reliable answer"))
+    assert.strictEqual(result.degraded, true, 'callers need this to suppress cards and chips')
     assert.strictEqual(events.length, 1)
     assert.strictEqual(events[0].event, 'token')
-    assert.ok((events[0].data as any).token.includes('experiencing high traffic'))
+    assert.ok((events[0].data as any).token.includes('briefly unavailable'))
+  })
+
+  it('the outage notice names no project, whatever retrieval returned', async () => {
+    // It used to reach for `projects[0]` and write "Here are the verified
+    // details for **X** in Y ... Please review the property card." Nothing about
+    // that was verified — every leg had just failed, so no model had read the
+    // question — and `projects[0]` is related to the buyer's message only by
+    // accident. Reported from live use as an unrelated card appearing during an
+    // outage; this is the mechanism.
+    const events: Array<{ event: string; data: any }> = []
+    const result = await executeWithFallbackChain({
+      systemPrompt: 'Test system prompt',
+      messages: [{ role: 'user', content: 'what are the payment plans?' }],
+      send: (event, data) => events.push({ event, data }),
+      onToolCall: async () => ({}),
+      groqFallbackSuffix: '',
+      chainConfig: [
+        { provider: 'gemini', envKey: 'NON_EXISTENT_KEY_1', model: 'm', supportsTools: true, label: 'Key 1' },
+      ],
+      projects: [
+        { id: 'p1', name: 'Totally Unrelated Towers', sector: 'Sector 99', price_range_label: '₹1 Cr' },
+      ] as never,
+    })
+
+    assert.equal(/Totally Unrelated Towers/.test(result.text), false, 'named a project on a failed turn')
+    assert.equal(/property card/i.test(result.text), false, 'pointed at a card on a failed turn')
+    assert.equal(result.degraded, true)
   })
 })
 
