@@ -1,4 +1,4 @@
-import { describe, it } from 'node:test'
+import { describe, it, test } from 'node:test'
 import assert from 'node:assert/strict'
 import { endCleanly } from './endCleanly'
 
@@ -80,4 +80,49 @@ describe('endCleanly on a stream tail rather than a whole answer', () => {
     // Trimming needs 40 chars; only 5 are allowed, so the edge is kept.
     assert.equal(endCleanly(tail, { maxTrimChars: 5 }), tail)
   })
+})
+
+test('a truncated list item is dropped, not left ragged', () => {
+  // Reached a buyer verbatim in the demo replay. Neither a table row nor a
+  // sentence, so both existing branches passed it through — and there is no
+  // full stop anywhere in the text for the sentence branch to find.
+  const cut = 'Here are the verified 3 BHK options under ₹2 crore in Sector 150:\n\n- **ATS Pious Hideaways / Orchards** (₹1'
+  const out = endCleanly(cut)
+  assert.ok(!out.includes('(₹1'), `partial item survived: ${JSON.stringify(out.slice(-40))}`)
+  assert.ok(out.includes('Sector 150:'), 'dropped more than the partial item')
+})
+
+test('numbered and starred list items count too', () => {
+  // The preamble has to be substantial: `allowed()` refuses a trim that eats
+  // most of the answer, which is right — an answer that is nothing but a
+  // lead-in and half a bullet is broken whichever way it is cut.
+  const preamble =
+    'Sector 150 is Noida’s lowest-density corridor, and three projects there sit inside your budget ' +
+    'with possession before 2027. Here is how they compare on entry price and readiness.'
+  for (const marker of ['- ', '* ', '1. ', '2) ']) {
+    const cut = `${preamble}\n\n${marker}**ACE Parkway** priced from ₹1.5`
+    const out = endCleanly(cut)
+    assert.ok(!out.includes('₹1.5'), `partial "${marker}" item survived`)
+    assert.ok(out.includes('lowest-density'), `dropped the preamble for "${marker}"`)
+  }
+})
+
+test('a COMPLETE list does not get its last item eaten', () => {
+  const whole = 'Two options:\n\n- **ACE Parkway** is ready to move.\n- **Mahagun Meadows** is under construction.'
+  assert.equal(endCleanly(whole), whole)
+})
+
+test('a partial block with no marker at all is dropped', () => {
+  // The next shape the same turn produced after the bullet fix: an
+  // interpunct-separated run, cut mid-name, with no full stop anywhere for the
+  // sentence branch to find.
+  const cut = 'Here are the verified 3 BHK options under ₹2 crore in Sector 150, ranked by our own assessment of delivery record and price:\n\nATS Pious Hideaways / Orchards · Samridhi Daksh'
+  const out = endCleanly(cut)
+  assert.ok(!out.includes('Samridhi Daksh'), `partial block survived: ${JSON.stringify(out.slice(-50))}`)
+  assert.ok(out.includes('Sector 150'), 'dropped the lead-in too')
+})
+
+test('a normal closing paragraph is never eaten', () => {
+  const whole = 'Sector 150 is the greenest corridor in Noida.\n\nIt suits a buyer who can wait for possession.'
+  assert.equal(endCleanly(whole), whole)
 })

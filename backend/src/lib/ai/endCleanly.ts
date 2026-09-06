@@ -63,6 +63,52 @@ export function endCleanly(text: string, opts: EndCleanlyOptions = {}): string {
     return allowed(kept) ? kept : text
   }
 
+  /**
+   * In a list, the unit is the item — and a list item is neither a table row
+   * nor a sentence, so it used to fall through both branches untouched.
+   *
+   * Measured in the demo replay, this reached the buyer verbatim:
+   *
+   *   Here are the verified 3 BHK options under ₹2 crore in Sector 150:
+   *
+   *   - **ATS Pious Hideaways / Orchards** (₹1
+   *
+   * The sentence branch below could not help: it looks for the last ". " and
+   * there is no full stop anywhere in that text, so `lastStop <= 0` returned
+   * the string unchanged. Dropping the partial item leaves a lead-in with
+   * nothing under it, which the router already handles — a dangling colon with
+   * cards on screen is repaired there.
+   */
+  const BULLET = /^\s*(?:[-*•]\s|\d+[.)]\s)/
+  if (BULLET.test(last)) {
+    const kept = lines.slice(0, -1).join('\n').trimEnd()
+    return allowed(kept) ? kept : text
+  }
+
+  /**
+   * A partial block that is not a bullet, a row, or a sentence.
+   *
+   * The list does not always arrive with markers. Measured on the next run
+   * after the bullet fix, the same turn ended:
+   *
+   *   ...under ₹2 crore in Sector 150:
+   *
+   *   ATS Pious Hideaways / Orchards · Samridhi Daksh
+   *
+   * — an interpunct-separated run, cut mid-name. The sentence branch below
+   * cannot help because there is no full stop anywhere in the text.
+   *
+   * A blank line before the last line means it opened its own block, so
+   * dropping it cannot orphan half of a paragraph that started earlier. That
+   * is the whole condition; `allowed()` still refuses to eat most of the
+   * answer, which is what stops this from firing on a short reply whose final
+   * line is simply unpunctuated.
+   */
+  if (lines.length >= 2 && lines[lines.length - 2].trim() === '') {
+    const kept = lines.slice(0, -1).join('\n').trimEnd()
+    if (kept && allowed(kept)) return kept
+  }
+
   // Otherwise the unit is the sentence. Look for the last terminator that is
   // followed by a space or a line break, so a decimal point or an abbreviation
   // mid-number ("₹1.25") is not mistaken for the end of a sentence.

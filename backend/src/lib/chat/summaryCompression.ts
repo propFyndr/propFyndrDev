@@ -48,6 +48,14 @@ function sanitizeSummary(text: string): string {
     : cleaned
 }
 
+/**
+ * How long every topic together may take before the turn goes on without them.
+ *
+ * Three parallel calls to a lite model is normally under a second. The ceiling
+ * exists for the failure case, which is the one that was measured.
+ */
+const COMPRESSION_DEADLINE_MS = Number(process.env.COMPRESSION_DEADLINE_MS ?? 4_000)
+
 async function compressTopic(
   messages: Message[],
   topic: 'location' | 'financial' | 'timeline'
@@ -77,26 +85,15 @@ async function compressTopic(
     console.warn(`[compression] Gemini failed for ${topic}:`, (err as Error).message)
   }
 
-  try {
-    if (process.env.OPENAI_API_KEY) {
-      const client = new OpenAI({
-        apiKey: process.env.OPENAI_API_KEY,
-        baseURL: 'https://models.inference.ai.azure.com',
-      })
-      const res = await client.chat.completions.create({
-        model: MODELS.FALLBACK,
-        messages: [
-          { role: 'system', content: prompt },
-          { role: 'user', content: context },
-        ],
-        max_tokens: 120,
-        temperature: 0.1,
-      })
-      return sanitizeSummary(res.choices[0]?.message?.content?.trim() ?? '')
-    }
-  } catch (err) {
-    console.warn(`[compression] OpenAI failed for ${topic}:`, (err as Error).message)
-  }
+  /**
+   * The OpenAI fallback that stood here pointed at
+   * `models.inference.ai.azure.com` — the GitHub Models host that closed to new
+   * customers on 16 Jun 2026 and shut down on 30 Jul 2026. CLAUDE.md records
+   * that the redirect to it was removed from the main chain months ago; this
+   * copy was missed, so compression's "fallback" was a guaranteed failure
+   * sitting between a depleted Gemini key and the Groq leg below, costing a
+   * round-trip to learn nothing. Groq is the real fallback and it is next.
+   */
 
   try {
     if (process.env.GROQ_API_KEY) {

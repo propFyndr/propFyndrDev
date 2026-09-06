@@ -2715,3 +2715,65 @@ four Gemini legs failed (billed 429 "prepayment credits are depleted", free
 and NVIDIA answered after 88s of LLM time. The weak answers on those turns —
 the invented builder warnings among them — came from the same place. **The
 top-up is the fix; nothing in the code will make a fifth-choice leg good.**
+
+## 6 Sep 2026 — truncation and latency, measured
+
+### Truncation: three shapes, two fixed
+
+`endCleanly` knew a table row and a sentence. It did not know a LIST ITEM, so a
+truncated bullet reached the buyer verbatim:
+
+    Here are the verified 3 BHK options under ₹2 crore in Sector 150:
+
+    - **ATS Pious Hideaways / Orchards** (₹1
+
+The sentence branch could not help: it looks for the last ". " and there is no
+full stop anywhere in that text. Added the bullet case — and, after the next
+run produced the same cut with no marker at all ("ATS Pious Hideaways /
+Orchards · Samridhi Daksh"), a general rule: a last line preceded by a BLANK
+line opened its own block, so dropping it cannot orphan half a paragraph.
+
+**Still open, and it is not an `endCleanly` bug.** A generation cut inside its
+FIRST sentence has no clean boundary to fall back to — nothing to trim to, so
+the text is returned as-is. That only happens when a leg's stream is
+interrupted, which is the provider problem below.
+
+### Latency: the assumption was wrong twice
+
+**First wrong assumption — "tools cause the silence".** Probed directly against
+a 34k-token prompt on the free key: with the tool catalogue attached the model
+emitted 25 output tokens and `finishReason: STOP` with no text; the identical
+request without tools produced 3,815 characters. So a retry on the SAME key with
+tools off was added — and it does fire and does sometimes rescue the turn, but
+not reliably, so the premise was only half right.
+
+**Second wrong assumption — "the slow turns are provider cascades".** Turn 15
+was 39.5s of which the LLM was 7.3s. **`maybeCompress` took 27.5 seconds.** It
+reaches for `GEMINI_API_KEY` directly rather than walking the chain, so it never
+tries the free keys everything else falls back to; all three topics 429'd on the
+depleted billed key; and its "fallback" pointed at
+`models.inference.ai.azure.com`, the GitHub Models host that shut down on 30 Jul
+2026 — a guaranteed failure sitting between a dead key and the Groq leg.
+
+Compression builds summaries for the NEXT turn. It now has a 4s deadline and
+the dead host is gone. Turn 15: **39.9s → 17.8s.**
+
+Two more bounds added: a 30s turn budget that stops the chain STARTING new legs
+(never interrupts one already streaming), and an empty-vendor set — when one
+leg returns nothing for this prompt, its siblings are the same family answering
+the same prompt and are skipped.
+
+### Measured over the 15-turn replay
+
+                    before      after
+      p50            7.6s        7.8s
+      p90           32.9s       17.8s
+      max           82.9s       39.6s
+      over 15s          3           2
+      ragged            1           1
+      FALLBACK:FAIL     4           2
+
+p90 halved; the max is turn 3, a single leg taking ~35s to generate, which no
+guard can shorten. **The remaining tail is one thing: the Gemini balance.** Every
+slow turn starts with both free legs returning nothing and both billed legs
+answering `429 prepayment credits are depleted`.

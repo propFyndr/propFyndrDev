@@ -148,6 +148,21 @@ const FREE_TIER_MAX_TOKENS = Number(process.env.FREE_TIER_MAX_TOKENS ?? 2200)
  */
 const STREAM_TAIL_HOLD_CHARS = Number(process.env.STREAM_TAIL_HOLD_CHARS ?? 180)
 
+/**
+ * How long the chain may keep STARTING new providers on one turn.
+ *
+ * Nine legs is the right depth for surviving an outage and the wrong thing to
+ * walk end to end while a buyer waits. Measured across demo replays: when the
+ * two free Gemini legs return no text — which they do intermittently on a
+ * 34k-token prompt — the turn goes on to two billed Gemini legs (429,
+ * "prepayment credits are depleted"), Cohere, and two NVIDIA models before
+ * anything answers. 82.9s and 95.0s on two runs, 88s of it LLM time.
+ *
+ * A leg already streaming is never interrupted. This governs how many attempts
+ * a turn makes, not how long a working answer may take.
+ */
+const TURN_BUDGET_MS = Number(process.env.FALLBACK_TURN_BUDGET_MS ?? 30_000)
+
 function createBufferedSend(
   originalSend: SendFn,
   systemPrompt: string,
@@ -317,6 +332,10 @@ export async function executeWithFallbackChain(options: FallbackChainOptions): P
   // Computed once: it depends on the turn, not on the leg.
   const needsALookup = turnNeedsALookup(userMessage, projects.length)
 
+  const turnStartedAt = Date.now()
+  /** Vendors that produced an empty answer for THIS prompt. */
+  const emptyVendors = new Set<string>()
+
   for (const item of effectiveChainConfig) {
     // Checked before the key and the cooldown, because it is a property of the
     // question rather than of this leg's configuration.
@@ -324,6 +343,24 @@ export async function executeWithFallbackChain(options: FallbackChainOptions): P
       console.log(
         `[FALLBACK:NO_LOOKUP] ${item.label} — skipping: the answer is a list of named projects, retrieval found none, and this leg cannot fetch any`,
       )
+      continue
+    }
+
+    /**
+     * Two guards on how far one turn may walk.
+     *
+     * The deadline bounds the worst case; the empty-vendor set bounds the
+     * pointless one. When a vendor's leg returns NOTHING for this prompt, its
+     * sibling legs are the same family answering the same prompt and return
+     * nothing too — measured, both free Gemini legs, every time. Trying the
+     * second spends two round-trips to learn what the first already said.
+     */
+    if (Date.now() - turnStartedAt > TURN_BUDGET_MS) {
+      console.warn(`[FALLBACK:BUDGET] ${item.label} — not starting: ${Math.round((Date.now() - turnStartedAt) / 1000)}s already spent on this turn`)
+      continue
+    }
+    if (emptyVendors.has(vendorOf(item))) {
+      console.log(`[FALLBACK:SAME_VENDOR_EMPTY] ${item.label} — skipping: ${vendorOf(item)} already returned no text for this prompt`)
       continue
     }
 
@@ -422,6 +459,40 @@ export async function executeWithFallbackChain(options: FallbackChainOptions): P
         text = await streamWithMistral(effectivePrompt, cappedMessages, bufferedSend, apiKey, userId, sessionId, legMaxTokens)
       } else if (item.provider === 'gemini') {
         text = await streamWithGemini(effectivePrompt, cappedMessages, bufferedSend, onToolCall, geminiConfig, apiKey, userId, sessionId)
+
+        /**
+         * One retry on the SAME key with tools off, before giving up on it.
+         *
+         * Measured directly against a 34k-token prompt on the free key: with
+         * the tool catalogue attached the model emitted 25 output tokens and
+         * `finishReason: STOP` with no text at all; the identical request with
+         * tools off produced 3,815 characters. Same key, same model, same
+         * prompt — the catalogue is what silences it, intermittently, at large
+         * prompt sizes.
+         *
+         * Without this, an empty reply cost the whole chain: the turn rolled
+         * through three more Gemini legs, Cohere and two NVIDIA models before
+         * something answered — measured at 95 seconds on one replay, 88 of it
+         * LLM time. A second call to a key that has already loaded the prompt
+         * is a few seconds and usually answers.
+         *
+         * It is a strict downgrade in capability for that turn — no lookups —
+         * so it runs only when the leg produced literally nothing. A leg that
+         * answered badly is the integrity gate's problem, not this one.
+         */
+        if (!text.trim() && !getTokensSent() && geminiConfig.tools !== false) {
+          console.warn(`[FALLBACK:RETRY_NO_TOOLS] ${item.label} returned no text with tools — retrying the same key without them`)
+          text = await streamWithGemini(
+            effectivePrompt,
+            cappedMessages,
+            bufferedSend,
+            onToolCall,
+            { ...geminiConfig, tools: false },
+            apiKey,
+            userId,
+            sessionId,
+          )
+        }
       } else if (item.provider === 'openai') {
         text = await streamWithOpenAI(
           effectivePrompt,
@@ -495,6 +566,9 @@ export async function executeWithFallbackChain(options: FallbackChainOptions): P
 
       // An empty string is a failed turn, not a successful one.
       if (!text.trim() && !getTokensSent()) {
+        // Its siblings will do the same on this prompt — see the guard at the
+        // top of the loop.
+        emptyVendors.add(vendorOf(item))
         throw new Error(`${item.label} returned no text`)
       }
 
