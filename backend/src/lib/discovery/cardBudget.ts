@@ -57,9 +57,44 @@ function statedConstraints(intent: Intent): number {
 const META_QUESTION =
   /\b(what (did|have) i (ask|say|tell|said|told)|what (do|did) you (know|remember|assume) about me|what have i told you|my (first|earlier|original|previous) (budget|question|sector|requirement)|summar(y|ise|ize)|recap|remind me what|so far)\b/i
 
+/**
+ * A question whose answer is a number, not a set of buildings.
+ *
+ * The card budget derived from stated constraints answers "how many", and it
+ * fixed the nineteen-card directory dump. It does not answer "whether", and by
+ * then two constraints are usually on the intent — so "how much would the EMI
+ * be" went from nineteen cards to six, which is a smaller wrong answer.
+ *
+ * An EMI, a stamp duty figure or a GST rate is arithmetic. Cards under it are
+ * not a shortlist; they are a search result stapled to a calculator, and the
+ * buyer has to work out for themselves that the number does not describe them.
+ *
+ * Deliberately narrow: the words below cannot be an inventory ask. "What can I
+ * afford" is not here, because that question genuinely ends in a shortlist.
+ */
+const CALCULATION =
+  /\b(emi|instal?lments?|interest rate|down ?payment|stamp duty|registration (charge|fee|cost)|gst|loan (amount|tenure|eligibility)|monthly (payment|outgo))\b/i
+
+/**
+ * A question about what happens next, not about which building.
+ *
+ * "I want to visit this weekend" produced nineteen cards. The buyer had already
+ * chosen; they were asking us to arrange something. Re-showing inventory at the
+ * moment of commitment reads as a funnel, which is the thing the handoff is
+ * explicitly not supposed to feel like.
+ */
+const LOGISTICS =
+  /\b(site visit|visit (this|next|on|tomorrow|today)|book a? ?(visit|call)|call me|callback|contact (you|me|the builder)|whats ?app|paperwork|documents? (are |is )?(needed|required)|registry process)\b/i
+
 export function cardBudgetFor(intent: Intent, message = ''): CardBudget {
   if (META_QUESTION.test(message)) {
     return { limit: 0, reason: 'a question about the conversation, not about inventory' }
+  }
+  if (CALCULATION.test(message)) {
+    return { limit: 0, reason: 'the answer is a calculation, not a shortlist' }
+  }
+  if (LOGISTICS.test(message)) {
+    return { limit: 0, reason: 'the buyer is arranging a next step, not browsing' }
   }
 
   // A project in focus: the cards are that project and at most a couple of
