@@ -63,12 +63,22 @@ test('stripOpaqueScores removes every one of them', () => {
  * rank on the number.
  */
 test('no prompt or response builder prints a /100 score', () => {
+  // The file list is the weak point of a source-level check, and it proved it:
+  // `projectFacts.ts` was on it but its edit had not landed, and
+  // `discovery/multiDimQuery.ts` was not on it at all — it carried
+  // `delivery_score` under the name `builderOnTimeDeliveryPercent`, a field
+  // name asserting a unit the value does not have. The demo replay then said
+  // "Ready-to-move with a 92% builder delivery score" twice in one answer,
+  // after every other emitter had been closed.
   const files = [
     'ai/groundedAnswer.ts',
     'builders.ts',
     'projectDataGateway.ts',
     'projectFacts.ts',
     'projectFactsBlock.ts',
+    'discovery/multiDimQuery.ts',
+    'discovery/scoringEngine.ts',
+    'ai/propertyTrim.ts',
   ]
   const offenders: string[] = []
 
@@ -88,4 +98,24 @@ test('no prompt or response builder prints a /100 score', () => {
   }
 
   assert.deepEqual(offenders, [], 'an opaque score is being printed:\n  ' + offenders.join('\n  '))
+})
+
+test('no field name promises a unit the score does not have', () => {
+  // `builderOnTimeDeliveryPercent: rawProject.builder.delivery_score` is worse
+  // than exposing the raw score: the NAME tells the model it is a percentage,
+  // so it wrote "a 92% builder delivery score" with total confidence, after
+  // every other emitter had already been closed.
+  const UNIT_PROMISE = /(?:Percent|Pct|Percentage|Rating)\s*:\s*[^,]*\b(?:delivery_score|overall_score|construction_quality_score|buyer_satisfaction_score|rera_compliance_score)\b/
+  const offenders: string[] = []
+
+  for (const rel of ['discovery/multiDimQuery.ts', 'projectFacts.ts', 'ai/propertyTrim.ts', 'projectDataGateway.ts']) {
+    const src = readFileSync(join(SRC, rel), 'utf8')
+    src.split('\n').forEach((line, i) => {
+      const t = line.trimStart()
+      if (t.startsWith('//') || t.startsWith('*')) return
+      if (UNIT_PROMISE.test(line)) offenders.push(`${rel}:${i + 1}  ${t.slice(0, 90)}`)
+    })
+  }
+
+  assert.deepEqual(offenders, [], 'a field name asserts a unit its value does not carry:\n  ' + offenders.join('\n  '))
 })

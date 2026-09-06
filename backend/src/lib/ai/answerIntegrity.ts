@@ -38,7 +38,63 @@
 
 import { checkToolBlindAnswer, type ToolBlindViolation } from './toolBlindGuard'
 
-export type IntegrityKind = 'fabrication' | 'meta_leak' | 'inventory_size'
+export type IntegrityKind = 'fabrication' | 'meta_leak' | 'inventory_size' | 'unfounded_warning'
+
+/**
+ * Telling a buyer to avoid a developer we hold no legal finding against.
+ *
+ * BUILDER DATA RULES already say it: "Never name a non-flagged builder as risky
+ * — this creates defamation risk." Measured in the demo replay, a leg wrote
+ * "**Skip Antriksh and Ajnara projects** – they carry low-risk or legal flags
+ * that mean extra caution is warranted", inventing the flags as it went. That
+ * is a published statement about a real company's conduct, made up by a model
+ * that had no such field in front of it.
+ *
+ * A warning IS allowed when the prompt actually carried the grounds — a
+ * `legal_flag`, an NCLT note, or a name on the blocked list HARD RULE 6c
+ * injects. So the check is not "did it warn" but "was the warning supplied".
+ */
+const AVOID_VERB = /\b(?:avoid|skip|steer\s+clear\s+of|stay\s+away\s+from|do\s+not\s+(?:buy|consider)|don't\s+(?:buy|consider)|not\s+recommended|be\s+wary\s+of|beware)\b/i
+
+/**
+ * Capitalised runs following an avoid-verb, up to a short distance.
+ *
+ * The verb is spelled in both cases rather than carrying an `i` flag: the
+ * capture depends on `[A-Z]` to find a developer's NAME, and a case-insensitive
+ * flag applies to the whole pattern, so it would match any lowercase word and
+ * flag "avoid paying anything upfront" as a warning about a company.
+ */
+const AVOID_TARGET = /\b(?:[Aa]void|[Ss]kip|[Ss]teer\s+clear\s+of|[Ss]tay\s+away\s+from|[Bb]e\s+wary\s+of|[Bb]eware(?:\s+of)?)\b[^.\n]{0,40}?\b([A-Z][A-Za-z&.]{2,}(?:\s+[A-Z][A-Za-z&.]{2,}){0,2})/g
+
+/** Words that look like a name after "avoid" but are not a developer. */
+const NOT_A_DEVELOPER = /^(?:The|A|An|Any|All|Under|Ready|Sector|Noida|Greater|RERA|UP|GST|EMI|NCLT|Projects?|Builders?|Developers?|Properties|Buying|Paying|Making|Signing|This|That|These|Those|It|If|When|Where|What|I|We|You)$/i
+
+function unfoundedWarnings(text: string, prompt: string): IntegrityViolation[] {
+  if (!AVOID_VERB.test(text)) return []
+  const promptLower = prompt.toLowerCase()
+  const out: IntegrityViolation[] = []
+  const seen = new Set<string>()
+
+  for (const m of text.matchAll(AVOID_TARGET)) {
+    const name = m[1].trim()
+    const first = name.split(/\s+/)[0]
+    if (NOT_A_DEVELOPER.test(first)) continue
+    if (seen.has(name.toLowerCase())) continue
+    seen.add(name.toLowerCase())
+
+    // The grounds have to be in the prompt: a legal flag, an insolvency note,
+    // or the blocked list. A name appearing merely as inventory is not grounds.
+    const at = promptLower.indexOf(first.toLowerCase())
+    if (at < 0) continue // not a name the prompt supplied at all — fabrication check owns it
+    const around = promptLower.slice(Math.max(0, at - 400), at + 400)
+    const grounded =
+      /legal_flag|blocked builder|nclt|insolvenc|court proceedings|rera cancellation|receivership|never recommend/.test(around)
+    if (!grounded) {
+      out.push({ kind: 'unfounded_warning', detail: `told the buyer to avoid "${name}" with no flag in the prompt` })
+    }
+  }
+  return out
+}
 
 export interface IntegrityViolation {
   kind: IntegrityKind
@@ -107,7 +163,10 @@ const INVENTORY_SIZE: Array<[RegExp, string]> = [
   // "We hold / maintain verified data on 280 projects". Digits only: a bare
   // "we hold one project" is how our own sector-coverage reply is phrased, and
   // it is scoped to a sector rather than to the table.
-  [new RegExp(`\\b(?:we|i)\\s+(?:hold|have|track|cover|maintain|list|carry)\\s+(?:verified\\s+)?(?:data\\s+on\\s+)?${HEDGE}${DIGIT_COUNT}\\s*(?:projects?|societies|properties|sectors?|builders?|developers?|listings?)`, 'i'), 'counts our holdings'],
+  // "verified" may sit either side of the number. Measured: "We track 12
+  // verified projects in Sector 1 alone" walked past the version that only
+  // allowed it before the digit.
+  [new RegExp(`\\b(?:we|i)\\s+(?:hold|have|track|cover|maintain|list|carry)\\s+(?:verified\\s+|only\\s+)?(?:data\\s+on\\s+)?${HEDGE}${DIGIT_COUNT}\\s+(?:[\\w-]+\\s+){0,2}?(?:projects?|societies|properties|sectors?|builders?|developers?|listings?)`, 'i'), 'counts our holdings'],
   // "280 projects across 61 sectors" — the shape of the table, whoever says it.
   [new RegExp(`\\b${DIGIT_COUNT}\\s*(?:projects?|societies|properties)\\s+across\\s+${DIGIT_COUNT}\\s*(?:sectors?|micro[- ]?markets?|cities)`, 'i'), 'counts our holdings'],
   // "Our verified database currently contains details for only one project".
@@ -194,7 +253,10 @@ export async function checkAnswerIntegrity(
   const body = text.trim()
   if (!body) return []
 
-  const violations: IntegrityViolation[] = scanDisclosure(body)
+  const violations: IntegrityViolation[] = [
+    ...scanDisclosure(body),
+    ...unfoundedWarnings(body, prompt),
+  ]
 
   // Only worth the database round-trip when nothing cheaper has already failed
   // the answer — the result is the same and the check is cached, but a turn

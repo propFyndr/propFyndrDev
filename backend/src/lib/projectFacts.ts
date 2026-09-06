@@ -801,8 +801,10 @@ export async function getSectorProjects(opts: {
       price: p.price_range_label ?? null,
       bhk_available: [...new Set(p.unit_types.map(u => u.bhk))],
       possession_claimed_by_builder: p.possession_label ?? null,
-      overall_score: p.dna?.overall_score ?? null,
-      builder_delivery_score: p.builder.delivery_score ?? null,
+      // No scores. An earlier pass removed these and the edit did not land;
+      // the demo replay then produced "Ready-to-move with a 92% builder
+      // delivery score" twice in one answer. See BUYER_OPAQUE_SCORES — the
+      // ordering below still uses `overall_score`, which is the honest use.
       rera: p.rera_number ?? 'NOT_IN_DATABASE',
       project_risk_flag: p.project_risk_flag ?? null,
     })),

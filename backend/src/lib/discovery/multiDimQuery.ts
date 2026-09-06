@@ -55,7 +55,15 @@ export interface ProjectWithMetadata {
 
   // Builder data
   builderName: string
-  builderOnTimeDeliveryPercent: number | null
+  /**
+   * Removed from the buyer-facing shape.
+   *
+   * It carried `builder.delivery_score` under a name ending in "Percent",
+   * which is how "a 92% builder delivery score" reached an answer after the
+   * score had been stripped from every other emitter. A field name that
+   * asserts a unit the value does not have is worse than the raw score.
+   * See BUYER_OPAQUE_SCORES in projectExposure.ts.
+   */
   builderLitigationCount: number | null
   builderReraRegistered: boolean
 
@@ -569,7 +577,6 @@ async function assembleProjectMetadata(
     isGated,
     maintenanceCostMonthly,
     builderName: rawProject.builder.name,
-    builderOnTimeDeliveryPercent: rawProject.builder.delivery_score,
     builderLitigationCount: rawProject.builder.litigation_count,
     builderReraRegistered,
     possessionDate: rawProject.possession_date,

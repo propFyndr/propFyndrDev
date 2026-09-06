@@ -1,6 +1,10 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { rewriteFraming, scanDisclosure } from '../answerIntegrity'
+import { rewriteFraming, scanDisclosure, checkAnswerIntegrity } from '../answerIntegrity'
+import { setKnownNamesForTest } from '../toolBlindGuard'
+
+// Keep the fabrication half off the database; these cases are about warnings.
+setKnownNamesForTest({ projects: [], builders: ['Antriksh', 'Ajnara', 'Supertech Limited'] })
 
 /**
  * Every DISCARD string here was produced by the live pipeline against the real
@@ -126,5 +130,64 @@ test('ordinary advisory prose about a buyer is not a meta-leak', () => {
     'Buyers in this band usually weigh the metro against the extra carpet area.',
   ]) {
     assert.deepEqual(scanDisclosure(text), [], `honest prose flagged: ${text.slice(0, 60)}`)
+  }
+})
+
+test('a sector-scoped count of OUR holdings is still a disclosure', () => {
+  // Measured live on "sectors 1 and 2". "verified" sat between the number and
+  // the noun, which the earlier pattern did not allow. Scoping the count to a
+  // sector does not make it the buyer's business — it is still the size of our
+  // table, just sliced.
+  for (const text of [
+    'We track 12 verified projects in Sector 1 alone, with 3BHK spanning ₹1.05Cr to ₹2.45Cr.',
+    'We hold 19 verified projects in Sector 150.',
+    'I have data on 8 ready-to-move properties there.',
+  ]) {
+    assert.ok(scanDisclosure(text).length > 0, `slipped through: ${text.slice(0, 55)}`)
+  }
+})
+
+test('a count of what is ON SCREEN is still allowed', () => {
+  // The distinction that keeps this useful: counting the shortlist in front of
+  // the buyer is a fact about their screen, not about our table.
+  for (const text of [
+    'Three of these six are ready to move.',
+    'Sector 150 holds 19 projects, of which 8 are ready to move.',
+    'Two of the four you are looking at have possession before 2027.',
+  ]) {
+    assert.deepEqual(scanDisclosure(text), [], `honest count flagged: ${text.slice(0, 55)}`)
+  }
+})
+
+test('telling a buyer to avoid an unflagged developer is discarded', async () => {
+  // BUILDER DATA RULES: "Never name a non-flagged builder as risky — this
+  // creates defamation risk." Measured in the demo replay, a leg wrote "**Skip
+  // Antriksh and Ajnara projects** – they carry low-risk or legal flags",
+  // inventing the flags as it went. That is a published claim about a real
+  // company's conduct with nothing behind it.
+  const prompt = 'Verified facts: Antriksh Golf View, Sector 78. Ajnara Le Garden, Sector 16B.'
+  const v = await checkAnswerIntegrity('Skip Antriksh and Ajnara projects — they carry legal flags.', prompt)
+  assert.ok(v.some(x => x.kind === 'unfounded_warning'), `not caught: ${JSON.stringify(v)}`)
+})
+
+test('a warning the prompt actually supplied is kept', async () => {
+  // HARD RULE 6a requires disclosing a real legal_flag, so the guard must not
+  // block the disclosure it exists to protect.
+  const prompt = 'BLOCKED BUILDERS — never recommend for new purchase: **Supertech Limited** (court proceedings).'
+  const v = await checkAnswerIntegrity(
+    'I would avoid Supertech for a new purchase — the group is in court proceedings.',
+    prompt,
+  )
+  assert.equal(v.some(x => x.kind === 'unfounded_warning'), false, `honest disclosure blocked: ${JSON.stringify(v)}`)
+})
+
+test('ordinary advice to avoid a thing is not a builder warning', async () => {
+  for (const text of [
+    'Avoid paying anything before you have seen the RERA registration.',
+    'Skip the corner units if you want afternoon shade.',
+    'Be wary of any broker asking for cash outside the agreement.',
+  ]) {
+    const v = await checkAnswerIntegrity(text, 'Verified facts: nothing relevant.')
+    assert.equal(v.some(x => x.kind === 'unfounded_warning'), false, `flagged honest advice: ${text}`)
   }
 })

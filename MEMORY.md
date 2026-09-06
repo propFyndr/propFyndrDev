@@ -2653,3 +2653,65 @@ are you looking in?"
 
 Superseded by `deterministicCoversMessage`. Deleted rather than left dormant —
 a dead gate reads like a live one to whoever edits next.
+
+## 6 Sep 2026 — full 15-turn replay, three more caught
+
+Ran the original ten turns plus the five cases reported since, as one continuous
+session. 15 turns, 0 empty answers.
+
+### 24. The delivery score came back through a field NAMED as a percentage
+
+After closing seven emitters, the replay still said "Ready-to-move with a 92%
+builder delivery score" twice in one answer. Two causes:
+
+* `projectFacts.ts:805` still had `builder_delivery_score` — an earlier edit had
+  not landed and nothing caught it, because that file WAS on the guard's list
+  and the guard only looks for printing shapes, not plain assignment into a
+  facts object.
+* `multiDimQuery.ts:572` carried `builderOnTimeDeliveryPercent:
+  rawProject.builder.delivery_score` and was not on the list at all.
+
+**The second is the more interesting defect: the field NAME asserted a unit the
+value does not have.** The model read "Percent" and wrote "92%" with total
+confidence. A misleading name is worse than the raw number.
+
+`opaqueScores.test.ts` now covers three more files and has a second check for
+exactly that shape — a `*Percent`/`*Rating` key assigned a `*_score` value.
+
+### 25. A sector-scoped count is still a count
+
+"We track 12 verified projects in Sector 1 alone" walked past the inventory
+pattern, which allowed "verified" only BEFORE the digit. Scoping a count to a
+sector does not make it the buyer's business — it is the size of our table,
+sliced. Widened, with a companion test pinning that counting what is ON SCREEN
+("three of these six are ready to move") stays allowed.
+
+### 26. A leg told the buyer to avoid two developers, inventing the grounds
+
+"**Skip Antriksh and Ajnara projects** – they carry low-risk or legal flags that
+mean extra caution is warranted." Neither has a flag. BUILDER DATA RULES already
+say "never name a non-flagged builder as risky — this creates defamation risk",
+and it was a prompt rule with nothing enforcing it.
+
+`unfounded_warning` is now a discard class: an instruction to avoid a named
+developer is allowed only when the PROMPT carried the grounds — a `legal_flag`,
+an NCLT note, or a name on the blocked list. So the Supertech and Jaypee
+disclosures HARD RULE 6 requires still go through, and invented ones do not.
+
+Note for whoever edits that regex: the avoid-verb is spelled in both cases
+rather than carrying an `i` flag, because the capture needs `[A-Z]` to find a
+company name. With `i` it flagged "avoid paying anything upfront".
+
+### Where the run stands
+
+    turns 15, empty 0
+    score leaks 0, inventory-count leaks 0, unfounded warnings 0
+    extraction: 11 of 15 turns needed no model call
+    latency: 4 turns over 15s
+
+**Every slow turn traces to the same cause.** Turn 3 took 95s on one run: all
+four Gemini legs failed (billed 429 "prepayment credits are depleted", free
+"returned no text" on a 34k-token tool-enabled prompt), Cohere returned nothing,
+and NVIDIA answered after 88s of LLM time. The weak answers on those turns —
+the invented builder warnings among them — came from the same place. **The
+top-up is the fix; nothing in the code will make a fifth-choice leg good.**
