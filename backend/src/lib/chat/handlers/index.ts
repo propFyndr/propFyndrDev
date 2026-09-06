@@ -1,5 +1,4 @@
 import type { ChatTopicHandler } from '../handlerContext'
-import { citywideQueryHandler } from './citywideQuery'
 import { commuteShortlistHandler } from './commuteShortlist'
 import { builderReputationHandler } from './builderReputation'
 import { newcomerOrientationHandler } from './newcomerOrientation'
@@ -43,6 +42,21 @@ import { unitConfigurationHandler } from './unitConfiguration'
  * Still inline in chat-router.ts: builder reputation, sector orientation,
  * amenities, sector compare, payment plans, cost sheet,
  * project detail, open-query lane.
+ *
+ * Deleted, not extracted:
+ *   citywide_query      1,829 lines, 31 regex arms, second in priority. It
+ *                       claimed 75 of the 321-query corpus (23.4%) on message
+ *                       wording alone, with no context - so nearly a quarter of
+ *                       every answer this product gave was hardcoded prose that
+ *                       no guard could see. checkAnswerIntegrity runs inside
+ *                       fallbackChain and nowhere else; a handler writing its
+ *                       own strings is invisible to it by construction.
+ *                       Three of its branches had already been removed this
+ *                       week for inventing a builder league table, an
+ *                       investment CAGR, and a branch that crashed on a missing
+ *                       operator. The remaining twenty-eight were the same
+ *                       shape and unaudited. Those turns now go to the generic
+ *                       path, which reads the database and passes the gate.
  */
 export const CHAT_TOPIC_HANDLERS: readonly ChatTopicHandler[] = [
   // First, deliberately. A stated workplace is the strongest signal a turn can
@@ -50,7 +64,6 @@ export const CHAT_TOPIC_HANDLERS: readonly ChatTopicHandler[] = [
   // matches while no sector has been chosen yet, so it cannot shadow the
   // ordinary sector and project paths once the buyer has picked a belt.
   commuteShortlistHandler,
-  citywideQueryHandler,
   builderReputationHandler,
   newcomerOrientationHandler,
   vicinityLookupHandler,
@@ -69,7 +82,6 @@ export const CHAT_TOPIC_HANDLERS: readonly ChatTopicHandler[] = [
 export {
   vicinityLookupHandler,
   commuteShortlistHandler,
-  citywideQueryHandler,
   reraVerificationHandler,
   statutoryTaxHandler,
   possessionStatusHandler,

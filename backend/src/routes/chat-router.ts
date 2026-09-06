@@ -74,6 +74,7 @@ import { loadMentionedProjectCards } from '../lib/chat/mentionedProjectCards'
 import { buildUnknownProjectReply } from '../lib/chat/unknownProject'
 import { substitutePointer } from '../lib/chat/resolvePointer'
 import { runTopicHandlers } from '../lib/chat/handlerContext'
+import { scanDisclosure } from '../lib/ai/answerIntegrity'
 import { projectCatalog, catalogNamesSync } from '../lib/projectCatalog'
 import { applyCommuteAnchor, beltFor } from '../lib/discovery/commuteAnchor'
 import { resolveOrdinalReference, resolveOrdinalPair, resolveSuperlativeReference, needsShownContext, resolveSectorReference, sectorsShownIn } from '../lib/discovery/reference'
@@ -2875,6 +2876,29 @@ For questions regarding property pricing, sector analysis, RERA legal checks, pa
             commuteAnchorJustStated,
           },
         })) {
+          /**
+           * The integrity gate ran on model output and nowhere else.
+           *
+           * `checkAnswerIntegrity` lives inside `fallbackChain`, so every
+           * answer a topic handler wrote went to the buyer ungated. That is how
+           * `citywideQuery.ts` was able to hold an invented builder league
+           * table, an invented CAGR and a branch that crashed - none of them
+           * visible to any guard, because guards were pointed at the model and
+           * these were our own strings.
+           *
+           * A handler streams as it goes, so nothing can be withheld here. This
+           * is detection, not prevention: the corpus grader reads the same
+           * `scanDisclosure`, so a violation logged here fails the next run
+           * rather than waiting to be noticed in a transcript. Prevention for
+           * the remaining handlers is deleting them, which is the plan the
+           * registry docstring describes.
+           */
+          const handlerViolations = scanDisclosure(lastAnswerText)
+          if (handlerViolations.length > 0) {
+            console.error('[CHAT:HANDLER_INTEGRITY]', {
+              violations: handlerViolations.map((v) => `${v.kind}: ${v.detail}`),
+            })
+          }
           persistEarlyTurn('topic-handler', lastAnswerText)
           return
         }
