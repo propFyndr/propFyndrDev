@@ -44,6 +44,7 @@ export type IntegrityKind =
   | 'inventory_size'
   | 'unfounded_warning'
   | 'raw_payload'
+  | 'opaque_score'
 
 /**
  * The answer is not an answer — it is the data we handed the model.
@@ -66,6 +67,31 @@ export type IntegrityKind =
  *
  * Both are the same defect: our internal representation reaching the screen.
  */
+/**
+ * An analyst score that reached the answer anyway.
+ *
+ * `projectExposure` removes these at the source and `opaqueScores.test.ts`
+ * stops a new emitter appearing — but that is a SOURCE check, and twice now a
+ * score has arrived by a path the source check was not watching: seven separate
+ * emitters the first time, then `builderOnTimeDeliveryPercent`, a field whose
+ * name promised a unit its value did not have. Both shipped "a 92% builder
+ * delivery score" to a buyer.
+ *
+ * So there is a runtime check too. The source test prevents the class; this
+ * catches the instance.
+ *
+ * Narrow on purpose. A percentage is usually a real fact here — "82% open green
+ * space", "5% GST", "7% stamp duty", "80% of the podium" — so the pattern fires
+ * only when the number sits next to scoring vocabulary. A bare "/100" is always
+ * one of ours; nothing legitimate is expressed that way.
+ */
+const SCORE_WORD = '(?:score|rating|delivery|compliance|quality|satisfaction|track\\s+record)'
+const OPAQUE_SCORE: Array<[RegExp, string]> = [
+  [new RegExp(`\\b\\d{1,3}\\s*%[^.\\n]{0,24}\\b${SCORE_WORD}`, 'i'), 'quotes an analyst score as a percentage'],
+  [new RegExp(`\\b${SCORE_WORD}[^.\\n]{0,24}\\b\\d{1,3}\\s*%`, 'i'), 'quotes an analyst score as a percentage'],
+  [/\b\d{1,3}\s*\/\s*100\b/, 'quotes a score out of 100'],
+]
+
 const RAW_PAYLOAD: Array<[RegExp, string]> = [
   // A JSON object or array as the body of the answer, not an inline snippet.
   [/^\s*[[{][\s\S]{0,80}"\w+"\s*:/, 'the answer opens as a JSON payload'],
@@ -262,6 +288,7 @@ export function scanDisclosure(text: string): IntegrityViolation[] {
     ...scan(text, META_LEAK, 'meta_leak'),
     ...scan(text, INVENTORY_SIZE, 'inventory_size'),
     ...scan(text, RAW_PAYLOAD, 'raw_payload'),
+    ...scan(text, OPAQUE_SCORE, 'opaque_score'),
   ]
 }
 

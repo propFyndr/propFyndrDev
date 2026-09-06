@@ -228,3 +228,34 @@ test('ordinary prose with numbers, quotes and brackets is untouched', () => {
     assert.deepEqual(scanDisclosure(text).filter(v => v.kind === 'raw_payload'), [], `flagged prose: ${text.slice(0, 50)}`)
   }
 })
+
+test('an analyst score reaching the answer is caught at runtime', () => {
+  // `opaqueScores.test.ts` is a SOURCE check and stops a new emitter appearing.
+  // Twice a score arrived by a path it was not watching — seven emitters, then
+  // `builderOnTimeDeliveryPercent`, a name that promised a unit its value did
+  // not have. The source test prevents the class; this catches the instance.
+  for (const text of [
+    'Ready-to-move with a 92% builder delivery score and strong resale liquidity.',
+    'The developer scores 87/100 on our delivery assessment.',
+    'Construction quality rating of 80%, reviewed per delivered project.',
+  ]) {
+    assert.ok(scanDisclosure(text).some(v => v.kind === 'opaque_score'), `slipped: ${text.slice(0, 48)}`)
+  }
+})
+
+test('a real percentage is not a score', () => {
+  // Percentages are usually genuine facts here. Flagging these would gut the
+  // product's most useful sentences.
+  for (const text of [
+    'The project features 82% open green space across 18 acres.',
+    '5% GST applies on the agreement value for under-construction purchases.',
+    'UP stamp duty is 7% of the agreement or circle value, whichever is higher.',
+    'Registration is 1% and 80% of the podium is landscaped.',
+    'Sector 137 has 10 of 10 projects complete — 100% ready to move.',
+  ]) {
+    assert.deepEqual(
+      scanDisclosure(text).filter(v => v.kind === 'opaque_score'), [],
+      `real figure flagged: ${text.slice(0, 48)}`,
+    )
+  }
+})

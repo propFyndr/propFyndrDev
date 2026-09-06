@@ -17,6 +17,7 @@
 // confidence score CLAUDE.md forbids.
 
 import { readFileSync, writeFileSync } from 'node:fs'
+import { scanDisclosure } from '../../src/lib/ai/answerIntegrity'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { prisma } from '../../src/lib/db'
@@ -36,6 +37,10 @@ export type Grade =
   | 'not_declined'
   | 'empty'
   | 'error'
+  /** Present, fluent, and carrying something a buyer must never be shown. */
+  | 'integrity'
+  /** Present but cut mid-clause — a truncated generation. */
+  | 'truncated'
 
 /**
  * The failure we found on the very first query: a direct question answered with
@@ -148,8 +153,53 @@ export function grade(entry: CorpusEntry, text: string, errored: boolean): Grade
     return 'clarifying_only'
   }
 
+  /**
+   * Integrity outranks length, and the order is the point.
+   *
+   * These checks sat below the length floor at first, so a 200-character answer
+   * carrying a raw JSON dump graded `too_short` — which understates it, and
+   * points at the wrong repair: an answer that is forbidden does not become
+   * acceptable by being longer. Presence of a thing a buyer must never see is a
+   * harder failure than brevity, so it is decided first.
+   *
+   * The failures this grader could not see.
+   *
+   * Everything above catches an answer that is ABSENT — an outage, a
+   * deflection, a stub. Every failure found in the 6 Sep review was an answer
+   * that was PRESENT, fluent and long, and wrong in a way no length check can
+   * reach: a "92% builder delivery score" quoted at a buyer, a count of our own
+   * table, the model reading its prompt rules aloud, 1,400 characters of raw
+   * JSON with internal UUIDs, and an instruction to avoid two developers whose
+   * legal flags it had invented.
+   *
+   * Every one of those graded `pass` here. That is why a corpus of 120 turns
+   * with thirty results files on disk never surfaced any of them.
+   *
+   * `scanDisclosure` is the SAME function the live chain runs before an answer
+   * reaches a buyer, so the grader cannot drift from the product: a class the
+   * runtime blocks is a class this fails on, by construction.
+   */
+  const violations = scanDisclosure(answer)
+  if (violations.length > 0) return 'integrity'
+
+  // A ragged ending is a truncated generation. `endCleanly` repairs the shapes
+  // it knows about; anything still ending mid-clause is a real defect and was
+  // being graded a pass on character count alone.
+  if (endsRagged(answer)) return 'truncated'
+
   if (answer.length < minChars(entry.class)) return 'too_short'
+
   return 'pass'
+}
+
+/** No terminal punctuation, and not a complete table row. */
+export function endsRagged(text: string): boolean {
+  const s = text.trimEnd()
+  if (!s) return false
+  if (/[.!?:)"'\]`*]$/.test(s)) return false
+  const last = s.split('\n').pop()!.trim()
+  if (last.startsWith('|') && last.endsWith('|')) return false
+  return true
 }
 
 // ── transport ──────────────────────────────────────────────────────────────
@@ -451,8 +501,21 @@ function report(results: Result[]) {
   console.log(`  at 1k/day      $${(cost / Math.max(1, priced.length) * 1000).toFixed(2)}/day`)
 }
 
-main().catch(async (e) => {
-  console.error(e)
-  await prisma.$disconnect()
-  process.exit(1)
-})
+/**
+ * Only run when invoked directly.
+ *
+ * `grade()` is exported so a test can assert what it catches, and importing it
+ * used to execute the whole corpus run as a side effect — 321 queries against
+ * a chat endpoint that was not up, overwriting a results file on the way out.
+ * A module that runs on import cannot be tested, which is a large part of why
+ * this grader was never covered.
+ */
+const invokedDirectly = process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]
+
+if (invokedDirectly) {
+  main().catch(async (e) => {
+    console.error(e)
+    await prisma.$disconnect()
+    process.exit(1)
+  })
+}
