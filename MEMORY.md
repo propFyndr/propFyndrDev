@@ -2517,3 +2517,66 @@ still answered from model knowledge with subjective labels ("Corporate
 Governance / Tier 1", "Established Luxury Pioneer") and project attributions
 nobody verified. That is arguably worse than a score — the prompt's BUILDER DATA
 RULES forbid exactly it — but it is a separate lane and a separate fix.
+
+## 6 Sep 2026 — intent extraction rebuilt: deterministic first, model for inference only
+
+The user's instinct was right — extraction was the core defect.
+
+### What was wrong
+
+`extractIntentHeuristic` held ONE sector, ONE bhk, ONE budget number and had no
+notion of a range. On a 25-case corpus of messages this session actually saw it
+scored **15/25**, and two failures were inversions, not omissions:
+`"anything above 2 crore"` came out `budgetMax: 2` — the exact opposite of the
+filter asked for, silently excluding everything the buyer wanted.
+
+`heuristicIsSufficient` then made it worse. It gave up on any message with a
+comma, a question mark, "and", "or" or "vs", and **gave up unconditionally once
+previous intent existed**. So from turn two of every session, 100% of turns paid
+a model round-trip — and the model was free to return `{}` and drop a sector the
+buyer had typed in full. That is precisely how "Compare Sector 150 and Sector
+137" ended up answered with a four-turn-old Sector 2 coverage reply.
+
+### The rule
+
+**A fact stated literally in the message is not the model's to overrule.**
+
+`intentDeterministic.ts` reads sectors (all of them), configurations (all of
+them), budget floors AND ceilings, ranges in every written form, possession and
+area — and returns a `literal` set naming what it read outright.
+`applyLiterals` re-applies those over whatever the model returns, at every one
+of the five exits from `extractIntent` including the degraded one. The model may
+still add — purpose, workplace, a correction like "make that 2 crore" — it just
+cannot contradict the message.
+
+### Measured
+
+                              before          after
+  corpus accuracy             15/25           25/25
+  model calls avoided (turn 1)   13/25        22/25
+  model calls avoided (mid-session) 3/25      22/25
+
+Mid-session is the honest number, because a real conversation is mostly
+mid-session. Live five-turn replay: **zero extraction round-trips** (1
+deterministic, 4 no-signal) where every turn used to make one.
+
+Cost: the extraction prompt is 9,436 chars (~2,359 tokens) and was sent in FRONT
+of the answer call, so the buyer waited for it twice. ~2,440 input tokens and
+~1s saved per skipped turn; ~19.5k tokens and ~8s over a ten-turn session.
+
+### Two things the tests caught that I had wrong
+
+* The wiring test found the all-providers-failed path still returning the raw
+  heuristic — the one path where no model runs and the regex result IS the whole
+  answer, so literals mattered most there.
+* `"Sector 16B"` came back `"Sector 16b"` and no longer equalled the column,
+  because `extractSectorMentions` lowercases while matching.
+
+### Honest limit, stated to the user
+
+I cannot guarantee zero hallucination and did not claim to. What is now true is
+that the common failures are caught by CODE rather than by the model behaving:
+integrity gate on every leg, deterministic extraction the model cannot overrule,
+whole-word sector matching, opaque scores unreachable. The residual risk is a
+fabricated name carrying neither a place word nor a known builder, which the
+guard documents as a deliberate ceiling.

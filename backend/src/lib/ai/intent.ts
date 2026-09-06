@@ -7,6 +7,34 @@ import { INTENT_EXTRACTION_PROMPT } from './prompts/index'
 import type { Intent } from '../discovery'
 import { MODELS, FALLBACK_CHAIN } from '../config'
 import { IntentSchema } from '../discovery/intent'
+import { extractDeterministic, type DeterministicIntent } from './intentDeterministic'
+import { prisma } from '../db'
+
+/**
+ * Bare sector numbers we hold, for the extractor's anchored bare-number rule.
+ *
+ * Read synchronously so extraction stays a pure, testable function, and
+ * refreshed in the background so it never blocks a turn. Empty until the first
+ * load lands, which costs only that one rule — every explicit "Sector N"
+ * resolves without it. A failed load leaves it empty rather than throwing: a
+ * missing sector list must not take intent extraction down with it.
+ */
+let KNOWN_SECTOR_NUMBERS: string[] = []
+let sectorsLoadedAt = 0
+const SECTOR_CACHE_TTL_MS = 10 * 60 * 1000
+
+function refreshKnownSectors(): void {
+  if (sectorsLoadedAt !== 0 && Date.now() - sectorsLoadedAt < SECTOR_CACHE_TTL_MS) return
+  sectorsLoadedAt = Date.now()
+  void prisma.project
+    .findMany({ select: { sector: true }, distinct: ['sector'] })
+    .then((rows) => {
+      KNOWN_SECTOR_NUMBERS = rows
+        .map((r) => String(r.sector ?? '').replace(/^Sector\s*/i, '').trim())
+        .filter(Boolean)
+    })
+    .catch((e) => console.warn('[INTENT] sector list unavailable:', (e as Error).message))
+}
 
 export function normalizeSectorName(rawSector?: string): string | undefined {
   if (!rawSector) return undefined
@@ -350,11 +378,80 @@ export function nothingToExtract(message: string): boolean {
   return !namesSomething
 }
 
+/**
+ * Constraints the message states outright, applied over whatever the model said.
+ *
+ * The model may add — a purpose read from tone, a workplace, a correction like
+ * "make that 2 crore" — but it may not contradict or erase a fact written in
+ * the message. That is not a stylistic preference: measured live, "Compare
+ * Sector 150 and Sector 137" came back from extraction as `{}`, the sticky
+ * `intent.sector` from four turns earlier survived, and the buyer was answered
+ * with a Sector 2 coverage reply. A sector the buyer typed in full is not the
+ * model's to drop.
+ *
+ * Applied at every exit from `extractIntent`, including the degraded one, so no
+ * provider path can bypass it.
+ */
+function applyLiterals(intent: Intent, deterministic: DeterministicIntent): Intent {
+  const out = { ...intent } as Intent & Record<string, unknown>
+  const lit = deterministic.literal
+
+  if (lit.has('sector')) {
+    out.sector = deterministic.sectors[0]
+    // Both halves of a comparison, for the lanes that need the pair.
+    ;(out as { sectorsMentioned?: string[] }).sectorsMentioned = deterministic.sectors
+  }
+  if (lit.has('bhk')) out.bhk = deterministic.bhk
+  if (lit.has('budgetMin')) out.budgetMin = deterministic.budgetMin
+  if (lit.has('budgetMax')) out.budgetMax = deterministic.budgetMax
+  if (lit.has('possession')) out.possession = deterministic.possession as Intent['possession']
+  if (lit.has('areaMin')) out.areaMin = deterministic.areaMin
+  if (lit.has('areaMax')) out.areaMax = deterministic.areaMax
+
+  return out
+}
+
+/**
+ * Is there anything left for the model to find?
+ *
+ * Everything the deterministic pass reads is already read. What remains is
+ * inference: a correction against previous intent, a purpose, a workplace, a
+ * lifestyle preference, a named project or builder. When none of that
+ * vocabulary is present, the round-trip buys nothing — and it is paid IN FRONT
+ * of the answer call, so the buyer waits for it twice.
+ */
+const NEEDS_INFERENCE =
+  /\b(instead|actually|rather|change|make\s+that|update|bigger|smaller|larger|cheaper|costlier|pricier|closer|nearer|other|another|different|else|prefer|want|need|work|office|commute|school|metro|park|gym|invest|investment|rental|yield|resale|end[- ]use|family|kids|children|parents|elderly|pet)\b/i
+
+function deterministicCoversMessage(message: string, d: DeterministicIntent, previous: Intent): boolean {
+  // A correction only means something against previous intent, and the model
+  // is the only thing that can read one.
+  if (Object.keys(previous ?? {}).length > 0 && NEEDS_INFERENCE.test(message)) return false
+  if (NEEDS_INFERENCE.test(message)) return false
+  // A capitalised run may be a project or builder; the model resolves those.
+  if (/\b[A-Z][a-z]{2,}\s+[A-Z][a-z]{2,}/.test(message)) return false
+  return d.literal.size > 0
+}
+
 export async function extractIntent(message: string, previousIntent: Intent): Promise<IntentResult> {
-  // Fast path: skip the round trip when the regexes already have the whole
-  // message. See heuristicIsSufficient for why the bar is set where it is.
+  /**
+   * The deterministic pass runs on every turn, whatever happens next.
+   *
+   * It used to run only as a "fast path" that a long or comma-bearing message
+   * disqualified, and `heuristicIsSufficient` gave up unconditionally once
+   * previous intent existed — so from turn two onward every turn paid a model
+   * round-trip AND lost the regex result. Now it always runs, and its findings
+   * are re-applied over the model's answer at every exit below.
+   */
+  refreshKnownSectors()
+  const deterministic = extractDeterministic(message, KNOWN_SECTOR_NUMBERS)
+
   if (process.env.INTENT_FAST_PATH !== 'false') {
-    const heuristic = extractIntentHeuristic(message, previousIntent)
+    const heuristic = applyLiterals(extractIntentHeuristic(message, previousIntent), deterministic)
+    if (deterministicCoversMessage(message, deterministic, previousIntent)) {
+      console.log(`[INTENT:DETERMINISTIC] read outright, no model call — "${message.slice(0, 60)}"`)
+      return { intent: heuristic, degraded: false }
+    }
     if (heuristicIsSufficient(message, heuristic, previousIntent)) {
       console.log(`[INTENT:FAST_PATH] regex-only extraction for "${message.slice(0, 60)}"`)
       return { intent: heuristic, degraded: false }
@@ -409,17 +506,17 @@ export async function extractIntent(message: string, previousIntent: Intent): Pr
         })
         const raw = res.text?.trim() ?? '{}'
         const result = tryParseIntentJson(raw, previousIntent)
-        if (result) return { intent: result, degraded: false }
+        if (result) return { intent: applyLiterals(result, deterministic), degraded: false }
       }
       if (config.provider === 'groq') {
         console.log(`[INTENT] Trying Groq (${config.model}) via ${config.envKey}`)
         const result = await extractWithGroqKey(message, previousIntent, apiKey, config.timeout)
-        if (result) return { intent: result, degraded: false }
+        if (result) return { intent: applyLiterals(result, deterministic), degraded: false }
       }
       if (config.provider === 'mistral') {
         console.log(`[INTENT] Trying Mistral via ${config.envKey}`)
         const result = await extractWithMistral(message, previousIntent, apiKey)
-        if (result) return { intent: result, degraded: false }
+        if (result) return { intent: applyLiterals(result, deterministic), degraded: false }
       }
       if (config.provider === 'openai') {
         console.log(`[INTENT] Trying OpenAI via ${config.envKey}`)
@@ -428,7 +525,7 @@ export async function extractIntent(message: string, previousIntent: Intent): Pr
         try {
           const result = await extractWithOpenAIKey(message, previousIntent, apiKey, controller.signal)
           clearTimeout(timer)
-          if (result) return { intent: result, degraded: false }
+          if (result) return { intent: applyLiterals(result, deterministic), degraded: false }
         } catch (err) {
           clearTimeout(timer)
           const e = err as { status?: number; name?: string; message?: string }
@@ -445,7 +542,9 @@ export async function extractIntent(message: string, previousIntent: Intent): Pr
 
   // All providers failed. Use heuristic pattern matching as last resort
   console.warn('[INTENT] All LLM providers failed or unconfigured — executing heuristic fallback')
-  const heuristicIntent = extractIntentHeuristic(message, previousIntent)
+  // Literals apply here too, and matter most here: this is the path where no
+  // model ran at all, so the regex result is the entire answer.
+  const heuristicIntent = applyLiterals(extractIntentHeuristic(message, previousIntent), deterministic)
   return { intent: heuristicIntent, degraded: true }
 }
 
