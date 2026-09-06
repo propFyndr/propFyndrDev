@@ -679,6 +679,8 @@ function MessageBubbleInner({
                         intent={intent}
                         resultCount={resultCount}
                         spatialContext={message.spatialContext}
+                        startedAt={message.streamingStartedAt ?? null}
+                        elapsedSeconds={message.streamingElapsedSeconds ?? null}
                         isStreaming={true}
                         queryType={message.responseMode === 'comparison' ? 'comparison' : 'discovery'}
                         defaultExpanded={false}

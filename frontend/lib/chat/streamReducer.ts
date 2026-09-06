@@ -102,6 +102,10 @@ export function applyStreamEvent(
     case 'intent':
       return {
         ...message,
+        // The clock starts at the first event of the turn and is read once at
+        // `done`. The duration shown to the buyer used to be the literal 8,
+        // whatever the turn cost.
+        streamingStartedAt: message.streamingStartedAt ?? Date.now(),
         streamingPhase: isSearchState(event.intentState) ? 'searching' : 'extracting',
         streamingIntent: event.intent,
         streamingIntentState: event.intentState,
@@ -168,6 +172,12 @@ export function applyStreamEvent(
         streamingPhase: null,
         streamingIntent: null,
         streamingResultCount: null,
+        // Fixed here so it stops counting, and stays absent when the turn
+        // produced no `intent` event to start the clock.
+        streamingElapsedSeconds:
+          message.streamingStartedAt != null
+            ? Math.round((Date.now() - message.streamingStartedAt) / 1000)
+            : null,
       } as ChatMessage
     }
 

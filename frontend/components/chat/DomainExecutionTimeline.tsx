@@ -18,6 +18,10 @@ export interface DomainExecutionTimelineProps {
     nearbySectors?: string[];
   } | null;
   isStreaming?: boolean;
+  /** When this turn started, as epoch ms. Without it, no duration is claimed. */
+  startedAt?: number | null;
+  /** Seconds the turn actually took, once known. */
+  elapsedSeconds?: number | null;
   queryType?: 'discovery' | 'analysis' | 'comparison' | 'locality' | 'builder';
   className?: string;
   defaultExpanded?: boolean;
@@ -29,6 +33,8 @@ export function DomainExecutionTimeline({
   resultCount,
   spatialContext,
   isStreaming = false,
+  startedAt = null,
+  elapsedSeconds = null,
   queryType = 'discovery',
   className = '',
   defaultExpanded = false,
@@ -59,13 +65,33 @@ export function DomainExecutionTimeline({
   const targetSector = (typeof intent?.sector === 'string' ? intent.sector : spatialContext?.anchorSector) || 'Noida';
   const count = resultCount ?? 0;
 
-  // Active status label (Claude style: "Thought for 12s" or live streaming status)
+  /**
+   * How long the turn actually took.
+   *
+   * `Thought for 8s` was a hardcoded literal, shown on every completed turn
+   * whether it took two seconds or forty, beside `Thought for 6s` for the
+   * empty case. It is a claim about our own system that was never measured,
+   * which is the same defect as an invented project figure and reads worse:
+   * a buyer who waits twenty seconds and is told we thought for eight learns
+   * the interface is not telling the truth about small things.
+   *
+   * Measured or absent. A duration we do not hold is simply not shown.
+   */
+  const durationLabel = useMemo(() => {
+    const secs =
+      elapsedSeconds != null
+        ? elapsedSeconds
+        : startedAt != null
+          ? Math.round((Date.now() - startedAt) / 1000)
+          : null;
+    if (secs == null || secs < 1) return null;
+    return secs < 60 ? `Thought for ${secs}s` : `Thought for ${Math.floor(secs / 60)}m ${secs % 60}s`;
+  }, [elapsedSeconds, startedAt]);
+
   const triggerLabel = useMemo(() => {
     if (!isStreaming && phase === 'completed') {
-      if (count > 0) {
-        return `Thought for 8s · Evaluated ${count} ${count === 1 ? 'project' : 'projects'}`;
-      }
-      return 'Thought for 6s';
+      const evaluated = count > 0 ? `Evaluated ${count} ${count === 1 ? 'project' : 'projects'}` : null;
+      return [durationLabel, evaluated].filter(Boolean).join(' · ') || 'Done';
     }
 
     if (phase === 'extracting') {
@@ -78,31 +104,57 @@ export function DomainExecutionTimeline({
       return count > 0 ? `Synthesizing recommendations from ${count} projects...` : 'Synthesizing response...';
     }
     return 'Thinking...';
-  }, [isStreaming, phase, count, intentSummary, targetSector]);
+  }, [isStreaming, phase, count, intentSummary, targetSector, durationLabel]);
 
-  // Steps matching Claude's narrative thinking style
+  /**
+   * What we actually did this turn - nothing else.
+   *
+   * Four sentences used to be hardcoded here and shown as our reasoning:
+   * "Auditing UP-RERA registration status, delivery track record, and
+   * completion timelines", "Evaluating transit connectivity, arterial road
+   * access, and neighborhood infrastructure", "Normalizing price per sq.ft and
+   * calculating total acquisition cost structure across projects". None of them
+   * described work this component can know happened. They were process theatre,
+   * rendered under a disclosure control that exists to build trust.
+   *
+   * That is the same defect as an invented project name, in the one place no
+   * backend guard reaches: `checkAnswerIntegrity` reads model output, and these
+   * strings never touched a model.
+   *
+   * A step is listed only when the data behind it is on this component's props.
+   * If that leaves one line, one line is the honest answer, and the control
+   * hides itself entirely when it would say nothing.
+   */
   const thinkingSteps = useMemo(() => {
-    if (queryType === 'comparison') {
-      return [
-        'Retrieving verified project architectural plans, carpet areas, and super areas from database.',
-        'Normalizing price per sq.ft and calculating total acquisition cost structure across projects.',
-        'Auditing UP-RERA registration status, delivery track record, and completion timelines.',
-        'Formulating objective side-by-side trade-off matrix highlighting layout efficiency and value.',
-      ];
+    const steps: string[] = [];
+
+    if (intentSummary) {
+      steps.push(`Read your requirements: ${intentSummary}.`);
     }
 
-    const steps = [
-      intentSummary
-        ? `Interpreting buyer requirements and filtering parameters: ${intentSummary}.`
-        : `Targeting residential inventory matching criteria in ${targetSector}.`,
-      count > 0
-        ? `Scanned verified live database: identified ${count} qualifying projects in ${targetSector}.`
-        : `Querying active verified database for residential developments in ${targetSector}.`,
-      'Evaluating transit connectivity, arterial road access, and neighborhood infrastructure.',
-      'Ranking qualified inventory by spatial efficiency, price benchmark, and delivery track record.',
-    ];
+    if (count > 0) {
+      steps.push(
+        `Matched ${count} verified ${count === 1 ? 'project' : 'projects'} in ${targetSector}.`,
+      );
+    } else if (phase === 'searching' || phase === 'generating' || phase === 'completed') {
+      steps.push(`Searched verified inventory in ${targetSector}.`);
+    }
+
+    const nearby = spatialContext?.nearbySectors;
+    if (Array.isArray(nearby) && nearby.length > 0) {
+      steps.push(`Also looked at ${nearby.slice(0, 3).join(', ')}.`);
+    }
+
+    if (queryType === 'comparison') {
+      steps.push('Compared them on price, possession and delivery record.');
+    }
+
     return steps;
-  }, [queryType, intentSummary, targetSector, count]);
+  }, [intentSummary, count, targetSector, phase, spatialContext, queryType]);
+
+  // Nothing measured and nothing to list: render nothing rather than a
+  // disclosure control that opens onto an empty timeline.
+  if (!isStreaming && thinkingSteps.length === 0 && !durationLabel) return null;
 
   return (
     <div className={`w-full select-none ${className}`}>

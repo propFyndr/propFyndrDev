@@ -225,6 +225,10 @@ export interface ChatMessage {
   streamingIntent?: Record<string, unknown> | null;
   streamingIntentState?: string | null;
   streamingResultCount?: number | null;
+  /** Epoch ms the turn started. Drives the measured "Thought for Ns". */
+  streamingStartedAt?: number | null;
+  /** Seconds the turn took, fixed at `done`. Absent means never measured. */
+  streamingElapsedSeconds?: number | null;
   missingDimension?: 'budget' | 'bhk' | 'location' | null;
   suggestedChips?: Array<{ emoji: string; label: string; msg: string }>;
   intent?: {
