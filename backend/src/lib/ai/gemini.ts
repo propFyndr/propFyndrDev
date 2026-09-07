@@ -28,9 +28,9 @@ const MAX_TOOL_CYCLES = 3
  * just keyed on a different reason to keep going. Bounded so a model that
  * never reaches STOP cannot loop forever.
  */
-const MAX_TOKEN_CONTINUATIONS = Number(process.env.GEMINI_MAX_CONTINUATIONS ?? 2)
+const MAX_TOKEN_CONTINUATIONS = Number(process.env.GEMINI_MAX_CONTINUATIONS ?? 3)
 const CONTINUE_INSTRUCTION =
-  'Continue your answer exactly where you left off. Do not repeat anything you already said, do not restate the question, and do not mention that you were interrupted.'
+  'Your previous message was cut off by a length limit, possibly mid-word. First finish the exact word or sentence it ended on if it was incomplete, then continue the rest of your answer. Do not repeat anything you already said, do not restate the question, and do not mention that you were interrupted.'
 
 // How long to wait for the FIRST chunk before giving up on this leg, and how
 const INITIAL_TOKEN_TIMEOUT_MS = Number(process.env.GEMINI_INITIAL_TOKEN_TIMEOUT_MS ?? 25_000)
@@ -137,6 +137,8 @@ export async function streamWithGemini(
   let fullText = ''
   /** Persists across the recursive runCycle calls a continuation makes. */
   let continuationsUsed = 0
+  /** Set right before a continuation's recursive call, read at its first token. */
+  let justContinued = false
   const usage: GeminiUsage = { promptTokens: 0, completionTokens: 0, cachedTokens: 0 }
   let billedModel = config.model || MODELS.GEMINI_MAIN
   // Per-turn where the caller has chosen one, module default otherwise.
@@ -297,12 +299,23 @@ export async function streamWithGemini(
           cycleUsage.cachedTokens = um.cachedContentTokenCount ?? 0
         }
 
-        const textParts = chunk.candidates?.[0]?.content?.parts
+        let textParts = chunk.candidates?.[0]?.content?.parts
           ?.filter((p: any) => typeof p?.text === 'string')
           ?.map((p: any) => p.text)
           ?.join('') || ''
 
         if (textParts) {
+          // A continuation resumes on a fresh request, so its first token can
+          // land directly against whatever the cut-off cycle ended on — a
+          // budget cut mid-word plus a continuation that (despite being asked
+          // to finish the fragment) starts a new clause instead reads as one
+          // glued-together non-word ("...in t" + "In established" = "tIn").
+          // Cannot be trimmed after the fact — the cut-off half is already on
+          // the buyer's screen — so the only fixable side is the join.
+          if (justContinued) {
+            justContinued = false
+            if (/\w$/.test(fullText) && /^\w/.test(textParts)) textParts = ' ' + textParts
+          }
           fullText += textParts
           cycleText += textParts
           tokensSentThisCycle = true
@@ -348,6 +361,7 @@ export async function streamWithGemini(
       console.warn(`[gemini] MAX_TOKENS — auto-continuing (${continuationsUsed}/${MAX_TOKEN_CONTINUATIONS}) cycle=${cycle}`)
       contents.push({ role: 'model', parts: [{ text: cycleText }] })
       contents.push({ role: 'user', parts: [{ text: CONTINUE_INSTRUCTION }] })
+      justContinued = true
       return runCycle(cycle)
     }
 

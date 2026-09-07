@@ -37,9 +37,9 @@ export const mistralReplyCeiling = (profileMaxTokens?: number): number =>
  * it, and every hit looked identical to a clean stop. On 'length', feed the
  * partial answer back as the model's own turn and ask it to continue.
  */
-const MAX_TOKEN_CONTINUATIONS = Number(process.env.MISTRAL_MAX_CONTINUATIONS ?? 2)
+const MAX_TOKEN_CONTINUATIONS = Number(process.env.MISTRAL_MAX_CONTINUATIONS ?? 3)
 const CONTINUE_INSTRUCTION =
-  'Continue your answer exactly where you left off. Do not repeat anything you already said, do not restate the question, and do not mention that you were interrupted.'
+  'Your previous message was cut off by a length limit, possibly mid-word. First finish the exact word or sentence it ended on if it was incomplete, then continue the rest of your answer. Do not repeat anything you already said, do not restate the question, and do not mention that you were interrupted.'
 
 export async function streamWithMistral(
   systemPrompt: string,
@@ -68,6 +68,8 @@ export async function streamWithMistral(
 
   let fullText = ''
   let continuationsUsed = 0
+  /** Set right before a continuation's next loop iteration, read at its first token. */
+  let justContinued = false
 
   for (;;) {
     // Armed before create(), so a header stall and a mid-body stall share one
@@ -113,8 +115,16 @@ export async function streamWithMistral(
           promptTokens = chunk.usage.prompt_tokens ?? 0
           completionTokens = chunk.usage.completion_tokens ?? 0
         }
-        const token = chunk.choices[0]?.delta?.content || ''
+        let token = chunk.choices[0]?.delta?.content || ''
         if (token) {
+          // A continuation resumes on a fresh request, so its first token can
+          // land directly against whatever the cut-off cycle ended on. Cannot
+          // be trimmed after the fact — the cut-off half is already on the
+          // buyer's screen — so the only fixable side is the join.
+          if (justContinued) {
+            justContinued = false
+            if (/\w$/.test(fullText) && /^\w/.test(token)) token = ' ' + token
+          }
           cycleText += token
           guard.markTokenSent()
           send('token', { token })
@@ -150,6 +160,7 @@ export async function streamWithMistral(
         { role: 'assistant', content: cycleText },
         { role: 'user', content: CONTINUE_INSTRUCTION },
       ]
+      justContinued = true
       continue
     }
 

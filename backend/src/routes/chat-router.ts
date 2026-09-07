@@ -3332,7 +3332,12 @@ USING THE FACTS:
               userMessage: message,
               // See InferenceConfig.tools: a stub handler must not be paired
               // with a tool catalogue, or the model loops and returns nothing.
-              config: { maxTokens: 1500, tools: false },
+              // Raised from 1500 — measured live 8 Sep 2026: a comparison
+              // answer's markdown table alone ran the ceiling out even with
+              // the adapters' own auto-continuation available, ending
+              // mid-word. 2200 matches FREE_TIER_MAX_TOKENS, calibrated the
+              // same way for the same reason elsewhere in this file.
+              config: { maxTokens: 2200, tools: false },
             })
             responseText = fallbackResult.text
           }
@@ -3740,7 +3745,7 @@ EXECUTIVE RESPONSE INSTRUCTIONS:
           // Project detail summary: use smart chain, without tools — the handler
           // above answers every call with an error, so offering them only burns
           // tool cycles. See InferenceConfig.tools.
-          config: { maxTokens: 1500, tools: false },
+          config: { maxTokens: 2200, tools: false },
         })
         componentSummary = fallbackResult.text
         turnDegraded = fallbackResult.degraded === true

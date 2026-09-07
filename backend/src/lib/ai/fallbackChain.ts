@@ -798,6 +798,16 @@ export async function executeWithFallbackChain(options: FallbackChainOptions): P
             // Answered — trust this leg again immediately, in case an earlier
       // durable failure was resolved (billing topped up, quota window reset).
       recordSuccess(cooldownKey)
+      // Known gap, same shape as the one fixed inside each adapter: if the
+      // join between what carryText ended on and this leg's first token glues
+      // two words together, it is not repaired here. Fixing it would mean
+      // injecting a space into the live stream (via a wrapper around `send`
+      // passed to this leg) independently of the space the RETURNED `text`
+      // needs — two different accumulations of the same generation, in two
+      // different call frames, that would then need to agree. Rare enough
+      // (not the common case the adapter-level fix targets, and not observed
+      // in production) that doing it properly is deferred rather than shipped
+      // as a half-fix that could disagree with what the screen actually showed.
       return {
         text: carryText ? carryText + beautified : beautified,
         provider: item.provider,

@@ -21,9 +21,9 @@ const MAX_TOOL_CYCLES = 3;
  * path already uses. Bounded independently of MAX_TOOL_CYCLES: a continuation
  * is not a tool round-trip and should not spend that budget.
  */
-const MAX_TOKEN_CONTINUATIONS = Number(process.env.OPENAI_MAX_CONTINUATIONS ?? 2);
+const MAX_TOKEN_CONTINUATIONS = Number(process.env.OPENAI_MAX_CONTINUATIONS ?? 3);
 const CONTINUE_INSTRUCTION =
-  'Continue your answer exactly where you left off. Do not repeat anything you already said, do not restate the question, and do not mention that you were interrupted.';
+  'Your previous message was cut off by a length limit, possibly mid-word. First finish the exact word or sentence it ended on if it was incomplete, then continue the rest of your answer. Do not repeat anything you already said, do not restate the question, and do not mention that you were interrupted.';
 
 export interface OpenAIProvider {
   apiKey: string;
@@ -184,6 +184,8 @@ export async function streamWithOpenAI(
   let anyTokenSent = false;
   /** Persists across the recursive runCompletion calls a continuation makes. */
   let continuationsUsed = 0;
+  /** Set right before a continuation's recursive call, read at its first token. */
+  let justContinued = false;
 
   async function runCompletion(currentMsgs: Message[], cycle: number): Promise<string> {
     const allowTools = cycle < MAX_TOOL_CYCLES;
@@ -291,8 +293,17 @@ export async function streamWithOpenAI(
         const delta = chunk.choices[0]?.delta;
 
         if (delta?.content) {
-          fullText += delta.content;
-          cycleText += delta.content;
+          // A continuation resumes on a fresh request, so its first token can
+          // land directly against whatever the cut-off cycle ended on. Cannot
+          // be trimmed after the fact — the cut-off half is already on the
+          // buyer's screen — so the only fixable side is the join.
+          let content = delta.content;
+          if (justContinued) {
+            justContinued = false;
+            if (/\w$/.test(fullText) && /^\w/.test(content)) content = ' ' + content;
+          }
+          fullText += content;
+          cycleText += content;
           anyTokenSent = true;
           
           if (
@@ -306,7 +317,7 @@ export async function streamWithOpenAI(
             break;
           }
 
-          send('token', { token: delta.content });
+          send('token', { token: content });
         }
 
         if (delta?.tool_calls) {
@@ -362,6 +373,7 @@ export async function streamWithOpenAI(
       console.warn(`[openai] finish_reason=length — auto-continuing (${continuationsUsed}/${MAX_TOKEN_CONTINUATIONS}) cycle=${cycle}`);
       currentMsgs.push({ role: 'assistant', content: cycleText });
       currentMsgs.push({ role: 'user', content: CONTINUE_INSTRUCTION });
+      justContinued = true;
       return runCompletion(currentMsgs, cycle);
     }
 
