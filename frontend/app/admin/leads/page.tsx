@@ -31,6 +31,7 @@ import {
 import { format, formatDistanceToNow } from 'date-fns'
 import { AnimatePresence, m } from 'framer-motion'
 import { adminFetch } from '@/lib/adminFetch'
+import { LeadDossierPanel } from '@/components/admin/LeadDossierPanel'
 import { Skeleton } from '@/components/ui/skeleton'
 
 interface Lead {
@@ -787,6 +788,8 @@ export default function BuilderLeadsPage() {
                     </p>
                   </div>
                 )}
+
+                <LeadDossierPanel leadId={selectedLead.id} />
 
                 {/* Status Switcher Section inside Modal */}
                 <div className="p-4 rounded-2xl bg-zinc-50 dark:bg-zinc-800/40 border border-zinc-200/80 dark:border-zinc-800 space-y-3">

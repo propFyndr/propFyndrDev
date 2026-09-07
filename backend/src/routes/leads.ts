@@ -3,6 +3,7 @@ import { z } from 'zod'
 import { timingSafeEqual } from 'crypto'
 import { prisma } from '../lib/db'
 import { verifyUser } from '../lib/auth'
+import { requireAdmin } from '../lib/adminAuth'
 import { trackConversion } from '../lib/analytics/tracking'
 import { env } from '../lib/env'
 import { notifyLead } from '../lib/notify'
@@ -404,7 +405,13 @@ router.get('/metrics', async (req: Request, res: Response) => {
 })
 
 // Get rich lead dossier for a specific lead
-router.get('/callback/:leadId/dossier', async (req: Request, res: Response) => {
+//
+// Found unauthenticated during tonight's admin/CRM work: this returns a
+// buyer's name, phone, full chat-derived summaries, objections and
+// engagement profile to anyone who knows or guesses a lead id — no session,
+// no role check, nothing. requireAdmin needs no new schema, so it ships
+// immediately rather than waiting on the identity migration.
+router.get('/callback/:leadId/dossier', requireAdmin, async (req: Request, res: Response) => {
   try {
     const { leadId } = req.params
 
