@@ -92,6 +92,7 @@ model Builder {
   leads                      BuilderLead[]
   theme                      BuilderTheme?
   delivery_records           BuilderDeliveryRecord[]
+  admin_accounts             AdminUser[]
 
   @@map("builders")
 }
@@ -1547,6 +1548,7 @@ model ChannelPartner {
   updated_at          DateTime  @updatedAt
 
   project_partners    ProjectChannelPartner[]
+  admin_accounts      AdminUser[]
 
   @@index([type])
   @@index([is_active])
@@ -1784,7 +1786,12 @@ model AuditLog {
   entity_id   String
   entity_name String?  // human-readable name for display
   action      String   // "CREATE" | "UPDATE" | "DELETE" | "BULK_UPDATE"
-  actor       String   @default("Admin")  // "Admin" | "System" | "BulkCSV"
+  actor       String   @default("Admin")  // "Admin" | "System" | "BulkCSV" — display string, kept for back-compat
+  // Real identity, additive. Nullable because every row written before this
+  // migration, and every row written by the ADMIN_PASSWORD bootstrap login
+  // (which has no AdminUser row), has none — `actor` above is what those
+  // still display as.
+  actor_admin_id String?
   ip_address  String?
   summary     String   // e.g. "Updated BSP from ₹6,500 to ₹6,800"
   changes     Json?    // Array<{ field: string, old: any, new: any, label: string }>
@@ -1792,7 +1799,58 @@ model AuditLog {
 
   @@index([entity_type, entity_id])
   @@index([created_at])
+  @@index([actor_admin_id])
   @@map("audit_logs")
+}
+
+enum AdminRole {
+  SUPER_ADMIN
+  ANALYST
+  SALES
+  BUILDER
+  PARTNER
+}
+
+// Real admin identity, additive alongside the pre-existing single shared
+// `ADMIN_PASSWORD` login — that login still works (see adminIdentity.ts) so
+// nothing already deployed breaks; it now maps to a synthetic bootstrap
+// SUPER_ADMIN identity rather than no identity at all. Every admin created
+// here going forward has a real, trackable one.
+//
+// Two ways onto this table, both super-admin-only actions:
+//  - Invite by email: `invite_token` set, `password_hash` null until accepted.
+//  - Promote an existing buyer by their Supabase user id: `linked_supabase_user_id`
+//    set, no separate password — they log into the admin panel with the same
+//    Supabase session their buyer account already has.
+model AdminUser {
+  id                      String    @id @default(uuid())
+  email                   String    @unique
+  password_hash           String?
+  role                    AdminRole
+
+  // Scope for BUILDER / PARTNER roles. Null for SUPER_ADMIN / ANALYST / SALES.
+  builder_id              String?
+  builder                 Builder?        @relation(fields: [builder_id], references: [id])
+  partner_id              String?
+  partner                 ChannelPartner? @relation(fields: [partner_id], references: [id])
+
+  // Ties this admin identity to an existing Supabase-authenticated buyer
+  // account, so they can log in without a separate admin password.
+  linked_supabase_user_id String?   @unique
+
+  invited_by_admin_id     String?
+  invite_token            String?   @unique
+  invite_expires_at       DateTime?
+
+  is_active               Boolean   @default(true)
+  last_login_at           DateTime?
+  created_at              DateTime  @default(now())
+  updated_at              DateTime  @updatedAt
+
+  @@index([role])
+  @@index([builder_id])
+  @@index([partner_id])
+  @@map("admin_users")
 }
 
 

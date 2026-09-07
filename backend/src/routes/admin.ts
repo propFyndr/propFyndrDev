@@ -2,7 +2,8 @@ import { Router, Request, Response } from 'express'
 import { timingSafeEqual } from 'crypto'
 import { Prisma } from '@prisma/client'
 import { prisma } from '../lib/db'
-import { createAdminSession, requireAdmin, destroyAdminSession } from '../lib/adminAuth'
+import { requireAdmin, destroyAdminSession } from '../lib/adminAuth'
+import { createIdentitySession, verifyPassword } from '../lib/adminIdentity'
 import { computeCompleteness } from '../lib/completeness'
 import { checkRateLimit } from '../lib/cache'
 import { z } from 'zod'
@@ -183,17 +184,49 @@ function passwordMatches(input: string, expected: string): boolean {
   return timingSafeEqual(a, b)
 }
 
-// POST /api/v1/admin/auth — exchange the admin password for a session token.
+// POST /api/v1/admin/auth — exchange a password for a session token.
+//
+// Two paths, tried in order:
+//  1. Real admin identity: `email` + `password` against `AdminUser`. This is
+//     what makes "which admin did what" answerable, and what carries role and
+//     builder/partner scope.
+//  2. The single shared `ADMIN_PASSWORD` — kept working so nothing already
+//     deployed breaks. Maps to a synthetic bootstrap SUPER_ADMIN identity
+//     (adminUserId: 'root') rather than no identity at all, so even this path
+//     shows up distinctly in the audit trail instead of merging into "Admin".
 router.post('/auth', async (req: Request, res: Response) => {
   const rawIp = (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() || req.ip || 'unknown'
   const isValidIp = /^(\d{1,3}\.){3}\d{1,3}$|^[a-f0-9:]+$/i.test(rawIp)
   const ip = isValidIp ? rawIp : 'unknown'
+  const userAgent = (req.headers['user-agent'] as string) || 'unknown'
 
   // Rate limit: 50 attempts in dev, 5 in prod per 15 minutes per IP
   const maxAttempts = process.env.NODE_ENV === 'development' ? 50 : 5
   const { allowed } = await checkRateLimit(`admin:login:${ip}`, maxAttempts, 900)
   if (!allowed) {
     res.status(429).json({ error: 'Too many login attempts. Try again later.' })
+    return
+  }
+
+  const email = typeof req.body?.email === 'string' ? req.body.email.trim().toLowerCase() : ''
+  const password = typeof req.body?.password === 'string' ? req.body.password : ''
+
+  if (email) {
+    const admin = await prisma.adminUser.findUnique({ where: { email } })
+    if (!admin || !admin.is_active || !admin.password_hash || !password || !verifyPassword(password, admin.password_hash)) {
+      res.status(401).json({ error: 'Wrong email or password' })
+      return
+    }
+    await prisma.adminUser.update({ where: { id: admin.id }, data: { last_login_at: new Date() } })
+    const token = await createIdentitySession({
+      ip, userAgent,
+      adminUserId: admin.id,
+      email: admin.email,
+      role: admin.role,
+      builderId: admin.builder_id,
+      partnerId: admin.partner_id,
+    })
+    res.json({ token, role: admin.role })
     return
   }
 
@@ -204,15 +237,20 @@ router.post('/auth', async (req: Request, res: Response) => {
     return
   }
 
-  const password = typeof req.body?.password === 'string' ? req.body.password : ''
   if (!password || !passwordMatches(password, expected)) {
     res.status(401).json({ error: 'Wrong password' })
     return
   }
 
-  const userAgent = (req.headers['user-agent'] as string) || 'unknown'
-  const token = await createAdminSession(ip, userAgent)
-  res.json({ token })
+  const token = await createIdentitySession({
+    ip, userAgent,
+    adminUserId: 'root',
+    email: 'root@bootstrap',
+    role: 'SUPER_ADMIN',
+    builderId: null,
+    partnerId: null,
+  })
+  res.json({ token, role: 'SUPER_ADMIN' })
 })
 
 // DELETE /api/v1/admin/auth — logout: clear session token

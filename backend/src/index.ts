@@ -34,6 +34,8 @@ import builderRegistrationRouter from './routes/builderRegistration'
 import builderApplicationsRouter from './routes/builderApplications'
 import analyticsRouter from './routes/analytics'
 import adminIntelligenceRouter from './routes/admin-intelligence'
+import adminTeamRouter from './routes/adminTeam'
+import portalRouter from './routes/portal'
 import { initializeCaches } from './lib/projectDataGateway.cache'
 import { FALLBACK_CHAIN } from './lib/config'
 
@@ -200,9 +202,11 @@ app.use('/api/v1/saved', savedRouter)
 app.use('/api/v1/leads', leadsRouter)
 app.use('/api/v1/share', shareRouter)
 // Mounted before adminRouter: Express matches in order, and a /:id route in the
-// admin router would otherwise claim /beta before this ever sees it.
+// admin router would otherwise claim /beta or /team before either ever sees it.
 app.use('/api/v1/admin/beta', betaRouter)
+app.use('/api/v1/admin/team', adminTeamRouter)
 app.use('/api/v1/admin', adminRouter)
+app.use('/api/v1/portal', portalRouter)
 app.use('/api/v1/builders', buildersRouter)
 app.use('/api/v1/market-comparison', marketComparisonRouter)
 app.use('/api/v1/price-alerts', priceAlertsRouter)
