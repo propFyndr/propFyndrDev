@@ -13,6 +13,7 @@ import {
   NewspaperClipping,
   ChartLineUp,
   ChatCircleText,
+  UsersFour,
   SignOut,
   MagnifyingGlass,
   CaretRight,
@@ -30,6 +31,7 @@ const NAV = [
   { href: '/admin/news',                  label: 'News',                 icon: NewspaperClipping },
   { href: '/admin/conversations',         label: 'Conversations',        icon: ChatCircleText },
   { href: '/admin/analytics',             label: 'Analytics',            icon: ChartLineUp },
+  { href: '/admin/team',                  label: 'Team',                 icon: UsersFour },
 ]
 
 function breadcrumb(pathname: string): { label: string; href?: string }[] {

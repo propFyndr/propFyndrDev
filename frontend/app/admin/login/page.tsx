@@ -6,6 +6,7 @@ import { Lock, Eye, EyeOff, Loader2 } from 'lucide-react'
 import { API_BASE } from '@/lib/env'
 
 export default function AdminLogin() {
+  const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [show, setShow] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -16,17 +17,24 @@ export default function AdminLogin() {
     e.preventDefault()
     setLoading(true)
     setError('')
+    // An email present means a real admin account; omitted, this falls back
+    // to the single shared password every deploy has always had.
     const res = await fetch(`${API_BASE}/admin/auth`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ password }),
+      body: JSON.stringify(email ? { email, password } : { password }),
     })
     setLoading(false)
     if (res.ok) {
       const data = await res.json()
       if (data.token) {
         localStorage.setItem('admin_token', data.token)
-        router.push('/admin')
+        if (data.role) localStorage.setItem('admin_role', data.role)
+        const destination =
+          data.role === 'BUILDER' ? '/builder/portal' :
+          data.role === 'PARTNER' ? '/partner/portal' :
+          '/admin'
+        router.push(destination)
       }
     } else {
       const errData = await res.json().catch(() => ({}))
@@ -48,6 +56,13 @@ export default function AdminLogin() {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="Email (leave blank for shared password)"
+            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3.5 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-blue-500"
+          />
           <div className="relative">
             <input
               type={show ? 'text' : 'password'}
