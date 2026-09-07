@@ -1339,7 +1339,7 @@ router.post('/', async (req: Request, res: Response) => {
      */
     if (
       !intent.projectNames?.length &&
-      !/sectors+d/i.test(message) &&
+      !/\bsector\s*\d/i.test(message) &&
       ATTRIBUTE_FOLLOWUP.test(message) &&
       sessionData?.focus_project_id
     ) {
@@ -3337,7 +3337,7 @@ USING THE FACTS:
               // the adapters' own auto-continuation available, ending
               // mid-word. 2200 matches FREE_TIER_MAX_TOKENS, calibrated the
               // same way for the same reason elsewhere in this file.
-              config: { maxTokens: 2200, tools: false },
+              config: { maxTokens: 3200, tools: false },
             })
             responseText = fallbackResult.text
           }
@@ -3716,8 +3716,6 @@ USING THE FACTS:
        * every routing gate above reads it.
        */
       const askedForModel = { text: modelMessage, substituted: modelMessage !== message }
-      if (askedForModel.substituted) {
-      }
       const projectDataMsg = `User question: "${askedForModel.text}"\n\nVerified facts available:\n${factsJson}\n\nProvide an authoritative, clear breakdown based on these verified facts. Answer the user's specific question completely, highlighting exact figures (carpet area, super built-up area, carpet efficiency %, maintenance ₹/sqft, RERA IDs, extra charges, builder track record) wherever present.`
 
       let componentSummary = ''
@@ -3745,7 +3743,7 @@ EXECUTIVE RESPONSE INSTRUCTIONS:
           // Project detail summary: use smart chain, without tools — the handler
           // above answers every call with an error, so offering them only burns
           // tool cycles. See InferenceConfig.tools.
-          config: { maxTokens: 2200, tools: false },
+          config: { maxTokens: 3200, tools: false },
         })
         componentSummary = fallbackResult.text
         turnDegraded = fallbackResult.degraded === true

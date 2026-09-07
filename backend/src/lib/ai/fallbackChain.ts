@@ -131,11 +131,13 @@ const STREAM_BUFFER_CHARS = Number(process.env.STREAM_BUFFER_CHARS ?? 250)
  * cut look tidier without making the answer complete. This is the other half:
  * the ceiling has to be large enough for the shape of answer being asked for.
  *
- * 2,200 covers every shape in `inferenceProfile` except the largest comparison,
- * and output is billed only on what is actually generated — a short answer
- * costs the same as it did at 900. What changes is that a long one finishes.
+ * Raised again to 3,200 on 8 Sep 2026 — measured live: a full comparison
+ * table plus verdict/recommendation prose still ran past 2,200 even with 3
+ * auto-continuations available (see gemini.ts). Output is billed only on
+ * what is actually generated — a short answer costs the same as it did at
+ * 900. What changes is that a long one finishes.
  */
-const FREE_TIER_MAX_TOKENS = Number(process.env.FREE_TIER_MAX_TOKENS ?? 2200)
+const FREE_TIER_MAX_TOKENS = Number(process.env.FREE_TIER_MAX_TOKENS ?? 3200)
 
 /**
  * Characters held back at the TAIL of a streaming answer.
