@@ -200,6 +200,16 @@ describe('GET /api/v1/leads/count', () => {
   })
 })
 
+describe('GET /api/v1/leads/callback/:leadId/dossier', () => {
+  // Found unauthenticated during admin/CRM work 8 Sep 2026 — this returns a
+  // buyer's name, phone, chat-derived summaries and objections to anyone who
+  // knows or guesses a lead id. Pinned so it cannot regress silently.
+  it('requires an admin session', async () => {
+    const res = await request(app).get('/api/v1/leads/callback/any-id/dossier')
+    assert.equal(res.status, 401)
+  })
+})
+
 describe('GET /api/v1/leads/metrics', () => {
   it('returns lead funnel metrics', async () => {
     const res = await request(app).get('/api/v1/leads/metrics')
