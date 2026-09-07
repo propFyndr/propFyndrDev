@@ -209,7 +209,11 @@ function createBufferedSend(
   const stripper = suppressTables
     ? createTableStripper((text) => originalSend('token', { token: text }))
     : null
+  /** Everything actually sent to the client this leg, for handing a mid-stream
+   *  failure to the next leg without repeating what the buyer already saw. */
+  let totalForwarded = ''
   const forwardToken = (token: string) => {
+    totalForwarded += token
     if (stripper) stripper.write(token)
     else originalSend('token', { token })
   }
@@ -406,7 +410,13 @@ function createBufferedSend(
     return true
   }
 
-  return { bufferedSend, getTokensSent: () => tokensSent, flushRemaining, replaceBufferedText }
+  return {
+    bufferedSend,
+    getTokensSent: () => tokensSent,
+    getReleasedText: () => totalForwarded,
+    flushRemaining,
+    replaceBufferedText,
+  }
 }
 
 export async function executeWithFallbackChain(options: FallbackChainOptions): Promise<FallbackChainResult> {
@@ -453,8 +463,20 @@ export async function executeWithFallbackChain(options: FallbackChainOptions): P
   const turnStartedAt = Date.now()
   /** Vendors that produced an empty answer for THIS prompt. */
   const emptyVendors = new Set<string>()
+  /**
+   * Text already streamed to the buyer this turn by a leg that then failed
+   * mid-stream. Handed to the next leg as its own prior turn, so the buyer
+   * sees one continuous answer instead of a truncation notice — see the
+   * `tokensSent` catch branch below.
+   */
+  let carryText = ''
+  /** Mutated when a mid-stream failure hands off to the next leg. */
+  let turnMessages = cappedMessages
+  const MID_STREAM_CONTINUE_INSTRUCTION =
+    'Continue your answer exactly where you left off. Do not repeat anything you already said, do not restate the question, and do not mention that you were interrupted.'
 
-  for (const item of effectiveChainConfig) {
+  for (let chainIdx = 0; chainIdx < effectiveChainConfig.length; chainIdx++) {
+    const item = effectiveChainConfig[chainIdx]
     // Checked before the key and the cooldown, because it is a property of the
     // question rather than of this leg's configuration.
     if (needsALookup && !item.supportsTools) {
@@ -553,7 +575,7 @@ export async function executeWithFallbackChain(options: FallbackChainOptions): P
      */
     const bufferLimit = Number.MAX_SAFE_INTEGER
     warmKnownNames()
-    const { bufferedSend, getTokensSent, flushRemaining, replaceBufferedText } = createBufferedSend(
+    const { bufferedSend, getTokensSent, getReleasedText, flushRemaining, replaceBufferedText } = createBufferedSend(
       send,
       effectivePrompt,
       bufferLimit,
@@ -593,9 +615,9 @@ export async function executeWithFallbackChain(options: FallbackChainOptions): P
 
       let text = ''
       if (item.provider === 'mistral') {
-        text = await streamWithMistral(effectivePrompt, cappedMessages, bufferedSend, apiKey, userId, sessionId, legMaxTokens)
+        text = await streamWithMistral(effectivePrompt, turnMessages, bufferedSend, apiKey, userId, sessionId, legMaxTokens)
       } else if (item.provider === 'gemini') {
-        text = await streamWithGemini(effectivePrompt, cappedMessages, bufferedSend, onToolCall, geminiConfig, apiKey, userId, sessionId)
+        text = await streamWithGemini(effectivePrompt, turnMessages, bufferedSend, onToolCall, geminiConfig, apiKey, userId, sessionId)
 
         /**
          * One retry on the SAME key with tools off, before giving up on it.
@@ -621,7 +643,7 @@ export async function executeWithFallbackChain(options: FallbackChainOptions): P
           console.warn(`[FALLBACK:RETRY_NO_TOOLS] ${item.label} returned no text with tools — retrying the same key without them`)
           text = await streamWithGemini(
             effectivePrompt,
-            cappedMessages,
+            turnMessages,
             bufferedSend,
             onToolCall,
             { ...geminiConfig, tools: false },
@@ -633,7 +655,7 @@ export async function executeWithFallbackChain(options: FallbackChainOptions): P
       } else if (item.provider === 'openai') {
         text = await streamWithOpenAI(
           effectivePrompt,
-          cappedMessages,
+          turnMessages,
           bufferedSend,
           onToolCall,
           // `item.model`, never `effectiveConfig.model`.
@@ -668,7 +690,7 @@ export async function executeWithFallbackChain(options: FallbackChainOptions): P
           item.baseUrl,
         )
       } else if (item.provider === 'groq') {
-        text = await streamWithGroq(effectivePrompt, cappedMessages, bufferedSend, userId, sessionId, apiKey, legMaxTokens)
+        text = await streamWithGroq(effectivePrompt, turnMessages, bufferedSend, userId, sessionId, apiKey, legMaxTokens)
       }
 
       /**
@@ -776,7 +798,13 @@ export async function executeWithFallbackChain(options: FallbackChainOptions): P
             // Answered — trust this leg again immediately, in case an earlier
       // durable failure was resolved (billing topped up, quota window reset).
       recordSuccess(cooldownKey)
-      return { text: beautified, provider: item.provider, model: item.model, envKey: item.envKey, is_verified: false }
+      return {
+        text: carryText ? carryText + beautified : beautified,
+        provider: item.provider,
+        model: item.model,
+        envKey: item.envKey,
+        is_verified: false,
+      }
     } catch (err: unknown) {
       const error = err instanceof Error ? err : new Error(String(err))
       const tokensSent = getTokensSent() || (err as any)?.tokensSent === true
@@ -798,14 +826,44 @@ export async function executeWithFallbackChain(options: FallbackChainOptions): P
       console.warn(`[FALLBACK:FAIL] ✗ ${item.label} failed: ${errMsg.slice(0, 300)}`)
 
       // Mid-stream stall: partial tokens were already sent to the SSE client.
-      // Cannot switch providers mid-stream without duplicating output/headers.
-      // Close cleanly with truncation notice.
+      //
+      // The old fix here gave up — "cannot switch providers mid-stream" — but
+      // that conflated two different things. The HTTP response and its headers
+      // are already committed, yes; but the client is just reading a stream of
+      // `token` events on that one open connection, with no idea which
+      // provider produced any of them. So the next leg can simply keep
+      // appending to the same message: hand it what was already shown as its
+      // own prior turn, plus an instruction to continue, and let it pick up
+      // where the dead leg left off. The buyer sees one answer keep typing,
+      // not a stall followed by an apology.
       if (tokensSent) {
-        console.error(`[FALLBACK:MID_STREAM_STALL] ${item.label} stalled mid-stream after tokens sent`)
-        console.error(`[FALLBACK:MID_STREAM_STALL] Cannot switch providers — context ${messages.length} msgs + prompt already streamed`)
+        const releasedSoFar = getReleasedText()
+        const hasMoreLegs = chainIdx < effectiveChainConfig.length - 1
+        if (hasMoreLegs && releasedSoFar.trim()) {
+          console.warn(
+            `[FALLBACK:MID_STREAM_CONTINUE] ${item.label} failed after ${releasedSoFar.length} chars sent — ` +
+            `handing off to the next leg to finish this answer`,
+          )
+          carryText += releasedSoFar
+          turnMessages = [
+            ...turnMessages,
+            { role: 'assistant', content: releasedSoFar },
+            { role: 'user', content: MID_STREAM_CONTINUE_INSTRUCTION },
+          ]
+          continue
+        }
+        // No leg left to try, or nothing usable was shown yet — same behavior
+        // as before: say so plainly rather than leave the answer hanging.
+        console.error(`[FALLBACK:MID_STREAM_STALL] ${item.label} stalled mid-stream with no leg left to continue on`)
         const truncationNotice = '\n\n[Response truncated due to high traffic. Please ask me to continue.]'
         send('token', { token: truncationNotice })
-        return { text: truncationNotice, provider: 'database', model: 'fallback', envKey: 'FALLBACK_MODE', is_verified: true }
+        return {
+          text: carryText + truncationNotice,
+          provider: 'database',
+          model: 'fallback',
+          envKey: 'FALLBACK_MODE',
+          is_verified: true,
+        }
       }
 
       // Pre-first-token failure: seamless rollover to next provider with same context.

@@ -14,6 +14,17 @@ type SendFn = (event: string, data: Record<string, unknown>) => void;
 
 const MAX_TOOL_CYCLES = 3;
 
+/**
+ * `finish_reason: 'length'` was never read here — a reply-ceiling cut looked
+ * identical to a natural stop. On 'length', feed the partial answer back as
+ * the model's own turn and ask it to continue, same recursion the tool-call
+ * path already uses. Bounded independently of MAX_TOOL_CYCLES: a continuation
+ * is not a tool round-trip and should not spend that budget.
+ */
+const MAX_TOKEN_CONTINUATIONS = Number(process.env.OPENAI_MAX_CONTINUATIONS ?? 2);
+const CONTINUE_INSTRUCTION =
+  'Continue your answer exactly where you left off. Do not repeat anything you already said, do not restate the question, and do not mention that you were interrupted.';
+
 export interface OpenAIProvider {
   apiKey: string;
   baseURL?: string;
@@ -171,6 +182,8 @@ export async function streamWithOpenAI(
   // Used by StreamStallError so the caller knows whether a clean Groq fallback
   // is possible (false) or whether partial content was already sent (true).
   let anyTokenSent = false;
+  /** Persists across the recursive runCompletion calls a continuation makes. */
+  let continuationsUsed = 0;
 
   async function runCompletion(currentMsgs: Message[], cycle: number): Promise<string> {
     const allowTools = cycle < MAX_TOOL_CYCLES;
@@ -249,6 +262,9 @@ export async function streamWithOpenAI(
     let toolCallId = '';
     let chunkCount = 0;
     let usage: { prompt_tokens?: number; completion_tokens?: number } | undefined;
+    /** Just this cycle's text, so a continuation feeds back only its own turn. */
+    let cycleText = '';
+    let finishReason: string | undefined;
 
     try {
       for await (const chunk of stream) {
@@ -276,6 +292,7 @@ export async function streamWithOpenAI(
 
         if (delta?.content) {
           fullText += delta.content;
+          cycleText += delta.content;
           anyTokenSent = true;
           
           if (
@@ -302,6 +319,8 @@ export async function streamWithOpenAI(
         if (chunk.usage) {
           usage = { prompt_tokens: chunk.usage.prompt_tokens, completion_tokens: chunk.usage.completion_tokens };
         }
+
+        if (chunk.choices[0]?.finish_reason) finishReason = chunk.choices[0].finish_reason;
       }
     } catch (err) {
       clearInactivity();
@@ -332,6 +351,18 @@ export async function streamWithOpenAI(
 
     if (deadlineExceeded) {
       send('token', { token: '\n\n[Response truncated: 120-second turn limit reached]' });
+    }
+
+    // The budget ran out before the model reached a natural stop. Feed back
+    // what it wrote this cycle as its own turn and ask it to keep going — the
+    // same recursion the tool-call path below uses, on a separate counter so
+    // a continuation never eats into the tool-call cycle budget.
+    if (!toolCallName && finishReason === 'length' && continuationsUsed < MAX_TOKEN_CONTINUATIONS) {
+      continuationsUsed++;
+      console.warn(`[openai] finish_reason=length — auto-continuing (${continuationsUsed}/${MAX_TOKEN_CONTINUATIONS}) cycle=${cycle}`);
+      currentMsgs.push({ role: 'assistant', content: cycleText });
+      currentMsgs.push({ role: 'user', content: CONTINUE_INSTRUCTION });
+      return runCompletion(currentMsgs, cycle);
     }
 
     if (toolCallName && allowTools) {

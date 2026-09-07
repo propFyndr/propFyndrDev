@@ -15,6 +15,23 @@ type ToolCallFn = (name: string, args: Record<string, unknown>) => Promise<unkno
 
 const MAX_TOOL_CYCLES = 3
 
+/**
+ * A reply ceiling ends generation mid-thought as often as mid-word, and until
+ * now nothing here noticed: `finishReason` was never read, so a MAX_TOKENS cut
+ * looked identical to a clean STOP. `endCleanly` downstream only tidies the
+ * ragged edge of whatever came back — it cannot tell "stopped because the
+ * sentence ended" from "stopped because the budget ran out mid-list" and was
+ * never meant to.
+ *
+ * On MAX_TOKENS, feed the partial answer back as the model's own turn and ask
+ * it to continue — the same mechanism already used for a tool-call round-trip,
+ * just keyed on a different reason to keep going. Bounded so a model that
+ * never reaches STOP cannot loop forever.
+ */
+const MAX_TOKEN_CONTINUATIONS = Number(process.env.GEMINI_MAX_CONTINUATIONS ?? 2)
+const CONTINUE_INSTRUCTION =
+  'Continue your answer exactly where you left off. Do not repeat anything you already said, do not restate the question, and do not mention that you were interrupted.'
+
 // How long to wait for the FIRST chunk before giving up on this leg, and how
 const INITIAL_TOKEN_TIMEOUT_MS = Number(process.env.GEMINI_INITIAL_TOKEN_TIMEOUT_MS ?? 25_000)
 const STREAM_INACTIVITY_MS = Number(process.env.GEMINI_STREAM_INACTIVITY_MS ?? 20_000)
@@ -118,6 +135,8 @@ export async function streamWithGemini(
   // travels every turn, because it is different every turn.
   const effectiveSystem = cachedName ? systemTail : system
   let fullText = ''
+  /** Persists across the recursive runCycle calls a continuation makes. */
+  let continuationsUsed = 0
   const usage: GeminiUsage = { promptTokens: 0, completionTokens: 0, cachedTokens: 0 }
   let billedModel = config.model || MODELS.GEMINI_MAIN
   // Per-turn where the caller has chosen one, module default otherwise.
@@ -143,6 +162,9 @@ export async function streamWithGemini(
     let stalled = false
     let inactivityTimer: NodeJS.Timeout | null = null
     const cycleUsage: GeminiUsage = { promptTokens: 0, completionTokens: 0, cachedTokens: 0 }
+    /** Just this cycle's text, so a continuation feeds back only its own turn. */
+    let cycleText = ''
+    let finishReason: string | undefined
 
     // The timer must abort the request, not just flip a flag: the flag was only
     const abortController = new AbortController()
@@ -282,9 +304,13 @@ export async function streamWithGemini(
 
         if (textParts) {
           fullText += textParts
+          cycleText += textParts
           tokensSentThisCycle = true
           send('token', { token: textParts })
         }
+
+        const fr = chunk.candidates?.[0]?.finishReason
+        if (fr) finishReason = fr
 
         const calls = chunk.functionCalls
         if (calls && calls.length > 0 && !functionCall) {
@@ -311,6 +337,18 @@ export async function streamWithGemini(
     }
     if (!sawAnyChunk) {
       throw new GeminiStreamStallError('Gemini stream produced no chunks', false)
+    }
+
+    // The budget ran out before the model reached STOP. Feed back what it wrote
+    // this cycle as its own turn and ask it to keep going, same recursion the
+    // tool-call path below uses — just not consuming that path's cycle budget,
+    // since a continuation is not a tool round-trip.
+    if (!functionCall && finishReason === 'MAX_TOKENS' && continuationsUsed < MAX_TOKEN_CONTINUATIONS) {
+      continuationsUsed++
+      console.warn(`[gemini] MAX_TOKENS — auto-continuing (${continuationsUsed}/${MAX_TOKEN_CONTINUATIONS}) cycle=${cycle}`)
+      contents.push({ role: 'model', parts: [{ text: cycleText }] })
+      contents.push({ role: 'user', parts: [{ text: CONTINUE_INSTRUCTION }] })
+      return runCycle(cycle)
     }
 
     // Mirrors the attach condition above: a call can only arrive on a cycle that
