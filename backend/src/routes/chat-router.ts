@@ -3767,40 +3767,17 @@ EXECUTIVE RESPONSE INSTRUCTIONS:
         send('token', { token: componentSummary })
       }
 
-      // Step 7: Build component response
-      // Map 'general' intent to 'details' for component spec
-      const componentIntent: 'payment' | 'investment' | 'location' | 'timeline' | 'builder' | 'details' | 'compare' =
-        plan.intent === 'general' ? 'details' : (plan.intent as any)
-      const sources = (gatewayResponse.sources ?? []).map(String)
-
-      const componentResponse = buildComponentResponse({
-        summary: componentSummary,
-        confidence,
-        facts: gatewayResponse.data,
-        intent: componentIntent,
-        projectId: plan.projectIds[0],
-        sources,
-      })
-
-      console.log('[CHAT:PROJECT_DETAIL:RESPONSE]', Date.now(), {
-        componentCount: componentResponse.components.length,
-        confidence: Math.round(confidence * 100),
-        sources: componentResponse.sources,
-      })
-
-      // Track successful component response (Phase 11)
-      trackEvent(userId ?? null, ANALYTICS_EVENTS.COMPONENTS_RENDERED, {
-        componentCount: componentResponse.components.length,
-        confidence: Math.round(confidence * 100),
-        componentTypes: componentResponse.components.map(c => c.type),
-        sources: componentResponse.sources,
-        intent: componentIntent,
-        projectId: plan.projectIds[0],
-      })
-
-      // Send components as response
-      send('components', componentResponse as unknown as Record<string, unknown>)
-
+      /**
+       * Fetched and sent here — immediately once the turn is known safe —
+       * rather than after the component response was built below. That gap
+       * (buildComponentResponse, two trackEvent calls, a console.log) was pure
+       * added latency between the answer finishing and the card appearing: by
+       * the time the card arrived the buyer had already read the whole reply.
+       * Every other card-emitting lane in this router sends its card before or
+       * alongside the text; this is the one that sent it after, and the delay
+       * was entirely avoidable — nothing below this point determines whether
+       * the card should show.
+       */
       const matchedCardProject = await (prisma as any).project.findUnique({
         where: { id: plan.projectIds[0] },
         include: {
@@ -3840,7 +3817,41 @@ EXECUTIVE RESPONSE INSTRUCTIONS:
       } else if (matchedCardProject) {
         console.log('[CHAT:CARD_SUPPRESSED] degraded turn — not rendering a card behind an outage notice')
       }
-      
+
+      // Step 7: Build component response
+      // Map 'general' intent to 'details' for component spec
+      const componentIntent: 'payment' | 'investment' | 'location' | 'timeline' | 'builder' | 'details' | 'compare' =
+        plan.intent === 'general' ? 'details' : (plan.intent as any)
+      const sources = (gatewayResponse.sources ?? []).map(String)
+
+      const componentResponse = buildComponentResponse({
+        summary: componentSummary,
+        confidence,
+        facts: gatewayResponse.data,
+        intent: componentIntent,
+        projectId: plan.projectIds[0],
+        sources,
+      })
+
+      console.log('[CHAT:PROJECT_DETAIL:RESPONSE]', Date.now(), {
+        componentCount: componentResponse.components.length,
+        confidence: Math.round(confidence * 100),
+        sources: componentResponse.sources,
+      })
+
+      // Track successful component response (Phase 11)
+      trackEvent(userId ?? null, ANALYTICS_EVENTS.COMPONENTS_RENDERED, {
+        componentCount: componentResponse.components.length,
+        confidence: Math.round(confidence * 100),
+        componentTypes: componentResponse.components.map(c => c.type),
+        sources: componentResponse.sources,
+        intent: componentIntent,
+        projectId: plan.projectIds[0],
+      })
+
+      // Send components as response
+      send('components', componentResponse as unknown as Record<string, unknown>)
+
       // Re-emit ui_state to populate chips AFTER the component response
       // For project detail we can just generate standard chips based on the project.
       // Fix 3: Use matched project name, not ID string
