@@ -195,15 +195,11 @@ Even accounting for that clamp, Mistral's own 3-round auto-continuation (built e
 
 Verified for everything above: typecheck clean (both workspaces), lint clean, full backend suite 2,907 tests / 2,132 pass / 0 fail on `main`, full frontend build clean (30 routes). Commits: `8d40626`, `1f5e2a4`, `df16985` on `main`.
 
-### 🚧 Built, tested, but NOT deployed — branch `feat/admin-rbac-identity`
+### ✅ Admin identity/RBAC/CRM — merged to `main`, migration applied, verified live
 
-Admin identity, roles, an invite system, and builder/partner portals — everything you asked for tonight on this front is **coded and passing its own tests**, but sits on a separate branch, not merged to `main`, for one specific reason:
+Update: with your explicit go-ahead, ran all 8 `prisma migrate resolve --applied` commands plus `prisma migrate deploy` against production (zero DDL for the resolve step; the one real migration — `admin_users` table + `audit_logs.actor_admin_id` — applied cleanly). Merged `feat/admin-rbac-identity` into `main` (clean merge, no conflicts), full verification re-run after the merge (typecheck clean both workspaces, full backend suite 2,907/2,132/0-fail, frontend build clean), pushed. Confirmed live end-to-end: seeded the first `SUPER_ADMIN` (`admin@propfyndr.in`), logged in against production, got a real token, and confirmed `GET /admin/team` lists the account. The two new route mounts (`/admin/team`, `/portal/*`) 404'd for about 90 seconds during Render's redeploy propagation, then resolved to the correct 401-without-auth — not a bug, just deploy lag, checked before declaring it done.
 
-**The database migration cannot be applied without you.** `backend/prisma/migrations/20260908010000_add_admin_identity_rbac/migration.sql` is written, additive-only (a new `admin_users` table, a nullable `actor_admin_id` on `audit_logs` — nothing dropped, nothing altered destructively), and ready. But 8 pre-existing migrations ahead of it are still unresolved in `_prisma_migrations` (the bookkeeping-drift issue flagged earlier this session — the columns exist live, the tracking table just doesn't know it), which blocks `prisma migrate dev`/`deploy` from running cleanly. Resolving that requires `prisma migrate resolve --applied ...` against the production database, and **this session's own permission classifier declined to run that unsupervised** — correctly, since it's a production-DB action, even though it's pure bookkeeping with zero DDL. I did not try to route around it.
-
-Deploying the new route files to `main` before that migration is applied would mean `GET /admin/team`, `POST /admin/team/invite`, the builder/partner portal endpoints, and the new email+password login path all throw 500s the moment anyone touches them, because the table they query doesn't exist yet. Given the explicit priority tonight — "the app should not break at any point in time" — I kept this off `main` rather than ship something that fails on first real use.
-
-**What's on the branch, all typecheck/lint clean, all tests passing:**
+Everything below was true before the merge and is now live:
 
 - **Schema**: `AdminRole` enum (`SUPER_ADMIN`/`ANALYST`/`SALES`/`BUILDER`/`PARTNER` — matches the role set you named: builder, broker/channel-partner, super admin, plus the two internal roles the earlier plan already reasoned about), `AdminUser` model (email+password OR linked to an existing buyer's Supabase user id, scoped to a `builder_id`/`partner_id`), `AuditLog.actor_admin_id` (nullable, additive).
 - **`adminIdentity.ts`** — per-admin sessions carrying real role and scope, sharing the same session store the existing `ADMIN_PASSWORD` login already uses (so that login keeps working unchanged — it now maps to a synthetic bootstrap `SUPER_ADMIN` identity, `adminUserId: 'root'`, instead of no identity at all). `requireRole`/`requireScope` middleware — scope is re-validated against the actual resource being fetched, never trusted from the request; 12 tests cover this including the case that matters most (a BUILDER session with no `builder_id` is refused, not treated as unscoped). Password hashing via Node's own `crypto.scrypt` — no new dependency, since grepping the whole codebase found no password hasher anywhere despite `BuilderAccount.password_hash` sitting unused in the schema.
@@ -211,22 +207,7 @@ Deploying the new route files to `main` before that migration is applied would m
 - **`portal.ts`** — a builder's own projects and the leads on them (scoped via their own project slugs fetched from the database, never a builder_id trusted from the request), a partner's own profile.
 - **Frontend**: `/admin/team` (invite/promote/manage, with a Team nav item), `/admin/accept-invite`, `/builder/portal`, `/partner/portal`, and `/admin/login` updated to accept an optional email (falls back to the shared password when absent) and route BUILDER/PARTNER logins to their own portal.
 
-**To bring this live**, when you're back and can explicitly approve a production-DB action:
-```
-cd backend
-npx prisma migrate resolve --applied "0_baseline"
-npx prisma migrate resolve --applied "20260809152425_add_comprehensive_property_fields"
-npx prisma migrate resolve --applied "20260818_add_chat_session_fk_to_callback"
-npx prisma migrate resolve --applied "20260818_add_property_feedback"
-npx prisma migrate resolve --applied "add_lead_objections"
-npx prisma migrate resolve --applied "add_message_edit_tracking"
-npx prisma migrate resolve --applied "drop_fabricated_defaults"
-npx prisma migrate resolve --applied "phase0_conversation_memory"
-npx prisma migrate deploy
-```
-then merge `feat/admin-rbac-identity` into `main` and push. I did not merge it myself — that's your call once the migration is real.
-
-**First SUPER_ADMIN, once the migration is applied**: there's no seed script for that yet — the fastest path is one manual `INSERT INTO admin_users (id, email, password_hash, role) VALUES (...)` with a scrypt hash from `hashPassword()` in `adminIdentity.ts`, or ask me to write a one-off script once the table exists. Not built blind tonight since it needs the real table to test against.
+**Done, all of the above.** `backend/scripts/seed-super-admin.ts` (`npx tsx scripts/seed-super-admin.ts <email> <password>`) is what created the first account — built and tested for real once the table existed, not guessed at blind.
 
 ### Explicitly NOT done — said plainly, not glossed over
 
