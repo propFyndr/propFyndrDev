@@ -199,12 +199,41 @@ const TURN_BUDGET_MS = Number(process.env.FALLBACK_TURN_BUDGET_MS ?? 30_000)
  * when the known-name cache is cold, and null holds the paragraph back; a
  * guard that could not read the database must not wave text through.
  */
+/**
+ * True when `paragraph` structurally repeats something `priorText` already
+ * has — a markdown table's header separator row, or a heading this codebase
+ * uses to mark a section (`### Verdict`, `### Recommendation`). A genuine
+ * continuation never needs to redraw either; a model that restarted does.
+ */
+export function looksLikeRestart(paragraph: string, priorText: string): boolean {
+  const HEADING = /^#{2,3}\s+\S/m
+  const TABLE_SEPARATOR_ROW = /^\s*\|?\s*:?-{2,}:?\s*\|/m
+  for (const pattern of [HEADING, TABLE_SEPARATOR_ROW]) {
+    const match = paragraph.match(pattern)
+    if (match && priorText.includes(match[0].trim())) return true
+  }
+  return false
+}
+
 function createBufferedSend(
   originalSend: SendFn,
   systemPrompt: string,
   bufferLimit = STREAM_BUFFER_CHARS,
   suppressTables = false,
   releaseByParagraph = false,
+  /**
+   * Set only on a leg that is continuing after a mid-stream handoff (see
+   * `carryText` at the call site). A model asked to "continue" sometimes
+   * ignores that and restarts instead — observed live, reproducibly, on the
+   * comparison lane: cut mid-sentence, then a fresh "| Core Metric |" table
+   * header a paragraph later. Wording alone did not reliably prevent it, so
+   * this is the code-level backstop: a paragraph that structurally repeats
+   * something `priorCarryText` already has is a restart, not a continuation,
+   * and is poisoned exactly like an integrity violation — stopping the
+   * answer where it stands is the lesser harm next to showing the buyer a
+   * duplicated, confusing table.
+   */
+  priorCarryText = '',
 ) {
   // Sits between the buffer and the client, so it sees whole chunks and can
   // reassemble the lines a table is made of.
@@ -303,6 +332,12 @@ function createBufferedSend(
         '[FALLBACK:INTEGRITY_MIDSTREAM] stopping the answer where it stands: ' +
         verdict.map(v => `${v.kind}(${v.detail})`).join(', '),
       )
+      return
+    }
+
+    if (priorCarryText && looksLikeRestart(complete, priorCarryText)) {
+      poisoned = true
+      console.warn('[FALLBACK:MID_STREAM_RESTART] continuation ignored the handoff and restarted — stopping the answer where it stands')
       return
     }
 
@@ -475,7 +510,10 @@ export async function executeWithFallbackChain(options: FallbackChainOptions): P
   /** Mutated when a mid-stream failure hands off to the next leg. */
   let turnMessages = cappedMessages
   const MID_STREAM_CONTINUE_INSTRUCTION =
-    'Continue your answer exactly where you left off. Do not repeat anything you already said, do not restate the question, and do not mention that you were interrupted.'
+    'The message above is YOUR OWN answer, cut off mid-way through by a length limit — not something to react to or start over. ' +
+    'Continue writing the rest of it, picking up from the exact word or sentence it ended on. ' +
+    'Do NOT restart from the beginning, do NOT redraw any table you already started (a partial row is still your table — extend it, never rebuild it), ' +
+    'do not repeat anything already written, do not restate the question, and do not mention that you were interrupted.'
 
   for (let chainIdx = 0; chainIdx < effectiveChainConfig.length; chainIdx++) {
     const item = effectiveChainConfig[chainIdx]
@@ -583,6 +621,7 @@ export async function executeWithFallbackChain(options: FallbackChainOptions): P
       bufferLimit,
       options.suppressTables === true,
       PARAGRAPH_STREAMING,
+      carryText,
     )
 
     const effectiveConfig = options.config || { maxTokens: 3000 }
@@ -800,16 +839,17 @@ export async function executeWithFallbackChain(options: FallbackChainOptions): P
             // Answered — trust this leg again immediately, in case an earlier
       // durable failure was resolved (billing topped up, quota window reset).
       recordSuccess(cooldownKey)
-      // Known gap, same shape as the one fixed inside each adapter: if the
-      // join between what carryText ended on and this leg's first token glues
-      // two words together, it is not repaired here. Fixing it would mean
-      // injecting a space into the live stream (via a wrapper around `send`
-      // passed to this leg) independently of the space the RETURNED `text`
-      // needs — two different accumulations of the same generation, in two
-      // different call frames, that would then need to agree. Rare enough
-      // (not the common case the adapter-level fix targets, and not observed
-      // in production) that doing it properly is deferred rather than shipped
-      // as a half-fix that could disagree with what the screen actually showed.
+      // Still open, and smaller than it was: if the join between what
+      // carryText ended on and this leg's first token glues two words
+      // together, it is not repaired here — fixing it needs injecting a
+      // space into the live stream independently of the space the RETURNED
+      // `text` needs, two different accumulations of the same generation in
+      // two different call frames. The bigger half of this — a continuation
+      // ignoring the handoff and restarting the whole answer instead — WAS
+      // observed live (comparison lane, reproduced twice) and is now caught
+      // by `looksLikeRestart` inside `createBufferedSend`: a restart is
+      // poisoned the same way an integrity violation is, so the buyer sees
+      // the answer stop cleanly rather than a duplicated, confusing table.
       return {
         text: carryText ? carryText + beautified : beautified,
         provider: item.provider,

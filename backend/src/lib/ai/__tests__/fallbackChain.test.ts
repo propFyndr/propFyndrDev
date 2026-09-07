@@ -1,6 +1,6 @@
 import { describe, it } from 'node:test'
 import assert from 'node:assert'
-import { executeWithFallbackChain } from '../fallbackChain'
+import { executeWithFallbackChain, looksLikeRestart } from '../fallbackChain'
 import type { FallbackKeyConfig } from '../../config'
 
 describe('Multi-Provider Fallback Chain Engine', () => {
@@ -223,4 +223,30 @@ describe('the skip is narrow enough not to cost honest answers', () => {
   for (const q of MUST_BE_SKIPPED) {
     it(`skips: ${q}`, async () => assert.strictEqual(await skipped(q), true))
   }
+})
+
+describe('looksLikeRestart', () => {
+  it('flags a paragraph that redraws a table header separator already in prior text', () => {
+    const prior = 'Some intro.\n\n| Core Metric | A | B |\n| :--- | :--- | :--- |\n| Price | 1 | 2 |'
+    const next = '| Core Metric | A | B |\n| :--- | :--- | :--- |\n'
+    assert.strictEqual(looksLikeRestart(next, prior), true)
+  })
+
+  it('flags a paragraph that repeats a heading already in prior text', () => {
+    const prior = '### Verdict\nChoose A because reasons.'
+    const next = '### Verdict\nSomething else entirely.'
+    assert.strictEqual(looksLikeRestart(next, prior), true)
+  })
+
+  it('does not flag a genuine continuation with no heading or table', () => {
+    const prior = '### Verdict\nChoose A because reasons.'
+    const next = 'if you value affordability over location.'
+    assert.strictEqual(looksLikeRestart(next, prior), false)
+  })
+
+  it('does not flag the first table in prior text against itself when nothing new is drawn', () => {
+    const prior = ''
+    const next = '| Core Metric | A | B |\n| :--- | :--- | :--- |\n'
+    assert.strictEqual(looksLikeRestart(next, prior), false)
+  })
 })
