@@ -77,9 +77,16 @@ async function tryProvider(item: FallbackKeyConfig, systemPrompt: string, histor
     } else if (item.provider === 'mistral') {
       raw = await completeWithMistral(systemPrompt, historyText, apiKey)
     } else if (item.provider === 'openai') {
-      const client = new OpenAI({ apiKey, baseURL: 'https://models.inference.ai.azure.com', maxRetries: 0 })
+      // `item.baseUrl` names the real host for every 'openai'-provider leg in
+      // FALLBACK_CHAIN today — Cohere, NVIDIA, Cloudflare and (since 7 Sep
+      // 2026) Groq all share this adapter and none of them is api.openai.com
+      // or the dead Azure host this branch used to hardcode regardless of
+      // which leg was calling. Respecting item.model alongside it matters for
+      // the same reason: MODELS.OPENAI_FALLBACK ('gpt-4o-mini') is a 404 on
+      // every one of them.
+      const client = new OpenAI({ apiKey, baseURL: item.baseUrl ?? 'https://models.inference.ai.azure.com', maxRetries: 0 })
       const res = await client.chat.completions.create({
-        model: MODELS.OPENAI_FALLBACK,
+        model: item.baseUrl ? item.model : MODELS.OPENAI_FALLBACK,
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: historyText },

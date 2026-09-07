@@ -1,12 +1,11 @@
 import { EvalCallHandler } from './harness'
-import type { NextRequest } from 'next/server'
 
 /**
  * Wraps the actual chat route handler for eval harness.
  * Simulates POST /api/v1/chat requests without going through HTTP layer.
  */
 export async function createChatEndpointHandler(
-  chatRouteHandler: (req: NextRequest) => Promise<Response>,
+  chatRouteHandler: (req: Request) => Promise<Response>,
 ): Promise<EvalCallHandler> {
   return async (query: string): Promise<string> => {
     // Simulate NextRequest with chat payload
@@ -23,7 +22,7 @@ export async function createChatEndpointHandler(
         'Authorization': 'Bearer eval-test-token',
       },
       body,
-    }) as NextRequest
+    })
 
     try {
       const response = await chatRouteHandler(mockReq)

@@ -119,7 +119,10 @@ describe('projectScalarFacts', () => {
 describe('buildProjectFacts — relations', () => {
   it('summarises units, amenities, connectivity, plans and the cost sheet', () => {
     const facts = buildProjectFacts(row({
-      builder: { name: 'ACE Group' },
+      // Widened 7 Sep 2026 — was a bare name string. `founded_year` and
+      // `delivery_score` prove both halves of the policy in one fixture: a
+      // safe factual field passes through, an opaque analyst score does not.
+      builder: { name: 'ACE Group', founded_year: 2005, delivery_score: 88, cin: 'U45201DL2005PLC123456' },
       unit_types: [{ bhk: 3, super_area_sqft: 1420, price_min_cr: 3.11 }],
       amenities: [{ name: 'Swimming Pool' }, { name: 'Gym' }],
       connectivity: [{ name: 'Sector 148 Metro', distance_km: 2.1, travel_time_min: 7 }],
@@ -127,7 +130,7 @@ describe('buildProjectFacts — relations', () => {
       cost_sheet: { id: 'cs1', project_id: 'p1', base_price_per_sqft: 10800, created_at: new Date() },
     }) as never)
 
-    assert.equal(facts.builder, 'ACE Group')
+    assert.deepEqual(facts.builder, { name: 'ACE Group', founded_year: '2005' })
     assert.deepEqual(facts.unit_types, ['3 BHK (1420 sq ft) from ₹3.11 Cr'])
     assert.deepEqual(facts.amenities, ['Swimming Pool', 'Gym'])
     assert.deepEqual(facts.connectivity, ['Sector 148 Metro — 2.1 km, 7 min'])

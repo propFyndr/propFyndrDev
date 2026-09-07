@@ -97,8 +97,22 @@ describe('master data coverage', { skip: !available && 'newProj/75 master JSON n
     // to make. Trimming waste first and then raising the bar by the smallest
     // amount that admits the content is a different act from raising the bar
     // to make a failure go away.
+    //
+    // Raised again, 6,500 -> 7,500, on 7 Sep 2026: `buildProjectFacts` widened
+    // the builder relation from `builder.name` alone to founded_year, delivery
+    // counts, average handover delay, RERA promoter id, awards and CREDAI/ISO
+    // status — the same trade as above, examined the same way. The object was
+    // 1,092 characters on this seeded record; 104 of them were `slug` and
+    // `logo_url`, safe but pointless as prompt text (a URL the model cannot
+    // render, an identifier no prompt rule reads) and are now dropped before
+    // the block is built, the same reason PROMPT_EXCLUDED_FIELDS withholds
+    // Project's own hero_image_url. The remaining ~984 is real: founded_year,
+    // delivered/ongoing project counts, handover delay, RERA promoter id,
+    // awards and certifications — every field `builderReputationHandler`
+    // already treats as safe to answer a builder question with, now answerable
+    // from the facts block instead of a 215-line handler.
     const chars = JSON.stringify(buildProjectFacts(firstProject() as never)).length
-    assert.ok(chars < 6500, `default facts block is ${chars} chars (~${Math.round(chars / 4)} tokens)`)
+    assert.ok(chars < 7500, `default facts block is ${chars} chars (~${Math.round(chars / 4)} tokens)`)
   })
 
   it('keeps the analyst narratives out of an ordinary turn', () => {
@@ -155,11 +169,19 @@ describe('master data coverage', { skip: !available && 'newProj/75 master JSON n
     // above: the enrichment added real content to all three relations. What
     // matters is that this stays a CEILING with a number behind it, so an
     // unbounded relation cannot be added without someone seeing this fail.
+    //
+    // Raised again, 11,500 -> 12,500, on 7 Sep 2026, by the same ~984 chars as
+    // the default budget's comment above — the widened builder relation is
+    // topic-independent, so it costs the same here as it does on an ordinary
+    // turn. See that comment for what the 984 is and why it stays.
+    // `availability` (unit_inventory) added to the worst-case set 7 Sep 2026,
+    // the same day it was introduced — this test's own point is that it
+    // stays a real ceiling for every heavy relation, not four of five.
     const all = buildProjectFacts(firstProject() as never, {
-      topics: new Set<FactTopic>(['price_history', 'specifications', 'construction', 'deep_reasoning']),
+      topics: new Set<FactTopic>(['price_history', 'specifications', 'construction', 'deep_reasoning', 'availability']),
     })
     const chars = JSON.stringify(all).length
-    assert.ok(chars < 11_500, `full facts block is ${chars} chars (~${Math.round(chars / 4)} tokens)`)
+    assert.ok(chars < 12_500, `full facts block is ${chars} chars (~${Math.round(chars / 4)} tokens)`)
   })
 })
 
@@ -173,6 +195,14 @@ describe('detectFactTopics', () => {
     assert.ok(detectFactTopics('has the price appreciated?').has('price_history'))
     assert.ok(detectFactTopics('what flooring is used').has('specifications'))
     assert.ok(detectFactTopics('what stage is the slab work at').has('construction'))
+    assert.ok(detectFactTopics('which units are available on the 5th floor').has('availability'))
+  })
+
+  it('does not treat an ordinary floor-plan question as an availability question', () => {
+    // "floor plan" and "how many floors" must not drag in unit_inventory —
+    // that's floor_plans_lookup's job, and unit_inventory can be hundreds of
+    // rows on a large project.
+    assert.equal(detectFactTopics('what floor plans do you have for the 3 BHK').has('availability'), false)
   })
 })
 

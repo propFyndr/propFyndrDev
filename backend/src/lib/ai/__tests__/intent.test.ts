@@ -150,6 +150,15 @@ describe('Intent: extractIntent (with SDK mocking)', () => {
     'GROQ_API_KEY', 'GROQ_API_KEY1', 'GROQ_API_KEY2', 'GROQ_API_KEY3',
     'CEREBRAS_API_KEY', 'CEREBRAS_API_KEY1',
     'OPENAI_API_KEY', 'OPENAI_API_KEY1', 'OPENAI_API_KEY2', 'OPENAI_API_KEY3',
+    // These three were already missing before 7 Sep 2026, coincidentally
+    // masked: COHERE_API_KEY and NVIDIA_API_KEY are only in the chain for the
+    // main chat path's tier 2, and this suite happened to run while both were
+    // exhausted for unrelated reasons (Cohere's trial monthly cap, NVIDIA's
+    // dry test credits). CLOUDFLARE_API_KEY is the one that actually broke
+    // this test — see intent-extraction-fallback.test.ts's longer comment on
+    // the same fix for why fixing extractWithOpenAIKey's host-selection bug
+    // is what surfaced this rather than something in that fix being wrong.
+    'COHERE_API_KEY', 'NVIDIA_API_KEY', 'CLOUDFLARE_API_KEY',
   ]
   const saved: Record<string, string | undefined> = {}
   let savedFastPath: string | undefined

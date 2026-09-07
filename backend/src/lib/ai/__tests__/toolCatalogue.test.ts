@@ -3,13 +3,19 @@ import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { NEUTRAL_TOOLS, toOpenAITools, toGeminiTools } from '../tools'
+import { CORE_TOOLS, INTENT_ROUTED_TOOLS } from '../toolRegistry'
 
 // The model can only call what the catalogue advertises, and only gets an answer
-// for what the router handles. Those two lists drifted: best_value_projects,
-// fastest_possession_projects and best_for_families_projects were advertised but
-// never implemented (their descriptions still carried a "Phase 5:" prefix), so a
-// buyer asking for "best value in Sector 150" got "temporarily unavailable" from
-// a tool that had never existed. This keeps them in step.
+// for what the router handles. Those two lists drifted once already:
+// best_value_projects, fastest_possession_projects and best_for_families_projects
+// were advertised in toolRegistry.ts but never implemented, so a buyer asking for
+// "best value in Sector 150" got "temporarily unavailable" from a tool that had
+// never existed. This comment used to say that drift was fixed; it was not — all
+// three sat in toolRegistry.ts, unschematized, until 7 Sep 2026, because the test
+// below only ever checked NEUTRAL_TOOLS → handler, never toolRegistry → NEUTRAL_TOOLS.
+// They are now removed rather than reintroduced (see toolRegistry.ts's comment),
+// and the "promises the model nothing it cannot actually call" test below is what
+// actually keeps the two lists in step, in both directions.
 
 // Handlers used to live inline in chat-router.ts and now sit in their own
 // module. Both are read, so the check holds wherever a handler is written and
@@ -70,6 +76,32 @@ describe('tool catalogue', () => {
     const [gemini] = toGeminiTools()
     assert.ok(gemini.functionDeclarations, 'Gemini wrapper missing functionDeclarations')
     assert.equal(gemini.functionDeclarations.length, NEUTRAL_TOOLS.length)
+  })
+
+  it('promises the model nothing it cannot actually call', () => {
+    // The reverse of the first test: a name can be selected into the visible
+    // "## TOOLS" prompt text by toolRegistry.ts (and given a human-readable
+    // description in prompts/base.ts) while having no entry in NEUTRAL_TOOLS —
+    // so the model is told a capability exists, but toOpenAITools()/
+    // toGeminiTools() never actually offer it a matching function to call.
+    //
+    // Found this way once already: project_nearby had a real handler and a
+    // real description in base.ts's toolDescriptions map, and was reachable
+    // through filterToolsByIntent on every location/connectivity question —
+    // but no NEUTRAL_TOOLS schema, so the model could never call it, only be
+    // told to.
+    const registryNames = new Set([
+      ...CORE_TOOLS,
+      ...INTENT_ROUTED_TOOLS.map(t => t.name),
+    ])
+    const unschematized = [...registryNames].filter(n => !advertisedToolNames().has(n))
+    assert.deepEqual(
+      unschematized,
+      [],
+      'These tools can be selected into the prompt by filterToolsByIntent but have ' +
+        'no NEUTRAL_TOOLS entry, so the model is told about a capability it cannot ' +
+        'actually invoke. Add a schema to tools.ts, or remove the name from toolRegistry.ts.',
+    )
   })
 
   it('has no duplicate tool names', () => {

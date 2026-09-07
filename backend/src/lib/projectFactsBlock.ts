@@ -24,7 +24,7 @@
  */
 
 import { airportDistances } from './discovery/airports'
-import { redactProject, isPublicField, stripRelationInternals, isSchemaDefault } from './projectExposure'
+import { redactProject, isPublicField, stripRelationInternals, isSchemaDefault, stripOpaqueScores } from './projectExposure'
 import { normalizeRera, RERA_AMBIGUOUS_NOTE } from './reraIntegrity'
 
 /** Columns rendered as "yes"/"no" rather than true/false. */
@@ -116,7 +116,7 @@ function formatValue(key: string, value: unknown): string | null {
  * them. Measured on a fully-seeded record, these three were 2,857 of 8,201
  * characters — 35% of the block for detail almost no turn asks for.
  */
-export type FactTopic = 'price_history' | 'specifications' | 'construction' | 'deep_reasoning'
+export type FactTopic = 'price_history' | 'specifications' | 'construction' | 'deep_reasoning' | 'availability'
 
 /**
  * Sub-fields of decision_profile that only a genuinely analytical turn needs.
@@ -151,6 +151,14 @@ export const FACT_TOPIC_PATTERNS: ReadonlyArray<{ topic: FactTopic; pattern: Reg
   {
     topic: 'deep_reasoning',
     pattern: /\bvs\b|\bversus\b|compare|better (than|for)|which (one|is better)|trade[- ]?offs?|worth (it|buying)|should i (buy|invest)|investment|appreciat|resale|rental yield|risk|long[- ]term|5[- ]year|why (buy|avoid)|pros and cons/i,
+  },
+  // Unit-level detail — added 7 Sep 2026 alongside wiring `unit_inventory` into
+  // the facts block for the first time. Gated the same reason price_history
+  // and specifications are: a large project can carry hundreds of individual
+  // unit rows, and almost no turn asks about a specific one.
+  {
+    topic: 'availability',
+    pattern: /which (unit|units|floor|flat)|specific unit|unit number|which tower|facing (north|south|east|west|ne|nw|se|sw)|corner unit|available units?|unsold units?/i,
   },
 ]
 
@@ -338,12 +346,19 @@ interface RelationShapes {
   price_history?: Array<Record<string, unknown>> | null
   construction_milestones?: Array<Record<string, unknown>> | null
   spec_items?: Array<Record<string, unknown>> | null
+  competitors?: Array<Record<string, unknown>> | null
+  unit_inventory?: Array<Record<string, unknown>> | null
+  channel_partners?: Array<{ is_featured?: boolean | null; channel_partner?: Record<string, unknown> | null }> | null
 }
 
 /** Applies the relation policy and drops anything that came back empty. */
 function cleanRelation(name: string, row: Record<string, unknown> | null | undefined): Record<string, unknown> | null {
   if (!row) return null
-  const stripped = stripRelationInternals(name, row)
+  // Applied to every relation, not only builder: an opaque 0-100 analyst score
+  // on any current or future relation is the same fake-confidence problem
+  // BUYER_OPAQUE_SCORES already names, and stripping it here means a relation
+  // added later inherits the policy instead of needing its own reminder to.
+  const stripped = stripRelationInternals(name, stripOpaqueScores(row))
   if (!stripped) return null
   const out: Record<string, unknown> = {}
   for (const [key, value] of Object.entries(stripped)) {
@@ -371,7 +386,39 @@ export function buildProjectFacts(
   const maxItems = options.maxListItems ?? (shortlist ? 4 : 15)
   const facts: Record<string, unknown> = projectScalarFacts(row, options)
 
-  if (row.builder && typeof row.builder.name === 'string') facts.builder = row.builder.name
+  /**
+   * Was `row.builder.name` alone until 7 Sep 2026 — a bare string, the same
+   * question "which fields may a relation carry" that RELATION_INTERNAL_FIELDS
+   * already answers for cost_sheet, decision_profile and the rest. `builder`
+   * had simply never been given an entry, so nothing beyond the name reached
+   * the model: not founded_year, not delivered units, not the average handover
+   * delay, not RERA promoter id, not awards or CREDAI membership — all facts a
+   * buyer can genuinely ask about, and all already vetted safe for exactly this
+   * purpose by `builderReputationHandler`, the 215-line handler that exists
+   * because this projection had nothing to answer a builder question with.
+   *
+   * `cleanRelation` is the same helper cost_sheet/decision_profile/etc. already
+   * go through — it applies stripOpaqueScores (drops the analyst-set 0-100
+   * scores) and stripRelationInternals (drops cin/legal_entities/executives/
+   * outstanding_dues_cr/audit_flags_log/verification_level/data_source/
+   * intelligence_completeness, per the builder entry in RELATION_INTERNAL_FIELDS)
+   * before anything reaches the prompt.
+   *
+   * `slug` and `logo_url` are safe (they are in KNOWN_PUBLIC_BUILDER_FIELDS in
+   * the exposure test) but pure waste as prompt text — the same reason
+   * PROMPT_EXCLUDED_FIELDS withholds Project's own `hero_image_url` and
+   * `rera_url`. Not added to that shared Set: Project already uses `slug` for
+   * links, so a name collision there would drop the wrong field. Measured on
+   * a real seeded builder: dropping these two is 104 of the object's 1,092
+   * characters before either was even the largest line — a URL the model
+   * cannot render and an identifier no prompt rule ever reads.
+   */
+  const builderFacts = cleanRelation('builder', row.builder)
+  if (builderFacts) {
+    delete builderFacts.slug
+    delete builderFacts.logo_url
+    facts.builder = builderFacts
+  }
 
   /**
    * A developer's insolvency outranks the project's own "clean" markers.
@@ -552,6 +599,54 @@ export function buildProjectFacts(
       const brand = s.brand ? ` (${s.brand})` : ''
       return `${s.category ? `${s.category}: ` : ''}${s.label} — ${s.value}${brand}`
     })
+  }
+
+  /**
+   * Three relations `ALLOWED_RELATIONS` has permitted since before this file
+   * existed, and nothing had ever asked the database for them — added 7 Sep
+   * 2026. Each backs a real section of the project detail page that the chat
+   * could not previously discuss at all.
+   */
+
+  // Competitor comparisons — small, per-project, and inherently comparison
+  // content, so gated the same as decision_profile's narrative fields rather
+  // than shipped on every ordinary turn. `project_competitors` is still a
+  // real tool for a turn that has no facts block at all; this is the fast
+  // path when one is already being built.
+  if (topics?.has('deep_reasoning') && row.competitors?.length) {
+    facts.competitors = row.competitors
+      .slice(0, 5)
+      .map(c => cleanRelation('competitors', c))
+      .filter(Boolean)
+  }
+
+  // Channel partners — small (a handful per project at most), so included
+  // unconditionally like builder. The interesting data is nested one level
+  // down inside the junction row; cleaning the junction row alone would
+  // JSON.stringify the nested channel_partner object whole, which would ship
+  // its commission rate and lead-conversion numbers verbatim. Cleaned
+  // separately, then merged back in.
+  if (row.channel_partners?.length) {
+    const partners = row.channel_partners
+      .map(pcp => {
+        const cleaned = cleanRelation('channel_partner', pcp.channel_partner)
+        if (!cleaned) return null
+        return pcp.is_featured ? { ...cleaned, featured: 'yes' } : cleaned
+      })
+      .filter((p): p is Record<string, unknown> => p !== null)
+    if (partners.length) facts.channel_partners = partners
+  }
+
+  // Unit-level availability — can be hundreds of rows on a large project, so
+  // topic-gated behind an explicit ask rather than shipped by default. No
+  // RELATION_INTERNAL_FIELDS entry needed: UNIVERSAL_INTERNAL already covers
+  // every bookkeeping column this relation carries (id, project_id,
+  // unit_type_id, created_at) and nothing else on it is internal.
+  if (topics?.has('availability') && row.unit_inventory?.length) {
+    facts.unit_inventory = row.unit_inventory
+      .slice(0, maxItems)
+      .map(u => cleanRelation('unit_inventory', u))
+      .filter(Boolean)
   }
 
   return facts

@@ -168,6 +168,14 @@ export function SpecificationGrid({ specs }: SpecificationGridProps) {
     const groups: Record<string, SpecItem[]> = {}
     if (!Array.isArray(specs)) return groups
     specs.forEach(spec => {
+      // A spec with no value renders as a labelled card with a blank line
+      // where the value goes — the empty-card bug this component was built
+      // to avoid. `value` is typed as a required string, but Postgres holds
+      // it as nullable, so an empty or whitespace-only string reaches here at
+      // runtime regardless of the type. Omission is the signal everywhere
+      // else in this codebase's fact-presentation rules; a card with nothing
+      // to show is worse than one fewer card.
+      if (!spec.value || !spec.value.trim()) return
       const cat = spec.category || 'general'
       if (!groups[cat]) groups[cat] = []
       groups[cat].push(spec)
@@ -202,7 +210,11 @@ export function SpecificationGrid({ specs }: SpecificationGridProps) {
     setCategoryOverrides({})
   }
 
-  if (!specs || !Array.isArray(specs) || specs.length === 0) {
+  // Checks the count AFTER the empty-value filter above, not the raw prop —
+  // a specs array that is non-empty but entirely empty-valued used to fall
+  // through this guard and render a header claiming N verified specs with
+  // zero category cards underneath it.
+  if (!specs || !Array.isArray(specs) || specs.length === 0 || categories.length === 0) {
     return null
   }
 
@@ -341,7 +353,13 @@ export function SpecificationGrid({ specs }: SpecificationGridProps) {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-2 gap-2.5 sm:gap-4 items-start">
+      {/* Single column under the md breakpoint — two cramped ~180px-wide
+          category cards on a 375px phone was the "single column under 440px"
+          gap. Every col-span-* below is already written in terms of md:, so
+          this is the only line that needed to change: col-span-2 on a
+          1-column grid just occupies the one column that exists, same as
+          col-span-1 would, so nothing else shifts. */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5 sm:gap-4 items-start">
         {categories.map((cat, i) => {
           const isOpen = isCategoryOpen(cat)
           const isLastOdd = categories.length % 2 !== 0 && i === categories.length - 1

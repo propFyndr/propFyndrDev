@@ -328,7 +328,7 @@ export function isPublicField(field: string): boolean {
  * a buyer has no use for a uuid, and a raw foreign key invites the model to
  * echo it.
  */
-const UNIVERSAL_INTERNAL = ['id', 'project_id', 'unit_type_id', 'channel_partner_id', 'created_at', 'updated_at']
+export const UNIVERSAL_INTERNAL = ['id', 'project_id', 'unit_type_id', 'channel_partner_id', 'created_at', 'updated_at']
 
 /**
  * Per-relation fields that are analyst- or operator-facing only.
@@ -348,6 +348,57 @@ export const RELATION_INTERNAL_FIELDS: Record<string, readonly string[]> = {
   construction_milestones: ['verified_by', 'verified_at', 'notes'],
   construction_updates: ['verified_by', 'verified_at'],
   lifecycle_updates: ['verified_by', 'verified_at'],
+  /**
+   * Added 7 Sep 2026 — `buildProjectFacts` used to project `builder.name` and
+   * nothing else, which is why `builderReputationHandler` (215 lines of
+   * hand-built table) exists at all: it was the only way to answer a builder
+   * question, because the generic facts block had nothing to answer it with.
+   * Widening this relation is what lets the generic path retire that handler.
+   *
+   * The opaque 0-100 analyst scores (delivery_score, construction_quality_score,
+   * rera_compliance_score, financial_hygiene_score) are stripped by
+   * `stripOpaqueScores`, not listed here — same reason as BUYER_OPAQUE_SCORES
+   * everywhere else: a number a buyer cannot check, about the exact developer
+   * they are trying to assess, reads as a rating. `cin`, `legal_entities` and
+   * `executives` are corporate-registry detail with no buyer-facing use case in
+   * this product. `outstanding_dues_cr` is the builder's own financial distress
+   * figure — the kind of thing that needs full context to state responsibly,
+   * which a bare number in a facts block does not provide; `insolvency_history`
+   * and `legal_flag` already carry the buyer-facing version of this signal.
+   * `audit_flags_log`, `verification_level`, `data_source` and
+   * `intelligence_completeness` are about our own process, not a fact about the
+   * developer.
+   */
+  builder: [
+    'cin', 'legal_entities', 'executives', 'outstanding_dues_cr',
+    'audit_flags_log', 'verification_level', 'data_source', 'intelligence_completeness',
+    // Same rule as decision_profile / recommendation_profile / persona_profile
+    // above: when we last checked a record is our own process detail, not a
+    // fact about the developer.
+    'last_verified_at',
+  ],
+  /**
+   * `ProjectCompetitor` rows — added 7 Sep 2026 alongside `channel_partner`
+   * below, wiring `ALLOWED_RELATIONS` entries that were permitted but never
+   * requested. `competitor_slug` is the same class of waste as builder's own
+   * `slug` — an internal identifier no prompt rule reads — and
+   * `competitor_project_id` is a raw foreign key, the same reason
+   * `builder_id` stays off `Project` itself.
+   */
+  competitors: ['competitor_slug', 'competitor_project_id'],
+  /**
+   * `ChannelPartner`, nested inside the `ProjectChannelPartner` junction row a
+   * project's `channel_partners` relation actually returns. `total_leads`,
+   * `total_conversions`, `conversion_rate_pct`, `commission_rate_pct` and
+   * `payment_terms` are our own commercial arrangement with the partner —
+   * what we pay them and how well they convert for us — not a fact about the
+   * partner a buyer has any business seeing. `verification_date` and
+   * `is_active` are process state, same reason as `builder.last_verified_at`.
+   */
+  channel_partner: [
+    'slug', 'total_leads', 'total_conversions', 'conversion_rate_pct',
+    'commission_rate_pct', 'payment_terms', 'verification_date', 'is_active',
+  ],
 }
 
 /**
@@ -506,6 +557,11 @@ export const BUYER_OPAQUE_SCORES = [
   'rera_compliance_score',
   'overall_score',
   'internal_confidence',
+  // Builder-level, added 7 Sep 2026 alongside RELATION_INTERNAL_FIELDS.builder —
+  // same class as rera_compliance_score above: an analyst-set 0-100 number
+  // about the exact developer a buyer is trying to assess, with nothing a
+  // buyer can check behind it.
+  'financial_hygiene_score',
 ] as const
 
 /** Drops every opaque score from an object bound for a prompt or a response. */

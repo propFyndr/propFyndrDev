@@ -171,6 +171,53 @@ export const OPENAI_BASE_URL = (() => {
 const COHERE_OPENAI_BASE = 'https://api.cohere.ai/compatibility/v1'
 /** NVIDIA NIM's OpenAI-compatible surface. Verified 30 Aug 2026: streams, calls tools. */
 const NVIDIA_OPENAI_BASE = 'https://integrate.api.nvidia.com/v1'
+/**
+ * Groq's OpenAI-compatible surface.
+ *
+ * `groq.ts` / `streamWithGroq` — the bespoke adapter this chain used to call —
+ * has no tool-call loop at all: it never sends a `tools` array and never
+ * handles a `tool_calls` delta, truncates the system prompt to 8,000 characters
+ * and the message history to the last 3 turns at 2,000 characters each, and
+ * hardcodes `MODELS.GROQ_SMART` regardless of which key or leg is calling it —
+ * so all four Groq legs below were silently the same model even when config
+ * said otherwise. None of that is a Groq limitation: Groq serves the exact
+ * OpenAI chat-completions protocol, tool calls included, at this host.
+ *
+ * Routing Groq through the shared `openai` adapter — the same one already
+ * serving Cohere, NVIDIA and Cloudflare — gets the real tool-call loop, the
+ * real per-leg model, and the full facts block for free. One adapter, one
+ * stall timer, one cooldown key space; see `vendorOf` for why it still gets
+ * its own rate-budget bucket.
+ */
+const GROQ_OPENAI_BASE = 'https://api.groq.com/openai/v1'
+
+/**
+ * A floor under Groq's reply ceiling, above whatever the turn's profile asks
+ * for — the mirror image of `MISTRAL_MAX_TOKENS`, which is a cap below the
+ * profile. Mistral needed less because it ran away past what it could
+ * actually finish; Groq needs more for the opposite reason.
+ *
+ * Measured 7 Sep 2026, the day these legs first carried real traffic instead
+ * of being wrongly skipped as tool-blind (see the TIER 2b comment above):
+ * 65 of 174 corpus answers routed to `openai/gpt-oss-20b` were cut mid-
+ * sentence, with completion tokens landing almost exactly on the shared
+ * per-shape ceilings in inferenceProfile.ts — 700 for `lookup`, 1200 for
+ * `factual`. Whether that means gpt-oss-20b is genuinely more verbose per
+ * token than Gemini for the same content, or the ceilings were simply never
+ * exercised at scale before today (Groq served near-zero traffic until this
+ * fix), is not yet known — this is a first attempt, not a settled number.
+ *
+ * 1,600 is chosen to match `advisory`'s existing ceiling exactly: it lifts
+ * `lookup` and `factual` without changing `advisory` or `reasoning`, which
+ * were not the shapes truncating. Move it only with a corpus run showing
+ * what the new value fixes — the same discipline MISTRAL_MAX_TOKENS was
+ * tuned under.
+ */
+export const GROQ_MIN_REPLY_TOKENS = Number(process.env.GROQ_MIN_REPLY_TOKENS ?? 1600)
+
+/** The reply ceiling actually sent to a Groq leg, after raising the turn profile's floor. */
+export const groqReplyCeiling = (profileMaxTokens?: number): number =>
+  Math.max(profileMaxTokens ?? 700, GROQ_MIN_REPLY_TOKENS)
 
 /**
  * The company behind a leg, which is not the same as its `provider`.
@@ -188,6 +235,7 @@ export function vendorOf(leg: Pick<FallbackKeyConfig, 'provider' | 'baseUrl'>): 
   if (/cohere/.test(leg.baseUrl)) return 'cohere'
   if (/nvidia/.test(leg.baseUrl)) return 'nvidia'
   if (/cloudflare/.test(leg.baseUrl)) return 'cloudflare'
+  if (/groq/.test(leg.baseUrl)) return 'groq'
   return 'openai-compatible'
 }
 
@@ -310,20 +358,48 @@ export const FALLBACK_CHAIN: FallbackKeyConfig[] = [
   //   { provider: 'openai', envKey: 'OPENAI_API_KEY', model: MODELS.MAIN, supportsTools: true, label: 'OpenAI (direct)' },
 
   // ═══════════════════════════════════════════════════════════════════════════
+  // TIER 2b — GROQ. Tool-capable, four keys, two models.
+  // ═══════════════════════════════════════════════════════════════════════════
+  // These four were TIER 3 (tool-blind) until 7 Sep 2026, each running
+  // MODELS.GROQ_SMART = 'openai/gpt-oss-120b' with supportsTools: false and no
+  // reason given — twenty lines above, the *same model family* served through
+  // NVIDIA (openai/gpt-oss-20b) was already flagged supportsTools: true, with a
+  // probe note recording a clean tool_call. Groq's own model docs confirm both
+  // gpt-oss-20b and gpt-oss-120b support tool calling. That was a bug, not a
+  // measured limitation, and it meant six of fourteen legs in this chain were
+  // told they could not read the database at the exact point traffic falls
+  // through to them — Gemini's quota spent, Cohere/NVIDIA/Cloudflare exhausted.
+  // See config.ts's GROQ_OPENAI_BASE comment for why these are `provider:
+  // 'openai'` rather than `provider: 'groq'`.
+  //
+  // Four keys, four independent per-minute allowances, split across both
+  // models rather than run identically: gpt-oss-20b (1000 tok/s, $0.075/$0.30
+  // per 1M) tries first on two keys — cheaper and faster than every other
+  // tool-capable leg in this chain including Gemini — then gpt-oss-120b (500
+  // tok/s, $0.15/$0.60, the stronger model) on the other two as an escalation.
+  // If one model family has a problem, the other pair is unaffected.
+  //
+  // Free tier is 8,000 tokens/minute (Groq's published limit); our prompts run
+  // ~13,000 tokens with the facts block attached, so these legs need the paid
+  // Developer tier (250,000 TPM) to answer at all — a free key here silently
+  // 429s on every real turn. Confirm the account tier before relying on them.
+  { provider: 'openai', envKey: 'GROQ_API_KEY', model: 'openai/gpt-oss-20b', supportsTools: true, baseUrl: GROQ_OPENAI_BASE, label: 'Groq gpt-oss-20b (key 1)' },
+  { provider: 'openai', envKey: 'GROQ_API_KEY1', model: 'openai/gpt-oss-20b', supportsTools: true, baseUrl: GROQ_OPENAI_BASE, label: 'Groq gpt-oss-20b (key 2)' },
+  { provider: 'openai', envKey: 'GROQ_API_KEY2', model: 'openai/gpt-oss-120b', supportsTools: true, baseUrl: GROQ_OPENAI_BASE, label: 'Groq gpt-oss-120b (key 3)' },
+  { provider: 'openai', envKey: 'GROQ_API_KEY3', model: 'openai/gpt-oss-120b', supportsTools: true, baseUrl: GROQ_OPENAI_BASE, label: 'Groq gpt-oss-120b (key 4)' },
+
+  // ═══════════════════════════════════════════════════════════════════════════
   // TIER 3 — TOOL-BLIND. Prose only; toolBlindGuard checks whatever they write.
   // ═══════════════════════════════════════════════════════════════════════════
   // Both Mistral keys answer (probed 30 Aug). Two keys rather than one matters:
   // Mistral's free tier rate-limits per key, so the second is a full extra
   // allowance rather than a duplicate.
+  //
+  // Mistral's own docs advertise function calling on mistral-small-latest, so
+  // this tier may shrink to zero legs once that is probed the same way Groq's
+  // flags were — not done in this pass; see PROGRESS.md.
   { provider: 'mistral', envKey: 'MISTRAL_API_KEY', model: 'mistral-small-latest', supportsTools: false, label: 'Mistral Small (key 1)' },
   { provider: 'mistral', envKey: 'MISTRAL_API_KEY1', model: 'mistral-small-latest', supportsTools: false, label: 'Mistral Small (key 2)' },
-
-  // Four keys, four separate per-minute allowances. Groq is the fastest leg in
-  // the chain, so it carries the load when Gemini's free quota is spent.
-  { provider: 'groq', envKey: 'GROQ_API_KEY', model: MODELS.GROQ_SMART, supportsTools: false, label: 'Groq gpt-oss-120b (key 1)' },
-  { provider: 'groq', envKey: 'GROQ_API_KEY1', model: MODELS.GROQ_SMART, supportsTools: false, label: 'Groq gpt-oss-120b (key 2)' },
-  { provider: 'groq', envKey: 'GROQ_API_KEY2', model: MODELS.GROQ_SMART, supportsTools: false, label: 'Groq gpt-oss-120b (key 3)' },
-  { provider: 'groq', envKey: 'GROQ_API_KEY3', model: MODELS.GROQ_SMART, supportsTools: false, label: 'Groq gpt-oss-120b (key 4)' },
 
   // Cerebras is gone. Both keys returned 402 "payment required" on every probe
   // across three days, and the free tier they would otherwise fall back to caps

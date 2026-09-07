@@ -131,6 +131,28 @@ export const NEUTRAL_TOOLS: NeutralTool[] = [
     },
   },
   {
+    name: 'project_nearby',
+    description: 'Get connectivity data for a specific project — metro stations, roads, schools, hospitals, malls, grouped by type with distances. Use for location and connectivity questions about a project already on screen.',
+    parameters: {
+      type: 'object',
+      properties: {
+        project_id: { type: 'string', description: 'The internal project ID (must be from the properties data)' },
+      },
+      required: ['project_id'],
+    },
+  },
+  {
+    name: 'select_property',
+    description: 'Record which specific property the user has focused on, so the conversation can track a single project across turns. Use when the user picks one from a shortlist by name or position ("the second one", "tell me about Ivy County").',
+    parameters: {
+      type: 'object',
+      properties: {
+        property_id: { type: 'string', description: 'The internal project ID (must be from the properties data)' },
+      },
+      required: ['property_id'],
+    },
+  },
+  {
     name: 'project_documents',
     description: 'Get text extracted from project brochures and documents. Use to find highly specific details like floor plans, specifications, or marketing claims not present in the main data block.',
     parameters: {

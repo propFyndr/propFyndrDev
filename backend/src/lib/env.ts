@@ -37,8 +37,11 @@ const EnvSchema = z.object({
   EMAIL_FROM: z.string().optional(),
   EMAIL_TO: z.string().optional(),
 
-  // CORS — set to your Vercel frontend URL
-  FRONTEND_URL: z.string().url().default('http://localhost:3000'),
+  // CORS — set to your Vercel frontend URL. Comma-separated list allowed
+  // (index.ts splits on ',' for its own allow-list), so this cannot be
+  // `.url()` — a single invalid URL in a multi-origin value would crash the
+  // whole process at import time.
+  FRONTEND_URL: z.string().default('http://localhost:3000'),
 
   // Feature flags
   ENABLE_GEMINI_FALLBACK: z.enum(['true', 'false']).optional().default('true'),

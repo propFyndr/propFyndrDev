@@ -46,10 +46,35 @@ export interface ToolContext {
   sessionId?: string | null
 }
 
+/**
+ * In-process counters: how often each tool is actually called, and how often
+ * the call comes back as an error.
+ *
+ * Before this, tool usage had no counter, no analytics event, and no trace —
+ * the single most load-bearing mechanism in the chat architecture (every
+ * DB-backed lookup, every calculator, every RERA check) was entirely
+ * unobserved. This is deliberately the cheapest possible version: in-memory,
+ * per-process, reset on deploy. It answers "is this being called at all" and
+ * "which tools error the most", which is the question that mattered and had
+ * no answer. A durable, cross-process version (a table, a proper analytics
+ * event) is a schema decision — see PLAN.md Phase 0 — not made here.
+ */
+const toolCallStats = new Map<string, { calls: number; errors: number }>()
+
+/** Read-only snapshot for a future admin panel or health-check endpoint. */
+export function getToolCallStats(): Record<string, { calls: number; errors: number }> {
+  return Object.fromEntries(toolCallStats.entries())
+}
+
+/** Test seam. */
+export function resetToolCallStats(): void {
+  toolCallStats.clear()
+}
+
 export function createToolHandler(ctx: ToolContext) {
   const { userId, sessionId: currentSessionId } = ctx
 
-  return async function handleToolCall(name: string, args: any): Promise<any> {
+  const handleToolCall = async function handleToolCallInner(name: string, args: any): Promise<any> {
     try {
           if (name === 'payment_plan_lookup') {
             const pName = args.project_name ?? args.name ?? '';
@@ -389,4 +414,16 @@ export function createToolHandler(ctx: ToolContext) {
       return { error: `Tool ${name} failed to execute. Tell the user this information is temporarily unavailable.` };
     }
   };
+
+  return async function instrumentedToolCall(name: string, args: any): Promise<any> {
+    const stat = toolCallStats.get(name) ?? { calls: 0, errors: 0 }
+    stat.calls++
+    const t0 = Date.now()
+    const result = await handleToolCall(name, args)
+    const isError = !!(result && typeof result === 'object' && 'error' in result)
+    if (isError) stat.errors++
+    toolCallStats.set(name, stat)
+    console.log(`[TOOL:CALL] ${name} — ${Date.now() - t0}ms${isError ? ' — ERROR' : ''}`)
+    return result
+  }
 }

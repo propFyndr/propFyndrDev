@@ -24,7 +24,13 @@ test('a non-Gemini leg is never asked for the profile model', () => {
     !/streamWithOpenAI\([\s\S]{0,800}?effectiveConfig\.model \?\? item\.model/.test(chainSource),
     'the OpenAI leg must pass item.model, not effectiveConfig.model',
   )
-  assert.match(chainSource, /\{ \.\.\.effectiveConfig, model: item\.model \}/)
+  // Was a single-line object literal until 7 Sep 2026, when a conditional
+  // Groq-only maxTokens override (see groqReplyCeiling in config.ts) made it
+  // multi-line. The regex now tolerates either shape — the property this test
+  // actually cares about is that `model` is set to the literal `item.model`,
+  // spread after `...effectiveConfig` so the spread cannot silently reintroduce
+  // effectiveConfig's own `model` key afterwards.
+  assert.match(chainSource, /\.\.\.effectiveConfig,\s*\r?\n?\s*model: item\.model,?\s*\r?\n?/)
 })
 
 test('the Gemini leg only accepts a Gemini model name from the profile', () => {

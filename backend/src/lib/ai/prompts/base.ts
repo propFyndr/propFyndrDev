@@ -129,6 +129,8 @@ ${(() => {
         'project_images': '**project_images** — all photos grouped by type. Use when user asks to see project images.',
         'project_competitors': '**project_competitors** — competitor comparisons for a project. Use when user asks how a project compares.',
         'user_saved_state': '**user_saved_state** — logged-in user shortlisted properties, price alerts, shared shortlists. Use for "show my saved".',
+        'select_property': '**select_property** — record which property the user has focused on when they pick one from a shortlist by name or position ("the second one", "tell me about Ivy County").',
+        'project_financial_details': '**project_financial_details** — cost sheet, payment plans and price history in one call. Use for "what are payment plans", "cost breakdown", "price trends" — prefer this over calling cost_sheet_lookup, payment_plan_lookup and price_history_lookup separately.',
         'list_available_tools': '**list_available_tools** — if you need access to additional tools not shown here, call this escape hatch to ask.',
       }
 
@@ -487,21 +489,33 @@ ${outOfScopeDirective(userMessage)}${outputContract(userMessage)}`
  * The shape is decided by regex in inferenceProfile.ts — no classifier call.
  * A model to route to a cheaper model would cost more than it saved.
  */
-function outputContract(userMessage?: string): string {
+// Exported for outputContractSync.test.ts only — a pure function of one
+// string, and the cheapest way to test it is directly rather than through
+// the full getBaseSystemPrompt call and a substring search on the result.
+export function outputContract(userMessage?: string): string {
   if (!userMessage) return ''
 
   // Deliberately duplicated from inferenceProfile.classifyShape rather than
   // imported: prompts/base.ts is imported by the prompt-cache layer, and a cycle
   // through the inference config would be a worse problem than four regexes.
   // If these disagree, inferenceProfile is the source of truth.
+  //
+  // They had already disagreed, found 7 Sep 2026: this copy was missing
+  // `\bwhich (one|is better)\b` from isReasoning and `\brisk|\bavoid\b` from
+  // isAdvisory. "Which one is better, X or Y?" classified as `reasoning` in
+  // inferenceProfile (2600 tokens, GEMINI_MAIN) but fell through to the
+  // `factual` contract here (~120 words, no table) — the model got a large
+  // budget and an instruction set telling it not to spend it. Synced; see
+  // outputContractSync.test.ts, which runs both classifiers over one shared
+  // message list so this cannot drift silently again.
   const m = userMessage.trim()
   const words = m.split(/\s+/).length
   const isReasoning =
-    /\bvs\b|\bversus\b|\bcompare\b|\bbetter (than|for)\b|\btrade[- ]?offs?\b|\brank\b|\bshortlist\b/i.test(m) ||
+    /\bvs\b|\bversus\b|\bcompare\b|\bbetter (than|for)\b|\bwhich (one|is better)\b|\btrade[- ]?offs?\b|\brank\b|\bshortlist\b/i.test(m) ||
     /\bi (have|earn|want|need|work|am|would)\b|\bmy (wife|husband|family|budget|office|child)\b/i.test(m) ||
     words > 25
   const isAdvisory =
-    /^(is|are|should|would|do you|does it|can i|will)\b|\bworth (it|buying)\b|\bgood (for|place|idea)\b|\brecommend/i.test(m)
+    /^(is|are|should|would|do you|does it|can i|will)\b|\bworth (it|buying)\b|\bgood (for|place|idea)\b|\brisk|\bavoid\b|\brecommend/i.test(m)
   const isFactual = /^(what|which|where|when|who|how)\b|\bbest\b|\btop\b|\bcheapest\b|\baverage\b/i.test(m)
 
   const contract = isReasoning

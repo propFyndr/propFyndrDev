@@ -1,5 +1,5 @@
 // backend/src/lib/ai/fallbackChain.ts
-import { FALLBACK_CHAIN, FallbackKeyConfig, isFreeTierKey, vendorOf } from '../config'
+import { FALLBACK_CHAIN, FallbackKeyConfig, isFreeTierKey, vendorOf, groqReplyCeiling } from '../config'
 import { checkAnswerIntegrity, checkAnswerIntegritySync, rewriteFraming } from './answerIntegrity'
 import { warmKnownNames } from './toolBlindGuard'
 
@@ -653,7 +653,15 @@ export async function executeWithFallbackChain(options: FallbackChainOptions): P
           // gpt-4o name that neither Cohere nor NVIDIA has. Two legs share the
           // NVIDIA key and differ only by model, so this is also what keeps
           // them from being the same leg twice.
-          { ...effectiveConfig, model: item.model },
+          //
+          // maxTokens is raised for Groq specifically via groqReplyCeiling —
+          // see its comment in config.ts for why, and why the number is a
+          // first attempt rather than a settled one.
+          {
+            ...effectiveConfig,
+            model: item.model,
+            ...(vendorOf(item) === 'groq' ? { maxTokens: groqReplyCeiling(effectiveConfig.maxTokens) } : {}),
+          },
           userId,
           sessionId,
           apiKey,

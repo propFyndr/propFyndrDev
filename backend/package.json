@@ -25,6 +25,7 @@
     "audit:data": "tsx scripts/audit-data.ts",
     "audit:routing": "tsx scripts/corpus/route-check.ts",
     "judge": "tsx scripts/corpus/judge-answers.ts",
+    "corpus": "tsx scripts/corpus/run-corpus.ts",
     "check-all": "npm run lint && npm run typecheck && npm test",
     "health": "tsx scripts/health-check.ts",
     "verify:services": "tsx scripts/verify-services.ts",

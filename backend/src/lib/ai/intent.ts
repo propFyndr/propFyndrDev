@@ -249,15 +249,17 @@ async function extractWithGroqKey(msg: string, prev: Intent, apiKey: string, tim
   return tryParseIntentJson(raw, prev)
 }
 
-async function extractWithOpenAIKey(msg: string, prev: Intent, apiKey: string, signal: AbortSignal): Promise<Intent | null> {
+async function extractWithOpenAIKey(msg: string, prev: Intent, apiKey: string, signal: AbortSignal, baseUrl?: string, model?: string): Promise<Intent | null> {
   const client = new OpenAI({
     apiKey,
-    baseURL: 'https://models.inference.ai.azure.com',
+    baseURL: baseUrl ?? 'https://models.inference.ai.azure.com',
     maxRetries: 0,
   })
   const completion = await client.chat.completions.create(
     {
-      model: MODELS.MAIN,
+      // baseUrl present ⇒ this is Cohere, NVIDIA, Cloudflare or Groq, none of
+      // which serves MODELS.MAIN ('gpt-4o') — use the leg's own model name.
+      model: baseUrl ? (model ?? MODELS.MAIN) : MODELS.MAIN,
       messages: [
         { role: 'system', content: INTENT_EXTRACTION_PROMPT },
         { role: 'user', content: `Previous intent: ${slimIntentForPrompt(prev)}\n\nUser message: ${msg}` },
@@ -448,6 +450,13 @@ export async function extractIntent(message: string, previousIntent: Intent): Pr
     provider: leg.provider,
     envKey: leg.envKey,
     model: leg.model,
+    // Dropped here until 7 Sep 2026, which cost nothing while every
+    // 'openai'-provider leg was Cohere/NVIDIA/Cloudflare and extractWithOpenAIKey
+    // ignored it anyway. Groq's four legs moved to provider: 'openai' the same
+    // day (see config.ts's GROQ_OPENAI_BASE comment), and without this they would
+    // silently extract intent against the retired Azure host under a 'gpt-4o'
+    // that key cannot use, instead of the real Groq model they are configured for.
+    baseUrl: leg.baseUrl,
     timeout: leg.provider === 'gemini' ? 10_000 : 3_000,
   }))
 
@@ -491,7 +500,7 @@ export async function extractIntent(message: string, previousIntent: Intent): Pr
         const controller = new AbortController()
         const timer = setTimeout(() => controller.abort(), config.timeout)
         try {
-          const result = await extractWithOpenAIKey(message, previousIntent, apiKey, controller.signal)
+          const result = await extractWithOpenAIKey(message, previousIntent, apiKey, controller.signal, config.baseUrl, config.model)
           clearTimeout(timer)
           if (result) return { intent: applyLiterals(result, deterministic), degraded: false }
         } catch (err) {

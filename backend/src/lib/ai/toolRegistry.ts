@@ -12,7 +12,7 @@ export interface ToolIntentConfig {
 }
 
 // Core tools are ALWAYS included — they don't have intent routing
-const CORE_TOOLS: string[] = [
+export const CORE_TOOLS: string[] = [
   'builder_lookup',
   'web_search',
   'project_intelligence',
@@ -39,6 +39,17 @@ export const INTENT_ROUTED_TOOLS: ToolIntentConfig[] = [
     name: 'payment_plan_lookup',
     intentKeywords: ['DRILLDOWN', 'COMPARISON'],
     keywordTriggers: ['payment plan', 'payment schedule', 'milestone', 'clp', 'down payment', 'subvention', 'offer'],
+  },
+  {
+    // Has a real schema in tools.ts and is always callable via toOpenAITools()/
+    // toGeminiTools(), but was never in this registry — so filterToolsByIntent
+    // never selected it and the model never saw prose telling it this exists,
+    // even though its description explicitly says it "replaces three separate
+    // lookups (cost_sheet_lookup, payment_plan_lookup, price_history_lookup)".
+    // Same trigger set as those three combined, since that is the whole point.
+    name: 'project_financial_details',
+    intentKeywords: ['DRILLDOWN', 'COMPARISON'],
+    keywordTriggers: ['cost', 'price', 'charge', 'payment', 'total cost', 'hidden charge', 'psc', 'payment plan', 'payment schedule', 'milestone', 'clp', 'down payment', 'subvention', 'offer', 'price history', 'price trend', 'appreciation', 'past price'],
   },
   {
     name: 'amenities_lookup',
@@ -90,22 +101,22 @@ export const INTENT_ROUTED_TOOLS: ToolIntentConfig[] = [
     intentKeywords: ['COMPARISON', 'RANKING'],
     keywordTriggers: ['compare', 'competitor', 'alternative', 'similar', 'versus', 'vs'],
   },
-  // Phase 5: Ranking helper tools
-  {
-    name: 'best_value_projects',
-    intentKeywords: ['RANKING'],
-    keywordTriggers: ['best value', 'value for money', 'best deal', 'affordable', 'budget', 'headroom'],
-  },
-  {
-    name: 'fastest_possession_projects',
-    intentKeywords: ['RANKING'],
-    keywordTriggers: ['fastest', 'quickest', 'soonest', 'possession', 'ready soon', 'immediate'],
-  },
-  {
-    name: 'best_for_families_projects',
-    intentKeywords: ['RANKING'],
-    keywordTriggers: ['families', 'family', 'schools', 'children', 'family-friendly'],
-  },
+  // "Phase 5: Ranking helper tools" — best_value_projects, fastest_possession_projects
+  // and best_for_families_projects were removed from here on 7 Sep 2026. All three
+  // were selectable by filterToolsByIntent and had descriptions ready to render, but
+  // no NEUTRAL_TOOLS schema and no handler ever existed for any of them — the exact
+  // bug toolCatalogue.test.ts's first test was written to catch, just in the
+  // opposite direction (advertised-in-prose rather than advertised-as-a-schema), so
+  // it went uncaught. A buyer asking "best value in Sector 150" got "temporarily
+  // unavailable" from a tool that had never existed, on every turn RANKING matched.
+  //
+  // Not reintroduced as aliases to `sector_projects`: that tool ranks only by
+  // verified score then entry price, with no sort-by-value / by-possession-date /
+  // by-school-proximity mode, so mapping these three onto it would silently change
+  // what "best value" or "fastest possession" means without anyone deciding that on
+  // purpose. Building the three properly — a real value-for-money metric, a
+  // possession-date sort, a school-proximity weighting — is real feature work, not a
+  // catalogue fix; tracked in PLAN.md rather than guessed at here.
   {
     name: 'area_info',
     intentKeywords: ['ADVISORY', 'DISCOVERY'],

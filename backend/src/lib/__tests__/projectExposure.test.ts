@@ -7,6 +7,9 @@ import {
   INTERNAL_ONLY_FIELDS,
   FORBIDDEN_RELATIONS,
   ALLOWED_RELATIONS,
+  RELATION_INTERNAL_FIELDS,
+  BUYER_OPAQUE_SCORES,
+  UNIVERSAL_INTERNAL,
   assertNoForbiddenRelations,
   redactProject,
   isPublicField,
@@ -19,21 +22,21 @@ import {
 
 const schema = readFileSync(join(__dirname, '../../../prisma/schema.prisma'), 'utf8')
 
-function projectModelBody(): string {
-  const start = schema.indexOf('\nmodel Project {')
-  assert.ok(start !== -1, 'Project model not found in schema.prisma')
+function modelBody(modelName: string): string {
+  const start = schema.indexOf(`\nmodel ${modelName} {`)
+  assert.ok(start !== -1, `${modelName} model not found in schema.prisma`)
   const end = schema.indexOf('\n}', start)
   return schema.slice(start, end)
 }
 
 interface Field { name: string; type: string; isRelation: boolean }
 
-function parseFields(): Field[] {
+function parseFields(modelName: string): Field[] {
   const relationModels = new Set(
     [...schema.matchAll(/^model\s+(\w+)\s*\{/gm)].map(m => m[1]),
   )
   const fields: Field[] = []
-  for (const raw of projectModelBody().split('\n')) {
+  for (const raw of modelBody(modelName).split('\n')) {
     const line = raw.trim()
     if (!line || line.startsWith('//') || line.startsWith('@@') || line.startsWith('model ')) continue
     const m = line.match(/^(\w+)\s+(\S+)/)
@@ -45,7 +48,7 @@ function parseFields(): Field[] {
   return fields
 }
 
-const FIELDS = parseFields()
+const FIELDS = parseFields('Project')
 const SCALARS = FIELDS.filter(f => !f.isRelation)
 const RELATIONS = FIELDS.filter(f => f.isRelation)
 
@@ -245,5 +248,96 @@ describe('the forward-projection columns cannot reach a buyer', () => {
     const src = readFileSync(join(process.cwd(), 'src', 'lib', 'projectDataGateway.ts'), 'utf8')
     assert.match(src, /INTERNAL_ONLY_FIELDS/, 'gateway no longer reads the exposure policy')
     assert.match(src, /dropInternalFacts\(/, 'gateway no longer applies the filter')
+  })
+})
+
+/**
+ * Builder never had this coverage at all — this suite parsed only `model
+ * Project {`, so every one of Builder's ~40 scalar columns was unclassified
+ * with nothing to notice. `buildProjectFacts` widened from `builder.name`
+ * alone to the whole relation on 7 Sep 2026 specifically so this gap would
+ * start mattering, and it is closed the same way Project's coverage already
+ * works: every currently-known Builder column must be accounted for in one of
+ * RELATION_INTERNAL_FIELDS.builder, BUYER_OPAQUE_SCORES, or the explicit
+ * "known and intentionally public" list below.
+ *
+ * One structural difference from Project's PROJECT_PUBLIC_SELECT, worth being
+ * honest about rather than silently relying on: Project is an allowlist — a
+ * new column is invisible until added to PROJECT_PUBLIC_SELECT. Builder (like
+ * every other relation governed by RELATION_INTERNAL_FIELDS) is a denylist —
+ * `cleanRelation` exposes anything not explicitly named as internal, so a new
+ * Builder column defaults to PUBLIC, not blocked. `KNOWN_PUBLIC_BUILDER_FIELDS`
+ * cannot change that default; what it does is make a new, uncategorized column
+ * fail this test the moment it is added, rather than reaching a buyer silently.
+ * Converting every RELATION_INTERNAL_FIELDS relation to an allowlist is a
+ * larger, separate change — tracked in PLAN.md, not done here.
+ */
+describe('Builder exposure — schema coverage', () => {
+  const BUILDER_FIELDS = parseFields('Builder')
+  const BUILDER_SCALARS = BUILDER_FIELDS.filter(f => !f.isRelation)
+
+  it('parses a plausible Builder model', () => {
+    assert.ok(BUILDER_SCALARS.length > 30, `expected 30+ scalars, parsed ${BUILDER_SCALARS.length}`)
+  })
+
+  /**
+   * Everything currently known to be safe — matches exactly what
+   * `builderReputationHandler` already vets and renders to a buyer, plus the
+   * identity/recognition fields that carry no score and no internal process
+   * information. Adding a name here is the same disclosure decision
+   * `projectExposure.ts`'s own file header describes for Project columns.
+   */
+  const KNOWN_PUBLIC_BUILDER_FIELDS = new Set([
+    'name', 'slug', 'tagline', 'founder', 'company_overview', 'logo_url',
+    'parent_group', 'founded_year', 'headquarters', 'website', 'email', 'phone',
+    'description', 'experience_years', 'projects_delivered_count',
+    'total_projects_count', 'delivered_units', 'delivered_projects',
+    'ongoing_projects', 'delayed_projects_count', 'average_delay_months',
+    'litigation_count', 'insolvency_history', 'legal_flag', 'rera_promoter_id',
+    'funding_banks', 'luxury_specialization', 'township_specialization',
+    'affordable_specialization', 'average_project_size', 'awards',
+    'awards_count', 'certifications', 'credai_member', 'iso_certified',
+  ])
+
+  it('classifies every scalar column as public, opaque-score, or relation-internal', () => {
+    const denied = new Set<string>([
+      ...UNIVERSAL_INTERNAL,
+      ...(RELATION_INTERNAL_FIELDS.builder ?? []),
+      ...BUYER_OPAQUE_SCORES,
+    ])
+    const unclassified = BUILDER_SCALARS
+      .map(f => f.name)
+      .filter(n => !denied.has(n) && !KNOWN_PUBLIC_BUILDER_FIELDS.has(n))
+
+    assert.deepEqual(
+      unclassified,
+      [],
+      `Unclassified Builder column(s): ${unclassified.join(', ')}.\n` +
+        'Add each to RELATION_INTERNAL_FIELDS.builder (must never leave the server, ' +
+        'with a reason), BUYER_OPAQUE_SCORES (an analyst-set score a buyer cannot ' +
+        'check), or KNOWN_PUBLIC_BUILDER_FIELDS above (safe, factual, buyer-facing).',
+    )
+  })
+
+  it('never marks a column both denied and known-public', () => {
+    const denied = new Set<string>([
+      ...UNIVERSAL_INTERNAL,
+      ...(RELATION_INTERNAL_FIELDS.builder ?? []),
+      ...BUYER_OPAQUE_SCORES,
+    ])
+    const both = [...KNOWN_PUBLIC_BUILDER_FIELDS].filter(n => denied.has(n))
+    assert.deepEqual(both, [], `Column(s) in both lists: ${both.join(', ')}`)
+  })
+
+  it('keeps the opaque analyst scores out of the facts block', () => {
+    for (const f of ['delivery_score', 'construction_quality_score', 'rera_compliance_score', 'financial_hygiene_score']) {
+      assert.ok((BUYER_OPAQUE_SCORES as readonly string[]).includes(f), `${f} must stay an opaque score`)
+    }
+  })
+
+  it('keeps the corporate-registry and process fields out of the facts block', () => {
+    for (const f of ['cin', 'legal_entities', 'executives', 'outstanding_dues_cr', 'audit_flags_log', 'verification_level', 'data_source', 'intelligence_completeness']) {
+      assert.ok((RELATION_INTERNAL_FIELDS.builder ?? []).includes(f), `${f} must stay relation-internal`)
+    }
   })
 })

@@ -81,10 +81,6 @@ const nextConfig = {
         destination: 'https://us-assets.i.posthog.com/static/:path*',
       },
       {
-        source: '/ingest/array/:path*',
-        destination: 'https://us-assets.i.posthog.com/array/:path*',
-      },
-      {
         source: '/ingest/:path*',
         destination: 'https://us.i.posthog.com/:path*',
       },
@@ -163,9 +159,9 @@ const nextConfig = {
               )
               // PostHog's asset and ingestion hosts are separate from the app host.
               const connectSrc = `'self' ${[...origins].join(' ')} https://*.supabase.co https://*.supabase.in https://*.posthog.com https://*.i.posthog.com https://us.posthog.com https://app.posthog.com https://maps.googleapis.com https://*.onrender.com https://*.vercel.app https: wss:`
-              const scriptSrc = "'self' 'unsafe-inline' 'unsafe-eval' https://www.google-analytics.com https://maps.googleapis.com https://*.posthog.com https://us.posthog.com https://app.posthog.com"
+              const scriptSrc = "'self' 'unsafe-inline' 'unsafe-eval' blob: https://www.google-analytics.com https://maps.googleapis.com https://*.posthog.com https://us.posthog.com https://app.posthog.com https://us-assets.i.posthog.com https://*.i.posthog.com"
               const fontSrc = "'self' https://fonts.gstatic.com https://fonts.googleapis.com data: https:"
-              return `default-src 'self'; script-src ${scriptSrc}; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src ${fontSrc}; img-src 'self' data: blob: https:; connect-src ${connectSrc}; frame-ancestors 'none';`
+              return `default-src 'self'; script-src ${scriptSrc}; worker-src 'self' blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src ${fontSrc}; img-src 'self' data: blob: https:; connect-src ${connectSrc}; frame-ancestors 'none';`
             })(),
           },
         ],

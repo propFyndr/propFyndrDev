@@ -9,7 +9,7 @@ import { extractIntent } from '../lib/ai/intent'
 import { hydrateIntentFromMemory, persistIntentToMemory, trackPropertyReaction } from '../lib/ai/sessionMemory'
 import { gradeResponseAsync } from '../lib/ai/responseGrader'
 import { reportGrounding } from '../lib/ai/groundingCheck'
-import { IntentSchema, getIntentState, discoverProjects, getSectorContext, getAllSectorsOverview, isCityLevel } from '../lib/discovery'
+import { IntentSchema, getIntentState, discoverProjects, getSectorContext, getAllSectorsOverview, isCityLevel, recordRetrieval, buildComparisonDiff } from '../lib/discovery'
 import { readLastProjectIds, readLastProjectCards } from '../lib/discovery/lastProjects'
 import type { Intent, ScoredProject } from '../lib/discovery'
 import { postProcessIntent } from '../lib/discovery/intentPostProcessor'
@@ -3065,6 +3065,9 @@ For questions regarding property pricing, sector analysis, RERA legal checks, pa
               recommendation_profile: true,
               decision_profile: true,
               persona_profile: true,
+              // Small on every project seen so far — a handful of partner rows
+              // at most — so included unconditionally like builder, not gated.
+              channel_partners: { include: { channel_partner: true } },
               // Demand-driven, and bounded when taken.
               ...(askedFactTopics.has('price_history')
                 ? { price_history: { take: 8, orderBy: { recorded_at: 'desc' as const } } }
@@ -3074,6 +3077,14 @@ For questions regarding property pricing, sector analysis, RERA legal checks, pa
                 : {}),
               ...(askedFactTopics.has('specifications')
                 ? { spec_items: { take: 30, orderBy: [{ is_highlight: 'desc' as const }, { sort_order: 'asc' as const }] } }
+                : {}),
+              // `competitors` and `unit_inventory` were on ALLOWED_RELATIONS
+              // long before either was ever requested here — added 7 Sep 2026.
+              ...(askedFactTopics.has('deep_reasoning')
+                ? { competitors: { take: 5, orderBy: { sort_order: 'asc' as const } } }
+                : {}),
+              ...(askedFactTopics.has('availability')
+                ? { unit_inventory: { take: 60 } }
                 : {}),
               // dna is deliberately absent.
             }
@@ -3128,8 +3139,24 @@ For questions regarding property pricing, sector analysis, RERA legal checks, pa
 
           const transparentClarificationText = fuzzyMatchedNotes.length > 0 ? `\nTRANSPARENT MATCH NOTE:\n${fuzzyMatchedNotes.join('\n')}\n` : ''
 
+          /**
+           * Computed once here rather than left to the comparison prompt
+           * below, which otherwise hands the model two full facts blocks and
+           * a bracketed table template and asks it to work out which project
+           * is cheaper, whose builder delivers on time more often, and by how
+           * much — the same shape of live arithmetic that has previously
+           * produced an invented CAGR and an invented builder league table
+           * elsewhere in this file. See comparisonDiff.ts.
+           */
+          const comparisonDiffText =
+            isCompareRequest && detailedTargetProjects.length >= 2
+              ? (() => {
+                  const diff = buildComparisonDiff(detailedTargetProjects as never)
+                  return diff ? `\nCOMPUTED COMPARISON (use these figures directly): ${JSON.stringify(diff)}\n` : ''
+                })()
+              : ''
+
           let systemPrompt = ''
-          const isAmenityQuery = /amenit|sports|clubhouse|gym|pool|park|open space|green/i.test(message)
 
           if (isSummaryRequest) {
             systemPrompt = `You are RealtyPal, a professional real estate advisor for Noida and Greater Noida.
@@ -3139,45 +3166,40 @@ EXECUTIVE SUMMARY INSTRUCTIONS:
 1. Render a clean Markdown summary table of the session with columns: | Project Name | Inquiry Count | Interest Weightage (%) |.
 2. Below the table, provide a concise summary for each discussed project.
 3. Never invent facts outside PostgreSQL DB.`
-          } else if (isCompareRequest && targetProjects.length >= 2 && isAmenityQuery) {
-            const projectHeaders = targetProjects.map(p => p.name).join(' vs. ')
-            systemPrompt = `You are RealtyPal, a professional real estate advisor for Noida and Greater Noida.
-Verified facts from database: ${dbFactsJson}
-${transparentClarificationText}
-
-CRITICAL FORMATTING MANDATE:
-- Maintain a clean, executive tone. Do NOT use decorative emojis or icons in headings or text.
-- Render the comparison as a clean, structured Markdown Comparison Table.
-
-OUTPUT STRUCTURE:
-
-### Verdict
-1-2 direct sentences on which project offers superior lifestyle and amenities.
-
-| Amenity & Lifestyle Feature | ${targetProjects[0].name} | ${targetProjects[1].name} |
-| :--- | :--- | :--- |
-| **Clubhouse & Scale** | [Clubhouse size/features] | [Clubhouse size/features] |
-| **Swimming Pools** | [Pool specs] | [Pool specs] |
-| **Sports Facilities** | [Courts, gym, tracks] | [Courts, gym, tracks] |
-| **Open Green Cover** | [Open space % & parks] | [Open space % & parks] |
-| **Density & Atmosphere** | [Units/acre & living environment] | [Units/acre & living environment] |
-
-### Recommendation
-1 actionable decision sentence for buyers.`
           } else if (isCompareRequest && targetProjects.length >= 2) {
             const projectHeaders = targetProjects.map(p => p.name).join(' vs. ')
+            /**
+             * One comparison prompt, not one per topic.
+             *
+             * Until 7 Sep 2026 this branched on `isAmenityQuery` into a
+             * hardcoded amenity table, and anything else — payment plans,
+             * connectivity, construction status, builder track record, RERA,
+             * specifications — fell into a fixed six-row "Core Metric" table
+             * that has no row for any of them. A buyer asking "compare the
+             * payment plans of X and Y" got price/sqft and possession dates
+             * instead of an answer to what they actually asked.
+             *
+             * `buildProjectFacts` already carries the full builder, cost_sheet,
+             * payment_plans and connectivity data for BOTH projects in
+             * `dbFactsJson` — the data was never the gap, only the prompt
+             * forcing one fixed shape onto it. This asks the model to scope
+             * its own table to whatever aspect was named, and only reaches for
+             * the general table below when nothing specific was asked — the
+             * same "pull, do not push" principle the tool section of the base
+             * system prompt already states for a single project, generalized
+             * to two.
+             */
             systemPrompt = `You are RealtyPal, a professional real estate advisor for Noida and Greater Noida.
 Verified facts from database: ${dbFactsJson}
-${transparentClarificationText}
-
+${transparentClarificationText}${comparisonDiffText}
 CRITICAL FORMATTING MANDATE:
 - Maintain a clean, executive tone. Do NOT use decorative emojis or icons in headings or text.
 - Render the comparison as a clean, structured Markdown Comparison Table with concise data points.
+- COMPUTED COMPARISON, when present above, already carries the price/sqft leader, the possession gap in months, the builder track-record delta, and which amenities are shared vs unique to each project — quote those figures directly rather than recomputing them from the raw facts.
 
-OUTPUT STRUCTURE:
-
-### Verdict
-1-2 direct sentences on the overall winner and key tradeoff between ${projectHeaders}.
+WHAT TO COMPARE:
+- If the buyer named a specific aspect — payment plans, cost sheet or all-in pricing, connectivity or commute, construction/possession status, builder track record, RERA or legal standing, specifications, amenities, or anything else the facts block holds for both projects — build the table around THAT aspect only, with rows drawn from the real fields in the facts block (e.g. a payment-plan comparison rows on booking %, construction-linked milestones, subvention terms; a connectivity comparison rows on nearest metro, expressway access, commute to a named workplace). Do not force the generic table below onto a question that named something specific.
+- Only when the buyer asked a general "which is better" / "compare these two" question with no aspect named, use this default:
 
 | Core Metric | ${targetProjects[0].name} | ${targetProjects[1].name} |
 | :--- | :--- | :--- |
@@ -3188,8 +3210,17 @@ OUTPUT STRUCTURE:
 | **Critical Watch-out** | [1-line risk factor or delay history] | [1-line risk factor or delay history] |
 | **Ideal Buyer** | [1-line best suited profile] | [1-line best suited profile] |
 
+OUTPUT STRUCTURE (either case):
+
+### Verdict
+1-2 direct sentences on the overall winner and key tradeoff between ${projectHeaders}, scoped to whatever aspect the table above covers.
+
+[the table — the aspect-specific one when one was named, the default one otherwise]
+
 ### Recommendation
-1 actionable decision sentence: "Choose **${targetProjects[0].name}** if [profile]; choose **${targetProjects[1].name}** if [profile]."`
+1 actionable decision sentence: "Choose **${targetProjects[0].name}** if [profile]; choose **${targetProjects[1].name}** if [profile]."
+
+If a fact either project needs for the named aspect is genuinely absent from the block above, say so for that project specifically rather than omitting the row or guessing — the same rule that applies to a single-project answer applies here.`
           } else {
             systemPrompt = `You are RealtyPal, a professional real estate advisor for Noida and Greater Noida.
 Verified facts: ${dbFactsJson}
@@ -4111,6 +4142,7 @@ EXECUTIVE RESPONSE INSTRUCTIONS:
         await setCached(cacheKey, discoveryResult, 600)
       }
       console.log('[CHAT] END discoverProjects', Date.now(), { exact: discoveryResult.exactResults.length, nearby: discoveryResult.nearbyResults.length, expansion: discoveryResult.expansion ?? null, notFound: discoveryResult.notFoundNames ?? [] })
+      recordRetrieval(discoveryResult.exactResults.length, discoveryResult.nearbyResults.length)
       console.log('[INTELLIGENCE:RETRIEVED]', discoveryResult.exactResults.map(p => ({
         name:            p.name,
         score:           p.matchScore,

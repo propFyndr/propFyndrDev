@@ -151,6 +151,20 @@ function removeAllProviderKeys(): () => void {
     'GROQ_API_KEY', 'GROQ_API_KEY1', 'GROQ_API_KEY2', 'GROQ_API_KEY3',
     'CEREBRAS_API_KEY', 'CEREBRAS_API_KEY1',
     'COHERE_API_KEY', 'NVIDIA_API_KEY',
+    // Added 7 Sep 2026, same drift the comment above already warns about:
+    // extractWithOpenAIKey used to hardcode the dead Azure host regardless of
+    // which 'openai'-provider leg called it, so the Cloudflare leg landed on
+    // a non-resolving host and failed the same way whether or not this key
+    // was cleared — coincidentally masking its absence from this list. Once
+    // extractWithOpenAIKey started respecting each leg's real baseUrl (so
+    // intent extraction could actually use Cloudflare/Cohere/NVIDIA the same
+    // way the main chat chain already could), the Cloudflare leg started
+    // reaching the real host and answering, and "all providers gone" stopped
+    // being true. CLOUDFLARE_ACCOUNT_ID does not need clearing alongside it:
+    // CLOUDFLARE_OPENAI_BASE is computed once at config.ts's module load, so
+    // FALLBACK_CHAIN already has the leg either way — only the bearer key
+    // controls whether the loop's `if (!apiKey) continue` skips it.
+    'CLOUDFLARE_API_KEY',
     // No longer chain legs — GitHub Models retired 30 Jul 2026 — but still in
     // .env, and extractIntent reads OPENAI_API_KEY directly. Left in the list
     // so "all providers gone" stays true rather than nearly true.
