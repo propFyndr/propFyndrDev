@@ -221,7 +221,7 @@ Everything below was true before the merge and is now live:
 - **`best_value_projects` / `fastest_possession_projects` / `best_for_families_projects`** — still need a product decision on what "best value" etc. actually mean before building; not attempted tonight.
 - **Full chain reordering** (cheap/fast legs ahead of Gemini) — still not done; still needs a clean corpus run to verify, which needs real LLM spend and Gemini billing topped up first.
 - **Root `.env.example`** — still outside my permitted paths this session (confirmed again tonight); `backend/.env`'s duplicate `GEMINI_DAILY_BUDGET_USD` is fixed (kept 5.00, per your answer).
-- **Mistral is now confirmed account-blocked, not just rate-limited** — both keys return a hard 429 on every call, tonight and previously. This isn't a "wait it out" rate limit; it needs you to check the Mistral console/billing directly.
+- **Mistral's root cause found — conclusive, not a guess.** Probed both keys' raw response headers directly: `x-ratelimit-limit-req-minute: 0` on every call, error `code: 1300`, `"type":"rate_limited"`. The account's chat-completions quota is configured at **zero requests per minute** — not temporarily exhausted, permanently zero until the account's plan changes. `GET /v1/models` returns 200 for both keys (they're valid, auth works fine) — this is specifically no quota allocated for generation, most likely a free/trial tier with chat completions gated behind a payment method or plan upgrade. I have no login to Mistral's console to fix this myself — needs you to check billing/plan there directly. Once it's resolved, retry `verify:chain` and the tool-support probe (both already written, just re-run them).
 
 ### Verification, everything above
 
