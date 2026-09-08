@@ -2456,7 +2456,30 @@ I can help you with:
       /\b(district court|county court|county highway|state highway \d|zip ?code|amsterdam|texas|\bny\b|\bnj\b|\btx\b|\bca\b|\bfl\b|county clerk|dmv)\b/i.test(message) &&
       !/\b(noida|greater noida|sector\s*\d|ncr|delhi|gurgaon|uttar pradesh|\bup\b)\b/i.test(message);
 
-    const isOutOfScope = isForeignPlace || ((/^(write|generate|explain|solve|tell me|what is)\s+(a\s+)?(python|javascript|typescript|java|c\+\+|sql query|algorithm|bubble sort|code|script|recipe|joke|poem|song|essay|weather)|who won\b|capital of\b|translate\b/i.test(message) || (/python|bubble sort|javascript|algorithm|recipe/i.test(message))) && !/real estate|property|flat|bhk|builder|rera|noida|sector|ncr/i.test(message))
+    /**
+     * V1 SCOPE names rentals, resale, commercial, and auction/distressed
+     * property as explicitly out of scope — we sell new-construction /
+     * under-construction / ready-to-move residential, nothing else. Nothing
+     * ever enforced this deterministically; the prompt's SCOPE section was the
+     * only guard, and it is not one. Measured live, 8 Sep corpus run: "bank
+     * auction properties in noida" and "auction properties in noida" both got
+     * a fluent, ungrounded explainer of how bank auctions work instead of a
+     * decline — the exact failure mode CLAUDE.md's no-fabrication rule exists
+     * to prevent, just for a property TYPE instead of a fact.
+     *
+     * Narrow and anchored on purpose: "rent" alone would catch "what's the
+     * rental yield on this project" (a real, in-scope investment question we
+     * answer every day), so the rental branch requires a phrase that reads as
+     * wanting a rental/lease listing, not a yield calculation.
+     */
+    const isExcludedPropertyType =
+      /\b(bank\s+)?auction(?:ed)?\s+propert/i.test(message) ||
+      /\bdistressed\s+propert/i.test(message) ||
+      /\b(resale|second[- ]?hand|pre[- ]?owned)\s+(flat|propert|apartment|home|house)/i.test(message) ||
+      /\bcommercial\s+(propert|space|shop|office|showroom)/i.test(message) ||
+      /\b(rent(?:al)?\s+(?:a\s+|an\s+)?(?:flat|apartment|house|home|room|property)|properties?\s+(?:for|to)\s+rent|looking\s+for\s+a\s+rental|tenant|landlord|airbnb|short[- ]?term\s+rental)\b/i.test(message)
+
+    const isOutOfScope = isForeignPlace || isExcludedPropertyType || ((/^(write|generate|explain|solve|tell me|what is)\s+(a\s+)?(python|javascript|typescript|java|c\+\+|sql query|algorithm|bubble sort|code|script|recipe|joke|poem|song|essay|weather)|who won\b|capital of\b|translate\b/i.test(message) || (/python|bubble sort|javascript|algorithm|recipe/i.test(message))) && !/real estate|property|flat|bhk|builder|rera|noida|sector|ncr/i.test(message))
     if (isOutOfScope && action.type === 'TEXT_MESSAGE') {
       const deflectionText = `### PropFyndr Advisory Scope
 
