@@ -277,7 +277,26 @@ router.post('/', async (req: Request, res: Response) => {
       /\bdistressed\s+propert/i.test(message) ||
       /\b(resale|second[- ]?hand|pre[- ]?owned)\s+(flat|propert|apartment|home|house)/i.test(message) ||
       /\bcommercial\s+(propert|space|shop|office|showroom)/i.test(message) ||
-      /\b(rent(?:al)?\s+(?:a\s+|an\s+)?(?:flat|apartment|house|home|room|property)|properties?\s+(?:for|to)\s+rent|looking\s+for\s+a\s+rental|tenant|landlord|airbnb|short[- ]?term\s+rental)\b/i.test(message)
+      /\b(rent(?:al)?\s+(?:a\s+|an\s+)?(?:flat|apartment|house|home|room|property)|properties?\s+(?:for|to)\s+rent|looking\s+for\s+a\s+rental|tenant|landlord|airbnb|short[- ]?term\s+rental)\b/i.test(message) ||
+      // Broader than the phrase above on purpose: measured live, 8 Sep corpus,
+      // "flats in sector 75 noida for rent" and "flats on rent in sector 75
+      // noida" both walked past it — "rent" sat far from the noun it modifies.
+      // "for/to/on rent" is not a phrase this app's own vocabulary ever uses
+      // (rental YIELD is "rental yield", never bare "rent"), so it is safe
+      // to match anywhere in the message rather than anchored to a noun.
+      /\b(?:for|to|on)\s+rent\b/i.test(message) ||
+      /\brental\s+propert/i.test(message) ||
+      /\bpropert\w*\s+for\s+auction\b/i.test(message) ||
+      // A bare "rent" (never "rental" — that's a real word boundary, matched
+      // above already) anywhere alongside a property noun. Broad on purpose:
+      // this app has no legitimate use of the word "rent" outside a rental
+      // listing request — "rental yield"/"rental income" don't contain it as
+      // a separate word — so co-occurrence alone is a safe signal here.
+      (/\brent\b/i.test(message) && /\b(flat|apartment|house|home|room|propert|bhk)/i.test(message)) ||
+      // Hospitality brands and star-rated hotels, not real estate developers.
+      /\b\d\s*[- ]?star\s+propert/i.test(message) ||
+      /\b(accor|marriott|taj|oberoi|hyatt|radisson|hilton|leela|ihg|lemon\s+tree)\b.*\bpropert/i.test(message) ||
+      /\bproperty\s+dealers?\b/i.test(message)
     )
   if (isExcludedPropertyType) {
     res.setHeader('Content-Type', 'text/event-stream')
