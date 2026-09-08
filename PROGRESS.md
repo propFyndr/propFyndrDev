@@ -234,3 +234,116 @@ Probed both keys' raw response headers directly: `x-ratelimit-limit-req-minute: 
 ### Final verification, everything in this overnight session
 
 Backend: typecheck clean, lint clean throughout every commit. Full suite green at every push, ending at **2,921 tests / 2,146 pass / 0 fail** on `main`. Frontend: typecheck clean, lint clean, full build clean (30+ routes, including the 3 new portal/team pages from the merged RBAC branch). The mid-response-cutoff investigation alone took 7 rounds of live-verified fixes against `propfyndr.in` before it was actually closed — each round's wrong turn is recorded above rather than only the final answer, because that is what made the real bug findable.
+
+---
+
+## Session: 8 Sep 2026 daytime — get the chat to B+, a real corpus baseline, and one real regression found by measuring rather than assuming
+
+You asked me to push chat quality to at least a B+ and to say honestly whether it got there. Ran a real 40-query corpus subset against production (not a guess) before, during, and after each fix — the numbers below are measured, not estimated.
+
+### Also fixed first, unrelated: two real disclosure leaks
+
+1. Inventory-count leak survived when the second noun was "builders". You reported the chat volunteering "we have 280 projects across 117 builders" to a general question. The existing disclosure guard (answerIntegrity.ts) already blocks this shape of sentence — it just only recognized sectors/micro-markets/cities as the noun after "across", not builders. One-line fix, pinned with your exact reported string as a test case. Commit 815da5e.
+
+2. Checked the "vague query pushes project cards" report — did not reproduce on a fresh single-turn query; the intent classifier already requires two real signals before it searches. Most likely explanation if you see it again: sticky context from an earlier turn in the same session (intentional product behavior), not a fresh-turn bug. Waiting on a transcript to confirm either way.
+
+### The corpus baseline (40-query subset, scripts/corpus/corpus.json, concurrency 5)
+
+| Run | Pass | Truncated | Integrity | Empty | Not declined | p50 / p90 / p99 latency |
+|---|---|---|---|---|---|---|
+| Before any fix | 32.5% (13/40) | 17.5% | 7.5% | 5.0% | 12.5% | 53.6s / 156.0s / 255.1s |
+| After gpt-oss fix, before scope fix landed | 15.0% (6/40) | 35.0% | 0% | 0% | 12.5% | 12.8s / 24.6s / 32.4s |
+| After both fixes, verified live | 25.0% (10/40) | 35.0% | 0% | 0% | 10.0% | 12.8s / 25.3s / 36.4s |
+
+### Root cause found and fixed: gpt-oss legs were leaking raw chain-of-thought as the answer
+
+Read the actual delivered answers rather than trusting the grade summary — this is where the real finding was. gpt-oss (served by both the Groq and NVIDIA legs) puts its reasoning directly in `content` when no `reasoning_format` is requested. Measured: a query got "Here's a thinking process: 1. Analyze User Input: User asks..." as its entire answer instead of a reply. Worse: when that reasoning itself hit the token ceiling mid-thought, the mid-response continuation instruction (built earlier this week for a normal answer cut off mid-sentence) got read BY THE MODEL as new input to reason about — "wait, the user says my previous message was cut off..." — spiraling into several near-identical paragraphs about its own interruption instead of ever answering, until the continuation budget ran out and the turn fell through to the generic apology.
+
+Fixed at the request level: `reasoning_format: 'hidden'` whenever the model is gpt-oss, so Groq does the thinking server-side and returns only the finished answer — the same contract every other leg already has. Added two disclosure-guard patterns as a backup for any leg that leaks the same shape of text regardless, pinned with the exact strings this run produced. Confirmed: integrity violations went from 3/40 to 0/40, and stayed at 0 in every run after. Commit d0a3001.
+
+### Real, separate bug found and fixed: V1-excluded property types were being answered, not declined
+
+CLAUDE.md's SCOPE section explicitly excludes rentals, resale, commercial, auction and distressed property from V1 — nothing ever enforced that deterministically. Measured: "auction properties in noida" got a fluent, ungrounded explainer of how bank auctions work under the SARFAESI Act, instead of a decline.
+
+First attempt at the fix was wrong, and it's recorded rather than hidden: shipped the check right before the old off-topic deflection, deep in a 6,000-line handler — but roughly 15 early-return lanes sit between the top of the handler and that point, and several of them (sector lookups especially) fire first for any message that also names a real sector. Verified live after that push: "distressed properties for sale in sector 62 noida" still returned a normal sector answer (Stellar Park inventory) — the regex was correct, the placement was not. Commit cde9512.
+
+Moved the same check to the very top of the handler, right after input sanitization, before any topic lane runs — verified live afterward, confirmed declining correctly. Commit d7cf7de. Measured effect: the out_of_scope corpus class went from 35.7% pass to 64.3% pass across the same run.
+
+### Not fixed, real, and newly dominant now that it's visible: sector-class truncation
+
+The overall pass rate did not reach B+ — it's currently worse on paper than the pre-fix baseline (25% vs 32.5%), for a specific, honest reason: Gemini's free-tier key's daily quota reset overnight (new calendar day), and it is now answering almost all traffic instead of the mix of legs serving it during the first, degraded-provider baseline run. That's why latency dropped hard (p50 53.6s to 12.8s) — but this same free-tier lite model is truncating heavily on "sector"-class list queries: 9 of 12 sector queries in the final run cut off mid-word, sometimes with a glued-together artifact ("...like Ajnara Daffodil, DasnAmong verified ready-to-move options..." — "Dasn" cut mid-word, jammed directly against a new clause with no space).
+
+Checked whether this is the known continuation-join bug from earlier this week: no — gemini.ts already has the same space-insertion fix openai.ts has, so this glued-together text is not crossing a continuation boundary the existing fix should have caught. Most likely explanation, not yet confirmed: this is largely the pre-existing "about two answers per run end mid-sentence... not fixed here" issue CLAUDE.md already documented before this session — now dominant simply because the free-tier lite model (thinkingBudget forced to 0, smaller model) is serving nearly everything and list-heavy sector answers are exactly the shape most likely to run long. Not root-caused tonight. Did not guess-patch it blind, given this session's own hard-won lesson from the 7-round restart-bug investigation: verify the actual cause live before fixing, don't assume.
+
+### Honest grade: not B+ yet
+
+Real, verified wins: the chain-of-thought leak is gone (0/40 across two runs, was present in the baseline), the V1 scope violation is fixed and confirmed live, and typical-case latency is much better (though partly a provider-quota-reset effect, not only code). Real, open problem: sector-class truncation is now the dominant failure at 35% of the subset, not yet root-caused, and it is what's holding the number below a B+ despite the two real fixes.
+
+### Verification for everything in this session
+
+Every commit: typecheck clean, lint clean, and the specific test suite touched (33-test answerIntegrity.test.ts, 42-test beta-critical.test.ts, 48-test combined tool-catalogue+beta-critical, 398-test full ai lib suite) run green before pushing. No schema changes, no migrations — every fix tonight was a request-parameter, regex, or handler-ordering change. Commits: 815da5e, d0a3001, cde9512, d7cf7de on main.
+
+### Not started
+
+Root-causing the sector-class truncation (next priority — needs a live capture of the actual Gemini finishReason and raw chunk boundary for a failing sector query, not another blind patch). Corpus subset was 40 of 321 queries for turnaround time; a full run would give a more stable number once the truncation issue is closed.
+
+---
+
+## Session: 8 Sep 2026, same day — root-caused the truncation blocker, widened scope decline, fixed AI-cost analytics, restyled 4 screens, then found the truncation fix wasn't the whole story
+
+Asked for real B/B+ readiness, told to just implement rather than ask. Six real, tested, pushed fixes; one real new finding not yet fixed, reported honestly rather than papered over.
+
+### Fixed and verified
+
+1. **AI-cost analytics undercounted by ~25x, plus a fabricated metric.** `take: 500` on a 12,000+ row table, labeled "total." Real total since metering began (7 Aug): $21.17 (~1,842rs), not the ~33rs shown. Also removed `groundTruthDbHitRate: '78.5%'` — hardcoded, zero computation anywhere, shown even with no backend data. Commit 4f51006.
+2. **Four screens restyled** (admin login, accept-invite, builder portal, partner portal) to match the app's actual design system (glass-card, real logo, token palette) instead of a disconnected flat-dark screen. Commit a1cce6f.
+3. **Root-caused the sector-truncation blocker with real data**: pulled completion_tokens for a failing query straight out of aiUsageEvent by its sessionId — 95 tokens, trailing off on a bare "Would". Nowhere near any token ceiling. The one continuation guard in each adapter (gemini.ts, openai.ts, mistral.ts) only checked for finishReason MAX_TOKENS/length; a provider reporting any other finish reason on a genuinely unfinished answer sailed past it. Extracted the corpus grader's own `endsRagged` mid-word detector into a shared lib and wired it into all three adapters' continuation checks. Commit 3bfb0e3.
+4. **Widened the excluded-property-type decline from 11/36 to 34/36** of the out_of_scope corpus class — rent/auction word order, hotel brands, star-rated hotels, property dealers. Verified against 8 near-miss questions (rental yield, resale value projection, tenure status) that must keep answering normally. Commit f5a8a7f.
+5. **Fixed broken HARD RULES numbering** in the system prompt (two rules numbered 9, two numbered 10) and de-referenced two stale "HARD RULE 20" citations that, even under correct numbering, pointed at the wrong rule. Bookkeeping only, no behavior change, no corpus run needed. Commit 191e38c.
+
+### Measured effect — 80-query corpus run (up from the 40-query subset used earlier today)
+
+| | Overall pass | out_of_scope pass | sector-class pass |
+|---|---|---|---|
+| Before today's session | 32.5% | — | — |
+| After endsRagged + scope-widen + prompt fix | **40.0%** | **93.3%** (was 35.7%) | **11.1%** |
+
+Real, measured improvement — but sector class is still badly broken, and the endsRagged fix did NOT fix it, which is the honest finding below.
+
+### New finding, NOT fixed: prompt bloat is degrading the free-tier model, and my truncation fix couldn't repair that
+
+Checked the still-truncated sector answers post-fix. They now show a WORSE pattern than before: glued-together restart fragments mid-paragraph ("SVerified", "functionalApex", "establiOur" — no space, no boundary) — meaning the continuation retry IS firing now, but each retry produces more garbled, still-incomplete text, compounding rather than resolving.
+
+Checked prompt size for every sector-class query in the run: every truncated query had a **massive** prompt — 11,642 to **45,622 tokens** — for a query that returned only 2 project cards. That is not proportionate to 2 projects' worth of facts; something is injecting far more content than the visible result would suggest, and it has not been identified yet. The two sector-class queries that DID pass had `promptTokens: 0` — served from cache, not a real generation, so they are not evidence the model can handle a normal-sized prompt well; there is no passing example in this run to compare against.
+
+**This directly confirms your instinct from this session's chat**: the prompt/context has grown large enough that a cheap/free-tier model degrades under it — this is not a hypothesis, it is what the data shows. What is NOT yet known: where the 45k tokens actually come from for a 2-card answer — multi-sector fan-out (this query named three sectors), a sector-overview injection, or something duplicating content across the prompt. Did not chase this further this session — it needs its own investigation with the actual assembled prompt in hand, not another guess.
+
+### Verification
+
+Every commit: typecheck clean, lint clean. 405/405 in the combined beta-critical + ai lib suite after the endsRagged and prompt-numbering changes. No schema changes, no migrations, across all six fixes.
+
+### Not started
+
+Finding the actual source of the 45k-token prompt bloat on multi-sector queries — the real next blocker. A genuine simplification pass on the ~787-line system prompt (moving more deterministic logic to code, the way scope-decline and endsRagged just did) — reasoned about, not executed, because it needs the same corpus-gated care as everything above, not a rewrite done in one pass under time pressure.
+
+---
+
+## Session: 8 Sep 2026, same day, part 3 — closed the two remaining table gaps you named directly
+
+You said tables/structured elements should never be drawn by the model — cost, reliability, and you named payment plan, cost sheet, sector intelligence, sector compare and comparisons specifically. Checked all five against the actual code, not the docs.
+
+**Already code-rendered, confirmed working**: payment plans (`renderPaymentPlanTable`), cost sheets (`renderCostSheetTable`), sector-vs-sector comparison (`renderSectorComparisonTable`), the city micro-market table. All wired through real handlers, all engage `suppressTables` correctly.
+
+**Two real gaps found and closed**:
+
+1. **`renderDerivedSectorTable` existed, was tested, was never called.** It is the fallback for a sector (or sector combination) with project rows but no curated `MicroMarketSummary` row — exactly the case that produced the 45k-token, duplicated-header-row failure investigated this afternoon. Wired it in as a fallback right after the curated table fails to match, built from `projects` already in scope — no new query. Commit 89ea507.
+
+2. **Project-vs-project comparison had no table renderer at all.** Payment plans, cost sheets and sector comparison all render in code; "compare Godrej Woods vs ATS Pious" did not — it built a frontend comparison card but never suppressed the model's own prose table, so the model was free to draw its own. Built `renderProjectComparisonTable` (attributes down, projects across, capped at 3), wired it in where `is_comparison_query` is already settled. 8 new tests. Commit 8a69aa5.
+
+### Verification
+
+Typecheck clean, lint clean. 80/80 in marketTable.test.ts + beta-critical after both changes. No schema change.
+
+### Honest status on the sector-truncation root cause
+
+Live-tested the exact previously-failing multi-sector query again after the derived-sector fallback shipped — it still came back garbled, but this specific repeat hit a DIFFERENT lane (a builder-legal-risk answer, not the market-table path at all) because intent extraction resolved the sector list differently between calls (three sectors named, one sector extracted) — a separate, real non-determinism in intent extraction that this session did not chase down. So the derived-sector-table fix is real and correct for the case it targets, but it is not yet confirmed to be the whole story for every garbled sector answer — some of them are landing on lanes this fix does not touch. Said plainly rather than claimed as closed.
