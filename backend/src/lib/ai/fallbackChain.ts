@@ -199,30 +199,31 @@ const TURN_BUDGET_MS = Number(process.env.FALLBACK_TURN_BUDGET_MS ?? 30_000)
  * when the known-name cache is cold, and null holds the paragraph back; a
  * guard that could not read the database must not wave text through.
  */
+/** A real pipe-delimited table row — at least 3 cells, no line breaks inside it. */
+const PIPE_ROW_ANYWHERE = /\|[^\n|]+\|[^\n|]+\|/
+
 /**
  * True when `paragraph` structurally repeats something `priorText` already
- * has — a markdown table's header separator row, or a heading this codebase
- * uses to mark a section (`### Verdict`, `### Recommendation`). A genuine
- * continuation never needs to redraw either; a model that restarted does.
+ * has — a second markdown table, a redrawn header separator, or a heading
+ * this codebase uses to mark a section (`### Verdict`, `### Recommendation`).
+ * A genuine continuation never needs to redraw any of them; a model that
+ * restarted does.
  *
- * The observed failure never got this far, though: every reproduction cut
- * off right after the table's HEADER row (`| Core Metric | A | B |`), before
- * a separator row ever followed — so the original check here, which only
- * looked for a redrawn separator, never fired. This codebase's own comparison
- * prompt (`chat-router.ts`'s `OUTPUT STRUCTURE`) always places the table
- * BEFORE `### Recommendation`, never after — so any fresh pipe-delimited row
- * arriving once the answer has already reached that heading is a restart by
- * construction, not a continuation, regardless of what the row itself says.
+ * The dominant real-world case, found only by live reproduction, is the
+ * first check: a genuine comparison answer draws exactly ONE table, ever —
+ * so a table appearing in the prior text AND another one appearing in the
+ * current paragraph is a restart regardless of headings or exact wording.
+ * This is deliberately not gated on `### Recommendation` appearing in
+ * `priorText` specifically: three earlier attempts gated on that and still
+ * missed live failures where the heading and the restart both land in the
+ * SAME unreleased chunk — `priorText` genuinely does not contain the heading
+ * yet in that case, because it has not been released as a separate
+ * paragraph. Whether the heading was already released is irrelevant to
+ * whether a second table is a restart; only the count of tables is.
  */
 export function looksLikeRestart(paragraph: string, priorText: string): boolean {
   const trimmed = paragraph.trim()
-  // Not anchored to the start of the paragraph or a line: observed live, the
-  // restart sometimes glues directly onto the tail of the still-unfinished
-  // recommendation sentence with no newline at all ("...township| Core
-  // Metric | A | B |") — a real 3-cell pipe row appearing ANYWHERE once the
-  // answer has already reached its final section is still a restart.
-  const PIPE_ROW_ANYWHERE = /\|[^\n|]+\|[^\n|]+\|/
-  if (priorText.includes('### Recommendation') && PIPE_ROW_ANYWHERE.test(trimmed)) return true
+  if (PIPE_ROW_ANYWHERE.test(priorText) && PIPE_ROW_ANYWHERE.test(trimmed)) return true
 
   const HEADING = /^#{2,3}\s+\S/m
   const TABLE_SEPARATOR_ROW = /^\s*\|?\s*:?-{2,}:?\s*\|/m

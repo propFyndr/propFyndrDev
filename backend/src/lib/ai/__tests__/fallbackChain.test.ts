@@ -276,3 +276,14 @@ describe('looksLikeRestart catches a restart glued mid-sentence with no newline'
     assert.strictEqual(looksLikeRestart(next, prior), false)
   })
 })
+
+describe('looksLikeRestart does not depend on ### Recommendation having been separately released', () => {
+  it('flags a second table even when the heading and the restart arrive in the same unreleased chunk', () => {
+    // The gap found live: releasedText holds only the first table (already
+    // released as its own paragraph); "### Recommendation" and the restart
+    // both arrive together in ONE final chunk that is never split further.
+    const releasedSoFar = '### Verdict\nSome verdict.\n\n| Core Metric | A | B |\n| :--- | :--- | :--- |\n| Price | 1 | 2 |\n\n'
+    const finalChunk = '### Recommendation\nChoose A if you want an economical entry price poi| Core Metric | A | B |'
+    assert.strictEqual(looksLikeRestart(finalChunk, releasedSoFar), true)
+  })
+})
