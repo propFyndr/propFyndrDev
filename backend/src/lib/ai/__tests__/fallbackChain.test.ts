@@ -249,4 +249,16 @@ describe('looksLikeRestart', () => {
     const next = '| Core Metric | A | B |\n| :--- | :--- | :--- |\n'
     assert.strictEqual(looksLikeRestart(next, prior), false)
   })
+
+  it('flags a bare table HEADER row (no separator yet) arriving after ### Recommendation — the actual observed failure shape', () => {
+    const prior = '### Verdict\nSome verdict.\n\n| Core Metric | A | B |\n| :--- | :--- | :--- |\n\n### Recommendation\nChoose A if you want '
+    const next = '| Core Metric | A | B |'
+    assert.strictEqual(looksLikeRestart(next, prior), true)
+  })
+
+  it('does not flag ordinary prose that happens to precede ### Recommendation', () => {
+    const prior = '### Verdict\nSome verdict.\n\n| Core Metric | A | B |\n| :--- | :--- | :--- |\n'
+    const next = 'Choose A if you want affordability.'
+    assert.strictEqual(looksLikeRestart(next, prior), false)
+  })
 })

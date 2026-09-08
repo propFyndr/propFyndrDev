@@ -204,8 +204,20 @@ const TURN_BUDGET_MS = Number(process.env.FALLBACK_TURN_BUDGET_MS ?? 30_000)
  * has — a markdown table's header separator row, or a heading this codebase
  * uses to mark a section (`### Verdict`, `### Recommendation`). A genuine
  * continuation never needs to redraw either; a model that restarted does.
+ *
+ * The observed failure never got this far, though: every reproduction cut
+ * off right after the table's HEADER row (`| Core Metric | A | B |`), before
+ * a separator row ever followed — so the original check here, which only
+ * looked for a redrawn separator, never fired. This codebase's own comparison
+ * prompt (`chat-router.ts`'s `OUTPUT STRUCTURE`) always places the table
+ * BEFORE `### Recommendation`, never after — so any fresh pipe-delimited row
+ * arriving once the answer has already reached that heading is a restart by
+ * construction, not a continuation, regardless of what the row itself says.
  */
 export function looksLikeRestart(paragraph: string, priorText: string): boolean {
+  const trimmed = paragraph.trim()
+  if (priorText.includes('### Recommendation') && /^\|.+\|/.test(trimmed)) return true
+
   const HEADING = /^#{2,3}\s+\S/m
   const TABLE_SEPARATOR_ROW = /^\s*\|?\s*:?-{2,}:?\s*\|/m
   for (const pattern of [HEADING, TABLE_SEPARATOR_ROW]) {
