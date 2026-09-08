@@ -28,7 +28,7 @@ const MAX_TOOL_CYCLES = 3
  * just keyed on a different reason to keep going. Bounded so a model that
  * never reaches STOP cannot loop forever.
  */
-const MAX_TOKEN_CONTINUATIONS = Number(process.env.GEMINI_MAX_CONTINUATIONS ?? 3)
+const MAX_TOKEN_CONTINUATIONS = Number(process.env.GEMINI_MAX_CONTINUATIONS ?? 5)
 const CONTINUE_INSTRUCTION =
   'Your previous message was cut off by a length limit, possibly mid-word. First finish the exact word or sentence it ended on if it was incomplete, then continue the rest of your answer. Do not repeat anything you already said, do not restate the question, and do not mention that you were interrupted.'
 

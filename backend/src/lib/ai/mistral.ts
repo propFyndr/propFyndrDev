@@ -37,7 +37,7 @@ export const mistralReplyCeiling = (profileMaxTokens?: number): number =>
  * it, and every hit looked identical to a clean stop. On 'length', feed the
  * partial answer back as the model's own turn and ask it to continue.
  */
-const MAX_TOKEN_CONTINUATIONS = Number(process.env.MISTRAL_MAX_CONTINUATIONS ?? 3)
+const MAX_TOKEN_CONTINUATIONS = Number(process.env.MISTRAL_MAX_CONTINUATIONS ?? 5)
 const CONTINUE_INSTRUCTION =
   'Your previous message was cut off by a length limit, possibly mid-word. First finish the exact word or sentence it ended on if it was incomplete, then continue the rest of your answer. Do not repeat anything you already said, do not restate the question, and do not mention that you were interrupted.'
 
