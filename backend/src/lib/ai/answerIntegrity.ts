@@ -230,7 +230,10 @@ const INVENTORY_SIZE: Array<[RegExp, string]> = [
   // allowed it before the digit.
   [new RegExp(`\\b(?:we|i)\\s+(?:hold|have|track|cover|maintain|list|carry)\\s+(?:verified\\s+|only\\s+)?(?:data\\s+on\\s+)?${HEDGE}${DIGIT_COUNT}\\s+(?:[\\w-]+\\s+){0,2}?(?:projects?|societies|properties|sectors?|builders?|developers?|listings?)`, 'i'), 'counts our holdings'],
   // "280 projects across 61 sectors" — the shape of the table, whoever says it.
-  [new RegExp(`\\b${DIGIT_COUNT}\\s*(?:projects?|societies|properties)\\s+across\\s+${DIGIT_COUNT}\\s*(?:sectors?|micro[- ]?markets?|cities)`, 'i'), 'counts our holdings'],
+  // Measured live: "280 projects across 117 builders" walked past this pattern
+  // because "builders" was not in the second noun group — only the sector/city
+  // side was covered, so the leak moved to whichever noun followed "across".
+  [new RegExp(`\\b${DIGIT_COUNT}\\s*(?:projects?|societies|properties)\\s+across\\s+${DIGIT_COUNT}\\s*(?:sectors?|micro[- ]?markets?|cities|builders?|developers?)`, 'i'), 'counts our holdings'],
   // "Our verified database currently contains details for only one project".
   // Word counts included here, because the subject is the store itself.
   [new RegExp(`${OUR_STORE}\\s+${HEDGE}(?:has|have|holds?|contains?|covers?|includes?|spans?|lists?)\\s+(?:details?\\s+(?:for|on)\\s+)?${HEDGE}${ANY_COUNT}\\b`, 'i'), 'reports the size of our holdings'],

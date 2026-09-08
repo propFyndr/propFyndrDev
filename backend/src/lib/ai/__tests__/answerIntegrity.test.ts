@@ -35,6 +35,10 @@ const DISCARD: Array<[string, string]> = [
     'We hold 280 projects across 61 sectors, from ₹41 L to ₹12.5 Cr.',
   ],
   [
+    'sizes the table by builder count instead of sector count',
+    'We have this many details. We have 280 projects across 117 builders and all.',
+  ],
+  [
     'answers the count question directly',
     'Our database has 280 projects right now.',
   ],
