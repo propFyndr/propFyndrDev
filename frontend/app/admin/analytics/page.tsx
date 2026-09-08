@@ -77,6 +77,7 @@ interface AiCostMetrics {
   totalOutputTokens: number
   totalCostUsd: number
   totalCostInr: number
+  totalQueriesTracked: number
   avgCostPerQueryUsd: number
   costPerLeadUsd: number
   costPerLeadInr: number
@@ -94,7 +95,6 @@ interface AiCostMetrics {
     maxSize: number
     hitRate: string
   }
-  groundTruthDbHitRate: string
 }
 
 interface MarketDemandItem {
@@ -285,7 +285,7 @@ export default function AnalyticsDashboard() {
               </span>
             </div>
             <p className="text-[10px] text-zinc-400 mt-1">
-              Avg ₹{((aiCosts?.avgCostPerQueryUsd ?? 0) * 83.3).toFixed(2)} / query
+              Avg ₹{((aiCosts?.avgCostPerQueryUsd ?? 0) * 87).toFixed(2)} / query
             </p>
           </div>
 
@@ -308,19 +308,20 @@ export default function AnalyticsDashboard() {
             </p>
           </div>
 
-          {/* DB Ground-Truth Hit Rate */}
+          {/* Queries Tracked — replaces a hardcoded '78.5%' ground-truth-hit
+              figure that had no computation behind it anywhere in the stack. */}
           <div className="p-4 rounded-xl bg-white dark:bg-zinc-800/60 border border-zinc-200/70 dark:border-zinc-700/50">
             <div className="flex items-center justify-between text-zinc-400 text-xs font-semibold">
-              <span>DB Ground-Truth Hit</span>
+              <span>Queries Tracked</span>
               <ShieldCheck className="w-3.5 h-3.5 text-purple-500" />
             </div>
             <div className="mt-2 flex items-baseline gap-2">
               <span className="text-2xl font-black text-purple-600 dark:text-purple-400">
-                {aiCosts?.groundTruthDbHitRate ?? '78.5%'}
+                {(aiCosts?.totalQueriesTracked ?? 0).toLocaleString()}
               </span>
             </div>
             <p className="text-[10px] text-zinc-400 mt-1">
-              Zero-hallucination PostgreSQL facts
+              Metered AI calls on record
             </p>
           </div>
 

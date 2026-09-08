@@ -1988,68 +1988,69 @@ router.get('/analytics/properties', requireAdmin, async (_req: Request, res: Res
   }
 })
 
+// USD→INR is not fetched live; this is a fixed approximation for display only.
+const USD_TO_INR_APPROX = 87
+
 // GET /api/v1/admin/analytics/ai-costs — enterprise AI token & unit economics
 router.get('/analytics/ai-costs', requireAdmin, async (_req: Request, res: Response) => {
   try {
     const { getCacheStats } = await import('../lib/ai/semanticCache')
     const cacheStats = getCacheStats()
 
-    let usageEvents: any[] = []
-    try {
-      usageEvents = await (prisma as any).aiUsageEvent?.findMany({
-        orderBy: { created_at: 'desc' },
-        take: 500,
-      }) || []
-    } catch (e) {
-      console.warn('[admin] aiUsageEvent fetch warning:', e)
-    }
+    /**
+     * Was `findMany({ take: 500 })` labeled `totalCostUsd` — with 12,000+
+     * rows on file, that read roughly the most recent 4% of events and called
+     * it the total. Measured live: showed ~₹33 against a real provider bill
+     * the user tracks at roughly ₹2,500. Aggregated over ALL rows instead —
+     * a DB-side sum, not 12k rows pulled into memory every request.
+     *
+     * This can still undercount true lifetime spend: `aiUsageEvent` only
+     * exists from whenever metering was wired up (CLAUDE.md notes ten call
+     * sites once called the Gemini SDK directly and recorded nothing). A row
+     * here is real; the absence of a row before metering existed is not
+     * evidence no money was spent.
+     */
+    const [totals, byProvider, totalLeads] = await Promise.all([
+      prisma.aiUsageEvent.aggregate({
+        _sum: { cost_usd: true, prompt_tokens: true, completion_tokens: true },
+        _count: true,
+      }),
+      prisma.aiUsageEvent.groupBy({
+        by: ['provider'],
+        _sum: { cost_usd: true, prompt_tokens: true, completion_tokens: true },
+        _count: true,
+      }),
+      prisma.callbackRequest.count().catch(() => 0),
+    ])
 
-    let totalPromptTokens = 0
-    let totalCompletionTokens = 0
-    let totalCostUsd = 0
-    const providerCosts: Record<string, { cost: number; queries: number; promptTokens: number; completionTokens: number }> = {}
+    const totalCostUsd = Number(totals._sum.cost_usd || 0)
+    const totalPromptTokens = totals._sum.prompt_tokens || 0
+    const totalCompletionTokens = totals._sum.completion_tokens || 0
+    const totalQueries = totals._count
 
-    for (const ev of usageEvents) {
-      const pTokens = ev.prompt_tokens || 0
-      const cTokens = ev.completion_tokens || 0
-      const cost = Number(ev.cost_usd || 0)
-
-      totalPromptTokens += pTokens
-      totalCompletionTokens += cTokens
-      totalCostUsd += cost
-
-      const prov = ev.provider || 'unknown'
-      if (!providerCosts[prov]) {
-        providerCosts[prov] = { cost: 0, queries: 0, promptTokens: 0, completionTokens: 0 }
-      }
-      providerCosts[prov].cost += cost
-      providerCosts[prov].queries += 1
-      providerCosts[prov].promptTokens += pTokens
-      providerCosts[prov].completionTokens += cTokens
-    }
-
-    const totalQueries = usageEvents.length
-    const totalLeads = await prisma.callbackRequest.count().catch(() => 0)
     const costPerLeadUsd = totalLeads > 0 && totalCostUsd > 0 ? (totalCostUsd / totalLeads).toFixed(3) : '0.00'
-    const costPerLeadInr = (Number(costPerLeadUsd) * 83.3).toFixed(2)
+    const costPerLeadInr = (Number(costPerLeadUsd) * USD_TO_INR_APPROX).toFixed(2)
 
     res.json({
       totalInputTokens: totalPromptTokens,
       totalOutputTokens: totalCompletionTokens,
       totalCostUsd: Number(totalCostUsd.toFixed(4)),
-      totalCostInr: Math.round(totalCostUsd * 83.3),
+      totalCostInr: Math.round(totalCostUsd * USD_TO_INR_APPROX),
+      totalQueriesTracked: totalQueries,
       avgCostPerQueryUsd: totalQueries > 0 ? Number((totalCostUsd / totalQueries).toFixed(5)) : 0,
       costPerLeadUsd: Number(costPerLeadUsd),
       costPerLeadInr: Number(costPerLeadInr),
-      costByProvider: Object.entries(providerCosts).map(([provider, data]) => ({
-        provider,
-        costUsd: Number(data.cost.toFixed(4)),
-        costInr: Math.round(data.cost * 83.3),
-        queries: data.queries,
-        totalTokens: data.promptTokens + data.completionTokens,
+      costByProvider: byProvider.map((p) => ({
+        provider: p.provider || 'unknown',
+        costUsd: Number((p._sum.cost_usd || 0).toFixed(4)),
+        costInr: Math.round(Number(p._sum.cost_usd || 0) * USD_TO_INR_APPROX),
+        queries: p._count,
+        totalTokens: (p._sum.prompt_tokens || 0) + (p._sum.completion_tokens || 0),
       })),
       cache: cacheStats,
-      groundTruthDbHitRate: '78.5%',
+      // `groundTruthDbHitRate` used to sit here as a hardcoded '78.5%' string
+      // with nothing computing it — a fabricated metric, removed rather than
+      // guessed at a replacement.
     })
   } catch (err) {
     console.error('[admin] analytics ai-costs failed:', err)
