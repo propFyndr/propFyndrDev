@@ -8,6 +8,7 @@ import { MODELS, GEMINI_TOOLS_ENABLED } from '../config'
 import { toGeminiTools, validateToolArgs, capToolResult } from './tools'
 import { INFERENCE_DEFAULTS, type InferenceConfig } from './openai'
 import { recordUsage, CACHED_INPUT_RATIO } from './cost'
+import { endsRagged } from './endsRagged'
 
 type Message = { role: 'system' | 'user' | 'assistant' | 'tool'; content: string | null }
 type SendFn = (event: string, data: Record<string, unknown>) => void
@@ -352,13 +353,20 @@ export async function streamWithGemini(
       throw new GeminiStreamStallError('Gemini stream produced no chunks', false)
     }
 
-    // The budget ran out before the model reached STOP. Feed back what it wrote
-    // this cycle as its own turn and ask it to keep going, same recursion the
-    // tool-call path below uses — just not consuming that path's cycle budget,
-    // since a continuation is not a tool round-trip.
-    if (!functionCall && finishReason === 'MAX_TOKENS' && continuationsUsed < MAX_TOKEN_CONTINUATIONS) {
+    /**
+     * The budget ran out before the model reached STOP — OR it reports having
+     * reached STOP and the text is obviously not finished anyway. Measured
+     * live, 8 Sep: a free-tier answer stopped after 95 completion tokens,
+     * trailing off on a bare "Would", with `finishReason` something other
+     * than MAX_TOKENS — so this guard, gated on MAX_TOKENS alone, never saw
+     * it. `endsRagged` is the same mid-word/mid-sentence check the corpus
+     * grader uses; whatever reason a provider reports, an answer trailing off
+     * on a bare word or an unterminated clause is not finished.
+     */
+    const looksUnfinished = finishReason === 'MAX_TOKENS' || endsRagged(fullText)
+    if (!functionCall && looksUnfinished && continuationsUsed < MAX_TOKEN_CONTINUATIONS) {
       continuationsUsed++
-      console.warn(`[gemini] MAX_TOKENS — auto-continuing (${continuationsUsed}/${MAX_TOKEN_CONTINUATIONS}) cycle=${cycle}`)
+      console.warn(`[gemini] ${finishReason === 'MAX_TOKENS' ? 'MAX_TOKENS' : `ragged (finishReason=${finishReason})`} — auto-continuing (${continuationsUsed}/${MAX_TOKEN_CONTINUATIONS}) cycle=${cycle}`)
       contents.push({ role: 'model', parts: [{ text: cycleText }] })
       contents.push({ role: 'user', parts: [{ text: CONTINUE_INSTRUCTION }] })
       justContinued = true

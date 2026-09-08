@@ -18,6 +18,7 @@
 
 import { readFileSync, writeFileSync } from 'node:fs'
 import { scanDisclosure } from '../../src/lib/ai/answerIntegrity'
+import { endsRagged } from '../../src/lib/ai/endsRagged'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { prisma } from '../../src/lib/db'
@@ -190,16 +191,6 @@ export function grade(entry: CorpusEntry, text: string, errored: boolean): Grade
   if (answer.length < minChars(entry.class)) return 'too_short'
 
   return 'pass'
-}
-
-/** No terminal punctuation, and not a complete table row. */
-export function endsRagged(text: string): boolean {
-  const s = text.trimEnd()
-  if (!s) return false
-  if (/[.!?:)"'\]`*]$/.test(s)) return false
-  const last = s.split('\n').pop()!.trim()
-  if (last.startsWith('|') && last.endsWith('|')) return false
-  return true
 }
 
 // ── transport ──────────────────────────────────────────────────────────────

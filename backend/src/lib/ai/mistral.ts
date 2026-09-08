@@ -2,6 +2,7 @@
 import OpenAI from 'openai'
 import { recordUsage } from './cost'
 import { createInactivityGuard, type InactivityGuard } from './streamTimeout'
+import { endsRagged } from './endsRagged'
 
 type Message = { role: 'user' | 'assistant'; content: string }
 type SendFn = (event: string, data: Record<string, unknown>) => void
@@ -150,11 +151,12 @@ export async function streamWithMistral(
       })
     }
 
-    // The budget ran out before the model reached a natural stop. Feed back
-    // what it wrote this cycle as its own turn and ask it to keep going.
-    if (finishReason === 'length' && continuationsUsed < MAX_TOKEN_CONTINUATIONS) {
+    // The budget ran out before the model reached a natural stop — OR it
+    // reports a clean stop and the text is obviously not finished anyway.
+    const looksUnfinished = finishReason === 'length' || endsRagged(fullText)
+    if (looksUnfinished && continuationsUsed < MAX_TOKEN_CONTINUATIONS) {
       continuationsUsed++
-      console.warn(`[mistral] finish_reason=length — auto-continuing (${continuationsUsed}/${MAX_TOKEN_CONTINUATIONS})`)
+      console.warn(`[mistral] ${finishReason === 'length' ? 'finish_reason=length' : `ragged (finish_reason=${finishReason})`} — auto-continuing (${continuationsUsed}/${MAX_TOKEN_CONTINUATIONS})`)
       msgs = [
         ...msgs,
         { role: 'assistant', content: cycleText },

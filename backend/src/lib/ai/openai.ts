@@ -2,6 +2,7 @@ import OpenAI from 'openai';
 import { MODELS, AI_CONFIG, OPENAI_BASE_URL as CONFIGURED_OPENAI_BASE_URL } from '../config'
 import { recordUsage } from './cost'
 import { toOpenAITools, validateToolArgs, capToolResult } from './tools'
+import { endsRagged } from './endsRagged'
 
 interface ToolCall {
   id: string
@@ -389,13 +390,14 @@ export async function streamWithOpenAI(
       send('token', { token: '\n\n[Response truncated: 120-second turn limit reached]' });
     }
 
-    // The budget ran out before the model reached a natural stop. Feed back
-    // what it wrote this cycle as its own turn and ask it to keep going — the
-    // same recursion the tool-call path below uses, on a separate counter so
-    // a continuation never eats into the tool-call cycle budget.
-    if (!toolCallName && finishReason === 'length' && continuationsUsed < MAX_TOKEN_CONTINUATIONS) {
+    // The budget ran out before the model reached a natural stop — OR it
+    // reports a clean stop and the text is obviously not finished anyway.
+    // Same gap found live in gemini.ts: a short answer can arrive with a
+    // finish_reason other than "length" and still trail off mid-word.
+    const looksUnfinished = finishReason === 'length' || endsRagged(fullText);
+    if (!toolCallName && looksUnfinished && continuationsUsed < MAX_TOKEN_CONTINUATIONS) {
       continuationsUsed++;
-      console.warn(`[openai] finish_reason=length — auto-continuing (${continuationsUsed}/${MAX_TOKEN_CONTINUATIONS}) cycle=${cycle}`);
+      console.warn(`[openai] ${finishReason === 'length' ? 'finish_reason=length' : `ragged (finish_reason=${finishReason})`} — auto-continuing (${continuationsUsed}/${MAX_TOKEN_CONTINUATIONS}) cycle=${cycle}`);
       currentMsgs.push({ role: 'assistant', content: cycleText });
       currentMsgs.push({ role: 'user', content: CONTINUE_INSTRUCTION });
       justContinued = true;
