@@ -391,6 +391,23 @@ function createBufferedSend(
     if (releaseByParagraph && flushed) {
       // The held partial paragraph is the only thing left, and it is where a
       // reply ceiling cuts, so it gets the same end repair the tail used to.
+      //
+      // It is also where a restart lands almost every time: the model's
+      // fresh table header arrives as the FINAL, never-newline-terminated
+      // paragraph, because the stream simply ends (naturally or on failure)
+      // before a second `\n\n` ever completes it — so `releaseCompleteParagraphs`
+      // above, which only inspects completed paragraphs, never sees it.
+      // Checked here first, before any attempt to repair a ragged edge that
+      // was never a ragged edge — it was a whole second answer starting over.
+      const priorAnywhere = priorCarryText + releasedText
+      if (priorAnywhere && buffer.length > 0 && looksLikeRestart(buffer, priorAnywhere)) {
+        const dropped = buffer.length
+        console.warn('[FALLBACK:MID_STREAM_RESTART] final held-back paragraph was a restart, not a continuation — dropped')
+        buffer = ''
+        endStripper()
+        return { trimmedChars: dropped }
+      }
+
       let trimmed = 0
       if (buffer.length > 0) {
         const cleaned = endCleanly(buffer, { maxTrimChars: buffer.length })
