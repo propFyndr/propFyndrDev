@@ -19,6 +19,18 @@ function identityOf(req: Request): AdminIdentitySession {
   return (req as Request & { adminIdentity: AdminIdentitySession }).adminIdentity
 }
 
+/**
+ * `FRONTEND_URL` is a comma-separated list (CORS reads it the same way in
+ * index.ts) that carries the Vercel preview URL alongside the real domain.
+ * Found live: taking the first entry handed back an invite link on
+ * *-vercel.app instead of propfyndr.in. Prefer whichever entry is the real
+ * domain; fall back to the first entry only if none match.
+ */
+export function preferredInviteOrigin(frontendUrlEnv: string | undefined): string {
+  const origins = (frontendUrlEnv || '').split(',').map((s) => s.trim()).filter(Boolean)
+  return origins.find((o) => o.includes('propfyndr.in')) || origins[0] || 'https://propfyndr.in'
+}
+
 function clientIp(req: Request): string {
   return (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() || req.ip || 'unknown'
 }
@@ -105,7 +117,7 @@ router.post('/invite', requireIdentity, requireRole('SUPER_ADMIN'), async (req: 
   // for you to send however you currently reach people (WhatsApp, direct
   // message). Wiring RESEND_API_KEY through this is a follow-up, not guessed
   // at blind.
-  const inviteUrl = `${process.env.FRONTEND_URL?.split(',')[0]?.trim() || 'https://propfyndr.in'}/admin/accept-invite?token=${inviteToken}`
+  const inviteUrl = `${preferredInviteOrigin(process.env.FRONTEND_URL)}/admin/accept-invite?token=${inviteToken}`
   res.json({ admin: { id: admin.id, email: admin.email, role: admin.role }, inviteUrl })
 })
 
