@@ -297,8 +297,20 @@ function createBufferedSend(
     }
 
     if (flushed) {
+      // The restart bug this guards against happens well past the first
+      // paragraph almost every time — the answer's later paragraphs (a
+      // table, then a recommendation) all flow through THIS branch, not
+      // `releaseCompleteParagraphs`, once `flushed` is set. That check alone
+      // only ever protected the first paragraph transition; this is the
+      // rest of the stream.
+      if (poisoned) return
       tokensSent = true
       if (STREAM_TAIL_HOLD_CHARS <= 0) {
+        if (looksLikeRestart(data.token, totalForwarded)) {
+          poisoned = true
+          console.warn('[FALLBACK:MID_STREAM_RESTART] restart detected in the unbuffered tail — stopping the answer where it stands')
+          return
+        }
         forwardToken(data.token)
         return
       }
@@ -306,6 +318,12 @@ function createBufferedSend(
       if (tail.length > STREAM_TAIL_HOLD_CHARS) {
         const release = tail.slice(0, tail.length - STREAM_TAIL_HOLD_CHARS)
         tail = tail.slice(tail.length - STREAM_TAIL_HOLD_CHARS)
+        if (looksLikeRestart(release, totalForwarded)) {
+          poisoned = true
+          tail = ''
+          console.warn('[FALLBACK:MID_STREAM_RESTART] restart detected in the streaming tail — stopping the answer where it stands')
+          return
+        }
         forwardToken(release)
       }
       return
@@ -398,11 +416,19 @@ function createBufferedSend(
    * can reach a different cut, and then the three disagree.
    */
   const flushRemaining = (): { trimmedChars: number } => {
-    // A mid-stream violation ends the answer where it stands. The tail is
-    // dropped rather than repaired: it is the part the gate objected to.
+    // A mid-stream violation ends the answer where it stands. Whatever is
+    // still held — in `buffer` (the paragraph path) or `tail` (the
+    // post-flush path a restart is usually caught in) — is dropped rather
+    // than repaired: it is the part the gate objected to. This underestimates
+    // by however much the adapter kept generating after poisoning without
+    // bufferedSend ever seeing it tracked anywhere (the `if (poisoned) return`
+    // above drops those tokens outright) — the caller corrects for that using
+    // `getReleasedText()` against the adapter's own full return value, which
+    // is exact where this count is only approximate.
     if (poisoned) {
-      const dropped = buffer.length
+      const dropped = buffer.length + tail.length
       buffer = ''
+      tail = ''
       endStripper()
       return { trimmedChars: dropped }
     }
@@ -496,6 +522,7 @@ function createBufferedSend(
     bufferedSend,
     getTokensSent: () => tokensSent,
     getReleasedText: () => totalForwarded,
+    getPoisoned: () => poisoned,
     flushRemaining,
     replaceBufferedText,
   }
@@ -660,7 +687,7 @@ export async function executeWithFallbackChain(options: FallbackChainOptions): P
      */
     const bufferLimit = Number.MAX_SAFE_INTEGER
     warmKnownNames()
-    const { bufferedSend, getTokensSent, getReleasedText, flushRemaining, replaceBufferedText } = createBufferedSend(
+    const { bufferedSend, getTokensSent, getReleasedText, getPoisoned, flushRemaining, replaceBufferedText } = createBufferedSend(
       send,
       effectivePrompt,
       bufferLimit,
@@ -815,7 +842,18 @@ export async function executeWithFallbackChain(options: FallbackChainOptions): P
         }
       }
 
-      const { trimmedChars } = flushRemaining()
+      let { trimmedChars } = flushRemaining()
+      // A restart poisoning that fires from the post-flush tail path (the
+      // common case — see createBufferedSend) can only count what bufferedSend
+      // still held at that moment; the adapter itself keeps generating past
+      // it, and none of those extra tokens were ever tracked in `buffer` or
+      // `tail`. The adapter's own returned `text` has all of it, so once
+      // poisoned, prefer the exact gap between that and what actually reached
+      // the client over the approximate count `flushRemaining` returned.
+      if (getPoisoned()) {
+        const exact = text.length - getReleasedText().length
+        if (exact > trimmedChars) trimmedChars = exact
+      }
 
       // An empty string is a failed turn, not a successful one.
       if (!text.trim() && !getTokensSent()) {
