@@ -101,22 +101,26 @@ export const INTENT_ROUTED_TOOLS: ToolIntentConfig[] = [
     intentKeywords: ['COMPARISON', 'RANKING'],
     keywordTriggers: ['compare', 'competitor', 'alternative', 'similar', 'versus', 'vs'],
   },
-  // "Phase 5: Ranking helper tools" — best_value_projects, fastest_possession_projects
-  // and best_for_families_projects were removed from here on 7 Sep 2026. All three
-  // were selectable by filterToolsByIntent and had descriptions ready to render, but
-  // no NEUTRAL_TOOLS schema and no handler ever existed for any of them — the exact
-  // bug toolCatalogue.test.ts's first test was written to catch, just in the
-  // opposite direction (advertised-in-prose rather than advertised-as-a-schema), so
-  // it went uncaught. A buyer asking "best value in Sector 150" got "temporarily
-  // unavailable" from a tool that had never existed, on every turn RANKING matched.
-  //
-  // Not reintroduced as aliases to `sector_projects`: that tool ranks only by
-  // verified score then entry price, with no sort-by-value / by-possession-date /
-  // by-school-proximity mode, so mapping these three onto it would silently change
-  // what "best value" or "fastest possession" means without anyone deciding that on
-  // purpose. Building the three properly — a real value-for-money metric, a
-  // possession-date sort, a school-proximity weighting — is real feature work, not a
-  // catalogue fix; tracked in PLAN.md rather than guessed at here.
+  // Built 8 Sep 2026 — removed 7 Sep 2026 as dead promises (selectable here,
+  // no NEUTRAL_TOOLS schema, no handler). Each is now real: best_value ranks
+  // by verified rupees-per-sqft, fastest_possession by delivered-then-nearest-
+  // date, best_for_families by 3BHK+ availability then recorded school/hospital
+  // counts — see projectFacts.ts for exactly what each measures.
+  {
+    name: 'best_value_projects',
+    intentKeywords: ['RANKING', 'DISCOVERY'],
+    keywordTriggers: ['best value', 'cheapest per sqft', 'value for money', 'most affordable'],
+  },
+  {
+    name: 'fastest_possession_projects',
+    intentKeywords: ['RANKING', 'DISCOVERY'],
+    keywordTriggers: ['fastest possession', 'soonest possession', 'quickest to move in', 'ready soonest'],
+  },
+  {
+    name: 'best_for_families_projects',
+    intentKeywords: ['RANKING', 'DISCOVERY'],
+    keywordTriggers: ['best for families', 'good for kids', 'family friendly', 'near schools'],
+  },
   {
     name: 'area_info',
     intentKeywords: ['ADVISORY', 'DISCOVERY'],

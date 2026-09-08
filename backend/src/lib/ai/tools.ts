@@ -284,6 +284,46 @@ export const NEUTRAL_TOOLS: NeutralTool[] = [
       required: ['project_name'],
     },
   },
+  {
+    name: 'best_value_projects',
+    description: 'Rank projects by lowest verified rupees-per-sqft at entry price — cost efficiency, not a quality score. Use for "best value in Sector 150", "cheapest per sqft in Noida". Never describe the order as anything but price-per-area.',
+    parameters: {
+      type: 'object',
+      properties: {
+        sector: { type: 'string', description: 'Sector number or name, e.g. "79" or "Sector 79"' },
+        city: { type: 'string', description: 'City, e.g. "Noida" or "Greater Noida"' },
+        bhk: { type: 'number', description: 'Filter to configurations with this bedroom count' },
+        max_budget_cr: { type: 'number', description: 'Maximum budget in crore' },
+        limit: { type: 'number', description: 'How many projects to return, default 8, max 20' },
+      },
+    },
+  },
+  {
+    name: 'fastest_possession_projects',
+    description: 'Rank projects by how soon a buyer could move in — delivered projects first, then the nearest builder-claimed possession date. Use for "fastest possession in Sector 79", "ready to move soonest".',
+    parameters: {
+      type: 'object',
+      properties: {
+        sector: { type: 'string', description: 'Sector number or name, e.g. "79" or "Sector 79"' },
+        city: { type: 'string', description: 'City, e.g. "Noida" or "Greater Noida"' },
+        bhk: { type: 'number', description: 'Filter to configurations with this bedroom count' },
+        limit: { type: 'number', description: 'How many projects to return, default 8, max 20' },
+      },
+    },
+  },
+  {
+    name: 'best_for_families_projects',
+    description: 'Rank projects for families by whether a 3BHK+ configuration is available, then by recorded nearby school and hospital counts — real, checkable numbers, not a subjective score. Use for "best for families in Sector 150", "good for kids".',
+    parameters: {
+      type: 'object',
+      properties: {
+        sector: { type: 'string', description: 'Sector number or name, e.g. "79" or "Sector 79"' },
+        city: { type: 'string', description: 'City, e.g. "Noida" or "Greater Noida"' },
+        max_budget_cr: { type: 'number', description: 'Maximum budget in crore' },
+        limit: { type: 'number', description: 'How many projects to return, default 8, max 20' },
+      },
+    },
+  },
 ]
 
 export function toOpenAITools() {
@@ -323,6 +363,9 @@ const TOOL_ARG_LIMITS: Record<string, Record<string, number>> = {
   user_saved_state:      {},
   sector_projects:       { sector: 50, city: 50 },
   project_financial_details: { project_name: 100 },
+  best_value_projects:        { sector: 50, city: 50 },
+  fastest_possession_projects: { sector: 50, city: 50 },
+  best_for_families_projects: { sector: 50, city: 50 },
 }
 
 export function validateToolArgs(name: string, args: Record<string, unknown>): Record<string, unknown> {

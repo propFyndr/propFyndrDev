@@ -17,6 +17,9 @@ import {
   getUserSavedState,
   getSectorProjects,
   getProjectFinancialDetails,
+  getBestValueProjects,
+  getFastestPossessionProjects,
+  getBestForFamiliesProjects,
 } from '../../projectFacts'
 
 const DEFAULT_CITY = DISCOVERY.DEFAULT_CITY
@@ -188,6 +191,34 @@ export function createToolHandler(ctx: ToolContext) {
             sector: args.sector,
             city: args.city ?? DEFAULT_CITY,
             bhk: args.bhk != null ? Number(args.bhk) : undefined,
+            maxBudgetCr: args.max_budget_cr != null ? Number(args.max_budget_cr) : undefined,
+            limit: args.limit != null ? Number(args.limit) : undefined,
+          });
+        }
+
+        if (name === 'best_value_projects') {
+          return getBestValueProjects({
+            sector: args.sector,
+            city: args.city ?? DEFAULT_CITY,
+            bhk: args.bhk != null ? Number(args.bhk) : undefined,
+            maxBudgetCr: args.max_budget_cr != null ? Number(args.max_budget_cr) : undefined,
+            limit: args.limit != null ? Number(args.limit) : undefined,
+          });
+        }
+
+        if (name === 'fastest_possession_projects') {
+          return getFastestPossessionProjects({
+            sector: args.sector,
+            city: args.city ?? DEFAULT_CITY,
+            bhk: args.bhk != null ? Number(args.bhk) : undefined,
+            limit: args.limit != null ? Number(args.limit) : undefined,
+          });
+        }
+
+        if (name === 'best_for_families_projects') {
+          return getBestForFamiliesProjects({
+            sector: args.sector,
+            city: args.city ?? DEFAULT_CITY,
             maxBudgetCr: args.max_budget_cr != null ? Number(args.max_budget_cr) : undefined,
             limit: args.limit != null ? Number(args.limit) : undefined,
           });

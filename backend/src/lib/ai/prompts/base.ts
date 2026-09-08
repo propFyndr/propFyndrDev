@@ -132,6 +132,9 @@ ${(() => {
         'select_property': '**select_property** — record which property the user has focused on when they pick one from a shortlist by name or position ("the second one", "tell me about Ivy County").',
         'project_financial_details': '**project_financial_details** — cost sheet, payment plans and price history in one call. Use for "what are payment plans", "cost breakdown", "price trends" — prefer this over calling cost_sheet_lookup, payment_plan_lookup and price_history_lookup separately.',
         'list_available_tools': '**list_available_tools** — if you need access to additional tools not shown here, call this escape hatch to ask.',
+        'best_value_projects': '**best_value_projects** — ranks by lowest verified rupees-per-sqft at entry price. Use for "best value in Sector X", "cheapest per sqft" — never call the order anything but price-per-area.',
+        'fastest_possession_projects': '**fastest_possession_projects** — ranks delivered projects first, then nearest builder-claimed possession date. Use for "fastest possession", "ready soonest".',
+        'best_for_families_projects': '**best_for_families_projects** — ranks by 3BHK+ availability then recorded nearby school/hospital counts. Use for "best for families", "good for kids" — these are real counts, not a subjective score.',
       }
 
       return filteredTools

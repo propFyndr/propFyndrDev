@@ -1031,3 +1031,241 @@ export async function getChannelPartners(nameOrId: string): Promise<Record<strin
     }))
   }
 }
+
+/**
+ * Three ranking tools, built 8 Sep 2026 — previously removed as dead promises
+ * (advertised to the model, no schema, no handler). Each definition below is
+ * grounded in real, verifiable database fields rather than an invented score,
+ * matching this codebase's own rule that a ranking must be explainable from
+ * data we actually hold.
+ */
+
+/** Cheapest verified rupees-per-sqft for the project's smallest unit — "best
+ *  value" defined as entry cost efficiency, not a subjective quality judgement. */
+export async function getBestValueProjects(opts: {
+  sector?: string
+  city?: string
+  bhk?: number
+  maxBudgetCr?: number
+  limit?: number
+}): Promise<Record<string, unknown>> {
+  const limit = Math.min(Math.max(opts.limit ?? 8, 1), 20)
+  const sector = opts.sector?.trim().replace(/^sector\s*/i, '')
+
+  const where: Record<string, unknown> = {}
+  if (sector) where.sector = { equals: sector, mode: 'insensitive' }
+  if (opts.city) where.city = { equals: opts.city.trim(), mode: 'insensitive' }
+  if (opts.bhk || opts.maxBudgetCr) {
+    const unitWhere: Record<string, unknown> = {}
+    if (opts.bhk) unitWhere.bhk = opts.bhk
+    if (opts.maxBudgetCr) unitWhere.price_min_cr = { lte: opts.maxBudgetCr }
+    where.unit_types = { some: unitWhere }
+  }
+
+  const projects = await prisma.project.findMany({
+    where,
+    select: {
+      name: true, sector: true, city: true, status: true,
+      price_range_label: true, project_risk_flag: true,
+      builder: { select: { name: true } },
+      unit_types: {
+        select: { bhk: true, price_min_cr: true, super_area_sqft: true, carpet_area_sqft: true },
+        orderBy: { price_min_cr: 'asc' },
+      },
+    },
+    take: limit * 3,
+  })
+
+  if (!projects.length) {
+    return {
+      found: false,
+      message: `No projects in the database for ${sector ? `Sector ${sector}` : ''}${opts.city ? ` ${opts.city}` : ''}${opts.bhk ? `, ${opts.bhk}BHK` : ''}${opts.maxBudgetCr ? `, under Rs ${opts.maxBudgetCr} Cr` : ''}. Say we do not cover it yet rather than naming projects from memory.`,
+      filters_applied: { sector: sector ?? null, city: opts.city ?? null, bhk: opts.bhk ?? null, max_budget_cr: opts.maxBudgetCr ?? null },
+    }
+  }
+
+  const withRate = projects
+    .map((p) => {
+      const candidateUnits = opts.bhk ? p.unit_types.filter((u) => u.bhk === opts.bhk) : p.unit_types
+      let bestRate: number | null = null
+      for (const u of candidateUnits) {
+        const area = u.super_area_sqft ?? u.carpet_area_sqft
+        if (u.price_min_cr && area && area > 0) {
+          const rate = (u.price_min_cr * 1e7) / area
+          if (bestRate === null || rate < bestRate) bestRate = rate
+        }
+      }
+      return { p, ratePerSqft: bestRate }
+    })
+    .filter((x) => x.ratePerSqft !== null)
+    .sort((a, b) => (a.ratePerSqft as number) - (b.ratePerSqft as number))
+    .slice(0, limit)
+
+  if (!withRate.length) {
+    return {
+      found: false,
+      message: 'Projects exist for these filters, but none have both a unit price and an area recorded to compute rupees-per-sqft. Say the value ranking is unavailable rather than guessing.',
+      filters_applied: { sector: sector ?? null, city: opts.city ?? null, bhk: opts.bhk ?? null, max_budget_cr: opts.maxBudgetCr ?? null },
+    }
+  }
+
+  return {
+    found: true,
+    match_count: withRate.length,
+    filters_applied: { sector: sector ?? null, city: opts.city ?? null, bhk: opts.bhk ?? null, max_budget_cr: opts.maxBudgetCr ?? null },
+    projects: withRate.map(({ p, ratePerSqft }) => ({
+      name: p.name,
+      builder: p.builder.name,
+      sector: p.sector,
+      city: p.city,
+      status: String(p.status),
+      price: p.price_range_label ?? null,
+      rate_per_sqft_inr: Math.round(ratePerSqft as number),
+      project_risk_flag: p.project_risk_flag ?? null,
+    })),
+    note:
+      'Value here means lowest verified rupees-per-sqft at entry price for the smallest matching unit - an arithmetic ranking from our own price and area records, not a quality or investment judgement. Say so if asked how the order is decided. ' +
+      'A project_risk_flag must be disclosed and that project must not be recommended.',
+  }
+}
+
+/** Ranked by how soon a buyer could actually move in: delivered projects
+ *  first, then the nearest builder-claimed possession date. Never treats a
+ *  missing possession date as "soon" - it sorts last, not first. */
+export async function getFastestPossessionProjects(opts: {
+  sector?: string
+  city?: string
+  bhk?: number
+  limit?: number
+}): Promise<Record<string, unknown>> {
+  const limit = Math.min(Math.max(opts.limit ?? 8, 1), 20)
+  const sector = opts.sector?.trim().replace(/^sector\s*/i, '')
+
+  const where: Record<string, unknown> = {}
+  if (sector) where.sector = { equals: sector, mode: 'insensitive' }
+  if (opts.city) where.city = { equals: opts.city.trim(), mode: 'insensitive' }
+  if (opts.bhk) where.unit_types = { some: { bhk: opts.bhk } }
+
+  const projects = await prisma.project.findMany({
+    where,
+    select: {
+      name: true, sector: true, city: true, status: true,
+      price_range_label: true, possession_date: true, possession_label: true,
+      possession_confidence: true, project_risk_flag: true,
+      builder: { select: { name: true } },
+      unit_types: opts.bhk ? { select: { bhk: true }, where: { bhk: opts.bhk } } : { select: { bhk: true } },
+    },
+    take: limit * 3,
+  })
+
+  if (!projects.length) {
+    return {
+      found: false,
+      message: `No projects in the database for ${sector ? `Sector ${sector}` : ''}${opts.city ? ` ${opts.city}` : ''}${opts.bhk ? `, ${opts.bhk}BHK` : ''}. Say we do not cover it yet rather than naming projects from memory.`,
+      filters_applied: { sector: sector ?? null, city: opts.city ?? null, bhk: opts.bhk ?? null },
+    }
+  }
+
+  const ranked = projects
+    .sort((a, b) => {
+      const aReady = a.status === 'ready_to_move' ? 0 : 1
+      const bReady = b.status === 'ready_to_move' ? 0 : 1
+      if (aReady !== bReady) return aReady - bReady
+      // Neither ready: sort by claimed possession date, missing dates last.
+      const aTime = a.possession_date ? a.possession_date.getTime() : Infinity
+      const bTime = b.possession_date ? b.possession_date.getTime() : Infinity
+      return aTime - bTime
+    })
+    .slice(0, limit)
+
+  return {
+    found: true,
+    match_count: ranked.length,
+    filters_applied: { sector: sector ?? null, city: opts.city ?? null, bhk: opts.bhk ?? null },
+    projects: ranked.map((p) => ({
+      name: p.name,
+      builder: p.builder.name,
+      sector: p.sector,
+      city: p.city,
+      status: String(p.status),
+      price: p.price_range_label ?? null,
+      possession_claimed_by_builder: p.possession_label ?? (p.status === 'ready_to_move' ? 'Delivered' : null),
+      possession_confidence: p.possession_confidence ?? null,
+      project_risk_flag: p.project_risk_flag ?? null,
+    })),
+    note:
+      'Ranked by delivered status first, then the builder-claimed possession date - all possession dates in our database are builder-claimed, not independently verified; say so if asked, and never state a date as guaranteed or RERA-confirmed. ' +
+      'A project_risk_flag must be disclosed and that project must not be recommended.',
+  }
+}
+
+/** Ranked by real, checkable family-relevant signals: nearby schools and
+ *  hospitals (the project's own recorded counts), and whether 3BHK+ is
+ *  available - not an invented "family friendliness" score. */
+export async function getBestForFamiliesProjects(opts: {
+  sector?: string
+  city?: string
+  maxBudgetCr?: number
+  limit?: number
+}): Promise<Record<string, unknown>> {
+  const limit = Math.min(Math.max(opts.limit ?? 8, 1), 20)
+  const sector = opts.sector?.trim().replace(/^sector\s*/i, '')
+
+  const where: Record<string, unknown> = {}
+  if (sector) where.sector = { equals: sector, mode: 'insensitive' }
+  if (opts.city) where.city = { equals: opts.city.trim(), mode: 'insensitive' }
+  if (opts.maxBudgetCr) where.unit_types = { some: { price_min_cr: { lte: opts.maxBudgetCr } } }
+
+  const projects = await prisma.project.findMany({
+    where,
+    select: {
+      name: true, sector: true, city: true, status: true,
+      price_range_label: true, project_risk_flag: true,
+      schools_nearby_count: true, hospitals_nearby_count: true,
+      builder: { select: { name: true } },
+      unit_types: { select: { bhk: true } },
+    },
+    take: limit * 3,
+  })
+
+  if (!projects.length) {
+    return {
+      found: false,
+      message: `No projects in the database for ${sector ? `Sector ${sector}` : ''}${opts.city ? ` ${opts.city}` : ''}${opts.maxBudgetCr ? `, under Rs ${opts.maxBudgetCr} Cr` : ''}. Say we do not cover it yet rather than naming projects from memory.`,
+      filters_applied: { sector: sector ?? null, city: opts.city ?? null, max_budget_cr: opts.maxBudgetCr ?? null },
+    }
+  }
+
+  const ranked = projects
+    .map((p) => ({
+      p,
+      hasLargeConfig: p.unit_types.some((u) => u.bhk >= 3),
+      nearbyScore: (p.schools_nearby_count ?? 0) + (p.hospitals_nearby_count ?? 0),
+    }))
+    .sort((a, b) => {
+      if (a.hasLargeConfig !== b.hasLargeConfig) return a.hasLargeConfig ? -1 : 1
+      return b.nearbyScore - a.nearbyScore
+    })
+    .slice(0, limit)
+
+  return {
+    found: true,
+    match_count: ranked.length,
+    filters_applied: { sector: sector ?? null, city: opts.city ?? null, max_budget_cr: opts.maxBudgetCr ?? null },
+    projects: ranked.map(({ p, nearbyScore }) => ({
+      name: p.name,
+      builder: p.builder.name,
+      sector: p.sector,
+      city: p.city,
+      status: String(p.status),
+      price: p.price_range_label ?? null,
+      bhk_available: [...new Set(p.unit_types.map((u) => u.bhk))],
+      schools_nearby_count: p.schools_nearby_count ?? null,
+      hospitals_nearby_count: p.hospitals_nearby_count ?? null,
+      project_risk_flag: p.project_risk_flag ?? null,
+    })),
+    note:
+      'Best for families is ranked by whether a 3BHK+ configuration is available, then by our own recorded count of nearby schools and hospitals - real, checkable numbers, not a subjective family-friendliness score. A missing school/hospital count means we have not recorded one nearby, not that there are none. ' +
+      'A project_risk_flag must be disclosed and that project must not be recommended.',
+  }
+}
