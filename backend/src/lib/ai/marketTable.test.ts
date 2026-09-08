@@ -9,6 +9,7 @@ import {
   renderCostSheetTable,
   renderSectorComparisonTable,
   renderDerivedSectorTable,
+  renderProjectComparisonTable,
   wantsMarketTable,
 } from './marketTable'
 import type { MicroMarketSummary } from '../discovery/sectorDataGateway'
@@ -227,6 +228,50 @@ describe('rendered sector comparison', () => {
     assert.match(t, /Projects listed/) // renamed: a market question, not an inventory count
     assert.match(t, /Price band/)
     assert.ok(!/Livability|Social Infrastructure|Metro & Transit/.test(t))
+  })
+})
+
+describe('rendered project comparison', () => {
+  const project = (o: Record<string, unknown> = {}) => ({
+    name: 'Godrej Woods',
+    sector: 'Sector 43',
+    builder: { name: 'Godrej Properties' },
+    price_min_cr: 1.8,
+    price_max_cr: 2.9,
+    possession_label: 'Ready to move',
+    rera_number: 'UPRERAPRJ12345',
+    unit_types: [{ bhk: 2 }, { bhk: 3 }],
+    ...o,
+  })
+
+  it('transposes attributes down and projects across', () => {
+    const t = renderProjectComparisonTable([project(), project({ name: 'ATS Pious Hideaways', sector: 'Sector 150', price_min_cr: 1.2, price_max_cr: 2.1 })])
+    assert.match(t, /Godrej Woods/)
+    assert.match(t, /ATS Pious Hideaways/)
+    assert.match(t, /Builder/)
+    assert.match(t, /Configurations/)
+  })
+
+  it('never renders for fewer than two projects', () => {
+    assert.equal(renderProjectComparisonTable([project()]), '')
+    assert.equal(renderProjectComparisonTable([]), '')
+  })
+
+  it('caps at three projects, the most a buyer can meaningfully compare at once', () => {
+    const t = renderProjectComparisonTable([
+      project(),
+      project({ name: 'B' }),
+      project({ name: 'C' }),
+      project({ name: 'D' }),
+    ])
+    assert.match(t, /\*\*B\*\*/)
+    assert.match(t, /\*\*C\*\*/)
+    assert.ok(!/\*\*D\*\*/.test(t))
+  })
+
+  it('says Not recorded rather than inventing a missing RERA number', () => {
+    const t = renderProjectComparisonTable([project({ rera_number: null }), project({ name: 'B' })])
+    assert.match(t, /Not recorded/)
   })
 })
 

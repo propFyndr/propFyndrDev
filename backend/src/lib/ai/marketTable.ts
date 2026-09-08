@@ -218,6 +218,65 @@ export function renderAlternativesTable(
   return `${header}\n${body.join('\n')}`
 }
 
+// ── Project-vs-project comparison ────────────────────────────────────────────
+
+/** The subset of a project a side-by-side comparison needs. */
+export interface ComparisonRow {
+  name?: string
+  sector?: string | { name: string }
+  status?: string
+  possession_label?: string | null
+  price_min_cr?: number | null
+  price_max_cr?: number | null
+  builder?: { name: string } | null
+  rera_number?: string | null
+  unit_types?: Array<{ bhk: number }> | null
+}
+
+/**
+ * "Compare A vs B" as a table, from the projects' own rows.
+ *
+ * Left for the model until now: "not just 'A vs B' but 'A chosen because
+ * metro + budget, B lacks metro but better schools'" is the reasoning half —
+ * this is the table half, and it belongs here for the same reason every
+ * other table in this file does. Left to the model, a two-project comparison
+ * is exactly the shape most likely to invent a differentiator neither project
+ * actually has, because the buyer is visibly asking for a verdict.
+ *
+ * Transposed on purpose — attributes down, projects across — because that is
+ * how a buyer actually reads a comparison: down one row to see who wins it,
+ * not across one project's whole record before starting the next.
+ */
+export function renderProjectComparisonTable(projects: ComparisonRow[]): string {
+  const rows = projects.filter((p) => p?.name).slice(0, 3)
+  if (rows.length < 2) return ''
+
+  const bhkRange = (p: ComparisonRow): string => {
+    const sizes = [...new Set((p.unit_types ?? []).map((u) => u.bhk).filter((n): n is number => typeof n === 'number'))].sort((a, b) => a - b)
+    return sizes.length ? `${sizes.join('/')} BHK` : ABSENT
+  }
+  const priceOf = (p: ComparisonRow): string =>
+    p.price_min_cr != null
+      ? p.price_max_cr != null && p.price_max_cr !== p.price_min_cr
+        ? `₹${p.price_min_cr}–${p.price_max_cr} Cr`
+        : `₹${p.price_min_cr} Cr+`
+      : ABSENT
+
+  const header = `|  | ${rows.map((p) => `**${cell(p.name ?? '')}**`).join(' | ')} |\n| :--- | ${rows.map(() => ':---').join(' | ')} |`
+  const line = (label: string, values: string[]) => `| ${label} | ${values.join(' | ')} |`
+
+  const body = [
+    line('Builder', rows.map((p) => cell(p.builder?.name ?? ''))),
+    line('Sector', rows.map((p) => cell(sectorName(p.sector)))),
+    line('Price', rows.map((p) => cell(priceOf(p)))),
+    line('Configurations', rows.map((p) => cell(bhkRange(p)))),
+    line('Possession', rows.map((p) => cell(p.possession_label ?? p.status ?? ''))),
+    line('RERA', rows.map((p) => cell(p.rera_number ?? ''))),
+  ]
+
+  return `${header}\n${body.join('\n')}`
+}
+
 // ── Payment schedule ─────────────────────────────────────────────────────────
 
 export interface PaymentPlanRow {

@@ -98,7 +98,7 @@ import { captureException, addBreadcrumb, setSentryUser } from '../sentry.server
 import { inputGuardrail } from '../lib/ai/guardrails'
 import { profileFor, classifyShape } from '../lib/ai/inferenceProfile'
 import { asksRentalYield, asksAppreciation, computeSectorYields, renderRentalYieldTable, computePriceChange, renderPriceChangeTable, computeSectorAppreciation, renderAppreciationTable } from '../lib/ai/yieldTable'
-import { renderMicroMarketTable, renderProjectTable, renderAlternativesTable, renderDerivedSectorTable, wantsMarketTable, wantsCityBandShelf } from '../lib/ai/marketTable'
+import { renderMicroMarketTable, renderProjectTable, renderAlternativesTable, renderDerivedSectorTable, renderProjectComparisonTable, wantsMarketTable, wantsCityBandShelf } from '../lib/ai/marketTable'
 import { renderCityShelfForCity } from '../lib/ai/cityShelf'
 import { deriveSectorsFromProjects } from '../lib/discovery/derivedSectors'
 import { buildAdaptiveChips } from '../lib/discovery/adaptiveChips'
@@ -4903,6 +4903,27 @@ EXECUTIVE RESPONSE INSTRUCTIONS:
         // A missing table costs the buyer nothing — the model still writes the
         // answer, it just writes it without the evidence block attached.
         console.warn('[CHAT:MARKET_TABLE] render skipped:', e instanceof Error ? e.message : e)
+      }
+    }
+
+    /**
+     * "Compare A vs B" — the one table shape with no code renderer at all
+     * until now. `is_comparison_query` and `projects` are both already
+     * settled by this point in the turn (the same two things the frontend
+     * comparison card further down is built from), so this costs nothing
+     * extra to check. Left to the model, a two-project comparison is
+     * exactly the shape most likely to invent a differentiator neither
+     * project actually has — the buyer is visibly asking for a verdict.
+     */
+    if (!renderedTable && intent.is_comparison_query === true && projects.length >= 2) {
+      try {
+        renderedTable = renderProjectComparisonTable(projects.slice(0, 3) as any)
+        if (renderedTable) {
+          renderedTableKind = 'micro-market'
+          console.log(`[CHAT:COMPARISON_TABLE] ${Math.min(projects.length, 3)} projects`)
+        }
+      } catch (e) {
+        console.warn('[CHAT:COMPARISON_TABLE] render skipped:', e instanceof Error ? e.message : e)
       }
     }
 
