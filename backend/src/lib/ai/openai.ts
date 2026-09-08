@@ -227,21 +227,46 @@ export async function streamWithOpenAI(
     // catalogue alongside the facts block.
     const model = config.model ?? (allowTools ? MODELS.MAIN : MODELS.FALLBACK);
 
+    /**
+     * gpt-oss (served by both the Groq and NVIDIA legs) is a genuine
+     * chain-of-thought model: with no reasoning_format set, its raw thinking
+     * comes back INSIDE `content`, not in a separate field. Measured live in
+     * the 8 Sep corpus run: a query got a "Here's a thinking process: 1.
+     * Analyze User Input…" answer instead of a reply, the reasoning text hit
+     * the token ceiling mid-thought (before it ever reached a real answer),
+     * and the mid-response continuation instruction — built for a normal
+     * answer cut off mid-sentence — got read BY THE MODEL as new input to
+     * reason about ("wait, the user says my previous message was cut
+     * off…"), spiralling into several near-identical paragraphs of the model
+     * reasoning about its own interruption instead of answering, until every
+     * continuation was spent and the turn fell through to the generic
+     * apology. `reasoning_format: 'hidden'` makes Groq do the thinking
+     * server-side and return only the finished answer in `content` — the
+     * same contract every other leg already has.
+     */
+    const isGptOss = /gpt-oss/i.test(model);
+
     // Absolute wall-clock deadline for the entire turn (120s max)
     const turnDeadline = Date.now() + 120_000;
     let deadlineExceeded = false;
 
+    const requestParams = {
+      model,
+      messages: currentMsgs as any,
+      ...(allowTools ? { tools } : {}),
+      stream: true as const,
+      stream_options: { include_usage: true },
+      max_tokens: config.maxTokens,
+    };
+    // Not in the SDK's param type, so set via Object.assign — a variable
+    // reference skips excess-property checking, unlike a fresh literal, and
+    // keeps `stream: true` a visible literal for the overload that matters.
+    if (isGptOss) Object.assign(requestParams, { reasoning_effort: 'low', reasoning_format: 'hidden' });
+
     let stream: Awaited<ReturnType<typeof client.chat.completions.create>>;
     try {
       stream = await client.chat.completions.create(
-        {
-          model,
-          messages: currentMsgs as any,
-          ...(allowTools ? { tools } : {}),
-          stream: true,
-          stream_options: { include_usage: true },
-          max_tokens: config.maxTokens,
-        },
+        requestParams,
         // Signal threads through fetchWithTimeout AND the response body/stream.
         // Aborting it terminates both connection phase and in-progress chunk reads.
         { signal: inactivityController.signal },

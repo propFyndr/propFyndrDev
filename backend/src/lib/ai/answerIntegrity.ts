@@ -189,6 +189,18 @@ const META_LEAK: Array<[RegExp, string]> = [
    */
   [/\b(?:looking\s+at|according\s+to|per|checking)\s+the\s+rules\b/i, 'reads its rulebook aloud'],
   [/^\s*wait,/im, 'thinks out loud in the answer'],
+  /**
+   * A reasoning model's raw chain-of-thought, delivered as the answer itself.
+   *
+   * Measured live, 8 Sep corpus run: gpt-oss (Groq/NVIDIA), with no
+   * reasoning_format set, put its thinking straight into `content` — "Here's
+   * a thinking process: 1. **Analyze User Input**: User asks…". Root-caused
+   * and fixed at the request level (reasoning_format: 'hidden' whenever the
+   * model is gpt-oss, in openai.ts) — this is the belt-and-suspenders check
+   * for any leg that leaks the same shape of text anyway.
+   */
+  [/^\s*here'?s\s+a\s+thinking\s+process\b/i, 'opens with its own chain-of-thought'],
+  [/\b(?:analyze\s+user\s+input|identify\s+what\s+i\s+can\/cannot\s+do|formulate\s+response\s+strategy)\s*[:*]/i, 'narrates its own reasoning steps'],
   [/\b(?:one\s+question\s+max|no\s+search\s+was\s+run\s+this\s+turn|do\s+not\s+say\s+a\s+sector\s+is\s+absent)\b/i, 'quotes a prompt rule verbatim'],
   [/\bas\s+an\s+AI\b|\blanguage\s+model\b/i, 'breaks character'],
   // "…was not provided in the database". The trailing noun is what makes this a

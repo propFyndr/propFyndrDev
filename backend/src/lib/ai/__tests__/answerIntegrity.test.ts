@@ -39,6 +39,14 @@ const DISCARD: Array<[string, string]> = [
     'We have this many details. We have 280 projects across 117 builders and all.',
   ],
   [
+    'a reasoning model narrates its own chain-of-thought instead of answering',
+    "Here's a thinking process:\n\n1.  **Analyze User Input**: User asks \"airbnb properties in noida\". This is a request for short-term rental / Airbnb-type properties in Noida.",
+  ],
+  [
+    'a reasoning model reasons about our own continuation instruction instead of answering',
+    "Here's a thinking process:\n\n The user is saying my previous message was cut off mid-word due to a length limit, and they want me to finish the exact word/sentence it ended on if incomplete.",
+  ],
+  [
     'answers the count question directly',
     'Our database has 280 projects right now.',
   ],
