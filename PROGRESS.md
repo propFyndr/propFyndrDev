@@ -347,3 +347,21 @@ Typecheck clean, lint clean. 80/80 in marketTable.test.ts + beta-critical after 
 ### Honest status on the sector-truncation root cause
 
 Live-tested the exact previously-failing multi-sector query again after the derived-sector fallback shipped — it still came back garbled, but this specific repeat hit a DIFFERENT lane (a builder-legal-risk answer, not the market-table path at all) because intent extraction resolved the sector list differently between calls (three sectors named, one sector extracted) — a separate, real non-determinism in intent extraction that this session did not chase down. So the derived-sector-table fix is real and correct for the case it targets, but it is not yet confirmed to be the whole story for every garbled sector answer — some of them are landing on lanes this fix does not touch. Said plainly rather than claimed as closed.
+
+---
+
+## Session: 8 Sep 2026, same day, part 4 — a real multi-sector intent gap found, repo root cleaned up
+
+### "Tell me about sector 1 and 2" — checked live, partially right
+
+`sectorsMentioned` correctly captures both ("Sector 1", "Sector 2") — the model gave real, distinct information about each. But the singular `intent.sector` field collapsed to just "Sector 1, Greater Noida West", and the closing line narrowed to "Since you are focusing your search on Sector 1..." — silently dropping Sector 2 for the actual next-step/recommendation, even though the prose above it covered both. Not chased further this session: this is a real, plural-vs-singular inconsistency between `sectorsMentioned` (correct) and `intent.sector` (narrows to one) that likely affects other multi-sector call sites across a 6,000-line router, not a one-line fix — flagging it honestly rather than patching one call site and calling the class of bug closed.
+
+### Repo root cleaned up
+
+Removed `launch-your-agent/` — an entirely unrelated Anthropic reference-implementation skill repo sitting in the project root with no relation to PropFyndr, never tracked by git here. Deleted 13 `scratch_step_*.md` files and a recovered-response dump — untracked debug artifacts with nothing in them not already captured in CLAUDE.md/PROGRESS.md.
+
+Archived (not deleted) into `docs/research/`: raw AI-consultation transcripts (claude1-3.md, claudeResponse.md, chatGPT.md, chatgptflow.md, geminiflow.md, propFyndrAI.md, responses.md), an adversarial test-case draft (NTEST.MD), a design-system reference (DESIGN-apple.md), a brand-naming brainstorm (master_50_names_table.md), and the superseded Revision 2 admin plan (superseded by PLAN.md's Revision 3).
+
+Also committed PLAN.md, PRODUCT_OVERVIEW.md and 4 docs/*.md files that were real, current, actively-referenced project docs sitting untracked.
+
+Left alone deliberately: enrichment JSON dumps, swagger.json, duplicate-builders.txt — all three are read by real scripts (seed-enrichment-73.ts, sync-swagger.ts, list-duplicate-builders.ts). Also left completely untouched: frontend/app/admin/* files and a new EmailPreviewModal component with in-progress uncommitted changes — the user's own manual UI work in progress, not mine to touch. Commit a9dcbb5.
