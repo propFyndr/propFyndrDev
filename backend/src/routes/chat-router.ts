@@ -4863,6 +4863,42 @@ EXECUTIVE RESPONSE INSTRUCTIONS:
         // Without this the chips never learned a market table went on screen,
         // so the branch that follows one up has never run.
         if (renderedTable) renderedTableKind = 'micro-market'
+
+        /**
+         * No curated micro-market covers what was asked — the named sectors
+         * (or a sector combination) have no `MicroMarketSummary` row, only
+         * raw project rows. Measured live, 8 Sep: "2 bhk flats in sector 74
+         * 75 76 noida for sale" hit exactly this gap, `renderedTable` stayed
+         * empty, and the model drew its OWN table from the facts block —
+         * with a duplicated header row and a 45k-token prompt behind it. The
+         * comment above this block called a missing table costless because
+         * "the model still writes the answer" — true, but the model writing
+         * a *table* is the one thing this whole file exists to prevent it
+         * from doing, and `renderDerivedSectorTable` was built for exactly
+         * this fallback and never wired up.
+         *
+         * Built from `projects` — already fetched for the facts block, no
+         * new query — grouped by sector, so it costs nothing extra to try.
+         */
+        if (!renderedTable && Array.isArray(projects) && projects.length >= 2) {
+          const bySector = new Map<string, { projectCount: number; readyCount: number; priceMinCr: number | null; priceMaxCr: number | null }>()
+          for (const p of projects as any[]) {
+            const sec = typeof p.sector === 'string' ? p.sector : p.sector?.name
+            if (!sec) continue
+            const row = bySector.get(sec) ?? { projectCount: 0, readyCount: 0, priceMinCr: null, priceMaxCr: null }
+            row.projectCount++
+            if (p.status === 'ready_to_move') row.readyCount++
+            if (typeof p.price_min_cr === 'number') row.priceMinCr = row.priceMinCr === null ? p.price_min_cr : Math.min(row.priceMinCr, p.price_min_cr)
+            if (typeof p.price_max_cr === 'number') row.priceMaxCr = row.priceMaxCr === null ? p.price_max_cr : Math.max(row.priceMaxCr, p.price_max_cr)
+            bySector.set(sec, row)
+          }
+          const derivedRows = Array.from(bySector.entries()).map(([sector, r]) => ({ sector, ...r }))
+          renderedTable = renderDerivedSectorTable(derivedRows)
+          if (renderedTable) {
+            renderedTableKind = 'micro-market'
+            console.log(`[CHAT:DERIVED_SECTOR_TABLE] ${derivedRows.length} sectors, no curated micro-market row`)
+          }
+        }
       } catch (e) {
         // A missing table costs the buyer nothing — the model still writes the
         // answer, it just writes it without the evidence block attached.
