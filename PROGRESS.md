@@ -365,3 +365,37 @@ Archived (not deleted) into `docs/research/`: raw AI-consultation transcripts (c
 Also committed PLAN.md, PRODUCT_OVERVIEW.md and 4 docs/*.md files that were real, current, actively-referenced project docs sitting untracked.
 
 Left alone deliberately: enrichment JSON dumps, swagger.json, duplicate-builders.txt — all three are read by real scripts (seed-enrichment-73.ts, sync-swagger.ts, list-duplicate-builders.ts). Also left completely untouched: frontend/app/admin/* files and a new EmailPreviewModal component with in-progress uncommitted changes — the user's own manual UI work in progress, not mine to touch. Commit a9dcbb5.
+
+---
+
+## Session: 8 Sep 2026, same day, part 5 — multi-sector retrieval bug fixed, a real bug-hunt pass
+
+### Fixed: a second named sector was recognized and then never queried
+
+"Tell me about sector 1 and 2" set `intent.sector: "Sector 1"` (narrowed to the first sector by design — most call sites only expect one place) and `sectorsMentioned: ["Sector 1", "Sector 2"]` — but `discoverProjects` only ever resolved `sector`, so the database query searched Sector 1 alone; Sector 2 was recognized and silently dropped before any query ran. Added `sectorsMentioned` properly to the `Intent` type (it was bolted on via an inline cast before, read nowhere) and wired `discoverProjects` to build its location filter directly from it when more than one distinct sector is named. One call site, not a router-wide change — `intent.sector` keeps its existing meaning everywhere else. 57/57 in the directly relevant discovery suites, 81/81 across chat-integration + endToEndIntentFlow + comparison + beta-critical. Commit 8e09e8d.
+
+### Bug hunt: four unauthenticated endpoints leaking business analytics
+
+Same bug class as the buyer-dossier leak found earlier this session, same file even — nobody checked for siblings after that fix. All four returned real data to anyone, no session, no role check: `GET /leads/metrics` (callback/visit counts, average lead score, conversion rate), `GET /leads/projects/:projectId/ghost-pool` and `/demand` (worse — projectId is a path param, every project enumerable), `GET /leads/market/snapshot`. Added `requireAdmin` to all four. The existing test for `/metrics` literally asserted "should return metrics even without auth" — fixed it and added the same pinned check for the other three. 27/27 in the leads suite. Commit 0e108bb.
+
+### Bug hunt: a dead, unauthenticated route file that would have been serious if it were live
+
+`routes/intelligence.ts` — never imported or mounted anywhere in `index.ts` (confirmed by grep), so zero live exposure. But it would have been a real, severe bug if reachable: its own comment said "(admin only)" on `POST /generate` with no auth check at all, letting anyone overwrite any project's `DecisionProfile` — including a human-verified PUBLISHED one — with auto-generated draft content, and `GET /:projectId` returned DRAFT/IN_REVIEW analyst fields to anyone, violating the exposure policy elsewhere in this codebase (PUBLISHED-only content reaching a buyer). Properly superseded by `admin-intelligence.ts` (mounted, `router.use(requireAdmin)` applied to every route in the file). Deleted the dead duplicate. Commit b4e5d69.
+
+### Bug hunt, most urgent finding: a live-looking secret almost got pushed to GitHub
+
+Not something I introduced or fixed — flagging it because the bug hunt surfaced it. A broad `git add -A` while committing the above briefly staged your own in-progress `backend/src/lib/emailService.ts`, which GitHub's push protection caught and rejected: a hardcoded fallback API key at line 34 —
+
+```
+const apiKey = process.env.RESEND_API_KEY || 're_[REDACTED — see git history warning below, rotate this key]'
+```
+
+The push was blocked before anything reached the remote, so this never became public — but it is sitting in your local working tree right now, uncommitted, in a file you're actively building. **You should rotate that Resend key and remove the hardcoded fallback before this file is ever committed** — a hardcoded secret survives in git history forever once it's pushed, even after being removed in a later commit. Did not touch this file myself: it's your in-progress work, not mine to edit without being asked.
+
+### Checked and cleared, no bug found
+
+`admin-intelligence.ts` (router-level `requireAdmin` covers all 4 routes — my first pass flagged these as a false positive before finding the `router.use()`), `saved.ts` (every route correctly scopes by a verified user or guest token via a shared helper), `documents.ts POST /ask` (deliberately public, rate-limited 20/60s per IP instead of authed — legitimate design), `analytics.ts`'s three POST routes (standard public telemetry-beacon pattern, write-only, low sensitivity).
+
+### Verification
+
+Every commit: typecheck clean. No schema changes. Commits: 8e09e8d, 0e108bb, b4e5d69 on `main`.
