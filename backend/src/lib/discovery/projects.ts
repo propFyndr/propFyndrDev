@@ -746,7 +746,18 @@ export async function discoverProjects(intent: Intent, offset: number = 0): Prom
    * named one sector or a belt of them — which is precisely how "Noida
    * Expressway" came to be searched correctly and then thrown away.
    */
-  const location = effectiveIntent.sector && !isCityLevel(effectiveIntent.sector)
+  /**
+   * "Tell me about sector 1 and 2" set `sector: "Sector 1"` — narrowed to the
+   * first by design, see `ai/intent.ts` — and `sectorsMentioned: ["Sector 1",
+   * "Sector 2"]`. Resolving only `sector` here searched Sector 1 alone;
+   * Sector 2 was recognised by intent extraction and never reached a query.
+   * Both are exact, literal sector names already, so no DB lookup is needed
+   * to resolve them the way a single ambiguous phrase might.
+   */
+  const distinctMentioned = [...new Set((effectiveIntent.sectorsMentioned ?? []).map((s) => s.trim()).filter(Boolean))]
+  const location = distinctMentioned.length > 1
+    ? { sectors: distinctMentioned, source: 'literal' as const, cities: [] }
+    : effectiveIntent.sector && !isCityLevel(effectiveIntent.sector)
     ? await resolveLocationTerm(effectiveIntent.sector)
     : null
   /** The phrase named an area, not an address: several sectors, on purpose. */

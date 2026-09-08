@@ -365,8 +365,10 @@ function applyLiterals(intent: Intent, deterministic: DeterministicIntent): Inte
 
   if (lit.has('sector')) {
     out.sector = deterministic.sectors[0]
-    // Both halves of a comparison, for the lanes that need the pair.
-    ;(out as { sectorsMentioned?: string[] }).sectorsMentioned = deterministic.sectors
+    // Every sector named this turn, not just the one `sector` narrowed to —
+    // `discoverProjects` now reads this to search all of them, not only the
+    // first. See the field's own doc comment in discovery/types.ts.
+    out.sectorsMentioned = deterministic.sectors
   }
   if (lit.has('bhk')) out.bhk = deterministic.bhk
   if (lit.has('budgetMin')) out.budgetMin = deterministic.budgetMin

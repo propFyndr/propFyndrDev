@@ -51,6 +51,20 @@ export interface Intent {
   budgetHistory?: number[]
   /** Every sector the buyer has searched this session, oldest first. */
   sectorHistory?: string[]
+
+  /**
+   * Every sector named THIS turn, in the order they appeared.
+   *
+   * `sector` is singular by construction — deliberately narrowed to
+   * `sectors[0]` in `ai/intent.ts` for every call site that only ever
+   * expected one place. "Tell me about sector 1 and 2" set `sector: "Sector
+   * 1"` and this to `["Sector 1", "Sector 2"]`; retrieval used only the
+   * former, so Sector 2 was recognised and then silently dropped before any
+   * database query ran. Read this whenever more than one sector is
+   * genuinely part of the question — a comparison, a "which of these",
+   * discovery across a named group — not just `sector`.
+   */
+  sectorsMentioned?: string[]
 }
 
 export type IntentState = 'COLD' | 'GATHERING' | 'READY_TO_SEARCH' | 'SHORTLISTED'
