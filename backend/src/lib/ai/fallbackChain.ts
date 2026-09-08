@@ -335,9 +335,18 @@ function createBufferedSend(
       return
     }
 
-    if (priorCarryText && looksLikeRestart(complete, priorCarryText)) {
+    // Covers two different mechanisms with one check: `priorCarryText` is
+    // what an EARLIER LEG released before failing over to this one;
+    // `releasedText` is what THIS leg has already released across its own
+    // internal auto-continuation cycles (gemini.ts/openai.ts/mistral.ts all
+    // recurse on MAX_TOKENS within one leg, never touching fallbackChain's
+    // carryText at all). A restart can come from either — observed live from
+    // the intra-leg case specifically: no cross-leg handoff occurred, one
+    // leg's own second cycle redrew the table its first cycle already wrote.
+    const priorAnywhere = priorCarryText + releasedText
+    if (priorAnywhere && looksLikeRestart(complete, priorAnywhere)) {
       poisoned = true
-      console.warn('[FALLBACK:MID_STREAM_RESTART] continuation ignored the handoff and restarted — stopping the answer where it stands')
+      console.warn('[FALLBACK:MID_STREAM_RESTART] a continuation (same leg or a handoff) ignored the instruction and restarted — stopping the answer where it stands')
       return
     }
 
