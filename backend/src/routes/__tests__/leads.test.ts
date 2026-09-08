@@ -211,24 +211,37 @@ describe('GET /api/v1/leads/callback/:leadId/dossier', () => {
 })
 
 describe('GET /api/v1/leads/metrics', () => {
-  it('returns lead funnel metrics', async () => {
+  // Found unauthenticated during the 8 Sep bug hunt — same class as the
+  // dossier endpoint above, just business figures (callback/visit counts,
+  // average lead score, conversion rate) instead of buyer PII. Pinned so it
+  // cannot regress silently; these old assertions ("should return metrics
+  // even without auth") documented the bug rather than catching it.
+  it('requires an admin session', async () => {
     const res = await request(app).get('/api/v1/leads/metrics')
-    // Should return metrics even without auth
-    assert(res.status === 200 || res.status === 500)
+    assert.equal(res.status, 401)
   })
+})
 
-  it('includes callbacksRequested, siteVisitsScheduled, conversionRate', async () => {
-    const res = await request(app).get('/api/v1/leads/metrics')
-    if (res.status === 200) {
-      assert(typeof res.body.callbacksRequested === 'number')
-      assert(typeof res.body.siteVisitsScheduled === 'number')
-      assert(typeof res.body.visitConversionRate === 'number')
-    }
+describe('GET /api/v1/leads/projects/:projectId/ghost-pool', () => {
+  // Same bug hunt, same class: the project id is a path param, so this one
+  // let anyone enumerate every project's unmet-demand analysis.
+  it('requires an admin session', async () => {
+    const res = await request(app).get('/api/v1/leads/projects/any-id/ghost-pool')
+    assert.equal(res.status, 401)
   })
+})
 
-  it('handles DB errors gracefully', async () => {
-    const res = await request(app).get('/api/v1/leads/metrics')
-    assert(res.status === 200 || res.status === 500)
+describe('GET /api/v1/leads/projects/:projectId/demand', () => {
+  it('requires an admin session', async () => {
+    const res = await request(app).get('/api/v1/leads/projects/any-id/demand')
+    assert.equal(res.status, 401)
+  })
+})
+
+describe('GET /api/v1/leads/market/snapshot', () => {
+  it('requires an admin session', async () => {
+    const res = await request(app).get('/api/v1/leads/market/snapshot')
+    assert.equal(res.status, 401)
   })
 })
 

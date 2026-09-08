@@ -379,7 +379,11 @@ router.post('/webhook', async (req: Request, res: Response) => {
 })
 
 // GET /metrics — lead funnel analytics for dashboard
-router.get('/metrics', async (req: Request, res: Response) => {
+// Same class of bug as the dossier endpoint above, found the same way —
+// unauthenticated, returning real business figures (total callbacks, site
+// visits, average lead score, HOT-lead count, conversion rate) to anyone who
+// requests it.
+router.get('/metrics', requireAdmin, async (req: Request, res: Response) => {
   try {
     // Scores live on CallbackRequest, not BuilderLead (which has no score columns —
     // querying it returned 0 for every metric via the swallowed .catch()).
@@ -441,7 +445,10 @@ router.get('/callback/:leadId/dossier', requireAdmin, async (req: Request, res: 
 })
 
 // Get ghost pool analysis for a project
-router.get('/projects/:projectId/ghost-pool', async (req: Request, res: Response) => {
+// Unauthenticated, and worse than the metrics endpoint above: the project id
+// is a path param, so anyone could enumerate every project's unmet-demand
+// analysis without even guessing an id first.
+router.get('/projects/:projectId/ghost-pool', requireAdmin, async (req: Request, res: Response) => {
   try {
     const { projectId } = req.params
 
@@ -454,8 +461,9 @@ router.get('/projects/:projectId/ghost-pool', async (req: Request, res: Response
   }
 })
 
-// Get demand intelligence for a project
-router.get('/projects/:projectId/demand', async (req: Request, res: Response) => {
+// Get demand intelligence for a project — same unauthenticated-enumeration
+// bug as ghost-pool above.
+router.get('/projects/:projectId/demand', requireAdmin, async (req: Request, res: Response) => {
   try {
     const { projectId } = req.params
 
@@ -473,7 +481,8 @@ router.get('/projects/:projectId/demand', async (req: Request, res: Response) =>
 })
 
 // Get market demand snapshot
-router.get('/market/snapshot', async (req: Request, res: Response) => {
+// Citywide demand snapshot — same unauthenticated business-data exposure.
+router.get('/market/snapshot', requireAdmin, async (req: Request, res: Response) => {
   try {
     const snapshot = await getDemandSnapshot()
     res.json(snapshot)
