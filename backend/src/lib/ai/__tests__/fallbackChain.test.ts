@@ -262,3 +262,17 @@ describe('looksLikeRestart', () => {
     assert.strictEqual(looksLikeRestart(next, prior), false)
   })
 })
+
+describe('looksLikeRestart catches a restart glued mid-sentence with no newline', () => {
+  it('flags a pipe row appearing anywhere in the paragraph, not just at its start', () => {
+    const prior = '### Verdict\nSome verdict.\n\n| Core Metric | A | B |\n| :--- | :--- | :--- |\n\n### Recommendation\nChoose A if you want '
+    const next = 'a lower entry price and large townsh| Core Metric | A | B |'
+    assert.strictEqual(looksLikeRestart(next, prior), true)
+  })
+
+  it('does not flag ordinary prose with no pipe characters at all', () => {
+    const prior = '### Recommendation\nChoose A if you want '
+    const next = 'affordability over location.'
+    assert.strictEqual(looksLikeRestart(next, prior), false)
+  })
+})

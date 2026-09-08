@@ -216,7 +216,13 @@ const TURN_BUDGET_MS = Number(process.env.FALLBACK_TURN_BUDGET_MS ?? 30_000)
  */
 export function looksLikeRestart(paragraph: string, priorText: string): boolean {
   const trimmed = paragraph.trim()
-  if (priorText.includes('### Recommendation') && /^\|.+\|/.test(trimmed)) return true
+  // Not anchored to the start of the paragraph or a line: observed live, the
+  // restart sometimes glues directly onto the tail of the still-unfinished
+  // recommendation sentence with no newline at all ("...township| Core
+  // Metric | A | B |") — a real 3-cell pipe row appearing ANYWHERE once the
+  // answer has already reached its final section is still a restart.
+  const PIPE_ROW_ANYWHERE = /\|[^\n|]+\|[^\n|]+\|/
+  if (priorText.includes('### Recommendation') && PIPE_ROW_ANYWHERE.test(trimmed)) return true
 
   const HEADING = /^#{2,3}\s+\S/m
   const TABLE_SEPARATOR_ROW = /^\s*\|?\s*:?-{2,}:?\s*\|/m
