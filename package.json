@@ -19,6 +19,7 @@
     "typecheck": "npm --workspace=backend run typecheck && npm --workspace=frontend run typecheck",
     "lint": "npm --workspace=backend run lint && npm --workspace=frontend run lint",
     "check-all": "npm run typecheck && npm run lint && npm test && npm run build",
+    "find-name": "node scripts/find-app-name.mjs",
     "doctor": "npx react-doctor@latest"
   },
   "devDependencies": {

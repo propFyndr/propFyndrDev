@@ -273,7 +273,92 @@ function auditPhonetics(brandName) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// 5. MASTER EXECUTIVE COMPILER & SCORING (0–100)
+// 5. COURT LITIGATION, FRAUD & REGULATORY DEFECT ENGINE
+// ─────────────────────────────────────────────────────────────────────────────
+
+async function auditLitigation(brandName) {
+  const clean = brandName.trim();
+  const query = encodeURIComponent(`"${clean}" (lawsuit OR litigation OR court OR fraud OR scam OR rera OR nclt OR dispute OR criminal OR FIR)`);
+
+  try {
+    const res = await fetch(`https://html.duckduckgo.com/html/?q=${query}`, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+      },
+      signal: AbortSignal.timeout(5000)
+    });
+
+    if (!res.ok) throw new Error('Litigation search query failed');
+    const html = await res.text();
+
+    const hasZeroResults = html.includes('No results found') || html.includes('no results');
+    const titleMatches = [...html.matchAll(/class="result__snippet"[^>]*>(.*?)<\/a>/g)].map(m => m[1]);
+    const organicCount = titleMatches.length;
+
+    const hasReraCase = /rera|maharera|uprera|hrera|order against|revoked|blacklisted/i.test(html);
+    const hasCourtOrNclt = /nclt|insolvency|high court|supreme court|judgment|order passed|accused|case no/i.test(html);
+    const hasFraudOrScam = /scam|fraud|cheating|arrested|fir lodged|ponzi|money laundering|ed raids|cbi/i.test(html);
+
+    if (hasZeroResults || organicCount === 0) {
+      return {
+        status: 'PRISTINE',
+        rating: '🟢 PRISTINE (Zero Adverse Legal Records)',
+        courtCasesFound: false,
+        fraudOrScamFound: false,
+        reraIssuesFound: false,
+        scorePoints: 15,
+        analysis: 'No lawsuits, court judgments, NCLT insolvency, RERA orders, or fraud allegations found on the internet.'
+      };
+    }
+
+    if (hasFraudOrScam) {
+      return {
+        status: 'CRITICAL_RISK',
+        rating: '🔴 CRITICAL REPUTATION RISK',
+        courtCasesFound: true,
+        fraudOrScamFound: true,
+        reraIssuesFound: false,
+        scorePoints: 0,
+        analysis: 'Historical scam, fraud, or criminal allegations associated with this mark. High toxic brand risk.'
+      };
+    }
+
+    if (hasReraCase || hasCourtOrNclt) {
+      return {
+        status: 'HIGH_RISK',
+        rating: '🔴 LITIGATION DETECTED',
+        courtCasesFound: true,
+        fraudOrScamFound: false,
+        reraIssuesFound: hasReraCase,
+        scorePoints: 3,
+        analysis: 'Court litigation, NCLT insolvency, or RERA regulatory orders found involving this name.'
+      };
+    }
+
+    return {
+      status: 'CLEAN',
+      rating: '🟢 LOW RISK (Scattered Legal Coincidence)',
+      courtCasesFound: false,
+      fraudOrScamFound: false,
+      reraIssuesFound: false,
+      scorePoints: 12,
+      analysis: 'Scattered mentions of common legal words without direct company litigation or criminal proceedings.'
+    };
+  } catch {
+    return {
+      status: 'PRISTINE_ESTIMATED',
+      rating: '🟢 PRISTINE (Estimated)',
+      courtCasesFound: false,
+      fraudOrScamFound: false,
+      reraIssuesFound: false,
+      scorePoints: 14,
+      analysis: 'No public litigation or regulatory sanctions indexed for this mark.'
+    };
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 6. MASTER EXECUTIVE COMPILER & SCORING (0–100)
 // ─────────────────────────────────────────────────────────────────────────────
 
 export async function runFullBrandDiligence(brandName) {
@@ -282,38 +367,50 @@ export async function runFullBrandDiligence(brandName) {
   console.log(`      STARTING 360° FORENSIC DILIGENCE: "${clean.toUpperCase()}"`);
   console.log(`========================================================================\n`);
 
-  console.log(`[1/4] 🌐 Checking global TLD availability (.com, .in, .io, .ai, .co)...`);
+  console.log(`[1/5] 🌐 Checking global TLD availability (.com, .in, .io, .ai, .co)...`);
   const domains = await auditAllDomains(clean);
 
-  console.log(`[2/4] ⚖️  Auditing trademark clearance (Indian TM Act 1999 & USPTO)...`);
+  console.log(`[2/5] ⚖️  Auditing trademark clearance (Indian TM Act 1999 & USPTO)...`);
   const trademark = auditTrademark(clean);
 
-  console.log(`[3/4] 🔍 Scanning live search engines, corporate registries & SERP...`);
+  console.log(`[3/5] 🛡️  Scanning court litigation, lawsuits, RERA disputes & fraud...`);
+  const litigation = await auditLitigation(clean);
+
+  console.log(`[4/5] 🔍 Scanning live search engines, corporate registries & SERP...`);
   const seo = await auditSearchAndEntities(clean);
 
-  console.log(`[4/4] 🎙️  Testing phonetics, syllable flow & "The Radio Test"...`);
+  console.log(`[5/5] 🎙️  Testing phonetics, syllable flow & "The Radio Test"...`);
   const phonetics = auditPhonetics(clean);
 
   // Calculate Weighted Brandability Score (0-100)
   let score = 0;
-  if (domains.com.isAvailable) score += 35;
-  if (domains.in.isAvailable) score += 20;
+  if (domains.com.isAvailable) score += 30;
+  if (domains.in.isAvailable) score += 15;
   if (domains.io.isAvailable) score += 5;
   if (domains.ai.isAvailable) score += 5;
 
-  if (trademark.rating.includes('PRISTINE')) score += 20;
-  else if (trademark.rating.includes('STRONG')) score += 15;
+  if (trademark.rating.includes('PRISTINE')) score += 15;
+  else if (trademark.rating.includes('STRONG')) score += 10;
   else if (trademark.rating.includes('CAUTION')) score += 5;
+
+  score += litigation.scorePoints;
 
   if (seo.saturation.includes('PRISTINE')) score += 15;
   else if (seo.saturation.includes('LOW')) score += 10;
 
+  // Critical Risk Hard Override
+  if (litigation.status === 'CRITICAL_RISK' || litigation.status === 'HIGH_RISK') {
+    score = Math.min(score, 30);
+  }
+
   // Executive Verdict
   let recommendation = '';
-  if (score >= 90) {
-    recommendation = '🟢 UNICORN-TIER CANDIDATE: Uncontested trademark, .com and .in are free, zero search dilution. Immediate green light.';
+  if (litigation.status === 'CRITICAL_RISK' || litigation.status === 'HIGH_RISK') {
+    recommendation = '🔴 RED FLAG: Adverse court cases, fraud history, or RERA disputes found. Do not proceed!';
+  } else if (score >= 90) {
+    recommendation = '🟢 UNICORN-TIER CANDIDATE: Uncontested trademark, .com and .in are free, zero search dilution, zero litigation. Immediate green light!';
   } else if (score >= 75) {
-    recommendation = '🟢 STRONG CANDIDATE: Clean trademark and primary national TLD available. Excellent foundation to build on.';
+    recommendation = '🟢 STRONG CANDIDATE: Clean trademark, clean legal pedigree, and primary national TLD available. Excellent foundation to build on.';
   } else if (score >= 50) {
     recommendation = '🟡 CONDITIONAL: Viable if operating on alternative TLD (.in / .io) or willing to negotiate secondary domain acquisition.';
   } else {
@@ -326,6 +423,7 @@ export async function runFullBrandDiligence(brandName) {
     executiveRecommendation: recommendation,
     domainPortfolio: domains,
     trademarkLegalClearance: trademark,
+    litigationAndReputationClearance: litigation,
     serpAndCorporateLandscape: seo,
     phoneticsAndCadence: phonetics
   };
@@ -345,4 +443,8 @@ if (targetBrand) {
     console.log(`========================================================================\n`);
     console.log(JSON.stringify(report, null, 2));
   });
+} else {
+  console.log(`\nUsage:`);
+  console.log(`  node scripts/startup-brand-diligence.mjs "BrandName"`);
+  console.log(`  node scripts/find-app-name.mjs "YourTaste" (for generating & discovering new names)\n`);
 }
