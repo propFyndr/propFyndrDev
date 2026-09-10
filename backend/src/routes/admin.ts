@@ -1679,6 +1679,142 @@ router.patch('/news/:id', requireAdmin, async (req: Request, res: Response) => {
   }
 })
 
+// GET /api/v1/admin/blog — list all blog posts (any status)
+router.get('/blog', requireAdmin, async (req: Request, res: Response) => {
+  const { limit = '50', offset = '0', status } = req.query
+
+  try {
+    const where: any = {}
+    if (status && status !== 'all') {
+      where.status = status as string
+    }
+
+    const [posts, total] = await Promise.all([
+      prisma.blogPost.findMany({
+        where,
+        orderBy: { created_at: 'desc' },
+        take: parseInt(limit as string),
+        skip: parseInt(offset as string),
+      }),
+      prisma.blogPost.count({ where }),
+    ])
+
+    res.json({ posts, total, limit: parseInt(limit as string), offset: parseInt(offset as string) })
+  } catch (err) {
+    console.error('[admin] blog query failed:', err)
+    res.status(500).json({ error: 'Failed to fetch blog posts' })
+  }
+})
+
+// GET /api/v1/admin/blog/:id — single blog post (edit form prefill)
+router.get('/blog/:id', requireAdmin, async (req: Request, res: Response) => {
+  try {
+    const post = await prisma.blogPost.findUnique({ where: { id: req.params.id } })
+    if (!post) {
+      res.status(404).json({ error: 'Post not found' })
+      return
+    }
+    res.json(post)
+  } catch (err) {
+    console.error('[admin] blog fetch failed:', err)
+    res.status(500).json({ error: 'Failed to fetch blog post' })
+  }
+})
+
+// POST /api/v1/admin/blog — create post
+router.post('/blog', requireAdmin, async (req: Request, res: Response) => {
+  const { title, slug, excerpt, content, cover_image_url, status, meta_title, meta_description, author_name } = req.body
+  try {
+    if (!title || !slug || !content) {
+      res.status(400).json({ error: 'Missing required fields: title, slug, content' })
+      return
+    }
+
+    const existing = await prisma.blogPost.findUnique({ where: { slug } })
+    if (existing) {
+      res.status(409).json({ error: 'A post with this slug already exists' })
+      return
+    }
+
+    const post = await prisma.blogPost.create({
+      data: {
+        title,
+        slug,
+        excerpt,
+        content,
+        cover_image_url,
+        status: status || 'draft',
+        meta_title,
+        meta_description,
+        author_name,
+        published_at: status === 'published' ? new Date() : null,
+      },
+    })
+    res.status(201).json(post)
+  } catch (err) {
+    console.error('[admin] blog create failed:', err)
+    res.status(500).json({ error: 'Failed to create blog post' })
+  }
+})
+
+// PATCH /api/v1/admin/blog/:id — update post
+router.patch('/blog/:id', requireAdmin, async (req: Request, res: Response) => {
+  const { id } = req.params
+  const { title, slug, excerpt, content, cover_image_url, status, meta_title, meta_description, author_name } = req.body
+  try {
+    if (slug !== undefined) {
+      const existing = await prisma.blogPost.findUnique({ where: { slug } })
+      if (existing && existing.id !== id) {
+        res.status(409).json({ error: 'A post with this slug already exists' })
+        return
+      }
+    }
+
+    const current = await prisma.blogPost.findUnique({ where: { id } })
+    if (!current) {
+      res.status(404).json({ error: 'Post not found' })
+      return
+    }
+
+    const data: any = {}
+    if (title !== undefined) data.title = title
+    if (slug !== undefined) data.slug = slug
+    if (excerpt !== undefined) data.excerpt = excerpt
+    if (content !== undefined) data.content = content
+    if (cover_image_url !== undefined) data.cover_image_url = cover_image_url
+    if (meta_title !== undefined) data.meta_title = meta_title
+    if (meta_description !== undefined) data.meta_description = meta_description
+    if (author_name !== undefined) data.author_name = author_name
+    if (status !== undefined) {
+      data.status = status
+      if (status === 'published' && current.status !== 'published') {
+        data.published_at = new Date()
+      }
+    }
+
+    const post = await prisma.blogPost.update({ where: { id }, data })
+    res.json(post)
+  } catch (err) {
+    console.error('[admin] blog update failed:', err)
+    res.status(500).json({ error: 'Failed to update blog post' })
+  }
+})
+
+// DELETE /api/v1/admin/blog/:id — archive (soft delete; reversible)
+router.delete('/blog/:id', requireAdmin, async (req: Request, res: Response) => {
+  const { id } = req.params
+  try {
+    await prisma.blogPost.update({
+      where: { id },
+      data: { status: 'archived' },
+    })
+    res.json({ success: true, message: 'Post archived' })
+  } catch (err) {
+    console.error('[admin] blog archive failed:', err)
+    res.status(500).json({ error: 'Failed to archive blog post' })
+  }
+})
+
 // GET /api/v1/admin/analytics/summary — system analytics
 router.get('/analytics/summary', requireAdmin, async (_req: Request, res: Response) => {
   try {

@@ -1295,6 +1295,39 @@ enum NewsStatus {
 }
 
 // ──────────────────────────────────────────────────────────────
+// SEO BLOG (admin-managed, Tiptap JSON content)
+// ──────────────────────────────────────────────────────────────
+
+model BlogPost {
+  id                String     @id @default(uuid())
+
+  title             String
+  slug              String     @unique
+  excerpt           String?
+  content           String     // Tiptap document JSON, stringified
+  cover_image_url   String?
+
+  status            BlogStatus @default(draft)
+  meta_title        String?
+  meta_description  String?
+  author_name       String?
+
+  published_at      DateTime?
+  created_at        DateTime   @default(now())
+  updated_at        DateTime   @updatedAt
+
+  @@index([status])
+  @@index([published_at])
+  @@map("blog_posts")
+}
+
+enum BlogStatus {
+  draft
+  published
+  archived
+}
+
+// ──────────────────────────────────────────────────────────────
 // BUILDER SELF-SERVICE FORM (Phase 3+)
 // ──────────────────────────────────────────────────────────────
 
