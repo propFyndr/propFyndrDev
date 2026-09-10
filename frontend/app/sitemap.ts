@@ -1,5 +1,6 @@
 import { MetadataRoute } from 'next'
 import { prisma } from '@/lib/prisma'
+import { API_BASE } from '@/lib/env'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://propfyndr.in'
@@ -64,7 +65,23 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.7,
     }))
 
-    return [...staticPages, ...projectPages, ...builderPages]
+    let blogPages: MetadataRoute.Sitemap = []
+    try {
+      const res = await fetch(`${API_BASE}/blog?limit=50`)
+      if (res.ok) {
+        const data = await res.json()
+        blogPages = (data.posts || []).map((p: { slug: string; published_at?: string }) => ({
+          url: `${baseUrl}/blog/${p.slug}`,
+          lastModified: p.published_at ? new Date(p.published_at) : new Date(),
+          changeFrequency: 'monthly' as const,
+          priority: 0.6,
+        }))
+      }
+    } catch (error) {
+      console.error('[SITEMAP_BLOG_ERROR]', error)
+    }
+
+    return [...staticPages, ...projectPages, ...builderPages, { url: `${baseUrl}/blog`, lastModified: new Date(), changeFrequency: 'daily', priority: 0.7 }, ...blogPages]
   } catch (error) {
     console.error('[SITEMAP_GEN_ERROR]', error)
     return staticPages
