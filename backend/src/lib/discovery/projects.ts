@@ -25,6 +25,7 @@ import {
   buildMatchSignals,
   buildPriceRangeLabel,
   computeBudgetStatus,
+  possessionOutsideTimeline,
 } from './scoring'
 import { getNearbySectors } from './sectors'
 // Static imports: neither module imports anything, so the "circular dependency"
@@ -575,6 +576,7 @@ function mapToScored(raw: RawProject, intent: Intent): ScoredProject {
     })),
     matchScore,
     matchReason: buildMatchReason(p, intent, budgetStatus),
+    possessionOutsideTimeline: possessionOutsideTimeline(intent.possession, p.possession_date),
     distance_km: (p as any).distance_km ?? null,
     market_tier: marketTierValue, // Phase 5: market tier tag
     ...buildMatchSignals(
@@ -638,7 +640,9 @@ function mapToScored(raw: RawProject, intent: Intent): ScoredProject {
   }
 }
 
-function scoreAndSort(
+// Exported for testing the isFallbackMatch/possessionOutsideTimeline signals
+// end to end without standing up discoverProjects' DB calls.
+export function scoreAndSort(
   rawProjects: RawProject[],
   intent: Intent,
   threshold: number
@@ -654,11 +658,20 @@ function scoreAndSort(
     const valid = scored.filter((p) => p.matchScore >= MIN_SCORE_FLOOR)
     if (valid.length > 0) {
       console.log('[DISCOVERY:FALLBACK] No projects met threshold. Falling back to best available (floor: ' + MIN_SCORE_FLOOR + ').')
-      passed = valid
+      // Marked so the prompt layer CAN eventually say "nothing matched your
+      // exact criteria, here's the closest option" instead of presenting a
+      // floor-scraped result with the same confidence as a real match. As of
+      // this change nothing downstream reads this field yet — see PROGRESS.
+      passed = valid.map((p) => ({ ...p, isFallbackMatch: true }))
     }
   }
 
-  const excluded = scored.filter((p) => !passed.includes(p))
+  // Membership by id, not reference: the fallback branch above maps `valid`
+  // into new objects (to stamp isFallbackMatch), so `passed` no longer shares
+  // references with `scored` on that path and `.includes()` would silently
+  // treat everything as excluded.
+  const passedIds = new Set(passed.map((p) => p.id))
+  const excluded = scored.filter((p) => !passedIds.has(p.id))
   if (excluded.length > 0) {
     console.log('[DISCOVERY:EXCLUDED]', excluded.map((p) => ({
       name:  p.name,

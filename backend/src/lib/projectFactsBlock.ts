@@ -139,10 +139,10 @@ const DEEP_NARRATIVE_KEYS = new Set([
  */
 export const FACT_TOPIC_PATTERNS: ReadonlyArray<{ topic: FactTopic; pattern: RegExp }> = [
   { topic: 'price_history', pattern: /price (trend|history|movement|change)|appreciat|how much has|gone up|risen|cagr|capital gain/i },
-  { topic: 'specifications', pattern: /spec|fitting|finish|flooring|brand|kitchen|bathroom|sanitary|fixture|modular|vitrified|marble|material/i },
+  { topic: 'specifications', pattern: /spec|fitting|finish|flooring|brand|kitchen|bathroom|sanitary|fixture|modular|vitrified|marble|material|layout/i },
   // "how far along", not a bare "how far" — "how far is the airport" is a
   // distance question and must not drag in the construction timeline.
-  { topic: 'construction', pattern: /construction|progress|milestone|slab|superstructure|how far along|what stage|excavat|foundation|completion status/i },
+  { topic: 'construction', pattern: /construction|progress|milestone|slab|superstructure|how far along|what stage|excavat|foundation|completion status|handover|delivery date|when.*(ready|delivered)/i },
   // Deliberately narrow. This gate decides whether the analyst narratives are
   // billed, so it must fire on questions that genuinely want a thesis —
   // comparisons, investment judgement, risk — and not on "does it have a gym".
@@ -158,7 +158,7 @@ export const FACT_TOPIC_PATTERNS: ReadonlyArray<{ topic: FactTopic; pattern: Reg
   // unit rows, and almost no turn asks about a specific one.
   {
     topic: 'availability',
-    pattern: /which (unit|units|floor|flat)|specific unit|unit number|which tower|facing (north|south|east|west|ne|nw|se|sw)|corner unit|available units?|unsold units?/i,
+    pattern: /which (unit|units|floor|flat)|specific unit|unit number|which tower|facing (north|south|east|west|ne|nw|se|sw)|corner unit|corner\b|available units?|unsold units?|top floor|highest floor/i,
   },
 ]
 

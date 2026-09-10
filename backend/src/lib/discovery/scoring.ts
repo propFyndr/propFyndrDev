@@ -73,20 +73,62 @@ export function computeBudgetStatus(
  * Hard filters (sector, BHK, builder, project name) have already been applied
  * at the DB query level — they do not participate in scoring.
  *
- * Maximum score: 60 points.
+ * There is no fixed ceiling. The base signals alone sum to 59 (not 60 — the
+ * comment here previously said 60, one over the actual builder-quality max of
+ * 3, not 4), and every buyer/project pair with rich enough data can stack
+ * several more bonus categories on top. Measured empirically across a spread
+ * of realistic intent/project combinations (see PROGRESS notes): a bare,
+ * signal-free browse already scores ~27-33 from neutral defaults alone —
+ * above SCORE_THRESHOLD (20) with no real preference expressed at all — and a
+ * project hitting every bonus category scored 92 in the same run. Read
+ * SCORE_THRESHOLD/MIN_SCORE_FLOOR (constants.ts) against that real range, not
+ * against a documented 60-point scale that was never the true one.
  *
- * Signals:
+ * Base signals (always evaluated, one value each):
  *   Possession fit      0–20 pts
  *   Value headroom      0–15 pts  (rewards within-budget projects with price room)
  *   Area fit            0–10 pts
  *   Lifestyle match     0–8  pts
- *   Builder quality     0–4  pts
- *   Data quality        0–3  pts
+ *   Builder quality     0–3  pts  (CREDAI +2, has delivered units +1)
+ *   Data quality        0–3  pts  (hero/exterior image +2, RERA number +1)
  *
- * Budget penalty (applied last, never takes score below 0):
+ * Additional bonuses/penalties, each independent and stackable on top of the above:
+ *   Recommendation tier   STRONG_BUY/Tier1 +8, BUY/Tier2 +4, WATCH −4, AVOID/HIGH_RISK −25
+ *   Persona match          end-use or investor primary match +5, secondary match +2
+ *   Sector tier boost      tier1 +10, tier2 +5, tier3 +0
+ *   Market-tier bias       exact budget-tier match +20, adjacent tier +5
+ *   Project/builder risk   moderate/caution −5, high/nclt/litigation −20, other flag −10, builder legal_flag −15
+ *   NCLT/insolvency        unconditional −100 (floors to 0 — see the disqualification block below)
+ *
+ * Budget penalty (applied after headroom, never takes score below 0):
  *   slightly_over       −5 pts
  *   over                −10 pts
  */
+/**
+ * Whether a project's possession date clearly misses the buyer's stated
+ * timeline — the same windows scoreProject's possession-fit branch uses,
+ * extracted so the "outside timeline" signal on ScoredProject can't drift
+ * from what actually earned the low score.
+ *
+ * Deliberately narrow: only true when we HAVE a possession_date and it falls
+ * outside every accepted window for the stated intent.possession. A project
+ * with no possession_date on record is unknown, not off-timeline — telling a
+ * buyer "this misses your timeline" from an absent date would be a fact we
+ * don't have dressed as one we do.
+ */
+export function possessionOutsideTimeline(
+  intentPossession: Intent['possession'],
+  possessionDate: Date | null,
+): boolean {
+  if (!intentPossession || !possessionDate) return false
+  const months = (possessionDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24 * 30)
+  if (intentPossession === 'immediate') return !(months <= 3)
+  if (intentPossession === '1year')     return !(months <= 18)
+  if (intentPossession === '2year')     return !(months <= 30)
+  if (intentPossession === '3year+')    return false
+  return false
+}
+
 export function scoreProject(
   p: {
     unit_types: Array<{
@@ -236,12 +278,20 @@ export function scoreProject(
   if (budgetStatus === 'slightly_over') score -= 5
   if (budgetStatus === 'over')          score -= 10
 
-  // ── Risk-averse buyer disqualification ──────────────────────────────
-  // NRI / retiree / risk_averse / first_time_buyer: projects with NCLT or
-  // insolvency exposure are disqualified. -100 drives score to 0 so the
-  // SCORE_THRESHOLD filter removes them. They may appear as "not recommended"
-  // in the LLM response but must not rank in the results list.
-  if (intent.riskProfile) {
+  // ── NCLT / insolvency disqualification ───────────────────────────────
+  // base.ts HARD RULES 6a/6b already forbid recommending a legal_flag builder
+  // or a project_risk_flag project, unconditionally — no risk-profile
+  // qualifier at the prompt layer. This used to only fire `if
+  // (intent.riskProfile)`, which meant an ordinary buyer with no extracted
+  // risk profile (most buyers — it requires the LLM to have tagged NRI /
+  // retiree / risk_averse / first_time_buyer) saw these projects ranked with
+  // only the much smaller legal_flag/project_risk_flag penalty below, letting
+  // them surface via the MIN_SCORE_FLOOR fallback in scoreAndSort — a
+  // retrieval layer more permissive than the prompt it feeds. Unconditional
+  // now: every buyer, every turn. -100 drives score to 0, below both
+  // SCORE_THRESHOLD and MIN_SCORE_FLOOR, so scoreAndSort excludes the project
+  // outright rather than demoting it.
+  {
     const legalText = (p.builder.legal_flag ?? '').toLowerCase()
     const riskText  = (p.project_risk_flag   ?? '').toLowerCase()
     const hasInsolvencyRisk =

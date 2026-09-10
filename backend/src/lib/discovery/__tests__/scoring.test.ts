@@ -1,7 +1,23 @@
 import { describe, it } from 'node:test'
 import assert from 'node:assert/strict'
 import { scoreProject, computeBudgetStatus, buildPriceRangeLabel } from '../scoring'
+import { SCORE_THRESHOLD } from '../constants'
 import type { Intent } from '../types'
+
+/** Minimal valid scoreProject candidate — override per test. */
+function baseProject(overrides: Partial<Parameters<typeof scoreProject>[0]> = {}): Parameters<typeof scoreProject>[0] {
+  return {
+    unit_types: [{ bhk: 3, price_min_cr: 1.5, price_max_cr: 2.0, carpet_area_sqft: 1200 }],
+    possession_date: null,
+    amenities: [],
+    ai_search_keywords: [],
+    builder: {},
+    hero_image_url: null,
+    images: [],
+    rera_number: 'UPRERAPRJ1234',
+    ...overrides,
+  }
+}
 
 describe('Scoring: Price Range Label', () => {
   it('formats range with min and max', () => {
@@ -68,6 +84,43 @@ describe('Scoring: Budget Status', () => {
   })
 })
 
+describe('Scoring: NCLT / insolvency disqualification', () => {
+  // base.ts HARD RULES 6a/6b forbid recommending a legal_flag builder or a
+  // project_risk_flag project unconditionally, with no risk-profile
+  // qualifier. Retrieval must not be more permissive than the prompt it
+  // feeds — an ordinary buyer with no extracted risk profile must still get
+  // zero score (and so zero results) for an NCLT/insolvency-flagged project.
+
+  it('disqualifies a builder.legal_flag NCLT project even with no risk profile on intent', () => {
+    const intent: Intent = {} // no riskProfile set — the ordinary-buyer case
+    const p = baseProject({ builder: { legal_flag: 'NCLT moratorium active' } })
+    const score = scoreProject(p, intent)
+    assert.equal(score, 0)
+    assert.ok(score < SCORE_THRESHOLD, 'must fall below SCORE_THRESHOLD so scoreAndSort excludes it, not demotes it')
+  })
+
+  it('disqualifies a project_risk_flag insolvency project even with no risk profile on intent', () => {
+    const intent: Intent = {}
+    const p = baseProject({ project_risk_flag: 'Insolvency proceedings ongoing' })
+    const score = scoreProject(p, intent)
+    assert.equal(score, 0)
+  })
+
+  it('still disqualifies when a risk profile IS set (no regression on the old path)', () => {
+    const intent: Intent = { riskProfile: 'nri' }
+    const p = baseProject({ builder: { legal_flag: 'NCLT' } })
+    const score = scoreProject(p, intent)
+    assert.equal(score, 0)
+  })
+
+  it('does not disqualify a clean project with no flags', () => {
+    const intent: Intent = {}
+    const p = baseProject()
+    const score = scoreProject(p, intent)
+    assert.ok(score > 0)
+  })
+})
+
 describe('Scoring: Project Score', () => {
   const baseProject = {
     unit_types: [
@@ -112,10 +165,36 @@ describe('Scoring: Project Score', () => {
     assert(score1 > score2, 'Recent possession should score higher')
   })
 
-  it('maximum score never exceeds 60', () => {
-    const intent: Intent = { budgetMax: 3.0 }
-    const score = scoreProject(baseProject, intent)
-    assert(score <= 60, `Score ${score} exceeds maximum of 60`)
+  // "maximum score never exceeds 60" — this test used to assert exactly that,
+  // and passed, without ever setting recommendation_profile.tier to a value
+  // that earns a bonus, persona_profile alongside intent.purpose, or a
+  // sectorTier argument. A passing test that avoids the code paths it claims
+  // to cover is worse than no test: it told the next reader this was
+  // verified. It wasn't — scoreProject stacks tier (+8), persona (+5), sector
+  // tier (+10) and market-tier bias (+20) on top of the 59-point base signal
+  // total, so the real ceiling is well past 60. Split into two tests: the
+  // true base-signal cap (no bonus category populated), and proof the score
+  // genuinely exceeds it once those categories are.
+  it('base signals alone (no tier/persona/sectorTier/budget bonus) never exceed 59', () => {
+    const intent: Intent = {} // no budgetMax → market-tier bias never fires either
+    const noBonusProject = {
+      ...baseProject,
+      recommendation_profile: null,
+      persona_profile: null,
+    }
+    const score = scoreProject(noBonusProject, intent)
+    assert(score <= 59, `Score ${score} exceeds the 59-point base-signal cap`)
+  })
+
+  it('stacks tier + persona + sectorTier + market-tier bias past the base-signal cap', () => {
+    const intent: Intent = { budgetMax: 2.5, purpose: 'investment' }
+    const maxedProject = {
+      ...baseProject,
+      recommendation_profile: { tier: 'STRONG_BUY' },
+      persona_profile: { primary_persona: 'INVESTOR' },
+    }
+    const score = scoreProject(maxedProject, intent, 'within', 'tier1')
+    assert(score > 59, `Score ${score} did not exceed the base-signal cap — a bonus category silently stopped contributing`)
   })
 
   it('applies penalty for slightly_over budget', () => {

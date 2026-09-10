@@ -2,7 +2,7 @@
 // Separates static base prompt (cached) from dynamic rules (injected per request)
 // Reduces token overhead ~30-40% by reusing cached static content across requests
 
-import { getBaseSystemPrompt } from './prompts/base'
+import { getBaseSystemPrompt, splitSystemPrompt, SYSTEM_PROMPT_BOUNDARY } from './prompts/base'
 import type { Intent, ScoredProject } from '../discovery'
 import type { TopicSummaries } from '../chat/summaryCompression'
 
@@ -32,16 +32,23 @@ export const STATIC_PREFIX_MARKER = '<!--rp:static-prefix-end-->'
 const baseVariants = new Map<string, CachedSystemPrompt>()
 
 /**
- * Variant-keyed base prompt.
+ * Variant-keyed base prompt — the cacheable HEAD only (everything up to
+ * SYSTEM_PROMPT_BOUNDARY).
  *
  * This used to call getBaseSystemPrompt() with NO arguments, silently discarding
  * intent (so `verbose: true` never widened the word budget), blockedBuilders (so
  * the legal do-not-recommend list was empty in the rules section), city, intentState
  * and queryKind (so dynamic tool filtering never ran on the live path).
  *
- * userMessage is deliberately NOT threaded through: it would make the prompt prefix
- * unique per request and forfeit provider-side prefix caching for a marginally
- * shorter tool list. queryKind alone still narrows the tool set.
+ * userMessage was also never threaded through here, on the theory that doing so
+ * would make the whole prompt prefix unique per request and forfeit provider-side
+ * prefix caching. That traded away real behaviour (outputContract,
+ * outOfScopeDirective, filterToolsByIntent, selectPlaybooks all silently no-op
+ * without it) for a caching win the head/tail split below gets without the
+ * tradeoff: userMessage only ever reaches the TAIL (see getPromptTail), which was
+ * always variable per turn anyway. The head — the ~85% shared-prefix bulk this
+ * function caches — never sees userMessage and stays exactly as cacheable as
+ * before.
  *
  * Note this is a JS string memo — it saves CPU, not tokens. Token savings come from
  * the prefix being byte-stable enough for the provider to cache it.
@@ -69,7 +76,9 @@ function getCachedBasePrompt(
     return hit.static
   }
 
-  const base = getBaseSystemPrompt(
+  // userMessage is intentionally undefined here — this call exists only to
+  // produce the cacheable head, and the head never depends on it.
+  const full = getBaseSystemPrompt(
     intent as never,
     blockedBuilders,
     city as never,
@@ -78,8 +87,37 @@ function getCachedBasePrompt(
     undefined,
     toolsEnabled,
   )
-  baseVariants.set(key, { static: base, timestamp: now, version: CACHE_VERSION })
-  return base
+  const head = splitSystemPrompt(full).head
+  baseVariants.set(key, { static: head, timestamp: now, version: CACHE_VERSION })
+  return head
+}
+
+/**
+ * The per-turn tail: playbooks, behaviour rules, budget rules, the filtered
+ * tool catalogue, the out-of-scope directive and the output contract — every
+ * piece of getBaseSystemPrompt that reads userMessage. Recomputed fresh on
+ * every call, never cached: it is pure string assembly with no I/O, so the
+ * cost is CPU, not tokens or latency.
+ */
+function getPromptTail(
+  userMessage: string | undefined,
+  intent?: Record<string, unknown>,
+  blockedBuilders?: Array<{ name: string; legal_flag?: string }>,
+  city?: string,
+  intentState?: string,
+  queryKind?: string,
+  toolsEnabled: boolean = true,
+): string {
+  const full = getBaseSystemPrompt(
+    intent as never,
+    blockedBuilders,
+    city as never,
+    intentState,
+    queryKind as never,
+    userMessage,
+    toolsEnabled,
+  )
+  return splitSystemPrompt(full).tail
 }
 
 /**
@@ -111,14 +149,36 @@ export function buildSystemPromptWithCache(
    * our own control flow.
    */
   discoveryRan: boolean = true,
+  /**
+   * The buyer's message this turn, resolved for pointers ("the second one" →
+   * the actual project name) — pass `modelMessage`, not the raw `message`.
+   *
+   * Threaded to the TAIL only (see getPromptTail), so outputContract,
+   * outOfScopeDirective, filterToolsByIntent and selectPlaybooks all actually
+   * run on the live path, without the cached head becoming per-request.
+   */
+  userMessage?: string,
 ): string {
-  // Get cached static base — now actually parameterised (see getCachedBasePrompt).
-  const staticBase = getCachedBasePrompt(
+  const queryKind = (intent?.queryKind as string | undefined) ?? 'DISCOVERY'
+
+  // Get cached static head — now actually parameterised (see getCachedBasePrompt).
+  const staticHead = getCachedBasePrompt(
     intent,
     blockedBuilders,
     city,
     intentState,
-    (intent?.queryKind as string | undefined) ?? 'DISCOVERY',
+    queryKind,
+    toolsEnabled,
+  )
+
+  // The per-turn tail — never cached, always built from the real message.
+  const tail = getPromptTail(
+    userMessage,
+    intent,
+    blockedBuilders,
+    city,
+    intentState,
+    queryKind,
     toolsEnabled,
   )
 
@@ -138,8 +198,9 @@ export function buildSystemPromptWithCache(
     discoveryRan,
   )
 
-  // Combine: static (cached) + marker + dynamic (per-request)
-  return staticBase + `\n${STATIC_PREFIX_MARKER}\n` + dynamicRules + (multiDimContext ? `\n\n${multiDimContext}` : '')
+  // Combine: static head (cached) + boundary + tail (per-request, userMessage-aware)
+  // + marker + dynamic (per-request)
+  return staticHead + `\n\n${SYSTEM_PROMPT_BOUNDARY}\n\n` + tail + `\n${STATIC_PREFIX_MARKER}\n` + dynamicRules + (multiDimContext ? `\n\n${multiDimContext}` : '')
 }
 
 /**

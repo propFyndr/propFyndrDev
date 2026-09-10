@@ -171,6 +171,23 @@ export interface ScoredProject {
   matchReasons: string[]
   concerns: string[]
   budgetStatus?: BudgetStatus
+  /**
+   * True when this project only appears because nothing cleared
+   * SCORE_THRESHOLD and scoreAndSort fell back to MIN_SCORE_FLOOR — the
+   * closest thing available, not a genuine match. Set in scoreAndSort
+   * (discovery/projects.ts). Not yet consumed anywhere downstream — the
+   * prompt layer does not read this field yet. See PROGRESS notes.
+   */
+  isFallbackMatch?: boolean
+  /**
+   * True when the buyer stated a possession timeline (intent.possession) and
+   * this project's own possession_date falls clearly outside it — the
+   * "poor fit" branch of the possession-fit scoring in scoreProject, not the
+   * "no date on record" case, which is unknown rather than off-timeline. Set
+   * in mapToScored (discovery/projects.ts). Not yet consumed anywhere
+   * downstream — the prompt layer does not read this field yet.
+   */
+  possessionOutsideTimeline?: boolean
   market_tier?: 'budget' | 'mid' | 'premium' | 'luxury' // Phase 5: market tier tag
   /** Fix 6: set when persisted via last_projects — distinguishes exact vs nearby results on cache restore */
   cacheSource?: 'exact' | 'nearby'

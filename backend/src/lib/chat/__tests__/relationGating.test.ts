@@ -2,6 +2,8 @@ import { describe, it } from 'node:test'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
+import { detectFactTopics } from '../../projectFactsBlock'
+import { substitutePointer } from '../resolvePointer'
 
 /**
  * Heavy relations are fetched only when the turn is about them.
@@ -27,14 +29,17 @@ function detailIncludeBlock(): string {
 }
 
 describe('the chat detail query fetches only what the turn needs', () => {
-  it('topics are detected before the query, not after it', () => {
-    const detect = ROUTER.indexOf('const askedFactTopics = detectFactTopics(message)')
-    const query = ROUTER.indexOf('const detailedTargetProjects = await prisma.project.findMany')
-    assert.ok(detect !== -1, 'detectFactTopics call not found')
-    assert.ok(
-      detect < query,
-      'topics must be known before the query, or the include cannot be gated on them',
-    )
+  it('detects the right topic on a message that needed pointer resolution', () => {
+    // "how's it doing on construction?" names no project — the pipeline
+    // resolves the pointer to a project name before this reaches
+    // detectFactTopics. Confirms detection still works on the resolved
+    // text, not that the raw and resolved messages differ, which for a
+    // topic-bearing message they should not: substitutePointer only swaps
+    // the pointer phrase for a name, never touches the rest of the sentence.
+    const raw = "how's it doing on construction?"
+    const resolved = substitutePointer(raw, 'Godrej Woods').text
+    assert.equal(resolved, "how's Godrej Woods doing on construction?")
+    assert.ok(detectFactTopics(resolved).has('construction'))
   })
 
   it('detects topics exactly once', () => {

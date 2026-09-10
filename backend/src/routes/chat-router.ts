@@ -2525,45 +2525,17 @@ I can help you with:
       return;
     }
 
-    const isForeignPlace =
-      /\b(district court|county court|county highway|state highway \d|zip ?code|amsterdam|texas|\bny\b|\bnj\b|\btx\b|\bca\b|\bfl\b|county clerk|dmv)\b/i.test(message) &&
-      !/\b(noida|greater noida|sector\s*\d|ncr|delhi|gurgaon|uttar pradesh|\bup\b)\b/i.test(message);
-
     // isExcludedPropertyType (auction/resale/rental/commercial) moved to the
     // very top of the handler — see the comment there for why this position
     // was too late to ever fire for a message that also names a real sector.
-    const isOutOfScope = isForeignPlace || ((/^(write|generate|explain|solve|tell me|what is)\s+(a\s+)?(python|javascript|typescript|java|c\+\+|sql query|algorithm|bubble sort|code|script|recipe|joke|poem|song|essay|weather)|who won\b|capital of\b|translate\b/i.test(message) || (/python|bubble sort|javascript|algorithm|recipe/i.test(message))) && !/real estate|property|flat|bhk|builder|rera|noida|sector|ncr/i.test(message))
-    if (isOutOfScope && action.type === 'TEXT_MESSAGE') {
-      const deflectionText = `### PropFyndr Advisory Scope
-
-PropFyndr is an AI advisory engine specialized exclusively in verified real estate intelligence across Noida and Greater Noida.
-
-For questions regarding property pricing, sector analysis, RERA legal checks, payment plans, or builder track records, feel free to ask!`
-
-      const outOfScopeChips = [
-        { id: `chip_noida_${Date.now()}`, actionType: 'TEXT_MESSAGE', label: 'Show properties in Noida', icon: 'building', analyticsId: 'chip_noida', priority: 1, payload: { text: 'Show verified properties in Noida' } },
-        { id: `chip_sectors_${Date.now()}`, actionType: 'TEXT_MESSAGE', label: 'Which sectors are trending?', icon: 'map-pin', analyticsId: 'chip_trending_sectors', priority: 2, payload: { text: 'Which sectors are best for investment in Noida?' } },
-        { id: `chip_builders_${Date.now()}`, actionType: 'TEXT_MESSAGE', label: 'Top builders by track record', icon: 'shield-check', analyticsId: 'chip_top_builders', priority: 3, payload: { text: 'Which builders in Noida have on-time delivery?' } },
-      ]
-
-      send('token', { token: deflectionText })
-      emitUiState({
-        stage: 'RESEARCH',
-        thinking: 'PropFyndr real estate advisory scope:',
-        chips: outOfScopeChips,
-        missingFields: [],
-        confidence: 'HIGH'
-      })
-      send('done', {
-        sessionId: currentSessionId,
-        intentState: 'GATHERING',
-        intent,
-        responseMode: 'chat',
-      })
-      persistEarlyTurn('early-return', lastAnswerText)
-      res.end()
-      return
-    }
+    //
+    // The old isOutOfScope/isForeignPlace canned-deflection gate was removed
+    // here (see CLAUDE.md audit trail) — it pre-empted the model with an
+    // inconsistent verb-template regex (blocked "explain bubble sort", let
+    // "write me a haiku" through) for a class of question base.ts's
+    // ## GENERAL QUESTIONS section already tells the model to answer plainly.
+    // The jailbreak/injection guard (inputGuardrail, guardrails.ts) is a
+    // separate, legitimate check and is untouched.
 
     // Sector mentions live in `discovery/sectorMentions.ts` — see the note
     // there about "between 1 and 2 crore" being read as Sector 1 vs Sector 2.
@@ -3124,7 +3096,7 @@ For questions regarding property pricing, sector analysis, RERA legal checks, pa
         if (targetProjects.length > 0) {
           const targetIds = targetProjects.map(p => p.id)
           // Detected before the query, not after it.
-          const askedFactTopics = detectFactTopics(message)
+          const askedFactTopics = detectFactTopics(modelMessage)
 
           // Loaded once per turn, cached for 15 minutes in the module.
           const sharedReraNumbers = await ambiguousReraNumbers()
@@ -4959,6 +4931,7 @@ EXECUTIVE RESPONSE INSTRUCTIONS:
         // False when the gate above skipped retrieval. Without it the prompt
         // cannot tell "searched and found nothing" from "never searched".
         discoverySkipReason === null,
+        modelMessage,
         ) + systemSuffix + (renderedTable ? (renderedTableKind === 'city-shelf' ? cityShelfShown(shelfPicks) : renderedTableKind === 'yield' ? YIELD_TABLE_SHOWN : TABLE_ALREADY_SHOWN) : ''),
         // Both tails ride the same slot. The unknown-project block goes last so
         // its handling rules are the closest instruction to the answer.
