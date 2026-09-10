@@ -20,13 +20,16 @@ import {
   Layers,
   ArrowUpDown,
   Trash2,
-  Award
+  Award,
+  Mail,
 } from 'lucide-react'
 import { AnimatePresence, m } from 'framer-motion'
 import UniversalLoader from '@/components/ui/universal-loader'
 import { toast } from 'sonner'
 import { adminFetch } from '@/lib/adminFetch'
 import Link from 'next/link'
+import CustomSelect, { SelectOption } from '@/components/admin/CustomSelect'
+import EmailPreviewModal from '@/components/admin/EmailPreviewModal'
 
 interface LinkedProject {
   id: string
@@ -437,6 +440,7 @@ export default function AdminBuilders() {
   const [editForm, setEditForm]     = useState<FormState>(EMPTY_FORM)
   const [editSaving, setEditSaving] = useState(false)
   const [deleteConfirming, setDeleteConfirming] = useState(false)
+  const [emailOutreachBuilder, setEmailOutreachBuilder] = useState<Builder | null>(null)
 
   const searchInputRef = useRef<HTMLInputElement>(null)
 
@@ -658,7 +662,7 @@ export default function AdminBuilders() {
   }
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 md:px-8 py-8 font-sans select-none space-y-6">
+    <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-8 min-w-0 font-sans select-none space-y-6">
       
       {/* Header Banner */}
       <div className="flex items-center justify-between pt-2">
@@ -754,11 +758,11 @@ export default function AdminBuilders() {
         )}
       </AnimatePresence>
 
-      {/* Command Search & Segmented Micro-Filters Bar */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
+      {/* Command Search, Sorting Dropdown & Segmented Micro-Filters Bar */}
+      <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
         {/* Search Input */}
-        <div className="group flex-1 w-full flex items-center gap-3 px-4 py-2.5 bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 rounded-2xl shadow-2xs focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20 transition-all">
-          <Search size={15} className="text-zinc-400 group-focus-within:text-blue-500 transition-colors" />
+        <div className="group flex-1 flex items-center gap-3 px-4 py-2.5 bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 rounded-2xl shadow-2xs focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20 transition-all">
+          <Search size={15} className="text-zinc-400 group-focus-within:text-blue-500 transition-colors shrink-0" />
           <input
             ref={searchInputRef}
             type="text"
@@ -774,26 +778,42 @@ export default function AdminBuilders() {
           )}
         </div>
 
-        {/* Micro-Filter Segmented Bar */}
-        <div className="flex items-center p-1 bg-zinc-100 dark:bg-zinc-800/60 rounded-xl border border-zinc-200/80 dark:border-zinc-700/60 shrink-0">
-          {[
-            { id: 'all', label: 'All' },
-            { id: 'credai', label: 'CREDAI' },
-            { id: 'iso', label: 'ISO Certified' },
-            { id: 'active_projects', label: 'With Projects' },
-          ].map((tag) => (
-            <button
-              key={tag.id}
-              onClick={() => setFilterTag(tag.id as FilterTag)}
-              className={`px-3 py-1 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
-                filterTag === tag.id
-                  ? 'bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white shadow-2xs font-bold'
-                  : 'text-zinc-500 hover:text-zinc-900 dark:hover:text-white'
-              }`}
-            >
-              {tag.label}
-            </button>
-          ))}
+        <div className="flex flex-wrap sm:flex-nowrap items-center gap-2.5">
+          {/* Custom Dropdown for Sorting */}
+          <CustomSelect
+            value={sortField}
+            onChange={(v) => { setSortField(v as SortField); setSortOrder('asc') }}
+            options={[
+              { value: 'name', label: 'Name (A-Z)' },
+              { value: 'projects', label: 'Most Projects' },
+              { value: 'founded', label: 'Founded Year' },
+              { value: 'hq', label: 'Headquarters' },
+            ]}
+            size="sm"
+            className="w-full sm:w-[160px] shrink-0"
+          />
+
+          {/* Micro-Filter Segmented Bar */}
+          <div className="flex items-center p-1 bg-zinc-100 dark:bg-zinc-800/60 rounded-xl border border-zinc-200/80 dark:border-zinc-700/60 shrink-0 w-full sm:w-auto justify-between sm:justify-start">
+            {[
+              { id: 'all', label: 'All' },
+              { id: 'credai', label: 'CREDAI' },
+              { id: 'iso', label: 'ISO Certified' },
+              { id: 'active_projects', label: 'With Projects' },
+            ].map((tag) => (
+              <button
+                key={tag.id}
+                onClick={() => setFilterTag(tag.id as FilterTag)}
+                className={`px-3 py-1 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
+                  filterTag === tag.id
+                    ? 'bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white shadow-2xs font-bold'
+                    : 'text-zinc-500 hover:text-zinc-900 dark:hover:text-white'
+                }`}
+              >
+                {tag.label}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -902,14 +922,30 @@ export default function AdminBuilders() {
                 </div>
 
                 {/* Projects count */}
-                <div className="w-[100px] hidden sm:flex justify-end pr-4">
+                <div className="w-[80px] hidden sm:flex justify-end pr-3">
                   <span className="text-xs font-bold text-zinc-900 dark:text-white">
                     {b._count?.projects ?? b.projects?.length ?? 0} <span className="font-normal text-zinc-400 text-[11px]">proj</span>
                   </span>
                 </div>
 
+                {/* Direct Outreach Email Action */}
+                <div className="hidden sm:flex items-center pr-2">
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      setEmailOutreachBuilder(b)
+                    }}
+                    className="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-blue-50 dark:bg-blue-950/60 hover:bg-blue-100 dark:hover:bg-blue-900/60 text-blue-600 dark:text-blue-400 border border-blue-200/80 dark:border-blue-800/80 text-[11px] font-bold shadow-2xs transition-all cursor-pointer active:scale-95"
+                    title="Send GoBro-style outreach pitch email"
+                  >
+                    <Mail size={12} />
+                    <span>Pitch</span>
+                  </button>
+                </div>
+
                 {/* Chevron Indicator */}
-                <div className="w-[40px] flex items-center justify-end">
+                <div className="w-[30px] flex items-center justify-end">
                   <ChevronRight className="w-4 h-4 text-zinc-400 group-hover:text-zinc-700 dark:group-hover:text-zinc-200 group-hover:translate-x-0.5 transition-all" />
                 </div>
               </div>
@@ -991,12 +1027,22 @@ export default function AdminBuilders() {
                   </div>
                 </div>
 
-                <button
-                  onClick={() => setSelectedBuilder(null)}
-                  className="w-8 h-8 flex items-center justify-center rounded-full text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors shrink-0 cursor-pointer"
-                >
-                  <X className="w-4 h-4" />
-                </button>
+                <div className="flex items-center gap-2 shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => setEmailOutreachBuilder(selectedBuilder)}
+                    className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer active:scale-95"
+                  >
+                    <Mail size={13} />
+                    <span>Pitch Developer</span>
+                  </button>
+                  <button
+                    onClick={() => setSelectedBuilder(null)}
+                    className="w-8 h-8 flex items-center justify-center rounded-full text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors shrink-0 cursor-pointer"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
 
               {/* Modal Body: Profile Form + Linked Projects Section */}
@@ -1106,6 +1152,22 @@ export default function AdminBuilders() {
           </div>
         )}
       </AnimatePresence>
+
+      {/* Email Preview & Outreach Modal */}
+      {emailOutreachBuilder && (
+        <EmailPreviewModal
+          isOpen={Boolean(emailOutreachBuilder)}
+          onClose={() => setEmailOutreachBuilder(null)}
+          initialTemplate="builder_pitch"
+          defaultRecipientName={emailOutreachBuilder.name}
+          defaultRecipientEmail={
+            emailOutreachBuilder.website
+              ? `partnerships@${emailOutreachBuilder.website.replace(/^https?:\/\//, '').replace(/\/.*$/, '').replace(/^www\./, '')}`
+              : `partnerships@${emailOutreachBuilder.slug}.com`
+          }
+          defaultRole="PARTNER_DEVELOPER"
+        />
+      )}
 
     </div>
   )

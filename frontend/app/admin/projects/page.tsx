@@ -16,74 +16,7 @@ import {
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { adminFetch } from '@/lib/adminFetch'
-
-function CustomSelect<T extends string>({
-  value,
-  options,
-  onChange,
-}: {
-  value: T
-  options: { value: T; label: string; icon?: React.ReactNode }[]
-  onChange: (val: T) => void
-}) {
-  const [isOpen, setIsOpen] = useState(false)
-  const ref = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    const handleOutside = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) {
-        setIsOpen(false)
-      }
-    }
-    document.addEventListener('mousedown', handleOutside)
-    return () => document.removeEventListener('mousedown', handleOutside)
-  }, [])
-
-  const selected = options.find((o) => o.value === value) || options[0]
-
-  return (
-    <div className="relative inline-block" ref={ref}>
-      <button
-        type="button"
-        onClick={() => setIsOpen(!isOpen)}
-        className={`flex items-center gap-2 px-3.5 py-1.5 text-xs font-semibold bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-700/80 text-zinc-700 dark:text-zinc-200 rounded-xl shadow-2xs hover:border-zinc-300 dark:hover:border-zinc-600 transition-all cursor-pointer select-none active:scale-[0.98] ${isOpen ? 'ring-2 ring-blue-500/20 border-blue-500' : ''
-          }`}
-      >
-        {selected.icon}
-        <span>{selected.label}</span>
-        <ChevronDown size={13} className={`text-zinc-400 transition-transform duration-200 ${isOpen ? 'rotate-180 text-blue-500' : ''}`} />
-      </button>
-
-      {isOpen && (
-        <div className="absolute right-0 top-full mt-1.5 min-w-[170px] bg-white/95 dark:bg-zinc-900/95 backdrop-blur-md border border-zinc-200/90 dark:border-zinc-800/90 rounded-2xl shadow-xl z-50 p-1.5 space-y-0.5 animate-in fade-in slide-in-from-top-1 duration-150">
-          {options.map((opt) => {
-            const isSelected = opt.value === value
-            return (
-              <button
-                key={opt.value}
-                type="button"
-                onClick={() => {
-                  onChange(opt.value)
-                  setIsOpen(false)
-                }}
-                className={`w-full text-left px-3 py-2 rounded-xl text-xs font-semibold transition-colors flex items-center justify-between cursor-pointer ${isSelected
-                    ? 'bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300 font-bold'
-                    : 'text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800/80'
-                  }`}
-              >
-                <div className="flex items-center gap-2">
-                  {opt.icon}
-                  <span>{opt.label}</span>
-                </div>
-                {isSelected && <Check size={13} className="text-blue-600 dark:text-blue-400" />}
-              </button>
-            )
-          })}
-        </div>
-      )}
-    </div>
-  )
-}
+import CustomSelect from '@/components/admin/CustomSelect'
 
 interface UnitType { bhk: number; price_min_cr: number | null; price_max_cr: number | null; super_area_sqft?: number | null; carpet_area_sqft?: number | null }
 

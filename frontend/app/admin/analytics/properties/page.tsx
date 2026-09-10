@@ -79,7 +79,7 @@ export default function PropertiesAnalytics() {
   }, [properties, filterMode])
 
   return (
-    <div className="space-y-6 pb-16 font-sans select-none max-w-6xl mx-auto py-8">
+    <div className="space-y-6 pb-16 font-sans select-none max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-8 min-w-0">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pt-1">
         <div className="flex items-center gap-4">

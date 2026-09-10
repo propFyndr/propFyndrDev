@@ -31,6 +31,7 @@ import {
 import { AnimatePresence, m } from 'framer-motion'
 import { adminFetch } from '@/lib/adminFetch'
 import { Skeleton } from '@/components/ui/skeleton'
+import CustomSelect from '@/components/admin/CustomSelect'
 import { format, formatDistanceToNow } from 'date-fns'
 
 interface BuilderApplication {
@@ -103,10 +104,6 @@ export default function BuilderApplicationsPage() {
   const [selectedApp, setSelectedApp] = useState<BuilderApplication | null>(null)
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info'; actionLabel?: string; onAction?: () => void } | null>(null)
   
-  // Single active popover menu state & fixed coordinates
-  const [activeMenu, setActiveMenu] = useState<string | null>(null)
-  const [menuCoords, setMenuCoords] = useState<{ top: number; left: number } | null>(null)
-
   const applicationsCountRef = useRef(0)
   applicationsCountRef.current = applications.length
 
@@ -204,51 +201,14 @@ export default function BuilderApplicationsPage() {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         setSelectedApp(null)
-        setActiveMenu(null)
-        setMenuCoords(null)
       }
     }
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [])
 
-  // Auto-close active popover menu on click outside or scroll
-  useEffect(() => {
-    if (!activeMenu) return
-    const handleCloseMenu = () => {
-      setActiveMenu(null)
-      setMenuCoords(null)
-    }
-    const timer = setTimeout(() => {
-      window.addEventListener('click', handleCloseMenu)
-      window.addEventListener('scroll', handleCloseMenu, true)
-    }, 0)
-    return () => {
-      clearTimeout(timer)
-      window.removeEventListener('click', handleCloseMenu)
-      window.removeEventListener('scroll', handleCloseMenu, true)
-    }
-  }, [activeMenu])
-
-  const togglePopover = (key: string, e: React.MouseEvent<HTMLButtonElement>) => {
-    e.stopPropagation()
-    if (activeMenu === key) {
-      setActiveMenu(null)
-      setMenuCoords(null)
-    } else {
-      const rect = e.currentTarget.getBoundingClientRect()
-      setMenuCoords({
-        top: rect.bottom + 6,
-        left: rect.left,
-      })
-      setActiveMenu(key)
-    }
-  }
-
   const handleUpdateStatus = async (id: string, newStatus: BuilderApplication['status']) => {
     try {
-      setActiveMenu(null)
-      setMenuCoords(null)
       const res = await adminFetch(`/builder-applications/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
@@ -305,7 +265,7 @@ export default function BuilderApplicationsPage() {
   }
 
   return (
-    <div className="space-y-6 pb-16 font-sans select-none max-w-6xl mx-auto py-8">
+    <div className="space-y-6 pb-16 font-sans select-none max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-8 min-w-0">
       
       {/* Header Banner */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pt-1">
@@ -484,8 +444,6 @@ export default function BuilderApplicationsPage() {
             <button
               key={st}
               onClick={() => {
-                setActiveMenu(null)
-                setMenuCoords(null)
                 setFilter(st)
               }}
               className={`px-3 py-1 text-xs font-semibold rounded-lg transition-all cursor-pointer whitespace-nowrap capitalize ${
@@ -539,140 +497,85 @@ export default function BuilderApplicationsPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800/60 text-xs">
-                {filteredApplications.map(app => {
-                  const cfg = STATUS_CONFIG[app.status] || STATUS_CONFIG.new
-                  const menuKey = `status-${app.id}`
-                  const isMenuOpen = activeMenu === menuKey
-
-                  return (
-                    <tr
-                      key={app.id}
-                      onClick={() => {
-                        setActiveMenu(null)
-                        setMenuCoords(null)
-                        setSelectedApp(app)
-                      }}
-                      className="hover:bg-zinc-50/60 dark:hover:bg-zinc-800/40 transition-colors group cursor-pointer"
-                    >
-                      {/* Company Info */}
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-xl bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 font-bold text-xs flex items-center justify-center shadow-2xs shrink-0 overflow-hidden">
-                            {app.logo_url && (app.logo_url.startsWith('data:') || app.logo_url.startsWith('http')) ? (
-                              // eslint-disable-next-line @next/next/no-img-element
-                              <img src={app.logo_url} alt={app.name} className="w-full h-full object-contain bg-white p-1" />
-                            ) : (
-                              getInitials(app.name)
-                            )}
-                          </div>
-                          <div className="min-w-0">
-                            <p className="font-bold text-zinc-900 dark:text-white truncate group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                              {app.name}
-                            </p>
-                            <p className="text-[11px] text-zinc-400 flex items-center gap-1 mt-0.5 truncate">
-                              <MapPin className="w-3 h-3 text-zinc-400 shrink-0" />
-                              <span>{app.headquarters || 'No HQ specified'}</span>
-                            </p>
-                          </div>
+                {filteredApplications.map(app => (
+                  <tr
+                    key={app.id}
+                    className="hover:bg-zinc-50/60 dark:hover:bg-zinc-800/40 transition-colors group cursor-pointer"
+                  >
+                    {/* Company Info */}
+                    <td className="px-6 py-4" onClick={() => setSelectedApp(app)}>
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 font-bold text-xs flex items-center justify-center shadow-2xs shrink-0 overflow-hidden">
+                          {app.logo_url && (app.logo_url.startsWith('data:') || app.logo_url.startsWith('http')) ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img src={app.logo_url} alt={app.name} className="w-full h-full object-contain bg-white p-1" />
+                          ) : (
+                            getInitials(app.name)
+                          )}
                         </div>
-                      </td>
-
-                      {/* Contact */}
-                      <td className="px-6 py-4" onClick={e => e.stopPropagation()}>
-                        <div className="space-y-0.5">
-                          <p className="font-medium text-zinc-800 dark:text-zinc-200 truncate max-w-[200px]">
-                            {app.email}
+                        <div className="min-w-0">
+                          <p className="font-bold text-zinc-900 dark:text-white truncate group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                            {app.name}
                           </p>
-                          <p className="font-mono text-[11px] text-zinc-500 font-semibold">
-                            {app.phone}
+                          <p className="text-[11px] text-zinc-400 flex items-center gap-1 mt-0.5 truncate">
+                            <MapPin className="w-3 h-3 text-zinc-400 shrink-0" />
+                            <span>{app.headquarters || 'No HQ specified'}</span>
                           </p>
                         </div>
-                      </td>
+                      </div>
+                    </td>
 
-                      {/* Submitted Date */}
-                      <td className="px-6 py-4 text-zinc-500 dark:text-zinc-400 whitespace-nowrap">
-                        <span title={format(new Date(app.submitted_at), 'PPP p')}>
-                          {formatDistanceToNow(new Date(app.submitted_at), { addSuffix: true })}
-                        </span>
-                      </td>
+                    {/* Contact */}
+                    <td className="px-6 py-4">
+                      <div className="space-y-0.5">
+                        <p className="font-medium text-zinc-800 dark:text-zinc-200 truncate max-w-[200px]">
+                          {app.email}
+                        </p>
+                        <p className="font-mono text-[11px] text-zinc-500 font-semibold">
+                          {app.phone}
+                        </p>
+                      </div>
+                    </td>
 
-                      {/* Interactive Status Button */}
-                      <td className="px-6 py-4" onClick={e => e.stopPropagation()}>
-                        <button
-                          onClick={(e) => togglePopover(menuKey, e)}
-                          className={`px-3 py-1.5 rounded-xl font-bold border text-xs flex items-center justify-between gap-2 transition-all shadow-2xs cursor-pointer ${cfg.bg} ${cfg.text} ${cfg.border}`}
-                        >
-                          <span className="flex items-center gap-1.5">
-                            <span className={`w-2 h-2 rounded-full ${cfg.dot}`} />
-                            <span>{cfg.label}</span>
-                          </span>
-                          <ChevronDown className={`w-3.5 h-3.5 opacity-60 transition-transform duration-200 ${isMenuOpen ? 'rotate-180' : ''}`} />
-                        </button>
-                      </td>
+                    {/* Submitted Date */}
+                    <td className="px-6 py-4 text-zinc-500 dark:text-zinc-400 whitespace-nowrap">
+                      <span title={format(new Date(app.submitted_at), 'PPP p')}>
+                        {formatDistanceToNow(new Date(app.submitted_at), { addSuffix: true })}
+                      </span>
+                    </td>
 
-                      {/* Actions */}
-                      <td className="px-6 py-4 text-right" onClick={e => e.stopPropagation()}>
-                        <button
-                          onClick={() => {
-                            setActiveMenu(null)
-                            setMenuCoords(null)
-                            setSelectedApp(app)
-                          }}
-                          className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl border border-zinc-200/80 dark:border-zinc-700/80 bg-white dark:bg-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-700/80 text-zinc-700 dark:text-zinc-200 font-semibold transition-all shadow-2xs cursor-pointer"
-                        >
-                          <span>Review</span>
-                          <ChevronRight className="w-3.5 h-3.5 text-zinc-400" />
-                        </button>
-                      </td>
-                    </tr>
-                  )
-                })}
+                    {/* Interactive Status Dropdown via CustomSelect */}
+                    <td className="px-6 py-4 w-[160px]" onClick={e => e.stopPropagation()}>
+                      <CustomSelect
+                        value={app.status}
+                        onChange={(val) => handleUpdateStatus(app.id, val as BuilderApplication['status'])}
+                        options={[
+                          { value: 'new', label: 'New', dotColor: 'bg-blue-500' },
+                          { value: 'reviewing', label: 'Reviewing', dotColor: 'bg-amber-500' },
+                          { value: 'approved', label: 'Approved', dotColor: 'bg-emerald-500' },
+                          { value: 'rejected', label: 'Rejected', dotColor: 'bg-rose-500' },
+                        ]}
+                        size="sm"
+                      />
+                    </td>
+
+                    {/* Actions */}
+                    <td className="px-6 py-4 text-right" onClick={e => e.stopPropagation()}>
+                      <button
+                        onClick={() => setSelectedApp(app)}
+                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl border border-zinc-200/80 dark:border-zinc-700/80 bg-white dark:bg-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-700/80 text-zinc-700 dark:text-zinc-200 font-semibold transition-all shadow-2xs cursor-pointer"
+                      >
+                        <span>Review</span>
+                        <ChevronRight className="w-3.5 h-3.5 text-zinc-400" />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>
         </div>
       )}
-
-      {/* FIXED TOPMOST POPOVER FOR TABLE STATUS DROPDOWN */}
-      <AnimatePresence>
-        {activeMenu && activeMenu.startsWith('status-') && menuCoords && (
-          <m.div
-            initial={{ opacity: 0, scale: 0.96, y: -4 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.96, y: -4 }}
-            transition={{ duration: 0.15, ease: 'easeOut' }}
-            style={{ top: `${menuCoords.top}px`, left: `${menuCoords.left}px` }}
-            className="fixed w-36 rounded-2xl bg-white/95 dark:bg-zinc-900/95 backdrop-blur-md border border-zinc-200/90 dark:border-zinc-800 shadow-2xl py-1.5 z-[9999] font-sans overflow-hidden"
-            onClick={e => e.stopPropagation()}
-          >
-            {(['new', 'reviewing', 'approved', 'rejected'] as const).map(st => {
-              const app = applications.find(a => `status-${a.id}` === activeMenu)
-              if (!app) return null
-              const stCfg = STATUS_CONFIG[st]
-              const isSelected = app.status === st
-              return (
-                <button
-                  key={st}
-                  onClick={() => {
-                    handleUpdateStatus(app.id, st)
-                  }}
-                  className={`w-full px-3 py-1.5 text-xs font-semibold flex items-center justify-between transition-colors cursor-pointer ${
-                    isSelected 
-                      ? 'bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white font-bold' 
-                      : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800/50'
-                  }`}
-                >
-                  <span className="flex items-center gap-2">
-                    <span className={`w-2 h-2 rounded-full ${stCfg.dot}`} />
-                    <span>{stCfg.label}</span>
-                  </span>
-                  {isSelected && <Check className="w-3.5 h-3.5 text-zinc-900 dark:text-white" />}
-                </button>
-              )
-            })}
-          </m.div>
-        )}
-      </AnimatePresence>
 
       {/* COMPREHENSIVE CENTERED APPLICATION REVIEW DIALOG */}
       <AnimatePresence>

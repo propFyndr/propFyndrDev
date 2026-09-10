@@ -33,6 +33,7 @@ import { AnimatePresence, m } from 'framer-motion'
 import { adminFetch } from '@/lib/adminFetch'
 import { LeadDossierPanel } from '@/components/admin/LeadDossierPanel'
 import { Skeleton } from '@/components/ui/skeleton'
+import CustomSelect from '@/components/admin/CustomSelect'
 
 interface Lead {
   id: string
@@ -57,6 +58,7 @@ interface Lead {
 }
 
 type StatusType = 'new' | 'contacted' | 'qualified' | 'lost'
+type TierType = 'all' | 'HOT' | 'WARM' | 'COLD'
 
 const STATUS_CONFIG: Record<StatusType, { label: string; bg: string; text: string; border: string; dot: string }> = {
   new: {
@@ -101,10 +103,6 @@ export default function BuilderLeadsPage() {
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null)
   const [toast, setToast] = useState<{ message: string; type: 'error' | 'success' } | null>(null)
   
-  // Single active popover menu state & fixed coordinates
-  const [activeMenu, setActiveMenu] = useState<string | null>(null)
-  const [menuCoords, setMenuCoords] = useState<{ top: number; left: number } | null>(null)
-
   const isFetchingRef = useRef(false)
 
   const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -156,12 +154,10 @@ export default function BuilderLeadsPage() {
     fetchLeads()
   }, [fetchLeads])
 
-  // Global Escape Key Listener to close dialogs & popovers
+  // Global Escape Key Listener to close dialogs
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
-        setActiveMenu(null)
-        setMenuCoords(null)
         setSelectedLead(null)
       }
     }
@@ -169,43 +165,8 @@ export default function BuilderLeadsPage() {
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [])
 
-  // Auto-close active popover menu on click outside or scroll
-  useEffect(() => {
-    if (!activeMenu) return
-    const handleCloseMenu = () => {
-      setActiveMenu(null)
-      setMenuCoords(null)
-    }
-    const timer = setTimeout(() => {
-      window.addEventListener('click', handleCloseMenu)
-      window.addEventListener('scroll', handleCloseMenu, true)
-    }, 0)
-    return () => {
-      clearTimeout(timer)
-      window.removeEventListener('click', handleCloseMenu)
-      window.removeEventListener('scroll', handleCloseMenu, true)
-    }
-  }, [activeMenu])
-
-  const togglePopover = (key: string, e: React.MouseEvent<HTMLButtonElement>) => {
-    e.stopPropagation()
-    if (activeMenu === key) {
-      setActiveMenu(null)
-      setMenuCoords(null)
-    } else {
-      const rect = e.currentTarget.getBoundingClientRect()
-      setMenuCoords({
-        top: rect.bottom + 6,
-        left: rect.left,
-      })
-      setActiveMenu(key)
-    }
-  }
-
   const updateLeadStatus = async (leadId: string, newStatus: StatusType) => {
     try {
-      setActiveMenu(null)
-      setMenuCoords(null)
       const res = await adminFetch(`/admin/leads/${leadId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
@@ -305,7 +266,7 @@ export default function BuilderLeadsPage() {
   }
 
   return (
-    <div className="space-y-6 pb-16 font-sans select-none max-w-6xl mx-auto py-8">
+    <div className="space-y-6 pb-16 font-sans select-none max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-8 min-w-0">
       {/* Header Banner */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pt-1">
         <div>
@@ -448,17 +409,19 @@ export default function BuilderLeadsPage() {
 
         {/* Tier Selector & Segmented Filter Pills */}
         <div className="flex items-center gap-2.5 shrink-0 w-full sm:w-auto overflow-x-auto">
-          {/* Custom Tier Popover Trigger */}
-          <div className="relative shrink-0">
-            <button
-              onClick={(e) => togglePopover('tier', e)}
-              className="px-3.5 py-2 rounded-xl border border-zinc-200/80 dark:border-zinc-700/80 bg-white dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200 text-xs font-bold flex items-center gap-2 transition-all shadow-2xs hover:bg-zinc-50 dark:hover:bg-zinc-700 cursor-pointer"
-            >
-              <Filter className="w-3.5 h-3.5 text-zinc-400" />
-              <span>{tierFilter === 'all' ? 'All Tiers' : `${tierFilter} Tier`}</span>
-              <ChevronDown className={`w-3.5 h-3.5 opacity-60 transition-transform duration-200 ${activeMenu === 'tier' ? 'rotate-180' : ''}`} />
-            </button>
-          </div>
+          {/* Tier Filter using CustomSelect */}
+          <CustomSelect
+            value={tierFilter}
+            onChange={(v) => setTierFilter(v as TierType)}
+            options={[
+              { value: 'all', label: 'All Tiers' },
+              { value: 'HOT', label: 'HOT Tier', dotColor: 'bg-rose-500' },
+              { value: 'WARM', label: 'WARM Tier', dotColor: 'bg-amber-500' },
+              { value: 'COLD', label: 'COLD Tier', dotColor: 'bg-blue-400' },
+            ]}
+            size="sm"
+            className="w-[140px] shrink-0"
+          />
 
           {/* Segmented Filter Pills */}
           <div className="flex items-center p-1 bg-zinc-100 dark:bg-zinc-800/60 rounded-xl border border-zinc-200/80 dark:border-zinc-700/60 shrink-0 overflow-x-auto">
@@ -466,8 +429,6 @@ export default function BuilderLeadsPage() {
               <button
                 key={st}
                 onClick={() => {
-                  setActiveMenu(null)
-                  setMenuCoords(null)
                   setStatusFilter(st)
                 }}
                 className={`px-3 py-1 text-xs font-semibold rounded-lg transition-all cursor-pointer whitespace-nowrap capitalize ${
@@ -524,18 +485,10 @@ export default function BuilderLeadsPage() {
               </thead>
               <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800/60 text-xs">
                 {filteredLeads.map(lead => {
-                  const cfg = STATUS_CONFIG[lead.status] || STATUS_CONFIG.new
-                  const menuKey = `status-${lead.id}`
-                  const isMenuOpen = activeMenu === menuKey
-
                   return (
                     <tr
                       key={lead.id}
-                      onClick={() => {
-                        setActiveMenu(null)
-                        setMenuCoords(null)
-                        setSelectedLead(lead)
-                      }}
+                      onClick={() => setSelectedLead(lead)}
                       className="hover:bg-zinc-50/60 dark:hover:bg-zinc-800/40 transition-colors group cursor-pointer"
                     >
                       {/* Buyer Lead Info */}
@@ -579,33 +532,41 @@ export default function BuilderLeadsPage() {
                         </span>
                       </td>
 
-                      {/* Interactive Status Button */}
-                      <td className="px-6 py-4" onClick={e => e.stopPropagation()}>
-                        <button
-                          onClick={(e) => togglePopover(menuKey, e)}
-                          className={`px-3 py-1.5 rounded-xl font-bold border text-xs flex items-center justify-between gap-2 transition-all shadow-2xs cursor-pointer ${cfg.bg} ${cfg.text} ${cfg.border}`}
-                        >
-                          <span className="flex items-center gap-1.5">
-                            <span className={`w-2 h-2 rounded-full ${cfg.dot}`} />
-                            <span>{cfg.label}</span>
-                          </span>
-                          <ChevronDown className={`w-3.5 h-3.5 opacity-60 transition-transform duration-200 ${isMenuOpen ? 'rotate-180' : ''}`} />
-                        </button>
+                      {/* Interactive Status Dropdown via CustomSelect */}
+                      <td className="px-6 py-4 w-[160px]" onClick={e => e.stopPropagation()}>
+                        <CustomSelect
+                          value={lead.status}
+                          onChange={(val) => updateLeadStatus(lead.id, val as StatusType)}
+                          options={[
+                            { value: 'new', label: 'New', dotColor: 'bg-blue-500' },
+                            { value: 'contacted', label: 'Contacted', dotColor: 'bg-purple-500' },
+                            { value: 'qualified', label: 'Qualified', dotColor: 'bg-emerald-500' },
+                            { value: 'lost', label: 'Lost', dotColor: 'bg-zinc-400' },
+                          ]}
+                          size="sm"
+                        />
                       </td>
 
-                      {/* Actions */}
+                      {/* Actions: Direct WhatsApp & Review Dossier */}
                       <td className="px-6 py-4 text-right" onClick={e => e.stopPropagation()}>
-                        <button
-                          onClick={() => {
-                            setActiveMenu(null)
-                            setMenuCoords(null)
-                            setSelectedLead(lead)
-                          }}
-                          className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl border border-zinc-200/80 dark:border-zinc-700/80 bg-white dark:bg-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-700/80 text-zinc-700 dark:text-zinc-200 font-semibold transition-all shadow-2xs cursor-pointer"
-                        >
-                          <span>Review</span>
-                          <ChevronRight className="w-3.5 h-3.5 text-zinc-400" />
-                        </button>
+                        <div className="flex items-center justify-end gap-2">
+                          <a
+                            href={`https://wa.me/91${lead.phone.replace(/^\+?91/, '').replace(/\D/g, '')}?text=${encodeURIComponent(`Hi ${lead.name}, reaching out from PropFyndr regarding ${lead.project_name || 'your property inquiry'}.`)}`}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="p-1.5 rounded-xl border border-emerald-200/80 dark:border-emerald-800/80 bg-emerald-50 dark:bg-emerald-950/60 hover:bg-emerald-100 text-emerald-600 dark:text-emerald-400 transition-all cursor-pointer shadow-2xs"
+                            title="Direct WhatsApp chat"
+                          >
+                            <ExternalLink className="w-3.5 h-3.5" />
+                          </a>
+                          <button
+                            onClick={() => setSelectedLead(lead)}
+                            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl border border-zinc-200/80 dark:border-zinc-700/80 bg-white dark:bg-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-700/80 text-zinc-700 dark:text-zinc-200 font-semibold transition-all shadow-2xs cursor-pointer text-xs"
+                          >
+                            <span>Dossier</span>
+                            <ChevronRight className="w-3.5 h-3.5 text-zinc-400" />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   )
@@ -615,76 +576,6 @@ export default function BuilderLeadsPage() {
           </div>
         </div>
       )}
-
-      {/* FIXED POPOVER MENU FOR TIER FILTER & TABLE STATUS DROPDOWN */}
-      <AnimatePresence>
-        {activeMenu === 'tier' && menuCoords && (
-          <m.div
-            initial={{ opacity: 0, scale: 0.96, y: -4 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.96, y: -4 }}
-            transition={{ duration: 0.15, ease: 'easeOut' }}
-            style={{ top: `${menuCoords.top}px`, left: `${menuCoords.left}px` }}
-            className="fixed w-40 rounded-2xl bg-white/95 dark:bg-zinc-900/95 backdrop-blur-md border border-zinc-200/90 dark:border-zinc-800 shadow-2xl py-1.5 z-[9999] font-sans overflow-hidden"
-            onClick={e => e.stopPropagation()}
-          >
-            {(['all', 'HOT', 'WARM', 'COLD'] as const).map(tier => (
-              <button
-                key={tier}
-                onClick={() => {
-                  setTierFilter(tier)
-                  setActiveMenu(null)
-                  setMenuCoords(null)
-                }}
-                className={`w-full px-3.5 py-2 text-xs font-semibold flex items-center justify-between transition-colors cursor-pointer ${
-                  tierFilter === tier 
-                    ? 'bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white font-bold' 
-                    : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800/50'
-                }`}
-              >
-                <span>{tier === 'all' ? 'All Tiers' : `${tier} Tier`}</span>
-                {tierFilter === tier && <Check className="w-3.5 h-3.5 text-zinc-900 dark:text-white" />}
-              </button>
-            ))}
-          </m.div>
-        )}
-
-        {activeMenu && activeMenu.startsWith('status-') && menuCoords && (
-          <m.div
-            initial={{ opacity: 0, scale: 0.96, y: -4 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.96, y: -4 }}
-            transition={{ duration: 0.15, ease: 'easeOut' }}
-            style={{ top: `${menuCoords.top}px`, left: `${menuCoords.left}px` }}
-            className="fixed w-36 rounded-2xl bg-white/95 dark:bg-zinc-900/95 backdrop-blur-md border border-zinc-200/90 dark:border-zinc-800 shadow-2xl py-1.5 z-[9999] font-sans overflow-hidden"
-            onClick={e => e.stopPropagation()}
-          >
-            {(['new', 'contacted', 'qualified', 'lost'] as const).map(st => {
-              const lead = leads.find(l => `status-${l.id}` === activeMenu)
-              if (!lead) return null
-              const stCfg = STATUS_CONFIG[st]
-              const isSelected = lead.status === st
-              return (
-                <button
-                  key={st}
-                  onClick={() => updateLeadStatus(lead.id, st)}
-                  className={`w-full px-3 py-1.5 text-xs font-semibold flex items-center justify-between transition-colors cursor-pointer ${
-                    isSelected 
-                      ? 'bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white font-bold' 
-                      : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800/50'
-                  }`}
-                >
-                  <span className="flex items-center gap-2">
-                    <span className={`w-2 h-2 rounded-full ${stCfg.dot}`} />
-                    <span>{stCfg.label}</span>
-                  </span>
-                  {isSelected && <Check className="w-3.5 h-3.5 text-zinc-900 dark:text-white" />}
-                </button>
-              )
-            })}
-          </m.div>
-        )}
-      </AnimatePresence>
 
       {/* CENTERED LEAD DETAIL REVIEW DIALOG */}
       <AnimatePresence>

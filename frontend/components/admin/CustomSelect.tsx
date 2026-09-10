@@ -1,25 +1,26 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import { ChevronDown, Check } from 'lucide-react'
 
-export interface SelectOption {
-  value: string
+export interface SelectOption<T extends string = string> {
+  value: T
   label: string
   dotColor?: string
+  icon?: React.ReactNode
 }
 
-interface CustomSelectProps {
-  value: string
-  onChange: (value: string) => void
-  options: SelectOption[]
+interface CustomSelectProps<T extends string = string> {
+  value: T
+  onChange: (value: T) => void
+  options: SelectOption<T>[]
   placeholder?: string
   className?: string
   disabled?: boolean
   size?: 'sm' | 'md' | 'lg'
 }
 
-export default function CustomSelect({
+export default function CustomSelect<T extends string = string>({
   value,
   onChange,
   options,
@@ -27,7 +28,7 @@ export default function CustomSelect({
   className = '',
   disabled = false,
   size = 'md',
-}: CustomSelectProps) {
+}: CustomSelectProps<T>) {
   const [isOpen, setIsOpen] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
 
@@ -52,7 +53,7 @@ export default function CustomSelect({
 
   const sizeClasses = {
     sm: {
-      btn: 'px-3 py-1.5 text-xs font-bold rounded-xl',
+      btn: 'px-3 py-1.5 text-xs font-semibold rounded-xl',
       chevron: 13,
       item: 'px-3 py-1.5 text-xs rounded-lg',
       check: 12,
@@ -85,7 +86,8 @@ export default function CustomSelect({
         } ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
       >
         <span className="flex items-center gap-2 truncate">
-          {selectedOption?.dotColor && (
+          {selectedOption?.icon}
+          {!selectedOption?.icon && selectedOption?.dotColor && (
             <span className={`w-2 h-2 rounded-full shrink-0 ${selectedOption.dotColor}`} />
           )}
           <span className={selectedOption ? 'text-zinc-900 dark:text-zinc-100 font-semibold truncate' : 'text-zinc-400 dark:text-zinc-500 font-normal truncate'}>
@@ -119,7 +121,8 @@ export default function CustomSelect({
                 }`}
               >
                 <div className="flex items-center gap-2 truncate">
-                  {opt.dotColor && (
+                  {opt.icon}
+                  {!opt.icon && opt.dotColor && (
                     <span className={`w-2 h-2 rounded-full shrink-0 ${opt.dotColor}`} />
                   )}
                   <span className="truncate">{opt.label}</span>
