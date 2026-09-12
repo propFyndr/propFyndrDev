@@ -23,7 +23,7 @@
     "db:seed-images": "tsx scripts/seed-images.ts",
     "test": "npm run test:jest && npm run test:node",
     "test:jest": "jest",
-    "test:node": "tsx --test app/admin/__tests__/*.ts components/**/__tests__/*.ts components/__tests__/*.ts",
+    "test:node": "tsx --test lib/__tests__/*.ts app/admin/__tests__/*.ts components/**/__tests__/*.ts components/__tests__/*.ts",
     "test:watch": "jest --watch"
   },
   "prisma": {

@@ -158,4 +158,61 @@ describe('the prompt splits where caching needs it to', () => {
     assert.equal(head, 'no marker here')
     assert.equal(tail, '')
   })
+
+  /**
+   * Tools live inside the cached resource, because Gemini rejects `tools` on a
+   * request that carries `cachedContent`. Two consequences have to hold, and
+   * both are silent failures if they stop holding: the declarations must
+   * actually reach caches.create, and a different catalogue must not reuse
+   * another catalogue's entry.
+   */
+  it('the tool declarations are stored in the cache, not sent per request', async () => {
+    process.env.GEMINI_EXPLICIT_CACHE = 'true'
+    resetGeminiCacheState()
+
+    let seenConfig: Record<string, unknown> | null = null
+    const client = {
+      caches: {
+        create: async (params: { config: Record<string, unknown> }) => {
+          seenConfig = params.config
+          return { name: 'cachedContents/with-tools' }
+        },
+        update: async () => ({}),
+      },
+    } as never
+
+    const tools = [{ functionDeclarations: [{ name: 'sector_projects' }] }]
+    const name = await getCachedPrefix(client, 'gemini-3.6-flash', 'k', LONG_HEAD, tools)
+
+    assert.equal(name, 'cachedContents/with-tools')
+    assert.ok(seenConfig, 'caches.create was never called')
+    assert.deepEqual(
+      (seenConfig as unknown as { tools: unknown }).tools,
+      tools,
+      'the declarations must be stored in the cache, or a cached request has no tools at all',
+    )
+  })
+
+  it('a different tool catalogue does not reuse another catalogue’s cache entry', async () => {
+    process.env.GEMINI_EXPLICIT_CACHE = 'true'
+    resetGeminiCacheState()
+
+    let creates = 0
+    const client = {
+      caches: {
+        create: async () => {
+          creates++
+          return { name: `cachedContents/e${creates}` }
+        },
+        update: async () => ({}),
+      },
+    } as never
+
+    const withTools = [{ functionDeclarations: [{ name: 'sector_projects' }] }]
+    await getCachedPrefix(client, 'gemini-3.6-flash', 'k', LONG_HEAD, withTools)
+    await getCachedPrefix(client, 'gemini-3.6-flash', 'k', LONG_HEAD, undefined)
+
+    assert.equal(creates, 2, 'same head, different catalogue — must be two entries')
+    assert.equal(cachedPrefixCount(), 2)
+  })
 })

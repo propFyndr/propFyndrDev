@@ -21,6 +21,14 @@ import builderApplicationsRouter from '../src/routes/builderApplications';
 import analyticsRouter from '../src/routes/analytics';
 import shareRouter from '../src/routes/share';
 import adminIntelligenceRouter from '../src/routes/admin-intelligence';
+import blogRouter from '../src/routes/blog';
+import adminTeamRouter from '../src/routes/adminTeam';
+import adminPartnersRouter from '../src/routes/adminPartners';
+import { adminEmailRouter } from '../src/routes/adminEmail';
+import { adminPromotionsRouter } from '../src/routes/adminPromotions';
+import { betaRouter } from '../src/routes/betaObservability';
+import partnerRegistrationRouter from '../src/routes/partnerRegistration';
+import portalRouter from '../src/routes/portal';
 
 const swaggerPath = path.resolve(__dirname, '../../swagger.json');
 const swagger = JSON.parse(fs.readFileSync(swaggerPath, 'utf8'));
@@ -30,10 +38,18 @@ const routes: { method: string; path: string }[] = [];
 const map = {
   chatRouter: '/api/v1/chat',
   sessionsRouter: '/api/v1/sessions',
+  blogRouter: '/api/v1/blog',
   projectsRouter: '/api/v1/projects',
   savedRouter: '/api/v1/saved',
   leadsRouter: '/api/v1/leads',
   adminRouter: '/api/v1/admin',
+  adminPromotionsRouter: '/api/v1/admin/promotions',
+  adminTeamRouter: '/api/v1/admin/team',
+  adminPartnersRouter: '/api/v1/admin/channel-partners',
+  adminEmailRouter: '/api/v1/admin/email',
+  betaRouter: '/api/v1/admin/beta',
+  partnerRegistrationRouter: '/api/v1/partner-registration',
+  portalRouter: '/api/v1/portal',
   buildersRouter: '/api/v1/builders',
   marketComparisonRouter: '/api/v1/market-comparison',
   priceAlertsRouter: '/api/v1/price-alerts',
@@ -68,10 +84,18 @@ function extract(router: any, basePath: string) {
 
 extract(chatRouter, map.chatRouter);
 extract(sessionsRouter, map.sessionsRouter);
+extract(blogRouter, map.blogRouter);
 extract(projectsRouter, map.projectsRouter);
 extract(savedRouter, map.savedRouter);
 extract(leadsRouter, map.leadsRouter);
 extract(adminRouter, map.adminRouter);
+extract(adminPromotionsRouter, map.adminPromotionsRouter);
+extract(adminTeamRouter, map.adminTeamRouter);
+extract(adminPartnersRouter, map.adminPartnersRouter);
+extract(adminEmailRouter, map.adminEmailRouter);
+extract(betaRouter, map.betaRouter);
+extract(partnerRegistrationRouter, map.partnerRegistrationRouter);
+extract(portalRouter, map.portalRouter);
 extract(buildersRouter, map.buildersRouter);
 extract(marketComparisonRouter, map.marketComparisonRouter);
 extract(priceAlertsRouter, map.priceAlertsRouter);

@@ -57,6 +57,7 @@ const ROLE_OPTIONS: SelectOption[] = [
 export default function AdminTeamPage() {
   const [admins, setAdmins] = useState<AdminRow[]>([])
   const [buildersList, setBuildersList] = useState<Array<{ id: string; name: string }>>([])
+  const [partnersList, setPartnersList] = useState<Array<{ id: string; name: string }>>([])
   const [loading, setLoading] = useState(true)
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [error, setError] = useState('')
@@ -95,9 +96,10 @@ export default function AdminTeamPage() {
     else setIsRefreshing(true)
     setError('')
     try {
-      const [res, bRes] = await Promise.all([
+      const [res, bRes, pRes] = await Promise.all([
         adminFetch('/admin/team'),
         adminFetch('/admin/builders').catch(() => null),
+        adminFetch('/admin/channel-partners').catch(() => null),
       ])
 
       if (res.status === 403) {
@@ -118,6 +120,20 @@ export default function AdminTeamPage() {
             id: b.id,
             name: b.name || b.company_name || 'Unnamed Builder',
           }))
+        )
+      }
+
+      if (pRes && pRes.ok) {
+        const pData = await pRes.json()
+        // Only an approved partner can be given a login — inviting someone into
+        // an unapproved firm would hand them a portal the server will refuse.
+        setPartnersList(
+          (pData.partners || [])
+            .filter((p: any) => p.status === 'approved')
+            .map((p: any) => ({
+              id: p.id,
+              name: p.builder?.name ? `${p.name} — ${p.builder.name}` : p.name,
+            }))
         )
       }
     } catch (err: any) {
@@ -608,15 +624,21 @@ export default function AdminTeamPage() {
             {role === 'PARTNER' && (
               <div className="bg-rose-50/60 dark:bg-rose-950/20 border border-rose-200/60 dark:border-rose-900/40 p-4 rounded-2xl space-y-2">
                 <label className="block text-xs font-bold text-rose-900 dark:text-rose-200 uppercase tracking-wider">
-                  Channel Partner ID
+                  Channel Partner Firm
                 </label>
-                <input
-                  required
-                  placeholder="Channel partner agency UUID"
-                  value={partnerId}
-                  onChange={(e) => setPartnerId(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-xs"
-                />
+                {partnersList.length > 0 ? (
+                  <CustomSelect
+                    value={partnerId}
+                    onChange={(v) => setPartnerId(v)}
+                    options={partnersList.map((p) => ({ value: p.id, label: p.name }))}
+                    placeholder="Choose an approved channel partner…"
+                    size="md"
+                  />
+                ) : (
+                  <p className="text-xs font-medium text-rose-900/80 dark:text-rose-200/80">
+                    No approved channel partners yet — approve one under Partners first.
+                  </p>
+                )}
               </div>
             )}
 

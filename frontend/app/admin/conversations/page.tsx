@@ -97,6 +97,8 @@ export default function ConversationsPage() {
   const [activeTab, setActiveTab] = useState<'all' | 'leads' | 'gaps' | 'users' | 'guests'>('all')
   const [sortBy, setSortBy] = useState('recent')
 
+  const [serverTotals, setServerTotals] = useState<{ total?: number; totalLeads?: number; totalCostUsd?: number } | null>(null)
+
   const loadSessions = useCallback(async (silent = false) => {
     if (!silent) setLoading(true)
     else setIsRefreshing(true)
@@ -114,6 +116,13 @@ export default function ConversationsPage() {
       const data = await res.json()
       const fetchedSessions: SessionSummary[] = data.sessions ?? []
       setSessions(fetchedSessions)
+      if (data.total !== undefined) {
+        setServerTotals({
+          total: data.total,
+          totalLeads: data.totalLeads,
+          totalCostUsd: data.totalCostUsd,
+        })
+      }
 
       // Automatically select the first session if none selected yet
       if (!selected && fetchedSessions.length > 0) {
@@ -151,11 +160,11 @@ export default function ConversationsPage() {
     }
   }, [])
 
-  // KPI Metrics Calculation
+  // KPI Metrics Calculation — using real DB platform totals when provided
   const kpis = useMemo(() => {
-    const total = sessions.length
-    const totalLeads = sessions.filter((s) => Boolean(s.lead)).length
-    const totalCostUsd = sessions.reduce((acc, s) => acc + (s.costUsd || 0), 0)
+    const total = serverTotals?.total ?? sessions.length
+    const totalLeads = serverTotals?.totalLeads ?? sessions.filter((s) => Boolean(s.lead)).length
+    const totalCostUsd = serverTotals?.totalCostUsd ?? sessions.reduce((acc, s) => acc + (s.costUsd || 0), 0)
     const activeToday = sessions.filter((s) => {
       const diffHours = (Date.now() - new Date(s.lastActiveAt).getTime()) / (1000 * 60 * 60)
       return diffHours <= 24
@@ -167,7 +176,7 @@ export default function ConversationsPage() {
       totalCostInr: inr(totalCostUsd),
       activeToday,
     }
-  }, [sessions])
+  }, [sessions, serverTotals])
 
   // Filter & Sort Sessions
   const filteredSessions = useMemo(() => {
@@ -572,7 +581,10 @@ export default function ConversationsPage() {
                           {detail.lead.name}
                         </span>
                         <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md border ${getLeadTierStyle(detail.lead.lead_tier)}`}>
-                          {detail.lead.lead_tier ?? 'VERIFIED LEAD'}
+                          {/* A missing tier means unscored. It must not read as
+                              a verification claim — that is a fabricated fact
+                              about the lead, and noAssertedVerification fails on it. */}
+                          {detail.lead.lead_tier ?? 'UNSCORED'}
                         </span>
                       </div>
                       <div className="flex items-center gap-3 text-xs text-zinc-600 dark:text-zinc-300">

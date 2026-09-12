@@ -271,3 +271,68 @@ test('a real percentage is not a score', () => {
     )
   }
 })
+
+/**
+ * Corpus size is a business fact, not a buyer fact.
+ *
+ * How many projects we hold, how many builders we work with and how much data
+ * we store are things a competitor would like to know and a buyer never asked.
+ * The original rules assumed WE were the grammatical subject ("we hold…") or
+ * the store was ("our database contains…"). Probed against realistic model
+ * output, twelve of eighteen phrasings walked past them — a model that names
+ * the product, speaks as itself, or uses a bare existential was unguarded.
+ */
+test('a platform-wide count never reaches a buyer, whoever is the subject', () => {
+  for (const text of [
+    // First person, and the store as subject — the original shapes.
+    'We currently maintain verified data on 280 projects across 61 sectors.',
+    'We track 12 verified projects in Sector 1 alone.',
+    '280 projects across 117 builders.',
+    'Our verified database currently contains details for only one project.',
+    // The product as subject.
+    'PropFyndr covers 280 projects in Noida.',
+    'PropFyndr currently tracks 117 builders.',
+    'The platform has 280 projects listed.',
+    // Existential, with a platform locus.
+    'There are 280 projects on PropFyndr.',
+    'Across our platform there are 280 projects.',
+    'There are 117 developers in our coverage.',
+    // Scope nouns other than "database".
+    'Our coverage spans 61 sectors.',
+    'Our catalogue spans 280 projects.',
+    'Our dataset covers 280 properties.',
+    'The catalogue size is 280 projects.',
+    // The assistant describing its own working set.
+    'I can see 280 projects in the data I have.',
+    'I have access to 280 projects.',
+    // Relationship and volume counts.
+    'We work with 117 builders.',
+    'We hold roughly 2 GB of project data.',
+  ]) {
+    assert.ok(
+      scanDisclosure(text).some(v => v.kind === 'inventory_size'),
+      `inventory leak slipped through: ${text}`,
+    )
+  }
+})
+
+test('a count scoped to the question is an answer, not a leak', () => {
+  // This is the line the rules above must not cross. Every one of these is a
+  // sentence the product exists to produce; flagging one discards a good turn.
+  for (const text of [
+    'There are 3 projects in Sector 150 that fit a 2 crore budget.',
+    'Two of those are ready to move, the third has possession in 2027.',
+    'Godrej Woods has 4 towers and 320 units.',
+    'That builder has delivered 12 projects since 2009.',
+    'Prices in Sector 150 range from 1.2 to 3.4 crore.',
+    'I found two options that match. Both are under 1.5 crore.',
+    'Sector 150 has 19 projects; here are the three closest to your brief.',
+    'The project has 3 BHK units from 1,850 sq ft.',
+    'Stamp duty is 7% and registration is 1% in Uttar Pradesh.',
+  ]) {
+    assert.deepEqual(
+      scanDisclosure(text).filter(v => v.kind === 'inventory_size'), [],
+      `a legitimate answer was flagged as an inventory leak: ${text}`,
+    )
+  }
+})

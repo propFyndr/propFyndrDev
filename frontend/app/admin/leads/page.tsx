@@ -43,7 +43,9 @@ interface Lead {
   project_slug: string | null
   user_id?: string | null
   guest_token?: string | null
-  status: 'new' | 'contacted' | 'qualified' | 'lost'
+  status: 'new' | 'contacted' | 'qualified' | 'converted' | 'lost'
+  /** Set when the builder routed this lead to one of their channel partners. */
+  assigned_partner?: { id: string; name: string; builder: { id: string; name: string } | null } | null
   lead_tier: 'HOT' | 'WARM' | 'COLD' | null
   lead_score: number | null
   intent_tier: string | null
@@ -57,7 +59,11 @@ interface Lead {
   created_at: string
 }
 
-type StatusType = 'new' | 'contacted' | 'qualified' | 'lost'
+// `converted` is written by the builder and channel-partner consoles when a
+// lead closes. It has to be a first-class status here too: STATUS_CONFIG is
+// indexed directly at render time, so an unknown status throws rather than
+// degrading.
+type StatusType = 'new' | 'contacted' | 'qualified' | 'converted' | 'lost'
 type TierType = 'all' | 'HOT' | 'WARM' | 'COLD'
 
 const STATUS_CONFIG: Record<StatusType, { label: string; bg: string; text: string; border: string; dot: string }> = {
@@ -81,6 +87,13 @@ const STATUS_CONFIG: Record<StatusType, { label: string; bg: string; text: strin
     text: 'text-emerald-700 dark:text-emerald-300',
     border: 'border-emerald-200/80 dark:border-emerald-800/80',
     dot: 'bg-emerald-500 shadow-2xs shadow-emerald-500/50',
+  },
+  converted: {
+    label: 'Converted',
+    bg: 'bg-teal-50/80 dark:bg-teal-950/40 hover:bg-teal-100/80 dark:hover:bg-teal-900/60',
+    text: 'text-teal-700 dark:text-teal-300',
+    border: 'border-teal-200/80 dark:border-teal-800/80',
+    dot: 'bg-teal-500 shadow-2xs shadow-teal-500/50',
   },
   lost: {
     label: 'Lost',
@@ -214,11 +227,12 @@ export default function BuilderLeadsPage() {
     const cold = leads.filter(l => l.lead_tier === 'COLD').length
     const newLeads = leads.filter(l => l.status === 'new').length
     const qualified = leads.filter(l => l.status === 'qualified').length
+    const converted = leads.filter(l => l.status === 'converted').length
     const avgScore = total > 0 
       ? Math.round(leads.reduce((acc, curr) => acc + (curr.lead_score || 0), 0) / total) 
       : 0
 
-    return { total, hot, warm, cold, newLeads, qualified, avgScore }
+    return { total, hot, warm, cold, newLeads, qualified, converted, avgScore }
   }, [leads])
 
   const getTierBadge = (tier: string | null, score: number | null) => {
@@ -425,7 +439,7 @@ export default function BuilderLeadsPage() {
 
           {/* Segmented Filter Pills */}
           <div className="flex items-center p-1 bg-zinc-100 dark:bg-zinc-800/60 rounded-xl border border-zinc-200/80 dark:border-zinc-700/60 shrink-0 overflow-x-auto">
-            {(['all', 'new', 'contacted', 'qualified', 'lost'] as const).map(st => (
+            {(['all', 'new', 'contacted', 'qualified', 'converted', 'lost'] as const).map(st => (
               <button
                 key={st}
                 onClick={() => {
@@ -518,6 +532,12 @@ export default function BuilderLeadsPage() {
                         ) : (
                           <span className="text-zinc-400 text-xs italic">General Inquiry</span>
                         )}
+                        {/* Who the builder routed this to, if anyone. */}
+                        {lead.assigned_partner && (
+                          <div className="mt-1 text-[11px] font-medium text-zinc-500 dark:text-zinc-400 truncate max-w-[180px]">
+                            → {lead.assigned_partner.name}
+                          </div>
+                        )}
                       </td>
 
                       {/* Qualification Tier */}
@@ -541,6 +561,7 @@ export default function BuilderLeadsPage() {
                             { value: 'new', label: 'New', dotColor: 'bg-blue-500' },
                             { value: 'contacted', label: 'Contacted', dotColor: 'bg-purple-500' },
                             { value: 'qualified', label: 'Qualified', dotColor: 'bg-emerald-500' },
+                            { value: 'converted', label: 'Converted', dotColor: 'bg-teal-500' },
                             { value: 'lost', label: 'Lost', dotColor: 'bg-zinc-400' },
                           ]}
                           size="sm"
@@ -687,8 +708,8 @@ export default function BuilderLeadsPage() {
                   <label className="text-xs font-bold text-zinc-400 uppercase tracking-wider block">
                     Update Pipeline Status
                   </label>
-                  <div className="grid grid-cols-4 gap-2">
-                    {(['new', 'contacted', 'qualified', 'lost'] as const).map(st => {
+                  <div className="grid grid-cols-5 gap-2">
+                    {(['new', 'contacted', 'qualified', 'converted', 'lost'] as const).map(st => {
                       const cfg = STATUS_CONFIG[st]
                       const isActive = selectedLead.status === st
                       return (

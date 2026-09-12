@@ -120,6 +120,13 @@ export default function AdminLogin() {
           <p className="text-[11px] text-[var(--color-text-muted)] text-center pt-1">
             Leave email blank to use the shared bootstrap password.
           </p>
+
+          <a
+            href="/admin/forgot-password"
+            className="block text-center text-[12px] font-medium text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] transition-colors"
+          >
+            Forgot your password?
+          </a>
         </form>
 
         <p className="text-[11px] text-[var(--color-text-muted)] text-center mt-6">

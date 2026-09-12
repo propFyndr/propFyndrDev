@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { tenantFromHost, isPassThroughPath } from '@/lib/subdomain'
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
   const requestHeaders = new Headers(request.headers)
-  
+
   // Strip x-user-id to prevent spoofing
   requestHeaders.delete('x-user-id')
 
@@ -23,6 +24,29 @@ export async function middleware(request: NextRequest) {
     }
   }
 
+  /**
+   * Tenant subdomain routing. `lotus.propfyndr.in/` serves the portal entry
+   * instead of the buyer homepage.
+   *
+   * A rewrite, not a redirect: the address bar keeps saying
+   * `lotus.propfyndr.in`, which is the entire point of the feature.
+   *
+   * The subdomain is passed on as a header for BRANDING only. Nothing
+   * downstream may treat it as proof of identity — scope comes from the
+   * session, server-side, on every portal endpoint.
+   */
+  const tenant = tenantFromHost(request.headers.get('host'))
+  if (tenant && !isPassThroughPath(pathname)) {
+    requestHeaders.set('x-portal-tenant', tenant)
+    const url = request.nextUrl.clone()
+    url.pathname = '/portal-entry'
+    url.searchParams.set('tenant', tenant)
+    return NextResponse.rewrite(url, { request: { headers: requestHeaders } })
+  }
+  if (tenant) {
+    requestHeaders.set('x-portal-tenant', tenant)
+  }
+
   const response = NextResponse.next({
     request: {
       headers: requestHeaders,
@@ -38,6 +62,8 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/api/:path*'],
+  // Was '/api/:path*'. Tenant routing has to see ordinary page requests too,
+  // so the matcher now covers everything except the static asset paths that
+  // would only pay the middleware cost for nothing.
+  matcher: ['/((?!_next/static|_next/image|favicon.ico|images/|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|txt|xml)$).*)'],
 }
-

@@ -3,8 +3,9 @@ import { timingSafeEqual } from 'crypto'
 import { Prisma } from '@prisma/client'
 import { prisma } from '../lib/db'
 import { requireAdmin, destroyAdminSession } from '../lib/adminAuth'
-import { createIdentitySession, verifyPassword } from '../lib/adminIdentity'
+import { createIdentitySession, verifyPassword, requireIdentity, requireRole } from '../lib/adminIdentity'
 import { computeCompleteness } from '../lib/completeness'
+import { normalisePortalSubdomain } from '../lib/portalSubdomain'
 import { checkRateLimit } from '../lib/cache'
 import { z } from 'zod'
 
@@ -269,6 +270,25 @@ router.delete('/auth', requireAdmin, async (req: Request, res: Response) => {
     res.status(500).json({ error: 'Logout failed' })
   }
 })
+
+/**
+ * Everything below this line is PropFyndr staff only.
+ *
+ * `requireAdmin` checks that a session EXISTS. It does not read the role — and
+ * `adminAuth` and `adminIdentity` share one session store and one key prefix
+ * (`admin:session:`), so a BUILDER or PARTNER token satisfied all 67 handlers
+ * in this file. A channel partner could read every lead on the platform from
+ * /admin/leads. That was survivable only while no channel partner could exist;
+ * partner logins are now real and invitable, so it is not.
+ *
+ * Placed here, after the two /auth routes, because Express matches in
+ * registration order: login and logout stay reachable, everything registered
+ * below inherits the guard. Per-endpoint role rules (which roles may write vs
+ * read which group) layer on top of this default and are still to come — this
+ * is the floor, not the finished matrix.
+ */
+router.use(requireIdentity)
+router.use(requireRole('SUPER_ADMIN', 'ANALYST', 'SALES'))
 
 // GET /api/v1/admin/callbacks — list all callbacks with filters
 router.get('/callbacks', requireAdmin, async (req: Request, res: Response) => {
@@ -1344,6 +1364,19 @@ router.patch('/builders/:id', requireAdmin, async (req: Request, res: Response) 
     }
     if (data.company_overview) { data.description = data.company_overview; delete data.company_overview }
 
+    // This handler forwards whatever it is given, so a new column becomes
+    // writable the moment it exists. `portal_subdomain` is the address a
+    // builder's own portal answers on — an unvalidated one (a reserved word, a
+    // malformed label) stores fine and then silently serves the buyer homepage.
+    if ('portal_subdomain' in data) {
+      const checked = normalisePortalSubdomain(data.portal_subdomain)
+      if (!checked.ok) {
+        res.status(400).json({ error: checked.error })
+        return
+      }
+      data.portal_subdomain = checked.value
+    }
+
     const builder = await prisma.builder.update({
       where: { id },
       data,
@@ -1543,6 +1576,13 @@ router.get('/leads', requireAdmin, async (req: Request, res: Response) => {
     const [leads, total] = await Promise.all([
       prisma.callbackRequest.findMany({
         where,
+        // Who is working this lead. A builder routes leads to their own channel
+        // partners from the builder console; PropFyndr sees that routing here.
+        include: {
+          assigned_partner: {
+            select: { id: true, name: true, builder: { select: { id: true, name: true } } },
+          },
+        },
         orderBy: { created_at: 'desc' },
         take: parseInt(limit as string),
         skip: parseInt(offset as string),

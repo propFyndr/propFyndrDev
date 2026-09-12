@@ -7,7 +7,7 @@ import { GoogleGenAI } from '@google/genai'
 import { MODELS, GEMINI_TOOLS_ENABLED } from '../config'
 import { toGeminiTools, validateToolArgs, capToolResult } from './tools'
 import { INFERENCE_DEFAULTS, type InferenceConfig } from './openai'
-import { recordUsage, CACHED_INPUT_RATIO } from './cost'
+import { recordUsage } from './cost'
 import { endsRagged } from './endsRagged'
 
 type Message = { role: 'system' | 'user' | 'assistant' | 'tool'; content: string | null }
@@ -107,34 +107,55 @@ export async function streamWithGemini(
   // tool-filter variant and hit almost none of them.
   const { head: systemHead, tail: systemTail } = splitSystemPrompt(system)
   /**
-   * The cacheable head, fingerprinted — because it turned out not to be one.
+   * The cacheable head, fingerprinted.
    *
-   * CLAUDE.md records that "78% of it [is] served from Gemini's implicit cache
-   * at a tenth of rate". Measured on 5 Sep 2026 over one four-turn
-   * conversation, the figure is 0%, and the reason is structural: each lane
-   * assembles its own system prompt, so the three heads produced were 25,193,
-   * 10,534 and 9,342 characters with a longest common prefix of SEVENTEEN
-   * characters — "You are RealtyPal". Implicit caching matches a prefix. There
-   * is nothing here for it to match.
+   * This once measured 0% cacheable: three lanes produced heads of 25,193,
+   * 10,534 and 9,342 characters whose longest common prefix was SEVENTEEN
+   * characters — "You are RealtyPal". That is fixed; the head is now
+   * byte-identical across turns and `promptPrefixStability.test.ts` fails the
+   * build if a per-turn value is spliced back into it.
    *
-   * Left in behind an env flag rather than removed: the fix is to give every
-   * lane one byte-identical opening block, and this is how you tell whether it
-   * worked. `DEBUG_PROMPT_STABILITY=1` and compare hashes across turns — one
-   * repeated hash means caching can engage, three distinct ones means it cannot.
+   * The flag stays as the way to confirm it in a live process:
+   * `DEBUG_PROMPT_STABILITY=1` and compare hashes across turns — one repeated
+   * hash means caching can engage.
    */
   if (process.env.DEBUG_PROMPT_STABILITY) {
     const h = createHash('sha1').update(systemHead).digest('hex').slice(0, 12)
     console.log('[PROMPT_HEAD_HASH]', h, 'headChars=' + systemHead.length, 'tailChars=' + systemTail.length, '|', JSON.stringify(systemHead.slice(0, 46)))
   }
-  // Gemini refuses CachedContent in a request that also sets system_instruction
-  const cacheIsUsable = !GEMINI_TOOLS_ENABLED && !systemTail
-  const cachedName = cacheIsUsable
-    ? await getCachedPrefix(client, config.model || MODELS.GEMINI_MAIN, apiKey, systemHead)
-    : null
-  // With a cache in play the head lives server-side and must NOT be resent:
-  // Gemini rejects systemInstruction alongside cachedContent. The tail still
-  // travels every turn, because it is different every turn.
-  const effectiveSystem = cachedName ? systemTail : system
+  /**
+   * Gemini refuses `systemInstruction` AND `tools` in a request that carries
+   * `cachedContent` — the cached resource owns both. The old condition read
+   * `!GEMINI_TOOLS_ENABLED && !systemTail`, which meant caching was impossible
+   * in the configuration we actually run: tools are on, and the tail is
+   * non-empty by design on every turn. So the ~25k-character head was re-billed
+   * at full input rate on all four Gemini legs, every turn.
+   *
+   * Both restrictions are addressable rather than fatal:
+   *   - tools move INTO the cached resource (CreateCachedContentConfig.tools)
+   *   - the per-turn tail moves out of systemInstruction and into `contents`
+   *     as a leading user turn, which is billed as ordinary input either way
+   *
+   * Gated on GEMINI_EXPLICIT_CACHE because the second point changes where the
+   * model reads its per-turn instructions from, and that is a behaviour change
+   * to a chat with a long routing-regression history. Off = byte-for-byte the
+   * previous path.
+   */
+  const toolsDeclared = GEMINI_TOOLS_ENABLED && config.tools !== false
+  const cachedName = await getCachedPrefix(
+    client,
+    config.model || MODELS.GEMINI_MAIN,
+    apiKey,
+    systemHead,
+    toolsDeclared ? (toGeminiTools() as unknown[]) : undefined,
+  )
+  // With a cache in play the head lives server-side and must NOT be resent.
+  const effectiveSystem = cachedName ? '' : system
+  if (cachedName && systemTail) {
+    // Prepended, not appended: the tail is instruction, and it has to be read
+    // before the conversation it applies to.
+    contents.unshift({ role: 'user', parts: [{ text: systemTail }] })
+  }
   let fullText = ''
   /** Persists across the recursive runCycle calls a continuation makes. */
   let continuationsUsed = 0
@@ -206,27 +227,6 @@ export async function streamWithGemini(
         abortSignal: abortController.signal,
       }
 
-      // Reads the same constant FALLBACK_CHAIN uses for supportsTools, so the tool
-      /**
-       * The declarations stay on the last cycle; only the permission to call
-       * is withdrawn.
-       *
-       * Dropping `tools` entirely on the final cycle left a conversation whose
-       * history contains `functionCall` and `functionResponse` parts being sent
-       * to a request that declares no functions. Gemini answers that with
-       * nothing at all. Reproduced against the free-tier key with the real
-       * catalogue: two `sector_projects` calls, then cycle 2 returns an empty
-       * string, which `fallbackChain` reports as "returned no text" and rolls
-       * over — so both free Gemini legs failed on every tool-using turn, and
-       * with the billed legs out of credit the whole chain fell to the
-       * tool-blind tail. That is the condition CLAUDE.md warns produces
-       * invented projects.
-       *
-       * `mode: 'NONE'` is the documented way to say "answer in text now": the
-       * declarations remain valid for the history, and no further call is
-       * possible. Which matters, because a call made on the last cycle has no
-       * later cycle to be read in and would be silently dropped.
-       */
       /**
        * The declarations stay on the last cycle; only the permission to call
        * is withdrawn.
@@ -245,8 +245,12 @@ export async function streamWithGemini(
        * making a further call impossible — which is what we want anyway, since
        * a call made on the last cycle has no later cycle to be read in.
        */
-      if (GEMINI_TOOLS_ENABLED && config.tools !== false) {
-        genConfig.tools = toGeminiTools()
+      if (toolsDeclared) {
+        // When a cache is in play the declarations are already inside it and
+        // resending them is rejected. `toolConfig` is a separate field and is
+        // still set below — that matters, because the last-cycle mode:'NONE' is
+        // what stops a tool-using conversation ending in an empty response.
+        if (!cachedName) genConfig.tools = toGeminiTools()
         if (cycle >= MAX_TOOL_CYCLES - 1) {
           genConfig.toolConfig = { functionCallingConfig: { mode: 'NONE' } }
         }
@@ -399,7 +403,6 @@ export async function streamWithGemini(
     // Groq/OpenAI traffic and isOverDailyBudget read $0 for every Gemini user.
     // Recorded in `finally` so a mid-stream stall still bills what was consumed.
     if (usage.promptTokens > 0 || usage.completionTokens > 0) {
-      const uncachedPromptTokens = Math.max(0, usage.promptTokens - usage.cachedTokens)
       if (usage.cachedTokens > 0) {
         const pct = ((usage.cachedTokens / usage.promptTokens) * 100).toFixed(1)
         console.log(`[gemini:cache] ${usage.cachedTokens}/${usage.promptTokens} prompt tokens served from cache (${pct}%)`)
@@ -409,8 +412,11 @@ export async function streamWithGemini(
       void recordUsage({
         provider: 'gemini',
         model: billedModel,
-        // Cached input bills at 10% of the standard input rate across every
-        promptTokens: uncachedPromptTokens + Math.round(usage.cachedTokens * CACHED_INPUT_RATIO),
+        // Raw, as the provider reported them. priceFor applies the cached-input
+        // discount; storing a pre-discounted count made these rows impossible
+        // to reconcile against a bill and impossible to re-price.
+        promptTokens: usage.promptTokens,
+        cachedTokens: usage.cachedTokens,
         completionTokens: usage.completionTokens,
         endpoint: 'chat',
         userId,

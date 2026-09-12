@@ -93,6 +93,13 @@ model Builder {
   theme                      BuilderTheme?
   delivery_records           BuilderDeliveryRecord[]
   admin_accounts             AdminUser[]
+  channel_partners           ChannelPartner[]
+
+  // Their own door: `lotus.propfyndr.in` instead of a path nobody remembers.
+  // Addressing only — never authorisation. The session still decides what a
+  // request may read, so landing on the wrong subdomain shows you your own
+  // console, not someone else's.
+  portal_subdomain           String?   @unique
 
   @@map("builders")
 }
@@ -868,6 +875,15 @@ model CallbackRequest {
   chat_session_id String?
   chat_session    ChatSession? @relation("CallbackRequestChat", fields: [chat_session_id], references: [id], onDelete: SetNull)
 
+  // Builder-side routing. A builder assigns a lead on their own project to one
+  // of their own channel partners; the partner portal reads only rows carrying
+  // its own id. Null means unassigned — visible to the builder and to us, not
+  // to any partner.
+  assigned_partner_id String?
+  assigned_partner    ChannelPartner? @relation(fields: [assigned_partner_id], references: [id], onDelete: SetNull)
+  assigned_at         DateTime?
+  partner_notes       String?
+
   created_at   DateTime @default(now())
 
   objections LeadObjection[]
@@ -876,6 +892,7 @@ model CallbackRequest {
   @@index([lead_tier])
   @@index([created_at])
   @@index([chat_session_id])
+  @@index([assigned_partner_id])
   @@map("callback_requests")
 }
 
@@ -1478,9 +1495,29 @@ model AiUsageEvent {
   session_id       String?
   provider         String   // "groq" | "openai" | "anthropic"
   model            String
+
+  // MEASUREMENTS. What the provider said it processed — never adjusted for
+  // price. `prompt_tokens` is the full input count INCLUDING `cached_tokens`;
+  // the discount is applied when computing cost, not when storing the count.
+  //
+  // Rows written before pricing_version 2 stored a billing-adjusted prompt
+  // count instead (cached tokens folded in at 10%), which made them impossible
+  // to reconcile against a provider report and impossible to re-price when a
+  // rate changes. `pricing_version` is how you tell the two apart: null means
+  // a legacy row whose token count is already discounted.
   prompt_tokens    Int
+  cached_tokens    Int      @default(0)
   completion_tokens Int
+
+  // PRICE. Derived from the measurements above by the PRICE table in
+  // lib/ai/cost.ts at the version named here.
   cost_usd         Decimal  @db.Decimal(10, 6)
+  pricing_version  Int?
+
+  // Provider-side id, where one is returned. The only way to reconcile
+  // line-by-line against an invoice.
+  request_id       String?
+
   endpoint         String   // e.g. "chat.stream"
   created_at       DateTime @default(now())
 
@@ -1575,17 +1612,37 @@ model ChannelPartner {
   commission_rate_pct Float?    // Commission offered
   payment_terms       String?   // "net_30" | "net_45" | "on_conversion"
 
+  // Ownership. A channel partner belongs to the builder who onboarded them —
+  // PropFyndr does not run its own broker network. Null only for the legacy
+  // rows that predate partner registration.
+  builder_id          String?
+  builder             Builder?  @relation(fields: [builder_id], references: [id], onDelete: SetNull)
+
+  // PropFyndr's approval of a self-registered partner. `new` until a super
+  // admin decides; `is_active` gates portal login, `is_verified` is the
+  // buyer-facing trust badge. Three separate facts, deliberately not one flag.
+  status              FormStatus @default(new)
+  reviewed_by         String?
+  review_notes        String?
+  submitted_at        DateTime?
+
   // Status
   is_active           Boolean   @default(true)
   created_at          DateTime  @default(now())
   updated_at          DateTime  @updatedAt
 
+  // See Builder.portal_subdomain — addressing, not authorisation.
+  portal_subdomain    String?   @unique
+
   project_partners    ProjectChannelPartner[]
   admin_accounts      AdminUser[]
+  assigned_leads      CallbackRequest[]
 
   @@index([type])
   @@index([is_active])
   @@index([created_at])
+  @@index([builder_id])
+  @@index([status])
   @@map("channel_partners")
 }
 
@@ -1836,6 +1893,47 @@ model AuditLog {
   @@map("audit_logs")
 }
 
+/// Outbound notifications, written but NOT sent.
+///
+/// No email or SMS provider is wired up yet, so every notification the product
+/// wants to send is queued here instead and dispatched by hand from the admin
+/// panel. That is a deliberate interim state, and this table is what makes it
+/// survivable: nothing is lost, every pending message is visible in one place,
+/// and the day a provider is configured the sender reads this table rather than
+/// needing every call site rewritten.
+///
+/// `action_url` carries the one-time link (invite, password reset). It is the
+/// secret — anyone holding it can set that account's password — so this table
+/// is super-admin-only and links expire.
+model NotificationOutbox {
+  id            String    @id @default(uuid())
+
+  channel       String    // "email" | "sms"
+  to_email      String?
+  to_phone      String?
+
+  template      String    // "admin_invite" | "password_reset" | "partner_approved"
+  subject       String?
+  body          String
+  action_url    String?
+
+  // queued | sent | failed | cancelled. "sent" here means a human sent it.
+  status        String    @default("queued")
+  error         String?
+
+  // What this message is about, so the admin UI can group and de-duplicate.
+  related_type  String?   // "admin_user" | "channel_partner" | "builder"
+  related_id    String?
+
+  created_at    DateTime  @default(now())
+  sent_at       DateTime?
+  sent_by       String?   // email of the admin who dispatched it by hand
+
+  @@index([status, created_at])
+  @@index([related_type, related_id])
+  @@map("notification_outbox")
+}
+
 enum AdminRole {
   SUPER_ADMIN
   ANALYST
@@ -1874,6 +1972,17 @@ model AdminUser {
   invited_by_admin_id     String?
   invite_token            String?   @unique
   invite_expires_at       DateTime?
+
+  // Password reset. Kept separate from the invite pair on purpose: a pending
+  // invite and a reset are different states, and one token field would let a
+  // reset silently consume an unaccepted invite.
+  reset_token             String?   @unique
+  reset_expires_at        DateTime?
+
+  // Stamped on every password change. Sessions created before this moment are
+  // revoked — a password change that leaves old sessions alive is not a
+  // password change.
+  password_changed_at     DateTime?
 
   is_active               Boolean   @default(true)
   last_login_at           DateTime?

@@ -376,6 +376,11 @@ export const RELATION_INTERNAL_FIELDS: Record<string, readonly string[]> = {
     // above: when we last checked a record is our own process detail, not a
     // fact about the developer.
     'last_verified_at',
+    // The host a builder's own console answers on. It says who has a portal
+    // with us — a commercial-relationship detail — and answers a question no
+    // buyer asked. Nothing buyer-facing reads it; the tenant routing resolves
+    // it from the request host on the server.
+    'portal_subdomain',
   ],
   /**
    * `ProjectCompetitor` rows — added 7 Sep 2026 alongside `channel_partner`

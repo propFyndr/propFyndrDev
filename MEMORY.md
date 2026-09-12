@@ -6,6 +6,218 @@ Format: What was decided / Why / What was rejected and why.
 
 ---
 
+## Session 2026-09-11b — Prompt caching, cost accounting, admin role floor
+
+### Decision: tools move INTO the Gemini cached resource
+**What:** `getCachedPrefix` now takes the tool declarations and stores them via
+`CreateCachedContentConfig.tools`; the request sends `cachedContent` and neither
+`tools` nor `systemInstruction`. The per-turn tail moves from `systemInstruction`
+into `contents` as a leading user turn.
+**Why:** the old gate was `!GEMINI_TOOLS_ENABLED && !systemTail`. We run with
+`ENABLE_GEMINI_TOOLS=true` and the tail is non-empty every turn, so explicit
+caching could never engage — the ~25k-char head was re-billed at full input rate
+on all four Gemini legs, every turn. Cached input bills at 10%.
+**Verified:** `CreateCachedContentConfig` accepts `tools` and `toolConfig`
+(Context7, Google Gen AI JS SDK). The cache key now includes a hash of the
+catalogue, so a tool-less leg cannot reuse a tool-carrying entry.
+**Gated:** `GEMINI_EXPLICIT_CACHE=true`. Off = byte-for-byte the previous path.
+The tail moving out of `systemInstruction` is a real behaviour change and wants
+a measured rollout, not a default flip.
+**Stale belief corrected:** a comment in gemini.ts claimed the head was
+0% cacheable (three lanes, 17-char common prefix). That was fixed earlier;
+`promptPrefixStability.test.ts` now asserts one distinct head across 8 turns.
+
+### Decision: AiUsageEvent stores measurements, not billing-adjusted numbers
+**What:** added `cached_tokens`, `pricing_version`, `request_id`. `prompt_tokens`
+is now the RAW full input count; `priceFor(model, prompt, completion, cached)`
+applies CACHED_INPUT_RATIO centrally.
+**Why:** the cached discount was folded into `prompt_tokens` before storage, so
+the stored count matched nothing the provider ever reported — unreconcilable
+against an invoice, and un-re-priceable when a rate changes (Gemini's published
+rates double 2027-01-01).
+**Migration note:** rows with `pricing_version` NULL are legacy and carry a
+pre-discounted token count. Do NOT sum their tokens with new rows. `cost_usd` is
+comparable across both.
+**Also:** `PriceRow.free` distinguishes "deliberately free" from "nobody priced
+it". Three live chain models recorded $0 because they were simply absent from
+the table — Cohere `command-a-03-2025`, NVIDIA nemotron-3.5-lightning, and
+Cloudflare llama-4-scout. `cost.test.ts` now fails the build if any model in
+FALLBACK_CHAIN is neither priced nor explicitly marked free.
+
+### Decision: notifications are QUEUED, never sent, until a provider exists
+**What:** `NotificationOutbox` + `/admin/outbox`. Every message the product wants
+to send (invite, password reset) is written there; a super admin copies it and
+sends it by hand, then marks it sent.
+**Why:** no email or SMS provider is configured. A call site that "sends"
+would fail silently and the recipient would wait forever for a link that never
+arrived. `adminAuthFlows.test.ts` asserts no direct send call exists in the
+auth-flow routes — the moment a provider is wired, one sender reads this table
+instead of every call site being rewritten.
+**Security:** `action_url` is a one-time credential. The route is SUPER_ADMIN
+only, the link is never rendered as a clickable anchor (referrer leak), and
+reset links expire after one hour.
+
+### Decision: a password change ends every session, by index
+**What:** `revokeAllSessions(adminUserId)` in adminIdentity.ts, backed by a Redis
+set (`admin:user-sessions:<id>`) written on session creation. Called by both
+reset and change.
+**Why:** sessions are keyed by a random token, so there was otherwise no way to
+find "every session belonging to this person". A password changed because
+someone else may know it, with their session still live, has not been changed
+in any sense that matters.
+**Rejected:** comparing `password_changed_at` against the session on every
+request — that is a database read per request for a rare event.
+**Degradation:** best-effort. If Redis is down the in-memory store is still
+purged and the password is already changed, so a missed revocation is a
+shortened window rather than an open door.
+
+### Decision: forgot-password must not be an account-enumeration oracle
+**What:** `/auth-flows/forgot` returns one identical object for invalid input,
+unknown email and known email. No 404, no distinct message. Reset failures
+(expired / unknown / deactivated) also collapse to one message.
+**Why:** differing responses let an attacker diff their way to a list of
+registered addresses. A reset form is exactly where someone guesses tokens.
+**Also:** consuming a reset clears any outstanding `invite_token` — a reset
+proves control of the mailbox, which is what the invite was waiting for, and
+leaving it live keeps a second way in.
+
+### Note: the backend suite is load-sensitive, not flaky in logic
+Observed 5 failures on one full run (noFabrication, adaptiveMessaging,
+fallbackChain, and two scrypt password tests at ~1000ms) that all passed in
+isolation at ~54ms and passed on an immediate re-run (2195/0). The AI suites hit
+live providers; the scrypt ones are CPU-bound against a 1s budget. Worth a real
+fix eventually — for now, re-run before believing a failure.
+
+### Decision: inventory-size guard must not assume WE are the subject
+**What:** seven new patterns in `INVENTORY_SIZE` (answerIntegrity.ts) covering
+the product as subject ("PropFyndr covers 280 projects"), existentials with a
+platform locus ("there are 280 projects on PropFyndr"), the assistant's own
+working set ("I have access to 280 projects"), scope nouns other than
+"database" (coverage/catalogue/dataset/portfolio), relationship counts ("we work
+with 117 builders") and raw data volume ("2 GB of project data").
+**Why:** probed against 18 realistic phrasings, **12 escaped**. The original
+rules only matched first-person verbs or the store as grammatical subject.
+**The line that must not be crossed:** a count SCOPED TO THE QUESTION is a
+legitimate answer ("three projects in Sector 150 fit that budget") and must
+never be flagged. Every new pattern therefore requires a platform subject, a
+platform locus, or an assistant-capability framing — never a bare number plus a
+noun. Verified: 18/18 leaks caught, 0/10 false positives on real answers.
+
+### Decision: tenant subdomains are ADDRESSING, never authorisation
+**What:** `portal_subdomain` (unique, nullable) on Builder and ChannelPartner;
+`frontend/lib/subdomain.ts` resolves a host to a tenant label; middleware
+rewrites a tenant host to `/portal-entry`, which asks `/portal/me` and forwards
+to that role's console.
+**Why it is safe:** resolving a subdomain grants nothing. Every portal endpoint
+still re-derives scope from the session server-side, so a builder who opens
+another builder's subdomain sees their OWN console. Treating the host as a
+credential is the classic multi-tenant mistake; the file header says so where
+the next person will read it.
+**Bias:** `tenantFromHost` returns null whenever unsure. A false negative costs
+a pretty URL; a false positive would route a BUYER into a portal shell. Reserved
+list blocks api/admin/www/app/mail/…; apex, IPs, `*.vercel.app` and
+`*.onrender.com` are never tenants; `lotus.localhost` works for local testing.
+**Validation lives on the write path** (`lib/portalSubdomain.ts`) and is
+duplicated from the routing list deliberately — no shared package exists between
+the workspaces, and both files carry a comment pointing at the other.
+**Middleware matcher widened** from `/api/:path*` to everything except static
+assets. That is the riskiest edit in the change set; it is covered by 7 unit
+tests on the pure resolution function.
+**Exposure:** `portal_subdomain` is classified `RELATION_INTERNAL_FIELDS.builder`
+— it reveals who has a commercial portal with us and answers nothing a buyer
+asked. `projectExposure.test.ts` caught it unclassified, as designed.
+
+### Decision: the admin gate belongs on the PATH PREFIX, not inside admin.ts
+**What:** `lib/adminGuard.ts`, mounted as `app.use('/api/v1/admin', adminAreaGuard)`
+and `app.use('/api/admin', adminAreaGuard)` before every admin router.
+**Why:** the admin surface is eight routers, not one. `/admin/conversations`,
+`/admin/beta`, `/admin/team`, `/admin/email`, `/admin/channel-partners`,
+`/admin/promotions`, `/admin/intelligence` are all mounted as SIBLINGS of
+admin.ts — they never execute its middleware. The in-file role floor added
+earlier the same day therefore protected none of them, and
+`adminPromotions.ts` (added concurrently by another agent) used bare
+`requireAdmin`. Conversation transcripts carry buyer names, phone numbers and
+AI lead summaries, so this was PII exposure to any BUILDER or PARTNER token,
+not only a privilege problem.
+**Rejected:** adding `requireRole` to each sibling router. Same bug class
+returns the next time someone mounts a router — the guard has to be inherited
+by default, not remembered.
+**Exemptions, exactly two:** `/auth` (login, and logout which must stay
+reachable to a builder/partner) and `/team/accept-invite` (an invited user has
+no session yet). Both verified live: login returns "Wrong password" from the
+handler rather than "Unauthorized" from the guard, and accept-invite returns a
+400 validation error rather than a 401.
+**Guarded by:** `adminAreaGuard.test.ts` — asserts the mount exists on both
+prefixes, that it precedes every admin router, and that the exemption list has
+not grown (including near-miss paths like `/authx`).
+
+### Decision: an admin role floor, enforced positionally
+**What:** `router.use(requireIdentity)` + `router.use(requireRole('SUPER_ADMIN',
+'ANALYST','SALES'))` in admin.ts, immediately after the two `/auth` routes.
+**Why:** all 67 handlers used `requireAdmin`, which checks only that a session
+exists. `adminAuth` and `adminIdentity` share the store and prefix
+(`admin:session:`), so a BUILDER or PARTNER token passed every one — a channel
+partner could read every lead on the platform. Dormant until partner logins
+became real this week; not dormant now.
+**Rejected:** editing 67 call sites first. Express matches in registration order,
+so one guard closes it today; the per-group matrix layers on top.
+**Guarded by:** `adminRoleFloor.test.ts` — positional protection fails silently,
+so the test asserts nothing but `/auth` is registered above the guard.
+
+---
+
+## Session 2026-09-11 — Supply-side consoles: builder, channel partner, admin
+
+### Decision: A channel partner belongs to a builder, PropFyndr approves
+**What:** `ChannelPartner` gained `builder_id` (FK to Builder), plus `status` (reuses the
+existing `FormStatus` enum), `reviewed_by`, `review_notes`, `submitted_at`.
+**Why:** PropFyndr does not run its own broker network. The builder onboards and manages
+their partners; we approve. Three facts kept deliberately separate — `status` is our review
+decision, `is_active` is whether they may sign in, `is_verified` is the buyer-facing badge.
+Collapsing them into one flag would have made "approved" and "trusted" the same claim.
+**Rejected:** A separate `PartnerApplicationForm` table mirroring `BuilderApplicationForm`.
+A partner application *is* the partner row; a second table would have needed a copy step
+and a way for the two to disagree.
+
+### Decision: `CallbackRequest` is the one lead table, routed by `assigned_partner_id`
+**What:** Added `assigned_partner_id` (FK), `assigned_at`, `partner_notes` to
+`CallbackRequest`. Builder routes their own leads to their own approved partners; the
+partner sees only rows carrying their id; PropFyndr sees the routing on /admin/leads.
+**Why:** Leads had to appear in all three consoles without being duplicated.
+`BuilderLead` and `ChannelLead` both exist in the schema and nothing writes to either —
+adding a third writer would have made "how many leads do we have" unanswerable.
+**Rejected:** Writing `ChannelLead` rows on assignment. It duplicates the buyer's row and
+gives two tables that can disagree about a lead's status.
+**Note:** `BuilderLead` and `ChannelLead` are now knowingly dead. Left in place (dropping
+tables is a separate, destructive decision) but nothing should start writing them.
+
+### Decision: One `PortalShell` for all three consoles
+**What:** `frontend/components/portal/PortalShell.tsx`, extracted from the admin layout and
+used by `/admin`, `/builder/portal`, `/partner/portal`. Session check moved to
+`GET /portal/me` — the only endpoint every role may call — and a role landing on the wrong
+console is redirected to its own instead of being shown a shell that will 403 on every call.
+**Why:** The builder and partner consoles had to look like the admin panel. Sharing the
+chrome makes that true by construction rather than by remembering to copy a class list.
+**Side effect fixed:** `/admin/accept-invite` was behind the admin session gate, so an
+invited user was bounced to login before they could set a password. It is now exempt.
+
+### Removed: three pages that showed work they never did
+**What:** Deleted `app/get-listed/page.tsx`, `components/PropertyListingForm.tsx`,
+`app/admin/property-listings/page.tsx`, `app/dashboard/leads/page.tsx`. `/get-listed`
+now 301s to `/builder-register`.
+**Why:** The listing form ran `setTimeout(1500)` and then said "Listing Submitted!" while
+saving nothing. The admin review page never fetched — its list was always `[]` and
+approve/reject only mutated local state. `/dashboard/leads` called an admin-only endpoint
+with no token (always 401) and used `bg-${color}-100`, which Tailwind cannot compile.
+None of the four were linked from anywhere.
+
+### Added: entry points that did not exist
+`/builder-register` and `/partner-register` had zero links anywhere on the site. Both are
+now in the buyer sidebar. Admin nav gained Partners and Promotions — `/admin/promotions`
+was a working page no one could navigate to.
+
+---
+
 ## Current Session (2026-08-16)
 
 ### Decision: Gemini as Primary AI Provider

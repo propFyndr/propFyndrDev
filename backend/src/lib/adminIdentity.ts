@@ -11,12 +11,22 @@
 // Supabase user id.
 import { randomUUID, randomBytes, scryptSync, timingSafeEqual } from 'crypto'
 import type { Request, Response, NextFunction } from 'express'
-import { getCached, setCached, deleteCached } from './cache'
+import { getCached, setCached, deleteCached, getRedis } from './cache'
 import { prisma } from './db'
 import type { AdminRole } from '@prisma/client'
 
 const SESSION_TTL_SECS = 7 * 24 * 60 * 60 // 7 days
 const SESSION_PREFIX = 'admin:session:'
+
+/**
+ * Index of live session tokens per admin, so a password change can revoke them.
+ *
+ * Sessions are keyed by a random token, which means there is otherwise no way
+ * to find "every session belonging to this person" — and a password change that
+ * leaves old sessions alive is not a password change. A Redis set per admin,
+ * expiring with the sessions it lists, is the cheapest thing that closes it.
+ */
+const SESSION_INDEX_PREFIX = 'admin:user-sessions:'
 
 export interface AdminIdentitySession {
   createdAt: string
@@ -55,8 +65,62 @@ export async function createIdentitySession(session: Omit<AdminIdentitySession, 
   if (!written) {
     console.warn('[adminIdentity] Redis unavailable — using in-memory session store (single-process only)')
     memSet(token, full)
+  } else {
+    await indexSession(session.adminUserId, token)
   }
   return token
+}
+
+/** Records a token against its owner so revokeAllSessions can find it later. */
+async function indexSession(adminUserId: string, token: string): Promise<void> {
+  const redis = getRedis()
+  if (!redis || !adminUserId) return
+  try {
+    const key = `${SESSION_INDEX_PREFIX}${adminUserId}`
+    await redis.sadd(key, token)
+    // Outlive the sessions it lists, so the set cannot expire while a session
+    // it should have revoked is still valid.
+    await redis.expire(key, SESSION_TTL_SECS + 3600)
+  } catch {
+    // Losing the index costs revocation, not correctness of the session itself.
+  }
+}
+
+/**
+ * Ends every session belonging to one admin.
+ *
+ * Called on a password change or reset. Best-effort by design: if Redis is
+ * unavailable the in-memory store is still purged, and the caller has already
+ * changed the password, so a missed revocation is a shortened window rather
+ * than an open door. Returns how many were ended, for the audit line.
+ */
+export async function revokeAllSessions(adminUserId: string): Promise<number> {
+  let revoked = 0
+
+  const redis = getRedis()
+  if (redis && adminUserId) {
+    try {
+      const key = `${SESSION_INDEX_PREFIX}${adminUserId}`
+      const tokens: string[] = await redis.smembers(key)
+      for (const t of tokens) {
+        await deleteCached(`${SESSION_PREFIX}${t}`)
+        memDelete(t)
+        revoked++
+      }
+      await redis.del(key)
+    } catch (err) {
+      console.warn('[adminIdentity] session revocation via Redis failed:', err instanceof Error ? err.message : err)
+    }
+  }
+
+  // The in-memory fallback has no index, but it is small and single-process.
+  for (const [token, entry] of memSessions) {
+    if (entry.session.adminUserId === adminUserId) {
+      memSessions.delete(token)
+      revoked++
+    }
+  }
+  return revoked
 }
 
 export async function validateIdentitySession(token: string | undefined): Promise<AdminIdentitySession | null> {
@@ -67,8 +131,19 @@ export async function validateIdentitySession(token: string | undefined): Promis
 }
 
 export async function destroyIdentitySession(token: string): Promise<void> {
+  // Read the session first: the index is keyed by owner, and once the session
+  // is gone there is no way to know whose entry to clean up.
+  const session = await validateIdentitySession(token)
   await deleteCached(`${SESSION_PREFIX}${token}`)
   memDelete(token)
+  const redis = getRedis()
+  if (redis && session?.adminUserId) {
+    try {
+      await redis.srem(`${SESSION_INDEX_PREFIX}${session.adminUserId}`, token)
+    } catch {
+      // A stale index entry points at a key that no longer exists — harmless.
+    }
+  }
 }
 
 function sessionToken(req: Request): string | undefined {

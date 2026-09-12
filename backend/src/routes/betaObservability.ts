@@ -38,26 +38,31 @@ interface SessionRow {
 }
 
 betaRouter.get(
-  '/conversations',
+  ['/', '/conversations'],
   requireAdmin,
   asyncHandler(async (req, res) => {
     const limit = Math.min(Number(req.query.limit ?? 50), 200)
     const offset = Number(req.query.offset ?? 0)
 
-    const sessions = (await prisma.chatSession.findMany({
-      orderBy: { last_active: 'desc' },
-      take: limit,
-      skip: offset,
-      select: {
-        id: true,
-        user_id: true,
-        guest_token: true,
-        created_at: true,
-        last_active: true,
-        message_count: true,
-        chat_phase: true,
-      },
-    })) as SessionRow[]
+    const [sessions, totalSessions, totalLeadsCount, totalCostAgg] = await Promise.all([
+      (prisma.chatSession.findMany({
+        orderBy: { last_active: 'desc' },
+        take: limit,
+        skip: offset,
+        select: {
+          id: true,
+          user_id: true,
+          guest_token: true,
+          created_at: true,
+          last_active: true,
+          message_count: true,
+          chat_phase: true,
+        },
+      })) as Promise<SessionRow[]>,
+      prisma.chatSession.count(),
+      prisma.callbackRequest.count(),
+      prisma.aiUsageEvent.aggregate({ _sum: { cost_usd: true } }),
+    ])
 
     const ids = sessions.map((s) => s.id)
 
@@ -110,12 +115,15 @@ betaRouter.get(
         }
       }),
       pagination: { limit, offset, returned: sessions.length },
+      total: totalSessions,
+      totalLeads: totalLeadsCount,
+      totalCostUsd: Number(totalCostAgg._sum.cost_usd || 0),
     })
   }),
 )
 
 betaRouter.get(
-  '/conversations/:id',
+  ['/:id', '/conversations/:id'],
   requireAdmin,
   asyncHandler(async (req, res) => {
     const id = req.params.id

@@ -1,7 +1,7 @@
 // backend/src/lib/ai/geminiMeter.ts
 
 import { GoogleGenAI } from '@google/genai'
-import { recordUsage, spentTodayUsd, priceFor, CACHED_INPUT_RATIO } from './cost'
+import { recordUsage, spentTodayUsd, priceFor } from './cost'
 
 /** Refresh interval for the spend figure. A DB read per call would be absurd. */
 const SPEND_TTL_MS = 30_000
@@ -104,9 +104,11 @@ function meter(
     void recordUsage({
       provider: 'gemini',
       model,
-      // Mirrors gemini.ts: cached input bills at 10% of the standard rate,
-      // folded in so one row means the same thing whichever path produced it.
-      promptTokens: Math.max(0, (um.promptTokenCount ?? 0) - cached) + Math.round(cached * CACHED_INPUT_RATIO),
+      // Raw counts. The cached discount is applied by priceFor, not folded in
+      // here — a stored token count has to match what the provider reports or
+      // it can never be reconciled against a bill.
+      promptTokens: um.promptTokenCount ?? 0,
+      cachedTokens: cached,
       // Thoughts bill at the output rate and are reported separately.
       completionTokens: (um.candidatesTokenCount ?? 0) + (um.thoughtsTokenCount ?? 0),
       endpoint: opts.endpoint,

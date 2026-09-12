@@ -253,6 +253,44 @@ const INVENTORY_SIZE: Array<[RegExp, string]> = [
   [new RegExp(`\\b(?:total|entire|full|whole)\\s+(?:inventory|database|portfolio)\\s+(?:of|is|has)\\s+${HEDGE}${ANY_COUNT}`, 'i'), 'counts our holdings'],
   // "We only have records for X" — a claim that our coverage ends at one row.
   [new RegExp(`\\b(?:we|i)\\s+only\\s+(?:have|hold)\\s+(?:records?|data|details?|information)\\s+(?:for|on|about)\\b`, 'i'), 'reports the size of our holdings'],
+
+  // ── Everything below closes phrasings measured escaping the rules above. ──
+  //
+  // The rules above all assume WE are the grammatical subject ("we hold…") or
+  // the store is ("our database contains…"). A model that names the product,
+  // speaks as itself, or uses a bare existential walks straight past them.
+  // Probed against 18 realistic phrasings: twelve escaped.
+  //
+  // The line these rules must not cross: a count SCOPED TO THE QUESTION is a
+  // legitimate answer ("three projects in Sector 150 fit that budget") and must
+  // never be flagged. Only a count describing the PLATFORM is a leak. Every
+  // pattern here therefore requires a platform subject, a platform locus, or an
+  // assistant-capability framing — never a bare number plus a noun.
+
+  // "PropFyndr covers 280 projects", "the platform lists 117 builders".
+  [new RegExp(`\\b(?:propfyndr|realtypal|(?:the|this|our)\\s+(?:platform|site|portal|service))\\s+(?:${HEDGE})?(?:covers?|tracks?|has|holds?|lists?|maintains?|contains?|spans?|carries|offers?)\\s+${HEDGE}${ANY_COUNT}\\s+(?:[\\w-]+\\s+){0,2}?(?:projects?|societies|properties|sectors?|builders?|developers?|listings?)`, 'i'), 'counts our holdings'],
+
+  // "There are 280 projects on PropFyndr / across our platform." A locus is
+  // required so that "there are 3 projects in Sector 150" stays an answer.
+  [new RegExp(`\\bthere\\s+(?:are|is)\\s+${HEDGE}${ANY_COUNT}\\s+(?:[\\w-]+\\s+){0,2}?(?:projects?|societies|properties|builders?|developers?|listings?)\\s+(?:on|across|in|within)\\s+(?:propfyndr|realtypal|(?:our|the|this)\\s+(?:platform|site|portal|database|catalogue|catalog|coverage|records?|inventory|dataset|data\\s*set))`, 'i'), 'counts our holdings'],
+
+  // "Across our platform there are 280 projects" — the same claim, fronted.
+  [new RegExp(`\\b(?:across|on|in|within)\\s+(?:propfyndr|realtypal|(?:our|the|this)\\s+(?:platform|site|portal|coverage|catalogue|catalog|inventory|dataset|data\\s*set))\\b[^.]{0,40}?\\b${ANY_COUNT}\\s+(?:[\\w-]+\\s+){0,2}?(?:projects?|societies|properties|sectors?|builders?|developers?|listings?)`, 'i'), 'counts our holdings'],
+
+  // "I can see 280 projects", "I have access to 117 builders." The assistant
+  // describing the size of its own working set is the prompt read aloud.
+  [new RegExp(`\\b(?:i|we)\\s+(?:can\\s+see|have\\s+access\\s+to|am\\s+working\\s+with|are\\s+working\\s+with|can\\s+access)\\s+${HEDGE}${ANY_COUNT}\\s+(?:[\\w-]+\\s+){0,2}?(?:projects?|societies|properties|sectors?|builders?|developers?|listings?)`, 'i'), 'reports the size of our holdings'],
+
+  // "Our coverage spans 61 sectors", "the catalogue size is 280 projects".
+  // OUR_STORE covers database/records/inventory; these are the other nouns the
+  // same sentence shape reaches for.
+  [new RegExp(`\\b(?:our|the|my)\\s+(?:\\w+\\s+){0,2}?(?:coverage|catalogue|catalog|dataset|data\\s*set|portfolio|corpus|listings?)\\s+(?:${HEDGE})?(?:spans?|covers?|has|holds?|includes?|contains?|is|sits\\s+at|stands\\s+at|size\\s+is)\\s+${HEDGE}${ANY_COUNT}`, 'i'), 'reports the size of our holdings'],
+
+  // "We work with 117 builders" — a relationship count is a holdings count.
+  [new RegExp(`\\b(?:we|i)\\s+(?:work\\s+with|partner\\s+with|have\\s+onboarded|represent)\\s+${HEDGE}${ANY_COUNT}\\s+(?:[\\w-]+\\s+){0,2}?(?:builders?|developers?|projects?|partners?)`, 'i'), 'counts our holdings'],
+
+  // Raw data volume. Nobody asks this; stating it only ever describes us.
+  [new RegExp(`\\b${HEDGE}\\d[\\d.,]*\\s*(?:gb|mb|tb|kb|gigabytes?|megabytes?|terabytes?|rows|records|entries)\\s+of\\s+(?:\\w+\\s+){0,2}?data\\b`, 'i'), 'reports the size of our holdings'],
 ]
 
 /**

@@ -5,7 +5,7 @@ import {
   X,
   Mail,
   Smartphone,
-  Monitor,
+  Laptop,
   Copy,
   Check,
   Share2,
@@ -24,12 +24,30 @@ import {
   Phone,
   CheckCircle2,
   AlertCircle,
+  Search,
+  Archive,
+  Trash2,
+  Clock,
+  MoreVertical,
+  Reply,
+  Forward,
+  Printer,
+  ExternalLink,
+  ShieldCheck,
+  Tag,
+  Grid,
+  Menu,
+  ChevronDown,
+  Sparkles,
+  Wifi,
+  Battery
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { adminFetch } from '@/lib/adminFetch'
 import CustomSelect, { SelectOption } from '@/components/admin/CustomSelect'
 
 export type EmailTemplateType = 'builder_pitch' | 'team_invite'
+export type ClientPreviewType = 'gmail' | 'outlook' | 'mobile'
 
 interface EmailPreviewModalProps {
   isOpen: boolean
@@ -51,10 +69,10 @@ export default function EmailPreviewModal({
   inviteLink = '',
 }: EmailPreviewModalProps) {
   const [template, setTemplate] = useState<EmailTemplateType>(initialTemplate)
-  const [viewMode, setViewMode] = useState<'desktop' | 'mobile'>('desktop')
+  const [clientMode, setClientMode] = useState<ClientPreviewType>('gmail')
   const [isDarkPreview, setIsDarkPreview] = useState(false)
   const [copiedType, setCopiedType] = useState<'html' | 'text' | 'wa' | null>(null)
-  
+
   // Mobile responsive view switcher (Editor vs Preview)
   const [mobileTab, setMobileTab] = useState<'edit' | 'preview'>('preview')
 
@@ -139,20 +157,20 @@ https://propfyndr.in`
   <meta charset="UTF-8">
   <style>
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 0; background-color: #f8fafc; color: #1e293b; }
-    .container { max-width: 600px; margin: 24px auto; background: #ffffff; border-radius: 16px; border: 1px solid #e2e8f0; overflow: hidden; box-shadow: 0 4px 20px -2px rgba(0,0,0,0.05); }
-    .header { padding: 32px 32px 24px 32px; background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%); border-bottom: 1px solid #f1f5f9; }
+    .container { max-width: 600px; margin: 20px auto; background: #ffffff; border-radius: 16px; border: 1px solid #e2e8f0; overflow: hidden; box-shadow: 0 4px 20px -2px rgba(0,0,0,0.05); }
+    .header { padding: 28px 32px 20px 32px; background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%); border-bottom: 1px solid #f1f5f9; }
     .logo-badge { display: inline-flex; align-items: center; gap: 8px; font-weight: 800; font-size: 16px; letter-spacing: -0.5px; color: #0284c7; }
     .logo-box { width: 28px; height: 28px; background: #0284c7; border-radius: 7px; display: inline-block; vertical-align: middle; text-align: center; line-height: 28px; color: #ffffff; font-weight: 900; }
-    .content { padding: 32px; line-height: 1.65; font-size: 14.5px; color: #334155; }
-    .headline { font-size: 18px; font-weight: 700; color: #0f172a; margin-top: 0; margin-bottom: 18px; }
-    .feature-card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 18px; margin: 20px 0; }
-    .feature-title { font-size: 13px; font-weight: 700; color: #0f172a; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; }
-    .feature-item { margin-bottom: 8px; display: flex; align-items: flex-start; gap: 8px; font-size: 13.5px; }
+    .content { padding: 28px 32px; line-height: 1.65; font-size: 14px; color: #334155; }
+    .headline { font-size: 17px; font-weight: 700; color: #0f172a; margin-top: 0; margin-bottom: 16px; }
+    .feature-card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px; margin: 18px 0; }
+    .feature-title { font-size: 12px; font-weight: 700; color: #0f172a; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; }
+    .feature-item { margin-bottom: 8px; display: flex; align-items: flex-start; gap: 8px; font-size: 13px; }
     .feature-bullet { color: #0284c7; font-weight: bold; }
-    .highlight-banner { background: #eff6ff; border-left: 4px solid #3b82f6; padding: 14px 16px; border-radius: 0 8px 8px 0; margin: 20px 0; font-size: 13.5px; color: #1e40af; font-weight: 500; }
-    .cta-button { display: inline-block; background: #0284c7; color: #ffffff !important; font-weight: 600; font-size: 14px; padding: 12px 24px; border-radius: 8px; text-decoration: none; margin: 16px 0; }
-    .footer { padding: 24px 32px; background: #f8fafc; border-top: 1px solid #f1f5f9; font-size: 12px; color: #64748b; }
-    .signature { margin-top: 24px; padding-top: 18px; border-top: 1px solid #e2e8f0; }
+    .highlight-banner { background: #eff6ff; border-left: 4px solid #3b82f6; padding: 12px 14px; border-radius: 0 8px 8px 0; margin: 18px 0; font-size: 13px; color: #1e40af; font-weight: 500; }
+    .cta-button { display: inline-block; background: #0284c7; color: #ffffff !important; font-weight: 600; font-size: 13.5px; padding: 11px 22px; border-radius: 8px; text-decoration: none; margin: 14px 0; }
+    .footer { padding: 20px 32px; background: #f8fafc; border-top: 1px solid #f1f5f9; font-size: 11.5px; color: #64748b; }
+    .signature { margin-top: 20px; padding-top: 16px; border-top: 1px solid #e2e8f0; }
   </style>
 </head>
 <body>
@@ -182,15 +200,15 @@ https://propfyndr.in`
 
       <p>Could we schedule a brief 10-minute discovery call this week to introduce PropFyndr and get ${recipientName}'s developments listed?</p>
       
-      <p style="margin-top: 24px;">
+      <p style="margin-top: 20px;">
         <a href="https://propfyndr.in/contact" class="cta-button">Schedule a 10-Min Walkthrough &rarr;</a>
       </p>
 
       <div class="signature">
         <strong>${senderName}</strong><br/>
-        <span style="color: #64748b; font-size: 13px;">${senderTitle}</span><br/>
-        <span style="color: #64748b; font-size: 13px;">Contact: ${senderPhone} · partnerships@propfyndr.in</span><br/>
-        <a href="https://propfyndr.in" style="color: #0284c7; text-decoration: none; font-size: 13px;">propfyndr.in</a>
+        <span style="color: #64748b; font-size: 12.5px;">${senderTitle}</span><br/>
+        <span style="color: #64748b; font-size: 12.5px;">Contact: ${senderPhone} · partnerships@propfyndr.in</span><br/>
+        <a href="https://propfyndr.in" style="color: #0284c7; text-decoration: none; font-size: 12.5px;">propfyndr.in</a>
       </div>
     </div>
     <div class="footer">
@@ -208,16 +226,16 @@ https://propfyndr.in`
   <meta charset="UTF-8">
   <style>
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 0; background-color: #f8fafc; color: #1e293b; }
-    .container { max-width: 540px; margin: 24px auto; background: #ffffff; border-radius: 16px; border: 1px solid #e2e8f0; overflow: hidden; box-shadow: 0 4px 20px -2px rgba(0,0,0,0.05); }
-    .header { padding: 32px 32px 20px 32px; background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%); border-bottom: 1px solid #f1f5f9; text-align: center; }
-    .logo-box { width: 36px; height: 36px; background: #0284c7; border-radius: 10px; display: inline-block; vertical-align: middle; text-align: center; line-height: 36px; color: #ffffff; font-weight: 900; font-size: 18px; }
-    .title { font-size: 20px; font-weight: 800; color: #0f172a; margin-top: 16px; margin-bottom: 6px; }
-    .subtitle { font-size: 13px; color: #64748b; margin: 0; }
-    .content { padding: 32px; line-height: 1.6; font-size: 14.5px; color: #334155; }
-    .badge { display: inline-block; padding: 4px 10px; border-radius: 6px; font-weight: 700; font-size: 12px; background: #e0f2fe; color: #0369a1; text-transform: uppercase; margin-bottom: 16px; }
-    .cta-button { display: block; text-align: center; background: #0284c7; color: #ffffff !important; font-weight: 700; font-size: 14px; padding: 14px 24px; border-radius: 10px; text-decoration: none; margin: 24px 0 16px 0; }
-    .security-note { font-size: 12px; color: #94a3b8; text-align: center; line-height: 1.5; }
-    .footer { padding: 20px 32px; background: #f8fafc; border-top: 1px solid #f1f5f9; font-size: 12px; color: #94a3b8; text-align: center; }
+    .container { max-width: 520px; margin: 20px auto; background: #ffffff; border-radius: 16px; border: 1px solid #e2e8f0; overflow: hidden; box-shadow: 0 4px 20px -2px rgba(0,0,0,0.05); }
+    .header { padding: 28px 32px 18px 32px; background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%); border-bottom: 1px solid #f1f5f9; text-align: center; }
+    .logo-box { width: 34px; height: 34px; background: #0284c7; border-radius: 10px; display: inline-block; vertical-align: middle; text-align: center; line-height: 34px; color: #ffffff; font-weight: 900; font-size: 16px; }
+    .title { font-size: 18px; font-weight: 800; color: #0f172a; margin-top: 14px; margin-bottom: 4px; }
+    .subtitle { font-size: 12px; color: #64748b; margin: 0; }
+    .content { padding: 28px 32px; line-height: 1.6; font-size: 14px; color: #334155; }
+    .badge { display: inline-block; padding: 4px 10px; border-radius: 6px; font-weight: 700; font-size: 11.5px; background: #e0f2fe; color: #0369a1; text-transform: uppercase; margin-bottom: 14px; }
+    .cta-button { display: block; text-align: center; background: #0284c7; color: #ffffff !important; font-weight: 700; font-size: 13.5px; padding: 12px 22px; border-radius: 10px; text-decoration: none; margin: 20px 0 14px 0; }
+    .security-note { font-size: 11.5px; color: #94a3b8; text-align: center; line-height: 1.5; }
+    .footer { padding: 18px 32px; background: #f8fafc; border-top: 1px solid #f1f5f9; font-size: 11.5px; color: #94a3b8; text-align: center; }
   </style>
 </head>
 <body>
@@ -231,7 +249,7 @@ https://propfyndr.in`
       <p>Hello,</p>
       <p>You have been invited to join the <strong>PropFyndr Intelligence Suite</strong> with privileged administrative access:</p>
       
-      <div style="text-align: center; margin: 16px 0;">
+      <div style="text-align: center; margin: 14px 0;">
         <span class="badge">ROLE: ${defaultRole}</span>
       </div>
 
@@ -309,266 +327,249 @@ https://propfyndr.in`
         }),
       })
 
-      const data = await res.json()
+      const data = await res.json().catch(() => null)
 
-      if (!res.ok || !data.ok) {
-        throw new Error(data.error || `HTTP ${res.status}: Failed to send email`)
+      if (res.ok && data?.success) {
+        setSentSuccessId(data.messageId || 'SENT')
+        toast.success(`Email dispatched successfully to ${recipientEmail}!`)
+      } else {
+        toast.error(data?.error || 'Failed to dispatch email via Resend.')
       }
-
-      setSentSuccessId(data.id || 'sent')
-      toast.success(`Email successfully dispatched to ${recipientEmail} via Resend!`)
     } catch (err: any) {
-      console.error('[Resend:Send:Error]', err)
-      toast.error(err.message || 'Error sending email via Resend')
+      console.error('Send error:', err)
+      toast.error(err?.message || 'Failed to communicate with mail dispatch worker.')
     } finally {
       setIsSending(false)
     }
   }
 
-  const templateOptions: SelectOption[] = [
-    { value: 'builder_pitch', label: 'Developer Outreach Pitch (GoBro Style)', dotColor: 'bg-blue-500' },
-    { value: 'team_invite', label: 'Admin Team Role Invitation', dotColor: 'bg-emerald-500' },
-  ]
-
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 md:p-6 bg-black/60 backdrop-blur-md animate-in fade-in duration-200">
-      <div className="relative w-full max-w-6xl h-[94vh] max-h-[900px] flex flex-col rounded-3xl bg-white dark:bg-zinc-900 border border-zinc-200/90 dark:border-zinc-800 shadow-2xl overflow-hidden font-sans">
-        
-        {/* Top App Header */}
-        <div className="flex flex-wrap items-center justify-between gap-3 px-4 sm:px-6 py-3.5 border-b border-zinc-200/80 dark:border-zinc-800 bg-zinc-50/80 dark:bg-zinc-900/80 backdrop-blur-md shrink-0">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 md:p-6 bg-zinc-950/75 backdrop-blur-md animate-in fade-in duration-200">
+      <div className="bg-white dark:bg-zinc-900 rounded-3xl border border-zinc-200/90 dark:border-zinc-800 shadow-2xl w-full max-w-7xl h-[94vh] flex flex-col overflow-hidden">
+        {/* ── Modal Main Header ────────────────────────────────────────────── */}
+        <div className="flex items-center justify-between px-5 sm:px-6 py-3.5 border-b border-zinc-200/80 dark:border-zinc-800 shrink-0 bg-zinc-50/70 dark:bg-zinc-900/70 backdrop-blur-sm">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-xl bg-blue-600 text-white flex items-center justify-center shadow-xs shrink-0">
+            <div className="w-8 h-8 rounded-xl bg-blue-50 dark:bg-blue-950/60 border border-blue-200 dark:border-blue-800 flex items-center justify-center text-blue-600 dark:text-blue-400 shadow-2xs">
               <Mail size={16} />
             </div>
             <div>
-              <h2 className="text-sm font-extrabold text-zinc-900 dark:text-white flex items-center gap-2">
-                <span>Email Composer & Live Preview</span>
-                <span className="hidden sm:inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-950/70 text-blue-700 dark:text-blue-400 border border-blue-200 dark:border-blue-800/80">
-                  <CheckCircle2 size={10} /> Resend Powered
+              <div className="flex items-center gap-2">
+                <h2 className="text-sm sm:text-base font-bold text-zinc-900 dark:text-zinc-50">
+                  Email Composer & Executive Preview
+                </h2>
+                <span className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-400 border border-blue-200/70 dark:border-blue-800">
+                  <Sparkles size={11} />
+                  Resend Engine
                 </span>
-              </h2>
-              <p className="text-[11px] text-zinc-500 dark:text-zinc-400 hidden xs:block">
-                Apple Mail & iOS viewport simulation with live dispatch
+              </div>
+              <p className="text-[11px] text-zinc-500 dark:text-zinc-400 hidden sm:block">
+                Multi-client HTML preview simulation across Gmail, Outlook 365, and iOS Mobile.
               </p>
             </div>
           </div>
 
-          {/* Controls & Close Button */}
           <div className="flex items-center gap-2">
-            {/* Mobile Tab Switcher (Edit vs Preview) visible only on small screens */}
-            <div className="flex md:hidden items-center p-0.5 bg-zinc-200 dark:bg-zinc-800 rounded-xl">
-              <button
-                type="button"
-                onClick={() => setMobileTab('edit')}
-                className={`flex items-center gap-1 px-2.5 py-1 text-xs font-bold rounded-lg transition-all ${
-                  mobileTab === 'edit'
-                    ? 'bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white shadow-2xs'
-                    : 'text-zinc-500'
-                }`}
-              >
-                <Sliders size={12} />
-                <span>Edit</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setMobileTab('preview')}
-                className={`flex items-center gap-1 px-2.5 py-1 text-xs font-bold rounded-lg transition-all ${
-                  mobileTab === 'preview'
-                    ? 'bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white shadow-2xs'
-                    : 'text-zinc-500'
-                }`}
-              >
-                <Eye size={12} />
-                <span>Preview</span>
-              </button>
-            </div>
-
-            {/* Direct Send via Resend Button */}
+            {/* Quick Resend Dispatch Button */}
             <button
               type="button"
               onClick={handleSendViaResend}
               disabled={isSending}
-              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white font-bold text-xs shadow-xs active:scale-[0.98] transition-all cursor-pointer"
+              className={`flex items-center gap-1.5 py-1.5 px-3.5 rounded-xl text-xs font-bold text-white transition-all shadow-xs cursor-pointer ${
+                isSending
+                  ? 'bg-blue-400 cursor-not-allowed'
+                  : 'bg-blue-600 hover:bg-blue-500 active:scale-[0.98]'
+              }`}
             >
               {isSending ? (
-                <Loader2 size={13} className="animate-spin" />
+                <>
+                  <Loader2 size={13} className="animate-spin" />
+                  <span>Dispatching...</span>
+                </>
+              ) : sentSuccessId ? (
+                <>
+                  <CheckCircle2 size={13} className="text-emerald-300" />
+                  <span>Sent!</span>
+                </>
               ) : (
-                <Send size={13} />
+                <>
+                  <Send size={13} />
+                  <span>Send via Resend</span>
+                </>
               )}
-              <span className="hidden xs:inline">Send via Resend</span>
-              <span className="xs:hidden">Send</span>
             </button>
 
-            {/* Close Button */}
             <button
+              type="button"
               onClick={onClose}
-              className="p-1.5 text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-200/60 dark:hover:bg-zinc-800 rounded-xl transition-all cursor-pointer"
-              title="Close (Esc)"
+              className="p-1.5 rounded-xl text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-200/60 dark:hover:bg-zinc-800 transition-all cursor-pointer"
             >
               <X size={18} />
             </button>
           </div>
         </div>
 
-        {/* Modal Main Body */}
-        <div className="flex-1 flex flex-col md:flex-row min-h-0 overflow-hidden">
-          
-          {/* Left Panel: Configuration Parameters (hidden on mobile when preview tab active) */}
-          <div
-            className={`w-full md:w-[360px] lg:w-[400px] border-b md:border-b-0 md:border-r border-zinc-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-900 overflow-y-auto p-4 sm:p-5 space-y-4 shrink-0 ${
-              mobileTab === 'preview' ? 'hidden md:block' : 'block'
+        {/* ── Mobile View Toggle Tabs (Small Screens Only) ──────────────────── */}
+        <div className="flex md:hidden border-b border-zinc-200 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-900 p-1">
+          <button
+            type="button"
+            onClick={() => setMobileTab('edit')}
+            className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition-all ${
+              mobileTab === 'edit'
+                ? 'bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 shadow-2xs'
+                : 'text-zinc-500'
             }`}
           >
-            {/* Template Selector using CustomSelect */}
-            <div>
-              <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider block mb-1.5">
-                Email Template Type
-              </label>
-              <CustomSelect
-                value={template}
-                onChange={(val) => setTemplate(val as EmailTemplateType)}
-                options={templateOptions}
-                size="sm"
-              />
+            Edit Template & Fields
+          </button>
+          <button
+            type="button"
+            onClick={() => setMobileTab('preview')}
+            className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition-all ${
+              mobileTab === 'preview'
+                ? 'bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 shadow-2xs'
+                : 'text-zinc-500'
+            }`}
+          >
+            Live Device Preview
+          </button>
+        </div>
+
+        {/* ── Main Two-Column Layout ───────────────────────────────────────── */}
+        <div className="flex-1 flex flex-col md:flex-row min-h-0 overflow-hidden">
+          {/* Left Panel: Controls & Template Parameters */}
+          <div
+            className={`w-full md:w-[360px] lg:w-[400px] border-r border-zinc-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-4 sm:p-5 overflow-y-auto shrink-0 flex flex-col justify-between gap-5 ${
+              mobileTab === 'preview' ? 'hidden md:flex' : 'flex'
+            }`}
+          >
+            <div className="space-y-4">
+              {/* Template Selector */}
+              <div>
+                <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider mb-1.5">
+                  Email Template
+                </label>
+                <CustomSelect
+                  value={template}
+                  onChange={(val) => setTemplate(val as EmailTemplateType)}
+                  options={[
+                    { value: 'team_invite', label: 'Admin Team Role Invitation' },
+                    { value: 'builder_pitch', label: 'Developer / Builder Onboarding Pitch' },
+                  ]}
+                  size="sm"
+                  className="w-full"
+                />
+              </div>
+
+              {/* Dynamic Field Inputs */}
+              {template === 'builder_pitch' ? (
+                <div className="space-y-3">
+                  <div>
+                    <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">
+                      Developer / Firm Name
+                    </label>
+                    <input
+                      type="text"
+                      value={recipientName}
+                      onChange={(e) => setRecipientName(e.target.value)}
+                      placeholder="e.g. Godrej Properties"
+                      className="w-full px-3 py-2 text-xs font-medium bg-zinc-50 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700/60 rounded-xl text-zinc-900 dark:text-zinc-100 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">
+                      Recipient Email *
+                    </label>
+                    <input
+                      type="email"
+                      value={recipientEmail}
+                      onChange={(e) => setRecipientEmail(e.target.value)}
+                      className="w-full px-3 py-2 text-xs font-medium bg-zinc-50 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700/60 rounded-xl text-zinc-900 dark:text-zinc-100 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">
+                      Flagship Project Mention
+                    </label>
+                    <input
+                      type="text"
+                      value={projectName}
+                      onChange={(e) => setProjectName(e.target.value)}
+                      className="w-full px-3 py-2 text-xs font-medium bg-zinc-50 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700/60 rounded-xl text-zinc-900 dark:text-zinc-100 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">
+                        Sender Name
+                      </label>
+                      <input
+                        type="text"
+                        value={senderName}
+                        onChange={(e) => setSenderName(e.target.value)}
+                        className="w-full px-3 py-2 text-xs font-medium bg-zinc-50 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700/60 rounded-xl text-zinc-900 dark:text-zinc-100 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">
+                        Sender Phone
+                      </label>
+                      <input
+                        type="text"
+                        value={senderPhone}
+                        onChange={(e) => setSenderPhone(e.target.value)}
+                        className="w-full px-3 py-2 text-xs font-medium bg-zinc-50 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700/60 rounded-xl text-zinc-900 dark:text-zinc-100 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                      />
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  <div>
+                    <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">
+                      Invited User Email *
+                    </label>
+                    <input
+                      type="email"
+                      value={recipientEmail}
+                      onChange={(e) => setRecipientEmail(e.target.value)}
+                      className="w-full px-3 py-2 text-xs font-medium bg-zinc-50 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700/60 rounded-xl text-zinc-900 dark:text-zinc-100 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">
+                      Assigned Role
+                    </label>
+                    <div className="px-3 py-2 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 font-bold text-xs">
+                      {defaultRole}
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">
+                      Security Token Link
+                    </label>
+                    <p className="px-3 py-2 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/80 font-mono text-[11px] text-zinc-500 break-all leading-tight">
+                      {generatedInviteLink}
+                    </p>
+                  </div>
+                </div>
+              )}
             </div>
 
-            {/* Live Delivery Status Notice if sent */}
-            {sentSuccessId && (
-              <div className="p-3 rounded-2xl bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800/60 text-emerald-800 dark:text-emerald-300 text-xs flex items-start gap-2 animate-in fade-in">
-                <CheckCircle2 size={16} className="text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
-                <div>
-                  <p className="font-bold">Delivered via Resend</p>
-                  <p className="text-[11px] text-emerald-700 dark:text-emerald-400 mt-0.5 break-all font-mono">
-                    ID: {sentSuccessId}
-                  </p>
-                </div>
-              </div>
-            )}
-
-            {/* Template-Specific Form Inputs */}
-            {template === 'builder_pitch' ? (
-              <div className="space-y-3">
-                <div>
-                  <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">
-                    Developer Company Name
-                  </label>
-                  <input
-                    type="text"
-                    value={recipientName}
-                    onChange={(e) => setRecipientName(e.target.value)}
-                    placeholder="e.g. ATS Infrastructure / Ace Group"
-                    className="w-full px-3 py-2 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 font-medium text-xs focus:ring-2 focus:ring-blue-500 outline-none transition-all"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">
-                    Recipient Email Address *
-                  </label>
-                  <input
-                    type="email"
-                    value={recipientEmail}
-                    onChange={(e) => setRecipientEmail(e.target.value)}
-                    placeholder="partnerships@developer.com"
-                    className="w-full px-3 py-2 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 font-medium text-xs focus:ring-2 focus:ring-blue-500 outline-none transition-all"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">
-                    Flagship Project Name
-                  </label>
-                  <input
-                    type="text"
-                    value={projectName}
-                    onChange={(e) => setProjectName(e.target.value)}
-                    placeholder="e.g. ATS Knightsbridge in Sector 124"
-                    className="w-full px-3 py-2 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 font-medium text-xs focus:ring-2 focus:ring-blue-500 outline-none transition-all"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">
-                    Operational Markets
-                  </label>
-                  <input
-                    type="text"
-                    value={targetCity}
-                    onChange={(e) => setTargetCity(e.target.value)}
-                    placeholder="Delhi-NCR, Mumbai, Bangalore"
-                    className="w-full px-3 py-2 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 font-medium text-xs focus:ring-2 focus:ring-blue-500 outline-none transition-all"
-                  />
-                </div>
-
-                <div className="grid grid-cols-2 gap-2">
-                  <div>
-                    <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">
-                      Sender Name
-                    </label>
-                    <input
-                      type="text"
-                      value={senderName}
-                      onChange={(e) => setSenderName(e.target.value)}
-                      className="w-full px-3 py-2 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 font-medium text-xs focus:ring-2 focus:ring-blue-500 outline-none transition-all"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">
-                      Sender Phone
-                    </label>
-                    <input
-                      type="text"
-                      value={senderPhone}
-                      onChange={(e) => setSenderPhone(e.target.value)}
-                      className="w-full px-3 py-2 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 font-medium text-xs focus:ring-2 focus:ring-blue-500 outline-none transition-all"
-                    />
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                <div>
-                  <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">
-                    Invited User Email *
-                  </label>
-                  <input
-                    type="email"
-                    value={recipientEmail}
-                    onChange={(e) => setRecipientEmail(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 font-medium text-xs focus:ring-2 focus:ring-blue-500 outline-none transition-all"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">
-                    Assigned Role
-                  </label>
-                  <div className="px-3 py-2 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 font-bold text-xs">
-                    {defaultRole}
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">
-                    Security Token Link
-                  </label>
-                  <p className="px-3 py-2 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/80 font-mono text-[11px] text-zinc-500 break-all leading-tight">
-                    {generatedInviteLink}
-                  </p>
-                </div>
-              </div>
-            )}
-
-            {/* Copy / Export Action Buttons */}
-            <div className="pt-3 border-t border-zinc-200/80 dark:border-zinc-800 space-y-2">
+            {/* Instant Copy / Share Section */}
+            <div className="pt-4 border-t border-zinc-200/80 dark:border-zinc-800 space-y-2">
               <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider block">
                 Instant Copy / Share
               </span>
-              
+
               <button
                 type="button"
                 onClick={copyWhatsApp}
-                className="w-full flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition-all shadow-2xs active:scale-[0.98] cursor-pointer"
+                className="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition-all shadow-2xs cursor-pointer active:scale-[0.98]"
               >
                 {copiedType === 'wa' ? <Check size={14} /> : <MessageCircle size={14} />}
                 <span>{copiedType === 'wa' ? 'WhatsApp Text Copied!' : 'Copy WhatsApp Pitch'}</span>
@@ -577,7 +578,7 @@ https://propfyndr.in`
               <button
                 type="button"
                 onClick={copyHtml}
-                className="w-full flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold transition-all shadow-2xs active:scale-[0.98] cursor-pointer"
+                className="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold transition-all shadow-2xs cursor-pointer active:scale-[0.98]"
               >
                 {copiedType === 'html' ? <Check size={14} /> : <Copy size={14} />}
                 <span>{copiedType === 'html' ? 'HTML Copied to Clipboard!' : 'Copy Responsive HTML'}</span>
@@ -586,7 +587,7 @@ https://propfyndr.in`
               <button
                 type="button"
                 onClick={copyText}
-                className="w-full flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-800 dark:text-zinc-200 text-xs font-semibold transition-all shadow-2xs active:scale-[0.98] cursor-pointer"
+                className="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-xl bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-800 dark:text-zinc-200 text-xs font-semibold transition-all shadow-2xs cursor-pointer active:scale-[0.98]"
               >
                 {copiedType === 'text' ? <Check size={14} /> : <Share2 size={14} />}
                 <span>{copiedType === 'text' ? 'Plaintext Copied!' : 'Copy Plaintext'}</span>
@@ -594,184 +595,343 @@ https://propfyndr.in`
             </div>
           </div>
 
-          {/* Right Panel: Interactive Preview Canvas */}
+          {/* Right Panel: Executive Device Preview Canvas */}
           <div
-            className={`flex-1 flex flex-col min-h-0 bg-zinc-100 dark:bg-zinc-950 overflow-hidden ${
+            className={`flex-1 flex flex-col min-h-0 bg-zinc-100/70 dark:bg-zinc-950 overflow-hidden ${
               mobileTab === 'edit' ? 'hidden md:flex' : 'flex'
             }`}
           >
-            {/* Canvas Header (Desktop vs Mobile Frame, Light vs Dark Client) */}
-            <div className="flex items-center justify-between px-4 sm:px-6 py-2.5 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md border-b border-zinc-200/80 dark:border-zinc-800 text-xs shrink-0">
+            {/* Canvas Sub-Header: Client & Frame Switcher */}
+            <div className="flex items-center justify-between px-4 sm:px-6 py-2.5 bg-white dark:bg-zinc-900 border-b border-zinc-200/80 dark:border-zinc-800 text-xs shrink-0">
               <div className="flex items-center gap-2">
-                <span className="text-zinc-400 font-medium hidden sm:inline">Device View:</span>
-                <div className="flex items-center p-0.5 bg-zinc-100 dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700">
+                <span className="text-zinc-400 font-medium hidden sm:inline">Preview Client:</span>
+                <div className="flex items-center p-0.5 bg-zinc-100 dark:bg-zinc-800 rounded-xl border border-zinc-200/80 dark:border-zinc-700">
+                  {/* Gmail Desktop */}
                   <button
                     type="button"
-                    onClick={() => setViewMode('desktop')}
-                    className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-all cursor-pointer ${
-                      viewMode === 'desktop'
-                        ? 'bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 shadow-2xs'
+                    onClick={() => setClientMode('gmail')}
+                    className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-[11px] font-semibold transition-all cursor-pointer ${
+                      clientMode === 'gmail'
+                        ? 'bg-white dark:bg-zinc-900 text-red-600 dark:text-red-400 shadow-2xs'
                         : 'text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-200'
                     }`}
                   >
-                    <Monitor size={13} />
-                    <span>Apple Mail</span>
+                    <Laptop size={13} />
+                    <span>Gmail (Web)</span>
                   </button>
+
+                  {/* Outlook Desktop */}
                   <button
                     type="button"
-                    onClick={() => setViewMode('mobile')}
-                    className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-all cursor-pointer ${
-                      viewMode === 'mobile'
+                    onClick={() => setClientMode('outlook')}
+                    className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-[11px] font-semibold transition-all cursor-pointer ${
+                      clientMode === 'outlook'
+                        ? 'bg-white dark:bg-zinc-900 text-blue-600 dark:text-blue-400 shadow-2xs'
+                        : 'text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-200'
+                    }`}
+                  >
+                    <Laptop size={13} />
+                    <span>Outlook 365</span>
+                  </button>
+
+                  {/* iPhone iOS */}
+                  <button
+                    type="button"
+                    onClick={() => setClientMode('mobile')}
+                    className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-[11px] font-semibold transition-all cursor-pointer ${
+                      clientMode === 'mobile'
                         ? 'bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 shadow-2xs'
                         : 'text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-200'
                     }`}
                   >
                     <Smartphone size={13} />
-                    <span>iPhone iOS</span>
+                    <span>Mobile (iOS)</span>
                   </button>
                 </div>
               </div>
 
+              {/* Theme toggle */}
               <div className="flex items-center gap-2">
                 <button
                   type="button"
                   onClick={() => setIsDarkPreview(!isDarkPreview)}
                   className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-700 dark:text-zinc-300 font-medium text-[11px] shadow-2xs cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-800"
                 >
-                  {isDarkPreview ? (
-                    <Sun size={13} className="text-amber-500" />
-                  ) : (
-                    <Moon size={13} className="text-indigo-500" />
-                  )}
-                  <span>{isDarkPreview ? 'Light' : 'Dark'}</span>
+                  {isDarkPreview ? <Sun size={13} className="text-amber-500" /> : <Moon size={13} className="text-indigo-500" />}
+                  <span>{isDarkPreview ? 'Light Mode' : 'Dark Mode'}</span>
                 </button>
               </div>
             </div>
 
-            {/* Scrollable Preview Canvas */}
+            {/* Canvas Screen: Realistic Laptop / Mobile Frame */}
             <div className="flex-1 overflow-y-auto p-3 sm:p-6 md:p-8 flex items-center justify-center">
-              {viewMode === 'desktop' ? (
-                /* Desktop Apple Mail Window */
-                <div
-                  className={`w-full max-w-2xl rounded-2xl border shadow-xl transition-all overflow-hidden ${
-                    isDarkPreview
-                      ? 'bg-zinc-900 border-zinc-800 text-zinc-100'
-                      : 'bg-white border-zinc-200/90 text-zinc-900'
-                  }`}
-                >
-                  {/* macOS Titlebar */}
+              {clientMode === 'mobile' ? (
+                /* ── PHONE FRAME (iPhone Mockup) ─────────────────────────── */
+                <div className="relative flex flex-col items-center">
+                  {/* Smartphone Chassis */}
                   <div
-                    className={`flex items-center justify-between px-4 py-2.5 border-b select-none ${
-                      isDarkPreview ? 'bg-zinc-800/80 border-zinc-700/60' : 'bg-zinc-100/90 border-zinc-200/80'
-                    }`}
-                  >
-                    <div className="flex items-center gap-1.5">
-                      <div className="w-3 h-3 rounded-full bg-rose-500/90" />
-                      <div className="w-3 h-3 rounded-full bg-amber-500/90" />
-                      <div className="w-3 h-3 rounded-full bg-emerald-500/90" />
-                    </div>
-                    <span className="text-[11px] font-semibold text-zinc-500 dark:text-zinc-400">
-                      Apple Mail · Preview
-                    </span>
-                    <div className="w-10" />
-                  </div>
-
-                  {/* Mail Message Header */}
-                  <div
-                    className={`p-4 sm:p-5 border-b ${
-                      isDarkPreview ? 'border-zinc-800/80 bg-zinc-900/50' : 'border-zinc-100 bg-zinc-50/50'
-                    }`}
-                  >
-                    <div className="flex items-start justify-between gap-4 mb-2">
-                      <h2 className="text-sm sm:text-base font-bold tracking-tight">{subject}</h2>
-                      <div className="flex items-center gap-2 text-zinc-400 shrink-0">
-                        <Star size={15} className="hover:text-amber-400 cursor-pointer" />
-                        <CornerUpLeft size={15} className="hover:text-blue-500 cursor-pointer" />
-                      </div>
-                    </div>
-
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
-                      <div className="flex items-center gap-2.5">
-                        <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-600 text-white font-bold text-xs flex items-center justify-center shadow-xs shrink-0">
-                          {template === 'builder_pitch' ? 'P' : 'PF'}
-                        </div>
-                        <div>
-                          <div className="font-bold flex items-center gap-1.5">
-                            <span>{senderName}</span>
-                            <span className="font-normal text-zinc-400 hidden xs:inline">&lt;partnerships@propfyndr.in&gt;</span>
-                          </div>
-                          <div className="text-zinc-400 text-[11px]">
-                            To: <span className="font-medium text-zinc-600 dark:text-zinc-300">{recipientName}</span> &lt;{recipientEmail}&gt;
-                          </div>
-                        </div>
-                      </div>
-
-                      <span className="text-[11px] text-zinc-400 tabular-nums">Today at 4:51 PM</span>
-                    </div>
-
-                    {template === 'builder_pitch' && (
-                      <div className="mt-3 flex items-center gap-2 text-[11px] text-zinc-500">
-                        <Paperclip size={13} className="text-zinc-400" />
-                        <span className="font-medium">2 attachments</span>
-                        <span className="text-zinc-400 hidden sm:inline">(PropFyndr_Builder_Deck.pdf, RERA_Integration_Guide.pdf)</span>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Mail Body */}
-                  <div
-                    className="p-5 sm:p-8 overflow-x-auto text-[14px] leading-relaxed select-text"
-                    dangerouslySetInnerHTML={{ __html: getHtml() }}
-                  />
-                </div>
-              ) : (
-                /* Mobile iPhone Device View */
-                <div
-                  className={`w-[320px] xs:w-[350px] sm:w-[360px] rounded-[42px] border-4 p-2 shadow-2xl transition-all overflow-hidden shrink-0 ${
-                    isDarkPreview ? 'bg-black border-zinc-800' : 'bg-black border-zinc-700'
-                  }`}
-                >
-                  {/* Dynamic Island Notch */}
-                  <div className="w-full flex justify-center pt-2 pb-3">
-                    <div className="w-24 h-5 bg-zinc-950 rounded-full flex items-center justify-center">
-                      <div className="w-2.5 h-2.5 rounded-full bg-zinc-900 mr-2" />
-                    </div>
-                  </div>
-
-                  {/* Phone Screen */}
-                  <div
-                    className={`rounded-[32px] p-3 sm:p-4 min-h-[520px] max-h-[600px] overflow-y-auto text-xs leading-normal select-text ${
+                    className={`w-[320px] xs:w-[360px] rounded-[48px] border-[6px] border-zinc-800 dark:border-zinc-700 p-2 shadow-2xl transition-all overflow-hidden shrink-0 ${
                       isDarkPreview ? 'bg-zinc-950 text-zinc-100' : 'bg-white text-zinc-900'
                     }`}
                   >
-                    <div className="flex items-center justify-between border-b border-zinc-200/60 dark:border-zinc-800 pb-3 mb-3">
-                      <span className="font-bold text-xs truncate max-w-[180px]">
-                        {template === 'builder_pitch' ? `${recipientName} × PropFyndr` : 'PropFyndr Team Invite'}
-                      </span>
-                      <span className="text-[10px] text-zinc-400">4:51 PM</span>
+                    {/* Top Notch / Dynamic Island */}
+                    <div className="w-full flex items-center justify-between px-6 pt-1 pb-2">
+                      <span className="text-[11px] font-bold tracking-tight">9:41</span>
+                      <div className="w-20 h-4 bg-zinc-900 rounded-full flex items-center justify-center gap-1.5">
+                        <div className="w-1.5 h-1.5 rounded-full bg-zinc-800" />
+                        <div className="w-1.5 h-1.5 rounded-full bg-blue-900/40" />
+                      </div>
+                      <div className="flex items-center gap-1.5 text-zinc-400">
+                        <Wifi size={11} />
+                        <Battery size={13} className="text-zinc-800 dark:text-zinc-200" />
+                      </div>
                     </div>
 
-                    <div className="mb-3">
-                      <div className="font-bold text-xs sm:text-sm text-zinc-900 dark:text-zinc-100">{senderName}</div>
-                      <div className="text-[11px] text-blue-500 font-semibold cursor-pointer">Details &gt;</div>
+                    {/* Native Mobile Email Header */}
+                    <div className="px-4 py-2 border-b border-zinc-200 dark:border-zinc-800/80 flex items-center justify-between text-xs">
+                      <div className="flex items-center gap-1 text-blue-600 font-semibold cursor-pointer">
+                        <span>‹</span>
+                        <span>Inbox</span>
+                      </div>
+                      <div className="flex items-center gap-3 text-zinc-400">
+                        <Archive size={14} />
+                        <Trash2 size={14} />
+                        <Reply size={14} />
+                      </div>
                     </div>
 
+                    {/* Email Meta in Mobile Client */}
+                    <div className="px-4 py-3 border-b border-zinc-100 dark:border-zinc-800/60 text-xs">
+                      <div className="font-bold text-xs text-zinc-900 dark:text-zinc-100 line-clamp-2 mb-1.5">
+                        {subject}
+                      </div>
+                      <div className="flex items-center justify-between text-[11px]">
+                        <div className="flex items-center gap-2">
+                          <div className="w-7 h-7 rounded-full bg-blue-600 text-white font-bold text-xs flex items-center justify-center shrink-0">
+                            {template === 'builder_pitch' ? 'P' : 'PF'}
+                          </div>
+                          <div>
+                            <div className="font-semibold text-zinc-800 dark:text-zinc-200">{senderName}</div>
+                            <div className="text-[10px] text-zinc-400">to {recipientName}</div>
+                          </div>
+                        </div>
+                        <span className="text-[10px] text-zinc-400">4:51 PM</span>
+                      </div>
+                    </div>
+
+                    {/* Phone Screen Body Scrollable */}
+                    <div className="p-3 max-h-[500px] overflow-y-auto text-xs leading-relaxed select-text">
+                      <div dangerouslySetInnerHTML={{ __html: getHtml() }} />
+                    </div>
+
+                    {/* Bottom iOS Home Indicator */}
+                    <div className="w-full flex justify-center py-2">
+                      <div className="w-28 h-1 bg-zinc-400 dark:bg-zinc-600 rounded-full" />
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                /* ── LAPTOP FRAME (MacBook / Ultrabook Mockup) ─────────────── */
+                <div className="w-full max-w-4xl flex flex-col items-center">
+                  {/* Laptop Screen Bezel */}
+                  <div className="w-full bg-zinc-900 rounded-t-2xl p-2.5 sm:p-3 shadow-2xl border border-zinc-800">
+                    {/* Top Webcam Notch */}
+                    <div className="w-full flex items-center justify-center pb-2">
+                      <div className="w-2.5 h-2.5 rounded-full bg-zinc-950 border border-zinc-800 flex items-center justify-center">
+                        <div className="w-0.5 h-0.5 rounded-full bg-emerald-500/80" />
+                      </div>
+                    </div>
+
+                    {/* Laptop Screen Display Area */}
                     <div
-                      className="text-xs leading-relaxed"
-                      dangerouslySetInnerHTML={{ __html: getHtml() }}
-                    />
+                      className={`w-full rounded-xl overflow-hidden shadow-inner ${
+                        isDarkPreview ? 'bg-zinc-950 text-zinc-100' : 'bg-white text-zinc-900'
+                      }`}
+                    >
+                      {/* CLIENT 1: GMAIL WEB */}
+                      {clientMode === 'gmail' && (
+                        <div className="flex flex-col text-xs">
+                          {/* Gmail Top Navbar */}
+                          <div
+                            className={`flex items-center justify-between px-4 py-2.5 border-b select-none ${
+                              isDarkPreview
+                                ? 'bg-zinc-900 border-zinc-800 text-zinc-300'
+                                : 'bg-[#f6f8fc] border-zinc-200 text-zinc-700'
+                            }`}
+                          >
+                            <div className="flex items-center gap-3">
+                              <Menu size={16} className="text-zinc-500" />
+                              <div className="flex items-center gap-1.5 font-semibold text-sm">
+                                <span className="text-red-500 font-black text-base">M</span>
+                                <span className="font-bold text-zinc-700 dark:text-zinc-200">Gmail</span>
+                              </div>
+                            </div>
+
+                            {/* Gmail Search Bar */}
+                            <div className="hidden sm:flex items-center flex-1 max-w-md mx-6 px-3.5 py-1.5 rounded-full bg-white dark:bg-zinc-800 border border-zinc-200/80 dark:border-zinc-700 shadow-2xs gap-2">
+                              <Search size={14} className="text-zinc-400" />
+                              <span className="text-xs text-zinc-400 flex-1">Search mail</span>
+                              <Sliders size={13} className="text-zinc-400" />
+                            </div>
+
+                            <div className="flex items-center gap-2">
+                              <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-600 text-white font-bold text-xs flex items-center justify-center">
+                                A
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Gmail Action Toolbar */}
+                          <div
+                            className={`flex items-center justify-between px-4 py-2 border-b select-none text-zinc-500 text-[11px] ${
+                              isDarkPreview ? 'bg-zinc-900/60 border-zinc-800' : 'bg-white border-zinc-100'
+                            }`}
+                          >
+                            <div className="flex items-center gap-4">
+                              <CornerUpLeft size={14} className="hover:text-zinc-800 cursor-pointer" />
+                              <Archive size={14} className="hover:text-zinc-800 cursor-pointer" />
+                              <AlertCircle size={14} className="hover:text-zinc-800 cursor-pointer" />
+                              <Trash2 size={14} className="hover:text-zinc-800 cursor-pointer" />
+                              <Clock size={14} className="hover:text-zinc-800 cursor-pointer" />
+                              <Tag size={14} className="hover:text-zinc-800 cursor-pointer" />
+                            </div>
+
+                            <div className="flex items-center gap-3">
+                              <Printer size={14} className="hover:text-zinc-800 cursor-pointer" />
+                              <ExternalLink size={14} className="hover:text-zinc-800 cursor-pointer" />
+                            </div>
+                          </div>
+
+                          {/* Gmail Email Header */}
+                          <div className="p-4 sm:p-6 border-b border-zinc-100 dark:border-zinc-800/80">
+                            <div className="flex items-start justify-between gap-4 mb-3">
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <h2 className="text-base sm:text-lg font-bold text-zinc-900 dark:text-zinc-100">
+                                  {subject}
+                                </h2>
+                                <span className="px-2 py-0.5 rounded bg-zinc-100 dark:bg-zinc-800 text-[10px] font-bold text-zinc-600 dark:text-zinc-400">
+                                  Inbox
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-2 text-zinc-400 shrink-0">
+                                <Star size={15} className="hover:text-amber-400 cursor-pointer" />
+                                <Printer size={15} className="hover:text-zinc-700 cursor-pointer" />
+                              </div>
+                            </div>
+
+                            {/* Sender Info Line */}
+                            <div className="flex items-center justify-between gap-3 text-xs">
+                              <div className="flex items-center gap-2.5">
+                                <div className="w-8 h-8 rounded-full bg-blue-600 text-white font-bold text-xs flex items-center justify-center shrink-0">
+                                  {template === 'builder_pitch' ? 'P' : 'PF'}
+                                </div>
+                                <div>
+                                  <div className="font-bold text-zinc-900 dark:text-zinc-100 flex items-center gap-1.5">
+                                    <span>{senderName}</span>
+                                    <span className="font-normal text-zinc-400">&lt;partnerships@propfyndr.in&gt;</span>
+                                  </div>
+                                  <div className="text-zinc-400 text-[11px] flex items-center gap-1">
+                                    <span>to {recipientName} &lt;{recipientEmail}&gt;</span>
+                                    <ChevronDown size={11} className="cursor-pointer" />
+                                  </div>
+                                </div>
+                              </div>
+
+                              <span className="text-[11px] text-zinc-400 tabular-nums">4:51 PM (0 minutes ago)</span>
+                            </div>
+                          </div>
+
+                          {/* Email Body */}
+                          <div className="p-4 sm:p-8 max-h-[460px] overflow-y-auto select-text">
+                            <div dangerouslySetInnerHTML={{ __html: getHtml() }} />
+                          </div>
+                        </div>
+                      )}
+
+                      {/* CLIENT 2: OUTLOOK 365 WEB */}
+                      {clientMode === 'outlook' && (
+                        <div className="flex flex-col text-xs">
+                          {/* Outlook Blue Top Navbar */}
+                          <div className="flex items-center justify-between px-4 py-2.5 bg-[#0078d4] text-white select-none">
+                            <div className="flex items-center gap-3">
+                              <Grid size={15} className="opacity-90" />
+                              <span className="font-bold text-sm tracking-tight">Outlook</span>
+                            </div>
+
+                            {/* Outlook Search */}
+                            <div className="hidden sm:flex items-center flex-1 max-w-md mx-6 px-3 py-1 rounded bg-white/20 text-white placeholder-white/70 text-xs gap-2">
+                              <Search size={13} className="opacity-80" />
+                              <span className="text-white/80 text-[11px]">Search</span>
+                            </div>
+
+                            <div className="flex items-center gap-2">
+                              <div className="w-6 h-6 rounded-full bg-white text-[#0078d4] font-bold text-xs flex items-center justify-center">
+                                PF
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Outlook Ribbon Toolbar */}
+                          <div
+                            className={`flex items-center gap-4 px-4 py-1.5 border-b select-none text-[11px] font-medium text-zinc-600 dark:text-zinc-400 ${
+                              isDarkPreview ? 'bg-zinc-900 border-zinc-800' : 'bg-[#f3f2f1] border-zinc-200'
+                            }`}
+                          >
+                            <span className="font-bold text-[#0078d4] border-b-2 border-[#0078d4] pb-1">Home</span>
+                            <span className="pb-1 hover:text-zinc-900 cursor-pointer">View</span>
+                            <span className="pb-1 hover:text-zinc-900 cursor-pointer">Help</span>
+                          </div>
+
+                          {/* Outlook Email Header */}
+                          <div className="p-4 sm:p-6 border-b border-zinc-100 dark:border-zinc-800/80">
+                            <h2 className="text-base sm:text-lg font-bold text-zinc-900 dark:text-zinc-100 mb-3">
+                              {subject}
+                            </h2>
+
+                            <div className="flex items-center justify-between gap-3 text-xs">
+                              <div className="flex items-center gap-2.5">
+                                <div className="w-8 h-8 rounded-full bg-[#0078d4] text-white font-bold text-xs flex items-center justify-center shrink-0">
+                                  {template === 'builder_pitch' ? 'P' : 'PF'}
+                                </div>
+                                <div>
+                                  <div className="font-bold text-zinc-900 dark:text-zinc-100">
+                                    {senderName} &lt;partnerships@propfyndr.in&gt;
+                                  </div>
+                                  <div className="text-zinc-400 text-[11px]">
+                                    To: {recipientName} &lt;{recipientEmail}&gt;
+                                  </div>
+                                </div>
+                              </div>
+                              <span className="text-[11px] text-zinc-400">Fri 4:51 PM</span>
+                            </div>
+                          </div>
+
+                          {/* Email Body */}
+                          <div className="p-4 sm:p-8 max-h-[460px] overflow-y-auto select-text">
+                            <div dangerouslySetInnerHTML={{ __html: getHtml() }} />
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Laptop Aluminum Base / Keyboard Hinge Mockup */}
+                  <div className="w-[102%] h-4 bg-gradient-to-b from-zinc-700 via-zinc-800 to-zinc-900 rounded-b-xl shadow-lg flex justify-center items-center">
+                    <div className="w-20 h-1 bg-zinc-600 rounded-full" />
                   </div>
                 </div>
               )}
             </div>
 
-            {/* Modal Bottom Bar */}
-            <div className="px-4 sm:px-6 py-2.5 bg-white dark:bg-zinc-900 border-t border-zinc-200/80 dark:border-zinc-800 flex items-center justify-between text-xs shrink-0">
+            {/* Modal Bottom Status Bar */}
+            <div className="px-5 sm:px-6 py-2.5 bg-white dark:bg-zinc-900 border-t border-zinc-200/80 dark:border-zinc-800 flex items-center justify-between text-xs shrink-0">
               <div className="flex items-center gap-2 text-zinc-500">
                 <span className="w-2 h-2 rounded-full bg-emerald-500" />
-                <span className="font-semibold text-zinc-700 dark:text-zinc-300">Ready to Send or Copy</span>
+                <span className="font-semibold text-zinc-700 dark:text-zinc-300">
+                  Ready to Send or Copy
+                </span>
                 <span className="text-zinc-400 hidden lg:inline">
-                  · Tested against Apple Mail, iOS Mail, Superhuman & Gmail
+                  · Tested against Gmail, Outlook 365, Apple Mail, and iOS Safari Mail
                 </span>
               </div>
 
@@ -779,7 +939,7 @@ https://propfyndr.in`
                 <button
                   type="button"
                   onClick={onClose}
-                  className="px-3.5 py-1.5 rounded-xl border border-zinc-200 dark:border-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-300 font-semibold text-xs transition-all cursor-pointer"
+                  className="px-4 py-1.5 rounded-xl border border-zinc-200 dark:border-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-300 font-semibold text-xs transition-all cursor-pointer"
                 >
                   Done
                 </button>

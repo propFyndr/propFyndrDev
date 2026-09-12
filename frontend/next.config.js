@@ -101,6 +101,14 @@ const nextConfig = {
         destination: '/discover',
         permanent: true,
       },
+      {
+        // /get-listed hosted a form that saved nothing — it showed
+        // "Listing Submitted!" and discarded the submission. Builder
+        // registration is the real pipeline, so any surviving link lands there.
+        source: '/get-listed',
+        destination: '/builder-register',
+        permanent: true,
+      },
     ]
   },
   async headers() {

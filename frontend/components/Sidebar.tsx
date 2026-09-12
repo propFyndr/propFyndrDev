@@ -7,7 +7,9 @@ import {
   SignOut,
   NotePencil,
   ClockCounterClockwise,
-  List
+  List,
+  Buildings,
+  Handshake
 } from '@phosphor-icons/react';
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter, usePathname } from "next/navigation";
@@ -572,6 +574,29 @@ export default function Sidebar({
           <div className="mt-auto mx-3 mb-2 px-3 py-2 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-100 dark:border-emerald-800 flex items-center gap-2 whitespace-nowrap">
             <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse flex-shrink-0" />
             <span className="text-[11px] font-semibold text-emerald-700 dark:text-emerald-400">{leadsToday} lead{leadsToday !== 1 ? 's' : ''} captured today</span>
+          </div>
+        )}
+
+        {/* The two ways onto the supply side. Without these the registration
+            pages existed but nothing on the site linked to them. */}
+        {!isCollapsed && (
+          <div className="px-3 pt-2 pb-1 shrink-0 w-full border-t border-gray-100/60 dark:border-gray-800/60">
+            <Link
+              href="/builder-register"
+              onClick={closeMobile}
+              className="w-full flex items-center gap-2.5 px-2 py-1.5 rounded-xl text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800/60 hover:text-zinc-900 dark:hover:text-zinc-200 transition-colors font-medium text-[12.5px]"
+            >
+              <Buildings size={16} weight="duotone" className="shrink-0" />
+              <span className="tracking-tight">List your project</span>
+            </Link>
+            <Link
+              href="/partner-register"
+              onClick={closeMobile}
+              className="w-full flex items-center gap-2.5 px-2 py-1.5 rounded-xl text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800/60 hover:text-zinc-900 dark:hover:text-zinc-200 transition-colors font-medium text-[12.5px]"
+            >
+              <Handshake size={16} weight="duotone" className="shrink-0" />
+              <span className="tracking-tight">Partner with us</span>
+            </Link>
           </div>
         )}
 

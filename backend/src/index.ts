@@ -37,7 +37,13 @@ import builderApplicationsRouter from './routes/builderApplications'
 import analyticsRouter from './routes/analytics'
 import adminIntelligenceRouter from './routes/admin-intelligence'
 import adminTeamRouter from './routes/adminTeam'
+import adminPartnersRouter from './routes/adminPartners'
+import adminAuthFlowsRouter from './routes/adminAuthFlows'
+import adminOutboxRouter from './routes/adminOutbox'
+import partnerRegistrationRouter from './routes/partnerRegistration'
+import { adminPromotionsRouter } from './routes/adminPromotions'
 import portalRouter from './routes/portal'
+import { adminAreaGuard } from './lib/adminGuard'
 import { initializeCaches } from './lib/projectDataGateway.cache'
 import { FALLBACK_CHAIN } from './lib/config'
 
@@ -204,12 +210,27 @@ app.use('/api/v1/projects', projectsRouter)
 app.use('/api/v1/saved', savedRouter)
 app.use('/api/v1/leads', leadsRouter)
 app.use('/api/v1/share', shareRouter)
+
+// Staff-only gate for the ENTIRE admin area, mounted on the path prefix so
+// every router below inherits it — including ones added later. Sibling routers
+// do not pass through admin.ts, so a guard inside that file protected none of
+// them. See lib/adminGuard.ts. Login and invite-acceptance are exempt by path.
+app.use('/api/v1/admin', adminAreaGuard)
+app.use('/api/admin', adminAreaGuard)
+
 // Mounted before adminRouter: Express matches in order, and a /:id route in the
 // admin router would otherwise claim /beta or /team before either ever sees it.
 app.use('/api/v1/admin/conversations', betaRouter)
 app.use('/api/v1/admin/beta', betaRouter)
 app.use('/api/v1/admin/team', adminTeamRouter)
 app.use('/api/v1/admin/email', adminEmailRouter)
+// Mounted before the catch-all admin router so this one serves
+// /admin/channel-partners — it supersedes the read-only list still in admin.ts.
+app.use('/api/v1/admin/auth-flows', adminAuthFlowsRouter)
+app.use('/api/v1/admin/outbox', adminOutboxRouter)
+app.use('/api/v1/admin/channel-partners', adminPartnersRouter)
+app.use('/api/v1/admin/promotions', adminPromotionsRouter)
+app.use('/api/admin/promotions', adminPromotionsRouter)
 app.use('/api/v1/admin', adminRouter)
 app.use('/api/v1/portal', portalRouter)
 app.use('/api/v1/builders', buildersRouter)
@@ -223,6 +244,7 @@ app.use('/api/v1/documents', documentsRouter)
 app.use('/api/v1/registry-prices', registryPricesRouter)
 app.use('/api/v1/builder-registration', builderRegistrationRouter)
 app.use('/api/v1/builder-applications', builderApplicationsRouter)
+app.use('/api/v1/partner-registration', partnerRegistrationRouter)
 app.use('/api/v1/analytics', analyticsRouter)
 app.use('/api/v1/admin/intelligence', adminIntelligenceRouter)
 

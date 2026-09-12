@@ -27,10 +27,19 @@ const entries = new Map<string, Entry>()
 /** Set when a create fails, so we try once per prompt/model and not per turn. */
 const failed = new Set<string>()
 
-function keyFor(model: string, apiKey: string, head: string): string {
+/**
+ * The tool declarations are part of the cached resource, so two heads that are
+ * byte-identical but carry different catalogues are different caches. Folding
+ * them into the key is what stops a tool-less leg reusing a tool-carrying entry
+ * (which would silently re-enable tools on a leg that cannot handle them).
+ */
+function keyFor(model: string, apiKey: string, head: string, tools?: unknown): string {
   const h = createHash('sha256').update(head).digest('hex').slice(0, 16)
   const k = createHash('sha256').update(apiKey).digest('hex').slice(0, 8)
-  return `${model}:${k}:${h}`
+  const t = tools
+    ? createHash('sha256').update(JSON.stringify(tools)).digest('hex').slice(0, 8)
+    : 'notools'
+  return `${model}:${k}:${h}:${t}`
 }
 
 /** Off unless explicitly asked for. */
@@ -38,18 +47,28 @@ export function explicitCacheEnabled(): boolean {
   return process.env.GEMINI_EXPLICIT_CACHE === 'true'
 }
 
-/** The cached-content resource name for this prompt head, or null. */
+/**
+ * The cached-content resource name for this prompt head, or null.
+ *
+ * `tools` is stored IN the cache rather than sent per request. Gemini refuses a
+ * request that sets `tools` or `systemInstruction` alongside `cachedContent`,
+ * so a tool-carrying leg could not cache at all while the declarations
+ * travelled on the request — which meant the whole tool-capable tier, the only
+ * tier that can read our own rows, paid full rate for an identical prompt every
+ * single turn. `CreateCachedContentConfig` accepts both, so both move here.
+ */
 export async function getCachedPrefix(
   client: GoogleGenAI,
   model: string,
   apiKey: string,
   head: string,
+  tools?: unknown[],
 ): Promise<string | null> {
   if (!explicitCacheEnabled()) return null
   if (!head) return null
   if (estimateTokens(head) < MIN_CACHEABLE_TOKENS) return null
 
-  const key = keyFor(model, apiKey, head)
+  const key = keyFor(model, apiKey, head, tools)
   if (failed.has(key)) return null
 
   const now = Date.now()
@@ -74,6 +93,7 @@ export async function getCachedPrefix(
       model,
       config: {
         systemInstruction: head,
+        ...(tools && tools.length > 0 ? { tools: tools as never } : {}),
         ttl: `${TTL_SECONDS}s`,
         displayName: 'propfyndr-system-prompt',
       },
