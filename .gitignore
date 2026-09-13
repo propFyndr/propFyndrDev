@@ -131,3 +131,11 @@ backend/scripts/parse-db-export.ts
 backend/scripts/parse-master-json.ts
 backend/scripts/print-detailed-fields.ts
 backend/scripts/summarize-relations.ts
+
+# Local DB and data-consolidation backups. 45 MB of snapshots that are useful
+# on the machine that made them and noise in the history.
+backend/backups/
+newProj/*_backup_pre_consolidation/
+
+# Playwright MCP scratch output (snapshots, console logs) from QA runs.
+.playwright-mcp/

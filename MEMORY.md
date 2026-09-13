@@ -6,6 +6,147 @@ Format: What was decided / Why / What was rejected and why.
 
 ---
 
+## Session 2026-09-13b — admin authorization audit, role matrix
+
+**Worked on:** auditing every admin scope (SUPER_ADMIN / ANALYST / SALES /
+BUILDER / PARTNER) for privilege and data leaks, with live probes per role.
+
+### Found: `requireAdmin` is authentication, not authorization
+**What:** `requireAdmin` in `adminAuth.ts` validates only that a session
+EXISTS — the `AdminSession` type it checks carries no role. `adminAuth` and
+`adminIdentity` share one store and one key prefix, so any role's token passes.
+**Where it mattered:** three routers mounted OUTSIDE `/api/v1/admin`, which
+therefore inherit neither `adminAreaGuard` nor admin.ts's own role floor:
+`/leads` (privileged half), `/builder-applications`, `/documents`. Measured
+live: a BUILDER token read `GET /leads/callback/:id/dossier` for an arbitrary
+lead and got the buyer's name and phone, plus company-wide `/leads/metrics`
+and `/leads/market/snapshot`.
+**Fix:** `requireStaff` in `adminGuard.ts` (identity + staff role floor),
+applied to all three. Document upload and application approval further narrowed
+to SUPER_ADMIN/ANALYST. Pinned by `guardsOutsideAdminArea.test.ts`, which reads
+`index.ts`, finds every router mounted outside the admin area, and fails if any
+uses `requireAdmin` as a route guard — so the next one added is caught.
+
+### Decision: the admin role matrix, and where it lives
+**What:** new `lib/adminPolicy.ts` — a pure `decide(role, method, path)` plus a
+middleware, mounted inside `adminAreaGuard` so EVERY admin router inherits it
+(team, conversations, intelligence, promotions, and anything added later).
+Agreed with the product owner:
+  - SALES — reads the whole staff area; writes only leads and callbacks.
+  - ANALYST — edits the whole data/content surface; no deletes of projects or
+    builders, no bulk import.
+  - SUPER_ADMIN — everything. Audit logs, AI spend, team and outbox are its
+    alone.
+Writes deny-by-default for SALES: an unrecognised write path is refused.
+**Why here and not in admin.ts:** a guard inside admin.ts protects none of the
+sibling routers — the mistake `adminGuard.ts` already documents. The matrix is
+pinned as a table in `__tests__/adminPolicy.test.ts` so changing a cell means
+changing a line that says what the cell is.
+**Rejected:** per-route `requireRole` across ~130 registrations. Positional and
+easy to forget, which is how the original gap happened.
+
+### Before/after, measured with a real SALES token
+Previously returned 2xx, now 403: `POST /admin/builders` (created a builder),
+`POST /admin/blog` (published a post), `GET /admin/audit-logs`,
+`GET /admin/analytics/ai-costs`, `DELETE /admin/projects/:id` (404 not 403 —
+authorization had passed), `POST /admin/projects/bulk-import`. Still 200:
+leads, projects, conversations, funnel analytics.
+
+### Verified correct, unchanged
+`portal.ts` builder and partner scoping was already right: the scope comes from
+the session and the query parameter is ignored for the owning role; writes
+re-derive ownership from the database and 404 on anything not owned. Confirmed
+live — a PARTNER got 403 on every staff surface and on the builder portal, and
+404 on a lead not assigned to them.
+
+**Follow-ups:** admin UI nav is now role-filtered (`PortalNavItem.roles`) and
+the analytics page states that spend is restricted rather than rendering ₹0,
+but no other admin page has been walked through as SALES or ANALYST — a page
+that fires a privileged write on load will surface a 403 toast.
+
+---
+
+## Session 2026-09-13 — beta readiness: invite flow, query coverage, streaming
+
+**Worked on:** the uncommitted admin team-invite work, the PostHog/analytics
+diff, and chat coverage against `topQueriesAndKeywords.md` / `keywords.md`.
+
+### Decision: `resend-invite` returns the live token instead of rotating it
+**What:** `POST /admin/team/:id/resend-invite` now hands back the existing
+`invite_token` while it is unexpired and mints a new one only when there is
+none or it has lapsed. It also refuses outright when `password_hash` is set.
+**Why:** both callers on the team page are reads — "Copy Link" and the email
+preview. Rotating on a read killed a link the super-admin had already pasted
+into an email minutes earlier, silently. And minting an invite token for an
+activated admin is a password reset wearing an invite's name, which is the
+exact collision `schema.prisma` keeps `reset_token` separate to avoid.
+**Rejected:** a separate read-only `GET /:id/invite-link`. Two endpoints where
+the difference is "does this have a side effect" invites calling the wrong one;
+making the single endpoint idempotent removes the choice.
+
+### Decision: playbook selection is ordered by specificity, not by key order
+**What:** added `SELECTION_ORDER` in `playbooks.ts`. The four factual
+frameworks (legal, landed cost, YEIDA corridor, livability) now outrank the
+five persona ones when more than `MAX_PLAYBOOKS` match.
+**Why:** selection took `Object.keys` order, so a question hitting three
+frameworks dropped the ones carrying statutory content in favour of a persona
+framing. A persona playbook says who we are talking to; a factual one says what
+is true. With two slots, what is true wins.
+
+### Decision: statutory content only — no new market figures
+**What:** the content added to `landedCostAndTax` (ITC, EDC/IDC, PLC, IFMS,
+club membership, ground rent, FAR) and `legalDueDiligence` (bank finance on
+leasehold, encumbrance certificate) states mechanism and law, and explicitly
+defers per-project rates to that project's own rows.
+**Why:** confirmed with the product owner at the start of the session —
+statutory facts stated plainly, market-tier facts handed off rather than
+quoted. **Rejected:** adding typical EDC/IFMS bands, and adding a framework for
+"why has affordable housing disappeared", which is market commentary we cannot
+verify. Note the pre-existing market bands already in that playbook (IFMS
+₹50–120/sqft, club ₹1.5L–5L, DG ₹16–22/unit) carry no qualifier — left alone
+this session, but they are the next tier-policy item to settle.
+
+### Root cause: `flushed` meant two things in `createBufferedSend`
+**What:** in paragraph-release mode, `flushed = true` routed every later token
+into the prefix-buffer mode's tail path. That stranded whatever sat in `buffer`
+after the first `\n\n` (emitted last, out of order) and never flushed `tail`
+(the final ~180 characters, dropped). Fixed by excluding paragraph mode from
+that branch. Reproduced live on "why is flat registry delayed even after
+physical possession?" — see ERRORS.md.
+**Why it matters for the demo:** both symptoms are visible to the buyer, on
+exactly the advisory turns that carry their reasoning in prose.
+
+### Root cause: a pronoun the message answers itself
+**What:** `needsShownContext` treated bare `them` as a pointer at a shortlist,
+so "What is EDC and IDC and do I have to pay them?" was answered with "I've
+lost track of which options you mean". Now exempted when a definition frame
+plus enough words precede the pronoun.
+
+**Completed:** playbook coverage 28/53 → 42/53 with the remaining 11 owned by
+deterministic handlers; RERA-guarantee questions no longer answered with the
+builder league table; streaming ordering and truncation fixed; EDC/IDC
+deflection fixed; micro-market table no longer prints a sector twice; demo
+invite token gated out of production; invite lifecycle verified live end to
+end including RBAC and the DELETE guards; hardcoded root password removed from
+`test_full_invite_lifecycle.cjs`; dead duplicate `trackSearch` deleted.
+
+**In progress / next session priorities:**
+1. The invite/analytics work is still uncommitted — it was never committed this
+   session because nothing asked for it. `backend/backups/` and
+   `newProj/75_backup_pre_consolidation/` are untracked and should probably be
+   gitignored rather than committed.
+2. Chat messages are sent to PostHog verbatim (`trackSearch(userText)`) with
+   `session_recording` on and `maskAllInputs: false`. Buyer chat carries budget
+   and personal circumstances. Settle this before beta traffic.
+3. Market-tier figures in model prose still escape the qualifier — the Jewar
+   answer quoted a specific plot rate, and a YEIDA answer quoted "1% brokerage".
+   `answerIntegrity` only guards project facts.
+4. No unit test covers the `createBufferedSend` ordering fix; it needs either a
+   DB-warmed name cache or an injection seam for the integrity gate. Verified
+   live only.
+
+---
+
 ## Session 2026-09-11b — Prompt caching, cost accounting, admin role floor
 
 ### Decision: tools move INTO the Gemini cached resource
