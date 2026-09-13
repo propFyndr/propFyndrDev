@@ -3,7 +3,7 @@ import { z } from 'zod'
 import { timingSafeEqual } from 'crypto'
 import { prisma } from '../lib/db'
 import { verifyUser } from '../lib/auth'
-import { requireAdmin } from '../lib/adminAuth'
+import { requireStaff } from '../lib/adminGuard'
 import { trackConversion } from '../lib/analytics/tracking'
 import { env } from '../lib/env'
 import { notifyLead } from '../lib/notify'
@@ -383,7 +383,7 @@ router.post('/webhook', async (req: Request, res: Response) => {
 // unauthenticated, returning real business figures (total callbacks, site
 // visits, average lead score, HOT-lead count, conversion rate) to anyone who
 // requests it.
-router.get('/metrics', requireAdmin, async (req: Request, res: Response) => {
+router.get('/metrics', requireStaff, async (req: Request, res: Response) => {
   try {
     // Scores live on CallbackRequest, not BuilderLead (which has no score columns —
     // querying it returned 0 for every metric via the swallowed .catch()).
@@ -410,12 +410,19 @@ router.get('/metrics', requireAdmin, async (req: Request, res: Response) => {
 
 // Get rich lead dossier for a specific lead
 //
-// Found unauthenticated during tonight's admin/CRM work: this returns a
+// Found unauthenticated during an earlier admin/CRM pass: this returns a
 // buyer's name, phone, full chat-derived summaries, objections and
-// engagement profile to anyone who knows or guesses a lead id — no session,
-// no role check, nothing. requireAdmin needs no new schema, so it ships
-// immediately rather than waiting on the identity migration.
-router.get('/callback/:leadId/dossier', requireAdmin, async (req: Request, res: Response) => {
+// engagement profile to anyone who knows or guesses a lead id. `requireAdmin`
+// closed the "no session at all" hole as a stopgap, explicitly deferring the
+// role check to the identity migration.
+//
+// That deferral was itself measurable: `requireAdmin` validates only that a
+// session exists — `AdminSession` carries no role — and this router is mounted
+// before `adminAreaGuard`, so it inherited no floor either. A BUILDER token
+// read this endpoint for an arbitrary lead and got the buyer's phone number.
+// `requireStaff` is the identity migration arriving here. A builder's own
+// leads remain available, scoped, at /portal/builder/leads.
+router.get('/callback/:leadId/dossier', requireStaff, async (req: Request, res: Response) => {
   try {
     const { leadId } = req.params
 
@@ -448,7 +455,7 @@ router.get('/callback/:leadId/dossier', requireAdmin, async (req: Request, res: 
 // Unauthenticated, and worse than the metrics endpoint above: the project id
 // is a path param, so anyone could enumerate every project's unmet-demand
 // analysis without even guessing an id first.
-router.get('/projects/:projectId/ghost-pool', requireAdmin, async (req: Request, res: Response) => {
+router.get('/projects/:projectId/ghost-pool', requireStaff, async (req: Request, res: Response) => {
   try {
     const { projectId } = req.params
 
@@ -463,7 +470,7 @@ router.get('/projects/:projectId/ghost-pool', requireAdmin, async (req: Request,
 
 // Get demand intelligence for a project — same unauthenticated-enumeration
 // bug as ghost-pool above.
-router.get('/projects/:projectId/demand', requireAdmin, async (req: Request, res: Response) => {
+router.get('/projects/:projectId/demand', requireStaff, async (req: Request, res: Response) => {
   try {
     const { projectId } = req.params
 
@@ -482,7 +489,7 @@ router.get('/projects/:projectId/demand', requireAdmin, async (req: Request, res
 
 // Get market demand snapshot
 // Citywide demand snapshot — same unauthenticated business-data exposure.
-router.get('/market/snapshot', requireAdmin, async (req: Request, res: Response) => {
+router.get('/market/snapshot', requireStaff, async (req: Request, res: Response) => {
   try {
     const snapshot = await getDemandSnapshot()
     res.json(snapshot)

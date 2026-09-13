@@ -30,6 +30,8 @@ import { adminFetch } from '@/lib/adminFetch'
 import Link from 'next/link'
 import CustomSelect, { SelectOption } from '@/components/admin/CustomSelect'
 import EmailPreviewModal from '@/components/admin/EmailPreviewModal'
+import { useAdminRole, canEditCatalogue } from '@/lib/adminRole'
+import { canDeleteRecords } from '@/lib/adminRole'
 
 interface LinkedProject {
   id: string
@@ -433,6 +435,10 @@ export default function AdminBuilders() {
   const [sortOrder, setSortOrder]   = useState<'asc' | 'desc'>('asc')
   
   const [showAdd, setShowAdd]       = useState(false)
+  // Sales reads the builder list to answer a buyer; it does not maintain it.
+  const adminRole = useAdminRole()
+  const mayEdit = canEditCatalogue(adminRole)
+  const mayDelete = canDeleteRecords(adminRole)
   const [addForm, setAddForm]       = useState<FormState>(EMPTY_FORM)
   const [saving, setSaving]         = useState(false)
   
@@ -674,13 +680,13 @@ export default function AdminBuilders() {
             {builders.length} registered partner developers
           </p>
         </div>
-        <button
+        {mayEdit && <button
           onClick={() => { setShowAdd(!showAdd); setSelectedBuilder(null) }}
           className="flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-4 py-2.5 rounded-xl text-xs font-bold transition-all shadow-xs active:scale-[0.98] cursor-pointer"
         >
           {showAdd ? <X size={15} strokeWidth={2.5} /> : <Plus size={15} strokeWidth={2.5} />}
           <span>{showAdd ? 'Cancel' : 'New Builder'}</span>
-        </button>
+        </button>}
       </div>
 
       {/* Metric Summary Cards — Clean, High-Contrast Zinc Aesthetic */}
@@ -1028,14 +1034,14 @@ export default function AdminBuilders() {
                 </div>
 
                 <div className="flex items-center gap-2 shrink-0">
-                  <button
+                  {mayEdit && <button
                     type="button"
                     onClick={() => setEmailOutreachBuilder(selectedBuilder)}
                     className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer active:scale-95"
                   >
                     <Mail size={13} />
                     <span>Pitch Developer</span>
-                  </button>
+                  </button>}
                   <button
                     onClick={() => setSelectedBuilder(null)}
                     className="w-8 h-8 flex items-center justify-center rounded-full text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors shrink-0 cursor-pointer"
@@ -1118,7 +1124,7 @@ export default function AdminBuilders() {
                       Cancel
                     </button>
                   </div>
-                ) : (
+                ) : mayDelete ? (
                   <button
                     type="button"
                     onClick={() => setDeleteConfirming(true)}
@@ -1127,7 +1133,7 @@ export default function AdminBuilders() {
                     <Trash2 size={14} />
                     <span>Delete</span>
                   </button>
-                )}
+                ) : null}
 
                 <div className="flex items-center gap-2.5 shrink-0">
                   <button
@@ -1135,9 +1141,9 @@ export default function AdminBuilders() {
                     onClick={() => setSelectedBuilder(null)}
                     className="py-2.5 px-4 rounded-xl border border-zinc-200/80 dark:border-zinc-800 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 font-semibold text-xs transition-all active:scale-[0.98] cursor-pointer"
                   >
-                    Cancel
+                    {mayEdit ? 'Cancel' : 'Close'}
                   </button>
-                  <button
+                  {mayEdit && <button
                     type="button"
                     onClick={() => saveEdit(selectedBuilder.id)}
                     disabled={editSaving}
@@ -1145,7 +1151,7 @@ export default function AdminBuilders() {
                   >
                     {editSaving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
                     <span>{editSaving ? 'Saving...' : 'Save Changes'}</span>
-                  </button>
+                  </button>}
                 </div>
               </div>
             </m.div>

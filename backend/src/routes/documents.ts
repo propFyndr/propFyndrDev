@@ -12,7 +12,8 @@ import { supabaseAdmin } from '../lib/supabase'
 import { GoogleGenAI } from '@google/genai'
 import { getGroq } from '../lib/ai/groq'
 import { MODELS } from '../lib/config'
-import { requireAdmin } from '../lib/adminAuth'
+import { requireStaff } from '../lib/adminGuard'
+import { requireRole } from '../lib/adminIdentity'
 import { checkRateLimit } from '../lib/cache'
 import { clientIp } from '../lib/request'
 import { validateUploadedFile } from '../lib/uploadValidator'
@@ -116,7 +117,7 @@ router.get('/', async (req: Request, res: Response) => {
 })
 
 // ── POST /  ───────────────────────────────────────────────────────────────────
-router.post('/', requireAdmin, upload.single('file'), async (req: Request, res: Response) => {
+router.post('/', requireStaff, requireRole('SUPER_ADMIN', 'ANALYST'), upload.single('file'), async (req: Request, res: Response) => {
   const file = req.file
   const project_id   = req.body['project_id'] as string | undefined
   const project_slug = req.body['project_slug'] as string | undefined

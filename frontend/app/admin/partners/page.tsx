@@ -17,6 +17,7 @@ import { Handshake, MagnifyingGlass, SealCheck, MapPin, Plus, X, Check, Prohibit
 import { adminFetch } from '@/lib/adminFetch'
 import CustomSelect, { type SelectOption } from '@/components/admin/CustomSelect'
 import { PageShell, PageHeader, Card, StatCard, PartnerStatusPill, EmptyState, Spinner, ErrorNote } from '@/components/portal/ui'
+import { useAdminRole, canEditCatalogue } from '@/lib/adminRole'
 
 interface Partner {
   id: string
@@ -73,6 +74,7 @@ export default function AdminPartnersPage() {
   const [editingDomainId, setEditingDomainId] = useState<string | null>(null)
   const [domainDraft, setDomainDraft] = useState('')
   const [showForm, setShowForm] = useState(false)
+  const mayEdit = canEditCatalogue(useAdminRole())
   const [saving, setSaving] = useState(false)
   const [form, setForm] = useState({ name: '', type: 'broker', builder_id: '', email: '', phone: '', primary_contact: '' })
 
@@ -184,13 +186,13 @@ export default function AdminPartnersPage() {
         title="Channel partners"
         subtitle="Every broker and agency on the platform, and the builder each one belongs to."
         action={
-          <button
+          mayEdit ? <button
             onClick={() => setShowForm((s) => !s)}
             className="flex items-center gap-2 bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 px-3.5 py-2 rounded-xl text-xs font-bold transition-all shadow-2xs active:scale-[0.98] cursor-pointer"
           >
             {showForm ? <X size={14} weight="bold" /> : <Plus size={14} weight="bold" />}
             {showForm ? 'Cancel' : 'Add partner'}
-          </button>
+          </button> : null
         }
       />
 
@@ -379,7 +381,7 @@ export default function AdminPartnersPage() {
                     <ArrowSquareOut size={13} weight="bold" />Builder console
                   </Link>
                 )}
-                {p.status !== 'approved' && (
+                {mayEdit && p.status !== 'approved' && (
                   <button
                     onClick={() => patchPartner(p.id, { status: 'approved' })}
                     disabled={savingId === p.id}
@@ -388,7 +390,7 @@ export default function AdminPartnersPage() {
                     <Check size={13} weight="bold" />Approve
                   </button>
                 )}
-                {p.status !== 'rejected' && (
+                {mayEdit && p.status !== 'rejected' && (
                   <button
                     onClick={() => reject(p)}
                     disabled={savingId === p.id}
@@ -397,21 +399,21 @@ export default function AdminPartnersPage() {
                     <Prohibit size={13} weight="bold" />Reject
                   </button>
                 )}
-                <button
+                {mayEdit && <button
                   onClick={() => patchPartner(p.id, { is_verified: !p.is_verified })}
                   disabled={savingId === p.id}
                   className="px-3 py-1.5 rounded-lg text-[12px] font-bold border border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-200 hover:bg-zinc-50 dark:hover:bg-zinc-800 disabled:opacity-60 cursor-pointer transition-colors"
                 >
                   {p.is_verified ? 'Unverify' : 'Verify'}
-                </button>
-                <button
+                </button>}
+                {mayEdit && <button
                   onClick={() => patchPartner(p.id, { is_active: !p.is_active })}
                   disabled={savingId === p.id || p.status !== 'approved'}
                   title={p.status !== 'approved' ? 'Approve this partner first' : undefined}
                   className="px-3 py-1.5 rounded-lg text-[12px] font-bold border border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-200 hover:bg-zinc-50 dark:hover:bg-zinc-800 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-colors"
                 >
                   {p.is_active ? 'Deactivate' : 'Activate'}
-                </button>
+                </button>}
               </div>
             </div>
           ))}

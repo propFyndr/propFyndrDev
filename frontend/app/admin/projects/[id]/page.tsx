@@ -27,6 +27,7 @@ import ChannelPartnersEditor from '@/components/admin/ChannelPartnersEditor'
 import CompletenessBar from '@/components/admin/CompletenessBar'
 import ProjectPreview from '@/components/admin/ProjectPreview'
 import AuditChangelogTab from '@/components/admin/AuditChangelogTab'
+import { useAdminRole, canEditCatalogue } from '@/lib/adminRole'
 import { Skeleton } from '@/components/ui/skeleton'
 import { AdminProjectEditorSkeleton } from '@/components/skeletons'
 import Toast from '@/components/Toast'
@@ -300,6 +301,7 @@ export default function AdminProjectEditPage({
   const resolvedParams = typeof (params as any)?.then === 'function' ? use(params as unknown as Promise<{ id: string }>) : (params as { id: string })
   const id = resolvedParams?.id ?? ''
   const [data, setData] = useState<any>(null)
+  const mayEditCatalogue = canEditCatalogue(useAdminRole())
   const [documents, setDocuments] = useState<any[]>([])
   const [completeness, setCompleteness] = useState<any>(null)
   const [loading, setLoading] = useState(true)
@@ -451,6 +453,38 @@ export default function AdminProjectEditPage({
               Try again
             </button>
           </div>
+        </div>
+      </div>
+    )
+  }
+
+  /**
+   * This page is the project EDITOR — eight tabs of write forms plus the
+   * changelog. Sales reads the catalogue from the projects list and the public
+   * property page; every save here, and the changelog itself, is refused for
+   * that role by the server matrix. Offering the editor anyway would mean a
+   * screen whose every control produces a permission error, so it is not
+   * offered.
+   */
+  if (!mayEditCatalogue) {
+    return (
+      <div className="max-w-3xl mx-auto p-6 space-y-4">
+        <Link href="/admin/projects" className="inline-flex items-center gap-1.5 text-sm text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200">
+          <ArrowLeft size={16} />
+          Back to projects
+        </Link>
+        <div className="rounded-2xl border border-zinc-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-6">
+          <h2 className="text-base font-bold text-zinc-900 dark:text-white">{data.name}</h2>
+          <p className="text-sm text-zinc-600 dark:text-zinc-300 mt-2">
+            Editing project records is done by an analyst or super admin. You can see
+            everything buyers see on the public page, and the full list under Projects.
+          </p>
+          <Link
+            href={`/property/${data.slug}`}
+            className="inline-flex items-center gap-2 mt-4 px-3.5 py-2 rounded-xl bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 text-xs font-bold"
+          >
+            Open the buyer-facing page
+          </Link>
         </div>
       </div>
     )

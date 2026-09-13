@@ -33,6 +33,15 @@ export interface PortalNavItem {
   href: string
   label: string
   icon: React.ElementType
+  /**
+   * Roles that may open this section. Omitted means every role this console
+   * admits, which is the right default for a section everyone shares.
+   *
+   * The server is the authority — `lib/adminPolicy.ts` answers 403 whatever
+   * the sidebar renders. This exists so a salesperson is not shown a Team
+   * link that only ever produces a permission error.
+   */
+  roles?: PortalRole[]
 }
 
 export type PortalRole = 'SUPER_ADMIN' | 'ANALYST' | 'SALES' | 'BUILDER' | 'PARTNER'
@@ -100,7 +109,15 @@ export default function PortalShell({ nav, rootHref, rootLabel, allowRoles, scop
     if (!cmdOpen) setCmdQuery('')
   }, [cmdOpen])
 
-  const filteredNav = nav.filter((n) => n.label.toLowerCase().includes(cmdQuery.trim().toLowerCase()))
+  /**
+   * The sections this signed-in role may actually open.
+   *
+   * Computed before the role resolves as "nothing role-restricted", so the
+   * sidebar never flashes a Team link and then removes it.
+   */
+  const visibleNav = nav.filter((n) => !n.roles || (role !== null && n.roles.includes(role)))
+
+  const filteredNav = visibleNav.filter((n) => n.label.toLowerCase().includes(cmdQuery.trim().toLowerCase()))
 
   // Breadcrumbs, derived from whatever sits below rootHref.
   const rest = pathname.startsWith(rootHref) ? pathname.slice(rootHref.length).split('/').filter(Boolean) : []
@@ -301,7 +318,7 @@ export default function PortalShell({ nav, rootHref, rootLabel, allowRoles, scop
 
         {/* Navigation Items */}
         <nav className="flex-1 px-3 py-3 space-y-1 overflow-y-auto">
-          {nav.map((n) => {
+          {visibleNav.map((n) => {
             const isActive = pathname === n.href || (n.href !== rootHref && pathname.startsWith(n.href))
             return (
               <div key={n.href} className="relative group/navitem flex justify-center">

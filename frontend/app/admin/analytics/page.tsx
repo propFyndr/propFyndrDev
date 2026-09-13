@@ -26,6 +26,7 @@ import { adminFetch } from '@/lib/adminFetch'
 import { Skeleton } from '@/components/ui/skeleton'
 import AnalyticsNav from '@/components/admin/AnalyticsNav'
 import AdminInfoTooltip from '@/components/admin/AdminInfoTooltip'
+import { useAdminRole, isOwner } from '@/lib/adminRole'
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip,
   ResponsiveContainer, PieChart, Pie, Cell
@@ -130,6 +131,13 @@ export default function AnalyticsDashboard() {
   const [quality, setQuality] = useState<QualityMetrics | null>(null)
   const [users, setUsers] = useState<UserMetrics | null>(null)
   const [aiCosts, setAiCosts] = useState<AiCostMetrics | null>(null)
+  /**
+   * Spend is SUPER_ADMIN-only (see backend lib/adminPolicy.ts). Every cost
+   * figure below falls back to 0, so without this an analyst would be shown
+   * a confident ₹0 burn rate instead of being told it is not theirs to see.
+   */
+  const [costsRestricted, setCostsRestricted] = useState(false)
+  const maySeeCosts = isOwner(useAdminRole())
   const [marketDemand, setMarketDemand] = useState<MarketDemandItem[]>([])
   const [unmetDemand, setUnmetDemand] = useState<UnmetDemandItem[]>([])
   const [funnelStages, setFunnelStages] = useState<FunnelStage[]>([])
@@ -151,7 +159,8 @@ export default function AnalyticsDashboard() {
         adminFetch('/admin/analytics/summary'),
         adminFetch('/admin/analytics/quality'),
         adminFetch('/admin/analytics/users'),
-        adminFetch('/admin/analytics/ai-costs'),
+        // Spend is super-admin only; asking anyway just buys a guaranteed 403.
+        maySeeCosts ? adminFetch('/admin/analytics/ai-costs') : Promise.resolve(new Response(null, { status: 403 })),
         adminFetch('/admin/analytics/market-demand'),
         adminFetch('/admin/analytics/unmet-demand'),
         adminFetch('/admin/analytics/funnel'),
@@ -169,7 +178,7 @@ export default function AnalyticsDashboard() {
         summaryRes.json().catch(() => null),
         qualityRes.json().catch(() => null),
         usersRes.json().catch(() => null),
-        costsRes.json().catch(() => null),
+        costsRes.ok ? costsRes.json().catch(() => null) : Promise.resolve(null),
         demandRes.json().catch(() => ({ matrix: [] })),
         unmetRes.json().catch(() => ({ ledger: [] })),
         funnelRes.json().catch(() => ({ stages: [] })),
@@ -178,6 +187,7 @@ export default function AnalyticsDashboard() {
       setSummary(summaryData)
       setQuality(qualityData)
       setUsers(usersData)
+      setCostsRestricted(costsRes.status === 403)
       setAiCosts(costsData)
       setMarketDemand(demandData.matrix || [])
       setUnmetDemand(unmetData.ledger || [])
@@ -269,6 +279,16 @@ export default function AnalyticsDashboard() {
           </span>
         </div>
 
+        {costsRestricted ? (
+          <div className="p-4 rounded-xl bg-white dark:bg-zinc-800/60 border border-zinc-200/70 dark:border-zinc-700/50">
+            <p className="text-[12px] text-zinc-600 dark:text-zinc-300 font-semibold">
+              Spend figures are restricted to super admins.
+            </p>
+            <p className="text-[11px] text-zinc-500 dark:text-zinc-400 mt-1">
+              Everything else on this page is available to you.
+            </p>
+          </div>
+        ) : (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {/* Total Cost Spend */}
           <div className="p-4 rounded-xl bg-white dark:bg-zinc-800/60 border border-zinc-200/70 dark:border-zinc-700/50">
@@ -344,6 +364,7 @@ export default function AnalyticsDashboard() {
             </p>
           </div>
         </div>
+        )}
       </div>
 
       {/* ─── KPI SUMMARY ROW ──────────────────────────────────────────────── */}

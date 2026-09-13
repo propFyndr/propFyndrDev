@@ -1,0 +1,149 @@
+// backend/src/lib/adminPolicy.ts
+//
+// Who, among staff, may do what. One file, so the answer is readable in one
+// place rather than inferred from ~130 route registrations.
+//
+// `adminAreaGuard` establishes the floor: only SUPER_ADMIN, ANALYST and SALES
+// reach /admin at all. Until this file existed, that was the whole story —
+// admin.ts guarded every route with `requireAdmin`, which reads no role, so
+// inside the area the three staff roles were identical. Measured live with a
+// real SALES token: it created a builder (201), published a blog post (201),
+// read the audit log and the AI spend, and passed authorization on
+// `DELETE /projects/:id` (404 for a missing row, not 403). Only /team said no.
+//
+// The rules are written against the path RELATIVE TO THE /admin MOUNT, and
+// applied at the mount, so every sibling router inherits them — including ones
+// added later. A policy living inside admin.ts would cover neither /team nor
+// /conversations nor /intelligence, which is the failure `adminGuard.ts`
+// already documents.
+//
+// Deny-by-default for writes: an unrecognised write path is refused for SALES
+// and allowed for ANALYST only because ANALYST *is* the data-editing role.
+// Anything genuinely dangerous is named in SUPER_ADMIN_ONLY or DESTRUCTIVE.
+import type { Request, Response, NextFunction } from 'express'
+import type { AdminIdentitySession } from './adminIdentity'
+
+const READ_METHODS = new Set(['GET', 'HEAD', 'OPTIONS'])
+
+/**
+ * Oversight data. The people subject to an audit trail do not read it, and
+ * real money spent is not a staff-wide number.
+ *
+ * /team and /outbox carry their own SUPER_ADMIN gate in their routers. They are
+ * repeated here deliberately: this file is meant to be the readable answer to
+ * "what can a SALES admin reach", and an answer with holes in it is worse than
+ * no answer. Two independent checks agreeing is the point.
+ */
+const SUPER_ADMIN_ONLY: readonly RegExp[] = [
+  /^\/audit-logs\b/,
+  /^\/analytics\/ai-costs\b/,
+  /^\/team\b/,
+  /^\/outbox\b/,
+]
+
+/**
+ * Irreversible or bulk. Allowed to SUPER_ADMIN alone — deleting a project or a
+ * builder, or replacing the catalogue in one request, should need the person
+ * who can also put it back.
+ */
+const DESTRUCTIVE: ReadonlyArray<{ method: string; path: RegExp }> = [
+  { method: 'DELETE', path: /^\/projects\/[^/]+$/ },
+  { method: 'DELETE', path: /^\/builders\/[^/]+$/ },
+  { method: 'POST', path: /^\/projects\/bulk-import\b/ },
+]
+
+/**
+ * The writes a salesperson actually performs: working a lead. Status,
+ * assignment and notes on callbacks and site visits, and nothing else.
+ *
+ * Everything a salesperson does to the CATALOGUE is a read. They look a project
+ * up to answer a buyer's question; they do not edit it.
+ */
+const SALES_WRITES: readonly RegExp[] = [
+  /^\/leads\/[^/]+$/,
+  /^\/callbacks\/[^/]+$/,
+]
+
+export interface PolicyDecision {
+  allowed: boolean
+  /** Shown to the caller. Names the role floor, never the path's existence. */
+  reason?: string
+}
+
+/**
+ * Pure, so the matrix can be tested without a server or a session.
+ *
+ * `path` is relative to the /admin mount ('/leads', '/projects/abc', '/team').
+ */
+export function decide(
+  role: AdminIdentitySession['role'],
+  method: string,
+  path: string,
+  query: Record<string, unknown> = {},
+): PolicyDecision {
+  const m = method.toUpperCase()
+  const isRead = READ_METHODS.has(m)
+
+  /**
+   * One project's change history is not the company's audit trail.
+   *
+   * `/audit-logs?entity_id=<project>` backs the Changelog tab on the project
+   * detail page — who edited this building's price, possession or RERA number.
+   * An analyst maintains that data, so refusing them its history breaks the tab
+   * for the person it is for. The UNFILTERED log — every actor, every entity,
+   * including team changes — stays with SUPER_ADMIN, which is what was asked
+   * for.
+   */
+  if (/^\/audit-logs\b/.test(path) && typeof query.entity_id === 'string' && query.entity_id) {
+    return role === 'SUPER_ADMIN' || role === 'ANALYST'
+      ? { allowed: true }
+      : { allowed: false, reason: 'Edit history is available to analysts and super admins.' }
+  }
+
+  if (SUPER_ADMIN_ONLY.some(rx => rx.test(path))) {
+    return role === 'SUPER_ADMIN'
+      ? { allowed: true }
+      : { allowed: false, reason: 'This area is restricted to super admins.' }
+  }
+
+  // BUILDER and PARTNER never reach here — adminAreaGuard refuses them at the
+  // door — but the matrix states it rather than relying on that.
+  if (role !== 'SUPER_ADMIN' && role !== 'ANALYST' && role !== 'SALES') {
+    return { allowed: false, reason: 'The admin area is for PropFyndr staff.' }
+  }
+
+  if (role === 'SUPER_ADMIN') return { allowed: true }
+
+  if (DESTRUCTIVE.some(d => d.method === m && d.path.test(path))) {
+    return { allowed: false, reason: 'Deleting records and bulk imports are restricted to super admins.' }
+  }
+
+  if (role === 'ANALYST') return { allowed: true }
+
+  // SALES from here down.
+  if (isRead) return { allowed: true }
+  if (SALES_WRITES.some(rx => rx.test(path))) return { allowed: true }
+  return { allowed: false, reason: 'Sales accounts can update leads. Other changes are made by an analyst or super admin.' }
+}
+
+/**
+ * Mount AFTER the identity and staff-role gates — it reads the session they
+ * attach.
+ */
+export function adminRolePolicy(req: Request, res: Response, next: NextFunction): void {
+  const identity = (req as Request & { adminIdentity?: AdminIdentitySession }).adminIdentity
+  if (!identity) {
+    // No session attached means the gates above did not run. Refuse rather
+    // than assume: a policy that fails open is not a policy.
+    res.status(401).json({ error: 'Unauthorized' })
+    return
+  }
+
+  const verdict = decide(identity.role, req.method, req.path, req.query as Record<string, unknown>)
+  if (!verdict.allowed) {
+    console.warn('[ADMIN:POLICY_DENIED]', { role: identity.role, method: req.method, path: req.path, email: identity.email })
+    res.status(403).json({ error: verdict.reason ?? 'Forbidden — insufficient role' })
+    return
+  }
+  next()
+}
