@@ -241,7 +241,19 @@ function buildDynamicRules(
       `- If the buyer asked for inventory, ask the ONE question you need to search properly, and say why you are asking.\n`
   }
 
-  // Ground truth matched projects from database (Pruned for high efficiency)
+  /**
+   * Ground truth matched projects, serialised COMPACT.
+   *
+   * This was `JSON.stringify(projects, null, 2)`. Pretty-printing is for a
+   * human reading a file; the only reader here is a model that parses either
+   * form identically, and the indentation is billed on every request. On a
+   * twelve-project discovery turn the newlines and leading spaces are a
+   * meaningful slice of the largest block in the prompt — measured live, the
+   * biggest discovery prompt observed was 36,806 tokens against ~14,500 for a
+   * typical one, and this block is what varies between them.
+   *
+   * Nothing is dropped: same fields, same values, same order. Only whitespace.
+   */
   if (projects && projects.length > 0) {
     // 12, not 5. This is a SECOND cap on how many projects reach the model,
     // downstream of the one in chat-router — so raising that one to 12 for a
@@ -273,7 +285,7 @@ function buildDynamicRules(
       })),
       amenities: (p.amenities || []).slice(0, 15).map((a: any) => typeof a === 'string' ? a : a.name)
     }))
-    dynamic += `\n\n## MATCHED PROJECTS IN DATABASE (GROUND TRUTH - FULLY TRACKED & VERIFIED):\n${JSON.stringify(optimizedProjects, null, 2)}`
+    dynamic += `\n\n## MATCHED PROJECTS IN DATABASE (GROUND TRUTH - FULLY TRACKED & VERIFIED):\n${JSON.stringify(optimizedProjects)}`
   }
 
   // Memory block (if any)
