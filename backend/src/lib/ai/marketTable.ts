@@ -86,7 +86,12 @@ export function renderMicroMarketTable(
     // One characterising phrase, not the full tag list: a table the buyer has
     // to scroll sideways on a phone is not a table they read.
     const character = m.dominantSegment || m.lifestyleTags?.slice(0, 2).join(', ') || ABSENT
-    return `| **${cell(m.microMarket)}** | ${cell(m.sectors?.join(', ') ?? '')} | ${cell(rate)} | ${cell(range)} | ${cell(character)} |`
+    // Deduped: the Central Luxury Enclave row printed "Sector 107, Sector 107"
+    // live. The repeat is in the source rows, but a sector listed twice is
+    // never right in any of them, so it is fixed once here rather than chased
+    // per micro-market.
+    const sectors = [...new Set(m.sectors ?? [])].join(', ')
+    return `| **${cell(m.microMarket)}** | ${cell(sectors)} | ${cell(rate)} | ${cell(range)} | ${cell(character)} |`
   })
 
   return `${header}\n${body.join('\n')}`

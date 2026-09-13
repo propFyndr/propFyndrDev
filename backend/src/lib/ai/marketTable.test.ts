@@ -34,6 +34,17 @@ describe('rendered market table', () => {
     assert.match(t, /₹11,000 – ₹15,500/)
   })
 
+  it('never lists the same sector twice in one row', () => {
+    // Measured live: the Central Luxury Enclave row rendered
+    // "Sector 107, Sector 107".
+    const t = renderMicroMarketTable([
+      market({ sectors: ['Sector 107', 'Sector 107', 'Sector 108'] } as Partial<MicroMarketSummary>),
+      market({ microMarket: 'Greater Noida West', avgPricePerSqft: 7000 }),
+    ])
+    assert.match(t, /Sector 107, Sector 108/)
+    assert.doesNotMatch(t, /Sector 107, Sector 107/)
+  })
+
   it('prints an explicit gap rather than inventing a value', () => {
     // The failure this replaces: asked for a rate it did not have, the model
     // wrote "**25–35%** (Metro + Airport + FAR policy)" — a five-year

@@ -163,6 +163,22 @@ export function resolveOrdinalPair(
 }
 
 /**
+ * A message that answers its own pronoun.
+ *
+ * "What is EDC and IDC and do I have to pay them?" was read as pointing at a
+ * shortlist, because `them` sits in the demonstrative arm below. Nothing had
+ * been shown, so the buyer asking the single most common cost-sheet question
+ * got "I've lost track of which options you mean" instead of an answer.
+ *
+ * `them` differs from `these` and `those`: it routinely refers backwards
+ * inside the same sentence. A definition frame followed by enough words to
+ * have named something is that case — the antecedent is in the message, so no
+ * earlier list is needed. The length floor is what keeps a bare "what are
+ * these?" out, which genuinely does need the list.
+ */
+const ANSWERS_ITS_OWN_PRONOUN = /\bwhat\s+(?:is|are|does|do)\b.{12,}?\b(?:them|these|those)\b/is
+
+/**
  * Does this message rely on something shown earlier to mean anything at all?
  *
  * Used to decide that a turn must NOT be handed to the stateless general lane.
@@ -175,7 +191,8 @@ export function needsShownContext(message: string): boolean {
   return (
     ORDINALS.some(([re]) => re.test(text)) ||
     BARE_ORDINALS.some(([re]) => re.test(text)) ||
-    /\b(?:these|those|them|the\s+(?:above|ones?|shortlist|list|options))\b/i.test(text) ||
+    (/\b(?:these|those|them|the\s+(?:above|ones?|shortlist|list|options))\b/i.test(text) &&
+      !ANSWERS_ITS_OWN_PRONOUN.test(text)) ||
     /\bwhich\s+(?:of\s+)?(?:these|those|them)\b/i.test(text) ||
     /\bfirst\s+(?:two|three|four|couple)\b/i.test(text) ||
     SUPERLATIVES.some(([re]) => re.test(text))

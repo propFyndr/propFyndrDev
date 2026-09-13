@@ -1,6 +1,6 @@
 import { describe, it } from 'node:test'
 import assert from 'node:assert/strict'
-import { isReraProcessQuestion, isPaymentPlanRequest } from '../topicFlags'
+import { isReraProcessQuestion, isPaymentPlanRequest, isReraGuaranteeQuestion } from '../topicFlags'
 
 describe('rera process question', () => {
   it('catches the phrasing that was misrouted to the builder scorecard', () => {
@@ -24,6 +24,34 @@ describe('rera process question', () => {
     'compare Sector 75 and Sector 150',
   ]) {
     it(`leaves alone: ${q}`, () => assert.equal(isReraProcessQuestion(q), false))
+  }
+})
+
+describe('rera guarantee question', () => {
+  // "Does a UP RERA registration guarantee on-time delivery?" is among the most
+  // asked diligence questions in Noida. It matched no playbook, and `on-time
+  // delivery` sits in the builder reputation regex — so it was answered with a
+  // league table of six developers, none of it addressing the question.
+  for (const q of [
+    'Does a UP RERA registration guarantee on-time delivery?',
+    'Does a registered UP RERA number guarantee that a project will not face construction delays?',
+    'will RERA prevent possession delays',
+    'is delivery guaranteed if the project is RERA registered',
+  ]) {
+    it(`routes to the RERA answer: ${q.slice(0, 46)}`, () => {
+      assert.equal(isReraGuaranteeQuestion(q), true)
+      // It must also clear the process flag, because that is what excludes the
+      // builder scorecard from claiming the turn first.
+      assert.equal(isReraProcessQuestion(q), true)
+    })
+  }
+
+  for (const q of [
+    'which builders in Noida have the best on-time delivery record',
+    'how do I check RERA for a project',
+    'when is possession for Ace Divino',
+  ]) {
+    it(`leaves alone: ${q}`, () => assert.equal(isReraGuaranteeQuestion(q), false))
   }
 })
 

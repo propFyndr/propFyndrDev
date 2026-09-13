@@ -1,4 +1,22 @@
 import type { ChatTopicHandler } from '../handlerContext'
+import { isReraGuaranteeQuestion } from '../topicFlags'
+
+/**
+ * What a RERA registration does and does not promise.
+ *
+ * Prepended only when the buyer asked about the guarantee rather than about
+ * our process, because answering "does RERA guarantee delivery?" with "here is
+ * how we verify projects" answers a question they did not ask.
+ */
+const GUARANTEE_ANSWER = `### A RERA registration is recourse, not a guarantee
+
+No — a UP RERA registration does not guarantee that a project completes on time. It is an enforcement mechanism that engages **after** a delay: it gives you a registered completion date to hold the promoter to, a forum to file in, and a right to interest or refund. It does not make the tower rise faster.
+
+What it does enforce while building is the money: **70% of every buyer payment must sit in a project escrow account**, withdrawable only against certified construction progress, audited annually under Form 7. That is real protection against funds being moved to another project — the most common cause of a stalled one.
+
+**The better predictor is the builder's own record.** A promoter's last two or three delivered projects — how many units, how many months late — tell you more about your handover date than the registration number does. We hold that record per builder and show it plainly, delays included.
+
+`
 
 /**
  * "How do I verify a project's RERA registration / is this builder in trouble?"
@@ -23,7 +41,8 @@ export const reraVerificationHandler: ChatTopicHandler = {
   matches: ctx => ctx.flags.isReraCheckQuery === true,
 
   handle: async ctx => {
-    const text = `### How we verify a project
+    const asksAboutGuarantee = isReraGuaranteeQuestion(ctx.message)
+    const text = `${asksAboutGuarantee ? GUARANTEE_ANSWER : ''}### How we verify a project
 
 Every project on PropFyndr is screened against four records before it is listed, and each one is shown on the project page:
 
@@ -45,7 +64,9 @@ If you want the underlying filing for a specific project, our advisory team can 
     ctx.send('token', { token: text })
     ctx.emitUiState({
       stage: 'RESEARCH',
-      thinking: 'How we verify RERA registration and legal standing:',
+      thinking: asksAboutGuarantee
+        ? 'What a RERA registration actually protects:'
+        : 'How we verify RERA registration and legal standing:',
       chips,
       missingFields: [],
       // Describes our own verification process — nothing here is a claim about

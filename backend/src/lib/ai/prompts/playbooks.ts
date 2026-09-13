@@ -76,7 +76,10 @@ When an investor seeks rental income or ROI:
 
   nri: {
     matches: (m, i) =>
-      /\b(nri|overseas|abroad|from (dubai|singapore|usa|uk|canada|australia)|remote(ly)? (buy|purchase|register)|fema|repatriat|power of attorney|fraud protection|is it safe to buy)\b/i.test(m) ||
+      // `\bnri\b` never matches "NRIs", which is how the question is usually
+      // written ("are NRIs driving up prices?") — same inflection miss as
+      // `\brelocat\b` on "relocating".
+      /\b(nris?|overseas|abroad|from (dubai|singapore|usa|uk|canada|australia)|remote(ly)? (buy|purchase|register)|fema|repatriat|power of attorney|fraud protection|is it safe to buy)\b/i.test(m) ||
       i?.riskProfile === 'nri' ||
       i?.journeyStage === 'nri_investor',
     text: `### OVERSEAS / NRI CAPITAL ALLOCATOR PLAYBOOK
@@ -108,7 +111,7 @@ When asked where the richest people, industrialists, or CXOs live in Noida, or r
 
   pricing: {
     matches: (m, i) =>
-      /\b(too much|worth it|price viability|what can i get|rates? in|compare rates|per sq\.?\s?ft|psf|circle rate|overpriced|value for money|fair price)\b/i.test(m) ||
+      /\b(too much|worth it|price viability|what can i get|rates? in|compare rates|per sq\.?\s?ft|psf|circle rate|overpriced|value for money|fair price|makes? (?:financial |any )?sense|justified at)\b/i.test(m) ||
       i?.journeyStage === 'market_evaluator',
     text: `### MARKET EVALUATOR, PRICING & BUDGET FEASIBILITY PLAYBOOK
 When a user asks about price viability (e.g. "Is 2 crore too much for a 3 BHK in Noida?", "What can I get in ₹1.5 Cr?", "Compare rates in Sector 75 vs 150"):
@@ -125,7 +128,10 @@ When a user asks about price viability (e.g. "Is 2 crore too much for a 3 BHK in
 
   legalDueDiligence: {
     matches: (m) =>
-      /\b(leasehold|freehold|transfer memorandum|\btm\b|transfer charges?|society ndc|rwa ndc|sub[- ]lease|document chain|registry delay|delayed registry|registry\s*(?:blocked|freeze|pending|stall)|physical\s+keys|token money|clean title|authority dues|land dues|dakhil kharij|authority seal|sealing|kisan quota|abadi plot|unauthorized plotting|virasat|chakbandi)\b/i.test(m),
+      // `registry delay` does not match "registry delayed" — the `\b` lands
+      // mid-word. Buyers write the inflected form ("why is the registry
+      // delayed even after possession?"), which reached no playbook at all.
+      /\b(leasehold|freehold|transfer memorandum|\btm\b|transfer charges?|society ndc|rwa ndc|sub[- ]lease|document chain|registry\s*delay\w*|delayed\s*registr\w*|registry\s*(?:blocked|freeze|pending|stall)|physical\s+keys|token money|clean title|authority dues|land dues|dakhil kharij|mutation certificate|encumbrance|bar[- ]?mukti|authority seal|sealing|kisan quota|abadi plot|unauthorized plotting|virasat|chakbandi)\b/i.test(m),
     text: `### LEGAL DUE DILIGENCE & TITLE STRUCTURE PLAYBOOK
 When the user asks about leasehold vs freehold, Transfer Memorandum, delayed registries, or title diligence:
 - **Authority Leasehold (90 to 99 Years)**: Residential land in NOIDA, GNIDA, and YEIDA is allotted on a **90 to 99-year leasehold basis**. The authority holds underlying land title; the homebuyer owns the apartment structure and holds a registered tripartite sub-lease deed. Blanket freehold conversion remains deferred by UP state policy because local authorities rely on lease rent and transfer revenues for regional infrastructure.
@@ -133,12 +139,18 @@ When the user asks about leasehold vs freehold, Transfer Memorandum, delayed reg
 - **RWA/Society NDC vs Authority NDC**: Highlight that an RWA/Society NDC only clears internal maintenance bills and electricity meters. It does **NOT** verify that the developer has cleared multi-crore land dues and one-time lease rent with the Authority. If builder authority dues are pending, sub-lease deed registration remains legally stalled even after keys/possession are handed over.
 - **Authority Sealing on Builder Dues**: Authority cannot seal individual flats where a tripartite sub-lease deed is officially registered and stamp duty paid. However, in projects with pending land dues where registry is embargoed, buyers only hold possession letters without registered title—leaving them vulnerable to builder account attachments and administrative freezes.
 - **Kisan Quota 5% & 6% Abadi Plots**: Extreme caution required. 5% & 6% farmer rehabilitation plots cannot be legally transferred before the mandatory lock-in period and formal lease execution. Verify the complete genealogical tree (Virasat) and Chakbandi revenue records before releasing token funds.
+- **Bank Finance on Leasehold**: Lenders do finance 90/99-year authority leasehold property — leasehold by itself is not a loan blocker. What blocks the loan is a missing *registered* lease or sub-lease deed: banks will not sanction against an allotment letter or a possession letter alone, because neither conveys registered title they can mortgage. If a project's registry is stalled on builder land dues, expect financing to be stalled with it.
+- **Encumbrance Certificate (Bar-Mukti)**: The record of registered charges and mortgages against the property over a stated period. It proves nobody else holds a registered claim; it does not prove the seller's title chain is clean, which is what the document chain below is for. Ask for both.
 - **10-Step Document Chain for Resale**: Original Allotment Letter -> Builder Buyer Agreement (BBA) -> Tripartite Sub-Lease Deed / Possession Certificate -> Registered Transfer Deeds (for resale chain) -> Authority Transfer Memorandum (TM) -> Authority No Dues Certificate (NDC) -> Society/RWA NDC -> Electricity Load Transfer -> Mutation Record (Dakhil Kharij) -> Non-Encumbrance Certificate.`,
   },
 
   landedCostAndTax: {
     matches: (m) =>
-      /\b(under[- ]construction|ready[- ]to[- ]move|gst on (flat|property|apartment)|\d+%\s*gst|carpet (area )?vs super|loading percentage|loading %|hidden costs?|one[- ]time lease rent|bsp vs landed|section 54|194[- ]?ia|tds on property|capital gains|dg backup rate|power backup rate|construction quality|mivan)\b/i.test(m),
+      // The cost stack is asked line by line, not only as "hidden costs" —
+      // EDC, IDC, PLC, IFMS, club membership, ITC and ground rent each reached
+      // no playbook on their own, and none of them is a project row, so the
+      // generic path had nothing to answer from either.
+      /\b(under[- ]construction|ready[- ]to[- ]move|gst on (flat|property|apartment)|\d+%\s*gst|input tax credit|\bitc\b|carpet (area )?(vs|versus) super|loading percentage|loading %|hidden costs?|one[- ]time lease rent|ground rent|\bedc\b|\bidc\b|external development charges?|infrastructure development charges?|preferential location|\bplc\b|\bifms\b|maintenance security|club membership|bsp vs landed|section 54|194[- ]?ia|tds on property|capital gains|dg backup rate|power backup rate|floor area ratio|\bfar\s+(?:is|of|limit|policy|allowed|norms?)\b|construction quality|mivan)\b/i.test(m),
     text: `### LANDED COST, TAXATION & SPATIAL EFFICIENCY PLAYBOOK
 When the user asks about under-construction vs ready-to-move, GST impact, hidden costs, or carpet area:
 - **GST Disparity (UC vs RTM)**: Non-affordable under-construction flats attract **5% GST** (without Input Tax Credit). In contrast, Ready-to-Move (RTM) flats with a valid Occupancy Certificate (OC) attract **0% GST**. On a ₹1.5 Crore apartment, this represents an immediate ₹7.50 Lakh tax difference.
@@ -151,13 +163,23 @@ When the user asks about under-construction vs ready-to-move, GST impact, hidden
 - **Capital Gains Tax & TDS (Section 54 & 194-IA)**: 
   - **Section 54 / 54F Exemption**: Long-term capital gains tax can be saved by investing in a residential property within 2 years of sale (or 3 years for construction), capped at ₹10 Crore.
   - **TDS Section 194-IA**: Buyer MUST deduct 1% TDS on total property consideration (including parking, club, and EDC/IDC) if transaction value is ₹50 Lakh or more, and deposit via Form 26QB.
+- **Input Tax Credit (ITC)**: The 5% under-construction rate is the *without-ITC* rate. A buyer cannot claim input tax credit on a home purchase, and the builder cannot pass it through either — so there is no ITC offset to net against that 5%. Treat the GST as a straight addition to the landed cost.
+- **What each line item on the cost sheet actually is** (the *rate* for any one project is a project fact — quote it only from that project's own rows, and say you do not hold it rather than quoting a typical figure):
+  - **EDC / IDC** — External and Infrastructure Development Charges, levied by the authority for trunk infrastructure and passed through by the builder. Usually quoted per sq.ft on top of BSP.
+  - **PLC** — Preferential Location Charges for a park, corner, road or floor-rise advantage. Negotiable, and the only line item on this list that buys nothing structural.
+  - **IFMS** — Interest-Free Maintenance Security, a one-time deposit held against future maintenance default. It is a deposit, not a fee: it transfers to the RWA on handover and is refundable on exit, net of dues.
+  - **Club membership** — typically a mandatory one-time charge in group housing, not an optional add-on; confirm in the BBA whether it is one-time or recurring.
+- **Annual Ground Rent vs One-Time Lease Rent**: Paying the one-time lease rent (10% of land cost) before lease deed execution extinguishes the recurring annual ground rent. If it was *not* settled, annual lease rent stays payable to the authority and is periodically revised at the authority's prevailing rate — a resale buyer inherits that liability, so confirm the one-time payment on the seller's documents before the TM.
+- **Floor Area Ratio (FAR)**: UP permits FAR up to 4.0 in group housing under current policy, with no ground-coverage cap. Higher FAR means more saleable area on the same land — which is why newer towers on the same plot size run taller and denser.
 - **Carpet Area vs Super Built-up (Loading)**: Super built-up area includes common corridors, lift shafts, and lobbies, resulting in a **25% to 35% loading factor** in NCR high-rises. Always evaluate price per square foot on net usable RERA Carpet Area.
 - **Construction Quality Architecture**: Mivan monolithic aluminum shuttering provides seamless shear wall strength and high seismic resistance (Zone IV), eliminating brick masonry cracks, though interior walls cannot be altered. Precast concrete requires rigorous joint sealant monitoring against monsoon water ingress.`,
   },
 
   yeidaJewarVerification: {
     matches: (m) =>
-      /\b(jewar|jewar airport|yeida|unauthorized plotting|plotting near airport|illegal colon(y|ies)|yeida plot|expressway investment)\b/i.test(m),
+      // "Yamuna Expressway" is how the corridor is named in half the questions
+      // about it; without it, a YEIDA resale-cost question matched nothing.
+      /\b(jewar|jewar airport|yeida|yamuna expressway|noida international airport|aerotropolis|unauthorized plotting|plotting near airport|illegal colon(y|ies)|yeida plot|expressway investment|total transaction cost)\b/i.test(m),
     text: `### JEWAR AIRPORT & YEIDA CORRIDOR DUE DILIGENCE PLAYBOOK
 When evaluating investments near Noida International Airport (Jewar) or Yamuna Expressway (YEIDA):
 - **Approved Sectors vs Unauthorized Colonization**: Strictly verify that any plotted scheme is an officially notified YEIDA sector (e.g., Sector 17, 18, 20, 22D) with an official YEIDA allotment letter. Reject private unapproved agricultural colonies and 'farmhouse' plotting sold under deceptive airport proximity marketing—these violate Section 10 of the UP Industrial Area Development Act 1976 and carry immediate demolition risks.
@@ -167,7 +189,11 @@ When evaluating investments near Noida International Airport (Jewar) or Yamuna E
 
   livabilityWater: {
     matches: (m) =>
-      /\b(ganga\s+water|groundwater|salin(?:ity|e)|tds|borewell|water\s+supply|drinking\s+water|water\s+quality|waterlogging|flood\s*risk|power\s+cuts?|dg\s+power\s+unit|electricity\s+tariff)\b/i.test(m),
+      // A bare `tds` also claimed "TDS on property purchase under 194-IA",
+      // which is a tax question, not a water one. Water context is required;
+      // `water supply` already carries the wording that mattered.
+      // `dg power unit` never matched "DG power backup per unit".
+      /\b(ganga\s+water|groundwater|salin(?:ity|e)|tds\s*(?:ppm|level)|water\s*tds|borewell|water\s+supply|drinking\s+water|water\s+quality|waterlogging|flood\s*risk|power\s+cuts?|dg\s+power|power\s+backup|electricity\s+tariff)\b/i.test(m),
     text: `### LIVABILITY, WATER SOURCE & CIVIC INFRASTRUCTURE PLAYBOOK
 When the user asks about water supply, groundwater TDS, or civic livability:
 - **Ganga Water vs Groundwater Salinity**: Explain the critical distinction between Ganga Water supply (treated surface water with healthy TDS below 300 ppm, low scale buildup) vs raw groundwater borewells (high mineral salinity with TDS exceeding 2,000–3,500 ppm, requiring heavy RO treatment, causing rapid corrosion of bathroom fittings and geysers).
@@ -180,6 +206,42 @@ When the user asks about water supply, groundwater TDS, or civic livability:
 const MAX_PLAYBOOKS = 2
 
 /**
+ * Which playbook survives the cut when more than `MAX_PLAYBOOKS` match.
+ *
+ * Selection used to take `Object.keys` order, which put the five persona
+ * frameworks (relocation, first-time, yield, NRI, luxury) ahead of the four
+ * that carry actual statutory content. "Is it safe to buy a YEIDA plot near
+ * Jewar as an NRI, and what are the transfer charges?" therefore dropped the
+ * Jewar corridor framework — the one part of that question we can answer
+ * precisely — in favour of a persona framing the answer did not need.
+ *
+ * A persona playbook tells the model who it is talking to. A factual one tells
+ * it what is true. When only two fit, what is true goes first.
+ */
+export const SELECTION_ORDER: readonly PlaybookId[] = [
+  'legalDueDiligence',
+  'landedCostAndTax',
+  'yeidaJewarVerification',
+  'livabilityWater',
+  'pricing',
+  'nri',
+  'yield',
+  'firstTime',
+  'relocation',
+  'luxury',
+]
+
+function hitsFor(message: string, intent?: Partial<Intent>): PlaybookId[] {
+  return SELECTION_ORDER.filter(id => {
+    try {
+      return PLAYBOOKS[id].matches(message, intent)
+    } catch {
+      return false
+    }
+  })
+}
+
+/**
  * The playbooks worth sending this turn.
  *
  * Returns '' when none match and the turn carries no buyer signal — an early
@@ -187,14 +249,7 @@ const MAX_PLAYBOOKS = 2
  * largest avoidable thing in the prompt.
  */
 export function selectPlaybooks(message: string, intent?: Partial<Intent>): string {
-  const m = message ?? ''
-  const hits = (Object.keys(PLAYBOOKS) as PlaybookId[]).filter(id => {
-    try {
-      return PLAYBOOKS[id].matches(m, intent)
-    } catch {
-      return false
-    }
-  })
+  const hits = hitsFor(message ?? '', intent)
 
   if (hits.length === 0) return ''
 
@@ -214,7 +269,5 @@ export function selectPlaybooks(message: string, intent?: Partial<Intent>): stri
 /** Exposed for the test that pins which situations select which framework. */
 export const PLAYBOOK_IDS = Object.keys(PLAYBOOKS) as PlaybookId[]
 export function matchedPlaybooks(message: string, intent?: Partial<Intent>): PlaybookId[] {
-  return (Object.keys(PLAYBOOKS) as PlaybookId[])
-    .filter(id => PLAYBOOKS[id].matches(message ?? '', intent))
-    .slice(0, MAX_PLAYBOOKS)
+  return hitsFor(message ?? '', intent).slice(0, MAX_PLAYBOOKS)
 }

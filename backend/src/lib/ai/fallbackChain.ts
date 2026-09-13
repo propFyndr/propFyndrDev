@@ -1,6 +1,6 @@
 // backend/src/lib/ai/fallbackChain.ts
 import { FALLBACK_CHAIN, FallbackKeyConfig, isFreeTierKey, vendorOf, groqReplyCeiling } from '../config'
-import { checkAnswerIntegrity, checkAnswerIntegritySync, rewriteFraming } from './answerIntegrity'
+import { checkAnswerIntegrity, checkAnswerIntegritySync, rewriteFraming, qualifyMarketFigures } from './answerIntegrity'
 import { warmKnownNames } from './toolBlindGuard'
 
 /**
@@ -296,13 +296,26 @@ function createBufferedSend(
       return
     }
 
-    if (flushed) {
-      // The restart bug this guards against happens well past the first
-      // paragraph almost every time — the answer's later paragraphs (a
-      // table, then a recommendation) all flow through THIS branch, not
-      // `releaseCompleteParagraphs`, once `flushed` is set. That check alone
-      // only ever protected the first paragraph transition; this is the
-      // rest of the stream.
+    // `releaseByParagraph` excluded deliberately. This branch is the OTHER
+    // mode's path — prefix buffer, then a held tail — and letting paragraph
+    // mode fall into it once `flushed` was set broke two things at once,
+    // reproduced live on "why is flat registry delayed even after physical
+    // possession?":
+    //
+    //   - Whatever sat in `buffer` after the first `\n\n` cut was stranded.
+    //     Every later token went to `tail` instead, so that remainder — the
+    //     word "While", which opened the second paragraph — was emitted by
+    //     `flushRemaining` at the very END. The buyer read a paragraph
+    //     starting " a Society NDC only clears…" and a bare "While" after it.
+    //   - `flushRemaining`'s paragraph branch only ever empties `buffer`, so
+    //     the ~180 characters held in `tail` were never sent at all. The
+    //     answer stopped mid-word, on "stalling the executi".
+    //
+    // In paragraph mode every token belongs in `buffer`, and
+    // `releaseCompleteParagraphs` is what releases it, in order. Its own
+    // restart check plus the one in `flushRemaining` cover the later
+    // paragraphs this branch was reaching for.
+    if (flushed && !releaseByParagraph) {
       if (poisoned) return
       tokensSent = true
       if (STREAM_TAIL_HOLD_CHARS <= 0) {
@@ -403,7 +416,10 @@ function createBufferedSend(
      * as rewriting the whole answer, so the screen, the transcript and the
      * cache still agree.
      */
-    forwardToken(rewriteFraming(complete).text)
+    // House style first, then the market-tier qualifier — the scan above read
+    // the raw words, and both of these only ever add or reword a clause.
+    const framedParagraph = rewriteFraming(complete).text
+    forwardToken(qualifyMarketFigures(framedParagraph, systemPrompt).text)
   }
 
   /**
@@ -839,6 +855,12 @@ export async function executeWithFallbackChain(options: FallbackChainOptions): P
           console.log(`[FALLBACK:REFRAMED] ${item.label} — ${framed.rewrites} house-style phrase(s) rewritten`)
           replaceBufferedText(framed.text)
           text = framed.text
+        }
+        const qualified = qualifyMarketFigures(text, systemPrompt)
+        if (qualified.qualified > 0) {
+          console.log(`[FALLBACK:MARKET_QUALIFIED] ${item.label} — ${qualified.qualified} unverified rate claim(s) labelled`)
+          replaceBufferedText(qualified.text)
+          text = qualified.text
         }
       }
 

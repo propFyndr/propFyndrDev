@@ -21,7 +21,21 @@
  * ordinary way to ask it ("verify whether ... is RERA compliant") missed.
  */
 export const isReraProcessQuestion = (text: string): boolean =>
-  /(blacklist|nclt|insolven|defaulter|check rera|verify rera|rera website|rera portal|rera status|is.*rera registered|rera complian|(verify|check|confirm)[^.?]{0,40}\brera\b)/i.test(text)
+  /(blacklist|nclt|insolven|defaulter|check rera|verify rera|rera website|rera portal|rera status|is.*rera registered|rera complian|(verify|check|confirm)[^.?]{0,40}\brera\b|\brera\b[^.?]{0,60}(guarantee|ensure|prevent|protect against|stop)|(guarantee|ensure|prevent)[^.?]{0,40}\brera\b|uprerapr)/i.test(text)
+
+/**
+ * A question about what a RERA registration *promises*, not how we check it.
+ *
+ * "Does a UP RERA registration guarantee on-time delivery?" reached neither
+ * this flag nor any playbook, and `on-time delivery` sits in the builder
+ * reputation regex — so the single most-asked diligence question in Noida was
+ * answered with a league table of six developers. It is a question about the
+ * limits of a statute, and the honest answer is that RERA is recourse after a
+ * delay, not insurance against one.
+ */
+export const isReraGuaranteeQuestion = (text: string): boolean =>
+  /\b(guarantee|guaranteed|ensure|prevent|protect(?:ion)? against|stop)\b[^.?]{0,60}\b(deliver\w*|delay\w*|possession|on[- ]?time)\b|\b(deliver\w*|delay\w*|possession|on[- ]?time)\b[^.?]{0,60}\b(guarantee[ds]?|ensured?)\b/i.test(text) &&
+  /\brera\b|uprerapr/i.test(text)
 
 /**
  * A request for a payment SCHEDULE, not a mention of money the buyer holds.

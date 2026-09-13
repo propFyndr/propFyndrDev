@@ -164,6 +164,25 @@ describe('ordinal references', () => {
     }
   })
 
+  it('does not read a referent out of a pronoun the message answers itself', () => {
+    // "What is EDC and IDC and do I have to pay them?" was answered with "I've
+    // lost track of which options you mean" — `them` points at the two charges
+    // the same sentence just named, not at a shortlist that was never shown.
+    for (const q of [
+      'What is EDC and IDC and do I have to pay them?',
+      'what are IFMS and club charges and are they refundable, do I pay them upfront',
+      'What is a Transfer Memorandum and who pays for these charges',
+    ]) {
+      assert.equal(needsShownContext(q), false, q)
+    }
+  })
+
+  it('still needs the list for a pronoun with no antecedent of its own', () => {
+    for (const q of ['what are these?', 'tell me about them', 'compare these', 'which of these is cheapest']) {
+      assert.equal(needsShownContext(q), true, q)
+    }
+  })
+
   it('resolves nothing when no list has been shown', () => {
     assert.equal(resolveOrdinalReference('tell me about the first one', []), null)
   })
