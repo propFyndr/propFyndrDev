@@ -8,7 +8,7 @@ import { ChatMessage, NearbyExpansion } from '@/types/property';
 import type { ProjectCard as ProjectCardType } from '@/types/project';
 import Toast from '@/components/Toast';
 import { API_BASE } from '@/lib/env'
-import { track } from '@/lib/analytics';
+import { track, trackSearch } from '@/lib/analytics';
 import { streamChat as streamChatBackend } from '@/lib/backend-api'
 import {
   applyStreamEvent,
@@ -757,6 +757,10 @@ export default function DiscoveryContent({ userId, guestToken, onSessionChange, 
 
     setChatTurnCount(c => c + 1);
     if (chatTurnCount === 0) track('chat_started', { session_id: sessionId })
+    track('message_sent', { session_id: sessionId, action_type: action.type, text_length: userText.length })
+    if (userText) {
+      trackSearch(userText, { session_id: sessionId, action_type: action.type })
+    }
     setChatInput('');
 
 

@@ -37,6 +37,7 @@
 // binning a good answer over a house-style slip is the more expensive error.
 
 import { checkToolBlindAnswer, checkToolBlindAnswerSync, type ToolBlindViolation } from './toolBlindGuard'
+import { MARKET_QUALIFIER } from '../factPresentation'
 
 export type IntegrityKind =
   | 'fabrication'
@@ -328,6 +329,70 @@ export function rewriteFraming(text: string): { text: string; rewrites: number }
     })
   }
   return { text: out, rewrites }
+}
+
+/**
+ * Rate-shaped claims that must not be stated as though we verified them.
+ *
+ * Deliberately only two shapes, both of which are market claims by
+ * construction:
+ *
+ *   a price per square foot  — "₹9,600/sqft", "₹11,000 per sq ft"
+ *   a growth or yield rate   — "18% appreciation", "7% CAGR", "3% rental yield"
+ *
+ * Percentages generally are NOT here, and must not be: UP stamp duty at 7%,
+ * registration at 1% and GST at 5% are statutory, identical for every project,
+ * and attaching "not verified for this project" to a rate fixed by law would
+ * make the answer worse, not more honest.
+ */
+const MARKET_RATE_SHAPES: readonly RegExp[] = [
+  /₹\s?[\d,]+(?:\.\d+)?(?:\s*[–—-]\s*₹?\s?[\d,]+(?:\.\d+)?)?\s*(?:\/|per\s+)sq\.?\s?(?:ft|feet)\b/gi,
+  /\b\d+(?:\.\d+)?\s*(?:%|per\s?cent)\s*(?:[a-z-]+\s+){0,2}?(?:appreciation|CAGR|growth|returns?|rental\s+yield|yield)\b/gi,
+]
+
+/** Digits as they appear in a figure, for checking the number against the prompt. */
+function digitsOf(figure: string): string[] {
+  return (figure.match(/[\d,]+(?:\.\d+)?/g) ?? []).map(d => d.replace(/,/g, ''))
+}
+
+/**
+ * Attach the market qualifier to rate claims the prompt does not support.
+ *
+ * Measured live on a beta pass: "How will the Jewar airport impact property
+ * prices?" was answered with plot prices "tripling in many pockets to reach
+ * around ₹9,6xx/sqft", and a YEIDA transaction-cost answer quoted a 1%
+ * brokerage — both stated flatly, neither traceable to any row we hold.
+ * `checkAnswerIntegrity` did not object because it guards PROJECT facts, and a
+ * Noida-wide rate is not a project fact. CLAUDE.md's market tier says such a
+ * figure is usable but must carry its qualifier every single time.
+ *
+ * A rewrite rather than a rejection, for the same reason `rewriteFraming` is:
+ * the sentence is useful and the fix is one clause. A figure whose digits
+ * appear in the injected facts block is ours and is left exactly as written.
+ */
+export function qualifyMarketFigures(text: string, prompt: string): { text: string; qualified: number } {
+  if (!text) return { text, qualified: 0 }
+  // Cheap reject: nothing to do for the large majority of answers.
+  if (!/sq\.?\s?(?:ft|feet)|appreciation|CAGR|yield|growth|returns?/i.test(text)) {
+    return { text, qualified: 0 }
+  }
+
+  const promptDigits = (prompt.match(/[\d,]+(?:\.\d+)?/g) ?? []).map(d => d.replace(/,/g, ''))
+  let out = text
+  let qualified = 0
+
+  for (const shape of MARKET_RATE_SHAPES) {
+    out = out.replace(shape, (match, offset: number, whole: string) => {
+      // Already carries it — a second copy in the same sentence reads as noise.
+      if (whole.slice(offset, offset + match.length + 80).includes(MARKET_QUALIFIER)) return match
+      // Ours: the number came from the rows we handed the model.
+      if (digitsOf(match).some(d => promptDigits.includes(d))) return match
+      qualified++
+      return `${match} (${MARKET_QUALIFIER})`
+    })
+  }
+
+  return { text: out, qualified }
 }
 
 /**
