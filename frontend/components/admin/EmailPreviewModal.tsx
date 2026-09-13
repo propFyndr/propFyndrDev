@@ -94,8 +94,8 @@ export default function EmailPreviewModal({
   const generatedInviteLink =
     inviteLink ||
     (typeof window !== 'undefined'
-      ? `${window.location.origin}/admin/join?token=prp_demo_invite_token`
-      : 'https://propfyndr.in/admin/join?token=prp_demo_invite_token')
+      ? `${window.location.origin}/admin/accept-invite?token=prp_demo_invite_token`
+      : 'https://propfyndr.in/admin/accept-invite?token=prp_demo_invite_token')
 
   // Subject line computation
   const subject =

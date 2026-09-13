@@ -1,12 +1,13 @@
 'use client'
 
-import { useState, Suspense } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { CheckCircle, Eye, EyeSlash, CircleNotch, WarningCircle, LockKey } from '@phosphor-icons/react'
 import { API_BASE } from '@/lib/env'
 
 function AcceptInviteForm() {
+  const [mounted, setMounted] = useState(false)
   const params = useSearchParams()
   const router = useRouter()
   const token = params.get('token') ?? ''
@@ -16,6 +17,11 @@ function AcceptInviteForm() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [done, setDone] = useState(false)
+  const [isDemo, setIsDemo] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -23,19 +29,37 @@ function AcceptInviteForm() {
     if (password !== confirm) { setError('Passwords do not match.'); return }
     setLoading(true)
     setError('')
-    const res = await fetch(`${API_BASE}/admin/team/accept-invite`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ token, password }),
-    })
-    setLoading(false)
-    if (res.ok) {
-      setDone(true)
-      setTimeout(() => router.push('/admin/login'), 1500)
-    } else {
+    try {
+      const res = await fetch(`${API_BASE}/admin/team/accept-invite`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token, password }),
+      })
       const data = await res.json().catch(() => ({}))
-      setError(data.error || 'This invite is invalid or has expired.')
+      setLoading(false)
+      if (res.ok) {
+        setIsDemo(Boolean(data.isDemo))
+        setDone(true)
+        setTimeout(() => router.push('/admin/login'), 2200)
+      } else {
+        setError(data.error || 'This invite is invalid or has expired.')
+      }
+    } catch {
+      setLoading(false)
+      setError('Unable to reach authentication service. Please check your network.')
     }
+  }
+
+  if (!mounted) {
+    return (
+      <div className="glass-card rounded-[var(--radius-2xl)] p-6 space-y-4 animate-pulse">
+        <div className="h-4 bg-zinc-200 dark:bg-zinc-800 rounded w-1/3" />
+        <div className="h-10 bg-zinc-200 dark:bg-zinc-800 rounded" />
+        <div className="h-4 bg-zinc-200 dark:bg-zinc-800 rounded w-1/3" />
+        <div className="h-10 bg-zinc-200 dark:bg-zinc-800 rounded" />
+        <div className="h-11 bg-zinc-300 dark:bg-zinc-700 rounded" />
+      </div>
+    )
   }
 
   if (!token) {
@@ -49,15 +73,40 @@ function AcceptInviteForm() {
 
   if (done) {
     return (
-      <div className="glass-card rounded-[var(--radius-2xl)] p-6 flex items-start gap-3">
-        <CheckCircle size={20} className="text-[var(--color-success)] shrink-0 mt-0.5" weight="fill" />
-        <p className="text-[13.5px] text-[var(--color-text-secondary)]">Password set. Redirecting you to sign in…</p>
+      <div className="glass-card rounded-[var(--radius-2xl)] p-6 flex flex-col items-center text-center gap-3">
+        <CheckCircle size={36} className="text-[var(--color-success)] shrink-0" weight="fill" />
+        <div>
+          <h2 className="text-[15px] font-semibold text-[var(--color-text-primary)]">
+            {isDemo ? 'Demo Verification Successful!' : 'Password Set Successfully!'}
+          </h2>
+          <p className="text-[13px] text-[var(--color-text-secondary)] mt-1">
+            {isDemo
+              ? 'Onboarding preview simulation complete. Redirecting you to sign in…'
+              : 'Your admin credentials have been saved. Redirecting you to sign in…'}
+          </p>
+        </div>
       </div>
     )
   }
 
+  const isDemoToken = token === 'prp_demo_invite_token'
+
   return (
     <form onSubmit={handleSubmit} className="glass-card rounded-[var(--radius-2xl)] p-6 space-y-3.5">
+      {isDemoToken && (
+        <div className="bg-blue-50/80 dark:bg-blue-950/40 border border-blue-200/80 dark:border-blue-800 p-3.5 rounded-[var(--radius-md)] flex items-start gap-2.5">
+          <WarningCircle size={16} className="text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" weight="fill" />
+          <div className="space-y-0.5">
+            <p className="text-[12.5px] font-semibold text-blue-900 dark:text-blue-200">
+              Interactive Preview Mode
+            </p>
+            <p className="text-[12px] text-blue-800/80 dark:text-blue-300/80 leading-relaxed">
+              You are testing the invite acceptance flow from the email preview. You can enter a password to test the complete flow. For live team onboarding, use personalized links generated from <span className="font-semibold">Admin &gt; Team</span>.
+            </p>
+          </div>
+        </div>
+      )}
+
       <div className="space-y-1.5">
         <label className="text-[11px] font-medium text-[var(--color-text-secondary)] px-0.5">New password</label>
         <div className="relative">
@@ -128,7 +177,17 @@ export default function AcceptInvitePage() {
           <p className="text-[13px] text-[var(--color-text-muted)] mt-0.5">You've been invited to PropFyndr</p>
         </div>
 
-        <Suspense fallback={<div className="glass-card rounded-[var(--radius-2xl)] p-6"><p className="text-[13px] text-[var(--color-text-muted)]">Loading…</p></div>}>
+        <Suspense
+          fallback={
+            <div className="glass-card rounded-[var(--radius-2xl)] p-6 space-y-4 animate-pulse">
+              <div className="h-4 bg-zinc-200 dark:bg-zinc-800 rounded w-1/3" />
+              <div className="h-10 bg-zinc-200 dark:bg-zinc-800 rounded" />
+              <div className="h-4 bg-zinc-200 dark:bg-zinc-800 rounded w-1/3" />
+              <div className="h-10 bg-zinc-200 dark:bg-zinc-800 rounded" />
+              <div className="h-11 bg-zinc-300 dark:bg-zinc-700 rounded" />
+            </div>
+          }
+        >
           <AcceptInviteForm />
         </Suspense>
       </div>

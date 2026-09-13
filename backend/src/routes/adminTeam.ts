@@ -10,7 +10,7 @@
 import { Router, Request, Response } from 'express'
 import { z } from 'zod'
 import { prisma } from '../lib/db'
-import { requireIdentity, requireRole, hashPassword, generateInviteToken, recordAudit } from '../lib/adminIdentity'
+import { requireIdentity, requireRole, hashPassword, generateInviteToken, recordAudit, revokeAllSessions } from '../lib/adminIdentity'
 import type { AdminIdentitySession } from '../lib/adminIdentity'
 
 const router = Router()
@@ -37,11 +37,14 @@ function clientIp(req: Request): string {
 
 const ROLE_ENUM = z.enum(['SUPER_ADMIN', 'ANALYST', 'SALES', 'BUILDER', 'PARTNER'])
 
+/** The sample token the admin email-preview link carries. Never valid in production. */
+export const DEMO_INVITE_TOKEN = 'prp_demo_invite_token'
+
 const inviteSchema = z.object({
-  email: z.string().email(),
+  email: z.string().email('Please enter a valid email address'),
   role: ROLE_ENUM,
-  builder_id: z.string().uuid().optional(),
-  partner_id: z.string().uuid().optional(),
+  builder_id: z.string().uuid('Invalid builder organization ID').optional().or(z.literal('').transform(() => undefined)),
+  partner_id: z.string().uuid('Invalid channel partner ID').optional().or(z.literal('').transform(() => undefined)),
 })
 
 // GET /api/v1/admin/team — list every admin account.
@@ -71,17 +74,19 @@ router.get('/', requireIdentity, requireRole('SUPER_ADMIN'), async (_req: Reques
 router.post('/invite', requireIdentity, requireRole('SUPER_ADMIN'), async (req: Request, res: Response) => {
   const parsed = inviteSchema.safeParse(req.body)
   if (!parsed.success) {
-    res.status(400).json({ error: 'Invalid input', details: parsed.error.flatten() })
+    const flattened = parsed.error.flatten()
+    const firstFieldErr = Object.values(flattened.fieldErrors)[0]?.[0]
+    res.status(400).json({ error: firstFieldErr || 'Invalid input', details: flattened })
     return
   }
   const { email, role, builder_id, partner_id } = parsed.data
 
   if (role === 'BUILDER' && !builder_id) {
-    res.status(400).json({ error: 'builder_id is required for role BUILDER' })
+    res.status(400).json({ error: 'Please choose a target builder organization for the Builder role.' })
     return
   }
   if (role === 'PARTNER' && !partner_id) {
-    res.status(400).json({ error: 'partner_id is required for role PARTNER' })
+    res.status(400).json({ error: 'Please choose an approved channel partner firm for the Partner role.' })
     return
   }
 
@@ -122,11 +127,11 @@ router.post('/invite', requireIdentity, requireRole('SUPER_ADMIN'), async (req: 
 })
 
 const promoteSchema = z.object({
-  supabase_user_id: z.string().min(1),
-  email: z.string().email(),
+  supabase_user_id: z.string().min(1, 'Supabase User ID is required'),
+  email: z.string().email('Please enter a valid email address'),
   role: ROLE_ENUM,
-  builder_id: z.string().uuid().optional(),
-  partner_id: z.string().uuid().optional(),
+  builder_id: z.string().uuid('Invalid builder organization ID').optional().or(z.literal('').transform(() => undefined)),
+  partner_id: z.string().uuid('Invalid channel partner ID').optional().or(z.literal('').transform(() => undefined)),
 })
 
 // POST /api/v1/admin/team/promote — grant admin access to an existing buyer
@@ -135,17 +140,19 @@ const promoteSchema = z.object({
 router.post('/promote', requireIdentity, requireRole('SUPER_ADMIN'), async (req: Request, res: Response) => {
   const parsed = promoteSchema.safeParse(req.body)
   if (!parsed.success) {
-    res.status(400).json({ error: 'Invalid input', details: parsed.error.flatten() })
+    const flattened = parsed.error.flatten()
+    const firstFieldErr = Object.values(flattened.fieldErrors)[0]?.[0]
+    res.status(400).json({ error: firstFieldErr || 'Invalid input', details: flattened })
     return
   }
   const { supabase_user_id, email, role, builder_id, partner_id } = parsed.data
 
   if (role === 'BUILDER' && !builder_id) {
-    res.status(400).json({ error: 'builder_id is required for role BUILDER' })
+    res.status(400).json({ error: 'Please choose a target builder organization for the Builder role.' })
     return
   }
   if (role === 'PARTNER' && !partner_id) {
-    res.status(400).json({ error: 'partner_id is required for role PARTNER' })
+    res.status(400).json({ error: 'Please choose an approved channel partner firm for the Partner role.' })
     return
   }
 
@@ -199,6 +206,16 @@ router.post('/accept-invite', async (req: Request, res: Response) => {
   }
   const { token, password } = parsed.data
 
+  // The email-preview modal renders a sample invite link carrying this token so
+  // the flow can be clicked through without burning a real invite. It sets no
+  // password and issues no session — but a production auth endpoint that
+  // answers `success: true` to a hardcoded string is not a thing to ship, so
+  // it only exists outside production.
+  if (token === DEMO_INVITE_TOKEN && process.env.NODE_ENV !== 'production') {
+    res.json({ success: true, isDemo: true, message: 'Demonstration invite verified successfully' })
+    return
+  }
+
   const admin = await prisma.adminUser.findUnique({ where: { invite_token: token } })
   if (!admin || !admin.invite_expires_at || admin.invite_expires_at < new Date()) {
     res.status(400).json({ error: 'Invite is invalid or has expired' })
@@ -215,6 +232,59 @@ router.post('/accept-invite', async (req: Request, res: Response) => {
   })
 
   res.json({ success: true })
+})
+
+/**
+ * POST /api/v1/admin/team/:id/resend-invite — hand back this admin's invite link.
+ *
+ * Returns the *existing* token while it is still live, and mints a new one only
+ * when there is none or it has expired. It reads as a rotation endpoint, and it
+ * was one, but every caller on the team page is a read: "Copy Link" and the
+ * email preview both go through here. Rotating on those silently killed the
+ * link the super-admin had already pasted into an email minutes earlier — the
+ * invite stopped working and nothing said why.
+ *
+ * It also refuses an account that has already set a password. `invite_token` is
+ * the credential `accept-invite` accepts, so minting one for an active admin is
+ * a password reset wearing an invite's name — which is exactly the collision
+ * the schema keeps `reset_token` separate to avoid.
+ */
+router.post('/:id/resend-invite', requireIdentity, requireRole('SUPER_ADMIN'), async (req: Request, res: Response) => {
+  const target = await prisma.adminUser.findUnique({ where: { id: req.params.id } })
+  if (!target) {
+    res.status(404).json({ error: 'Admin user not found' })
+    return
+  }
+  if (target.password_hash) {
+    res.status(400).json({ error: 'This admin has already activated their account. Use password reset instead of an invite link.' })
+    return
+  }
+
+  const liveInvite = target.invite_token && target.invite_expires_at && target.invite_expires_at > new Date()
+  const inviteToken = liveInvite ? target.invite_token! : generateInviteToken()
+
+  if (!liveInvite) {
+    await prisma.adminUser.update({
+      where: { id: target.id },
+      data: {
+        invite_token: inviteToken,
+        invite_expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+      },
+    })
+  }
+
+  const identity = identityOf(req)
+  await recordAudit({
+    entityType: 'admin_user', entityId: target.id, entityName: target.email,
+    action: 'UPDATE', actorAdminId: identity.adminUserId === 'root' ? null : identity.adminUserId,
+    actorLabel: identity.email, ipAddress: clientIp(req),
+    summary: liveInvite
+      ? `Retrieved the live invite link for ${target.email}`
+      : `Issued a new invite link for ${target.email}`,
+  })
+
+  const inviteUrl = `${preferredInviteOrigin(process.env.FRONTEND_URL)}/admin/accept-invite?token=${inviteToken}`
+  res.json({ success: true, inviteUrl, email: target.email, rotated: !liveInvite })
 })
 
 const updateSchema = z.object({
@@ -263,6 +333,53 @@ router.patch('/:id', requireIdentity, requireRole('SUPER_ADMIN'), async (req: Re
       is_active: updated.is_active,
     },
   })
+})
+
+// DELETE /api/v1/admin/team/:id — remove an admin account or revoke an invitation completely.
+router.delete('/:id', requireIdentity, requireRole('SUPER_ADMIN'), async (req: Request, res: Response) => {
+  const target = await prisma.adminUser.findUnique({ where: { id: req.params.id } })
+  if (!target) {
+    res.status(404).json({ error: 'Admin user not found' })
+    return
+  }
+
+  const identity = identityOf(req)
+  if (target.id === identity.adminUserId) {
+    res.status(400).json({ error: 'Cannot delete your own admin account.' })
+    return
+  }
+
+  // Safety check: Don't delete the last active Super Admin
+  if (target.role === 'SUPER_ADMIN' && target.is_active) {
+    const activeSuperAdmins = await prisma.adminUser.count({
+      where: { role: 'SUPER_ADMIN', is_active: true, id: { not: target.id } },
+    })
+    if (activeSuperAdmins === 0 && identity.adminUserId !== 'root') {
+      res.status(400).json({ error: 'Cannot delete the only remaining active Super Admin.' })
+      return
+    }
+  }
+
+  // Revoke any active sessions first
+  await revokeAllSessions(target.id)
+
+  // Delete from database
+  await prisma.adminUser.delete({
+    where: { id: target.id },
+  })
+
+  await recordAudit({
+    entityType: 'admin_user',
+    entityId: target.id,
+    entityName: target.email,
+    action: 'DELETE',
+    actorAdminId: identity.adminUserId === 'root' ? null : identity.adminUserId,
+    actorLabel: identity.email,
+    ipAddress: clientIp(req),
+    summary: `Deleted admin user ${target.email} (${target.role})`,
+  })
+
+  res.json({ success: true, message: `Admin ${target.email} was removed successfully.` })
 })
 
 export default router

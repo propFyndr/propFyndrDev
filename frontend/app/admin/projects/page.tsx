@@ -17,6 +17,7 @@ import {
 import { toast } from 'sonner'
 import { adminFetch } from '@/lib/adminFetch'
 import CustomSelect from '@/components/admin/CustomSelect'
+import { useAdminRole, canDeleteRecords } from '@/lib/adminRole'
 
 interface UnitType { bhk: number; price_min_cr: number | null; price_max_cr: number | null; super_area_sqft?: number | null; carpet_area_sqft?: number | null }
 
@@ -250,7 +251,7 @@ function ProjectThumbnail({ src, alt }: { src?: string | null; alt: string }) {
   }
   return (
     <div className="w-8 h-8 rounded-lg overflow-hidden relative border border-zinc-200 dark:border-zinc-700 flex-shrink-0 shadow-2xs">
-      <Image src={src} alt={alt} fill sizes="32px" className="object-cover" onError={() => setError(true)} />
+      <Image src={src} alt={alt} fill sizes="32px" className="object-cover" unoptimized onError={() => setError(true)} />
     </div>
   )
 }
@@ -650,6 +651,9 @@ export default function AdminProjects() {
 
   // Bulk Import Modal State
   const [isBulkModalOpen, setIsBulkModalOpen] = useState(false)
+  // Bulk update rewrites many rows at once — super admin only, per the
+  // server matrix in backend/src/lib/adminPolicy.ts.
+  const mayBulkUpdate = canDeleteRecords(useAdminRole())
   const [bulkCsvText, setBulkCsvText] = useState('')
   const [bulkParsedRows, setBulkParsedRows] = useState<any[]>([])
   const [isImporting, setIsImporting] = useState(false)
@@ -1080,14 +1084,14 @@ Provide structured JSON with the exact verified data for each project so it can 
             <span>Export Incomplete Data {selectedIds.size > 0 ? `(${selectedIds.size} Selected)` : ''}</span>
           </button>
 
-          <button
+          {mayBulkUpdate && <button
             onClick={() => setIsBulkModalOpen(true)}
             className="inline-flex items-center gap-2 px-3.5 py-2 text-xs font-semibold text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/60 border border-blue-200/80 dark:border-blue-800/60 rounded-xl shadow-xs hover:bg-blue-100/80 transition-all cursor-pointer active:scale-[0.98]"
             title="Bulk upload spreadsheet to update prices, possession, and statuses"
           >
             <Upload size={14} className="text-blue-600 dark:text-blue-400" />
             <span>Bulk Update</span>
-          </button>
+          </button>}
 
           <Link
             href="/admin/projects/new"

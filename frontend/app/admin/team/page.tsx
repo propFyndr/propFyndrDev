@@ -24,6 +24,7 @@ import {
   X,
   Copy,
   MessageCircle,
+  Trash2,
 } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
 
@@ -82,6 +83,10 @@ export default function AdminTeamPage() {
   const [previewTargetName, setPreviewTargetName] = useState('')
   const [previewTargetRole, setPreviewTargetRole] = useState('ANALYST')
   const [previewTargetLink, setPreviewTargetLink] = useState('')
+
+  // Deletion Modal State
+  const [deleteTarget, setDeleteTarget] = useState<AdminRow | null>(null)
+  const [isDeleting, setIsDeleting] = useState(false)
 
   // Form Fields
   const [email, setEmail] = useState('')
@@ -185,6 +190,14 @@ export default function AdminTeamPage() {
 
   async function submitInvite(e: React.FormEvent) {
     e.preventDefault()
+    if (role === 'BUILDER' && !builderId) {
+      setError('Please choose a target builder organization from the catalog.')
+      return
+    }
+    if (role === 'PARTNER' && !partnerId) {
+      setError('Please choose an approved channel partner firm.')
+      return
+    }
     setSubmitting(true)
     setError('')
     try {
@@ -192,15 +205,18 @@ export default function AdminTeamPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          email,
+          email: email.trim(),
           role,
-          builder_id: role === 'BUILDER' ? builderId : undefined,
-          partner_id: role === 'PARTNER' ? partnerId : undefined,
+          builder_id: role === 'BUILDER' && builderId ? builderId : undefined,
+          partner_id: role === 'PARTNER' && partnerId ? partnerId : undefined,
         }),
       })
       if (!res.ok) {
         const data = await res.json().catch(() => ({}))
-        setError(data.error || 'Could not create the invite.')
+        const fieldErrors = (data?.details?.fieldErrors as Record<string, string[]> | undefined)
+        const firstFieldErr = fieldErrors ? Object.values(fieldErrors)[0]?.[0] : null
+        const detailedErr = (data?.error as string) || firstFieldErr
+        setError(detailedErr || 'Could not create the invite.')
         setSubmitting(false)
         return
       }
@@ -225,6 +241,14 @@ export default function AdminTeamPage() {
 
   async function submitPromote(e: React.FormEvent) {
     e.preventDefault()
+    if (role === 'BUILDER' && !builderId) {
+      setError('Please choose a target builder organization from the catalog.')
+      return
+    }
+    if (role === 'PARTNER' && !partnerId) {
+      setError('Please choose an approved channel partner firm.')
+      return
+    }
     setSubmitting(true)
     setError('')
     try {
@@ -232,16 +256,19 @@ export default function AdminTeamPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          supabase_user_id: supabaseUserId,
-          email,
+          supabase_user_id: supabaseUserId.trim(),
+          email: email.trim(),
           role,
-          builder_id: role === 'BUILDER' ? builderId : undefined,
-          partner_id: role === 'PARTNER' ? partnerId : undefined,
+          builder_id: role === 'BUILDER' && builderId ? builderId : undefined,
+          partner_id: role === 'PARTNER' && partnerId ? partnerId : undefined,
         }),
       })
       if (!res.ok) {
         const data = await res.json().catch(() => ({}))
-        setError(data.error || 'Could not promote this user.')
+        const fieldErrors = (data?.details?.fieldErrors as Record<string, string[]> | undefined)
+        const firstFieldErr = fieldErrors ? Object.values(fieldErrors)[0]?.[0] : null
+        const detailedErr = (data?.error as string) || firstFieldErr
+        setError(detailedErr || 'Could not promote this user.')
         setSubmitting(false)
         return
       }
@@ -281,10 +308,85 @@ export default function AdminTeamPage() {
     }
   }
 
+  const executeDeleteAdmin = async () => {
+    if (!deleteTarget) return
+    setIsDeleting(true)
+    setError('')
+    try {
+      const res = await adminFetch(`/admin/team/${deleteTarget.id}`, {
+        method: 'DELETE',
+      })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) {
+        setError(data.error || 'Could not delete administrator.')
+        return
+      }
+      setSuccessToast(data.message || `Admin ${deleteTarget.email} was removed successfully.`)
+      setTimeout(() => setSuccessToast(''), 4000)
+      setDeleteTarget(null)
+      load(true)
+    } catch (err: any) {
+      setError(err?.message || 'Failed to delete administrator.')
+    } finally {
+      setIsDeleting(false)
+    }
+  }
+
+  const [fetchingInviteId, setFetchingInviteId] = useState<string | null>(null)
+
   const copyToClipboard = (text: string, id: string) => {
     navigator.clipboard.writeText(text)
     setCopiedId(id)
     setTimeout(() => setCopiedId(null), 2000)
+  }
+
+  const fetchLiveInviteLink = async (adminId: string): Promise<string | null> => {
+    try {
+      const res = await adminFetch(`/admin/team/${adminId}/resend-invite`, { method: 'POST' })
+      if (!res.ok) return null
+      const data = await res.json()
+      return data.inviteUrl || null
+    } catch {
+      return null
+    }
+  }
+
+  const copyPendingInviteLink = async (a: AdminRow) => {
+    setFetchingInviteId(a.id)
+    try {
+      const link = await fetchLiveInviteLink(a.id)
+      if (link) {
+        navigator.clipboard.writeText(link)
+        setCopiedId(`invite-${a.id}`)
+        setSuccessToast(`Live invite link copied for ${a.email}!`)
+        setTimeout(() => {
+          setCopiedId(null)
+          setSuccessToast('')
+        }, 4000)
+      } else {
+        setError(`Could not retrieve invite link for ${a.email}`)
+      }
+    } catch {
+      setError(`Failed to copy invite link for ${a.email}`)
+    } finally {
+      setFetchingInviteId(null)
+    }
+  }
+
+  const handleOpenEmailPreviewForAdmin = async (a: AdminRow) => {
+    let link = ''
+    if (a.invite_pending) {
+      setFetchingInviteId(a.id)
+      link = (await fetchLiveInviteLink(a.id)) || ''
+      setFetchingInviteId(null)
+    }
+    openEmailPreview(
+      'team_invite',
+      a.email,
+      a.email.split('@')[0],
+      a.role,
+      link || lastInviteUrl || ''
+    )
   }
 
   const openEmailPreview = (
@@ -328,80 +430,85 @@ export default function AdminTeamPage() {
     <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 font-sans select-none min-w-0">
       
       {/* ── Header Banner ────────────────────────────────────────────── */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pt-1">
-        <div>
-          <div className="flex items-center gap-3 mb-1">
-            <h1 className="text-3xl sm:text-4xl font-extrabold text-zinc-900 dark:text-white tracking-tight">
-              Admin Team & Roles
-            </h1>
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 border border-blue-200/80 dark:border-blue-800/80">
-              <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
-              Access Control
-            </span>
+      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-b from-white to-zinc-50/80 dark:from-zinc-900 dark:to-zinc-900/80 border border-zinc-200/80 dark:border-zinc-800 p-6 sm:p-7 shadow-xs">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+          <div>
+            <div className="flex flex-wrap items-center gap-3 mb-2">
+              <div className="w-10 h-10 rounded-2xl bg-blue-50 dark:bg-blue-950/60 border border-blue-200/80 dark:border-blue-800/80 flex items-center justify-center text-blue-600 dark:text-blue-400 shrink-0 shadow-2xs">
+                <Shield size={20} />
+              </div>
+              <h1 className="text-2xl sm:text-3xl font-black text-zinc-900 dark:text-white tracking-tight">
+                Admin Team & Permissions
+              </h1>
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200/80 dark:border-blue-800/80">
+                <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
+                Access Control Console
+              </span>
+            </div>
+            <p className="text-xs sm:text-sm font-medium text-zinc-500 dark:text-zinc-400 max-w-2xl leading-relaxed">
+              Manage internal administrative roles, invite team members with cryptographic tokens, scope developer access, and revoke authorizations instantly.
+            </p>
           </div>
-          <p className="text-xs sm:text-sm font-medium text-zinc-500 dark:text-zinc-400">
-            Manage administrative permissions, invite colleagues, and monitor system access tiers
-          </p>
-        </div>
 
-        {/* Top Header Action Buttons */}
-        <div className="flex flex-wrap items-center gap-2.5 shrink-0">
-          <button
-            type="button"
-            onClick={() =>
-              openEmailPreview(
-                'team_invite',
-                email || 'teammate@propfyndr.in',
-                'Colleague',
-                role,
-                lastInviteUrl || ''
-              )
-            }
-            className="flex items-center gap-2 bg-white dark:bg-zinc-900 hover:bg-zinc-50 dark:hover:bg-zinc-800 text-zinc-800 dark:text-zinc-200 border border-zinc-200/90 dark:border-zinc-800 px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all shadow-2xs active:scale-[0.98] cursor-pointer"
-            title="Preview how invite and outreach emails render"
-          >
-            <Mail size={15} className="text-blue-600 dark:text-blue-400" />
-            <span>Email Preview</span>
-          </button>
+          {/* Top Header Action Buttons */}
+          <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+            <button
+              type="button"
+              onClick={() =>
+                openEmailPreview(
+                  'team_invite',
+                  email || 'teammate@propfyndr.in',
+                  'Colleague',
+                  role,
+                  lastInviteUrl || ''
+                )
+              }
+              className="flex items-center gap-2 bg-white dark:bg-zinc-800/90 hover:bg-zinc-50 dark:hover:bg-zinc-800 text-zinc-800 dark:text-zinc-200 border border-zinc-200/90 dark:border-zinc-700 px-3.5 py-2.5 rounded-2xl text-xs font-bold transition-all shadow-2xs active:scale-[0.98] cursor-pointer"
+              title="Preview how invite and outreach emails render"
+            >
+              <Mail size={15} className="text-blue-600 dark:text-blue-400" />
+              <span>Email Preview</span>
+            </button>
 
-          <button
-            type="button"
-            onClick={() => load(true)}
-            disabled={isRefreshing}
-            className="flex items-center gap-2 bg-white dark:bg-zinc-900 hover:bg-zinc-50 dark:hover:bg-zinc-800 text-zinc-900 dark:text-white border border-zinc-200/90 dark:border-zinc-800 px-3 py-2.5 rounded-xl text-xs font-bold transition-all shadow-2xs active:scale-[0.98] cursor-pointer disabled:opacity-60"
-            title="Refresh team list"
-          >
-            <RotateCcw size={14} className={isRefreshing ? 'animate-spin text-blue-600' : 'text-zinc-500'} />
-            <span className="hidden sm:inline">{isRefreshing ? 'Refreshing…' : 'Refresh'}</span>
-          </button>
+            <button
+              type="button"
+              onClick={() => load(true)}
+              disabled={isRefreshing}
+              className="flex items-center gap-2 bg-white dark:bg-zinc-800/90 hover:bg-zinc-50 dark:hover:bg-zinc-800 text-zinc-800 dark:text-zinc-200 border border-zinc-200/90 dark:border-zinc-700 px-3 py-2.5 rounded-2xl text-xs font-bold transition-all shadow-2xs active:scale-[0.98] cursor-pointer disabled:opacity-60"
+              title="Refresh team list"
+            >
+              <RotateCcw size={14} className={isRefreshing ? 'animate-spin text-blue-600' : 'text-zinc-500'} />
+              <span className="hidden sm:inline">{isRefreshing ? 'Refreshing…' : 'Refresh'}</span>
+            </button>
 
-          <button
-            type="button"
-            onClick={() => setMode(mode === 'promote' ? null : 'promote')}
-            className="flex items-center gap-2 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-900 dark:text-white px-4 py-2.5 rounded-xl text-xs font-bold transition-all shadow-2xs active:scale-[0.98] cursor-pointer"
-          >
-            <Users size={14} />
-            <span>Promote Buyer</span>
-          </button>
+            <button
+              type="button"
+              onClick={() => setMode(mode === 'promote' ? null : 'promote')}
+              className="flex items-center gap-2 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-900 dark:text-white px-4 py-2.5 rounded-2xl text-xs font-bold transition-all shadow-2xs active:scale-[0.98] cursor-pointer"
+            >
+              <Users size={14} />
+              <span>Promote Buyer</span>
+            </button>
 
-          <button
-            type="button"
-            onClick={() => setMode(mode === 'invite' ? null : 'invite')}
-            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-xl text-xs font-bold transition-all shadow-sm active:scale-[0.98] cursor-pointer"
-          >
-            <Plus size={15} />
-            <span>Invite by Email</span>
-          </button>
+            <button
+              type="button"
+              onClick={() => setMode(mode === 'invite' ? null : 'invite')}
+              className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-2xl text-xs font-bold transition-all shadow-sm hover:shadow-md active:scale-[0.98] cursor-pointer"
+            >
+              <Plus size={15} />
+              <span>Invite by Email</span>
+            </button>
+          </div>
         </div>
       </div>
 
       {/* ── KPI Stat Cards Grid ──────────────────────────────────────── */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {/* Total Administrators */}
-        <div className="bg-white dark:bg-zinc-900 rounded-3xl border border-zinc-200/80 dark:border-zinc-800 p-5 shadow-xs relative overflow-hidden group hover:border-zinc-300 dark:hover:border-zinc-700 transition-all">
+        <div className="bg-white dark:bg-zinc-900 rounded-3xl border border-zinc-200/80 dark:border-zinc-800 p-5 shadow-xs hover:shadow-md hover:border-purple-200 dark:hover:border-purple-900/60 transition-all duration-200 hover:-translate-y-0.5 group">
           <div className="flex items-center justify-between mb-3">
             <span className="text-[11px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">
-              Total Administrators
+              Total Staff
             </span>
             <div className="w-8 h-8 rounded-xl bg-purple-50 dark:bg-purple-950/60 border border-purple-200/80 dark:border-purple-800/80 flex items-center justify-center text-purple-600 dark:text-purple-400">
               <Shield size={16} />
@@ -417,7 +524,7 @@ export default function AdminTeamPage() {
         </div>
 
         {/* Active Accounts */}
-        <div className="bg-white dark:bg-zinc-900 rounded-3xl border border-zinc-200/80 dark:border-zinc-800 p-5 shadow-xs relative overflow-hidden group hover:border-zinc-300 dark:hover:border-zinc-700 transition-all">
+        <div className="bg-white dark:bg-zinc-900 rounded-3xl border border-zinc-200/80 dark:border-zinc-800 p-5 shadow-xs hover:shadow-md hover:border-emerald-200 dark:hover:border-emerald-900/60 transition-all duration-200 hover:-translate-y-0.5 group">
           <div className="flex items-center justify-between mb-3">
             <span className="text-[11px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">
               Active Access
@@ -436,7 +543,7 @@ export default function AdminTeamPage() {
         </div>
 
         {/* Pending Invites */}
-        <div className="bg-white dark:bg-zinc-900 rounded-3xl border border-zinc-200/80 dark:border-zinc-800 p-5 shadow-xs relative overflow-hidden group hover:border-zinc-300 dark:hover:border-zinc-700 transition-all">
+        <div className="bg-white dark:bg-zinc-900 rounded-3xl border border-zinc-200/80 dark:border-zinc-800 p-5 shadow-xs hover:shadow-md hover:border-amber-200 dark:hover:border-amber-900/60 transition-all duration-200 hover:-translate-y-0.5 group">
           <div className="flex items-center justify-between mb-3">
             <span className="text-[11px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">
               Pending Invites
@@ -449,13 +556,13 @@ export default function AdminTeamPage() {
             {kpis.pending}
           </div>
           <div className="mt-2.5 flex items-center gap-1.5 text-xs text-amber-600 dark:text-amber-400 font-semibold">
-            <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+            <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
             <span>Awaiting first login</span>
           </div>
         </div>
 
         {/* Scoped Partners & Builders */}
-        <div className="bg-white dark:bg-zinc-900 rounded-3xl border border-zinc-200/80 dark:border-zinc-800 p-5 shadow-xs relative overflow-hidden group hover:border-zinc-300 dark:hover:border-zinc-700 transition-all">
+        <div className="bg-white dark:bg-zinc-900 rounded-3xl border border-zinc-200/80 dark:border-zinc-800 p-5 shadow-xs hover:shadow-md hover:border-blue-200 dark:hover:border-blue-900/60 transition-all duration-200 hover:-translate-y-0.5 group">
           <div className="flex items-center justify-between mb-3">
             <span className="text-[11px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">
               Scoped Accounts
@@ -879,16 +986,9 @@ export default function AdminTeamPage() {
                           {getInitials(a.email)}
                         </div>
                         <div className="min-w-0">
-                          <div className="flex items-center gap-2">
-                            <span className="font-bold text-zinc-900 dark:text-zinc-100 truncate text-[13px]">
-                              {a.email}
-                            </span>
-                            {a.invite_pending && (
-                              <span className="text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200/80 dark:bg-amber-950/60 dark:text-amber-300 dark:border-amber-800/80 shrink-0">
-                                Invite Pending
-                              </span>
-                            )}
-                          </div>
+                          <span className="font-bold text-zinc-900 dark:text-zinc-100 truncate text-[13px] block">
+                            {a.email}
+                          </span>
                           <span className="text-[11px] text-zinc-400 font-mono">
                             ID: {a.id.slice(0, 8)}…
                           </span>
@@ -927,7 +1027,12 @@ export default function AdminTeamPage() {
 
                     {/* Status column */}
                     <td className="py-4 px-4">
-                      {a.is_active ? (
+                      {a.invite_pending ? (
+                        <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border border-amber-200/80 dark:border-amber-800/80">
+                          <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+                          <span>Invite Pending</span>
+                        </div>
+                      ) : a.is_active ? (
                         <div className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-semibold">
                           <span className="w-2 h-2 rounded-full bg-emerald-500" />
                           <span>Active</span>
@@ -953,21 +1058,42 @@ export default function AdminTeamPage() {
 
                     {/* Actions column */}
                     <td className="py-4 px-6 text-right">
-                      <div className="flex items-center justify-end gap-2">
+                      <div className="flex items-center justify-end gap-1.5">
+                        {/* Copy live invite link for pending accounts */}
+                        {a.invite_pending && (
+                          <button
+                            type="button"
+                            onClick={() => copyPendingInviteLink(a)}
+                            disabled={fetchingInviteId === a.id}
+                            className="px-2.5 py-1.5 rounded-xl border border-amber-200 dark:border-amber-800/80 bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 hover:bg-amber-100 dark:hover:bg-amber-900/40 text-xs font-semibold flex items-center gap-1.5 transition-all shadow-2xs cursor-pointer disabled:opacity-50"
+                            title="Copy personalized invite link"
+                          >
+                            {copiedId === `invite-${a.id}` ? (
+                              <>
+                                <Check size={13} className="text-emerald-600" />
+                                <span>Copied!</span>
+                              </>
+                            ) : fetchingInviteId === a.id ? (
+                              <>
+                                <RotateCcw size={13} className="animate-spin" />
+                                <span>Generating...</span>
+                              </>
+                            ) : (
+                              <>
+                                <Copy size={13} />
+                                <span>Copy Link</span>
+                              </>
+                            )}
+                          </button>
+                        )}
+
                         {/* Email Preview button for this user */}
                         <button
                           type="button"
-                          onClick={() =>
-                            openEmailPreview(
-                              'team_invite',
-                              a.email,
-                              a.email.split('@')[0],
-                              a.role,
-                              lastInviteUrl || ''
-                            )
-                          }
-                          className="p-1.5 rounded-xl border border-zinc-200/80 dark:border-zinc-700/80 hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-500 hover:text-blue-600 transition-all cursor-pointer"
-                          title="Preview onboarding email for this role"
+                          onClick={() => handleOpenEmailPreviewForAdmin(a)}
+                          disabled={fetchingInviteId === a.id}
+                          className="p-1.5 rounded-xl border border-zinc-200/80 dark:border-zinc-700/80 hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-500 hover:text-blue-600 transition-all cursor-pointer disabled:opacity-50"
+                          title={a.invite_pending ? 'Preview onboarding email with live invite link' : 'Preview onboarding email for this role'}
                         >
                           <Mail size={14} />
                         </button>
@@ -978,11 +1104,22 @@ export default function AdminTeamPage() {
                           onClick={() => toggleActive(a)}
                           className={`px-3 py-1.5 rounded-xl border text-xs font-bold transition-all shadow-2xs active:scale-[0.98] cursor-pointer ${
                             a.is_active
-                              ? 'border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-300 hover:text-rose-600 dark:hover:text-rose-400 hover:border-rose-200'
+                              ? 'border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-300 hover:text-amber-600 dark:hover:text-amber-400 hover:border-amber-200'
                               : 'border-emerald-200 bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-100'
                           }`}
                         >
                           {a.is_active ? 'Deactivate' : 'Reactivate'}
+                        </button>
+
+                        {/* Delete / Revoke administrator button */}
+                        <button
+                          type="button"
+                          onClick={() => setDeleteTarget(a)}
+                          className="px-2.5 py-1.5 rounded-xl border border-rose-200/90 dark:border-rose-900/60 bg-rose-50/60 hover:bg-rose-100 dark:bg-rose-950/40 dark:hover:bg-rose-900/60 text-rose-600 dark:text-rose-400 text-xs font-bold flex items-center gap-1.5 transition-all shadow-2xs active:scale-[0.98] cursor-pointer"
+                          title={a.invite_pending ? 'Revoke and delete invitation' : 'Permanently remove administrator'}
+                        >
+                          <Trash2 size={13} className="shrink-0" />
+                          <span>{a.invite_pending ? 'Revoke' : 'Delete'}</span>
                         </button>
                       </div>
                     </td>
@@ -1003,6 +1140,68 @@ export default function AdminTeamPage() {
         defaultRole={previewTargetRole}
         inviteLink={previewTargetLink}
       />
+
+      {/* ── Delete Confirmation Modal ────────────────────────────────── */}
+      {deleteTarget && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-150">
+          <div className="relative w-full max-w-md bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-3xl p-6 shadow-2xl space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-2xl bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-800 text-rose-600 dark:text-rose-400 flex items-center justify-center shrink-0">
+                <Trash2 size={20} />
+              </div>
+              <div>
+                <h3 className="text-base font-bold text-zinc-900 dark:text-white">
+                  Remove Administrator
+                </h3>
+                <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                  Permanently revoke credentials and account access
+                </p>
+              </div>
+            </div>
+
+            <div className="p-3.5 rounded-2xl bg-zinc-50 dark:bg-zinc-800/60 border border-zinc-200/80 dark:border-zinc-700/60 space-y-1.5 text-xs">
+              <div className="flex justify-between">
+                <span className="text-zinc-500">Account:</span>
+                <span className="font-bold text-zinc-900 dark:text-zinc-100">{deleteTarget.email}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-zinc-500">Role:</span>
+                <span className="font-bold text-zinc-900 dark:text-zinc-100">{deleteTarget.role}</span>
+              </div>
+              {deleteTarget.invite_pending && (
+                <div className="flex justify-between text-amber-600 dark:text-amber-400 font-semibold">
+                  <span>Status:</span>
+                  <span>Pending Invitation (unclaimed)</span>
+                </div>
+              )}
+            </div>
+
+            <p className="text-xs text-zinc-500 dark:text-zinc-400 leading-relaxed">
+              Are you sure you want to delete <strong className="text-zinc-800 dark:text-zinc-200">{deleteTarget.email}</strong>? All active sessions and pending invite tokens will be terminated immediately. This action cannot be undone.
+            </p>
+
+            <div className="flex items-center justify-end gap-2.5 pt-2 border-t border-zinc-100 dark:border-zinc-800">
+              <button
+                type="button"
+                onClick={() => setDeleteTarget(null)}
+                disabled={isDeleting}
+                className="px-4 py-2.5 rounded-xl border border-zinc-200 dark:border-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-800 text-xs font-bold text-zinc-700 dark:text-zinc-300 transition-all cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={executeDeleteAdmin}
+                disabled={isDeleting}
+                className="px-4 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold transition-all shadow-sm flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+              >
+                {isDeleting ? <RotateCcw size={14} className="animate-spin" /> : <Trash2 size={14} />}
+                <span>{isDeleting ? 'Removing…' : 'Delete Administrator'}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
