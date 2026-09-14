@@ -20,6 +20,8 @@
 // grievance, a refusal, or an off-topic aside there is no such thing, and
 // offering one reads as not having listened.
 
+import { isOutageNotice } from '../ai/outageNotice'
+
 /** Turn shapes where any chip is noise. */
 const SUPPRESS: Array<[RegExp, string]> = [
   // A complaint about us. The next step is a human, not a shortcut.
@@ -52,6 +54,20 @@ export function chipsAreWelcome(message: string, answerText = ''): ChipDecision 
   const q = message ?? ''
   for (const [re, reason] of SUPPRESS) {
     if (re.test(q)) return { allowed: false, reason }
+  }
+
+  /**
+   * Every provider failed and this is the outage notice.
+   *
+   * Offering "Compare these 3" under "I couldn't get you a reliable answer just
+   * now" invites the buyer to tap something that is going to fail the same way,
+   * and makes a service failure look like a working product that chose not to
+   * help. The card was already suppressed for this turn (`turnDegraded` in
+   * chat-router); the chips were not, because an outage notice does not match
+   * the "declined something" wording below.
+   */
+  if (isOutageNotice(answerText)) {
+    return { allowed: false, reason: 'the turn degraded to an outage notice' }
   }
 
   // Our own reply declined something. Offering shortcuts on top of a refusal

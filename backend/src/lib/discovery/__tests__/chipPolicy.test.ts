@@ -6,6 +6,7 @@
 
 import { describe, it } from 'node:test'
 import assert from 'node:assert/strict'
+import { OUTAGE_NOTICE } from '../../ai/outageNotice'
 import { chipsAreWelcome, chipIsRelevant, chipIsActionable } from '../chipPolicy'
 
 describe('chip policy — when to stay silent', () => {
@@ -41,6 +42,27 @@ describe('chip policy — when to stay silent', () => {
   it('allows them on an ordinary property turn', () => {
     const d = chipsAreWelcome('show me 3bhk in sector 150 under 2cr', 'Here are three options…')
     assert.equal(d.allowed, true)
+  })
+})
+
+describe('an outage turn earns no chips', () => {
+  // Measured: on a fully degraded turn the buyer saw "I couldn't get you a
+  // reliable answer just now" followed by "Compare these 3" and "What are the
+  // trade-offs?" — shortcuts for the thing that had just failed. The card was
+  // already suppressed for this case; the chips were not.
+  it('suppresses chips under the outage notice', () => {
+    const d = chipsAreWelcome('Show me 3BHK in Sector 150 under 2 crore', OUTAGE_NOTICE)
+    assert.equal(d.allowed, false)
+    assert.match(d.reason, /outage/i)
+  })
+
+  it('suppresses them even when the notice is mid-transcript', () => {
+    const d = chipsAreWelcome('anything', `earlier answer text ${OUTAGE_NOTICE} trailing`)
+    assert.equal(d.allowed, false)
+  })
+
+  it('still allows chips on an ordinary answer', () => {
+    assert.equal(chipsAreWelcome('3bhk in sector 150', 'Here are three options in Sector 150.').allowed, true)
   })
 })
 

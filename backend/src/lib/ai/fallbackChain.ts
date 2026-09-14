@@ -2,6 +2,7 @@
 import { FALLBACK_CHAIN, FallbackKeyConfig, isFreeTierKey, vendorOf, groqReplyCeiling } from '../config'
 import { checkAnswerIntegrity, checkAnswerIntegritySync, rewriteFraming, qualifyMarketFigures } from './answerIntegrity'
 import { warmKnownNames } from './toolBlindGuard'
+import { OUTAGE_NOTICE } from './outageNotice'
 
 /**
  * Release each gated paragraph as it finishes instead of the whole answer at
@@ -1053,11 +1054,9 @@ export async function executeWithFallbackChain(options: FallbackChainOptions): P
    *
    * So: say we could not answer, offer the humans, name nothing.
    */
-  const fallbackMessage =
-    "I couldn't get you a reliable answer just now — our AI service is briefly unavailable, " +
-    "and I'd rather say so than guess.\n\n" +
-    'Ask me again in a moment, or use **Book Site Visit** or **Callback** and our advisory team ' +
-    'will pick it up directly.'
+  // Shared with chipPolicy, which has to recognise this text to suppress
+  // shortcuts on an outage turn. See lib/ai/outageNotice.ts.
+  const fallbackMessage = OUTAGE_NOTICE
 
   send('token', { token: fallbackMessage })
   // `is_verified: false`. Every leg failed; nothing about this reply was verified
