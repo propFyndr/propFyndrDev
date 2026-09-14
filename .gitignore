@@ -139,3 +139,8 @@ newProj/*_backup_pre_consolidation/
 
 # Playwright MCP scratch output (snapshots, console logs) from QA runs.
 .playwright-mcp/
+
+# One-off extraction/debug artifacts. Recoverable from git history if needed.
+git_history.txt
+extracted_payload.json
+extracted_amenities.json
