@@ -47,6 +47,14 @@ export async function getMultiDimensionalRecommendations(
     limit?: number // Default 3, max 10
     prioritizeInvestment?: boolean // Boost investment-focused recommendations
     prioritizeEndUse?: boolean // Boost end-use recommendations
+    /**
+     * Ends the extraction when the caller stops waiting.
+     *
+     * chat-router races this pipeline against a 2,500ms deadline. Without a
+     * signal the losing request runs to completion and bills every token of a
+     * result nobody reads.
+     */
+    signal?: AbortSignal
   }
 ): Promise<MultiDimensionalResult> {
   console.log('[MULTI_DIM] Starting multi-dimensional pipeline', { messageLength: userMessage.length })
@@ -54,7 +62,8 @@ export async function getMultiDimensionalRecommendations(
   // Phase 1: Extract extended intent (all 11 dimensions)
   const { intent: extendedIntent, degraded: intentDegraded } = await extractExtendedIntent({
     userMessage,
-    previousIntent
+    previousIntent,
+    signal: options?.signal,
   })
 
   console.log('[MULTI_DIM:PHASE1] Intent extraction complete', {
