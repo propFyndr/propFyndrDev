@@ -6,6 +6,7 @@ import { z } from 'zod'
 import { prisma } from '../lib/db'
 import { checkRateLimit, invalidateSessionList, getCached, setCached } from '../lib/cache'
 import { extractIntent } from '../lib/ai/intent'
+import { asksAboutTheConversation } from '../lib/ai/metaQuestions'
 import { hydrateIntentFromMemory, persistIntentToMemory, trackPropertyReaction } from '../lib/ai/sessionMemory'
 import { gradeResponseAsync } from '../lib/ai/responseGrader'
 import { reportGrounding } from '../lib/ai/groundingCheck'
@@ -1513,11 +1514,7 @@ router.post('/', async (req: Request, res: Response) => {
      * into "you started by selecting an option, leading us into reviewing
      * adjacent sectors like Sector 78, 75 and 107", none of which had happened.
      */
-    const asksWhatWasSaid =
-      /\bwhat (did|have) i (ask|asked|say|said|tell|told)\b/i.test(message) ||
-      /\bwhat (do|did) you (know|remember|assume) about me\b/i.test(message) ||
-      /\bwhat have i told you\b/i.test(message) ||
-      /\b(remind me|recap) what (i|we)\b/i.test(message)
+    const asksWhatWasSaid = asksAboutTheConversation(message)
 
     if (asksWhatWasSaid) {
       const userTurns = chatHistory.filter(m => m.role === 'user').map(m => m.content.trim()).filter(Boolean)
@@ -1538,6 +1535,10 @@ router.post('/', async (req: Request, res: Response) => {
       if (intent.possession) held.push(`possession: **${intent.possession}**`)
       if (intent.purpose) held.push(`purpose: **${intent.purpose}**`)
 
+      // Which projects we actually put in front of the buyer, read off the
+      // session's own list rather than recalled by a model — see the note above.
+      const seen = shownProjects.slice(0, 6).map(p => p.name)
+
       const lines: string[] = []
       if (userTurns.length === 0) {
         lines.push('Nothing yet — this is the first thing you have asked me in this session.')
@@ -1549,8 +1550,9 @@ router.post('/', async (req: Request, res: Response) => {
         }
       }
       if (held.length) lines.push(`\nWhat I am working with: ${held.join(', ')}.`)
+      if (seen.length) lines.push(`\nProjects I have shown you: ${seen.join(', ')}.`)
 
-      console.log('[CHAT:TRANSCRIPT_ANSWERED]', { userTurns: userTurns.length, held: held.length })
+      console.log('[CHAT:TRANSCRIPT_ANSWERED]', { userTurns: userTurns.length, held: held.length, seen: seen.length })
       send('token', { token: lines.join('\n') })
       emitUiState({
         stage: 'RESEARCH',
