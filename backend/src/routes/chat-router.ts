@@ -4083,9 +4083,40 @@ EXECUTIVE RESPONSE INSTRUCTIONS:
      * inventory opens the gate whatever else is missing, and the refining
      * question rides along with the results.
      */
+    const namesInventory =
+      /\b(project|projects|society|societies|propert(?:y|ies)|flat|flats|apartment|apartments|home|homes|option|options)\b/i.test(message ?? '')
+    const asksToBeShown =
+      /\b(show|list|find|give|recommend|suggest|best|top|cheapest|which|what.*available|any|for sale|available)\b/i.test(message ?? '')
+
+    /**
+     * A property noun plus a place the buyer named IS a request to see
+     * inventory. No imperative verb required.
+     *
+     * This clause demanded a noun AND a verb from the list above, and buyers do
+     * not write the verb: "properties in noida sector 75", "flats in sector 75
+     * noida for sale", "property in sector 100 noida". Measured on the corpus,
+     * 50 of 103 sector queries came back as a question with zero cards, and
+     * this gate is where they stopped — `ran: false, reason:
+     * needsClarification` — on a sector holding twenty projects.
+     *
+     * Two phrasings for the same sector, same session, before this change:
+     *   "properties in noida sector 75"                 gate closed, 0 cards
+     *   "luxury apartments & flats in noida sector 75"  gate open,  6 cards
+     * The second differed only by carrying a second constraint the first had no
+     * reason to include.
+     *
+     * A city counts as a named place too — "properties in greater noida west"
+     * is the same request at a coarser grain, and `intent.sector` is empty for
+     * it because the phrase is city-level.
+     *
+     * The property noun is still required, so "what is stamp duty in noida"
+     * carries a city and still does not trigger a search.
+     *
+     * The comment above already states the rule this restores: show the rows,
+     * then ask. The refining question still rides along with the results.
+     */
     const asksForInventoryNow =
-      /\b(project|projects|society|societies|propert(?:y|ies)|flat|flats|apartment|apartments|home|homes|option|options)\b/i.test(message ?? '') &&
-      /\b(show|list|find|give|recommend|suggest|best|top|cheapest|which|what.*available|any)\b/i.test(message ?? '')
+      namesInventory && (asksToBeShown || Boolean(intent.sector) || Boolean(intent.city))
 
     // Single-signal with no geographic or lifestyle context → ask rather than guess.
     // Covers: BHK-only, budget-only, sector-only. Takes priority over isAdvisoryQuery.
@@ -4193,7 +4224,14 @@ EXECUTIVE RESPONSE INSTRUCTIONS:
       // Retrieval still returned zero, so the band shelf had nothing to render
       // and the tool-blind legs were all skipped by `[FALLBACK:NO_LOOKUP]` — the
       // turn ended in an outage notice with a green log line above it.
-    } else if (intentState === 'READY_TO_SEARCH' || intentState === 'SHORTLISTED' || asksToSeeInventoryHere || asksToSeeInventoryCitywide) {
+      // `asksForInventoryNow` is the fifth clause, and it is here for the
+      // reason the comment above records: this branch is what actually calls
+      // `discoverProjects`, and a gate opened anywhere else only changes a log
+      // line. Adding the clause to `discoverySkipReason` alone flipped
+      // `[DISCOVERY:GATE]` to `ran: true` for seven turns while
+      // `discoverProjects` was called for two — the same trap, walked into
+      // again, and caught only because the probe still read 2/10.
+    } else if (intentState === 'READY_TO_SEARCH' || intentState === 'SHORTLISTED' || asksToSeeInventoryHere || asksToSeeInventoryCitywide || asksForInventoryNow) {
       // Builder-only queries always run discovery — no pre-disambiguation.
       const searchOffset = offset ?? 0
       console.log('[CHAT] START discoverProjects', Date.now(), { intent, offset: searchOffset })
