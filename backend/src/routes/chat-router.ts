@@ -4261,30 +4261,15 @@ EXECUTIVE RESPONSE INSTRUCTIONS:
       if ((projects.length > 0 || nearbyProjects.length > 0) && action.type === 'TEXT_MESSAGE' && wantsMultiDim) {
         try {
           console.log('[MULTI_DIM:ENHANCEMENT] Starting multi-dimensional ranking enhancement')
-          /**
-           * The deadline CANCELS the work; it does not merely stop waiting.
-           *
-           * This was a bare `Promise.race` against a timer. `Promise.race` does
-           * not abort the loser — on a slow turn the extraction ran to
-           * completion and every token of a discarded result was billed. The
-           * controller is threaded down to the provider request so the deadline
-           * ends the call.
-           */
-          const multiDimAbort = new AbortController()
-          const multiDimTimer = setTimeout(() => multiDimAbort.abort(), MULTIDIM_DEADLINE_MS)
           const multiDimResult = await Promise.race([
             getMultiDimensionalRecommendations(
               message,
               chatHistory,
               undefined,
-              {
-                limit: Math.min(5, projects.length + nearbyProjects.length),
-                signal: multiDimAbort.signal,
-              }
+              { limit: Math.min(5, projects.length + nearbyProjects.length) }
             ),
             new Promise<null>(resolve => setTimeout(() => resolve(null), MULTIDIM_DEADLINE_MS)),
-          ]).catch(() => null).finally(() => clearTimeout(multiDimTimer))
-            ?? { recommendations: [], topRecommendation: null, confidence: null, dealBreakersDetected: [] } as never
+          ]) ?? { recommendations: [], topRecommendation: null, confidence: null, dealBreakersDetected: [] } as never
           if (!multiDimResult.topRecommendation) {
             console.log('[MULTI_DIM:SKIPPED]', { reason: `no result within ${MULTIDIM_DEADLINE_MS}ms` })
           }

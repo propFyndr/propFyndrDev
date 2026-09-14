@@ -341,22 +341,11 @@ export interface ExtendedIntentExtractionOptions {
   userMessage: string
   conversationHistory?: Array<{ role: 'user' | 'assistant'; content: string }>
   previousIntent?: ExtendedIntentWithConfidence
-  /**
-   * Aborts the in-flight provider request.
-   *
-   * The caller races this extraction against a 2,500ms deadline. `Promise.race`
-   * does not cancel the loser — it only stops waiting for it — so a slow turn
-   * left the request running to completion and billed every token of a result
-   * nobody read. Passing the signal down makes the deadline actually end the
-   * work rather than merely ignore it.
-   */
-  signal?: AbortSignal
 }
 
 async function extractWithGroq(
   message: string,
   previousIntent: ExtendedIntentWithConfidence | undefined,
-  signal?: AbortSignal,
 ): Promise<ExtendedIntentWithConfidence> {
   console.log('[EXTENDED_INTENT] START extractWithGroq', Date.now())
   const groq = new Groq({ apiKey: process.env.GROQ_API_KEY!, timeout: 15000 })
@@ -376,7 +365,7 @@ async function extractWithGroq(
       response_format: { type: 'json_object' },
       max_tokens: 512,
       temperature: 0.1,
-    }, { signal })
+    })
   } catch (err: any) {
     if (err?.status === 404 || err?.message?.includes('does not exist') || err?.message?.includes('model_not_found')) {
       console.log('[EXTENDED_INTENT] GROQ_SMART 404, falling back to GROQ_FAST:', MODELS.GROQ_FAST)
@@ -405,7 +394,6 @@ async function extractWithGroq(
 async function extractWithGemini(
   message: string,
   previousIntent: ExtendedIntentWithConfidence | undefined,
-  signal?: AbortSignal,
 ): Promise<ExtendedIntentWithConfidence> {
   console.log('[EXTENDED_INTENT] START extractWithGemini', Date.now())
   const apiKey = process.env.GEMINI_API_KEY
@@ -424,7 +412,6 @@ async function extractWithGemini(
       responseMimeType: 'application/json',
       maxOutputTokens: 512,
       temperature: 0.1,
-      abortSignal: signal,
     } as any,
   })
 
@@ -570,13 +557,13 @@ import { isKeyFailed, markKeyFailed } from './providerStatus'
 export async function extractExtendedIntent(
   options: ExtendedIntentExtractionOptions,
 ): Promise<ExtendedIntentResult> {
-  const { userMessage, previousIntent, signal } = options
+  const { userMessage, previousIntent } = options
 
   // 1. PRIMARY: Google Gemini 2.0 Flash (Paid, high throughput, zero rate limits)
   if (process.env.GEMINI_API_KEY && !isKeyFailed('GEMINI_API_KEY')) {
     try {
       console.log('[EXTENDED_INTENT] trying Gemini path', Date.now())
-      const result = await extractWithGemini(userMessage, previousIntent, signal)
+      const result = await extractWithGemini(userMessage, previousIntent)
       console.log('[EXTENDED_INTENT] Gemini path succeeded', Date.now(), { result })
       return { intent: result, degraded: false }
     } catch (err) {
@@ -606,7 +593,7 @@ export async function extractExtendedIntent(
   if (process.env.GROQ_API_KEY) {
     try {
       console.log('[EXTENDED_INTENT] trying Groq path', Date.now())
-      const result = await extractWithGroq(userMessage, previousIntent, signal)
+      const result = await extractWithGroq(userMessage, previousIntent)
       console.log('[EXTENDED_INTENT] Groq path succeeded', Date.now(), { result })
       return { intent: result, degraded: false }
     } catch (err) {
