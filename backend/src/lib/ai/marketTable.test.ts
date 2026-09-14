@@ -1,6 +1,7 @@
 import { describe, it } from 'node:test'
 import assert from 'node:assert/strict'
 import {
+  humaniseStatus,
   renderMicroMarketTable,
   renderProjectTable,
   renderPaymentPlanTable,
@@ -419,5 +420,38 @@ describe('the citywide band shelf', () => {
     assert.equal(wantsCityBandShelf('what is the stamp duty in UP', bare), false)
     assert.equal(wantsCityBandShelf('best time to buy', bare), false)
     assert.equal(wantsCityBandShelf('', bare), false)
+  })
+})
+
+describe('status is written for a buyer, not for the database', () => {
+  // Measured on the 321-query corpus: a brand probe for Amrapali returned rows
+  // ending "| ... | under_construction |". `status` is an enum and it reached
+  // the screen verbatim whenever `possession_label` was null.
+  for (const [raw, expected] of [
+    ['under_construction', 'Under construction'],
+    ['ready_to_move', 'Ready to move'],
+    ['new_launch', 'New launch'],
+    ['sold_out', 'Sold out'],
+  ] as Array<[string, string]>) {
+    it(`${raw} -> ${expected}`, () => assert.equal(humaniseStatus(raw), expected))
+  }
+
+  it('title-cases a status nobody has mapped yet rather than dropping it', () => {
+    assert.equal(humaniseStatus('some_new_state'), 'Some new state')
+  })
+
+  it('leaves an already-human value alone, and absent stays absent', () => {
+    assert.equal(humaniseStatus('Ready'), 'Ready')
+    assert.equal(humaniseStatus(null), undefined)
+    assert.equal(humaniseStatus(''), undefined)
+  })
+
+  it('no raw enum survives into a rendered project table', () => {
+    const t = renderProjectTable([
+      { name: 'A', sector: 'Sector 1', status: 'under_construction', price_min_cr: 1 },
+      { name: 'B', sector: 'Sector 2', status: 'ready_to_move', price_min_cr: 2 },
+    ] as never)
+    assert.doesNotMatch(t, /under_construction|ready_to_move/)
+    assert.match(t, /Under construction/)
   })
 })

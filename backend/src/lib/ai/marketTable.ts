@@ -144,6 +144,35 @@ export interface ProjectRow {
 const sectorName = (s: ProjectRow['sector']): string =>
   typeof s === 'string' ? s : (s?.name ?? '')
 
+/**
+ * A status a buyer can read, from the enum we store.
+ *
+ * `status` is a database enum — `under_construction`, `ready_to_move`,
+ * `new_launch` — and it rendered verbatim into buyer-facing tables whenever
+ * `possession_label` was null. Measured on the 321-query corpus, a brand probe
+ * for Amrapali returned rows ending "| ... | under_construction |".
+ *
+ * Unknown values are title-cased rather than dropped: a status we have not seen
+ * before is still information, and showing it tidily beats showing a gap.
+ */
+const STATUS_LABEL: Record<string, string> = {
+  under_construction: 'Under construction',
+  ready_to_move: 'Ready to move',
+  new_launch: 'New launch',
+  nearing_possession: 'Nearing possession',
+  sold_out: 'Sold out',
+  on_hold: 'On hold',
+  stalled: 'Stalled',
+}
+
+export function humaniseStatus(raw: string | null | undefined): string | undefined {
+  if (!raw) return undefined
+  const key = String(raw).trim().toLowerCase()
+  if (STATUS_LABEL[key]) return STATUS_LABEL[key]
+  if (!key.includes('_')) return raw
+  return key.split('_').join(' ').replace(/^./, (c) => c.toUpperCase())
+}
+
 /** The project shortlist table, from the rows discovery already returned. */
 export function renderProjectTable(projects: ProjectRow[], limit = 6): string {
   if (!projects || projects.length < 2) return ''
@@ -161,7 +190,7 @@ export function renderProjectTable(projects: ProjectRow[], limit = 6): string {
       priceLabelFor(p) !== 'Price on request'
         ? priceLabelFor(p)
         : (typeof p.price_min_cr === 'number' ? `from ₹${p.price_min_cr} Cr` : ABSENT)
-    const status = p.possession_label ?? p.status ?? ABSENT
+    const status = p.possession_label ?? humaniseStatus(p.status) ?? ABSENT
     return `| **${cell(p.name ?? '')}** | ${cell(p.builder?.name ?? '')} | ${cell(sectorName(p.sector))} | ${cell(price)} | ${cell(status)} |`
   })
 
@@ -275,7 +304,7 @@ export function renderProjectComparisonTable(projects: ComparisonRow[]): string 
     line('Sector', rows.map((p) => cell(sectorName(p.sector)))),
     line('Price', rows.map((p) => cell(priceOf(p)))),
     line('Configurations', rows.map((p) => cell(bhkRange(p)))),
-    line('Possession', rows.map((p) => cell(p.possession_label ?? p.status ?? ''))),
+    line('Possession', rows.map((p) => cell(p.possession_label ?? humaniseStatus(p.status) ?? ''))),
     line('RERA', rows.map((p) => cell(p.rera_number ?? ''))),
   ]
 

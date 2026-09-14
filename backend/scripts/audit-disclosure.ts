@@ -56,6 +56,11 @@ const MUST_PASS: Array<[string, string]> = [
   ['UP stamp duty is 7% for male buyers and 1% registration.', 'statutory'],
   ['We do not have that verified in our records yet.', 'honest gap — must not be read as sizing'],
   ['Sector 150 has a low-density character with wide green buffers.', 'ordinary characterisation'],
+  // Our own status enum values are snake_case and render inside real project
+  // tables. A generic identifier rule discarded 25 correct corpus answers on
+  // exactly this; these rows are why the rule is named-only.
+  ['| Ace Divino | Ace Group | Sector 1 | from ₹0.95 Cr | under_construction |', 'status value in a project table'],
+  ['This one is ready_to_move and the other is new_launch.', 'status values in prose'],
 ]
 
 function main(): void {

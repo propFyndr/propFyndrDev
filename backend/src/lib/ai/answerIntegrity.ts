@@ -117,14 +117,22 @@ const INTERNAL_IDENTIFIER: Array<[RegExp, string]> = [
   [/\b(?:ProjectDna|DecisionProfile|RecommendationProfile|IntelligenceStatus|PROJECT_PUBLIC_SELECT)\b/, 'names an internal model'],
   [/\b(?:STRONG_BUY|BUILDER_DATA_INCOMPLETE|SECTOR_NOT_COVERED|PROJECT_NOT_FOUND)\b/, 'quotes an internal sentinel or tier value'],
   /**
-   * Catch-all for a column nobody thought to list.
+   * There is deliberately NO generic snake_case catch-all here.
    *
-   * Anchored both sides so it matches a whole identifier rather than a fragment
-   * of one. Buyer prose contains no underscore-joined tokens, so this costs
-   * nothing — verified against the honest-answer set in
-   * scripts/audit-disclosure.ts, which it leaves untouched.
+   * One was added and removed within the hour, and the removal is the point:
+   * "buyer prose contains no underscore-joined tokens" is false. Our own status
+   * ENUM VALUES are snake_case — `under_construction`, `ready_to_move`,
+   * `new_launch` — and they render inside legitimate project tables. Measured
+   * on the 321-query corpus, the catch-all discarded 25 correct answers,
+   * including every brand probe that returned a project table.
+   *
+   * The probe set that was supposed to justify it contained no status value, so
+   * it looked free. It was not. A rule whose false positives are answers the
+   * buyer should have seen is more expensive than the leak it guesses at, and
+   * the named lists above already caught every case it was added for.
+   *
+   * A column that belongs here gets added by name.
    */
-  [/\b[a-z][a-z0-9]*(?:_[a-z0-9]+){1,}\b/, 'reads an internal identifier aloud'],
 ]
 
 const RAW_PAYLOAD: Array<[RegExp, string]> = [
