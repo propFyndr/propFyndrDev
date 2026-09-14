@@ -38,6 +38,7 @@ import { FINANCIAL, MODELS } from '../lib/config'
 import { webSearch, areaInfo, commute, readPage } from '../lib/web'
 import { calcEmi, calcStampDuty, calcGst, formatInr } from '../lib/calculators'
 import { classifyQuery } from '../lib/discovery/queryClassifier'
+import { SHELF_NOUN_RE } from '../lib/discovery/openQuery'
 import { detectOpenQuery } from '../lib/discovery/openQuery'
 import { runGroundedAnswer, buildNoGroundingReply } from '../lib/ai/groundedAnswer'
 import { findProjectsMentioned, buildProseChips, linkProjectNames, findSectorsMentioned, findSectorsAsked, buildOpenAnswerChips, resolveProjectNames } from '../lib/discovery/proseEntities'
@@ -4085,8 +4086,16 @@ EXECUTIVE RESPONSE INSTRUCTIONS:
      * inventory opens the gate whatever else is missing, and the refining
      * question rides along with the results.
      */
-    const namesInventory =
-      /\b(project|projects|society|societies|propert(?:y|ies)|flat|flats|apartment|apartments|home|homes|option|options)\b/i.test(message ?? '')
+    // Shares the classifier's noun list rather than keeping a second copy.
+    // The two drifted: this one had no "bhk", so "3 bhk in greater noida"
+    // classified DISCOVERY with `renderTarget: both` — the classifier was ready
+    // to render cards — and then this gate closed on `intentState=GATHERING`
+    // and discovery never ran, so there were none to render. A buyer naming a
+    // configuration and a city has named inventory as plainly as one naming a
+    // flat. Over-opening is cheap here: the emit is separately guarded by
+    // `renderTarget`, so an advisory turn that mentions a BHK still shows no
+    // cards, it just carries the facts.
+    const namesInventory = SHELF_NOUN_RE.test(message ?? '')
     const asksToBeShown =
       /\b(show|list|find|give|recommend|suggest|best|top|cheapest|which|what.*available|any|for sale|available)\b/i.test(message ?? '')
 
@@ -5201,7 +5210,15 @@ EXECUTIVE RESPONSE INSTRUCTIONS:
       // other one, and an outage got cached and replayed as a verified answer.
       !isServiceFailureReply(fullText) &&
       (classifyShape(message) === 'lookup' || classifyShape(message) === 'factual') &&
-      (intent.projectNames?.length ?? 0) === 0
+      (intent.projectNames?.length ?? 0) === 0 &&
+      // A cache entry is text and nothing else. Cache a turn that also rendered
+      // cards and the replay is that answer with its inventory silently
+      // removed — and it replays for every later buyer who types the same
+      // thing, so one such write makes the query permanently cardless however
+      // well retrieval works. "properties in greater noida west" was stuck that
+      // way: served from here, `[CHAT:CACHE_HIT]`, no discovery, no cards, on a
+      // corridor holding eighteen projects.
+      cardsShownThisTurn === 0
     ) {
       setCachedResponse(
         message,

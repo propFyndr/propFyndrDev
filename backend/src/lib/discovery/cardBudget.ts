@@ -33,10 +33,18 @@ export interface CardBudget {
  *
  * `workplace` counts as a location: a stated office is a stronger locator than
  * a sector, because it also implies a ranking.
+ *
+ * `city` counts too, as the same single location constraint rather than a
+ * second one. It was the missing arm: "properties in greater noida west" names
+ * a corridor, retrieved eighteen rows, and then scored zero constraints here
+ * and had every card capped away — `offered: 18, shown: 0, reason: 'nothing
+ * narrowed yet'`. The buyer had narrowed; they had just done it at a coarser
+ * grain than a sector. Nothing narrowed means nothing typed, and a named place
+ * is not nothing.
  */
 function statedConstraints(intent: Intent): number {
   let n = 0
-  if (intent.sector || intent.workplace) n += 1
+  if (intent.sector || intent.workplace || intent.city) n += 1
   if (intent.bhk?.length) n += 1
   if (intent.budgetMax != null || intent.budgetMin != null) n += 1
   if (intent.possession) n += 1

@@ -419,9 +419,23 @@ export function nothingToExtract(message: string): boolean {
  * Applied at every exit from `extractIntent`, including the degraded one, so no
  * provider path can bypass it.
  */
-function applyLiterals(intent: Intent, deterministic: DeterministicIntent): Intent {
+function applyLiterals(intent: Intent, deterministic: DeterministicIntent, message: string): Intent {
   const out = { ...intent } as Intent & Record<string, unknown>
   const lit = deterministic.literal
+
+  /**
+   * A city is a literal too, and it was the one this function did not pin.
+   *
+   * `cityNamedIn` ran only on the heuristic path, so whenever the model leg
+   * answered it decided the city by itself — and for a city-level phrase with
+   * nothing else in it, it returned no city at all. "properties in greater
+   * noida west" came back from extraction as `{ spatialScope: 'BROAD' }`, which
+   * carries no search signal, so the turn classified OPEN, rendered as text,
+   * and the buyer got prose about a corridor holding eighteen projects we never
+   * showed them. The phrase names a place as plainly as "Sector 150" does.
+   */
+  const namedCity = cityNamedIn(message)
+  if (namedCity) out.city = namedCity
 
   if (lit.has('sector')) {
     out.sector = deterministic.sectors[0]
@@ -476,7 +490,7 @@ export async function extractIntent(message: string, previousIntent: Intent): Pr
   const deterministic = extractDeterministic(message, KNOWN_SECTOR_NUMBERS)
 
   if (process.env.INTENT_FAST_PATH !== 'false') {
-    const heuristic = applyLiterals(extractIntentHeuristic(message, previousIntent), deterministic)
+    const heuristic = applyLiterals(extractIntentHeuristic(message, previousIntent), deterministic, message)
     if (deterministicCoversMessage(message, deterministic, previousIntent)) {
       console.log(`[INTENT:DETERMINISTIC] read outright, no model call — "${message.slice(0, 60)}"`)
       return { intent: heuristic, degraded: false }
@@ -545,17 +559,17 @@ export async function extractIntent(message: string, previousIntent: Intent): Pr
         })
         const raw = res.text?.trim() ?? '{}'
         const result = tryParseIntentJson(raw, previousIntent)
-        if (result) return { intent: applyLiterals(result, deterministic), degraded: false }
+        if (result) return { intent: applyLiterals(result, deterministic, message), degraded: false }
       }
       if (config.provider === 'groq') {
         console.log(`[INTENT] Trying Groq (${config.model}) via ${config.envKey}`)
         const result = await extractWithGroqKey(message, previousIntent, apiKey, config.timeout)
-        if (result) return { intent: applyLiterals(result, deterministic), degraded: false }
+        if (result) return { intent: applyLiterals(result, deterministic, message), degraded: false }
       }
       if (config.provider === 'mistral') {
         console.log(`[INTENT] Trying Mistral via ${config.envKey}`)
         const result = await extractWithMistral(message, previousIntent, apiKey)
-        if (result) return { intent: applyLiterals(result, deterministic), degraded: false }
+        if (result) return { intent: applyLiterals(result, deterministic, message), degraded: false }
       }
       if (config.provider === 'openai') {
         console.log(`[INTENT] Trying OpenAI via ${config.envKey}`)
@@ -564,7 +578,7 @@ export async function extractIntent(message: string, previousIntent: Intent): Pr
         try {
           const result = await extractWithOpenAIKey(message, previousIntent, apiKey, controller.signal, config.baseUrl, config.model)
           clearTimeout(timer)
-          if (result) return { intent: applyLiterals(result, deterministic), degraded: false }
+          if (result) return { intent: applyLiterals(result, deterministic, message), degraded: false }
         } catch (err) {
           clearTimeout(timer)
           const e = err as { status?: number; name?: string; message?: string }
@@ -583,7 +597,7 @@ export async function extractIntent(message: string, previousIntent: Intent): Pr
   console.warn('[INTENT] All LLM providers failed or unconfigured — executing heuristic fallback')
   // Literals apply here too, and matter most here: this is the path where no
   // model ran at all, so the regex result is the entire answer.
-  const heuristicIntent = applyLiterals(extractIntentHeuristic(message, previousIntent), deterministic)
+  const heuristicIntent = applyLiterals(extractIntentHeuristic(message, previousIntent), deterministic, message)
   return { intent: heuristicIntent, degraded: true }
 }
 

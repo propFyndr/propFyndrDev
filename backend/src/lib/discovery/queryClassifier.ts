@@ -350,7 +350,7 @@ export function classifyQuery(
   // extracted BHK, budget, sector and project name. With no such signal there is
   // nothing to search for, so OPEN is right whatever the sentence looks like —
   // and the open lane hands inventory questions back to retrieval anyway.
-  if (queryKind === 'DISCOVERY' && !hasPropertySearchSignal(searchSignalIntent)) {
+  if (queryKind === 'DISCOVERY' && !hasPropertySearchSignal(searchSignalIntent, userMessage)) {
     queryKind = 'OPEN'
     reason = 'No property-search signal — fail open to OPEN, not DISCOVERY'
   }

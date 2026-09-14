@@ -230,8 +230,41 @@ export function detectOpenQuery(
   return null
 }
 
-/** Signals that the user is shopping, not asking. Used to decide the fail-open lane. */
-export function hasPropertySearchSignal(intent: Record<string, unknown>): boolean {
+/**
+ * Nouns that mean the buyer wants to be shown units.
+ *
+ * A city on its own is a place, and plenty of questions mention one without
+ * asking to be shown anything — "what is stamp duty in noida". A city with one
+ * of these nouns beside it is a buyer asking to see the shelf.
+ *
+ * Deliberately narrower than `INVENTORY_NOUN_RE` above, which is inventory
+ * *vocabulary* and includes `builders|developers|group` so that entity cleanup
+ * can strip them from company names. Those are parties you deal with, not units
+ * you buy, and treating "which builder is best in noida" as a search would send
+ * a question about companies to the property pipeline. It also carries no `g`
+ * flag: that one is built for `.replace`, and a global regex used with `.test`
+ * keeps `lastIndex` between calls and returns false on every other call.
+ */
+export const SHELF_NOUN_RE =
+  /\b(propert(?:y|ies)|flats?|apartments?|projects?|societ(?:y|ies)|homes?|houses?|bhk|bedrooms?|options?|builder\s*floors?)\b/i
+
+/**
+ * Signals that the user is shopping, not asking. Used to decide the fail-open lane.
+ *
+ * `city` counts, but only alongside a property noun in the same message.
+ * Without it, "properties in greater noida west" carried no signal at all —
+ * every field this read is sector-or-finer, and the phrase is city-level — so
+ * the turn classified OPEN, `renderTarget` came back `text`, and the eighteen
+ * rows discovery had already retrieved were dropped at the emit guard. The
+ * buyer got micro-market prose about a corridor we hold inventory in and no
+ * cards. Bare `city` is not enough on its own: it would turn "what is stamp
+ * duty in noida" into a shelf of property cards, which is the regression the
+ * note above this one records.
+ */
+export function hasPropertySearchSignal(
+  intent: Record<string, unknown>,
+  message?: string,
+): boolean {
   const bhk = intent.bhk
   return Boolean(
     (Array.isArray(bhk) && bhk.length > 0) ||
@@ -239,6 +272,7 @@ export function hasPropertySearchSignal(intent: Record<string, unknown>): boolea
       intent.budgetMax ||
       intent.sector ||
       intent.possession ||
-      (Array.isArray(intent.projectNames) && intent.projectNames.length > 0),
+      (Array.isArray(intent.projectNames) && intent.projectNames.length > 0) ||
+      (intent.city && message && SHELF_NOUN_RE.test(message)),
   )
 }

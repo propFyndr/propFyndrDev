@@ -187,7 +187,11 @@ function readLocal(key: string, countMiss = true): CachedEntry | null {
 // no longer resolve to a Noida sector; the general lane carries buyer state, so
 // an answer written for one buyer's budget and focus is no longer shareable at
 // all; and chips are suppressed on grievance and refusal turns.
-const REDIS_PREFIX = 'ac:v8:' // v8: v7 cached project-focused handler answers under project-free keys
+// v9: v8 cached the text of turns that had also rendered cards, so the replay
+// was that answer with its inventory removed — and it replayed for every buyer
+// who typed the same query. The write now refuses any turn that showed cards;
+// this bump drops the entries written before it.
+const REDIS_PREFIX = 'ac:v9:' // v8: v7 cached project-focused handler answers under project-free keys
 
 /** A read that takes longer than this is not worth waiting for — the LLM call it */
 const REDIS_READ_TIMEOUT_MS = Number(process.env.ANSWER_CACHE_READ_TIMEOUT_MS ?? 250)
