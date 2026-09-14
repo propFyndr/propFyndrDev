@@ -309,7 +309,66 @@ const CAPITALISED_NOISE = new Set([
  * "something bigger", "actually 3 BHK instead").
  */
 const INTENT_SIGNAL_RE =
-  /\d|₹|\b(crore|cr|lakh|lac|budget|price|priced|cost|afford|emi|loan|under|below|within|upto|up\s*to|over|above|between|bhk|bedroom|sqft|sq\.?\s*ft|square\s*feet|carpet|super\s*area|sector|expressway|extension|metro|near|nearby|around|possession|ready\s*to\s*move|rtm|immediate|asap|handover|invest|investment|rental|resale|bigger|smaller|larger|cheaper|costlier|pricier|closer|instead|actually|rather|more|less|other|another|different|else|change|make\s*that|update)\b/i
+  /\d|₹|\b(crore|cr|lakh|lac|bhk|bedroom|sqft|sq\.?\s*ft|square\s*feet|carpet|super\s*area|sector|expressway|extension|metro|near|nearby|around|ready\s*to\s*move|rtm|immediate|asap|invest|investment|rental|resale|bigger|smaller|larger|cheaper|costlier|pricier|closer|instead|actually|rather|more|less|other|another|different|else|change|make\s*that|update)\b/i
+
+/**
+ * Words that are a CONSTRAINT when a buyer is searching and a TOPIC when they
+ * are asking a question.
+ *
+ * "under 2 crore" constrains a search. "what are the hidden costs beyond the
+ * sticker price?" is a question ABOUT cost and constrains nothing — there is no
+ * budget, sector or configuration in it to extract. Both contain the word
+ * "price", and the single vocabulary above could not tell them apart, so every
+ * advisory question carrying one of these nouns paid a full extraction
+ * round-trip that returned an empty intent.
+ *
+ * Measured on a 58-message corpus of real and realistic turns: "what are the
+ * hidden costs beyond the sticker price?", "why is the registry delayed even
+ * after possession" and "how do I know which is the best property to buy in
+ * Noida?" all paid ~2,671 tokens to learn nothing. That cost is charged IN
+ * FRONT of the answer call, so the buyer waits for it before the answer starts.
+ *
+ * The distinction is mechanical: a constraint carries a number or a comparator.
+ * "budget 1.5cr" has a digit; "possession within a year" has "within";
+ * "possession" alone is a subject. Only the bare noun is gated — the digit
+ * branch at the top of INTENT_SIGNAL_RE still catches anything numeric, and
+ * corrective words like "cheaper" stay unconditional because they only ever
+ * make sense against a previous search.
+ */
+const TOPIC_OR_CONSTRAINT_RE =
+  /\b(budget|price|priced|cost|costs|afford|emi|loan|possession|handover)\b/i
+
+/**
+ * Comparators and time words that turn one of the nouns above into a real
+ * constraint.
+ *
+ * `soon` earns its place: "I need possession soon" is a timeline the search can
+ * act on, and without it the noun would read as a topic and be skipped.
+ *
+ * `by`, `before` and `after` do NOT. "possession by 2027" is already caught by
+ * the digit branch, while "even after possession" is ordinary prose in an
+ * advisory question — adding them put "why is the registry delayed even after
+ * possession" back on the slow path, which is the exact turn this split exists
+ * to take off it.
+ *
+ * `invest`, `rental` and `resale` are deliberately NOT in the gated list above.
+ * They set `purpose` on their own — "I want to invest" carries an extractable
+ * field with no number attached, and a test pins exactly that.
+ */
+const CONSTRAINT_QUALIFIER_RE =
+  /\d|₹|\b(under|below|within|upto|up\s*to|over|above|between|less\s+than|more\s+than|max|maximum|min|minimum|around|about|soon)\b/i
+
+/**
+ * True when the message carries something extraction could actually read.
+ *
+ * Split out so the two vocabularies can be reasoned about separately: one is
+ * unambiguous search language, the other is only search language in the
+ * presence of a number or a comparator.
+ */
+function carriesExtractableSignal(text: string): boolean {
+  if (INTENT_SIGNAL_RE.test(text)) return true
+  return TOPIC_OR_CONSTRAINT_RE.test(text) && CONSTRAINT_QUALIFIER_RE.test(text)
+}
 
 /**
  * Is there anything in this message for the extractor to find?
@@ -334,7 +393,7 @@ export function nothingToExtract(message: string): boolean {
   const text = (message ?? '').trim()
   if (!text) return true
   if (text.split(/\s+/).length > 12) return false
-  if (INTENT_SIGNAL_RE.test(text)) return false
+  if (carriesExtractableSignal(text)) return false
 
   // A capitalised token past the first word may be a project or builder we hold.
   const tokens = text.split(/\s+/).slice(1)

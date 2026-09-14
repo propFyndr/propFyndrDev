@@ -136,3 +136,45 @@ describe('nothingToExtract — the no-signal skip', () => {
     assert.equal(nothingToExtract('flats around 1.5 cr in Noida'), false)
   })
 })
+
+describe('a topic is not a constraint', () => {
+  /**
+   * "under 2 crore" constrains a search. "what are the hidden costs beyond the
+   * sticker price?" is a question ABOUT cost and constrains nothing. Both carry
+   * the word "price", and one vocabulary could not tell them apart — so every
+   * advisory question containing one of these nouns paid a full extraction
+   * round-trip (~2,671 tokens) to learn nothing, charged IN FRONT of the answer
+   * call so the buyer waited for it before the answer began.
+   */
+  for (const q of [
+    'What are the hidden costs beyond the sticker price?',
+    'why is the registry delayed even after possession',
+    'who pays the transfer memorandum fee',
+    'what is stamp duty in UP',
+    'explain capital gains tax on property sale',
+  ]) {
+    it(`skips extraction for the advisory question: "${q.slice(0, 44)}"`, () => {
+      assert.equal(nothingToExtract(q), true)
+    })
+  }
+
+  for (const q of [
+    'show me 3bhk under 2 crore',
+    'my budget is 1.5cr',
+    'possession within a year',
+    'possession by 2027',
+    'I need possession soon',
+    'flats priced below 90 lakh',
+  ]) {
+    it(`still extracts the real constraint: "${q}"`, () => {
+      assert.equal(nothingToExtract(q), false)
+    })
+  }
+
+  it('keeps purpose words unconditional — they need no number', () => {
+    // "I want to invest" sets `purpose` with nothing numeric attached.
+    for (const q of ['I want to invest', 'looking for rental yield', 'resale only']) {
+      assert.equal(nothingToExtract(q), false, q)
+    }
+  })
+})
