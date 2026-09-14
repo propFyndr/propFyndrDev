@@ -42,6 +42,9 @@ const THINKING_BUDGET_TOKENS = Number(process.env.GEMINI_THINKING_BUDGET ?? 1024
 // Smallest budget gemini-3.5-flash-lite accepts; 0 is a 400 INVALID_ARGUMENT.
 const MIN_THINKING_BUDGET_TOKENS = Number(process.env.GEMINI_MIN_THINKING_BUDGET ?? 128)
 
+/** One "no cache hits" line per process rather than one per turn. */
+let warnedNoCache = false
+
 // Thrown when the stream stalls (no chunk within timeout) or produces nothing.
 export class GeminiStreamStallError extends Error {
   tokensSent: boolean
@@ -407,7 +410,27 @@ export async function streamWithGemini(
         const pct = ((usage.cachedTokens / usage.promptTokens) * 100).toFixed(1)
         console.log(`[gemini:cache] ${usage.cachedTokens}/${usage.promptTokens} prompt tokens served from cache (${pct}%)`)
       } else {
-        console.log(`[gemini:cache] no cache hit — ${usage.promptTokens} prompt tokens billed at full rate`)
+        /**
+         * Said once, not per turn, and it says which of the two causes it is.
+         *
+         * Per turn this line read "no cache hit — N prompt tokens billed at
+         * full rate", which is true on a free-tier key and true on a broken
+         * prefix, and it cost half a day to tell those apart by hand. The
+         * prefix was the first suspect and was never the problem: the head is
+         * byte-identical across turns. Gemini's free tier reports
+         * `cachedContentTokenCount: 0` on every call and refuses explicit
+         * caches outright (`...FreeTierlimit=0`), so nothing can be cached and
+         * no code change alters that.
+         *
+         * `scripts/audit-gemini-cache.ts` distinguishes the two in one command.
+         */
+        if (!warnedNoCache) {
+          warnedNoCache = true
+          console.log(
+            `[gemini:cache] no cache hits this process (first turn: ${usage.promptTokens} prompt tokens at full rate). ` +
+            `If this key is on the free tier that is expected and not fixable in code — run scripts/audit-gemini-cache.ts to confirm which it is.`,
+          )
+        }
       }
       void recordUsage({
         provider: 'gemini',
