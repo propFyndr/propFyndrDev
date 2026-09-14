@@ -5149,12 +5149,41 @@ EXECUTIVE RESPONSE INSTRUCTIONS:
        * actually is. The cards carry it, so the answer becomes true rather than
        * merely complete.
        */
+      const closer = `\n\nThey're on the cards above — tell me which one to open up, or what matters most and I'll narrow it.`
       const trimmed = fullText.trimEnd()
+      let closed = false
       if (/[:：]$/.test(trimmed) && cardsAreRendering) {
-        const closer = `\n\nThey're on the cards above — tell me which one to open up, or what matters most and I'll narrow it.`
         send('token', { token: closer })
         fullText = `${trimmed}${closer}`
+        closed = true
         console.log('[CHAT:DANGLING_LEADIN_CLOSED]', { chars: trimmed.length })
+      }
+
+      /**
+       * The same deletion, one sentence further in.
+       *
+       * The guard above catches an answer that ENDS on its promise. It missed
+       * the commoner shape: the model writes the lead-in, puts the whole
+       * ranking in a table, and signs off with a follow-up question, so the
+       * colon sits in the middle and the answer looks finished. Measured on six
+       * ranking turns, one came back as "Ranked by verified project score for
+       * Sector 150:", a stray footnote line, and "Would you like to compare the
+       * floor plans?" — naming not one of the four projects on the cards it was
+       * ranking.
+       *
+       * Naming none of the projects we just put on screen, on a turn that asked
+       * for a list of them, means the content was in the table that
+       * `suppressTables` removed. Same remedy as above: say where it actually
+       * is, rather than leaving the buyer to guess what was ranked.
+       */
+      if (!closed && cardsAreRendering && wantsProjectList) {
+        const shown = projects.slice(0, Math.max(cardsShownThisTurn, 1))
+        const namesAny = shown.some((p) => p.name && fullText.includes(p.name))
+        if (!namesAny) {
+          send('token', { token: closer })
+          fullText = `${fullText.trimEnd()}${closer}`
+          console.log('[CHAT:STRIPPED_LIST_CLOSED]', { shown: shown.length, chars: fullText.length })
+        }
       }
     } // end: !needsClarification && disambiguationText === null
 
