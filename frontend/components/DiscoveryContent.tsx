@@ -527,6 +527,8 @@ export default function DiscoveryContent({ userId, guestToken, onSessionChange, 
   // ── Voice input (Web Speech API) ──
   // Minimal local typings: the DOM lib doesn't ship SpeechRecognition (non-standard/webkit-prefixed).
   const [isListening, setIsListening] = useState(false);
+  /** Whisper is running. Distinct from `isListening` — the mic is already closed. */
+  const [isTranscribing, setIsTranscribing] = useState(false);
   const recognitionRef = useRef<MinimalSpeechRecognition | null>(null);
 
   useEffect(() => {
@@ -600,12 +602,40 @@ export default function DiscoveryContent({ userId, guestToken, onSessionChange, 
         const blob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
         const fd = new FormData();
         fd.append('audio', blob, 'recording.webm');
+        /**
+         * Every outcome says something.
+         *
+         * This used to be an empty catch with `if (data.text)` — so a failed
+         * transcription, a rate limit, and a recording with no speech in
+         * it were all indistinguishable from the button doing nothing at all.
+         * The buyer taps the mic, speaks, and the box stays empty with no
+         * explanation.
+         */
+        setIsTranscribing(true);
         try {
           const res = await fetch(`${API_BASE}/transcribe`, { method: 'POST', body: fd });
-
+          if (!res.ok) {
+            setToast({
+              message: res.status === 429
+                ? 'Too many voice requests just now — give it a moment.'
+                : 'Could not transcribe that. You can type instead.',
+            });
+            return;
+          }
           const data = await res.json();
-          if (data.text) setChatInput(data.text);
-        } catch { /* silent */ }
+          const text = (data.text ?? '').trim();
+          if (text) {
+            setChatInput(text);
+          } else {
+            // The server returns '' when Whisper heard no speech, rather than
+            // letting it hallucinate words into the search box.
+            setToast({ message: 'Didn’t catch that — try again, or type your question.' });
+          }
+        } catch {
+          setToast({ message: 'Could not reach voice service. You can type instead.' });
+        } finally {
+          setIsTranscribing(false);
+        }
       };
       mediaRecorderRef.current = recorder;
       recorder.start();
@@ -1528,15 +1558,21 @@ export default function DiscoveryContent({ userId, guestToken, onSessionChange, 
               <button
                 type="button"
                 onClick={toggleVoiceInput}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
+                disabled={isTranscribing}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer disabled:opacity-70 disabled:cursor-wait ${
                   isListening
                     ? 'bg-red-500 text-white shadow-[0_0_12px_rgba(239,68,68,0.5)] animate-pulse'
                     : 'bg-slate-100 dark:bg-zinc-800 hover:bg-slate-200 dark:hover:bg-zinc-700 text-slate-600 dark:text-zinc-300'
                 }`}
-                title={isListening ? 'Stop listening' : 'Voice search'}
-                aria-label={isListening ? 'Stop listening' : 'Voice search'}
+                title={isTranscribing ? 'Transcribing…' : isListening ? 'Stop listening' : 'Voice search'}
+                aria-label={isTranscribing ? 'Transcribing your recording' : isListening ? 'Stop listening' : 'Voice search'}
               >
-                {isListening ? (
+                {isTranscribing ? (
+                  <>
+                    <span className="w-3 h-3 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                    <span className="text-[11px]">Transcribing…</span>
+                  </>
+                ) : isListening ? (
                   <>
                     <div className="flex items-center gap-0.5 h-3">
                       <span className="w-0.5 h-2.5 bg-white rounded-full animate-pulse" />
