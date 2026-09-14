@@ -175,9 +175,19 @@ describe('FALLBACK_CHAIN shape', () => {
    * still a dead leg, just a different error. Exempting them by name keeps the
    * rule below strict for every key that CAN work, rather than softening it.
    *
+   * MISTRAL_API_KEY and MISTRAL_API_KEY1 join them for the same reason. Both
+   * answered when probed on 30 Aug; both now return 401 to `GET /v1/models`,
+   * so the credentials are dead rather than rate-limited, and their two legs
+   * were removed from the chain. A present-but-invalid key is worse than an
+   * absent one — an absent key costs `[FALLBACK:SKIP]` and nothing else, while
+   * a 401 costs a full round-trip in front of the buyer's answer.
+   *
    * Delete an entry here the day a real key is put under that name.
    */
-  const RETIRED_ENV_KEYS = new Set(['OPENAI_API_KEY', 'OPENAI_API_KEY1', 'OPENAI_API_KEY2', 'OPENAI_API_KEY3'])
+  const RETIRED_ENV_KEYS = new Set([
+    'OPENAI_API_KEY', 'OPENAI_API_KEY1', 'OPENAI_API_KEY2', 'OPENAI_API_KEY3',
+    'MISTRAL_API_KEY', 'MISTRAL_API_KEY1',
+  ])
 
   it('gives every key configured in the environment a chain entry', () => {
     // The narrow version of this only checked three named keys. GEMINI_API_KEY2

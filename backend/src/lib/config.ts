@@ -391,15 +391,22 @@ export const FALLBACK_CHAIN: FallbackKeyConfig[] = [
   // ═══════════════════════════════════════════════════════════════════════════
   // TIER 3 — TOOL-BLIND. Prose only; toolBlindGuard checks whatever they write.
   // ═══════════════════════════════════════════════════════════════════════════
-  // Both Mistral keys answer (probed 30 Aug). Two keys rather than one matters:
-  // Mistral's free tier rate-limits per key, so the second is a full extra
-  // allowance rather than a duplicate.
+  // Mistral is gone, for the same reason and on the same evidence as Cerebras
+  // below. Both keys answered when probed on 30 Aug; both now return 401 to
+  // `GET /v1/models`, so the credentials are dead rather than rate-limited:
   //
-  // Mistral's own docs advertise function calling on mistral-small-latest, so
-  // this tier may shrink to zero legs once that is probed the same way Groq's
-  // flags were — not done in this pass; see PROGRESS.md.
-  { provider: 'mistral', envKey: 'MISTRAL_API_KEY', model: 'mistral-small-latest', supportsTools: false, label: 'Mistral Small (key 1)' },
-  { provider: 'mistral', envKey: 'MISTRAL_API_KEY1', model: 'mistral-small-latest', supportsTools: false, label: 'Mistral Small (key 2)' },
+  //   MISTRAL_API_KEY   -> 401
+  //   MISTRAL_API_KEY1  -> 401
+  //
+  // A leg with a present-but-invalid key is worse than one with no key at all.
+  // `[FALLBACK:SKIP] — no API key configured` costs nothing, but a 401 costs a
+  // full round-trip before the chain moves on, and it is paid IN FRONT of the
+  // answer. Measured on the ranking path, where the extended-intent chain also
+  // tried Mistral second: Gemini 429, Mistral 401, then Groq — ~1.2s of latency
+  // spent reaching a provider that was going to answer anyway.
+  //
+  // Restoring it is putting a valid key back and re-adding these two lines;
+  // nothing else was removed. The Mistral client and its cap handling stay.
 
   // Cerebras is gone. Both keys returned 402 "payment required" on every probe
   // across three days, and the free tier they would otherwise fall back to caps

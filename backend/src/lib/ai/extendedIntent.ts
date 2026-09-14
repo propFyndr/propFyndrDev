@@ -422,37 +422,6 @@ async function extractWithGemini(
 
 
 
-async function extractWithMistral(
-  message: string,
-  previousIntent: ExtendedIntentWithConfidence | undefined,
-): Promise<ExtendedIntentWithConfidence> {
-  console.log('[EXTENDED_INTENT] START extractWithMistral', Date.now())
-  const client = new OpenAI({
-    apiKey: process.env.MISTRAL_API_KEY,
-    baseURL: 'https://api.mistral.ai/v1',
-    timeout: 10000,
-  })
-
-  const userContent = previousIntent
-    ? `Previous intent: ${JSON.stringify(previousIntent)}\n\nNew user message: ${message}`
-    : `User message: ${message}`
-
-  const completion = await client.chat.completions.create({
-    model: 'mistral-small-latest',
-    messages: [
-      { role: 'system', content: EXTENDED_INTENT_EXTRACTION_PROMPT },
-      { role: 'user', content: userContent },
-    ],
-    response_format: { type: 'json_object' },
-    max_tokens: 512,
-    temperature: 0.1,
-  })
-
-  console.log('[EXTENDED_INTENT] END extractWithMistral', Date.now())
-  const raw = completion.choices[0]?.message?.content ?? '{}'
-  return parseExtendedIntentJson(raw, previousIntent, 'mistral')
-}
-
 /** Parse raw LLM JSON output into ExtendedIntentWithConfidence. */
 function parseExtendedIntentJson(
   raw: string,
@@ -567,7 +536,7 @@ export async function extractExtendedIntent(
       console.log('[EXTENDED_INTENT] Gemini path succeeded', Date.now(), { result })
       return { intent: result, degraded: false }
     } catch (err) {
-      console.warn('[extended_intent] Gemini failed, trying Mistral:', (err as Error).message)
+      console.warn('[extended_intent] Gemini failed, trying Groq:', (err as Error).message)
     }
   }
 
@@ -577,17 +546,16 @@ export async function extractExtendedIntent(
   // provider with no balance before reaching one that works. It also pinned
   // `llama-3.3-70b`, which Cerebras had already retired.
 
-  // 3. Mistral
-  if (process.env.MISTRAL_API_KEY) {
-    try {
-      console.log('[EXTENDED_INTENT] trying Mistral path', Date.now())
-      const result = await extractWithMistral(userMessage, previousIntent)
-      console.log('[EXTENDED_INTENT] Mistral path succeeded', Date.now(), { result })
-      return { intent: result, degraded: false }
-    } catch (err) {
-      console.warn('[extended_intent] Mistral failed, trying Groq:', (err as Error).message)
-    }
-  }
+  // The Mistral step that used to be 3 is gone with its keys, for the reason
+  // the note above gives about Cerebras. Both MISTRAL_API_KEY and
+  // MISTRAL_API_KEY1 now return 401 to `GET /v1/models`: dead credentials, not
+  // a rate limit. It sat between Gemini and Groq, so on the ranking path every
+  // extraction paid Gemini's 429 and then a 401 before reaching Groq, which
+  // was going to answer anyway — about 1.2s in front of the buyer's answer.
+  //
+  // `extractWithMistral` went with it, the way `extractWithOpenAI` went with
+  // the OpenAI step below. Restoring Mistral is a valid key, this block, and a
+  // helper shaped like `extractWithGemini` above.
 
   // 4. Groq
   if (process.env.GROQ_API_KEY) {

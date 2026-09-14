@@ -293,13 +293,21 @@ describe('beta: the fallback chain is one chain', () => {
     }
   })
 
-  it('keeps more than one provider in the chain', () => {
-    // A chain of one provider with spare keys is not a fallback chain; it is a
+  it('keeps more than one vendor in the chain', () => {
+    // A chain of one vendor with spare keys is not a fallback chain; it is a
     // single point of failure. Four OpenAI legs are dropped at startup when
     // OPENAI_BASE_URL points at the retired host, which is how the chain came
     // to end at Groq without anyone noticing.
-    const providers = new Set(FALLBACK_CHAIN.map((l) => l.provider))
-    assert.ok(providers.size >= 3, `only ${providers.size} provider(s): ${[...providers].join(', ')}`)
+    //
+    // Counted by vendor, not by `leg.provider`. That field is the CLIENT type,
+    // and it stopped being a proxy for vendor the day Groq's legs moved to
+    // provider: 'openai' (see config.ts's GROQ_OPENAI_BASE comment) — Cohere,
+    // NVIDIA and Groq now all report 'openai', so three vendors count as one.
+    // Removing Mistral, whose keys were dead, dropped the distinct `provider`
+    // count to two and failed this test while four real vendors remained. The
+    // test was measuring the wrong thing; the envKey names the vendor.
+    const vendors = new Set(FALLBACK_CHAIN.map((l) => l.envKey.replace(/_API_KEY\d*$/, '')))
+    assert.ok(vendors.size >= 3, `only ${vendors.size} vendor(s): ${[...vendors].join(', ')}`)
   })
 
   it('never ranks a tool-blind leg above a tool-capable one', () => {
