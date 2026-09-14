@@ -987,10 +987,26 @@ export async function discoverProjects(intent: Intent, offset: number = 0): Prom
   // The city constraint is only honoured when the phrase named one — a bare
   // "Sector 107" stays open to both cities so the disambiguation guard below
   // can still ask which was meant.
+  /**
+   * The city the buyer named in the message, if any.
+   *
+   * Declared here because it does two jobs below: it constrains this query, and
+   * it stops the disambiguation guard asking a question the buyer has already
+   * answered. Skipping the question WITHOUT constraining the query would be the
+   * older bug in reverse — both cities silently merged and presented as one
+   * answer — so the two must move together.
+   */
+  const cityNamedByBuyer =
+    typeof effectiveIntent.city === 'string' && effectiveIntent.city.trim() ? effectiveIntent.city.trim() : undefined
+
   const where = buildHardFilters(
     effectiveIntent,
     location?.sectors,
-    location?.source === 'exact_in_city' ? location.cities : undefined,
+    location?.source === 'exact_in_city'
+      ? location.cities
+      : cityNamedByBuyer
+      ? [cityNamedByBuyer]
+      : undefined,
   )
 
   // Get total count and paginated results
@@ -1072,7 +1088,19 @@ export async function discoverProjects(intent: Intent, offset: number = 0): Prom
       // the search, so only one city's rows are here and this never fires.
       const askedForOneCity = (location?.cities.length ?? 0) === 1
 
-      if (!askedForOneCity) {
+      /**
+       * The buyer already told us which city.
+       *
+       * `location` is resolved from the SECTOR term, so "Sector 107" reports
+       * two cities however the message was written — the word "noida" in
+       * "best properties in sector 107 noida" was never read. Measured on the
+       * 321-query corpus, that made the commonest sector failure a question
+       * asking the buyer to choose a city they had just named.
+       *
+       * `intent.city` is now extracted (see cityNamedIn), so when it names one
+       * of the candidates the answer is to FILTER to it, not to ask.
+       */
+      if (!askedForOneCity && !cityNamedByBuyer) {
         const projectsByCity = new Map<string, typeof rawProjects[0][]>()
         for (const p of rawProjects) {
           if (!projectsByCity.has(p.city)) {

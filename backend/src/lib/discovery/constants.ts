@@ -43,6 +43,41 @@ export const CITY_LEVEL_ALIASES: Record<string, 'noida' | 'greater_noida' | 'gre
   'noida extension': 'greater_noida_west',
 }
 
+/**
+ * The city the buyer actually named, if any.
+ *
+ * "Sector 107" is a real sector in BOTH Noida and Greater Noida West, so the
+ * search asks which one was meant. That question is right when the buyer said
+ * only "sector 107" — and wrong when they wrote "best properties in sector 107
+ * NOIDA", which is what the corpus measured: 50 of 103 sector queries came back
+ * as a clarifying question, and the commonest was asking a buyer to pick a city
+ * they had already named.
+ *
+ * The city was never extracted at all, so "sector 107 noida" and "sector 107
+ * greater noida west" reached the search as the same query.
+ *
+ * Longest match wins, which is the whole difficulty: every alias here contains
+ * "noida" as a substring, so a naive scan reports three cities for a message
+ * naming one. "greater noida west" is checked before "greater noida", and both
+ * before "noida".
+ */
+const CITY_ALIAS_BY_LENGTH = Object.keys(CITY_LEVEL_ALIASES).sort((a, b) => b.length - a.length)
+
+/** Canonical DB city names, keyed by the region an alias resolves to. */
+const REGION_TO_CITY: Record<string, string> = {
+  noida: 'Noida',
+  greater_noida: 'Greater Noida',
+  greater_noida_west: 'Greater Noida West',
+}
+
+export function cityNamedIn(message: string): string | undefined {
+  const text = ` ${(message ?? '').toLowerCase().replace(/[^a-z\s]/g, ' ').replace(/\s+/g, ' ')} `
+  for (const alias of CITY_ALIAS_BY_LENGTH) {
+    if (text.includes(` ${alias} `)) return REGION_TO_CITY[CITY_LEVEL_ALIASES[alias]]
+  }
+  return undefined
+}
+
 // Noida / Greater Noida sector adjacency map.
 // Keys are canonical sector strings as stored in the DB.
 // Values are ordered by geographic proximity (closest first).

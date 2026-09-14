@@ -8,6 +8,7 @@ import type { Intent } from '../discovery'
 import { MODELS, FALLBACK_CHAIN } from '../config'
 import { IntentSchema } from '../discovery/intent'
 import { extractDeterministic, type DeterministicIntent } from './intentDeterministic'
+import { cityNamedIn } from '../discovery/constants'
 import { prisma } from '../db'
 
 /**
@@ -645,6 +646,20 @@ export function extractIntentHeuristic(message: string, previousIntent: Intent):
       fallback.areaMin = parseInt(singleAreaMatch[1]) * 0.9
       fallback.areaMax = parseInt(singleAreaMatch[1]) * 1.1
     }
+  }
+
+  /**
+   * The city the buyer named, when they named one.
+   *
+   * Never extracted before, so "sector 107 noida" and "sector 107 greater
+   * noida west" reached the search as the same query — and because Sector 107
+   * exists in both, discovery asked which city was meant. Measured on the
+   * 321-query corpus, that was the single commonest sector failure: the product
+   * asking a buyer to pick a city they had already typed.
+   */
+  const namedCity = cityNamedIn(message)
+  if (namedCity) {
+    fallback.city = namedCity
   }
 
   // Builder name extraction (basic pattern)
