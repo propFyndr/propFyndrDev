@@ -87,6 +87,31 @@ describe('playbook coverage — real Noida buyer queries', () => {
   }
 })
 
+describe('vocabulary we already explain is vocabulary we recognise', () => {
+  // Found by scripts/audit-query-readiness.ts: the playbook TEXT explained
+  // tripartite agreements (4 mentions), the RERA escrow and Form-7 audit, BSP,
+  // built-up vs super built-up and the allotment/possession document chain —
+  // but the selection regexes did not recognise any of those terms, so a buyer
+  // who asked about one by name got no framing and the answer came from model
+  // memory instead of the paragraph we had written for exactly that question.
+  for (const [query, expected] of [
+    ['what is a tripartite agreement', 'legalDueDiligence'],
+    ['do I get an allotment letter or a sub-lease deed', 'legalDueDiligence'],
+    ['possession letter vs actual handover', 'legalDueDiligence'],
+    ['what is an authority no-dues certificate', 'legalDueDiligence'],
+    ['is the occupancy certificate issued yet', 'legalDueDiligence'],
+    ['what is BSP', 'landedCostAndTax'],
+    ['difference between built-up area and super built-up', 'landedCostAndTax'],
+    ['what is the landed cost', 'landedCostAndTax'],
+    ['how does the RERA escrow account work', 'nri'],
+    ['what is the Form-7 CA audit', 'nri'],
+  ] as Array<[string, PlaybookId]>) {
+    it(`${expected} <- "${query.slice(0, 44)}"`, () => {
+      assert.ok(matchedPlaybooks(query).includes(expected), `got [${matchedPlaybooks(query).join(', ') || 'none'}]`)
+    })
+  }
+})
+
 describe('playbook selection order', () => {
   it('every playbook is reachable through the selection order', () => {
     // SELECTION_ORDER is written out by hand; a playbook added to the record

@@ -79,7 +79,7 @@ When an investor seeks rental income or ROI:
       // `\bnri\b` never matches "NRIs", which is how the question is usually
       // written ("are NRIs driving up prices?") — same inflection miss as
       // `\brelocat\b` on "relocating".
-      /\b(nris?|overseas|abroad|from (dubai|singapore|usa|uk|canada|australia)|remote(ly)? (buy|purchase|register)|fema|repatriat|power of attorney|fraud protection|is it safe to buy)\b/i.test(m) ||
+      /\b(nris?|overseas|abroad|from (dubai|singapore|usa|uk|canada|australia)|remote(ly)? (buy|purchase|register)|fema|repatriat|rera escrow|escrow account|form[- ]?7|70%\s*rule|power of attorney|fraud protection|is it safe to buy)\b/i.test(m) ||
       i?.riskProfile === 'nri' ||
       i?.journeyStage === 'nri_investor',
     text: `### OVERSEAS / NRI CAPITAL ALLOCATOR PLAYBOOK
@@ -131,7 +131,7 @@ When a user asks about price viability (e.g. "Is 2 crore too much for a 3 BHK in
       // `registry delay` does not match "registry delayed" — the `\b` lands
       // mid-word. Buyers write the inflected form ("why is the registry
       // delayed even after possession?"), which reached no playbook at all.
-      /\b(leasehold|freehold|transfer memorandum|\btm\b|transfer charges?|society ndc|rwa ndc|sub[- ]lease|document chain|registry\s*delay\w*|delayed\s*registr\w*|registry\s*(?:blocked|freeze|pending|stall)|physical\s+keys|token money|clean title|authority dues|land dues|dakhil kharij|mutation certificate|encumbrance|bar[- ]?mukti|authority seal|sealing|kisan quota|abadi plot|unauthorized plotting|virasat|chakbandi)\b/i.test(m),
+      /\b(leasehold|freehold|transfer memorandum|\btm\b|transfer charges?|society ndc|rwa ndc|sub[- ]lease|document chain|registry\s*delay\w*|delayed\s*registr\w*|registry\s*(?:blocked|freeze|pending|stall)|physical\s+keys|token money|clean title|authority dues|land dues|dakhil kharij|mutation certificate|encumbrance|bar[- ]?mukti|tripartite|allotment letter|possession letter|no[- ]dues?(\s+certificate)?|\bndc\b|occupancy certificate|completion certificate|authority seal|sealing|kisan quota|abadi plot|unauthorized plotting|virasat|chakbandi)\b/i.test(m),
     text: `### LEGAL DUE DILIGENCE & TITLE STRUCTURE PLAYBOOK
 When the user asks about leasehold vs freehold, Transfer Memorandum, delayed registries, or title diligence:
 - **Authority Leasehold (90 to 99 Years)**: Residential land in NOIDA, GNIDA, and YEIDA is allotted on a **90 to 99-year leasehold basis**. The authority holds underlying land title; the homebuyer owns the apartment structure and holds a registered tripartite sub-lease deed. Blanket freehold conversion remains deferred by UP state policy because local authorities rely on lease rent and transfer revenues for regional infrastructure.
@@ -150,7 +150,7 @@ When the user asks about leasehold vs freehold, Transfer Memorandum, delayed reg
       // EDC, IDC, PLC, IFMS, club membership, ITC and ground rent each reached
       // no playbook on their own, and none of them is a project row, so the
       // generic path had nothing to answer from either.
-      /\b(under[- ]construction|ready[- ]to[- ]move|gst on (flat|property|apartment)|\d+%\s*gst|input tax credit|\bitc\b|carpet (area )?(vs|versus) super|loading percentage|loading %|hidden costs?|one[- ]time lease rent|ground rent|\bedc\b|\bidc\b|external development charges?|infrastructure development charges?|preferential location|\bplc\b|\bifms\b|maintenance security|club membership|bsp vs landed|section 54|194[- ]?ia|tds on property|capital gains|dg backup rate|power backup rate|floor area ratio|\bfar\s+(?:is|of|limit|policy|allowed|norms?)\b|construction quality|mivan)\b/i.test(m),
+      /\b(under[- ]construction|ready[- ]to[- ]move|gst on (flat|property|apartment)|\d+%\s*gst|input tax credit|\bitc\b|carpet (area )?(vs|versus) super|\bbsp\b|basic sale price|landed cost|built[- ]up area|super built[- ]up|saleable area|loading percentage|loading %|hidden costs?|one[- ]time lease rent|ground rent|\bedc\b|\bidc\b|external development charges?|infrastructure development charges?|preferential location|\bplc\b|\bifms\b|maintenance security|club membership|bsp vs landed|section 54|194[- ]?ia|tds on property|capital gains|dg backup rate|power backup rate|floor area ratio|\bfar\s+(?:is|of|limit|policy|allowed|norms?)\b|construction quality|mivan)\b/i.test(m),
     text: `### LANDED COST, TAXATION & SPATIAL EFFICIENCY PLAYBOOK
 When the user asks about under-construction vs ready-to-move, GST impact, hidden costs, or carpet area:
 - **GST Disparity (UC vs RTM)**: Non-affordable under-construction flats attract **5% GST** (without Input Tax Credit). In contrast, Ready-to-Move (RTM) flats with a valid Occupancy Certificate (OC) attract **0% GST**. On a ₹1.5 Crore apartment, this represents an immediate ₹7.50 Lakh tax difference.
