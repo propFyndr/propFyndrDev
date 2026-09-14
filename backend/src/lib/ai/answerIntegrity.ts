@@ -93,6 +93,40 @@ const OPAQUE_SCORE: Array<[RegExp, string]> = [
   [/\b\d{1,3}\s*\/\s*100\b/, 'quotes a score out of 100'],
 ]
 
+/**
+ * Our own column and model names, read aloud to a buyer.
+ *
+ * HARD RULE 18 already tells the model to translate these into buyer language
+ * — "Market Leader", not "`builder_reputation`: Market Leader" — but nothing
+ * enforced it. Probed against the gate, every one of these walked straight
+ * through: `builder_reputation`, `recommendation_tier: STRONG_BUY`,
+ * `decision_thesis`, `project_risk_flag`, `delivery_score`, `ProjectDna`.
+ *
+ * Two rules rather than one. The named list is precise and survives renaming
+ * by failing loudly; the generic snake_case rule is the catch-all for a column
+ * nobody thought to list. A buyer-facing sentence has no reason to contain an
+ * underscore-joined identifier at all, so the generic rule costs nothing —
+ * verified against the honest-answer set in scripts/audit-disclosure.ts, which
+ * it leaves untouched.
+ *
+ * The internal TIER VALUES are here too. STRONG_BUY and WATCH are analyst
+ * vocabulary; the buyer is owed the reasoning, not the label.
+ */
+const INTERNAL_IDENTIFIER: Array<[RegExp, string]> = [
+  [/\b(?:builder_reputation|rera_standing|delivery_confidence|value_positioning|location_quality|lifestyle_depth|recommendation_tier|decision_thesis|why_buy|why_avoid|risk_thesis|walk_away_conditions|project_risk_flag|legal_flag|nclt_moratorium_active|registry_status|data_status|delivery_score|construction_quality_score|rera_compliance_score|ai_search_keywords|builder_theme)\b/i, 'names an internal database field'],
+  [/\b(?:ProjectDna|DecisionProfile|RecommendationProfile|IntelligenceStatus|PROJECT_PUBLIC_SELECT)\b/, 'names an internal model'],
+  [/\b(?:STRONG_BUY|BUILDER_DATA_INCOMPLETE|SECTOR_NOT_COVERED|PROJECT_NOT_FOUND)\b/, 'quotes an internal sentinel or tier value'],
+  /**
+   * Catch-all for a column nobody thought to list.
+   *
+   * Anchored both sides so it matches a whole identifier rather than a fragment
+   * of one. Buyer prose contains no underscore-joined tokens, so this costs
+   * nothing — verified against the honest-answer set in
+   * scripts/audit-disclosure.ts, which it leaves untouched.
+   */
+  [/\b[a-z][a-z0-9]*(?:_[a-z0-9]+){1,}\b/, 'reads an internal identifier aloud'],
+]
+
 const RAW_PAYLOAD: Array<[RegExp, string]> = [
   // A JSON object or array as the body of the answer, not an inline snippet.
   [/^\s*[[{][\s\S]{0,80}"\w+"\s*:/, 'the answer opens as a JSON payload'],
@@ -241,7 +275,14 @@ const INVENTORY_SIZE: Array<[RegExp, string]> = [
   // "verified" may sit either side of the number. Measured: "We track 12
   // verified projects in Sector 1 alone" walked past the version that only
   // allowed it before the digit.
-  [new RegExp(`\\b(?:we|i)\\s+(?:hold|have|track|cover|maintain|list|carry)\\s+(?:verified\\s+|only\\s+)?(?:data\\s+on\\s+)?${HEDGE}${DIGIT_COUNT}\\s+(?:[\\w-]+\\s+){0,2}?(?:projects?|societies|properties|sectors?|builders?|developers?|listings?)`, 'i'), 'counts our holdings'],
+  // `HEDGE` sits BEFORE the verb as well as after it: "we currently maintain
+  // 393 verified listings" put it in front and walked past the version that
+  // allowed it only behind. `data (on|for|about)` for the same reason —
+  // "verified data FOR 393 properties" escaped a rule that knew only "data on".
+  [new RegExp(`\\b(?:we|i)\\s+${HEDGE}(?:hold|have|track|cover|maintain|list|carry)\\s+(?:verified\\s+|only\\s+)?(?:data\\s+(?:on|for|about)\\s+)?${HEDGE}${DIGIT_COUNT}\\s+(?:[\\w-]+\\s+){0,2}?(?:projects?|societies|properties|sectors?|builders?|developers?|listings?)`, 'i'), 'counts our holdings'],
+  // "Out of the 280 projects we track, 12 match." The leading count is the
+  // table's, not the shortlist's — the subordinate clause is what hid it.
+  [new RegExp(`\\b(?:out\\s+of|among)\\s+the\\s+${HEDGE}${DIGIT_COUNT}\\s+(?:[\\w-]+\\s+){0,2}?(?:projects?|societies|properties|sectors?|builders?|developers?|listings?)\\s+(?:we|i)\\s+(?:hold|have|track|cover|maintain|list|carry)`, 'i'), 'counts our holdings'],
   // "280 projects across 61 sectors" — the shape of the table, whoever says it.
   // Measured live: "280 projects across 117 builders" walked past this pattern
   // because "builders" was not in the second noun group — only the sector/city
@@ -407,6 +448,7 @@ export function scanDisclosure(text: string): IntegrityViolation[] {
     ...scan(text, INVENTORY_SIZE, 'inventory_size'),
     ...scan(text, RAW_PAYLOAD, 'raw_payload'),
     ...scan(text, OPAQUE_SCORE, 'opaque_score'),
+    ...scan(text, INTERNAL_IDENTIFIER, 'meta_leak'),
   ]
 }
 

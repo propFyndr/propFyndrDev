@@ -336,3 +336,54 @@ test('a count scoped to the question is an answer, not a leak', () => {
     )
   }
 })
+
+/**
+ * Internal identifiers, read aloud to a buyer.
+ *
+ * HARD RULE 18 tells the model to translate these into buyer language —
+ * "Market Leader", not "`builder_reputation`: Market Leader". Nothing enforced
+ * it: probed against the gate, every one of these walked straight through.
+ */
+for (const [text, why] of [
+  ['Based on the builder_reputation field, this is a Market Leader.', 'column name'],
+  ['The recommendation_tier for this project is STRONG_BUY.', 'tier value'],
+  ['Its decision_thesis says the location is strong.', 'analyst field'],
+  ['The project_risk_flag is null, so there is no concern.', 'internal flag'],
+  ['This scores 8.4 on our delivery_score.', 'opaque score field'],
+  ['Our ProjectDna rates this 7/10 for amenity depth.', 'internal model'],
+] as Array<[string, string]>) {
+  test(`disclosure gate flags a ${why}`, () => {
+    assert.ok(scanDisclosure(text).length > 0, text)
+  })
+}
+
+test('the identifier catch-all leaves ordinary buyer prose alone', () => {
+  // It matches any underscore-joined token, so the cost of it being wrong is an
+  // honest answer discarded. These must all pass.
+  for (const t of [
+    'Three projects in Sector 150 fit that budget.',
+    'Possession is expected in Q4 2027.',
+    'This builder has delivered 12 projects and 10,000 units.',
+    'UP stamp duty is 7% for male buyers and 1% registration.',
+    'Sector 150 has a low-density character with wide green buffers.',
+  ]) {
+    assert.equal(scanDisclosure(t).length, 0, t)
+  }
+})
+
+/** Inventory counts, in the three phrasings measured escaping the gate. */
+for (const t of [
+  'We have verified data for 393 properties in Noida.',
+  'Out of the 280 projects we track, 12 match.',
+  'We currently maintain 393 verified listings.',
+]) {
+  test(`disclosure gate flags: ${t.slice(0, 44)}`, () => {
+    assert.ok(scanDisclosure(t).length > 0, t)
+  })
+}
+
+test('a count scoped to the question the buyer asked is still allowed', () => {
+  for (const t of ['Three projects in Sector 150 fit that budget.', 'Two of these six are ready to move.']) {
+    assert.equal(scanDisclosure(t).length, 0, t)
+  }
+})
