@@ -42,8 +42,8 @@ export function bhkLabel(unitTypes: Array<{ bhk?: number | null }> | null | unde
  * inbox. Adding a field to a template means adding it to this list.
  */
 const REQUIRED_FIELDS: Record<WebhookEvent, string[]> = {
-  callback_requested: ['name', 'phone', 'project_name', 'sector', 'price_range', 'bhk', 'lead_score', 'lead_tier', 'ai_summary'],
-  site_visit_requested: ['name', 'phone', 'project_name', 'visit_date', 'time_slot', 'sector', 'price_range', 'bhk', 'lead_score', 'lead_tier'],
+  callback_requested: ['name', 'phone', 'project_name', 'sector', 'price_range', 'bhk', 'lead_score', 'lead_tier', 'ai_summary', 'recent_questions'],
+  site_visit_requested: ['name', 'phone', 'project_name', 'visit_date', 'time_slot', 'sector', 'price_range', 'bhk', 'lead_score', 'lead_tier', 'ai_summary', 'recent_questions'],
   builder_application_submitted: ['application_id', 'company_name', 'email', 'phone'],
   partner_application_submitted: ['partner_id', 'partner_name', 'builder_name', 'email', 'phone'],
 }

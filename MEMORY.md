@@ -3273,3 +3273,47 @@ Numbers that should inform what gets built next, not just this feature:
 * `chat_sessions.summary_location/financial/timeline`: 15–19 rows of 43,275.
 * 394 projects, 393 with RERA and a price label; 1,047 unit types, 707 payment
   plans, 258 project documents.
+
+## 2026-09-15 — The lead alert carries the buyer's own words now
+
+### What was decided
+
+`ai_summary` fell back to null on every lead because `UserMemory.summary_text`
+has no writer anywhere in the codebase (0 of 1,110 rows). Two fields replace it,
+both composed from data we already hold:
+
+* `summarizeProfile()` — a deterministic digest of the stored profile
+  ("3BHK · ₹1.2–1.5 cr · Sector 150 · loan pre-approved · viewed 6, saved 2").
+  Every clause is a stored value; an absent field is omitted. Returns null when
+  we hold nothing, so the alert shows no line rather than an empty one.
+* `loadRecentQuestions()` — the buyer's last three messages, verbatim from the
+  transcript. This is what a salesperson actually wants before dialling, and no
+  derived field substitutes for it.
+
+Rejected: generating prose with an LLM at callback time. It puts a model call,
+its latency and its failure modes on the revenue path to produce something the
+stored fields already say.
+
+`chat_session_id` also rides along now, so the caller can find the conversation
+in the admin Conversations page.
+
+### Deliberately not changed
+
+* **Session summaries** (`summary_location/financial/timeline`). The writer
+  exists — it fires from `maybeCompress`, which needs `COMPRESSION_THRESHOLD =
+  14` messages. 49 sessions in all of production have 6+ user turns, so it
+  effectively never runs. That is a usage fact, not a bug: lowering the
+  threshold would add an LLM call per session to serve nobody. Buyer memory
+  across turns comes from `UserMemory` (budget on 641 rows, BHK on 825), which
+  is written from turn one and works.
+* **Leads all sitting at `new`.** 763 callbacks from 4 phone numbers is our own
+  testing, and no sales workflow exists to work them. An admin "needs follow-up"
+  filter would be code nobody calls; the chaser now pushes the same information
+  out by email instead.
+
+### Found, not acted on
+
+`POST /api/v1/leads/webhook` → `notifyLead()` is a complete second notification
+path — WhatsApp (Meta or Twilio) plus Resend email, secret-verified — and
+**nothing in the codebase calls it**. If direct WhatsApp alerts on HOT leads are
+wanted, that path already exists and needs configuration, not code.

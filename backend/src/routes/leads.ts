@@ -8,7 +8,7 @@ import { trackConversion } from '../lib/analytics/tracking'
 import { env } from '../lib/env'
 import { notifyLead } from '../lib/notify'
 import { checkRateLimit } from '../lib/cache'
-import { loadLeadProfile, scoreLead } from '../lib/leadProfile'
+import { loadLeadProfile, scoreLead, summarizeProfile, loadRecentQuestions } from '../lib/leadProfile'
 import { fireWebhook, bhkLabel } from '../lib/webhook'
 import { buildLeadDossier } from '../lib/leadDossier'
 import { analyzeGhostPoolByProject } from '../lib/ghostPool'
@@ -227,7 +227,11 @@ router.post('/callback', async (req: Request, res: Response) => {
     loan_pre_approved: loanPreApproved,
     lead_score: score,
     lead_tier: tier,
-    ai_summary: profile.ai_summary ?? null,
+    // summary_text has no writer, so this fell back to null on every lead. The
+    // digest is composed from stored fields; the questions are the buyer's own.
+    ai_summary: profile.ai_summary ?? summarizeProfile(profile),
+    recent_questions: await loadRecentQuestions(resolvedSessionId),
+    chat_session_id: resolvedSessionId ?? null,
     created_at: cb.created_at.toISOString(),
   }).catch((e) => console.error('[leads] webhook failed:', e))
 
@@ -361,7 +365,9 @@ router.post('/site-visit', async (req: Request, res: Response) => {
     loan_pre_approved: svProfile.loan_pre_approved ?? false,
     lead_score: svScore,
     lead_tier: svTier,
-    ai_summary: svProfile.ai_summary ?? null,
+    ai_summary: svProfile.ai_summary ?? summarizeProfile(svProfile),
+    recent_questions: await loadRecentQuestions(session_id),
+    chat_session_id: session_id ?? null,
     created_at: sv.created_at.toISOString(),
   }).catch((e) => console.error('[leads] webhook failed:', e))
 

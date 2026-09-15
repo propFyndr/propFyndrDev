@@ -23,7 +23,7 @@ describe('webhook payload contract', () => {
     const drifted = { name: 'A', phone: '9', projectName: 'X', visitDate: 'd', timeSlot: 't' }
     assert.deepEqual(
       missingFields('site_visit_requested', drifted),
-      ['project_name', 'visit_date', 'time_slot', 'sector', 'price_range', 'bhk', 'lead_score', 'lead_tier'],
+      ['project_name', 'visit_date', 'time_slot', 'sector', 'price_range', 'bhk', 'lead_score', 'lead_tier', 'ai_summary', 'recent_questions'],
     )
   })
 
@@ -31,6 +31,7 @@ describe('webhook payload contract', () => {
     const complete = {
       name: 'A', phone: '9', project_name: 'X', visit_date: 'd', time_slot: 't',
       sector: null, price_range: null, bhk: null, lead_score: 0, lead_tier: 'COLD',
+      ai_summary: null, recent_questions: [],
     }
     assert.deepEqual(missingFields('site_visit_requested', complete), [])
   })
