@@ -88,30 +88,35 @@ describe('POST /api/v1/leads/callback', () => {
 })
 
 describe('POST /api/v1/leads/site-visit', () => {
-  it('requires authentication', async () => {
+  it('accepts site visit from anonymous user (guestToken)', async () => {
     const res = await request(app).post('/api/v1/leads/site-visit').send({
       name: 'John Doe',
       phone: '+919876543210',
       projectSlug: 'ace-hanei',
       projectName: 'ACE Hanei',
-      visitDate: '2025-12-01',
-      timeSlot: '10:00'
+      visitDate: '2099-12-01',
+      timeSlot: '10:00 AM',
+      guestToken: 'guest_abc123'
     })
-    assert.equal(res.status, 401)
+    // The claim this test exists to make is that anonymous booking is allowed,
+    // so 401 is the one status that must never come back. Listing every other
+    // code as acceptable would pass whether the route works or not — which is
+    // how a permanent 400 on every site visit survived to production once.
+    assert.notEqual(res.status, 401, 'a guest with a guestToken must not be rejected as unauthorised')
   })
 
   it('validates future visit date only', async () => {
-    const pastDate = '2020-01-01'
-    const futureDate = '2099-12-31'
-
+    // This used to assert 401 and note "would need auth token to fully test
+    // date validation" — the route required a login, so the date rule was
+    // unreachable from a test. Anonymous booking makes it reachable, so the
+    // test now checks the thing it is named after.
     const resPast = await request(app).post('/api/v1/leads/site-visit').send({
       name: 'John', phone: '+919876543210',
       projectSlug: 'ace', projectName: 'ACE',
-      visitDate: pastDate, timeSlot: '10:00'
+      visitDate: '2020-01-01', timeSlot: '10:00'
     })
-    assert.equal(resPast.status, 401) // Will be 401 first due to auth
-
-    // Would need auth token to fully test date validation
+    assert.equal(resPast.status, 400, 'a visit date in the past must be rejected')
+    assert.match(resPast.body.error ?? '', /future/i)
   })
 
   it('validates visit date format (ISO string)', async () => {

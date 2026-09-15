@@ -60,8 +60,8 @@ export const SiteVisitSchema = z.object({
   timeSlot: z.string().optional(),
   time_slot: z.string().optional(),
   // Sent by the scheduler and silently dropped until now, though the columns exist.
-  email: z.string().email().optional(),
-  message: z.string().max(500).optional(),
+  email: z.string().email().optional().or(z.literal('')).nullable(),
+  message: z.string().max(500).optional().nullable(),
   // Was read straight off req.body, unvalidated, and handed to Prisma.
   session_id: z.string().optional(),
   guestToken: z.string().optional(),
@@ -265,12 +265,16 @@ router.post('/callback', async (req: Request, res: Response) => {
 })
 
 router.post('/site-visit', async (req: Request, res: Response) => {
-  // Verify user is authenticated (signup required per CLAUDE.md)
-  const userId = await verifyUser(req)
-  if (!userId) { res.status(401).json({ error: 'Unauthorized' }); return }
+  // Site visits work for anonymous users (guestToken) OR authenticated users
+  const userId = (await verifyUser(req)) ?? undefined
+  const guestToken =
+    (req.body as { guestToken?: string }).guestToken ||
+    (req.headers['x-guest-token'] as string | undefined) ||
+    undefined
 
-  // Rate limit: 30 site-visit requests per hour per user
-  const rateLimit = await checkRateLimit(`site-visit:${userId}`, 30, 3600)
+  // Rate limit by userId if authenticated, otherwise by guestToken or IP
+  const rateLimitKey = userId ? `site-visit:${userId}` : guestToken ? `site-visit:guest:${guestToken}` : `site-visit:ip:${req.ip}`
+  const rateLimit = await checkRateLimit(rateLimitKey, 30, 3600)
   if (!rateLimit.allowed) { res.status(429).json({ error: 'Too many requests' }); return }
 
   const parsed = SiteVisitSchema.safeParse(req.body)
@@ -331,20 +335,29 @@ router.post('/site-visit', async (req: Request, res: Response) => {
       project_slug: projectSlug!,
       project_name: projectName!,
       name, phone,
-      email: email ?? null,
-      message: message ?? null,
+      email: email || null,
+      message: message || null,
       visit_date: new Date(visitDate!),
       time_slot: timeSlot!,
-      // The route requires a login, so the row can name who booked it. Without
-      // this a site visit was unattributable to any user or conversation.
-      user_id: userId,
+      user_id: userId ?? null,
     },
   })
 
+  // Resolve the conversation this lead came out of, server-side
+  let resolvedSessionId = session_id
+  if (!resolvedSessionId && (userId || guestToken)) {
+    const recent = await prisma.chatSession.findFirst({
+      where: userId ? { user_id: userId } : { guest_token: guestToken },
+      orderBy: { last_active: 'desc' },
+      select: { id: true },
+    })
+    resolvedSessionId = recent?.id
+  }
+
   // ─── ANALYTICS: Track conversion
-  if (session_id) {
+  if (resolvedSessionId) {
     await Promise.all([
-      trackConversion(session_id, 'site_visit_requested', project.id, project.builder_id),
+      trackConversion(resolvedSessionId, 'site_visit_requested', project.id, project.builder_id),
       prisma.builderLead.create({
         data: {
           builder_id: project.builder_id,
@@ -352,8 +365,8 @@ router.post('/site-visit', async (req: Request, res: Response) => {
           lead_type: 'site_visit_requested',
           name,
           phone,
-          email: undefined,
-          source_session: session_id,
+          email: email || undefined,
+          source_session: resolvedSessionId,
           status: 'new',
         }
       })
@@ -362,7 +375,7 @@ router.post('/site-visit', async (req: Request, res: Response) => {
 
   // Qualify the visit the same way a callback is qualified, so both events reach
   // Make.com with one field set and the alert template renders for either.
-  const svProfile = await loadLeadProfile(userId, null)
+  const svProfile = await loadLeadProfile(userId, guestToken)
   const svUnitMins = project.unit_types.map((u) => u.price_min_cr).filter((v): v is number => typeof v === 'number')
   const svUnitMaxes = project.unit_types.map((u) => u.price_max_cr).filter((v): v is number => typeof v === 'number')
   const svPriceMin = svUnitMins.length ? Math.min(...svUnitMins) : null
@@ -383,7 +396,7 @@ router.post('/site-visit', async (req: Request, res: Response) => {
     sectorMatches: svProfile.preferred_sector ? svProfile.preferred_sector === project.sector : false,
   })
 
-  const svRecentQuestions = await loadRecentQuestions(session_id)
+  const svRecentQuestions = await loadRecentQuestions(resolvedSessionId)
 
   fireWebhook('site_visit_requested', {
     // User-provided form data
@@ -411,7 +424,7 @@ router.post('/site-visit', async (req: Request, res: Response) => {
     lead_tier: svTier,
     ai_summary: svProfile.ai_summary ?? summarizeProfile(svProfile),
     recent_questions: svRecentQuestions,
-    chat_session_id: session_id ?? null,
+    chat_session_id: resolvedSessionId ?? null,
     created_at: sv.created_at.toISOString(),
   }).catch((e) => console.error('[leads] webhook failed:', e))
 
