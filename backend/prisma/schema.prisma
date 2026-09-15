@@ -840,6 +840,11 @@ model SiteVisitRequest {
   visit_date   DateTime
   time_slot    String
   message      String?
+  // Who booked it. The route requires a login, but the row carried no identity,
+  // so a site visit could not be tied to a user or to their conversation the way
+  // a callback can.
+  user_id      String?
+
   created_at   DateTime        @default(now())
   status       SiteVisitStatus @default(pending)
   /// See CallbackRequest.chased_at.
@@ -847,6 +852,7 @@ model SiteVisitRequest {
 
   @@index([project_slug])
   @@index([status, chased_at])
+  @@index([user_id])
   @@map("site_visit_requests")
 }
 

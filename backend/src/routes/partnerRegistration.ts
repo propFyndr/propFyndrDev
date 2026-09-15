@@ -9,6 +9,7 @@
 // deliberately: same rate limit shape, same Zod-strict body, same webhook.
 import { Router, Request, Response } from 'express'
 import { z } from 'zod'
+import { randomUUID } from 'crypto'
 import { prisma } from '../lib/db'
 import { checkRateLimit } from '../lib/cache'
 import { fireWebhook } from '../lib/webhook'
@@ -34,9 +35,17 @@ const PartnerApplicationSchema = z.object({
   credai_member: z.boolean().default(false),
 }).strict()
 
-/** `Acme Realty Partners` -> `acme-realty-partners`. Name and slug are both unique. */
+/**
+ * `Acme Realty Partners` -> `acme-realty-partners`. Name and slug are both unique.
+ *
+ * A name with no ASCII letters or digits — punctuation only, or a purely
+ * non-Latin script — reduces to an empty string, and the second such firm would
+ * collide with the first on a unique constraint it never chose. Those fall back
+ * to a random suffix instead.
+ */
 function slugify(name: string): string {
-  return name.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 80)
+  const slug = name.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 80)
+  return slug || `partner-${randomUUID().slice(0, 8)}`
 }
 
 router.post('/', async (req: Request, res: Response) => {

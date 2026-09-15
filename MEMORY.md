@@ -3317,3 +3317,46 @@ in the admin Conversations page.
 path — WhatsApp (Meta or Twilio) plus Resend email, secret-verified — and
 **nothing in the codebase calls it**. If direct WhatsApp alerts on HOT leads are
 wanted, that path already exists and needs configuration, not code.
+
+## 2026-09-15 — Why production held zero site visits
+
+### The cause was never disuse
+
+`SiteVisitScheduler.tsx` posts `project_slug`, `project_name`, `visit_date`,
+`time_slot`. `SiteVisitSchema` required `projectSlug`, `projectName`,
+`visitDate`, `timeSlot`. Every submission since launch returned 400. The 0 in
+the site-visit table is a validation mismatch, not a product signal.
+
+Both spellings are accepted now, and `siteVisitSchema.test.ts` parses the exact
+body the scheduler sends — if that test fails, site visits are broken again.
+`email` and `message` were also being posted and dropped though the columns
+existed; they are stored now.
+
+### Related, same review
+
+* **`builder_leads` is empty despite 763 callbacks.** The analytics block was
+  gated on the raw `session_id` body field while the code three lines above
+  resolves `resolvedSessionId` server-side precisely because clients do not send
+  it. Every builder-facing lead since launch was dropped on that line.
+* **Both lead routes returned the created row to the buyer** — `lead_score`,
+  `lead_tier`, `ai_summary`, `guest_token`, `user_id`. They now return an id.
+  No client ever read the body beyond `res.ok`.
+* `SiteVisitRequest.user_id` added: the route requires a login but the row named
+  nobody.
+* `session_id` on the site-visit route was read straight off `req.body`,
+  unvalidated, and handed to Prisma. It is in the schema now.
+* `checkRateLimit` returns `{allowed, remaining}` with `remaining = max(0, limit
+  - count)`, so `remaining <= 0` rejects the last permitted request. Both lead
+  routes used `remaining`; all three routes now use `allowed`.
+* builderRegistration returned `err.message` to the client — Prisma text names
+  columns and constraints. Now generic, with P2002 as a 409, matching
+  partnerRegistration.
+* SVG dropped from the logo allowlist: served from a public bucket, an SVG
+  opened directly executes its own script and passes magic-byte validation as
+  XML.
+
+### Note on the existing tests
+
+`leads.test.ts` asserts `status === 200 || 201 || 400 || 429 || 500` — it passes
+whether the route works or not. That is the test shape that let the site-visit
+400 run for the life of the product.

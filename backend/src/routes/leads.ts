@@ -44,13 +44,26 @@ const CallbackSchema = z.object({
   consent_given: z.boolean().default(false),
 })
 
-const SiteVisitSchema = z.object({
+// Both spellings are accepted deliberately. SiteVisitScheduler.tsx posts
+// snake_case (project_slug, visit_date, time_slot); this schema required
+// camelCase, so every submission failed validation — which is the real reason
+// production holds zero site visit requests, not lack of interest.
+export const SiteVisitSchema = z.object({
   name: z.string().min(1),
   phone: z.string().min(10),
-  projectSlug: z.string().min(1),
-  projectName: z.string(),
-  visitDate: z.string(),
-  timeSlot: z.string(),
+  projectSlug: z.string().min(1).optional(),
+  project_slug: z.string().min(1).optional(),
+  projectName: z.string().optional(),
+  project_name: z.string().optional(),
+  visitDate: z.string().optional(),
+  visit_date: z.string().optional(),
+  timeSlot: z.string().optional(),
+  time_slot: z.string().optional(),
+  // Sent by the scheduler and silently dropped until now, though the columns exist.
+  email: z.string().email().optional(),
+  message: z.string().max(500).optional(),
+  // Was read straight off req.body, unvalidated, and handed to Prisma.
+  session_id: z.string().optional(),
   guestToken: z.string().optional(),
 })
 
@@ -72,7 +85,8 @@ router.post('/callback', async (req: Request, res: Response) => {
   // Rate limit by userId if authenticated, otherwise by guestToken or IP
   const rateLimitKey = userId ? `callback:${userId}` : guestToken ? `callback:guest:${guestToken}` : `callback:ip:${req.ip}`
   const rl = await checkRateLimit(rateLimitKey, 30, 3600)
-  if (rl.remaining <= 0) { res.status(429).json({ error: 'Too many requests' }); return }
+  // `allowed`, not `remaining`: remaining hits 0 on the last permitted request.
+  if (!rl.allowed) { res.status(429).json({ error: 'Too many requests' }); return }
 
   const parsed = CallbackSchema.safeParse(req.body)
   if (!parsed.success) { res.status(400).json({ error: 'Invalid request', details: parsed.error.errors }); return }
@@ -99,7 +113,7 @@ router.post('/callback', async (req: Request, res: Response) => {
   // Get project and builder info for analytics.
   // unit_types is needed to derive the project's price range — Project itself only
   // stores price_min_cr, so the max has to come from its units.
-  const project: any = finalProjectSlug ? await prisma.project.findUnique({
+  const project = finalProjectSlug ? await prisma.project.findUnique({
     where: { slug: finalProjectSlug },
     include: { unit_types: { select: { bhk: true, price_min_cr: true, price_max_cr: true } } },
   }) : null
@@ -125,9 +139,14 @@ router.post('/callback', async (req: Request, res: Response) => {
   }
 
   // ─── ANALYTICS: Track conversion
-  if (session_id && project) {
+  //
+  // Gated on the resolved session, not the raw body field. Clients do not send
+  // session_id, so this block never ran: 763 callbacks are stored and the
+  // builder_leads table is empty. Every builder-facing lead since launch was
+  // dropped on this line.
+  if (resolvedSessionId && project) {
     await Promise.all([
-      trackConversion(session_id, 'callback_requested', project.id, project.builder_id),
+      trackConversion(resolvedSessionId, 'callback_requested', project.id, project.builder_id),
       // Also create BuilderLead record
       prisma.builderLead.create({
         data: {
@@ -137,8 +156,8 @@ router.post('/callback', async (req: Request, res: Response) => {
           name,
           phone,
           email: undefined,
-          source_session: session_id,
-          source_intent: profile as any,
+          source_session: resolvedSessionId,
+          source_intent: profile as object,
           status: 'new',
         }
       })
@@ -153,8 +172,8 @@ router.post('/callback', async (req: Request, res: Response) => {
   // from its unit_types, falling back to Project.price_min_cr for the lower bound.
   let projectFitsBudget = false
   if (project && profile.budget_cr) {
-    const unitMins = (project.unit_types ?? []).map((u: any) => u.price_min_cr).filter((v: unknown): v is number => typeof v === 'number')
-    const unitMaxes = (project.unit_types ?? []).map((u: any) => u.price_max_cr).filter((v: unknown): v is number => typeof v === 'number')
+    const unitMins = project.unit_types.map((u) => u.price_min_cr).filter((v): v is number => typeof v === 'number')
+    const unitMaxes = project.unit_types.map((u) => u.price_max_cr).filter((v): v is number => typeof v === 'number')
     const priceRangeMin = unitMins.length ? Math.min(...unitMins) : project.price_min_cr ?? null
     const priceRangeMax = unitMaxes.length ? Math.max(...unitMaxes) : null
 
@@ -165,7 +184,7 @@ router.post('/callback', async (req: Request, res: Response) => {
   }
 
   // Check if project sector matches buyer preference
-  const projectSector = typeof project?.sector === 'string' ? project.sector : project?.sector?.name ?? null
+  const projectSector = project?.sector ?? null
   const sectorMatches = project && profile.preferred_sector ? projectSector === profile.preferred_sector : false
 
   const { score, tier } = scoreLead({
@@ -198,9 +217,14 @@ router.post('/callback', async (req: Request, res: Response) => {
       budget_max_cr: profile.budget_cr?.max ?? null,
       lead_score: score,
       lead_tier: tier,
-      ai_summary: profile.ai_summary ?? null,
+      // Same value the alert carries. Storing null here while the email showed a
+      // profile line meant the panel and the inbox disagreed about one lead.
+      ai_summary: profile.ai_summary ?? summarizeProfile(profile),
     },
   })
+
+  // Read before the alert is composed so the buyer's response is not waiting on it.
+  const recentQuestions = await loadRecentQuestions(resolvedSessionId)
 
   // Send to Webhook (Make.com -> Google Sheets / CRM)
   fireWebhook('callback_requested', {
@@ -230,12 +254,14 @@ router.post('/callback', async (req: Request, res: Response) => {
     // summary_text has no writer, so this fell back to null on every lead. The
     // digest is composed from stored fields; the questions are the buyer's own.
     ai_summary: profile.ai_summary ?? summarizeProfile(profile),
-    recent_questions: await loadRecentQuestions(resolvedSessionId),
+    recent_questions: recentQuestions,
     chat_session_id: resolvedSessionId ?? null,
     created_at: cb.created_at.toISOString(),
   }).catch((e) => console.error('[leads] webhook failed:', e))
 
-  res.status(201).json({ callback: cb })
+  // Not the row. It carries lead_score, lead_tier, ai_summary, guest_token and
+  // user_id — internal qualification the buyer must never read back.
+  res.status(201).json({ success: true, callback_id: cb.id })
 })
 
 router.post('/site-visit', async (req: Request, res: Response) => {
@@ -245,14 +271,28 @@ router.post('/site-visit', async (req: Request, res: Response) => {
 
   // Rate limit: 30 site-visit requests per hour per user
   const rateLimit = await checkRateLimit(`site-visit:${userId}`, 30, 3600)
-  if (rateLimit.remaining <= 0) { res.status(429).json({ error: 'Too many requests' }); return }
+  if (!rateLimit.allowed) { res.status(429).json({ error: 'Too many requests' }); return }
 
   const parsed = SiteVisitSchema.safeParse(req.body)
   if (!parsed.success) {
     res.status(400).json({ error: 'Invalid request', details: parsed.error.format() }); return
   }
 
-  const { name, phone, projectSlug, projectName, visitDate, timeSlot } = parsed.data
+  const { name, phone, email, message, session_id } = parsed.data
+  const projectSlug = parsed.data.projectSlug || parsed.data.project_slug
+  const projectName = parsed.data.projectName || parsed.data.project_name
+  const visitDate = parsed.data.visitDate || parsed.data.visit_date
+  const timeSlot = parsed.data.timeSlot || parsed.data.time_slot
+
+  const missing = [
+    !projectSlug && 'project_slug',
+    !projectName && 'project_name',
+    !visitDate && 'visit_date',
+    !timeSlot && 'time_slot',
+  ].filter(Boolean)
+  if (missing.length) {
+    res.status(400).json({ error: `Missing required fields: ${missing.join(', ')}` }); return
+  }
 
   // Idempotency: check for duplicate request in last 5 seconds
   const fiveSecsAgo = new Date(Date.now() - 5000)
@@ -265,18 +305,16 @@ router.post('/site-visit', async (req: Request, res: Response) => {
   })
   if (recentDuplicate) { res.status(200).json({ success: true, duplicate: true }); return }
 
-  if (visitDate) {
-    const visitMs = new Date(visitDate).getTime()
-    if (isNaN(visitMs) || visitMs <= Date.now()) {
-      res.status(400).json({ error: 'Visit date must be in the future' }); return
-    }
+  const visitMs = new Date(visitDate!).getTime()
+  if (isNaN(visitMs) || visitMs <= Date.now()) {
+    res.status(400).json({ error: 'Visit date must be in the future' }); return
   }
 
   // Selected fields feed the lead alert as well as the analytics rows: a site
   // visit is our highest-intent event and was going out to sales with nothing
   // but a name, a phone and a date.
   const project = await prisma.project.findUnique({
-    where: { slug: projectSlug },
+    where: { slug: projectSlug! },
     select: {
       id: true,
       builder_id: true,
@@ -290,16 +328,20 @@ router.post('/site-visit', async (req: Request, res: Response) => {
   const sv = await prisma.siteVisitRequest.create({
     data: {
       project_id: project.id,
-      project_slug: projectSlug,
-      project_name: projectName,
+      project_slug: projectSlug!,
+      project_name: projectName!,
       name, phone,
-      visit_date: new Date(visitDate),
-      time_slot: timeSlot,
+      email: email ?? null,
+      message: message ?? null,
+      visit_date: new Date(visitDate!),
+      time_slot: timeSlot!,
+      // The route requires a login, so the row can name who booked it. Without
+      // this a site visit was unattributable to any user or conversation.
+      user_id: userId,
     },
   })
 
   // ─── ANALYTICS: Track conversion
-  const { session_id } = req.body
   if (session_id) {
     await Promise.all([
       trackConversion(session_id, 'site_visit_requested', project.id, project.builder_id),
@@ -341,6 +383,8 @@ router.post('/site-visit', async (req: Request, res: Response) => {
     sectorMatches: svProfile.preferred_sector ? svProfile.preferred_sector === project.sector : false,
   })
 
+  const svRecentQuestions = await loadRecentQuestions(session_id)
+
   fireWebhook('site_visit_requested', {
     // User-provided form data
     name,
@@ -366,12 +410,12 @@ router.post('/site-visit', async (req: Request, res: Response) => {
     lead_score: svScore,
     lead_tier: svTier,
     ai_summary: svProfile.ai_summary ?? summarizeProfile(svProfile),
-    recent_questions: await loadRecentQuestions(session_id),
+    recent_questions: svRecentQuestions,
     chat_session_id: session_id ?? null,
     created_at: sv.created_at.toISOString(),
   }).catch((e) => console.error('[leads] webhook failed:', e))
 
-  res.status(201).json({ siteVisit: sv })
+  res.status(201).json({ success: true, site_visit_id: sv.id })
 })
 
 const WebhookLeadSchema = z.object({
@@ -465,22 +509,13 @@ router.get('/callback/:leadId/dossier', requireStaff, async (req: Request, res: 
   try {
     const { leadId } = req.params
 
-    // Verify the requesting user has access to this lead's builder
-    const lead = await prisma.callbackRequest.findUnique({
-      where: { id: leadId },
-    })
-
-    if (!lead) {
-      return res.status(404).json({ error: 'Lead not found' })
-    }
-
-    // If project_id is set, verify builder access (optional — depends on auth model)
-    // For now, just return the dossier
-
+    // buildLeadDossier loads the lead itself and returns null when it is absent,
+    // so the existence check that used to sit here was a second read of the same
+    // row. Access is enforced by requireStaff on the route.
     const dossier = await buildLeadDossier(leadId, 'system')
 
     if (!dossier) {
-      return res.status(404).json({ error: 'Could not build dossier' })
+      return res.status(404).json({ error: 'Lead not found' })
     }
 
     res.json(dossier)

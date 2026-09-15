@@ -1,7 +1,6 @@
 // backend/src/routes/builderRegistration.ts
 import { Router, Request, Response } from 'express'
 import { z } from 'zod'
-import { randomUUID } from 'crypto'
 import { prisma } from '../lib/db'
 import { supabaseAdmin } from '../lib/supabase'
 import { checkRateLimit } from '../lib/cache'
@@ -51,6 +50,14 @@ async function uploadLogoToSupabase(
     return base64orUrl // Already a URL
   }
 
+  // Reject on the encoded length first — the global body limit is 10mb, and
+  // decoding that before checking the 2MB cap does the allocation anyway.
+  const MAX_ENCODED_CHARS = 3 * 1024 * 1024
+  if (base64orUrl.length > MAX_ENCODED_CHARS) {
+    console.error('[builderRegistration] Logo payload exceeds the encoded size limit')
+    return null
+  }
+
   // Assume base64-encoded image
   try {
     const matches = base64orUrl.match(/^data:image\/(\w+);base64,(.+)$/)
@@ -62,7 +69,9 @@ async function uploadLogoToSupabase(
     const [, ext, base64data] = matches
 
     // Validate extension allowlist
-    const ALLOWED_EXTS = ['png', 'jpg', 'jpeg', 'svg', 'webp']
+    // No SVG: it is served from a public bucket URL, and an SVG opened directly
+    // executes any script it carries. Magic-byte validation passes it as XML.
+    const ALLOWED_EXTS = ['png', 'jpg', 'jpeg', 'webp']
     const normalizedExt = ext.toLowerCase()
     if (!ALLOWED_EXTS.includes(normalizedExt)) {
       console.error(`[builderRegistration] File type .${ext} not allowed`)
@@ -114,11 +123,13 @@ router.post('/', async (req: Request, res: Response) => {
     const ip = req.ip || 'unknown'
     const { allowed } = await checkRateLimit(`builder:register:${ip}`, 30, 3600)
     if (!allowed) {
-      return res.status(429).json({ error: 'Too many registration attempts. Please try again in an hour.' })
+      res.status(429).json({ error: 'Too many registration attempts. Please try again in an hour.' })
+      return
     }
   } catch (err) {
     console.error('[builderRegistration] Rate limit check failed:', err)
-    return res.status(500).json({ error: 'Service error' })
+    res.status(500).json({ error: 'Service error' })
+    return
   }
 
   const parsed = BuilderApplicationSchema.safeParse(req.body)
@@ -191,9 +202,14 @@ router.post('/', async (req: Request, res: Response) => {
       message: 'Application submitted successfully. Our team will review it shortly.',
     })
   } catch (err) {
+    // P2002 — an application already exists under this CIN or email.
+    if (err && typeof err === 'object' && 'code' in err && (err as { code: string }).code === 'P2002') {
+      res.status(409).json({ error: 'An application is already registered under that company.' })
+      return
+    }
+    // The Prisma message names columns and constraints; it stays in the log.
     console.error('[builderRegistration] Creation failed:', err)
-    const message = err instanceof Error ? err.message : 'Failed to submit application'
-    res.status(500).json({ error: message })
+    res.status(500).json({ error: 'Failed to submit application' })
   }
 })
 
