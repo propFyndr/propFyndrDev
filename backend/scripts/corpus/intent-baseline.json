@@ -1,0 +1,1707 @@
+{
+ "rows": [
+  {
+   "q": "Is property in Noida, Noida Extension, or Yamuna Expressway freehold or leasehold?",
+   "shape": {
+    "city": "Greater Noida West"
+   },
+   "degraded": false
+  },
+  {
+   "q": "Can a leasehold flat or plot be converted to freehold?",
+   "shape": {},
+   "degraded": false
+  },
+  {
+   "q": "What is a Transfer Memorandum (TM) and who pays transfer charges?",
+   "shape": {},
+   "degraded": false
+  },
+  {
+   "q": "Is under-construction property actually cheaper than Ready-to-Move (RTM)?",
+   "shape": {
+    "possession": "immediate"
+   },
+   "degraded": false
+  },
+  {
+   "q": "What are the hidden costs beyond the basic sale price?",
+   "shape": {},
+   "degraded": false
+  },
+  {
+   "q": "What is the actual usable carpet area versus super area?",
+   "shape": {},
+   "degraded": false
+  },
+  {
+   "q": "What documents are required for clean title due diligence in a resale flat?",
+   "shape": {},
+   "degraded": false
+  },
+  {
+   "q": "Why is flat registry delayed even after physical possession?",
+   "shape": {},
+   "degraded": false
+  },
+  {
+   "q": "How will Noida International Airport (Jewar) impact property prices?",
+   "shape": {
+    "city": "Noida"
+   },
+   "degraded": false
+  },
+  {
+   "q": "Which sectors offer the best 3BHK options under ₹1.25 Cr to ₹1.5 Cr?",
+   "shape": {
+    "bhk": [
+     "3"
+    ],
+    "budgetMin": 1.25,
+    "budgetMax": 1.5
+   },
+   "degraded": false
+  },
+  {
+   "q": "Where are future IT and corporate hubs expanding?",
+   "shape": {},
+   "degraded": false
+  },
+  {
+   "q": "Where would you invest ₹3 Crore across NCR (Noida vs. Delhi vs. Gurgaon) for maximum rental income and capital appreciation?",
+   "shape": {
+    "budgetMax": 3,
+    "city": "Noida",
+    "purpose": "investment"
+   },
+   "degraded": false
+  },
+  {
+   "q": "Is Noida still a safe real estate investment or has it already become overpriced?",
+   "shape": {
+    "city": "Noida"
+   },
+   "degraded": false
+  },
+  {
+   "q": "Does paying ₹1.4 Crore for a 3BHK apartment in Greater Noida West make financial sense?",
+   "shape": {
+    "bhk": [
+     "3"
+    ],
+    "budgetMax": 1.4,
+    "city": "Greater Noida West"
+   },
+   "degraded": false
+  },
+  {
+   "q": "Which specific societies offer the best 3BHK flats in Noida under ₹1.25 Crore?",
+   "shape": {
+    "bhk": [
+     "3"
+    ],
+    "budgetMax": 1.25,
+    "city": "Noida",
+    "spatialScope": "BROAD"
+   },
+   "degraded": false
+  },
+  {
+   "q": "Why have budget/affordable housing options disappeared in Noida, and which developers are still building for buyers rather than high profit margins?",
+   "shape": {
+    "city": "Noida"
+   },
+   "degraded": false
+  },
+  {
+   "q": "What is the exact document chain needed to establish clean title before paying token money for a resale flat?",
+   "shape": {},
+   "degraded": false
+  },
+  {
+   "q": "Why is a society/RWA No-Dues Certificate NOT sufficient to verify a flat's title?",
+   "shape": {},
+   "degraded": false
+  },
+  {
+   "q": "How do I confirm that an Occupancy Certificate (OC) or Completion Certificate (CC) covers my specific tower and not just an earlier phase of the project?",
+   "shape": {
+    "legal_check": true
+   },
+   "degraded": false
+  },
+  {
+   "q": "What is the role of the Transfer Memorandum (TM) issued by Noida Authority, and who pays for it during resale?",
+   "shape": {
+    "city": "Noida"
+   },
+   "degraded": false
+  },
+  {
+   "q": "How does GST impact the total landed price of an under-construction flat versus a Ready-to-Move (RTM) flat?",
+   "shape": {
+    "possession": "immediate"
+   },
+   "degraded": false
+  },
+  {
+   "q": "How is one-time lease rent calculated, and does a resale buyer have to pay higher ongoing ground rent?",
+   "shape": {},
+   "degraded": false
+  },
+  {
+   "q": "Will banks finance a 90-year leasehold property, and what is the minimum remaining lease tenure required?",
+   "shape": {},
+   "degraded": false
+  },
+  {
+   "q": "What are the official transfer charges for reselling a YEIDA plot near Jewar Airport?",
+   "shape": {},
+   "degraded": true
+  },
+  {
+   "q": "How can buyers avoid unauthorized plotting projects marketed near Yamuna Expressway?",
+   "shape": {
+    "legal_check": true
+   },
+   "degraded": false
+  },
+  {
+   "q": "Why is an RWA or Society No-Dues Certificate not sufficient to confirm clean title?",
+   "shape": {
+    "legal_check": true
+   },
+   "degraded": false
+  },
+  {
+   "q": "What is the exact document chain needed before paying token money for a resale flat?",
+   "shape": {},
+   "degraded": false
+  },
+  {
+   "q": "Why is sub-lease deed registration delayed even when the flat is structurally ready?",
+   "shape": {},
+   "degraded": false
+  },
+  {
+   "q": "Will banks finance a leasehold property if the registered lease deed is missing?",
+   "shape": {},
+   "degraded": false
+  },
+  {
+   "q": "Is under-construction really cheaper than Ready-to-Move once GST is added?",
+   "shape": {},
+   "degraded": false
+  },
+  {
+   "q": "Who pays the Transfer Memorandum fee and authority transfer charges during resale?",
+   "shape": {},
+   "degraded": false
+  },
+  {
+   "q": "How does one-time lease rent work during resale, and is ground rent recalculated?",
+   "shape": {},
+   "degraded": false
+  },
+  {
+   "q": "Where can I find the best 3BHK gated societies under ₹1.25 Crore in Noida or Greater Noida West?",
+   "shape": {
+    "bhk": [
+     "3"
+    ],
+    "budgetMax": 1.25,
+    "city": "Greater Noida West",
+    "spatialScope": "BROAD"
+   },
+   "degraded": true
+  },
+  {
+   "q": "Why have budget and affordable housing options disappeared in Noida?",
+   "shape": {
+    "city": "Noida",
+    "spatialScope": "BROAD"
+   },
+   "degraded": false
+  },
+  {
+   "q": "Where should I invest ₹3 Crore for maximum rental yield and appreciation: Noida Expressway, Greater Noida West, or Gurgaon?",
+   "shape": {
+    "budgetMin": 3,
+    "budgetMax": 3,
+    "city": "Greater Noida West",
+    "purpose": "investment"
+   },
+   "degraded": false
+  },
+  {
+   "q": "How can buyers distinguish approved YEIDA sectors from unauthorized plotting schemes near Jewar Airport?",
+   "shape": {},
+   "degraded": false
+  },
+  {
+   "q": "How does the total landed cost of a ₹1.5 Crore under-construction flat compare to a Ready-to-Move (RTM) flat once GST is factored in?",
+   "shape": {
+    "budgetMax": 1.5,
+    "possession": "immediate"
+   },
+   "degraded": false
+  },
+  {
+   "q": "Where can I allocate ₹3 Crore in Delhi-NCR for maximum combined rental yield and capital appreciation: Noida Expressway, Greater Noida West, or Gurgaon?",
+   "shape": {
+    "budgetMin": 3,
+    "budgetMax": 3,
+    "city": "Greater Noida West",
+    "purpose": "investment"
+   },
+   "degraded": false
+  },
+  {
+   "q": "Are NRIs and foreign citizens driving up premium real estate prices in Noida, and what is the ideal exit strategy before project delivery?",
+   "shape": {
+    "city": "Noida"
+   },
+   "degraded": false
+  },
+  {
+   "q": "Why is a society or RWA No-Dues Certificate insufficient to establish clean title during a resale transaction?",
+   "shape": {},
+   "degraded": false
+  },
+  {
+   "q": "What is the exact 10-step document chain required before paying token money for a leasehold resale flat in Noida?",
+   "shape": {
+    "city": "Noida"
+   },
+   "degraded": false
+  },
+  {
+   "q": "What is the total transaction cost percentage when buying a resale plot along the Yamuna Expressway (YEIDA)?",
+   "shape": {},
+   "degraded": false
+  },
+  {
+   "q": "Will commercial banks finance a leasehold property, and what happens if the flat lacks a registered lease deed?",
+   "shape": {},
+   "degraded": false
+  },
+  {
+   "q": "How does one-time lease rent (10%) work, and does a resale buyer need to pay recurring annual ground rent?",
+   "shape": {},
+   "degraded": false
+  },
+  {
+   "q": "Where does the government policy stand on converting 90-year leasehold authority land to freehold?",
+   "shape": {},
+   "degraded": false
+  },
+  {
+   "q": "How do operational milestones at Noida International Airport (Jewar) impact capital appreciation timelines along YEIDA sectors?",
+   "shape": {
+    "city": "Noida"
+   },
+   "degraded": false
+  },
+  {
+   "q": "How can buyers verify that a plotted development near Jewar Airport is an approved YEIDA sector rather than an unauthorized colony?",
+   "shape": {},
+   "degraded": false
+  },
+  {
+   "q": "How does the Amitabh Kant Committee policy de-link flat registry from developer dues in Noida?",
+   "shape": {
+    "city": "Noida"
+   },
+   "degraded": false
+  },
+  {
+   "q": "What is the 'Zero Period' relief in Noida real estate, and does it reduce flat possession delays?",
+   "shape": {
+    "city": "Noida"
+   },
+   "degraded": false
+  },
+  {
+   "q": "Can I buy a flat in an NCLT / CIRP (Corporate Insolvency Resolution Process) project, and what happens to my home loan?",
+   "shape": {},
+   "degraded": false
+  },
+  {
+   "q": "What is the SWAMIH Investment Fund, and which stalled Noida societies received last-mile funding?",
+   "shape": {
+    "city": "Noida",
+    "verbose": true
+   },
+   "degraded": false
+  },
+  {
+   "q": "What is the 100-homebuyer threshold rule under Section 7 of the IBC to drag a builder to NCLT?",
+   "shape": {},
+   "degraded": false
+  },
+  {
+   "q": "What happens if UP RERA issues a Recovery Certificate (RC) against a developer?",
+   "shape": {
+    "legal_check": true
+   },
+   "degraded": false
+  },
+  {
+   "q": "Is property in the Hindon or Yamuna River 'Doob Kshetra' (floodplain) legal for residential registry?",
+   "shape": {
+    "legal_check": true
+   },
+   "degraded": false
+  },
+  {
+   "q": "Why are farmhouses in Noida Sector 135 and Shahberi facing demolition notices?",
+   "shape": {
+    "sector": "Sector 135",
+    "sectorsMentioned": [
+     "Sector 135"
+    ],
+    "city": "Noida"
+   },
+   "degraded": false
+  },
+  {
+   "q": "How do winter GRAP (Graded Response Action Plan) Stage III and IV bans affect flat delivery dates?",
+   "shape": {},
+   "degraded": false
+  },
+  {
+   "q": "What is the actual TDS and salinity level of groundwater in Sector 137, Sector 143, and Greater Noida West?",
+   "shape": {
+    "sector": "Sector 137",
+    "sectorsMentioned": [
+     "Sector 137",
+     "Sector 143"
+    ],
+    "city": "Greater Noida West"
+   },
+   "degraded": false
+  },
+  {
+   "q": "When will Stage-2 / Stage-3 Ganga Jal pipeline (85 cusecs / 375 MLD) reach my sector?",
+   "shape": {},
+   "degraded": false
+  },
+  {
+   "q": "How close is my society to the Sector 123 waste-to-energy plant or the Ghazipur landfill smell zone?",
+   "shape": {
+    "sector": "Sector 123",
+    "sectorsMentioned": [
+     "Sector 123"
+    ]
+   },
+   "degraded": false
+  },
+  {
+   "q": "What is the exact station route for the 72 km Ghaziabad–Greater Noida–Jewar Airport Namo Bharat RRTS?",
+   "shape": {
+    "city": "Greater Noida"
+   },
+   "degraded": false
+  },
+  {
+   "q": "What is the status of India's first Pod Taxi (Personal Rapid Transit) from Jewar Airport to Film City?",
+   "shape": {},
+   "degraded": false
+  },
+  {
+   "q": "Why is the FNG (Faridabad-Noida-Ghaziabad) Expressway bridge over the Yamuna stuck at Sector 168?",
+   "shape": {
+    "sector": "Sector 168",
+    "sectorsMentioned": [
+     "Sector 168"
+    ],
+    "city": "Noida",
+    "spatialScope": "EXACT"
+   },
+   "degraded": false
+  },
+  {
+   "q": "Where is the proposed bullet train (Delhi–Varanasi High-Speed Rail) stop in Noida?",
+   "shape": {
+    "city": "Noida"
+   },
+   "degraded": false
+  },
+  {
+   "q": "What is the Boraki Multi-Modal Transport Hub (MMTH), and will it replace New Delhi Railway Station for eastern trains?",
+   "shape": {},
+   "degraded": false
+  },
+  {
+   "q": "When will the Chilla Elevated Road be completed to bypass the Mahamaya Flyway traffic?",
+   "shape": {},
+   "degraded": false
+  },
+  {
+   "q": "How does the SEBI SM REIT (Small and Medium Real Estate Investment Trust) framework apply to commercial buildings in Noida?",
+   "shape": {
+    "city": "Noida",
+    "purpose": "investment",
+    "spatialScope": "BROAD"
+   },
+   "degraded": true
+  },
+  {
+   "q": "Why is Greater Noida / YEIDA becoming the Data Center Hub of North India?",
+   "shape": {
+    "city": "Greater Noida"
+   },
+   "degraded": false
+  },
+  {
+   "q": "Which semiconductor and electronic manufacturing plants are officially allotted in YEIDA Sector 10 and 28?",
+   "shape": {
+    "sector": "Sector 10",
+    "sectorsMentioned": [
+     "Sector 10",
+     "Sector 28"
+    ],
+    "spatialScope": "EXACT"
+   },
+   "degraded": false
+  },
+  {
+   "q": "What are SCO (Shop-Cum-Office) plots in Noida, and how do their ownership rights differ from mall shops?",
+   "shape": {
+    "city": "Noida"
+   },
+   "degraded": false
+  },
+  {
+   "q": "What are the rental yields and occupancy rates for student housing / coliving in Knowledge Park 1, 2, and 3?",
+   "shape": {},
+   "degraded": false
+  },
+  {
+   "q": "Under Section 14 of the UP Apartment Act 2010, when must the builder legally hand over maintenance to the AOA/RWA?",
+   "shape": {},
+   "degraded": false
+  },
+  {
+   "q": "What is the UP RERA 12th Amendment rule regarding Interest-Free Maintenance Security (IFMS) transfer?",
+   "shape": {},
+   "degraded": false
+  },
+  {
+   "q": "When does 18% GST apply to society maintenance (CAM) charges in high-rises?",
+   "shape": {},
+   "degraded": false
+  },
+  {
+   "q": "Can an RWA legally ban pets from passenger lifts or restrict dog breeds in Noida?",
+   "shape": {
+    "city": "Noida"
+   },
+   "degraded": false
+  },
+  {
+   "q": "How do dual electricity meters work in Noida high-rises, and what are the separate PVVNL vs DG backup rates?",
+   "shape": {
+    "city": "Noida"
+   },
+   "degraded": false
+  },
+  {
+   "q": "Can individual apartment owners install EV chargers in designated basement parking spots?",
+   "shape": {},
+   "degraded": false
+  },
+  {
+   "q": "What is Section 143 (UP Zamindari Abolition Act) non-agricultural conversion, and why is it mandatory for plotted land?",
+   "shape": {},
+   "degraded": false
+  },
+  {
+   "q": "How do I verify land ownership and government acquisition on UP Bhulekh and Bhu-Naksha portals?",
+   "shape": {},
+   "degraded": false
+  },
+  {
+   "q": "What is the difference between 5%, 6%, and 7% Kisan Quota (Abadi) plots, and is resale legally safe?",
+   "shape": {
+    "legal_check": true
+   },
+   "degraded": false
+  },
+  {
+   "q": "What is 'Lal Dora' land in NCR, and can commercial banks provide home loans against it?",
+   "shape": {},
+   "degraded": false
+  },
+  {
+   "q": "How does Section 54 vs Section 54F capital gains exemption work under the ₹10 Crore cap when buying luxury Noida apartments?",
+   "shape": {
+    "budgetMax": 10,
+    "city": "Noida"
+   },
+   "degraded": false
+  },
+  {
+   "q": "Why do buyers receive Income Tax notices for deducting 1% TDS (Section 194-IA) only on the flat price and not on club/car parking charges?",
+   "shape": {},
+   "degraded": false
+  },
+  {
+   "q": "How does an NRI seller get a Form 13 Lower Deduction Certificate (LDC) to avoid 20% flat withholding tax on Noida property resale?",
+   "shape": {
+    "city": "Noida"
+   },
+   "degraded": false
+  },
+  {
+   "q": "What is the authority transfer fee difference between a Gift Deed to a blood relative vs a third-party resale in Noida?",
+   "shape": {
+    "city": "Noida"
+   },
+   "degraded": false
+  },
+  {
+   "q": "Why is the Circle Rate higher than the market rate in central Noida (Sector 14/15A/44), and how does Section 56(2)(x) penalize buyers?",
+   "shape": {
+    "sector": "Sector 14",
+    "sectorsMentioned": [
+     "Sector 14"
+    ],
+    "city": "Noida"
+   },
+   "degraded": false
+  },
+  {
+   "q": "What is Authority Leasehold (90/99 Years) in Noida real estate?",
+   "shape": {
+    "city": "Noida"
+   },
+   "degraded": false
+  },
+  {
+   "q": "What is Freehold Conversion Policy in Noida real estate?",
+   "shape": {
+    "city": "Noida"
+   },
+   "degraded": false
+  },
+  {
+   "q": "What is Transfer Memorandum (TM) in Noida real estate?",
+   "shape": {
+    "city": "Noida"
+   },
+   "degraded": false
+  },
+  {
+   "q": "What is Transfer Charges / TM Fees (1%-5%) in Noida real estate?",
+   "shape": {
+    "city": "Noida"
+   },
+   "degraded": false
+  },
+  {
+   "q": "What is Sub-Lease Deed Registration in Noida real estate?",
+   "shape": {
+    "city": "Noida"
+   },
+   "degraded": false
+  },
+  {
+   "q": "What is Tripartite Agreement in Noida real estate?",
+   "shape": {
+    "city": "Noida"
+   },
+   "degraded": false
+  },
+  {
+   "q": "What is UP RERA Registration (UPRERAPRJ) in Noida real estate?",
+   "shape": {
+    "city": "Noida"
+   },
+   "degraded": false
+  },
+  {
+   "q": "What is RERA Form-7 CA Audit in Noida real estate?",
+   "shape": {
+    "city": "Noida"
+   },
+   "degraded": false
+  },
+  {
+   "q": "What is RERA Escrow Account (70% Rule) in Noida real estate?",
+   "shape": {
+    "city": "Noida"
+   },
+   "degraded": false
+  },
+  {
+   "q": "What is Occupancy Certificate (OC) in Noida real estate?",
+   "shape": {
+    "city": "Noida"
+   },
+   "degraded": false
+  },
+  {
+   "q": "What is Completion Certificate (CC) in Noida real estate?",
+   "shape": {
+    "city": "Noida"
+   },
+   "degraded": false
+  },
+  {
+   "q": "What is Partial Occupancy Certificate (Phased OC) in Noida real estate?",
+   "shape": {
+    "city": "Noida"
+   },
+   "degraded": false
+  },
+  {
+   "q": "What is Allotment Letter vs Sub-Lease Deed in Noida real estate?",
+   "shape": {
+    "city": "Noida"
+   },
+   "degraded": false
+  },
+  {
+   "q": "What is Possession Letter vs Physical Handover in Noida real estate?",
+   "shape": {
+    "city": "Noida"
+   },
+   "degraded": false
+  },
+  {
+   "q": "What is Authority No-Due Certificate (NDC) in Noida real estate?",
+   "shape": {
+    "city": "Noida"
+   },
+   "degraded": false
+  },
+  {
+   "q": "What is RWA / Society NDC in Noida real estate?",
+   "shape": {
+    "city": "Noida"
+   },
+   "degraded": false
+  },
+  {
+   "q": "What is Mutation Certificate (Dakhil Kharij) in Noida real estate?",
+   "shape": {
+    "city": "Noida"
+   },
+   "degraded": false
+  },
+  {
+   "q": "What is Encumbrance Certificate (Bar-Mukti) in Noida real estate?",
+   "shape": {
+    "city": "Noida"
+   },
+   "degraded": false
+  },
+  {
+   "q": "What is Land Dues Dispute (Noida/GNIDA Authority) in Noida real estate?",
+   "shape": {
+    "city": "Noida"
+   },
+   "degraded": false
+  },
+  {
+   "q": "What is Kisan Quota 5% & 6% Abadi Plots in Noida real estate?",
+   "shape": {
+    "city": "Noida"
+   },
+   "degraded": false
+  },
+  {
+   "q": "What is Basic Sale Price (BSP) in Noida real estate?",
+   "shape": {
+    "city": "Noida"
+   },
+   "degraded": false
+  },
+  {
+   "q": "What is Landed Cost / All-In Cost in Noida real estate?",
+   "shape": {
+    "city": "Noida"
+   },
+   "degraded": false
+  },
+  {
+   "q": "What is 5% GST on Under-Construction Flats in Noida real estate?",
+   "shape": {
+    "city": "Noida"
+   },
+   "degraded": false
+  },
+  {
+   "q": "What is 0% GST on Ready-to-Move with OC in Noida real estate?",
+   "shape": {
+    "city": "Noida"
+   },
+   "degraded": false
+  },
+  {
+   "q": "What is Input Tax Credit (ITC) Restrictions in Noida real estate?",
+   "shape": {
+    "city": "Noida"
+   },
+   "degraded": false
+  },
+  {
+   "q": "What is One-Time Lease Rent (10%) in Noida real estate?",
+   "shape": {
+    "city": "Noida"
+   },
+   "degraded": false
+  },
+  {
+   "q": "What is Annual Ground Rent Revision in Noida real estate?",
+   "shape": {
+    "city": "Noida"
+   },
+   "degraded": false
+  },
+  {
+   "q": "What is UP Stamp Duty (7% Male / 6% Female) in Noida real estate?",
+   "shape": {
+    "city": "Noida"
+   },
+   "degraded": false
+  },
+  {
+   "q": "What is UP Registration Fee (1%) in Noida real estate?",
+   "shape": {
+    "city": "Noida"
+   },
+   "degraded": false
+  },
+  {
+   "q": "What is Interest-Free Maintenance Security (IFMS) in Noida real estate?",
+   "shape": {
+    "city": "Noida"
+   },
+   "degraded": false
+  },
+  {
+   "q": "What is Club Membership Mandatory Charges in Noida real estate?",
+   "shape": {
+    "city": "Noida"
+   },
+   "degraded": false
+  },
+  {
+   "q": "What is External Development Charges (EDC) in Noida real estate?",
+   "shape": {
+    "city": "Noida"
+   },
+   "degraded": false
+  },
+  {
+   "q": "What is Infrastructure Development Charges (IDC) in Noida real estate?",
+   "shape": {
+    "city": "Noida"
+   },
+   "degraded": false
+  },
+  {
+   "q": "What is Preferential Location Charges (PLC - Park/Road/Corner) in Noida real estate?",
+   "shape": {
+    "city": "Noida"
+   },
+   "degraded": false
+  },
+  {
+   "q": "What is Dual Electric Meter / PVVNL Infrastructure Fee in Noida real estate?",
+   "shape": {
+    "city": "Noida"
+   },
+   "degraded": false
+  },
+  {
+   "q": "What is DG Power Backup Fixed Rate (₹/kVA) in Noida real estate?",
+   "shape": {
+    "city": "Noida"
+   },
+   "degraded": false
+  },
+  {
+   "q": "What is DG Power Running Unit Rate (₹16-₹22/unit) in Noida real estate?",
+   "shape": {
+    "city": "Noida"
+   },
+   "degraded": false
+  },
+  {
+   "q": "What is Grid Power Rate (PVVNL ₹6.00-₹7.50/unit) in Noida real estate?",
+   "shape": {
+    "city": "Noida"
+   },
+   "degraded": false
+  },
+  {
+   "q": "What is Section 54 Capital Gains Exemption in Noida real estate?",
+   "shape": {
+    "city": "Noida"
+   },
+   "degraded": false
+  },
+  {
+   "q": "What is TDS on Property Purchase (1% u/s 194-IA) in Noida real estate?",
+   "shape": {
+    "city": "Noida"
+   },
+   "degraded": false
+  },
+  {
+   "q": "What is RERA Carpet Area (Net Usable) in Noida real estate?",
+   "shape": {
+    "city": "Noida"
+   },
+   "degraded": false
+  },
+  {
+   "q": "What is Built-Up Area in Noida real estate?",
+   "shape": {
+    "city": "Noida"
+   },
+   "degraded": false
+  },
+  {
+   "q": "What is Super Built-Up Area (Saleable Area) in Noida real estate?",
+   "shape": {
+    "city": "Noida"
+   },
+   "degraded": false
+  },
+  {
+   "q": "What is Loading Percentage (25% - 35%) in Noida real estate?",
+   "shape": {
+    "city": "Noida"
+   },
+   "degraded": false
+  },
+  {
+   "q": "What is Floor Area Ratio (UP FAR 3.5 - 4.0) in Noida real estate?",
+   "shape": {
+    "city": "Noida"
+   },
+   "degraded": false
+  },
+  {
+   "q": "What is Ground Coverage Restrictions in Noida real estate?",
+   "shape": {
+    "city": "Noida"
+   },
+   "degraded": false
+  },
+  {
+   "q": "What is Low-Density Housing (Less than 50 units/acre) in Noida real estate?",
+   "shape": {
+    "city": "Noida"
+   },
+   "degraded": false
+  },
+  {
+   "q": "What is High-Density Housing (100+ units/acre) in Noida real estate?",
+   "shape": {
+    "city": "Noida"
+   },
+   "degraded": false
+  },
+  {
+   "q": "What is Floor-to-Ceiling Height (10.5 ft - 12 ft) in Noida real estate?",
+   "shape": {
+    "city": "Noida"
+   },
+   "degraded": false
+  },
+  {
+   "q": "What is Servant Room with Independent Entry (3BHK + S) in Noida real estate?",
+   "shape": {
+    "bhk": [
+     "3"
+    ],
+    "city": "Noida"
+   },
+   "degraded": false
+  },
+  {
+   "q": "What is Duplex Penthouse with Private Terrace in Noida real estate?",
+   "shape": {
+    "city": "Noida"
+   },
+   "degraded": false
+  },
+  {
+   "q": "What is Golf-Facing Living Balcony in Noida real estate?",
+   "shape": {
+    "city": "Noida"
+   },
+   "degraded": false
+  },
+  {
+   "q": "What is Podium Level Green Amenities in Noida real estate?",
+   "shape": {
+    "city": "Noida"
+   },
+   "degraded": false
+  },
+  {
+   "q": "What is Mivan Aluminum Shuttering Construction in Noida real estate?",
+   "shape": {
+    "city": "Noida"
+   },
+   "degraded": false
+  },
+  {
+   "q": "What is Precast Concrete Technology in Noida real estate?",
+   "shape": {
+    "city": "Noida"
+   },
+   "degraded": false
+  },
+  {
+   "q": "What is Noida-Greater Noida Expressway Corridor in Noida real estate?",
+   "shape": {
+    "city": "Greater Noida"
+   },
+   "degraded": false
+  },
+  {
+   "q": "What is Sector 150 Sports City (Low-Density Green Corridor) in Noida real estate?",
+   "shape": {
+    "sector": "Sector 150",
+    "sectorsMentioned": [
+     "Sector 150"
+    ],
+    "city": "Noida",
+    "verbose": true,
+    "spatialScope": "EXACT"
+   },
+   "degraded": false
+  },
+  {
+   "q": "What is Sector 7X Hub (Sectors 74, 75, 76, 77, 78, 79) in Noida real estate?",
+   "shape": {
+    "sector": "Sector 7X",
+    "sectorsMentioned": [
+     "Sector 74",
+     "Sector 75",
+     "Sector 76",
+     "Sector 77",
+     "Sector 78",
+     "Sector 79",
+     "Sector 7X"
+    ],
+    "city": "Noida"
+   },
+   "degraded": false
+  },
+  {
+   "q": "What is Noida Extension / Greater Noida West (GNW) in Noida real estate?",
+   "shape": {
+    "city": "Greater Noida West"
+   },
+   "degraded": false
+  },
+  {
+   "q": "What is Gaur Chowk / Kisan Chowk Intersection in Noida real estate?",
+   "shape": {
+    "city": "Noida"
+   },
+   "degraded": false
+  },
+  {
+   "q": "What is Sector 1 Greater Noida West (Expressway Connected) in Noida real estate?",
+   "shape": {
+    "sector": "Sector 1",
+    "sectorsMentioned": [
+     "Sector 1"
+    ],
+    "city": "Greater Noida West",
+    "spatialScope": "EXACT"
+   },
+   "degraded": false
+  },
+  {
+   "q": "What is Sector 16B & 16C Greno West High-Density Core in Noida real estate?",
+   "shape": {
+    "sector": "Sector 16B",
+    "sectorsMentioned": [
+     "Sector 16B",
+     "Sector 16C"
+    ],
+    "city": "Noida"
+   },
+   "degraded": true
+  },
+  {
+   "q": "What is Techzone 4 IT & Residential Belt in Noida real estate?",
+   "shape": {
+    "city": "Noida"
+   },
+   "degraded": false
+  },
+  {
+   "q": "What is Sector 10 & Sector 12 Greno West Expansion in Noida real estate?",
+   "shape": {
+    "sector": "Sector 10",
+    "sectorsMentioned": [
+     "Sector 10",
+     "Sector 12"
+    ],
+    "city": "Noida"
+   },
+   "degraded": false
+  },
+  {
+   "q": "What is Sector 128 Jaypee Greens Wish Town (Golf Living) in Noida real estate?",
+   "shape": {
+    "sector": "Sector 128",
+    "sectorsMentioned": [
+     "Sector 128"
+    ],
+    "city": "Noida",
+    "projectNames": [
+     "Jaypee Greens Wish Town"
+    ],
+    "spatialScope": "EXACT"
+   },
+   "degraded": false
+  },
+  {
+   "q": "What is Sector 107 & 108 Luxury High-Rise Belt in Noida real estate?",
+   "shape": {
+    "sector": "Sector 107",
+    "sectorsMentioned": [
+     "Sector 107",
+     "Sector 108"
+    ],
+    "city": "Noida",
+    "lifestyleKeywords": [
+     "clubhouse",
+     "concierge",
+     "spa"
+    ],
+    "verbose": true,
+    "spatialScope": "EXACT"
+   },
+   "degraded": false
+  },
+  {
+   "q": "What is Sector 93A & 93B (Expressway Green Living) in Noida real estate?",
+   "shape": {
+    "sector": "Sector 93A",
+    "sectorsMentioned": [
+     "Sector 93A",
+     "Sector 93B"
+    ],
+    "city": "Noida",
+    "verbose": true,
+    "spatialScope": "EXACT"
+   },
+   "degraded": false
+  },
+  {
+   "q": "What is Sector 137 & 143 Metro Expressway Cluster in Noida real estate?",
+   "shape": {
+    "sector": "Sector 137",
+    "sectorsMentioned": [
+     "Sector 137",
+     "Sector 143"
+    ],
+    "city": "Noida",
+    "lifestyleKeywords": [
+     "metro"
+    ],
+    "verbose": true,
+    "spatialScope": "BROAD"
+   },
+   "degraded": false
+  },
+  {
+   "q": "What is Sector 144 Commercial & Tech Park Zone in Noida real estate?",
+   "shape": {
+    "sector": "Sector 144",
+    "sectorsMentioned": [
+     "Sector 144"
+    ],
+    "city": "Noida",
+    "spatialScope": "EXACT"
+   },
+   "degraded": false
+  },
+  {
+   "q": "What is Sector 146 & 147 Aqua Line Premium Launches in Noida real estate?",
+   "shape": {
+    "sector": "Sector 146",
+    "sectorsMentioned": [
+     "Sector 146",
+     "Sector 147"
+    ],
+    "city": "Noida",
+    "spatialScope": "EXACT"
+   },
+   "degraded": false
+  },
+  {
+   "q": "What is Sector 15A & Sector 14 (Noida Posh Plotted Mansions) in Noida real estate?",
+   "shape": {
+    "sector": "Sector 15A",
+    "sectorsMentioned": [
+     "Sector 14",
+     "Sector 15A"
+    ],
+    "city": "Noida",
+    "spatialScope": "EXACT"
+   },
+   "degraded": false
+  },
+  {
+   "q": "What is Sector 44 & Sector 26 Legacy Plotted Enclaves in Noida real estate?",
+   "shape": {
+    "sector": "Sector 44",
+    "sectorsMentioned": [
+     "Sector 26",
+     "Sector 44"
+    ],
+    "city": "Noida",
+    "projectNames": [
+     "Sector 44 & Sector 26 Legacy Plotted Enclaves"
+    ]
+   },
+   "degraded": false
+  },
+  {
+   "q": "What is Yamuna Expressway Industrial Corridor (YEIDA) in Noida real estate?",
+   "shape": {
+    "city": "Noida"
+   },
+   "degraded": false
+  },
+  {
+   "q": "What is Sector 18 & 20 YEIDA Residential Plots in Noida real estate?",
+   "shape": {
+    "sector": "Sector 18",
+    "sectorsMentioned": [
+     "Sector 18",
+     "Sector 20"
+    ],
+    "city": "Noida",
+    "spatialScope": "EXACT"
+   },
+   "degraded": false
+  },
+  {
+   "q": "What is Pari Chowk Landmark Junction in Noida real estate?",
+   "shape": {
+    "city": "Noida",
+    "projectNames": [
+     "Pari Chowk Landmark Junction"
+    ]
+   },
+   "degraded": false
+  },
+  {
+   "q": "What is Noida International Airport (Jewar - DXN) in Noida real estate?",
+   "shape": {
+    "city": "Noida"
+   },
+   "degraded": false
+  },
+  {
+   "q": "What is YEIDA Aerotropolis & Aviation City in Noida real estate?",
+   "shape": {
+    "city": "Noida"
+   },
+   "degraded": false
+  },
+  {
+   "q": "What is Noida Metro Aqua Line Extension in Noida real estate?",
+   "shape": {
+    "city": "Noida"
+   },
+   "degraded": false
+  },
+  {
+   "q": "What is Aqua Line to Blue Line Botanical Garden Spur in Noida real estate?",
+   "shape": {
+    "city": "Noida"
+   },
+   "degraded": false
+  },
+  {
+   "q": "What is FNG Expressway (Faridabad-Noida-Ghaziabad) in Noida real estate?",
+   "shape": {
+    "city": "Noida"
+   },
+   "degraded": false
+  },
+  {
+   "q": "What is DND Flyway Connectivity to South Delhi in Noida real estate?",
+   "shape": {
+    "city": "Noida"
+   },
+   "degraded": false
+  },
+  {
+   "q": "What is Chilla Elevated Road Project in Noida real estate?",
+   "shape": {
+    "city": "Noida",
+    "verbose": true
+   },
+   "degraded": false
+  },
+  {
+   "q": "What is Ganga Water Supply (TDS below 300 ppm) in Noida real estate?",
+   "shape": {
+    "city": "Noida"
+   },
+   "degraded": false
+  },
+  {
+   "q": "What is Groundwater Salinity & High TDS (>2,000 ppm) in Noida real estate?",
+   "shape": {
+    "city": "Noida"
+   },
+   "degraded": false
+  },
+  {
+   "q": "What is International Film City Yamuna Expressway in Noida real estate?",
+   "shape": {
+    "city": "Noida",
+    "projectNames": [
+     "International Film City Yamuna Expressway"
+    ]
+   },
+   "degraded": false
+  },
+  {
+   "q": "What is Olympic Park & Formula 1 Buddh Circuit Area in Noida real estate?",
+   "shape": {
+    "city": "Noida"
+   },
+   "degraded": false
+  },
+  {
+   "q": "What is Multi-Modal Transport Hub (MMTH Boraki) in Noida real estate?",
+   "shape": {
+    "city": "Noida"
+   },
+   "degraded": false
+  },
+  {
+   "q": "What is Eastern Peripheral Expressway (EPE) Interchange in Noida real estate?",
+   "shape": {
+    "city": "Noida"
+   },
+   "degraded": false
+  },
+  {
+   "q": "What is Residential Rental Yield (2.5% - 3.5%) in Noida real estate?",
+   "shape": {
+    "city": "Noida"
+   },
+   "degraded": false
+  },
+  {
+   "q": "What is Pre-Leased Commercial High-Street Retail Yield (6% - 8%) in Noida real estate?",
+   "shape": {
+    "city": "Noida"
+   },
+   "degraded": false
+  },
+  {
+   "q": "What is Capital Appreciation CAGR (5-Year Noida Average) in Noida real estate?",
+   "shape": {
+    "city": "Noida"
+   },
+   "degraded": false
+  },
+  {
+   "q": "What is NRI NRE/NRO Repatriable Property Account in Noida real estate?",
+   "shape": {
+    "city": "Noida"
+   },
+   "degraded": false
+  },
+  {
+   "q": "What is Special Power of Attorney (SPA) Remote Registry in Noida real estate?",
+   "shape": {
+    "city": "Noida"
+   },
+   "degraded": false
+  },
+  {
+   "q": "What is FEMA Compliance for Overseas Buyers in Noida real estate?",
+   "shape": {
+    "city": "Noida"
+   },
+   "degraded": false
+  },
+  {
+   "q": "What is Construction-Linked Payment Plan (CLP) in Noida real estate?",
+   "shape": {
+    "city": "Noida"
+   },
+   "degraded": false
+  },
+  {
+   "q": "What is Down Payment Plan (DPP) Discount (8% - 10%) in Noida real estate?",
+   "shape": {
+    "city": "Noida"
+   },
+   "degraded": false
+  },
+  {
+   "q": "What is Subvention / Possession-Linked Payment (PLP) in Noida real estate?",
+   "shape": {
+    "city": "Noida"
+   },
+   "degraded": false
+  },
+  {
+   "q": "What is 90-Year Leasehold Bank Mortgage Sanction in Noida real estate?",
+   "shape": {
+    "city": "Noida"
+   },
+   "degraded": false
+  },
+  {
+   "q": "What is Resale Flat Tripartite Execution Timeline in Noida real estate?",
+   "shape": {
+    "city": "Noida",
+    "legal_check": true
+   },
+   "degraded": false
+  },
+  {
+   "q": "What is Circle Rate vs Market Rate Disparity in Noida in Noida real estate?",
+   "shape": {
+    "city": "Noida"
+   },
+   "degraded": false
+  }
+ ],
+ "unstable": {
+  "Is property in Noida, Noida Extension, or Yamuna Expressway freehold or leasehold?": [
+   "spatialScope"
+  ],
+  "Is Noida still a safe real estate investment or has it already become overpriced?": [
+   "purpose",
+   "spatialScope"
+  ],
+  "Does paying ₹1.4 Crore for a 3BHK apartment in Greater Noida West make financial sense?": [
+   "possession",
+   "spatialScope"
+  ],
+  "Why have budget/affordable housing options disappeared in Noida, and which developers are still building for buyers rather than high profit margins?": [
+   "spatialScope"
+  ],
+  "How do I confirm that an Occupancy Certificate (OC) or Completion Certificate (CC) covers my specific tower and not just an earlier phase of the project?": [
+   "legal_check"
+  ],
+  "What is the role of the Transfer Memorandum (TM) issued by Noida Authority, and who pays for it during resale?": [
+   "spatialScope"
+  ],
+  "How can buyers avoid unauthorized plotting projects marketed near Yamuna Expressway?": [
+   "legal_check",
+   "spatialScope"
+  ],
+  "Why is an RWA or Society No-Dues Certificate not sufficient to confirm clean title?": [
+   "legal_check"
+  ],
+  "Where should I invest ₹3 Crore for maximum rental yield and appreciation: Noida Expressway, Greater Noida West, or Gurgaon?": [
+   "budgetMin",
+   "spatialScope"
+  ],
+  "Where can I allocate ₹3 Crore in Delhi-NCR for maximum combined rental yield and capital appreciation: Noida Expressway, Greater Noida West, or Gurgaon?": [
+   "budgetMin",
+   "spatialScope"
+  ],
+  "Are NRIs and foreign citizens driving up premium real estate prices in Noida, and what is the ideal exit strategy before project delivery?": [
+   "purpose",
+   "spatialScope"
+  ],
+  "What is the exact 10-step document chain required before paying token money for a leasehold resale flat in Noida?": [
+   "spatialScope"
+  ],
+  "What is the total transaction cost percentage when buying a resale plot along the Yamuna Expressway (YEIDA)?": [
+   "spatialScope"
+  ],
+  "How do operational milestones at Noida International Airport (Jewar) impact capital appreciation timelines along YEIDA sectors?": [
+   "purpose",
+   "spatialScope"
+  ],
+  "How does the Amitabh Kant Committee policy de-link flat registry from developer dues in Noida?": [
+   "builderName",
+   "spatialScope"
+  ],
+  "What is the 'Zero Period' relief in Noida real estate, and does it reduce flat possession delays?": [
+   "spatialScope"
+  ],
+  "Can I buy a flat in an NCLT / CIRP (Corporate Insolvency Resolution Process) project, and what happens to my home loan?": [
+   "purpose"
+  ],
+  "What is the SWAMIH Investment Fund, and which stalled Noida societies received last-mile funding?": [
+   "verbose",
+   "purpose",
+   "spatialScope"
+  ],
+  "What is the 100-homebuyer threshold rule under Section 7 of the IBC to drag a builder to NCLT?": [
+   "purpose"
+  ],
+  "What happens if UP RERA issues a Recovery Certificate (RC) against a developer?": [
+   "legal_check"
+  ],
+  "Is property in the Hindon or Yamuna River 'Doob Kshetra' (floodplain) legal for residential registry?": [
+   "legal_check"
+  ],
+  "Why are farmhouses in Noida Sector 135 and Shahberi facing demolition notices?": [
+   "spatialScope"
+  ],
+  "How do winter GRAP (Graded Response Action Plan) Stage III and IV bans affect flat delivery dates?": [
+   "purpose"
+  ],
+  "What is the actual TDS and salinity level of groundwater in Sector 137, Sector 143, and Greater Noida West?": [
+   "spatialScope"
+  ],
+  "What is the exact station route for the 72 km Ghaziabad–Greater Noida–Jewar Airport Namo Bharat RRTS?": [
+   "spatialScope"
+  ],
+  "Where is the proposed bullet train (Delhi–Varanasi High-Speed Rail) stop in Noida?": [
+   "spatialScope"
+  ],
+  "Why is Greater Noida / YEIDA becoming the Data Center Hub of North India?": [
+   "spatialScope"
+  ],
+  "What are SCO (Shop-Cum-Office) plots in Noida, and how do their ownership rights differ from mall shops?": [
+   "purpose",
+   "spatialScope"
+  ],
+  "Under Section 14 of the UP Apartment Act 2010, when must the builder legally hand over maintenance to the AOA/RWA?": [
+   "possession"
+  ],
+  "Can an RWA legally ban pets from passenger lifts or restrict dog breeds in Noida?": [
+   "builderName",
+   "spatialScope"
+  ],
+  "How do dual electricity meters work in Noida high-rises, and what are the separate PVVNL vs DG backup rates?": [
+   "spatialScope"
+  ],
+  "Can individual apartment owners install EV chargers in designated basement parking spots?": [
+   "possession",
+   "purpose"
+  ],
+  "How do I verify land ownership and government acquisition on UP Bhulekh and Bhu-Naksha portals?": [
+   "purpose"
+  ],
+  "What is the difference between 5%, 6%, and 7% Kisan Quota (Abadi) plots, and is resale legally safe?": [
+   "legal_check"
+  ],
+  "What is 'Lal Dora' land in NCR, and can commercial banks provide home loans against it?": [
+   "purpose"
+  ],
+  "How does Section 54 vs Section 54F capital gains exemption work under the ₹10 Crore cap when buying luxury Noida apartments?": [
+   "possession",
+   "spatialScope"
+  ],
+  "Why do buyers receive Income Tax notices for deducting 1% TDS (Section 194-IA) only on the flat price and not on club/car parking charges?": [
+   "purpose"
+  ],
+  "How does an NRI seller get a Form 13 Lower Deduction Certificate (LDC) to avoid 20% flat withholding tax on Noida property resale?": [
+   "spatialScope"
+  ],
+  "What is the authority transfer fee difference between a Gift Deed to a blood relative vs a third-party resale in Noida?": [
+   "spatialScope"
+  ],
+  "Why is the Circle Rate higher than the market rate in central Noida (Sector 14/15A/44), and how does Section 56(2)(x) penalize buyers?": [
+   "spatialScope"
+  ],
+  "What is Authority Leasehold (90/99 Years) in Noida real estate?": [
+   "spatialScope"
+  ],
+  "What is Freehold Conversion Policy in Noida real estate?": [
+   "spatialScope"
+  ],
+  "What is Transfer Memorandum (TM) in Noida real estate?": [
+   "spatialScope"
+  ],
+  "What is Transfer Charges / TM Fees (1%-5%) in Noida real estate?": [
+   "spatialScope"
+  ],
+  "What is Sub-Lease Deed Registration in Noida real estate?": [
+   "spatialScope"
+  ],
+  "What is Tripartite Agreement in Noida real estate?": [
+   "spatialScope"
+  ],
+  "What is UP RERA Registration (UPRERAPRJ) in Noida real estate?": [
+   "spatialScope"
+  ],
+  "What is RERA Form-7 CA Audit in Noida real estate?": [
+   "spatialScope"
+  ],
+  "What is RERA Escrow Account (70% Rule) in Noida real estate?": [
+   "spatialScope"
+  ],
+  "What is Occupancy Certificate (OC) in Noida real estate?": [
+   "spatialScope"
+  ],
+  "What is Completion Certificate (CC) in Noida real estate?": [
+   "spatialScope"
+  ],
+  "What is Partial Occupancy Certificate (Phased OC) in Noida real estate?": [
+   "spatialScope"
+  ],
+  "What is Allotment Letter vs Sub-Lease Deed in Noida real estate?": [
+   "spatialScope"
+  ],
+  "What is Possession Letter vs Physical Handover in Noida real estate?": [
+   "spatialScope"
+  ],
+  "What is Authority No-Due Certificate (NDC) in Noida real estate?": [
+   "spatialScope"
+  ],
+  "What is RWA / Society NDC in Noida real estate?": [
+   "spatialScope"
+  ],
+  "What is Mutation Certificate (Dakhil Kharij) in Noida real estate?": [
+   "spatialScope"
+  ],
+  "What is Encumbrance Certificate (Bar-Mukti) in Noida real estate?": [
+   "spatialScope"
+  ],
+  "What is Land Dues Dispute (Noida/GNIDA Authority) in Noida real estate?": [
+   "spatialScope"
+  ],
+  "What is Kisan Quota 5% & 6% Abadi Plots in Noida real estate?": [
+   "spatialScope"
+  ],
+  "What is Basic Sale Price (BSP) in Noida real estate?": [
+   "spatialScope"
+  ],
+  "What is Landed Cost / All-In Cost in Noida real estate?": [
+   "spatialScope"
+  ],
+  "What is 5% GST on Under-Construction Flats in Noida real estate?": [
+   "spatialScope"
+  ],
+  "What is 0% GST on Ready-to-Move with OC in Noida real estate?": [
+   "spatialScope"
+  ],
+  "What is Input Tax Credit (ITC) Restrictions in Noida real estate?": [
+   "spatialScope"
+  ],
+  "What is One-Time Lease Rent (10%) in Noida real estate?": [
+   "spatialScope"
+  ],
+  "What is Annual Ground Rent Revision in Noida real estate?": [
+   "spatialScope"
+  ],
+  "What is UP Stamp Duty (7% Male / 6% Female) in Noida real estate?": [
+   "spatialScope"
+  ],
+  "What is UP Registration Fee (1%) in Noida real estate?": [
+   "spatialScope"
+  ],
+  "What is Interest-Free Maintenance Security (IFMS) in Noida real estate?": [
+   "spatialScope"
+  ],
+  "What is Club Membership Mandatory Charges in Noida real estate?": [
+   "spatialScope"
+  ],
+  "What is External Development Charges (EDC) in Noida real estate?": [
+   "spatialScope"
+  ],
+  "What is Infrastructure Development Charges (IDC) in Noida real estate?": [
+   "spatialScope"
+  ],
+  "What is Preferential Location Charges (PLC - Park/Road/Corner) in Noida real estate?": [
+   "spatialScope"
+  ],
+  "What is Dual Electric Meter / PVVNL Infrastructure Fee in Noida real estate?": [
+   "spatialScope"
+  ],
+  "What is DG Power Backup Fixed Rate (₹/kVA) in Noida real estate?": [
+   "spatialScope"
+  ],
+  "What is DG Power Running Unit Rate (₹16-₹22/unit) in Noida real estate?": [
+   "spatialScope"
+  ],
+  "What is Grid Power Rate (PVVNL ₹6.00-₹7.50/unit) in Noida real estate?": [
+   "spatialScope"
+  ],
+  "What is Section 54 Capital Gains Exemption in Noida real estate?": [
+   "spatialScope"
+  ],
+  "What is TDS on Property Purchase (1% u/s 194-IA) in Noida real estate?": [
+   "spatialScope"
+  ],
+  "What is RERA Carpet Area (Net Usable) in Noida real estate?": [
+   "spatialScope"
+  ],
+  "What is Built-Up Area in Noida real estate?": [
+   "spatialScope"
+  ],
+  "What is Super Built-Up Area (Saleable Area) in Noida real estate?": [
+   "spatialScope"
+  ],
+  "What is Sector 150 Sports City (Low-Density Green Corridor) in Noida real estate?": [
+   "lifestyleKeywords"
+  ],
+  "What is Techzone 4 IT & Residential Belt in Noida real estate?": [
+   "sector",
+   "verbose",
+   "spatialScope"
+  ],
+  "What is Sector 10 & Sector 12 Greno West Expansion in Noida real estate?": [
+   "spatialScope"
+  ],
+  "What is Sector 128 Jaypee Greens Wish Town (Golf Living) in Noida real estate?": [
+   "projectNames"
+  ],
+  "What is Sector 107 & 108 Luxury High-Rise Belt in Noida real estate?": [
+   "lifestyleKeywords",
+   "verbose",
+   "spatialScope"
+  ],
+  "What is Sector 93A & 93B (Expressway Green Living) in Noida real estate?": [
+   "verbose",
+   "spatialScope"
+  ],
+  "What is Sector 137 & 143 Metro Expressway Cluster in Noida real estate?": [
+   "lifestyleKeywords",
+   "verbose",
+   "areaMin"
+  ],
+  "What is Sector 146 & 147 Aqua Line Premium Launches in Noida real estate?": [
+   "spatialScope"
+  ],
+  "What is Sector 44 & Sector 26 Legacy Plotted Enclaves in Noida real estate?": [
+   "spatialScope"
+  ],
+  "What is Chilla Elevated Road Project in Noida real estate?": [
+   "verbose",
+   "projectNames"
+  ],
+  "What is Ganga Water Supply (TDS below 300 ppm) in Noida real estate?": [
+   "lifestyleKeywords"
+  ],
+  "What is International Film City Yamuna Expressway in Noida real estate?": [
+   "sector",
+   "spatialScope"
+  ],
+  "What is Olympic Park & Formula 1 Buddh Circuit Area in Noida real estate?": [
+   "spatialScope"
+  ],
+  "What is Multi-Modal Transport Hub (MMTH Boraki) in Noida real estate?": [
+   "projectNames"
+  ],
+  "What is FEMA Compliance for Overseas Buyers in Noida real estate?": [
+   "riskProfile"
+  ],
+  "What is Resale Flat Tripartite Execution Timeline in Noida real estate?": [
+   "legal_check"
+  ]
+ }
+}
