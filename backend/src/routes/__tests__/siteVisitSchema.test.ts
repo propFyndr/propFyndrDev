@@ -51,3 +51,17 @@ describe('SiteVisitSchema', () => {
     assert.equal(parsed.success, false)
   })
 })
+
+describe('site visit identity', () => {
+  it('accepts a guestToken, because an anonymous booking is still attributed', () => {
+    const parsed = SiteVisitSchema.safeParse({ ...SCHEDULER_BODY, guestToken: 'guest_abc123' })
+    assert.equal(parsed.success, true)
+    if (parsed.success) assert.equal(parsed.data.guestToken, 'guest_abc123')
+  })
+
+  it('accepts an empty or null email — the scheduler posts both for a blank field', () => {
+    for (const email of ['', null]) {
+      assert.equal(SiteVisitSchema.safeParse({ ...SCHEDULER_BODY, email }).success, true, `rejected ${JSON.stringify(email)}`)
+    }
+  })
+})

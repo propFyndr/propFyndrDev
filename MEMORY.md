@@ -3471,3 +3471,32 @@ and metrics are trustworthy from here forward.
   is out of credit, Cohere's trial is exhausted (1000 calls/month), Cloudflare's
   daily neurons are gone. Everything still answering is free tier with daily
   caps, and the paid key that exists as the safety net is the dead one.
+
+## 2026-09-15 — Signup policy: a guest token is an identity
+
+### Decided
+
+No lead-generating action is gated behind account creation. Save, callback and
+site visit all accept a guest token; only builder phone access and buyer report
+download require signup.
+
+CLAUDE.md had listed all three as signup-required, and the code had disagreed
+for a long time — `saved.ts` accepts `x-guest-token`, the callback route
+resolves `userId ?? guestToken ?? ip`. Site visits were the last holdout and
+were opened deliberately. The doc was the stale artefact, so the doc changed.
+
+**The rule that replaces it:** anonymous is not unattributed. A guest action
+still records which guest, and rate limits fall back user → guest token → IP.
+A row that can be created without naming its creator is a bug, not a policy.
+
+`SiteVisitRequest.guest_token` exists for exactly that reason — `user_id` alone
+was added while the route still required a login, and opening it to guests
+reopened the same gap for everyone arriving without an account. CallbackRequest
+has carried both columns from the start.
+
+### Open, not fixed
+
+Site visits and callbacks are both unauthenticated writes now, protected only by
+rate limiting (30/hour per identity or IP) with no captcha. Two open write
+endpoints is a spam surface worth revisiting before the beta link is posted
+anywhere public.

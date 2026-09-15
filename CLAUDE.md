@@ -195,9 +195,26 @@ Trade-off: Possession expected in 2027.
 ---
 
 ## Signup Rules
-Anonymous Users Can: Chat, Search, Browse, Compare, Use calculators
 
-Signup Required For: Save property, Callback request, Site visit request, Builder phone access, Buyer report download
+**A guest token is an identity.** Every lead-generating action accepts one, and
+the row records which guest it came from. Nothing that produces a lead is gated
+behind account creation, because a signup wall in front of a buyer who has just
+decided to act is the single most expensive friction in the funnel.
+
+Anonymous, with a guest token: Chat, Search, Browse, Compare, Use calculators,
+**Save property, Callback request, Site visit request**
+
+Signup required for: Builder phone access, Buyer report download
+
+This section previously listed save, callback and site visit as signup-required.
+The code disagreed on all three — `saved.ts` accepts `x-guest-token`, and both
+lead routes resolve `userId ?? guestToken ?? ip` for rate limiting — and the
+doc was the thing that was stale. Site visits were the last holdout and were
+opened deliberately on 2026-09-15.
+
+**What a guest still owes us:** a phone number on a lead, and rate limiting by
+guest token then IP. An anonymous action is not an unattributed one — if a row
+can be created without naming who created it, that is a bug, not a policy.
 
 ---
 

@@ -845,10 +845,13 @@ model SiteVisitRequest {
   visit_date   DateTime
   time_slot    String
   message      String?
-  // Who booked it. The route requires a login, but the row carried no identity,
-  // so a site visit could not be tied to a user or to their conversation the way
-  // a callback can.
+  // Who booked it. The row carried no identity at all, so a site visit could not
+  // be tied to a user or to their conversation the way a callback can.
+  //
+  // Both columns, because the route accepts a guest: an anonymous booking is
+  // still an attributed one. CallbackRequest carries exactly this pair.
   user_id      String?
+  guest_token  String?
 
   created_at   DateTime        @default(now())
   status       SiteVisitStatus @default(pending)
@@ -858,6 +861,7 @@ model SiteVisitRequest {
   @@index([project_slug])
   @@index([status, chased_at])
   @@index([user_id])
+  @@index([guest_token])
   @@map("site_visit_requests")
 }
 

@@ -339,7 +339,11 @@ router.post('/site-visit', async (req: Request, res: Response) => {
       message: message || null,
       visit_date: new Date(visitDate!),
       time_slot: timeSlot!,
+      // An anonymous booking is still an attributed one — without the guest
+      // token, a site visit from a buyer with no account belongs to nobody and
+      // cannot be tied back to the conversation that produced it.
       user_id: userId ?? null,
+      guest_token: guestToken ?? null,
     },
   })
 
