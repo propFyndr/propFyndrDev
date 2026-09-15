@@ -3233,3 +3233,43 @@ Non-blocking follow-up: `fireWebhook` now throws when the receiver rejects the
 payload twice (it used to return silently). Every caller still only
 `.catch(console.error)`, so a Make.com outage means the lead lands in the DB
 with nobody alerted. Dead-lettering is still unbuilt.
+
+## 2026-09-15 — Dead-lettering and the stale-lead chaser
+
+### What was decided
+
+`WebhookDeadLetter` parks any alert the receiver never accepted; the internal
+replay endpoint re-fires them through the normal sender, so a Make.com outage
+self-heals on the next scheduled poll rather than needing someone to notice it.
+`fireWebhook(event, data, { park: false })` is how a replay avoids parking a
+second copy of a row that is already parked.
+
+`routes/internal.ts` is machine auth — a static `INTERNAL_API_KEY` compared with
+`timingSafeEqual`, guarding the whole router. Admin auth could not be reused:
+it is a Redis-TTL session UUID issued to a browser, and a scheduler cannot hold
+one. An unset key returns 503 and disables the endpoints; it never opens them.
+
+The chaser is two calls, not one: `GET /stale-leads` reads, `POST
+/stale-leads/ack` marks `chased_at`. Marking on read would silently lose an
+escalation any time the scheduler died between fetching and sending.
+
+The migration backfills `chased_at` on every existing lead. All 763 callbacks
+are still at status `new` — nobody has ever worked a lead in the admin panel —
+so without the backfill the first poll would escalate the entire back catalogue.
+
+### Measured while building this (2026-09-15, production DB)
+
+Numbers that should inform what gets built next, not just this feature:
+
+* 43,275 chat sessions, but only **185 have 3+ user turns** and 49 have 6+.
+  26,806 have a single turn. The conversation is not yet a conversation.
+* 763 callbacks from **4 distinct phone numbers** — the lead table is our own
+  testing, not buyers. 689 of them in the last 30 days.
+* 0 site visit requests. 0 saved properties. Both features are live and unused.
+* `user_memory.summary_text` has **no writer anywhere in the codebase** —
+  0 of 1110 rows populated. `ai_summary` on the lead webhook is therefore always
+  null, and the "what they told the AI" line in the Make.com email template will
+  always render empty until something writes that column.
+* `chat_sessions.summary_location/financial/timeline`: 15–19 rows of 43,275.
+* 394 projects, 393 with RERA and a price label; 1,047 unit types, 707 payment
+  plans, 258 project documents.

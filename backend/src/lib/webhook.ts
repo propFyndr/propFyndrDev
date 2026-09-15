@@ -1,3 +1,5 @@
+import { prisma } from './db'
+
 /**
  * Outbound lead webhook — one sender for every event Make.com consumes.
  *
@@ -51,7 +53,14 @@ export function missingFields(event: WebhookEvent, data: Record<string, unknown>
   return REQUIRED_FIELDS[event].filter((f) => !(f in data))
 }
 
-export async function fireWebhook(event: WebhookEvent, data: Record<string, unknown>): Promise<void> {
+export async function fireWebhook(
+  event: WebhookEvent,
+  data: Record<string, unknown>,
+  // Off when replaying a parked alert — otherwise a failed replay would park a
+  // second copy of a row that is already parked.
+  opts: { park?: boolean } = {},
+): Promise<void> {
+  const { park = true } = opts
   // Never send test suite runs to live webhooks / Make.com
   if (process.env.NODE_ENV === 'test') return
 
@@ -79,14 +88,70 @@ export async function fireWebhook(event: WebhookEvent, data: Record<string, unkn
   }
 
   // One retry on failure — leads are the revenue event; don't drop them silently.
+  let lastError = 'receiver rejected the payload'
   for (let attempt = 0; attempt < 2; attempt++) {
     try {
       const res = await fetch(url, { method: 'POST', headers, body, signal: AbortSignal.timeout(5000) })
       if (res.ok) return
+      lastError = `HTTP ${res.status}`
     } catch (e) {
-      if (attempt === 1) throw e
+      lastError = e instanceof Error ? e.message : String(e)
     }
     await new Promise((r) => setTimeout(r, 500))
   }
-  throw new Error(`[webhook] ${event} rejected by receiver after 2 attempts`)
+
+  if (park) await deadLetter(event, data, lastError)
+  throw new Error(`[webhook] ${event} failed after 2 attempts: ${lastError}${park ? ' — dead-lettered' : ''}`)
+}
+
+/**
+ * Park an undelivered alert for replay.
+ *
+ * The lead itself is already committed to its own table, so nothing a buyer
+ * typed is lost here. What is lost without this is the alert, and with it the
+ * response time that wins the buyer — a Make.com outage used to mean a lead
+ * sitting in the database with nobody told, discovered whenever someone next
+ * opened the admin panel.
+ */
+async function deadLetter(event: WebhookEvent, data: Record<string, unknown>, error: string): Promise<void> {
+  try {
+    await prisma.webhookDeadLetter.create({
+      data: { event, payload: data as object, error: error.slice(0, 500), attempts: 2 },
+    })
+  } catch (e) {
+    // Last line of defence: if even the database is unavailable, the payload
+    // goes to the log rather than nowhere.
+    console.error(`[webhook] ⚠️ dead-letter write failed for ${event}. Payload:`, JSON.stringify(data), e)
+  }
+}
+
+/**
+ * Re-send parked alerts, oldest first. Returns how many the receiver accepted.
+ *
+ * Called by the internal replay endpoint, which Make.com polls — so a receiver
+ * outage heals itself the moment the receiver is back, with no manual step.
+ */
+export async function replayDeadLetters(limit = 25): Promise<{ replayed: number; failed: number }> {
+  const parked = await prisma.webhookDeadLetter.findMany({
+    where: { replayed_at: null },
+    orderBy: { created_at: 'asc' },
+    take: limit,
+  })
+
+  let replayed = 0
+  let failed = 0
+  for (const row of parked) {
+    try {
+      await fireWebhook(row.event as WebhookEvent, row.payload as Record<string, unknown>, { park: false })
+      await prisma.webhookDeadLetter.update({ where: { id: row.id }, data: { replayed_at: new Date() } })
+      replayed++
+    } catch {
+      // Count the attempt on the existing row and stop — if the receiver is
+      // still down, the rest of the batch will fail too.
+      await prisma.webhookDeadLetter.update({ where: { id: row.id }, data: { attempts: { increment: 1 } } })
+      failed++
+      break
+    }
+  }
+  return { replayed, failed }
 }

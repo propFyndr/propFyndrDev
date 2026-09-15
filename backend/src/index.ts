@@ -17,6 +17,7 @@ import blogRouter from './routes/blog'
 import projectsRouter from './routes/projects'
 import savedRouter from './routes/saved'
 import leadsRouter from './routes/leads'
+import internalRouter from './routes/internal'
 import shareRouter from './routes/share'
 import adminRouter from './routes/admin'
 import { betaRouter } from './routes/betaObservability'
@@ -209,6 +210,7 @@ app.use('/api/v1/blog', blogRouter)
 app.use('/api/v1/projects', projectsRouter)
 app.use('/api/v1/saved', savedRouter)
 app.use('/api/v1/leads', leadsRouter)
+app.use('/api/v1/internal', internalRouter)
 app.use('/api/v1/share', shareRouter)
 
 // Staff-only gate for the ENTIRE admin area, mounted on the path prefix so

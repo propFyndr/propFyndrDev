@@ -4,6 +4,9 @@ const EnvSchema = z.object({
   PORT: z.string().default('8080'),
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
   WEBHOOK_SECRET: z.string().optional().default(''),
+  // Static key for the Make.com scheduler (stale-lead chaser, dead-letter
+  // replay). Unset disables those endpoints outright — it never opens them.
+  INTERNAL_API_KEY: z.string().optional(),
 
   // AI Provider Keys — at least one required in production
   GEMINI_API_KEY: z.string().optional(),

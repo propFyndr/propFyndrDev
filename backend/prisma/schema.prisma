@@ -842,8 +842,11 @@ model SiteVisitRequest {
   message      String?
   created_at   DateTime        @default(now())
   status       SiteVisitStatus @default(pending)
+  /// See CallbackRequest.chased_at.
+  chased_at    DateTime?
 
   @@index([project_slug])
+  @@index([status, chased_at])
   @@map("site_visit_requests")
 }
 
@@ -884,6 +887,10 @@ model CallbackRequest {
   assigned_at         DateTime?
   partner_notes       String?
 
+  // Set when the stale-lead chaser has escalated this lead, so it is escalated
+  // once and not on every poll. Null means never chased — not "not stale".
+  chased_at    DateTime?
+
   created_at   DateTime @default(now())
 
   objections LeadObjection[]
@@ -893,6 +900,7 @@ model CallbackRequest {
   @@index([created_at])
   @@index([chat_session_id])
   @@index([assigned_partner_id])
+  @@index([status, chased_at])
   @@map("callback_requests")
 }
 
@@ -1996,3 +2004,23 @@ model AdminUser {
 }
 
 
+
+/// A lead notification Make.com never accepted.
+///
+/// The lead itself is already safe in its own table — what is lost when the
+/// webhook receiver is down is the alert, and with it the response time that
+/// wins the buyer. Rows here are replayed through the normal sender once the
+/// receiver is back, so an outage self-heals instead of quietly costing leads.
+model WebhookDeadLetter {
+  id          String    @id @default(uuid())
+  event       String
+  payload     Json
+  error       String
+  attempts    Int       @default(0)
+  created_at  DateTime  @default(now())
+  /// Null until a replay was accepted by the receiver.
+  replayed_at DateTime?
+
+  @@index([replayed_at, created_at])
+  @@map("webhook_dead_letters")
+}
