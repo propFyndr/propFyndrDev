@@ -3185,3 +3185,51 @@ been answering fine an hour before.
 **Correctness results from the same run are still valid** — ragged 0,
 violations 0, empty 0 — because those do not depend on which leg answers. The
 timing does. Re-measure on a rested quota, and preferably after the top-up.
+
+---
+
+## 2026-09-15 — One webhook sender, and the site visit alert that was blank
+
+### What was decided
+
+`backend/src/lib/webhook.ts` is now the only outbound lead webhook sender.
+`leads.ts`, `builderRegistration.ts` and `partnerRegistration.ts` each carried
+their own copy of `fireWebhook`, and the copies had drifted: only the `leads.ts`
+one flattened the payload to the root, so a Make.com field mapping that worked
+for a callback silently produced empty cells for a builder or partner
+application. Wire format is fixed at `{ event, data: {...}, ...data, ts }` —
+`data` is the contract, the flattened copy exists for Sheets column mapping.
+
+`site_visit_requested` was sending `{name, phone, projectName, visitDate,
+timeSlot}` — camelCase, no sector, no price range, no score. The Gmail alert
+template reads `lead_score`, `sector`, `price_range`, so **every site visit
+alert rendered with blank rows**, on our highest-intent event. It now sends the
+same qualified field set as `callback_requested`.
+
+`project.bhk` does not exist — `bhk` lives on `UnitType`. Both payloads read it,
+so `bhk` has been null in every lead alert ever sent. `bhkLabel()` derives
+`"2, 3, 4"` from the project's unit types; fixed once, for both callers.
+
+### Why
+
+Make.com routes on `event` and maps on field names. Three senders with three
+payload shapes means a routing filter or a Sheets mapping is only ever correct
+for one of them.
+
+### What was rejected
+
+* Fixing the site visit payload in place and leaving three senders — the shapes
+  would drift again on the next event added.
+* Computing no score for site visits (leaving `lead_score` null) — the alert
+  template would still render blank. A booked, dated visit is scored with
+  `intentTier: 'immediate'`: that is the scoring heuristic, not a claim about
+  the buyer, and it is the strongest timeline they have actually declared.
+* Option 2, the "nobody called this lead" chaser, is **not** buildable in
+  Make alone: admin auth is a Redis-TTL session UUID (`lib/adminAuth.ts`), so
+  Make has no long-lived token. It needs a new machine-auth endpoint behind a
+  static key before the scenario can poll.
+
+Non-blocking follow-up: `fireWebhook` now throws when the receiver rejects the
+payload twice (it used to return silently). Every caller still only
+`.catch(console.error)`, so a Make.com outage means the lead lands in the DB
+with nobody alerted. Dead-lettering is still unbuilt.

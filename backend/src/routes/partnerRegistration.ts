@@ -11,6 +11,7 @@ import { Router, Request, Response } from 'express'
 import { z } from 'zod'
 import { prisma } from '../lib/db'
 import { checkRateLimit } from '../lib/cache'
+import { fireWebhook } from '../lib/webhook'
 
 const router = Router()
 
@@ -118,27 +119,5 @@ router.post('/', async (req: Request, res: Response) => {
     res.status(500).json({ error: 'Failed to submit application' })
   }
 })
-
-async function fireWebhook(event: string, data: Record<string, unknown>) {
-  const url = process.env.WEBHOOK_URL
-  if (!url) return
-  const body = JSON.stringify({ event, data, ts: Date.now() })
-
-  const secret = process.env.WEBHOOK_SECRET
-  const headers: Record<string, string> = { 'Content-Type': 'application/json' }
-  if (secret) {
-    const { createHmac } = await import('crypto')
-    headers['X-Signature'] = 'sha256=' + createHmac('sha256', secret).update(body).digest('hex')
-  }
-
-  for (let attempt = 0; attempt < 2; attempt++) {
-    try {
-      const r = await fetch(url, { method: 'POST', body, headers, signal: AbortSignal.timeout(5000) })
-      if (r.ok) return
-    } catch (e) {
-      if (attempt === 1) throw e
-    }
-  }
-}
 
 export default router

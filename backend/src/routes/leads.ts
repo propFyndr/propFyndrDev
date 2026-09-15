@@ -9,6 +9,7 @@ import { env } from '../lib/env'
 import { notifyLead } from '../lib/notify'
 import { checkRateLimit } from '../lib/cache'
 import { loadLeadProfile, scoreLead } from '../lib/leadProfile'
+import { fireWebhook, bhkLabel } from '../lib/webhook'
 import { buildLeadDossier } from '../lib/leadDossier'
 import { analyzeGhostPoolByProject } from '../lib/ghostPool'
 import { analyzeProjectDemand, getDemandSnapshot } from '../lib/demandIntelligence'
@@ -100,7 +101,7 @@ router.post('/callback', async (req: Request, res: Response) => {
   // stores price_min_cr, so the max has to come from its units.
   const project: any = finalProjectSlug ? await prisma.project.findUnique({
     where: { slug: finalProjectSlug },
-    include: { unit_types: { select: { price_min_cr: true, price_max_cr: true } } },
+    include: { unit_types: { select: { bhk: true, price_min_cr: true, price_max_cr: true } } },
   }) : null
 
   // Load buyer profile once, reuse for the persisted lead and the webhook payload
@@ -212,7 +213,7 @@ router.post('/callback', async (req: Request, res: Response) => {
     loan_status: loan_status ?? null,
 
     // Project data
-    bhk: project?.bhk ?? null,
+    bhk: bhkLabel(project?.unit_types),
     sector: projectSector,
     price_range: project?.price_range_label ?? null,
 
@@ -267,7 +268,19 @@ router.post('/site-visit', async (req: Request, res: Response) => {
     }
   }
 
-  const project = await prisma.project.findUnique({ where: { slug: projectSlug }, select: { id: true, builder_id: true } })
+  // Selected fields feed the lead alert as well as the analytics rows: a site
+  // visit is our highest-intent event and was going out to sales with nothing
+  // but a name, a phone and a date.
+  const project = await prisma.project.findUnique({
+    where: { slug: projectSlug },
+    select: {
+      id: true,
+      builder_id: true,
+      sector: true,
+      price_range_label: true,
+      unit_types: { select: { bhk: true, price_min_cr: true, price_max_cr: true } },
+    },
+  })
   if (!project) { res.status(404).json({ error: 'Project not found' }); return }
 
   const sv = await prisma.siteVisitRequest.create({
@@ -301,39 +314,59 @@ router.post('/site-visit', async (req: Request, res: Response) => {
     ]).catch(err => console.error('[leads] Analytics tracking failed:', err))
   }
 
-  fireWebhook('site_visit_requested', { name, phone, projectName, visitDate, timeSlot }).catch((e) => console.error('[leads] webhook failed:', e))
+  // Qualify the visit the same way a callback is qualified, so both events reach
+  // Make.com with one field set and the alert template renders for either.
+  const svProfile = await loadLeadProfile(userId, null)
+  const svUnitMins = project.unit_types.map((u) => u.price_min_cr).filter((v): v is number => typeof v === 'number')
+  const svUnitMaxes = project.unit_types.map((u) => u.price_max_cr).filter((v): v is number => typeof v === 'number')
+  const svPriceMin = svUnitMins.length ? Math.min(...svUnitMins) : null
+  const svPriceMax = svUnitMaxes.length ? Math.max(...svUnitMaxes) : null
+  const svFitsBudget =
+    svPriceMin !== null && svPriceMax !== null && !!svProfile.budget_cr?.min && !!svProfile.budget_cr?.max
+      ? svProfile.budget_cr.max >= svPriceMin && svProfile.budget_cr.min <= svPriceMax
+      : false
+
+  const { score: svScore, tier: svTier } = scoreLead({
+    loanPreApproved: svProfile.loan_pre_approved,
+    // Booking a dated visit is the strongest timeline the buyer has actually
+    // declared — this is the scoring heuristic, not a claim about the buyer.
+    intentTier: 'immediate',
+    projectFitsBudget: svFitsBudget,
+    savedCount: svProfile.engagement?.projects_saved,
+    viewedCount: svProfile.engagement?.projects_viewed,
+    sectorMatches: svProfile.preferred_sector ? svProfile.preferred_sector === project.sector : false,
+  })
+
+  fireWebhook('site_visit_requested', {
+    // User-provided form data
+    name,
+    phone,
+    project_name: projectName,
+    project_slug: projectSlug,
+    visit_date: visitDate,
+    time_slot: timeSlot,
+
+    // Project data
+    bhk: bhkLabel(project.unit_types),
+    sector: project.sector,
+    price_range: project.price_range_label ?? null,
+
+    // Engagement metrics
+    projects_saved: svProfile.engagement?.projects_saved ?? 0,
+    projects_viewed: svProfile.engagement?.projects_viewed ?? 0,
+
+    // Qualified lead metadata
+    budget_min_cr: svProfile.budget_cr?.min ?? null,
+    budget_max_cr: svProfile.budget_cr?.max ?? null,
+    loan_pre_approved: svProfile.loan_pre_approved ?? false,
+    lead_score: svScore,
+    lead_tier: svTier,
+    ai_summary: svProfile.ai_summary ?? null,
+    created_at: sv.created_at.toISOString(),
+  }).catch((e) => console.error('[leads] webhook failed:', e))
 
   res.status(201).json({ siteVisit: sv })
 })
-
-async function fireWebhook(event: string, data: Record<string, unknown>) {
-  const url = process.env.WEBHOOK_URL
-  if (!url) {
-    console.error('[leads] ⚠️ WEBHOOK_URL not configured — lead webhook was not sent. Configure WEBHOOK_URL in environment.')
-    return
-  }
-  // Flatten data at root for Make.com / Google Sheets direct field mapping compatibility
-  const body = JSON.stringify({ event, data, ...data, ts: Date.now() })
-
-  // Sign the payload so the receiver can verify it actually came from us.
-  const secret = process.env.WEBHOOK_SECRET
-  const headers: Record<string, string> = { 'Content-Type': 'application/json' }
-  if (secret) {
-    const { createHmac } = await import('crypto')
-    headers['X-Signature'] = 'sha256=' + createHmac('sha256', secret).update(body).digest('hex')
-  }
-
-  // One retry on failure — leads are the revenue event; don't drop them silently.
-  for (let attempt = 0; attempt < 2; attempt++) {
-    try {
-      const res = await fetch(url, { method: 'POST', headers, body, signal: AbortSignal.timeout(5000) })
-      if (res.ok) return
-    } catch (e) {
-      if (attempt === 1) throw e
-    }
-    await new Promise((r) => setTimeout(r, 500))
-  }
-}
 
 const WebhookLeadSchema = z.object({
   type: z.enum(['callback', 'site_visit']),

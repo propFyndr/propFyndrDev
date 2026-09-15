@@ -6,6 +6,7 @@ import { prisma } from '../lib/db'
 import { supabaseAdmin } from '../lib/supabase'
 import { checkRateLimit } from '../lib/cache'
 import { validateUploadedFile } from '../lib/uploadValidator'
+import { fireWebhook } from '../lib/webhook'
 
 // Form status enum — mirrors Prisma schema
 const FormStatusValues = ['new', 'reviewing', 'approved', 'rejected', 'clarification_requested'] as const
@@ -195,32 +196,5 @@ router.post('/', async (req: Request, res: Response) => {
     res.status(500).json({ error: message })
   }
 })
-
-async function fireWebhook(event: string, data: Record<string, unknown>) {
-  const url = process.env.WEBHOOK_URL
-  if (!url) return
-  const body = JSON.stringify({ event, data, ts: Date.now() })
-
-  const secret = process.env.WEBHOOK_SECRET
-  const headers: Record<string, string> = { 'Content-Type': 'application/json' }
-  if (secret) {
-    const { createHmac } = await import('crypto')
-    headers['X-Signature'] = 'sha256=' + createHmac('sha256', secret).update(body).digest('hex')
-  }
-
-  for (let attempt = 0; attempt < 2; attempt++) {
-    try {
-      const res = await fetch(url, {
-        method: 'POST',
-        body,
-        headers,
-        signal: AbortSignal.timeout(5000),
-      })
-      if (res.ok) return
-    } catch (e) {
-      if (attempt === 1) throw e
-    }
-  }
-}
 
 export default router
