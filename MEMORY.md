@@ -3360,3 +3360,62 @@ existed; they are stored now.
 `leads.test.ts` asserts `status === 200 || 201 || 400 || 429 || 500` — it passes
 whether the route works or not. That is the test shape that let the site-visit
 400 run for the life of the product.
+
+## 2026-09-15 — What a Noida buyer asks, measured against what we answer
+
+### The audit
+
+`npm run audit:queries` runs the 109-question corpus in /QueriesAndKeywords
+through the real routing code — `outOfScopeDirective()` and each handler's own
+`matches()`, imported rather than copied — and reports four buckets. It exits
+non-zero when the NO SOURCE bucket is non-empty, because that bucket is the only
+one that produces a confident answer with nothing behind it.
+
+Before this work: 28 out of scope, 5 NO SOURCE.
+After: **41 out of scope, 0 NO SOURCE**, 13 claimed by the new handler.
+
+### What was built
+
+**`NOIDA_AUTHORITY` in factPresentation.ts, and the authorityMechanics handler.**
+Roughly twenty of the corpus questions are about how Noida property is held —
+leasehold vs freehold, Transfer Memorandum, one-time lease rent, why a registry
+stalls, whether a bank will lend — and we held nothing, so those turns were
+answered from web grounding. That is the same source that once told a buyer
+Supertech Supernova had "zero litigation and clear title".
+
+The module splits deliberately: `structure` is how the tenure works (90-year
+lease, sub-lease deed, never freehold) and is stated plainly; `bands` are rates
+set per authority circular, which we do NOT hold per project, and every one
+carries `AUTHORITY_RATE_CAVEAT`. A figure moved from bands to structure because
+it "seems stable" is how a stale transfer-charge percentage gets quoted as fact.
+
+`AUTHORITY_FACTS_LAST_REVIEWED` plus a test that fails once it is twelve months
+stale is the only mechanism that actually forces a re-read.
+
+**`asksLegalSafety` was blocking the wrong axis.** It matched any message
+containing legal|title|rera|clean, so "why is an RWA No-Dues Certificate not
+enough to confirm clean title?" — general process, no project named — lost web
+grounding, matched no handler, and answered from nothing. It now also requires
+the message to point at inventory. The Supernova guard is intact: a legal claim
+about a project still never comes from the web.
+
+**`OUT_OF_SCOPE_SUBJECTS` gained seven entries** — tenancy law, bank auctions,
+inheritance, loan refinancing, alternative assets, structural audits, and
+property outside Noida/Greater Noida.
+
+### Not done, deliberately
+
+No new prompt text. `BEHAVIOUR_RULES`, `outOfScopeDirective()` and the four-tier
+`factPresentation` system already are the global answer contract; the gap was
+knowledge we did not hold, which no prompt can supply.
+
+### Two traps worth remembering
+
+* Writing regexes into files through a shell heredoc **silently ate `\b`** and
+  left literal backspace characters in `base.ts` and `chat-router.ts` — 47 of
+  them. Read renders them invisibly and Edit then cannot match the text. Write
+  regex-bearing code with the Write/Edit tools, never through a shell heredoc.
+* `sessionHygiene.test.ts` asserted on a fixed character window of
+  `chat-router.ts` source. It had already been widened 4000 → 9000 once for this
+  exact reason and failed again. The window is now bounded by the next lane
+  banner, so documentation no longer breaks a behaviour test.

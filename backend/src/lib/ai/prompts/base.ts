@@ -786,6 +786,19 @@ const OUT_OF_SCOPE_SUBJECTS: [RegExp, string][] = [
   [/\bplots?\b|\bland\b|\bindependent house\b|\bkothi\b|\bvilla plots?\b/i, 'plots and land'],
   [/\bauction\b|\bdistressed\b|\bbank auction\b/i, 'auction or distressed stock'],
   [/\bhotels?\b|\bresorts?\b|\bairbnb\b|\bservice apartments?\b/i, 'hospitality'],
+
+  // Added after running the 109-question buyer corpus in /QueriesAndKeywords
+  // through this table: sixteen out-of-scope questions passed as in-scope and
+  // would have been answered as though we cover them.
+  [/\btenancy act\b|\brent tribunal\b|\bsecurity deposit\b|\bco[- ]?living\b|\bhostels?\b/i, 'tenancy law'],
+  [/\bsarfaesi\b|\be-?auction\b|\bforeclosure\b|\bdrt\b|\bibapi\b/i, 'bank auction and foreclosure stock'],
+  [/\bprobate\b|\bsuccession\b|\binherit(ance|ed)?\b/i, 'inheritance and succession'],
+  [/\bbalance transfer\b|\brefinanc/i, 'loan refinancing'],
+  [/\breits?\b|\bdata cent(er|re)s?\b|\bsemiconductor\b|\bfractional ownership\b/i, 'alternative property assets'],
+  [/\bstructural audit\b|\bnon[- ]destructive test\b|\bndt\b|\bdefect liability\b/i, 'structural audits'],
+  // Noida and Greater Noida only. A cross-NCR allocation question is a real
+  // question we hold no inventory to answer for two thirds of it.
+  [/\b(gurgaon|gurugram|delhi|faridabad|ghaziabad|dwarka|sohna)\b/i, 'property outside Noida and Greater Noida'],
 ]
 
 /**

@@ -33,7 +33,7 @@
     "audit:gaps": "tsx scripts/audit-gaps-report.ts",
     "fix:builder-identity": "tsx scripts/fix-builder-identity.ts",
     "audit:duplicates": "tsx scripts/list-duplicate-builders.ts",
-    "audit:queries": "tsx scripts/audit-queries.ts",
+    "audit:queries": "tsx scripts/audit-query-coverage.ts",
     "verify:all": "npm run verify:services && npm run verify:chain",
     "audit:master-json": "tsx scripts/audit-master-json.ts",
     "fix:track-record": "tsx scripts/fix-builder-track-record.ts",

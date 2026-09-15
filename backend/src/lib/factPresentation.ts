@@ -115,3 +115,64 @@ export const NOIDA_MARKET_RANGES = {
   allInclusiveLoadUnderConstructionPct: '12–14% above base price',
   allInclusiveLoadReadyToMovePct: '8–9% above base price',
 } as const
+
+/**
+ * How Noida property is actually held, and what that costs.
+ *
+ * The 109-question buyer corpus in /QueriesAndKeywords put ~20 questions here —
+ * leasehold vs freehold, Transfer Memorandum, one-time lease rent, why a
+ * registry stalls, whether a bank will lend — and we held nothing. Those turns
+ * fell to web grounding, which is the same source that once told a buyer
+ * Supertech Supernova had "zero litigation and clear title" while our own rows
+ * said litigation_count 14 and NCLT_INSOLVENCY.
+ *
+ * So these live here, as code, for the same reason UP_STATUTORY does.
+ *
+ * The split below is the whole point and must be preserved when editing:
+ *
+ *   STRUCTURE  How the tenure works. Fixed by how the authorities allot land,
+ *              identical for every project under that authority, and stable
+ *              across years. Statutory tier — state it plainly.
+ *   BANDS      Real charges whose rate is set per authority circular, per
+ *              scheme, and revised. We do NOT hold the current figure for any
+ *              specific project. Market tier — every one of these must be
+ *              rendered through marketFigure() and must carry the instruction
+ *              to confirm the live rate before budgeting on it.
+ *
+ * A number moved from BANDS to STRUCTURE because it "seems stable" is how a
+ * stale transfer-charge percentage ends up quoted to a buyer as fact.
+ *
+ * Last reviewed: 2026-09. See authorityFacts.test.ts — it fails when this date
+ * goes more than twelve months stale, because an unreviewed rate presented with
+ * confidence is the failure mode this whole module exists to prevent.
+ */
+export const AUTHORITY_FACTS_LAST_REVIEWED = '2026-09'
+
+export const NOIDA_AUTHORITY = {
+  /** Statutory tier — how the tenure itself works. */
+  structure: {
+    tenureYears: 90,
+    authorities: ['NOIDA', 'GNIDA (Greater Noida)', 'YEIDA (Yamuna Expressway)'] as const,
+    /** What the buyer of a flat actually receives. */
+    buyerInstrument: 'sub-lease deed',
+    /** What they do not receive, however the sales pitch is phrased. */
+    notFreehold: true,
+  },
+
+  /** Market tier — real, but the rate is per authority circular and is revised. */
+  bands: {
+    transferChargesPct: '1–5% of current authority premium',
+    oneTimeLeaseRentPct: 'about 10% of land premium',
+    allInTransactionCostPct: '10–13% of transaction value',
+  },
+} as const
+
+/**
+ * The instruction that must travel with every NOIDA_AUTHORITY.bands figure.
+ *
+ * Stronger than MARKET_QUALIFIER on purpose: a market range for parking is a
+ * budgeting aid, whereas a wrong transfer-charge percentage is money the buyer
+ * has to find on the day of registry.
+ */
+export const AUTHORITY_RATE_CAVEAT =
+  'set by authority circular and revised periodically — confirm the current rate with the allotting authority before budgeting on it'

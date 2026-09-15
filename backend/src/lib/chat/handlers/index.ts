@@ -13,6 +13,7 @@ import { possessionStatusHandler } from './possessionStatus'
 import { connectivityHandler } from './connectivity'
 import { totalOutflowHandler } from './totalOutflow'
 import { unitConfigurationHandler } from './unitConfiguration'
+import { authorityMechanicsHandler } from './authorityMechanics'
 
 /**
  * Topic handlers, in priority order — the first match wins.
@@ -72,6 +73,12 @@ export const CHAT_TOPIC_HANDLERS: readonly ChatTopicHandler[] = [
   paymentPlansHandler,
   costSheetHandler,
   reraVerificationHandler,
+  // Before statutoryTax deliberately. "What transfer charges do I pay on a
+  // leasehold flat" is a tenure question that happens to mention a charge; the
+  // tax handler would answer it with the stamp duty table and never mention the
+  // lease. Its matchers are narrow enough that a plain stamp-duty or GST
+  // question still falls through to statutoryTax below.
+  authorityMechanicsHandler,
   statutoryTaxHandler,
   possessionStatusHandler,
   totalOutflowHandler,
@@ -80,6 +87,7 @@ export const CHAT_TOPIC_HANDLERS: readonly ChatTopicHandler[] = [
 ]
 
 export {
+  authorityMechanicsHandler,
   vicinityLookupHandler,
   commuteShortlistHandler,
   reraVerificationHandler,

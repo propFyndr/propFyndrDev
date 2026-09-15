@@ -2135,8 +2135,26 @@ router.post('/', async (req: Request, res: Response) => {
      * engine. Legal questions are answerable from our own columns or not at
      * all; the web has no standing here.
      */
-    const asksLegalSafety =
+    /*
+     * Narrowed, because the first version blocked the wrong axis. It matched any
+     * message containing legal|title|rera|clean, so "why is an RWA No-Dues
+     * Certificate not enough to confirm clean title?" — a general process
+     * question naming no project — lost web grounding, matched no handler and
+     * fell to the floor with no source at all. Measured across the 109-question
+     * buyer corpus in /QueriesAndKeywords: five questions were starved this way.
+     *
+     * What must never come from the web is a legal CLAIM ABOUT A PROJECT, which
+     * is the Supernova failure above. So the guard now also requires the message
+     * to point at inventory. General law and process stays answerable from
+     * public knowledge, which the system prompt already permits.
+     */
+    const legalVocabulary =
       /\b(litigation|legal|court|nclt|dispute|title|encumbrance|clean|clear title|safe to buy|due diligence|rera)\b/i.test(message)
+    const pointsAtInventory =
+      asksForInventory ||
+      (intent.projectNames?.length ?? 0) > 0 ||
+      /\b(which|any|list|show|name)\b[^.?!]{0,40}\b(project|societ|builder|tower|flat)/i.test(message)
+    const asksLegalSafety = legalVocabulary && pointsAtInventory
 
     // An affordability question with a stated income is not an open question
     // either — it is arithmetic we do in code, plus a shortlist.

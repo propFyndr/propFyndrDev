@@ -89,29 +89,35 @@ describe('the first turn must not fork the session', () => {
 })
 
 describe('an open answer shows cards for the projects it named', () => {
+  /**
+   * The open lane's source, bounded by where the lane actually ends.
+   *
+   * This was a fixed character window, widened from 4000 to 9000 the first time
+   * a comment pushed the code it looks for out of range, and it failed the same
+   * way again the next time — twice now, for a test about behaviour that never
+   * changed. A numeric window measures documentation, not code. The lane ends
+   * at the next lane banner, so that is the boundary.
+   */
+  const openLaneSource = (): string => {
+    const start = ROUTER.indexOf('OPEN QUERY LANE')
+    assert.ok(start !== -1, 'open lane not found')
+    const nextBanner = ROUTER.indexOf('─── ', start + 20)
+    return ROUTER.slice(start, nextBanner === -1 ? undefined : nextBanner)
+  }
+
   it('the open lane emits a properties event', () => {
     // The lane returned prose with inline links and no cards, so "what are the
     // most premium gated communities in Sector 78" — which names four real
     // projects — gave the buyer nothing to save, compare or open.
-    const start = ROUTER.indexOf('OPEN QUERY LANE')
-    assert.ok(start !== -1, 'open lane not found')
-    // 9000, not 4000: this scans SOURCE TEXT in a fixed window after the marker,
-    // so documentation added above the code it is looking for pushes that code
-    // out of range and fails a test about behaviour that never changed.
-    const lane = ROUTER.slice(start, start + 9000)
+    const lane = openLaneSource()
     assert.match(lane, /loadMentionedProjectCards/, 'open lane should load cards for named projects')
     assert.match(lane, /send\('properties'/, 'open lane should emit the cards')
   })
 
   it('cards come only from projects the answer actually named', () => {
     // The scope rule: never widen to a sector, never append similar projects.
-    const start = ROUTER.indexOf('OPEN QUERY LANE')
-    // 9000, not 4000: this scans SOURCE TEXT in a fixed window after the marker,
-    // so documentation added above the code it is looking for pushes that code
-    // out of range and fails a test about behaviour that never changed.
-    const lane = ROUTER.slice(start, start + 9000)
     assert.match(
-      lane,
+      openLaneSource(),
       /loadMentionedProjectCards\(mentionedProjects\)/,
       'the card set must be exactly the mentioned projects',
     )
