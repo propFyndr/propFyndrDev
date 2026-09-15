@@ -738,6 +738,11 @@ model ChatSession {
   created_at       DateTime      @default(now())
   last_active      DateTime      @default(now())
   chat_phase       String        @default("DISCOVERY")
+
+  // Crawler, uptime check or our own corpus run — see lib/botDetection.ts.
+  // Never blocks the turn; it keeps the session out of product metrics, which
+  // 40,790 one-message sessions in thirty days had made unreadable.
+  is_bot           Boolean       @default(false)
   last_projects    Json?
   shown_chip_ids   Json?         @default("[]")
   summary          String?

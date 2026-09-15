@@ -65,6 +65,7 @@ import { inventoryEnvelope, renderEnvelope } from '../lib/ai/inventoryEnvelope'
 import { extractSectorMentions } from '../lib/discovery/sectorMentions'
 import { verifyUser } from '../lib/auth'
 import { clientIp } from '../lib/request'
+import { isBotRequest } from '../lib/botDetection'
 import { getChipInventory } from '../lib/discovery/chipInventory'
 import { getProjectDataForQuery, computeResponseConfidence } from '../lib/projectDataGateway'
 import { FEATURE_PROBES } from '../lib/featureProbes'
@@ -333,6 +334,10 @@ router.post('/', async (req: Request, res: Response) => {
   }
 
   // Create session for new guest users (no sessionId + guest token)
+  // Crawlers, uptime checks and our own corpus runs are answered exactly as
+  // before — this only marks the session so metrics can exclude them.
+  const requestIsBot = isBotRequest(req)
+
   // DEFENSIVE: Ensure session exists before any child operations (FK constraints)
   if (!sessionId && !userId && guestToken) {
     try {
@@ -341,6 +346,7 @@ router.post('/', async (req: Request, res: Response) => {
           guest_token: guestToken,
           title: 'Chat',
           chat_phase: 'GATHERING',
+          is_bot: requestIsBot,
         },
       })
       sessionId = newSession.id
@@ -384,6 +390,7 @@ router.post('/', async (req: Request, res: Response) => {
           user_id: userId,
           title: 'Chat',
           chat_phase: 'GATHERING',
+          is_bot: requestIsBot,
         },
       })
       sessionId = newSession.id
@@ -394,8 +401,12 @@ router.post('/', async (req: Request, res: Response) => {
   }
 
   // ─── ANALYTICS: Initialize chat tracking
-  // Safe now: sessionId is guaranteed to exist or user has existing session
-  await initializeChatAnalytics(sessionId ?? undefined, userId, guestToken ?? undefined)
+  // Safe now: sessionId is guaranteed to exist or user has existing session.
+  // Skipped for crawlers and tooling: the turn is still answered, it simply
+  // does not enter the funnel it would otherwise distort.
+  if (!requestIsBot) {
+    await initializeChatAnalytics(sessionId ?? undefined, userId, guestToken ?? undefined)
+  }
 
   const rlKey = userId ?? guestToken!
   const ip = clientIp(req)

@@ -3419,3 +3419,55 @@ knowledge we did not hold, which no prompt can supply.
   `chat-router.ts` source. It had already been widened 4000 → 9000 once for this
   exact reason and failed again. The window is now bounded by the next lane
   banner, so documentation no longer breaks a behaviour test.
+
+## 2026-09-15 — Two beta blockers: lead scoring that could not score, and unreadable metrics
+
+### saved_slugs had no writer, so every lead scored COLD
+
+`saved.ts` wrote `SavedProperty` but never mirrored the save into
+`UserMemory.saved_slugs`. Nothing else wrote that column either — it had readers
+only. So `LeadProfile.engagement.projects_saved` was hard 0 for every buyer, and
+`scoreLead`'s engagement component, worth up to 15 points, could never fire.
+Production agrees exactly: 760 of 763 leads are COLD, 1 WARM.
+
+`mirrorSavedSlugs()` now writes it on save and removes it on unsave. It never
+fails the buyer's action — a mirror failure is logged, the save still returns.
+
+The trap it documents: `SavedProperty` keys a guest as `guest_<token>` in its own
+`user_id` column, while `UserMemory` keys the same person in `guest_token`.
+Getting that backwards writes a row nothing reads, which is indistinguishable
+from the bug being fixed. `memoryKeyFor()` is exported and tested for exactly
+that.
+
+### Bot sessions made every product number meaningless
+
+43,275 chat sessions, 40,790 of them inside thirty days, averaging 1.3 messages,
+and 763 leads from four phone numbers. That is crawlers, uptime checks, smoke
+tests and corpus runs.
+
+`lib/botDetection.ts` marks them. `ChatSession.is_bot` is set at session
+creation from the user agent, and `initializeChatAnalytics` is skipped for
+those turns.
+
+Deliberately it does NOT block: a user agent is forged trivially, and a real
+buyer on an unusual client must never be turned away to tidy a dashboard. Rate
+limiting (20/min per identity, 40/min per IP) already handles abuse. The test
+asserts real Chrome, Safari, iPhone, Android, Firefox and Edge agents are never
+flagged — a false positive here silently drops a real buyer from the metrics,
+which is the failure this is meant to prevent rather than cause.
+
+Existing rows were not backfilled. The user agent that created them was never
+stored, so any backfill would be a guess; historical sessions stay unreadable
+and metrics are trustworthy from here forward.
+
+### Beta readiness, measured this session
+
+* Render **is** auto-deploying — `/api/v1/internal/*` answered 503
+  "Internal API not configured", which means the code is live and only
+  `INTERNAL_API_KEY` is missing from the Render environment.
+* `/api/v1/health` returns `{"ok":true,"db":"ok","redis":"ok"}` with uptime 185s
+  — the free instance had just cold-started. ~50s first response after idle.
+* Provider chain: **8 of 12 legs answering, 3 distinct providers.** Billed Gemini
+  is out of credit, Cohere's trial is exhausted (1000 calls/month), Cloudflare's
+  daily neurons are gone. Everything still answering is free tier with daily
+  caps, and the paid key that exists as the safety net is the dead one.

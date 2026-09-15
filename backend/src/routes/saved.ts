@@ -21,6 +21,48 @@ async function getEffectiveUserId(req: Request): Promise<string | null> {
   return null
 }
 
+/**
+ * Mirror a save into UserMemory.saved_slugs.
+ *
+ * `saved_slugs` had no writer anywhere in the codebase — only readers. So
+ * `LeadProfile.engagement.projects_saved` was hard 0 for every buyer, and
+ * `scoreLead`'s engagement component, worth up to 15 points, could never fire.
+ * Production shows the consequence exactly: 760 of 763 stored leads are COLD.
+ * Saving a property is one of the high-intent signals CLAUDE.md lists, and it
+ * was reaching the score as a zero.
+ *
+ * SavedProperty keys guests as `guest_<token>` in its own user_id column, while
+ * UserMemory keys them in `guest_token`. That split is why this is a helper and
+ * not two inline blocks: getting it wrong writes a memory row nothing reads.
+ */
+export function memoryKeyFor(effectiveUserId: string): { user_id: string } | { guest_token: string } {
+  return effectiveUserId.startsWith('guest_')
+    ? { guest_token: effectiveUserId.slice('guest_'.length) }
+    : { user_id: effectiveUserId }
+}
+
+async function mirrorSavedSlugs(effectiveUserId: string, projectId: string, action: 'add' | 'remove'): Promise<void> {
+  const where = memoryKeyFor(effectiveUserId)
+
+  const project = await prisma.project.findUnique({ where: { id: projectId }, select: { slug: true } })
+  if (!project) return
+
+  const existing = await prisma.userMemory.findFirst({ where })
+  const current = (existing?.saved_slugs as string[] | undefined) ?? []
+  const next =
+    action === 'add'
+      ? [...new Set([...current, project.slug])]
+      : current.filter(s => s !== project.slug)
+
+  if (existing) {
+    await prisma.userMemory.update({ where: { id: existing.id }, data: { saved_slugs: next } })
+    return
+  }
+  // Nothing to remove from a memory row that does not exist yet.
+  if (action === 'remove') return
+  await prisma.userMemory.create({ data: { ...where, saved_slugs: next } })
+}
+
 router.get('/', async (req: Request, res: Response) => {
   const userId = await getEffectiveUserId(req)
   if (!userId) {
@@ -80,6 +122,12 @@ router.post('/', async (req: Request, res: Response) => {
       }
     }).catch(err => console.error('[POST /saved] failed to create event:', err))
 
+    // Never fail the save because the mirror failed — the mirror feeds lead
+    // scoring, the save is what the buyer asked for.
+    await mirrorSavedSlugs(userId, project_id, 'add').catch(err =>
+      console.error('[POST /saved] saved_slugs mirror failed:', err),
+    )
+
     res.status(201).json({ ok: true })
   } catch (err) {
     console.error('[POST /saved]', err)
@@ -120,6 +168,10 @@ router.delete('/:id', async (req: Request, res: Response) => {
       action: 'remove_saved',
     }
   }).catch(err => console.error('[DELETE /saved] failed to create event:', err))
+
+  await mirrorSavedSlugs(userId, req.params.id, 'remove').catch(err =>
+    console.error('[DELETE /saved] saved_slugs mirror failed:', err),
+  )
 
   res.json({ ok: true })
 })
