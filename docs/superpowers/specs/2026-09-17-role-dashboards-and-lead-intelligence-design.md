@@ -72,7 +72,8 @@ front, and the phases below only make sense against them. All five are now also 
 | 11 | Hierarchical access control | ✅ DONE |
 | 12 | Optimisation and consistency | 🟡 PARTIAL — 4 of 7 done; UI refactor needs a browser |
 | 13 | What manual testing found | 🟡 PARTIAL — 4 of 7 done |
-| 14 | Making the lead usable | 🟡 PARTIAL — 3 of 4 done |
+| 14 | Making the lead usable | ✅ DONE |
+| 15 | Beta readiness | 🟡 PARTIAL — see docs/BETA_DEPLOY.md |
 
 ---
 
@@ -1035,7 +1036,7 @@ the same rows without pretending the platform owner has a personal queue. Now SA
 
 ---
 
-## Phase 14 — Making the lead usable ✅ MOSTLY DONE
+## Phase 14 — Making the lead usable ✅ DONE
 
 Four fixes that share a premise: the data was there and the screen was not using it.
 
@@ -1044,7 +1045,7 @@ Four fixes that share a premise: the data was there and the screen was not using
 | 14.1 | Lead names are names | No stored lead name contains a digit or reads as a sentence | ✅ DONE |
 | 14.2 | Time to first contact | The sales queue shows a median response time from real timestamps | ✅ DONE |
 | 14.3 | Objection rollup for builders | A builder sees why buyers hesitate, by category and verbatim | ✅ DONE |
-| 14.4 | Read-only project view for sales | Sales can look up a project's facts without an editing screen | ⬜ NOT STARTED |
+| 14.4 | Read-only project view for sales | Sales can look up a project's facts without an editing screen | ✅ DONE — `/admin/lookup` |
 
 ### 14.1 — a lead called "Is Rahul Sharma and my phone number is"
 
@@ -1107,6 +1108,62 @@ experienced, and that is the half that changes the brochure.
 This is the report that makes a builder renew, and it is credible only because we are not their
 marketing department. The moment it is softened to keep a builder comfortable it stops being
 worth reading.
+
+---
+
+
+## Phase 15 — Beta readiness 🟡 PARTIAL
+
+Overnight work ahead of a beta push. Full handover: `docs/BETA_DEPLOY.md`.
+
+| # | Item | Pass condition | State |
+|---|---|---|---|
+| 15.1 | The production build passes | `next build` completes | ✅ DONE |
+| 15.2 | No unbounded chat turn | p99 latency under 30s on a corpus run | ✅ DONE — 209.4s to 14.9s |
+| 15.3 | Answer quality held | Corpus pass rate unchanged after every change | ✅ DONE — 100% before and after |
+| 15.4 | Deploy variables documented | Every env var a deploy needs is written down | ✅ DONE — in BETA_DEPLOY.md; `.env.example` is write-protected here |
+| 15.5 | Pushed to propFyndrDev | The commits are on the remote | ⬜ **BLOCKED** — refused as data exfiltration; only the user can lift it |
+| 15.6 | System prompt caching | Median prompt well under 13.5k tokens | ⬜ **NOT STARTED, deliberately** |
+
+### 15.1 — the build was broken and nothing else caught it
+
+`useSearchParams()` in `/portal-entry` without a Suspense boundary meant `next build` could not
+prerender the page. Typecheck and lint were both clean; only the build failed. It would have
+failed the first deploy.
+
+The tenant is now read from the host through `tenantFromHost` — the same helper `PortalShell`
+uses, so the two cannot disagree about what counts as a tenant, and the hook is gone.
+
+### 15.2 — a turn could run for three and a half minutes
+
+Gemini's timers measure silence and reset on every chunk, so a slow-but-alive stream was
+unbounded, and `FALLBACK_TURN_BUDGET_MS` only refuses to *start* another leg.
+`GEMINI_LEG_MAX_DURATION_MS` is set once and never reset, aborting through the same
+`AbortController` the stall path uses — an overrun is handled exactly as a stall, so no new
+failure mode is introduced.
+
+Measured on 60 corpus queries, before and after:
+
+| | before | after |
+|---|---|---|
+| pass rate | 100% | **100%** |
+| p99 latency | 209.4s | **14.9s** |
+| p90 latency | 16.9s | 12.6s |
+| input tokens/query | 19,120 | 16,253 |
+| cost per 1k queries | $5.67 | **$5.47** |
+
+### 15.6 — the big lever, left alone on purpose
+
+Every query pays a **~13,600-token system prompt**; the measured median prompt is 13,501, so
+the fixed prefix is almost the entire input cost. `lib/ai/gemini.ts` already documents how
+Gemini explicit context caching would fix it, gated on `GEMINI_EXPLICIT_CACHE` — **a flag that
+appears only in that comment and is read nowhere.** The caching was designed, never built.
+
+Not built overnight because its own author wrote that it "changes where the model reads its
+per-turn instructions from, and that is a behaviour change to a chat with a long
+routing-regression history". Making that change unsupervised and shipping it to beta is the
+opposite of careful. It is plausibly a large cost cut at no quality risk — the prefix is
+byte-identical every turn, which is what caching is for — and it wants somebody awake.
 
 ---
 

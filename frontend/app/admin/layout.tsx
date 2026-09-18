@@ -17,6 +17,7 @@ import {
   EnvelopeSimple,
   UserCircle,
   SealCheck,
+  MagnifyingGlass,
 } from '@phosphor-icons/react'
 import PortalShell, { PortalNavItem } from '@/components/portal/PortalShell'
 
@@ -45,6 +46,10 @@ const NAV: PortalNavItem[] = [
   // call list.
   { href: '/admin/queue',                 label: 'My queue',      icon: PhoneCall,         roles: ['SALES'] },
   { href: '/admin/quality',               label: 'Data quality',  icon: SealCheck,         roles: [...EDITORS] },
+  // The read-only half of Projects, for the people who need the facts mid-call
+  // but must not edit them. Visible to every staff role: an analyst or a super
+  // admin looking a project up quickly wants this screen too.
+  { href: '/admin/lookup',                label: 'Lookup',        icon: MagnifyingGlass },
   /**
    * Catalogue. Editors only.
    *
