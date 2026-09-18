@@ -13,17 +13,17 @@
  */
 
 import { useEffect, useState } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { adminFetch } from '@/lib/adminFetch'
 import { API_BASE } from '@/lib/env'
+import { tenantFromHost } from '@/lib/subdomain'
 import { HOME_FOR_ROLE, type PortalRole } from '@/components/portal/PortalShell'
 
 interface Tenant { type: 'builder' | 'partner'; name: string; logo_url: string | null }
 
 export default function PortalEntryPage() {
   const router = useRouter()
-  const params = useSearchParams()
   const [message, setMessage] = useState('')
   const [tenant, setTenant] = useState<Tenant | null>(null)
 
@@ -41,7 +41,19 @@ export default function PortalEntryPage() {
    * renders, rather than a half-branded one.
    */
   useEffect(() => {
-    const slug = params.get('tenant')
+    /**
+     * Read the tenant from the HOST, not from `?tenant=`.
+     *
+     * The middleware rewrite puts the slug in the query and preserves the host,
+     * so both carry it — but `useSearchParams()` opts a page out of static
+     * generation unless it sits inside a Suspense boundary, and this page had
+     * neither. `next build` failed on it, which is a deploy that does not
+     * happen rather than a bug somebody reports.
+     *
+     * The host is also the same source `PortalShell` uses, through the same
+     * helper, so the two cannot disagree about what counts as a tenant.
+     */
+    const slug = tenantFromHost(typeof window === 'undefined' ? null : window.location.host)
     if (!slug) return
     let cancelled = false
     fetch(`${API_BASE}/portal/tenant/${encodeURIComponent(slug)}`)
@@ -49,7 +61,7 @@ export default function PortalEntryPage() {
       .then((t: Tenant) => { if (!cancelled) setTenant(t) })
       .catch(() => { /* Unknown tenant: plain shell. */ })
     return () => { cancelled = true }
-  }, [params])
+  }, [])
 
   useEffect(() => {
     let cancelled = false

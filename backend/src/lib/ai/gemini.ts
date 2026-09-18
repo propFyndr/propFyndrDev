@@ -37,6 +37,25 @@ const CONTINUE_INSTRUCTION =
 const INITIAL_TOKEN_TIMEOUT_MS = Number(process.env.GEMINI_INITIAL_TOKEN_TIMEOUT_MS ?? 25_000)
 const STREAM_INACTIVITY_MS = Number(process.env.GEMINI_STREAM_INACTIVITY_MS ?? 20_000)
 
+/**
+ * Absolute ceiling on one leg, however lively the stream stays.
+ *
+ * The two timers above measure SILENCE and reset on every chunk, so a model
+ * that keeps emitting slowly is never stopped by them. Measured on the corpus:
+ * one query ("best property under 75 lakh in noida") ran 209 seconds across six
+ * legs and 97k prompt tokens, because nothing bounds a leg that is slow rather
+ * than stalled.
+ *
+ * `FALLBACK_TURN_BUDGET_MS` only refuses to START another leg; it cannot end
+ * the one already running. This ends it, through the same AbortController the
+ * stall path uses, so the chain treats an overrun exactly as it already treats
+ * a stall — roll to the next leg — and no new failure mode is introduced.
+ *
+ * 45s is chosen against the measured distribution: p90 of a full corpus run was
+ * 16.9s, so this only fires on genuinely pathological turns.
+ */
+const LEG_MAX_DURATION_MS = Number(process.env.GEMINI_LEG_MAX_DURATION_MS ?? 45_000)
+
 /** Ceiling on tokens the model may spend thinking before it must start writing. */
 const THINKING_BUDGET_TOKENS = Number(process.env.GEMINI_THINKING_BUDGET ?? 1024)
 // Smallest budget gemini-3.5-flash-lite accepts; 0 is a 400 INVALID_ARGUMENT.
@@ -196,6 +215,16 @@ export async function streamWithGemini(
     // The timer must abort the request, not just flip a flag: the flag was only
     const abortController = new AbortController()
 
+    /**
+     * The hard ceiling. Set once per leg and never reset, which is the whole
+     * difference between it and the inactivity timers below.
+     */
+    const legDeadline = setTimeout(() => {
+      stalled = true
+      console.warn(`[gemini] leg exceeded ${LEG_MAX_DURATION_MS}ms cycle=${cycle} tokensSent=${tokensSentThisCycle} — aborting`)
+      abortController.abort()
+    }, LEG_MAX_DURATION_MS)
+
     const resetInactivity = (isStreaming = false) => {
       if (inactivityTimer) clearTimeout(inactivityTimer)
       const timeoutMs = isStreaming ? STREAM_INACTIVITY_MS : INITIAL_TOKEN_TIMEOUT_MS
@@ -347,6 +376,9 @@ export async function streamWithGemini(
       if (!stalled) throw err
     } finally {
       if (inactivityTimer) clearTimeout(inactivityTimer)
+      // Cleared in `finally` so a leg that finishes normally leaves no timer
+      // holding the event loop open.
+      clearTimeout(legDeadline)
       // Each tool cycle is a separate billed request — sum them.
       usage.promptTokens += cycleUsage.promptTokens
       usage.completionTokens += cycleUsage.completionTokens
