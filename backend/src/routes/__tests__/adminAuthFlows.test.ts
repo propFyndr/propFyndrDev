@@ -64,13 +64,28 @@ describe('admin auth flows', () => {
     assert.ok(resetBlock.includes('reset_token: null'), 'a used token must be consumed')
   })
 
-  it('nothing here sends anything — messages are queued for a human', () => {
-    // No provider is configured. A call site that "sends" would fail silently
-    // and the recipient would wait forever for a link that never came.
-    assert.ok(src.includes('notificationOutbox.create'), 'the reset link must be queued')
+  it('the reset link goes through the outbox, never straight to a provider', () => {
+    // Rewritten 2026-09-17. This previously asserted that nothing here sent
+    // anything, which was true while no dispatcher existed — a reset link was
+    // parked in NotificationOutbox and reached the requester only if a super
+    // admin opened the outbox screen and copied it out by hand.
+    //
+    // What must stay true is narrower and more durable: the row is written
+    // first, and this file never calls a provider directly. `enqueueAndSend`
+    // does both in that order, so a send that fails leaves a queued row with
+    // its error rather than a lost link and a log line.
+    assert.ok(src.includes('enqueueAndSend'), 'the reset link must go through the outbox')
+
+    // Comments stripped before the provider check: the header comment explains
+    // that the dispatcher sends via Resend, and a bare source grep counted that
+    // sentence as a provider call.
+    const code = src
+      .split('\n')
+      .filter((l) => !l.trimStart().startsWith('//') && !l.trimStart().startsWith('*') && !l.trimStart().startsWith('/*'))
+      .join('\n')
     assert.ok(
-      !/sendEmail|resend|twilio|nodemailer/i.test(src),
-      'no direct send: notifications are dispatched by hand from the outbox',
+      !/sendEmail|resend|twilio|nodemailer/i.test(code),
+      'no direct provider call here: every message is an outbox row first',
     )
   })
 })

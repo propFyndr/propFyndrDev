@@ -6,10 +6,10 @@
 // adminGuard's public list because a person who has lost their password has no
 // session by definition; `change` requires one.
 //
-// No email or SMS provider is configured yet, so nothing here sends anything.
-// Every message is written to NotificationOutbox and dispatched by hand from
-// the admin panel — see that model's comment for why that is a deliberate
-// interim state rather than a gap.
+// Outbound mail goes through NotificationOutbox: every message is a row first,
+// then `outboxDispatcher` sends it via Resend. A send that fails leaves the row
+// queued with its error, still dispatchable by hand from the admin panel — the
+// manual path stayed, it simply stopped being the only path on 2026-09-17.
 import { Router, Request, Response } from 'express'
 import { z } from 'zod'
 import { randomBytes } from 'crypto'
@@ -23,6 +23,7 @@ import {
   recordAudit,
 } from '../lib/adminIdentity'
 import type { AdminIdentitySession } from '../lib/adminIdentity'
+import { enqueueAndSend } from '../lib/outboxDispatcher'
 
 const router = Router()
 
@@ -84,20 +85,23 @@ router.post('/forgot', async (req: Request, res: Response) => {
     })
 
     const url = `${frontendOrigin()}/admin/reset-password?token=${token}`
-    await prisma.notificationOutbox.create({
-      data: {
-        channel: 'email',
-        to_email: admin.email,
-        template: 'password_reset',
-        subject: 'Reset your PropFyndr password',
-        body:
-          `A password reset was requested for ${admin.email}.\n\n` +
-          `Open this link to set a new password. It expires in one hour:\n${url}\n\n` +
-          `If you did not request this, ignore this message — the password is unchanged.`,
-        action_url: url,
-        related_type: 'admin_user',
-        related_id: admin.id,
-      },
+    // Parked and sent in one call. Until 2026-09-17 this only parked the row,
+    // and nothing anywhere drained the queue — so a reset link reached the
+    // requester only if a super admin happened to open the outbox screen and
+    // copy it out by hand. A send failure leaves the row queued with its error,
+    // and the response below does not change either way: this endpoint must
+    // answer identically whether or not the account exists.
+    await enqueueAndSend({
+      toEmail: admin.email,
+      template: 'password_reset',
+      subject: 'Reset your PropFyndr password',
+      body:
+        `A password reset was requested for ${admin.email}.\n\n` +
+        `Use the link below to set a new password. It expires in one hour.\n\n` +
+        `If you did not request this, ignore this message — the password is unchanged.`,
+      actionUrl: url,
+      relatedType: 'admin_user',
+      relatedId: admin.id,
     })
   }
 
@@ -167,13 +171,6 @@ router.post('/reset', async (req: Request, res: Response) => {
 // Requires a session, and the current password.
 router.post('/change', requireIdentity, async (req: Request, res: Response) => {
   const identity = identityOf(req)
-  if (identity.adminUserId === 'root') {
-    // The shared ADMIN_PASSWORD bootstrap login has no AdminUser row to update.
-    res.status(400).json({
-      error: 'The shared admin login has no per-user password. Change ADMIN_PASSWORD in the environment instead.',
-    })
-    return
-  }
 
   const parsed = z
     .object({ current_password: z.string().min(1), new_password: PasswordSchema })

@@ -1,0 +1,16 @@
+-- Drop `builder_accounts`.
+--
+-- A second builder identity model, separate from `admin_users`, carrying its
+-- own email, password_hash and auth_method. Nothing in the codebase ever
+-- authenticated against it: `builderApplications.ts` created a row on approval
+-- with auth_method 'magic_link' and no magic link implemented anywhere, and no
+-- login path read the table. Every approved builder therefore got a row that
+-- could never sign in, with no error to notice.
+--
+-- Builder logins are now `AdminUser` rows with role BUILDER, scoped by
+-- builder_id -- the identity `requireScope` and the portal already understand.
+--
+-- One row existed at the time of this migration (a test builder, elite@elite.in,
+-- created 2026-08-07) and it was never usable as a credential: password_hash was
+-- null. Dropping it removes nobody's access.
+DROP TABLE IF EXISTS "builder_accounts";

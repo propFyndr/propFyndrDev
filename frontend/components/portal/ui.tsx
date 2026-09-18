@@ -36,18 +36,32 @@ export function Card({ children, className = '' }: { children: React.ReactNode; 
   )
 }
 
+/**
+ * The stat tile, used by every console.
+ *
+ * Ten admin pages each carried a byte-for-byte copy of this markup — same
+ * classes, same structure, same hint slot — so "make the dashboards
+ * consistent" was never a redesign. They were already identical; they were just
+ * ten places to change when one of them should be.
+ *
+ * `loading` and `hint` exist because the copies had them: the admin pages show
+ * a skeleton bar while their stats resolve, and dropping that would have made
+ * this a visual change rather than a dedupe.
+ */
 export function StatCard({
   label,
   value,
   icon,
   hint,
   tone = 'neutral',
+  loading = false,
 }: {
   label: string
-  value: string | number
+  value: React.ReactNode
   icon: React.ReactNode
-  hint?: string
+  hint?: React.ReactNode
   tone?: 'neutral' | 'hot' | 'good'
+  loading?: boolean
 }) {
   const valueTone =
     tone === 'hot' ? 'text-rose-600 dark:text-rose-400'
@@ -62,7 +76,9 @@ export function StatCard({
         </div>
       </div>
       <div className="mt-3 flex items-baseline justify-between gap-2">
-        <span className={`text-2xl sm:text-3xl font-black ${valueTone}`}>{value}</span>
+        <span className={`text-2xl sm:text-3xl font-black ${valueTone}`}>
+          {loading ? <span className="inline-block h-8 w-16 rounded-md bg-zinc-100 dark:bg-zinc-800 animate-pulse align-middle" /> : value}
+        </span>
         {hint && <span className="text-xs font-semibold text-zinc-400 dark:text-zinc-500 truncate">{hint}</span>}
       </div>
     </Card>

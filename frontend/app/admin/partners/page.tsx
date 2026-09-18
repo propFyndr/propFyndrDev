@@ -16,6 +16,7 @@ import Link from 'next/link'
 import { Handshake, MagnifyingGlass, SealCheck, MapPin, Plus, X, Check, Prohibit, ArrowSquareOut, Globe } from '@phosphor-icons/react'
 import { adminFetch } from '@/lib/adminFetch'
 import CustomSelect, { type SelectOption } from '@/components/admin/CustomSelect'
+import OrgAccessPanel from '@/components/admin/OrgAccessPanel'
 import { PageShell, PageHeader, Card, StatCard, PartnerStatusPill, EmptyState, Spinner, ErrorNote } from '@/components/portal/ui'
 import { useAdminRole, canEditCatalogue } from '@/lib/adminRole'
 
@@ -71,6 +72,8 @@ export default function AdminPartnersPage() {
   const [query, setQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState<string>('ALL')
   const [savingId, setSavingId] = useState<string | null>(null)
+  /** Which partner's access panel is open. One at a time — see the button below. */
+  const [accessFor, setAccessFor] = useState<string | null>(null)
   const [editingDomainId, setEditingDomainId] = useState<string | null>(null)
   const [domainDraft, setDomainDraft] = useState('')
   const [showForm, setShowForm] = useState(false)
@@ -414,7 +417,26 @@ export default function AdminPartnersPage() {
                 >
                   {p.is_active ? 'Deactivate' : 'Activate'}
                 </button>}
+                {/*
+                  Collapsed by default: this is a list of many firms, and an
+                  access panel open on every card would bury the approval
+                  queue this page exists for. Only for approved partners —
+                  inviting someone into a firm we have not approved would
+                  hand out a login ahead of the decision that grants it.
+                */}
+                {mayEdit && p.status === 'approved' && <button
+                  onClick={() => setAccessFor(accessFor === p.id ? null : p.id)}
+                  className="px-3 py-1.5 rounded-lg text-[12px] font-bold border border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-200 hover:bg-zinc-50 dark:hover:bg-zinc-800 cursor-pointer transition-colors"
+                >
+                  {accessFor === p.id ? 'Hide access' : 'Manage access'}
+                </button>}
               </div>
+
+              {accessFor === p.id && (
+                <div className="mt-4 pt-4 border-t border-zinc-100 dark:border-zinc-800">
+                  <OrgAccessPanel scope="partner" orgId={p.id} orgName={p.name} />
+                </div>
+              )}
             </div>
           ))}
         </Card>

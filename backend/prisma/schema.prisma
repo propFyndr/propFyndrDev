@@ -88,7 +88,6 @@ model Builder {
   // Relations
   projects                   Project[]
   news                       BuilderNews[]
-  account                    BuilderAccount?
   leads                      BuilderLead[]
   theme                      BuilderTheme?
   delivery_records           BuilderDeliveryRecord[]
@@ -853,6 +852,15 @@ model SiteVisitRequest {
   user_id      String?
   guest_token  String?
 
+  // Builder-side routing, mirroring CallbackRequest. A site visit is a High
+  // Intent Event that somebody has to physically attend, and until this column
+  // existed the partner who would attend it could not see it at all — a builder
+  // could route a callback to a partner but not the appointment.
+  assigned_partner_id String?
+  assigned_partner    ChannelPartner? @relation("SiteVisitPartner", fields: [assigned_partner_id], references: [id], onDelete: SetNull)
+  assigned_at         DateTime?
+  partner_notes       String?
+
   created_at   DateTime        @default(now())
   status       SiteVisitStatus @default(pending)
   /// See CallbackRequest.chased_at.
@@ -862,6 +870,7 @@ model SiteVisitRequest {
   @@index([status, chased_at])
   @@index([user_id])
   @@index([guest_token])
+  @@index([assigned_partner_id])
   @@map("site_visit_requests")
 }
 
@@ -902,6 +911,20 @@ model CallbackRequest {
   assigned_at         DateTime?
   partner_notes       String?
 
+  // Written by the test suite, not by a buyer.
+  //
+  // `npm test` drives the real app through supertest against the real database,
+  // so every run persisted real callback rows: 820 of 825 stored leads were
+  // `John Doe` / `+919876543210` against one project. Every lead metric — the
+  // tiers, the sales queue, the conversion rate — was reading almost entirely
+  // synthetic data.
+  //
+  // Same shape as `ChatSession.is_bot`, deliberately: this codebase already
+  // solved "traffic that is ours, not a buyer's" that way, and one pattern for
+  // one problem beats a cleverer second one. Set when NODE_ENV is 'test', and
+  // filtered out of every lead read.
+  is_test      Boolean  @default(false)
+
   // Set when the stale-lead chaser has escalated this lead, so it is escalated
   // once and not on every poll. Null means never chased — not "not stale".
   chased_at    DateTime?
@@ -916,6 +939,7 @@ model CallbackRequest {
   @@index([chat_session_id])
   @@index([assigned_partner_id])
   @@index([status, chased_at])
+  @@index([is_test])
   @@map("callback_requests")
 }
 
@@ -1416,29 +1440,6 @@ enum FormStatus {
 // BUILDER DASHBOARD (Phase 4+)
 // ──────────────────────────────────────────────────────────────
 
-model BuilderAccount {
-  id              String   @id @default(uuid())
-  builder_id      String   @unique
-  user_id         String?  // Supabase auth user ID for dashboard login
-  email           String
-  password_hash   String?  // Bcrypt hash for password auth
-  auth_method     String   // "password", "magic_link"
-
-  last_login      DateTime?
-  last_activity   DateTime?
-  is_active       Boolean @default(true)
-
-  created_at      DateTime @default(now())
-  updated_at      DateTime @updatedAt
-
-  builder         Builder @relation(fields: [builder_id], references: [id], onDelete: Cascade)
-
-  @@unique([email])
-  @@index([user_id])
-  @@index([is_active])
-  @@map("builder_accounts")
-}
-
 model BuilderLead {
   id              String   @id @default(uuid())
   builder_id      String
@@ -1660,6 +1661,7 @@ model ChannelPartner {
   project_partners    ProjectChannelPartner[]
   admin_accounts      AdminUser[]
   assigned_leads      CallbackRequest[]
+  assigned_site_visits SiteVisitRequest[] @relation("SiteVisitPartner")
 
   @@index([type])
   @@index([is_active])

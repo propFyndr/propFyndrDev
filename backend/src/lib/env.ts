@@ -20,7 +20,6 @@ const EnvSchema = z.object({
   GROQ_API_KEY3: z.string().optional(),
 
   // Admin & Database secrets — required in production
-  ADMIN_PASSWORD: z.string().optional(),
   SUPABASE_SERVICE_ROLE_KEY: z.string().optional(),
 
   // WhatsApp (Meta Cloud API or Twilio — set WHATSAPP_PROVIDER)
@@ -65,11 +64,6 @@ if (envParsed.NODE_ENV === 'production') {
   // At least one AI provider key required
   if (!envParsed.GEMINI_API_KEY && !envParsed.OPENAI_API_KEY && !envParsed.GROQ_API_KEY) {
     missingKeys.push('At least one of: GEMINI_API_KEY, OPENAI_API_KEY, GROQ_API_KEY')
-  }
-
-  // Admin password required
-  if (!envParsed.ADMIN_PASSWORD) {
-    missingKeys.push('ADMIN_PASSWORD')
   }
 
   // Supabase service role required

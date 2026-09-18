@@ -19,6 +19,8 @@
 import { Request, Response, NextFunction } from 'express'
 import { requireIdentity, requireRole } from './adminIdentity'
 import { adminRolePolicy } from './adminPolicy'
+import { adminFieldRedaction } from './adminFieldRedaction'
+import { adminReadAudit } from './adminReadAudit'
 
 /** Roles that may reach the PropFyndr admin area at all. */
 const STAFF_ROLES = ['SUPER_ADMIN', 'ANALYST', 'SALES'] as const
@@ -127,7 +129,26 @@ export function adminAreaGuard(req: Request, res: Response, next: NextFunction):
       // Applied here, at the mount, so /team, /conversations, /intelligence and
       // anything added later inherit it. That is the same reason the floor
       // itself moved out of admin.ts.
-      adminRolePolicy(req, res, next)
+      adminRolePolicy(req, res, (policyErr?: unknown) => {
+        if (policyErr) {
+          next(policyErr as Error)
+          return
+        }
+        if (res.headersSent) return
+        // Path allowed. Two things still remain, both mounted here for the same
+        // reason as the policy: strip fields this role may not see whatever
+        // endpoint produced them, then record the read if it named a person.
+        // Redaction first — the audit hook only reads status, so order between
+        // them is about clarity rather than correctness.
+        adminFieldRedaction(req, res, (redactErr?: unknown) => {
+          if (redactErr) {
+            next(redactErr as Error)
+            return
+          }
+          if (res.headersSent) return
+          adminReadAudit(req, res, next)
+        })
+      })
     })
   })
 }

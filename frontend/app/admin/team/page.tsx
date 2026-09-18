@@ -73,6 +73,13 @@ export default function AdminTeamPage() {
   // Modals & Flows
   const [mode, setMode] = useState<'invite' | 'promote' | null>(null)
   const [lastInviteUrl, setLastInviteUrl] = useState<string | null>(null)
+  /**
+   * Whether the backend actually delivered the invite email. The link is shown
+   * either way — Resend refuses unverified sender domains, so the send can fail
+   * for reasons the invitee cannot see — but the heading must not claim an email
+   * was sent when it was not.
+   */
+  const [lastInviteEmailed, setLastInviteEmailed] = useState(false)
   const [lastInvitedEmail, setLastInvitedEmail] = useState<string>('')
   const [lastInvitedRole, setLastInvitedRole] = useState<string>('ANALYST')
 
@@ -222,9 +229,14 @@ export default function AdminTeamPage() {
       }
       const data = await res.json()
       setLastInviteUrl(data.inviteUrl)
+      setLastInviteEmailed(Boolean(data.emailed))
       setLastInvitedEmail(email)
       setLastInvitedRole(role)
-      setSuccessToast(`Invite generated for ${email}!`)
+      setSuccessToast(
+        data.emailed
+          ? `Invite emailed to ${email}.`
+          : `Invite created for ${email} — the email did not send, so share the link below.`
+      )
       setTimeout(() => setSuccessToast(''), 6000)
 
       setEmail('')
@@ -612,7 +624,7 @@ export default function AdminTeamPage() {
             <div className="flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-blue-600 animate-ping" />
               <h4 className="text-xs font-extrabold text-blue-900 dark:text-blue-200 uppercase tracking-wider">
-                Invite Link Created for {lastInvitedEmail}
+                {lastInviteEmailed ? 'Invite Emailed to' : 'Invite Link Created for'} {lastInvitedEmail}
               </h4>
             </div>
             <button

@@ -75,6 +75,7 @@ const BOTTOM_FADE_PX = 144
 //
 // The chat now starts empty. The hero introduces; the first bubble is an answer.
 import { useDropoffDetection, useEngagementTracking, usePromotionalTracking } from '@/hooks/useAnalyticsTracking';
+import NewsRail from '@/components/NewsRail'
 
 // ── Dynamic imports — heavy components excluded from initial bundle ─────────
 const SiteVisitScheduler = dynamic(() => import('@/components/SiteVisitScheduler'), { ssr: false })
@@ -1800,6 +1801,11 @@ export default function DiscoveryContent({ userId, guestToken, onSessionChange, 
             <div className="w-full max-w-[800px] mb-6">
               {chatInputForm}
             </div>
+
+            {/* News rail — taps seed the chat with a question about the
+                project, answered from its own rows rather than from the
+                promotional copy. See components/NewsRail.tsx. */}
+            <NewsRail />
 
             {/* Home buttons — organized by sector */}
             <div className="w-full max-w-[800px]">

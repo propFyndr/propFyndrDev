@@ -12,6 +12,7 @@ import { z } from 'zod'
 import { prisma } from '../lib/db'
 import { requireIdentity, requireRole, hashPassword, generateInviteToken, recordAudit, revokeAllSessions } from '../lib/adminIdentity'
 import type { AdminIdentitySession } from '../lib/adminIdentity'
+import { preferredInviteOrigin, sendInviteEmail, INVITE_TTL_MS } from '../lib/adminInvite'
 
 const router = Router()
 
@@ -19,17 +20,10 @@ function identityOf(req: Request): AdminIdentitySession {
   return (req as Request & { adminIdentity: AdminIdentitySession }).adminIdentity
 }
 
-/**
- * `FRONTEND_URL` is a comma-separated list (CORS reads it the same way in
- * index.ts) that carries the Vercel preview URL alongside the real domain.
- * Found live: taking the first entry handed back an invite link on
- * *-vercel.app instead of propfyndr.in. Prefer whichever entry is the real
- * domain; fall back to the first entry only if none match.
- */
-export function preferredInviteOrigin(frontendUrlEnv: string | undefined): string {
-  const origins = (frontendUrlEnv || '').split(',').map((s) => s.trim()).filter(Boolean)
-  return origins.find((o) => o.includes('propfyndr.in')) || origins[0] || 'https://propfyndr.in'
-}
+// Re-exported: `preferredInviteOrigin` moved to lib/adminInvite.ts when builder
+// application approval became a second caller. Kept exported here so the
+// existing test import path stays valid.
+export { preferredInviteOrigin }
 
 function clientIp(req: Request): string {
   return (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() || req.ip || 'unknown'
@@ -47,9 +41,30 @@ const inviteSchema = z.object({
   partner_id: z.string().uuid('Invalid channel partner ID').optional().or(z.literal('').transform(() => undefined)),
 })
 
-// GET /api/v1/admin/team — list every admin account.
-router.get('/', requireIdentity, requireRole('SUPER_ADMIN'), async (_req: Request, res: Response) => {
+/**
+ * GET /api/v1/admin/team — admin accounts.
+ *
+ * `?builder_id=` / `?partner_id=` narrow it to one organisation, which is what
+ * the Access panel on a builder or partner detail page reads. Managing access
+ * from the organisation is the way people actually think about it — "who at
+ * Lotus can sign in" — where the global Team page makes you invite someone and
+ * then pick their builder out of a dropdown, which is the question backwards.
+ *
+ * A filter rather than two new endpoints: the shape, the guard and the
+ * invite-token redaction below are identical, and a second copy of this handler
+ * would be a second place to forget that `invite_token` is a bearer credential.
+ *
+ * `AdminUser.builder_id` is not unique, so an organisation can have as many
+ * admins as it needs. No seat concept is implied by this.
+ */
+router.get('/', requireIdentity, requireRole('SUPER_ADMIN'), async (req: Request, res: Response) => {
+  const builderId = typeof req.query.builder_id === 'string' ? req.query.builder_id : undefined
+  const partnerId = typeof req.query.partner_id === 'string' ? req.query.partner_id : undefined
+
+  const where = builderId ? { builder_id: builderId } : partnerId ? { partner_id: partnerId } : {}
+
   const admins = await prisma.adminUser.findMany({
+    where,
     select: {
       id: true, email: true, role: true, builder_id: true, partner_id: true,
       linked_supabase_user_id: true, is_active: true, last_login_at: true,
@@ -70,7 +85,7 @@ router.get('/', requireIdentity, requireRole('SUPER_ADMIN'), async (_req: Reques
   })
 })
 
-// POST /api/v1/admin/team/invite — create a pending admin, email TBD by you.
+// POST /api/v1/admin/team/invite — create a pending admin and email them a link.
 router.post('/invite', requireIdentity, requireRole('SUPER_ADMIN'), async (req: Request, res: Response) => {
   const parsed = inviteSchema.safeParse(req.body)
   if (!parsed.success) {
@@ -106,7 +121,7 @@ router.post('/invite', requireIdentity, requireRole('SUPER_ADMIN'), async (req: 
       partner_id: role === 'PARTNER' ? partner_id : null,
       invited_by_admin_id: identity.adminUserId === 'root' ? null : identity.adminUserId,
       invite_token: inviteToken,
-      invite_expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+      invite_expires_at: new Date(Date.now() + INVITE_TTL_MS),
       is_active: true,
     },
   })
@@ -118,12 +133,15 @@ router.post('/invite', requireIdentity, requireRole('SUPER_ADMIN'), async (req: 
     summary: `Invited ${admin.email} as ${role}`,
   })
 
-  // No email service is wired to a verified sender here — hand back the link
-  // for you to send however you currently reach people (WhatsApp, direct
-  // message). Wiring RESEND_API_KEY through this is a follow-up, not guessed
-  // at blind.
   const inviteUrl = `${preferredInviteOrigin(process.env.FRONTEND_URL)}/admin/accept-invite?token=${inviteToken}`
-  res.json({ admin: { id: admin.id, email: admin.email, role: admin.role }, inviteUrl })
+  const { emailed } = await sendInviteEmail(admin.email, admin.role, inviteUrl, admin.id)
+
+  // `inviteUrl` is returned whether or not the email went out, and the UI shows
+  // it either way. Resend refuses any sender whose domain is unverified, so the
+  // first invite sent from a new environment is the one most likely to fail —
+  // exactly the moment someone needs the link in their hand. `emailed` tells the
+  // UI which sentence to show; it never gates handing over the link.
+  res.json({ admin: { id: admin.id, email: admin.email, role: admin.role }, inviteUrl, emailed })
 })
 
 const promoteSchema = z.object({
@@ -190,9 +208,17 @@ router.post('/promote', requireIdentity, requireRole('SUPER_ADMIN'), async (req:
   res.json({ admin: { id: admin.id, email: admin.email, role: admin.role } })
 })
 
+/**
+ * Same rule as `adminAuthFlows.PasswordSchema`. It was `min(8)` here while
+ * reset and change both required 12, so the invite path — the one every new
+ * account goes through — was the weakest of the three.
+ */
 const acceptInviteSchema = z.object({
   token: z.string().min(1),
-  password: z.string().min(8),
+  password: z
+    .string()
+    .min(12, 'Password must be at least 12 characters')
+    .max(200, 'Password must be under 200 characters'),
 })
 
 // POST /api/v1/admin/team/accept-invite — set a password on an invited
@@ -216,20 +242,47 @@ router.post('/accept-invite', async (req: Request, res: Response) => {
     return
   }
 
-  const admin = await prisma.adminUser.findUnique({ where: { invite_token: token } })
-  if (!admin || !admin.invite_expires_at || admin.invite_expires_at < new Date()) {
-    res.status(400).json({ error: 'Invite is invalid or has expired' })
-    return
-  }
-
-  await prisma.adminUser.update({
-    where: { id: admin.id },
+  /**
+   * Consumed atomically, in one statement.
+   *
+   * This was a read, a validity check, then a write. Two requests carrying the
+   * same token could both pass the check before either cleared it, and both
+   * would set a password — so a link that was meant to be single-use was
+   * single-use only when nobody raced it. `updateMany` with the conditions in
+   * the WHERE makes the database decide: the first request matches one row, the
+   * second matches none.
+   *
+   * `is_active` is in the condition too. A revoked account that still carried a
+   * live invite could previously set a password and walk back in, which made
+   * revocation conditional on nobody having a pending link.
+   */
+  const consumed = await prisma.adminUser.updateMany({
+    where: {
+      invite_token: token,
+      invite_expires_at: { gt: new Date() },
+      is_active: true,
+    },
     data: {
       password_hash: hashPassword(password),
+      // Stamped so any session predating this moment is treated as revoked,
+      // the same rule a password reset follows.
+      password_changed_at: new Date(),
       invite_token: null,
       invite_expires_at: null,
+      // An invite proves control of the mailbox, which is what a pending reset
+      // was waiting for. Leaving one live would keep a second way in.
+      reset_token: null,
+      reset_expires_at: null,
     },
   })
+
+  // One message for expired, already-used, unknown and deactivated. An
+  // accept-invite form is a place to guess tokens, and distinguishing the cases
+  // helps only the guesser.
+  if (consumed.count === 0) {
+    res.status(400).json({ error: 'That invite link is invalid, already used, or has expired. Ask for a new one.' })
+    return
+  }
 
   res.json({ success: true })
 })
@@ -268,7 +321,7 @@ router.post('/:id/resend-invite', requireIdentity, requireRole('SUPER_ADMIN'), a
       where: { id: target.id },
       data: {
         invite_token: inviteToken,
-        invite_expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+        invite_expires_at: new Date(Date.now() + INVITE_TTL_MS),
       },
     })
   }
@@ -284,7 +337,9 @@ router.post('/:id/resend-invite', requireIdentity, requireRole('SUPER_ADMIN'), a
   })
 
   const inviteUrl = `${preferredInviteOrigin(process.env.FRONTEND_URL)}/admin/accept-invite?token=${inviteToken}`
-  res.json({ success: true, inviteUrl, email: target.email, rotated: !liveInvite })
+  const { emailed } = await sendInviteEmail(target.email, target.role, inviteUrl, target.id)
+
+  res.json({ success: true, inviteUrl, email: target.email, rotated: !liveInvite, emailed })
 })
 
 const updateSchema = z.object({

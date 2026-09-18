@@ -18,10 +18,12 @@ type Role = 'SUPER_ADMIN' | 'ANALYST' | 'SALES'
 
 /** [method, path, { role: mayDoIt }] */
 const MATRIX: Array<[string, string, Record<Role, boolean>]> = [
-  // ── Leads: the sales surface. ───────────────────────────────────────────
-  ['GET', '/leads', { SUPER_ADMIN: true, ANALYST: true, SALES: true }],
+  // ── Leads: the sales surface. An analyst maintains the catalogue and has no
+  //    call on a buyer's name or phone number, so reads were closed to them on
+  //    2026-09-17 along with the rest of the read side.
+  ['GET', '/leads', { SUPER_ADMIN: true, ANALYST: false, SALES: true }],
   ['PATCH', '/leads/abc-123', { SUPER_ADMIN: true, ANALYST: true, SALES: true }],
-  ['GET', '/callbacks', { SUPER_ADMIN: true, ANALYST: true, SALES: true }],
+  ['GET', '/callbacks', { SUPER_ADMIN: true, ANALYST: false, SALES: true }],
   ['PATCH', '/callbacks/abc-123', { SUPER_ADMIN: true, ANALYST: true, SALES: true }],
 
   // ── Catalogue: sales reads it to answer a buyer, never edits it. ────────
@@ -29,7 +31,24 @@ const MATRIX: Array<[string, string, Record<Role, boolean>]> = [
   ['GET', '/projects/abc-123', { SUPER_ADMIN: true, ANALYST: true, SALES: true }],
   ['GET', '/builders', { SUPER_ADMIN: true, ANALYST: true, SALES: true }],
   ['GET', '/sectors', { SUPER_ADMIN: true, ANALYST: true, SALES: true }],
-  ['GET', '/conversations', { SUPER_ADMIN: true, ANALYST: true, SALES: true }],
+
+  // ── Transcripts: SUPER_ADMIN alone. ────────────────────────────────────
+  //    A transcript is what a buyer told an ADVISOR — every competitor they
+  //    were weighing, every doubt they voiced. A salesperson reading that
+  //    before dialling is exploiting a confidence given to someone else, and
+  //    an analyst maintaining price rows has no use for it at all.
+  ['GET', '/conversations', { SUPER_ADMIN: true, ANALYST: false, SALES: false }],
+  ['GET', '/beta', { SUPER_ADMIN: true, ANALYST: false, SALES: false }],
+
+  // ── Sending mail as us. Not a sales capability. ────────────────────────
+  ['POST', '/email/send', { SUPER_ADMIN: true, ANALYST: true, SALES: false }],
+  ['GET', '/email', { SUPER_ADMIN: true, ANALYST: false, SALES: false }],
+
+  // ── Unpublished marketing copy and the scoring workbench. ──────────────
+  ['GET', '/news', { SUPER_ADMIN: true, ANALYST: true, SALES: false }],
+  ['GET', '/blog', { SUPER_ADMIN: true, ANALYST: true, SALES: false }],
+  ['GET', '/promotions', { SUPER_ADMIN: true, ANALYST: true, SALES: false }],
+  ['GET', '/intelligence/abc-123', { SUPER_ADMIN: true, ANALYST: true, SALES: false }],
   ['PATCH', '/projects/abc-123', { SUPER_ADMIN: true, ANALYST: true, SALES: false }],
   ['POST', '/builders', { SUPER_ADMIN: true, ANALYST: true, SALES: false }],
   ['PATCH', '/builders/abc-123', { SUPER_ADMIN: true, ANALYST: true, SALES: false }],
@@ -52,9 +71,12 @@ const MATRIX: Array<[string, string, Record<Role, boolean>]> = [
   ['DELETE', '/team/abc-123', { SUPER_ADMIN: true, ANALYST: false, SALES: false }],
   ['GET', '/outbox', { SUPER_ADMIN: true, ANALYST: false, SALES: false }],
 
-  // Other analytics stay open to staff — only spend is carved out.
-  ['GET', '/analytics/funnel', { SUPER_ADMIN: true, ANALYST: true, SALES: true }],
-  ['GET', '/analytics/market-demand', { SUPER_ADMIN: true, ANALYST: true, SALES: true }],
+  // Analytics: the summary is the shared number everyone works against. The
+  // rest is company performance, which is not a sales work queue.
+  ['GET', '/analytics/summary', { SUPER_ADMIN: true, ANALYST: true, SALES: true }],
+  ['GET', '/analytics/funnel', { SUPER_ADMIN: true, ANALYST: true, SALES: false }],
+  ['GET', '/analytics/market-demand', { SUPER_ADMIN: true, ANALYST: true, SALES: false }],
+  ['GET', '/analytics/users', { SUPER_ADMIN: true, ANALYST: true, SALES: false }],
 ]
 
 describe('admin role matrix', () => {
@@ -109,8 +131,19 @@ describe('the matrix denies by default', () => {
   })
 
   it('still lets SALES read a path nobody thought about', () => {
-    // Reads inside the staff area are the floor's business, not this file's;
-    // a new read-only console should not need a policy edit to be visible.
+    // Reads default OPEN while writes default CLOSED, and that asymmetry is
+    // deliberate but it is not free: a new read-only console is visible to
+    // sales the day it ships, without anyone deciding that it should be.
+    //
+    // Denying unlisted reads by default would mean enumerating every GET under
+    // /admin before it works at all, and a half-enumerated deny-list breaks
+    // working screens silently — the failure mode is worse than the one it
+    // fixes. The named deny-lists above cover what is actually sensitive
+    // (transcripts, buyer PII, sending mail as us, unpublished copy).
+    //
+    // The real close for this is a test that walks the mounted routers and
+    // asserts every GET path has an explicit verdict. Until that exists, this
+    // line is here so the gap is a stated decision rather than an oversight.
     assert.equal(decide('SALES', 'GET', '/some-feature-added-next-month').allowed, true)
   })
 

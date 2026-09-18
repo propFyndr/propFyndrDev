@@ -21,6 +21,14 @@ import { useAdminRole, canDeleteRecords } from '@/lib/adminRole'
 
 interface UnitType { bhk: number; price_min_cr: number | null; price_max_cr: number | null; super_area_sqft?: number | null; carpet_area_sqft?: number | null }
 
+function amenityCount(p: { amenity_count?: number; amenities?: unknown[] }): number {
+  return p.amenity_count ?? p.amenities?.length ?? 0
+}
+
+function connectivityCount(p: { connectivity_count?: number; connectivity?: unknown[] }): number {
+  return p.connectivity_count ?? p.connectivity?.length ?? 0
+}
+
 interface Project {
   id: string
   slug: string
@@ -35,8 +43,15 @@ interface Project {
   possession_label?: string | null
   builder: { name: string }
   unit_types: UnitType[]
+  /**
+   * The list endpoint sends counts; the detail endpoint sends rows. Both shapes
+   * are accepted so this type serves either, and the two helpers below read
+   * whichever is present rather than every call site having to know.
+   */
   amenities?: { id: string }[]
   connectivity?: { id: string }[]
+  amenity_count?: number
+  connectivity_count?: number
   images?: { url: string; type: string }[]
   completenessScore?: number
   tabScores?: Record<string, number>
@@ -284,10 +299,12 @@ function getMissingFieldsForSelectedTabs(p: Project, tabs: Set<ProjectTabKey>): 
   }
   if (tabs.has('location')) {
     if (!p.address) missing.push('Exact Plot Address & GPS Coordinates')
-    if (!p.connectivity || p.connectivity.length < 2) missing.push('Nearest Metro & Expressway Connectivity')
+    // The list endpoint sends counts rather than rows — it was shipping 393
+    // projects' worth of relation ids to answer two `.length` questions.
+    if (connectivityCount(p) < 2) missing.push('Nearest Metro & Expressway Connectivity')
   }
   if (tabs.has('intelligence')) {
-    if (!p.amenities || p.amenities.length < 3) missing.push('Project Amenities & Lifestyle Highlights')
+    if (amenityCount(p) < 3) missing.push('Project Amenities & Lifestyle Highlights')
   }
   if (tabs.has('updates')) {
     if (p.status !== 'ready_to_move' && !p.possession_label) missing.push('Possession Timeline & Construction Milestone')

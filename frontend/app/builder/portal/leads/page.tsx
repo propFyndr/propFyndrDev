@@ -11,11 +11,12 @@
  */
 
 import { useEffect, useMemo, useState } from 'react'
-import { PhoneCall, MagnifyingGlass, Fire, CalendarCheck, Clock } from '@phosphor-icons/react'
+import { PhoneCall, MagnifyingGlass, Fire, CalendarCheck, Clock, Notebook, ShuffleAngular } from '@phosphor-icons/react'
 import { adminFetch } from '@/lib/adminFetch'
 import CustomSelect, { type SelectOption } from '@/components/admin/CustomSelect'
 import { useScopeId, withScope } from '@/lib/portalScope'
 import { PageShell, PageHeader, Card, StatCard, TierBadge, LeadStatusPill, EmptyState, Spinner, ErrorNote } from '@/components/portal/ui'
+import LeadBriefPanel from '@/components/portal/LeadBriefPanel'
 
 interface Lead {
   id: string
@@ -37,8 +38,10 @@ interface Partner { id: string; name: string; status: string; is_active: boolean
 
 /**
  * A booked appointment, not a callback. Its own table and its own shape — it
- * carries a date and a slot and has no partner assignment, so it renders as its
- * own section rather than being flattened into the lead list.
+ * carries a date and a slot a callback has no field for, so it renders as its
+ * own section rather than being flattened into the lead list. Since
+ * 2026-09-17 it is routable to a partner like a callback is: somebody has to
+ * physically attend it, and that somebody could not previously see it.
  */
 interface SiteVisit {
   id: string
@@ -51,7 +54,16 @@ interface SiteVisit {
   message: string | null
   status: string
   created_at: string
+  assigned_partner_id: string | null
+  assigned_at: string | null
 }
+
+const VISIT_STATUS_OPTIONS: SelectOption[] = [
+  { value: 'pending', label: 'Pending', dotColor: 'bg-blue-500' },
+  { value: 'confirmed', label: 'Confirmed', dotColor: 'bg-emerald-500' },
+  { value: 'completed', label: 'Completed', dotColor: 'bg-teal-500' },
+  { value: 'cancelled', label: 'Cancelled', dotColor: 'bg-zinc-400' },
+]
 
 /**
  * Status colours match the admin Leads page dot-for-dot — a lead marked
@@ -85,6 +97,10 @@ export default function BuilderLeadsPage() {
   const [query, setQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState<string>('ALL')
   const [savingId, setSavingId] = useState<string | null>(null)
+  /** Which lead's brief is open. One at a time; Escape closes it. */
+  const [briefFor, setBriefFor] = useState<Lead | null>(null)
+  const [autoAssigning, setAutoAssigning] = useState(false)
+  const [notice, setNotice] = useState('')
   // Empty for a BUILDER session (the server reads the id off the session);
   // set when a PropFyndr role is viewing this builder's console.
   const scopeId = useScopeId('builder_id')
@@ -150,10 +166,59 @@ export default function BuilderLeadsPage() {
     }
   }
 
+  async function patchVisit(id: string, body: Record<string, unknown>) {
+    setSavingId(id)
+    setError('')
+    try {
+      const res = await adminFetch(scoped(`/portal/builder/site-visits/${id}`), {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      })
+      if (!res.ok) {
+        const d = await res.json().catch(() => ({}))
+        throw new Error(d.error || 'Update failed')
+      }
+      const { siteVisit } = await res.json()
+      setSiteVisits((prev) => prev.map((v) => (v.id === id ? { ...v, ...siteVisit } : v)))
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Update failed')
+    } finally {
+      setSavingId(null)
+    }
+  }
+
+  /**
+   * Fills every unassigned lead, in rotation. Only empty assignments — a lead
+   * placed by hand is a decision, and the server refuses to overwrite one.
+   */
+  async function autoAssign() {
+    setAutoAssigning(true)
+    setError('')
+    setNotice('')
+    try {
+      const res = await adminFetch(scoped('/portal/builder/leads/auto-assign'), { method: 'POST' })
+      const d = await res.json().catch(() => ({}))
+      if (!res.ok) throw new Error(d.error || 'Could not assign leads')
+      if (d.assigned === 0) {
+        setNotice('Every lead already has a partner.')
+      } else {
+        setNotice(`Assigned ${d.assigned} lead${d.assigned === 1 ? '' : 's'} across your partners.`)
+        const refreshed = await adminFetch(scoped('/portal/builder/leads')).then((r) => r.json())
+        setLeads(refreshed.leads ?? [])
+        setSiteVisits(refreshed.siteVisits ?? [])
+      }
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Could not assign leads')
+    } finally {
+      setAutoAssigning(false)
+    }
+  }
+
   if (loading) return <Spinner />
 
   const hot = leads.filter((l) => l.lead_tier === 'HOT').length
-  const unassigned = leads.filter((l) => !l.assigned_partner_id).length
+  const unassignedCount = leads.filter((l) => !l.assigned_partner_id).length
   // Today counts as upcoming — a visit booked for this morning is still the
   // builder's problem today.
   const startOfToday = new Date(); startOfToday.setHours(0, 0, 0, 0)
@@ -162,13 +227,32 @@ export default function BuilderLeadsPage() {
 
   return (
     <PageShell>
-      <PageHeader title="Leads" subtitle="Buyer callback requests on your projects, and who is working each one." />
+      <PageHeader
+        title="Leads"
+        subtitle="Buyer callback requests on your projects, and who is working each one."
+        action={
+          unassignedCount > 0 && assignable.length > 0 ? (
+            <button
+              type="button"
+              onClick={() => void autoAssign()}
+              disabled={autoAssigning}
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 text-[12px] font-bold disabled:opacity-50 cursor-pointer"
+            >
+              <ShuffleAngular size={14} weight="bold" />
+              {autoAssigning ? 'Assigning…' : `Assign ${unassignedCount} evenly`}
+            </button>
+          ) : undefined
+        }
+      />
       {error && <ErrorNote message={error} />}
+      {notice && (
+        <p className="text-[13px] font-semibold text-emerald-700 dark:text-emerald-400">{notice}</p>
+      )}
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard label="Total leads" value={leads.length} icon={<PhoneCall size={16} />} />
         <StatCard label="Hot" value={hot} icon={<Fire size={16} weight="fill" />} tone="hot" />
-        <StatCard label="Unassigned" value={unassigned} icon={<PhoneCall size={16} />} />
+        <StatCard label="Unassigned" value={unassignedCount} icon={<PhoneCall size={16} />} />
         <StatCard label="Upcoming visits" value={upcomingVisits} icon={<CalendarCheck size={16} />} tone="good" />
       </div>
 
@@ -254,6 +338,15 @@ export default function BuilderLeadsPage() {
                       size="sm"
                     />
                   </div>
+
+                  <button
+                    type="button"
+                    onClick={() => setBriefFor(l)}
+                    className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-zinc-200 dark:border-zinc-700 text-[12px] font-bold text-zinc-700 dark:text-zinc-200 hover:bg-zinc-50 dark:hover:bg-zinc-800 cursor-pointer shrink-0"
+                  >
+                    <Notebook size={14} weight="bold" />
+                    Brief
+                  </button>
                 </div>
               </div>
             )
@@ -295,7 +388,7 @@ export default function BuilderLeadsPage() {
                       <p className="text-[12px] text-zinc-500 dark:text-zinc-400 mt-1 line-clamp-2">{v.message}</p>
                     )}
                   </div>
-                  <div className="shrink-0 text-right">
+                  <div className="shrink-0 sm:text-right">
                     <p className="text-[13px] font-semibold text-zinc-900 dark:text-zinc-100">
                       {when.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
                     </p>
@@ -303,12 +396,53 @@ export default function BuilderLeadsPage() {
                       <Clock size={12} />{v.time_slot}
                     </p>
                   </div>
+
+                  {/* Routing an appointment to whoever will actually attend it.
+                      Same control as a lead, same server-side re-check. */}
+                  <div className="flex items-center gap-2 shrink-0 flex-wrap w-full sm:w-auto">
+                    <div className="w-[136px] flex-1 min-w-[128px] sm:flex-none">
+                      <CustomSelect
+                        value={v.status}
+                        onChange={(val) => patchVisit(v.id, { status: val })}
+                        options={VISIT_STATUS_OPTIONS}
+                        disabled={savingId === v.id}
+                        size="sm"
+                      />
+                    </div>
+                    <div className="w-[180px] flex-1 min-w-[150px] sm:flex-none" title={assignable.length === 0 ? 'No approved, active partners yet' : undefined}>
+                      <CustomSelect
+                        value={v.assigned_partner_id ?? ''}
+                        onChange={(val) => patchVisit(v.id, { assigned_partner_id: val || null })}
+                        options={[
+                          { value: '', label: assignable.length === 0 ? 'No partners yet' : 'Unassigned' },
+                          ...(v.assigned_partner_id && !assignable.some((pp) => pp.id === v.assigned_partner_id)
+                            ? [{
+                                value: v.assigned_partner_id,
+                                label: `${partnerName.get(v.assigned_partner_id) ?? 'Assigned partner'} (inactive)`,
+                                dotColor: 'bg-zinc-400',
+                              }]
+                            : []),
+                          ...assignable.map((pp) => ({ value: pp.id, label: pp.name, dotColor: 'bg-emerald-500' })),
+                        ]}
+                        disabled={savingId === v.id || assignable.length === 0}
+                        size="sm"
+                      />
+                    </div>
+                  </div>
                 </div>
               )
             })}
           </Card>
         )}
       </section>
+
+      {briefFor && (
+        <LeadBriefPanel
+          endpoint={scoped(`/portal/builder/leads/${briefFor.id}/brief`)}
+          leadName={briefFor.name}
+          onClose={() => setBriefFor(null)}
+        />
+      )}
     </PageShell>
   )
 }

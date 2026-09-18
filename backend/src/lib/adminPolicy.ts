@@ -64,6 +64,59 @@ const SALES_WRITES: readonly RegExp[] = [
   /^\/callbacks\/[^/]+$/,
 ]
 
+/**
+ * Reads a salesperson is refused.
+ *
+ * Until 2026-09-17 this file gated writes only — `decide()` ended with
+ * `if (isRead) return { allowed: true }`, so every GET under /admin was open to
+ * every staff role. A SALES token could read `/conversations`, which is the
+ * complete transcript of what a buyer said to the advisor, including every
+ * competing project they were weighing and every doubt they voiced. A
+ * salesperson who reads that before dialling is not selling, they are
+ * exploiting a confidence the buyer gave to an advisor. That is the trust the
+ * product is built on and it is not ours to spend.
+ *
+ * The rest follows the same test — does working a lead require it?
+ *  - /email is a send endpoint. A sales login should not be able to mail
+ *    anyone from our verified domain.
+ *  - /analytics beyond the summary is company performance, not a work queue.
+ *  - /news, /blog, /promotions are unpublished marketing copy.
+ *  - /intelligence is the analyst's scoring workbench.
+ */
+const SALES_READ_DENIED: readonly RegExp[] = [
+  /^\/conversations\b/,
+  /^\/beta\b/,
+  /^\/email\b/,
+  /^\/intelligence\b/,
+  /^\/news\b/,
+  /^\/blog\b/,
+  /^\/promotions\b/,
+  /^\/analytics\/(?!summary\b)/,
+]
+
+/**
+ * Reads an analyst is refused.
+ *
+ * An analyst maintains the catalogue: prices, possession dates, RERA numbers,
+ * images, sector data. None of that work requires a buyer's name or phone
+ * number, and the transcripts are not theirs either. Lead volume as a NUMBER is
+ * on /stats and /analytics, which they keep — what they lose is the row with a
+ * person in it.
+ */
+const ANALYST_READ_DENIED: readonly RegExp[] = [
+  /^\/conversations\b/,
+  /^\/beta\b/,
+  /^\/callbacks\b/,
+  /^\/leads\b/,
+  /^\/email\b/,
+  // The sales work queue is a lead surface under a different name — it returns
+  // buyer names, phone numbers and profile summaries. Denying /leads while
+  // leaving this open would be the same data through a second door. Caught by
+  // adminReadCoverage.test.ts on the day the board was added, which is the
+  // whole reason that test walks the routers instead of trusting a list.
+  /^\/boards\/queue\b/,
+]
+
 export interface PolicyDecision {
   allowed: boolean
   /** Shown to the caller. Names the role floor, never the path's existence. */
@@ -118,10 +171,20 @@ export function decide(
     return { allowed: false, reason: 'Deleting records and bulk imports are restricted to super admins.' }
   }
 
-  if (role === 'ANALYST') return { allowed: true }
+  if (role === 'ANALYST') {
+    if (isRead && ANALYST_READ_DENIED.some(rx => rx.test(path))) {
+      return { allowed: false, reason: 'Buyer contact details and chat transcripts are not part of catalogue work.' }
+    }
+    return { allowed: true }
+  }
 
   // SALES from here down.
-  if (isRead) return { allowed: true }
+  if (isRead) {
+    if (SALES_READ_DENIED.some(rx => rx.test(path))) {
+      return { allowed: false, reason: 'This area is restricted to analysts and super admins.' }
+    }
+    return { allowed: true }
+  }
   if (SALES_WRITES.some(rx => rx.test(path))) return { allowed: true }
   return { allowed: false, reason: 'Sales accounts can update leads. Other changes are made by an analyst or super admin.' }
 }

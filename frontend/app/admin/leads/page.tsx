@@ -34,6 +34,7 @@ import { adminFetch } from '@/lib/adminFetch'
 import { LeadDossierPanel } from '@/components/admin/LeadDossierPanel'
 import { Skeleton } from '@/components/ui/skeleton'
 import CustomSelect from '@/components/admin/CustomSelect'
+import LeadBriefPanel from '@/components/portal/LeadBriefPanel'
 
 interface Lead {
   id: string
@@ -114,6 +115,12 @@ export default function BuilderLeadsPage() {
   const [tierFilter, setTierFilter] = useState<'all' | 'HOT' | 'WARM' | 'COLD'>('all')
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null)
+  /**
+   * The unscrubbed brief. Same artefact a builder gets, with the competitor
+   * context left in — our own team is inside the trust boundary the scrubbing
+   * protects, and needs the comparison to work the lead.
+   */
+  const [briefFor, setBriefFor] = useState<Lead | null>(null)
   const [toast, setToast] = useState<{ message: string; type: 'error' | 'success' } | null>(null)
   
   const isFetchingRef = useRef(false)
@@ -641,12 +648,20 @@ export default function BuilderLeadsPage() {
                   </div>
                 </div>
 
-                <button
-                  onClick={() => setSelectedLead(null)}
-                  className="w-8 h-8 flex items-center justify-center rounded-full text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors shrink-0 cursor-pointer"
-                >
-                  <X className="w-4 h-4" />
-                </button>
+                <div className="flex items-center gap-2 shrink-0">
+                  <button
+                    onClick={() => setBriefFor(selectedLead)}
+                    className="px-3 py-1.5 rounded-xl border border-zinc-200 dark:border-zinc-700 text-xs font-bold text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
+                  >
+                    Open brief
+                  </button>
+                  <button
+                    onClick={() => setSelectedLead(null)}
+                    className="w-8 h-8 flex items-center justify-center rounded-full text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors shrink-0 cursor-pointer"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
 
               {/* Modal Body */}
@@ -756,6 +771,14 @@ export default function BuilderLeadsPage() {
           {toast.type === 'error' ? <AlertCircle className="w-4 h-4" /> : <CheckCircle2 className="w-4 h-4" />}
           <span>{toast.message}</span>
         </div>
+      )}
+
+      {briefFor && (
+        <LeadBriefPanel
+          endpoint={`/admin/leads/${briefFor.id}/brief`}
+          leadName={briefFor.name}
+          onClose={() => setBriefFor(null)}
+        />
       )}
     </div>
   )

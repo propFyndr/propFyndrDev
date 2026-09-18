@@ -30,6 +30,7 @@ import { adminFetch } from '@/lib/adminFetch'
 import Link from 'next/link'
 import CustomSelect, { SelectOption } from '@/components/admin/CustomSelect'
 import EmailPreviewModal from '@/components/admin/EmailPreviewModal'
+import OrgAccessPanel from '@/components/admin/OrgAccessPanel'
 import { useAdminRole, canEditCatalogue } from '@/lib/adminRole'
 import { canDeleteRecords } from '@/lib/adminRole'
 
@@ -1062,7 +1063,12 @@ export default function AdminBuilders() {
                   <BuilderFormFields form={editForm} onChange={setEditForm} />
                 </div>
 
-                {/* Section 2: Linked Projects */}
+                {/* Section 2: Portal Access — who at this builder can sign in. */}
+                <div className="pt-4 border-t border-zinc-100 dark:border-zinc-800">
+                  <OrgAccessPanel scope="builder" orgId={selectedBuilder.id} orgName={selectedBuilder.name} />
+                </div>
+
+                {/* Section 3: Linked Projects */}
                 <div className="pt-4 border-t border-zinc-100 dark:border-zinc-800 space-y-3">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-bold text-zinc-400 uppercase tracking-wider flex items-center gap-2">

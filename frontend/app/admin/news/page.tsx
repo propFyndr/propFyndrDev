@@ -26,6 +26,7 @@ import { AnimatePresence, m } from 'framer-motion'
 import CustomSelect from '@/components/admin/CustomSelect'
 import { adminFetch } from '@/lib/adminFetch'
 import { Skeleton } from '@/components/ui/skeleton'
+import { StatCard } from '@/components/portal/ui'
 
 type NewsLinkType = 'project' | 'external_url'
 
@@ -287,84 +288,40 @@ export default function BuilderNewsPage() {
       {/* KPI Metric Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Total Posts */}
-        <div className="p-5 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 shadow-2xs">
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">
-              Total Posts
-            </span>
-            <div className="w-9 h-9 rounded-xl bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 flex items-center justify-center">
-              <Newspaper className="w-4 h-4" />
-            </div>
-          </div>
-          <div className="mt-3 flex items-baseline justify-between">
-            <span className="text-2xl sm:text-3xl font-black text-zinc-900 dark:text-white">
-              {loading ? <Skeleton className="h-8 w-16" /> : stats.total}
-            </span>
-            <span className="text-xs font-semibold text-blue-600 dark:text-blue-400">
-              {stats.pending} pending
-            </span>
-          </div>
-        </div>
+        <StatCard
+          label="Total Posts"
+          value={stats.total}
+          icon={<Newspaper className="w-4 h-4" />}
+          loading={loading}
+          hint={<span className="text-xs font-semibold text-blue-600 dark:text-blue-400">{stats.pending} pending</span>}
+        />
 
         {/* Published Posts */}
-        <div className="p-5 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 shadow-2xs">
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">
-              Published
-            </span>
-            <div className="w-9 h-9 rounded-xl bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 flex items-center justify-center">
-              <CheckCircle2 className="w-4 h-4" />
-            </div>
-          </div>
-          <div className="mt-3 flex items-baseline justify-between">
-            <span className="text-2xl sm:text-3xl font-black text-zinc-900 dark:text-white">
-              {loading ? <Skeleton className="h-8 w-16" /> : stats.published}
-            </span>
-            <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">
-              Live updates
-            </span>
-          </div>
-        </div>
+        <StatCard
+          label="Published"
+          value={stats.published}
+          icon={<CheckCircle2 className="w-4 h-4" />}
+          loading={loading}
+          hint={<span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">Live updates</span>}
+        />
 
         {/* Pending Audit */}
-        <div className="p-5 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 shadow-2xs">
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">
-              Under Review
-            </span>
-            <div className="w-9 h-9 rounded-xl bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 flex items-center justify-center">
-              <Clock className="w-4 h-4" />
-            </div>
-          </div>
-          <div className="mt-3 flex items-baseline justify-between">
-            <span className="text-2xl sm:text-3xl font-black text-zinc-900 dark:text-white">
-              {loading ? <Skeleton className="h-8 w-16" /> : stats.pending}
-            </span>
-            <span className="text-xs font-semibold text-amber-600 dark:text-amber-400">
-              In verification
-            </span>
-          </div>
-        </div>
+        <StatCard
+          label="Under Review"
+          value={stats.pending}
+          icon={<Clock className="w-4 h-4" />}
+          loading={loading}
+          hint={<span className="text-xs font-semibold text-amber-600 dark:text-amber-400">In verification</span>}
+        />
 
         {/* Promos */}
-        <div className="p-5 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 shadow-2xs">
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">
-              Promotions
-            </span>
-            <div className="w-9 h-9 rounded-xl bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 flex items-center justify-center">
-              <Megaphone className="w-4 h-4" />
-            </div>
-          </div>
-          <div className="mt-3 flex items-baseline justify-between">
-            <span className="text-2xl sm:text-3xl font-black text-zinc-900 dark:text-white">
-              {loading ? <Skeleton className="h-8 w-16" /> : stats.promos}
-            </span>
-            <span className="text-xs font-semibold text-purple-600 dark:text-purple-400">
-              Featured campaigns
-            </span>
-          </div>
-        </div>
+        <StatCard
+          label="Promotions"
+          value={stats.promos}
+          icon={<Megaphone className="w-4 h-4" />}
+          loading={loading}
+          hint={<span className="text-xs font-semibold text-purple-600 dark:text-purple-400">Featured campaigns</span>}
+        />
       </div>
 
       {/* Control Toolbar: Filter Pills & Search */}

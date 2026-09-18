@@ -10,6 +10,7 @@ import { notifyLead } from '../lib/notify'
 import { checkRateLimit } from '../lib/cache'
 import { loadLeadProfile, scoreLead, summarizeProfile, loadRecentQuestions } from '../lib/leadProfile'
 import { fireWebhook, bhkLabel } from '../lib/webhook'
+import { attributeCallbackToPromotional } from '../lib/promotionalAttribution'
 import { buildLeadDossier } from '../lib/leadDossier'
 import { analyzeGhostPoolByProject } from '../lib/ghostPool'
 import { analyzeProjectDemand, getDemandSnapshot } from '../lib/demandIntelligence'
@@ -140,28 +141,18 @@ router.post('/callback', async (req: Request, res: Response) => {
 
   // ─── ANALYTICS: Track conversion
   //
-  // Gated on the resolved session, not the raw body field. Clients do not send
-  // session_id, so this block never ran: 763 callbacks are stored and the
-  // builder_leads table is empty. Every builder-facing lead since launch was
-  // dropped on this line.
+  // The `BuilderLead` write that used to sit here was removed on 2026-09-17.
+  // It was a denormalised second copy of a lead, and it never worked: the
+  // comment above it recorded 763 callbacks against an empty `builder_leads`
+  // table, and at 785 callbacks the table was still empty. Nothing read it
+  // either — `portal.ts` serves builders from `CallbackRequest`, correctly
+  // scoped by project slug, which is the row the buyer actually created.
+  //
+  // Repairing it would have given us two lead tables to keep in agreement, and
+  // the one already in use is the one with the data in it.
   if (resolvedSessionId && project) {
-    await Promise.all([
-      trackConversion(resolvedSessionId, 'callback_requested', project.id, project.builder_id),
-      // Also create BuilderLead record
-      prisma.builderLead.create({
-        data: {
-          builder_id: project.builder_id,
-          project_id: project.id,
-          lead_type: 'callback_requested',
-          name,
-          phone,
-          email: undefined,
-          source_session: resolvedSessionId,
-          source_intent: profile as object,
-          status: 'new',
-        }
-      })
-    ]).catch(err => console.error('[leads] Analytics tracking failed:', err))
+    await trackConversion(resolvedSessionId, 'callback_requested', project.id, project.builder_id)
+      .catch(err => console.error('[leads] Analytics tracking failed:', err))
   }
 
   // Enrich lead with the buyer profile we already have, so builders get a qualified lead.
@@ -217,11 +208,28 @@ router.post('/callback', async (req: Request, res: Response) => {
       budget_max_cr: profile.budget_cr?.max ?? null,
       lead_score: score,
       lead_tier: tier,
+      // The suite drives this route through supertest against the real
+      // database, so the row is real whether a buyer made it or a test did.
+      // Marked rather than blocked: the test still exercises the whole write
+      // path, and every lead read filters this out.
+      is_test: process.env.NODE_ENV === 'test',
       // Same value the alert carries. Storing null here while the email showed a
       // profile line meant the panel and the inbox disagreed about one lead.
       ai_summary: profile.ai_summary ?? summarizeProfile(profile),
     },
   })
+
+  /**
+   * Credit the news item that started this, if there was one.
+   *
+   * Unawaited: a callback is revenue and attribution is a dashboard number, so
+   * the buyer's response never waits on it and a failure here cannot cost the
+   * lead. The helper swallows its own errors for the same reason.
+   */
+  void attributeCallbackToPromotional(
+    { userId, guestToken, sessionId: resolvedSessionId },
+    project?.id ?? null,
+  )
 
   // Read before the alert is composed so the buyer's response is not waiting on it.
   const recentQuestions = await loadRecentQuestions(resolvedSessionId)
@@ -359,22 +367,10 @@ router.post('/site-visit', async (req: Request, res: Response) => {
   }
 
   // ─── ANALYTICS: Track conversion
+  // See the callback path above for why the BuilderLead write is gone.
   if (resolvedSessionId) {
-    await Promise.all([
-      trackConversion(resolvedSessionId, 'site_visit_requested', project.id, project.builder_id),
-      prisma.builderLead.create({
-        data: {
-          builder_id: project.builder_id,
-          project_id: project.id,
-          lead_type: 'site_visit_requested',
-          name,
-          phone,
-          email: email || undefined,
-          source_session: resolvedSessionId,
-          status: 'new',
-        }
-      })
-    ]).catch(err => console.error('[leads] Analytics tracking failed:', err))
+    await trackConversion(resolvedSessionId, 'site_visit_requested', project.id, project.builder_id)
+      .catch(err => console.error('[leads] Analytics tracking failed:', err))
   }
 
   // Qualify the visit the same way a callback is qualified, so both events reach

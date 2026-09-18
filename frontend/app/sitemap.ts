@@ -1,5 +1,4 @@
 import { MetadataRoute } from 'next'
-import { prisma } from '@/lib/prisma'
 import { API_BASE } from '@/lib/env'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
@@ -40,20 +39,27 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   ]
 
   try {
-    const [projects, builders] = await Promise.all([
-      prisma.project.findMany({
-        select: { slug: true },
-        where: { slug: { not: '' } },
-      }),
-      prisma.builder.findMany({
-        select: { slug: true },
-        where: { slug: { not: '' } },
-      }),
-    ])
+    /**
+     * Read over the API rather than from a second Prisma client.
+     *
+     * This file and one API route were the only two consumers of a whole
+     * duplicate schema, generated client and connection pool in the frontend —
+     * 1,768 lines maintained by hand against the backend's 2,041, with nothing
+     * keeping them in agreement. `GET /api/v1/sitemap` returns slugs and
+     * nothing else.
+     */
+    const res = await fetch(`${API_BASE}/sitemap`, { next: { revalidate: 3600 } })
+    if (!res.ok) throw new Error(`sitemap slugs: ${res.status}`)
+    const { projects, builders } = (await res.json()) as {
+      projects: Array<{ slug: string; updated_at?: string }>
+      builders: Array<{ slug: string }>
+    }
 
     const projectPages: MetadataRoute.Sitemap = projects.map((p) => ({
       url: `${baseUrl}/property/${p.slug}`,
-      lastModified: new Date(),
+      // Real row timestamps now, where before every page claimed to have
+      // changed at build time — which tells a crawler nothing.
+      lastModified: p.updated_at ? new Date(p.updated_at) : new Date(),
       changeFrequency: 'weekly',
       priority: 0.8,
     }))

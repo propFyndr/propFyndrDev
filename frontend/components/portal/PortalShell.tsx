@@ -25,9 +25,10 @@ import {
   SidebarSimple,
 } from '@phosphor-icons/react'
 import { AnimatePresence, m } from 'framer-motion'
-import { API_BASE } from '@/lib/env'
 import { adminFetch } from '@/lib/adminFetch'
 import { ScopeParam, useScopeId } from '@/lib/portalScope'
+import { tenantFromHost } from '@/lib/subdomain'
+import { API_BASE } from '@/lib/env'
 
 export interface PortalNavItem {
   href: string
@@ -46,11 +47,19 @@ export interface PortalNavItem {
 
 export type PortalRole = 'SUPER_ADMIN' | 'ANALYST' | 'SALES' | 'BUILDER' | 'PARTNER'
 
-/** Where each role belongs when it lands on a console that is not its own. */
+/**
+ * Where each role belongs when it lands on a console that is not its own.
+ *
+ * The three staff roles used to share `/admin`, which meant a salesperson and
+ * an analyst both opened a platform dashboard built for neither — with the nav
+ * items they could not use hidden, so it read as a screen with holes in it.
+ * Each now lands on the board that answers its own first question of the day.
+ * `/admin` stays as the super admin's platform view.
+ */
 export const HOME_FOR_ROLE: Record<PortalRole, string> = {
   SUPER_ADMIN: '/admin',
-  ANALYST: '/admin',
-  SALES: '/admin',
+  ANALYST: '/admin/quality',
+  SALES: '/admin/queue',
   BUILDER: '/builder/portal',
   PARTNER: '/partner/portal',
 }
@@ -83,9 +92,52 @@ function titleCase(segment: string): string {
 
 export default function PortalShell({ nav, rootHref, rootLabel, allowRoles, scopeParam, ownRole, children }: Props) {
   const router = useRouter()
+  /**
+   * The tenant whose subdomain this was opened on, if any.
+   *
+   * Branding only. `lib/subdomain.ts` says it from the routing side and this
+   * says it again here: the host decides what the sidebar is LABELLED, never
+   * what the session may read. A builder who types someone else's subdomain
+   * still sees their own data — every portal endpoint re-derives scope from the
+   * session — they just see the wrong name above it, which is a cosmetic
+   * oddity rather than a leak.
+   */
+  const [tenantName, setTenantName] = useState<string | null>(null)
+  /** The builder or partner this session belongs to, from the session itself. */
+  const [orgName, setOrgName] = useState<string | null>(null)
+
   const pathname = usePathname()
   const [checking, setChecking] = useState(true)
   const [role, setRole] = useState<PortalRole | null>(null)
+  /**
+   * What this console is called for the person looking at it.
+   *
+   * It said "Admin Console" to everyone, so a salesperson and an analyst saw
+   * the same words over two different sets of screens and had no signal about
+   * which account they were in — which matters most for the people who hold
+   * more than one.
+   *
+   * Falls back to the console's own name until the role resolves, so the label
+   * never flickers through a wrong value on its way to the right one.
+   */
+  const ROLE_LABEL: Record<PortalRole, string> = {
+    SUPER_ADMIN: 'Admin Console',
+    ANALYST: 'Analyst Console',
+    SALES: 'Sales Console',
+    BUILDER: 'Builder Console',
+    PARTNER: 'Partner Console',
+  }
+  const consoleLabel = role ? ROLE_LABEL[role] : `${rootLabel} Console`
+
+  /**
+   * The org name is preferred over the tenant slug's name when both exist.
+   *
+   * The tenant comes from the host, which anyone can type; the org comes from
+   * the session, which they cannot. If the two ever disagree the session is the
+   * true one, and showing it is what stops a builder acting on the assumption
+   * that the address bar told them where they are.
+   */
+  const whoAmI = orgName ?? tenantName
   const scopeId = useScopeId(scopeParam ?? 'builder_id')
   const [mobileOpen, setMobileOpen] = useState(false)
   const [isCollapsed, setIsCollapsed] = useState(false)
@@ -108,6 +160,26 @@ export default function PortalShell({ nav, rootHref, rootLabel, allowRoles, scop
   useEffect(() => {
     if (!cmdOpen) setCmdQuery('')
   }, [cmdOpen])
+
+  /**
+   * Resolve the host's tenant label, once, client-side.
+   *
+   * `lib/subdomain.ts` already decides what counts as a tenant host; this
+   * reuses that rule rather than parsing the host a second way, so the two
+   * cannot disagree about whether `www` or a Vercel preview is a tenant.
+   * A miss leaves the label as the console name — the plain shell, never a
+   * half-branded one.
+   */
+  useEffect(() => {
+    const slug = tenantFromHost(typeof window === 'undefined' ? null : window.location.host)
+    if (!slug) return
+    let cancelled = false
+    fetch(`${API_BASE}/portal/tenant/${encodeURIComponent(slug)}`)
+      .then((r) => (r.ok ? r.json() : Promise.reject(r.status)))
+      .then((t: { name?: string }) => { if (!cancelled && t?.name) setTenantName(t.name) })
+      .catch(() => { /* Unknown tenant: plain console label. */ })
+    return () => { cancelled = true }
+  }, [])
 
   /**
    * The sections this signed-in role may actually open.
@@ -140,13 +212,18 @@ export default function PortalShell({ nav, rootHref, rootLabel, allowRoles, scop
     let cancelled = false
     adminFetch('/portal/me')
       .then((r) => (r.ok ? r.json() : Promise.reject(r.status)))
-      .then((me: { role: PortalRole }) => {
+      .then((me: { role: PortalRole; builder?: { name: string } | null; partner?: { name: string } | null }) => {
         if (cancelled) return
         if (!allowRoles.includes(me.role)) {
           router.replace(HOME_FOR_ROLE[me.role] ?? '/admin/login')
           return
         }
         setRole(me.role)
+        // Whose console this is. `/portal/me` already returned it and nothing
+        // read it, so a builder saw "Builder Console" with no indication of
+        // WHICH builder — which matters for anyone who holds more than one
+        // account, and matters most at the moment they are about to act.
+        setOrgName(me.builder?.name ?? me.partner?.name ?? null)
         setChecking(false)
       })
       .catch(() => {
@@ -307,11 +384,22 @@ export default function PortalShell({ nav, rootHref, rootLabel, allowRoles, scop
           )}
         </div>
 
-        {/* Console label — the one thing that tells the three consoles apart. */}
+        {/* Console label — the one thing that tells the three consoles apart.
+            On a tenant subdomain it says the tenant's name instead, so a builder
+            at lotus.propfyndr.in is not reading the word "Builder Console" over
+            their own data. */}
         {!isCollapsed && (
-          <div className="px-4 pt-3 pb-1 shrink-0">
+          <div className="px-4 pt-3 pb-2 shrink-0">
+            {/* Who, then where. Both, because a builder needs to know which
+                organisation they are acting as AND which console they are in —
+                showing only one leaves the other to be assumed. */}
+            {whoAmI && (
+              <p className="text-[13px] font-bold text-zinc-900 dark:text-white truncate leading-tight">
+                {whoAmI}
+              </p>
+            )}
             <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-zinc-400 dark:text-zinc-500">
-              {rootLabel} Console
+              {consoleLabel}
             </span>
           </div>
         )}

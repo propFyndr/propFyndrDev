@@ -1,10 +1,10 @@
 // backend/src/lib/adminIdentity.ts
 //
-// Real admin identity, additive alongside the single-shared-password login in
-// `adminAuth.ts`. That login still works — it now maps to a synthetic
-// bootstrap SUPER_ADMIN identity (adminUserId: 'root') instead of no identity
-// at all, so nothing already deployed breaks and "which admin did what" has
-// an answer from the first request onward.
+// Real admin identity — the only identity. The single-shared-password login in
+// `adminAuth.ts` that minted a synthetic `root` SUPER_ADMIN was removed on
+// 2026-09-17, and `requireIdentity` below refuses any session it had already
+// issued. Every request now names a real `admin_users` row, which is what makes
+// "which admin did what" answerable.
 //
 // Two ways onto the `admin_users` table, both super-admin-only actions — see
 // routes/adminTeam.ts: invite by email, or promote an existing buyer by their
@@ -15,7 +15,28 @@ import { getCached, setCached, deleteCached, getRedis } from './cache'
 import { prisma } from './db'
 import type { AdminRole } from '@prisma/client'
 
-const SESSION_TTL_SECS = 7 * 24 * 60 * 60 // 7 days
+/**
+ * How long a session lives, by role.
+ *
+ * Staff sit inside our own admin panel all day and re-authenticating them daily
+ * is friction we pay for nothing. Builders and channel partners are outside the
+ * company: different machines, shared laptops in a sales office, devices we
+ * cannot wipe and staff turnover we do not hear about. A week-long session for
+ * an external account is a week-long window after someone leaves that firm.
+ *
+ * One day is the shortest span that does not make a partner log in twice in a
+ * working day, which is the point where people start writing the password on
+ * something.
+ */
+const STAFF_SESSION_TTL_SECS = 7 * 24 * 60 * 60 // 7 days
+const EXTERNAL_SESSION_TTL_SECS = 24 * 60 * 60 // 1 day
+
+export function sessionTtlForRole(role: AdminRole): number {
+  return role === 'BUILDER' || role === 'PARTNER'
+    ? EXTERNAL_SESSION_TTL_SECS
+    : STAFF_SESSION_TTL_SECS
+}
+
 const SESSION_PREFIX = 'admin:session:'
 
 /**
@@ -33,7 +54,7 @@ export interface AdminIdentitySession {
   lastSeen: string
   ip: string
   userAgent: string
-  /** 'root' for the legacy ADMIN_PASSWORD bootstrap login — no AdminUser row. */
+  /** Always a real `admin_users` id. The synthetic 'root' id is refused below. */
   adminUserId: string
   email: string
   role: AdminRole
@@ -50,8 +71,8 @@ function memGet(token: string): AdminIdentitySession | null {
   if (Date.now() > entry.expiresAt) { memSessions.delete(token); return null }
   return entry.session
 }
-function memSet(token: string, session: AdminIdentitySession): void {
-  memSessions.set(token, { session, expiresAt: Date.now() + SESSION_TTL_SECS * 1000 })
+function memSet(token: string, session: AdminIdentitySession, ttlSecs: number): void {
+  memSessions.set(token, { session, expiresAt: Date.now() + ttlSecs * 1000 })
 }
 function memDelete(token: string): void {
   memSessions.delete(token)
@@ -61,18 +82,19 @@ export async function createIdentitySession(session: Omit<AdminIdentitySession, 
   const token = randomUUID()
   const now = new Date().toISOString()
   const full: AdminIdentitySession = { ...session, createdAt: now, lastSeen: now }
-  const written = await setCached<AdminIdentitySession>(`${SESSION_PREFIX}${token}`, full, SESSION_TTL_SECS)
+  const ttl = sessionTtlForRole(session.role)
+  const written = await setCached<AdminIdentitySession>(`${SESSION_PREFIX}${token}`, full, ttl)
   if (!written) {
     console.warn('[adminIdentity] Redis unavailable — using in-memory session store (single-process only)')
-    memSet(token, full)
+    memSet(token, full, ttl)
   } else {
-    await indexSession(session.adminUserId, token)
+    await indexSession(session.adminUserId, token, ttl)
   }
   return token
 }
 
 /** Records a token against its owner so revokeAllSessions can find it later. */
-async function indexSession(adminUserId: string, token: string): Promise<void> {
+async function indexSession(adminUserId: string, token: string, ttlSecs: number): Promise<void> {
   const redis = getRedis()
   if (!redis || !adminUserId) return
   try {
@@ -80,7 +102,7 @@ async function indexSession(adminUserId: string, token: string): Promise<void> {
     await redis.sadd(key, token)
     // Outlive the sessions it lists, so the set cannot expire while a session
     // it should have revoked is still valid.
-    await redis.expire(key, SESSION_TTL_SECS + 3600)
+    await redis.expire(key, ttlSecs + 3600)
   } catch {
     // Losing the index costs revocation, not correctness of the session itself.
   }
@@ -166,6 +188,17 @@ export async function requireIdentity(req: Request, res: Response, next: NextFun
     res.status(401).json({ error: 'Unauthorized' })
     return
   }
+  /**
+   * The shared ADMIN_PASSWORD login that minted `root` was removed on
+   * 2026-09-17, but sessions it already issued live in Redis for up to seven
+   * days. Deleting the login without refusing its sessions would have left the
+   * bypass open for a week. There is no AdminUser behind this id, so nothing
+   * legitimate can present it.
+   */
+  if (session.adminUserId === 'root') {
+    res.status(401).json({ error: 'Session no longer valid — sign in with your own account.' })
+    return
+  }
   (req as Request & { adminIdentity?: AdminIdentitySession }).adminIdentity = session
   next()
 }
@@ -218,9 +251,9 @@ export function requireScope(resolveOwnerId: (req: Request) => Promise<string | 
 
 // ── Password hashing ────────────────────────────────────────────────────────
 // scrypt, from Node's own crypto module — no new dependency for a feature
-// this codebase has never needed before (grepped: no bcrypt/scrypt password
-// hashing exists anywhere today, despite BuilderAccount.password_hash sitting
-// unused in the schema since it was added).
+// this codebase had never needed before. (The `BuilderAccount.password_hash`
+// column this comment used to point at was a second, unused identity model; it
+// was dropped on 2026-09-17 — see migrations/drop_builder_accounts.)
 const SCRYPT_KEYLEN = 64
 
 export function hashPassword(password: string): string {

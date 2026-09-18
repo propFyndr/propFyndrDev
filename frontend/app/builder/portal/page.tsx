@@ -13,6 +13,7 @@ import { Buildings, PhoneCall, Fire, Handshake, ArrowRight, Warning } from '@pho
 import { adminFetch } from '@/lib/adminFetch'
 import { useScopeId, withScope } from '@/lib/portalScope'
 import { PageShell, PageHeader, StatCard, Card, TierBadge, LeadStatusPill, EmptyState, Spinner, ErrorNote } from '@/components/portal/ui'
+import LeadPerformance from '@/components/portal/LeadPerformance'
 
 interface Project { id: string; name: string; sector: string; status: string }
 interface Lead {
@@ -74,6 +75,9 @@ export default function BuilderOverviewPage() {
         <StatCard label="Hot leads" value={hot} icon={<Fire size={16} weight="fill" />} tone="hot" />
         <StatCard label="Active partners" value={activePartners} icon={<Handshake size={16} />} hint={awaitingApproval > 0 ? `${awaitingApproval} pending` : undefined} />
       </div>
+
+      {/* Counts alone say nothing about performance — see the component. */}
+      <LeadPerformance leads={leads} subjectLabel="your projects" />
 
       {awaitingApproval > 0 && (
         <Card className="p-4 flex items-start gap-3 border-l-[3px] border-l-amber-400">

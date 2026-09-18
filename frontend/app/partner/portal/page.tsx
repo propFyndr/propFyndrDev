@@ -12,6 +12,7 @@ import { PhoneCall, Fire, Target, SealCheck, MapPin, ArrowRight, Warning } from 
 import { adminFetch } from '@/lib/adminFetch'
 import { useScopeId, withScope } from '@/lib/portalScope'
 import { PageShell, PageHeader, StatCard, Card, TierBadge, LeadStatusPill, EmptyState, Spinner, ErrorNote, PartnerStatusPill } from '@/components/portal/ui'
+import LeadPerformance from '@/components/portal/LeadPerformance'
 
 interface Partner {
   id: string
@@ -29,6 +30,9 @@ interface Partner {
 interface Lead {
   id: string; name: string; project_name: string | null
   status: string; lead_tier: string | null; assigned_at: string | null
+  // Returned by /portal/partner/leads and previously unused; the performance
+  // charts need a date to bucket by.
+  created_at: string
 }
 
 export default function PartnerOverviewPage() {
@@ -108,6 +112,8 @@ export default function PartnerOverviewPage() {
         <StatCard label="Hot" value={hot} icon={<Fire size={16} weight="fill" />} tone="hot" />
         <StatCard label="Converted" value={conversion} icon={<Target size={16} />} tone="good" hint={`${converted} closed`} />
       </div>
+
+      <LeadPerformance leads={leads} subjectLabel="you" />
 
       <section className="space-y-3">
         <div className="flex items-center justify-between">

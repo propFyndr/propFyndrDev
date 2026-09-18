@@ -1,7 +1,8 @@
 import { Router, Request, Response } from 'express'
-import { timingSafeEqual } from 'crypto'
 import { Prisma } from '@prisma/client'
 import { prisma } from '../lib/db'
+import { buildLeadBrief } from '../lib/leadBrief'
+import { loadScoreMap, missingFrom, saveScoreMap } from '../lib/completenessCache'
 import { requireAdmin, destroyAdminSession } from '../lib/adminAuth'
 import { createIdentitySession, verifyPassword, requireIdentity, requireRole } from '../lib/adminIdentity'
 import { computeCompleteness } from '../lib/completeness'
@@ -177,24 +178,18 @@ export async function recordAuditLog({
 
 const router = Router()
 
-// Constant-time password compare — avoids leaking length/match via timing.
-function passwordMatches(input: string, expected: string): boolean {
-  const a = Buffer.from(input)
-  const b = Buffer.from(expected)
-  if (a.length !== b.length) return false
-  return timingSafeEqual(a, b)
-}
-
-// POST /api/v1/admin/auth — exchange a password for a session token.
+// POST /api/v1/admin/auth — exchange credentials for a session token.
 //
-// Two paths, tried in order:
-//  1. Real admin identity: `email` + `password` against `AdminUser`. This is
-//     what makes "which admin did what" answerable, and what carries role and
-//     builder/partner scope.
-//  2. The single shared `ADMIN_PASSWORD` — kept working so nothing already
-//     deployed breaks. Maps to a synthetic bootstrap SUPER_ADMIN identity
-//     (adminUserId: 'root') rather than no identity at all, so even this path
-//     shows up distinctly in the audit trail instead of merging into "Admin".
+// One path only: `email` + `password` against `AdminUser`. That is what makes
+// "which admin did what" answerable, and what carries role and builder/partner
+// scope onto the session.
+//
+// The shared `ADMIN_PASSWORD` login was removed on 2026-09-17. It accepted a
+// password with no email and issued a SUPER_ADMIN session as a synthetic
+// `root@bootstrap` identity, so anyone holding one environment variable was a
+// super admin who left no real name in the audit trail. It existed as a
+// bootstrap while no AdminUser rows did; three now exist with passwords set, so
+// it bought nothing and cost the audit trail its meaning.
 router.post('/auth', async (req: Request, res: Response) => {
   const rawIp = (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() || req.ip || 'unknown'
   const isValidIp = /^(\d{1,3}\.){3}\d{1,3}$|^[a-f0-9:]+$/i.test(rawIp)
@@ -212,46 +207,25 @@ router.post('/auth', async (req: Request, res: Response) => {
   const email = typeof req.body?.email === 'string' ? req.body.email.trim().toLowerCase() : ''
   const password = typeof req.body?.password === 'string' ? req.body.password : ''
 
-  if (email) {
-    const admin = await prisma.adminUser.findUnique({ where: { email } })
-    if (!admin || !admin.is_active || !admin.password_hash || !password || !verifyPassword(password, admin.password_hash)) {
-      res.status(401).json({ error: 'Wrong email or password' })
-      return
-    }
-    await prisma.adminUser.update({ where: { id: admin.id }, data: { last_login_at: new Date() } })
-    const token = await createIdentitySession({
-      ip, userAgent,
-      adminUserId: admin.id,
-      email: admin.email,
-      role: admin.role,
-      builderId: admin.builder_id,
-      partnerId: admin.partner_id,
-    })
-    res.json({ token, role: admin.role })
+  // One failure message for every cause — unknown email, wrong password,
+  // deactivated account, invite never accepted. Distinguishing them tells an
+  // attacker which emails are real.
+  const admin = email ? await prisma.adminUser.findUnique({ where: { email } }) : null
+  if (!admin || !admin.is_active || !admin.password_hash || !password || !verifyPassword(password, admin.password_hash)) {
+    res.status(401).json({ error: 'Wrong email or password' })
     return
   }
 
-  const expected = process.env.ADMIN_PASSWORD
-  if (!expected) {
-    console.error('[admin] ADMIN_PASSWORD not set — refusing login')
-    res.status(500).json({ error: 'Admin auth not configured' })
-    return
-  }
-
-  if (!password || !passwordMatches(password, expected)) {
-    res.status(401).json({ error: 'Wrong password' })
-    return
-  }
-
+  await prisma.adminUser.update({ where: { id: admin.id }, data: { last_login_at: new Date() } })
   const token = await createIdentitySession({
     ip, userAgent,
-    adminUserId: 'root',
-    email: 'root@bootstrap',
-    role: 'SUPER_ADMIN',
-    builderId: null,
-    partnerId: null,
+    adminUserId: admin.id,
+    email: admin.email,
+    role: admin.role,
+    builderId: admin.builder_id,
+    partnerId: admin.partner_id,
   })
-  res.json({ token, role: 'SUPER_ADMIN' })
+  res.json({ token, role: admin.role })
 })
 
 // DELETE /api/v1/admin/auth — logout: clear session token
@@ -283,15 +257,22 @@ router.delete('/auth', requireAdmin, async (req: Request, res: Response) => {
  *
  * Placed here, after the two /auth routes, because Express matches in
  * registration order: login and logout stay reachable, everything registered
- * below inherits the guard. Per-endpoint role rules (which roles may write vs
- * read which group) layer on top of this default and are still to come — this
- * is the floor, not the finished matrix.
+ * below inherits the guard. Per-endpoint role rules layer on top in
+ * `adminPolicy.ts`.
+ *
+ * On 2026-09-17 the 65 per-endpoint `requireAdmin` calls below this line were
+ * removed. Every one of them re-checked only that a session existed — which
+ * these two lines already establish, and more strictly. Keeping them made the
+ * file read as though each route carried its own authorisation when none of
+ * them did, which is worse than no guard: it invites the reader to stop
+ * looking. The one surviving use is on logout above, which must stay reachable
+ * to every role and therefore sits before the role gate.
  */
 router.use(requireIdentity)
 router.use(requireRole('SUPER_ADMIN', 'ANALYST', 'SALES'))
 
 // GET /api/v1/admin/callbacks — list all callbacks with filters
-router.get('/callbacks', requireAdmin, async (req: Request, res: Response) => {
+router.get('/callbacks', async (req: Request, res: Response) => {
   const { limit = '50', offset = '0', tier, status } = req.query
 
   try {
@@ -333,7 +314,7 @@ router.get('/callbacks', requireAdmin, async (req: Request, res: Response) => {
 })
 
 // GET /api/v1/admin/callbacks/:id — view single callback
-router.get('/callbacks/:id', requireAdmin, async (req: Request, res: Response) => {
+router.get('/callbacks/:id', async (req: Request, res: Response) => {
   const { id } = req.params
 
   try {
@@ -354,7 +335,7 @@ router.get('/callbacks/:id', requireAdmin, async (req: Request, res: Response) =
 })
 
 // GET /api/v1/admin/stats — funnel metrics
-router.get('/stats', requireAdmin, async (req: Request, res: Response) => {
+router.get('/stats', async (req: Request, res: Response) => {
   try {
     const [totalCallbacks, hotLeads, warmLeads, coldLeads, scoreAgg] = await Promise.all([
       prisma.callbackRequest.count(),
@@ -378,7 +359,7 @@ router.get('/stats', requireAdmin, async (req: Request, res: Response) => {
 })
 
 // GET /api/v1/admin/projects — list projects for dashboard & management
-router.get('/projects', requireAdmin, async (req: Request, res: Response) => {
+router.get('/projects', async (req: Request, res: Response) => {
   const { limit = '1000', offset = '0', q, search } = req.query
   const searchTerm = (q || search) as string | undefined
 
@@ -400,7 +381,21 @@ router.get('/projects', requireAdmin, async (req: Request, res: Response) => {
       ]
     }
 
-    // Retry logic for cold-start connection errors
+    /**
+     * Two queries, and the second one usually does not run.
+     *
+     * This endpoint measured 5,032 ms because it loaded seventeen relations in
+     * full for up to a thousand projects — all so `computeCompleteness` could
+     * turn them into two numbers each. Phases 8.2 and 10.3 narrowed that to what
+     * the scorer actually reads and got it to ~1,550 ms. The rest of the cost is
+     * irreducible while the score is recomputed from scratch on every page load.
+     *
+     * So it is not. The scores are cached (see lib/completenessCache.ts, which
+     * documents the staleness ceiling), and the expensive relation read happens
+     * only for projects the cache does not already have.
+     *
+     * Query one is everything the TABLE renders, and nothing else.
+     */
     let projects: any[] = []
     let total = 0
     let retries = 0
@@ -412,25 +407,44 @@ router.get('/projects', requireAdmin, async (req: Request, res: Response) => {
         [projects, total] = await Promise.all([
           (prisma.project.findMany as any)({
             where,
-            include: {
+            /**
+             * `select`, not `include`.
+             *
+             * `include` ships every scalar column, and Project has a lot of
+             * them — `commute_matrix`, `location_advantages`, `location_concerns`
+             * and friends are JSON blobs the table never renders. Enumerated
+             * against the page's own `Project` interface, which is the real
+             * contract: the page has no spreads and no index access, so a field
+             * absent from that interface is a field nothing reads.
+             *
+             * Two extras are carried deliberately: `possession_date` and
+             * `price_min_cr` are what the status and price-band filters sort and
+             * group on, and `updated_at` is what tells an analyst how fresh a row
+             * is.
+             */
+            select: {
+              id: true, slug: true, name: true, sector: true, city: true, status: true,
+              hero_image_url: true, rera_number: true, description: true, address: true,
+              possession_label: true, possession_date: true, price_min_cr: true,
+              price_range_label: true, updated_at: true,
               builder: { select: { id: true, name: true, slug: true } },
-              unit_types: true,
-              images: true,
-              amenities: true,
-              connectivity: true,
-              dna: true,
-              decision_profile: true,
-              persona_profile: true,
-              recommendation_profile: true,
-              competitors: true,
-              cost_sheet: true,
-              payment_plans: true,
-              construction_milestones: true,
-              construction_updates: true,
-              lifecycle_updates: true,
-              price_history: true,
-              channel_partners: true,
-              spec_items: true,
+              /**
+               * Display only. The scorer has its own query below, so this no
+               * longer carries the fields only scoring reads (balconies, balcony
+               * area, the row id) — five columns x roughly two thousand unit
+               * rows that nothing on this page renders.
+               */
+              unit_types: {
+                select: {
+                  bhk: true, price_min_cr: true, price_max_cr: true,
+                  super_area_sqft: true, carpet_area_sqft: true,
+                },
+              },
+              // `type` for the hero/gallery split, `url` for the thumbnail.
+              images: { select: { id: true, url: true, type: true } },
+              // The page shows amenity and connectivity counts. Counting them
+              // reads no rows; selecting ids read every one of them.
+              _count: { select: { amenities: true, connectivity: true } },
             },
             orderBy: { name: 'asc' },
             take: parseInt(limit as string),
@@ -451,16 +465,137 @@ router.get('/projects', requireAdmin, async (req: Request, res: Response) => {
       }
     }
 
-    // Compute exact completeness score & tabScores for each project for admin dashboard alignment
-    const safeProjects = projects.map(p => {
-      const completeness = computeCompleteness(p as any)
-      return {
+    const scoreMap = await loadScoreMap()
+    const needScoring = missingFrom(scoreMap, projects.map((p) => p.id))
+
+    /**
+     * Query two: the scoring inputs, for cache misses only.
+     *
+     * On a warm cache this does not run at all. On a cold one it costs what the
+     * whole endpoint used to cost, once, and then not again for TTL_SECS.
+     */
+    if (needScoring.length > 0) {
+      const [heavy, docs] = await Promise.all([
+        prisma.project.findMany({
+          where: { id: { in: needScoring } },
+          select: {
+            id: true, slug: true, name: true, status: true, possession_date: true,
+            rera_number: true, rera_url: true, description: true, long_description: true,
+            tagline: true, address: true, lat: true, lng: true, total_units: true,
+            total_towers: true, land_area_acres: true, possession_label: true,
+            hero_image_url: true, price_min_cr: true, price_range_label: true,
+            nri_eligible: true, vastu_compliant: true, women_safety_score: true,
+            air_quality_index_avg: true, water_source: true, dg_power_rate_per_unit: true,
+            maintenance_per_sqft_monthly: true, has_png_gas_pipeline: true,
+            mobile_network_rating: true, ceiling_height_ft: true, lifts_per_tower: true,
+            has_service_lift: true, shared_walls_type: true, authority_dues_cleared: true,
+            land_tenure: true, pet_friendly: true, bachelor_tenants_allowed: true,
+            builder: { select: { id: true, name: true } },
+            unit_types: {
+              select: {
+                id: true, price_min_cr: true, super_area_sqft: true,
+                carpet_area_sqft: true, balconies: true, balcony_area_sqft: true,
+              },
+            },
+            images: { select: { type: true } },
+            // Counted, not fetched: the scorer asks each of these only how many
+            // there are.
+            _count: {
+              select: {
+                amenities: true, connectivity: true, competitors: true,
+                construction_milestones: true, construction_updates: true,
+                lifecycle_updates: true, price_history: true, channel_partners: true,
+              },
+            },
+            dna: {
+              select: {
+                builder_score: true, price_score: true, location_score: true,
+                legal_score: true, amenity_score: true, possession_score: true,
+              },
+            },
+            decision_profile: {
+              select: { decision_thesis: true, why_buy: true, why_avoid: true, best_for: true },
+            },
+            // `income_range`, `family_stage` and `work_location` are read through
+            // an `as any` cast in the scorer and are NOT on its declared
+            // interface. Narrowing to the interface cost every project 3 points
+            // and was caught by completenessParity.test.ts.
+            persona_profile: {
+              select: {
+                primary_persona: true, secondary_personas: true,
+                income_range: true, family_stage: true, work_location: true,
+              },
+            },
+            recommendation_profile: { select: { tier: true, primary_thesis: true } },
+            cost_sheet: { select: { base_price_per_sqft: true, base_cost_cr: true } },
+            payment_plans: { select: { id: true, milestones: true } },
+          },
+        }),
+        /**
+         * Brochures. `ProjectDocument` has no Prisma relation to `Project` — it
+         * matches on `project_id` OR `project_slug` — so it cannot be an
+         * include. One batched query, grouped in memory; a lookup per project
+         * would be the N+1 this endpoint was cleaned of.
+         */
+        prisma.projectDocument.findMany({
+          where: {
+            OR: [
+              { project_id: { in: needScoring } },
+              { project_slug: { in: projects.filter((p) => needScoring.includes(p.id)).map((p) => p.slug) } },
+            ],
+          },
+          select: { project_id: true, project_slug: true, doc_type: true },
+        }),
+      ])
+
+      // Keyed by both, because the rows match on either and some carry only one.
+      const docsByProject = new Map<string, Array<{ doc_type: string }>>()
+      for (const d of docs) {
+        for (const key of [d.project_id, d.project_slug]) {
+          if (!key) continue
+          const list = docsByProject.get(key)
+          if (list) list.push({ doc_type: d.doc_type })
+          else docsByProject.set(key, [{ doc_type: d.doc_type }])
+        }
+      }
+
+      /** The scorer takes arrays and asks only their length. */
+      const fromCount = (n: number) => Array.from({ length: n }, () => ({}))
+
+      for (const p of heavy) {
+        const counts = (p as any)._count ?? {}
+        const completeness = computeCompleteness({
+          ...p,
+          documents: docsByProject.get(p.id) ?? docsByProject.get(p.slug) ?? [],
+          amenities: fromCount(counts.amenities ?? 0),
+          connectivity: fromCount(counts.connectivity ?? 0),
+          competitors: fromCount(counts.competitors ?? 0),
+          construction_milestones: fromCount(counts.construction_milestones ?? 0),
+          construction_updates: fromCount(counts.construction_updates ?? 0),
+          lifecycle_updates: fromCount(counts.lifecycle_updates ?? 0),
+          price_history: fromCount(counts.price_history ?? 0),
+          channel_partners: fromCount(counts.channel_partners ?? 0),
+        } as any)
+        scoreMap[p.id] = { score: completeness.totalScore, tabScores: { ...completeness.tabScores } }
+      }
+
+      await saveScoreMap(scoreMap)
+    }
+
+    const safeProjects = projects.map((p) => {
+      const counts = (p as any)._count ?? {}
+      const cached = scoreMap[p.id]
+      const sent: Record<string, unknown> = {
         ...p,
         unit_types: p.unit_types ?? [],
         images: p.images ?? [],
-        completenessScore: completeness.totalScore,
-        tabScores: completeness.tabScores,
+        amenity_count: counts.amenities ?? 0,
+        connectivity_count: counts.connectivity ?? 0,
+        completenessScore: cached?.score ?? 0,
+        tabScores: cached?.tabScores ?? {},
       }
+      delete sent._count
+      return sent
     })
 
     res.json({ projects: safeProjects, total, limit: parseInt(limit as string), offset: parseInt(offset as string) })
@@ -471,7 +606,7 @@ router.get('/projects', requireAdmin, async (req: Request, res: Response) => {
 })
 
 // POST /api/v1/admin/projects — create project
-router.post('/projects', requireAdmin, async (req: Request, res: Response) => {
+router.post('/projects', async (req: Request, res: Response) => {
   const { name, slug, sector, city = 'Noida', builder_id, status } = req.body
 
   if (!name || !builder_id || !status) {
@@ -506,7 +641,7 @@ router.post('/projects', requireAdmin, async (req: Request, res: Response) => {
 })
 
 // GET /api/v1/admin/projects/:id — get project detail
-router.get('/projects/:id', requireAdmin, async (req: Request, res: Response) => {
+router.get('/projects/:id', async (req: Request, res: Response) => {
   const { id } = req.params
 
   try {
@@ -565,7 +700,7 @@ router.get('/projects/:id', requireAdmin, async (req: Request, res: Response) =>
 })
 
 // GET /api/v1/admin/projects/:id/documents — brochures & docs for a project
-router.get('/projects/:id/documents', requireAdmin, async (req: Request, res: Response) => {
+router.get('/projects/:id/documents', async (req: Request, res: Response) => {
   const { id } = req.params
 
   try {
@@ -582,7 +717,7 @@ router.get('/projects/:id/documents', requireAdmin, async (req: Request, res: Re
 })
 
 // GET /api/v1/admin/projects/:id/completeness — publish-readiness score
-router.get('/projects/:id/completeness', requireAdmin, async (req: Request, res: Response) => {
+router.get('/projects/:id/completeness', async (req: Request, res: Response) => {
   const { id } = req.params
 
   try {
@@ -629,7 +764,7 @@ router.get('/projects/:id/completeness', requireAdmin, async (req: Request, res:
 })
 
 // GET /api/v1/admin/audit-logs — list audit history and changelogs
-router.get('/audit-logs', requireAdmin, async (req: Request, res: Response) => {
+router.get('/audit-logs', async (req: Request, res: Response) => {
   const { entity_type, entity_id, mode = 'detailed', field, limit = '50', offset = '0' } = req.query
   try {
     const where: any = {}
@@ -677,7 +812,7 @@ router.get('/audit-logs', requireAdmin, async (req: Request, res: Response) => {
 })
 
 // GET /api/v1/admin/projects/export — export projects as CSV or JSON
-router.get('/projects/export', requireAdmin, async (req: Request, res: Response) => {
+router.get('/projects/export', async (req: Request, res: Response) => {
   const { filter = 'all', format = 'json' } = req.query
   try {
     const projects = await prisma.project.findMany({
@@ -787,7 +922,7 @@ router.get('/projects/export', requireAdmin, async (req: Request, res: Response)
 })
 
 // POST /api/v1/admin/projects/bulk-import — bulk update prices, statuses, possession
-router.post('/projects/bulk-import', requireAdmin, async (req: Request, res: Response) => {
+router.post('/projects/bulk-import', async (req: Request, res: Response) => {
   const { rows, updatePricingOnly = false } = req.body
   if (!Array.isArray(rows) || rows.length === 0) {
     res.status(400).json({ error: 'rows must be a non-empty array' })
@@ -880,7 +1015,7 @@ router.post('/projects/bulk-import', requireAdmin, async (req: Request, res: Res
 })
 
 // PATCH /api/v1/admin/projects/:id — update project
-router.patch('/projects/:id', requireAdmin, async (req: Request, res: Response) => {
+router.patch('/projects/:id', async (req: Request, res: Response) => {
   const { id } = req.params
   const updates = req.body
   const rawIp = (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() || req.ip || 'unknown'
@@ -944,7 +1079,7 @@ router.patch('/projects/:id', requireAdmin, async (req: Request, res: Response) 
 })
 
 // DELETE /api/v1/admin/projects/:id — delete project with cascading cleanup
-router.delete('/projects/:id', requireAdmin, async (req: Request, res: Response) => {
+router.delete('/projects/:id', async (req: Request, res: Response) => {
   const { id } = req.params
   const rawIp = (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() || req.ip || 'unknown'
   try {
@@ -1013,7 +1148,7 @@ router.delete('/projects/:id', requireAdmin, async (req: Request, res: Response)
 })
 
 // GET /api/v1/admin/projects/:id/milestones — fetch construction milestones
-router.get('/projects/:id/milestones', requireAdmin, async (req: Request, res: Response) => {
+router.get('/projects/:id/milestones', async (req: Request, res: Response) => {
   const { id } = req.params
   try {
     const project = await prisma.project.findFirst({
@@ -1038,7 +1173,7 @@ router.get('/projects/:id/milestones', requireAdmin, async (req: Request, res: R
 })
 
 // PUT /api/v1/admin/projects/:id/milestones — save/update construction milestones
-router.put('/projects/:id/milestones', requireAdmin, async (req: Request, res: Response) => {
+router.put('/projects/:id/milestones', async (req: Request, res: Response) => {
   const { id } = req.params
   const { milestones } = req.body as { milestones: Array<{ name: string; status: 'completed' | 'in_progress' | 'upcoming'; date_label?: string; sort_order?: number }> }
 
@@ -1085,7 +1220,7 @@ router.put('/projects/:id/milestones', requireAdmin, async (req: Request, res: R
 })
 
 // GET /api/v1/admin/projects/:id/specs — fetch project specifications and materials
-router.get('/projects/:id/specs', requireAdmin, async (req: Request, res: Response) => {
+router.get('/projects/:id/specs', async (req: Request, res: Response) => {
   const { id } = req.params
   try {
     const project = await prisma.project.findFirst({
@@ -1111,7 +1246,7 @@ router.get('/projects/:id/specs', requireAdmin, async (req: Request, res: Respon
 })
 
 // PUT /api/v1/admin/projects/:id/specs — save/update project specifications
-router.put('/projects/:id/specs', requireAdmin, async (req: Request, res: Response) => {
+router.put('/projects/:id/specs', async (req: Request, res: Response) => {
   const { id } = req.params
   const { specs } = req.body as { specs: any[] }
 
@@ -1170,7 +1305,7 @@ router.put('/projects/:id/specs', requireAdmin, async (req: Request, res: Respon
 })
 
 // POST /api/v1/admin/projects/:id/specs — alias for saving specs
-router.post('/projects/:id/specs', requireAdmin, async (req: Request, res: Response) => {
+router.post('/projects/:id/specs', async (req: Request, res: Response) => {
   const { id } = req.params
   const { specs } = req.body as { specs: any[] }
 
@@ -1223,7 +1358,7 @@ router.post('/projects/:id/specs', requireAdmin, async (req: Request, res: Respo
 })
 
 // GET /api/v1/admin/builders — list builders
-router.get('/builders', requireAdmin, async (req: Request, res: Response) => {
+router.get('/builders', async (req: Request, res: Response) => {
   const { limit = '100', offset = '0', q, search } = req.query
   const searchTerm = (q || search) as string | undefined
 
@@ -1269,7 +1404,7 @@ router.get('/builders', requireAdmin, async (req: Request, res: Response) => {
 })
 
 // POST /api/v1/admin/builders — create builder
-router.post('/builders', requireAdmin, async (req: Request, res: Response) => {
+router.post('/builders', async (req: Request, res: Response) => {
   const {
     name,
     slug,
@@ -1345,7 +1480,7 @@ router.post('/builders', requireAdmin, async (req: Request, res: Response) => {
 })
 
 // PATCH /api/v1/admin/builders/:id — update builder
-router.patch('/builders/:id', requireAdmin, async (req: Request, res: Response) => {
+router.patch('/builders/:id', async (req: Request, res: Response) => {
   const { id } = req.params
   const updates = req.body
 
@@ -1393,7 +1528,7 @@ router.patch('/builders/:id', requireAdmin, async (req: Request, res: Response) 
 })
 
 // GET /api/v1/admin/sectors — list all sector intelligence
-router.get('/sectors', requireAdmin, async (_req: Request, res: Response) => {
+router.get('/sectors', async (_req: Request, res: Response) => {
   try {
     const sectors = await prisma.sectorIntelligence.findMany({
       orderBy: [{ city: 'asc' }, { sector: 'asc' }]
@@ -1438,7 +1573,7 @@ const SECTOR_NUMERIC_FIELDS = [
 ] as const
 
 // PUT /api/v1/admin/sectors/:id — update sector intelligence
-router.put('/sectors/:id', requireAdmin, async (req: Request, res: Response) => {
+router.put('/sectors/:id', async (req: Request, res: Response) => {
   const { id } = req.params
 
   const parsed = SectorIntelligenceUpdate.safeParse(req.body)
@@ -1484,7 +1619,7 @@ router.put('/sectors/:id', requireAdmin, async (req: Request, res: Response) => 
  * anything. Ranked by how often it has been asked, because that is the number
  * that should drive the decision.
  */
-router.get('/coverage-gaps', requireAdmin, async (req: Request, res: Response) => {
+router.get('/coverage-gaps', async (req: Request, res: Response) => {
   const kind = String(req.query.kind ?? 'all')
   const days = Math.min(365, Math.max(1, Number(req.query.days ?? 30)))
   const since = new Date(Date.now() - days * 86_400_000)
@@ -1543,7 +1678,7 @@ router.get('/coverage-gaps', requireAdmin, async (req: Request, res: Response) =
 })
 
 // DELETE /api/v1/admin/builders/:id — delete builder
-router.delete('/builders/:id', requireAdmin, async (req: Request, res: Response) => {
+router.delete('/builders/:id', async (req: Request, res: Response) => {
   const { id } = req.params
   try {
     // Check if builder has linked projects before deleting
@@ -1565,7 +1700,7 @@ router.delete('/builders/:id', requireAdmin, async (req: Request, res: Response)
 })
 
 // GET /api/v1/admin/leads — list callback/lead requests
-router.get('/leads', requireAdmin, async (req: Request, res: Response) => {
+router.get('/leads', async (req: Request, res: Response) => {
   const { status, limit = '50', offset = '0' } = req.query
   try {
     const where: any = {}
@@ -1600,7 +1735,28 @@ router.get('/leads', requireAdmin, async (req: Request, res: Response) => {
 })
 
 // PATCH /api/v1/admin/leads/:id — update lead
-router.patch('/leads/:id', requireAdmin, async (req: Request, res: Response) => {
+/**
+ * GET /admin/leads/:id/brief — the Lead Brief, unscrubbed.
+ *
+ * The same artefact builders and partners receive, with the competitor context
+ * left in. Our own salespeople need the comparison to do their job and are
+ * inside the trust boundary the scrubbing exists to protect; a builder is not.
+ *
+ * `audience: 'staff'` is hardcoded here and taken from no input, exactly as
+ * `'builder'` is hardcoded in the portal routes. The role that reaches this
+ * line is already decided — ANALYST is refused `/leads` by `adminPolicy`, so
+ * only SUPER_ADMIN and SALES arrive.
+ */
+router.get('/leads/:id/brief', async (req: Request, res: Response) => {
+  const brief = await buildLeadBrief(req.params.id, 'staff')
+  if (!brief) {
+    res.status(404).json({ error: 'Lead not found' })
+    return
+  }
+  res.json({ brief })
+})
+
+router.patch('/leads/:id', async (req: Request, res: Response) => {
   const { id } = req.params
   const { status, lead_tier } = req.body
 
@@ -1621,7 +1777,7 @@ router.patch('/leads/:id', requireAdmin, async (req: Request, res: Response) => 
 })
 
 // GET /api/v1/admin/news — list builder news
-router.get('/news', requireAdmin, async (req: Request, res: Response) => {
+router.get('/news', async (req: Request, res: Response) => {
   const { limit = '50', offset = '0', status } = req.query
 
   try {
@@ -1649,7 +1805,7 @@ router.get('/news', requireAdmin, async (req: Request, res: Response) => {
 })
 
 // DELETE /api/v1/admin/news/:id — archive (soft delete; reversible)
-router.delete('/news/:id', requireAdmin, async (req: Request, res: Response) => {
+router.delete('/news/:id', async (req: Request, res: Response) => {
   const { id } = req.params
   try {
     await prisma.builderNews.update({
@@ -1664,7 +1820,7 @@ router.delete('/news/:id', requireAdmin, async (req: Request, res: Response) => 
 })
 
 // POST /api/v1/admin/news — create news
-router.post('/news', requireAdmin, async (req: Request, res: Response) => {
+router.post('/news', async (req: Request, res: Response) => {
   const { builder_id, title, description, image_url, link_type, link_target, status } = req.body
   try {
     if (!builder_id || !title || !description) {
@@ -1690,7 +1846,7 @@ router.post('/news', requireAdmin, async (req: Request, res: Response) => {
 })
 
 // PATCH /api/v1/admin/news/:id — update news
-router.patch('/news/:id', requireAdmin, async (req: Request, res: Response) => {
+router.patch('/news/:id', async (req: Request, res: Response) => {
   const { id } = req.params
   const { title, description, image_url, link_type, link_target, status, approved_by, approval_notes, published_at, run_as_promo, promo_id } = req.body
   try {
@@ -1720,7 +1876,7 @@ router.patch('/news/:id', requireAdmin, async (req: Request, res: Response) => {
 })
 
 // GET /api/v1/admin/blog — list all blog posts (any status)
-router.get('/blog', requireAdmin, async (req: Request, res: Response) => {
+router.get('/blog', async (req: Request, res: Response) => {
   const { limit = '50', offset = '0', status } = req.query
 
   try {
@@ -1747,7 +1903,7 @@ router.get('/blog', requireAdmin, async (req: Request, res: Response) => {
 })
 
 // GET /api/v1/admin/blog/:id — single blog post (edit form prefill)
-router.get('/blog/:id', requireAdmin, async (req: Request, res: Response) => {
+router.get('/blog/:id', async (req: Request, res: Response) => {
   try {
     const post = await prisma.blogPost.findUnique({ where: { id: req.params.id } })
     if (!post) {
@@ -1762,7 +1918,7 @@ router.get('/blog/:id', requireAdmin, async (req: Request, res: Response) => {
 })
 
 // POST /api/v1/admin/blog — create post
-router.post('/blog', requireAdmin, async (req: Request, res: Response) => {
+router.post('/blog', async (req: Request, res: Response) => {
   const { title, slug, excerpt, content, cover_image_url, status, meta_title, meta_description, author_name } = req.body
   try {
     if (!title || !slug || !content) {
@@ -1798,7 +1954,7 @@ router.post('/blog', requireAdmin, async (req: Request, res: Response) => {
 })
 
 // PATCH /api/v1/admin/blog/:id — update post
-router.patch('/blog/:id', requireAdmin, async (req: Request, res: Response) => {
+router.patch('/blog/:id', async (req: Request, res: Response) => {
   const { id } = req.params
   const { title, slug, excerpt, content, cover_image_url, status, meta_title, meta_description, author_name } = req.body
   try {
@@ -1841,7 +1997,7 @@ router.patch('/blog/:id', requireAdmin, async (req: Request, res: Response) => {
 })
 
 // DELETE /api/v1/admin/blog/:id — archive (soft delete; reversible)
-router.delete('/blog/:id', requireAdmin, async (req: Request, res: Response) => {
+router.delete('/blog/:id', async (req: Request, res: Response) => {
   const { id } = req.params
   try {
     await prisma.blogPost.update({
@@ -1856,35 +2012,55 @@ router.delete('/blog/:id', requireAdmin, async (req: Request, res: Response) => 
 })
 
 // GET /api/v1/admin/analytics/summary — system analytics
-router.get('/analytics/summary', requireAdmin, async (_req: Request, res: Response) => {
+router.get('/analytics/summary', async (_req: Request, res: Response) => {
   try {
-    const [totalChats, totalQueries, zeroResultSearches, totalCallbacks, totalProjects, totalBuilders] = await Promise.all([
-      prisma.chatSession.count(),
+    /**
+     * One round trip, not four.
+     *
+     * These nine reads were issued in four sequential waves — six in parallel,
+     * then the clarification average, then the sector rollup, then the builder
+     * rollup — even though none of the last three depends on anything before
+     * it. Against a database on the other side of a network that is four
+     * latencies where one would do, and latency is most of what this endpoint
+     * costs: the query COUNT is unchanged, only the waiting.
+     *
+     * The two fallbacks further down stay sequential on purpose. They run only
+     * when a rollup came back empty, which is the cold-start case, and paying
+     * for them on every request to save a round trip in a case that mostly does
+     * not happen is the wrong trade.
+     */
+    const [
+      totalChats, totalQueries, zeroResultSearches, totalCallbacks, totalProjects, totalBuilders,
+      avgClarificationsAgg, sectorGroups, builderGroups,
+    ] = await Promise.all([
+      prisma.chatSession.count({ where: { is_bot: false } }),
       prisma.queryMetrics.count(),
       prisma.queryMetrics.count({ where: { had_results: false } }),
       prisma.callbackRequest.count(),
       prisma.project.count(),
       prisma.builder.count(),
+      prisma.queryMetrics.aggregate({ _avg: { clarification_count: true } }),
+      prisma.queryMetrics.groupBy({
+        by: ['sector'],
+        _count: { sector: true },
+        where: { sector: { not: null } },
+        orderBy: { _count: { sector: 'desc' } },
+        take: 10,
+      }),
+      prisma.queryMetrics.groupBy({
+        by: ['builder'],
+        _count: { builder: true },
+        where: { builder: { not: null } },
+        orderBy: { _count: { builder: 'desc' } },
+        take: 10,
+      }),
     ])
 
     const avgQueriesPerChat = totalChats > 0 ? (totalQueries / totalChats).toFixed(1) : '0.0'
     const zeroResultSearchRate = totalQueries > 0 ? `${((zeroResultSearches / totalQueries) * 100).toFixed(1)}%` : '0.0%'
     const effectiveConversions = Math.min(totalCallbacks, totalChats)
     const conversionRate = totalChats > 0 ? `${((effectiveConversions / totalChats) * 100).toFixed(1)}%` : totalCallbacks > 0 ? '100.0%' : '0.0%'
-
-    const avgClarificationsAgg = await prisma.queryMetrics.aggregate({
-      _avg: { clarification_count: true },
-    })
     const avgClarifications = (avgClarificationsAgg._avg.clarification_count || 0).toFixed(1)
-
-    // Top Searched Sectors: Query Metrics first, fallback to Project table sectors
-    const sectorGroups = await prisma.queryMetrics.groupBy({
-      by: ['sector'],
-      _count: { sector: true },
-      where: { sector: { not: null } },
-      orderBy: { _count: { sector: 'desc' } },
-      take: 10,
-    })
 
     let topSectors = sectorGroups.map(g => ({ sector: g.sector || 'Unknown', count: g._count.sector }))
 
@@ -1905,14 +2081,6 @@ router.get('/analytics/summary', requireAdmin, async (_req: Request, res: Respon
     }
 
     // Top Searched Builders: Query Metrics first, fallback to Builder table
-    const builderGroups = await prisma.queryMetrics.groupBy({
-      by: ['builder'],
-      _count: { builder: true },
-      where: { builder: { not: null } },
-      orderBy: { _count: { builder: 'desc' } },
-      take: 10,
-    })
-
     let topBuilders = builderGroups.map(g => ({ builder: g.builder || 'Unknown', count: g._count.builder }))
 
     if (topBuilders.length === 0) {
@@ -1951,7 +2119,7 @@ router.get('/analytics/summary', requireAdmin, async (_req: Request, res: Respon
 })
 
 // GET /api/v1/admin/analytics/quality — data health score
-router.get('/analytics/quality', requireAdmin, async (_req: Request, res: Response) => {
+router.get('/analytics/quality', async (_req: Request, res: Response) => {
   try {
     const [totalSearches, zeroResultSearches, searchWithResults, totalProjects, withImage, withRera] = await Promise.all([
       prisma.queryMetrics.count(),
@@ -1994,7 +2162,7 @@ router.get('/analytics/quality', requireAdmin, async (_req: Request, res: Respon
 })
 
 // GET /api/v1/admin/analytics/users — user stats
-router.get('/analytics/users', requireAdmin, async (_req: Request, res: Response) => {
+router.get('/analytics/users', async (_req: Request, res: Response) => {
   try {
     let totalChats = 0
     let totalQueries = 0
@@ -2003,7 +2171,7 @@ router.get('/analytics/users', requireAdmin, async (_req: Request, res: Response
     let totalConversions = 0
 
     try {
-      totalChats = await prisma.chatSession.count()
+      totalChats = await prisma.chatSession.count({ where: { is_bot: false } })
       totalQueries = await prisma.queryMetrics.count()
       totalClicks = await prisma.propertyEvent.count({ where: { action: { in: ['click', 'view'] } } })
       totalSaves = await prisma.propertyEvent.count({ where: { action: 'save' } })
@@ -2014,7 +2182,12 @@ router.get('/analytics/users', requireAdmin, async (_req: Request, res: Response
 
     const uniqueUsersAgg = await prisma.chatSession.groupBy({
       by: ['user_id'],
-      where: { user_id: { not: null } },
+      // `is_bot` excluded. Crawlers, uptime checks and our own corpus runs are
+      // flagged by lib/botDetection.ts and were being counted here as buyers:
+      // 1,872 of 46,202 sessions at the time of writing, so every session
+      // metric on these dashboards read about 4% high. Small, but a metric that
+      // counts our own uptime checks is not measuring anything.
+      where: { user_id: { not: null }, is_bot: false },
     })
     const totalUsers = Math.max(uniqueUsersAgg.length, totalChats > 0 ? 1 : 0)
     const repeatedVisitors = Math.max(0, totalChats - totalUsers)
@@ -2022,6 +2195,12 @@ router.get('/analytics/users', requireAdmin, async (_req: Request, res: Response
     // Compute real dynamic avg session duration from DB (created_at vs last_active)
     const sessionsForDuration = await prisma.chatSession.findMany({
       take: 100,
+      // `is_bot` excluded. Crawlers, uptime checks and our own corpus runs are
+      // flagged by lib/botDetection.ts and were being counted here as buyers:
+      // 1,872 of 46,202 sessions at the time of writing, so every session
+      // metric on these dashboards read about 4% high. Small, but a metric that
+      // counts our own uptime checks is not measuring anything.
+      where: { is_bot: false },
       select: { created_at: true, last_active: true },
     })
     let totalDurationSeconds = 0
@@ -2038,6 +2217,12 @@ router.get('/analytics/users', requireAdmin, async (_req: Request, res: Response
     // Dynamic list of active user chat sessions from DB
     const recentSessions = await prisma.chatSession.findMany({
       take: 25,
+      // `is_bot` excluded. Crawlers, uptime checks and our own corpus runs are
+      // flagged by lib/botDetection.ts and were being counted here as buyers:
+      // 1,872 of 46,202 sessions at the time of writing, so every session
+      // metric on these dashboards read about 4% high. Small, but a metric that
+      // counts our own uptime checks is not measuring anything.
+      where: { is_bot: false },
       orderBy: { last_active: 'desc' },
       select: {
         id: true,
@@ -2112,7 +2297,7 @@ router.get('/analytics/users', requireAdmin, async (_req: Request, res: Response
 })
 
 // GET /api/v1/admin/analytics/properties — properties analytics
-router.get('/analytics/properties', requireAdmin, async (_req: Request, res: Response) => {
+router.get('/analytics/properties', async (_req: Request, res: Response) => {
   try {
     const projects = await prisma.project.findMany({
       take: 50,
@@ -2168,7 +2353,7 @@ router.get('/analytics/properties', requireAdmin, async (_req: Request, res: Res
 const USD_TO_INR_APPROX = 87
 
 // GET /api/v1/admin/analytics/ai-costs — enterprise AI token & unit economics
-router.get('/analytics/ai-costs', requireAdmin, async (_req: Request, res: Response) => {
+router.get('/analytics/ai-costs', async (_req: Request, res: Response) => {
   try {
     const { getCacheStats } = await import('../lib/ai/semanticCache')
     const cacheStats = getCacheStats()
@@ -2235,7 +2420,7 @@ router.get('/analytics/ai-costs', requireAdmin, async (_req: Request, res: Respo
 })
 
 // GET /api/v1/admin/analytics/market-demand — Supply vs Demand Matrix
-router.get('/analytics/market-demand', requireAdmin, async (_req: Request, res: Response) => {
+router.get('/analytics/market-demand', async (_req: Request, res: Response) => {
   try {
     const [searches, projects] = await Promise.all([
       prisma.queryMetrics.findMany({
@@ -2305,7 +2490,7 @@ router.get('/analytics/market-demand', requireAdmin, async (_req: Request, res: 
 })
 
 // GET /api/v1/admin/analytics/unmet-demand — Zero result demand ledger
-router.get('/analytics/unmet-demand', requireAdmin, async (_req: Request, res: Response) => {
+router.get('/analytics/unmet-demand', async (_req: Request, res: Response) => {
   try {
     const unmetQueries = await prisma.queryMetrics.findMany({
       where: {
@@ -2363,10 +2548,10 @@ router.get('/analytics/unmet-demand', requireAdmin, async (_req: Request, res: R
 })
 
 // GET /api/v1/admin/analytics/funnel — 5-stage conversion funnel
-router.get('/analytics/funnel', requireAdmin, async (_req: Request, res: Response) => {
+router.get('/analytics/funnel', async (_req: Request, res: Response) => {
   try {
     const [totalSessions, totalSearches, viewClicks, saves, totalCallbacks, totalSiteVisits] = await Promise.all([
-      prisma.chatSession.count().catch(() => 0),
+      prisma.chatSession.count({ where: { is_bot: false } }).catch(() => 0),
       prisma.queryMetrics.count().catch(() => 0),
       prisma.propertyEvent.count({ where: { action: { in: ['view', 'click', 'brochure'] } } }).catch(() => 0),
       prisma.propertyEvent.count({ where: { action: 'save' } }).catch(() => 0),
@@ -2393,7 +2578,7 @@ router.get('/analytics/funnel', requireAdmin, async (_req: Request, res: Respons
 })
 
 // GET /api/v1/admin/sector-tiers — Phase 5: Compute and show sector tiers
-router.get('/sector-tiers', requireAdmin, async (req: Request, res: Response) => {
+router.get('/sector-tiers', async (req: Request, res: Response) => {
   try {
     const { city = 'Noida' } = req.query
     const { computeSectorTier } = await import('../lib/discovery/sectorTiers')
@@ -2432,7 +2617,7 @@ router.get('/sector-tiers', requireAdmin, async (req: Request, res: Response) =>
 })
 
 // GET /api/v1/admin/channel-partners — List all available master channel partners
-router.get('/channel-partners', requireAdmin, async (_req: Request, res: Response) => {
+router.get('/channel-partners', async (_req: Request, res: Response) => {
   try {
     const partners = await (prisma as any).channelPartner.findMany({
       where: { is_active: true },
@@ -2446,7 +2631,7 @@ router.get('/channel-partners', requireAdmin, async (_req: Request, res: Respons
 })
 
 // GET /api/v1/admin/projects/:id/channel-partners — Fetch project's linked partners
-router.get('/projects/:id/channel-partners', requireAdmin, async (req: Request, res: Response) => {
+router.get('/projects/:id/channel-partners', async (req: Request, res: Response) => {
   try {
     const { id } = req.params
     const partners = await (prisma as any).projectChannelPartner.findMany({
@@ -2461,7 +2646,7 @@ router.get('/projects/:id/channel-partners', requireAdmin, async (req: Request, 
 })
 
 // PUT /api/v1/admin/projects/:id/channel-partners — Save project's channel partners
-router.put('/projects/:id/channel-partners', requireAdmin, async (req: Request, res: Response) => {
+router.put('/projects/:id/channel-partners', async (req: Request, res: Response) => {
   try {
     const { id } = req.params
     const { channel_partners } = req.body
@@ -2487,7 +2672,7 @@ router.put('/projects/:id/channel-partners', requireAdmin, async (req: Request, 
 })
 
 // GET /api/v1/admin/projects/:id/updates — Fetch project updates
-router.get('/projects/:id/updates', requireAdmin, async (req: Request, res: Response) => {
+router.get('/projects/:id/updates', async (req: Request, res: Response) => {
   try {
     const { id } = req.params
     const updates = await (prisma as any).constructionUpdate.findMany({
@@ -2502,7 +2687,7 @@ router.get('/projects/:id/updates', requireAdmin, async (req: Request, res: Resp
 })
 
 // PUT /api/v1/admin/projects/:id/updates — Save project updates
-router.put('/projects/:id/updates', requireAdmin, async (req: Request, res: Response) => {
+router.put('/projects/:id/updates', async (req: Request, res: Response) => {
   try {
     const { id } = req.params
     const { updates } = req.body
@@ -2526,7 +2711,7 @@ router.put('/projects/:id/updates', requireAdmin, async (req: Request, res: Resp
 })
 
 // PATCH /api/v1/admin/projects/:id/dna — save/update project DNA profile
-router.patch('/projects/:id/dna', requireAdmin, async (req: Request, res: Response) => {
+router.patch('/projects/:id/dna', async (req: Request, res: Response) => {
   const { id } = req.params
   const data = req.body
 
@@ -2553,7 +2738,7 @@ router.patch('/projects/:id/dna', requireAdmin, async (req: Request, res: Respon
 })
 
 // PATCH /api/v1/admin/projects/:id/decision-profile — save/update decision profile
-router.patch('/projects/:id/decision-profile', requireAdmin, async (req: Request, res: Response) => {
+router.patch('/projects/:id/decision-profile', async (req: Request, res: Response) => {
   const { id } = req.params
   const data = req.body
 
@@ -2580,7 +2765,7 @@ router.patch('/projects/:id/decision-profile', requireAdmin, async (req: Request
 })
 
 // PATCH /api/v1/admin/projects/:id/persona-profile — save/update persona profile
-router.patch('/projects/:id/persona-profile', requireAdmin, async (req: Request, res: Response) => {
+router.patch('/projects/:id/persona-profile', async (req: Request, res: Response) => {
   const { id } = req.params
   const data = req.body
 
@@ -2607,7 +2792,7 @@ router.patch('/projects/:id/persona-profile', requireAdmin, async (req: Request,
 })
 
 // PATCH /api/v1/admin/projects/:id/recommendation-profile — save/update recommendation profile
-router.patch('/projects/:id/recommendation-profile', requireAdmin, async (req: Request, res: Response) => {
+router.patch('/projects/:id/recommendation-profile', async (req: Request, res: Response) => {
   const { id } = req.params
   const data = req.body
 
@@ -2634,7 +2819,7 @@ router.patch('/projects/:id/recommendation-profile', requireAdmin, async (req: R
 })
 
 // PUT /api/v1/admin/projects/:id/cost-sheet — Upsert full cost sheet
-router.put('/projects/:id/cost-sheet', requireAdmin, async (req: Request, res: Response) => {
+router.put('/projects/:id/cost-sheet', async (req: Request, res: Response) => {
   const { id } = req.params
   const data = req.body
   try {
@@ -2677,7 +2862,7 @@ router.put('/projects/:id/cost-sheet', requireAdmin, async (req: Request, res: R
 })
 
 // GET & PUT /api/v1/admin/projects/:id/payment-plans — Multi payment plan management
-router.get('/projects/:id/payment-plans', requireAdmin, async (req: Request, res: Response) => {
+router.get('/projects/:id/payment-plans', async (req: Request, res: Response) => {
   const { id } = req.params
   try {
     const project = await prisma.project.findFirst({
@@ -2696,7 +2881,7 @@ router.get('/projects/:id/payment-plans', requireAdmin, async (req: Request, res
   }
 })
 
-router.put('/projects/:id/payment-plans', requireAdmin, async (req: Request, res: Response) => {
+router.put('/projects/:id/payment-plans', async (req: Request, res: Response) => {
   const { id } = req.params
   const { payment_plans } = req.body
   try {
@@ -2725,7 +2910,7 @@ router.put('/projects/:id/payment-plans', requireAdmin, async (req: Request, res
 })
 
 // Legacy single-plan PUT route compatibility
-router.put('/projects/:id/payment-plan', requireAdmin, async (req: Request, res: Response) => {
+router.put('/projects/:id/payment-plan', async (req: Request, res: Response) => {
   const { id } = req.params
   const data = req.body
   try {
@@ -2749,7 +2934,7 @@ router.put('/projects/:id/payment-plan', requireAdmin, async (req: Request, res:
 })
 
 // GET & PUT /api/v1/admin/projects/:id/lifecycle-updates — Delivered project updates
-router.get('/projects/:id/lifecycle-updates', requireAdmin, async (req: Request, res: Response) => {
+router.get('/projects/:id/lifecycle-updates', async (req: Request, res: Response) => {
   const { id } = req.params
   try {
     const project = await prisma.project.findFirst({
@@ -2768,7 +2953,7 @@ router.get('/projects/:id/lifecycle-updates', requireAdmin, async (req: Request,
   }
 })
 
-router.put('/projects/:id/lifecycle-updates', requireAdmin, async (req: Request, res: Response) => {
+router.put('/projects/:id/lifecycle-updates', async (req: Request, res: Response) => {
   const { id } = req.params
   const { updates } = req.body
   try {
@@ -2804,7 +2989,7 @@ router.put('/projects/:id/lifecycle-updates', requireAdmin, async (req: Request,
 })
 
 // GET & PUT /api/v1/admin/projects/:id/price-history — Price history snapshots
-router.get('/projects/:id/price-history', requireAdmin, async (req: Request, res: Response) => {
+router.get('/projects/:id/price-history', async (req: Request, res: Response) => {
   const { id } = req.params
   try {
     const project = await prisma.project.findFirst({
@@ -2823,7 +3008,7 @@ router.get('/projects/:id/price-history', requireAdmin, async (req: Request, res
   }
 })
 
-router.put('/projects/:id/price-history', requireAdmin, async (req: Request, res: Response) => {
+router.put('/projects/:id/price-history', async (req: Request, res: Response) => {
   const { id } = req.params
   const { price_history } = req.body
   try {
@@ -2855,7 +3040,7 @@ router.put('/projects/:id/price-history', requireAdmin, async (req: Request, res
 })
 
 // POST /api/v1/admin/projects/:id/units — Add unit type
-router.post('/projects/:id/units', requireAdmin, async (req: Request, res: Response) => {
+router.post('/projects/:id/units', async (req: Request, res: Response) => {
   const { id } = req.params
   const data = req.body
   try {
@@ -2901,7 +3086,7 @@ router.post('/projects/:id/units', requireAdmin, async (req: Request, res: Respo
 })
 
 // PATCH /api/v1/admin/units/:id — Update unit type
-router.patch('/units/:id', requireAdmin, async (req: Request, res: Response) => {
+router.patch('/units/:id', async (req: Request, res: Response) => {
   const { id } = req.params
   const data = req.body
   try {
@@ -2943,7 +3128,7 @@ router.patch('/units/:id', requireAdmin, async (req: Request, res: Response) => 
 })
 
 // DELETE /api/v1/admin/units/:id — Delete unit type
-router.delete('/units/:id', requireAdmin, async (req: Request, res: Response) => {
+router.delete('/units/:id', async (req: Request, res: Response) => {
   const { id } = req.params
   try {
     await (prisma as any).unitType.delete({ where: { id } })

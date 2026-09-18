@@ -38,6 +38,10 @@ import builderApplicationsRouter from './routes/builderApplications'
 import analyticsRouter from './routes/analytics'
 import adminIntelligenceRouter from './routes/admin-intelligence'
 import adminTeamRouter from './routes/adminTeam'
+import promotionalsRouter from './routes/promotionals'
+import sitemapRouter from './routes/sitemap'
+import { queryCountingMiddleware } from './lib/queryCounter'
+import adminBoardsRouter from './routes/adminBoards'
 import adminPartnersRouter from './routes/adminPartners'
 import adminAuthFlowsRouter from './routes/adminAuthFlows'
 import adminOutboxRouter from './routes/adminOutbox'
@@ -59,7 +63,7 @@ if (process.env.SENTRY_DSN) {
 }
 
 // Synchronous env assertions — must run before any async work or app setup.
-for (const key of ['ADMIN_PASSWORD', 'DATABASE_URL'] as const) {
+for (const key of ['DATABASE_URL'] as const) {
   if (!process.env[key]) {
     logger.fatal({ key }, `${key} env var is not set. Refusing to start.`)
     process.exit(1)
@@ -217,6 +221,10 @@ app.use('/api/v1/share', shareRouter)
 // every router below inherits it — including ones added later. Sibling routers
 // do not pass through admin.ts, so a guard inside that file protected none of
 // them. See lib/adminGuard.ts. Login and invite-acceptance are exempt by path.
+// Diagnostic only, and inert unless MEASURE_DB_QUERIES=1. Mounted before the
+// admin guard so a request's queries are counted from its first line.
+app.use(queryCountingMiddleware)
+
 app.use('/api/v1/admin', adminAreaGuard)
 app.use('/api/admin', adminAreaGuard)
 
@@ -230,10 +238,19 @@ app.use('/api/v1/admin/email', adminEmailRouter)
 // /admin/channel-partners — it supersedes the read-only list still in admin.ts.
 app.use('/api/v1/admin/auth-flows', adminAuthFlowsRouter)
 app.use('/api/v1/admin/outbox', adminOutboxRouter)
+// Role landing boards. Mounted before the catch-all admin router so a /:id
+// route there cannot claim /boards first.
+app.use('/api/v1/admin/boards', adminBoardsRouter)
 app.use('/api/v1/admin/channel-partners', adminPartnersRouter)
 app.use('/api/v1/admin/promotions', adminPromotionsRouter)
 app.use('/api/admin/promotions', adminPromotionsRouter)
 app.use('/api/v1/admin', adminRouter)
+// Buyer-facing promotional reads and interaction recording. Public by design —
+// mounted OUTSIDE the /admin prefix so it never inherits the staff guard, and
+// deliberately before nothing that could shadow it.
+app.use('/api/v1/promotionals', promotionalsRouter)
+// Public slug list for the frontend sitemap — see routes/sitemap.ts.
+app.use('/api/v1/sitemap', sitemapRouter)
 app.use('/api/v1/portal', portalRouter)
 app.use('/api/v1/builders', buildersRouter)
 app.use('/api/v1/market-comparison', marketComparisonRouter)

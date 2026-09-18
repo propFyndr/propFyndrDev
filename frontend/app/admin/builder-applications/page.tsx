@@ -33,6 +33,7 @@ import { adminFetch } from '@/lib/adminFetch'
 import { Skeleton } from '@/components/ui/skeleton'
 import CustomSelect from '@/components/admin/CustomSelect'
 import { format, formatDistanceToNow } from 'date-fns'
+import { StatCard } from '@/components/portal/ui'
 
 interface BuilderApplication {
   id: string
@@ -339,84 +340,40 @@ export default function BuilderApplicationsPage() {
       {/* KPI Metric Cards — Impeccable Zinc Design */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Total Registrations */}
-        <div className="p-5 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 shadow-2xs">
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">
-              Total Requests
-            </span>
-            <div className="w-9 h-9 rounded-xl bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 flex items-center justify-center">
-              <Building2 className="w-4 h-4" />
-            </div>
-          </div>
-          <div className="mt-3 flex items-baseline justify-between">
-            <span className="text-2xl sm:text-3xl font-black text-zinc-900 dark:text-white">
-              {loading ? <Skeleton className="h-8 w-16" /> : stats.total}
-            </span>
-            <span className="text-xs font-semibold text-blue-600 dark:text-blue-400">
-              {stats.newCount} pending
-            </span>
-          </div>
-        </div>
+        <StatCard
+          label="Total Requests"
+          value={stats.total}
+          icon={<Building2 className="w-4 h-4" />}
+          loading={loading}
+          hint={<span className="text-xs font-semibold text-blue-600 dark:text-blue-400">{stats.newCount} pending</span>}
+        />
 
         {/* Pending Review */}
-        <div className="p-5 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 shadow-2xs">
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">
-              Under Review
-            </span>
-            <div className="w-9 h-9 rounded-xl bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 flex items-center justify-center">
-              <Clock className="w-4 h-4" />
-            </div>
-          </div>
-          <div className="mt-3 flex items-baseline justify-between">
-            <span className="text-2xl sm:text-3xl font-black text-zinc-900 dark:text-white">
-              {loading ? <Skeleton className="h-8 w-16" /> : stats.reviewing}
-            </span>
-            <span className="text-xs font-semibold text-amber-600 dark:text-amber-400">
-              In verification
-            </span>
-          </div>
-        </div>
+        <StatCard
+          label="Under Review"
+          value={stats.reviewing}
+          icon={<Clock className="w-4 h-4" />}
+          loading={loading}
+          hint={<span className="text-xs font-semibold text-amber-600 dark:text-amber-400">In verification</span>}
+        />
 
         {/* Approved Builders */}
-        <div className="p-5 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 shadow-2xs">
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">
-              Approved Builders
-            </span>
-            <div className="w-9 h-9 rounded-xl bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 flex items-center justify-center">
-              <CheckCircle2 className="w-4 h-4" />
-            </div>
-          </div>
-          <div className="mt-3 flex items-baseline justify-between">
-            <span className="text-2xl sm:text-3xl font-black text-zinc-900 dark:text-white">
-              {loading ? <Skeleton className="h-8 w-16" /> : stats.approved}
-            </span>
-            <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">
-              Active partners
-            </span>
-          </div>
-        </div>
+        <StatCard
+          label="Approved Builders"
+          value={stats.approved}
+          icon={<CheckCircle2 className="w-4 h-4" />}
+          loading={loading}
+          hint={<span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">Active partners</span>}
+        />
 
         {/* Rejected Requests */}
-        <div className="p-5 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 shadow-2xs">
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">
-              Declined
-            </span>
-            <div className="w-9 h-9 rounded-xl bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 flex items-center justify-center">
-              <XCircle className="w-4 h-4" />
-            </div>
-          </div>
-          <div className="mt-3 flex items-baseline justify-between">
-            <span className="text-2xl sm:text-3xl font-black text-zinc-900 dark:text-white">
-              {loading ? <Skeleton className="h-8 w-16" /> : stats.rejected}
-            </span>
-            <span className="text-xs font-semibold text-rose-600 dark:text-rose-400">
-              Unverified
-            </span>
-          </div>
-        </div>
+        <StatCard
+          label="Declined"
+          value={stats.rejected}
+          icon={<XCircle className="w-4 h-4" />}
+          loading={loading}
+          hint={<span className="text-xs font-semibold text-rose-600 dark:text-rose-400">Unverified</span>}
+        />
       </div>
 
       {/* Control Toolbar: Filter Pills & Search */}
