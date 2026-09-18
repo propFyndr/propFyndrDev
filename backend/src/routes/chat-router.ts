@@ -132,6 +132,7 @@ import {
 import {
   generateDatabaseFallbackResponse,
 } from './chat-service'
+import { extractBuyerName } from '../lib/buyerName'
 import {
   initializeChatAnalytics,
   trackIntentIdentified,
@@ -1790,12 +1791,17 @@ router.post('/', async (req: Request, res: Response) => {
     const isContactIntent = /call|contact|reach|callback|phone|mobile|number|talk to|speak to|connect me/i.test(message)
     if (phoneMatch && isContactIntent) {
       const phone = phoneMatch[1] || phoneMatch[0]
-      const nameMatch = message.match(/name[:\s]*([a-zA-Z\s;]+)/i)
-      let nameStr = 'Valued Buyer'
-      if (nameMatch) {
-        nameStr = nameMatch[1].replace(/;/g, '').trim()
-        nameStr = nameStr.charAt(0).toUpperCase() + nameStr.slice(1)
-      }
+      /**
+       * `extractBuyerName` replaced `/name[:\s]*([a-zA-Z\s;]+)/i`, which on
+       * "My name is Rahul Sharma and my phone number is 9876543210" captured
+       * everything up to the first digit and stored the lead as
+       * "Is Rahul Sharma and my phone number is". That is the first thing a
+       * salesperson reads and the word they open the call with.
+       *
+       * It returns null when it is not sure, and the placeholder is used then —
+       * an awkward "Valued Buyer" beats a name somebody has to apologise for.
+       */
+      const nameStr = extractBuyerName(message) ?? 'Valued Buyer'
 
       const targetProj = cachedProjectsFromSession?.[0] || null
       try {
@@ -1814,6 +1820,22 @@ router.post('/', async (req: Request, res: Response) => {
               project_name: targetProj?.name || 'General Inquiry',
               project_slug: targetProj?.slug || undefined,
               source_session: sessionId || undefined,
+              /**
+               * Attribution, which this path was dropping entirely.
+               *
+               * `leads.ts` carries a long comment about half its stored
+               * callbacks being unattributable to any user, session or
+               * conversation — and then this second creation path, which never
+               * set either field, quietly reproduced the same bug. A lead that
+               * cannot say who created it is one a salesperson cannot prepare
+               * for.
+               */
+              user_id: userId ?? undefined,
+              guest_token: guestToken ?? undefined,
+              chat_session_id: currentSessionId || undefined,
+              // Same rule as every other lead write: the suite drives this
+              // route for real, so its rows are marked and filtered out.
+              is_test: process.env.NODE_ENV === 'test',
             }
           })
           const redactedPhone = phone.length > 4 ? `${phone.slice(0, 2)}******${phone.slice(-2)}` : '***'

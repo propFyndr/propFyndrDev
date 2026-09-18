@@ -14,6 +14,7 @@ import { adminFetch } from '@/lib/adminFetch'
 import { useScopeId, withScope } from '@/lib/portalScope'
 import { PageShell, PageHeader, StatCard, Card, TierBadge, LeadStatusPill, EmptyState, Spinner, ErrorNote } from '@/components/portal/ui'
 import LeadPerformance from '@/components/portal/LeadPerformance'
+import ObjectionRollup from '@/components/portal/ObjectionRollup'
 
 interface Project { id: string; name: string; sector: string; status: string }
 interface Lead {
@@ -78,6 +79,9 @@ export default function BuilderOverviewPage() {
 
       {/* Counts alone say nothing about performance — see the component. */}
       <LeadPerformance leads={leads} subjectLabel="your projects" />
+
+      {/* The report that changes what a builder does next. */}
+      <ObjectionRollup endpoint={scoped('/portal/builder/objections')} />
 
       {awaitingApproval > 0 && (
         <Card className="p-4 flex items-start gap-3 border-l-[3px] border-l-amber-400">

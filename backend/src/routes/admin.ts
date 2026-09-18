@@ -1761,6 +1761,21 @@ router.patch('/leads/:id', async (req: Request, res: Response) => {
   const { status, lead_tier } = req.body
 
   try {
+    /**
+     * Stamp the first time this lead was worked.
+     *
+     * `updateMany` with `first_contacted_at: null` in the WHERE so the stamp is
+     * written once and never moved by a later status change — the metric is
+     * time to FIRST contact, and an update that overwrites it would quietly
+     * measure the most recent touch instead.
+     */
+    if (status && status !== 'new') {
+      await prisma.callbackRequest.updateMany({
+        where: { id, first_contacted_at: null },
+        data: { first_contacted_at: new Date() },
+      })
+    }
+
     const lead = await prisma.callbackRequest.update({
       where: { id },
       data: {

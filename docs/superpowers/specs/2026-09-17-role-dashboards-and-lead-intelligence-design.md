@@ -72,6 +72,7 @@ front, and the phases below only make sense against them. All five are now also 
 | 11 | Hierarchical access control | ✅ DONE |
 | 12 | Optimisation and consistency | 🟡 PARTIAL — 4 of 7 done; UI refactor needs a browser |
 | 13 | What manual testing found | 🟡 PARTIAL — 4 of 7 done |
+| 14 | Making the lead usable | 🟡 PARTIAL — 3 of 4 done |
 
 ---
 
@@ -1031,6 +1032,81 @@ for that job — not the editing screen with its buttons disabled.
 
 `/admin/queue` answers "who do I call next". A super admin asking that opens **Leads**, which is
 the same rows without pretending the platform owner has a personal queue. Now SALES-only.
+
+---
+
+## Phase 14 — Making the lead usable ✅ MOSTLY DONE
+
+Four fixes that share a premise: the data was there and the screen was not using it.
+
+| # | Item | Pass condition | State |
+|---|---|---|---|
+| 14.1 | Lead names are names | No stored lead name contains a digit or reads as a sentence | ✅ DONE |
+| 14.2 | Time to first contact | The sales queue shows a median response time from real timestamps | ✅ DONE |
+| 14.3 | Objection rollup for builders | A builder sees why buyers hesitate, by category and verbatim | ✅ DONE |
+| 14.4 | Read-only project view for sales | Sales can look up a project's facts without an editing screen | ⬜ NOT STARTED |
+
+### 14.1 — a lead called "Is Rahul Sharma and my phone number is"
+
+The chat lead-capture used `/name[:\s]*([a-zA-Z\s;]+)/i`. On
+
+> "My name is Rahul Sharma and my phone number is 9876543210"
+
+it matched at `name`, then captured greedily until the first digit. The lead was stored as
+**"Is Rahul Sharma and my phone number is"** — which is the first thing a salesperson reads and
+the word they open the call with.
+
+`lib/buyerName.ts` replaces it: find the introduction, take the words after it, stop at the
+first word that cannot be part of a name, and **return null when unsure** so the caller uses its
+own placeholder. An awkward "Valued Buyer" beats a name somebody has to apologise for.
+
+11 tests, including the property that actually matters — whatever comes back never contains a
+digit. Two of them caught real bugs in the first implementation: a trailing `\b` that could
+never match after `name:` (a colon and a space are both non-word characters, so every
+`Name: X` message returned null), and a title-caser that turned "Anne-Marie" into "Anne-marie",
+which is a misspelling of somebody's name rather than a formatting quirk.
+
+**The two live rows were repaired**, re-derived from the buyer's own messages where the session
+survived and falling back to the placeholder where it did not.
+
+**A second bug in the same block.** That lead-creation path set no `user_id`, no `guest_token`,
+no `chat_session_id` and no `is_test` — so it produced unattributable leads, which is exactly
+the bug `leads.ts` carries a long comment about having fixed on the other path. Fixed here too.
+
+### 14.2 — the number a sales floor is managed against
+
+`status` recorded *whether* a lead had been contacted and never *when*, so time-to-first-contact
+could not be computed at all. It is the strongest conversion predictor in Indian residential: a
+lead called within minutes converts at a multiple of one called hours later.
+
+`first_contacted_at`, stamped on the first transition out of `new` — by `updateMany` with
+`first_contacted_at: null` in the WHERE, so it is written once and never moved by a later
+status change. An update that overwrote it would quietly measure the most recent touch instead.
+
+The queue shows a **median** over 30 days, not a mean: one lead contacted a week late drags an
+average into uselessness, and the question is what a typical buyer experiences. Only contacted
+leads are averaged — counting the uncontacted as zero would make a neglected queue look fast.
+Null until something has been contacted, so the tile says "not measured yet" rather than a
+confident zero.
+
+Backfilled as NULL rather than guessed: an invented timestamp would make the first weeks of
+this metric look like whatever we assumed.
+
+### 14.3 — why buyers are not buying
+
+`LeadObjection` has been recording, per lead and per project, the reason a buyer gave for
+hesitating — in their own words, with a confidence score. It was shown one lead at a time in the
+Lead Brief and never summed.
+
+`GET /portal/builder/objections` aggregates by category and by project, scoped to that builder's
+own projects. The dashboard leads with the sentence a builder can act on — *"Possession timeline
+is the most common, at 34% of everything buyers raised"* — and shows recent objections
+**verbatim**. A category says what to fix; the buyer's own sentence says how it is being
+experienced, and that is the half that changes the brochure.
+
+This is the report that makes a builder renew, and it is credible only because we are not their
+marketing department. The moment it is softened to keep a builder comfortable it stops being
+worth reading.
 
 ---
 

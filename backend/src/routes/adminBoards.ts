@@ -40,7 +40,7 @@ router.get('/queue', async (_req: Request, res: Response) => {
   // "Open" is the whole queue concept: anything not yet resolved.
   const open = { status: { notIn: ['converted', 'lost'] } }
 
-  const [todayCount, hot, warm, cold, stale, unassigned, queue] = await Promise.all([
+  const [todayCount, hot, warm, cold, stale, unassigned, contacted, queue] = await Promise.all([
     prisma.callbackRequest.count({ where: { created_at: { gte: startOfToday } } }),
     prisma.callbackRequest.count({ where: { ...open, lead_tier: 'HOT' } }),
     prisma.callbackRequest.count({ where: { ...open, lead_tier: 'WARM' } }),
@@ -49,6 +49,21 @@ router.get('/queue', async (_req: Request, res: Response) => {
       where: { ...open, status: 'new', created_at: { lt: staleBefore } },
     }),
     prisma.callbackRequest.count({ where: { ...open, assigned_partner_id: null } }),
+    /**
+     * Time to first contact, over the last 30 days.
+     *
+     * The number a sales floor is actually managed against: a lead called
+     * within minutes converts at a multiple of one called hours later. Only
+     * leads that HAVE been contacted are averaged — including the uncontacted
+     * ones as zero would make a neglected queue look fast.
+     */
+    prisma.callbackRequest.findMany({
+      where: {
+        first_contacted_at: { not: null },
+        created_at: { gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) },
+      },
+      select: { created_at: true, first_contacted_at: true },
+    }),
     prisma.callbackRequest.findMany({
       where: open,
       select: {
@@ -64,8 +79,27 @@ router.get('/queue', async (_req: Request, res: Response) => {
     }),
   ])
 
+  /**
+   * Median, not mean. One lead contacted a week late drags an average into
+   * uselessness, and the question is "what does a typical buyer experience",
+   * which is what a median answers.
+   */
+  const waits = contacted
+    .map((l) => l.first_contacted_at!.getTime() - l.created_at.getTime())
+    .filter((ms) => ms >= 0)
+    .sort((a, b) => a - b)
+  const medianMinutes = waits.length
+    ? Math.round(waits[Math.floor(waits.length / 2)] / 60000)
+    : null
+
   res.json({
-    stats: { today: todayCount, hot, warm, cold, stale, unassigned },
+    stats: {
+      today: todayCount, hot, warm, cold, stale, unassigned,
+      // Null when nothing has been contacted yet — the client says "not
+      // measured yet" rather than showing a confident zero.
+      median_response_minutes: medianMinutes,
+      contacted_sample: waits.length,
+    },
     /** Milliseconds, so the client can label "going cold" with the same rule. */
     stale_after_ms: STALE_AFTER_MS,
     queue,

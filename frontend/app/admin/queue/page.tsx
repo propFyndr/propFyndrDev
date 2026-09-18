@@ -38,7 +38,12 @@ interface QueueLead {
 }
 
 interface QueueResponse {
-  stats: { today: number; hot: number; warm: number; cold: number; stale: number; unassigned: number }
+  stats: {
+    today: number; hot: number; warm: number; cold: number; stale: number; unassigned: number
+    /** Null until something has actually been contacted. */
+    median_response_minutes: number | null
+    contacted_sample: number
+  }
   stale_after_ms: number
   queue: QueueLead[]
 }
@@ -47,6 +52,13 @@ const TIER_STYLE: Record<string, string> = {
   HOT: 'bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-400 border-rose-200 dark:border-rose-900',
   WARM: 'bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-900',
   COLD: 'bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 border-zinc-200 dark:border-zinc-700',
+}
+
+/** Minutes into something a person reads at a glance. */
+function formatWait(minutes: number): string {
+  if (minutes < 60) return `${minutes}m`
+  if (minutes < 24 * 60) return `${Math.round(minutes / 60)}h`
+  return `${Math.round(minutes / (60 * 24))}d`
 }
 
 function budgetLabel(l: QueueLead): string | null {
@@ -102,8 +114,18 @@ export default function SalesQueuePage() {
       {error && <ErrorNote message={error} />}
 
       {data && (
-        <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-6 gap-4">
           <StatCard label="Today" value={data.stats.today} icon={<PhoneCall size={16} />} />
+          {/* The number a sales floor is managed against. Shown next to the
+              queue rather than buried in analytics, because it is only useful
+              to the person who can still change it today. */}
+          <StatCard
+            label="Median response"
+            value={data.stats.median_response_minutes === null ? '—' : formatWait(data.stats.median_response_minutes)}
+            hint={data.stats.contacted_sample ? `${data.stats.contacted_sample} leads, 30d` : 'not measured yet'}
+            tone={data.stats.median_response_minutes !== null && data.stats.median_response_minutes <= 15 ? 'good' : 'neutral'}
+            icon={<Clock size={16} />}
+          />
           <StatCard label="Hot" value={data.stats.hot} tone="hot" icon={<Fire size={16} weight="fill" />} />
           <StatCard label="Warm" value={data.stats.warm} icon={<PhoneCall size={16} />} />
           <StatCard label="Going cold" value={data.stats.stale} icon={<Warning size={16} weight="bold" />} />

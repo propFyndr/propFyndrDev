@@ -377,6 +377,14 @@ router.patch('/builder/leads/:id', requireIdentity, requireRole('BUILDER', 'SUPE
     if (!partner) { res.status(400).json({ error: 'Not an approved, active partner of yours' }); return }
   }
 
+  // See the admin lead route: written once, never moved.
+  if (d.status && d.status !== 'new') {
+    await prisma.callbackRequest.updateMany({
+      where: { id: lead.id, first_contacted_at: null },
+      data: { first_contacted_at: new Date() },
+    })
+  }
+
   const updated = await prisma.callbackRequest.update({
     where: { id: lead.id },
     data: {
@@ -552,6 +560,72 @@ router.patch('/access/:id', requireIdentity, requireRole('BUILDER', 'PARTNER', '
   })
 
   res.json({ account: updated, sessions_ended: revokedSessions })
+})
+
+/**
+ * GET /builder/objections — why buyers are not buying, in aggregate.
+ *
+ * `LeadObjection` has been recording, per lead and per project, the reason a
+ * buyer gave for hesitating — in their own words, with a confidence score. It
+ * was surfaced one lead at a time in the Lead Brief and never summed, so the
+ * single most commercially useful thing we hold about a builder's projects was
+ * invisible to them.
+ *
+ * "Possession timeline is your top objection, 34% of hesitations" is the report
+ * that changes what a builder does next. It is also the report that makes them
+ * renew, and it only works because we are not their marketing department.
+ *
+ * Scoped to this builder's own projects. A builder reading why a buyer hesitated
+ * on somebody else's project is the leak the Lead Brief exists to prevent,
+ * wearing a different shape.
+ */
+router.get('/builder/objections', requireIdentity, requireRole('BUILDER', 'SUPER_ADMIN', 'ANALYST', 'SALES'), async (req: Request, res: Response) => {
+  const builderId = builderScope(req)
+  if (!builderId) { res.status(400).json({ error: 'No builder scope — pass builder_id' }); return }
+
+  const slugs = (await prisma.project.findMany({ where: { builder_id: builderId }, select: { slug: true } })).map((p) => p.slug)
+  if (slugs.length === 0) { res.json({ total: 0, byCategory: [], byProject: [], recent: [] }); return }
+
+  const objections = await prisma.leadObjection.findMany({
+    where: { project_slug: { in: slugs } },
+    select: {
+      reason_category: true, reason_text: true, confidence_score: true,
+      project_name: true, project_slug: true, created_at: true,
+    },
+    orderBy: { created_at: 'desc' },
+    take: 1000,
+  })
+
+  const total = objections.length
+
+  // Grouped in code rather than two more groupBy round trips: the rows are
+  // already here and the catalogue is small enough that this is free.
+  const tally = (key: (o: typeof objections[number]) => string) => {
+    const m = new Map<string, number>()
+    for (const o of objections) m.set(key(o), (m.get(key(o)) ?? 0) + 1)
+    return [...m]
+      .map(([name, count]) => ({ name, count, share: total ? Math.round((count / total) * 100) : 0 }))
+      .sort((a, b) => b.count - a.count)
+  }
+
+  res.json({
+    total,
+    byCategory: tally((o) => o.reason_category),
+    byProject: tally((o) => o.project_name ?? o.project_slug).slice(0, 10),
+    /**
+     * Verbatim, and deliberately so. A category tells a builder what to fix;
+     * the buyer's own sentence tells them how it is being experienced, which is
+     * the half that changes the brochure. Paraphrasing turns evidence into our
+     * opinion.
+     */
+    recent: objections.slice(0, 12).map((o) => ({
+      category: o.reason_category,
+      text: o.reason_text,
+      confidence: o.confidence_score,
+      project: o.project_name ?? o.project_slug,
+      created_at: o.created_at,
+    })),
+  })
 })
 
 /**
@@ -885,6 +959,14 @@ router.patch('/partner/leads/:id', requireIdentity, requireRole('PARTNER', 'SUPE
     select: { id: true },
   })
   if (!owned) { res.status(404).json({ error: 'Lead not found' }); return }
+
+  // See the admin lead route: written once, never moved.
+  if (d.status && d.status !== 'new') {
+    await prisma.callbackRequest.updateMany({
+      where: { id: owned.id, first_contacted_at: null },
+      data: { first_contacted_at: new Date() },
+    })
+  }
 
   const lead = await prisma.callbackRequest.update({
     where: { id: owned.id },

@@ -925,6 +925,15 @@ model CallbackRequest {
   // filtered out of every lead read.
   is_test      Boolean  @default(false)
 
+  // When somebody first worked this lead.
+  //
+  // Time-to-first-contact is the strongest conversion predictor in Indian
+  // residential: a lead called within minutes converts at a multiple of one
+  // called hours later. The status column said WHETHER a lead had been
+  // contacted and never WHEN, so the one number worth managing against could
+  // not be computed at all. Set on the first transition out of 'new'.
+  first_contacted_at DateTime?
+
   // Set when the stale-lead chaser has escalated this lead, so it is escalated
   // once and not on every poll. Null means never chased — not "not stale".
   chased_at    DateTime?
