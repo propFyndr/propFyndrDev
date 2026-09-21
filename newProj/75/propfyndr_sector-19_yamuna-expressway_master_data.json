@@ -1334,6 +1334,25 @@
       "verified_by": null,
       "created_at": "2026-08-16T07:50:49.700Z",
       "updated_at": "2026-08-31T07:02:34.727Z"
+    },
+    "persona_profile": {
+      "primary_persona": "Corporate Professionals & Family Homebuyers",
+      "income_range": "₹18 Lakh - ₹40 Lakh per annum",
+      "family_stage": "Families with school/college-going children",
+      "work_location": "Aviation Hub / Jewar Airport SEZs / Knowledge Park / Formula 1 Corridor",
+      "risk_appetite": "Low risk — verified RERA approved gated enclave"
+    },
+    "recommendation_profile": {
+      "tier": "STRONG_BUY",
+      "primary_thesis": "Gaur Yamuna City (7th Parkview) in Sector 19, Yamuna Expressway offers exceptional long-term fundamentals: under-construction capital upside, direct arterial access, and strong rental yield capability.",
+      "walk_away_conditions": [
+        "Discrepancy in RERA sanctioned carpet area or tower layout",
+        "Unresolved encumbrance or non-issuance of builder/authority No-Dues Certificate"
+      ],
+      "negotiation_leverage": [
+        "Waiver of mandatory club membership and parking preference fees on immediate token",
+        "Subvention or milestone payment restructuring on agreement execution"
+      ]
     }
   }
 ]

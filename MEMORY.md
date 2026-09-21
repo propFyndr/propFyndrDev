@@ -6,6 +6,76 @@ Format: What was decided / Why / What was rejected and why.
 
 ---
 
+## Session 2026-09-17 — role clearance, identity, lead intelligence, news rail
+
+Plan and per-phase status: `docs/superpowers/specs/2026-09-17-role-dashboards-and-lead-intelligence-design.md`
+
+**Worked on:** Phases 0–6 of that plan. Full suite 2,464 → 2,531 passing, 0 failing
+throughout.
+
+### Decisions made
+
+* **Invitees set their own password; we never issue one.** *Why:* a password we mint lives
+  in a WhatsApp thread forever, makes us liable for it, and "change it later" is advice
+  nobody follows. A 7-day token that sets nothing until used is strictly safer.
+  *Rejected:* issuing the shared password per account.
+* **A builder never receives a chat transcript.** *Why:* it contains the buyer comparing
+  this builder against competitors and our advisor naming this builder's trade-offs;
+  handing it over sells our neutrality. *Chosen instead:* the Lead Brief — a generated
+  artefact scoped to one project with competitor names scrubbed. *Rejected:* a filtered
+  transcript, which leaks by omission the moment the filter misses a name.
+* **Builders get objections against themselves.** *Why:* `LeadObjection` already records
+  why a buyer is blocked on a specific project, in their words. It is the one thing no
+  listings portal can hand a developer, and it only works because we are not their
+  marketing department.
+* **Partner subdomains are flat (`partner.propfyndr.in`), not nested under a builder.**
+  *Why:* a partner firm may work with several builders, so nesting asserts an exclusivity
+  the data model does not have; and `*.propfyndr.in` does not cover `*.*.propfyndr.in`,
+  so nesting needs a second TLS certificate. *Rejected:* `b.builder.propfyndr.in`.
+* **Lead distribution is equal (round-robin), with the objection recorded.** *Why:* the
+  brief asked for equal. *Noted:* equal is usually wrong — a partner converting at 40% and
+  one at 5% should not get equal volume, and the weaker firm costs the *buyer* a worse
+  experience. `nextInRotation()` is the only function that changes when conversion data
+  exists. Implemented as fewest-current-assignments rather than a stored cursor, so it
+  self-corrects and absorbs manual assignments.
+* **A promoted project is never ranked higher in recommendations.** *Why:* the news rail
+  is sellable twice only because the advisor stays as honest about a promoted project as
+  any other. *Consequence:* the rail decides what a buyer is invited to ask about, never
+  what the advisor recommends.
+* **Reads default OPEN for unlisted admin paths; writes default closed.** *Why:* denying
+  unlisted reads means enumerating every GET before it works at all, and a half-enumerated
+  deny-list breaks working screens silently — a worse failure mode than the gap. *Open:*
+  a test that walks the mounted routers and asserts every GET has an explicit verdict.
+
+### Corrections to earlier beliefs
+
+* **`ai_summary` is not an LLM conversation summary.** It reads `UserMemory.summary_text`,
+  which has no writer and is null on all 1,128 rows, so it always falls through to
+  `summarizeProfile()` — composed from stored profile columns only. It was already
+  builder-safe. There was no live leak, and half the Lead Brief already existed.
+* **Resend / revoke / deactivate already existed.** Only the email *sending* was missing.
+* **Subdomain *assignment* already existed.** Only the *reader* was missing.
+
+### Deletions (approved in session)
+
+* `builder_accounts` table and model — a second builder identity nothing authenticated
+  against. One row, a test builder, `password_hash` null.
+* The two `BuilderLead` writes in `leads.ts` — 0 rows against 785 callbacks, read by
+  nothing. Table retained.
+* The `ADMIN_PASSWORD` login branch and its synthetic `root` SUPER_ADMIN identity, plus
+  65 redundant `requireAdmin` calls that re-checked only session existence.
+
+### Next session priorities
+
+1. Portal UI for Phase 4/5 backends (site-visit routing, auto-assign, Lead Brief) — all
+   API-only today.
+2. Phase 7 role-native dashboards; Phase 8 performance (needs the Phase 0 baseline first).
+3. `RESEND_API_KEY` / `EMAIL_FROM` missing from `.env.example`.
+4. Rotate the four staff passwords individually — one shared password across roles makes
+   `recordAudit`'s "who did what" a fiction.
+
+---
+
 ## Session 2026-09-13b — admin authorization audit, role matrix
 
 **Worked on:** auditing every admin scope (SUPER_ADMIN / ANALYST / SALES /

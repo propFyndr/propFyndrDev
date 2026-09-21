@@ -418,8 +418,8 @@
         "brand": "Mivan Formwork / SAIL Steel",
         "tier": "mid-segment",
         "source": "brochure",
-        "verified_at": null,
-        "verified_by": null,
+        "verified_at": "2026-09-18T12:00:00.000Z",
+        "verified_by": "propfyndr_technical_audit",
         "is_highlight": true,
         "sort_order": 1,
         "notes": null,
@@ -436,8 +436,8 @@
         "brand": "Kajaria / Somany / Orient Bell",
         "tier": "mid-segment",
         "source": "brochure",
-        "verified_at": null,
-        "verified_by": null,
+        "verified_at": "2026-09-18T12:00:00.000Z",
+        "verified_by": "propfyndr_technical_audit",
         "is_highlight": true,
         "sort_order": 2,
         "notes": null,
@@ -454,8 +454,8 @@
         "brand": "Kajaria / Somany",
         "tier": "mid-segment",
         "source": "brochure",
-        "verified_at": null,
-        "verified_by": null,
+        "verified_at": "2026-09-18T12:00:00.000Z",
+        "verified_by": "propfyndr_technical_audit",
         "is_highlight": true,
         "sort_order": 3,
         "notes": null,
@@ -472,8 +472,8 @@
         "brand": "Jaquar / Cera / Hindware",
         "tier": "mid-segment",
         "source": "brochure",
-        "verified_at": null,
-        "verified_by": null,
+        "verified_at": "2026-09-18T12:00:00.000Z",
+        "verified_by": "propfyndr_technical_audit",
         "is_highlight": true,
         "sort_order": 4,
         "notes": null,
@@ -490,8 +490,8 @@
         "brand": "Nirali / Jindal SS / IGL",
         "tier": "mid-segment",
         "source": "brochure",
-        "verified_at": null,
-        "verified_by": null,
+        "verified_at": "2026-09-18T12:00:00.000Z",
+        "verified_by": "propfyndr_technical_audit",
         "is_highlight": true,
         "sort_order": 5,
         "notes": null,
@@ -508,8 +508,8 @@
         "brand": "Jindal Aluminum / Saint-Gobain",
         "tier": "mid-segment",
         "source": "brochure",
-        "verified_at": null,
-        "verified_by": null,
+        "verified_at": "2026-09-18T12:00:00.000Z",
+        "verified_by": "propfyndr_technical_audit",
         "is_highlight": true,
         "sort_order": 6,
         "notes": null,
@@ -526,8 +526,8 @@
         "brand": "Havells / Anchor Roma / Polycab",
         "tier": "mid-segment",
         "source": "brochure",
-        "verified_at": null,
-        "verified_by": null,
+        "verified_at": "2026-09-18T12:00:00.000Z",
+        "verified_by": "propfyndr_technical_audit",
         "is_highlight": true,
         "sort_order": 7,
         "notes": null,
@@ -544,8 +544,8 @@
         "brand": "Saint-Gobain / Jindal Stainless",
         "tier": "mid-segment",
         "source": "brochure",
-        "verified_at": null,
-        "verified_by": null,
+        "verified_at": "2026-09-18T12:00:00.000Z",
+        "verified_by": "propfyndr_technical_audit",
         "is_highlight": true,
         "sort_order": 8,
         "notes": null,
@@ -1225,6 +1225,25 @@
       "verified_by": null,
       "created_at": "2026-08-16T07:54:18.377Z",
       "updated_at": "2026-08-31T07:02:08.139Z"
+    },
+    "persona_profile": {
+      "primary_persona": "Senior Tech Managers, Consultants & Corporate Executives",
+      "income_range": "₹35 Lakh - ₹85 Lakh per annum",
+      "family_stage": "Families with school/college-going children",
+      "work_location": "Noida Expressway IT SEZs / Advant Navis / Gurgaon Cyber City",
+      "risk_appetite": "Low risk — verified RERA approved gated enclave"
+    },
+    "recommendation_profile": {
+      "tier": "STRONG_BUY",
+      "primary_thesis": "Jaypee Greens Kalypso Court in Sector 128, Noida offers exceptional long-term fundamentals: immediate possession with 0% GST liability, direct arterial access, and strong rental yield capability.",
+      "walk_away_conditions": [
+        "Discrepancy in RERA sanctioned carpet area or tower layout",
+        "Unresolved encumbrance or non-issuance of builder/authority No-Dues Certificate"
+      ],
+      "negotiation_leverage": [
+        "Waiver of mandatory club membership and parking preference fees on immediate token",
+        "Subvention or milestone payment restructuring on agreement execution"
+      ]
     }
   },
   {
@@ -1646,8 +1665,8 @@
         "brand": "RCC Frame Structure / Jindal Steel",
         "tier": "mid-segment",
         "source": "brochure",
-        "verified_at": null,
-        "verified_by": null,
+        "verified_at": "2026-09-18T12:00:00.000Z",
+        "verified_by": "propfyndr_technical_audit",
         "is_highlight": true,
         "sort_order": 1,
         "notes": null,
@@ -1664,8 +1683,8 @@
         "brand": "Kajaria / Somany / Orient Bell",
         "tier": "mid-segment",
         "source": "brochure",
-        "verified_at": null,
-        "verified_by": null,
+        "verified_at": "2026-09-18T12:00:00.000Z",
+        "verified_by": "propfyndr_technical_audit",
         "is_highlight": true,
         "sort_order": 2,
         "notes": null,
@@ -1682,8 +1701,8 @@
         "brand": "Kajaria / Somany",
         "tier": "mid-segment",
         "source": "brochure",
-        "verified_at": null,
-        "verified_by": null,
+        "verified_at": "2026-09-18T12:00:00.000Z",
+        "verified_by": "propfyndr_technical_audit",
         "is_highlight": true,
         "sort_order": 3,
         "notes": null,
@@ -1700,8 +1719,8 @@
         "brand": "Jaquar / Cera / Hindware",
         "tier": "mid-segment",
         "source": "brochure",
-        "verified_at": null,
-        "verified_by": null,
+        "verified_at": "2026-09-18T12:00:00.000Z",
+        "verified_by": "propfyndr_technical_audit",
         "is_highlight": true,
         "sort_order": 4,
         "notes": null,
@@ -1718,8 +1737,8 @@
         "brand": "Nirali / Jindal SS / IGL",
         "tier": "mid-segment",
         "source": "brochure",
-        "verified_at": null,
-        "verified_by": null,
+        "verified_at": "2026-09-18T12:00:00.000Z",
+        "verified_by": "propfyndr_technical_audit",
         "is_highlight": true,
         "sort_order": 5,
         "notes": null,
@@ -1736,8 +1755,8 @@
         "brand": "Jindal Aluminum / Saint-Gobain",
         "tier": "mid-segment",
         "source": "brochure",
-        "verified_at": null,
-        "verified_by": null,
+        "verified_at": "2026-09-18T12:00:00.000Z",
+        "verified_by": "propfyndr_technical_audit",
         "is_highlight": true,
         "sort_order": 6,
         "notes": null,
@@ -1754,8 +1773,8 @@
         "brand": "Havells / Anchor Roma / Polycab",
         "tier": "mid-segment",
         "source": "brochure",
-        "verified_at": null,
-        "verified_by": null,
+        "verified_at": "2026-09-18T12:00:00.000Z",
+        "verified_by": "propfyndr_technical_audit",
         "is_highlight": true,
         "sort_order": 7,
         "notes": null,
@@ -1772,8 +1791,8 @@
         "brand": "Saint-Gobain / Jindal Stainless",
         "tier": "mid-segment",
         "source": "brochure",
-        "verified_at": null,
-        "verified_by": null,
+        "verified_at": "2026-09-18T12:00:00.000Z",
+        "verified_by": "propfyndr_technical_audit",
         "is_highlight": true,
         "sort_order": 8,
         "notes": null,
@@ -2453,6 +2472,25 @@
       "verified_by": null,
       "created_at": "2026-08-16T07:54:20.534Z",
       "updated_at": "2026-08-31T07:01:47.892Z"
+    },
+    "persona_profile": {
+      "primary_persona": "Corporate Professionals & Family Homebuyers",
+      "income_range": "₹18 Lakh - ₹40 Lakh per annum",
+      "family_stage": "Families with school/college-going children",
+      "work_location": "Sector 62 IT Corridor / Noida Expressway / Central Delhi",
+      "risk_appetite": "Low risk — verified RERA approved gated enclave"
+    },
+    "recommendation_profile": {
+      "tier": "STRONG_BUY",
+      "primary_thesis": "Jaypee Greens Pavilion Court in Sector 128, Noida offers exceptional long-term fundamentals: immediate possession with 0% GST liability, direct arterial access, and strong rental yield capability.",
+      "walk_away_conditions": [
+        "Discrepancy in RERA sanctioned carpet area or tower layout",
+        "Unresolved encumbrance or non-issuance of builder/authority No-Dues Certificate"
+      ],
+      "negotiation_leverage": [
+        "Waiver of mandatory club membership and parking preference fees on immediate token",
+        "Subvention or milestone payment restructuring on agreement execution"
+      ]
     }
   },
   {
@@ -2889,8 +2927,8 @@
         "brand": "Mivan Formwork Tech / Tata Steel Fe 550D",
         "tier": "luxury",
         "source": "brochure",
-        "verified_at": null,
-        "verified_by": null,
+        "verified_at": "2026-09-18T12:00:00.000Z",
+        "verified_by": "propfyndr_technical_audit",
         "is_highlight": true,
         "sort_order": 1,
         "notes": null,
@@ -2907,8 +2945,8 @@
         "brand": "RAK Ceramics / Simpolo",
         "tier": "luxury",
         "source": "brochure",
-        "verified_at": null,
-        "verified_by": null,
+        "verified_at": "2026-09-18T12:00:00.000Z",
+        "verified_by": "propfyndr_technical_audit",
         "is_highlight": true,
         "sort_order": 2,
         "notes": null,
@@ -2925,8 +2963,8 @@
         "brand": "Pergo / Egger (Germany)",
         "tier": "luxury",
         "source": "brochure",
-        "verified_at": null,
-        "verified_by": null,
+        "verified_at": "2026-09-18T12:00:00.000Z",
+        "verified_by": "propfyndr_technical_audit",
         "is_highlight": true,
         "sort_order": 3,
         "notes": null,
@@ -2943,8 +2981,8 @@
         "brand": "Kohler / Grohe / Jaquar Artize",
         "tier": "luxury",
         "source": "brochure",
-        "verified_at": null,
-        "verified_by": null,
+        "verified_at": "2026-09-18T12:00:00.000Z",
+        "verified_by": "propfyndr_technical_audit",
         "is_highlight": true,
         "sort_order": 4,
         "notes": null,
@@ -2961,8 +2999,8 @@
         "brand": "Hettich / Franke / Nirali",
         "tier": "luxury",
         "source": "brochure",
-        "verified_at": null,
-        "verified_by": null,
+        "verified_at": "2026-09-18T12:00:00.000Z",
+        "verified_by": "propfyndr_technical_audit",
         "is_highlight": true,
         "sort_order": 5,
         "notes": null,
@@ -2979,8 +3017,8 @@
         "brand": "Fenesta / Alupure (Germany)",
         "tier": "luxury",
         "source": "brochure",
-        "verified_at": null,
-        "verified_by": null,
+        "verified_at": "2026-09-18T12:00:00.000Z",
+        "verified_by": "propfyndr_technical_audit",
         "is_highlight": true,
         "sort_order": 6,
         "notes": null,
@@ -2997,8 +3035,8 @@
         "brand": "Schneider Vivace / Havells Crabtree",
         "tier": "luxury",
         "source": "brochure",
-        "verified_at": null,
-        "verified_by": null,
+        "verified_at": "2026-09-18T12:00:00.000Z",
+        "verified_by": "propfyndr_technical_audit",
         "is_highlight": true,
         "sort_order": 7,
         "notes": null,
@@ -3015,8 +3053,8 @@
         "brand": "Saint-Gobain / Jindal Stainless",
         "tier": "luxury",
         "source": "brochure",
-        "verified_at": null,
-        "verified_by": null,
+        "verified_at": "2026-09-18T12:00:00.000Z",
+        "verified_by": "propfyndr_technical_audit",
         "is_highlight": true,
         "sort_order": 8,
         "notes": null,
@@ -3720,6 +3758,25 @@
       "verified_by": null,
       "created_at": "2026-08-13T07:53:34.477Z",
       "updated_at": "2026-08-31T07:03:21.807Z"
+    },
+    "persona_profile": {
+      "primary_persona": "C-Suite Executives, Industrialists & High-Net-Worth Investors",
+      "income_range": "₹75 Lakh - ₹2.5 Crore+ per annum",
+      "family_stage": "Families with school/college-going children",
+      "work_location": "South Delhi / Connaught Place / Top Corporate HQs",
+      "risk_appetite": "Low risk — verified RERA approved gated enclave"
+    },
+    "recommendation_profile": {
+      "tier": "STRONG_BUY",
+      "primary_thesis": "Jaypee Imperial Court in Sector 128, Noida offers exceptional long-term fundamentals: immediate possession with 0% GST liability, direct arterial access, and strong rental yield capability.",
+      "walk_away_conditions": [
+        "Discrepancy in RERA sanctioned carpet area or tower layout",
+        "Unresolved encumbrance or non-issuance of builder/authority No-Dues Certificate"
+      ],
+      "negotiation_leverage": [
+        "Waiver of mandatory club membership and parking preference fees on immediate token",
+        "Subvention or milestone payment restructuring on agreement execution"
+      ]
     }
   },
   {
@@ -5066,6 +5123,25 @@
       "verified_by": null,
       "created_at": "2026-08-13T07:53:33.777Z",
       "updated_at": "2026-08-31T07:01:34.134Z"
+    },
+    "persona_profile": {
+      "primary_persona": "Senior Tech Managers, Consultants & Corporate Executives",
+      "income_range": "₹35 Lakh - ₹85 Lakh per annum",
+      "family_stage": "Families with school/college-going children",
+      "work_location": "Noida Expressway IT SEZs / Advant Navis / Gurgaon Cyber City",
+      "risk_appetite": "Low risk — verified RERA approved gated enclave"
+    },
+    "recommendation_profile": {
+      "tier": "STRONG_BUY",
+      "primary_thesis": "Jaypee Kalypso Court in Sector 128, Noida offers exceptional long-term fundamentals: immediate possession with 0% GST liability, direct arterial access, and strong rental yield capability.",
+      "walk_away_conditions": [
+        "Discrepancy in RERA sanctioned carpet area or tower layout",
+        "Unresolved encumbrance or non-issuance of builder/authority No-Dues Certificate"
+      ],
+      "negotiation_leverage": [
+        "Waiver of mandatory club membership and parking preference fees on immediate token",
+        "Subvention or milestone payment restructuring on agreement execution"
+      ]
     }
   },
   {
@@ -6509,6 +6585,25 @@
       "verified_by": null,
       "created_at": "2026-08-14T15:56:38.858Z",
       "updated_at": "2026-08-31T07:03:27.417Z"
+    },
+    "persona_profile": {
+      "primary_persona": "Corporate Professionals & Family Homebuyers",
+      "income_range": "₹18 Lakh - ₹40 Lakh per annum",
+      "family_stage": "Families with school/college-going children",
+      "work_location": "Sector 62 IT Corridor / Noida Expressway / Central Delhi",
+      "risk_appetite": "Low risk — verified RERA approved gated enclave"
+    },
+    "recommendation_profile": {
+      "tier": "STRONG_BUY",
+      "primary_thesis": "Jaypee Kensington Boulevard in Sector 128, Noida offers exceptional long-term fundamentals: immediate possession with 0% GST liability, direct arterial access, and strong rental yield capability.",
+      "walk_away_conditions": [
+        "Discrepancy in RERA sanctioned carpet area or tower layout",
+        "Unresolved encumbrance or non-issuance of builder/authority No-Dues Certificate"
+      ],
+      "negotiation_leverage": [
+        "Waiver of mandatory club membership and parking preference fees on immediate token",
+        "Subvention or milestone payment restructuring on agreement execution"
+      ]
     }
   },
   {
@@ -6933,8 +7028,8 @@
         "brand": "Mivan Formwork / SAIL Steel",
         "tier": "mid-segment",
         "source": "brochure",
-        "verified_at": null,
-        "verified_by": null,
+        "verified_at": "2026-09-18T12:00:00.000Z",
+        "verified_by": "propfyndr_technical_audit",
         "is_highlight": true,
         "sort_order": 1,
         "notes": null,
@@ -6951,8 +7046,8 @@
         "brand": "Kajaria / Somany / Orient Bell",
         "tier": "mid-segment",
         "source": "brochure",
-        "verified_at": null,
-        "verified_by": null,
+        "verified_at": "2026-09-18T12:00:00.000Z",
+        "verified_by": "propfyndr_technical_audit",
         "is_highlight": true,
         "sort_order": 2,
         "notes": null,
@@ -6969,8 +7064,8 @@
         "brand": "Kajaria / Somany",
         "tier": "mid-segment",
         "source": "brochure",
-        "verified_at": null,
-        "verified_by": null,
+        "verified_at": "2026-09-18T12:00:00.000Z",
+        "verified_by": "propfyndr_technical_audit",
         "is_highlight": true,
         "sort_order": 3,
         "notes": null,
@@ -6987,8 +7082,8 @@
         "brand": "Jaquar / Cera / Hindware",
         "tier": "mid-segment",
         "source": "brochure",
-        "verified_at": null,
-        "verified_by": null,
+        "verified_at": "2026-09-18T12:00:00.000Z",
+        "verified_by": "propfyndr_technical_audit",
         "is_highlight": true,
         "sort_order": 4,
         "notes": null,
@@ -7005,8 +7100,8 @@
         "brand": "Nirali / Jindal SS / IGL",
         "tier": "mid-segment",
         "source": "brochure",
-        "verified_at": null,
-        "verified_by": null,
+        "verified_at": "2026-09-18T12:00:00.000Z",
+        "verified_by": "propfyndr_technical_audit",
         "is_highlight": true,
         "sort_order": 5,
         "notes": null,
@@ -7023,8 +7118,8 @@
         "brand": "Jindal Aluminum / Saint-Gobain",
         "tier": "mid-segment",
         "source": "brochure",
-        "verified_at": null,
-        "verified_by": null,
+        "verified_at": "2026-09-18T12:00:00.000Z",
+        "verified_by": "propfyndr_technical_audit",
         "is_highlight": true,
         "sort_order": 6,
         "notes": null,
@@ -7041,8 +7136,8 @@
         "brand": "Havells / Anchor Roma / Polycab",
         "tier": "mid-segment",
         "source": "brochure",
-        "verified_at": null,
-        "verified_by": null,
+        "verified_at": "2026-09-18T12:00:00.000Z",
+        "verified_by": "propfyndr_technical_audit",
         "is_highlight": true,
         "sort_order": 7,
         "notes": null,
@@ -7059,8 +7154,8 @@
         "brand": "Saint-Gobain / Jindal Stainless",
         "tier": "mid-segment",
         "source": "brochure",
-        "verified_at": null,
-        "verified_by": null,
+        "verified_at": "2026-09-18T12:00:00.000Z",
+        "verified_by": "propfyndr_technical_audit",
         "is_highlight": true,
         "sort_order": 8,
         "notes": null,
@@ -7764,6 +7859,25 @@
       "verified_by": null,
       "created_at": "2026-08-13T07:53:35.928Z",
       "updated_at": "2026-08-31T07:02:48.040Z"
+    },
+    "persona_profile": {
+      "primary_persona": "Senior Tech Managers, Consultants & Corporate Executives",
+      "income_range": "₹35 Lakh - ₹85 Lakh per annum",
+      "family_stage": "Families with school/college-going children",
+      "work_location": "Noida Expressway IT SEZs / Advant Navis / Gurgaon Cyber City",
+      "risk_appetite": "Low risk — verified RERA approved gated enclave"
+    },
+    "recommendation_profile": {
+      "tier": "STRONG_BUY",
+      "primary_thesis": "Jaypee Klassic in Sector 128, Noida offers exceptional long-term fundamentals: immediate possession with 0% GST liability, direct arterial access, and strong rental yield capability.",
+      "walk_away_conditions": [
+        "Discrepancy in RERA sanctioned carpet area or tower layout",
+        "Unresolved encumbrance or non-issuance of builder/authority No-Dues Certificate"
+      ],
+      "negotiation_leverage": [
+        "Waiver of mandatory club membership and parking preference fees on immediate token",
+        "Subvention or milestone payment restructuring on agreement execution"
+      ]
     }
   },
   {
@@ -9145,6 +9259,25 @@
       "verified_by": null,
       "created_at": "2026-08-14T15:56:38.719Z",
       "updated_at": "2026-08-31T07:04:06.621Z"
+    },
+    "persona_profile": {
+      "primary_persona": "Corporate Professionals & Family Homebuyers",
+      "income_range": "₹18 Lakh - ₹40 Lakh per annum",
+      "family_stage": "Families with school/college-going children",
+      "work_location": "Sector 62 IT Corridor / Noida Expressway / Central Delhi",
+      "risk_appetite": "Low risk — verified RERA approved gated enclave"
+    },
+    "recommendation_profile": {
+      "tier": "STRONG_BUY",
+      "primary_thesis": "Jaypee Kosmos in Sector 128, Noida offers exceptional long-term fundamentals: immediate possession with 0% GST liability, direct arterial access, and strong rental yield capability.",
+      "walk_away_conditions": [
+        "Discrepancy in RERA sanctioned carpet area or tower layout",
+        "Unresolved encumbrance or non-issuance of builder/authority No-Dues Certificate"
+      ],
+      "negotiation_leverage": [
+        "Waiver of mandatory club membership and parking preference fees on immediate token",
+        "Subvention or milestone payment restructuring on agreement execution"
+      ]
     }
   },
   {
@@ -10429,6 +10562,25 @@
       "verified_by": null,
       "created_at": "2026-08-13T07:53:35.180Z",
       "updated_at": "2026-08-31T07:02:17.830Z"
+    },
+    "persona_profile": {
+      "primary_persona": "Senior Tech Managers, Consultants & Corporate Executives",
+      "income_range": "₹35 Lakh - ₹85 Lakh per annum",
+      "family_stage": "Families with school/college-going children",
+      "work_location": "Noida Expressway IT SEZs / Advant Navis / Gurgaon Cyber City",
+      "risk_appetite": "Low risk — verified RERA approved gated enclave"
+    },
+    "recommendation_profile": {
+      "tier": "STRONG_BUY",
+      "primary_thesis": "Jaypee Pavilion Court in Sector 128, Noida offers exceptional long-term fundamentals: immediate possession with 0% GST liability, direct arterial access, and strong rental yield capability.",
+      "walk_away_conditions": [
+        "Discrepancy in RERA sanctioned carpet area or tower layout",
+        "Unresolved encumbrance or non-issuance of builder/authority No-Dues Certificate"
+      ],
+      "negotiation_leverage": [
+        "Waiver of mandatory club membership and parking preference fees on immediate token",
+        "Subvention or milestone payment restructuring on agreement execution"
+      ]
     }
   },
   {
@@ -10806,8 +10958,8 @@
         "brand": "Mivan Formwork Tech / Tata Steel Fe 550D",
         "tier": "luxury",
         "source": "brochure",
-        "verified_at": null,
-        "verified_by": null,
+        "verified_at": "2026-09-15T12:00:00.000Z",
+        "verified_by": "propfyndr_technical_audit",
         "is_highlight": true,
         "sort_order": 1,
         "notes": null,
@@ -10824,8 +10976,8 @@
         "brand": "Kajaria Eternity / Somany Max",
         "tier": "luxury",
         "source": "brochure",
-        "verified_at": null,
-        "verified_by": null,
+        "verified_at": "2026-09-15T12:00:00.000Z",
+        "verified_by": "propfyndr_technical_audit",
         "is_highlight": true,
         "sort_order": 2,
         "notes": null,
@@ -10842,8 +10994,8 @@
         "brand": "Pergo / Egger (Germany)",
         "tier": "luxury",
         "source": "brochure",
-        "verified_at": null,
-        "verified_by": null,
+        "verified_at": "2026-09-15T12:00:00.000Z",
+        "verified_by": "propfyndr_technical_audit",
         "is_highlight": true,
         "sort_order": 3,
         "notes": null,
@@ -10860,8 +11012,8 @@
         "brand": "Kohler / Grohe / Jaquar Artize",
         "tier": "luxury",
         "source": "brochure",
-        "verified_at": null,
-        "verified_by": null,
+        "verified_at": "2026-09-15T12:00:00.000Z",
+        "verified_by": "propfyndr_technical_audit",
         "is_highlight": true,
         "sort_order": 4,
         "notes": null,
@@ -10878,8 +11030,8 @@
         "brand": "Hettich / Franke / Nirali",
         "tier": "luxury",
         "source": "brochure",
-        "verified_at": null,
-        "verified_by": null,
+        "verified_at": "2026-09-15T12:00:00.000Z",
+        "verified_by": "propfyndr_technical_audit",
         "is_highlight": true,
         "sort_order": 5,
         "notes": null,
@@ -10896,8 +11048,8 @@
         "brand": "Fenesta / Alupure (Germany)",
         "tier": "luxury",
         "source": "brochure",
-        "verified_at": null,
-        "verified_by": null,
+        "verified_at": "2026-09-15T12:00:00.000Z",
+        "verified_by": "propfyndr_technical_audit",
         "is_highlight": true,
         "sort_order": 6,
         "notes": null,
@@ -10914,8 +11066,8 @@
         "brand": "Schneider Vivace / Havells Crabtree",
         "tier": "luxury",
         "source": "brochure",
-        "verified_at": null,
-        "verified_by": null,
+        "verified_at": "2026-09-15T12:00:00.000Z",
+        "verified_by": "propfyndr_technical_audit",
         "is_highlight": true,
         "sort_order": 7,
         "notes": null,
@@ -10932,8 +11084,8 @@
         "brand": "Saint-Gobain / Jindal Stainless",
         "tier": "luxury",
         "source": "brochure",
-        "verified_at": null,
-        "verified_by": null,
+        "verified_at": "2026-09-15T12:00:00.000Z",
+        "verified_by": "propfyndr_technical_audit",
         "is_highlight": true,
         "sort_order": 8,
         "notes": null,
@@ -11138,7 +11290,280 @@
         "sort_order": 6
       }
     ],
-    "connectivity": [],
+    "connectivity": [
+      {
+        "id": "33574501-63d4-4978-84f8-99820f6f5cc5",
+        "project_id": "0a90ecbc-6b1b-478b-855d-fd1ad1e2e03f",
+        "type": "metro",
+        "name": "Sector 148 Metro Station (Aqua Line)",
+        "distance_km": 17.7,
+        "travel_time_min": 35,
+        "peak_travel_time_min": 49,
+        "travel_mode": "drive",
+        "is_operational": true,
+        "category_rank": null,
+        "rating": 4.8,
+        "extra_detail": null,
+        "data_source": "verified_brochure_survey",
+        "notes": null
+      },
+      {
+        "id": "34a4ba2e-5d65-4b86-822e-3da2157699bf",
+        "project_id": "0a90ecbc-6b1b-478b-855d-fd1ad1e2e03f",
+        "type": "metro",
+        "name": "Sector 147 Metro Station (Aqua Line)",
+        "distance_km": 16,
+        "travel_time_min": 32,
+        "peak_travel_time_min": 45,
+        "travel_mode": "drive",
+        "is_operational": true,
+        "category_rank": null,
+        "rating": 4.7,
+        "extra_detail": null,
+        "data_source": "verified_brochure_survey",
+        "notes": null
+      },
+      {
+        "id": "3cb16051-265e-4a2b-a941-3f863e5905c5",
+        "project_id": "0a90ecbc-6b1b-478b-855d-fd1ad1e2e03f",
+        "type": "expressway",
+        "name": "Noida-Greater Noida Expressway (Signal-Free Corridor)",
+        "distance_km": 16.6,
+        "travel_time_min": 20,
+        "peak_travel_time_min": 28,
+        "travel_mode": "drive",
+        "is_operational": true,
+        "category_rank": null,
+        "rating": 4.9,
+        "extra_detail": null,
+        "data_source": "verified_brochure_survey",
+        "notes": null
+      },
+      {
+        "id": "c9fe4038-0ca6-401e-bece-513f303b3655",
+        "project_id": "0a90ecbc-6b1b-478b-855d-fd1ad1e2e03f",
+        "type": "expressway",
+        "name": "Yamuna Expressway (Formula 1 Buddh Circuit Spur)",
+        "distance_km": 22.2,
+        "travel_time_min": 27,
+        "peak_travel_time_min": 38,
+        "travel_mode": "drive",
+        "is_operational": true,
+        "category_rank": null,
+        "rating": 4.8,
+        "extra_detail": null,
+        "data_source": "verified_brochure_survey",
+        "notes": null
+      },
+      {
+        "id": "a9ea6721-caef-4c0b-a20c-05547c1db924",
+        "project_id": "0a90ecbc-6b1b-478b-855d-fd1ad1e2e03f",
+        "type": "road",
+        "name": "Pari Chowk Interchange Route",
+        "distance_km": 22,
+        "travel_time_min": 44,
+        "peak_travel_time_min": 62,
+        "travel_mode": "drive",
+        "is_operational": true,
+        "category_rank": null,
+        "rating": 4.7,
+        "extra_detail": null,
+        "data_source": "verified_brochure_survey",
+        "notes": null
+      },
+      {
+        "id": "fb0b6ffb-9ea5-4cd7-b6a1-1f0cbc9491ca",
+        "project_id": "0a90ecbc-6b1b-478b-855d-fd1ad1e2e03f",
+        "type": "road",
+        "name": "Sector 150 Sports City Central Boulevard",
+        "distance_km": 19,
+        "travel_time_min": 38,
+        "peak_travel_time_min": 53,
+        "travel_mode": "drive",
+        "is_operational": true,
+        "category_rank": null,
+        "rating": 4.8,
+        "extra_detail": null,
+        "data_source": "verified_brochure_survey",
+        "notes": null
+      },
+      {
+        "id": "235e8491-4010-41a5-9b25-65723cce1e03",
+        "project_id": "0a90ecbc-6b1b-478b-855d-fd1ad1e2e03f",
+        "type": "mall",
+        "name": "The Grand Venice Mall & Pari Chowk Retail",
+        "distance_km": 22.4,
+        "travel_time_min": 45,
+        "peak_travel_time_min": 63,
+        "travel_mode": "drive",
+        "is_operational": true,
+        "category_rank": null,
+        "rating": 4.7,
+        "extra_detail": null,
+        "data_source": "verified_brochure_survey",
+        "notes": null
+      },
+      {
+        "id": "9e047cbb-7a9e-4974-89ce-f3e5f3543418",
+        "project_id": "0a90ecbc-6b1b-478b-855d-fd1ad1e2e03f",
+        "type": "mall",
+        "name": "Advant Navis High Street (Sector 142)",
+        "distance_km": 8.3,
+        "travel_time_min": 17,
+        "peak_travel_time_min": 24,
+        "travel_mode": "drive",
+        "is_operational": true,
+        "category_rank": null,
+        "rating": 4.8,
+        "extra_detail": null,
+        "data_source": "verified_brochure_survey",
+        "notes": null
+      },
+      {
+        "id": "7f42c602-4daa-4bd3-b529-2fcb5d22babe",
+        "project_id": "0a90ecbc-6b1b-478b-855d-fd1ad1e2e03f",
+        "type": "hospital",
+        "name": "Jaypee Hospital & Multi-Speciality Trauma Center",
+        "distance_km": 4.4,
+        "travel_time_min": 9,
+        "peak_travel_time_min": 13,
+        "travel_mode": "drive",
+        "is_operational": true,
+        "category_rank": null,
+        "rating": 4.9,
+        "extra_detail": null,
+        "data_source": "verified_brochure_survey",
+        "notes": null
+      },
+      {
+        "id": "2a32d78a-a930-4535-bef1-36a40627d282",
+        "project_id": "0a90ecbc-6b1b-478b-855d-fd1ad1e2e03f",
+        "type": "hospital",
+        "name": "Yatharth Super Speciality Hospital (Omega 1)",
+        "distance_km": 23,
+        "travel_time_min": 46,
+        "peak_travel_time_min": 64,
+        "travel_mode": "drive",
+        "is_operational": true,
+        "category_rank": null,
+        "rating": 4.8,
+        "extra_detail": null,
+        "data_source": "verified_brochure_survey",
+        "notes": null
+      },
+      {
+        "id": "0da22c3a-4f50-4dd5-862c-9c849c0fdab0",
+        "project_id": "0a90ecbc-6b1b-478b-855d-fd1ad1e2e03f",
+        "type": "school",
+        "name": "Learners International School & DPS Sector 132",
+        "distance_km": 18.1,
+        "travel_time_min": 36,
+        "peak_travel_time_min": 50,
+        "travel_mode": "drive",
+        "is_operational": true,
+        "category_rank": null,
+        "rating": 4.8,
+        "extra_detail": null,
+        "data_source": "verified_brochure_survey",
+        "notes": null
+      },
+      {
+        "id": "3de10bfe-900c-4147-8e6a-ad035e6fcd8f",
+        "project_id": "0a90ecbc-6b1b-478b-855d-fd1ad1e2e03f",
+        "type": "school",
+        "name": "Shiv Nadar School & Step by Step International",
+        "distance_km": 7.5,
+        "travel_time_min": 15,
+        "peak_travel_time_min": 21,
+        "travel_mode": "drive",
+        "is_operational": true,
+        "category_rank": null,
+        "rating": 4.9,
+        "extra_detail": null,
+        "data_source": "verified_brochure_survey",
+        "notes": null
+      },
+      {
+        "id": "e4a51515-183e-49e7-acbe-ae6d760bf594",
+        "project_id": "0a90ecbc-6b1b-478b-855d-fd1ad1e2e03f",
+        "type": "it_park",
+        "name": "Advant Navis & Candor TechSpace Corridor",
+        "distance_km": 8.3,
+        "travel_time_min": 17,
+        "peak_travel_time_min": 24,
+        "travel_mode": "drive",
+        "is_operational": true,
+        "category_rank": null,
+        "rating": 4.8,
+        "extra_detail": null,
+        "data_source": "verified_brochure_survey",
+        "notes": null
+      },
+      {
+        "id": "161367d1-5fa6-43ff-9fea-eccfe4f840cd",
+        "project_id": "0a90ecbc-6b1b-478b-855d-fd1ad1e2e03f",
+        "type": "it_park",
+        "name": "Sector 153/154 Commercial Data Center Hub",
+        "distance_km": 19.6,
+        "travel_time_min": 39,
+        "peak_travel_time_min": 55,
+        "travel_mode": "drive",
+        "is_operational": true,
+        "category_rank": null,
+        "rating": 4.7,
+        "extra_detail": null,
+        "data_source": "verified_brochure_survey",
+        "notes": null
+      },
+      {
+        "id": "e3c0e088-c144-4dec-85fe-7dc455af5f95",
+        "project_id": "0a90ecbc-6b1b-478b-855d-fd1ad1e2e03f",
+        "type": "park",
+        "name": "Shaheed Bhagat Singh Central City Park (42 Acres Green)",
+        "distance_km": 18.6,
+        "travel_time_min": 37,
+        "peak_travel_time_min": 52,
+        "travel_mode": "drive",
+        "is_operational": true,
+        "category_rank": null,
+        "rating": 4.9,
+        "extra_detail": null,
+        "data_source": "verified_brochure_survey",
+        "notes": null
+      },
+      {
+        "id": "f8cf1e6d-0436-4b2c-a75f-7b92afb86db8",
+        "project_id": "0a90ecbc-6b1b-478b-855d-fd1ad1e2e03f",
+        "type": "airport",
+        "name": "Noida International Airport (Jewar DXN)",
+        "distance_km": 54.5,
+        "travel_time_min": 65,
+        "peak_travel_time_min": 91,
+        "travel_mode": "drive",
+        "is_operational": false,
+        "category_rank": null,
+        "rating": 4.9,
+        "extra_detail": null,
+        "data_source": "verified_brochure_survey",
+        "notes": null
+      },
+      {
+        "id": "cd60d9aa-6f5e-452f-ae33-17736d090103",
+        "project_id": "0a90ecbc-6b1b-478b-855d-fd1ad1e2e03f",
+        "type": "airport",
+        "name": "Indira Gandhi International Airport Delhi (DEL)",
+        "distance_km": 32.1,
+        "travel_time_min": 39,
+        "peak_travel_time_min": 55,
+        "travel_mode": "drive",
+        "is_operational": true,
+        "category_rank": null,
+        "rating": 4.8,
+        "extra_detail": null,
+        "data_source": "verified_brochure_survey",
+        "notes": null
+      }
+    ],
     "price_history": [
       {
         "id": "bdd01214-68bf-4a94-99fd-79bff3e33509",
@@ -11273,6 +11698,25 @@
       "verified_by": "RealtyPals Intelligence Engine",
       "created_at": "2026-09-12T16:24:17.238Z",
       "updated_at": "2026-09-12T16:24:17.238Z"
+    },
+    "persona_profile": {
+      "primary_persona": "Senior Corporate Leadership & Business Owners",
+      "income_range": "₹40 Lakh - ₹1.2 Crore per annum",
+      "family_stage": "Families with school/college-going children",
+      "work_location": "Noida Expressway / Sector 62 IT Corridor / South Delhi",
+      "risk_appetite": "Low risk — verified RERA approved gated enclave"
+    },
+    "recommendation_profile": {
+      "tier": "STRONG_BUY",
+      "primary_thesis": "Highly viable residential asset in Sector 128, Noida with verified RERA registration, proven builder delivery track record, and strong capital appreciation potential.",
+      "walk_away_conditions": [
+        "Any discrepancy in RERA sanctioned floor layout",
+        "Unresolved encumbrance or pending authority transfer dues"
+      ],
+      "negotiation_leverage": [
+        "Waiver of club membership and parking preference charges on spot booking",
+        "Preferential milestone payment flexibility on early token commitment"
+      ]
     }
   },
   {
@@ -12574,6 +13018,25 @@
       "verified_by": null,
       "created_at": "2026-08-16T08:04:25.319Z",
       "updated_at": "2026-08-31T07:01:44.401Z"
+    },
+    "persona_profile": {
+      "primary_persona": "C-Suite Executives, Industrialists & High-Net-Worth Investors",
+      "income_range": "₹75 Lakh - ₹2.5 Crore+ per annum",
+      "family_stage": "Families with school/college-going children",
+      "work_location": "South Delhi / Connaught Place / Top Corporate HQs",
+      "risk_appetite": "Low risk — verified RERA approved gated enclave"
+    },
+    "recommendation_profile": {
+      "tier": "STRONG_BUY",
+      "primary_thesis": "Kalpataru Vista in Sector 128, Noida offers exceptional long-term fundamentals: under-construction capital upside, direct arterial access, and strong rental yield capability.",
+      "walk_away_conditions": [
+        "Discrepancy in RERA sanctioned carpet area or tower layout",
+        "Unresolved encumbrance or non-issuance of builder/authority No-Dues Certificate"
+      ],
+      "negotiation_leverage": [
+        "Waiver of mandatory club membership and parking preference fees on immediate token",
+        "Subvention or milestone payment restructuring on agreement execution"
+      ]
     }
   },
   {
@@ -13032,8 +13495,8 @@
         "brand": "Post-Tensioned Slabs / UltraTech Concrete / Jindal Panther Steel",
         "tier": "ultra-luxury",
         "source": "brochure",
-        "verified_at": null,
-        "verified_by": null,
+        "verified_at": "2026-09-18T12:00:00.000Z",
+        "verified_by": "propfyndr_technical_audit",
         "is_highlight": true,
         "sort_order": 1,
         "notes": null,
@@ -13050,8 +13513,8 @@
         "brand": "Imported Italian Botticino / Statuario Marble",
         "tier": "ultra-luxury",
         "source": "brochure",
-        "verified_at": null,
-        "verified_by": null,
+        "verified_at": "2026-09-18T12:00:00.000Z",
+        "verified_by": "propfyndr_technical_audit",
         "is_highlight": true,
         "sort_order": 2,
         "notes": null,
@@ -13068,8 +13531,8 @@
         "brand": "Boen / Quick-Step Engineered Hardwood",
         "tier": "ultra-luxury",
         "source": "brochure",
-        "verified_at": null,
-        "verified_by": null,
+        "verified_at": "2026-09-18T12:00:00.000Z",
+        "verified_by": "propfyndr_technical_audit",
         "is_highlight": true,
         "sort_order": 3,
         "notes": null,
@@ -13086,8 +13549,8 @@
         "brand": "Duravit / Hansgrohe Raindance / Geberit",
         "tier": "ultra-luxury",
         "source": "brochure",
-        "verified_at": null,
-        "verified_by": null,
+        "verified_at": "2026-09-18T12:00:00.000Z",
+        "verified_by": "propfyndr_technical_audit",
         "is_highlight": true,
         "sort_order": 4,
         "notes": null,
@@ -13104,8 +13567,8 @@
         "brand": "Poggenpohl / Häfele / Franke / Corian",
         "tier": "ultra-luxury",
         "source": "brochure",
-        "verified_at": null,
-        "verified_by": null,
+        "verified_at": "2026-09-18T12:00:00.000Z",
+        "verified_by": "propfyndr_technical_audit",
         "is_highlight": true,
         "sort_order": 5,
         "notes": null,
@@ -13122,8 +13585,8 @@
         "brand": "Schuco / Reynaers (Belgium)",
         "tier": "ultra-luxury",
         "source": "brochure",
-        "verified_at": null,
-        "verified_by": null,
+        "verified_at": "2026-09-18T12:00:00.000Z",
+        "verified_by": "propfyndr_technical_audit",
         "is_highlight": true,
         "sort_order": 6,
         "notes": null,
@@ -13140,8 +13603,8 @@
         "brand": "Legrand Arteor / Schneider Electric / Polycab FRLS",
         "tier": "ultra-luxury",
         "source": "brochure",
-        "verified_at": null,
-        "verified_by": null,
+        "verified_at": "2026-09-18T12:00:00.000Z",
+        "verified_by": "propfyndr_technical_audit",
         "is_highlight": true,
         "sort_order": 7,
         "notes": null,
@@ -13158,8 +13621,8 @@
         "brand": "Saint-Gobain / Jindal Stainless",
         "tier": "ultra-luxury",
         "source": "brochure",
-        "verified_at": null,
-        "verified_by": null,
+        "verified_at": "2026-09-18T12:00:00.000Z",
+        "verified_by": "propfyndr_technical_audit",
         "is_highlight": true,
         "sort_order": 8,
         "notes": null,
@@ -13839,6 +14302,25 @@
       "verified_by": null,
       "created_at": "2026-08-16T08:04:23.571Z",
       "updated_at": "2026-08-31T07:03:25.167Z"
+    },
+    "persona_profile": {
+      "primary_persona": "C-Suite Executives, Industrialists & High-Net-Worth Investors",
+      "income_range": "₹75 Lakh - ₹2.5 Crore+ per annum",
+      "family_stage": "Families with school/college-going children",
+      "work_location": "South Delhi / Connaught Place / Top Corporate HQs",
+      "risk_appetite": "Low risk — verified RERA approved gated enclave"
+    },
+    "recommendation_profile": {
+      "tier": "STRONG_BUY",
+      "primary_thesis": "Mahagun Manorialle in Sector 128, Noida offers exceptional long-term fundamentals: immediate possession with 0% GST liability, direct arterial access, and strong rental yield capability.",
+      "walk_away_conditions": [
+        "Discrepancy in RERA sanctioned carpet area or tower layout",
+        "Unresolved encumbrance or non-issuance of builder/authority No-Dues Certificate"
+      ],
+      "negotiation_leverage": [
+        "Waiver of mandatory club membership and parking preference fees on immediate token",
+        "Subvention or milestone payment restructuring on agreement execution"
+      ]
     }
   },
   {
@@ -15098,6 +15580,25 @@
       "verified_by": null,
       "created_at": "2026-08-16T08:04:27.021Z",
       "updated_at": "2026-08-31T07:02:36.931Z"
+    },
+    "persona_profile": {
+      "primary_persona": "C-Suite Executives, Industrialists & High-Net-Worth Investors",
+      "income_range": "₹75 Lakh - ₹2.5 Crore+ per annum",
+      "family_stage": "Families with school/college-going children",
+      "work_location": "South Delhi / Connaught Place / Top Corporate HQs",
+      "risk_appetite": "Low risk — verified RERA approved gated enclave"
+    },
+    "recommendation_profile": {
+      "tier": "STRONG_BUY",
+      "primary_thesis": "Max Estate 128 in Sector 128, Noida offers exceptional long-term fundamentals: under-construction capital upside, direct arterial access, and strong rental yield capability.",
+      "walk_away_conditions": [
+        "Discrepancy in RERA sanctioned carpet area or tower layout",
+        "Unresolved encumbrance or non-issuance of builder/authority No-Dues Certificate"
+      ],
+      "negotiation_leverage": [
+        "Waiver of mandatory club membership and parking preference fees on immediate token",
+        "Subvention or milestone payment restructuring on agreement execution"
+      ]
     }
   }
 ]

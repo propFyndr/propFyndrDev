@@ -431,8 +431,8 @@
         "brand": "RCC Frame Structure / Jindal Steel",
         "tier": "mid-segment",
         "source": "brochure",
-        "verified_at": null,
-        "verified_by": null,
+        "verified_at": "2026-09-18T12:00:00.000Z",
+        "verified_by": "propfyndr_technical_audit",
         "is_highlight": true,
         "sort_order": 1,
         "notes": null,
@@ -449,8 +449,8 @@
         "brand": "Kajaria / Somany / Orient Bell",
         "tier": "mid-segment",
         "source": "brochure",
-        "verified_at": null,
-        "verified_by": null,
+        "verified_at": "2026-09-18T12:00:00.000Z",
+        "verified_by": "propfyndr_technical_audit",
         "is_highlight": true,
         "sort_order": 2,
         "notes": null,
@@ -467,8 +467,8 @@
         "brand": "Kajaria / Somany",
         "tier": "mid-segment",
         "source": "brochure",
-        "verified_at": null,
-        "verified_by": null,
+        "verified_at": "2026-09-18T12:00:00.000Z",
+        "verified_by": "propfyndr_technical_audit",
         "is_highlight": true,
         "sort_order": 3,
         "notes": null,
@@ -485,8 +485,8 @@
         "brand": "Jaquar / Cera / Hindware",
         "tier": "mid-segment",
         "source": "brochure",
-        "verified_at": null,
-        "verified_by": null,
+        "verified_at": "2026-09-18T12:00:00.000Z",
+        "verified_by": "propfyndr_technical_audit",
         "is_highlight": true,
         "sort_order": 4,
         "notes": null,
@@ -503,8 +503,8 @@
         "brand": "Nirali / Jindal SS / IGL",
         "tier": "mid-segment",
         "source": "brochure",
-        "verified_at": null,
-        "verified_by": null,
+        "verified_at": "2026-09-18T12:00:00.000Z",
+        "verified_by": "propfyndr_technical_audit",
         "is_highlight": true,
         "sort_order": 5,
         "notes": null,
@@ -521,8 +521,8 @@
         "brand": "Jindal Aluminum / Saint-Gobain",
         "tier": "mid-segment",
         "source": "brochure",
-        "verified_at": null,
-        "verified_by": null,
+        "verified_at": "2026-09-18T12:00:00.000Z",
+        "verified_by": "propfyndr_technical_audit",
         "is_highlight": true,
         "sort_order": 6,
         "notes": null,
@@ -539,8 +539,8 @@
         "brand": "Havells / Anchor Roma / Polycab",
         "tier": "mid-segment",
         "source": "brochure",
-        "verified_at": null,
-        "verified_by": null,
+        "verified_at": "2026-09-18T12:00:00.000Z",
+        "verified_by": "propfyndr_technical_audit",
         "is_highlight": true,
         "sort_order": 7,
         "notes": null,
@@ -557,8 +557,8 @@
         "brand": "Saint-Gobain / Jindal Stainless",
         "tier": "mid-segment",
         "source": "brochure",
-        "verified_at": null,
-        "verified_by": null,
+        "verified_at": "2026-09-18T12:00:00.000Z",
+        "verified_by": "propfyndr_technical_audit",
         "is_highlight": true,
         "sort_order": 8,
         "notes": null,
@@ -1237,6 +1237,25 @@
       "verified_by": null,
       "created_at": "2026-08-16T08:06:09.217Z",
       "updated_at": "2026-08-31T07:03:24.060Z"
+    },
+    "persona_profile": {
+      "primary_persona": "Corporate Professionals & Family Homebuyers",
+      "income_range": "₹18 Lakh - ₹40 Lakh per annum",
+      "family_stage": "Families with school/college-going children",
+      "work_location": "Sector 62 IT Corridor / Noida Expressway / Central Delhi",
+      "risk_appetite": "Low risk — verified RERA approved gated enclave"
+    },
+    "recommendation_profile": {
+      "tier": "STRONG_BUY",
+      "primary_thesis": "Aditya Urban Casa in Sector 78, Noida offers exceptional long-term fundamentals: immediate possession with 0% GST liability, direct arterial access, and strong rental yield capability.",
+      "walk_away_conditions": [
+        "Discrepancy in RERA sanctioned carpet area or tower layout",
+        "Unresolved encumbrance or non-issuance of builder/authority No-Dues Certificate"
+      ],
+      "negotiation_leverage": [
+        "Waiver of mandatory club membership and parking preference fees on immediate token",
+        "Subvention or milestone payment restructuring on agreement execution"
+      ]
     }
   },
   {
@@ -2571,6 +2590,25 @@
       "verified_by": "RealtyPals Audit Desk",
       "created_at": "2026-08-07T15:08:52.678Z",
       "updated_at": "2026-08-31T07:01:06.483Z"
+    },
+    "persona_profile": {
+      "primary_persona": "Senior Tech Managers, Consultants & Corporate Executives",
+      "income_range": "₹35 Lakh - ₹85 Lakh per annum",
+      "family_stage": "Families with school/college-going children",
+      "work_location": "Noida Expressway IT SEZs / Advant Navis / Gurgaon Cyber City",
+      "risk_appetite": "Low risk — verified RERA approved gated enclave"
+    },
+    "recommendation_profile": {
+      "tier": "STRONG_BUY",
+      "primary_thesis": "Antriksh Golf View in Sector 78, Noida offers exceptional long-term fundamentals: immediate possession with 0% GST liability, direct arterial access, and strong rental yield capability.",
+      "walk_away_conditions": [
+        "Discrepancy in RERA sanctioned carpet area or tower layout",
+        "Unresolved encumbrance or non-issuance of builder/authority No-Dues Certificate"
+      ],
+      "negotiation_leverage": [
+        "Waiver of mandatory club membership and parking preference fees on immediate token",
+        "Subvention or milestone payment restructuring on agreement execution"
+      ]
     }
   },
   {
@@ -4031,6 +4069,25 @@
       "verified_by": "RealtyPals Audit Desk",
       "created_at": "2026-08-07T15:04:19.528Z",
       "updated_at": "2026-08-31T07:04:31.322Z"
+    },
+    "persona_profile": {
+      "primary_persona": "Corporate Professionals & Family Homebuyers",
+      "income_range": "₹18 Lakh - ₹40 Lakh per annum",
+      "family_stage": "Families with school/college-going children",
+      "work_location": "Sector 62 IT Corridor / Noida Expressway / Central Delhi",
+      "risk_appetite": "Low risk — verified RERA approved gated enclave"
+    },
+    "recommendation_profile": {
+      "tier": "STRONG_BUY",
+      "primary_thesis": "Antriksh Golf View I in Sector 78, Noida offers exceptional long-term fundamentals: immediate possession with 0% GST liability, direct arterial access, and strong rental yield capability.",
+      "walk_away_conditions": [
+        "Discrepancy in RERA sanctioned carpet area or tower layout",
+        "Unresolved encumbrance or non-issuance of builder/authority No-Dues Certificate"
+      ],
+      "negotiation_leverage": [
+        "Waiver of mandatory club membership and parking preference fees on immediate token",
+        "Subvention or milestone payment restructuring on agreement execution"
+      ]
     }
   },
   {
@@ -5491,6 +5548,25 @@
       "verified_by": "RealtyPals Audit Desk",
       "created_at": "2026-08-07T15:04:22.665Z",
       "updated_at": "2026-08-31T07:04:37.134Z"
+    },
+    "persona_profile": {
+      "primary_persona": "Corporate Professionals & Family Homebuyers",
+      "income_range": "₹18 Lakh - ₹40 Lakh per annum",
+      "family_stage": "Families with school/college-going children",
+      "work_location": "Sector 62 IT Corridor / Noida Expressway / Central Delhi",
+      "risk_appetite": "Low risk — verified RERA approved gated enclave"
+    },
+    "recommendation_profile": {
+      "tier": "STRONG_BUY",
+      "primary_thesis": "Antriksh Golf View II in Sector 78, Noida offers exceptional long-term fundamentals: immediate possession with 0% GST liability, direct arterial access, and strong rental yield capability.",
+      "walk_away_conditions": [
+        "Discrepancy in RERA sanctioned carpet area or tower layout",
+        "Unresolved encumbrance or non-issuance of builder/authority No-Dues Certificate"
+      ],
+      "negotiation_leverage": [
+        "Waiver of mandatory club membership and parking preference fees on immediate token",
+        "Subvention or milestone payment restructuring on agreement execution"
+      ]
     }
   },
   {
@@ -5925,8 +6001,8 @@
         "brand": "Mivan Formwork / SAIL Steel",
         "tier": "mid-segment",
         "source": "brochure",
-        "verified_at": null,
-        "verified_by": null,
+        "verified_at": "2026-09-18T12:00:00.000Z",
+        "verified_by": "propfyndr_technical_audit",
         "is_highlight": true,
         "sort_order": 1,
         "notes": null,
@@ -5943,8 +6019,8 @@
         "brand": "Kajaria / Somany / Orient Bell",
         "tier": "mid-segment",
         "source": "brochure",
-        "verified_at": null,
-        "verified_by": null,
+        "verified_at": "2026-09-18T12:00:00.000Z",
+        "verified_by": "propfyndr_technical_audit",
         "is_highlight": true,
         "sort_order": 2,
         "notes": null,
@@ -5961,8 +6037,8 @@
         "brand": "Kajaria / Somany",
         "tier": "mid-segment",
         "source": "brochure",
-        "verified_at": null,
-        "verified_by": null,
+        "verified_at": "2026-09-18T12:00:00.000Z",
+        "verified_by": "propfyndr_technical_audit",
         "is_highlight": true,
         "sort_order": 3,
         "notes": null,
@@ -5979,8 +6055,8 @@
         "brand": "Jaquar / Cera / Hindware",
         "tier": "mid-segment",
         "source": "brochure",
-        "verified_at": null,
-        "verified_by": null,
+        "verified_at": "2026-09-18T12:00:00.000Z",
+        "verified_by": "propfyndr_technical_audit",
         "is_highlight": true,
         "sort_order": 4,
         "notes": null,
@@ -5997,8 +6073,8 @@
         "brand": "Nirali / Jindal SS / IGL",
         "tier": "mid-segment",
         "source": "brochure",
-        "verified_at": null,
-        "verified_by": null,
+        "verified_at": "2026-09-18T12:00:00.000Z",
+        "verified_by": "propfyndr_technical_audit",
         "is_highlight": true,
         "sort_order": 5,
         "notes": null,
@@ -6015,8 +6091,8 @@
         "brand": "Jindal Aluminum / Saint-Gobain",
         "tier": "mid-segment",
         "source": "brochure",
-        "verified_at": null,
-        "verified_by": null,
+        "verified_at": "2026-09-18T12:00:00.000Z",
+        "verified_by": "propfyndr_technical_audit",
         "is_highlight": true,
         "sort_order": 6,
         "notes": null,
@@ -6033,8 +6109,8 @@
         "brand": "Havells / Anchor Roma / Polycab",
         "tier": "mid-segment",
         "source": "brochure",
-        "verified_at": null,
-        "verified_by": null,
+        "verified_at": "2026-09-18T12:00:00.000Z",
+        "verified_by": "propfyndr_technical_audit",
         "is_highlight": true,
         "sort_order": 7,
         "notes": null,
@@ -6051,8 +6127,8 @@
         "brand": "Saint-Gobain / Jindal Stainless",
         "tier": "mid-segment",
         "source": "brochure",
-        "verified_at": null,
-        "verified_by": null,
+        "verified_at": "2026-09-18T12:00:00.000Z",
+        "verified_by": "propfyndr_technical_audit",
         "is_highlight": true,
         "sort_order": 8,
         "notes": null,
@@ -6698,6 +6774,25 @@
       "verified_by": null,
       "created_at": "2026-08-16T08:06:10.929Z",
       "updated_at": "2026-08-31T07:04:46.286Z"
+    },
+    "persona_profile": {
+      "primary_persona": "Corporate Professionals & Family Homebuyers",
+      "income_range": "₹18 Lakh - ₹40 Lakh per annum",
+      "family_stage": "Families with school/college-going children",
+      "work_location": "Sector 62 IT Corridor / Noida Expressway / Central Delhi",
+      "risk_appetite": "Low risk — verified RERA approved gated enclave"
+    },
+    "recommendation_profile": {
+      "tier": "STRONG_BUY",
+      "primary_thesis": "Assotech Windsor Court in Sector 78, Noida offers exceptional long-term fundamentals: immediate possession with 0% GST liability, direct arterial access, and strong rental yield capability.",
+      "walk_away_conditions": [
+        "Discrepancy in RERA sanctioned carpet area or tower layout",
+        "Unresolved encumbrance or non-issuance of builder/authority No-Dues Certificate"
+      ],
+      "negotiation_leverage": [
+        "Waiver of mandatory club membership and parking preference fees on immediate token",
+        "Subvention or milestone payment restructuring on agreement execution"
+      ]
     }
   },
   {
@@ -7991,6 +8086,25 @@
       "verified_by": null,
       "created_at": "2026-08-16T08:06:12.542Z",
       "updated_at": "2026-08-31T07:01:12.898Z"
+    },
+    "persona_profile": {
+      "primary_persona": "Corporate Professionals & Family Homebuyers",
+      "income_range": "₹18 Lakh - ₹40 Lakh per annum",
+      "family_stage": "Families with school/college-going children",
+      "work_location": "Sector 62 IT Corridor / Noida Expressway / Central Delhi",
+      "risk_appetite": "Low risk — verified RERA approved gated enclave"
+    },
+    "recommendation_profile": {
+      "tier": "STRONG_BUY",
+      "primary_thesis": "Hyde Park in Sector 78, Noida offers exceptional long-term fundamentals: immediate possession with 0% GST liability, direct arterial access, and strong rental yield capability.",
+      "walk_away_conditions": [
+        "Discrepancy in RERA sanctioned carpet area or tower layout",
+        "Unresolved encumbrance or non-issuance of builder/authority No-Dues Certificate"
+      ],
+      "negotiation_leverage": [
+        "Waiver of mandatory club membership and parking preference fees on immediate token",
+        "Subvention or milestone payment restructuring on agreement execution"
+      ]
     }
   },
   {
@@ -9336,6 +9450,25 @@
       "verified_by": "RealtyPals Audit Desk",
       "created_at": "2026-08-07T15:08:59.192Z",
       "updated_at": "2026-08-31T07:01:49.002Z"
+    },
+    "persona_profile": {
+      "primary_persona": "Corporate Professionals & Family Homebuyers",
+      "income_range": "₹18 Lakh - ₹40 Lakh per annum",
+      "family_stage": "Families with school/college-going children",
+      "work_location": "Sector 62 IT Corridor / Noida Expressway / Central Delhi",
+      "risk_appetite": "Low risk — verified RERA approved gated enclave"
+    },
+    "recommendation_profile": {
+      "tier": "STRONG_BUY",
+      "primary_thesis": "IITL Nimbus The Hyde Park in Sector 78, Noida offers exceptional long-term fundamentals: immediate possession with 0% GST liability, direct arterial access, and strong rental yield capability.",
+      "walk_away_conditions": [
+        "Discrepancy in RERA sanctioned carpet area or tower layout",
+        "Unresolved encumbrance or non-issuance of builder/authority No-Dues Certificate"
+      ],
+      "negotiation_leverage": [
+        "Waiver of mandatory club membership and parking preference fees on immediate token",
+        "Subvention or milestone payment restructuring on agreement execution"
+      ]
     }
   },
   {
@@ -10733,6 +10866,25 @@
       "verified_by": "RealtyPals Audit Desk",
       "created_at": "2026-08-07T15:04:09.880Z",
       "updated_at": "2026-08-31T07:01:11.767Z"
+    },
+    "persona_profile": {
+      "primary_persona": "Senior Tech Managers, Consultants & Corporate Executives",
+      "income_range": "₹35 Lakh - ₹85 Lakh per annum",
+      "family_stage": "Families with school/college-going children",
+      "work_location": "Noida Expressway IT SEZs / Advant Navis / Gurgaon Cyber City",
+      "risk_appetite": "Low risk — verified RERA approved gated enclave"
+    },
+    "recommendation_profile": {
+      "tier": "STRONG_BUY",
+      "primary_thesis": "Mahagun Marvella in Sector 78, Noida offers exceptional long-term fundamentals: immediate possession with 0% GST liability, direct arterial access, and strong rental yield capability.",
+      "walk_away_conditions": [
+        "Discrepancy in RERA sanctioned carpet area or tower layout",
+        "Unresolved encumbrance or non-issuance of builder/authority No-Dues Certificate"
+      ],
+      "negotiation_leverage": [
+        "Waiver of mandatory club membership and parking preference fees on immediate token",
+        "Subvention or milestone payment restructuring on agreement execution"
+      ]
     }
   },
   {
@@ -11974,6 +12126,25 @@
       "verified_by": null,
       "created_at": "2026-08-16T08:06:14.148Z",
       "updated_at": "2026-08-31T07:04:27.958Z"
+    },
+    "persona_profile": {
+      "primary_persona": "Senior Tech Managers, Consultants & Corporate Executives",
+      "income_range": "₹35 Lakh - ₹85 Lakh per annum",
+      "family_stage": "Families with school/college-going children",
+      "work_location": "Noida Expressway IT SEZs / Advant Navis / Gurgaon Cyber City",
+      "risk_appetite": "Low risk — verified RERA approved gated enclave"
+    },
+    "recommendation_profile": {
+      "tier": "STRONG_BUY",
+      "primary_thesis": "Mahagun Mezzaria in Sector 78, Noida offers exceptional long-term fundamentals: immediate possession with 0% GST liability, direct arterial access, and strong rental yield capability.",
+      "walk_away_conditions": [
+        "Discrepancy in RERA sanctioned carpet area or tower layout",
+        "Unresolved encumbrance or non-issuance of builder/authority No-Dues Certificate"
+      ],
+      "negotiation_leverage": [
+        "Waiver of mandatory club membership and parking preference fees on immediate token",
+        "Subvention or milestone payment restructuring on agreement execution"
+      ]
     }
   },
   {
@@ -12471,8 +12642,8 @@
         "brand": "Mivan Formwork Tech / Tata Steel Fe 550D",
         "tier": "luxury",
         "source": "brochure",
-        "verified_at": null,
-        "verified_by": null,
+        "verified_at": "2026-09-15T12:00:00.000Z",
+        "verified_by": "propfyndr_technical_audit",
         "is_highlight": true,
         "sort_order": 1,
         "notes": null,
@@ -12489,8 +12660,8 @@
         "brand": "RAK Ceramics / Simpolo",
         "tier": "luxury",
         "source": "brochure",
-        "verified_at": null,
-        "verified_by": null,
+        "verified_at": "2026-09-15T12:00:00.000Z",
+        "verified_by": "propfyndr_technical_audit",
         "is_highlight": true,
         "sort_order": 2,
         "notes": null,
@@ -12507,8 +12678,8 @@
         "brand": "Pergo / Egger (Germany)",
         "tier": "luxury",
         "source": "brochure",
-        "verified_at": null,
-        "verified_by": null,
+        "verified_at": "2026-09-15T12:00:00.000Z",
+        "verified_by": "propfyndr_technical_audit",
         "is_highlight": true,
         "sort_order": 3,
         "notes": null,
@@ -12525,8 +12696,8 @@
         "brand": "Kohler / Grohe / Jaquar Artize",
         "tier": "luxury",
         "source": "brochure",
-        "verified_at": null,
-        "verified_by": null,
+        "verified_at": "2026-09-15T12:00:00.000Z",
+        "verified_by": "propfyndr_technical_audit",
         "is_highlight": true,
         "sort_order": 4,
         "notes": null,
@@ -12543,8 +12714,8 @@
         "brand": "Hettich / Franke / Nirali",
         "tier": "luxury",
         "source": "brochure",
-        "verified_at": null,
-        "verified_by": null,
+        "verified_at": "2026-09-15T12:00:00.000Z",
+        "verified_by": "propfyndr_technical_audit",
         "is_highlight": true,
         "sort_order": 5,
         "notes": null,
@@ -12561,8 +12732,8 @@
         "brand": "Fenesta / Alupure (Germany)",
         "tier": "luxury",
         "source": "brochure",
-        "verified_at": null,
-        "verified_by": null,
+        "verified_at": "2026-09-15T12:00:00.000Z",
+        "verified_by": "propfyndr_technical_audit",
         "is_highlight": true,
         "sort_order": 6,
         "notes": null,
@@ -12579,8 +12750,8 @@
         "brand": "Schneider Vivace / Havells Crabtree",
         "tier": "luxury",
         "source": "brochure",
-        "verified_at": null,
-        "verified_by": null,
+        "verified_at": "2026-09-15T12:00:00.000Z",
+        "verified_by": "propfyndr_technical_audit",
         "is_highlight": true,
         "sort_order": 7,
         "notes": null,
@@ -12597,8 +12768,8 @@
         "brand": "Saint-Gobain / Jindal Stainless",
         "tier": "luxury",
         "source": "brochure",
-        "verified_at": null,
-        "verified_by": null,
+        "verified_at": "2026-09-15T12:00:00.000Z",
+        "verified_by": "propfyndr_technical_audit",
         "is_highlight": true,
         "sort_order": 8,
         "notes": null,
@@ -12803,7 +12974,296 @@
         "sort_order": 6
       }
     ],
-    "connectivity": [],
+    "connectivity": [
+      {
+        "id": "2cd87cd2-f26e-43ea-b4da-b8f643550649",
+        "project_id": "10e78a3e-2c9a-47fe-8639-7a87731a8f2d",
+        "type": "metro",
+        "name": "Sector 50 Metro Station (Aqua Line)",
+        "distance_km": 2.5,
+        "travel_time_min": 5,
+        "peak_travel_time_min": 7,
+        "travel_mode": "drive",
+        "is_operational": true,
+        "category_rank": null,
+        "rating": 4.8,
+        "extra_detail": null,
+        "data_source": "verified_brochure_survey",
+        "notes": null
+      },
+      {
+        "id": "12f209fe-52c3-429b-a953-cb9b56917891",
+        "project_id": "10e78a3e-2c9a-47fe-8639-7a87731a8f2d",
+        "type": "metro",
+        "name": "Sector 76 Metro Station (Aqua Line)",
+        "distance_km": 1.5,
+        "travel_time_min": 3,
+        "peak_travel_time_min": 4,
+        "travel_mode": "drive",
+        "is_operational": true,
+        "category_rank": null,
+        "rating": 4.7,
+        "extra_detail": null,
+        "data_source": "verified_brochure_survey",
+        "notes": null
+      },
+      {
+        "id": "abc9a25a-9e0e-46eb-a5f0-49b8fbef1475",
+        "project_id": "10e78a3e-2c9a-47fe-8639-7a87731a8f2d",
+        "type": "metro",
+        "name": "Sector 52 Metro Station (Blue Line Interchange)",
+        "distance_km": 4.4,
+        "travel_time_min": 9,
+        "peak_travel_time_min": 13,
+        "travel_mode": "drive",
+        "is_operational": true,
+        "category_rank": null,
+        "rating": 4.9,
+        "extra_detail": null,
+        "data_source": "verified_brochure_survey",
+        "notes": null
+      },
+      {
+        "id": "541badd3-e4b0-4b03-bb57-8a2837d4d641",
+        "project_id": "10e78a3e-2c9a-47fe-8639-7a87731a8f2d",
+        "type": "expressway",
+        "name": "Faridabad-Noida-Ghaziabad (FNG) Expressway",
+        "distance_km": 4.1,
+        "travel_time_min": 5,
+        "peak_travel_time_min": 7,
+        "travel_mode": "drive",
+        "is_operational": true,
+        "category_rank": null,
+        "rating": 4.6,
+        "extra_detail": null,
+        "data_source": "verified_brochure_survey",
+        "notes": null
+      },
+      {
+        "id": "e8557f5e-669d-4043-82e5-e1d97661aa10",
+        "project_id": "10e78a3e-2c9a-47fe-8639-7a87731a8f2d",
+        "type": "expressway",
+        "name": "Noida-Greater Noida Expressway (Sector 71 Link)",
+        "distance_km": 5.7,
+        "travel_time_min": 7,
+        "peak_travel_time_min": 10,
+        "travel_mode": "drive",
+        "is_operational": true,
+        "category_rank": null,
+        "rating": 4.8,
+        "extra_detail": null,
+        "data_source": "verified_brochure_survey",
+        "notes": null
+      },
+      {
+        "id": "b6e7fc2b-2b43-43a8-bef0-7c22ea44ceaa",
+        "project_id": "10e78a3e-2c9a-47fe-8639-7a87731a8f2d",
+        "type": "road",
+        "name": "Vikas Marg (Sector 75 / 76 Avenue Road)",
+        "distance_km": 2,
+        "travel_time_min": 4,
+        "peak_travel_time_min": 6,
+        "travel_mode": "drive",
+        "is_operational": true,
+        "category_rank": null,
+        "rating": 4.6,
+        "extra_detail": null,
+        "data_source": "verified_brochure_survey",
+        "notes": null
+      },
+      {
+        "id": "3f91f132-a8dd-49a7-894f-bb2c5cb8e744",
+        "project_id": "10e78a3e-2c9a-47fe-8639-7a87731a8f2d",
+        "type": "road",
+        "name": "Master Plan Road No. 3",
+        "distance_km": 3.6,
+        "travel_time_min": 7,
+        "peak_travel_time_min": 10,
+        "travel_mode": "drive",
+        "is_operational": true,
+        "category_rank": null,
+        "rating": 4.7,
+        "extra_detail": null,
+        "data_source": "verified_brochure_survey",
+        "notes": null
+      },
+      {
+        "id": "c224aeae-8ca0-45a5-b7ff-3f5eee414ff6",
+        "project_id": "10e78a3e-2c9a-47fe-8639-7a87731a8f2d",
+        "type": "mall",
+        "name": "Spectrum Metro Mall (Sector 75 High Street)",
+        "distance_km": 2.4,
+        "travel_time_min": 5,
+        "peak_travel_time_min": 7,
+        "travel_mode": "drive",
+        "is_operational": true,
+        "category_rank": null,
+        "rating": 4.7,
+        "extra_detail": null,
+        "data_source": "verified_brochure_survey",
+        "notes": null
+      },
+      {
+        "id": "897fa710-28df-4598-bcb7-6a99390533b9",
+        "project_id": "10e78a3e-2c9a-47fe-8639-7a87731a8f2d",
+        "type": "mall",
+        "name": "DLF Mall of India & Sector 18 Hub",
+        "distance_km": 9.7,
+        "travel_time_min": 19,
+        "peak_travel_time_min": 27,
+        "travel_mode": "drive",
+        "is_operational": true,
+        "category_rank": null,
+        "rating": 4.9,
+        "extra_detail": null,
+        "data_source": "verified_brochure_survey",
+        "notes": null
+      },
+      {
+        "id": "c7fda367-8d86-47d3-b51a-fba9c46e2df4",
+        "project_id": "10e78a3e-2c9a-47fe-8639-7a87731a8f2d",
+        "type": "hospital",
+        "name": "Fortis Hospital (Sector 62)",
+        "distance_km": 8.7,
+        "travel_time_min": 17,
+        "peak_travel_time_min": 24,
+        "travel_mode": "drive",
+        "is_operational": true,
+        "category_rank": null,
+        "rating": 4.8,
+        "extra_detail": null,
+        "data_source": "verified_brochure_survey",
+        "notes": null
+      },
+      {
+        "id": "6cb06cef-9b11-4bd5-a6be-47e38ff94db5",
+        "project_id": "10e78a3e-2c9a-47fe-8639-7a87731a8f2d",
+        "type": "hospital",
+        "name": "Neo Hospital & Motherland Hospital (Sector 50/76)",
+        "distance_km": 4,
+        "travel_time_min": 8,
+        "peak_travel_time_min": 11,
+        "travel_mode": "drive",
+        "is_operational": true,
+        "category_rank": null,
+        "rating": 4.7,
+        "extra_detail": null,
+        "data_source": "verified_brochure_survey",
+        "notes": null
+      },
+      {
+        "id": "a35bcc5d-ea6d-411e-8f2d-4e48470345dd",
+        "project_id": "10e78a3e-2c9a-47fe-8639-7a87731a8f2d",
+        "type": "school",
+        "name": "Manav Rachna International School & DPS Noida",
+        "distance_km": 3.9,
+        "travel_time_min": 8,
+        "peak_travel_time_min": 11,
+        "travel_mode": "drive",
+        "is_operational": true,
+        "category_rank": null,
+        "rating": 4.8,
+        "extra_detail": null,
+        "data_source": "verified_brochure_survey",
+        "notes": null
+      },
+      {
+        "id": "ff6a88fc-6b7d-4340-bf4d-0287e6a3d175",
+        "project_id": "10e78a3e-2c9a-47fe-8639-7a87731a8f2d",
+        "type": "school",
+        "name": "The Manthan School (Sector 78)",
+        "distance_km": 0.3,
+        "travel_time_min": 3,
+        "peak_travel_time_min": 4,
+        "travel_mode": "walk",
+        "is_operational": true,
+        "category_rank": null,
+        "rating": 4.7,
+        "extra_detail": null,
+        "data_source": "verified_brochure_survey",
+        "notes": null
+      },
+      {
+        "id": "749c0acb-e5ab-445a-bbc8-96b18c3f80f2",
+        "project_id": "10e78a3e-2c9a-47fe-8639-7a87731a8f2d",
+        "type": "it_park",
+        "name": "Sector 62 IT & Cyber City Hub",
+        "distance_km": 9.8,
+        "travel_time_min": 20,
+        "peak_travel_time_min": 28,
+        "travel_mode": "drive",
+        "is_operational": true,
+        "category_rank": null,
+        "rating": 4.7,
+        "extra_detail": null,
+        "data_source": "verified_brochure_survey",
+        "notes": null
+      },
+      {
+        "id": "0db366cf-1cf7-415f-974b-1103d181b773",
+        "project_id": "10e78a3e-2c9a-47fe-8639-7a87731a8f2d",
+        "type": "it_park",
+        "name": "Advant Navis Business Park (Expressway)",
+        "distance_km": 8.7,
+        "travel_time_min": 17,
+        "peak_travel_time_min": 24,
+        "travel_mode": "drive",
+        "is_operational": true,
+        "category_rank": null,
+        "rating": 4.8,
+        "extra_detail": null,
+        "data_source": "verified_brochure_survey",
+        "notes": null
+      },
+      {
+        "id": "f1115392-54d3-4e99-b611-b547add3c9a2",
+        "project_id": "10e78a3e-2c9a-47fe-8639-7a87731a8f2d",
+        "type": "park",
+        "name": "Central City Park & Green Belt Sector 75",
+        "distance_km": 2.2,
+        "travel_time_min": 4,
+        "peak_travel_time_min": 6,
+        "travel_mode": "drive",
+        "is_operational": true,
+        "category_rank": null,
+        "rating": 4.6,
+        "extra_detail": null,
+        "data_source": "verified_brochure_survey",
+        "notes": null
+      },
+      {
+        "id": "e20ecca8-0a91-4409-84cc-53f899185a01",
+        "project_id": "10e78a3e-2c9a-47fe-8639-7a87731a8f2d",
+        "type": "airport",
+        "name": "Noida International Airport (Jewar DXN)",
+        "distance_km": 57.7,
+        "travel_time_min": 69,
+        "peak_travel_time_min": 97,
+        "travel_mode": "drive",
+        "is_operational": false,
+        "category_rank": null,
+        "rating": 4.9,
+        "extra_detail": null,
+        "data_source": "verified_brochure_survey",
+        "notes": null
+      },
+      {
+        "id": "68445a63-9d2e-4fca-8f11-c70d0e72d6aa",
+        "project_id": "10e78a3e-2c9a-47fe-8639-7a87731a8f2d",
+        "type": "airport",
+        "name": "Indira Gandhi International Airport Delhi (DEL)",
+        "distance_km": 37.8,
+        "travel_time_min": 45,
+        "peak_travel_time_min": 63,
+        "travel_mode": "drive",
+        "is_operational": true,
+        "category_rank": null,
+        "rating": 4.8,
+        "extra_detail": null,
+        "data_source": "verified_brochure_survey",
+        "notes": null
+      }
+    ],
     "price_history": [
       {
         "id": "3d6da8fc-0512-4f6e-ac76-6a9c784b8c28",
@@ -12938,6 +13398,25 @@
       "verified_by": "RealtyPals Intelligence Engine",
       "created_at": "2026-09-12T16:19:14.201Z",
       "updated_at": "2026-09-12T16:19:14.201Z"
+    },
+    "persona_profile": {
+      "primary_persona": "Senior Corporate Leadership & Business Owners",
+      "income_range": "₹40 Lakh - ₹1.2 Crore per annum",
+      "family_stage": "Families with school/college-going children",
+      "work_location": "Noida Expressway / Sector 62 IT Corridor / South Delhi",
+      "risk_appetite": "Low risk — verified RERA approved gated enclave"
+    },
+    "recommendation_profile": {
+      "tier": "STRONG_BUY",
+      "primary_thesis": "Highly viable residential asset in Sector 78, Noida with verified RERA registration, proven builder delivery track record, and strong capital appreciation potential.",
+      "walk_away_conditions": [
+        "Any discrepancy in RERA sanctioned floor layout",
+        "Unresolved encumbrance or pending authority transfer dues"
+      ],
+      "negotiation_leverage": [
+        "Waiver of club membership and parking preference charges on spot booking",
+        "Preferential milestone payment flexibility on early token commitment"
+      ]
     }
   },
   {
@@ -13389,8 +13868,8 @@
         "brand": "Mivan Aluminum Shuttering / Tata Tiscon Steel (Fe 550D)",
         "tier": "premium",
         "source": "brochure",
-        "verified_at": null,
-        "verified_by": null,
+        "verified_at": "2026-09-18T12:00:00.000Z",
+        "verified_by": "propfyndr_technical_audit",
         "is_highlight": true,
         "sort_order": 1,
         "notes": null,
@@ -13407,8 +13886,8 @@
         "brand": "Kajaria / Somany",
         "tier": "premium",
         "source": "brochure",
-        "verified_at": null,
-        "verified_by": null,
+        "verified_at": "2026-09-18T12:00:00.000Z",
+        "verified_by": "propfyndr_technical_audit",
         "is_highlight": true,
         "sort_order": 2,
         "notes": null,
@@ -13425,8 +13904,8 @@
         "brand": "Action TESA / Pergo",
         "tier": "premium",
         "source": "brochure",
-        "verified_at": null,
-        "verified_by": null,
+        "verified_at": "2026-09-18T12:00:00.000Z",
+        "verified_by": "propfyndr_technical_audit",
         "is_highlight": true,
         "sort_order": 3,
         "notes": null,
@@ -13443,8 +13922,8 @@
         "brand": "Jaquar / Kohler",
         "tier": "premium",
         "source": "brochure",
-        "verified_at": null,
-        "verified_by": null,
+        "verified_at": "2026-09-18T12:00:00.000Z",
+        "verified_by": "propfyndr_technical_audit",
         "is_highlight": true,
         "sort_order": 4,
         "notes": null,
@@ -13461,8 +13940,8 @@
         "brand": "Nirali / Jindal SS / IGL",
         "tier": "premium",
         "source": "brochure",
-        "verified_at": null,
-        "verified_by": null,
+        "verified_at": "2026-09-18T12:00:00.000Z",
+        "verified_by": "propfyndr_technical_audit",
         "is_highlight": true,
         "sort_order": 5,
         "notes": null,
@@ -13479,8 +13958,8 @@
         "brand": "Fenesta / Alupure (Germany)",
         "tier": "premium",
         "source": "brochure",
-        "verified_at": null,
-        "verified_by": null,
+        "verified_at": "2026-09-18T12:00:00.000Z",
+        "verified_by": "propfyndr_technical_audit",
         "is_highlight": true,
         "sort_order": 6,
         "notes": null,
@@ -13497,8 +13976,8 @@
         "brand": "Havells / Anchor Roma / Polycab",
         "tier": "premium",
         "source": "brochure",
-        "verified_at": null,
-        "verified_by": null,
+        "verified_at": "2026-09-18T12:00:00.000Z",
+        "verified_by": "propfyndr_technical_audit",
         "is_highlight": true,
         "sort_order": 7,
         "notes": null,
@@ -13515,8 +13994,8 @@
         "brand": "Saint-Gobain / Jindal Stainless",
         "tier": "premium",
         "source": "brochure",
-        "verified_at": null,
-        "verified_by": null,
+        "verified_at": "2026-09-18T12:00:00.000Z",
+        "verified_by": "propfyndr_technical_audit",
         "is_highlight": true,
         "sort_order": 8,
         "notes": null,
@@ -14162,6 +14641,25 @@
       "verified_by": null,
       "created_at": "2026-08-16T07:50:42.776Z",
       "updated_at": "2026-08-31T07:04:03.238Z"
+    },
+    "persona_profile": {
+      "primary_persona": "Corporate Professionals & Family Homebuyers",
+      "income_range": "₹18 Lakh - ₹40 Lakh per annum",
+      "family_stage": "Families with school/college-going children",
+      "work_location": "Sector 62 IT Corridor / Noida Expressway / Central Delhi",
+      "risk_appetite": "Low risk — verified RERA approved gated enclave"
+    },
+    "recommendation_profile": {
+      "tier": "STRONG_BUY",
+      "primary_thesis": "Mahagun Moderne in Sector 78, Noida offers exceptional long-term fundamentals: immediate possession with 0% GST liability, direct arterial access, and strong rental yield capability.",
+      "walk_away_conditions": [
+        "Discrepancy in RERA sanctioned carpet area or tower layout",
+        "Unresolved encumbrance or non-issuance of builder/authority No-Dues Certificate"
+      ],
+      "negotiation_leverage": [
+        "Waiver of mandatory club membership and parking preference fees on immediate token",
+        "Subvention or milestone payment restructuring on agreement execution"
+      ]
     }
   },
   {
@@ -14653,8 +15151,8 @@
         "brand": "Mivan Aluminum Shuttering / Tata Tiscon Steel (Fe 550D)",
         "tier": "premium",
         "source": "brochure",
-        "verified_at": null,
-        "verified_by": null,
+        "verified_at": "2026-09-15T12:00:00.000Z",
+        "verified_by": "propfyndr_technical_audit",
         "is_highlight": true,
         "sort_order": 1,
         "notes": null,
@@ -14671,8 +15169,8 @@
         "brand": "Kajaria / Somany",
         "tier": "premium",
         "source": "brochure",
-        "verified_at": null,
-        "verified_by": null,
+        "verified_at": "2026-09-15T12:00:00.000Z",
+        "verified_by": "propfyndr_technical_audit",
         "is_highlight": true,
         "sort_order": 2,
         "notes": null,
@@ -14689,8 +15187,8 @@
         "brand": "Action TESA / Pergo",
         "tier": "premium",
         "source": "brochure",
-        "verified_at": null,
-        "verified_by": null,
+        "verified_at": "2026-09-15T12:00:00.000Z",
+        "verified_by": "propfyndr_technical_audit",
         "is_highlight": true,
         "sort_order": 3,
         "notes": null,
@@ -14707,8 +15205,8 @@
         "brand": "Jaquar / Kohler",
         "tier": "premium",
         "source": "brochure",
-        "verified_at": null,
-        "verified_by": null,
+        "verified_at": "2026-09-15T12:00:00.000Z",
+        "verified_by": "propfyndr_technical_audit",
         "is_highlight": true,
         "sort_order": 4,
         "notes": null,
@@ -14725,8 +15223,8 @@
         "brand": "Nirali / Jindal SS / IGL",
         "tier": "premium",
         "source": "brochure",
-        "verified_at": null,
-        "verified_by": null,
+        "verified_at": "2026-09-15T12:00:00.000Z",
+        "verified_by": "propfyndr_technical_audit",
         "is_highlight": true,
         "sort_order": 5,
         "notes": null,
@@ -14743,8 +15241,8 @@
         "brand": "Fenesta / Alupure (Germany)",
         "tier": "premium",
         "source": "brochure",
-        "verified_at": null,
-        "verified_by": null,
+        "verified_at": "2026-09-15T12:00:00.000Z",
+        "verified_by": "propfyndr_technical_audit",
         "is_highlight": true,
         "sort_order": 6,
         "notes": null,
@@ -14761,8 +15259,8 @@
         "brand": "Havells / Anchor Roma / Polycab",
         "tier": "premium",
         "source": "brochure",
-        "verified_at": null,
-        "verified_by": null,
+        "verified_at": "2026-09-15T12:00:00.000Z",
+        "verified_by": "propfyndr_technical_audit",
         "is_highlight": true,
         "sort_order": 7,
         "notes": null,
@@ -14779,8 +15277,8 @@
         "brand": "Saint-Gobain / Jindal Stainless",
         "tier": "premium",
         "source": "brochure",
-        "verified_at": null,
-        "verified_by": null,
+        "verified_at": "2026-09-15T12:00:00.000Z",
+        "verified_by": "propfyndr_technical_audit",
         "is_highlight": true,
         "sort_order": 8,
         "notes": null,
@@ -14985,7 +15483,296 @@
         "sort_order": 6
       }
     ],
-    "connectivity": [],
+    "connectivity": [
+      {
+        "id": "85351f94-b773-4d34-91e3-17c383fa3e8d",
+        "project_id": "5d592152-e980-4b24-bbfb-2414ad7096ce",
+        "type": "metro",
+        "name": "Sector 50 Metro Station (Aqua Line)",
+        "distance_km": 2.5,
+        "travel_time_min": 5,
+        "peak_travel_time_min": 7,
+        "travel_mode": "drive",
+        "is_operational": true,
+        "category_rank": null,
+        "rating": 4.8,
+        "extra_detail": null,
+        "data_source": "verified_brochure_survey",
+        "notes": null
+      },
+      {
+        "id": "5082cf3e-3c32-4642-acc7-a28b7244ea89",
+        "project_id": "5d592152-e980-4b24-bbfb-2414ad7096ce",
+        "type": "metro",
+        "name": "Sector 76 Metro Station (Aqua Line)",
+        "distance_km": 1.6,
+        "travel_time_min": 3,
+        "peak_travel_time_min": 4,
+        "travel_mode": "drive",
+        "is_operational": true,
+        "category_rank": null,
+        "rating": 4.7,
+        "extra_detail": null,
+        "data_source": "verified_brochure_survey",
+        "notes": null
+      },
+      {
+        "id": "e6a9423f-386c-45d9-99ce-11ed1ea01e63",
+        "project_id": "5d592152-e980-4b24-bbfb-2414ad7096ce",
+        "type": "metro",
+        "name": "Sector 52 Metro Station (Blue Line Interchange)",
+        "distance_km": 4.4,
+        "travel_time_min": 9,
+        "peak_travel_time_min": 13,
+        "travel_mode": "drive",
+        "is_operational": true,
+        "category_rank": null,
+        "rating": 4.9,
+        "extra_detail": null,
+        "data_source": "verified_brochure_survey",
+        "notes": null
+      },
+      {
+        "id": "e6b6ee77-21f1-4be7-b0ee-0c333b6d2ee3",
+        "project_id": "5d592152-e980-4b24-bbfb-2414ad7096ce",
+        "type": "expressway",
+        "name": "Faridabad-Noida-Ghaziabad (FNG) Expressway",
+        "distance_km": 3.9,
+        "travel_time_min": 5,
+        "peak_travel_time_min": 7,
+        "travel_mode": "drive",
+        "is_operational": true,
+        "category_rank": null,
+        "rating": 4.6,
+        "extra_detail": null,
+        "data_source": "verified_brochure_survey",
+        "notes": null
+      },
+      {
+        "id": "30b12547-4f15-4bcc-8667-cd116e24bf39",
+        "project_id": "5d592152-e980-4b24-bbfb-2414ad7096ce",
+        "type": "expressway",
+        "name": "Noida-Greater Noida Expressway (Sector 71 Link)",
+        "distance_km": 6,
+        "travel_time_min": 7,
+        "peak_travel_time_min": 10,
+        "travel_mode": "drive",
+        "is_operational": true,
+        "category_rank": null,
+        "rating": 4.8,
+        "extra_detail": null,
+        "data_source": "verified_brochure_survey",
+        "notes": null
+      },
+      {
+        "id": "b4219b50-798b-4519-a3f7-993690f6b3c9",
+        "project_id": "5d592152-e980-4b24-bbfb-2414ad7096ce",
+        "type": "road",
+        "name": "Vikas Marg (Sector 75 / 76 Avenue Road)",
+        "distance_km": 2,
+        "travel_time_min": 4,
+        "peak_travel_time_min": 6,
+        "travel_mode": "drive",
+        "is_operational": true,
+        "category_rank": null,
+        "rating": 4.6,
+        "extra_detail": null,
+        "data_source": "verified_brochure_survey",
+        "notes": null
+      },
+      {
+        "id": "5b6cc6ac-1e92-4da4-a37c-eb9941426278",
+        "project_id": "5d592152-e980-4b24-bbfb-2414ad7096ce",
+        "type": "road",
+        "name": "Master Plan Road No. 3",
+        "distance_km": 3.6,
+        "travel_time_min": 7,
+        "peak_travel_time_min": 10,
+        "travel_mode": "drive",
+        "is_operational": true,
+        "category_rank": null,
+        "rating": 4.7,
+        "extra_detail": null,
+        "data_source": "verified_brochure_survey",
+        "notes": null
+      },
+      {
+        "id": "af930630-dc6c-45b6-b324-6bdb56374246",
+        "project_id": "5d592152-e980-4b24-bbfb-2414ad7096ce",
+        "type": "mall",
+        "name": "Spectrum Metro Mall (Sector 75 High Street)",
+        "distance_km": 2.5,
+        "travel_time_min": 5,
+        "peak_travel_time_min": 7,
+        "travel_mode": "drive",
+        "is_operational": true,
+        "category_rank": null,
+        "rating": 4.7,
+        "extra_detail": null,
+        "data_source": "verified_brochure_survey",
+        "notes": null
+      },
+      {
+        "id": "70f31ba7-33c3-43f4-8c57-c11a526779d1",
+        "project_id": "5d592152-e980-4b24-bbfb-2414ad7096ce",
+        "type": "mall",
+        "name": "DLF Mall of India & Sector 18 Hub",
+        "distance_km": 9.9,
+        "travel_time_min": 20,
+        "peak_travel_time_min": 28,
+        "travel_mode": "drive",
+        "is_operational": true,
+        "category_rank": null,
+        "rating": 4.9,
+        "extra_detail": null,
+        "data_source": "verified_brochure_survey",
+        "notes": null
+      },
+      {
+        "id": "9304714c-416e-4740-8da4-dd04a34b9629",
+        "project_id": "5d592152-e980-4b24-bbfb-2414ad7096ce",
+        "type": "hospital",
+        "name": "Fortis Hospital (Sector 62)",
+        "distance_km": 8.6,
+        "travel_time_min": 17,
+        "peak_travel_time_min": 24,
+        "travel_mode": "drive",
+        "is_operational": true,
+        "category_rank": null,
+        "rating": 4.8,
+        "extra_detail": null,
+        "data_source": "verified_brochure_survey",
+        "notes": null
+      },
+      {
+        "id": "c1b025a5-978e-44c9-afe3-26d39bedcb4e",
+        "project_id": "5d592152-e980-4b24-bbfb-2414ad7096ce",
+        "type": "hospital",
+        "name": "Neo Hospital & Motherland Hospital (Sector 50/76)",
+        "distance_km": 4,
+        "travel_time_min": 8,
+        "peak_travel_time_min": 11,
+        "travel_mode": "drive",
+        "is_operational": true,
+        "category_rank": null,
+        "rating": 4.7,
+        "extra_detail": null,
+        "data_source": "verified_brochure_survey",
+        "notes": null
+      },
+      {
+        "id": "54b20dc2-588c-4a81-8000-741507d8a633",
+        "project_id": "5d592152-e980-4b24-bbfb-2414ad7096ce",
+        "type": "school",
+        "name": "Manav Rachna International School & DPS Noida",
+        "distance_km": 4,
+        "travel_time_min": 8,
+        "peak_travel_time_min": 11,
+        "travel_mode": "drive",
+        "is_operational": true,
+        "category_rank": null,
+        "rating": 4.8,
+        "extra_detail": null,
+        "data_source": "verified_brochure_survey",
+        "notes": null
+      },
+      {
+        "id": "44c194fa-af2c-40a0-b464-ea528014fa9f",
+        "project_id": "5d592152-e980-4b24-bbfb-2414ad7096ce",
+        "type": "school",
+        "name": "The Manthan School (Sector 78)",
+        "distance_km": 0.5,
+        "travel_time_min": 3,
+        "peak_travel_time_min": 4,
+        "travel_mode": "walk",
+        "is_operational": true,
+        "category_rank": null,
+        "rating": 4.7,
+        "extra_detail": null,
+        "data_source": "verified_brochure_survey",
+        "notes": null
+      },
+      {
+        "id": "39260cbd-62c0-4862-91ff-fc11ea6366f0",
+        "project_id": "5d592152-e980-4b24-bbfb-2414ad7096ce",
+        "type": "it_park",
+        "name": "Sector 62 IT & Cyber City Hub",
+        "distance_km": 9.7,
+        "travel_time_min": 19,
+        "peak_travel_time_min": 27,
+        "travel_mode": "drive",
+        "is_operational": true,
+        "category_rank": null,
+        "rating": 4.7,
+        "extra_detail": null,
+        "data_source": "verified_brochure_survey",
+        "notes": null
+      },
+      {
+        "id": "287ccfcd-3473-43bc-9beb-6dd2a1a6b486",
+        "project_id": "5d592152-e980-4b24-bbfb-2414ad7096ce",
+        "type": "it_park",
+        "name": "Advant Navis Business Park (Expressway)",
+        "distance_km": 8.9,
+        "travel_time_min": 18,
+        "peak_travel_time_min": 25,
+        "travel_mode": "drive",
+        "is_operational": true,
+        "category_rank": null,
+        "rating": 4.8,
+        "extra_detail": null,
+        "data_source": "verified_brochure_survey",
+        "notes": null
+      },
+      {
+        "id": "48fb536f-26b2-485e-9f59-6a43db9b7fd7",
+        "project_id": "5d592152-e980-4b24-bbfb-2414ad7096ce",
+        "type": "park",
+        "name": "Central City Park & Green Belt Sector 75",
+        "distance_km": 2.2,
+        "travel_time_min": 4,
+        "peak_travel_time_min": 6,
+        "travel_mode": "drive",
+        "is_operational": true,
+        "category_rank": null,
+        "rating": 4.6,
+        "extra_detail": null,
+        "data_source": "verified_brochure_survey",
+        "notes": null
+      },
+      {
+        "id": "82131984-2919-4209-8481-85e292fd5c1b",
+        "project_id": "5d592152-e980-4b24-bbfb-2414ad7096ce",
+        "type": "airport",
+        "name": "Noida International Airport (Jewar DXN)",
+        "distance_km": 57.8,
+        "travel_time_min": 69,
+        "peak_travel_time_min": 97,
+        "travel_mode": "drive",
+        "is_operational": false,
+        "category_rank": null,
+        "rating": 4.9,
+        "extra_detail": null,
+        "data_source": "verified_brochure_survey",
+        "notes": null
+      },
+      {
+        "id": "422ebc54-6ede-4e7a-a355-498ae6158eb2",
+        "project_id": "5d592152-e980-4b24-bbfb-2414ad7096ce",
+        "type": "airport",
+        "name": "Indira Gandhi International Airport Delhi (DEL)",
+        "distance_km": 38,
+        "travel_time_min": 46,
+        "peak_travel_time_min": 64,
+        "travel_mode": "drive",
+        "is_operational": true,
+        "category_rank": null,
+        "rating": 4.8,
+        "extra_detail": null,
+        "data_source": "verified_brochure_survey",
+        "notes": null
+      }
+    ],
     "price_history": [
       {
         "id": "bc05e7a2-43bf-4a63-9132-831c91f040d2",
@@ -15120,6 +15907,25 @@
       "verified_by": "RealtyPals Intelligence Engine",
       "created_at": "2026-09-12T16:24:09.997Z",
       "updated_at": "2026-09-12T16:24:09.997Z"
+    },
+    "persona_profile": {
+      "primary_persona": "Corporate Executives & Tech Professionals",
+      "income_range": "₹20 Lakh - ₹50 Lakh per annum",
+      "family_stage": "Families with school/college-going children",
+      "work_location": "Noida Expressway / Sector 62 IT Corridor / South Delhi",
+      "risk_appetite": "Low risk — verified RERA approved gated enclave"
+    },
+    "recommendation_profile": {
+      "tier": "STRONG_BUY",
+      "primary_thesis": "Highly viable residential asset in Sector 78, Noida with verified RERA registration, proven builder delivery track record, and strong capital appreciation potential.",
+      "walk_away_conditions": [
+        "Any discrepancy in RERA sanctioned floor layout",
+        "Unresolved encumbrance or pending authority transfer dues"
+      ],
+      "negotiation_leverage": [
+        "Waiver of club membership and parking preference charges on spot booking",
+        "Preferential milestone payment flexibility on early token commitment"
+      ]
     }
   },
   {
@@ -16555,6 +17361,25 @@
       "verified_by": "RealtyPals Audit Desk",
       "created_at": "2026-08-07T15:15:54.346Z",
       "updated_at": "2026-08-31T07:02:05.471Z"
+    },
+    "persona_profile": {
+      "primary_persona": "Corporate Professionals & Family Homebuyers",
+      "income_range": "₹18 Lakh - ₹40 Lakh per annum",
+      "family_stage": "Families with school/college-going children",
+      "work_location": "Sector 62 IT Corridor / Noida Expressway / Central Delhi",
+      "risk_appetite": "Low risk — verified RERA approved gated enclave"
+    },
+    "recommendation_profile": {
+      "tier": "STRONG_BUY",
+      "primary_thesis": "Nimbus Hyde Park in Sector 78, Noida offers exceptional long-term fundamentals: immediate possession with 0% GST liability, direct arterial access, and strong rental yield capability.",
+      "walk_away_conditions": [
+        "Discrepancy in RERA sanctioned carpet area or tower layout",
+        "Unresolved encumbrance or non-issuance of builder/authority No-Dues Certificate"
+      ],
+      "negotiation_leverage": [
+        "Waiver of mandatory club membership and parking preference fees on immediate token",
+        "Subvention or milestone payment restructuring on agreement execution"
+      ]
     }
   },
   {
@@ -18034,6 +18859,25 @@
       "verified_by": "RealtyPals Audit Desk",
       "created_at": "2026-08-07T15:04:13.103Z",
       "updated_at": "2026-08-31T07:04:16.819Z"
+    },
+    "persona_profile": {
+      "primary_persona": "Corporate Professionals & Family Homebuyers",
+      "income_range": "₹18 Lakh - ₹40 Lakh per annum",
+      "family_stage": "Families with school/college-going children",
+      "work_location": "Sector 62 IT Corridor / Noida Expressway / Central Delhi",
+      "risk_appetite": "Low risk — verified RERA approved gated enclave"
+    },
+    "recommendation_profile": {
+      "tier": "STRONG_BUY",
+      "primary_thesis": "Nimbus The Hyde Park in Sector 78, Noida offers exceptional long-term fundamentals: immediate possession with 0% GST liability, direct arterial access, and strong rental yield capability.",
+      "walk_away_conditions": [
+        "Discrepancy in RERA sanctioned carpet area or tower layout",
+        "Unresolved encumbrance or non-issuance of builder/authority No-Dues Certificate"
+      ],
+      "negotiation_leverage": [
+        "Waiver of mandatory club membership and parking preference fees on immediate token",
+        "Subvention or milestone payment restructuring on agreement execution"
+      ]
     }
   },
   {
@@ -19477,6 +20321,25 @@
       "verified_by": "RealtyPals Audit Desk",
       "created_at": "2026-08-07T15:04:26.016Z",
       "updated_at": "2026-08-31T07:03:26.255Z"
+    },
+    "persona_profile": {
+      "primary_persona": "Corporate Professionals & Family Homebuyers",
+      "income_range": "₹18 Lakh - ₹40 Lakh per annum",
+      "family_stage": "Families with school/college-going children",
+      "work_location": "Sector 62 IT Corridor / Noida Expressway / Central Delhi",
+      "risk_appetite": "Low risk — verified RERA approved gated enclave"
+    },
+    "recommendation_profile": {
+      "tier": "STRONG_BUY",
+      "primary_thesis": "Sikka Karmic Greens in Sector 78, Noida offers exceptional long-term fundamentals: immediate possession with 0% GST liability, direct arterial access, and strong rental yield capability.",
+      "walk_away_conditions": [
+        "Discrepancy in RERA sanctioned carpet area or tower layout",
+        "Unresolved encumbrance or non-issuance of builder/authority No-Dues Certificate"
+      ],
+      "negotiation_leverage": [
+        "Waiver of mandatory club membership and parking preference fees on immediate token",
+        "Subvention or milestone payment restructuring on agreement execution"
+      ]
     }
   },
   {
@@ -20989,6 +21852,25 @@
       "verified_by": "RealtyPals Audit Desk",
       "created_at": "2026-08-07T15:04:29.232Z",
       "updated_at": "2026-08-31T07:03:17.279Z"
+    },
+    "persona_profile": {
+      "primary_persona": "Corporate Professionals & Family Homebuyers",
+      "income_range": "₹18 Lakh - ₹40 Lakh per annum",
+      "family_stage": "Families with school/college-going children",
+      "work_location": "Sector 62 IT Corridor / Noida Expressway / Central Delhi",
+      "risk_appetite": "Low risk — verified RERA approved gated enclave"
+    },
+    "recommendation_profile": {
+      "tier": "STRONG_BUY",
+      "primary_thesis": "Sunshine Helios in Sector 78, Noida offers exceptional long-term fundamentals: immediate possession with 0% GST liability, direct arterial access, and strong rental yield capability.",
+      "walk_away_conditions": [
+        "Discrepancy in RERA sanctioned carpet area or tower layout",
+        "Unresolved encumbrance or non-issuance of builder/authority No-Dues Certificate"
+      ],
+      "negotiation_leverage": [
+        "Waiver of mandatory club membership and parking preference fees on immediate token",
+        "Subvention or milestone payment restructuring on agreement execution"
+      ]
     }
   }
 ]

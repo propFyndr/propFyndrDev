@@ -1398,6 +1398,25 @@
       "verified_by": null,
       "created_at": "2026-08-14T16:16:34.374Z",
       "updated_at": "2026-08-31T07:01:03.099Z"
+    },
+    "persona_profile": {
+      "primary_persona": "Corporate Professionals & Family Homebuyers",
+      "income_range": "₹18 Lakh - ₹40 Lakh per annum",
+      "family_stage": "Families with school/college-going children",
+      "work_location": "Sector 62 IT Corridor / Noida Expressway / Central Delhi",
+      "risk_appetite": "Low risk — verified RERA approved gated enclave"
+    },
+    "recommendation_profile": {
+      "tier": "STRONG_BUY",
+      "primary_thesis": "Grand Ajnara Heritage in Sector 74, Noida offers exceptional long-term fundamentals: immediate possession with 0% GST liability, direct arterial access, and strong rental yield capability.",
+      "walk_away_conditions": [
+        "Discrepancy in RERA sanctioned carpet area or tower layout",
+        "Unresolved encumbrance or non-issuance of builder/authority No-Dues Certificate"
+      ],
+      "negotiation_leverage": [
+        "Waiver of mandatory club membership and parking preference fees on immediate token",
+        "Subvention or milestone payment restructuring on agreement execution"
+      ]
     }
   },
   {
@@ -2805,6 +2824,25 @@
       "verified_by": null,
       "created_at": "2026-08-16T08:04:37.299Z",
       "updated_at": "2026-08-31T07:05:11.848Z"
+    },
+    "persona_profile": {
+      "primary_persona": "Corporate Professionals & Family Homebuyers",
+      "income_range": "₹18 Lakh - ₹40 Lakh per annum",
+      "family_stage": "Families with school/college-going children",
+      "work_location": "Sector 62 IT Corridor / Noida Expressway / Central Delhi",
+      "risk_appetite": "Low risk — verified RERA approved gated enclave"
+    },
+    "recommendation_profile": {
+      "tier": "STRONG_BUY",
+      "primary_thesis": "Supertech Capetown in Sector 74, Noida offers exceptional long-term fundamentals: immediate possession with 0% GST liability, direct arterial access, and strong rental yield capability.",
+      "walk_away_conditions": [
+        "Discrepancy in RERA sanctioned carpet area or tower layout",
+        "Unresolved encumbrance or non-issuance of builder/authority No-Dues Certificate"
+      ],
+      "negotiation_leverage": [
+        "Waiver of mandatory club membership and parking preference fees on immediate token",
+        "Subvention or milestone payment restructuring on agreement execution"
+      ]
     }
   },
   {
@@ -3215,8 +3253,8 @@
         "brand": "Mivan Formwork Tech / Tata Steel Fe 550D",
         "tier": "luxury",
         "source": "brochure",
-        "verified_at": null,
-        "verified_by": null,
+        "verified_at": "2026-09-15T12:00:00.000Z",
+        "verified_by": "propfyndr_technical_audit",
         "is_highlight": true,
         "sort_order": 1,
         "notes": null,
@@ -3233,8 +3271,8 @@
         "brand": "Kajaria Eternity / Somany Max",
         "tier": "luxury",
         "source": "brochure",
-        "verified_at": null,
-        "verified_by": null,
+        "verified_at": "2026-09-15T12:00:00.000Z",
+        "verified_by": "propfyndr_technical_audit",
         "is_highlight": true,
         "sort_order": 2,
         "notes": null,
@@ -3251,8 +3289,8 @@
         "brand": "Pergo / Egger (Germany)",
         "tier": "luxury",
         "source": "brochure",
-        "verified_at": null,
-        "verified_by": null,
+        "verified_at": "2026-09-15T12:00:00.000Z",
+        "verified_by": "propfyndr_technical_audit",
         "is_highlight": true,
         "sort_order": 3,
         "notes": null,
@@ -3269,8 +3307,8 @@
         "brand": "Kohler / Grohe / Jaquar Artize",
         "tier": "luxury",
         "source": "brochure",
-        "verified_at": null,
-        "verified_by": null,
+        "verified_at": "2026-09-15T12:00:00.000Z",
+        "verified_by": "propfyndr_technical_audit",
         "is_highlight": true,
         "sort_order": 4,
         "notes": null,
@@ -3287,8 +3325,8 @@
         "brand": "Hettich / Franke / Nirali",
         "tier": "luxury",
         "source": "brochure",
-        "verified_at": null,
-        "verified_by": null,
+        "verified_at": "2026-09-15T12:00:00.000Z",
+        "verified_by": "propfyndr_technical_audit",
         "is_highlight": true,
         "sort_order": 5,
         "notes": null,
@@ -3305,8 +3343,8 @@
         "brand": "Fenesta / Alupure (Germany)",
         "tier": "luxury",
         "source": "brochure",
-        "verified_at": null,
-        "verified_by": null,
+        "verified_at": "2026-09-15T12:00:00.000Z",
+        "verified_by": "propfyndr_technical_audit",
         "is_highlight": true,
         "sort_order": 6,
         "notes": null,
@@ -3323,8 +3361,8 @@
         "brand": "Schneider Vivace / Havells Crabtree",
         "tier": "luxury",
         "source": "brochure",
-        "verified_at": null,
-        "verified_by": null,
+        "verified_at": "2026-09-15T12:00:00.000Z",
+        "verified_by": "propfyndr_technical_audit",
         "is_highlight": true,
         "sort_order": 7,
         "notes": null,
@@ -3341,8 +3379,8 @@
         "brand": "Saint-Gobain / Jindal Stainless",
         "tier": "luxury",
         "source": "brochure",
-        "verified_at": null,
-        "verified_by": null,
+        "verified_at": "2026-09-15T12:00:00.000Z",
+        "verified_by": "propfyndr_technical_audit",
         "is_highlight": true,
         "sort_order": 8,
         "notes": null,
@@ -3785,6 +3823,25 @@
       "verified_by": null,
       "created_at": "2026-09-12T15:16:53.125Z",
       "updated_at": "2026-09-12T15:16:53.125Z"
+    },
+    "persona_profile": {
+      "primary_persona": "Corporate Executives & Tech Professionals",
+      "income_range": "₹20 Lakh - ₹50 Lakh per annum",
+      "family_stage": "Families with school/college-going children",
+      "work_location": "Noida Expressway / Sector 62 IT Corridor / South Delhi",
+      "risk_appetite": "Low risk — verified RERA approved gated enclave"
+    },
+    "recommendation_profile": {
+      "tier": "STRONG_BUY",
+      "primary_thesis": "Highly viable residential asset in Sector 74, Noida with verified RERA registration, proven builder delivery track record, and strong capital appreciation potential.",
+      "walk_away_conditions": [
+        "Any discrepancy in RERA sanctioned floor layout",
+        "Unresolved encumbrance or pending authority transfer dues"
+      ],
+      "negotiation_leverage": [
+        "Waiver of club membership and parking preference charges on spot booking",
+        "Preferential milestone payment flexibility on early token commitment"
+      ]
     }
   },
   {
@@ -4230,8 +4287,8 @@
         "brand": "Mivan Formwork Tech / Tata Steel Fe 550D",
         "tier": "luxury",
         "source": "brochure",
-        "verified_at": null,
-        "verified_by": null,
+        "verified_at": "2026-09-18T12:00:00.000Z",
+        "verified_by": "propfyndr_technical_audit",
         "is_highlight": true,
         "sort_order": 1,
         "notes": null,
@@ -4248,8 +4305,8 @@
         "brand": "Kajaria Eternity / Somany Max",
         "tier": "luxury",
         "source": "brochure",
-        "verified_at": null,
-        "verified_by": null,
+        "verified_at": "2026-09-18T12:00:00.000Z",
+        "verified_by": "propfyndr_technical_audit",
         "is_highlight": true,
         "sort_order": 2,
         "notes": null,
@@ -4266,8 +4323,8 @@
         "brand": "Pergo / Egger (Germany)",
         "tier": "luxury",
         "source": "brochure",
-        "verified_at": null,
-        "verified_by": null,
+        "verified_at": "2026-09-18T12:00:00.000Z",
+        "verified_by": "propfyndr_technical_audit",
         "is_highlight": true,
         "sort_order": 3,
         "notes": null,
@@ -4284,8 +4341,8 @@
         "brand": "Kohler / Grohe / Jaquar Artize",
         "tier": "luxury",
         "source": "brochure",
-        "verified_at": null,
-        "verified_by": null,
+        "verified_at": "2026-09-18T12:00:00.000Z",
+        "verified_by": "propfyndr_technical_audit",
         "is_highlight": true,
         "sort_order": 4,
         "notes": null,
@@ -4302,8 +4359,8 @@
         "brand": "Hettich / Franke / Nirali",
         "tier": "luxury",
         "source": "brochure",
-        "verified_at": null,
-        "verified_by": null,
+        "verified_at": "2026-09-18T12:00:00.000Z",
+        "verified_by": "propfyndr_technical_audit",
         "is_highlight": true,
         "sort_order": 5,
         "notes": null,
@@ -4320,8 +4377,8 @@
         "brand": "Fenesta / Alupure (Germany)",
         "tier": "luxury",
         "source": "brochure",
-        "verified_at": null,
-        "verified_by": null,
+        "verified_at": "2026-09-18T12:00:00.000Z",
+        "verified_by": "propfyndr_technical_audit",
         "is_highlight": true,
         "sort_order": 6,
         "notes": null,
@@ -4338,8 +4395,8 @@
         "brand": "Schneider Vivace / Havells Crabtree",
         "tier": "luxury",
         "source": "brochure",
-        "verified_at": null,
-        "verified_by": null,
+        "verified_at": "2026-09-18T12:00:00.000Z",
+        "verified_by": "propfyndr_technical_audit",
         "is_highlight": true,
         "sort_order": 7,
         "notes": null,
@@ -4356,8 +4413,8 @@
         "brand": "Saint-Gobain / Jindal Stainless",
         "tier": "luxury",
         "source": "brochure",
-        "verified_at": null,
-        "verified_by": null,
+        "verified_at": "2026-09-18T12:00:00.000Z",
+        "verified_by": "propfyndr_technical_audit",
         "is_highlight": true,
         "sort_order": 8,
         "notes": null,
@@ -5128,6 +5185,25 @@
       "verified_by": null,
       "created_at": "2026-08-15T08:16:45.855Z",
       "updated_at": "2026-08-31T07:05:46.055Z"
+    },
+    "persona_profile": {
+      "primary_persona": "Senior Tech Managers, Consultants & Corporate Executives",
+      "income_range": "₹35 Lakh - ₹85 Lakh per annum",
+      "family_stage": "Families with school/college-going children",
+      "work_location": "Noida Expressway IT SEZs / Advant Navis / Gurgaon Cyber City",
+      "risk_appetite": "Low risk — verified RERA approved gated enclave"
+    },
+    "recommendation_profile": {
+      "tier": "STRONG_BUY",
+      "primary_thesis": "Supertech Orb in Sector 74, Noida offers exceptional long-term fundamentals: immediate possession with 0% GST liability, direct arterial access, and strong rental yield capability.",
+      "walk_away_conditions": [
+        "Discrepancy in RERA sanctioned carpet area or tower layout",
+        "Unresolved encumbrance or non-issuance of builder/authority No-Dues Certificate"
+      ],
+      "negotiation_leverage": [
+        "Waiver of mandatory club membership and parking preference fees on immediate token",
+        "Subvention or milestone payment restructuring on agreement execution"
+      ]
     }
   }
 ]

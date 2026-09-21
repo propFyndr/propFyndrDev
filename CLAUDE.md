@@ -153,6 +153,41 @@ Every fact presented to a buyer belongs to exactly one tier. Reference `lib/fact
 
 **Adding a column to schema.prisma does not expose it.** It is absent from `PROJECT_PUBLIC_SELECT` until classified, and `projectExposure.test.ts` fails on anything unclassified. Make the call deliberately.
 
+## Who Sees What — the Role Matrix
+
+Five roles, three audiences. `AdminRole` in `schema.prisma`; enforced in
+`lib/adminPolicy.ts` (paths), `lib/adminFieldRedaction.ts` (columns) and
+`lib/adminReadAudit.ts` (who read a person's data).
+
+| Audience | Roles | Surface |
+|---|---|---|
+| Us — founders, engineers | `SUPER_ADMIN`, `ANALYST`, `SALES` | `/admin` |
+| Supply side — builders, partners | `BUILDER`, `PARTNER` | `/portal`, tenant subdomains |
+| Demand side — buyers | Supabase users + guest tokens | the main app |
+
+**ANALYST is ours, not a builder's.** It is the catalogue role — prices, possession
+dates, RERA, images, sector data. The builder-side equivalent is `BUILDER`.
+
+**Rules that are not negotiable:**
+
+* **A builder never receives a chat transcript.** The conversation contains this buyer
+  comparing this builder against competitors, and our advisor honestly naming this
+  builder's trade-offs. Handing it over sells the neutrality that is the entire thesis of
+  § Trust First. Builders and partners receive a **Lead Brief** — a generated artefact
+  scoped to one project, competitor names scrubbed (`lib/leadBrief.ts`). Competitor
+  *pressure* may be stated abstractly; competitor *identity* never.
+* **A promoted project is never ranked higher in recommendations.** The news rail
+  (`routes/promotionals.ts`, `components/NewsRail.tsx`) decides what a buyer is invited to
+  *ask about*; it must never touch what the advisor *recommends*, or the advisor is an
+  advertising channel and the product is dead.
+* **A tenant subdomain is addressing, never authorisation.** `lotus.propfyndr.in` decides
+  what the page says. Scope always comes from the session, server-side, on every request.
+* **Only PropFyndr mints identities.** A builder may propose a partner login; approval
+  creates it. A builder able to create `AdminUser` rows would mean anyone compromising one
+  builder login could manufacture more.
+* **Invitees always set their own password.** We never issue one. A password we mint lives
+  in a chat thread forever and makes us liable for it.
+
 ## AI Assistant Rules
 The assistant must:
 * Be honest
