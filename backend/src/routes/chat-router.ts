@@ -194,7 +194,7 @@ router.post('/', async (req: Request, res: Response) => {
   const { action, offset } = parsed.data
   let { guestToken } = parsed.data
   let sessionId = parsed.data.sessionId
-  const prevIntent = (parsed.data.intent ?? {}) as Record<string, unknown>
+  const prevIntent = (sessionId ? (parsed.data.intent ?? {}) : {}) as Record<string, unknown>
   let message = action.type === 'TEXT_MESSAGE' ? (action.payload.text as string) : ''
   if (action.type === 'INTENT_PATCH' || action.type === 'REMOVE_FILTER') {
     // The label names the field AND the new value ("Change location to Sector
@@ -945,6 +945,9 @@ router.post('/', async (req: Request, res: Response) => {
     console.log('[CHAT] END extractIntent', Date.now(), { intent })
 
     let isFreshSearch = false;
+    let isOpenAdvisoryQuery = false;
+    let isBroadSuperlativeQuery = false;
+    let messageHasBudget = false;
     // Exact project name detection & active session focus persistence
     try {
       const lowerMsg = message.toLowerCase().trim();
@@ -997,10 +1000,26 @@ router.post('/', async (req: Request, res: Response) => {
         (intent as any).targetProjectId = matched.id;
       } else {
         // Detect if current query is a new sector search, builder query, general advisory, or general discovery search
+        isOpenAdvisoryQuery = /\b(highest\s*return|maximum\s*return|best\s*(?:investment|return)|where\s*to\s*invest|market\s*overview|which\s*sector\s*is\s*best|how\s*is\s*noida|capital\s*appreciation|rental\s*yield)\b/i.test(message);
+        isBroadSuperlativeQuery = /\b(show\s*(?:me)?\s*(?:the)?\s*best\s*(?:of\s*(?:the)?\s*)?projects|top\s*projects\s*in\s*noida|best\s*societies\s*in\s*noida)\b/i.test(message) && !/\b(under|budget|below|in\s*sector\s*\d+)\b/i.test(message);
         const isCityLevelGeneralQuery = /\b(generally\s*noida|whole\s*noida|entire\s*noida|noida\s*overall|average\s*price\s*(in|of)\s*noida|noida\s*as\s*a\s*whole)\b/i.test(message);
-        if (isCityLevelGeneralQuery) {
-          console.log('[CHAT] City-wide general query detected — resetting sticky sector context.');
-          intent.sector = undefined;
+
+        messageHasBudget = /\b(\d+(?:\.\d+)?\s*(?:cr|crore|lakh|lac|k)\b|budget|under\s*\d+|below\s*\d+)/i.test(message);
+        const messageHasBhk = /\b([1-5]\s*bhk|studio|penthouse)\b/i.test(message);
+        const messageHasSector = /\b(sector\s*\d+|expressway|greater\s*noida|extension)\b/i.test(message);
+
+        if (isOpenAdvisoryQuery || isBroadSuperlativeQuery || isCityLevelGeneralQuery) {
+          console.log('[CHAT] Market-wide advisory/open query detected — decoupling sticky search filters not explicitly typed this turn.');
+          if (!messageHasBudget) {
+            intent.budgetMin = undefined;
+            intent.budgetMax = undefined;
+          }
+          if (!messageHasBhk) {
+            intent.bhk = undefined;
+          }
+          if (!messageHasSector) {
+            intent.sector = undefined;
+          }
         }
 
         const isSectorOrLocationSearch = Boolean(intent.sector) || /\b(sector\s*\d+|expressway|greater\s*noida|noida\s*extension|central\s*noida)\b/i.test(message);
@@ -1009,21 +1028,10 @@ router.post('/', async (req: Request, res: Response) => {
         const isAdvisoryQuery = intent.queryKind === 'ADVISORY' || intent.queryKind === 'OPEN' || /\b(save\s*money|negotiat|hidden\s*cost|average\s*price|market\s*rate|how\s*to)\b/i.test(message);
         /**
          * A pronoun is not a follow-up when the same sentence is a fresh search.
-         *
-         * "it" and "its" used to be in this alternation, and they outrank a
-         * discovery signal below. Our own chip text — "Show me the best
-         * projects between 1 and 2 crore, with the reason for each and **its**
-         * main trade-off" — therefore pinned the previous turn's project onto a
-         * city-wide ranking query, and the buyer got a project card for NRI
-         * City Township against a question that never named a project.
-         *
-         * A bare pronoun still counts (see `isBarePronounFollowUp`) but only on
-         * a turn with no search signal at all, which is what "what about it?"
-         * actually looks like.
          */
         const isExplicitFollowUp = /\b(this\s*project|the\s*project|payment\s*plan|floor\s*plan|cost\s*sheet|construction|rera|who\s*is|amenities|layout|bhk\s*sizes)\b/i.test(message);
         const isBarePronounFollowUp = /\b(it|its|this|that)\b/i.test(message);
-        isFreshSearch = isSectorOrLocationSearch || isDiscoveryQuery || isBuilderDiscovery || isAdvisoryQuery || isCityLevelGeneralQuery;
+        isFreshSearch = isSectorOrLocationSearch || isDiscoveryQuery || isBuilderDiscovery || isAdvisoryQuery || isCityLevelGeneralQuery || isOpenAdvisoryQuery || isBroadSuperlativeQuery;
 
         const shouldClearProjectFocus = isFreshSearch && !isExplicitFollowUp;
 
@@ -5010,6 +5018,20 @@ EXECUTIVE RESPONSE INSTRUCTIONS:
       return prompt.replace(token, `\n${block}\n${token}`)
     }
 
+    let memoryForPrompt = memory
+    if (isOpenAdvisoryQuery || isBroadSuperlativeQuery || !messageHasBudget) {
+      if (memoryForPrompt && typeof memoryForPrompt === 'object') {
+        const memObj = memoryForPrompt as any
+        const { budget_max_cr, bhk_preference, ...rest } = memObj
+        memoryForPrompt = {
+          ...rest,
+          historical_profile_note: (budget_max_cr || bhk_preference)
+            ? `Buyer previously browsed for ${bhk_preference ? `${bhk_preference}BHK` : ''}${budget_max_cr ? ` under ₹${budget_max_cr}Cr` : ''}. For this open/advisory query, evaluate the whole market objectively; do NOT restrict recommendations to this previous budget.`
+            : undefined,
+        }
+      }
+    }
+
     // Built per provider: only the OpenAI legs can call tools, so everyone else
     // gets a prompt with no tool catalogue at all rather than the catalogue plus
     // a suffix retracting it.
@@ -5018,7 +5040,7 @@ EXECUTIVE RESPONSE INSTRUCTIONS:
         buildSystemPromptWithCache(
         intent as any,
         trimmedProjects as any,
-        memory,
+        memoryForPrompt,
         sectorCtx ?? undefined,
         sectorsOverview ?? undefined,
         discoveryExpansion ?? undefined,

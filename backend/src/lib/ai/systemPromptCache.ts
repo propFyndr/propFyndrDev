@@ -283,9 +283,12 @@ function buildDynamicRules(
         price_min_cr: u.price_min_cr,
         price_max_cr: u.price_max_cr
       })),
+      unit_configurations_summary: (p.unit_types || []).map((u: any) => 
+        `${u.bhk} BHK (${u.name || 'Standard'}): ₹${u.price_min_cr}${u.price_max_cr && u.price_max_cr !== u.price_min_cr ? `–${u.price_max_cr}` : ''} Cr`
+      ),
       amenities: (p.amenities || []).slice(0, 15).map((a: any) => typeof a === 'string' ? a : a.name)
     }))
-    dynamic += `\n\n## MATCHED PROJECTS IN DATABASE (GROUND TRUTH - FULLY TRACKED & VERIFIED):\n${JSON.stringify(optimizedProjects)}`
+    dynamic += `\n\n## MATCHED PROJECTS IN DATABASE (GROUND TRUTH - CITE UNIT CONFIGURATION PRICES ONLY):\n${JSON.stringify(optimizedProjects)}`
   }
 
   // Memory block (if any)

@@ -822,7 +822,7 @@ export default function DiscoveryContent({ userId, guestToken, onSessionChange, 
       sessionId: sessionIdRef.current ?? sessionId ?? undefined,
       userId: userId ?? undefined,
       guestToken: guestToken ?? undefined,
-      intent: currentIntent ?? undefined,
+      intent: (sessionIdRef.current ?? sessionId) ? (currentIntent ?? undefined) : undefined,
       signal: controller.signal,
       onEvent: (event) => {
         // Message shape lives in lib/chat/streamReducer — pure, and tested.
@@ -970,6 +970,10 @@ export default function DiscoveryContent({ userId, guestToken, onSessionChange, 
     abortControllerRef.current?.abort()
     submitLockRef.current = false            // never early-return; always reset
 
+    sessionIdRef.current = null;
+    loadedSessionIdRef.current = null;
+    setSessionId(null);                      // reset for guests too — new session on next send
+    setCurrentIntent(null);
     setChatHistory([]);
     setChatInput('');
     setIsInitialized(false);
@@ -979,14 +983,12 @@ export default function DiscoveryContent({ userId, guestToken, onSessionChange, 
     setShowContextWarning(false);
     setIsSubmitting(false);
     setCarouselIndexes({});
-    setCurrentIntent(null);
     setLastShortlist([]);
     setSessionTitle(null);
     setDetailProject(null);
     setExpandedShortlists(new Set());
     setRateLimitUntil(null);
     setConversationState(null);
-    setSessionId(null);                      // reset for guests too — new session on next send
 
     if (userId) {
       try {
