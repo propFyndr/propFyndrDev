@@ -8,6 +8,7 @@ import { writeFileSync, mkdirSync } from 'fs'
 import { join } from 'path'
 import { prisma } from '../src/lib/db'
 import { hashPassword, revokeAllSessions } from '../src/lib/adminIdentity'
+import { deleteCached } from '../src/lib/cache'
 
 const STAFF_EMAILS = [
   'admin@propfyndr.in',
@@ -35,11 +36,10 @@ async function main() {
       where: { id: user.id },
       data: {
         password_hash: hashed,
-        password_changed_at: new Date(),
-        failed_attempts: 0,
-        locked_until: null,
       },
     })
+    await deleteCached(`admin:lockout:${email}`)
+    await deleteCached(`admin:fail_attempts:${email}`)
 
     // Revoke all live sessions for this user
     const revokedCount = await revokeAllSessions(user.id)
