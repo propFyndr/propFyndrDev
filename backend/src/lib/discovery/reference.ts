@@ -176,7 +176,7 @@ export function resolveOrdinalPair(
  * earlier list is needed. The length floor is what keeps a bare "what are
  * these?" out, which genuinely does need the list.
  */
-const ANSWERS_ITS_OWN_PRONOUN = /\bwhat\s+(?:is|are|does|do)\b.{12,}?\b(?:them|these|those)\b/is
+const ANSWERS_ITS_OWN_PRONOUN = /(?:\bwhat\s+(?:is|are|does|do)\b.{12,}?\b(?:them|these|those)\b|\b(?:projects?|properties|flats?|apartments?|societies|options|builders?|developers?|sectors?)\b.{2,}?\b(?:them|these|those)\b|\b(?:show\s+me|find\s+me|list|recommend|suggest)\b.{2,}?\b(?:them|these|those)\b)/is
 
 /**
  * Does this message rely on something shown earlier to mean anything at all?

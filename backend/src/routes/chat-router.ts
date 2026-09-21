@@ -944,6 +944,7 @@ router.post('/', async (req: Request, res: Response) => {
     ) ? { ...hydratedIntent, purpose: 'endUse' } : hydratedIntent
     console.log('[CHAT] END extractIntent', Date.now(), { intent })
 
+    let isFreshSearch = false;
     // Exact project name detection & active session focus persistence
     try {
       const lowerMsg = message.toLowerCase().trim();
@@ -1022,7 +1023,7 @@ router.post('/', async (req: Request, res: Response) => {
          */
         const isExplicitFollowUp = /\b(this\s*project|the\s*project|payment\s*plan|floor\s*plan|cost\s*sheet|construction|rera|who\s*is|amenities|layout|bhk\s*sizes)\b/i.test(message);
         const isBarePronounFollowUp = /\b(it|its|this|that)\b/i.test(message);
-        const isFreshSearch = isSectorOrLocationSearch || isDiscoveryQuery || isBuilderDiscovery || isAdvisoryQuery || isCityLevelGeneralQuery;
+        isFreshSearch = isSectorOrLocationSearch || isDiscoveryQuery || isBuilderDiscovery || isAdvisoryQuery || isCityLevelGeneralQuery;
 
         const shouldClearProjectFocus = isFreshSearch && !isExplicitFollowUp;
 
@@ -1302,7 +1303,7 @@ router.post('/', async (req: Request, res: Response) => {
         }
       }
 
-      if (!resolved && !resolvedSector && needsShownContext(message) && shownProjects.length === 0) {
+      if (!isFreshSearch && !resolved && !resolvedSector && needsShownContext(message) && shownProjects.length === 0) {
         console.log('[CHAT:REFERENT_UNRESOLVED]', { q: message.slice(0, 60) })
         send('token', {
           token:
