@@ -158,8 +158,8 @@ export default function DataQualityPage() {
                     <div className="flex items-center gap-3 shrink-0">
                       <span className="text-[15px] font-extrabold tabular-nums text-amber-600 dark:text-amber-400">{p.score}</span>
                       <Link
-                        href={`/admin/projects?open=${p.id}`}
-                        className="px-3 py-1.5 rounded-xl border border-zinc-200 dark:border-zinc-700 text-[12px] font-bold text-zinc-700 dark:text-zinc-200 hover:bg-zinc-50 dark:hover:bg-zinc-800"
+                        href={`/admin/projects/${p.id}`}
+                        className="px-3 py-1.5 rounded-xl border border-zinc-200 dark:border-zinc-700 text-[12px] font-bold text-zinc-700 dark:text-zinc-200 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
                       >
                         Fix
                       </Link>
@@ -206,8 +206,8 @@ export default function DataQualityPage() {
                     </div>
 
                     <Link
-                      href={`/admin/projects?open=${p.id}`}
-                      className="shrink-0 px-3 py-1.5 rounded-xl border border-zinc-200 dark:border-zinc-700 text-[12px] font-bold text-zinc-700 dark:text-zinc-200 hover:bg-zinc-50 dark:hover:bg-zinc-800"
+                      href={`/admin/projects/${p.id}`}
+                      className="shrink-0 px-3 py-1.5 rounded-xl border border-zinc-200 dark:border-zinc-700 text-[12px] font-bold text-zinc-700 dark:text-zinc-200 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
                     >
                       Fix
                     </Link>

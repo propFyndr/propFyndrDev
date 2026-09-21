@@ -38,48 +38,30 @@ const LEAD_WORKERS = ['SUPER_ADMIN', 'SALES'] as const
  * Sections everyone shares are left unmarked.
  */
 const NAV: PortalNavItem[] = [
-  // Each staff role's own landing board sits first, visible only to the roles
-  // it was built for. `Dashboard` stays the super admin's platform view.
-  { href: '/admin',                       label: 'Dashboard',     icon: Gauge,             roles: [...OWNERS] },
-  // Sales only. A super admin asking "who should be called next" opens Leads,
-  // which is the same rows without pretending the platform owner has a personal
-  // call list.
-  { href: '/admin/queue',                 label: 'My queue',      icon: PhoneCall,         roles: ['SALES'] },
-  { href: '/admin/quality',               label: 'Data quality',  icon: SealCheck,         roles: [...EDITORS] },
-  // The read-only half of Projects, for the people who need the facts mid-call
-  // but must not edit them. Visible to every staff role: an analyst or a super
-  // admin looking a project up quickly wants this screen too.
-  { href: '/admin/lookup',                label: 'Lookup',        icon: MagnifyingGlass },
-  /**
-   * Catalogue. Editors only.
-   *
-   * These pages are built around adding and editing, and the server refuses
-   * every one of those writes from a SALES account — so a salesperson opening
-   * them met a row of buttons that answered "Editing project records is done by
-   * an analyst or super admin". Offering an action and then refusing it is
-   * worse than not offering it: the first reads as a broken product, the second
-   * reads as a boundary.
-   *
-   * A salesperson still gets the catalogue facts they need to answer a buyer —
-   * through the Lead Brief and the buyer-facing project pages, which is where
-   * those facts are already presented for reading rather than editing.
-   */
-  { href: '/admin/projects',              label: 'Projects',      icon: Buildings,         roles: [...EDITORS] },
-  { href: '/admin/builders',              label: 'Builders',      icon: UsersThree,        roles: [...EDITORS] },
-  // Partner firms are onboarded and routed to by BUILDERS, not by our sales
-  // team. A salesperson never assigns a partner, so this was a tab with nothing
-  // in it for them.
-  { href: '/admin/partners',              label: 'Partners',      icon: Handshake,         roles: [...EDITORS] },
-  { href: '/admin/builder-applications',  label: 'Registrations', icon: IdentificationBadge, roles: [...EDITORS] },
-  { href: '/admin/leads',                 label: 'Leads',         icon: PhoneCall,         roles: [...LEAD_WORKERS] },
-  { href: '/admin/news',                  label: 'News',          icon: NewspaperClipping, roles: [...EDITORS] },
-  { href: '/admin/blog',                  label: 'Blog',          icon: BookOpen,          roles: [...EDITORS] },
-  { href: '/admin/promotions',            label: 'Promotions',    icon: Megaphone,         roles: [...EDITORS] },
-  { href: '/admin/conversations',         label: 'Conversations', icon: ChatCircleText,    roles: [...OWNERS] },
-  { href: '/admin/analytics',             label: 'Analytics',     icon: ChartLineUp,       roles: [...EDITORS] },
-  { href: '/admin/team',                  label: 'Team',          icon: UsersFour,         roles: [...OWNERS] },
-  { href: '/admin/outbox',                label: 'Outbox',        icon: EnvelopeSimple,    roles: [...OWNERS] },
-  { href: '/admin/account',               label: 'Account',       icon: UserCircle },
+  // Core & Daily Workflow
+  { href: '/admin',                       label: 'Dashboard',     icon: Gauge,             roles: [...OWNERS],      section: 'Core' },
+  { href: '/admin/queue',                 label: 'My queue',      icon: PhoneCall,         roles: ['SALES'],        section: 'Core' },
+  { href: '/admin/quality',               label: 'Data quality',  icon: SealCheck,         roles: [...EDITORS],     section: 'Core' },
+  { href: '/admin/lookup',                label: 'Lookup',        icon: MagnifyingGlass,                            section: 'Core' },
+
+  // Catalogue & Inventory
+  { href: '/admin/projects',              label: 'Projects',      icon: Buildings,         roles: [...EDITORS],     section: 'Catalogue' },
+  { href: '/admin/builders',              label: 'Builders',      icon: UsersThree,        roles: [...EDITORS],     section: 'Catalogue' },
+  { href: '/admin/partners',              label: 'Partners',      icon: Handshake,         roles: [...EDITORS],     section: 'Catalogue' },
+  { href: '/admin/builder-applications',  label: 'Registrations', icon: IdentificationBadge, roles: [...EDITORS],   section: 'Catalogue' },
+
+  // Growth & Interactions
+  { href: '/admin/leads',                 label: 'Leads',         icon: PhoneCall,         roles: [...LEAD_WORKERS], section: 'Growth' },
+  { href: '/admin/news',                  label: 'News',          icon: NewspaperClipping, roles: [...EDITORS],     section: 'Growth' },
+  { href: '/admin/blog',                  label: 'Blog',          icon: BookOpen,          roles: [...EDITORS],     section: 'Growth' },
+  { href: '/admin/promotions',            label: 'Promotions',    icon: Megaphone,         roles: [...EDITORS],     section: 'Growth' },
+  { href: '/admin/conversations',         label: 'Conversations', icon: ChatCircleText,    roles: [...OWNERS],      section: 'Growth' },
+
+  // System & Settings
+  { href: '/admin/analytics',             label: 'Analytics',     icon: ChartLineUp,       roles: [...EDITORS],     section: 'System' },
+  { href: '/admin/team',                  label: 'Team',          icon: UsersFour,         roles: [...OWNERS],      section: 'System' },
+  { href: '/admin/outbox',                label: 'Outbox',        icon: EnvelopeSimple,    roles: [...OWNERS],      section: 'System' },
+  { href: '/admin/account',               label: 'Account',       icon: UserCircle,                                 section: 'System' },
 ]
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {

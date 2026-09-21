@@ -13,7 +13,7 @@
  * request will 403.
  */
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
@@ -23,6 +23,9 @@ import {
   MagnifyingGlass,
   CaretRight,
   SidebarSimple,
+  CircleNotch,
+  ArrowRight,
+  UserGear,
 } from '@phosphor-icons/react'
 import { AnimatePresence, m } from 'framer-motion'
 import { adminFetch } from '@/lib/adminFetch'
@@ -34,15 +37,8 @@ export interface PortalNavItem {
   href: string
   label: string
   icon: React.ElementType
-  /**
-   * Roles that may open this section. Omitted means every role this console
-   * admits, which is the right default for a section everyone shares.
-   *
-   * The server is the authority — `lib/adminPolicy.ts` answers 403 whatever
-   * the sidebar renders. This exists so a salesperson is not shown a Team
-   * link that only ever produces a permission error.
-   */
   roles?: PortalRole[]
+  section?: string
 }
 
 export type PortalRole = 'SUPER_ADMIN' | 'ANALYST' | 'SALES' | 'BUILDER' | 'PARTNER'
@@ -191,6 +187,65 @@ export default function PortalShell({ nav, rootHref, rootLabel, allowRoles, scop
 
   const filteredNav = visibleNav.filter((n) => n.label.toLowerCase().includes(cmdQuery.trim().toLowerCase()))
 
+  const [projectResults, setProjectResults] = useState<Array<{ id: string; name: string; sector: string; city: string; status: string; builder?: { name: string } }>>([])
+  const [builderResults, setBuilderResults] = useState<Array<{ id: string; name: string; slug: string }>>([])
+  const [isSearching, setIsSearching] = useState(false)
+
+  useEffect(() => {
+    const q = cmdQuery.trim()
+    if (q.length < 2) {
+      setProjectResults([])
+      setBuilderResults([])
+      setIsSearching(false)
+      return
+    }
+
+    let cancelled = false
+    setIsSearching(true)
+    const timer = setTimeout(async () => {
+      try {
+        const [projRes, bldRes] = await Promise.all([
+          adminFetch(`/admin/projects?q=${encodeURIComponent(q)}&limit=5`).then((r) => (r.ok ? r.json() : null)).catch(() => null),
+          adminFetch(`/builders`).then((r) => (r.ok ? r.json() : null)).catch(() => null),
+        ])
+        if (cancelled) return
+        if (projRes?.projects) {
+          setProjectResults(projRes.projects.slice(0, 5))
+        } else {
+          setProjectResults([])
+        }
+        if (bldRes?.builders) {
+          const qLower = q.toLowerCase()
+          const matchedBuilders = bldRes.builders.filter((b: any) => b.name?.toLowerCase().includes(qLower)).slice(0, 4)
+          setBuilderResults(matchedBuilders)
+        } else {
+          setBuilderResults([])
+        }
+      } finally {
+        if (!cancelled) setIsSearching(false)
+      }
+    }, 200)
+
+    return () => {
+      cancelled = true
+      clearTimeout(timer)
+    }
+  }, [cmdQuery])
+
+  const groupedNav = useMemo(() => {
+    const groups: { name: string; items: PortalNavItem[] }[] = []
+    for (const item of visibleNav) {
+      const sectionName = item.section || 'General'
+      let g = groups.find((x) => x.name === sectionName)
+      if (!g) {
+        g = { name: sectionName, items: [] }
+        groups.push(g)
+      }
+      g.items.push(item)
+    }
+    return groups
+  }, [visibleNav])
+
   // Breadcrumbs, derived from whatever sits below rootHref.
   const rest = pathname.startsWith(rootHref) ? pathname.slice(rootHref.length).split('/').filter(Boolean) : []
   const crumbs: { label: string; href?: string }[] = [{ label: rootLabel, href: rootHref }]
@@ -279,46 +334,140 @@ export default function PortalShell({ nav, rootHref, rootLabel, allowRoles, scop
               onClick={() => setCmdOpen(false)}
             />
             <m.div
-              initial={{ opacity: 0, scale: 0.95, y: -20 }}
+              initial={{ opacity: 0, scale: 0.96, y: -16 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: -20 }}
-              transition={{ type: 'spring', stiffness: 350, damping: 25 }}
-              className="fixed top-[15vh] left-1/2 -translate-x-1/2 w-full max-w-xl bg-white dark:bg-zinc-900 rounded-2xl shadow-[0_32px_64px_rgba(0,0,0,0.1),0_0_0_1px_rgba(0,0,0,0.05)] z-50 overflow-hidden"
+              exit={{ opacity: 0, scale: 0.96, y: -16 }}
+              transition={{ type: 'spring', stiffness: 400, damping: 28 }}
+              className="fixed top-[12vh] left-1/2 -translate-x-1/2 w-full max-w-xl bg-white dark:bg-zinc-900 rounded-2xl shadow-[0_32px_64px_rgba(0,0,0,0.18),0_0_0_1px_rgba(0,0,0,0.08)] dark:shadow-[0_32px_64px_rgba(0,0,0,0.6),0_0_0_1px_rgba(255,255,255,0.08)] z-50 overflow-hidden"
             >
-              <div className="flex items-center px-4 border-b border-zinc-200/50 dark:border-zinc-800">
-                <MagnifyingGlass size={18} weight="bold" className="text-zinc-400 mr-3" />
+              <div className="flex items-center px-4 border-b border-zinc-200/70 dark:border-zinc-800">
+                <MagnifyingGlass size={18} weight="bold" className="text-zinc-400 mr-3 shrink-0" />
                 <input
                   autoFocus
-                  placeholder="Type a command or search..."
+                  placeholder="Search projects, builders, or jump to page..."
                   value={cmdQuery}
                   onChange={(e) => setCmdQuery(e.target.value)}
                   onKeyDown={(e) => {
-                    if (e.key === 'Enter' && filteredNav[0]) {
-                      router.push(filteredNav[0].href)
-                      setCmdOpen(false)
+                    if (e.key === 'Enter') {
+                      if (projectResults.length > 0) {
+                        router.push(`/admin/projects/${projectResults[0].id}`)
+                        setCmdOpen(false)
+                      } else if (filteredNav[0]) {
+                        router.push(filteredNav[0].href)
+                        setCmdOpen(false)
+                      }
                     }
                   }}
-                  className="flex-1 py-4 bg-transparent outline-none text-[15px] font-medium text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400"
+                  className="flex-1 py-4 bg-transparent outline-none text-[14px] font-medium text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400"
                 />
-                <kbd className="px-2 py-1 bg-zinc-100 dark:bg-zinc-800 rounded text-[10px] font-medium text-zinc-500 font-sans border border-zinc-200 dark:border-zinc-700">ESC</kbd>
-              </div>
-              <div className="p-2 space-y-1">
-                {filteredNav.length === 0 && (
-                  <p className="px-3 py-4 text-center text-[13px] text-zinc-400 font-medium">No matches</p>
+                {isSearching && (
+                  <CircleNotch size={16} className="animate-spin text-blue-500 mr-2 shrink-0" />
                 )}
-                {filteredNav.map((n) => (
-                  <button
-                    key={n.href}
-                    onClick={() => { router.push(n.href); setCmdOpen(false) }}
-                    className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-zinc-100/80 dark:hover:bg-zinc-800/80 transition-colors group cursor-pointer"
-                  >
-                    <div className="flex items-center gap-3">
-                      <n.icon size={18} weight="duotone" className="text-zinc-500 group-hover:text-zinc-900 dark:group-hover:text-zinc-100 transition-colors" />
-                      <span className="text-[14px] font-medium text-zinc-700 dark:text-zinc-300 group-hover:text-zinc-900 dark:group-hover:text-zinc-100">{n.label}</span>
+                <kbd className="px-2 py-1 bg-zinc-100 dark:bg-zinc-800 rounded text-[10px] font-bold text-zinc-500 font-mono border border-zinc-200 dark:border-zinc-700">ESC</kbd>
+              </div>
+
+              <div className="max-h-[60vh] overflow-y-auto p-2 space-y-3 divide-y divide-zinc-100 dark:divide-zinc-800/60">
+                {/* Empty State */}
+                {cmdQuery.trim().length > 0 && !isSearching && filteredNav.length === 0 && projectResults.length === 0 && builderResults.length === 0 && (
+                  <div className="py-8 text-center">
+                    <p className="text-[13px] text-zinc-400 font-medium">No results found for &ldquo;{cmdQuery}&rdquo;</p>
+                  </div>
+                )}
+
+                {/* Projects */}
+                {projectResults.length > 0 && (
+                  <div className="pt-2 first:pt-0">
+                    <div className="px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-zinc-400 dark:text-zinc-500 flex items-center justify-between">
+                      <span>Projects</span>
+                      <span className="font-mono text-[9px]">{projectResults.length} matches</span>
                     </div>
-                    <span className="text-[12px] text-zinc-400 font-medium">Go to</span>
-                  </button>
-                ))}
+                    <div className="space-y-0.5 mt-1">
+                      {projectResults.map((p) => (
+                        <button
+                          key={p.id}
+                          onClick={() => {
+                            router.push(`/admin/projects/${p.id}`)
+                            setCmdOpen(false)
+                          }}
+                          className="w-full flex items-center justify-between px-3 py-2 rounded-xl hover:bg-zinc-100/90 dark:hover:bg-zinc-800/80 transition-colors group cursor-pointer text-left"
+                        >
+                          <div className="flex items-center gap-2.5 min-w-0 pr-3">
+                            <Buildings size={16} weight="duotone" className="text-blue-500 shrink-0" />
+                            <div className="min-w-0">
+                              <p className="text-[13px] font-semibold text-zinc-900 dark:text-zinc-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors truncate">
+                                {p.name}
+                              </p>
+                              <p className="text-[11px] text-zinc-400 truncate">
+                                {p.builder?.name || 'Developer'} • {p.sector}, {p.city}
+                              </p>
+                            </div>
+                          </div>
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 shrink-0">
+                            {p.status?.replace(/_/g, ' ')}
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Builders */}
+                {builderResults.length > 0 && (
+                  <div className="pt-2 first:pt-0">
+                    <div className="px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-zinc-400 dark:text-zinc-500 flex items-center justify-between">
+                      <span>Builders</span>
+                      <span className="font-mono text-[9px]">{builderResults.length} matches</span>
+                    </div>
+                    <div className="space-y-0.5 mt-1">
+                      {builderResults.map((b) => (
+                        <button
+                          key={b.id}
+                          onClick={() => {
+                            router.push(`/admin/builders?search=${encodeURIComponent(b.name)}`)
+                            setCmdOpen(false)
+                          }}
+                          className="w-full flex items-center justify-between px-3 py-2 rounded-xl hover:bg-zinc-100/90 dark:hover:bg-zinc-800/80 transition-colors group cursor-pointer text-left"
+                        >
+                          <div className="flex items-center gap-2.5 min-w-0">
+                            <UserGear size={16} weight="duotone" className="text-purple-500 shrink-0" />
+                            <span className="text-[13px] font-semibold text-zinc-800 dark:text-zinc-200 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors truncate">
+                              {b.name}
+                            </span>
+                          </div>
+                          <span className="text-[11px] text-zinc-400 font-medium shrink-0 flex items-center gap-1">
+                            View builder <ArrowRight size={11} />
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Navigation Links */}
+                {filteredNav.length > 0 && (
+                  <div className="pt-2 first:pt-0">
+                    <div className="px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-zinc-400 dark:text-zinc-500">
+                      Pages
+                    </div>
+                    <div className="space-y-0.5 mt-1">
+                      {filteredNav.map((n) => (
+                        <button
+                          key={n.href}
+                          onClick={() => { router.push(n.href); setCmdOpen(false) }}
+                          className="w-full flex items-center justify-between px-3 py-2 rounded-xl hover:bg-zinc-100/90 dark:hover:bg-zinc-800/80 transition-colors group cursor-pointer text-left"
+                        >
+                          <div className="flex items-center gap-2.5 min-w-0">
+                            <n.icon size={16} weight="duotone" className="text-zinc-400 group-hover:text-zinc-900 dark:group-hover:text-zinc-100 transition-colors shrink-0" />
+                            <span className="text-[13px] font-medium text-zinc-700 dark:text-zinc-200 group-hover:text-zinc-950 dark:group-hover:text-white truncate">{n.label}</span>
+                          </div>
+                          <span className="text-[11px] text-zinc-400 font-medium shrink-0 flex items-center gap-1">
+                            Go <ArrowRight size={11} />
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             </m.div>
           </>
@@ -405,34 +554,52 @@ export default function PortalShell({ nav, rootHref, rootLabel, allowRoles, scop
         )}
 
         {/* Navigation Items */}
-        <nav className="flex-1 px-3 py-3 space-y-1 overflow-y-auto">
-          {visibleNav.map((n) => {
-            const isActive = pathname === n.href || (n.href !== rootHref && pathname.startsWith(n.href))
-            return (
-              <div key={n.href} className="relative group/navitem flex justify-center">
-                <Link
-                  href={n.href}
-                  onClick={() => setMobileOpen(false)}
-                  className={`
-                    flex items-center transition-all duration-base overflow-hidden whitespace-nowrap
-                    ${isCollapsed ? 'w-10 h-10 rounded-md justify-center' : 'w-full gap-3 px-3 py-2.5 rounded-md'}
-                    ${isActive
-                      ? 'bg-slate-900 dark:bg-zinc-100 text-white dark:text-zinc-900 font-medium shadow-xs'
-                      : 'text-zinc-500 dark:text-zinc-400 hover:bg-slate-100 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-zinc-100'
-                    }
-                  `}
-                >
-                  <n.icon size={18} weight={isActive ? 'fill' : 'duotone'} className={isActive ? 'text-white dark:text-zinc-900' : 'text-zinc-400 dark:text-zinc-500 group-hover/navitem:text-zinc-600 dark:group-hover/navitem:text-zinc-300'} />
-                  {!isCollapsed && <span className="text-[13px] font-semibold tracking-wide">{n.label}</span>}
-                </Link>
-                {isCollapsed && (
-                  <div className="absolute left-full top-1/2 -translate-y-1/2 ml-2 py-1.5 px-2.5 bg-zinc-800 text-white text-[11px] font-medium rounded-md opacity-0 group-hover/navitem:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-[100] shadow-xl">
-                    {n.label}
+        <nav className="flex-1 px-3 py-2 space-y-3 overflow-y-auto">
+          {groupedNav.map((group, gIdx) => (
+            <div key={group.name} className="space-y-1">
+              {!isCollapsed && group.name !== 'General' && (
+                <div className="px-3 pt-2 pb-1 text-[10px] font-bold uppercase tracking-wider text-zinc-400 dark:text-zinc-500 select-none">
+                  {group.name}
+                </div>
+              )}
+              {isCollapsed && gIdx > 0 && (
+                <div className="my-2 border-t border-zinc-200/60 dark:border-zinc-800/80 mx-2" />
+              )}
+              {group.items.map((n) => {
+                const isActive = pathname === n.href || (n.href !== rootHref && pathname.startsWith(n.href))
+                return (
+                  <div key={n.href} className="relative group/navitem flex justify-center">
+                    <Link
+                      href={n.href}
+                      onClick={() => setMobileOpen(false)}
+                      className={`
+                        flex items-center transition-all duration-150 overflow-hidden whitespace-nowrap
+                        ${isCollapsed ? 'w-10 h-10 rounded-lg justify-center' : 'w-full gap-3 px-3 py-2 rounded-lg'}
+                        ${isActive
+                          ? 'bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 font-semibold shadow-xs'
+                          : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800/80 hover:text-zinc-950 dark:hover:text-zinc-100 font-medium'
+                        }
+                      `}
+                    >
+                      <n.icon
+                        size={17}
+                        weight={isActive ? 'fill' : 'duotone'}
+                        className={isActive ? 'text-white dark:text-zinc-900 shrink-0' : 'text-zinc-400 dark:text-zinc-500 group-hover/navitem:text-zinc-700 dark:group-hover/navitem:text-zinc-300 shrink-0'}
+                      />
+                      {!isCollapsed && (
+                        <span className="text-[13px] tracking-tight">{n.label}</span>
+                      )}
+                    </Link>
+                    {isCollapsed && (
+                      <div className="absolute left-full top-1/2 -translate-y-1/2 ml-2 py-1.5 px-2.5 bg-zinc-900 text-white text-[11px] font-medium rounded-md opacity-0 group-hover/navitem:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-[100] shadow-xl border border-zinc-800">
+                        {n.label}
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
-            )
-          })}
+                )
+              })}
+            </div>
+          ))}
         </nav>
 
         {/* Footer Actions */}

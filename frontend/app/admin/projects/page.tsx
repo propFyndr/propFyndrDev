@@ -251,8 +251,15 @@ function computeProjectCompleteness(data: any): {
   }
 }
 
-function getNonMediaScore(p: Project): number {
+function getProjectHealth(p: Project): number {
+  if (typeof p.completenessScore === 'number' && p.completenessScore > 0) {
+    return p.completenessScore
+  }
   return computeProjectCompleteness(p).overallHealth
+}
+
+function getNonMediaScore(p: Project): number {
+  return getProjectHealth(p)
 }
 
 function ProjectThumbnail({ src, alt }: { src?: string | null; alt: string }) {
@@ -273,11 +280,12 @@ function ProjectThumbnail({ src, alt }: { src?: string | null; alt: string }) {
 
 function quickHealth(p: Project) {
   const res = computeProjectCompleteness(p)
+  const score = getProjectHealth(p)
   return {
-    score: res.overallHealth,
+    score,
     missing: res.allMissing.map(m => `[${m.tab}] ${m.item}`),
     completed: res.allCompleted.map(c => `[${c.tab}] ${c.item}`),
-    tabScores: res.tabScores,
+    tabScores: p.tabScores && Object.keys(p.tabScores).length > 0 ? p.tabScores : res.tabScores,
   }
 }
 
@@ -341,7 +349,10 @@ function HealthBadgeWithTooltip({ project }: { project: Project }) {
   const [mounted, setMounted] = useState(false)
   const badgeRef = useRef<HTMLDivElement>(null)
   const comp = computeProjectCompleteness(project)
-  const score = comp.overallHealth
+  const score = getProjectHealth(project)
+  const tabScores = (project.tabScores && Object.keys(project.tabScores).length > 0)
+    ? project.tabScores
+    : comp.tabScores
 
   useEffect(() => {
     setMounted(true)
@@ -423,7 +434,7 @@ function HealthBadgeWithTooltip({ project }: { project: Project }) {
 
           {/* 7 Tab Mini Scores Grid */}
           <div className="grid grid-cols-4 gap-1.5 pb-2.5 mb-2.5 border-b border-slate-800 text-[9.5px]">
-            {Object.entries(comp.tabScores).map(([tab, sc]) => (
+            {Object.entries(tabScores).map(([tab, sc]) => (
               <div key={tab} className="flex items-center justify-between px-2 py-1 rounded-lg bg-slate-800/90 border border-slate-700/60">
                 <span className="text-slate-400 capitalize truncate max-w-[34px] font-semibold">{tab}</span>
                 <span className={`font-mono font-black ${sc >= 90 ? 'text-emerald-400' : sc >= 60 ? 'text-amber-400' : 'text-rose-400'}`}>
@@ -690,6 +701,17 @@ export default function AdminProjects() {
   const popoverRef = useRef<HTMLDivElement>(null)
   const searchInputRef = useRef<HTMLInputElement>(null)
   const [selectedIndex, setSelectedIndex] = useState<number>(-1)
+
+  // ── Open parameter redirect if navigating from Data Quality ───────────
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search)
+      const openId = params.get('open')
+      if (openId) {
+        router.replace(`/admin/projects/${openId}`)
+      }
+    }
+  }, [router])
 
   // ── Session Storage Persistence ──────────────────────────────────────────
   useEffect(() => {
