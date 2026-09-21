@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { runHealthChecks, isSystemHealthy } from '@/lib/monitoring/healthChecks'
+import { runHealthChecks, isSystemHealthy } from '../lib/monitoring/healthChecks'
 
 const router = Router()
 
