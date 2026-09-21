@@ -25,7 +25,15 @@ import { enqueueAndSend } from './outboxDispatcher'
  */
 export function preferredInviteOrigin(frontendUrlEnv: string | undefined): string {
   const origins = (frontendUrlEnv || '').split(',').map((s) => s.trim()).filter(Boolean)
-  return origins.find((o) => o.includes('propfyndr.in')) || origins[0] || 'https://propfyndr.in'
+  const propfyndr = origins.find((o) => o.includes('propfyndr.in'))
+  if (propfyndr) return propfyndr
+
+  if (process.env.NODE_ENV === 'production') {
+    const nonLocal = origins.find((o) => !o.includes('localhost') && !o.includes('127.0.0.1'))
+    return nonLocal || 'https://propfyndr.in'
+  }
+
+  return origins[0] || 'https://propfyndr.in'
 }
 
 /**

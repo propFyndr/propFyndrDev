@@ -7,7 +7,7 @@ import { requireAdmin, destroyAdminSession } from '../lib/adminAuth'
 import { createIdentitySession, verifyPassword, requireIdentity, requireRole } from '../lib/adminIdentity'
 import { computeCompleteness } from '../lib/completeness'
 import { normalisePortalSubdomain } from '../lib/portalSubdomain'
-import { checkRateLimit } from '../lib/cache'
+import { checkRateLimit, getCached, setCached, deleteCached } from '../lib/cache'
 import { z } from 'zod'
 
 /**
@@ -207,13 +207,36 @@ router.post('/auth', async (req: Request, res: Response) => {
   const email = typeof req.body?.email === 'string' ? req.body.email.trim().toLowerCase() : ''
   const password = typeof req.body?.password === 'string' ? req.body.password : ''
 
+  if (email) {
+    const isLocked = await getCached<boolean>(`admin:lockout:${email}`)
+    if (isLocked) {
+      res.status(423).json({ error: 'Account is temporarily locked due to multiple failed login attempts. Try again in 15 minutes.' })
+      return
+    }
+  }
+
   // One failure message for every cause — unknown email, wrong password,
   // deactivated account, invite never accepted. Distinguishing them tells an
   // attacker which emails are real.
   const admin = email ? await prisma.adminUser.findUnique({ where: { email } }) : null
   if (!admin || !admin.is_active || !admin.password_hash || !password || !verifyPassword(password, admin.password_hash)) {
+    if (email) {
+      const attemptsKey = `admin:fail_attempts:${email}`
+      const attempts = ((await getCached<number>(attemptsKey)) || 0) + 1
+      await setCached(attemptsKey, attempts, 900)
+      if (attempts >= 5) {
+        await setCached(`admin:lockout:${email}`, true, 900)
+        res.status(423).json({ error: 'Too many failed login attempts. Account locked for 15 minutes.' })
+        return
+      }
+    }
     res.status(401).json({ error: 'Wrong email or password' })
     return
+  }
+
+  if (email) {
+    await deleteCached(`admin:fail_attempts:${email}`)
+    await deleteCached(`admin:lockout:${email}`)
   }
 
   await prisma.adminUser.update({ where: { id: admin.id }, data: { last_login_at: new Date() } })

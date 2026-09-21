@@ -24,6 +24,7 @@ import {
 } from '../lib/adminIdentity'
 import type { AdminIdentitySession } from '../lib/adminIdentity'
 import { enqueueAndSend } from '../lib/outboxDispatcher'
+import { preferredInviteOrigin } from '../lib/adminInvite'
 
 const router = Router()
 
@@ -45,8 +46,7 @@ function identityOf(req: Request): AdminIdentitySession {
 }
 
 function frontendOrigin(): string {
-  const raw = process.env.FRONTEND_URL || 'http://localhost:3000'
-  return raw.split(',')[0].trim().replace(/\/$/, '')
+  return preferredInviteOrigin(process.env.FRONTEND_URL).replace(/\/$/, '')
 }
 
 // ── POST /forgot ─────────────────────────────────────────────────────────────

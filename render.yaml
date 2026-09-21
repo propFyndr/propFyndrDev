@@ -33,6 +33,10 @@ services:
       # — is unreachable and the model answers from the NO LIVE LOOKUPS branch.
       - key: ENABLE_GEMINI_TOOLS
         value: "true"
+      - key: GEMINI_LEG_MAX_DURATION_MS
+        value: "45000"
+      - key: FALLBACK_TURN_BUDGET_MS
+        value: "30000"
       - key: GEMINI_API_KEY1
         sync: false
       - key: GROQ_API_KEY1
