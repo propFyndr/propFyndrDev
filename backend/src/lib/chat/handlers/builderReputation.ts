@@ -86,6 +86,7 @@ export const builderReputationHandler: ChatTopicHandler = {
                   delivery_score: true, average_delay_months: true, delivered_units: true,
                   projects_delivered_count: true, total_projects_count: true,
                   construction_quality_score: true, rera_compliance_score: true,
+                  litigation_count: true, insolvency_history: true, legal_flag: true,
                 },
               },
             },
@@ -150,6 +151,11 @@ export const builderReputationHandler: ChatTopicHandler = {
         add('Units delivered', b.delivered_units != null ? b.delivered_units.toLocaleString('en-IN') : null,
           'Homes handed over across all projects')
         add('Operating since', b.founded_year != null ? String(b.founded_year) : null, 'Year founded')
+        add('Litigation count', b.litigation_count != null ? (b.litigation_count === 0 ? 'Clean (0 active cases)' : `${b.litigation_count} public record(s)`) : 'None recorded', 'Public court & UP RERA records')
+        add('Insolvency / NCLT', b.insolvency_history ? 'Under NCLT proceedings' : 'Clean (No active moratorium)', 'Insolvency & Bankruptcy Board of India')
+        if (b.legal_flag && b.legal_flag !== 'none') {
+          add('Legal status flag', b.legal_flag, 'Verified regulatory status')
+        }
 
         const head = `### ${b.name} — the developer behind ${focusBuilder?.name ?? focusName}\n\n`
         if (rows.length === 0) {

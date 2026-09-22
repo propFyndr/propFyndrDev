@@ -1453,7 +1453,7 @@ router.post('/', async (req: Request, res: Response) => {
      * thinks; the attribute noun is the signal.
      */
     const ATTRIBUTE_FOLLOWUP =
-      /\b(possession|handover|rera|builder\s+score|delivery\s+score|track\s+record|configurations?|unit\s+types?|floor\s+plans?|carpet\s+area|super\s+area|payment\s+plan|cost\s+sheet|amenit\w*|balcon\w*|bathrooms?|clubhouse|price|pricing|rate)\b/i
+      /\b(possession|handover|rera|builder\s+score|delivery\s+score|track\s+record|configurations?|unit\s+types?|floor\s+plans?|carpet\s+area|super\s+area|payment\s+plan|cost\s+sheet|amenit\w*|balcon\w*|bathrooms?|clubhouse|price|pricing|rate|maintenance|floor\s*rise|plc\b|litigation\w*|court\s*cases?|legal\s*status|nclt|oc\b|occupancy\s*certificate|completion\s*certificate)\b/i
 
     /**
      * A sector NAMED IN THIS MESSAGE blocks the inheritance; a sticky one does
@@ -2771,7 +2771,7 @@ I can help you with:
     // second carrying MARKET_QUALIFIER, and the all-inclusive load band. The fix
     // is reaching it, not writing a second one.
     const isCostSheetRequest =
-      /\b(cost sheets?|price breakdowns?|cost breakdowns?|all inclusive|other charges|possession charges|car parking charge)\b/i.test(topicText) ||
+      /\b(cost sheets?|price breakdowns?|cost breakdowns?|all inclusive|other charges|possession charges|car parking charge|maintenance\s*(?:charges?|costs?|fees?)?|floor\s*rise|plc\s*(?:charges?)?|parking\s*(?:charges?|costs?)?)\b/i.test(topicText) ||
       /\b(hidden|extra|additional|unexpected)\s+(costs?|charges?|fees?|expenses?)\b/i.test(topicText) ||
       /\b(?:costs?|charges?|fees?|expenses?)\s+(?:beyond|besides|apart\s+from|other\s+than|over\s+and\s+above|on\s+top\s+of)\b/i.test(topicText) ||
       /\b(?:beyond|on\s+top\s+of|over\s+and\s+above)\s+(?:the\s+)?(?:sticker|base|quoted|listed|ticket)?\s*price\b/i.test(topicText) ||
