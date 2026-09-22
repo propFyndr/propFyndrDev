@@ -123,7 +123,7 @@ const PROJECT_EVALUATION =
  * These must NEVER emit project cards.
  */
 export const GEOGRAPHY_OR_CONCEPTUAL_INQUIRY =
-  /\b(?:does|is)\s+sector\s+\d+[a-z]?\s+(?:fall|part of|in|inside|under|belong to|come under)\b|\b(?:which|what)\s+(?:authority|jurisdiction|body)\b|\bwhere\s+is\s+sector\s+\d+\b|\b(?:technically|administratively)\s+(?:inside|under|part\s+of)\b|\bwhat\s+(?:exact\s+)?(?:geographic|administrative)\s+definition\b|\bhow\s+(?:is|far\s+is)\s+sector\s+\d+\b|\bwhy\s+(?:are\s+you|did\s+you)\s+(?:showing|show|suggest|recommend)\b|\b(?:for\s+(?:every|each|all)\s+propert(?:y|ies)|tell\s+me\s+the\s+exact\s+authority|which\s+authority\s+governs)\b/i
+  /\b(?:does|is)\s+sector\s+\d+[a-z]?\s+(?:fall|part of|in|inside|under|belong to|come under)\b|\b(?:which|what)\s+(?:authority|jurisdiction|body)\b|\bwhere\s+is\s+sector\s+\d+\b|\b(?:technically|administratively)\s+(?:inside|under|part\s+of)\b|\bwhat\s+(?:exact\s+)?(?:geographic|administrative)\s+definition\b|\bhow\s+(?:is|far\s+is)\s+sector\s+\d+\b|\bwhy\s+(?:are\s+you|did\s+you)\s+(?:showing|show|suggest|recommend)\b|\b(?:for\s+(?:every|each|all)\s+propert(?:y|ies)|tell\s+me\s+the\s+exact\s+authority|which\s+authority\s+governs)\b|\b(?:what\s+is\s+the\s+)?difference\s+between\b/i
 
 /**
  * Early consultative questions without complete criteria:

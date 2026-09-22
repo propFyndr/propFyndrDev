@@ -34,7 +34,7 @@ const CONTINUE_INSTRUCTION =
   'Your previous message was cut off by a length limit, possibly mid-word. First finish the exact word or sentence it ended on if it was incomplete, then continue the rest of your answer. Do not repeat anything you already said, do not restate the question, and do not mention that you were interrupted.'
 
 // How long to wait for the FIRST chunk before giving up on this leg, and how
-const INITIAL_TOKEN_TIMEOUT_MS = Number(process.env.GEMINI_INITIAL_TOKEN_TIMEOUT_MS ?? 8_000)
+const INITIAL_TOKEN_TIMEOUT_MS = Number(process.env.GEMINI_INITIAL_TOKEN_TIMEOUT_MS ?? 4_000)
 const STREAM_INACTIVITY_MS = Number(process.env.GEMINI_STREAM_INACTIVITY_MS ?? 20_000)
 
 /**

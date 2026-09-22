@@ -125,7 +125,7 @@ export class StreamStallError extends Error {
 
 // Tight initial timeout for fast rollover if provider is stalled/rate-limited,
 // and reasonable stream inactivity timeout between chunks.
-const INITIAL_TOKEN_TIMEOUT_MS = 8_000;
+const INITIAL_TOKEN_TIMEOUT_MS = Number(process.env.OPENAI_INITIAL_TOKEN_TIMEOUT_MS ?? 4_000);
 const STREAM_INACTIVITY_MS = 15_000;
 
 /**

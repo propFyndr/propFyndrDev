@@ -322,24 +322,21 @@ export const FALLBACK_CHAIN: FallbackKeyConfig[] = [
   //   nvidia gemma-4-31b, minimax-m3,   no response inside 120s, twice.
   //          deepseek-v4-flash
   //
-  // Cohere leads the tier on latency. NVIDIA follows with two independent
-  // models on one key, which is a second and third allowance rather than a
-  // duplicate.
+  // ═══════════════════════════════════════════════════════════════════════════
+  // TIER 2 — COHERE + GROQ. Ultra-fast, tool-capable, non-Google.
+  // ═══════════════════════════════════════════════════════════════════════════
   { provider: 'openai', envKey: 'COHERE_API_KEY', model: 'command-a-03-2025', supportsTools: true, baseUrl: COHERE_OPENAI_BASE, label: 'Cohere Command A' },
+  { provider: 'openai', envKey: 'GROQ_API_KEY', model: 'openai/gpt-oss-20b', supportsTools: true, baseUrl: GROQ_OPENAI_BASE, label: 'Groq gpt-oss-20b (key 1)' },
+  { provider: 'openai', envKey: 'GROQ_API_KEY1', model: 'openai/gpt-oss-20b', supportsTools: true, baseUrl: GROQ_OPENAI_BASE, label: 'Groq gpt-oss-20b (key 2)' },
+  { provider: 'openai', envKey: 'GROQ_API_KEY2', model: 'openai/gpt-oss-120b', supportsTools: true, baseUrl: GROQ_OPENAI_BASE, label: 'Groq gpt-oss-120b (key 3)' },
+  { provider: 'openai', envKey: 'GROQ_API_KEY3', model: 'openai/gpt-oss-120b', supportsTools: true, baseUrl: GROQ_OPENAI_BASE, label: 'Groq gpt-oss-120b (key 4)' },
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // TIER 2b — NVIDIA + CLOUDFLARE. Tool-capable fallbacks.
+  // ═══════════════════════════════════════════════════════════════════════════
   { provider: 'openai', envKey: 'NVIDIA_API_KEY', model: 'openai/gpt-oss-20b', supportsTools: true, baseUrl: NVIDIA_OPENAI_BASE, label: 'NVIDIA gpt-oss-20b' },
   { provider: 'openai', envKey: 'NVIDIA_API_KEY', model: 'nvidia/nemotron-3.5-lightning-30b-a3b', supportsTools: true, baseUrl: NVIDIA_OPENAI_BASE, label: 'NVIDIA Nemotron 3.5 Lightning' },
 
-  // Cloudflare Workers AI. Third vendor in this tier, on a daily neuron
-  // allowance rather than a per-minute one, so it is the leg still standing
-  // when the others are rate-limited within a minute.
-  //
-  // Probed 30 Aug: llama-4-scout answered a tool call in 634ms and streamed 23
-  // chunks of real content at 540ms to first token — the fastest tool-capable
-  // leg in the chain. `@cf/openai/gpt-oss-20b` also tool-called cleanly but
-  // streamed 61 chunks of EMPTY content, the same way Cohere's plus model did,
-  // so it is left out: a leg that returns nothing is worse than one that is
-  // absent, because it costs a turn to discover. `kimi-k2.6` is 403 on the
-  // free plan and `qwen3-coder` does not exist on this account.
   ...(CLOUDFLARE_OPENAI_BASE
     ? [{
       provider: 'openai' as const,
@@ -350,43 +347,6 @@ export const FALLBACK_CHAIN: FallbackKeyConfig[] = [
       label: 'Cloudflare Llama 4 Scout',
     }]
     : []),
-
-  // No leg for `OPENAI_API_KEY` itself. The four keys under that name in `.env`
-  // are GitHub PATs, and with the retired host no longer substituted they would
-  // now be sent to api.openai.com, where a PAT is a 401 — a dead leg wearing a
-  // different error. If a real OpenAI key is ever bought, this is the one line:
-  //   { provider: 'openai', envKey: 'OPENAI_API_KEY', model: MODELS.MAIN, supportsTools: true, label: 'OpenAI (direct)' },
-
-  // ═══════════════════════════════════════════════════════════════════════════
-  // TIER 2b — GROQ. Tool-capable, four keys, two models.
-  // ═══════════════════════════════════════════════════════════════════════════
-  // These four were TIER 3 (tool-blind) until 7 Sep 2026, each running
-  // MODELS.GROQ_SMART = 'openai/gpt-oss-120b' with supportsTools: false and no
-  // reason given — twenty lines above, the *same model family* served through
-  // NVIDIA (openai/gpt-oss-20b) was already flagged supportsTools: true, with a
-  // probe note recording a clean tool_call. Groq's own model docs confirm both
-  // gpt-oss-20b and gpt-oss-120b support tool calling. That was a bug, not a
-  // measured limitation, and it meant six of fourteen legs in this chain were
-  // told they could not read the database at the exact point traffic falls
-  // through to them — Gemini's quota spent, Cohere/NVIDIA/Cloudflare exhausted.
-  // See config.ts's GROQ_OPENAI_BASE comment for why these are `provider:
-  // 'openai'` rather than `provider: 'groq'`.
-  //
-  // Four keys, four independent per-minute allowances, split across both
-  // models rather than run identically: gpt-oss-20b (1000 tok/s, $0.075/$0.30
-  // per 1M) tries first on two keys — cheaper and faster than every other
-  // tool-capable leg in this chain including Gemini — then gpt-oss-120b (500
-  // tok/s, $0.15/$0.60, the stronger model) on the other two as an escalation.
-  // If one model family has a problem, the other pair is unaffected.
-  //
-  // Free tier is 8,000 tokens/minute (Groq's published limit); our prompts run
-  // ~13,000 tokens with the facts block attached, so these legs need the paid
-  // Developer tier (250,000 TPM) to answer at all — a free key here silently
-  // 429s on every real turn. Confirm the account tier before relying on them.
-  { provider: 'openai', envKey: 'GROQ_API_KEY', model: 'openai/gpt-oss-20b', supportsTools: true, baseUrl: GROQ_OPENAI_BASE, label: 'Groq gpt-oss-20b (key 1)' },
-  { provider: 'openai', envKey: 'GROQ_API_KEY1', model: 'openai/gpt-oss-20b', supportsTools: true, baseUrl: GROQ_OPENAI_BASE, label: 'Groq gpt-oss-20b (key 2)' },
-  { provider: 'openai', envKey: 'GROQ_API_KEY2', model: 'openai/gpt-oss-120b', supportsTools: true, baseUrl: GROQ_OPENAI_BASE, label: 'Groq gpt-oss-120b (key 3)' },
-  { provider: 'openai', envKey: 'GROQ_API_KEY3', model: 'openai/gpt-oss-120b', supportsTools: true, baseUrl: GROQ_OPENAI_BASE, label: 'Groq gpt-oss-120b (key 4)' },
 
   // ═══════════════════════════════════════════════════════════════════════════
   // TIER 3 — TOOL-BLIND. Prose only; toolBlindGuard checks whatever they write.
