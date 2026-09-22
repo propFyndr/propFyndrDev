@@ -49,14 +49,14 @@ const PROFILES: Record<QueryShape, Omit<InferenceProfile, 'shape'>> = {
 
 /** Anything that turns a question into a comparison or a multi-constraint brief. */
 const REASONING_RE =
-  /\bvs\b|\bversus\b|\bcompare\b|\bbetter (than|for)\b|\bwhich (one|is better)\b|\btrade[- ]?offs?\b|\brank\b|\bshortlist\b/i
+  /\bvs\b|\bversus\b|\bcompare\b|\bbetter (than|for)\b|\bwhich (one|is better)\b|\btrade[- ]?offs?\b|\brank\b|\bshortlist\b|\bsafest bet\b|\bmost returns\b|\bwhere to (?:put money|invest)\b/i
 
 /** A stated life situation: every clause is a constraint to be answered. */
 const SITUATION_RE = /\bi (have|earn|want|need|work|am|would)\b|\bmy (wife|husband|family|budget|office|child)\b/i
 
 /** Judgement vocabulary — asks for a position, not a fact. */
 const ADVISORY_RE =
-  /^(is|are|should|would|do you|does it|can i|will)\b|\bworth (it|buying)\b|\bgood (for|place|idea)\b|\brisk|\bavoid\b|\brecommend/i
+  /^(is|are|should|would|do you|does it|can i|will)\b|\bworth (it|buying)\b|\bgood (for|place|idea|option|choice|bet|investment|project)\b|\brisk|\bavoid\b|\brecommend/i
 
 /** A question word, or a superlative. Wants a fact and a little framing. */
 const FACTUAL_RE = /^(what|which|where|when|who|how)\b|\bbest\b|\btop\b|\bcheapest\b|\bhighest\b|\baverage\b/i

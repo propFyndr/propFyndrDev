@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import {
   FileText, CalendarDays, Percent, ShieldCheck, Download, CheckCircle2,
   TrendingUp, Home, ArrowUpRight, PhoneCall, IndianRupee,
@@ -9,6 +9,7 @@ import type { LucideIcon } from 'lucide-react'
 import type { ProjectDetail, UnitTypeSummary, PaymentPlan } from '@/types/project'
 import { buildWhatsAppUrl } from '@/lib/whatsapp'
 import { PricingTabSkeleton } from '@/components/skeletons'
+import { track } from '@/lib/analytics'
 
 export interface ProjectPricingTabProps {
   unitTypes: UnitTypeSummary[]
@@ -308,6 +309,16 @@ export default function ProjectPricingTab({ unitTypes, detail, loading, onGoToCo
   const utilitiesCost = utilAmt
   const totalPossessionAdditions = stampDutyCost + regCost + gstCost + utilitiesCost
   const grandTotalAtPossession = constructionTotalCost + totalPossessionAdditions
+
+  useEffect(() => {
+    if (detail?.name && selectedUnit && grandTotalAtPossession > 0) {
+      track('cost_sheet_calculated', {
+        project_name: detail.name,
+        unit_bhk: selectedUnit.bhk ? `${selectedUnit.bhk} BHK` : bhkFilter,
+        total_landed_cost: grandTotalAtPossession,
+      })
+    }
+  }, [detail?.name, selectedUnit?.bhk, bhkFilter, propertyPrice, grandTotalAtPossession])
 
   // Adaptive breakdown components based on Stage Toggle (At Booking vs At Possession)
   const breakdownComponents = !unitAreaSqft ? [] : costBreakdownStage === 'construction' ? [

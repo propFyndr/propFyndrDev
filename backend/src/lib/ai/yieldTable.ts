@@ -285,7 +285,9 @@ export function asksRentalYield(message: string): boolean {
   return (
     /\b(rental\s+yield|gross\s+yield|net\s+yield|yield)\b/.test(m) ||
     /\brent(?:al)?\s+(?:return|income|yield)\b/.test(m) ||
-    /\b(?:rent|rental)\b[^.?]{0,30}\b(?:vs|versus|against|compared\s+to)\b[^.?]{0,20}\b(?:emi|price|buy|purchase)\b/.test(m)
+    /\b(?:rent|rental)\b[^.?]{0,30}\b(?:vs|versus|against|compared\s+to)\b[^.?]{0,20}\b(?:emi|price|buy|purchase)\b/.test(m) ||
+    /\b(?:most|best|highest)\s+returns?\b/.test(m) ||
+    /\boffer(?:s)?\s+(?:the\s+)?(?:most|best)\s+returns?\b/.test(m)
   )
 }
 
@@ -293,7 +295,11 @@ export function asksRentalYield(message: string): boolean {
 export function asksAppreciation(message: string): boolean {
   const m = (message || '').toLowerCase()
   if (!m) return false
-  return /\b(appreciat|capital\s+gain|price\s+(?:trend|growth|rise|movement|history|increase)|resale\s+value|how\s+much\s+(?:has|have|will)[^.?]{0,25}(?:grown|risen|gone\s+up|appreciate)|cagr)\b/.test(m)
+  return (
+    /\b(appreciat|capital\s+gain|price\s+(?:trend|growth|rise|movement|history|increase)|resale\s+value|how\s+much\s+(?:has|have|will)[^.?]{0,25}(?:grown|risen|gone\s+up|appreciate)|cagr)\b/.test(m) ||
+    /\b(?:most|best|highest)\s+returns?\b/.test(m) ||
+    /\bbest\s+area\s+to\s+put\s+money\b/.test(m)
+  )
 }
 
 // ── Sector appreciation, from recorded figures ───────────────────────────────

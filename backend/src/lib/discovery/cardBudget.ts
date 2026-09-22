@@ -94,6 +94,28 @@ const CALCULATION =
 const LOGISTICS =
   /\b(site visit|visit (this|next|on|tomorrow|today)|book a? ?(visit|call)|call me|callback|contact (you|me|the builder)|whats ?app|paperwork|documents? (are |is )?(needed|required)|registry process)\b/i
 
+/**
+ * A question about affordability / feasibility, not an inventory shortlist request.
+ * "Is 1.5 crores enough for a 3 BHK in Noida?" or "Can I get a flat for 80 lakhs"
+ * is an advisory/feasibility inquiry.
+ */
+const FEASIBILITY =
+  /\b(is\s+(?:it\s+|\d+|₹?\s*\d+(?:\.\d+)?\s*(?:cr|crore|lakh|lac|k)?\s*)(?:enough|sufficient|possible|realistic|feasible)|will\s+(?:it|\d+|₹?\s*\d+(?:\.\d+)?\s*(?:cr|crore|lakh|lac|k)?)\s*be\s+(?:enough|sufficient)|(?:enough|sufficient)\s+(?:budget\s+)?(?:for|to\s+buy)|within\s+reach)\b/i
+
+/**
+ * Broad investment queries without an explicit sector shortlist filter.
+ * "What property in Noida will give me the highest return?", "Which offers the most returns?", "Which is the best area to put money in and safest bet?"
+ */
+const BROAD_INVESTMENT =
+  /\b((?:highest|maximum|most|best)\s+returns?|offer(?:s)?\s+(?:the\s+)?(?:most|best|highest)\s+returns?|most\s+profitable|best\s+investment|highest\s+rental\s+yield|best\s+capital\s+appreciation|best\s+roi|safest\s+bet|safe\s+bet|best\s+area\s+to\s+(?:put\s+money|invest)|where\s+to\s+(?:put\s+money|invest)|safest\s+investment)\b/i
+
+/**
+ * Project evaluation inquiries: "Is this a good option?", "Is Ace Parkway worth buying?"
+ * Keep card budget strictly to 1 focused card (if named) or 0, preventing competitor clutter during due diligence.
+ */
+const PROJECT_EVALUATION =
+  /\b(is\s+(?:this|it|that|[a-z0-9\s]+)\s+(?:a\s+)?(?:good|safe|worthwhile|wise|viable|sound)\s+(?:option|choice|investment|project|bet|buy|purchase)|should\s+i\s+(?:buy|invest\s+in)|worth\s+(?:it|buying|investing\s+in)|safe\s+to\s+(?:buy|invest)|good\s+option|good\s+choice|good\s+bet)\b/i
+
 export function cardBudgetFor(intent: Intent, message = ''): CardBudget {
   if (META_QUESTION.test(message)) {
     return { limit: 0, reason: 'a question about the conversation, not about inventory' }
@@ -103,6 +125,18 @@ export function cardBudgetFor(intent: Intent, message = ''): CardBudget {
   }
   if (LOGISTICS.test(message)) {
     return { limit: 0, reason: 'the buyer is arranging a next step, not browsing' }
+  }
+  if (FEASIBILITY.test(message)) {
+    return { limit: 0, reason: 'a feasibility question, not a shortlist request' }
+  }
+  if (BROAD_INVESTMENT.test(message) && !/\bsector\s*\d+\b/i.test(message)) {
+    return { limit: 0, reason: 'broad investment advisory, not an inventory shortlist' }
+  }
+  if (PROJECT_EVALUATION.test(message)) {
+    return {
+      limit: (intent.projectNames?.length ?? 0) === 1 ? 1 : 0,
+      reason: 'project evaluation advisory — focus on the subject property only',
+    }
   }
 
   // A project in focus: the cards are that project and at most a couple of

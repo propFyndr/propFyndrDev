@@ -32,7 +32,7 @@ function flush() {
 
 function load(): Promise<void> | null {
   if (client || loading) return loading
-  if (typeof window === 'undefined') return null
+  if (typeof window === 'undefined' || process.env.NODE_ENV === 'test') return null
   const key = process.env.NEXT_PUBLIC_POSTHOG_KEY || (process.env.NODE_ENV === 'production' ? 'phc_CxNVfVHUhdM7q8cQjUaRWcGBPHsY9JVfYdsZvUqJsbjV' : '')
   if (!key) return null
 
@@ -111,7 +111,7 @@ export function preloadPostHog() {
 }
 
 export function capture(event: string, properties?: Record<string, unknown>) {
-  if (typeof window === 'undefined') return
+  if (typeof window === 'undefined' || process.env.NODE_ENV === 'test') return
   if (client) {
     client.capture(event, properties)
     return
@@ -121,7 +121,7 @@ export function capture(event: string, properties?: Record<string, unknown>) {
 }
 
 export function identify(userId: string, traits?: Record<string, unknown>) {
-  if (typeof window === 'undefined') return
+  if (typeof window === 'undefined' || process.env.NODE_ENV === 'test') return
   if (client) {
     client.identify(userId, traits)
     return

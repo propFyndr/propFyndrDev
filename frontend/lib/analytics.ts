@@ -16,6 +16,8 @@ type EventName =
   | 'comparison_used'
   | 'callback_requested'
   | 'site_visit_requested'
+  | 'site_visit_booked'
+  | 'cost_sheet_calculated'
   | 'signup_started'
   | 'signup_completed'
   | 'whatsapp_handoff'
@@ -30,7 +32,7 @@ type EventName =
 
 export function track(event: EventName, properties?: Record<string, unknown>) {
   try {
-    if (typeof window === 'undefined') return
+    if (typeof window === 'undefined' || process.env.NODE_ENV === 'test') return
     capture(event, properties)
   } catch {
     // never let analytics crash the app

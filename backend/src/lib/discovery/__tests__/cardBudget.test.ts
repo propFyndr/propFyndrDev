@@ -56,4 +56,20 @@ describe('a question whose answer is not a set of buildings', () => {
       assert.equal(cardBudgetFor(narrowed, q).limit, 6, q)
     }
   })
+
+  it('shows no cards for macro return and safety queries, and 1 card for single project evaluation', () => {
+    assert.equal(cardBudgetFor(narrowed, 'Which offers the most returns?').limit, 0)
+    assert.equal(
+      cardBudgetFor(
+        narrowed,
+        'Which is the best area to put money in, which will offer the best returns, and which is the safest bet?',
+      ).limit,
+      0,
+    )
+    assert.equal(cardBudgetFor(narrowed, 'Is this a good option?').limit, 0)
+    assert.equal(
+      cardBudgetFor({ ...narrowed, projectNames: ['Ace Parkway'] }, 'Is Ace Parkway a good option?').limit,
+      1,
+    )
+  })
 })

@@ -418,9 +418,9 @@ export default function ProjectCard({ project, userId, sessionId, index = 0, isS
             </div>
           )}
 
-          {workingImages.length > 0 && !allFailed ? (
+          {activeUrl ? (
             <Image
-              src={resolveImgUrl(activeUrl) || '/placeholder.png'}
+              src={resolveImgUrl(activeUrl) || activeUrl}
               alt={project.name}
               fill
               priority={index < 3}

@@ -196,3 +196,32 @@ describe('schema-default sentinels', () => {
     assert.equal(facts.lifts_per_tower, '2')
   })
 })
+
+describe('legal risk summary synthesis', () => {
+  it('synthesizes legal_risk_summary when litigation, NCLT, or dues exist', () => {
+    const facts = buildProjectFacts(row({
+      litigation_count: 5,
+      ongoing_litigation_count: 2,
+      nclt_moratorium_active: true,
+      authority_dues_cleared: false,
+    }) as never)
+
+    assert.ok(typeof facts.legal_risk_summary === 'string')
+    assert.ok((facts.legal_risk_summary as string).includes('[MANDATORY LEGAL DISCLOSURE]'))
+    assert.ok((facts.legal_risk_summary as string).includes('5 project litigation record(s) (2 ongoing)'))
+    assert.ok((facts.legal_risk_summary as string).includes('ACTIVE NCLT insolvency moratorium'))
+    assert.ok((facts.legal_risk_summary as string).includes('Uncleared Noida/Greater Noida Authority land dues'))
+  })
+
+  it('omits legal_risk_summary when project has clean legal standing', () => {
+    const facts = buildProjectFacts(row({
+      litigation_count: 0,
+      ongoing_litigation_count: 0,
+      nclt_moratorium_active: false,
+      authority_dues_cleared: true,
+      legal_flag: 'none',
+    }) as never)
+
+    assert.ok(!('legal_risk_summary' in facts))
+  })
+})

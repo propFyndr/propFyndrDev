@@ -41,7 +41,7 @@ export const DEFAULT_INACTIVITY_MS = 60_000
  * every leg in the chain now behaves the same way. A provider that has sent
  * nothing in 25 seconds is not about to be the fast path.
  */
-export const DEFAULT_FIRST_TOKEN_MS = Number(process.env.STREAM_FIRST_TOKEN_MS ?? 25_000)
+export const DEFAULT_FIRST_TOKEN_MS = Number(process.env.STREAM_FIRST_TOKEN_MS ?? 8_000)
 
 export interface InactivityGuard {
   /** Pass to the SDK as `{ signal }` so an abort tears the fetch down. */

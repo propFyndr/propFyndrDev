@@ -46,6 +46,7 @@ export function trackEvent(
   event: string,
   properties?: Record<string, unknown>
 ): void {
+  if (process.env.NODE_ENV === 'test') return
   const client = getPostHog()
   if (!client) return
 

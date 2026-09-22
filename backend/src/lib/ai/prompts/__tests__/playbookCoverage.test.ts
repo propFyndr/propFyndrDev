@@ -68,9 +68,13 @@ const CORPUS: Array<[string, PlaybookId]> = [
   ['What is the TDS level of the water supply here?', 'livabilityWater'],
   ['What will I pay for DG power backup per unit?', 'livabilityWater'],
 
-  // ── Persona frameworks ────────────────────────────────────────────────
+  // ── Persona & Strategic frameworks ────────────────────────────────────
   ['Are NRIs driving up premium real estate prices in Noida?', 'nri'],
   ['Where would you invest 3 crore across NCR for maximum rental income?', 'yield'],
+  ['Which offers the most returns?', 'yield'],
+  ['Which is the best area to put money in, which will offer the best returns, and which is the safest bet?', 'macroCorridorStrategy'],
+  ['Is this a good option?', 'projectEvaluation'],
+  ['Is Ace Parkway worth buying?', 'projectEvaluation'],
   ['Does paying 1.4 crore for a 3BHK in Greater Noida West make financial sense?', 'pricing'],
   ['What is the circle rate versus market rate difference in Noida?', 'pricing'],
 ]

@@ -28,6 +28,8 @@ export type PlaybookId =
   | 'luxury'
   | 'pricing'
   | 'legalDueDiligence'
+  | 'projectEvaluation'
+  | 'macroCorridorStrategy'
   | 'landedCostAndTax'
   | 'yeidaJewarVerification'
   | 'livabilityWater'
@@ -64,14 +66,15 @@ When a young buyer or family is stretching budget or asking about rent vs buy:
 
   yield: {
     matches: (m, i) =>
-      /\b(rental yield|yield|roi|rental income|return on investment|pre[- ]leased|commercial|appreciation|capital gains?|where\s+should\s+i\s+invest|invest(?:ing)?\s*\d+\s*(?:cr|crore)|portfolio\s*allocation)\b/i.test(m) ||
+      /\b((?:most|best|highest|maximum)\s+returns?|offer(?:s)?\s+(?:the\s+)?(?:most|best|highest)\s+returns?|rental\s+yield|yield|roi|rental\s+income|return\s+on\s+investment|pre[- ]leased|commercial|appreciation|capital\s+gains?|where\s+should\s+i\s+invest|invest(?:ing)?\s*\d+\s*(?:cr|crore)|portfolio\s*allocation)\b/i.test(m) ||
       i?.purpose === 'investment' ||
       i?.journeyStage === 'yield_investor',
-    text: `### YIELD INVESTOR PLAYBOOK
-When an investor seeks rental income or ROI:
-- **Asset class comparison**: Compare residential rental yields (2.5%–3.5%) against commercial pre-leased high-street retail (6%–8%).
+    text: `### YIELD & RETURN STRATEGY PLAYBOOK
+When an investor seeks rental income, ROI, or asks "Which offers the most returns?":
+- **Asset class & yield comparison**: Compare residential gross rental yields (2.5%–3.8% in Noida high-rises, higher along Expressway IT sectors 137/142) against commercial pre-leased high-street retail (6%–8%).
 - **Macro Catalysts**: Reference UP FAR policy reforms (up to 4.0 FAR, no ground coverage cap) and Jewar International Airport commercial flight operations (commencing 2026).
-- **Taxation & Costs**: Note commercial stamp duty (7% male + 1% registry), commercial circle rates (up to ₹2,50,000/sqm), and 18% GST on under-construction commercial.`,
+- **Taxation & Costs**: Note commercial stamp duty (7% male + 1% registry), commercial circle rates (up to ₹2,50,000/sqm), and 18% GST on under-construction commercial.
+- **BUDS Act 2019 Warning**: Explicitly warn that under the Banning of Unregulated Deposit Schemes (BUDS) Act 2019, any promoter or broker offering "guaranteed 12% returns" or "assured monthly rental cheques" is operating an illegal scheme. Only evaluate registered, tangible assets.`,
   },
 
   nri: {
@@ -200,6 +203,41 @@ When the user asks about water supply, groundwater TDS, or civic livability:
 - **Corridor Water Realities**: Central Noida (Sectors 74–79) and Noida Expressway receive designated Ganga water supply lines. Peripheral sectors in Greater Noida West and unorganized pockets often rely on internal WTPs mixing borewell groundwater.
 - **DG Power & Tariff Stack**: Highlight statutory dual-metering infrastructure (PVVNL grid at ~₹6.50–₹7.50/unit vs captive DG power backup at ₹18.00–₹24.00/unit on diesel consumption).`,
   },
+
+  macroCorridorStrategy: {
+    matches: (m) =>
+      /\b(safest\s+bet|safe\s+bet|best\s+area\s+to\s+put\s+money|where\s+to\s+put\s+money|safest\s+option|safest\s+investment|high\s+growth\s+vs\s+safe|safest\s+place\s+to\s+invest)\b/i.test(m),
+    text: `### REGIONAL CORRIDOR STRATEGY: SAFEST BETS VS. HIGH-GROWTH
+When asked "Which is the best area to put money in, which will offer the best returns, and which is the safest bet?":
+- **Tier 1 (The Safest Bet — Capital Preservation & Steady Yield)**:
+  - **Locations**: Central Noida (Sectors 74–79), Noida Expressway (Sectors 93, 128, 137).
+  - **Profile**: 100% Ready-to-Move (RTM) with Occupancy Certificate (OC), registered sub-lease deed, cleared Noida Authority land dues, 0% GST, established Ganga Jal municipal water.
+  - **Returns**: 2.5%–3.5% gross rental yield + stable 5%–7% long-term capital appreciation. Best for risk-averse families and capital preservation.
+- **Tier 2 (Balanced End-User Value)**:
+  - **Locations**: Greater Noida West (Noida Extension, Sectors 1, 4, 10, 12, Techzone 4).
+  - **Profile**: Low entry cost (₹80 Lakh to ₹1.5 Crore), high rental absorption from IT workforce, established retail. High density and supply overhang cap rapid speculative spikes.
+- **Tier 3 (High Growth / High Gestation Frontier)**:
+  - **Locations**: Yamuna Expressway (YEIDA Sectors 18, 20, 22D near Jewar Airport).
+  - **Profile**: High long-term capital appreciation potential (8%–12% over a 5–8+ year holding period) driven by Noida International Airport, Film City, and logistics hubs.
+  - **Critical Risks**: 5–8 year gestation period for schools, hospitals, and social infrastructure. Strict warning against unapproved private plotting schemes (must verify official YEIDA allotment letters).`,
+  },
+
+  projectEvaluation: {
+    matches: (m) =>
+      /\b(is\s+(?:this|it|that|[a-z0-9\s]+)\s+(?:a\s+)?good\s+(?:option|choice|investment|project|buy)|should\s+i\s+buy|worth\s+buying|is\s+it\s+safe\s+to\s+buy|is\s+this\s+safe)\b/i.test(m),
+    text: `### FORENSIC PROJECT EVALUATION & DUE DILIGENCE PLAYBOOK
+When the user asks "Is this a good option?", "Is [Project] a good choice?", "Should I buy?", or asks for project due diligence:
+- **Mandatory Legal & Litigation Check First**: Inspect \`facts.legal_risk_summary\` and \`facts.litigation_count\`. If litigation count > 0, NCLT insolvency is active, or authority land dues are uncleared, disclose this in your very first sentence. Never praise amenities before addressing title safety.
+- **8-Dimension Fiduciary Diligence**:
+  1. **Statutory Title**: Clear lease deed, RERA QPR compliance, and Amitabh Kant 25% dues clearance status.
+  2. **Engineering Quality**: Monolithic Mivan shuttering vs brick masonry; check basement for water seepage / sump pumps ("Basement Test").
+  3. **Lift Safety**: Mandatory registration under UP Lifts and Escalators Act 2024 (\`updeslift.org\`), OEM AMC, ARD rescue device.
+  4. **Livability & Water**: Ganga Jal (TDS 150–300 ppm) vs borewell groundwater (TDS > 2,000 ppm); check Shahdara drain effect (copper AC coil corrosion) in Sectors 74–79 & 137.
+  5. **Cost Stack Transparency**: 5% GST on under-construction vs 0% on RTM with OC; verify all-in landed cost (IFMS, club, meter, stamp duty).
+  6. **Utility Tariffs**: PVVNL grid rate (~₹6.50/unit) vs captive DG backup (₹18–₹26/unit); maintenance deduction from power meters is illegal.
+  7. **Spatial Efficiency**: True RERA usable carpet area vs super area loading (typically 25%–35%).
+  8. **Honest Trade-off Verdict**: Clearly state who this project suits and who should walk away.`,
+  },
 }
 
 /** At most this many, so a message hitting four does not undo the saving. */
@@ -223,6 +261,8 @@ export const SELECTION_ORDER: readonly PlaybookId[] = [
   'landedCostAndTax',
   'yeidaJewarVerification',
   'livabilityWater',
+  'projectEvaluation',
+  'macroCorridorStrategy',
   'pricing',
   'nri',
   'yield',

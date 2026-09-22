@@ -14,6 +14,7 @@ import { attributeCallbackToPromotional } from '../lib/promotionalAttribution'
 import { buildLeadDossier } from '../lib/leadDossier'
 import { analyzeGhostPoolByProject } from '../lib/ghostPool'
 import { analyzeProjectDemand, getDemandSnapshot } from '../lib/demandIntelligence'
+import { trackEvent } from '../lib/monitoring/posthog'
 
 const router = Router()
 
@@ -267,6 +268,16 @@ router.post('/callback', async (req: Request, res: Response) => {
     created_at: cb.created_at.toISOString(),
   }).catch((e) => console.error('[leads] webhook failed:', e))
 
+  // Server-side PostHog confirmation event
+  trackEvent(userId ?? guestToken ?? null, 'callback_requested', {
+    project_slug: finalProjectSlug,
+    project_name: finalProjectName,
+    sector: projectSector,
+    lead_score: score,
+    lead_tier: tier,
+    source_session: resolvedSessionId ?? null,
+  })
+
   // Not the row. It carries lead_score, lead_tier, ai_summary, guest_token and
   // user_id — internal qualification the buyer must never read back.
   res.status(201).json({ success: true, callback_id: cb.id })
@@ -427,6 +438,18 @@ router.post('/site-visit', async (req: Request, res: Response) => {
     chat_session_id: resolvedSessionId ?? null,
     created_at: sv.created_at.toISOString(),
   }).catch((e) => console.error('[leads] webhook failed:', e))
+
+  // Server-side PostHog confirmation event
+  trackEvent(userId ?? guestToken ?? null, 'site_visit_booked', {
+    project_slug: projectSlug,
+    project_name: projectName,
+    visit_date: visitDate,
+    time_slot: timeSlot,
+    sector: project.sector,
+    lead_score: svScore,
+    lead_tier: svTier,
+    source_session: resolvedSessionId ?? null,
+  })
 
   res.status(201).json({ success: true, site_visit_id: sv.id })
 })

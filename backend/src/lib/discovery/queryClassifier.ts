@@ -76,15 +76,16 @@ export interface ClassifyOptions {
    * Defaults to trusting the list, which preserves existing callers.
    */
   hasVerifiedProjectNames?: boolean
+  hasProjectInScope?: boolean
 }
 
 export function classifyQueryDeterministic(
   userMessage: string,
-  intent: Record<string, unknown>,
+  intent: Record<string, unknown> = {},
   opts: ClassifyOptions = {},
 ): QueryClassification | null {
   const msg = userMessage.toLowerCase().trim()
-  const intentObj = intent as Partial<Intent>
+  const intentObj = (intent || {}) as Partial<Intent>
 
   // COMPARISON: User explicitly asks to compare 2+ named projects
   // "Compare X vs Y", "Compare X and Y", "Compare X with Y"
@@ -166,6 +167,8 @@ export function classifyQueryDeterministic(
    */
   const refersBackToAProject = /\b(it|its|it's|this|that|the\s+project|there|they|their)\b/i.test(msg)
   const hasProjectInScope =
+    Boolean(opts.hasProjectInScope) ||
+    Boolean((intent as { hasProjectInScope?: boolean }).hasProjectInScope) ||
     ((intentObj.projectNames?.length ?? 0) > 0 && (opts.hasVerifiedProjectNames ?? true)) ||
     Boolean((intent as { focus_project_id?: string | null }).focus_project_id) ||
     Boolean((intent as { targetProjectId?: string | null }).targetProjectId) ||
@@ -177,6 +180,46 @@ export function classifyQueryDeterministic(
       renderTarget: 'text',
       confidence: 'HIGH',
       reason: 'Attribute question about a project in scope -> DRILLDOWN (text)',
+    }
+  }
+
+  // 1b. RANKING: User asks for best/top/cheapest/luxury properties
+  // "Top 5 projects in Sector 150", "Best luxury apartments", "Cheapest flats in Greater Noida"
+  const rankingPattern = /(?:top\s+\d*|best|cheapest|most\s+affordable|highest\s+rated|premium|luxury)\s+(?:flats|apartments|projects|properties|societies|builders)/i
+  if (rankingPattern.test(userMessage)) {
+    return {
+      queryKind: 'RANKING',
+      renderTarget: 'both',
+      confidence: 'HIGH',
+      reason: 'Explicit ranking request -> RANKING (both)',
+    }
+  }
+
+  // 1c. BROAD INVESTMENT & CORRIDOR ADVISORY (returns, safest bet, where to invest):
+  // "Which offers the most returns?", "What property will give me the highest return?", "Which is the safest bet?"
+  // Must render text advisory (macro trends, regional corridors, rental yield vs appreciation) rather than card dumps.
+  const broadInvestmentPattern =
+    /\b((?:highest|maximum|most|best)\s+returns?|offer(?:s)?\s+(?:the\s+)?(?:most|best|highest)\s+returns?|most\s+profitable|best\s+investment|highest\s+rental\s+yield|best\s+capital\s+appreciation|best\s+roi|safest\s+bet|safe\s+bet|best\s+area\s+to\s+(?:put\s+money|invest)|where\s+to\s+(?:put\s+money|invest)|safest\s+investment)\b/i
+  if (broadInvestmentPattern.test(msg)) {
+    return {
+      queryKind: 'ADVISORY',
+      renderTarget: 'text',
+      confidence: 'HIGH',
+      reason: 'Broad investment / return strategy inquiry -> ADVISORY (text)',
+    }
+  }
+
+  // 1d. PROJECT EVALUATION / DUE DILIGENCE VIABILITY:
+  // "Is this a good option?", "Is Ace Parkway worth buying?", "Is it a good choice?", "Is it safe to buy?"
+  // Directly evaluates a project/builder's merit and risk rather than listing inventory.
+  const projectEvaluationPattern =
+    /\b(is\s+(?:this|it|that|[a-z0-9\s]+)\s+(?:a\s+)?(?:good|safe|worthwhile|wise|viable|sound)\s+(?:option|choice|investment|project|bet|buy|purchase)|should\s+i\s+(?:buy|invest\s+in)|worth\s+(?:it|buying|investing\s+in)|safe\s+to\s+(?:buy|invest)|good\s+option|good\s+choice|good\s+bet)\b/i
+  if (projectEvaluationPattern.test(msg)) {
+    return {
+      queryKind: 'ADVISORY',
+      renderTarget: 'text',
+      confidence: 'HIGH',
+      reason: 'Project viability / evaluation question -> ADVISORY (text)',
     }
   }
 
@@ -267,7 +310,7 @@ export function classifyQueryDeterministic(
   // "Should I buy X?", "Is X good for investment?", "What do you think of X?"
   const advisoryPattern = /\b(should|should i|would you|is.*good|is.*worth|is.*right|do you think|what do you think|recommendation|advice|your opinion|opinion on)\b/i
   const projectRef = /\b(for|about|on|of)\s+\w+$/
-  if (advisoryPattern.test(msg) && projectRef.test(msg)) {
+  if (advisoryPattern.test(msg) && (projectRef.test(msg) || hasProjectInScope)) {
     return {
       queryKind: 'ADVISORY',
       renderTarget: 'text',

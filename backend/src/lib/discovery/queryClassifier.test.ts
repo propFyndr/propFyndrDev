@@ -80,6 +80,34 @@ describe('Query Classifier', () => {
       assert.equal(result?.renderTarget, 'text')
     })
 
+    it('detects ADVISORY for returns, corridor safety, and project evaluation', () => {
+      const r1 = classifyQueryDeterministic('Which offers the most returns?', {} as Partial<Intent>)
+      assert.equal(r1?.queryKind, 'ADVISORY')
+      assert.equal(r1?.renderTarget, 'text')
+
+      const r2 = classifyQueryDeterministic(
+        'Which is the best area to put money in, which will offer the best returns, and which is the safest bet?',
+        {} as Partial<Intent>,
+      )
+      assert.equal(r2?.queryKind, 'ADVISORY')
+      assert.equal(r2?.renderTarget, 'text')
+
+      const r3 = classifyQueryDeterministic(
+        'Is this a good option?',
+        { focus_project_id: 'p-123' } as unknown as Partial<Intent>,
+      )
+      assert.equal(r3?.queryKind, 'ADVISORY')
+      assert.equal(r3?.renderTarget, 'text')
+
+      const r4 = classifyQueryDeterministic(
+        'Is Ace Parkway worth buying?',
+        { projectNames: ['Ace Parkway'] } as Partial<Intent>,
+        { hasVerifiedProjectNames: true },
+      )
+      assert.equal(r4?.queryKind, 'ADVISORY')
+      assert.equal(r4?.renderTarget, 'text')
+    })
+
     it('returns null for uncertain queries (fallback)', () => {
       const result = classifyQueryDeterministic(
         'Tell me about 3BHK properties',

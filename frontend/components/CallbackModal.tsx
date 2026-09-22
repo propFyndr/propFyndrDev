@@ -82,6 +82,7 @@ export default function CallbackModal({ project, isDone, onClose }: CallbackModa
       track('callback_requested', { 
         project_slug: project.slug, 
         project_name: project.name,
+        sector: project.sector,
         intent_tier: intentTier 
       });
       track('lead_created', { type: 'callback', project_slug: project.slug });

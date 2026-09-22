@@ -5,6 +5,7 @@ import { Prisma } from '@prisma/client'
 import { z } from 'zod'
 import { prisma } from '../lib/db'
 import { checkRateLimit, invalidateSessionList, getCached, setCached } from '../lib/cache'
+import { checkGuestRateLimit } from '../lib/rateLimit/guestRateLimiter'
 import { extractIntent } from '../lib/ai/intent'
 import { asksAboutTheConversation } from '../lib/ai/metaQuestions'
 import { hydrateIntentFromMemory, persistIntentToMemory, trackPropertyReaction } from '../lib/ai/sessionMemory'
@@ -215,6 +216,19 @@ router.post('/', async (req: Request, res: Response) => {
     return
   }
 
+  // Sliding-window rate limit on guestToken (25 messages / 10 minutes)
+  if (guestToken) {
+    const guestLimit = checkGuestRateLimit(guestToken)
+    if (!guestLimit.allowed) {
+      res.setHeader('Retry-After', String(guestLimit.retryAfterSeconds))
+      res.status(429).json({
+        error: 'Too many requests. Please wait a moment before sending more messages.',
+        retryAfter: guestLimit.retryAfterSeconds,
+      })
+      return
+    }
+  }
+
   // Sanitize to prevent prompt injection (OWASP LLM01)
   const { safe: sanitizedMessage, blocked } = sanitizeUserMessage(message)
   if (blocked) {
@@ -409,16 +423,17 @@ router.post('/', async (req: Request, res: Response) => {
     await initializeChatAnalytics(sessionId ?? undefined, userId, guestToken ?? undefined)
   }
 
-  const rlKey = userId ?? guestToken!
   const ip = clientIp(req)
-  // Two ceilings: per-identity (20/min) AND per-IP (40/min) so rotating guest tokens
+  // Ceilings: per-identity (20/min for authenticated users) AND per-IP (40/min) so rotating guest tokens
   // from one source can't bypass the limit and drain the AI budget.
+  // Note: guestToken is already checked against the 25 req / 10 min sliding window.
   const [byKey, byIp] = await Promise.all([
-    checkRateLimit(rlKey),
+    userId ? checkRateLimit(`user:${userId}`, 20, 60) : Promise.resolve({ allowed: true, remaining: 25 }),
     checkRateLimit(`ip:${ip}`, 40, 60),
   ])
   const remaining = Math.min(byKey.remaining, byIp.remaining)
   if (!byKey.allowed || !byIp.allowed) {
+    res.setHeader('Retry-After', '60')
     res.status(429).json({ error: 'Too many messages. Please wait a moment.' })
     return
   }
@@ -458,6 +473,7 @@ router.post('/', async (req: Request, res: Response) => {
   const timer = createTurnTimer()
 
   const send = (event: string, data: Record<string, unknown>) => {
+    if (res.writableEnded) return
     // Internal ranker artifacts never leave the server, whichever emit produced
     // the payload. Measured: 51% of every project object, 80KB of a 120KB
     // response, read by no client. Per-emit stripping missed three call sites.
@@ -4368,6 +4384,8 @@ EXECUTIVE RESPONSE INSTRUCTIONS:
       const wantsMultiDim = queryClassification.queryKind === 'RANKING'
 
       if ((projects.length > 0 || nearbyProjects.length > 0) && action.type === 'TEXT_MESSAGE' && wantsMultiDim) {
+        const multiDimAbort = new AbortController()
+        let timeoutHandle: NodeJS.Timeout | null = null
         try {
           console.log('[MULTI_DIM:ENHANCEMENT] Starting multi-dimensional ranking enhancement')
           const multiDimResult = await Promise.race([
@@ -4375,10 +4393,21 @@ EXECUTIVE RESPONSE INSTRUCTIONS:
               message,
               chatHistory,
               undefined,
-              { limit: Math.min(5, projects.length + nearbyProjects.length) }
+              {
+                limit: Math.min(5, projects.length + nearbyProjects.length),
+                signal: multiDimAbort.signal,
+              }
             ),
-            new Promise<null>(resolve => setTimeout(() => resolve(null), MULTIDIM_DEADLINE_MS)),
+            new Promise<null>((resolve) => {
+              timeoutHandle = setTimeout(() => {
+                multiDimAbort.abort()
+                resolve(null)
+              }, MULTIDIM_DEADLINE_MS)
+            }),
           ]) ?? { recommendations: [], topRecommendation: null, confidence: null, dealBreakersDetected: [] } as never
+
+          if (timeoutHandle) clearTimeout(timeoutHandle)
+
           if (!multiDimResult.topRecommendation) {
             console.log('[MULTI_DIM:SKIPPED]', { reason: `no result within ${MULTIDIM_DEADLINE_MS}ms` })
           }
@@ -4418,8 +4447,13 @@ EXECUTIVE RESPONSE INSTRUCTIONS:
               }).catch(e => console.warn('[SESSION:UPDATE] Failed:', e))
             }
           }
-        } catch (err) {
-          console.error('[MULTI_DIM:ENHANCEMENT] Failed:', err)
+        } catch (err: any) {
+          if (timeoutHandle) clearTimeout(timeoutHandle)
+          if (err?.message === 'MULTI_DIM_ABORTED' || multiDimAbort.signal.aborted) {
+            console.log('[MULTI_DIM:SKIPPED]', { reason: `aborted after ${MULTIDIM_DEADLINE_MS}ms deadline` })
+          } else {
+            console.error('[MULTI_DIM:ENHANCEMENT] Failed:', err)
+          }
           // Fall through — discovery results still available
         }
       }
@@ -5734,74 +5768,62 @@ EXECUTIVE RESPONSE INSTRUCTIONS:
       persistPromises.push(upsertMemory(userId, guestToken, intent, slugsToMemorize))
     }
 
-    // These are independent writes and were run one after the other, so the
-    // buyer waited for the sum of two Supabase round-trips rather than the
-    // slower of them. Instrumented: the stage after the model call cost
-    // 3.3-4.6s on a discovery turn.
-    console.log('[CHAT] BEFORE persist', Date.now())
     if (currentSessionId) {
       persistPromises.push(
         persistToDb(currentSessionId).catch((e) => {
           console.error('[chat] chipDedup persist failed:', e)
-          send('warning', { message: 'Failed to save interaction history; please refresh' })
         }),
       )
     }
-    await Promise.all(persistPromises).catch((e) => console.error('[chat] persist error:', e))
-    console.log('[CHAT] AFTER persist', Date.now())
 
-    // The message id is looked up inside the grading promise below, not here.
-    //
-    // Grading is already fire-and-forget; only this lookup was blocking, and it
-    // is a Supabase round-trip the buyer waits through so that an asynchronous
-    // quality job can start a moment sooner.
-
-    // Observability: Langfuse & PostHog
-    if (currentSessionId) {
-      try {
-        trackEvent(userId || guestToken || 'anonymous', 'message_sent', {
-          session_id: currentSessionId,
-          intentState,
-          sector: intent?.sector,
-          queryKind: queryClassification?.queryKind,
-        })
-      } catch (e) {
-        // Analytics must never break a request, but swallowing the error
-        // silently makes a misconfigured deploy look healthy — which is the
-        // failure mode `npm run verify:observability` exists to catch.
-        console.warn('[CHAT:ANALYTICS_ERROR]', (e as Error).message)
-      }
-
-      try {
-        const lf = getLangfuse()
-        if (lf) {
-          const trace = lf.trace({
-            id: `chat-${currentSessionId}-${Date.now()}`,
-            sessionId: currentSessionId,
-            userId: userId || guestToken || undefined,
-            name: 'chat_turn',
-            input: { message, intent },
-            output: { response: fullText },
-            tags: [queryClassification?.queryKind || 'chat', intentState || 'active'],
-          })
-          trace.generation({
-            name: 'assistant_reply',
-            input: message,
-            output: fullText,
-            metadata: { sector: intent?.sector, intentState, projectCount: projects?.length ?? 0 },
-          })
-          lf.flushAsync().catch(() => {})
-        }
-      } catch (e) {
-        console.warn('[CHAT:LANGFUSE_ERROR]', (e as Error).message)
-      }
-    }
-
+    // ── Emit done & close SSE connection immediately (0ms blocking wait) ──
     timer.mark('postLlm')
     console.log('[CHAT:TIMING]', timer.summary(), '|', message.slice(0, 50))
     send('done', { sessionId: currentSessionId, intentState, intent, responseMode, timings: { ...timer.stages, total: timer.elapsed() } })
     res.end()
     console.log('[CHAT] AFTER send(done)', Date.now())
+
+    // ── Background persistence & observability (fire-and-forget) ──
+    Promise.all(persistPromises)
+      .then(() => {
+        if (currentSessionId) {
+          try {
+            trackEvent(userId || guestToken || 'anonymous', 'message_sent', {
+              session_id: currentSessionId,
+              intentState,
+              sector: intent?.sector,
+              queryKind: queryClassification?.queryKind,
+            })
+          } catch (e) {
+            console.warn('[CHAT:ANALYTICS_ERROR]', (e as Error).message)
+          }
+
+          try {
+            const lf = getLangfuse()
+            if (lf) {
+              const trace = lf.trace({
+                id: `chat-${currentSessionId}-${Date.now()}`,
+                sessionId: currentSessionId,
+                userId: userId || guestToken || undefined,
+                name: 'chat_turn',
+                input: { message, intent },
+                output: { response: fullText },
+                tags: [queryClassification?.queryKind || 'chat', intentState || 'active'],
+              })
+              trace.generation({
+                name: 'assistant_reply',
+                input: message,
+                output: fullText,
+                metadata: { sector: intent?.sector, intentState, projectCount: projects?.length ?? 0 },
+              })
+              lf.flushAsync().catch(() => {})
+            }
+          } catch (e) {
+            console.warn('[CHAT:LANGFUSE_ERROR]', (e as Error).message)
+          }
+        }
+      })
+      .catch((e) => console.error('[chat] persist error:', e))
   } catch (err) {
     console.error('[chat] error:', err)
     // Issue 5: rate-limit fallback — preserve loaded context instead of dropping it

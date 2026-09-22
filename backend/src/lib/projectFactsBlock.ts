@@ -150,7 +150,7 @@ export const FACT_TOPIC_PATTERNS: ReadonlyArray<{ topic: FactTopic; pattern: Reg
   // the other place a question is judged to be worth spending on.
   {
     topic: 'deep_reasoning',
-    pattern: /\bvs\b|\bversus\b|compare|better (than|for)|which (one|is better)|trade[- ]?offs?|worth (it|buying)|should i (buy|invest)|investment|appreciat|resale|rental yield|risk|long[- ]term|5[- ]year|why (buy|avoid)|pros and cons/i,
+    pattern: /\bvs\b|\bversus\b|compare|better (than|for)|which (one|is better)|trade[- ]?offs?|worth (it|buying)|should i (buy|invest)|investment|appreciat|resale|rental yield|risk|long[- ]term|5[- ]year|why (buy|avoid)|pros and cons|good (option|choice|bet)|safe (option|choice|bet|to buy)|safest bet|is this (good|safe)/i,
   },
   // Unit-level detail — added 7 Sep 2026 alongside wiring `unit_inventory` into
   // the facts block for the first time. Gated the same reason price_history
@@ -459,6 +459,27 @@ export function buildProjectFacts(
     for (const contradicted of ['legal_flag', 'project_risk_flag', 'nclt_moratorium_active', 'nclt_status', 'approvals_status']) {
       delete facts[contradicted]
     }
+  }
+
+  // Synthesize unambiguous legal risk summary for the prompt
+  const projLitigation = Number(row.litigation_count) || 0
+  const ongoingLitigation = Number(row.ongoing_litigation_count) || 0
+  const builderLitigation = Number((row.builder as any)?.litigation_count) || 0
+  const ncltActive = row.nclt_moratorium_active === true
+  const duesPending = row.authority_dues_cleared === false
+  const projFlag = typeof row.legal_flag === 'string' && row.legal_flag !== 'none' ? row.legal_flag : null
+
+  if (projLitigation > 0 || ongoingLitigation > 0 || builderLitigation > 0 || ncltActive || duesPending || projFlag) {
+    const issues: string[] = []
+    if (projLitigation > 0) issues.push(`${projLitigation} project litigation record(s) (${ongoingLitigation} ongoing)`)
+    if (builderLitigation > 0) issues.push(`${builderLitigation} builder litigation record(s)`)
+    if (ncltActive) issues.push('ACTIVE NCLT insolvency moratorium')
+    if (duesPending) issues.push('Uncleared Noida/Greater Noida Authority land dues (sub-lease deed registry may be blocked)')
+    if (projFlag) issues.push(`Project legal flag: ${projFlag}`)
+
+    facts.legal_risk_summary =
+      `[MANDATORY LEGAL DISCLOSURE] This property carries active legal concerns: ${issues.join('; ')}. ` +
+      `HARD RULE 6f REQUIRES you to state this upfront in your opening sentence before evaluating any amenities, layouts, or pricing.`
   }
 
   if (row.unit_types?.length) {

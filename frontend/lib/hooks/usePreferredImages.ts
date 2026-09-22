@@ -1,8 +1,26 @@
 import { useState, useCallback, useEffect } from 'react'
 import type { ProjectCard } from '@/types/project'
 
+export const CURATED_TYPOLOGY_FALLBACKS = {
+  luxury: 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=600&q=80',
+  mid: 'https://images.unsplash.com/photo-1574362848149-11496d93a7c7?auto=format&fit=crop&w=600&q=80',
+  affordable: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=600&q=80',
+}
+
+export function getCuratedFallback(project: ProjectCard | null): string | null {
+  if (!project) return null
+  const minCr = (project as any).price_min_cr
+  if (minCr != null) {
+    if (minCr >= 2.5) return CURATED_TYPOLOGY_FALLBACKS.luxury
+    if (minCr >= 1.5) return CURATED_TYPOLOGY_FALLBACKS.mid
+    return CURATED_TYPOLOGY_FALLBACKS.affordable
+  }
+  return CURATED_TYPOLOGY_FALLBACKS.mid
+}
+
 interface UsePreferredImagesReturn {
   activeUrl: string | null
+  fallbackUrl: string | null
   workingImages: string[]
   allFailed: boolean
   hasMultiple: boolean
@@ -76,8 +94,11 @@ export function usePreferredImages(project: ProjectCard | null, detailImages?: a
     setFailedUrls((prev) => (prev.has(src) ? prev : new Set(prev).add(src)))
   }, [])
 
+  const fallbackUrl = getCuratedFallback(project)
+
   return {
-    activeUrl: workingImages[activeIdx] ?? null,
+    activeUrl: workingImages[activeIdx] ?? fallbackUrl,
+    fallbackUrl,
     workingImages,
     allFailed,
     hasMultiple,

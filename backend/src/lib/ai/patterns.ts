@@ -21,7 +21,7 @@ export const INJECTION_PATTERNS: RegExp[] = [
   /override\s+(your\s+)?(programming|training|instructions)/i,
   /what\s+(is|are)\s+your\s+system\s+prompt/i,
   /reveal\s+(your\s+)?(system|internal)\s+(prompt|instructions)/i,
-  /(reveal|print|show|repeat|output|quote)\s+(your|the|entire)\s+(system\s+)?(prompt|instructions)/i,
+  /(reveal|print|show|repeat|output|quote|dump)\s+(your|the|entire)\s+(system\s+)?(prompt|instructions)/i,
   /forget\s+(everything|all|your instructions)/i,
   /bypass\s+(all\s+)?filters/i,
   /enter\s+(developer|jailbreak)\s+mode/i,

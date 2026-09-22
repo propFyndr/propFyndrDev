@@ -604,6 +604,54 @@ export async function executeWithFallbackChain(options: FallbackChainOptions): P
     'Do NOT restart from the beginning, do NOT redraw any table you already started (a partial row is still your table — extend it, never rebuild it), ' +
     'do not repeat anything already written, do not restate the question, and do not mention that you were interrupted.'
 
+  const lf = getLangfuse()
+  const rootTrace = lf && sessionId
+    ? lf.trace({
+        id: `chat-${sessionId}-${turnStartedAt}`,
+        sessionId,
+        userId: userId || undefined,
+        name: 'chat_turn',
+        input: { userMessage, messagesCount: messages.length },
+        tags: ['fallback_chain'],
+      })
+    : null
+
+  const wrappedOnToolCall: ToolCallFn = async (name: string, args: Record<string, unknown>) => {
+    let toolSpan: any = null
+    const toolStart = Date.now()
+    if (rootTrace) {
+      try {
+        toolSpan = rootTrace.span({
+          name: `tool:${name}`,
+          input: args,
+        })
+      } catch {}
+    }
+    try {
+      const res = await onToolCall(name, args)
+      if (toolSpan) {
+        try {
+          toolSpan.end({
+            output: res,
+            metadata: { latency_ms: Date.now() - toolStart },
+          })
+        } catch {}
+      }
+      return res
+    } catch (err: any) {
+      if (toolSpan) {
+        try {
+          toolSpan.end({
+            level: 'ERROR',
+            statusMessage: err?.message || String(err),
+            metadata: { latency_ms: Date.now() - toolStart },
+          })
+        } catch {}
+      }
+      throw err
+    }
+  }
+
   for (let chainIdx = 0; chainIdx < effectiveChainConfig.length; chainIdx++) {
     const item = effectiveChainConfig[chainIdx]
     // Checked before the key and the cooldown, because it is a property of the
@@ -737,9 +785,30 @@ export async function executeWithFallbackChain(options: FallbackChainOptions): P
       geminiConfig.maxTokens = Math.min(geminiConfig.maxTokens ?? 1500, FREE_TIER_MAX_TOKENS)
     }
 
+    const effectiveModel = item.provider === 'gemini' ? geminiConfig.model : item.model
+    const legStart = Date.now()
+    let legSpan: any = null
+    if (rootTrace) {
+      try {
+        legSpan = rootTrace.generation({
+          name: `llm_call:${item.provider}:${effectiveModel}`,
+          model: effectiveModel,
+          input: {
+            userMessage,
+            messagesCount: turnMessages.length,
+          },
+          metadata: {
+            provider: item.provider,
+            envKey: item.envKey,
+            supportsTools: item.supportsTools,
+            turnIndex: chainIdx,
+          },
+        })
+      } catch {}
+    }
+
     try {
       if (process.env.DEBUG_FALLBACK) {
-        const effectiveModel = item.provider === 'gemini' ? geminiConfig.model : item.model
         console.log(`[FALLBACK:TRY] → ${item.label} | Model: ${effectiveModel} | Tools: ${item.supportsTools}`)
       }
 
@@ -747,35 +816,15 @@ export async function executeWithFallbackChain(options: FallbackChainOptions): P
       if (item.provider === 'mistral') {
         text = await streamWithMistral(effectivePrompt, turnMessages, bufferedSend, apiKey, userId, sessionId, legMaxTokens)
       } else if (item.provider === 'gemini') {
-        text = await streamWithGemini(effectivePrompt, turnMessages, bufferedSend, onToolCall, geminiConfig, apiKey, userId, sessionId)
+        text = await streamWithGemini(effectivePrompt, turnMessages, bufferedSend, wrappedOnToolCall, geminiConfig, apiKey, userId, sessionId)
 
-        /**
-         * One retry on the SAME key with tools off, before giving up on it.
-         *
-         * Measured directly against a 34k-token prompt on the free key: with
-         * the tool catalogue attached the model emitted 25 output tokens and
-         * `finishReason: STOP` with no text at all; the identical request with
-         * tools off produced 3,815 characters. Same key, same model, same
-         * prompt — the catalogue is what silences it, intermittently, at large
-         * prompt sizes.
-         *
-         * Without this, an empty reply cost the whole chain: the turn rolled
-         * through three more Gemini legs, Cohere and two NVIDIA models before
-         * something answered — measured at 95 seconds on one replay, 88 of it
-         * LLM time. A second call to a key that has already loaded the prompt
-         * is a few seconds and usually answers.
-         *
-         * It is a strict downgrade in capability for that turn — no lookups —
-         * so it runs only when the leg produced literally nothing. A leg that
-         * answered badly is the integrity gate's problem, not this one.
-         */
         if (!text.trim() && !getTokensSent() && geminiConfig.tools !== false) {
           console.warn(`[FALLBACK:RETRY_NO_TOOLS] ${item.label} returned no text with tools — retrying the same key without them`)
           text = await streamWithGemini(
             effectivePrompt,
             turnMessages,
             bufferedSend,
-            onToolCall,
+            wrappedOnToolCall,
             { ...geminiConfig, tools: false },
             apiKey,
             userId,
@@ -787,28 +836,7 @@ export async function executeWithFallbackChain(options: FallbackChainOptions): P
           effectivePrompt,
           turnMessages,
           bufferedSend,
-          onToolCall,
-          // `item.model`, never `effectiveConfig.model`.
-          //
-          // The profile picks a GEMINI model name for the turn — measured live,
-          // `[CHAT:PROFILE] model=gemini-3.5-flash-lite` — and `effectiveConfig`
-          // is one object shared by every leg. Preferring it here asked Cohere,
-          // NVIDIA and Cloudflare for a Gemini model: `404 status code (no
-          // body)`, `404 404 page not found`, `400 status code (no body)`. All
-          // three tool-capable non-Gemini legs failed on every turn, so when the
-          // Gemini prepay balance ran out the chain had no leg that could read a
-          // project row at all — which is the exact condition that produces
-          // invented projects. Both keys and both hosts probe fine by hand; only
-          // the model name was wrong.
-          //
-          // Without item.model the leg falls back to MODELS.MAIN, which is a
-          // gpt-4o name that neither Cohere nor NVIDIA has. Two legs share the
-          // NVIDIA key and differ only by model, so this is also what keeps
-          // them from being the same leg twice.
-          //
-          // maxTokens is raised for Groq specifically via groqReplyCeiling —
-          // see its comment in config.ts for why, and why the number is a
-          // first attempt rather than a settled one.
+          wrappedOnToolCall,
           {
             ...effectiveConfig,
             model: item.model,
@@ -821,6 +849,28 @@ export async function executeWithFallbackChain(options: FallbackChainOptions): P
         )
       } else if (item.provider === 'groq') {
         text = await streamWithGroq(effectivePrompt, turnMessages, bufferedSend, userId, sessionId, apiKey, legMaxTokens)
+      }
+
+      const legLatency = Date.now() - legStart
+      if (legSpan) {
+        try {
+          const promptTokensEst = estimateTokensReal(effectivePrompt) + estimateTokensReal(JSON.stringify(turnMessages))
+          const completionTokensEst = estimateTokensReal(text)
+          legSpan.end({
+            output: text.slice(0, 1500),
+            usage: {
+              promptTokens: promptTokensEst,
+              completionTokens: completionTokensEst,
+              totalTokens: promptTokensEst + completionTokensEst,
+            },
+            metadata: {
+              latency_ms: legLatency,
+              provider: item.provider,
+              model: effectiveModel,
+              cache_hit: text.length > 0,
+            },
+          })
+        } catch {}
       }
 
       /**
@@ -917,24 +967,7 @@ export async function executeWithFallbackChain(options: FallbackChainOptions): P
         }
 
         try {
-          const lf = getLangfuse()
           if (lf) {
-            const trace = lf.trace({
-              id: `chat-${sessionId}-${Date.now()}`,
-              sessionId,
-              userId: userId || undefined,
-              name: 'chat_turn',
-              input: { userMessage, historyLength: messages.length },
-              output: { text },
-              tags: [item.provider, item.model],
-            })
-            trace.generation({
-              name: item.label,
-              model: item.model,
-              input: userMessage,
-              output: text,
-              metadata: { provider: item.provider, envKey: item.envKey },
-            })
             lf.flushAsync().catch(() => {})
           }
         } catch (e) {
@@ -967,6 +1000,20 @@ export async function executeWithFallbackChain(options: FallbackChainOptions): P
       const error = err instanceof Error ? err : new Error(String(err))
       const tokensSent = getTokensSent() || (err as any)?.tokensSent === true
       const errMsg = error.message || String(err)
+
+      if (legSpan) {
+        try {
+          legSpan.end({
+            level: 'ERROR',
+            statusMessage: errMsg,
+            metadata: {
+              latency_ms: Date.now() - legStart,
+              provider: item.provider,
+              model: effectiveModel,
+            },
+          })
+        } catch {}
+      }
 
       // Start a cooldown only when retrying cannot help. A timeout, a stall or a
       // 500 is exactly the case where the next turn should try this leg again —

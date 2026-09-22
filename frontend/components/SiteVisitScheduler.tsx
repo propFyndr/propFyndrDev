@@ -87,6 +87,12 @@ export default function SiteVisitScheduler({ projectId, projectSlug, projectName
       const data = await res.json()
       if (!res.ok) throw new Error(data.error ?? 'Failed')
       track('site_visit_requested', { project_slug: projectSlug, project_name: projectName })
+      track('site_visit_booked', {
+        project_slug: projectSlug,
+        project_name: projectName,
+        visit_date: selectedDate.toISOString(),
+        time_slot: selectedSlot,
+      })
       setSuccessData({
         name: form.name,
         visitDate: formatDate(selectedDate),

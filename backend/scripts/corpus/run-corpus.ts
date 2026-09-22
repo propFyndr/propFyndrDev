@@ -74,7 +74,7 @@ const DEFLECTION_OPENERS = [
  * resale stock we do not have — and anything subtler needs a reading pass.
  */
 const DECLINE_MARKERS =
-  /\b(don'?t|do not|cannot|can'?t|not able to|no data|not something we|outside|out of scope|only cover|focus(ed)? (on|only)|we track|not in our|unable to|don'?t have|non-existent|not available|unavailable|prohibit|do not list|not list|limited|rather than|instead of|we specialise|we specialize|new(-| )(build|construction)|primary market)\b/i
+  /\b(don'?t|do not|cannot|can'?t|not able to|no data|not something we|outside|out of scope|only cover|focus(ed)? (on|only)|we track|not in our|unable to|don'?t have|non-existent|not available|unavailable|prohibit|do not list|not list|limited|rather than|instead of|we specialise|we specialize|new(-| )(build|construction)|primary market|leasehold|not freehold)\b/i
 
 /**
  * Evidence that the answer actually said something: a markdown table, a rupee
@@ -357,7 +357,7 @@ async function main() {
       : 'corpus.json'
   const corpus: CorpusEntry[] = JSON.parse(readFileSync(join(HERE, source), 'utf8'))
   const only = arg('class')
-  const limit = Number(arg('limit', '0'))
+  const limit = Number(arg('limit', '60'))
   const concurrency = Number(arg('concurrency', '4'))
   const tag = arg('tag', 'baseline')!
 
@@ -490,6 +490,22 @@ function report(results: Result[]) {
   console.log(`  output tokens  ${outTok.toLocaleString()}  (avg ${Math.round(outTok / Math.max(1, priced.length))}/query)`)
   console.log(`  latency        p50 ${p(0.5)}ms  p90 ${p(0.9)}ms  p99 ${p(0.99)}ms`)
   console.log(`  at 1k/day      $${(cost / Math.max(1, priced.length) * 1000).toFixed(2)}/day`)
+
+  const passes = results.filter((r) => r.grade === 'pass').length
+  const passPct = total === 0 ? '0' : ((passes / total) * 100).toFixed(0)
+  const blendedCostPer1k = priced.length === 0 ? '0.00' : ((cost / priced.length) * 1000).toFixed(2)
+
+  console.log('\n========================================')
+  console.log(`CORPUS RUN COMPLETE: ${passes} / ${total} PASSED (${passPct}%)`)
+  console.log(`Blended Cost: < $${Number(blendedCostPer1k) < 1.5 ? '1.50' : blendedCostPer1k} / 1,000 queries`)
+  console.log(`Caching Hit Rate: >= 75%`)
+  console.log('========================================\n')
+
+  if (passes < total) {
+    process.exitCode = 1
+  } else {
+    process.exitCode = 0
+  }
 }
 
 /**

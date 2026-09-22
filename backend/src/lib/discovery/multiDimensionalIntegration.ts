@@ -47,8 +47,14 @@ export async function getMultiDimensionalRecommendations(
     limit?: number // Default 3, max 10
     prioritizeInvestment?: boolean // Boost investment-focused recommendations
     prioritizeEndUse?: boolean // Boost end-use recommendations
+    signal?: AbortSignal // Cancellation signal for deadline timeout
   }
 ): Promise<MultiDimensionalResult> {
+  if (options?.signal?.aborted) {
+    console.log('[MULTI_DIM:ABORTED] Pipeline aborted before start')
+    throw new Error('MULTI_DIM_ABORTED')
+  }
+
   console.log('[MULTI_DIM] Starting multi-dimensional pipeline', { messageLength: userMessage.length })
 
   // Phase 1: Extract extended intent (all 11 dimensions)
@@ -56,6 +62,11 @@ export async function getMultiDimensionalRecommendations(
     userMessage,
     previousIntent
   })
+
+  if (options?.signal?.aborted) {
+    console.log('[MULTI_DIM:ABORTED] Pipeline aborted after phase 1')
+    throw new Error('MULTI_DIM_ABORTED')
+  }
 
   console.log('[MULTI_DIM:PHASE1] Intent extraction complete', {
     degraded: intentDegraded,
@@ -80,11 +91,20 @@ export async function getMultiDimensionalRecommendations(
   const intentConfidence = Math.round(dimensionConfidences.reduce((a, b) => a + b, 0) / dimensionConfidences.length)
 
   // Phase 2 & 3 combined: Query projects + score on all 11 dimensions
+  if (options?.signal?.aborted) {
+    console.log('[MULTI_DIM:ABORTED] Pipeline aborted before query and scoring')
+    throw new Error('MULTI_DIM_ABORTED')
+  }
   console.log('[MULTI_DIM:PHASE2-3] Starting query and scoring')
   const rankedProjects = await queryAndScoreProjects(extendedIntent, {
     limit: options?.limit ?? 10,
     offset: 0
   })
+
+  if (options?.signal?.aborted) {
+    console.log('[MULTI_DIM:ABORTED] Pipeline aborted after query and scoring')
+    throw new Error('MULTI_DIM_ABORTED')
+  }
 
   if (rankedProjects.length === 0) {
     console.log('[MULTI_DIM] No projects match criteria')
@@ -106,6 +126,10 @@ export async function getMultiDimensionalRecommendations(
   console.log('[MULTI_DIM:PHASE2-3] Query complete', { projectCount: rankedProjects.length })
 
   // Phase 4: Format results with human-readable explanations
+  if (options?.signal?.aborted) {
+    console.log('[MULTI_DIM:ABORTED] Pipeline aborted before ranking formatting')
+    throw new Error('MULTI_DIM_ABORTED')
+  }
   console.log('[MULTI_DIM:PHASE4] Starting ranking formatter')
   const legacyIntent = mapExtendedIntentToLegacy(extendedIntent)
 
