@@ -140,31 +140,10 @@ export async function getAllSectorsOverview(lifestyleKeywords?: string[], city: 
 }
 
 /**
- * Return adjacent sectors for a given sector name, ordered by proximity.
- * Falls back to numeric ±1/±2/±5 for sectors not in the adjacency map.
+ * Return adjacent sectors for a given sector name, ordered by geographic proximity.
+ * Uses strict verified master-plan adjacency from SECTOR_ADJACENCY.
  */
 export function getNearbySectors(sector: string): string[] {
-  // Normalize to match map keys (trim, preserve case)
   const normalized = sector.trim()
-  const known = SECTOR_ADJACENCY[normalized]
-  if (known) return known
-
-  // Fallback: numeric proximity for unmapped sectors like "Sector 42"
-  const numMatch = normalized.match(/^Sector\s+(\d+)$/i)
-  if (numMatch) {
-    const n = parseInt(numMatch[1], 10)
-    return [
-      `Sector ${n - 1}`,
-      `Sector ${n + 1}`,
-      `Sector ${n - 2}`,
-      `Sector ${n + 2}`,
-      `Sector ${n - 5}`,
-      `Sector ${n + 5}`,
-    ].filter((s) => {
-      const num = parseInt(s.replace(/\D/g, ''), 10)
-      return num > 0
-    })
-  }
-
-  return []
+  return SECTOR_ADJACENCY[normalized] ?? []
 }

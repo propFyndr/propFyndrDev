@@ -504,6 +504,10 @@ router.post('/', async (req: Request, res: Response) => {
       } catch {
         /* intent still in its temporal dead zone — fall back to the cap */
       }
+      if (budget.limit <= 0) {
+        cardsShownThisTurn = 0
+        return sseWrite(res, event, { ...data, exactResults: [], nearbyResults: [] })
+      }
       const exact = capCards(shape(data.exactResults) as unknown[], budget.limit)
       const nearby = capCards(shape(data.nearbyResults) as unknown[], Math.max(0, budget.limit - exact.length))
       const offered = (Array.isArray(data.exactResults) ? data.exactResults.length : 0)
@@ -646,6 +650,14 @@ router.post('/', async (req: Request, res: Response) => {
     // Neither of these reads depends on the extracted intent, so start them now.
     let sessionReadError: unknown
     const memoryPromise = getMemory(userId, guestToken)
+    const firstUserMessagePromise = (sessionId
+      ? prisma.chatMessage.findFirst({
+          where: { session_id: sessionId, role: 'user' },
+          orderBy: { created_at: 'asc' },
+          select: { content: true },
+        })
+      : Promise.resolve(null)
+    ).catch(() => null)
     const sessionPromise = (sessionId
       ? prisma.chatSession.findUnique({
           where: { id: sessionId },
@@ -661,7 +673,7 @@ router.post('/', async (req: Request, res: Response) => {
             last_projects: true,
             chat_phase: true,
             focus_project_id: true,
-            messages: { orderBy: { created_at: 'desc' }, take: 50, select: { id: true, role: true, content: true, created_at: true } },
+            messages: { orderBy: { created_at: 'desc' }, take: 100, select: { id: true, role: true, content: true, created_at: true } },
           },
         })
       : Promise.resolve(null)
@@ -696,10 +708,11 @@ router.post('/', async (req: Request, res: Response) => {
     // Join point: the two reads above have been in flight for the whole duration
     // of intent extraction. Only the hydrate step genuinely depends on the intent.
     const baseIntent = rawIntentResult.intent
-    const [, memory, sessionData] = await Promise.all([
+    const [, memory, sessionData, firstUserMessage] = await Promise.all([
       hydrateIntentFromMemory(sessionId ?? '', baseIntent).then(h => (hydratedIntent = h)),
       memoryPromise,
       sessionPromise,
+      firstUserMessagePromise,
     ])
     if (sessionReadError) throw sessionReadError
     console.log('[CHAT] END intent/memory/session', Date.now())
@@ -1327,7 +1340,7 @@ router.post('/', async (req: Request, res: Response) => {
         }
       }
 
-      if (!isFreshSearch && !resolved && !resolvedSector && needsShownContext(message) && shownProjects.length === 0) {
+      if (!isFreshSearch && !resolved && !resolvedSector && needsShownContext(message) && shownProjects.length === 0 && shownSectors.length === 0) {
         console.log('[CHAT:REFERENT_UNRESOLVED]', { q: message.slice(0, 60) })
         send('token', {
           token:
@@ -1578,10 +1591,11 @@ router.post('/', async (req: Request, res: Response) => {
       const seen = shownProjects.slice(0, 6).map(p => p.name)
 
       const lines: string[] = []
-      if (userTurns.length === 0) {
+      if (userTurns.length === 0 && !firstUserMessage?.content) {
         lines.push('Nothing yet — this is the first thing you have asked me in this session.')
       } else {
-        lines.push(`You opened with: "${userTurns[0]}"`)
+        const openingMessage = firstUserMessage?.content?.trim() || userTurns[0]
+        lines.push(`You opened with: "${openingMessage}"`)
         if (userTurns.length > 1) {
           const rest = userTurns.slice(1, 6).map(t => `- "${t}"`).join('\n')
           lines.push(`\nSince then:\n${rest}${userTurns.length > 6 ? `\n- …and ${userTurns.length - 6} more` : ''}`)
@@ -4710,8 +4724,16 @@ EXECUTIVE RESPONSE INSTRUCTIONS:
      *
      * Suppression has to follow what actually went on screen.
      */
+    let currentCardLimit = MAX_CARDS
+    try {
+      currentCardLimit = cardBudgetFor(intent ?? ({} as Intent), message).limit
+    } catch {
+      /* ignore */
+    }
     const cardsAreRendering =
-      (renderTarget === 'cards' || renderTarget === 'both') && projects.length > 0
+      (renderTarget === 'cards' || renderTarget === 'both') &&
+      projects.length > 0 &&
+      currentCardLimit > 0
 
     /**
      * Is the buyer asking us to list projects?
@@ -5260,7 +5282,7 @@ EXECUTIVE RESPONSE INSTRUCTIONS:
       const closer = `\n\nThey're on the cards above — tell me which one to open up, or what matters most and I'll narrow it.`
       const trimmed = fullText.trimEnd()
       let closed = false
-      if (/[:：]$/.test(trimmed) && cardsAreRendering) {
+      if (/[:：]$/.test(trimmed) && cardsAreRendering && cardsShownThisTurn > 0) {
         send('token', { token: closer })
         fullText = `${trimmed}${closer}`
         closed = true
@@ -5269,22 +5291,8 @@ EXECUTIVE RESPONSE INSTRUCTIONS:
 
       /**
        * The same deletion, one sentence further in.
-       *
-       * The guard above catches an answer that ENDS on its promise. It missed
-       * the commoner shape: the model writes the lead-in, puts the whole
-       * ranking in a table, and signs off with a follow-up question, so the
-       * colon sits in the middle and the answer looks finished. Measured on six
-       * ranking turns, one came back as "Ranked by verified project score for
-       * Sector 150:", a stray footnote line, and "Would you like to compare the
-       * floor plans?" — naming not one of the four projects on the cards it was
-       * ranking.
-       *
-       * Naming none of the projects we just put on screen, on a turn that asked
-       * for a list of them, means the content was in the table that
-       * `suppressTables` removed. Same remedy as above: say where it actually
-       * is, rather than leaving the buyer to guess what was ranked.
        */
-      if (!closed && cardsAreRendering && wantsProjectList) {
+      if (!closed && cardsAreRendering && wantsProjectList && cardsShownThisTurn > 0) {
         const shown = projects.slice(0, Math.max(cardsShownThisTurn, 1))
         const namesAny = shown.some((p) => p.name && fullText.includes(p.name))
         if (!namesAny) {
@@ -5841,7 +5849,9 @@ EXECUTIVE RESPONSE INSTRUCTIONS:
       send('token', { token: fallback })
       send('done', { sessionId: sessionId ?? null, intentState, intent, responseMode: 'chat' })
     } else {
-      send('error', { message: "I'm having trouble right now. Please try again in a moment." })
+      const highTrafficFallback = "We are currently experiencing high traffic. Please give us a few moments and try your question again."
+      send('token', { token: highTrafficFallback })
+      send('done', { sessionId: sessionId ?? null, intentState, intent, responseMode: 'chat' })
     }
   } finally {
     // Phase 0: Persist intent to session memory (async, fire-and-forget) - guarded against IDOR

@@ -18,6 +18,7 @@ import type { Intent } from './types'
 import { extractSectorMentions } from './sectorMentions'
 import { inferRankingProfile, type RankingProfile } from './rankingProfiles'
 import { detectOpenQuery, hasPropertySearchSignal } from './openQuery'
+import { GEOGRAPHY_OR_CONCEPTUAL_INQUIRY, CONSULTATIVE_INQUIRY } from './cardBudget'
 
 export type QueryKind =
   | 'DISCOVERY'   // User searching for properties
@@ -86,6 +87,30 @@ export function classifyQueryDeterministic(
 ): QueryClassification | null {
   const msg = userMessage.toLowerCase().trim()
   const intentObj = (intent || {}) as Partial<Intent>
+
+  // GEOGRAPHY / JURISDICTION / CONCEPTUAL: "does sector 150 fall under noida extension", "which authority governs sector 150"
+  if (GEOGRAPHY_OR_CONCEPTUAL_INQUIRY.test(userMessage)) {
+    return {
+      queryKind: 'OPEN',
+      renderTarget: 'text',
+      confidence: 'HIGH',
+      reason: 'Geographical or administrative definition inquiry -> OPEN (text)',
+    }
+  }
+
+  // CONSULTATIVE / LIFESTYLE WITHOUT CRITERIA: "I have a family of three, what should I look for?"
+  const hasConcreteFilters = Boolean(
+    (intentObj.budgetMax != null || intentObj.budgetMin != null) ||
+    (intentObj.bhk && intentObj.bhk.length > 0)
+  )
+  if (CONSULTATIVE_INQUIRY.test(msg) && !hasConcreteFilters && !opts.hasProjectInScope) {
+    return {
+      queryKind: 'ADVISORY',
+      renderTarget: 'text',
+      confidence: 'HIGH',
+      reason: 'Consultative lifestyle inquiry without budget/BHK -> ADVISORY (text)',
+    }
+  }
 
   // COMPARISON: User explicitly asks to compare 2+ named projects
   // "Compare X vs Y", "Compare X and Y", "Compare X with Y"
@@ -232,9 +257,11 @@ export function classifyQueryDeterministic(
   // "apartments under 1.5 cr").
   const inventoryNoun = /\b(flats?|apartments?|homes?|properties|societ(?:y|ies))\b/i
   const searchFilter = /\b(sector|under|below|within|upto|up\s+to|budget|crore|cr|lakh|lac|near|nearby|\d\s*bhk)\b/i
-  const isSearchAction = /\b(show\s+me|find\s+me|search|list\s+(all|the)?|looking\s+for|available\s+in)\b/i.test(msg) ||
+  const isSearchAction = !GEOGRAPHY_OR_CONCEPTUAL_INQUIRY.test(msg) && (
+    /\b(show\s+me|find\s+me|search|list\s+(all|the)?|looking\s+for|available\s+in)\b/i.test(msg) ||
     (inventoryNoun.test(msg) && searchFilter.test(msg)) ||
     (/\b(\d\s*bhk)\b/i.test(msg) && /\b(sector|in|under|budget|crore|lakh)\b/i.test(msg))
+  )
   const isSpecificAttributeQuestion = /\b(what is|where is|give me|explain|how many|what are|details of|about)\b/i.test(msg)
 
   if (isSearchAction && !isSpecificAttributeQuestion) {

@@ -90,8 +90,8 @@ export function linkProjectNames(
     // Explicit boundaries rather than \b: a name ending in a non-word character
     // ("M3M (Phase 1)") has no word boundary after it, so \b never matches and the
     // name silently stays unlinked.
-    const pattern = new RegExp(`(?<![A-Za-z0-9])${escapeRegExp(entity.name)}(?![A-Za-z0-9])`, 'g')
-    out = out.replace(pattern, `[${entity.name}](#entity:${entity.id})`)
+    const pattern = new RegExp(`(?<![A-Za-z0-9\\[])${escapeRegExp(entity.name)}(?:\\s+(?:I{1,3}|IV|V|VI{0,3}|IX|X|Phase\\s+\\d+|Extension))?(?![A-Za-z0-9\\]])`, 'g')
+    out = out.replace(pattern, (match) => `[${match}](#entity:${entity.id})`)
   }
   return out
 }

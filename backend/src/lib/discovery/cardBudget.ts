@@ -116,7 +116,28 @@ const BROAD_INVESTMENT =
 const PROJECT_EVALUATION =
   /\b(is\s+(?:this|it|that|[a-z0-9\s]+)\s+(?:a\s+)?(?:good|safe|worthwhile|wise|viable|sound)\s+(?:option|choice|investment|project|bet|buy|purchase)|should\s+i\s+(?:buy|invest\s+in)|worth\s+(?:it|buying|investing\s+in)|safe\s+to\s+(?:buy|invest)|good\s+option|good\s+choice|good\s+bet)\b/i
 
+/**
+ * Conceptual, geographical, administrative and jurisdiction questions.
+ * "Does sector 150 fall under noida extension?", "Which authority governs sector 150",
+ * "For every property you shortlisted, tell me the exact authority".
+ * These must NEVER emit project cards.
+ */
+export const GEOGRAPHY_OR_CONCEPTUAL_INQUIRY =
+  /\b(?:does|is)\s+sector\s+\d+[a-z]?\s+(?:fall|part of|in|inside|under|belong to|come under)\b|\b(?:which|what)\s+(?:authority|jurisdiction|body)\b|\bwhere\s+is\s+sector\s+\d+\b|\b(?:technically|administratively)\s+(?:inside|under|part\s+of)\b|\bwhat\s+(?:exact\s+)?(?:geographic|administrative)\s+definition\b|\bhow\s+(?:is|far\s+is)\s+sector\s+\d+\b|\bwhy\s+(?:are\s+you|did\s+you)\s+(?:showing|show|suggest|recommend)\b|\b(?:for\s+(?:every|each|all)\s+propert(?:y|ies)|tell\s+me\s+the\s+exact\s+authority|which\s+authority\s+governs)\b/i
+
+/**
+ * Early consultative questions without complete criteria:
+ * "I have a family of three, what should I look for?", "Help me choose", "Where should I start?"
+ * Until the user provides configuration (BHK) or budget, or asks to see listings,
+ * cards are suppressed so the assistant engages in consultative dialogue first.
+ */
+export const CONSULTATIVE_INQUIRY =
+  /\b(?:family\s+of\s+\d+|what\s+should\s+i\s+(?:look\s+for|buy|consider)|how\s+should\s+i\s+(?:choose|decide|plan)|where\s+should\s+i\s+(?:start|look)|help\s+me\s+(?:choose|decide|plan)|recommend\s+something\s+for\s+(?:a|my)\s+family|what\s+type\s+of\s+(?:flat|home|apartment)\s+suits)\b/i
+
 export function cardBudgetFor(intent: Intent, message = ''): CardBudget {
+  if (GEOGRAPHY_OR_CONCEPTUAL_INQUIRY.test(message)) {
+    return { limit: 0, reason: 'geographical or administrative inquiry, not inventory' }
+  }
   if (META_QUESTION.test(message)) {
     return { limit: 0, reason: 'a question about the conversation, not about inventory' }
   }
@@ -137,6 +158,16 @@ export function cardBudgetFor(intent: Intent, message = ''): CardBudget {
       limit: (intent.projectNames?.length ?? 0) === 1 ? 1 : 0,
       reason: 'project evaluation advisory — focus on the subject property only',
     }
+  }
+
+  const hasConcreteFilters = Boolean(
+    (intent.budgetMax != null || intent.budgetMin != null) ||
+    (intent.bhk && intent.bhk.length > 0)
+  )
+  const isSearchAction = /\b(show\s+me|find\s+me|search|list\s+(all|the)?|looking\s+for|available\s+in|view\s+flats|options)\b/i.test(message)
+
+  if (CONSULTATIVE_INQUIRY.test(message) && !hasConcreteFilters && !isSearchAction) {
+    return { limit: 0, reason: 'consultative inquiry — need budget or configuration before shortlisting' }
   }
 
   // A project in focus: the cards are that project and at most a couple of

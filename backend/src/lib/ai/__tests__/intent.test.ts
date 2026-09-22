@@ -19,13 +19,12 @@ describe('Intent: mergeIntent', () => {
     assert.equal(result.sector, 'Sector 150')
   })
 
-  it('sector switch clears filters (BHK, budget, area, lifestyle)', () => {
+  it('sector switch updates sector and preserves core preferences (BHK, budget)', () => {
     const previous: Intent = { sector: 'Sector 150', bhk: [3], budgetMax: 2, lifestyleKeywords: ['gym'] }
     const result = mergeIntent(previous, { sector: 'Sector 75' })
     assert.equal(result.sector, 'Sector 75')
-    assert.equal(result.bhk, undefined, 'BHK cleared on sector switch')
-    assert.equal(result.budgetMax, undefined, 'budget cleared on sector switch')
-    assert.equal(result.lifestyleKeywords, undefined, 'lifestyle cleared on sector switch')
+    assert.deepEqual(result.bhk, [3], 'BHK preserved across sectors')
+    assert.equal(result.budgetMax, 2, 'budget preserved across sectors')
   })
 
   it('same sector preserves filters', () => {

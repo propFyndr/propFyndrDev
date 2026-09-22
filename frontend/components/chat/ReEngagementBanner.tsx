@@ -14,15 +14,22 @@ interface Props {
 
 export default function ReEngagementBanner({ userId, guestToken, onResume, onDismiss }: Props) {
   const hasFiredRef = useRef(false);
+  const onResumeRef = useRef(onResume);
+  const onDismissRef = useRef(onDismiss);
+
+  useEffect(() => {
+    onResumeRef.current = onResume;
+    onDismissRef.current = onDismiss;
+  });
 
   useEffect(() => {
     if ((!userId && !guestToken) || hasFiredRef.current) return;
+    hasFiredRef.current = true;
     
     let isMounted = true;
     
     getReEngagement(userId ?? undefined, guestToken ?? undefined).then(({ session }) => {
-      if (!isMounted || !session || hasFiredRef.current) return;
-      hasFiredRef.current = true;
+      if (!isMounted || !session) return;
 
       toast.custom((t) => (
         <div className="group relative flex items-center gap-4 px-5 py-3.5 bg-white/70 dark:bg-gray-900/70 backdrop-blur-2xl border border-white/40 dark:border-white/10 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.08)] pointer-events-auto overflow-hidden animate-in fade-in zoom-in-95 duration-500 max-w-sm w-full">
@@ -40,13 +47,13 @@ export default function ReEngagementBanner({ userId, guestToken, onResume, onDis
 
           <div className="relative flex items-center gap-2">
             <button
-              onClick={() => { toast.dismiss(t); onResume(session.id); }}
+              onClick={() => { toast.dismiss(t); onResumeRef.current(session.id); }}
               className="flex items-center justify-center h-8 px-3.5 bg-gray-900 hover:bg-gray-800 dark:bg-white dark:hover:bg-gray-100 text-white dark:text-gray-900 text-xs font-semibold rounded-lg transition-all shadow-sm hover:shadow active:scale-95"
             >
               Resume
             </button>
             <button
-              onClick={() => { toast.dismiss(t); onDismiss(); }}
+              onClick={() => { toast.dismiss(t); onDismissRef.current(); }}
               className="flex items-center justify-center w-8 h-8 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 dark:hover:text-gray-300 dark:hover:bg-gray-800 transition-colors"
             >
               <X size={16} strokeWidth={2} />
@@ -56,14 +63,14 @@ export default function ReEngagementBanner({ userId, guestToken, onResume, onDis
       ), {
         duration: 5000,
         position: 'bottom-right',
-        onAutoClose: () => onDismiss(),
+        onAutoClose: () => onDismissRef.current(),
       });
     }).catch(() => {});
 
     return () => {
       isMounted = false;
     };
-  }, [userId, guestToken, onResume, onDismiss]);
+  }, [userId, guestToken]);
 
   return null;
 }

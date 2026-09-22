@@ -265,29 +265,40 @@ export default function PortalShell({ nav, rootHref, rootLabel, allowRoles, scop
 
   useEffect(() => {
     let cancelled = false
+    const token = typeof window !== 'undefined' ? localStorage.getItem('admin_token') : null
+    if (!token) {
+      router.replace('/admin/login')
+      return
+    }
+
+    const timer = setTimeout(() => {
+      if (!cancelled) {
+        router.replace('/admin/login')
+      }
+    }, 5000)
+
     adminFetch('/portal/me')
       .then((r) => (r.ok ? r.json() : Promise.reject(r.status)))
       .then((me: { role: PortalRole; builder?: { name: string } | null; partner?: { name: string } | null }) => {
         if (cancelled) return
+        clearTimeout(timer)
         if (!allowRoles.includes(me.role)) {
           router.replace(HOME_FOR_ROLE[me.role] ?? '/admin/login')
           return
         }
         setRole(me.role)
-        // Whose console this is. `/portal/me` already returned it and nothing
-        // read it, so a builder saw "Builder Console" with no indication of
-        // WHICH builder — which matters for anyone who holds more than one
-        // account, and matters most at the moment they are about to act.
         setOrgName(me.builder?.name ?? me.partner?.name ?? null)
         setChecking(false)
       })
       .catch(() => {
         if (cancelled) return
-        // adminFetch already clears the token and redirects on a 401; this
-        // covers a network failure or an unexpected status.
+        clearTimeout(timer)
         router.replace('/admin/login')
       })
-    return () => { cancelled = true }
+    return () => {
+      cancelled = true
+      clearTimeout(timer)
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 

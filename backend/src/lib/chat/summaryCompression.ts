@@ -2,7 +2,7 @@
 // Topic-separated compression: location, financial, timeline summaries
 
 import Groq from 'groq-sdk'
-import { isCoolingDown } from '../ai/providerCooldown'
+import { isCoolingDown, recordFailure } from '../ai/providerCooldown'
 import { meteredClient } from '../ai/geminiMeter'
 import OpenAI from 'openai'
 import { GoogleGenAI } from '@google/genai'
@@ -102,7 +102,10 @@ async function compressTopic(
       return sanitizeSummary(res.text?.trim() ?? '')
     }
   } catch (err) {
-    console.warn(`[compression] Gemini failed for ${topic}:`, (err as Error).message)
+    const errorMsg = (err as Error).message
+    console.warn(`[compression] Gemini failed for ${topic}:`, errorMsg)
+    recordFailure(`GEMINI_API_KEY:${MODELS.GEMINI_LITE}`, errorMsg)
+    recordFailure(`GEMINI_API_KEY:${MODELS.GEMINI_MAIN}`, errorMsg)
   }
 
   /**

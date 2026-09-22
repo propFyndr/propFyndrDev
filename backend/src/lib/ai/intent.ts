@@ -9,6 +9,7 @@ import { MODELS, FALLBACK_CHAIN } from '../config'
 import { IntentSchema } from '../discovery/intent'
 import { extractDeterministic, type DeterministicIntent } from './intentDeterministic'
 import { cityNamedIn } from '../discovery/constants'
+import { getSectorLocation, isSectorInCity } from '../discovery/sectorToCity'
 import { prisma } from '../db'
 
 /**
@@ -62,16 +63,23 @@ export function mergeIntent(previous: Intent, update: z.infer<typeof IntentSchem
     previous.sector = normalizeSectorName(previous.sector)
   }
 
+  // Detect corridor/city switches (e.g. Sector 150, Noida -> Noida Extension / Greater Noida West)
+  const prevLoc = getSectorLocation(previous.sector)
+  const prevCity = prevLoc ? prevLoc.city : previous.city
+  const isCitySwitch = Boolean(
+    update.city &&
+    prevCity &&
+    update.city.toLowerCase().trim() !== prevCity.toLowerCase().trim()
+  )
+
   // projectNames and is_comparison_query are per-turn signals — they reflect the
   // CURRENT message only. Never inherit from previous turns: a search query after a
   // comparison would otherwise see stale projectNames and wrongly enter comparison mode.
   const freshProjectLookup =
     (update.projectNames?.length ?? 0) > 0 && update.sector === undefined
 
-  // If the user specifies a brand new sector and nothing else (e.g. "what about sector 75?")
-  // we want to ensure we don't accidentally constrain it to highly specific previous filters
-  // unless explicitly provided in the new query.
-  const isSectorSwitch = update.sector && previous.sector && update.sector !== previous.sector
+  // If the user specifies a brand new sector (e.g. "what about sector 76?")
+  const isSectorSwitch = Boolean(update.sector && previous.sector && update.sector !== previous.sector)
 
   // Default spatialScope to EXACT when sector is present and not explicitly PROXIMITY
   let spatialScope = update.spatialScope || previous.spatialScope
@@ -79,29 +87,26 @@ export function mergeIntent(previous: Intent, update: z.infer<typeof IntentSchem
     spatialScope = 'EXACT'
   }
 
-  // A query is ONLY a follow-up about a previous project if:
-  // 1. A previous project exists, AND
-  // 2. The new query is NOT an open/advisory/market/comparison question, AND
-  // 3. No new sector was specified.
-  // A comparison of NAMED projects is not a general market question.
-  //
-  // `is_comparison_query` was an unconditional arm of this, and the flag drives
-  // `sector: undefined` below — so "compare ATS Homekraft and Arihant Abode",
-  // asked while the buyer was looking at Sector 10, dropped Sector 10 from
-  // intent. Every later turn then had no locality, and the sticky-sector work
-  // that this flag was added to support was undone by the comparison itself.
-  //
-  // A comparison with no project names IS vague enough to clear the sector —
-  // "which is better?" alone should not stay pinned to wherever the buyer last
-  // looked — so the flag still counts in that case.
+  // Delta updates: budget modifications ("what if my budget is 2 cr?") or BHK modifications
+  // must NOT clear the active sector.
+  const hasDeltaCriteria = Boolean(
+    update.budgetMax != null ||
+    update.budgetMin != null ||
+    (update.bhk && update.bhk.length > 0)
+  )
+
   const isVagueComparison =
     Boolean((update as { is_comparison_query?: boolean }).is_comparison_query) &&
     (update.projectNames?.length ?? 0) === 0
-  const isGeneralOrAdvisory = update.queryKind === 'ADVISORY' || update.queryKind === 'OPEN' || update.queryKind === 'RANKING' || isVagueComparison;
+  const isGeneralOrAdvisory =
+    (update.queryKind === 'ADVISORY' || update.queryKind === 'OPEN' || update.queryKind === 'RANKING' || isVagueComparison) &&
+    !hasDeltaCriteria
+
   const isFollowUpQuery = Boolean(
     previous.projectNames &&
     previous.projectNames.length === 1 &&
     !isSectorSwitch &&
+    !isCitySwitch &&
     !update.sector &&
     !isGeneralOrAdvisory &&
     (!update.projectNames || update.projectNames.length === 0)
@@ -109,24 +114,18 @@ export function mergeIntent(previous: Intent, update: z.infer<typeof IntentSchem
 
   const result = {
     ...previous,
-    // Reset previous sector if the new query is a general advisory/market question with no sector
-    ...(isGeneralOrAdvisory && !update.sector ? { sector: undefined } : {}),
+    // When switching city (e.g. to Greater Noida West), drop the old sector from the previous city
+    ...(isCitySwitch && !update.sector ? { sector: undefined } : {}),
+    // Reset previous sector only if the new query is a truly unanchored general advisory question
+    ...(isGeneralOrAdvisory && !update.sector && !previous.projectNames?.length ? { sector: undefined } : {}),
     projectNames: isFollowUpQuery ? previous.projectNames : (update.projectNames && update.projectNames.length > 0 ? update.projectNames : undefined),
     targetProjectId: isFollowUpQuery ? (previous as any).targetProjectId : undefined,
     is_comparison_query: undefined, // reset comparison flag per turn
     // Only clear sector/lifestyle if this is a TRULY fresh lookup (no prior context)
     ...(freshProjectLookup && !previous.sector ? { lifestyleKeywords: undefined } : {}),
-    ...(isSectorSwitch || isGeneralOrAdvisory ? { 
+    ...(isSectorSwitch || isCitySwitch || isGeneralOrAdvisory ? { 
         projectNames: undefined,
         targetProjectId: undefined,
-        ...(isSectorSwitch ? {
-          bhk: undefined, 
-          budgetMin: undefined, 
-          budgetMax: undefined, 
-          lifestyleKeywords: undefined,
-          areaMin: undefined,
-          areaMax: undefined
-        } : {})
     } : {}),
     // Drop nulls as well as undefined. IntentSchema is deliberately `.nullable()`
     // because models emit `"sector": null` for "not specified", but letting that
@@ -135,6 +134,13 @@ export function mergeIntent(previous: Intent, update: z.infer<typeof IntentSchem
     ...Object.fromEntries(Object.entries(update).filter(([, v]) => v !== undefined && v !== null)),
     ...(spatialScope ? { spatialScope } : {}),
   } as Intent
+
+  // Strict geographical separation: verify that sector is valid for active city.
+  // CRITICAL RULE: Sector 150 belongs strictly to NOIDA, NEVER Greater Noida or Greater Noida West.
+  const activeCity = result.city
+  if (result.sector && activeCity && !isSectorInCity(result.sector, activeCity)) {
+    delete (result as Record<string, unknown>).sector
+  }
 
   // Drop keys whose value is undefined. The per-turn resets above (projectNames,
   // is_comparison_query) left the keys present-but-undefined, which is semantically

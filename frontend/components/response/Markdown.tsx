@@ -20,17 +20,18 @@ import rehypeSanitize, { defaultSchema } from 'rehype-sanitize'
 const base = defaultSchema ?? { tagNames: [], attributes: {} }
 
 /**
- * Sanitizer allow-list for our custom elements.
- *
- * `tagNames` must be extended directly — hast-util-sanitize has no
- * `tagNameFilter` option, so a filter function is silently ignored and every
- * realty-* tag gets stripped.
+ * Sanitizer allow-list for our custom elements and entity links.
  */
 export const REALTY_SCHEMA = {
   ...base,
   tagNames: [...(base.tagNames ?? []), 'realty-chart', 'realty-box', 'realty-action'],
+  protocols: {
+    ...(base.protocols ?? {}),
+    href: [...(base.protocols?.href ?? ['http', 'https', 'mailto', 'tel']), '#entity'],
+  },
   attributes: {
     ...(base.attributes ?? {}),
+    a: ['href', 'target', 'rel', 'className'],
     'realty-chart': ['type', 'data', 'title'],
     'realty-box': ['type', 'title'],
     'realty-action': ['type', 'label'],
@@ -48,12 +49,17 @@ const REHYPE_PLUGINS = [rehypeRaw, [rehypeSanitize, REALTY_SCHEMA]] as never[]
  *
  * Formats project bullet lists into structured highlighted badges,
  * promotes project categories to headers, strips internal citations,
- * and ensures mobile-friendly typography without API token overhead.
+ * eliminates raw leaked entity UUIDs, and ensures mobile-friendly typography.
  */
 function beautifyMarkdown(content: string): string {
   if (!content || typeof content !== 'string') return ''
 
   return content
+    // Fix split entity links: [Name] ... (#entity:uuid) -> [Name](#entity:uuid)
+    .replace(/\[([^\]]+)\](?:\s*[A-Za-z0-9]+)?\s*\(#entity:([0-9a-fA-F-]+)\)/g, '[$1](#entity:$2)')
+    // Strip any raw or unlinked entity UUIDs so they never leak into buyer view
+    .replace(/\s*\(#entity:[0-9a-fA-F-]+\)/gi, '')
+    .replace(/#entity:[0-9a-fA-F-]+/gi, '')
     // 1. Strip any stray source parentheticals
     .replace(/\s*\((?:market\s+data|propfyndr\s+data|verified\s+data|our\s+data|unverified)\)/gi, '')
     // 2. Promote category subheadings ("Ready-to-Move Projects:", "Under-Construction Projects:")
