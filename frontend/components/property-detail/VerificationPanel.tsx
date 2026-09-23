@@ -176,6 +176,65 @@ export function buildVerificationRows(project: ProjectDetail): Row[] {
     })
   }
 
+  // ── Forensic Due Diligence (Day 3 Stack) ──────────────────────────────────
+  if (project.amitabh_kant_clearance === true) {
+    rows.push({
+      icon: ShieldCheck,
+      label: 'Amitabh Kant Policy',
+      value: '25% Land Dues Cleared',
+      detail: 'Developer deposited mandatory 25% dues under UP state policy; individual flat sub-lease registry permitted.',
+      tone: 'good',
+    })
+  }
+
+  if (project.lift_act_compliant === true) {
+    rows.push({
+      icon: ShieldCheck,
+      label: 'UP Lifts Act 2024',
+      value: 'Registered & Certified',
+      detail: 'Registered on updeslift.org with mandatory Automatic Rescue Device (ARD) and active OEM AMC.',
+      tone: 'good',
+    })
+  }
+
+  if (project.bank_apf_codes) {
+    const codes = Array.isArray(project.bank_apf_codes)
+      ? project.bank_apf_codes.join(', ')
+      : typeof project.bank_apf_codes === 'object' && project.bank_apf_codes !== null
+        ? Object.entries(project.bank_apf_codes).map(([k, v]) => `${k}: ${v}`).join(', ')
+        : String(project.bank_apf_codes)
+    if (codes.trim()) {
+      rows.push({
+        icon: ShieldCheck,
+        label: 'Approved Bank APFs',
+        value: 'Tier-1 Banks Approved',
+        detail: `Pre-approved project codes: ${codes}`,
+        tone: 'good',
+      })
+    }
+  }
+
+  if (project.water_source_type) {
+    const isGanga = String(project.water_source_type).toLowerCase().includes('ganga')
+    rows.push({
+      icon: Drop,
+      label: 'Water Source & TDS',
+      value: isGanga ? 'Municipal Ganga Jal' : 'Groundwater / Mixed',
+      detail: project.water_tds_range ? `Observed TDS: ${project.water_tds_range}` : null,
+      tone: isGanga ? 'good' : 'warn',
+    })
+  }
+
+  if (project.shahdara_drain_impact === true) {
+    rows.push({
+      icon: Wind,
+      label: 'Shahdara Drain Impact',
+      value: 'Odor & H2S Gas Risk',
+      detail: 'Located within micro-climate of drain corridor; potential sewer odor and copper AC coil corrosion.',
+      tone: 'warn',
+    })
+  }
+
   // ── Environment ─────────────────────────────────────────────────────────
   const flood = project.flood_waterlogging_risk || project.flood_zone
   if (flood) {

@@ -256,10 +256,41 @@ export default function DiscoveryContent({ userId, guestToken, onSessionChange, 
     setShowHeaderDropdown(false);
   };
 
+  const resetToFreshChat = useCallback(() => {
+    try {
+      localStorage.removeItem('propfyndr_draft');
+    } catch {}
+    setChatInput('');
+    setChatHistory([]);
+    setCurrentIntent(null);
+    setConversationState(null);
+    setSessionId(null);
+    setSessionTitle(null);
+    setChatTurnCount(0);
+    setDetailProject(null);
+    setSelectedCompareProjects(new Map());
+    setExpandedShortlists(new Set());
+    setComparingMessageId(null);
+    setLastShortlist([]);
+    loadedSessionIdRef.current = undefined;
+    if (chatInputRef.current) {
+      chatInputRef.current.value = '';
+    }
+  }, [setSessionId]);
+
   const handleNewChat = useCallback(() => {
+    resetToFreshChat();
     window.dispatchEvent(new CustomEvent('propfyndr:new-chat'));
     router.push('/discover');
-  }, [router]);
+  }, [resetToFreshChat, router]);
+
+  useEffect(() => {
+    const handleNewChatEvent = () => {
+      resetToFreshChat();
+    };
+    window.addEventListener('propfyndr:new-chat', handleNewChatEvent);
+    return () => window.removeEventListener('propfyndr:new-chat', handleNewChatEvent);
+  }, [resetToFreshChat]);
 
   // Notify parent of session changes for sidebar highlighting
   useEffect(() => { onSessionChange?.(sessionId) }, [sessionId, onSessionChange])

@@ -3,6 +3,7 @@ import { prisma } from '../../db'
 import { renderCostSheetTable, type CostSheetRow } from '../../ai/marketTable'
 import { executeWithFallbackChain } from '../../ai/fallbackChain'
 import { confidenceFor, MARKET_QUALIFIER, NOIDA_MARKET_RANGES, UP_STATUTORY } from '../../factPresentation'
+import { recordTableRendered } from '../../monitoring/langfuse'
 import type { ChatTopicHandler } from '../handlerContext'
 
 /**
@@ -85,7 +86,14 @@ Name a project and I'll pull whichever of these we hold verified for it.`
       status: costProject?.status
     })
     if (costTable) {
-      ctx.send('token', { token: `### Cost breakdown — ${costProject?.name}\n\n${costTable}\n\n` })
+      const msg = `### Cost breakdown — ${costProject?.name}\n\n${costTable}\n\n`
+      ctx.send('token', { token: msg })
+      recordTableRendered((ctx as any).trace, {
+        tableType: 'cost_sheet',
+        projectName: costProject?.name,
+        rowCount: 6,
+        characterLength: msg.length,
+      })
     }
 
     const costFactsJson = JSON.stringify({

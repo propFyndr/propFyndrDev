@@ -962,6 +962,30 @@ export async function executeWithFallbackChain(options: FallbackChainOptions): P
         console.log(`[FALLBACK:SUCCESS] ✓ ${item.label} generated ${text.length} chars`)
       }
 
+      // Close Langfuse generation span on success
+      if (legSpan) {
+        try {
+          legSpan.end({
+            output: text,
+            usage: {
+              completionTokens: Math.ceil(text.length / 4),
+            },
+            metadata: {
+              latency_ms: Date.now() - legStart,
+              tokens_sent: getTokensSent(),
+              cache_hit: (item.provider === 'gemini' && process.env.GEMINI_EXPLICIT_CACHE === 'true'),
+              provider: item.provider,
+              model: effectiveModel,
+              envKey: item.envKey,
+              turn_index: chainIdx,
+              session_id: sessionId || null,
+              guest_token: options.guestToken || null,
+              focus_project_id: options.focusProjectId || null,
+            },
+          })
+        } catch {}
+      }
+
       // Track fallback response
       if (userId && sessionId) {
         try {

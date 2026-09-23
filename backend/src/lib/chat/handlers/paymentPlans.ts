@@ -4,6 +4,7 @@ import { renderPaymentPlanTable, type PaymentPlanRow } from '../../ai/marketTabl
 import { executeWithFallbackChain } from '../../ai/fallbackChain'
 import { getCachedResponse } from '../../ai/semanticCache'
 import { unverified, confidenceFor } from '../../factPresentation'
+import { recordTableRendered } from '../../monitoring/langfuse'
 import type { ChatTopicHandler } from '../handlerContext'
 
 /**
@@ -105,6 +106,12 @@ export const paymentPlansHandler: ChatTopicHandler = {
     const tableBlock = planTable ? `### Payment Plans & Milestones — ${planProject.name}\n\n${planTable}\n\n` : ''
     if (tableBlock) {
       ctx.send('token', { token: tableBlock })
+      recordTableRendered((ctx as any).trace, {
+        tableType: 'payment_plan',
+        projectName: planProject.name,
+        rowCount: paymentPlans.length,
+        characterLength: tableBlock.length,
+      })
     }
 
     const planFactsJson = JSON.stringify({

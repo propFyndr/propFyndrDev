@@ -57,6 +57,36 @@ export function createChatTrace(params: {
   }
 }
 
+export function recordTableRendered(trace: any, params: {
+  tableType: 'payment_plan' | 'cost_sheet' | 'micro_market' | 'comparison' | 'yield_table'
+  projectName?: string
+  rowCount: number
+  characterLength: number
+  cached?: boolean
+}): void {
+  if (!trace) return
+  try {
+    trace.event({
+      name: `table_rendered:${params.tableType}`,
+      input: {
+        projectName: params.projectName || 'general_market',
+        tableType: params.tableType,
+      },
+      output: {
+        rowCount: params.rowCount,
+        characterLength: params.characterLength,
+        cached: params.cached ?? false,
+      },
+      metadata: {
+        timestamp: new Date().toISOString(),
+        tableType: params.tableType,
+      },
+    })
+  } catch {
+    // never block execution on telemetry
+  }
+}
+
 export async function flushLangfuse(): Promise<void> {
   if (langfuse) {
     try {

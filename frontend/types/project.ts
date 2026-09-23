@@ -112,6 +112,14 @@ export interface ProjectCard {
   dealBreakers?: DealBreaker[] | null
   // Spatial context: distance in km (for PROXIMITY/BROAD searches with radial ranking)
   distance_km?: number | null
+
+  // Day 3 Forensic & Living Reality Badges
+  oc_status?: 'not_applied' | 'applied' | 'partial' | 'received' | 'revoked' | 'exempt' | null
+  amitabh_kant_clearance?: boolean | null
+  water_source_type?: 'ganga_water' | 'groundwater_borewell' | 'mixed_tanker' | 'unknown' | null
+  water_tds_range?: string | null
+  shahdara_drain_impact?: boolean | null
+  lift_act_compliant?: boolean | null
 }
 
 export interface UnitTypeSummary {

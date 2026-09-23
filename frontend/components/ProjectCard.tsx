@@ -285,6 +285,31 @@ export default function ProjectCard({ project, userId, sessionId, index = 0, isS
                   RERA
                 </span>
               )}
+
+              {project.oc_status === 'received' && (
+                <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 text-[9px] font-extrabold uppercase tracking-wider">
+                  Full OC
+                </span>
+              )}
+              {project.oc_status === 'partial' && (
+                <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-amber-500/10 text-amber-700 dark:text-amber-300 text-[9px] font-extrabold uppercase tracking-wider">
+                  Phased OC
+                </span>
+              )}
+              {project.amitabh_kant_clearance && (
+                <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-blue-500/10 text-blue-700 dark:text-blue-300 text-[9px] font-bold tracking-tight">
+                  Registry Cleared
+                </span>
+              )}
+              {project.shahdara_drain_impact ? (
+                <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-rose-500/10 text-rose-700 dark:text-rose-300 text-[9px] font-bold tracking-tight" title="Near Shahdara drain corridor">
+                  ⚠️ Drain Zone
+                </span>
+              ) : project.water_source_type === 'ganga_water' ? (
+                <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-cyan-500/10 text-cyan-700 dark:text-cyan-300 text-[9px] font-bold tracking-tight" title="Ganga Jal municipal supply verified">
+                  💧 Ganga Jal
+                </span>
+              ) : null}
             </div>
 
             {/* Title & Subtitle */}
@@ -607,13 +632,43 @@ export default function ProjectCard({ project, userId, sessionId, index = 0, isS
             </div>
 
             {/* Builder & Location Subtitle */}
-            <div className="flex items-center gap-1.5 text-[12.5px] text-gray-600 dark:text-gray-300 mb-3 min-h-[20px]">
+            <div className="flex items-center gap-1.5 text-[12.5px] text-gray-600 dark:text-gray-300 mb-2 min-h-[20px]">
               <span className="font-semibold text-gray-800 dark:text-gray-200 truncate">
                 {typeof project.builder === 'object' ? project.builder?.name : project.builder}
               </span>
               <span className="opacity-40 shrink-0">·</span>
               <span className="truncate opacity-80 shrink-0">{project.sector}</span>
             </div>
+
+            {/* Ground Truth & Forensic Badges Strip */}
+            {(project.oc_status || project.amitabh_kant_clearance || project.shahdara_drain_impact || project.water_source_type === 'ganga_water') && (
+              <div className="flex items-center gap-1.5 flex-wrap mb-2.5">
+                {project.oc_status === 'received' && (
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60 text-[10px] font-bold text-emerald-700 dark:text-emerald-300 uppercase tracking-wider">
+                    Full OC
+                  </span>
+                )}
+                {project.oc_status === 'partial' && (
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 text-[10px] font-bold text-amber-700 dark:text-amber-300 uppercase tracking-wider">
+                    Phased OC
+                  </span>
+                )}
+                {project.amitabh_kant_clearance && (
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800/60 text-[10px] font-bold text-blue-700 dark:text-blue-300">
+                    Registry Cleared
+                  </span>
+                )}
+                {project.shahdara_drain_impact ? (
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800/60 text-[10px] font-semibold text-rose-700 dark:text-rose-300" title="Near Shahdara drain corridor — microclimate impact noted">
+                    ⚠️ Drain Impact
+                  </span>
+                ) : project.water_source_type === 'ganga_water' ? (
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-cyan-50 dark:bg-cyan-950/40 border border-cyan-200 dark:border-cyan-800/60 text-[10px] font-semibold text-cyan-700 dark:text-cyan-300" title="Ganga Jal municipal pipeline supply verified">
+                    💧 Ganga Jal
+                  </span>
+                ) : null}
+              </div>
+            )}
 
             {/* Price — big hero number, for the size asked for when one was */}
             <div className="mb-3.5 min-h-[28px] flex items-baseline gap-1.5 flex-wrap">

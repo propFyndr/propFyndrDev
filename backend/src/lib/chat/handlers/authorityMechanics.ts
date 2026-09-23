@@ -40,6 +40,9 @@ const ASKS_REGISTRY_STALL =
 const ASKS_BANK =
   /\b(bank|loan|mortgage|finance|sanction)\b[^.?!]{0,50}\b(lease ?hold|lease deed|allotment letter|90[- ]year)\b/i
 
+const ASKS_JURISDICTION =
+  /\b(?:not|don'?t|doesn'?t|outside|other than)\s+(?:fall\s+under|come\s+under)?\s*(?:the\s+)?(?:noida\s+authority|gnida|yeida)\b|\bwhich authority\b|\bauthority difference\b/i
+
 export const authorityMechanicsHandler: ChatTopicHandler = {
   id: 'authority_mechanics',
   description: 'Noida/GNIDA/YEIDA leasehold tenure, transfer charges, OC/CC, registry and lending',
@@ -49,7 +52,8 @@ export const authorityMechanicsHandler: ChatTopicHandler = {
     ASKS_TRANSFER.test(ctx.message) ||
     ASKS_COMPLETION.test(ctx.message) ||
     ASKS_REGISTRY_STALL.test(ctx.message) ||
-    ASKS_BANK.test(ctx.message),
+    ASKS_BANK.test(ctx.message) ||
+    ASKS_JURISDICTION.test(ctx.message),
 
   handle: async ctx => {
     const m = ctx.message
@@ -64,6 +68,17 @@ export const authorityMechanicsHandler: ChatTopicHandler = {
 What it means in practice: you can sell, mortgage and bequeath it normally, the authority's consent is procedural rather than discretionary, and the clock started when the authority allotted the land to the builder — not when you buy. Ask any seller how many years are left, because a bank will.
 
 Blanket leasehold-to-freehold conversion for group housing is not available. Proposals surface periodically; treat any promise of conversion as unverified until it is in an authority circular.`)
+    }
+
+    if (ASKS_JURISDICTION.test(m)) {
+      sections.push(`**Development Authorities in Gautam Buddha Nagar:**
+All planned sectors in the district are divided across three separate statutory industrial development authorities:
+
+1. **NOIDA Authority (New Okhla Industrial Development Authority)**: Controls Noida city (Sectors 1 to 168). All apartment plots are on 90-year leasehold.
+2. **GNIDA (Greater Noida Industrial Development Authority)**: Controls Greater Noida Core and **Greater Noida West (Noida Extension)**, including Sectors 1, 4, 10, 12, 16, and Techzone 4.
+3. **YEIDA (Yamuna Expressway Industrial Development Authority)**: Controls the Jewar Airport corridor, Formula 1 circuit, and Sectors 17A, 19, 22D, and 25.
+
+> **Important Note on "Non-Authority" Property:** Unplanned or rural village abadi land (such as *Khasra* or *Lal Dora* plots) does not fall under any authority development scheme. These properties carry high demolition risk, lack approved building plans, and banks will not sanction home loans for them. PropFyndr lists only verified authority-allotted and RERA-registered developments.`)
     }
 
     if (ASKS_TRANSFER.test(m)) {
