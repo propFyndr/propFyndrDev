@@ -269,6 +269,20 @@ export interface ProjectDetail extends ProjectCard {
   oc_valid_until?: string | null
   oc_restrictions?: string | null
   occupancy_certificate_status?: string | null
+  oc_status?: 'not_applied' | 'applied' | 'partial' | 'received' | 'revoked' | 'exempt' | null
+  oc_details?: string | null
+
+  /** Living Quality & Operational Costs */
+  water_source_type?: 'ganga_water' | 'groundwater_borewell' | 'mixed_tanker' | 'unknown' | null
+  water_tds_range?: string | null
+  power_supply_type?: 'single_point' | 'dual_prepaid' | 'direct_grid' | 'mixed' | null
+  dg_power_rate_per_unit?: number | null
+  maintenance_per_sqft_monthly?: number | null
+  amitabh_kant_clearance?: boolean | null
+  bank_apf_codes?: Record<string, string> | any | null
+  shahdara_drain_impact?: boolean | null
+  lift_act_compliant?: boolean | null
+  all_in_cost_multiplier?: number | null
 
   /** RERA standing. */
   rera_valid_until?: string | null
