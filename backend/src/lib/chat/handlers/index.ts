@@ -8,6 +8,7 @@ import { sectorComparisonHandler } from './sectorComparison'
 import { paymentPlansHandler } from './paymentPlans'
 import { costSheetHandler } from './costSheet'
 import { reraVerificationHandler } from './reraVerification'
+import { dueDiligenceHandler } from './dueDiligence'
 import { statutoryTaxHandler } from './statutoryTax'
 import { possessionStatusHandler } from './possessionStatus'
 import { connectivityHandler } from './connectivity'
@@ -73,6 +74,7 @@ export const CHAT_TOPIC_HANDLERS: readonly ChatTopicHandler[] = [
   paymentPlansHandler,
   costSheetHandler,
   reraVerificationHandler,
+  dueDiligenceHandler,
   // Before statutoryTax deliberately. "What transfer charges do I pay on a
   // leasehold flat" is a tenure question that happens to mention a charge; the
   // tax handler would answer it with the stamp duty table and never mention the
@@ -87,6 +89,7 @@ export const CHAT_TOPIC_HANDLERS: readonly ChatTopicHandler[] = [
 ]
 
 export {
+  dueDiligenceHandler,
   authorityMechanicsHandler,
   vicinityLookupHandler,
   commuteShortlistHandler,

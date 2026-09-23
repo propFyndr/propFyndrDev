@@ -78,6 +78,55 @@ describe('Intent: mergeIntent', () => {
     assert.equal(result.possession, 'immediate')
     assert.equal(result.sector, 'Sector 10')
   })
+
+  it('preserves single projectNames and targetProjectId on follow-up advisory queries', () => {
+    const previous: Intent = {
+      projectNames: ['Elite X'],
+      targetProjectId: '0bf0fd19-8393-44cf-835e-58f00433e0bc',
+      sector: 'Sector 10',
+      city: 'Greater Noida West',
+    }
+    // Turn 2 follow up: "are there any hidden charges for it?" (ADVISORY, no new project or sector)
+    const update = {
+      queryKind: 'ADVISORY' as const,
+    }
+    const result = mergeIntent(previous, update)
+    assert.deepEqual(result.projectNames, ['Elite X'], 'projectNames should be preserved on follow-up')
+    assert.equal((result as any).targetProjectId, '0bf0fd19-8393-44cf-835e-58f00433e0bc', 'targetProjectId should be preserved')
+    assert.equal(result.sector, 'Sector 10')
+  })
+
+  it('preserves projectNames on open living reality follow-up query', () => {
+    const previous: Intent = {
+      projectNames: ['Elite X'],
+      targetProjectId: '0bf0fd19-8393-44cf-835e-58f00433e0bc',
+      sector: 'Sector 10',
+      city: 'Greater Noida West',
+    }
+    // Turn 3 follow up: "what water source is it using?" (OPEN, no new project or sector)
+    const update = {
+      queryKind: 'OPEN' as const,
+    }
+    const result = mergeIntent(previous, update)
+    assert.deepEqual(result.projectNames, ['Elite X'])
+    assert.equal((result as any).targetProjectId, '0bf0fd19-8393-44cf-835e-58f00433e0bc')
+  })
+
+  it('clears projectNames on explicit sector switch even if advisory', () => {
+    const previous: Intent = {
+      projectNames: ['Elite X'],
+      targetProjectId: '0bf0fd19-8393-44cf-835e-58f00433e0bc',
+      sector: 'Sector 10',
+    }
+    const update = {
+      sector: 'Sector 150',
+      queryKind: 'ADVISORY' as const,
+    }
+    const result = mergeIntent(previous, update)
+    assert.equal(result.projectNames, undefined, 'projectNames should clear on sector switch')
+    assert.equal((result as any).targetProjectId, undefined)
+    assert.equal(result.sector, 'Sector 150')
+  })
 })
 
 describe('Intent: parseIntentJson', () => {

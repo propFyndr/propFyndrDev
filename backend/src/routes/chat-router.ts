@@ -1465,7 +1465,7 @@ router.post('/', async (req: Request, res: Response) => {
      * thinks; the attribute noun is the signal.
      */
     const ATTRIBUTE_FOLLOWUP =
-      /\b(possession|handover|rera|builder\s+score|delivery\s+score|track\s+record|configurations?|unit\s+types?|floor\s+plans?|carpet\s+area|super\s+area|payment\s+plan|cost\s+sheet|amenit\w*|balcon\w*|bathrooms?|clubhouse|price|pricing|rate|maintenance|floor\s*rise|plc\b|litigation\w*|court\s*cases?|legal\s*status|nclt|oc\b|occupancy\s*certificate|completion\s*certificate)\b/i
+      /\b(possession|handover|rera|builder\s+score|delivery\s+score|track\s+record|configurations?|unit\s+types?|floor\s+plans?|carpet\s+area|super\s+area|payment\s+plan|cost\s+sheet|amenit\w*|balcon\w*|bathrooms?|clubhouse|price|pricing|rate|maintenance|floor\s*rise|plc\b|litigation\w*|court\s*cases?|legal\s*status|nclt|oc\b|occupancy\s*certificate|completion\s*certificate|hidden|extra|charges?|fees?|expenses?|costs?|water\w*|ganga\s*jal|borewell|tds|lift\w*|elevator\w*|ard\b|safety|amitabh\w*|registry\w*|land\s*dues|drain|seepage|power\w*|backup|meter\w*|for\s+it|is\s+it|about\s+it|does\s+it|in\s+it|of\s+it|its|this\s+project|the\s+project|this\s+one)\b/i
 
     /**
      * A sector NAMED IN THIS MESSAGE blocks the inheritance; a sticky one does
@@ -1474,19 +1474,21 @@ router.post('/', async (req: Request, res: Response) => {
      * plan?" one turn after an ACE Parkway answer was blocked by Sector 150,
      * ACE Parkway's sector, and answered generically anyway.
      */
+    const targetFocusId = sessionData?.focus_project_id || focusProjectId
     if (
       !intent.projectNames?.length &&
       !/\bsector\s*\d/i.test(message) &&
       ATTRIBUTE_FOLLOWUP.test(message) &&
-      sessionData?.focus_project_id
+      targetFocusId
     ) {
       const focus = await prisma.project.findUnique({
-        where: { id: sessionData.focus_project_id },
+        where: { id: targetFocusId },
         select: { id: true, name: true },
       })
       if (focus) {
         intent.projectNames = [focus.name]
         ;(intent as { targetProjectId?: string }).targetProjectId = focus.id
+        focusProjectId = focus.id
         console.log('[CHAT:FOCUS_CARRIED]', { project: focus.name, q: message.slice(0, 50) })
         // Every downstream flag now reads the carried project, including
         // `isReraCheckQuery` — which is `matchesReraProcessQuestion(...) &&
@@ -2784,9 +2786,11 @@ I can help you with:
     // is reaching it, not writing a second one.
     const isCostSheetRequest =
       /\b(cost sheets?|price breakdowns?|cost breakdowns?|all inclusive|other charges|possession charges|car parking charge|maintenance\s*(?:charges?|costs?|fees?)?|floor\s*rise|plc\s*(?:charges?)?|parking\s*(?:charges?|costs?)?)\b/i.test(topicText) ||
-      /\b(hidden|extra|additional|unexpected)\s+(costs?|charges?|fees?|expenses?)\b/i.test(topicText) ||
-      /\b(?:costs?|charges?|fees?|expenses?)\s+(?:beyond|besides|apart\s+from|other\s+than|over\s+and\s+above|on\s+top\s+of)\b/i.test(topicText) ||
-      /\b(?:beyond|on\s+top\s+of|over\s+and\s+above)\s+(?:the\s+)?(?:sticker|base|quoted|listed|ticket)?\s*price\b/i.test(topicText) ||
+      /\b(hidden|extra|additional|unexpected|out[- ]of[- ]pocket|real|true|actual)\s+(costs?|charges?|fees?|expenses?|pricing)\b/i.test(topicText) ||
+      /\b(?:costs?|charges?|fees?|expenses?)\s+(?:beyond|besides|apart\s+from|other\s+than|over\s+and\s+above|on\s+top\s+of|of\s+beyond)\b/i.test(topicText) ||
+      /\b(?:beyond|on\s+top\s+of|over\s+and\s+above)\s+(?:the\s+)?(?:sticker|base|quoted|listed|ticket|builder'?s?)?\s*(?:price|rate)\b/i.test(topicText) ||
+      /\b(?:real|true|actual|out[- ]of[- ]pocket)\s+cost\b/i.test(topicText) ||
+      /\bcost\s+of\b.*\bbeyond\b/i.test(topicText) ||
       /\bwhat\s+else\s+(?:do|will|would)\s+i\s+(?:pay|be\s+paying|spend)\b/i.test(topicText)
     const isStatutoryTaxQuery = /(stamp duty|registration (charges?|fees?)|gst on (flat|property|real estate)|tds on (property|sale)|circle rate|index 2|agreement value charges)/i.test(topicText)
     const isReraCheckQuery = matchesReraProcessQuestion(topicText) && (intent.projectNames?.length ?? 0) === 0
@@ -2811,6 +2815,8 @@ I can help you with:
       || /\b(what(?:'s| is| are)?\s+(?:all\s+)?(?:near|nearby|around|close to)|anything\s+near|nearby\s+(?:landmarks?|places?|amenities|schools?|hospitals?|malls?|metro)|what\s+surrounds)\b/i.test(topicText) && !isPaymentPlanRequest
     const isConfigurationQuery = !isInventorySearch && /(balcon|bedroom|bathroom|carpet area|super area|sqft|square feet|size of|how big|how many (balconies|rooms|bhk|bathrooms)|configuration|unit type|floor plan)/i.test(topicText) && !isPaymentPlanRequest && !isCostSheetRequest
     const isTotalOutflowQuery = /(total (price|cost|amount|outflow)|on.?road|all.?inclusive price|how much (in total|total will it cost)|with registry|final price)/i.test(topicText)
+    const isDueDiligenceQuery = !isInventorySearch &&
+      /\b(water\s*(?:source|supply|quality|issue)|ganga\s*jal|borewell|water\s*tds|tds\s*(?:level|range|ppm)|lifts?|elevators?|up\s*lifts?\s*act|emergency\s*rescue\s*device|\bard\b|\bamc\b|amitabh\s*kant|land\s*dues|25%\s*dues|registry\s*clearance|oc\s*status|occupancy\s*certificate|completion\s*certificate|partial\s*oc|full\s*oc|basement\s*(?:health|seepage|leakage|water|dampness)|shahdara\s*drain|drain\s*(?:corridor|impact|smell|stench)|power\s*supply\s*type|multipoint\s*connection|pvvnl)\b/i.test(topicText)
 
     const activeProjectName = intent.projectNames?.[0] || (intent as any)?.targetProjectId
 
@@ -2829,12 +2835,13 @@ I can help you with:
       isCostSheetRequest,
       isStatutoryTaxQuery,
       isTotalOutflowQuery,
+      isDueDiligenceQuery,
     ].filter(Boolean).length
     const singleTopic = topicFlagCount <= 1
 
-    if (!isInventorySearch && (activeProjectName || isSummaryRequest || isCompareRequest || isSectorCompare || isPaymentPlanRequest || isCostSheetRequest || isStatutoryTaxQuery || isReraCheckQuery || isBuilderReputationQuery || isNewcomerOrientation || isReadyToMoveQuery || isAmenityQuery || isConnectivityQuery || isConfigurationQuery || isTotalOutflowQuery) && action.type === 'TEXT_MESSAGE') {
+    if (!isInventorySearch && (activeProjectName || isSummaryRequest || isCompareRequest || isSectorCompare || isPaymentPlanRequest || isCostSheetRequest || isStatutoryTaxQuery || isReraCheckQuery || isBuilderReputationQuery || isNewcomerOrientation || isReadyToMoveQuery || isAmenityQuery || isConnectivityQuery || isConfigurationQuery || isTotalOutflowQuery || isDueDiligenceQuery) && action.type === 'TEXT_MESSAGE') {
       try {
-        console.log('[CHAT:GROUND_TRUTH_DB] Executing Ground Truth DB Pipeline...', { activeProjectName, isSummaryRequest, isCompareRequest, isSectorCompare, isPaymentPlanRequest, isCostSheetRequest, isStatutoryTaxQuery, isReraCheckQuery, isBuilderReputationQuery, isNewcomerOrientation, isReadyToMoveQuery, isAmenityQuery, isConnectivityQuery, isReraFactQuery, topicFlagCount, sectorMatches })
+        console.log('[CHAT:GROUND_TRUTH_DB] Executing Ground Truth DB Pipeline...', { activeProjectName, isSummaryRequest, isCompareRequest, isSectorCompare, isPaymentPlanRequest, isCostSheetRequest, isStatutoryTaxQuery, isReraCheckQuery, isBuilderReputationQuery, isNewcomerOrientation, isReadyToMoveQuery, isAmenityQuery, isConnectivityQuery, isReraFactQuery, isDueDiligenceQuery, topicFlagCount, sectorMatches })
 
         // Check for Builder Comparison
         const dbBuilders = await prisma.builder.findMany({
@@ -3022,6 +3029,7 @@ I can help you with:
             isSectorCompare,
             isPaymentPlanRequest,
             isCostSheetRequest,
+            isDueDiligenceQuery,
             // False when the buyer asked about more than one topic in one
             singleTopic,
             // True only on the turn the workplace was named, so the commute

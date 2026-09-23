@@ -108,7 +108,6 @@ export function mergeIntent(previous: Intent, update: z.infer<typeof IntentSchem
     !isSectorSwitch &&
     !isCitySwitch &&
     !update.sector &&
-    !isGeneralOrAdvisory &&
     (!update.projectNames || update.projectNames.length === 0)
   );
 
@@ -123,7 +122,7 @@ export function mergeIntent(previous: Intent, update: z.infer<typeof IntentSchem
     is_comparison_query: undefined, // reset comparison flag per turn
     // Only clear sector/lifestyle if this is a TRULY fresh lookup (no prior context)
     ...(freshProjectLookup && !previous.sector ? { lifestyleKeywords: undefined } : {}),
-    ...(isSectorSwitch || isCitySwitch || isGeneralOrAdvisory ? { 
+    ...(isSectorSwitch || isCitySwitch || (isGeneralOrAdvisory && !isFollowUpQuery) ? { 
         projectNames: undefined,
         targetProjectId: undefined,
     } : {}),
