@@ -255,12 +255,29 @@ function buildDynamicRules(
    * Nothing is dropped: same fields, same values, same order. Only whitespace.
    */
   if (projects && projects.length > 0) {
-    // 12, not 5. This is a SECOND cap on how many projects reach the model,
-    // downstream of the one in chat-router — so raising that one to 12 for a
-    // browse still left the prompt seeing five. "best society in sector 137"
-    // has eight matches; the model could describe five of them and the
-    // prose-card renderer could only draw cards for the ones it named.
-    const optimizedProjects = projects.slice(0, 12).map((p: any) => ({
+    const hasSingleNamedProject = Boolean(
+      (intent as any)?.targetProjectId ||
+      (intent?.projectNames && intent.projectNames.length === 1) ||
+      (intent?.queryKind as string) === 'PROJECT_DEEP_DIVE' ||
+      (intent?.queryKind as string) === 'COST_BREAKDOWN'
+    )
+    const isComparison = (intent?.queryKind as string) === 'COMPARISON' || (intent?.projectNames && intent.projectNames.length > 1) || intent?.isComparison
+    const projectLimit = hasSingleNamedProject ? 1 : (isComparison ? 3 : 4)
+
+    let prioritized = [...projects]
+    const targetId = (intent as any)?.targetProjectId
+    const targetName = intent?.projectNames?.[0]?.toLowerCase()
+    if (targetId || targetName) {
+      prioritized.sort((a, b) => {
+        const aMatch = (targetId && a.id === targetId) || (targetName && a.name?.toLowerCase().includes(targetName))
+        const bMatch = (targetId && b.id === targetId) || (targetName && b.name?.toLowerCase().includes(targetName))
+        if (aMatch && !bMatch) return -1
+        if (!aMatch && bMatch) return 1
+        return 0
+      })
+    }
+
+    const optimizedProjects = prioritized.slice(0, projectLimit).map((p: any) => ({
       id: p.id,
       name: p.name,
       sector: p.sector,
@@ -277,16 +294,11 @@ function buildDynamicRules(
       unit_types: (p.unit_types || []).map((u: any) => ({
         bhk: u.bhk,
         name: u.name,
-        super_area_sqft: u.super_area_sqft,
-        carpet_area_sqft: u.carpet_area_sqft,
-        balconies_count: u.balconies_count || (u.bhk >= 3 ? 3 : 2),
+        carpet_sqft: u.carpet_area_sqft || u.super_area_sqft || null,
         price_min_cr: u.price_min_cr,
         price_max_cr: u.price_max_cr
       })),
-      unit_configurations_summary: (p.unit_types || []).map((u: any) => 
-        `${u.bhk} BHK (${u.name || 'Standard'}): ₹${u.price_min_cr}${u.price_max_cr && u.price_max_cr !== u.price_min_cr ? `–${u.price_max_cr}` : ''} Cr`
-      ),
-      amenities: (p.amenities || []).slice(0, 15).map((a: any) => typeof a === 'string' ? a : a.name)
+      amenities: (p.amenities || []).slice(0, 8).map((a: any) => typeof a === 'string' ? a : a.name)
     }))
     dynamic += `\n\n## MATCHED PROJECTS IN DATABASE (GROUND TRUTH - CITE UNIT CONFIGURATION PRICES ONLY):\n${JSON.stringify(optimizedProjects)}`
   }

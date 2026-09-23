@@ -1984,6 +1984,7 @@ router.post('/', async (req: Request, res: Response) => {
           city: DEFAULT_CITY,
           userId,
           sessionId: currentSessionId,
+          userMessage: message,
         })
         send('token', { token: unknown.text })
         emitUiState({
@@ -4670,9 +4671,29 @@ EXECUTIVE RESPONSE INSTRUCTIONS:
     // handful of options, where more rows buy nothing and cost tokens.
     // Trimmed rows are small (~250 chars), so 12 is roughly 750 tokens on the
     // turns that need it and unchanged on the turns that do not.
-    const promptProjectLimit = queryClassification.queryKind === 'DISCOVERY' ? 12 : 5
-    const trimmedProjects = trimPropertiesForPrompt(projects.slice(0, promptProjectLimit))
-    const trimmedNearby = nearbyProjects.length > 0 ? trimPropertiesForPrompt(nearbyProjects.slice(0, 5)) : undefined
+    const hasSingleNamedProject = Boolean(
+      (intent as any)?.targetProjectId ||
+      (intent?.projectNames && intent.projectNames.length === 1) ||
+      queryClassification.queryKind === 'DRILLDOWN'
+    )
+    const isComparisonQuery = queryClassification.queryKind === 'COMPARISON' || (intent.projectNames && intent.projectNames.length > 1)
+    const promptProjectLimit = queryClassification.queryKind === 'DISCOVERY' ? 4 : (hasSingleNamedProject ? 1 : (isComparisonQuery ? 3 : 4))
+
+    let prioritizedProjects = [...projects]
+    const targetId = (intent as any)?.targetProjectId
+    const targetName = intent.projectNames?.[0]?.toLowerCase()
+    if (targetId || targetName) {
+      prioritizedProjects.sort((a, b) => {
+        const aMatch = (targetId && a.id === targetId) || (targetName && a.name?.toLowerCase().includes(targetName))
+        const bMatch = (targetId && b.id === targetId) || (targetName && b.name?.toLowerCase().includes(targetName))
+        if (aMatch && !bMatch) return -1
+        if (!aMatch && bMatch) return 1
+        return 0
+      })
+    }
+
+    const trimmedProjects = trimPropertiesForPrompt(prioritizedProjects.slice(0, promptProjectLimit))
+    const trimmedNearby = nearbyProjects.length > 0 ? trimPropertiesForPrompt(nearbyProjects.slice(0, 3)) : undefined
     if (projects.length > promptProjectLimit) {
       console.log(`[CHAT:PROMPT_TRIM] ${projects.length} retrieved, ${promptProjectLimit} sent to the model (${queryClassification.queryKind})`)
     }

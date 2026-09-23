@@ -266,11 +266,24 @@ all_in_cost_multiplier  Float?            // e.g. 1.31 (+31% above BSP)
   * Render an interactive breakdown comparing Base Price vs True Landed Cost.
   * Display statutory UP stamp duty (7%), registration (1%), GST (0% on ready, 5% on under-construction), EEC/FFC, IFMS, and prepaid dual-meter charges.
 
+##### Step 3.5: Dynamic JIT Prompt Modularization & Universal Project Intelligence
+* **The 9,890-Token Diet & Multi-Model Adaptability**:
+  * Decouple the monolithic prompt into **Immutable Cached Rules (~750 tokens)** + **JIT Scoped Context (~400–600 tokens)** + **Sliding 4-Message Window with Intent Snapshot (~300 tokens)**.
+  * Enforce strict $\le 1,800$ token ceiling per turn to unlock zero-delay responses on any model (Gemini Paid primary, Groq / DeepSeek / Cerebras fallback) with zero HTTP 413 "Request too large" rejections.
+* **Universal Project Handling (Inside DB vs Outside DB)**:
+  * **Projects in Database (620+ Noida / GN / Yamuna)**: Direct routing to deterministic Postgres handlers (<50ms, 0 hallucination) for Cost Sheets, Water Reality, UP Lifts Act 2024, Amitabh Kant 25% dues, and Shahdara drain corridor buffer.
+  * **Projects Outside Database (Global / New Launches)**: Thread the buyer's *actual question* into `runGroundedAnswer` (`${userMessage} — ${projectName} real estate`) for targeted live web grounding. Synthesize on-point answers with transparent provenance badges (`🌐 Live public records — pending on-ground inspection`) and advisory audit chips.
+* **Multi-Turn Entity Continuity**:
+  * Preserve single `projectNames` and `targetProjectId` in `mergeIntent` and `ATTRIBUTE_FOLLOWUP` on advisory and feature follow-ups ("are there any hidden charges for it?", "what water source is it using?").
+
 #### 3. Verification & Pass Conditions
 * [ ] `projectExposure.test.ts` passes with 100% field classification coverage.
 * [ ] Asking the AI about lift safety or Ganga Jal water source in Sector 137 cites verified project fields.
 * [ ] Asking about an unverified project produces a transparent refusal to guess rather than a hallucinated number.
 * [ ] Cost sheet component calculates accurate all-inclusive landed costs matching UP statutory schedules.
+* [ ] `estimateTokens(systemPrompt)` is $\le 1,800$ tokens across single-project, sector, and discovery queries; Groq runs with 0 HTTP 413 errors.
+* [ ] Multi-turn flow preserves project context across 3+ consecutive follow-ups (`costSheet` → `hiddenCharges` → `waterSource`).
+* [ ] Out-of-DB queries synthesize specific answers from live web grounding matching the buyer's exact question rather than generic stubs.
 
 ---
 

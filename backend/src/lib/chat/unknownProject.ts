@@ -64,6 +64,7 @@ export async function buildUnknownProjectReply(
     city: string
     userId?: string | null
     sessionId?: string | null
+    userMessage?: string
     /** Injectable for tests — avoids a live provider and a network call. */
     ground?: typeof runGroundedAnswer
   },
@@ -80,8 +81,12 @@ export async function buildUnknownProjectReply(
   const ground = options.ground ?? runGroundedAnswer
   let answer = null
   try {
+    const specificQuestion = options.userMessage && options.userMessage.trim().length > 5
+      ? `${options.userMessage.trim()} (Regarding project: ${name}, ${options.city} real estate). Answer directly based on public records and verified filings.`
+      : `What is ${name} in ${options.city}? Who is the developer, what is its location, unit configurations, and current RERA/construction status?`
+
     answer = await ground({
-      message: `What is ${name} in ${options.city}? Who is the developer and what is its status?`,
+      message: specificQuestion,
       detection,
       city: options.city,
       userId: options.userId,
