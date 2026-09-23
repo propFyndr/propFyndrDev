@@ -268,6 +268,18 @@ model Project {
   pet_friendly                    Boolean?               @default(true)
   bachelor_tenants_allowed        Boolean?               @default(true)
 
+  // 13. Forensic Due Diligence & Living Quality (Day 3 Expansion)
+  oc_status                       OcStatus               @default(NONE)
+  oc_details                      String?
+  amitabh_kant_clearance          Boolean                @default(false)
+  bank_apf_codes                  Json?
+  water_source_type               WaterSourceType        @default(MIXED)
+  water_tds_range                 String?
+  shahdara_drain_impact           Boolean                @default(false)
+  lift_act_compliant              Boolean                @default(false)
+  power_supply_type               PowerSupplyType        @default(SINGLE_POINT_BULK)
+  all_in_cost_multiplier          Float?
+
   // Relations
   amenities                Amenity[]
   connectivity             Connectivity[]
@@ -1021,6 +1033,24 @@ enum ConnectivityType {
   park
   it_park
   commercial
+}
+
+enum OcStatus {
+  FULL_OC
+  PHASED_OC
+  APPLIED
+  NONE
+}
+
+enum WaterSourceType {
+  GANGA_JAL
+  BOREWELL
+  MIXED
+}
+
+enum PowerSupplyType {
+  PVVNL_MULTIPOINT
+  SINGLE_POINT_BULK
 }
 
 model PaymentPlan {

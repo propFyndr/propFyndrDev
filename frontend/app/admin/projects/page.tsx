@@ -17,6 +17,7 @@ import {
 import { toast } from 'sonner'
 import { adminFetch } from '@/lib/adminFetch'
 import CustomSelect from '@/components/admin/CustomSelect'
+import { normalizeSpecCategory } from '@/components/admin/SpecEditor'
 import { useAdminRole, canDeleteRecords } from '@/lib/adminRole'
 
 interface UnitType { bhk: number; price_min_cr: number | null; price_max_cr: number | null; super_area_sqft?: number | null; carpet_area_sqft?: number | null }
@@ -113,13 +114,13 @@ function computeProjectCompleteness(data: any): {
   const specsMissing: string[] = []
   if ((data?.spec_items?.length || 0) >= 1) specsCompleted.push(`Specifications (${data.spec_items.length} items configured)`)
   else specsMissing.push('Construction Specifications')
-  if (data?.spec_items?.some((s: any) => s.category === 'structure')) specsCompleted.push('Structure & Safety Specs')
+  if (data?.spec_items?.some((s: any) => normalizeSpecCategory(s.category) === 'structure')) specsCompleted.push('Structure & Safety Specs')
   else specsMissing.push('Structure & Safety Specs')
-  if (data?.spec_items?.some((s: any) => s.category === 'flooring')) specsCompleted.push('Flooring & Finishes Specs')
+  if (data?.spec_items?.some((s: any) => normalizeSpecCategory(s.category) === 'flooring')) specsCompleted.push('Flooring & Finishes Specs')
   else specsMissing.push('Flooring Specs')
-  if (data?.spec_items?.some((s: any) => s.category === 'kitchen')) specsCompleted.push('Kitchen & Countertop Specs')
+  if (data?.spec_items?.some((s: any) => normalizeSpecCategory(s.category) === 'kitchen')) specsCompleted.push('Kitchen & Countertop Specs')
   else specsMissing.push('Kitchen Specs')
-  if (data?.spec_items?.some((s: any) => s.category === 'bathrooms')) specsCompleted.push('Sanitary & CP Fittings Specs')
+  if (data?.spec_items?.some((s: any) => normalizeSpecCategory(s.category) === 'bathrooms')) specsCompleted.push('Sanitary & CP Fittings Specs')
   else specsMissing.push('Sanitary Specs')
   if (data?.spec_items?.some((s: any) => s.is_highlight)) specsCompleted.push('Highlighted Buyer Card Specs')
   else specsMissing.push('Highlighted Buyer Card Specs')

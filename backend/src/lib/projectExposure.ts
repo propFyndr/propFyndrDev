@@ -245,6 +245,18 @@ export const PROJECT_PUBLIC_SELECT = {
   ceiling_height_ft: true,
   lifts_per_tower: true,
   has_service_lift: true,
+
+  // Forensic Due Diligence & Living Quality (Day 3 Expansion)
+  oc_status: true,
+  oc_details: true,
+  amitabh_kant_clearance: true,
+  bank_apf_codes: true,
+  water_source_type: true,
+  water_tds_range: true,
+  shahdara_drain_impact: true,
+  lift_act_compliant: true,
+  power_supply_type: true,
+  all_in_cost_multiplier: true,
 } as const
 
 export type PublicProjectField = keyof typeof PROJECT_PUBLIC_SELECT

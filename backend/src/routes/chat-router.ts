@@ -263,6 +263,18 @@ router.post('/', async (req: Request, res: Response) => {
     sseWrite(res, 'done', { sessionId: sessionId ?? null, intentState: 'COLD', intent: {}, responseMode: 'chat' })
     res.end()
     console.log('[CHAT:INPUT_BLOCKED]', { preview: message.slice(0, 60) })
+    prisma.auditLog.create({
+      data: {
+        entity_type: 'chat_turn',
+        entity_id: sessionId || 'anonymous',
+        entity_name: guestToken || 'guest',
+        action: 'PROMPT_INJECTION_BLOCKED',
+        actor: 'PromptFirewall',
+        ip_address: req.ip || null,
+        summary: `Blocked prompt injection: ${message.slice(0, 100)}`,
+        changes: { rawLength: message.length },
+      },
+    }).catch((err: any) => console.warn('[auditLog] Failed to log prompt injection:', err?.message || err))
     return
   }
   message = sanitizedMessage
@@ -3469,8 +3481,11 @@ USING THE FACTS:
               messages: systemMsgHistory,
               send,
               onToolCall: async () => ({}),
-              groqFallbackSuffix: '',
               userMessage: message,
+              userId,
+              sessionId: currentSessionId,
+              guestToken,
+              focusProjectId,
               // See InferenceConfig.tools: a stub handler must not be paired
               // with a tool catalogue, or the model loops and returns nothing.
               // Raised from 1500 — measured live 8 Sep 2026: a comparison
@@ -3879,8 +3894,11 @@ EXECUTIVE RESPONSE INSTRUCTIONS:
           messages: [{ role: 'user', content: projectDataMsg }],
           send,
           onToolCall: async () => ({ error: 'No tools required for project detail' }),
-          groqFallbackSuffix: '',
           userMessage: message,
+          userId,
+          sessionId: currentSessionId,
+          guestToken,
+          focusProjectId,
           // Project detail summary: use smart chain, without tools — the handler
           // above answers every call with an error, so offering them only burns
           // tool cycles. See InferenceConfig.tools.
@@ -5246,6 +5264,8 @@ EXECUTIVE RESPONSE INSTRUCTIONS:
         userMessage: message,
         userId,
         sessionId: currentSessionId,
+        guestToken,
+        focusProjectId,
         config: inferenceConfig,
         // We rendered the table above; drop any the model draws anyway.
         // Suppress when WE rendered a table, and also whenever cards are on

@@ -324,6 +324,17 @@ export const NEUTRAL_TOOLS: NeutralTool[] = [
       },
     },
   },
+  {
+    name: 'project_due_diligence',
+    description: 'Look up forensic due diligence & living quality parameters for a project from the PropFyndr database: Occupancy Certificate (OC) status & tower specifics, Amitabh Kant registry clearance, water source type (Ganga Jal vs Borewell) and tested TDS range, power supply metering (PVVNL Multipoint vs Bulk), UP Lifts Act 2024 compliance, Shahdara drain odor risk, and recurring monthly maintenance / DG power tariff. Never speculate on OC or water source; use this tool.',
+    parameters: {
+      type: 'object',
+      properties: {
+        project_name: { type: 'string', description: 'Name of the project, e.g. "3C Lotus 300", "Ivy County", "Ace Starlit"' },
+      },
+      required: ['project_name'],
+    },
+  },
 ]
 
 export function toOpenAITools() {
@@ -366,6 +377,7 @@ const TOOL_ARG_LIMITS: Record<string, Record<string, number>> = {
   best_value_projects:        { sector: 50, city: 50 },
   fastest_possession_projects: { sector: 50, city: 50 },
   best_for_families_projects: { sector: 50, city: 50 },
+  project_due_diligence:       { project_name: 100 },
 }
 
 export function validateToolArgs(name: string, args: Record<string, unknown>): Record<string, unknown> {

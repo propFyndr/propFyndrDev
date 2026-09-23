@@ -20,6 +20,7 @@ import {
   getBestValueProjects,
   getFastestPossessionProjects,
   getBestForFamiliesProjects,
+  getProjectDueDiligence,
 } from '../../projectFacts'
 
 const DEFAULT_CITY = DISCOVERY.DEFAULT_CITY
@@ -222,6 +223,10 @@ export function createToolHandler(ctx: ToolContext) {
             maxBudgetCr: args.max_budget_cr != null ? Number(args.max_budget_cr) : undefined,
             limit: args.limit != null ? Number(args.limit) : undefined,
           });
+        }
+
+        if (name === 'project_due_diligence') {
+          return getProjectDueDiligence(args.project_name);
         }
 
         if (name === 'web_search') {

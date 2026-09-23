@@ -75,6 +75,43 @@ interface ProjectData {
   land_tenure?: string
   pet_friendly?: boolean
   bachelor_tenants_allowed?: boolean
+
+  // Forensic Due Diligence & Living Quality (Day 3 Expansion)
+  oc_status?: 'FULL_OC' | 'PHASED_OC' | 'APPLIED' | 'NONE'
+  oc_details?: string
+  amitabh_kant_clearance?: boolean
+  bank_apf_codes?: string
+  water_source_type?: 'GANGA_JAL' | 'BOREWELL' | 'MIXED'
+  water_tds_range?: string
+  shahdara_drain_impact?: boolean
+  lift_act_compliant?: boolean
+  power_supply_type?: 'PVVNL_MULTIPOINT' | 'SINGLE_POINT_BULK'
+  all_in_cost_multiplier?: string
+}
+
+export function formatApfCodes(val: any): string {
+  if (!val) return ''
+  if (typeof val === 'string') return val
+  if (typeof val === 'object') {
+    return Object.entries(val).map(([k, v]) => `${k}: ${v}`).join(', ')
+  }
+  return ''
+}
+
+export function parseApfCodes(val: string): any {
+  if (!val || !val.trim()) return null
+  try {
+    return JSON.parse(val)
+  } catch {
+    const res: Record<string, string> = {}
+    val.split(',').forEach((part) => {
+      const [k, ...rest] = part.split(':')
+      if (k && rest.length) {
+        res[k.trim()] = rest.join(':').trim()
+      }
+    })
+    return Object.keys(res).length > 0 ? res : val.trim()
+  }
 }
 
 const EMPTY: ProjectData = {
@@ -103,6 +140,18 @@ const EMPTY: ProjectData = {
   land_tenure: '99-Year Authority Leasehold',
   pet_friendly: true,
   bachelor_tenants_allowed: true,
+
+  // Forensic Due Diligence & Living Quality Defaults
+  oc_status: 'NONE',
+  oc_details: '',
+  amitabh_kant_clearance: false,
+  bank_apf_codes: '',
+  water_source_type: 'MIXED',
+  water_tds_range: '',
+  shahdara_drain_impact: false,
+  lift_act_compliant: false,
+  power_supply_type: 'SINGLE_POINT_BULK',
+  all_in_cost_multiplier: '1.30',
 }
 
 function toSlug(name: string): string {
@@ -238,7 +287,12 @@ export default function ProjectForm({ initialData, projectId, onFormChange, onSa
 }) {
   const router = useRouter()
   const [builders, setBuilders] = useState<Builder[]>([])
-  const [form, setForm] = useState<ProjectData>({ ...EMPTY, ...initialData })
+  const [form, setForm] = useState<ProjectData>(() => ({
+    ...EMPTY,
+    ...initialData,
+    bank_apf_codes: formatApfCodes(initialData?.bank_apf_codes),
+    all_in_cost_multiplier: initialData?.all_in_cost_multiplier != null ? String(initialData.all_in_cost_multiplier) : EMPTY.all_in_cost_multiplier,
+  }))
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
   const prevFormRef = useRef<string>('')
@@ -318,6 +372,18 @@ export default function ProjectForm({ initialData, projectId, onFormChange, onSa
       land_tenure:                  form.land_tenure || undefined,
       pet_friendly:                 form.pet_friendly,
       bachelor_tenants_allowed:     form.bachelor_tenants_allowed,
+
+      // Forensic Due Diligence & Living Quality (Day 3 Expansion)
+      oc_status:                    form.oc_status || 'NONE',
+      oc_details:                   form.oc_details || undefined,
+      amitabh_kant_clearance:       !!form.amitabh_kant_clearance,
+      bank_apf_codes:               form.bank_apf_codes ? parseApfCodes(form.bank_apf_codes) : undefined,
+      water_source_type:            form.water_source_type || 'MIXED',
+      water_tds_range:              form.water_tds_range || undefined,
+      shahdara_drain_impact:        !!form.shahdara_drain_impact,
+      lift_act_compliant:           !!form.lift_act_compliant,
+      power_supply_type:            form.power_supply_type || 'SINGLE_POINT_BULK',
+      all_in_cost_multiplier:       form.all_in_cost_multiplier ? parseFloat(form.all_in_cost_multiplier) : undefined,
     }
 
     const url    = projectId ? `${API_BASE}/admin/projects/${projectId}` : `${API_BASE}/admin/projects`
@@ -673,6 +739,98 @@ export default function ProjectForm({ initialData, projectId, onFormChange, onSa
               className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500"
             />
             <span className="text-xs font-semibold text-slate-700 dark:text-zinc-300">RWA Permits Bachelor Tenants</span>
+          </label>
+        </Field>
+
+        <SectionHeader title="Forensic Due Diligence & Living Quality (Day 3 Expansion)" />
+
+        <Field label="Occupancy Certificate (OC) Status" hint="Legal handover & occupancy approval status">
+          <CustomSelect
+            value={form.oc_status || 'NONE'}
+            onChange={(val) => setForm((f) => ({ ...f, oc_status: val as any }))}
+            options={[
+              { value: 'FULL_OC', label: 'Full OC Granted (All Towers Live)' },
+              { value: 'PHASED_OC', label: 'Phased OC (Specific Towers Only)' },
+              { value: 'APPLIED', label: 'OC Applied (Pending Authority Inspection)' },
+              { value: 'NONE', label: 'No OC / Under Construction' },
+            ]}
+          />
+        </Field>
+
+        <Field label="OC Details & Tower Specifics" hint="e.g. Towers A-C have full OC, Tower D inspection pending">
+          <Input value={form.oc_details || ''} onChange={set('oc_details')} placeholder="Towers A, B & C possess Full OC issued Jan 2024" />
+        </Field>
+
+        <Field label="Water Source Type" hint="Civic piped source vs groundwater reliance">
+          <CustomSelect
+            value={form.water_source_type || 'MIXED'}
+            onChange={(val) => setForm((f) => ({ ...f, water_source_type: val as any }))}
+            options={[
+              { value: 'GANGA_JAL', label: 'Pure Ganga Jal Pipeline (Authority Supply)' },
+              { value: 'MIXED', label: 'Mixed Supply (Authority Ganga Jal + Borewell Blend)' },
+              { value: 'BOREWELL', label: 'Borewell Groundwater Dominant' },
+            ]}
+          />
+        </Field>
+
+        <Field label="Water TDS Range (ppm)" hint="Actual tested Total Dissolved Solids in drinking supply">
+          <Input value={form.water_tds_range || ''} onChange={set('water_tds_range')} placeholder="180-250 ppm (Treated Ganga Jal)" />
+        </Field>
+
+        <Field label="Power Supply Metering Type" hint="Government direct tariff vs private single point billing">
+          <CustomSelect
+            value={form.power_supply_type || 'SINGLE_POINT_BULK'}
+            onChange={(val) => setForm((f) => ({ ...f, power_supply_type: val as any }))}
+            options={[
+              { value: 'PVVNL_MULTIPOINT', label: 'PVVNL Individual Multipoint Meter (UP Govt Tariff)' },
+              { value: 'SINGLE_POINT_BULK', label: 'Single Point Bulk Supply (Sub-metered through Builder/RWA)' },
+            ]}
+          />
+        </Field>
+
+        <Field label="Landed Cost Multiplier (Over BSP)" hint="True all-in purchase cost multiplier (typically 1.28 - 1.35)">
+          <Input value={form.all_in_cost_multiplier || ''} onChange={set('all_in_cost_multiplier')} placeholder="1.30" type="number" step="0.01" />
+        </Field>
+
+        <div className="col-span-1 md:col-span-2">
+          <Field label="Approved Bank APF Codes" hint="Pre-approved home loan approval codes (e.g. HDFC: APF123, SBI: DEL-456, ICICI: ICI-789)">
+            <Input value={form.bank_apf_codes || ''} onChange={set('bank_apf_codes')} placeholder="HDFC: APF123, SBI: DEL-456, ICICI: ICI-789" />
+          </Field>
+        </div>
+
+        <Field label="Amitabh Kant Committee Relief">
+          <label className="flex items-center gap-2 cursor-pointer pt-2">
+            <input
+              type="checkbox"
+              checked={!!form.amitabh_kant_clearance}
+              onChange={(e) => setForm((f) => ({ ...f, amitabh_kant_clearance: e.target.checked }))}
+              className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500"
+            />
+            <span className="text-xs font-semibold text-slate-700 dark:text-zinc-300">Amitabh Kant Relief Cleared (25% builder dues deposited for sub-lease execution)</span>
+          </label>
+        </Field>
+
+        <Field label="UP Lifts Act 2024 Compliance">
+          <label className="flex items-center gap-2 cursor-pointer pt-2">
+            <input
+              type="checkbox"
+              checked={!!form.lift_act_compliant}
+              onChange={(e) => setForm((f) => ({ ...f, lift_act_compliant: e.target.checked }))}
+              className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500"
+            />
+            <span className="text-xs font-semibold text-slate-700 dark:text-zinc-300">Compliant with UP Lifts and Escalators Act 2024 (Mandatory ARD, CCTV, Insurance)</span>
+          </label>
+        </Field>
+
+        <Field label="Shahdara Drain Proximity Risk">
+          <label className="flex items-center gap-2 cursor-pointer pt-2">
+            <input
+              type="checkbox"
+              checked={!!form.shahdara_drain_impact}
+              onChange={(e) => setForm((f) => ({ ...f, shahdara_drain_impact: e.target.checked }))}
+              className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500"
+            />
+            <span className="text-xs font-semibold text-slate-700 dark:text-zinc-300">Shahdara Drain Exposure (Seasonal odor & metallic corrosion risk within 800m)</span>
           </label>
         </Field>
 

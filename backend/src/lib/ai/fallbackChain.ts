@@ -29,13 +29,15 @@ export interface FallbackChainOptions {
   messages: Message[]
   send: SendFn
   onToolCall: ToolCallFn
-  groqFallbackSuffix: string
+  groqFallbackSuffix?: string
   /** Builds the system prompt for a provider given whether it can call tools. */
   buildSystemPrompt?: (supportsTools: boolean) => string
   projects?: ScoredProject[]
   userMessage?: string
   userId?: string | null
   sessionId?: string | null
+  guestToken?: string | null
+  focusProjectId?: string | null
   chainConfig?: FallbackKeyConfig[] // Allows custom chain override for unit testing
   config?: InferenceConfig
   /** Drop any markdown table the model emits. */
@@ -551,11 +553,13 @@ export async function executeWithFallbackChain(options: FallbackChainOptions): P
     messages,
     send,
     onToolCall,
-    groqFallbackSuffix,
+    groqFallbackSuffix = '',
     projects = [],
     userMessage = '',
     userId,
     sessionId,
+    guestToken,
+    focusProjectId,
     chainConfig = FALLBACK_CHAIN,
   } = options
 
@@ -613,6 +617,11 @@ export async function executeWithFallbackChain(options: FallbackChainOptions): P
         name: 'chat_turn',
         input: { userMessage, messagesCount: messages.length },
         tags: ['fallback_chain'],
+        metadata: {
+          chat_session_id: sessionId,
+          guest_token: guestToken || undefined,
+          focus_project_id: focusProjectId || undefined,
+        },
       })
     : null
 

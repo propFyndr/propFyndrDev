@@ -4,7 +4,7 @@ import { prisma } from '../lib/db'
 import { buildLeadBrief } from '../lib/leadBrief'
 import { loadScoreMap, missingFrom, saveScoreMap } from '../lib/completenessCache'
 import { requireAdmin, destroyAdminSession } from '../lib/adminAuth'
-import { createIdentitySession, verifyPassword, requireIdentity, requireRole } from '../lib/adminIdentity'
+import { createIdentitySession, verifyPassword, requireIdentity, requireRole, sessionTtlForRole } from '../lib/adminIdentity'
 import { computeCompleteness } from '../lib/completeness'
 import { normalisePortalSubdomain } from '../lib/portalSubdomain'
 import { checkRateLimit, getCached, setCached, deleteCached } from '../lib/cache'
@@ -247,6 +247,13 @@ router.post('/auth', async (req: Request, res: Response) => {
     role: admin.role,
     builderId: admin.builder_id,
     partnerId: admin.partner_id,
+  })
+  const ttlSecs = sessionTtlForRole(admin.role)
+  res.cookie('admin_session', token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    maxAge: ttlSecs * 1000,
   })
   res.json({ token, role: admin.role })
 })
@@ -1060,6 +1067,25 @@ router.patch('/projects/:id', async (req: Request, res: Response) => {
     }
     if (validFields.launch_date) {
       validFields.launch_date = new Date(validFields.launch_date)
+    }
+    if (validFields.bank_apf_codes !== undefined) {
+      if (typeof validFields.bank_apf_codes === 'string') {
+        const str = validFields.bank_apf_codes.trim()
+        if (!str) {
+          validFields.bank_apf_codes = null
+        } else {
+          try {
+            validFields.bank_apf_codes = JSON.parse(str)
+          } catch {
+            const parsedObj: Record<string, string> = {}
+            str.split(',').forEach((part: string) => {
+              const [k, ...rest] = part.split(':')
+              if (k && rest.length) parsedObj[k.trim()] = rest.join(':').trim()
+            })
+            validFields.bank_apf_codes = Object.keys(parsedObj).length > 0 ? parsedObj : str
+          }
+        }
+      }
     }
 
     const diffs = computeFieldDiffs(existing as any, validFields)

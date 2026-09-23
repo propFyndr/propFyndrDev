@@ -1,0 +1,1808 @@
+[
+  {
+    "id": "26620dc3-3a1f-4c7c-a678-fda534e66eb9",
+    "name": "AIMS Golf City",
+    "slug": "aims-golf-city-sector-75-sec-1",
+    "builder": "AIMS Golf Developers",
+    "sector": "Sector 75",
+    "city": "Noida",
+    "status": "ready_to_move",
+    "priceRange": "₹0.79–1.17 Cr",
+    "score": 55,
+    "missingFields": [
+      "Nearest Metro & Expressway Connectivity"
+    ]
+  },
+  {
+    "id": "e4c1dde1-83e5-41aa-a99e-5bc7f342d673",
+    "name": "Amrapali Silicon City Phase 1",
+    "slug": "amrapali-silicon-city-phase-1-sector-76",
+    "builder": "Amrapali / NBCC",
+    "sector": "Sector 76",
+    "city": "Noida",
+    "status": "ready_to_move",
+    "priceRange": "₹0.81–1.19 Cr",
+    "score": 55,
+    "missingFields": [
+      "Nearest Metro & Expressway Connectivity"
+    ]
+  },
+  {
+    "id": "6c96be63-6084-42f0-b4fc-b6043866e15d",
+    "name": "Antriksh Golf Link",
+    "slug": "antriksh-golf-link-sector-1",
+    "builder": "Antriksh Group",
+    "sector": "Sector 1",
+    "city": "Greater Noida West",
+    "status": "ready_to_move",
+    "priceRange": "₹0.82–1.2 Cr",
+    "score": 55,
+    "missingFields": [
+      "Nearest Metro & Expressway Connectivity"
+    ]
+  },
+  {
+    "id": "dde44de5-946c-4be4-adaa-2aa5a45bf4ce",
+    "name": "Apex Golf Avenue",
+    "slug": "apex-golf-avenue-sector-1-greater-noida-west",
+    "builder": "Apex Buildcon",
+    "sector": "Sector 1",
+    "city": "Greater Noida West",
+    "status": "ready_to_move",
+    "priceRange": "₹0.77–1.2 Cr",
+    "score": 55,
+    "missingFields": [
+      "Nearest Metro & Expressway Connectivity"
+    ]
+  },
+  {
+    "id": "a13bf649-e05a-4b97-acc8-569979c5c4b6",
+    "name": "ATS Greens 1",
+    "slug": "ats-greens-1-sector-50",
+    "builder": "ATS Homekraft",
+    "sector": "Sector 50",
+    "city": "Noida",
+    "status": "ready_to_move",
+    "priceRange": "₹2.22–3.5 Cr",
+    "score": 55,
+    "missingFields": [
+      "Nearest Metro & Expressway Connectivity"
+    ]
+  },
+  {
+    "id": "73ffe4a3-21ea-434f-b411-96050be4558a",
+    "name": "ATS Greens 2",
+    "slug": "ats-greens-2-sector-50",
+    "builder": "ATS Homekraft",
+    "sector": "Sector 50",
+    "city": "Noida",
+    "status": "ready_to_move",
+    "priceRange": "₹2.16–3.4 Cr",
+    "score": 55,
+    "missingFields": [
+      "Nearest Metro & Expressway Connectivity"
+    ]
+  },
+  {
+    "id": "abaf3828-92d5-4c49-9b36-1923fdfbcb7e",
+    "name": "ATS Pristine Golf Villas Phase 1",
+    "slug": "ats-pristine-golf-villas-phase-1-sector-150",
+    "builder": "ATS Homekraft",
+    "sector": "Sector 150",
+    "city": "Noida",
+    "status": "ready_to_move",
+    "priceRange": "₹5.86–10.02 Cr",
+    "score": 55,
+    "missingFields": [
+      "Nearest Metro & Expressway Connectivity"
+    ]
+  },
+  {
+    "id": "4019b480-af1c-4df6-ae12-17406ba6ed94",
+    "name": "ATS Pristine Phase 2",
+    "slug": "ats-pristine-phase-2-sector-150",
+    "builder": "ATS Homekraft",
+    "sector": "Sector 150",
+    "city": "Noida",
+    "status": "ready_to_move",
+    "priceRange": "₹3.49–5.51 Cr",
+    "score": 55,
+    "missingFields": [
+      "Nearest Metro & Expressway Connectivity"
+    ]
+  },
+  {
+    "id": "c400f357-9095-465f-a3de-90ce83bc1a05",
+    "name": "Cherry County Towers A-F",
+    "slug": "cherry-county-towers-a-f-techzone-4",
+    "builder": "Cherry County",
+    "sector": "Techzone 4",
+    "city": "Greater Noida West",
+    "status": "ready_to_move",
+    "priceRange": "₹0.67–0.98 Cr",
+    "score": 55,
+    "missingFields": [
+      "Nearest Metro & Expressway Connectivity"
+    ]
+  },
+  {
+    "id": "e65551fa-9428-4d3a-8fb2-0c33fa4517ad",
+    "name": "Eldeco Residency Greens",
+    "slug": "eldeco-residency-greens-sector-alpha-2",
+    "builder": "Eldeco Group",
+    "sector": "Alpha 2",
+    "city": "Greater Noida",
+    "status": "ready_to_move",
+    "priceRange": "₹0.88–1.29 Cr",
+    "score": 55,
+    "missingFields": [
+      "Nearest Metro & Expressway Connectivity"
+    ]
+  },
+  {
+    "id": "6d48bdd2-2322-49e2-b6d7-180371f92da5",
+    "name": "Gaur Atulyam",
+    "slug": "gaur-atulyam-sector-omicron-1",
+    "builder": "Gaursons",
+    "sector": "Omicron 1",
+    "city": "Greater Noida",
+    "status": "ready_to_move",
+    "priceRange": "₹0.77–1.13 Cr",
+    "score": 55,
+    "missingFields": [
+      "Nearest Metro & Expressway Connectivity"
+    ]
+  },
+  {
+    "id": "5c82f67b-0c40-46a3-b269-c693ab0d0bee",
+    "name": "Gaur City 1 - 2nd Avenue",
+    "slug": "gaur-city-1-2nd-avenue-sector-4",
+    "builder": "Gaursons",
+    "sector": "Sector 4",
+    "city": "Greater Noida West",
+    "status": "ready_to_move",
+    "priceRange": "₹0.72–1.05 Cr",
+    "score": 55,
+    "missingFields": [
+      "Nearest Metro & Expressway Connectivity"
+    ]
+  },
+  {
+    "id": "b3ad9dac-7c81-475f-bde9-bb3ba8280ab4",
+    "name": "Gaur City 1 - 4th Avenue",
+    "slug": "gaur-city-1-4th-avenue-sector-4",
+    "builder": "Gaursons",
+    "sector": "Sector 4",
+    "city": "Greater Noida West",
+    "status": "ready_to_move",
+    "priceRange": "₹0.76–1.12 Cr",
+    "score": 55,
+    "missingFields": [
+      "Nearest Metro & Expressway Connectivity"
+    ]
+  },
+  {
+    "id": "ff87be00-c157-4ad4-88da-7edfa41b8bdd",
+    "name": "Gaur Saundaryam",
+    "slug": "gaur-saundaryam-techzone-4-greater-noida-west",
+    "builder": "Gaursons",
+    "sector": "Techzone 4",
+    "city": "Greater Noida West",
+    "status": "ready_to_move",
+    "priceRange": "₹1.72–2.72 Cr",
+    "score": 55,
+    "missingFields": [
+      "Nearest Metro & Expressway Connectivity"
+    ]
+  },
+  {
+    "id": "8a2d0939-0d58-4bbe-bc94-2a17547138dc",
+    "name": "Gaur Yamuna City - 16th Parkview",
+    "slug": "gaur-yamuna-city-16th-parkview-yamuna-expressway",
+    "builder": "Gaursons",
+    "sector": "Yamuna Expressway",
+    "city": "Yamuna Expressway",
+    "status": "ready_to_move",
+    "priceRange": "₹0.52–0.76 Cr",
+    "score": 55,
+    "missingFields": [
+      "Nearest Metro & Expressway Connectivity"
+    ]
+  },
+  {
+    "id": "fda2d903-8b2f-4fe1-9e93-9a3bb924ce34",
+    "name": "Gaur Yamuna City - 32nd Parkview",
+    "slug": "gaur-yamuna-city-32nd-parkview-yamuna-expressway",
+    "builder": "Gaursons",
+    "sector": "Yamuna Expressway",
+    "city": "Yamuna Expressway",
+    "status": "ready_to_move",
+    "priceRange": "₹0.55–0.81 Cr",
+    "score": 55,
+    "missingFields": [
+      "Nearest Metro & Expressway Connectivity"
+    ]
+  },
+  {
+    "id": "0c96a3ab-4247-456f-a895-8fd6bb6c2526",
+    "name": "Great Value Sharanam",
+    "slug": "great-value-sharanam-sector-107-noida",
+    "builder": "Great Value Realty",
+    "sector": "Sector 107",
+    "city": "Noida",
+    "status": "ready_to_move",
+    "priceRange": "₹1.4–2.05 Cr",
+    "score": 55,
+    "missingFields": [
+      "Nearest Metro & Expressway Connectivity"
+    ]
+  },
+  {
+    "id": "9c07851e-8afb-495a-97b2-20f74c711b79",
+    "name": "Great Value Sharanam Greno",
+    "slug": "great-value-sharanam-greno-sector-1",
+    "builder": "Great Value Realty",
+    "sector": "Sector 1",
+    "city": "Greater Noida West",
+    "status": "ready_to_move",
+    "priceRange": "₹0.84–1.24 Cr",
+    "score": 55,
+    "missingFields": [
+      "Nearest Metro & Expressway Connectivity"
+    ]
+  },
+  {
+    "id": "8259f60e-8269-4bff-b7c8-57d790b24263",
+    "name": "Greenarch",
+    "slug": "greenarch-techzone-4-greater-noida-west",
+    "builder": "Greenarch",
+    "sector": "Techzone 4",
+    "city": "Greater Noida West",
+    "status": "ready_to_move",
+    "priceRange": "₹0.69–1.01 Cr",
+    "score": 55,
+    "missingFields": [
+      "Nearest Metro & Expressway Connectivity"
+    ]
+  },
+  {
+    "id": "57036cfd-3537-4117-805e-5a06dff049ab",
+    "name": "Gulshan Ikebana Towers A-F",
+    "slug": "gulshan-ikebana-towers-a-f-sector-143",
+    "builder": "Gulshan Group",
+    "sector": "Sector 143",
+    "city": "Noida",
+    "status": "ready_to_move",
+    "priceRange": "₹1.48–2.06 Cr",
+    "score": 55,
+    "missingFields": [
+      "Nearest Metro & Expressway Connectivity"
+    ]
+  },
+  {
+    "id": "611d1e69-3db0-4150-8aa3-48e1d8569fae",
+    "name": "Hawelia Valencia Homes",
+    "slug": "hawelia-valencia-homes-techzone-4-greater-noida-west",
+    "builder": "Hawelia Group",
+    "sector": "Techzone 4",
+    "city": "Greater Noida West",
+    "status": "ready_to_move",
+    "priceRange": "₹0.69–1.01 Cr",
+    "score": 55,
+    "missingFields": [
+      "Nearest Metro & Expressway Connectivity"
+    ]
+  },
+  {
+    "id": "a71150e1-39d7-4d09-af01-a90c66bfebed",
+    "name": "Jaypee Aman",
+    "slug": "jaypee-aman-sector-151-noida",
+    "builder": "Jaypee Wish Town",
+    "sector": "Sector 151",
+    "city": "Noida",
+    "status": "ready_to_move",
+    "priceRange": "₹0.92–1.35 Cr",
+    "score": 55,
+    "missingFields": [
+      "Nearest Metro & Expressway Connectivity"
+    ]
+  },
+  {
+    "id": "55e29630-faa7-4d5d-b203-c0d97a76de6e",
+    "name": "Jaypee Earth Court",
+    "slug": "jaypee-earth-court-pari-chowk",
+    "builder": "Jaypee Greens (Suraksha Group Resolution)",
+    "sector": "Pari Chowk",
+    "city": "Greater Noida",
+    "status": "ready_to_move",
+    "priceRange": "₹3.57–6.7 Cr",
+    "score": 55,
+    "missingFields": [
+      "Nearest Metro & Expressway Connectivity"
+    ]
+  },
+  {
+    "id": "9bb89773-d810-46a1-bd82-44f218533f96",
+    "name": "Jaypee Greens Golf Course Villas",
+    "slug": "jaypee-greens-golf-course-villas-pari-chowk",
+    "builder": "Jaypee Greens (Suraksha Group Resolution)",
+    "sector": "Pari Chowk",
+    "city": "Greater Noida",
+    "status": "ready_to_move",
+    "priceRange": "₹3.78–6.54 Cr",
+    "score": 55,
+    "missingFields": [
+      "Nearest Metro & Expressway Connectivity"
+    ]
+  },
+  {
+    "id": "733c06b0-7fb7-4609-90c0-1bd9d9b79cf0",
+    "name": "Jaypee Moon Court",
+    "slug": "jaypee-moon-court-pari-chowk",
+    "builder": "Jaypee Greens (Suraksha Group Resolution)",
+    "sector": "Pari Chowk",
+    "city": "Greater Noida",
+    "status": "ready_to_move",
+    "priceRange": "₹3.71–6.86 Cr",
+    "score": 55,
+    "missingFields": [
+      "Nearest Metro & Expressway Connectivity"
+    ]
+  },
+  {
+    "id": "0a90ecbc-6b1b-478b-855d-fd1ad1e2e03f",
+    "name": "Jaypee Pebble Court",
+    "slug": "jaypee-pebble-court-sector-128",
+    "builder": "Jaypee Wish Town",
+    "sector": "Sector 128",
+    "city": "Noida",
+    "status": "ready_to_move",
+    "priceRange": "₹4.77–7.53 Cr",
+    "score": 55,
+    "missingFields": [
+      "Nearest Metro & Expressway Connectivity"
+    ]
+  },
+  {
+    "id": "a2af63de-687c-4d14-8301-8f3256e81ce6",
+    "name": "Jaypee Star Court",
+    "slug": "jaypee-star-court-pari-chowk",
+    "builder": "Jaypee Greens (Suraksha Group Resolution)",
+    "sector": "Pari Chowk",
+    "city": "Greater Noida",
+    "status": "ready_to_move",
+    "priceRange": "₹2.23–3.52 Cr",
+    "score": 55,
+    "missingFields": [
+      "Nearest Metro & Expressway Connectivity"
+    ]
+  },
+  {
+    "id": "0ecf019a-f0e2-4295-8020-15ce2dbd4218",
+    "name": "Jaypee Sun Court",
+    "slug": "jaypee-sun-court-pari-chowk",
+    "builder": "Jaypee Greens (Suraksha Group Resolution)",
+    "sector": "Pari Chowk",
+    "city": "Greater Noida",
+    "status": "ready_to_move",
+    "priceRange": "₹3.71–6.38 Cr",
+    "score": 55,
+    "missingFields": [
+      "Nearest Metro & Expressway Connectivity"
+    ]
+  },
+  {
+    "id": "fb8cd6d4-7895-4b90-b586-16ab3b75c420",
+    "name": "Logix Blossom Greens Phase 1",
+    "slug": "logix-blossom-greens-phase-1-sector-143",
+    "builder": "Logix Group",
+    "sector": "Sector 143",
+    "city": "Noida",
+    "status": "ready_to_move",
+    "priceRange": "₹0.87–1.28 Cr",
+    "score": 55,
+    "missingFields": [
+      "Nearest Metro & Expressway Connectivity"
+    ]
+  },
+  {
+    "id": "cf21147d-b183-484c-9dbc-4b001fbdb5f5",
+    "name": "Lotus 300",
+    "slug": "lotus-300-sector-107",
+    "builder": "The 3C Company",
+    "sector": "Sector 107",
+    "city": "Noida",
+    "status": "ready_to_move",
+    "priceRange": "₹3.31–5.21 Cr",
+    "score": 55,
+    "missingFields": [
+      "Nearest Metro & Expressway Connectivity"
+    ]
+  },
+  {
+    "id": "629e13b6-a526-4eb3-84c9-38a51072fa63",
+    "name": "Mahagun Mantra I",
+    "slug": "mahagun-mantra-i-sector-10",
+    "builder": "ACE Group & Mahagun",
+    "sector": "Sector 10",
+    "city": "Greater Noida West",
+    "status": "ready_to_move",
+    "priceRange": "₹0.9–1.32 Cr",
+    "score": 55,
+    "missingFields": [
+      "Nearest Metro & Expressway Connectivity"
+    ]
+  },
+  {
+    "id": "b5185d63-a5d2-4be1-a774-331705a454c1",
+    "name": "Mahagun Meadow",
+    "slug": "mahagun-meadow-sector-150",
+    "builder": "ACE Group & Mahagun",
+    "sector": "Sector 150",
+    "city": "Noida",
+    "status": "ready_to_move",
+    "priceRange": "₹3.22–5.1 Cr",
+    "score": 55,
+    "missingFields": [
+      "Nearest Metro & Expressway Connectivity"
+    ]
+  },
+  {
+    "id": "0cc1aff7-32fe-4b32-86bc-8b9832e40519",
+    "name": "Mahagun Mywoods",
+    "slug": "mahagun-mywoods-sector-16c-greater-noida-west",
+    "builder": "ACE Group & Mahagun",
+    "sector": "Sector 16C",
+    "city": "Greater Noida West",
+    "status": "ready_to_move",
+    "priceRange": "₹0.8–1.17 Cr",
+    "score": 55,
+    "missingFields": [
+      "Nearest Metro & Expressway Connectivity"
+    ]
+  },
+  {
+    "id": "cc9813fb-c349-4ea5-988b-19c7c55b7844",
+    "name": "Migsun Ultima",
+    "slug": "migsun-ultima-sector-zeta-1",
+    "builder": "Migsun Group",
+    "sector": "Zeta 1",
+    "city": "Greater Noida",
+    "status": "ready_to_move",
+    "priceRange": "₹0.77–1.13 Cr",
+    "score": 55,
+    "missingFields": [
+      "Nearest Metro & Expressway Connectivity"
+    ]
+  },
+  {
+    "id": "32f7ab36-1931-4e0d-9fe2-a1b410c407f3",
+    "name": "Migsun Villa",
+    "slug": "migsun-villa-sector-eta-2",
+    "builder": "Migsun Group",
+    "sector": "Eta 2",
+    "city": "Greater Noida",
+    "status": "ready_to_move",
+    "priceRange": "₹0.79–1.17 Cr",
+    "score": 55,
+    "missingFields": [
+      "Nearest Metro & Expressway Connectivity"
+    ]
+  },
+  {
+    "id": "edc4db5d-2b39-49e7-90a9-d196e230f328",
+    "name": "Migsun Wynn",
+    "slug": "migsun-wynn-sector-eta-2-noida",
+    "builder": "Migsun Group",
+    "sector": "Eta 2",
+    "city": "Greater Noida",
+    "status": "ready_to_move",
+    "priceRange": "₹0.73–1.06 Cr",
+    "score": 55,
+    "missingFields": [
+      "Nearest Metro & Expressway Connectivity"
+    ]
+  },
+  {
+    "id": "f1b3e3bb-7d5c-4534-bee5-7e398322fde4",
+    "name": "Nirala Aspire Towers A1-A8",
+    "slug": "nirala-aspire-towers-a1-a8-sector-16b",
+    "builder": "Nirala World",
+    "sector": "Sector 16B",
+    "city": "Greater Noida West",
+    "status": "ready_to_move",
+    "priceRange": "₹0.69–1.01 Cr",
+    "score": 55,
+    "missingFields": [
+      "Nearest Metro & Expressway Connectivity"
+    ]
+  },
+  {
+    "id": "dace15b4-beb2-4f81-9fe6-f7e551807c1f",
+    "name": "Panchsheel Greens 2",
+    "slug": "panchsheel-greens-2-sector-16-greater-noida-west",
+    "builder": "Panchsheel Buildtech",
+    "sector": "Sector 16",
+    "city": "Greater Noida West",
+    "status": "under_construction",
+    "priceRange": "₹0.7–1.09 Cr",
+    "score": 55,
+    "missingFields": [
+      "Nearest Metro & Expressway Connectivity"
+    ]
+  },
+  {
+    "id": "4404263b-ab6a-41eb-b195-1373a293a0d0",
+    "name": "Purvanchal Silver City",
+    "slug": "purvanchal-silver-city-pari-chowk-noida",
+    "builder": "Purvanchal Projects",
+    "sector": "Pari Chowk",
+    "city": "Greater Noida",
+    "status": "ready_to_move",
+    "priceRange": "₹1.94–3.14 Cr",
+    "score": 55,
+    "missingFields": [
+      "Nearest Metro & Expressway Connectivity"
+    ]
+  },
+  {
+    "id": "c19ecfd2-d72a-4525-aa32-93e67aef1285",
+    "name": "Rudra Palace Heights",
+    "slug": "rudra-palace-heights-sector-1-greater-noida-west",
+    "builder": "Rudra",
+    "sector": "Sector 1",
+    "city": "Greater Noida West",
+    "status": "ready_to_move",
+    "priceRange": "₹0.79–1.27 Cr",
+    "score": 55,
+    "missingFields": [
+      "Nearest Metro & Expressway Connectivity"
+    ]
+  },
+  {
+    "id": "99f9f1ec-22b2-4887-a36c-5e26e8cf1562",
+    "name": "Saviour Greenisle",
+    "slug": "saviour-greenisle-sector-16c",
+    "builder": "Saviour Builders",
+    "sector": "Sector 16C",
+    "city": "Greater Noida West",
+    "status": "ready_to_move",
+    "priceRange": "₹0.71–1.03 Cr",
+    "score": 55,
+    "missingFields": [
+      "Nearest Metro & Expressway Connectivity"
+    ]
+  },
+  {
+    "id": "c1b5ac82-1f85-44d9-a9ab-0c635f5ddf43",
+    "name": "SDS NRI Township Phase 2",
+    "slug": "sds-nri-township-phase-2-yamuna-expressway",
+    "builder": "SDS Infracon",
+    "sector": "Yamuna Expressway",
+    "city": "Yamuna Expressway",
+    "status": "ready_to_move",
+    "priceRange": "₹0.5–0.74 Cr",
+    "score": 55,
+    "missingFields": [
+      "Nearest Metro & Expressway Connectivity"
+    ]
+  },
+  {
+    "id": "4ad33819-682b-46df-8cf6-6d12ec2518c7",
+    "name": "Stellar Mi City",
+    "slug": "stellar-mi-city-sector-zeta-1",
+    "builder": "Stellar Group",
+    "sector": "Zeta 1",
+    "city": "Greater Noida",
+    "status": "ready_to_move",
+    "priceRange": "₹0.77–1.13 Cr",
+    "score": 55,
+    "missingFields": [
+      "Nearest Metro & Expressway Connectivity"
+    ]
+  },
+  {
+    "id": "7f3b4480-7b69-4b5e-a052-74e0d9a8453d",
+    "name": "Supertech Eco City",
+    "slug": "supertech-eco-city-sector-137-noida",
+    "builder": "Supertech Limited",
+    "sector": "Sector 137",
+    "city": "Noida",
+    "status": "ready_to_move",
+    "priceRange": "₹0.86–1.26 Cr",
+    "score": 55,
+    "missingFields": [
+      "Nearest Metro & Expressway Connectivity"
+    ]
+  },
+  {
+    "id": "68b1999b-03d8-4cc6-8307-7acf78fcdf4a",
+    "name": "Supertech Eco Village 1",
+    "slug": "supertech-eco-village-1-sector-1-greater-noida-west",
+    "builder": "Supertech Limited",
+    "sector": "Sector 1",
+    "city": "Greater Noida West",
+    "status": "ready_to_move",
+    "priceRange": "₹0.72–1.05 Cr",
+    "score": 55,
+    "missingFields": [
+      "Nearest Metro & Expressway Connectivity"
+    ]
+  },
+  {
+    "id": "10e78a3e-2c9a-47fe-8639-7a87731a8f2d",
+    "name": "Mahagun Mezzaria",
+    "slug": "mahagun-mezzaria-sector-78-noida",
+    "builder": "ACE Group & Mahagun",
+    "sector": "Sector 78",
+    "city": "Noida",
+    "status": "ready_to_move",
+    "priceRange": "₹2.72–4.54 Cr",
+    "score": 59,
+    "missingFields": [
+      "Nearest Metro & Expressway Connectivity"
+    ]
+  },
+  {
+    "id": "c3ec8d9a-7ce5-4fbc-9564-b2fcee2c2196",
+    "name": "Mahagun Mirabella",
+    "slug": "mahagun-mirabella-sector-79-noida",
+    "builder": "ACE Group & Mahagun",
+    "sector": "Sector 79",
+    "city": "Noida",
+    "status": "ready_to_move",
+    "priceRange": "₹2.57–4.41 Cr",
+    "score": 59,
+    "missingFields": [
+      "Nearest Metro & Expressway Connectivity"
+    ]
+  },
+  {
+    "id": "9570f5a8-5b81-49be-9267-e48d74190641",
+    "name": "Amrapali Centurian Park - O2 Valley",
+    "slug": "amrapali-centurian-park-o2-valley-techzone-4",
+    "builder": "Amrapali / NBCC",
+    "sector": "Techzone 4",
+    "city": "Greater Noida West",
+    "status": "under_construction",
+    "priceRange": "₹0.57–0.84 Cr",
+    "score": 60,
+    "missingFields": [
+      "Nearest Metro & Expressway Connectivity"
+    ]
+  },
+  {
+    "id": "213e0f44-3eb7-45e6-9a2e-25065ebae61d",
+    "name": "Amrapali Centurian Park - Tropical Garden",
+    "slug": "amrapali-centurian-park-tropical-garden-techzone-4",
+    "builder": "Amrapali / NBCC",
+    "sector": "Techzone 4",
+    "city": "Greater Noida West",
+    "status": "under_construction",
+    "priceRange": "₹0.59–0.87 Cr",
+    "score": 60,
+    "missingFields": [
+      "Nearest Metro & Expressway Connectivity"
+    ]
+  },
+  {
+    "id": "465b937f-1e88-4699-8ea6-76083237965d",
+    "name": "Amrapali Dream Valley",
+    "slug": "amrapali-dream-valley-techzone-4-greater-noida-west",
+    "builder": "Amrapali / NBCC",
+    "sector": "Techzone 4",
+    "city": "Greater Noida West",
+    "status": "under_construction",
+    "priceRange": "₹0.63–0.92 Cr",
+    "score": 60,
+    "missingFields": [
+      "Nearest Metro & Expressway Connectivity"
+    ]
+  },
+  {
+    "id": "fd2dff4c-4552-4a53-8a91-2f50fd959a82",
+    "name": "Amrapali Golf Homes",
+    "slug": "amrapali-golf-homes-sector-4-greater-noida-west",
+    "builder": "Amrapali / NBCC",
+    "sector": "Sector 4",
+    "city": "Greater Noida West",
+    "status": "under_construction",
+    "priceRange": "₹0.65–0.96 Cr",
+    "score": 60,
+    "missingFields": [
+      "Nearest Metro & Expressway Connectivity"
+    ]
+  },
+  {
+    "id": "f6eea319-8ed6-4d79-b417-689a9f0f95cc",
+    "name": "Amrapali Leisure Valley",
+    "slug": "amrapali-leisure-valley-techzone-4",
+    "builder": "Amrapali / NBCC",
+    "sector": "Techzone 4",
+    "city": "Greater Noida West",
+    "status": "under_construction",
+    "priceRange": "₹0.59–0.87 Cr",
+    "score": 60,
+    "missingFields": [
+      "Nearest Metro & Expressway Connectivity"
+    ]
+  },
+  {
+    "id": "1d012564-5f17-4494-82e6-a85cfa5fdb20",
+    "name": "Amrapali Verona Heights",
+    "slug": "amrapali-verona-heights-techzone-4-greater-noida-west",
+    "builder": "Amrapali / NBCC",
+    "sector": "Techzone 4",
+    "city": "Greater Noida West",
+    "status": "under_construction",
+    "priceRange": "₹0.61–0.89 Cr",
+    "score": 60,
+    "missingFields": [
+      "Nearest Metro & Expressway Connectivity"
+    ]
+  },
+  {
+    "id": "1164bb5d-86cc-4b8c-b0f8-fb3dd959d44c",
+    "name": "ATS Destinaire",
+    "slug": "ats-destinaire-sector-1-greater-noida-west",
+    "builder": "ATS Homekraft",
+    "sector": "Sector 1",
+    "city": "Greater Noida West",
+    "status": "under_construction",
+    "priceRange": "₹1.3–1.92 Cr",
+    "score": 60,
+    "missingFields": [
+      "Nearest Metro & Expressway Connectivity"
+    ]
+  },
+  {
+    "id": "259ad521-019d-403e-a6dd-4b16e5f349dd",
+    "name": "ATS Le Grandiose Phase 2",
+    "slug": "ats-le-grandiose-phase-2-sector-150",
+    "builder": "ATS Homekraft",
+    "sector": "Sector 150",
+    "city": "Noida",
+    "status": "under_construction",
+    "priceRange": "₹3.49–5.51 Cr",
+    "score": 60,
+    "missingFields": [
+      "Nearest Metro & Expressway Connectivity"
+    ]
+  },
+  {
+    "id": "4a084e79-8f85-4bce-8b0a-29cab768e45d",
+    "name": "ATS Pious Hideaways Phase 2",
+    "slug": "ats-pious-hideaways-phase-2-sector-150",
+    "builder": "ATS Homekraft",
+    "sector": "Sector 150",
+    "city": "Noida",
+    "status": "under_construction",
+    "priceRange": "₹1.93–2.76 Cr",
+    "score": 60,
+    "missingFields": [
+      "Nearest Metro & Expressway Connectivity"
+    ]
+  },
+  {
+    "id": "79719bfe-3694-49ab-b343-403acdd60d0e",
+    "name": "Earth Towne",
+    "slug": "earth-towne-sector-1-greater-noida-west",
+    "builder": "Earth Towne",
+    "sector": "Sector 1",
+    "city": "Greater Noida West",
+    "status": "under_construction",
+    "priceRange": "₹0.82–1.2 Cr",
+    "score": 60,
+    "missingFields": [
+      "Nearest Metro & Expressway Connectivity"
+    ]
+  },
+  {
+    "id": "63b411a5-2503-4cd3-9e31-242bf2386efd",
+    "name": "Eldeco Live By The Greens Phase 2",
+    "slug": "eldeco-live-by-the-greens-phase-2-sector-150",
+    "builder": "Eldeco Group",
+    "sector": "Sector 150",
+    "city": "Noida",
+    "status": "under_construction",
+    "priceRange": "₹1.8–2.43 Cr",
+    "score": 60,
+    "missingFields": [
+      "Nearest Metro & Expressway Connectivity"
+    ]
+  },
+  {
+    "id": "0d991ae3-ed48-4dd7-ac4a-fc5ca2ece4fb",
+    "name": "Gaur Yamuna City - 1st-B Parkview",
+    "slug": "gaur-yamuna-city-1st-b-parkview-yamuna-expressway",
+    "builder": "Gaursons",
+    "sector": "Yamuna Expressway",
+    "city": "Yamuna Expressway",
+    "status": "under_construction",
+    "priceRange": "₹0.52–0.76 Cr",
+    "score": 60,
+    "missingFields": [
+      "Nearest Metro & Expressway Connectivity"
+    ]
+  },
+  {
+    "id": "9c731183-1c91-4c6b-ad9e-4f262334a711",
+    "name": "Gaur Yamuna City - KrishnVilas",
+    "slug": "gaur-yamuna-city-krishnvilas-yamuna-expressway",
+    "builder": "Gaursons",
+    "sector": "Yamuna Expressway",
+    "city": "Yamuna Expressway",
+    "status": "under_construction",
+    "priceRange": "₹1.26–1.99 Cr",
+    "score": 60,
+    "missingFields": [
+      "Nearest Metro & Expressway Connectivity"
+    ]
+  },
+  {
+    "id": "88c182cd-3465-4358-8f39-bfbdce7290eb",
+    "name": "Jaypee Klassic Block 6-10",
+    "slug": "jaypee-klassic-block-6-10-sector-134",
+    "builder": "Jaypee Wish Town",
+    "sector": "Sector 134",
+    "city": "Noida",
+    "status": "under_construction",
+    "priceRange": "₹0.86–1.27 Cr",
+    "score": 60,
+    "missingFields": [
+      "Nearest Metro & Expressway Connectivity"
+    ]
+  },
+  {
+    "id": "8937cc6f-31c0-4d0f-8273-c932480186ed",
+    "name": "Jaypee Kosmos",
+    "slug": "jaypee-kosmos-sector-134-noida",
+    "builder": "Jaypee Wish Town",
+    "sector": "Sector 134",
+    "city": "Noida",
+    "status": "under_construction",
+    "priceRange": "₹0.89–1.39 Cr",
+    "score": 60,
+    "missingFields": [
+      "Nearest Metro & Expressway Connectivity"
+    ]
+  },
+  {
+    "id": "1d7f636f-fade-4687-bd1f-4b8fed33852a",
+    "name": "Mahagun Mantra II",
+    "slug": "mahagun-mantra-ii-sector-10",
+    "builder": "ACE Group & Mahagun",
+    "sector": "Sector 10",
+    "city": "Greater Noida West",
+    "status": "under_construction",
+    "priceRange": "₹0.99–1.45 Cr",
+    "score": 60,
+    "missingFields": [
+      "Nearest Metro & Expressway Connectivity"
+    ]
+  },
+  {
+    "id": "937f754c-98ee-4236-ba7e-fe2e5c8f0073",
+    "name": "Mahagun Medalleo Towers E-G",
+    "slug": "mahagun-medalleo-towers-e-g-sector-107",
+    "builder": "ACE Group & Mahagun",
+    "sector": "Sector 107",
+    "city": "Noida",
+    "status": "under_construction",
+    "priceRange": "₹6.01–11.79 Cr",
+    "score": 60,
+    "missingFields": [
+      "Nearest Metro & Expressway Connectivity"
+    ]
+  },
+  {
+    "id": "6fd124bf-f39d-45a4-94cb-843a27fc4a7a",
+    "name": "Mahagun My Laagoon Phase 1",
+    "slug": "mahagun-my-laagoon-phase-1-sector-12",
+    "builder": "ACE Group & Mahagun",
+    "sector": "Sector 12",
+    "city": "Greater Noida West",
+    "status": "under_construction",
+    "priceRange": "₹1.33–1.8 Cr",
+    "score": 60,
+    "missingFields": [
+      "Nearest Metro & Expressway Connectivity"
+    ]
+  },
+  {
+    "id": "4e7dd63b-78c4-44c9-97e0-7c8d0e1c5317",
+    "name": "Migsun Atharva",
+    "slug": "migsun-atharva-sector-techzone-4",
+    "builder": "Migsun Group",
+    "sector": "Techzone 4",
+    "city": "Greater Noida West",
+    "status": "under_construction",
+    "priceRange": "₹0.73–1.06 Cr",
+    "score": 60,
+    "missingFields": [
+      "Nearest Metro & Expressway Connectivity"
+    ]
+  },
+  {
+    "id": "844ec651-cd80-495d-ab6b-9bc745ba402f",
+    "name": "Supertech Supernova Astralis",
+    "slug": "supertech-supernova-astralis-sector-94",
+    "builder": "Supertech Limited",
+    "sector": "Sector 94",
+    "city": "Noida",
+    "status": "under_construction",
+    "priceRange": "₹7.75–13.92 Cr",
+    "score": 60,
+    "missingFields": [
+      "Nearest Metro & Expressway Connectivity"
+    ]
+  },
+  {
+    "id": "5edc271e-074a-44b9-9a7f-24039b200e18",
+    "name": "Tata Eureka Park Phase 2",
+    "slug": "tata-eureka-park-phase-2-sector-150",
+    "builder": "Tata Realty",
+    "sector": "Sector 150",
+    "city": "Noida",
+    "status": "under_construction",
+    "priceRange": "₹1.76–2.44 Cr",
+    "score": 60,
+    "missingFields": [
+      "Nearest Metro & Expressway Connectivity"
+    ]
+  },
+  {
+    "id": "b551f816-cf6a-4bc8-90d6-e006f9f5d998",
+    "name": "Trecento Residencies by Gaurs",
+    "slug": "trecento-residencies-by-gaurs-jaypee-greens",
+    "builder": "Gaursons",
+    "sector": "Jaypee Greens",
+    "city": "Greater Noida",
+    "status": "under_construction",
+    "priceRange": "₹3–5.77 Cr",
+    "score": 60,
+    "missingFields": [
+      "Nearest Metro & Expressway Connectivity"
+    ]
+  },
+  {
+    "id": "db1df127-1c88-4163-983c-ab91873005ac",
+    "name": "Trident Embassy Resenso",
+    "slug": "trident-embassy-resenso-sector-1",
+    "builder": "Trident Group",
+    "sector": "Sector 1",
+    "city": "Greater Noida West",
+    "status": "under_construction",
+    "priceRange": "₹1.05–1.41 Cr",
+    "score": 60,
+    "missingFields": [
+      "Nearest Metro & Expressway Connectivity"
+    ]
+  },
+  {
+    "id": "5a043dea-8465-43c4-96d1-1922a28c272a",
+    "name": "Habitech Panchtatva",
+    "slug": "habitech-panchtatva-techzone-4",
+    "builder": "Habitech",
+    "sector": "Techzone 4",
+    "city": "Greater Noida West",
+    "status": "ready_to_move",
+    "priceRange": "₹0.65–1.2 Cr",
+    "score": 61,
+    "missingFields": [
+      "Specification & Detail Verification"
+    ]
+  },
+  {
+    "id": "2f5a8248-e9da-44d6-99e7-c403aca87bbe",
+    "name": "Amaatra Homes",
+    "slug": "amaatra-homes-sector-10",
+    "builder": "Amaatra",
+    "sector": "Sector 10",
+    "city": "Greater Noida West",
+    "status": "ready_to_move",
+    "priceRange": "₹0.85–1.24 Cr",
+    "score": 64,
+    "missingFields": [
+      "Specification & Detail Verification"
+    ]
+  },
+  {
+    "id": "ac03fbc9-e803-420d-ad02-c3d9cb2d7af9",
+    "name": "Arihant Ambar",
+    "slug": "arihant-ambar-sector-1",
+    "builder": "Arihant Group",
+    "sector": "Sector 1",
+    "city": "Greater Noida West",
+    "status": "ready_to_move",
+    "priceRange": "₹0.84–1.22 Cr",
+    "score": 64,
+    "missingFields": [
+      "Specification & Detail Verification"
+    ]
+  },
+  {
+    "id": "d6b77de5-f32b-48c4-b03b-446bc903f5bc",
+    "name": "CRC Sublimis",
+    "slug": "crc-sublimis-sector-1-greater-noida-west",
+    "builder": "CRC Group",
+    "sector": "Sector 1",
+    "city": "Greater Noida West",
+    "status": "ready_to_move",
+    "priceRange": "₹0.86–1.26 Cr",
+    "score": 64,
+    "missingFields": [
+      "Specification & Detail Verification"
+    ]
+  },
+  {
+    "id": "674b31aa-a1b8-4f18-9f0b-baba8a2da4c6",
+    "name": "Devika Gold Homz",
+    "slug": "devika-gold-homz-sector-1",
+    "builder": "Devika",
+    "sector": "Sector 1",
+    "city": "Greater Noida West",
+    "status": "ready_to_move",
+    "priceRange": "₹0.87–1.27 Cr",
+    "score": 64,
+    "missingFields": [
+      "Specification & Detail Verification"
+    ]
+  },
+  {
+    "id": "67051f07-c9c2-4e42-8064-d40cc95a0c1d",
+    "name": "Eldeco Aangan",
+    "slug": "eldeco-aangan-sector-82",
+    "builder": "Eldeco Group",
+    "sector": "Sector 82",
+    "city": "Noida",
+    "status": "ready_to_move",
+    "priceRange": "₹0.88–1.29 Cr",
+    "score": 64,
+    "missingFields": [
+      "Specification & Detail Verification"
+    ]
+  },
+  {
+    "id": "49602b3d-172b-426f-86ed-5ca4340b7d93",
+    "name": "Galaxy North Avenue 1",
+    "slug": "galaxy-north-avenue-1-sector-4",
+    "builder": "Galaxy Group",
+    "sector": "Sector 4",
+    "city": "Greater Noida West",
+    "status": "ready_to_move",
+    "priceRange": "₹0.76–1.12 Cr",
+    "score": 64,
+    "missingFields": [
+      "Specification & Detail Verification"
+    ]
+  },
+  {
+    "id": "c5a5de4b-e47c-40ee-a5c5-0fb672d3f4ba",
+    "name": "Galaxy North Avenue 2",
+    "slug": "galaxy-north-avenue-2-sector-16c",
+    "builder": "Galaxy Group",
+    "sector": "Sector 16C",
+    "city": "Greater Noida West",
+    "status": "ready_to_move",
+    "priceRange": "₹0.71–1.03 Cr",
+    "score": 64,
+    "missingFields": [
+      "Specification & Detail Verification"
+    ]
+  },
+  {
+    "id": "d3bcaa71-c56b-4d67-8e1d-ade45fb51e83",
+    "name": "Galaxy Vega",
+    "slug": "galaxy-vega-techzone-4-greater-noida-west",
+    "builder": "Galaxy Group",
+    "sector": "Techzone 4",
+    "city": "Greater Noida West",
+    "status": "ready_to_move",
+    "priceRange": "₹0.71–1.04 Cr",
+    "score": 64,
+    "missingFields": [
+      "Specification & Detail Verification"
+    ]
+  },
+  {
+    "id": "e35d0295-5513-45c2-a0d1-509cc6d2abd9",
+    "name": "Gayatri Life",
+    "slug": "gayatri-life-sector-16",
+    "builder": "Aadhaar Shri",
+    "sector": "Sector 16",
+    "city": "Greater Noida West",
+    "status": "ready_to_move",
+    "priceRange": "₹0.79–1.17 Cr",
+    "score": 64,
+    "missingFields": [
+      "Specification & Detail Verification"
+    ]
+  },
+  {
+    "id": "31a07d6c-d5f3-445e-adba-706f34adfd5b",
+    "name": "KVD Wind Park",
+    "slug": "kvd-wind-park-techzone-4-greater-noida-west",
+    "builder": "KVD",
+    "sector": "Techzone 4",
+    "city": "Greater Noida West",
+    "status": "ready_to_move",
+    "priceRange": "₹0.69–1.01 Cr",
+    "score": 64,
+    "missingFields": [
+      "Specification & Detail Verification"
+    ]
+  },
+  {
+    "id": "1946d2de-750a-4257-9262-ccff4b57dfd4",
+    "name": "La Palacia Towers A-D",
+    "slug": "la-palacia-towers-a-d-techzone-4",
+    "builder": "La Palacia",
+    "sector": "Techzone 4",
+    "city": "Greater Noida West",
+    "status": "ready_to_move",
+    "priceRange": "₹0.73–1.07 Cr",
+    "score": 64,
+    "missingFields": [
+      "Specification & Detail Verification"
+    ]
+  },
+  {
+    "id": "02403744-4808-4c6a-8849-c3581b0225fb",
+    "name": "Lotus Zing",
+    "slug": "lotus-zing-sector-168",
+    "builder": "The 3C Company",
+    "sector": "Sector 168",
+    "city": "Noida",
+    "status": "ready_to_move",
+    "priceRange": "₹0.93–1.37 Cr",
+    "score": 64,
+    "missingFields": [
+      "Specification & Detail Verification"
+    ]
+  },
+  {
+    "id": "ea2b690f-4021-4eb5-9f03-7d7eff297a3f",
+    "name": "NCR Monarch",
+    "slug": "ncr-monarch-sector-1",
+    "builder": "NCR",
+    "sector": "Sector 1",
+    "city": "Greater Noida West",
+    "status": "ready_to_move",
+    "priceRange": "₹0.87–1.27 Cr",
+    "score": 64,
+    "missingFields": [
+      "Specification & Detail Verification"
+    ]
+  },
+  {
+    "id": "3032c30c-07e3-40c4-a629-f8a54cd78727",
+    "name": "Nirala Greenshire",
+    "slug": "nirala-greenshire-sector-2-greater-noida-west",
+    "builder": "Nirala World",
+    "sector": "Sector 2",
+    "city": "Greater Noida West",
+    "status": "ready_to_move",
+    "priceRange": "₹0.73–1.18 Cr",
+    "score": 64,
+    "missingFields": [
+      "Specification & Detail Verification"
+    ]
+  },
+  {
+    "id": "5d0dbebc-1067-481d-ab0a-eae77f240720",
+    "name": "Omaxe Grandwoods",
+    "slug": "omaxe-grandwoods-sector-forest-lane",
+    "builder": "Omaxe Limited",
+    "sector": "Sector Forest Lane",
+    "city": "Greater Noida",
+    "status": "ready_to_move",
+    "priceRange": "₹1.02–1.41 Cr",
+    "score": 64,
+    "missingFields": [
+      "Specification & Detail Verification"
+    ]
+  },
+  {
+    "id": "0485efd5-c5ba-4dde-a339-8c5983f0cff3",
+    "name": "Omaxe Palm Greens",
+    "slug": "omaxe-palm-greens-sector-mu-1-greater-noida",
+    "builder": "Omaxe Limited",
+    "sector": "Mu 1",
+    "city": "Greater Noida",
+    "status": "ready_to_move",
+    "priceRange": "₹0.78–1.14 Cr",
+    "score": 64,
+    "missingFields": [
+      "Specification & Detail Verification"
+    ]
+  },
+  {
+    "id": "86d58fd8-a88d-41af-adea-7e7069aaf417",
+    "name": "Omaxe Riviera",
+    "slug": "omaxe-riviera-surajpur",
+    "builder": "Omaxe Limited",
+    "sector": "Surajpur",
+    "city": "Greater Noida",
+    "status": "ready_to_move",
+    "priceRange": "₹0.73–1.07 Cr",
+    "score": 64,
+    "missingFields": [
+      "Specification & Detail Verification"
+    ]
+  },
+  {
+    "id": "efd4ca4f-4f42-477a-bcf7-4bd86c7ce931",
+    "name": "Palm Olympia",
+    "slug": "palm-olympia-sector-16c-greater-noida-west",
+    "builder": "Palm Olympia",
+    "sector": "Sector 16C",
+    "city": "Greater Noida West",
+    "status": "ready_to_move",
+    "priceRange": "₹0.75–1.1 Cr",
+    "score": 64,
+    "missingFields": [
+      "Specification & Detail Verification"
+    ]
+  },
+  {
+    "id": "2dd3bb36-a107-4533-8156-61404064042c",
+    "name": "Panchsheel Pinnacle",
+    "slug": "panchsheel-pinnacle-sector-16b",
+    "builder": "Panchsheel Buildtech",
+    "sector": "Sector 16B",
+    "city": "Greater Noida West",
+    "status": "ready_to_move",
+    "priceRange": "₹0.7–1.03 Cr",
+    "score": 64,
+    "missingFields": [
+      "Specification & Detail Verification"
+    ]
+  },
+  {
+    "id": "fee975d5-aaa1-4482-b6ad-86c149a7c4ff",
+    "name": "Paramount Emotions",
+    "slug": "paramount-emotions-sector-1-greater-noida-west",
+    "builder": "Paramount Group",
+    "sector": "Sector 1",
+    "city": "Greater Noida West",
+    "status": "ready_to_move",
+    "priceRange": "₹0.79–1.27 Cr",
+    "score": 64,
+    "missingFields": [
+      "Specification & Detail Verification"
+    ]
+  },
+  {
+    "id": "1596bf90-1954-4ac3-9003-ecd6b5e207cd",
+    "name": "Purvanchal Heights",
+    "slug": "purvanchal-heights-sector-zeta-1",
+    "builder": "Purvanchal Projects",
+    "sector": "Zeta 1",
+    "city": "Greater Noida",
+    "status": "ready_to_move",
+    "priceRange": "₹2.1–3.32 Cr",
+    "score": 64,
+    "missingFields": [
+      "Specification & Detail Verification"
+    ]
+  },
+  {
+    "id": "2058dbb5-60fb-4b56-833c-cb17b448066f",
+    "name": "Rajhans Residency",
+    "slug": "rajhans-residency-sector-1",
+    "builder": "Rajhans",
+    "sector": "Sector 1",
+    "city": "Greater Noida West",
+    "status": "ready_to_move",
+    "priceRange": "₹0.82–1.2 Cr",
+    "score": 64,
+    "missingFields": [
+      "Specification & Detail Verification"
+    ]
+  },
+  {
+    "id": "7044a0ae-81c8-490c-bd58-f00ed54804c8",
+    "name": "Royal Nest",
+    "slug": "royal-nest-sector-16c-greater-noida-west",
+    "builder": "Royal Nest",
+    "sector": "Sector 16C",
+    "city": "Greater Noida West",
+    "status": "ready_to_move",
+    "priceRange": "₹0.73–1.07 Cr",
+    "score": 64,
+    "missingFields": [
+      "Specification & Detail Verification"
+    ]
+  },
+  {
+    "id": "590aa3f6-20e5-424c-8b3a-a9d59ca47389",
+    "name": "SKA Divya Towers",
+    "slug": "ska-divya-towers-sector-16b",
+    "builder": "SKA Group",
+    "sector": "Sector 16B",
+    "city": "Greater Noida West",
+    "status": "ready_to_move",
+    "priceRange": "₹0.69–1.01 Cr",
+    "score": 64,
+    "missingFields": [
+      "Specification & Detail Verification"
+    ]
+  },
+  {
+    "id": "15d27663-b1e8-4241-901c-a9dfb2e1fbc9",
+    "name": "SKA Greenarch",
+    "slug": "ska-greenarch-sector-16b",
+    "builder": "SKA Group",
+    "sector": "Sector 16B",
+    "city": "Greater Noida West",
+    "status": "ready_to_move",
+    "priceRange": "₹0.71–1.04 Cr",
+    "score": 64,
+    "missingFields": [
+      "Specification & Detail Verification"
+    ]
+  },
+  {
+    "id": "5fd8baa9-1544-4119-97fa-ba76520fbfcf",
+    "name": "SKA Metro Ville",
+    "slug": "ska-metro-ville-eta-2-greno-w",
+    "builder": "SKA Group",
+    "sector": "Eta 2",
+    "city": "Greater Noida",
+    "status": "ready_to_move",
+    "priceRange": "₹0.7–1.03 Cr",
+    "score": 64,
+    "missingFields": [
+      "Specification & Detail Verification"
+    ]
+  },
+  {
+    "id": "6d265da6-d12f-4a09-a77d-e4c3fd2ce60f",
+    "name": "SRPL Flora Heritage",
+    "slug": "srpl-flora-heritage-sector-1",
+    "builder": "SRPL",
+    "sector": "Sector 1",
+    "city": "Greater Noida West",
+    "status": "ready_to_move",
+    "priceRange": "₹0.87–1.27 Cr",
+    "score": 64,
+    "missingFields": [
+      "Specification & Detail Verification"
+    ]
+  },
+  {
+    "id": "9a6e7661-627f-4d06-a555-dbc97c6dafd6",
+    "name": "Stellar Kings Court",
+    "slug": "stellar-kings-court-sector-alpha-2",
+    "builder": "Stellar Group",
+    "sector": "Alpha 2",
+    "city": "Greater Noida",
+    "status": "ready_to_move",
+    "priceRange": "₹0.75–1.1 Cr",
+    "score": 64,
+    "missingFields": [
+      "Specification & Detail Verification"
+    ]
+  },
+  {
+    "id": "ebd773ab-00a8-4341-bb2c-5753ee8f5424",
+    "name": "Vihaan Greens Phase 1",
+    "slug": "vihaan-greens-phase-1-sector-1",
+    "builder": "Vihaan Group",
+    "sector": "Sector 1",
+    "city": "Greater Noida West",
+    "status": "ready_to_move",
+    "priceRange": "₹0.87–1.27 Cr",
+    "score": 64,
+    "missingFields": [
+      "Specification & Detail Verification"
+    ]
+  },
+  {
+    "id": "2a5e3bb9-047f-4afb-9489-3d11ce69cf62",
+    "name": "Vihaan Heritage",
+    "slug": "vihaan-heritage-sector-1",
+    "builder": "Vihaan Group",
+    "sector": "Sector 1",
+    "city": "Greater Noida West",
+    "status": "ready_to_move",
+    "priceRange": "₹0.79–1.16 Cr",
+    "score": 64,
+    "missingFields": [
+      "Specification & Detail Verification"
+    ]
+  },
+  {
+    "id": "704e98bf-974c-49f3-9f8a-5293f3d66681",
+    "name": "ACE Terrains / Terra",
+    "slug": "ace-terrains-terra-sector-22d-sec-1",
+    "builder": "ACE Group",
+    "sector": "Sector 22D",
+    "city": "Yamuna Expressway",
+    "status": "under_construction",
+    "priceRange": "₹1.15–1.69 Cr",
+    "score": 69,
+    "missingFields": [
+      "Specification & Detail Verification"
+    ]
+  },
+  {
+    "id": "5eee432b-818f-40fb-a8d0-03d3df3687a9",
+    "name": "Amrapali La Residentia",
+    "slug": "amrapali-la-residentia-techzone-4",
+    "builder": "Amrapali / NBCC",
+    "sector": "Techzone 4",
+    "city": "Greater Noida West",
+    "status": "under_construction",
+    "priceRange": "₹0.71–1.04 Cr",
+    "score": 69,
+    "missingFields": [
+      "Specification & Detail Verification"
+    ]
+  },
+  {
+    "id": "ae7a7756-1b87-401d-8247-3db41c362a87",
+    "name": "Aniket Antalya Heights",
+    "slug": "aniket-antalya-heights-sector-1",
+    "builder": "Aniket",
+    "sector": "Sector 1",
+    "city": "Greater Noida West",
+    "status": "under_construction",
+    "priceRange": "₹0.82–1.2 Cr",
+    "score": 69,
+    "missingFields": [
+      "Specification & Detail Verification"
+    ]
+  },
+  {
+    "id": "aa928daf-6954-4f8a-8ce6-83a5741d723d",
+    "name": "Apex Aura",
+    "slug": "apex-aura-sector-1",
+    "builder": "Apex Buildcon",
+    "sector": "Sector 1",
+    "city": "Greater Noida West",
+    "status": "under_construction",
+    "priceRange": "₹0.84–1.24 Cr",
+    "score": 69,
+    "missingFields": [
+      "Specification & Detail Verification"
+    ]
+  },
+  {
+    "id": "6946cd0f-74e5-45bd-9a39-b02366355b1e",
+    "name": "Arihant One",
+    "slug": "arihant-one-sector-1",
+    "builder": "Arihant Group",
+    "sector": "Sector 1",
+    "city": "Greater Noida West",
+    "status": "under_construction",
+    "priceRange": "₹1.12–1.61 Cr",
+    "score": 69,
+    "missingFields": [
+      "Specification & Detail Verification"
+    ]
+  },
+  {
+    "id": "e8318e26-8cfd-47bb-b90c-9b25b3ac0f93",
+    "name": "CRC Joyous",
+    "slug": "crc-joyous-techzone-4",
+    "builder": "CRC Group",
+    "sector": "Techzone 4",
+    "city": "Greater Noida West",
+    "status": "under_construction",
+    "priceRange": "₹0.94–1.31 Cr",
+    "score": 69,
+    "missingFields": [
+      "Specification & Detail Verification"
+    ]
+  },
+  {
+    "id": "24b79a8d-09ab-4d4d-9fc0-e07480202f6a",
+    "name": "Fusion The Rivulet",
+    "slug": "fusion-the-rivulet-sector-12",
+    "builder": "Fusion Buildtech",
+    "sector": "Sector 12",
+    "city": "Greater Noida West",
+    "status": "under_construction",
+    "priceRange": "₹1.25–1.79 Cr",
+    "score": 69,
+    "missingFields": [
+      "Specification & Detail Verification"
+    ]
+  },
+  {
+    "id": "277cda37-8dd3-4233-ba33-af3382b70d16",
+    "name": "Gaur Mulberry Mansions",
+    "slug": "gaur-mulberry-mansions-sector-1",
+    "builder": "Gaursons",
+    "sector": "Sector 1",
+    "city": "Greater Noida West",
+    "status": "under_construction",
+    "priceRange": "₹3.47–6.01 Cr",
+    "score": 69,
+    "missingFields": [
+      "Specification & Detail Verification"
+    ]
+  },
+  {
+    "id": "bf165595-cf13-4cfa-9e87-dfe158d97679",
+    "name": "Golden I Residential Blocks",
+    "slug": "golden-i-residential-blocks-techzone-4",
+    "builder": "Golden",
+    "sector": "Techzone 4",
+    "city": "Greater Noida West",
+    "status": "under_construction",
+    "priceRange": "₹0.93–1.36 Cr",
+    "score": 69,
+    "missingFields": [
+      "Specification & Detail Verification"
+    ]
+  },
+  {
+    "id": "324135fb-2a5e-43d8-bc52-8d0991ab4515",
+    "name": "Jaypee Garden Isles",
+    "slug": "jaypee-garden-isles-sector-133",
+    "builder": "Jaypee Wish Town",
+    "sector": "Sector 133",
+    "city": "Noida",
+    "status": "under_construction",
+    "priceRange": "₹0.86–1.27 Cr",
+    "score": 69,
+    "missingFields": [
+      "Specification & Detail Verification"
+    ]
+  },
+  {
+    "id": "00d61805-9a3d-46d5-83cf-4547dc3deeff",
+    "name": "Nirala Trio",
+    "slug": "nirala-trio-sector-2",
+    "builder": "Nirala World",
+    "sector": "Sector 2",
+    "city": "Greater Noida West",
+    "status": "under_construction",
+    "priceRange": "₹1.05–1.46 Cr",
+    "score": 69,
+    "missingFields": [
+      "Specification & Detail Verification"
+    ]
+  },
+  {
+    "id": "faa891db-e74d-4ebd-a40a-a5487f22bb68",
+    "name": "Patel Neotown",
+    "slug": "patel-neotown-techzone-4-greater-noida-west",
+    "builder": "Patel",
+    "sector": "Techzone 4",
+    "city": "Greater Noida West",
+    "status": "under_construction",
+    "priceRange": "₹0.69–1.01 Cr",
+    "score": 69,
+    "missingFields": [
+      "Specification & Detail Verification"
+    ]
+  },
+  {
+    "id": "850fc11d-ee73-4607-bffa-46e03c448913",
+    "name": "Rise Resort Residences",
+    "slug": "rise-resort-residences-sector-1",
+    "builder": "Rise Group",
+    "sector": "Sector 1",
+    "city": "Greater Noida West",
+    "status": "under_construction",
+    "priceRange": "₹1.99–3.14 Cr",
+    "score": 69,
+    "missingFields": [
+      "Specification & Detail Verification"
+    ]
+  },
+  {
+    "id": "63d6f482-7a4b-4d8b-8255-bf486f809930",
+    "name": "Saraswati Landmark",
+    "slug": "saraswati-landmark-sector-1",
+    "builder": "Saraswati",
+    "sector": "Sector 1",
+    "city": "Greater Noida West",
+    "status": "under_construction",
+    "priceRange": "₹0.82–1.2 Cr",
+    "score": 69,
+    "missingFields": [
+      "Specification & Detail Verification"
+    ]
+  },
+  {
+    "id": "d4ab589e-d6fd-46f1-a970-694a034010be",
+    "name": "Supertech North Eye",
+    "slug": "supertech-north-eye-sector-74",
+    "builder": "Supertech Limited",
+    "sector": "Sector 74",
+    "city": "Noida",
+    "status": "under_construction",
+    "priceRange": "₹2–3.14 Cr",
+    "score": 69,
+    "missingFields": [
+      "Specification & Detail Verification"
+    ]
+  },
+  {
+    "id": "1c86a2b2-956b-486b-9003-22ac55cb0ae2",
+    "name": "Eldeco Utopia",
+    "slug": "eldeco-utopia-sector-93a",
+    "builder": "Eldeco Group",
+    "sector": "Sector 93A",
+    "city": "Noida",
+    "status": "ready_to_move",
+    "priceRange": "₹1.9–2.99 Cr",
+    "score": 85,
+    "missingFields": [
+      "Specification & Detail Verification"
+    ]
+  },
+  {
+    "id": "1f113990-ef0f-4780-828c-91ff6f736cfc",
+    "name": "Gulshan Botnia",
+    "slug": "gulshan-botnia-sector-144",
+    "builder": "Gulshan Homz",
+    "sector": "Sector 144",
+    "city": "Noida",
+    "status": "ready_to_move",
+    "priceRange": "₹1.78–2.54 Cr",
+    "score": 85,
+    "missingFields": [
+      "Specification & Detail Verification"
+    ]
+  },
+  {
+    "id": "8f20e140-15db-4dd8-a0c1-2f9eb5a272a4",
+    "name": "Gulshan Dynasty",
+    "slug": "gulshan-dynasty-sector-144",
+    "builder": "Gulshan Homz",
+    "sector": "Sector 144",
+    "city": "Noida",
+    "status": "ready_to_move",
+    "priceRange": "₹5.14–9.88 Cr",
+    "score": 85,
+    "missingFields": [
+      "Specification & Detail Verification"
+    ]
+  },
+  {
+    "id": "943bc6f8-51bc-4323-97af-c39f11d49f54",
+    "name": "Jaypee Greens Aman",
+    "slug": "jaypee-greens-aman-sector-151",
+    "builder": "Jaypee Greens (Suraksha Group Resolution)",
+    "sector": "Sector 151",
+    "city": "Noida",
+    "status": "ready_to_move",
+    "priceRange": "₹0.7–1.03 Cr",
+    "score": 85,
+    "missingFields": [
+      "Specification & Detail Verification"
+    ]
+  },
+  {
+    "id": "36320546-8a3d-4d87-94bc-6c53df6bd641",
+    "name": "Jaypee Greens Kalypso Court",
+    "slug": "jaypee-greens-kalypso-court-sector-128",
+    "builder": "Jaypee Greens (Suraksha Group Resolution)",
+    "sector": "Sector 128",
+    "city": "Noida",
+    "status": "ready_to_move",
+    "priceRange": "₹0.62–0.91 Cr",
+    "score": 85,
+    "missingFields": [
+      "Specification & Detail Verification"
+    ]
+  },
+  {
+    "id": "faa03642-1649-4f24-a91b-054f6d5cd4ba",
+    "name": "Jaypee Greens Kosmos",
+    "slug": "jaypee-greens-kosmos-sector-134",
+    "builder": "Jaypee Greens (Suraksha Group Resolution)",
+    "sector": "Sector 134",
+    "city": "Noida",
+    "status": "ready_to_move",
+    "priceRange": "₹0.81–1.19 Cr",
+    "score": 85,
+    "missingFields": [
+      "Specification & Detail Verification"
+    ]
+  },
+  {
+    "id": "01e14266-bd55-432b-9489-59e502a9b633",
+    "name": "Jaypee Greens Pavilion Court",
+    "slug": "jaypee-greens-pavilion-court-sector-128",
+    "builder": "Jaypee Greens (Suraksha Group Resolution)",
+    "sector": "Sector 128",
+    "city": "Noida",
+    "status": "ready_to_move",
+    "priceRange": "₹0.68–1 Cr",
+    "score": 85,
+    "missingFields": [
+      "Specification & Detail Verification"
+    ]
+  },
+  {
+    "id": "a917e8a5-8242-4252-8675-1a1b6f707328",
+    "name": "Jaypee Greens Wish Town Klassic",
+    "slug": "jaypee-greens-wish-town-klassic-sector-134",
+    "builder": "Jaypee Greens (Suraksha Group Resolution)",
+    "sector": "Sector 134",
+    "city": "Noida",
+    "status": "ready_to_move",
+    "priceRange": "₹0.89–1.31 Cr",
+    "score": 85,
+    "missingFields": [
+      "Specification & Detail Verification"
+    ]
+  },
+  {
+    "id": "38b353ee-e14f-40e3-9589-ef69e74794f7",
+    "name": "Jaypee Sports City (Kassia)",
+    "slug": "jaypee-sports-city-kassia-sector-25",
+    "builder": "Jaypee Greens (Suraksha Group Resolution)",
+    "sector": "Sector 25",
+    "city": "Yamuna Expressway",
+    "status": "ready_to_move",
+    "priceRange": "₹0.74–1.09 Cr",
+    "score": 85,
+    "missingFields": [
+      "Specification & Detail Verification"
+    ]
+  },
+  {
+    "id": "8260119a-4865-439a-b3cd-d94c5287a274",
+    "name": "Samridhi Luxuriya Avenue",
+    "slug": "samridhi-luxuriya-avenue-sector-150",
+    "builder": "Samridhi Group",
+    "sector": "Sector 150",
+    "city": "Noida",
+    "status": "ready_to_move",
+    "priceRange": "₹1.54–2.27 Cr",
+    "score": 85,
+    "missingFields": [
+      "Specification & Detail Verification"
+    ]
+  },
+  {
+    "id": "863224f4-8cde-433e-bfb5-e138029b5091",
+    "name": "Ace Platinum",
+    "slug": "ace-platinum-sector-zeta-1",
+    "builder": "ACE Group",
+    "sector": "Zeta 1",
+    "city": "Greater Noida",
+    "status": "ready_to_move",
+    "priceRange": "₹0.83–1.22 Cr",
+    "score": 88,
+    "missingFields": [
+      "Specification & Detail Verification"
+    ]
+  },
+  {
+    "id": "51007411-9117-4ff8-95b6-b5ac7fb9e2f7",
+    "name": "Eldeco Green Meadows",
+    "slug": "eldeco-green-meadows-sector-pi-1",
+    "builder": "Eldeco Group",
+    "sector": "Pi 1",
+    "city": "Greater Noida",
+    "status": "ready_to_move",
+    "priceRange": "₹0.8–1.17 Cr",
+    "score": 88,
+    "missingFields": [
+      "Specification & Detail Verification"
+    ]
+  },
+  {
+    "id": "3b615169-1a6f-43bf-bc7b-514d60c5f176",
+    "name": "Sethi Max Royal",
+    "slug": "sethi-max-royal-sector-76",
+    "builder": "Sethi Group",
+    "sector": "Sector 76",
+    "city": "Noida",
+    "status": "ready_to_move",
+    "priceRange": "₹1.04–1.52 Cr",
+    "score": 88,
+    "missingFields": [
+      "Specification & Detail Verification"
+    ]
+  }
+]

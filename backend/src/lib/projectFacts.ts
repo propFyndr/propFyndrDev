@@ -36,7 +36,8 @@ async function resolveProject(nameOrId: string) {
     select: {
       id: true, name: true, sector: true, city: true, state: true, status: true, price_range_label: true, floors: true, total_towers: true, address: true, rera_number: true,
       possession_date: true, possession_label: true, builder_id: true,
-      water_source: true, dg_power_rate_per_unit: true, maintenance_per_sqft_monthly: true, has_png_gas_pipeline: true, mobile_network_rating: true, ceiling_height_ft: true, lifts_per_tower: true, has_service_lift: true, shared_walls_type: true, authority_dues_cleared: true, land_tenure: true, pet_friendly: true, bachelor_tenants_allowed: true, open_space_pct: true
+      water_source: true, dg_power_rate_per_unit: true, maintenance_per_sqft_monthly: true, has_png_gas_pipeline: true, mobile_network_rating: true, ceiling_height_ft: true, lifts_per_tower: true, has_service_lift: true, shared_walls_type: true, authority_dues_cleared: true, land_tenure: true, pet_friendly: true, bachelor_tenants_allowed: true, open_space_pct: true,
+      oc_status: true, oc_details: true, amitabh_kant_clearance: true, bank_apf_codes: true, water_source_type: true, water_tds_range: true, shahdara_drain_impact: true, lift_act_compliant: true, power_supply_type: true, all_in_cost_multiplier: true
     },
     // Prefer an exact-ish match: shorter names rank first for a `contains` hit.
     orderBy: { name: 'asc' },
@@ -59,7 +60,8 @@ async function resolveProject(nameOrId: string) {
       select: {
         id: true, name: true, sector: true, city: true, state: true, status: true, price_range_label: true, floors: true, total_towers: true, address: true, rera_number: true,
         possession_date: true, possession_label: true, builder_id: true,
-        water_source: true, dg_power_rate_per_unit: true, maintenance_per_sqft_monthly: true, has_png_gas_pipeline: true, mobile_network_rating: true, ceiling_height_ft: true, lifts_per_tower: true, has_service_lift: true, shared_walls_type: true, authority_dues_cleared: true, land_tenure: true, pet_friendly: true, bachelor_tenants_allowed: true, open_space_pct: true
+        water_source: true, dg_power_rate_per_unit: true, maintenance_per_sqft_monthly: true, has_png_gas_pipeline: true, mobile_network_rating: true, ceiling_height_ft: true, lifts_per_tower: true, has_service_lift: true, shared_walls_type: true, authority_dues_cleared: true, land_tenure: true, pet_friendly: true, bachelor_tenants_allowed: true, open_space_pct: true,
+        oc_status: true, oc_details: true, amitabh_kant_clearance: true, bank_apf_codes: true, water_source_type: true, water_tds_range: true, shahdara_drain_impact: true, lift_act_compliant: true, power_supply_type: true, all_in_cost_multiplier: true
       },
     })
   }
@@ -1269,3 +1271,111 @@ export async function getBestForFamiliesProjects(opts: {
       'A project_risk_flag must be disclosed and that project must not be recommended.',
   }
 }
+
+/**
+ * Return forensic due diligence facts for a project:
+ * - Occupancy Certificate (OC) status and tower-by-tower specifics
+ * - Amitabh Kant committee clearance status
+ * - Water source type (Ganga Jal vs Borewell) and tested TDS range
+ * - Electricity metering type (PVVNL Multipoint vs Bulk supply)
+ * - UP Lifts Act 2024 compliance
+ * - Shahdara drain odor / corrosion proximity risk
+ * - Recurring monthly maintenance and DG backup power tariff
+ * - Bank APF codes
+ * - True landed cost multiplier
+ */
+export async function getProjectDueDiligence(nameOrId: string): Promise<Record<string, unknown>> {
+  const project = await (prisma.project.findFirst as any)({
+    where: {
+      OR: [
+        { id: (nameOrId ?? '').trim() },
+        { slug: (nameOrId ?? '').trim() },
+        { name: { equals: (nameOrId ?? '').trim(), mode: 'insensitive' } },
+        { name: { contains: (nameOrId ?? '').trim(), mode: 'insensitive' } },
+      ],
+    },
+    select: {
+      id: true,
+      name: true,
+      slug: true,
+      status: true,
+      sector: true,
+      city: true,
+      oc_status: true,
+      oc_details: true,
+      amitabh_kant_clearance: true,
+      bank_apf_codes: true,
+      water_source_type: true,
+      water_tds_range: true,
+      shahdara_drain_impact: true,
+      lift_act_compliant: true,
+      power_supply_type: true,
+      all_in_cost_multiplier: true,
+      maintenance_per_sqft_monthly: true,
+      dg_power_rate_per_unit: true,
+      authority_dues_cleared: true,
+      rera_number: true,
+      rera_url: true,
+      builder: {
+        select: {
+          name: true,
+          insolvency_history: true,
+          litigation_count: true,
+        },
+      },
+    },
+  })
+
+  if (!project) {
+    return {
+      found: false,
+      message: `No project found matching "${nameOrId}". State that we do not have records for this project rather than guessing.`,
+    }
+  }
+
+  const gaps: string[] = []
+  if (!project.oc_details && project.oc_status === 'NONE') gaps.push('Specific tower-by-tower OC issuance details unrecorded')
+  if (!project.water_tds_range) gaps.push('Water TDS laboratory testing range unrecorded')
+  if (!project.bank_apf_codes) gaps.push('Approved bank APF loan codes unrecorded')
+  if (project.maintenance_per_sqft_monthly == null) gaps.push('Monthly maintenance charge unrecorded')
+  if (project.dg_power_rate_per_unit == null) gaps.push('DG power backup rate unrecorded')
+
+  return {
+    found: true,
+    project_name: project.name,
+    project_status: project.status,
+    sector: project.sector,
+    city: project.city,
+    builder: project.builder?.name,
+    due_diligence: {
+      occupancy_certificate: {
+        status: project.oc_status,
+        details: project.oc_details ?? null,
+      },
+      registry_and_clearances: {
+        amitabh_kant_clearance: project.amitabh_kant_clearance,
+        authority_dues_cleared: project.authority_dues_cleared,
+        rera_number: project.rera_number,
+        builder_insolvency_history: project.builder?.insolvency_history ?? false,
+      },
+      living_quality_and_utilities: {
+        water_source: project.water_source_type,
+        water_tds_range: project.water_tds_range ?? null,
+        power_supply_metering: project.power_supply_type,
+        dg_power_rate_per_unit: project.dg_power_rate_per_unit ?? null,
+        maintenance_per_sqft_monthly: project.maintenance_per_sqft_monthly ?? null,
+        lift_act_compliant: project.lift_act_compliant,
+        shahdara_drain_impact: project.shahdara_drain_impact,
+      },
+      financial_and_banking: {
+        bank_apf_codes: project.bank_apf_codes ?? null,
+        all_in_cost_multiplier: project.all_in_cost_multiplier ?? 1.30,
+      },
+    },
+    data_gaps: gaps,
+    note:
+      'Forensic due diligence data is sourced from RERA filings, Noida/Greater Noida Authority orders, and resident verified data. ' +
+      'Missing fields are noted in data_gaps and must be stated honestly to the buyer as unverified rather than speculated.',
+  }
+}
+

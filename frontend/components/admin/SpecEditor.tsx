@@ -29,6 +29,45 @@ export const SPEC_TIERS = [
   { id: 'luxury', label: 'Luxury', color: 'bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300' },
 ] as const
 
+export function normalizeSpecCategory(cat: string): string {
+  if (!cat) return 'structure'
+  const trimmed = cat.trim().toLowerCase()
+  const map: Record<string, string> = {
+    'structure': 'structure',
+    'structure & safety': 'structure',
+    'flooring': 'flooring',
+    'flooring & finishes': 'flooring',
+    'balcony': 'flooring',
+    'kitchen': 'kitchen',
+    'kitchen & countertops': 'kitchen',
+    'sanitaryware': 'bathrooms',
+    'sanitary': 'bathrooms',
+    'bathrooms': 'bathrooms',
+    'bathroom': 'bathrooms',
+    'sanitary & cp fittings': 'bathrooms',
+    'doors & windows': 'doors_windows',
+    'doors_windows': 'doors_windows',
+    'doors and windows': 'doors_windows',
+    'doors': 'doors_windows',
+    'windows': 'doors_windows',
+    'electrical': 'electrical',
+    'electrical & switches': 'electrical',
+    'plumbing': 'plumbing',
+    'plumbing & water': 'plumbing',
+    'lifts': 'lifts',
+    'elevators & lifts': 'lifts',
+    'elevators': 'lifts',
+    'security': 'security',
+    'security & automation': 'security',
+    'green': 'sustainability',
+    'sustainability': 'sustainability',
+    'green & sustainability': 'sustainability',
+    'parking': 'parking',
+    'parking & ev': 'parking',
+  }
+  return map[trimmed] || trimmed.replace(/\s+/g, '_')
+}
+
 export interface SpecItem {
   id?: string
   project_id?: string
@@ -73,8 +112,14 @@ export default function SpecEditor({
   onSpecsChange,
   onSaved,
 }: SpecEditorProps) {
+  const sanitizeSpecs = (items: SpecItem[]) =>
+    items.map(s => ({
+      ...s,
+      category: normalizeSpecCategory(s.category),
+    }))
+
   const [specs, setSpecs] = useState<SpecItem[]>(
-    specsProp && specsProp.length > 0 ? specsProp : initialSpecs
+    specsProp && specsProp.length > 0 ? sanitizeSpecs(specsProp) : sanitizeSpecs(initialSpecs)
   )
   const [loading, setLoading] = useState(false)
   const [saving, setSaving] = useState(false)
@@ -84,7 +129,7 @@ export default function SpecEditor({
 
   useEffect(() => {
     if (specsProp && specsProp.length > 0) {
-      setSpecs(specsProp)
+      setSpecs(sanitizeSpecs(specsProp))
     }
   }, [specsProp])
 
@@ -196,7 +241,7 @@ export default function SpecEditor({
 
   const filteredSpecs = selectedCategoryFilter === 'all'
     ? specs
-    : specs.filter(s => s.category === selectedCategoryFilter)
+    : specs.filter(s => normalizeSpecCategory(s.category) === selectedCategoryFilter)
 
   return (
     <div className="bg-white dark:bg-[#121214] rounded-3xl border border-gray-100 dark:border-white/10 shadow-[0_2px_12px_rgba(0,0,0,0.03)] p-6 md:p-8 space-y-6">
@@ -257,7 +302,7 @@ export default function SpecEditor({
           All Categories ({specs.length})
         </button>
         {SPEC_CATEGORIES.map(cat => {
-          const count = specs.filter(s => s.category === cat.id).length
+          const count = specs.filter(s => normalizeSpecCategory(s.category) === cat.id).length
           return (
             <button
               key={cat.id}
@@ -302,7 +347,8 @@ export default function SpecEditor({
         <div className="space-y-4">
 
           {filteredSpecs.map((spec, idx) => {
-            const catObj = SPEC_CATEGORIES.find(c => c.id === spec.category) || SPEC_CATEGORIES[0]
+            const canonicalCat = normalizeSpecCategory(spec.category)
+            const catObj = SPEC_CATEGORIES.find(c => c.id === canonicalCat) || SPEC_CATEGORIES[0]
             const realIdx = specs.indexOf(spec)
 
             return (
@@ -314,7 +360,7 @@ export default function SpecEditor({
                 <div className="flex flex-wrap items-center justify-between gap-2.5">
                   <div className="flex flex-wrap items-center gap-2">
                     <CustomSelect
-                      value={spec.category}
+                      value={canonicalCat}
                       onChange={val => handleUpdate(realIdx, 'category', val)}
                       options={SPEC_CATEGORIES.map(c => ({ value: c.id, label: c.label }))}
                       size="sm"

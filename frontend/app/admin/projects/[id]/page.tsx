@@ -10,7 +10,7 @@ import { adminFetch } from '@/lib/adminFetch'
 import ProjectForm from '@/components/admin/ProjectForm'
 import UnitsEditor from '@/components/admin/UnitsEditor'
 import AmenitiesEditor from '@/components/admin/AmenitiesEditor'
-import SpecEditor from '@/components/admin/SpecEditor'
+import SpecEditor, { normalizeSpecCategory } from '@/components/admin/SpecEditor'
 import ConnectivityEditor from '@/components/admin/ConnectivityEditor'
 import ImagesEditor from '@/components/admin/ImagesEditor'
 import DocumentsEditor from '@/components/admin/DocumentsEditor'
@@ -100,16 +100,16 @@ function getTabAuditDetails(
     if ((data?.spec_items?.length || 0) >= 1) completed.push(`Specifications (${data.spec_items.length} items configured)`)
     else missing.push('Construction Specifications')
 
-    if (data?.spec_items?.some((s: any) => s.category === 'structure')) completed.push('Structure & Safety Specs')
+    if (data?.spec_items?.some((s: any) => normalizeSpecCategory(s.category) === 'structure')) completed.push('Structure & Safety Specs')
     else missing.push('Structure & Safety Specs')
 
-    if (data?.spec_items?.some((s: any) => s.category === 'flooring')) completed.push('Flooring & Finishes Specs')
+    if (data?.spec_items?.some((s: any) => normalizeSpecCategory(s.category) === 'flooring')) completed.push('Flooring & Finishes Specs')
     else missing.push('Flooring Specs')
 
-    if (data?.spec_items?.some((s: any) => s.category === 'kitchen')) completed.push('Kitchen & Countertop Specs')
+    if (data?.spec_items?.some((s: any) => normalizeSpecCategory(s.category) === 'kitchen')) completed.push('Kitchen & Countertop Specs')
     else missing.push('Kitchen Specs')
 
-    if (data?.spec_items?.some((s: any) => s.category === 'bathrooms')) completed.push('Sanitary & CP Fittings Specs')
+    if (data?.spec_items?.some((s: any) => normalizeSpecCategory(s.category) === 'bathrooms')) completed.push('Sanitary & CP Fittings Specs')
     else missing.push('Sanitary Specs')
 
     if (data?.spec_items?.some((s: any) => s.is_highlight)) completed.push('Highlighted Buyer Card Specs')

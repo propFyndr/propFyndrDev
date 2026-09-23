@@ -10,6 +10,7 @@ import type { ProjectDetail, UnitTypeSummary, PaymentPlan } from '@/types/projec
 import { buildWhatsAppUrl } from '@/lib/whatsapp'
 import { PricingTabSkeleton } from '@/components/skeletons'
 import { track } from '@/lib/analytics'
+import CostSheetTab from './CostSheetTab'
 
 export interface ProjectPricingTabProps {
   unitTypes: UnitTypeSummary[]
@@ -709,6 +710,9 @@ export default function ProjectPricingTab({ unitTypes, detail, loading, onGoToCo
           <p className="text-[12px] text-gray-400 font-semibold pt-1">Bank approval details not available.</p>
         )}
       </div>
+
+      {/* ── 2.8. TRUE COST & LANDED PURCHASE CALCULATOR ── */}
+      <CostSheetTab detail={detail} unitTypes={unitTypes} initialBhk={bhkFilter} />
 
       {/* ── 3. PAYMENT PLANS (Full-width milestones with exact ₹ amounts) ── */}
       <div className="bg-white dark:bg-[#111] ring-1 ring-inset ring-black/5 dark:ring-white/10 rounded-[24px] p-6 shadow-[0_2px_12px_rgba(0,0,0,0.03)] space-y-6">
