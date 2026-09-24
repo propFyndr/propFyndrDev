@@ -65,7 +65,8 @@ export default function SiteVisitScheduler({ projectId, projectSlug, projectName
   const dates = getDates(14)
 
   async function handleSubmit() {
-    if (!selectedDate || !selectedSlot) return
+    const cleanPhone = form.phone.trim().replace(/\D/g, '')
+    if (!selectedDate || !selectedSlot || !form.name.trim() || !/^[6-9]\d{9}$/.test(cleanPhone) || submitting) return
     setSubmitting(true)
     setError(null)
     try {
@@ -76,16 +77,22 @@ export default function SiteVisitScheduler({ projectId, projectSlug, projectName
           project_id:   projectId,
           project_slug: projectSlug,
           project_name: projectName,
-          name:         form.name,
-          phone:        form.phone,
+          name:         form.name.trim(),
+          phone:        cleanPhone,
           email:        form.email || undefined,
           visit_date:   selectedDate.toISOString(),
           time_slot:    selectedSlot,
           message:      form.message || undefined,
         }),
       })
+
+      if (res.status === 429) {
+        setError('Too many requests. Please wait a moment before trying again.')
+        return
+      }
+
       const data = await res.json()
-      if (!res.ok) throw new Error(data.error ?? 'Failed')
+      if (!res.ok) throw new Error(data.error ?? 'Failed to schedule visit')
       track('site_visit_requested', { project_slug: projectSlug, project_name: projectName })
       track('site_visit_booked', {
         project_slug: projectSlug,
@@ -94,7 +101,7 @@ export default function SiteVisitScheduler({ projectId, projectSlug, projectName
         time_slot: selectedSlot,
       })
       setSuccessData({
-        name: form.name,
+        name: form.name.trim(),
         visitDate: formatDate(selectedDate),
         timeSlot: selectedSlot,
       })
@@ -224,13 +231,32 @@ export default function SiteVisitScheduler({ projectId, projectSlug, projectName
                     />
                   </div>
                   <div>
-                    <label className="text-xs text-gray-500 dark:text-gray-400 block mb-1">Phone *</label>
+                    <div className="flex items-center justify-between mb-1">
+                      <label className="text-xs text-gray-500 dark:text-gray-400 block">Phone *</label>
+                      {form.phone.length > 0 && (
+                        <span
+                          className={`text-[10px] font-bold ${
+                            !/^[6-9]/.test(form.phone)
+                              ? 'text-rose-500'
+                              : form.phone.length === 10
+                              ? 'text-emerald-500'
+                              : 'text-amber-500'
+                          }`}
+                        >
+                          {!/^[6-9]/.test(form.phone)
+                            ? 'Must start with 6, 7, 8, or 9'
+                            : form.phone.length === 10
+                            ? '✓ Valid'
+                            : `${10 - form.phone.length} more digits (${form.phone.length}/10)`}
+                        </span>
+                      )}
+                    </div>
                     <input
                       type="tel"
                       value={form.phone}
-                      onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
-                      placeholder="+91 XXXXX XXXXX"
-                      className="w-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-blue-400 placeholder:text-gray-400 dark:placeholder:text-gray-500"
+                      onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value.replace(/\D/g, '').slice(0, 10) }))}
+                      placeholder="9876543210"
+                      className="w-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-xl px-3 py-2.5 text-sm font-mono focus:outline-none focus:border-blue-400 placeholder:text-gray-400 dark:placeholder:text-gray-500"
                     />
                   </div>
                   <div>
@@ -261,7 +287,7 @@ export default function SiteVisitScheduler({ projectId, projectSlug, projectName
                   </button>
                   <button
                     onClick={handleSubmit}
-                    disabled={!form.name || !form.phone || submitting}
+                    disabled={!form.name.trim() || !/^[6-9]\d{9}$/.test(form.phone) || submitting}
                     className="flex-1 py-3 bg-blue-500 text-white text-sm font-semibold rounded-xl disabled:opacity-40"
                   >
                     {submitting ? 'Booking...' : 'Confirm Visit'}

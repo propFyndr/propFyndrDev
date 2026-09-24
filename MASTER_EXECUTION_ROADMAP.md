@@ -349,10 +349,10 @@ Unify the admin UI architecture, clean up role permissions, finalize builder/par
 * On the Sales Queue dashboard (`/admin/queue`), render the rolling 30-day **median** response time tile. Display `"Not measured yet"` if fewer than 5 leads have been contacted.
 
 #### 3. Verification & Pass Conditions
-* [ ] All admin pages render consistent stat cards with working skeleton loaders.
-* [ ] A `SALES` session cannot see or click project edit buttons.
-* [ ] A `BUILDER` session opens `/portal/leads` and sees Lead Briefs with competitor names scrubbed.
-* [ ] Sales queue displays a median response time computed from `first_contacted_at`.
+* [x] All admin pages render consistent stat cards with working skeleton loaders.
+* [x] A `SALES` session cannot see or click project edit buttons.
+* [x] A `BUILDER` session opens `/portal/leads` and sees Lead Briefs with competitor names scrubbed.
+* [x] Sales queue displays a median response time computed from `first_contacted_at`.
 
 ---
 
@@ -419,10 +419,10 @@ Eliminate generic UI patterns (anti-slop audit), polish mobile interactions for 
 * Add global error boundaries (`frontend/app/error.tsx`) to catch unexpected rendering issues gracefully without showing blank pages.
 
 #### 3. Verification & Pass Conditions
-* [ ] Mobile viewport test (DevTools 375px) shows sticky bottom CTA bar without layout thrashing.
-* [ ] Callback form displays button loading spinner during submission and shows inline validation on invalid phone numbers.
-* [ ] Sharing a project link on WhatsApp / Twitter displays a rich OpenGraph preview card with verified project data.
-* [ ] Accessing a non-existent URL renders the custom branded 404 page with navigation links back to active sectors.
+* [x] Mobile viewport test (DevTools 375px) shows sticky bottom CTA bar without layout thrashing.
+* [x] Callback form displays button loading spinner during submission and shows inline validation on invalid phone numbers.
+* [x] Sharing a project link on WhatsApp / Twitter displays a rich OpenGraph preview card with verified project data.
+* [x] Accessing a non-existent URL renders the custom branded 404 page with navigation links back to active sectors.
 
 ---
 

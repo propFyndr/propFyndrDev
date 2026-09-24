@@ -55,7 +55,8 @@ export default function CallbackModal({ project, isDone, onClose }: CallbackModa
   if (!project || isDone) return null;
 
   const handleSubmit = async () => {
-    if (!form.name.trim() || form.phone.trim().length < 10 || submitting) return;
+    const cleanPhone = form.phone.trim().replace(/\D/g, '')
+    if (!form.name.trim() || !/^[6-9]\d{9}$/.test(cleanPhone) || submitting) return;
 
     setSubmitting(true);
     setError(null);
@@ -67,7 +68,7 @@ export default function CallbackModal({ project, isDone, onClose }: CallbackModa
         headers: await authHeaders({ 'Content-Type': 'application/json' }),
         body: JSON.stringify({
           name: form.name.trim(),
-          phone: form.phone.trim(),
+          phone: cleanPhone,
           intent_tier: intentTier,
           loan_status: loanStatus,
           consent_given: consentGiven,
@@ -77,7 +78,16 @@ export default function CallbackModal({ project, isDone, onClose }: CallbackModa
           ...(guestToken ? { guestToken } : {}),
         }),
       });
-      if (!res.ok) throw new Error('callback request failed');
+
+      if (res.status === 429) {
+        setError('Too many requests. Please wait a moment before trying again.');
+        return;
+      }
+
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.error || `HTTP ${res.status}`);
+      }
       
       track('callback_requested', { 
         project_slug: project.slug, 
@@ -181,9 +191,28 @@ export default function CallbackModal({ project, isDone, onClose }: CallbackModa
 
                   {/* Phone Input */}
                   <div>
-                    <label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest block mb-1.5">
-                      Phone Number *
-                    </label>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest block">
+                        Phone Number *
+                      </label>
+                      {form.phone.length > 0 && (
+                        <span
+                          className={`text-[10px] font-bold ${
+                            !/^[6-9]/.test(form.phone)
+                              ? 'text-rose-500'
+                              : form.phone.length === 10
+                              ? 'text-emerald-500'
+                              : 'text-amber-500'
+                          }`}
+                        >
+                          {!/^[6-9]/.test(form.phone)
+                            ? 'Must start with 6, 7, 8, or 9'
+                            : form.phone.length === 10
+                            ? '✓ Valid 10-digit number'
+                            : `${10 - form.phone.length} more digits (${form.phone.length}/10)`}
+                        </span>
+                      )}
+                    </div>
                     <div className="relative flex items-center">
                       <div className="absolute left-3.5 flex items-center gap-1.5 pointer-events-none text-slate-400 text-xs font-bold">
                         <Phone className="w-3.5 h-3.5" />
@@ -195,7 +224,13 @@ export default function CallbackModal({ project, isDone, onClose }: CallbackModa
                         placeholder="98765 43210"
                         value={form.phone}
                         onChange={(e) => setForm(f => ({ ...f, phone: e.target.value.replace(/\D/g, '').slice(0, 10) }))}
-                        className="w-full pl-16 pr-4 py-2.5 bg-slate-50 dark:bg-slate-800/50 border border-slate-200/80 dark:border-slate-700/80 rounded-xl text-xs font-mono font-bold text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all tracking-wide"
+                        className={`w-full pl-16 pr-4 py-2.5 bg-slate-50 dark:bg-slate-800/50 border rounded-xl text-xs font-mono font-bold text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 transition-all tracking-wide ${
+                          form.phone.length > 0 && !/^[6-9]\d{9}$/.test(form.phone) && form.phone.length === 10
+                            ? 'border-rose-400 focus:ring-rose-500/20 focus:border-rose-500'
+                            : form.phone.length === 10 && /^[6-9]\d{9}$/.test(form.phone)
+                            ? 'border-emerald-500/80 focus:ring-emerald-500/20 focus:border-emerald-500'
+                            : 'border-slate-200/80 dark:border-slate-700/80 focus:ring-emerald-500/20 focus:border-emerald-500'
+                        }`}
                       />
                     </div>
                   </div>
@@ -282,7 +317,7 @@ export default function CallbackModal({ project, isDone, onClose }: CallbackModa
 
                 {/* Primary Action Button (No Star Emoji) */}
                 <button
-                  disabled={!form.name.trim() || form.phone.trim().length < 10 || !consentGiven || submitting}
+                  disabled={!form.name.trim() || !/^[6-9]\d{9}$/.test(form.phone) || !consentGiven || submitting}
                   onClick={handleSubmit}
                   className="w-full py-3.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white disabled:from-slate-200 disabled:to-slate-200 disabled:text-slate-400 dark:disabled:from-slate-800 dark:disabled:to-slate-800 dark:disabled:text-slate-600 font-bold rounded-2xl transition-all duration-200 text-xs shadow-lg shadow-emerald-600/25 hover:shadow-xl hover:shadow-emerald-600/35 active:scale-[0.98] flex items-center justify-center gap-2"
                 >

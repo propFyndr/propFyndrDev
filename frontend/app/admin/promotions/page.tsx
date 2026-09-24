@@ -31,6 +31,7 @@ import { formatDistanceToNow } from 'date-fns'
 import { adminFetch } from '@/lib/adminFetch'
 import { toast } from 'sonner'
 import CustomSelect from '@/components/admin/CustomSelect'
+import { StatCard } from '@/components/portal/ui'
 
 export interface Promotion {
   id: string
@@ -208,62 +209,36 @@ export default function PromotionsAdminPage() {
 
       {/* ── Metric KPI Stats Row ──────────────────────────────────────────────── */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {/* Active Campaigns */}
-        <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200/80 dark:border-zinc-800 p-4 shadow-2xs">
-          <div className="flex items-center justify-between text-zinc-400 text-xs font-semibold">
-            <span>Active Campaigns</span>
-            <Radio className="w-3.5 h-3.5 text-emerald-500" />
-          </div>
-          <div className="mt-2 flex items-baseline gap-2">
-            <span className="text-2xl font-black text-zinc-900 dark:text-white tabular-nums">
-              {loading ? '—' : stats?.active ?? 0}
-            </span>
-            <span className="text-xs text-zinc-400">of {stats?.total ?? 0} total</span>
-          </div>
-          <p className="text-[10px] text-zinc-400 mt-1">Currently being served to buyers</p>
-        </div>
-
-        {/* Total Impressions */}
-        <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200/80 dark:border-zinc-800 p-4 shadow-2xs">
-          <div className="flex items-center justify-between text-zinc-400 text-xs font-semibold">
-            <span>Total Impressions</span>
-            <Eye className="w-3.5 h-3.5 text-blue-500" />
-          </div>
-          <div className="mt-2 flex items-baseline gap-2">
-            <span className="text-2xl font-black text-blue-600 dark:text-blue-400 tabular-nums">
-              {loading ? '—' : (stats?.impressions ?? 0).toLocaleString()}
-            </span>
-          </div>
-          <p className="text-[10px] text-zinc-400 mt-1">Logged campaign views across discovery</p>
-        </div>
-
-        {/* Total Clicks */}
-        <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200/80 dark:border-zinc-800 p-4 shadow-2xs">
-          <div className="flex items-center justify-between text-zinc-400 text-xs font-semibold">
-            <span>Engaged Clicks</span>
-            <MousePointerClick className="w-3.5 h-3.5 text-purple-500" />
-          </div>
-          <div className="mt-2 flex items-baseline gap-2">
-            <span className="text-2xl font-black text-purple-600 dark:text-purple-400 tabular-nums">
-              {loading ? '—' : (stats?.clicks ?? 0).toLocaleString()}
-            </span>
-          </div>
-          <p className="text-[10px] text-zinc-400 mt-1">Direct buyer interactions</p>
-        </div>
-
-        {/* Average CTR */}
-        <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200/80 dark:border-zinc-800 p-4 shadow-2xs">
-          <div className="flex items-center justify-between text-zinc-400 text-xs font-semibold">
-            <span>Click-Through Rate (CTR)</span>
-            <TrendingUp className="w-3.5 h-3.5 text-amber-500" />
-          </div>
-          <div className="mt-2 flex items-baseline gap-2">
-            <span className="text-2xl font-black text-amber-600 dark:text-amber-400 tabular-nums">
-              {loading ? '—' : `${stats?.ctr ?? 0}%`}
-            </span>
-          </div>
-          <p className="text-[10px] text-zinc-400 mt-1">Conversion efficiency ratio</p>
-        </div>
+        <StatCard
+          label="Active Campaigns"
+          value={loading ? '—' : stats?.active ?? 0}
+          icon={<Radio className="w-4 h-4 text-emerald-500" />}
+          hint={`of ${stats?.total ?? 0} total`}
+          tone="good"
+          loading={loading}
+        />
+        <StatCard
+          label="Total Impressions"
+          value={loading ? '—' : (stats?.impressions ?? 0).toLocaleString()}
+          icon={<Eye className="w-4 h-4 text-blue-500" />}
+          hint="Logged discovery views"
+          loading={loading}
+        />
+        <StatCard
+          label="Engaged Clicks"
+          value={loading ? '—' : (stats?.clicks ?? 0).toLocaleString()}
+          icon={<MousePointerClick className="w-4 h-4 text-purple-500" />}
+          hint="Direct buyer interactions"
+          loading={loading}
+        />
+        <StatCard
+          label="Click-Through Rate"
+          value={loading ? '—' : `${stats?.ctr ?? 0}%`}
+          icon={<TrendingUp className="w-4 h-4 text-amber-500" />}
+          hint="Conversion efficiency ratio"
+          tone={stats?.ctr && stats.ctr > 5 ? 'good' : 'neutral'}
+          loading={loading}
+        />
       </div>
 
       {/* ── Search & Filter Controls ─────────────────────────────────────────── */}

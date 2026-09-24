@@ -122,7 +122,11 @@ export default function SalesQueuePage() {
           <StatCard
             label="Median response"
             value={data.stats.median_response_minutes === null ? '—' : formatWait(data.stats.median_response_minutes)}
-            hint={data.stats.contacted_sample ? `${data.stats.contacted_sample} leads, 30d` : 'not measured yet'}
+            hint={
+              data.stats.median_response_minutes === null
+                ? (data.stats.contacted_sample > 0 ? `Not measured yet (${data.stats.contacted_sample}/5 leads)` : 'not measured yet')
+                : `${data.stats.contacted_sample} leads, 30d`
+            }
             tone={data.stats.median_response_minutes !== null && data.stats.median_response_minutes <= 15 ? 'good' : 'neutral'}
             icon={<Clock size={16} />}
           />

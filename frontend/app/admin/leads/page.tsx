@@ -35,6 +35,7 @@ import { LeadDossierPanel } from '@/components/admin/LeadDossierPanel'
 import { Skeleton } from '@/components/ui/skeleton'
 import CustomSelect from '@/components/admin/CustomSelect'
 import LeadBriefPanel from '@/components/portal/LeadBriefPanel'
+import { StatCard } from '@/components/portal/ui'
 
 interface Lead {
   id: string
@@ -325,88 +326,35 @@ export default function BuilderLeadsPage() {
 
       {/* KPI Metric Cards — High Taste Zinc Tokens */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* Total Inquiries */}
-        <div className="p-5 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 shadow-2xs">
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">
-              Total Inquiries
-            </span>
-            <div className="w-9 h-9 rounded-xl bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 flex items-center justify-center">
-              <UserCheck className="w-4 h-4" />
-            </div>
-          </div>
-          <div className="mt-3 flex items-baseline justify-between">
-            <span className="text-2xl sm:text-3xl font-black text-zinc-900 dark:text-white">
-              {loading ? <Skeleton className="h-8 w-16" /> : stats.total}
-            </span>
-            <span className="text-xs font-semibold text-blue-600 dark:text-blue-400">
-              {stats.newLeads} uncontacted
-            </span>
-          </div>
-        </div>
-
-        {/* Hot Leads */}
-        <div className="p-5 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 shadow-2xs">
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">
-              Hot Leads
-            </span>
-            <div className="w-9 h-9 rounded-xl bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 flex items-center justify-center">
-              <Flame className="w-4 h-4" />
-            </div>
-          </div>
-          <div className="mt-3 flex items-baseline justify-between">
-            <span className="text-2xl sm:text-3xl font-black text-zinc-900 dark:text-white">
-              {loading ? <Skeleton className="h-8 w-16" /> : stats.hot}
-            </span>
-            <span className="text-xs font-semibold text-rose-600 dark:text-rose-400">
-              {stats.total > 0 ? `${Math.round((stats.hot / stats.total) * 100)}% of total` : '0%'}
-            </span>
-          </div>
-        </div>
-
-        {/* Qualified */}
-        <div className="p-5 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 shadow-2xs">
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">
-              Qualified Leads
-            </span>
-            <div className="w-9 h-9 rounded-xl bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 flex items-center justify-center">
-              <CheckCircle2 className="w-4 h-4" />
-            </div>
-          </div>
-          <div className="mt-3 flex items-baseline justify-between">
-            <span className="text-2xl sm:text-3xl font-black text-zinc-900 dark:text-white">
-              {loading ? <Skeleton className="h-8 w-16" /> : stats.qualified}
-            </span>
-            <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">
-              {stats.warm} warm
-            </span>
-          </div>
-        </div>
-
-        {/* Avg Score */}
-        <div className="p-5 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 shadow-2xs">
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">
-              Avg Qualification
-            </span>
-            <div className="w-9 h-9 rounded-xl bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 flex items-center justify-center">
-              <BarChart3 className="w-4 h-4" />
-            </div>
-          </div>
-          <div className="mt-3 flex items-baseline justify-between">
-            <span className="text-2xl sm:text-3xl font-black text-zinc-900 dark:text-white">
-              {loading ? <Skeleton className="h-8 w-16" /> : `${stats.avgScore}/100`}
-            </span>
-            <div className="w-16 h-2 bg-zinc-100 dark:bg-zinc-800 rounded-full overflow-hidden self-center border border-zinc-200/60 dark:border-zinc-700">
-              <div 
-                className="h-full bg-zinc-900 dark:bg-white rounded-full transition-all duration-300" 
-                style={{ width: `${Math.min(100, stats.avgScore)}%` }} 
-              />
-            </div>
-          </div>
-        </div>
+        <StatCard
+          label="Total Inquiries"
+          value={stats.total}
+          icon={<UserCheck className="w-4 h-4" />}
+          hint={`${stats.newLeads} uncontacted`}
+          loading={loading}
+        />
+        <StatCard
+          label="Hot Leads"
+          value={stats.hot}
+          tone="hot"
+          icon={<Flame className="w-4 h-4" />}
+          hint={stats.total > 0 ? `${Math.round((stats.hot / stats.total) * 100)}% of total` : '0%'}
+          loading={loading}
+        />
+        <StatCard
+          label="Qualified Leads"
+          value={stats.qualified}
+          tone="good"
+          icon={<CheckCircle2 className="w-4 h-4" />}
+          hint={`${stats.warm} warm`}
+          loading={loading}
+        />
+        <StatCard
+          label="Avg Qualification"
+          value={`${stats.avgScore}/100`}
+          icon={<BarChart3 className="w-4 h-4" />}
+          loading={loading}
+        />
       </div>
 
       {/* Control Toolbar: Filter Pills & Search */}

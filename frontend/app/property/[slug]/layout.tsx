@@ -25,26 +25,39 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
     }
   }
 
-  const title = `${p.name}${p.sector ? ` · ${p.sector}` : ''} — ${p.price_range_label ?? ''}`.trim()
-  const description =
-    p.tagline?.trim() ||
-    // "a verified builder" asserted a verification we may not hold, in the
-    // description search engines and link previews show. Omit the clause instead.
-    `${p.name}${p.builder?.name ? ` by ${p.builder.name}` : ''} in ${p.sector ?? 'Noida'}. ${p.price_range_label ?? ''}${p.possession_label ? ` · Possession ${p.possession_label}` : ''}. Reviewed with RealtyPal AI.`
+  const title = `${p.name}, ${p.sector || 'Noida'}, ${p.city || 'NCR'} — Prices, Floor Plans & Due Diligence | PropFyndr`
+  
+  const builderClause = p.builder?.name ? ` by ${p.builder.name}` : ''
+  const priceClause = p.price_range_label ? ` Pricing: ${p.price_range_label}.` : ''
+  const reraClause = p.rera_number ? ` UP RERA #${p.rera_number}.` : ''
+  const groundClause = p.tagline?.trim() ? ` ${p.tagline.trim()}` : ''
+  const rawDesc = `${p.name}${builderClause} in ${p.sector || 'Noida'}, ${p.city || 'NCR'}.${priceClause}${reraClause}${groundClause} Independent ground due diligence and AI advisor on PropFyndr.`
+  const description = rawDesc.length > 160 ? rawDesc.slice(0, 157) + '...' : rawDesc
+
+  const canonicalUrl = `https://propfyndr.in/property/${slug}`
+  const ogImages = p.hero_image_url
+    ? [{ url: p.hero_image_url, width: 1200, height: 630, alt: p.name }]
+    : [{ url: 'https://propfyndr.in/og-default.jpg', width: 1200, height: 630, alt: 'PropFyndr' }]
 
   return {
     title,
     description,
+    alternates: {
+      canonical: canonicalUrl,
+    },
     openGraph: {
       title,
       description,
+      url: canonicalUrl,
       type: 'website',
       siteName: 'PropFyndr',
+      images: ogImages,
     },
     twitter: {
       card: 'summary_large_image',
       title,
       description,
+      images: ogImages.map((img) => img.url),
     },
   }
 }

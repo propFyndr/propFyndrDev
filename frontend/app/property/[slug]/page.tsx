@@ -7,6 +7,8 @@ import { ChatCircleDots } from '@phosphor-icons/react'
 import type { ProjectDetail, ProjectCard as ProjectCardType } from '@/types/project'
 import ProjectDetailPanel from '@/components/ProjectDetailPanel'
 import PropertyDetailThemed from '@/components/PropertyDetailThemed'
+import StickyMobileCta from '@/components/property-detail/StickyMobileCta'
+import CallbackModal from '@/components/CallbackModal'
 import { API_BASE } from '@/lib/env'
 import { applyTheme, DEFAULT_THEME, type BuilderTheme } from '@/lib/builderTheme'
 
@@ -18,6 +20,7 @@ export default function PropertyDetailPage() {
   const [notFound, setNotFound] = useState(false)
   const [userId, setUserId] = useState<string | null>(null)
   const [theme, setTheme] = useState<BuilderTheme>(DEFAULT_THEME)
+  const [showCallbackModal, setShowCallbackModal] = useState(false)
 
   // Stable stub — lets the panel open and show skeletons immediately while the real detail loads
   const stub: ProjectCardType = useMemo(() => ({
@@ -145,7 +148,7 @@ export default function PropertyDetailPage() {
       </header>
 
       {/* Main Luxury Container with Optimal Proportions */}
-      <main className="max-w-6xl xl:max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-6 sm:py-8">
+      <main className="max-w-6xl xl:max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-6 sm:py-8 pb-28 md:pb-8">
         {notFound ? (
           <div className="text-center py-24 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm my-6 p-8">
             <p className="text-4xl mb-3">🏚️</p>
@@ -174,6 +177,25 @@ export default function PropertyDetailPage() {
           </PropertyDetailThemed>
         )}
       </main>
+
+      {/* Mobile-Only Persistent Bottom CTA Bar */}
+      {detail && (
+        <StickyMobileCta
+          projectName={detail.name}
+          priceRange={detail.price_range_label}
+          onAskAi={() => router.push(`/discover?project=${encodeURIComponent(slug)}`)}
+          onBookVisit={() => setShowCallbackModal(true)}
+        />
+      )}
+
+      {/* Direct Callback / Site Visit Booking Modal */}
+      {showCallbackModal && detail && (
+        <CallbackModal
+          project={detail as any}
+          isDone={false}
+          onClose={() => setShowCallbackModal(false)}
+        />
+      )}
     </div>
   )
 }

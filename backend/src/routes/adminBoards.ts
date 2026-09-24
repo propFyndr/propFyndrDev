@@ -88,7 +88,7 @@ router.get('/queue', async (_req: Request, res: Response) => {
     .map((l) => l.first_contacted_at!.getTime() - l.created_at.getTime())
     .filter((ms) => ms >= 0)
     .sort((a, b) => a - b)
-  const medianMinutes = waits.length
+  const medianMinutes = waits.length >= 5
     ? Math.round(waits[Math.floor(waits.length / 2)] / 60000)
     : null
 

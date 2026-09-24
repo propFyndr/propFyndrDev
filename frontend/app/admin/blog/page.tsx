@@ -21,6 +21,7 @@ import CustomSelect from '@/components/admin/CustomSelect'
 import TiptapEditor from '@/components/admin/TiptapEditor'
 import { adminFetch } from '@/lib/adminFetch'
 import { Skeleton } from '@/components/ui/skeleton'
+import { StatCard } from '@/components/portal/ui'
 
 type BlogStatus = 'draft' | 'published' | 'archived'
 
@@ -215,29 +216,35 @@ export default function BlogAdminPage() {
 
       {/* KPI Metric Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {[
-          { label: 'Total Posts', value: stats.total, icon: BookOpen, note: `${stats.draft} in draft`, noteColor: 'text-blue-600 dark:text-blue-400' },
-          { label: 'Published', value: stats.published, icon: CheckCircle2, note: 'Live on /blog', noteColor: 'text-emerald-600 dark:text-emerald-400' },
-          { label: 'Drafts', value: stats.draft, icon: FileText, note: 'Not yet live', noteColor: 'text-amber-600 dark:text-amber-400' },
-          { label: 'Archived', value: stats.archived, icon: Archive, note: 'Hidden', noteColor: 'text-zinc-500 dark:text-zinc-400' },
-        ].map(card => (
-          <div key={card.label} className="p-5 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 shadow-2xs">
-            <div className="flex items-center justify-between">
-              <span className="text-[11px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">
-                {card.label}
-              </span>
-              <div className="w-9 h-9 rounded-xl bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 flex items-center justify-center">
-                <card.icon className="w-4 h-4" />
-              </div>
-            </div>
-            <div className="mt-3 flex items-baseline justify-between">
-              <span className="text-2xl sm:text-3xl font-black text-zinc-900 dark:text-white">
-                {loading ? <Skeleton className="h-8 w-16" /> : card.value}
-              </span>
-              <span className={`text-xs font-semibold ${card.noteColor}`}>{card.note}</span>
-            </div>
-          </div>
-        ))}
+        <StatCard
+          label="Total Posts"
+          value={loading ? '—' : stats.total}
+          icon={<BookOpen className="w-4 h-4 text-blue-500" />}
+          hint={`${stats.draft} in draft`}
+          loading={loading}
+        />
+        <StatCard
+          label="Published"
+          value={loading ? '—' : stats.published}
+          icon={<CheckCircle2 className="w-4 h-4 text-emerald-500" />}
+          hint="Live on /blog"
+          tone="good"
+          loading={loading}
+        />
+        <StatCard
+          label="Drafts"
+          value={loading ? '—' : stats.draft}
+          icon={<FileText className="w-4 h-4 text-amber-500" />}
+          hint="Not yet live"
+          loading={loading}
+        />
+        <StatCard
+          label="Archived"
+          value={loading ? '—' : stats.archived}
+          icon={<Archive className="w-4 h-4 text-zinc-400" />}
+          hint="Hidden from index"
+          loading={loading}
+        />
       </div>
 
       {/* Control Toolbar */}

@@ -31,6 +31,7 @@ import Link from 'next/link'
 import CustomSelect, { SelectOption } from '@/components/admin/CustomSelect'
 import EmailPreviewModal from '@/components/admin/EmailPreviewModal'
 import OrgAccessPanel from '@/components/admin/OrgAccessPanel'
+import { StatCard } from '@/components/portal/ui'
 import { useAdminRole, canEditCatalogue } from '@/lib/adminRole'
 import { canDeleteRecords } from '@/lib/adminRole'
 
@@ -692,45 +693,31 @@ export default function AdminBuilders() {
 
       {/* Metric Summary Cards — Clean, High-Contrast Zinc Aesthetic */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="p-5 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 shadow-2xs flex items-center justify-between">
-          <div>
-            <p className="text-[11px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">Total Builders</p>
-            <p className="text-2xl font-black text-zinc-900 dark:text-white mt-1">{metrics.total}</p>
-          </div>
-          <div className="w-10 h-10 rounded-xl bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 flex items-center justify-center shrink-0">
-            <Building2 size={18} />
-          </div>
-        </div>
-
-        <div className="p-5 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 shadow-2xs flex items-center justify-between">
-          <div>
-            <p className="text-[11px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">CREDAI Members</p>
-            <p className="text-2xl font-black text-zinc-900 dark:text-white mt-1">{metrics.credaiCount}</p>
-          </div>
-          <div className="w-10 h-10 rounded-xl bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 flex items-center justify-center shrink-0">
-            <ShieldCheck size={18} />
-          </div>
-        </div>
-
-        <div className="p-5 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 shadow-2xs flex items-center justify-between">
-          <div>
-            <p className="text-[11px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">Delivered Units</p>
-            <p className="text-2xl font-black text-zinc-900 dark:text-white mt-1">{metrics.totalUnits.toLocaleString()}</p>
-          </div>
-          <div className="w-10 h-10 rounded-xl bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 flex items-center justify-center shrink-0">
-            <Award size={18} />
-          </div>
-        </div>
-
-        <div className="p-5 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 shadow-2xs flex items-center justify-between">
-          <div>
-            <p className="text-[11px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">Avg RERA Score</p>
-            <p className="text-2xl font-black text-zinc-900 dark:text-white mt-1">{metrics.avgRera} <span className="text-xs text-zinc-400 font-semibold">/ 100</span></p>
-          </div>
-          <div className="w-10 h-10 rounded-xl bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 flex items-center justify-center shrink-0">
-            <ShieldCheck size={18} />
-          </div>
-        </div>
+        <StatCard
+          label="Total Builders"
+          value={metrics.total}
+          icon={<Building2 size={18} />}
+          loading={loading}
+        />
+        <StatCard
+          label="CREDAI Members"
+          value={metrics.credaiCount}
+          tone="good"
+          icon={<ShieldCheck size={18} />}
+          loading={loading}
+        />
+        <StatCard
+          label="Delivered Units"
+          value={metrics.totalUnits.toLocaleString()}
+          icon={<Award size={18} />}
+          loading={loading}
+        />
+        <StatCard
+          label="Avg RERA Score"
+          value={`${metrics.avgRera}/100`}
+          icon={<ShieldCheck size={18} />}
+          loading={loading}
+        />
       </div>
 
       {/* Add form */}

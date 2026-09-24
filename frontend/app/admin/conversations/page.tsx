@@ -4,6 +4,7 @@ import React, { useEffect, useState, useCallback, useMemo } from 'react'
 import { adminFetch } from '@/lib/adminFetch'
 import CustomSelect from '@/components/admin/CustomSelect'
 import { Skeleton } from '@/components/ui/skeleton'
+import { StatCard } from '@/components/portal/ui'
 import { formatDistanceToNow } from 'date-fns'
 import {
   MessageSquare,
@@ -265,81 +266,36 @@ export default function ConversationsPage() {
 
       {/* ── KPI Stat Cards Grid ──────────────────────────────────────── */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {/* Total Sessions */}
-        <div className="bg-white dark:bg-zinc-900 rounded-3xl border border-zinc-200/80 dark:border-zinc-800 p-5 shadow-xs relative overflow-hidden group hover:border-zinc-300 dark:hover:border-zinc-700 transition-all">
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-[11px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">
-              Total Dialogues
-            </span>
-            <div className="w-8 h-8 rounded-xl bg-blue-50 dark:bg-blue-950/60 border border-blue-200/80 dark:border-blue-800/80 flex items-center justify-center text-blue-600 dark:text-blue-400">
-              <MessageSquare size={16} />
-            </div>
-          </div>
-          <div className="text-3xl font-black text-zinc-900 dark:text-zinc-100 tabular-nums">
-            {kpis.total}
-          </div>
-          <div className="mt-2.5 flex items-center gap-1.5 text-xs text-blue-600 dark:text-blue-400 font-semibold">
-            <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
-            <span>Buyer sessions recorded</span>
-          </div>
-        </div>
-
-        {/* Captured Leads */}
-        <div className="bg-white dark:bg-zinc-900 rounded-3xl border border-zinc-200/80 dark:border-zinc-800 p-5 shadow-xs relative overflow-hidden group hover:border-zinc-300 dark:hover:border-zinc-700 transition-all">
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-[11px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">
-              Captured Leads
-            </span>
-            <div className="w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200/80 dark:border-emerald-800/80 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
-              <Users size={16} />
-            </div>
-          </div>
-          <div className="text-3xl font-black text-zinc-900 dark:text-zinc-100 tabular-nums">
-            {kpis.totalLeads}
-          </div>
-          <div className="mt-2.5 flex items-center gap-1.5 text-xs text-emerald-600 dark:text-emerald-400 font-semibold">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-            <span>High-intent contacts</span>
-          </div>
-        </div>
-
-        {/* AI Compute Spend */}
-        <div className="bg-white dark:bg-zinc-900 rounded-3xl border border-zinc-200/80 dark:border-zinc-800 p-5 shadow-xs relative overflow-hidden group hover:border-zinc-300 dark:hover:border-zinc-700 transition-all">
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-[11px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">
-              AI Compute Cost
-            </span>
-            <div className="w-8 h-8 rounded-xl bg-purple-50 dark:bg-purple-950/60 border border-purple-200/80 dark:border-purple-800/80 flex items-center justify-center text-purple-600 dark:text-purple-400">
-              <Coins size={16} />
-            </div>
-          </div>
-          <div className="text-3xl font-black text-zinc-900 dark:text-zinc-100 tabular-nums">
-            {kpis.totalCostInr}
-          </div>
-          <div className="mt-2.5 flex items-center gap-1.5 text-xs text-purple-600 dark:text-purple-400 font-semibold">
-            <span className="w-1.5 h-1.5 rounded-full bg-purple-500" />
-            <span>Token consumption</span>
-          </div>
-        </div>
-
-        {/* Active Today */}
-        <div className="bg-white dark:bg-zinc-900 rounded-3xl border border-zinc-200/80 dark:border-zinc-800 p-5 shadow-xs relative overflow-hidden group hover:border-zinc-300 dark:hover:border-zinc-700 transition-all">
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-[11px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">
-              Active in 24h
-            </span>
-            <div className="w-8 h-8 rounded-xl bg-amber-50 dark:bg-amber-950/60 border border-amber-200/80 dark:border-amber-800/80 flex items-center justify-center text-amber-600 dark:text-amber-400">
-              <Zap size={16} />
-            </div>
-          </div>
-          <div className="text-3xl font-black text-zinc-900 dark:text-zinc-100 tabular-nums">
-            {kpis.activeToday}
-          </div>
-          <div className="mt-2.5 flex items-center gap-1.5 text-xs text-amber-600 dark:text-amber-400 font-semibold">
-            <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
-            <span>Recent buyer sessions</span>
-          </div>
-        </div>
+        <StatCard
+          label="Total Dialogues"
+          value={kpis.total}
+          icon={<MessageSquare size={16} />}
+          hint="Buyer sessions recorded"
+          loading={loading}
+        />
+        <StatCard
+          label="Captured Leads"
+          value={kpis.totalLeads}
+          tone="good"
+          icon={<Users size={16} />}
+          hint="High-intent contacts"
+          loading={loading}
+        />
+        <StatCard
+          label="AI Compute Cost"
+          value={kpis.totalCostInr}
+          icon={<Coins size={16} />}
+          hint="Token consumption"
+          loading={loading}
+        />
+        <StatCard
+          label="Active in 24h"
+          value={kpis.activeToday}
+          tone="hot"
+          icon={<Zap size={16} />}
+          hint="Recent buyer sessions"
+          loading={loading}
+        />
       </div>
 
       {/* ── Error Banner ─────────────────────────────────────────────── */}

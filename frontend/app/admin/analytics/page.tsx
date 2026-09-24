@@ -26,6 +26,7 @@ import { adminFetch } from '@/lib/adminFetch'
 import { Skeleton } from '@/components/ui/skeleton'
 import AnalyticsNav from '@/components/admin/AnalyticsNav'
 import AdminInfoTooltip from '@/components/admin/AdminInfoTooltip'
+import { StatCard } from '@/components/portal/ui'
 import { useAdminRole, isOwner } from '@/lib/adminRole'
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip,
@@ -290,196 +291,73 @@ export default function AnalyticsDashboard() {
           </div>
         ) : (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {/* Total Cost Spend */}
-          <div className="p-4 rounded-xl bg-white dark:bg-zinc-800/60 border border-zinc-200/70 dark:border-zinc-700/50">
-            <div className="flex items-center justify-between text-zinc-400 text-xs font-semibold">
-              <span>Total AI Spend</span>
-              <span className="text-emerald-600 dark:text-emerald-400 font-extrabold text-sm">₹</span>
-            </div>
-            <div className="mt-2 flex items-baseline gap-2">
-              <span className="text-2xl font-black text-zinc-900 dark:text-white">
-                ₹{aiCosts?.totalCostInr ?? 0}
-              </span>
-              <span className="text-xs font-bold text-zinc-400">
-                (${aiCosts?.totalCostUsd ?? '0.00'})
-              </span>
-            </div>
-            <p className="text-[10px] text-zinc-400 mt-1">
-              Avg ₹{((aiCosts?.avgCostPerQueryUsd ?? 0) * 87).toFixed(2)} / query
-            </p>
-          </div>
-
-          {/* Cost Per Lead */}
-          <div className="p-4 rounded-xl bg-white dark:bg-zinc-800/60 border border-zinc-200/70 dark:border-zinc-700/50">
-            <div className="flex items-center justify-between text-zinc-400 text-xs font-semibold">
-              <span>Cost Per Lead (CPL)</span>
-              <Target className="w-3.5 h-3.5 text-blue-500" />
-            </div>
-            <div className="mt-2 flex items-baseline gap-2">
-              <span className="text-2xl font-black text-emerald-600 dark:text-emerald-400">
-                ₹{aiCosts?.costPerLeadInr ?? '0.00'}
-              </span>
-              <span className="text-xs font-bold text-zinc-400">
-                (${aiCosts?.costPerLeadUsd ?? '0.00'})
-              </span>
-            </div>
-            <p className="text-[10px] text-zinc-400 mt-1">
-              Per verified buyer callback
-            </p>
-          </div>
-
-          {/* Queries Tracked — replaces a hardcoded '78.5%' ground-truth-hit
-              figure that had no computation behind it anywhere in the stack. */}
-          <div className="p-4 rounded-xl bg-white dark:bg-zinc-800/60 border border-zinc-200/70 dark:border-zinc-700/50">
-            <div className="flex items-center justify-between text-zinc-400 text-xs font-semibold">
-              <span>Queries Tracked</span>
-              <ShieldCheck className="w-3.5 h-3.5 text-purple-500" />
-            </div>
-            <div className="mt-2 flex items-baseline gap-2">
-              <span className="text-2xl font-black text-purple-600 dark:text-purple-400">
-                {(aiCosts?.totalQueriesTracked ?? 0).toLocaleString()}
-              </span>
-            </div>
-            <p className="text-[10px] text-zinc-400 mt-1">
-              Metered AI calls on record
-            </p>
-          </div>
-
-          {/* Semantic Cache Hit Rate */}
-          <div className="p-4 rounded-xl bg-white dark:bg-zinc-800/60 border border-zinc-200/70 dark:border-zinc-700/50">
-            <div className="flex items-center justify-between text-zinc-400 text-xs font-semibold">
-              <span>Semantic FAQ Cache</span>
-              <Zap className="w-3.5 h-3.5 text-amber-500" />
-            </div>
-            <div className="mt-2 flex items-baseline gap-2">
-              <span className="text-2xl font-black text-amber-600 dark:text-amber-400">
-                {aiCosts?.cache?.hitRate ?? '0.0%'}
-              </span>
-              <span className="text-xs font-bold text-zinc-500">
-                ({aiCosts?.cache?.size ?? 0} keys)
-              </span>
-            </div>
-            <p className="text-[10px] text-zinc-400 mt-1">
-              Instant &lt;15ms response @ $0.00
-            </p>
-          </div>
+          <StatCard
+            label="Total AI Spend"
+            value={`₹${aiCosts?.totalCostInr ?? 0}`}
+            icon={<DollarSign className="w-4 h-4 text-emerald-500" />}
+            hint={`Avg ₹${((aiCosts?.avgCostPerQueryUsd ?? 0) * 87).toFixed(2)}/query`}
+            loading={loading}
+          />
+          <StatCard
+            label="Cost Per Lead"
+            value={`₹${aiCosts?.costPerLeadInr ?? '0.00'}`}
+            tone="good"
+            icon={<Target className="w-4 h-4 text-blue-500" />}
+            hint="Per verified buyer callback"
+            loading={loading}
+          />
+          <StatCard
+            label="Queries Tracked"
+            value={(aiCosts?.totalQueriesTracked ?? 0).toLocaleString()}
+            icon={<ShieldCheck className="w-4 h-4 text-purple-500" />}
+            hint="Metered AI calls"
+            loading={loading}
+          />
+          <StatCard
+            label="FAQ Cache Rate"
+            value={aiCosts?.cache?.hitRate ?? '0.0%'}
+            tone="hot"
+            icon={<Zap className="w-4 h-4 text-amber-500" />}
+            hint={`${aiCosts?.cache?.size ?? 0} cached keys`}
+            loading={loading}
+          />
         </div>
         )}
       </div>
 
       {/* ─── KPI SUMMARY ROW ──────────────────────────────────────────────── */}
-      {loading ? (
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="p-5 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 shadow-2xs space-y-3">
-              <Skeleton className="h-4 w-20" />
-              <Skeleton className="h-8 w-28" />
-            </div>
-          ))}
-        </div>
-      ) : summary ? (
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          {/* Total Chats */}
-          <div className="p-5 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 shadow-2xs">
-            <div className="flex items-center justify-between">
-              <span className="text-[11px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider inline-flex items-center">
-                Total Chats
-                <AdminInfoTooltip
-                  title="Total Chats"
-                  description="Total buyer conversation sessions started with the AI assistant."
-                  whyItMatters="Measures buyer traffic and AI recommendation engagement."
-                />
-              </span>
-              <div className="w-9 h-9 rounded-xl bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 flex items-center justify-center">
-                <Users className="w-4 h-4" />
-              </div>
-            </div>
-            <div className="mt-3 flex items-baseline justify-between">
-              <span className="text-2xl sm:text-3xl font-black text-zinc-900 dark:text-white">
-                {summary.totalChats}
-              </span>
-              <span className="text-xs font-semibold text-blue-600 dark:text-blue-400">
-                Active sessions
-              </span>
-            </div>
-          </div>
-
-          {/* Total Searches */}
-          <div className="p-5 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 shadow-2xs">
-            <div className="flex items-center justify-between">
-              <span className="text-[11px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider inline-flex items-center">
-                Total Searches
-                <AdminInfoTooltip
-                  title="Total Searches"
-                  description="Count of specific property requirements searched inside chats."
-                  whyItMatters="Shows how actively buyers explore and filter listings."
-                />
-              </span>
-              <div className="w-9 h-9 rounded-xl bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 flex items-center justify-center">
-                <Search className="w-4 h-4" />
-              </div>
-            </div>
-            <div className="mt-3 flex items-baseline justify-between">
-              <span className="text-2xl sm:text-3xl font-black text-zinc-900 dark:text-white">
-                {summary.totalQueries}
-              </span>
-              <span className="text-xs font-semibold text-zinc-500">
-                {summary.avgQueriesPerChat} per chat
-              </span>
-            </div>
-          </div>
-
-          {/* Zero-Result Searches */}
-          <div className="p-5 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 shadow-2xs">
-            <div className="flex items-center justify-between">
-              <span className="text-[11px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider inline-flex items-center">
-                Zero-Result
-                <AdminInfoTooltip
-                  title="Zero-Result Searches"
-                  description="Queries where no properties matched the buyer's criteria."
-                  whyItMatters="Highlights missing inventory or overly strict budget filters."
-                />
-              </span>
-              <div className="w-9 h-9 rounded-xl bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 flex items-center justify-center">
-                <AlertCircle className="w-4 h-4 text-rose-500" />
-              </div>
-            </div>
-            <div className="mt-3 flex items-baseline justify-between">
-              <span className="text-2xl sm:text-3xl font-black text-zinc-900 dark:text-white">
-                {summary.zeroResultSearches}
-              </span>
-              <span className="text-xs font-semibold text-rose-600 dark:text-rose-400">
-                {summary.zeroResultSearchRate} rate
-              </span>
-            </div>
-          </div>
-
-          {/* Conversion Rate */}
-          <div className="p-5 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 shadow-2xs">
-            <div className="flex items-center justify-between">
-              <span className="text-[11px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider inline-flex items-center">
-                Conversion Rate
-                <AdminInfoTooltip
-                  title="Conversion Rate"
-                  description="Percentage of chatters who submitted callback or visit leads."
-                  whyItMatters="Measures lead generation efficiency from AI conversations."
-                />
-              </span>
-              <div className="w-9 h-9 rounded-xl bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 flex items-center justify-center">
-                <TrendingUp className="w-4 h-4 text-emerald-500" />
-              </div>
-            </div>
-            <div className="mt-3 flex items-baseline justify-between">
-              <span className="text-2xl sm:text-3xl font-black text-zinc-900 dark:text-white">
-                {summary.conversionRate}
-              </span>
-              <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">
-                Callback leads
-              </span>
-            </div>
-          </div>
-        </div>
-      ) : null}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <StatCard
+          label="Total Chats"
+          value={summary?.totalChats ?? 0}
+          icon={<Users className="w-4 h-4" />}
+          hint="Active sessions"
+          loading={loading}
+        />
+        <StatCard
+          label="Total Searches"
+          value={summary?.totalQueries ?? 0}
+          icon={<Search className="w-4 h-4" />}
+          hint={`${summary?.avgQueriesPerChat ?? 0} per chat`}
+          loading={loading}
+        />
+        <StatCard
+          label="Zero-Result"
+          value={summary?.zeroResultSearches ?? 0}
+          tone="hot"
+          icon={<AlertCircle className="w-4 h-4 text-rose-500" />}
+          hint={`${summary?.zeroResultSearchRate ?? '0%'} rate`}
+          loading={loading}
+        />
+        <StatCard
+          label="Conversion Rate"
+          value={summary?.conversionRate ?? '0%'}
+          tone="good"
+          icon={<TrendingUp className="w-4 h-4 text-emerald-500" />}
+          hint="Callback leads"
+          loading={loading}
+        />
+      </div>
 
       {/* ─── SECTION 2: 5-STAGE CONVERSION FUNNEL & SECTOR DEMAND ─────────── */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

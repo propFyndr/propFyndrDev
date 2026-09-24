@@ -11,7 +11,7 @@ import { requireIdentity, requireRole, recordAudit, revokeAllSessions } from '..
 import type { AdminIdentitySession } from '../lib/adminIdentity'
 import { createAdminInvite } from '../lib/adminInvite'
 import { eligiblePartners, nextInRotation, pickPartnerForBuilder } from '../lib/leadAssignment'
-import { buildLeadBrief } from '../lib/leadBrief'
+import { buildLeadBrief, competitorNames, scrubCompetitors } from '../lib/leadBrief'
 import { canManageAccess } from '../lib/accessHierarchy'
 
 const router = Router()
@@ -584,17 +584,30 @@ router.get('/builder/objections', requireIdentity, requireRole('BUILDER', 'SUPER
   if (!builderId) { res.status(400).json({ error: 'No builder scope — pass builder_id' }); return }
 
   const slugs = (await prisma.project.findMany({ where: { builder_id: builderId }, select: { slug: true } })).map((p) => p.slug)
-  if (slugs.length === 0) { res.json({ total: 0, byCategory: [], byProject: [], recent: [] }); return }
+  if (slugs.length === 0) {
+    res.json({
+      total: 0,
+      executiveSummary: 'No projects registered for this builder.',
+      topCategory: null,
+      byCategory: [],
+      byProject: [],
+      recent: [],
+    })
+    return
+  }
 
-  const objections = await prisma.leadObjection.findMany({
-    where: { project_slug: { in: slugs } },
-    select: {
-      reason_category: true, reason_text: true, confidence_score: true,
-      project_name: true, project_slug: true, created_at: true,
-    },
-    orderBy: { created_at: 'desc' },
-    take: 1000,
-  })
+  const [objections, compNames] = await Promise.all([
+    prisma.leadObjection.findMany({
+      where: { project_slug: { in: slugs } },
+      select: {
+        reason_category: true, reason_text: true, confidence_score: true,
+        project_name: true, project_slug: true, created_at: true,
+      },
+      orderBy: { created_at: 'desc' },
+      take: 1000,
+    }),
+    competitorNames(null, builderId),
+  ])
 
   const total = objections.length
 
@@ -608,19 +621,25 @@ router.get('/builder/objections', requireIdentity, requireRole('BUILDER', 'SUPER
       .sort((a, b) => b.count - a.count)
   }
 
+  const byCategory = tally((o) => o.reason_category)
+  const byProject = tally((o) => o.project_name ?? o.project_slug).slice(0, 10)
+  const topCategory = byCategory[0] ?? null
+  const executiveSummary = topCategory
+    ? `${topCategory.name} is your top objection (${topCategory.share}% of recorded buyer hesitations across ${total} instances).`
+    : 'No objections recorded for this developer yet.'
+
   res.json({
     total,
-    byCategory: tally((o) => o.reason_category),
-    byProject: tally((o) => o.project_name ?? o.project_slug).slice(0, 10),
+    executiveSummary,
+    topCategory,
+    byCategory,
+    byProject,
     /**
-     * Verbatim, and deliberately so. A category tells a builder what to fix;
-     * the buyer's own sentence tells them how it is being experienced, which is
-     * the half that changes the brochure. Paraphrasing turns evidence into our
-     * opinion.
+     * Verbatim, but competitor names scrubbed so rival projects/builders are anonymized.
      */
     recent: objections.slice(0, 12).map((o) => ({
       category: o.reason_category,
-      text: o.reason_text,
+      text: scrubCompetitors(o.reason_text, compNames) ?? o.reason_text,
       confidence: o.confidence_score,
       project: o.project_name ?? o.project_slug,
       created_at: o.created_at,

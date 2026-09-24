@@ -87,7 +87,7 @@ export interface LeadBrief {
  * hundred projects, the query is two indexed reads, and a stale cache here
  * leaks the one thing this file exists to prevent. Correctness over a lookup.
  */
-async function competitorNames(excludeProjectSlug: string | null, excludeBuilderId: string | null): Promise<string[]> {
+export async function competitorNames(excludeProjectSlug: string | null, excludeBuilderId: string | null): Promise<string[]> {
   const [projects, builders] = await Promise.all([
     prisma.project.findMany({
       where: excludeProjectSlug ? { slug: { not: excludeProjectSlug } } : {},

@@ -18,7 +18,7 @@ import { toast } from 'sonner'
 import { adminFetch } from '@/lib/adminFetch'
 import CustomSelect from '@/components/admin/CustomSelect'
 import { normalizeSpecCategory } from '@/components/admin/SpecEditor'
-import { useAdminRole, canDeleteRecords } from '@/lib/adminRole'
+import { useAdminRole, canDeleteRecords, canEditCatalogue } from '@/lib/adminRole'
 
 interface UnitType { bhk: number; price_min_cr: number | null; price_max_cr: number | null; super_area_sqft?: number | null; carpet_area_sqft?: number | null }
 
@@ -682,7 +682,9 @@ export default function AdminProjects() {
   const [isBulkModalOpen, setIsBulkModalOpen] = useState(false)
   // Bulk update rewrites many rows at once — super admin only, per the
   // server matrix in backend/src/lib/adminPolicy.ts.
-  const mayBulkUpdate = canDeleteRecords(useAdminRole())
+  const role = useAdminRole()
+  const mayEditCatalogue = canEditCatalogue(role)
+  const mayBulkUpdate = canDeleteRecords(role)
   const [bulkCsvText, setBulkCsvText] = useState('')
   const [bulkParsedRows, setBulkParsedRows] = useState<any[]>([])
   const [isImporting, setIsImporting] = useState(false)
@@ -1112,17 +1114,19 @@ Provide structured JSON with the exact verified data for each project so it can 
             <span>Export CSV</span>
           </button>
 
-          <button
-            onClick={() => {
-              setExportScope(selectedIds.size > 0 ? 'selected' : 'threshold')
-              setIsAgentExportOpen(true)
-            }}
-            className="inline-flex items-center gap-2 px-3.5 py-2 text-xs font-semibold text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-200/80 dark:border-indigo-800/60 rounded-xl shadow-xs hover:bg-indigo-100/80 dark:hover:bg-indigo-900/40 transition-all cursor-pointer active:scale-[0.98]"
-            title="Export incomplete projects & missing tab fields for data enrichment"
-          >
-            <SlidersHorizontal size={14} className="text-indigo-600 dark:text-indigo-400" />
-            <span>Export Incomplete Data {selectedIds.size > 0 ? `(${selectedIds.size} Selected)` : ''}</span>
-          </button>
+          {mayEditCatalogue && (
+            <button
+              onClick={() => {
+                setExportScope(selectedIds.size > 0 ? 'selected' : 'threshold')
+                setIsAgentExportOpen(true)
+              }}
+              className="inline-flex items-center gap-2 px-3.5 py-2 text-xs font-semibold text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-200/80 dark:border-indigo-800/60 rounded-xl shadow-xs hover:bg-indigo-100/80 dark:hover:bg-indigo-900/40 transition-all cursor-pointer active:scale-[0.98]"
+              title="Export incomplete projects & missing tab fields for data enrichment"
+            >
+              <SlidersHorizontal size={14} className="text-indigo-600 dark:text-indigo-400" />
+              <span>Export Incomplete Data {selectedIds.size > 0 ? `(${selectedIds.size} Selected)` : ''}</span>
+            </button>
+          )}
 
           {mayBulkUpdate && <button
             onClick={() => setIsBulkModalOpen(true)}
@@ -1133,13 +1137,15 @@ Provide structured JSON with the exact verified data for each project so it can 
             <span>Bulk Update</span>
           </button>}
 
-          <Link
-            href="/admin/projects/new"
-            className="inline-flex items-center gap-2 px-4 py-2 text-xs font-bold text-white bg-blue-600 hover:bg-blue-500 rounded-xl shadow-xs transition-all cursor-pointer active:scale-[0.98]"
-          >
-            <Plus size={14} />
-            <span>New Project</span>
-          </Link>
+          {mayEditCatalogue && (
+            <Link
+              href="/admin/projects/new"
+              className="inline-flex items-center gap-2 px-4 py-2 text-xs font-bold text-white bg-blue-600 hover:bg-blue-500 rounded-xl shadow-xs transition-all cursor-pointer active:scale-[0.98]"
+            >
+              <Plus size={14} />
+              <span>New Project</span>
+            </Link>
+          )}
         </div>
       </div>
 

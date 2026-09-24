@@ -40,7 +40,7 @@ const LEAD_WORKERS = ['SUPER_ADMIN', 'SALES'] as const
 const NAV: PortalNavItem[] = [
   // Core & Daily Workflow
   { href: '/admin',                       label: 'Dashboard',     icon: Gauge,             roles: [...OWNERS],      section: 'Core' },
-  { href: '/admin/queue',                 label: 'My queue',      icon: PhoneCall,         roles: ['SALES'],        section: 'Core' },
+  { href: '/admin/queue',                 label: 'My queue',      icon: PhoneCall,         roles: [...LEAD_WORKERS], section: 'Core' },
   { href: '/admin/quality',               label: 'Data quality',  icon: SealCheck,         roles: [...EDITORS],     section: 'Core' },
   { href: '/admin/lookup',                label: 'Lookup',        icon: MagnifyingGlass,                            section: 'Core' },
 
