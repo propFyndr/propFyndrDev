@@ -4001,3 +4001,41 @@ is now CLAUDE.md, MEMORY.md, README.md and MASTER_EXECUTION_ROADMAP.md.
 This is the same move `scripts/cleanup-root.js` made once before — and that is
 exactly what broke the 393 verification script. Any future root cleanup has to
 grep for readers of what it moves.
+
+### Cleanup, 2026-09-24 — what went and why
+
+**Deleted, tracked (recoverable from git):**
+- `frontend/components/admin/StatCard.tsx` — the pre-dedupe copy. No `loading`
+  prop, no skeleton, imported by nothing after the Day 4.1 migration.
+- `frontend/components/admin/__tests__/StatCard.test.tsx` — it tested that copy's
+  API (`title`/`trend`), which the shipping component does not have.
+- 22 root scripts belonging to a different project. Seven of them hardcode
+  `C:/Users/Furqan/Desktop/PeakPalsWebsite`; the rest are branding, logo, hero
+  and scaffolding tools with no PropFyndr reference. Only `find-app-name.mjs`
+  was wired to npm (`find-name`), and that entry went with it.
+
+**Kept in `scripts/`:** `enrich_122_projects.cjs`, `enrich_393_ground_truth.cjs`,
+`verify_393_enrichment.cjs` (the Day 3.2 pipeline) and `cleanup-root.js`.
+
+**The duplicate carried the only StatCard test in the repo**, while the
+component rendering on ten consoles had none — so coverage was pointed at the
+copy nobody renders. Replaced with `components/portal/__tests__/StatCard.test.tsx`,
+which asserts the skeleton specifically: "stat cards render with working
+skeleton loaders" is a Day 4.1 pass condition and nothing else covered it.
+
+**Deleted, untracked caches (~55 MB reclaimed):** `.code-review-graph` (52M),
+`.playwright-mcp` (342K), `scratch/` (2.7M). All regenerate.
+
+**`.tokensave` (36M) could NOT be deleted** — `tokensave.db`, `-shm` and `-wal`
+are held open by the running tokensave MCP server. Everything else in it is
+gone. It needs Claude Code restarted (or that MCP disconnected) and then
+`rm -rf .tokensave`. Not forced: killing a live SQLite writer mid-session is how
+you corrupt a database, and it regenerates anyway.
+
+**Deliberately NOT deleted:** `backend/scripts/corpus/results-*.json` — 37 files,
+4.2 MB, gitignored. They are the only record of how the chat behaved at past
+code states, and regenerating one costs real money. Untracked, so deleting them
+is irreversible. That is the user's call, not a cleanup default.
+
+**Root is now** CLAUDE.md, MEMORY.md, README.md, MASTER_EXECUTION_ROADMAP.md and
+config files only.
