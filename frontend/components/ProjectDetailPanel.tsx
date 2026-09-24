@@ -10,7 +10,7 @@ import {  AnimatePresence, m  } from 'framer-motion'
 import Image from 'next/image'
 import type { ProjectCard as ProjectCardType, ProjectDetail } from '@/types/project'
 import { sanitizePriceLabel } from '@/lib/format'
-import { buildWhatsAppUrl } from '@/lib/whatsapp'
+import { buildWhatsAppUrl, trackWhatsAppHandoff } from '@/lib/whatsapp'
 import { track, trackPropertyEvent } from '@/lib/analytics'
 import { getAqi, type AqiResult } from '@/lib/waqi'
 import { usePreferredImages } from '@/lib/hooks'
@@ -434,7 +434,7 @@ export default function ProjectDetailPanel({ project, onClose, inline, initialDe
             target="_blank"
             rel="noopener noreferrer"
             onClick={() => {
-              track('whatsapp_handoff', { project_slug: (d as any)?.slug, project_name: (d as any)?.name })
+              trackWhatsAppHandoff(d as any, 'panel')
               trackPropertyEvent((d as any)?.id, 'whatsapp_inquiry', undefined, userId).catch(() => {})
             }}
             className="w-full border border-gray-200 hover:border-gray-300 text-gray-600 hover:text-gray-800 py-3 rounded-2xl text-[13px] transition-colors flex items-center justify-center gap-2"
@@ -1072,7 +1072,7 @@ export default function ProjectDetailPanel({ project, onClose, inline, initialDe
                     const waUrl = d ? buildWhatsAppUrl(d as any, 'panel') : null
                     return waUrl ? (
                       <a href={waUrl} target="_blank" rel="noopener noreferrer"
-                        onClick={() => track('whatsapp_handoff', { project_slug: (d as any)?.slug, project_name: (d as any)?.name })}
+                        onClick={() => trackWhatsAppHandoff(d as any, 'panel')}
                         className="px-6 py-3 bg-white dark:bg-white/10 hover:bg-gray-50 dark:hover:bg-white/20 border border-gray-200 dark:border-white/10 text-gray-700 dark:text-gray-200 font-semibold rounded-full text-[14px] transition-all flex items-center gap-2">
                         <WhatsAppIcon size={16} />
                         Ask on WhatsApp

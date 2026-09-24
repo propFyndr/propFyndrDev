@@ -70,7 +70,7 @@ function getConnectivityForSector(sector: string, city: string) {
 }
 
 async function main() {
-  const filePath = path.resolve(__dirname, '../../propfyndr-enrichment-129-projects.json')
+  const filePath = path.resolve(__dirname, '../../docs/enrichment/propfyndr-enrichment-129-projects.json')
   console.log('Loading incomplete projects list from:', filePath)
   const incompleteProjects: IncompleteProject[] = JSON.parse(fs.readFileSync(filePath, 'utf8'))
   console.log(`Processing ${incompleteProjects.length} incomplete projects...`)

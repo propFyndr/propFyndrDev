@@ -56,3 +56,36 @@ export function buildWhatsAppUrl(
 
   return `https://wa.me/${number}?text=${encodeURIComponent(lines.join('\n'))}`
 }
+
+/**
+ * The buyer taking the conversation to WhatsApp.
+ *
+ * `whatsapp_handoff_clicked` is one of the six high-intent events Day 2.4
+ * lists, and it was declared in the AnalyticsEvent union and fired from
+ * nowhere — so the last step of the funnel, the one where a buyer stops
+ * browsing and starts talking to a human, recorded nothing.
+ *
+ * It lives here rather than in each anchor because there are four of them
+ * across three components and they would drift. `buildWhatsAppUrl` cannot fire
+ * it: building a URL is not clicking it, and those run on render.
+ *
+ * Deliberately NOT wired to the admin `wa.me` links in /admin/leads,
+ * /admin/conversations and /admin/builder-applications. Those are staff dialling
+ * out; the buyer is not the one taking an action there.
+ */
+export function trackWhatsAppHandoff(
+  project: WhatsAppProject | Record<string, unknown> | null | undefined,
+  surface: 'panel' | 'card' | 'pricing' | 'location',
+): void {
+  const p = project as WhatsAppProject | null | undefined
+  if (!p?.name) return
+  // Imported lazily so this module stays usable from a server component.
+  void import('./analytics').then(({ track }) =>
+    track('whatsapp_handoff_clicked', {
+      project_name: p.name,
+      builder_name: p.builder?.name ?? null,
+      sector: p.sector ?? null,
+      surface,
+    }),
+  ).catch(() => {})
+}

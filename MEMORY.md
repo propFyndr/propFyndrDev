@@ -3920,3 +3920,84 @@ absent, not the event.
 **Noted:** `frontend/lib/posthogClient.ts:36` hardcodes a PostHog project key as
 a production fallback, so any fork or preview deploy writes into production
 analytics.
+
+## 2026-09-24 — Day 4 and Day 5 audited, and two earlier findings corrected
+
+### Corrections to what I reported earlier
+
+**1. Day 3.2 does NOT fail.** `scripts/verify_393_enrichment.cjs` crashed with
+ENOENT because it resolved `propfyndr-enrichment-393-projects.json` against the
+CWD, and a previous root cleanup (`scripts/cleanup-root.js`) had moved the file
+to `docs/enrichment/`. The data was there the whole time. Path fixed to resolve
+from `__dirname`; the script now runs and reports **100% PASSED** — 393/393 on
+cost sheet, payment plans, decision/persona/recommendation profiles, channel
+partners and unit types, 96 master files, 0 parse errors.
+
+*But the two datasets are different and must not be conflated.* That payload
+does NOT contain any of the nine forensic columns — all ten keys are absent from
+it. The forensic data came from somewhere else and covers 129 of 382 DB rows.
+Day 3.2 (master enrichment) passes; the forensic coverage gap stands.
+
+**2. The WhatsApp handoff exists.** I reported it absent. That was a bad grep —
+the shell `rg` proxy returned "0 matches in 0 files" for a term present in 20
+files including `lib/whatsapp.ts`. Re-verified with a different tool. Treat that
+proxy's zero-result answers as unreliable.
+
+The real defect was subtler and is now fixed: the funnel was split across TWO
+event names. `whatsapp_handoff` fired from exactly one anchor in
+ProjectDetailPanel, while `whatsapp_handoff_clicked` — the name Day 2.4
+specifies — was declared in the union and fired from nowhere. Canonicalised on
+the roadmap's name via `trackWhatsAppHandoff` in `lib/whatsapp.ts`, wired at all
+four buyer surfaces (panel ×2, pricing, location), and the duplicate name
+removed from the union. Admin `wa.me` links are deliberately NOT tracked — that
+is staff dialling out, not a buyer acting.
+
+All six Day 2.4 high-intent events now fire.
+
+### Day 4 — implemented, one piece of dead code left behind
+
+StatCard migration done on all six pages, but they import from
+`components/portal/ui` (which has `loading` + skeleton + `hint`), and the old
+`components/admin/StatCard.tsx` — which has none of those and no `loading` prop
+at all — survives, imported by nothing. The migration happened; the
+deduplication it was for did not finish.
+
+Role-aware nav lives in `app/admin/layout.tsx` with a `roles` field per item
+mirroring `adminPolicy.ts`, not in the `AdminNav.tsx` the roadmap names. Edit
+buttons are gated by `useAdminRole` + `canEditCatalogue` on the projects and
+builders pages. `GET /builder/objections` aggregates with competitor names
+scrubbed. `first_contacted_at` is stamped with exactly the specified
+write-once `updateMany({ where: { id, first_contacted_at: null } })` — in
+`admin.ts:1835` and `portal.ts:383`, not `leads.ts`; the median lands on
+`/admin/queue` with "Not measured yet" below the sample floor.
+
+### Day 5 — implemented, one route missing
+
+StickyMobileCta is `md:hidden fixed bottom-0`, `h-12` targets,
+`env(safe-area-inset-bottom)`, and IS mounted on `app/property/[slug]/page.tsx`
+(my first grep said otherwise — same unreliable proxy). CallbackModal has
+`submitting`, `/^[6-9]\d{9}$/` validation with live per-digit feedback, and an
+error state. `generateMetadata` is in `app/property/[slug]/layout.tsx` plus a
+real `opengraph-image.tsx`. `sitemap.ts` reads `GET /api/v1/sitemap` and uses
+row `updated_at` for lastmod. 404 has a working search box; `error.tsx` and
+`global-error.tsx` both exist.
+
+**Missing: there is no sector route at all.** Step 5.3 says "implement dynamic
+metadata for micro-market sector landing pages" in `app/sectors/[slug]/page.tsx`
+— that page does not exist, so there is nothing to add metadata to and no sector
+URLs in the sitemap. Building it is a new feature with product decisions in it
+(what ranks, what data, what the page is for), not a metadata task.
+
+### Root folder
+
+Moved with `git mv`, nothing deleted: PLAN.md, PROGRESS.md,
+phaseImplementation.md and summary.md to `docs/planning/`; appleDESIGN.md and
+master-design-engineering-skill.md to `docs/`;
+propfyndr-enrichment-129-projects.json to `docs/enrichment/` (and its reader in
+`backend/scripts/enrich-129-incomplete.ts` repointed);
+`scratch/compiled-73-projects-research.json` to `docs/research/`. Root markdown
+is now CLAUDE.md, MEMORY.md, README.md and MASTER_EXECUTION_ROADMAP.md.
+
+This is the same move `scripts/cleanup-root.js` made once before — and that is
+exactly what broke the 393 verification script. Any future root cleanup has to
+grep for readers of what it moves.

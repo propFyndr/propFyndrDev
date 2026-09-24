@@ -7,7 +7,7 @@ import {
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import type { ProjectDetail, UnitTypeSummary, PaymentPlan } from '@/types/project'
-import { buildWhatsAppUrl } from '@/lib/whatsapp'
+import { buildWhatsAppUrl, trackWhatsAppHandoff } from '@/lib/whatsapp'
 import { PricingTabSkeleton } from '@/components/skeletons'
 import { track } from '@/lib/analytics'
 import CostSheetSection from './CostSheetSection'
@@ -1158,6 +1158,7 @@ export default function ProjectPricingTab({ unitTypes, detail, loading, onGoToCo
               href={waUrl}
               target="_blank"
               rel="noopener noreferrer"
+              onClick={() => trackWhatsAppHandoff(detail, 'pricing')}
               className="px-6 py-3.5 border border-white/20 hover:border-white text-white font-black rounded-2xl text-[13px] transition-all flex items-center gap-2 whitespace-nowrap"
             >
               <PhoneCall size={17} />
@@ -1262,6 +1263,7 @@ export default function ProjectPricingTab({ unitTypes, detail, loading, onGoToCo
                 href={waUrl}
                 target="_blank"
                 rel="noopener noreferrer"
+                onClick={() => trackWhatsAppHandoff(detail, 'pricing')}
                 className="w-full py-3 bg-blue-600 text-white font-black rounded-xl text-[13px] flex items-center justify-center gap-2 shadow-md hover:bg-blue-700 transition-colors"
               >
                 <PhoneCall size={16} /> Get Bank Pre-Approval Call

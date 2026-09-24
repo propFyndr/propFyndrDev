@@ -8,7 +8,7 @@ import {
 } from 'lucide-react'
 import type { ProjectCard as ProjectCardType, ProjectDetail } from '@/types/project'
 import SectorMap, { SECTOR_CENTROIDS } from '@/components/SectorMap'
-import { buildWhatsAppUrl } from '@/lib/whatsapp'
+import { buildWhatsAppUrl, trackWhatsAppHandoff } from '@/lib/whatsapp'
 import { LocationTabSkeleton } from '@/components/skeletons'
 
 export interface LocationTabProps {
@@ -498,6 +498,7 @@ export default function LocationTab({ project, detail, d, projectAddress, loadin
           href={waUrl || '#'}
           target="_blank"
           rel="noopener noreferrer"
+          onClick={() => trackWhatsAppHandoff(d, 'location')}
           className="px-6 py-3 bg-white text-gray-900 font-black rounded-xl text-[13px] shadow-md hover:bg-gray-100 transition-all flex items-center gap-2 flex-shrink-0 z-10"
         >
           <CalendarDays size={16} /> Book Site Visit

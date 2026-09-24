@@ -1,9 +1,15 @@
 const fs = require('fs');
 const path = require('path');
 
-const file393 = path.resolve('propfyndr-enrichment-393-projects.json');
-const file73 = path.resolve('propfyndr-enrichment-73-projects.json');
-const dir75 = path.resolve('newProj/75');
+// The enrichment payloads live in docs/enrichment/, not the repo root. These
+// resolved against the CWD and pointed at files that have never been there, so
+// the script — the Day 3.2 verification step — crashed with ENOENT on every run
+// and the enrichment was never actually verified. Resolved against this file's
+// own location so it works from any directory.
+const ROOT = path.resolve(__dirname, '..');
+const file393 = path.join(ROOT, 'docs/enrichment/propfyndr-enrichment-393-projects.json');
+const file73 = path.join(ROOT, 'docs/enrichment/propfyndr-enrichment-73-projects.json');
+const dir75 = path.join(ROOT, 'newProj/75');
 
 console.log('================================================================');
 console.log('       PROPFYNDR 393 PROJECTS FULL AUDIT & VERIFICATION         ');

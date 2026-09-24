@@ -21,7 +21,11 @@ type EventName =
   | 'builder_trust_viewed'
   | 'signup_started'
   | 'signup_completed'
-  | 'whatsapp_handoff'
+  // One handoff, one name. `whatsapp_handoff` was emitted from a single anchor
+  // in ProjectDetailPanel while `whatsapp_handoff_clicked` — the name Day 2.4
+  // specifies — was declared here and fired from nowhere, so the last step of
+  // the funnel was split across two events, one of them dead. Canonicalised on
+  // the roadmap's name; see trackWhatsAppHandoff in lib/whatsapp.ts.
   | 'whatsapp_handoff_clicked'
   | 'lead_created'
   | 'document_download'
