@@ -3734,3 +3734,55 @@ under it, so the banner reads like a passing gate by construction.
   `lifts_per_tower` was kept: it genuinely varies (2 × 286, 3 × 74, 4 × 22).
   `water_source` was checked for the same defect and is fine — 5 distinct values
   across the catalogue.
+
+### Migration applied — the forensic columns can now say "unverified"
+
+`scripts/apply-forensic-nullable.ts`, run 2026-09-24 against the live Supabase
+database. One transaction, pre-flight printed before anything was written:
+
+```
+pre-flight: { total: 382, will_null: 253, disagree_a: 0, disagree_b: 0,
+              would_lose_a_real_value: 0 }
+rows corrected: 253 (expected 253)
+```
+
+`would_lose_a_real_value: 0` is the number that authorised it — of the 253 rows
+the UPDATE touched, not one held a non-default value in any of the six columns.
+All six are now `is_nullable: YES, column_default: null`, and every one reads
+129 set / 253 null, matching the enrichment count exactly.
+
+**`prisma migrate deploy` was deliberately NOT used.** `migrate status` reports
+five unapplied migrations on this database and four are unrelated to this change
+— `add_callback_is_test`, `add_lead_first_contacted_at`,
+`add_site_visit_partner_assignment`, `drop_builder_accounts`. Deploy would have
+run all five, and one drops a table. Whether those four should run is a separate
+decision that nobody has made. The script applies one migration and writes its
+own `_prisma_migrations` row.
+
+Verified live after: an unenriched project reads `Not verified` on every pillar;
+an enriched one reads its own values. Suite 3630 tests, 2855 pass, 0 fail.
+Corpus gate 60/60.
+
+### The probe that found two more invented dates
+
+Checking the migration with the most obvious phrasing — "give me the due
+diligence scorecard for X" — did not reach the handler at all. `due diligence`
+was missing from its own matcher, the phrase the feature is named after. The
+general lane answered instead:
+
+- Amrapali Crystal Homes: *"The Occupancy Certificate was obtained on April 10,
+  2024"*. The row holds `occupancy_certificate_status: 'Obtained'` and NULL in
+  both date columns. The date is invented.
+- Mahagun Mezzaria: *"Full OC obtained on November 15, 2023"*. Both date columns
+  NULL. Also invented.
+
+Two fabricated dates, two projects, one probe. Fixed by adding
+`due diligence|forensic (check|scorecard|report)` to the matcher, which routes
+the phrasing to the deterministic handler.
+
+**Still open, and larger:** the general lane will turn a status string into a
+specific date whenever it is asked something the handlers do not claim. Widening
+one matcher closes one phrasing. Nothing structurally stops the next one — see
+the OPEN-lane note above about probing the handler registry instead of
+hand-writing bail-outs. Any date a buyer is shown should come from a date
+column, and there is currently no guard asserting that.

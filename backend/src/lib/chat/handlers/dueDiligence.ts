@@ -19,7 +19,23 @@ export const dueDiligenceHandler: ChatTopicHandler = {
 
   matches: ctx =>
     ctx.flags.isDueDiligenceQuery === true ||
-    /\b(water\s*(?:source|supply|quality|issue)|ganga\s*jal|borewell|water\s*tds|tds\s*(?:level|range|ppm)|lifts?|elevators?|up\s*lifts?\s*act|emergency\s*rescue\s*device|\bard\b|\bamc\b|amitabh\s*kant|25%\s*dues|registry\s*clearance|oc\s*status|occupancy\s*certificate|completion\s*certificate|partial\s*oc|full\s*oc|basement\s*(?:health|seepage|leakage|water|dampness)|shahdara\s*drain|drain\s*(?:corridor|impact|smell|stench)|power\s*supply\s*type|multipoint\s*connection)\b/i.test(ctx.message),
+    /**
+     * "due diligence" itself was missing, which is the phrase the feature is
+     * named after and the one a buyer reaches for first.
+     *
+     * Measured against the live server: "give me the due diligence scorecard
+     * for Amrapali Crystal Homes" did not match here, fell through to the
+     * general lane, and was answered "The Occupancy Certificate was obtained on
+     * April 10, 2024". That row holds `occupancy_certificate_status: 'Obtained'`
+     * and NULL in both date columns — the date is invented. The same probe
+     * against Mahagun Mezzaria produced "Full OC obtained on November 15, 2023"
+     * from a row whose date columns are also both NULL. Two fabricated dates,
+     * two projects, one probe.
+     *
+     * The handler answers this deterministically from the row, so the phrasing
+     * only had to reach it.
+     */
+    /\b(due\s*diligence|forensic\s*(?:check|scorecard|report)|water\s*(?:source|supply|quality|issue)|ganga\s*jal|borewell|water\s*tds|tds\s*(?:level|range|ppm)|lifts?|elevators?|up\s*lifts?\s*act|emergency\s*rescue\s*device|\bard\b|\bamc\b|amitabh\s*kant|25%\s*dues|registry\s*clearance|oc\s*status|occupancy\s*certificate|completion\s*certificate|partial\s*oc|full\s*oc|basement\s*(?:health|seepage|leakage|water|dampness)|shahdara\s*drain|drain\s*(?:corridor|impact|smell|stench)|power\s*supply\s*type|multipoint\s*connection)\b/i.test(ctx.message),
 
   handle: async ctx => {
     const matchedTarget =

@@ -51,6 +51,19 @@ describe('dueDiligenceHandler — matcher claims', () => {
     }
   })
 
+  it('claims the phrase the feature is named after', () => {
+    // These fell through to the general lane, which answered "The Occupancy
+    // Certificate was obtained on April 10, 2024" about a row holding NULL in
+    // both date columns.
+    for (const q of [
+      'give me the due diligence scorecard for Amrapali Crystal Homes',
+      'run a due diligence check on Mahagun Mezzaria',
+      'forensic report for ACE Parkway',
+    ]) {
+      assert.equal(claims(q), true, `should claim: ${q}`)
+    }
+  })
+
   it('claims when ctx.flags.isDueDiligenceQuery is true', () => {
     assert.equal(claims('tell me about living reality', { isDueDiligenceQuery: true }), true)
   })
