@@ -3840,3 +3840,83 @@ Verified after: multi-turn holds the project across costSheet → hiddenCharges 
 waterSource → lifts with turns 2-4 never naming it. Suite 3639 tests, 2864 pass,
 0 fail. Corpus gate 60/60. Demo set 57/60, up from the 56/60 baseline, with only
 the three known policy-disagreement failures left.
+
+## 2026-09-24 — Day 1 and Day 2 audited the same way
+
+### Day 1 — passes, with two holes found and closed
+
+Live-tested, not read: five bad logins against `POST /api/v1/admin/auth` returned
+401, 401, 401, 401, **423**, and the sixth 423 with the lockout message. Exactly
+the stated pass condition.
+
+Six admin rows, **no shared password hashes** — the credential rotation is real.
+`preferredInviteOrigin` prefers a non-localhost entry out of the comma list and
+falls back to `https://propfyndr.in` when `FRONTEND_URL` is unset, so the
+invite-link bug cannot recur even if production forgets the variable. Frontend
+`next build` passes.
+
+**Hole 1 — ANALYST could write to lead rows it could not read.** `decide()`
+gated `ANALYST_READ_DENIED` on `isRead`, so the 2026-09-17 pass that closed the
+read side never touched writes. An analyst was refused `GET /leads` and allowed
+`PATCH /leads/:id` — reassign it, change its status, write a note onto a buyer
+record they cannot open. Same for `/callbacks` and `/boards/queue`. Directly
+contradicts the roadmap's own Day 1 line ("no customer leads"). Closed with
+`ANALYST_WRITE_DENIED`, and the matrix table in `adminPolicy.test.ts` updated —
+that table is a deliberate product decision, so those two cells are a one-line
+revert if the call is wrong.
+
+**Still open, flagged not fixed:** `POST /email/send` is `ANALYST: true` while
+`GET /email` is `ANALYST: false`. An analyst can mail anyone from the verified
+domain but cannot see the outbox. The matrix comment reasons about SALES and is
+silent on ANALYST. A product call, not a bug.
+
+**Hole 2 — logout did not clear its own cookie.** `res.clearCookie` passed
+`secure: true, sameSite: 'strict'` against a cookie set with
+`secure: NODE_ENV === 'production', sameSite: 'lax'`. Attributes must match or
+the browser keeps it. `destroyAdminSession` had already killed the token
+server-side so it was inert, but the browser still believed it was signed in.
+
+**Noted:** `password_changed_at` is written in two places and read in none. The
+schema comment says "sessions created before this moment are revoked"; the
+actual mechanism is `revokeAllSessions(userId)`, which works. The column is
+decorative and its comment describes a check that does not exist.
+
+### Day 2 — the deliverable cannot engage, and the paid key is dead
+
+`scripts/audit-gemini-cache.ts` says it in one line: **"FREE TIER. Caching
+cannot engage, and no code change will make it."**
+
+Probed all three keys directly:
+
+```
+GEMINI_API_KEY   explicit=REFUSED 402 "Your prepayment credits are depleted"   implicit=[-1, -1]
+GEMINI_API_KEY1  explicit=REFUSED (free tier, limit=0)                         implicit=[0, 0]
+GEMINI_API_KEY2  explicit=REFUSED (free tier, limit=0)                         implicit=[0, 0]
+```
+
+The paid key returns **402 — prepayment credits depleted**, so it serves no
+traffic at all. The other two are free tier, where explicit caching is refused
+outright and implicit caching reports `cachedContentTokenCount: 0` on repeated
+identical prefixes. Day 2's headline 75% cut is not happening, and the primary
+provider is currently dead — every turn falls through to the free keys and then
+to Groq / Cerebras / Cloudflare.
+
+(The `[gemini:cache] 24349/33562 (72.5%)` lines seen during corpus runs came
+from whichever key/model served those turns, not from KEY1. The fleet is mixed;
+the audit script tests one key at a time.)
+
+Measured cost **$5.50–$6.57 per 1,000 queries** against a stated `< $1.50`.
+
+**PostHog:** `callback_requested` and `site_visit_booked` both fire server-side
+from `leads.ts` — the two the pass condition names. Of the six high-intent
+events Day 2.4 lists, four were wired (`property_saved`, `callback_requested`,
+`site_visit_booked`, `cost_sheet_calculated`) and two were type-only
+declarations that fired from nowhere. `builder_trust_viewed` is now wired to
+BuilderTab. **`whatsapp_handoff_clicked` cannot be wired: there is no WhatsApp
+handoff anywhere in the frontend** — zero matches for "whatsapp" or "wa.me" —
+even though V1 scope lists "WhatsApp lead handoff" as supported. The feature is
+absent, not the event.
+
+**Noted:** `frontend/lib/posthogClient.ts:36` hardcodes a PostHog project key as
+a production fallback, so any fork or preview deploy writes into production
+analytics.

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import {
@@ -25,6 +25,7 @@ import {
 } from '@phosphor-icons/react'
 import type { Builder } from '@prisma/client'
 import { BuilderTabSkeleton } from '@/components/skeletons'
+import { track } from '@/lib/analytics'
 
 interface ProjectData {
   builder_name?: string
@@ -45,6 +46,24 @@ export default function BuilderTab({ builder, project, documents = [], loading }
   const [imgError, setImgError] = useState(false)
   const [showAllPartners, setShowAllPartners] = useState(false)
   const [showAllDocs, setShowAllDocs] = useState(false)
+
+  /**
+   * `builder_trust_viewed` is one of the six high-intent events Day 2.4 lists,
+   * and it was declared in the AnalyticsEvent union and fired from nowhere — so
+   * the funnel had a stage that could never be reached. Reading a developer's
+   * delivery record is the moment a buyer starts checking rather than browsing,
+   * which is exactly why it is on that list.
+   *
+   * Fires on the builder actually resolving, not on mount: this tab renders a
+   * skeleton first, and a skeleton is not a view.
+   */
+  useEffect(() => {
+    if (loading || !builder?.name) return
+    track('builder_trust_viewed', {
+      builder_name: builder.name,
+      project_name: typeof project?.builder === 'string' ? project.builder : project?.builder?.name ?? null,
+    })
+  }, [loading, builder?.name])
 
   if (loading) {
     return <BuilderTabSkeleton />

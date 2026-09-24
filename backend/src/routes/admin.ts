@@ -267,7 +267,19 @@ router.delete('/auth', requireAdmin, async (req: Request, res: Response) => {
     if (token) {
       await destroyAdminSession(token)
     }
-    res.clearCookie('admin_session', { httpOnly: true, secure: true, sameSite: 'strict' })
+    // The attributes have to match the ones the cookie was SET with or the
+    // browser keeps it: this cleared with `secure: true, sameSite: 'strict'`
+    // against a cookie set with `secure: NODE_ENV === 'production',
+    // sameSite: 'lax'`, so it never matched in development and never matched
+    // the sameSite anywhere. `destroyAdminSession` above has already killed the
+    // token server-side, so the stale cookie was inert rather than dangerous —
+    // but a browser still holding an admin_session makes the UI believe it is
+    // signed in until the next request proves otherwise.
+    res.clearCookie('admin_session', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+    })
     res.json({ success: true, message: 'Logged out' })
   } catch (err) {
     console.error('[admin] logout failed:', err)

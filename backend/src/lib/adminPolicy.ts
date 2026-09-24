@@ -117,6 +117,30 @@ const ANALYST_READ_DENIED: readonly RegExp[] = [
   /^\/boards\/queue\b/,
 ]
 
+/**
+ * Lead surfaces an analyst may not WRITE either.
+ *
+ * The read side was closed on 2026-09-17 by a pass that only touched reads —
+ * `decide()` gated the list above on `isRead`, and the write side was never
+ * revisited. The result was an analyst who could not open a lead but could
+ * PATCH one: reassign it, change its status, or write a note onto a buyer
+ * record they are not allowed to see. The docstring above already says an
+ * analyst "loses the row with a person in it"; until now they lost only the
+ * ability to look at it.
+ *
+ * The roadmap says the same thing outright — "ANALYST: access to the project
+ * catalogue, builders, sectors, and data quality boards (no customer leads or
+ * deletions)". A write is access.
+ *
+ * Deliberately not the whole read list: `/email` and `/conversations` are read
+ * denials for other reasons, and this covers the buyer rows specifically.
+ */
+const ANALYST_WRITE_DENIED: readonly RegExp[] = [
+  /^\/leads\b/,
+  /^\/callbacks\b/,
+  /^\/boards\/queue\b/,
+]
+
 export interface PolicyDecision {
   allowed: boolean
   /** Shown to the caller. Names the role floor, never the path's existence. */
@@ -174,6 +198,9 @@ export function decide(
   if (role === 'ANALYST') {
     if (isRead && ANALYST_READ_DENIED.some(rx => rx.test(path))) {
       return { allowed: false, reason: 'Buyer contact details and chat transcripts are not part of catalogue work.' }
+    }
+    if (!isRead && ANALYST_WRITE_DENIED.some(rx => rx.test(path))) {
+      return { allowed: false, reason: 'Buyer records are worked by sales. Catalogue changes are yours.' }
     }
     return { allowed: true }
   }

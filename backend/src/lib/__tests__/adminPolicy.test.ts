@@ -21,10 +21,14 @@ const MATRIX: Array<[string, string, Record<Role, boolean>]> = [
   // ── Leads: the sales surface. An analyst maintains the catalogue and has no
   //    call on a buyer's name or phone number, so reads were closed to them on
   //    2026-09-17 along with the rest of the read side.
+  //    Writes were closed on 2026-09-24: the read pass had gated its denial
+  //    list on `isRead`, so an analyst could not OPEN a lead but could PATCH
+  //    one — reassign it, change its status, write a note onto a buyer record
+  //    they are not allowed to see.
   ['GET', '/leads', { SUPER_ADMIN: true, ANALYST: false, SALES: true }],
-  ['PATCH', '/leads/abc-123', { SUPER_ADMIN: true, ANALYST: true, SALES: true }],
+  ['PATCH', '/leads/abc-123', { SUPER_ADMIN: true, ANALYST: false, SALES: true }],
   ['GET', '/callbacks', { SUPER_ADMIN: true, ANALYST: false, SALES: true }],
-  ['PATCH', '/callbacks/abc-123', { SUPER_ADMIN: true, ANALYST: true, SALES: true }],
+  ['PATCH', '/callbacks/abc-123', { SUPER_ADMIN: true, ANALYST: false, SALES: true }],
 
   // ── Catalogue: sales reads it to answer a buyer, never edits it. ────────
   ['GET', '/projects', { SUPER_ADMIN: true, ANALYST: true, SALES: true }],
