@@ -1333,12 +1333,29 @@ export async function getProjectDueDiligence(nameOrId: string): Promise<Record<s
     }
   }
 
+  /**
+   * Whether this project's forensic docket has been enriched at all.
+   *
+   * Every due-diligence column below except these two is non-nullable with a
+   * default (`false`, `NONE`, `MIXED`, `SINGLE_POINT_BULK`), so an unresearched
+   * project reads identically to a researched-and-failing one. 253 of 382 rows
+   * are unresearched, and returning their defaults told the model that no
+   * project in the catalogue is Lifts-Act compliant and that every one of them
+   * is outside the Shahdara buffer. `'unverified'` is the third value the
+   * schema cannot express yet — making the columns nullable is the proper fix
+   * and needs a migration.
+   */
+  const enriched = project.water_tds_range != null || project.all_in_cost_multiplier != null
+  const tri = (value: boolean): boolean | 'unverified' => (enriched ? value : 'unverified')
+
   const gaps: string[] = []
+  if (!enriched) gaps.push('This project is not in the forensic due-diligence docket: OC status, Amitabh Kant clearance, lift-act registration, Shahdara corridor position and power metering are all unverified. State them as unknown; do not substitute a typical value.')
   if (!project.oc_details && project.oc_status === 'NONE') gaps.push('Specific tower-by-tower OC issuance details unrecorded')
   if (!project.water_tds_range) gaps.push('Water TDS laboratory testing range unrecorded')
   if (!project.bank_apf_codes) gaps.push('Approved bank APF loan codes unrecorded')
   if (project.maintenance_per_sqft_monthly == null) gaps.push('Monthly maintenance charge unrecorded')
   if (project.dg_power_rate_per_unit == null) gaps.push('DG power backup rate unrecorded')
+  if (project.all_in_cost_multiplier == null) gaps.push('All-in landed cost multiplier unrecorded — compute from the project cost sheet, never from a typical percentage')
 
   return {
     found: true,
@@ -1349,27 +1366,30 @@ export async function getProjectDueDiligence(nameOrId: string): Promise<Record<s
     builder: project.builder?.name,
     due_diligence: {
       occupancy_certificate: {
-        status: project.oc_status,
+        status: enriched ? project.oc_status : 'unverified',
         details: project.oc_details ?? null,
       },
       registry_and_clearances: {
-        amitabh_kant_clearance: project.amitabh_kant_clearance,
-        authority_dues_cleared: project.authority_dues_cleared,
+        amitabh_kant_clearance: tri(project.amitabh_kant_clearance),
+        authority_dues_cleared: tri(project.authority_dues_cleared),
         rera_number: project.rera_number,
         builder_insolvency_history: project.builder?.insolvency_history ?? false,
       },
       living_quality_and_utilities: {
-        water_source: project.water_source_type,
+        water_source: enriched ? project.water_source_type : 'unverified',
         water_tds_range: project.water_tds_range ?? null,
-        power_supply_metering: project.power_supply_type,
+        power_supply_metering: enriched ? project.power_supply_type : 'unverified',
         dg_power_rate_per_unit: project.dg_power_rate_per_unit ?? null,
         maintenance_per_sqft_monthly: project.maintenance_per_sqft_monthly ?? null,
-        lift_act_compliant: project.lift_act_compliant,
-        shahdara_drain_impact: project.shahdara_drain_impact,
+        lift_act_compliant: tri(project.lift_act_compliant),
+        shahdara_drain_impact: tri(project.shahdara_drain_impact),
       },
       financial_and_banking: {
         bank_apf_codes: project.bank_apf_codes ?? null,
-        all_in_cost_multiplier: project.all_in_cost_multiplier ?? 1.30,
+        // Was `?? 1.30`. A default multiplier presented beside verified rows is
+        // a made-up number with a verified badge on it — and it was the one
+        // figure the True Landed Cost answer is built from.
+        all_in_cost_multiplier: project.all_in_cost_multiplier ?? null,
       },
     },
     data_gaps: gaps,

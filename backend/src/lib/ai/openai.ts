@@ -105,6 +105,16 @@ export interface InferenceConfig {
    * so a leg that pins it must also disable both.
    */
   apiVersion?: 'v1' | 'v1beta'
+  /**
+   * Write-back slot for the token counts the provider actually reported.
+   *
+   * The leg span in `fallbackChain` had no way to see them — `streamWithGemini`
+   * returns a string — so it logged `cache_hit: GEMINI_EXPLICIT_CACHE === 'true'`,
+   * which is a constant, and `completionTokens: text.length / 4`, which is a
+   * guess. Both then read on the Langfuse dashboard as measurements. A config
+   * object already travels one-per-leg, so it is the cheapest honest channel.
+   */
+  usageOut?: { promptTokens: number; completionTokens: number; cachedTokens: number }
 }
 
 export const INFERENCE_DEFAULTS: InferenceConfig = {

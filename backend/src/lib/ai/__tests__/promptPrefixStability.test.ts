@@ -61,15 +61,41 @@ function longestCommonPrefix(strings: string[]): number {
   return lcp.length
 }
 
-test('the cacheable head is byte-identical across turns', () => {
-  const hashes = heads().map(h => createHash('sha1').update(h).digest('hex'))
-  const distinct = new Set(hashes).size
-  assert.equal(
-    distinct,
-    1,
-    `${distinct} distinct heads across ${TURNS.length} turns — something per-turn is being interpolated ` +
-    `above SYSTEM_PROMPT_BOUNDARY. Every byte after it stops being cacheable.`,
-  )
+/**
+ * Two blocks at the very end of the head are now scoped to `queryKind` — see
+ * prompts/__tests__/headScoping.test.ts. `queryKind` is part of the head cache
+ * key, so a variant is still byte-stable; what must never come back is a head
+ * that varies with the MESSAGE, which no cache key can capture.
+ */
+test('the cacheable head is byte-identical across turns of the same query kind', () => {
+  const byKind = new Map<string, Set<string>>()
+  TURNS.forEach(([msg, intent], i) => {
+    const kind = String(intent.queryKind ?? 'DISCOVERY')
+    const hash = createHash('sha1').update(heads()[i]).digest('hex')
+    if (!byKind.has(kind)) byKind.set(kind, new Set())
+    byKind.get(kind)!.add(hash)
+    void msg
+  })
+  for (const [kind, hashes] of byKind) {
+    assert.equal(
+      hashes.size,
+      1,
+      `${hashes.size} distinct heads for queryKind=${kind} — something per-MESSAGE is being interpolated ` +
+      `above SYSTEM_PROMPT_BOUNDARY. No cache key can capture that, so every byte after it stops being cacheable.`,
+    )
+  }
+})
+
+test('every head variant is prefix-nested with every other', () => {
+  // A shorter variant must be a strict prefix of a longer one, or implicit
+  // prefix caching breaks in the middle of the rules instead of at the end.
+  const variants = [...new Set(heads())].sort((a, b) => a.length - b.length)
+  for (let i = 1; i < variants.length; i++) {
+    assert.ok(
+      variants[i].startsWith(variants[i - 1]),
+      `head variant ${i} diverges mid-prompt from the shorter one — a gated block moved out of the head's tail`,
+    )
+  }
 })
 
 test('the shared prefix is most of the head, not a greeting', () => {

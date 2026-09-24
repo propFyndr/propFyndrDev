@@ -782,10 +782,13 @@ export async function executeWithFallbackChain(options: FallbackChainOptions): P
     // catalogue reaching another's is a 404 — see the note on the OpenAI leg.
     const profileModel =
       effectiveConfig.model && /^gemini/i.test(effectiveConfig.model) ? effectiveConfig.model : undefined
+    /** Filled by streamWithGemini with the counts the provider reported. */
+    const legUsage = { promptTokens: 0, completionTokens: 0, cachedTokens: 0 }
     const geminiConfig = {
       ...effectiveConfig,
       model: profileModel ?? item.model,
       ...(item.apiVersion ? { apiVersion: item.apiVersion } : {}),
+      usageOut: legUsage,
     }
 
     // A free-tier key is limited by tokens per minute and requests per day, not
@@ -968,12 +971,21 @@ export async function executeWithFallbackChain(options: FallbackChainOptions): P
           legSpan.end({
             output: text,
             usage: {
-              completionTokens: Math.ceil(text.length / 4),
+              // Reported by the provider where we have it; estimated only when
+              // the leg gives us nothing to read.
+              promptTokens: legUsage.promptTokens || undefined,
+              completionTokens: legUsage.completionTokens || Math.ceil(text.length / 4),
             },
             metadata: {
               latency_ms: Date.now() - legStart,
               tokens_sent: getTokensSent(),
-              cache_hit: (item.provider === 'gemini' && process.env.GEMINI_EXPLICIT_CACHE === 'true'),
+              // Measured, not inferred from the feature flag. This read
+              // `GEMINI_EXPLICIT_CACHE === 'true'` — a constant — so the
+              // dashboard showed a 100% hit rate on a free-tier key that
+              // reports `cachedContentTokenCount: 0` on every single call.
+              cached_prompt_tokens: legUsage.cachedTokens,
+              cache_hit: legUsage.cachedTokens > 0,
+              explicit_cache_enabled: process.env.GEMINI_EXPLICIT_CACHE === 'true',
               provider: item.provider,
               model: effectiveModel,
               envKey: item.envKey,

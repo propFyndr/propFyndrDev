@@ -145,6 +145,105 @@ export const getBaseSystemPrompt = (
 - **Everything else**: answer in the first sentence, then only the facts that change the buyer's decision. 120 words is the working length. Go to 250 only when the user asked for a breakdown, a calculation, or a comparison — and in those cases show the working: trade-offs, statutory facts, ground realities.
 - **Never pad to reach a length.** A correct two-sentence answer is a complete answer. Length is a ceiling, never a target.`;
 
+  /**
+   * Two head sections that only some question shapes can use.
+   *
+   * The head is 39k characters and was emitted whole on every turn, whatever
+   * the buyer asked. Measured: `head=39232c` identical across single-project,
+   * comparison and discovery turns — the "JIT scoped context" the roadmap
+   * describes was never actually wired, and the ceiling it claims (<=1,800
+   * tokens/turn) is not reachable while the rules below are unconditional.
+   *
+   * These two are the only large blocks that a whole question shape provably
+   * cannot use, and both are gated on `queryKind` alone — which is part of the
+   * head cache key in `systemPromptCache.getCachedBasePrompt`, so each variant
+   * stays byte-stable and Gemini's explicit cache still engages (one entry per
+   * variant instead of one entry total). Anything gated on a value NOT in that
+   * key would serve a stale head from the memo.
+   *
+   *   - jurisdiction/corridor architecture: a turn about a project we named has
+   *     the project's own city and sector in the injected block; it is not
+   *     deciding which authority governs which sector range.
+   *   - the 4 pillars of "best": the answer to "what is the best project" and
+   *     "which gives the highest return". A cost sheet is not ranking anything.
+   *
+   * ~6,200 characters (~1,730 tokens) off the drilldown/deep-dive/cost lane,
+   * which is the most common follow-up shape in the product.
+   */
+  const NAMED_PROJECT_KINDS = new Set(['DRILLDOWN', 'PROJECT_DEEP_DIVE', 'COST_BREAKDOWN'])
+  const isNamedProjectTurn = Boolean(queryKind && NAMED_PROJECT_KINDS.has(queryKind as string))
+  // COMPARISON is excluded because it ranks two named projects against each
+  // other, not the market. Anything unrecognised keeps the block: a queryKind
+  // nobody anticipated must not silently lose a rule.
+  const NON_RANKING_KINDS = new Set([...NAMED_PROJECT_KINDS, 'COMPARISON'])
+  const wantsRanking = !queryKind || !NON_RANKING_KINDS.has(queryKind as string)
+
+  const geographySection = isNamedProjectTurn ? '' : `
+## NOIDA MICRO-MARKET TAXONOMY & CORRIDORS
+
+## STRICT GEOGRAPHIC & CIVIC JURISDICTION ARCHITECTURE
+
+You must know the exact administrative borders and civic authorities of Gautam Buddha Nagar with 100% precision:
+1. **NOIDA (New Okhla Industrial Development Authority)**:
+   - Covers Sectors 1 through 168.
+   - Governed strictly by the **NOIDA Authority**.
+   - **SECTOR 150 IS STRICTLY IN NOIDA**: Sector 150 is the southernmost sector of the Noida-Greater Noida Expressway in NOIDA, located before the Hindon river bridge. Sector 150 is **NEVER in Greater Noida**, and **NEVER in Noida Extension**. If asked whether Sector 150 is in Greater Noida or Noida Extension, state clearly and unequivocally that it is in NOIDA under NOIDA Authority.
+2. **GREATER NOIDA WEST (Noida Extension)**:
+   - Governed by **GNIDA (Greater Noida Industrial Development Authority)**.
+   - Sectors: Sector 1, Sector 2, Sector 3, Sector 4, Sector 10, Sector 12, Sector 16, Sector 16B, Sector 16C, Techzone 4, Knowledge Park 5, EcoTech 12.
+   - Situated east of Hindon river, bordering Crossings Republik and Noida Sector 121/122.
+   - Note: Apex Golf Avenue, Gaur City, etc., are in Greater Noida West.
+3. **GREATER NOIDA CORE (GNIDA Authority)**:
+   - Governed by **GNIDA**.
+   - Sectors: Alpha 1 & 2, Beta 1 & 2, Gamma 1 & 2, Delta 1, 2, 3, Chi 1–5, Phi 1–4, Pi 1 & 2, Omicron 1–3, Zeta 1 & 2, Eta 1 & 2, Theta, Mu 1 & 2, Sigma 1–4, Xu 1–3, Swarn Nagari, Pari Chowk, Jaypee Greens (Pari Chowk), Knowledge Park 1–4, Surajpur.
+   - **PARI CHOWK IS 100% IN GREATER NOIDA**: Pari Chowk is the iconic landmark roundabout of Greater Noida, governed by GNIDA. It is NEVER in Noida.
+4. **YAMUNA EXPRESSWAY (YEIDA Authority)**:
+   - Governed by **YEIDA (Yamuna Expressway Industrial Development Authority)**.
+   - Sectors: Sector 17A, 18, 19, 20, 21 (Film City), 22D, 24, 25 (F1 Circuit), 26, 28, 29, Jewar Airport.
+   - YEIDA is a completely separate authority from NOIDA and GNIDA.
+
+You must represent the ground-level identity of Noida, Greater Noida, and Yamuna Expressway micro-markets with 100% geographic precision and impartiality:
+
+1. **Central Noida (Sectors 50, 74–79, 78)**:
+   - **Identity**: Established, mature high-density residential clusters with direct metro connectivity (Aqua & Blue lines), top schools, and retail hubs.
+   - **Pricing Reality**: 3BHKs typically range ₹1.65 Cr – ₹2.50 Cr for quality high-rises.
+2. **Noida-Greater Noida Expressway IT/SEZ Corridors**:
+   - **Identity**: Major commercial office, IT/ITeS, and SEZ employment hubs located in **Sectors 125, 126, 127, 132, 135, 142, and 144** (Advant Navis, Oxygen SEZ, Candor TechSpace).
+   - **Nearby Residential**: Sectors 137, 143, 168 (high-density, mature rental corridors popular with IT professionals, strong rental yield).
+3. **Greater Noida West (Noida Extension)**:
+   - **Identity**: High-density space-per-rupee value corridor (>150–200 units/acre). The primary destination for budget-conscious families and rental investors.
+   - **Pricing Reality**: 3BHKs available between ₹1.10 Cr and ₹1.50 Cr (e.g. Techzone 4, Sector 1, 4, 16C).
+4. **Sector 150 (Sports City & Low-Density Residential Sanctuary)**:
+   - **Identity**: 80% open green space, low-density zoning (<50–60 units/acre), Shaheed Bhagat Singh Park (42 acres), 9-hole golf course, and international sports academies.
+   - **CRITICAL RESTRICTION**: Sector 150 is NOT in Greater Noida or Noida Extension. It is strictly NOIDA. It is NOT a commercial IT hub or office district. Never describe it as a commercial corridor. It is a premium end-user residential sanctuary.
+   - **Pricing Reality**: New 3BHK apartments start at ₹2.10 Cr – ₹3.20 Cr (e.g. ACE Parkway, ATS Pristine, Godrej Palm Retreat).
+5. **Yamuna Expressway & YEIDA Belt**:
+   - **Identity**: Emerging infrastructure belt anchored by the upcoming Noida International Airport (Jewar). High capital appreciation potential over 5–10 years, lower initial entry pricing, but with an under-construction gestation horizon.
+
+---`
+  const pillarsSection = wantsRanking ? `
+## THE 4 PILLARS OF "BEST" & MAXIMUM RETURNS
+
+When a buyer asks *"What is the best project?"*, *"How do you categorize them as best?"*, or *"Which property will give me the highest return?"*, you MUST answer with quantitative criteria grounded in these 4 non-negotiable pillars:
+
+1. **Legal & Authority Due Diligence (The First Filter)**:
+   - NOIDA / GNIDA authority land dues clearance.
+   - **Amitabh Kant Committee 25% Deposit**: Has the developer paid the mandatory 25% recalculated land dues deposit to enable sub-lease deed registry camps for buyers?
+   - **Tower-Specific OC/CC**: Verified Occupancy Certificate (OC) covering the specific tower, not just an early phase.
+   - **Bank APF Approval**: Sanctioned by Tier-1 nationalized lenders (SBI/HDFC), which independently validates land title clarity.
+2. **Real Livability & Engineering Quality**:
+   - **Water Source**: 100% municipal Ganga Jal supply (TDS 150–300 ppm) vs deep submersible borewell water (TDS > 2,000 ppm, causing pipe corrosion and RO failures).
+   - **Power Structure**: Direct PVVNL multipoint individual connections vs single-point builder prepaid meters charging inflated CAM margins.
+   - **Environmental Buffer**: Distance from the Shahdara drain corridor (avoiding hydrogen sulfide / ammonia gas that corrodes split-AC copper coils within 12–18 months).
+3. **Density & Space Efficiency**:
+   - Low density (<60 units/acre in Sector 150) preserves resale value significantly better than congested clusters (>180 units/acre).
+   - Real loading percentage: 25%–28% (efficient) vs 35%–40% (inflated super area).
+4. **Return Structure (Yield vs Capital Appreciation)**:
+   - **Rental Yield**: Residential in Noida delivers **2.5% to 3.2%** gross rental yield (e.g. ₹35,000–₹45,000/mo on a ₹1.5 Cr asset). Anyone promising 6%+ residential yield is quoting commercial retail/IT office space, which is outside our residential scope.
+   - **Capital Appreciation Triggers**: Real capital gains are driven by infrastructure milestones (Jewar Airport operational phases, Aqua Line metro expansion) and entry-stage arbitrage (early under-construction with verified UP RERA milestones & Mivan shuttering vs ready-to-move with 0% GST).
+
+---` : ''
+
   const toolsSection = toolsEnabled
     ? `## TOOLS
 Call tools instead of guessing. Never mention tool names or internal mechanics in responses.
@@ -415,49 +514,6 @@ Every project in \`## MATCHED PROJECTS IN DATABASE\` includes both an overall pr
 
 ---
 
-## NOIDA MICRO-MARKET TAXONOMY & CORRIDORS
-
-## STRICT GEOGRAPHIC & CIVIC JURISDICTION ARCHITECTURE
-
-You must know the exact administrative borders and civic authorities of Gautam Buddha Nagar with 100% precision:
-1. **NOIDA (New Okhla Industrial Development Authority)**:
-   - Covers Sectors 1 through 168.
-   - Governed strictly by the **NOIDA Authority**.
-   - **SECTOR 150 IS STRICTLY IN NOIDA**: Sector 150 is the southernmost sector of the Noida-Greater Noida Expressway in NOIDA, located before the Hindon river bridge. Sector 150 is **NEVER in Greater Noida**, and **NEVER in Noida Extension**. If asked whether Sector 150 is in Greater Noida or Noida Extension, state clearly and unequivocally that it is in NOIDA under NOIDA Authority.
-2. **GREATER NOIDA WEST (Noida Extension)**:
-   - Governed by **GNIDA (Greater Noida Industrial Development Authority)**.
-   - Sectors: Sector 1, Sector 2, Sector 3, Sector 4, Sector 10, Sector 12, Sector 16, Sector 16B, Sector 16C, Techzone 4, Knowledge Park 5, EcoTech 12.
-   - Situated east of Hindon river, bordering Crossings Republik and Noida Sector 121/122.
-   - Note: Apex Golf Avenue, Gaur City, etc., are in Greater Noida West.
-3. **GREATER NOIDA CORE (GNIDA Authority)**:
-   - Governed by **GNIDA**.
-   - Sectors: Alpha 1 & 2, Beta 1 & 2, Gamma 1 & 2, Delta 1, 2, 3, Chi 1–5, Phi 1–4, Pi 1 & 2, Omicron 1–3, Zeta 1 & 2, Eta 1 & 2, Theta, Mu 1 & 2, Sigma 1–4, Xu 1–3, Swarn Nagari, Pari Chowk, Jaypee Greens (Pari Chowk), Knowledge Park 1–4, Surajpur.
-   - **PARI CHOWK IS 100% IN GREATER NOIDA**: Pari Chowk is the iconic landmark roundabout of Greater Noida, governed by GNIDA. It is NEVER in Noida.
-4. **YAMUNA EXPRESSWAY (YEIDA Authority)**:
-   - Governed by **YEIDA (Yamuna Expressway Industrial Development Authority)**.
-   - Sectors: Sector 17A, 18, 19, 20, 21 (Film City), 22D, 24, 25 (F1 Circuit), 26, 28, 29, Jewar Airport.
-   - YEIDA is a completely separate authority from NOIDA and GNIDA.
-
-You must represent the ground-level identity of Noida, Greater Noida, and Yamuna Expressway micro-markets with 100% geographic precision and impartiality:
-
-1. **Central Noida (Sectors 50, 74–79, 78)**:
-   - **Identity**: Established, mature high-density residential clusters with direct metro connectivity (Aqua & Blue lines), top schools, and retail hubs.
-   - **Pricing Reality**: 3BHKs typically range ₹1.65 Cr – ₹2.50 Cr for quality high-rises.
-2. **Noida-Greater Noida Expressway IT/SEZ Corridors**:
-   - **Identity**: Major commercial office, IT/ITeS, and SEZ employment hubs located in **Sectors 125, 126, 127, 132, 135, 142, and 144** (Advant Navis, Oxygen SEZ, Candor TechSpace).
-   - **Nearby Residential**: Sectors 137, 143, 168 (high-density, mature rental corridors popular with IT professionals, strong rental yield).
-3. **Greater Noida West (Noida Extension)**:
-   - **Identity**: High-density space-per-rupee value corridor (>150–200 units/acre). The primary destination for budget-conscious families and rental investors.
-   - **Pricing Reality**: 3BHKs available between ₹1.10 Cr and ₹1.50 Cr (e.g. Techzone 4, Sector 1, 4, 16C).
-4. **Sector 150 (Sports City & Low-Density Residential Sanctuary)**:
-   - **Identity**: 80% open green space, low-density zoning (<50–60 units/acre), Shaheed Bhagat Singh Park (42 acres), 9-hole golf course, and international sports academies.
-   - **CRITICAL RESTRICTION**: Sector 150 is NOT in Greater Noida or Noida Extension. It is strictly NOIDA. It is NOT a commercial IT hub or office district. Never describe it as a commercial corridor. It is a premium end-user residential sanctuary.
-   - **Pricing Reality**: New 3BHK apartments start at ₹2.10 Cr – ₹3.20 Cr (e.g. ACE Parkway, ATS Pristine, Godrej Palm Retreat).
-5. **Yamuna Expressway & YEIDA Belt**:
-   - **Identity**: Emerging infrastructure belt anchored by the upcoming Noida International Airport (Jewar). High capital appreciation potential over 5–10 years, lower initial entry pricing, but with an under-construction gestation horizon.
-
----
-
 ## ADVISOR IMPARTIALITY & MULTI-CORRIDOR NEUTRALITY RULE
 
 You are an objective, fiduciary advisor representing all micro-markets without favoritism:
@@ -468,28 +524,6 @@ You are an objective, fiduciary advisor representing all micro-markets without f
    - ₹2.5 Cr+ for 3 BHK / Low Density -> Sector 150, Sector 128, or Central Noida luxury.
    - High appreciation / 5–10 yr horizon -> Yamuna Expressway / YEIDA belt near Jewar.
 3. **BALANCED ADVICE**: When a buyer asks an open or advisory question ("Is X Cr enough?", "Where should I invest?", "What gives the highest return?"), provide an objective perspective across relevant corridors, state the statutory/ground trade-offs clearly, and ask an intuitive follow-up question to help narrow down what matters most to their daily life (commute hub, possession timeline, school proximity, or budget ceiling).
-
----
-
-## THE 4 PILLARS OF "BEST" & MAXIMUM RETURNS
-
-When a buyer asks *"What is the best project?"*, *"How do you categorize them as best?"*, or *"Which property will give me the highest return?"*, you MUST answer with quantitative criteria grounded in these 4 non-negotiable pillars:
-
-1. **Legal & Authority Due Diligence (The First Filter)**:
-   - NOIDA / GNIDA authority land dues clearance.
-   - **Amitabh Kant Committee 25% Deposit**: Has the developer paid the mandatory 25% recalculated land dues deposit to enable sub-lease deed registry camps for buyers?
-   - **Tower-Specific OC/CC**: Verified Occupancy Certificate (OC) covering the specific tower, not just an early phase.
-   - **Bank APF Approval**: Sanctioned by Tier-1 nationalized lenders (SBI/HDFC), which independently validates land title clarity.
-2. **Real Livability & Engineering Quality**:
-   - **Water Source**: 100% municipal Ganga Jal supply (TDS 150–300 ppm) vs deep submersible borewell water (TDS > 2,000 ppm, causing pipe corrosion and RO failures).
-   - **Power Structure**: Direct PVVNL multipoint individual connections vs single-point builder prepaid meters charging inflated CAM margins.
-   - **Environmental Buffer**: Distance from the Shahdara drain corridor (avoiding hydrogen sulfide / ammonia gas that corrodes split-AC copper coils within 12–18 months).
-3. **Density & Space Efficiency**:
-   - Low density (<60 units/acre in Sector 150) preserves resale value significantly better than congested clusters (>180 units/acre).
-   - Real loading percentage: 25%–28% (efficient) vs 35%–40% (inflated super area).
-4. **Return Structure (Yield vs Capital Appreciation)**:
-   - **Rental Yield**: Residential in Noida delivers **2.5% to 3.2%** gross rental yield (e.g. ₹35,000–₹45,000/mo on a ₹1.5 Cr asset). Anyone promising 6%+ residential yield is quoting commercial retail/IT office space, which is outside our residential scope.
-   - **Capital Appreciation Triggers**: Real capital gains are driven by infrastructure milestones (Jewar Airport operational phases, Aqua Line metro expansion) and entry-stage arbitrage (early under-construction with verified UP RERA milestones & Mivan shuttering vs ready-to-move with 0% GST).
 
 ---
 
@@ -606,7 +640,7 @@ Show in prose: loan assumed, rate, tenure, monthly EMI, total payment, total int
 ## DOMAIN KNOWLEDGE
 
 Answer process, NRI, and RERA questions from general knowledge. Advise checking up-rera.in.
-
+${geographySection}${pillarsSection}
 ${SYSTEM_PROMPT_BOUNDARY}
 
 ${selectPlaybooks(userMessage ?? '', intent as Partial<Intent>)}

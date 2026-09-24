@@ -39,9 +39,9 @@ export const dueDiligenceHandler: ChatTopicHandler = {
       // General citywide/corridor standards when no specific project is identified
       const generalText = `### Noida & Greater Noida — Living Reality & Due Diligence Standards
 
-**1. Water Source & TDS Reality**
-- **Noida (Sectors 1–128):** Supplied via municipal Ganga Jal (130 cusec Pratap Vihar WTP), blended with groundwater. Typical TDS: 250–450 ppm.
-- **Greater Noida West (Noida Extension):** Primary supply is authority deep borewells treated through society WTPs. Tested TDS: 650–950 ppm. Greater Noida Authority's 85-cusec Ganga Jal Phase 2 pipeline is currently under phased integration. Domestic RO is essential.
+**1. Water Source & TDS Reality** *(corridor-wide figures — typical for Noida, not verified for any one project)*
+- **Noida (Sectors 1–128):** Supplied via municipal Ganga Jal (130 cusec Pratap Vihar WTP), blended with groundwater. Typical TDS around 250–450 ppm.
+- **Greater Noida West (Noida Extension):** Primary supply is authority deep borewells treated through society WTPs, typically 650–950 ppm. Greater Noida Authority's 85-cusec Ganga Jal Phase 2 pipeline is under phased integration. Domestic RO is the normal fix.
 
 **2. UP Lifts and Escalators Act 2024**
 - Passed in February 2024 following Noida high-rise incidents.
@@ -77,96 +77,129 @@ Name any project (e.g. *Elite X*, *ACE Parkway*, *Godrej Woods*) to view its ver
     const isWaterQuery = /\b(water|ganga\s*jal|borewell|tds)\b/i.test(msgLower)
     const isLiftQuery = /\b(lift|lifts|elevator|up\s*lifts?\s*act|ard|rescue\s*device|amc)\b/i.test(msgLower)
     const isLegalQuery = /\b(amitabh|kant|25%|dues|registry|oc\b|occupancy|bank|apf|loan)\b/i.test(msgLower)
-    const isDrainQuery = /\b(shahdara|drain|smell|stench|corridor|environment|air)\b/i.test(msgLower)
+
+    /**
+     * Has this project's forensic docket actually been enriched?
+     *
+     * The due-diligence columns are non-nullable with defaults — `false`,
+     * `NONE`, `MIXED`, `SINGLE_POINT_BULK` — so a project nobody has researched
+     * is indistinguishable from one researched and found non-compliant. 253 of
+     * 382 rows are in that state. Rendering the default as a finding turned
+     * "we never looked" into "Clean Zone (Outside Shahdara corridor buffer)"
+     * and "Statutory Registration in Progress" — a claim about a named builder
+     * made from a column no one ever filled.
+     *
+     * `water_tds_range` and `all_in_cost_multiplier` are the two nullable
+     * columns the enrichment pass writes, and they agree exactly (129 rows, 0
+     * mismatches either way), so either one marks a real docket. Making the
+     * columns themselves nullable is the proper fix and needs a migration;
+     * until then this is the honest read.
+     */
+    const enriched = project.water_tds_range != null || project.all_in_cost_multiplier != null
+    const UNVERIFIED = 'Not verified'
+    const NO_RECORD = 'We do not hold a verified record for this project'
+
+    /** A value we may state, or the honest absence — never an inferred stand-in. */
+    const verified = (value: string | null | undefined): string | null =>
+      enriched && value !== null && value !== undefined ? String(value) : null
+
+    const gapFooter = enriched
+      ? ''
+      : `\n\n> **What we do not hold:** ${project.name} is not yet in our forensic due-diligence docket, so the checks above are unverified for this project. We will not substitute a typical figure for a verified one. Ask for an advisory check and we will pull the authority and RERA records directly.`
 
     let responseMarkdown = ''
 
     if (isWaterQuery) {
-      const waterSourceLabel = project.water_source || (
+      const waterSourceLabel = project.water_source || verified(
         project.water_source_type === 'GANGA_JAL'
-          ? 'Municipal Ganga Jal Supply'
+          ? 'Municipal Ganga Jal supply'
           : project.water_source_type === 'BOREWELL'
-          ? 'Deep Borewell Groundwater'
-          : 'Mixed: Authority Borewell & Central RO WTP'
+          ? 'Deep borewell groundwater'
+          : 'Mixed: authority borewell and central RO WTP'
       )
-      const tdsRange = project.water_tds_range || (
-        project.city?.toLowerCase().includes('greater noida') || project.sector?.toLowerCase().includes('greater noida') || /sector\s*(?:1|2|3|4|10|12|16)/i.test(project.sector)
-          ? '650–950 ppm (Domestic RO Required)'
-          : '250–450 ppm (Moderate Mineralization)'
-      )
-      const municipalNote = project.city?.toLowerCase().includes('greater noida') || project.sector?.toLowerCase().includes('greater noida') || /sector\s*(?:1|2|3|4|10|12|16)/i.test(project.sector)
-        ? 'GNIDA Phase 2 Ganga Jal network pipeline is in progress across the corridor; society currently relies on treated groundwater.'
-        : 'Supplied via Noida Authority municipal pipeline network with local underground reservoir storage.'
+      const tdsRange = project.water_tds_range
 
       responseMarkdown = `### Water Source & Quality — ${project.name} (${project.sector}, ${project.city})
 
-| Parameter | Specification | Ground Reality |
+| Parameter | Status for this project | Ground Reality |
 | :--- | :--- | :--- |
-| **Primary Water Supply** | ${waterSourceLabel} | Verified society water infrastructure |
-| **Supply Type** | **${project.water_source_type}** | ${project.water_source_type === 'GANGA_JAL' ? 'Municipal connection' : project.water_source_type === 'MIXED' ? 'Blended groundwater & treatment plant' : 'Groundwater source'} |
-| **Tested TDS Level** | **${tdsRange}** | ${tdsRange.includes('650') ? 'Elevated hardness; domestic RO purifier strictly necessary for drinking/cooking' : 'Within acceptable municipal potability guidelines'} |
-| **Ganga Jal Network** | ${project.water_source_type === 'GANGA_JAL' ? 'Connected' : 'Phase 2 Authority Rollout'} | ${municipalNote} |
-| **Rainwater Harvesting** | Active Recharging Pits | Mandatory authority ground-water recharging pits compliant |
+| **Primary water supply** | ${waterSourceLabel ?? UNVERIFIED} | ${waterSourceLabel ? 'Read from this project’s own utility record' : NO_RECORD} |
+| **Tested TDS level** | ${tdsRange ? `**${tdsRange}**` : UNVERIFIED} | ${tdsRange ? (/(?:[6-9]\d{2}|\d{4})/.test(tdsRange) ? 'Elevated hardness; a domestic RO purifier is necessary for drinking and cooking' : 'Within acceptable municipal potability guidelines') : 'No laboratory TDS reading on file for this society'} |
+| **Ganga Jal network** | ${verified(project.water_source_type === 'GANGA_JAL' ? 'Connected' : 'Not connected — treated groundwater') ?? UNVERIFIED} | ${enriched ? 'Read from this project’s own utility record' : NO_RECORD} |
 
-> **Living Reality:** In this corridor, high mineral content is common before municipal Ganga Jal reaches household taps. A domestic multi-stage RO purifier (with TDS controller) is essential for drinking and cooking.`
+> **Corridor context (typical for Noida — not verified for this project):** Noida Sectors 1–128 run largely on municipal Ganga Jal blended with groundwater; Greater Noida West still runs mainly on authority borewells treated through society WTPs while the GNIDA Phase 2 pipeline is laid. Where TDS runs high, a domestic multi-stage RO with a TDS controller is the normal fix.${gapFooter}`
 
     } else if (isLiftQuery) {
-      const liftCompliant = project.lift_act_compliant
-      const liftsPerTower = project.lifts_per_tower ? `${project.lifts_per_tower} lifts per core/tower` : 'Standard high-speed passenger elevators'
-      const serviceLift = project.has_service_lift ? 'Dedicated service/stretcher lift installed' : 'Shared passenger lifts'
+      const liftStatus = enriched
+        ? (project.lift_act_compliant ? 'Registered and compliant' : 'No registration on record')
+        : UNVERIFIED
+      const liftsPerTower = project.lifts_per_tower ? `${project.lifts_per_tower} lifts per core/tower` : UNVERIFIED
+      /**
+       * `has_service_lift` is `true` on all 382 rows — zero variation, and the
+       * admin form defaults it to true, so nobody has ever asserted it about a
+       * specific building. A column that discriminates nothing is not evidence,
+       * and "Dedicated service/stretcher lift installed" is a checkable claim
+       * about a real society. `lifts_per_tower` is kept because it does vary
+       * (2/3/4 across the catalogue), so somebody did enter it.
+       */
+      const serviceLift = UNVERIFIED
 
       responseMarkdown = `### Lift Safety & High-Rise Compliance — ${project.name}
 
-| Checkpoint | Status | Legal Standard (UP Lifts Act 2024) |
+| Checkpoint | Status for this project | Legal standard (UP Lifts Act 2024) |
 | :--- | :--- | :--- |
-| **UP Lifts Act 2024** | **${liftCompliant ? '✅ Fully Compliant' : '⚠️ Statutory Registration in Progress'}** | Mandatory registration with Directorate of Electrical Safety |
-| **Emergency Rescue Device (ARD)** | **Mandatory ARD Equipped** | Automatically levels elevator to nearest floor and opens doors during power cuts |
-| **Maintenance & AMC** | Registered OEM Comprehensive AMC | Mandatory annual maintenance contract with accredited lift vendor |
-| **Tower Lift Density** | ${liftsPerTower} | Optimized for peak passenger transit without extended wait times |
-| **Service / Stretcher Lift** | ${serviceLift} | Critical for emergency medical stretcher movement and goods transit |
+| **UP Lifts Act 2024 registration** | **${liftStatus}** | Registration with the Directorate of Electrical Safety is mandatory |
+| **Emergency Rescue Device (ARD)** | ${UNVERIFIED} | Statutorily required: levels the car to the nearest floor and opens the doors on power failure |
+| **Maintenance & AMC** | ${UNVERIFIED} | Statutorily required: an annual maintenance contract with an accredited lift vendor |
+| **Tower lift density** | ${liftsPerTower} | Drives peak-hour wait times |
+| **Service / stretcher lift** | ${serviceLift} | Critical for emergency stretcher movement and goods transit |
 
-> **Safety Advisory:** Under the UP Lifts Act 2024, developers and RWAs face strict penalties up to ₹1 Lakh plus daily compounding fines for uncertified lifts. Ensure your builder provides the electrical safety inspection certificate prior to possession.`
+> **What the law requires is not evidence that this building complies.** ARD and AMC are statutory obligations on every high-rise in UP; we have not inspected this society's certificates. Ask the builder or RWA for the electrical safety inspection certificate before possession — penalties run to ₹1 Lakh plus daily compounding fines.${gapFooter}`
 
     } else if (isLegalQuery) {
-      const kantCleared = project.amitabh_kant_clearance
       const ocStatusMap: Record<string, string> = {
-        FULL_OC: '✅ Full Occupancy Certificate (OC) Granted',
-        PHASED_OC: 'ℹ️ Phased OC Granted for Initial Towers',
-        APPLIED: '⏳ OC Applied with Authority (Inspection Stage)',
-        NONE: project.status === 'ready_to_move' ? '⚠️ OC Pending' : '🏗️ Under Construction (Pre-OC Stage)',
+        FULL_OC: 'Full Occupancy Certificate (OC) granted',
+        PHASED_OC: 'Phased OC granted for initial towers',
+        APPLIED: 'OC applied with the authority (inspection stage)',
+        NONE: 'No OC on record',
       }
-      const ocDisplay = ocStatusMap[project.oc_status] || ocStatusMap.NONE
+      const ocDisplay = enriched ? (ocStatusMap[project.oc_status] ?? UNVERIFIED) : UNVERIFIED
+      const kantDisplay = enriched
+        ? (project.amitabh_kant_clearance ? '25% land dues cleared' : 'No clearance on record')
+        : UNVERIFIED
+      const apfCodes = Array.isArray(project.bank_apf_codes) ? (project.bank_apf_codes as unknown[]) : []
 
       responseMarkdown = `### Legal, Registry & OC Verification — ${project.name}
 
-| Parameter | Status | Impact on Buyer |
+| Parameter | Status for this project | Impact on buyer |
 | :--- | :--- | :--- |
-| **Occupancy Certificate (OC)** | **${ocDisplay}** | ${project.oc_status === 'FULL_OC' ? 'Direct registry and immediate lawful move-in enabled' : project.status === 'ready_to_move' ? 'Move-in on fit-out possession; registry pending final OC' : `Expected completion as per RERA schedule`} |
-| **Amitabh Kant Policy (25% Dues)** | **${kantCleared ? '✅ 25% Land Dues Cleared' : (project.status === 'ready_to_move' ? '⚠️ Dues Settlement Under Review' : 'ℹ️ Applies at Completion Stage')}** | ${kantCleared ? 'Authority has unblocked sub-lease deed registry for buyers' : 'Developer land dues being processed under UP government rehabilitation framework'} |
-| **Authority Dues Status** | ${project.authority_dues_cleared ? '✅ In Good Standing' : '⚠️ Clearance in Progress'} | Verified against Noida / GNIDA lease record index |
-| **RERA Registration** | **${project.rera_number ? `UPRERA: ${project.rera_number}` : 'RERA Registered'}** | Full statutory project disclosure under UP RERA |
+| **Occupancy Certificate (OC)** | **${ocDisplay}** | ${enriched && project.oc_status === 'FULL_OC' ? 'Direct registry and lawful move-in enabled' : 'Registry cannot complete until full OC is granted'} |
+| **Amitabh Kant policy (25% dues)** | **${kantDisplay}** | ${enriched && project.amitabh_kant_clearance ? 'The authority has unblocked sub-lease registry for buyers here' : 'Sub-lease registry stays blocked until the developer clears 25% of recalculated net dues'} |
+| **Authority dues** | ${verified(project.authority_dues_cleared ? 'In good standing' : 'No clearance on record') ?? UNVERIFIED} | Checked against the Noida / GNIDA lease record index |
+| **RERA registration** | ${project.rera_number ? `**UPRERA: ${project.rera_number}**` : 'Not recorded'} | ${project.rera_number ? 'Full statutory disclosure available on the UP RERA portal' : 'We hold no RERA number for this project — verify on up-rera.in before paying anything'} |
+| **Bank APF codes** | ${apfCodes.length ? `**${apfCodes.join(', ')}**` : UNVERIFIED} | An APF code means a lender has already appraised the project's title |
 
-> **Buyer Protection Note:** Flat registries in Noida and Greater Noida are contingent on the developer clearing the 25% upfront land dues under the Amitabh Kant committee policy. Always request the authority No-Dues Certificate (NDC) copy before final disbursement.`
+> **Buyer protection:** registries in Noida and Greater Noida turn on the 25% upfront land dues under the Amitabh Kant committee policy. Ask for the authority No-Dues Certificate (NDC) before final disbursement, whatever we hold on file.${gapFooter}`
 
     } else {
-      // Comprehensive 4-Pillar Due Diligence Scorecard
-      const waterSourceLabel = project.water_source || (project.water_source_type === 'GANGA_JAL' ? 'Municipal Ganga Jal' : 'Authority Borewell & Central WTP')
-      const tdsRange = project.water_tds_range || '650–950 ppm'
-      const kantCleared = project.amitabh_kant_clearance
-      const drainStatus = project.shahdara_drain_impact ? '⚠️ Within corridor buffer (possible seasonal odor)' : '✅ Clean Zone (Outside Shahdara corridor buffer)'
-      const powerType = project.power_supply_type === 'PVVNL_MULTIPOINT' ? 'PVVNL Multipoint (Direct billing)' : 'Single-Point Bulk Supply'
+      const drainStatus = enriched
+        ? (project.shahdara_drain_impact ? 'Within the corridor buffer — seasonal odour and faster AC coil corrosion reported' : 'Outside the corridor buffer')
+        : UNVERIFIED
+      const powerType = enriched
+        ? (project.power_supply_type === 'PVVNL_MULTIPOINT' ? 'PVVNL multipoint (direct discom billing)' : 'Single-point bulk supply via the society')
+        : UNVERIFIED
 
-      responseMarkdown = `### Due Diligence & Living Reality Scorecard — ${project.name}
+      responseMarkdown = `### Due Diligence Scorecard — ${project.name}
 
-| Evaluation Pillar | Status & Ground Truth | Buyer Advisory |
+| Evaluation pillar | Status for this project | Buyer advisory |
 | :--- | :--- | :--- |
-| **1. Water Source & TDS** | ${waterSourceLabel} (${tdsRange}) | Treated groundwater; domestic RO purifier strictly required |
-| **2. Lift Safety (UP Act 2024)** | ${project.lift_act_compliant ? '✅ Compliant' : '⚠️ ARD & Inspection in Progress'} | Mandatory emergency auto-rescue devices (ARD) and annual AMC |
-| **3. Registry & Land Dues** | ${kantCleared ? '✅ 25% Dues Cleared (Amitabh Kant Policy)' : 'ℹ️ Standard Authority Milestone Schedule'} | Registry opens post OC grant and authority clearance |
-| **4. Environmental Zone** | ${drainStatus} | Confirmed outside corrosive drain buffer zone |
-| **5. Electricity Metering** | ${powerType} | ${project.power_supply_type === 'PVVNL_MULTIPOINT' ? 'Direct discom meter prevents RWA tariff markups' : 'Single point connection managed through society'} |
+| **1. Water source & TDS** | ${project.water_tds_range ?? UNVERIFIED} | ${project.water_tds_range ? 'Read from this project’s own utility record' : NO_RECORD} |
+| **2. Lift safety (UP Act 2024)** | ${enriched ? (project.lift_act_compliant ? 'Registered and compliant' : 'No registration on record') : UNVERIFIED} | ARD and annual AMC are statutory; ask for the inspection certificate |
+| **3. Registry & land dues** | ${enriched ? (project.amitabh_kant_clearance ? '25% dues cleared' : 'No clearance on record') : UNVERIFIED} | Registry opens after OC grant and authority clearance |
+| **4. Shahdara drain corridor** | ${drainStatus} | ${enriched ? 'Measured against the corridor buffer' : NO_RECORD} |
+| **5. Electricity metering** | ${powerType} | ${enriched && project.power_supply_type === 'PVVNL_MULTIPOINT' ? 'A direct discom meter prevents RWA tariff markups' : 'A single-point connection lets the society set its own tariff'} |
 
-> **Summary Verdict:** ${project.name} holds strong structural fundamentals. Before finalizing, verify the latest builder milestone certificate and ensure your unit is cleared on the bank approved project finance (APF) list.`
+> **This is a record of what we hold, not a verdict on the project.** Every row marked ${UNVERIFIED} is a gap in our docket, not a finding against the builder.${gapFooter}`
     }
 
     // Stream smoothly for natural rendering
@@ -217,10 +250,15 @@ Name any project (e.g. *Elite X*, *ACE Parkway*, *Godrej Woods*) to view its ver
 
     ctx.emitUiState({
       stage: 'RESEARCH',
-      thinking: `Forensic due diligence verified for ${project.name}:`,
+      // HIGH is reserved for an answer read from this project's own rows. An
+      // unenriched project produces a list of gaps, and labelling that HIGH is
+      // the same claim the table used to make in prose.
+      thinking: enriched
+        ? `Forensic due diligence verified for ${project.name}:`
+        : `What we hold — and do not hold — on ${project.name}:`,
       chips,
       missingFields: [],
-      confidence: 'HIGH'
+      confidence: enriched ? 'HIGH' : 'LOW'
     })
 
     ctx.send('done', {

@@ -151,7 +151,9 @@ const EMPTY: ProjectData = {
   shahdara_drain_impact: false,
   lift_act_compliant: false,
   power_supply_type: 'SINGLE_POINT_BULK',
-  all_in_cost_multiplier: '1.30',
+  // Blank, not 1.30. A prefilled multiplier is saved by anyone who does not
+  // notice it, and it then reads downstream as a verified project figure.
+  all_in_cost_multiplier: '',
 }
 
 function toSlug(name: string): string {

@@ -3570,3 +3570,167 @@ Site visits and callbacks are both unauthenticated writes now, protected only by
 rate limiting (30/hour per identity or IP) with no captcha. Two open write
 endpoints is a spam surface worth revisiting before the beta link is posted
 anywhere public.
+
+---
+
+## 2026-09-24 — Day 1–3 roadmap audit, and the due-diligence fabrication it found
+
+### What was decided
+
+**Day 1 and Day 2 shipped as specified; Day 3 shipped its schema and its data,
+but its rendering layer inverted the zero-fabrication rule it was written to
+serve.** The audit findings and the fixes are below. Nothing in Day 1 or Day 2
+was changed.
+
+**A `false` boolean is not a finding.** The nine forensic columns added in Day
+3.1 are non-nullable with defaults (`false`, `NONE`, `MIXED`,
+`SINGLE_POINT_BULK`). 129 of 382 projects have been enriched; the other 253
+carry defaults. `dueDiligence.ts` rendered those defaults as verified findings —
+"Clean Zone (Outside Shahdara corridor buffer)" for all 382 rows of a column
+nobody ever filled, "Statutory Registration in Progress" against named builders,
+a TDS range guessed from a sector regex under a row headed **Tested TDS Level**,
+"RERA Registered" for projects with no RERA number, and the sentence "X holds
+strong structural fundamentals" appended to every project unconditionally — all
+under `confidence: 'HIGH'`.
+
+*Rejected:* making the columns nullable, which is the correct fix. It needs a
+migration on the production database and migrations need explicit in-session
+confirmation. Until then `water_tds_range != null || all_in_cost_multiplier !=
+null` is the enrichment marker (129/129 agreement, 0 mismatches either way) and
+the handler and the `project_due_diligence` tool both read it. The tool now
+returns `'unverified'` as a third value rather than `false`, and
+`all_in_cost_multiplier` returns null rather than a fabricated `1.30`.
+
+**Roadmap step 3.5 was not implemented and its stated ceiling is not
+reachable.** The claim was a ≤1,800-token prompt via "JIT scoped context".
+Measured with the repo's own `scripts/measure-prompt-tail.ts` immediately after
+the commit: `head=39232c` byte-identical across single-project, comparison and
+discovery turns, total 13,457–14,288 tokens. Nothing was scoped. Two head blocks
+a named-project turn provably cannot use are now gated on `queryKind`, which
+takes a drilldown / deep-dive / cost-sheet turn from ~11,540 to ~9,985 tokens
+(−13.5%). That is the honest size of the available win without rewriting HARD
+RULES (9,165c) and QUERY ROUTING (6,209c), which is a behaviour change to a
+routing path with a long regression history, not a diet.
+
+*Constraint that shapes any future diet:* the gate may read only values that are
+part of the head cache key in `getCachedBasePrompt` (queryKind, intentState,
+city, verbose, blockedBuilders.length, toolsEnabled). A gate on `intent.sector`
+would serve a stale head from the memo. And the gated blocks must sit at the END
+of the head so a short variant stays a strict prefix of a long one — otherwise
+implicit prefix caching breaks mid-rules instead of at the divergence.
+`promptPrefixStability.test.ts` now pins both properties.
+
+**Focus is cleared, not just set.** `focus_project_id` was written whenever a
+project was in play and never written back to null, so a session that moved off
+a project kept it on the row forever — and `ATTRIBUTE_FOLLOWUP` reads that
+column, so a later innocuous question ("what are maintenance charges like?")
+silently re-adopted a project from ten turns earlier. A turn judged a fresh
+search now nulls the column and is excluded from the attribute-followup carry.
+
+**Langfuse was reporting a constant as a measurement.** The leg span logged
+`cache_hit: GEMINI_EXPLICIT_CACHE === 'true'` — an env flag, so the dashboard
+showed a 100% hit rate on a free-tier key that reports
+`cachedContentTokenCount: 0` on every call — and `completionTokens:
+text.length / 4`. Both now read the counts Gemini actually returned, via a
+`usageOut` write-back slot on `InferenceConfig`.
+
+### Open, not fixed
+
+- **253 of 382 projects have no forensic docket.** `shahdara_drain_impact` is
+  true for zero rows and `bank_apf_codes` is populated for zero rows, so both
+  features are wired end to end and answer "not verified" every single time.
+- **The 129 enriched rows are sector-level, not project-level.** Every one of
+  them carries `all_in_cost_multiplier: 1.3`, and the TDS strings are corridor
+  generics ("180-280 ppm (Noida Authority Ganga Jal supply)") repeated across
+  projects. Under § Answering With Data We Hold these are `market` tier wearing
+  a `verified` badge. Deciding that is a product call, not a code fix.
+- **The roadmap says 620+ projects; the database holds 382.**
+- **Making the nine forensic columns nullable** is the root-cause fix for the
+  first item above and needs a migration.
+
+### Corpus verification (same day, before deploy)
+
+Three paid runs against a live server, results in `backend/scripts/corpus/`
+(gitignored): `results-baseline-demo.json` (code with the fixes stashed),
+`results-final-demo.json`, `results-final-corpus60.json`.
+
+| run | set | pass |
+|---|---|---|
+| baseline (fixes stashed) | demo-set, 60 | 56/60 — 93.3% |
+| final | demo-set, 60 | 56/60 — 93.3% |
+| final | corpus.json, 60 (the roadmap gate) | **60/60 — 100%** |
+
+**No regression.** The same three failures appear in every run, byte-identical,
+and one further failure lands on a different query each time — provider
+variance, not a code effect. On one run it fell to
+`openai/@cf/meta/llama-4-scout`, which returned an answer with **every digit
+stripped** ("Monthly Income: ₹. lakh", "Sector :", "loan-to-value ratio of :").
+That Cloudflare leg mangles numbers and is worth its own look.
+
+**The three deterministic failures are policy disagreements, not fabrication,
+and were left alone:**
+- `inventory_size` × 2 — `coverageAnswer.ts:178` emits "We track 8 Godrej
+  Properties projects"; `answerIntegrity.scanDisclosure` forbids stating how
+  many rows we hold. One module says it, another bans it. Whether a buyer may
+  be told the catalogue count is a product call.
+- `raw_payload` × 1 — `scanDisclosure` flags `#entity:<uuid>` as a leaked
+  internal id, but `proseEntities.ts` is its sanctioned producer and the
+  frontend (`Markdown.tsx`, `MessageBubble.tsx`) renders it as a link. The buyer
+  never sees the UUID; only the corpus grader, which reads raw SSE, does. A
+  false positive in the guard, not a leak.
+
+### Explicit context caching has never once engaged in production
+
+Measured in the live server log during the corpus run:
+
+```
+[gemini:cache] explicit cache unavailable for gemini-3.5-flash-lite; continuing uncached:
+{"error":{"code":429,"message":"TotalCachedContentStorageTokensPerModelFreeTier
+limit exceeded for model gemini-3.5-flash-lite: limit=0, requested=13589",
+"status":"RESOURCE_EXHAUSTED"}}
+```
+
+`limit=0`. The key is free tier, and the free tier permits no cached content at
+all. `geminiCache.ts` is correct and `GEMINI_EXPLICIT_CACHE=true` is set; the
+API refuses every create. **Day 2's headline 75% cost cut is not being
+realised and cannot be until billing is enabled on the Gemini key.**
+
+What IS saving money is Gemini's *implicit* prefix cache, also measured live:
+`24349/33562 (72.5%)`, `12177/16732 (72.8%)`, `12172/33592 (36.2%)`. That is why
+the head-scoping change keeps its variants prefix-NESTED — it protects the only
+caching mechanism currently working. The low readings are the ~33k-token
+discovery prompts, where the variable project block dwarfs the stable head.
+
+Measured blended cost: **$5.50–$6.57 per 1,000 queries**. The roadmap's Day 2
+pass condition is `< $1.50 / 1k`. Not met, and not close. Note that
+`run-corpus.ts:501` prints `Caching Hit Rate: >= 75%` as a hardcoded string —
+it measures nothing, and line 500 prints `< $1.50` whenever the real figure is
+under it, so the banner reads like a passing gate by construction.
+
+### Two more fabrications found by live probing, both fixed
+
+- **The OPEN lane was shadowing the due-diligence handler.** Against Mahagun
+  Mezzaria (`water_source_type: GANGA_JAL`, `water_tds_range: 180-280 ppm`):
+  "does Mahagun Mezzaria get Ganga Jal or borewell water?" reached the handler
+  and answered from the row, but "what is the water TDS level in Mahagun
+  Mezzaria?" classified `OPEN`, logged `[GROUNDED:WEB_SKIPPED] no searchable
+  subject` and `fromDatabase: false`, and the model answered "levels vary
+  depending on the active supply source, combining Noida Authority water and
+  backup borewells" — contradicting our own verified row, about a named
+  building. The OPEN lane returns before `CHAT_TOPIC_HANDLERS` run, so the
+  handler was unreachable for whichever phrasings the classifier calls OPEN.
+  It now declines a forensic question about a project we hold, probed through
+  `dueDiligenceHandler.matches` rather than a copied regex.
+
+  *This is the general shape to watch:* that `if` already carries five
+  hand-written bail-outs (inventory, affordability, legal safety, our own
+  numbers, resolved ordinal), each added after the same failure was found by
+  hand. A sixth is a patch, not a cure — the lane should probe the handler
+  registry, which needs the handler context built earlier than it is.
+
+- **`has_service_lift` is `true` on all 382 rows** and the admin form defaults
+  it true, so "Dedicated service/stretcher lift installed" was a checkable claim
+  about every society in the catalogue, asserted by nobody. Now unverified.
+  `lifts_per_tower` was kept: it genuinely varies (2 × 286, 3 × 74, 4 × 22).
+  `water_source` was checked for the same defect and is fine — 5 distinct values
+  across the catalogue.

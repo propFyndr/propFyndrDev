@@ -91,7 +91,17 @@ import {
   isReraProcessQuestion as matchesReraProcessQuestion,
   isPaymentPlanRequest as matchesPaymentPlanRequest,
 } from '../lib/chat/topicFlags'
-import { CHAT_TOPIC_HANDLERS } from '../lib/chat/handlers'
+import { CHAT_TOPIC_HANDLERS, dueDiligenceHandler } from '../lib/chat/handlers'
+
+/**
+ * Empty flag set for probing a handler's matcher outside the dispatch loop.
+ *
+ * An inline object literal would be the obvious thing to write, but
+ * `compoundQuestions.test.ts` locates the handler registry by searching this
+ * file for the first opening of a flags object, and a second one above it
+ * silently retargets that assertion at the wrong block.
+ */
+const NO_TOPIC_FLAGS: Record<string, boolean> = {}
 import { generateMultiDimensionalContext, attachMultiDimensionalRecommendations } from '../lib/discovery/multidimensionalPromptEnricher'
 import { sanitizeUserMessage } from '../lib/ai/sanitize'
 import { filterNewChips, markChipShown, hydrateFromDb, persistToDb, suppressTopicChips } from '../lib/discovery/chipDedup'
@@ -812,6 +822,20 @@ router.post('/', async (req: Request, res: Response) => {
     /** The project this turn is about, written by whichever path closes it. */
     let focusProjectId: string | null = null
 
+    /**
+     * The buyer has moved off the project the session was anchored to.
+     *
+     * Every persistence site below writes `focus_project_id` only when
+     * `focusProjectId` is set, so the column was written once and never
+     * cleared. A buyer who looked at ACE Parkway on turn 2 and then spent ten
+     * turns on Greater Noida West still had ACE Parkway on the session row, and
+     * `ATTRIBUTE_FOLLOWUP` reads that column — so an innocuous later question
+     * ("what are maintenance charges like?") silently re-adopted a project from
+     * ten turns earlier and answered about it. Clearing is as much a part of
+     * focus tracking as setting.
+     */
+    let clearPersistedFocus = false
+
     const persistEarlyTurn = (
       lane: string,
       answer: string,
@@ -855,7 +879,9 @@ router.post('/', async (req: Request, res: Response) => {
               last_active: new Date(),
               chat_phase: phase,
               message_count: { increment: 2 },
-              ...(focusProjectId ? { focus_project_id: focusProjectId, focus_set_at: new Date() } : {}),
+              ...(focusProjectId
+                ? { focus_project_id: focusProjectId, focus_set_at: new Date() }
+                : clearPersistedFocus ? { focus_project_id: null, focus_set_at: null } : {}),
             },
           })
         }
@@ -1109,6 +1135,10 @@ router.post('/', async (req: Request, res: Response) => {
           console.log('[CHAT] Fresh discovery / advisory / sector query detected — isolating project focus.');
           intent.projectNames = undefined;
           (intent as any).targetProjectId = undefined;
+          // The in-memory clear above was undone on the very next turn, because
+          // the session row still named the old project and ATTRIBUTE_FOLLOWUP
+          // reads it. Isolating the focus has to reach the column too.
+          clearPersistedFocus = true;
         } else {
           // Persist active project focus from previous turn / session only if user is asking follow-up detail query
           const prevProjectName = (prevIntent as any)?.projectNames?.[0] || (hydratedIntent as any)?.projectNames?.[0] || cachedProjectsFromSession?.[0]?.name;
@@ -1477,6 +1507,11 @@ router.post('/', async (req: Request, res: Response) => {
     const targetFocusId = sessionData?.focus_project_id || focusProjectId
     if (
       !intent.projectNames?.length &&
+      // A turn already judged a fresh search does not get the old project back
+      // through the side door. "what are prices in greater noida west" names no
+      // sector number and trips ATTRIBUTE_FOLLOWUP on "price", so it used to
+      // re-adopt the project the buyer had just navigated away from.
+      !clearPersistedFocus &&
       !/\bsector\s*\d/i.test(message) &&
       ATTRIBUTE_FOLLOWUP.test(message) &&
       targetFocusId
@@ -2430,13 +2465,46 @@ router.post('/', async (req: Request, res: Response) => {
       })
     }
 
+    /**
+     * A forensic question about a project we hold is not an open question.
+     *
+     * Measured live against Mahagun Mezzaria, whose row carries
+     * `water_source_type: GANGA_JAL` and `water_tds_range: 180-280 ppm`:
+     *
+     *   "does Mahagun Mezzaria get Ganga Jal or borewell water?"
+     *      -> dueDiligenceHandler, verified table, correct.
+     *   "what is the water TDS level in Mahagun Mezzaria?"
+     *      -> queryKind OPEN, `[GROUNDED:WEB_SKIPPED] no searchable subject`,
+     *         `fromDatabase: false`, and the model answered "levels vary
+     *         depending on the active supply source, combining Noida Authority
+     *         water and backup borewells" — contradicting our own verified row,
+     *         invented, about a named building.
+     *
+     * Same shape as the affordability, legal-safety and rental-yield bail-outs
+     * above: this lane returns before CHAT_TOPIC_HANDLERS ever run, so a
+     * specialised path that reads our rows is unreachable for whichever
+     * phrasings the classifier happens to call OPEN. Probed through the
+     * handler's own matcher rather than a copied regex, so the two cannot
+     * drift; `matches` reads only `message` and `flags`.
+     */
+    const asksHeldProjectDueDiligence =
+      (intent.projectNames?.length ?? 0) > 0 &&
+      (dueDiligenceHandler.matches as (c: unknown) => boolean)({ message, flags: NO_TOPIC_FLAGS })
+    if (asksHeldProjectDueDiligence) {
+      console.log('[CHAT:OPEN_LANE_DECLINED]', {
+        reason: 'forensic question about a project we hold — routing to the due-diligence handler',
+        project: intent.projectNames?.[0],
+      })
+    }
+
     if (
       queryClassification.queryKind === 'OPEN' &&
       !(asksForInventory && intent.sector) &&
       !asksAffordability &&
       !asksLegalSafety &&
       !asksOurOwnNumbers &&
-      !resolvedFromShownList
+      !resolvedFromShownList &&
+      !asksHeldProjectDueDiligence
     ) {
       await answerAsGeneralQuestion('OPEN')
       return
@@ -5716,7 +5784,9 @@ EXECUTIVE RESPONSE INSTRUCTIONS:
             last_active: new Date(),
             chat_phase: intentState,
             message_count: { increment: 2 },
-            ...(focusProjectId ? { focus_project_id: focusProjectId, focus_set_at: new Date() } : {}),
+            ...(focusProjectId
+              ? { focus_project_id: focusProjectId, focus_set_at: new Date() }
+              : clearPersistedFocus ? { focus_project_id: null, focus_set_at: null } : {}),
             ...(newSummaries?.location ? { summary_location: newSummaries.location } : {}),
             ...(newSummaries?.financial ? { summary_financial: newSummaries.financial } : {}),
             ...(newSummaries?.timeline ? { summary_timeline: newSummaries.timeline } : {}),

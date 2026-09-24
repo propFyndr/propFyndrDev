@@ -437,6 +437,9 @@ export async function streamWithGemini(
     // Gemini is the paid primary — without this, recordUsage only ever saw
     // Groq/OpenAI traffic and isOverDailyBudget read $0 for every Gemini user.
     // Recorded in `finally` so a mid-stream stall still bills what was consumed.
+    // Hand the measured counts back to whoever asked for them (the Langfuse
+    // leg span), before the early return below can skip it.
+    if (config.usageOut) Object.assign(config.usageOut, usage)
     if (usage.promptTokens > 0 || usage.completionTokens > 0) {
       if (usage.cachedTokens > 0) {
         const pct = ((usage.cachedTokens / usage.promptTokens) * 100).toFixed(1)
