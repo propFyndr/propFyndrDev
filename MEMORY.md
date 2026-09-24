@@ -3786,3 +3786,57 @@ one matcher closes one phrasing. Nothing structurally stops the next one — see
 the OPEN-lane note above about probing the handler registry instead of
 hand-writing bail-outs. Any date a buyer is shown should come from a date
 column, and there is currently no guard asserting that.
+
+### The structural fixes, and a regression they exposed
+
+**1. A date shown to a buyer must come from the prompt.**
+`answerIntegrity.unsourcedDates` — provenance by containment, which needs no
+field registry: a day-level date in the answer that the prompt never carried in
+any ordinary rendering was invented. Deliberately DAY-level only; a bare year
+("UP Lifts Act 2024") is general knowledge and a month-year is how
+`possession_label` is written. The trailing anchor is `(?!\d)` and not `\b`,
+because Prisma renders a DateTime as `2023-11-15T00:00:00.000Z` and `T` is a
+word character — `\b` failed on exactly the shape the prompt actually carries.
+
+**2. The OPEN lane asks the handler registry.** It had accumulated five
+hand-written bail-outs, each added after someone found the same failure by hand.
+It now probes `CHAT_TOPIC_HANDLERS` so a handler added later is covered without
+anyone editing the router.
+
+*Its limit, which is real:* the handler flags are computed ~270 lines BELOW that
+decision, so the probe passes an empty flag set and only matchers carrying their
+own message regex can answer. Closing it means hoisting the flag block above the
+OPEN lane — and the block between them calls `send('token')`, so hoisting
+changes user-visible output ordering. Not worth doing in the same change as the
+guard. `openLaneRegistryProbe.test.ts` pins which handlers the probe reaches so
+the gap cannot widen unnoticed.
+
+**3. A regression I introduced in af106db, found by probing.**
+`clearPersistedFocus` + `!clearPersistedFocus` on the ATTRIBUTE_FOLLOWUP carry
+killed the Day 3.5 pass condition outright. Turn 1 "show me the cost sheet for
+Mahagun Mezzaria" answered and set `sector: Sector 78, Noida`. Turn 2 "are there
+any hidden charges for it?" came back `queryKind: DISCOVERY`, `intentState:
+GATHERING`, stage CLARIFYING, chips offering "2 BHK in Sector 78, Noida", and
+**zero tokens**. The buyer asked about a building and was asked to pick a
+bedroom count.
+
+Root cause is older than my change and is the defect this file keeps
+rediscovering: `isSectorOrLocationSearch` reads `Boolean(intent.sector)`, and
+`intent.sector` is sticky — filled from the focus project's own sector. On any
+session that has ever seen a sector, every turn looked like a fresh location
+search, and the only thing rescuing a follow-up was the `isExplicitFollowUp`
+word list, which does not contain "hidden charges". Clearing the focus now
+requires a location named in THIS message (`namesLocationThisTurn`). The word
+list stays as a positive signal and is no longer load-bearing.
+
+**The probe itself had a bug worth recording:** `POST /chat` reads `guestToken`
+from the BODY only — `x-guest-token` is read by the GET session routes and
+ignored here. A probe sending the header gets its session minted under a
+server-generated token, every follow-up fails the ownership check, and the
+stream returns empty, which is indistinguishable from a lost referent. That
+header/body asymmetry is worth closing.
+
+Verified after: multi-turn holds the project across costSheet → hiddenCharges →
+waterSource → lifts with turns 2-4 never naming it. Suite 3639 tests, 2864 pass,
+0 fail. Corpus gate 60/60. Demo set 57/60, up from the 56/60 baseline, with only
+the three known policy-disagreement failures left.

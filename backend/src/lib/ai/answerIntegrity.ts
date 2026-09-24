@@ -46,6 +46,7 @@ export type IntegrityKind =
   | 'unfounded_warning'
   | 'raw_payload'
   | 'opaque_score'
+  | 'unsourced_date'
 
 /**
  * The answer is not an answer — it is the data we handed the model.
@@ -197,6 +198,80 @@ function unfoundedWarnings(text: string, prompt: string): IntegrityViolation[] {
     if (!grounded) {
       out.push({ kind: 'unfounded_warning', detail: `told the buyer to avoid "${name}" with no flag in the prompt` })
     }
+  }
+  return out
+}
+
+/**
+ * A day-level date the prompt never carried.
+ *
+ * Measured against the live server, 24 Sep 2026, on two consecutive probes:
+ *
+ *   "give me the due diligence scorecard for Amrapali Crystal Homes"
+ *     -> "The Occupancy Certificate was obtained on April 10, 2024."
+ *        The row holds occupancy_certificate_status: 'Obtained' and NULL in
+ *        both date columns.
+ *
+ *   "give me the due diligence scorecard for Mahagun Mezzaria"
+ *     -> "Full OC obtained on November 15, 2023."
+ *        Both date columns NULL.
+ *
+ * Two projects, one probe each, both dates invented. The model was handed a
+ * STATUS — the word "Obtained", or oc_status FULL_OC — and rendered it as a
+ * calendar date, because a date is what the sentence wanted. Nothing in the
+ * pipeline objected: a date is not a price, not a project name and not a RERA
+ * number, so every existing guard passed it.
+ *
+ * A buyer plans a registry appointment, a loan disbursement and a move around
+ * an OC date. It is among the most expensive facts in the product to get wrong,
+ * and it was the least guarded.
+ *
+ * The rule is provenance by containment, which needs no field registry: if the
+ * prompt does not contain the date in any ordinary rendering, we did not supply
+ * it and the model made it up.
+ *
+ * Deliberately DAY-LEVEL only. A bare year ("the UP Lifts Act 2024") and a
+ * month-year ("possession by December 2027") are not the failure — the first is
+ * general knowledge the prompt allows, and the second is how possession_label
+ * is written. It is the day that cannot be inferred from a status and is never
+ * a coincidence.
+ */
+const DAY_LEVEL_DATE =
+  /\b(?:(\d{1,2})(?:st|nd|rd|th)?\s+(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*,?\s+(\d{4})|(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s+(\d{1,2})(?:st|nd|rd|th)?,?\s+(\d{4})|(\d{4})-(\d{2})-(\d{2})|(\d{1,2})\/(\d{1,2})\/(\d{4}))(?!\d)/g
+
+const MONTHS: Record<string, string> = {
+  jan: '01', feb: '02', mar: '03', apr: '04', may: '05', jun: '06',
+  jul: '07', aug: '08', sep: '09', oct: '10', nov: '11', dec: '12',
+}
+
+/** Every day-level date in a string, as YYYY-MM-DD, for comparison. */
+function normalisedDates(text: string): Map<string, string> {
+  const out = new Map<string, string>()
+  for (const m of text.matchAll(DAY_LEVEL_DATE)) {
+    let key: string | null = null
+    if (m[1]) key = `${m[3]}-${MONTHS[m[2].toLowerCase()]}-${m[1].padStart(2, '0')}`
+    else if (m[4]) key = `${m[6]}-${MONTHS[m[4].toLowerCase()]}-${m[5].padStart(2, '0')}`
+    else if (m[7]) key = `${m[7]}-${m[8]}-${m[9]}`
+    else if (m[10]) key = `${m[12]}-${m[11].padStart(2, '0')}-${m[10].padStart(2, '0')}`
+    if (key) out.set(key, m[0])
+  }
+  return out
+}
+
+function unsourcedDates(text: string, prompt: string): IntegrityViolation[] {
+  const inText = normalisedDates(text)
+  if (inText.size === 0) return []
+  // ISO timestamps are how Prisma renders a DateTime into the prompt, so the
+  // prompt side is normalised the same way and additionally scanned raw.
+  const inPrompt = normalisedDates(prompt)
+  const out: IntegrityViolation[] = []
+  for (const [key, asWritten] of inText) {
+    if (inPrompt.has(key)) continue
+    if (prompt.includes(asWritten)) continue
+    out.push({
+      kind: 'unsourced_date',
+      detail: `stated the date "${asWritten}", which the prompt never supplied`,
+    })
   }
   return out
 }
@@ -492,6 +567,7 @@ export function checkAnswerIntegritySync(text: string, prompt: string): Integrit
   const violations: IntegrityViolation[] = [
     ...scanDisclosure(body),
     ...unfoundedWarnings(body, prompt),
+    ...unsourcedDates(body, prompt),
   ]
   if (violations.length > 0) return violations
 
@@ -510,6 +586,7 @@ export async function checkAnswerIntegrity(
   const violations: IntegrityViolation[] = [
     ...scanDisclosure(body),
     ...unfoundedWarnings(body, prompt),
+    ...unsourcedDates(body, prompt),
   ]
 
   // Only worth the database round-trip when nothing cheaper has already failed

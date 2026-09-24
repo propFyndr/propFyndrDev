@@ -91,7 +91,7 @@ import {
   isReraProcessQuestion as matchesReraProcessQuestion,
   isPaymentPlanRequest as matchesPaymentPlanRequest,
 } from '../lib/chat/topicFlags'
-import { CHAT_TOPIC_HANDLERS, dueDiligenceHandler } from '../lib/chat/handlers'
+import { CHAT_TOPIC_HANDLERS } from '../lib/chat/handlers'
 
 /**
  * Empty flag set for probing a handler's matcher outside the dispatch loop.
@@ -1100,7 +1100,36 @@ router.post('/', async (req: Request, res: Response) => {
         const isBarePronounFollowUp = /\b(it|its|this|that)\b/i.test(message);
         isFreshSearch = isSectorOrLocationSearch || isDiscoveryQuery || isBuilderDiscovery || isAdvisoryQuery || isCityLevelGeneralQuery || isOpenAdvisoryQuery || isBroadSuperlativeQuery;
 
-        const shouldClearProjectFocus = isFreshSearch && !isExplicitFollowUp;
+        /**
+         * Clearing the focus needs a NEW subject in THIS message, not a sticky
+         * one left over from the last.
+         *
+         * `isSectorOrLocationSearch` is `Boolean(intent.sector) || /sector \d/`,
+         * and `intent.sector` is sticky — it is filled from the focus project's
+         * own sector. So on any session that has ever seen a sector, every turn
+         * looked like a location search, and the only thing saving a follow-up
+         * was the `isExplicitFollowUp` word list.
+         *
+         * Measured on the Day 3.5 pass condition itself. Turn 1 "show me the
+         * cost sheet for Mahagun Mezzaria" answered correctly and set
+         * `sector: Sector 78, Noida`. Turn 2 "are there any hidden charges for
+         * it?" names no place and no project, but the sticky sector made it a
+         * fresh search, "hidden charges" is not in the follow-up word list, and
+         * the focus was dropped — so the turn came back `queryKind: DISCOVERY`,
+         * `intentState: GATHERING`, stage CLARIFYING, with chips offering "2 BHK
+         * in Sector 78, Noida". Zero tokens. The buyer asked a question about a
+         * building and was asked to pick a bedroom count.
+         *
+         * The same comment four branches down already says this about project
+         * names typed in the current turn. It is the same defect: a sticky field
+         * deciding what a turn is ABOUT. The word list stays as a positive
+         * signal; it is no longer load-bearing.
+         */
+        const namesLocationThisTurn = /\b(sector\s*\d+|expressway|greater\s*noida|noida\s*extension|central\s*noida)\b/i.test(message);
+        const isFreshSearchThisTurn =
+          namesLocationThisTurn || isDiscoveryQuery || isBuilderDiscovery || isAdvisoryQuery ||
+          isCityLevelGeneralQuery || isOpenAdvisoryQuery || isBroadSuperlativeQuery;
+        const shouldClearProjectFocus = isFreshSearchThisTurn && !isExplicitFollowUp;
 
         /**
          * A name the buyer typed in THIS message is not stale focus.
@@ -2466,9 +2495,13 @@ router.post('/', async (req: Request, res: Response) => {
     }
 
     /**
-     * A forensic question about a project we hold is not an open question.
+     * A question a topic handler would answer from our rows is not an open
+     * question, whatever the classifier called it.
      *
-     * Measured live against Mahagun Mezzaria, whose row carries
+     * This lane returns before CHAT_TOPIC_HANDLERS ever run, so any phrasing the
+     * classifier happens to call OPEN makes every handler unreachable — and the
+     * model then answers from the web, or from nothing, about a building we hold
+     * rows for. Measured twice against Mahagun Mezzaria, whose row carries
      * `water_source_type: GANGA_JAL` and `water_tds_range: 180-280 ppm`:
      *
      *   "does Mahagun Mezzaria get Ganga Jal or borewell water?"
@@ -2476,23 +2509,52 @@ router.post('/', async (req: Request, res: Response) => {
      *   "what is the water TDS level in Mahagun Mezzaria?"
      *      -> queryKind OPEN, `[GROUNDED:WEB_SKIPPED] no searchable subject`,
      *         `fromDatabase: false`, and the model answered "levels vary
-     *         depending on the active supply source, combining Noida Authority
-     *         water and backup borewells" — contradicting our own verified row,
-     *         invented, about a named building.
+     *         depending on the active supply source" — contradicting our own
+     *         verified row, about a named building.
      *
-     * Same shape as the affordability, legal-safety and rental-yield bail-outs
-     * above: this lane returns before CHAT_TOPIC_HANDLERS ever run, so a
-     * specialised path that reads our rows is unreachable for whichever
-     * phrasings the classifier happens to call OPEN. Probed through the
-     * handler's own matcher rather than a copied regex, so the two cannot
-     * drift; `matches` reads only `message` and `flags`.
+     * The five conditions above it — inventory, affordability, legal safety, our
+     * own numbers, resolved ordinal — are each a hand-written bail-out added
+     * after someone found that same failure by hand, one phrasing at a time. A
+     * sixth would have been a patch. This asks the registry instead, so a
+     * handler added later is covered without anyone remembering to come back
+     * here.
+     *
+     * LIMIT, stated because it is invisible otherwise: the handler flags
+     * (`isDueDiligenceQuery`, `isCostSheetRequest`, …) are computed ~270 lines
+     * BELOW this point, so the probe passes an empty flag set and only matchers
+     * with their own message regex can answer. Today that is dueDiligence,
+     * authorityMechanics, vicinityLookup and commuteShortlist; the flag-only
+     * matchers return false here and stay reachable only through the normal
+     * path. Closing that needs the flag block hoisted above this decision, which
+     * is an ordering change to a 6,400-line handler with a long routing
+     * regression history — worth doing, not worth doing in the same change as
+     * the guard itself. `openLaneRegistryProbe.test.ts` pins which handlers the
+     * probe currently covers so the gap cannot quietly widen.
+     *
+     * Scoped to a project we hold: with no project named, the open lane is
+     * usually right, and the handlers' own no-project branches are reachable
+     * through the normal path anyway.
      */
-    const asksHeldProjectDueDiligence =
-      (intent.projectNames?.length ?? 0) > 0 &&
-      (dueDiligenceHandler.matches as (c: unknown) => boolean)({ message, flags: NO_TOPIC_FLAGS })
-    if (asksHeldProjectDueDiligence) {
+    const claimingHandler = (intent.projectNames?.length ?? 0) > 0
+      ? CHAT_TOPIC_HANDLERS.find(h => {
+          try {
+            return (h.matches as (c: unknown) => boolean)({
+              message,
+              intent,
+              flags: NO_TOPIC_FLAGS,
+              sectorMatches: [],
+              activeProjectName: intent.projectNames?.[0],
+            })
+          } catch {
+            // A matcher that needs more context than exists here must not take
+            // the turn down with it; it simply does not claim at this point.
+            return false
+          }
+        })
+      : undefined
+    if (claimingHandler) {
       console.log('[CHAT:OPEN_LANE_DECLINED]', {
-        reason: 'forensic question about a project we hold — routing to the due-diligence handler',
+        reason: `${claimingHandler.id} answers this from our own rows`,
         project: intent.projectNames?.[0],
       })
     }
@@ -2504,7 +2566,7 @@ router.post('/', async (req: Request, res: Response) => {
       !asksLegalSafety &&
       !asksOurOwnNumbers &&
       !resolvedFromShownList &&
-      !asksHeldProjectDueDiligence
+      !claimingHandler
     ) {
       await answerAsGeneralQuestion('OPEN')
       return
