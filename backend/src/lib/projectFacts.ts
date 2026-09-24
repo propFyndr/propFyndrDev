@@ -1334,19 +1334,25 @@ export async function getProjectDueDiligence(nameOrId: string): Promise<Record<s
   }
 
   /**
-   * Whether this project's forensic docket has been enriched at all.
+   * The forensic columns are nullable, so `null` IS the answer "unverified".
    *
-   * Every due-diligence column below except these two is non-nullable with a
-   * default (`false`, `NONE`, `MIXED`, `SINGLE_POINT_BULK`), so an unresearched
-   * project reads identically to a researched-and-failing one. 253 of 382 rows
-   * are unresearched, and returning their defaults told the model that no
-   * project in the catalogue is Lifts-Act compliant and that every one of them
-   * is outside the Shahdara buffer. `'unverified'` is the third value the
-   * schema cannot express yet — making the columns nullable is the proper fix
-   * and needs a migration.
+   * They shipped NOT NULL with defaults (`false`, `NONE`, `MIXED`,
+   * `SINGLE_POINT_BULK`), which told the model that no project in the catalogue
+   * is Lifts-Act compliant and that every one of them sits outside the Shahdara
+   * buffer — 253 of 382 rows asserting a finding nobody had made. They are now
+   * nullable with no default (`migrations/forensic_columns_nullable`), so the
+   * values below pass through untouched and `null` reaches the model as the
+   * absence it is. Nothing here substitutes a stand-in.
    */
-  const enriched = project.water_tds_range != null || project.all_in_cost_multiplier != null
-  const tri = (value: boolean): boolean | 'unverified' => (enriched ? value : 'unverified')
+  const enriched =
+    project.oc_status != null ||
+    project.amitabh_kant_clearance != null ||
+    project.water_source_type != null ||
+    project.shahdara_drain_impact != null ||
+    project.lift_act_compliant != null ||
+    project.power_supply_type != null ||
+    project.water_tds_range != null ||
+    project.all_in_cost_multiplier != null
 
   const gaps: string[] = []
   if (!enriched) gaps.push('This project is not in the forensic due-diligence docket: OC status, Amitabh Kant clearance, lift-act registration, Shahdara corridor position and power metering are all unverified. State them as unknown; do not substitute a typical value.')
@@ -1366,23 +1372,23 @@ export async function getProjectDueDiligence(nameOrId: string): Promise<Record<s
     builder: project.builder?.name,
     due_diligence: {
       occupancy_certificate: {
-        status: enriched ? project.oc_status : 'unverified',
+        status: project.oc_status ?? null,
         details: project.oc_details ?? null,
       },
       registry_and_clearances: {
-        amitabh_kant_clearance: tri(project.amitabh_kant_clearance),
-        authority_dues_cleared: tri(project.authority_dues_cleared),
+        amitabh_kant_clearance: project.amitabh_kant_clearance ?? null,
+        authority_dues_cleared: project.authority_dues_cleared ?? null,
         rera_number: project.rera_number,
         builder_insolvency_history: project.builder?.insolvency_history ?? false,
       },
       living_quality_and_utilities: {
-        water_source: enriched ? project.water_source_type : 'unverified',
+        water_source: project.water_source_type ?? null,
         water_tds_range: project.water_tds_range ?? null,
-        power_supply_metering: enriched ? project.power_supply_type : 'unverified',
+        power_supply_metering: project.power_supply_type ?? null,
         dg_power_rate_per_unit: project.dg_power_rate_per_unit ?? null,
         maintenance_per_sqft_monthly: project.maintenance_per_sqft_monthly ?? null,
-        lift_act_compliant: tri(project.lift_act_compliant),
-        shahdara_drain_impact: tri(project.shahdara_drain_impact),
+        lift_act_compliant: project.lift_act_compliant ?? null,
+        shahdara_drain_impact: project.shahdara_drain_impact ?? null,
       },
       financial_and_banking: {
         bank_apf_codes: project.bank_apf_codes ?? null,
@@ -1395,7 +1401,9 @@ export async function getProjectDueDiligence(nameOrId: string): Promise<Record<s
     data_gaps: gaps,
     note:
       'Forensic due diligence data is sourced from RERA filings, Noida/Greater Noida Authority orders, and resident verified data. ' +
-      'Missing fields are noted in data_gaps and must be stated honestly to the buyer as unverified rather than speculated.',
+      'A null means we have not researched that item for this project — say so. It is NOT a negative finding: null is "we do not know", ' +
+      'false is "we checked and the answer is no". Never state one as the other, and never substitute a typical value for either. ' +
+      'Missing fields are also listed in data_gaps.',
   }
 }
 

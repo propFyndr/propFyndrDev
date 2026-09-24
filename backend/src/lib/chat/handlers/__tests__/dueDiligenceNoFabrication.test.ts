@@ -58,6 +58,42 @@ describe('dueDiligenceHandler — never states an unfilled column as a finding',
     assert.ok(SRC.includes("confidence: enriched ? 'HIGH' : 'LOW'"), 'HIGH is reserved for verified rows')
   })
 
+  it('the forensic columns are nullable with no default', () => {
+    // The whole fix rests on the schema being able to hold three states. A
+    // `@default` put back here would refill every future row with an opinion
+    // and this file's `told()` would never see a null again.
+    const schema = readFileSync(join(__dirname, '..', '..', '..', '..', '..', 'prisma', 'schema.prisma'), 'utf8')
+    const block = schema.slice(
+      schema.indexOf('// 13. Forensic Due Diligence'),
+      schema.indexOf('// Relations', schema.indexOf('// 13. Forensic Due Diligence')),
+    )
+    assert.ok(block.length > 0, 'forensic block not found in schema.prisma')
+    for (const col of [
+      'oc_status',
+      'amitabh_kant_clearance',
+      'water_source_type',
+      'shahdara_drain_impact',
+      'lift_act_compliant',
+      'power_supply_type',
+    ]) {
+      const line = block.split(/\r?\n/).find(l => l.trim().startsWith(col + ' '))
+      assert.ok(line, `${col} missing from the forensic block`)
+      assert.ok(!line!.includes('@default'), `${col} has a default — it can no longer say "unverified"`)
+      assert.match(line!, /\?\s*$/, `${col} is not nullable`)
+    }
+  })
+
+  it('reads each column own nullness rather than a proxy', () => {
+    // Before the migration this file inferred "unresearched" from whether the
+    // enrichment pass had written water_tds_range. That proxy must not come
+    // back: it silently mislabels any row enriched by a different route.
+    assert.ok(
+      !/water_tds_range != null \|\| project\.all_in_cost_multiplier != null\s+const UNVERIFIED/.test(SRC),
+      'the enrichment proxy is back in place of the columns themselves',
+    )
+    assert.ok(SRC.includes('const told ='), 'each column must answer for itself through told()')
+  })
+
   it('renders "Not verified" rather than a default for an unenriched project', async () => {
     const project = await prisma.project
       .findFirst({

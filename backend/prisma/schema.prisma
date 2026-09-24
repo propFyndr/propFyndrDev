@@ -269,15 +269,30 @@ model Project {
   bachelor_tenants_allowed        Boolean?               @default(true)
 
   // 13. Forensic Due Diligence & Living Quality (Day 3 Expansion)
-  oc_status                       OcStatus               @default(NONE)
+  //
+  // Every one of these is nullable with NO default, and that is the whole
+  // point of them. They shipped as `Boolean @default(false)` and
+  // `OcStatus @default(NONE)`, which gave the schema no way to say "nobody has
+  // researched this project" — so 253 of 382 rows read exactly like a project
+  // we HAD researched and found non-compliant. The advisor then said "Clean
+  // Zone (Outside Shahdara corridor buffer)" for all 382 rows of a column
+  // nobody ever populated, and "No registration on record" against named
+  // builders. Same reasoning as migrations/drop_fabricated_defaults, one step
+  // further: there the default was dropped for future rows, here the existing
+  // rows are corrected too, because unlike ceiling_height_ft we can tell an
+  // inherited value from a researched one (see that migration's SQL).
+  //
+  // NULL means unverified and must be rendered as such. False means we looked
+  // and the answer was no. Those are different sentences to a buyer.
+  oc_status                       OcStatus?
   oc_details                      String?
-  amitabh_kant_clearance          Boolean                @default(false)
+  amitabh_kant_clearance          Boolean?
   bank_apf_codes                  Json?
-  water_source_type               WaterSourceType        @default(MIXED)
+  water_source_type               WaterSourceType?
   water_tds_range                 String?
-  shahdara_drain_impact           Boolean                @default(false)
-  lift_act_compliant              Boolean                @default(false)
-  power_supply_type               PowerSupplyType        @default(SINGLE_POINT_BULK)
+  shahdara_drain_impact           Boolean?
+  lift_act_compliant              Boolean?
+  power_supply_type               PowerSupplyType?
   all_in_cost_multiplier          Float?
 
   // Relations

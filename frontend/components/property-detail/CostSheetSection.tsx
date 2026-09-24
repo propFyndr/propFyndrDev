@@ -344,7 +344,7 @@ export default function CostSheetSection({
               <span>
                 Water Source:{' '}
                 <strong className="text-gray-900 dark:text-white capitalize">
-                  {detail?.water_source_type ? detail.water_source_type.replace('_', ' ') : 'Ganga Water + Borewell'}
+                  {detail?.water_source_type ? detail.water_source_type.replace('_', ' ') : 'Not verified'}
                 </strong>{' '}
                 {detail?.water_tds_range && `(${detail.water_tds_range})`}
               </span>
@@ -352,7 +352,7 @@ export default function CostSheetSection({
               <span>
                 Power Metering:{' '}
                 <strong className="text-gray-900 dark:text-white capitalize">
-                  {detail?.power_supply_type ? detail.power_supply_type.replace('_', ' ') : 'Dual Prepaid Metering'}
+                  {detail?.power_supply_type ? detail.power_supply_type.replace('_', ' ') : 'Not verified'}
                 </strong>
               </span>
               <span>•</span>

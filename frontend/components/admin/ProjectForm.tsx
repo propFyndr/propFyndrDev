@@ -79,12 +79,12 @@ interface ProjectData {
   // Forensic Due Diligence & Living Quality (Day 3 Expansion)
   oc_status?: 'FULL_OC' | 'PHASED_OC' | 'APPLIED' | 'NONE'
   oc_details?: string
-  amitabh_kant_clearance?: boolean
+  amitabh_kant_clearance?: boolean | null
   bank_apf_codes?: string
   water_source_type?: 'GANGA_JAL' | 'BOREWELL' | 'MIXED'
   water_tds_range?: string
-  shahdara_drain_impact?: boolean
-  lift_act_compliant?: boolean
+  shahdara_drain_impact?: boolean | null
+  lift_act_compliant?: boolean | null
   power_supply_type?: 'PVVNL_MULTIPOINT' | 'SINGLE_POINT_BULK'
   all_in_cost_multiplier?: string
 }
@@ -141,16 +141,21 @@ const EMPTY: ProjectData = {
   pet_friendly: true,
   bachelor_tenants_allowed: true,
 
-  // Forensic Due Diligence & Living Quality Defaults
-  oc_status: 'NONE',
+  // Forensic Due Diligence & Living Quality.
+  //
+  // Every one of these starts unset, and unset is submitted as null. They used
+  // to be prefilled — 'NONE', 'MIXED', 'SINGLE_POINT_BULK', false, false, false
+  // — so a project saved by anyone who did not scroll this far carried six
+  // checkable claims nobody had made. See migrations/forensic_columns_nullable.
+  oc_status: undefined,
   oc_details: '',
-  amitabh_kant_clearance: false,
+  amitabh_kant_clearance: null,
   bank_apf_codes: '',
-  water_source_type: 'MIXED',
+  water_source_type: undefined,
   water_tds_range: '',
-  shahdara_drain_impact: false,
-  lift_act_compliant: false,
-  power_supply_type: 'SINGLE_POINT_BULK',
+  shahdara_drain_impact: null,
+  lift_act_compliant: null,
+  power_supply_type: undefined,
   // Blank, not 1.30. A prefilled multiplier is saved by anyone who does not
   // notice it, and it then reads downstream as a verified project figure.
   all_in_cost_multiplier: '',
@@ -376,15 +381,15 @@ export default function ProjectForm({ initialData, projectId, onFormChange, onSa
       bachelor_tenants_allowed:     form.bachelor_tenants_allowed,
 
       // Forensic Due Diligence & Living Quality (Day 3 Expansion)
-      oc_status:                    form.oc_status || 'NONE',
+      oc_status:                    form.oc_status || null,
       oc_details:                   form.oc_details || undefined,
-      amitabh_kant_clearance:       !!form.amitabh_kant_clearance,
+      amitabh_kant_clearance:       form.amitabh_kant_clearance ?? null,
       bank_apf_codes:               form.bank_apf_codes ? parseApfCodes(form.bank_apf_codes) : undefined,
-      water_source_type:            form.water_source_type || 'MIXED',
+      water_source_type:            form.water_source_type || null,
       water_tds_range:              form.water_tds_range || undefined,
-      shahdara_drain_impact:        !!form.shahdara_drain_impact,
-      lift_act_compliant:           !!form.lift_act_compliant,
-      power_supply_type:            form.power_supply_type || 'SINGLE_POINT_BULK',
+      shahdara_drain_impact:        form.shahdara_drain_impact ?? null,
+      lift_act_compliant:           form.lift_act_compliant ?? null,
+      power_supply_type:            form.power_supply_type || null,
       all_in_cost_multiplier:       form.all_in_cost_multiplier ? parseFloat(form.all_in_cost_multiplier) : undefined,
     }
 
@@ -748,9 +753,10 @@ export default function ProjectForm({ initialData, projectId, onFormChange, onSa
 
         <Field label="Occupancy Certificate (OC) Status" hint="Legal handover & occupancy approval status">
           <CustomSelect
-            value={form.oc_status || 'NONE'}
-            onChange={(val) => setForm((f) => ({ ...f, oc_status: val as any }))}
+            value={form.oc_status || ''}
+            onChange={(val) => setForm((f) => ({ ...f, oc_status: (val || undefined) as any }))}
             options={[
+              { value: '', label: 'Not verified — we have not checked this project' },
               { value: 'FULL_OC', label: 'Full OC Granted (All Towers Live)' },
               { value: 'PHASED_OC', label: 'Phased OC (Specific Towers Only)' },
               { value: 'APPLIED', label: 'OC Applied (Pending Authority Inspection)' },
@@ -765,9 +771,10 @@ export default function ProjectForm({ initialData, projectId, onFormChange, onSa
 
         <Field label="Water Source Type" hint="Civic piped source vs groundwater reliance">
           <CustomSelect
-            value={form.water_source_type || 'MIXED'}
-            onChange={(val) => setForm((f) => ({ ...f, water_source_type: val as any }))}
+            value={form.water_source_type || ''}
+            onChange={(val) => setForm((f) => ({ ...f, water_source_type: (val || undefined) as any }))}
             options={[
+              { value: '', label: 'Not verified — we have not checked this project' },
               { value: 'GANGA_JAL', label: 'Pure Ganga Jal Pipeline (Authority Supply)' },
               { value: 'MIXED', label: 'Mixed Supply (Authority Ganga Jal + Borewell Blend)' },
               { value: 'BOREWELL', label: 'Borewell Groundwater Dominant' },
@@ -781,9 +788,10 @@ export default function ProjectForm({ initialData, projectId, onFormChange, onSa
 
         <Field label="Power Supply Metering Type" hint="Government direct tariff vs private single point billing">
           <CustomSelect
-            value={form.power_supply_type || 'SINGLE_POINT_BULK'}
-            onChange={(val) => setForm((f) => ({ ...f, power_supply_type: val as any }))}
+            value={form.power_supply_type || ''}
+            onChange={(val) => setForm((f) => ({ ...f, power_supply_type: (val || undefined) as any }))}
             options={[
+              { value: '', label: 'Not verified — we have not checked this project' },
               { value: 'PVVNL_MULTIPOINT', label: 'PVVNL Individual Multipoint Meter (UP Govt Tariff)' },
               { value: 'SINGLE_POINT_BULK', label: 'Single Point Bulk Supply (Sub-metered through Builder/RWA)' },
             ]}
@@ -800,40 +808,40 @@ export default function ProjectForm({ initialData, projectId, onFormChange, onSa
           </Field>
         </div>
 
-        <Field label="Amitabh Kant Committee Relief">
-          <label className="flex items-center gap-2 cursor-pointer pt-2">
-            <input
-              type="checkbox"
-              checked={!!form.amitabh_kant_clearance}
-              onChange={(e) => setForm((f) => ({ ...f, amitabh_kant_clearance: e.target.checked }))}
-              className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500"
-            />
-            <span className="text-xs font-semibold text-slate-700 dark:text-zinc-300">Amitabh Kant Relief Cleared (25% builder dues deposited for sub-lease execution)</span>
-          </label>
+        <Field label="Amitabh Kant Committee Relief" hint="Leave unverified unless you have seen the authority record. Unverified is not the same as No.">
+          <CustomSelect
+            value={form.amitabh_kant_clearance === true ? 'yes' : form.amitabh_kant_clearance === false ? 'no' : ''}
+            onChange={(val) => setForm((f) => ({ ...f, amitabh_kant_clearance: val === 'yes' ? true : val === 'no' ? false : null }))}
+            options={[
+              { value: '', label: 'Not verified — we have not checked this project' },
+              { value: 'yes', label: 'Cleared — 25% builder dues deposited for sub-lease execution' },
+              { value: 'no', label: 'Not cleared — checked, and the dues are outstanding' },
+            ]}
+          />
         </Field>
 
-        <Field label="UP Lifts Act 2024 Compliance">
-          <label className="flex items-center gap-2 cursor-pointer pt-2">
-            <input
-              type="checkbox"
-              checked={!!form.lift_act_compliant}
-              onChange={(e) => setForm((f) => ({ ...f, lift_act_compliant: e.target.checked }))}
-              className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500"
-            />
-            <span className="text-xs font-semibold text-slate-700 dark:text-zinc-300">Compliant with UP Lifts and Escalators Act 2024 (Mandatory ARD, CCTV, Insurance)</span>
-          </label>
+        <Field label="UP Lifts Act 2024 Compliance" hint="No is an accusation against a named builder — only pick it if you checked updeslift.org.">
+          <CustomSelect
+            value={form.lift_act_compliant === true ? 'yes' : form.lift_act_compliant === false ? 'no' : ''}
+            onChange={(val) => setForm((f) => ({ ...f, lift_act_compliant: val === 'yes' ? true : val === 'no' ? false : null }))}
+            options={[
+              { value: '', label: 'Not verified — we have not checked this project' },
+              { value: 'yes', label: 'Registered — verified on updeslift.org with OEM AMC and ARD' },
+              { value: 'no', label: 'Not registered — checked, and no registration exists' },
+            ]}
+          />
         </Field>
 
-        <Field label="Shahdara Drain Proximity Risk">
-          <label className="flex items-center gap-2 cursor-pointer pt-2">
-            <input
-              type="checkbox"
-              checked={!!form.shahdara_drain_impact}
-              onChange={(e) => setForm((f) => ({ ...f, shahdara_drain_impact: e.target.checked }))}
-              className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500"
-            />
-            <span className="text-xs font-semibold text-slate-700 dark:text-zinc-300">Shahdara Drain Exposure (Seasonal odor & metallic corrosion risk within 800m)</span>
-          </label>
+        <Field label="Shahdara Drain Proximity Risk" hint="No renders to buyers as a clean-zone finding. Leave unverified unless the corridor distance was measured.">
+          <CustomSelect
+            value={form.shahdara_drain_impact === true ? 'yes' : form.shahdara_drain_impact === false ? 'no' : ''}
+            onChange={(val) => setForm((f) => ({ ...f, shahdara_drain_impact: val === 'yes' ? true : val === 'no' ? false : null }))}
+            options={[
+              { value: '', label: 'Not verified — we have not checked this project' },
+              { value: 'yes', label: 'Within the corridor — seasonal odour and metallic corrosion risk within 800m' },
+              { value: 'no', label: 'Outside the corridor — distance measured' },
+            ]}
+          />
         </Field>
 
         <SectionHeader title="AI & Marketing" />
