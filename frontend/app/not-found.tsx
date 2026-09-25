@@ -108,16 +108,21 @@ export default function NotFound() {
             <p className="text-[11px] text-zinc-500 font-medium">Chat with AI advisor</p>
           </Link>
 
+          {/*
+            Points at the sector index rather than one hardcoded sector. Day 5
+            asks this page to send people "back to active sectors", and a single
+            named sector is a guess about which one they wanted.
+          */}
           <Link
-            href={`/discover?sector=${encodeURIComponent('Sector 150')}`}
+            href="/sectors"
             className="p-4 rounded-2xl bg-white/[0.04] border border-white/10 hover:border-emerald-500/40 hover:bg-white/[0.07] transition-all text-left group"
           >
             <div className="flex items-center justify-between mb-2.5">
               <MapPin size={18} weight="duotone" className="text-emerald-400 group-hover:scale-110 transition-transform" />
               <ArrowRight size={13} weight="bold" className="text-zinc-600 group-hover:text-emerald-400 transition-colors" />
             </div>
-            <h3 className="text-xs font-bold text-white mb-0.5">Sector 150 Noida</h3>
-            <p className="text-[11px] text-zinc-500 font-medium">Green Expressway Hub</p>
+            <h3 className="text-xs font-bold text-white mb-0.5">Browse micro-markets</h3>
+            <p className="text-[11px] text-zinc-500 font-medium">Noida, Greater Noida &amp; Yamuna</p>
           </Link>
 
           <Link

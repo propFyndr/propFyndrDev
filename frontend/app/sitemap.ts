@@ -19,6 +19,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.9,
     },
     {
+      url: `${baseUrl}/sectors`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: 0.8,
+    },
+    {
       url: `${baseUrl}/compare`,
       lastModified: new Date(),
       changeFrequency: 'weekly',
@@ -71,6 +77,31 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.7,
     }))
 
+    /**
+     * Sector pages, from their own endpoint.
+     *
+     * A separate fetch rather than an extra key on /sitemap: sector rows are
+     * analyst-maintained on a different cadence to the catalogue, and a failure
+     * to load them must not cost us the project URLs — hence its own try.
+     */
+    let sectorPages: MetadataRoute.Sitemap = []
+    try {
+      const secRes = await fetch(`${API_BASE}/sectors`, { next: { revalidate: 3600 } })
+      if (secRes.ok) {
+        const { sectors } = (await secRes.json()) as {
+          sectors: Array<{ slug: string; updated_at?: string }>
+        }
+        sectorPages = (sectors || []).map((s) => ({
+          url: `${baseUrl}/sectors/${s.slug}`,
+          lastModified: s.updated_at ? new Date(s.updated_at) : new Date(),
+          changeFrequency: 'weekly' as const,
+          priority: 0.7,
+        }))
+      }
+    } catch (error) {
+      console.error('[SITEMAP_SECTOR_ERROR]', error)
+    }
+
     let blogPages: MetadataRoute.Sitemap = []
     try {
       const res = await fetch(`${API_BASE}/blog?limit=50`)
@@ -87,7 +118,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       console.error('[SITEMAP_BLOG_ERROR]', error)
     }
 
-    return [...staticPages, ...projectPages, ...builderPages, { url: `${baseUrl}/blog`, lastModified: new Date(), changeFrequency: 'daily', priority: 0.7 }, ...blogPages]
+    return [...staticPages, ...projectPages, ...builderPages, ...sectorPages, { url: `${baseUrl}/blog`, lastModified: new Date(), changeFrequency: 'daily', priority: 0.7 }, ...blogPages]
   } catch (error) {
     console.error('[SITEMAP_GEN_ERROR]', error)
     return staticPages
