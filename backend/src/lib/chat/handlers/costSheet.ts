@@ -88,7 +88,7 @@ Name a project and I'll pull whichever of these we hold verified for it.`
     if (costTable) {
       const msg = `### Cost breakdown — ${costProject?.name}\n\n${costTable}\n\n`
       ctx.send('token', { token: msg })
-      recordTableRendered((ctx as any).trace, {
+      recordTableRendered(ctx.trace, {
         tableType: 'cost_sheet',
         projectName: costProject?.name,
         rowCount: 6,

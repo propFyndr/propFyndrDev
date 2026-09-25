@@ -634,7 +634,10 @@ export async function executeWithFallbackChain(options: FallbackChainOptions): P
           name: `tool:${name}`,
           input: args,
         })
-      } catch {}
+      } catch {
+              // Telemetry only. A Langfuse span that fails to open must never
+              // interrupt the answer the buyer is waiting on.
+            }
     }
     try {
       const res = await onToolCall(name, args)
@@ -644,7 +647,10 @@ export async function executeWithFallbackChain(options: FallbackChainOptions): P
             output: res,
             metadata: { latency_ms: Date.now() - toolStart },
           })
-        } catch {}
+        } catch {
+                // Telemetry only. A Langfuse span that fails to open must never
+                // interrupt the answer the buyer is waiting on.
+              }
       }
       return res
     } catch (err: any) {
@@ -655,7 +661,10 @@ export async function executeWithFallbackChain(options: FallbackChainOptions): P
             statusMessage: err?.message || String(err),
             metadata: { latency_ms: Date.now() - toolStart },
           })
-        } catch {}
+        } catch {
+                // Telemetry only. A Langfuse span that fails to open must never
+                // interrupt the answer the buyer is waiting on.
+              }
       }
       throw err
     }
@@ -816,7 +825,10 @@ export async function executeWithFallbackChain(options: FallbackChainOptions): P
             turnIndex: chainIdx,
           },
         })
-      } catch {}
+      } catch {
+              // Telemetry only. A Langfuse span that fails to open must never
+              // interrupt the answer the buyer is waiting on.
+            }
     }
 
     try {
@@ -882,7 +894,10 @@ export async function executeWithFallbackChain(options: FallbackChainOptions): P
               cache_hit: text.length > 0,
             },
           })
-        } catch {}
+        } catch {
+                // Telemetry only. A Langfuse span that fails to open must never
+                // interrupt the answer the buyer is waiting on.
+              }
       }
 
       /**
@@ -995,7 +1010,10 @@ export async function executeWithFallbackChain(options: FallbackChainOptions): P
               focus_project_id: options.focusProjectId || null,
             },
           })
-        } catch {}
+        } catch {
+                // Telemetry only. A Langfuse span that fails to open must never
+                // interrupt the answer the buyer is waiting on.
+              }
       }
 
       // Track fallback response
@@ -1057,7 +1075,10 @@ export async function executeWithFallbackChain(options: FallbackChainOptions): P
               model: effectiveModel,
             },
           })
-        } catch {}
+        } catch {
+                // Telemetry only. A Langfuse span that fails to open must never
+                // interrupt the answer the buyer is waiting on.
+              }
       }
 
       // Start a cooldown only when retrying cannot help. A timeout, a stall or a

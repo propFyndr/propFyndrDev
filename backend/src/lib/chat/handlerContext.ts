@@ -18,6 +18,7 @@
  */
 
 import type { Response } from 'express'
+import type { LangfuseTraceClient } from 'langfuse'
 import type { Intent } from '../discovery'
 
 /** The catalogue columns the router caches. Structural, so handlers stay decoupled. */
@@ -140,6 +141,21 @@ export interface ChatHandlerContext {
 
   /** Conversation state as the router computed it for this turn. */
   intentState: string
+
+  /**
+   * This turn's Langfuse trace, when observability is configured.
+   *
+   * `recordTableRendered` was already being called by the cost-sheet and
+   * payment-plan handlers as `(ctx as any).trace` — a field this interface has
+   * never had, so it was `undefined` on every call and the helper returned at
+   * its own null check. Every deterministic table this product renders was
+   * invisible in Langfuse.
+   *
+   * A handler-answered turn returns before `runFallbackChain`, which builds
+   * the trace for model-answered turns, so these turns need their own or they
+   * have none at all.
+   */
+  trace?: LangfuseTraceClient | null
 
   /** Sectors named in the message, in order. Empty when none were. */
   sectorMatches: ReadonlyArray<string>

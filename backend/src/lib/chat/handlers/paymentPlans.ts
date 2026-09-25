@@ -106,7 +106,7 @@ export const paymentPlansHandler: ChatTopicHandler = {
     const tableBlock = planTable ? `### Payment Plans & Milestones — ${planProject.name}\n\n${planTable}\n\n` : ''
     if (tableBlock) {
       ctx.send('token', { token: tableBlock })
-      recordTableRendered((ctx as any).trace, {
+      recordTableRendered(ctx.trace, {
         tableType: 'payment_plan',
         projectName: planProject.name,
         rowCount: paymentPlans.length,

@@ -4,6 +4,7 @@
  */
 
 import { Langfuse } from 'langfuse'
+import type { LangfuseTraceClient } from 'langfuse'
 
 let langfuse: Langfuse | null = null
 
@@ -57,7 +58,11 @@ export function createChatTrace(params: {
   }
 }
 
-export function recordTableRendered(trace: any, params: {
+/**
+ * `trace` is nullable on purpose: it is null whenever Langfuse is
+ * unconfigured, and telemetry must never be the thing that fails a turn.
+ */
+export function recordTableRendered(trace: LangfuseTraceClient | null | undefined, params: {
   tableType: 'payment_plan' | 'cost_sheet' | 'micro_market' | 'comparison' | 'yield_table'
   projectName?: string
   rowCount: number
