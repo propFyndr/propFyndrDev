@@ -424,7 +424,7 @@ export function nothingToExtract(message: string): boolean {
  * Applied at every exit from `extractIntent`, including the degraded one, so no
  * provider path can bypass it.
  */
-function applyLiterals(intent: Intent, deterministic: DeterministicIntent, message: string): Intent {
+export function applyLiterals(intent: Intent, deterministic: DeterministicIntent, message: string, previousIntent?: Intent): Intent {
   const out = { ...intent } as Intent & Record<string, unknown>
   const lit = deterministic.literal
 
@@ -455,6 +455,23 @@ function applyLiterals(intent: Intent, deterministic: DeterministicIntent, messa
   if (lit.has('possession')) out.possession = deterministic.possession as Intent['possession']
   if (lit.has('areaMin')) out.areaMin = deterministic.areaMin
   if (lit.has('areaMax')) out.areaMax = deterministic.areaMax
+
+  /**
+   * "Show me something bigger" is a correction against remembered intent, not
+   * a new search — step the BHK up one from what the buyer already asked for.
+   * Only when this turn named no BHK itself and one is remembered; otherwise
+   * there is nothing to step from and the message is left to the model.
+   */
+  // Only when the BHK is still the remembered one — if the model already
+  // stepped it, stepping again would overshoot.
+  const prevBhk = previousIntent?.bhk
+  const bhkUnchanged = Array.isArray(prevBhk) && Array.isArray(out.bhk) && prevBhk.join() === out.bhk.join()
+  if (!lit.has('bhk') && bhkUnchanged && out.bhk!.length > 0) {
+    const bigger = /\b(bigger|larger|more\s+space|more\s+spacious|one\s+more\s+(?:bed)?room|extra\s+(?:bed)?room)\b/i.test(message)
+    const smaller = /\b(smaller|compact|one\s+less\s+(?:bed)?room)\b/i.test(message)
+    if (bigger && !smaller) out.bhk = [Math.min(6, Math.max(...out.bhk!) + 1)]
+    else if (smaller && !bigger) out.bhk = [Math.max(1, Math.min(...out.bhk!) - 1)]
+  }
 
   return out
 }
@@ -495,7 +512,7 @@ export async function extractIntent(message: string, previousIntent: Intent): Pr
   const deterministic = extractDeterministic(message, KNOWN_SECTOR_NUMBERS)
 
   if (process.env.INTENT_FAST_PATH !== 'false') {
-    const heuristic = applyLiterals(extractIntentHeuristic(message, previousIntent), deterministic, message)
+    const heuristic = applyLiterals(extractIntentHeuristic(message, previousIntent), deterministic, message, previousIntent)
     if (deterministicCoversMessage(message, deterministic, previousIntent)) {
       console.log(`[INTENT:DETERMINISTIC] read outright, no model call — "${message.slice(0, 60)}"`)
       return { intent: heuristic, degraded: false }
@@ -564,17 +581,17 @@ export async function extractIntent(message: string, previousIntent: Intent): Pr
         })
         const raw = res.text?.trim() ?? '{}'
         const result = tryParseIntentJson(raw, previousIntent)
-        if (result) return { intent: applyLiterals(result, deterministic, message), degraded: false }
+        if (result) return { intent: applyLiterals(result, deterministic, message, previousIntent), degraded: false }
       }
       if (config.provider === 'groq') {
         console.log(`[INTENT] Trying Groq (${config.model}) via ${config.envKey}`)
         const result = await extractWithGroqKey(message, previousIntent, apiKey, config.timeout)
-        if (result) return { intent: applyLiterals(result, deterministic, message), degraded: false }
+        if (result) return { intent: applyLiterals(result, deterministic, message, previousIntent), degraded: false }
       }
       if (config.provider === 'mistral') {
         console.log(`[INTENT] Trying Mistral via ${config.envKey}`)
         const result = await extractWithMistral(message, previousIntent, apiKey)
-        if (result) return { intent: applyLiterals(result, deterministic, message), degraded: false }
+        if (result) return { intent: applyLiterals(result, deterministic, message, previousIntent), degraded: false }
       }
       if (config.provider === 'openai') {
         console.log(`[INTENT] Trying OpenAI via ${config.envKey}`)
@@ -583,7 +600,7 @@ export async function extractIntent(message: string, previousIntent: Intent): Pr
         try {
           const result = await extractWithOpenAIKey(message, previousIntent, apiKey, controller.signal, config.baseUrl, config.model)
           clearTimeout(timer)
-          if (result) return { intent: applyLiterals(result, deterministic, message), degraded: false }
+          if (result) return { intent: applyLiterals(result, deterministic, message, previousIntent), degraded: false }
         } catch (err) {
           clearTimeout(timer)
           const e = err as { status?: number; name?: string; message?: string }
@@ -602,7 +619,7 @@ export async function extractIntent(message: string, previousIntent: Intent): Pr
   console.warn('[INTENT] All LLM providers failed or unconfigured — executing heuristic fallback')
   // Literals apply here too, and matter most here: this is the path where no
   // model ran at all, so the regex result is the entire answer.
-  const heuristicIntent = applyLiterals(extractIntentHeuristic(message, previousIntent), deterministic, message)
+  const heuristicIntent = applyLiterals(extractIntentHeuristic(message, previousIntent), deterministic, message, previousIntent)
   return { intent: heuristicIntent, degraded: true }
 }
 
@@ -639,18 +656,21 @@ export function extractIntentHeuristic(message: string, previousIntent: Intent):
   // Possession/timeline extraction
   if (/ready\s*to\s*move|rtm|immediate|asap/i.test(message)) {
     fallback.possession = 'immediate'
-  } else if (/within\s*1\s*year|1\s*year|next\s*year/i.test(message)) {
+  } else if (/\b(?:within|in)\s*(?:1|a|one)\s*year\b|\b(?:1|one)\s*year\b|\b(?:6|12)\s*months?\b|next\s*year/i.test(message)) {
     fallback.possession = '1year'
-  } else if (/within\s*2\s*year|2\s*year|in\s*2\s*year/i.test(message)) {
+  } else if (/\b(?:within|in)\s*(?:2|two)\s*years?\b|\b(?:2|two)\s*years?\b|\b(?:18|24)\s*months?\b/i.test(message)) {
     fallback.possession = '2year'
   } else if (/within\s*3\s*year|3\s*year|in\s*3\s*year|long\s*term/i.test(message)) {
     fallback.possession = '3year+'
   }
 
   // Purpose extraction
-  if (/invest|investment|appreciation|roi|returns|income/i.test(message)) {
+  // Word-bounded: unbounded `own` matched "down payment" and "town", `roi`
+  // matched "heroine"-style substrings, tagging buyers as investors or end-users
+  // on words that say nothing about purpose.
+  if (/\b(invest\w*|appreciation|roi|returns?|rental\s+income)\b/i.test(message)) {
     fallback.purpose = 'investment'
-  } else if (/live|stay|own|occupy|home/i.test(message)) {
+  } else if (/\b(live|living|stay|self[- ]use|end[- ]use|occupy|move\s+in|family\s+home)\b/i.test(message)) {
     fallback.purpose = 'endUse'
   }
 

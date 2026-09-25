@@ -280,7 +280,7 @@ export default function Sidebar({
         ${isCollapsed ? 'hidden md:flex w-[64px]' : 'w-[280px] sm:w-[300px] md:w-[260px]'} 
         text-gray-900 dark:text-gray-100 flex flex-col h-full border-r border-gray-200/80 dark:border-zinc-800/80 bg-white dark:bg-[#0c0d14]
         fixed md:relative z-[60] md:z-auto shrink-0 shadow-2xl md:shadow-none
-        transition-all duration-300 ease-in-out overflow-hidden
+        transition-[width,transform] duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] will-change-[width,transform] overflow-hidden
         ${mobileOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
       `}
       >

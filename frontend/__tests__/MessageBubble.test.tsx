@@ -42,6 +42,9 @@ jest.mock('@/lib/analytics', () => ({
 const sharedProps = {
   index: 0,
   isLast: true,
+  // Below DOSSIER_MIN_AI_TURNS, so these cases render as they did before the
+  // dossier CTA was added to the last answer.
+  aiTurnCount: 1,
   isSubmitting: false,
   chatPhase: 'DISCOVERY' as const,
   isLastProperties: false,

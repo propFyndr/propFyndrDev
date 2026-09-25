@@ -165,3 +165,146 @@ branches on it as a state, check every mode that sets it.
 (Archive here as sessions complete)
 
 ---
+
+---
+
+## 2026-09-25 — A guard that only read the first fallback on a line
+
+**What didn't work:** `noAssertedVerification.test.ts` was written to catch
+exactly the pattern `project with no rera_number -> 'Registered'` — it says so
+in its own header comment. It still let that line through for the whole of the
+pgvector branch.
+
+The scan used `line.match(...)`, which returns the first match only, then
+returned early when that value was not a claim word:
+
+```ts
+const match = line.match(/(?:\?\?|\|\|)\s*['"`]([^'"`]{4,60})['"`]/)
+if (!match) return
+const value = match[1]
+if (!CLAIM.test(value)) return
+```
+
+On a template line carrying several fallbacks the claim is rarely the one in
+front:
+
+```ts
+`- ${p.name} in ${p.sector || 'Noida'} … (RERA: ${p.rera_number || 'Registered'})`
+```
+
+`'Noida'` matched first, was correctly judged benign, and the scan returned
+before it ever reached `'Registered'`.
+
+**What worked instead:** `line.matchAll(...)` with the `g` flag, applying the
+allowance and the CLAIM test to each match independently. The offender list went
+from one entry to two immediately, and the second was a fabricated RERA
+registration that had been shipping.
+
+**Note for next time:** a static guard that scans source lines must iterate
+every occurrence on the line. A first-match-only scan does not fail loudly when
+it under-reports — it passes, which reads as evidence the code is clean. Worth
+checking the other repo-wide scanners for the same shape.
+
+---
+
+## 2026-09-25 — Two review findings that did not survive contact with the schema
+
+Recorded because both cost a round trip and both were stated with more
+confidence than the evidence supported.
+
+1. **"`searchProjectsSemantic` has no status filter, so ineligible projects can
+   surface."** `ProjectStatus` has exactly three values — `under_construction`,
+   `ready_to_move`, `new_launch` — and all three are buyer-eligible under the V1
+   scope. `Project` carries no `is_active`, `is_published` or visibility column
+   at all. There was no ineligible state to filter out. The plan task was
+   dropped rather than satisfied by inventing a rule.
+
+2. **"`answerIntegrity` won't catch the fabrication because it runs on model
+   output, not prompt context."** Half right about the mechanism, wrong about
+   the outcome: a *different* guard, the static
+   `noAssertedVerification.test.ts`, caught one of the four fabrications and had
+   the branch red before any of this started. Running the suite first would have
+   found that in one command.
+
+**Note for next time:** check the enum and the columns before asserting a filter
+is missing, and run the suite before claiming what it does and does not catch.
+
+---
+
+## 2026-09-25 — The vector leg had never returned a row
+
+**What didn't work:** every `pgvector` semantic search on the branch, from the
+day it was written. `searchNewsSemantic` and `searchProjectsSemantic` joined
+`LEFT JOIN "Builder" b`. `Builder` is `@@map("builders")` — the quoted
+PascalCase relation does not exist:
+
+```
+Raw query failed. Code: `42P01`. Message: `relation "Builder" does not exist`
+```
+
+The query threw on every call, the surrounding `catch` logged to
+`console.error` and returned `[]`, and `searchNewsHybrid` carried on with its
+keyword leg. So news search answered, correctly, the whole time — on ILIKE
+alone. The end-to-end test passed. The terminal showed a grounded answer. None
+of it was semantic.
+
+**How it stayed hidden:** the feature was only ever exercised through
+`searchNewsHybrid`, which fuses two legs and cannot tell you one of them
+returned nothing. An empty leg and a leg that found nothing relevant look
+identical from the outside.
+
+**What worked instead:** `LEFT JOIN builders b`. Verified by asserting exact
+top-1 recall against known headlines (3/3, similarity 0.70–0.73, builder names
+now resolving) and by a paraphrase query — "which developer hit a building
+progress landmark" returns milestone posts at 0.34, which ILIKE cannot do at
+all. `EXPLAIN` confirms `Index Scan using idx_projects_embedding`.
+
+**Note for next time:** raw SQL against a Prisma schema must use the `@@map`
+name, not the model name — Prisma quotes PascalCase only for unmapped models.
+And a fallback that silently absorbs a broken primary path will report success
+forever. When a hybrid search is added, assert each leg returns rows on its
+own before trusting the fused result.
+
+---
+
+## 2026-09-25 — Per-row embedding calls against a 40/min trial key
+
+**What didn't work:** seeding embeddings one HTTP call per row. 109 of ~290
+rows succeeded, then 273 consecutive failures. The failure lines named the row
+but no cause, because `getEmbedding` checked `if (res.ok)` and fell through to
+`return null` on anything else — a non-ok response logged nothing at all.
+
+Adding the status to the log gave the whole answer in one line:
+
+```
+Cohere embed HTTP 429: You are using a Trial key, which is limited to
+40 API calls / minute.
+```
+
+**What worked instead:** `getEmbeddingsBatch`, sending up to 96 texts per call
+(Cohere's documented maximum). The same corpus is four calls instead of ~290,
+and finishes in seconds.
+
+**Note for next time:** if an API is called once per row over a table, check
+the batch endpoint and the rate limit before the first run, not after. And a
+`catch` that logs while an `if (!res.ok)` stays silent will hide exactly the
+errors that come back as a well-formed HTTP response — which is most of them.
+
+---
+
+## 2026-09-26 — Regex edits via Python heredoc wrote backspace bytes
+
+**What didn't work:** patching TypeScript regexes through a Python script in a
+bash heredoc. Every `\b` in the replacement arrived in the file as a literal
+0x08 (backspace), so `/\b(it|its)\b/` became `/(it|its)/` in effect —
+unbounded, and invisible in normal `sed`/`cat` output. It took three attempts
+(`sed -n`, `od -c`) to see it. `\s` survived, which made it look fine.
+
+**What worked instead:** the Edit tool for any replacement containing regex
+escapes, and a byte scan after scripted edits:
+`LC_ALL=C grep -c $'\x08' <file>` (0 expected), fixed with a script that
+replaces `b'\x08'` with `bytes([92, 98])`.
+
+**Note for next time:** never write regex source through an escaped string
+layer. If a scripted edit is unavoidable, scan for 0x08 before typechecking —
+tsc accepts the corrupted regex silently.

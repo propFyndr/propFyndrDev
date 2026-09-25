@@ -22,7 +22,6 @@ import {
   Check,
   CheckCircle,
   X,
-  Sparkle,
   Buildings,
   ArrowsClockwise,
 } from '@phosphor-icons/react'

@@ -196,3 +196,37 @@ test('a budget range is still not two sectors', () => {
   const r = classifyQueryDeterministic('compare options between 1 and 2 crore', {})
   assert.notEqual(r?.reason, 'Explicit comparison request naming two sectors')
 })
+
+describe('building-fact questions route by whether the message points at a project', () => {
+  const focused = { projectNames: ['ACE Parkway'] }
+  for (const q of [
+    'how much land does it have?',
+    'how many units does it have',
+    'what water supply do they have?',
+    'is there power backup there?',
+    'what is the possession delay on it?',
+    'and the clubhouse?',
+  ]) {
+    it(`"${q}" with a project referenced -> DRILLDOWN`, () => {
+      const r = classifyQuery(q, focused, { projectReferenced: true })
+      assert.equal(r.queryKind, 'DRILLDOWN')
+    })
+  }
+
+  it('a general question with a carried (unreferenced) focus stays OPEN', () => {
+    const r = classifyQuery('explain capital gains tax on property sale', focused, { projectReferenced: false })
+    assert.equal(r.queryKind, 'OPEN')
+  })
+
+  it('"what is groundwater TDS in Noida" with a carried focus stays OPEN', () => {
+    const r = classifyQuery('what is groundwater tds in noida', focused, { projectReferenced: false })
+    assert.equal(r.queryKind, 'OPEN')
+  })
+})
+
+describe('tax concepts stay general even when the message points at a project', () => {
+  it('"what is 80c?" with a focused project -> OPEN, not cards', () => {
+    const r = classifyQuery('what is 80c?', { projectNames: ['ACE Parkway'], bhk: [3] }, { projectReferenced: true })
+    assert.equal(r.queryKind, 'OPEN')
+  })
+})

@@ -49,3 +49,34 @@ describe('a real builder name still reaches the coverage answer', () => {
     assert.ok(out, 'a two-word brand was rejected')
   })
 })
+
+describe('coverage answers what we hold, not what we think of a builder', () => {
+  // The call site in chat-router used to suppress coverage with a negative
+  // regex that ended in `|\?` — a bare question mark — which switched the
+  // whole gate off for nearly every message. The condition now lives inside
+  // builderCoverage, in the affirmative.
+
+  const ADVISORY = [
+    'is godrej properties reliable',
+    'what is the reputation of sikka group',
+    'has sikka group had delays on their projects',
+    'is godrej properties worth it compared to ats group',
+    'any complaints about prateek group projects',
+  ]
+  for (const q of ADVISORY) {
+    it(`declines the advisory question: ${q.slice(0, 48)}`, async () => {
+      assert.equal(
+        await builderCoverage(q),
+        null,
+        'an advisory question must not be answered with an inventory list',
+      )
+    })
+  }
+
+  // The positive direction is already covered above by "godrej properties in
+  // noida" and "sikka group projects in noida", both of which still pass. A
+  // leading "what projects does ..." is not tested here because the name
+  // extractor captures "what" as the brand and rejects the turn — the same
+  // known limitation as "which builders have the best delivery record" in
+  // MUST_NOT_MATCH, and not something this change set out to alter.
+})

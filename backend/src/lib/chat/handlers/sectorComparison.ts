@@ -44,11 +44,12 @@ export const sectorComparisonHandler: ChatTopicHandler = {
     // Query deep relations for the two sectors specifically
     const [s1DetailedProjs, s2DetailedProjs] = await Promise.all([
       prisma.project.findMany({
-        where: { OR: sectorWhereClause(s1) },
+        // Blocked builders never reach the prompt as verified top projects.
+        where: { OR: sectorWhereClause(s1), builder: { legal_flag: null } },
         include: { unit_types: true, builder: true }
       }),
       prisma.project.findMany({
-        where: { OR: sectorWhereClause(s2) },
+        where: { OR: sectorWhereClause(s2), builder: { legal_flag: null } },
         include: { unit_types: true, builder: true }
       })
     ])

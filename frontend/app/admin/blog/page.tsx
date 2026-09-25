@@ -147,6 +147,35 @@ export default function BlogAdminPage() {
     }
   }
 
+  const handleRestore = async (id: string) => {
+    try {
+      const res = await adminFetch(`/admin/blog/${id}/restore`, { method: 'POST' })
+      if (res.ok) {
+        setPosts(prev => prev.map(p => (p.id === id ? { ...p, status: 'published' } : p)))
+        showToast('Post restored to published', 'success')
+      } else {
+        showToast('Failed to restore post', 'error')
+      }
+    } catch {
+      showToast('Error restoring post', 'error')
+    }
+  }
+
+  const handlePermanentDelete = async (id: string) => {
+    if (!confirm('Permanently delete this post? This action CANNOT be undone.')) return
+    try {
+      const res = await adminFetch(`/admin/blog/${id}?permanent=true`, { method: 'DELETE' })
+      if (res.ok) {
+        setPosts(prev => prev.filter(p => p.id !== id))
+        showToast('Post permanently deleted', 'success')
+      } else {
+        showToast('Failed to delete post', 'error')
+      }
+    } catch {
+      showToast('Error deleting post', 'error')
+    }
+  }
+
   const filteredPosts = useMemo(() => {
     return posts.filter(item => {
       const query = searchQuery.toLowerCase().trim()
@@ -214,37 +243,45 @@ export default function BlogAdminPage() {
         </div>
       </div>
 
-      {/* KPI Metric Cards */}
+      {/* Interactive KPI Metric Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard
-          label="Total Posts"
-          value={loading ? '—' : stats.total}
-          icon={<BookOpen className="w-4 h-4 text-blue-500" />}
-          hint={`${stats.draft} in draft`}
-          loading={loading}
-        />
-        <StatCard
-          label="Published"
-          value={loading ? '—' : stats.published}
-          icon={<CheckCircle2 className="w-4 h-4 text-emerald-500" />}
-          hint="Live on /blog"
-          tone="good"
-          loading={loading}
-        />
-        <StatCard
-          label="Drafts"
-          value={loading ? '—' : stats.draft}
-          icon={<FileText className="w-4 h-4 text-amber-500" />}
-          hint="Not yet live"
-          loading={loading}
-        />
-        <StatCard
-          label="Archived"
-          value={loading ? '—' : stats.archived}
-          icon={<Archive className="w-4 h-4 text-zinc-400" />}
-          hint="Hidden from index"
-          loading={loading}
-        />
+        <div onClick={() => setFilter('all')} className="cursor-pointer transition-transform hover:scale-[1.01]">
+          <StatCard
+            label="Total Posts"
+            value={loading ? '—' : stats.total}
+            icon={<BookOpen className="w-4 h-4 text-blue-500" />}
+            hint={`${stats.draft} in draft`}
+            loading={loading}
+          />
+        </div>
+        <div onClick={() => setFilter('published')} className="cursor-pointer transition-transform hover:scale-[1.01]">
+          <StatCard
+            label="Published"
+            value={loading ? '—' : stats.published}
+            icon={<CheckCircle2 className="w-4 h-4 text-emerald-500" />}
+            hint="Live on /blog"
+            tone="good"
+            loading={loading}
+          />
+        </div>
+        <div onClick={() => setFilter('draft')} className="cursor-pointer transition-transform hover:scale-[1.01]">
+          <StatCard
+            label="Drafts"
+            value={loading ? '—' : stats.draft}
+            icon={<FileText className="w-4 h-4 text-amber-500" />}
+            hint="Not yet live"
+            loading={loading}
+          />
+        </div>
+        <div onClick={() => setFilter('archived')} className="cursor-pointer transition-transform hover:scale-[1.01]">
+          <StatCard
+            label="Archived"
+            value={loading ? '—' : stats.archived}
+            icon={<Archive className="w-4 h-4 text-zinc-400" />}
+            hint="Hidden from index"
+            loading={loading}
+          />
+        </div>
       </div>
 
       {/* Control Toolbar */}
@@ -331,7 +368,9 @@ export default function BlogAdminPage() {
                       // eslint-disable-next-line @next/next/no-img-element
                       <img src={item.cover_image_url} alt={item.title} className="w-full h-full object-cover" />
                     ) : (
-                      <BookOpen className="w-8 h-8 opacity-40" />
+                      <div className="w-full h-full bg-gradient-to-br from-blue-500/10 to-indigo-500/20 flex items-center justify-center text-blue-600 dark:text-blue-400 font-bold text-lg">
+                        {item.title.slice(0, 2).toUpperCase()}
+                      </div>
                     )}
                   </div>
 
@@ -364,7 +403,7 @@ export default function BlogAdminPage() {
                       </span>
                     </div>
 
-                    <div className="flex items-center gap-2 pt-2">
+                    <div className="flex items-center gap-2 pt-2 flex-wrap">
                       <button
                         onClick={() => {
                           setEditingItem(item)
@@ -386,13 +425,28 @@ export default function BlogAdminPage() {
                         </a>
                       )}
 
-                      {item.status !== 'archived' && (
+                      {item.status !== 'archived' ? (
                         <button
                           onClick={() => handleArchive(item.id)}
-                          className="px-3 py-1.5 rounded-xl border border-rose-200/80 dark:border-rose-900/40 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 text-xs font-semibold transition-all shadow-2xs flex items-center gap-1 cursor-pointer"
+                          className="px-3 py-1.5 rounded-xl border border-zinc-200/80 dark:border-zinc-700/80 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800 text-xs font-semibold transition-all shadow-2xs flex items-center gap-1 cursor-pointer"
                         >
-                          <Trash2 size={13} /> Archive
+                          <Archive size={13} /> Archive
                         </button>
+                      ) : (
+                        <>
+                          <button
+                            onClick={() => handleRestore(item.id)}
+                            className="px-3 py-1.5 rounded-xl border border-emerald-200/80 dark:border-emerald-800/80 bg-emerald-50/60 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 text-xs font-semibold transition-all shadow-2xs flex items-center gap-1 cursor-pointer"
+                          >
+                            <CheckCircle2 size={13} /> Restore to Live
+                          </button>
+                          <button
+                            onClick={() => handlePermanentDelete(item.id)}
+                            className="px-3 py-1.5 rounded-xl border border-rose-200/80 dark:border-rose-900/40 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 text-xs font-semibold transition-all shadow-2xs flex items-center gap-1 cursor-pointer"
+                          >
+                            <Trash2 size={13} /> Delete Permanently
+                          </button>
+                        </>
                       )}
                     </div>
                   </div>
@@ -446,6 +500,18 @@ function BlogModal({
 }) {
   const [loading, setLoading] = useState(false)
   const [slugTouched, setSlugTouched] = useState(!!item)
+  const [activeTab, setActiveTab] = useState<'edit' | 'preview'>('edit')
+
+  // Safely parse initial content so plain strings or invalid JSON never throw
+  const getInitialContent = () => {
+    if (!item?.content) return undefined
+    try {
+      return JSON.parse(item.content)
+    } catch {
+      return item.content
+    }
+  }
+
   const [formData, setFormData] = useState<{
     title: string
     slug: string
@@ -460,12 +526,12 @@ function BlogModal({
     title: item?.title || '',
     slug: item?.slug || '',
     excerpt: item?.excerpt || '',
-    content: item?.content ? JSON.parse(item.content) : undefined,
+    content: getInitialContent(),
     cover_image_url: item?.cover_image_url || '',
     status: item?.status || 'draft',
     meta_title: item?.meta_title || '',
     meta_description: item?.meta_description || '',
-    author_name: item?.author_name || '',
+    author_name: item?.author_name || 'PropFyndr Advisory Research',
   })
 
   const handleTitleChange = (title: string) => {
@@ -484,16 +550,22 @@ function BlogModal({
       const url = item ? `/admin/blog/${item.id}` : '/admin/blog'
       const method = item ? 'PATCH' : 'POST'
 
+      const contentPayload =
+        typeof formData.content === 'object' && formData.content !== null
+          ? JSON.stringify(formData.content)
+          : String(formData.content || '')
+
       const res = await adminFetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...formData,
-          content: JSON.stringify(formData.content),
+          content: contentPayload,
         }),
       })
 
       if (res.ok) {
+        showToast(item ? 'Post updated successfully' : 'Post created successfully', 'success')
         onSave()
       } else {
         const data = await res.json().catch(() => ({}))
@@ -508,7 +580,7 @@ function BlogModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 overflow-hidden">
       <m.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -518,162 +590,333 @@ function BlogModal({
       />
 
       <m.div
-        initial={{ opacity: 0, scale: 0.96, y: 8 }}
+        initial={{ opacity: 0, scale: 0.97, y: 10 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.96, y: 8 }}
-        transition={{ type: 'spring', damping: 28, stiffness: 340 }}
-        className="relative w-full max-w-3xl bg-white dark:bg-zinc-900 border border-zinc-200/90 dark:border-zinc-800 rounded-3xl shadow-2xl overflow-hidden font-sans z-10 my-auto max-h-[90vh] flex flex-col"
+        exit={{ opacity: 0, scale: 0.97, y: 10 }}
+        transition={{ type: 'spring', damping: 30, stiffness: 350 }}
+        className="relative w-full max-w-6xl xl:max-w-7xl bg-white dark:bg-zinc-900 border border-zinc-200/90 dark:border-zinc-800 rounded-3xl shadow-2xl overflow-hidden font-sans z-10 h-[92vh] flex flex-col"
         onClick={e => e.stopPropagation()}
       >
-        {/* Header */}
-        <div className="p-6 border-b border-zinc-100 dark:border-zinc-800 flex items-center justify-between shrink-0">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 font-bold text-xs flex items-center justify-center shadow-xs">
+        {/* Header with Mode Toggle and Pinned Action */}
+        <div className="px-6 py-4 border-b border-zinc-100 dark:border-zinc-800 flex items-center justify-between shrink-0 bg-white dark:bg-zinc-900 z-10">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="w-9 h-9 rounded-xl bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 font-bold text-xs flex items-center justify-center shrink-0 shadow-xs">
               <BookOpen size={18} />
             </div>
-            <div>
-              <h3 className="text-lg font-extrabold text-zinc-900 dark:text-white tracking-tight">
-                {item ? 'Edit Post' : 'New Blog Post'}
-              </h3>
-              <p className="text-xs text-zinc-500 font-medium">Write and publish SEO content</p>
-            </div>
-          </div>
-          <button onClick={onCancel} className="p-1 rounded-full text-zinc-400 hover:text-zinc-700 cursor-pointer">
-            <X size={18} />
-          </button>
-        </div>
-
-        {/* Form Body */}
-        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-4 text-xs font-sans">
-          <div>
-            <label className="text-xs font-bold text-zinc-700 dark:text-zinc-300 block mb-1">Title *</label>
-            <input
-              type="text"
-              placeholder="e.g. 5 Things to Check Before Buying in Sector 150"
-              value={formData.title}
-              onChange={e => handleTitleChange(e.target.value)}
-              className="w-full px-3.5 py-2.5 bg-white dark:bg-zinc-800/80 border border-zinc-200/90 dark:border-zinc-700/80 rounded-xl outline-none text-zinc-900 dark:text-white font-medium focus:border-blue-500"
-              required
-            />
-          </div>
-
-          <div>
-            <label className="text-xs font-bold text-zinc-700 dark:text-zinc-300 block mb-1">Slug *</label>
-            <div className="flex items-center gap-2">
-              <span className="text-zinc-400 font-mono text-xs shrink-0">/blog/</span>
-              <input
-                type="text"
-                value={formData.slug}
-                onChange={e => {
-                  setSlugTouched(true)
-                  setFormData({ ...formData, slug: slugify(e.target.value) })
-                }}
-                className="w-full px-3.5 py-2.5 bg-white dark:bg-zinc-800/80 border border-zinc-200/90 dark:border-zinc-700/80 rounded-xl outline-none text-zinc-900 dark:text-white font-mono focus:border-blue-500"
-                required
-              />
+            <div className="min-w-0">
+              <div className="flex items-center gap-2">
+                <h3 className="text-base font-extrabold text-zinc-900 dark:text-white tracking-tight truncate">
+                  {item ? 'Edit Article' : 'New Article'}
+                </h3>
+                <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                  formData.status === 'published'
+                    ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-400 border border-emerald-200/60 dark:border-emerald-800/60'
+                    : formData.status === 'archived'
+                    ? 'bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400'
+                    : 'bg-amber-50 text-amber-700 dark:bg-amber-950/60 dark:text-amber-400 border border-amber-200/60'
+                }`}>
+                  {formData.status}
+                </span>
+              </div>
+              <p className="text-[11px] text-zinc-400 font-medium truncate max-w-md">
+                {formData.title ? formData.title : 'Configure content and publishing metadata'}
+              </p>
             </div>
           </div>
 
-          <div>
-            <label className="text-xs font-bold text-zinc-700 dark:text-zinc-300 block mb-1">Excerpt</label>
-            <textarea
-              placeholder="Short summary shown in the blog list and search results..."
-              value={formData.excerpt}
-              onChange={e => setFormData({ ...formData, excerpt: e.target.value })}
-              className="w-full px-3.5 py-2.5 bg-white dark:bg-zinc-800/80 border border-zinc-200/90 dark:border-zinc-700/80 rounded-xl outline-none text-zinc-900 dark:text-white font-medium focus:border-blue-500 resize-none"
-              rows={2}
-            />
-          </div>
-
-          <div>
-            <label className="text-xs font-bold text-zinc-700 dark:text-zinc-300 block mb-1">Content *</label>
-            <TiptapEditor
-              content={formData.content}
-              onChange={json => setFormData(prev => ({ ...prev, content: json }))}
-              placeholder="Start writing your article..."
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="text-xs font-bold text-zinc-700 dark:text-zinc-300 block mb-1">Status</label>
-              <CustomSelect
-                value={formData.status}
-                onChange={val => setFormData({ ...formData, status: val as BlogStatus })}
-                options={[
-                  { value: 'draft', label: 'Draft' },
-                  { value: 'published', label: 'Published' },
-                  { value: 'archived', label: 'Archived' },
-                ]}
-                size="sm"
-                className="w-full"
-              />
+          <div className="flex items-center gap-3">
+            {/* Edit / Preview Segmented Toggle */}
+            <div className="flex items-center p-1 bg-zinc-100 dark:bg-zinc-800 rounded-xl border border-zinc-200/80 dark:border-zinc-700/80">
+              <button
+                type="button"
+                onClick={() => setActiveTab('edit')}
+                className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${
+                  activeTab === 'edit'
+                    ? 'bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white shadow-2xs'
+                    : 'text-zinc-500 hover:text-zinc-900 dark:hover:text-white'
+                }`}
+              >
+                Studio Editor
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab('preview')}
+                className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${
+                  activeTab === 'preview'
+                    ? 'bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white shadow-2xs'
+                    : 'text-zinc-500 hover:text-zinc-900 dark:hover:text-white'
+                }`}
+              >
+                Live Preview
+              </button>
             </div>
-            <div>
-              <label className="text-xs font-bold text-zinc-700 dark:text-zinc-300 block mb-1">Author Name</label>
-              <input
-                type="text"
-                placeholder="e.g. PropFyndr Team"
-                value={formData.author_name}
-                onChange={e => setFormData({ ...formData, author_name: e.target.value })}
-                className="w-full px-3.5 py-2 bg-white dark:bg-zinc-800/80 border border-zinc-200/90 dark:border-zinc-700/80 rounded-xl outline-none text-zinc-900 dark:text-white font-medium"
-              />
-            </div>
-          </div>
 
-          <div>
-            <label className="text-xs font-bold text-zinc-700 dark:text-zinc-300 block mb-1">Cover Image URL</label>
-            <input
-              type="url"
-              placeholder="https://images.unsplash.com/..."
-              value={formData.cover_image_url}
-              onChange={e => setFormData({ ...formData, cover_image_url: e.target.value })}
-              className="w-full px-3.5 py-2 bg-white dark:bg-zinc-800/80 border border-zinc-200/90 dark:border-zinc-700/80 rounded-xl outline-none text-zinc-900 dark:text-white font-medium"
-            />
-          </div>
+            <div className="h-5 w-px bg-zinc-200 dark:bg-zinc-800 mx-1 hidden sm:block" />
 
-          <div className="pt-2 border-t border-zinc-100 dark:border-zinc-800 space-y-3">
-            <p className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">SEO Metadata</p>
-            <div>
-              <label className="text-xs font-bold text-zinc-700 dark:text-zinc-300 block mb-1">Meta Title</label>
-              <input
-                type="text"
-                placeholder="Defaults to the post title if left blank"
-                value={formData.meta_title}
-                onChange={e => setFormData({ ...formData, meta_title: e.target.value })}
-                className="w-full px-3.5 py-2 bg-white dark:bg-zinc-800/80 border border-zinc-200/90 dark:border-zinc-700/80 rounded-xl outline-none text-zinc-900 dark:text-white font-medium"
-              />
-            </div>
-            <div>
-              <label className="text-xs font-bold text-zinc-700 dark:text-zinc-300 block mb-1">Meta Description</label>
-              <textarea
-                placeholder="Defaults to the excerpt if left blank"
-                value={formData.meta_description}
-                onChange={e => setFormData({ ...formData, meta_description: e.target.value })}
-                className="w-full px-3.5 py-2 bg-white dark:bg-zinc-800/80 border border-zinc-200/90 dark:border-zinc-700/80 rounded-xl outline-none text-zinc-900 dark:text-white font-medium resize-none"
-                rows={2}
-              />
-            </div>
-          </div>
-
-          {/* Footer Actions */}
-          <div className="flex items-center justify-between pt-4 border-t border-zinc-100 dark:border-zinc-800">
             <button
               type="button"
               onClick={onCancel}
-              className="px-4 py-2 rounded-xl border border-zinc-200/80 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 font-bold text-xs hover:bg-zinc-50 dark:hover:bg-zinc-800 cursor-pointer"
+              className="px-3.5 py-1.5 rounded-xl border border-zinc-200/80 dark:border-zinc-700 text-zinc-600 dark:text-zinc-300 font-bold text-xs hover:bg-zinc-50 dark:hover:bg-zinc-800 cursor-pointer hidden sm:block"
             >
               Cancel
             </button>
+
             <button
-              type="submit"
+              type="button"
+              onClick={handleSubmit}
               disabled={loading}
-              className="px-5 py-2 rounded-xl bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 font-bold text-xs hover:bg-black dark:hover:bg-zinc-100 shadow-2xs disabled:opacity-50 cursor-pointer"
+              className="px-4 py-1.5 rounded-xl bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 font-bold text-xs hover:bg-black dark:hover:bg-zinc-100 shadow-2xs disabled:opacity-50 cursor-pointer flex items-center gap-1.5"
             >
-              {loading ? 'Saving...' : item ? 'Update Post' : 'Create Post'}
+              {loading ? (
+                <>
+                  <span className="w-3 h-3 rounded-full border-2 border-white/40 dark:border-zinc-900/40 border-t-white dark:border-t-zinc-900 animate-spin" />
+                  <span>Saving...</span>
+                </>
+              ) : (
+                <span>{item ? 'Save Changes' : 'Publish Article'}</span>
+              )}
+            </button>
+
+            <button
+              onClick={onCancel}
+              className="p-1.5 rounded-xl text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 cursor-pointer"
+            >
+              <X size={18} />
             </button>
           </div>
-        </form>
+        </div>
+
+        {/* Studio Content Area */}
+        {activeTab === 'preview' ? (
+          <div className="flex-1 overflow-y-auto p-6 sm:p-12 space-y-6 bg-white dark:bg-zinc-950">
+            <div className="max-w-3xl mx-auto space-y-6">
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-blue-50 text-blue-600 border border-blue-200">
+                Live Reader Preview
+              </span>
+              <h1 className="text-3xl sm:text-4xl font-extrabold text-zinc-900 dark:text-white tracking-tight leading-tight">
+                {formData.title || 'Untitled Article'}
+              </h1>
+              {formData.excerpt && (
+                <p className="text-base text-zinc-600 dark:text-zinc-400 leading-relaxed font-normal">
+                  {formData.excerpt}
+                </p>
+              )}
+              <div className="flex items-center gap-3 text-xs text-zinc-400 border-y border-zinc-100 dark:border-zinc-800 py-3">
+                <span className="font-semibold text-zinc-700 dark:text-zinc-300">
+                  {formData.author_name || 'PropFyndr Advisory Research'}
+                </span>
+                <span>·</span>
+                <span>Status: {formData.status.toUpperCase()}</span>
+                <span>·</span>
+                <span className="font-mono text-zinc-400">/blog/{formData.slug || 'slug'}</span>
+              </div>
+              {formData.cover_image_url && (
+                <div className="rounded-2xl overflow-hidden border border-zinc-200 dark:border-zinc-800 max-h-80 aspect-video w-full bg-zinc-100">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={formData.cover_image_url} alt="Cover" className="w-full h-full object-cover" />
+                </div>
+              )}
+              <div className="pt-4">
+                <TiptapEditor
+                  content={formData.content}
+                  onChange={() => {}}
+                  placeholder="No content written yet."
+                />
+              </div>
+            </div>
+          </div>
+        ) : (
+          /* Horizontal Split Workspace: Left Canvas (65%), Right Settings Rail (35%) */
+          <div className="flex-1 overflow-hidden grid grid-cols-1 lg:grid-cols-12 divide-y lg:divide-y-0 lg:divide-x divide-zinc-100 dark:divide-zinc-800">
+            {/* Left Writing Canvas (Main Document) */}
+            <div className="lg:col-span-8 overflow-y-auto p-6 sm:p-8 space-y-5 bg-white dark:bg-zinc-900">
+              {/* Document Title */}
+              <div>
+                <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider block mb-1">
+                  Article Title
+                </label>
+                <input
+                  type="text"
+                  placeholder="Enter a captivating article title..."
+                  value={formData.title}
+                  onChange={e => handleTitleChange(e.target.value)}
+                  className="w-full text-xl sm:text-2xl font-extrabold tracking-tight bg-transparent text-zinc-900 dark:text-white placeholder:text-zinc-300 dark:placeholder:text-zinc-600 outline-none pb-2 border-b border-zinc-100 dark:border-zinc-800 focus:border-blue-500 transition-colors"
+                  required
+                />
+              </div>
+
+              {/* Slug line */}
+              <div className="flex items-center gap-2 text-xs py-1 px-3 bg-zinc-50 dark:bg-zinc-800/50 rounded-xl border border-zinc-100 dark:border-zinc-800">
+                <span className="text-zinc-400 font-mono shrink-0">propfyndr.com/blog/</span>
+                <input
+                  type="text"
+                  value={formData.slug}
+                  onChange={e => {
+                    setSlugTouched(true)
+                    setFormData({ ...formData, slug: slugify(e.target.value) })
+                  }}
+                  placeholder="url-slug"
+                  className="w-full bg-transparent font-mono text-zinc-800 dark:text-zinc-200 outline-none"
+                  required
+                />
+              </div>
+
+              {/* Excerpt */}
+              <div>
+                <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider block mb-1">
+                  Summary / Excerpt
+                </label>
+                <textarea
+                  placeholder="Provide a concise 1-2 sentence executive summary for search engines and social cards..."
+                  value={formData.excerpt}
+                  onChange={e => setFormData({ ...formData, excerpt: e.target.value })}
+                  className="w-full px-3.5 py-2.5 bg-zinc-50/70 dark:bg-zinc-800/40 border border-zinc-200/80 dark:border-zinc-700/70 rounded-xl outline-none text-zinc-900 dark:text-white font-medium text-xs focus:border-blue-500 focus:bg-white dark:focus:bg-zinc-800 transition-all resize-none leading-relaxed"
+                  rows={2}
+                />
+              </div>
+
+              {/* Rich Body Canvas */}
+              <div>
+                <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider block mb-1.5">
+                  Body Content & Analysis
+                </label>
+                <div className="border border-zinc-200/90 dark:border-zinc-700/80 rounded-2xl overflow-hidden focus-within:border-blue-500 shadow-2xs">
+                  <TiptapEditor
+                    content={formData.content}
+                    onChange={json => setFormData(prev => ({ ...prev, content: json }))}
+                    placeholder="Write your research analysis, corridor comparison matrix, or market guide..."
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Right Publishing & Settings Rail */}
+            <div className="lg:col-span-4 overflow-y-auto p-6 space-y-6 bg-zinc-50/60 dark:bg-zinc-950/40">
+              {/* Publishing Controls */}
+              <div className="p-4 bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 rounded-2xl space-y-4 shadow-2xs">
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">
+                    Publishing State
+                  </span>
+                  <span className="text-[10px] text-zinc-400">Post ID: {item?.id ? item.id.slice(0, 8) : 'new'}</span>
+                </div>
+
+                <div>
+                  <label className="text-xs font-bold text-zinc-700 dark:text-zinc-300 block mb-1.5">Status</label>
+                  <CustomSelect
+                    value={formData.status}
+                    onChange={val => setFormData({ ...formData, status: val as BlogStatus })}
+                    options={[
+                      { value: 'draft', label: 'Draft (Not Public)' },
+                      { value: 'published', label: 'Published (Live)' },
+                      { value: 'archived', label: 'Archived (Hidden)' },
+                    ]}
+                    size="sm"
+                    className="w-full"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-xs font-bold text-zinc-700 dark:text-zinc-300 block mb-1.5">Author Credential</label>
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-lg bg-blue-500 text-white font-bold text-xs flex items-center justify-center shrink-0">
+                      {formData.author_name ? formData.author_name[0].toUpperCase() : 'P'}
+                    </div>
+                    <input
+                      type="text"
+                      placeholder="e.g. PropFyndr Advisory Research"
+                      value={formData.author_name}
+                      onChange={e => setFormData({ ...formData, author_name: e.target.value })}
+                      className="w-full px-3 py-1.5 bg-zinc-50 dark:bg-zinc-800/80 border border-zinc-200/90 dark:border-zinc-700/80 rounded-xl outline-none text-zinc-900 dark:text-white font-medium text-xs"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Cover Media Card with Aspect Preview */}
+              <div className="p-4 bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 rounded-2xl space-y-3 shadow-2xs">
+                <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider block">
+                  Cover Photography
+                </span>
+
+                <div>
+                  <label className="text-xs font-bold text-zinc-700 dark:text-zinc-300 block mb-1.5">
+                    Image URL
+                  </label>
+                  <input
+                    type="url"
+                    placeholder="https://images.unsplash.com/..."
+                    value={formData.cover_image_url}
+                    onChange={e => setFormData({ ...formData, cover_image_url: e.target.value })}
+                    className="w-full px-3 py-1.5 bg-zinc-50 dark:bg-zinc-800/80 border border-zinc-200/90 dark:border-zinc-700/80 rounded-xl outline-none text-zinc-900 dark:text-white font-medium text-xs"
+                  />
+                </div>
+
+                {/* 16:9 Aspect Ratio Preview Banner */}
+                <div className="aspect-video w-full rounded-xl overflow-hidden border border-zinc-200 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-zinc-400">
+                  {formData.cover_image_url ? (
+                    /* eslint-disable-next-line @next/next/no-img-element */
+                    <img
+                      src={formData.cover_image_url}
+                      alt="Cover Preview"
+                      className="w-full h-full object-cover"
+                      onError={e => {
+                        ;(e.target as HTMLImageElement).style.display = 'none'
+                      }}
+                    />
+                  ) : (
+                    <div className="text-center p-4">
+                      <BookOpen size={24} className="mx-auto mb-1 text-zinc-300 dark:text-zinc-600" />
+                      <span className="text-[11px] font-medium text-zinc-400">Paste an Unsplash or CDN URL</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Search Engine Optimization (SEO) */}
+              <div className="p-4 bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 rounded-2xl space-y-3.5 shadow-2xs">
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">
+                    Google SERP Metadata
+                  </span>
+                  <span className="text-[10px] text-blue-600 font-semibold">SEO Card</span>
+                </div>
+
+                <div>
+                  <div className="flex justify-between items-center mb-1">
+                    <label className="text-xs font-bold text-zinc-700 dark:text-zinc-300">Meta Title</label>
+                    <span className="text-[10px] text-zinc-400 font-mono">
+                      {formData.meta_title?.length || 0}/60
+                    </span>
+                  </div>
+                  <input
+                    type="text"
+                    placeholder="Defaults to article title if blank"
+                    value={formData.meta_title}
+                    onChange={e => setFormData({ ...formData, meta_title: e.target.value })}
+                    className="w-full px-3 py-1.5 bg-zinc-50 dark:bg-zinc-800/80 border border-zinc-200/90 dark:border-zinc-700/80 rounded-xl outline-none text-zinc-900 dark:text-white font-medium text-xs"
+                  />
+                </div>
+
+                <div>
+                  <div className="flex justify-between items-center mb-1">
+                    <label className="text-xs font-bold text-zinc-700 dark:text-zinc-300">Meta Description</label>
+                    <span className="text-[10px] text-zinc-400 font-mono">
+                      {formData.meta_description?.length || 0}/160
+                    </span>
+                  </div>
+                  <textarea
+                    placeholder="Defaults to excerpt if blank"
+                    value={formData.meta_description}
+                    onChange={e => setFormData({ ...formData, meta_description: e.target.value })}
+                    className="w-full px-3 py-1.5 bg-zinc-50 dark:bg-zinc-800/80 border border-zinc-200/90 dark:border-zinc-700/80 rounded-xl outline-none text-zinc-900 dark:text-white font-medium text-xs resize-none"
+                    rows={2}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </m.div>
     </div>
   )

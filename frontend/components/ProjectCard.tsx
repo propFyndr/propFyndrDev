@@ -286,12 +286,12 @@ export default function ProjectCard({ project, userId, sessionId, index = 0, isS
                 </span>
               )}
 
-              {project.oc_status === 'received' && (
+              {project.oc_status === 'FULL_OC' && (
                 <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 text-[9px] font-extrabold uppercase tracking-wider">
                   Full OC
                 </span>
               )}
-              {project.oc_status === 'partial' && (
+              {project.oc_status === 'PHASED_OC' && (
                 <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-amber-500/10 text-amber-700 dark:text-amber-300 text-[9px] font-extrabold uppercase tracking-wider">
                   Phased OC
                 </span>
@@ -305,7 +305,7 @@ export default function ProjectCard({ project, userId, sessionId, index = 0, isS
                 <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-rose-500/10 text-rose-700 dark:text-rose-300 text-[9px] font-bold tracking-tight" title="Near Shahdara drain corridor">
                   ⚠️ Drain Zone
                 </span>
-              ) : project.water_source_type === 'ganga_water' ? (
+              ) : project.water_source_type === 'GANGA_JAL' ? (
                 <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-cyan-500/10 text-cyan-700 dark:text-cyan-300 text-[9px] font-bold tracking-tight" title="Ganga Jal municipal supply verified">
                   💧 Ganga Jal
                 </span>
@@ -641,14 +641,14 @@ export default function ProjectCard({ project, userId, sessionId, index = 0, isS
             </div>
 
             {/* Ground Truth & Forensic Badges Strip */}
-            {(project.oc_status || project.amitabh_kant_clearance || project.shahdara_drain_impact || project.water_source_type === 'ganga_water') && (
+            {(project.oc_status || project.amitabh_kant_clearance || project.shahdara_drain_impact || project.water_source_type === 'GANGA_JAL') && (
               <div className="flex items-center gap-1.5 flex-wrap mb-2.5">
-                {project.oc_status === 'received' && (
+                {project.oc_status === 'FULL_OC' && (
                   <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60 text-[10px] font-bold text-emerald-700 dark:text-emerald-300 uppercase tracking-wider">
                     Full OC
                   </span>
                 )}
-                {project.oc_status === 'partial' && (
+                {project.oc_status === 'PHASED_OC' && (
                   <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 text-[10px] font-bold text-amber-700 dark:text-amber-300 uppercase tracking-wider">
                     Phased OC
                   </span>
@@ -662,7 +662,7 @@ export default function ProjectCard({ project, userId, sessionId, index = 0, isS
                   <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800/60 text-[10px] font-semibold text-rose-700 dark:text-rose-300" title="Near Shahdara drain corridor — microclimate impact noted">
                     ⚠️ Drain Impact
                   </span>
-                ) : project.water_source_type === 'ganga_water' ? (
+                ) : project.water_source_type === 'GANGA_JAL' ? (
                   <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-cyan-50 dark:bg-cyan-950/40 border border-cyan-200 dark:border-cyan-800/60 text-[10px] font-semibold text-cyan-700 dark:text-cyan-300" title="Ganga Jal municipal pipeline supply verified">
                     💧 Ganga Jal
                   </span>

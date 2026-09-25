@@ -70,7 +70,7 @@ export default function CostSheetSection({
 
   // Status & Statutory Schedule (UP RERA & Noida Authority Norms)
   const isReadyToMove = detail?.status === 'ready_to_move'
-  const hasOc = detail?.oc_status === 'received' || isReadyToMove
+  const hasOc = detail?.oc_status === 'FULL_OC' || isReadyToMove
 
   // GST: 0% on RTM with OC, 5% on under-construction non-affordable
   const gstRate = hasOc ? 0 : 0.05

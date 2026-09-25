@@ -37,6 +37,7 @@ import { createToolHandler } from '../lib/ai/tools/handlers'
 import { getBuilderRecord } from '../lib/builders'
 import { FINANCIAL, MODELS } from '../lib/config'
 import { webSearch, areaInfo, commute, readPage } from '../lib/web'
+import { isNewsQuery } from '../lib/chat/newsQuery'
 import { calcEmi, calcStampDuty, calcGst, formatInr } from '../lib/calculators'
 import { classifyQuery } from '../lib/discovery/queryClassifier'
 import { SHELF_NOUN_RE } from '../lib/discovery/openQuery'
@@ -73,7 +74,7 @@ import { getChipInventory } from '../lib/discovery/chipInventory'
 import { getProjectDataForQuery, computeResponseConfidence } from '../lib/projectDataGateway'
 import { FEATURE_PROBES } from '../lib/featureProbes'
 import { unverified, unverifiedFeature, confidenceFor, headingFor, UP_STATUTORY, NOIDA_MARKET_RANGES, MARKET_QUALIFIER, type FactTier } from '../lib/factPresentation'
-import { redactProject } from '../lib/projectExposure'
+import { redactProject, redactForResponse } from '../lib/projectExposure'
 import { buildProjectFacts, detectFactTopics } from '../lib/projectFactsBlock'
 import { buildComponentResponse } from '../lib/discovery/componentSpec'
 import { loadMentionedProjectCards } from '../lib/chat/mentionedProjectCards'
@@ -504,7 +505,7 @@ router.post('/', async (req: Request, res: Response) => {
     // response, read by no client. Per-emit stripping missed three call sites.
     if (event === 'properties') {
       const shape = (list: unknown) =>
-        Array.isArray(list) ? list.map((p) => (p && typeof p === 'object' ? stripInternalFields(p as object) : p)) : list
+        Array.isArray(list) ? list.map((p) => (p && typeof p === 'object' ? redactForResponse(stripInternalFields(p as object) as Record<string, unknown>) : p)) : list
 
       /**
        * The card budget, applied here because there are seven emit sites.
@@ -591,7 +592,22 @@ router.post('/', async (req: Request, res: Response) => {
       // Fingerprinted on the intent carried into this turn, so a cached answer
       // written for a buyer who had stated a budget or a sector cannot surface
       // for one who has stated nothing — and vice versa.
-      const cached = await timer.time('cacheRead', () => getCachedResponse(message, GLOBAL_SCOPE, intentFingerprint(prevIntent)))
+      //
+      // Entries are only written for turns with no project in scope, so a
+      // session with a project in focus must not read them either: "what is
+      // the payment plan?" asked about the building on screen would otherwise
+      // replay a generic answer written for someone else. The focus lives on
+      // the session row, which is not loaded yet, hence the one-column read.
+      let sessionHasFocus = false
+      if (sessionId) {
+        try {
+          const row = await prisma.chatSession.findUnique({ where: { id: sessionId }, select: { focus_project_id: true } })
+          sessionHasFocus = Boolean(row?.focus_project_id)
+        } catch { /* unreadable session: fall through to the normal read */ }
+      }
+      const cached = sessionHasFocus
+        ? null
+        : await timer.time('cacheRead', () => getCachedResponse(message, GLOBAL_SCOPE, intentFingerprint(prevIntent)))
       if (cached) {
         console.log('[CHAT:CACHE_HIT] Serving verified advisory response from cache:', message.slice(0, 50))
         send('token', { token: cached.token })
@@ -1068,11 +1084,28 @@ router.post('/', async (req: Request, res: Response) => {
         console.log('[CHAT] Project match detected in query:', matched.name);
         intent.projectNames = [matched.name];
         (intent as any).targetProjectId = matched.id;
+        // "Compare it with X" names X and points at the project in focus. Only
+        // X used to survive, so the turn came back as a single-project answer
+        // about X. Pair them, focus first.
+        const comparesWithFocus =
+          /\b(compare|comparison|vs\.?|versus|against|better\s+than)\b/i.test(message) &&
+          /\b(it|this|that|this\s+one|that\s+one|the\s+(?:current|first)\s+one)\b/i.test(message);
+        const focusIdForPair = sessionData?.focus_project_id;
+        if (comparesWithFocus && focusIdForPair && focusIdForPair !== matched.id) {
+          const focusRow = await prisma.project.findUnique({ where: { id: focusIdForPair }, select: { name: true } });
+          if (focusRow) {
+            intent.projectNames = [focusRow.name, matched.name];
+            (intent as any).targetProjectId = undefined;
+            console.log('[CHAT] Comparison against focus:', focusRow.name, 'vs', matched.name);
+          }
+        }
       } else {
         // Detect if current query is a new sector search, builder query, general advisory, or general discovery search
         isOpenAdvisoryQuery = /\b(highest\s*return|maximum\s*return|best\s*(?:investment|return)|where\s*to\s*invest|market\s*overview|which\s*sector\s*is\s*best|how\s*is\s*noida|capital\s*appreciation|rental\s*yield)\b/i.test(message);
         isBroadSuperlativeQuery = /\b(show\s*(?:me)?\s*(?:the)?\s*best\s*(?:of\s*(?:the)?\s*)?projects|top\s*projects\s*in\s*noida|best\s*societies\s*in\s*noida)\b/i.test(message) && !/\b(under|budget|below|in\s*sector\s*\d+)\b/i.test(message);
-        const isCityLevelGeneralQuery = /\b(generally\s*noida|whole\s*noida|entire\s*noida|noida\s*overall|average\s*price\s*(in|of)\s*noida|noida\s*as\s*a\s*whole)\b/i.test(message);
+        // Market-level questions name no project; "is it a good time to buy?"
+        // uses "it" for the market, and was answered about the project in focus.
+        const isCityLevelGeneralQuery = /\b(generally\s*noida|whole\s*noida|entire\s*noida|noida\s*overall|average\s*price\s*(in|of)\s*noida|noida\s*as\s*a\s*whole|(?:good|right|best)\s+time\s+to\s+buy|buy\s+now\s+or\s+wait|(?:what|where)\s+should\s+i\s+buy|market\s+(?:right\s+now|today|trend))\b/i.test(message);
 
         messageHasBudget = /\b(\d+(?:\.\d+)?\s*(?:cr|crore|lakh|lac|k)\b|budget|under\s*\d+|below\s*\d+)/i.test(message);
         const messageHasBhk = /\b([1-5]\s*bhk|studio|penthouse)\b/i.test(message);
@@ -1162,9 +1195,24 @@ router.post('/', async (req: Request, res: Response) => {
          */
         const namesBuilderThisTurn =
           Boolean((intent as any).builderName) || /\bprojects\s*by\b/i.test(message);
+        /**
+         * A revised constraint is a new search too. "Actually make that 2
+         * crore", "what about 3BHK?", "show me something bigger" restate the
+         * search, not a question about the building on screen — and with the
+         * focus kept, they were answered about that one project instead of
+         * re-running recommendations. A question that tests the project
+         * against a figure ("is it under 2 crore?", "can I afford it?") keeps it.
+         */
+        const asksAboutFocusAgainstFigure =
+          /\b(is|does|can|will|would|could)\s+(it|this|that|they)\b|\bafford\b|\bfor\s+(it|this|that)\b/i.test(message);
+        const revisesSearchThisTurn = !asksAboutFocusAgainstFigure && (
+          messageHasBudget || messageHasBhk ||
+          /\b(bigger|larger|smaller|more\s+spacious|more\s+options|other\s+options|something\s+else|alternatives?)\b/i.test(message)
+        );
         const isFreshSearchThisTurn =
           namesLocationThisTurn || namesBuilderThisTurn || isDiscoveryQuery ||
-          isCityLevelGeneralQuery || isOpenAdvisoryQuery || isBroadSuperlativeQuery;
+          isCityLevelGeneralQuery || isOpenAdvisoryQuery || isBroadSuperlativeQuery ||
+          revisesSearchThisTurn;
         const shouldClearProjectFocus = isFreshSearchThisTurn && !isExplicitFollowUp;
 
         /**
@@ -1594,6 +1642,16 @@ router.post('/', async (req: Request, res: Response) => {
      * sector — and answered generically anyway.
      */
     const targetFocusId = sessionData?.focus_project_id || focusProjectId
+    // Captured before the carry below fills `projectNames` from the focus, so
+    // the classifier can tell "asked about this building" from "a building is
+    // in focus" (see ClassifyOptions.projectReferenced).
+    const projectReferencedThisTurn =
+      Boolean(intent.projectNames?.length) ||
+      /\b(it|its|it's|this|that|the\s+project|there|they|their)\b/i.test(message) ||
+      /^\s*(and|also|what\s+about|how\s+about)\b/i.test(message) ||
+      // A short question naming no place ("how many units?", "total land
+      // area?") is about the thing under discussion, as with any assistant.
+      (message.trim().split(/\s+/).length <= 6 && !/\b(noida|greater|sector|city|area|market|generally|typically|usually|average)\b/i.test(message))
     if (
       shouldCarryFocus({
         message,
@@ -1632,7 +1690,7 @@ router.post('/', async (req: Request, res: Response) => {
      * treating "the first one" as a name to look up.
      */
     const envelopeLine = renderEnvelope(await inventoryEnvelope())
-    const stateBrief = buildStateBrief({
+    const stateArgs = {
       inventoryEnvelope: envelopeLine || null,
       budgetMinCr: intent.budgetMin ?? null,
       budgetMaxCr: intent.budgetMax ?? null,
@@ -1648,7 +1706,17 @@ router.post('/', async (req: Request, res: Response) => {
       summaryLocation: sessionData?.summary_location ?? null,
       summaryFinancial: sessionData?.summary_financial ?? null,
       summaryTimeline: sessionData?.summary_timeline ?? null,
-    })
+    }
+    const stateBrief = buildStateBrief(stateArgs)
+    /**
+     * The same buyer facts without our inventory aggregates, for the lanes that
+     * answer about ONE project. Those calls used to send the model only this
+     * message, so "is it within my budget?" or "does it fit a 3BHK family?"
+     * had no budget or BHK to test against — the memory existed and was not
+     * passed. The envelope is left out: it describes our whole catalogue, and
+     * next to a single project's facts it reads as that project's range.
+     */
+    const buyerBrief = buildStateBrief({ ...stateArgs, inventoryEnvelope: null })
 
     /**
      * Append this turn's stated constraints to the revision log.
@@ -1722,9 +1790,18 @@ router.post('/', async (req: Request, res: Response) => {
       }
       if (intent.sector) held.push(`area: **${intent.sector}**`)
       if (intent.bhk?.length) held.push(`configuration: **${intent.bhk.join('/')} BHK**`)
-      if (intent.budgetMax != null) held.push(`budget ceiling: **₹${intent.budgetMax} Cr**`)
-      if (intent.possession) held.push(`possession: **${intent.possession}**`)
-      if (intent.purpose) held.push(`purpose: **${intent.purpose}**`)
+      if (intent.budgetMin != null && intent.budgetMax != null) held.push(`budget: **₹${intent.budgetMin}–${intent.budgetMax} Cr**`)
+      else if (intent.budgetMax != null) held.push(`budget ceiling: **₹${intent.budgetMax} Cr**`)
+      else if (intent.budgetMin != null) held.push(`budget from: **₹${intent.budgetMin} Cr**`)
+      // Plain words, not the internal codes ("1year", "endUse") the intent stores.
+      const possessionWords: Record<string, string> = { immediate: 'ready to move', '1year': 'within a year', '2year': 'within two years', '3year+': 'three years or more' }
+      const purposeWords: Record<string, string> = { investment: 'investment', endUse: 'to live in' }
+      if (intent.possession) held.push(`possession: **${possessionWords[intent.possession] ?? intent.possession}**`)
+      if (intent.purpose) held.push(`purpose: **${purposeWords[intent.purpose] ?? intent.purpose}**`)
+      const workplace = (intent as { workplace?: string }).workplace
+      if (workplace) held.push(`workplace: **${workplace}**`)
+      const lifestyle = (intent as { lifestyleKeywords?: string[] }).lifestyleKeywords
+      if (lifestyle?.length) held.push(`preferences: **${lifestyle.join(', ')}**`)
 
       // Which projects we actually put in front of the buyer, read off the
       // session's own list rather than recalled by a model — see the note above.
@@ -2143,6 +2220,7 @@ router.post('/', async (req: Request, res: Response) => {
     const classifierText = resolvedSector ? `tell me about ${resolvedSector}` : message
     const queryClassification = classifyQuery(classifierText, intent as Record<string, unknown>, {
       hasVerifiedProjectNames,
+      projectReferenced: projectReferencedThisTurn,
     })
     intent.queryKind = queryClassification.queryKind
     renderTarget = queryClassification.renderTarget
@@ -2173,10 +2251,18 @@ router.post('/', async (req: Request, res: Response) => {
           (intent.bhk?.length || intent.possession || intent.budgetMax || intent.budgetMin)
         )
         if (!hasSpecificSearchFilters && isProximityQuestion(message)) {
-          coverage = await nearbyCoverage(message, (intent as { focus_project_id?: string | null })?.focus_project_id ?? null)
+          // `intent.focus_project_id` was read here and is never set, so the
+          // focus never reached this lane. Passed only when the message points
+          // at the project: a focus carried silently would otherwise become the
+          // anchor of "projects near Sector 62".
+          coverage = await nearbyCoverage(message, projectReferencedThisTurn ? (focusProjectId ?? null) : null)
         }
       }
-      if (!coverage) {
+      // No suppressor list here any more. Whether a turn is a coverage question
+      // is builderCoverage's own business — it now refuses advisory questions
+      // and requires a positive inventory ask, so the caller does not need to
+      // guess on its behalf. See ADVISORY_ABOUT_A_BUILDER in coverageAnswer.ts.
+      if (!coverage && !isNewsQuery(message)) {
         const bCov = await builderCoverage(message)
         // Only use builderCoverage if we actually hold projects for them to render
         if (bCov && 'projects' in bCov && bCov.projects && bCov.projects.length > 0) {
@@ -2621,6 +2707,31 @@ router.post('/', async (req: Request, res: Response) => {
       })
     }
 
+    /**
+     * The announcement lane.
+     *
+     * Position: after `claimingHandler`, before the OPEN lane. Both halves of
+     * that matter, because every gate in this cascade returns the turn.
+     *
+     *   - After `claimingHandler`: a question we can answer from a project's
+     *     own rows is answered from them, even when it mentions an
+     *     announcement. Placed above that check, "what's the news on the ATS
+     *     Nobility possession date" skipped the handler that holds the date.
+     *   - Before OPEN: an announcement question is not a general question, and
+     *     buildNewsContext only has something to say when the turn actually
+     *     asks about one.
+     *
+     * The predicate is shared (lib/chat/newsQuery.ts) and deliberately narrow.
+     * It used to include `corridor`, `flagship`, `delivery schedule` and
+     * `audit`, plus any quoted phrase of 8+ characters — so "what's in the
+     * Noida Expressway corridor" was answered as a builder press release.
+     */
+    if (isNewsQuery(message) && !claimingHandler) {
+      console.log('[CHAT:NEWS_LANE] answering an announcement question from builder_news')
+      await answerAsGeneralQuestion('NEWS_MILESTONE')
+      return
+    }
+
     if (
       queryClassification.queryKind === 'OPEN' &&
       !(asksForInventory && intent.sector) &&
@@ -3004,9 +3115,12 @@ I can help you with:
 // is the metro", and reached no handler — the connectivity table renders the
 // stored road distances and travel times, so the answer existed and the
 // matcher was the only thing missing.
-/(connectivity|distance to|how far|metro proximity|airport distance|jewar|expressway access|transit|commute)/i.test(topicText)
+/(connectivity|distance to|how far|metro proximity|airport distance|jewar|expressway access|transit|commute|near(?:by|est)?\s+(?:a\s+|the\s+)?(?:metro|school|hospital|mall|airport))/i.test(topicText)
       || /\b(what(?:'s| is| are)?\s+(?:all\s+)?(?:near|nearby|around|close to)|anything\s+near|nearby\s+(?:landmarks?|places?|amenities|schools?|hospitals?|malls?|metro)|what\s+surrounds)\b/i.test(topicText) && !isPaymentPlanRequest
-    const isConfigurationQuery = !isInventorySearch && /(balcon|bedroom|bathroom|carpet area|super area|sqft|square feet|size of|how big|how many (balconies|rooms|bhk|bathrooms)|configuration|unit type|floor plan)/i.test(topicText) && !isPaymentPlanRequest && !isCostSheetRequest
+    const isConfigurationQuery = !isInventorySearch && /(balcon|bedroom|bathroom|carpet area|super area|sqft|square feet|size of|how big|how many (balconies|rooms|bhk|bathrooms)|configuration|unit type|floor plan)/i.test(topicText) && !isPaymentPlanRequest && !isCostSheetRequest &&
+      // "price per sqft" / "rate per sqft" is a price question; the configuration
+      // handler holds areas, not rates, and answered it with unit sizes.
+      !/\b(price|rate|cost)\s*(per|\/)\s*(sq\.?\s*ft|sqft|square\s*f(ee|oo)t)\b|\bpsf\b/i.test(topicText)
     const isTotalOutflowQuery = /(total (price|cost|amount|outflow)|on.?road|all.?inclusive price|how much (in total|total will it cost)|with registry|final price)/i.test(topicText)
     const isDueDiligenceQuery = !isInventorySearch &&
       /\b(water\s*(?:source|supply|quality|issue)|ganga\s*jal|borewell|water\s*tds|tds\s*(?:level|range|ppm)|lifts?|elevators?|up\s*lifts?\s*act|emergency\s*rescue\s*device|\bard\b|\bamc\b|amitabh\s*kant|land\s*dues|25%\s*dues|registry\s*clearance|oc\s*status|occupancy\s*certificate|completion\s*certificate|partial\s*oc|full\s*oc|basement\s*(?:health|seepage|leakage|water|dampness)|shahdara\s*drain|drain\s*(?:corridor|impact|smell|stench)|power\s*supply\s*type|multipoint\s*connection|pvvnl)\b/i.test(topicText)
@@ -3690,7 +3804,7 @@ USING THE FACTS:
           } else {
             const systemMsgHistory = [{ role: 'user' as const, content: modelMessage }]
             const fallbackResult = await executeWithFallbackChain({
-              systemPrompt,
+              systemPrompt: buyerBrief ? `${systemPrompt}\n\n${buyerBrief}` : systemPrompt,
               messages: systemMsgHistory,
               send,
               onToolCall: async () => ({}),
@@ -3795,7 +3909,7 @@ USING THE FACTS:
           }
 
           if (detailedTargetProjects[0]) {
-            const forensicChips = generateProjectChips(detailedTargetProjects[0] as any, [message])
+            const forensicChips = generateProjectChips(detailedTargetProjects[0] as any, [message, ...chatHistory.filter(m => m.role === 'user').map(m => m.content)])
             if (forensicChips.length > 0) {
               const mapped = forensicChips.map(f => ({
                 id: f.id,
@@ -4119,7 +4233,11 @@ EXECUTIVE RESPONSE INSTRUCTIONS:
 7. Do NOT use emojis like 📌 or pushpins. Do NOT output raw HTML tags.
 8. ALWAYS end your response with an intelligent, context-aware follow-up question offering the logical next step (e.g. asking if they want to view payment plans, check another configuration, or explore site visit options).`
         const fallbackResult = await executeWithFallbackChain({
-          systemPrompt: systemMsg,
+          // The facts go in the system prompt as well: the integrity check reads
+          // the system prompt as its source of truth, so facts carried only in
+          // the user message made every real possession date and RERA id look
+          // invented, and each provider leg was discarded in turn.
+          systemPrompt: `${systemMsg}\n\nVERIFIED FACTS (the only source for figures, dates and IDs):\n${factsJson}${buyerBrief ? `\n\n${buyerBrief}` : ''}`,
           messages: [{ role: 'user', content: projectDataMsg }],
           send,
           onToolCall: async () => ({ error: 'No tools required for project detail' }),
@@ -4842,22 +4960,17 @@ EXECUTIVE RESPONSE INSTRUCTIONS:
     const { messages: compressedHistory, newSummaries } = await maybeCompressTopical(chatHistory, existingTopicSummaries)
     console.log('[CHAT] END maybeCompress', Date.now(), { compressedLen: compressedHistory.length, newSummaries: !!newSummaries })
 
-    // Select relevant summary based on queryKind (fall back to old summary if not topical)
-    let selectedSummary = existingSummary
-    if (newSummaries) {
-      if (queryClassification.queryKind === 'DISCOVERY' && newSummaries.location) {
-        selectedSummary = newSummaries.location
-      } else if (queryClassification.queryKind === 'DRILLDOWN' && intent.queryKind?.includes('cost') && newSummaries.financial) {
-        selectedSummary = newSummaries.financial
-      } else if (queryClassification.queryKind === 'DRILLDOWN' && intent.queryKind?.includes('timeline') && newSummaries.timeline) {
-        selectedSummary = newSummaries.timeline
-      } else if (newSummaries.location && newSummaries.financial && newSummaries.timeline) {
-        // Fallback: concatenate all three if available
-        selectedSummary = [newSummaries.location, newSummaries.financial, newSummaries.timeline]
-          .filter(Boolean)
-          .join(' | ')
-      }
-    }
+    // All held topic summaries, joined. The per-queryKind pick this replaced
+    // tested `intent.queryKind?.includes('cost')`, which no queryKind value can
+    // satisfy, and required all three topics for the fallback — so on most
+    // turns the buyer's summarised location/budget/timeline never reached the
+    // model. The three are short; sending all of them is what "remember what
+    // I told you" needs.
+    const topical = newSummaries ?? existingTopicSummaries
+    const topicalJoined = topical
+      ? [topical.location, topical.financial, topical.timeline].filter(Boolean).join(' | ')
+      : ''
+    const selectedSummary = topicalJoined || existingSummary
 
     const { systemSuffix, messages: rawMessages } = buildContextMessages(modelMessage, compressedHistory, selectedSummary, memory)
     // ponytail: cache blockedBuilders for 1h, invalidate when legal flag updated.

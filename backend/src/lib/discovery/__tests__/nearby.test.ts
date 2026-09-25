@@ -1,6 +1,7 @@
 import { describe, it } from 'node:test'
 import assert from 'node:assert/strict'
 import {
+  heldLandmarkType,
   isProximityQuestion,
   requestedRadiusKm,
   unheldLandmark,
@@ -107,5 +108,14 @@ describe('finding what is actually near a sector', () => {
   it('resolves to nothing rather than throwing when the anchor has no coordinates', async () => {
     const out = await findNearby({ kind: 'unresolved', label: '' }, 3.5)
     assert.deepEqual(out.projects, [])
+  })
+})
+
+describe('heldLandmarkType — landmark classes answerable from Connectivity rows', () => {
+  it('maps metro, school, hospital, mall, airport', () => {
+    assert.equal(heldLandmarkType('projects near a metro station'), 'metro')
+    assert.equal(heldLandmarkType('flats near a good school'), 'school')
+    assert.equal(heldLandmarkType('near jewar'), 'airport')
+    assert.equal(heldLandmarkType('property near Sector 62'), null)
   })
 })

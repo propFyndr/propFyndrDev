@@ -30,14 +30,15 @@ export function generateMultiDimensionalContext(
 
   const topProject = multidimProjects[0]
   const projectName = topProject.name || topProject.projectName
-  const score = (topProject._multidimensional_score || 0).toFixed(0)
-  const summary = topProject._recommendation_summary || 'Project matches user criteria'
+  const summary = topProject._recommendation_summary
   const explanations = topProject._multidimensional_explanation || {}
   const tradeoffs = topProject._multidimensional_tradeoffs || []
 
+  // No "Match Score NN/100": an internal ranker number the buyer cannot check,
+  // which the integrity scan also rejects if the model repeats it.
   let context = `\n## TOP RECOMMENDATION CONTEXT\n`
-  context += `**${projectName}** — Overall Match Score: ${score}/100\n\n`
-  context += `**Why this recommendation:** ${summary}\n\n`
+  context += `**${projectName}**\n\n`
+  if (summary) context += `**Why this recommendation:** ${summary}\n\n`
 
   if (Object.keys(explanations).length > 0) {
     context += `**Dimension Scores:**\n`

@@ -474,8 +474,8 @@ function buildMatrix(details: (ProjectDetail | null)[], projects: ProjectCard[])
       const p = projects[i] as any
       const oc = (d as any)?.oc_status || p?.oc_status
       const ak = (d as any)?.amitabh_kant_clearance ?? p?.amitabh_kant_clearance
-      if (ak === true || oc === 'received') return 2
-      if (ak === false || oc === 'partial' || oc === 'applied') return 1
+      if (ak === true || oc === 'FULL_OC') return 2
+      if (ak === false || oc === 'PHASED_OC' || oc === 'APPLIED') return 1
       return 0
     })
     rows.push({
@@ -484,13 +484,15 @@ function buildMatrix(details: (ProjectDetail | null)[], projects: ProjectCard[])
         const p = projects[i] as any
         const oc = (d as any)?.oc_status || p?.oc_status
         const ak = (d as any)?.amitabh_kant_clearance ?? p?.amitabh_kant_clearance
-        if (ak === true || oc === 'received') {
+        if (ak === true || oc === 'FULL_OC') {
           return <span key={i} className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400">✓ Dues Paid / Registry Active</span>
         }
         if (ak === false) {
           return <span key={i} className="text-[11px] font-bold text-amber-600 dark:text-amber-400">⚠ Land Dues (Under Review)</span>
         }
-        return <span key={i} className="text-[11px] text-slate-500">Normal RERA Timeline</span>
+        if (oc === 'PHASED_OC') return <span key={i} className="text-[11px] text-slate-600 dark:text-zinc-300">Phased OC</span>
+        if (oc === 'APPLIED') return <span key={i} className="text-[11px] text-slate-600 dark:text-zinc-300">OC applied</span>
+        return <span key={i} className="text-[11px] text-slate-500">Not on record</span>
       }),
       winners: winnerIdx(regScores),
       winnerLabel: 'Clear Title & Registry',
@@ -501,8 +503,8 @@ function buildMatrix(details: (ProjectDetail | null)[], projects: ProjectCard[])
   if (details.some(d => (d as any)?.water_source_type || (d as any)?.water_tds_range) || projects.some(p => (p as any)?.water_source_type)) {
     const waterScores = details.map((d, i) => {
       const src = (d as any)?.water_source_type || (projects[i] as any)?.water_source_type
-      if (src === 'ganga_water' || src === 'municipal') return 2
-      if (src === 'groundwater_borewell' || src === 'borewell') return 0
+      if (src === 'GANGA_JAL') return 2
+      if (src === 'BOREWELL') return 0
       return 1
     })
     rows.push({
@@ -510,13 +512,13 @@ function buildMatrix(details: (ProjectDetail | null)[], projects: ProjectCard[])
       values: details.map((d, i) => {
         const src = (d as any)?.water_source_type || (projects[i] as any)?.water_source_type
         const tds = (d as any)?.water_tds_range || (projects[i] as any)?.water_tds_range
-        if (src === 'ganga_water' || src === 'municipal') {
-          return <span key={i} className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400">✓ Ganga Jal ({tds || 'TDS ~250 ppm'})</span>
+        if (src === 'GANGA_JAL') {
+          return <span key={i} className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400">✓ Ganga Jal{tds ? ` (${tds})` : ''}</span>
         }
-        if (src === 'groundwater_borewell' || src === 'borewell') {
-          return <span key={i} className="text-[11px] font-bold text-amber-600 dark:text-amber-400">⚠ Borewell ({tds || 'TDS >900 ppm'})</span>
+        if (src === 'BOREWELL') {
+          return <span key={i} className="text-[11px] font-bold text-amber-600 dark:text-amber-400">⚠ Borewell{tds ? ` (${tds})` : ''}</span>
         }
-        return <span key={i} className="text-[11px] text-slate-500">{src || 'Mixed Supply'}</span>
+        return <span key={i} className="text-[11px] text-slate-500">{src === 'MIXED' ? `Mixed supply${tds ? ` (${tds})` : ''}` : 'Not on record'}</span>
       }),
       winners: winnerIdx(waterScores),
       winnerLabel: 'Potable Ganga Jal',

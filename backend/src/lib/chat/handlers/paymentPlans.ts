@@ -33,7 +33,7 @@ export const paymentPlansHandler: ChatTopicHandler = {
     }
 
     if (!planProject) {
-      const clarifyText = `### Payment Plans in Noida & Greater Noida\n\nMost verified developers in Noida offer three standard RERA-compliant payment structures:\n\n1. **Construction Linked Plan (CLP)**: ~10% booking, 80% across milestone slabs, 10% on handover (lowest upfront risk).\n2. **Down Payment Plan**: ~10% booking, 85% in 45 days, 5% on handover (typical 5–8% BSP discount).\n3. **Flexi / Milestone Plan (30:70 / 20:80)**: 20–30% in first 90 days, balance upon superstructure or possession.\n\n*Which specific project would you like to view the detailed payment schedule for?*`
+      const clarifyText = `### Payment Plans in Noida & Greater Noida\n\nThese are the common structures in the Noida market (typical for Noida — not verified for any specific project):\n\n1. **Construction Linked Plan (CLP)**: ~10% booking, 80% across milestone slabs, 10% on handover (lowest upfront risk).\n2. **Down Payment Plan**: ~10% booking, 85% in 45 days, 5% on handover (often priced with a discount on the base selling price).\n3. **Flexi / Milestone Plan (30:70 / 20:80)**: 20–30% in first 90 days, balance upon superstructure or possession.\n\n*Which specific project would you like to view the detailed payment schedule for?*`
       ctx.send('token', { token: clarifyText })
       ctx.emitUiState({
         stage: 'RESEARCH',
@@ -154,7 +154,7 @@ Verified Payment Plan Database Facts: ${planFactsJson}`
     }
 
     if (!proseText.trim()) {
-      proseText = `**Key Advisory Notes:**\n- **Construction-Linked Plans (CLP)** carry the lowest risk as funds are disbursed strictly against architect-verified construction progress milestones.\n- **Down Payment / Milestone Plans** offer higher upfront builder discounts (typically 5–8% on Base Selling Price), suited for buyers with ready liquidity.\n- Always review bank APF (Advance Processing Facility) tie-ups and escrow account numbers before executing the agreement.`
+      proseText = `**What to check before choosing a plan:**\n- **Construction-Linked Plans (CLP)** tie each payment to a construction milestone, so money moves only as the building does.\n- **Down Payment Plans** ask for most of the price up front; weigh any discount offered against the risk of paying before delivery.\n- Ask for the bank APF (Advance Processing Facility) tie-ups and the RERA escrow account details before signing.`
       ctx.send('token', { token: '\n\n' + proseText })
     }
 

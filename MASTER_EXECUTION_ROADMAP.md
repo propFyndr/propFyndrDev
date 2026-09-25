@@ -12,8 +12,8 @@ This document is the unified, day-by-day master execution plan for PropFyndr. It
 | **Day 2** | **AI Latency, Cost Cut & Observability** | Slash repetitive system prompt costs by ~75% and establish end-to-end LLM & product telemetry. | Gemini Explicit Context Caching (`GEMINI_EXPLICIT_CACHE`), Langfuse trace matrix, prompt injection firewall, PostHog high-intent funnels. |
 | **Day 3** | **Forensic Due-Diligence Data Engine** | Integrate the 8-dimension buyer intelligence stack into the database, project DNA, and AI advisor facts. | UP Lifts Act 2024 compliance, Shahdara drain $H_2S$ gas risk, Ganga Jal TDS vs borewell, True Landed Cost calculator (+28–35%), RERA escrow check. |
 | **Day 4** | **Dashboards, Portals & Lead Usability** | Eliminate UI code duplication across admin consoles, finalize builder/partner portals, and perfect Lead Briefs. | Deduplicate remaining 6 admin pages with canonical `StatCard`, lead objection rollups, time-to-first-contact median tracking, sales lookup tool. |
-| **Day 5** | **Frontend Anti-Slop, Mobile UX & SEO** | Elevate UI to institutional quality, optimize mobile buyer conversion, and lock down technical SEO. | Sticky mobile action bar, CTA loading/error states, dynamic OpenGraph per project/sector, custom 404 page, XML sitemap validation. |
 | **Day 6** | **Deep Deal Advisory, Forensic Comparison & Dossier Engine** | Transform chat into an active deal consultant: side-by-side forensic project battles, affordability stress-testing, layout efficiency audits, and exportable buyer dossiers. | Head-to-head forensic comparison card, payment plan & tax cash-flow simulator, carpet loading calculator, shareable family deal dossier, zero-token risk chips. |
+| **Day 7** | **Consultation Trail, Narrative Memory & Family Alignment Engine** | Transform the dossier from a static project list into a personalized consultation memory artifact capturing every question, pivot, and forensic verdict in the simplest terms. | Chronological consultation trail, Sector 76 ➔ Sector 10 pivot detection, central tradeoff dilemma module, dual-engine summarizer, WhatsApp rich executive card, asynchronous family voting. |
 
 ---
 
@@ -569,6 +569,83 @@ Transform the chat advisor from a passive question-and-answer tool into an activ
 * [x] Advisory chips render in <1ms with 0 LLM tokens billed, tailored to the project's specific risk flags (`backend/src/lib/discovery/deterministicChips.ts`).
 
 ---
+
+## Day 7: Consultation Trail, Narrative Memory & Family Alignment Engine
+
+### Goal
+Transform the Family Deal Dossier from a static project showcase into a personalized, narrative consultation artifact that accurately documents every single query, sector pivot, and forensic verdict explored throughout the user's conversation, in the shortest, simplest terms, paired with asynchronous family alignment and rich WhatsApp dispatch.
+
+### Plain-English Summary (What We Are Doing Today & Why)
+
+1. **The "Consultation Trail" (The Missing Memory):**
+   * **The Problem:** When a user explores multiple areas (e.g., starts in Sector 76 Noida asking about metro distance and litigation, then pivots to Sector 10 Greater Noida West asking for more space, and then asks about water TDS and lift safety for Elite X), the generated dossier previously only displayed static project cards at the end. The buyer's entire line of thinking, why they moved sectors, and the specific answers they received were completely lost.
+   * **The Solution:** We create a dedicated, stepped timeline at the top of the dossier: **"Your Consultation Journey: Questions Raised & Verified Findings"**. It records each turn in 1 simple sentence for what the buyer asked, and 1 simple sentence for what was discovered.
+2. **The "Fork in the Road" Trade-Off Matrix:**
+   * **The Problem:** When deciding between properties or sectors, buyers always face a central tradeoff (e.g., Sector 76 Noida vs Sector 10 Gr. Noida West: mature operational metro & municipal Ganga Jal vs 30% larger carpet area with borewell water).
+   * **The Solution:** An ultra-clean 1-box editorial contrast module summarizing the core dilemma the buyer wrestled with during the consultation.
+3. **Resilient Dual-Engine Summarizer Pipeline:**
+   * **The Problem:** If LLM inference keys are cooling down or depleted, generating a dynamic summary could hang or fail.
+   * **The Solution:** A dual pipeline. Primary: Fast, structured LLM extraction (Groq / Gemini) under a strict 3-second deadline. Fallback: A deterministic NLP question-and-verdict parser that executes in <5ms with 0 API tokens billed.
+4. **Asynchronous Family Alignment & Micro-Feedback:**
+   * **The Problem:** A buyer forwards the link to their spouse or father-in-law on WhatsApp, but the family has no way to interact or align without texting back and forth.
+   * **The Solution:** Family members can tap "Align" (heart) or "Flag Concern" (warning) directly on the dossier projects, persisting their feedback for the next consultation session.
+5. **1-Click WhatsApp Executive Rich Card Generator:**
+   * **The Problem:** Sharing a bare link on WhatsApp gets lost or ignored.
+   * **The Solution:** A button that generates and copies a pre-formatted 5-line executive summary with bold bullet points, ready to paste directly into the family group chat before they click the full link.
+
+---
+
+### Technical Deep Dive & Execution Specs
+
+#### 1. Data Contract & Schema Extensions
+* In `backend/src/routes/dossier.ts` & `backend/src/lib/chat/handlers/dossierHandler.ts`:
+  * Extend `FamilyDossier` to include:
+    * `consultationTrail`: Array of `{ step: number; sectorOrTopic: string; userQuestion: string; groundRealityVerdict: string; badge?: string }`.
+    * `tradeOffDilemma`: Object representing the central dilemma between Option A and Option B with key advantages and drawbacks.
+    * `familyReactions`: Persistent map of project feedback (likes, concerns).
+
+#### 2. Step-by-Step Implementation
+
+##### Step 7.1: Multi-Turn Narrative Extraction Pipeline
+* In `backend/src/lib/chat/dossierNarrativeExtractor.ts`:
+  * Ingest all messages `(user, assistant)` for the session ordered chronologically.
+  * Extract user inquiries: sector inquiries, project questions, legal/compliance checks, water and lift concerns.
+  * Detect **Sector Pivots**: If the user asked about Sector 76 in Turn 1 and Sector 10 in Turn 3, flag `badge: 'SECTOR_PIVOT'` and record the rationale ("Seeking larger carpet area under ₹2 Cr").
+  * Dual-Engine Summarizer:
+    * Primary: LLM structured prompt via Groq/Gemini with strict 2,500ms deadline producing $\le 15$ word questions and $\le 25$ word verdicts.
+    * Fallback: Zero-dependency deterministic parser matching entity mentions and extracting initial grounding answers.
+
+##### Step 7.2: Cross-Sector & Project Tradeoff Dilemma Synthesizer
+* In `backend/src/lib/chat/handlers/dossierHandler.ts`:
+  * When the session covers two distinct sectors (e.g., Sector 76 vs Sector 10) or two competing projects, generate the `tradeOffDilemma` matrix.
+  * Example:
+    * *Option A (Sector 76 Noida):* Advantage: "5-min walk to operational metro, municipal Ganga Jal." Drawback: "Premium pricing (>₹1.85 Cr for 3 BHK), older inventory."
+    * *Option B (Sector 10 Greater Noida West):* Advantage: "+30% larger carpet area, modern Mivan construction." Drawback: "Dependent on borewell RO water until municipal link, further commute."
+
+##### Step 7.3: Frontend Apple-Design "Consultation Trail" Component
+* In `frontend/app/dossier/[token]/page.tsx`:
+  * Render the **Consultation Trail** directly below the Executive Letterhead.
+  * Styled according to `appleDESIGN.md`:
+    * Stepped number badges with Apple Action Blue (`#0066cc` / `#2997ff`).
+    * Clear separation of what the buyer asked (`#1d1d1f` ink) vs the ground reality verdict (`#515154` muted ink).
+    * Highlight banner for strategic sector pivots.
+
+##### Step 7.4: 1-Click WhatsApp Executive Rich Card
+* In `frontend/app/dossier/[token]/page.tsx`:
+  * Upgrade `handleShareWhatsApp`:
+    * Generates a pre-formatted 5-line executive summary with bold bullet points summarizing the inquiry trail, shortlisted projects, and direct memo URL.
+
+##### Step 7.5: Family Asynchronous Alignment & Reactions
+* In `backend/src/routes/dossier.ts` & `frontend/app/dossier/[token]/page.tsx`:
+  * Implement `POST /api/v1/dossier/:token/react` to store family reactions in Redis.
+  * Render tactile Apple reaction chips on project cards (❤️ Align, ⚠️ Concern).
+
+#### 3. Verification & Pass Conditions
+* [x] Multi-turn session discussing Sector 76 ➔ Sector 10 generates all distinct stages in `consultationTrail`, accurately tagging the sector pivot.
+* [x] Every `userQuestion` is $\le 15$ words; every `groundRealityVerdict` is $\le 25$ words.
+* [x] Deterministic fallback executes in $<10\text{ms}$ if LLM key is cooled down.
+* [x] WhatsApp button pre-fills structured multi-point executive brief with direct dossier link.
+* [x] Print layout (`@media print`) formats Consultation Trail cleanly on A4 with zero cutoffs.
 
 ## Daily Verification & Quality Gates
 

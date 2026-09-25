@@ -50,6 +50,8 @@ const DESTRUCTIVE: ReadonlyArray<{ method: string; path: RegExp }> = [
   { method: 'DELETE', path: /^\/projects\/[^/]+$/ },
   { method: 'DELETE', path: /^\/builders\/[^/]+$/ },
   { method: 'POST', path: /^\/projects\/bulk-import\b/ },
+  // A published announcement, removed with nothing left to restore from.
+  { method: 'DELETE', path: /^\/news\/[^/]+\/permanent$/ },
 ]
 
 /**

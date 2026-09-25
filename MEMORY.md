@@ -4246,3 +4246,157 @@ pipe if the exit code matters.
    Neither has been validated against real answers, only unit-tested.
 3. `/sectors` has no inbound link except the 404 page. It needs one from the
    header or a footer; the app currently has neither a nav nor a footer.
+
+---
+
+## 2026-09-25 — News pipeline remediation (plan: docs/planning/NEWS_PIPELINE_REMEDIATION_PLAN.md)
+
+### Worked on
+Executing the remediation plan for the pgvector / news-lane / admin-news work on
+`day6/chat-context-sectors-and-audit-fixes`. Phases 0–5 and 7 are code-complete;
+the database migration in Phase 2 is written but NOT yet run.
+
+### Semantic retrieval architecture (new — nothing recorded this before)
+
+* **Embedded:** `builder_news` (published, non-archived only) and every
+  `projects` row. Text templates live in `scripts/seed-embeddings.ts`.
+* **Model:** Cohere `embed-english-light-v3.0`, 384 dimensions. It is the only
+  provider — there is no fallback. When it is unavailable `getEmbedding` returns
+  null and every caller degrades to keyword matching. `searchNewsHybrid` still
+  answers; the two `*Semantic` functions return empty.
+* **input_type is asymmetric and now mandatory.** Corpus text passes
+  `search_document`, a buyer's question passes `search_query`. There is no
+  default parameter, deliberately: getting it wrong is silent and shows up only
+  as mediocre ranking. It was wrong — the seed script embedded the whole corpus
+  as `search_query`.
+* **Index:** HNSW with `vector_cosine_ops`, one per table, created by
+  `scripts/migrate-pgvector.ts`. Both columns are `vector(384)`.
+* **Re-seed procedure:**
+  1. `npx tsx scripts/migrate-pgvector.ts` — drops and re-adds both embedding
+     columns with a dimension, creates the indexes, verifies both, exits
+     non-zero on failure. Every embedding is null afterwards.
+  2. `npx tsx scripts/seed-embeddings.ts` — default mode embeds only rows
+     missing a vector, so this is also the routine top-up command. `--force`
+     re-embeds everything.
+
+### Decisions made
+
+**1. News creation defaults to `draft`, not `published`.**
+*Why:* `NewsStatus` carries `pending_approval`, the row carries `approved_by`
+and `approval_notes`, and the admin form offers "Pending Editorial Review". A
+review step exists. The branch had flipped the server default to `published`.
+*Derived, not asked:* the admin form always sends `status` explicitly, so this
+default governs only direct API callers — and for them the safe default is the
+unpublished one. Restoring it costs the admin flow nothing.
+*Rejected:* keeping `published` and deprecating the approval columns. That
+throws away a workflow the UI actively offers.
+
+**2. The advisor prompt carries no cross-builder project list.**
+*Why:* `buildNewsContext` appended semantically similar projects under "Other
+Flagship Projects in this corridor / micro-market". Wrong twice: no corridor
+filter existed, so the heading was unsupported; and because `NewsRail` falls
+back to paid `Promotional` rows, a promoted placement could seed the advisor's
+project list. `routes/promotionals.ts:44` already states the rule — "Targeting
+is a filter, never a ranking" — and CLAUDE.md is explicit that the rail decides
+what a buyer is invited to ASK about, never what the advisor RECOMMENDS.
+*Rejected:* keeping the list with a corridor filter added. The promotional path
+would still reach recommendations, which is the part that actually matters.
+*Kept:* the rail's promotionals fallback itself. Deciding what a buyer is
+invited to ask about is what the rail is for.
+
+**3. `builderCoverage` gates on positive inventory intent, inside the function.**
+*Why:* the symptom was coverage returning canned inventory strings for advisory
+questions. The call site had grown a negative suppressor list ending in `|\?` —
+a bare question mark — which matches nearly every chat message and so switched
+the gate off product-wide. The root cause was that `builderCoverage` fired on a
+builder-name match without asking whether the turn wanted inventory.
+*Fixed where all callers route through:* `ADVISORY_ABOUT_A_BUILDER` and
+`WANTS_INVENTORY` in `coverageAnswer.ts`. The call-site list is gone.
+*Rejected:* tuning the negative list. Every new advisory phrasing would have
+needed another term.
+
+**4. One `isNewsQuery` predicate, in `lib/chat/newsQuery.ts`.**
+The same regex had been pasted into four places. It also carried `corridor`,
+`flagship`, `delivery schedule`, `audit` and "any quoted phrase of 8+
+characters" — ordinary vocabulary, not announcement vocabulary. Because the
+news lane returns the turn, "what's in the Noida Expressway corridor" was
+answered as a builder press release. The lane now also respects
+`claimingHandler`, so a question answerable from a project's own rows still is.
+
+### Known-dead, awaiting a decision
+* `searchProjectsSemantic` in `vectorSearch.ts` — zero consumers after decision 2.
+* `GET /api/v1/news/:id/context` — zero consumers after the `NewsRail` prefetch
+  removal. Both left in place rather than deleted unilaterally.
+
+### Next session priorities
+1. **Run the migration.** `scripts/migrate-pgvector.ts` then
+   `scripts/seed-embeddings.ts`. Until then there is still no vector index and
+   every stored vector is from the colliding-key / wrong-input_type era.
+2. Verify the rail on a real touch device and with a screen reader — the touch
+   pause and the `aria-live` gating were reasoned, not observed.
+3. Phase 6 Task 6.2 — a test asserting recommendation order is unchanged by an
+   active promotion. The injection is removed; nothing yet stops it returning.
+
+### Correction to the entry above: two things were found while executing it
+
+**1. The vector leg had never worked.** Both raw queries joined `"Builder"`;
+the table is `builders` (`@@map`). Postgres returned 42P01 on every call, the
+catch swallowed it, and `searchNewsHybrid`'s keyword leg carried the feature.
+Fixed. Verified: 3/3 exact top-1 recall on known headlines (0.70–0.73), builder
+names resolving, paraphrase retrieval working, and `EXPLAIN` showing
+`Index Scan using idx_projects_embedding`. Everything previously observed about
+"semantic search working" was ILIKE.
+
+**2. The Cohere key is a trial key — 40 calls/minute.** Per-row seeding took
+429 on 273 of ~290 rows. `getEmbeddingsBatch` now sends up to 96 texts per
+call; the whole corpus is four calls. Worth knowing before any other per-row
+embedding work.
+
+### Migration status: DONE
+Both columns are `vector(384)`, both HNSW cosine indexes exist (neither did
+before — the old CREATE INDEX had been failing silently every run). 11 news
+rows and all 382 projects hold freshly generated `search_document` embeddings.
+
+`projects.embedding` is populated and indexed but currently has no reader —
+`searchProjectsSemantic` was deleted with the cross-builder project list. The
+column is left seeded so project search does not need a migration to return.
+
+## Session 2026-09-26 (overnight) — Days 1–7 audit, chat routing, trust fixes
+
+### Worked on
+Audited Days 1–7 of MASTER_EXECUTION_ROADMAP against the code, the chat pipeline
+(routing, intent, memory, DB-attribute answers), and the chat UI against the
+three design docs. Fixed what was broken; nothing committed, migrated or deployed.
+
+### Decisions made
+1. **Carried focus ≠ referenced project.** `ClassifyOptions.projectReferenced`
+   (named this turn, pronoun, elliptical "and…", or a ≤6-word placeless
+   question). Building facts (land, units, water, backup, lifts, OC, delay)
+   route to DRILLDOWN only when referenced; tax/legal concepts stay OPEN even
+   then. *Rejected:* moving the `hasProjectNames` guard above step 1b — focus
+   is carried on nearly every turn, so "explain capital gains tax" would have
+   been answered about the building.
+2. **A revised constraint is a fresh search.** Budget/BHK/"bigger" in a message
+   that doesn't test the project ("is it under 2cr?") clears focus, so
+   corrections re-run recommendations.
+3. **Budget survives a sector change** in `hydrateIntentFromMemory`. No prior
+   logged decision; the old reset contradicted CLAUDE.md § ChatGPT power-user #2.
+4. **No invented dossier/comparison content.** Null column → "Not on record";
+   no price → `financials: null`; no deterministic trade-off dilemma; no
+   "newest projects" fallback (route returns 400); `/dossier/create` with a
+   `sessionId` requires ownership (403).
+5. **Metro/school/hospital/mall/airport proximity answered from `Connectivity`**
+   (382 projects hold rows), operating stations first, brochure source stated.
+
+### Next session priorities
+1. Connectivity metro rows look templated (many exactly 0.8 km, Greater Noida
+   West projects "near Aqua Line") — verify data before relying on the list.
+2. Day 3: classify due-diligence fields in `factPresentation.ts`; enrichment
+   scripts never populate `water_source_type`.
+3. Day 4: `admin/promotions/page.tsx` still hand-rolls stat tiles.
+4. Day 7: narrative extractor runs Groq then Gemini with separate 2.5s timeouts
+   (~5s worst case); `recordFailure` imported, never called.
+5. Comparison logic duplicated backend (`buildForensicVectors`) vs frontend
+   (`ComparisonTable`) — send vectors to the frontend instead.
+6. Landed-cost multiplier still defaults to 1.30 when null (now labelled
+   "estimated" in comparison only; dossier uses it unlabelled).

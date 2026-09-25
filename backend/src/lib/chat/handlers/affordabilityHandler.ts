@@ -1,3 +1,4 @@
+import { MARKET_QUALIFIER } from '../../factPresentation'
 import type { ChatTopicHandler } from '../handlerContext'
 import { prisma } from '../../db'
 
@@ -113,6 +114,42 @@ const inr = (n: number) => `₹${Math.round(n).toLocaleString('en-IN')}`
 const inrCr = (n: number) => `₹${(n / CRORE).toFixed(2)} Cr`
 const inrLakh = (n: number) => `₹${(n / LAKH).toFixed(2)} Lakhs`
 
+/**
+ * Monthly income in rupees from a buyer's message, or undefined.
+ *
+ * Accepts the number before or after the income word ("2.5L salary",
+ * "salary of 2.5 lakh", "35 LPA", "earn 1.2 cr a year", "take home 180k").
+ * The old matcher required the income word first, so the roadmap's own
+ * example ("afford this on 2.5L salary") computed no FOIR at all, and it read
+ * "salary 2.5 lakh" as 2.5 crore a year.
+ *
+ * With no period stated, a figure of ₹10 lakh or more is read as annual and
+ * anything smaller as monthly — how Indian buyers quote the two.
+ */
+export function parseMonthlyIncome(message: string): number | undefined {
+  const NUM = String.raw`(\d+(?:\.\d+)?)\s*(k|l|lakhs?|lacs?|lpa|cr|crores?)?`
+  const PERIOD = String.raw`(pm|p\.m\.|per\s+month|a\s+month|monthly|\/\s*mo(?:nth)?|pa|p\.a\.|per\s+annum|a\s+year|per\s+year|annual(?:ly)?|yearly|\/\s*yr)?`
+  const WORD = String.raw`(?:salary|income|earn(?:ing)?s?|take[-\s]?home|in[-\s]?hand|ctc|package)`
+  const after = new RegExp(String.raw`\b${NUM}\s*${PERIOD}\s*(?:of\s+)?${WORD}`, 'i').exec(message)
+  const before = after ? null : new RegExp(String.raw`${WORD}\s*(?:of|is|:)?\s*(?:rs\.?|inr|₹)?\s*${NUM}\s*${PERIOD}`, 'i').exec(message)
+  const m = after ?? before
+  if (!m) return undefined
+  const value = parseFloat(m[1])
+  if (!Number.isFinite(value) || value <= 0) return undefined
+  const unit = (m[2] || '').toLowerCase()
+  const period = (m[3] || '').toLowerCase()
+  const rupees =
+    unit === 'k' ? value * 1000 :
+    unit.startsWith('cr') ? value * CRORE :
+    unit ? value * LAKH :
+    value
+  const annual = unit === 'lpa' || /pa|p\.a|annum|year|annual|yr/.test(period)
+  const monthly = /pm|p\.m\.|month|mo/.test(period)
+  if (annual) return Math.round(rupees / 12)
+  if (monthly) return Math.round(rupees)
+  return Math.round(rupees >= 10 * LAKH ? rupees / 12 : rupees)
+}
+
 export const affordabilityHandler: ChatTopicHandler = {
   id: 'affordability_advisor',
   description: 'Forensic cash flow, rate-shock stress test, and income tax shield advisory',
@@ -169,25 +206,11 @@ export const affordabilityHandler: ChatTopicHandler = {
     }
 
     // 3. Parse user income if stated
-    let userMonthlyIncome: number | undefined
-    const incomeMonthMatch = ctx.message.match(/(?:earn|income|salary)\s*(?:of|is)?\s*(?:rs\.?|inr|₹)?\s*(\d+(?:\.\d+)?)\s*(?:l|lakh)?\s*(?:pm|per month|\/mo)/i)
-    if (incomeMonthMatch) {
-      const val = parseFloat(incomeMonthMatch[1])
-      userMonthlyIncome = val < 50 ? val * LAKH : val
-    } else {
-      const incomeYearMatch = ctx.message.match(/(?:earn|income|salary)\s*(?:of|is)?\s*(?:rs\.?|inr|₹)?\s*(\d+(?:\.\d+)?)\s*(?:l|lakh|cr)?\s*(?:pa|lpa|per annum|\/yr)?/i)
-      if (incomeYearMatch) {
-        const raw = parseFloat(incomeYearMatch[1])
-        if (raw < 10) {
-          // e.g. 1.2 Cr pa
-          userMonthlyIncome = Math.round((raw * CRORE) / 12)
-        } else if (raw <= 150) {
-          // e.g. 35 LPA
-          userMonthlyIncome = Math.round((raw * LAKH) / 12)
-        }
-      }
-    }
+    const userMonthlyIncome = parseMonthlyIncome(ctx.message)
 
+    // The 1.30 fallback is a Noida-wide band, not this project's charges —
+    // stated with the market qualifier whenever it is used.
+    const multiplierOnRecord = project?.all_in_cost_multiplier != null
     const multiplier = project?.all_in_cost_multiplier ?? 1.30
     const calc = calculateAffordabilityBreakdown({
       basePrice,
@@ -215,7 +238,7 @@ ${calc.foirStatus === 'comfortable'
 | Financial Dimension | Benchmark / Breakdown | Impact on Monthly Outflow |
 | :--- | :--- | :--- |
 | **Headline Base Price** | ${inrCr(calc.basePrice)} | Developer quoted base |
-| **True Landed Cost** | **${inrCr(calc.totalLandedCost)}** (+${Math.round((calc.landedMultiplier - 1) * 100)}%) | Stamp duty, GST, IFMS & club charges |
+| **True Landed Cost** | **${inrCr(calc.totalLandedCost)}** (+${Math.round((calc.landedMultiplier - 1) * 100)}%${multiplierOnRecord ? '' : `, ${MARKET_QUALIFIER}`}) | Stamp duty, GST, IFMS & club charges |
 | **Recommended Downpayment (20%)** | ${inrCr(calc.downpaymentAmount)} | Upfront equity needed |
 | **Home Loan Principal (80%)** | ${inrCr(calc.loanPrincipal)} | 20-year tenure at ${calc.baseInterestRatePct}% p.a. |
 | **Standard Bank EMI** | **${inr(calc.standardEmi)} / month** | Contractual bank debit |

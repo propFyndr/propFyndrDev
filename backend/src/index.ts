@@ -20,6 +20,7 @@ import leadsRouter from './routes/leads'
 import internalRouter from './routes/internal'
 import shareRouter from './routes/share'
 import adminRouter from './routes/admin'
+import newsRouter from './routes/news'
 import { betaRouter } from './routes/betaObservability'
 import { adminEmailRouter } from './routes/adminEmail'
 import buildersRouter from './routes/builders'
@@ -218,6 +219,7 @@ app.use('/api/v1/saved', savedRouter)
 app.use('/api/v1/leads', leadsRouter)
 app.use('/api/v1/internal', internalRouter)
 app.use('/api/v1/share', shareRouter)
+app.use('/api/v1/news', newsRouter)
 
 // Staff-only gate for the ENTIRE admin area, mounted on the path prefix so
 // every router below inherits it — including ones added later. Sibling routers

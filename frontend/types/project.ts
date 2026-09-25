@@ -114,9 +114,9 @@ export interface ProjectCard {
   distance_km?: number | null
 
   // Day 3 Forensic & Living Reality Badges
-  oc_status?: 'not_applied' | 'applied' | 'partial' | 'received' | 'revoked' | 'exempt' | null
+  oc_status?: 'FULL_OC' | 'PHASED_OC' | 'APPLIED' | 'NONE' | null
   amitabh_kant_clearance?: boolean | null
-  water_source_type?: 'ganga_water' | 'groundwater_borewell' | 'mixed_tanker' | 'unknown' | null
+  water_source_type?: 'GANGA_JAL' | 'BOREWELL' | 'MIXED' | null
   water_tds_range?: string | null
   shahdara_drain_impact?: boolean | null
   lift_act_compliant?: boolean | null
@@ -277,11 +277,11 @@ export interface ProjectDetail extends ProjectCard {
   oc_valid_until?: string | null
   oc_restrictions?: string | null
   occupancy_certificate_status?: string | null
-  oc_status?: 'not_applied' | 'applied' | 'partial' | 'received' | 'revoked' | 'exempt' | null
+  oc_status?: 'FULL_OC' | 'PHASED_OC' | 'APPLIED' | 'NONE' | null
   oc_details?: string | null
 
   /** Living Quality & Operational Costs */
-  water_source_type?: 'ganga_water' | 'groundwater_borewell' | 'mixed_tanker' | 'unknown' | null
+  water_source_type?: 'GANGA_JAL' | 'BOREWELL' | 'MIXED' | null
   water_tds_range?: string | null
   power_supply_type?: 'single_point' | 'dual_prepaid' | 'direct_grid' | 'mixed' | null
   dg_power_rate_per_unit?: number | null

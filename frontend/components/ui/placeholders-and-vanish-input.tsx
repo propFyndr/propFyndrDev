@@ -250,7 +250,7 @@ export function PlaceholdersAndVanishInput({
                 value={value}
                 rows={1}
                 className={cn(
-                    "w-full relative text-[14.5px] sm:text-[15px] z-50 border-none dark:text-zinc-100 bg-transparent text-slate-900 rounded-2xl focus:outline-none focus:ring-0 pl-3 sm:pl-4 pr-3 resize-none py-2 sm:py-2.5 leading-relaxed overflow-hidden",
+                    "w-full relative text-base sm:text-[15px] z-50 border-none dark:text-zinc-100 bg-transparent text-slate-900 rounded-2xl focus:outline-none focus:ring-0 pl-3 sm:pl-4 pr-3 resize-none py-2 sm:py-2.5 leading-relaxed overflow-y-auto",
                     animating && "text-transparent dark:text-transparent"
                 )}
                 style={{ minHeight: "40px", maxHeight: "160px" }}

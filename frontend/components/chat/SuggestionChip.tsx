@@ -77,7 +77,7 @@ export function SuggestionChip({ chip, chipPicker, onSetChipPicker, onAction, di
         onAction(chip)
       }}
       className={`
-        group relative inline-flex items-center gap-1.5 sm:gap-2 px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-full text-[12px] sm:text-[12.5px] font-semibold
+        tap-target-y group relative inline-flex items-center gap-1.5 sm:gap-2 px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-full text-[12px] sm:text-[12.5px] font-semibold
         border backdrop-blur-md shadow-2xs transition-all duration-150 outline-none max-w-full select-none cursor-pointer shrink-0
         focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-zinc-400 dark:focus-visible:ring-zinc-500
         ${disabled ? 'opacity-50 pointer-events-none' : ''}

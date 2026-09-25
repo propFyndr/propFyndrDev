@@ -21,7 +21,7 @@ const nextConfig = {
     ],
     serverComponentsExternalPackages: ['@sentry/node', '@apm-js-collab/tracing-hooks'],
   },
-  transpilePackages: ['leaflet', 'react-leaflet', 'recharts', 'react-is'],
+  transpilePackages: ['leaflet', 'react-leaflet', 'recharts', 'react-is', 'react-markdown', 'remark-gfm'],
   images: {
     formats: ['image/avif', 'image/webp'],
     minimumCacheTTL: 2592000,

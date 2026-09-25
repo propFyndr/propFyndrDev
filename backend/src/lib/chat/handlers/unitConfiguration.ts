@@ -172,10 +172,17 @@ export const unitConfigurationHandler: ChatTopicHandler = {
     // Usable Space & Loading Efficiency Audit
     const auditUnit = focus || units[0]
     const auditSuper = auditUnit?.super_area_sqft || 0
+    const carpetRecorded = Boolean(auditUnit?.carpet_area_sqft)
     const auditCarpet = auditUnit?.carpet_area_sqft || (auditSuper ? Math.round(auditSuper * CARPET_RATIO) : 0)
-    const loadingPct = calculateCarpetLoading(auditSuper, auditCarpet)
+    // Loading from an estimated carpet is the estimate's own ratio played back
+    // (always ~30%), not a finding — so it is only stated when the carpet
+    // area is on record. The same goes for a lift count we do not hold.
+    const loadingPct = carpetRecorded ? calculateCarpetLoading(auditSuper, auditCarpet) : 0
     const effectiveRate = calculateEffectiveCarpetRate(auditUnit?.price_min_cr || 0, auditCarpet)
-    const eci = calculateElevatorCongestionIndex(project.total_units, project.total_towers)
+    const liftsPerTower = (project as { lifts_per_tower?: number | null }).lifts_per_tower
+    const eci = liftsPerTower
+      ? calculateElevatorCongestionIndex(project.total_units, project.total_towers, liftsPerTower)
+      : { unitsPerLift: null as number | null, rating: '' }
 
     let auditSection = ''
     if (loadingPct > 0 || effectiveRate > 0 || eci.unitsPerLift) {
@@ -184,7 +191,7 @@ export const unitConfigurationHandler: ChatTopicHandler = {
         auditSection += `- **Loading Efficiency:** **${loadingPct}%** of super area is common space (lobbies, stairwells, shafts).\n`
       }
       if (effectiveRate > 0) {
-        auditSection += `- **Effective Usable Carpet Rate:** **₹${effectiveRate.toLocaleString('en-IN')}/sq.ft** (actual rate on carpet area inside your front door).\n`
+        auditSection += `- **Effective Usable Carpet Rate:** **₹${effectiveRate.toLocaleString('en-IN')}/sq.ft** (actual rate on carpet area inside your front door${carpetRecorded ? '' : '; carpet area estimated, confirm against the RERA sanction plan'}).\n`
       }
       if (eci.unitsPerLift) {
         auditSection += `- **Vertical Transit Index:** ~**${eci.unitsPerLift} units per lift** (${eci.rating}).\n`

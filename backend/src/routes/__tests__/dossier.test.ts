@@ -2,14 +2,30 @@ import { describe, it } from 'node:test'
 import assert from 'node:assert/strict'
 import request from 'supertest'
 import { app } from '../../index'
+import { prisma } from '../../lib/db'
 
 describe('Deal Dossier & Family Consultation Summary API', () => {
   let createdToken: string
 
+  it('refuses to build a dossier with no shortlist rather than substituting catalogue rows', async () => {
+    const res = await request(app).post('/api/v1/dossier/create').send({ buyerName: 'Sharma Family' })
+    assert.strictEqual(res.status, 400)
+  })
+
+  it("refuses to publish a session's transcript to a caller who does not own it", async () => {
+    const session = await prisma.chatSession.findFirst({ select: { id: true } })
+    if (!session) return
+    const res = await request(app).post('/api/v1/dossier/create').send({ sessionId: session.id })
+    assert.strictEqual(res.status, 403)
+  })
+
   it('synthesizes and creates a family deal dossier via POST /api/v1/dossier/create', async () => {
+    const priced = await prisma.project.findFirst({ where: { price_min_cr: { not: null } }, select: { id: true } })
+    assert.ok(priced, 'needs one priced project in the database')
     const res = await request(app)
       .post('/api/v1/dossier/create')
       .send({
+        projectIds: [priced!.id],
         buyerName: 'Sharma Family',
         targetSector: 'Sector 150',
         targetBhk: '3 BHK',

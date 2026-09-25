@@ -63,15 +63,24 @@ describe('no asserted verification in a fallback', () => {
         const lines = readFileSync(file, 'utf8').split(/\r?\n/)
         lines.forEach((line, i) => {
           if (line.trim().startsWith('//') || line.trim().startsWith('*')) return
-          // `?? 'X'` or `|| 'X'` where X asserts a standing
-          const match = line.match(/(?:\?\?|\|\|)\s*['"`]([^'"`]{4,60})['"`]/)
-          if (!match) return
-          const value = match[1]
-          // Defaulting to the *absence* of a standing is the correct behaviour —
-          // `verification_level ?? 'unverified'` is exactly what we want.
-          if (/^(un|not[- ]|no[- ])/i.test(value)) return
-          if (!CLAIM.test(value)) return
-          offenders.push(`${rel}:${i + 1}  → "${value}"`)
+          // `?? 'X'` or `|| 'X'` where X asserts a standing.
+          //
+          // Every fallback on the line is checked, not just the first. A single
+          // template line commonly carries several, and the claim is rarely the
+          // one in front:
+          //
+          //   `${p.sector || 'Noida'} … (RERA: ${p.rera_number || 'Registered'})`
+          //
+          // A first-match-only scan read 'Noida', found it benign, and returned
+          // before ever reaching 'Registered'.
+          for (const match of line.matchAll(/(?:\?\?|\|\|)\s*['"`]([^'"`]{4,60})['"`]/g)) {
+            const value = match[1]
+            // Defaulting to the *absence* of a standing is the correct behaviour —
+            // `verification_level ?? 'unverified'` is exactly what we want.
+            if (/^(un|not[- ]|no[- ])/i.test(value)) continue
+            if (!CLAIM.test(value)) continue
+            offenders.push(`${rel}:${i + 1}  → "${value}"`)
+          }
         })
       }
     }

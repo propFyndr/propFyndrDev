@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react'
-import { Sparkles, PhoneCall } from 'lucide-react'
+import { MessageSquare, PhoneCall } from 'lucide-react'
 
 interface StickyMobileCtaProps {
   projectName: string
@@ -40,7 +40,7 @@ export default function StickyMobileCta({
           onClick={onAskAi}
           className="flex-1 h-12 px-3 inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-xs font-bold shadow-md shadow-blue-500/20 transition-all active:scale-[0.98] cursor-pointer"
         >
-          <Sparkles className="w-4 h-4 text-blue-200 shrink-0" />
+          <MessageSquare className="w-4 h-4 text-blue-200 shrink-0" />
           <span className="truncate">Ask AI Advisor</span>
         </button>
       </div>

@@ -71,3 +71,11 @@ describe('Zero-Token Deterministic Due-Diligence Chip Engine', () => {
     assert.ok(perCallMs < 0.1, `Per-call time was ${perCallMs.toFixed(3)}ms (must be < 0.1ms)`)
   })
 })
+
+it('a topic asked in a full sentence suppresses its chip', () => {
+  const chips = generateProjectChips(
+    { name: 'X', slug: 'x', water_source_type: 'BOREWELL' } as any,
+    ['what water supply do they have?'],
+  )
+  assert.equal(chips.some(c => c.category === 'water'), false)
+})

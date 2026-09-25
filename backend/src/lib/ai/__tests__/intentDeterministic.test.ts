@@ -103,3 +103,28 @@ test('the extractor is wired so a literal survives whatever the model returns', 
   assert.match(src, /const heuristic = applyLiterals\(/)
   assert.match(src, /const heuristicIntent = applyLiterals\(/)
 })
+
+import { applyLiterals } from '../intent'
+
+test('the four-fact one-liner keeps its possession constraint', () => {
+  const d = extractDeterministic('3BHK, Sector 150, under 1.5cr, possession within a year')
+  assert.deepEqual(d.bhk, [3])
+  assert.equal(d.budgetMax, 1.5)
+  assert.equal(d.possession, '1year')
+  assert.ok(d.sectors.length === 1)
+})
+
+test('possession phrasings people actually use', () => {
+  assert.equal(extractDeterministic('ready in 12 months').possession, '1year')
+  assert.equal(extractDeterministic('in one year').possession, '1year')
+  assert.equal(extractDeterministic('within two years').possession, '2year')
+})
+
+test('"something bigger" steps the remembered BHK up once', () => {
+  const prev = { bhk: [2] } as any
+  const out = applyLiterals({ bhk: [2] } as any, extractDeterministic('show me something bigger'), 'show me something bigger', prev)
+  assert.deepEqual(out.bhk, [3])
+  // Model already stepped it: no double step.
+  const out2 = applyLiterals({ bhk: [3] } as any, extractDeterministic('show me something bigger'), 'show me something bigger', prev)
+  assert.deepEqual(out2.bhk, [3])
+})

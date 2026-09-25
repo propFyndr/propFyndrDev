@@ -20,6 +20,7 @@ import { builderMentionedIn } from '../builderNames'
 import { getCachedResponse, setCachedResponse } from './semanticCache'
 import type { OpenQueryDetection } from '../discovery/openQuery'
 import { buildGeneralConversationalPrompt } from './prompts/generalPrompt'
+import { isPublicField } from '../projectExposure'
 import { findSectorsAsked } from '../discovery/proseEntities'
 
 /** Cache scope. Open answers hold no session-specific facts, so they are shareable. */
@@ -82,13 +83,17 @@ async function buildSectorPricingContext(message: string, city: string): Promise
     if (rows.length > 0 || projectCounts.length > 0) {
       const parts = rows.map((r) => {
         const pStats = projectCounts.find(p => p.sector?.toLowerCase() === r.sector.toLowerCase())
-        return `### ${r.sector} (${r.city || 'Noida'})\n` +
-          `- Average Rate: ₹${Math.round(r.avg_price_per_sqft || 0).toLocaleString('en-IN')}/sqft\n` +
-          `- Average 3 BHK Rent: ₹${Math.round(r.avg_rent_3bhk_monthly || 0).toLocaleString('en-IN')}/month\n` +
-          `- Price Band: ₹${pStats?._min.price_min_cr || 'N/A'} Cr to ₹${pStats?._max.price_min_cr || 'N/A'} Cr\n` +
-          `- Micro-market: ${r.micro_market || 'Noida'}\n` +
-          `- Profile: ${r.dominant_segment || ''} (${r.sector_stage || 'Developed'})\n` +
-          `- Best Suited For: ${r.who_should_buy || 'End-users and investors'}`
+        // Only lines we hold. A null average printed as "₹0/sqft" under a
+        // VERIFIED header, and empty profile fields were filled with
+        // 'Developed' / 'End-users and investors' — both read as data.
+        const lines = [`### ${r.sector}${r.city ? ` (${r.city})` : ''}`]
+        if (r.avg_price_per_sqft) lines.push(`- Average Rate: ₹${Math.round(r.avg_price_per_sqft).toLocaleString('en-IN')}/sqft`)
+        if (r.avg_rent_3bhk_monthly) lines.push(`- Average 3 BHK Rent: ₹${Math.round(r.avg_rent_3bhk_monthly).toLocaleString('en-IN')}/month`)
+        if (pStats?._min.price_min_cr && pStats?._max.price_min_cr) lines.push(`- Price Band (entry prices of projects we hold): ₹${pStats._min.price_min_cr} Cr to ₹${pStats._max.price_min_cr} Cr`)
+        if (r.micro_market) lines.push(`- Micro-market: ${r.micro_market}`)
+        if (r.dominant_segment || r.sector_stage) lines.push(`- Profile: ${[r.dominant_segment, r.sector_stage].filter(Boolean).join(', ')}`)
+        if (r.who_should_buy) lines.push(`- Best Suited For: ${r.who_should_buy}`)
+        return lines.join('\n')
       })
       return `VERIFIED DATABASE SECTOR INTELLIGENCE:\n${parts.join('\n\n')}`
     }
@@ -109,8 +114,8 @@ async function buildSectorPricingContext(message: string, city: string): Promise
   })
 
   if (topSectors.length > 0) {
-    const list = topSectors.map(
-      s => `- ${s.sector} (${s.city}): avg ₹${Math.round(s.avg_price_per_sqft || 0).toLocaleString('en-IN')}/sqft, 3BHK rent ₹${Math.round(s.avg_rent_3bhk_monthly || 0).toLocaleString('en-IN')}/mo`
+    const list = topSectors.filter(s => s.avg_price_per_sqft).map(
+      s => `- ${s.sector} (${s.city}): avg ₹${Math.round(s.avg_price_per_sqft!).toLocaleString('en-IN')}/sqft${s.avg_rent_3bhk_monthly ? `, 3BHK rent ₹${Math.round(s.avg_rent_3bhk_monthly).toLocaleString('en-IN')}/mo` : ''}`
     ).join('\n')
     return `VERIFIED DATABASE NOIDA / NCR SECTOR PRICING BENCHMARKS:\n${list}`
   }
@@ -118,11 +123,142 @@ async function buildSectorPricingContext(message: string, city: string): Promise
   return ''
 }
 
+import { searchNewsHybrid } from './vectorSearch'
+import { isNewsQuery } from '../chat/newsQuery'
+
+/**
+ * One project line for the prompt, built only from the fields the row holds.
+ *
+ * Every clause here was once a hole in a fixed template with a fallback behind
+ * it — `|| 'Noida'`, `|| 'Registered'`, `|| 'Verified'`, `|| 'Active'` — which
+ * asserted a location, a RERA registration, a builder identity and a sale
+ * status for rows holding none of them. An absent field is absent: the clause
+ * is omitted, never filled. CLAUDE.md § four tiers, and the standing guard in
+ * lib/__tests__/noAssertedVerification.test.ts.
+ */
+/**
+ * The project columns a prompt is allowed to carry.
+ *
+ * Checked against projectExposure.ts rather than hand-picked at each call site.
+ * Adding a column to schema.prisma does not expose it — it stays absent from
+ * PROJECT_PUBLIC_SELECT until someone classifies it, and naming an unclassified
+ * column here fails at import rather than quietly reaching a buyer.
+ */
+const PROMPT_PROJECT_SELECT = {
+  name: true,
+  sector: true,
+  price_min_cr: true,
+  price_range_label: true,
+  status: true,
+  rera_number: true,
+} as const
+
+for (const field of Object.keys(PROMPT_PROJECT_SELECT)) {
+  if (!isPublicField(field)) {
+    throw new Error(
+      `[groundedAnswer] "${field}" is selected into a prompt but is not buyer-facing ` +
+        `in projectExposure.ts. Classify it there before exposing it.`
+    )
+  }
+}
+
+function projectLine(p: {
+  name: string
+  sector?: string | null
+  price_min_cr?: number | null
+  price_range_label?: string | null
+  status?: string | null
+  rera_number?: string | null
+  builder_name?: string | null
+}): string {
+  const head = p.builder_name ? `${p.name} (${p.builder_name})` : p.name
+  const where = p.sector ? ` in ${p.sector}` : ''
+
+  const facts: string[] = []
+  const price = p.price_range_label ?? (p.price_min_cr != null ? `from ₹${p.price_min_cr} Cr` : null)
+  if (price) facts.push(price)
+  if (p.status) facts.push(`status: ${p.status}`)
+  if (p.rera_number) facts.push(`RERA: ${p.rera_number}`)
+
+  return `- ${head}${where}${facts.length ? ` — ${facts.join(', ')}` : ''}`
+}
+
+/**
+ * The builder announcement on record for this turn, if the question asks for one.
+ *
+ * What we hold is that the developer published this text. That is not the same
+ * as the claim being independently established, and the labelling has to say so
+ * — a milestone post is the developer's own copy, and § Trust First does not let
+ * us hand it to a buyer wearing the word "verified".
+ *
+ * Deliberately absent: a list of semantically similar projects by *other*
+ * builders. It used to be appended here under the heading "Other Flagship
+ * Projects in this corridor / micro-market", which was wrong twice over. The
+ * list had no corridor filter, so the heading was unsupported; and because the
+ * news rail falls back to paid `Promotional` rows, a promoted placement could
+ * seed the advisor's project list. routes/promotionals.ts:44 already draws that
+ * line — "Targeting is a filter, never a ranking" — and CLAUDE.md is explicit
+ * that the rail decides what a buyer is invited to ASK about and must never
+ * touch what the advisor RECOMMENDS.
+ */
+async function buildNewsContext(message: string): Promise<string> {
+  const quotedMatch = message.match(/["“]([^"”]+)["”]/)
+  const quotedHeadline = quotedMatch ? quotedMatch[1].trim() : ''
+
+  if (!isNewsQuery(message)) return ''
+
+  // Hybrid search: pgvector similarity fused with keyword match.
+  const queryTerm = quotedHeadline || message
+  const hybridNews = await searchNewsHybrid(queryTerm, 3)
+  const newsItem = hybridNews[0]
+
+  if (!newsItem) return ''
+
+  const builder = await prisma.builder.findUnique({
+    where: { id: newsItem.builder_id },
+    select: {
+      name: true,
+      projects: {
+        select: {
+          name: true,
+          sector: true,
+          price_min_cr: true,
+          price_range_label: true,
+          status: true,
+          rera_number: true,
+        },
+        // Ordered so the same question yields the same context on every call.
+        orderBy: [{ name: 'asc' }],
+        take: 8,
+      },
+    },
+  })
+
+  const developer = newsItem.builder_name || builder?.name || ''
+
+  const parts = [
+    `BUILDER ANNOUNCEMENT ON RECORD — published by the developer, not independently verified by us:`,
+    `- Headline: "${newsItem.title}"`,
+    `- Announcement text, as supplied by the developer: ${newsItem.description}`,
+  ]
+  if (developer) parts.push(`- Developer: ${developer}`)
+
+  if (builder?.projects && builder.projects.length > 0) {
+    parts.push(
+      `Projects by ${builder.name} held in our database:\n` +
+        builder.projects.map((p) => projectLine(p)).join('\n')
+    )
+  }
+
+  return parts.join('\n')
+}
+
 /** Builder record for a named entity, if we hold one. */
 async function buildEntityContext(entity: string): Promise<string> {
   const builder = await prisma.builder.findFirst({
     where: { name: { contains: entity, mode: 'insensitive' } },
     select: {
+      id: true,
       name: true,
       founder: true,
       founded_year: true,
@@ -162,6 +298,38 @@ async function buildEntityContext(entity: string): Promise<string> {
   if (builder.rera_promoter_id) parts.push(`RERA promoter ID: ${builder.rera_promoter_id}`)
   if (builder.legal_flag) parts.push(`Legal flag: ${builder.legal_flag}`)
   if (builder.company_overview) parts.push(`Overview: ${builder.company_overview.slice(0, 400)}`)
+
+  try {
+    const projects = await prisma.project.findMany({
+      where: { builder_id: builder.id },
+      select: PROMPT_PROJECT_SELECT,
+      // Ordered so the same question yields the same context on every call.
+      orderBy: [{ name: 'asc' }],
+      take: 6,
+    })
+
+    if (projects.length > 0) {
+      parts.push(
+        `Projects by ${builder.name} held in our database:\n` +
+          projects.map((p) => projectLine(p)).join('\n')
+      )
+    }
+
+    const news = await prisma.builderNews.findMany({
+      where: { builder_id: builder.id, status: 'published', archived_at: null },
+      orderBy: { created_at: 'desc' },
+      take: 3,
+      select: { title: true, description: true },
+    })
+    if (news.length > 0) {
+      parts.push(
+        `Recent verified announcements for ${builder.name}:\n` +
+          news.map((n) => `- "${n.title}": ${n.description}`).join('\n')
+      )
+    }
+  } catch {
+    // Non-blocking
+  }
 
   return parts.join('\n')
 }
@@ -277,24 +445,28 @@ export async function runGroundedAnswer(
 
   // 1. Check Database Fast-Path
   try {
-    if (detection.topic === 'SECTOR_PROFILE' || /\b(price|pricing|rates?|sqft|rent|cost|yield)\b/i.test(message)) {
-      dbContext = await buildSectorPricingContext(message, city)
-      if (dbContext) fromDatabase = true
-    } else if (detection.topic === 'ENTITY' && detection.entity) {
-      dbContext = await buildEntityContext(detection.entity)
-      if (dbContext) fromDatabase = true
-    } else if (detection.topic === 'GENERAL') {
-      const builderGuess = await findBuilderMentioned(message)
-      if (builderGuess) {
-        dbContext = await buildEntityContext(builderGuess)
-        if (dbContext) fromDatabase = true
+    // An announcement question is answered from the announcement if we hold
+    // one; otherwise it falls through to the topic branches below.
+    dbContext = await buildNewsContext(message)
+
+    if (!dbContext) {
+      if (detection.topic === 'SECTOR_PROFILE' || /\b(price|pricing|rates?|sqft|rent|yield)\b/i.test(message)) {
+        dbContext = await buildSectorPricingContext(message, city)
+      } else if (detection.topic === 'ENTITY' && detection.entity) {
+        dbContext = await buildEntityContext(detection.entity)
+      } else if (detection.topic === 'GENERAL') {
+        const builderGuess = await findBuilderMentioned(message)
+        if (builderGuess) dbContext = await buildEntityContext(builderGuess)
       }
     }
+
+    if (dbContext) fromDatabase = true
   } catch (err) {
     console.warn('[GROUNDED:DB_ERROR]', err)
   }
 
-  // 2. Web search, only when the question has a subject the web can answer.
+  // 2. Web search, only when the question has a subject the web can answer and
+  //    our own rows did not already answer it.
   //
   // This was a blocklist — "if the message is not advice, search the web" —
   // which is the wrong shape for the same reason `toolBlindGuard` learned to
@@ -307,14 +479,21 @@ export async function runGroundedAnswer(
   // The web earns its round trip when the turn names something outside our rows
   // and time-sensitive: a specific party, or market/news/policy movement. A
   // greeting, a pleasantry and a general-knowledge question name none of those.
+  //
+  // `!dbContext` guards BOTH arms, and that is the part that regressed. Without
+  // it an announcement question searched the web even when the announcement was
+  // sitting in `builder_news` — paying the round trip to mix untiered web text
+  // into an answer our own rows had already grounded.
   let webContext = ''
   const isEntity = detection.topic === 'ENTITY' && Boolean(detection.entity)
   const needsLiveFacts =
-    /\b(latest|current|recent|now|today|this year|20\d\d|news|announced|launch(?:ed|ing)?|upcoming|trend|trending|appreciat|forecast|projection|circle rate|policy|notification|approved|metro|expressway|airport|jewar|infrastructure)\b/i
-      .test(message)
+    /\b(latest|current|recent|now|today|this year|20\d\d|launch(?:ed|ing)?|upcoming|trend|trending|appreciat|forecast|projection|circle rate|policy|notification|approved|metro|expressway|airport|jewar|infrastructure)\b/i
+      .test(message) || isNewsQuery(message)
 
   if (!dbContext && (isEntity || needsLiveFacts)) {
-    const query = isEntity ? `${detection.entity} ${city} real estate` : `${message} ${city}`
+    const query = isEntity
+      ? `${detection.entity} ${city} real estate`
+      : `${message.replace(/["“”]/g, ' ').slice(0, 100)} ${city}`
     try {
       webContext = await webSearch(query, 3)
       if (webContext) fromWeb = true

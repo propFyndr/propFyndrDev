@@ -11,7 +11,7 @@ import {
   Stack,
   MapPin,
   CurrencyInr,
-  Sparkle
+  Compass
 } from '@phosphor-icons/react';
 import { HOME_BUTTON_GROUPS } from '@/lib/homeButtons';
 
@@ -73,7 +73,7 @@ export default function HomeButtons({ onButtonClick }: HomeButtonsProps) {
                 title={`Ask: "${group.primaryPrompt}"`}
               >
                 <span className={`shrink-0 transition-colors ${style.iconHover}`}>
-                  {iconMap[group.icon] || <Sparkle size={14} weight="bold" />}
+                  {iconMap[group.icon] || <Compass size={14} weight="bold" />}
                 </span>
                 <span className="truncate tracking-tight font-medium text-[11.5px] sm:text-[12.5px]">
                   {group.title}

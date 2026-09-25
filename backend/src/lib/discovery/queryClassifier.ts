@@ -78,6 +78,13 @@ export interface ClassifyOptions {
    */
   hasVerifiedProjectNames?: boolean
   hasProjectInScope?: boolean
+  /**
+   * The message itself points at a project — named this turn, or referred
+   * back to with a pronoun / elliptical follow-up. Distinct from a focus
+   * carried silently from an earlier turn. Defaults to "a project name is
+   * present", which preserves callers that do not carry focus.
+   */
+  projectReferenced?: boolean
 }
 
 export function classifyQueryDeterministic(
@@ -162,7 +169,8 @@ export function classifyQueryDeterministic(
   // and DRILLDOWN routes into the project pipeline, which has no row to answer from.
   const namesAreRealProjects =
     (intentObj.projectNames?.length ?? 0) > 0 && (opts.hasVerifiedProjectNames ?? true)
-  const openDetection = detectOpenQuery(userMessage, namesAreRealProjects)
+  const projectReferenced = opts.projectReferenced ?? namesAreRealProjects
+  const openDetection = detectOpenQuery(userMessage, namesAreRealProjects, projectReferenced)
   if (openDetection) {
     return {
       queryKind: 'OPEN',
@@ -199,7 +207,13 @@ export function classifyQueryDeterministic(
     Boolean((intent as { targetProjectId?: string | null }).targetProjectId) ||
     refersBackToAProject
 
-  if (attributeKeywords.test(msg) && hasProjectInScope) {
+  // Building facts the DB holds per project (land_area_acres, total_units,
+  // water_source_type, lifts_per_tower, ...). These words are also ordinary
+  // Noida-wide vocabulary ("is Noida water hard?"), so unlike the list above
+  // they route to the project only when the message itself points at one.
+  const buildingFactKeywords = /\b(land|land\s+area|acres?|units?|water(?:\s+supply)?|ganga\s+(?:jal|water)|borewell|tds|power\s+backup|backup|dg|lifts?|elevators?|ceiling|club\s*house|swimming\s+pool|pool|gym|open\s+space|density|occupancy\s+certificate|oc|possession\s+delay|delay|construction\s+quality|down\s*payment)\b/i
+
+  if ((attributeKeywords.test(msg) && hasProjectInScope) || (buildingFactKeywords.test(msg) && projectReferenced)) {
     return {
       queryKind: 'DRILLDOWN',
       renderTarget: 'text',

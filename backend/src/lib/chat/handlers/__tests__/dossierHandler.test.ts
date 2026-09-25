@@ -24,8 +24,41 @@ describe('Dossier Handler Matcher', () => {
     assert.strictEqual(dossierHandler.matches(dummyCtx('Can you give me a family dossier?')), true)
   })
 
+  it('matches the words buyers actually use', () => {
+    // None of these matched before: the matcher was built from the internal
+    // feature name rather than from what people type.
+    const asking = [
+      'give me a memo',
+      'can I get a memo of this',
+      'chat summary please',
+      'give me a conversation summary',
+      'summarise this chat',
+      'summarize our conversation',
+      'can you recap this discussion',
+      'send me the dossier',
+      'consultation recap',
+    ]
+    for (const q of asking) {
+      assert.strictEqual(dossierHandler.matches(dummyCtx(q)), true, `should match: ${q}`)
+    }
+  })
+
   it('ignores unrelated general queries', () => {
     assert.strictEqual(dossierHandler.matches(dummyCtx('Show me 3 BHK in Sector 150')), false)
     assert.strictEqual(dossierHandler.matches(dummyCtx('What is the distance to Jewar airport?')), false)
+  })
+
+  it('does not hijack a request to summarise a PROJECT', () => {
+    // A bare "summary" belongs to the handler that holds the project's rows.
+    const notAsking = [
+      'give me a summary of Godrej Woods',
+      'summarise this project',
+      'what is the price summary for ATS Nobility',
+      'summarize the amenities',
+      'can you summarise the payment plan',
+    ]
+    for (const q of notAsking) {
+      assert.strictEqual(dossierHandler.matches(dummyCtx(q)), false, `should not match: ${q}`)
+    }
   })
 })

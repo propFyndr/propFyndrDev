@@ -312,18 +312,74 @@ export function assertNoForbiddenRelations(shape: Record<string, unknown>): void
  * this on any project row that arrived from a wider query, a cache, or JSON
  * persisted on a previous turn.
  *
- * Relation keys on ALLOWED_RELATIONS are preserved untouched — they carry their
- * own shapes and are filtered by their own resolvers.
+ * Relation keys on ALLOWED_RELATIONS are kept but cleaned: `dna` dropped,
+ * unpublished decision/recommendation profiles dropped, each relation's
+ * analyst-only fields (RELATION_INTERNAL_FIELDS) and opaque scores removed.
+ * They used to be "preserved untouched", which sent a `builder: true` row's
+ * `outstanding_dues_cr`, `executives` and `portal_subdomain`, draft profiles'
+ * `admin_notes`, and channel partners' commission rates to buyers on every
+ * card emit. Row ids are kept — the frontend keys lists on them, and an id is
+ * not a disclosure.
  */
 export function redactProject<T extends Record<string, unknown>>(row: T): Partial<T> {
   const allowedRelations: ReadonlySet<string> = new Set(ALLOWED_RELATIONS)
   const out: Record<string, unknown> = {}
   for (const [key, value] of Object.entries(row)) {
-    if (PUBLIC_FIELD_SET.has(key) || allowedRelations.has(key)) {
+    if (PUBLIC_FIELD_SET.has(key)) {
       out[key] = value
+    } else if (allowedRelations.has(key)) {
+      const cleaned = redactRelation(key, value)
+      if (cleaned !== undefined) out[key] = cleaned
     }
   }
-  return out as Partial<T>
+  return stripOpaqueScores(out) as Partial<T>
+}
+
+/**
+ * For card payloads leaving the server. Unlike `redactProject` this is a
+ * blocklist: card objects carry ranker output (reasons, distances, match
+ * labels) that is not a column and must survive. It removes internal-only
+ * columns, relations holding other users' data, synthetic constants and
+ * opaque scores, and cleans every allowed relation the same way.
+ */
+export function redactForResponse<T extends Record<string, unknown>>(row: T): Partial<T> {
+  const allowedRelations: ReadonlySet<string> = new Set(ALLOWED_RELATIONS)
+  const drop = new Set<string>([
+    ...Object.keys(INTERNAL_ONLY_FIELDS).filter((k) => k !== 'created_at' && k !== 'updated_at' && k !== 'builder_id'),
+    ...FORBIDDEN_RELATIONS,
+    ...SYNTHETIC_FIELDS.filter((f) => f.startsWith('Project.')).map((f) => f.slice('Project.'.length)),
+  ])
+  const out: Record<string, unknown> = {}
+  for (const [key, value] of Object.entries(row)) {
+    if (drop.has(key)) continue
+    if (allowedRelations.has(key)) {
+      const cleaned = redactRelation(key, value)
+      if (cleaned !== undefined) out[key] = cleaned
+      continue
+    }
+    out[key] = value
+  }
+  return stripOpaqueScores(out) as Partial<T>
+}
+
+function redactRelation(relation: string, value: unknown): unknown {
+  if ((INTERNAL_ONLY_RELATIONS as readonly string[]).includes(relation)) return undefined
+  if (Array.isArray(value)) {
+    return value.map((v) => redactRelation(relation, v)).filter((v) => v !== undefined && v !== null)
+  }
+  if (!value || typeof value !== 'object') return value
+  if ((PUBLISH_GATED_RELATIONS as readonly string[]).includes(relation) && !isPublished(value)) return null
+  const banned = new Set<string>([
+    ...(RELATION_INTERNAL_FIELDS[relation] ?? []),
+    ...SYNTHETIC_FIELDS.filter((f) => f.startsWith(`${relation}.`)).map((f) => f.slice(relation.length + 1)),
+  ])
+  const clean: Record<string, unknown> = {}
+  for (const [k, v] of Object.entries(value as Record<string, unknown>)) {
+    if (banned.has(k)) continue
+    // The junction row nests the partner itself under `channel_partner`.
+    clean[k] = k === 'channel_partner' ? redactRelation('channel_partner', v) : v
+  }
+  return stripOpaqueScores(clean)
 }
 
 /** True when the column may be shown to a buyer. */

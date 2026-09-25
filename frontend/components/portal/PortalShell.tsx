@@ -800,7 +800,7 @@ export default function PortalShell({ nav, rootHref, rootLabel, allowRoles, scop
         ${isCollapsed ? 'hidden md:flex w-[68px]' : 'w-64 md:w-[260px]'}
         flex flex-col h-full bg-surface dark:bg-zinc-900 border-r border-border dark:border-zinc-800 shadow-xs
         fixed md:relative z-50 md:z-auto shrink-0
-        transition-all duration-base ease-in-out
+        transition-[width,transform] duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] will-change-[width,transform] overflow-hidden
         ${mobileOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
       `}>
 

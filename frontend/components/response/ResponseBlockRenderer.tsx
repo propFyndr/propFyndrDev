@@ -21,6 +21,7 @@ const RealtyChart = dynamic(() => import('@/components/RealtyChart'), {
 })
 import RealtyBox from '@/components/RealtyBox'
 import ContactButton from '@/components/ContactButton'
+import { DossierShareCard } from '@/components/chat/DossierShareCard'
 
 // Lazy: pulls react-markdown + remark/rehype (and parse5 via rehype-raw) out of
 // the /discover entry chunk. See components/response/Markdown.tsx.
@@ -231,8 +232,11 @@ function CoverageStatusCard({ block }: { block: ResponseBlock }) {
   )
 }
 
-function TextBlock({ block }: { block: ResponseBlock }) {
+function TextBlock({ block, renderText }: { block: ResponseBlock; renderText?: (body: string) => React.ReactNode }) {
   if (!block.body) return null
+  // The chat passes its own renderer so finished answers keep the streaming
+  // text style and its #entity: link handling.
+  if (renderText) return <>{renderText(block.body)}</>
   return (
     <div className="prose prose-sm dark:prose-invert max-w-none prose-p:leading-relaxed prose-headings:font-bold prose-table:text-sm">
       <Markdown
@@ -257,7 +261,19 @@ function TextBlock({ block }: { block: ResponseBlock }) {
           ),
           tr: ({ node, ...props }: any) => (
             <tr className="hover:bg-blue-50/30 dark:hover:bg-blue-900/10 transition-colors odd:bg-transparent even:bg-slate-50/50 dark:even:bg-zinc-800/30" {...props} />
-          )
+          ),
+          a: ({ node, ...props }: any) => {
+            const href = props.href || ''
+            if (href.startsWith('/dossier/') || href.includes('/dossier/')) {
+              return (
+                <DossierShareCard
+                  href={href}
+                  label={String(props.children) || 'View & Share Family Deal Dossier'}
+                />
+              )
+            }
+            return <a {...props} className="text-[#c47860] hover:underline" />
+          }
         } as any}
       >
         {block.body}
@@ -268,7 +284,7 @@ function TextBlock({ block }: { block: ResponseBlock }) {
 
 // ── Renderer ──────────────────────────────────────────────────────────────────
 
-const CARD_MAP: Record<BlockType, React.FC<{ block: ResponseBlock }>> = {
+const CARD_MAP: Record<BlockType, React.FC<{ block: ResponseBlock; renderText?: (body: string) => React.ReactNode }>> = {
   our_pick:        OurPickCard,
   quick_picks:     QuickPicksCard,
   single_project:  SingleProjectCard,
@@ -279,12 +295,12 @@ const CARD_MAP: Record<BlockType, React.FC<{ block: ResponseBlock }>> = {
   text:            TextBlock,
 }
 
-export function ResponseBlockRenderer({ blocks }: { blocks: ResponseBlock[] }) {
+export function ResponseBlockRenderer({ blocks, renderText }: { blocks: ResponseBlock[]; renderText?: (body: string) => React.ReactNode }) {
   return (
     <div className="space-y-3">
       {blocks.map((block, i) => {
         const CardCmp = CARD_MAP[block.type]
-        return CardCmp ? <CardCmp key={i} block={block} /> : null
+        return CardCmp ? <CardCmp key={i} block={block} renderText={renderText} /> : null
       })}
     </div>
   )

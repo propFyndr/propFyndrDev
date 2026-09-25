@@ -1,174 +1,202 @@
 'use client'
 
 /**
- * The news rail on the discovery screen.
+ * PropFyndr — live builder announcement ticker.
  *
- * An ad unit whose payload is a conversation rather than a landing page, and
- * that is the entire advantage. A portal banner sends a buyer to a listing page
- * where they bounce; tapping this opens the advisor already knowing which
- * project they tapped, ready to answer the next four questions — price,
- * possession, location, trade-off — from that project's own verified rows.
+ * A single rotating headline below the discovery prompt chips. Tapping it asks
+ * the advisor about that announcement.
  *
- * Which is why the tap seeds a QUESTION rather than an answer. The seeded text
- * goes through the same `propfyndr:ask-ai` bus a typed question uses, so the
- * router classifies it identically and there is no second path by which an
- * answer can be produced. The promotional's own marketing copy never becomes
- * the answer; it only decides what gets asked.
+ * What the rail decides is what a buyer is INVITED TO ASK about. It must never
+ * influence what the advisor RECOMMENDS — the fallback below reads from
+ * `promotionals`, which are paid placements, and `buildNewsContext` on the
+ * backend no longer appends a project list for exactly that reason.
  *
- * The constraint that makes this sellable twice: a promoted project is never
- * ranked higher in recommendations. Nothing here touches ordering.
+ * Rotation is paused by any interaction that means "I am reading this" — hover,
+ * touch, or keyboard focus. Without the touch and focus cases the rail advanced
+ * underneath the user between reading a headline and acting on it, and the
+ * question that got sent named a different announcement.
  */
 
-import { useCallback, useEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
+import { ArrowSquareOut } from '@phosphor-icons/react'
+import { AnimatePresence, m, useReducedMotion } from 'framer-motion'
 import { API_BASE } from '@/lib/env'
-import { getOrCreateGuestToken } from '@/lib/guestToken'
 
-interface Promotional {
+export interface BuilderNewsItem {
   id: string
   title: string
-  description: string | null
-  content: string
-  image_url: string | null
-  link_type: string | null
-  link_target: string | null
+  description?: string | null
+  image_url?: string | null
+  link_type?: 'builder' | 'project' | 'external_url' | null
+  link_target?: string | null
+  run_as_promo?: boolean
+  created_at: string
+  published_at?: string | null
+  builder?: {
+    id: string
+    name: string
+    slug: string
+  } | null
 }
 
-/** How long each item holds the rail before the next one rotates in. */
-const ROTATE_MS = 7000
-
-function guestHeaders(): Record<string, string> {
-  try {
-    const token = getOrCreateGuestToken()
-    return token ? { 'x-guest-token': token } : {}
-  } catch {
-    // Private window, blocked storage. An unattributed impression is still
-    // worth recording; it is not worth failing the render over.
-    return {}
-  }
-}
-
-/**
- * Analytics that must never break the page a buyer is reading. Fire and forget,
- * errors swallowed on purpose — the endpoint answers 202 for the same reason.
- */
-function record(id: string, interaction_type: 'impression' | 'click'): void {
-  void fetch(`${API_BASE}/promotionals/${id}/interaction`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...guestHeaders() },
-    body: JSON.stringify({ interaction_type }),
-  }).catch(() => {})
-}
+const ROTATE_INTERVAL_MS = 3400
 
 export default function NewsRail() {
-  const [items, setItems] = useState<Promotional[]>([])
+  const [items, setItems] = useState<BuilderNewsItem[]>([])
   const [index, setIndex] = useState(0)
   const [paused, setPaused] = useState(false)
-  /** Ids already counted this mount, so rotation does not inflate impressions. */
-  const seen = useRef<Set<string>>(new Set())
+  const [loading, setLoading] = useState(true)
+
+  // Honours prefers-reduced-motion. The CSS block in globals.css and the
+  // <MotionConfig reducedMotion="user"> in app/layout.tsx already flatten the
+  // slide and the pulse, but neither can see a setInterval — an element
+  // swapping its own content every 3.4s is motion whatever the transition does.
+  const reduceMotion = useReducedMotion()
+  const rotating = !paused && !reduceMotion && items.length > 1
 
   useEffect(() => {
     let cancelled = false
-    fetch(`${API_BASE}/promotionals/active?type=news_feature`)
-      .then((r) => (r.ok ? r.json() : Promise.reject(r.status)))
-      .then((data: { promotionals: Promotional[] }) => {
-        if (!cancelled) setItems(data.promotionals ?? [])
-      })
-      .catch(() => { /* No rail rather than an error message. */ })
-    return () => { cancelled = true }
+
+    async function loadNews() {
+      try {
+        const res = await fetch(`${API_BASE}/news/active`)
+        if (res.ok) {
+          const data = await res.json()
+          if (!cancelled && data.news && data.news.length > 0) {
+            setItems(data.news)
+            return
+          }
+        }
+
+        // Fallback to active promotionals if the news endpoint had 0 items.
+        const promoRes = await fetch(`${API_BASE}/promotionals/active?type=news_feature`)
+        if (promoRes.ok) {
+          const promoData = await promoRes.json()
+          if (!cancelled && promoData.promotionals && promoData.promotionals.length > 0) {
+            const mapped: BuilderNewsItem[] = promoData.promotionals.map((p: any) => ({
+              id: p.id,
+              title: p.title,
+              description: p.description || p.content,
+              image_url: p.image_url,
+              link_type: p.link_type,
+              link_target: p.link_target,
+              created_at: new Date().toISOString(),
+              builder: p.builder || null,
+            }))
+            setItems(mapped)
+          }
+        }
+      } catch {
+        // Non-blocking fail-open
+      } finally {
+        if (!cancelled) setLoading(false)
+      }
+    }
+
+    void loadNews()
+    return () => {
+      cancelled = true
+    }
   }, [])
 
-  // One impression per item per mount, counted when it actually becomes visible.
   useEffect(() => {
-    const current = items[index]
-    if (!current || seen.current.has(current.id)) return
-    seen.current.add(current.id)
-    record(current.id, 'impression')
-  }, [items, index])
+    if (!rotating) return
+    const timer = setInterval(() => {
+      setIndex((prev) => (prev + 1) % items.length)
+    }, ROTATE_INTERVAL_MS)
+    return () => clearInterval(timer)
+  }, [rotating, items.length])
 
-  useEffect(() => {
-    if (paused || items.length < 2) return
-    const t = setInterval(() => setIndex((i) => (i + 1) % items.length), ROTATE_MS)
-    return () => clearInterval(t)
-  }, [paused, items.length])
+  const handleTrigger = useCallback((newsItem: BuilderNewsItem) => {
+    const builderName = newsItem.builder?.name || 'this builder'
+    const question = `Tell me more about ${builderName}'s recent update: "${newsItem.title}". What does this mean for property buyers?`
 
-  const open = useCallback(async (promo: Promotional) => {
-    record(promo.id, 'click')
-    let question = `Tell me more about: ${promo.title}`
-    try {
-      const res = await fetch(`${API_BASE}/promotionals/${promo.id}/context`)
-      if (res.ok) {
-        const ctx = await res.json()
-        if (ctx?.seed_question) question = ctx.seed_question
-      }
-    } catch {
-      // Fall back to the headline. Better a slightly vaguer question than a
-      // tap that does nothing.
-    }
     window.dispatchEvent(
-      new CustomEvent('propfyndr:ask-ai', { detail: { text: question, autoSend: true } }),
+      new CustomEvent('propfyndr:ask-ai', {
+        detail: { text: question, autoSend: true },
+      })
     )
   }, [])
 
-  if (items.length === 0) return null
+  if (loading || items.length === 0) return null
+
   const current = items[index]
+  if (!current) return null
+
+  const label = current.builder?.name
+    ? `Ask the advisor about ${current.builder.name}: ${current.title}`
+    : `Ask the advisor about this update: ${current.title}`
 
   return (
-    <section
-      aria-label="Project news"
-      className="w-full max-w-[800px] mb-6"
-      onMouseEnter={() => setPaused(true)}
-      onMouseLeave={() => setPaused(false)}
-      onFocus={() => setPaused(true)}
-      onBlur={() => setPaused(false)}
-    >
+    <div className="w-full max-w-[800px] flex items-center justify-center mt-2.5 mb-1 px-3 sm:px-4 select-none">
       <button
         type="button"
-        onClick={() => void open(current)}
-        className="w-full text-left flex items-center gap-4 px-4 py-3 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors cursor-pointer"
+        onClick={() => handleTrigger(current)}
+        // Every "I am reading this" signal pauses, not just the mouse.
+        onMouseEnter={() => setPaused(true)}
+        onMouseLeave={() => setPaused(false)}
+        onFocus={() => setPaused(true)}
+        onBlur={() => setPaused(false)}
+        onTouchStart={() => setPaused(true)}
+        onTouchEnd={() => setPaused(false)}
+        onTouchCancel={() => setPaused(false)}
+        aria-label={label}
+        title="Ask the AI advisor about this update"
+        className="group relative inline-flex items-center gap-2 sm:gap-2.5 py-1.5 px-3 sm:px-3.5 rounded-full bg-transparent hover:bg-black/[0.04] dark:hover:bg-white/[0.06] active:scale-[0.98] transition-all duration-200 cursor-pointer max-w-full w-full sm:w-auto text-left min-h-[38px] sm:min-h-[32px]"
       >
-        {current.image_url ? (
-          // Arbitrary remote host per builder; the optimiser is bypassed rather
-          // than adding every one of them to next.config.
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={current.image_url} alt="" className="w-12 h-12 rounded-xl object-cover shrink-0" />
-        ) : (
-          <span className="w-12 h-12 rounded-xl bg-zinc-100 dark:bg-zinc-800 shrink-0" aria-hidden="true" />
+        {/* Live broadcast badge. The pulse is decorative and carries no state,
+            so the reduced-motion block in globals.css stopping it loses nothing. */}
+        <span
+          aria-hidden="true"
+          className="inline-flex items-center gap-1 sm:gap-1.5 px-1.5 sm:px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] font-bold tracking-wider uppercase bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20 shrink-0"
+        >
+          <span className="relative flex h-1.5 w-1.5">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-rose-500"></span>
+          </span>
+          LIVE
+        </span>
+
+        {current.builder?.name && (
+          <span
+            aria-hidden="true"
+            className="text-[11.5px] sm:text-[12px] font-semibold text-zinc-900 dark:text-zinc-100 shrink-0 max-w-[90px] sm:max-w-none truncate"
+          >
+            {current.builder.name}
+            <span className="text-zinc-400 dark:text-zinc-500 font-normal ml-1">·</span>
+          </span>
         )}
 
-        <span className="min-w-0 flex-1">
-          <span className="block text-[11px] font-bold uppercase tracking-wider text-zinc-400 dark:text-zinc-500">
-            News
-          </span>
-          <span className="block text-[14px] font-bold text-zinc-900 dark:text-white truncate">
-            {current.title}
-          </span>
-          <span className="block text-[12px] text-zinc-500 dark:text-zinc-400 truncate">
-            {current.description || current.content}
-          </span>
-        </span>
-
-        <span className="text-[12px] font-bold text-zinc-400 dark:text-zinc-500 shrink-0 hidden sm:block">
-          Ask about this
-        </span>
-      </button>
-
-      {items.length > 1 && (
-        <div className="flex items-center justify-center gap-1.5 mt-2" role="tablist" aria-label="News items">
-          {items.map((item, i) => (
-            <button
-              key={item.id}
-              type="button"
-              role="tab"
-              aria-selected={i === index}
-              aria-label={item.title}
-              onClick={() => setIndex(i)}
-              className={`h-1.5 rounded-full transition-all cursor-pointer ${
-                i === index ? 'w-5 bg-zinc-800 dark:bg-zinc-200' : 'w-1.5 bg-zinc-300 dark:bg-zinc-700'
-              }`}
-            />
-          ))}
+        {/* Announced only when it is NOT auto-advancing. A polite live region
+            that fires every 3.4 seconds talks over everything else a screen
+            reader user is trying to do; once rotation is paused or reduced, a
+            change is something they caused and is worth hearing. */}
+        <div
+          role="status"
+          aria-live={rotating ? 'off' : 'polite'}
+          className="h-5 flex items-center overflow-hidden min-w-0 flex-1"
+        >
+          <AnimatePresence mode="wait">
+            <m.span
+              key={current.id}
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -6 }}
+              transition={{ duration: 0.26, ease: [0.16, 1, 0.3, 1] }}
+              className="text-[11.5px] sm:text-[12.5px] font-medium tracking-tight text-zinc-600 dark:text-zinc-300 group-hover:text-[#0066cc] dark:group-hover:text-[#2997ff] transition-colors truncate block"
+            >
+              {current.title}
+            </m.span>
+          </AnimatePresence>
         </div>
-      )}
-    </section>
+
+        <ArrowSquareOut
+          size={13}
+          weight="bold"
+          aria-hidden="true"
+          className="text-zinc-400 dark:text-zinc-500 group-hover:text-[#0066cc] dark:group-hover:text-[#2997ff] group-hover:translate-x-0.5 shrink-0 opacity-70 group-hover:opacity-100 transition-all duration-150"
+        />
+      </button>
+    </div>
   )
 }

@@ -3,6 +3,8 @@ import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import {
+  redactForResponse,
+  redactProject,
   PROJECT_PUBLIC_SELECT,
   INTERNAL_ONLY_FIELDS,
   FORBIDDEN_RELATIONS,
@@ -339,5 +341,39 @@ describe('Builder exposure — schema coverage', () => {
     for (const f of ['cin', 'legal_entities', 'executives', 'outstanding_dues_cr', 'audit_flags_log', 'verification_level', 'data_source', 'intelligence_completeness']) {
       assert.ok((RELATION_INTERNAL_FIELDS.builder ?? []).includes(f), `${f} must stay relation-internal`)
     }
+  })
+})
+
+describe('relations are cleaned on the way out, not passed through', () => {
+  const row = {
+    id: 'p1', name: 'X', slug: 'x', embedding: [0.1], ai_search_keywords: 'k', buyer_satisfaction_rating: 4.7,
+    match_reason: 'ranker output survives',
+    builder: { id: 'b1', name: 'B', outstanding_dues_cr: 12, executives: ['a'], portal_subdomain: 'b', financial_hygiene_score: 80 },
+    dna: { builder_score: 95 },
+    decision_profile: { status: 'DRAFT', why_buy: ['x'], advisor_notes: 'internal' },
+    recommendation_profile: { status: 'PUBLISHED', tier: 'STRONG_BUY', admin_notes: 'n', summary: 's' },
+    channel_partners: [{ channel_partner: { name: 'CP', commission_rate_pct: 2 } }],
+    saved_by: [{ user_id: 'u' }],
+  }
+  for (const [label, fn] of [['redactProject', redactProject], ['redactForResponse', redactForResponse]] as const) {
+    it(`${label} strips relation internals`, () => {
+      const out = fn(row as any) as any
+      assert.equal(out.embedding, undefined)
+      assert.equal(out.buyer_satisfaction_rating, undefined)
+      assert.equal(out.dna, undefined)
+      assert.equal(out.saved_by, undefined)
+      assert.equal(out.builder.name, 'B')
+      assert.equal(out.builder.outstanding_dues_cr, undefined)
+      assert.equal(out.builder.portal_subdomain, undefined)
+      assert.equal(out.builder.financial_hygiene_score, undefined)
+      assert.equal(out.decision_profile, null)
+      assert.equal(out.recommendation_profile.tier, undefined)
+      assert.equal(out.recommendation_profile.admin_notes, undefined)
+      assert.equal(out.recommendation_profile.summary, 's')
+      assert.equal(out.channel_partners[0].channel_partner.commission_rate_pct, undefined)
+    })
+  }
+  it('redactForResponse keeps ranker output', () => {
+    assert.equal((redactForResponse(row as any) as any).match_reason, 'ranker output survives')
   })
 })

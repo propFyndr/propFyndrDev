@@ -10,6 +10,7 @@ export type ConversationActionType =
   | 'BOOK_VISIT'          // opens site visit scheduler
   | 'REMOVE_FILTER'       // removes an intent field (from Context Ribbon)
   | 'OPEN_TOOL'           // opens a UI panel without a network call
+  | 'NAVIGATE'            // opens an internal page (payload.url, same-origin path only)
 
 // Payload shapes per action type
 export interface TextMessagePayload { text: string }

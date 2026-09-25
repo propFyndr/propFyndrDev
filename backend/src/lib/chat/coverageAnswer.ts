@@ -121,10 +121,38 @@ export async function sectorPinCode(
   }
 }
 
+/**
+ * Asking us to judge a builder, rather than to list what we hold for them.
+ *
+ * "is Godrej reliable?" names a builder and matches BUILDER_QUESTION exactly as
+ * "godrej properties in noida" does, so without this the turn was answered with
+ * a coverage string — an inventory list, in response to a question about
+ * character. That is the canned-answer complaint that started this: not that
+ * coverage fired too rarely, but that it fired on questions it cannot answer.
+ */
+const ADVISORY_ABOUT_A_BUILDER =
+  /\b(reliable|reliability|trust(?:worthy|ed)?|reputation|reputable|track\s+record|credib\w*|safe|risky?|good|bad|better|worth|avoid|recommend\w*|quality|delay(?:s|ed)?|late|litigation|complaints?|reviews?|opinion|think|compare|versus|vs)\b/i
+
+/**
+ * Asking what we hold: a request that wants rows back.
+ *
+ * A positive test, not the absence of a negative one. The call site in
+ * chat-router used to carry a list of things coverage must NOT answer, and that
+ * list ended in `|\?` — a bare question mark, which nearly every chat message
+ * contains, so coverage was effectively switched off for the whole product. The
+ * condition belongs here, where every caller routes through, and it belongs in
+ * the affirmative: coverage answers "what do we have", and nothing else.
+ */
+const WANTS_INVENTORY =
+  /\b(propert\w+|projects?|flats?|apartments?|homes?|inventory|options?|launch(?:es|ed)?|available|availability|list|show|have|has|any|which|what|how\s+many|bhk|sector\s*\d+|in\s+(?:noida|greater\s+noida))\b/i
+
 /** A builder named in the message that we hold no projects for. */
 export async function builderCoverage(message: string): Promise<CoverageAnswer | null> {
   const match = message.match(BUILDER_QUESTION)
   if (!match) return null
+
+  if (ADVISORY_ABOUT_A_BUILDER.test(message)) return null
+  if (!WANTS_INVENTORY.test(message)) return null
 
   const raw = match[1]?.trim() || ''
   const tokens = raw.split(/\s+/)

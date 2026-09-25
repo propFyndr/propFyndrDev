@@ -1381,7 +1381,7 @@ model BuilderNews {
   description     String
   image_url       String?
 
-  link_type       String?  // "project", "external_url"
+  link_type       String?  // "builder" (default) | "project" | "external_url"
   link_target     String?
 
   status          NewsStatus

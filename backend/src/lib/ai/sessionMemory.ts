@@ -45,16 +45,18 @@ export async function hydrateIntentFromMemory(
   if (!memory?.extracted_intent) return currentIntent
 
   const stored = memory.extracted_intent as Partial<Intent>
-  const isSectorChanged = Boolean(currentIntent.sector && stored.sector && currentIntent.sector !== stored.sector)
 
   // Merge: stored intent as fallback, current intent overrides
   return {
     ...currentIntent,
-    // Only fill gaps in current intent — do not resurrect stale budget when sector changes
+    // Only fill gaps in current intent. The budget survives a sector change:
+    // moving the search to another sector does not change what the buyer can
+    // spend, and dropping it made "still within your 1.5cr" impossible the
+    // moment they looked elsewhere. A new figure this turn still overrides.
     bhk: currentIntent.bhk ?? stored.bhk,
     sector: currentIntent.sector ?? stored.sector,
-    budgetMin: isSectorChanged ? currentIntent.budgetMin : (currentIntent.budgetMin ?? stored.budgetMin),
-    budgetMax: isSectorChanged ? currentIntent.budgetMax : (currentIntent.budgetMax ?? stored.budgetMax),
+    budgetMin: currentIntent.budgetMin ?? stored.budgetMin,
+    budgetMax: currentIntent.budgetMax ?? stored.budgetMax,
     purpose: currentIntent.purpose ?? stored.purpose,
     possession: currentIntent.possession ?? stored.possession,
     // The workplace is stated once and matters for the rest of the
@@ -66,7 +68,7 @@ export async function hydrateIntentFromMemory(
     // office is in Sector 63" on turn 7 had lost it by turn 8, which is the
     // turn that asks for the shortlist.
     //
-    // Unlike budget, a workplace is NOT reset when the sector changes: moving
+    // Like budget, a workplace is NOT reset when the sector changes: moving
     // the search from one belt to another does not move where they work.
     workplace: currentIntent.workplace ?? stored.workplace,
     workplace_belt: currentIntent.workplace_belt ?? stored.workplace_belt,

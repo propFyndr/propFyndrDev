@@ -24,6 +24,10 @@ import DomainExecutionTimeline from './DomainExecutionTimeline'
 import { track, trackPropertyEvent } from '@/lib/analytics'
 import { parseResponseBlocks } from '@/lib/responseParser'
 import { ResponseBlockRenderer } from '@/components/response/ResponseBlockRenderer'
+
+// One text style for streaming and finished answers, so the answer does not
+// jump in size when the stream ends and the block renderer takes over.
+const ANSWER_PROSE = "prose prose-slate dark:prose-invert max-w-none text-[15.5px] leading-[1.78] font-normal tracking-[-0.01em] text-slate-800 dark:text-zinc-200 prose-p:my-2.5 prose-p:leading-[1.78] prose-headings:font-bold prose-headings:text-slate-900 dark:prose-headings:text-zinc-100 prose-headings:tracking-tight prose-a:text-blue-600 dark:prose-a:text-blue-400 prose-strong:font-semibold prose-strong:text-slate-900 dark:prose-strong:text-white prose-blockquote:border-l-2 prose-blockquote:border-blue-500/70 prose-blockquote:pl-4 prose-blockquote:italic prose-blockquote:text-slate-600 dark:prose-blockquote:text-zinc-400 prose-table:w-full prose-table:text-sm prose-table:my-4 prose-table:border-collapse"
 import ProjectCard from '@/components/ProjectCard'
 import { MobileCardShelf } from '@/components/chat/MobileCardShelf'
 import PropertyQuickActions from '@/components/chat/PropertyQuickActions'
@@ -41,6 +45,7 @@ const RealtyChart = dynamic(() => import('@/components/RealtyChart'), {
 })
 import RealtyBox from '@/components/RealtyBox'
 import ContactButton from '@/components/ContactButton'
+import { DossierShareCard } from './DossierShareCard'
 
 // Narrowed shape of ChipAction.payload actually read by the card-selector chip flow.
 interface ChipCardPayload {
@@ -83,6 +88,7 @@ export interface MessageBubbleProps {
   chipPicker: ChipPickerState | null
   chips: import('./types').ChipAction[]
   isRestoring?: boolean
+  aiTurnCount: number
 
   // Callbacks — all stable (useCallback in parent)
   onCopy: (text: string) => void
@@ -141,6 +147,45 @@ export function buildPickerMessage(action: string, selected: ProjectCardType[]):
     default:
       return names[0]
   }
+}
+
+/**
+ * Research turns before the dossier is offered unprompted.
+ *
+ * Three, per the Day 6 spec. Below that there is not enough in the session to
+ * synthesise — the handler would fall through to "the two most recently added
+ * projects", which is not this buyer's shortlist and reads like a non-sequitur.
+ */
+const DOSSIER_MIN_AI_TURNS = 3
+
+/**
+ * The offer to turn a consultation into something shareable.
+ *
+ * One definition, two placements. It used to exist only inside the comparison
+ * block, so a buyer who never asked to compare two projects was never shown it
+ * — which is most buyers, and is why the feature read as missing. It now also
+ * appears on the last answer once the session has done real research.
+ */
+function DossierCta({ onAction }: { onAction: MessageBubbleProps['onAction'] }) {
+  return (
+    <div className="p-3.5 rounded-2xl border border-blue-200/80 dark:border-blue-900/40 bg-blue-50/60 dark:bg-blue-950/20 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+      <div className="flex items-center gap-2.5">
+        <span className="w-8 h-8 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold flex-shrink-0 text-sm">
+          📄
+        </span>
+        <div>
+          <div className="font-bold text-slate-800 dark:text-zinc-200">Share Due Diligence With Your Family</div>
+          <div className="text-[11px] text-slate-500">Generate a 1-page executive dossier with verified pros, forensic red flags, and net EMIs.</div>
+        </div>
+      </div>
+      <button
+        onClick={() => onAction({ id: 'gen_dossier', actionType: 'TEXT_MESSAGE', label: 'Generate Family Deal Dossier', payload: { text: 'Generate family deal dossier' } } as any)}
+        className="px-3.5 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs whitespace-nowrap transition shadow-sm"
+      >
+        Generate Family Dossier
+      </button>
+    </div>
+  )
 }
 
 // ── Unified suggestion chips — all chips use same premium NotebookLM style
@@ -434,7 +479,8 @@ function areEqual(prev: MessageBubbleProps, next: MessageBubbleProps): boolean {
     prev.message.spatialContext === next.message.spatialContext &&
     prev.carouselIndex === next.carouselIndex &&
     prev.chips === next.chips &&
-    prev.message.chips === next.message.chips
+    prev.message.chips === next.message.chips &&
+    prev.aiTurnCount === next.aiTurnCount
   )
 }
 
@@ -442,7 +488,7 @@ function areEqual(prev: MessageBubbleProps, next: MessageBubbleProps): boolean {
 function MessageBubbleInner({
   message, index, isLast, isSubmitting, chatPhase,
   isExpanded, carouselIndex, lastShortlist, showMap, userId, sessionId, regeneratingIdx,
-  chipPicker, chips, isRestoring,
+  chipPicker, chips, isRestoring, aiTurnCount,
   onCopy, onDetailOpen, onCallback, onRegenerate, onAction, onEditMessage,
 
   onToggleExpanded, onSetChipPicker, onSetCarouselIndex,
@@ -781,6 +827,71 @@ function MessageBubbleInner({
                     .replace(/<realty-chart\b[^>]*\bdata=["']([\s\S]*?)["'][^>]*\/?>/gi, (_m, data) => '\n\n' + data.trim() + '\n\n')
                     .replace(/<\/?realty-(?:chart|box|action)[^>]*>/gi, '')
                   const blocks = streaming ? null : parseResponseBlocks(cleanDisplayContent)
+                  const renderMarkdown = (text: string) => (
+                    <Markdown
+                      raw
+                      components={{
+                        'realty-chart': ({ node, ...props }: { node?: unknown } & HTMLAttributes<HTMLElement> & { type?: string; data?: string; title?: string }) => <RealtyChart type={props.type ?? ''} data={props.data ?? ''} title={props.title} />,
+                        'realty-box': ({ node, ...props }: { node?: unknown } & HTMLAttributes<HTMLElement> & { type?: string; title?: string }) => <RealtyBox type={props.type ?? ''} title={props.title}>{props.children}</RealtyBox>,
+                        // Mapped for parity with ResponseBlockRenderer — the shared
+                        // sanitizer schema allows realty-action, so it must render as
+                        // something rather than leaking an unknown element.
+                        'realty-action': ({ node, ...props }: { node?: unknown } & HTMLAttributes<HTMLElement> & { label?: string }) => <ContactButton label={props.label || 'Request Callback'} className="my-2" />,
+                        table: ({ node, ...props }: any) => (
+                          <div className="my-3.5 overflow-x-auto overscroll-x-contain rounded-2xl border border-slate-200/90 dark:border-zinc-800 bg-white/60 dark:bg-[#121214] shadow-2xs custom-scrollbar touch-pan-y overscroll-x-contain">
+                            <table className="w-full table-auto border-collapse text-left text-xs sm:text-[13.5px] text-slate-800 dark:text-zinc-200" {...props} />
+                          </div>
+                        ),
+                        thead: ({ node, ...props }: any) => (
+                          <thead className="bg-slate-100/90 dark:bg-zinc-800/90 text-[10.5px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-700 dark:text-zinc-300 border-b border-slate-200 dark:border-zinc-700/80" {...props} />
+                        ),
+                        th: ({ node, ...props }: any) => (
+                          <th className="px-2.5 sm:px-4 py-2.5 sm:py-3 font-bold text-slate-900 dark:text-white whitespace-normal sm:whitespace-nowrap break-words" {...props} />
+                        ),
+                        td: ({ node, ...props }: any) => (
+                          <td className="px-2.5 sm:px-4 py-2.5 sm:py-3.5 border-b border-slate-100 dark:border-zinc-800/60 last:border-0 leading-relaxed align-top break-words" {...props} />
+                        ),
+                        tr: ({ node, ...props }: any) => (
+                          <tr className="hover:bg-blue-50/30 dark:hover:bg-blue-900/10 transition-colors odd:bg-transparent even:bg-slate-50/50 dark:even:bg-zinc-800/20" {...props} />
+                        ),
+                        a: ({ node, ...props }: any) => {
+                          const href = props.href || ''
+                          if (href.startsWith('#entity:')) {
+                            const projectId = href.slice(8)
+                            const projectName = String(props.children)
+                            return (
+                              <button
+                                onClick={() => onAction?.({
+                                  id: `entity:${projectId}`,
+                                  actionType: 'TEXT_MESSAGE',
+                                  label: `Tell me more about ${projectName}`,
+                                  icon: 'ℹ️',
+                                  analyticsId: `entity_mention:${projectId}`,
+                                  priority: 2,
+                                  payload: { text: `Tell me more about ${projectName}` },
+                                })}
+                                className="text-[#c47860] hover:underline cursor-pointer font-semibold"
+                              >
+                                {projectName}
+                              </button>
+                            )
+                          }
+                          if (href.startsWith('/dossier/') || href.includes('/dossier/')) {
+                            return (
+                              <DossierShareCard
+                                href={href}
+                                label={String(props.children) || 'View & Share Family Deal Dossier'}
+                                onToast={onToast}
+                              />
+                            )
+                          }
+                          return <a {...props} className="text-[#c47860] hover:underline" />
+                        }
+                      } as any}
+                    >
+                      {text}
+                    </Markdown>
+                  )
                   return (
                     <>
                       {/* Optional Domain Execution Timeline pill atop AI response */}
@@ -808,66 +919,13 @@ function MessageBubbleInner({
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         transition={{ duration: 0.2 }}
-                        className={blocks ? undefined : "prose prose-slate dark:prose-invert max-w-none text-[15.5px] leading-[1.78] font-normal tracking-[-0.01em] text-slate-800 dark:text-zinc-200 prose-p:my-2.5 prose-p:leading-[1.78] prose-headings:font-bold prose-headings:text-slate-900 dark:prose-headings:text-zinc-100 prose-headings:tracking-tight prose-a:text-blue-600 dark:prose-a:text-blue-400 prose-strong:font-semibold prose-strong:text-slate-900 dark:prose-strong:text-white prose-blockquote:border-l-2 prose-blockquote:border-blue-500/70 prose-blockquote:pl-4 prose-blockquote:italic prose-blockquote:text-slate-600 dark:prose-blockquote:text-zinc-400 prose-table:w-full prose-table:text-sm prose-table:my-4 prose-table:border-collapse"}
+                        className={blocks ? undefined : ANSWER_PROSE}
                       >
                         {blocks ? (
-                          <ResponseBlockRenderer blocks={blocks} />
+                          <ResponseBlockRenderer blocks={blocks} renderText={(body) => <div className={ANSWER_PROSE}>{renderMarkdown(body)}</div>} />
                         ) : (
                           <>
-                            <Markdown
-                              raw
-                              components={{
-                                'realty-chart': ({ node, ...props }: { node?: unknown } & HTMLAttributes<HTMLElement> & { type?: string; data?: string; title?: string }) => <RealtyChart type={props.type ?? ''} data={props.data ?? ''} title={props.title} />,
-                                'realty-box': ({ node, ...props }: { node?: unknown } & HTMLAttributes<HTMLElement> & { type?: string; title?: string }) => <RealtyBox type={props.type ?? ''} title={props.title}>{props.children}</RealtyBox>,
-                                // Mapped for parity with ResponseBlockRenderer — the shared
-                                // sanitizer schema allows realty-action, so it must render as
-                                // something rather than leaking an unknown element.
-                                'realty-action': ({ node, ...props }: { node?: unknown } & HTMLAttributes<HTMLElement> & { label?: string }) => <ContactButton label={props.label || 'Request Callback'} className="my-2" />,
-                                table: ({ node, ...props }: any) => (
-                                  <div className="my-3.5 overflow-x-auto overscroll-x-contain rounded-2xl border border-slate-200/90 dark:border-zinc-800 bg-white/60 dark:bg-[#121214] shadow-2xs custom-scrollbar touch-pan-y overscroll-x-contain">
-                                    <table className="w-full table-auto border-collapse text-left text-xs sm:text-[13.5px] text-slate-800 dark:text-zinc-200" {...props} />
-                                  </div>
-                                ),
-                                thead: ({ node, ...props }: any) => (
-                                  <thead className="bg-slate-100/90 dark:bg-zinc-800/90 text-[10.5px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-700 dark:text-zinc-300 border-b border-slate-200 dark:border-zinc-700/80" {...props} />
-                                ),
-                                th: ({ node, ...props }: any) => (
-                                  <th className="px-2.5 sm:px-4 py-2.5 sm:py-3 font-bold text-slate-900 dark:text-white whitespace-normal sm:whitespace-nowrap break-words" {...props} />
-                                ),
-                                td: ({ node, ...props }: any) => (
-                                  <td className="px-2.5 sm:px-4 py-2.5 sm:py-3.5 border-b border-slate-100 dark:border-zinc-800/60 last:border-0 leading-relaxed align-top break-words" {...props} />
-                                ),
-                                tr: ({ node, ...props }: any) => (
-                                  <tr className="hover:bg-blue-50/30 dark:hover:bg-blue-900/10 transition-colors odd:bg-transparent even:bg-slate-50/50 dark:even:bg-zinc-800/20" {...props} />
-                                ),
-                                a: ({ node, ...props }: any) => {
-                                  const href = props.href || ''
-                                  if (href.startsWith('#entity:')) {
-                                    const projectId = href.slice(8)
-                                    const projectName = String(props.children)
-                                    return (
-                                      <button
-                                        onClick={() => onAction?.({
-                                          id: `entity:${projectId}`,
-                                          actionType: 'TEXT_MESSAGE',
-                                          label: `Tell me more about ${projectName}`,
-                                          icon: 'ℹ️',
-                                          analyticsId: `entity_mention:${projectId}`,
-                                          priority: 2,
-                                          payload: { text: `Tell me more about ${projectName}` },
-                                        })}
-                                        className="text-[#c47860] hover:underline cursor-pointer font-semibold"
-                                      >
-                                        {projectName}
-                                      </button>
-                                    )
-                                  }
-                                  return <a {...props} className="text-[#c47860] hover:underline" />
-                                }
-                              } as any}
-                            >
-                              {displayContent}
-                            </Markdown>
+                            {renderMarkdown(displayContent)}
                             {streaming && (
                               <span className="inline-block w-1.5 h-4 bg-blue-600 dark:bg-blue-400 animate-pulse rounded-xs align-middle ml-1.5 shadow-xs" />
                             )}
@@ -905,7 +963,7 @@ function MessageBubbleInner({
             <span>Edit</span>
           </button>
         )}
-        {!isUser && displayContent && (
+        {!isUser && displayContent && !(isLast && isSubmitting) && (
           <div className="inline-flex items-center gap-1 p-0.5 rounded-xl bg-slate-100/80 dark:bg-slate-800/80 border border-slate-200/60 dark:border-slate-700/60 shadow-2xs">
             <button
               onClick={() => { onCopy(displayContent); onToast('Copied to clipboard'); }}
@@ -1599,25 +1657,22 @@ function MessageBubbleInner({
       {message.type === 'ai' && message.showComparisonTable && (message.comparisonProjects?.length ?? 0) >= 2 && (
         <div className="mt-3 w-full space-y-3">
           <ComparisonTable projects={message.comparisonProjects!} />
-          <div className="p-3.5 rounded-2xl border border-blue-200/80 dark:border-blue-900/40 bg-blue-50/60 dark:bg-blue-950/20 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
-            <div className="flex items-center gap-2.5">
-              <span className="w-8 h-8 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold flex-shrink-0 text-sm">
-                📄
-              </span>
-              <div>
-                <div className="font-bold text-slate-800 dark:text-zinc-200">Share Due Diligence With Your Family</div>
-                <div className="text-[11px] text-slate-500">Generate a 1-page executive dossier with verified pros, forensic red flags, and net EMIs.</div>
-              </div>
-            </div>
-            <button
-              onClick={() => onAction({ id: 'gen_dossier', actionType: 'TEXT_MESSAGE', label: 'Generate Family Deal Dossier', payload: { text: 'Generate family deal dossier' } } as any)}
-              className="px-3.5 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs whitespace-nowrap transition shadow-sm"
-            >
-              Generate Family Dossier
-            </button>
-          </div>
+          <DossierCta onAction={onAction} />
         </div>
       )}
+
+      {/* The same offer on the last answer, once the session has done enough
+          research to be worth summarising. Suppressed when the comparison block
+          above is already showing it on this message. */}
+      {message.type === 'ai' &&
+        isLast &&
+        !isSubmitting &&
+        aiTurnCount >= DOSSIER_MIN_AI_TURNS &&
+        !(message.showComparisonTable && (message.comparisonProjects?.length ?? 0) >= 2) && (
+          <div className="mt-3 w-full">
+            <DossierCta onAction={onAction} />
+          </div>
+        )}
 
       {/* Institutional Affordability Card */}
       {message.type === 'ai' && message.affordabilityData && (

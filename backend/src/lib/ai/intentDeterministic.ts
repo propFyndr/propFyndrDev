@@ -134,8 +134,10 @@ function readBhk(text: string): number[] {
 
 function readPossession(text: string): string | undefined {
   if (/\bready\s*to\s*move\b|\brtm\b|\bimmediate\b|\basap\b|\bmove[- ]in\s+ready\b/i.test(text)) return 'immediate'
-  if (/within\s*1\s*year|\b1\s*year\b|next\s*year/i.test(text)) return '1year'
-  if (/within\s*2\s*years?|\b2\s*years?\b/i.test(text)) return '2year'
+  // "within a year", "in one year", "12 months" are the ways people say it;
+  // missing them silently dropped the constraint from a four-fact one-liner.
+  if (/\b(?:within|in)\s*(?:1|a|one)\s*year\b|\b(?:1|one)\s*year\b|\b(?:6|12)\s*months?\b|next\s*year/i.test(text)) return '1year'
+  if (/\b(?:within|in)\s*(?:2|two)\s*years?\b|\b(?:2|two)\s*years?\b|\b(?:18|24)\s*months?\b/i.test(text)) return '2year'
   if (/within\s*3\s*years?|\b3\s*years?\b|long\s*term/i.test(text)) return '3year+'
   return undefined
 }

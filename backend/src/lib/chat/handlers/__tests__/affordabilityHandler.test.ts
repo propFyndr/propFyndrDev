@@ -78,3 +78,22 @@ describe('Affordability & Cash-Flow Advisor', () => {
     assert.strictEqual(affordabilityHandler.matches(dummyCtx('Who is the builder of ATS Destinaire?')), false)
   })
 })
+
+import { parseMonthlyIncome } from '../affordabilityHandler'
+
+describe('parseMonthlyIncome', () => {
+  it('reads the roadmap example "afford this on 2.5L salary" as ₹2.5L a month', () => {
+    assert.equal(parseMonthlyIncome('can I afford this on 2.5L salary?'), 250000)
+  })
+  it('reads LPA and crore-a-year as annual', () => {
+    assert.equal(parseMonthlyIncome('I earn 36 LPA'), 300000)
+    assert.equal(parseMonthlyIncome('income is 1.2 cr per annum'), 1000000)
+  })
+  it('reads k and explicit monthly', () => {
+    assert.equal(parseMonthlyIncome('take home 180k per month'), 180000)
+    assert.equal(parseMonthlyIncome('salary of 2.5 lakh'), 250000)
+  })
+  it('returns undefined without an income word', () => {
+    assert.equal(parseMonthlyIncome('flat for 2.5 cr'), undefined)
+  })
+})

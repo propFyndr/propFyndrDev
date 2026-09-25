@@ -159,27 +159,8 @@ export const amenityLifestyleHandler: ChatTopicHandler = {
       take: 5
     })
 
-    // If no specific sector or cached projects, fetch top verified lifestyle societies featuring swimming pools and sports clubs
-    if (amenityProjects.length === 0) {
-      amenityProjects = await prisma.project.findMany({
-        where: {
-          amenities: {
-            some: {
-              name: { contains: 'swimming', mode: 'insensitive' }
-            }
-          }
-        },
-        include: {
-          amenities: true,
-          builder: { select: { id: true, name: true, slug: true } },
-          unit_types: true,
-          images: { take: 3, orderBy: { sort_order: 'asc' } },
-          connectivity: { take: 5, orderBy: { distance_km: 'asc' } }
-        },
-        orderBy: [{ price_min_cr: 'desc' }, { name: 'asc' }],
-        take: 4
-      })
-    }
+    // No sector and no projects in play: no cards. The old fallback showed the
+    // four most expensive projects with a pool, whatever amenity was asked about.
 
     if (amenityProjects.length > 0) {
       ctx.send('properties', {

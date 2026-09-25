@@ -163,6 +163,13 @@ const SECTOR_NAME_RE = /^sector\s*\d+/i
 export function detectOpenQuery(
   userMessage: string,
   hasProjectNames: boolean,
+  /**
+   * The buyer is asking about a specific project: named it this turn, or
+   * pointed back at it ("does it have Ganga water?"). A focus merely carried
+   * over from an earlier turn does not count — "explain capital gains tax"
+   * is still a general question with a project in focus.
+   */
+  projectReferenced = false,
 ): OpenQueryDetection | null {
   const msg = (userMessage || '').trim()
   if (msg.length < 3) return null
@@ -174,7 +181,12 @@ export function detectOpenQuery(
 
   // 1b. General investment strategy, legal, financial, tax, or advisory questions in real estate -> GENERAL
   const isGeneralStrategyQuestion = /\b(make\s+money|making\s+money|save\s+money|saving\s+money|investing\s+strategy|how\s+to\s+invest|way\s+around|where\s+(?:should\s+i|can\s+i|to)\s+invest|portfolio\s*(?:allocation|strategy)?|career|age\s*\d+|young\s+buyer|first\s+time\s+buyer|roi|rental\s+income|commercial\s+vs\s+residential|flipping|payment\s+plan\s+safe|marketing\s+trap|10:90|20:80|30:70|downpayment|down\s+payment|leasehold|freehold|delay|possession\s+delay|penalty|compensation|r\.?e\.?r\.?a\s+date|hidden\s+costs?|bsp|section\s+54|ancestral|nri|nre|nro|repatriat|tax\s+exemption|tax\s+deduction|80c|24b|title\s+deed|encumbrance|token\s+money|circle\s+rate|market\s+rate|occupancy\s+certificate|double\s+gst|\d+%\s*gst|gst\s+on\s+(?:flat|property|apartment)|under[- ]construction\s*(?:flat|property|apartment|unit)?\s*(?:with\s*\d+%\s*gst|\s*vs|\s*or)|ready[- ]to[- ]move\s*(?:flat|property|apartment|unit)?\s*(?:with\s*\d+%\s*gst|\s*vs|\s*or)|discount\s+negotiat|stamp\s+duty\s+saving|transfer\s+memorandum|\btm\b|transfer\s+charges?|society\s+ndc|rwa\s+ndc|sub[- ]lease|document\s+chain|carpet\s+loading|loading\s+percentage|loading\s+%|lease\s+rent|one[- ]time\s+lease|yeida|jewar\s+airport|unauthorized\s+plotting|ganga\s+water|groundwater|tds|mivan|precast|far\s+3\.5|far\s+4\.0|floor\s+area\s+ratio|ground\s+coverage|loading\s+factor|kisan\s+quota|abadi\s+plot|authority\s+sealing|authority\s+seal|flat\s+sealed|registry\s*(?:is\s*)?(?:blocked|delayed|freeze|frozen|stalled|pending)|physical\s+keys|nri\s+repatriation|form\s+15ca|form\s+15cb|fema|special\s+power\s+of\s+attorney|\bspa\b|remote\s+registration|annual\s+ground\s+rent|lease\s+rent\s+revision|pvvnl|dg\s+backup|dg\s+power|power\s+backup\s+rate|194[- ]?ia|tds\s+on\s+property|capital\s+gains|pre[- ]leased\s+commercial|commercial\s+yield|construction\s+quality|mivan\s+vs\s+rcc|aluminium\s+shuttering)\b/i.test(msg)
-  if (isGeneralStrategyQuestion) {
+  // "What's the possession delay on it?" is a fact about that building, which
+  // the ground-truth lane answers from its rows; the open lane has none of them.
+  // Only topics a project's own rows hold; tax and legal concepts (80C, 24b,
+  // capital gains, FEMA) stay general whatever project is being discussed.
+  const isProjectScopedTopic = /\b(delay|possession\s+delay|construction\s+quality|mivan|precast|ganga\s+water|groundwater|tds|dg\s+backup|dg\s+power|power\s+backup\s+rate|occupancy\s+certificate|down\s*payment|downpayment|carpet\s+loading|loading\s+(?:factor|percentage|%)|payment\s+plan\s+safe|registry\s*(?:is\s*)?(?:blocked|delayed|stalled|pending)|sub[- ]lease|lease\s+rent|hidden\s+costs?|bsp|transfer\s+charges?)\b/i.test(msg)
+  if (isGeneralStrategyQuestion && !(hasProjectNames && projectReferenced && isProjectScopedTopic)) {
     return { topic: 'GENERAL', reason: 'Real estate advisory / financial / legal / strategy question' }
   }
 

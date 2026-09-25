@@ -4,7 +4,8 @@ import { prisma } from '../lib/db'
 import { buildLeadBrief } from '../lib/leadBrief'
 import { loadScoreMap, missingFrom, saveScoreMap } from '../lib/completenessCache'
 import { requireAdmin, destroyAdminSession } from '../lib/adminAuth'
-import { createIdentitySession, verifyPassword, requireIdentity, requireRole, sessionTtlForRole } from '../lib/adminIdentity'
+import { createIdentitySession, verifyPassword, requireIdentity, requireRole, sessionTtlForRole, recordAudit } from '../lib/adminIdentity'
+import type { AdminIdentitySession } from '../lib/adminIdentity'
 import { computeCompleteness } from '../lib/completeness'
 import { normalisePortalSubdomain } from '../lib/portalSubdomain'
 import { checkRateLimit, getCached, setCached, deleteCached } from '../lib/cache'
@@ -1854,12 +1855,22 @@ router.patch('/leads/:id', async (req: Request, res: Response) => {
 
 // GET /api/v1/admin/news — list builder news
 router.get('/news', async (req: Request, res: Response) => {
-  const { limit = '50', offset = '0', status } = req.query
+  const { limit = '50', offset = '0', status, include_archived } = req.query
 
   try {
-    const where: any = { archived_at: null }
-    if (status && status !== 'all') {
-      where.status = status as string
+    const where: any = {}
+    if (status === 'archived') {
+      where.OR = [
+        { archived_at: { not: null } },
+        { status: 'archived' },
+      ]
+    } else {
+      if (include_archived !== 'true') {
+        where.archived_at = null
+      }
+      if (status && status !== 'all') {
+        where.status = status as string
+      }
     }
 
     const [news, total] = await Promise.all([
@@ -1880,24 +1891,93 @@ router.get('/news', async (req: Request, res: Response) => {
   }
 })
 
-// DELETE /api/v1/admin/news/:id — archive (soft delete; reversible)
+// DELETE /api/v1/admin/news/:id — archive (soft delete) or permanent delete
 router.delete('/news/:id', async (req: Request, res: Response) => {
   const { id } = req.params
   try {
+    // `?permanent=true` used to turn this reversible archive into a hard
+    // delete. A destructive operation must not hang off a query parameter on a
+    // non-destructive route: a stray parameter, a cached URL or a retried
+    // request should never be able to escalate an archive into a deletion.
+    // Permanent deletion now lives on DELETE /news/:id/permanent, which
+    // adminPolicy.ts restricts to SUPER_ADMIN.
     await prisma.builderNews.update({
       where: { id },
-      data: { archived_at: new Date() },
+      data: { archived_at: new Date(), status: 'archived' },
     })
     res.json({ success: true, message: 'News archived' })
   } catch (err) {
-    console.error('[admin] news archive failed:', err)
-    res.status(500).json({ error: 'Failed to archive news' })
+    console.error('[admin] news delete/archive failed:', err)
+    res.status(500).json({ error: 'Failed to process news deletion' })
+  }
+})
+
+/**
+ * DELETE /api/v1/admin/news/:id/permanent — irreversible.
+ *
+ * Its own route rather than a flag on the archive route, and SUPER_ADMIN-only
+ * via the DESTRUCTIVE table in adminPolicy.ts, which already holds project and
+ * builder deletion for the same reason: the person who can remove a published
+ * record should be the person who can put it back.
+ *
+ * Audited. A hard delete leaves nothing behind to inspect afterwards, so the
+ * audit row is the only remaining evidence that the record existed — which
+ * makes it worth capturing the title before the row goes.
+ */
+router.delete('/news/:id/permanent', async (req: Request, res: Response) => {
+  const { id } = req.params
+  const identity = (req as Request & { adminIdentity?: AdminIdentitySession }).adminIdentity
+  try {
+    const existing = await prisma.builderNews.findUnique({
+      where: { id },
+      select: { id: true, title: true, builder: { select: { name: true } } },
+    })
+    if (!existing) {
+      return res.status(404).json({ error: 'News post not found' })
+    }
+
+    await prisma.builderNews.delete({ where: { id } })
+
+    await recordAudit({
+      entityType: 'builder_news',
+      entityId: id,
+      entityName: existing.title,
+      action: 'delete',
+      actorAdminId:
+        !identity || identity.adminUserId === 'root' ? null : identity.adminUserId,
+      actorLabel: identity?.email ?? 'unknown',
+      ipAddress: req.ip,
+      summary:
+        `Permanently deleted news post "${existing.title}"` +
+        (existing.builder?.name ? ` for ${existing.builder.name}` : ''),
+    })
+
+    res.json({ success: true, message: 'News permanently deleted' })
+  } catch (err) {
+    console.error('[admin] permanent news delete failed:', err)
+    res.status(500).json({ error: 'Failed to delete news' })
+  }
+})
+
+// POST /api/v1/admin/news/:id/restore — restore an archived post
+router.post('/news/:id/restore', async (req: Request, res: Response) => {
+  const { id } = req.params
+  try {
+    const news = await prisma.builderNews.update({
+      where: { id },
+      data: { archived_at: null, status: 'published' },
+      include: { builder: { select: { id: true, name: true, slug: true } } },
+    })
+    res.json({ success: true, news, message: 'News post restored' })
+  } catch (err) {
+    console.error('[admin] news restore failed:', err)
+    res.status(500).json({ error: 'Failed to restore news' })
   }
 })
 
 // POST /api/v1/admin/news — create news
 router.post('/news', async (req: Request, res: Response) => {
-  const { builder_id, title, description, image_url, link_type, link_target, status } = req.body
+  const { builder_id, title, description, image_url, link_type, link_target, status, run_as_promo } = req.body
   try {
     if (!builder_id || !title || !description) {
       return res.status(400).json({ error: 'Missing required fields: builder_id, title, description' })
@@ -1908,9 +1988,18 @@ router.post('/news', async (req: Request, res: Response) => {
         title,
         description,
         image_url,
-        link_type,
+        link_type: link_type || 'builder',
         link_target,
+        // Draft by default. This briefly defaulted to 'published', which put a
+        // post in front of buyers without passing the review step the schema
+        // describes — NewsStatus carries `pending_approval`, the row carries
+        // `approved_by` and `approval_notes`, and the admin form offers
+        // "Pending Editorial Review" as an option. The form always sends an
+        // explicit status, so this default only governs direct API callers,
+        // and for them the safe default is the unpublished one.
         status: status || 'draft',
+        run_as_promo: Boolean(run_as_promo),
+        published_at: status === 'published' ? new Date() : null,
       },
       include: { builder: { select: { id: true, name: true, slug: true } } },
     })
@@ -1924,9 +2013,21 @@ router.post('/news', async (req: Request, res: Response) => {
 // PATCH /api/v1/admin/news/:id — update news
 router.patch('/news/:id', async (req: Request, res: Response) => {
   const { id } = req.params
-  const { title, description, image_url, link_type, link_target, status, approved_by, approval_notes, published_at, run_as_promo, promo_id } = req.body
+  const { builder_id, title, description, image_url, link_type, link_target, status, approved_by, approval_notes, published_at, run_as_promo, promo_id, archived_at } = req.body
   try {
     const data: any = {}
+    // Validated here rather than left to the foreign key, which surfaces as a
+    // 500 naming nothing the caller can act on.
+    if (builder_id !== undefined) {
+      const exists = await prisma.builder.findUnique({
+        where: { id: builder_id },
+        select: { id: true },
+      })
+      if (!exists) {
+        return res.status(400).json({ error: `Unknown builder_id: ${builder_id}` })
+      }
+      data.builder_id = builder_id
+    }
     if (title !== undefined) data.title = title
     if (description !== undefined) data.description = description
     if (image_url !== undefined) data.image_url = image_url
@@ -1935,9 +2036,23 @@ router.patch('/news/:id', async (req: Request, res: Response) => {
     if (status !== undefined) data.status = status
     if (approved_by !== undefined) data.approved_by = approved_by
     if (approval_notes !== undefined) data.approval_notes = approval_notes
-    if (published_at !== undefined) data.published_at = published_at ? new Date(published_at) : null
+
+    // Precedence, stated once: an explicit published_at in the body wins, and
+    // the status-derived default applies only when the body omits the field.
+    //
+    // These two ran in the other order, with the status branch guarded by
+    // `!data.published_at` — a key the branch had not assigned yet, so the
+    // guard was always true and the line below then overwrote whatever it set.
+    // `{ status: 'published', published_at: null }` stored null on a published
+    // row.
+    if (published_at !== undefined) {
+      data.published_at = published_at ? new Date(published_at) : null
+    } else if (status === 'published') {
+      data.published_at = new Date()
+    }
     if (run_as_promo !== undefined) data.run_as_promo = run_as_promo
     if (promo_id !== undefined) data.promo_id = promo_id
+    if (archived_at !== undefined) data.archived_at = archived_at ? new Date(archived_at) : null
 
     const news = await prisma.builderNews.update({
       where: { id },
@@ -2072,18 +2187,39 @@ router.patch('/blog/:id', async (req: Request, res: Response) => {
   }
 })
 
-// DELETE /api/v1/admin/blog/:id — archive (soft delete; reversible)
+// DELETE /api/v1/admin/blog/:id — archive (soft delete) or permanent delete (?permanent=true)
 router.delete('/blog/:id', async (req: Request, res: Response) => {
   const { id } = req.params
+  const permanent = req.query.permanent === 'true'
   try {
-    await prisma.blogPost.update({
-      where: { id },
-      data: { status: 'archived' },
-    })
-    res.json({ success: true, message: 'Post archived' })
+    if (permanent) {
+      await prisma.blogPost.delete({ where: { id } })
+      res.json({ success: true, message: 'Post permanently deleted' })
+    } else {
+      await prisma.blogPost.update({
+        where: { id },
+        data: { status: 'archived' },
+      })
+      res.json({ success: true, message: 'Post archived' })
+    }
   } catch (err) {
-    console.error('[admin] blog archive failed:', err)
-    res.status(500).json({ error: 'Failed to archive blog post' })
+    console.error('[admin] blog delete failed:', err)
+    res.status(500).json({ error: 'Failed to delete blog post' })
+  }
+})
+
+// POST /api/v1/admin/blog/:id/restore — restore an archived post
+router.post('/blog/:id/restore', async (req: Request, res: Response) => {
+  const { id } = req.params
+  try {
+    const post = await prisma.blogPost.update({
+      where: { id },
+      data: { status: 'published' },
+    })
+    res.json({ success: true, post, message: 'Post restored to published' })
+  } catch (err) {
+    console.error('[admin] blog restore failed:', err)
+    res.status(500).json({ error: 'Failed to restore blog post' })
   }
 })
 

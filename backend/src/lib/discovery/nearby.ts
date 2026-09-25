@@ -74,6 +74,64 @@ const UNHELD_LANDMARKS: Array<[RegExp, string]> = [
   [/\b(?:it|tech|cyber|software|business|corporate)\s+parks?\b|\bworkplaces?\b/i, 'an office park'],
 ]
 
+/**
+ * Landmark classes we DO hold per-project distances for, in `Connectivity`.
+ * We have no coordinates for the landmarks themselves, but every project row
+ * lists its nearest metro, school, hospital, mall and airport with a road
+ * distance, so "projects near a metro" is answerable by ranking those rows.
+ */
+const HELD_LANDMARK_TYPES: Array<[RegExp, 'metro' | 'school' | 'hospital' | 'mall' | 'airport', string]> = [
+  [/\bmetro\b|\bblue\s*line\b|\baqua\s*line\b/i, 'metro', 'metro station'],
+  [/\bschools?\b/i, 'school', 'school'],
+  [/\bhospitals?\b/i, 'hospital', 'hospital'],
+  [/\bmalls?\b/i, 'mall', 'mall'],
+  [/\bairports?\b|\bjewar\b/i, 'airport', 'airport'],
+]
+
+export function heldLandmarkType(message: string): (typeof HELD_LANDMARK_TYPES)[number][1] | null {
+  for (const [re, type] of HELD_LANDMARK_TYPES) if (re.test(message)) return type
+  return null
+}
+
+/**
+ * The projects whose nearest `type` is closest, one row per project. Distances
+ * come from brochures or Google and are stated with that source; a "proposed"
+ * station is named as such because the row's own name says so.
+ */
+export async function nearestByLandmark(
+  type: (typeof HELD_LANDMARK_TYPES)[number][1],
+  limit = 8,
+): Promise<string | null> {
+  const rows = await prisma.connectivity.findMany({
+    where: { type, distance_km: { not: null } },
+    orderBy: { distance_km: 'asc' },
+    take: limit * 6,
+    select: {
+      project_id: true, name: true, distance_km: true, data_source: true, is_operational: true,
+      project: { select: { name: true, sector: true } },
+    },
+  })
+  // Operating stations first: a buyer asking to live near a metro means one
+  // they can ride today. Proposed ones still list, after, and are labelled.
+  const planned = (r: (typeof rows)[number]) => !r.is_operational || /\bproposed\b/i.test(r.name)
+  rows.sort((a, b) => Number(planned(a)) - Number(planned(b)) || (a.distance_km ?? 0) - (b.distance_km ?? 0))
+  const seen = new Set<string>()
+  const top = rows.filter((r) => !seen.has(r.project_id) && seen.add(r.project_id)).slice(0, limit)
+  if (top.length === 0) return null
+  const label = HELD_LANDMARK_TYPES.find(([, t]) => t === type)![2]
+  const lines = top.map((r) => {
+    const where = r.project.sector ? ` (${/^sector/i.test(r.project.sector) ? r.project.sector : `Sector ${r.project.sector}`})` : ''
+    const note = planned(r) ? ', not yet operational' : ''
+    return `- **${r.project.name}**${where}: ${r.distance_km} km to ${r.name}${note}`
+  })
+  const fromBrochure = top.some((r) => r.data_source === 'brochure' || r.data_source === 'estimated')
+  return (
+    `Projects we hold with the shortest road distance to a ${label}:\n\n${lines.join('\n')}\n\n` +
+    (fromBrochure ? `Some of these distances come from builder brochures rather than a map measurement, so treat them as the builder's claim until checked on a visit. ` : '') +
+    `Want me to narrow this to a budget or BHK?`
+  )
+}
+
 /** True when the message asks to be near something we hold no coordinates for. */
 export function unheldLandmark(message: string): string | null {
   for (const [re, label] of UNHELD_LANDMARKS) {
@@ -249,6 +307,15 @@ export async function nearbyCoverage(
   focusProjectId?: string | null,
 ): Promise<{ text: string } | null> {
   if (!isProximityQuestion(message)) return null
+
+  // With a project in focus, "is it near a metro?" is about that project's own
+  // connectivity rows — the ground-truth lane's connectivity handler owns it.
+  const landmarkType = heldLandmarkType(message)
+  if (landmarkType && focusProjectId) return null
+  if (landmarkType && !/\bsector\s*\d/i.test(message)) {
+    const listed = await nearestByLandmark(landmarkType)
+    if (listed) return { text: listed }
+  }
 
   const anchor = await resolveNearbyAnchor(message, focusProjectId)
 

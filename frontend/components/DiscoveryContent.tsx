@@ -1452,11 +1452,13 @@ export default function DiscoveryContent({ userId, guestToken, onSessionChange, 
         const textPayloadLower = text.toLowerCase();
         const chipIdStr = String(action.id || '').toLowerCase();
 
+        // A question that merely mentions a site visit ("what should I ask
+        // during my site visit?") is a question, not a booking request.
+        const asksToBook = /\b(book|schedule|arrange|request|plan|fix)\b[^?]*\b(site\s*visit|visit|callback|call\s*back)\b/.test(textPayloadLower)
         if (
           chipIdStr.includes('site_visit') ||
           chipIdStr.includes('callback') ||
-          textPayloadLower.includes('site visit') ||
-          textPayloadLower.includes('callback') ||
+          (asksToBook && !textPayloadLower.includes('?')) ||
           textPayloadLower.includes('schedule a visit')
         ) {
           if (lastShortlist.length > 0) {
@@ -1488,12 +1490,22 @@ export default function DiscoveryContent({ userId, guestToken, onSessionChange, 
         });
         return;
       }
+      case 'NAVIGATE': {
+        const url = String((action.payload as Record<string, unknown> | undefined)?.url ?? '');
+        // Same-origin paths only: a chip must never carry the buyer off-site.
+        if (url.startsWith('/') && !url.startsWith('//')) {
+          router.push(url);
+          return;
+        }
+        setToast({ message: "That option isn't available right now." });
+        return;
+      }
       default:
         console.error('[CHIP:EXHAUSTIVE] unhandled action type:', action.actionType);
         setToast({ message: "That option isn't available right now." });
         return;
     }
-  }, [dispatchAction, lastShortlist]);
+  }, [dispatchAction, lastShortlist, router]);
 
   const stripMarkdown = (text: string): string => {
     return text
@@ -1593,7 +1605,7 @@ export default function DiscoveryContent({ userId, guestToken, onSessionChange, 
                 type="button"
                 onClick={toggleVoiceInput}
                 disabled={isTranscribing}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer disabled:opacity-70 disabled:cursor-wait ${
+                className={`tap-target-y flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer disabled:opacity-70 disabled:cursor-wait ${
                   isListening
                     ? 'bg-red-500 text-white shadow-[0_0_12px_rgba(239,68,68,0.5)] animate-pulse'
                     : 'bg-slate-100 dark:bg-zinc-800 hover:bg-slate-200 dark:hover:bg-zinc-700 text-slate-600 dark:text-zinc-300'
@@ -1628,7 +1640,7 @@ export default function DiscoveryContent({ userId, guestToken, onSessionChange, 
                 <button
                   type="button"
                   onClick={() => abortControllerRef.current?.abort()}
-                  className="w-8 h-8 rounded-full flex items-center justify-center transition-all bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 hover:bg-zinc-800 dark:hover:bg-white shadow-xs active:scale-95 cursor-pointer"
+                  className="tap-target-y w-8 h-8 rounded-full flex items-center justify-center transition-all bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 hover:bg-zinc-800 dark:hover:bg-white shadow-xs active:scale-95 cursor-pointer"
                   title="Stop generating"
                   aria-label="Stop generating"
                 >
@@ -1643,7 +1655,7 @@ export default function DiscoveryContent({ userId, guestToken, onSessionChange, 
                     dispatchAction({ type: 'TEXT_MESSAGE', payload: { text: chatInput.trim() } })
                   }}
                   disabled={!isOnline || !chatInput.trim()}
-                  className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 text-white active:scale-95 ${
+                  className={`tap-target-y w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 text-white active:scale-95 ${
                     isOnline && chatInput.trim()
                       ? 'bg-blue-600 hover:bg-blue-500 dark:bg-blue-500 dark:hover:bg-blue-600 shadow-[0_2px_10px_rgba(37,99,235,0.35)] cursor-pointer'
                       : 'bg-slate-200 dark:bg-zinc-800 text-slate-400 dark:text-zinc-600 cursor-not-allowed opacity-50'
@@ -1835,17 +1847,19 @@ export default function DiscoveryContent({ userId, guestToken, onSessionChange, 
               {chatInputForm}
             </div>
 
-            {/* News rail — taps seed the chat with a question about the
-                project, answered from its own rows rather than from the
-                promotional copy. See components/NewsRail.tsx. */}
-            <NewsRail />
-
-            {/* Home buttons — organized by sector */}
-            <div className="w-full max-w-[800px]">
+            {/* Home buttons — prompt chips organized by sector */}
+            <div className="w-full max-w-[800px] mb-4">
               <HomeButtons
                 onButtonClick={(prompt) => dispatchAction({ type: 'TEXT_MESSAGE', payload: { text: prompt } })}
               />
             </div>
+
+            {/* News rail — taps seed the chat with a question about the
+                announcement, answered from our own rows rather than from the
+                promotional copy. The rail decides what a buyer is invited to
+                ASK about; it must never reach what the advisor RECOMMENDS.
+                See components/NewsRail.tsx and buildNewsContext(). */}
+            <NewsRail />
           </div>
         ) : (
           /* Feed layout */
@@ -1855,6 +1869,9 @@ export default function DiscoveryContent({ userId, guestToken, onSessionChange, 
               ref={chatContainerRef}
               role="log"
               aria-live="polite"
+              // Busy while a reply streams, so screen readers announce the
+              // finished answer once instead of every token.
+              aria-busy={isSubmitting}
               aria-relevant="additions text"
               aria-label="Conversation with RealtyPal advisor"
               // The session-title pill floats over this feed at z-30, sitting
@@ -1909,6 +1926,10 @@ export default function DiscoveryContent({ userId, guestToken, onSessionChange, 
 
                 {chatHistory.slice(-visibleCount).map((message, index) => {
                   const actualIndex = Math.max(0, chatHistory.length - visibleCount) + index;
+                  // Counted over the WHOLE history, not the visible window —
+                  // a long session collapses older turns, and the dossier
+                  // offer should not disappear because of how much is on screen.
+                  const aiTurnCount = chatHistory.filter(m => m.type === 'ai').length;
                   const isComparingThis = message.id === comparingMessageId;
                   return (
                     <div key={message.id} id={`msg-${message.id}`} className={`scroll-mt-6 ${isComparingThis ? 'relative z-30' : ''}`}>
@@ -1928,6 +1949,7 @@ export default function DiscoveryContent({ userId, guestToken, onSessionChange, 
                         chipPicker={chipPicker}
                         chips={(Array.isArray(message.chips) && message.chips.length > 0) ? (message.chips as any) : (actualIndex === chatHistory.length - 1 ? conversationState?.chips ?? [] : [])}
                         isRestoring={isRestoring}
+                        aiTurnCount={aiTurnCount}
                         currentIntent={currentIntent}
                         onCopy={handleCopy}
                         onDetailOpen={openDetailProject}
@@ -2030,14 +2052,14 @@ export default function DiscoveryContent({ userId, guestToken, onSessionChange, 
                   // that is left. No measurement, nothing to keep in sync,
                   // and it holds at every viewport and every dock height —
                   // including when the filter chips wrap to a third row.
-                  className={`relative shrink-0 w-full z-30 flex justify-center pb-6 md:pb-8 pt-4 pointer-events-none bg-transparent ${keyboardOpen ? 'pb-safe' : ''} ${comparingMessageId ? 'opacity-35 pointer-events-none' : ''}`}
+                  className={`relative shrink-0 w-full z-30 flex justify-center pb-[max(1.5rem,env(safe-area-inset-bottom))] md:pb-8 pt-4 pointer-events-none bg-transparent ${keyboardOpen ? 'pb-safe' : ''} ${comparingMessageId ? 'opacity-35 pointer-events-none' : ''}`}
                   style={keyboardOpen ? { paddingBottom: 'env(safe-area-inset-bottom, 8px)' } : undefined}
                 >
                   <div ref={setComposerNode} className="px-4 w-full max-w-[880px] flex flex-col justify-center pointer-events-auto gap-2">
                     {!isOnline && (
                       <div className="px-4 py-2 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 rounded-lg text-sm text-amber-800 dark:text-amber-200 flex items-center gap-2">
                         <span>●</span>
-                        <span>You&apos;re offline. Messages will be queued when you&apos;re back online.</span>
+                        <span>You&apos;re offline. Reconnect to send your message.</span>
                       </div>
                     )}
                     {chatInputForm}

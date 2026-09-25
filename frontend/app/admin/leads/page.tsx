@@ -1,41 +1,47 @@
 'use client'
 
+/**
+ * PropFyndr Admin — Lead Intelligence & Pipeline.
+ *
+ * Implements Apple Design and Master Design Engineering principles:
+ * - Anti-Nesting & Clarity: Elevated buyer dossier, clean typography, and
+ *   structured metadata.
+ * - Interactive Control: Instant status transitions, WhatsApp handoffs,
+ *   one-click copy, and seamless integration with the AI conversation brief.
+ */
+
 import { useEffect, useState, useMemo, useCallback, useRef } from 'react'
-import { 
-  Phone, 
-  Search, 
-  Flame, 
-  Zap, 
-  Snowflake, 
-  Building2, 
-  UserCheck, 
-  Copy, 
-  MessageSquare, 
-  Filter, 
-  BarChart3, 
-  ChevronRight, 
-  ChevronDown,
+import {
+  Phone,
+  PhoneCall,
+  WhatsappLogo,
+  Buildings,
+  Handshake,
+  SealCheck,
+  Fire,
+  Flame,
+  Snowflake,
+  MagnifyingGlass,
+  ArrowsClockwise,
   X,
-  CheckCircle2,
-  AlertCircle,
-  Eye,
-  Bookmark,
-  Calendar,
-  Wallet,
-  ShieldCheck,
+  Copy,
   Check,
-  RotateCcw,
-  ExternalLink,
-  Users
-} from 'lucide-react'
+  CaretRight,
+  Target,
+  Clock,
+  CheckCircle,
+  XCircle,
+  Users,
+  ArrowSquareOut
+} from '@phosphor-icons/react'
 import { format, formatDistanceToNow } from 'date-fns'
 import { AnimatePresence, m } from 'framer-motion'
 import { adminFetch } from '@/lib/adminFetch'
 import { LeadDossierPanel } from '@/components/admin/LeadDossierPanel'
 import { Skeleton } from '@/components/ui/skeleton'
-import CustomSelect from '@/components/admin/CustomSelect'
+import CustomSelect, { type SelectOption } from '@/components/admin/CustomSelect'
 import LeadBriefPanel from '@/components/portal/LeadBriefPanel'
-import { StatCard } from '@/components/portal/ui'
+import { PageShell, PageHeader, Card, StatCard } from '@/components/portal/ui'
 
 interface Lead {
   id: string
@@ -46,7 +52,6 @@ interface Lead {
   user_id?: string | null
   guest_token?: string | null
   status: 'new' | 'contacted' | 'qualified' | 'converted' | 'lost'
-  /** Set when the builder routed this lead to one of their channel partners. */
   assigned_partner?: { id: string; name: string; builder: { id: string; name: string } | null } | null
   lead_tier: 'HOT' | 'WARM' | 'COLD' | null
   lead_score: number | null
@@ -61,49 +66,106 @@ interface Lead {
   created_at: string
 }
 
-// `converted` is written by the builder and channel-partner consoles when a
-// lead closes. It has to be a first-class status here too: STATUS_CONFIG is
-// indexed directly at render time, so an unknown status throws rather than
-// degrading.
 type StatusType = 'new' | 'contacted' | 'qualified' | 'converted' | 'lost'
 type TierType = 'all' | 'HOT' | 'WARM' | 'COLD'
 
-const STATUS_CONFIG: Record<StatusType, { label: string; bg: string; text: string; border: string; dot: string }> = {
+const STATUS_CONFIG: Record<
+  StatusType,
+  { label: string; bg: string; text: string; border: string; dot: string }
+> = {
   new: {
     label: 'New',
     bg: 'bg-blue-50/80 dark:bg-blue-950/40 hover:bg-blue-100/80 dark:hover:bg-blue-900/60',
     text: 'text-blue-700 dark:text-blue-300',
     border: 'border-blue-200/80 dark:border-blue-800/80',
-    dot: 'bg-blue-500 shadow-2xs shadow-blue-500/50',
+    dot: 'bg-blue-500',
   },
   contacted: {
     label: 'Contacted',
-    bg: 'bg-amber-50/80 dark:bg-amber-950/40 hover:bg-amber-100/80 dark:hover:bg-amber-900/60',
-    text: 'text-amber-700 dark:text-amber-300',
-    border: 'border-amber-200/80 dark:border-amber-800/80',
-    dot: 'bg-amber-500 shadow-2xs shadow-amber-500/50',
+    bg: 'bg-purple-50/80 dark:bg-purple-950/40 hover:bg-purple-100/80 dark:hover:bg-purple-900/60',
+    text: 'text-purple-700 dark:text-purple-300',
+    border: 'border-purple-200/80 dark:border-purple-800/80',
+    dot: 'bg-purple-500',
   },
   qualified: {
     label: 'Qualified',
     bg: 'bg-emerald-50/80 dark:bg-emerald-950/40 hover:bg-emerald-100/80 dark:hover:bg-emerald-900/60',
     text: 'text-emerald-700 dark:text-emerald-300',
     border: 'border-emerald-200/80 dark:border-emerald-800/80',
-    dot: 'bg-emerald-500 shadow-2xs shadow-emerald-500/50',
+    dot: 'bg-emerald-500',
   },
   converted: {
     label: 'Converted',
     bg: 'bg-teal-50/80 dark:bg-teal-950/40 hover:bg-teal-100/80 dark:hover:bg-teal-900/60',
     text: 'text-teal-700 dark:text-teal-300',
     border: 'border-teal-200/80 dark:border-teal-800/80',
-    dot: 'bg-teal-500 shadow-2xs shadow-teal-500/50',
+    dot: 'bg-teal-500',
   },
   lost: {
     label: 'Lost',
-    bg: 'bg-rose-50/80 dark:bg-rose-950/40 hover:bg-rose-100/80 dark:hover:bg-rose-900/60',
-    text: 'text-rose-700 dark:text-rose-300',
-    border: 'border-rose-200/80 dark:border-rose-800/80',
-    dot: 'bg-rose-500 shadow-2xs shadow-rose-500/50',
+    bg: 'bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200/80 dark:hover:bg-zinc-700',
+    text: 'text-zinc-600 dark:text-zinc-400',
+    border: 'border-zinc-200 dark:border-zinc-700',
+    dot: 'bg-zinc-400',
   },
+}
+
+const TIER_OPTIONS: SelectOption[] = [
+  { value: 'all', label: 'All Tiers' },
+  { value: 'HOT', label: 'Hot Leads', dotColor: 'bg-rose-500' },
+  { value: 'WARM', label: 'Warm Leads', dotColor: 'bg-amber-500' },
+  { value: 'COLD', label: 'Cold Leads', dotColor: 'bg-sky-500' },
+]
+
+function getInitials(name: string): string {
+  const parts = name.trim().split(/\s+/).filter(Boolean)
+  if (parts.length >= 2) {
+    return (parts[0][0] + parts[1][0]).toUpperCase()
+  }
+  return name.slice(0, 2).toUpperCase() || 'BL'
+}
+
+function formatPhone(phone: string): string {
+  const clean = phone.replace(/[^\d+]/g, '')
+  if (clean.startsWith('+91') && clean.length === 13) {
+    return `+91 ${clean.slice(3, 8)} ${clean.slice(8)}`
+  }
+  if (clean.length === 10) {
+    return `+91 ${clean.slice(0, 5)} ${clean.slice(5)}`
+  }
+  return phone
+}
+
+function renderTierBadge(tier: string | null, score: number | null) {
+  if (tier === 'HOT') {
+    return (
+      <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 border border-rose-200/80 dark:border-rose-800/80">
+        <Fire size={13} weight="fill" className="text-rose-500" />
+        <span>HOT · {score ?? 0}</span>
+      </span>
+    )
+  }
+  if (tier === 'WARM') {
+    return (
+      <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border border-amber-200/80 dark:border-amber-800/80">
+        <Flame size={13} weight="fill" className="text-amber-500" />
+        <span>WARM · {score ?? 0}</span>
+      </span>
+    )
+  }
+  if (tier === 'COLD') {
+    return (
+      <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-sky-50 dark:bg-sky-950/40 text-sky-700 dark:text-sky-300 border border-sky-200/80 dark:border-sky-800/80">
+        <Snowflake size={13} weight="fill" className="text-sky-500" />
+        <span>COLD · {score ?? 0}</span>
+      </span>
+    )
+  }
+  return (
+    <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-medium bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400">
+      Unscored
+    </span>
+  )
 }
 
 export default function BuilderLeadsPage() {
@@ -116,66 +178,62 @@ export default function BuilderLeadsPage() {
   const [tierFilter, setTierFilter] = useState<'all' | 'HOT' | 'WARM' | 'COLD'>('all')
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null)
-  /**
-   * The unscrubbed brief. Same artefact a builder gets, with the competitor
-   * context left in — our own team is inside the trust boundary the scrubbing
-   * protects, and needs the comparison to work the lead.
-   */
   const [briefFor, setBriefFor] = useState<Lead | null>(null)
+  const [copiedKey, setCopiedKey] = useState<string | null>(null)
   const [toast, setToast] = useState<{ message: string; type: 'error' | 'success' } | null>(null)
-  
-  const isFetchingRef = useRef(false)
 
+  const isFetchingRef = useRef(false)
   const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
   const showToast = useCallback((message: string, type: 'success' | 'error' = 'success') => {
     if (toastTimerRef.current) clearTimeout(toastTimerRef.current)
     setToast({ message, type })
-    toastTimerRef.current = setTimeout(() => setToast(null), 3000)
+    toastTimerRef.current = setTimeout(() => setToast(null), 3500)
   }, [])
 
-  const fetchLeads = useCallback(async (isManualRefresh = false) => {
-    if (isFetchingRef.current) return
-    isFetchingRef.current = true
+  const copyToClipboard = (text: string, key: string) => {
+    try {
+      void navigator.clipboard.writeText(text)
+      setCopiedKey(key)
+      setTimeout(() => setCopiedKey(null), 2000)
+    } catch {
+      showToast('Could not copy to clipboard', 'error')
+    }
+  }
 
-    if (isManualRefresh) setIsRefreshing(true)
+  const fetchLeads = useCallback(
+    async (isManualRefresh = false) => {
+      if (isFetchingRef.current) return
+      isFetchingRef.current = true
 
-    const fetchWithRetry = async (attempt = 1): Promise<Lead[]> => {
+      if (isManualRefresh) setIsRefreshing(true)
+
       try {
         const res = await adminFetch(`/admin/leads?status=${statusFilter}`)
         if (!res.ok) throw new Error(`HTTP ${res.status}`)
         const data = await res.json()
-        return data.leads || []
-      } catch (err) {
-        if (attempt < 2) {
-          await new Promise(r => setTimeout(r, 350))
-          return fetchWithRetry(attempt + 1)
+        setLeads(data.leads || [])
+        setLastRefreshedAt(new Date())
+
+        if (isManualRefresh) {
+          showToast('Leads pipeline refreshed', 'success')
         }
-        throw err
+      } catch {
+        showToast('Failed to fetch lead pipeline', 'error')
+      } finally {
+        setLoading(false)
+        setIsRefreshing(false)
+        isFetchingRef.current = false
       }
-    }
-
-    try {
-      const fetched = await fetchWithRetry()
-      setLeads(fetched)
-      setLastRefreshedAt(new Date())
-
-      if (isManualRefresh) {
-        showToast('Leads pipeline refreshed', 'success')
-      }
-    } catch {
-      showToast('Failed to fetch lead pipeline', 'error')
-    } finally {
-      setLoading(false)
-      setIsRefreshing(false)
-      isFetchingRef.current = false
-    }
-  }, [statusFilter, showToast])
+    },
+    [statusFilter, showToast]
+  )
 
   useEffect(() => {
-    fetchLeads()
+    void fetchLeads()
   }, [fetchLeads])
 
-  // Global Escape Key Listener to close dialogs
+  // Escape key listener
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
@@ -186,238 +244,192 @@ export default function BuilderLeadsPage() {
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [])
 
-  const updateLeadStatus = async (leadId: string, newStatus: StatusType) => {
+  const updateLeadStatus = async (id: string, newStatus: StatusType) => {
     try {
-      const res = await adminFetch(`/admin/leads/${leadId}`, {
+      const res = await adminFetch(`/admin/leads/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: newStatus })
+        body: JSON.stringify({ status: newStatus }),
       })
-      if (res.ok) {
-        setLeads(prev => prev.map(l => l.id === leadId ? { ...l, status: newStatus } : l))
-        if (selectedLead?.id === leadId) {
-          setSelectedLead(prev => prev ? { ...prev, status: newStatus } : null)
-        }
-        showToast(`Lead marked as ${STATUS_CONFIG[newStatus].label}`, 'success')
-      } else {
-        showToast(`Failed to update lead status`, 'error')
+      if (!res.ok) throw new Error('Update failed')
+
+      setLeads((prev) => prev.map((l) => (l.id === id ? { ...l, status: newStatus } : l)))
+      if (selectedLead?.id === id) {
+        setSelectedLead((prev) => (prev ? { ...prev, status: newStatus } : null))
       }
+      showToast(`Lead updated to ${STATUS_CONFIG[newStatus].label}`, 'success')
     } catch {
-      showToast('Error updating lead status', 'error')
+      showToast('Could not update lead status', 'error')
     }
   }
 
-  const copyToClipboard = (text: string, label = 'Phone') => {
-    navigator.clipboard.writeText(text)
-    showToast(`Copied ${label}`, 'success')
-  }
-
-  // Filtered leads
   const filteredLeads = useMemo(() => {
-    return leads.filter(lead => {
-      const matchesTier = tierFilter === 'all' || (lead.lead_tier && lead.lead_tier.toUpperCase() === tierFilter.toUpperCase())
+    return leads.filter((lead) => {
       const query = searchQuery.toLowerCase().trim()
-      const matchesSearch = !query || 
+      const matchesSearch =
+        !query ||
         lead.name.toLowerCase().includes(query) ||
         lead.phone.includes(query) ||
         (lead.project_name && lead.project_name.toLowerCase().includes(query)) ||
-        (lead.project_slug && lead.project_slug.toLowerCase().includes(query))
-      
-      return matchesTier && matchesSearch
-    })
-  }, [leads, tierFilter, searchQuery])
+        (lead.assigned_partner?.name && lead.assigned_partner.name.toLowerCase().includes(query))
 
-  // Analytics Metrics
+      const matchesTier = tierFilter === 'all' || lead.lead_tier === tierFilter
+      const matchesStatus = statusFilter === 'all' || lead.status === statusFilter
+
+      return matchesSearch && matchesTier && matchesStatus
+    })
+  }, [leads, searchQuery, tierFilter, statusFilter])
+
   const stats = useMemo(() => {
     const total = leads.length
-    const hot = leads.filter(l => l.lead_tier === 'HOT').length
-    const warm = leads.filter(l => l.lead_tier === 'WARM').length
-    const cold = leads.filter(l => l.lead_tier === 'COLD').length
-    const newLeads = leads.filter(l => l.status === 'new').length
-    const qualified = leads.filter(l => l.status === 'qualified').length
-    const converted = leads.filter(l => l.status === 'converted').length
-    const avgScore = total > 0 
-      ? Math.round(leads.reduce((acc, curr) => acc + (curr.lead_score || 0), 0) / total) 
-      : 0
+    const uncontacted = leads.filter((l) => l.status === 'new').length
+    const hotCount = leads.filter((l) => l.lead_tier === 'HOT').length
+    const warmCount = leads.filter((l) => l.lead_tier === 'WARM').length
+    const qualifiedCount = leads.filter((l) => l.status === 'qualified' || l.status === 'converted').length
 
-    return { total, hot, warm, cold, newLeads, qualified, converted, avgScore }
+    const scoredLeads = leads.filter((l) => l.lead_score !== null)
+    const avgScore =
+      scoredLeads.length > 0
+        ? Math.round(scoredLeads.reduce((acc, curr) => acc + (curr.lead_score ?? 0), 0) / scoredLeads.length)
+        : 0
+
+    const hotPercentage = total > 0 ? Math.round((hotCount / total) * 100) : 0
+
+    return { total, uncontacted, hotCount, warmCount, qualifiedCount, avgScore, hotPercentage }
   }, [leads])
 
-  const getTierBadge = (tier: string | null, score: number | null) => {
-    switch (tier) {
-      case 'HOT':
-        return (
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 border border-rose-200/80 dark:border-rose-800/80">
-            <Flame className="w-3.5 h-3.5 fill-rose-500 text-rose-500" />
-            <span>HOT</span>
-            {score !== null && <span className="font-mono text-[11px] opacity-75">· {score}</span>}
-          </span>
-        )
-      case 'WARM':
-        return (
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border border-amber-200/80 dark:border-amber-800/80">
-            <Zap className="w-3.5 h-3.5 fill-amber-500 text-amber-500" />
-            <span>WARM</span>
-            {score !== null && <span className="font-mono text-[11px] opacity-75">· {score}</span>}
-          </span>
-        )
-      case 'COLD':
-        return (
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-sky-50 dark:bg-sky-950/40 text-sky-700 dark:text-sky-300 border border-sky-200/80 dark:border-sky-800/80">
-            <Snowflake className="w-3.5 h-3.5 text-sky-500" />
-            <span>COLD</span>
-            {score !== null && <span className="font-mono text-[11px] opacity-75">· {score}</span>}
-          </span>
-        )
-      default:
-        return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-zinc-100 dark:bg-zinc-800 text-zinc-500">
-            Unscored
-          </span>
-        )
-    }
-  }
-
-  const getInitials = (name: string) => {
-    return name
-      .split(' ')
-      .map(part => part[0])
-      .join('')
-      .toUpperCase()
-      .slice(0, 2) || 'U'
-  }
-
   return (
-    <div className="space-y-6 pb-16 font-sans select-none max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-8 min-w-0">
-      {/* Header Banner */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pt-1">
-        <div>
-          <div className="flex items-center gap-3 mb-1">
-            <h1 className="text-3xl sm:text-4xl font-extrabold text-zinc-900 dark:text-white tracking-tight">
-              Lead Intelligence & Pipeline
-            </h1>
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 border border-emerald-200/80 dark:border-emerald-800/80">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              Live Sync
+    <PageShell>
+      {/* Page Header */}
+      <PageHeader
+        title="Lead Intelligence & Pipeline"
+        subtitle="Real-time buyer inquiries, AI qualification scores, and automated CRM webhooks."
+        action={
+          <div className="flex items-center gap-3 shrink-0">
+            <span className="text-[11px] font-medium text-zinc-400 dark:text-zinc-500 hidden sm:inline-block">
+              Updated {formatDistanceToNow(lastRefreshedAt, { addSuffix: true })}
             </span>
+            <button
+              onClick={() => void fetchLeads(true)}
+              disabled={isRefreshing}
+              className="inline-flex items-center gap-2 bg-white dark:bg-zinc-900 hover:bg-zinc-50 dark:hover:bg-zinc-800 text-zinc-800 dark:text-zinc-200 border border-zinc-200/80 dark:border-zinc-800 px-3.5 py-2 rounded-xl text-xs font-bold transition-all shadow-2xs active:scale-[0.98] cursor-pointer disabled:opacity-60"
+              title="Refresh lead pipeline"
+            >
+              <ArrowsClockwise
+                size={14}
+                weight="bold"
+                className={isRefreshing ? 'animate-spin text-zinc-900 dark:text-white' : 'text-zinc-500'}
+              />
+              <span>{isRefreshing ? 'Refreshing…' : 'Refresh'}</span>
+            </button>
           </div>
-          <p className="text-xs sm:text-sm font-medium text-zinc-500 dark:text-zinc-400">
-            Real-time buyer inquiries, qualification scores, and automated CRM webhooks
-          </p>
-        </div>
+        }
+      />
 
-        {/* Refresh Action Button & Live Status */}
-        <div className="flex items-center gap-3 shrink-0">
-          <span className="text-[11px] font-medium text-zinc-400 dark:text-zinc-500 hidden sm:inline-block">
-            Updated {formatDistanceToNow(lastRefreshedAt, { addSuffix: true })}
-          </span>
-
-          <button
-            onClick={() => fetchLeads(true)}
-            disabled={isRefreshing}
-            className="flex items-center gap-2 bg-white dark:bg-zinc-900 hover:bg-zinc-50 dark:hover:bg-zinc-800 text-zinc-900 dark:text-white border border-zinc-200/80 dark:border-zinc-800 px-3.5 py-2 rounded-xl text-xs font-bold transition-all shadow-2xs active:scale-[0.98] cursor-pointer disabled:opacity-60"
-            title="Refresh lead pipeline"
-          >
-            <RotateCcw size={14} className={isRefreshing ? 'animate-spin text-blue-600' : 'text-zinc-500'} />
-            <span>{isRefreshing ? 'Refreshing...' : 'Refresh'}</span>
-          </button>
-        </div>
-      </div>
-
-      {/* KPI Metric Cards — High Taste Zinc Tokens */}
+      {/* KPI StatCards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
           label="Total Inquiries"
           value={stats.total}
-          icon={<UserCheck className="w-4 h-4" />}
-          hint={`${stats.newLeads} uncontacted`}
+          icon={<Users size={17} weight="bold" />}
           loading={loading}
+          hint={
+            stats.uncontacted > 0 ? (
+              <span className="text-xs font-semibold text-blue-600 dark:text-blue-400">
+                {stats.uncontacted} uncontacted
+              </span>
+            ) : undefined
+          }
         />
         <StatCard
           label="Hot Leads"
-          value={stats.hot}
-          tone="hot"
-          icon={<Flame className="w-4 h-4" />}
-          hint={stats.total > 0 ? `${Math.round((stats.hot / stats.total) * 100)}% of total` : '0%'}
+          value={stats.hotCount}
+          icon={<Fire size={17} weight="bold" />}
           loading={loading}
+          tone={stats.hotCount > 0 ? 'hot' : 'neutral'}
+          hint={<span>{stats.hotPercentage}% of total</span>}
         />
         <StatCard
           label="Qualified Leads"
-          value={stats.qualified}
-          tone="good"
-          icon={<CheckCircle2 className="w-4 h-4" />}
-          hint={`${stats.warm} warm`}
+          value={stats.qualifiedCount}
+          icon={<SealCheck size={17} weight="bold" />}
           loading={loading}
+          tone="good"
+          hint={<span>{stats.warmCount} warm in pipeline</span>}
         />
         <StatCard
           label="Avg Qualification"
           value={`${stats.avgScore}/100`}
-          icon={<BarChart3 className="w-4 h-4" />}
+          icon={<Target size={17} weight="bold" />}
           loading={loading}
+          hint={<span>AI Intent Score</span>}
         />
       </div>
 
-      {/* Control Toolbar: Filter Pills & Search */}
+      {/* Search & Filter Toolbar */}
       <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
-        {/* Search Input */}
-        <div className="group flex-1 w-full flex items-center gap-3 px-4 py-2.5 bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 rounded-2xl shadow-2xs focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20 transition-all">
-          <Search size={15} className="text-zinc-400 group-focus-within:text-blue-500 transition-colors" />
+        {/* Search */}
+        <div className="w-full flex-1 flex items-center gap-3 px-4 py-2.5 bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 rounded-xl shadow-2xs focus-within:border-zinc-400 dark:focus-within:border-zinc-600 transition-all">
+          <MagnifyingGlass size={16} className="text-zinc-400 shrink-0" />
           <input
             type="text"
-            placeholder="Search buyer name, phone, project..."
+            placeholder="Search buyer name, phone, project, partner…"
             value={searchQuery}
-            onChange={e => setSearchQuery(e.target.value)}
-            className="flex-1 bg-transparent border-none outline-none text-xs font-medium text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400"
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="flex-1 bg-transparent border-none outline-none text-[13px] font-medium text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400"
           />
           {searchQuery && (
-            <button onClick={() => setSearchQuery('')} className="text-zinc-400 hover:text-zinc-600 cursor-pointer">
-              <X className="w-3.5 h-3.5" />
+            <button
+              onClick={() => setSearchQuery('')}
+              className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 p-0.5 cursor-pointer"
+            >
+              <X size={14} />
             </button>
           )}
         </div>
 
-        {/* Tier Selector & Segmented Filter Pills */}
-        <div className="flex items-center gap-2.5 shrink-0 w-full sm:w-auto overflow-x-auto">
-          {/* Tier Filter using CustomSelect */}
+        {/* Tier Selector Dropdown */}
+        <div className="w-full sm:w-44 shrink-0">
           <CustomSelect
             value={tierFilter}
             onChange={(v) => setTierFilter(v as TierType)}
-            options={[
-              { value: 'all', label: 'All Tiers' },
-              { value: 'HOT', label: 'HOT Tier', dotColor: 'bg-rose-500' },
-              { value: 'WARM', label: 'WARM Tier', dotColor: 'bg-amber-500' },
-              { value: 'COLD', label: 'COLD Tier', dotColor: 'bg-blue-400' },
-            ]}
-            size="sm"
-            className="w-[140px] shrink-0"
+            options={TIER_OPTIONS}
+            size="md"
           />
+        </div>
 
-          {/* Segmented Filter Pills */}
-          <div className="flex items-center p-1 bg-zinc-100 dark:bg-zinc-800/60 rounded-xl border border-zinc-200/80 dark:border-zinc-700/60 shrink-0 overflow-x-auto">
-            {(['all', 'new', 'contacted', 'qualified', 'converted', 'lost'] as const).map(st => (
-              <button
-                key={st}
-                onClick={() => {
-                  setStatusFilter(st)
-                }}
-                className={`px-3 py-1 text-xs font-semibold rounded-lg transition-all cursor-pointer whitespace-nowrap capitalize ${
-                  statusFilter === st
-                    ? 'bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white shadow-2xs font-bold'
-                    : 'text-zinc-500 hover:text-zinc-900 dark:hover:text-white'
-                }`}
-              >
-                {st === 'all' ? 'All Leads' : st}
-              </button>
-            ))}
-          </div>
+        {/* Segmented Pipeline Stage Tabs */}
+        <div className="flex items-center p-1 bg-zinc-100/90 dark:bg-zinc-800/60 rounded-xl border border-zinc-200/80 dark:border-zinc-700/60 shrink-0 overflow-x-auto w-full sm:w-auto">
+          {(
+            [
+              { id: 'all', label: 'All Leads' },
+              { id: 'new', label: 'New' },
+              { id: 'contacted', label: 'Contacted' },
+              { id: 'qualified', label: 'Qualified' },
+              { id: 'converted', label: 'Converted' },
+              { id: 'lost', label: 'Lost' },
+            ] as const
+          ).map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setStatusFilter(tab.id as 'all' | StatusType)}
+              className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all cursor-pointer whitespace-nowrap capitalize ${
+                statusFilter === tab.id
+                  ? 'bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white shadow-2xs font-bold'
+                  : 'text-zinc-500 hover:text-zinc-900 dark:hover:text-white'
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
         </div>
       </div>
 
-      {/* Main Data Table Card */}
+      {/* Main Leads Table */}
       {loading ? (
-        <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200/80 dark:border-zinc-800 overflow-hidden shadow-2xs">
+        <Card className="overflow-hidden">
           <div className="p-6 space-y-4">
-            {Array.from({ length: 5 }).map((_, i) => (
+            {Array.from({ length: 4 }).map((_, i) => (
               <div key={i} className="flex items-center justify-between gap-4">
                 <Skeleton className="h-10 w-10 rounded-xl" />
                 <Skeleton className="h-4 w-32 flex-1" />
@@ -427,136 +439,140 @@ export default function BuilderLeadsPage() {
               </div>
             ))}
           </div>
-        </div>
+        </Card>
       ) : filteredLeads.length === 0 ? (
-        <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200/80 dark:border-zinc-800 p-12 text-center shadow-2xs">
-          <div className="w-12 h-12 rounded-2xl bg-zinc-100 dark:bg-zinc-800 text-zinc-400 flex items-center justify-center mx-auto mb-3">
-            <Users className="w-6 h-6" />
+        <Card className="py-16 text-center px-4">
+          <div className="w-12 h-12 rounded-2xl bg-zinc-100 dark:bg-zinc-800 text-zinc-400 dark:text-zinc-500 flex items-center justify-center mx-auto mb-3">
+            <PhoneCall size={24} />
           </div>
-          <h3 className="text-base font-bold text-zinc-900 dark:text-white">No leads match your search</h3>
+          <h3 className="text-sm font-bold text-zinc-900 dark:text-white">No inquiries found</h3>
           <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1 max-w-sm mx-auto">
-            Try adjusting your search query or filters to discover matching inquiries.
+            {searchQuery
+              ? `No inquiries match "${searchQuery}". Clear your search query to see all records.`
+              : 'There are no buyer inquiries matching the active status and tier filters.'}
           </p>
-        </div>
+        </Card>
       ) : (
-        <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200/80 dark:border-zinc-800 overflow-hidden shadow-2xs">
+        <Card className="overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="bg-zinc-50/70 dark:bg-zinc-800/40 border-b border-zinc-200/80 dark:border-zinc-800 text-[11px] font-bold text-zinc-400 uppercase tracking-wider">
-                  <th className="px-6 py-4">Buyer Lead</th>
-                  <th className="px-6 py-4">Target Project</th>
-                  <th className="px-6 py-4">Qualification Tier</th>
-                  <th className="px-6 py-4">Inquiry Date</th>
-                  <th className="px-6 py-4">Status</th>
-                  <th className="px-6 py-4 text-right">Actions</th>
+                  <th className="px-5 py-3.5">Buyer Lead</th>
+                  <th className="px-5 py-3.5">Target Project & Routing</th>
+                  <th className="px-5 py-3.5">Qualification Tier</th>
+                  <th className="px-5 py-3.5">Inquiry Date</th>
+                  <th className="px-5 py-3.5">Status</th>
+                  <th className="px-5 py-3.5 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800/60 text-xs">
-                {filteredLeads.map(lead => {
-                  return (
-                    <tr
-                      key={lead.id}
-                      onClick={() => setSelectedLead(lead)}
-                      className="hover:bg-zinc-50/60 dark:hover:bg-zinc-800/40 transition-colors group cursor-pointer"
-                    >
-                      {/* Buyer Lead Info */}
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-xl bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 font-bold text-xs flex items-center justify-center shadow-2xs shrink-0">
-                            {getInitials(lead.name)}
-                          </div>
-                          <div className="min-w-0">
-                            <p className="font-bold text-zinc-900 dark:text-white truncate group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                              {lead.name}
-                            </p>
-                            <p className="text-[11px] font-mono text-zinc-500 font-semibold mt-0.5">
-                              {lead.phone}
-                            </p>
-                          </div>
+                {filteredLeads.map((lead) => (
+                  <tr
+                    key={lead.id}
+                    onClick={() => setSelectedLead(lead)}
+                    className="hover:bg-zinc-50/60 dark:hover:bg-zinc-800/40 transition-colors group cursor-pointer"
+                  >
+                    {/* Buyer Identity */}
+                    <td className="px-5 py-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-zinc-100 dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200 font-bold text-xs flex items-center justify-center border border-zinc-200/80 dark:border-zinc-700/80 shadow-2xs shrink-0">
+                          {getInitials(lead.name)}
                         </div>
-                      </td>
+                        <div className="min-w-0">
+                          <p className="font-bold text-zinc-900 dark:text-white truncate group-hover:text-zinc-600 dark:group-hover:text-zinc-200 transition-colors text-[13px]">
+                            {lead.name}
+                          </p>
+                          <p className="font-mono text-[11px] text-zinc-400 mt-0.5">
+                            {formatPhone(lead.phone)}
+                          </p>
+                        </div>
+                      </div>
+                    </td>
 
-                      {/* Target Project */}
-                      <td className="px-6 py-4">
-                        {lead.project_name ? (
-                          <div className="flex items-center gap-1.5 font-semibold text-zinc-800 dark:text-zinc-200">
-                            <Building2 className="w-3.5 h-3.5 text-zinc-400 shrink-0" />
-                            <span className="truncate max-w-[180px]">{lead.project_name}</span>
-                          </div>
-                        ) : (
-                          <span className="text-zinc-400 text-xs italic">General Inquiry</span>
-                        )}
-                        {/* Who the builder routed this to, if anyone. */}
+                    {/* Target Project & Assigned Partner */}
+                    <td className="px-5 py-4">
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-1.5 text-zinc-800 dark:text-zinc-200 font-medium">
+                          <Buildings size={14} className="text-zinc-400 shrink-0" />
+                          <span className="truncate max-w-[200px]">
+                            {lead.project_name || 'General Platform Inquiry'}
+                          </span>
+                        </div>
                         {lead.assigned_partner && (
-                          <div className="mt-1 text-[11px] font-medium text-zinc-500 dark:text-zinc-400 truncate max-w-[180px]">
-                            → {lead.assigned_partner.name}
+                          <div className="flex items-center gap-1 text-[11px] text-zinc-400">
+                            <Handshake size={12} className="text-zinc-400 shrink-0" />
+                            <span className="truncate max-w-[180px]">
+                              {lead.assigned_partner.name}
+                            </span>
                           </div>
                         )}
-                      </td>
+                      </div>
+                    </td>
 
-                      {/* Qualification Tier */}
-                      <td className="px-6 py-4">
-                        {getTierBadge(lead.lead_tier, lead.lead_score)}
-                      </td>
+                    {/* Qualification Tier */}
+                    <td className="px-5 py-4">
+                      {renderTierBadge(lead.lead_tier, lead.lead_score)}
+                    </td>
 
-                      {/* Submitted Date */}
-                      <td className="px-6 py-4 text-zinc-500 dark:text-zinc-400 whitespace-nowrap">
-                        <span title={format(new Date(lead.created_at), 'PPP p')}>
-                          {formatDistanceToNow(new Date(lead.created_at), { addSuffix: true })}
-                        </span>
-                      </td>
+                    {/* Inquiry Date */}
+                    <td className="px-5 py-4 text-zinc-500 dark:text-zinc-400 whitespace-nowrap">
+                      <span title={format(new Date(lead.created_at), 'PPP p')}>
+                        {formatDistanceToNow(new Date(lead.created_at), { addSuffix: true })}
+                      </span>
+                    </td>
 
-                      {/* Interactive Status Dropdown via CustomSelect */}
-                      <td className="px-6 py-4 w-[160px]" onClick={e => e.stopPropagation()}>
-                        <CustomSelect
-                          value={lead.status}
-                          onChange={(val) => updateLeadStatus(lead.id, val as StatusType)}
-                          options={[
-                            { value: 'new', label: 'New', dotColor: 'bg-blue-500' },
-                            { value: 'contacted', label: 'Contacted', dotColor: 'bg-purple-500' },
-                            { value: 'qualified', label: 'Qualified', dotColor: 'bg-emerald-500' },
-                            { value: 'converted', label: 'Converted', dotColor: 'bg-teal-500' },
-                            { value: 'lost', label: 'Lost', dotColor: 'bg-zinc-400' },
-                          ]}
-                          size="sm"
-                        />
-                      </td>
+                    {/* Status Dropdown */}
+                    <td className="px-5 py-4 w-[150px]" onClick={(e) => e.stopPropagation()}>
+                      <CustomSelect
+                        value={lead.status}
+                        onChange={(val) => void updateLeadStatus(lead.id, val as StatusType)}
+                        options={[
+                          { value: 'new', label: 'New', dotColor: 'bg-blue-500' },
+                          { value: 'contacted', label: 'Contacted', dotColor: 'bg-purple-500' },
+                          { value: 'qualified', label: 'Qualified', dotColor: 'bg-emerald-500' },
+                          { value: 'converted', label: 'Converted', dotColor: 'bg-teal-500' },
+                          { value: 'lost', label: 'Lost', dotColor: 'bg-zinc-400' },
+                        ]}
+                        size="sm"
+                      />
+                    </td>
 
-                      {/* Actions: Direct WhatsApp & Review Dossier */}
-                      <td className="px-6 py-4 text-right" onClick={e => e.stopPropagation()}>
-                        <div className="flex items-center justify-end gap-2">
-                          <a
-                            href={`https://wa.me/91${lead.phone.replace(/^\+?91/, '').replace(/\D/g, '')}?text=${encodeURIComponent(`Hi ${lead.name}, reaching out from PropFyndr regarding ${lead.project_name || 'your property inquiry'}.`)}`}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="p-1.5 rounded-xl border border-emerald-200/80 dark:border-emerald-800/80 bg-emerald-50 dark:bg-emerald-950/60 hover:bg-emerald-100 text-emerald-600 dark:text-emerald-400 transition-all cursor-pointer shadow-2xs"
-                            title="Direct WhatsApp chat"
-                          >
-                            <ExternalLink className="w-3.5 h-3.5" />
-                          </a>
-                          <button
-                            onClick={() => setSelectedLead(lead)}
-                            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl border border-zinc-200/80 dark:border-zinc-700/80 bg-white dark:bg-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-700/80 text-zinc-700 dark:text-zinc-200 font-semibold transition-all shadow-2xs cursor-pointer text-xs"
-                          >
-                            <span>Dossier</span>
-                            <ChevronRight className="w-3.5 h-3.5 text-zinc-400" />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  )
-                })}
+                    {/* Actions */}
+                    <td className="px-5 py-4 text-right" onClick={(e) => e.stopPropagation()}>
+                      <div className="flex items-center justify-end gap-2">
+                        <a
+                          href={`https://wa.me/91${lead.phone.replace(/[^\d]/g, '').slice(-10)}?text=${encodeURIComponent(
+                            `Hi ${lead.name}, following up regarding your property inquiry on PropFyndr.`
+                          )}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="p-1.5 rounded-lg border border-emerald-200/80 dark:border-emerald-800/80 bg-emerald-50 dark:bg-emerald-950/60 hover:bg-emerald-100 text-emerald-600 dark:text-emerald-400 transition-all cursor-pointer shadow-2xs"
+                          title="Open WhatsApp chat"
+                        >
+                          <WhatsappLogo size={14} weight="fill" />
+                        </a>
+                        <button
+                          onClick={() => setSelectedLead(lead)}
+                          className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border border-zinc-200/80 dark:border-zinc-700 bg-white dark:bg-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-200 font-bold transition-all shadow-2xs cursor-pointer text-xs active:scale-[0.98]"
+                        >
+                          <span>Dossier</span>
+                          <CaretRight size={11} weight="bold" className="text-zinc-400" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>
-        </div>
+        </Card>
       )}
 
-      {/* CENTERED LEAD DETAIL REVIEW DIALOG */}
+      {/* ELEVATED LEAD DOSSIER REVIEW DIALOG */}
       <AnimatePresence>
         {selectedLead && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
             {/* Backdrop */}
             <m.div
               initial={{ opacity: 0 }}
@@ -569,26 +585,28 @@ export default function BuilderLeadsPage() {
 
             {/* Modal Card */}
             <m.div
-              initial={{ opacity: 0, scale: 0.96, y: 8 }}
+              initial={{ opacity: 0, scale: 0.97, y: 10 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.96, y: 8 }}
-              transition={{ type: 'spring', damping: 28, stiffness: 340 }}
-              className="relative w-full max-w-2xl bg-white dark:bg-zinc-900 border border-zinc-200/90 dark:border-zinc-800 rounded-3xl shadow-2xl overflow-hidden font-sans z-10 my-auto"
-              onClick={e => e.stopPropagation()}
+              exit={{ opacity: 0, scale: 0.97, y: 10 }}
+              transition={{ type: 'spring', damping: 28, stiffness: 350 }}
+              className="relative w-full max-w-3xl bg-white dark:bg-zinc-900 border border-zinc-200/90 dark:border-zinc-800 rounded-3xl shadow-2xl overflow-hidden font-sans z-10 my-auto flex flex-col max-h-[90vh]"
+              onClick={(e) => e.stopPropagation()}
             >
               {/* Modal Header */}
-              <div className="p-6 border-b border-zinc-100 dark:border-zinc-800/80 flex items-start justify-between gap-4 bg-zinc-50/50 dark:bg-zinc-900/50">
-                <div className="flex items-center gap-4 min-w-0">
-                  <div className="w-12 h-12 rounded-2xl bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 font-bold text-base flex items-center justify-center shadow-xs shrink-0">
+              <div className="p-5 sm:p-6 border-b border-zinc-200/80 dark:border-zinc-800 bg-zinc-50/60 dark:bg-zinc-900/60 flex items-start justify-between gap-4">
+                <div className="flex items-start gap-4 min-w-0">
+                  <div className="w-13 h-13 rounded-2xl bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 font-bold text-base flex items-center justify-center border border-zinc-200/80 dark:border-zinc-700 shadow-2xs shrink-0">
                     {getInitials(selectedLead.name)}
                   </div>
                   <div className="min-w-0">
-                    <h3 className="text-xl font-extrabold text-zinc-900 dark:text-white truncate tracking-tight">
+                    <h3 className="text-xl font-bold text-zinc-900 dark:text-white tracking-tight truncate">
                       {selectedLead.name}
                     </h3>
-                    <div className="flex items-center gap-2 mt-1 flex-wrap text-xs">
-                      {getTierBadge(selectedLead.lead_tier, selectedLead.lead_score)}
-                      <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold border ${STATUS_CONFIG[selectedLead.status].bg} ${STATUS_CONFIG[selectedLead.status].text} ${STATUS_CONFIG[selectedLead.status].border}`}>
+                    <div className="flex items-center gap-2 mt-1.5 flex-wrap text-xs">
+                      {renderTierBadge(selectedLead.lead_tier, selectedLead.lead_score)}
+                      <span
+                        className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold border ${STATUS_CONFIG[selectedLead.status].bg} ${STATUS_CONFIG[selectedLead.status].text} ${STATUS_CONFIG[selectedLead.status].border}`}
+                      >
                         <span className={`w-1.5 h-1.5 rounded-full ${STATUS_CONFIG[selectedLead.status].dot}`} />
                         <span>{STATUS_CONFIG[selectedLead.status].label}</span>
                       </span>
@@ -599,128 +617,167 @@ export default function BuilderLeadsPage() {
                 <div className="flex items-center gap-2 shrink-0">
                   <button
                     onClick={() => setBriefFor(selectedLead)}
-                    className="px-3 py-1.5 rounded-xl border border-zinc-200 dark:border-zinc-700 text-xs font-bold text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-700 text-zinc-800 dark:text-zinc-200 text-xs font-bold transition-all cursor-pointer shadow-2xs active:scale-[0.98]"
                   >
-                    Open brief
+                    <span>Full conversation brief</span>
+                    <ArrowSquareOut size={13} weight="bold" />
                   </button>
                   <button
                     onClick={() => setSelectedLead(null)}
-                    className="w-8 h-8 flex items-center justify-center rounded-full text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors shrink-0 cursor-pointer"
+                    className="w-8 h-8 flex items-center justify-center rounded-xl text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors shrink-0 cursor-pointer"
+                    title="Close"
                   >
-                    <X className="w-4 h-4" />
+                    <X size={16} weight="bold" />
                   </button>
                 </div>
               </div>
 
               {/* Modal Body */}
-              <div className="p-6 max-h-[65vh] overflow-y-auto space-y-4 text-xs">
-                {/* Contact & Inquiry Info */}
-                <div className="p-4 rounded-2xl bg-zinc-50 dark:bg-zinc-800/40 border border-zinc-200/80 dark:border-zinc-800 space-y-3">
-                  <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider block">
-                    Contact Channels
-                  </span>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                    <div className="flex items-center justify-between p-2.5 rounded-xl bg-white dark:bg-zinc-900 border border-zinc-200/60 dark:border-zinc-800">
-                      <div className="flex items-center gap-2 min-w-0">
-                        <Phone className="w-4 h-4 text-emerald-500 shrink-0" />
-                        <span className="font-mono font-bold text-zinc-900 dark:text-white">{selectedLead.phone}</span>
+              <div className="p-6 overflow-y-auto space-y-5 flex-1">
+                {/* Contact Channels Bar */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {/* Phone + WhatsApp */}
+                  <div className="p-3.5 rounded-xl border border-zinc-200/80 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-800/30 flex items-center justify-between">
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      <div className="w-8 h-8 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
+                        <Phone size={16} weight="bold" />
                       </div>
-                      <div className="flex items-center gap-1">
-                        <button onClick={() => copyToClipboard(selectedLead.phone)} className="text-zinc-400 hover:text-zinc-600 p-1 cursor-pointer">
-                          <Copy className="w-3.5 h-3.5" />
-                        </button>
-                        <a
-                          href={`https://wa.me/91${selectedLead.phone.replace(/^\+91/, '')}?text=${encodeURIComponent(`Hi ${selectedLead.name}, reaching out regarding your inquiry on PropFyndr.`)}`}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="text-emerald-600 hover:bg-emerald-50 p-1 rounded-md"
-                          title="Open WhatsApp"
-                        >
-                          <ExternalLink className="w-3.5 h-3.5" />
-                        </a>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center justify-between p-2.5 rounded-xl bg-white dark:bg-zinc-900 border border-zinc-200/60 dark:border-zinc-800">
-                      <div className="flex items-center gap-2 min-w-0">
-                        <Building2 className="w-4 h-4 text-blue-500 shrink-0" />
-                        <span className="font-bold text-zinc-900 dark:text-white truncate">
-                          {selectedLead.project_name || 'General Inquiry'}
+                      <div className="min-w-0">
+                        <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider block">
+                          Phone Number
+                        </span>
+                        <span className="text-xs font-mono font-bold text-zinc-900 dark:text-white truncate block">
+                          {formatPhone(selectedLead.phone)}
                         </span>
                       </div>
                     </div>
+
+                    <div className="flex items-center gap-1">
+                      <button
+                        onClick={() => copyToClipboard(selectedLead.phone, 'phone')}
+                        className="p-1.5 text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 cursor-pointer"
+                        title="Copy phone"
+                      >
+                        {copiedKey === 'phone' ? (
+                          <Check size={13} weight="bold" className="text-emerald-500" />
+                        ) : (
+                          <Copy size={13} />
+                        )}
+                      </button>
+                      <a
+                        href={`https://wa.me/91${selectedLead.phone.replace(/[^\d]/g, '').slice(-10)}?text=${encodeURIComponent(
+                          `Hi ${selectedLead.name}, reaching out regarding your inquiry on PropFyndr.`
+                        )}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="p-1.5 text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/60 rounded-md transition-colors"
+                        title="Open WhatsApp"
+                      >
+                        <WhatsappLogo size={16} weight="fill" />
+                      </a>
+                    </div>
+                  </div>
+
+                  {/* Target Project & Partner */}
+                  <div className="p-3.5 rounded-xl border border-zinc-200/80 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-800/30 flex items-center justify-between">
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      <div className="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0">
+                        <Buildings size={16} weight="bold" />
+                      </div>
+                      <div className="min-w-0">
+                        <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider block">
+                          Target Project
+                        </span>
+                        <span className="text-xs font-bold text-zinc-900 dark:text-white truncate block">
+                          {selectedLead.project_name || 'General Platform Inquiry'}
+                        </span>
+                      </div>
+                    </div>
+
+                    {selectedLead.assigned_partner && (
+                      <span className="text-[11px] font-semibold text-zinc-600 dark:text-zinc-400 px-2 py-0.5 rounded-md bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 shrink-0">
+                        {selectedLead.assigned_partner.name}
+                      </span>
+                    )}
                   </div>
                 </div>
 
-                {/* AI Summary / Intent */}
+                {/* AI Summary Banner */}
                 {selectedLead.ai_summary && (
-                  <div className="p-4 rounded-2xl bg-zinc-50 dark:bg-zinc-800/40 border border-zinc-200/80 dark:border-zinc-800 space-y-2">
-                    <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider block">
-                      AI Lead Intelligence Summary
+                  <div className="p-4 rounded-xl border border-zinc-200/80 dark:border-zinc-800 bg-zinc-50/60 dark:bg-zinc-800/30 space-y-1.5">
+                    <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider block">
+                      Executive AI Lead Summary
                     </span>
-                    <p className="text-zinc-700 dark:text-zinc-300 leading-relaxed font-medium">
+                    <p className="text-xs text-zinc-700 dark:text-zinc-300 leading-relaxed font-medium">
                       {selectedLead.ai_summary}
                     </p>
                   </div>
                 )}
 
+                {/* Rich Buyer Dossier Panel */}
                 <LeadDossierPanel leadId={selectedLead.id} />
+              </div>
 
-                {/* Status Switcher Section inside Modal */}
-                <div className="p-4 rounded-2xl bg-zinc-50 dark:bg-zinc-800/40 border border-zinc-200/80 dark:border-zinc-800 space-y-3">
-                  <label className="text-xs font-bold text-zinc-400 uppercase tracking-wider block">
-                    Update Pipeline Status
-                  </label>
-                  <div className="grid grid-cols-5 gap-2">
-                    {(['new', 'contacted', 'qualified', 'converted', 'lost'] as const).map(st => {
-                      const cfg = STATUS_CONFIG[st]
+              {/* Modal Footer: Pipeline Status Control */}
+              <div className="p-4 sm:p-5 border-t border-zinc-200/80 dark:border-zinc-800 bg-zinc-50/90 dark:bg-zinc-900/90 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="text-xs font-bold text-zinc-500 uppercase tracking-wider">
+                    Pipeline Stage:
+                  </span>
+                  <div className="flex items-center gap-1.5 p-1 bg-zinc-200/60 dark:bg-zinc-800/70 rounded-xl border border-zinc-200 dark:border-zinc-700">
+                    {(['new', 'contacted', 'qualified', 'converted', 'lost'] as const).map((st) => {
                       const isActive = selectedLead.status === st
                       return (
                         <button
                           key={st}
-                          onClick={() => updateLeadStatus(selectedLead.id, st)}
-                          className={`py-2.5 rounded-xl text-xs font-bold capitalize transition-all border flex flex-col items-center gap-1 cursor-pointer ${
+                          onClick={() => void updateLeadStatus(selectedLead.id, st)}
+                          className={`px-3 py-1 rounded-lg text-xs font-bold capitalize transition-all cursor-pointer ${
                             isActive
-                              ? `${cfg.bg} ${cfg.text} ${cfg.border} ring-2 ring-blue-500/20 shadow-2xs`
-                              : 'bg-white dark:bg-zinc-900 border-zinc-200/80 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800'
+                              ? 'bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white shadow-2xs'
+                              : 'text-zinc-500 hover:text-zinc-900 dark:hover:text-white'
                           }`}
                         >
-                          <span className={`w-2 h-2 rounded-full ${cfg.dot}`} />
-                          <span>{cfg.label}</span>
+                          {st}
                         </button>
                       )
                     })}
                   </div>
                 </div>
-              </div>
 
-              {/* Modal Footer */}
-              <div className="p-4 border-t border-zinc-100 dark:border-zinc-800 bg-zinc-50/80 dark:bg-zinc-900/80 backdrop-blur-md flex items-center justify-between gap-4">
-                <span className="text-xs font-semibold text-zinc-500">
-                  Inquiry logged {format(new Date(selectedLead.created_at), 'PPP')}
-                </span>
-                <button
-                  onClick={() => setSelectedLead(null)}
-                  className="py-2 px-4 rounded-xl bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 font-bold text-xs shadow-2xs hover:bg-black cursor-pointer"
-                >
-                  Close
-                </button>
+                <div className="flex items-center gap-3 justify-between sm:justify-end">
+                  <span className="text-[11px] text-zinc-400">
+                    Logged {format(new Date(selectedLead.created_at), 'PPP')}
+                  </span>
+                  <button
+                    onClick={() => setSelectedLead(null)}
+                    className="py-2 px-4 rounded-xl bg-zinc-900 hover:bg-zinc-800 dark:bg-zinc-100 dark:hover:bg-white text-white dark:text-zinc-900 font-bold text-xs shadow-2xs transition-all active:scale-[0.98] cursor-pointer"
+                  >
+                    Close
+                  </button>
+                </div>
               </div>
             </m.div>
           </div>
         )}
       </AnimatePresence>
 
-      {/* Floating Toast Banner */}
+      {/* Floating Toast Notification */}
       {toast && (
-        <div className={`fixed bottom-6 right-6 px-4 py-3 rounded-2xl text-white text-xs font-bold shadow-2xl transition-all flex items-center gap-3 z-50 ${
-          toast.type === 'error' ? 'bg-rose-600' : 'bg-emerald-600'
-        }`}>
-          {toast.type === 'error' ? <AlertCircle className="w-4 h-4" /> : <CheckCircle2 className="w-4 h-4" />}
+        <div
+          className={`fixed bottom-6 right-6 px-4 py-3 rounded-2xl text-white text-xs font-bold shadow-2xl transition-all flex items-center gap-3 z-50 animate-fadeIn ${
+            toast.type === 'error' ? 'bg-rose-600' : 'bg-zinc-900 dark:bg-white dark:text-zinc-900'
+          }`}
+        >
+          {toast.type === 'error' ? (
+            <XCircle size={16} weight="fill" />
+          ) : (
+            <CheckCircle size={16} weight="fill" className="text-emerald-400" />
+          )}
           <span>{toast.message}</span>
         </div>
       )}
 
+      {/* Full Conversation Brief Modal */}
       {briefFor && (
         <LeadBriefPanel
           endpoint={`/admin/leads/${briefFor.id}/brief`}
@@ -728,6 +785,6 @@ export default function BuilderLeadsPage() {
           onClose={() => setBriefFor(null)}
         />
       )}
-    </div>
+    </PageShell>
   )
 }

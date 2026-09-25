@@ -37,7 +37,11 @@ export function generateProjectChips(
   if (!project || !project.name) return []
 
   const chips: ForensicChip[] = []
-  const asked = new Set(sessionAskedTopics.map(t => t.toLowerCase()))
+  // Words, not whole strings: callers pass the buyer's messages, and
+  // `asked.has('water')` against a full sentence only ever matched a message
+  // that was the single word "water" — so a chip for a topic already asked
+  // about was offered again every turn.
+  const asked = new Set(sessionAskedTopics.join(' ').toLowerCase().split(/[^a-z0-9]+/).filter(Boolean))
 
   // Rule 1: Legal Standing, Land Dues & Registry Clearance
   const isRegistryAsked = asked.has('registry') || asked.has('dues') || asked.has('oc') || asked.has('amitabh')
