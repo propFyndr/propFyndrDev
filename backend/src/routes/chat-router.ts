@@ -50,6 +50,8 @@ import { maybeCompress } from '../lib/ai/compression'
 import { maybeCompressTopical, TopicSummaries } from '../lib/chat/summaryCompression'
 import { isSpecificUnknownProject, logCoverageGap, fetchUnknownProjectContext, unknownProjectDirective } from '../lib/chat/coverageGap'
 import { statedMonthlyIncome, isAffordabilityQuestion, computeAffordability, renderAffordabilityTable, affordabilityDirective } from '../lib/ai/affordability'
+import { createChatTrace } from '../lib/monitoring/langfuse'
+import { shouldCarryFocus } from '../lib/chat/focusCarry'
 import { scorePropertyEngagement } from '../lib/chat/propertyEngagement'
 import { detectPropertyReactions, PropertyReaction } from '../lib/chat/reactionDetector'
 import { buildSystemPromptWithCache } from '../lib/ai/systemPromptCache'
@@ -84,6 +86,7 @@ import { applyCommuteAnchor, beltFor } from '../lib/discovery/commuteAnchor'
 import { resolveOrdinalReference, resolveOrdinalPair, resolveSuperlativeReference, needsShownContext, resolveSectorReference, sectorsShownIn } from '../lib/discovery/reference'
 import { cardBudgetFor, capCards, MAX_CARDS } from '../lib/discovery/cardBudget'
 import { chipsAreWelcome, chipIsRelevant, chipIsActionable } from '../lib/discovery/chipPolicy'
+import { generateProjectChips } from '../lib/discovery/deterministicChips'
 import { createTurnTimer } from '../lib/turnTimer'
 import { buildStateBrief } from '../lib/ai/stateBrief'
 import { isProximityQuestion, nearbyCoverage } from '../lib/discovery/nearby'
@@ -228,7 +231,7 @@ router.post('/', async (req: Request, res: Response) => {
 
   // Sliding-window rate limit on guestToken (25 messages / 10 minutes)
   if (guestToken) {
-    const guestLimit = checkGuestRateLimit(guestToken)
+    const guestLimit = await checkGuestRateLimit(guestToken)
     if (!guestLimit.allowed) {
       res.setHeader('Retry-After', String(guestLimit.retryAfterSeconds))
       res.status(429).json({
@@ -1126,8 +1129,41 @@ router.post('/', async (req: Request, res: Response) => {
          * signal; it is no longer load-bearing.
          */
         const namesLocationThisTurn = /\b(sector\s*\d+|expressway|greater\s*noida|noida\s*extension|central\s*noida)\b/i.test(message);
+
+        /**
+         * A new subject has to be NAMED. A query-kind label is not a subject.
+         *
+         * The comment above fixed the sticky SECTOR doing this. Two more
+         * inputs were still doing the same thing, and they are worse because
+         * neither needs anything in the message at all:
+         *
+         *   - `isAdvisoryQuery` is `queryKind === 'ADVISORY' || 'OPEN'` — a
+         *     judgement the extractor makes about TONE. "should i buy it?",
+         *     "what do you think?", "any red flags?", "is it worth it at that
+         *     price?" are all ADVISORY/OPEN, all name nothing, and all had the
+         *     project in focus wiped one turn after the buyer was shown it.
+         *     None of them is in the `isExplicitFollowUp` word list, so
+         *     nothing caught them downstream either.
+         *   - `isBuilderDiscovery` fired on the bare words `builder` and
+         *     `developer`. "is the builder reliable?" is a question ABOUT the
+         *     project in focus, not a request to search by developer. It
+         *     survived only for the phrasings that happen to contain "who is".
+         *
+         * An advisory question with a new subject still clears the focus,
+         * because the subject trips `namesLocationThisTurn` or the list
+         * phrasing on its own. What changes is that a question with NO subject is now
+         * read as being about the thing under discussion — which is what a
+         * buyer means by it, and what every assistant they already use does.
+         *
+         * Enumerating the ways a buyer can ask for an opinion is the losing
+         * half of this trade: the list is unbounded, and every phrasing missing
+         * from it silently answers about Noida in general instead of the
+         * building on their screen.
+         */
+        const namesBuilderThisTurn =
+          Boolean((intent as any).builderName) || /\bprojects\s*by\b/i.test(message);
         const isFreshSearchThisTurn =
-          namesLocationThisTurn || isDiscoveryQuery || isBuilderDiscovery || isAdvisoryQuery ||
+          namesLocationThisTurn || namesBuilderThisTurn || isDiscoveryQuery ||
           isCityLevelGeneralQuery || isOpenAdvisoryQuery || isBroadSuperlativeQuery;
         const shouldClearProjectFocus = isFreshSearchThisTurn && !isExplicitFollowUp;
 
@@ -1523,30 +1559,56 @@ router.post('/', async (req: Request, res: Response) => {
      * no project and no sector in it is not a search whatever the heuristic
      * thinks; the attribute noun is the signal.
      */
-    const ATTRIBUTE_FOLLOWUP =
-      /\b(possession|handover|rera|builder\s+score|delivery\s+score|track\s+record|configurations?|unit\s+types?|floor\s+plans?|carpet\s+area|super\s+area|payment\s+plan|cost\s+sheet|amenit\w*|balcon\w*|bathrooms?|clubhouse|price|pricing|rate|maintenance|floor\s*rise|plc\b|litigation\w*|court\s*cases?|legal\s*status|nclt|oc\b|occupancy\s*certificate|completion\s*certificate|hidden|extra|charges?|fees?|expenses?|costs?|water\w*|ganga\s*jal|borewell|tds|lift\w*|elevator\w*|ard\b|safety|amitabh\w*|registry\w*|land\s*dues|drain|seepage|power\w*|backup|meter\w*|for\s+it|is\s+it|about\s+it|does\s+it|in\s+it|of\s+it|its|this\s+project|the\s+project|this\s+one)\b/i
+    /**
+     * Carrying the focus is now the DEFAULT, not the exception.
+     *
+     * This used to be `ATTRIBUTE_FOLLOWUP` — a forty-alternative regex listing
+     * every noun a buyer might ask about. It was a whitelist of remembered
+     * phrasings, so anything nobody thought of dropped the project silently:
+     * "should i buy?", "worth it at that price?", "any red flags?", "my wife
+     * thinks it is too far", "compare it with Godrej" — each one answered about
+     * Noida in general, one message after the buyer was shown the building.
+     *
+     * Enumeration cannot win here. The set of ways to ask about a thing is
+     * unbounded; the set of ways to introduce a NEW thing is small and already
+     * computed — `clearPersistedFocus` is set upstream whenever this message
+     * names a location, a builder, or asks for a list.
+     *
+     * So the test below is the complement: carry the project unless this turn
+     * brought its own subject. The narrowness the old comment argued for is
+     * preserved, it is just enforced on the side of the question where the
+     * evidence actually is.
+     *
+     * The sticky-field hijacks that comment warns about — `purpose`,
+     * `workplace` — are a different failure: those are FILTERS that silently
+     * changed what was searched. A focus project is the SUBJECT, and a subject
+     * that persists until replaced is what makes a conversation a conversation.
+     */
 
     /**
      * A sector NAMED IN THIS MESSAGE blocks the inheritance; a sticky one does
-     * not. The first version tested `intent.sector`, which memory hydration
-     * fills in with the focus project's own sector — so "what is the payment
-     * plan?" one turn after an ACE Parkway answer was blocked by Sector 150,
-     * ACE Parkway's sector, and answered generically anyway.
+     * not — `shouldCarryFocus` tests the raw message for that reason. The first
+     * version tested `intent.sector`, which memory hydration fills in with the
+     * focus project's own sector, so "what is the payment plan?" one turn after
+     * an ACE Parkway answer was blocked by Sector 150 — ACE Parkway's own
+     * sector — and answered generically anyway.
      */
     const targetFocusId = sessionData?.focus_project_id || focusProjectId
     if (
-      !intent.projectNames?.length &&
-      // A turn already judged a fresh search does not get the old project back
-      // through the side door. "what are prices in greater noida west" names no
-      // sector number and trips ATTRIBUTE_FOLLOWUP on "price", so it used to
-      // re-adopt the project the buyer had just navigated away from.
-      !clearPersistedFocus &&
-      !/\bsector\s*\d/i.test(message) &&
-      ATTRIBUTE_FOLLOWUP.test(message) &&
-      targetFocusId
+      shouldCarryFocus({
+        message,
+        namesProjectThisTurn: Boolean(intent.projectNames?.length),
+        // A turn already judged a fresh search does not get the old project
+        // back through the side door. "what are prices in greater noida west"
+        // names no sector number, so without this it would re-adopt the
+        // project the buyer had just navigated away from.
+        clearPersistedFocus,
+        hasFocus: Boolean(targetFocusId),
+      })
     ) {
       const focus = await prisma.project.findUnique({
-        where: { id: targetFocusId },
+        // `hasFocus` in the guard above is this same value, so it is set here.
+        where: { id: targetFocusId as string },
         select: { id: true, name: true },
       })
       if (focus) {
@@ -3108,6 +3170,18 @@ I can help you with:
           sessionId: currentSessionId,
           userId,
           guestToken,
+          /**
+           * These turns never reach `runFallbackChain`, which is where every
+           * other turn's trace is built — a handler answers from Postgres and
+           * returns. So the deterministic half of the product, the half whose
+           * tables we most want to see rendered, had no trace at all.
+           */
+          trace: createChatTrace({
+            sessionId: currentSessionId,
+            userId,
+            userMessage: message,
+            intent: String((intent as { queryKind?: string }).queryKind ?? ''),
+          }),
           send,
           emitUiState,
           res,
@@ -3718,6 +3792,22 @@ USING THE FACTS:
               city: DEFAULT_CITY,
               hasBudget: Boolean(intent.budgetMax || intent.budgetMin),
             })
+          }
+
+          if (detailedTargetProjects[0]) {
+            const forensicChips = generateProjectChips(detailedTargetProjects[0] as any, [message])
+            if (forensicChips.length > 0) {
+              const mapped = forensicChips.map(f => ({
+                id: f.id,
+                actionType: 'TEXT_MESSAGE',
+                label: f.label,
+                icon: f.category === 'legal' ? 'shield' : f.category === 'water' ? 'droplet' : f.category === 'environment' ? 'alert-triangle' : 'file-text',
+                analyticsId: `chip_forensic_${f.category}`,
+                priority: f.priority,
+                payload: { text: f.query }
+              }))
+              responseChips = [...mapped, ...responseChips].slice(0, 4)
+            }
           }
 
           emitUiState({
