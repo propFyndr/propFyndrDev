@@ -210,6 +210,7 @@ export interface ChatMessage {
   showSectorIntelligence?: boolean;
   showComparisonTable?: boolean;
   comparisonProjects?: ProjectCard[];
+  affordabilityData?: import('@/components/chat/AffordabilityCard').AffordabilityData | null;
   isSearching?: boolean;
   searchingTool?: 'search_properties' | 'search_web' | 'commute' | 'rera';
   userQuery?: string;

@@ -139,9 +139,11 @@ export function applyStreamEvent(
       }
 
     case 'ui_state':
-      return Array.isArray(event.chips) && event.chips.length > 0
-        ? { ...message, chips: event.chips }
-        : message
+      return {
+        ...message,
+        ...(Array.isArray(event.chips) && event.chips.length > 0 ? { chips: event.chips } : {}),
+        ...((event as any).affordabilityData ? { affordabilityData: (event as any).affordabilityData } : {}),
+      }
 
     case 'error':
       return {

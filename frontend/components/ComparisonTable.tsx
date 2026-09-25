@@ -220,6 +220,12 @@ const MATRIX_WHITELIST = [
   'Entry Price',
   'Possession',
   'Area',
+  'True Landed Cost',
+  'Registry & Dues',
+  'Water Reality (TDS)',
+  'UP Lifts Act 2024',
+  'Drain Corridor Buffer',
+  'Density / Acre',
   'Advantages',
   'Cons',
 ];
@@ -443,6 +449,148 @@ function buildMatrix(details: (ProjectDetail | null)[], projects: ProjectCard[])
       winners: [],
       winnerLabel: '',
     });
+  }
+
+  // True Landed Cost Multiplier
+  if (details.some(d => (d as any)?.all_in_cost_multiplier) || projects.some(p => (p as any)?.all_in_cost_multiplier)) {
+    const mults = details.map((d, i) => (d as any)?.all_in_cost_multiplier || (projects[i] as any)?.all_in_cost_multiplier || null)
+    const validMults = mults.filter((m): m is number => typeof m === 'number' && m > 0)
+    const minMult = validMults.length > 0 ? Math.min(...validMults) : null
+    rows.push({
+      label: 'True Landed Cost',
+      values: mults.map((m, i) => m ? (
+        <span key={i} className="text-[11px] font-bold text-slate-800 dark:text-slate-200">
+          {m.toFixed(2)}x <span className="text-[9px] font-normal text-slate-500">(+{Math.round((m - 1) * 100)}% over base)</span>
+        </span>
+      ) : <span key={i} className="text-gray-400 text-[11px]">—</span>),
+      winners: minMult ? mults.map((m, i) => m === minMult ? i : -1).filter(i => i >= 0) : [],
+      winnerLabel: 'Lowest Overhead',
+    })
+  }
+
+  // Registry & Dues Standing
+  if (details.some(d => (d as any)?.amitabh_kant_clearance !== undefined || (d as any)?.oc_status) || projects.some(p => (p as any)?.amitabh_kant_clearance !== undefined || (p as any)?.oc_status)) {
+    const regScores = details.map((d, i) => {
+      const p = projects[i] as any
+      const oc = (d as any)?.oc_status || p?.oc_status
+      const ak = (d as any)?.amitabh_kant_clearance ?? p?.amitabh_kant_clearance
+      if (ak === true || oc === 'received') return 2
+      if (ak === false || oc === 'partial' || oc === 'applied') return 1
+      return 0
+    })
+    rows.push({
+      label: 'Registry & Dues',
+      values: details.map((d, i) => {
+        const p = projects[i] as any
+        const oc = (d as any)?.oc_status || p?.oc_status
+        const ak = (d as any)?.amitabh_kant_clearance ?? p?.amitabh_kant_clearance
+        if (ak === true || oc === 'received') {
+          return <span key={i} className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400">✓ Dues Paid / Registry Active</span>
+        }
+        if (ak === false) {
+          return <span key={i} className="text-[11px] font-bold text-amber-600 dark:text-amber-400">⚠ Land Dues (Under Review)</span>
+        }
+        return <span key={i} className="text-[11px] text-slate-500">Normal RERA Timeline</span>
+      }),
+      winners: winnerIdx(regScores),
+      winnerLabel: 'Clear Title & Registry',
+    })
+  }
+
+  // Water Reality (TDS)
+  if (details.some(d => (d as any)?.water_source_type || (d as any)?.water_tds_range) || projects.some(p => (p as any)?.water_source_type)) {
+    const waterScores = details.map((d, i) => {
+      const src = (d as any)?.water_source_type || (projects[i] as any)?.water_source_type
+      if (src === 'ganga_water' || src === 'municipal') return 2
+      if (src === 'groundwater_borewell' || src === 'borewell') return 0
+      return 1
+    })
+    rows.push({
+      label: 'Water Reality (TDS)',
+      values: details.map((d, i) => {
+        const src = (d as any)?.water_source_type || (projects[i] as any)?.water_source_type
+        const tds = (d as any)?.water_tds_range || (projects[i] as any)?.water_tds_range
+        if (src === 'ganga_water' || src === 'municipal') {
+          return <span key={i} className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400">✓ Ganga Jal ({tds || 'TDS ~250 ppm'})</span>
+        }
+        if (src === 'groundwater_borewell' || src === 'borewell') {
+          return <span key={i} className="text-[11px] font-bold text-amber-600 dark:text-amber-400">⚠ Borewell ({tds || 'TDS >900 ppm'})</span>
+        }
+        return <span key={i} className="text-[11px] text-slate-500">{src || 'Mixed Supply'}</span>
+      }),
+      winners: winnerIdx(waterScores),
+      winnerLabel: 'Potable Ganga Jal',
+    })
+  }
+
+  // UP Lifts Act 2024
+  if (details.some(d => (d as any)?.lift_act_compliant !== undefined) || projects.some(p => (p as any)?.lift_act_compliant !== undefined)) {
+    const liftScores = details.map((d, i) => {
+      const compliant = (d as any)?.lift_act_compliant ?? (projects[i] as any)?.lift_act_compliant
+      return compliant === true ? 2 : compliant === false ? 0 : 1
+    })
+    rows.push({
+      label: 'UP Lifts Act 2024',
+      values: details.map((d, i) => {
+        const compliant = (d as any)?.lift_act_compliant ?? (projects[i] as any)?.lift_act_compliant
+        if (compliant === true) {
+          return <span key={i} className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400">✓ Registered & Certified</span>
+        }
+        if (compliant === false) {
+          return <span key={i} className="text-[11px] font-bold text-amber-600 dark:text-amber-400">⚠ Registration Pending</span>
+        }
+        return <span key={i} className="text-[11px] text-slate-500">Under Standard Audit</span>
+      }),
+      winners: winnerIdx(liftScores),
+      winnerLabel: 'Certified Compliant',
+    })
+  }
+
+  // Drain Corridor Buffer
+  if (details.some(d => (d as any)?.shahdara_drain_impact !== undefined) || projects.some(p => (p as any)?.shahdara_drain_impact !== undefined)) {
+    const drainScores = details.map((d, i) => {
+      const impact = (d as any)?.shahdara_drain_impact ?? (projects[i] as any)?.shahdara_drain_impact
+      return impact === false ? 2 : impact === true ? 0 : 1
+    })
+    rows.push({
+      label: 'Drain Corridor Buffer',
+      values: details.map((d, i) => {
+        const impact = (d as any)?.shahdara_drain_impact ?? (projects[i] as any)?.shahdara_drain_impact
+        if (impact === false) {
+          return <span key={i} className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400">✓ Safe Buffer (&gt;1.5km)</span>
+        }
+        if (impact === true) {
+          return <span key={i} className="text-[11px] font-bold text-amber-600 dark:text-amber-400">⚠ &lt;500m Odor Corridor</span>
+        }
+        return <span key={i} className="text-[11px] text-slate-500">Standard Buffer</span>
+      }),
+      winners: winnerIdx(drainScores),
+      winnerLabel: 'Safe Green Buffer',
+    })
+  }
+
+  // Density / Acre
+  if (details.some(d => d?.total_units && (d?.land_area_acres || projects.find(p => p.id === d.id)?.land_area_acres))) {
+    const densities = details.map((d, i) => {
+      const units = d?.total_units
+      const acres = d?.land_area_acres || projects[i].land_area_acres
+      if (units && acres && acres > 0) {
+        return Math.round(units / acres)
+      }
+      return null
+    })
+    const validDensities = densities.filter((d): d is number => d !== null && d > 0)
+    const minDensity = validDensities.length > 0 ? Math.min(...validDensities) : null
+    rows.push({
+      label: 'Density / Acre',
+      values: densities.map((den, i) => den ? (
+        <span key={i} className="text-[11px] font-bold text-slate-800 dark:text-slate-200">
+          {den} <span className="text-[9px] font-normal text-slate-500">units/acre</span>
+        </span>
+      ) : <span key={i} className="text-gray-400 text-[11px]">—</span>),
+      winners: minDensity ? densities.map((den, i) => den === minDensity ? i : -1).filter(i => i >= 0) : [],
+      winnerLabel: 'Lower Density (More Private)',
+    })
   }
 
   // Advantages — only show if at least one project has a builder/RERA/risk signal

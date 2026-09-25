@@ -48,6 +48,8 @@ import adminOutboxRouter from './routes/adminOutbox'
 import partnerRegistrationRouter from './routes/partnerRegistration'
 import { adminPromotionsRouter } from './routes/adminPromotions'
 import portalRouter from './routes/portal'
+import { dossierRouter } from './routes/dossier'
+import sectorsRouter from './routes/sectors'
 import { adminAreaGuard } from './lib/adminGuard'
 import { initializeCaches } from './lib/projectDataGateway.cache'
 import { FALLBACK_CHAIN } from './lib/config'
@@ -265,6 +267,8 @@ app.use('/api/v1/builder-registration', builderRegistrationRouter)
 app.use('/api/v1/builder-applications', builderApplicationsRouter)
 app.use('/api/v1/partner-registration', partnerRegistrationRouter)
 app.use('/api/v1/analytics', analyticsRouter)
+app.use('/api/v1/dossier', dossierRouter)
+app.use('/api/v1/sectors', sectorsRouter)
 app.use('/api/v1/admin/intelligence', adminIntelligenceRouter)
 
 // Sentry Error Handler (v8 - handled below in custom error middleware)

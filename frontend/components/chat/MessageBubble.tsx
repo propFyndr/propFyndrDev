@@ -62,6 +62,7 @@ const Markdown = dynamic(() => import('@/components/response/Markdown'), {
 
 const SectorMap = dynamic(() => import('@/components/SectorMap'), { ssr: false })
 const ComparisonTable = dynamic(() => import('@/components/ComparisonTable'), { ssr: false })
+const AffordabilityCard = dynamic(() => import('@/components/chat/AffordabilityCard'), { ssr: false })
 const ComponentRenderer = dynamic(() => import('@/components/ComponentRenderer').then(m => ({ default: m.ComponentRenderer })), { ssr: false })
 
 
@@ -425,6 +426,7 @@ function areEqual(prev: MessageBubbleProps, next: MessageBubbleProps): boolean {
     prev.message.componentResponse === next.message.componentResponse &&
     prev.message.responseMode === next.message.responseMode &&
     prev.message.showComparisonTable === next.message.showComparisonTable &&
+    prev.message.affordabilityData === next.message.affordabilityData &&
     prev.message.highlights === next.message.highlights &&
     prev.message.amenities === next.message.amenities &&
     prev.message.images === next.message.images &&
@@ -1595,8 +1597,35 @@ function MessageBubbleInner({
 
       {/* Comparison table */}
       {message.type === 'ai' && message.showComparisonTable && (message.comparisonProjects?.length ?? 0) >= 2 && (
-        <div className="mt-3 w-full">
+        <div className="mt-3 w-full space-y-3">
           <ComparisonTable projects={message.comparisonProjects!} />
+          <div className="p-3.5 rounded-2xl border border-blue-200/80 dark:border-blue-900/40 bg-blue-50/60 dark:bg-blue-950/20 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+            <div className="flex items-center gap-2.5">
+              <span className="w-8 h-8 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold flex-shrink-0 text-sm">
+                📄
+              </span>
+              <div>
+                <div className="font-bold text-slate-800 dark:text-zinc-200">Share Due Diligence With Your Family</div>
+                <div className="text-[11px] text-slate-500">Generate a 1-page executive dossier with verified pros, forensic red flags, and net EMIs.</div>
+              </div>
+            </div>
+            <button
+              onClick={() => onAction({ id: 'gen_dossier', actionType: 'TEXT_MESSAGE', label: 'Generate Family Deal Dossier', payload: { text: 'Generate family deal dossier' } } as any)}
+              className="px-3.5 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs whitespace-nowrap transition shadow-sm"
+            >
+              Generate Family Dossier
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Institutional Affordability Card */}
+      {message.type === 'ai' && message.affordabilityData && (
+        <div className="mt-3 w-full">
+          <AffordabilityCard
+            data={message.affordabilityData}
+            onAction={text => onAction({ id: 'act_dossier', actionType: 'TEXT_MESSAGE', label: text, payload: { text } } as any)}
+          />
         </div>
       )}
 

@@ -39,6 +39,34 @@ function price(min: number | null, max: number | null): string {
   return max != null && max > min ? `₹${min}–${max} Cr` : `₹${min} Cr`
 }
 
+export function calculateCarpetLoading(superSqft: number, carpetSqft: number): number {
+  if (!superSqft || !carpetSqft || superSqft <= carpetSqft) return 0
+  return Math.round(((superSqft - carpetSqft) / superSqft) * 100)
+}
+
+export function calculateEffectiveCarpetRate(priceCr: number, carpetSqft: number): number {
+  if (!priceCr || !carpetSqft || carpetSqft <= 0) return 0
+  return Math.round((priceCr * 1e7) / carpetSqft)
+}
+
+export function calculateElevatorCongestionIndex(
+  totalUnits?: number | null,
+  totalTowers?: number | null,
+  liftsPerTower: number = 3
+): { unitsPerLift: number | null; rating: string } {
+  if (!totalUnits || !totalTowers || totalTowers === 0) {
+    return { unitsPerLift: null, rating: 'Standard provisioning' }
+  }
+  const unitsPerTower = Math.round(totalUnits / totalTowers)
+  const unitsPerLift = Math.round(unitsPerTower / liftsPerTower)
+  const rating = unitsPerLift <= 35
+    ? 'Low Congestion (Ultra-Luxury / Fast Morning Transit)'
+    : unitsPerLift <= 50
+    ? 'Moderate Transit (Standard NCR High-Rise)'
+    : 'High Density (Peak Rush Hour Delays Expected)'
+  return { unitsPerLift, rating }
+}
+
 export const unitConfigurationHandler: ChatTopicHandler = {
   id: 'unit_configuration',
   description: 'Unit sizes, carpet area, balconies and layout per configuration',
@@ -119,26 +147,55 @@ export const unitConfigurationHandler: ChatTopicHandler = {
       lead = `### ${focus.name || `${focus.bhk} BHK Layout`} — ${project.name}\n\n${detail.join('\n')}\n\n`
     }
 
+    let anyEstimated = false
+    let anyMissing = false
     const rows = units.map(u => {
-      const carpet = u.carpet_area_sqft
-        ? sqft(u.carpet_area_sqft)
-        : u.super_area_sqft
-          ? `${Math.round(u.super_area_sqft * CARPET_RATIO).toLocaleString('en-IN')} sq.ft (est.)`
-          : NOT_RECORDED
-      const builtUp = u.built_up_area_sqft ? sqft(u.built_up_area_sqft) : NOT_RECORDED
-      const balconies = u.balconies != null ? String(u.balconies) : NOT_RECORDED
-      const baths = u.bathrooms != null ? String(u.bathrooms) : NOT_RECORDED
-      return `| **${u.name || `${u.bhk} BHK`}** | ${carpet} | ${builtUp} | ${sqft(u.super_area_sqft)} | ${baths}B / ${balconies}B | ${price(u.price_min_cr, u.price_max_cr)} |`
+      let carpetStr = ''
+      if (u.carpet_area_sqft) {
+        carpetStr = `${u.carpet_area_sqft.toLocaleString('en-IN')} sq.ft`
+      } else if (u.super_area_sqft) {
+        carpetStr = `${Math.round(u.super_area_sqft * CARPET_RATIO).toLocaleString('en-IN')} sq.ft (est.)`
+        anyEstimated = true
+      } else {
+        carpetStr = '—'
+        anyMissing = true
+      }
+
+      const builtUp = u.built_up_area_sqft ? `${u.built_up_area_sqft.toLocaleString('en-IN')} sq.ft` : '—'
+      const superArea = u.super_area_sqft ? `${u.super_area_sqft.toLocaleString('en-IN')} sq.ft` : '—'
+      const bathsBalc = `${u.bathrooms ?? '—'} / ${u.balconies ?? '—'}`
+      const priceStr = price(u.price_min_cr, u.price_max_cr)
+
+      return `| ${u.name || `${u.bhk} BHK`} | ${carpetStr} | ${builtUp} | ${superArea} | ${bathsBalc} | ${priceStr} |`
     }).join('\n')
 
-    const anyEstimated = units.some(u => !u.carpet_area_sqft && u.super_area_sqft)
-    const anyMissing = units.some(u => u.balconies == null || u.super_area_sqft == null)
+    // Usable Space & Loading Efficiency Audit
+    const auditUnit = focus || units[0]
+    const auditSuper = auditUnit?.super_area_sqft || 0
+    const auditCarpet = auditUnit?.carpet_area_sqft || (auditSuper ? Math.round(auditSuper * CARPET_RATIO) : 0)
+    const loadingPct = calculateCarpetLoading(auditSuper, auditCarpet)
+    const effectiveRate = calculateEffectiveCarpetRate(auditUnit?.price_min_cr || 0, auditCarpet)
+    const eci = calculateElevatorCongestionIndex(project.total_units, project.total_towers)
+
+    let auditSection = ''
+    if (loadingPct > 0 || effectiveRate > 0 || eci.unitsPerLift) {
+      auditSection = `\n\n### Usable Space & Loading Audit — ${project.name}\n`
+      if (loadingPct > 0) {
+        auditSection += `- **Loading Efficiency:** **${loadingPct}%** of super area is common space (lobbies, stairwells, shafts).\n`
+      }
+      if (effectiveRate > 0) {
+        auditSection += `- **Effective Usable Carpet Rate:** **₹${effectiveRate.toLocaleString('en-IN')}/sq.ft** (actual rate on carpet area inside your front door).\n`
+      }
+      if (eci.unitsPerLift) {
+        auditSection += `- **Vertical Transit Index:** ~**${eci.unitsPerLift} units per lift** (${eci.rating}).\n`
+      }
+    }
 
     const text = `${lead}### All Configurations — ${project.name}
 
 | Layout | Carpet Area | Built-Up | Super Area | Baths / Balc. | Price Band |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-${rows}
+${rows}${auditSection}
 ${anyEstimated ? '\n_Note: Carpet areas marked (est.) are calculated per standard RERA efficiency ratios._' : ''}${anyMissing ? '\n_A dash indicates specific measurement to be confirmed against developer sanction blueprints._' : ''}`
 
     ctx.send('token', { token: text })

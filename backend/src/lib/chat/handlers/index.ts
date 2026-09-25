@@ -5,6 +5,7 @@ import { newcomerOrientationHandler } from './newcomerOrientation'
 import { amenityLifestyleHandler } from './amenityLifestyle'
 import { vicinityLookupHandler } from './vicinityLookup'
 import { sectorComparisonHandler } from './sectorComparison'
+import { comparisonHandler } from './comparisonHandler'
 import { paymentPlansHandler } from './paymentPlans'
 import { costSheetHandler } from './costSheet'
 import { reraVerificationHandler } from './reraVerification'
@@ -15,6 +16,8 @@ import { connectivityHandler } from './connectivity'
 import { totalOutflowHandler } from './totalOutflow'
 import { unitConfigurationHandler } from './unitConfiguration'
 import { authorityMechanicsHandler } from './authorityMechanics'
+import { affordabilityHandler } from './affordabilityHandler'
+import { dossierHandler } from './dossierHandler'
 
 /**
  * Topic handlers, in priority order — the first match wins.
@@ -71,6 +74,7 @@ export const CHAT_TOPIC_HANDLERS: readonly ChatTopicHandler[] = [
   vicinityLookupHandler,
   amenityLifestyleHandler,
   sectorComparisonHandler,
+  comparisonHandler,
   paymentPlansHandler,
   costSheetHandler,
   reraVerificationHandler,
@@ -84,6 +88,8 @@ export const CHAT_TOPIC_HANDLERS: readonly ChatTopicHandler[] = [
   statutoryTaxHandler,
   possessionStatusHandler,
   totalOutflowHandler,
+  affordabilityHandler,
+  dossierHandler,
   connectivityHandler,
   unitConfigurationHandler,
 ]
@@ -97,6 +103,9 @@ export {
   statutoryTaxHandler,
   possessionStatusHandler,
   totalOutflowHandler,
+  affordabilityHandler,
+  dossierHandler,
   connectivityHandler,
   unitConfigurationHandler,
+  comparisonHandler,
 }
