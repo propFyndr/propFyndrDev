@@ -140,7 +140,7 @@ Every fact presented to a buyer belongs to exactly one tier. Reference `lib/fact
 * "Verified" and `confidence: 'HIGH'` are reserved for answers from project's own rows
 * An absent field means absent (omit it; never let a gap invite a guess)
 
-**Enforcement:** `noFabrication.test.ts` verifies this, and `answerIntegrity.ts` runs before buyer sees any answer.
+**Enforcement:** `dueDiligenceFabrication.test.ts` and `lib/ai/__tests__/answerIntegrity.test.ts` verify this, and `answerIntegrity.ts` runs before buyer sees any answer. (There has never been a `noFabrication.test.ts`; this line named a file that does not exist.)
 
 ## Field Exposure — Adding a Column is a Disclosure Decision
 

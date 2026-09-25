@@ -4039,3 +4039,210 @@ is irreversible. That is the user's call, not a cleanup default.
 
 **Root is now** CLAUDE.md, MEMORY.md, README.md, MASTER_EXECUTION_ROADMAP.md and
 config files only.
+
+---
+
+## 2026-09-25 — Day 1–5 audit, and the focus gate inverted
+
+### Worked on
+A verification pass over every Day 1–5 deliverable in
+MASTER_EXECUTION_ROADMAP.md, then the four gaps it turned up.
+
+### Decided: a follow-up carries the project by DEFAULT
+
+`chat-router.ts` decided whether a turn was still about the project in focus
+with `ATTRIBUTE_FOLLOWUP` — a forty-alternative regex listing every noun a
+buyer might ask about. That is a whitelist of remembered phrasings, so any
+phrasing nobody enumerated dropped the subject silently: "should i buy?",
+"worth it at that price?", "any red flags?", "what do you think?" each
+answered about Noida in general, one message after the buyer had been shown
+the building.
+
+Inverted it. `lib/chat/focusCarry.ts` now carries the project unless the turn
+brings its own subject — names a project, names a sector, or trips the
+upstream fresh-search gate that already sets `clearPersistedFocus`.
+
+**Why:** the set of ways to ask about a thing is unbounded; the set of ways to
+introduce a new thing is small and was already being computed one screen
+earlier. Enumeration was losing a race it could not win.
+
+**The root cause was one level up.** Even with the 1536 gate inverted, those
+turns still failed, because `isFreshSearchThisTurn` (line ~1132) included
+`isAdvisoryQuery` — which is `queryKind === 'ADVISORY' || 'OPEN'`, a judgement
+about TONE that needs nothing in the message at all. It wiped the focus before
+the follow-up gate ever ran. `isBuilderDiscovery` did the same on the bare
+words "builder" and "developer", so "is the builder reliable?" was read as a
+request to search by developer. Both now require a subject actually named this
+turn. This is the same defect the comment above `namesLocationThisTurn`
+already describes for the sticky sector — it just had two more instances.
+
+**Rejected:** widening the regex (same failure one phrasing later), and asking
+the intent extractor to judge referents per turn (puts a model-dependent
+decision on a path that is currently deterministic and fast).
+
+**Kept deliberately:** bare courtesy turns ("thanks", "ok") do not adopt the
+focus. The old whitelist excluded them for free by never matching; a
+default-carry rule has to exclude them on purpose, or an acknowledgement
+becomes an unasked-for cost sheet.
+
+### Decided: handler turns get their own Langfuse trace
+
+`recordTableRendered((ctx as any).trace, …)` was called by the cost-sheet and
+payment-plan handlers against a field `ChatHandlerContext` never had. It was
+`undefined` on every call for the life of the feature, and the `as any` is what
+hid it from the compiler. Every deterministic table the product renders was
+invisible in Langfuse.
+
+`trace` is a declared field now, built with `createChatTrace` — which existed,
+was exported, and had zero callers. A handler-answered turn returns before
+`runFallbackChain`, which is where every other turn's trace is created, so
+these turns had none at all.
+
+### Decided: the guest rate limiter lives in Redis
+
+25 messages / 10 minutes was enforced by a process-local `Map`, so every deploy
+handed every bot a fresh quota and a second instance doubled the cap. Now a
+Redis sorted set, with the `Map` demoted to the fail-closed fallback — the same
+posture `checkRateLimit` already takes.
+
+Chose a sorted set over reusing `checkRateLimit` directly: that is a fixed
+window, which lets a burst of 2x the limit through either side of a boundary.
+That burst is the exact traffic shape this exists to stop.
+
+### Not done, and why: the 1,800-token prompt ceiling
+
+Day 3.5's pass condition claims `estimateTokens(systemPrompt) <= 1,800`.
+Measured with tiktoken (`scripts/measure-prompt-head.ts`): the head is **7,782
+tokens** on the drilldown/deep-dive/cost lane and **9,517** on discovery,
+advisory, open and ranking. 4.3x to 5.3x over. Nothing had ever printed the
+number, which is how the claim survived in the doc.
+
+Two blocks are gated on `queryKind`; the rest of the head is unconditional.
+Closing ~6,000 more tokens means deleting behavioural rules — the honesty
+rules, the routing rules, the domain knowledge — which changes answers and
+needs corpus validation. That is a product decision, not a refactor, and it
+was left for one.
+
+What was added instead: the measurement script, and
+`promptHeadSize.test.ts`, which ratchets the current per-lane numbers so the
+head can shrink freely and cannot grow. The roadmap's pass condition now
+records the measured figures rather than the aspiration.
+
+### Also
+- Restored the `/admin/lookup` nav entry. An uncommitted edit had removed the
+  only link to it, orphaning the read-only catalogue a salesperson answers a
+  buyer from mid-call — which is the whole reason SALES does not get the
+  editable Projects tab. Nothing else in the app links there.
+- Fixed six stale paths in the roadmap and one in CLAUDE.md. `noFabrication.test.ts`
+  has never existed; `npm run test:corpus` is `npm run corpus`; the daily gate
+  block called `ts-node`, which is not a dependency.
+
+### Next session priorities
+1. Langfuse MCP is returning 401 (`AUTH_HEADER_REJECTED`) — real user traces
+   could not be read this session. Fix the key or host in `.mcp.json`.
+2. Run the corpus against the inverted focus gate. The unit tests pin the
+   decision; only the corpus shows what the answers look like.
+3. `spec27`–`spec32` are 774 `todo` placeholders. The suite reports ~3,650
+   tests and runs ~2,874 of them.
+
+---
+
+## 2026-09-25 (later) — Day 6 verified, prompt diet, sector pages, smoke script
+
+### Day 6 — passes
+All five deliverables exist and are wired: `comparisonHandler` and
+`affordabilityHandler` registered in `handlers/index.ts`, `dossierRouter`
+mounted at `/api/v1/dossier` with a 32-hex-char token on a 30-day TTL,
+`generateProjectChips` imported by the router, and carpet loading / effective
+carpet rate / elevator congestion index computed in `unitConfiguration.ts`
+(`calculateCarpetLoading`, `calculateEffectiveCarpetRate`). Chip suppression
+reads an `asked` set off the conversation, as specified.
+
+### The 1,800-token prompt head: attempted, reverted, and now understood
+
+Gated the remaining ~20 head sections on `queryKind`. It worked as a token
+exercise — drilldown lane 7,782 -> 5,386 (-31%) — and **broke
+`promptPrefixStability.test.ts` on five assertions.** Reverted.
+
+**Why it fails, which the base.ts comment already said and I did not heed:**
+Gemini's implicit cache matches a request PREFIX. The head is deliberately
+ordered invariant-first, and the two blocks already gated (geography, ranking
+pillars) sit at the very END for that reason. Putting gated blocks in the
+MIDDLE ends the shared prefix at the first one. Measured prefix is ~24,900 of
+~39,200 characters; the cache-miss cost exceeds the token saving. The test
+asserts variants are prefix-NESTED — a shorter head must be a strict prefix of
+a longer one — and mid-prompt gating cannot satisfy that.
+
+**What doing it properly requires:** restructure the head into a nested ladder,
+every gated block at the tail, ordered so each lane's head is a strict prefix of
+the next. The predicates then have to form a total order, which the natural
+per-lane ones do not (COMPARISON wants the payment-table rule but not the
+geography taxonomy; DISCOVERY the reverse). That is a design change needing a
+corpus run, not a refactor.
+
+**And it would still stop well short of 1,800.** Most of the head is the
+honesty core — HARD RULES, sentinels, NOT-IN-DATABASE, SCOPE, competitor ban,
+builder data rules, configuration/pricing integrity. Reaching the target means
+deleting fabrication guards. The number was set without costing the rule set.
+
+Kept from the attempt: `scripts/measure-prompt-head.ts` (`npm run measure:prompt`)
+so the figure is visible, and `promptHeadSize.test.ts`, which ratchets each
+lane and asserts all fifteen core rules survive on every lane including an
+unrecognised `queryKind`.
+
+### Sector landing pages — built
+
+There was no `/sectors` route at all, which is why Day 5.3 could not be done.
+Now: `GET /api/v1/sectors` and `/api/v1/sectors/:slug` (`routes/sectors.ts`),
+allowlisted through `lib/sectorExposure.ts` on the same contract as
+`projectExposure.ts` — `verified_by` and the row bookkeeping are withheld,
+`who_should_avoid` and `sector_weaknesses` are published because § Trust First
+means a sector page that only says who a place suits is a brochure.
+
+Slug is `sectorSlug(sector, city)` — "sector-150-noida" — shared by the route,
+the sitemap and the page so it cannot be generated one way and parsed another.
+Matching recomputes the slug over candidate rows rather than parsing it apart,
+because "Sector 16B" and "Greater Noida West" both defeat a parser.
+
+Frontend: `app/sectors/page.tsx` (index, grouped by city — "Sector 1" exists in
+three), `app/sectors/[slug]/page.tsx`, `[slug]/layout.tsx` for metadata, and
+`[slug]/data.ts` for the fetcher.
+
+**`data.ts` exists because of a real build failure.** The fetcher started in
+`layout.tsx`; Next.js allows a layout to export only its own known entries, and
+any other export fails `next build` against a generated type constraint.
+`tsc --noEmit` and `next lint` both passed it. Only the production build
+caught it — which is the argument for keeping `npm run build` in the gate.
+
+### Live smoke test — automated as far as it goes
+
+`npm run smoke:roles` (`scripts/smoke-roles.ts`) logs in as each of the five
+roles against a live deployment and asserts the allow/deny answer on every path
+in the role matrix, plus the 5-attempt lockout. Credentials from
+`SMOKE_<ROLE>='email:password'`; a role with no credentials reports SKIPPED
+rather than passing. Exits 1 on any failure so a deploy can gate on it.
+
+The matrix is written out by hand rather than imported from `adminPolicy.ts`
+on purpose: a smoke test that derives its expectations from the code under
+test proves only that the code equals itself.
+
+**Cannot be automated:** receiving the invite email and clicking the link.
+Needs a real inbox. Also: this asserts what the SERVER answers. A hidden
+button over an open endpoint passes it and is still a hole.
+
+### Correction to the earlier entry: backend lint was NOT clean
+
+The earlier session note reported backend lint clean. It was not — 7
+`no-empty` errors in `fallbackChain.ts`, all `catch {}` around Langfuse spans.
+The earlier runs piped `npm run lint` into `tail`, so `$?` was tail's exit
+code, not eslint's, and `&&` carried on regardless. Fixed by commenting each
+block (telemetry must never interrupt the answer). Gate commands should not
+pipe if the exit code matters.
+
+### Next session priorities
+1. Langfuse MCP still 401s. Unblocking it is the only way to check any of this
+   against what buyers actually type.
+2. `npm run corpus` against the focus-carry inversion and the prompt gating.
+   Neither has been validated against real answers, only unit-tested.
+3. `/sectors` has no inbound link except the 404 page. It needs one from the
+   header or a footer; the app currently has neither a nav nor a footer.

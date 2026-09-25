@@ -30,6 +30,8 @@
     "health": "tsx scripts/health-check.ts",
     "verify:services": "tsx scripts/verify-services.ts",
     "smoke": "tsx scripts/smoke-queries.ts",
+    "smoke:roles": "tsx scripts/smoke-roles.ts",
+    "measure:prompt": "tsx scripts/measure-prompt-head.ts",
     "audit:gaps": "tsx scripts/audit-gaps-report.ts",
     "fix:builder-identity": "tsx scripts/fix-builder-identity.ts",
     "audit:duplicates": "tsx scripts/list-duplicate-builders.ts",

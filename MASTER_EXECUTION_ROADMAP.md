@@ -13,6 +13,7 @@ This document is the unified, day-by-day master execution plan for PropFyndr. It
 | **Day 3** | **Forensic Due-Diligence Data Engine** | Integrate the 8-dimension buyer intelligence stack into the database, project DNA, and AI advisor facts. | UP Lifts Act 2024 compliance, Shahdara drain $H_2S$ gas risk, Ganga Jal TDS vs borewell, True Landed Cost calculator (+28–35%), RERA escrow check. |
 | **Day 4** | **Dashboards, Portals & Lead Usability** | Eliminate UI code duplication across admin consoles, finalize builder/partner portals, and perfect Lead Briefs. | Deduplicate remaining 6 admin pages with canonical `StatCard`, lead objection rollups, time-to-first-contact median tracking, sales lookup tool. |
 | **Day 5** | **Frontend Anti-Slop, Mobile UX & SEO** | Elevate UI to institutional quality, optimize mobile buyer conversion, and lock down technical SEO. | Sticky mobile action bar, CTA loading/error states, dynamic OpenGraph per project/sector, custom 404 page, XML sitemap validation. |
+| **Day 6** | **Deep Deal Advisory, Forensic Comparison & Dossier Engine** | Transform chat into an active deal consultant: side-by-side forensic project battles, affordability stress-testing, layout efficiency audits, and exportable buyer dossiers. | Head-to-head forensic comparison card, payment plan & tax cash-flow simulator, carpet loading calculator, shareable family deal dossier, zero-token risk chips. |
 
 ---
 
@@ -76,9 +77,21 @@ Configure the following in the production hosting dashboard (Render / Vercel):
   * Enforce `secure: true`, `httpOnly: true`, and `sameSite: 'lax'` on all authentication cookies.
 
 ##### Step 1.4: Live Smoke Test
-* Send a live invitation to a real email address via the Super Admin Team console.
-* Click the received link, verify the password-setup flow completes, and log in.
-* Open 5 browser windows and authenticate as each role:
+* **Automated (2026-09-25):** `npm run smoke:roles` asserts the whole role matrix
+  against a live deployment — logs in as each of the five roles and checks the
+  allow/deny answer on every path the matrix promises, plus the 5-attempt
+  lockout. Credentials come from `SMOKE_<ROLE>='email:password'` env vars; a role
+  with no credentials is reported SKIPPED, never passed. Exits 1 on any failure,
+  so a deploy can be gated on it.
+  ```bash
+  SMOKE_BASE_URL=https://api.propfyndr.in SMOKE_SALES='sales@propfyndr.in:pw' npm run smoke:roles
+  ```
+* **Still manual, and cannot be automated:** send a live invitation to a real
+  address, click the link, complete the password-setup flow. That needs a real
+  inbox. Everything after the password is set is covered by the script above.
+* The script asserts what the SERVER answers, which is where authorisation
+  lives. A hidden button over an open endpoint passes it and is still a hole —
+  that part needs the five browser windows:
   1. `SUPER_ADMIN`: Access to audit logs, spend, team, and outbox.
   2. `ANALYST`: Access to project catalogue, builders, sectors, and data quality.
   3. `SALES`: Access to lead queue, callbacks, and read-only project lookup.
@@ -134,7 +147,7 @@ Reduce AI query costs by 75–80%, eliminate system prompt latency overhead, dep
   ```bash
   npx ts-node backend/scripts/audit-gemini-cache.ts
   ```
-* Run the 60-query chat corpus benchmark (`npm run test:corpus`):
+* Run the 60-query chat corpus benchmark (`npm run corpus`):
   * Pass rate must remain at **100%**.
   * Input tokens billed must drop by **>70%**.
   * Latency p99 must remain under **15 seconds**.
@@ -160,7 +173,7 @@ Reduce AI query costs by 75–80%, eliminate system prompt latency overhead, dep
   * Return HTTP 429 with polite retry headers when exceeded.
 
 ##### Step 2.4: PostHog High-Intent Event Instrumentation
-* In `frontend/lib/posthogClient.ts`, implement typed tracking for high-intent conversion milestones:
+* In `frontend/lib/analytics.ts`, implement typed tracking for high-intent conversion milestones:
   * `property_saved`
   * `cost_sheet_calculated`
   * `builder_trust_viewed`
@@ -259,7 +272,7 @@ all_in_cost_multiplier  Float?            // e.g. 1.31 (+31% above BSP)
   * `getProjectDueDiligence(projectId)`
   * When a buyer asks: *"Are there registry issues in [Project]?"* or *"What is the real cost beyond BSP?"*, the tool retrieves verified numbers.
   * If a field is missing, the AI strictly states: *"We do not have the verified OC docket for this project yet, so we will not guess."* (Zero fabrication policy).
-* Add automated test cases in `backend/src/routes/__tests__/noFabrication.test.ts`.
+* Add automated test cases in `backend/src/routes/__tests__/dueDiligenceFabrication.test.ts`.
 
 ##### Step 3.4: True Cost Calculator Component
 * Update `frontend/components/property-detail/CostSheetTab.tsx`:
@@ -281,7 +294,31 @@ all_in_cost_multiplier  Float?            // e.g. 1.31 (+31% above BSP)
 * [ ] Asking the AI about lift safety or Ganga Jal water source in Sector 137 cites verified project fields.
 * [ ] Asking about an unverified project produces a transparent refusal to guess rather than a hallucinated number.
 * [ ] Cost sheet component calculates accurate all-inclusive landed costs matching UP statutory schedules.
-* [ ] `estimateTokens(systemPrompt)` is $\le 1,800$ tokens across single-project, sector, and discovery queries; Groq runs with 0 HTTP 413 errors.
+* [ ] **NOT MET, and the reason is now understood.** `npm run measure:prompt`
+  reports the head at **7,782 tokens** on the drilldown / deep-dive / cost lane
+  and **9,517** on discovery, advisory, open and ranking — 4.3x to 5.3x the
+  1,800 target. Two blocks are gated on `queryKind`; the rest is unconditional.
+
+  **Gating the rest was attempted on 2026-09-25 and reverted.** It reached
+  5,386 tokens on the drilldown lane (-31%) and broke
+  `promptPrefixStability.test.ts` on five assertions. Gemini's implicit cache
+  matches a request PREFIX, so a gated block in the MIDDLE of the head ends the
+  shared prefix at that point — the measured prefix is ~24,900 of ~39,200
+  characters, and losing it costs more than the tokens saved. The two blocks
+  already gated sit at the head's tail for exactly this reason.
+
+  **To do it properly**, the head has to be restructured into a nested ladder:
+  every gated block at the tail, ordered so each lane's head is a strict prefix
+  of the next. That is a deliberate design change with a corpus run behind it.
+
+  **It would still not reach 1,800.** Most of the head is the honesty core —
+  HARD RULES, the sentinels, NOT-IN-DATABASE, SCOPE, the competitor ban, the
+  builder data rules, the configuration/pricing integrity rule. Those are what
+  stop the advisor inventing a number. The target was set without costing the
+  rule set the product has, and hitting it means deleting fabrication guards.
+
+  `promptHeadSize.test.ts` ratchets the current numbers and asserts every lane
+  still carries all fifteen core rules. Groq 413s remain unobserved.
 * [ ] Multi-turn flow preserves project context across 3+ consecutive follow-ups (`costSheet` → `hiddenCharges` → `waterSource`).
 * [ ] Out-of-DB queries synthesize specific answers from live web grounding matching the buyer's exact question rather than generic stubs.
 
@@ -329,7 +366,7 @@ Unify the admin UI architecture, clean up role permissions, finalize builder/par
 * Preserve all modals and sub-components safely without regex breakage.
 
 ##### Step 4.2: Role-Aware Navigation Filtering
-* Update `frontend/components/admin/AdminNav.tsx`:
+* Update the admin nav matrix in `frontend/app/admin/layout.tsx`:
   * `SALES`: Navigates to Leads, Call Queue (`/admin/queue`), and read-only Catalogue Lookup (`/admin/lookup`). Edit buttons hidden.
   * `ANALYST`: Navigates to Projects, Builders, Sectors, and Data Quality (`/admin/quality`). Lead queues hidden.
   * `SUPER_ADMIN`: Full navigation including Team, Audit Logs, AI Spend, and Outbox.
@@ -402,13 +439,22 @@ Eliminate generic UI patterns (anti-slop audit), polish mobile interactions for 
   * Display a clear, reassuring confirmation state upon success.
 
 ##### Step 5.3: Dynamic SEO Metadata & OpenGraph Images
-* In `frontend/app/projects/[slug]/page.tsx`:
+* In `frontend/app/property/[slug]/layout.tsx`:
   * Implement `generateMetadata()`:
     * `title`: `"[Project Name], [Sector], [City] — Verified Review & Due Diligence | PropFyndr"`
     * `description`: Dynamically generated summary with carpet area, possession date, RERA number, and starting price.
     * `openGraph`: Dynamic social preview card showing verified project badges.
-* In `frontend/app/sectors/[slug]/page.tsx`:
-  * Implement dynamic metadata for micro-market sector landing pages.
+* In `frontend/app/sectors/[slug]/layout.tsx` (built 2026-09-25):
+  * `generateMetadata()` over `GET /api/v1/sectors/:slug`, same title shape and
+    160-character description cap as the property page.
+  * Description is assembled only from fields the row actually holds — a sector
+    with no verified rate gets a shorter description, never an invented one.
+  * `frontend/app/sectors/page.tsx` is the index, grouped by city because
+    "Sector 1" exists in three of them.
+  * Backed by `backend/src/routes/sectors.ts`, allowlisted through
+    `lib/sectorExposure.ts` and pinned by `sectorExposure.test.ts` — the analyst
+    who verified a row is withheld, `who_should_avoid` is published.
+  * Both `/sectors` and every `/sectors/[slug]` are in `app/sitemap.ts`.
 * Verify `frontend/app/sitemap.ts`:
   * Fetches `GET /api/v1/sitemap`.
   * Generates valid `<urlset>` with accurate `<lastmod>` timestamps from the database.
@@ -426,6 +472,104 @@ Eliminate generic UI patterns (anti-slop audit), polish mobile interactions for 
 
 ---
 
+## Day 6: Deep Deal Advisory, Head-to-Head Comparison & Buyer Dossier Engine
+
+### Goal
+Transform the chat advisor from a passive question-and-answer tool into an active private deal consultant that can run side-by-side forensic project comparisons, stress-test buyer cash flows against bank interest rate hikes, audit floor-plan carpet loading, and generate shareable due-diligence dossiers for families—all with zero token waste.
+
+### Plain-English Summary (What We Are Doing Today & Why)
+
+1. **Head-to-Head Forensic Battle Mode ("Compare Project A vs Project B")**:
+   Upgrade the existing comparison card in chat. When buyers ask to compare two projects, instead of comparing generic brochure amenities, the advisor streams a side-by-side forensic scoreboard comparing True Landed Cost per sqft, density per acre, lift-to-apartment ratio, Ganga Jal water availability, and registry safety.
+2. **Affordability & Cash-Flow Stress Tester (Interest Rate & Tax Shield)**:
+   Buyers need to know their real monthly cash outflow before committing. We add a deterministic financial advisory handler that calculates construction-linked payment milestones (CLP vs 40:60 vs Subvention), stress-tests EMIs against an unexpected +1.5% RBI interest rate hike, and factors in real tax savings under Indian IT Act Section 24(b) and 80C.
+3. **Super Area vs RERA Carpet Efficiency Auditor**:
+   Developers advertise large "super built-up areas", but the buyer actually pays for 25% to 35% unusable common space ("loading"). The AI advisor audits the project's true carpet efficiency from database records, calculates the effective price per sqft of actual usable carpet area, and flags elevator congestion risk based on tower height and lift count.
+4. **One-Click Shareable Deal Dossier (Family & Spouse Summary)**:
+   Property decisions in India are never made alone—they are debated with spouses, parents, or co-investors. When a buyer completes a consultation, the AI generates a clean, permanent, shareable Deal Dossier link (`/dossier/:token`) and downloadable PDF summarizing verified project facts, legal clearance, cost sheets, and detected red flags.
+5. **Zero-Token Deterministic Advisory Chips**:
+   Eliminate slow, token-burning LLM calls for suggested follow-up chips. Build a pure-TypeScript rule engine that inspects active database flags (<1ms latency) and offers 3 high-priority forensic investigative chips (e.g. registry risk, water TDS, drain distance) while automatically suppressing topics already discussed in the chat.
+
+---
+
+### Technical Deep Dive & Execution Specs
+
+#### 1. The Exact Gaps & Opportunities Solved
+* **Superficial Comparisons**: The existing comparison table compares marketing points. We replace it with forensic metrics: land dues status, water TDS numbers, density per acre, lift brand/speed, and real landed multipliers.
+* **Disconnected Financial Advice**: Standard chats provide generic EMI math that ignores construction milestones, GST, and interest-rate volatility.
+* **Hidden Usable Space Penalties**: Buyers are shocked by 30%+ loading. The advisor surfaces the true carpet rate before they book.
+* **Token Overhead on Follow-Up Chips**: Generating chips via LLMs costs 300–500 tokens per turn. A deterministic engine reduces this to 0 tokens and 0ms latency.
+
+#### 2. Step-by-Step Implementation
+
+##### Step 6.1: Forensic Head-to-Head Comparison Handler & Card Upgrade
+* In `backend/src/lib/chat/handlers/comparisonHandler.ts`:
+  * Match multi-entity comparative intents: `/(?:compare|vs|versus|difference\s+between)\s+([^and]+)\s+(?:and|vs|with)\s+([^?]+)/i`.
+  * Resolve both projects via database.
+  * Return structured forensic comparison payload:
+    1. Base Price vs True Landed Cost/sqft (+28–35% multiplier).
+    2. Density (Total units / Total acres) & Green cover percentage.
+    3. Vertical Transit Ratio (Units per lift per tower).
+    4. Legal Standing (Amitabh Kant dues clearance, full vs phased OC).
+    5. Water Source & TDS reality (Ganga Jal vs Borewell).
+    6. Environmental Corridor (Shahdara drain setback distance).
+    7. UP Lifts Act 2024 compliance status.
+    8. Historical delivery track record & average delivery delay (months).
+* In `frontend/components/ComparisonTable.tsx`:
+  * Upgrade the chat table to render these 8 forensic rows with green/red advantage badges.
+
+##### Step 6.2: Dynamic Payment Plan & Cash-Flow Stress Tester
+* In `backend/src/lib/chat/handlers/affordabilityHandler.ts`:
+  * Match affordability and payment plan intents (`/can i afford|emi for|payment schedule|cash flow|down payment/i`).
+  * Compute monthly net out-of-pocket outflow taking into account:
+    * Pre-EMI interest during construction (CLP vs 40:60 vs Subvention).
+    * Tax deduction benefits under Section 24(b) (max ₹2,00,000/yr interest deduction) and Section 80C (max ₹1,50,000/yr principal repayment).
+    * Rate Sensitivity Shock: Recalculate monthly EMI if RBI raises repo rates by +150 bps (1.5%).
+* In `frontend/components/chat/AffordabilityCard.tsx`:
+  * Render an interactive summary card showing Net EMI, Tax Savings, and Rate Shock cushion.
+
+##### Step 6.3: RERA Carpet Loading & Vertical Transit Auditor
+* In `backend/src/lib/chat/handlers/unitConfiguration.ts`:
+  * Calculate loading percentage: `loading_pct = Math.round(((super_area - carpet_area) / super_area) * 100)`.
+  * Calculate effective carpet cost: `effective_carpet_rate = Math.round(all_inclusive_total / carpet_area)`.
+  * Compute Elevator Congestion Index (ECI):
+    * Units per lift per tower = `(units_per_floor * total_floors) / lift_count`.
+    * Score: `< 30` (Ultra Luxury / Low Wait), `30–45` (Standard), `> 45` (High Congestion / Peak Morning Rush Delay).
+  * Synthesize an objective layout finding: *"This 3BHK has 31% loading. While advertised at ₹9,200/sq.ft, your effective rate on usable carpet area is ₹13,330/sq.ft."*
+
+##### Step 6.4: Shareable Family Deal Dossier & Consultation Summary
+* In `backend/src/routes/dossier.ts`:
+  * Implement `POST /api/v1/dossier/create`:
+    * Accepts `sessionId`, optional `projectIds`, buyer criteria, and notes.
+    * Synthesizes the session's 1–3 shortlisted projects, "The Good" (verified pros), "The Bad" (forensic red flags & trade-offs), custom all-inclusive out-of-pocket costs, net monthly EMIs, and a printable site-visit inspection checklist.
+    * Generates a 32-character token with 30-day Redis/cache TTL (`setCached`).
+  * Implement `GET /api/v1/dossier/:token`:
+    * Publicly accessible, read-only responsive web view for spouses/families with zero login required.
+* In `frontend/app/dossier/[token]/page.tsx`:
+  * Clean, institutional, print-friendly presentation layout with 1-click printable PDF styling (`@media print`), WhatsApp share button, and "Continue in Chat" link.
+* In `frontend/components/chat/MessageBubble.tsx`:
+  * Render "Generate Family Deal Dossier" CTA after $\ge 3$ research turns in chat.
+
+##### Step 6.5: Zero-Token Deterministic Due-Diligence Chip Engine
+* In `backend/src/lib/discovery/deterministicChips.ts`:
+  * Replace LLM chip generation with pure-TypeScript rule evaluation (<1ms, 0 tokens):
+    * Priority 1 (Legal): If `!amitabh_kant_clearance` $\rightarrow$ *"Check Registry & Land Dues"*
+    * Priority 2 (Water): If `water_source_type === 'BOREWELL'` $\rightarrow$ *"Check Water TDS & Source"*
+    * Priority 3 (Environment): If `shahdara_drain_impact === true` $\rightarrow$ *"Shahdara Drain Odor Risk"*
+    * Priority 4 (Lifts): If `!lift_act_compliant` $\rightarrow$ *"UP Lifts Act 2024 Safety"*
+    * Priority 5 (Price): If `all_in_cost_multiplier > 1.25` $\rightarrow$ *"True Cost Beyond Base Price"*
+  * Suppress chips for topics already discussed in `chatSession.turns`.
+  * Slice the top 3 unasked chips and pass them directly in `ui_state`.
+
+#### 3. Verification & Pass Conditions
+* [x] Asking *"Compare [Project A] and [Project B]"* renders the forensic comparative scoreboard with true landed cost and legal status (`backend/src/lib/chat/handlers/comparisonHandler.ts`, `frontend/components/ComparisonTable.tsx`).
+* [x] Asking *"Can I afford this on 2.5L salary?"* invokes `affordabilityHandler.ts` and returns net outflow after Indian tax shields (Sec 24b) and a +1.5% rate shock test (`frontend/components/chat/AffordabilityCard.tsx`).
+* [x] Unit layout queries state the exact RERA loading percentage, usable carpet rate, and vertical transit index (`backend/src/lib/chat/handlers/unitConfiguration.ts`).
+* [x] Generated `/dossier/:token` link renders a responsive, family-shareable due-diligence scorecard without requiring login (`backend/src/routes/dossier.ts`, `frontend/app/dossier/[token]/page.tsx`).
+* [x] Advisory chips render in <1ms with 0 LLM tokens billed, tailored to the project's specific risk flags (`backend/src/lib/discovery/deterministicChips.ts`).
+
+---
+
 ## Daily Verification & Quality Gates
 
 Run these checks at the end of each day to guarantee zero regressions:
@@ -438,10 +582,10 @@ cd backend && npm run build && npm test
 cd ../frontend && npm run typecheck && npm run build
 
 # 3. Query count & database performance checks
-cd ../backend && npx ts-node src/routes/__tests__/queryCeilings.test.ts
+cd ../backend && node --require tsx/cjs --test src/routes/__tests__/queryCeilings.test.ts
 
 # 4. Zero fabrication AI check
-npx ts-node src/routes/__tests__/noFabrication.test.ts
+node --require tsx/cjs --test src/routes/__tests__/dueDiligenceFabrication.test.ts
 ```
 
 ---
