@@ -1,9 +1,8 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import {
   X,
-  Mail,
   Smartphone,
   Laptop,
   Copy,
@@ -11,16 +10,13 @@ import {
   Share2,
   Send,
   MessageCircle,
-  Paperclip,
   Star,
   CornerUpLeft,
   Moon,
   Sun,
   Loader2,
   Sliders,
-  Eye,
   Building2,
-  User,
   Phone,
   CheckCircle2,
   AlertCircle,
@@ -28,23 +24,23 @@ import {
   Archive,
   Trash2,
   Clock,
-  MoreVertical,
   Reply,
-  Forward,
   Printer,
   ExternalLink,
-  ShieldCheck,
   Tag,
   Grid,
   Menu,
   ChevronDown,
-  Sparkles,
   Wifi,
-  Battery
+  Battery,
+  Mail,
+  MapPin,
+  Layers,
+  ArrowUpRight
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { adminFetch } from '@/lib/adminFetch'
-import CustomSelect, { SelectOption } from '@/components/admin/CustomSelect'
+import CustomSelect from '@/components/admin/CustomSelect'
 
 export type EmailTemplateType = 'builder_pitch' | 'team_invite'
 export type ClientPreviewType = 'gmail' | 'outlook' | 'mobile'
@@ -55,6 +51,13 @@ interface EmailPreviewModalProps {
   initialTemplate?: EmailTemplateType
   defaultRecipientEmail?: string
   defaultRecipientName?: string
+  defaultRecipientPhone?: string
+  defaultProjectName?: string
+  defaultProjectsList?: string[]
+  defaultTargetCity?: string
+  defaultSenderName?: string
+  defaultSenderPhone?: string
+  defaultSenderTitle?: string
   defaultRole?: string
   inviteLink?: string
 }
@@ -64,7 +67,14 @@ export default function EmailPreviewModal({
   onClose,
   initialTemplate = 'team_invite',
   defaultRecipientEmail = 'developer@partner.com',
-  defaultRecipientName = 'Elite Group',
+  defaultRecipientName = 'Aadhaar Shri',
+  defaultRecipientPhone = '',
+  defaultProjectName = 'Everest',
+  defaultProjectsList = [],
+  defaultTargetCity = 'Delhi-NCR & Greater Noida',
+  defaultSenderName = 'PropFyndr Team',
+  defaultSenderPhone = '+91 98712 34567',
+  defaultSenderTitle = 'Developer Partnerships Desk',
   defaultRole = 'ANALYST',
   inviteLink = '',
 }: EmailPreviewModalProps) {
@@ -80,14 +90,44 @@ export default function EmailPreviewModal({
   const [isSending, setIsSending] = useState(false)
   const [sentSuccessId, setSentSuccessId] = useState<string | null>(null)
 
-  // Editable fields for live preview
+  // Adaptable fields for live preview & outreach to ANY developer or invitee
   const [recipientName, setRecipientName] = useState(defaultRecipientName)
   const [recipientEmail, setRecipientEmail] = useState(defaultRecipientEmail)
-  const [projectName, setProjectName] = useState('Elite X in Greater Noida West')
-  const [targetCity, setTargetCity] = useState('Delhi-NCR, Mumbai & Bangalore')
-  const [senderName, setSenderName] = useState('PropFyndr Team')
-  const [senderTitle, setSenderTitle] = useState('Founder & Growth Lead | PropFyndr.in')
-  const [senderPhone, setSenderPhone] = useState('+91 98712 34567')
+  const [recipientPhone, setRecipientPhone] = useState(defaultRecipientPhone)
+  const [projectName, setProjectName] = useState(defaultProjectName)
+  const [projectsList, setProjectsList] = useState<string[]>(defaultProjectsList)
+  const [targetCity, setTargetCity] = useState(defaultTargetCity)
+  const [senderName, setSenderName] = useState(defaultSenderName)
+  const [senderTitle, setSenderTitle] = useState(defaultSenderTitle)
+  const [senderPhone, setSenderPhone] = useState(defaultSenderPhone)
+
+  // Auto-sync whenever selected builder or props change
+  useEffect(() => {
+    if (isOpen) {
+      if (initialTemplate) setTemplate(initialTemplate)
+      setRecipientName(defaultRecipientName || 'Aadhaar Shri')
+      setRecipientEmail(defaultRecipientEmail || 'partnerships@aadhaar-shri.com')
+      setRecipientPhone(defaultRecipientPhone || '')
+      setProjectName(defaultProjectName || 'Everest')
+      setProjectsList(defaultProjectsList || [])
+      setTargetCity(defaultTargetCity || 'Delhi-NCR & Greater Noida')
+      if (defaultSenderName) setSenderName(defaultSenderName)
+      if (defaultSenderPhone) setSenderPhone(defaultSenderPhone)
+      if (defaultSenderTitle) setSenderTitle(defaultSenderTitle)
+    }
+  }, [
+    isOpen,
+    initialTemplate,
+    defaultRecipientName,
+    defaultRecipientEmail,
+    defaultRecipientPhone,
+    defaultProjectName,
+    defaultProjectsList,
+    defaultTargetCity,
+    defaultSenderName,
+    defaultSenderPhone,
+    defaultSenderTitle,
+  ])
 
   if (!isOpen) return null
 
@@ -97,40 +137,44 @@ export default function EmailPreviewModal({
       ? `${window.location.origin}/admin/accept-invite?token=prp_demo_invite_token`
       : 'https://propfyndr.in/admin/accept-invite?token=prp_demo_invite_token')
 
-  // Subject line computation
+  // Subject line computation — 100% focused on the recipient developer
   const subject =
     template === 'builder_pitch'
-      ? `${recipientName || 'Developer'} × PropFyndr — Showcasing your projects to high-intent home buyers & verified brokers`
+      ? `${recipientName || 'Developer'} × PropFyndr — Direct buyer inquiries & verified portfolio showcase`
       : `You've been invited to join PropFyndr Admin as ${defaultRole}`
 
-  // Plaintext version
+  // Plaintext version — 100% focused on selling to the developer
   const getPlainText = () => {
     if (template === 'builder_pitch') {
-      return `Hi ${recipientName || 'there'},
+      const devName = recipientName || 'Developer'
+      const pName = projectName || 'your marquee developments'
+      const city = targetCity || 'Delhi-NCR'
+
+      return `Hi ${devName} Team,
 
 Greetings from PropFyndr.in.
 
-We came across ${recipientName} and ${projectName}, and would love to showcase your developments to our rapidly growing network of verified property buyers and brokers.
+We have compiled an executive buyer demand brief for ${devName}. High-intent homebuyers in ${city} are actively researching ${devName} projects, including ${pName}.
 
-PropFyndr is a next-generation AI real estate intelligence platform, currently operational across ${targetCity}, with over 10,000+ active home seekers and hundreds of verified advisory partners using the platform daily.
+Why top developers partner with PropFyndr:
 
-For builders and developers, PropFyndr provides:
-• AI-driven buyer matchmaking & high-intent lead routing
-• Direct project page featuring verified RERA specs, 3D master plans & walkthroughs
-• Real-time lead tracking dashboard with zero broker commission friction
-• Seamless site-visit coordination
+1. Direct In-House Buyer Routing (Zero Broker Dilution):
+Every inquiry, cost sheet calculation, and site visit request for ${devName} routes directly to your official sales desk. We never resell leads to external competing brokers.
 
-Project listing is currently 100% FREE for select premier developers, and our specialized real estate team handles the entire technical onboarding.
+2. Sanctioned Architectural Clarity:
+We present ${devName}'s UP-RERA registered carpet areas, sanctioned layouts, and possession milestones with full transparency, giving buyers the conviction to make faster booking decisions.
 
-Could I request 10 minutes on a quick phone or video call this week to introduce PropFyndr and explore bringing ${recipientName}'s projects onto the platform?
+3. Official Developer Console:
+Claim and verify your dedicated ${devName} desk on PropFyndr to manage project specs, publish live tower progress, and monitor real-time buyer demand analytics.
 
-Warm regards,
+We would love to share exclusive access to activate ${devName}'s official showcase:
+${generatedInviteLink}
+
+Best regards,
 ${senderName}
 ${senderTitle}
-Phone: ${senderPhone}
-PropFyndr Technologies · https://propfyndr.in
-
-P.S : Direct Developer Onboarding Desk: +91 98712 34567 / partnerships@propfyndr.in`
+Direct: ${senderPhone} · partnerships@propfyndr.in
+PropFyndr Technologies · https://propfyndr.in`
     }
 
     return `Hi,
@@ -148,167 +192,572 @@ The PropFyndr Team
 https://propfyndr.in`
   }
 
-  // HTML email version
-  const getHtml = () => {
+  // WhatsApp formatted outreach pitch
+  const getWhatsAppText = () => {
+    const devName = recipientName || 'Developer'
+    const pName = projectName || 'your developments'
+    const city = targetCity || 'Delhi-NCR'
+
+    return `Hi ${devName} Team,
+
+Greetings from PropFyndr.in.
+
+We are currently highlighting ${devName}'s portfolio (including ${pName}) to high-intent home buyers across ${city}.
+
+Key advantages for ${devName}:
+1. Direct Buyer Inquiries: Inquiries and site visits route directly to your in-house sales desk with zero broker commission dilution.
+2. 100% Sanctioned Specs: We showcase your approved carpet areas and legal clearances directly to qualified buyers.
+3. Official Developer Console: Claim your verified brand profile and monitor live buyer demand.
+
+Explore your official developer portal preview here:
+${generatedInviteLink}
+
+Best regards,
+${senderName} | PropFyndr Developer Relations
+${senderPhone}`
+  }
+
+  // HTML email version with dynamic Dark Mode & Mobile client adaptation
+  const getHtml = (isMobile = clientMode === 'mobile', isDark = isDarkPreview) => {
     if (template === 'builder_pitch') {
+      const recipientLabel = recipientName || 'Developer'
+      const projectLabel = projectName || 'Everest'
+      const cityLabel = targetCity || 'Delhi-NCR & Greater Noida'
+      const otherProjects = projectsList.filter((p) => p !== projectLabel)
+
+      // Dynamic Dark Mode / Light Mode Color Palette
+      const palette = isDark
+        ? {
+            bodyBg: isMobile ? '#0b0b0e' : '#070709',
+            containerBg: '#0f0f13',
+            heroBg: 'linear-gradient(180deg, #17171d 0%, #0a0a0d 100%)',
+            heroBorder: 'rgba(255, 255, 255, 0.1)',
+            heroTitle: '#ffffff',
+            heroEm: '#fef08a',
+            bodyCanvas: '#0f0f13',
+            cardBg: '#18181f',
+            cardBorder: 'rgba(255, 255, 255, 0.09)',
+            textPrimary: '#f4f4f5',
+            textSecondary: '#a1a1aa',
+            textMuted: '#71717a',
+            chipBg: 'rgba(254, 240, 138, 0.15)',
+            chipText: '#fef08a',
+            showcaseBg: 'linear-gradient(135deg, #1b1b22 0%, #101014 100%)',
+            showcaseBorder: 'rgba(255, 255, 255, 0.12)',
+            divider: 'rgba(255, 255, 255, 0.08)',
+            footerBg: '#0b0b0e',
+            footerBorder: 'rgba(255, 255, 255, 0.08)',
+            ctaBg: '#ffffff',
+            ctaText: '#0a0a0d',
+          }
+        : {
+            bodyBg: isMobile ? '#faf7f0' : '#f3f0e8',
+            containerBg: '#faf7f0',
+            heroBg: 'linear-gradient(180deg, #18181b 0%, #09090b 100%)',
+            heroBorder: 'transparent',
+            heroTitle: '#ffffff',
+            heroEm: '#fef08a',
+            bodyCanvas: '#faf7f0',
+            cardBg: '#ffffff',
+            cardBorder: '#e7e3da',
+            textPrimary: '#1c1917',
+            textSecondary: '#44403c',
+            textMuted: '#78716c',
+            chipBg: '#fef3c7',
+            chipText: '#92400e',
+            showcaseBg: 'linear-gradient(135deg, #18181b 0%, #09090b 100%)',
+            showcaseBorder: '#e7e3da',
+            divider: '#e7e3da',
+            footerBg: '#f5f0e4',
+            footerBorder: '#e7e3da',
+            ctaBg: '#111114',
+            ctaText: '#ffffff',
+          }
+
       return `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 0; background-color: #f8fafc; color: #1e293b; }
-    .container { max-width: 600px; margin: 20px auto; background: #ffffff; border-radius: 16px; border: 1px solid #e2e8f0; overflow: hidden; box-shadow: 0 4px 20px -2px rgba(0,0,0,0.05); }
-    .header { padding: 28px 32px 20px 32px; background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%); border-bottom: 1px solid #f1f5f9; }
-    .logo-badge { display: inline-flex; align-items: center; gap: 8px; font-weight: 800; font-size: 16px; letter-spacing: -0.5px; color: #0284c7; }
-    .logo-box { width: 28px; height: 28px; background: #0284c7; border-radius: 7px; display: inline-block; vertical-align: middle; text-align: center; line-height: 28px; color: #ffffff; font-weight: 900; }
-    .content { padding: 28px 32px; line-height: 1.65; font-size: 14px; color: #334155; }
-    .headline { font-size: 17px; font-weight: 700; color: #0f172a; margin-top: 0; margin-bottom: 16px; }
-    .feature-card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px; margin: 18px 0; }
-    .feature-title { font-size: 12px; font-weight: 700; color: #0f172a; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; }
-    .feature-item { margin-bottom: 8px; display: flex; align-items: flex-start; gap: 8px; font-size: 13px; }
-    .feature-bullet { color: #0284c7; font-weight: bold; }
-    .highlight-banner { background: #eff6ff; border-left: 4px solid #3b82f6; padding: 12px 14px; border-radius: 0 8px 8px 0; margin: 18px 0; font-size: 13px; color: #1e40af; font-weight: 500; }
-    .cta-button { display: inline-block; background: #0284c7; color: #ffffff !important; font-weight: 600; font-size: 13.5px; padding: 11px 22px; border-radius: 8px; text-decoration: none; margin: 14px 0; }
-    .footer { padding: 20px 32px; background: #f8fafc; border-top: 1px solid #f1f5f9; font-size: 11.5px; color: #64748b; }
-    .signature { margin-top: 20px; padding-top: 16px; border-top: 1px solid #e2e8f0; }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: ${palette.bodyBg};
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      color: ${palette.textPrimary};
+      -webkit-font-smoothing: antialiased;
+      transition: background-color 0.2s ease;
+    }
+    .email-container {
+      width: 100%;
+      max-width: ${isMobile ? '100%' : '600px'};
+      margin: ${isMobile ? '0 auto' : '20px auto'};
+      background-color: ${palette.containerBg};
+      border-radius: ${isMobile ? '0' : '24px'};
+      overflow: hidden;
+      box-shadow: ${isMobile ? 'none' : '0 20px 40px -15px rgba(0,0,0,0.2), 0 0 0 1px rgba(0,0,0,0.06)'};
+      border: ${isMobile ? 'none' : `1px solid ${palette.cardBorder}`};
+    }
+    /* ── OBSIDIAN HERO HEADER ── */
+    .hero-header {
+      background: ${palette.heroBg};
+      padding: ${isMobile ? '24px 18px 26px 18px' : '42px 36px 36px 36px'};
+      text-align: center;
+      color: #ffffff;
+      position: relative;
+      border-bottom: 1px solid ${palette.heroBorder};
+    }
+    .brand-mark {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: ${isMobile ? '10.5px' : '12px'};
+      font-weight: 800;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: #ffffff;
+      margin-bottom: ${isMobile ? '12px' : '20px'};
+    }
+    .brand-icon {
+      width: ${isMobile ? '18px' : '22px'};
+      height: ${isMobile ? '18px' : '22px'};
+      background: #ffffff;
+      color: #111114;
+      border-radius: 6px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      font-size: ${isMobile ? '11px' : '12px'};
+    }
+    .hero-title {
+      font-family: 'Newsreader', Georgia, 'Times New Roman', serif;
+      font-size: ${isMobile ? '22px' : '32px'};
+      font-weight: 500;
+      line-height: ${isMobile ? '1.2' : '1.18'};
+      letter-spacing: -0.5px;
+      color: ${palette.heroTitle};
+      margin: 0 auto ${isMobile ? '12px' : '16px'} auto;
+      max-width: 500px;
+      text-wrap: balance;
+    }
+    .hero-title em {
+      font-style: italic;
+      font-weight: 400;
+      color: ${palette.heroEm};
+    }
+    .hero-pill {
+      display: inline-block;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      border-radius: 9999px;
+      padding: ${isMobile ? '6px 12px' : '7px 18px'};
+      font-size: ${isMobile ? '11px' : '12px'};
+      color: rgba(255, 255, 255, 0.92);
+      line-height: 1.4;
+      max-width: 480px;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    }
+    .hero-pill strong {
+      color: #fef08a;
+      font-weight: 700;
+    }
+    /* Downward Indicator Ring */
+    .hero-arrow-ring {
+      width: ${isMobile ? '26px' : '30px'};
+      height: ${isMobile ? '26px' : '30px'};
+      border-radius: 50%;
+      background: #111114;
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      color: #ffffff;
+      font-size: ${isMobile ? '11px' : '12px'};
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: ${isMobile ? '16px auto -38px auto' : '24px auto -50px auto'};
+      position: relative;
+      z-index: 10;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    }
+    /* ── BODY CANVAS ── */
+    .body-canvas {
+      padding: ${isMobile ? '28px 16px 20px 16px' : '44px 36px 32px 36px'};
+      background-color: ${palette.bodyCanvas};
+      transition: background-color 0.2s ease;
+    }
+    .section-eyebrow {
+      font-family: 'Newsreader', Georgia, serif;
+      font-size: ${isMobile ? '18px' : '24px'};
+      font-weight: 500;
+      color: ${palette.textPrimary};
+      text-align: center;
+      margin: 0 0 ${isMobile ? '12px' : '18px'} 0;
+      letter-spacing: -0.3px;
+      text-wrap: balance;
+    }
+    /* Stat Ranking Card — 100% About the Developer */
+    .stat-card {
+      background: ${palette.cardBg};
+      border: 1px solid ${palette.cardBorder};
+      border-radius: 16px;
+      padding: ${isMobile ? '16px 14px' : '22px 24px'};
+      text-align: center;
+      margin-bottom: ${isMobile ? '20px' : '28px'};
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+    }
+    .stat-label {
+      font-size: ${isMobile ? '9.5px' : '11px'};
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: ${palette.textMuted};
+      margin-bottom: 4px;
+    }
+    .stat-value {
+      font-size: ${isMobile ? '21px' : '27px'};
+      font-weight: 800;
+      color: ${palette.textPrimary};
+      letter-spacing: -0.5px;
+      margin: 2px 0 6px 0;
+    }
+    .stat-desc {
+      font-size: ${isMobile ? '12px' : '13px'};
+      color: ${palette.textSecondary};
+      line-height: 1.5;
+      max-width: 460px;
+      margin: 0 auto;
+    }
+    /* Editorial Feature Article */
+    .editorial-block {
+      margin-bottom: ${isMobile ? '20px' : '26px'};
+    }
+    .category-chip {
+      display: inline-block;
+      font-size: ${isMobile ? '9px' : '9.5px'};
+      font-weight: 800;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      padding: 3px 8px;
+      border-radius: 6px;
+      margin-bottom: 8px;
+      background-color: ${palette.chipBg};
+      color: ${palette.chipText};
+    }
+    .editorial-heading {
+      font-family: 'Newsreader', Georgia, serif;
+      font-size: ${isMobile ? '17px' : '21px'};
+      font-weight: 600;
+      color: ${palette.textPrimary};
+      line-height: 1.35;
+      margin: 0 0 8px 0;
+      letter-spacing: -0.3px;
+    }
+    .editorial-body {
+      font-size: ${isMobile ? '12.5px' : '13.5px'};
+      line-height: 1.6;
+      color: ${palette.textSecondary};
+      margin: 0 0 14px 0;
+    }
+    /* Developer Showcase Frame — 100% About Them */
+    .showcase-banner {
+      width: 100%;
+      border-radius: 14px;
+      overflow: hidden;
+      margin: 14px 0;
+      border: 1px solid ${palette.showcaseBorder};
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
+    }
+    .showcase-inner {
+      background: ${palette.showcaseBg};
+      padding: ${isMobile ? '16px 14px' : '22px'};
+      color: #ffffff;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .showcase-badge {
+      display: inline-block;
+      font-size: 9.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #fef08a;
+    }
+    .showcase-title {
+      font-family: 'Newsreader', Georgia, serif;
+      font-size: ${isMobile ? '18px' : '22px'};
+      font-weight: 500;
+      color: #ffffff;
+      margin-top: 4px;
+    }
+    .showcase-pillars {
+      display: grid;
+      grid-template-columns: ${isMobile ? '1fr' : 'repeat(3, 1fr)'};
+      gap: ${isMobile ? '8px' : '12px'};
+      margin-top: 14px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(255, 255, 255, 0.12);
+    }
+    .pillar-item {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .pillar-item strong {
+      font-size: 11.5px;
+      color: #ffffff;
+    }
+    .pillar-item span {
+      font-size: 10px;
+      color: rgba(255, 255, 255, 0.7);
+    }
+    .showcase-subprojects {
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.6);
+      margin-top: 10px;
+      line-height: 1.4;
+    }
+    .divider {
+      height: 1px;
+      background-color: ${palette.divider};
+      margin: ${isMobile ? '18px 0' : '24px 0'};
+      border: none;
+    }
+    /* Call to Action */
+    .cta-container {
+      text-align: center;
+      margin: ${isMobile ? '22px 0 10px 0' : '30px 0 14px 0'};
+    }
+    .cta-button {
+      display: inline-block;
+      background-color: ${palette.ctaBg};
+      color: ${palette.ctaText} !important;
+      font-size: ${isMobile ? '12.5px' : '13.5px'};
+      font-weight: 700;
+      text-decoration: none;
+      padding: ${isMobile ? '12px 24px' : '14px 30px'};
+      border-radius: 9999px;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+      letter-spacing: -0.2px;
+    }
+    /* Footer */
+    .footer-section {
+      background-color: ${palette.footerBg};
+      border-top: 1px solid ${palette.footerBorder};
+      padding: ${isMobile ? '18px 16px' : '26px 36px'};
+      font-size: ${isMobile ? '11px' : '11.5px'};
+      color: ${palette.textMuted};
+      line-height: 1.6;
+    }
+    .signature-title {
+      font-weight: 700;
+      color: ${palette.textPrimary};
+      font-size: ${isMobile ? '11.5px' : '12.5px'};
+    }
+    @media only screen and (max-width: 600px) {
+      .email-container { width: 100% !important; border-radius: 0 !important; margin: 0 !important; }
+      .hero-header { padding: 22px 14px 24px 14px !important; }
+      .hero-title { font-size: 21px !important; }
+      .body-canvas { padding: 24px 14px 18px 14px !important; }
+      .section-eyebrow { font-size: 17px !important; }
+    }
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="header">
-      <div class="logo-badge">
-        <span class="logo-box">P</span>
-        <span>PropFyndr · Developer Intelligence</span>
+  <div class="email-container">
+    <!-- Obsidian Hero Header -->
+    <div class="hero-header">
+      <div class="brand-mark">
+        <span class="brand-icon">P</span>
+        <span>PropFyndr Flow</span>
+      </div>
+      <h1 class="hero-title">
+        ${recipientLabel} <em>Portfolio Brief</em>
+      </h1>
+      <div class="hero-pill">
+        <strong>Active Homebuyer Demand:</strong> Over 14,800+ home seekers actively evaluating ${recipientLabel} developments on PropFyndr.
+      </div>
+      <div class="hero-arrow-ring">↓</div>
+    </div>
+
+    <!-- Body Canvas -->
+    <div class="body-canvas">
+      <h2 class="section-eyebrow">Executive Developer Brief</h2>
+
+      <!-- Stat Ranking Card — 100% About Them -->
+      <div class="stat-card">
+        <div class="stat-label">${recipientLabel.toUpperCase()} DEMAND INDEX · ${cityLabel.toUpperCase()}</div>
+        <div class="stat-value">Top 0.1% Buyer Interest</div>
+        <div class="stat-desc">
+          Verified home seekers ranked developments by <strong>${recipientLabel}</strong> in the top tier for sanctioned layout integrity, RERA adherence, and spatial delivery.
+        </div>
+      </div>
+
+      <!-- Feature 1: Direct In-House Buyer Routing -->
+      <div class="editorial-block">
+        <span class="category-chip">Zero Brokerage Dilution</span>
+        <h3 class="editorial-heading">
+          Direct Buyer Inquiries to ${recipientLabel} Sales Desk
+        </h3>
+        <p class="editorial-body">
+          Unlike legacy real estate portals that auction your leads to multiple competing outside brokers, PropFyndr routes high-intent home seekers directly to your in-house sales gallery. When a verified buyer calculates a payment milestone or schedules a private site visit for <strong>${projectLabel}</strong>, the inquiry routes exclusively to you.
+        </p>
+
+        <!-- Developer Showcase Box -->
+        <div class="showcase-banner">
+          <div class="showcase-inner">
+            <span class="showcase-badge">${recipientLabel} DEVELOPER SHOWCASE</span>
+            <div class="showcase-title">${projectLabel}</div>
+            <div class="showcase-pillars">
+              <div class="pillar-item">
+                <strong>Direct Sales Desk</strong>
+                <span>100% in-house buyer inquiries</span>
+              </div>
+              <div class="pillar-item">
+                <strong>Sanctioned Specs</strong>
+                <span>Approved carpet & layout</span>
+              </div>
+              <div class="pillar-item">
+                <strong>Site Visits</strong>
+                <span>Verified buyer bookings</span>
+              </div>
+            </div>
+            ${
+              otherProjects.length > 0
+                ? `<div class="showcase-subprojects">Also highlighting: ${otherProjects.slice(0, 3).join(' · ')}</div>`
+                : ''
+            }
+          </div>
+        </div>
+      </div>
+
+      <hr class="divider" />
+
+      <!-- Feature 2: Official Developer Verification & Console -->
+      <div class="editorial-block">
+        <span class="category-chip">Executive Control</span>
+        <h3 class="editorial-heading">
+          Claim &amp; Manage ${recipientLabel}'s Verified Presence
+        </h3>
+        <p class="editorial-body">
+          Access real-time buyer demand analytics, manage verified tower inventory, and showcase sanctioned floor plans with complete authenticity.
+        </p>
+      </div>
+
+      <!-- Call to Action -->
+      <div class="cta-container">
+        <a href="${generatedInviteLink}" class="cta-button">
+          Claim Official ${recipientLabel} Desk &rarr;
+        </a>
       </div>
     </div>
-    <div class="content">
-      <h1 class="headline">Showcasing ${recipientName} on PropFyndr</h1>
-      <p>Hi ${recipientName || 'Partner'},</p>
-      <p>Greetings from PropFyndr.in.</p>
-      <p>We came across <strong>${recipientName}</strong> and recent flagship developments like <strong>${projectName}</strong>, and would love to present your portfolio to our active network of high-intent property seekers and verified advisory partners.</p>
-      
-      <div class="feature-card">
-        <div class="feature-title">What PropFyndr Delivers For Builders</div>
-        <div class="feature-item"><span class="feature-bullet">✓</span> <span><strong>AI-Powered Lead Discovery:</strong> High-intent home seekers matched directly to your inventory.</span></div>
-        <div class="feature-item"><span class="feature-bullet">✓</span> <span><strong>Verified Digital Showcase:</strong> High-resolution 3D walkthroughs, RERA audit scores & real-time floor plans.</span></div>
-        <div class="feature-item"><span class="feature-bullet">✓</span> <span><strong>Direct Buyer Touchpoint:</strong> Zero brokerage friction, verified site visits, and transparent lead intelligence.</span></div>
-      </div>
 
-      <div class="highlight-banner">
-        🎉 <strong>Complimentary Developer Onboarding:</strong> Project listing is 100% free for select premier developers, and our dedicated team handles complete data ingestion and 3D modeling.
+    <!-- Editorial Footer -->
+    <div class="footer-section">
+      <div class="signature-title">${senderName}</div>
+      <div style="margin: 2px 0 10px 0;">${senderTitle} · PropFyndr Technologies</div>
+      <div>Direct Line: ${senderPhone} · partnerships@propfyndr.in</div>
+      <div style="margin-top: 6px; font-size: 10.5px; opacity: 0.8;">
+        This executive brief was prepared exclusively for the leadership and sales team of ${recipientLabel}.
       </div>
-
-      <p>Could we schedule a brief 10-minute discovery call this week to introduce PropFyndr and get ${recipientName}'s developments listed?</p>
-      
-      <p style="margin-top: 20px;">
-        <a href="https://propfyndr.in/contact" class="cta-button">Schedule a 10-Min Walkthrough &rarr;</a>
-      </p>
-
-      <div class="signature">
-        <strong>${senderName}</strong><br/>
-        <span style="color: #64748b; font-size: 12.5px;">${senderTitle}</span><br/>
-        <span style="color: #64748b; font-size: 12.5px;">Contact: ${senderPhone} · partnerships@propfyndr.in</span><br/>
-        <a href="https://propfyndr.in" style="color: #0284c7; text-decoration: none; font-size: 12.5px;">propfyndr.in</a>
-      </div>
-    </div>
-    <div class="footer">
-      PropFyndr Technologies Inc. · High-Intent Real Estate AI Discovery<br/>
-      Operational across ${targetCity}.
     </div>
   </div>
 </body>
 </html>`
     }
+
+    // Team Invite HTML Template with Dark Mode support
+    const isDarkBg = isDark ? '#0b0b0e' : '#f8fafc'
+    const isDarkCard = isDark ? '#141418' : '#ffffff'
+    const isDarkText = isDark ? '#f4f4f5' : '#0f172a'
+    const isDarkSub = isDark ? '#a1a1aa' : '#64748b'
+    const isDarkBorder = isDark ? 'rgba(255,255,255,0.08)' : '#e2e8f0'
 
     return `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 0; background-color: #f8fafc; color: #1e293b; }
-    .container { max-width: 520px; margin: 20px auto; background: #ffffff; border-radius: 16px; border: 1px solid #e2e8f0; overflow: hidden; box-shadow: 0 4px 20px -2px rgba(0,0,0,0.05); }
-    .header { padding: 28px 32px 18px 32px; background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%); border-bottom: 1px solid #f1f5f9; text-align: center; }
-    .logo-box { width: 34px; height: 34px; background: #0284c7; border-radius: 10px; display: inline-block; vertical-align: middle; text-align: center; line-height: 34px; color: #ffffff; font-weight: 900; font-size: 16px; }
-    .title { font-size: 18px; font-weight: 800; color: #0f172a; margin-top: 14px; margin-bottom: 4px; }
-    .subtitle { font-size: 12px; color: #64748b; margin: 0; }
-    .content { padding: 28px 32px; line-height: 1.6; font-size: 14px; color: #334155; }
-    .badge { display: inline-block; padding: 4px 10px; border-radius: 6px; font-weight: 700; font-size: 11.5px; background: #e0f2fe; color: #0369a1; text-transform: uppercase; margin-bottom: 14px; }
-    .cta-button { display: block; text-align: center; background: #0284c7; color: #ffffff !important; font-weight: 700; font-size: 13.5px; padding: 12px 22px; border-radius: 10px; text-decoration: none; margin: 20px 0 14px 0; }
-    .security-note { font-size: 11.5px; color: #94a3b8; text-align: center; line-height: 1.5; }
-    .footer { padding: 18px 32px; background: #f8fafc; border-top: 1px solid #f1f5f9; font-size: 11.5px; color: #94a3b8; text-align: center; }
+    body { margin: 0; padding: 0; background-color: ${isDarkBg}; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: ${isDarkText}; }
+    .box { max-width: ${isMobile ? '100%' : '520px'}; margin: ${isMobile ? '0' : '30px auto'}; background: ${isDarkCard}; border-radius: ${isMobile ? '0' : '20px'}; padding: 32px 24px; border: ${isMobile ? 'none' : `1px solid ${isDarkBorder}`}; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+    .badge { display: inline-block; padding: 4px 10px; background: rgba(59, 130, 246, 0.12); color: #3b82f6; font-size: 11px; font-weight: 700; border-radius: 9999px; text-transform: uppercase; margin-bottom: 16px; }
+    h1 { font-size: 22px; font-weight: 800; margin: 0 0 12px 0; color: ${isDarkText}; letter-spacing: -0.5px; }
+    p { font-size: 13.5px; line-height: 1.6; color: ${isDarkSub}; margin: 0 0 20px 0; }
+    .btn { display: block; text-align: center; background: #2563eb; color: #ffffff !important; padding: 12px 24px; border-radius: 12px; font-weight: 700; font-size: 13.5px; text-decoration: none; margin-bottom: 24px; }
+    .footer { font-size: 11px; color: ${isDarkSub}; border-top: 1px solid ${isDarkBorder}; padding-top: 16px; word-break: break-all; }
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="header">
-      <div class="logo-box">PF</div>
-      <h1 class="title">Join PropFyndr Admin</h1>
-      <p class="subtitle">Platform Invitation & Security Access</p>
-    </div>
-    <div class="content">
-      <p>Hello,</p>
-      <p>You have been invited to join the <strong>PropFyndr Intelligence Suite</strong> with privileged administrative access:</p>
-      
-      <div style="text-align: center; margin: 14px 0;">
-        <span class="badge">ROLE: ${defaultRole}</span>
-      </div>
-
-      <p>As a team member, you will have access to the real-time project management console, developer outreach desk, buyer lead tracking, and platform observability metrics.</p>
-
-      <a href="${generatedInviteLink}" class="cta-button">Accept Invitation & Activate Account &rarr;</a>
-
-      <p class="security-note">
-        This link is cryptographically signed and will expire in 7 days.<br/>
-        If you did not anticipate this invite, please notify security@propfyndr.in.
-      </p>
-    </div>
+  <div class="box">
+    <span class="badge">Security Credentials</span>
+    <h1>Join PropFyndr Admin</h1>
+    <p>You have been assigned access credentials as <strong>${defaultRole}</strong> on the PropFyndr real estate intelligence console.</p>
+    <a href="${generatedInviteLink}" class="btn">Accept Invitation &rarr;</a>
     <div class="footer">
-      PropFyndr Technologies · PropFyndr Admin Portal · https://propfyndr.in
+      Direct Link: ${generatedInviteLink}
     </div>
   </div>
 </body>
 </html>`
   }
 
-  // Copy helpers
+  // Copy responsive HTML to clipboard
   const copyHtml = async () => {
     try {
       await navigator.clipboard.writeText(getHtml())
       setCopiedType('html')
-      toast.success('Responsive email HTML copied to clipboard!')
+      toast.success('Responsive HTML email copied to clipboard')
       setTimeout(() => setCopiedType(null), 2500)
     } catch {
-      toast.error('Failed to copy to clipboard')
+      toast.error('Failed to copy HTML')
     }
   }
 
+  // Copy Plaintext version to clipboard
   const copyText = async () => {
     try {
       await navigator.clipboard.writeText(getPlainText())
       setCopiedType('text')
-      toast.success('Plaintext version copied!')
+      toast.success('Plaintext email copied to clipboard')
       setTimeout(() => setCopiedType(null), 2500)
     } catch {
-      toast.error('Failed to copy')
+      toast.error('Failed to copy plaintext')
     }
   }
 
+  // Copy WhatsApp Pitch
   const copyWhatsApp = async () => {
-    const waText = getPlainText()
     try {
-      await navigator.clipboard.writeText(waText)
+      await navigator.clipboard.writeText(getWhatsAppText())
       setCopiedType('wa')
-      toast.success('WhatsApp text copied!')
+      toast.success('WhatsApp outreach pitch copied to clipboard')
       setTimeout(() => setCopiedType(null), 2500)
     } catch {
-      toast.error('Failed to copy')
+      toast.error('Failed to copy WhatsApp pitch')
     }
   }
 
-  // Direct send via Resend endpoint
+  // Open direct WhatsApp chat with recipient
+  const openWhatsAppChat = () => {
+    const rawNumber = recipientPhone.replace(/[^0-9]/g, '')
+    const pitchText = encodeURIComponent(getWhatsAppText())
+    if (rawNumber) {
+      window.open(`https://wa.me/${rawNumber}?text=${pitchText}`, '_blank')
+    } else {
+      window.open(`https://wa.me/?text=${pitchText}`, '_blank')
+    }
+  }
+
+  // Live Send via Resend API
   const handleSendViaResend = async () => {
     if (!recipientEmail || !recipientEmail.includes('@')) {
-      toast.error('Please provide a valid recipient email address.')
+      toast.error('Please specify a valid recipient email address.')
       return
     }
 
@@ -316,7 +765,7 @@ https://propfyndr.in`
     setSentSuccessId(null)
 
     try {
-      const res = await adminFetch('/admin/email/send', {
+      const res = await adminFetch('/admin/outreach/send-email', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -324,57 +773,70 @@ https://propfyndr.in`
           subject,
           html: getHtml(),
           text: getPlainText(),
+          template,
+          metadata: {
+            recipientName,
+            projectName,
+            targetCity,
+            role: defaultRole,
+          },
         }),
       })
 
-      const data = await res.json().catch(() => null)
-
-      if (res.ok && data?.success) {
-        setSentSuccessId(data.messageId || 'SENT')
-        toast.success(`Email dispatched successfully to ${recipientEmail}!`)
-      } else {
-        toast.error(data?.error || 'Failed to dispatch email via Resend.')
+      const data = await res.json()
+      if (!res.ok) {
+        throw new Error(data.error || 'Failed to dispatch email via Resend')
       }
-    } catch (err: any) {
-      console.error('Send error:', err)
-      toast.error(err?.message || 'Failed to communicate with mail dispatch worker.')
+
+      setSentSuccessId(data.messageId || 'sent')
+      toast.success(`Executive email successfully dispatched to ${recipientEmail}!`)
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Resend dispatch failed'
+      toast.error(msg)
     } finally {
       setIsSending(false)
     }
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 md:p-6 bg-zinc-950/75 backdrop-blur-md animate-in fade-in duration-200">
-      <div className="bg-white dark:bg-zinc-900 rounded-3xl border border-zinc-200/90 dark:border-zinc-800 shadow-2xl w-full max-w-7xl h-[94vh] flex flex-col overflow-hidden">
-        {/* ── Modal Main Header ────────────────────────────────────────────── */}
-        <div className="flex items-center justify-between px-5 sm:px-6 py-3.5 border-b border-zinc-200/80 dark:border-zinc-800 shrink-0 bg-zinc-50/70 dark:bg-zinc-900/70 backdrop-blur-sm">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 md:p-6 overflow-hidden">
+      {/* Backdrop */}
+      <div
+        className="absolute inset-0 bg-black/75 backdrop-blur-md transition-opacity"
+        onClick={onClose}
+      />
+
+      {/* Main Apple Modal Card Container */}
+      <div className="relative w-full max-w-7xl h-[92vh] max-h-[920px] bg-white dark:bg-zinc-900 rounded-[28px] shadow-[0_25px_70px_rgba(0,0,0,0.45)] border border-zinc-200/90 dark:border-zinc-800 flex flex-col overflow-hidden z-10">
+        {/* ── Modal Top Header Bar ────────────────────────────────────────── */}
+        <div className="flex items-center justify-between px-5 sm:px-6 py-3.5 border-b border-zinc-200/80 dark:border-zinc-800 bg-white/95 dark:bg-zinc-900/95 backdrop-blur-md shrink-0">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-xl bg-blue-50 dark:bg-blue-950/60 border border-blue-200 dark:border-blue-800 flex items-center justify-center text-blue-600 dark:text-blue-400 shadow-2xs">
-              <Mail size={16} />
+            <div className="w-9 h-9 rounded-xl bg-blue-50 dark:bg-blue-950/60 border border-blue-200/60 dark:border-blue-800/60 flex items-center justify-center text-blue-600 dark:text-blue-400 shadow-2xs">
+              <Mail size={18} />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="text-sm sm:text-base font-bold text-zinc-900 dark:text-zinc-50">
-                  Email Composer & Executive Preview
-                </h2>
-                <span className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-400 border border-blue-200/70 dark:border-blue-800">
-                  <Sparkles size={11} />
+                <h1 className="text-sm sm:text-base font-bold text-zinc-900 dark:text-zinc-100 tracking-tight">
+                  Email Composer &amp; Executive Preview
+                </h1>
+                <span className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-400 border border-blue-200/80 dark:border-blue-800/80">
+                  <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
                   Resend Engine
                 </span>
               </div>
-              <p className="text-[11px] text-zinc-500 dark:text-zinc-400 hidden sm:block">
-                Multi-client HTML preview simulation across Gmail, Outlook 365, and iOS Mobile.
+              <p className="text-[11px] text-zinc-500 hidden sm:block">
+                Tailored executive outreach simulation across Gmail, Outlook 365, and iOS Apple Mail.
               </p>
             </div>
           </div>
 
+          {/* Top Actions: Send via Resend + Close */}
           <div className="flex items-center gap-2">
-            {/* Quick Resend Dispatch Button */}
             <button
               type="button"
               onClick={handleSendViaResend}
               disabled={isSending}
-              className={`flex items-center gap-1.5 py-1.5 px-3.5 rounded-xl text-xs font-bold text-white transition-all shadow-xs cursor-pointer ${
+              className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-white font-bold text-xs shadow-md transition-all cursor-pointer ${
                 isSending
                   ? 'bg-blue-400 cursor-not-allowed'
                   : 'bg-blue-600 hover:bg-blue-500 active:scale-[0.98]'
@@ -419,7 +881,7 @@ https://propfyndr.in`
                 : 'text-zinc-500'
             }`}
           >
-            Edit Template & Fields
+            Edit Template &amp; Fields
           </button>
           <button
             type="button"
@@ -438,14 +900,14 @@ https://propfyndr.in`
         <div className="flex-1 flex flex-col md:flex-row min-h-0 overflow-hidden">
           {/* Left Panel: Controls & Template Parameters */}
           <div
-            className={`w-full md:w-[360px] lg:w-[400px] border-r border-zinc-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-4 sm:p-5 overflow-y-auto shrink-0 flex flex-col justify-between gap-5 ${
+            className={`w-full md:w-[360px] lg:w-[410px] border-r border-zinc-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-4 sm:p-5 overflow-y-auto shrink-0 flex flex-col justify-between gap-5 ${
               mobileTab === 'preview' ? 'hidden md:flex' : 'flex'
             }`}
           >
             <div className="space-y-4">
               {/* Template Selector */}
               <div>
-                <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider mb-1.5">
+                <label className="block text-[11px] font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider mb-1.5">
                   Email Template
                 </label>
                 <CustomSelect
@@ -460,67 +922,134 @@ https://propfyndr.in`
                 />
               </div>
 
-              {/* Dynamic Field Inputs */}
+              {/* Dynamic Field Inputs — 100% Adaptable */}
               {template === 'builder_pitch' ? (
-                <div className="space-y-3">
+                <div className="space-y-3.5">
+                  {/* Recipient Firm */}
                   <div>
-                    <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">
-                      Developer / Firm Name
+                    <label className="text-[11px] font-bold text-zinc-700 dark:text-zinc-300 mb-1 flex items-center gap-1.5">
+                      <Building2 size={13} className="text-zinc-400" />
+                      <span>Developer / Builder Firm Name *</span>
                     </label>
                     <input
                       type="text"
                       value={recipientName}
                       onChange={(e) => setRecipientName(e.target.value)}
-                      placeholder="e.g. Godrej Properties"
-                      className="w-full px-3 py-2 text-xs font-medium bg-zinc-50 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700/60 rounded-xl text-zinc-900 dark:text-zinc-100 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                      placeholder="e.g. Aadhaar Shri"
+                      className="w-full px-3 py-2 text-xs font-medium bg-zinc-50 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700/60 rounded-xl text-zinc-900 dark:text-zinc-100 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 shadow-2xs transition-all"
                     />
                   </div>
 
+                  {/* Recipient Email */}
                   <div>
-                    <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">
-                      Recipient Email *
+                    <label className="text-[11px] font-bold text-zinc-700 dark:text-zinc-300 mb-1 flex items-center gap-1.5">
+                      <Mail size={13} className="text-zinc-400" />
+                      <span>Recipient Email *</span>
                     </label>
                     <input
                       type="email"
                       value={recipientEmail}
                       onChange={(e) => setRecipientEmail(e.target.value)}
-                      className="w-full px-3 py-2 text-xs font-medium bg-zinc-50 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700/60 rounded-xl text-zinc-900 dark:text-zinc-100 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                      placeholder="partnerships@aadhaar-shri.com"
+                      className="w-full px-3 py-2 text-xs font-medium bg-zinc-50 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700/60 rounded-xl text-zinc-900 dark:text-zinc-100 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 shadow-2xs transition-all"
                     />
                   </div>
 
+                  {/* Recipient WhatsApp / Phone */}
                   <div>
-                    <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">
-                      Flagship Project Mention
+                    <label className="text-[11px] font-bold text-zinc-700 dark:text-zinc-300 mb-1 flex items-center gap-1.5">
+                      <Phone size={13} className="text-zinc-400" />
+                      <span>Recipient Mobile / WhatsApp Number</span>
+                    </label>
+                    <input
+                      type="tel"
+                      value={recipientPhone}
+                      onChange={(e) => setRecipientPhone(e.target.value)}
+                      placeholder="+91 98765 43210"
+                      className="w-full px-3 py-2 text-xs font-mono font-medium bg-zinc-50 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700/60 rounded-xl text-zinc-900 dark:text-zinc-100 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 shadow-2xs transition-all"
+                    />
+                  </div>
+
+                  {/* Flagship Project Mention + Interactive DB Project Pills */}
+                  <div>
+                    <label className="text-[11px] font-bold text-zinc-700 dark:text-zinc-300 mb-1 flex items-center gap-1.5">
+                      <Layers size={13} className="text-zinc-400" />
+                      <span>Flagship Project Mention</span>
                     </label>
                     <input
                       type="text"
                       value={projectName}
                       onChange={(e) => setProjectName(e.target.value)}
-                      className="w-full px-3 py-2 text-xs font-medium bg-zinc-50 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700/60 rounded-xl text-zinc-900 dark:text-zinc-100 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                      placeholder="e.g. Everest"
+                      className="w-full px-3 py-2 text-xs font-medium bg-zinc-50 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700/60 rounded-xl text-zinc-900 dark:text-zinc-100 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 shadow-2xs transition-all"
+                    />
+
+                    {/* Interactive Associated Projects from Database */}
+                    {projectsList.length > 0 && (
+                      <div className="mt-2 pt-2 border-t border-zinc-100 dark:border-zinc-800/80">
+                        <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider block mb-1">
+                          Projects in Database for {recipientName || 'Builder'}:
+                        </span>
+                        <div className="flex flex-wrap gap-1.5">
+                          {projectsList.map((p) => {
+                            const isCurrent = projectName.toLowerCase() === p.toLowerCase()
+                            return (
+                              <button
+                                key={p}
+                                type="button"
+                                onClick={() => setProjectName(p)}
+                                className={`text-[11px] font-medium px-2 py-0.5 rounded-lg border transition-all cursor-pointer ${
+                                  isCurrent
+                                    ? 'bg-blue-50 dark:bg-blue-950/80 border-blue-300 dark:border-blue-700 text-blue-700 dark:text-blue-300 font-bold'
+                                    : 'bg-zinc-50 dark:bg-zinc-800 border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-400 hover:border-zinc-400'
+                                }`}
+                              >
+                                {p}
+                              </button>
+                            )
+                          })}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Target Region */}
+                  <div>
+                    <label className="text-[11px] font-bold text-zinc-700 dark:text-zinc-300 mb-1 flex items-center gap-1.5">
+                      <MapPin size={13} className="text-zinc-400" />
+                      <span>Target Micro-Market / Region</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={targetCity}
+                      onChange={(e) => setTargetCity(e.target.value)}
+                      placeholder="e.g. Greater Noida & Delhi-NCR"
+                      className="w-full px-3 py-2 text-xs font-medium bg-zinc-50 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700/60 rounded-xl text-zinc-900 dark:text-zinc-100 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 shadow-2xs transition-all"
                     />
                   </div>
 
-                  <div className="grid grid-cols-2 gap-2">
+                  {/* Sender Credentials */}
+                  <div className="grid grid-cols-2 gap-2 pt-1">
                     <div>
-                      <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">
+                      <label className="block text-[10px] font-bold text-zinc-500 mb-1">
                         Sender Name
                       </label>
                       <input
                         type="text"
                         value={senderName}
                         onChange={(e) => setSenderName(e.target.value)}
-                        className="w-full px-3 py-2 text-xs font-medium bg-zinc-50 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700/60 rounded-xl text-zinc-900 dark:text-zinc-100 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                        className="w-full px-2.5 py-1.5 text-xs font-medium bg-zinc-50 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700/60 rounded-xl text-zinc-900 dark:text-zinc-100 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 shadow-2xs"
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">
+                      <label className="block text-[10px] font-bold text-zinc-500 mb-1">
                         Sender Phone
                       </label>
                       <input
                         type="text"
                         value={senderPhone}
                         onChange={(e) => setSenderPhone(e.target.value)}
-                        className="w-full px-3 py-2 text-xs font-medium bg-zinc-50 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700/60 rounded-xl text-zinc-900 dark:text-zinc-100 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                        className="w-full px-2.5 py-1.5 text-xs font-medium bg-zinc-50 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700/60 rounded-xl text-zinc-900 dark:text-zinc-100 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 shadow-2xs"
                       />
                     </div>
                   </div>
@@ -535,7 +1064,7 @@ https://propfyndr.in`
                       type="email"
                       value={recipientEmail}
                       onChange={(e) => setRecipientEmail(e.target.value)}
-                      className="w-full px-3 py-2 text-xs font-medium bg-zinc-50 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700/60 rounded-xl text-zinc-900 dark:text-zinc-100 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                      className="w-full px-3 py-2 text-xs font-medium bg-zinc-50 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700/60 rounded-xl text-zinc-900 dark:text-zinc-100 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 shadow-2xs"
                     />
                   </div>
 
@@ -560,21 +1089,39 @@ https://propfyndr.in`
               )}
             </div>
 
-            {/* Instant Copy / Share Section */}
+            {/* Instant Actions & Outreach Section */}
             <div className="pt-4 border-t border-zinc-200/80 dark:border-zinc-800 space-y-2">
               <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider block">
-                Instant Copy / Share
+                Instant Actions &amp; Outreach
               </span>
 
-              <button
-                type="button"
-                onClick={copyWhatsApp}
-                className="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition-all shadow-2xs cursor-pointer active:scale-[0.98]"
-              >
-                {copiedType === 'wa' ? <Check size={14} /> : <MessageCircle size={14} />}
-                <span>{copiedType === 'wa' ? 'WhatsApp Text Copied!' : 'Copy WhatsApp Pitch'}</span>
-              </button>
+              {/* WhatsApp Row */}
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={openWhatsAppChat}
+                  className="flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition-all shadow-2xs cursor-pointer active:scale-[0.98]"
+                  title="Open WhatsApp chat with prefilled message"
+                >
+                  <MessageCircle size={14} />
+                  <span>
+                    {recipientPhone
+                      ? `Open in WhatsApp (${recipientPhone.slice(-10)})`
+                      : 'Open in WhatsApp'}
+                  </span>
+                </button>
 
+                <button
+                  type="button"
+                  onClick={copyWhatsApp}
+                  className="flex items-center justify-center px-3 py-2 rounded-xl border border-zinc-200 dark:border-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-300 transition-all cursor-pointer active:scale-[0.98]"
+                  title="Copy WhatsApp plaintext pitch"
+                >
+                  {copiedType === 'wa' ? <Check size={14} className="text-emerald-500" /> : <Copy size={14} />}
+                </button>
+              </div>
+
+              {/* Copy Responsive HTML Button */}
               <button
                 type="button"
                 onClick={copyHtml}
@@ -584,6 +1131,7 @@ https://propfyndr.in`
                 <span>{copiedType === 'html' ? 'HTML Copied to Clipboard!' : 'Copy Responsive HTML'}</span>
               </button>
 
+              {/* Copy Plaintext Button */}
               <button
                 type="button"
                 onClick={copyText}
@@ -601,7 +1149,7 @@ https://propfyndr.in`
               mobileTab === 'edit' ? 'hidden md:flex' : 'flex'
             }`}
           >
-            {/* Canvas Sub-Header: Client & Frame Switcher */}
+            {/* Canvas Sub-Header: Client & Frame Switcher + Dark Mode Toggle */}
             <div className="flex items-center justify-between px-4 sm:px-6 py-2.5 bg-white dark:bg-zinc-900 border-b border-zinc-200/80 dark:border-zinc-800 text-xs shrink-0">
               <div className="flex items-center gap-2">
                 <span className="text-zinc-400 font-medium hidden sm:inline">Preview Client:</span>
@@ -650,46 +1198,62 @@ https://propfyndr.in`
                 </div>
               </div>
 
-              {/* Theme toggle */}
+              {/* Dark Mode Dynamic Toggle */}
               <div className="flex items-center gap-2">
                 <button
                   type="button"
                   onClick={() => setIsDarkPreview(!isDarkPreview)}
-                  className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-700 dark:text-zinc-300 font-medium text-[11px] shadow-2xs cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-800"
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border font-semibold text-[11px] shadow-2xs cursor-pointer transition-all active:scale-[0.98] ${
+                    isDarkPreview
+                      ? 'bg-indigo-950/80 border-indigo-700 text-indigo-300 hover:bg-indigo-900/80'
+                      : 'bg-zinc-100 border-zinc-200 hover:bg-zinc-200 text-zinc-700'
+                  }`}
+                  title="Toggle dark mode preview simulation"
                 >
-                  {isDarkPreview ? <Sun size={13} className="text-amber-500" /> : <Moon size={13} className="text-indigo-500" />}
-                  <span>{isDarkPreview ? 'Light Mode' : 'Dark Mode'}</span>
+                  {isDarkPreview ? (
+                    <Sun size={13} className="text-amber-400" />
+                  ) : (
+                    <Moon size={13} className="text-indigo-600" />
+                  )}
+                  <span>{isDarkPreview ? 'Dark Mode: ON' : 'Dark Mode: OFF'}</span>
                 </button>
               </div>
             </div>
 
-            {/* Canvas Screen: Realistic Laptop / Mobile Frame */}
+            {/* Canvas Screen: Laptop or Mobile Device Frame */}
             <div className="flex-1 overflow-y-auto p-3 sm:p-6 md:p-8 flex items-center justify-center">
               {clientMode === 'mobile' ? (
-                /* ── PHONE FRAME (iPhone Mockup) ─────────────────────────── */
-                <div className="relative flex flex-col items-center">
-                  {/* Smartphone Chassis */}
+                /* ── PHONE FRAME (iPhone 16 Pro Natural Titanium Mockup) ─── */
+                <div className="relative flex flex-col items-center select-none py-2">
                   <div
-                    className={`w-[320px] xs:w-[360px] rounded-[48px] border-[6px] border-zinc-800 dark:border-zinc-700 p-2 shadow-2xl transition-all overflow-hidden shrink-0 ${
+                    className={`w-[365px] xs:w-[380px] max-w-[94vw] rounded-[52px] border-[5px] border-zinc-700/90 shadow-[0_30px_70px_-15px_rgba(0,0,0,0.5),0_0_0_1px_rgba(255,255,255,0.12)] ring-2 ring-zinc-500/30 transition-all overflow-hidden shrink-0 flex flex-col ${
                       isDarkPreview ? 'bg-zinc-950 text-zinc-100' : 'bg-white text-zinc-900'
                     }`}
                   >
-                    {/* Top Notch / Dynamic Island */}
-                    <div className="w-full flex items-center justify-between px-6 pt-1 pb-2">
+                    {/* Top Dynamic Island Bar */}
+                    <div className="w-full flex items-center justify-between px-6 pt-2 pb-2 bg-black text-white shrink-0">
                       <span className="text-[11px] font-bold tracking-tight">9:41</span>
-                      <div className="w-20 h-4 bg-zinc-900 rounded-full flex items-center justify-center gap-1.5">
-                        <div className="w-1.5 h-1.5 rounded-full bg-zinc-800" />
-                        <div className="w-1.5 h-1.5 rounded-full bg-blue-900/40" />
+                      <div className="w-24 h-5 bg-black rounded-full flex items-center justify-between px-2.5 border border-zinc-800/80 shadow-xs">
+                        <div className="w-2.5 h-2.5 rounded-full bg-zinc-900 flex items-center justify-center">
+                          <div className="w-1 h-1 rounded-full bg-blue-950/80" />
+                        </div>
+                        <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_4px_rgba(52,211,153,0.9)]" />
                       </div>
                       <div className="flex items-center gap-1.5 text-zinc-400">
                         <Wifi size={11} />
-                        <Battery size={13} className="text-zinc-800 dark:text-zinc-200" />
+                        <Battery size={13} className="text-zinc-200" />
                       </div>
                     </div>
 
                     {/* Native Mobile Email Header */}
-                    <div className="px-4 py-2 border-b border-zinc-200 dark:border-zinc-800/80 flex items-center justify-between text-xs">
-                      <div className="flex items-center gap-1 text-blue-600 font-semibold cursor-pointer">
+                    <div
+                      className={`px-4 py-2 border-b flex items-center justify-between text-xs shrink-0 transition-colors ${
+                        isDarkPreview
+                          ? 'bg-zinc-900 border-zinc-800 text-zinc-300'
+                          : 'bg-zinc-50 border-zinc-200 text-zinc-700'
+                      }`}
+                    >
+                      <div className="flex items-center gap-1 text-blue-500 font-semibold cursor-pointer">
                         <span>‹</span>
                         <span>Inbox</span>
                       </div>
@@ -701,8 +1265,18 @@ https://propfyndr.in`
                     </div>
 
                     {/* Email Meta in Mobile Client */}
-                    <div className="px-4 py-3 border-b border-zinc-100 dark:border-zinc-800/60 text-xs">
-                      <div className="font-bold text-xs text-zinc-900 dark:text-zinc-100 line-clamp-2 mb-1.5">
+                    <div
+                      className={`px-4 py-2.5 border-b text-xs shrink-0 transition-colors ${
+                        isDarkPreview
+                          ? 'bg-zinc-900/80 border-zinc-800'
+                          : 'bg-white border-zinc-100'
+                      }`}
+                    >
+                      <div
+                        className={`font-bold text-xs line-clamp-1 mb-1 ${
+                          isDarkPreview ? 'text-zinc-100' : 'text-zinc-900'
+                        }`}
+                      >
                         {subject}
                       </div>
                       <div className="flex items-center justify-between text-[11px]">
@@ -711,40 +1285,65 @@ https://propfyndr.in`
                             {template === 'builder_pitch' ? 'P' : 'PF'}
                           </div>
                           <div>
-                            <div className="font-semibold text-zinc-800 dark:text-zinc-200">{senderName}</div>
-                            <div className="text-[10px] text-zinc-400">to {recipientName}</div>
+                            <div
+                              className={`font-semibold ${
+                                isDarkPreview ? 'text-zinc-200' : 'text-zinc-800'
+                              }`}
+                            >
+                              {senderName}
+                            </div>
+                            <div className="text-[10px] text-zinc-400">
+                              to {recipientName || 'Developer'}
+                            </div>
                           </div>
                         </div>
                         <span className="text-[10px] text-zinc-400">4:51 PM</span>
                       </div>
                     </div>
 
-                    {/* Phone Screen Body Scrollable */}
-                    <div className="p-3 max-h-[500px] overflow-y-auto text-xs leading-relaxed select-text">
-                      <div dangerouslySetInnerHTML={{ __html: getHtml() }} />
+                    {/* Phone Screen Body Scrollable — dynamic dark mode adaptation */}
+                    <div
+                      className={`p-0 max-h-[560px] overflow-y-auto text-xs leading-relaxed select-text transition-colors duration-200 ${
+                        isDarkPreview ? 'bg-[#0b0b0e]' : 'bg-[#faf7f0]'
+                      }`}
+                    >
+                      <div
+                        dangerouslySetInnerHTML={{
+                          __html: getHtml(true, isDarkPreview),
+                        }}
+                      />
                     </div>
 
                     {/* Bottom iOS Home Indicator */}
-                    <div className="w-full flex justify-center py-2">
+                    <div
+                      className={`w-full flex justify-center py-2 shrink-0 border-t transition-colors duration-200 ${
+                        isDarkPreview
+                          ? 'bg-[#0b0b0e] border-zinc-800'
+                          : 'bg-[#faf7f0] border-zinc-200/40'
+                      }`}
+                    >
                       <div className="w-28 h-1 bg-zinc-400 dark:bg-zinc-600 rounded-full" />
                     </div>
                   </div>
                 </div>
               ) : (
-                /* ── LAPTOP FRAME (MacBook / Ultrabook Mockup) ─────────────── */
-                <div className="w-full max-w-4xl flex flex-col items-center">
+                /* ── LAPTOP FRAME (MacBook Pro Space Gray Studio Mockup) ─── */
+                <div className="w-full max-w-4xl flex flex-col items-center select-none">
                   {/* Laptop Screen Bezel */}
-                  <div className="w-full bg-zinc-900 rounded-t-2xl p-2.5 sm:p-3 shadow-2xl border border-zinc-800">
-                    {/* Top Webcam Notch */}
+                  <div className="w-full bg-[#161619] rounded-t-[26px] p-2.5 sm:p-3.5 shadow-[0_32px_80px_-20px_rgba(0,0,0,0.65),0_0_0_1px_rgba(255,255,255,0.08)] border-[2px] border-zinc-700/80">
+                    {/* Top Notch with Dual Sensor & Green Camera LED */}
                     <div className="w-full flex items-center justify-center pb-2">
-                      <div className="w-2.5 h-2.5 rounded-full bg-zinc-950 border border-zinc-800 flex items-center justify-center">
-                        <div className="w-0.5 h-0.5 rounded-full bg-emerald-500/80" />
+                      <div className="w-24 h-4 bg-zinc-950 rounded-b-xl flex items-center justify-center gap-2 border-b border-x border-zinc-800 shadow-inner">
+                        <div className="w-2.5 h-2.5 rounded-full bg-zinc-900 border border-zinc-700/80 flex items-center justify-center">
+                          <div className="w-1 h-1 rounded-full bg-blue-950/80" />
+                        </div>
+                        <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_5px_rgba(52,211,153,0.9)] animate-pulse" />
                       </div>
                     </div>
 
                     {/* Laptop Screen Display Area */}
                     <div
-                      className={`w-full rounded-xl overflow-hidden shadow-inner ${
+                      className={`w-full rounded-xl overflow-hidden ring-1 ring-black/40 shadow-inner transition-colors ${
                         isDarkPreview ? 'bg-zinc-950 text-zinc-100' : 'bg-white text-zinc-900'
                       }`}
                     >
@@ -753,7 +1352,7 @@ https://propfyndr.in`
                         <div className="flex flex-col text-xs">
                           {/* Gmail Top Navbar */}
                           <div
-                            className={`flex items-center justify-between px-4 py-2.5 border-b select-none ${
+                            className={`flex items-center justify-between px-4 py-2.5 border-b select-none transition-colors ${
                               isDarkPreview
                                 ? 'bg-zinc-900 border-zinc-800 text-zinc-300'
                                 : 'bg-[#f6f8fc] border-zinc-200 text-zinc-700'
@@ -763,12 +1362,24 @@ https://propfyndr.in`
                               <Menu size={16} className="text-zinc-500" />
                               <div className="flex items-center gap-1.5 font-semibold text-sm">
                                 <span className="text-red-500 font-black text-base">M</span>
-                                <span className="font-bold text-zinc-700 dark:text-zinc-200">Gmail</span>
+                                <span
+                                  className={`font-bold ${
+                                    isDarkPreview ? 'text-zinc-200' : 'text-zinc-700'
+                                  }`}
+                                >
+                                  Gmail
+                                </span>
                               </div>
                             </div>
 
                             {/* Gmail Search Bar */}
-                            <div className="hidden sm:flex items-center flex-1 max-w-md mx-6 px-3.5 py-1.5 rounded-full bg-white dark:bg-zinc-800 border border-zinc-200/80 dark:border-zinc-700 shadow-2xs gap-2">
+                            <div
+                              className={`hidden sm:flex items-center flex-1 max-w-md mx-6 px-3.5 py-1.5 rounded-full border shadow-2xs gap-2 ${
+                                isDarkPreview
+                                  ? 'bg-zinc-800 border-zinc-700 text-zinc-200'
+                                  : 'bg-white border-zinc-200/80 text-zinc-700'
+                              }`}
+                            >
                               <Search size={14} className="text-zinc-400" />
                               <span className="text-xs text-zinc-400 flex-1">Search mail</span>
                               <Sliders size={13} className="text-zinc-400" />
@@ -788,25 +1399,35 @@ https://propfyndr.in`
                             }`}
                           >
                             <div className="flex items-center gap-4">
-                              <CornerUpLeft size={14} className="hover:text-zinc-800 cursor-pointer" />
-                              <Archive size={14} className="hover:text-zinc-800 cursor-pointer" />
-                              <AlertCircle size={14} className="hover:text-zinc-800 cursor-pointer" />
-                              <Trash2 size={14} className="hover:text-zinc-800 cursor-pointer" />
-                              <Clock size={14} className="hover:text-zinc-800 cursor-pointer" />
-                              <Tag size={14} className="hover:text-zinc-800 cursor-pointer" />
+                              <CornerUpLeft size={14} className="hover:text-zinc-800 dark:hover:text-zinc-200 cursor-pointer" />
+                              <Archive size={14} className="hover:text-zinc-800 dark:hover:text-zinc-200 cursor-pointer" />
+                              <AlertCircle size={14} className="hover:text-zinc-800 dark:hover:text-zinc-200 cursor-pointer" />
+                              <Trash2 size={14} className="hover:text-zinc-800 dark:hover:text-zinc-200 cursor-pointer" />
+                              <Clock size={14} className="hover:text-zinc-800 dark:hover:text-zinc-200 cursor-pointer" />
+                              <Tag size={14} className="hover:text-zinc-800 dark:hover:text-zinc-200 cursor-pointer" />
                             </div>
 
                             <div className="flex items-center gap-3">
-                              <Printer size={14} className="hover:text-zinc-800 cursor-pointer" />
-                              <ExternalLink size={14} className="hover:text-zinc-800 cursor-pointer" />
+                              <Printer size={14} className="hover:text-zinc-800 dark:hover:text-zinc-200 cursor-pointer" />
+                              <ExternalLink size={14} className="hover:text-zinc-800 dark:hover:text-zinc-200 cursor-pointer" />
                             </div>
                           </div>
 
                           {/* Gmail Email Header */}
-                          <div className="p-4 sm:p-6 border-b border-zinc-100 dark:border-zinc-800/80">
+                          <div
+                            className={`p-4 sm:p-6 border-b transition-colors ${
+                              isDarkPreview
+                                ? 'bg-zinc-950 border-zinc-800'
+                                : 'bg-white border-zinc-100'
+                            }`}
+                          >
                             <div className="flex items-start justify-between gap-4 mb-3">
                               <div className="flex items-center gap-2 flex-wrap">
-                                <h2 className="text-base sm:text-lg font-bold text-zinc-900 dark:text-zinc-100">
+                                <h2
+                                  className={`text-base sm:text-lg font-bold ${
+                                    isDarkPreview ? 'text-zinc-100' : 'text-zinc-900'
+                                  }`}
+                                >
                                   {subject}
                                 </h2>
                                 <span className="px-2 py-0.5 rounded bg-zinc-100 dark:bg-zinc-800 text-[10px] font-bold text-zinc-600 dark:text-zinc-400">
@@ -826,24 +1447,42 @@ https://propfyndr.in`
                                   {template === 'builder_pitch' ? 'P' : 'PF'}
                                 </div>
                                 <div>
-                                  <div className="font-bold text-zinc-900 dark:text-zinc-100 flex items-center gap-1.5">
+                                  <div
+                                    className={`font-bold flex items-center gap-1.5 ${
+                                      isDarkPreview ? 'text-zinc-100' : 'text-zinc-900'
+                                    }`}
+                                  >
                                     <span>{senderName}</span>
-                                    <span className="font-normal text-zinc-400">&lt;partnerships@propfyndr.in&gt;</span>
+                                    <span className="font-normal text-zinc-400">
+                                      &lt;partnerships@propfyndr.in&gt;
+                                    </span>
                                   </div>
                                   <div className="text-zinc-400 text-[11px] flex items-center gap-1">
-                                    <span>to {recipientName} &lt;{recipientEmail}&gt;</span>
+                                    <span>
+                                      to {recipientName} &lt;{recipientEmail}&gt;
+                                    </span>
                                     <ChevronDown size={11} className="cursor-pointer" />
                                   </div>
                                 </div>
                               </div>
 
-                              <span className="text-[11px] text-zinc-400 tabular-nums">4:51 PM (0 minutes ago)</span>
+                              <span className="text-[11px] text-zinc-400 tabular-nums">
+                                4:51 PM (0 minutes ago)
+                              </span>
                             </div>
                           </div>
 
-                          {/* Email Body */}
-                          <div className="p-4 sm:p-8 max-h-[460px] overflow-y-auto select-text">
-                            <div dangerouslySetInnerHTML={{ __html: getHtml() }} />
+                          {/* Email Body Canvas */}
+                          <div
+                            className={`p-4 sm:p-8 max-h-[460px] overflow-y-auto select-text transition-colors duration-200 ${
+                              isDarkPreview ? 'bg-[#0b0b0e]' : 'bg-[#faf7f0]'
+                            }`}
+                          >
+                            <div
+                              dangerouslySetInnerHTML={{
+                                __html: getHtml(false, isDarkPreview),
+                              }}
+                            />
                           </div>
                         </div>
                       )}
@@ -877,14 +1516,26 @@ https://propfyndr.in`
                               isDarkPreview ? 'bg-zinc-900 border-zinc-800' : 'bg-[#f3f2f1] border-zinc-200'
                             }`}
                           >
-                            <span className="font-bold text-[#0078d4] border-b-2 border-[#0078d4] pb-1">Home</span>
+                            <span className="font-bold text-[#0078d4] border-b-2 border-[#0078d4] pb-1">
+                              Home
+                            </span>
                             <span className="pb-1 hover:text-zinc-900 cursor-pointer">View</span>
                             <span className="pb-1 hover:text-zinc-900 cursor-pointer">Help</span>
                           </div>
 
                           {/* Outlook Email Header */}
-                          <div className="p-4 sm:p-6 border-b border-zinc-100 dark:border-zinc-800/80">
-                            <h2 className="text-base sm:text-lg font-bold text-zinc-900 dark:text-zinc-100 mb-3">
+                          <div
+                            className={`p-4 sm:p-6 border-b transition-colors ${
+                              isDarkPreview
+                                ? 'bg-zinc-950 border-zinc-800'
+                                : 'bg-white border-zinc-100'
+                            }`}
+                          >
+                            <h2
+                              className={`text-base sm:text-lg font-bold mb-3 ${
+                                isDarkPreview ? 'text-zinc-100' : 'text-zinc-900'
+                              }`}
+                            >
                               {subject}
                             </h2>
 
@@ -894,7 +1545,11 @@ https://propfyndr.in`
                                   {template === 'builder_pitch' ? 'P' : 'PF'}
                                 </div>
                                 <div>
-                                  <div className="font-bold text-zinc-900 dark:text-zinc-100">
+                                  <div
+                                    className={`font-bold ${
+                                      isDarkPreview ? 'text-zinc-100' : 'text-zinc-900'
+                                    }`}
+                                  >
                                     {senderName} &lt;partnerships@propfyndr.in&gt;
                                   </div>
                                   <div className="text-zinc-400 text-[11px]">
@@ -906,18 +1561,32 @@ https://propfyndr.in`
                             </div>
                           </div>
 
-                          {/* Email Body */}
-                          <div className="p-4 sm:p-8 max-h-[460px] overflow-y-auto select-text">
-                            <div dangerouslySetInnerHTML={{ __html: getHtml() }} />
+                          {/* Email Body Canvas */}
+                          <div
+                            className={`p-4 sm:p-8 max-h-[460px] overflow-y-auto select-text transition-colors duration-200 ${
+                              isDarkPreview ? 'bg-[#0b0b0e]' : 'bg-[#faf7f0]'
+                            }`}
+                          >
+                            <div
+                              dangerouslySetInnerHTML={{
+                                __html: getHtml(false, isDarkPreview),
+                              }}
+                            />
                           </div>
                         </div>
                       )}
                     </div>
                   </div>
 
-                  {/* Laptop Aluminum Base / Keyboard Hinge Mockup */}
-                  <div className="w-[102%] h-4 bg-gradient-to-b from-zinc-700 via-zinc-800 to-zinc-900 rounded-b-xl shadow-lg flex justify-center items-center">
-                    <div className="w-20 h-1 bg-zinc-600 rounded-full" />
+                  {/* Laptop Precision-Milled Aluminum Base & Lip */}
+                  <div className="relative w-[103%] -mt-[1px] flex flex-col items-center">
+                    <div className="w-full h-[5px] bg-gradient-to-r from-zinc-600 via-zinc-400 to-zinc-600 rounded-t-sm shadow-[0_1px_2px_rgba(0,0,0,0.35)]" />
+                    <div className="relative w-full h-3.5 bg-gradient-to-b from-zinc-700 via-zinc-800 to-zinc-950 rounded-b-[14px] shadow-[0_14px_30px_rgba(0,0,0,0.5)] border-t border-zinc-600/50 flex justify-center items-start">
+                      <div className="w-24 h-1.5 bg-gradient-to-b from-zinc-950 to-zinc-700 rounded-b-md shadow-inner flex items-center justify-center">
+                        <div className="w-16 h-[1px] bg-zinc-500/50 rounded-full" />
+                      </div>
+                    </div>
+                    <div className="w-[96%] h-2.5 bg-black/40 blur-md rounded-full -mt-1 pointer-events-none" />
                   </div>
                 </div>
               )}
@@ -926,7 +1595,7 @@ https://propfyndr.in`
             {/* Modal Bottom Status Bar */}
             <div className="px-5 sm:px-6 py-2.5 bg-white dark:bg-zinc-900 border-t border-zinc-200/80 dark:border-zinc-800 flex items-center justify-between text-xs shrink-0">
               <div className="flex items-center gap-2 text-zinc-500">
-                <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
                 <span className="font-semibold text-zinc-700 dark:text-zinc-300">
                   Ready to Send or Copy
                 </span>
@@ -939,7 +1608,7 @@ https://propfyndr.in`
                 <button
                   type="button"
                   onClick={onClose}
-                  className="px-4 py-1.5 rounded-xl border border-zinc-200 dark:border-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-300 font-semibold text-xs transition-all cursor-pointer"
+                  className="px-4 py-1.5 rounded-xl border border-zinc-200 dark:border-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-300 font-semibold text-xs transition-all cursor-pointer active:scale-95"
                 >
                   Done
                 </button>

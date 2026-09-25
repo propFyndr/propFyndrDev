@@ -42,6 +42,10 @@ const NAV: PortalNavItem[] = [
   { href: '/admin',                       label: 'Dashboard',     icon: Gauge,             roles: [...OWNERS],      section: 'Core' },
   { href: '/admin/queue',                 label: 'My queue',      icon: PhoneCall,         roles: [...LEAD_WORKERS], section: 'Core' },
   { href: '/admin/quality',               label: 'Data quality',  icon: SealCheck,         roles: [...EDITORS],     section: 'Core' },
+  // The only way into /admin/lookup. Removing this line orphaned the page —
+  // nothing else in the app links to it — and with it the read-only catalogue
+  // a salesperson answers a buyer from mid-call, which is the whole reason
+  // SALES does not get the editable Projects tab.
   { href: '/admin/lookup',                label: 'Lookup',        icon: MagnifyingGlass,                            section: 'Core' },
 
   // Catalogue & Inventory
