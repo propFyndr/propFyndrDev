@@ -162,6 +162,40 @@ export function resolveOrdinalPair(
   return out
 }
 
+const COUNT_WORDS: Record<string, number> = { two: 2, three: 3, four: 4, five: 5, '2': 2, '3': 3, '4': 4, '5': 5 }
+
+/**
+ * The whole shortlist, or its top N: "compare the top 3 you showed", "which of
+ * the ones you suggested", "these options".
+ *
+ * Measured: "compare the top 3 you showed. dont give pros cons, just tell me
+ * which one you'd buy" got a generic Sector 150 pitch, then — asked again — "I
+ * don't have data on the specific top-3 projects you're referring to". The
+ * ordinal resolvers above only know single positions, so the set never reached
+ * `projectNames` and the model had nothing but trimmed history to go on.
+ *
+ * Returns at least two projects or none; a set of one is an ordinal.
+ */
+export function resolveShownSet(message: string, shown: readonly ShownProject[]): ShownProject[] {
+  if (shown.length < 2) return []
+  const text = message ?? ''
+  const top = text.match(/\b(?:top|first)\s+(two|three|four|five|[2-5])\b/i)
+  const pointsAtShown =
+    /\b(?:you|u)\s+(?:showed|shown|listed|suggested|recommended|gave|mentioned)\b/i.test(text) ||
+    /\bthe\s+ones\s+(?:you|above|shown|listed)\b/i.test(text) ||
+    /\b(?:these|those)\s+(?:options|projects|societies|properties|two|three|four)\b/i.test(text) ||
+    /\bwhich\s+(?:of\s+)?(?:these|those|them)\b/i.test(text)
+  if (!top && !pointsAtShown) return []
+  const n = top ? COUNT_WORDS[top[1].toLowerCase()] : Math.min(3, shown.length)
+  const set = shown.slice(0, Math.min(n, shown.length))
+  return set.length >= 2 ? set : []
+}
+
+/** "just tell me which one you'd buy" — a verdict, not a comparison table. */
+export function asksForSinglePick(message: string): boolean {
+  return /\bwhich\s+(?:one\s+)?(?:would|will|should|do)\s+(?:you|u|i)\s+(?:buy|pick|choose|go\s+for|take|recommend)\b|\byou'?d\s+(?:buy|pick|choose|go\s+for)\b|\bpick\s+one\b|\bjust\s+tell\s+me\s+which\b|\bdon'?t\s+give\s+(?:me\s+)?pros/i.test(message ?? '')
+}
+
 /**
  * A message that answers its own pronoun.
  *
@@ -194,7 +228,8 @@ export function needsShownContext(message: string): boolean {
     (/\b(?:these|those|them|the\s+(?:above|ones?|shortlist|list|options))\b/i.test(text) &&
       !ANSWERS_ITS_OWN_PRONOUN.test(text)) ||
     /\bwhich\s+(?:of\s+)?(?:these|those|them)\b/i.test(text) ||
-    /\bfirst\s+(?:two|three|four|couple)\b/i.test(text) ||
+    /\b(?:first|top)\s+(?:two|three|four|five|couple|[2-5])\b/i.test(text) ||
+    /\b(?:you|u)\s+(?:showed|shown|listed|suggested|recommended)\b/i.test(text) ||
     SUPERLATIVES.some(([re]) => re.test(text))
   )
 }

@@ -147,6 +147,9 @@ export const comparisonHandler: ChatTopicHandler = {
   description: 'Side-by-side forensic comparison across 8 due diligence vectors',
 
   matches: ctx => {
+    // "just tell me which one you'd buy" wants a verdict; a head-to-head table
+    // is the pros/cons dump the buyer explicitly declined.
+    if (ctx.flags.pickOneFromShown) return false
     if (ctx.flags.isCompareRequest) return true
     const q = ctx.message.toLowerCase()
     return /\b(compare|versus|\bvs\b|difference between)\b/i.test(q) && (ctx.intent.projectNames?.length ?? 0) >= 2

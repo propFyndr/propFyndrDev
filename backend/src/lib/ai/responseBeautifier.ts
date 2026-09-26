@@ -3,6 +3,9 @@
  * Ensures consistent, professional output regardless of model or provider.
  */
 
+/** Words whose trailing dot is an abbreviation, not the end of a sentence. */
+const ABBREVIATION_BEFORE = /\b(?:sq|approx|appx|no|nos|vs|rs|etc|incl|excl|min|max|e\.g|i\.e)\.\s*$/i
+
 /**
  * Clean and beautify response text.
  * Applies: punctuation cleanup, emphasis, structure, voice consistency.
@@ -49,15 +52,19 @@ export function beautifyResponse(text: string): string {
   beautified = beautified.replace(/([.!?])\1+/g, '$1')
 
   // ── Phase 4: Capitalize sentences properly ──
-  beautified = beautified.replace(/([.!?]\s+)([a-z])/g, (match, punctuation, letter) => {
+  // An abbreviation's dot is not a sentence end: "₹8,333/sq. ft" became
+  // "sq. Ft" on every answer that quoted a rate.
+  beautified = beautified.replace(/([.!?]\s+)([a-z])/g, (match, punctuation, letter, offset: number, whole: string) => {
+    if (ABBREVIATION_BEFORE.test(whole.slice(Math.max(0, offset - 8), offset + 1))) return match
     return punctuation + letter.toUpperCase()
   })
 
   // ── Phase 5: Improve emphasis and structure ──
   // Strengthen weak transitions/connectors
+  // The "so/thus/therefore" -> "This means" and "plus" -> "Also," rewrites were
+  // removed: they are word-blind, and produced "This means, you should pay"
+  // mid-sentence and "base price Also, GST" inside cost breakdowns.
   beautified = beautified
-    .replace(/\b(so|thus|therefore)\b(?!\s+it)/gi, 'This means')
-    .replace(/\bplus\b/gi, 'Also,')
     .replace(/\bvery\s+\b/gi, '')  // Remove "very" — let the word stand alone
 
   // ── Phase 6: Rewrite weak openers ──
@@ -66,8 +73,12 @@ export function beautifyResponse(text: string): string {
 
   // ── Phase 7: Format numbers consistently ──
   // "1 crore" → "₹1 Cr" (standard real estate format)
-  beautified = beautified.replace(/(\d+(?:\.\d+)?)\s*crore/gi, '₹$1 Cr')
-  beautified = beautified.replace(/(\d+(?:\.\d+)?)\s*cr(?!ore)/gi, '₹$1 Cr')
+  //
+  // The number is taken whole — digits, commas, decimals — and never started
+  // mid-number. `\d+` alone matched the "450" of "1,450 Cr" and printed
+  // "₹1,₹450 Cr". An existing ₹ is absorbed rather than duplicated.
+  beautified = beautified.replace(/(?<![\d,.])(?:₹\s?)?(\d[\d,]*(?:\.\d+)?)\s*crores?\b/gi, '₹$1 Cr')
+  beautified = beautified.replace(/(?<![\d,.])(?:₹\s?)?(\d[\d,]*(?:\.\d+)?)\s*cr\b/gi, '₹$1 Cr')
 
   // Clean up duplicate currency symbols (e.g. "₹₹1.5 Cr" → "₹1.5 Cr")
   beautified = beautified.replace(/₹{2,}/g, '₹')
@@ -87,18 +98,11 @@ export function beautifyResponse(text: string): string {
 
   // ── Phase 9: Enforce PropFyndr tone ──
   // Convert weak language to confident advisor voice while preserving uncertainty signals
-  beautified = beautified
-    .replace(/\b(might be|could be)\s+/gi, 'is likely ')
-    .replace(/\b(seems to be|appears to be)\s+/gi, 'seems ')
-    .replace(/\bI think\s+/gi, '')
-    .replace(/\bmaybe\s+/gi, 'likely ')
-    .replace(/\bperhaps\s+/gi, '')
-    .replace(/\btends to\s+/gi, 'typically ')
-
-  // Strengthen recommendations
-  beautified = beautified.replace(/\bgood option\b/gi, 'strong fit')
-  beautified = beautified.replace(/\bgood choice\b/gi, 'solid choice')
-  beautified = beautified.replace(/\bmight be interested in\b/gi, 'should consider')
+  // Hedges are left alone. This phase used to rewrite "might be"/"could be" to
+  // "is likely", "maybe" to "likely" and delete "perhaps" — turning uncertainty
+  // the model correctly expressed into confidence it did not have, which is the
+  // "claim certainty when uncertain" failure CLAUDE.md forbids.
+  beautified = beautified.replace(/\bI think\s+/gi, '')
 
   // ── Phase 10: Final cleanup ──
   beautified = beautified.trim()

@@ -470,7 +470,9 @@ export function rewriteFraming(text: string): { text: string; rewrites: number }
  * make the answer worse, not more honest.
  */
 const MARKET_RATE_SHAPES: readonly RegExp[] = [
-  /₹\s?[\d,]+(?:\.\d+)?(?:\s*[–—-]\s*₹?\s?[\d,]+(?:\.\d+)?)?\s*(?:\/|per\s+)sq\.?\s?(?:ft|feet)\b/gi,
+  // The trailing optional dot is the abbreviation's own ("sq. ft., which"),
+  // consumed so the qualifier lands before it rather than leaving ")., ".
+  /₹\s?[\d,]+(?:\.\d+)?(?:\s*[–—-]\s*₹?\s?[\d,]+(?:\.\d+)?)?\s*(?:\/|per\s+)sq\.?\s?(?:ft|feet)\b(?:\.(?=\s*[,;:)]|\s+[a-z]))?/gi,
   /\b\d+(?:\.\d+)?\s*(?:%|per\s?cent)\s*(?:[a-z-]+\s+){0,2}?(?:appreciation|CAGR|growth|returns?|rental\s+yield|yield)\b/gi,
 ]
 
@@ -512,7 +514,15 @@ export function qualifyMarketFigures(text: string, prompt: string): { text: stri
       // Ours: the number came from the rows we handed the model.
       if (digitsOf(match).some(d => promptDigits.includes(d))) return match
       qualified++
-      return `${match} (${MARKET_QUALIFIER})`
+      const figure = match.replace(/\.$/, '')
+      // Inside an open parenthesis a second "(…)" nests and reads as debris —
+      // "(at ₹8,333/sq. ft (typical…). base rate)". Use the comma form there.
+      const before = whole.slice(0, offset)
+      if (before.lastIndexOf('(') > before.lastIndexOf(')')) {
+        const wordFollows = /^\s+[A-Za-z]/.test(whole.slice(offset + match.length))
+        return `${figure}, ${MARKET_QUALIFIER}${wordFollows ? ',' : ''}`
+      }
+      return `${figure} (${MARKET_QUALIFIER})`
     })
   }
 

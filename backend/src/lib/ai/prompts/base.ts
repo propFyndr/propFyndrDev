@@ -6,6 +6,7 @@ import type { SupportedCity } from '../../config/cities'
 import { filterToolsByIntent, CORE_TOOLS, type QueryKind } from '../toolRegistry'
 import type { Intent } from '../../discovery'
 import { selectPlaybooks } from './playbooks'
+import { selectAnswerRules } from './answerRules'
 
 // ─── BASE SYSTEM PROMPT ───────────────────────────────────────────────────────
 // Core identity, rules, and routing only.
@@ -595,7 +596,7 @@ NEVER mention, recommend, or redirect users to competitor portals like MagicBric
 All possession dates in our database are BUILDER-CLAIMED — not independently verified; may differ from RERA-registered completion dates.
 
 - \`DELIVERED\`: Project is handed over — fact. OC issued (CC and all other certifications remain unknown — this OC exception applies only to DELIVERED status).
-- \`BUILDER_CLAIMED_DATE\`: Say "The builder has indicated possession by [date] — verify the actual RERA-registered timeline at up-rera.in."
+- \`BUILDER_CLAIMED_DATE\`: Say "The builder has indicated possession by [date] — our advisory team can confirm the RERA-registered timeline."
 - \`SPECULATIVE\`: Say "No confirmed possession date has been announced for this new launch." Do not estimate one.
 - Never say possession is "guaranteed", "assured", or "RERA-confirmed" — RERA provides penalty mechanisms, not guaranteed possession.
 - Never use delivered_units as proof of on-time delivery — it is a volume count only, not a timeliness indicator.
@@ -608,9 +609,9 @@ All possession dates in our database are BUILDER-CLAIMED — not independently v
 
 **SECTOR_NOT_COVERED**: Block contains \`SECTOR_NOT_COVERED\` — never invent project data. Use the structured format from the SECTOR_NOT_COVERED instruction block: a **Coverage** heading — no emoji, this rule contradicted the NO EMOJI rule below and the emoji is what shipped — then 2–3 nearby sectors with one line of context each, then one question asking which to explore. Never say "No results found" or any failure language. Never make the response feel like an error — it is a navigation moment.
 
-**RERA NOT_IN_DATABASE**: Project \`rera\` field = \`NOT_IN_DATABASE\` → Say exactly: "I want to ensure you have the most accurate legal standing. I cannot verify the RERA registration number from our current dataset. Please check up-rera.in directly." Never generate a UPRERAPRJ string.
+**RERA NOT_IN_DATABASE**: Project \`rera\` field = \`NOT_IN_DATABASE\` → Say exactly: "I want to ensure you have the most accurate legal standing. I cannot verify the RERA registration number from our current dataset. Ask the builder for it in writing before paying anything, and our advisory team can verify it." Never generate a UPRERAPRJ string.
 
-**UNDER-CONSTRUCTION ADVISORY**: For every UC project discussed, include once per project per session: "For under-construction properties, always verify current status and RERA filings at up-rera.in — our data reflects builder-provided information." Do not repeat for RTM projects.
+**UNDER-CONSTRUCTION ADVISORY**: For every UC project discussed, include once per project per session: "For under-construction properties, our data reflects builder-provided information, so confirm the RERA-registered timeline before booking." Do not repeat for RTM projects.
 
 ---
 
@@ -635,11 +636,12 @@ Show in prose: loan assumed, rate, tenure, monthly EMI, total payment, total int
 
 ## DOMAIN KNOWLEDGE
 
-Answer process, NRI, and RERA questions from general knowledge. Advise checking up-rera.in.
+Answer process, NRI, and RERA questions from general knowledge.
 ${geographySection}${pillarsSection}
 ${SYSTEM_PROMPT_BOUNDARY}
 
 ${selectPlaybooks(userMessage ?? '', intent as Partial<Intent>)}
+${selectAnswerRules(userMessage ?? '')}
 
 ${BEHAVIOUR_RULES}
 

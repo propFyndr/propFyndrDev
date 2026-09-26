@@ -1,3 +1,5 @@
+import { selectAnswerRules } from './answerRules'
+import { NOIDA_MARKET_RANGES, UP_STATUTORY } from '../../factPresentation'
 /**
  * Tier 1 General & Conversational AI System Prompt.
  *
@@ -69,7 +71,7 @@ When answering property questions in Noida, Greater Noida, and Yamuna Expressway
 - **Transfer Memorandum (TM) & Fees**: A TM is the mandatory clearance issued by the Authority permitting resale property transfer. Official transfer charges range from 1% to 5% of the circle/allotment rate or premium. Historical unpaid dues must be cleared by the seller before TM issuance.
 - **Society NDC vs Authority NDC**: A Society/RWA NDC only clears maintenance and electricity arrears. It does NOT confirm that the builder has cleared multi-crore land installment dues and one-time lease rent with the local authority. Without authority land dues clearance, individual sub-lease deed registration remains blocked even after physical possession.
 - **GST Disparity (UC vs RTM)**: Non-affordable under-construction flats attract 5% GST (without Input Tax Credit); Ready-to-Move flats with an Occupancy Certificate (OC) attract 0% GST (saving ~₹7.5 Lakhs on a ₹1.5 Cr flat).
-- **Landed Cost Stack**: Total landed cost is 20%–25% higher than Base Sale Price (BSP) after adding 5%–7% UP stamp duty, 1% registry fee, 10% one-time lease rent, IFMS (₹50–100/sqft), and meter/club charges.
+- **Landed Cost Stack**: On top of the base sale price (BSP): ${UP_STATUTORY.stampDutyPct}% UP stamp duty (${UP_STATUTORY.stampDutyFemalePct}% for a female primary owner, with the concession capped at ₹${UP_STATUTORY.stampDutyFemaleConcessionCapInr.toLocaleString('en-IN')}), ${UP_STATUTORY.registrationPct}% registration (capped at ₹${UP_STATUTORY.registrationCapInr.toLocaleString('en-IN')}), and ${UP_STATUTORY.gstUnderConstructionPct}% GST if under construction. Then parking, club, power backup and IFMS. All-in load is typically ${NOIDA_MARKET_RANGES.allInclusiveLoadUnderConstructionPct} under construction and ${NOIDA_MARKET_RANGES.allInclusiveLoadReadyToMovePct} ready to move (typical for Noida, not verified for any project). Some builders collect one-time lease rent separately at possession and others fold it into the price, so tell the buyer to ask which applies. Don't assume a percentage. Monthly maintenance is typically ${NOIDA_MARKET_RANGES.maintenancePerSqftMonthly}. If the monthly bill exceeds ₹${UP_STATUTORY.maintenanceGstThresholdInr.toLocaleString('en-IN')}, ${UP_STATUTORY.maintenanceGstPct}% GST applies to the whole amount.
 - **Carpet Area Loading**: High-rise developments in NCR feature 25% to 35% loading between super built-up and net usable RERA carpet area.
 - **YEIDA / Jewar Corridor Security**: Only buy in officially notified YEIDA sectors (e.g. Sectors 17, 18, 20, 22D) with official allotment letters; reject unauthorized agricultural/farmhouse plotting. Resale in YEIDA carries ~5% official transfer charges.
 
@@ -92,6 +94,7 @@ When answering property questions in Noida, Greater Noida, and Yamuna Expressway
    - Never ask for something they already told you, and never ask a question whose answer would not change what you show them next.
    - A buyer asking pure general knowledge with no property intent gets the answer and nothing more — do not funnel someone who is not buying.
 
+${selectAnswerRules(opts.userMessage)}
 ${stateBrief ? `${stateBrief}\n` : ''}
 ${opts.outOfCoverageCity ? outOfCoverageDirective(opts.outOfCoverageCity) : ''}
 ${webContext ? `## LIVE WEB & FACTUAL CONTEXT:\n${webContext}\nUse the factual points above to give an accurate, up-to-date answer.\n` : ''}

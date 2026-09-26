@@ -97,6 +97,11 @@ export const UP_STATUTORY = {
   gstReadyToMovePct: 0,
   tdsThresholdInr: 5_000_000,
   tdsPct: 1,
+  // GST on society maintenance (central GST law, not UP-specific, but equally
+  // fixed): once a member's monthly contribution exceeds the threshold, GST
+  // applies to the WHOLE amount, not just the excess.
+  maintenanceGstPct: 18,
+  maintenanceGstThresholdInr: 7_500,
 } as const
 
 /**
@@ -114,6 +119,8 @@ export const NOIDA_MARKET_RANGES = {
   powerBackupInr: '₹1.25–2 Lakh',
   allInclusiveLoadUnderConstructionPct: '12–14% above base price',
   allInclusiveLoadReadyToMovePct: '8–9% above base price',
+  // Monthly CAM (common area maintenance), billed on super area.
+  maintenancePerSqftMonthly: '₹2.5–4.5 / sq.ft per month on super area',
 } as const
 
 /**

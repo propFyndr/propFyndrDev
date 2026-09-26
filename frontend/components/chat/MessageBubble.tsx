@@ -90,6 +90,7 @@ export interface MessageBubbleProps {
   chipPicker: ChipPickerState | null
   chips: import('./types').ChipAction[]
   isRestoring?: boolean
+  /** 1-based position of THIS message among the session's AI messages (0 for user messages). */
   aiTurnCount: number
 
   // Callbacks — all stable (useCallback in parent)
@@ -158,7 +159,7 @@ export function buildPickerMessage(action: string, selected: ProjectCardType[]):
  * synthesise — the handler would fall through to "the two most recently added
  * projects", which is not this buyer's shortlist and reads like a non-sequitur.
  */
-const DOSSIER_MIN_AI_TURNS = 3
+export const DOSSIER_MIN_AI_TURNS = 3
 
 /**
  * The offer to turn a consultation into something shareable.
@@ -1622,13 +1623,15 @@ function MessageBubbleInner({
         </div>
       )}
 
-      {/* The same offer on the last answer, once the session has done enough
-          research to be worth summarising. Suppressed when the comparison block
-          above is already showing it on this message. */}
+      {/* The same offer, inline ONCE per session: on the answer that is the
+          Nth AI turn, and nowhere after. It used to sit on the last answer
+          whenever aiTurnCount >= N, so from turn N on every single reply carried
+          it — a nag, not an offer. After this one the header's quiet
+          "Share research" button is the entry point. Suppressed when the
+          comparison block above is already showing it on this message. */}
       {message.type === 'ai' &&
-        isLast &&
-        !isSubmitting &&
-        aiTurnCount >= DOSSIER_MIN_AI_TURNS &&
+        !(isLast && isSubmitting) &&
+        aiTurnCount === DOSSIER_MIN_AI_TURNS &&
         !(message.showComparisonTable && (message.comparisonProjects?.length ?? 0) >= 2) && (
           <div className="mt-3 w-full">
             <DossierCta onAction={onAction} />

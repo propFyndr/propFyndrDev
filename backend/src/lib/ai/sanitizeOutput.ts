@@ -381,8 +381,21 @@ function normalizeCitations(input: string): { text: string; count: number } {
   }
 }
 
+/**
+ * Markdown and currency debris a buyer should never see, measured live:
+ * "* ****Stamp Duty" (runs of asterisks), "₹1,₹450 Cr" (a symbol welded into
+ * a number) and "about **₹?**" (a model's unfilled placeholder).
+ */
+export function cleanDebris(text: string): string {
+  return text
+    .replace(/\*{3,}/g, '**')
+    .replace(/(\d),₹(\d)/g, '$1,$2')
+    .replace(/\*{0,2}₹\s?\?\*{0,2}/g, "an amount we can't compute here")
+}
+
 /** Strips emoji, third-party platform names, and off-platform referrals. */
 export function sanitizeOutput(input: string): SanitizeResult {
+  if (input) input = cleanDebris(input)
   if (!input) {
     return { text: input, strippedEmoji: 0, strippedPlatforms: 0, redirectedOffPlatform: 0, normalizedCitations: 0, strippedProvenance: 0, softenedOverPromises: 0, trimmedQuestions: 0, strippedFiller: 0 }
   }

@@ -30,6 +30,90 @@ const CRORE = 10_000_000
 const inr = (n: number) => `₹${Math.round(n).toLocaleString('en-IN')}`
 const lakh = (n: number) => `₹${(n / 100_000).toFixed(2)} L`
 
+/**
+ * What a female primary owner actually saves. The concession is 1 point of
+ * stamp duty but capped — this line used to print the uncapped 1% (₹1.2 L on a
+ * ₹1.2 Cr flat) while the cap is ₹10,000, overstating the saving ~12×.
+ */
+export function femaleStampDutySaving(base: number): number {
+  const s = UP_STATUTORY
+  return Math.min(s.stampDutyFemaleConcessionCapInr, Math.round(base * ((s.stampDutyPct - s.stampDutyFemalePct) / 100)))
+}
+
+/**
+ * A base price the buyer stated themselves: "bsp 1.2 cr", "base price 95 lakh".
+ *
+ * This is the buyer's own number, not one we invented, so computing on it is
+ * arithmetic rather than a guess. Only an explicit bsp/base-price mention
+ * counts — a bare budget ("under 1.2 cr") is a ceiling, not a price.
+ */
+export function statedBasePriceInr(message: string): number | null {
+  const m = message.match(/\b(?:bsp|base\s*(?:sale\s*)?price|basic\s*(?:sale\s*)?price)\b\D{0,12}?(\d+(?:\.\d+)?)\s*(cr(?:ore)?s?|l(?:akh|ac|acs|akhs)?)\b/i)
+    ?? message.match(/(\d+(?:\.\d+)?)\s*(cr(?:ore)?s?|l(?:akh|ac|acs|akhs)?)\s*(?:ka\s*)?(?:bsp|base\s*(?:sale\s*)?price)\b/i)
+  if (!m) return null
+  const n = Number(m[1])
+  if (!Number.isFinite(n) || n <= 0) return null
+  return /^c/i.test(m[2]) ? n * CRORE : n * 100_000
+}
+
+/** "₹3.5–5 Lakh" -> [350000, 500000]. Keeps the numbers single-sourced. */
+function lakhRange(label: string): [number, number] {
+  const m = label.match(/([\d.]+)\s*[–-]\s*([\d.]+)\s*Lakh/i)
+  return m ? [Number(m[1]) * 100_000, Number(m[2]) * 100_000] : [0, 0]
+}
+
+function statedBasePriceBreakdown(base: number, message: string): string {
+  const s = UP_STATUTORY
+  const r = NOIDA_MARKET_RANGES
+  const ready = /\b(ready\s*to\s*move|rtm|with\s*oc|oc\s*(?:mil|received|issued))\b/i.test(message)
+  const gstPct = ready ? s.gstReadyToMovePct : s.gstUnderConstructionPct
+  const stamp = Math.round(base * (s.stampDutyPct / 100))
+  const stampFemale = stamp - femaleStampDutySaving(base)
+  const registration = Math.min(s.registrationCapInr, Math.round(base * (s.registrationPct / 100)))
+  const gst = Math.round(base * (gstPct / 100))
+  const statutory = stamp + registration + gst
+
+  const dev = [r.coveredParkingInr, r.clubMembershipInr, r.powerBackupInr].map(lakhRange)
+  const devLo = dev.reduce((a, [lo]) => a + lo, 0)
+  const devHi = dev.reduce((a, [, hi]) => a + hi, 0)
+  const cr = (n: number) => `₹${(n / CRORE).toFixed(2)} Cr`
+
+  // Where monthly CAM crosses the GST threshold at the top of the band.
+  const camBand = r.maintenancePerSqftMonthly.match(/([\d.]+)\s*[–-]\s*([\d.]+)/)
+  const lowRate = Number(camBand?.[1] ?? 0)
+  const topRate = Number(camBand?.[2] ?? 0)
+  const gstCrossSqft = topRate ? Math.ceil(s.maintenanceGstThresholdInr / topRate) : null
+
+  return `### All-in estimate on your quoted BSP of ${cr(base)}
+
+${ready ? 'Ready to move with OC, so GST is nil.' : 'Under construction, so 5% GST applies. Check whether your quote is inclusive or exclusive of it.'}
+
+**Fixed by law. These apply to every project:**
+
+| Component | Basis | Amount |
+| :--- | :--- | ---: |
+| Base sale price | Your quote | ${cr(base)} |
+| Stamp duty | ${s.stampDutyPct}% | ${lakh(stamp)} |
+| Stamp duty, female primary owner | ${s.stampDutyFemalePct}%, concession capped at ${inr(s.stampDutyFemaleConcessionCapInr)} | ${lakh(stampFemale)} |
+| Registration | ${s.registrationPct}%, capped at ${inr(s.registrationCapInr)} | ${inr(registration)} |
+| GST | ${gstPct}%${ready ? ' (OC issued)' : ' (under construction)'} | ${gst ? lakh(gst) : '₹0'} |
+| **Base + statutory** | | **${cr(base + statutory)}** |
+
+**Developer charges** (${MARKET_QUALIFIER}; the builder's cost sheet decides these):
+
+- Covered parking: ${r.coveredParkingInr}
+- Club membership: ${r.clubMembershipInr}
+- Power backup: ${r.powerBackupInr}
+- IFMS: ${r.ifmsPerSqft} of super area (refundable deposit)
+- PLC / floor rise: only if you pick a preferred unit. Ask for it to be shown as a separate line.
+
+**Likely all-in: ${cr(base + statutory + devLo)} to ${cr(base + statutory + devHi)}**, plus IFMS and any PLC. The range comes from the developer charges; everything above them is fixed.
+
+**Monthly maintenance (CAM):** ${r.maintenancePerSqftMonthly} (${MARKET_QUALIFIER}). Multiply by the super area on your cost sheet. Example: 1,600 sq.ft works out to about ${inr(1600 * lowRate)}–${inr(1600 * topRate)} a month. If your monthly bill goes above ${inr(s.maintenanceGstThresholdInr)}, **${s.maintenanceGstPct}% GST applies to the whole bill**, not just the part above ${inr(s.maintenanceGstThresholdInr)}${gstCrossSqft ? `. At the top rate that happens above roughly ${gstCrossSqft.toLocaleString('en-IN')} sq.ft` : ''}. Power backup and DG usage are usually billed separately, per unit consumed.
+
+Name the project and I'll replace the typical ranges with its recorded cost sheet.`
+}
+
 export const totalOutflowHandler: ChatTopicHandler = {
   id: 'total_outflow',
   description: 'All-inclusive purchase cost including statutory charges',
@@ -37,6 +121,27 @@ export const totalOutflowHandler: ChatTopicHandler = {
   matches: ctx => ctx.flags.isTotalOutflowQuery === true,
 
   handle: async ctx => {
+    // The buyer gave their own base price and named no project: compute on
+    // their number. Checked first so a card carried over from an earlier turn
+    // does not hijack "bsp 1.2 cr … total kitna padega".
+    const statedBase = statedBasePriceInr(ctx.message)
+    if (statedBase && !(ctx.intent.projectNames?.length)) {
+      ctx.send('token', { token: statedBasePriceBreakdown(statedBase, ctx.message) })
+      ctx.emitUiState({
+        stage: 'RESEARCH',
+        thinking: 'All-in cost on your quoted base price:',
+        chips: [
+          { id: `chip_emi_bsp_${Date.now()}`, actionType: 'TEXT_MESSAGE', label: 'EMI on this', icon: 'calculator', analyticsId: 'chip_emi_bsp', priority: 1, payload: { text: `Calculate EMI for a loan of ₹${((statedBase * 0.8) / CRORE).toFixed(2)} Cr` } },
+          { id: `chip_uc_under_${Date.now()}`, actionType: 'TEXT_MESSAGE', label: 'Projects at this price', icon: 'buildings', analyticsId: 'chip_projects_bsp', priority: 2, payload: { text: `Show 3 BHK projects around ₹${(statedBase / CRORE).toFixed(2)} Cr base price in Noida` } },
+        ],
+        missingFields: [],
+        confidence: 'MEDIUM',
+      })
+      ctx.send('done', { sessionId: ctx.sessionId, intentState: 'RESEARCH', intent: ctx.intent, responseMode: 'chat' })
+      ctx.res.end()
+      return
+    }
+
     const named = (Array.isArray(ctx.intent.projectNames) && ctx.intent.projectNames[0])
       || ctx.activeProjectName
       || (ctx.cachedProjects && ctx.cachedProjects.length > 0 ? ctx.catalog.find(p => p.id === ctx.cachedProjects[0].id)?.name : null)
@@ -182,7 +287,7 @@ ${missingDeveloperCharges
   ? `This total covers the base price and statutory charges only. Parking, club membership and IFMS are not in our records for ${project.name} and vary by developer, so they are **not** included above — expect the final figure to be higher. Our advisory team can pull the official booking cost sheet.`
   : `Developer charges above are from ${project.name}'s recorded cost sheet. Confirm against the official booking document before transferring anything.`}
 
-A female primary owner pays ${UP_STATUTORY.stampDutyFemalePct}% stamp duty instead of ${UP_STATUTORY.stampDutyPct}%, saving about ${lakh(base * ((UP_STATUTORY.stampDutyPct - UP_STATUTORY.stampDutyFemalePct) / 100))} here.`
+A female primary owner pays ${UP_STATUTORY.stampDutyFemalePct}% stamp duty instead of ${UP_STATUTORY.stampDutyPct}%, concession capped at ${inr(UP_STATUTORY.stampDutyFemaleConcessionCapInr)}, so about ${inr(femaleStampDutySaving(base))} saved here.`
 
     ctx.send('token', { token: text })
     ctx.emitUiState({

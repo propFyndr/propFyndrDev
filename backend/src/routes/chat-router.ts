@@ -83,7 +83,7 @@ import { recordDemandSignal } from '../lib/demandSignal'
 import { scanDisclosure } from '../lib/ai/answerIntegrity'
 import { projectCatalog, catalogNamesSync } from '../lib/projectCatalog'
 import { applyCommuteAnchor, beltFor } from '../lib/discovery/commuteAnchor'
-import { resolveOrdinalReference, resolveOrdinalPair, resolveSuperlativeReference, needsShownContext, resolveSectorReference, sectorsShownIn } from '../lib/discovery/reference'
+import { resolveOrdinalReference, resolveOrdinalPair, resolveSuperlativeReference, needsShownContext, resolveSectorReference, sectorsShownIn, resolveShownSet, asksForSinglePick } from '../lib/discovery/reference'
 import { cardBudgetFor, capCards, MAX_CARDS } from '../lib/discovery/cardBudget'
 import { chipsAreWelcome, chipIsRelevant, chipIsActionable } from '../lib/discovery/chipPolicy'
 import { generateProjectChips } from '../lib/discovery/deterministicChips'
@@ -96,6 +96,7 @@ import {
   isPaymentPlanRequest as matchesPaymentPlanRequest,
 } from '../lib/chat/topicFlags'
 import { CHAT_TOPIC_HANDLERS } from '../lib/chat/handlers'
+import { matchesLegalRiskQuestion } from '../lib/chat/handlers/legalRisk'
 
 /**
  * Empty flag set for probing a handler's matcher outside the dispatch loop.
@@ -155,6 +156,18 @@ import {
   trackDropOff,
   trackPromotionalClick
 } from '../lib/analytics/tracking'
+
+
+/**
+ * The buyer asked for a verdict on the shortlist ("just tell me which one
+ * you'd buy"). Without this the model hedged — "I would pick the option that
+ * best balances…" — and never named one.
+ */
+function pickOneTail(names: readonly string[]): string {
+  return `
+
+BUYER ASKS FOR A VERDICT: The buyer is asking you to choose ONE of these shortlisted projects: ${names.join(', ')}. Name exactly one, by name, in the first sentence. Give the reason in one or two sentences tied to what the buyer told you (family, budget, commute). Then state that project's single biggest drawback plainly. No pros/cons list, no table, and no comparison of every project on every factor. Use only facts from the project data above. If a fact you would need is missing, say so instead of guessing.`
+}
 
 const router = Router()
 
@@ -1313,6 +1326,9 @@ router.post('/', async (req: Request, res: Response) => {
     // session in `last_projects`.
     // Price carried through so "the cheapest one" can resolve against the same
     // list "the first one" resolves against.
+    // Set when the buyer asks us to commit to one of the shortlist ("which one
+    // you'd buy") — answered as a verdict by the model, not as a table.
+    let pickOneFromShown = false
     const shownProjects = (cachedProjectsFromSession ?? [])
       .map(p => ({
         id: String(p.id),
@@ -1443,6 +1459,15 @@ router.post('/', async (req: Request, res: Response) => {
           kind: ref ? `position ${ref.index + 1}` : `superlative ${sup?.kind}`,
           resolved: resolved.name,
         })
+      } else {
+        const shownSet = resolveShownSet(message, shownProjects)
+        if (shownSet.length >= 2) {
+          intent.projectNames = shownSet.map(p => p.name)
+          pickOneFromShown = asksForSinglePick(message)
+          ;(intent as { is_comparison_query?: boolean }).is_comparison_query = !pickOneFromShown
+          ;(intent as { queryKind?: string }).queryKind = 'COMPARISON'
+          console.log('[CHAT:REFERENT]', { kind: pickOneFromShown ? 'shown set, pick one' : 'shown set', resolved: intent.projectNames })
+        }
       }
 
       /**
@@ -2814,6 +2839,9 @@ router.post('/', async (req: Request, res: Response) => {
       !asksLegalSafety &&
       !asksOurOwnNumbers &&
       !resolvedFromShownList &&
+      // EOI / unregistered resale / Sports City: answered from RERA law and our
+      // registry rows by legalRiskHandler, never by the open lane's web search.
+      !matchesLegalRiskQuestion(message) &&
       !claimingHandler
     ) {
       await answerAsGeneralQuestion('OPEN')
@@ -3143,9 +3171,16 @@ I can help you with:
       /\b(payment\s+plans?|cost\s+sheets?|price\s+breakdown|floor\s+plans?|layout\s+plans?|brochure|amenit\w+|payment\s+schedule|milestones?|specs?|specifications?)\b/i.test(topicText) &&
       (intent.projectNames?.length ?? 0) > 0
 
+    // A buyer quoting their own base price is asking what it costs, not for a
+    // list. "bsp 1.2 cr for 3bhk under construction … total kitna padega" hit
+    // the `\d bhk` + `under` arm below and skipped every cost handler, so the
+    // model wrote the breakdown from memory — without the women-buyer rate or
+    // the maintenance GST rule we already hold.
+    const statesOwnBasePrice = /\b(bsp|base\s*(sale\s*)?price|basic\s*(sale\s*)?price)\b/i.test(topicText)
     const isInventorySearch = (/\b(show\s+me|find\s+me|list\s+(all|the)?|options\s+in|available\s+in|looking\s+for|search\s+for)\b/i.test(topicText) ||
-      (/\b(\d\s*bhk)\b/i.test(topicText) && /\b(sector|in|under|budget|crore|lakh)\b/i.test(topicText))) &&
-      !isCompareRequest && !isSectorCompare && !isAdvisoryPhrasing && !asksForProjectArtefact
+      // `under` is a budget word; "under construction" is a status.
+      (/\b(\d\s*bhk)\b/i.test(topicText) && /\b(sector|in|under(?!\s*[- ]?construction)|budget|crore|lakh)\b/i.test(topicText))) &&
+      !isCompareRequest && !isSectorCompare && !isAdvisoryPhrasing && !asksForProjectArtefact && !statesOwnBasePrice
     // Plurals matter: `\bpayment plan\b` does not match "payment plans", which
     // is how buyers and our own chips write it. "Show payment plans for Nirala
     // Diadem" reached no handler at all and was answered as ordinary prose,
@@ -3182,11 +3217,22 @@ I can help you with:
       (intent.projectNames?.length ?? 0) < 2
     const isNewcomerOrientation = /(new to noida|new to (the )?city|don'?t know (this area|this city|the area)|which sector|best sector|where (should|to) (buy|look)|area guide|sector guide|best area for family|best area near)/i.test(topicText) && (sectorMatches.length === 0 || /which sector/i.test(topicText))
     const isReadyToMoveQuery = !isInventorySearch && /\b(ready to move|rtm|occupancy certificates?|which.*ready|ready propert(y|ies)|ready flats?)\b/i.test(topicText) && !isPaymentPlanRequest && !isCostSheetRequest
-    const isAmenityQuery = !isInventorySearch && // The short tokens carry word boundaries. Without them `spa` matched inside
+    /**
+     * Legal / money-at-risk questions outrank topic keywords.
+     *
+     * "is sector 150 sports city registry problem solved now?" matched `sports`
+     * in the amenity regex and was answered with a table of swimming pools.
+     * "ace new launch … 10 lakh EOI, refundable hai?" matched nothing, fell to
+     * the open lane and came back as a stamp-duty explainer telling the buyer
+     * to pay. A question about whether money or title is safe is never an
+     * amenity, commute or configuration question, whatever nouns it contains.
+     */
+    const isLegalRiskQuery = matchesLegalRiskQuestion(message)
+    const isAmenityQuery = !isInventorySearch && !isLegalRiskQuery && // The short tokens carry word boundaries. Without them `spa` matched inside
 // "spacious", `park` inside "parking" and `court` inside "courtyard" — each
 // one turning an unrelated question into an amenity answer.
-/(amenit|sports|clubhouse|\bclubs?\b|\bgym\b|fitness|\bpools?\b|swimming|snooker|billiards|table tennis|squash|tennis|badminton|cricket|playground|play area|kid'?s? play|creche|daycare|\bparks?\b|green cover|open space|ev charg|theatre|library|banquet|\bspa\b|sauna|jacuzzi|which society has the best|best amenit|lifestyle|\bcourts?\b|jogging|skating|\bgolf\b)/i.test(topicText) && !isPaymentPlanRequest && !isCostSheetRequest
-    const isConnectivityQuery = !isInventorySearch && // "What is near X" and "what's around it" are the same question as "how far
+/(amenit|sports(?!\s*city)|clubhouse|\bclubs?\b|\bgym\b|fitness|\bpools?\b|swimming|snooker|billiards|table tennis|squash|tennis|badminton|cricket|playground|play area|kid'?s? play|creche|daycare|\bparks?\b|green cover|open space|ev charg|theatre|library|banquet|\bspa\b|sauna|jacuzzi|which society has the best|best amenit|lifestyle|\bcourts?\b|jogging|skating|\bgolf\b)/i.test(topicText) && !isPaymentPlanRequest && !isCostSheetRequest
+    const isConnectivityQuery = !isInventorySearch && !isLegalRiskQuery && // "What is near X" and "what's around it" are the same question as "how far
 // is the metro", and reached no handler — the connectivity table renders the
 // stored road distances and travel times, so the answer existed and the
 // matcher was the only thing missing.
@@ -3196,7 +3242,8 @@ I can help you with:
       // "price per sqft" / "rate per sqft" is a price question; the configuration
       // handler holds areas, not rates, and answered it with unit sizes.
       !/\b(price|rate|cost)\s*(per|\/)\s*(sq\.?\s*ft|sqft|square\s*f(ee|oo)t)\b|\bpsf\b/i.test(topicText)
-    const isTotalOutflowQuery = /(total (price|cost|amount|outflow)|on.?road|all.?inclusive price|how much (in total|total will it cost)|with registry|final price)/i.test(topicText)
+    const isTotalOutflowQuery = /(total (price|cost|amount|outflow)|on.?road|all.?inclusive price|how much (in total|total will it cost)|with registry|final price|landed cost|kitna padega|kitna lagega|kitne ka padega|sab mila\s*(ke|kar)|total kitna)/i.test(topicText)
+      || (statesOwnBasePrice && /\b(total|all[- ]?in|kitna|landed|final|maintenance)\b/i.test(topicText))
     const isDueDiligenceQuery = !isInventorySearch &&
       /\b(water\s*(?:source|supply|quality|issue)|ganga\s*jal|borewell|water\s*tds|tds\s*(?:level|range|ppm)|lifts?|elevators?|up\s*lifts?\s*act|emergency\s*rescue\s*device|\bard\b|\bamc\b|amitabh\s*kant|land\s*dues|25%\s*dues|registry\s*clearance|oc\s*status|occupancy\s*certificate|completion\s*certificate|partial\s*oc|full\s*oc|basement\s*(?:health|seepage|leakage|water|dampness)|shahdara\s*drain|drain\s*(?:corridor|impact|smell|stench)|power\s*supply\s*type|multipoint\s*connection|pvvnl)\b/i.test(topicText)
 
@@ -3221,7 +3268,7 @@ I can help you with:
     ].filter(Boolean).length
     const singleTopic = topicFlagCount <= 1
 
-    if (!isInventorySearch && (activeProjectName || isSummaryRequest || isCompareRequest || isSectorCompare || isPaymentPlanRequest || isCostSheetRequest || isStatutoryTaxQuery || isReraCheckQuery || isBuilderReputationQuery || isNewcomerOrientation || isReadyToMoveQuery || isAmenityQuery || isConnectivityQuery || isConfigurationQuery || isTotalOutflowQuery || isDueDiligenceQuery) && action.type === 'TEXT_MESSAGE') {
+    if ((!isInventorySearch || isLegalRiskQuery) && (isLegalRiskQuery || activeProjectName || isSummaryRequest || isCompareRequest || isSectorCompare || isPaymentPlanRequest || isCostSheetRequest || isStatutoryTaxQuery || isReraCheckQuery || isBuilderReputationQuery || isNewcomerOrientation || isReadyToMoveQuery || isAmenityQuery || isConnectivityQuery || isConfigurationQuery || isTotalOutflowQuery || isDueDiligenceQuery) && action.type === 'TEXT_MESSAGE') {
       try {
         console.log('[CHAT:GROUND_TRUTH_DB] Executing Ground Truth DB Pipeline...', { activeProjectName, isSummaryRequest, isCompareRequest, isSectorCompare, isPaymentPlanRequest, isCostSheetRequest, isStatutoryTaxQuery, isReraCheckQuery, isBuilderReputationQuery, isNewcomerOrientation, isReadyToMoveQuery, isAmenityQuery, isConnectivityQuery, isReraFactQuery, isDueDiligenceQuery, topicFlagCount, sectorMatches })
 
@@ -3425,6 +3472,8 @@ I can help you with:
             isPaymentPlanRequest,
             isCostSheetRequest,
             isDueDiligenceQuery,
+            isLegalRiskQuery,
+            pickOneFromShown,
             // False when the buyer asked about more than one topic in one
             singleTopic,
             // True only on the turn the workplace was named, so the commute
@@ -3722,6 +3771,12 @@ EXECUTIVE SUMMARY INSTRUCTIONS:
 1. Render a clean Markdown summary table of the session with columns: | Project Name | Inquiry Count | Interest Weightage (%) |.
 2. Below the table, provide a concise summary for each discussed project.
 3. Never invent facts outside PostgreSQL DB.`
+          } else if (pickOneFromShown && targetProjects.length >= 2) {
+            systemPrompt = `You are PropFyndr, a professional real estate advisor for Noida and Greater Noida.
+Verified facts from database: ${dbFactsJson}
+${pickOneTail(intent.projectNames ?? [])}
+
+Format: the chosen project's name in bold in the first sentence, then the reason, then "Biggest drawback:" and that one drawback. Under 120 words. End with one short follow-up question (for example, whether to book a site visit for that project).`
           } else if (isCompareRequest && targetProjects.length >= 2) {
             const projectHeaders = targetProjects.map(p => p.name).join(' vs. ')
             /**
@@ -5569,7 +5624,7 @@ EXECUTIVE RESPONSE INSTRUCTIONS:
         ) + systemSuffix + (renderedTable ? (renderedTableKind === 'city-shelf' ? cityShelfShown(shelfPicks) : renderedTableKind === 'yield' ? YIELD_TABLE_SHOWN : TABLE_ALREADY_SHOWN) : ''),
         // Both tails ride the same slot. The unknown-project block goes last so
         // its handling rules are the closest instruction to the answer.
-        microMarketsTail + unknownProjectTail + affordabilityTail,
+        microMarketsTail + unknownProjectTail + affordabilityTail + (pickOneFromShown ? pickOneTail(intent.projectNames ?? []) : ''),
       )
 
     // Tool-less is the common path (Gemini is tier 1) — size and fact-check against it.
@@ -5740,7 +5795,9 @@ EXECUTIVE RESPONSE INSTRUCTIONS:
        * merely complete.
        */
       const closer = `\n\nThey're on the cards above — tell me which one to open up, or what matters most and I'll narrow it.`
-      const trimmed = fullText.trimEnd()
+      // A lead-in can end on an opened-but-empty emphasis ("micro-markets are: **")
+      // when the list after it was stripped. The colon test must see through it.
+      const trimmed = fullText.trimEnd().replace(/\s*(?:\*\*|__|\*|_)\s*$/, '')
       let closed = false
       if (/[:：]$/.test(trimmed) && cardsAreRendering && cardsShownThisTurn > 0) {
         send('token', { token: closer })

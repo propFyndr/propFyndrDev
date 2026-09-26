@@ -19,7 +19,7 @@ import {
 } from '@/lib/chat/streamReducer'
 import { authHeaders } from '@/lib/authedFetch'
 import { PlaceholdersAndVanishInput } from '@/components/ui/placeholders-and-vanish-input';
-import MessageBubble, { buildPickerMessage } from '@/components/chat/MessageBubble';
+import MessageBubble, { buildPickerMessage, DOSSIER_MIN_AI_TURNS } from '@/components/chat/MessageBubble';
 import type { ChipPickerState } from '@/components/chat/types';
 import CompareSelectorOverlay from '@/components/chat/CompareSelectorOverlay';
 import {
@@ -34,6 +34,7 @@ import {
   ArrowUp,
   ArrowDown,
   WifiSlash,
+  FileText,
 } from '@phosphor-icons/react';
 import { FilterDock } from '@/components/chat/FilterDock';
 import { useSessions } from '@/hooks/useSessions';
@@ -1770,6 +1771,19 @@ export default function DiscoveryContent({ userId, guestToken, onSessionChange, 
         </div>
 
         <div className="flex items-center justify-end gap-2 pointer-events-auto">
+          {/* Quiet, persistent dossier entry point. The inline offer appears
+              once (on the Nth answer); after that, this is where it lives. */}
+          {!isSubmitting && chatHistory.filter(m => m.type === 'ai').length >= DOSSIER_MIN_AI_TURNS && (
+            <button
+              onClick={() => handleChipAction({ id: 'gen_dossier', actionType: 'TEXT_MESSAGE', label: 'Create a shareable dossier', payload: { text: 'Create a shareable dossier of this chat' } } as any)}
+              className="flex items-center justify-center gap-1.5 h-10 px-3 sm:px-3.5 rounded-full bg-surface/90 dark:bg-surface-2/90 backdrop-blur-md border border-border-heavy hover:bg-surface-3 dark:hover:bg-zinc-800 text-text-primary text-[13px] font-medium transition-colors cursor-pointer active:scale-95"
+              title="Share your research"
+              aria-label="Share research"
+            >
+              <FileText size={18} weight="bold" className="text-text-secondary" />
+              <span className="hidden sm:inline">Share research</span>
+            </button>
+          )}
           {/* Individual Frosted Pill New Chat Button */}
           <AnimatePresence>
             {hasUserReplied && (
@@ -1953,10 +1967,12 @@ export default function DiscoveryContent({ userId, guestToken, onSessionChange, 
 
                 {chatHistory.slice(-visibleCount).map((message, index) => {
                   const actualIndex = Math.max(0, chatHistory.length - visibleCount) + index;
-                  // Counted over the WHOLE history, not the visible window —
-                  // a long session collapses older turns, and the dossier
-                  // offer should not disappear because of how much is on screen.
-                  const aiTurnCount = chatHistory.filter(m => m.type === 'ai').length;
+                  // This message's position among AI messages, counted over the
+                  // WHOLE history (not the visible window), so the one-time
+                  // inline dossier offer lands on a stable message.
+                  const aiTurnCount = message.type === 'ai'
+                    ? chatHistory.slice(0, actualIndex + 1).filter(m => m.type === 'ai').length
+                    : 0;
                   const isComparingThis = message.id === comparingMessageId;
                   return (
                     <div

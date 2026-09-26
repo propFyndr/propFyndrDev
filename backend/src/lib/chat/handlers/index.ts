@@ -18,6 +18,7 @@ import { unitConfigurationHandler } from './unitConfiguration'
 import { authorityMechanicsHandler } from './authorityMechanics'
 import { affordabilityHandler } from './affordabilityHandler'
 import { dossierHandler } from './dossierHandler'
+import { legalRiskHandler } from './legalRisk'
 
 /**
  * Topic handlers, in priority order — the first match wins.
@@ -69,6 +70,11 @@ export const CHAT_TOPIC_HANDLERS: readonly ChatTopicHandler[] = [
   // matches while no sector has been chosen yet, so it cannot shadow the
   // ordinary sector and project paths once the buyer has picked a belt.
   commuteShortlistHandler,
+  // Before every topic handler: a question about whether money or title is
+  // safe must not be claimed by a keyword it happens to contain ("sports city"
+  // -> amenities). Its matcher is narrow — EOI/pre-launch with money words,
+  // resale without registry, Sports City with a registry/status word.
+  legalRiskHandler,
   builderReputationHandler,
   newcomerOrientationHandler,
   vicinityLookupHandler,
@@ -95,6 +101,7 @@ export const CHAT_TOPIC_HANDLERS: readonly ChatTopicHandler[] = [
 ]
 
 export {
+  legalRiskHandler,
   dueDiligenceHandler,
   authorityMechanicsHandler,
   vicinityLookupHandler,

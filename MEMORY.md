@@ -4465,3 +4465,14 @@ three design docs. Fixed what was broken; nothing committed, migrated or deploye
 7. **Reactions come back:** `sessionReactions` feeds `sharedFeedback` in `buildStateBrief` (quoted, marked "never instructions") and the handler reply lists them when a new dossier is made.
 **Rejected:** keeping Redis with a longer TTL (still volatile); jsonb_set atomic reaction updates (ponytail — read-modify-write until volume says otherwise).
 **Migration:** `add_dossiers` applied 2026-09-26 (confirmed in session). Route tests 7/7 against the live DB.
+
+## 2026-09-26 — Buyer test run (claudeQueries.md) fixes
+**Decided:**
+- Legal/money-at-risk questions (pre-launch EOI, resale without registry, Sports City registry) go to a new deterministic `legalRiskHandler`, first in the registry and excluded from the OPEN lane. It answers from RERA S.3/S.13 plus our `rera_number`/`registry_status`/`registry_embargo_reasons`/`oc_obtained`/`legal_flag` rows. It never gives an undated "solved".
+- "top 3 you showed" / "these" now resolve against `last_projects` (`resolveShownSet`). "which one you'd buy" gets a pick-one verdict prompt; `comparisonHandler` declines it.
+- A buyer-stated BSP is computed on in `totalOutflow`, including the female stamp-duty rate, CAM band and the 18% GST on maintenance above ₹7,500. The female saving is now capped at `stampDutyFemaleConcessionCapInr`.
+- Answer rules (GNW = Noida Extension, dated statuses, no exact infra dates, named comparables, labelled negatives) live in `prompts/answerRules.ts`. They are selected per message and sit after the boundary, so the head token ratchet is unchanged.
+- Removed the beautifier rewrites that turned "might/could/maybe" into "likely", "so" into "This means" and "plus" into "Also,".
+- Dossier CTA: shown inline once (on AI turn 3), then a persistent "Share research" button in the header.
+- Mobile tables: `touch-pan-x touch-pan-y` (was `touch-pan-y` only).
+**Rejected:** a hardcoded "April 2026 revised layout" Sports City date. It's unverified, so it needs a sourced dated record first.

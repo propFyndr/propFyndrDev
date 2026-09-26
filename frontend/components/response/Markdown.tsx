@@ -66,6 +66,9 @@ function beautifyMarkdown(content: string): string {
     .replace(/(?:^|\n)(Ready-to-Move Projects|Under-Construction Projects|Key Projects|Recommended Projects|Top Societies):/gi, '\n\n#### $1\n')
     // 3. Highlight project name and sector tags cleanly in bullet items
     .replace(/^-\s+([A-Za-z0-9\s&'-]+)\s*\((Sector\s+[^)\n]+|Techzone\s+[^)\n]+|Greater\s+Noida\s+[^)\n]+)\)\s*:\s*/gim, '- **$1** *($2)* — ')
+    // 4. A lead-in whose list was stripped can end on an opened, never-closed
+    //    `**` ("micro-markets are: **"), which renders as literal asterisks.
+    .replace(/([:：])[^\S\n]*\*\*[^\S\n]*(?=\n|$)/g, '$1')
     .trim()
 }
 
@@ -96,8 +99,11 @@ export default function Markdown({ children, components, raw = false }: Markdown
           h4: ({ children }) => <h4 className="max-w-[68ch] text-[15px] font-medium text-zinc-900 dark:text-zinc-50 mt-3 mb-1">{children}</h4>,
           blockquote: ({ children }) => <blockquote className="max-w-[68ch] border-l-2 border-zinc-300 dark:border-zinc-700 pl-4 not-italic text-zinc-600 dark:text-zinc-400">{children}</blockquote>,
           a: ({ node, ...props }) => <a {...props} className="text-primary hover:underline" />,
+          // touch-action must allow BOTH axes. `touch-pan-y` alone told the
+          // browser to ignore horizontal swipes on this box, so wide tables
+          // could not be scrolled sideways on a phone (diagonal swipes stuck).
           table: ({ children }) => (
-            <div className="not-prose my-3 overflow-x-auto rounded-sm border border-border touch-pan-y overscroll-x-contain">
+            <div className="not-prose my-3 overflow-x-auto rounded-sm border border-border touch-pan-x touch-pan-y overscroll-x-contain">
               <table className="w-full border-collapse text-left text-[13px] text-zinc-800 dark:text-zinc-200">{children}</table>
             </div>
           ),

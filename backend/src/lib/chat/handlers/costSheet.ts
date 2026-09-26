@@ -5,6 +5,7 @@ import { executeWithFallbackChain } from '../../ai/fallbackChain'
 import { confidenceFor, MARKET_QUALIFIER, NOIDA_MARKET_RANGES, UP_STATUTORY } from '../../factPresentation'
 import { recordTableRendered } from '../../monitoring/langfuse'
 import type { ChatTopicHandler } from '../handlerContext'
+import { statedBasePriceInr } from './totalOutflow'
 
 /**
  * cost-sheet
@@ -17,7 +18,11 @@ export const costSheetHandler: ChatTopicHandler = {
   id: 'cost-sheet',
   description: 'All-in cost sheet: base price, charges, statutory dues',
 
-  matches: ctx => ctx.flags.isCostSheetRequest === true,
+  // A buyer who quoted their own BSP and named no project wants that number
+  // worked through — totalOutflow does it; this handler would print a generic
+  // cost sheet and ignore the figure they gave.
+  matches: ctx => ctx.flags.isCostSheetRequest === true &&
+    !(statedBasePriceInr(ctx.message) && !(ctx.intent.projectNames?.length)),
 
   handle: async ctx => {
     const matchedTarget = ctx.catalog.find(p => p.name.toLowerCase() === ctx.activeProjectName?.toLowerCase() || p.id === ctx.activeProjectName) ||
