@@ -466,7 +466,6 @@ export default function DiscoveryContent({ userId, guestToken, onSessionChange, 
   const [regeneratingIdx, setRegeneratingIdx] = useState<number | null>(null);
   const [showReEngagement, setShowReEngagement] = useState(true)
 
-  const chatEndRef = useRef<HTMLDivElement>(null);
   const streamingMsgIdRef = useRef<string | null>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
@@ -697,40 +696,57 @@ export default function DiscoveryContent({ userId, guestToken, onSessionChange, 
 
   const lastScrolledMsgId = useRef<string | null>(null);
 
-  const scrollToLatestResponse = useCallback((behavior: ScrollBehavior = 'smooth') => {
-    if (chatHistory.length === 0) return;
-    const lastMsg = chatHistory[chatHistory.length - 1];
-
-    // ChatGPT/Gemini style: scroll to the top of the newly generated assistant message
-    if (lastMsg && lastMsg.type === 'ai') {
-      const msgElem = document.getElementById(`msg-${lastMsg.id}`);
-      if (msgElem) {
-        msgElem.scrollIntoView({ behavior, block: 'start' });
-        return;
-      }
-    }
-
-    if (chatEndRef.current) {
-      chatEndRef.current.scrollIntoView({ behavior, block: 'end' });
-    }
-  }, [chatHistory]);
-
+  // Every programmatic scroll moves the feed element and nothing else.
+  // scrollIntoView also scrolls each scrollable ancestor — overflow-hidden ones
+  // included — which lifted the whole canvas on mobile: the header went off
+  // the top and the composer floated mid-screen over dead space.
   const scrollToBottom = useCallback((behavior: ScrollBehavior = 'smooth') => {
-    if (chatEndRef.current) {
-      chatEndRef.current.scrollIntoView({ behavior, block: 'end' });
-    }
+    const feed = chatContainerRef.current;
+    if (feed) feed.scrollTo({ top: feed.scrollHeight, behavior });
   }, []);
 
+  /**
+   * Where a sent message scrolls to, and where it stops.
+   *
+   * The buyer's question pins to the top of the feed (under the title pill)
+   * and the answer streams in below it. The view does not follow the stream:
+   * the reader starts at the top of the answer, and the scroll-to-bottom button
+   * is there when they want the end. The answer slot is given enough height
+   * for the pin to hold while it is still empty — otherwise the browser clamps
+   * the scroll to the bottom and the answer grows off-screen under the fold.
+   */
+  const [answerMinHeight, setAnswerMinHeight] = useState<{ id: string; px: number } | null>(null);
+
   useEffect(() => {
-    if (chatHistory.length > 0 && !userScrolledUp.current) {
-      const lastMsg = chatHistory[chatHistory.length - 1];
-      if (lastMsg && lastMsg.id !== lastScrolledMsgId.current) {
-        lastScrolledMsgId.current = lastMsg.id;
-        const timer = setTimeout(() => scrollToLatestResponse(), 80);
-        return () => clearTimeout(timer);
+    const lastMsg = chatHistory[chatHistory.length - 1];
+    if (!lastMsg || lastMsg.id === lastScrolledMsgId.current) return;
+    lastScrolledMsgId.current = lastMsg.id;
+
+    const prevMsg = chatHistory[chatHistory.length - 2];
+    const isSentTurn = lastMsg.type === 'ai' && prevMsg?.type === 'user';
+    // A turn the buyer sent always scrolls; anything else respects a reader
+    // who has scrolled up.
+    if (!isSentTurn && userScrolledUp.current) return;
+
+    const frame = requestAnimationFrame(() => {
+      const feed = chatContainerRef.current;
+      const userEl = isSentTurn ? document.getElementById(`msg-${prevMsg.id}`) : null;
+      const aiEl = document.getElementById(`msg-${lastMsg.id}`);
+      if (!feed || !userEl || !aiEl) {
+        scrollToBottom();
+        return;
       }
-    }
-  }, [chatHistory, isSubmitting, scrollToLatestResponse]);
+      const pad = parseFloat(getComputedStyle(feed).paddingTop);
+      const padBottom = parseFloat(getComputedStyle(feed).paddingBottom);
+      const px = Math.max(0, feed.clientHeight - pad - padBottom - (aiEl.offsetTop - userEl.offsetTop));
+      setAnswerMinHeight({ id: lastMsg.id, px });
+      requestAnimationFrame(() => {
+        userScrolledUp.current = false;
+        feed.scrollTo({ top: userEl.offsetTop - pad, behavior: 'smooth' });
+      });
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [chatHistory, scrollToBottom]);
 
   // ── Mobile keyboard handling via Visual Viewport API ──
   // Detection only. The canvas height is never driven from here: pinning it to
@@ -1683,7 +1699,10 @@ export default function DiscoveryContent({ userId, guestToken, onSessionChange, 
 
   return (
     <div
-      className="discover-canvas flex-1 flex flex-col min-h-0 overflow-hidden"
+      // overflow-clip, not overflow-hidden: a hidden box is still a scroll
+      // container, and focus or a card scrolling into view silently scrolled
+      // it — shifting the header and composer off their edges on mobile.
+      className="discover-canvas flex-1 flex flex-col min-h-0 overflow-clip"
     >
       {/* Seamless Floating Header (Container is 100% transparent; only individual pills have frosted blur) */}
       <div className="absolute top-2.5 sm:top-3 left-0 right-0 z-30 flex items-center justify-between px-3 sm:px-6 pointer-events-none">
@@ -1788,7 +1807,7 @@ export default function DiscoveryContent({ userId, guestToken, onSessionChange, 
       </AnimatePresence>
 
       {/* Main: centered input when no chat, scrollable messages + bottom input when chat started */}
-      <div className="flex-1 flex flex-col min-h-0 overflow-hidden relative z-10">
+      <div className="flex-1 flex flex-col min-h-0 overflow-clip relative z-10">
 
         {(!isInitialized && !!initialSessionId) ? (
           <div className="flex-1 flex flex-col justify-start w-full relative z-10 overflow-y-auto">
@@ -1940,7 +1959,12 @@ export default function DiscoveryContent({ userId, guestToken, onSessionChange, 
                   const aiTurnCount = chatHistory.filter(m => m.type === 'ai').length;
                   const isComparingThis = message.id === comparingMessageId;
                   return (
-                    <div key={message.id} id={`msg-${message.id}`} className={`scroll-mt-16 ${isComparingThis ? 'relative z-30' : ''}`}>
+                    <div
+                      key={message.id}
+                      id={`msg-${message.id}`}
+                      className={`scroll-mt-16 ${isComparingThis ? 'relative z-30' : ''}`}
+                      style={answerMinHeight?.id === message.id ? { minHeight: answerMinHeight.px } : undefined}
+                    >
                       <MessageBubble
                         message={message}
                         index={actualIndex}
@@ -1985,7 +2009,6 @@ export default function DiscoveryContent({ userId, guestToken, onSessionChange, 
 
 
 
-                <div ref={chatEndRef} />
               </div>
 
             </div>
