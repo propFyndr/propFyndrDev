@@ -21,6 +21,7 @@ import {
   Shield,
   ArrowSquareOut,
   MapPin,
+  MagnifyingGlass,
 } from '@phosphor-icons/react'
 import { Activity, FileSpreadsheet } from 'lucide-react'
 import AdminInfoTooltip from '@/components/admin/AdminInfoTooltip'
@@ -90,6 +91,8 @@ export default function AdminDashboard() {
     catalog: 0,
   })
 
+  const [activitySearchQuery, setActivitySearchQuery] = useState('')
+
   useEffect(() => {
     setMounted(true)
   }, [])
@@ -136,6 +139,18 @@ export default function AdminDashboard() {
     setActivityFilter(filter)
     loadRecentLogs(filter)
   }
+
+  const filteredLogs = useMemo(() => {
+    if (!activitySearchQuery.trim()) return recentLogs
+    const q = activitySearchQuery.toLowerCase()
+    return recentLogs.filter(
+      (l) =>
+        l.summary?.toLowerCase().includes(q) ||
+        l.entity_name?.toLowerCase().includes(q) ||
+        l.actor?.toLowerCase().includes(q) ||
+        l.action?.toLowerCase().includes(q)
+    )
+  }, [recentLogs, activitySearchQuery])
 
   // Filter projects based on selected TimeRange
   const filteredProjects = useMemo(() => {
@@ -362,8 +377,9 @@ export default function AdminDashboard() {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-zinc-200/80 dark:border-zinc-800/80">
         <div>
           <div className="flex items-center gap-3 flex-wrap">
-            <h1 className="text-2xl font-semibold text-zinc-900 dark:text-zinc-50 tracking-tight">
-              Dashboard Overview
+            <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50 tracking-tight flex items-center gap-2">
+              <span>Hello, Administrator</span>
+              <span className="text-2xl select-none" role="img" aria-label="Waving hand">👋</span>
             </h1>
             <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-semibold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200/80 dark:border-emerald-800/60 rounded-full shadow-2xs">
               <span className="relative flex h-2 w-2">
@@ -388,7 +404,7 @@ export default function AdminDashboard() {
             )}
           </div>
           <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1 font-medium flex items-center gap-2">
-            <span>Real-time catalog metrics, inventory health, and operational tasks.</span>
+            <span>Here are the latest insights and inventory metrics from your property catalog.</span>
             <span className="hidden sm:inline text-zinc-300 dark:text-zinc-700">•</span>
             <span className="hidden sm:inline-flex items-center gap-1 text-zinc-400 dark:text-zinc-500 font-semibold">
               <CalendarBlank size={13} weight="bold" />
@@ -972,30 +988,51 @@ export default function AdminDashboard() {
                 </div>
               </div>
 
+              {/* Kravio Search Activities Bar & Counter */}
+              <div className="relative mb-2.5">
+                <MagnifyingGlass size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 pointer-events-none" />
+                <input
+                  type="text"
+                  placeholder="Search activities..."
+                  value={activitySearchQuery}
+                  onChange={(e) => setActivitySearchQuery(e.target.value)}
+                  className="w-full pl-8 pr-3 py-1.5 text-xs rounded-xl bg-zinc-100/70 dark:bg-zinc-800/60 border border-zinc-200/80 dark:border-zinc-700/60 text-zinc-800 dark:text-zinc-200 placeholder-zinc-400 focus:outline-none focus:ring-1 focus:ring-blue-500/50"
+                />
+              </div>
+
+              <div className="flex items-center justify-between text-[11px] font-semibold text-zinc-500 dark:text-zinc-400 mb-2">
+                <span>{filteredLogs.length} updates recorded</span>
+                <span className="text-[10px] text-zinc-400 font-normal">Live Activity Feed</span>
+              </div>
+
               {logsLoading ? (
                 <div className="space-y-3 py-2">
                   {[1, 2, 3, 4].map((i) => (
                     <div key={i} className="h-14 bg-zinc-100 dark:bg-zinc-800/50 rounded-xl animate-pulse" />
                   ))}
                 </div>
-              ) : recentLogs.length === 0 ? (
-                <div className="py-12 text-center space-y-2">
+              ) : filteredLogs.length === 0 ? (
+                <div className="py-10 text-center space-y-2">
                   <p className="text-xs font-semibold text-zinc-700 dark:text-zinc-300">
-                    {activityFilter === 'demand'
+                    {activitySearchQuery
+                      ? 'No matching activities found'
+                      : activityFilter === 'demand'
                       ? 'No buyer search gaps detected'
                       : activityFilter === 'catalog'
                       ? 'No catalog updates recorded'
                       : 'No recent events recorded'}
                   </p>
                   <p className="text-[11px] text-zinc-400 max-w-sm mx-auto">
-                    {activityFilter === 'demand'
+                    {activitySearchQuery
+                      ? 'Try adjusting your search query or clear the filter.'
+                      : activityFilter === 'demand'
                       ? 'Whenever a buyer inquires about a sector with no catalog inventory, it surfaces here.'
                       : 'Real-time project modifications and team audit logs will appear here.'}
                   </p>
                 </div>
               ) : (
                 <div className="space-y-2.5">
-                  {recentLogs.slice(0, 5).map((log) => {
+                  {filteredLogs.slice(0, 5).map((log) => {
                     const isSectorGap =
                       log.entity_type === 'sector_gap' ||
                       log.action === 'SECTOR_NOT_COVERED' ||

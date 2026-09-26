@@ -37,6 +37,9 @@ import {
   Check,
   MapPin,
   PencilSimple,
+  Bell,
+  Gear,
+  SquaresFour,
 } from '@phosphor-icons/react'
 import { AnimatePresence, m } from 'framer-motion'
 import { adminFetch } from '@/lib/adminFetch'
@@ -213,6 +216,7 @@ export default function PortalShell({ nav, rootHref, rootLabel, allowRoles, scop
   const [selectedProject, setSelectedProject] = useState<any | null>(null)
   const [loadingProject, setLoadingProject] = useState(false)
   const [copiedFacts, setCopiedFacts] = useState(false)
+  const [notificationsOpen, setNotificationsOpen] = useState(false)
 
   // Compute initials and display names for user profile widget
   const userInitials = useMemo(() => {
@@ -237,7 +241,9 @@ export default function PortalShell({ nav, rootHref, rootLabel, allowRoles, scop
         e.preventDefault()
         setCmdOpen((open) => !open)
       } else if (e.key === 'Escape') {
-        if (userMenuOpen) {
+        if (notificationsOpen) {
+          setNotificationsOpen(false)
+        } else if (userMenuOpen) {
           setUserMenuOpen(false)
         } else if (cmdOpen) {
           if (selectedProject) {
@@ -250,7 +256,7 @@ export default function PortalShell({ nav, rootHref, rootLabel, allowRoles, scop
     }
     document.addEventListener('keydown', down)
     return () => document.removeEventListener('keydown', down)
-  }, [cmdOpen, selectedProject, userMenuOpen])
+  }, [cmdOpen, selectedProject, userMenuOpen, notificationsOpen])
 
   useEffect(() => {
     if (!cmdOpen) {
@@ -1364,37 +1370,128 @@ export default function PortalShell({ nav, rootHref, rootLabel, allowRoles, scop
               <span className="w-[16px] h-[2px] bg-current rounded-full" />
             </button>
 
-            <nav className="flex items-center gap-1 sm:gap-1.5 text-xs font-semibold min-w-0">
-              <Buildings size={16} weight="duotone" className="text-zinc-400 dark:text-zinc-500 shrink-0 hidden sm:inline" />
-              {crumbs.map((c, i) => (
-                <span key={i} className="flex items-center gap-1 sm:gap-1.5 min-w-0">
-                  {i > 0 && <CaretRight size={12} weight="bold" className="text-zinc-300 dark:text-zinc-600 flex-shrink-0" />}
-                  {c.href && i < crumbs.length - 1 ? (
-                    <Link
-                      href={c.href}
-                      className="text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white px-1.5 py-1 rounded-md hover:bg-zinc-100 dark:hover:bg-zinc-800/60 transition-all truncate"
-                    >
-                      {c.label}
-                    </Link>
-                  ) : (
-                    <span className="text-zinc-900 dark:text-zinc-100 font-bold px-2 py-0.5 sm:py-1 bg-zinc-100/90 dark:bg-zinc-800/90 rounded-md border border-zinc-200/60 dark:border-zinc-700/60 truncate shadow-2xs">
-                      {c.label}
-                    </span>
-                  )}
-                </span>
-              ))}
+            {/* Kravio-style Lightweight Breadcrumbs */}
+            <nav className="flex items-center gap-2 text-xs min-w-0 font-medium">
+              <SquaresFour size={16} weight="duotone" className="text-zinc-400 dark:text-zinc-500 shrink-0" />
+              <Link
+                href={rootHref}
+                className="text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white transition-colors truncate"
+              >
+                Overview
+              </Link>
+              <span className="text-zinc-300 dark:text-zinc-700 font-normal">/</span>
+              <span className="text-zinc-900 dark:text-zinc-100 font-semibold truncate">
+                {crumbs.length > 1 ? crumbs.slice(1).map((c) => c.label).join(' / ') : 'Dashboard'}
+              </span>
             </nav>
           </div>
 
-          <button
-            type="button"
-            onClick={() => setCmdOpen(true)}
-            className="hidden md:flex items-center gap-2.5 px-3 py-1.5 bg-zinc-100/80 hover:bg-zinc-200/70 dark:bg-zinc-800/70 dark:hover:bg-zinc-800 border border-zinc-200/70 dark:border-zinc-700/70 rounded-full text-xs font-medium text-zinc-500 dark:text-zinc-400 transition-all shadow-2xs hover:shadow-xs group cursor-pointer"
-          >
-            <MagnifyingGlass size={14} weight="bold" className="text-zinc-400 group-hover:text-zinc-600 dark:group-hover:text-zinc-300 transition-colors" />
-            <span className="font-semibold text-[11.5px]">Search</span>
-            <kbd className="font-sans text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-700 text-zinc-500 dark:text-zinc-400 shadow-2xs">⌘K</kbd>
-          </button>
+          {/* Kravio Top Right Actions: Notifications & Settings (Duplicate search removed) */}
+          <div className="flex items-center gap-1.5 sm:gap-2">
+            {/* Notification Popover */}
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setNotificationsOpen((prev) => !prev)}
+                className="relative p-2 rounded-xl text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-850 transition-colors cursor-pointer"
+                title="Notifications"
+                aria-label="Notifications"
+              >
+                <Bell size={18} weight="bold" />
+                <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-blue-600 ring-2 ring-white dark:ring-zinc-900" />
+              </button>
+
+              <AnimatePresence>
+                {notificationsOpen && (
+                  <>
+                    <div
+                      className="fixed inset-0 z-30"
+                      onClick={() => setNotificationsOpen(false)}
+                    />
+                    <m.div
+                      initial={{ opacity: 0, y: 8, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: 8, scale: 0.95 }}
+                      transition={{ duration: 0.15 }}
+                      className="absolute right-0 top-full mt-2 w-80 p-3 bg-white dark:bg-zinc-900 rounded-2xl shadow-xl border border-zinc-200/90 dark:border-zinc-800 z-40 space-y-2.5"
+                    >
+                      <div className="flex items-center justify-between pb-2 border-b border-zinc-100 dark:border-zinc-800">
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-xs font-bold text-zinc-900 dark:text-zinc-100">Notifications</span>
+                          <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-blue-50 dark:bg-blue-950/60 text-[#0066cc] dark:text-blue-400">
+                            3 New
+                          </span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => setNotificationsOpen(false)}
+                          className="text-[11px] font-medium text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 cursor-pointer"
+                        >
+                          Dismiss
+                        </button>
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <Link
+                          href={`${rootHref}/projects?issue=no_image`}
+                          onClick={() => setNotificationsOpen(false)}
+                          className="flex items-start gap-2.5 p-2 rounded-xl hover:bg-zinc-50 dark:hover:bg-zinc-850 transition-colors group cursor-pointer"
+                        >
+                          <span className="w-2 h-2 rounded-full bg-amber-500 mt-1.5 shrink-0" />
+                          <div className="text-left">
+                            <p className="text-xs font-semibold text-zinc-800 dark:text-zinc-200 group-hover:text-blue-600 dark:group-hover:text-blue-400">
+                              Catalog Data Quality Alert
+                            </p>
+                            <p className="text-[11px] text-zinc-400 mt-0.5 leading-tight">
+                              Projects flagged with missing images or pending RERA verification.
+                            </p>
+                          </div>
+                        </Link>
+
+                        <div className="flex items-start gap-2.5 p-2 rounded-xl hover:bg-zinc-50 dark:hover:bg-zinc-850 transition-colors">
+                          <span className="w-2 h-2 rounded-full bg-emerald-500 mt-1.5 shrink-0" />
+                          <div className="text-left">
+                            <p className="text-xs font-semibold text-zinc-800 dark:text-zinc-200">
+                              Catalog Sync Online
+                            </p>
+                            <p className="text-[11px] text-zinc-400 mt-0.5 leading-tight">
+                              All 382 active properties and builder portfolios synced.
+                            </p>
+                          </div>
+                        </div>
+
+                        <Link
+                          href={`${rootHref}/leads`}
+                          onClick={() => setNotificationsOpen(false)}
+                          className="flex items-start gap-2.5 p-2 rounded-xl hover:bg-zinc-50 dark:hover:bg-zinc-850 transition-colors group cursor-pointer"
+                        >
+                          <span className="w-2 h-2 rounded-full bg-blue-500 mt-1.5 shrink-0" />
+                          <div className="text-left">
+                            <p className="text-xs font-semibold text-zinc-800 dark:text-zinc-200 group-hover:text-blue-600 dark:group-hover:text-blue-400">
+                              Demand & Inquiry Stream
+                            </p>
+                            <p className="text-[11px] text-zinc-400 mt-0.5 leading-tight">
+                              Buyer interest inquiries recorded across Noida & NCR sectors.
+                            </p>
+                          </div>
+                        </Link>
+                      </div>
+                    </m.div>
+                  </>
+                )}
+              </AnimatePresence>
+            </div>
+
+            {/* Quick Settings Gear */}
+            <Link
+              href={`${rootHref}/account`}
+              className="p-2 rounded-xl text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-850 transition-colors cursor-pointer"
+              title="Settings"
+              aria-label="Settings"
+            >
+              <Gear size={18} weight="bold" />
+            </Link>
+          </div>
         </header>
 
         <main className="flex-1 overflow-y-auto overflow-x-hidden min-w-0 w-full bg-slate-50/50 dark:bg-zinc-950/50 relative pb-20 md:pb-8">
