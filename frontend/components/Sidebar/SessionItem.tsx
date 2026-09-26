@@ -36,7 +36,14 @@ function getOrCreateObserver(): PerformanceObserver {
 }
 
 function timeAgo(dateStr: string): string {
-  const diff = Date.now() - new Date(dateStr).getTime();
+  if (!dateStr) return '';
+  const date = new Date(dateStr);
+  const time = date.getTime();
+  if (isNaN(time)) return '';
+
+  const diff = Date.now() - time;
+  if (diff < 0) return 'now';
+
   const mins = Math.floor(diff / 60000);
   if (mins < 1) return 'now';
   if (mins < 60) return `${mins}m`;
@@ -45,7 +52,16 @@ function timeAgo(dateStr: string): string {
   const days = Math.floor(hrs / 24);
   if (days === 1) return '1d';
   if (days < 7) return `${days}d`;
-  return new Date(dateStr).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
+
+  const now = new Date();
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const monthStr = months[date.getMonth()];
+  const dayNum = date.getDate();
+
+  if (date.getFullYear() === now.getFullYear()) {
+    return `${dayNum} ${monthStr}`;
+  }
+  return `${dayNum} ${monthStr} '${String(date.getFullYear()).slice(2)}`;
 }
 
 const FOCUS = 'outline-none focus-visible:ring-2 focus-visible:ring-blue-500/60';
@@ -290,9 +306,9 @@ export function SessionItem({ session, isActive, onDelete, onRename, onClick }: 
 
       {/* Right Slot: fixed width, zero layout shift. Timestamp yields to the
           options button on hover, keyboard focus, or touch devices. */}
-      <div className={`relative ${menuOpen ? 'z-30' : 'z-10'} w-12 h-full flex items-center justify-end shrink-0 pr-1`}>
+      <div className={`relative ${menuOpen ? 'z-30' : 'z-10'} w-14 h-full flex items-center justify-end shrink-0 pr-1`}>
         <span
-          className={`text-[11px] font-medium tabular-nums text-zinc-500 dark:text-zinc-400 absolute right-2 transition-opacity duration-150 group-hover/session:opacity-0 group-focus-within/session:opacity-0 [@media(hover:none)]:opacity-0 pointer-events-none ${menuOpen ? 'opacity-0' : ''}`}
+          className={`text-[11px] font-medium tabular-nums text-zinc-500 dark:text-zinc-400 absolute right-1.5 whitespace-nowrap transition-opacity duration-150 group-hover/session:opacity-0 group-focus-within/session:opacity-0 [@media(hover:none)]:opacity-0 pointer-events-none ${menuOpen ? 'opacity-0' : ''}`}
         >
           {timeAgo(session.last_active)}
         </span>

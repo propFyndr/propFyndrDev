@@ -74,6 +74,7 @@ function groupSessionsByDate(
 
   for (const s of sessions) {
     const t = new Date(s.last_active).getTime();
+    if (isNaN(t)) continue;
     if (t >= today) groups["Today"].push(s);
     else if (t >= yesterday) groups["Yesterday"].push(s);
     else if (t >= sevenDaysAgo) groups["Previous 7 Days"].push(s);
