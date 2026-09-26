@@ -210,6 +210,8 @@ export interface ChatTopicHandler {
 export async function runTopicHandlers(
   handlers: readonly ChatTopicHandler[],
   ctx: ChatHandlerContext,
+  /** Told which handler answered, for the turn's telemetry lane. */
+  onHandled?: (handlerId: string) => void,
 ): Promise<boolean> {
   for (const handler of handlers) {
     if (!handler.matches(ctx)) continue
@@ -219,6 +221,7 @@ export async function runTopicHandlers(
       console.log('[CHAT:TOPIC_LANE_CLOSED]', { handler: handler.id })
       ctx.res.end()
     }
+    onHandled?.(handler.id)
     return true
   }
   return false

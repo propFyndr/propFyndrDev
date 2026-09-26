@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { m, AnimatePresence } from 'framer-motion'
-import { ChevronDown, Building2 } from 'lucide-react'
+import { CaretDown, Buildings } from '@phosphor-icons/react'
 import { renderChipIcon } from '@/lib/chipIconUtils'
 import type { ChipAction } from './types'
 
@@ -45,64 +45,48 @@ export function CardSelectorChip({ chip, projects, onSelect, disabled }: CardSel
   }
 
   return (
-    <div className="relative inline-block group" ref={containerRef}>
-      <m.button
-        whileHover={{ y: -1.5, scale: 1.015 }}
-        whileTap={{ scale: 0.96 }}
-        transition={{ type: 'spring', stiffness: 450, damping: 25 }}
+    <div className="relative inline-block" ref={containerRef}>
+      <button
+        type="button"
         onClick={() => setIsOpen(!isOpen)}
         disabled={disabled}
-        className={`
-          flex items-center gap-2 px-4 py-2.5 rounded-full text-[13px] font-medium
-          transition-all duration-200 outline-none max-w-full select-none cursor-pointer
-          ${disabled ? 'opacity-50 pointer-events-none' : ''}
-          ${
-            isOpen
-              ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white border border-blue-500 shadow-[0_4px_16px_rgba(37,99,235,0.35)] dark:shadow-[0_4px_20px_rgba(59,130,246,0.4)]'
-              : 'bg-white/90 dark:bg-[#18181b]/90 backdrop-blur-md text-zinc-700 dark:text-zinc-200 border border-zinc-200/90 dark:border-zinc-800/90 hover:bg-white dark:hover:bg-[#222226] hover:border-blue-400/60 dark:hover:border-blue-500/50 hover:text-zinc-950 dark:hover:text-white shadow-[0_2px_8px_rgba(0,0,0,0.03)] hover:shadow-[0_4px_18px_rgba(59,130,246,0.12)] dark:hover:shadow-[0_4px_20px_rgba(59,130,246,0.22)]'
-          }
-        `}
+        className={`flex items-center gap-2 px-4 py-2.5 rounded-full text-[13px] font-medium transition-colors duration-150 max-w-full select-none cursor-pointer active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1 ${disabled ? 'opacity-50 pointer-events-none' : ''} ${isOpen ? 'bg-zinc-900 text-white border border-zinc-900 dark:bg-white dark:text-zinc-900 dark:border-white' : 'bg-surface dark:bg-zinc-900 text-zinc-700 dark:text-zinc-200 border border-border hover:bg-surface-3 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-zinc-50'}`}
         title={chip.label}
         aria-label={chip.label}
-        role="button"
-        aria-pressed={isOpen}
-        aria-haspopup="listbox"
         aria-expanded={isOpen}
       >
         {renderChipIcon(chip.label, isOpen)}
         <span className="truncate min-w-0 font-medium tracking-tight">{chip.label}</span>
-        <ChevronDown
+        <CaretDown
           size={13}
-          className={`flex-shrink-0 transition-transform duration-200 ${
-            isOpen ? 'text-blue-200 rotate-180' : 'text-zinc-400 dark:text-zinc-500 group-hover:text-blue-500 group-hover:translate-y-[1px]'
-          }`}
+          weight="bold"
+          aria-hidden="true"
+          className={`flex-shrink-0 transition-transform duration-200 ${isOpen ? 'rotate-180' : 'text-zinc-400 dark:text-zinc-500'}`}
         />
-      </m.button>
+      </button>
 
       {/* Dropdown menu — floating dark glass container */}
       <AnimatePresence>
         {isOpen && (
           <m.div
-            initial={{ opacity: 0, y: 6, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 6, scale: 0.95 }}
+            initial={{ opacity: 0, y: 4 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 4 }}
             transition={{ duration: 0.15, ease: 'easeOut' }}
-            className="absolute bottom-full mb-2 left-0 bg-white/95 dark:bg-[#18181b]/95 backdrop-blur-xl border border-zinc-200/90 dark:border-zinc-800/90 rounded-2xl shadow-2xl z-[9999] min-w-[220px] max-w-xs p-1.5 overflow-hidden"
-            role="listbox"
+            className="absolute bottom-full mb-2 left-0 bg-surface dark:bg-zinc-900 border border-border rounded-sm shadow-md z-[9999] min-w-[220px] max-w-xs p-1 overflow-hidden"
           >
-            <div className="px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-zinc-400 dark:text-zinc-500 border-b border-zinc-100 dark:border-zinc-800/60 mb-1">
-              Select Property
+            <div className="px-3 py-1.5 text-[11px] font-semibold text-zinc-500 dark:text-zinc-400 border-b border-border mb-1">
+              Which property?
             </div>
             <div className="space-y-0.5 max-h-48 overflow-y-auto scrollbar-hide">
               {projects.map((project) => (
                 <button
                   key={project.id}
+                  type="button"
                   onClick={() => handleProjectSelect(project.id)}
-                  role="option"
-                  aria-selected={false}
-                  className="w-full text-left px-3 py-2 rounded-xl text-[13px] font-medium text-slate-900 dark:text-slate-50 hover:bg-blue-50 dark:hover:bg-blue-950/40 hover:text-blue-700 dark:hover:text-blue-300 transition-colors flex items-center gap-2 group/item"
+                  className="w-full text-left px-3 py-2 rounded-xs text-[13px] font-medium text-zinc-700 dark:text-zinc-200 hover:bg-surface-3 dark:hover:bg-zinc-800 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1 flex items-center gap-2"
                 >
-                  <Building2 size={13} className="text-zinc-500 dark:text-zinc-400 group-hover/item:text-blue-600 dark:group-hover/item:text-blue-500 shrink-0" />
+                  <Buildings size={13} className="text-zinc-500 dark:text-zinc-400 shrink-0" aria-hidden="true" />
                   <span className="truncate">{project.name}</span>
                 </button>
               ))}

@@ -1,4 +1,5 @@
 // backend/src/routes/chat-helpers.ts
+import { isOutageNotice } from '../lib/ai/outageNotice'
 import { Response } from 'express'
 import { Prisma } from '@prisma/client'
 import type { Intent, ScoredProject } from '../lib/discovery'
@@ -54,7 +55,11 @@ export function generateHighTrafficFallback(): string {
  */
 export function isServiceFailureReply(text: string): boolean {
   if (!text) return true
-  return /experiencing high traffic|are out of service/i.test(text)
+  // `isOutageNotice` is the fingerprint of the notice `fallbackChain` actually
+  // sends. The two legacy phrasings stayed here after the notice was reworded,
+  // so the current notice passed as an answer and could be written to the
+  // answer cache and replayed to the next buyer.
+  return isOutageNotice(text) || /experiencing high traffic|are out of service/i.test(text)
 }
 
 export type CacheDecision = {

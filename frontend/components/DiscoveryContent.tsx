@@ -26,15 +26,14 @@ import {
   WarningCircle,
   CaretDown,
   Microphone,
-  ChatCircleDots,
   PencilSimple,
   Trash,
   NotePencil,
   Scales,
   ArrowRight,
   ArrowUp,
-  MapPin,
-  ShieldCheck
+  ArrowDown,
+  WifiSlash,
 } from '@phosphor-icons/react';
 import { FilterDock } from '@/components/chat/FilterDock';
 import { useSessions } from '@/hooks/useSessions';
@@ -95,7 +94,7 @@ function RateLimitBanner({ until, onExpire }: { until: number; onExpire: () => v
     return () => clearTimeout(t);
   }, [secsLeft, onExpire]);
   return (
-    <div className="mx-4 mb-2 px-4 py-2.5 rounded-xl bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 flex items-center gap-3">
+    <div className="mb-2 px-4 py-2.5 rounded-sm bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 flex items-center gap-3">
       <span className="text-amber-600 dark:text-amber-400 text-sm font-medium">
         Sending too fast — wait {secsLeft}s
       </span>
@@ -209,7 +208,7 @@ export default function DiscoveryContent({ userId, guestToken, onSessionChange, 
         const truncated = cleanMsg.length > 35 ? `${cleanMsg.slice(0, 35)}...` : cleanMsg
         return `${truncated} | PropFyndr`
       }
-      return `AI Property Advisor | PropFyndr`
+      return `PropFyndr — AI Property Advisor for Noida`
     })()
     if (document.title !== newTitle) {
       document.title = newTitle
@@ -414,6 +413,37 @@ export default function DiscoveryContent({ userId, guestToken, onSessionChange, 
   const [showMap, setShowMap] = useState(false);
   const [showHeaderDropdown, setShowHeaderDropdown] = useState(false);
   const headerDropdownRef = useRef<HTMLDivElement>(null);
+  const headerTriggerRef = useRef<HTMLButtonElement>(null);
+  const headerMenuRef = useRef<HTMLDivElement>(null);
+  const headerMenuWasOpen = useRef(false);
+
+  // Menu focus: first item on open, back to the trigger on close.
+  useEffect(() => {
+    if (showHeaderDropdown) {
+      headerMenuWasOpen.current = true;
+      headerMenuRef.current?.querySelector<HTMLElement>('[role="menuitem"]')?.focus();
+    } else if (headerMenuWasOpen.current) {
+      headerMenuWasOpen.current = false;
+      // Only if focus was lost with the menu — a click elsewhere keeps its target.
+      if (!document.activeElement || document.activeElement === document.body) {
+        headerTriggerRef.current?.focus();
+      }
+    }
+  }, [showHeaderDropdown]);
+
+  const handleHeaderMenuKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      setShowHeaderDropdown(false);
+      return;
+    }
+    if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp') return;
+    e.preventDefault();
+    const items = Array.from(e.currentTarget.querySelectorAll<HTMLElement>('[role="menuitem"]'));
+    const i = items.indexOf(document.activeElement as HTMLElement);
+    const next = e.key === 'ArrowDown' ? (i + 1) % items.length : (i - 1 + items.length) % items.length;
+    items[next]?.focus();
+  };
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -433,7 +463,6 @@ export default function DiscoveryContent({ userId, guestToken, onSessionChange, 
 
   const [shareSheetOpen, setShareSheetOpen] = useState(false);
   const [showScrollBtn, setShowScrollBtn] = useState(false);
-  const [isInputMinimized, setIsInputMinimized] = useState(false);
   const [regeneratingIdx, setRegeneratingIdx] = useState<number | null>(null);
   const [showReEngagement, setShowReEngagement] = useState(true)
 
@@ -742,31 +771,6 @@ export default function DiscoveryContent({ userId, guestToken, onSessionChange, 
       };
     }
   }, [scrollToBottom]);
-
-  // Track scroll position to show/hide scroll-to-bottom button
-  useEffect(() => {
-    const container = chatContainerRef.current;
-    if (!container) return;
-    const handleScroll = () => {
-      const { scrollTop, scrollHeight, clientHeight } = container;
-      const distanceFromBottom = scrollHeight - scrollTop - clientHeight;
-      setShowScrollBtn(distanceFromBottom > 150);
-
-      // Minimize input if scrolled up significantly (on mobile)
-      if (window.innerWidth < 768) {
-        if (distanceFromBottom > 200) {
-          setIsInputMinimized(true);
-        } else if (distanceFromBottom < 50) {
-          setIsInputMinimized(false);
-        }
-      } else {
-        // Desktop behavior - maybe just keep it visible or a less aggressive minimize
-        setIsInputMinimized(false);
-      }
-    };
-    container.addEventListener('scroll', handleScroll);
-    return () => container.removeEventListener('scroll', handleScroll);
-  }, []);
 
   // ── Ctrl+K keyboard shortcut to focus chat input ──
   useEffect(() => {
@@ -1087,6 +1091,9 @@ export default function DiscoveryContent({ userId, guestToken, onSessionChange, 
           loadedSessionIdRef.current = initialSessionId;
           setIsInitialized(true);
           setTimeout(() => scrollToBottom('instant'), 50);
+          // Again once the trailing chips have mounted — the first pass lands
+          // before they add their height, leaving them behind the composer.
+          setTimeout(() => { if (!userScrolledUp.current) scrollToBottom('instant') }, 350);
           return;
         }
 
@@ -1176,6 +1183,8 @@ export default function DiscoveryContent({ userId, guestToken, onSessionChange, 
             scrollToBottom('instant');
             setIsRestoring(false);
           }, 50);
+          // Second pass after the follow-up chips mount (see the cached path).
+          setTimeout(() => { if (!userScrolledUp.current) scrollToBottom('instant') }, 350);
         } else {
           setChatHistory([]);
           loadedSessionIdRef.current = initialSessionId;
@@ -1554,13 +1563,13 @@ export default function DiscoveryContent({ userId, guestToken, onSessionChange, 
 
   // ── Unified Floating Bento Input Dock ──
   const chatInputForm = (
-    <div className={`relative w-full transition-all duration-300 ${isInputMinimized ? 'translate-y-full opacity-0 pointer-events-none' : 'translate-y-0 opacity-100'}`}>
+    <div className="relative w-full">
       <div className="relative w-full">
         {rateLimitUntil && (
           <RateLimitBanner until={rateLimitUntil} onExpire={() => setRateLimitUntil(null)} />
         )}
 
-        <div className="relative flex flex-col bg-white/95 dark:bg-[#18181b]/95 backdrop-blur-xl border border-black/10 dark:border-white/10 shadow-[0_8px_30px_rgba(0,0,0,0.06)] dark:shadow-[0_8px_30px_rgba(0,0,0,0.4)] focus-within:border-black/25 dark:focus-within:border-white/25 focus-within:shadow-[0_10px_36px_rgba(0,0,0,0.1)] dark:focus-within:shadow-[0_10px_36px_rgba(0,0,0,0.6)] rounded-[24px] transition-all duration-200 mx-auto w-full p-2 sm:p-2.5">
+        <div className="relative flex flex-col bg-surface dark:bg-surface-2 border border-border-heavy shadow-sm focus-within:ring-2 focus-within:ring-primary/30 rounded-2xl transition-shadow duration-150 mx-auto w-full p-2 sm:p-2.5">
           <div id="chat-input-guide" className="relative w-full">
             <PlaceholdersAndVanishInput
               placeholders={
@@ -1585,18 +1594,10 @@ export default function DiscoveryContent({ userId, guestToken, onSessionChange, 
           </div>
 
           {/* Integrated Bento Bottom Action Strip */}
-          <div className="flex items-center justify-between pt-1 px-2 border-t border-slate-100 dark:border-zinc-800/60 mt-1">
-            {/* Left: the tagline. The filter dock used to live here, sharing a
-                single row with the voice and send buttons — on a phone that
-                left it about 150px, so four pills became a horizontal scroll
-                with no affordance. It now sits on its own row below the dock. */}
-            <div className="flex items-center gap-1.5 min-w-0 flex-1">
-              {!(hasUserReplied && currentIntent) && (
-                <span className="text-[11px] font-medium text-slate-400 dark:text-zinc-500 hidden sm:inline">
-                  AI Real Estate Advisor · Noida &amp; Greater Noida
-                </span>
-              )}
-            </div>
+          <div className="flex items-center justify-between pt-1 px-2 border-t border-border mt-1">
+            {/* Left is empty on purpose. The tagline that sat here moved to the
+                hero; the filter dock sits on its own row below the input. */}
+            <div className="min-w-0 flex-1" />
 
             {/* Right: Voice Input + Send/Stop Controls */}
             <div className="flex items-center gap-1.5 shrink-0">
@@ -1605,10 +1606,10 @@ export default function DiscoveryContent({ userId, guestToken, onSessionChange, 
                 type="button"
                 onClick={toggleVoiceInput}
                 disabled={isTranscribing}
-                className={`tap-target-y flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer disabled:opacity-70 disabled:cursor-wait ${
+                className={`tap-target-y flex items-center gap-1.5 h-9 px-3 rounded-full text-xs font-semibold transition-colors cursor-pointer disabled:opacity-70 disabled:cursor-wait ${
                   isListening
-                    ? 'bg-red-500 text-white shadow-[0_0_12px_rgba(239,68,68,0.5)] animate-pulse'
-                    : 'bg-slate-100 dark:bg-zinc-800 hover:bg-slate-200 dark:hover:bg-zinc-700 text-slate-600 dark:text-zinc-300'
+                    ? 'bg-danger text-white'
+                    : 'bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-600 dark:text-zinc-300'
                 }`}
                 title={isTranscribing ? 'Transcribing…' : isListening ? 'Stop listening' : 'Voice search'}
                 aria-label={isTranscribing ? 'Transcribing your recording' : isListening ? 'Stop listening' : 'Voice search'}
@@ -1616,7 +1617,7 @@ export default function DiscoveryContent({ userId, guestToken, onSessionChange, 
                 {isTranscribing ? (
                   <>
                     <span className="w-3 h-3 border-2 border-current border-t-transparent rounded-full animate-spin" />
-                    <span className="text-[11px]">Transcribing…</span>
+                    <span className="text-xs">Transcribing…</span>
                   </>
                 ) : isListening ? (
                   <>
@@ -1625,12 +1626,12 @@ export default function DiscoveryContent({ userId, guestToken, onSessionChange, 
                       <span className="w-0.5 h-3.5 bg-white rounded-full animate-pulse" style={{ animationDelay: '150ms' }} />
                       <span className="w-0.5 h-2 bg-white rounded-full animate-pulse" style={{ animationDelay: '300ms' }} />
                     </div>
-                    <span className="text-[11px]">Listening…</span>
+                    <span className="text-xs">Listening…</span>
                   </>
                 ) : (
                   <>
                     <Microphone size={14} weight="bold" />
-                    <span className="hidden sm:inline text-[11px]">Voice</span>
+                    <span className="hidden sm:inline text-xs">Voice</span>
                   </>
                 )}
               </button>
@@ -1640,7 +1641,7 @@ export default function DiscoveryContent({ userId, guestToken, onSessionChange, 
                 <button
                   type="button"
                   onClick={() => abortControllerRef.current?.abort()}
-                  className="tap-target-y w-8 h-8 rounded-full flex items-center justify-center transition-all bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 hover:bg-zinc-800 dark:hover:bg-white shadow-xs active:scale-95 cursor-pointer"
+                  className="tap-target-y size-9 rounded-full flex items-center justify-center transition-colors bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 hover:bg-zinc-800 dark:hover:bg-white active:scale-95 cursor-pointer"
                   title="Stop generating"
                   aria-label="Stop generating"
                 >
@@ -1655,10 +1656,10 @@ export default function DiscoveryContent({ userId, guestToken, onSessionChange, 
                     dispatchAction({ type: 'TEXT_MESSAGE', payload: { text: chatInput.trim() } })
                   }}
                   disabled={!isOnline || !chatInput.trim()}
-                  className={`tap-target-y w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 text-white active:scale-95 ${
+                  className={`tap-target-y size-9 rounded-full flex items-center justify-center transition-colors duration-150 active:scale-95 ${
                     isOnline && chatInput.trim()
-                      ? 'bg-blue-600 hover:bg-blue-500 dark:bg-blue-500 dark:hover:bg-blue-600 shadow-[0_2px_10px_rgba(37,99,235,0.35)] cursor-pointer'
-                      : 'bg-slate-200 dark:bg-zinc-800 text-slate-400 dark:text-zinc-600 cursor-not-allowed opacity-50'
+                      ? 'bg-primary hover:bg-primary-dark text-white cursor-pointer'
+                      : 'bg-zinc-200 dark:bg-zinc-800 text-zinc-400 dark:text-zinc-600 cursor-not-allowed'
                   }`}
                   title={isOnline ? 'Send message' : 'You\'re offline'}
                   aria-label="Send message"
@@ -1690,7 +1691,7 @@ export default function DiscoveryContent({ userId, guestToken, onSessionChange, 
 
   return (
     <div
-      className="flex-1 flex flex-col min-h-0 bg-slate-50/50 dark:bg-gray-900 overflow-hidden"
+      className="discover-canvas flex-1 flex flex-col min-h-0 overflow-hidden"
       style={isMobile ? { height: viewportHeight } : undefined}
     >
       {/* Seamless Floating Header (Container is 100% transparent; only individual pills have frosted blur) */}
@@ -1705,7 +1706,7 @@ export default function DiscoveryContent({ userId, guestToken, onSessionChange, 
                 transition={{ duration: 0.15 }}
               >
                 {isRenamingHeader ? (
-                  <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/90 dark:bg-zinc-800/90 backdrop-blur-md border border-gray-200/70 dark:border-zinc-700/60 shadow-xs">
+                  <div className="flex items-center gap-1.5 h-10 px-3 rounded-full bg-surface/90 dark:bg-surface-2/90 backdrop-blur-md border border-border-heavy">
                     <input
                       autoFocus
                       type="text"
@@ -1716,29 +1717,38 @@ export default function DiscoveryContent({ userId, guestToken, onSessionChange, 
                         if (e.key === 'Escape') setIsRenamingHeader(false);
                       }}
                       onBlur={submitHeaderRename}
-                      className="bg-transparent border-none outline-none text-xs sm:text-sm font-semibold w-32 md:w-48 text-gray-800 dark:text-gray-200"
+                      className="bg-transparent border-none outline-none text-[13px] font-semibold w-32 md:w-48 text-text-primary"
                     />
                   </div>
                 ) : (
                   <button
+                    ref={headerTriggerRef}
                     onClick={() => setShowHeaderDropdown(!showHeaderDropdown)}
-                    className="inline-flex items-center gap-1.5 h-10 sm:h-9.5 px-3.5 sm:px-3 rounded-full bg-white/85 dark:bg-zinc-800/85 backdrop-blur-md border border-gray-200/70 dark:border-zinc-700/60 shadow-2xs hover:bg-white dark:hover:bg-zinc-700 transition-colors text-gray-800 dark:text-gray-200 group cursor-pointer active:scale-95"
+                    aria-haspopup="menu"
+                    aria-expanded={showHeaderDropdown}
+                    className="inline-flex items-center gap-1.5 h-10 px-3.5 rounded-full bg-surface/90 dark:bg-surface-2/90 backdrop-blur-md border border-border-heavy hover:bg-surface-3 dark:hover:bg-zinc-800 transition-colors text-text-primary group cursor-pointer active:scale-95"
                     title="Conversation options"
                   >
-                    <span className="text-[13px] sm:text-[13.5px] font-semibold tracking-tight truncate max-w-[155px] sm:max-w-md">{sessionTitle || 'Conversation'}</span>
-                    <CaretDown size={13} weight="bold" className="text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300 shrink-0" />
+                    <span className="text-[13px] font-semibold tracking-tight truncate max-w-[155px] sm:max-w-md">{sessionTitle || 'Conversation'}</span>
+                    <CaretDown size={13} weight="bold" className="text-text-muted group-hover:text-text-secondary shrink-0" />
                   </button>
                 )}
 
                 {/* Dropdown Menu */}
                 {showHeaderDropdown && (
-                  <div className="absolute top-full left-12 md:left-0 mt-1.5 w-44 bg-white dark:bg-zinc-900 rounded-xl shadow-xl border border-gray-200/80 dark:border-zinc-800 overflow-hidden py-1 animate-in fade-in zoom-in-95 duration-100 z-50">
-                    <button onClick={handleStartRename} className="w-full flex items-center gap-2.5 px-3.5 py-2.5 text-xs sm:text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-zinc-800 transition-colors cursor-pointer">
-                      <PencilSimple size={15} weight="bold" className="text-gray-400" />
+                  <div
+                    ref={headerMenuRef}
+                    role="menu"
+                    aria-label="Conversation options"
+                    onKeyDown={handleHeaderMenuKeyDown}
+                    className="absolute top-full left-12 md:left-0 mt-1.5 w-44 bg-surface dark:bg-surface-2 rounded-sm shadow-md border border-border-heavy overflow-hidden p-1 animate-in fade-in zoom-in-95 duration-100 z-50"
+                  >
+                    <button role="menuitem" onClick={handleStartRename} className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xs text-[13px] text-text-primary hover:bg-surface-3 dark:hover:bg-zinc-800 focus:bg-surface-3 dark:focus:bg-zinc-800 outline-none transition-colors cursor-pointer">
+                      <PencilSimple size={15} weight="bold" className="text-text-muted" />
                       <span>Rename</span>
                     </button>
-                    <div className="h-px bg-gray-100 dark:bg-zinc-800 my-1 mx-2" />
-                    <button onClick={handleDeleteSession} className="w-full flex items-center gap-2.5 px-3.5 py-2.5 text-xs sm:text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/20 transition-colors cursor-pointer">
+                    <div className="h-px bg-border my-1 mx-2" />
+                    <button role="menuitem" onClick={handleDeleteSession} className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xs text-[13px] text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/20 focus:bg-red-50 dark:focus:bg-red-950/20 outline-none transition-colors cursor-pointer">
                       <Trash size={15} weight="bold" />
                       <span>Delete</span>
                     </button>
@@ -1759,12 +1769,14 @@ export default function DiscoveryContent({ userId, guestToken, onSessionChange, 
                 exit={{ opacity: 0, scale: 0.9 }}
                 transition={{ duration: 0.15 }}
                 onClick={handleNewChat}
-                className="flex items-center justify-center gap-1.5 h-10 sm:h-9.5 px-3 sm:px-3.5 rounded-full bg-white/85 dark:bg-zinc-800/85 backdrop-blur-md border border-gray-200/70 dark:border-zinc-700/60 shadow-2xs hover:bg-white dark:hover:bg-zinc-700 text-gray-700 dark:text-gray-200 text-[12.5px] sm:text-[13px] font-medium transition-colors cursor-pointer active:scale-95"
+                // md:hidden — at md+ the sidebar carries its own "New chat";
+                // two side by side read as two different actions.
+                className="md:hidden flex items-center justify-center gap-1.5 h-10 px-3 sm:px-3.5 rounded-full bg-surface/90 dark:bg-surface-2/90 backdrop-blur-md border border-border-heavy hover:bg-surface-3 dark:hover:bg-zinc-800 text-text-primary text-[13px] font-medium transition-colors cursor-pointer active:scale-95"
                 title="Start new conversation"
-                aria-label="New Chat"
+                aria-label="New chat"
               >
-                <NotePencil size={18} weight="bold" className="text-gray-600 dark:text-gray-300" />
-                <span className="hidden sm:inline">New Chat</span>
+                <NotePencil size={18} weight="bold" className="text-text-secondary" />
+                <span className="hidden sm:inline">New chat</span>
               </m.button>
             )}
           </AnimatePresence>
@@ -1787,12 +1799,6 @@ export default function DiscoveryContent({ userId, guestToken, onSessionChange, 
       {/* Main: centered input when no chat, scrollable messages + bottom input when chat started */}
       <div className="flex-1 flex flex-col min-h-0 overflow-hidden relative z-10">
 
-        {/* Ambient Dynamic Mesh Glow (Feels alive and modern in both light & dark themes) */}
-        <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden select-none">
-          <div className="absolute top-[-10%] left-[20%] w-[650px] h-[650px] bg-gradient-to-tr from-blue-500/15 to-indigo-500/10 dark:from-blue-600/20 dark:to-indigo-600/15 blur-[140px] rounded-full mix-blend-multiply dark:mix-blend-screen animate-pulse" style={{ animationDuration: '8s' }} />
-          <div className="absolute top-[30%] right-[10%] w-[600px] h-[600px] bg-gradient-to-bl from-purple-500/15 to-teal-500/10 dark:from-purple-600/15 dark:to-teal-600/15 blur-[140px] rounded-full mix-blend-multiply dark:mix-blend-screen animate-pulse" style={{ animationDuration: '10s' }} />
-        </div>
-
         {(!isInitialized && !!initialSessionId) ? (
           <div className="flex-1 flex flex-col justify-start w-full relative z-10 overflow-y-auto">
             <ChatPhase2Skeleton />
@@ -1803,8 +1809,8 @@ export default function DiscoveryContent({ userId, guestToken, onSessionChange, 
               <WarningCircle size={28} weight="duotone" className="text-red-400" />
             </div>
             <div>
-              <p className="font-semibold text-gray-800 dark:text-gray-200 mb-1">Could not load this conversation</p>
-              <p className="text-sm text-gray-500 dark:text-gray-400 max-w-xs">This session may have expired or been deleted. Start a new chat below.</p>
+              <p className="font-semibold text-text-primary mb-1">Could not load this conversation</p>
+              <p className="text-[13px] text-text-secondary max-w-xs">This session may have expired or been deleted. Start a new chat below.</p>
             </div>
             <button
               onClick={() => {
@@ -1812,7 +1818,7 @@ export default function DiscoveryContent({ userId, guestToken, onSessionChange, 
                 setRestoreError(false);
                 setIsInitialized(false);
               }}
-              className="px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold rounded-xl transition-colors"
+              className="px-5 h-10 bg-primary hover:bg-primary-dark text-white text-[13px] font-semibold rounded-xs transition-colors"
             >
               Start new chat
             </button>
@@ -1820,14 +1826,18 @@ export default function DiscoveryContent({ userId, guestToken, onSessionChange, 
         ) : !hasUserReplied ? (
           /* Welcome screen */
           <div className="flex-1 flex flex-col items-center justify-center px-4 sm:px-6 py-8 relative z-10 overflow-y-auto">
-            {/* Clean, iconic brand hero */}
-            <div className="text-center mb-10 max-w-[880px] animate-fade-in-up flex flex-col items-center select-none">
-              <h1 className="text-[4.2rem] md:text-[5.5rem] font-bold text-gray-900 dark:text-white tracking-tight italic leading-none drop-shadow-sm font-[family-name:var(--font-afacad)]">
+            {/* Brand hero. The wordmark is set in Afacad bold italic to match
+                the logo artwork — keep the two in step. */}
+            <div className="text-center mb-8 w-full max-w-[768px] animate-fade-in-up flex flex-col items-center select-none">
+              <h1 className="text-[4.2rem] md:text-[5.5rem] font-bold italic tracking-tight leading-none text-zinc-900 dark:text-white font-[family-name:var(--font-afacad)]">
                 PropFyndr
               </h1>
-              <h2 className="text-2xl md:text-[28px] font-medium text-gray-500 dark:text-gray-400 tracking-wide mt-2 font-[family-name:var(--font-afacad)]">
+              <p className="mt-2 text-2xl md:text-[28px] font-medium tracking-wide text-zinc-500 dark:text-zinc-400 font-[family-name:var(--font-afacad)]">
                 Decide Better
-              </h2>
+              </p>
+              <p className="mt-4 text-[15px] text-text-secondary max-w-[560px] text-balance select-text">
+                Budget, BHK, sector, possession — say it in one line. I&apos;ll show the trade-offs, not just listings.
+              </p>
             </div>
 
             {showReEngagement && !hasUserReplied && (
@@ -1843,12 +1853,12 @@ export default function DiscoveryContent({ userId, guestToken, onSessionChange, 
             )}
 
             {/* Input first — ChatGPT style */}
-            <div className="w-full max-w-[800px] mb-6">
+            <div className="w-full max-w-[768px] mb-6">
               {chatInputForm}
             </div>
 
             {/* Home buttons — prompt chips organized by sector */}
-            <div className="w-full max-w-[800px] mb-4">
+            <div className="w-full max-w-[768px] mb-4">
               <HomeButtons
                 onButtonClick={(prompt) => dispatchAction({ type: 'TEXT_MESSAGE', payload: { text: prompt } })}
               />
@@ -1859,7 +1869,9 @@ export default function DiscoveryContent({ userId, guestToken, onSessionChange, 
                 promotional copy. The rail decides what a buyer is invited to
                 ASK about; it must never reach what the advisor RECOMMENDS.
                 See components/NewsRail.tsx and buildNewsContext(). */}
-            <NewsRail />
+            <div className="w-full max-w-[768px]">
+              <NewsRail />
+            </div>
           </div>
         ) : (
           /* Feed layout */
@@ -1873,7 +1885,7 @@ export default function DiscoveryContent({ userId, guestToken, onSessionChange, 
               // finished answer once instead of every token.
               aria-busy={isSubmitting}
               aria-relevant="additions text"
-              aria-label="Conversation with RealtyPal advisor"
+              aria-label="Conversation with PropFyndr advisor"
               // The session-title pill floats over this feed at z-30, sitting
               // between 10px and 52px from the top. Top padding used to drop to
               // pt-2 (8px) as soon as an intent existed — which is exactly when
@@ -1893,9 +1905,14 @@ export default function DiscoveryContent({ userId, guestToken, onSessionChange, 
               // because the keyboard-open path on mobile still consults it.
               style={{ paddingBottom: 32 }}
 
+              // Inline, not an effect: the effect ran on mount before this feed
+              // existed, bailed on a null ref and never attached — so the
+              // scroll-to-bottom button never appeared.
               onScroll={(e) => {
                 const el = e.currentTarget;
-                userScrolledUp.current = (el.scrollHeight - el.scrollTop - el.clientHeight) > 100;
+                const fromBottom = el.scrollHeight - el.scrollTop - el.clientHeight;
+                userScrolledUp.current = fromBottom > 100;
+                setShowScrollBtn(fromBottom > 150);
                 handleMessageScroll(e);
               }}
             >
@@ -1909,15 +1926,15 @@ export default function DiscoveryContent({ userId, guestToken, onSessionChange, 
               */}
               <div className="max-w-[768px] mx-auto space-y-6 sm:space-y-8">
                 {showContextWarning && (
-                  <div className="mx-auto max-w-lg px-4 py-2 my-2 text-xs text-center text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800">
-                    Long conversation detected. Start a new chat for the best AI responses.
+                  <div className="mx-auto max-w-lg px-4 py-2 my-2 text-xs text-center text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 rounded-sm border border-amber-200 dark:border-amber-800">
+                    This chat is long — a new one keeps answers sharp.
                   </div>
                 )}
                 {chatHistory.length > visibleCount && (
                   <div className="text-center py-2">
                     <button
                       onClick={() => setVisibleCount(v => v + 15)}
-                      className="text-xs bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 px-4 py-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors font-medium border border-gray-200 dark:border-gray-700 shadow-sm"
+                      className="text-xs bg-surface-3 dark:bg-zinc-800 text-text-secondary px-4 py-2 rounded-full hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors font-medium border border-border-heavy"
                     >
                       Load older messages
                     </button>
@@ -1932,7 +1949,7 @@ export default function DiscoveryContent({ userId, guestToken, onSessionChange, 
                   const aiTurnCount = chatHistory.filter(m => m.type === 'ai').length;
                   const isComparingThis = message.id === comparingMessageId;
                   return (
-                    <div key={message.id} id={`msg-${message.id}`} className={`scroll-mt-6 ${isComparingThis ? 'relative z-30' : ''}`}>
+                    <div key={message.id} id={`msg-${message.id}`} className={`scroll-mt-16 ${isComparingThis ? 'relative z-30' : ''}`}>
                       <MessageBubble
                         message={message}
                         index={actualIndex}
@@ -1980,58 +1997,39 @@ export default function DiscoveryContent({ userId, guestToken, onSessionChange, 
                 <div ref={chatEndRef} />
               </div>
 
-              {/* Floating FAB for minimized mobile input */}
-              <AnimatePresence>
-                {isInputMinimized && !isSubmitting && (
-                  <m.div
-                    initial={{ opacity: 0, y: 20, scale: 0.8 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: 20, scale: 0.8 }}
-                    className="fixed bottom-24 left-1/2 -translate-x-1/2 z-50 md:hidden"
-                  >
-                    <button
-                      onClick={() => {
-                        setIsInputMinimized(false);
-                        scrollToBottom();
-                        setTimeout(() => chatInputRef.current?.focus(), 300);
-                      }}
-                      className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-full shadow-2xl hover:bg-blue-700 transition-all font-semibold border border-blue-400"
-                    >
-                      <ChatCircleDots size={18} weight="bold" />
-                      <span>Send Message</span>
-                    </button>
-                  </m.div>
-                )}
-              </AnimatePresence>
-
-              {showScrollBtn && (
-                <button
-                  onClick={() => scrollToBottom()}
-                  className="absolute bottom-4 right-6 w-9 h-9 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-full shadow-lg flex items-center justify-center hover:bg-gray-50 dark:hover:bg-gray-600 transition-all z-10"
-                  aria-label="Scroll to bottom"
-                >
-                  <svg className="w-4 h-4 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-                  </svg>
-                </button>
-              )}
             </div>
+
+            {/* Top scrim: content fades under the floating header pill instead
+                of showing through behind it. */}
+            <div aria-hidden className="pointer-events-none absolute top-0 inset-x-0 h-16 bg-gradient-to-b from-[color:var(--canvas-base)] to-transparent z-20" />
+
+            {/* A sibling of the scroller, not a child: inside it, the button
+                scrolled away with the content it was meant to jump past.
+                Offset by the composer's measured height so it sits above it. */}
+            {showScrollBtn && (
+              <button
+                onClick={() => scrollToBottom()}
+                className="absolute right-4 z-40 size-10 rounded-full bg-surface dark:bg-surface-2 border border-border-heavy shadow-sm flex items-center justify-center text-text-secondary hover:bg-surface-3 dark:hover:bg-zinc-800 transition-colors"
+                style={{ bottom: composerHeight + 12 }}
+                aria-label="Scroll to bottom"
+              >
+                <ArrowDown size={18} weight="bold" />
+              </button>
+            )}
 
             {/* (View on Map Toggle moved to MessageBubble) */}
 
             {/*
-              The gradient that used to sit here is gone with the overlay it
-              was hiding. It faded the conversation out UNDER a floating dock;
-              the dock is now a sibling in the flex column, so there is nothing
-              underneath it to fade and a gradient at bottom-0 would simply wash
-              out the composer itself.
+              The tall gradient that used to sit here is gone with the overlay
+              it was hiding. The island is opaque now and carries only a 24px
+              scrim above itself (see "Bottom scrim" below).
             */}
 
             {/* Stable flex-bottom input island */}
-            <AnimatePresence initial={false}>
-              {!isInputMinimized && (
+            {/* Always rendered: the mobile auto-hide-on-scroll and its
+                "Send Message" FAB are gone — the composer stays pinned. */}
                 <m.div
-                  initial={{ opacity: 0, y: 20 }}
+                  initial={false}
                   animate={{ opacity: comparingMessageId ? 0.35 : 1, y: 0 }}
                   exit={{ opacity: 0, y: 20 }}
                   transition={{ duration: 0.15, ease: 'easeOut' }}
@@ -2052,21 +2050,21 @@ export default function DiscoveryContent({ userId, guestToken, onSessionChange, 
                   // that is left. No measurement, nothing to keep in sync,
                   // and it holds at every viewport and every dock height —
                   // including when the filter chips wrap to a third row.
-                  className={`relative shrink-0 w-full z-30 flex justify-center pb-[max(1.5rem,env(safe-area-inset-bottom))] md:pb-8 pt-4 pointer-events-none bg-transparent ${keyboardOpen ? 'pb-safe' : ''} ${comparingMessageId ? 'opacity-35 pointer-events-none' : ''}`}
+                  className={`relative shrink-0 w-full z-30 flex justify-center px-3 sm:px-4 md:px-6 lg:px-8 pb-[max(1.5rem,env(safe-area-inset-bottom))] md:pb-8 pt-2 pointer-events-none bg-[color:var(--canvas-base)] ${keyboardOpen ? 'pb-safe' : ''} ${comparingMessageId ? 'opacity-35 pointer-events-none' : ''}`}
                   style={keyboardOpen ? { paddingBottom: 'env(safe-area-inset-bottom, 8px)' } : undefined}
                 >
-                  <div ref={setComposerNode} className="px-4 w-full max-w-[880px] flex flex-col justify-center pointer-events-auto gap-2">
+                  {/* Bottom scrim: a short fade above the opaque island. */}
+                  <div aria-hidden className="pointer-events-none absolute -top-6 inset-x-0 h-6 bg-gradient-to-t from-[color:var(--canvas-base)] to-transparent" />
+                  <div ref={setComposerNode} className="w-full max-w-[768px] flex flex-col justify-center pointer-events-auto gap-2">
                     {!isOnline && (
-                      <div className="px-4 py-2 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 rounded-lg text-sm text-amber-800 dark:text-amber-200 flex items-center gap-2">
-                        <span>●</span>
+                      <div className="px-4 py-2 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 rounded-sm text-[13px] text-amber-800 dark:text-amber-200 flex items-center gap-2">
+                        <WifiSlash size={16} weight="bold" className="shrink-0" aria-hidden />
                         <span>You&apos;re offline. Reconnect to send your message.</span>
                       </div>
                     )}
                     {chatInputForm}
                   </div>
                 </m.div>
-              )}
-            </AnimatePresence>
           </div>
 
         )}
@@ -2098,16 +2096,16 @@ export default function DiscoveryContent({ userId, guestToken, onSessionChange, 
             initial={{ opacity: 0, y: 30, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 30, scale: 0.95 }}
-            className="fixed bottom-[96px] sm:bottom-[120px] left-1/2 -translate-x-1/2 z-50 flex items-center justify-between gap-3 px-4 sm:px-6 py-3 sm:py-3.5 bg-zinc-950/95 text-white border border-blue-500/40 rounded-2xl shadow-[0_16px_45px_rgba(0,0,0,0.55)] backdrop-blur-xl max-w-lg w-[94vw] sm:w-[90vw]"
+            className="fixed bottom-[96px] sm:bottom-[120px] left-1/2 -translate-x-1/2 z-50 flex items-center justify-between gap-3 px-4 sm:px-5 py-3 bg-surface dark:bg-surface-2 text-text-primary border border-border-heavy rounded-2xl shadow-md max-w-lg w-[94vw] sm:w-[90vw]"
           >
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-full bg-blue-600/20 border border-blue-500/30 text-blue-400 flex items-center justify-center font-bold text-xs">
-                <Scales size={16} weight="duotone" />
+              <div className="size-8 rounded-full bg-surface-3 dark:bg-zinc-800 text-text-secondary flex items-center justify-center">
+                <Scales size={16} weight="bold" />
               </div>
               <div>
-                <p className="text-[13px] font-bold tracking-tight text-white">Compare Mode Active</p>
-                <p className="text-[11px] font-medium text-zinc-400">
-                  {selectedCompareProjects.size} of 4 selected (min 2)
+                <p className="text-[13px] font-semibold text-text-primary">Select 2–4 to compare</p>
+                <p className="text-xs text-text-muted">
+                  {selectedCompareProjects.size} of 4 selected
                 </p>
               </div>
             </div>
@@ -2115,7 +2113,7 @@ export default function DiscoveryContent({ userId, guestToken, onSessionChange, 
             <div className="flex items-center gap-2">
               <button
                 onClick={handleCancelCompare}
-                className="px-3.5 py-2 text-xs font-bold text-zinc-400 hover:text-white bg-zinc-800/80 hover:bg-zinc-800 rounded-xl transition-all cursor-pointer"
+                className="px-3.5 h-9 text-[13px] font-medium text-text-secondary hover:text-text-primary hover:bg-surface-3 dark:hover:bg-zinc-800 rounded-xs transition-colors cursor-pointer"
               >
                 Cancel
               </button>
@@ -2131,10 +2129,10 @@ export default function DiscoveryContent({ userId, guestToken, onSessionChange, 
                   dispatchAction({ type: 'TEXT_MESSAGE', payload: { text: buildPickerMessage('compare', selectedList) } });
                 }}
                 disabled={selectedCompareProjects.size < 2}
-                className={`px-5 py-2 text-xs font-extrabold rounded-xl transition-all shadow-md flex items-center gap-1.5 cursor-pointer ${
+                className={`px-4 h-9 text-[13px] font-semibold rounded-xs transition-colors flex items-center gap-1.5 ${
                   selectedCompareProjects.size >= 2
-                    ? 'bg-blue-600 hover:bg-blue-500 text-white shadow-blue-600/30 active:scale-95'
-                    : 'bg-zinc-800 text-zinc-500 cursor-not-allowed'
+                    ? 'bg-primary hover:bg-primary-dark text-white cursor-pointer active:scale-95'
+                    : 'bg-zinc-200 dark:bg-zinc-800 text-zinc-500 cursor-not-allowed'
                 }`}
               >
                 <span>Compare ({selectedCompareProjects.size})</span>
@@ -2169,7 +2167,7 @@ export default function DiscoveryContent({ userId, guestToken, onSessionChange, 
               animate={{ y: 0, opacity: 1 }}
               exit={{ y: 60, opacity: 0 }}
               transition={{ type: 'spring', damping: 28, stiffness: 320 }}
-              className="w-full sm:max-w-lg max-h-[92dvh] overflow-y-auto rounded-t-3xl sm:rounded-2xl bg-white dark:bg-gray-900 shadow-2xl"
+              className="w-full sm:max-w-lg max-h-[92dvh] overflow-y-auto rounded-t-2xl sm:rounded-2xl bg-surface dark:bg-surface-2 shadow-lg"
             >
               <SiteVisitScheduler
                 projectId={siteVisitProject.id}

@@ -16,7 +16,7 @@ import assert from 'node:assert/strict'
 import { qualifyMarketFigures } from '../answerIntegrity'
 import { MARKET_QUALIFIER } from '../../factPresentation'
 
-const NO_FACTS = 'You are RealtyPal.\n\nVERIFIED FACTS\n(none)\n'
+const NO_FACTS = 'You are PropFyndr.\n\nVERIFIED FACTS\n(none)\n'
 
 describe('labels unverified rate claims', () => {
   for (const text of [
@@ -54,7 +54,7 @@ describe('leaves statutory rates alone', () => {
 
 describe('a figure we actually hold is ours to state plainly', () => {
   it('leaves a rate that appears in the injected facts block', () => {
-    const prompt = 'You are RealtyPal.\n\nVERIFIED FACTS\nProject: ATS Pious\nRate: ₹12,500/sqft\n'
+    const prompt = 'You are PropFyndr.\n\nVERIFIED FACTS\nProject: ATS Pious\nRate: ₹12,500/sqft\n'
     const text = 'ATS Pious is priced at ₹12,500/sqft.'
     const out = qualifyMarketFigures(text, prompt)
     assert.equal(out.qualified, 0)

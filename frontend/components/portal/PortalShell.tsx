@@ -367,7 +367,22 @@ export default function PortalShell({ nav, rootHref, rootLabel, allowRoles, scop
     const label = section === 'builder-applications' ? 'Registrations' : titleCase(section)
     crumbs.push(rest.length > 1 ? { label, href: `${rootHref}/${section}` } : { label })
   }
-  if (rest.length > 1) crumbs.push({ label: rest[1] === 'new' ? 'New' : 'Edit' })
+  if (rest.length > 1) {
+    const sub = rest[1]
+    const subLabel =
+      sub === 'new'
+        ? 'New'
+        : sub === 'search'
+        ? 'Search'
+        : sub === 'properties'
+        ? 'Property Engagement'
+        : sub === 'users'
+        ? 'User Behavior'
+        : /^[0-9a-f-]{36}$/i.test(sub) || /^\d+$/.test(sub)
+        ? 'Edit'
+        : titleCase(sub)
+    crumbs.push({ label: subLabel })
+  }
 
   useEffect(() => {
     const active = crumbs.length > 1 ? crumbs.slice(1).map((c) => c.label).join(' | ') : 'Dashboard'

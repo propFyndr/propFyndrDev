@@ -17,7 +17,8 @@ import {
   Scales,
   CaretDown,
   MagnifyingGlass,
-  Warning
+  Warning,
+  FileText,
 } from '@phosphor-icons/react'
 import { ResponseFormatter } from './ResponseFormatter'
 import DomainExecutionTimeline from './DomainExecutionTimeline'
@@ -27,7 +28,9 @@ import { ResponseBlockRenderer } from '@/components/response/ResponseBlockRender
 
 // One text style for streaming and finished answers, so the answer does not
 // jump in size when the stream ends and the block renderer takes over.
-const ANSWER_PROSE = "prose prose-slate dark:prose-invert max-w-none text-[15.5px] leading-[1.78] font-normal tracking-[-0.01em] text-slate-800 dark:text-zinc-200 prose-p:my-2.5 prose-p:leading-[1.78] prose-headings:font-bold prose-headings:text-slate-900 dark:prose-headings:text-zinc-100 prose-headings:tracking-tight prose-a:text-blue-600 dark:prose-a:text-blue-400 prose-strong:font-semibold prose-strong:text-slate-900 dark:prose-strong:text-white prose-blockquote:border-l-2 prose-blockquote:border-blue-500/70 prose-blockquote:pl-4 prose-blockquote:italic prose-blockquote:text-slate-600 dark:prose-blockquote:text-zinc-400 prose-table:w-full prose-table:text-sm prose-table:my-4 prose-table:border-collapse"
+// Markdown owns the prose styles (size, leading, reading width); this only
+// sets the ink so the streaming cursor and the finished answer match.
+const ANSWER_PROSE = 'text-zinc-800 dark:text-zinc-200'
 import ProjectCard from '@/components/ProjectCard'
 import { MobileCardShelf } from '@/components/chat/MobileCardShelf'
 import PropertyQuickActions from '@/components/chat/PropertyQuickActions'
@@ -37,7 +40,6 @@ import { useInlineEdit } from '@/hooks/useInlineEdit'
 import type { ChatMessage } from '@/types/property'
 import type { ProjectCard as ProjectCardType } from '@/types/project'
 import type { ChipPickerState } from './types'
-import { PropertyFeedback } from '@/components/chat/PropertyFeedback'
 
 const RealtyChart = dynamic(() => import('@/components/RealtyChart'), {
   ssr: false,
@@ -168,21 +170,21 @@ const DOSSIER_MIN_AI_TURNS = 3
  */
 function DossierCta({ onAction }: { onAction: MessageBubbleProps['onAction'] }) {
   return (
-    <div className="p-3.5 rounded-2xl border border-blue-200/80 dark:border-blue-900/40 bg-blue-50/60 dark:bg-blue-950/20 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+    <div className="p-3.5 rounded-2xl border border-border bg-surface dark:bg-zinc-900 flex flex-col sm:flex-row items-center justify-between gap-3">
       <div className="flex items-center gap-2.5">
-        <span className="w-8 h-8 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold flex-shrink-0 text-sm">
-          📄
+        <span className="w-8 h-8 rounded-xs bg-surface-3 dark:bg-zinc-800 text-primary flex items-center justify-center flex-shrink-0">
+          <FileText size={16} weight="bold" aria-hidden="true" />
         </span>
         <div>
-          <div className="font-bold text-slate-800 dark:text-zinc-200">Share Due Diligence With Your Family</div>
-          <div className="text-[11px] text-slate-500">Generate a 1-page executive dossier with verified pros, forensic red flags, and net EMIs.</div>
+          <div className="text-[13px] font-semibold text-zinc-900 dark:text-zinc-50">Share your research</div>
+          <div className="text-[12px] text-zinc-500 dark:text-zinc-400">A link anyone can open: your questions, the answers, and the projects side by side.</div>
         </div>
       </div>
       <button
-        onClick={() => onAction({ id: 'gen_dossier', actionType: 'TEXT_MESSAGE', label: 'Generate Family Deal Dossier', payload: { text: 'Generate family deal dossier' } } as any)}
-        className="px-3.5 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs whitespace-nowrap transition shadow-sm"
+        onClick={() => onAction({ id: 'gen_dossier', actionType: 'TEXT_MESSAGE', label: 'Create a shareable dossier', payload: { text: 'Create a shareable dossier of this chat' } } as any)}
+        className="px-3.5 py-1.5 rounded-xs bg-primary hover:bg-primary-dark text-white font-medium text-[12px] whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1"
       >
-        Generate Family Dossier
+        Create dossier
       </button>
     </div>
   )
@@ -498,6 +500,16 @@ function MessageBubbleInner({
 }: MessageBubbleProps) {
   const isUser = message.type === 'user'
   const [showAllProperties, setShowAllProperties] = useState(false)
+  // Copy / feedback actions wait for the lazy Markdown chunk: until it lands the
+  // answer is a loading skeleton, and actions under a skeleton act on nothing
+  // the buyer can see. The import resolves from cache after the first message.
+  const [markdownReady, setMarkdownReady] = useState(false)
+  useEffect(() => {
+    let live = true
+    const done = () => { if (live) setMarkdownReady(true) }
+    import('@/components/response/Markdown').then(done, done)
+    return () => { live = false }
+  }, [])
   const displayContent = message.content || ''
   const inlineEdit = useInlineEdit(displayContent)
   const rawChips: import('./types').ChipAction[] = [...((message.chips as import('./types').ChipAction[]) || []), ...(isLast ? chips : [])]
@@ -615,9 +627,9 @@ function MessageBubbleInner({
 
   return (
     <m.div
-      initial={isRestoring ? { opacity: 1, x: 0, scale: 1 } : { opacity: 0, x: isUser ? 20 : -20, scale: 0.95 }}
-      animate={{ opacity: 1, x: 0, scale: 1 }}
-      transition={isRestoring ? { duration: 0 } : { type: "spring", stiffness: 260, damping: 20 }}
+      initial={isRestoring ? false : { opacity: 0, y: 4 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.15, ease: 'easeOut' }}
       className={`flex flex-col ${isUser ? 'items-end' : 'items-start'} group/msg`}
     >
       {/* Mobile: cards above the answer, collapsed.
@@ -651,6 +663,7 @@ function MessageBubbleInner({
                   userId={userId}
                   sessionId={sessionId}
                   index={pi}
+                  isTopPick={pi === 0 && shelfProjects === message.exactResults}
                   onDetailOpen={onDetailOpen}
                   onToast={onToast}
                   onAskAI={() => { /* card dispatches its own propfyndr:ask-ai */ }}
@@ -663,7 +676,7 @@ function MessageBubbleInner({
                   <button
                     type="button"
                     onClick={() => setShowAll(prev => !prev)}
-                    className="px-5 py-2 bg-gradient-button hover:bg-gradient-button-hover text-white text-[12px] font-bold rounded-full shadow-md transition-all active:scale-95 flex items-center gap-1.5 cursor-pointer"
+                    className="px-4 py-2 border border-border bg-surface dark:bg-zinc-900 hover:bg-surface-3 dark:hover:bg-zinc-800 text-zinc-800 dark:text-zinc-200 text-[12px] font-medium rounded-xs transition-colors flex items-center gap-1.5 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                   >
                     <span>{showAll ? 'Show initial 6 properties' : `View all ${shelfProjects.length} properties (+${shelfProjects.length - 6} more)`}</span>
                     <CaretDown size={13} weight="bold" className={`transition-transform duration-200 ${showAll ? 'rotate-180' : ''}`} />
@@ -741,9 +754,6 @@ function MessageBubbleInner({
                 if (message.responseMode === 'database' && message.chatResponse) {
                   return (
                     <>
-                      <div className="flex items-center gap-2 mb-2 pb-2 border-b border-gray-200/60 dark:border-zinc-800">
-                        <span className="text-[10px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-widest">Verified Market Analysis</span>
-                      </div>
                       <m.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
@@ -776,7 +786,7 @@ function MessageBubbleInner({
 
                 // Stage C: Component response (verified data pipeline)
                 if (message.responseMode === 'components' && message.componentResponse) {
-                  const { summary, confidence, components, sources } = message.componentResponse
+                  const { summary, components, sources } = message.componentResponse
                   return (
                     <>
                       <div className="flex items-center gap-2 mb-2 pb-2 border-b border-gray-200/60 dark:border-zinc-800">
@@ -796,12 +806,6 @@ function MessageBubbleInner({
                             </Markdown>
                           </div>
                         )}
-
-                        {/* Confidence score */}
-                        <div className="flex items-center gap-1.5 text-xs text-blue-600 dark:text-blue-400 font-semibold">
-                          <CheckCircle size={14} weight="fill" />
-                          {Math.round(confidence * 100)}% confident
-                        </div>
 
                         {/* Component specs */}
                         <div className="mt-4">
@@ -837,23 +841,6 @@ function MessageBubbleInner({
                         // sanitizer schema allows realty-action, so it must render as
                         // something rather than leaking an unknown element.
                         'realty-action': ({ node, ...props }: { node?: unknown } & HTMLAttributes<HTMLElement> & { label?: string }) => <ContactButton label={props.label || 'Request Callback'} className="my-2" />,
-                        table: ({ node, ...props }: any) => (
-                          <div className="my-3.5 overflow-x-auto overscroll-x-contain rounded-2xl border border-slate-200/90 dark:border-zinc-800 bg-white/60 dark:bg-[#121214] shadow-2xs custom-scrollbar touch-pan-y overscroll-x-contain">
-                            <table className="w-full table-auto border-collapse text-left text-xs sm:text-[13.5px] text-slate-800 dark:text-zinc-200" {...props} />
-                          </div>
-                        ),
-                        thead: ({ node, ...props }: any) => (
-                          <thead className="bg-slate-100/90 dark:bg-zinc-800/90 text-[10.5px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-700 dark:text-zinc-300 border-b border-slate-200 dark:border-zinc-700/80" {...props} />
-                        ),
-                        th: ({ node, ...props }: any) => (
-                          <th className="px-2.5 sm:px-4 py-2.5 sm:py-3 font-bold text-slate-900 dark:text-white whitespace-normal sm:whitespace-nowrap break-words" {...props} />
-                        ),
-                        td: ({ node, ...props }: any) => (
-                          <td className="px-2.5 sm:px-4 py-2.5 sm:py-3.5 border-b border-slate-100 dark:border-zinc-800/60 last:border-0 leading-relaxed align-top break-words" {...props} />
-                        ),
-                        tr: ({ node, ...props }: any) => (
-                          <tr className="hover:bg-blue-50/30 dark:hover:bg-blue-900/10 transition-colors odd:bg-transparent even:bg-slate-50/50 dark:even:bg-zinc-800/20" {...props} />
-                        ),
                         a: ({ node, ...props }: any) => {
                           const href = props.href || ''
                           if (href.startsWith('#entity:')) {
@@ -870,7 +857,7 @@ function MessageBubbleInner({
                                   priority: 2,
                                   payload: { text: `Tell me more about ${projectName}` },
                                 })}
-                                className="text-[#c47860] hover:underline cursor-pointer font-semibold"
+                                className="text-primary hover:underline cursor-pointer font-medium rounded-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                               >
                                 {projectName}
                               </button>
@@ -880,12 +867,12 @@ function MessageBubbleInner({
                             return (
                               <DossierShareCard
                                 href={href}
-                                label={String(props.children) || 'View & Share Family Deal Dossier'}
+                                label={String(props.children) || 'Dossier of this conversation'}
                                 onToast={onToast}
                               />
                             )
                           }
-                          return <a {...props} className="text-[#c47860] hover:underline" />
+                          return <a {...props} className="text-primary hover:underline" />
                         }
                       } as any}
                     >
@@ -956,34 +943,37 @@ function MessageBubbleInner({
           <button
             onClick={() => inlineEdit.setIsEditing(true)}
             title="Edit message"
-            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-blue-50/80 dark:bg-blue-950/40 hover:bg-blue-100/80 dark:hover:bg-blue-900/50 text-blue-700 dark:text-blue-300 border border-blue-200/60 dark:border-blue-800/50 text-[11px] font-semibold shadow-2xs transition-all active:scale-95 cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-blue-50/80 dark:bg-blue-950/40 hover:bg-blue-100/80 dark:hover:bg-blue-900/50 text-blue-700 dark:text-blue-300 border border-blue-200/60 dark:border-blue-800/50 text-[11px] font-semibold transition-colors active:scale-95 cursor-pointer"
             disabled={inlineEdit.isLoading}
           >
             <PencilSimple size={13} weight="bold" className="text-blue-600 dark:text-blue-400" />
             <span>Edit</span>
           </button>
         )}
-        {!isUser && displayContent && !(isLast && isSubmitting) && (
-          <div className="inline-flex items-center gap-1 p-0.5 rounded-xl bg-slate-100/80 dark:bg-slate-800/80 border border-slate-200/60 dark:border-slate-700/60 shadow-2xs">
+        {!isUser && markdownReady && displayContent.trim() && !(isLast && isSubmitting) && (
+          <div className="inline-flex items-center gap-1 p-0.5 rounded-sm bg-surface-3 dark:bg-zinc-800 border border-border">
             <button
               onClick={() => { onCopy(displayContent); onToast('Copied to clipboard'); }}
               title="Copy response"
-              className="tap-target-y inline-flex items-center justify-center w-8 h-8 rounded-lg text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-white dark:hover:bg-slate-700 transition-all active:scale-90 cursor-pointer"
+              aria-label="Copy response"
+              className="tap-target-y inline-flex items-center justify-center w-8 h-8 rounded-xs text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-surface dark:hover:bg-zinc-700 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
             >
               <Copy size={13} />
             </button>
-            <div className="w-[1px] h-3.5 bg-slate-200 dark:bg-slate-700" />
+            <div className="w-px h-3.5 bg-zinc-200 dark:bg-zinc-700" />
             <button
               onClick={() => { track('answer_feedback', { helpful: true, session_id: sessionId }); onToast('Thanks for the feedback'); }}
               title="Helpful"
-              className="tap-target-y inline-flex items-center justify-center w-8 h-8 rounded-lg text-slate-500 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-white dark:hover:bg-slate-700 transition-all active:scale-90 cursor-pointer"
+              aria-label="Mark answer as helpful"
+              className="tap-target-y inline-flex items-center justify-center w-8 h-8 rounded-xs text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-surface dark:hover:bg-zinc-700 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
             >
               <ThumbsUp size={13} />
             </button>
             <button
               onClick={() => { track('answer_feedback', { helpful: false, session_id: sessionId }); onToast('Thanks for the feedback'); }}
               title="Not helpful"
-              className="tap-target-y inline-flex items-center justify-center w-8 h-8 rounded-lg text-slate-500 dark:text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-white dark:hover:bg-slate-700 transition-all active:scale-90 cursor-pointer"
+              aria-label="Mark answer as not helpful"
+              className="tap-target-y inline-flex items-center justify-center w-8 h-8 rounded-xs text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 hover:bg-surface dark:hover:bg-zinc-700 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
             >
               <ThumbsDown size={13} />
             </button>
@@ -995,7 +985,7 @@ function MessageBubbleInner({
       {message.images && message.images.length > 0 && (
         <div className="mt-3 w-full max-w-[90%] md:max-w-[80%]">
 
-          <div className="relative rounded-2xl overflow-hidden bg-gray-100 dark:bg-gray-800 shadow-sm">
+          <div className="relative rounded-2xl overflow-hidden bg-surface-3 dark:bg-zinc-800 border border-border">
             {message.images[carouselIndex]?.type && (
               <div className="absolute top-3 left-3 z-10">
                 <span className="px-2.5 py-1 rounded-full bg-black/50 backdrop-blur-sm text-white text-[11px] font-medium capitalize">
@@ -1011,7 +1001,7 @@ function MessageBubbleInner({
                   alt={message.images[carouselIndex]?.caption ?? 'Property image'}
                   width={680}
                   height={400}
-                  className="w-full h-72 object-cover"
+                  className="w-full aspect-[4/3] object-cover"
                 />
               ) : null;
             })()}
@@ -1022,13 +1012,15 @@ function MessageBubbleInner({
                   <button
                     key={imgIdx}
                     onClick={() => onSetCarouselIndex(index, imgIdx)}
-                    className={`carousel-dot ${carouselIndex === imgIdx ? 'active' : ''}`}
+                    aria-label={`Image ${imgIdx + 1}`}
+                    aria-current={carouselIndex === imgIdx ? 'true' : undefined}
+                    className={`carousel-dot relative before:absolute before:-inset-2 before:content-[''] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white ${carouselIndex === imgIdx ? 'active' : ''}`}
                   />
                 ))}
               </div>
             )}
             {message.images[carouselIndex]?.caption && (
-              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent px-4 py-2">
+              <div className="absolute bottom-0 left-0 right-0 bg-black/60 px-4 py-2">
                 <p className="text-white text-xs">{message.images[carouselIndex].caption}</p>
               </div>
             )}
@@ -1041,7 +1033,7 @@ function MessageBubbleInner({
 
       {/* Highlights */}
       {message.highlights && message.highlights.length > 0 && (
-        <div className="mt-3 max-w-[90%] md:max-w-[80%] bg-[#F7F7F7] dark:bg-gray-800 border border-[#E8E8E8] dark:border-gray-700 rounded-2xl px-5 py-4 shadow-sm">
+        <div className="mt-3 max-w-[90%] md:max-w-[80%] bg-surface dark:bg-zinc-900 border border-border rounded-2xl px-5 py-4">
 
           <p className="text-sm font-semibold text-gray-900 dark:text-white mb-2">Key Highlights</p>
           <ul className="space-y-2">
@@ -1061,8 +1053,8 @@ function MessageBubbleInner({
 
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2.5 sm:gap-3">
             {message.amenities.map((amenity, idx) => (
-              <div key={idx} className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border border-blue-100 dark:border-blue-900/30 rounded-xl px-3 py-2.5 sm:px-4 sm:py-3 flex items-center justify-center text-center shadow-sm hover:shadow-md transition-all hover:-translate-y-0.5 group">
-                <span className="text-[12px] sm:text-[13px] font-semibold text-blue-800 dark:text-blue-300 group-hover:text-blue-600 dark:group-hover:text-blue-200">{amenity}</span>
+              <div key={idx} className="bg-surface dark:bg-zinc-900 border border-border rounded-sm px-3 py-2.5 sm:px-4 sm:py-3 flex items-center justify-center text-center">
+                <span className="text-[13px] font-medium text-zinc-800 dark:text-zinc-200">{amenity}</span>
               </div>
             ))}
           </div>
@@ -1126,7 +1118,7 @@ function MessageBubbleInner({
                 </div>
               </div>
 
-              <div className="flex flex-col sm:grid sm:grid-cols-2 md:grid-cols-3 gap-4 w-full">
+              <div className="flex flex-col sm:grid sm:grid-cols-2 gap-4 w-full">
                 {compProjects.map((property, pi) => (
                   <m.div
                     key={property.id}
@@ -1263,13 +1255,13 @@ function MessageBubbleInner({
                 <button
                   onClick={() => window.dispatchEvent(new CustomEvent('propfyndr:open-map'))}
                   aria-pressed={showMap}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[11px] font-bold transition-all shadow-2xs active:scale-95 cursor-pointer border ${
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xs text-[12px] font-medium transition-colors cursor-pointer border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
                     showMap
-                      ? 'bg-blue-600 text-white border-blue-600 shadow-blue-500/20'
+                      ? 'bg-zinc-900 text-white border-zinc-900 dark:bg-white dark:text-zinc-900 dark:border-white'
                       : 'bg-white/80 dark:bg-zinc-800/80 border-slate-200/80 dark:border-zinc-700/80 text-slate-700 dark:text-slate-200 hover:border-blue-400 dark:hover:border-blue-500'
                   }`}
                 >
-                  <MapPin size={13} weight="duotone" className={showMap ? 'text-white' : 'text-blue-500'} />
+                  <MapPin size={13} weight="duotone" className={showMap ? 'text-current' : 'text-primary'} />
                   <span className="hidden sm:inline">Map</span>
                 </button>
                 {fullCardsForCompare.length >= 2 && (
@@ -1283,26 +1275,24 @@ function MessageBubbleInner({
                         onOpenCompare(fullCardsForCompare)
                       }
                     }}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[11px] font-bold transition-all shadow-2xs active:scale-95 cursor-pointer border ${
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xs text-[12px] font-medium transition-colors cursor-pointer border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
                       comparingMessageId === message.id
-                        ? 'bg-blue-600 text-white border-blue-600 shadow-blue-500/30'
+                        ? 'bg-zinc-900 text-white border-zinc-900 dark:bg-white dark:text-zinc-900 dark:border-white'
                         : 'bg-white/80 dark:bg-zinc-800/80 border-slate-200/80 dark:border-zinc-700/80 text-slate-700 dark:text-slate-200 hover:border-blue-400 dark:hover:border-blue-500'
                     }`}
                   >
-                    <Scales size={13} weight="duotone" className={comparingMessageId === message.id ? 'text-white' : 'text-blue-500'} />
+                    <Scales size={13} weight="duotone" className={comparingMessageId === message.id ? 'text-current' : 'text-primary'} />
                     <span className="hidden sm:inline">{comparingMessageId === message.id ? 'Exit Compare' : 'Compare'}</span>
                   </button>
                 )}
                 <button
+                  type="button"
                   onClick={() => onToggleExpanded(message.id)}
-                  className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-[11px] font-bold transition-all shadow-2xs active:scale-95 cursor-pointer border ${
-                    isOpen
-                      ? 'bg-blue-600 text-white border-blue-600 shadow-blue-500/20'
-                      : 'bg-white/80 dark:bg-zinc-800/80 border-slate-200/80 dark:border-zinc-700/80 text-slate-700 dark:text-slate-200 hover:border-blue-400'
-                  }`}
+                  aria-expanded={isOpen}
+                  className="flex items-center gap-1.5 h-8 px-2.5 rounded-xs text-[13px] font-medium text-zinc-600 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-white/[0.06] transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1"
                 >
                   <span>{isOpen ? 'Hide' : `View (${totalCards})`}</span>
-                  <CaretDown size={13} weight="bold" className={`transition-transform duration-200 ${isOpen ? 'rotate-180 text-white' : 'text-slate-500'}`} />
+                  <CaretDown size={13} weight="bold" aria-hidden="true" className={`transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
                 </button>
               </div>
             </m.div>
@@ -1334,7 +1324,7 @@ function MessageBubbleInner({
                 {/* Property Results Grid */}
                 {(useNewFormat ? exactList : legacyList).length > 0 && (
                   <div className="mt-3">
-                    <div className="flex flex-col sm:grid sm:grid-cols-2 md:grid-cols-3 gap-4 w-full">
+                    <div className="flex flex-col sm:grid sm:grid-cols-2 gap-4 w-full">
                       {(useNewFormat ? exactList : legacyList).map((property, pi) => (
                         <m.div
                           key={property.id}
@@ -1348,6 +1338,7 @@ function MessageBubbleInner({
                             userId={userId}
                             sessionId={sessionId}
                             index={pi}
+                            isTopPick={pi === 0}
                             isSelectable={comparingMessageId === message.id}
                             isSelected={Boolean(selectedCompareIds && (
                               selectedCompareIds.has(String(property.id)) ||
@@ -1360,21 +1351,6 @@ function MessageBubbleInner({
                             onSetSiteVisit={onSetSiteVisit}
                             onCall={onCallback}
                           />
-                          {/* Inline property feedback — unobtrusive, below each card */}
-                          {sessionId && property.id && (
-                            <m.div
-                              initial={{ opacity: 0 }}
-                              animate={{ opacity: 1 }}
-                              transition={{ delay: pi * 0.07 + 0.2 }}
-                              className="px-1 pt-1.5 pb-0.5"
-                            >
-                              <PropertyFeedback
-                                sessionId={sessionId}
-                                projectId={String(property.id)}
-                                projectName={property.name}
-                              />
-                            </m.div>
-                          )}
                         </m.div>
                       ))}
                     </div>
@@ -1391,7 +1367,7 @@ function MessageBubbleInner({
                         </span>
                       </div>
                     )}
-                    <div className="flex flex-col sm:grid sm:grid-cols-2 md:grid-cols-3 gap-4 w-full">
+                    <div className="flex flex-col sm:grid sm:grid-cols-2 gap-4 w-full">
                       {nearbyList.map((property, pi) => (
                         <m.div
                           key={property.id}
@@ -1417,21 +1393,6 @@ function MessageBubbleInner({
                             onSetSiteVisit={onSetSiteVisit}
                             onCall={onCallback}
                           />
-                          {/* Inline property feedback for nearby results too */}
-                          {sessionId && property.id && (
-                            <m.div
-                              initial={{ opacity: 0 }}
-                              animate={{ opacity: 1 }}
-                              transition={{ delay: pi * 0.07 + 0.2 }}
-                              className="px-1 pt-1.5 pb-0.5"
-                            >
-                              <PropertyFeedback
-                                sessionId={sessionId}
-                                projectId={String(property.id)}
-                                projectName={property.name}
-                              />
-                            </m.div>
-                          )}
                         </m.div>
                       ))}
                     </div>
@@ -1448,7 +1409,7 @@ function MessageBubbleInner({
                   <div className="mt-4 flex justify-center w-full">
                     <button
                       onClick={() => setShowAllProperties(prev => !prev)}
-                      className="px-6 py-2.5 bg-gradient-button hover:bg-gradient-button-hover text-white text-[12px] font-bold rounded-full shadow-md hover:shadow-lg transition-all active:scale-95 flex items-center gap-2 cursor-pointer"
+                      className="px-4 py-2 border border-border bg-surface dark:bg-zinc-900 hover:bg-surface-3 dark:hover:bg-zinc-800 text-zinc-800 dark:text-zinc-200 text-[12px] font-medium rounded-xs transition-colors flex items-center gap-1.5 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                     >
                       <span>{showAllProperties ? 'Show initial 6 properties' : `View remaining ${totalCards - MAX_CARDS} properties (All ${totalCards})`}</span>
                       <CaretDown size={14} weight="bold" className={`transition-transform duration-200 ${showAllProperties ? 'rotate-180' : ''}`} />
@@ -1474,7 +1435,7 @@ function MessageBubbleInner({
             <CaretDown size={14} weight="bold" className={`transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`} />
           </button>
           {isExpanded && (
-            <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-4">
               {lastShortlist.map((p, pi) => (
                 <div key={p.id} className="flex flex-col">
                   <ProjectCard 
@@ -1512,9 +1473,9 @@ function MessageBubbleInner({
         return shouldShow;
       })() && (
         <m.div
-          initial={{ opacity: 0, y: 6 }}
+          initial={isRestoring ? false : { opacity: 0, y: 4 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3, delay: 0.15 }}
+          transition={{ duration: 0.15, delay: isRestoring ? 0 : 0.15, ease: 'easeOut' }}
           className="mt-3"
         >
           <SuggestionChipGroups
@@ -1535,12 +1496,12 @@ function MessageBubbleInner({
                 transition={{ duration: 0.2 }}
                 className="overflow-hidden"
               >
-                <div className="bg-white dark:bg-gray-800 border border-blue-200 dark:border-blue-700 rounded-2xl p-3 shadow-lg">
+                <div className="bg-surface dark:bg-zinc-900 border border-border rounded-2xl p-3">
                   <div className="flex items-center justify-between mb-2.5">
                     <span className="text-[11px] font-semibold text-blue-600 dark:text-blue-400 uppercase tracking-wide">
                       {chipPicker.mode === 'multi' ? 'Select properties to compare' : 'Which property?'}
                     </span>
-                    <button onClick={() => onSetChipPicker(null)} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 text-lg leading-none px-1">×</button>
+                    <button type="button" onClick={() => onSetChipPicker(null)} aria-label="Close property picker" className="relative text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 text-lg leading-none px-1 rounded-xs before:absolute before:-inset-2 before:content-[''] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">×</button>
                   </div>
                   <div className="flex flex-col gap-1.5">
                     {lastShortlist.map((p) => {

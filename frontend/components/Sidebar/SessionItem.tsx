@@ -1,10 +1,11 @@
 import { useState, useRef, useEffect } from 'react';
-import { MessageSquare, Check, X, Pencil, Trash2, Search, Building2, Scale, IndianRupee } from 'lucide-react';
+import { Check, X, DotsThree } from '@phosphor-icons/react';
 import Link from 'next/link';
 import { Session } from '@/hooks/useSessions';
 import { toast } from 'sonner';
 
-// Global PerformanceObserver instance — reused across all SessionItem clicks to avoid repeated creation
+// Dev-only navigation timing. Global PerformanceObserver instance — reused
+// across all SessionItem clicks to avoid repeated creation.
 let globalPerfObserver: PerformanceObserver | null = null;
 function getOrCreateObserver(): PerformanceObserver {
   if (globalPerfObserver) return globalPerfObserver;
@@ -47,22 +48,8 @@ function timeAgo(dateStr: string): string {
   return new Date(dateStr).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
 }
 
-function getSessionIcon(label: string) {
-  const l = label.toLowerCase();
-  if (l.includes('compare') || l.includes(' vs ') || l.includes('versus')) {
-    return Scale;
-  }
-  if (l.includes('price') || l.includes('budget') || l.includes('cost') || l.includes('emi') || l.includes('cr') || l.includes('lakh')) {
-    return IndianRupee;
-  }
-  if (l.includes('elite') || l.includes('county') || l.includes('lotus') || l.includes('godrej') || l.includes('ace') || l.includes('towers') || l.includes('heights') || l.includes('greens') || l.includes('project')) {
-    return Building2;
-  }
-  if (l.includes('find') || l.includes('search') || l.includes('show') || l.includes('bhk') || l.includes('sector')) {
-    return Search;
-  }
-  return MessageSquare;
-}
+const FOCUS = 'outline-none focus-visible:ring-2 focus-visible:ring-blue-500/60';
+const TOUCH = 'size-8 [@media(pointer:coarse)]:size-11';
 
 interface SessionItemProps {
   session: Session;
@@ -76,74 +63,143 @@ export function SessionItem({ session, isActive, onDelete, onRename, onClick }: 
   const [isRenaming, setIsRenaming] = useState(false);
   const [renameValue, setRenameValue] = useState(session.label);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [menuUp, setMenuUp] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [isNavigating, setIsNavigating] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const cancelRef = useRef<HTMLButtonElement>(null);
+  const optionsRef = useRef<HTMLButtonElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
   const navigationTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  // Set when rename/delete-confirm closes so focus lands back on the row.
+  const restoreFocus = useRef(false);
+  // Blur commits a rename; Escape and the explicit buttons must not also trigger it.
+  const renameSettled = useRef(false);
 
   useEffect(() => {
     if (isRenaming) {
+      renameSettled.current = false;
       inputRef.current?.focus();
       inputRef.current?.select();
     }
   }, [isRenaming]);
 
+  useEffect(() => {
+    if (confirmDelete) cancelRef.current?.focus();
+  }, [confirmDelete]);
+
+  useEffect(() => {
+    if (!isRenaming && !confirmDelete && restoreFocus.current) {
+      restoreFocus.current = false;
+      optionsRef.current?.focus();
+    }
+  }, [isRenaming, confirmDelete]);
+
+  useEffect(() => {
+    if (!menuOpen) return;
+    menuRef.current?.querySelector<HTMLElement>('[role="menuitem"]')?.focus();
+    const onDown = (e: MouseEvent) => {
+      if (!menuRef.current?.contains(e.target as Node) && !optionsRef.current?.contains(e.target as Node)) setMenuOpen(false);
+    };
+    document.addEventListener('mousedown', onDown);
+    return () => document.removeEventListener('mousedown', onDown);
+  }, [menuOpen]);
+
+  const endRename = () => {
+    renameSettled.current = true;
+    restoreFocus.current = true;
+    setIsRenaming(false);
+  };
+
+  const cancelRename = () => {
+    setRenameValue(session.label);
+    endRename();
+  };
+
   const submitRename = async () => {
+    if (renameSettled.current) return;
+    renameSettled.current = true;
     const title = renameValue.trim();
     if (!title || title === session.label) {
-      setIsRenaming(false);
+      setRenameValue(session.label);
+      endRename();
       return;
     }
-    
+
     setIsProcessing(true);
     try {
       await onRename(session.id, title);
-      toast.success('Chat renamed successfully');
     } catch {
       toast.error('Failed to rename chat');
       setRenameValue(session.label);
     } finally {
       setIsProcessing(false);
-      setIsRenaming(false);
+      endRename();
     }
+  };
+
+  const closeConfirm = () => {
+    restoreFocus.current = true;
+    setConfirmDelete(false);
   };
 
   const handleDelete = async () => {
     setIsProcessing(true);
     try {
       await onDelete(session.id);
-      toast.success('Chat deleted');
     } catch {
       toast.error('Failed to delete chat');
     } finally {
       setIsProcessing(false);
-      setConfirmDelete(false);
+      closeConfirm();
     }
   };
 
-  const IconComponent = getSessionIcon(session.label);
+  const openMenu = () => {
+    const rect = optionsRef.current?.getBoundingClientRect();
+    setMenuUp(!!rect && rect.bottom > window.innerHeight - 120);
+    setMenuOpen((o) => !o);
+  };
 
   if (isRenaming) {
     return (
-      <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-white dark:bg-zinc-800 border border-blue-500 shadow-sm">
-        <IconComponent size={13} className="text-blue-500 flex-shrink-0" />
+      <div className="flex items-center gap-1 h-9 [@media(pointer:coarse)]:h-11 pl-2.5 pr-1 rounded-xs bg-surface border border-blue-500">
         <input
           ref={inputRef}
           value={renameValue}
           onChange={(e) => setRenameValue(e.target.value)}
+          onBlur={submitRename}
           onKeyDown={(e) => {
             if (e.key === 'Enter') submitRename();
-            if (e.key === 'Escape') setIsRenaming(false);
+            if (e.key === 'Escape') cancelRename();
           }}
           disabled={isProcessing}
-          className="flex-1 min-w-0 text-xs bg-transparent outline-none text-zinc-900 dark:text-zinc-100 disabled:opacity-50 font-medium"
+          aria-label="Chat name"
+          className="flex-1 min-w-0 text-[13px] bg-transparent outline-none text-zinc-900 dark:text-zinc-100 disabled:opacity-50"
           maxLength={100}
         />
-        <button onClick={submitRename} disabled={isProcessing} className="p-1 text-emerald-600 hover:text-emerald-700 transition-colors disabled:opacity-50">
-          <Check size={13} />
+        {/* mousedown preventDefault keeps focus in the input so its blur
+            doesn't commit before the button's own action runs. */}
+        <button
+          type="button"
+          onMouseDown={(e) => e.preventDefault()}
+          onClick={submitRename}
+          disabled={isProcessing}
+          aria-label="Save name"
+          className={`${TOUCH} flex items-center justify-center rounded-xs text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 transition-colors disabled:opacity-50 ${FOCUS}`}
+        >
+          <Check size={14} />
         </button>
-        <button onClick={() => setIsRenaming(false)} disabled={isProcessing} className="p-1 text-zinc-400 hover:text-zinc-600 transition-colors disabled:opacity-50">
-          <X size={13} />
+        <button
+          type="button"
+          onMouseDown={(e) => e.preventDefault()}
+          onClick={cancelRename}
+          disabled={isProcessing}
+          aria-label="Cancel rename"
+          className={`${TOUCH} flex items-center justify-center rounded-xs text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-white/[0.06] transition-colors disabled:opacity-50 ${FOCUS}`}
+        >
+          <X size={14} />
         </button>
       </div>
     );
@@ -151,17 +207,29 @@ export function SessionItem({ session, isActive, onDelete, onRename, onClick }: 
 
   if (confirmDelete) {
     return (
-      <div className="flex items-center justify-between gap-1.5 px-2.5 py-1.5 rounded-xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800/60 shadow-2xs">
-        <span className="text-[11px] font-semibold text-red-600 dark:text-red-400 truncate">Delete chat?</span>
+      <div
+        role="group"
+        aria-label="Delete chat?"
+        onKeyDown={(e) => { if (e.key === 'Escape') closeConfirm(); }}
+        className="flex items-center justify-between gap-1.5 h-9 [@media(pointer:coarse)]:h-11 pl-2.5 pr-1 rounded-xs bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800/60"
+      >
+        <span className="text-[13px] font-medium text-red-700 dark:text-red-400 truncate">Delete chat?</span>
         <div className="flex items-center gap-1 shrink-0">
           <button
+            type="button"
             onClick={handleDelete}
             disabled={isProcessing}
-            className="px-2 py-0.5 text-[10px] bg-red-600 hover:bg-red-700 text-white rounded font-semibold transition-colors disabled:opacity-50"
+            className={`h-8 [@media(pointer:coarse)]:h-11 px-2.5 text-[11px] font-medium bg-red-600 hover:bg-red-700 text-white rounded-xs transition-colors disabled:opacity-50 ${FOCUS}`}
           >
             {isProcessing ? '…' : 'Delete'}
           </button>
-          <button onClick={() => setConfirmDelete(false)} disabled={isProcessing} className="px-1.5 py-0.5 text-[10px] text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 rounded font-medium disabled:opacity-50">
+          <button
+            ref={cancelRef}
+            type="button"
+            onClick={closeConfirm}
+            disabled={isProcessing}
+            className={`h-8 [@media(pointer:coarse)]:h-11 px-2.5 text-[11px] font-medium text-zinc-600 hover:text-zinc-900 dark:text-zinc-300 dark:hover:text-zinc-100 rounded-xs disabled:opacity-50 ${FOCUS}`}
+          >
             Cancel
           </button>
         </div>
@@ -169,81 +237,105 @@ export function SessionItem({ session, isActive, onDelete, onRename, onClick }: 
     );
   }
 
+  // Row is a div: the Link stretches over it via ::after, and the options
+  // button sits beside it (raised above the overlay) rather than inside it.
   return (
-    <Link
-      href={`/discover/${session.id}`}
-      className={`group/session relative flex items-center gap-2.5 px-2.5 py-2 rounded-xl transition-colors duration-150 ${
-        isNavigating ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'
+    <div
+      className={`group/session relative flex items-center h-9 [@media(pointer:coarse)]:h-11 rounded-xs transition-colors duration-150 ${
+        isNavigating ? 'opacity-60' : ''
       } ${
         isActive
-          ? 'bg-zinc-200/70 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 font-semibold shadow-2xs'
-          : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100/70 dark:hover:bg-zinc-800/50 hover:text-zinc-900 dark:hover:text-zinc-200 font-medium'
+          ? 'bg-zinc-100 dark:bg-white/[0.06] text-zinc-900 dark:text-zinc-50 font-medium'
+          : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100/70 dark:hover:bg-white/[0.04] hover:text-zinc-900 dark:hover:text-zinc-100'
       }`}
-      onClick={(e) => {
-        if (isNavigating) {
-          e.preventDefault();
-          return;
-        }
-
-        setIsNavigating(true);
-        if (navigationTimeoutRef.current) clearTimeout(navigationTimeoutRef.current);
-        navigationTimeoutRef.current = setTimeout(() => {
-          setIsNavigating(false);
-          navigationTimeoutRef.current = null;
-        }, 1000);
-
-        // [TIMING] mark sidebar click as t0
-        const t0 = performance.now()
-        ;(window as any).__navTimings = { t0 }
-        if (process.env.NODE_ENV === 'development') console.log('[NAV] 1. sidebar-click  t=0ms')
-
-        if (typeof PerformanceObserver !== 'undefined') {
-          try {
-            const obs = getOrCreateObserver()
-            obs.observe({ type: 'resource', buffered: true })
-          } catch { /* unsupported */ }
-        }
-
-        onClick();
-      }}
-      onDoubleClick={(e) => {
-        e.preventDefault();
-        if (!isNavigating) setIsRenaming(true);
-      }}
     >
-      <IconComponent
-        size={14}
-        className={`flex-shrink-0 transition-colors ${
-          isActive ? 'text-blue-600 dark:text-blue-400' : 'text-zinc-400 dark:text-zinc-500 group-hover/session:text-zinc-700 dark:group-hover/session:text-zinc-300'
-        }`}
-      />
-      <span className="text-[12.5px] truncate flex-1 leading-snug tracking-tight">
-        {session.label}
-      </span>
+      <Link
+        href={`/discover/${session.id}`}
+        aria-current={isActive ? 'page' : undefined}
+        className="flex-1 min-w-0 h-full flex items-center pl-2.5 pr-1 outline-none after:absolute after:inset-0 after:rounded-xs focus-visible:after:ring-2 focus-visible:after:ring-blue-500/60"
+        onClick={(e) => {
+          if (isNavigating) {
+            e.preventDefault();
+            return;
+          }
 
-      {/* Right Slot: fixed width 48px, zero layout shift or glitching */}
-      <div className="w-12 h-5 flex items-center justify-end flex-shrink-0 relative">
-        <span className="text-[10px] font-mono text-zinc-400 dark:text-zinc-500 transition-opacity duration-150 group-hover/session:opacity-0 absolute right-0">
+          setIsNavigating(true);
+          if (navigationTimeoutRef.current) clearTimeout(navigationTimeoutRef.current);
+          navigationTimeoutRef.current = setTimeout(() => {
+            setIsNavigating(false);
+            navigationTimeoutRef.current = null;
+          }, 1000);
+
+          if (process.env.NODE_ENV !== 'production') {
+            // [TIMING] mark sidebar click as t0
+            ;(window as any).__navTimings = { t0: performance.now() }
+            if (process.env.NODE_ENV === 'development') console.log('[NAV] 1. sidebar-click  t=0ms')
+
+            if (typeof PerformanceObserver !== 'undefined') {
+              try {
+                getOrCreateObserver().observe({ type: 'resource', buffered: true })
+              } catch { /* unsupported */ }
+            }
+          }
+
+          onClick();
+        }}
+        onDoubleClick={(e) => {
+          e.preventDefault();
+          if (!isNavigating) setIsRenaming(true);
+        }}
+      >
+        <span className="text-[13px] truncate">{session.label}</span>
+      </Link>
+
+      {/* Right Slot: fixed width, zero layout shift. Timestamp yields to the
+          options button on hover, keyboard focus, or touch devices. */}
+      <div className={`relative ${menuOpen ? 'z-30' : 'z-10'} w-12 h-full flex items-center justify-end shrink-0 pr-1`}>
+        <span
+          className={`text-[11px] font-medium tabular-nums text-zinc-500 dark:text-zinc-400 absolute right-2 transition-opacity duration-150 group-hover/session:opacity-0 group-focus-within/session:opacity-0 [@media(hover:none)]:opacity-0 pointer-events-none ${menuOpen ? 'opacity-0' : ''}`}
+        >
           {timeAgo(session.last_active)}
         </span>
-        <div className="opacity-0 group-hover/session:opacity-100 transition-opacity duration-150 flex items-center gap-0.5 absolute right-0 bg-zinc-100/90 dark:bg-zinc-800/90 backdrop-blur-xs pl-1 rounded">
-          <button
-            onClick={(e) => { e.preventDefault(); e.stopPropagation(); setIsRenaming(true); }}
-            className="p-1 rounded hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 transition-colors"
-            title="Rename"
+        <button
+          ref={optionsRef}
+          type="button"
+          onClick={openMenu}
+          aria-label="Chat options"
+          aria-haspopup="menu"
+          aria-expanded={menuOpen}
+          className={`${TOUCH} flex items-center justify-center rounded-xs text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-200/70 dark:hover:bg-white/[0.08] transition-opacity duration-150 opacity-0 group-hover/session:opacity-100 group-focus-within/session:opacity-100 [@media(hover:none)]:opacity-100 ${menuOpen ? 'opacity-100' : ''} ${FOCUS}`}
+        >
+          <DotsThree size={16} />
+        </button>
+        {menuOpen && (
+          <div
+            ref={menuRef}
+            role="menu"
+            aria-label="Chat options"
+            onKeyDown={(e) => {
+              if (e.key === 'Escape') { setMenuOpen(false); optionsRef.current?.focus(); }
+            }}
+            className={`absolute right-0 ${menuUp ? 'bottom-full mb-1' : 'top-full mt-1'} z-20 w-32 p-1 rounded-sm bg-surface border border-zinc-200/70 dark:border-white/[0.08] shadow-md`}
           >
-            <Pencil size={11} />
-          </button>
-          <button
-            onClick={(e) => { e.preventDefault(); e.stopPropagation(); setConfirmDelete(true); }}
-            className="p-1 rounded hover:bg-red-50 dark:hover:bg-red-950 text-zinc-400 hover:text-red-500 transition-colors"
-            title="Delete"
-          >
-            <Trash2 size={11} />
-          </button>
-        </div>
+            <button
+              type="button"
+              role="menuitem"
+              onClick={() => { setMenuOpen(false); setIsRenaming(true); }}
+              className={`w-full h-9 px-2.5 text-left text-[13px] font-normal rounded-xs text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-white/[0.06] ${FOCUS}`}
+            >
+              Rename
+            </button>
+            <button
+              type="button"
+              role="menuitem"
+              onClick={() => { setMenuOpen(false); setConfirmDelete(true); }}
+              className={`w-full h-9 px-2.5 text-left text-[13px] font-normal rounded-xs text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 ${FOCUS}`}
+            >
+              Delete
+            </button>
+          </div>
+        )}
       </div>
-    </Link>
+    </div>
   );
 }
-

@@ -35,8 +35,8 @@ import {
 import { gatePublished } from '../lib/intelligenceGate'
 import { createToolHandler } from '../lib/ai/tools/handlers'
 import { getBuilderRecord } from '../lib/builders'
-import { FINANCIAL, MODELS } from '../lib/config'
-import { webSearch, areaInfo, commute, readPage } from '../lib/web'
+import { FINANCIAL, MODELS, OUT_OF_CITY_MARKET_ANSWERS } from '../lib/config'
+import { commute } from '../lib/web'
 import { isNewsQuery } from '../lib/chat/newsQuery'
 import { calcEmi, calcStampDuty, calcGst, formatInr } from '../lib/calculators'
 import { classifyQuery } from '../lib/discovery/queryClassifier'
@@ -56,9 +56,6 @@ import { shouldCarryFocus } from '../lib/chat/focusCarry'
 import { scorePropertyEngagement } from '../lib/chat/propertyEngagement'
 import { detectPropertyReactions, PropertyReaction } from '../lib/chat/reactionDetector'
 import { buildSystemPromptWithCache } from '../lib/ai/systemPromptCache'
-import { streamWithGroq, GroqStreamStallError } from '../lib/ai/groq'
-import { streamWithOpenAI, StreamStallError } from '../lib/ai/openai'
-import { streamWithGemini, GeminiStreamStallError } from '../lib/ai/gemini'
 import { executeWithFallbackChain } from '../lib/ai/fallbackChain'
 import { classifyIntent, routeToModel } from '../lib/ai/intentClassifier'
 import { trimPropertiesForPrompt } from '../lib/ai/propertyTrim'
@@ -81,6 +78,8 @@ import { loadMentionedProjectCards } from '../lib/chat/mentionedProjectCards'
 import { buildUnknownProjectReply } from '../lib/chat/unknownProject'
 import { substitutePointer } from '../lib/chat/resolvePointer'
 import { runTopicHandlers } from '../lib/chat/handlerContext'
+import { recordTurnTrace, type TurnTraceDraft } from '../lib/turnTrace'
+import { recordDemandSignal } from '../lib/demandSignal'
 import { scanDisclosure } from '../lib/ai/answerIntegrity'
 import { projectCatalog, catalogNamesSync } from '../lib/projectCatalog'
 import { applyCommuteAnchor, beltFor } from '../lib/discovery/commuteAnchor'
@@ -90,6 +89,7 @@ import { chipsAreWelcome, chipIsRelevant, chipIsActionable } from '../lib/discov
 import { generateProjectChips } from '../lib/discovery/deterministicChips'
 import { createTurnTimer } from '../lib/turnTimer'
 import { buildStateBrief } from '../lib/ai/stateBrief'
+import { sessionReactions } from '../lib/dossier'
 import { isProximityQuestion, nearbyCoverage } from '../lib/discovery/nearby'
 import {
   isReraProcessQuestion as matchesReraProcessQuestion,
@@ -128,7 +128,6 @@ import { rentalAnswer, isRentalQuestion } from '../lib/chat/rentalAnswer'
 import { TABLE_ALREADY_SHOWN, cityShelfShown, YIELD_TABLE_SHOWN } from '../lib/ai/prompts/base'
 import { STATIC_PREFIX_MARKER } from '../lib/ai/systemPromptCache'
 import type { InferenceConfig } from '../lib/ai/openai'
-import { validateAgainstFacts } from '../lib/ai/guardrails-v2'
 import { getCachedResponse, setCachedResponse, intentFingerprint, GLOBAL_SCOPE } from '../lib/ai/semanticCache'
 import {
   sameSet,
@@ -494,9 +493,20 @@ router.post('/', async (req: Request, res: Response) => {
 
   /** Cards actually rendered this turn — drives chip actionability. */
   let cardsShownThisTurn = 0
+  /**
+   * The last card payload the buyer actually saw, already redacted and capped.
+   * Persisted with the assistant row so a restored session shows the same cards.
+   * Four lanes emitted cards but wrote their turn without them (or in a shape
+   * `formatMessages` drops), so reopening a chat from the sidebar showed text only.
+   */
+  let cardsSentThisTurn: Record<string, unknown> | null = null
 
   /** Where this turn's wall clock goes. See lib/turnTimer.ts. */
   const timer = createTurnTimer()
+
+  /** This turn's telemetry row, filled as the turn runs and written once when the response closes. */
+  const turnTrace: TurnTraceDraft = { lane: 'unlabelled' }
+  res.on('finish', () => recordTurnTrace(turnTrace, timer.elapsed()))
 
   const send = (event: string, data: Record<string, unknown>) => {
     if (res.writableEnded) return
@@ -541,6 +551,14 @@ router.post('/', async (req: Request, res: Response) => {
         console.log('[CHAT:CARD_BUDGET]', { offered, shown: exact.length, limit: budget.limit, reason: budget.reason })
       }
       cardsShownThisTurn = exact.length
+      if (exact.length > 0 || nearby.length > 0) {
+        cardsSentThisTurn = {
+          type: 'property_results',
+          exactResults: exact,
+          nearbyResults: nearby,
+          expansion: data.expansion ?? null,
+        }
+      }
       return sseWrite(res, event, { ...data, exactResults: exact, nearbyResults: nearby })
     }
     if (event === 'token' && typeof data.token === 'string') {
@@ -610,6 +628,8 @@ router.post('/', async (req: Request, res: Response) => {
         : await timer.time('cacheRead', () => getCachedResponse(message, GLOBAL_SCOPE, intentFingerprint(prevIntent)))
       if (cached) {
         console.log('[CHAT:CACHE_HIT] Serving verified advisory response from cache:', message.slice(0, 50))
+        turnTrace.lane = 'answer-cache'
+        if (sessionId) turnTrace.session_id = sessionId
         send('token', { token: cached.token })
         /**
          * A cache hit owes the buyer chips too.
@@ -722,8 +742,11 @@ router.post('/', async (req: Request, res: Response) => {
       sessionReadError = err
       return null
     })
+    // Reactions on dossiers shared from this chat, so the advisor can take up
+    // a concern the buyer's spouse or CA raised. Started here, read below.
+    const sharedFeedbackPromise = sessionId ? sessionReactions(sessionId).catch(() => []) : Promise.resolve([])
 
-    let rawIntentResult = { intent: prevIntent as Intent, degraded: false }
+    let rawIntentResult: Awaited<ReturnType<typeof extractIntent>> = { intent: prevIntent as Intent, degraded: false }
 
     // FAST PATH: bypass LLM extraction if action is INTENT_PATCH
     if (action.type === 'INTENT_PATCH') {
@@ -744,6 +767,7 @@ router.post('/', async (req: Request, res: Response) => {
     } else if (action.type === 'TEXT_MESSAGE' && message) {
       console.log('[CHAT] TEXT_MESSAGE — running LLM extraction')
       rawIntentResult = await timer.time('intentExtract', () => extractIntent(message, prevIntent))
+      if (rawIntentResult.decision) turnTrace.jev_shadow = rawIntentResult.decision
     }
 
     // Join point: the two reads above have been in flight for the whole duration
@@ -812,6 +836,7 @@ router.post('/', async (req: Request, res: Response) => {
     const priorShortlistTurns = previousPhase === 'SHORTLISTED' ? CONVERTING_TURN_THRESHOLD : 0
     const isNewSession = !sessionId || !sessionData
     const currentSessionId = sessionId || randomUUID()
+    turnTrace.session_id = currentSessionId
 
     /**
      * Write down a turn that returns before the main persistence block.
@@ -860,7 +885,9 @@ router.post('/', async (req: Request, res: Response) => {
       answer: string,
       opts: { phase?: string; artifacts?: unknown } = {},
     ): void => {
+      turnTrace.lane = lane
       const phase = opts.phase ?? intentState
+      const artifacts = opts.artifacts ?? (cardsSentThisTurn ? [cardsSentThisTurn] : undefined)
       void (async () => {
         if (isNewSession) {
           await prisma.chatSession.create({
@@ -887,7 +914,7 @@ router.post('/', async (req: Request, res: Response) => {
               session_id: currentSessionId,
               role: 'assistant',
               content: answer || '[streamed]',
-              ...(opts.artifacts ? { artifacts: opts.artifacts as Prisma.InputJsonValue } : {}),
+              ...(artifacts ? { artifacts: artifacts as Prisma.InputJsonValue } : {}),
             },
           ],
         })
@@ -1510,7 +1537,7 @@ router.post('/', async (req: Request, res: Response) => {
           confidence: 'LOW',
         }, { skipDedup: true })
         send('done', { sessionId: currentSessionId, intentState, intent, responseMode: 'chat' })
-        persistEarlyTurn('early-return', lastAnswerText)
+        persistEarlyTurn('unresolved-pointer', lastAnswerText)
         res.end()
         return
       }
@@ -1706,6 +1733,7 @@ router.post('/', async (req: Request, res: Response) => {
       summaryLocation: sessionData?.summary_location ?? null,
       summaryFinancial: sessionData?.summary_financial ?? null,
       summaryTimeline: sessionData?.summary_timeline ?? null,
+      sharedFeedback: await sharedFeedbackPromise,
     }
     const stateBrief = buildStateBrief(stateArgs)
     /**
@@ -1866,7 +1894,7 @@ router.post('/', async (req: Request, res: Response) => {
           confidence: 'HIGH',
         })
         send('done', { sessionId: currentSessionId, intentState, intent, responseMode: 'chat' })
-        persistEarlyTurn('early-return', lastAnswerText)
+        persistEarlyTurn('budget-history', lastAnswerText)
         res.end()
         return
       }
@@ -1913,7 +1941,7 @@ router.post('/', async (req: Request, res: Response) => {
         confidence: 'HIGH',
       })
       send('done', { sessionId: currentSessionId, intentState, intent, responseMode: 'chat' })
-      persistEarlyTurn('early-return', lastAnswerText)
+      persistEarlyTurn('off-topic', lastAnswerText)
       res.end()
       return
     }
@@ -1943,11 +1971,54 @@ router.post('/', async (req: Request, res: Response) => {
      * than the bug this fixes.
      */
     {
-      const coverage = buyingTargetOutOfScope(message)
+      // "I want PropFyndr in Pune" is the launch-vote chip below: recorded, and
+      // answered without a promise to notify anyone — there is nothing that sends one.
+      const votedCity = OUT_OF_CITY_MARKET_ANSWERS && /^i want propfyndr in\b/i.test(message.trim())
+        ? outOfScopeCity(message)
+        : null
+      const coverage = votedCity ? { city: votedCity, reason: 'launch vote' } : buyingTargetOutOfScope(message)
       if (coverage.city) {
         console.log('[CHAT:COVERAGE_DECLINED]', { city: coverage.city, reason: coverage.reason })
-        const envelope = renderEnvelope(await inventoryEnvelope())
-        send('token', {
+        let answered = false
+        if (OUT_OF_CITY_MARKET_ANSWERS) {
+          recordDemandSignal({
+            city: coverage.city,
+            questionKind: votedCity ? 'vote' : 'market',
+            wantsNotify: Boolean(votedCity),
+            budgetMaxCr: intent.budgetMax,
+            bhk: intent.bhk?.[0],
+            userId,
+            guestToken,
+            sessionId: currentSessionId,
+          })
+          if (votedCity) {
+            send('token', {
+              token:
+                `Noted — you want PropFyndr in ${votedCity}. Requests like yours decide which city we open next.\n\n` +
+                `Until then, ${PILOT_SCOPE_LABEL} is where I can shortlist real projects with verified data.`,
+            })
+            answered = true
+          } else {
+            const grounded = await runGroundedAnswer({
+              message,
+              detection: { topic: 'GENERAL', reason: 'market question about a city we do not cover' },
+              city: PILOT_SCOPE_LABEL,
+              userId,
+              sessionId: currentSessionId,
+              stream: send,
+              outOfCoverage: { city: coverage.city },
+            })
+            if (grounded) {
+              if (!grounded.streamed) send('token', { token: grounded.text })
+              send('token', {
+                token: `\n\nWe don't list projects in ${coverage.city} yet — we're ${PILOT_SCOPE_LABEL}-first, so I can't shortlist anything there without guessing.`,
+              })
+              answered = true
+            }
+          }
+        }
+        const envelope = answered ? null : renderEnvelope(await inventoryEnvelope())
+        if (!answered) send('token', {
           token:
             `We're only serviceable in ${PILOT_SCOPE_LABEL} right now, so I can't shortlist anything in ${coverage.city} — ` +
             `I'd be guessing, and you'd find out on the site visit. ${coverage.city} is on the roadmap.\n\n` +
@@ -1960,6 +2031,9 @@ router.post('/', async (req: Request, res: Response) => {
           stage: 'GATHERING',
           thinking: `Outside our coverage: ${coverage.city}.`,
           chips: [
+            ...(answered && !votedCity
+              ? [{ id: `chip_cov_v_${Date.now()}`, actionType: 'TEXT_MESSAGE', label: `I want PropFyndr in ${coverage.city}`, icon: 'map-pin', analyticsId: 'chip_cov_vote', priority: 0, payload: { text: `I want PropFyndr in ${coverage.city}` } }]
+              : []),
             { id: `chip_cov_a_${Date.now()}`, actionType: 'TEXT_MESSAGE', label: 'Show me what Noida has', icon: 'building', analyticsId: 'chip_cov_browse', priority: 1, payload: { text: 'What do you have available in Noida?' } },
             { id: `chip_cov_b_${Date.now()}`, actionType: 'TEXT_MESSAGE', label: `I commute to ${coverage.city}`, icon: 'route', analyticsId: 'chip_cov_commute', priority: 2, payload: { text: `I have a daily commute to ${coverage.city} — which Noida sectors suit that?` } },
           ],
@@ -2037,7 +2111,7 @@ router.post('/', async (req: Request, res: Response) => {
         confidence: 'HIGH',
       })
       send('done', { sessionId: currentSessionId, intentState, intent, responseMode: 'chat' })
-      persistEarlyTurn('early-return', lastAnswerText)
+      persistEarlyTurn('id-document', lastAnswerText)
       res.end()
       return
     }
@@ -2230,6 +2304,7 @@ router.post('/', async (req: Request, res: Response) => {
       confidence: queryClassification.confidence,
       reason: queryClassification.reason,
     })
+    turnTrace.query_kind = queryClassification.queryKind
 
     // ─── COVERAGE LANE ─────────────────────────────────────────────────────────
     if (action.type === 'TEXT_MESSAGE' && message) {
@@ -2393,7 +2468,7 @@ router.post('/', async (req: Request, res: Response) => {
           intent,
           responseMode: 'chat',
         })
-        persistEarlyTurn('early-return', lastAnswerText)
+        persistEarlyTurn('coverage-lane', lastAnswerText)
         res.end()
         return
       }
@@ -2844,7 +2919,7 @@ For legal statutory schedules (UP Stamp Duty, GST, TDS) or verified property che
         intent,
         responseMode: 'chat',
       })
-      persistEarlyTurn('early-return', lastAnswerText)
+      persistEarlyTurn('jailbreak', lastAnswerText)
       res.end()
       return
     }
@@ -2904,7 +2979,7 @@ I can help you with:
         intent,
         responseMode: 'chat',
       });
-      persistEarlyTurn('early-return', lastAnswerText)
+      persistEarlyTurn('greeting', lastAnswerText)
       res.end();
       return;
     }
@@ -2931,7 +3006,7 @@ I can help you with:
         intent,
         responseMode: 'chat',
       });
-      persistEarlyTurn('early-return', lastAnswerText)
+      persistEarlyTurn('thanks', lastAnswerText)
       res.end();
       return;
     }
@@ -3278,6 +3353,7 @@ I can help you with:
          * `lastAnswerText` already accumulates everything `send('token')`
          * emitted, handlers included, so the answer needs no new plumbing.
          */
+        let topicHandlerId = 'unknown'
         if (await runTopicHandlers(CHAT_TOPIC_HANDLERS, {
           message,
           intent,
@@ -3355,7 +3431,7 @@ I can help you with:
             // handler cannot claim every later turn off a sticky field.
             commuteAnchorJustStated,
           },
-        })) {
+        }, (id) => { topicHandlerId = id })) {
           /**
            * The integrity gate ran on model output and nowhere else.
            *
@@ -3379,7 +3455,7 @@ I can help you with:
               violations: handlerViolations.map((v) => `${v.kind}: ${v.detail}`),
             })
           }
-          persistEarlyTurn('topic-handler', lastAnswerText)
+          persistEarlyTurn(`topic:${topicHandlerId}`, lastAnswerText)
           return
         }
 
@@ -3639,7 +3715,7 @@ I can help you with:
           let systemPrompt = ''
 
           if (isSummaryRequest) {
-            systemPrompt = `You are RealtyPal, a professional real estate advisor for Noida and Greater Noida.
+            systemPrompt = `You are PropFyndr, a professional real estate advisor for Noida and Greater Noida.
 Verified facts: ${dbFactsJson}
 ${transparentClarificationText}
 EXECUTIVE SUMMARY INSTRUCTIONS:
@@ -3669,7 +3745,7 @@ EXECUTIVE SUMMARY INSTRUCTIONS:
              * system prompt already states for a single project, generalized
              * to two.
              */
-            systemPrompt = `You are RealtyPal, a professional real estate advisor for Noida and Greater Noida.
+            systemPrompt = `You are PropFyndr, a professional real estate advisor for Noida and Greater Noida.
 Verified facts from database: ${dbFactsJson}
 ${transparentClarificationText}${comparisonDiffText}
 CRITICAL FORMATTING MANDATE:
@@ -3702,7 +3778,7 @@ OUTPUT STRUCTURE (either case):
 
 If a fact either project needs for the named aspect is genuinely absent from the block above, say so for that project specifically rather than omitting the row or guessing — the same rule that applies to a single-project answer applies here.`
           } else {
-            systemPrompt = `You are RealtyPal, a professional real estate advisor for Noida and Greater Noida.
+            systemPrompt = `You are PropFyndr, a professional real estate advisor for Noida and Greater Noida.
 Verified facts: ${dbFactsJson}
 
 EXECUTIVE INSTRUCTIONS:
@@ -3948,9 +4024,11 @@ USING THE FACTS:
            * the one running. Found by starting the server locally and reading
            * the log instead of inferring from production behaviour.
            */
+          // Artifacts come from the redacted `properties` emit above. This used to
+          // pass `{ property_results: [...] }` — an object, which formatMessages
+          // drops (it only restores arrays) — and stored unredacted rows.
           persistEarlyTurn('ground-truth-db', responseText || lastAnswerText, {
             phase: 'SHORTLISTED',
-            artifacts: { property_results: detailedTargetProjects },
           })
 
           const responseMode = isCompareRequest && targetProjects.length >= 2 ? 'comparison' : 'ground_truth_database'
@@ -4222,7 +4300,7 @@ USING THE FACTS:
       // result is an outage notice and must not be decorated with a card.
       let turnDegraded = false
       try {
-        const systemMsg = `You are RealtyPal — an expert real estate advisor analyzing verified project data for Noida and Greater Noida.
+        const systemMsg = `You are PropFyndr — an expert real estate advisor analyzing verified project data for Noida and Greater Noida.
 EXECUTIVE RESPONSE INSTRUCTIONS:
 1. Directly and comprehensively answer the user's exact question using the provided verified facts.
 2. If asked about floor plans, configurations, or carpet area efficiency: extract or calculate the ratio of carpet area to super built-up area (e.g. Carpet Area / Super Area * 100) and present carpet area, super area, and carpet efficiency percentage clearly.
@@ -5170,7 +5248,7 @@ EXECUTIVE RESPONSE INSTRUCTIONS:
     if (wantsShelf) {
       try {
         const shelf = await renderCityShelfForCity(
-          [...SUPPORTED_CITIES, 'Yamuna Expressway'],
+          [...SUPPORTED_CITIES],
           DEFAULT_CITY,
         )
         citywideShelf = shelf.table
@@ -5269,10 +5347,7 @@ EXECUTIVE RESPONSE INSTRUCTIONS:
      */
     if (!renderedTable && message && asksRentalYield(message)) {
       try {
-        const yields = await computeSectorYields([
-          ...SUPPORTED_CITIES,
-          'Yamuna Expressway',
-        ])
+        const yields = await computeSectorYields([...SUPPORTED_CITIES])
         renderedTable = renderRentalYieldTable(yields)
         if (renderedTable) {
           renderedTableKind = 'yield'
@@ -5332,7 +5407,7 @@ EXECUTIVE RESPONSE INSTRUCTIONS:
         const sectorsForAppreciation =
           asked.length > 0 ? asked : intent.sector ? [String(intent.sector)] : []
         const rows = await computeSectorAppreciation(
-          [...SUPPORTED_CITIES, 'Yamuna Expressway'],
+          [...SUPPORTED_CITIES],
           sectorsForAppreciation,
         )
         renderedTable = renderAppreciationTable(rows)
@@ -5515,11 +5590,6 @@ EXECUTIVE RESPONSE INSTRUCTIONS:
     // Phase 5.4: Meta-awareness handler — user asking "what have you assumed about me?"
     const isMetaQuestion = /what.*(assum|remember|know).*about\s+me\b|what.*constraints.*\bi\b|what.*(my|our)\s+(filters|profile|preferences|requirements)|what.*have\s+i\s+told|what.*do you.*think.*about\s+me\b/i.test(message)
 
-    const isPropertySearchWithResults = projects.length > 0 &&
-      queryClassification.queryKind !== 'DRILLDOWN' &&
-      queryClassification.renderTarget !== 'text' &&
-      !skipForCachedQuery &&
-      (queryClassification.queryKind === 'DISCOVERY' || queryClassification.queryKind === 'RANKING')
 
     if (isMetaQuestion && hydratedIntent) {
       const constraints = []
@@ -5645,6 +5715,14 @@ EXECUTIVE RESPONSE INSTRUCTIONS:
       timer.mark('llm')
       fullText = fallbackResult.text
       usedProvider = { provider: fallbackResult.provider, envKey: fallbackResult.envKey }
+      Object.assign(turnTrace, {
+        lane: 'main',
+        provider: fallbackResult.provider,
+        model: fallbackResult.model,
+        prompt_chars: systemPrompt.length,
+        answer_chars: fullText.length,
+        degraded: fallbackResult.degraded === true,
+      })
 
       /**
        * An answer that ends on a colon promised a list it never delivered.
@@ -5702,31 +5780,6 @@ EXECUTIVE RESPONSE INSTRUCTIONS:
     }
 
     // Multi-dimensional context is already injected into the system prompt prior to LLM generation.
-
-    if (fullText && !isPropertySearchWithResults) {
-      try {
-        const gr = await validateAgainstFacts(fullText, systemPrompt);
-        if (gr.violations.length > 0) {
-          const severity = gr.blocked ? 'CRITICAL' : 'WARNING'
-          console.error(`[GUARDRAIL_${severity}] Output guardrail triggered`, {
-            blocked: gr.blocked,
-            confidence: gr.confidence,
-            violations: gr.violations,
-            session_id: sessionId,
-          })
-
-          if (gr.blocked) {
-            const isReraViolation = gr.violations.some(v => v.type === 'upreraprj_hallucination');
-            const safeResponse = isReraViolation
-              ? "I can't confirm that RERA number — it wasn't in our verified database. Please verify directly at up-rera.in by searching the project name."
-              : "I'm not able to provide that information. Please ask about properties, builders, or real estate in Noida.";
-            fullText = safeResponse;
-          }
-        }
-      } catch (err) {
-        console.error('[GUARDRAIL_ERROR] Failed to run validateAgainstFacts', err)
-      }
-    }
 
     // ─── ANSWER CACHE WRITE ────────────────────────────────────────────────────
     if (
@@ -6129,6 +6182,12 @@ EXECUTIVE RESPONSE INSTRUCTIONS:
         }
       } catch (e) {
         console.warn('[CHAT] prose chip emit failed (non-fatal)', e)
+      }
+
+      // Prose cards (emitted above when discovery found nothing) are sent after
+      // `messageArtifacts` was built — without this they never reach the row.
+      if (cardsSentThisTurn && !messageArtifacts.some((a) => a.type === 'property_results')) {
+        messageArtifacts.push(cardsSentThisTurn)
       }
 
       persistPromises.push(

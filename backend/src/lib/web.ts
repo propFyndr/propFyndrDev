@@ -15,6 +15,8 @@ const BLOCKED_HOSTS = new Set([
   'metadata.google.internal',
 ])
 
+import { getCached, setCached } from './cache'
+
 export function isSafeUrl(urlString: string): boolean {
   try {
     const u = new URL(urlString)
@@ -100,8 +102,31 @@ async function searchSerper(query: string, maxResults: number): Promise<{ answer
 }
 
 /** Returns a compact, source-attributed context string, or '' if nothing found. */
+/**
+ * A web answer is paid for once. Every search result we use is kept in our own
+ * Redis for a week, so the next buyer asking the same thing reads our copy
+ * instead of paying Tavily/Serper again (CHAT_INTELLIGENCE_ROADMAP.md, Phase 7).
+ * A week because what this is used for — market direction, infrastructure news,
+ * another city's market — moves slower than that. Misses and errors are not cached.
+ */
+const WEB_CACHE_TTL_SECS = 7 * 24 * 3600
+
+function webCacheKey(query: string, maxResults: number, restrictDomains: boolean): string {
+  const q = query.toLowerCase().replace(/[^\p{L}\p{N}]+/gu, ' ').trim()
+  return `web:v1:${restrictDomains ? 'r' : 'o'}:${maxResults}:${q}`
+}
+
 export async function webSearch(query: string, maxResults = 3, opts: WebSearchOptions = {}): Promise<string> {
   const restrictDomains = opts.restrictDomains !== false
+  const cacheKey = webCacheKey(query, maxResults, restrictDomains)
+  const cached = await getCached<string>(cacheKey)
+  if (cached) return cached
+  const fresh = await webSearchUncached(query, maxResults, restrictDomains)
+  if (fresh) void setCached(cacheKey, fresh, WEB_CACHE_TTL_SECS)
+  return fresh
+}
+
+async function webSearchUncached(query: string, maxResults: number, restrictDomains: boolean): Promise<string> {
   let data: { answer: string; results: WebResult[] } | null = null
   try {
     data = await searchTavily(query, maxResults, restrictDomains)

@@ -1,19 +1,16 @@
 'use client'
 
-import { useState, useCallback, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { m, AnimatePresence } from 'framer-motion'
 import Image from 'next/image'
 import {
-  ShieldCheck, SealCheck,
-  Subway, AirplaneTakeoff, Path,
-  Leaf, Baby, Heart,
+  ShieldCheck,
   BookmarkSimple,
   CaretLeft, CaretRight,
-  Car, GraduationCap, ShoppingBag, Bank, BookOpen,
-  Barbell, Star, Buildings, Phone, PhoneCall, ShareNetwork, Robot, ChatCenteredText,
-  Coins, MapPinLine, ChartLineUp, Scales, WarningCircle, PencilSimple,
+  Buildings, PhoneCall, ShareNetwork, ChatCenteredText,
+  Coins, MapPinLine, ChartLineUp, Scales, WarningCircle, PencilSimple, Warning, Drop,
 } from '@phosphor-icons/react'
-import type { ProjectCard as ProjectCardType, AmenitySummary, ConnSummary } from '@/types/project'
+import type { ProjectCard as ProjectCardType } from '@/types/project'
 import { API_BASE } from '@/lib/env'
 import { track, trackPropertyEvent } from '@/lib/analytics'
 import { authHeaders } from '@/lib/authedFetch'
@@ -27,6 +24,12 @@ interface Props {
   userId: string | null
   sessionId?: string | null
   index?: number
+  /**
+   * Show the "Best fit for your brief" eyebrow. Opt-in, because only a list
+   * ranked against the buyer's brief can honestly say its first card is the
+   * best fit — a saved list or a comparison cannot.
+   */
+  isTopPick?: boolean
   isSelectable?: boolean
   isSelected?: boolean
   onToggleSelect?: () => void
@@ -39,36 +42,27 @@ interface Props {
   quickActions?: React.ReactNode
 }
 
-const AMENITY_ICONS: Record<AmenitySummary['category'], React.ElementType> = {
-  sports:    Barbell,
-  lifestyle: Star,
-  wellness:  Leaf,
-  kids:      Baby,
-  security:  SealCheck,
-  parking:   Car,
+const FOCUS = 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1'
+
+// scoring.ts appends recommendation-tier words to the reasons. The card shows
+// why a project fits the brief, not a buy/avoid verdict, so those are dropped.
+const VERDICT_REASONS = new Set(['strong buy', 'recommended'])
+
+function buildReason(project: ProjectCardType): string | null {
+  const parts = (project.matchReasons ?? []).filter(r => r && !VERDICT_REASONS.has(r.trim().toLowerCase()))
+  const text = parts.length > 0 ? parts.slice(0, 3).join(', ') : (project.matchReason ?? '')
+  // "matches your search" is the scorer's empty-handed fallback — it says nothing.
+  if (!text.trim() || text.trim().toLowerCase() === 'matches your search') return null
+  return text.charAt(0).toUpperCase() + text.slice(1)
 }
 
-const CONN_ICONS: Record<ConnSummary['type'], React.ElementType> = {
-  metro:      Subway,
-  airport:    AirplaneTakeoff,
-  road:       Path,
-  expressway: Path,
-
-  school:     GraduationCap,
-  hospital:   Heart,
-  mall:       ShoppingBag,
-  landmark:   Bank,
-  university: BookOpen,
-}
-
-export default function ProjectCard({ project, userId, sessionId, index = 0, isSelectable = false, isSelected = false, onToggleSelect, onDetailOpen, onToast, onAskAI, onSetSiteVisit, onCall, onShare, quickActions }: Props) {
+export default function ProjectCard({ project, userId, sessionId, index = 0, isTopPick = false, isSelectable = false, isSelected = false, onToggleSelect, onDetailOpen, onToast, onAskAI, onShare, onCall, quickActions }: Props) {
   const [saved, setSaved] = useState(false)
   const [saving, setSaving] = useState(false)
   // Per-card, not lifted: one card expanding its configurations says nothing
   // about the others, and the panel closes when the card unmounts.
   const [showAllConfigs, setShowAllConfigs] = useState(false)
   const configSlotRef = useRef<HTMLDivElement>(null)
-  const [expandedUnits, setExpandedUnits] = useState(false)
   const [askMenuOpen, setAskMenuOpen] = useState(false)
 
   useEffect(() => {
@@ -121,7 +115,6 @@ export default function ProjectCard({ project, userId, sessionId, index = 0, isS
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [askMenuOpen])
 
-  const isTopPick = index === 0
   const isRTM = project.status === 'ready_to_move'
   const isNew = project.status === 'new_launch'
   const isDelayed = project.possession_label ? (project.possession_label.toLowerCase().includes('delayed') || project.possession_label.toLowerCase().includes('disputed')) : false
@@ -153,9 +146,24 @@ export default function ProjectCard({ project, userId, sessionId, index = 0, isS
     { icon: ChartLineUp, label: 'Price trend, last 12 months', text: `How has the price of ${project.name} changed over the last 12 months?`, type: 'price_trend' },
     { icon: Scales, label: 'Compare with nearby projects', text: `Compare ${project.name} with similar nearby projects in ${project.sector}.`, type: 'compare' },
   ]
+  // First, not last: the mobile menu shows three prompts, and the one about
+  // this project's weaknesses is the one a trust-first advisor must not hide.
   if (project.concerns && project.concerns.length > 0) {
-    askPrompts.push({ icon: WarningCircle, label: 'Any concerns?', text: `What are the concerns or red flags with ${project.name}?`, type: 'concerns' })
+    askPrompts.unshift({ icon: WarningCircle, label: 'Any concerns?', text: `What are the concerns or red flags with ${project.name}?`, type: 'concerns' })
   }
+
+  const reason = buildReason(project)
+  const tradeoff = project.concerns?.find(c => c && c.trim()) ?? null
+  const price = sanitizePriceLabel(project.price_range_label)
+
+  // Ground-truth facts that used to be a row of pills. On mobile they are one
+  // quiet line; the drain is a negative, so it keeps the warning colour.
+  const metaFacts: Array<{ text: string; warn?: boolean }> = []
+  if (project.oc_status === 'FULL_OC') metaFacts.push({ text: 'Full OC' })
+  if (project.oc_status === 'PHASED_OC') metaFacts.push({ text: 'Phased OC' })
+  if (project.amitabh_kant_clearance) metaFacts.push({ text: 'Registry cleared' })
+  if (project.shahdara_drain_impact) metaFacts.push({ text: 'Near Shahdara drain', warn: true })
+  else if (project.water_source_type === 'GANGA_JAL') metaFacts.push({ text: 'Ganga Jal supply' })
 
   const rawUnitTypes = Array.isArray(project.unit_types) ? project.unit_types : []
   const unitsByBhk = rawUnitTypes.reduce((acc, u) => {
@@ -172,8 +180,6 @@ export default function ProjectCard({ project, userId, sessionId, index = 0, isS
       bhk: Number(bhk),
       areas: [...new Set(areas)].sort((a, b) => parseInt(a) - parseInt(b))
     }))
-
-
 
   const handleSave = async (e: React.MouseEvent) => {
     e.stopPropagation()
@@ -200,7 +206,7 @@ export default function ProjectCard({ project, userId, sessionId, index = 0, isS
         track('property_saved', { project_slug: project.slug, project_name: project.name })
         trackPropertyEvent(project.id, 'save', sessionId, userId).catch(() => {})
 
-        onToast?.('Property saved! ✓')
+        onToast?.('Saved')
       }
     } catch (err) {
       console.error('[ProjectCard] save failed:', err)
@@ -216,13 +222,13 @@ export default function ProjectCard({ project, userId, sessionId, index = 0, isS
     e.stopPropagation()
     track('share_tapped', { project_slug: project.slug, project_name: project.name })
     const shareUrl = `${typeof window !== 'undefined' ? window.location.origin : ''}/property/${project.slug}?ref=share`
-    const text = `${project.name} · ${project.sector} — ${sanitizePriceLabel(project.price_range_label)}. Reviewed with RealtyPal AI:`
+    const text = `${project.name} · ${project.sector} — ${price}. Reviewed with PropFyndr AI:`
     try {
       if (navigator.share) {
         await navigator.share({ title: project.name, text, url: shareUrl })
       } else {
         await navigator.clipboard.writeText(`${text}\n${shareUrl}`)
-        onToast?.('Link copied ✓')
+        onToast?.('Link copied')
       }
     } catch {
       // user cancelled the native sheet
@@ -239,121 +245,161 @@ export default function ProjectCard({ project, userId, sessionId, index = 0, isS
     onDetailOpen?.(project)
   }
 
+  const handleCall = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    track('call_tapped', { project_slug: project.slug, project_name: project.name })
+    trackPropertyEvent(project.id, 'call', sessionId, userId).catch(() => {})
+    onCall?.(project)
+  }
+
+  const runPrompt = (e: React.MouseEvent, type: string, text: string, autoSend: boolean) => {
+    e.stopPropagation()
+    setAskMenuOpen(false)
+    track('ask_ai_tapped', { project_slug: project.slug, prompt_type: type })
+    if (autoSend) trackPropertyEvent(project.id, 'ask_ai', sessionId, userId).catch(() => {})
+    window.dispatchEvent(new CustomEvent('propfyndr:ask-ai', { detail: { text, autoSend } }))
+    onAskAI?.(project)
+  }
+
+  const builderName = typeof project.builder === 'object' ? project.builder?.name : project.builder
+  const statusDot = isRTM ? 'bg-emerald-500' : isDelayed ? 'bg-rose-500' : isNew ? 'bg-primary' : 'bg-amber-500'
+
+  // The name is the card's one real control. Its ::after stretches over the
+  // whole card, so the card is clickable without being a clickable div, and
+  // every nested control sits above it at z-10.
+  const nameButton = (
+    <button
+      type="button"
+      onClick={handleCardClick}
+      aria-pressed={isSelectable ? isSelected : undefined}
+      className="block w-full truncate text-left focus-visible:outline-none after:absolute after:inset-0 after:content-['']"
+      title={project.name}
+    >
+      {project.name}
+    </button>
+  )
+
+  const topPickEyebrow = isTopPick && !isSelectable
+    ? <p className="text-[11px] font-medium text-primary">Best fit for your brief</p>
+    : null
+
+  // Reason and trade-off, at equal weight. Either line is omitted when the
+  // data is absent — never filled in.
+  const fitBlock = (reason || tradeoff) ? (
+    <div className="space-y-1">
+      {reason && (
+        <p className="text-[13px] leading-snug text-zinc-700 dark:text-zinc-300 line-clamp-2">{reason}</p>
+      )}
+      {tradeoff && (
+        <p className="flex items-start gap-1 text-[13px] leading-snug text-amber-800 dark:text-amber-300">
+          <Warning size={13} weight="fill" className="mt-[3px] shrink-0" aria-hidden="true" />
+          <span className="line-clamp-2"><span className="sr-only">Trade-off: </span>{tradeoff}</span>
+        </p>
+      )}
+    </div>
+  ) : null
+
+  const menuItemCls = 'w-full flex items-center gap-2 px-2.5 py-2 rounded-xs text-left text-[13px] text-zinc-700 dark:text-zinc-200 hover:bg-surface-3 dark:hover:bg-zinc-800 transition-colors ' + FOCUS
+
   return (
     <div
       data-project-id={project.id}
-      onClick={handleCardClick}
       // h-full is what makes the grid uniform. Grid items stretch, so the
       // wrapper was already full height, but the card inside sized to its own
       // content — a project with a shorter tagline produced a shorter card and
       // the row looked ragged.
-      className={`group relative w-full h-full flex flex-col rounded-[20px] md:rounded-[16px] overflow-hidden bg-white dark:bg-[#111] transition-all duration-200 ease-out cursor-pointer select-none ${
+      className={`group relative w-full h-full flex flex-col rounded-2xl overflow-hidden border bg-surface dark:bg-zinc-900 transition-colors duration-150 cursor-pointer select-none has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-primary ${
         isSelected
-          ? 'ring-2 ring-blue-600 dark:ring-blue-500 shadow-[0_8px_30px_rgba(37,99,235,0.3)] scale-[1.015] border-blue-500 z-20 bg-blue-50/10 dark:bg-blue-950/10'
+          ? 'border-primary ring-2 ring-primary z-20'
           : isSelectable
-            ? 'ring-1 ring-blue-400/40 hover:ring-2 hover:ring-blue-400/80 hover:shadow-md'
-            : isTopPick
-              ? 'ring-1 ring-inset ring-amber-500/50 shadow-[0_4px_20px_rgba(245,158,11,0.15)] hover:shadow-[0_8px_30px_rgba(245,158,11,0.2)]'
-              : 'ring-1 ring-inset ring-black/5 dark:ring-white/10 shadow-[0_2px_12px_rgba(0,0,0,0.03)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.06)]'
-      } md:hover:-translate-y-1 active:scale-[0.98]`}
+            ? 'border-primary/40 hover:border-primary'
+            : 'border-border hover:border-border-heavy'
+      }`}
     >
       {/* ════════════════════════════════════════════════════════════════════════
-          1. MOBILE COMPACT BENTO CARD (Swiggy / Airbnb style: 2-3 fit on screen)
+          1. MOBILE COMPACT CARD
           ════════════════════════════════════════════════════════════════════════ */}
       <div className="flex md:hidden flex-row items-stretch p-3 gap-3 w-full min-h-[135px]">
-        {/* Left: Info & Details (65% width) */}
+        {/* Left: Info & Details */}
         <div className="flex-1 min-w-0 flex flex-col justify-between">
-          <div className="space-y-1">
-            {/* Top Badges: Status + RERA */}
+          <div className="space-y-1.5">
+            {/* Two pills at most: status and RERA */}
             <div className="flex items-center gap-1.5 flex-wrap">
-              <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9.5px] font-extrabold max-w-[140px] truncate ${
-                isRTM 
-                  ? 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-300' 
+              <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium max-w-[140px] truncate ${
+                isRTM
+                  ? 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-300'
                   : isDelayed
                     ? 'bg-rose-500/10 text-rose-700 dark:text-rose-300'
-                    : isNew 
-                      ? 'bg-blue-500/10 text-blue-700 dark:text-blue-300' 
-                      : 'bg-amber-500/10 text-amber-700 dark:text-amber-300'
+                    : 'bg-surface-3 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300'
               }`} title={rawPossession || statusLabel}>
-                <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${isRTM ? 'bg-emerald-500' : isDelayed ? 'bg-rose-500' : isNew ? 'bg-blue-500' : 'bg-amber-500'}`} />
+                <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${statusDot}`} />
                 <span className="truncate">{statusLabel}</span>
               </span>
 
               {project.rera_number && (
-                <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 text-[9px] font-black uppercase tracking-wider">
-                  <ShieldCheck size={10} weight="fill" className="text-emerald-600" />
+                <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 text-[11px] font-medium">
+                  <ShieldCheck size={11} weight="fill" aria-hidden="true" />
                   RERA
                 </span>
               )}
-
-              {project.oc_status === 'FULL_OC' && (
-                <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 text-[9px] font-extrabold uppercase tracking-wider">
-                  Full OC
-                </span>
-              )}
-              {project.oc_status === 'PHASED_OC' && (
-                <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-amber-500/10 text-amber-700 dark:text-amber-300 text-[9px] font-extrabold uppercase tracking-wider">
-                  Phased OC
-                </span>
-              )}
-              {project.amitabh_kant_clearance && (
-                <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-blue-500/10 text-blue-700 dark:text-blue-300 text-[9px] font-bold tracking-tight">
-                  Registry Cleared
-                </span>
-              )}
-              {project.shahdara_drain_impact ? (
-                <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-rose-500/10 text-rose-700 dark:text-rose-300 text-[9px] font-bold tracking-tight" title="Near Shahdara drain corridor">
-                  ⚠️ Drain Zone
-                </span>
-              ) : project.water_source_type === 'GANGA_JAL' ? (
-                <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-cyan-500/10 text-cyan-700 dark:text-cyan-300 text-[9px] font-bold tracking-tight" title="Ganga Jal municipal supply verified">
-                  💧 Ganga Jal
-                </span>
-              ) : null}
             </div>
 
             {/* Title & Subtitle */}
-            <div className="pt-0.5">
-              <h3 className="text-[15px] font-black text-gray-900 dark:text-white tracking-tight leading-snug truncate">
-                {project.name}
+            <div>
+              {topPickEyebrow}
+              <h3 className="text-[15px] font-semibold text-zinc-900 dark:text-zinc-50 leading-snug">
+                {nameButton}
               </h3>
-              <p className="text-[11px] text-gray-500 dark:text-gray-400 font-semibold truncate mt-0.5">
-                {typeof project.builder === 'object' ? project.builder?.name : project.builder} · {project.sector}
+              <p className="text-[12px] text-zinc-500 dark:text-zinc-400 truncate mt-0.5">
+                {builderName} · {project.sector}
               </p>
             </div>
 
             {/* Price — for the size asked for, when one was */}
-            <p className="text-[16px] font-black text-gray-900 dark:text-white tracking-tight leading-none pt-0.5">
-              {sanitizePriceLabel(project.price_range_label)}
+            <p className="text-[15px] font-semibold text-zinc-900 dark:text-zinc-50 leading-none tabular-nums">
+              {price}
               {project.price_for_bhk && (
-                <span className="ml-1.5 text-[10.5px] font-semibold text-gray-500 dark:text-gray-400 align-middle">
+                <span className="ml-1.5 text-[11px] font-medium text-zinc-500 dark:text-zinc-400 align-middle">
                   {project.price_for_bhk}
                 </span>
               )}
             </p>
 
+            {fitBlock}
+
             {/* BHK & Area summary line */}
-            <div className="text-[10.5px] text-gray-500 dark:text-gray-400 font-medium truncate pt-0.5">
+            <div className="text-[11px] text-zinc-500 dark:text-zinc-400 truncate">
               {bhkGroups.length > 0
                 ? `${bhkGroups.map(g => `${g.bhk} BHK`).join(', ')}${bhkGroups[0]?.areas[0] ? ` (${bhkGroups[0].areas[0]})` : ''}`
-                : 'Spacious Units'}
+                : 'Configurations not listed'}
             </div>
+
+            {metaFacts.length > 0 && (
+              <p className="text-[11px] text-zinc-500 dark:text-zinc-400 truncate">
+                {metaFacts.map((f, i) => (
+                  <span key={f.text} className={f.warn ? 'text-amber-800 dark:text-amber-300' : undefined}>
+                    {i > 0 && ' · '}{f.text}
+                  </span>
+                ))}
+              </p>
+            )}
           </div>
 
           {/* Quick Actions Row */}
           <div className="flex items-center gap-2 pt-2 mt-auto">
             {onAskAI ? (
-              <div className="relative flex-1" ref={askMenuRef}>
+              <div className="relative z-10 flex-1" ref={askMenuRef}>
                 <button
                   type="button"
                   onClick={(e) => {
                     e.stopPropagation()
                     setAskMenuOpen((v) => !v)
                   }}
-                  className="w-full h-7 px-2.5 rounded-lg bg-gradient-to-r from-blue-600 to-blue-500 text-white text-[11px] font-bold flex items-center justify-center gap-1 shadow-2xs active:scale-95 transition-all"
-                  title="Ask AI about this project"
+                  className={`relative w-full h-7 px-2.5 rounded-xs bg-primary hover:bg-primary-dark text-white text-[12px] font-medium flex items-center justify-center gap-1 transition-colors before:absolute before:-inset-2 before:content-[''] ${FOCUS}`}
+                  aria-haspopup="menu"
+                  aria-expanded={askMenuOpen}
                 >
-                  <ChatCenteredText size={13} weight="fill" />
+                  <ChatCenteredText size={13} weight="fill" aria-hidden="true" />
                   Ask AI
                 </button>
 
@@ -361,29 +407,21 @@ export default function ProjectCard({ project, userId, sessionId, index = 0, isS
                   {askMenuOpen && (
                     <m.div
                       role="menu"
-                      initial={{ opacity: 0, y: 6, scale: 0.95 }}
-                      animate={{ opacity: 1, y: 0, scale: 1 }}
-                      exit={{ opacity: 0, y: 4, scale: 0.95 }}
+                      initial={{ opacity: 0, y: 4 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: 4 }}
                       transition={{ duration: 0.15, ease: 'easeOut' }}
-                      className="absolute bottom-full left-0 mb-2 z-50 w-56 rounded-2xl bg-white dark:bg-[#1a1a1a] ring-1 ring-black/10 dark:ring-white/10 shadow-[0_12px_40px_rgba(0,0,0,0.25)] p-1.5 origin-bottom-left"
+                      className="absolute bottom-full left-0 mb-2 z-50 w-56 rounded-sm border border-border bg-surface dark:bg-zinc-900 shadow-md p-1"
                     >
                       {askPrompts.slice(0, 3).map((p) => (
                         <button
                           key={p.type}
+                          type="button"
                           role="menuitem"
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            setAskMenuOpen(false)
-                            track('ask_ai_tapped', { project_slug: project.slug, prompt_type: p.type })
-                            trackPropertyEvent(project.id, 'ask_ai', sessionId, userId).catch(() => {})
-                            window.dispatchEvent(
-                              new CustomEvent('propfyndr:ask-ai', { detail: { text: p.text, autoSend: true } }),
-                            )
-                            onAskAI(project)
-                          }}
-                          className="w-full flex items-center gap-2 px-2.5 py-2 rounded-xl text-left text-[12px] text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-white/5 transition-colors"
+                          onClick={(e) => runPrompt(e, p.type, p.text, true)}
+                          className={menuItemCls}
                         >
-                          <p.icon size={14} className="text-blue-600 dark:text-blue-400 shrink-0" />
+                          <p.icon size={14} className="text-primary shrink-0" aria-hidden="true" />
                           <span className="truncate">{p.label}</span>
                         </button>
                       ))}
@@ -397,46 +435,44 @@ export default function ProjectCard({ project, userId, sessionId, index = 0, isS
 
             <button
               type="button"
-              onClick={(e) => {
-                e.stopPropagation()
-                track('call_tapped', { project_slug: project.slug, project_name: project.name })
-                trackPropertyEvent(project.id, 'call', sessionId, userId).catch(() => {})
-                onCall?.(project)
-              }}
-              className="w-9 h-9 rounded-lg bg-gray-100 dark:bg-white/10 text-gray-700 dark:text-gray-200 flex items-center justify-center hover:bg-emerald-50 hover:text-emerald-600 transition-all active:scale-95 flex-shrink-0"
+              onClick={handleCall}
+              className={`relative z-10 w-9 h-9 rounded-xs bg-surface-3 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-200 flex items-center justify-center hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors flex-shrink-0 ${FOCUS}`}
+              aria-label={`Request a callback for ${project.name}`}
               title="Request a callback"
             >
-              <PhoneCall size={13} weight="bold" />
+              <PhoneCall size={14} weight="bold" aria-hidden="true" />
             </button>
 
             <button
               type="button"
               onClick={handleShareProject}
-              className="w-9 h-9 rounded-lg bg-gray-100 dark:bg-white/10 text-gray-700 dark:text-gray-200 flex items-center justify-center hover:bg-gray-200 dark:hover:bg-white/20 transition-all active:scale-95 flex-shrink-0"
+              className={`relative z-10 w-9 h-9 rounded-xs bg-surface-3 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-200 flex items-center justify-center hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors flex-shrink-0 ${FOCUS}`}
+              aria-label={`Share ${project.name}`}
               title="Share project"
             >
-              <ShareNetwork size={13} weight="bold" />
+              <ShareNetwork size={14} weight="bold" aria-hidden="true" />
             </button>
           </div>
 
           {quickActions && (
-            <div onClick={(e) => e.stopPropagation()} className="pt-1.5">
+            <div onClick={(e) => e.stopPropagation()} className="relative z-10 pt-1.5">
               {quickActions}
             </div>
           )}
         </div>
 
-        {/* Right: Dish / Property Thumbnail (35% width) */}
-        <div className="w-[110px] sm:w-[125px] rounded-2xl overflow-hidden relative bg-gray-100 dark:bg-gray-800 flex-shrink-0 self-stretch shadow-inner">
+        {/* Right: thumbnail */}
+        <div className="w-[110px] sm:w-[125px] rounded-sm overflow-hidden relative bg-surface-3 dark:bg-zinc-800 flex-shrink-0 self-stretch">
           {isSelectable && (
             <div className="absolute top-1.5 left-1.5 z-30">
               <button
                 type="button"
                 onClick={(e) => { e.stopPropagation(); onToggleSelect?.() }}
-                className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] transition-all shadow-md ${
-                  isSelected ? 'bg-blue-600 text-white font-extrabold ring-2 ring-white scale-105' : 'bg-black/60 text-white border border-white/40'
+                className={`relative w-6 h-6 rounded-full flex items-center justify-center text-[11px] transition-colors before:absolute before:-inset-2 before:content-[''] ${FOCUS} ${
+                  isSelected ? 'bg-primary text-white font-semibold ring-2 ring-white' : 'bg-black/60 text-white border border-white/40'
                 }`}
-                aria-label={isSelected ? 'Deselect property' : 'Select property'}
+                aria-label={isSelected ? `Deselect ${project.name}` : `Select ${project.name}`}
+                aria-pressed={isSelected}
               >
                 {isSelected ? '✓' : ''}
               </button>
@@ -454,8 +490,8 @@ export default function ProjectCard({ project, userId, sessionId, index = 0, isS
               sizes="130px"
             />
           ) : (
-            <div className="w-full h-full flex items-center justify-center bg-gray-100 dark:bg-[#1a1a1a]">
-              <Buildings size={28} weight="duotone" className="text-gray-400" />
+            <div className="w-full h-full flex items-center justify-center">
+              <Buildings size={28} weight="duotone" className="text-zinc-400" aria-hidden="true" />
             </div>
           )}
 
@@ -463,22 +499,24 @@ export default function ProjectCard({ project, userId, sessionId, index = 0, isS
           <button
             type="button"
             onClick={handleSave}
-            className="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-black/40 backdrop-blur-md text-white flex items-center justify-center hover:bg-black/60 transition-all z-10"
+            className={`absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-black/40 backdrop-blur-md text-white flex items-center justify-center hover:bg-black/60 transition-colors z-10 before:absolute before:-inset-2 before:content-[''] ${FOCUS}`}
+            aria-label={saved ? `Remove ${project.name} from saved` : `Save ${project.name}`}
+            aria-pressed={saved}
             title={saved ? 'Unsave' : 'Save'}
           >
-            {saved ? <BookmarkSimple size={12} weight="fill" /> : <BookmarkSimple size={12} weight="bold" />}
+            <BookmarkSimple size={12} weight={saved ? 'fill' : 'bold'} aria-hidden="true" />
           </button>
 
           {/* Distance Tag / Images count */}
           {project.distance_km && project.distance_km > 0 ? (
             <div className="absolute bottom-1.5 left-1.5 z-10">
-              <span className="px-1.5 py-0.5 rounded-md bg-black/50 backdrop-blur-md text-white text-[8.5px] font-bold">
+              <span className="px-1.5 py-0.5 rounded-xs bg-black/50 backdrop-blur-md text-white text-[11px] font-medium tabular-nums">
                 {project.distance_km.toFixed(1)} km
               </span>
             </div>
           ) : hasMultiple ? (
             <div className="absolute bottom-1.5 right-1.5 z-10">
-              <span className="px-1.5 py-0.5 rounded-md bg-black/50 backdrop-blur-md text-white text-[8.5px] font-bold">
+              <span className="px-1.5 py-0.5 rounded-xs bg-black/50 backdrop-blur-md text-white text-[11px] font-medium tabular-nums">
                 {imgIdx + 1}/{workingImages.length}
               </span>
             </div>
@@ -487,31 +525,35 @@ export default function ProjectCard({ project, userId, sessionId, index = 0, isS
       </div>
 
       {/* ════════════════════════════════════════════════════════════════════════
-          2. DESKTOP FULL BENTO CARD (Vertical Rich Layout)
+          2. DESKTOP CARD (vertical layout)
           ════════════════════════════════════════════════════════════════════════ */}
       <div className="hidden md:flex flex-col w-full h-full">
         {/* ── Hero image ── */}
-        <div className="relative h-[220px] overflow-hidden bg-gray-50 dark:bg-gray-900 flex-shrink-0">
+        <div className="relative h-[220px] overflow-hidden bg-surface-3 dark:bg-zinc-800 flex-shrink-0">
           {workingImages.length > 0 && !allFailed ? (
             <>
-              {workingImages.map((src, i) => (
-                <Image
-                  key={`${src}-${i}`}
-                  src={resolveImgUrl(src) || '/placeholder.png'}
-                  alt={project.name}
-                  fill
-                  priority={index < 3 && i === 0}
-                  onError={() => { if (src) markImageFailed(src) }}
-                  className={`object-cover transition-all duration-500 ${
-                    i === imgIdx ? 'opacity-100 scale-100' : 'opacity-0 scale-105 absolute inset-0'
-                  }`}
-                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 380px"
-                />
-              ))}
+              {/* Only the current image and the next one are mounted: the next
+                  is preloaded for the fade, the rest cost nothing until reached. */}
+              {workingImages.map((src, i) => {
+                const isNext = i === (imgIdx + 1) % workingImages.length
+                if (i !== imgIdx && !isNext) return null
+                return (
+                  <Image
+                    key={`${src}-${i}`}
+                    src={resolveImgUrl(src) || '/placeholder.png'}
+                    alt={i === imgIdx ? project.name : ''}
+                    fill
+                    priority={index < 3 && i === 0}
+                    onError={() => { if (src) markImageFailed(src) }}
+                    className={`object-cover transition-opacity duration-300 ${i === imgIdx ? 'opacity-100' : 'opacity-0'}`}
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 480px"
+                  />
+                )
+              })}
             </>
           ) : (
-            <div className="w-full h-full flex items-center justify-center bg-[#f5f5f5] dark:bg-[#111]">
-              <Buildings size={44} weight="duotone" className="text-gray-300 dark:text-gray-700" />
+            <div className="w-full h-full flex items-center justify-center">
+              <Buildings size={44} weight="duotone" className="text-zinc-300 dark:text-zinc-600" aria-hidden="true" />
             </div>
           )}
 
@@ -521,27 +563,28 @@ export default function ProjectCard({ project, userId, sessionId, index = 0, isS
               <button
                 type="button"
                 onClick={prevImg}
-                className="absolute left-2 top-1/2 -translate-y-1/2 w-7 h-7 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-sm rounded-full flex items-center justify-center text-gray-900 dark:text-white opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity z-10"
+                className={`absolute left-2 top-1/2 -translate-y-1/2 w-7 h-7 bg-surface dark:bg-zinc-800 border border-border rounded-full flex items-center justify-center text-zinc-900 dark:text-zinc-50 opacity-100 md:opacity-0 md:group-hover:opacity-100 focus-visible:opacity-100 transition-opacity z-10 ${FOCUS}`}
                 aria-label="Previous image"
               >
-                <CaretLeft size={14} weight="bold" />
+                <CaretLeft size={14} weight="bold" aria-hidden="true" />
               </button>
               <button
                 type="button"
                 onClick={nextImg}
-                className="absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-sm rounded-full flex items-center justify-center text-gray-900 dark:text-white opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity z-10"
+                className={`absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 bg-surface dark:bg-zinc-800 border border-border rounded-full flex items-center justify-center text-zinc-900 dark:text-zinc-50 opacity-100 md:opacity-0 md:group-hover:opacity-100 focus-visible:opacity-100 transition-opacity z-10 ${FOCUS}`}
                 aria-label="Next image"
               >
-                <CaretRight size={14} weight="bold" />
+                <CaretRight size={14} weight="bold" aria-hidden="true" />
               </button>
-              <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1 z-10 px-2 py-1 bg-black/40 rounded-full">
+              <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5 z-10 px-2 py-1 bg-black/40 rounded-full">
                 {workingImages.map((_, i) => (
                   <button
                     key={`dot-${i}`}
                     type="button"
-                    onClick={() => setImgIdx(i)}
-                    className={`rounded-full transition-all ${i === imgIdx ? 'w-3 h-1.5 bg-white' : 'w-1.5 h-1.5 bg-white/50 hover:bg-white/80'}`}
+                    onClick={(e) => { e.stopPropagation(); setImgIdx(i) }}
+                    className={`relative rounded-full transition-all before:absolute before:-inset-2 before:content-[''] ${FOCUS} ${i === imgIdx ? 'w-3 h-1.5 bg-white' : 'w-1.5 h-1.5 bg-white/50 hover:bg-white/80'}`}
                     aria-label={`Image ${i + 1}`}
+                    aria-current={i === imgIdx ? 'true' : undefined}
                   />
                 ))}
               </div>
@@ -550,23 +593,9 @@ export default function ProjectCard({ project, userId, sessionId, index = 0, isS
 
           {/* Status tag overlaid on image top-left */}
           <div className="absolute top-3 left-3 z-10">
-            <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full backdrop-blur-md border shadow-sm max-w-[170px] ${
-              isRTM 
-                ? 'bg-black/50 border-emerald-500/40 text-white' 
-                : isDelayed 
-                  ? 'bg-black/50 border-rose-500/50 text-white' 
-                  : 'bg-black/45 border-white/15 text-white'
-            }`} title={rawPossession || statusLabel}>
-              <div className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${
-                isRTM 
-                  ? 'bg-emerald-400' 
-                  : isDelayed 
-                    ? 'bg-rose-400' 
-                    : isNew 
-                      ? 'bg-blue-400' 
-                      : 'bg-amber-400'
-              }`} />
-              <span className="text-[10px] font-semibold tracking-wide truncate">
+            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full backdrop-blur-md bg-black/50 text-white max-w-[170px]" title={rawPossession || statusLabel}>
+              <div className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${statusDot}`} />
+              <span className="text-[11px] font-medium truncate">
                 {statusLabel}
               </span>
             </div>
@@ -578,14 +607,15 @@ export default function ProjectCard({ project, userId, sessionId, index = 0, isS
               <button
                 type="button"
                 onClick={(e) => { e.stopPropagation(); onToggleSelect?.() }}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all shadow-md cursor-pointer backdrop-blur-md ${
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[12px] font-medium transition-colors cursor-pointer backdrop-blur-md ${FOCUS} ${
                   isSelected
-                    ? 'bg-blue-600 text-white ring-2 ring-white/60 scale-105 shadow-blue-500/40'
-                    : 'bg-black/60 text-white hover:bg-black/80 border border-white/30 hover:scale-105'
+                    ? 'bg-primary text-white ring-2 ring-white/60'
+                    : 'bg-black/60 text-white hover:bg-black/80 border border-white/30'
                 }`}
-                aria-label={isSelected ? 'Deselect property' : 'Select property'}
+                aria-label={isSelected ? `Deselect ${project.name}` : `Select ${project.name}`}
+                aria-pressed={isSelected}
               >
-                <div className={`w-4 h-4 rounded-full flex items-center justify-center text-[10px] transition-transform ${isSelected ? 'bg-white text-blue-600 font-extrabold scale-110' : 'border border-white/70'}`} aria-hidden="true">
+                <div className={`w-4 h-4 rounded-full flex items-center justify-center text-[11px] ${isSelected ? 'bg-white text-primary font-semibold' : 'border border-white/70'}`} aria-hidden="true">
                   {isSelected ? '✓' : ''}
                 </div>
                 <span>{isSelected ? 'Selected' : 'Select'}</span>
@@ -596,35 +626,36 @@ export default function ProjectCard({ project, userId, sessionId, index = 0, isS
               <button
                 type="button"
                 onClick={handleSave}
-                className={`w-8 h-8 rounded-full flex items-center justify-center transition-all shadow-[0_2px_8px_rgba(0,0,0,0.15)] ${
-                  saved ? 'bg-black/40 backdrop-blur-md text-white' : 'bg-black/40 backdrop-blur-md text-white hover:bg-black/60 hover:scale-105'
-                }`}
+                className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors bg-black/40 backdrop-blur-md text-white hover:bg-black/60 ${FOCUS}`}
+                aria-label={saved ? `Remove ${project.name} from saved` : `Save ${project.name}`}
+                aria-pressed={saved}
                 title={saved ? 'Unsave' : 'Save property'}
               >
-                {saved ? <BookmarkSimple size={15} weight="fill" className="text-amber-400" /> : <BookmarkSimple size={15} weight="bold" />}
+                <BookmarkSimple size={15} weight={saved ? 'fill' : 'bold'} className={saved ? 'text-amber-400' : undefined} aria-hidden="true" />
               </button>
             </div>
           )}
         </div>
 
         {/* ── Body ── */}
-        <div className="px-5 pt-4 pb-5 flex-1 flex flex-col justify-between bg-white dark:bg-[#111]">
+        <div className="px-5 pt-4 pb-5 flex-1 flex flex-col justify-between">
           <div>
+            {topPickEyebrow}
             {/* Name row + RERA + Distance */}
-            <div className="flex items-start justify-between gap-2 mb-1 min-h-[26px]">
-              <h3 className="text-[17px] font-bold text-gray-900 dark:text-gray-100 tracking-tight leading-snug truncate" title={project.name}>
-                {project.name}
+            <div className="flex items-start justify-between gap-2 mb-1 min-h-[24px]">
+              <h3 className="min-w-0 text-[17px] font-semibold text-zinc-900 dark:text-zinc-50 leading-snug">
+                {nameButton}
               </h3>
               <div className="flex-shrink-0 flex gap-1 items-center">
                 {project.distance_km && project.distance_km > 0 && (
-                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800/40 text-[10px] font-medium text-blue-600 dark:text-blue-400 whitespace-nowrap">
-                    <MapPinLine size={10} weight="fill" />
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-surface-3 dark:bg-zinc-800 text-[11px] font-medium text-zinc-600 dark:text-zinc-300 whitespace-nowrap tabular-nums">
+                    <MapPinLine size={11} weight="fill" aria-hidden="true" />
                     {project.distance_km.toFixed(1)} km
                   </span>
                 )}
                 {project.rera_number && (
-                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-100 dark:border-emerald-800/40 text-[10px] font-medium text-emerald-600 dark:text-emerald-400 tracking-wide uppercase">
-                    <ShieldCheck size={12} weight="fill" className="text-emerald-500" />
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/10 text-[11px] font-medium text-emerald-700 dark:text-emerald-300">
+                    <ShieldCheck size={12} weight="fill" aria-hidden="true" />
                     RERA
                   </span>
                 )}
@@ -632,51 +663,41 @@ export default function ProjectCard({ project, userId, sessionId, index = 0, isS
             </div>
 
             {/* Builder & Location Subtitle */}
-            <div className="flex items-center gap-1.5 text-[12.5px] text-gray-600 dark:text-gray-300 mb-2 min-h-[20px]">
-              <span className="font-semibold text-gray-800 dark:text-gray-200 truncate">
-                {typeof project.builder === 'object' ? project.builder?.name : project.builder}
+            <div className="flex items-center gap-1.5 text-[13px] text-zinc-600 dark:text-zinc-300 mb-2 min-h-[20px]">
+              <span className="font-medium text-zinc-800 dark:text-zinc-200 truncate">
+                {builderName}
               </span>
               <span className="opacity-40 shrink-0">·</span>
-              <span className="truncate opacity-80 shrink-0">{project.sector}</span>
+              <span className="truncate shrink-0">{project.sector}</span>
             </div>
 
-            {/* Ground Truth & Forensic Badges Strip */}
-            {(project.oc_status || project.amitabh_kant_clearance || project.shahdara_drain_impact || project.water_source_type === 'GANGA_JAL') && (
+            {/* Ground-truth facts */}
+            {metaFacts.length > 0 && (
               <div className="flex items-center gap-1.5 flex-wrap mb-2.5">
-                {project.oc_status === 'FULL_OC' && (
-                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60 text-[10px] font-bold text-emerald-700 dark:text-emerald-300 uppercase tracking-wider">
-                    Full OC
+                {metaFacts.map(f => (
+                  <span
+                    key={f.text}
+                    className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-xs text-[11px] font-medium ${
+                      f.warn
+                        ? 'bg-amber-500/10 text-amber-800 dark:text-amber-300'
+                        : 'bg-surface-3 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300'
+                    }`}
+                  >
+                    {f.warn && <Warning size={11} weight="fill" aria-hidden="true" />}
+                    {f.text === 'Ganga Jal supply' && <Drop size={11} weight="fill" aria-hidden="true" />}
+                    {f.text}
                   </span>
-                )}
-                {project.oc_status === 'PHASED_OC' && (
-                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 text-[10px] font-bold text-amber-700 dark:text-amber-300 uppercase tracking-wider">
-                    Phased OC
-                  </span>
-                )}
-                {project.amitabh_kant_clearance && (
-                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800/60 text-[10px] font-bold text-blue-700 dark:text-blue-300">
-                    Registry Cleared
-                  </span>
-                )}
-                {project.shahdara_drain_impact ? (
-                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800/60 text-[10px] font-semibold text-rose-700 dark:text-rose-300" title="Near Shahdara drain corridor — microclimate impact noted">
-                    ⚠️ Drain Impact
-                  </span>
-                ) : project.water_source_type === 'GANGA_JAL' ? (
-                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-cyan-50 dark:bg-cyan-950/40 border border-cyan-200 dark:border-cyan-800/60 text-[10px] font-semibold text-cyan-700 dark:text-cyan-300" title="Ganga Jal municipal pipeline supply verified">
-                    💧 Ganga Jal
-                  </span>
-                ) : null}
+                ))}
               </div>
             )}
 
-            {/* Price — big hero number, for the size asked for when one was */}
-            <div className="mb-3.5 min-h-[28px] flex items-baseline gap-1.5 flex-wrap">
-              <p className="text-[22px] sm:text-[24px] font-bold text-gray-900 dark:text-gray-50 tracking-tight leading-none">
-                {sanitizePriceLabel(project.price_range_label)}
+            {/* Price — for the size asked for when one was */}
+            <div className="mb-3 min-h-[24px] flex items-baseline gap-1.5 flex-wrap">
+              <p className="text-[17px] font-semibold text-zinc-900 dark:text-zinc-50 leading-none tabular-nums">
+                {price}
               </p>
               {project.price_for_bhk && (
-                <span className="text-[11px] font-semibold text-gray-500 dark:text-gray-400 leading-none">
+                <span className="text-[11px] font-medium text-zinc-500 dark:text-zinc-400 leading-none">
                   {project.price_for_bhk}
                 </span>
               )}
@@ -685,10 +706,12 @@ export default function ProjectCard({ project, userId, sessionId, index = 0, isS
                 on the card is the difference between a near-miss they can judge
                 and a result that looks like a match until they open it. */}
             {project.missing_bhk && project.missing_bhk.length > 0 && (
-              <p className="-mt-2.5 mb-3 text-[11px] font-medium text-amber-700 dark:text-amber-400">
+              <p className="-mt-2 mb-3 text-[11px] font-medium text-amber-800 dark:text-amber-300">
                 No {project.missing_bhk.join('/')} BHK in this project
               </p>
             )}
+
+            {fitBlock && <div className="mb-3 min-h-[76px]">{fitBlock}</div>}
 
             {/* Configurations — fixed-height slot, sized to its worst case.
                 It was capped at 56px with overflow-hidden, which fits two rows
@@ -708,22 +731,20 @@ export default function ProjectCard({ project, userId, sessionId, index = 0, isS
               // panel under a finger that was only scrolling past.
               onMouseEnter={() => { if (canHover && bhkGroups.length > 2) setShowAllConfigs(true) }}
               onMouseLeave={() => { if (canHover) setShowAllConfigs(false) }}
-              className="relative min-h-[76px] max-h-[76px] flex flex-col justify-center gap-1 mb-4"
+              className="relative z-10 min-h-[76px] max-h-[76px] flex flex-col justify-center gap-1 mb-4"
             >
+              {bhkGroups.length === 0 && (
+                <p className="text-[12px] text-zinc-500 dark:text-zinc-400">Configurations not listed</p>
+              )}
               {bhkGroups.slice(0, 2).map(g => (
-                <div key={g.bhk} className="flex items-center text-[12.5px] group">
-                  <span className="font-semibold text-gray-800 dark:text-gray-200 shrink-0">{g.bhk} BHK</span>
-                  <div className="flex-1 mx-2 border-b border-dotted border-gray-300 dark:border-gray-700/60" />
-                  <span className="text-[11.5px] text-gray-500 dark:text-gray-400 font-medium text-right truncate shrink-0 max-w-[140px]">
+                <div key={g.bhk} className="flex items-center text-[13px]">
+                  <span className="font-medium text-zinc-800 dark:text-zinc-200 shrink-0">{g.bhk} BHK</span>
+                  <div className="flex-1 mx-2 border-b border-dotted border-zinc-300 dark:border-zinc-700" />
+                  <span className="text-[12px] text-zinc-500 dark:text-zinc-400 text-right truncate shrink-0 max-w-[140px] tabular-nums">
                     {g.areas.slice(0, 2).join(', ')}
                   </span>
                 </div>
               ))}
-              {bhkGroups.length === 1 && (
-                <div className="flex items-center text-[11px] text-gray-400 dark:text-gray-500 font-medium">
-                  <span className="truncate">All units verified with active RERA floor plans</span>
-                </div>
-              )}
               {bhkGroups.length > 2 && (
                 <button
                   type="button"
@@ -733,9 +754,9 @@ export default function ProjectCard({ project, userId, sessionId, index = 0, isS
                     setShowAllConfigs(v => !v)
                   }}
                   aria-expanded={showAllConfigs}
-                  className="self-start text-[10.5px] font-semibold text-blue-600 dark:text-blue-400 hover:underline cursor-pointer truncate"
+                  className={`self-start text-[11px] font-medium text-primary hover:underline cursor-pointer truncate rounded-xs ${FOCUS}`}
                 >
-                  {showAllConfigs ? 'Show fewer' : `+${bhkGroups.length - 2} more configurations available`}
+                  {showAllConfigs ? 'Show fewer' : `+${bhkGroups.length - 2} more configurations`}
                 </button>
               )}
 
@@ -746,17 +767,17 @@ export default function ProjectCard({ project, userId, sessionId, index = 0, isS
                   scrolls if it needs to. The grid never reflows. */}
               {showAllConfigs && bhkGroups.length > 2 && (
                 <div
-                  className="absolute inset-x-0 -top-1 z-20 max-h-[128px] overflow-y-auto overscroll-contain rounded-xl border border-gray-200 dark:border-zinc-700 bg-white dark:bg-[#161616] shadow-lg p-2.5"
+                  className="absolute inset-x-0 -top-1 z-20 max-h-[128px] overflow-y-auto overscroll-contain rounded-sm border border-border bg-surface dark:bg-zinc-900 shadow-md p-2.5"
                   onClick={e => e.stopPropagation()}
                 >
-                  <p className="text-[9.5px] font-bold uppercase tracking-wider text-gray-400 mb-1.5">
+                  <p className="text-[11px] font-semibold text-zinc-500 mb-1.5">
                     All configurations
                   </p>
                   {bhkGroups.map(g => (
                     <div key={g.bhk} className="flex items-center text-[12px] py-0.5">
-                      <span className="font-semibold text-gray-800 dark:text-gray-200 shrink-0">{g.bhk} BHK</span>
-                      <div className="flex-1 mx-2 border-b border-dotted border-gray-300 dark:border-gray-700/60" />
-                      <span className="text-[11px] text-gray-500 dark:text-gray-400 font-medium text-right shrink-0">
+                      <span className="font-medium text-zinc-800 dark:text-zinc-200 shrink-0">{g.bhk} BHK</span>
+                      <div className="flex-1 mx-2 border-b border-dotted border-zinc-300 dark:border-zinc-700" />
+                      <span className="text-[11px] text-zinc-500 dark:text-zinc-400 text-right shrink-0 tabular-nums">
                         {g.areas.join(', ')}
                       </span>
                     </div>
@@ -770,19 +791,18 @@ export default function ProjectCard({ project, userId, sessionId, index = 0, isS
           <div className="mt-auto">
           <div className="flex items-center justify-between gap-3 pt-2">
             {onAskAI ? (
-              <div className="relative flex-1" ref={askMenuRef}>
+              <div className="relative z-10 flex-1" ref={askMenuRef}>
                 <button
                   type="button"
                   onClick={(e) => {
                     e.stopPropagation()
                     setAskMenuOpen((v) => !v)
                   }}
-                  className="w-full flex items-center justify-center gap-2 px-4 h-11 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 text-white text-[13px] font-semibold shadow-[0_4px_12px_rgba(37,99,235,0.3)] hover:from-blue-700 hover:to-blue-600 hover:shadow-[0_6px_16px_rgba(37,99,235,0.4)] active:scale-95 transition-all duration-200"
-                  title="Ask AI about this project"
+                  className={`w-full flex items-center justify-center gap-2 px-4 h-11 rounded-xs bg-primary hover:bg-primary-dark text-white text-[13px] font-medium transition-colors ${FOCUS}`}
                   aria-haspopup="menu"
                   aria-expanded={askMenuOpen}
                 >
-                  <ChatCenteredText size={16} weight="fill" />
+                  <ChatCenteredText size={16} weight="fill" aria-hidden="true" />
                   Ask AI
                 </button>
 
@@ -790,30 +810,21 @@ export default function ProjectCard({ project, userId, sessionId, index = 0, isS
                   {askMenuOpen && (
                     <m.div
                       role="menu"
-                      initial={{ opacity: 0, y: 6, scale: 0.95 }}
-                      animate={{ opacity: 1, y: 0, scale: 1 }}
-                      exit={{ opacity: 0, y: 4, scale: 0.95 }}
+                      initial={{ opacity: 0, y: 4 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: 4 }}
                       transition={{ duration: 0.15, ease: 'easeOut' }}
-                      className="absolute bottom-full left-0 mb-3 z-50 w-64 rounded-2xl bg-white dark:bg-[#1a1a1a] ring-1 ring-black/10 dark:ring-white/10 shadow-[0_12px_40px_rgba(0,0,0,0.2)] p-2 origin-bottom-left"
+                      className="absolute bottom-full left-0 mb-2 z-50 w-64 rounded-sm border border-border bg-surface dark:bg-zinc-900 shadow-md p-1"
                     >
                       {askPrompts.map((p) => (
                         <button
                           key={p.type}
                           role="menuitem"
                           type="button"
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            setAskMenuOpen(false)
-                            track('ask_ai_tapped', { project_slug: project.slug, prompt_type: p.type })
-                            trackPropertyEvent(project.id, 'ask_ai', sessionId, userId).catch(() => {})
-                            window.dispatchEvent(
-                              new CustomEvent('propfyndr:ask-ai', { detail: { text: p.text, autoSend: true } }),
-                            )
-                            onAskAI(project)
-                          }}
-                          className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-left text-[13px] text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-white/5 transition-colors"
+                          onClick={(e) => runPrompt(e, p.type, p.text, true)}
+                          className={menuItemCls}
                         >
-                          <p.icon size={16} className="text-blue-600 dark:text-blue-400 shrink-0" />
+                          <p.icon size={16} className="text-primary shrink-0" aria-hidden="true" />
                           <span className="truncate">{p.label}</span>
                         </button>
                       ))}
@@ -821,18 +832,10 @@ export default function ProjectCard({ project, userId, sessionId, index = 0, isS
                       <button
                         role="menuitem"
                         type="button"
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          setAskMenuOpen(false)
-                          track('ask_ai_tapped', { project_slug: project.slug, prompt_type: 'freeform' })
-                          window.dispatchEvent(
-                            new CustomEvent('propfyndr:ask-ai', { detail: { text: `Tell me more about ${project.name}`, autoSend: false } }),
-                          )
-                          onAskAI(project)
-                        }}
-                        className="w-full flex items-center gap-2.5 px-3 py-2.5 mt-1 rounded-xl text-left text-[13px] font-medium text-gray-500 dark:text-gray-400 border-t border-black/5 dark:border-white/5 hover:bg-gray-100 dark:hover:bg-white/5 transition-colors"
+                        onClick={(e) => runPrompt(e, 'freeform', `Tell me more about ${project.name}`, false)}
+                        className={`${menuItemCls} mt-1 border-t border-border text-zinc-500 dark:text-zinc-400`}
                       >
-                        <PencilSimple size={16} className="shrink-0" />
+                        <PencilSimple size={16} className="shrink-0" aria-hidden="true" />
                         <span>Ask something else…</span>
                       </button>
                     </m.div>
@@ -846,29 +849,26 @@ export default function ProjectCard({ project, userId, sessionId, index = 0, isS
             <div className="flex items-center gap-1">
               <button
                 type="button"
-                onClick={(e) => {
-                  e.stopPropagation()
-                  track('call_tapped', { project_slug: project.slug, project_name: project.name })
-                  trackPropertyEvent(project.id, 'call', sessionId, userId).catch(() => {})
-                  onCall?.(project)
-                }}
-                className="w-9 h-9 rounded-full bg-zinc-100/80 dark:bg-zinc-800/80 text-zinc-900 dark:text-white flex items-center justify-center hover:bg-emerald-50 dark:hover:bg-emerald-950/50 hover:text-emerald-600 dark:hover:text-emerald-400 transition-all duration-200 active:scale-95 group shadow-2xs"
+                onClick={handleCall}
+                className={`relative z-10 w-10 h-10 rounded-full bg-surface-3 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-50 flex items-center justify-center hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors ${FOCUS}`}
+                aria-label={`Request a callback for ${project.name}`}
                 title="Request a callback"
               >
-                <PhoneCall size={15} weight="bold" className="text-zinc-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 group-hover:scale-110 transition-transform duration-200" />
+                <PhoneCall size={15} weight="bold" aria-hidden="true" />
               </button>
               <button
                 type="button"
                 onClick={handleShareProject}
-                className="w-10 h-10 rounded-full bg-transparent text-gray-700 dark:text-gray-300 flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors active:scale-95"
+                className={`relative z-10 w-10 h-10 rounded-full text-zinc-500 dark:text-zinc-400 flex items-center justify-center hover:bg-surface-3 dark:hover:bg-zinc-800 transition-colors ${FOCUS}`}
+                aria-label={`Share ${project.name}`}
                 title="Share project"
               >
-                <ShareNetwork size={16} className="text-gray-500 dark:text-gray-400" />
+                <ShareNetwork size={16} aria-hidden="true" />
               </button>
             </div>
           </div>
           {quickActions && (
-            <div onClick={(e) => e.stopPropagation()} className="pt-2">
+            <div onClick={(e) => e.stopPropagation()} className="relative z-10 pt-2">
               {quickActions}
             </div>
           )}

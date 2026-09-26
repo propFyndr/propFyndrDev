@@ -78,31 +78,35 @@ export interface MarkdownProps {
 export default function Markdown({ children, components, raw = false }: MarkdownProps) {
   const processed = beautifyMarkdown(children)
 
+  // The one prose wrapper for every answer surface. Reading width is capped on
+  // the text elements, not here, so tables and embedded cards keep full width.
   return (
-    <div className="prose prose-slate dark:prose-invert max-w-none text-[14.5px] sm:text-[15.5px] leading-[1.75] text-slate-800 dark:text-zinc-200">
+    <div className="prose prose-zinc dark:prose-invert max-w-none text-[15px] leading-[1.6] text-zinc-800 dark:text-zinc-200">
       <ReactMarkdown
         remarkPlugins={REMARK_PLUGINS}
         rehypePlugins={raw ? REHYPE_PLUGINS : undefined}
         components={{
-          p: ({ children }) => <p className="mb-3 leading-[1.75] font-normal">{children}</p>,
-          ul: ({ children }) => <ul className="my-2.5 space-y-2 list-none pl-0">{children}</ul>,
-          ol: ({ children }) => <ol className="my-2.5 space-y-2 list-decimal list-inside pl-1">{children}</ol>,
-          li: ({ children }) => (
-            <li className="leading-[1.7] text-slate-700 dark:text-zinc-300 font-normal pl-3 border-l-2 border-blue-500/40 dark:border-blue-500/30 my-1.5 py-0.5">
-              {children}
-            </li>
-          ),
-          h3: ({ children }) => <h3 className="text-base sm:text-lg font-bold tracking-tight text-slate-900 dark:text-white mt-4 mb-2">{children}</h3>,
-          h4: ({ children }) => <h4 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 mt-3.5 mb-1.5">{children}</h4>,
+          p: ({ children }) => <p className="my-3 max-w-[68ch] leading-[1.6]">{children}</p>,
+          ul: ({ children }) => <ul className="my-3 max-w-[68ch] list-disc pl-5 marker:text-zinc-400">{children}</ul>,
+          ol: ({ children }) => <ol className="my-3 max-w-[68ch] list-decimal pl-5 marker:text-zinc-400">{children}</ol>,
+          li: ({ children }) => <li className="my-1 pl-0 leading-[1.6]">{children}</li>,
+          h1: ({ children }) => <h2 className="max-w-[68ch] text-[17px] font-semibold text-zinc-900 dark:text-zinc-50 mt-5 mb-2">{children}</h2>,
+          h2: ({ children }) => <h2 className="max-w-[68ch] text-[17px] font-semibold text-zinc-900 dark:text-zinc-50 mt-5 mb-2">{children}</h2>,
+          h3: ({ children }) => <h3 className="max-w-[68ch] text-[15px] font-semibold text-zinc-900 dark:text-zinc-50 mt-4 mb-1.5">{children}</h3>,
+          h4: ({ children }) => <h4 className="max-w-[68ch] text-[15px] font-medium text-zinc-900 dark:text-zinc-50 mt-3 mb-1">{children}</h4>,
+          blockquote: ({ children }) => <blockquote className="max-w-[68ch] border-l-2 border-zinc-300 dark:border-zinc-700 pl-4 not-italic text-zinc-600 dark:text-zinc-400">{children}</blockquote>,
+          a: ({ node, ...props }) => <a {...props} className="text-primary hover:underline" />,
           table: ({ children }) => (
-            <div className="my-3.5 overflow-x-auto rounded-xl border border-gray-200/80 dark:border-zinc-800 shadow-xs touch-pan-y overscroll-x-contain">
-              <table className="w-full text-left text-[11.5px] sm:text-sm divide-y divide-gray-200 dark:divide-zinc-800">{children}</table>
+            <div className="not-prose my-3 overflow-x-auto rounded-sm border border-border touch-pan-y overscroll-x-contain">
+              <table className="w-full border-collapse text-left text-[13px] text-zinc-800 dark:text-zinc-200">{children}</table>
             </div>
           ),
-          th: ({ children }) => <th className="bg-gray-100/90 dark:bg-zinc-800/90 px-3 py-2 font-semibold text-slate-900 dark:text-white border-b border-gray-200 dark:border-zinc-700 whitespace-nowrap text-xs sm:text-sm">{children}</th>,
-          td: ({ children }) => <td className="px-3 py-2 border-b border-gray-100 dark:border-zinc-800/60 text-xs sm:text-sm">{children}</td>,
-          strong: ({ children }) => <strong className="font-semibold text-slate-900 dark:text-white">{children}</strong>,
-          em: ({ children }) => <span className="inline-block px-1.5 py-0.2 rounded bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 text-[11px] sm:text-xs font-medium not-italic ml-1 mr-0.5">{children}</span>,
+          th: ({ node, style, ...props }) => <th style={style} className="bg-surface-2 dark:bg-zinc-900 px-3 py-2 text-[12px] font-semibold text-zinc-600 dark:text-zinc-300 border-b border-border whitespace-nowrap" {...props} />,
+          // GFM column alignment (`|---:|`) arrives as style; passing it through
+          // is what lets money columns sit right-aligned.
+          td: ({ node, style, ...props }) => <td style={style} className="px-3 py-2 border-b border-border align-top tabular-nums" {...props} />,
+          strong: ({ children }) => <strong className="font-semibold text-zinc-900 dark:text-zinc-50">{children}</strong>,
+          em: ({ children }) => <em className="italic">{children}</em>,
           ...components,
         }}
       >

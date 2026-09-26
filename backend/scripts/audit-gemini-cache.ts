@@ -32,7 +32,7 @@ const MODEL = process.argv[2] || MODELS.GEMINI_LITE
 
 /** Comfortably past every documented implicit-cache minimum. */
 const PREFIX = (
-  'You are RealtyPal, a candid expert real estate advisor for Noida. ' +
+  'You are PropFyndr, a candid expert real estate advisor for Noida. ' +
   'Rule: never invent data. Rule: show trade-offs. Rule: cite the tier of every fact. '
 ).repeat(220)
 

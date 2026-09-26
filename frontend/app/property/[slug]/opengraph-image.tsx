@@ -75,7 +75,7 @@ export default async function OgImage({ params }: { params: Promise<{ slug: stri
           <div
             style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 28, color: 'rgba(255,255,255,0.7)', fontSize: 26 }}
           >
-            Reviewed with RealtyPal AI
+            Reviewed with PropFyndr AI
           </div>
         </div>
       </div>

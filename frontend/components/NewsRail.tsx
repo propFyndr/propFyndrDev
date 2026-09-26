@@ -18,7 +18,7 @@
  */
 
 import React, { useCallback, useEffect, useState } from 'react'
-import { ArrowSquareOut } from '@phosphor-icons/react'
+import { ArrowRight } from '@phosphor-icons/react'
 import { AnimatePresence, m, useReducedMotion } from 'framer-motion'
 import { API_BASE } from '@/lib/env'
 
@@ -39,7 +39,7 @@ export interface BuilderNewsItem {
   } | null
 }
 
-const ROTATE_INTERVAL_MS = 3400
+const ROTATE_INTERVAL_MS = 6000
 
 export default function NewsRail() {
   const [items, setItems] = useState<BuilderNewsItem[]>([])
@@ -50,7 +50,7 @@ export default function NewsRail() {
   // Honours prefers-reduced-motion. The CSS block in globals.css and the
   // <MotionConfig reducedMotion="user"> in app/layout.tsx already flatten the
   // slide and the pulse, but neither can see a setInterval — an element
-  // swapping its own content every 3.4s is motion whatever the transition does.
+  // swapping its own content every 6s is motion whatever the transition does.
   const reduceMotion = useReducedMotion()
   const rotating = !paused && !reduceMotion && items.length > 1
 
@@ -128,7 +128,7 @@ export default function NewsRail() {
     : `Ask the advisor about this update: ${current.title}`
 
   return (
-    <div className="w-full max-w-[800px] flex items-center justify-center mt-2.5 mb-1 px-3 sm:px-4 select-none">
+    <div className="w-full flex items-center justify-center mt-2.5 mb-1 select-none">
       <button
         type="button"
         onClick={() => handleTrigger(current)}
@@ -142,33 +142,26 @@ export default function NewsRail() {
         onTouchCancel={() => setPaused(false)}
         aria-label={label}
         title="Ask the AI advisor about this update"
-        className="group relative inline-flex items-center gap-2 sm:gap-2.5 py-1.5 px-3 sm:px-3.5 rounded-full bg-transparent hover:bg-black/[0.04] dark:hover:bg-white/[0.06] active:scale-[0.98] transition-all duration-200 cursor-pointer max-w-full w-full sm:w-auto text-left min-h-[38px] sm:min-h-[32px]"
+        className="group relative inline-flex items-center gap-2 sm:gap-2.5 py-1.5 px-3 sm:px-3.5 rounded-full bg-transparent hover:bg-surface-3 dark:hover:bg-zinc-800 transition-colors duration-150 cursor-pointer max-w-full w-full sm:w-auto text-left min-h-[38px] sm:min-h-[32px]"
       >
-        {/* Live broadcast badge. The pulse is decorative and carries no state,
-            so the reduced-motion block in globals.css stopping it loses nothing. */}
-        <span
-          aria-hidden="true"
-          className="inline-flex items-center gap-1 sm:gap-1.5 px-1.5 sm:px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] font-bold tracking-wider uppercase bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20 shrink-0"
-        >
-          <span className="relative flex h-1.5 w-1.5">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-rose-500"></span>
-          </span>
-          LIVE
+        {/* Plain label, not a pulsing "LIVE" badge — this is a builder's own
+            announcement, and dressing it as breaking news oversells it. */}
+        <span aria-hidden="true" className="text-xs text-text-muted shrink-0">
+          Builder update
         </span>
 
         {current.builder?.name && (
           <span
             aria-hidden="true"
-            className="text-[11.5px] sm:text-[12px] font-semibold text-zinc-900 dark:text-zinc-100 shrink-0 max-w-[90px] sm:max-w-none truncate"
+            className="text-[13px] font-semibold text-text-primary shrink-0 max-w-[90px] sm:max-w-none truncate"
           >
             {current.builder.name}
-            <span className="text-zinc-400 dark:text-zinc-500 font-normal ml-1">·</span>
+            <span className="text-text-muted font-normal ml-1">·</span>
           </span>
         )}
 
         {/* Announced only when it is NOT auto-advancing. A polite live region
-            that fires every 3.4 seconds talks over everything else a screen
+            that fires every 6 seconds talks over everything else a screen
             reader user is trying to do; once rotation is paused or reduced, a
             change is something they caused and is worth hearing. */}
         <div
@@ -183,18 +176,20 @@ export default function NewsRail() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -6 }}
               transition={{ duration: 0.26, ease: [0.16, 1, 0.3, 1] }}
-              className="text-[11.5px] sm:text-[12.5px] font-medium tracking-tight text-zinc-600 dark:text-zinc-300 group-hover:text-[#0066cc] dark:group-hover:text-[#2997ff] transition-colors truncate block"
+              className="text-[13px] font-medium text-text-secondary group-hover:text-primary transition-colors truncate block"
             >
               {current.title}
             </m.span>
           </AnimatePresence>
         </div>
 
-        <ArrowSquareOut
+        {/* ArrowRight, not an external-link glyph: a tap asks the advisor, it
+            never leaves the page. */}
+        <ArrowRight
           size={13}
           weight="bold"
           aria-hidden="true"
-          className="text-zinc-400 dark:text-zinc-500 group-hover:text-[#0066cc] dark:group-hover:text-[#2997ff] group-hover:translate-x-0.5 shrink-0 opacity-70 group-hover:opacity-100 transition-all duration-150"
+          className="text-text-muted group-hover:text-primary shrink-0 transition-colors duration-150"
         />
       </button>
     </div>

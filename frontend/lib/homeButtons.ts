@@ -36,7 +36,7 @@ export const HOME_BUTTON_GROUPS: HomeButtonGroup[] = [
   },
   {
     id: 'budget_3bhk',
-    title: 'Is ₹2 Cr Fair for 3 BHK?',
+    title: 'Is ₹2 Cr fair for 3 BHK?',
     primaryPrompt: 'Is 2 crore too much for a 3 BHK in Noida right now?',
     icon: 'CurrencyInr',
     colorClass: 'bg-amber-50 text-amber-600 dark:bg-amber-950/60 dark:text-amber-400 group-hover/main:bg-amber-600 group-hover/main:text-white',
@@ -46,7 +46,7 @@ export const HOME_BUTTON_GROUPS: HomeButtonGroup[] = [
         prompt: 'Give me a sector-wise benchmark table for 3 BHK prices in Noida and Greater Noida.'
       },
       {
-        label: 'Best 3 BHK under 2 Crore',
+        label: 'Best 3 BHK under 2 crore',
         prompt: 'Show me the best verified 3 BHK options in Noida under 2 crore budget.'
       },
       {
@@ -78,7 +78,7 @@ export const HOME_BUTTON_GROUPS: HomeButtonGroup[] = [
   },
   {
     id: 'sec75_metro',
-    title: 'Sector 75 Metro Flats',
+    title: 'Sector 75 metro flats',
     primaryPrompt: 'Show me 3 BHK ready to move flats in Sector 75 within walking distance to metro.',
     icon: 'Building2',
     colorClass: 'bg-blue-50 text-blue-600 dark:bg-blue-950/60 dark:text-blue-400 group-hover/main:bg-blue-600 group-hover/main:text-white',

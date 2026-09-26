@@ -32,6 +32,9 @@ type EventName =
   | 'ask_ai_tapped'
   | 'call_tapped'
   | 'share_tapped'
+  // A dossier link copied, opened or sent. Creation itself is recorded
+  // server-side as a row in `dossiers` — the buyer-report high-intent event.
+  | 'dossier_shared'
   | 'property_feedback_submitted'
   | 'quick_button_clicked'
   | 'session_resumed'

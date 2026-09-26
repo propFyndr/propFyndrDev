@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
+import Link from 'next/link'
 import {
   X,
   Smartphone,
@@ -36,14 +37,35 @@ import {
   Mail,
   MapPin,
   Layers,
-  ArrowUpRight
+  ArrowUpRight,
+  Plus
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { adminFetch } from '@/lib/adminFetch'
 import CustomSelect from '@/components/admin/CustomSelect'
+import { Iphone } from '@/components/ui/iphone'
+import { Safari } from '@/components/ui/safari'
+import { GmailLogo, OutlookLogo, AppleMailLogo } from '@/components/ui/EmailClientIcons'
 
 export type EmailTemplateType = 'builder_pitch' | 'team_invite'
 export type ClientPreviewType = 'gmail' | 'outlook' | 'mobile'
+
+// Case-insensitive project deduplication helper
+export const dedupeProjectNames = (list: (string | undefined | null)[]): string[] => {
+  const seen = new Set<string>()
+  const result: string[] = []
+  for (const item of list) {
+    if (!item) continue
+    const trimmed = item.trim()
+    if (!trimmed) continue
+    const key = trimmed.toLowerCase()
+    if (!seen.has(key)) {
+      seen.add(key)
+      result.push(trimmed)
+    }
+  }
+  return result
+}
 
 interface EmailPreviewModalProps {
   isOpen: boolean
@@ -95,7 +117,8 @@ export default function EmailPreviewModal({
   const [recipientEmail, setRecipientEmail] = useState(defaultRecipientEmail)
   const [recipientPhone, setRecipientPhone] = useState(defaultRecipientPhone)
   const [projectName, setProjectName] = useState(defaultProjectName)
-  const [projectsList, setProjectsList] = useState<string[]>(defaultProjectsList)
+  const [projectsList, setProjectsList] = useState<string[]>(dedupeProjectNames(defaultProjectsList))
+  const [newProjectInput, setNewProjectInput] = useState('')
   const [targetCity, setTargetCity] = useState(defaultTargetCity)
   const [senderName, setSenderName] = useState(defaultSenderName)
   const [senderTitle, setSenderTitle] = useState(defaultSenderTitle)
@@ -109,7 +132,7 @@ export default function EmailPreviewModal({
       setRecipientEmail(defaultRecipientEmail || 'partnerships@aadhaar-shri.com')
       setRecipientPhone(defaultRecipientPhone || '')
       setProjectName(defaultProjectName || 'Everest')
-      setProjectsList(defaultProjectsList || [])
+      setProjectsList(dedupeProjectNames(defaultProjectsList || []))
       setTargetCity(defaultTargetCity || 'Delhi-NCR & Greater Noida')
       if (defaultSenderName) setSenderName(defaultSenderName)
       if (defaultSenderPhone) setSenderPhone(defaultSenderPhone)
@@ -129,6 +152,56 @@ export default function EmailPreviewModal({
     defaultSenderTitle,
   ])
 
+  // Computed all-projects list for this developer or partner (strictly deduplicated)
+  const allProjects = React.useMemo(() => {
+    if (projectsList && projectsList.length > 0) {
+      return dedupeProjectNames(projectsList)
+    }
+    const nameLower = (recipientName || '').toLowerCase()
+    if (nameLower.includes('ace')) {
+      return ['Ace Starlit', 'Ace Parkway', 'Ace Divino', 'Ace Palm Floors']
+    }
+    if (nameLower.includes('aadhaar')) {
+      return ['Gayatri Life', 'Aadhaar Shri Height', 'Aadhaar Greens']
+    }
+    if (nameLower.includes('mahagun')) {
+      return ['Mahagun Manorialle', 'Mahagun Medalleo', 'Mahagun Mezzaria']
+    }
+    if (nameLower.includes('godrej')) {
+      return ['Godrej Tropical Isle', 'Godrej Woods', 'Godrej Palm Retreat']
+    }
+    if (nameLower.includes('dlf')) {
+      return ['The Arbour', 'DLF Midtown', 'Crest']
+    }
+    if (projectName) {
+      return dedupeProjectNames([projectName, `${recipientName || 'Partner'} Heights`])
+    }
+    return ['Gayatri Life', 'Aadhaar Shri Height', 'Aadhaar Greens']
+  }, [projectsList, recipientName, projectName])
+
+  const handleAddProject = () => {
+    const trimmed = newProjectInput.trim()
+    if (!trimmed) return
+    const current = dedupeProjectNames(projectsList)
+    if (!current.some((p) => p.toLowerCase() === trimmed.toLowerCase())) {
+      const updated = [...current, trimmed]
+      setProjectsList(updated)
+      if (!projectName) setProjectName(trimmed)
+      toast.success(`Added ${trimmed} to portfolio`)
+    }
+    setNewProjectInput('')
+  }
+
+  const handleRemoveProject = (projToRemove: string, e: React.MouseEvent) => {
+    e.stopPropagation()
+    const updated = projectsList.filter((p) => p.toLowerCase() !== projToRemove.toLowerCase())
+    setProjectsList(updated)
+    if (projectName.toLowerCase() === projToRemove.toLowerCase() && updated.length > 0) {
+      setProjectName(updated[0])
+    }
+    toast.info(`Removed ${projToRemove}`)
+  }
+
   if (!isOpen) return null
 
   const generatedInviteLink =
@@ -137,44 +210,80 @@ export default function EmailPreviewModal({
       ? `${window.location.origin}/admin/accept-invite?token=prp_demo_invite_token`
       : 'https://propfyndr.in/admin/accept-invite?token=prp_demo_invite_token')
 
-  // Subject line computation — 100% focused on the recipient developer
+  // Subject line computation — 100% focused on an exclusive, personal invitation
   const subject =
     template === 'builder_pitch'
-      ? `${recipientName || 'Developer'} × PropFyndr — Direct buyer inquiries & verified portfolio showcase`
+      ? `${recipientName || 'Developer'}, you're invited to join PropFyndr's developer network`
       : `You've been invited to join PropFyndr Admin as ${defaultRole}`
 
-  // Plaintext version — 100% focused on selling to the developer
+  // Plaintext version — high-converting, low-friction invitation naming all projects
   const getPlainText = () => {
     if (template === 'builder_pitch') {
       const devName = recipientName || 'Developer'
-      const pName = projectName || 'your marquee developments'
-      const city = targetCity || 'Delhi-NCR'
+      const city = targetCity || 'Delhi-NCR & Greater Noida'
+      const projectsListFormatted = allProjects.map((p) => `• ${p}`).join('\n')
+      const projectsInline = allProjects.join(', ')
 
-      return `Hi ${devName} Team,
+      return `PROPFYNDR PARTNER NETWORK
 
-Greetings from PropFyndr.in.
+${devName}, you're invited to PropFyndr.
 
-We have compiled an executive buyer demand brief for ${devName}. High-intent homebuyers in ${city} are actively researching ${devName} projects, including ${pName}.
+Bring all your developments directly in front of verified homebuyers actively looking across ${city}.
 
-Why top developers partner with PropFyndr:
+Your Developments in PropFyndr Catalog:
+${projectsListFormatted}
 
-1. Direct In-House Buyer Routing (Zero Broker Dilution):
-Every inquiry, cost sheet calculation, and site visit request for ${devName} routes directly to your official sales desk. We never resell leads to external competing brokers.
-
-2. Sanctioned Architectural Clarity:
-We present ${devName}'s UP-RERA registered carpet areas, sanctioned layouts, and possession milestones with full transparency, giving buyers the conviction to make faster booking decisions.
-
-3. Official Developer Console:
-Claim and verify your dedicated ${devName} desk on PropFyndr to manage project specs, publish live tower progress, and monitor real-time buyer demand analytics.
-
-We would love to share exclusive access to activate ${devName}'s official showcase:
+Explore Your Developer Desk:
 ${generatedInviteLink}
 
-Best regards,
-${senderName}
-${senderTitle}
-Direct: ${senderPhone} · partnerships@propfyndr.in
-PropFyndr Technologies · https://propfyndr.in`
+No brokerage on buyer inquiries. No competing listings around your projects. Just a direct channel between your sales gallery and interested buyers.
+
+---
+
+A BETTER WAY TO BE DISCOVERED
+
+Homebuyers are no longer just browsing listings. They're comparing projects, checking specifications, exploring locations, evaluating budgets and deciding where they want to visit.
+
+PropFyndr brings that discovery into one place — and gives developers a verified presence throughout the journey.
+
+For ${devName}, that means your entire development portfolio (${projectsInline}) can be presented with the information, specifications and availability your team controls.
+
+---
+
+YOUR PROJECTS. YOUR INFORMATION. YOUR LEADS.
+
+Active Portfolio:
+${allProjects.map((p, i) => `${i + 1}. ${p} — A verified project presence built around the way buyers actually research.`).join('\n')}
+
+• Direct Buyer Inquiries: Buyer interest can route directly to your sales team.
+• Verified Project Details: Keep specifications, inventory and project info accurate.
+• Site Visit Intent: Turn serious discovery into a conversation with your team.
+
+---
+
+WHAT YOU GET AS A PROPFYNDR PARTNER
+
+01 — Verified Presence: Own your official developer presence across all ${allProjects.length} developments.
+02 — Buyer Demand: Understand what buyers are searching for, comparing and evaluating across ${projectsInline}.
+03 — Direct Enquiries: Receive relevant buyer interest without handing the lead to competing brokers.
+04 — Project Control: Keep your project information, inventory and approved details up to date.
+
+---
+
+WE'D LIKE TO INVITE ${devName} TO JOIN
+
+We're opening PropFyndr's developer network to selected builders and project partners across ${city}. Your invitation is ready.
+
+Accept Developer Invitation:
+${generatedInviteLink}
+
+It takes a few minutes to review your developer desk and get started.
+
+---
+PropFyndr · Developer Partnerships
+Building a more direct connection between India's homebuyers and the developers behind the projects they are considering.
+partnerships@propfyndr.in · ${senderPhone}
+This invitation was prepared specifically for the ${devName} team regarding: ${projectsInline}.`
     }
 
     return `Hi,
@@ -192,28 +301,32 @@ The PropFyndr Team
 https://propfyndr.in`
   }
 
-  // WhatsApp formatted outreach pitch
+  // WhatsApp formatted outreach pitch naming all projects
   const getWhatsAppText = () => {
     const devName = recipientName || 'Developer'
-    const pName = projectName || 'your developments'
-    const city = targetCity || 'Delhi-NCR'
+    const city = targetCity || 'Delhi-NCR & Greater Noida'
+    const projectsListFormatted = allProjects.map((p) => `• ${p}`).join('\n')
+    const projectsInline = allProjects.join(', ')
 
     return `Hi ${devName} Team,
 
 Greetings from PropFyndr.in.
 
-We are currently highlighting ${devName}'s portfolio (including ${pName}) to high-intent home buyers across ${city}.
+We are officially inviting ${devName} to bring all your developments directly in front of verified homebuyers actively searching across ${city}:
 
-Key advantages for ${devName}:
-1. Direct Buyer Inquiries: Inquiries and site visits route directly to your in-house sales desk with zero broker commission dilution.
-2. 100% Sanctioned Specs: We showcase your approved carpet areas and legal clearances directly to qualified buyers.
-3. Official Developer Console: Claim your verified brand profile and monitor live buyer demand.
+${projectsListFormatted}
 
-Explore your official developer portal preview here:
+Why developers are joining PropFyndr:
+• Direct Buyer Inquiries: Inquiries route directly to your in-house sales gallery across all projects.
+• Zero Broker Dilution: No competing broker listings around ${projectsInline}.
+• Sanctioned RERA Specs: Keep approved layouts, inventory and project milestones accurate.
+• Official Developer Console: Claim your verified presence and monitor buyer demand.
+
+Your official developer invitation is ready to review:
 ${generatedInviteLink}
 
 Best regards,
-${senderName} | PropFyndr Developer Relations
+${senderName} | Developer Partnerships
 ${senderPhone}`
   }
 
@@ -570,100 +683,147 @@ ${senderPhone}`
 </head>
 <body>
   <div class="email-container">
-    <!-- Obsidian Hero Header -->
+    <!-- HERO -->
     <div class="hero-header">
-      <div class="brand-mark">
-        <span class="brand-icon">P</span>
-        <span>PropFyndr Flow</span>
+      <div style="font-size: 10.5px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: #fef08a; margin-bottom: 12px;">
+        PropFyndr Partner Network
       </div>
       <h1 class="hero-title">
-        ${recipientLabel} <em>Portfolio Brief</em>
+        ${recipientLabel},<br><em>you're invited to PropFyndr.</em>
       </h1>
-      <div class="hero-pill">
-        <strong>Active Homebuyer Demand:</strong> Over 14,800+ home seekers actively evaluating ${recipientLabel} developments on PropFyndr.
+      <div style="font-size: 13px; color: rgba(255, 255, 255, 0.85); line-height: 1.5; max-width: 440px; margin: 0 auto 20px auto;">
+        Bring all your developments (${allProjects.join(', ')}) directly in front of verified homebuyers actively looking across ${cityLabel}.
       </div>
-      <div class="hero-arrow-ring">↓</div>
+      <div>
+        <a href="${generatedInviteLink}" class="cta-button" style="background-color: #ffffff; color: #09090b !important;">
+          Explore Your Developer Desk →
+        </a>
+      </div>
+      <div style="font-size: 11px; color: rgba(255, 255, 255, 0.6); line-height: 1.4; margin-top: 14px; max-width: 440px; margin-left: auto; margin-right: auto;">
+        No brokerage on buyer inquiries. No competing listings around your projects. Just a direct channel between your sales gallery and interested buyers.
+      </div>
     </div>
 
-    <!-- Body Canvas -->
+    <!-- BODY CANVAS -->
     <div class="body-canvas">
-      <h2 class="section-eyebrow">Executive Developer Brief</h2>
-
-      <!-- Stat Ranking Card — 100% About Them -->
-      <div class="stat-card">
-        <div class="stat-label">${recipientLabel.toUpperCase()} DEMAND INDEX · ${cityLabel.toUpperCase()}</div>
-        <div class="stat-value">Top 0.1% Buyer Interest</div>
-        <div class="stat-desc">
-          Verified home seekers ranked developments by <strong>${recipientLabel}</strong> in the top tier for sanctioned layout integrity, RERA adherence, and spatial delivery.
-        </div>
+      <!-- SECTION 1 -->
+      <div style="font-size: 10px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; color: ${palette.textMuted}; margin-bottom: 6px;">
+        A Direct Channel for Discovery
       </div>
+      <div style="font-family: 'Newsreader', Georgia, serif; font-size: 21px; font-weight: 600; color: ${palette.textPrimary}; line-height: 1.3; margin: 0 0 12px 0;">
+        A better way to be discovered.
+      </div>
+      <p style="font-size: 13px; line-height: 1.65; color: ${palette.textSecondary}; margin: 0 0 14px 0;">
+        Homebuyers are no longer just browsing listings. They're comparing projects, checking specifications, exploring locations, evaluating budgets and deciding where they want to visit.
+      </p>
+      <p style="font-size: 13px; line-height: 1.65; color: ${palette.textSecondary}; margin: 0 0 14px 0;">
+        PropFyndr brings that discovery into one place — and gives developers a verified presence throughout the buyer journey.
+      </p>
+      <p style="font-size: 13px; line-height: 1.65; color: ${palette.textSecondary}; margin: 0 0 22px 0;">
+        For <strong>${recipientLabel}</strong>, that means your entire development portfolio — <strong>${allProjects.join(', ')}</strong> — can be presented with the information, specifications and availability your team controls.
+      </p>
 
-      <!-- Feature 1: Direct In-House Buyer Routing -->
-      <div class="editorial-block">
-        <span class="category-chip">Zero Brokerage Dilution</span>
-        <h3 class="editorial-heading">
-          Direct Buyer Inquiries to ${recipientLabel} Sales Desk
-        </h3>
-        <p class="editorial-body">
-          Unlike legacy real estate portals that auction your leads to multiple competing outside brokers, PropFyndr routes high-intent home seekers directly to your in-house sales gallery. When a verified buyer calculates a payment milestone or schedules a private site visit for <strong>${projectLabel}</strong>, the inquiry routes exclusively to you.
-        </p>
+      <!-- SECTION 2: SHOWCASE CARD (ALL PROJECTS LISTED) -->
+      <div class="showcase-banner">
+        <div class="showcase-inner">
+          <span class="showcase-badge">Your Developments · Verified RERA Presence</span>
+          <div class="showcase-title">${recipientLabel} Development Portfolio</div>
+          <div style="font-size: 11.5px; color: rgba(255, 255, 255, 0.7); margin-bottom: 14px;">
+            All ${allProjects.length} active developments in your catalog on PropFyndr.
+          </div>
 
-        <!-- Developer Showcase Box -->
-        <div class="showcase-banner">
-          <div class="showcase-inner">
-            <span class="showcase-badge">${recipientLabel} DEVELOPER SHOWCASE</span>
-            <div class="showcase-title">${projectLabel}</div>
-            <div class="showcase-pillars">
-              <div class="pillar-item">
-                <strong>Direct Sales Desk</strong>
-                <span>100% in-house buyer inquiries</span>
+          <!-- Project Cards for ALL Projects -->
+          <div style="display: flex; flex-direction: column; gap: 8px; margin: 14px 0;">
+            ${allProjects
+              .map(
+                (p) => `
+              <div style="background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 10px; padding: 10px 14px; display: flex; align-items: center; justify-content: space-between;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <div style="width: 7px; height: 7px; border-radius: 50%; background: #fef08a;"></div>
+                  <div style="font-family: 'Newsreader', Georgia, serif; font-size: 15.5px; font-weight: 600; color: #ffffff;">${p}</div>
+                </div>
+                <span style="font-size: 9px; font-weight: 800; letter-spacing: 0.8px; text-transform: uppercase; background: rgba(254, 240, 138, 0.18); color: #fef08a; padding: 3px 8px; border-radius: 5px; border: 1px solid rgba(254, 240, 138, 0.28);">
+                  Verified Presence
+                </span>
               </div>
-              <div class="pillar-item">
-                <strong>Sanctioned Specs</strong>
-                <span>Approved carpet & layout</span>
-              </div>
-              <div class="pillar-item">
-                <strong>Site Visits</strong>
-                <span>Verified buyer bookings</span>
-              </div>
+            `
+              )
+              .join('')}
+          </div>
+
+          <div class="showcase-pillars">
+            <div class="pillar-item">
+              <strong>Direct Buyer Inquiries</strong>
+              <span>Buyer interest routes directly to your sales team.</span>
             </div>
-            ${
-              otherProjects.length > 0
-                ? `<div class="showcase-subprojects">Also highlighting: ${otherProjects.slice(0, 3).join(' · ')}</div>`
-                : ''
-            }
+            <div class="pillar-item">
+              <strong>Verified Details</strong>
+              <span>Keep specifications, inventory &amp; specs accurate.</span>
+            </div>
+            <div class="pillar-item">
+              <strong>Site Visit Intent</strong>
+              <span>Turn serious discovery into pre-scheduled site visits.</span>
+            </div>
           </div>
         </div>
       </div>
 
-      <hr class="divider" />
-
-      <!-- Feature 2: Official Developer Verification & Console -->
-      <div class="editorial-block">
-        <span class="category-chip">Executive Control</span>
-        <h3 class="editorial-heading">
-          Claim &amp; Manage ${recipientLabel}'s Verified Presence
-        </h3>
-        <p class="editorial-body">
-          Access real-time buyer demand analytics, manage verified tower inventory, and showcase sanctioned floor plans with complete authenticity.
-        </p>
+      <!-- SECTION 3: WHAT YOU GET -->
+      <div style="font-size: 10px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; color: ${palette.textMuted}; margin: 24px 0 6px 0;">
+        Platform Capabilities
+      </div>
+      <div style="font-family: 'Newsreader', Georgia, serif; font-size: 21px; font-weight: 600; color: ${palette.textPrimary}; line-height: 1.3; margin: 0 0 14px 0;">
+        What you get as a PropFyndr partner
+      </div>
+      <div style="display: grid; grid-template-columns: ${isMobile ? '1fr' : 'repeat(2, 1fr)'}; gap: 10px; margin: 14px 0 24px 0;">
+        <div style="background: ${palette.cardBg}; border: 1px solid ${palette.cardBorder}; border-radius: 12px; padding: 14px;">
+          <div style="font-size: 11px; font-weight: 800; color: #0066cc; margin-bottom: 4px;">01</div>
+          <div style="font-size: 13px; font-weight: 700; color: ${palette.textPrimary}; margin-bottom: 4px;">Verified Presence</div>
+          <div style="font-size: 11.5px; color: ${palette.textSecondary}; line-height: 1.45;">Own your official developer and project presence across all ${allProjects.length} developments on PropFyndr.</div>
+        </div>
+        <div style="background: ${palette.cardBg}; border: 1px solid ${palette.cardBorder}; border-radius: 12px; padding: 14px;">
+          <div style="font-size: 11px; font-weight: 800; color: #0066cc; margin-bottom: 4px;">02</div>
+          <div style="font-size: 13px; font-weight: 700; color: ${palette.textPrimary}; margin-bottom: 4px;">Buyer Demand</div>
+          <div style="font-size: 11.5px; color: ${palette.textSecondary}; line-height: 1.45;">Understand what buyers are searching for, comparing and evaluating across ${allProjects.slice(0, 2).join(', ')}.</div>
+        </div>
+        <div style="background: ${palette.cardBg}; border: 1px solid ${palette.cardBorder}; border-radius: 12px; padding: 14px;">
+          <div style="font-size: 11px; font-weight: 800; color: #0066cc; margin-bottom: 4px;">03</div>
+          <div style="font-size: 13px; font-weight: 700; color: ${palette.textPrimary}; margin-bottom: 4px;">Direct Enquiries</div>
+          <div style="font-size: 11.5px; color: ${palette.textSecondary}; line-height: 1.45;">Receive relevant buyer interest without handing the lead to competing brokers.</div>
+        </div>
+        <div style="background: ${palette.cardBg}; border: 1px solid ${palette.cardBorder}; border-radius: 12px; padding: 14px;">
+          <div style="font-size: 11px; font-weight: 800; color: #0066cc; margin-bottom: 4px;">04</div>
+          <div style="font-size: 13px; font-weight: 700; color: ${palette.textPrimary}; margin-bottom: 4px;">Project Control</div>
+          <div style="font-size: 11.5px; color: ${palette.textSecondary}; line-height: 1.45;">Keep your project information, inventory and approved details up to date.</div>
+        </div>
       </div>
 
-      <!-- Call to Action -->
-      <div class="cta-container">
-        <a href="${generatedInviteLink}" class="cta-button">
-          Claim Official ${recipientLabel} Desk &rarr;
-        </a>
+      <!-- INVITATION CTA BLOCK -->
+      <div style="text-align: center; padding: 24px 16px 12px 16px; border-top: 1px solid ${palette.divider}; margin-top: 20px;">
+        <div style="font-family: 'Newsreader', Georgia, serif; font-size: 20px; font-weight: 600; color: ${palette.textPrimary}; margin-bottom: 6px;">
+          We'd like to invite ${recipientLabel} to join.
+        </div>
+        <div style="font-size: 12.5px; color: ${palette.textSecondary}; line-height: 1.5; max-width: 420px; margin: 0 auto 18px auto;">
+          We're opening PropFyndr's developer network to selected builders across ${cityLabel} for ${allProjects.join(', ')}. Your invitation is ready.
+        </div>
+        <div>
+          <a href="${generatedInviteLink}" class="cta-button">
+            Accept Developer Invitation →
+          </a>
+        </div>
+        <div style="font-size: 11px; color: ${palette.textMuted}; margin-top: 10px;">
+          It takes a few minutes to review your developer desk and get started.
+        </div>
       </div>
     </div>
 
     <!-- Editorial Footer -->
     <div class="footer-section">
-      <div class="signature-title">${senderName}</div>
-      <div style="margin: 2px 0 10px 0;">${senderTitle} · PropFyndr Technologies</div>
-      <div>Direct Line: ${senderPhone} · partnerships@propfyndr.in</div>
-      <div style="margin-top: 6px; font-size: 10.5px; opacity: 0.8;">
-        This executive brief was prepared exclusively for the leadership and sales team of ${recipientLabel}.
+      <div class="signature-title">PropFyndr · Developer Partnerships</div>
+      <div style="margin: 2px 0 10px 0;">Building a more direct connection between India's homebuyers and the developers behind the projects they are considering.</div>
+      <div>partnerships@propfyndr.in · Direct: ${senderPhone}</div>
+      <div style="margin-top: 8px; font-size: 10.5px; opacity: 0.8;">
+        This invitation was prepared specifically for the ${recipientLabel} team regarding: ${allProjects.join(', ')}.
       </div>
     </div>
   </div>
@@ -807,39 +967,39 @@ ${senderPhone}`
       />
 
       {/* Main Apple Modal Card Container */}
-      <div className="relative w-full max-w-7xl h-[92vh] max-h-[920px] bg-white dark:bg-zinc-900 rounded-[28px] shadow-[0_25px_70px_rgba(0,0,0,0.45)] border border-zinc-200/90 dark:border-zinc-800 flex flex-col overflow-hidden z-10">
+      <div className="relative w-[96vw] max-w-[1540px] h-[94vh] max-h-[980px] bg-[#fbfbfd] dark:bg-[#141416] rounded-[28px] shadow-[0_36px_100px_-15px_rgba(0,0,0,0.4)] border border-[#e5e5ea] dark:border-[#28282c] flex flex-col overflow-hidden z-10 font-sans">
         {/* ── Modal Top Header Bar ────────────────────────────────────────── */}
-        <div className="flex items-center justify-between px-5 sm:px-6 py-3.5 border-b border-zinc-200/80 dark:border-zinc-800 bg-white/95 dark:bg-zinc-900/95 backdrop-blur-md shrink-0">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-blue-50 dark:bg-blue-950/60 border border-blue-200/60 dark:border-blue-800/60 flex items-center justify-center text-blue-600 dark:text-blue-400 shadow-2xs">
+        <div className="flex items-center justify-between px-5 sm:px-7 py-3.5 border-b border-[#e5e5ea] dark:border-[#27272a] bg-white/95 dark:bg-[#1c1c1f]/95 backdrop-blur-xl shrink-0">
+          <div className="flex items-center gap-3.5">
+            <div className="w-10 h-10 rounded-2xl bg-gradient-to-b from-[#0077ed] to-[#005bb5] text-white flex items-center justify-center shadow-[0_2px_8px_rgba(0,102,204,0.35)] shrink-0">
               <Mail size={18} />
             </div>
             <div>
-              <div className="flex items-center gap-2">
-                <h1 className="text-sm sm:text-base font-bold text-zinc-900 dark:text-zinc-100 tracking-tight">
+              <div className="flex items-center gap-2.5 flex-wrap">
+                <h1 className="text-sm sm:text-base font-bold text-[#1d1d1f] dark:text-[#f5f5f7] tracking-tight">
                   Email Composer &amp; Executive Preview
                 </h1>
-                <span className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-400 border border-blue-200/80 dark:border-blue-800/80">
-                  <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
-                  Resend Engine
+                <span className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10.5px] font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  Resend Engine · Verified Deliverability
                 </span>
               </div>
-              <p className="text-[11px] text-zinc-500 hidden sm:block">
-                Tailored executive outreach simulation across Gmail, Outlook 365, and iOS Apple Mail.
+              <p className="text-[12px] text-[#86868b] hidden sm:block mt-0.5">
+                Simulate and dispatch executive outreach across Gmail, Outlook 365, and Apple Mail with 100% entity personalization.
               </p>
             </div>
           </div>
 
-          {/* Top Actions: Send via Resend + Close */}
-          <div className="flex items-center gap-2">
+          {/* Top Actions: Send via Resend + Full Studio + Close */}
+          <div className="flex items-center gap-2 sm:gap-2.5">
             <button
               type="button"
               onClick={handleSendViaResend}
               disabled={isSending}
-              className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-white font-bold text-xs shadow-md transition-all cursor-pointer ${
+              className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-white font-semibold text-xs shadow-xs transition-all cursor-pointer ${
                 isSending
-                  ? 'bg-blue-400 cursor-not-allowed'
-                  : 'bg-blue-600 hover:bg-blue-500 active:scale-[0.98]'
+                  ? 'bg-[#0071e3]/60 cursor-not-allowed'
+                  : 'bg-[#0071e3] hover:bg-[#0077ed] active:scale-[0.98]'
               }`}
             >
               {isSending ? (
@@ -850,7 +1010,7 @@ ${senderPhone}`
               ) : sentSuccessId ? (
                 <>
                   <CheckCircle2 size={13} className="text-emerald-300" />
-                  <span>Sent!</span>
+                  <span>Dispatched!</span>
                 </>
               ) : (
                 <>
@@ -860,25 +1020,35 @@ ${senderPhone}`
               )}
             </button>
 
+            <Link
+              href={`/admin/email-preview?template=${template}&name=${encodeURIComponent(recipientName)}&email=${encodeURIComponent(recipientEmail)}&project=${encodeURIComponent(projectName)}`}
+              onClick={onClose}
+              className="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white dark:bg-[#242428] hover:bg-[#f5f5f7] dark:hover:bg-[#2c2c30] text-zinc-700 dark:text-zinc-200 font-semibold text-xs transition-all active:scale-[0.98] border border-[#e5e5ea] dark:border-[#38383e] shadow-2xs"
+              title="Open full-page Executive Studio"
+            >
+              <ExternalLink size={13} />
+              <span>Full Studio</span>
+            </Link>
+
             <button
               type="button"
               onClick={onClose}
-              className="p-1.5 rounded-xl text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-200/60 dark:hover:bg-zinc-800 transition-all cursor-pointer"
+              className="w-8 h-8 rounded-full bg-[#f5f5f7] dark:bg-[#2c2c2e] hover:bg-[#e5e5ea] dark:hover:bg-[#38383a] text-[#86868b] hover:text-[#1d1d1f] dark:hover:text-[#f5f5f7] flex items-center justify-center transition-all cursor-pointer"
             >
-              <X size={18} />
+              <X size={16} />
             </button>
           </div>
         </div>
 
         {/* ── Mobile View Toggle Tabs (Small Screens Only) ──────────────────── */}
-        <div className="flex md:hidden border-b border-zinc-200 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-900 p-1">
+        <div className="flex md:hidden border-b border-[#e5e5ea] dark:border-[#27272a] bg-[#f5f5f7] dark:bg-[#1c1c1f] p-1">
           <button
             type="button"
             onClick={() => setMobileTab('edit')}
-            className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition-all ${
+            className={`flex-1 py-1.5 text-xs font-semibold rounded-lg transition-all ${
               mobileTab === 'edit'
-                ? 'bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 shadow-2xs'
-                : 'text-zinc-500'
+                ? 'bg-white dark:bg-[#28282c] text-[#1d1d1f] dark:text-[#f5f5f7] shadow-xs'
+                : 'text-[#86868b]'
             }`}
           >
             Edit Template &amp; Fields
@@ -886,10 +1056,10 @@ ${senderPhone}`
           <button
             type="button"
             onClick={() => setMobileTab('preview')}
-            className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition-all ${
+            className={`flex-1 py-1.5 text-xs font-semibold rounded-lg transition-all ${
               mobileTab === 'preview'
-                ? 'bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 shadow-2xs'
-                : 'text-zinc-500'
+                ? 'bg-white dark:bg-[#28282c] text-[#1d1d1f] dark:text-[#f5f5f7] shadow-xs'
+                : 'text-[#86868b]'
             }`}
           >
             Live Device Preview
@@ -898,190 +1068,277 @@ ${senderPhone}`
 
         {/* ── Main Two-Column Layout ───────────────────────────────────────── */}
         <div className="flex-1 flex flex-col md:flex-row min-h-0 overflow-hidden">
-          {/* Left Panel: Controls & Template Parameters */}
+          {/* Left Panel: Email Composer Controls (Apple-Grade Grouped Cards) */}
           <div
-            className={`w-full md:w-[360px] lg:w-[410px] border-r border-zinc-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-4 sm:p-5 overflow-y-auto shrink-0 flex flex-col justify-between gap-5 ${
+            className={`w-full md:w-[390px] lg:w-[430px] border-r border-[#e5e5ea] dark:border-[#27272a] bg-[#fbfbfd] dark:bg-[#161619] p-4.5 overflow-y-auto shrink-0 flex flex-col justify-between gap-4.5 ${
               mobileTab === 'preview' ? 'hidden md:flex' : 'flex'
             }`}
           >
             <div className="space-y-4">
-              {/* Template Selector */}
-              <div>
-                <label className="block text-[11px] font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider mb-1.5">
-                  Email Template
+              {/* Card 0: Template Selection */}
+              <div className="bg-white dark:bg-[#1e1e22] rounded-2xl p-3.5 border border-[#e5e5ea]/80 dark:border-[#2c2c30] shadow-[0_1px_3px_rgba(0,0,0,0.03)]">
+                <label className="block text-[11px] font-bold text-[#86868b] uppercase tracking-wider mb-2">
+                  Email Outreach Template
                 </label>
                 <CustomSelect
                   value={template}
                   onChange={(val) => setTemplate(val as EmailTemplateType)}
                   options={[
-                    { value: 'team_invite', label: 'Admin Team Role Invitation' },
                     { value: 'builder_pitch', label: 'Developer / Builder Onboarding Pitch' },
+                    { value: 'team_invite', label: 'Admin Team Role Invitation' },
                   ]}
                   size="sm"
                   className="w-full"
                 />
               </div>
 
-              {/* Dynamic Field Inputs — 100% Adaptable */}
+              {/* Dynamic Field Inputs — Grouped Cards */}
               {template === 'builder_pitch' ? (
-                <div className="space-y-3.5">
-                  {/* Recipient Firm */}
-                  <div>
-                    <label className="text-[11px] font-bold text-zinc-700 dark:text-zinc-300 mb-1 flex items-center gap-1.5">
-                      <Building2 size={13} className="text-zinc-400" />
-                      <span>Developer / Builder Firm Name *</span>
-                    </label>
-                    <input
-                      type="text"
-                      value={recipientName}
-                      onChange={(e) => setRecipientName(e.target.value)}
-                      placeholder="e.g. Aadhaar Shri"
-                      className="w-full px-3 py-2 text-xs font-medium bg-zinc-50 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700/60 rounded-xl text-zinc-900 dark:text-zinc-100 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 shadow-2xs transition-all"
-                    />
-                  </div>
+                <>
+                  {/* Card 1: Target Entity & Direct Contacts */}
+                  <div className="bg-white dark:bg-[#1e1e22] rounded-2xl p-4 border border-[#e5e5ea]/80 dark:border-[#2c2c30] shadow-[0_1px_3px_rgba(0,0,0,0.03)] space-y-3.5">
+                    <div className="flex items-center gap-2 pb-2.5 border-b border-[#f0f0f2] dark:border-[#27272a]">
+                      <Building2 size={14} className="text-[#0071e3]" />
+                      <span className="text-[11px] font-bold text-[#1d1d1f] dark:text-[#f5f5f7] uppercase tracking-wider">
+                        Recipient Entity &amp; Contacts
+                      </span>
+                    </div>
 
-                  {/* Recipient Email */}
-                  <div>
-                    <label className="text-[11px] font-bold text-zinc-700 dark:text-zinc-300 mb-1 flex items-center gap-1.5">
-                      <Mail size={13} className="text-zinc-400" />
-                      <span>Recipient Email *</span>
-                    </label>
-                    <input
-                      type="email"
-                      value={recipientEmail}
-                      onChange={(e) => setRecipientEmail(e.target.value)}
-                      placeholder="partnerships@aadhaar-shri.com"
-                      className="w-full px-3 py-2 text-xs font-medium bg-zinc-50 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700/60 rounded-xl text-zinc-900 dark:text-zinc-100 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 shadow-2xs transition-all"
-                    />
-                  </div>
-
-                  {/* Recipient WhatsApp / Phone */}
-                  <div>
-                    <label className="text-[11px] font-bold text-zinc-700 dark:text-zinc-300 mb-1 flex items-center gap-1.5">
-                      <Phone size={13} className="text-zinc-400" />
-                      <span>Recipient Mobile / WhatsApp Number</span>
-                    </label>
-                    <input
-                      type="tel"
-                      value={recipientPhone}
-                      onChange={(e) => setRecipientPhone(e.target.value)}
-                      placeholder="+91 98765 43210"
-                      className="w-full px-3 py-2 text-xs font-mono font-medium bg-zinc-50 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700/60 rounded-xl text-zinc-900 dark:text-zinc-100 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 shadow-2xs transition-all"
-                    />
-                  </div>
-
-                  {/* Flagship Project Mention + Interactive DB Project Pills */}
-                  <div>
-                    <label className="text-[11px] font-bold text-zinc-700 dark:text-zinc-300 mb-1 flex items-center gap-1.5">
-                      <Layers size={13} className="text-zinc-400" />
-                      <span>Flagship Project Mention</span>
-                    </label>
-                    <input
-                      type="text"
-                      value={projectName}
-                      onChange={(e) => setProjectName(e.target.value)}
-                      placeholder="e.g. Everest"
-                      className="w-full px-3 py-2 text-xs font-medium bg-zinc-50 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700/60 rounded-xl text-zinc-900 dark:text-zinc-100 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 shadow-2xs transition-all"
-                    />
-
-                    {/* Interactive Associated Projects from Database */}
-                    {projectsList.length > 0 && (
-                      <div className="mt-2 pt-2 border-t border-zinc-100 dark:border-zinc-800/80">
-                        <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider block mb-1">
-                          Projects in Database for {recipientName || 'Builder'}:
-                        </span>
-                        <div className="flex flex-wrap gap-1.5">
-                          {projectsList.map((p) => {
-                            const isCurrent = projectName.toLowerCase() === p.toLowerCase()
-                            return (
-                              <button
-                                key={p}
-                                type="button"
-                                onClick={() => setProjectName(p)}
-                                className={`text-[11px] font-medium px-2 py-0.5 rounded-lg border transition-all cursor-pointer ${
-                                  isCurrent
-                                    ? 'bg-blue-50 dark:bg-blue-950/80 border-blue-300 dark:border-blue-700 text-blue-700 dark:text-blue-300 font-bold'
-                                    : 'bg-zinc-50 dark:bg-zinc-800 border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-400 hover:border-zinc-400'
-                                }`}
-                              >
-                                {p}
-                              </button>
-                            )
-                          })}
-                        </div>
+                    {/* Developer Firm Name */}
+                    <div>
+                      <label className="block text-[11px] font-semibold text-[#86868b] mb-1.5">
+                        Developer / Builder Firm Name <span className="text-[#ff3b30]">*</span>
+                      </label>
+                      <div className="relative">
+                        <Building2 size={14} className="text-[#86868b] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                        <input
+                          type="text"
+                          value={recipientName}
+                          onChange={(e) => setRecipientName(e.target.value)}
+                          placeholder="e.g. ACE Group & Mahagun"
+                          className="w-full h-10 pl-9 pr-3.5 text-[13px] font-medium bg-[#f5f5f7] dark:bg-[#25252a] border border-[#e5e5ea] dark:border-[#323238] rounded-xl text-[#1d1d1f] dark:text-[#f5f5f7] outline-none focus:bg-white dark:focus:bg-[#1e1e22] focus:ring-3 focus:ring-[#0071e3]/15 focus:border-[#0071e3] transition-all placeholder:text-[#86868b]/60"
+                        />
                       </div>
-                    )}
-                  </div>
-
-                  {/* Target Region */}
-                  <div>
-                    <label className="text-[11px] font-bold text-zinc-700 dark:text-zinc-300 mb-1 flex items-center gap-1.5">
-                      <MapPin size={13} className="text-zinc-400" />
-                      <span>Target Micro-Market / Region</span>
-                    </label>
-                    <input
-                      type="text"
-                      value={targetCity}
-                      onChange={(e) => setTargetCity(e.target.value)}
-                      placeholder="e.g. Greater Noida & Delhi-NCR"
-                      className="w-full px-3 py-2 text-xs font-medium bg-zinc-50 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700/60 rounded-xl text-zinc-900 dark:text-zinc-100 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 shadow-2xs transition-all"
-                    />
-                  </div>
-
-                  {/* Sender Credentials */}
-                  <div className="grid grid-cols-2 gap-2 pt-1">
-                    <div>
-                      <label className="block text-[10px] font-bold text-zinc-500 mb-1">
-                        Sender Name
-                      </label>
-                      <input
-                        type="text"
-                        value={senderName}
-                        onChange={(e) => setSenderName(e.target.value)}
-                        className="w-full px-2.5 py-1.5 text-xs font-medium bg-zinc-50 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700/60 rounded-xl text-zinc-900 dark:text-zinc-100 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 shadow-2xs"
-                      />
                     </div>
+
+                    {/* Recipient Email */}
                     <div>
-                      <label className="block text-[10px] font-bold text-zinc-500 mb-1">
-                        Sender Phone
+                      <label className="block text-[11px] font-semibold text-[#86868b] mb-1.5">
+                        Recipient Executive Email <span className="text-[#ff3b30]">*</span>
                       </label>
-                      <input
-                        type="text"
-                        value={senderPhone}
-                        onChange={(e) => setSenderPhone(e.target.value)}
-                        className="w-full px-2.5 py-1.5 text-xs font-medium bg-zinc-50 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700/60 rounded-xl text-zinc-900 dark:text-zinc-100 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 shadow-2xs"
-                      />
+                      <div className="relative">
+                        <Mail size={14} className="text-[#86868b] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                        <input
+                          type="email"
+                          value={recipientEmail}
+                          onChange={(e) => setRecipientEmail(e.target.value)}
+                          placeholder="partnerships@developer.com"
+                          className="w-full h-10 pl-9 pr-3.5 text-[13px] font-medium bg-[#f5f5f7] dark:bg-[#25252a] border border-[#e5e5ea] dark:border-[#323238] rounded-xl text-[#1d1d1f] dark:text-[#f5f5f7] outline-none focus:bg-white dark:focus:bg-[#1e1e22] focus:ring-3 focus:ring-[#0071e3]/15 focus:border-[#0071e3] transition-all placeholder:text-[#86868b]/60"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Recipient WhatsApp / Phone */}
+                    <div>
+                      <label className="block text-[11px] font-semibold text-[#86868b] mb-1.5">
+                        Recipient Direct Mobile / WhatsApp
+                      </label>
+                      <div className="relative">
+                        <Phone size={14} className="text-[#86868b] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                        <input
+                          type="tel"
+                          value={recipientPhone}
+                          onChange={(e) => setRecipientPhone(e.target.value)}
+                          placeholder="+91 98765 43210"
+                          className="w-full h-10 pl-9 pr-3.5 text-[13px] font-mono font-medium bg-[#f5f5f7] dark:bg-[#25252a] border border-[#e5e5ea] dark:border-[#323238] rounded-xl text-[#1d1d1f] dark:text-[#f5f5f7] outline-none focus:bg-white dark:focus:bg-[#1e1e22] focus:ring-3 focus:ring-[#0071e3]/15 focus:border-[#0071e3] transition-all placeholder:text-[#86868b]/60"
+                        />
+                      </div>
                     </div>
                   </div>
-                </div>
+
+                  {/* Card 2: Portfolio Scope & Flagship Focus */}
+                  <div className="bg-white dark:bg-[#1e1e22] rounded-2xl p-4 border border-[#e5e5ea]/80 dark:border-[#2c2c30] shadow-[0_1px_3px_rgba(0,0,0,0.03)] space-y-3.5">
+                    <div className="flex items-center justify-between pb-2.5 border-b border-[#f0f0f2] dark:border-[#27272a]">
+                      <div className="flex items-center gap-2">
+                        <Layers size={14} className="text-[#0071e3]" />
+                        <span className="text-[11px] font-bold text-[#1d1d1f] dark:text-[#f5f5f7] uppercase tracking-wider">
+                          Portfolio Scope ({allProjects.length})
+                        </span>
+                      </div>
+                      <span className="text-[10px] text-[#86868b]">
+                        Click chip to set as flagship
+                      </span>
+                    </div>
+
+                    {/* Flagship Project Mention */}
+                    <div>
+                      <div className="flex items-center justify-between mb-1.5">
+                        <label className="text-[11px] font-semibold text-[#86868b]">
+                          Flagship Project Mention
+                        </label>
+                        <span className="text-[10px] font-medium text-amber-600 dark:text-amber-400">
+                          Featured in subject &amp; headline
+                        </span>
+                      </div>
+                      <div className="relative">
+                        <Star size={14} className="text-amber-500 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none fill-amber-500/20" />
+                        <input
+                          type="text"
+                          value={projectName}
+                          onChange={(e) => setProjectName(e.target.value)}
+                          placeholder="e.g. Ace Mahagun Medalleo"
+                          className="w-full h-10 pl-9 pr-3.5 text-[13px] font-semibold bg-[#f5f5f7] dark:bg-[#25252a] border border-[#e5e5ea] dark:border-[#323238] rounded-xl text-[#1d1d1f] dark:text-[#f5f5f7] outline-none focus:bg-white dark:focus:bg-[#1e1e22] focus:ring-3 focus:ring-[#0071e3]/15 focus:border-[#0071e3] transition-all placeholder:text-[#86868b]/60"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Linked Portfolio Chips */}
+                    <div>
+                      <div className="flex flex-wrap gap-1.5 max-h-36 overflow-y-auto p-1 -m-1">
+                        {allProjects.map((p) => {
+                          const isCurrent = projectName.trim().toLowerCase() === p.trim().toLowerCase()
+                          return (
+                            <span
+                              key={p}
+                              onClick={() => setProjectName(p)}
+                              className={`group inline-flex items-center gap-1.5 text-[11px] font-medium pl-2.5 pr-1.5 py-1 rounded-full border transition-all cursor-pointer ${
+                                isCurrent
+                                  ? 'bg-[#0071e3] border-[#0071e3] text-white font-semibold shadow-xs'
+                                  : 'bg-[#f5f5f7] dark:bg-[#25252a] border-[#e5e5ea] dark:border-[#323238] text-zinc-700 dark:text-zinc-300 hover:border-zinc-400 dark:hover:border-zinc-500'
+                              }`}
+                              title={isCurrent ? 'Current Flagship Project' : `Set ${p} as flagship`}
+                            >
+                              <span className="truncate max-w-[130px]">{p}</span>
+                              {isCurrent && (
+                                <span className="text-[8px] uppercase tracking-wider font-bold px-1 py-0.5 rounded-sm bg-white/20 text-white">
+                                  Flagship
+                                </span>
+                              )}
+                              <button
+                                type="button"
+                                onClick={(e) => handleRemoveProject(p, e)}
+                                className={`p-0.5 rounded-full transition-colors cursor-pointer ${
+                                  isCurrent
+                                    ? 'hover:bg-white/30 text-white'
+                                    : 'text-zinc-400 hover:text-red-500 hover:bg-zinc-200 dark:hover:bg-zinc-700'
+                                }`}
+                                title={`Remove ${p} from portfolio`}
+                              >
+                                <X size={11} />
+                              </button>
+                            </span>
+                          )
+                        })}
+                      </div>
+
+                      {/* Inline Add Project Input */}
+                      <div className="mt-2.5 flex items-center gap-1.5">
+                        <input
+                          type="text"
+                          value={newProjectInput}
+                          onChange={(e) => setNewProjectInput(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                              e.preventDefault()
+                              handleAddProject()
+                            }
+                          }}
+                          placeholder="+ Add another project..."
+                          className="flex-1 h-8 px-2.5 text-[11px] bg-[#f5f5f7] dark:bg-[#25252a] border border-[#e5e5ea] dark:border-[#323238] rounded-lg text-[#1d1d1f] dark:text-[#f5f5f7] outline-none focus:bg-white dark:focus:bg-[#1e1e22] focus:border-[#0071e3] placeholder:text-zinc-400 transition-all"
+                        />
+                        <button
+                          type="button"
+                          onClick={handleAddProject}
+                          disabled={!newProjectInput.trim()}
+                          className="h-8 px-3 rounded-lg bg-[#f5f5f7] dark:bg-[#25252a] hover:bg-[#e5e5ea] dark:hover:bg-[#2e2e34] disabled:opacity-40 border border-[#e5e5ea] dark:border-[#323238] text-[11px] font-semibold text-zinc-700 dark:text-zinc-200 transition-colors cursor-pointer active:scale-95"
+                        >
+                          Add
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Card 3: Geographic Region & Sender Profile */}
+                  <div className="bg-white dark:bg-[#1e1e22] rounded-2xl p-4 border border-[#e5e5ea]/80 dark:border-[#2c2c30] shadow-[0_1px_3px_rgba(0,0,0,0.03)] space-y-3.5">
+                    <div className="flex items-center gap-2 pb-2.5 border-b border-[#f0f0f2] dark:border-[#27272a]">
+                      <MapPin size={14} className="text-[#0071e3]" />
+                      <span className="text-[11px] font-bold text-[#1d1d1f] dark:text-[#f5f5f7] uppercase tracking-wider">
+                        Region &amp; Sender Desk
+                      </span>
+                    </div>
+
+                    {/* Target Region */}
+                    <div>
+                      <label className="block text-[11px] font-semibold text-[#86868b] mb-1.5">
+                        Target Micro-Market / Region
+                      </label>
+                      <div className="relative">
+                        <MapPin size={14} className="text-[#86868b] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                        <input
+                          type="text"
+                          value={targetCity}
+                          onChange={(e) => setTargetCity(e.target.value)}
+                          placeholder="e.g. Greater Noida &amp; Delhi-NCR"
+                          className="w-full h-10 pl-9 pr-3.5 text-[13px] font-medium bg-[#f5f5f7] dark:bg-[#25252a] border border-[#e5e5ea] dark:border-[#323238] rounded-xl text-[#1d1d1f] dark:text-[#f5f5f7] outline-none focus:bg-white dark:focus:bg-[#1e1e22] focus:ring-3 focus:ring-[#0071e3]/15 focus:border-[#0071e3] transition-all placeholder:text-[#86868b]/60"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Sender Credentials */}
+                    <div className="grid grid-cols-2 gap-2.5 pt-0.5">
+                      <div>
+                        <label className="block text-[11px] font-semibold text-[#86868b] mb-1">
+                          Sender Name
+                        </label>
+                        <input
+                          type="text"
+                          value={senderName}
+                          onChange={(e) => setSenderName(e.target.value)}
+                          className="w-full h-9 px-3 text-xs font-medium bg-[#f5f5f7] dark:bg-[#25252a] border border-[#e5e5ea] dark:border-[#323238] rounded-xl text-[#1d1d1f] dark:text-[#f5f5f7] outline-none focus:bg-white dark:focus:bg-[#1e1e22] focus:border-[#0071e3]"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[11px] font-semibold text-[#86868b] mb-1">
+                          Sender Phone
+                        </label>
+                        <input
+                          type="text"
+                          value={senderPhone}
+                          onChange={(e) => setSenderPhone(e.target.value)}
+                          className="w-full h-9 px-3 text-xs font-mono font-medium bg-[#f5f5f7] dark:bg-[#25252a] border border-[#e5e5ea] dark:border-[#323238] rounded-xl text-[#1d1d1f] dark:text-[#f5f5f7] outline-none focus:bg-white dark:focus:bg-[#1e1e22] focus:border-[#0071e3]"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </>
               ) : (
-                <div className="space-y-3">
+                <div className="bg-white dark:bg-[#1e1e22] rounded-2xl p-4 border border-[#e5e5ea]/80 dark:border-[#2c2c30] shadow-[0_1px_3px_rgba(0,0,0,0.03)] space-y-4">
                   <div>
-                    <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">
-                      Invited User Email *
+                    <label className="block text-[12px] font-medium text-[#1d1d1f] dark:text-[#f5f5f7] mb-1.5">
+                      Invited User Email <span className="text-[#ff3b30]">*</span>
                     </label>
                     <input
                       type="email"
                       value={recipientEmail}
                       onChange={(e) => setRecipientEmail(e.target.value)}
-                      className="w-full px-3 py-2 text-xs font-medium bg-zinc-50 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700/60 rounded-xl text-zinc-900 dark:text-zinc-100 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 shadow-2xs"
+                      className="w-full h-10 px-3.5 text-[13px] font-medium bg-[#f5f5f7] dark:bg-[#25252a] border border-[#e5e5ea] dark:border-[#323238] rounded-xl text-[#1d1d1f] dark:text-[#f5f5f7] outline-none focus:bg-white dark:focus:bg-[#1e1e22] focus:border-[#0071e3]"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">
+                    <label className="block text-[12px] font-medium text-[#1d1d1f] dark:text-[#f5f5f7] mb-1.5">
                       Assigned Role
                     </label>
-                    <div className="px-3 py-2 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 font-bold text-xs">
+                    <div className="h-10 px-3.5 flex items-center rounded-xl border border-[#e5e5ea] dark:border-[#323238] bg-[#f5f5f7] dark:bg-[#25252a] text-[#1d1d1f] dark:text-[#f5f5f7] font-semibold text-xs">
                       {defaultRole}
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">
+                    <label className="block text-[12px] font-medium text-[#1d1d1f] dark:text-[#f5f5f7] mb-1.5">
                       Security Token Link
                     </label>
-                    <p className="px-3 py-2 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/80 font-mono text-[11px] text-zinc-500 break-all leading-tight">
+                    <p className="p-3 rounded-xl border border-[#e5e5ea] dark:border-[#323238] bg-[#f5f5f7] dark:bg-[#25252a] font-mono text-[11px] text-[#86868b] break-all leading-relaxed">
                       {generatedInviteLink}
                     </p>
                   </div>
@@ -1090,8 +1347,8 @@ ${senderPhone}`
             </div>
 
             {/* Instant Actions & Outreach Section */}
-            <div className="pt-4 border-t border-zinc-200/80 dark:border-zinc-800 space-y-2">
-              <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider block">
+            <div className="bg-white dark:bg-[#1e1e22] rounded-2xl p-4 border border-[#e5e5ea]/80 dark:border-[#2c2c30] shadow-[0_1px_3px_rgba(0,0,0,0.03)] space-y-2.5">
+              <span className="text-[10px] font-bold text-[#86868b] uppercase tracking-wider block">
                 Instant Actions &amp; Outreach
               </span>
 
@@ -1100,24 +1357,24 @@ ${senderPhone}`
                 <button
                   type="button"
                   onClick={openWhatsAppChat}
-                  className="flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition-all shadow-2xs cursor-pointer active:scale-[0.98]"
+                  className="flex-1 flex items-center justify-center gap-2 py-2.5 px-3.5 rounded-xl bg-[#25D366] hover:bg-[#20bd5a] text-white text-xs font-semibold transition-all shadow-xs cursor-pointer active:scale-[0.98]"
                   title="Open WhatsApp chat with prefilled message"
                 >
-                  <MessageCircle size={14} />
+                  <MessageCircle size={15} />
                   <span>
                     {recipientPhone
-                      ? `Open in WhatsApp (${recipientPhone.slice(-10)})`
-                      : 'Open in WhatsApp'}
+                      ? `Open WhatsApp (${recipientPhone.slice(-10)})`
+                      : 'Open WhatsApp'}
                   </span>
                 </button>
 
                 <button
                   type="button"
                   onClick={copyWhatsApp}
-                  className="flex items-center justify-center px-3 py-2 rounded-xl border border-zinc-200 dark:border-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-300 transition-all cursor-pointer active:scale-[0.98]"
+                  className="flex items-center justify-center px-3.5 py-2.5 rounded-xl border border-[#e5e5ea] dark:border-[#38383a] hover:bg-[#f5f5f7] dark:hover:bg-[#25252a] text-[#1d1d1f] dark:text-[#f5f5f7] transition-all cursor-pointer active:scale-[0.98]"
                   title="Copy WhatsApp plaintext pitch"
                 >
-                  {copiedType === 'wa' ? <Check size={14} className="text-emerald-500" /> : <Copy size={14} />}
+                  {copiedType === 'wa' ? <Check size={14} className="text-[#34c759]" /> : <Copy size={14} />}
                 </button>
               </div>
 
@@ -1125,7 +1382,7 @@ ${senderPhone}`
               <button
                 type="button"
                 onClick={copyHtml}
-                className="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold transition-all shadow-2xs cursor-pointer active:scale-[0.98]"
+                className="w-full flex items-center justify-center gap-2 py-2.5 px-3.5 rounded-xl bg-[#0071e3] hover:bg-[#0077ed] text-white text-xs font-semibold transition-all shadow-xs cursor-pointer active:scale-[0.98]"
               >
                 {copiedType === 'html' ? <Check size={14} /> : <Copy size={14} />}
                 <span>{copiedType === 'html' ? 'HTML Copied to Clipboard!' : 'Copy Responsive HTML'}</span>
@@ -1135,7 +1392,7 @@ ${senderPhone}`
               <button
                 type="button"
                 onClick={copyText}
-                className="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-xl bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-800 dark:text-zinc-200 text-xs font-semibold transition-all shadow-2xs cursor-pointer active:scale-[0.98]"
+                className="w-full flex items-center justify-center gap-2 py-2.5 px-3.5 rounded-xl bg-[#f5f5f7] dark:bg-[#25252a] hover:bg-[#e5e5ea] dark:hover:bg-[#2c2c32] text-[#1d1d1f] dark:text-[#f5f5f7] border border-[#e5e5ea] dark:border-[#38383a] text-xs font-semibold transition-all shadow-2xs cursor-pointer active:scale-[0.98]"
               >
                 {copiedType === 'text' ? <Check size={14} /> : <Share2 size={14} />}
                 <span>{copiedType === 'text' ? 'Plaintext Copied!' : 'Copy Plaintext'}</span>
@@ -1145,55 +1402,55 @@ ${senderPhone}`
 
           {/* Right Panel: Executive Device Preview Canvas */}
           <div
-            className={`flex-1 flex flex-col min-h-0 bg-zinc-100/70 dark:bg-zinc-950 overflow-hidden ${
+            className={`flex-1 flex flex-col min-h-0 bg-[#f5f5f7]/70 dark:bg-[#111113] overflow-hidden ${
               mobileTab === 'edit' ? 'hidden md:flex' : 'flex'
             }`}
           >
             {/* Canvas Sub-Header: Client & Frame Switcher + Dark Mode Toggle */}
-            <div className="flex items-center justify-between px-4 sm:px-6 py-2.5 bg-white dark:bg-zinc-900 border-b border-zinc-200/80 dark:border-zinc-800 text-xs shrink-0">
-              <div className="flex items-center gap-2">
-                <span className="text-zinc-400 font-medium hidden sm:inline">Preview Client:</span>
-                <div className="flex items-center p-0.5 bg-zinc-100 dark:bg-zinc-800 rounded-xl border border-zinc-200/80 dark:border-zinc-700">
-                  {/* Gmail Desktop */}
+            <div className="flex items-center justify-between px-5 sm:px-6 py-2.5 bg-white/95 dark:bg-[#1c1c1f]/95 border-b border-[#e5e5ea] dark:border-[#27272a] text-xs shrink-0 backdrop-blur-xl">
+              <div className="flex items-center gap-2.5">
+                <span className="text-[#86868b] font-medium hidden sm:inline text-xs">Preview Client:</span>
+                <div className="flex items-center p-1 bg-[#e5e5ea]/60 dark:bg-[#28282c] rounded-xl border border-[#e5e5ea] dark:border-[#34343a]">
+                  {/* Gmail Desktop Tab with Official Gmail Logo */}
                   <button
                     type="button"
                     onClick={() => setClientMode('gmail')}
-                    className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-[11px] font-semibold transition-all cursor-pointer ${
+                    className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-[11px] font-semibold transition-all cursor-pointer ${
                       clientMode === 'gmail'
-                        ? 'bg-white dark:bg-zinc-900 text-red-600 dark:text-red-400 shadow-2xs'
-                        : 'text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-200'
+                        ? 'bg-white dark:bg-[#1c1c1f] text-zinc-900 dark:text-white shadow-xs'
+                        : 'text-[#86868b] hover:text-[#1d1d1f] dark:hover:text-[#f5f5f7]'
                     }`}
                   >
-                    <Laptop size={13} />
+                    <GmailLogo className="w-3.5 h-3.5" />
                     <span>Gmail (Web)</span>
                   </button>
 
-                  {/* Outlook Desktop */}
+                  {/* Outlook Desktop Tab with Official Outlook Logo */}
                   <button
                     type="button"
                     onClick={() => setClientMode('outlook')}
-                    className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-[11px] font-semibold transition-all cursor-pointer ${
+                    className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-[11px] font-semibold transition-all cursor-pointer ${
                       clientMode === 'outlook'
-                        ? 'bg-white dark:bg-zinc-900 text-blue-600 dark:text-blue-400 shadow-2xs'
-                        : 'text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-200'
+                        ? 'bg-white dark:bg-[#1c1c1f] text-zinc-900 dark:text-white shadow-xs'
+                        : 'text-[#86868b] hover:text-[#1d1d1f] dark:hover:text-[#f5f5f7]'
                     }`}
                   >
-                    <Laptop size={13} />
+                    <OutlookLogo className="w-3.5 h-3.5" />
                     <span>Outlook 365</span>
                   </button>
 
-                  {/* iPhone iOS */}
+                  {/* iPhone iOS Tab with Official Apple Mail Logo */}
                   <button
                     type="button"
                     onClick={() => setClientMode('mobile')}
-                    className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-[11px] font-semibold transition-all cursor-pointer ${
+                    className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-[11px] font-semibold transition-all cursor-pointer ${
                       clientMode === 'mobile'
-                        ? 'bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 shadow-2xs'
-                        : 'text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-200'
+                        ? 'bg-white dark:bg-[#1c1c1f] text-zinc-900 dark:text-white shadow-xs'
+                        : 'text-[#86868b] hover:text-[#1d1d1f] dark:hover:text-[#f5f5f7]'
                     }`}
                   >
-                    <Smartphone size={13} />
-                    <span>Mobile (iOS)</span>
+                    <AppleMailLogo className="w-3.5 h-3.5" />
+                    <span>Apple Mail (iOS)</span>
                   </button>
                 </div>
               </div>
@@ -1203,17 +1460,17 @@ ${senderPhone}`
                 <button
                   type="button"
                   onClick={() => setIsDarkPreview(!isDarkPreview)}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border font-semibold text-[11px] shadow-2xs cursor-pointer transition-all active:scale-[0.98] ${
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-[#e5e5ea] dark:border-[#38383a] font-semibold text-[11px] shadow-2xs cursor-pointer transition-all active:scale-[0.98] ${
                     isDarkPreview
-                      ? 'bg-indigo-950/80 border-indigo-700 text-indigo-300 hover:bg-indigo-900/80'
-                      : 'bg-zinc-100 border-zinc-200 hover:bg-zinc-200 text-zinc-700'
+                      ? 'bg-[#2c2c2e] text-[#f5f5f7]'
+                      : 'bg-[#f5f5f7] text-[#1d1d1f] hover:bg-[#e5e5ea]'
                   }`}
                   title="Toggle dark mode preview simulation"
                 >
                   {isDarkPreview ? (
                     <Sun size={13} className="text-amber-400" />
                   ) : (
-                    <Moon size={13} className="text-indigo-600" />
+                    <Moon size={13} className="text-[#0071e3]" />
                   )}
                   <span>{isDarkPreview ? 'Dark Mode: ON' : 'Dark Mode: OFF'}</span>
                 </button>
@@ -1223,148 +1480,125 @@ ${senderPhone}`
             {/* Canvas Screen: Laptop or Mobile Device Frame */}
             <div className="flex-1 overflow-y-auto p-3 sm:p-6 md:p-8 flex items-center justify-center">
               {clientMode === 'mobile' ? (
-                /* ── PHONE FRAME (iPhone 16 Pro Natural Titanium Mockup) ─── */
-                <div className="relative flex flex-col items-center select-none py-2">
-                  <div
-                    className={`w-[365px] xs:w-[380px] max-w-[94vw] rounded-[52px] border-[5px] border-zinc-700/90 shadow-[0_30px_70px_-15px_rgba(0,0,0,0.5),0_0_0_1px_rgba(255,255,255,0.12)] ring-2 ring-zinc-500/30 transition-all overflow-hidden shrink-0 flex flex-col ${
-                      isDarkPreview ? 'bg-zinc-950 text-zinc-100' : 'bg-white text-zinc-900'
-                    }`}
-                  >
-                    {/* Top Dynamic Island Bar */}
-                    <div className="w-full flex items-center justify-between px-6 pt-2 pb-2 bg-black text-white shrink-0">
-                      <span className="text-[11px] font-bold tracking-tight">9:41</span>
-                      <div className="w-24 h-5 bg-black rounded-full flex items-center justify-between px-2.5 border border-zinc-800/80 shadow-xs">
-                        <div className="w-2.5 h-2.5 rounded-full bg-zinc-900 flex items-center justify-center">
-                          <div className="w-1 h-1 rounded-full bg-blue-950/80" />
+                /* ── PRECISION VECTOR IPHONE MOCKUP ─── */
+                <div className="w-[360px] sm:w-[380px] max-w-full drop-shadow-2xl py-2">
+                  <Iphone className={isDarkPreview ? 'dark' : ''}>
+                    <div
+                      className={`size-full flex flex-col ${
+                        isDarkPreview ? 'bg-[#0b0b0e] text-zinc-100' : 'bg-white text-zinc-900'
+                      } select-none`}
+                    >
+                      {/* Top Dynamic Island Status Bar */}
+                      <div className="w-full flex items-center justify-between px-7 pt-3.5 pb-2 text-[11px] font-bold shrink-0 bg-transparent z-10">
+                        <span className="font-semibold tracking-tight">9:41</span>
+                        <div className="flex items-center gap-1.5 opacity-80">
+                          <Wifi size={11} />
+                          <Battery size={13} />
                         </div>
-                        <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_4px_rgba(52,211,153,0.9)]" />
                       </div>
-                      <div className="flex items-center gap-1.5 text-zinc-400">
-                        <Wifi size={11} />
-                        <Battery size={13} className="text-zinc-200" />
-                      </div>
-                    </div>
 
-                    {/* Native Mobile Email Header */}
-                    <div
-                      className={`px-4 py-2 border-b flex items-center justify-between text-xs shrink-0 transition-colors ${
-                        isDarkPreview
-                          ? 'bg-zinc-900 border-zinc-800 text-zinc-300'
-                          : 'bg-zinc-50 border-zinc-200 text-zinc-700'
-                      }`}
-                    >
-                      <div className="flex items-center gap-1 text-blue-500 font-semibold cursor-pointer">
-                        <span>‹</span>
-                        <span>Inbox</span>
-                      </div>
-                      <div className="flex items-center gap-3 text-zinc-400">
-                        <Archive size={14} />
-                        <Trash2 size={14} />
-                        <Reply size={14} />
-                      </div>
-                    </div>
-
-                    {/* Email Meta in Mobile Client */}
-                    <div
-                      className={`px-4 py-2.5 border-b text-xs shrink-0 transition-colors ${
-                        isDarkPreview
-                          ? 'bg-zinc-900/80 border-zinc-800'
-                          : 'bg-white border-zinc-100'
-                      }`}
-                    >
+                      {/* Native Mobile Email Header */}
                       <div
-                        className={`font-bold text-xs line-clamp-1 mb-1 ${
-                          isDarkPreview ? 'text-zinc-100' : 'text-zinc-900'
+                        className={`px-4 py-2 border-b flex items-center justify-between text-xs shrink-0 transition-colors ${
+                          isDarkPreview
+                            ? 'bg-zinc-900/90 border-zinc-800 text-zinc-300'
+                            : 'bg-zinc-50 border-zinc-200 text-zinc-700'
                         }`}
                       >
-                        {subject}
-                      </div>
-                      <div className="flex items-center justify-between text-[11px]">
-                        <div className="flex items-center gap-2">
-                          <div className="w-7 h-7 rounded-full bg-blue-600 text-white font-bold text-xs flex items-center justify-center shrink-0">
-                            {template === 'builder_pitch' ? 'P' : 'PF'}
-                          </div>
-                          <div>
-                            <div
-                              className={`font-semibold ${
-                                isDarkPreview ? 'text-zinc-200' : 'text-zinc-800'
-                              }`}
-                            >
-                              {senderName}
-                            </div>
-                            <div className="text-[10px] text-zinc-400">
-                              to {recipientName || 'Developer'}
-                            </div>
-                          </div>
+                        <div className="flex items-center gap-1 text-blue-500 font-semibold cursor-pointer">
+                          <span>‹</span>
+                          <span>Inbox</span>
                         </div>
-                        <span className="text-[10px] text-zinc-400">4:51 PM</span>
+                        <div className="flex items-center gap-3 text-zinc-400">
+                          <Archive size={13} />
+                          <Trash2 size={13} />
+                          <Reply size={13} />
+                        </div>
+                      </div>
+
+                      {/* Email Meta in Mobile Client */}
+                      <div
+                        className={`px-4 py-2 border-b text-xs shrink-0 transition-colors ${
+                          isDarkPreview ? 'bg-zinc-900/60 border-zinc-800' : 'bg-white border-zinc-100'
+                        }`}
+                      >
+                        <div
+                          className={`font-bold text-xs line-clamp-1 mb-1 ${
+                            isDarkPreview ? 'text-zinc-100' : 'text-zinc-900'
+                          }`}
+                        >
+                          {subject}
+                        </div>
+                        <div className="flex items-center justify-between text-[11px]">
+                          <div className="flex items-center gap-2">
+                            <div className="w-6 h-6 rounded-full bg-blue-600 text-white font-bold text-[10px] flex items-center justify-center shrink-0">
+                              {template === 'builder_pitch' ? 'P' : 'PF'}
+                            </div>
+                            <div>
+                              <div
+                                className={`font-semibold leading-tight ${
+                                  isDarkPreview ? 'text-zinc-200' : 'text-zinc-800'
+                                }`}
+                              >
+                                {senderName}
+                              </div>
+                              <div className="text-[10px] text-zinc-400">
+                                to {recipientName || 'Developer'}
+                              </div>
+                            </div>
+                          </div>
+                          <span className="text-[10px] text-zinc-400">4:51 PM</span>
+                        </div>
+                      </div>
+
+                      {/* Phone Screen Body Scrollable */}
+                      <div className="flex-1 overflow-y-auto">
+                        <div
+                          dangerouslySetInnerHTML={{
+                            __html: getHtml(true, isDarkPreview),
+                          }}
+                        />
+                      </div>
+
+                      {/* Bottom iOS Home Indicator */}
+                      <div className="w-full py-2 flex justify-center bg-transparent shrink-0">
+                        <div className="w-28 h-1 rounded-full bg-zinc-400/50 dark:bg-zinc-600/50" />
                       </div>
                     </div>
-
-                    {/* Phone Screen Body Scrollable — dynamic dark mode adaptation */}
-                    <div
-                      className={`p-0 max-h-[560px] overflow-y-auto text-xs leading-relaxed select-text transition-colors duration-200 ${
-                        isDarkPreview ? 'bg-[#0b0b0e]' : 'bg-[#faf7f0]'
-                      }`}
-                    >
-                      <div
-                        dangerouslySetInnerHTML={{
-                          __html: getHtml(true, isDarkPreview),
-                        }}
-                      />
-                    </div>
-
-                    {/* Bottom iOS Home Indicator */}
-                    <div
-                      className={`w-full flex justify-center py-2 shrink-0 border-t transition-colors duration-200 ${
-                        isDarkPreview
-                          ? 'bg-[#0b0b0e] border-zinc-800'
-                          : 'bg-[#faf7f0] border-zinc-200/40'
-                      }`}
-                    >
-                      <div className="w-28 h-1 bg-zinc-400 dark:bg-zinc-600 rounded-full" />
-                    </div>
-                  </div>
+                  </Iphone>
                 </div>
               ) : (
-                /* ── LAPTOP FRAME (MacBook Pro Space Gray Studio Mockup) ─── */
-                <div className="w-full max-w-4xl flex flex-col items-center select-none">
-                  {/* Laptop Screen Bezel */}
-                  <div className="w-full bg-[#161619] rounded-t-[26px] p-2.5 sm:p-3.5 shadow-[0_32px_80px_-20px_rgba(0,0,0,0.65),0_0_0_1px_rgba(255,255,255,0.08)] border-[2px] border-zinc-700/80">
-                    {/* Top Notch with Dual Sensor & Green Camera LED */}
-                    <div className="w-full flex items-center justify-center pb-2">
-                      <div className="w-24 h-4 bg-zinc-950 rounded-b-xl flex items-center justify-center gap-2 border-b border-x border-zinc-800 shadow-inner">
-                        <div className="w-2.5 h-2.5 rounded-full bg-zinc-900 border border-zinc-700/80 flex items-center justify-center">
-                          <div className="w-1 h-1 rounded-full bg-blue-950/80" />
-                        </div>
-                        <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_5px_rgba(52,211,153,0.9)] animate-pulse" />
-                      </div>
-                    </div>
-
-                    {/* Laptop Screen Display Area */}
+                /* ── APPLE SAFARI DESKTOP BROWSER MOCKUP ─── */
+                <div className="w-full max-w-4xl drop-shadow-2xl select-none py-2">
+                  <Safari
+                    url={clientMode === 'gmail' ? 'mail.google.com/mail/u/0/#inbox' : 'outlook.office.com/mail/inbox'}
+                    mode="default"
+                    coloredControls
+                    className={isDarkPreview ? 'dark' : ''}
+                  >
                     <div
-                      className={`w-full rounded-xl overflow-hidden ring-1 ring-black/40 shadow-inner transition-colors ${
+                      className={`size-full flex flex-col ${
                         isDarkPreview ? 'bg-zinc-950 text-zinc-100' : 'bg-white text-zinc-900'
-                      }`}
+                      } select-none`}
                     >
                       {/* CLIENT 1: GMAIL WEB */}
                       {clientMode === 'gmail' && (
-                        <div className="flex flex-col text-xs">
+                        <div className="flex flex-col text-xs size-full overflow-hidden">
                           {/* Gmail Top Navbar */}
                           <div
-                            className={`flex items-center justify-between px-4 py-2.5 border-b select-none transition-colors ${
+                            className={`flex items-center justify-between px-4 py-2 border-b select-none transition-colors shrink-0 ${
                               isDarkPreview
                                 ? 'bg-zinc-900 border-zinc-800 text-zinc-300'
                                 : 'bg-[#f6f8fc] border-zinc-200 text-zinc-700'
                             }`}
                           >
                             <div className="flex items-center gap-3">
-                              <Menu size={16} className="text-zinc-500" />
-                              <div className="flex items-center gap-1.5 font-semibold text-sm">
-                                <span className="text-red-500 font-black text-base">M</span>
+                              <Menu size={16} className="text-zinc-500 cursor-pointer" />
+                              <div className="flex items-center gap-2 font-semibold select-none">
+                                <GmailLogo className="w-5 h-5" />
                                 <span
-                                  className={`font-bold ${
-                                    isDarkPreview ? 'text-zinc-200' : 'text-zinc-700'
+                                  className={`font-medium text-[15px] tracking-tight ${
+                                    isDarkPreview ? 'text-[#e3e3e3]' : 'text-[#444746]'
                                   }`}
                                 >
                                   Gmail
@@ -1380,13 +1614,13 @@ ${senderPhone}`
                                   : 'bg-white border-zinc-200/80 text-zinc-700'
                               }`}
                             >
-                              <Search size={14} className="text-zinc-400" />
+                              <Search size={13} className="text-zinc-400" />
                               <span className="text-xs text-zinc-400 flex-1">Search mail</span>
-                              <Sliders size={13} className="text-zinc-400" />
+                              <Sliders size={12} className="text-zinc-400" />
                             </div>
 
                             <div className="flex items-center gap-2">
-                              <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-600 text-white font-bold text-xs flex items-center justify-center">
+                              <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-600 text-white font-bold text-[10px] flex items-center justify-center shadow-2xs">
                                 A
                               </div>
                             </div>
@@ -1394,37 +1628,35 @@ ${senderPhone}`
 
                           {/* Gmail Action Toolbar */}
                           <div
-                            className={`flex items-center justify-between px-4 py-2 border-b select-none text-zinc-500 text-[11px] ${
+                            className={`flex items-center justify-between px-4 py-1.5 border-b select-none text-zinc-500 text-[11px] shrink-0 ${
                               isDarkPreview ? 'bg-zinc-900/60 border-zinc-800' : 'bg-white border-zinc-100'
                             }`}
                           >
-                            <div className="flex items-center gap-4">
-                              <CornerUpLeft size={14} className="hover:text-zinc-800 dark:hover:text-zinc-200 cursor-pointer" />
-                              <Archive size={14} className="hover:text-zinc-800 dark:hover:text-zinc-200 cursor-pointer" />
-                              <AlertCircle size={14} className="hover:text-zinc-800 dark:hover:text-zinc-200 cursor-pointer" />
-                              <Trash2 size={14} className="hover:text-zinc-800 dark:hover:text-zinc-200 cursor-pointer" />
-                              <Clock size={14} className="hover:text-zinc-800 dark:hover:text-zinc-200 cursor-pointer" />
-                              <Tag size={14} className="hover:text-zinc-800 dark:hover:text-zinc-200 cursor-pointer" />
+                            <div className="flex items-center gap-3.5">
+                              <CornerUpLeft size={13} className="hover:text-zinc-800 dark:hover:text-zinc-200 cursor-pointer" />
+                              <Archive size={13} className="hover:text-zinc-800 dark:hover:text-zinc-200 cursor-pointer" />
+                              <AlertCircle size={13} className="hover:text-zinc-800 dark:hover:text-zinc-200 cursor-pointer" />
+                              <Trash2 size={13} className="hover:text-zinc-800 dark:hover:text-zinc-200 cursor-pointer" />
+                              <Clock size={13} className="hover:text-zinc-800 dark:hover:text-zinc-200 cursor-pointer" />
+                              <Tag size={13} className="hover:text-zinc-800 dark:hover:text-zinc-200 cursor-pointer" />
                             </div>
 
                             <div className="flex items-center gap-3">
-                              <Printer size={14} className="hover:text-zinc-800 dark:hover:text-zinc-200 cursor-pointer" />
-                              <ExternalLink size={14} className="hover:text-zinc-800 dark:hover:text-zinc-200 cursor-pointer" />
+                              <Printer size={13} className="hover:text-zinc-800 dark:hover:text-zinc-200 cursor-pointer" />
+                              <ExternalLink size={13} className="hover:text-zinc-800 dark:hover:text-zinc-200 cursor-pointer" />
                             </div>
                           </div>
 
                           {/* Gmail Email Header */}
                           <div
-                            className={`p-4 sm:p-6 border-b transition-colors ${
-                              isDarkPreview
-                                ? 'bg-zinc-950 border-zinc-800'
-                                : 'bg-white border-zinc-100'
+                            className={`px-5 py-3 border-b transition-colors shrink-0 ${
+                              isDarkPreview ? 'bg-zinc-950 border-zinc-800' : 'bg-white border-zinc-100'
                             }`}
                           >
-                            <div className="flex items-start justify-between gap-4 mb-3">
+                            <div className="flex items-start justify-between gap-4 mb-2">
                               <div className="flex items-center gap-2 flex-wrap">
                                 <h2
-                                  className={`text-base sm:text-lg font-bold ${
+                                  className={`text-sm sm:text-base font-bold ${
                                     isDarkPreview ? 'text-zinc-100' : 'text-zinc-900'
                                   }`}
                                 >
@@ -1435,46 +1667,40 @@ ${senderPhone}`
                                 </span>
                               </div>
                               <div className="flex items-center gap-2 text-zinc-400 shrink-0">
-                                <Star size={15} className="hover:text-amber-400 cursor-pointer" />
-                                <Printer size={15} className="hover:text-zinc-700 cursor-pointer" />
+                                <Star size={14} className="hover:text-amber-400 cursor-pointer" />
+                                <Printer size={14} className="hover:text-zinc-700 cursor-pointer" />
                               </div>
                             </div>
 
                             {/* Sender Info Line */}
                             <div className="flex items-center justify-between gap-3 text-xs">
                               <div className="flex items-center gap-2.5">
-                                <div className="w-8 h-8 rounded-full bg-blue-600 text-white font-bold text-xs flex items-center justify-center shrink-0">
+                                <div className="w-7 h-7 rounded-full bg-blue-600 text-white font-bold text-[11px] flex items-center justify-center shrink-0">
                                   {template === 'builder_pitch' ? 'P' : 'PF'}
                                 </div>
                                 <div>
                                   <div
-                                    className={`font-bold flex items-center gap-1.5 ${
-                                      isDarkPreview ? 'text-zinc-100' : 'text-zinc-900'
+                                    className={`font-semibold ${
+                                      isDarkPreview ? 'text-zinc-200' : 'text-zinc-800'
                                     }`}
                                   >
-                                    <span>{senderName}</span>
-                                    <span className="font-normal text-zinc-400">
+                                    {senderName}{' '}
+                                    <span className="font-normal text-zinc-400 text-[11px]">
                                       &lt;partnerships@propfyndr.in&gt;
                                     </span>
                                   </div>
-                                  <div className="text-zinc-400 text-[11px] flex items-center gap-1">
-                                    <span>
-                                      to {recipientName} &lt;{recipientEmail}&gt;
-                                    </span>
-                                    <ChevronDown size={11} className="cursor-pointer" />
+                                  <div className="text-[10px] text-zinc-400">
+                                    to {recipientName} &lt;{recipientEmail}&gt;
                                   </div>
                                 </div>
                               </div>
-
-                              <span className="text-[11px] text-zinc-400 tabular-nums">
-                                4:51 PM (0 minutes ago)
-                              </span>
+                              <span className="text-[10px] text-zinc-400">4:51 PM (0 minutes ago)</span>
                             </div>
                           </div>
 
                           {/* Email Body Canvas */}
                           <div
-                            className={`p-4 sm:p-8 max-h-[460px] overflow-y-auto select-text transition-colors duration-200 ${
+                            className={`flex-1 overflow-y-auto min-h-0 select-text p-4 sm:p-8 transition-colors duration-200 ${
                               isDarkPreview ? 'bg-[#0b0b0e]' : 'bg-[#faf7f0]'
                             }`}
                           >
@@ -1487,52 +1713,66 @@ ${senderPhone}`
                         </div>
                       )}
 
-                      {/* CLIENT 2: OUTLOOK 365 WEB */}
+                      {/* CLIENT 2: OUTLOOK 365 */}
                       {clientMode === 'outlook' && (
-                        <div className="flex flex-col text-xs">
-                          {/* Outlook Blue Top Navbar */}
-                          <div className="flex items-center justify-between px-4 py-2.5 bg-[#0078d4] text-white select-none">
-                            <div className="flex items-center gap-3">
-                              <Grid size={15} className="opacity-90" />
-                              <span className="font-bold text-sm tracking-tight">Outlook</span>
+                        <div className="flex flex-col text-xs size-full overflow-hidden">
+                          {/* Outlook Top Header with 3x3 app grid and official Outlook Logo */}
+                          <div className="bg-[#0078d4] text-white px-4 py-2 flex items-center justify-between select-none shrink-0 shadow-xs">
+                            <div className="flex items-center gap-2.5">
+                              <div className="grid grid-cols-3 gap-0.5 w-3.5 h-3.5 opacity-85 hover:opacity-100 cursor-pointer">
+                                <span className="w-1 h-1 bg-white rounded-[0.5px]" />
+                                <span className="w-1 h-1 bg-white rounded-[0.5px]" />
+                                <span className="w-1 h-1 bg-white rounded-[0.5px]" />
+                                <span className="w-1 h-1 bg-white rounded-[0.5px]" />
+                                <span className="w-1 h-1 bg-white rounded-[0.5px]" />
+                                <span className="w-1 h-1 bg-white rounded-[0.5px]" />
+                                <span className="w-1 h-1 bg-white rounded-[0.5px]" />
+                                <span className="w-1 h-1 bg-white rounded-[0.5px]" />
+                                <span className="w-1 h-1 bg-white rounded-[0.5px]" />
+                              </div>
+                              <div className="flex items-center gap-2 ml-1">
+                                <OutlookLogo className="w-5 h-5" />
+                                <span className="font-semibold text-sm tracking-tight text-white">Outlook</span>
+                              </div>
                             </div>
-
-                            {/* Outlook Search */}
-                            <div className="hidden sm:flex items-center flex-1 max-w-md mx-6 px-3 py-1 rounded bg-white/20 text-white placeholder-white/70 text-xs gap-2">
-                              <Search size={13} className="opacity-80" />
-                              <span className="text-white/80 text-[11px]">Search</span>
+                            <div className="hidden sm:flex items-center flex-1 max-w-xs mx-6 bg-white/20 hover:bg-white/25 rounded-md px-3 py-1 gap-2 text-white/90 text-xs transition-colors">
+                              <Search size={13} />
+                              <span className="text-white/70">Search</span>
                             </div>
-
                             <div className="flex items-center gap-2">
-                              <div className="w-6 h-6 rounded-full bg-white text-[#0078d4] font-bold text-xs flex items-center justify-center">
+                              <div className="w-6 h-6 rounded-full bg-white text-[#0078d4] font-bold text-[10px] flex items-center justify-center shadow-xs">
                                 PF
                               </div>
                             </div>
                           </div>
 
-                          {/* Outlook Ribbon Toolbar */}
+                          {/* Outlook Sub-Toolbar */}
                           <div
-                            className={`flex items-center gap-4 px-4 py-1.5 border-b select-none text-[11px] font-medium text-zinc-600 dark:text-zinc-400 ${
-                              isDarkPreview ? 'bg-zinc-900 border-zinc-800' : 'bg-[#f3f2f1] border-zinc-200'
+                            className={`flex items-center gap-4 px-4 py-1.5 border-b text-[11px] font-medium select-none shrink-0 ${
+                              isDarkPreview
+                                ? 'bg-zinc-900 border-zinc-800 text-zinc-300'
+                                : 'bg-[#f3f2f1] border-zinc-200 text-zinc-700'
                             }`}
                           >
-                            <span className="font-bold text-[#0078d4] border-b-2 border-[#0078d4] pb-1">
-                              Home
+                            <span className="text-[#0078d4] font-bold border-b-2 border-[#0078d4] pb-0.5">Home</span>
+                            <span className="text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200 cursor-pointer">
+                              View
                             </span>
-                            <span className="pb-1 hover:text-zinc-900 cursor-pointer">View</span>
-                            <span className="pb-1 hover:text-zinc-900 cursor-pointer">Help</span>
+                            <span className="text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200 cursor-pointer">
+                              Help
+                            </span>
                           </div>
 
-                          {/* Outlook Email Header */}
+                          {/* Outlook Email Title Banner */}
                           <div
-                            className={`p-4 sm:p-6 border-b transition-colors ${
+                            className={`p-4 sm:p-5 border-b transition-colors shrink-0 ${
                               isDarkPreview
                                 ? 'bg-zinc-950 border-zinc-800'
                                 : 'bg-white border-zinc-100'
                             }`}
                           >
                             <h2
-                              className={`text-base sm:text-lg font-bold mb-3 ${
+                              className={`text-sm sm:text-base font-bold mb-2 ${
                                 isDarkPreview ? 'text-zinc-100' : 'text-zinc-900'
                               }`}
                             >
@@ -1541,7 +1781,7 @@ ${senderPhone}`
 
                             <div className="flex items-center justify-between gap-3 text-xs">
                               <div className="flex items-center gap-2.5">
-                                <div className="w-8 h-8 rounded-full bg-[#0078d4] text-white font-bold text-xs flex items-center justify-center shrink-0">
+                                <div className="w-7 h-7 rounded-full bg-[#0078d4] text-white font-bold text-[10px] flex items-center justify-center shrink-0">
                                   {template === 'builder_pitch' ? 'P' : 'PF'}
                                 </div>
                                 <div>
@@ -1552,18 +1792,18 @@ ${senderPhone}`
                                   >
                                     {senderName} &lt;partnerships@propfyndr.in&gt;
                                   </div>
-                                  <div className="text-zinc-400 text-[11px]">
+                                  <div className="text-zinc-400 text-[10px]">
                                     To: {recipientName} &lt;{recipientEmail}&gt;
                                   </div>
                                 </div>
                               </div>
-                              <span className="text-[11px] text-zinc-400">Fri 4:51 PM</span>
+                              <span className="text-[10px] text-zinc-400">Fri 4:51 PM</span>
                             </div>
                           </div>
 
                           {/* Email Body Canvas */}
                           <div
-                            className={`p-4 sm:p-8 max-h-[460px] overflow-y-auto select-text transition-colors duration-200 ${
+                            className={`flex-1 overflow-y-auto min-h-0 select-text p-4 sm:p-8 transition-colors duration-200 ${
                               isDarkPreview ? 'bg-[#0b0b0e]' : 'bg-[#faf7f0]'
                             }`}
                           >
@@ -1576,39 +1816,36 @@ ${senderPhone}`
                         </div>
                       )}
                     </div>
-                  </div>
-
-                  {/* Laptop Precision-Milled Aluminum Base & Lip */}
-                  <div className="relative w-[103%] -mt-[1px] flex flex-col items-center">
-                    <div className="w-full h-[5px] bg-gradient-to-r from-zinc-600 via-zinc-400 to-zinc-600 rounded-t-sm shadow-[0_1px_2px_rgba(0,0,0,0.35)]" />
-                    <div className="relative w-full h-3.5 bg-gradient-to-b from-zinc-700 via-zinc-800 to-zinc-950 rounded-b-[14px] shadow-[0_14px_30px_rgba(0,0,0,0.5)] border-t border-zinc-600/50 flex justify-center items-start">
-                      <div className="w-24 h-1.5 bg-gradient-to-b from-zinc-950 to-zinc-700 rounded-b-md shadow-inner flex items-center justify-center">
-                        <div className="w-16 h-[1px] bg-zinc-500/50 rounded-full" />
-                      </div>
-                    </div>
-                    <div className="w-[96%] h-2.5 bg-black/40 blur-md rounded-full -mt-1 pointer-events-none" />
-                  </div>
+                  </Safari>
                 </div>
               )}
             </div>
 
             {/* Modal Bottom Status Bar */}
-            <div className="px-5 sm:px-6 py-2.5 bg-white dark:bg-zinc-900 border-t border-zinc-200/80 dark:border-zinc-800 flex items-center justify-between text-xs shrink-0">
-              <div className="flex items-center gap-2 text-zinc-500">
-                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                <span className="font-semibold text-zinc-700 dark:text-zinc-300">
-                  Ready to Send or Copy
+            <div className="px-5 sm:px-7 py-3 bg-white/95 dark:bg-[#1c1c1f]/95 border-t border-[#e5e5ea] dark:border-[#27272a] flex items-center justify-between text-xs backdrop-blur-xl shrink-0">
+              <div className="flex items-center gap-2.5 text-[#86868b]">
+                <span className="w-2 h-2 rounded-full bg-[#34c759] animate-pulse" />
+                <span className="font-semibold text-[#1d1d1f] dark:text-[#f5f5f7]">
+                  Executive Deliverability Verified
                 </span>
-                <span className="text-zinc-400 hidden lg:inline">
-                  · Tested against Gmail, Outlook 365, Apple Mail, and iOS Safari Mail
+                <span className="text-[#86868b] hidden md:inline">
+                  · Tested across Gmail, Outlook 365, iOS Apple Mail, and Safari
                 </span>
               </div>
 
               <div className="flex items-center gap-2">
                 <button
                   type="button"
+                  onClick={copyHtml}
+                  className="px-3.5 py-1.5 rounded-xl border border-[#e5e5ea] dark:border-[#38383e] bg-white dark:bg-[#25252a] hover:bg-[#f5f5f7] dark:hover:bg-[#2e2e34] text-[#1d1d1f] dark:text-[#f5f5f7] font-semibold text-xs transition-all cursor-pointer active:scale-95 flex items-center gap-1.5"
+                >
+                  {copiedType === 'html' ? <Check size={13} className="text-[#34c759]" /> : <Copy size={13} />}
+                  <span>{copiedType === 'html' ? 'Copied!' : 'Copy HTML'}</span>
+                </button>
+                <button
+                  type="button"
                   onClick={onClose}
-                  className="px-4 py-1.5 rounded-xl border border-zinc-200 dark:border-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-300 font-semibold text-xs transition-all cursor-pointer active:scale-95"
+                  className="px-4 py-1.5 rounded-xl bg-[#1d1d1f] hover:bg-black dark:bg-white dark:hover:bg-zinc-200 text-white dark:text-zinc-900 font-semibold text-xs transition-all cursor-pointer active:scale-95 shadow-2xs"
                 >
                   Done
                 </button>

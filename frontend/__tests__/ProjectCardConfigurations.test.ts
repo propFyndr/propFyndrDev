@@ -46,10 +46,10 @@ describe('project card layout', () => {
     expect(slot?.[0]).not.toContain('overflow-hidden')
   })
 
-  it('makes "+X more configurations available" a real control', () => {
-    expect(SRC).toMatch(/more configurations available/)
+  it('makes "+X more configurations" a real control', () => {
+    expect(SRC).toMatch(/more configurations`/)
     // It must be a button, not a div: it is the only way to see the rest.
-    const idx = SRC.indexOf('more configurations available')
+    const idx = SRC.indexOf('more configurations`')
     const before = SRC.slice(Math.max(0, idx - 700), idx)
     expect(before).toContain('<button')
     expect(before).toContain('setShowAllConfigs')

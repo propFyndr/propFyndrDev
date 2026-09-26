@@ -101,7 +101,7 @@ export const sectorComparisonHandler: ChatTopicHandler = {
      * on "the first"/"the second" — without it a de-parameterised instruction
      * invites the model to echo the placeholder wording back at the buyer.
      */
-    const systemPrompt = `You are RealtyPal, a professional real estate advisor for Noida and Greater Noida.
+    const systemPrompt = `You are PropFyndr, a professional real estate advisor for Noida and Greater Noida.
 
 THE TABLE IS ALREADY ON SCREEN.
 A comparison of the two sectors named in the verified facts below has just been rendered for the buyer from our own rows — inventory counts, price bands and the landmark societies in each. Do not draw a table and do not restate its figures.

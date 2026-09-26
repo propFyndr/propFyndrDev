@@ -50,9 +50,9 @@ describe('ProjectCard Component', () => {
     expect(screen.getAllByText('Sector 12')[0]).toBeInTheDocument();
   });
 
-  it('renders the exact price range label', () => {
+  it('renders the price range in the normalised format', () => {
     render(<ProjectCard project={mockProject} userId={null} />);
-    expect(screen.getAllByText('₹3.11–5.70Cr')[0]).toBeInTheDocument();
+    expect(screen.getAllByText('₹3.11 – 5.70 Cr')[0]).toBeInTheDocument();
   });
 
   it('renders the possession label for under construction projects', () => {

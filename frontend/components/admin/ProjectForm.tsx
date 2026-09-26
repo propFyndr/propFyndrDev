@@ -168,8 +168,8 @@ function toSlug(name: string): string {
 function SectionHeader({ title }: { title: string }) {
   return (
     <div className="col-span-1 md:col-span-2 pt-6 mt-4 first:pt-0 first:mt-0">
-      <div className="flex items-center gap-4">
-        <span className="text-[15px] font-sans font-bold text-zinc-900 dark:text-white tracking-tight">{title}</span>
+      <div className="flex items-center gap-3">
+        <span className="text-[12.5px] font-semibold text-zinc-800 dark:text-zinc-200 uppercase tracking-wider">{title}</span>
         <div className="flex-1 h-px bg-zinc-200/80 dark:bg-zinc-800" />
       </div>
     </div>
@@ -184,13 +184,13 @@ function Field({ label, children, hint, required }: {
 }) {
   return (
     <div className="w-full min-w-0 flex flex-col">
-      <label className="block text-[11px] font-black text-slate-800 dark:text-slate-200 uppercase tracking-widest mb-1.5">
-        {label} {required && <span className="text-rose-500">*</span>}
+      <label className="block text-[12px] font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">
+        {label} {required && <span className="text-rose-500 font-semibold">*</span>}
       </label>
       <div className="w-full min-w-0">
         {children}
       </div>
-      {hint && <p className="text-[11.5px] text-slate-500 dark:text-slate-400 font-medium mt-1.5 leading-snug">{hint}</p>}
+      {hint && <p className="text-[11.5px] text-zinc-500 dark:text-zinc-400 mt-1 leading-snug font-normal">{hint}</p>}
     </div>
   )
 }
@@ -204,12 +204,10 @@ function Input({ value, onChange, ...rest }: Omit<React.InputHTMLAttributes<HTML
       value={value}
       onChange={(e) => onChange(e.target.value)}
       {...rest}
-      className="w-full bg-slate-50/80 dark:bg-zinc-800/80 border border-transparent dark:border-zinc-700/80 hover:bg-slate-50 dark:hover:bg-zinc-800 focus:bg-white dark:focus:bg-zinc-900 rounded-xl px-4 py-3 text-[14px] text-slate-900 dark:text-zinc-100 placeholder:text-slate-400 dark:placeholder:text-zinc-500 focus:outline-none focus:border-slate-200 dark:focus:border-zinc-600 focus:ring-4 focus:ring-slate-100 dark:focus:ring-zinc-700/40 transition-all duration-200 shadow-sm"
-
+      className="w-full bg-white dark:bg-zinc-850/80 border border-zinc-200/90 dark:border-zinc-700/80 hover:border-zinc-300 dark:hover:border-zinc-600 focus:border-[#0066cc] dark:focus:border-[#0066cc] focus:ring-2 focus:ring-[#0066cc]/15 rounded-xl h-10 px-3.5 text-[13px] text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-500 focus:outline-none transition-all shadow-2xs"
     />
   )
 }
-
 
 function Textarea({ value, onChange, rows = 3, placeholder }: {
   value: string
@@ -223,8 +221,7 @@ function Textarea({ value, onChange, rows = 3, placeholder }: {
       onChange={(e) => onChange(e.target.value)}
       rows={rows}
       placeholder={placeholder}
-      className="w-full bg-slate-50/80 dark:bg-zinc-800/80 border border-transparent dark:border-zinc-700/80 hover:bg-slate-50 dark:hover:bg-zinc-800 focus:bg-white dark:focus:bg-zinc-900 rounded-xl px-4 py-3 text-[14px] text-slate-900 dark:text-zinc-100 placeholder:text-slate-400 dark:placeholder:text-zinc-500 focus:outline-none focus:border-slate-200 dark:focus:border-zinc-600 focus:ring-4 focus:ring-slate-100 dark:focus:ring-zinc-700/40 transition-all duration-200 shadow-sm resize-none"
-
+      className="w-full bg-white dark:bg-zinc-850/80 border border-zinc-200/90 dark:border-zinc-700/80 hover:border-zinc-300 dark:hover:border-zinc-600 focus:border-[#0066cc] dark:focus:border-[#0066cc] focus:ring-2 focus:ring-[#0066cc]/15 rounded-xl p-3.5 text-[13px] text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-500 focus:outline-none transition-all shadow-2xs resize-none"
     />
   )
 }
@@ -245,18 +242,16 @@ function TagInput({ tags, onChange, placeholder }: {
   return (
     <div>
       {tags.length > 0 && (
-        <div className="flex flex-wrap gap-2 mb-2">
+        <div className="flex flex-wrap gap-1.5 mb-2">
           {tags.map((t) => (
-            <span key={t} className="flex items-center gap-1.5 bg-zinc-100 text-zinc-800 text-[12px] px-2.5 py-1 rounded-lg border border-zinc-200/80 font-medium">
-
+            <span key={t} className="flex items-center gap-1.5 bg-zinc-100 dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200 text-xs px-2.5 py-1 rounded-lg border border-zinc-200/80 dark:border-zinc-700/80 font-medium">
               {t}
               <button
                 type="button"
                 onClick={() => onChange(tags.filter((x) => x !== t))}
-                className="text-zinc-400 hover:text-zinc-900 transition-colors"
+                className="text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 transition-colors"
               >
                 <X size={12} />
-
               </button>
             </span>
           ))}
@@ -270,16 +265,14 @@ function TagInput({ tags, onChange, placeholder }: {
             if (e.key === 'Enter' || e.key === ',') { e.preventDefault(); add() }
           }}
           placeholder={placeholder ?? 'Type and press Enter'}
-          className="flex-1 bg-slate-50/80 dark:bg-zinc-800/80 border border-transparent dark:border-zinc-700/80 hover:bg-slate-50 dark:hover:bg-zinc-800 focus:bg-white dark:focus:bg-zinc-900 rounded-xl px-4 py-3 text-[14px] text-slate-900 dark:text-zinc-100 placeholder:text-slate-400 dark:placeholder:text-zinc-500 focus:outline-none focus:border-slate-200 dark:focus:border-zinc-600 focus:ring-4 focus:ring-slate-100 dark:focus:ring-zinc-700/40 transition-all duration-200 shadow-sm"
-
+          className="flex-1 bg-white dark:bg-zinc-850/80 border border-zinc-200/90 dark:border-zinc-700/80 hover:border-zinc-300 dark:hover:border-zinc-600 focus:border-[#0066cc] dark:focus:border-[#0066cc] focus:ring-2 focus:ring-[#0066cc]/15 rounded-xl h-10 px-3.5 text-[13px] text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-500 focus:outline-none transition-all shadow-2xs"
         />
         <button
           type="button"
           onClick={add}
-          className="px-4 py-3 bg-slate-900 hover:bg-black rounded-xl text-white shadow-sm transition-all"
+          className="px-3.5 h-10 bg-zinc-900 hover:bg-black dark:bg-zinc-100 dark:hover:bg-white text-white dark:text-zinc-900 rounded-xl transition-all shadow-2xs flex items-center justify-center cursor-pointer active:scale-[0.98]"
         >
-          <Plus size={16} />
-
+          <Plus size={15} />
         </button>
       </div>
     </div>
@@ -874,23 +867,21 @@ export default function ProjectForm({ initialData, projectId, onFormChange, onSa
         </div>
       )}
 
-      <div className="flex items-center gap-4 pt-8 mt-4 border-t border-slate-100">
+      <div className="flex items-center gap-3 pt-6 mt-4 border-t border-zinc-200/80 dark:border-zinc-800">
         <button
           type="button"
           onClick={() => router.back()}
-          className="px-6 py-3 border border-gray-200 bg-white rounded-full text-[13px] font-bold text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-all shadow-sm"
-
+          className="px-5 py-2.5 border border-zinc-200/90 dark:border-zinc-700/80 bg-white dark:bg-zinc-800 rounded-xl text-xs font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-750 transition-all shadow-2xs cursor-pointer active:scale-[0.98]"
         >
           Cancel
         </button>
         <button
           type="submit"
           disabled={saving}
-          className="flex items-center gap-2 px-8 py-3 bg-slate-900 hover:bg-black text-white rounded-full text-[13px] font-bold shadow-sm disabled:opacity-40 transition-all"
+          className="flex items-center gap-2 px-6 py-2.5 bg-[#0066cc] hover:bg-[#0077ed] text-white rounded-xl text-xs font-medium shadow-xs disabled:opacity-50 transition-all cursor-pointer active:scale-[0.98]"
         >
-          {saving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
-          {saving ? 'Saving...' : projectId ? 'Save Changes' : 'Create Project'}
-
+          {saving ? <Loader2 size={15} className="animate-spin" /> : <Save size={15} />}
+          <span>{saving ? 'Saving...' : projectId ? 'Save Changes' : 'Create Project'}</span>
         </button>
       </div>
     </form>

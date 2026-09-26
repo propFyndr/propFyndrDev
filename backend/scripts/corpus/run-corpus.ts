@@ -19,6 +19,7 @@
 import { readFileSync, writeFileSync } from 'node:fs'
 import { scanDisclosure } from '../../src/lib/ai/answerIntegrity'
 import { endsRagged } from '../../src/lib/ai/endsRagged'
+import { isOutageNotice } from '../../src/lib/ai/outageNotice'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { prisma } from '../../src/lib/db'
@@ -129,7 +130,7 @@ export function grade(entry: CorpusEntry, text: string, errored: boolean): Grade
   // long-tail turns were graded `pass` while showing "our AI services are
   // currently experiencing high traffic". A run that scores an outage as a
   // success is measuring the wrong thing.
-  if (PROVIDER_EXHAUSTED.test(answer)) return 'unavailable'
+  if (PROVIDER_EXHAUSTED.test(answer) || isOutageNotice(answer)) return 'unavailable'
 
   // Order matters: a deflection is a deflection even when it is long enough,
   // and an out-of-scope query answered with a deflection is still a deflection.
@@ -310,6 +311,9 @@ interface Result {
   ttftMs: number | null
   totalMs: number
   sessionId: string | null
+  lane: string | null
+  queryKind: string | null
+  jev: unknown
   costUsd: number
   promptTokens: number
   completionTokens: number
@@ -355,7 +359,13 @@ async function main() {
     : process.argv.includes('--demo')
       ? 'demo-set.json'
       : 'corpus.json'
-  const corpus: CorpusEntry[] = JSON.parse(readFileSync(join(HERE, source), 'utf8'))
+  // --labels runs router-labels.json (Phase 0 routing ground truth). Rows that
+  // carry a conversation history are skipped: ask() sends a single turn.
+  const corpus: CorpusEntry[] = process.argv.includes('--labels')
+    ? (JSON.parse(readFileSync(join(HERE, 'router-labels.json'), 'utf8')) as Array<{ id: string; q: string; task: string; history?: unknown[] }>)
+        .filter((r) => !r.history?.length)
+        .map((r) => ({ id: r.id, query: r.q, class: r.task, volume: 0 }) as unknown as CorpusEntry)
+    : JSON.parse(readFileSync(join(HERE, source), 'utf8'))
   const only = arg('class')
   const limit = Number(arg('limit', '60'))
   const concurrency = Number(arg('concurrency', '4'))
@@ -393,6 +403,13 @@ async function main() {
     },
   })
 
+  // Which lane answered each turn (turn_traces, Phase 0 of CHAT_INTELLIGENCE_ROADMAP.md).
+  const traces = await prisma.turnTrace.findMany({
+    where: { created_at: { gte: runStart } },
+    select: { session_id: true, lane: true, query_kind: true, jev_shadow: true },
+  })
+  const laneBySession = new Map(traces.filter((t) => t.session_id).map((t) => [t.session_id!, t]))
+
   const bySession = new Map<
     string,
     { cost: number; prompt: number; completion: number; calls: number; model: string }
@@ -426,6 +443,9 @@ async function main() {
       ttftMs: turn.ttftMs,
       totalMs: turn.totalMs,
       sessionId: turn.sessionId,
+      lane: (turn.sessionId && laneBySession.get(turn.sessionId)?.lane) || null,
+      queryKind: (turn.sessionId && laneBySession.get(turn.sessionId)?.query_kind) || null,
+      jev: (turn.sessionId && laneBySession.get(turn.sessionId)?.jev_shadow) || null,
       costUsd: u.cost,
       promptTokens: u.prompt,
       completionTokens: u.completion,

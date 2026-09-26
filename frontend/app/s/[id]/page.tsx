@@ -121,7 +121,7 @@ export default function SharedShortlistPage() {
               href="/"
               className="inline-block px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-colors"
             >
-              Chat with RealtyPal AI
+              Chat with PropFyndr AI
             </a>
           </div>
         )}

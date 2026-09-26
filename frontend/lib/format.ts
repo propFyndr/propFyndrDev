@@ -59,6 +59,14 @@ export function sanitizePriceLabel(label: string | null | undefined): string {
       return `₹${num} Lakh`
     })
 
-  return sanitized.replace(/₹\s*₹/g, '₹').replace(/\s+/g, ' ').trim()
+  const clean = sanitized.replace(/₹\s*₹/g, '₹').replace(/\s+/g, ' ').trim()
+
+  // One range format everywhere: "₹1.09 – 1.83 Cr". Labels arrive as
+  // "₹1.09–1.83Cr" and "₹0.44 Cr - ₹2.45 Cr"; side by side they read differently.
+  const range = clean.match(/^₹\s*([\d.]+)\s*(Cr|Lakh)?\s*(?:-|–|—|to)\s*₹?\s*([\d.]+)\s*(Cr|Lakh)$/i)
+  if (!range) return clean
+  const [, lo, loUnit, hi, hiUnit] = range
+  if (loUnit && loUnit.toLowerCase() !== hiUnit.toLowerCase()) return `₹${lo} ${loUnit} – ${hi} ${hiUnit}`
+  return `₹${lo} – ${hi} ${hiUnit}`
 }
 

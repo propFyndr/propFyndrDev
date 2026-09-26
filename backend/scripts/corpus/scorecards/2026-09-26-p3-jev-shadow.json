@@ -1,0 +1,582 @@
+{
+  "date": "2026-09-26",
+  "files": [
+    "results-p3-jev-shadow.json"
+  ],
+  "turns": 288,
+  "passPct": 54.2,
+  "outagePct": 43.4,
+  "grades": {
+    "pass": 156,
+    "unavailable": 125,
+    "integrity": 5,
+    "too_short": 1,
+    "not_declined": 1
+  },
+  "costPerTurnUsd": 0.00167,
+  "promptTokensPerTurn": 8130,
+  "completionTokensPerTurn": 252,
+  "llmCallsPerTurn": 0.43,
+  "latencyMs": {
+    "p50": 21937,
+    "p95": 61415,
+    "ttftP50": 3170
+  },
+  "lanes": {
+    "no-trace": 23,
+    "OPEN": 22,
+    "main": 148,
+    "coverage-lane": 19,
+    "topic:possession_status": 3,
+    "answer-cache": 5,
+    "topic:newcomer-orientation": 2,
+    "topic:builder-reputation": 2,
+    "topic:commute-shortlist": 1,
+    "topic:sector-comparison": 6,
+    "topic:rera_verification": 1,
+    "ground-truth-db": 42,
+    "topic:amenity-lifestyle": 4,
+    "unlabelled": 1,
+    "topic:unit_configuration": 1,
+    "NEWS_MILESTONE": 1,
+    "topic:payment-plans": 1,
+    "topic:statutory_tax": 1,
+    "coverage": 5
+  },
+  "routing": {
+    "labelledAndTraced": 260,
+    "accuracyPct": 72.3,
+    "perTask": {
+      "legal_process": {
+        "n": 5,
+        "hit": 3,
+        "pct": 60
+      },
+      "discover": {
+        "n": 147,
+        "hit": 116,
+        "pct": 78.9
+      },
+      "market_explain": {
+        "n": 36,
+        "hit": 19,
+        "pct": 52.8
+      },
+      "calculate": {
+        "n": 4,
+        "hit": 1,
+        "pct": 25
+      },
+      "compare": {
+        "n": 14,
+        "hit": 7,
+        "pct": 50
+      },
+      "project_fact": {
+        "n": 41,
+        "hit": 40,
+        "pct": 97.6
+      },
+      "out_of_scope": {
+        "n": 11,
+        "hit": 2,
+        "pct": 18.2
+      },
+      "meta": {
+        "n": 1,
+        "hit": 0,
+        "pct": 0
+      },
+      "lead": {
+        "n": 1,
+        "hit": 0,
+        "pct": 0
+      }
+    },
+    "misses": [
+      {
+        "id": "q127",
+        "task": "market_explain",
+        "lane": "main",
+        "queryKind": "DISCOVERY"
+      },
+      {
+        "id": "q183",
+        "task": "discover",
+        "lane": "coverage-lane",
+        "queryKind": "DISCOVERY"
+      },
+      {
+        "id": "q215",
+        "task": "discover",
+        "lane": "coverage-lane",
+        "queryKind": "DISCOVERY"
+      },
+      {
+        "id": "q230",
+        "task": "discover",
+        "lane": "coverage-lane",
+        "queryKind": "DISCOVERY"
+      },
+      {
+        "id": "q246",
+        "task": "market_explain",
+        "lane": "main",
+        "queryKind": "DISCOVERY"
+      },
+      {
+        "id": "q251",
+        "task": "discover",
+        "lane": "topic:possession_status",
+        "queryKind": "DISCOVERY"
+      },
+      {
+        "id": "q027",
+        "task": "discover",
+        "lane": "coverage-lane",
+        "queryKind": "DISCOVERY"
+      },
+      {
+        "id": "q083",
+        "task": "discover",
+        "lane": "coverage-lane",
+        "queryKind": "DISCOVERY"
+      },
+      {
+        "id": "q096",
+        "task": "discover",
+        "lane": "coverage-lane",
+        "queryKind": "DISCOVERY"
+      },
+      {
+        "id": "q098",
+        "task": "discover",
+        "lane": "coverage-lane",
+        "queryKind": "DISCOVERY"
+      },
+      {
+        "id": "q099",
+        "task": "discover",
+        "lane": "coverage-lane",
+        "queryKind": "DISCOVERY"
+      },
+      {
+        "id": "q101",
+        "task": "discover",
+        "lane": "coverage-lane",
+        "queryKind": "DISCOVERY"
+      },
+      {
+        "id": "q102",
+        "task": "discover",
+        "lane": "coverage-lane",
+        "queryKind": "DISCOVERY"
+      },
+      {
+        "id": "q129",
+        "task": "discover",
+        "lane": "coverage-lane",
+        "queryKind": "DISCOVERY"
+      },
+      {
+        "id": "q136",
+        "task": "discover",
+        "lane": "coverage-lane",
+        "queryKind": "DISCOVERY"
+      },
+      {
+        "id": "q140",
+        "task": "discover",
+        "lane": "coverage-lane",
+        "queryKind": "DISCOVERY"
+      },
+      {
+        "id": "q151",
+        "task": "discover",
+        "lane": "coverage-lane",
+        "queryKind": "DISCOVERY"
+      },
+      {
+        "id": "q110",
+        "task": "discover",
+        "lane": "OPEN",
+        "queryKind": "OPEN"
+      },
+      {
+        "id": "q117",
+        "task": "calculate",
+        "lane": "main",
+        "queryKind": "DISCOVERY"
+      },
+      {
+        "id": "q297",
+        "task": "discover",
+        "lane": "OPEN",
+        "queryKind": "OPEN"
+      },
+      {
+        "id": "q298",
+        "task": "discover",
+        "lane": "OPEN",
+        "queryKind": "OPEN"
+      },
+      {
+        "id": "q048",
+        "task": "market_explain",
+        "lane": "main",
+        "queryKind": "RANKING"
+      },
+      {
+        "id": "q070",
+        "task": "market_explain",
+        "lane": "main",
+        "queryKind": "RANKING"
+      },
+      {
+        "id": "q071",
+        "task": "market_explain",
+        "lane": "main",
+        "queryKind": "RANKING"
+      },
+      {
+        "id": "q073",
+        "task": "market_explain",
+        "lane": "main",
+        "queryKind": "RANKING"
+      },
+      {
+        "id": "q121",
+        "task": "market_explain",
+        "lane": "main",
+        "queryKind": "DISCOVERY"
+      },
+      {
+        "id": "q252",
+        "task": "discover",
+        "lane": "topic:possession_status",
+        "queryKind": "DISCOVERY"
+      },
+      {
+        "id": "q270",
+        "task": "discover",
+        "lane": "OPEN",
+        "queryKind": "OPEN"
+      },
+      {
+        "id": "q079",
+        "task": "compare",
+        "lane": "main",
+        "queryKind": "RANKING"
+      },
+      {
+        "id": "q111",
+        "task": "compare",
+        "lane": "main",
+        "queryKind": "RANKING"
+      },
+      {
+        "id": "q112",
+        "task": "compare",
+        "lane": "topic:commute-shortlist",
+        "queryKind": "COMPARISON"
+      },
+      {
+        "id": "q146",
+        "task": "compare",
+        "lane": "OPEN",
+        "queryKind": "OPEN"
+      },
+      {
+        "id": "q148",
+        "task": "compare",
+        "lane": "main",
+        "queryKind": "DISCOVERY"
+      },
+      {
+        "id": "q149",
+        "task": "compare",
+        "lane": "main",
+        "queryKind": "DISCOVERY"
+      },
+      {
+        "id": "q265",
+        "task": "compare",
+        "lane": "coverage-lane",
+        "queryKind": "COMPARISON"
+      },
+      {
+        "id": "q289",
+        "task": "discover",
+        "lane": "OPEN",
+        "queryKind": "OPEN"
+      },
+      {
+        "id": "q291",
+        "task": "legal_process",
+        "lane": "main",
+        "queryKind": "DISCOVERY"
+      },
+      {
+        "id": "q108",
+        "task": "calculate",
+        "lane": "OPEN",
+        "queryKind": "OPEN"
+      },
+      {
+        "id": "q116",
+        "task": "calculate",
+        "lane": "main",
+        "queryKind": "DRILLDOWN"
+      },
+      {
+        "id": "q199",
+        "task": "discover",
+        "lane": "OPEN",
+        "queryKind": "OPEN"
+      },
+      {
+        "id": "q202",
+        "task": "discover",
+        "lane": "OPEN",
+        "queryKind": "OPEN"
+      },
+      {
+        "id": "q203",
+        "task": "discover",
+        "lane": "OPEN",
+        "queryKind": "OPEN"
+      },
+      {
+        "id": "q279",
+        "task": "market_explain",
+        "lane": "main",
+        "queryKind": "DISCOVERY"
+      },
+      {
+        "id": "q280",
+        "task": "market_explain",
+        "lane": "main",
+        "queryKind": "DISCOVERY"
+      },
+      {
+        "id": "q287",
+        "task": "market_explain",
+        "lane": "main",
+        "queryKind": "DISCOVERY"
+      },
+      {
+        "id": "lt072",
+        "task": "discover",
+        "lane": "ground-truth-db",
+        "queryKind": "DISCOVERY"
+      },
+      {
+        "id": "lt074",
+        "task": "discover",
+        "lane": "ground-truth-db",
+        "queryKind": "DISCOVERY"
+      },
+      {
+        "id": "lt077",
+        "task": "discover",
+        "lane": "OPEN",
+        "queryKind": "OPEN"
+      },
+      {
+        "id": "lt096",
+        "task": "discover",
+        "lane": "ground-truth-db",
+        "queryKind": "DISCOVERY"
+      },
+      {
+        "id": "lt098",
+        "task": "discover",
+        "lane": "topic:amenity-lifestyle",
+        "queryKind": "DISCOVERY"
+      },
+      {
+        "id": "lt101",
+        "task": "out_of_scope",
+        "lane": "main",
+        "queryKind": "DISCOVERY"
+      },
+      {
+        "id": "lt103",
+        "task": "discover",
+        "lane": "ground-truth-db",
+        "queryKind": "DISCOVERY"
+      },
+      {
+        "id": "lt108",
+        "task": "out_of_scope",
+        "lane": "main",
+        "queryKind": "DISCOVERY"
+      },
+      {
+        "id": "lt111",
+        "task": "out_of_scope",
+        "lane": "main",
+        "queryKind": "DISCOVERY"
+      },
+      {
+        "id": "lt113",
+        "task": "out_of_scope",
+        "lane": "main",
+        "queryKind": "DISCOVERY"
+      },
+      {
+        "id": "lt089",
+        "task": "market_explain",
+        "lane": "main",
+        "queryKind": "DISCOVERY"
+      },
+      {
+        "id": "lt117",
+        "task": "market_explain",
+        "lane": "main",
+        "queryKind": "DISCOVERY"
+      },
+      {
+        "id": "lt028",
+        "task": "project_fact",
+        "lane": "unlabelled",
+        "queryKind": "DISCOVERY"
+      },
+      {
+        "id": "lt119",
+        "task": "out_of_scope",
+        "lane": "main",
+        "queryKind": "DISCOVERY"
+      },
+      {
+        "id": "lt055",
+        "task": "out_of_scope",
+        "lane": "ground-truth-db",
+        "queryKind": "DISCOVERY"
+      },
+      {
+        "id": "lt029",
+        "task": "legal_process",
+        "lane": "ground-truth-db",
+        "queryKind": "DRILLDOWN"
+      },
+      {
+        "id": "lt059",
+        "task": "out_of_scope",
+        "lane": "topic:amenity-lifestyle",
+        "queryKind": "DISCOVERY"
+      },
+      {
+        "id": "lt030",
+        "task": "out_of_scope",
+        "lane": "ground-truth-db",
+        "queryKind": "DISCOVERY"
+      },
+      {
+        "id": "h002",
+        "task": "discover",
+        "lane": "topic:possession_status",
+        "queryKind": "DISCOVERY"
+      },
+      {
+        "id": "h003",
+        "task": "market_explain",
+        "lane": "main",
+        "queryKind": "DISCOVERY"
+      },
+      {
+        "id": "h010",
+        "task": "meta",
+        "lane": "OPEN",
+        "queryKind": "OPEN"
+      },
+      {
+        "id": "h012",
+        "task": "lead",
+        "lane": "main",
+        "queryKind": "DISCOVERY"
+      },
+      {
+        "id": "h013",
+        "task": "market_explain",
+        "lane": "coverage",
+        "queryKind": null
+      },
+      {
+        "id": "h014",
+        "task": "market_explain",
+        "lane": "coverage",
+        "queryKind": null
+      },
+      {
+        "id": "h015",
+        "task": "market_explain",
+        "lane": "coverage",
+        "queryKind": null
+      },
+      {
+        "id": "h017",
+        "task": "market_explain",
+        "lane": "coverage",
+        "queryKind": null
+      },
+      {
+        "id": "h020",
+        "task": "out_of_scope",
+        "lane": "main",
+        "queryKind": "OPEN"
+      }
+    ]
+  },
+  "jev": {
+    "decidedPct": 65.8,
+    "accuracyPct": 46.9,
+    "perTask": {
+      "legal_process": {
+        "n": 5,
+        "hit": 0,
+        "pct": 0
+      },
+      "discover": {
+        "n": 147,
+        "hit": 89,
+        "pct": 60.5
+      },
+      "market_explain": {
+        "n": 36,
+        "hit": 9,
+        "pct": 25
+      },
+      "calculate": {
+        "n": 4,
+        "hit": 1,
+        "pct": 25
+      },
+      "compare": {
+        "n": 14,
+        "hit": 6,
+        "pct": 42.9
+      },
+      "project_fact": {
+        "n": 41,
+        "hit": 16,
+        "pct": 39
+      },
+      "out_of_scope": {
+        "n": 11,
+        "hit": 1,
+        "pct": 9.1
+      },
+      "meta": {
+        "n": 1,
+        "hit": 0,
+        "pct": 0
+      },
+      "lead": {
+        "n": 1,
+        "hit": 0,
+        "pct": 0
+      }
+    }
+  }
+}

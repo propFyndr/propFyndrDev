@@ -3,9 +3,8 @@ import assert from 'node:assert/strict'
 import {
   extractDeterministicNarrative,
   extractDossierNarrative,
-  ConsultationStep,
+  compactTranscript,
 } from '../../dossierNarrativeExtractor'
-import { getCached, setCached } from '../../../cache'
 
 describe('Day 7: Consultation Dossier Narrative & Trail Engine', () => {
   const sampleTranscript: Array<{ role: 'user' | 'assistant'; content: string }> = [
@@ -143,27 +142,32 @@ describe('Day 7: Consultation Dossier Narrative & Trail Engine', () => {
     }
   })
 
-  it('T7.6: Asynchronous Family Reaction Cache State Persistence', async () => {
-    const testToken = `test_dossier_${Date.now()}`
-    const key = `dossier_reactions:${testToken}`
+  it('T7.6: the trail records every question, not the first five', () => {
+    const transcript: Array<{ role: 'user' | 'assistant'; content: string }> = []
+    for (let n = 1; n <= 9; n++) {
+      transcript.push({ role: 'user', content: `Question number ${n} about possession dates in Sector 150?` })
+      transcript.push({ role: 'assistant', content: `Here is what I found. Answer number ${n} says possession is listed as December 2027 on our records.` })
+    }
+    const n = extractDeterministicNarrative(transcript, [])
+    assert.strictEqual(n.consultationTrail.length, 9)
+    // The filler opener is skipped; the verdict is the sentence with content.
+    assert.ok(n.consultationTrail[0].groundRealityVerdict.startsWith('Answer number 1'))
+  })
 
-    // 1. Initial State
-    let reactions = (await getCached<Record<string, { likes: number; concerns: string[] }>>(key)) || {}
-    assert.deepStrictEqual(reactions, {})
+  it('T7.7: no invented question or summary when nothing was asked', () => {
+    const n = extractDeterministicNarrative([{ role: 'user', content: 'hi' }, { role: 'user', content: 'share this chat' }], [{ name: 'X', sector: '1' }])
+    assert.deepStrictEqual(n.consultationTrail, [])
+    assert.ok(!/connectivity|compliance|evaluat/i.test(n.searchEvolutionSummary))
+  })
 
-    // 2. Add Like
-    reactions['p-1'] = { likes: 1, concerns: [] }
-    await setCached(key, reactions, 3600)
-
-    let fetched = await getCached<Record<string, { likes: number; concerns: string[] }>>(key)
-    assert.strictEqual(fetched?.['p-1']?.likes, 1)
-
-    // 3. Add Concern
-    reactions['p-1'].concerns.push('High groundwater TDS (>800 ppm)')
-    await setCached(key, reactions, 3600)
-
-    fetched = await getCached<Record<string, { likes: number; concerns: string[] }>>(key)
-    assert.strictEqual(fetched?.['p-1']?.concerns.length, 1)
-    assert.strictEqual(fetched?.['p-1']?.concerns[0], 'High groundwater TDS (>800 ppm)')
+  it('T7.8: the compact transcript keeps every buyer turn of a long chat', () => {
+    const long: Array<{ role: 'user' | 'assistant'; content: string }> = []
+    for (let n = 1; n <= 60; n++) {
+      long.push({ role: 'user', content: `buyer question ${n}` })
+      long.push({ role: 'assistant', content: 'x'.repeat(2000) })
+    }
+    const text = compactTranscript(long)
+    assert.ok(text.length <= 14_000)
+    assert.ok(/buyer question 1$/m.test(text) && text.includes('buyer question 60'))
   })
 })

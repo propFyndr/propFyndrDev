@@ -97,25 +97,25 @@ export default function ConnectivityEditor({ connectivity: initial, projectId, o
   }
 
   return (
-    <div className="bg-white rounded-[20px] border border-zinc-200/80 shadow-sm p-7">
-      <div className="flex items-center justify-between mb-5">
+    <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200/90 dark:border-zinc-800 shadow-2xs p-6 space-y-4">
+      <div className="flex items-center justify-between border-b border-zinc-100 dark:border-zinc-800/80 pb-4">
         <div>
-          <h2 className="text-[15px] font-bold text-zinc-900">Connectivity</h2>
-          <p className="text-[12px] text-zinc-400 mt-0.5">{rows.length} entries</p>
+          <h2 className="text-[15px] font-semibold text-zinc-900 dark:text-zinc-100 tracking-tight">Connectivity & Transit</h2>
+          <p className="text-[12.5px] text-zinc-500 dark:text-zinc-400 mt-0.5">{rows.length} transit & landmark milestones</p>
         </div>
         <button
           onClick={() => setAdding(v => !v)}
-          className="flex items-center gap-1.5 text-[12px] font-semibold text-blue-600 bg-blue-50 hover:bg-blue-100 border border-blue-100 px-3 py-1.5 rounded-lg transition-colors"
+          className="flex items-center gap-1.5 text-[12.5px] font-medium text-[#0066cc] dark:text-blue-400 hover:bg-blue-50/60 dark:hover:bg-blue-950/40 border border-blue-200/80 dark:border-blue-900/40 px-3 py-1.5 rounded-xl transition-colors cursor-pointer shadow-2xs"
         >
           <Plus size={13} />
-          Add
+          {adding ? 'Cancel' : 'Add Point'}
         </button>
       </div>
 
-      {error && <p className="text-[12px] text-red-500 mb-3">{error}</p>}
+      {error && <p className="text-[12px] text-rose-500">{error}</p>}
 
       {adding && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 mb-4 p-3.5 bg-blue-50/60 dark:bg-blue-950/20 rounded-2xl border border-blue-100 dark:border-blue-900/40">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-4 bg-zinc-50/70 dark:bg-zinc-800/40 rounded-xl border border-zinc-200/80 dark:border-zinc-800">
           <CustomSelect
             value={newRow.type}
             onChange={val => setNewRow(r => ({ ...r, type: val as ConnType }))}
@@ -127,7 +127,7 @@ export default function ConnectivityEditor({ connectivity: initial, projectId, o
             value={newRow.name}
             onChange={e => setNewRow(r => ({ ...r, name: e.target.value }))}
             placeholder="Name (e.g. Botanical Garden Metro)"
-            className="text-[13px] bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-xl px-3 py-2 outline-none focus:border-blue-400"
+            className="text-[13px] font-medium bg-white dark:bg-zinc-900 border border-zinc-200/90 dark:border-zinc-700/80 rounded-xl px-3.5 py-2 outline-none focus:border-[#0066cc] text-zinc-900 dark:text-zinc-100 shadow-2xs"
           />
           <input
             value={newRow.distance_km}
@@ -135,7 +135,7 @@ export default function ConnectivityEditor({ connectivity: initial, projectId, o
             placeholder="Distance (km)"
             type="number"
             step="0.1"
-            className="text-[13px] bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-xl px-3 py-2 outline-none focus:border-blue-400"
+            className="text-[13px] font-medium font-mono bg-white dark:bg-zinc-900 border border-zinc-200/90 dark:border-zinc-700/80 rounded-xl px-3.5 py-2 outline-none focus:border-[#0066cc] text-zinc-900 dark:text-zinc-100 shadow-2xs"
           />
           <CustomSelect
             value={newRow.data_source}
@@ -144,17 +144,17 @@ export default function ConnectivityEditor({ connectivity: initial, projectId, o
             size="sm"
             className="w-full"
           />
-          <div className="col-span-2 flex gap-2">
+          <div className="col-span-1 sm:col-span-2 flex gap-2">
             <input
               value={newRow.notes}
               onChange={e => setNewRow(r => ({ ...r, notes: e.target.value }))}
-              placeholder="Notes (optional)"
-              className="flex-1 text-[13px] bg-white border border-zinc-200 rounded-lg px-3 py-2 outline-none focus:border-blue-400"
+              placeholder="Notes (optional, e.g. 5 min walk)"
+              className="flex-1 text-[13px] bg-white dark:bg-zinc-900 border border-zinc-200/90 dark:border-zinc-700/80 rounded-xl px-3.5 py-2 outline-none focus:border-[#0066cc] text-zinc-900 dark:text-zinc-100 shadow-2xs"
             />
             <button
               onClick={handleAdd}
               disabled={saving || !newRow.name.trim()}
-              className="flex items-center gap-1.5 text-[12px] font-semibold text-white bg-blue-600 hover:bg-blue-500 disabled:opacity-50 px-3 py-2 rounded-lg transition-colors"
+              className="flex items-center gap-1.5 text-[12.5px] font-medium text-white bg-[#0066cc] hover:bg-[#0055b3] disabled:opacity-50 px-4 py-2 rounded-xl transition-colors cursor-pointer shadow-2xs"
             >
               {saving ? <Loader2 size={13} className="animate-spin" /> : <Save size={13} />}
               Save
@@ -164,25 +164,25 @@ export default function ConnectivityEditor({ connectivity: initial, projectId, o
       )}
 
       {rows.length === 0 ? (
-        <p className="text-[12px] text-zinc-400 text-center py-6">No connectivity entries yet.</p>
+        <p className="text-[12.5px] text-zinc-400 text-center py-6">No connectivity entries yet.</p>
       ) : (
-        <div className="divide-y divide-zinc-100">
+        <div className="divide-y divide-zinc-100 dark:divide-zinc-800">
           {rows.map(c => (
             <div key={c.id} className="group flex items-center justify-between py-2.5">
               <div className="flex items-center gap-3">
-                <span className="text-[10px] font-bold text-zinc-400 bg-zinc-100 px-2 py-0.5 rounded-full uppercase tracking-wide">
+                <span className="text-[10px] font-semibold text-zinc-600 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-800 px-2 py-0.5 rounded-full uppercase tracking-wider border border-zinc-200/50 dark:border-zinc-700/50">
                   {TYPE_LABELS[c.type]}
                 </span>
-                <span className="text-[13px] font-medium text-zinc-800">{c.name}</span>
+                <span className="text-[13px] font-medium text-zinc-900 dark:text-zinc-100">{c.name}</span>
                 {c.distance_km != null && (
-                  <span className="text-[11px] text-zinc-400">{c.distance_km} km</span>
+                  <span className="text-[11.5px] font-mono font-medium text-zinc-500 dark:text-zinc-400">{c.distance_km} km</span>
                 )}
               </div>
               <button
                 onClick={() => handleDelete(c.id)}
-                className="opacity-0 group-hover:opacity-100 text-red-400 hover:text-red-600 transition-all"
+                className="opacity-0 group-hover:opacity-100 text-zinc-400 hover:text-rose-500 p-1.5 transition-all cursor-pointer"
               >
-                <Trash2 size={13} />
+                <Trash2 size={14} />
               </button>
             </div>
           ))}

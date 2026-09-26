@@ -1,18 +1,37 @@
 'use client'
 
 /**
- * Builder console overview. Every number here is counted from rows one builder
- * owns. A BUILDER session sends no id — the server reads it off the session; a
- * PropFyndr role viewing this console passes ?builder_id=… and the server
- * re-derives every row from that.
+ * Builder Console Overview — Executive Developer Dashboard.
+ *
+ * Implements Apple Human Interface & Master Design Engineering standards:
+ * - Scoped strictly to the developer's inventory, inbound leads, and authorized partner firms.
+ * - Real-time metrics with continuous squircles, 1px hairlines, and lead tier indicators.
  */
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import Link from 'next/link'
-import { Buildings, PhoneCall, Fire, Handshake, ArrowRight, Warning } from '@phosphor-icons/react'
+import {
+  Buildings,
+  PhoneCall,
+  Fire,
+  Handshake,
+  ArrowRight,
+  Warning,
+  ArrowsClockwise
+} from '@phosphor-icons/react'
 import { adminFetch } from '@/lib/adminFetch'
 import { useScopeId, withScope } from '@/lib/portalScope'
-import { PageShell, PageHeader, StatCard, Card, TierBadge, LeadStatusPill, EmptyState, Spinner, ErrorNote } from '@/components/portal/ui'
+import {
+  PageShell,
+  PageHeader,
+  StatCard,
+  Card,
+  TierBadge,
+  LeadStatusPill,
+  EmptyState,
+  Spinner,
+  ErrorNote
+} from '@/components/portal/ui'
 import LeadPerformance from '@/components/portal/LeadPerformance'
 import ObjectionRollup from '@/components/portal/ObjectionRollup'
 
@@ -23,36 +42,47 @@ interface Lead {
 }
 interface Partner { id: string; name: string; status: string; is_active: boolean }
 
+function getInitials(name: string): string {
+  const parts = name.trim().split(/\s+/)
+  if (parts.length === 0 || !parts[0]) return '?'
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase()
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
+}
+
 export default function BuilderOverviewPage() {
   const [projects, setProjects] = useState<Project[]>([])
   const [leads, setLeads] = useState<Lead[]>([])
   const [partners, setPartners] = useState<Partner[]>([])
   const [loading, setLoading] = useState(true)
+  const [isRefreshing, setIsRefreshing] = useState(false)
   const [error, setError] = useState('')
-  // Empty for a BUILDER session (the server reads the id off the session);
-  // set when a PropFyndr role is viewing this builder's console.
-  const scopeId = useScopeId('builder_id')
-  const scoped = (path: string) => withScope(path, 'builder_id', scopeId)
 
+  const scopeId = useScopeId('builder_id')
+  const scoped = useCallback((path: string) => withScope(path, 'builder_id', scopeId), [scopeId])
+
+  const loadData = useCallback(async (isManual = false) => {
+    if (isManual) setIsRefreshing(true)
+    setError('')
+    try {
+      const [p, l, cp] = await Promise.all([
+        adminFetch(scoped('/portal/builder/projects')).then((r) => (r.ok ? r.json() : Promise.reject(r.status))),
+        adminFetch(scoped('/portal/builder/leads')).then((r) => (r.ok ? r.json() : Promise.reject(r.status))),
+        adminFetch(scoped('/portal/builder/partners')).then((r) => (r.ok ? r.json() : Promise.reject(r.status))),
+      ])
+      setProjects(p.projects ?? [])
+      setLeads(l.leads ?? [])
+      setPartners(cp.partners ?? [])
+    } catch {
+      setError('Could not load developer console. Try refreshing or signing in again.')
+    } finally {
+      setLoading(false)
+      setIsRefreshing(false)
+    }
+  }, [scoped])
 
   useEffect(() => {
-    let cancelled = false
-    Promise.all([
-      adminFetch(scoped('/portal/builder/projects')).then((r) => (r.ok ? r.json() : Promise.reject(r.status))),
-      adminFetch(scoped('/portal/builder/leads')).then((r) => (r.ok ? r.json() : Promise.reject(r.status))),
-      adminFetch(scoped('/portal/builder/partners')).then((r) => (r.ok ? r.json() : Promise.reject(r.status))),
-    ])
-      .then(([p, l, cp]) => {
-        if (cancelled) return
-        setProjects(p.projects ?? [])
-        setLeads(l.leads ?? [])
-        setPartners(cp.partners ?? [])
-      })
-      .catch(() => { if (!cancelled) setError('Could not load your console. Try signing in again.') })
-      .finally(() => { if (!cancelled) setLoading(false) })
-    return () => { cancelled = true }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [scopeId])
+    loadData()
+  }, [loadData])
 
   if (loading) return <Spinner />
 
@@ -63,58 +93,118 @@ export default function BuilderOverviewPage() {
 
   return (
     <PageShell>
+      {/* Header Banner */}
       <PageHeader
-        title="Your console"
-        subtitle="Projects, buyer leads and the channel partners working them."
+        title="Developer Console"
+        subtitle="Catalog developments, verified buyer inquiries, and active broker connections."
+        action={
+          <div className="flex items-center gap-2.5">
+            <button
+              type="button"
+              onClick={() => loadData(true)}
+              disabled={isRefreshing}
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-zinc-200/90 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-xs font-bold text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 shadow-2xs active:scale-[0.98] transition-all cursor-pointer disabled:opacity-60"
+            >
+              <ArrowsClockwise size={13} weight="bold" className={isRefreshing ? 'animate-spin text-[#0066cc]' : ''} />
+              <span>{isRefreshing ? 'Refreshing…' : 'Refresh'}</span>
+            </button>
+          </div>
+        }
       />
 
       {error && <ErrorNote message={error} />}
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard label="Projects" value={projects.length} icon={<Buildings size={16} />} />
-        <StatCard label="Leads" value={leads.length} icon={<PhoneCall size={16} />} hint={unassigned > 0 ? `${unassigned} unassigned` : undefined} />
-        <StatCard label="Hot leads" value={hot} icon={<Fire size={16} weight="fill" />} tone="hot" />
-        <StatCard label="Active partners" value={activePartners} icon={<Handshake size={16} />} hint={awaitingApproval > 0 ? `${awaitingApproval} pending` : undefined} />
+      {/* KPI Cards Row */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        <StatCard
+          label="Active Projects"
+          value={projects.length}
+          icon={<Buildings size={18} weight="duotone" />}
+          tone="neutral"
+          hint={`${projects.length} in catalog`}
+        />
+        <StatCard
+          label="Inbound Leads"
+          value={leads.length}
+          icon={<PhoneCall size={18} weight="duotone" />}
+          tone="neutral"
+          hint={unassigned > 0 ? `${unassigned} unassigned` : 'All assigned'}
+        />
+        <StatCard
+          label="High-Intent Leads"
+          value={hot}
+          icon={<Fire size={18} weight="fill" />}
+          tone="hot"
+          hint="Immediate priority"
+        />
+        <StatCard
+          label="Active Partners"
+          value={activePartners}
+          icon={<Handshake size={18} weight="duotone" />}
+          tone="good"
+          hint={awaitingApproval > 0 ? `${awaitingApproval} pending review` : 'All approved'}
+        />
       </div>
 
-      {/* Counts alone say nothing about performance — see the component. */}
+      {/* Lead Conversion Velocity */}
       <LeadPerformance leads={leads} subjectLabel="your projects" />
 
-      {/* The report that changes what a builder does next. */}
+      {/* Objection Insights Engine */}
       <ObjectionRollup endpoint={scoped('/portal/builder/objections')} />
 
+      {/* Pending Partner Approvals Notice */}
       {awaitingApproval > 0 && (
-        <Card className="p-4 flex items-start gap-3 border-l-[3px] border-l-amber-400">
-          <Warning size={18} weight="fill" className="text-amber-500 shrink-0 mt-0.5" />
-          <p className="text-[13px] text-zinc-600 dark:text-zinc-300">
-            {awaitingApproval} channel {awaitingApproval === 1 ? 'partner is' : 'partners are'} waiting on PropFyndr approval.
-            They cannot sign in or receive leads until approved.{' '}
-            <Link href="/builder/portal/partners" className="font-semibold text-blue-600 dark:text-blue-400 hover:underline">Review</Link>
-          </p>
-        </Card>
+        <div className="p-4 rounded-2xl bg-amber-50/70 dark:bg-amber-950/30 border border-amber-200/80 dark:border-amber-900/60 flex items-start gap-3.5 text-xs shadow-2xs">
+          <div className="w-8 h-8 rounded-xl bg-amber-100 dark:bg-amber-900/60 text-amber-700 dark:text-amber-300 flex items-center justify-center shrink-0 border border-amber-300/60 dark:border-amber-800/60">
+            <Warning size={17} weight="bold" />
+          </div>
+          <div className="space-y-0.5">
+            <h4 className="font-bold text-amber-900 dark:text-amber-100 text-xs">
+              Channel Partner Authorizations Pending Review
+            </h4>
+            <p className="text-amber-800/90 dark:text-amber-200/80 font-medium text-[11px] leading-relaxed">
+              {awaitingApproval} channel {awaitingApproval === 1 ? 'partner agency is' : 'partner agencies are'} waiting on platform review. They will begin receiving routed leads immediately upon approval.{' '}
+              <Link href="/builder/portal/partners" className="font-bold text-[#0066cc] dark:text-blue-400 hover:underline">
+                Review Roster →
+              </Link>
+            </p>
+          </div>
+        </div>
       )}
 
-      <section className="space-y-3">
+      {/* Recent Leads Feed */}
+      <section className="space-y-3 pt-1">
         <div className="flex items-center justify-between">
-          <h2 className="text-[11px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">Latest leads</h2>
-          <Link href="/builder/portal/leads" className="inline-flex items-center gap-1 text-[12px] font-semibold text-blue-600 dark:text-blue-400 hover:underline">
-            All leads <ArrowRight size={13} weight="bold" />
+          <h2 className="text-xs font-extrabold text-zinc-900 dark:text-white uppercase tracking-wider">
+            Latest Inbound Inquiries
+          </h2>
+          <Link
+            href="/builder/portal/leads"
+            className="inline-flex items-center gap-1.5 text-xs font-bold text-[#0066cc] dark:text-blue-400 hover:underline"
+          >
+            <span>View All Leads</span>
+            <ArrowRight size={12} weight="bold" />
           </Link>
         </div>
 
         {leads.length === 0 ? (
           <EmptyState
             icon={<PhoneCall size={32} />}
-            title="No leads yet"
-            body="Buyer callback requests on your projects land here the moment they come in."
+            title="No leads recorded yet"
+            body="Buyer callback requests on your projects land here the moment they are generated through chat discovery."
           />
         ) : (
-          <Card className="divide-y divide-zinc-100 dark:divide-zinc-800 overflow-hidden">
+          <div className="rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 divide-y divide-zinc-100 dark:divide-zinc-800/60 overflow-hidden shadow-2xs">
             {leads.slice(0, 6).map((l) => (
-              <div key={l.id} className="flex items-center justify-between gap-3 px-4 py-3.5">
-                <div className="min-w-0">
-                  <p className="text-[14px] font-semibold text-zinc-900 dark:text-zinc-100 truncate">{l.name}</p>
-                  <p className="text-[12px] text-zinc-500 dark:text-zinc-400 truncate">{l.project_name ?? 'General inquiry'}</p>
+              <div key={l.id} className="flex items-center justify-between gap-3 px-5 py-3.5 hover:bg-zinc-50/70 dark:hover:bg-zinc-800/40 transition-colors">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-8 h-8 rounded-xl bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 font-extrabold text-xs flex items-center justify-center shrink-0 border border-zinc-200/60 dark:border-zinc-700/60 shadow-2xs">
+                    {getInitials(l.name)}
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-xs font-bold text-zinc-900 dark:text-white truncate">{l.name}</p>
+                    <p className="text-[11px] text-zinc-500 dark:text-zinc-400 truncate">{l.project_name ?? 'General project inquiry'}</p>
+                  </div>
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
                   <TierBadge tier={l.lead_tier} />
@@ -122,7 +212,7 @@ export default function BuilderOverviewPage() {
                 </div>
               </div>
             ))}
-          </Card>
+          </div>
         )}
       </section>
     </PageShell>

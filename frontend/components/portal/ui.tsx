@@ -67,21 +67,33 @@ export function StatCard({
     tone === 'hot' ? 'text-rose-600 dark:text-rose-400'
     : tone === 'good' ? 'text-emerald-600 dark:text-emerald-400'
     : 'text-zinc-900 dark:text-white'
+
+  const iconBox =
+    tone === 'hot'
+      ? 'bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 border border-rose-200/70 dark:border-rose-800/60'
+      : tone === 'good'
+      ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 border border-emerald-200/70 dark:border-emerald-800/60'
+      : 'bg-blue-50/70 dark:bg-blue-950/50 text-[#0066cc] dark:text-blue-400 border border-blue-200/60 dark:border-blue-800/60'
+
   return (
-    <Card className="p-5">
+    <div className="rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 p-5 shadow-2xs hover:border-zinc-300 dark:hover:border-zinc-700 transition-all">
       <div className="flex items-center justify-between">
         <span className="text-[11px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">{label}</span>
-        <div className="w-9 h-9 rounded-xl bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 flex items-center justify-center">
+        <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 shadow-2xs ${iconBox}`}>
           {icon}
         </div>
       </div>
       <div className="mt-3 flex items-baseline justify-between gap-2">
-        <span className={`text-2xl sm:text-3xl font-black ${valueTone}`}>
+        <span className={`text-2xl sm:text-3xl font-black font-mono tracking-tight tabular-nums ${valueTone}`}>
           {loading ? <span className="inline-block h-8 w-16 rounded-md bg-zinc-100 dark:bg-zinc-800 animate-pulse align-middle" /> : value}
         </span>
-        {hint && <span className="text-xs font-semibold text-zinc-400 dark:text-zinc-500 truncate">{hint}</span>}
+        {hint && (
+          <span className="text-[11px] font-semibold text-zinc-500 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-800/80 px-2 py-0.5 rounded-md border border-zinc-200/60 dark:border-zinc-700/60 truncate">
+            {hint}
+          </span>
+        )}
       </div>
-    </Card>
+    </div>
   )
 }
 

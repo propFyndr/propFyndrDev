@@ -19,11 +19,10 @@ export default function DiscoverError({
   }, [error]);
 
   return (
-    <div className="flex items-center justify-center min-h-[100dvh] bg-[#E6E6E6] p-8">
+    <div className="flex items-center justify-center min-h-[100dvh] bg-background p-8">
       <div className="text-center space-y-4 max-w-md">
-        <div className="text-5xl">😔</div>
-        <h2 className="text-xl font-semibold text-gray-800">Chat temporarily unavailable</h2>
-        <p className="text-gray-500 text-sm">
+        <h2 className="text-[17px] font-semibold text-text-primary">Chat temporarily unavailable</h2>
+        <p className="text-text-secondary text-[15px]">
           Something went wrong loading the chat. This usually fixes itself on refresh.
         </p>
         <button
@@ -33,9 +32,9 @@ export default function DiscoverError({
             }
             reset();
           }}
-          className="px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-full font-medium transition-colors"
+          className="px-5 h-10 bg-primary hover:bg-primary-dark text-white rounded-full text-[15px] font-medium transition-colors"
         >
-          Reload Chat
+          Try again
         </button>
       </div>
     </div>

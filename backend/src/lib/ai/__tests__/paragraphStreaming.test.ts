@@ -15,7 +15,7 @@ import { describe, it } from 'node:test'
 import assert from 'node:assert/strict'
 import { checkAnswerIntegritySync, scanDisclosure } from '../answerIntegrity'
 
-const PROMPT = 'You are RealtyPal.\n\nVERIFIED FACTS\nProject: ATS Pious Hideaways\nBuilder: ATS Infrastructure\n'
+const PROMPT = 'You are PropFyndr.\n\nVERIFIED FACTS\nProject: ATS Pious Hideaways\nBuilder: ATS Infrastructure\n'
 
 describe('the synchronous gate', () => {
   // These run with a cold known-name cache, which is the state the first turn

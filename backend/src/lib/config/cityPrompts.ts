@@ -43,6 +43,14 @@ export const CITY_PROMPT_PACKS: Record<SupportedCity, CityPromptPack> = {
     homebuyingHeader: 'Home buying (Greater Noida West new construction)',
     stateAbbr: 'UP',
   },
+  'Yamuna Expressway': {
+    scopeShort: 'Noida and Greater Noida',
+    scopeLong: 'Noida, Greater Noida, Greater Noida West and Yamuna Expressway',
+    outOfScopeMessage: 'Right now we cover Noida and Greater Noida in depth — verified projects, RERA data, and builder records. We\'re expanding to [city] soon. I can still help with general questions on home-buying, RERA, loans, or taxes for [city] — or show you what a similar budget gets along the Yamuna Expressway.',
+    areaInfoDescription: 'Wikipedia background on a Yamuna Expressway (YEIDA) sector or area',
+    homebuyingHeader: 'Home buying (Yamuna Expressway new construction)',
+    stateAbbr: 'UP',
+  },
 }
 
 export function getCityPromptPack(city: SupportedCity | undefined): CityPromptPack {

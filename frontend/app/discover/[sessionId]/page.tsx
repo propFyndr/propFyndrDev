@@ -16,12 +16,15 @@ export default function SessionDiscoverPage() {
   const [guestToken, setGuestToken] = useState<string | null>(null);
   const [ready, setReady] = useState(false);
   const [activeSessionId, setActiveSessionId] = useState<string | null>(sessionId);
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => {
-    if (typeof window !== 'undefined') {
-      return window.innerWidth < 1024 && window.innerWidth >= 768;
+  // Starts false on server and client alike (reading window here caused a
+  // hydration mismatch); tablet widths collapse once mounted.
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+
+  useEffect(() => {
+    if (window.matchMedia('(min-width: 768px) and (max-width: 1023px)').matches) {
+      setIsSidebarCollapsed(true);
     }
-    return false;
-  });
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -92,7 +95,7 @@ export default function SessionDiscoverPage() {
         isCollapsed={isSidebarCollapsed}
         onToggleCollapse={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
       />
-      <main className="flex-1 h-full flex flex-col min-h-0 overflow-hidden relative">
+      <main id="main-content" className="flex-1 h-full flex flex-col min-h-0 overflow-hidden relative">
         <ChatErrorBoundary>
           <Suspense fallback={<div className="flex-1"><UniversalLoader variant="skeleton-page" label="Loading chat…" /></div>}>
             <DiscoveryContent

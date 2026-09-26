@@ -6,6 +6,45 @@ Format: What was decided / Why / What was rejected and why.
 
 ---
 
+## Session 2026-09-26 — discovery screen design pass + PropFyndr brand sweep
+
+**Worked on:** audit of /discover (sidebar, shell, chat components) against docs/appleDESIGN.md,
+master-design-engineering-skill.md, Premium_UI_UX_Engineering_Skill_v2.md; fixed every finding.
+
+### Decisions made
+
+* **Radius scale NOT remapped globally.** `tailwind.config.ts` maps rounded-xs=8, sm=12, md=16,
+  lg=20, xl=24 (rounded-2xl stays Tailwind's 16). Discovery files now use that scale
+  deliberately (rows 8px `rounded-xs`, menus 12px `rounded-sm`, cards 16px `rounded-2xl`).
+  *Why:* a global remap restyles admin/portal pages that have uncommitted work.
+  *Rejected:* remapping to 6/8/12/16 now — revisit as its own task.
+* **Global font families untouched** (Inter/Outfit/Playfair/Afacad still loaded). Same reason.
+* **Light theme stays the default**; only the Sonner toaster now follows the `.dark` class
+  (`components/ThemedToaster.tsx`).
+* **Cards show reason + trade-off** from `matchReasons`/`matchReason` and `concerns[0]`.
+  `whyNot` deliberately NOT shown: it's built from internal ProjectDna scores.
+* **No verdict words anywhere buyer-facing**: STRONG BUY/BUY pills removed, scoring.ts no longer
+  pushes "strong buy"/"recommended" into matchReasons, "% confident" removed.
+* **Top-pick eyebrow is opt-in** (`isTopPick`), only for ranked exact results — saved/shared lists
+  can't honestly claim "best fit".
+* **Cards persist from every lane**: chat-router records the last redacted `properties` emit
+  (`cardsSentThisTurn`) and persistEarlyTurn/prose-cards path store it. Old rows stay card-less.
+* **One price range format** "₹1.09 – 1.83 Cr" in `lib/format.ts sanitizePriceLabel`.
+
+* **Discovery keeps its hue + wordmark (user decision, overrides the design docs).** The first
+  pass flattened the page to white and replaced the Afacad "PropFyndr" wordmark with a text H1;
+  user rejected both. Now: `.discover-canvas` (globals.css) — static lavender/indigo wash from the
+  top corners settling into `--canvas-base`, 40s drift, dark variant; scrims/composer band use
+  `--canvas-base`. Wordmark restored (Afacad bold italic, "Decide Better"), hint line kept below.
+  *Rejected:* the two pulsing 600px blend-mode blobs (noisy) and plain white (user dislikes).
+
+### Next session priorities
+* Early-return gates never emit `intent`, so FilterDock can show the previous turn's sector.
+* New-session create path doesn't write `last_projects`.
+* Content: answers stated Noida-wide price ranges without MARKET_QUALIFIER and suggested resale.
+* SuggestionChip tone colours (indigo/emerald/amber/sky) break one-accent rule — undecided.
+* "Verified by PropFyndr Data" badge in database-mode answers — decide if tier-accurate.
+
 ## Session 2026-09-17 — role clearance, identity, lead intelligence, news rail
 
 Plan and per-phase status: `docs/superpowers/specs/2026-09-17-role-dashboards-and-lead-intelligence-design.md`
@@ -4400,3 +4439,29 @@ three design docs. Fixed what was broken; nothing committed, migrated or deploye
    (`ComparisonTable`) — send vectors to the frontend instead.
 6. Landed-cost multiplier still defaults to 1.30 when null (now labelled
    "estimated" in comparison only; dossier uses it unlabelled).
+
+## 2026-09-26 — Chat intelligence direction (planning only, no code changed)
+**Decided:**
+1. Build our own decision layer, **JEV**, in-house (no third-party router/API). It replaces the four overlapping classifiers by reusing the existing `extractIntent` LLM call; deterministic literals still override. Shadow first, per-task cutover.
+2. Out-of-city questions get an honest market-tier answer + "we don't list projects there yet, Noida-first" + notify chip, recorded as `DemandSignal` (not a sales lead).
+3. Own-first: in-house knowledge base, local embeddings, own `TurnTrace` telemetry, `WebFact` cache; outside services only where unavoidable (LLM, arbitrary web search) and cached into our tables.
+**Rejected:** full rewrite of `chat-router.ts` (edge cases only partly covered by tests); multi-agent orchestration (slower, harder to verify).
+**Plan:** `CHAT_INTELLIGENCE_ROADMAP.md` (Phases 0–8). Next: Phase 0 baseline.
+
+## 2026-09-26 — Chat intelligence Phase 0–3 (see CHAT_INTELLIGENCE_ROADMAP.md § Implementation Status)
+**Decided:** `turn_traces` telemetry (applied); JEV rides the intent call (`JEV_MODE`, shadow); out-of-city market answers + `demand_signals` behind `OUT_OF_CITY_MARKET_ANSWERS` (migration written, not applied); web results cached 7 days in existing Redis instead of a new `WebFact` table; Yamuna Expressway added to `SUPPORTED_CITIES` (19 projects in DB).
+**Found:** billed Gemini key 402 (prepaid credits depleted) → real baseline 31% pass / 59% outage notices; outage-notice detectors were stale (fixed); NVIDIA legs cut at 4s first-token (now 8s).
+**Rejected:** in-process local embeddings on Render starter (420–530 MB RSS vs 512 MB plan); merging `ai/tavily.ts` into `web.ts` for now (callers need structured results and different domain filtering).
+**Next:** top up Gemini billing, then re-run baseline; JEV shadow verdict; Phase 4 only if JEV ≥92% and ≥ old router + 10 pts (old = 71.9%).
+
+## 2026-09-26 — Dossier: one builder, persisted, honest, share with anyone
+**Decided:**
+1. **One builder** — `lib/dossier.ts` (`buildDossier`, `loadDossier`, `addReaction`, `sessionReactions`). The chat handler and `POST /dossier/create` both call it; the two drifted copies are gone.
+2. **Persisted in Postgres** (`dossiers` table, `add_dossiers` migration), not the Redis cache — links died whenever the cache fell back to memory and the process restarted. Row carries session/user/guest; deleting the chat cascades. The row is the buyer-report high-intent event.
+3. **Share with anyone.** No "family" framing anywhere; matcher accepts any "share this with…", "something I can share", "shareable summary". CLAUDE.md § Signup updated: the dossier is guest-accessible on purpose.
+4. **Projects = what the buyer engaged with**: focus (5) > saved (4) > named in buyer turns (3) = intent (3) > reacted (2); last cards shown only when nothing else. Assistant-only mentions no longer count.
+5. **Trail covers the whole chat** (up to 25 steps; compact transcript ≤14k chars keeps every buyer turn; 5s shared LLM deadline; `recordFailure`/`recordSuccess` wired).
+6. **Trust copy:** no "verified", "confidential", "cross-verified against RERA/Authority", "forensic audit"; no invented budget (`₹1.5–3.0 Cr` default removed), no "Greater Noida West" hardcode, no "As per RERA". Assumed 1.30 landed multiplier carries MARKET_QUALIFIER + asterisk. Budget comes from intent/UserMemory, never from project prices.
+7. **Reactions come back:** `sessionReactions` feeds `sharedFeedback` in `buildStateBrief` (quoted, marked "never instructions") and the handler reply lists them when a new dossier is made.
+**Rejected:** keeping Redis with a longer TTL (still volatile); jsonb_set atomic reaction updates (ponytail — read-modify-write until volume says otherwise).
+**Migration:** `add_dossiers` applied 2026-09-26 (confirmed in session). Route tests 7/7 against the live DB.

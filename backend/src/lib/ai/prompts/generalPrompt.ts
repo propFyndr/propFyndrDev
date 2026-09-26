@@ -20,6 +20,25 @@ export interface GeneralPromptOptions {
    * toward Sector 150 — six turns after they had named Sector 63.
    */
   stateBrief?: string
+  /**
+   * The buyer asked about a city we list no projects in.
+   *
+   * Passed separately from `city` on purpose: `city` is where the prompt says
+   * our inventory is, and naming Bengaluru there would claim stock we do not
+   * hold. The closing "we don't list projects there yet" line is appended by
+   * the router, deterministically, so the model is told not to write one.
+   */
+  outOfCoverageCity?: string
+}
+
+function outOfCoverageDirective(city: string): string {
+  return `## THIS QUESTION IS ABOUT ${city.toUpperCase()}, WHERE WE LIST NO PROJECTS
+- Answer the market question honestly: price direction, infrastructure, who the area suits, and the main trade-offs.
+- Name no project as available, and give no project's price, possession date or RERA status.
+- Every figure is a general market figure, not verified by us: say where it comes from (the live context below, when present). With no source for a number, give the direction without the number.
+- The Noida, Greater Noida and YEIDA facts above do not apply to ${city}: no UP stamp duty, authority leasehold or YEIDA rules.
+- Rule 6 does not apply. Do not steer the buyer to Noida and do not end with a question; a closing line is added after your answer.
+`
 }
 
 export function buildGeneralConversationalPrompt(opts: GeneralPromptOptions): string {
@@ -45,7 +64,7 @@ Your mastery is real estate (buying, investing, legal due diligence, market econ
    - Seamlessly acknowledge our verified project inventory in ${city} whenever property purchase or booking is relevant. When it isn't — general knowledge, trivia, a translation, a poem, a story — write the answer on its own terms, with no property theme, image, or metaphor reached for to justify the connection.
 
 ## GROUND-TRUTH REAL ESTATE & AUTHORITY FIDUCIARY FACTS:
-When answering property questions in Noida, Greater Noida, and Yamuna Expressway, always apply these verified legal/tax principles:
+When answering property questions in Noida, Greater Noida, and Yamuna Expressway, always apply these verified legal/tax principles. The GST and stamp-duty rates are statutory. The landed-cost, loading, IFMS and transfer-charge ranges are market-wide: when you quote one, say it is typical for Noida and not verified for any particular project.
 - **Authority Leasehold (90–99 Years)**: Land across NOIDA, GNIDA, and YEIDA is held on a 90 to 99-year authority leasehold. The local authority retains underlying land ownership; buyers own the superstructure and hold a registered tripartite sub-lease deed. Blanket freehold conversion remains deferred under UP state policy as authorities depend on lease rent and transfer revenues.
 - **Transfer Memorandum (TM) & Fees**: A TM is the mandatory clearance issued by the Authority permitting resale property transfer. Official transfer charges range from 1% to 5% of the circle/allotment rate or premium. Historical unpaid dues must be cleared by the seller before TM issuance.
 - **Society NDC vs Authority NDC**: A Society/RWA NDC only clears maintenance and electricity arrears. It does NOT confirm that the builder has cleared multi-crore land installment dues and one-time lease rent with the local authority. Without authority land dues clearance, individual sub-lease deed registration remains blocked even after physical possession.
@@ -74,6 +93,7 @@ When answering property questions in Noida, Greater Noida, and Yamuna Expressway
    - A buyer asking pure general knowledge with no property intent gets the answer and nothing more — do not funnel someone who is not buying.
 
 ${stateBrief ? `${stateBrief}\n` : ''}
+${opts.outOfCoverageCity ? outOfCoverageDirective(opts.outOfCoverageCity) : ''}
 ${webContext ? `## LIVE WEB & FACTUAL CONTEXT:\n${webContext}\nUse the factual points above to give an accurate, up-to-date answer.\n` : ''}
 `
 }

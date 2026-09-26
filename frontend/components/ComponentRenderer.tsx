@@ -2,39 +2,45 @@
 
 import { memo, useState } from 'react'
 import { BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
-import { MapPin, Home, Zap, TrendingUp, Clock, Building, AlertCircle, CheckCircle, DollarSign, MapIcon, Send } from 'lucide-react'
+import { MapPin, Buildings, WarningCircle, CheckCircle, MapTrifold, PaperPlaneTilt, CurrencyInr, CalendarBlank } from '@phosphor-icons/react'
 import type { ComponentSpec } from '@/types/property'
+
+// One card recipe for every component: flat surface, hairline border, no
+// gradient, no shadow at rest.
+const CARD = 'p-4 rounded-2xl border border-border bg-surface dark:bg-zinc-900'
+const TITLE = 'text-[15px] font-semibold text-zinc-900 dark:text-zinc-50'
+const inr = (n: number) => `₹${Math.round(n).toLocaleString('en-IN')}`
+const has = (v: unknown) => v !== undefined && v !== null && v !== ''
 
 // ─── Individual Component Renderers ───────────────────────────────────────
 
 function PropertyCard({ props }: { props: Record<string, any> }) {
   return (
-    <div className="p-4 bg-gradient-to-br from-blue-50 to-white dark:from-blue-900/20 dark:to-gray-900 border border-blue-200 dark:border-blue-800 rounded-xl shadow-sm hover:shadow-md transition-shadow">
-      <h3 className="font-bold text-gray-900 dark:text-white mb-2">{props.name}</h3>
-      <div className="space-y-1 text-sm text-gray-600 dark:text-gray-300">
-        {props.price && <div>💰 {props.price}</div>}
-        {props.status && <div>📍 {props.status}</div>}
-        {props.possession && <div>📅 {props.possession}</div>}
+    <div className={CARD}>
+      <h3 className={`${TITLE} mb-2`}>{props.name}</h3>
+      <div className="space-y-1 text-[13px] text-zinc-600 dark:text-zinc-300">
+        {props.price && <div className="flex items-center gap-1.5 tabular-nums"><CurrencyInr size={13} aria-hidden="true" />{props.price}</div>}
+        {props.status && <div className="flex items-center gap-1.5"><MapPin size={13} aria-hidden="true" />{props.status}</div>}
+        {props.possession && <div className="flex items-center gap-1.5"><CalendarBlank size={13} aria-hidden="true" />{props.possession}</div>}
       </div>
     </div>
   )
 }
 
 function PriceChart({ props }: { props: Record<string, any> }) {
-  const data = props.data || [
-    { month: 'Jan', price: props.basePrice || 0 },
-    { month: 'Feb', price: (props.basePrice || 0) * 1.02 },
-  ]
+  // No invented trend line: without real data points there is no chart.
+  const data = Array.isArray(props.data) ? props.data : []
+  if (data.length === 0) return null
   return (
-    <div className="p-4 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl">
-      <h3 className="font-bold text-gray-900 dark:text-white mb-3">{props.title || 'Price History'}</h3>
+    <div className={CARD}>
+      <h3 className={`${TITLE} mb-3`}>{props.title || 'Price History'}</h3>
       <ResponsiveContainer width="100%" height={200}>
         <LineChart data={data}>
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis dataKey="month" />
           <YAxis />
           <Tooltip />
-          <Line type="monotone" dataKey="price" stroke="#3b82f6" />
+          <Line type="monotone" dataKey="price" stroke="var(--color-primary)" />
         </LineChart>
       </ResponsiveContainer>
     </div>
@@ -42,33 +48,37 @@ function PriceChart({ props }: { props: Record<string, any> }) {
 }
 
 function EMICalculator({ props }: { props: Record<string, any> }) {
-  const principal = props.principal || 5000000
-  const rate = props.ratePercentage || 7.5
-  const tenure = props.tenure || 20
+  // Every input must come from the response. Defaulting a missing loan amount,
+  // rate or tenure would present an assumed EMI as this buyer's number.
+  const principal = Number(props.principal)
+  const rate = Number(props.ratePercentage)
+  const tenure = Number(props.tenure)
+  if (!(principal > 0) || !(rate > 0) || !(tenure > 0)) return null
   const monthlyRate = rate / 12 / 100
   const numPayments = tenure * 12
   const emi = (principal * monthlyRate * Math.pow(1 + monthlyRate, numPayments)) / (Math.pow(1 + monthlyRate, numPayments) - 1)
 
+  const row = 'flex justify-between items-center text-[13px]'
   return (
-    <div className="p-4 bg-gradient-to-br from-green-50 to-white dark:from-green-900/20 dark:to-gray-900 border border-green-200 dark:border-green-800 rounded-xl">
-      <h3 className="font-bold text-gray-900 dark:text-white mb-4">{props.title || 'EMI Breakdown'}</h3>
+    <div className={CARD}>
+      <h3 className={`${TITLE} mb-4`}>{props.title || 'EMI Breakdown'}</h3>
       <div className="space-y-3">
-        <div className="flex justify-between items-center">
-          <span className="text-gray-600 dark:text-gray-300">Principal</span>
-          <span className="font-semibold text-gray-900 dark:text-white">₹{Math.round(principal / 1000000 * 100) / 100}Cr</span>
+        <div className={row}>
+          <span className="text-zinc-600 dark:text-zinc-300">Principal</span>
+          <span className="font-medium text-zinc-900 dark:text-zinc-50 tabular-nums text-right">₹{(principal / 10_000_000).toFixed(2)} Cr</span>
         </div>
-        <div className="flex justify-between items-center">
-          <span className="text-gray-600 dark:text-gray-300">Interest Rate</span>
-          <span className="font-semibold text-gray-900 dark:text-white">{rate}% p.a.</span>
+        <div className={row}>
+          <span className="text-zinc-600 dark:text-zinc-300">Interest Rate</span>
+          <span className="font-medium text-zinc-900 dark:text-zinc-50 tabular-nums text-right">{rate}% p.a.</span>
         </div>
-        <div className="flex justify-between items-center">
-          <span className="text-gray-600 dark:text-gray-300">Tenure</span>
-          <span className="font-semibold text-gray-900 dark:text-white">{tenure} years</span>
+        <div className={row}>
+          <span className="text-zinc-600 dark:text-zinc-300">Tenure</span>
+          <span className="font-medium text-zinc-900 dark:text-zinc-50 tabular-nums text-right">{tenure} years</span>
         </div>
-        <div className="h-px bg-gray-200 dark:bg-gray-700 my-2" />
-        <div className="flex justify-between items-center pt-2">
-          <span className="font-bold text-gray-900 dark:text-white">Monthly EMI</span>
-          <span className="text-xl font-bold text-blue-600 dark:text-blue-400">₹{Math.round(emi / 1000)}k</span>
+        <div className="h-px bg-border my-2" />
+        <div className={`${row} pt-2`}>
+          <span className="font-semibold text-zinc-900 dark:text-zinc-50">Monthly EMI</span>
+          <span className="text-[17px] font-semibold text-zinc-900 dark:text-zinc-50 tabular-nums text-right">{inr(emi)}</span>
         </div>
       </div>
     </div>
@@ -77,11 +87,11 @@ function EMICalculator({ props }: { props: Record<string, any> }) {
 
 function MapView({ props }: { props: Record<string, any> }) {
   return (
-    <div className="p-4 bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl h-48 flex items-center justify-center">
+    <div className={`${CARD} h-48 flex items-center justify-center`}>
       <div className="text-center">
-        <MapIcon className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-        <p className="text-sm text-gray-500 dark:text-gray-400">{props.location}</p>
-        {props.coordinates && <p className="text-xs text-gray-400">{props.coordinates}</p>}
+        <MapTrifold size={32} className="text-zinc-400 mx-auto mb-2" aria-hidden="true" />
+        <p className="text-[13px] text-zinc-500 dark:text-zinc-400">{props.location}</p>
+        {props.coordinates && <p className="text-[12px] text-zinc-400 tabular-nums">{props.coordinates}</p>}
       </div>
     </div>
   )
@@ -90,12 +100,12 @@ function MapView({ props }: { props: Record<string, any> }) {
 function AmenitiesGrid({ props }: { props: Record<string, any> }) {
   const amenities = props.amenities || []
   return (
-    <div className="p-4 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl">
-      <h3 className="font-bold text-gray-900 dark:text-white mb-3">{props.title || 'Amenities'}</h3>
+    <div className={CARD}>
+      <h3 className={`${TITLE} mb-3`}>{props.title || 'Amenities'}</h3>
       <div className="grid grid-cols-2 gap-2">
         {amenities.map((amenity: string, i: number) => (
-          <div key={i} className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
-            <CheckCircle className="w-4 h-4 text-green-500" />
+          <div key={i} className="flex items-center gap-2 text-[13px] text-zinc-700 dark:text-zinc-300">
+            <CheckCircle size={16} weight="fill" className="text-emerald-600 shrink-0" aria-hidden="true" />
             {amenity}
           </div>
         ))}
@@ -107,15 +117,15 @@ function AmenitiesGrid({ props }: { props: Record<string, any> }) {
 function ConnectivityList({ props }: { props: Record<string, any> }) {
   const items = props.connectivity || []
   return (
-    <div className="p-4 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl">
-      <h3 className="font-bold text-gray-900 dark:text-white mb-3">{props.title || 'Nearby Connectivity'}</h3>
+    <div className={CARD}>
+      <h3 className={`${TITLE} mb-3`}>{props.title || 'Nearby Connectivity'}</h3>
       <div className="space-y-2">
         {items.map((item: any, i: number) => (
-          <div key={i} className="flex items-start gap-2 text-sm">
-            <MapPin className="w-4 h-4 text-blue-500 mt-0.5 flex-shrink-0" />
+          <div key={i} className="flex items-start gap-2 text-[13px]">
+            <MapPin size={16} className="text-primary mt-0.5 flex-shrink-0" aria-hidden="true" />
             <div className="flex-1">
-              <p className="font-medium text-gray-900 dark:text-white">{item.name}</p>
-              {item.distance && <p className="text-xs text-gray-500 dark:text-gray-400">{item.distance}</p>}
+              <p className="font-medium text-zinc-900 dark:text-zinc-50">{item.name}</p>
+              {item.distance && <p className="text-[12px] text-zinc-500 dark:text-zinc-400 tabular-nums">{item.distance}</p>}
             </div>
           </div>
         ))}
@@ -126,15 +136,15 @@ function ConnectivityList({ props }: { props: Record<string, any> }) {
 
 function BuilderCard({ props }: { props: Record<string, any> }) {
   return (
-    <div className="p-4 bg-gradient-to-br from-amber-50 to-white dark:from-amber-900/20 dark:to-gray-900 border border-amber-200 dark:border-amber-800 rounded-xl">
+    <div className={CARD}>
       <div className="flex items-start gap-3">
-        <Building className="w-6 h-6 text-amber-600 dark:text-amber-400 flex-shrink-0" />
+        <Buildings size={24} className="text-zinc-500 dark:text-zinc-400 flex-shrink-0" aria-hidden="true" />
         <div className="flex-1">
-          <h3 className="font-bold text-gray-900 dark:text-white">{props.builderName}</h3>
-          <div className="mt-2 space-y-1 text-sm text-gray-600 dark:text-gray-300">
-            {props.deliveryScore && <div>✅ Track Record: {Math.round(props.deliveryScore * 100)}%</div>}
-            {props.projectsCompleted && <div>🏗️ {props.projectsCompleted} projects completed</div>}
-            {props.reputation && <div>⭐ {props.reputation}</div>}
+          <h3 className={TITLE}>{props.builderName}</h3>
+          <div className="mt-2 space-y-1 text-[13px] text-zinc-600 dark:text-zinc-300">
+            {props.deliveryScore && <div className="tabular-nums">Track record: {Math.round(props.deliveryScore * 100)}%</div>}
+            {props.projectsCompleted && <div className="tabular-nums">{props.projectsCompleted} projects completed</div>}
+            {props.reputation && <div>{props.reputation}</div>}
           </div>
         </div>
       </div>
@@ -145,18 +155,18 @@ function BuilderCard({ props }: { props: Record<string, any> }) {
 function Timeline({ props }: { props: Record<string, any> }) {
   const milestones = props.milestones || []
   return (
-    <div className="p-4 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl">
-      <h3 className="font-bold text-gray-900 dark:text-white mb-4">{props.title || 'Construction Timeline'}</h3>
+    <div className={CARD}>
+      <h3 className={`${TITLE} mb-4`}>{props.title || 'Construction Timeline'}</h3>
       <div className="space-y-3">
         {milestones.map((milestone: any, i: number) => (
           <div key={i} className="flex gap-3">
             <div className="flex flex-col items-center">
-              <div className="w-3 h-3 rounded-full bg-blue-500" />
-              {i < milestones.length - 1 && <div className="w-0.5 h-8 bg-gray-300 dark:bg-gray-600" />}
+              <div className="w-3 h-3 rounded-full bg-primary" />
+              {i < milestones.length - 1 && <div className="w-0.5 h-8 bg-zinc-300 dark:bg-zinc-600" />}
             </div>
             <div className="pb-2">
-              <p className="font-medium text-gray-900 dark:text-white text-sm">{milestone.phase}</p>
-              <p className="text-xs text-gray-500 dark:text-gray-400">{milestone.date}</p>
+              <p className="font-medium text-zinc-900 dark:text-zinc-50 text-[13px]">{milestone.phase}</p>
+              <p className="text-[12px] text-zinc-500 dark:text-zinc-400">{milestone.date}</p>
             </div>
           </div>
         ))}
@@ -166,32 +176,46 @@ function Timeline({ props }: { props: Record<string, any> }) {
 }
 
 function PaymentBreakdown({ props }: { props: Record<string, any> }) {
-  const basePrice = props.basePrice || 0
-  const gst = props.gst || 0
-  const stampDuty = props.stampDuty || 0
-  const total = basePrice + gst + stampDuty
+  // A row appears only when its figure arrived. A missing GST or stamp duty is
+  // absent, not 5% or 7% — and without both, there is no honest total.
+  const basePrice = has(props.basePrice) ? Number(props.basePrice) : null
+  const gst = has(props.gst) ? Number(props.gst) : null
+  const stampDuty = has(props.stampDuty) ? Number(props.stampDuty) : null
+  const total = basePrice !== null && gst !== null && stampDuty !== null ? basePrice + gst + stampDuty : null
+  const row = 'flex justify-between text-[13px]'
+  const val = 'font-medium text-zinc-900 dark:text-zinc-50 tabular-nums text-right'
 
   return (
-    <div className="p-4 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl">
-      <h3 className="font-bold text-gray-900 dark:text-white mb-4">{props.title || 'Cost Breakdown'}</h3>
-      <div className="space-y-2 text-sm">
-        <div className="flex justify-between">
-          <span className="text-gray-600 dark:text-gray-300">Base Price</span>
-          <span className="font-medium text-gray-900 dark:text-white">₹{basePrice}</span>
-        </div>
-        <div className="flex justify-between">
-          <span className="text-gray-600 dark:text-gray-300">GST ({props.gstRate || 5}%)</span>
-          <span className="font-medium text-gray-900 dark:text-white">₹{gst}</span>
-        </div>
-        <div className="flex justify-between">
-          <span className="text-gray-600 dark:text-gray-300">Stamp Duty ({props.stampDutyRate || 7}%)</span>
-          <span className="font-medium text-gray-900 dark:text-white">₹{stampDuty}</span>
-        </div>
-        <div className="h-px bg-gray-200 dark:bg-gray-700 my-2" />
-        <div className="flex justify-between pt-2">
-          <span className="font-bold text-gray-900 dark:text-white">Total</span>
-          <span className="text-lg font-bold text-blue-600 dark:text-blue-400">₹{total}</span>
-        </div>
+    <div className={CARD}>
+      <h3 className={`${TITLE} mb-4`}>{props.title || 'Cost Breakdown'}</h3>
+      <div className="space-y-2">
+        {basePrice !== null && (
+          <div className={row}>
+            <span className="text-zinc-600 dark:text-zinc-300">Base Price</span>
+            <span className={val}>{inr(basePrice)}</span>
+          </div>
+        )}
+        {gst !== null && (
+          <div className={row}>
+            <span className="text-zinc-600 dark:text-zinc-300">GST{has(props.gstRate) ? ` (${props.gstRate}%)` : ''}</span>
+            <span className={val}>{inr(gst)}</span>
+          </div>
+        )}
+        {stampDuty !== null && (
+          <div className={row}>
+            <span className="text-zinc-600 dark:text-zinc-300">Stamp Duty{has(props.stampDutyRate) ? ` (${props.stampDutyRate}%)` : ''}</span>
+            <span className={val}>{inr(stampDuty)}</span>
+          </div>
+        )}
+        {total !== null && (
+          <>
+            <div className="h-px bg-border my-2" />
+            <div className={`${row} pt-2`}>
+              <span className="font-semibold text-zinc-900 dark:text-zinc-50">Total</span>
+              <span className="text-[15px] font-semibold text-zinc-900 dark:text-zinc-50 tabular-nums text-right">{inr(total)}</span>
+            </div>
+          </>
+        )}
       </div>
     </div>
   )
@@ -200,70 +224,63 @@ function PaymentBreakdown({ props }: { props: Record<string, any> }) {
 function LocationScorecard({ props }: { props: Record<string, any> }) {
   const score = props.score || 0
   return (
-    <div className="p-4 bg-gradient-to-br from-purple-50 to-white dark:from-purple-900/20 dark:to-gray-900 border border-purple-200 dark:border-purple-800 rounded-xl">
-      <h3 className="font-bold text-gray-900 dark:text-white mb-3">{props.title || 'Location Score'}</h3>
+    <div className={CARD}>
+      <h3 className={`${TITLE} mb-3`}>{props.title || 'Location Score'}</h3>
       <div className="flex items-center gap-4">
         <div className="relative w-24 h-24">
-          <svg className="w-24 h-24 transform -rotate-90" viewBox="0 0 100 100">
-            <circle cx="50" cy="50" r="45" fill="none" stroke="#e5e7eb" strokeWidth="8" className="dark:stroke-gray-700" />
-            <circle cx="50" cy="50" r="45" fill="none" stroke="#a855f7" strokeWidth="8" strokeDasharray={`${(score / 100) * 283} 283`} className="transition-all" />
+          <svg className="w-24 h-24 transform -rotate-90" viewBox="0 0 100 100" aria-hidden="true">
+            <circle cx="50" cy="50" r="45" fill="none" strokeWidth="8" className="stroke-zinc-200 dark:stroke-zinc-700" />
+            <circle cx="50" cy="50" r="45" fill="none" strokeWidth="8" strokeDasharray={`${(score / 100) * 283} 283`} className="stroke-primary transition-all" />
           </svg>
           <div className="absolute inset-0 flex items-center justify-center">
-            <span className="text-xl font-bold text-gray-900 dark:text-white">{Math.round(score)}</span>
+            <span className="text-[17px] font-semibold text-zinc-900 dark:text-zinc-50 tabular-nums">{Math.round(score)}</span>
           </div>
         </div>
         <div className="flex-1">
-          <p className="text-sm text-gray-600 dark:text-gray-300">{props.description || 'Area suitability'}</p>
-          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{props.reasoning}</p>
+          <p className="text-[13px] text-zinc-600 dark:text-zinc-300">{props.description || 'Area suitability'}</p>
+          <p className="text-[12px] text-zinc-500 dark:text-zinc-400 mt-1">{props.reasoning}</p>
         </div>
       </div>
     </div>
   )
 }
 
+/**
+ * Formerly a "92% confident" pill. A percentage computed from pipeline
+ * heuristics reads as precision the advisor does not have, so only the
+ * stated basis is shown, and nothing when there is none.
+ */
 function ConfidenceBadge({ props }: { props: Record<string, any> }) {
-  const confidence = props.confidence || 0
-  const color = confidence >= 0.8 ? 'green' : confidence >= 0.65 ? 'yellow' : 'orange'
-  const colorClass = {
-    green: 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 border-green-200 dark:border-green-800',
-    yellow: 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300 border-yellow-200 dark:border-yellow-800',
-    orange: 'bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 border-orange-200 dark:border-orange-800',
-  }
-
+  if (!props.reason) return null
   return (
-    <div className={`p-3 rounded-lg border ${colorClass[color]}`}>
-      <div className="flex items-center gap-2">
-        <div className="w-2 h-2 rounded-full" style={{ backgroundColor: color === 'green' ? '#22c55e' : color === 'yellow' ? '#eab308' : '#f97316' }} />
-        <span className="text-sm font-medium">
-          {Math.round(confidence * 100)}% confident
-        </span>
-      </div>
-      {props.reason && <p className="text-xs mt-1 opacity-80">{props.reason}</p>}
-    </div>
+    <p className="text-[12px] text-zinc-500 dark:text-zinc-400">{props.reason}</p>
   )
 }
 
 function RiskMeter({ props }: { props: Record<string, any> }) {
   const riskLevel = props.riskLevel || 'medium'
-  const riskScore = props.riskScore || 0.5
+  // No bar without a score — a default of 0.5 drew a half-full meter from nothing.
+  const riskScore = typeof props.riskScore === 'number' ? props.riskScore : null
 
   return (
-    <div className="p-4 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl">
-      <h3 className="font-bold text-gray-900 dark:text-white mb-3">Risk Assessment</h3>
+    <div className={CARD}>
+      <h3 className={`${TITLE} mb-3`}>Risk Assessment</h3>
       <div className="flex items-center gap-3">
-        <AlertCircle className={`w-5 h-5 ${riskLevel === 'high' ? 'text-red-500' : riskLevel === 'medium' ? 'text-yellow-500' : 'text-green-500'}`} />
+        <WarningCircle size={20} className={riskLevel === 'high' ? 'text-red-600' : riskLevel === 'medium' ? 'text-amber-600' : 'text-emerald-600'} aria-hidden="true" />
         <div className="flex-1">
-          <p className="text-sm font-medium text-gray-900 dark:text-white capitalize">{riskLevel} risk</p>
-          <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 mt-1">
-            <div
-              className={`h-2 rounded-full ${riskLevel === 'high' ? 'bg-red-500' : riskLevel === 'medium' ? 'bg-yellow-500' : 'bg-green-500'}`}
-              style={{ width: `${riskScore * 100}%` }}
-            />
-          </div>
+          <p className="text-[13px] font-medium text-zinc-900 dark:text-zinc-50 capitalize">{riskLevel} risk</p>
+          {riskScore !== null && (
+            <div className="w-full bg-zinc-200 dark:bg-zinc-700 rounded-full h-2 mt-1">
+              <div
+                className={`h-2 rounded-full ${riskLevel === 'high' ? 'bg-red-500' : riskLevel === 'medium' ? 'bg-amber-500' : 'bg-emerald-500'}`}
+                style={{ width: `${riskScore * 100}%` }}
+              />
+            </div>
+          )}
         </div>
       </div>
       {props.concerns && (
-        <ul className="mt-3 space-y-1 text-xs text-gray-600 dark:text-gray-300">
+        <ul className="mt-3 space-y-1 text-[12px] text-zinc-600 dark:text-zinc-300">
           {props.concerns.map((concern: string, i: number) => (
             <li key={i} className="flex gap-2">
               <span>•</span>
@@ -307,21 +324,21 @@ function LeadForm({ props }: { props: Record<string, any> }) {
 
   if (submitted) {
     return (
-      <div className="p-4 bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800 rounded-xl text-center">
-        <CheckCircle className="w-8 h-8 text-emerald-500 mx-auto mb-2" />
-        <h4 className="font-semibold text-emerald-900 dark:text-emerald-200">Request Sent Successfully!</h4>
-        <p className="text-xs text-emerald-700 dark:text-emerald-400 mt-1">Our advisory team will share verified records & documents with you shortly.</p>
+      <div className={`${CARD} text-center`}>
+        <CheckCircle size={32} weight="fill" className="text-emerald-600 mx-auto mb-2" aria-hidden="true" />
+        <h4 className="text-[15px] font-semibold text-zinc-900 dark:text-zinc-50">Request sent</h4>
+        <p className="text-[12px] text-zinc-600 dark:text-zinc-400 mt-1">Our advisory team will share verified records & documents with you shortly.</p>
       </div>
     )
   }
 
   return (
-    <div className="p-4 bg-gradient-to-br from-blue-50 to-indigo-50/50 dark:from-gray-900 dark:to-blue-950/30 border border-blue-200 dark:border-blue-800/60 rounded-xl shadow-sm">
+    <div className={CARD}>
       <div className="flex items-center gap-2 mb-2">
-        <Send className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-        <h3 className="font-bold text-gray-900 dark:text-white text-sm">Request Official Verified Documents</h3>
+        <PaperPlaneTilt size={16} className="text-primary" aria-hidden="true" />
+        <h3 className="text-[13px] font-semibold text-zinc-900 dark:text-zinc-50">Request official documents</h3>
       </div>
-      <p className="text-xs text-gray-600 dark:text-gray-300 mb-3">
+      <p className="text-[12px] text-zinc-600 dark:text-zinc-300 mb-3">
         {props.inquiryTopic ? `Specific records for "${props.inquiryTopic}" of ${props.projectName || 'this project'} are under verification update. Connect with our advisory desk for direct verified files:` : 'Connect with our project intelligence desk for personalized verified documents:'}
       </p>
       <form onSubmit={handleSubmit} className="space-y-2">
@@ -331,7 +348,7 @@ function LeadForm({ props }: { props: Record<string, any> }) {
             placeholder="Your Name"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="px-3 py-1.5 text-xs bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-white"
+            className="px-3 py-1.5 text-[12px] bg-surface dark:bg-zinc-800 border border-border rounded-xs focus:outline-none focus-visible:ring-2 focus-visible:ring-primary text-zinc-900 dark:text-zinc-50"
           />
           <input
             type="tel"
@@ -339,13 +356,13 @@ function LeadForm({ props }: { props: Record<string, any> }) {
             required
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
-            className="px-3 py-1.5 text-xs bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-white"
+            className="px-3 py-1.5 text-[12px] bg-surface dark:bg-zinc-800 border border-border rounded-xs focus:outline-none focus-visible:ring-2 focus-visible:ring-primary text-zinc-900 dark:text-zinc-50"
           />
         </div>
         <button
           type="submit"
           disabled={loading}
-          className="w-full py-2 px-3 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-medium text-xs rounded-lg transition-colors flex items-center justify-center gap-2 shadow-sm disabled:opacity-50"
+          className="w-full py-2 px-3 bg-primary hover:bg-primary-dark text-white font-medium text-[12px] rounded-xs transition-colors flex items-center justify-center gap-2 disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1"
         >
           {loading ? 'Submitting...' : 'Submit Request to Advisory Desk'}
         </button>

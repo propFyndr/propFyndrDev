@@ -207,19 +207,19 @@ export default function ImagesEditor({ images: initial, projectId, slug, onSaved
   }
 
   return (
-    <div className="bg-white rounded-3xl border border-gray-100 shadow-[0_2px_12px_rgba(0,0,0,0.03)] p-6 md:p-8">
-      <div className="flex items-center justify-between mb-6 border-b border-gray-100 pb-4">
+    <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200/90 dark:border-zinc-800 shadow-2xs p-6 md:p-8">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 border-b border-zinc-200/80 dark:border-zinc-800 pb-4">
         <div>
-          <h2 className="text-[18px] font-sans font-bold text-zinc-900 dark:text-white tracking-tight">Image Gallery</h2>
-          <p className="text-[13px] text-zinc-500 font-medium mt-0.5">{rows.length} total · drag to reorder</p>
+          <h2 className="text-base font-bold text-zinc-900 dark:text-zinc-100 tracking-tight">Image Gallery</h2>
+          <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">{rows.length} total · drag to reorder</p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2.5 flex-wrap">
           <CustomSelect
             value={uploadType}
             onChange={val => setUploadType(val as ImageType)}
             options={IMAGE_TYPES.map(t => ({ value: t, label: TYPE_LABELS[t] }))}
             size="sm"
-            className="w-44"
+            className="w-40"
           />
           {uploadType === 'floor_plan' && (
             <>
@@ -228,34 +228,34 @@ export default function ImagesEditor({ images: initial, projectId, slug, onSaved
                 onChange={e => setUploadBhk(e.target.value)}
                 placeholder="BHK"
                 type="number"
-                className="w-20 text-[13px] font-bold text-slate-700 bg-slate-50 border border-transparent rounded-xl px-3 py-2 outline-none hover:bg-slate-100 focus:bg-white focus:border-slate-200 transition-all"
+                className="w-20 text-xs font-normal text-zinc-900 dark:text-zinc-100 bg-white dark:bg-zinc-850 border border-zinc-200/90 dark:border-zinc-700/80 rounded-xl px-3 h-9 outline-none focus:border-[#0066cc] shadow-2xs"
               />
               <input
                 value={uploadSize}
                 onChange={e => setUploadSize(e.target.value)}
                 placeholder="Sqft"
                 type="number"
-                className="w-24 text-[13px] font-bold text-slate-700 bg-slate-50 border border-transparent rounded-xl px-3 py-2 outline-none hover:bg-slate-100 focus:bg-white focus:border-slate-200 transition-all"
+                className="w-24 text-xs font-normal text-zinc-900 dark:text-zinc-100 bg-white dark:bg-zinc-850 border border-zinc-200/90 dark:border-zinc-700/80 rounded-xl px-3 h-9 outline-none focus:border-[#0066cc] shadow-2xs"
               />
             </>
           )}
-          <label className="flex items-center gap-2 text-[13px] font-bold text-white bg-slate-900 hover:bg-black px-5 py-2.5 rounded-full transition-all cursor-pointer shadow-sm">
-            {uploading ? <Loader2 size={14} className="animate-spin" /> : <Plus size={14} />}
-            Upload Image
+          <label className="inline-flex items-center gap-1.5 text-xs font-medium text-white bg-[#0066cc] hover:bg-[#0077ed] px-3.5 h-9 rounded-xl transition-all cursor-pointer shadow-2xs active:scale-[0.98]">
+            {uploading ? <Loader2 size={13} className="animate-spin" /> : <Plus size={13} />}
+            <span>Upload Image</span>
             <input type="file" accept="image/*" className="hidden" onChange={handleUpload} disabled={uploading} />
           </label>
         </div>
       </div>
 
-      {error   && <p className="text-[12px] text-red-500 mb-3">{error}</p>}
+      {error   && <p className="text-xs text-rose-600 dark:text-rose-400 mb-3">{error}</p>}
       {success && (
-        <p className="flex items-center gap-1 text-[12px] text-emerald-600 mb-3">
+        <p className="flex items-center gap-1 text-xs text-emerald-600 dark:text-emerald-400 mb-3">
           <CheckCircle2 size={13} className="fill-current" /> {success}
         </p>
       )}
 
       {rows.length === 0 ? (
-        <p className="text-[12px] text-zinc-400 text-center py-6">No images uploaded yet.</p>
+        <p className="text-xs text-zinc-400 dark:text-zinc-500 text-center py-6">No images uploaded yet.</p>
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
           {rows.map(img => (
@@ -267,12 +267,12 @@ export default function ImagesEditor({ images: initial, projectId, slug, onSaved
               onDragLeave={handleDragLeave}
               onDrop={(e) => handleDrop(e, img.id)}
               onDragEnd={() => { setDragSrc(null); setDragOver(null) }}
-              className={`group relative bg-white rounded-2xl overflow-hidden border shadow-[0_2px_12px_rgba(0,0,0,0.02)] transition-all duration-300 ${
+              className={`group relative bg-zinc-50 dark:bg-zinc-850 rounded-xl overflow-hidden border border-zinc-200/80 dark:border-zinc-800 shadow-2xs transition-all duration-200 ${
                 dragSrc === img.id
                   ? 'opacity-40 scale-95'
                   : dragOver === img.id
-                  ? 'border-slate-900 ring-2 ring-slate-200 scale-[1.02]'
-                  : 'border-gray-100 hover:border-gray-200 hover:shadow-[0_8px_24px_rgba(0,0,0,0.06)]'
+                  ? 'border-[#0066cc] ring-2 ring-[#0066cc]/20 scale-[1.02]'
+                  : 'hover:border-zinc-300 dark:hover:border-zinc-700'
               }`}
             >
               {/* Drag handle */}

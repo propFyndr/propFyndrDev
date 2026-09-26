@@ -1,7 +1,7 @@
 'use client'
 
-import { useState } from 'react'
-import { Info } from 'lucide-react'
+import { useEffect, useId, useState } from 'react'
+import { Info } from '@phosphor-icons/react'
 
 export interface InfoTooltipProps {
   content: string
@@ -11,6 +11,14 @@ export interface InfoTooltipProps {
 
 export default function InfoTooltip({ content, title, className = '' }: InfoTooltipProps) {
   const [open, setOpen] = useState(false)
+  const id = useId()
+
+  useEffect(() => {
+    if (!open) return
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setOpen(false) }
+    document.addEventListener('keydown', onKey)
+    return () => document.removeEventListener('keydown', onKey)
+  }, [open])
 
   return (
     <span className={`relative inline-flex items-center ${className}`}>
@@ -18,18 +26,25 @@ export default function InfoTooltip({ content, title, className = '' }: InfoTool
         type="button"
         onMouseEnter={() => setOpen(true)}
         onMouseLeave={() => setOpen(false)}
+        onFocus={() => setOpen(true)}
+        onBlur={() => setOpen(false)}
         onClick={() => setOpen(!open)}
-        className="text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors p-0.5 rounded-full focus:outline-none"
-        aria-label="Score methodology info"
+        className="text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 transition-colors p-0.5 rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+        aria-label={title ?? 'More info'}
+        aria-describedby={open ? id : undefined}
       >
-        <Info size={13} />
+        <Info size={13} aria-hidden="true" />
       </button>
 
       {open && (
-        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-56 sm:w-64 bg-gray-900 text-white dark:bg-slate-800 dark:text-slate-100 text-[11px] rounded-xl p-3 shadow-xl z-30 pointer-events-none border border-white/10 space-y-1 animate-in fade-in zoom-in-95 duration-150">
-          {title && <p className="font-extrabold text-blue-400 uppercase tracking-widest text-[10px]">{title}</p>}
-          <p className="font-medium text-gray-200 leading-snug">{content}</p>
-          <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-1 border-4 border-transparent border-t-gray-900 dark:border-t-slate-800" />
+        <div
+          id={id}
+          role="tooltip"
+          className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-56 sm:w-64 bg-zinc-900 text-zinc-100 dark:bg-zinc-800 text-[12px] rounded-sm p-3 shadow-md z-30 pointer-events-none border border-white/10 space-y-1 animate-in fade-in duration-150"
+        >
+          {title && <p className="font-semibold text-zinc-50 text-[11px]">{title}</p>}
+          <p className="text-zinc-300 leading-snug">{content}</p>
+          <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-1 border-4 border-transparent border-t-zinc-900 dark:border-t-zinc-800" />
         </div>
       )}
     </span>

@@ -81,69 +81,70 @@ export default function AmenitiesEditor({ amenities: initial, projectId, onSaved
   }
 
   return (
-    <div className="bg-white rounded-[20px] border border-zinc-200/80 shadow-sm p-7">
+    <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200/90 dark:border-zinc-800 shadow-2xs p-6 md:p-8">
       <div className="flex items-center justify-between mb-5">
         <div>
-          <h2 className="text-[15px] font-bold text-zinc-900">Amenities</h2>
-          <p className="text-[12px] text-zinc-400 mt-0.5">{rows.length} entries</p>
+          <h2 className="text-[15px] font-bold text-zinc-900 dark:text-zinc-100">Amenities</h2>
+          <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">{rows.length} entries configured</p>
         </div>
         <button
           onClick={() => setAdding(v => !v)}
-          className="flex items-center gap-1.5 text-[12px] font-semibold text-blue-600 bg-blue-50 hover:bg-blue-100 border border-blue-100 px-3 py-1.5 rounded-lg transition-colors"
+          className="flex items-center gap-1.5 text-xs font-medium text-[#0066cc] dark:text-[#3399ff] bg-[#0066cc]/10 hover:bg-[#0066cc]/15 border border-[#0066cc]/20 px-3 py-1.5 rounded-xl transition-all cursor-pointer active:scale-[0.98]"
         >
           <Plus size={13} />
-          Add
+          <span>{adding ? 'Cancel' : 'Add Amenity'}</span>
         </button>
       </div>
 
       {error && (
-        <p className="text-[12px] text-red-500 mb-3">{error}</p>
+        <p className="text-xs text-rose-600 dark:text-rose-400 mb-3">{error}</p>
       )}
 
       {/* Add row */}
       {adding && (
-        <div className="flex gap-2 mb-4 p-3 bg-blue-50/60 rounded-xl border border-blue-100">
+        <div className="flex flex-wrap sm:flex-nowrap gap-2.5 mb-4 p-3 bg-zinc-50 dark:bg-zinc-850/80 rounded-xl border border-zinc-200/80 dark:border-zinc-700/80">
           <input
             value={newRow.name}
             onChange={e => setNewRow(r => ({ ...r, name: e.target.value }))}
-            placeholder="Amenity name (e.g. Swimming Pool)"
-            className="flex-1 text-[13px] bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-xl px-3 py-2 outline-none focus:border-blue-400"
+            placeholder="Amenity name (e.g. Olympic Swimming Pool)"
+            className="flex-1 text-[13px] bg-white dark:bg-zinc-900 border border-zinc-200/90 dark:border-zinc-700 rounded-xl h-9 px-3 outline-none focus:border-[#0066cc] text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 shadow-2xs"
           />
           <CustomSelect
             value={newRow.category}
             onChange={val => setNewRow(r => ({ ...r, category: val as AmenityCategory }))}
             options={CATEGORIES.map(c => ({ value: c, label: CATEGORY_LABELS[c] }))}
             size="sm"
-            className="w-40"
+            className="w-36"
           />
           <button
             onClick={handleAdd}
             disabled={saving || !newRow.name.trim()}
-            className="flex items-center gap-1.5 text-[12px] font-semibold text-white bg-blue-600 hover:bg-blue-500 disabled:opacity-50 px-3 py-2 rounded-lg transition-colors"
+            className="flex items-center gap-1.5 text-xs font-medium text-white bg-[#0066cc] hover:bg-[#0077ed] disabled:opacity-50 px-3.5 h-9 rounded-xl transition-all shadow-2xs cursor-pointer active:scale-[0.98]"
           >
             {saving ? <Loader2 size={13} className="animate-spin" /> : <Save size={13} />}
-            Save
+            <span>Save</span>
           </button>
         </div>
       )}
 
       {/* Existing rows */}
       {rows.length === 0 ? (
-        <p className="text-[12px] text-zinc-400 text-center py-6">No amenities added yet.</p>
+        <p className="text-xs text-zinc-400 dark:text-zinc-500 text-center py-6">No amenities added yet.</p>
       ) : (
         <div className="flex flex-wrap gap-2">
           {rows.map(a => (
             <div
               key={a.id}
-              className="group flex items-center gap-2 text-[12px] font-medium text-zinc-700 bg-zinc-50 border border-zinc-200 px-3 py-1.5 rounded-full"
+              className="group flex items-center gap-2 text-xs font-medium text-zinc-700 dark:text-zinc-300 bg-zinc-50 dark:bg-zinc-800/60 border border-zinc-200/80 dark:border-zinc-700/70 px-3 py-1.5 rounded-full shadow-2xs transition-colors hover:border-zinc-300 dark:hover:border-zinc-600"
             >
               <span>{a.name}</span>
-              <span className="text-[10px] text-zinc-400">{CATEGORY_LABELS[a.category]}</span>
+              <span className="text-[10px] text-zinc-400 dark:text-zinc-500 font-normal">({CATEGORY_LABELS[a.category]})</span>
               <button
                 onClick={() => handleDelete(a.id)}
-                className="opacity-0 group-hover:opacity-100 text-red-400 hover:text-red-600 transition-all"
+                className="opacity-0 group-hover:opacity-100 text-zinc-400 hover:text-rose-600 dark:hover:text-rose-400 transition-all cursor-pointer"
+                title="Delete amenity"
               >
-                <Trash2 size={11} />
+                <Trash2 size={12} />
               </button>
             </div>
           ))}

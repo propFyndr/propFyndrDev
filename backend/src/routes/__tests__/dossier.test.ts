@@ -4,7 +4,7 @@ import request from 'supertest'
 import { app } from '../../index'
 import { prisma } from '../../lib/db'
 
-describe('Deal Dossier & Family Consultation Summary API', () => {
+describe('Dossier API', () => {
   let createdToken: string
 
   it('refuses to build a dossier with no shortlist rather than substituting catalogue rows', async () => {
@@ -19,15 +19,14 @@ describe('Deal Dossier & Family Consultation Summary API', () => {
     assert.strictEqual(res.status, 403)
   })
 
-  it('synthesizes and creates a family deal dossier via POST /api/v1/dossier/create', async () => {
+  it('creates a dossier via POST /api/v1/dossier/create', async () => {
     const priced = await prisma.project.findFirst({ where: { price_min_cr: { not: null } }, select: { id: true } })
     assert.ok(priced, 'needs one priced project in the database')
     const res = await request(app)
       .post('/api/v1/dossier/create')
       .send({
         projectIds: [priced!.id],
-        buyerName: 'Sharma Family',
-        targetSector: 'Sector 150',
+        preparedFor: 'Sharma Family',
         targetBhk: '3 BHK',
         budgetLabel: '₹2.0 - 2.5 Cr',
       })
@@ -40,7 +39,7 @@ describe('Deal Dossier & Family Consultation Summary API', () => {
 
     const dossier = res.body.dossier
     assert.ok(dossier)
-    assert.strictEqual(dossier.consultation.buyerName, 'Sharma Family')
+    assert.strictEqual(dossier.consultation.preparedFor, 'Sharma Family')
     assert.ok(Array.isArray(dossier.projects))
     assert.ok(dossier.projects.length >= 1)
 
@@ -54,18 +53,44 @@ describe('Deal Dossier & Family Consultation Summary API', () => {
     assert.ok(p.financials.standardEmi > 0)
     assert.ok(p.financials.netMonthlyEmi > 0)
     assert.ok(p.financials.taxShieldMonthly > 0)
+    // An assumed landed cost always carries its qualifier; a recorded one never does.
+    assert.strictEqual(p.financials.landedCostAssumed, p.financials.landedCostQualifier !== null)
 
     createdToken = res.body.token
   })
 
-  it('retrieves the cached deal dossier via GET /api/v1/dossier/:token', async () => {
+  it('retrieves the stored dossier via GET /api/v1/dossier/:token', async () => {
     assert.ok(createdToken, 'createdToken should be available from previous test')
 
     const res = await request(app).get(`/api/v1/dossier/${createdToken}`)
     assert.strictEqual(res.status, 200)
     assert.strictEqual(res.body.success, true)
     assert.strictEqual(res.body.dossier.token, createdToken)
-    assert.strictEqual(res.body.dossier.consultation.buyerName, 'Sharma Family')
+    assert.strictEqual(res.body.dossier.consultation.preparedFor, 'Sharma Family')
+  })
+
+  it('records a reaction on a listed project and refuses one on a project it does not list', async () => {
+    assert.ok(createdToken)
+    const got = await request(app).get(`/api/v1/dossier/${createdToken}`)
+    const projectId = got.body.dossier.projects[0].id
+
+    const liked = await request(app).post(`/api/v1/dossier/${createdToken}/react`).send({ projectId, reactionType: 'CONCERN', note: 'Too far from the metro' })
+    assert.strictEqual(liked.status, 200)
+    assert.deepStrictEqual(liked.body.reactions[projectId].concerns, ['Too far from the metro'])
+
+    const again = await request(app).get(`/api/v1/dossier/${createdToken}`)
+    assert.deepStrictEqual(again.body.dossier.reactions[projectId].concerns, ['Too far from the metro'])
+
+    const stranger = await request(app).post(`/api/v1/dossier/${createdToken}/react`).send({ projectId: 'not-on-this-dossier', reactionType: 'LIKE' })
+    assert.strictEqual(stranger.status, 404)
+  })
+
+  it('stops serving a dossier once it has expired', async () => {
+    assert.ok(createdToken)
+    await prisma.dossier.update({ where: { token: createdToken }, data: { expires_at: new Date(Date.now() - 1000) } })
+    const res = await request(app).get(`/api/v1/dossier/${createdToken}`)
+    assert.strictEqual(res.status, 404)
+    await prisma.dossier.delete({ where: { token: createdToken } })
   })
 
   it('returns 404 for nonexistent or invalid dossier token', async () => {

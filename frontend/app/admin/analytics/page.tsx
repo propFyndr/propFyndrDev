@@ -26,7 +26,7 @@ import { adminFetch } from '@/lib/adminFetch'
 import { Skeleton } from '@/components/ui/skeleton'
 import AnalyticsNav from '@/components/admin/AnalyticsNav'
 import AdminInfoTooltip from '@/components/admin/AdminInfoTooltip'
-import { StatCard } from '@/components/portal/ui'
+import { MetricCard } from '@/components/admin/ui/MetricCard'
 import { useAdminRole, isOwner } from '@/lib/adminRole'
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip,
@@ -281,91 +281,122 @@ export default function AnalyticsDashboard() {
         </div>
 
         {costsRestricted ? (
-          <div className="p-4 rounded-xl bg-white dark:bg-zinc-800/60 border border-zinc-200/70 dark:border-zinc-700/50">
-            <p className="text-[12px] text-zinc-600 dark:text-zinc-300 font-semibold">
-              Spend figures are restricted to super admins.
-            </p>
-            <p className="text-[11px] text-zinc-500 dark:text-zinc-400 mt-1">
-              Everything else on this page is available to you.
-            </p>
+          <div className="p-4 rounded-xl bg-zinc-50/80 dark:bg-zinc-800/40 border border-zinc-200/80 dark:border-zinc-700/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg bg-zinc-200/70 dark:bg-zinc-700/70 text-zinc-600 dark:text-zinc-300 flex items-center justify-center shrink-0">
+                <ShieldCheck className="w-4 h-4" />
+              </div>
+              <div>
+                <p className="text-xs font-semibold text-zinc-900 dark:text-zinc-100">
+                  Spend & Token Ledger Reserved for Super Admins
+                </p>
+                <p className="text-[11px] text-zinc-500 dark:text-zinc-400">
+                  All market demand signals, discovery funnels, and catalog supply telemetry below are fully active.
+                </p>
+              </div>
+            </div>
+            <span className="text-[11px] font-semibold text-zinc-500 dark:text-zinc-400 bg-white dark:bg-zinc-900 px-2.5 py-1 rounded-md border border-zinc-200/80 dark:border-zinc-800 shrink-0 self-start sm:self-auto">
+              Role Access Restricted
+            </span>
           </div>
         ) : (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <StatCard
-            label="Total AI Spend"
-            value={`₹${aiCosts?.totalCostInr ?? 0}`}
-            icon={<DollarSign className="w-4 h-4 text-emerald-500" />}
-            hint={`Avg ₹${((aiCosts?.avgCostPerQueryUsd ?? 0) * 87).toFixed(2)}/query`}
-            loading={loading}
-          />
-          <StatCard
-            label="Cost Per Lead"
-            value={`₹${aiCosts?.costPerLeadInr ?? '0.00'}`}
-            tone="good"
-            icon={<Target className="w-4 h-4 text-blue-500" />}
-            hint="Per verified buyer callback"
-            loading={loading}
-          />
-          <StatCard
-            label="Queries Tracked"
-            value={(aiCosts?.totalQueriesTracked ?? 0).toLocaleString()}
-            icon={<ShieldCheck className="w-4 h-4 text-purple-500" />}
-            hint="Metered AI calls"
-            loading={loading}
-          />
-          <StatCard
-            label="FAQ Cache Rate"
-            value={aiCosts?.cache?.hitRate ?? '0.0%'}
-            tone="hot"
-            icon={<Zap className="w-4 h-4 text-amber-500" />}
-            hint={`${aiCosts?.cache?.size ?? 0} cached keys`}
-            loading={loading}
-          />
-        </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <MetricCard
+              title="Total AI Spend"
+              value={`₹${aiCosts?.totalCostInr ?? 0}`}
+              subBadge={`₹${((aiCosts?.avgCostPerQueryUsd ?? 0) * 87).toFixed(2)}/query`}
+              subBadgeVariant="emerald"
+              icon={DollarSign}
+              iconBgClass="bg-emerald-50 dark:bg-emerald-950/60"
+              iconColorClass="text-emerald-600 dark:text-emerald-400"
+              tooltip={<AdminInfoTooltip title="Total AI Spend" description="Cumulative LLM provider API token cost converted to INR." whyItMatters="Unit economic baseline." />}
+            />
+            <MetricCard
+              title="Cost Per Lead"
+              value={`₹${aiCosts?.costPerLeadInr ?? '0.00'}`}
+              subBadge="Per verified lead"
+              subBadgeVariant="blue"
+              icon={Target}
+              iconBgClass="bg-blue-50 dark:bg-blue-950/60"
+              iconColorClass="text-[#0066cc] dark:text-blue-400"
+              tooltip={<AdminInfoTooltip title="Cost Per Lead" description="AI spend divided by verified buyer callback leads." whyItMatters="Customer acquisition efficiency." />}
+            />
+            <MetricCard
+              title="Queries Tracked"
+              value={(aiCosts?.totalQueriesTracked ?? 0).toLocaleString()}
+              subBadge="Metered calls"
+              subBadgeVariant="violet"
+              icon={ShieldCheck}
+              iconBgClass="bg-purple-50 dark:bg-purple-950/60"
+              iconColorClass="text-purple-600 dark:text-purple-400"
+              tooltip={<AdminInfoTooltip title="Queries Tracked" description="Total LLM turns and completions metered." whyItMatters="Volume scaling check." />}
+            />
+            <MetricCard
+              title="FAQ Cache Rate"
+              value={aiCosts?.cache?.hitRate ?? '0.0%'}
+              subBadge={`${aiCosts?.cache?.size ?? 0} cached keys`}
+              subBadgeVariant="amber"
+              icon={Zap}
+              iconBgClass="bg-amber-50 dark:bg-amber-950/60"
+              iconColorClass="text-amber-600 dark:text-amber-400"
+              tooltip={<AdminInfoTooltip title="Cache Hit Rate" description="Queries served instantly from in-memory cache with zero token spend." whyItMatters="Direct operational margin savings." />}
+            />
+          </div>
         )}
       </div>
 
       {/* ─── KPI SUMMARY ROW ──────────────────────────────────────────────── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard
-          label="Total Chats"
-          value={summary?.totalChats ?? 0}
-          icon={<Users className="w-4 h-4" />}
-          hint="Active sessions"
-          loading={loading}
+        <MetricCard
+          title="Total Chats"
+          value={summary?.totalChats?.toLocaleString() ?? 0}
+          subBadge="Active sessions"
+          subBadgeVariant="blue"
+          icon={Users}
+          iconBgClass="bg-blue-50 dark:bg-blue-950/60"
+          iconColorClass="text-[#0066cc] dark:text-blue-400"
+          tooltip={<AdminInfoTooltip title="Total Chat Sessions" description="Total buyer dialogues conducted with the AI advisory agent." whyItMatters="Measures overall buyer engagement." />}
         />
-        <StatCard
-          label="Total Searches"
-          value={summary?.totalQueries ?? 0}
-          icon={<Search className="w-4 h-4" />}
-          hint={`${summary?.avgQueriesPerChat ?? 0} per chat`}
-          loading={loading}
+        <MetricCard
+          title="Total Searches"
+          value={summary?.totalQueries?.toLocaleString() ?? 0}
+          subBadge={`${summary?.avgQueriesPerChat ?? 0} per chat`}
+          subBadgeVariant="violet"
+          icon={Search}
+          iconBgClass="bg-purple-50 dark:bg-purple-950/60"
+          iconColorClass="text-purple-600 dark:text-purple-400"
+          tooltip={<AdminInfoTooltip title="Total Searches" description="Property search filters and queries run across all chats." whyItMatters="Exploration volume." />}
         />
-        <StatCard
-          label="Zero-Result"
-          value={summary?.zeroResultSearches ?? 0}
-          tone="hot"
-          icon={<AlertCircle className="w-4 h-4 text-rose-500" />}
-          hint={`${summary?.zeroResultSearchRate ?? '0%'} rate`}
-          loading={loading}
+        <MetricCard
+          title="Zero-Result"
+          value={summary?.zeroResultSearches?.toLocaleString() ?? 0}
+          warning={Number(summary?.zeroResultSearches || 0) > 0}
+          subBadge={`${summary?.zeroResultSearchRate ?? '0%'} rate`}
+          subBadgeVariant={Number(summary?.zeroResultSearches || 0) > 0 ? 'amber' : 'zinc'}
+          icon={AlertCircle}
+          iconBgClass={Number(summary?.zeroResultSearches || 0) > 0 ? 'bg-amber-50 dark:bg-amber-950/60' : 'bg-zinc-100 dark:bg-zinc-800'}
+          iconColorClass={Number(summary?.zeroResultSearches || 0) > 0 ? 'text-amber-600 dark:text-amber-400' : 'text-zinc-500'}
+          tooltip={<AdminInfoTooltip title="Zero-Result Searches" description="Searches where no active listings matched buyer criteria." whyItMatters="Direct inventory acquisition signals." />}
         />
-        <StatCard
-          label="Conversion Rate"
+        <MetricCard
+          title="Conversion Rate"
           value={summary?.conversionRate ?? '0%'}
-          tone="good"
-          icon={<TrendingUp className="w-4 h-4 text-emerald-500" />}
-          hint="Callback leads"
-          loading={loading}
+          subBadge="Callback leads"
+          subBadgeVariant="emerald"
+          icon={TrendingUp}
+          iconBgClass="bg-emerald-50 dark:bg-emerald-950/60"
+          iconColorClass="text-emerald-600 dark:text-emerald-400"
+          tooltip={<AdminInfoTooltip title="Conversion Rate" description="Percentage of chat discovery sessions leading to verified leads." whyItMatters="Commercial conversion funnel health." />}
         />
       </div>
 
       {/* ─── SECTION 2: 5-STAGE CONVERSION FUNNEL & SECTOR DEMAND ─────────── */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Full Lead Journey Funnel */}
-        <div className="p-6 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 shadow-2xs space-y-4">
+        <div className="p-5 md:p-6 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200/90 dark:border-zinc-800 shadow-xs space-y-4">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-extrabold text-zinc-900 dark:text-white tracking-tight flex items-center gap-2">
-              <Layers className="w-4 h-4 text-emerald-500" />
+            <span className="text-sm font-semibold text-zinc-900 dark:text-white tracking-tight flex items-center gap-2">
+              <Layers className="w-4 h-4 text-[#0066cc]" />
               Complete Lead Journey Funnel
               <AdminInfoTooltip
                 title="Complete Lead Journey Funnel"
@@ -373,26 +404,50 @@ export default function AnalyticsDashboard() {
                 whyItMatters="Pinpoints exact drop-off stages in buyer conversion."
               />
             </span>
-            <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/80 px-2 py-0.5 rounded-md">
+            <span className="text-[11px] font-semibold text-[#0066cc] dark:text-blue-400 bg-blue-50 dark:bg-blue-950/80 px-2.5 py-0.5 rounded-lg border border-blue-200/60 dark:border-blue-800/60">
               Full Pipeline
             </span>
           </div>
 
-          <div className="space-y-2.5 pt-1">
+          <div className="space-y-3 pt-1">
             {funnelStages.length > 0 ? (
-              funnelStages.map((stage, idx) => (
-                <div key={stage.id} className="p-3 rounded-xl bg-zinc-50 dark:bg-zinc-800/40 border border-zinc-200/60 dark:border-zinc-800 flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <span className="text-xs font-bold text-zinc-800 dark:text-zinc-200">{stage.label}</span>
-                    {idx < funnelStages.length - 1 && stage.dropOffPct > 0 && (
-                      <p className="text-[10px] text-rose-500 flex items-center gap-1 font-medium">
-                        <ArrowDownRight className="w-3 h-3" /> {stage.dropOffPct}% drop-off to next step
-                      </p>
-                    )}
-                  </div>
-                  <span className="text-base font-black font-mono text-zinc-900 dark:text-white">{stage.count}</span>
-                </div>
-              ))
+              (() => {
+                const maxFunnelCount = Math.max(...funnelStages.map((s) => s.count), 1)
+                return funnelStages.map((stage, idx) => {
+                  const pct = Math.max(Math.round((stage.count / maxFunnelCount) * 100), stage.count > 0 ? 4 : 0)
+                  return (
+                    <div
+                      key={stage.id}
+                      className="p-3.5 rounded-xl bg-zinc-50/70 dark:bg-zinc-800/40 border border-zinc-200/80 dark:border-zinc-700/60 space-y-2 hover:border-zinc-300 dark:hover:border-zinc-600 transition-colors"
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-semibold text-zinc-900 dark:text-zinc-100">
+                          {stage.label}
+                        </span>
+                        <div className="flex items-center gap-2.5">
+                          {idx < funnelStages.length - 1 && stage.dropOffPct > 0 && (
+                            <span className="text-[10px] font-medium text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/60 px-2 py-0.5 rounded-md border border-rose-200/60 flex items-center gap-0.5">
+                              <ArrowDownRight className="w-2.5 h-2.5" />
+                              <span>{stage.dropOffPct}% drop</span>
+                            </span>
+                          )}
+                          <span className="text-xs font-mono font-bold text-zinc-900 dark:text-white">
+                            {stage.count.toLocaleString()}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Visual Pipeline Bar */}
+                      <div className="w-full h-1.5 bg-zinc-200/60 dark:bg-zinc-700/50 rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-[#0066cc] rounded-full transition-all duration-700"
+                          style={{ width: `${pct}%` }}
+                        />
+                      </div>
+                    </div>
+                  )
+                })
+              })()
             ) : (
               <div className="h-44 flex items-center justify-center text-xs text-zinc-400">Loading funnel events...</div>
             )}
@@ -400,10 +455,10 @@ export default function AnalyticsDashboard() {
         </div>
 
         {/* Top Searched Sectors Chart */}
-        <div className="p-6 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 shadow-2xs space-y-4">
+        <div className="p-5 md:p-6 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200/90 dark:border-zinc-800 shadow-xs space-y-4">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-extrabold text-zinc-900 dark:text-white tracking-tight flex items-center gap-2">
-              <Building2 className="w-4 h-4 text-blue-500" />
+            <span className="text-sm font-semibold text-zinc-900 dark:text-white tracking-tight flex items-center gap-2">
+              <Building2 className="w-4 h-4 text-[#0066cc]" />
               Top Searched Sectors (Real DB Data)
               <AdminInfoTooltip
                 title="Top Searched Sectors"
@@ -411,7 +466,7 @@ export default function AnalyticsDashboard() {
                 whyItMatters="Reveals exact locality buyer demand trends."
               />
             </span>
-            <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">
+            <span className="text-[11px] font-semibold text-zinc-500 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-800 px-2.5 py-0.5 rounded-lg">
               Locality Demand
             </span>
           </div>
@@ -421,15 +476,37 @@ export default function AnalyticsDashboard() {
           ) : summary?.topSectors && summary.topSectors.length > 0 ? (
             <div className="h-64 w-full">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={summary.topSectors.slice(0, 8)}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e4e4e7" opacity={0.5} />
-                  <XAxis dataKey="sector" tick={{ fontSize: 11, fill: '#71717a' }} />
-                  <YAxis tick={{ fontSize: 11, fill: '#71717a' }} allowDecimals={false} />
-                  <RechartsTooltip
-                    contentStyle={{ backgroundColor: '#18181b', borderRadius: '12px', border: 'none', color: '#fff', fontSize: '12px' }}
-                    itemStyle={{ color: '#fff' }}
+                <BarChart data={summary.topSectors.slice(0, 8)} margin={{ top: 10, right: 10, left: -20, bottom: 20 }}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f4f4f5" className="dark:opacity-10" />
+                  <XAxis
+                    dataKey="sector"
+                    axisLine={false}
+                    tickLine={false}
+                    tickFormatter={(str: string) => str.replace(', Noida', '').replace('Noida', '').trim()}
+                    tick={{ fontSize: 11, fill: '#71717a', fontWeight: 500 }}
+                    dy={8}
                   />
-                  <Bar dataKey="count" fill="#3B82F6" radius={[6, 6, 0, 0]} />
+                  <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#71717a', fontWeight: 500 }} allowDecimals={false} />
+                  <RechartsTooltip
+                    cursor={{ fill: 'rgba(0, 102, 204, 0.05)', radius: 8 }}
+                    content={({ active, payload }) => {
+                      if (active && payload && payload.length) {
+                        const d = payload[0].payload
+                        return (
+                          <div className="bg-zinc-950/95 backdrop-blur-md border border-zinc-800 text-white px-3.5 py-2.5 rounded-xl shadow-2xl z-50">
+                            <p className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider mb-1">
+                              {d.sector}
+                            </p>
+                            <p className="text-xs font-semibold text-white">
+                              {payload[0].value} <span className="text-zinc-400 font-normal">Searches</span>
+                            </p>
+                          </div>
+                        )
+                      }
+                      return null
+                    }}
+                  />
+                  <Bar dataKey="count" fill="#0066cc" radius={[6, 6, 0, 0]} maxBarSize={40} />
                 </BarChart>
               </ResponsiveContainer>
             </div>

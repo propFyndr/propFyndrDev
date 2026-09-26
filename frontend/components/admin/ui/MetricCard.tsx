@@ -109,15 +109,15 @@ export function MetricCard({
     <div
       className={`group relative rounded-2xl p-4 md:p-5 border transition-all duration-200 flex flex-col justify-between min-h-[128px] ${
         warning
-          ? 'bg-white dark:bg-zinc-900 border-amber-300 dark:border-amber-700/80 hover:border-amber-400 hover:shadow-md hover:-translate-y-0.5 shadow-2xs'
+          ? 'bg-white dark:bg-zinc-900 border-amber-300/80 dark:border-amber-700/80 hover:border-amber-400/80 hover:shadow-xs hover:-translate-y-0.5 shadow-2xs'
           : isHero
-          ? 'bg-white dark:bg-zinc-900 border-zinc-200/90 dark:border-zinc-800/90 hover:border-blue-400/70 dark:hover:border-blue-500/70 hover:shadow-md hover:-translate-y-0.5 shadow-2xs'
-          : 'bg-white dark:bg-zinc-900 border-zinc-200/80 dark:border-zinc-800/80 hover:border-zinc-300 dark:hover:border-zinc-700 hover:shadow-md hover:-translate-y-0.5 shadow-2xs'
+          ? 'bg-white dark:bg-zinc-900 border-zinc-200/90 dark:border-zinc-800 hover:border-[#0066cc]/50 dark:hover:border-blue-500/50 hover:shadow-xs hover:-translate-y-0.5 shadow-2xs'
+          : 'bg-white dark:bg-zinc-900 border-zinc-200/80 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 hover:shadow-xs hover:-translate-y-0.5 shadow-2xs'
       } ${href ? 'cursor-pointer active:scale-[0.985]' : ''}`}
     >
       <div className="flex items-center justify-between">
         <span
-          className={`text-[11px] md:text-xs font-bold uppercase tracking-wider inline-flex items-center gap-1 ${
+          className={`text-[11px] md:text-xs font-semibold uppercase tracking-wider inline-flex items-center gap-1 ${
             warning
               ? 'text-amber-600 dark:text-amber-400'
               : 'text-zinc-500 dark:text-zinc-400'
@@ -129,7 +129,7 @@ export function MetricCard({
 
         <div className="flex items-center gap-1.5">
           {href && (
-            <span className="opacity-0 group-hover:opacity-100 transition-opacity text-zinc-400 group-hover:text-blue-600 dark:group-hover:text-blue-400">
+            <span className="opacity-0 group-hover:opacity-100 transition-opacity text-zinc-400 group-hover:text-[#0066cc] dark:group-hover:text-blue-400">
               <ArrowUpRight size={14} weight="bold" />
             </span>
           )}
@@ -143,7 +143,7 @@ export function MetricCard({
 
       <div className="mt-3 flex items-baseline justify-between gap-2 flex-wrap">
         <h3
-          className={`text-2xl md:text-3xl font-extrabold tracking-tight tabular-nums ${
+          className={`text-2xl md:text-3xl font-semibold tracking-tight tabular-nums ${
             warning
               ? 'text-amber-600 dark:text-amber-400'
               : 'text-zinc-900 dark:text-zinc-50'

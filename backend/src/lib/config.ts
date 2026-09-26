@@ -115,6 +115,13 @@ for (const [canonical, aliases] of Object.entries(ENV_ALIASES)) {
 export const GEMINI_TOOLS_ENABLED = process.env.ENABLE_GEMINI_TOOLS === 'true'
 
 /**
+ * Out-of-city questions get an honest market-tier answer and are recorded as
+ * launch demand, instead of the canned "we're only in Noida" decline.
+ * Phase 2 of CHAT_INTELLIGENCE_ROADMAP.md. Off until `demand_signals` exists.
+ */
+export const OUT_OF_CITY_MARKET_ANSWERS = process.env.OUT_OF_CITY_MARKET_ANSWERS === 'on'
+
+/**
  * Which Gemini keys are free-tier, by env-var name.
  *
  * A free key cannot hold a context cache, is limited per-minute rather than per

@@ -133,7 +133,7 @@ export async function streamWithGemini(
    *
    * This once measured 0% cacheable: three lanes produced heads of 25,193,
    * 10,534 and 9,342 characters whose longest common prefix was SEVENTEEN
-   * characters — "You are RealtyPal". That is fixed; the head is now
+   * characters — "You are PropFyndr". That is fixed; the head is now
    * byte-identical across turns and `promptPrefixStability.test.ts` fails the
    * build if a per-turn value is spliced back into it.
    *

@@ -1,0 +1,6532 @@
+[
+  {
+    "id": "q001",
+    "q": "1 bhk flats in sector 74 75 76 noida for rent",
+    "history": [],
+    "task": "out_of_scope",
+    "entities": {
+      "city": "Noida",
+      "localities": [
+        "Sector 74",
+        "Sector 75",
+        "Sector 76"
+      ],
+      "projects": [],
+      "builder": null,
+      "bhk": 1,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "general"
+    ],
+    "shape": "factual",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q003",
+    "q": "1 bhk flats in sector 75 noida for rent",
+    "history": [],
+    "task": "out_of_scope",
+    "entities": {
+      "city": "Noida",
+      "localities": [
+        "Sector 75"
+      ],
+      "projects": [],
+      "builder": null,
+      "bhk": 1,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "general"
+    ],
+    "shape": "factual",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q007",
+    "q": "2 bhk flats in sector 75 noida for rent",
+    "history": [],
+    "task": "out_of_scope",
+    "entities": {
+      "city": "Noida",
+      "localities": [
+        "Sector 75"
+      ],
+      "projects": [],
+      "builder": null,
+      "bhk": 2,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "general"
+    ],
+    "shape": "factual",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q014",
+    "q": "3 bhk flats for rent in sector 75 noida",
+    "history": [],
+    "task": "out_of_scope",
+    "entities": {
+      "city": "Noida",
+      "localities": [
+        "Sector 75"
+      ],
+      "projects": [],
+      "builder": null,
+      "bhk": 3,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "general"
+    ],
+    "shape": "factual",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q022",
+    "q": "5 star properties in noida",
+    "history": [],
+    "task": "out_of_scope",
+    "entities": {
+      "city": "Noida",
+      "localities": [],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "general"
+    ],
+    "shape": "factual",
+    "uncertain": true,
+    "note": "\"4/5 star properties\" reads as hotel-grade search, not residential inventory we carry"
+  },
+  {
+    "id": "q026",
+    "q": "airbnb properties in noida",
+    "history": [],
+    "task": "out_of_scope",
+    "entities": {
+      "city": "Noida",
+      "localities": [],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "general"
+    ],
+    "shape": "factual",
+    "uncertain": false,
+    "note": "Airbnb is a short-stay platform, not a residential builder"
+  },
+  {
+    "id": "q030",
+    "q": "are all properties in noida leasehold",
+    "history": [],
+    "task": "legal_process",
+    "entities": {
+      "city": "Noida",
+      "localities": [],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "general"
+    ],
+    "shape": "factual",
+    "uncertain": true,
+    "note": "tenure (leasehold/freehold) is a legal/process question, not rent/resale/commercial/auction, so not out_of_scope"
+  },
+  {
+    "id": "q034",
+    "q": "auction properties in greater noida",
+    "history": [],
+    "task": "out_of_scope",
+    "entities": {
+      "city": "Greater Noida",
+      "localities": [],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "general"
+    ],
+    "shape": "factual",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q036",
+    "q": "bank auction properties in noida",
+    "history": [],
+    "task": "out_of_scope",
+    "entities": {
+      "city": "Noida",
+      "localities": [],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "general"
+    ],
+    "shape": "factual",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q043",
+    "q": "best commercial properties in noida",
+    "history": [],
+    "task": "out_of_scope",
+    "entities": {
+      "city": "Noida",
+      "localities": [],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "general"
+    ],
+    "shape": "factual",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q090",
+    "q": "flats in sector 74 75 76 noida for rent",
+    "history": [],
+    "task": "out_of_scope",
+    "entities": {
+      "city": "Noida",
+      "localities": [
+        "Sector 74",
+        "Sector 75",
+        "Sector 76"
+      ],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "general"
+    ],
+    "shape": "factual",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q094",
+    "q": "flats in sector 75 noida rent",
+    "history": [],
+    "task": "out_of_scope",
+    "entities": {
+      "city": "Noida",
+      "localities": [
+        "Sector 75"
+      ],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "general"
+    ],
+    "shape": "factual",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q095",
+    "q": "flats on rent in sector 75 noida",
+    "history": [],
+    "task": "out_of_scope",
+    "entities": {
+      "city": "Noida",
+      "localities": [
+        "Sector 75"
+      ],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "general"
+    ],
+    "shape": "factual",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q155",
+    "q": "pre rental properties in noida",
+    "history": [],
+    "task": "out_of_scope",
+    "entities": {
+      "city": "Noida",
+      "localities": [],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "general"
+    ],
+    "shape": "factual",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q158",
+    "q": "properties for auction in noida",
+    "history": [],
+    "task": "out_of_scope",
+    "entities": {
+      "city": "Noida",
+      "localities": [],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "general"
+    ],
+    "shape": "factual",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q165",
+    "q": "properties in greater noida for rent",
+    "history": [],
+    "task": "out_of_scope",
+    "entities": {
+      "city": "Greater Noida",
+      "localities": [],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "general"
+    ],
+    "shape": "factual",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q195",
+    "q": "properties on rent in noida",
+    "history": [],
+    "task": "out_of_scope",
+    "entities": {
+      "city": "Noida",
+      "localities": [],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "general"
+    ],
+    "shape": "factual",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q197",
+    "q": "properties to rent in noida",
+    "history": [],
+    "task": "out_of_scope",
+    "entities": {
+      "city": "Noida",
+      "localities": [],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "general"
+    ],
+    "shape": "factual",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q206",
+    "q": "property for rent in noida",
+    "history": [],
+    "task": "out_of_scope",
+    "entities": {
+      "city": "Noida",
+      "localities": [],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "general"
+    ],
+    "shape": "factual",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q255",
+    "q": "resale flats in sector 75 noida",
+    "history": [],
+    "task": "out_of_scope",
+    "entities": {
+      "city": "Noida",
+      "localities": [
+        "Sector 75"
+      ],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "general"
+    ],
+    "shape": "factual",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q256",
+    "q": "resale properties in noida",
+    "history": [],
+    "task": "out_of_scope",
+    "entities": {
+      "city": "Noida",
+      "localities": [],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "general"
+    ],
+    "shape": "factual",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q273",
+    "q": "taj properties in noida",
+    "history": [],
+    "task": "out_of_scope",
+    "entities": {
+      "city": "Noida",
+      "localities": [],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "general"
+    ],
+    "shape": "factual",
+    "uncertain": true,
+    "note": "Taj is a hotel brand here, not a residential builder"
+  },
+  {
+    "id": "q002",
+    "q": "1 bhk flats in sector 75 noida",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Noida",
+      "localities": [
+        "Sector 75"
+      ],
+      "projects": [],
+      "builder": null,
+      "bhk": 1,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q005",
+    "q": "2 bhk flats in sector 74 75 76 noida for sale",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Noida",
+      "localities": [
+        "Sector 74",
+        "Sector 75",
+        "Sector 76"
+      ],
+      "projects": [],
+      "builder": null,
+      "bhk": 2,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q008",
+    "q": "2 bhk flats in sector 75 noida for sale",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Noida",
+      "localities": [
+        "Sector 75"
+      ],
+      "projects": [],
+      "builder": null,
+      "bhk": 2,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q009",
+    "q": "2 bhk in greater noida",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Greater Noida",
+      "localities": [],
+      "projects": [],
+      "builder": null,
+      "bhk": 2,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q015",
+    "q": "3 bhk flats in noida sector 75",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Noida",
+      "localities": [
+        "Sector 75"
+      ],
+      "projects": [],
+      "builder": null,
+      "bhk": 3,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q017",
+    "q": "3 bhk in greater noida",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Greater Noida",
+      "localities": [],
+      "projects": [],
+      "builder": null,
+      "bhk": 3,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q019",
+    "q": "3 bhk in noida extension",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Greater Noida West",
+      "localities": [
+        "Noida Extension"
+      ],
+      "projects": [],
+      "builder": null,
+      "bhk": 3,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q029",
+    "q": "apartments in noida extension",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Greater Noida West",
+      "localities": [
+        "Noida Extension"
+      ],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q045",
+    "q": "best investment properties in sector 107 noida",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Noida",
+      "localities": [
+        "Sector 107"
+      ],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q052",
+    "q": "best properties in noida extension",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Greater Noida West",
+      "localities": [
+        "Noida Extension"
+      ],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q074",
+    "q": "buy 3 bhk flats in noida sector 75",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Noida",
+      "localities": [
+        "Sector 75"
+      ],
+      "projects": [],
+      "builder": null,
+      "bhk": 3,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q075",
+    "q": "buy property in sector 75 noida",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Noida",
+      "localities": [
+        "Sector 75"
+      ],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q087",
+    "q": "flats in indosam sector 75 noida",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Noida",
+      "localities": [
+        "Sector 75"
+      ],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q089",
+    "q": "flats in noida extension",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Greater Noida West",
+      "localities": [
+        "Noida Extension"
+      ],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q093",
+    "q": "flats in sector 75 noida for sale",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Noida",
+      "localities": [
+        "Sector 75"
+      ],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q120",
+    "q": "is noida extension good for investment",
+    "history": [],
+    "task": "market_explain",
+    "entities": {
+      "city": "Greater Noida West",
+      "localities": [
+        "Noida Extension"
+      ],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db",
+      "knowledge"
+    ],
+    "shape": "advisory",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q123",
+    "q": "is sector 137 good for investment",
+    "history": [],
+    "task": "market_explain",
+    "entities": {
+      "city": null,
+      "localities": [
+        "Sector 137"
+      ],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db",
+      "knowledge"
+    ],
+    "shape": "advisory",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q126",
+    "q": "is sector 75 good for investment",
+    "history": [],
+    "task": "market_explain",
+    "entities": {
+      "city": null,
+      "localities": [
+        "Sector 75"
+      ],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db",
+      "knowledge"
+    ],
+    "shape": "advisory",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q127",
+    "q": "Is Sector 75 Noida a good place to buy a 3 BHK for my own use?",
+    "history": [],
+    "task": "market_explain",
+    "entities": {
+      "city": "Noida",
+      "localities": [
+        "Sector 75"
+      ],
+      "projects": [],
+      "builder": null,
+      "bhk": 3,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db",
+      "knowledge"
+    ],
+    "shape": "advisory",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q132",
+    "q": "luxury apartments & flats in noida sector 75",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Noida",
+      "localities": [
+        "Sector 75"
+      ],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q143",
+    "q": "new properties in greater noida",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Greater Noida",
+      "localities": [],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q144",
+    "q": "new properties in greater noida west",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Greater Noida West",
+      "localities": [],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q160",
+    "q": "properties for sale in greater noida west",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Greater Noida West",
+      "localities": [],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q164",
+    "q": "properties in greater noida",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Greater Noida",
+      "localities": [],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q166",
+    "q": "properties in greater noida for sale",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Greater Noida",
+      "localities": [],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q171",
+    "q": "properties in noida extension",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Greater Noida West",
+      "localities": [
+        "Noida Extension"
+      ],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q172",
+    "q": "properties in noida extension with price",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Greater Noida West",
+      "localities": [
+        "Noida Extension"
+      ],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q177",
+    "q": "properties in noida sector 15",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Noida",
+      "localities": [
+        "Sector 15"
+      ],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q179",
+    "q": "properties in noida sector 18",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Noida",
+      "localities": [
+        "Sector 18"
+      ],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q180",
+    "q": "properties in noida sector 34",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Noida",
+      "localities": [
+        "Sector 34"
+      ],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q182",
+    "q": "properties in noida sector 44",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Noida",
+      "localities": [
+        "Sector 44"
+      ],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q183",
+    "q": "properties in noida sector 62",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Noida",
+      "localities": [
+        "Sector 62"
+      ],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q185",
+    "q": "properties in noida sector 76",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Noida",
+      "localities": [
+        "Sector 76"
+      ],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q189",
+    "q": "properties in rho greater noida",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Greater Noida",
+      "localities": [],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q190",
+    "q": "properties in sector 105 noida",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Noida",
+      "localities": [
+        "Sector 105"
+      ],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q192",
+    "q": "properties in sector 45 noida",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Noida",
+      "localities": [
+        "Sector 45"
+      ],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q193",
+    "q": "properties in sector 50 noida",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Noida",
+      "localities": [
+        "Sector 50"
+      ],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q208",
+    "q": "property for sale in sector 75 noida",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Noida",
+      "localities": [
+        "Sector 75"
+      ],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q211",
+    "q": "property in noida extension",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Greater Noida West",
+      "localities": [
+        "Noida Extension"
+      ],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q212",
+    "q": "property in sector 100 noida",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Noida",
+      "localities": [
+        "Sector 100"
+      ],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q214",
+    "q": "property in sector 107 noida",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Noida",
+      "localities": [
+        "Sector 107"
+      ],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q215",
+    "q": "property in sector 110 noida",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Noida",
+      "localities": [
+        "Sector 110"
+      ],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q217",
+    "q": "property in sector 128 noida",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Noida",
+      "localities": [
+        "Sector 128"
+      ],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q219",
+    "q": "property in sector 137 noida",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Noida",
+      "localities": [
+        "Sector 137"
+      ],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q220",
+    "q": "property in sector 140 noida",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Noida",
+      "localities": [
+        "Sector 140"
+      ],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q222",
+    "q": "property in sector 142 noida",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Noida",
+      "localities": [
+        "Sector 142"
+      ],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q224",
+    "q": "property in sector 150 noida",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Noida",
+      "localities": [
+        "Sector 150"
+      ],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q225",
+    "q": "property in sector 151 noida",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Noida",
+      "localities": [
+        "Sector 151"
+      ],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q227",
+    "q": "property in sector 153 noida",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Noida",
+      "localities": [
+        "Sector 153"
+      ],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q228",
+    "q": "property in sector 154 noida",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Noida",
+      "localities": [
+        "Sector 154"
+      ],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q230",
+    "q": "property in sector 62 noida",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Noida",
+      "localities": [
+        "Sector 62"
+      ],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q232",
+    "q": "property in sector 75 noida",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Noida",
+      "localities": [
+        "Sector 75"
+      ],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q233",
+    "q": "property in sector 76 noida",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Noida",
+      "localities": [
+        "Sector 76"
+      ],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q235",
+    "q": "property in sector 78 noida",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Noida",
+      "localities": [
+        "Sector 78"
+      ],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q236",
+    "q": "property in sector 79 noida",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Noida",
+      "localities": [
+        "Sector 79"
+      ],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q238",
+    "q": "property in sector 94 noida",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Noida",
+      "localities": [
+        "Sector 94"
+      ],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q241",
+    "q": "property investment in noida extension",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Greater Noida West",
+      "localities": [
+        "Noida Extension"
+      ],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q242",
+    "q": "property investment near jewar airport",
+    "history": [],
+    "task": "market_explain",
+    "entities": {
+      "city": "Greater Noida",
+      "localities": [
+        "Jewar Airport"
+      ],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": true,
+    "note": "Jewar/Yamuna Expressway micro-market adjacent to our 3-city inventory; treated as knowledge/market question, not out_of_scope"
+  },
+  {
+    "id": "q244",
+    "q": "property near jewar airport",
+    "history": [],
+    "task": "market_explain",
+    "entities": {
+      "city": "Greater Noida",
+      "localities": [
+        "Jewar Airport"
+      ],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": true,
+    "note": "Jewar/Yamuna Expressway micro-market adjacent to our 3-city inventory; treated as knowledge/market question, not out_of_scope"
+  },
+  {
+    "id": "q246",
+    "q": "property on yamuna expressway",
+    "history": [],
+    "task": "market_explain",
+    "entities": {
+      "city": "Greater Noida",
+      "localities": [
+        "Yamuna Expressway"
+      ],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": true,
+    "note": "Yamuna Expressway is outside the Noida/Greater Noida/GNW inventory core; market_explain not discover"
+  },
+  {
+    "id": "q249",
+    "q": "property rates in noida extension",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Greater Noida West",
+      "localities": [
+        "Noida Extension"
+      ],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q251",
+    "q": "ready to move flats in noida sector 75",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Noida",
+      "localities": [
+        "Sector 75"
+      ],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q257",
+    "q": "residential properties in greater noida",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Greater Noida",
+      "localities": [],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q282",
+    "q": "What are the advantages and disadvantages of buying a flat in Sector 150 Noida?",
+    "history": [],
+    "task": "market_explain",
+    "entities": {
+      "city": "Noida",
+      "localities": [
+        "Sector 150"
+      ],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db",
+      "knowledge"
+    ],
+    "shape": "advisory",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q010",
+    "q": "2 bhk in noida",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Noida",
+      "localities": [],
+      "projects": [],
+      "builder": null,
+      "bhk": 2,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q012",
+    "q": "2 bhk properties in noida",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Noida",
+      "localities": [],
+      "projects": [],
+      "builder": null,
+      "bhk": 2,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q018",
+    "q": "3 bhk in noida",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Noida",
+      "localities": [],
+      "projects": [],
+      "builder": null,
+      "bhk": 3,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q028",
+    "q": "apartments in noida",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Noida",
+      "localities": [],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q142",
+    "q": "new projects in noida",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Noida",
+      "localities": [],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q163",
+    "q": "properties in central noida",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Noida",
+      "localities": [],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q168",
+    "q": "properties in new noida",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Noida",
+      "localities": [],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q170",
+    "q": "properties in noida expressway",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Noida",
+      "localities": [],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q173",
+    "q": "properties in noida for purchase",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Noida",
+      "localities": [],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q187",
+    "q": "properties in noida to buy",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Noida",
+      "localities": [],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q198",
+    "q": "properties under 50 lakhs in noida",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Noida",
+      "localities": [],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": 0.5
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q207",
+    "q": "property for sale in noida",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Noida",
+      "localities": [],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q240",
+    "q": "property investment in noida",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Noida",
+      "localities": [],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q024",
+    "q": "ace properties in noida",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Noida",
+      "localities": [],
+      "projects": [],
+      "builder": "Ace",
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "advisory",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q027",
+    "q": "amrapali properties in noida",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Noida",
+      "localities": [],
+      "projects": [],
+      "builder": "Amrapali",
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "advisory",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q033",
+    "q": "ats properties in noida",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Noida",
+      "localities": [],
+      "projects": [],
+      "builder": "ATS",
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "advisory",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q080",
+    "q": "damac properties in noida",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Noida",
+      "localities": [],
+      "projects": [],
+      "builder": "Damac",
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "advisory",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q082",
+    "q": "dlf properties in noida",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Noida",
+      "localities": [],
+      "projects": [],
+      "builder": "DLF",
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "advisory",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q083",
+    "q": "eldeco properties in noida",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Noida",
+      "localities": [],
+      "projects": [],
+      "builder": "Eldeco",
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "advisory",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q096",
+    "q": "godrej properties flats in noida",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Noida",
+      "localities": [],
+      "projects": [],
+      "builder": "Godrej",
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "advisory",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q098",
+    "q": "godrej properties in greater noida west",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Greater Noida West",
+      "localities": [],
+      "projects": [],
+      "builder": "Godrej",
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "advisory",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q099",
+    "q": "godrej properties in noida",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Noida",
+      "localities": [],
+      "projects": [],
+      "builder": "Godrej",
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "advisory",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q101",
+    "q": "godrej properties in noida for sale",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Noida",
+      "localities": [],
+      "projects": [],
+      "builder": "Godrej",
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "advisory",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q102",
+    "q": "godrej properties in noida sector 150",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Noida",
+      "localities": [
+        "Sector 150"
+      ],
+      "projects": [],
+      "builder": "Godrej",
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "advisory",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q129",
+    "q": "jaypee properties in noida",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Noida",
+      "localities": [],
+      "projects": [],
+      "builder": "Jaypee",
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "advisory",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q130",
+    "q": "jp properties in noida",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Noida",
+      "localities": [],
+      "projects": [],
+      "builder": "JP",
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "advisory",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q136",
+    "q": "mahagun properties in noida",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Noida",
+      "localities": [],
+      "projects": [],
+      "builder": "Mahagun",
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "advisory",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q140",
+    "q": "nbcc properties in noida",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Noida",
+      "localities": [],
+      "projects": [],
+      "builder": "NBCC",
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "advisory",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q151",
+    "q": "omaxe properties in noida",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Noida",
+      "localities": [],
+      "projects": [],
+      "builder": "Omaxe",
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "advisory",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q157",
+    "q": "prestige properties in noida",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Noida",
+      "localities": [],
+      "projects": [],
+      "builder": "Prestige",
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "advisory",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q260",
+    "q": "sarthi properties in noida",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Noida",
+      "localities": [],
+      "projects": [],
+      "builder": "Sarthi",
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "advisory",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q271",
+    "q": "sobha properties in noida",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Noida",
+      "localities": [],
+      "projects": [],
+      "builder": "Sobha",
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "advisory",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q025",
+    "q": "affordable properties in noida",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Noida",
+      "localities": [],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "advisory",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q038",
+    "q": "best 2 bhk under 1 crore in noida",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Noida",
+      "localities": [],
+      "projects": [],
+      "builder": null,
+      "bhk": 2,
+      "budgetMaxCr": 1
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "advisory",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q055",
+    "q": "best property under 1 crore in noida",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Noida",
+      "localities": [],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": 1
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "advisory",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q056",
+    "q": "best property under 1.5 crore in noida",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Noida",
+      "localities": [],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": 1.5
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "advisory",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q058",
+    "q": "best property under 50 lakh in noida",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Noida",
+      "localities": [],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": 0.5
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "advisory",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q059",
+    "q": "best property under 75 lakh in noida",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Noida",
+      "localities": [],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": 0.75
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "advisory",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q110",
+    "q": "I have ₹1 crore to invest in Noida. Where should I invest it for the best risk-adjusted return over the next 5 years?",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Noida",
+      "localities": [],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": 1
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "advisory",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q115",
+    "q": "I have ₹80 lakh. I need a 2 BHK for my family, good metro connectivity, low traffic and decent schools nearby. Where should I look in Noida?",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Noida",
+      "localities": [],
+      "projects": [],
+      "builder": null,
+      "bhk": 2,
+      "budgetMaxCr": 0.8
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "advisory",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q117",
+    "q": "If I buy a ₹1.2 crore apartment in Noida, what rental yield can I realistically expect?",
+    "history": [],
+    "task": "calculate",
+    "entities": {
+      "city": "Noida",
+      "localities": [],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": 1.2
+    },
+    "source_plan": [
+      "general"
+    ],
+    "shape": "reasoning",
+    "uncertain": true,
+    "note": "rental yield expectation needs a market yield assumption, not pure formula"
+  },
+  {
+    "id": "q188",
+    "q": "properties in noida under 1 crore",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Noida",
+      "localities": [],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": 1
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "advisory",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q283",
+    "q": "What are the best sectors to buy a 2 BHK apartment in Noida under ₹1 crore?",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Noida",
+      "localities": [],
+      "projects": [],
+      "builder": null,
+      "bhk": 2,
+      "budgetMaxCr": 1
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "advisory",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q295",
+    "q": "Which are the best residential projects currently available in Noida for a 3 BHK under ₹1.5 crore?",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Noida",
+      "localities": [],
+      "projects": [],
+      "builder": null,
+      "bhk": 3,
+      "budgetMaxCr": 1.5
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "advisory",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q037",
+    "q": "best 2 bhk in noida",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Noida",
+      "localities": [],
+      "projects": [],
+      "builder": null,
+      "bhk": 2,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "advisory",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q039",
+    "q": "best 3 bhk in noida",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Noida",
+      "localities": [],
+      "projects": [],
+      "builder": null,
+      "bhk": 3,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "advisory",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q046",
+    "q": "best luxury properties in noida",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Noida",
+      "localities": [],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "advisory",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q049",
+    "q": "best properties in central noida",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Noida",
+      "localities": [],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "advisory",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q054",
+    "q": "best property in Noida",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Noida",
+      "localities": [],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "advisory",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q060",
+    "q": "best residential properties in noida",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Noida",
+      "localities": [],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "advisory",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q062",
+    "q": "best sector for working professionals in noida",
+    "history": [],
+    "task": "market_explain",
+    "entities": {
+      "city": "Noida",
+      "localities": [],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db",
+      "knowledge"
+    ],
+    "shape": "advisory",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q064",
+    "q": "best sector near noida expressway",
+    "history": [],
+    "task": "market_explain",
+    "entities": {
+      "city": "Noida",
+      "localities": [],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db",
+      "knowledge"
+    ],
+    "shape": "advisory",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q065",
+    "q": "best sector near schools in noida",
+    "history": [],
+    "task": "market_explain",
+    "entities": {
+      "city": "Noida",
+      "localities": [],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db",
+      "knowledge"
+    ],
+    "shape": "advisory",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q067",
+    "q": "best sector with good connectivity in Noida",
+    "history": [],
+    "task": "market_explain",
+    "entities": {
+      "city": "Noida",
+      "localities": [],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db",
+      "knowledge"
+    ],
+    "shape": "advisory",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q068",
+    "q": "best sectors in noida",
+    "history": [],
+    "task": "market_explain",
+    "entities": {
+      "city": "Noida",
+      "localities": [],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db",
+      "knowledge"
+    ],
+    "shape": "advisory",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q139",
+    "q": "most expensive properties in noida",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Noida",
+      "localities": [],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "advisory",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q275",
+    "q": "top 10 best properties in noida 2025",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Noida",
+      "localities": [],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "advisory",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q277",
+    "q": "top properties in noida",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Noida",
+      "localities": [],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "advisory",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q297",
+    "q": "Which areas of Noida are best for families?",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Noida",
+      "localities": [],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "advisory",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q298",
+    "q": "Which areas of Noida have the highest potential for capital appreciation?",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Noida",
+      "localities": [],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "advisory",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q301",
+    "q": "which flat should i buy in noida",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Noida",
+      "localities": [],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "advisory",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q305",
+    "q": "Which Noida sector gives me the best combination of connectivity, livability and appreciation potential?",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Noida",
+      "localities": [],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "advisory",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q316",
+    "q": "which property is best for investment in noida",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Noida",
+      "localities": [],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "advisory",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q317",
+    "q": "which property is best in noida",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Noida",
+      "localities": [],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "advisory",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q319",
+    "q": "which sector is best in noida",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Noida",
+      "localities": [],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "advisory",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q041",
+    "q": "best builder in noida",
+    "history": [],
+    "task": "market_explain",
+    "entities": {
+      "city": "Noida",
+      "localities": [],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db",
+      "knowledge"
+    ],
+    "shape": "advisory",
+    "uncertain": true,
+    "note": "\"best builder/society\" asks for a reputation judgement across builders, not a single project fact or a plain listing search"
+  },
+  {
+    "id": "q042",
+    "q": "best builder in noida for apartments",
+    "history": [],
+    "task": "market_explain",
+    "entities": {
+      "city": "Noida",
+      "localities": [],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db",
+      "knowledge"
+    ],
+    "shape": "advisory",
+    "uncertain": true,
+    "note": "\"best builder/society\" asks for a reputation judgement across builders, not a single project fact or a plain listing search"
+  },
+  {
+    "id": "q048",
+    "q": "best new project in sector 150",
+    "history": [],
+    "task": "market_explain",
+    "entities": {
+      "city": null,
+      "localities": [
+        "Sector 150"
+      ],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db",
+      "knowledge"
+    ],
+    "shape": "advisory",
+    "uncertain": true,
+    "note": "\"best builder/society\" asks for a reputation judgement across builders, not a single project fact or a plain listing search"
+  },
+  {
+    "id": "q070",
+    "q": "best society in sector 137 noida",
+    "history": [],
+    "task": "market_explain",
+    "entities": {
+      "city": "Noida",
+      "localities": [
+        "Sector 137"
+      ],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db",
+      "knowledge"
+    ],
+    "shape": "advisory",
+    "uncertain": true,
+    "note": "\"best builder/society\" asks for a reputation judgement across builders, not a single project fact or a plain listing search"
+  },
+  {
+    "id": "q071",
+    "q": "best society in sector 150 noida",
+    "history": [],
+    "task": "market_explain",
+    "entities": {
+      "city": "Noida",
+      "localities": [
+        "Sector 150"
+      ],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db",
+      "knowledge"
+    ],
+    "shape": "advisory",
+    "uncertain": true,
+    "note": "\"best builder/society\" asks for a reputation judgement across builders, not a single project fact or a plain listing search"
+  },
+  {
+    "id": "q073",
+    "q": "best society in sector 78 noida",
+    "history": [],
+    "task": "market_explain",
+    "entities": {
+      "city": "Noida",
+      "localities": [
+        "Sector 78"
+      ],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db",
+      "knowledge"
+    ],
+    "shape": "advisory",
+    "uncertain": true,
+    "note": "\"best builder/society\" asks for a reputation judgement across builders, not a single project fact or a plain listing search"
+  },
+  {
+    "id": "q076",
+    "q": "cheap properties in noida",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Noida",
+      "localities": [],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q121",
+    "q": "is noida good for property investment",
+    "history": [],
+    "task": "market_explain",
+    "entities": {
+      "city": "Noida",
+      "localities": [],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db",
+      "knowledge"
+    ],
+    "shape": "advisory",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q134",
+    "q": "luxury properties in noida",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Noida",
+      "localities": [],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q141",
+    "q": "new launch properties in noida",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Noida",
+      "localities": [],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q154",
+    "q": "pre launch properties in noida",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Noida",
+      "localities": [],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q252",
+    "q": "ready to move properties in noida",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Noida",
+      "localities": [],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q253",
+    "q": "real estate properties in noida",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Noida",
+      "localities": [],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q270",
+    "q": "Should I buy an under-construction property or a ready-to-move property in Noida if my goal is investment?",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Noida",
+      "localities": [],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q278",
+    "q": "under construction properties in noida",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Noida",
+      "localities": [],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q309",
+    "q": "which noida sectors have poor connectivity",
+    "history": [],
+    "task": "market_explain",
+    "entities": {
+      "city": "Noida",
+      "localities": [],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "advisory",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q078",
+    "q": "Compare Sector 75, Sector 78, Sector 137 and Sector 150 and tell me which one you would personally choose for a 5-year investment.",
+    "history": [],
+    "task": "compare",
+    "entities": {
+      "city": null,
+      "localities": [
+        "Sector 75",
+        "Sector 78",
+        "Sector 137",
+        "Sector 150"
+      ],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db",
+      "knowledge"
+    ],
+    "shape": "reasoning",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q079",
+    "q": "Compare the best 3 BHK projects in Sector 75 and tell me which one offers the best value for money.",
+    "history": [],
+    "task": "compare",
+    "entities": {
+      "city": null,
+      "localities": [
+        "Sector 75"
+      ],
+      "projects": [],
+      "builder": null,
+      "bhk": 3,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db",
+      "knowledge"
+    ],
+    "shape": "reasoning",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q111",
+    "q": "I have ₹1.25 crore and want a 3 BHK. Compare my best options across Noida and Greater Noida West.",
+    "history": [],
+    "task": "compare",
+    "entities": {
+      "city": "Greater Noida West",
+      "localities": [],
+      "projects": [],
+      "builder": null,
+      "bhk": 3,
+      "budgetMaxCr": 1.25
+    },
+    "source_plan": [
+      "db",
+      "knowledge"
+    ],
+    "shape": "reasoning",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q112",
+    "q": "I have ₹1.25 crore. I work near Sector 62, my wife works near Sector 135, we have one child, we need a 3 BHK, want a metro within reasonable reach, don't want a long daily commute, want good schools nearby, and may sell the property in 5 years. Compare Sector 75, Sector 78, Sector 137 and Sector 150 and tell me where I should buy, including the trade-offs.",
+    "history": [],
+    "task": "compare",
+    "entities": {
+      "city": null,
+      "localities": [
+        "Sector 62",
+        "Sector 135",
+        "Sector 75",
+        "Sector 78",
+        "Sector 137",
+        "Sector 150"
+      ],
+      "projects": [],
+      "builder": null,
+      "bhk": 3,
+      "budgetMaxCr": 1.25
+    },
+    "source_plan": [
+      "db",
+      "knowledge"
+    ],
+    "shape": "reasoning",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q146",
+    "q": "noida extension vs noida",
+    "history": [],
+    "task": "compare",
+    "entities": {
+      "city": "Greater Noida West",
+      "localities": [
+        "Noida Extension"
+      ],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db",
+      "knowledge"
+    ],
+    "shape": "reasoning",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q148",
+    "q": "noida vs greater noida property",
+    "history": [],
+    "task": "compare",
+    "entities": {
+      "city": "Greater Noida",
+      "localities": [],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db",
+      "knowledge"
+    ],
+    "shape": "reasoning",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q149",
+    "q": "noida vs gurgaon for property investment",
+    "history": [],
+    "task": "compare",
+    "entities": {
+      "city": "Gurgaon",
+      "localities": [],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db",
+      "knowledge"
+    ],
+    "shape": "reasoning",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q262",
+    "q": "sector 137 vs sector 150 noida",
+    "history": [],
+    "task": "compare",
+    "entities": {
+      "city": "Noida",
+      "localities": [
+        "Sector 137",
+        "Sector 150"
+      ],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db",
+      "knowledge"
+    ],
+    "shape": "reasoning",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q263",
+    "q": "sector 150 vs sector 128 noida",
+    "history": [],
+    "task": "compare",
+    "entities": {
+      "city": "Noida",
+      "localities": [
+        "Sector 150",
+        "Sector 128"
+      ],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db",
+      "knowledge"
+    ],
+    "shape": "reasoning",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q265",
+    "q": "sector 62 vs sector 137 Noida",
+    "history": [],
+    "task": "compare",
+    "entities": {
+      "city": "Noida",
+      "localities": [
+        "Sector 62",
+        "Sector 137"
+      ],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db",
+      "knowledge"
+    ],
+    "shape": "reasoning",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q267",
+    "q": "sector 75 vs sector 137 noida",
+    "history": [],
+    "task": "compare",
+    "entities": {
+      "city": "Noida",
+      "localities": [
+        "Sector 75",
+        "Sector 137"
+      ],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db",
+      "knowledge"
+    ],
+    "shape": "reasoning",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q268",
+    "q": "Sector 75 vs Sector 137 Noida: which is better for a 3 BHK end-user?",
+    "history": [],
+    "task": "compare",
+    "entities": {
+      "city": "Noida",
+      "localities": [
+        "Sector 75",
+        "Sector 137"
+      ],
+      "projects": [],
+      "builder": null,
+      "bhk": 3,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db",
+      "knowledge"
+    ],
+    "shape": "reasoning",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q289",
+    "q": "What is the current price difference between Sector 75 and Sector 137 Noida?",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Noida",
+      "localities": [
+        "Sector 75",
+        "Sector 137"
+      ],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": true,
+    "note": "no strong rule matched; defaulted to discover"
+  },
+  {
+    "id": "q104",
+    "q": "How do I verify whether a Noida property project is RERA compliant?",
+    "history": [],
+    "task": "legal_process",
+    "entities": {
+      "city": "Noida",
+      "localities": [],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "statutory",
+      "knowledge"
+    ],
+    "shape": "factual",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q113",
+    "q": "I have ₹1.5 crore available today and am deciding between a ready-to-move 3 BHK in Sector 75, a newer 3 BHK in Sector 150, and a larger 3 BHK in Noida Extension. I care about resale liquidity, rental yield, appreciation, commute, infrastructure, builder reputation and overall livability. Analyze all three, identify the biggest risks in each, and give me one final recommendation with the reasoning and data behind it.",
+    "history": [],
+    "task": "compare",
+    "entities": {
+      "city": "Greater Noida West",
+      "localities": [
+        "Sector 75",
+        "Sector 150"
+      ],
+      "projects": [],
+      "builder": null,
+      "bhk": 3,
+      "budgetMaxCr": 1.5
+    },
+    "source_plan": [
+      "general"
+    ],
+    "shape": "reasoning",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q284",
+    "q": "What are the biggest risks I should check before buying a flat in Noida?",
+    "history": [],
+    "task": "market_explain",
+    "entities": {
+      "city": "Noida",
+      "localities": [],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "statutory",
+      "knowledge"
+    ],
+    "shape": "advisory",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q285",
+    "q": "what are the risks of buying property in noida",
+    "history": [],
+    "task": "market_explain",
+    "entities": {
+      "city": "Noida",
+      "localities": [],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "statutory",
+      "knowledge"
+    ],
+    "shape": "advisory",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q291",
+    "q": "what should i check before buying a flat in noida",
+    "history": [],
+    "task": "legal_process",
+    "entities": {
+      "city": "Noida",
+      "localities": [],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "statutory",
+      "knowledge"
+    ],
+    "shape": "factual",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q300",
+    "q": "which builders should i avoid in noida",
+    "history": [],
+    "task": "market_explain",
+    "entities": {
+      "city": "Noida",
+      "localities": [],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "statutory",
+      "knowledge"
+    ],
+    "shape": "advisory",
+    "uncertain": false,
+    "note": "builder-reputation risk is market/DB-informed advisory, not a legal process question"
+  },
+  {
+    "id": "q304",
+    "q": "Which Noida areas have historically had problems such as waterlogging, traffic congestion or poor infrastructure?",
+    "history": [],
+    "task": "market_explain",
+    "entities": {
+      "city": "Noida",
+      "localities": [],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "statutory",
+      "knowledge"
+    ],
+    "shape": "advisory",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q308",
+    "q": "which noida sectors have high pollution",
+    "history": [],
+    "task": "market_explain",
+    "entities": {
+      "city": "Noida",
+      "localities": [],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "statutory",
+      "knowledge"
+    ],
+    "shape": "advisory",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q106",
+    "q": "I am buying my first home in Noida. Give me 5 options and rank them based on price, connectivity, livability and future appreciation.",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Noida",
+      "localities": [],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "advisory",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q306",
+    "q": "which noida sector has best rental yield",
+    "history": [],
+    "task": "out_of_scope",
+    "entities": {
+      "city": "Noida",
+      "localities": [],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "general"
+    ],
+    "shape": "factual",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q108",
+    "q": "I earn ₹1.5 lakh per month and have ₹25 lakh available for a down payment. What type of property should I realistically consider in Noida?",
+    "history": [],
+    "task": "calculate",
+    "entities": {
+      "city": "Noida",
+      "localities": [],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": 0.015
+    },
+    "source_plan": [
+      "knowledge"
+    ],
+    "shape": "reasoning",
+    "uncertain": true,
+    "note": "affordability math from income + down payment, feeding a property-type recommendation"
+  },
+  {
+    "id": "q116",
+    "q": "I want to buy a ₹1 crore flat but I don't want to spend more than ₹30,000 per month on EMI. Is that realistic?",
+    "history": [],
+    "task": "calculate",
+    "entities": {
+      "city": null,
+      "localities": [],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": 1
+    },
+    "source_plan": [
+      "knowledge"
+    ],
+    "shape": "reasoning",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "q199",
+    "q": "properties_in_noida_extension",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": null,
+      "localities": [],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": true,
+    "note": "query text is malformed/keyword-stuffed but intent reads as a plain inventory search"
+  },
+  {
+    "id": "q200",
+    "q": "properties.in.noida",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Noida",
+      "localities": [],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": true,
+    "note": "query text is malformed/keyword-stuffed but intent reads as a plain inventory search"
+  },
+  {
+    "id": "q202",
+    "q": "propertiesinnoida",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": null,
+      "localities": [],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": true,
+    "note": "query text is malformed/keyword-stuffed but intent reads as a plain inventory search"
+  },
+  {
+    "id": "q203",
+    "q": "propertiesinnoida_extaion",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": null,
+      "localities": [],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": true,
+    "note": "query text is malformed/keyword-stuffed but intent reads as a plain inventory search"
+  },
+  {
+    "id": "q279",
+    "q": "upcoming properties in greater noida",
+    "history": [],
+    "task": "market_explain",
+    "entities": {
+      "city": "Greater Noida",
+      "localities": [],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db",
+      "web"
+    ],
+    "shape": "factual",
+    "uncertain": true,
+    "note": "time-bound market question; needs current data we may not hold, could fall back to web"
+  },
+  {
+    "id": "q280",
+    "q": "upcoming properties in noida",
+    "history": [],
+    "task": "market_explain",
+    "entities": {
+      "city": "Noida",
+      "localities": [],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db",
+      "web"
+    ],
+    "shape": "factual",
+    "uncertain": true,
+    "note": "time-bound market question; needs current data we may not hold, could fall back to web"
+  },
+  {
+    "id": "q287",
+    "q": "What is the average property price per sq ft in Noida right now?",
+    "history": [],
+    "task": "market_explain",
+    "entities": {
+      "city": "Noida",
+      "localities": [],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db",
+      "web"
+    ],
+    "shape": "factual",
+    "uncertain": true,
+    "note": "time-bound market question; needs current data we may not hold, could fall back to web"
+  },
+  {
+    "id": "q310",
+    "q": "Which Noida sectors have seen the strongest price appreciation recently?",
+    "history": [],
+    "task": "market_explain",
+    "entities": {
+      "city": "Noida",
+      "localities": [],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db",
+      "web"
+    ],
+    "shape": "factual",
+    "uncertain": true,
+    "note": "time-bound market question; needs current data we may not hold, could fall back to web"
+  },
+  {
+    "id": "lt007",
+    "q": "ace hanei construction update",
+    "history": [],
+    "task": "project_fact",
+    "entities": {
+      "city": "Greater Noida West",
+      "localities": [],
+      "projects": [
+        "Ace Hanei"
+      ],
+      "builder": "Ace",
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "factual",
+    "uncertain": true,
+    "note": "generic project-name query without a specific fact requested; assumed project overview lookup"
+  },
+  {
+    "id": "lt009",
+    "q": "ace hanei project details",
+    "history": [],
+    "task": "project_fact",
+    "entities": {
+      "city": "Greater Noida West",
+      "localities": [],
+      "projects": [
+        "Ace Hanei"
+      ],
+      "builder": "Ace",
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "factual",
+    "uncertain": true,
+    "note": "generic project-name query without a specific fact requested; assumed project overview lookup"
+  },
+  {
+    "id": "lt011",
+    "q": "ace hanei sector 12 noida extension",
+    "history": [],
+    "task": "project_fact",
+    "entities": {
+      "city": "Greater Noida West",
+      "localities": [
+        "Sector 12"
+      ],
+      "projects": [
+        "Ace Hanei"
+      ],
+      "builder": "Ace",
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "factual",
+    "uncertain": true,
+    "note": "generic project-name query without a specific fact requested; assumed project overview lookup"
+  },
+  {
+    "id": "lt014",
+    "q": "ace hanei flat for sale",
+    "history": [],
+    "task": "project_fact",
+    "entities": {
+      "city": "Greater Noida West",
+      "localities": [],
+      "projects": [
+        "Ace Hanei"
+      ],
+      "builder": "Ace",
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "factual",
+    "uncertain": true,
+    "note": "generic project-name query without a specific fact requested; assumed project overview lookup"
+  },
+  {
+    "id": "lt016",
+    "q": "ace hanei greater noida",
+    "history": [],
+    "task": "project_fact",
+    "entities": {
+      "city": "Greater Noida",
+      "localities": [],
+      "projects": [
+        "Ace Hanei"
+      ],
+      "builder": "Ace",
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "factual",
+    "uncertain": true,
+    "note": "generic project-name query without a specific fact requested; assumed project overview lookup"
+  },
+  {
+    "id": "lt019",
+    "q": "ace hanei land parcel",
+    "history": [],
+    "task": "project_fact",
+    "entities": {
+      "city": "Greater Noida West",
+      "localities": [],
+      "projects": [
+        "Ace Hanei"
+      ],
+      "builder": "Ace",
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "factual",
+    "uncertain": true,
+    "note": "generic project-name query without a specific fact requested; assumed project overview lookup"
+  },
+  {
+    "id": "lt042",
+    "q": "county 107 apartment",
+    "history": [],
+    "task": "project_fact",
+    "entities": {
+      "city": "Greater Noida West",
+      "localities": [],
+      "projects": [
+        "County 107"
+      ],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "factual",
+    "uncertain": true,
+    "note": "generic project-name query without a specific fact requested; assumed project overview lookup"
+  },
+  {
+    "id": "lt045",
+    "q": "county 107 architect",
+    "history": [],
+    "task": "project_fact",
+    "entities": {
+      "city": "Greater Noida West",
+      "localities": [],
+      "projects": [
+        "County 107"
+      ],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "factual",
+    "uncertain": true,
+    "note": "generic project-name query without a specific fact requested; assumed project overview lookup"
+  },
+  {
+    "id": "lt047",
+    "q": "county 107 land area",
+    "history": [],
+    "task": "project_fact",
+    "entities": {
+      "city": "Greater Noida West",
+      "localities": [],
+      "projects": [
+        "County 107"
+      ],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "factual",
+    "uncertain": true,
+    "note": "generic project-name query without a specific fact requested; assumed project overview lookup"
+  },
+  {
+    "id": "lt049",
+    "q": "county 107 total area",
+    "history": [],
+    "task": "project_fact",
+    "entities": {
+      "city": "Greater Noida West",
+      "localities": [],
+      "projects": [
+        "County 107"
+      ],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "factual",
+    "uncertain": true,
+    "note": "generic project-name query without a specific fact requested; assumed project overview lookup"
+  },
+  {
+    "id": "lt052",
+    "q": "county 107 buy flat",
+    "history": [],
+    "task": "project_fact",
+    "entities": {
+      "city": "Greater Noida West",
+      "localities": [],
+      "projects": [
+        "County 107"
+      ],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "factual",
+    "uncertain": true,
+    "note": "generic project-name query without a specific fact requested; assumed project overview lookup"
+  },
+  {
+    "id": "lt062",
+    "q": "ats sector 10 noida extension",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Greater Noida West",
+      "localities": [
+        "Sector 10, Noida Extension"
+      ],
+      "projects": [],
+      "builder": "ATS",
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": true,
+    "note": "named builder/project + locality; could be project_fact if that project exists in our DB, else a discover miss"
+  },
+  {
+    "id": "lt065",
+    "q": "sector 10 a noida extension",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Greater Noida West",
+      "localities": [
+        "Sector 10, Noida Extension"
+      ],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "lt067",
+    "q": "ace sector 10 noida extension",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Greater Noida West",
+      "localities": [
+        "Sector 10, Noida Extension"
+      ],
+      "projects": [],
+      "builder": "Ace",
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": true,
+    "note": "named builder/project + locality; could be project_fact if that project exists in our DB, else a discover miss"
+  },
+  {
+    "id": "lt070",
+    "q": "ats homekraft sector 10 noida extension",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Greater Noida West",
+      "localities": [
+        "Sector 10, Noida Extension"
+      ],
+      "projects": [],
+      "builder": "ATS",
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": true,
+    "note": "named builder/project + locality; could be project_fact if that project exists in our DB, else a discover miss"
+  },
+  {
+    "id": "lt072",
+    "q": "coco county sector 10 noida extension",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Greater Noida West",
+      "localities": [
+        "Sector 10, Noida Extension"
+      ],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": true,
+    "note": "named builder/project + locality; could be project_fact if that project exists in our DB, else a discover miss"
+  },
+  {
+    "id": "lt074",
+    "q": "nirala diadem sector 10 noida extension",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Greater Noida West",
+      "localities": [
+        "Sector 10, Noida Extension"
+      ],
+      "projects": [],
+      "builder": "Nirala",
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": true,
+    "note": "named builder/project + locality; could be project_fact if that project exists in our DB, else a discover miss"
+  },
+  {
+    "id": "lt077",
+    "q": "elite sector 10 noida extension",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Greater Noida West",
+      "localities": [
+        "Sector 10, Noida Extension"
+      ],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "lt079",
+    "q": "vaidpura sector 10 noida extension greater noida",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Greater Noida West",
+      "localities": [
+        "Sector 10, Noida Extension"
+      ],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "lt082",
+    "q": "legacy homes sector 10 noida extension",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Greater Noida West",
+      "localities": [
+        "Sector 10, Noida Extension"
+      ],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": true,
+    "note": "named builder/project + locality; could be project_fact if that project exists in our DB, else a discover miss"
+  },
+  {
+    "id": "lt084",
+    "q": "imperial homes sector 10 noida extension",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Greater Noida West",
+      "localities": [
+        "Sector 10, Noida Extension"
+      ],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": true,
+    "note": "named builder/project + locality; could be project_fact if that project exists in our DB, else a discover miss"
+  },
+  {
+    "id": "lt087",
+    "q": "irish sector 10 noida extension",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Greater Noida West",
+      "localities": [
+        "Sector 10, Noida Extension"
+      ],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "lt096",
+    "q": "sector 75 noida jm aroma",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Noida",
+      "localities": [
+        "Sector 75"
+      ],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": true,
+    "note": "named builder/project + locality; could be project_fact if that project exists in our DB, else a discover miss"
+  },
+  {
+    "id": "lt098",
+    "q": "golf avenue sector 75 noida",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Noida",
+      "localities": [
+        "Sector 75"
+      ],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": true,
+    "note": "named builder/project + locality; could be project_fact if that project exists in our DB, else a discover miss"
+  },
+  {
+    "id": "lt101",
+    "q": "sector 75 noida accident",
+    "history": [],
+    "task": "out_of_scope",
+    "entities": {
+      "city": "Noida",
+      "localities": [
+        "Sector 75"
+      ],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "general"
+    ],
+    "shape": "factual",
+    "uncertain": true,
+    "note": "location matches our coverage area, but the query itself is a local-amenity/POI lookup, not a property question"
+  },
+  {
+    "id": "lt103",
+    "q": "sector 75 noida apex athena",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Noida",
+      "localities": [
+        "Sector 75"
+      ],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": true,
+    "note": "named builder/project + locality; could be project_fact if that project exists in our DB, else a discover miss"
+  },
+  {
+    "id": "lt106",
+    "q": "ajnara sector 75 noida",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Noida",
+      "localities": [
+        "Sector 75"
+      ],
+      "projects": [],
+      "builder": "Ajnara",
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": true,
+    "note": "named builder/project + locality; could be project_fact if that project exists in our DB, else a discover miss"
+  },
+  {
+    "id": "lt108",
+    "q": "axis bank ifsc code noida sector 75",
+    "history": [],
+    "task": "out_of_scope",
+    "entities": {
+      "city": "Noida",
+      "localities": [
+        "Sector 75"
+      ],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "general"
+    ],
+    "shape": "factual",
+    "uncertain": true,
+    "note": "location matches our coverage area, but the query itself is a local-amenity/POI lookup, not a property question"
+  },
+  {
+    "id": "lt111",
+    "q": "canara bank sector 75 noida",
+    "history": [],
+    "task": "out_of_scope",
+    "entities": {
+      "city": "Noida",
+      "localities": [
+        "Sector 75"
+      ],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "general"
+    ],
+    "shape": "factual",
+    "uncertain": true,
+    "note": "location matches our coverage area, but the query itself is a local-amenity/POI lookup, not a property question"
+  },
+  {
+    "id": "lt113",
+    "q": "byob sector 75 noida",
+    "history": [],
+    "task": "out_of_scope",
+    "entities": {
+      "city": "Noida",
+      "localities": [
+        "Sector 75"
+      ],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "general"
+    ],
+    "shape": "factual",
+    "uncertain": true,
+    "note": "location matches our coverage area, but the query itself is a local-amenity/POI lookup, not a property question"
+  },
+  {
+    "id": "lt020",
+    "q": "ace hanei address",
+    "history": [],
+    "task": "project_fact",
+    "entities": {
+      "city": "Greater Noida West",
+      "localities": [],
+      "projects": [
+        "Ace Hanei"
+      ],
+      "builder": "Ace",
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "lt021",
+    "q": "ace hanei location",
+    "history": [],
+    "task": "project_fact",
+    "entities": {
+      "city": "Greater Noida West",
+      "localities": [],
+      "projects": [
+        "Ace Hanei"
+      ],
+      "builder": "Ace",
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "lt054",
+    "q": "county 107 noida address",
+    "history": [],
+    "task": "project_fact",
+    "entities": {
+      "city": "Noida",
+      "localities": [],
+      "projects": [
+        "County 107"
+      ],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "lt089",
+    "q": "sector 10 noida extension distance",
+    "history": [],
+    "task": "market_explain",
+    "entities": {
+      "city": "Greater Noida West",
+      "localities": [
+        "Sector 10, Noida Extension"
+      ],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db",
+      "knowledge"
+    ],
+    "shape": "factual",
+    "uncertain": true,
+    "note": "locality-level location/distance question, could be answered from sector data or knowledge"
+  },
+  {
+    "id": "lt116",
+    "q": "sector 75 noida to jewar airport distance",
+    "history": [],
+    "task": "market_explain",
+    "entities": {
+      "city": "Noida",
+      "localities": [
+        "Sector 75"
+      ],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db",
+      "knowledge"
+    ],
+    "shape": "factual",
+    "uncertain": true,
+    "note": "locality-level location/distance question, could be answered from sector data or knowledge"
+  },
+  {
+    "id": "lt117",
+    "q": "pnb sector 75 noida address",
+    "history": [],
+    "task": "market_explain",
+    "entities": {
+      "city": "Noida",
+      "localities": [
+        "Sector 75"
+      ],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db",
+      "knowledge"
+    ],
+    "shape": "factual",
+    "uncertain": true,
+    "note": "locality-level location/distance question, could be answered from sector data or knowledge"
+  },
+  {
+    "id": "lt024",
+    "q": "ace hanei current price",
+    "history": [],
+    "task": "project_fact",
+    "entities": {
+      "city": "Greater Noida West",
+      "localities": [],
+      "projects": [
+        "Ace Hanei"
+      ],
+      "builder": "Ace",
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "lt025",
+    "q": "ace hanei flat price",
+    "history": [],
+    "task": "project_fact",
+    "entities": {
+      "city": "Greater Noida West",
+      "localities": [],
+      "projects": [
+        "Ace Hanei"
+      ],
+      "builder": "Ace",
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "lt026",
+    "q": "ace hanei price list",
+    "history": [],
+    "task": "project_fact",
+    "entities": {
+      "city": "Greater Noida West",
+      "localities": [],
+      "projects": [
+        "Ace Hanei"
+      ],
+      "builder": "Ace",
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "lt027",
+    "q": "ace hanei launch price",
+    "history": [],
+    "task": "project_fact",
+    "entities": {
+      "city": "Greater Noida West",
+      "localities": [],
+      "projects": [
+        "Ace Hanei"
+      ],
+      "builder": "Ace",
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "lt028",
+    "q": "ace hanei price list pdf",
+    "history": [],
+    "task": "project_fact",
+    "entities": {
+      "city": "Greater Noida West",
+      "localities": [],
+      "projects": [
+        "Ace Hanei"
+      ],
+      "builder": "Ace",
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "lt057",
+    "q": "county 107 apartment price",
+    "history": [],
+    "task": "project_fact",
+    "entities": {
+      "city": "Greater Noida West",
+      "localities": [],
+      "projects": [
+        "County 107"
+      ],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "lt058",
+    "q": "county 107 3 bhk price",
+    "history": [],
+    "task": "project_fact",
+    "entities": {
+      "city": "Greater Noida West",
+      "localities": [],
+      "projects": [
+        "County 107"
+      ],
+      "builder": null,
+      "bhk": 3,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "lt119",
+    "q": "spectrum mall sector 75 noida buffet price",
+    "history": [],
+    "task": "out_of_scope",
+    "entities": {
+      "city": "Noida",
+      "localities": [
+        "Sector 75"
+      ],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "general"
+    ],
+    "shape": "factual",
+    "uncertain": true,
+    "note": "mall restaurant buffet price, not property price"
+  },
+  {
+    "id": "lt003",
+    "q": "ace hanei by owner",
+    "history": [],
+    "task": "project_fact",
+    "entities": {
+      "city": "Greater Noida West",
+      "localities": [],
+      "projects": [
+        "Ace Hanei"
+      ],
+      "builder": "Ace",
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "lt035",
+    "q": "county 107 by county group",
+    "history": [],
+    "task": "project_fact",
+    "entities": {
+      "city": "Greater Noida West",
+      "localities": [],
+      "projects": [
+        "County 107"
+      ],
+      "builder": "County Group",
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "lt036",
+    "q": "county 107 by county group sector 107 noida uttar pradesh",
+    "history": [],
+    "task": "project_fact",
+    "entities": {
+      "city": "Noida",
+      "localities": [
+        "Sector 107"
+      ],
+      "projects": [
+        "County 107"
+      ],
+      "builder": "County Group",
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "lt037",
+    "q": "county 107 by county group photos",
+    "history": [],
+    "task": "project_fact",
+    "entities": {
+      "city": "Greater Noida West",
+      "localities": [],
+      "projects": [
+        "County 107"
+      ],
+      "builder": "County Group",
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "lt038",
+    "q": "county 107 by county group reviews",
+    "history": [],
+    "task": "project_fact",
+    "entities": {
+      "city": "Greater Noida West",
+      "localities": [],
+      "projects": [
+        "County 107"
+      ],
+      "builder": "County Group",
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "lt039",
+    "q": "county 107 by county group noida",
+    "history": [],
+    "task": "project_fact",
+    "entities": {
+      "city": "Noida",
+      "localities": [],
+      "projects": [
+        "County 107"
+      ],
+      "builder": "County Group",
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "lt004",
+    "q": "ace hanei 4 bhk",
+    "history": [],
+    "task": "project_fact",
+    "entities": {
+      "city": "Greater Noida West",
+      "localities": [],
+      "projects": [
+        "Ace Hanei"
+      ],
+      "builder": "Ace",
+      "bhk": 4,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "lt005",
+    "q": "ace hanei floor plan",
+    "history": [],
+    "task": "project_fact",
+    "entities": {
+      "city": "Greater Noida West",
+      "localities": [],
+      "projects": [
+        "Ace Hanei"
+      ],
+      "builder": "Ace",
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "lt006",
+    "q": "ace hanei layout",
+    "history": [],
+    "task": "project_fact",
+    "entities": {
+      "city": "Greater Noida West",
+      "localities": [],
+      "projects": [
+        "Ace Hanei"
+      ],
+      "builder": "Ace",
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "lt040",
+    "q": "county 107 3 bhk rent",
+    "history": [],
+    "task": "out_of_scope",
+    "entities": {
+      "city": "Greater Noida West",
+      "localities": [],
+      "projects": [
+        "County 107"
+      ],
+      "builder": null,
+      "bhk": 3,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "general"
+    ],
+    "shape": "factual",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "lt001",
+    "q": "ace hanei launch date",
+    "history": [],
+    "task": "project_fact",
+    "entities": {
+      "city": "Greater Noida West",
+      "localities": [],
+      "projects": [
+        "Ace Hanei"
+      ],
+      "builder": "Ace",
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "lt032",
+    "q": "county 107 launch date",
+    "history": [],
+    "task": "project_fact",
+    "entities": {
+      "city": "Greater Noida West",
+      "localities": [],
+      "projects": [
+        "County 107"
+      ],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "lt092",
+    "q": "sector 75 noida fire news",
+    "history": [],
+    "task": "project_fact",
+    "entities": {
+      "city": "Noida",
+      "localities": [
+        "Sector 75"
+      ],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "lt002",
+    "q": "ace hanei brochure",
+    "history": [],
+    "task": "project_fact",
+    "entities": {
+      "city": "Greater Noida West",
+      "localities": [],
+      "projects": [
+        "Ace Hanei"
+      ],
+      "builder": "Ace",
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "lt033",
+    "q": "county 107 brochure pdf",
+    "history": [],
+    "task": "project_fact",
+    "entities": {
+      "city": "Greater Noida West",
+      "localities": [],
+      "projects": [
+        "County 107"
+      ],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "lt034",
+    "q": "county 107 brochure",
+    "history": [],
+    "task": "project_fact",
+    "entities": {
+      "city": "Greater Noida West",
+      "localities": [],
+      "projects": [
+        "County 107"
+      ],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "lt022",
+    "q": "ace hanei payment plan",
+    "history": [],
+    "task": "project_fact",
+    "entities": {
+      "city": "Greater Noida West",
+      "localities": [],
+      "projects": [
+        "Ace Hanei"
+      ],
+      "builder": "Ace",
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "lt055",
+    "q": "county 107 chemist",
+    "history": [],
+    "task": "out_of_scope",
+    "entities": {
+      "city": "Greater Noida West",
+      "localities": [],
+      "projects": [
+        "County 107"
+      ],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "general"
+    ],
+    "shape": "factual",
+    "uncertain": true,
+    "note": "keyword-stuffed SEO scrape noise unrelated to real estate (portal name / chemist / court / US place-name collision)"
+  },
+  {
+    "id": "lt023",
+    "q": "ace hanei possession date",
+    "history": [],
+    "task": "project_fact",
+    "entities": {
+      "city": "Greater Noida West",
+      "localities": [],
+      "projects": [
+        "Ace Hanei"
+      ],
+      "builder": "Ace",
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "lt056",
+    "q": "county 107 completion date",
+    "history": [],
+    "task": "project_fact",
+    "entities": {
+      "city": "Greater Noida West",
+      "localities": [],
+      "projects": [
+        "County 107"
+      ],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "lt029",
+    "q": "ace hanei rera number",
+    "history": [],
+    "task": "legal_process",
+    "entities": {
+      "city": "Greater Noida West",
+      "localities": [],
+      "projects": [
+        "Ace Hanei"
+      ],
+      "builder": "Ace",
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db",
+      "statutory"
+    ],
+    "shape": "lookup",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "lt059",
+    "q": "cameron county 107 district court",
+    "history": [],
+    "task": "out_of_scope",
+    "entities": {
+      "city": "Greater Noida West",
+      "localities": [],
+      "projects": [
+        "County 107"
+      ],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "general"
+    ],
+    "shape": "factual",
+    "uncertain": true,
+    "note": "keyword-stuffed SEO scrape noise unrelated to real estate (portal name / chemist / court / US place-name collision)"
+  },
+  {
+    "id": "lt030",
+    "q": "ace hanei resale",
+    "history": [],
+    "task": "out_of_scope",
+    "entities": {
+      "city": "Greater Noida West",
+      "localities": [],
+      "projects": [
+        "Ace Hanei"
+      ],
+      "builder": "Ace",
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "general"
+    ],
+    "shape": "factual",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "lt060",
+    "q": "county 107 apartment for rent",
+    "history": [],
+    "task": "out_of_scope",
+    "entities": {
+      "city": "Greater Noida West",
+      "localities": [],
+      "projects": [
+        "County 107"
+      ],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "general"
+    ],
+    "shape": "factual",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "lt031",
+    "q": "county 107 amenities",
+    "history": [],
+    "task": "project_fact",
+    "entities": {
+      "city": "Greater Noida West",
+      "localities": [],
+      "projects": [
+        "County 107"
+      ],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "lt091",
+    "q": "sector 75 noida gym",
+    "history": [],
+    "task": "project_fact",
+    "entities": {
+      "city": "Noida",
+      "localities": [
+        "Sector 75"
+      ],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "h001",
+    "q": "sector 150 mein 3bhk kitne ka hai",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Noida",
+      "localities": [
+        "Sector 150"
+      ],
+      "projects": [],
+      "builder": null,
+      "bhk": 3,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "h002",
+    "q": "1.5cr tak ready to move chahiye noida extension mein",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Greater Noida West",
+      "localities": [],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": 1.5
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "advisory",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "h003",
+    "q": "bhaiya sector 75 mein achha builder kaun sa hai",
+    "history": [],
+    "task": "market_explain",
+    "entities": {
+      "city": "Noida",
+      "localities": [
+        "Sector 75"
+      ],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db",
+      "knowledge"
+    ],
+    "shape": "advisory",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "h004",
+    "q": "yeh project ka possession kab tak milega",
+    "history": [
+      {
+        "role": "user",
+        "content": "godrej sector 43 noida ke baare mein batao"
+      },
+      {
+        "role": "assistant",
+        "content": "Godrej Sector 43, Noida is a residential project by Godrej Properties. Would you like price, possession, or amenities details?"
+      }
+    ],
+    "task": "project_fact",
+    "entities": {
+      "city": "Noida",
+      "localities": [
+        "Sector 43"
+      ],
+      "projects": [
+        "Godrej Sector 43"
+      ],
+      "builder": "Godrej",
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "h005",
+    "q": "stamp duty kitna lagega 80 lakh ki property pe up mein",
+    "history": [],
+    "task": "calculate",
+    "entities": {
+      "city": "Noida",
+      "localities": [],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": 0.8
+    },
+    "source_plan": [
+      "statutory"
+    ],
+    "shape": "reasoning",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "h006",
+    "q": "greater noida west mein 2bhk ka rent kitna chalta hai",
+    "history": [],
+    "task": "out_of_scope",
+    "entities": {
+      "city": "Greater Noida West",
+      "localities": [],
+      "projects": [],
+      "builder": null,
+      "bhk": 2,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "general"
+    ],
+    "shape": "factual",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "h007",
+    "q": "kal callback kar dena mujhe is project ke liye",
+    "history": [
+      {
+        "role": "user",
+        "content": "ace hanei ke baare me price batao"
+      },
+      {
+        "role": "assistant",
+        "content": "Ace Hanei starts at roughly X per sq ft based on our latest listing; would you like a payment plan breakdown too?"
+      }
+    ],
+    "task": "lead",
+    "entities": {
+      "city": "Greater Noida West",
+      "localities": [],
+      "projects": [
+        "Ace Hanei"
+      ],
+      "builder": "Ace",
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "general"
+    ],
+    "shape": "factual",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "h008",
+    "q": "noida mein metro ke paas 3bhk batao sasta wala",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Noida",
+      "localities": [],
+      "projects": [],
+      "builder": null,
+      "bhk": 3,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "advisory",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "h009",
+    "q": "sector 137 aur sector 78 mein se konsa better hai family ke liye",
+    "history": [],
+    "task": "compare",
+    "entities": {
+      "city": "Noida",
+      "localities": [
+        "Sector 137",
+        "Sector 78"
+      ],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db",
+      "knowledge"
+    ],
+    "shape": "reasoning",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "h010",
+    "q": "aap kaun ho, ye kya app hai",
+    "history": [],
+    "task": "meta",
+    "entities": {
+      "city": null,
+      "localities": [],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "general"
+    ],
+    "shape": "factual",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "h011",
+    "q": "RERA number check kaise karu kisi project ka",
+    "history": [],
+    "task": "legal_process",
+    "entities": {
+      "city": null,
+      "localities": [],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "statutory",
+      "knowledge"
+    ],
+    "shape": "factual",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "h012",
+    "q": "ek site visit book karwa do sector 150 wale project ke liye",
+    "history": [],
+    "task": "lead",
+    "entities": {
+      "city": "Noida",
+      "localities": [
+        "Sector 150"
+      ],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "general"
+    ],
+    "shape": "factual",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "h013",
+    "q": "how is the whitefield bangalore property market looking right now",
+    "history": [],
+    "task": "market_explain",
+    "entities": {
+      "city": "Bengaluru",
+      "localities": [
+        "Whitefield"
+      ],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "knowledge",
+      "web"
+    ],
+    "shape": "factual",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "h014",
+    "q": "is gurgaon a good place to buy a 3bhk right now",
+    "history": [],
+    "task": "market_explain",
+    "entities": {
+      "city": "Gurgaon",
+      "localities": [],
+      "projects": [],
+      "builder": null,
+      "bhk": 3,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "knowledge",
+      "web"
+    ],
+    "shape": "advisory",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "h015",
+    "q": "what are property prices like in pune hinjewadi",
+    "history": [],
+    "task": "market_explain",
+    "entities": {
+      "city": "Pune",
+      "localities": [
+        "Hinjewadi"
+      ],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "knowledge",
+      "web"
+    ],
+    "shape": "factual",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "h016",
+    "q": "show me 2bhk flats in gurgaon sector 57",
+    "history": [],
+    "task": "out_of_scope",
+    "entities": {
+      "city": "Gurgaon",
+      "localities": [
+        "Sector 57"
+      ],
+      "projects": [],
+      "builder": null,
+      "bhk": 2,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "general"
+    ],
+    "shape": "factual",
+    "uncertain": true,
+    "note": "reads like discover, but Gurgaon is not our inventory city (Noida/Greater Noida/GNW only), so no listings can be surfaced; treated as out_of_scope for routing purposes"
+  },
+  {
+    "id": "h017",
+    "q": "best areas to invest in pune for the next 5 years",
+    "history": [],
+    "task": "market_explain",
+    "entities": {
+      "city": "Pune",
+      "localities": [],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "knowledge",
+      "web"
+    ],
+    "shape": "advisory",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "h018",
+    "q": "i work in gurgaon cyber city, is a 3bhk in noida sector 150 a bad commute",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Noida",
+      "localities": [
+        "Sector 150"
+      ],
+      "projects": [],
+      "builder": null,
+      "bhk": 3,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db",
+      "knowledge"
+    ],
+    "shape": "advisory",
+    "uncertain": false,
+    "note": "Noida buyer mentioning Gurgaon only as a commute anchor; still in-scope discover"
+  },
+  {
+    "id": "h019",
+    "q": "my office is near gurgaon sector 44, should I still buy in noida extension for a 2bhk",
+    "history": [],
+    "task": "discover",
+    "entities": {
+      "city": "Greater Noida West",
+      "localities": [],
+      "projects": [],
+      "builder": null,
+      "bhk": 2,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db",
+      "knowledge"
+    ],
+    "shape": "advisory",
+    "uncertain": false,
+    "note": "Noida-area buyer mentioning Gurgaon only as a commute anchor; still in-scope discover"
+  },
+  {
+    "id": "h020",
+    "q": "whitefield vs sarjapur road bangalore which has better resale value",
+    "history": [],
+    "task": "out_of_scope",
+    "entities": {
+      "city": "Bengaluru",
+      "localities": [
+        "Whitefield",
+        "Sarjapur Road"
+      ],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "general"
+    ],
+    "shape": "factual",
+    "uncertain": true,
+    "note": "resale question about a city we do not cover; both the resale rule and the out-of-city rule point to out_of_scope, kept as one label rather than double-counted"
+  },
+  {
+    "id": "h021",
+    "q": "actually make that 2 crore",
+    "history": [
+      {
+        "role": "user",
+        "content": "I need a 3BHK near a metro under 1.5 crore in Noida"
+      },
+      {
+        "role": "assistant",
+        "content": "Looking at 3BHK options near metro in Noida under 1.5cr. A few sectors like 62 and 137 have options in that range, though most 3BHKs there run closer to 1.5-1.7cr. Want me to widen the search or show what fits today?"
+      }
+    ],
+    "task": "discover",
+    "entities": {
+      "city": "Noida",
+      "localities": [],
+      "projects": [],
+      "builder": null,
+      "bhk": 3,
+      "budgetMaxCr": 2
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "advisory",
+    "uncertain": false,
+    "note": "budget correction on an existing discover thread; should silently re-run recommendations with the new figure"
+  },
+  {
+    "id": "h022",
+    "q": "compare it with the second one",
+    "history": [
+      {
+        "role": "user",
+        "content": "show me 3 options in sector 150"
+      },
+      {
+        "role": "assistant",
+        "content": "1. Project A - 3BHK, 1.6cr, possession 2027. 2. Project B - 3BHK, 1.5cr, possession 2026. 3. Project C - 2BHK, 1.1cr, ready to move."
+      },
+      {
+        "role": "user",
+        "content": "tell me more about the first one"
+      },
+      {
+        "role": "assistant",
+        "content": "Project A is a 3BHK at 1.6cr in Sector 150, possession expected 2027, by a mid-tier builder with average RERA compliance history."
+      }
+    ],
+    "task": "compare",
+    "entities": {
+      "city": "Noida",
+      "localities": [
+        "Sector 150"
+      ],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "reasoning",
+    "uncertain": true,
+    "note": "\"it\" and \"the second one\" refer to prior turns (Project A vs Project B); router must resolve reference from history, not the current message alone"
+  },
+  {
+    "id": "h023",
+    "q": "what have I told you so far",
+    "history": [
+      {
+        "role": "user",
+        "content": "I need a 3BHK in Noida under 1.5 crore, possession within a year"
+      },
+      {
+        "role": "assistant",
+        "content": "Got it — 3BHK, Noida, under 1.5cr, possession within a year. Let me pull matching options."
+      }
+    ],
+    "task": "meta",
+    "entities": {
+      "city": null,
+      "localities": [],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "general"
+    ],
+    "shape": "factual",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "h024",
+    "q": "what are you assuming about me",
+    "history": [
+      {
+        "role": "user",
+        "content": "budget 1.5cr, want something bigger than a 2bhk"
+      },
+      {
+        "role": "assistant",
+        "content": "Noted — staying within your 1.5cr budget, looking at 3BHK options now."
+      }
+    ],
+    "task": "meta",
+    "entities": {
+      "city": null,
+      "localities": [],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "general"
+    ],
+    "shape": "factual",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "h025",
+    "q": "show me something bigger",
+    "history": [
+      {
+        "role": "user",
+        "content": "budget is 1.5 crore, looking in noida"
+      },
+      {
+        "role": "assistant",
+        "content": "Noted, 1.5cr budget in Noida. Here are a few 2BHK options that fit."
+      }
+    ],
+    "task": "discover",
+    "entities": {
+      "city": "Noida",
+      "localities": [],
+      "projects": [],
+      "builder": null,
+      "bhk": null,
+      "budgetMaxCr": 1.5
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "advisory",
+    "uncertain": false,
+    "note": "must reuse the 1.5cr budget from history rather than asking again; \"bigger\" implies bhk above whatever was last shown"
+  },
+  {
+    "id": "h026",
+    "q": "no I meant a different sector, not 150",
+    "history": [
+      {
+        "role": "user",
+        "content": "find me a 3bhk in sector 150 under 1.5cr"
+      },
+      {
+        "role": "assistant",
+        "content": "Here are 3BHK options in Sector 150 under 1.5cr: Project A and Project B."
+      }
+    ],
+    "task": "discover",
+    "entities": {
+      "city": "Noida",
+      "localities": [],
+      "projects": [],
+      "builder": null,
+      "bhk": 3,
+      "budgetMaxCr": 1.5
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "advisory",
+    "uncertain": true,
+    "note": "correction narrows out Sector 150 but keeps bhk/budget from history; router should not restart the whole intent"
+  },
+  {
+    "id": "h027",
+    "q": "and what about the EMI on that one",
+    "history": [
+      {
+        "role": "user",
+        "content": "tell me about county 107 price"
+      },
+      {
+        "role": "assistant",
+        "content": "County 107 is priced at roughly X per sq ft for a 3BHK, totaling approximately 1.2cr."
+      }
+    ],
+    "task": "calculate",
+    "entities": {
+      "city": "Noida",
+      "localities": [
+        "Sector 107"
+      ],
+      "projects": [
+        "County 107"
+      ],
+      "builder": "County Group",
+      "bhk": 3,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db",
+      "knowledge"
+    ],
+    "shape": "reasoning",
+    "uncertain": false,
+    "note": "EMI calc should use the 1.2cr figure just given for County 107, not ask for the price again"
+  },
+  {
+    "id": "h028",
+    "q": "does that one have a good builder reputation",
+    "history": [
+      {
+        "role": "user",
+        "content": "find me a 2bhk under 1 crore in noida extension"
+      },
+      {
+        "role": "assistant",
+        "content": "One option: a 2BHK in Noida Extension by a regional builder, priced at 95 lakh."
+      }
+    ],
+    "task": "market_explain",
+    "entities": {
+      "city": "Greater Noida West",
+      "localities": [],
+      "projects": [],
+      "builder": null,
+      "bhk": 2,
+      "budgetMaxCr": 1
+    },
+    "source_plan": [
+      "db",
+      "knowledge"
+    ],
+    "shape": "advisory",
+    "uncertain": true,
+    "note": "\"that one\" refers to the single option just surfaced; needs the builder name carried over from history"
+  },
+  {
+    "id": "h029",
+    "q": "ok book a site visit for the second option then",
+    "history": [
+      {
+        "role": "user",
+        "content": "compare sector 75 and sector 137 for a 3bhk"
+      },
+      {
+        "role": "assistant",
+        "content": "1. Sector 75 option: 1.4cr, ready to move. 2. Sector 137 option: 1.5cr, possession 2027."
+      }
+    ],
+    "task": "lead",
+    "entities": {
+      "city": "Noida",
+      "localities": [
+        "Sector 137"
+      ],
+      "projects": [],
+      "builder": null,
+      "bhk": 3,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "general"
+    ],
+    "shape": "factual",
+    "uncertain": false,
+    "note": null
+  },
+  {
+    "id": "h030",
+    "q": "wait, why did you say possession was 2027 for that one",
+    "history": [
+      {
+        "role": "user",
+        "content": "give me options in sector 137"
+      },
+      {
+        "role": "assistant",
+        "content": "Sector 137 has a 3BHK option with possession expected in 2027."
+      }
+    ],
+    "task": "project_fact",
+    "entities": {
+      "city": "Noida",
+      "localities": [
+        "Sector 137"
+      ],
+      "projects": [],
+      "builder": null,
+      "bhk": 3,
+      "budgetMaxCr": null
+    },
+    "source_plan": [
+      "db"
+    ],
+    "shape": "lookup",
+    "uncertain": true,
+    "note": "buyer is asking the assistant to justify/re-state a fact it already gave; router should re-fetch/re-confirm the same DB fact rather than treat as a new discover"
+  }
+]

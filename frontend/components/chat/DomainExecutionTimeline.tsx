@@ -101,7 +101,7 @@ export function DomainExecutionTimeline({
       return `Searching verified inventory in ${targetSector}...`;
     }
     if (phase === 'generating') {
-      return count > 0 ? `Synthesizing recommendations from ${count} projects...` : 'Synthesizing response...';
+      return count > 0 ? `Comparing ${count} ${count === 1 ? 'project' : 'projects'}…` : 'Writing the answer…';
     }
     return 'Thinking...';
   }, [isStreaming, phase, count, intentSummary, targetSector, durationLabel]);
@@ -167,8 +167,8 @@ export function DomainExecutionTimeline({
         {isStreaming ? (
           <span className="flex items-center gap-1.5 min-w-0 max-w-[calc(100vw-110px)] sm:max-w-none">
             <span className="relative flex h-2 w-2 shrink-0">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75" />
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-600 dark:bg-blue-400" />
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-60" />
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-primary" />
             </span>
             <span className="text-zinc-700 dark:text-zinc-300 font-medium truncate">{triggerLabel}</span>
           </span>

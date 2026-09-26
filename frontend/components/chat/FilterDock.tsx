@@ -239,7 +239,7 @@ export function FilterDock({
   const panelBody = spec && (
     <>
       <div className="flex items-center justify-between px-2 pt-0.5 pb-1.5">
-        <span className="text-[9.5px] font-bold uppercase tracking-[0.08em] text-slate-400 dark:text-zinc-500">
+        <span className="text-[12px] font-medium text-text-muted">
           {spec.title}
         </span>
         {isMobile && (
@@ -247,7 +247,7 @@ export function FilterDock({
             type="button"
             onClick={() => setOpenField(null)}
             aria-label="Close"
-            className="p-1.5 -m-1 text-slate-400 hover:text-slate-700 dark:hover:text-zinc-200 cursor-pointer"
+            className="p-1.5 -m-1 text-text-muted hover:text-text-primary cursor-pointer"
           >
             <X size={13} weight="bold" />
           </button>
@@ -263,21 +263,21 @@ export function FilterDock({
           }}
           className="px-1 pb-1"
         >
-          <div className="flex items-center gap-1.5 px-2 rounded-lg border border-slate-200 dark:border-zinc-700 bg-slate-50 dark:bg-zinc-800 focus-within:border-slate-400 dark:focus-within:border-zinc-500 transition-colors">
-            <MagnifyingGlass size={12} weight="bold" className="shrink-0 text-slate-400" />
+          <div className="flex items-center gap-1.5 px-2 rounded-xs border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 focus-within:border-zinc-400 dark:focus-within:border-zinc-500 transition-colors">
+            <MagnifyingGlass size={12} weight="bold" className="shrink-0 text-text-muted" />
             <input
               autoFocus={!isMobile}
               value={draft}
               onChange={e => setDraft(e.target.value)}
               placeholder="e.g. Sector 10, Greater Noida"
               aria-label={spec.title}
-              className="w-full bg-transparent py-2.5 text-[13px] text-slate-800 dark:text-zinc-100 placeholder:text-slate-400 dark:placeholder:text-zinc-500 outline-none"
+              className="w-full bg-transparent py-2.5 text-[13px] text-text-primary placeholder:text-text-muted outline-none"
             />
           </div>
           <button
             type="submit"
             disabled={!draft.trim()}
-            className="mt-1.5 w-full py-2.5 rounded-lg text-[12px] font-bold bg-slate-900 dark:bg-white text-white dark:text-zinc-900 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer transition-opacity"
+            className="mt-1.5 w-full py-2.5 rounded-xs text-[13px] font-semibold bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer transition-opacity"
           >
             Apply
           </button>
@@ -292,18 +292,18 @@ export function FilterDock({
                 type="button"
                 onClick={() => apply(choice.patch, `Change ${spec.title.toLowerCase()} to ${choice.label}`)}
                 aria-pressed={active}
-                className="flex items-center gap-2.5 w-full px-2 py-2.5 min-h-[42px] sm:min-h-[36px] rounded-lg text-left text-[13px] sm:text-[12px] text-slate-700 dark:text-zinc-200 hover:bg-slate-50 dark:hover:bg-zinc-800 cursor-pointer transition-colors"
+                className="flex items-center gap-2.5 w-full px-2 py-2.5 min-h-[42px] sm:min-h-[36px] rounded-xs text-left text-[13px] text-text-primary hover:bg-surface-3 dark:hover:bg-zinc-800 cursor-pointer transition-colors"
               >
                 <span
                   className={
                     'shrink-0 w-[14px] h-[14px] rounded-full border flex items-center justify-center transition-colors ' +
-                    (active ? 'border-slate-900 dark:border-white' : 'border-slate-300 dark:border-zinc-600')
+                    (active ? 'border-zinc-900 dark:border-white' : 'border-zinc-300 dark:border-zinc-600')
                   }
                 >
-                  {active && <span className="w-[6px] h-[6px] rounded-full bg-slate-900 dark:bg-white" />}
+                  {active && <span className="w-[6px] h-[6px] rounded-full bg-zinc-900 dark:bg-white" />}
                 </span>
                 <span className="flex-1 truncate">{choice.label}</span>
-                {active && <Check size={12} weight="bold" className="shrink-0 text-slate-400" />}
+                {active && <Check size={12} weight="bold" className="shrink-0 text-text-muted" />}
               </button>
             )
           })}
@@ -331,12 +331,12 @@ export function FilterDock({
             >
               <div
                 className={
-                  'flex items-center rounded-full border text-[11px] font-semibold transition-colors ' +
+                  'flex items-center rounded-full border text-[12px] font-medium transition-colors ' +
                   (isOpen
-                    ? 'border-slate-400 dark:border-zinc-500 bg-white dark:bg-zinc-800'
+                    ? 'border-zinc-400 dark:border-zinc-500 bg-surface dark:bg-zinc-800'
                     : isSet
-                      ? 'border-slate-200 dark:border-zinc-700 bg-slate-50 dark:bg-zinc-800/70'
-                      : 'border-dashed border-slate-200 dark:border-zinc-700 bg-transparent')
+                      ? 'border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/70'
+                      : 'border-dashed border-zinc-200 dark:border-zinc-700 bg-transparent')
                 }
               >
                 <button
@@ -351,12 +351,12 @@ export function FilterDock({
                   title={isSet ? `Change ${p.title.toLowerCase()}` : `Set ${p.title.toLowerCase()}`}
                   className={
                     'flex items-center gap-1 pl-2.5 py-1.5 min-h-[32px] cursor-pointer ' +
-                    (isSet ? 'pr-1 text-slate-700 dark:text-zinc-200' : 'pr-2.5 text-slate-400 dark:text-zinc-500')
+                    (isSet ? 'pr-1 text-text-primary' : 'pr-2.5 text-text-muted')
                   }
                 >
                   <span className="whitespace-nowrap max-w-[120px] truncate">{value ?? p.empty}</span>
                   <CaretDown
-                    size={9}
+                    size={10}
                     weight="bold"
                     className={'shrink-0 opacity-60 transition-transform ' + (isOpen ? 'rotate-180' : '')}
                   />
@@ -371,9 +371,9 @@ export function FilterDock({
                     // surfaced "still working on your last request".
                     onClick={() => onRemove(p.clears, `Clear ${p.title.toLowerCase()}`)}
                     aria-label={`Clear ${p.title.toLowerCase()}`}
-                    className="pr-2 pl-0.5 py-1.5 min-h-[32px] flex items-center text-slate-400 hover:text-slate-700 dark:hover:text-zinc-200 cursor-pointer"
+                    className="pr-2 pl-0.5 py-1.5 min-h-[32px] flex items-center text-text-muted hover:text-text-primary cursor-pointer"
                   >
-                    <X size={9} weight="bold" />
+                    <X size={10} weight="bold" />
                   </button>
                 )}
               </div>
@@ -391,7 +391,7 @@ export function FilterDock({
               role="dialog"
               aria-modal="true"
               aria-label={spec.title}
-              className="relative w-full rounded-t-2xl border-t border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 shadow-2xl p-2 pb-[max(0.75rem,env(safe-area-inset-bottom))] max-h-[70dvh] overflow-y-auto overscroll-contain"
+              className="relative w-full rounded-t-2xl border-t border-zinc-200 dark:border-zinc-700 bg-surface dark:bg-surface-2 shadow-lg p-2 pb-[max(0.75rem,env(safe-area-inset-bottom))] max-h-[70dvh] overflow-y-auto overscroll-contain"
             >
               {panelBody}
             </div>
@@ -403,7 +403,7 @@ export function FilterDock({
             aria-modal="true"
             aria-label={spec.title}
             style={{ left: anchor?.left ?? 0, bottom: anchor?.bottom ?? 0, width: 224 }}
-            className="fixed z-[999] rounded-xl border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 shadow-xl shadow-black/5 dark:shadow-black/40 p-1.5"
+            className="fixed z-[999] rounded-sm border border-zinc-200 dark:border-zinc-700 bg-surface dark:bg-surface-2 shadow-md p-1.5"
           >
             {panelBody}
           </div>

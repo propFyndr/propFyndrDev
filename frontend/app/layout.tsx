@@ -5,7 +5,7 @@ import { Outfit, Playfair_Display, Afacad, Inter } from "next/font/google";
 
 // PropFyndr App Root Layout — PostHog & Telemetry Enabled
 import { PostHogProvider } from "@/components/PostHogProvider";
-import { Toaster } from "sonner";
+import ThemedToaster from "@/components/ThemedToaster";
 import { PingBackend } from "@/components/PingBackend";
 import CookiesBanner from "@/components/CookiesBanner";
 import { LazyMotion, domAnimation, MotionConfig } from 'framer-motion'
@@ -122,7 +122,7 @@ export default function RootLayout({
             <PostHogProvider>{children}</PostHogProvider>
           </LazyMotion>
         </MotionConfig>
-        <Toaster position="bottom-right" richColors closeButton theme="light" />
+        <ThemedToaster />
         <CookiesBanner />
 
       </body>

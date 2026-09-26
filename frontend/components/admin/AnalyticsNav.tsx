@@ -15,7 +15,7 @@ export default function AnalyticsNav() {
   ]
 
   return (
-    <div className="flex items-center gap-1.5 overflow-x-auto py-1 px-1 bg-zinc-100 dark:bg-zinc-800/80 border border-zinc-200/80 dark:border-zinc-700/80 shadow-2xs rounded-2xl w-full sm:w-fit font-sans">
+    <nav className="inline-flex items-center gap-1 p-1 bg-zinc-100/90 dark:bg-zinc-800/80 border border-zinc-200/80 dark:border-zinc-700/60 rounded-xl shadow-2xs overflow-x-auto max-w-full">
       {navs.map((n) => {
         const isActive = pathname === n.path
         const Icon = n.icon
@@ -23,17 +23,17 @@ export default function AnalyticsNav() {
           <Link
             key={n.name}
             href={n.path}
-            className={`px-3.5 py-1.5 text-xs font-semibold rounded-xl transition-all shrink-0 whitespace-nowrap flex items-center gap-2 ${
+            className={`px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-all shrink-0 flex items-center gap-2 ${
               isActive
-                ? 'bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white shadow-2xs font-extrabold'
-                : 'text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-white/50 dark:hover:bg-zinc-800/50'
+                ? 'bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white shadow-xs font-semibold'
+                : 'text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 hover:bg-white/40 dark:hover:bg-zinc-850'
             }`}
           >
-            <Icon size={14} className={isActive ? 'text-blue-600 dark:text-blue-400' : 'text-zinc-400'} />
+            <Icon size={14} className={isActive ? 'text-[#0066cc] dark:text-blue-400' : 'text-zinc-400 dark:text-zinc-500'} />
             <span>{n.name}</span>
           </Link>
         )
       })}
-    </div>
+    </nav>
   )
 }

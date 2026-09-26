@@ -100,7 +100,7 @@ export function MobileCardShelf({
             weight="bold"
             className={`shrink-0 text-zinc-400 transition-transform duration-200 ${open ? 'rotate-0' : '-rotate-90'}`}
           />
-          <span className="text-[13.5px] font-bold text-zinc-900 dark:text-zinc-100 tabular-nums truncate">
+          <span className="text-[13px] font-semibold text-zinc-900 dark:text-zinc-100 tabular-nums truncate">
             {label || `${projects.length} ${noun}`}
           </span>
           {band && (
@@ -120,9 +120,9 @@ export function MobileCardShelf({
               type="button"
               onClick={onMap}
               aria-label="View on map"
-              className={`${ACTION_CLASS} bg-white/80 dark:bg-zinc-800/80 border-zinc-200/80 dark:border-zinc-700/80 text-zinc-700 dark:text-zinc-200 hover:border-blue-400`}
+              className={`${ACTION_CLASS} bg-white/80 dark:bg-zinc-800/80 border-zinc-200/80 dark:border-zinc-700/80 text-zinc-700 dark:text-zinc-200 hover:border-primary`}
             >
-              <MapTrifold size={13} weight="duotone" className="text-blue-500" />
+              <MapTrifold size={13} weight="duotone" className="text-primary" />
               <span className="hidden sm:inline">Map</span>
             </button>
           )}
@@ -133,11 +133,11 @@ export function MobileCardShelf({
               aria-label={compareActive ? 'Exit compare' : 'Compare properties'}
               className={`${ACTION_CLASS} ${
                 compareActive
-                  ? 'bg-blue-600 text-white border-blue-600'
-                  : 'bg-white/80 dark:bg-zinc-800/80 border-zinc-200/80 dark:border-zinc-700/80 text-zinc-700 dark:text-zinc-200 hover:border-blue-400'
+                  ? 'bg-primary text-white border-primary'
+                  : 'bg-white/80 dark:bg-zinc-800/80 border-zinc-200/80 dark:border-zinc-700/80 text-zinc-700 dark:text-zinc-200 hover:border-primary'
               }`}
             >
-              <Scales size={13} weight="duotone" className={compareActive ? 'text-white' : 'text-blue-500'} />
+              <Scales size={13} weight="duotone" className={compareActive ? 'text-white' : 'text-primary'} />
               <span className="hidden sm:inline">{compareActive ? 'Exit' : 'Compare'}</span>
             </button>
           )}

@@ -272,31 +272,31 @@ export default function SpecEditor({
           <button
             type="button"
             onClick={handleApplyPresets}
-            className="px-3 py-1.5 rounded-xl border border-dashed border-gray-300 dark:border-zinc-700 hover:border-blue-500 text-xs font-bold text-gray-700 dark:text-gray-300 transition-all flex items-center gap-1.5 cursor-pointer hover:bg-gray-50 dark:hover:bg-white/5"
+            className="px-3 py-1.5 rounded-xl border border-zinc-200/90 dark:border-zinc-700/80 bg-white dark:bg-zinc-850 hover:bg-zinc-50 dark:hover:bg-zinc-800 text-xs font-medium text-zinc-700 dark:text-zinc-300 transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs active:scale-[0.98]"
           >
-            <Layers size={13} className="text-blue-500" />
+            <Layers size={13} className="text-[#0066cc]" />
             <span>Load Presets</span>
           </button>
           <button
             type="button"
             onClick={() => handleAddSpec(selectedCategoryFilter === 'all' ? 'structure' : selectedCategoryFilter)}
-            className="px-3.5 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-black transition-all flex items-center gap-1.5 shadow-xs cursor-pointer"
+            className="px-3.5 py-1.5 rounded-xl bg-[#0066cc] hover:bg-[#0077ed] text-white text-xs font-medium transition-all flex items-center gap-1.5 shadow-xs cursor-pointer active:scale-[0.98]"
           >
-            <Plus size={14} />
+            <Plus size={13} />
             <span>Add Spec</span>
           </button>
         </div>
       </div>
 
       {/* Category Filter Chips - Wrapped Cleanly Without Horizontal Scroll */}
-      <div className="flex flex-wrap items-center gap-1.5 text-xs font-semibold">
+      <div className="flex flex-wrap items-center gap-1.5 text-xs">
         <button
           type="button"
           onClick={() => setSelectedCategoryFilter('all')}
-          className={`px-3 py-1.5 rounded-xl transition-all cursor-pointer ${
+          className={`px-3 py-1.5 rounded-xl transition-all cursor-pointer font-medium ${
             selectedCategoryFilter === 'all'
-              ? 'bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 shadow-xs font-bold'
-              : 'bg-zinc-100 dark:bg-zinc-800/80 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200/70 dark:hover:bg-zinc-700/70'
+              ? 'bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 shadow-2xs font-semibold'
+              : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-200/60 dark:hover:bg-zinc-700/60'
           }`}
         >
           All Categories ({specs.length})
@@ -308,14 +308,14 @@ export default function SpecEditor({
               key={cat.id}
               type="button"
               onClick={() => setSelectedCategoryFilter(cat.id)}
-              className={`px-3 py-1.5 rounded-xl transition-all flex items-center gap-1.5 cursor-pointer ${
+              className={`px-3 py-1.5 rounded-xl transition-all flex items-center gap-1.5 cursor-pointer font-medium ${
                 selectedCategoryFilter === cat.id
-                  ? 'bg-blue-600 text-white shadow-xs font-bold'
-                  : 'bg-zinc-100 dark:bg-zinc-800/80 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200/70 dark:hover:bg-zinc-700/70'
+                  ? 'bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 shadow-2xs font-semibold'
+                  : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-200/60 dark:hover:bg-zinc-700/60'
               }`}
             >
               <span>{cat.label}</span>
-              {count > 0 && <span className="text-[10px] opacity-80 font-bold">({count})</span>}
+              {count > 0 && <span className="text-[10px] font-mono opacity-80">({count})</span>}
             </button>
           )
         })}
@@ -354,7 +354,7 @@ export default function SpecEditor({
             return (
               <div
                 key={spec.id || realIdx}
-                className="p-4 rounded-2xl bg-zinc-50/70 dark:bg-zinc-800/30 border border-zinc-200/80 dark:border-zinc-700/60 space-y-3 transition-all hover:border-zinc-300 dark:hover:border-zinc-600"
+                className="p-4 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200/90 dark:border-zinc-800 shadow-2xs space-y-3 transition-all hover:border-zinc-300 dark:hover:border-zinc-700"
               >
                 {/* Top Row: Category, Tier, Unit, Highlight, Delete */}
                 <div className="flex flex-wrap items-center justify-between gap-2.5">
@@ -390,12 +390,12 @@ export default function SpecEditor({
                   </div>
 
                   <div className="flex items-center gap-3">
-                    <label className="flex items-center gap-1.5 text-xs font-bold text-zinc-600 dark:text-zinc-400 cursor-pointer select-none">
+                    <label className="flex items-center gap-1.5 text-xs font-medium text-zinc-600 dark:text-zinc-400 cursor-pointer select-none">
                       <input
                         type="checkbox"
                         checked={spec.is_highlight || false}
                         onChange={e => handleUpdate(realIdx, 'is_highlight', e.target.checked)}
-                        className="w-3.5 h-3.5 rounded accent-blue-600 cursor-pointer"
+                        className="w-3.5 h-3.5 rounded accent-[#0066cc] cursor-pointer"
                       />
                       <span>Highlight</span>
                     </label>
@@ -406,16 +406,16 @@ export default function SpecEditor({
                       className="p-1 text-zinc-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30 rounded-lg transition-colors cursor-pointer"
                       title="Delete specification"
                     >
-                      <Trash2 size={15} />
+                      <Trash2 size={14} />
                     </button>
                   </div>
                 </div>
 
                 {/* Validation Errors */}
                 {validationErrors[realIdx] && (
-                  <div className="px-3 py-2 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800/40 rounded-lg flex items-start gap-2">
-                    <AlertCircle size={14} className="text-red-600 dark:text-red-400 mt-0.5 flex-shrink-0" />
-                    <div className="text-xs text-red-700 dark:text-red-300 space-y-0.5">
+                  <div className="px-3 py-2 bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-800/40 rounded-xl flex items-start gap-2">
+                    <AlertCircle size={14} className="text-rose-600 dark:text-rose-400 mt-0.5 flex-shrink-0" />
+                    <div className="text-xs text-rose-700 dark:text-rose-300 space-y-0.5">
                       {validationErrors[realIdx].map((err, i) => <div key={i}>• {err}</div>)}
                     </div>
                   </div>
@@ -424,7 +424,7 @@ export default function SpecEditor({
                 {/* Input Fields */}
                 <div className="grid grid-cols-1 md:grid-cols-12 gap-3">
                   <div className="md:col-span-4 space-y-1">
-                    <label className="text-[11px] font-extrabold text-gray-500 uppercase tracking-wider block">
+                    <label className="text-[11.5px] font-medium text-zinc-500 dark:text-zinc-400 block">
                       Feature / Component Label *
                     </label>
                     <input
@@ -435,16 +435,16 @@ export default function SpecEditor({
                         handleUpdate(realIdx, 'label', e.target.value)
                         if (validationErrors[realIdx]) setValidationErrors(prev => ({ ...prev, [realIdx]: prev[realIdx].filter(e => !e.includes('Label')) }))
                       }}
-                      className={`w-full px-3 py-2 text-xs font-extrabold border rounded-xl bg-white dark:bg-zinc-900 text-gray-900 dark:text-white placeholder:text-gray-400 transition-colors ${
+                      className={`w-full px-3 h-9 text-xs font-normal border rounded-xl bg-white dark:bg-zinc-850/80 text-zinc-900 dark:text-white placeholder:text-zinc-400 focus:outline-none focus:border-[#0066cc] focus:ring-2 focus:ring-[#0066cc]/15 transition-all shadow-2xs ${
                         validationErrors[realIdx]?.some(e => e.includes('Label'))
-                          ? 'border-red-300 dark:border-red-700'
-                          : 'border-gray-200 dark:border-zinc-700'
+                          ? 'border-rose-300 dark:border-rose-700'
+                          : 'border-zinc-200/90 dark:border-zinc-700/80'
                       }`}
                     />
                   </div>
 
                   <div className="md:col-span-5 space-y-1">
-                    <label className="text-[11px] font-extrabold text-gray-500 uppercase tracking-wider block">
+                    <label className="text-[11.5px] font-medium text-zinc-500 dark:text-zinc-400 block">
                       Specification &amp; Material Value *
                     </label>
                     <input
@@ -455,16 +455,16 @@ export default function SpecEditor({
                         handleUpdate(realIdx, 'value', e.target.value)
                         if (validationErrors[realIdx]) setValidationErrors(prev => ({ ...prev, [realIdx]: prev[realIdx].filter(e => !e.includes('Value')) }))
                       }}
-                      className={`w-full px-3 py-2 text-xs font-bold border rounded-xl bg-white dark:bg-zinc-900 text-gray-900 dark:text-white placeholder:text-gray-400 transition-colors ${
+                      className={`w-full px-3 h-9 text-xs font-normal border rounded-xl bg-white dark:bg-zinc-850/80 text-zinc-900 dark:text-white placeholder:text-zinc-400 focus:outline-none focus:border-[#0066cc] focus:ring-2 focus:ring-[#0066cc]/15 transition-all shadow-2xs ${
                         validationErrors[realIdx]?.some(e => e.includes('Value'))
-                          ? 'border-red-300 dark:border-red-700'
-                          : 'border-gray-200 dark:border-zinc-700'
+                          ? 'border-rose-300 dark:border-rose-700'
+                          : 'border-zinc-200/90 dark:border-zinc-700/80'
                       }`}
                     />
                   </div>
 
                   <div className="md:col-span-3 space-y-1">
-                    <label className="text-[11px] font-extrabold text-gray-500 uppercase tracking-wider block">
+                    <label className="text-[11.5px] font-medium text-zinc-500 dark:text-zinc-400 block">
                       Brand / Manufacturer
                     </label>
                     <input
@@ -472,14 +472,14 @@ export default function SpecEditor({
                       placeholder="e.g. Kohler, QuickStep"
                       value={spec.brand || ''}
                       onChange={e => handleUpdate(realIdx, 'brand', e.target.value || null)}
-                      className="w-full px-3 py-2 text-xs font-bold border border-gray-200 dark:border-zinc-700 rounded-xl bg-white dark:bg-zinc-900 text-gray-900 dark:text-white placeholder:text-gray-400"
+                      className="w-full px-3 h-9 text-xs font-normal border border-zinc-200/90 dark:border-zinc-700/80 rounded-xl bg-white dark:bg-zinc-850/80 text-zinc-900 dark:text-white placeholder:text-zinc-400 focus:outline-none focus:border-[#0066cc] focus:ring-2 focus:ring-[#0066cc]/15 transition-all shadow-2xs"
                     />
                   </div>
                 </div>
 
                 {/* Notes Field */}
                 <div className="space-y-1">
-                  <label className="text-[11px] font-extrabold text-gray-500 uppercase tracking-wider block">
+                  <label className="text-[11.5px] font-medium text-zinc-500 dark:text-zinc-400 block">
                     Internal Notes (Admin Only)
                   </label>
                   <input
@@ -487,7 +487,7 @@ export default function SpecEditor({
                     placeholder="e.g. Verified on site visit, pending brand confirmation"
                     value={spec.notes || ''}
                     onChange={e => handleUpdate(realIdx, 'notes', e.target.value || null)}
-                    className="w-full px-3 py-2 text-xs font-medium border border-gray-200 dark:border-zinc-700 rounded-xl bg-white dark:bg-zinc-900 text-gray-900 dark:text-white placeholder:text-gray-400"
+                    className="w-full px-3 h-9 text-xs font-normal border border-zinc-200/90 dark:border-zinc-700/80 rounded-xl bg-white dark:bg-zinc-850/80 text-zinc-900 dark:text-white placeholder:text-zinc-400 focus:outline-none focus:border-[#0066cc] focus:ring-2 focus:ring-[#0066cc]/15 transition-all shadow-2xs"
                   />
                 </div>
               </div>

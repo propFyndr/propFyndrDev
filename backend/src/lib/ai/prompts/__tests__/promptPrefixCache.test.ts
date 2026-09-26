@@ -76,7 +76,7 @@ describe('system prompt prefix stays cacheable', () => {
     // with one exact string. Small fallback models (Mistral, Cerebras) latched
     // onto it as the most salient literal in a 5.7k-token prompt and emitted it
     // for ordinary queries: 186 of 321 corpus queries came back as
-    // "I am RealtyPal, an AI advisor for Noida and Greater Noida. How can I
+    // "I am PropFyndr, an AI advisor for Noida and Greater Noida. How can I
     // help you with your property search today?" instead of an answer.
     //
     // Prompt-extraction is already blocked deterministically by inputGuardrail

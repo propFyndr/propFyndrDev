@@ -204,17 +204,17 @@ export default function AuditChangelogTab({ projectId, projectName }: AuditChang
     <div className="space-y-6">
       
       {/* ── Control Header & Precision Switcher ──────────────────────────────── */}
-      <div className="bg-white dark:bg-zinc-900 rounded-3xl border border-zinc-200/80 dark:border-zinc-800 p-6 shadow-xs space-y-5">
+      <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200/90 dark:border-zinc-800 p-6 shadow-xs space-y-5">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center">
+              <div className="w-9 h-9 rounded-xl bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-200 flex items-center justify-center shrink-0">
                 <History size={18} />
               </div>
-              <h3 className="text-lg font-bold text-zinc-900 dark:text-zinc-100">
+              <h3 className="text-sm font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
                 Audit History & Changelog
               </h3>
-              <span className="px-2.5 py-0.5 text-xs font-bold text-zinc-600 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-800 rounded-full">
+              <span className="px-2 py-0.5 text-[11px] font-semibold text-zinc-600 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-800 rounded-md">
                 {filteredLogs.length} Events
               </span>
             </div>
@@ -225,29 +225,29 @@ export default function AuditChangelogTab({ projectId, projectName }: AuditChang
 
           <div className="flex items-center gap-3">
             {/* Mode Switcher: Precise vs Detailed */}
-            <div className="flex items-center p-1 bg-zinc-100 dark:bg-zinc-800/80 rounded-2xl border border-zinc-200/80 dark:border-zinc-700/60 shadow-2xs">
+            <div className="flex items-center p-1 bg-zinc-100 dark:bg-zinc-800/80 rounded-xl border border-zinc-200/80 dark:border-zinc-700/60 shadow-2xs">
               <button
                 type="button"
                 onClick={() => setMode('precise')}
-                className={`flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-bold rounded-xl transition-all cursor-pointer ${
+                className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-all cursor-pointer ${
                   mode === 'precise'
-                    ? 'bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white shadow-xs'
+                    ? 'bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white shadow-xs font-semibold'
                     : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white'
                 }`}
               >
-                <ListFilter size={13} className={mode === 'precise' ? 'text-blue-500' : ''} />
+                <ListFilter size={13} className={mode === 'precise' ? 'text-[#0066cc]' : ''} />
                 <span>Precise Log</span>
               </button>
               <button
                 type="button"
                 onClick={() => setMode('detailed')}
-                className={`flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-bold rounded-xl transition-all cursor-pointer ${
+                className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-all cursor-pointer ${
                   mode === 'detailed'
-                    ? 'bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white shadow-xs'
+                    ? 'bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white shadow-xs font-semibold'
                     : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white'
                 }`}
               >
-                <SlidersHorizontal size={13} className={mode === 'detailed' ? 'text-blue-500' : ''} />
+                <SlidersHorizontal size={13} className={mode === 'detailed' ? 'text-[#0066cc]' : ''} />
                 <span>Detailed Log</span>
               </button>
             </div>
@@ -258,7 +258,7 @@ export default function AuditChangelogTab({ projectId, projectName }: AuditChang
               className="p-2 text-zinc-600 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white bg-zinc-50 dark:bg-zinc-800 border border-zinc-200/80 dark:border-zinc-700/80 rounded-xl hover:bg-zinc-100 transition-all cursor-pointer"
               title="Refresh Logs"
             >
-              <RefreshCw size={14} className={loading ? 'animate-spin text-blue-500' : ''} />
+              <RefreshCw size={14} className={loading ? 'animate-spin text-[#0066cc]' : ''} />
             </button>
           </div>
         </div>
@@ -272,7 +272,7 @@ export default function AuditChangelogTab({ projectId, projectName }: AuditChang
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
               placeholder="Search by field, author, old/new value..."
-              className="w-full pl-9 pr-3.5 py-1.5 text-xs bg-zinc-50 dark:bg-zinc-800/60 border border-zinc-200 dark:border-zinc-700/80 rounded-xl text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+              className="w-full pl-9 pr-3.5 py-1.5 text-xs bg-zinc-50/60 dark:bg-zinc-800/60 border border-zinc-200/90 dark:border-zinc-700/80 rounded-xl text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 focus:outline-none focus:border-[#0066cc] focus:ring-2 focus:ring-[#0066cc]/10"
             />
           </div>
 
@@ -287,9 +287,9 @@ export default function AuditChangelogTab({ projectId, projectName }: AuditChang
               <button
                 key={f.id}
                 onClick={() => setSelectedFieldFilter(f.id)}
-                className={`px-3 py-1.5 text-xs font-semibold rounded-xl whitespace-nowrap transition-all cursor-pointer ${
+                className={`px-3 py-1.5 text-xs font-medium rounded-xl whitespace-nowrap transition-all cursor-pointer ${
                   selectedFieldFilter === f.id
-                    ? 'bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200/80 dark:border-blue-800/60 font-bold shadow-2xs'
+                    ? 'bg-blue-50/80 dark:bg-blue-950/60 text-[#0066cc] dark:text-blue-300 border border-blue-200/80 dark:border-blue-800/60 font-semibold shadow-2xs'
                     : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 border border-transparent'
                 }`}
               >
@@ -301,7 +301,7 @@ export default function AuditChangelogTab({ projectId, projectName }: AuditChang
       </div>
 
       {/* ── Timeline Display ─────────────────────────────────────────────────── */}
-      <div className="bg-white dark:bg-zinc-900 rounded-3xl border border-zinc-200/80 dark:border-zinc-800 p-6 shadow-xs">
+      <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200/90 dark:border-zinc-800 p-6 shadow-xs">
         {loading ? (
           <div className="space-y-4 py-4">
             <Skeleton className="h-20 w-full rounded-2xl" />
@@ -313,7 +313,7 @@ export default function AuditChangelogTab({ projectId, projectName }: AuditChang
             <div className="w-12 h-12 rounded-2xl bg-zinc-100 dark:bg-zinc-800 text-zinc-400 flex items-center justify-center mx-auto">
               <History size={24} />
             </div>
-            <p className="text-sm font-bold text-zinc-900 dark:text-zinc-100">No Changelog Entries Recorded Yet</p>
+            <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">No Changelog Entries Recorded Yet</p>
             <p className="text-xs text-zinc-500 dark:text-zinc-400 max-w-sm mx-auto">
               Changes to pricing, unit types, specifications, and project metadata will automatically be logged here with field-level diffs.
             </p>
@@ -330,17 +330,17 @@ export default function AuditChangelogTab({ projectId, projectName }: AuditChang
               return (
                 <div key={log.id} className="relative group">
                   {/* Timeline Bullet */}
-                  <span className="absolute -left-[31px] top-3.5 w-3.5 h-3.5 rounded-full border-2 border-white dark:border-zinc-900 bg-blue-600 shadow-2xs group-hover:scale-125 transition-transform" />
+                  <span className="absolute -left-[31px] top-3.5 w-3.5 h-3.5 rounded-full border-2 border-white dark:border-zinc-900 bg-[#0066cc] shadow-2xs group-hover:scale-125 transition-transform" />
 
                   {/* Card Container */}
-                  <div className="bg-zinc-50/70 dark:bg-zinc-800/40 hover:bg-zinc-50 dark:hover:bg-zinc-800/70 border border-zinc-200/80 dark:border-zinc-700/60 rounded-2xl p-4 md:p-5 transition-all shadow-2xs">
+                  <div className="bg-zinc-50/70 dark:bg-zinc-800/40 hover:bg-zinc-50 dark:hover:bg-zinc-800/70 border border-zinc-200/80 dark:border-zinc-700/60 rounded-xl p-4 md:p-5 transition-all shadow-2xs">
                     
                     {/* Header Row */}
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2.5 border-b border-zinc-200/60 dark:border-zinc-700/60">
                       <div className="flex items-center flex-wrap gap-2">
                         {getActionChip(log.action)}
                         {getActorBadge(log.actor)}
-                        <span className="text-xs font-bold text-zinc-900 dark:text-zinc-100">
+                        <span className="text-xs font-semibold text-zinc-900 dark:text-zinc-100">
                           {log.summary}
                         </span>
                       </div>
@@ -364,7 +364,7 @@ export default function AuditChangelogTab({ projectId, projectName }: AuditChang
                             <button
                               type="button"
                               onClick={() => toggleExpand(log.id)}
-                              className="text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1 cursor-pointer"
+                              className="text-xs font-medium text-[#0066cc] hover:text-[#0055b3] dark:text-blue-400 hover:underline flex items-center gap-1 cursor-pointer"
                             >
                               <span>View Field Diffs</span>
                               <ChevronDown size={13} />

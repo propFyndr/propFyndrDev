@@ -20,7 +20,7 @@ export default function ShareShortlistModal({ isOpen, shortlist, onClose }: Shar
 
   const shortlistText = `🏠 My PropFyndr Shortlist\n\n` +
     shortlist.map((p, i) => `${i + 1}. ${p.name} — ${p.price_range_label ?? 'Price on request'} (${p.sector ?? 'Noida'})`).join('\n') +
-    `\n\nResearched with RealtyPal AI`;
+    `\n\nResearched with PropFyndr AI`;
 
   const handleShare = async () => {
     if (sharing || shareUrl) return;
@@ -48,7 +48,7 @@ export default function ShareShortlistModal({ isOpen, shortlist, onClose }: Shar
   const handleCopyLink = async () => {
     const url = shareUrl || (await handleShare());
     if (!url) return;
-    navigator.clipboard.writeText(`Check out this property shortlist from RealtyPal AI:\n${url}`)
+    navigator.clipboard.writeText(`Check out this property shortlist from PropFyndr AI:\n${url}`)
       .then(() => { setCopied(true); setTimeout(() => setCopied(false), 2000) })
       .catch(() => { /* clipboard blocked */ });
   };
@@ -79,7 +79,7 @@ export default function ShareShortlistModal({ isOpen, shortlist, onClose }: Shar
             {shortlist.map((p, i) => (
               <div key={p.id}>{i + 1}. {p.name} — {p.price_range_label ?? 'Price on request'} ({p.sector ?? 'Noida'})</div>
             ))}
-            <div className="mt-2 text-gray-400 text-[11px]">Researched with RealtyPal AI</div>
+            <div className="mt-2 text-gray-400 text-[11px]">Researched with PropFyndr AI</div>
           </div>
           <div className="flex flex-col gap-2">
             <button
@@ -91,7 +91,7 @@ export default function ShareShortlistModal({ isOpen, shortlist, onClose }: Shar
             </button>
             {process.env.NEXT_PUBLIC_WHATSAPP_NUMBER && shareUrl && (
               <a
-                href={`https://wa.me/?text=${encodeURIComponent(`Check out this property shortlist from RealtyPal AI:\n${shareUrl}`)}`}
+                href={`https://wa.me/?text=${encodeURIComponent(`Check out this property shortlist from PropFyndr AI:\n${shareUrl}`)}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center justify-center gap-2 py-3.5 bg-[#25D366] hover:bg-[#1da851] text-white font-bold rounded-xl text-sm transition-colors"

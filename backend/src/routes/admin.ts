@@ -808,16 +808,22 @@ router.get('/projects/:id/completeness', async (req: Request, res: Response) => 
 
 // GET /api/v1/admin/audit-logs — list audit history and changelogs
 router.get('/audit-logs', async (req: Request, res: Response) => {
-  const { entity_type, entity_id, mode = 'detailed', field, limit = '50', offset = '0' } = req.query
+  const { entity_type, entity_id, category, mode = 'detailed', field, limit = '50', offset = '0' } = req.query
   try {
     const where: any = {}
-    if (entity_type && entity_type !== 'all') where.entity_type = entity_type as string
+    if (category === 'demand') {
+      where.entity_type = { in: ['sector_gap', 'coverage_gap'] }
+    } else if (category === 'catalog') {
+      where.entity_type = { notIn: ['sector_gap', 'coverage_gap'] }
+    } else if (entity_type && entity_type !== 'all') {
+      where.entity_type = entity_type as string
+    }
     if (entity_id && entity_id !== 'all') where.entity_id = entity_id as string
 
     const take = Math.min(parseInt(limit as string) || 50, 100)
     const skip = parseInt(offset as string) || 0
 
-    const [logs, total] = await Promise.all([
+    const [logs, total, demandCount, catalogCount, allCount] = await Promise.all([
       (prisma as any).auditLog.findMany({
         where,
         orderBy: { created_at: 'desc' },
@@ -825,6 +831,9 @@ router.get('/audit-logs', async (req: Request, res: Response) => {
         skip,
       }),
       (prisma as any).auditLog.count({ where }),
+      (prisma as any).auditLog.count({ where: { entity_type: { in: ['sector_gap', 'coverage_gap'] } } }),
+      (prisma as any).auditLog.count({ where: { entity_type: { notIn: ['sector_gap', 'coverage_gap'] } } }),
+      (prisma as any).auditLog.count(),
     ])
 
     // If mode is precise, filter changes to high-impact fields only or entries with high-impact changes
@@ -847,7 +856,17 @@ router.get('/audit-logs', async (req: Request, res: Response) => {
       })
     }
 
-    res.json({ logs: processedLogs, total, limit: take, offset: skip })
+    res.json({
+      logs: processedLogs,
+      total,
+      counts: {
+        all: allCount,
+        demand: demandCount,
+        catalog: catalogCount,
+      },
+      limit: take,
+      offset: skip,
+    })
   } catch (err) {
     console.error('[admin] audit-logs failed:', err)
     res.status(500).json({ error: 'Failed to fetch audit logs' })

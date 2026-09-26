@@ -61,7 +61,7 @@ export default function ComparePage() {
             <div>
               <h2 className="text-2xl font-bold text-gray-900 mb-2">Compare via AI</h2>
               <p className="text-gray-500 max-w-sm">
-                Ask RealtyPal to compare any two projects — it cross-references RERA data, pricing, amenities, and connectivity in one response.
+                Ask PropFyndr to compare any two projects — it cross-references RERA data, pricing, amenities, and connectivity in one response.
               </p>
             </div>
             <div className="bg-white rounded-2xl border border-gray-200 p-5 max-w-md w-full text-left shadow-sm">

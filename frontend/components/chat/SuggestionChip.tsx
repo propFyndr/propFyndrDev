@@ -1,6 +1,5 @@
 'use client'
 
-import { m } from 'framer-motion'
 import { CaretDown, ArrowsLeftRight, CurrencyInr, ShieldCheck, MapPin, Sliders } from '@phosphor-icons/react'
 import { renderChipIcon, stripEmojis } from '@/lib/chipIconUtils'
 import type { ChipAction, ChipPickerState, ChipTone } from './types'
@@ -64,11 +63,8 @@ export function SuggestionChip({ chip, chipPicker, onSetChipPicker, onAction, di
   const ToneIcon = tone?.icon
 
   return (
-    <m.button
-      whileHover={{ y: -1.5, scale: 1.015 }}
-      whileTap={{ scale: 0.96 }}
-      transition={{ type: 'spring', stiffness: 450, damping: 25 }}
-      key={chip.id}
+    <button
+      type="button"
       onClick={() => {
         if (isActive) {
           onSetChipPicker(null)
@@ -78,20 +74,19 @@ export function SuggestionChip({ chip, chipPicker, onSetChipPicker, onAction, di
       }}
       className={`
         tap-target-y group relative inline-flex items-center gap-1.5 sm:gap-2 px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-full text-[12px] sm:text-[12.5px] font-semibold
-        border backdrop-blur-md shadow-2xs transition-all duration-150 outline-none max-w-full select-none cursor-pointer shrink-0
+        border transition-colors duration-150 outline-none max-w-full select-none cursor-pointer shrink-0
         focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-zinc-400 dark:focus-visible:ring-zinc-500
         ${disabled ? 'opacity-50 pointer-events-none' : ''}
         ${
           isActive
-            ? 'bg-zinc-900 text-white border-zinc-800 dark:bg-white dark:text-zinc-900 dark:border-zinc-200 shadow-xs'
+            ? 'bg-zinc-900 text-white border-zinc-900 dark:bg-white dark:text-zinc-900 dark:border-white'
             : tone
-              ? `${tone.idle} ${tone.hover} hover:shadow-xs active:scale-95`
-              : `${NEUTRAL} hover:shadow-xs active:scale-95`
+              ? `${tone.idle} ${tone.hover} active:scale-95`
+              : `${NEUTRAL} active:scale-95`
         }
       `}
       title={cleanLabel}
       aria-label={cleanLabel}
-      role="button"
       aria-pressed={isActive}
     >
       {ToneIcon
@@ -107,6 +102,6 @@ export function SuggestionChip({ chip, chipPicker, onSetChipPicker, onAction, di
           }`}
         />
       )}
-    </m.button>
+    </button>
   )
 }

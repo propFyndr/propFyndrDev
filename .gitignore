@@ -144,3 +144,6 @@ newProj/*_backup_pre_consolidation/
 git_history.txt
 extracted_payload.json
 extracted_amenities.json
+
+# Vitest JSON reports
+**/.vitest/

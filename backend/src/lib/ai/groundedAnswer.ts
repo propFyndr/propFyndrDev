@@ -412,6 +412,12 @@ export interface GroundedAnswerInput {
    * Without it this lane answers every turn as though it were the first one.
    */
   stateBrief?: string
+  /**
+   * A market question about a city we list no projects in (Phase 2 of
+   * CHAT_INTELLIGENCE_ROADMAP.md). Our rows hold nothing for it, so the DB
+   * step is skipped and the web is always consulted; the answer is market-tier.
+   */
+  outOfCoverage?: { city: string }
 }
 
 /**
@@ -443,8 +449,8 @@ export async function runGroundedAnswer(
   let fromDatabase = false
   let fromWeb = false
 
-  // 1. Check Database Fast-Path
-  try {
+  // 1. Check Database Fast-Path — nothing to find for a city we do not cover.
+  if (!input.outOfCoverage) try {
     // An announcement question is answered from the announcement if we hold
     // one; otherwise it falls through to the topic branches below.
     dbContext = await buildNewsContext(message)
@@ -490,8 +496,10 @@ export async function runGroundedAnswer(
     /\b(latest|current|recent|now|today|this year|20\d\d|launch(?:ed|ing)?|upcoming|trend|trending|appreciat|forecast|projection|circle rate|policy|notification|approved|metro|expressway|airport|jewar|infrastructure)\b/i
       .test(message) || isNewsQuery(message)
 
-  if (!dbContext && (isEntity || needsLiveFacts)) {
-    const query = isEntity
+  if (!dbContext && (input.outOfCoverage || isEntity || needsLiveFacts)) {
+    const query = input.outOfCoverage
+      ? `${message.replace(/["“”]/g, ' ').slice(0, 100)} real estate market`
+      : isEntity
       ? `${detection.entity} ${city} real estate`
       : `${message.replace(/["“”]/g, ' ').slice(0, 100)} ${city}`
     try {
@@ -512,6 +520,7 @@ export async function runGroundedAnswer(
     city: city || DEFAULT_CITY,
     hasVerifiedData: Boolean(dbContext),
     stateBrief: input.stateBrief,
+    outOfCoverageCity: input.outOfCoverage?.city,
   })
 
   // 4. Stream / Generate Answer via Fallback Chain

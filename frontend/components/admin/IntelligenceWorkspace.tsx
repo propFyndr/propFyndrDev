@@ -266,28 +266,28 @@ function calcCompletion(dna: DnaState, dec: DecisionState, per: PersonaState, re
 
 // Base input — all interactive inputs share this
 const inputCls = [
-  'w-full bg-slate-50/80 dark:bg-zinc-800/80 border border-slate-200/80 dark:border-zinc-700/80 hover:bg-slate-50 dark:hover:bg-zinc-800 focus:bg-white dark:focus:bg-zinc-900 rounded-xl px-4 py-2.5',
-  'text-[14px] text-slate-900 dark:text-zinc-100 font-medium',
-  'placeholder:text-slate-400 dark:placeholder:text-zinc-500',
-  'focus:outline-none focus:border-blue-500/80 focus:ring-4 focus:ring-blue-500/10',
-  'transition-all duration-200 shadow-2xs',
+  'w-full bg-white dark:bg-zinc-900 border border-zinc-200/90 dark:border-zinc-700/80 rounded-xl px-3.5 py-2',
+  'text-[13px] text-zinc-900 dark:text-zinc-100 font-medium',
+  'placeholder:text-zinc-400 dark:placeholder:text-zinc-500',
+  'focus:outline-none focus:border-[#0066cc] focus:ring-2 focus:ring-[#0066cc]/10',
+  'transition-all duration-150 shadow-2xs',
 ].join(' ')
 
 // Inline/compact input (score field, slug, etc.)
 const smallInputCls = [
-  'bg-slate-50/80 dark:bg-zinc-800/80 border border-slate-200/80 dark:border-zinc-700/80 hover:bg-slate-50 dark:hover:bg-zinc-800 focus:bg-white dark:focus:bg-zinc-900 rounded-xl px-3 py-2',
-  'text-[13px] text-slate-900 dark:text-zinc-100 font-medium',
-  'placeholder:text-slate-400 dark:placeholder:text-zinc-500',
-  'focus:outline-none focus:border-blue-500/80 focus:ring-4 focus:ring-blue-500/10',
-  'transition-all duration-200 shadow-2xs',
+  'bg-white dark:bg-zinc-900 border border-zinc-200/90 dark:border-zinc-700/80 rounded-xl px-3 py-1.5',
+  'text-[12.5px] text-zinc-900 dark:text-zinc-100 font-medium',
+  'placeholder:text-zinc-400 dark:placeholder:text-zinc-500',
+  'focus:outline-none focus:border-[#0066cc] focus:ring-2 focus:ring-[#0066cc]/10',
+  'transition-all duration-150 shadow-2xs',
 ].join(' ')
 
 // Select — matches input with sleek SVG chevron and active focus
 const selectCls = [
-  'admin-select bg-slate-50/80 dark:bg-zinc-800/80 border border-slate-200/80 dark:border-zinc-700/80 hover:bg-slate-100/80 dark:hover:bg-zinc-800 focus:bg-white dark:focus:bg-zinc-900 rounded-xl px-4 py-2.5',
-  'text-[13.5px] font-semibold text-slate-800 dark:text-zinc-100',
-  'focus:outline-none focus:border-blue-500/80 focus:ring-4 focus:ring-blue-500/10',
-  'transition-all duration-200 shadow-2xs cursor-pointer',
+  'admin-select bg-white dark:bg-zinc-900 border border-zinc-200/90 dark:border-zinc-700/80 rounded-xl px-3.5 py-2',
+  'text-[13px] font-medium text-zinc-900 dark:text-zinc-100',
+  'focus:outline-none focus:border-[#0066cc] focus:ring-2 focus:ring-[#0066cc]/10',
+  'transition-all duration-150 shadow-2xs cursor-pointer',
 ].join(' ')
 
 // ── Micro-components ─────────────────────────────────────────────────────────
@@ -295,9 +295,9 @@ const selectCls = [
 function SaveBadge({ state }: { state: SaveState }) {
   if (state === 'idle') return null
   const cfg = {
-    saving: { icon: <Loader2 size={10} className="animate-spin" />, text: 'Saving…', cls: 'text-gray-400' },
-    saved:  { icon: <Check size={10} />,                            text: 'Saved',   cls: 'text-emerald-600' },
-    error:  { icon: <AlertCircle size={10} />,                      text: 'Error',   cls: 'text-red-500' },
+    saving: { icon: <Loader2 size={10} className="animate-spin" />, text: 'Saving…', cls: 'text-zinc-400' },
+    saved:  { icon: <Check size={10} />,                            text: 'Saved',   cls: 'text-emerald-600 dark:text-emerald-400' },
+    error:  { icon: <AlertCircle size={10} />,                      text: 'Error',   cls: 'text-rose-500' },
   } as const
   const c = cfg[state as keyof typeof cfg]
   return (
@@ -313,10 +313,10 @@ function ScorePill({ dim, score }: { dim: string; score: number | null }) {
   const label = computeLabel(dim, score)
   if (!label) return null
   const cls = score >= 67
-    ? 'bg-emerald-50 text-emerald-700 border-emerald-100'
+    ? 'bg-emerald-50 text-emerald-700 border-emerald-200/70 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800/50'
     : score >= 34
-    ? 'bg-amber-50 text-amber-700 border-amber-100'
-    : 'bg-red-50 text-red-600 border-red-100'
+    ? 'bg-amber-50 text-amber-700 border-amber-200/70 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-800/50'
+    : 'bg-rose-50 text-rose-600 border-rose-200/70 dark:bg-rose-950/40 dark:text-rose-300 dark:border-rose-800/50'
   return (
     <span className={`inline-flex items-center text-[11px] font-medium px-2 py-0.5 rounded-md border ${cls} whitespace-nowrap`}>
       {label}
@@ -330,7 +330,7 @@ function CompPill({ value }: { value: number }) {
             : value >= 40 ? 'bg-amber-50 text-amber-700 border-amber-200/60 dark:bg-amber-950/60 dark:text-amber-300 dark:border-amber-800/60'
             : 'bg-zinc-100 text-zinc-600 border-zinc-200 dark:bg-zinc-800 dark:text-zinc-400 dark:border-zinc-700'
   return (
-    <span className={`text-[10.5px] font-bold px-2 py-0.5 rounded-lg border tabular-nums flex items-center gap-1 ${cls}`}>
+    <span className={`text-[10.5px] font-semibold px-2 py-0.5 rounded-lg border tabular-nums flex items-center gap-1 ${cls}`}>
       <span className={`w-1.5 h-1.5 rounded-full ${value >= 80 ? 'bg-emerald-500' : value >= 40 ? 'bg-amber-500' : 'bg-zinc-400'}`} />
       <span>{value}% Score</span>
     </span>
@@ -345,16 +345,16 @@ function SecHead({ title, score, save: sv, collapsed, onToggle }: {
     <button
       type="button"
       onClick={onToggle}
-      className="w-full flex items-center justify-between px-6 py-4 bg-slate-50/40 dark:bg-zinc-900/60 hover:bg-slate-100/70 dark:hover:bg-zinc-800/60 transition-all duration-200 text-left border-b border-slate-100 dark:border-zinc-800/80 cursor-pointer group select-none"
+      className="w-full flex items-center justify-between px-5 py-3.5 bg-zinc-50/70 dark:bg-zinc-900/60 hover:bg-zinc-100/70 dark:hover:bg-zinc-800/60 transition-colors text-left border-b border-zinc-100 dark:border-zinc-800/80 cursor-pointer group select-none"
     >
-      <div className="flex items-center gap-3">
-        <span className="text-[15px] font-extrabold text-slate-900 dark:text-zinc-100 tracking-tight">{title}</span>
+      <div className="flex items-center gap-2.5">
+        <span className="text-[14px] font-semibold text-zinc-900 dark:text-zinc-100 tracking-tight">{title}</span>
         <CompPill value={score} />
       </div>
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2.5">
         <SaveBadge state={sv} />
-        <div className="w-7 h-7 rounded-lg bg-slate-100 dark:bg-zinc-800 group-hover:bg-white dark:group-hover:bg-zinc-700 border border-slate-200/60 dark:border-zinc-700/60 flex items-center justify-center transition-all shadow-2xs">
-          <ChevronDown size={14} className={`text-slate-500 dark:text-zinc-400 group-hover:text-slate-800 dark:group-hover:text-zinc-100 transition-transform duration-200 ${!collapsed ? 'rotate-180' : ''}`} />
+        <div className="w-6 h-6 rounded-lg bg-zinc-100 dark:bg-zinc-800 group-hover:bg-white dark:group-hover:bg-zinc-700 border border-zinc-200/60 dark:border-zinc-700/60 flex items-center justify-center transition-all shadow-2xs">
+          <ChevronDown size={13} className={`text-zinc-500 dark:text-zinc-400 group-hover:text-zinc-800 dark:group-hover:text-zinc-100 transition-transform duration-200 ${!collapsed ? 'rotate-180' : ''}`} />
         </div>
       </div>
     </button>
@@ -365,7 +365,7 @@ function SecHead({ title, score, save: sv, collapsed, onToggle }: {
 function FL({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
-      <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">{label}</label>
+      <label className="block text-[12px] font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">{label}</label>
       {children}
     </div>
   )
@@ -373,10 +373,10 @@ function FL({ label, children }: { label: string; children: React.ReactNode }) {
 
 function AdminDivider() {
   return (
-    <div className="flex items-center gap-3 py-0.5">
-      <div className="flex-1 h-px bg-gray-100" />
-      <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest">Admin Only</span>
-      <div className="flex-1 h-px bg-gray-100" />
+    <div className="flex items-center gap-3 py-1">
+      <div className="flex-1 h-px bg-zinc-200/70 dark:bg-zinc-800" />
+      <span className="text-[10.5px] font-semibold text-zinc-400 uppercase tracking-wider">Internal Admin Only</span>
+      <div className="flex-1 h-px bg-zinc-200/70 dark:bg-zinc-800" />
     </div>
   )
 }
@@ -588,16 +588,16 @@ export default function IntelligenceWorkspace({
     <div className="space-y-4 max-w-5xl">
 
       {/* ── Completion strip ────────────────────────────────────────────── */}
-      <div className="bg-white border border-gray-100 shadow-[0_2px_12px_rgba(0,0,0,0.03)] rounded-3xl px-6 py-4 flex items-center gap-6 flex-wrap">
-        <div className="flex items-center gap-1.5 flex-shrink-0">
-          <span className={`text-[15px] font-black tabular-nums leading-none ${
-            completion.overall >= 80 ? 'text-emerald-600'
-            : completion.overall >= 40 ? 'text-amber-600'
-            : 'text-gray-400'
+      <div className="bg-white dark:bg-zinc-900 border border-zinc-200/90 dark:border-zinc-800 shadow-2xs rounded-2xl px-5 py-3.5 flex items-center gap-5 flex-wrap">
+        <div className="flex items-center gap-2 flex-shrink-0">
+          <span className={`text-[15px] font-bold font-mono tabular-nums leading-none ${
+            completion.overall >= 80 ? 'text-emerald-600 dark:text-emerald-400'
+            : completion.overall >= 40 ? 'text-amber-600 dark:text-amber-400'
+            : 'text-zinc-400'
           }`}>{completion.overall}%</span>
-          <span className="text-[11px] text-gray-400 font-medium">complete</span>
+          <span className="text-[12px] text-zinc-500 dark:text-zinc-400 font-medium">intelligence readiness</span>
         </div>
-        <div className="w-px h-3.5 bg-gray-100 flex-shrink-0" />
+        <div className="w-px h-3.5 bg-zinc-200 dark:bg-zinc-800 flex-shrink-0" />
         <div className="flex items-center gap-3.5 flex-wrap">
           {[
             { label: 'DNA',         value: completion.dna },
@@ -606,13 +606,13 @@ export default function IntelligenceWorkspace({
             { label: 'Rec',         value: completion.recommendation },
             { label: 'Competition', value: completion.competitor },
           ].map(({ label, value }) => (
-            <div key={label} className="flex items-center gap-1">
+            <div key={label} className="flex items-center gap-1.5">
               <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${
-                value >= 80 ? 'bg-emerald-400' : value >= 40 ? 'bg-amber-400' : 'bg-gray-200'
+                value >= 80 ? 'bg-emerald-500' : value >= 40 ? 'bg-amber-500' : 'bg-zinc-300 dark:bg-zinc-700'
               }`} />
-              <span className="text-[11px] text-gray-500">{label}</span>
-              <span className={`text-[11px] font-semibold tabular-nums ${
-                value >= 80 ? 'text-emerald-600' : value >= 40 ? 'text-amber-600' : 'text-gray-400'
+              <span className="text-[12px] text-zinc-500 dark:text-zinc-400 font-medium">{label}</span>
+              <span className={`text-[12px] font-semibold font-mono tabular-nums ${
+                value >= 80 ? 'text-emerald-600 dark:text-emerald-400' : value >= 40 ? 'text-amber-600 dark:text-amber-400' : 'text-zinc-400'
               }`}>{value}%</span>
             </div>
           ))}
@@ -620,23 +620,23 @@ export default function IntelligenceWorkspace({
       </div>
 
       {/* ── Project DNA ──────────────────────────────────────────────────── */}
-      <div className="bg-white border border-gray-100 shadow-[0_2px_12px_rgba(0,0,0,0.03)] rounded-3xl overflow-hidden">
+      <div className="bg-white dark:bg-zinc-900 border border-zinc-200/90 dark:border-zinc-800 shadow-2xs rounded-2xl overflow-hidden">
         <SecHead title="Project DNA" score={completion.dna} save={dnaSv} collapsed={collapsed.dna} onToggle={() => toggle('dna')} />
         {!collapsed.dna && (
-          <div className="px-6 pt-4 pb-6">
+          <div className="px-5 pt-3.5 pb-5">
             {/* Header row */}
-            <div className="flex items-center pb-2 border-b border-gray-50">
-              <span className="flex-1 text-[10px] font-semibold text-gray-400 uppercase tracking-wide">Dimension</span>
-              <span className="w-16 text-center text-[10px] font-semibold text-gray-400 uppercase tracking-wide">Score</span>
-              <span className="w-36 pl-3 text-[10px] font-semibold text-gray-400 uppercase tracking-wide">Rating</span>
+            <div className="flex items-center pb-2 border-b border-zinc-100 dark:border-zinc-800/80">
+              <span className="flex-1 text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">Dimension</span>
+              <span className="w-16 text-center text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">Score</span>
+              <span className="w-36 pl-3 text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">Rating</span>
             </div>
 
             {DNA_DIMS.map(({ key, label }) => {
               const scoreVal = dna[`${key}_score`] as string
               const numScore = scoreVal !== '' && scoreVal != null ? Number(scoreVal) : null
               return (
-                <div key={key} className="flex items-center gap-3 py-2 border-b border-gray-50 last:border-0">
-                  <span className="flex-1 text-[13px] text-gray-700 font-medium">{label}</span>
+                <div key={key} className="flex items-center gap-3 py-2 border-b border-zinc-100 dark:border-zinc-800/60 last:border-0">
+                  <span className="flex-1 text-[13px] text-zinc-800 dark:text-zinc-200 font-medium">{label}</span>
                   <input
                     type="number"
                     min={0}
@@ -645,7 +645,7 @@ export default function IntelligenceWorkspace({
                     placeholder="—"
                     onChange={e => setDna(p => ({ ...p, [`${key}_score`]: e.target.value }))}
                     onBlur={() => saveDna()}
-                    className={`${smallInputCls} w-16 text-center tabular-nums`}
+                    className={`${smallInputCls} w-16 text-center font-mono`}
                   />
                   <div className="w-36 pl-1">
                     <ScorePill dim={key} score={numScore} />
@@ -654,7 +654,7 @@ export default function IntelligenceWorkspace({
               )
             })}
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-3 mt-1 border-t border-gray-50">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-3 mt-1 border-t border-zinc-100 dark:border-zinc-800/80">
               <FL label="Verified By">
                 <input
                   type="text"
@@ -680,10 +680,10 @@ export default function IntelligenceWorkspace({
       </div>
 
       {/* ── Decision Profile ─────────────────────────────────────────────── */}
-      <div className="bg-white border border-gray-100 shadow-[0_2px_12px_rgba(0,0,0,0.03)] rounded-3xl overflow-hidden">
+      <div className="bg-white dark:bg-zinc-900 border border-zinc-200/90 dark:border-zinc-800 shadow-2xs rounded-2xl overflow-hidden">
         <SecHead title="Decision Profile" score={completion.decision} save={decSv} collapsed={collapsed.decision} onToggle={() => toggle('decision')} />
         {!collapsed.decision && (
-          <div className="px-6 pt-4 pb-6 space-y-5">
+          <div className="px-5 pt-3.5 pb-5 space-y-4">
 
             <div className="flex items-center gap-3">
               <CustomSelect
@@ -700,15 +700,15 @@ export default function IntelligenceWorkspace({
             </div>
 
             {/* Decision Thesis — primary hero field */}
-            <div className="rounded-2xl bg-blue-50/50 border border-blue-100/50 px-5 py-4 shadow-sm">
-              <label className="block text-[10px] font-black text-blue-500 uppercase tracking-widest mb-2">Decision Thesis</label>
+            <div className="rounded-xl bg-blue-50/60 dark:bg-blue-950/20 border border-blue-100 dark:border-blue-900/40 p-4 shadow-2xs">
+              <label className="block text-[11px] font-semibold text-[#0066cc] dark:text-blue-400 uppercase tracking-wider mb-1.5">Decision Thesis</label>
               <textarea
                 value={dec.decision_thesis}
                 placeholder="One sentence advisor voice. The most defensible long-term buy in this segment…"
                 rows={2}
                 onChange={e => setDec(p => ({ ...p, decision_thesis: e.target.value }))}
                 onBlur={() => saveDecision()}
-                className="w-full bg-transparent text-[15px] text-gray-800 font-medium focus:outline-none resize-none placeholder:text-blue-300/80 leading-relaxed"
+                className="w-full bg-transparent text-[14px] text-zinc-900 dark:text-zinc-100 font-medium focus:outline-none resize-none placeholder:text-blue-300 dark:placeholder:text-blue-600/70 leading-relaxed"
               />
             </div>
 
@@ -857,10 +857,10 @@ export default function IntelligenceWorkspace({
       </div>
 
       {/* ── Persona Profile ──────────────────────────────────────────────── */}
-      <div className="bg-white border border-gray-100 rounded-xl overflow-hidden">
+      <div className="bg-white dark:bg-zinc-900 border border-zinc-200/90 dark:border-zinc-800 shadow-2xs rounded-2xl overflow-hidden">
         <SecHead title="Persona Profile" score={completion.persona} save={perSv} collapsed={collapsed.persona} onToggle={() => toggle('persona')} />
         {!collapsed.persona && (
-          <div className="px-5 pt-3 pb-4 space-y-3">
+          <div className="px-5 pt-3.5 pb-5 space-y-3">
             <FL label="Primary Persona">
               <div className="flex flex-wrap gap-1.5 mt-1">
                 {PERSONAS.map(p => {
@@ -874,10 +874,10 @@ export default function IntelligenceWorkspace({
                         const v = { ...per, primary_persona: next }
                         setPer(v); savePersona(v)
                       }}
-                      className={`text-[11px] font-semibold px-2.5 py-1 rounded-md border transition-colors ${
+                      className={`text-[11.5px] font-medium px-2.5 py-1 rounded-lg border transition-colors cursor-pointer ${
                         active
-                          ? 'bg-blue-600 text-white border-blue-600'
-                          : 'bg-white text-gray-500 border-gray-200 hover:border-gray-300 hover:text-gray-700'
+                          ? 'bg-[#0066cc] text-white border-[#0066cc]'
+                          : 'bg-white dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 border-zinc-200/90 dark:border-zinc-700 hover:border-zinc-300'
                       }`}
                     >
                       {p}
@@ -904,10 +904,10 @@ export default function IntelligenceWorkspace({
                         const v = { ...per, secondary_personas: next }
                         setPer(v); savePersona(v)
                       }}
-                      className={`text-[11px] font-semibold px-2.5 py-1 rounded-md border transition-colors ${
-                        isPrimary ? 'opacity-25 cursor-not-allowed bg-white text-gray-400 border-gray-100'
-                        : active   ? 'bg-indigo-50 text-indigo-700 border-indigo-200'
-                        : 'bg-white text-gray-500 border-gray-200 hover:border-gray-300 hover:text-gray-700'
+                      className={`text-[11.5px] font-medium px-2.5 py-1 rounded-lg border transition-colors cursor-pointer ${
+                        isPrimary ? 'opacity-25 cursor-not-allowed bg-zinc-100 dark:bg-zinc-800 text-zinc-400 border-zinc-200'
+                        : active   ? 'bg-blue-50 dark:bg-blue-950/60 text-[#0066cc] dark:text-blue-300 border-blue-200 dark:border-blue-800'
+                        : 'bg-white dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 border-zinc-200/90 dark:border-zinc-700 hover:border-zinc-300'
                       }`}
                     >
                       {p}
@@ -925,7 +925,7 @@ export default function IntelligenceWorkspace({
                   <div className="space-y-2 mt-1">
                     {selected.map((p) => (
                       <div key={p}>
-                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">{p}</p>
+                        <p className="text-[10.5px] font-semibold text-zinc-400 uppercase tracking-wider mb-1">{p}</p>
                         <textarea
                           value={per.persona_descriptions[p] ?? ''}
                           placeholder={`Why ${p.toLowerCase()} buyers fit this project…`}
@@ -1008,18 +1008,18 @@ export default function IntelligenceWorkspace({
               />
             </FL>
 
-            <div className="mt-8 pt-6 border-t border-gray-100">
+            <div className="mt-6 pt-5 border-t border-zinc-100 dark:border-zinc-800">
               <JsonEditor
                 value={buyerPersonas}
                 onChange={setBuyerPersonas}
                 label="Detailed Buyer Personas (JSON)"
                 description="Raw JSON array for detailed buyerPersonas objects."
               />
-              <div className="flex justify-end mt-4">
+              <div className="flex justify-end mt-3">
                 <button
                   type="button"
                   onClick={handleSaveBuyerPersonas}
-                  className="bg-slate-900 text-white px-4 py-2 rounded-xl text-[12px] font-bold"
+                  className="bg-[#0066cc] hover:bg-[#0055b3] text-white px-4 py-2 rounded-xl text-[12.5px] font-medium transition-colors shadow-2xs cursor-pointer"
                 >
                   Save Personas JSON
                 </button>
@@ -1030,10 +1030,10 @@ export default function IntelligenceWorkspace({
       </div>
 
       {/* ── Recommendation Profile ───────────────────────────────────────── */}
-      <div className="bg-white border border-gray-100 rounded-xl overflow-hidden">
+      <div className="bg-white dark:bg-zinc-900 border border-zinc-200/90 dark:border-zinc-800 shadow-2xs rounded-2xl overflow-hidden">
         <SecHead title="Recommendation" score={completion.recommendation} save={recSv} collapsed={collapsed.recommendation} onToggle={() => toggle('recommendation')} />
         {!collapsed.recommendation && (
-          <div className="px-5 pt-3 pb-4 space-y-3">
+          <div className="px-5 pt-3.5 pb-5 space-y-3">
 
             <div className="flex items-center gap-2 flex-wrap">
               <CustomSelect
@@ -1051,12 +1051,12 @@ export default function IntelligenceWorkspace({
                 className="w-36"
               />
               {rec.tier && (
-                <span className={`text-[11px] font-bold px-2.5 py-1 rounded-md ${
-                  rec.tier === 'STRONG_BUY' ? 'bg-emerald-600 text-white'
-                  : rec.tier === 'BUY'       ? 'bg-emerald-100 text-emerald-700'
-                  : rec.tier === 'HOLD'       ? 'bg-amber-100 text-amber-700'
-                  : rec.tier === 'WATCH'      ? 'bg-orange-100 text-orange-700'
-                  : 'bg-red-100 text-red-700'
+                <span className={`text-[11.5px] font-semibold px-2.5 py-1 rounded-lg border ${
+                  rec.tier === 'STRONG_BUY' ? 'bg-emerald-600 text-white border-emerald-600'
+                  : rec.tier === 'BUY'       ? 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800'
+                  : rec.tier === 'HOLD'       ? 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-800'
+                  : rec.tier === 'WATCH'      ? 'bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-950/40 dark:text-orange-300 dark:border-orange-800'
+                  : 'bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-950/40 dark:text-rose-300 dark:border-rose-800'
                 }`}>
                   {rec.tier.replace('_', ' ')}
                 </span>
@@ -1199,28 +1199,28 @@ export default function IntelligenceWorkspace({
       </div>
 
       {/* ── Competitor Intelligence ──────────────────────────────────────── */}
-      <div className="bg-white border border-gray-100 rounded-xl overflow-hidden">
+      <div className="bg-white dark:bg-zinc-900 border border-zinc-200/90 dark:border-zinc-800 shadow-2xs rounded-2xl overflow-hidden">
         <SecHead title="Competitor Intelligence" score={completion.competitor} save="idle" collapsed={collapsed.competitors} onToggle={() => toggle('competitors')} />
         {!collapsed.competitors && (
-          <div className="px-5 pt-3 pb-4 space-y-3">
+          <div className="px-5 pt-3.5 pb-5 space-y-3">
             {comps.length === 0 && (
-              <p className="text-[13px] text-gray-400 text-center py-5">
+              <p className="text-[13px] text-zinc-400 text-center py-5">
                 No competitors added. Add the first comparison below.
               </p>
             )}
 
             {comps.map((comp, idx) => (
-              <div key={comp.id ?? `new-${idx}`} className="bg-gray-50/70 rounded-lg p-4 space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-[11px] font-semibold text-gray-700">
+              <div key={comp.id ?? `new-${idx}`} className="bg-zinc-50/70 dark:bg-zinc-800/40 rounded-xl border border-zinc-200/80 dark:border-zinc-800 p-4 space-y-3">
+                <div className="flex items-center justify-between border-b border-zinc-100 dark:border-zinc-800/60 pb-2">
+                  <span className="text-[12px] font-semibold text-zinc-900 dark:text-zinc-100">
                     {comp._isNew ? 'New Competitor' : comp.competitor_name || 'Competitor'}
                   </span>
                   <button
                     type="button"
                     onClick={() => deleteComp(idx)}
-                    className="p-1 rounded text-gray-600 hover:text-red-600 hover:bg-red-50 transition-colors"
+                    className="p-1 rounded text-zinc-400 hover:text-rose-500 transition-colors cursor-pointer"
                   >
-                    <Trash2 size={12} />
+                    <Trash2 size={13} />
                   </button>
                 </div>
 
@@ -1297,9 +1297,9 @@ export default function IntelligenceWorkspace({
             <button
               type="button"
               onClick={addComp}
-              className="w-full flex items-center justify-center gap-2 py-2.5 border border-dashed border-gray-200 rounded-lg text-[12px] text-gray-400 hover:text-gray-600 hover:border-gray-300 transition-colors"
+              className="w-full flex items-center justify-center gap-2 py-2.5 border border-dashed border-zinc-300 dark:border-zinc-700 rounded-xl text-[12.5px] font-medium text-zinc-500 dark:text-zinc-400 hover:text-[#0066cc] dark:hover:text-blue-400 hover:border-[#0066cc]/40 transition-colors cursor-pointer"
             >
-              <Plus size={12} />Add competitor comparison
+              <Plus size={13} />Add competitor comparison
             </button>
           </div>
         )}

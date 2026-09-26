@@ -57,7 +57,7 @@ async function run() {
   })
   console.log('Get HTTP Status:', getRes.status)
   const getObj = JSON.parse(getRes.body)
-  console.log('Fetched Buyer Name:', getObj.dossier?.consultation?.buyerName)
+  console.log('Fetched Buyer Name:', getObj.dossier?.consultation?.preparedFor)
 
   console.log('\n--- 3. Testing POST /api/v1/dossier/:token/react (LIKE) ---')
   const pId = getObj.dossier?.projects?.[0]?.id || 'p-1'
@@ -80,7 +80,7 @@ async function run() {
   )
   console.log('Like React HTTP Status:', reactRes.status)
   const reactObj = JSON.parse(reactRes.body)
-  console.log('Reactions Map:', JSON.stringify(reactObj.familyReactions))
+  console.log('Reactions Map:', JSON.stringify(reactObj.reactions))
 
   console.log('\n--- 4. Testing POST /api/v1/dossier/:token/react (CONCERN) ---')
   const concernPayload = JSON.stringify({
@@ -103,7 +103,7 @@ async function run() {
   )
   console.log('Concern React HTTP Status:', concernRes.status)
   const concernObj = JSON.parse(concernRes.body)
-  console.log('Reactions with Concern:', JSON.stringify(concernObj.familyReactions))
+  console.log('Reactions with Concern:', JSON.stringify(concernObj.reactions))
 
   console.log('\n--- 5. Testing Frontend Page Render for the Token ---')
   const feRes = await request({

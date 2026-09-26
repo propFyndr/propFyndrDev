@@ -6,8 +6,9 @@ import { ArrowLeft, RotateCcw, Building2, Search, BarChart3, AlertCircle } from 
 import { formatDistanceToNow } from 'date-fns'
 import AnalyticsNav from '@/components/admin/AnalyticsNav'
 import AdminInfoTooltip from '@/components/admin/AdminInfoTooltip'
-import { Skeleton } from '@/components/ui/skeleton'
 import { adminFetch } from '@/lib/adminFetch'
+import { MetricCard } from '@/components/admin/ui/MetricCard'
+import { Skeleton } from '@/components/ui/skeleton'
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip,
   ResponsiveContainer
@@ -93,76 +94,54 @@ export default function SearchAnalytics() {
       {/* Stats Summary Grid */}
       {loading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="p-5 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 shadow-2xs space-y-2">
-            <Skeleton className="h-4 w-24" />
-            <Skeleton className="h-8 w-20" />
-          </div>
-          <div className="p-5 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 shadow-2xs space-y-2">
-            <Skeleton className="h-4 w-24" />
-            <Skeleton className="h-8 w-20" />
-          </div>
+          <div className="h-28 rounded-2xl bg-zinc-100 dark:bg-zinc-800/50 animate-pulse" />
+          <div className="h-28 rounded-2xl bg-zinc-100 dark:bg-zinc-800/50 animate-pulse" />
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* Total Searches */}
-          <div className="p-5 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 shadow-2xs">
-            <div className="flex items-center justify-between">
-              <span className="text-[11px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider inline-flex items-center">
-                Total Search Telemetry
-                <AdminInfoTooltip
-                  title="Total Search Telemetry"
-                  description="Total property search queries executed across all user chats."
-                  whyItMatters="Measures overall buyer search exploration volume."
-                />
-              </span>
-              <div className="w-9 h-9 rounded-xl bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 flex items-center justify-center">
-                <Search className="w-4 h-4" />
-              </div>
-            </div>
-            <div className="mt-3 flex items-baseline justify-between">
-              <span className="text-2xl sm:text-3xl font-black text-zinc-900 dark:text-white">
-                {data?.totalQueries || 0}
-              </span>
-              <span className="text-xs font-semibold text-blue-600 dark:text-blue-400">
-                Logged queries
-              </span>
-            </div>
-          </div>
+          <MetricCard
+            title="Total Search Telemetry"
+            value={data?.totalQueries?.toLocaleString() || 0}
+            subBadge="Logged queries"
+            subBadgeVariant="blue"
+            icon={Search}
+            iconBgClass="bg-blue-50 dark:bg-blue-950/60"
+            iconColorClass="text-[#0066cc] dark:text-blue-400"
+            tooltip={
+              <AdminInfoTooltip
+                title="Total Search Telemetry"
+                description="Total property search queries executed across all user chats."
+                whyItMatters="Measures overall buyer search exploration volume."
+              />
+            }
+          />
 
-          {/* Unique Sectors */}
-          <div className="p-5 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 shadow-2xs">
-            <div className="flex items-center justify-between">
-              <span className="text-[11px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider inline-flex items-center">
-                Active Sectors Queried
-                <AdminInfoTooltip
-                  title="Active Sectors Queried"
-                  description="Count of distinct sectors buyers have searched for."
-                  whyItMatters="Shows geographic breadth of buyer interest."
-                />
-              </span>
-              <div className="w-9 h-9 rounded-xl bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 flex items-center justify-center">
-                <Building2 className="w-4 h-4" />
-              </div>
-            </div>
-            <div className="mt-3 flex items-baseline justify-between">
-              <span className="text-2xl sm:text-3xl font-black text-zinc-900 dark:text-white">
-                {data?.topSectors?.length || 0}
-              </span>
-              <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">
-                Unique localities
-              </span>
-            </div>
-          </div>
+          <MetricCard
+            title="Active Sectors Queried"
+            value={data?.topSectors?.length || 0}
+            subBadge="Unique localities"
+            subBadgeVariant="emerald"
+            icon={Building2}
+            iconBgClass="bg-emerald-50 dark:bg-emerald-950/60"
+            iconColorClass="text-emerald-600 dark:text-emerald-400"
+            tooltip={
+              <AdminInfoTooltip
+                title="Active Sectors Queried"
+                description="Count of distinct sectors buyers have searched for."
+                whyItMatters="Shows geographic breadth of buyer interest."
+              />
+            }
+          />
         </div>
       )}
 
       {/* Detailed Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Top Sectors Bar Chart */}
-        <div className="p-6 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 shadow-2xs space-y-4">
+        {/* Top Sectors Horizontal Bar Chart (Zero Label Collision) */}
+        <div className="p-5 md:p-6 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200/90 dark:border-zinc-800 shadow-xs space-y-4">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-extrabold text-zinc-900 dark:text-white tracking-tight flex items-center gap-2">
-              <BarChart3 className="w-4 h-4 text-blue-500" />
+            <span className="text-sm font-semibold text-zinc-900 dark:text-white tracking-tight flex items-center gap-2">
+              <BarChart3 className="w-4 h-4 text-[#0066cc]" />
               Top 10 Searched Sectors (Real DB Data)
               <AdminInfoTooltip
                 title="Top 10 Searched Sectors"
@@ -170,21 +149,58 @@ export default function SearchAnalytics() {
                 whyItMatters="Reveals localities with highest real-estate demand."
               />
             </span>
+            <span className="text-[11px] font-semibold text-zinc-500 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-800 px-2.5 py-0.5 rounded-lg">
+              Locality Rank
+            </span>
           </div>
 
           {loading ? (
-            <Skeleton className="w-full h-80 rounded-xl" />
+            <div className="w-full h-80 rounded-xl bg-zinc-100 dark:bg-zinc-800/50 animate-pulse" />
           ) : data?.topSectors && data.topSectors.length > 0 ? (
             <div className="h-80 w-full">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={data.topSectors.slice(0, 10)}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e4e4e7" opacity={0.5} />
-                  <XAxis dataKey="sector" tick={{ fontSize: 11, fill: '#71717a' }} angle={-35} textAnchor="end" height={60} />
-                  <YAxis tick={{ fontSize: 11, fill: '#71717a' }} allowDecimals={false} />
-                  <RechartsTooltip
-                    contentStyle={{ backgroundColor: '#18181b', borderRadius: '12px', border: 'none', color: '#fff', fontSize: '12px' }}
+                <BarChart
+                  data={data.topSectors.slice(0, 8)}
+                  layout="vertical"
+                  margin={{ top: 10, right: 30, left: 10, bottom: 10 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f4f4f5" className="dark:opacity-10" />
+                  <XAxis
+                    type="number"
+                    axisLine={false}
+                    tickLine={false}
+                    tick={{ fontSize: 11, fill: '#71717a', fontWeight: 500 }}
+                    allowDecimals={false}
                   />
-                  <Bar dataKey="count" fill="#3B82F6" radius={[6, 6, 0, 0]} />
+                  <YAxis
+                    dataKey="sector"
+                    type="category"
+                    axisLine={false}
+                    tickLine={false}
+                    tickFormatter={(s: string) => s.replace(', Noida', '').replace('Noida', '').trim()}
+                    tick={{ fontSize: 11, fill: '#71717a', fontWeight: 500 }}
+                    width={105}
+                  />
+                  <RechartsTooltip
+                    cursor={{ fill: 'rgba(0, 102, 204, 0.05)', radius: 6 }}
+                    content={({ active, payload }) => {
+                      if (active && payload && payload.length) {
+                        const d = payload[0].payload
+                        return (
+                          <div className="bg-zinc-950/95 backdrop-blur-md border border-zinc-800 text-white px-3.5 py-2.5 rounded-xl shadow-2xl z-50">
+                            <p className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider mb-1">
+                              {d.sector}
+                            </p>
+                            <p className="text-xs font-semibold text-white">
+                              {payload[0].value} <span className="text-zinc-400 font-normal">Searches</span>
+                            </p>
+                          </div>
+                        )
+                      }
+                      return null
+                    }}
+                  />
+                  <Bar dataKey="count" fill="#0066cc" radius={[0, 6, 6, 0]} maxBarSize={22} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -196,11 +212,11 @@ export default function SearchAnalytics() {
           )}
         </div>
 
-        {/* Top Builders Ranking List */}
-        <div className="p-6 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 shadow-2xs space-y-4">
+        {/* Top Builders Ranking Leaderboard */}
+        <div className="p-5 md:p-6 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200/90 dark:border-zinc-800 shadow-xs space-y-4">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-extrabold text-zinc-900 dark:text-white tracking-tight flex items-center gap-2">
-              <Building2 className="w-4 h-4 text-emerald-500" />
+            <span className="text-sm font-semibold text-zinc-900 dark:text-white tracking-tight flex items-center gap-2">
+              <Building2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
               Top Searched Builders
               <AdminInfoTooltip
                 title="Top Searched Builders"
@@ -208,33 +224,65 @@ export default function SearchAnalytics() {
                 whyItMatters="Identifies developers with strongest buyer brand intent."
               />
             </span>
-            <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">
-              Developer Rank
+            <span className="text-[11px] font-semibold text-zinc-500 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-800 px-2.5 py-0.5 rounded-lg">
+              Brand Volume
             </span>
           </div>
 
           {loading ? (
             <div className="space-y-3">
               {Array.from({ length: 5 }).map((_, i) => (
-                <Skeleton key={i} className="h-10 w-full rounded-xl" />
+                <div key={i} className="h-12 w-full rounded-xl bg-zinc-100 dark:bg-zinc-800/50 animate-pulse" />
               ))}
             </div>
           ) : data?.topBuilders && data.topBuilders.length > 0 ? (
-            <div className="space-y-2.5">
-              {data.topBuilders.slice(0, 10).map((builder, idx) => (
-                <div key={builder.builder} className="flex items-center justify-between p-3 rounded-xl bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200/60 dark:border-zinc-800">
-                  <div className="flex items-center gap-3">
-                    <span className="w-6 h-6 rounded-lg bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 font-extrabold text-xs flex items-center justify-center">
-                      {idx + 1}
-                    </span>
-                    <span className="text-xs font-bold text-zinc-900 dark:text-white">{builder.builder}</span>
-                  </div>
-                  <span className="text-xs font-mono font-extrabold text-zinc-600 dark:text-zinc-300 bg-white dark:bg-zinc-900 px-2.5 py-1 rounded-md border border-zinc-200 dark:border-zinc-700">
-                    {builder.count} searches
-                  </span>
+            (() => {
+              const maxBuilderCount = Math.max(...data.topBuilders.map((b) => b.count), 1)
+              return (
+                <div className="space-y-2.5">
+                  {data.topBuilders.slice(0, 8).map((builder, idx) => {
+                    const rank = idx + 1
+                    const sharePct = Math.round((builder.count / maxBuilderCount) * 100)
+                    return (
+                      <div
+                        key={builder.builder}
+                        className="p-3 rounded-xl bg-zinc-50/70 dark:bg-zinc-800/40 border border-zinc-200/80 dark:border-zinc-700/60 hover:border-zinc-300 dark:hover:border-zinc-600 transition-all space-y-1.5"
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2.5">
+                            <span
+                              className={`w-6 h-6 rounded-lg text-xs font-bold flex items-center justify-center border shadow-2xs ${
+                                rank === 1
+                                  ? 'bg-amber-100 text-amber-900 border-amber-300 dark:bg-amber-950/80 dark:text-amber-200 dark:border-amber-800'
+                                  : rank === 2
+                                  ? 'bg-zinc-200 text-zinc-800 border-zinc-300 dark:bg-zinc-700 dark:text-zinc-200 dark:border-zinc-600'
+                                  : rank === 3
+                                  ? 'bg-orange-100 text-orange-900 border-orange-300 dark:bg-orange-950/80 dark:text-orange-200 dark:border-orange-800'
+                                  : 'bg-white dark:bg-zinc-900 text-zinc-600 dark:text-zinc-400 border-zinc-200/80 dark:border-zinc-800'
+                              }`}
+                            >
+                              {rank}
+                            </span>
+                            <span className="text-xs font-semibold text-zinc-900 dark:text-zinc-100">
+                              {builder.builder}
+                            </span>
+                          </div>
+                          <span className="text-xs font-mono font-semibold text-zinc-700 dark:text-zinc-300">
+                            {builder.count} <span className="text-[11px] text-zinc-400 font-normal">searches</span>
+                          </span>
+                        </div>
+                        <div className="w-full h-1 bg-zinc-200/60 dark:bg-zinc-700/50 rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-[#0066cc] rounded-full transition-all duration-500"
+                            style={{ width: `${sharePct}%` }}
+                          />
+                        </div>
+                      </div>
+                    )
+                  })}
                 </div>
-              ))}
-            </div>
+              )
+            })()
           ) : (
             <div className="py-16 text-center text-xs text-zinc-400 italic">No builder queries recorded yet</div>
           )}

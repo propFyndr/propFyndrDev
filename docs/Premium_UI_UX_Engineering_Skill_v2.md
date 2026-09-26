@@ -5,7 +5,7 @@
 
 Use this skill whenever you design, implement, review, refactor, or visually polish a product interface.
 
-The goal is not to make the UI "pretty."
+The goal is not to make the UI "pretty." The goal is to make every screen, especially dashboards and data-heavy screens, precise enough that users can understand what matters and act without unnecessary cognitive effort.
 
 The goal is to make it feel:
 - intentional
@@ -1815,3 +1815,528 @@ If the answer is only:
 > "Because it looks cool."
 
 Remove it.
+
+
+---
+
+# 43. DASHBOARD DESIGN RULES
+
+For dashboards, analytics screens, admin panels, reporting interfaces, and data-heavy home screens, apply these rules in addition to the general UI/UX system.
+
+The dashboard must help the user understand what matters and decide what to do next.
+
+## 43.1 Prioritize Key Metrics
+
+Put the most important numbers where users can find and understand them quickly.
+
+Prioritize:
+- primary KPIs
+- important changes
+- urgent exceptions
+- current status
+- metrics directly tied to the user's goal
+
+Do not give every metric equal visual weight.
+
+A useful KPI structure is:
+
+```text
+Metric name
+Primary value
+Change / comparison
+Relevant time period
+Optional context
+```
+
+Example:
+
+```text
+Monthly Revenue
+₹2.48L
+↑ 12% vs last month
+```
+
+Do not add a mini-chart to every KPI card simply because there is room for one.
+
+## 43.2 Group Related Data
+
+Related information should live together.
+
+Use:
+- sections
+- whitespace
+- shared headings
+- cards when a boundary is genuinely useful
+- tabs when datasets are genuinely distinct
+- tables for structured comparison
+
+The user should be able to predict where information belongs.
+
+## 43.3 Use Consistent Cards
+
+When cards are appropriate, establish one card system.
+
+Keep consistent:
+- padding
+- radius
+- border/elevation
+- title placement
+- value hierarchy
+- metadata position
+- action placement
+- icon treatment
+- internal spacing
+
+Do not create a different visual language for every KPI.
+
+Consistency means shared structural rules, not identical content.
+
+## 43.4 Avoid Chart Overload
+
+Every chart must answer a question.
+
+Ask:
+
+> What decision does this chart help the user make?
+
+If there is no good answer, remove it.
+
+Avoid:
+- decorative charts
+- duplicate charts
+- too many series
+- excessive colours
+- unreadable legends
+- tiny labels
+- charts with no meaningful comparison
+- charts added merely to make a dashboard look sophisticated
+
+Prefer the simplest visualization that communicates the insight.
+
+## 43.5 Choose the Chart for the Question
+
+**Line chart:** trends and change over time.
+
+**Bar chart:** category comparison and ranking.
+
+**Stacked visualization:** composition when both total and parts matter.
+
+**Table:** exact values, many attributes, scanning, or row-level actions.
+
+**KPI:** one number is the main answer.
+
+**Progress indicator:** progress toward a known goal.
+
+Never choose a chart because it looks impressive.
+
+## 43.6 Show Trends Over Time
+
+When change matters, show the trend.
+
+Where relevant, include:
+- comparison period
+- direction
+- magnitude
+- time range
+
+Example:
+
+```text
++12% vs last month
+```
+
+Always make the comparison period clear. Do not imply a trend from too little data.
+
+## 43.7 Use Filters and Search Wisely
+
+Filtering and search should reduce cognitive and visual load.
+
+Use filters when users commonly need meaningful subsets.
+
+Use search when users know what they are looking for and searching is faster than scanning.
+
+Good filters have:
+- clear labels
+- sensible defaults
+- visible selected state
+- easy reset
+- understandable combinations
+- predictable results
+
+Avoid:
+- ten filters visible by default
+- unclear icon-only filters
+- hidden active filters
+- technical terminology users do not understand
+
+Use progressive disclosure for advanced filters.
+
+## 43.8 Keep Actions Obvious
+
+A dashboard should not only report information. It should make the next useful action clear.
+
+Examples:
+- Review overdue invoices
+- Create report
+- Approve request
+- View details
+- Resolve issue
+- Export data
+
+Use one primary action per meaningful context.
+
+Do not make users guess what clicking a card will do.
+
+## 43.9 Dashboard Scan Order
+
+A useful default pattern is:
+
+```text
+Context / page title
+        ↓
+Primary action
+        ↓
+Key metrics
+        ↓
+Important trends / exceptions
+        ↓
+Detailed data
+        ↓
+Secondary actions
+```
+
+This is not rigid. An operational dashboard may need urgent exceptions near the top. An analytics dashboard may give more space to trends.
+
+Hierarchy follows the user's job.
+
+## 43.10 Exceptions Can Be Louder Than Normal Data
+
+Do not make every status loud.
+
+Genuine attention items should be distinguishable:
+- overdue
+- failed
+- blocked
+- expiring
+- out of stock
+- action required
+
+Use semantic colour and clear copy. Do not rely on red alone.
+
+## 43.11 KPI Cards Need Context
+
+Avoid:
+
+```text
+$42,840
+```
+
+Prefer:
+
+```text
+Revenue
+$42,840
+↑ 12% vs last month
+```
+
+The user should understand:
+- what the number represents
+- whether it changed
+- compared with what
+- over what period
+
+Do not show unexplained percentages or arrows.
+
+## 43.12 Tables Are First-Class UI
+
+Do not force structured data into cards when a table is better.
+
+Tables are often better for:
+- transactions
+- users
+- orders
+- properties
+- inventory
+- logs
+- records
+- comparisons
+
+Good tables support:
+- clear column hierarchy
+- readable row density
+- aligned numeric values
+- sorting
+- filtering
+- pagination/virtualization when needed
+- row actions
+- loading states
+- empty states
+
+Do not turn every desktop row into a giant mobile-style card.
+
+## 43.13 Density Must Match the User
+
+Ask:
+
+> Is the user scanning, comparing, monitoring, deciding, or creating?
+
+Scanning and monitoring often benefit from compact density.
+
+First-time learning may benefit from more breathing room.
+
+Do not blindly apply huge cards and oversized whitespace to professional dashboards.
+
+## 43.14 Dashboard Empty States
+
+An empty dashboard should explain:
+- why it is empty
+- what the user can do
+- what will appear afterward
+
+Example:
+
+```text
+No reports yet
+
+Create your first report to start tracking performance.
+
+[Create report]
+```
+
+Do not fill an empty dashboard with meaningless placeholder charts.
+
+## 43.15 Dashboard Loading States
+
+Prefer:
+- skeletons when the final content shape is predictable
+- immediate page structure
+- progress indicators for longer operations
+
+Avoid:
+- blank screens
+- giant spinners
+- jumping layouts
+- skeletons that bear little resemblance to the final content
+
+## 43.16 Responsive Dashboard Behaviour
+
+On smaller screens, do not simply stack every desktop card vertically.
+
+Decide:
+- which metrics remain visible
+- which become secondary
+- which charts simplify
+- which tables scroll or transform appropriately
+- which filters collapse
+- which actions remain reachable
+
+Preserve the most important information first.
+
+---
+
+# 44. DATA VISUALIZATION QUALITY
+
+Data visualization is UX, not decoration.
+
+## 44.1 Reduce Non-Data Ink
+
+Do not visually compete with the data using:
+- heavy borders
+- decorative backgrounds
+- unnecessary gridlines
+- redundant labels
+- excessive legends
+
+Give visual priority to the data.
+
+## 44.2 Use Colour Semantically
+
+Do not assign random colours to every series.
+
+Use restrained colour for:
+- category distinction
+- status
+- selection
+- emphasis
+
+Important distinctions should not depend on colour alone.
+
+## 44.3 Use Honest Scales
+
+Do not manipulate axes to make small changes look dramatic.
+
+Make units, intervals, time ranges, and baselines understandable.
+
+## 44.4 Label Important Information Directly
+
+Do not force users to decode a legend when direct labels would be clearer.
+
+## 44.5 Tooltips Are Secondary
+
+The main insight should not depend entirely on hover. Touch devices need another way to access detail.
+
+---
+
+# 45. SEARCH, FILTER, SORT
+
+These controls should answer:
+
+> How can I get to the information I need faster?
+
+Search = known-item retrieval.
+
+Filter = narrow a dataset.
+
+Sort = change ordering.
+
+Do not combine all three without making their roles obvious.
+
+When filters are active:
+- show the active state
+- make clearing easy
+- preserve selections where appropriate
+- explain result changes when necessary
+
+---
+
+# 46. DASHBOARD ACTION HIERARCHY
+
+Use:
+
+```text
+Primary action
+Secondary action
+Tertiary action
+Row-level action
+Destructive action
+```
+
+Do not give every action the same visual treatment.
+
+Example:
+
+```text
+[Create Report]       ← primary
+
+[Export] [Filter]     ← secondary
+
+⋯                     ← contextual
+
+Delete                ← destructive
+```
+
+The action system should visually explain priority.
+
+---
+
+# 47. PREMIUM DASHBOARD STANDARD
+
+A premium dashboard should feel like a well-organized instrument, not a collection of decorative widgets.
+
+The user should be able to answer quickly:
+
+1. Where am I?
+2. What matters?
+3. What changed?
+4. What needs attention?
+5. What can I do next?
+6. Where can I find more detail?
+
+If it cannot answer these questions, fix the information architecture before changing colours, shadows, or gradients.
+
+---
+
+# 48. SCREEN-SPECIFIC RULES
+
+Do not use one visual recipe for every screen.
+
+**Dashboard:** metrics, trends, exceptions, actions.
+
+**Detail page:** identity, key facts, primary action, supporting information.
+
+**Form:** task completion, grouping, labels, validation, progress.
+
+**List:** scanning, filtering, sorting, row actions.
+
+**Search:** query, results, filters, empty state.
+
+**Settings:** grouping, discoverability, consistency, safe destructive actions.
+
+**Onboarding:** one decision at a time, context, progress, low cognitive load.
+
+**Analytics:** comparisons, trends, exact values, filters, density.
+
+Do not force a dashboard design onto every screen.
+
+---
+
+# 49. PROFESSIONALITY CHECK
+
+Before calling a screen premium, inspect:
+
+### Visual precision
+- Are edges aligned?
+- Are component dimensions consistent?
+- Are radii consistent?
+- Are icons optically aligned?
+- Are text baselines consistent?
+
+### Information precision
+- Is primary information obvious?
+- Is every metric contextualized?
+- Are labels unambiguous?
+- Are states explicit?
+
+### Interaction precision
+- Are targets easy to hit?
+- Is feedback immediate?
+- Are actions predictable?
+- Can users recover from errors?
+
+### System precision
+- Does this screen use existing tokens?
+- Does it reuse existing components?
+- Does it behave like the rest of the product?
+- Are new patterns justified?
+
+### Visual restraint
+- Can anything be removed?
+- Are gradients actually necessary?
+- Are shadows actually necessary?
+- Are cards actually necessary?
+- Are icons actually necessary?
+- Is animation actually necessary?
+
+---
+
+# 50. FINAL AGENT INSTRUCTION
+
+When asked to "make it premium", "make it modern", "make it beautiful", or "make it professional", do not interpret that as permission to add decoration.
+
+Interpret it as:
+
+```text
+Increase precision.
+Improve hierarchy.
+Improve spacing.
+Improve typography.
+Improve alignment.
+Improve component consistency.
+Improve information architecture.
+Improve interaction feedback.
+Improve accessibility.
+Match platform conventions.
+Reduce visual noise.
+Remove unnecessary elements.
+Use colour deliberately.
+Use motion sparingly.
+Make the primary task obvious.
+```
+
+The desired result is not:
+
+> AI-generated premium UI.
+
+It is:
+
+> A coherent product designed by someone who knows exactly why every element is there.

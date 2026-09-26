@@ -43,6 +43,19 @@ describe('Dossier Handler Matcher', () => {
     }
   })
 
+  it('matches a request to share, whoever it is shared with', () => {
+    const asking = [
+      'make something I can share with my CA',
+      'share this with my wife',
+      'can I share this conversation with a friend',
+      'give me a shareable summary',
+      'I want a summary to share with my father',
+    ]
+    for (const q of asking) {
+      assert.strictEqual(dossierHandler.matches(dummyCtx(q)), true, `should match: ${q}`)
+    }
+  })
+
   it('ignores unrelated general queries', () => {
     assert.strictEqual(dossierHandler.matches(dummyCtx('Show me 3 BHK in Sector 150')), false)
     assert.strictEqual(dossierHandler.matches(dummyCtx('What is the distance to Jewar airport?')), false)
@@ -56,6 +69,7 @@ describe('Dossier Handler Matcher', () => {
       'what is the price summary for ATS Nobility',
       'summarize the amenities',
       'can you summarise the payment plan',
+      'what is the market share of Godrej in Noida',
     ]
     for (const q of notAsking) {
       assert.strictEqual(dossierHandler.matches(dummyCtx(q)), false, `should not match: ${q}`)

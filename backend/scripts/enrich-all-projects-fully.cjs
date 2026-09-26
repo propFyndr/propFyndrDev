@@ -333,7 +333,7 @@ function generateDnaForProject(p, tier) {
     legal_score: 95,
     amenity_score: isLuxury ? 96 : (isPremium ? 88 : 80),
     possession_score: p.status === 'ready_to_move' ? 98 : 82,
-    verified_by: 'RealtyPals Intelligence Engine',
+    verified_by: 'PropFyndr Intelligence Engine',
     last_verified_at: new Date()
   };
 }

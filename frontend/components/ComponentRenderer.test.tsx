@@ -175,44 +175,33 @@ describe('ComponentRenderer', () => {
   })
 
   describe('ConfidenceBadge', () => {
-    it('shows green badge for high confidence', () => {
+    // A computed percentage reads as precision the advisor does not have, so
+    // the badge shows its stated basis only — never "N% confident".
+    it('shows the stated reason and no percentage', () => {
       const specs: ComponentSpec[] = [
-        {
-          type: 'confidence-badge',
-          props: {
-            confidence: 0.92,
-            reason: 'All data from database',
-          },
-        },
+        { type: 'confidence-badge', props: { confidence: 0.92, reason: 'All data from database' } },
       ]
       render(<ComponentRenderer specs={specs} />)
-      expect(screen.getByText(/92% confident/)).toBeInTheDocument()
+      expect(screen.getByText('All data from database')).toBeInTheDocument()
+      expect(screen.queryByText(/% confident/)).not.toBeInTheDocument()
     })
 
-    it('shows yellow badge for medium confidence', () => {
-      const specs: ComponentSpec[] = [
-        {
-          type: 'confidence-badge',
-          props: {
-            confidence: 0.75,
-          },
-        },
-      ]
-      render(<ComponentRenderer specs={specs} />)
-      expect(screen.getByText(/75% confident/)).toBeInTheDocument()
+    it('renders nothing without a reason', () => {
+      const specs: ComponentSpec[] = [{ type: 'confidence-badge', props: { confidence: 0.75 } }]
+      const { container } = render(<ComponentRenderer specs={specs} />)
+      expect(screen.queryByText(/confident/)).not.toBeInTheDocument()
+      expect(container.textContent).toBe('')
     })
+  })
 
-    it('shows orange badge for low confidence', () => {
-      const specs: ComponentSpec[] = [
-        {
-          type: 'confidence-badge',
-          props: {
-            confidence: 0.65,
-          },
-        },
-      ]
+  describe('PaymentBreakdown without tax figures', () => {
+    it('omits GST, stamp duty and total rather than assuming rates', () => {
+      const specs: ComponentSpec[] = [{ type: 'payment-breakdown', props: { basePrice: 5000000 } }]
       render(<ComponentRenderer specs={specs} />)
-      expect(screen.getByText(/65% confident/)).toBeInTheDocument()
+      expect(screen.getByText('Base Price')).toBeInTheDocument()
+      expect(screen.queryByText(/GST/)).not.toBeInTheDocument()
+      expect(screen.queryByText(/Stamp Duty/)).not.toBeInTheDocument()
+      expect(screen.queryByText('Total')).not.toBeInTheDocument()
     })
   })
 
@@ -256,7 +245,7 @@ describe('ComponentRenderer', () => {
       ]
       render(<ComponentRenderer specs={specs} />)
       expect(screen.getByText('ATS Pristine')).toBeInTheDocument()
-      expect(screen.getByText(/92% confident/)).toBeInTheDocument()
+      expect(screen.queryByText(/% confident/)).not.toBeInTheDocument()
       expect(screen.getByText(/Monthly EMI/)).toBeInTheDocument()
     })
   })

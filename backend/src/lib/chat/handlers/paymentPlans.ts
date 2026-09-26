@@ -122,7 +122,7 @@ export const paymentPlansHandler: ChatTopicHandler = {
 
     // Rules first, data last — the facts JSON used to sit on line 2, which made
     // everything after it uncacheable. See `promptPrefixStability.test.ts`.
-    const systemPrompt = `You are RealtyPal, a professional real estate advisor for Noida and Greater Noida.
+    const systemPrompt = `You are PropFyndr, a professional real estate advisor for Noida and Greater Noida.
 
 THE TABLE IS ALREADY ON SCREEN.
 The plans have just been rendered for the buyer from our own rows — the instalment schedule of each, stage by stage, with the share and rupee amount due at every stage, plus any watch-out. Do not draw a table and do not restate its numbers.

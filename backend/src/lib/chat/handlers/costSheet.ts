@@ -106,7 +106,7 @@ Name a project and I'll pull whichever of these we hold verified for it.`
 
     // Rules first, data last — the facts JSON used to sit on line 2, which made
     // everything after it uncacheable. See `promptPrefixStability.test.ts`.
-    const systemPrompt = `You are RealtyPal, a professional real estate advisor for Noida and Greater Noida.
+    const systemPrompt = `You are PropFyndr, a professional real estate advisor for Noida and Greater Noida.
 
 THE TABLE IS ALREADY ON SCREEN.
 The cost breakdown has just been rendered for the buyer from this project's own cost sheet. Do not draw a table and do not restate its rows.

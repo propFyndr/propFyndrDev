@@ -203,8 +203,8 @@ export async function builderCoverage(message: string): Promise<CoverageAnswer |
         alternatives: [],
         projects,
         text:
-          `We track ${projects.length} ${held.name} ${projects.length === 1 ? 'project' : 'projects'} ` +
-          `across Noida and Greater Noida. Tell me your budget or the configuration you need and I can ` +
+          `These are the ${held.name} projects we hold verified data on, cheapest first. ` +
+          `Tell me your budget or the configuration you need and I can ` +
           `narrow these down and tell you which one actually fits.`,
       }
     }

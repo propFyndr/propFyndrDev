@@ -1,6 +1,6 @@
 "use client";
 
-import {  AnimatePresence, m  } from 'framer-motion';
+import {  AnimatePresence, m, useReducedMotion  } from 'framer-motion';
 import { useCallback, useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 
@@ -29,9 +29,16 @@ export function PlaceholdersAndVanishInput({
 
 }) {
     const [currentPlaceholder, setCurrentPlaceholder] = useState(0);
+    // Reduced motion: no rotating placeholder (the first one stays put) and no
+    // vanish canvas. MotionConfig can't see a setInterval or a canvas loop.
+    const reduceMotion = useReducedMotion();
 
     const intervalRef = useRef<NodeJS.Timeout | null>(null);
     useEffect(() => {
+        if (reduceMotion) {
+            setCurrentPlaceholder(0);
+            return;
+        }
         const startAnimation = () => {
             intervalRef.current = setInterval(() => {
                 setCurrentPlaceholder((prev) => (prev + 1) % placeholders.length);
@@ -56,7 +63,9 @@ export function PlaceholdersAndVanishInput({
             }
             document.removeEventListener("visibilitychange", handleVisibilityChange);
         };
-    }, [placeholders]);
+        // Length, not the array: callers pass a fresh literal every render.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [placeholders.length, reduceMotion]);
 
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const newDataRef = useRef<Particle[]>([]);
@@ -200,6 +209,10 @@ export function PlaceholdersAndVanishInput({
     };
 
     const vanishAndSubmit = () => {
+        if (reduceMotion) {
+            setValue("");
+            return;
+        }
         setAnimating(true);
         draw();
 
@@ -250,7 +263,7 @@ export function PlaceholdersAndVanishInput({
                 value={value}
                 rows={1}
                 className={cn(
-                    "w-full relative text-base sm:text-[15px] z-50 border-none dark:text-zinc-100 bg-transparent text-slate-900 rounded-2xl focus:outline-none focus:ring-0 pl-3 sm:pl-4 pr-3 resize-none py-2 sm:py-2.5 leading-relaxed overflow-y-auto",
+                    "w-full relative text-base sm:text-[15px] z-50 border-none dark:text-zinc-100 bg-transparent text-zinc-900 rounded-2xl focus:outline-none focus:ring-0 pl-3 sm:pl-4 pr-3 resize-none py-2 sm:py-2.5 leading-relaxed overflow-y-auto",
                     animating && "text-transparent dark:text-transparent"
                 )}
                 style={{ minHeight: "40px", maxHeight: "160px" }}
@@ -281,7 +294,7 @@ export function PlaceholdersAndVanishInput({
                                 duration: 0.25,
                                 ease: "linear",
                             }}
-                            className="dark:text-zinc-500 text-[14.5px] sm:text-[15px] font-normal text-slate-400 pl-3 sm:pl-4 text-left w-[calc(100%-2rem)] truncate"
+                            className="text-[15px] font-normal text-text-muted pl-3 sm:pl-4 text-left w-[calc(100%-2rem)] truncate"
                         >
                             {placeholders[currentPlaceholder]}
                         </m.p>

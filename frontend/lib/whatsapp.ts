@@ -32,7 +32,7 @@ export function buildWhatsAppUrl(
   const lines =
     variant === 'panel'
       ? [
-          `Hi! I came across *${projectTyped.name}* on RealtyPal and I'm interested.`,
+          `Hi! I came across *${projectTyped.name}* on PropFyndr and I'm interested.`,
           ``,
           `📍 ${projectTyped.sector}, Noida — ${projectTyped.builder.name}`,
           `🏠 ${bhkList} · ${projectTyped.price_range_label}`,

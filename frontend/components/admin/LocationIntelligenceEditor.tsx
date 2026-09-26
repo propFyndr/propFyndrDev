@@ -164,36 +164,44 @@ export default function LocationIntelligenceEditor({ projectId, initialData }: {
   }
 
   return (
-    <div className="bg-white dark:bg-zinc-900 rounded-2xl shadow-sm border border-gray-100 dark:border-zinc-800 p-6 space-y-6 font-sans">
-      <div className="flex items-center gap-3">
-        <div className="w-10 h-10 rounded-xl bg-orange-50 dark:bg-orange-950/40 text-orange-600 dark:text-orange-400 flex items-center justify-center">
-          <MapPin size={18} />
+    <div className="bg-white dark:bg-zinc-900 rounded-2xl shadow-2xs border border-zinc-200/90 dark:border-zinc-800 p-6 space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-zinc-100 dark:border-zinc-800/80 pb-4">
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-xl bg-orange-50 dark:bg-orange-950/60 text-orange-600 dark:text-orange-400 flex items-center justify-center border border-orange-100 dark:border-orange-900/40">
+            <MapPin size={17} />
+          </div>
+          <div>
+            <h3 className="text-[15px] font-semibold text-zinc-900 dark:text-zinc-100 tracking-tight">Area Livability & Decision Factors</h3>
+            <p className="text-[12.5px] text-zinc-500 dark:text-zinc-400">Configure walkability, environmental quality, safety, distances, flood risk, and honest location concerns.</p>
+          </div>
         </div>
-        <div>
-          <h3 className="text-[16px] font-black text-gray-900 dark:text-white">Area Livability & Decision Factors</h3>
-          <p className="text-[13px] text-gray-500 dark:text-zinc-400">Configure walkability, environmental quality, safety, distances, flood risk, and honest location concerns.</p>
-        </div>
+        <button
+          onClick={handleSave}
+          className="bg-[#0066cc] hover:bg-[#0055b3] text-white px-4 py-2 rounded-xl text-[13px] font-medium flex items-center gap-2 transition-colors shadow-2xs cursor-pointer"
+        >
+          <Save size={14} /> Save Factors
+        </button>
       </div>
 
       {/* Decision Factors Distance Grid */}
-      <div className="p-4 rounded-2xl bg-zinc-50/80 dark:bg-zinc-800/40 border border-zinc-200/80 dark:border-zinc-800 space-y-4">
-        <h4 className="text-xs font-bold text-zinc-900 dark:text-white uppercase tracking-wider">Strategic Distances & Key Benchmarks</h4>
+      <div className="p-4 rounded-xl bg-zinc-50/70 dark:bg-zinc-800/40 border border-zinc-200/70 dark:border-zinc-800 space-y-3">
+        <h4 className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">Strategic Distances & Key Benchmarks</h4>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div>
-            <label className="block text-[11px] font-bold text-zinc-600 dark:text-zinc-400 mb-1">Top School (km)</label>
-            <input value={schoolDist} onChange={(e) => setSchoolDist(e.target.value)} type="number" step="0.1" className="w-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-xl px-3 py-2 text-xs font-bold text-zinc-800 dark:text-zinc-100" placeholder="1.5" />
+            <label className="block text-[12px] font-medium text-zinc-700 dark:text-zinc-300 mb-1">Top School (km)</label>
+            <input value={schoolDist} onChange={(e) => setSchoolDist(e.target.value)} type="number" step="0.1" className="w-full bg-white dark:bg-zinc-900 border border-zinc-200/90 dark:border-zinc-700/80 rounded-xl px-3.5 py-2 text-[13px] font-mono font-medium text-zinc-900 dark:text-zinc-100 focus:border-[#0066cc] outline-none shadow-2xs" placeholder="1.5" />
           </div>
           <div>
-            <label className="block text-[11px] font-bold text-zinc-600 dark:text-zinc-400 mb-1">Hospital (km)</label>
-            <input value={hospitalDist} onChange={(e) => setHospitalDist(e.target.value)} type="number" step="0.1" className="w-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-xl px-3 py-2 text-xs font-bold text-zinc-800 dark:text-zinc-100" placeholder="2.0" />
+            <label className="block text-[12px] font-medium text-zinc-700 dark:text-zinc-300 mb-1">Hospital (km)</label>
+            <input value={hospitalDist} onChange={(e) => setHospitalDist(e.target.value)} type="number" step="0.1" className="w-full bg-white dark:bg-zinc-900 border border-zinc-200/90 dark:border-zinc-700/80 rounded-xl px-3.5 py-2 text-[13px] font-mono font-medium text-zinc-900 dark:text-zinc-100 focus:border-[#0066cc] outline-none shadow-2xs" placeholder="2.0" />
           </div>
           <div>
-            <label className="block text-[11px] font-bold text-zinc-600 dark:text-zinc-400 mb-1">Airport (km)</label>
-            <input value={airportDist} onChange={(e) => setAirportDist(e.target.value)} type="number" step="0.1" className="w-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-xl px-3 py-2 text-xs font-bold text-zinc-800 dark:text-zinc-100" placeholder="42.0" />
+            <label className="block text-[12px] font-medium text-zinc-700 dark:text-zinc-300 mb-1">Airport (km)</label>
+            <input value={airportDist} onChange={(e) => setAirportDist(e.target.value)} type="number" step="0.1" className="w-full bg-white dark:bg-zinc-900 border border-zinc-200/90 dark:border-zinc-700/80 rounded-xl px-3.5 py-2 text-[13px] font-mono font-medium text-zinc-900 dark:text-zinc-100 focus:border-[#0066cc] outline-none shadow-2xs" placeholder="42.0" />
           </div>
           <div>
-            <label className="block text-[11px] font-bold text-zinc-600 dark:text-zinc-400 mb-1">Flood / Waterlogging</label>
-            <select value={floodRisk} onChange={(e) => setFloodRisk(e.target.value)} className="w-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-xl px-3 py-2 text-xs font-bold text-zinc-800 dark:text-zinc-100">
+            <label className="block text-[12px] font-medium text-zinc-700 dark:text-zinc-300 mb-1">Flood / Waterlogging</label>
+            <select value={floodRisk} onChange={(e) => setFloodRisk(e.target.value)} className="w-full bg-white dark:bg-zinc-900 border border-zinc-200/90 dark:border-zinc-700/80 rounded-xl px-3.5 py-2 text-[13px] font-medium text-zinc-900 dark:text-zinc-100 focus:border-[#0066cc] outline-none shadow-2xs cursor-pointer">
               <option value="">Not assessed</option>
               <option value="LOW">LOW</option>
               <option value="MODERATE">MODERATE</option>
@@ -205,32 +213,32 @@ export default function LocationIntelligenceEditor({ projectId, initialData }: {
       </div>
 
       {/* Environmental & Quality Metrics Grid */}
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-4 p-4 bg-slate-50/60 dark:bg-zinc-800/20 rounded-2xl border border-slate-100 dark:border-zinc-800">
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-3 p-4 bg-zinc-50/70 dark:bg-zinc-800/40 rounded-xl border border-zinc-200/70 dark:border-zinc-800">
         <div>
-          <label className="block text-[10px] font-black text-slate-500 dark:text-zinc-400 uppercase tracking-widest mb-1">Walkability (0-100)</label>
-          <input value={walkability} onChange={(e) => setWalkability(e.target.value)} type="number" className="w-full bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-700 rounded-xl px-3 py-2 text-[13px] font-bold text-slate-800 dark:text-zinc-100" placeholder="85" />
+          <label className="block text-[11px] font-medium text-zinc-500 dark:text-zinc-400 mb-1">Walkability (0-100)</label>
+          <input value={walkability} onChange={(e) => setWalkability(e.target.value)} type="number" className="w-full bg-white dark:bg-zinc-900 border border-zinc-200/90 dark:border-zinc-700/80 rounded-xl px-3 py-2 text-[13px] font-mono font-semibold text-zinc-900 dark:text-zinc-100 focus:border-[#0066cc] outline-none shadow-2xs" placeholder="85" />
         </div>
         <div>
-          <label className="block text-[10px] font-black text-slate-500 dark:text-zinc-400 uppercase tracking-widest mb-1">Green Cover (%)</label>
-          <input value={greenCover} onChange={(e) => setGreenCover(e.target.value)} type="number" className="w-full bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-700 rounded-xl px-3 py-2 text-[13px] font-bold text-slate-800 dark:text-zinc-100" placeholder="75" />
+          <label className="block text-[11px] font-medium text-zinc-500 dark:text-zinc-400 mb-1">Green Cover (%)</label>
+          <input value={greenCover} onChange={(e) => setGreenCover(e.target.value)} type="number" className="w-full bg-white dark:bg-zinc-900 border border-zinc-200/90 dark:border-zinc-700/80 rounded-xl px-3 py-2 text-[13px] font-mono font-semibold text-zinc-900 dark:text-zinc-100 focus:border-[#0066cc] outline-none shadow-2xs" placeholder="75" />
         </div>
         <div>
-          <label className="block text-[10px] font-black text-slate-500 dark:text-zinc-400 uppercase tracking-widest mb-1">Air Quality (AQI)</label>
-          <input value={aqi} onChange={(e) => setAqi(e.target.value)} type="number" className="w-full bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-700 rounded-xl px-3 py-2 text-[13px] font-bold text-slate-800 dark:text-zinc-100" placeholder="178" />
+          <label className="block text-[11px] font-medium text-zinc-500 dark:text-zinc-400 mb-1">Air Quality (AQI)</label>
+          <input value={aqi} onChange={(e) => setAqi(e.target.value)} type="number" className="w-full bg-white dark:bg-zinc-900 border border-zinc-200/90 dark:border-zinc-700/80 rounded-xl px-3 py-2 text-[13px] font-mono font-semibold text-zinc-900 dark:text-zinc-100 focus:border-[#0066cc] outline-none shadow-2xs" placeholder="178" />
         </div>
         <div>
-          <label className="block text-[10px] font-black text-slate-500 dark:text-zinc-400 uppercase tracking-widest mb-1">Safety Score (0-100)</label>
-          <input value={safetyScore} onChange={(e) => setSafetyScore(e.target.value)} type="number" className="w-full bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-700 rounded-xl px-3 py-2 text-[13px] font-bold text-slate-800 dark:text-zinc-100" placeholder="92" />
+          <label className="block text-[11px] font-medium text-zinc-500 dark:text-zinc-400 mb-1">Safety Score (0-100)</label>
+          <input value={safetyScore} onChange={(e) => setSafetyScore(e.target.value)} type="number" className="w-full bg-white dark:bg-zinc-900 border border-zinc-200/90 dark:border-zinc-700/80 rounded-xl px-3 py-2 text-[13px] font-mono font-semibold text-zinc-900 dark:text-zinc-100 focus:border-[#0066cc] outline-none shadow-2xs" placeholder="92" />
         </div>
         <div>
-          <label className="block text-[10px] font-black text-slate-500 dark:text-zinc-400 uppercase tracking-widest mb-1">Litigation Count</label>
-          <input value={litigationCount} onChange={(e) => setLitigationCount(e.target.value)} type="number" className="w-full bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-700 rounded-xl px-3 py-2 text-[13px] font-bold text-slate-800 dark:text-zinc-100" placeholder="0" />
+          <label className="block text-[11px] font-medium text-zinc-500 dark:text-zinc-400 mb-1">Litigation Count</label>
+          <input value={litigationCount} onChange={(e) => setLitigationCount(e.target.value)} type="number" className="w-full bg-white dark:bg-zinc-900 border border-zinc-200/90 dark:border-zinc-700/80 rounded-xl px-3 py-2 text-[13px] font-mono font-semibold text-zinc-900 dark:text-zinc-100 focus:border-[#0066cc] outline-none shadow-2xs" placeholder="0" />
         </div>
       </div>
 
       {/* Honest Location Concerns (Textarea per line) */}
       <div>
-        <label className="block text-xs font-bold text-zinc-900 dark:text-white uppercase tracking-wider mb-1.5">
+        <label className="block text-[12px] font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">
           Honest Location Concerns (One point per line)
         </label>
         <textarea
@@ -238,13 +246,13 @@ export default function LocationIntelligenceEditor({ projectId, initialData }: {
           value={concerns}
           onChange={(e) => setConcerns(e.target.value)}
           placeholder="Peak hour traffic bottleneck around sector entrance...&#10;Social retail centers are currently maturing..."
-          className="w-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl px-3.5 py-2.5 text-xs text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-blue-500/20 resize-none font-medium"
+          className="w-full bg-white dark:bg-zinc-900 border border-zinc-200/90 dark:border-zinc-700/80 rounded-xl px-3.5 py-2.5 text-[13px] text-zinc-900 dark:text-zinc-100 focus:border-[#0066cc] outline-none resize-none font-normal shadow-2xs leading-relaxed"
         />
       </div>
 
       {/* Interior Designer */}
       <div>
-        <label className="block text-xs font-bold text-zinc-900 dark:text-white uppercase tracking-wider mb-1.5">
+        <label className="block text-[12px] font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">
           Interior Designer / Architectural Studio
         </label>
         <input
@@ -252,18 +260,18 @@ export default function LocationIntelligenceEditor({ projectId, initialData }: {
           value={interiorDesigner}
           onChange={(e) => setInteriorDesigner(e.target.value)}
           placeholder="e.g. Hafeez Contractor / In-House Architectural & Design Studio"
-          className="w-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl px-3.5 py-2.5 text-xs text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-blue-500/20 font-medium"
+          className="w-full bg-white dark:bg-zinc-900 border border-zinc-200/90 dark:border-zinc-700/80 rounded-xl px-3.5 py-2.5 text-[13px] text-zinc-900 dark:text-zinc-100 focus:border-[#0066cc] outline-none font-medium shadow-2xs"
         />
       </div>
 
-      <div className="pt-4 border-t border-gray-100 dark:border-zinc-800">
+      <div className="pt-4 border-t border-zinc-100 dark:border-zinc-800">
         <div className="flex items-center gap-3 mb-4">
-          <div className="w-10 h-10 rounded-xl bg-purple-50 dark:bg-purple-950/40 text-purple-600 dark:text-purple-400 flex items-center justify-center">
-            <Map size={18} />
+          <div className="w-8 h-8 rounded-xl bg-purple-50 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400 flex items-center justify-center border border-purple-100 dark:border-purple-900/40">
+            <Map size={16} />
           </div>
           <div>
-            <h3 className="text-[15px] font-bold text-gray-900 dark:text-white">Structured Micro-Market JSON</h3>
-            <p className="text-xs text-gray-500 dark:text-zinc-400">Structured highlights, essentials, and connectivity anchors.</p>
+            <h3 className="text-[14px] font-semibold text-zinc-900 dark:text-zinc-100">Structured Micro-Market JSON</h3>
+            <p className="text-[12px] text-zinc-500 dark:text-zinc-400">Structured highlights, essentials, and connectivity anchors.</p>
           </div>
         </div>
         <JsonEditor
@@ -274,9 +282,9 @@ export default function LocationIntelligenceEditor({ projectId, initialData }: {
         />
       </div>
 
-      <div className="flex justify-end pt-4 border-t border-gray-100 dark:border-zinc-800">
-        <button onClick={handleSave} className="bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 px-6 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 hover:opacity-90 transition-all cursor-pointer">
-          <Save size={15} /> Save All Changes
+      <div className="flex justify-end pt-4 border-t border-zinc-100 dark:border-zinc-800">
+        <button onClick={handleSave} className="bg-[#0066cc] hover:bg-[#0055b3] text-white px-5 py-2.5 rounded-xl text-[13px] font-medium flex items-center gap-2 transition-colors cursor-pointer shadow-2xs">
+          <Save size={14} /> Save All Changes
         </button>
       </div>
     </div>

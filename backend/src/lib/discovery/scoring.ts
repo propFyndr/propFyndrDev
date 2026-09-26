@@ -429,9 +429,8 @@ export function buildMatchSignals(
   if (p.builder?.credai_member)                    matchReasons.push('CREDAI member builder')
   else if ((p.builder?.delivered_units ?? 0) > 0)  matchReasons.push('established builder')
 
-  // Recommendation tier
-  if (p.recommendation_profile?.tier === 'STRONG_BUY') matchReasons.push('strong buy')
-  else if (p.recommendation_profile?.tier === 'BUY')   matchReasons.push('recommended')
+  // No recommendation-tier words here: a reason says why a project fits the
+  // brief, and "strong buy" is an investment verdict (out of V1 scope).
 
   // ── Concerns ──────────────────────────────────────────────────────────────
 
@@ -440,8 +439,10 @@ export function buildMatchSignals(
     const prices = p.unit_types.map(u => u.price_min_cr).filter((x): x is number => x != null)
     if (prices.length) {
       const lowest = Math.min(...prices)
-      const overAmt = (lowest - intent.budgetMax).toFixed(2)
-      concerns.push(`₹${overAmt}Cr above your budget`)
+      const over = lowest - intent.budgetMax
+      // budgetStatus comes from the project's price range; the cheapest unit can
+      // still sit under budget, which printed "₹-0.46Cr above your budget".
+      concerns.push(over > 0 ? `₹${over.toFixed(2)}Cr above your budget` : 'slightly above your budget')
     } else {
       concerns.push('slightly above your budget')
     }

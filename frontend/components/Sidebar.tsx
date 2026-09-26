@@ -6,18 +6,15 @@ import {
   SidebarSimple,
   SignOut,
   NotePencil,
-  ClockCounterClockwise,
   List,
   Buildings,
-  Handshake
+  CaretDown
 } from '@phosphor-icons/react';
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { getSupabaseClient } from "@/lib/supabase";
-import { cn } from "@/lib/utils";
-import { Skeleton } from "@/components/ui/skeleton";
 import { ChatSidebarGroupedSkeleton } from "@/components/skeletons";
 import { API_BASE } from "@/lib/env";
 import { useSessions, Session } from "@/hooks/useSessions";
@@ -41,6 +38,18 @@ interface SidebarProps {
   isCollapsed?: boolean;
   onToggleCollapse?: () => void;
 }
+
+// Collapsed-rail tooltip. Lives inside the control it labels (which carries
+// `group`) so keyboard focus reveals it as well as hover.
+const TOOLTIP =
+  "absolute left-full top-1/2 -translate-y-1/2 ml-2.5 px-2 py-1 bg-zinc-900 text-white text-[11px] font-medium rounded-xs shadow-md opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-[100]";
+
+// One selected recipe for menu items and sessions alike.
+const ROW_ACTIVE = "bg-zinc-100 dark:bg-white/[0.06] text-zinc-900 dark:text-zinc-50 font-medium";
+const ROW_IDLE = "text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100/70 dark:hover:bg-white/[0.04] hover:text-zinc-900 dark:hover:text-zinc-100";
+const FOCUS = "outline-none focus-visible:ring-2 focus-visible:ring-blue-500/60";
+const LABEL = "px-2.5 text-[11px] font-medium text-zinc-500 dark:text-zinc-400";
+const EDGE = "border-zinc-200/70 dark:border-white/[0.06]";
 
 function groupSessionsByDate(
   sessions: Session[],
@@ -96,7 +105,17 @@ export default function Sidebar({
   // rail's tray. Null means "not loaded yet" so a badge never flashes 0.
   const [savedCount, setSavedCount] = useState<number | null>(null);
   const [savedThumbs, setSavedThumbs] = useState<{ id: string; name: string; image?: string }[]>([]);
+  // Both start false so server and client render the same tree; the real
+  // values arrive in an effect. Collapse is a desktop idea only — below md the
+  // sidebar is always a drawer, whatever the parent's collapsed flag says.
+  const [isMdUp, setIsMdUp] = useState(false);
+  const [isMac, setIsMac] = useState(false);
   const navigationTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const drawerRef = useRef<HTMLDivElement>(null);
+  const hamburgerRef = useRef<HTMLButtonElement>(null);
+
+  const collapsed = !!isCollapsed && isMdUp;
+  const isDrawer = !isMdUp;
 
   const {
     sessions,
@@ -106,6 +125,15 @@ export default function Sidebar({
     renameSession,
     refreshSessions,
   } = useSessions(userId, guestToken);
+
+  useEffect(() => {
+    const mq = window.matchMedia('(min-width: 768px)');
+    const sync = () => setIsMdUp(mq.matches);
+    sync();
+    mq.addEventListener('change', sync);
+    setIsMac(/Mac|iPhone|iPad/.test(navigator.platform));
+    return () => mq.removeEventListener('change', sync);
+  }, []);
 
   useEffect(() => {
     if (!userId) return;
@@ -183,26 +211,56 @@ export default function Sidebar({
     { id: "compare", label: "Compare", icon: ArrowsLeftRight, href: "/compare", count: savedCount ?? undefined },
   ];
 
+  // Edge swipe opens the drawer. Only a touch that starts in the leftmost 24px
+  // counts, so horizontal carousels in the page never open the menu.
   useEffect(() => {
-    let touchStartX = 0;
-    const handleTouchStart = (e: TouchEvent) => {
-      touchStartX = e.changedTouches[0].screenX;
+    if (!isDrawer) return;
+    let startX = -1;
+    const onStart = (e: TouchEvent) => { startX = e.changedTouches[0].clientX; };
+    const onEnd = (e: TouchEvent) => {
+      if (startX >= 0 && startX < 24 && e.changedTouches[0].clientX - startX > 80) setMobileOpen(true);
+      startX = -1;
     };
-    const handleTouchEnd = (e: TouchEvent) => {
-      const touchEndX = e.changedTouches[0].screenX;
-      if (touchEndX - touchStartX > 80 && touchStartX < 40) {
-        setMobileOpen(true);
-      } else if (touchStartX - touchEndX > 70) {
-        setMobileOpen(false);
-      }
-    };
-    window.addEventListener('touchstart', handleTouchStart, { passive: true });
-    window.addEventListener('touchend', handleTouchEnd, { passive: true });
+    window.addEventListener('touchstart', onStart, { passive: true });
+    window.addEventListener('touchend', onEnd, { passive: true });
     return () => {
-      window.removeEventListener('touchstart', handleTouchStart);
-      window.removeEventListener('touchend', handleTouchEnd);
+      window.removeEventListener('touchstart', onStart);
+      window.removeEventListener('touchend', onEnd);
     };
-  }, []);
+  }, [isDrawer]);
+
+  // Swipe-to-close is scoped to the drawer itself.
+  const swipeStartX = useRef(0);
+  const onDrawerTouchStart = (e: React.TouchEvent) => { swipeStartX.current = e.changedTouches[0].clientX; };
+  const onDrawerTouchEnd = (e: React.TouchEvent) => {
+    if (isDrawer && swipeStartX.current - e.changedTouches[0].clientX > 70) setMobileOpen(false);
+  };
+
+  // A closed drawer is off-screen but still in the tab order unless inert.
+  // Set via the DOM because React 18 does not know the attribute.
+  const drawerClosed = isDrawer && !mobileOpen;
+  useEffect(() => {
+    drawerRef.current?.toggleAttribute('inert', drawerClosed);
+  }, [drawerClosed]);
+
+  // Open drawer behaves as a modal: Escape closes, focus moves in, and returns
+  // to the hamburger on close.
+  const wasOpen = useRef(false);
+  useEffect(() => {
+    if (!isDrawer) return;
+    if (mobileOpen) {
+      wasOpen.current = true;
+      drawerRef.current?.querySelector<HTMLElement>('a, button')?.focus();
+      const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setMobileOpen(false); };
+      window.addEventListener('keydown', onKey);
+      return () => window.removeEventListener('keydown', onKey);
+    }
+    if (wasOpen.current) {
+      wasOpen.current = false;
+      // Next frame: the hamburger is still `invisible` (unfocusable) in this commit's styles.
+      requestAnimationFrame(() => hamburgerRef.current?.focus());
+    }
+  }, [mobileOpen, isDrawer]);
 
   const closeMobile = () => setMobileOpen(false);
 
@@ -235,11 +293,12 @@ export default function Sidebar({
     router.push('/discover');
   }, [isNavigating, router]);
 
-  // The button advertises Ctrl+N; without this the shortcut just opened a new
-  // browser window. Ctrl+K (focus input) is owned by DiscoveryContent.
+  // Ctrl/⌘+Shift+O, as ChatGPT uses. Ctrl+N belongs to the browser (new
+  // window) and cannot be reliably reclaimed. Ctrl+K (focus input) is owned by
+  // DiscoveryContent.
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
-      if ((e.ctrlKey || e.metaKey) && !e.shiftKey && !e.altKey && e.key.toLowerCase() === 'n') {
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && !e.altKey && e.key.toLowerCase() === 'o') {
         e.preventDefault();
         startNewChat();
       }
@@ -255,42 +314,46 @@ export default function Sidebar({
 
   return (
     <>
-      {/* Mobile Sidebar Button */}
-      {!mobileOpen && (
-        <button
-          type="button"
-          onClick={() => setMobileOpen(true)}
-          className="md:hidden fixed top-2.5 sm:top-3 left-3 z-[65] w-10 h-10 min-w-[40px] min-h-[40px] flex items-center justify-center text-zinc-800 dark:text-zinc-200 hover:text-black dark:hover:text-white active:scale-95 transition-all cursor-pointer pointer-events-auto rounded-full bg-white/85 dark:bg-zinc-800/85 backdrop-blur-md border border-gray-200/70 dark:border-zinc-700/60 shadow-2xs hover:bg-white dark:hover:bg-zinc-700"
-          aria-label="Open sidebar menu"
-          title="Open menu"
-        >
-          <List size={22} weight="bold" />
-        </button>
-      )}
-
-      {mobileOpen && (
-        <div
-          className="md:hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-xs transition-opacity duration-300"
-          onClick={closeMobile}
-        />
-      )}
+      {/* Mobile Sidebar Button — stays mounted so focus can return to it. */}
+      <button
+        ref={hamburgerRef}
+        type="button"
+        onClick={() => setMobileOpen(true)}
+        className={`md:hidden fixed top-2.5 sm:top-3 left-3 z-[65] w-11 h-11 shrink-0 flex items-center justify-center text-zinc-800 dark:text-zinc-200 hover:text-black dark:hover:text-white active:scale-95 transition-all cursor-pointer rounded-full bg-white/85 dark:bg-zinc-800/85 backdrop-blur-md border border-zinc-200/70 dark:border-white/[0.08] shadow-xs hover:bg-white dark:hover:bg-zinc-700 ${FOCUS} ${mobileOpen ? 'invisible' : ''}`}
+        aria-label="Open sidebar menu"
+        aria-expanded={mobileOpen}
+        title="Open menu"
+      >
+        <List size={20} />
+      </button>
 
       <div
+        aria-hidden="true"
+        className={`md:hidden fixed inset-0 z-50 bg-black/60 transition-opacity duration-300 ${mobileOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+        onClick={closeMobile}
+      />
+
+      <div
+        ref={drawerRef}
+        onTouchStart={onDrawerTouchStart}
+        onTouchEnd={onDrawerTouchEnd}
+        {...(isDrawer && mobileOpen ? { role: 'dialog', 'aria-modal': true, 'aria-label': 'Menu' } : {})}
         className={`
-        ${isCollapsed ? 'hidden md:flex w-[64px]' : 'w-[280px] sm:w-[300px] md:w-[260px]'} 
-        text-gray-900 dark:text-gray-100 flex flex-col h-full border-r border-gray-200/80 dark:border-zinc-800/80 bg-white dark:bg-[#0c0d14]
-        fixed md:relative z-[60] md:z-auto shrink-0 shadow-2xl md:shadow-none
-        transition-[width,transform] duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] will-change-[width,transform] overflow-hidden
-        ${mobileOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
+        w-[280px] sm:w-[300px] ${isCollapsed ? 'md:w-[64px]' : 'md:w-[260px]'}
+        text-zinc-900 dark:text-zinc-100 flex flex-col h-full border-r ${EDGE} bg-surface
+        fixed md:relative z-[60] md:z-20 shrink-0 md:shadow-none
+        transition-[width,transform] duration-300 ease-[var(--ease-smooth)]
+        ${collapsed ? 'overflow-visible' : 'overflow-hidden'}
+        ${mobileOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full md:translate-x-0'}
       `}
       >
         {/* Header: Expanded vs Collapsed */}
-        {!isCollapsed ? (
-          <div className="h-14 flex items-center justify-between border-b border-gray-100 dark:border-zinc-800/80 w-full px-4 shrink-0 bg-white dark:bg-[#0c0d14]">
+        {!collapsed ? (
+          <div className={`h-14 flex items-center justify-between border-b ${EDGE} w-full px-3 shrink-0`}>
             <Link
               href="/discover"
               onClick={handleFreshDiscovery}
-              className="flex items-center transition-opacity hover:opacity-80 cursor-pointer"
+              className={`flex items-center px-2.5 py-1 rounded-xs transition-opacity hover:opacity-80 cursor-pointer ${FOCUS}`}
               title="Start fresh discovery"
             >
               <Image src="/images/icons/logo-wordmark-black.png" alt="PropFyndr Logo" width={75} height={34} className="object-contain block dark:hidden" priority />
@@ -299,37 +362,38 @@ export default function Sidebar({
             <button
               type="button"
               onClick={() => {
-                if (window.innerWidth < 768) closeMobile();
+                if (isDrawer) closeMobile();
                 else onToggleCollapse?.();
               }}
-              className="p-2 rounded-xl text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer flex items-center justify-center"
-              title="Collapse sidebar"
-              aria-label="Collapse sidebar"
+              className={`w-9 h-9 [@media(pointer:coarse)]:size-11 rounded-xs text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-white/[0.06] transition-colors cursor-pointer flex items-center justify-center ${FOCUS}`}
+              title={isDrawer ? "Close menu" : "Collapse sidebar"}
+              aria-label={isDrawer ? "Close menu" : "Collapse sidebar"}
+              aria-expanded={true}
             >
-              <SidebarSimple size={19} weight="bold" />
+              <SidebarSimple size={18} />
             </button>
           </div>
         ) : (
-          <div className="h-14 flex items-center justify-center border-b border-gray-100/60 dark:border-gray-800/60 w-full shrink-0 relative group">
+          <div className={`h-14 flex items-center justify-center border-b ${EDGE} w-full shrink-0`}>
             <button
               type="button"
               onClick={onToggleCollapse}
-              className="w-10 h-10 flex items-center justify-center rounded-xl hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-all relative cursor-pointer"
-              title="Expand sidebar"
+              className={`w-10 h-10 flex items-center justify-center rounded-xs hover:bg-zinc-100 dark:hover:bg-white/[0.06] transition-colors relative cursor-pointer group ${FOCUS}`}
               aria-label="Expand sidebar"
+              aria-expanded={false}
             >
               {/* Default PropFyndr Logo Mark */}
-              <div className="flex items-center justify-center transition-opacity duration-200 group-hover:opacity-0 pointer-events-none">
+              <div className="flex items-center justify-center transition-opacity duration-200 group-hover:opacity-0 group-focus-visible:opacity-0 pointer-events-none">
                 <Image
                   src="/images/icons/logo-square-black.png"
-                  alt="PropFyndr Logo"
+                  alt=""
                   width={40}
                   height={40}
                   className="object-contain block dark:hidden"
                 />
                 <Image
                   src="/images/icons/logo-square-white.png"
-                  alt="PropFyndr Logo"
+                  alt=""
                   width={40}
                   height={40}
                   className="object-contain hidden dark:block"
@@ -337,36 +401,33 @@ export default function Sidebar({
               </div>
 
               {/* Hover Expand Icon */}
-              <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 text-zinc-700 dark:text-zinc-200 transition-opacity duration-200 pointer-events-none">
-                <SidebarSimple size={18} weight="bold" />
+              <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 text-zinc-700 dark:text-zinc-200 transition-opacity duration-200 pointer-events-none">
+                <SidebarSimple size={18} />
               </div>
 
-              {/* Tooltip */}
-              <span className="absolute left-full ml-2.5 px-2.5 py-1 bg-zinc-900 text-white text-[11px] font-medium rounded-lg shadow-md opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-[100]">
-                Expand sidebar
-              </span>
+              <span className={TOOLTIP}>Expand sidebar</span>
             </button>
           </div>
         )}
 
         {/* New Chat Button */}
-        {!isCollapsed ? (
-          <div className="p-3 w-full shrink-0">
+        {!collapsed ? (
+          <div className="px-3 pt-3 pb-2 w-full shrink-0">
             <button
               type="button"
               onClick={startNewChat}
               disabled={isNavigating}
-              className="group flex items-center justify-between w-full py-2 px-3 bg-zinc-50 dark:bg-zinc-800/60 hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-900 dark:text-zinc-100 font-semibold rounded-xl transition-all duration-150 border border-zinc-200/80 dark:border-zinc-700/60 shadow-2xs active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+              className={`flex items-center justify-between w-full h-9 px-2.5 rounded-xs text-[13px] font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer ${ROW_IDLE} ${FOCUS}`}
             >
-              <div className="flex items-center gap-2.5">
-                <div className="w-5 h-5 flex items-center justify-center rounded-md text-blue-600 dark:text-blue-400">
-                  <NotePencil size={18} weight="duotone" />
-                </div>
-                <span className="text-[12.5px] tracking-tight">{isNavigating ? 'Opening...' : 'New chat'}</span>
-              </div>
-              <kbd className="inline-flex items-center justify-center h-4.5 px-1.5 text-[9.5px] font-mono text-zinc-400 dark:text-zinc-400 bg-white dark:bg-zinc-900 rounded-md border border-zinc-200 dark:border-zinc-700/80 shadow-2xs">
-                Ctrl + N
-              </kbd>
+              <span className="flex items-center gap-2.5">
+                <NotePencil size={16} className="shrink-0" />
+                <span>{isNavigating ? 'Opening…' : 'New chat'}</span>
+              </span>
+              {!isDrawer && (
+                <kbd className="hidden [@media(pointer:fine)]:inline-flex items-center h-5 px-1.5 text-[11px] font-medium font-sans text-zinc-500 dark:text-zinc-400 rounded-xs border border-zinc-200 dark:border-white/[0.08]">
+                  {isMac ? '⇧⌘O' : 'Ctrl+Shift+O'}
+                </kbd>
+              )}
             </button>
           </div>
         ) : (
@@ -375,92 +436,64 @@ export default function Sidebar({
               type="button"
               onClick={startNewChat}
               disabled={isNavigating}
-              className="w-10 h-10 rounded-xl bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 flex items-center justify-center shadow-xs transition-all hover:opacity-90 active:scale-95 group relative disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-              title="New chat"
+              className={`w-10 h-10 rounded-xs bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 flex items-center justify-center shadow-xs transition-opacity hover:opacity-90 active:scale-95 group relative disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer ${FOCUS}`}
             >
-              <NotePencil size={18} weight="bold" />
-              <span className="absolute left-full ml-2.5 px-2.5 py-1 bg-zinc-900 text-white text-[11px] font-medium rounded-lg shadow-md opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-[100]">
-                New chat
-              </span>
+              <NotePencil size={18} />
+              <span className={TOOLTIP}>New chat</span>
             </button>
           </div>
         )}
-        
+
         {/* Menu Section */}
-        {!isCollapsed ? (
-          <div className="w-full shrink-0 px-3 pb-3">
-            <div className="text-[10px] text-zinc-400 dark:text-zinc-500 uppercase tracking-widest mb-1.5 px-2 font-bold">Menu</div>
-            <div className="space-y-1 w-full">
-              {menuItems.map((item) => {
-                const Icon = item.icon;
-                const isActive = activeView === item.id;
-                return (
-                  <Link
-                    key={item.id}
-                    href={item.href}
-                    prefetch={true}
-                    onClick={(e) => {
-                      handleMenuItemClick(e, item.id, item.href);
-                      closeMobile();
-                      onViewChange?.(item.id);
-                    }}
-                    className={`flex items-center w-full gap-2.5 px-3 py-2 rounded-xl transition-all duration-150 ${
-                      isActive
-                        ? 'bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 font-semibold shadow-2xs'
-                        : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800/60 hover:text-zinc-900 dark:hover:text-white font-medium'
-                    }`}
-                  >
-                    <Icon size={16} strokeWidth={isActive ? 2.2 : 1.8} className={isActive ? 'text-white dark:text-zinc-900' : 'text-zinc-500 dark:text-zinc-400'} />
-                    <span className="text-[12.5px] tracking-tight">{item.label}</span>
-                    {typeof item.count === 'number' && item.count > 0 && (
-                      <span className={`ml-auto text-[10.5px] font-semibold tabular-nums px-1.5 py-0.5 rounded-md ${
-                        isActive
-                          ? 'bg-white/20 text-white dark:bg-zinc-900/15 dark:text-zinc-900'
-                          : 'bg-zinc-100 text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400'
-                      }`}>
-                        {item.count}
-                      </span>
-                    )}
-                  </Link>
-                );
-              })}
-            </div>
-          </div>
-        ) : (
-          <div className="px-3 space-y-1.5 w-full flex flex-col items-center">
+        <nav aria-label="Primary" className={collapsed ? "px-3 space-y-0.5 w-full flex flex-col items-center" : "w-full shrink-0 px-3 pb-3"}>
+          {!collapsed && <div className={`${LABEL} mb-1`}>Menu</div>}
+          <div className={collapsed ? "contents" : "space-y-0.5 w-full"}>
             {menuItems.map((item) => {
               const Icon = item.icon;
               const isActive = activeView === item.id;
-              return (
+              const onClick = (e: React.MouseEvent) => {
+                handleMenuItemClick(e, item.id, item.href);
+                closeMobile();
+                onViewChange?.(item.id);
+              };
+              return !collapsed ? (
                 <Link
                   key={item.id}
                   href={item.href}
                   prefetch={true}
-                  onClick={(e) => {
-                    handleMenuItemClick(e, item.id, item.href);
-                    closeMobile();
-                    onViewChange?.(item.id);
-                  }}
-                  className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all group relative ${
-                    isActive
-                      ? 'bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 shadow-2xs'
-                      : 'text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-white'
-                  }`}
+                  onClick={onClick}
+                  aria-current={isActive ? 'page' : undefined}
+                  className={`flex items-center w-full h-9 gap-2.5 px-2.5 rounded-xs text-[13px] transition-colors ${isActive ? ROW_ACTIVE : ROW_IDLE} ${FOCUS}`}
                 >
-                  <Icon size={17} strokeWidth={isActive ? 2.2 : 1.8} />
+                  <Icon size={16} weight={isActive ? 'fill' : 'regular'} className="shrink-0" />
+                  <span>{item.label}</span>
                   {typeof item.count === 'number' && item.count > 0 && (
-                    <span className="absolute -top-0.5 -right-0.5 min-w-[15px] h-[15px] px-1 flex items-center justify-center rounded-full bg-blue-600 text-white text-[9.5px] font-bold tabular-nums leading-none ring-2 ring-white dark:ring-zinc-950">
+                    <span className="ml-auto text-[11px] font-medium tabular-nums text-zinc-500 dark:text-zinc-400">
+                      {item.count}
+                    </span>
+                  )}
+                </Link>
+              ) : (
+                <Link
+                  key={item.id}
+                  href={item.href}
+                  prefetch={true}
+                  onClick={onClick}
+                  aria-current={isActive ? 'page' : undefined}
+                  className={`w-10 h-10 rounded-xs flex items-center justify-center transition-colors group relative ${isActive ? ROW_ACTIVE : ROW_IDLE} ${FOCUS}`}
+                >
+                  <Icon size={18} weight={isActive ? 'fill' : 'regular'} />
+                  {typeof item.count === 'number' && item.count > 0 && (
+                    <span className="absolute -top-0.5 -right-0.5 min-w-[15px] h-[15px] px-1 flex items-center justify-center rounded-full bg-blue-600 text-white text-[10px] font-semibold tabular-nums leading-none ring-2 ring-white dark:ring-zinc-950">
                       {item.count > 9 ? '9+' : item.count}
                     </span>
                   )}
-                  <span className="absolute left-full ml-2.5 px-2.5 py-1 bg-zinc-900 text-white text-[11px] font-medium rounded-lg shadow-md opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-[100]">
-                    {item.label}
-                  </span>
+                  <span className={TOOLTIP}>{item.label}</span>
                 </Link>
               );
             })}
           </div>
-        )}
+        </nav>
 
         {/* Compare tray — collapsed rail only.
             Collapsed, the rail was the expanded menu with the words removed:
@@ -468,205 +501,179 @@ export default function Sidebar({
             gave nothing back. These are the buyer's saved projects, the set
             /compare actually operates on, so the rail becomes a way in rather
             than a smaller copy of the menu. */}
-        {isCollapsed && savedThumbs.length > 0 && (
-          <div className="px-3 mt-2 pt-2.5 w-full flex flex-col items-center gap-1.5 border-t border-zinc-200/70 dark:border-zinc-800/70">
+        {collapsed && savedThumbs.length > 0 && (
+          <div className={`px-3 mt-2 pt-2.5 w-full flex flex-col items-center gap-1.5 border-t ${EDGE}`}>
             {savedThumbs.map((t) => (
               <Link
                 key={t.id}
                 href={`/compare?ids=${encodeURIComponent(t.id)}`}
                 prefetch={false}
                 onClick={closeMobile}
-                title={t.name}
                 aria-label={`Compare ${t.name}`}
-                className="w-9 h-9 rounded-lg overflow-hidden bg-zinc-100 dark:bg-zinc-800 ring-1 ring-zinc-200/70 dark:ring-zinc-700/70 hover:ring-blue-500 transition-all group relative shrink-0"
+                className={`w-9 h-9 rounded-xs bg-zinc-100 dark:bg-zinc-800 ring-1 ring-zinc-200/70 dark:ring-white/[0.08] hover:ring-blue-500 transition-shadow group relative shrink-0 ${FOCUS}`}
               >
                 {t.image ? (
-                  <Image src={t.image} alt="" width={36} height={36} className="w-full h-full object-cover" unoptimized />
+                  <Image src={t.image} alt="" width={36} height={36} className="w-full h-full object-cover rounded-xs" unoptimized />
                 ) : (
-                  <span className="w-full h-full flex items-center justify-center text-[11px] font-bold text-zinc-500 dark:text-zinc-400">
+                  <span className="w-full h-full flex items-center justify-center text-[11px] font-semibold text-zinc-500 dark:text-zinc-400">
                     {t.name.slice(0, 2).toUpperCase()}
                   </span>
                 )}
-                <span className="absolute left-full ml-2.5 top-1/2 -translate-y-1/2 px-2.5 py-1 bg-zinc-900 text-white text-[11px] font-medium rounded-lg shadow-md opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-[100]">
-                  {t.name}
-                </span>
+                <span className={TOOLTIP}>{t.name}</span>
               </Link>
             ))}
           </div>
         )}
 
         {/* Recent Chats Section (Only in Expanded mode) */}
-        {!isCollapsed && (userId || guestToken) && (
-          <>
-            <div className="w-full shrink-0 px-3 pb-1.5 pt-1">
-              <div className="text-[10px] text-zinc-400 dark:text-zinc-500 uppercase tracking-widest px-2 font-bold flex items-center justify-between">
-                <div className="flex items-center gap-1.5">
-                  <ClockCounterClockwise size={13} weight="bold" />
-                  <span>Recent</span>
-                </div>
-                {sessions.length > 0 && (
-                  <span className="text-[9px] normal-case font-normal text-zinc-400 dark:text-zinc-500">
-                    double-click to edit
-                  </span>
-                )}
+        {!collapsed && (userId || guestToken) && (
+          <nav aria-label="Chat history" className="flex-1 min-h-0 overflow-y-auto w-full px-3 pb-6">
+            <div className={`${LABEL} pt-1 pb-1`}>Recent</div>
+            {sessionsLoading ? (
+              <ChatSidebarGroupedSkeleton />
+            ) : sessionsError ? (
+              <div className="px-2.5 py-2 text-[13px] text-zinc-500 dark:text-zinc-400 flex items-center justify-between">
+                <span>Couldn&apos;t load chats</span>
+                <button
+                  type="button"
+                  onClick={() => refreshSessions()}
+                  className={`rounded-xs px-2 h-7 text-[11px] font-medium text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/40 transition-colors ${FOCUS}`}
+                >
+                  Retry
+                </button>
               </div>
-            </div>
-
-            <div className="flex-1 overflow-y-auto w-full px-3 transition-opacity duration-300">
-              <div className="mb-6">
-                {sessionsLoading ? (
-                  <ChatSidebarGroupedSkeleton />
-                ) : sessionsError ? (
-                  <div className="px-3 py-2 text-[12px] text-gray-500 flex items-center justify-between">
-                    <span>Couldn&apos;t load chats</span>
-                    <button
-                      onClick={() => refreshSessions()}
-                      className="text-blue-500 hover:underline text-[11px] font-semibold ml-2"
-                    >
-                      Retry
-                    </button>
-                  </div>
-                ) : grouped.length === 0 ? (
-                  <div className="px-3 py-2 text-[12px] text-gray-400 dark:text-gray-500 font-medium">
-                    No chats yet
-                  </div>
-                ) : (
-                  <div className="space-y-3">
-                    {grouped.map(({ label: groupLabel, items }) => (
-                      <div key={groupLabel}>
-                        <div className="flex items-center justify-between px-2 mb-1">
-                          <span className="text-[10px] text-zinc-400 dark:text-zinc-500 font-bold uppercase tracking-wider">
-                            {groupLabel}
-                          </span>
-                          <span className="text-[9px] font-mono font-medium px-1.5 py-0.2 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400">
-                            {items.length}
-                          </span>
-                        </div>
-                        <div className="space-y-0.5">
-                          {items.map((session) => (
-                            <SessionItem
-                              key={session.id}
-                              session={session}
-                              isActive={session.id === activeSessionId}
-                              onDelete={deleteSession}
-                              onRename={renameSession}
-                              onClick={() => {
-                                closeMobile();
-                                router.push(`/discover/${session.id}`);
-                              }}
-                            />
-                          ))}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
+            ) : grouped.length === 0 ? (
+              <div className="px-2.5 py-2 space-y-1.5">
+                <p className="text-[13px] text-zinc-500 dark:text-zinc-400">Your conversations will appear here</p>
+                <button
+                  type="button"
+                  onClick={startNewChat}
+                  className={`-ml-2 rounded-xs px-2 h-7 text-[11px] font-medium text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/40 transition-colors ${FOCUS}`}
+                >
+                  Start a chat
+                </button>
               </div>
-            </div>
-          </>
+            ) : (
+              <div className="space-y-3">
+                {grouped.map(({ label: groupLabel, items }) => (
+                  <div key={groupLabel}>
+                    <div className={`${LABEL} sticky top-0 z-20 bg-surface py-1`}>{groupLabel}</div>
+                    <div className="space-y-0.5">
+                      {items.map((session) => (
+                        <SessionItem
+                          key={session.id}
+                          session={session}
+                          isActive={session.id === activeSessionId}
+                          onDelete={deleteSession}
+                          onRename={renameSession}
+                          onClick={closeMobile}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </nav>
         )}
 
-        {/* Lead banner */}
-        {/* NOTE: leadsToday is an internal sales metric shown to any logged-in
-            user regardless of role — needs a product decision on role-gating,
-            not silently fixed here. */}
-        {!isCollapsed && leadsToday !== null && leadsToday > 0 && (
-          <div className="mt-auto mx-3 mb-2 px-3 py-2 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-100 dark:border-emerald-800 flex items-center gap-2 whitespace-nowrap">
-            <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse flex-shrink-0" />
-            <span className="text-[11px] font-semibold text-emerald-700 dark:text-emerald-400">{leadsToday} lead{leadsToday !== 1 ? 's' : ''} captured today</span>
-          </div>
-        )}
+        {/* Footer: one band — lead count, builder links, account. */}
+        {!collapsed ? (
+          <div className={`mt-auto px-3 py-2 border-t ${EDGE} shrink-0 w-full space-y-0.5`}>
+            {/* NOTE: leadsToday is an internal sales metric shown to any logged-in
+                user regardless of role — needs a product decision on role-gating,
+                not silently fixed here. */}
+            {leadsToday !== null && leadsToday > 0 && (
+              <div className="px-2.5 py-1 text-[11px] font-medium text-emerald-700 dark:text-emerald-400 tabular-nums">
+                {leadsToday} lead{leadsToday !== 1 ? 's' : ''} captured today
+              </div>
+            )}
 
-        {/* The two ways onto the supply side. Without these the registration
-            pages existed but nothing on the site linked to them. */}
-        {!isCollapsed && (
-          <div className="px-3 pt-2 pb-1 shrink-0 w-full border-t border-gray-100/60 dark:border-gray-800/60">
-            <Link
-              href="/builder-register"
-              onClick={closeMobile}
-              className="w-full flex items-center gap-2.5 px-2 py-1.5 rounded-xl text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800/60 hover:text-zinc-900 dark:hover:text-zinc-200 transition-colors font-medium text-[12.5px]"
-            >
-              <Buildings size={16} weight="duotone" className="shrink-0" />
-              <span className="tracking-tight">List your project</span>
-            </Link>
-            <Link
-              href="/partner-register"
-              onClick={closeMobile}
-              className="w-full flex items-center gap-2.5 px-2 py-1.5 rounded-xl text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800/60 hover:text-zinc-900 dark:hover:text-zinc-200 transition-colors font-medium text-[12.5px]"
-            >
-              <Handshake size={16} weight="duotone" className="shrink-0" />
-              <span className="tracking-tight">Partner with us</span>
-            </Link>
-          </div>
-        )}
+            {/* The two ways onto the supply side. Without these the registration
+                pages existed but nothing on the site linked to them. */}
+            <details className="group/builders">
+              <summary className={`list-none [&::-webkit-details-marker]:hidden flex items-center justify-between h-9 px-2.5 rounded-xs text-[13px] cursor-pointer transition-colors ${ROW_IDLE} ${FOCUS}`}>
+                <span className="flex items-center gap-2.5">
+                  <Buildings size={16} className="shrink-0" />
+                  For builders
+                </span>
+                <CaretDown size={12} className="transition-transform group-open/builders:rotate-180" />
+              </summary>
+              <div className="space-y-0.5 pt-0.5">
+                <Link
+                  href="/builder-register"
+                  onClick={closeMobile}
+                  className={`flex items-center gap-2.5 h-9 pl-9 pr-2.5 rounded-xs text-[13px] transition-colors ${ROW_IDLE} ${FOCUS}`}
+                >
+                  List your project
+                </Link>
+                <Link
+                  href="/partner-register"
+                  onClick={closeMobile}
+                  className={`flex items-center gap-2.5 h-9 pl-9 pr-2.5 rounded-xs text-[13px] transition-colors ${ROW_IDLE} ${FOCUS}`}
+                >
+                  Partner with us
+                </Link>
+              </div>
+            </details>
 
-        {/* Footer: User / Auth */}
-        {!isCollapsed ? (
-          <div className="p-3 border-t border-gray-100/60 dark:border-gray-800/60 shrink-0 w-full">
             {userId ? (
               /* Two sibling buttons, not a clickable icon nested inside a button:
                  the old form made sign-out mouse-only and unreachable by keyboard. */
-              <div className="w-full flex items-center gap-1 rounded-xl hover:bg-zinc-100 dark:hover:bg-zinc-800/60 transition-colors">
+              <div className="w-full flex items-center gap-1 rounded-xs hover:bg-zinc-100/70 dark:hover:bg-white/[0.04] transition-colors">
                 <button
                   type="button"
                   onClick={() => { router.push('/account'); closeMobile(); }}
-                  className="flex-1 min-w-0 flex items-center gap-2.5 px-2 py-1.5 rounded-xl transition-colors cursor-pointer"
+                  className={`flex-1 min-w-0 flex items-center gap-2.5 h-9 px-2.5 rounded-xs cursor-pointer ${FOCUS}`}
                 >
-                  <div className="w-8 h-8 flex items-center justify-center shrink-0 rounded-full bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400 font-semibold text-sm">
+                  <span className="w-6 h-6 flex items-center justify-center shrink-0 rounded-full bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400 font-semibold text-[11px]">
                     {userInitial}
-                  </div>
-                  <span className="text-[12.5px] font-medium tracking-tight text-zinc-700 dark:text-zinc-200 truncate">My Account</span>
+                  </span>
+                  <span className="text-[13px] font-medium text-zinc-700 dark:text-zinc-200 truncate">My Account</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => { handleLogout(); closeMobile(); }}
                   title="Sign out"
                   aria-label="Sign out"
-                  className="shrink-0 w-8 h-8 mr-1 flex items-center justify-center rounded-lg text-zinc-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors cursor-pointer"
+                  className={`shrink-0 w-8 h-8 [@media(pointer:coarse)]:size-11 flex items-center justify-center rounded-xs text-zinc-500 dark:text-zinc-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors cursor-pointer ${FOCUS}`}
                 >
-                  <SignOut size={16} weight="bold" />
+                  <SignOut size={16} />
                 </button>
               </div>
             ) : (
               <button
                 type="button"
                 onClick={() => { router.push('/auth'); closeMobile(); }}
-                className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800/60 hover:text-zinc-900 dark:hover:text-zinc-200 transition-colors font-medium text-[12.5px] cursor-pointer"
+                className={`w-full flex items-center gap-2.5 h-9 px-2.5 rounded-xs text-[13px] transition-colors cursor-pointer ${ROW_IDLE} ${FOCUS}`}
               >
-                <SignOut size={16} weight="bold" className="shrink-0 rotate-180" />
-                <span className="tracking-tight">Sign in</span>
+                <SignOut size={16} className="shrink-0 rotate-180" />
+                <span>Sign in</span>
               </button>
             )}
           </div>
         ) : (
-          <div className="mt-auto p-3 border-t border-gray-100/60 dark:border-gray-800/60 shrink-0 w-full flex justify-center">
+          <div className={`mt-auto p-3 border-t ${EDGE} shrink-0 w-full flex justify-center`}>
             {userId ? (
-              <div className="group relative">
-                <button
-                  type="button"
-                  onClick={() => { router.push('/account'); closeMobile(); }}
-                  className="w-10 h-10 flex items-center justify-center rounded-xl bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400 font-semibold text-sm hover:opacity-90 transition-opacity cursor-pointer"
-                >
-                  {userInitial}
-                </button>
-                <div className="absolute left-full top-1/2 -translate-y-1/2 ml-2.5 px-2.5 py-1 bg-zinc-900 text-white text-[11px] font-medium rounded-lg shadow-md opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-[100]">
-                  My Account
-                </div>
-              </div>
+              <button
+                type="button"
+                onClick={() => { router.push('/account'); closeMobile(); }}
+                aria-label="My account"
+                className={`group relative w-10 h-10 flex items-center justify-center rounded-xs bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400 font-semibold text-sm hover:opacity-90 transition-opacity cursor-pointer ${FOCUS}`}
+              >
+                {userInitial}
+                <span className={TOOLTIP}>My Account</span>
+              </button>
             ) : (
-              <div className="group relative">
-                <button
-                  type="button"
-                  onClick={() => { router.push('/auth'); closeMobile(); }}
-                  className="w-10 h-10 flex items-center justify-center rounded-xl text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-white transition-colors cursor-pointer"
-                  aria-label="Sign in"
-                >
-                  <SignOut size={18} weight="bold" className="rotate-180" />
-                </button>
-                <div className="absolute left-full top-1/2 -translate-y-1/2 ml-2.5 px-2.5 py-1 bg-zinc-900 text-white text-[11px] font-medium rounded-lg shadow-md opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-[100]">
-                  Sign in
-                </div>
-              </div>
+              <button
+                type="button"
+                onClick={() => { router.push('/auth'); closeMobile(); }}
+                className={`group relative w-10 h-10 flex items-center justify-center rounded-xs transition-colors cursor-pointer ${ROW_IDLE} ${FOCUS}`}
+                aria-label="Sign in"
+              >
+                <SignOut size={18} className="rotate-180" />
+                <span className={TOOLTIP}>Sign in</span>
+              </button>
             )}
           </div>
         )}

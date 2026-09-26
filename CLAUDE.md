@@ -237,9 +237,16 @@ behind account creation, because a signup wall in front of a buyer who has just
 decided to act is the single most expensive friction in the funnel.
 
 Anonymous, with a guest token: Chat, Search, Browse, Compare, Use calculators,
-**Save property, Callback request, Site visit request**
+**Save property, Callback request, Site visit request, Dossier (shareable
+research summary)**
 
-Signup required for: Builder phone access, Buyer report download
+Signup required for: Builder phone access
+
+The dossier *is* the buyer report. It was listed here as signup-required;
+it was opened on 2026-09-26 on purpose — a buyer shares it with whoever they
+choose (spouse, parent, CA, friend), and nothing about who they share it with
+is assumed or limited. Each generated dossier is a row in `dossiers` with the
+session, user or guest token, which is the high-intent event.
 
 This section previously listed save, callback and site visit as signup-required.
 The code disagreed on all three — `saved.ts` accepts `x-guest-token`, and both
@@ -259,7 +266,7 @@ High Intent Events (track all):
 * Callback request
 * Site visit request
 * Builder contact access
-* Buyer report download
+* Buyer report (dossier) generated — a row in `dossiers`; sharing it fires `dossier_shared`
 
 ---
 

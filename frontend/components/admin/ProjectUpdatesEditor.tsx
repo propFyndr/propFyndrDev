@@ -109,31 +109,31 @@ export default function ProjectUpdatesEditor({ projectId, projectStatus = 'under
   }
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-200/80 p-6 space-y-5 shadow-sm">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
+    <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200/90 dark:border-zinc-800 p-6 space-y-5 shadow-2xs">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-zinc-100 dark:border-zinc-800/80 pb-4">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-violet-50 text-violet-600 flex items-center justify-center font-bold">
-            <Rss size={18} />
+          <div className="w-9 h-9 rounded-xl bg-violet-50 dark:bg-violet-950/60 text-violet-600 dark:text-violet-400 flex items-center justify-center border border-violet-100 dark:border-violet-900/40">
+            <Rss size={17} />
           </div>
           <div>
-            <h3 className="text-base font-black text-slate-900">{sectionTitle}</h3>
-            <p className="text-xs text-slate-500 font-medium mt-0.5">{sectionDescription}</p>
+            <h3 className="text-[15px] font-semibold text-zinc-900 dark:text-zinc-100 tracking-tight">{sectionTitle}</h3>
+            <p className="text-[12.5px] text-zinc-500 dark:text-zinc-400 mt-0.5">{sectionDescription}</p>
           </div>
         </div>
 
         <div className="flex items-center gap-2">
           <button
             onClick={addUpdate}
-            className="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors"
+            className="px-3.5 py-1.5 bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-800 dark:text-zinc-200 rounded-xl text-[12.5px] font-medium flex items-center gap-1.5 transition-colors cursor-pointer"
           >
-            <Plus size={14} /> Add Log Entry
+            <Plus size={13} /> Add Log Entry
           </button>
           <button
             onClick={handleSave}
             disabled={saving}
-            className="px-5 py-2 bg-slate-900 hover:bg-black text-white rounded-full text-xs font-bold flex items-center gap-2 transition-all disabled:opacity-50"
+            className="px-4 py-2 bg-[#0066cc] hover:bg-[#0055b3] text-white rounded-xl text-[13px] font-medium flex items-center gap-2 transition-colors disabled:opacity-50 shadow-2xs cursor-pointer"
           >
-            {saving ? <RefreshCw size={14} className="animate-spin" /> : <Save size={14} />}
+            {saving ? <RefreshCw size={13} className="animate-spin" /> : <Save size={13} />}
             <span>{saving ? 'Saving...' : 'Save Feed'}</span>
           </button>
         </div>
@@ -141,7 +141,7 @@ export default function ProjectUpdatesEditor({ projectId, projectStatus = 'under
 
       <div className="space-y-2.5">
         {updates.map((update, i) => (
-          <div key={i} className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 p-3 bg-slate-50/70 dark:bg-zinc-800/40 rounded-xl border border-slate-200/60 dark:border-zinc-700/60 hover:bg-slate-50 dark:hover:bg-zinc-800/70 transition-all">
+          <div key={i} className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 p-3 bg-zinc-50/70 dark:bg-zinc-800/40 rounded-xl border border-zinc-200/80 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors shadow-2xs">
             <CustomSelect
               value={update.status}
               onChange={(val) => {
@@ -167,7 +167,7 @@ export default function ProjectUpdatesEditor({ projectId, projectStatus = 'under
                 newUpdates[i].name = e.target.value
                 setUpdates(newUpdates)
               }}
-              className="flex-1 px-3 py-1.5 text-xs font-semibold border border-slate-200 rounded-lg bg-white text-slate-900"
+              className="flex-1 px-3 py-1.5 text-[12.5px] font-medium border border-zinc-200/90 dark:border-zinc-700/80 rounded-xl bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 focus:border-[#0066cc] outline-none shadow-2xs"
             />
 
             <input
@@ -179,14 +179,14 @@ export default function ProjectUpdatesEditor({ projectId, projectStatus = 'under
                 newUpdates[i].date_label = e.target.value
                 setUpdates(newUpdates)
               }}
-              className="w-32 px-3 py-1.5 text-xs font-semibold border border-slate-200 rounded-lg bg-white text-slate-900"
+              className="w-32 px-3 py-1.5 text-[12.5px] font-medium font-mono border border-zinc-200/90 dark:border-zinc-700/80 rounded-xl bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 focus:border-[#0066cc] outline-none shadow-2xs"
             />
 
             <button
               onClick={() => setUpdates(updates.filter((_, idx) => idx !== i))}
-              className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors self-end sm:self-center"
+              className="p-1.5 text-zinc-400 hover:text-rose-500 rounded-lg transition-colors self-end sm:self-center cursor-pointer"
             >
-              <Trash2 size={15} />
+              <Trash2 size={14} />
             </button>
           </div>
         ))}

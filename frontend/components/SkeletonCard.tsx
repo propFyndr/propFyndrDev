@@ -1,42 +1,36 @@
 'use client'
 
-'use client'
-
+// Mirrors ProjectCard's geometry (mobile: 110px thumbnail row; desktop: 220px
+// hero + body) so the real card replaces it without a layout shift.
 export default function SkeletonCard({ layout = 'grid' }: { layout?: 'grid' | 'list' }) {
   if (layout === 'list') {
     return (
-      <div className="w-full rounded-2xl overflow-hidden bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 shadow-sm p-4 flex gap-4">
-        <div className="w-36 h-28 img-skeleton rounded-xl shrink-0" />
-        <div className="flex-1 space-y-2.5 py-1">
-          <div className="h-4 img-skeleton rounded-lg w-2/3" />
-          <div className="h-3 img-skeleton rounded-md w-1/3" />
-          <div className="flex gap-2 pt-2">
-            <div className="h-6 img-skeleton rounded-full w-16" />
-            <div className="h-6 img-skeleton rounded-full w-20" />
-          </div>
+      <div className="w-full rounded-2xl overflow-hidden border border-border bg-surface dark:bg-zinc-900 p-3 flex gap-3 min-h-[135px]">
+        <div className="flex-1 space-y-2 py-1">
+          <div className="h-5 img-skeleton rounded-full w-24" />
+          <div className="h-4 img-skeleton rounded-xs w-2/3" />
+          <div className="h-3 img-skeleton rounded-xs w-1/2" />
+          <div className="h-4 img-skeleton rounded-xs w-1/3" />
         </div>
+        <div className="w-[110px] sm:w-[125px] img-skeleton rounded-sm shrink-0" />
       </div>
     )
   }
 
   return (
-    <div className="w-full rounded-2xl overflow-hidden bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 shadow-[0_2px_12px_rgba(0,0,0,0.04)] flex flex-col">
-      <div className="h-48 img-skeleton w-full shrink-0" />
-      <div className="p-5 space-y-3 flex-1 flex flex-col justify-between">
+    <div className="w-full h-full rounded-2xl overflow-hidden border border-border bg-surface dark:bg-zinc-900 flex flex-col">
+      <div className="h-[220px] img-skeleton w-full shrink-0" />
+      <div className="px-5 pt-4 pb-5 flex-1 flex flex-col justify-between gap-3">
         <div className="space-y-2">
-          <div className="h-5 img-skeleton rounded-lg w-3/4" />
-          <div className="h-3.5 img-skeleton rounded-md w-1/2" />
+          <div className="h-5 img-skeleton rounded-xs w-3/4" />
+          <div className="h-4 img-skeleton rounded-xs w-1/2" />
+          <div className="h-5 img-skeleton rounded-xs w-1/3 mt-3" />
+          <div className="h-[76px] img-skeleton rounded-xs w-full mt-3" />
         </div>
-        <div className="space-y-2.5 pt-2">
-          <div className="flex gap-1.5">
-            <div className="h-6 img-skeleton rounded-full w-16" />
-            <div className="h-6 img-skeleton rounded-full w-20" />
-            <div className="h-6 img-skeleton rounded-full w-14" />
-          </div>
-          <div className="flex items-center justify-between pt-2 border-t border-gray-100 dark:border-gray-800">
-            <div className="h-6 img-skeleton rounded-lg w-28" />
-            <div className="h-9 img-skeleton rounded-xl w-24" />
-          </div>
+        <div className="flex items-center gap-3 pt-2">
+          <div className="h-11 img-skeleton rounded-xs flex-1" />
+          <div className="h-10 w-10 img-skeleton rounded-full" />
+          <div className="h-10 w-10 img-skeleton rounded-full" />
         </div>
       </div>
     </div>

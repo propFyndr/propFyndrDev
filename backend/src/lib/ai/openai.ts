@@ -133,9 +133,16 @@ export class StreamStallError extends Error {
   }
 }
 
-// Tight initial timeout for fast rollover if provider is stalled/rate-limited,
-// and reasonable stream inactivity timeout between chunks.
-const INITIAL_TOKEN_TIMEOUT_MS = Number(process.env.OPENAI_INITIAL_TOKEN_TIMEOUT_MS ?? 4_000);
+// Initial timeout for rollover if a provider is stalled, and a stream inactivity
+// timeout between chunks.
+//
+// Was 4s. Measured 2026-09-26 on 60 turns at concurrency 4: both NVIDIA legs hit
+// it on every turn that reached them ("inactivity timeout cycle=0 anyTokenSent=
+// false (after 4000ms)"), and they were the last legs standing — so the turn went
+// to the outage notice. Their idle first token is 2.3–2.7s; an ~11k-token prompt
+// under load pushes it past 4s. A rate-limited leg fails with a 429 at once and
+// never waits on this, so the longer ceiling costs only a genuinely stalled leg.
+const INITIAL_TOKEN_TIMEOUT_MS = Number(process.env.OPENAI_INITIAL_TOKEN_TIMEOUT_MS ?? 8_000);
 const STREAM_INACTIVITY_MS = 15_000;
 
 /**

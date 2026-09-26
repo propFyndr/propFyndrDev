@@ -7,11 +7,24 @@
  */
 
 import { useEffect, useMemo, useState } from 'react'
-import { PhoneCall, MagnifyingGlass, NotePencil, Check, Notebook, CalendarCheck, Clock } from '@phosphor-icons/react'
+import {
+  PhoneCall,
+  MagnifyingGlass,
+  NotePencil,
+  Check,
+  Notebook,
+  CalendarCheck,
+  Clock,
+  Fire,
+  SealCheck,
+  X,
+  Phone,
+  WhatsappLogo,
+} from '@phosphor-icons/react'
 import { adminFetch } from '@/lib/adminFetch'
 import CustomSelect, { type SelectOption } from '@/components/admin/CustomSelect'
 import { useScopeId, withScope } from '@/lib/portalScope'
-import { PageShell, PageHeader, Card, TierBadge, LeadStatusPill, EmptyState, Spinner, ErrorNote } from '@/components/portal/ui'
+import { PageShell, Card, StatCard, TierBadge, LeadStatusPill, EmptyState, Spinner, ErrorNote } from '@/components/portal/ui'
 import LeadBriefPanel from '@/components/portal/LeadBriefPanel'
 
 interface Lead {
@@ -93,7 +106,6 @@ export default function PartnerLeadsPage() {
   const scopeId = useScopeId('partner_id')
   const scoped = (path: string) => withScope(path, 'partner_id', scopeId)
 
-
   useEffect(() => {
     let cancelled = false
     Promise.all([
@@ -171,21 +183,83 @@ export default function PartnerLeadsPage() {
 
   if (loading) return <Spinner />
 
+  const hotCount = leads.filter((l) => l.lead_tier === 'HOT').length
+  const qualifiedCount = leads.filter((l) => l.status === 'qualified' || l.status === 'converted').length
+
   return (
     <PageShell>
-      <PageHeader title="Leads" subtitle="Buyers your builder routed to you. Update the status as you work them." />
+      {/* Apple-grade Header */}
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pt-1 pb-2">
+        <div className="min-w-0">
+          <div className="flex items-center gap-2">
+            <span className="text-[11px] font-bold text-[#0066cc] dark:text-[#2997ff] uppercase tracking-wider">
+              Channel Partner Console
+            </span>
+            <span className="text-zinc-300 dark:text-zinc-700">·</span>
+            <span className="text-[11px] font-semibold text-zinc-500 dark:text-zinc-400">
+              Assigned Buyer Dispatch
+            </span>
+          </div>
+          <h1 className="text-3xl sm:text-4xl font-extrabold text-[#1d1d1f] dark:text-white tracking-tight mt-1">
+            Assigned leads
+          </h1>
+          <p className="mt-1 text-xs sm:text-sm text-zinc-500 dark:text-zinc-400 max-w-2xl leading-relaxed">
+            High-intent buyers routed to your brokerage by partner developers. Maintain call notes and milestone statuses.
+          </p>
+        </div>
+      </div>
+
       {error && <ErrorNote message={error} />}
 
+      {/* KPI Stat Cards Strip */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <StatCard
+          label="Total Assigned"
+          value={leads.length}
+          icon={<PhoneCall size={16} />}
+          hint="Active buyer callbacks"
+        />
+        <StatCard
+          label="Hot Priority"
+          value={hotCount}
+          tone="hot"
+          icon={<Fire size={16} weight="fill" />}
+          hint="Call within 15 minutes"
+        />
+        <StatCard
+          label="Site Visits"
+          value={siteVisits.length}
+          tone="good"
+          icon={<CalendarCheck size={16} />}
+          hint="Booked walkthroughs"
+        />
+        <StatCard
+          label="Qualified / Closed"
+          value={qualifiedCount}
+          icon={<SealCheck size={16} />}
+          hint="In closing pipeline"
+        />
+      </div>
+
+      {/* Search & Status Filter Toolbar */}
       <div className="flex flex-col sm:flex-row gap-3">
-        <div className="flex items-center gap-3 px-4 py-2.5 bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 rounded-xl shadow-2xs flex-1 focus-within:border-zinc-300 dark:focus-within:border-zinc-600 transition-all">
+        <div className="flex items-center gap-3 px-4 py-2.5 bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 rounded-xl shadow-2xs flex-1 focus-within:border-blue-500 dark:focus-within:border-blue-500 transition-all">
           <MagnifyingGlass size={16} className="text-zinc-400" />
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Filter by name, phone or project…"
+            placeholder="Filter by buyer name, phone, or project…"
             aria-label="Filter leads"
-            className="flex-1 bg-transparent border-none outline-none text-[14px] text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400"
+            className="flex-1 bg-transparent border-none outline-none text-[13.5px] font-medium text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400"
           />
+          {query && (
+            <button
+              onClick={() => setQuery('')}
+              className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 p-0.5 cursor-pointer"
+            >
+              <X size={14} />
+            </button>
+          )}
         </div>
         <div className="sm:w-52">
           <CustomSelect
@@ -197,38 +271,64 @@ export default function PartnerLeadsPage() {
         </div>
       </div>
 
+      {/* Leads List */}
       {filtered.length === 0 ? (
         <EmptyState
           icon={<PhoneCall size={32} />}
           title={leads.length === 0 ? 'No leads routed to you yet' : 'No leads match that filter'}
-          body={leads.length === 0 ? 'Your builder assigns leads to you from their console.' : undefined}
+          body={leads.length === 0 ? 'Your partner builders assign leads directly to you from their developer consoles.' : undefined}
         />
       ) : (
-        <Card className="divide-y divide-zinc-100 dark:divide-zinc-800 overflow-hidden">
+        <Card className="divide-y divide-zinc-100 dark:divide-zinc-800/80 overflow-hidden shadow-2xs">
           {filtered.map((l) => {
             const budget = budgetLabel(l)
+            const cleanPhone = l.phone.replace(/\D/g, '')
             return (
-              <div key={l.id} className="px-4 py-4 space-y-2.5">
-                <div className="flex flex-col lg:flex-row lg:items-center gap-3">
+              <div key={l.id} className="p-4 sm:p-5 space-y-3 hover:bg-zinc-50/40 dark:hover:bg-zinc-800/20 transition-colors">
+                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <p className="text-[14px] font-semibold text-zinc-900 dark:text-zinc-100 truncate">{l.name}</p>
+                      <p className="text-[14.5px] font-bold text-zinc-900 dark:text-zinc-100 truncate">{l.name}</p>
                       <TierBadge tier={l.lead_tier} />
                       <LeadStatusPill status={l.status} />
                     </div>
-                    <p className="text-[12px] text-zinc-500 dark:text-zinc-400 mt-1 truncate">
-                      <a href={`tel:${l.phone}`} className="font-semibold text-zinc-700 dark:text-zinc-200 hover:underline">{l.phone}</a>
-                      {' · '}{l.project_name ?? 'General inquiry'}
-                      {budget ? ` · ${budget}` : ''}
-                      {l.intent_tier ? ` · ${l.intent_tier.replace(/-/g, ' ')}` : ''}
-                    </p>
+                    <div className="flex items-center gap-2 mt-1.5 flex-wrap text-[12px] text-zinc-500 dark:text-zinc-400">
+                      <a
+                        href={`tel:${l.phone}`}
+                        className="inline-flex items-center gap-1 font-semibold text-[#0066cc] dark:text-[#2997ff] hover:underline"
+                      >
+                        <Phone size={12} weight="bold" />
+                        {l.phone}
+                      </a>
+                      <span>·</span>
+                      <span className="font-medium text-zinc-700 dark:text-zinc-300">
+                        {l.project_name ?? 'General Inquiry'}
+                      </span>
+                      {budget && (
+                        <>
+                          <span>·</span>
+                          <span className="font-semibold text-emerald-600 dark:text-emerald-400">{budget}</span>
+                        </>
+                      )}
+                      {l.intent_tier && (
+                        <>
+                          <span>·</span>
+                          <span className="uppercase text-[10px] font-bold tracking-wider text-zinc-400">
+                            {l.intent_tier.replace(/-/g, ' ')}
+                          </span>
+                        </>
+                      )}
+                    </div>
                     {l.ai_summary && (
-                      <p className="text-[12px] text-zinc-500 dark:text-zinc-400 mt-1 line-clamp-2">{l.ai_summary}</p>
+                      <p className="text-[12px] text-zinc-600 dark:text-zinc-300 mt-2 line-clamp-2 bg-zinc-50 dark:bg-zinc-800/50 p-2.5 rounded-xl border border-zinc-200/50 dark:border-zinc-700/50 font-medium">
+                        {l.ai_summary}
+                      </p>
                     )}
                   </div>
 
+                  {/* Actions & Status Controls */}
                   <div className="flex items-center gap-2 shrink-0 flex-wrap w-full lg:w-auto">
-                    <div className="w-[136px] flex-1 min-w-[128px] lg:flex-none">
+                    <div className="w-[140px] flex-1 min-w-[130px] lg:flex-none">
                       <CustomSelect
                         value={l.status}
                         onChange={(v) => patchLead(l.id, { status: v })}
@@ -237,89 +337,119 @@ export default function PartnerLeadsPage() {
                         size="sm"
                       />
                     </div>
-                    <button
-                      onClick={() => { setEditingId(editingId === l.id ? null : l.id); setNoteDraft(l.partner_notes ?? '') }}
-                      className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[12px] font-semibold border border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-200 hover:bg-zinc-50 dark:hover:bg-zinc-800 cursor-pointer transition-colors"
+
+                    <a
+                      href={`https://wa.me/${cleanPhone}?text=${encodeURIComponent(`Hi ${l.name}, following up regarding your interest in ${l.project_name ?? 'luxury properties'}.`)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] font-bold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border border-emerald-200/60 dark:border-emerald-800/60 hover:bg-emerald-100 transition-colors"
                     >
-                      <NotePencil size={13} weight="bold" />Note
+                      <WhatsappLogo size={14} weight="fill" />
+                      WhatsApp
+                    </a>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setEditingId(editingId === l.id ? null : l.id)
+                        setNoteDraft(l.partner_notes ?? '')
+                      }}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] font-semibold border border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-200 hover:bg-zinc-50 dark:hover:bg-zinc-800 cursor-pointer transition-colors"
+                    >
+                      <NotePencil size={13} weight="bold" />
+                      {l.partner_notes ? 'Edit note' : 'Add note'}
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setBriefFor(l)}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-[#1d1d1f] dark:text-white text-[12px] font-bold cursor-pointer transition-all active:scale-95"
+                    >
+                      <Notebook size={13} weight="bold" />
+                      Brief
                     </button>
                   </div>
                 </div>
 
+                {/* Inline Call Note Form */}
                 {editingId === l.id ? (
-                  <div className="flex items-start gap-2">
+                  <div className="flex items-start gap-2 pt-1">
                     <textarea
                       value={noteDraft}
                       onChange={(e) => setNoteDraft(e.target.value)}
                       rows={2}
                       maxLength={2000}
                       aria-label={`Note for ${l.name}`}
-                      placeholder="What happened on the call?"
-                      className="flex-1 px-3 py-2 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-[13px] text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 outline-none focus:border-zinc-400 dark:focus:border-zinc-500 transition-colors resize-y"
+                      placeholder="Enter update from your call or meeting (visible to builder)..."
+                      className="flex-1 px-3.5 py-2.5 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-[13px] text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 outline-none focus:border-blue-500 transition-colors resize-y shadow-2xs"
                     />
                     <button
+                      type="button"
                       onClick={() => saveNote(l.id)}
                       disabled={savingId === l.id}
-                      className="inline-flex items-center gap-1.5 bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 px-3 py-2 rounded-xl text-[12px] font-bold disabled:opacity-60 cursor-pointer active:scale-[0.98] transition-all"
+                      className="inline-flex items-center gap-1.5 bg-[#1d1d1f] hover:bg-zinc-800 dark:bg-white dark:hover:bg-zinc-100 text-white dark:text-[#1d1d1f] px-3.5 py-2.5 rounded-xl text-[12px] font-bold disabled:opacity-60 cursor-pointer active:scale-95 transition-all shadow-2xs shrink-0"
                     >
-                      <Check size={13} weight="bold" />Save
+                      <Check size={14} weight="bold" />
+                      Save
                     </button>
                   </div>
                 ) : l.partner_notes ? (
-                  <p className="text-[12px] text-zinc-600 dark:text-zinc-300 bg-zinc-50 dark:bg-zinc-800/60 rounded-lg px-3 py-2">{l.partner_notes}</p>
+                  <div className="flex items-center gap-2 text-[12px] text-zinc-600 dark:text-zinc-300 bg-amber-50/60 dark:bg-amber-950/20 border border-amber-200/50 dark:border-amber-900/30 rounded-xl px-3 py-2">
+                    <NotePencil size={13} className="text-amber-600 dark:text-amber-400 shrink-0" />
+                    <span>{l.partner_notes}</span>
+                  </div>
                 ) : null}
-
-                <button
-                  type="button"
-                  onClick={() => setBriefFor(l)}
-                  className="self-start inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-zinc-200 dark:border-zinc-700 text-[12px] font-bold text-zinc-700 dark:text-zinc-200 hover:bg-zinc-50 dark:hover:bg-zinc-800 cursor-pointer"
-                >
-                  <Notebook size={13} weight="bold" />
-                  Open brief
-                </button>
               </div>
             )
           })}
         </Card>
       )}
 
-      {/* Appointments routed to this partner. Somebody has to attend these, and
-          until the routing column existed that somebody could not see them. */}
-      <section className="space-y-3">
-        <h2 className="text-[11px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider px-0.5">
-          Site visits assigned to you
-        </h2>
+      {/* Appointments routed to this partner */}
+      <section className="space-y-3 pt-2">
+        <div className="flex items-center justify-between px-0.5">
+          <h2 className="text-[11px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">
+            Site visits assigned to you ({siteVisits.length})
+          </h2>
+        </div>
+
         {siteVisits.length === 0 ? (
           <EmptyState
             icon={<CalendarCheck size={32} />}
             title="No site visits assigned yet"
-            body="When a builder routes a booked visit to you it appears here with the date and slot."
+            body="When a builder routes a booked visit to you it appears here with the scheduled date and slot."
           />
         ) : (
-          <Card className="divide-y divide-zinc-100 dark:divide-zinc-800 overflow-hidden">
+          <Card className="divide-y divide-zinc-100 dark:divide-zinc-800/80 overflow-hidden shadow-2xs">
             {siteVisits.map((v) => {
               const when = new Date(v.visit_date)
               return (
-                <div key={v.id} className="px-4 py-4 flex flex-col sm:flex-row sm:items-center gap-3">
+                <div key={v.id} className="p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <div className="min-w-0 flex-1">
-                    <p className="text-[14px] font-semibold text-zinc-900 dark:text-zinc-100 truncate">{v.name}</p>
+                    <p className="text-[14.5px] font-bold text-zinc-900 dark:text-zinc-100 truncate">{v.name}</p>
                     <p className="text-[12px] text-zinc-500 dark:text-zinc-400 mt-1 truncate">
-                      <a href={`tel:${v.phone}`} className="font-semibold text-zinc-700 dark:text-zinc-200 hover:underline">{v.phone}</a>
+                      <a href={`tel:${v.phone}`} className="font-semibold text-[#0066cc] dark:text-[#2997ff] hover:underline">
+                        {v.phone}
+                      </a>
                       {v.email ? ` · ${v.email}` : ''}
-                      {' · '}{v.project_name}
+                      {' · '}
+                      <span className="font-semibold text-zinc-700 dark:text-zinc-300">{v.project_name}</span>
                     </p>
                     {v.message && (
                       <p className="text-[12px] text-zinc-500 dark:text-zinc-400 mt-1 line-clamp-2">{v.message}</p>
                     )}
                   </div>
+
                   <div className="shrink-0 sm:text-right">
-                    <p className="text-[13px] font-semibold text-zinc-900 dark:text-zinc-100">
+                    <p className="text-[13.5px] font-bold text-zinc-900 dark:text-zinc-100">
                       {when.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
                     </p>
-                    <p className="inline-flex items-center gap-1 text-[12px] text-zinc-500 dark:text-zinc-400">
-                      <Clock size={12} />{v.time_slot}
+                    <p className="inline-flex items-center gap-1 text-[11.5px] font-semibold text-zinc-500 dark:text-zinc-400">
+                      <Clock size={12} />
+                      {v.time_slot}
                     </p>
                   </div>
+
                   <div className="w-full sm:w-[150px] shrink-0">
                     <CustomSelect
                       value={v.status}

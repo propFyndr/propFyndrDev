@@ -267,14 +267,14 @@ function ProjectThumbnail({ src, alt }: { src?: string | null; alt: string }) {
   const [error, setError] = useState(false)
   if (!src || error) {
     return (
-      <div className="w-8 h-8 rounded-lg bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 flex items-center justify-center flex-shrink-0">
-        <Building2 size={14} className="text-zinc-400" />
+      <div className="w-9 h-9 rounded-xl bg-zinc-100 dark:bg-zinc-800 border border-zinc-200/90 dark:border-zinc-700/80 flex items-center justify-center flex-shrink-0 text-zinc-400 shadow-2xs">
+        <Building2 size={15} />
       </div>
     )
   }
   return (
-    <div className="w-8 h-8 rounded-lg overflow-hidden relative border border-zinc-200 dark:border-zinc-700 flex-shrink-0 shadow-2xs">
-      <Image src={src} alt={alt} fill sizes="32px" className="object-cover" unoptimized onError={() => setError(true)} />
+    <div className="w-9 h-9 rounded-xl overflow-hidden relative ring-1 ring-zinc-200/90 dark:ring-zinc-700/80 flex-shrink-0 shadow-2xs">
+      <Image src={src} alt={alt} fill sizes="36px" className="object-cover" unoptimized onError={() => setError(true)} />
     </div>
   )
 }
@@ -328,10 +328,25 @@ function priceMinVal(units: UnitType[] = []): number {
   return mins.length ? Math.min(...mins) : 0
 }
 
-const STATUS_MAP: Record<string, { label: string; chip: string; icon: typeof CheckCircle2 }> = {
-  ready_to_move: { label: 'Ready to Move', chip: 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800/60', icon: CheckCircle2 },
-  under_construction: { label: 'Under Construction', chip: 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/60 dark:text-amber-300 dark:border-amber-800/60', icon: Clock },
-  new_launch: { label: 'New Launch', chip: 'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/60 dark:text-blue-300 dark:border-blue-800/60', icon: Zap },
+const STATUS_MAP: Record<string, { label: string; chip: string; dot: string; icon: typeof CheckCircle2 }> = {
+  ready_to_move: {
+    label: 'Ready to Move',
+    chip: 'bg-emerald-50/80 text-emerald-800 border-emerald-200/80 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800/50',
+    dot: 'bg-emerald-500',
+    icon: CheckCircle2,
+  },
+  under_construction: {
+    label: 'Under Construction',
+    chip: 'bg-amber-50/80 text-amber-800 border-amber-200/80 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-800/50',
+    dot: 'bg-amber-500',
+    icon: Clock,
+  },
+  new_launch: {
+    label: 'New Launch',
+    chip: 'bg-blue-50/80 text-blue-800 border-blue-200/80 dark:bg-blue-950/40 dark:text-blue-300 dark:border-blue-800/50',
+    dot: 'bg-blue-500',
+    icon: Zap,
+  },
 }
 
 function priceRange(units: UnitType[] = []): string {
@@ -545,22 +560,22 @@ function PartiallyFilledMyntraDropdown({
           onSelect(threshold)
           setIsOpen(prev => !prev)
         }}
-        className={`flex items-center gap-2 px-3.5 py-1.5 text-xs rounded-xl font-bold transition-all cursor-pointer whitespace-nowrap shadow-2xs active:scale-[0.98] ${isActive
-            ? 'bg-amber-50 dark:bg-amber-950/70 text-amber-900 dark:text-amber-200 border border-amber-300 dark:border-amber-700/80 ring-2 ring-amber-500/10'
-            : 'bg-white dark:bg-zinc-900 text-zinc-700 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 hover:text-zinc-900 dark:hover:text-white'
+        className={`flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-xl font-medium transition-all cursor-pointer whitespace-nowrap active:scale-[0.98] ${isActive
+            ? 'bg-amber-50 dark:bg-amber-950/60 text-amber-900 dark:text-amber-200 border border-amber-300/80 dark:border-amber-700/80 shadow-2xs font-semibold'
+            : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-white/60 dark:hover:bg-zinc-800/60'
           }`}
       >
         <span className="flex items-center gap-1.5">
-          {isActive && <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />}
+          {isActive && <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />}
           <span>{displayLabel}</span>
         </span>
-        <span className={`px-2 py-0.5 text-[11px] font-mono font-bold rounded-lg ${isActive
-            ? 'bg-amber-200/90 dark:bg-amber-900/80 text-amber-950 dark:text-amber-100'
-            : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400'
+        <span className={`px-1.5 py-0.5 text-[10.5px] font-mono rounded-md ${isActive
+            ? 'bg-amber-200/80 dark:bg-amber-900/60 text-amber-950 dark:text-amber-100 font-semibold'
+            : 'bg-zinc-200/60 dark:bg-zinc-700/60 text-zinc-600 dark:text-zinc-400'
           }`}>
           {count}
         </span>
-        <ChevronDown size={14} className={`text-zinc-400 transition-transform duration-200 ${isOpen ? 'rotate-180 text-amber-600 dark:text-amber-400' : ''}`} />
+        <ChevronDown size={13} className={`text-zinc-400 transition-transform duration-200 ${isOpen ? 'rotate-180 text-amber-600 dark:text-amber-400' : ''}`} />
       </button>
 
       {/* Expandable Popover Card */}
@@ -663,6 +678,7 @@ export default function AdminProjects() {
   const [query, setQuery] = useState('')
   const [activeTokens, setActiveTokens] = useState<FilterToken[]>([])
   const [statusFilter, setStatusFilter] = useState<'all' | 'ready_to_move' | 'under_construction' | 'new_launch' | 'partially_filled'>('all')
+  const [issueFilter, setIssueFilter] = useState<'all' | 'no_image' | 'no_rera'>('all')
   const [partialThreshold, setPartialThreshold] = useState<number>(100)
   const [showThresholdSlider, setShowThresholdSlider] = useState(false)
   const [healthFilter, setHealthFilter] = useState<'all' | 'under_60' | 'under_80' | 'under_90' | 'critical' | 'good' | 'excellent'>('all')
@@ -719,17 +735,28 @@ export default function AdminProjects() {
   // ── Session Storage Persistence ──────────────────────────────────────────
   useEffect(() => {
     try {
-      const saved = sessionStorage.getItem('propfyndr_admin_projects_filters')
-      if (saved) {
-        const parsed = JSON.parse(saved)
-        if (parsed.query !== undefined) setQuery(parsed.query)
-        if (parsed.activeTokens) setActiveTokens(parsed.activeTokens)
-        if (parsed.statusFilter) setStatusFilter(parsed.statusFilter)
-        if (parsed.partialThreshold !== undefined) setPartialThreshold(parsed.partialThreshold)
-        if (parsed.healthFilter) setHealthFilter(parsed.healthFilter)
-        if (parsed.priceFilter) setPriceFilter(parsed.priceFilter)
-        if (parsed.sortField) setSortField(parsed.sortField)
-        if (parsed.sortOrder) setSortOrder(parsed.sortOrder)
+      const params = new URLSearchParams(window.location.search)
+      const issue = params.get('issue')
+      const status = params.get('status')
+      if (issue === 'no_image') setIssueFilter('no_image')
+      else if (issue === 'no_rera') setIssueFilter('no_rera')
+      if (status && ['ready_to_move', 'under_construction', 'new_launch'].includes(status)) {
+        setStatusFilter(status as any)
+      }
+
+      if (!issue && !status) {
+        const saved = sessionStorage.getItem('propfyndr_admin_projects_filters')
+        if (saved) {
+          const parsed = JSON.parse(saved)
+          if (parsed.query !== undefined) setQuery(parsed.query)
+          if (parsed.activeTokens) setActiveTokens(parsed.activeTokens)
+          if (parsed.statusFilter) setStatusFilter(parsed.statusFilter)
+          if (parsed.partialThreshold !== undefined) setPartialThreshold(parsed.partialThreshold)
+          if (parsed.healthFilter) setHealthFilter(parsed.healthFilter)
+          if (parsed.priceFilter) setPriceFilter(parsed.priceFilter)
+          if (parsed.sortField) setSortField(parsed.sortField)
+          if (parsed.sortOrder) setSortOrder(parsed.sortOrder)
+        }
       }
     } catch { }
   }, [])
@@ -817,6 +844,10 @@ export default function AdminProjects() {
           return false
         }
 
+        // Issue filter (from dashboard alerts)
+        if (issueFilter === 'no_image' && p.hero_image_url) return false
+        if (issueFilter === 'no_rera' && p.rera_number) return false
+
         // Health filter
         const health = getNonMediaScore(p)
         if (healthFilter === 'under_60' && health >= 60) return false
@@ -860,7 +891,7 @@ export default function AdminProjects() {
         else if (sortField === 'health') diff = getNonMediaScore(a) - getNonMediaScore(b)
         return sortOrder === 'asc' ? diff : -diff
       })
-  }, [projects, statusFilter, partialThreshold, healthFilter, priceFilter, activeTokens, query, sortField, sortOrder])
+  }, [projects, statusFilter, issueFilter, partialThreshold, healthFilter, priceFilter, activeTokens, query, sortField, sortOrder])
 
   // Multi-Selection Handlers
   const handleToggleSelectAll = () => {
@@ -1073,11 +1104,12 @@ Provide structured JSON with the exact verified data for each project so it can 
     setQuery('')
     setActiveTokens([])
     setStatusFilter('all')
+    setIssueFilter('all')
     setHealthFilter('all')
     setPriceFilter('all')
   }
 
-  const isFilteringActive = activeTokens.length > 0 || statusFilter !== 'all' || healthFilter !== 'all' || priceFilter !== 'all' || query.trim() !== ''
+  const isFilteringActive = activeTokens.length > 0 || statusFilter !== 'all' || issueFilter !== 'all' || healthFilter !== 'all' || priceFilter !== 'all' || query.trim() !== ''
 
   return (
     <div className="max-w-[1400px] mx-auto space-y-5 p-4 md:p-8">
@@ -1085,32 +1117,33 @@ Provide structured JSON with the exact verified data for each project so it can 
       {/* ── Sub-Header ──────────────────────────────────────────────────────── */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-zinc-200/80 dark:border-zinc-800/80">
         <div>
-          <div className="flex items-center gap-3">
-            <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50 tracking-tight">Projects Catalog</h1>
-            <span className="px-2.5 py-0.5 text-xs font-bold text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/60 border border-blue-200/80 dark:border-blue-800/60 rounded-full">
+          <div className="flex items-center gap-2.5">
+            <h1 className="text-xl md:text-2xl font-bold text-zinc-900 dark:text-zinc-50 tracking-tight">Projects Catalog</h1>
+            <span className="px-2.5 py-0.5 text-[11px] font-mono font-semibold text-blue-700 dark:text-blue-300 bg-blue-50/80 dark:bg-blue-950/60 border border-blue-200/80 dark:border-blue-800/60 rounded-full">
               {sortedAndFiltered.length} of {projects.length} Listed
             </span>
           </div>
-          <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1 font-medium">
+          <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1 font-normal">
             Manage properties, completeness scores, pricing details, and RERA compliance.
           </p>
         </div>
-        <div className="flex items-center flex-wrap gap-2.5">
+        <div className="flex items-center flex-wrap gap-2">
           <button
             onClick={load}
             disabled={loading}
-            className="inline-flex items-center gap-2 px-3.5 py-2 text-xs font-semibold text-zinc-700 dark:text-zinc-200 bg-white dark:bg-zinc-800 border border-zinc-200/80 dark:border-zinc-700/80 rounded-xl shadow-xs hover:bg-zinc-50 dark:hover:bg-zinc-700 transition-all cursor-pointer active:scale-[0.98]"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-zinc-700 dark:text-zinc-200 bg-white dark:bg-zinc-850 border border-zinc-200/90 dark:border-zinc-700/80 rounded-xl shadow-2xs hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-all cursor-pointer active:scale-[0.98]"
+            title="Reload projects from database"
           >
-            <RefreshCw size={14} className={loading ? 'animate-spin text-blue-500' : 'text-zinc-500'} />
+            <RefreshCw size={13} className={loading ? 'animate-spin text-blue-500' : 'text-zinc-400'} />
             <span>Reload</span>
           </button>
 
           <button
             onClick={handleExportCSV}
-            className="inline-flex items-center gap-2 px-3.5 py-2 text-xs font-semibold text-zinc-700 dark:text-zinc-200 bg-white dark:bg-zinc-800 border border-zinc-200/80 dark:border-zinc-700/80 rounded-xl shadow-xs hover:bg-zinc-50 dark:hover:bg-zinc-700 transition-all cursor-pointer active:scale-[0.98]"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-zinc-700 dark:text-zinc-200 bg-white dark:bg-zinc-850 border border-zinc-200/90 dark:border-zinc-700/80 rounded-xl shadow-2xs hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-all cursor-pointer active:scale-[0.98]"
             title="Export filtered project list as CSV"
           >
-            <Download size={14} className="text-zinc-500" />
+            <Download size={13} className="text-zinc-400" />
             <span>Export CSV</span>
           </button>
 
@@ -1120,29 +1153,31 @@ Provide structured JSON with the exact verified data for each project so it can 
                 setExportScope(selectedIds.size > 0 ? 'selected' : 'threshold')
                 setIsAgentExportOpen(true)
               }}
-              className="inline-flex items-center gap-2 px-3.5 py-2 text-xs font-semibold text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-200/80 dark:border-indigo-800/60 rounded-xl shadow-xs hover:bg-indigo-100/80 dark:hover:bg-indigo-900/40 transition-all cursor-pointer active:scale-[0.98]"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-indigo-700 dark:text-indigo-300 bg-indigo-50/80 dark:bg-indigo-950/50 border border-indigo-200/80 dark:border-indigo-800/60 rounded-xl shadow-2xs hover:bg-indigo-100/70 dark:hover:bg-indigo-900/40 transition-all cursor-pointer active:scale-[0.98]"
               title="Export incomplete projects & missing tab fields for data enrichment"
             >
-              <SlidersHorizontal size={14} className="text-indigo-600 dark:text-indigo-400" />
+              <SlidersHorizontal size={13} className="text-indigo-500" />
               <span>Export Incomplete Data {selectedIds.size > 0 ? `(${selectedIds.size} Selected)` : ''}</span>
             </button>
           )}
 
-          {mayBulkUpdate && <button
-            onClick={() => setIsBulkModalOpen(true)}
-            className="inline-flex items-center gap-2 px-3.5 py-2 text-xs font-semibold text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/60 border border-blue-200/80 dark:border-blue-800/60 rounded-xl shadow-xs hover:bg-blue-100/80 transition-all cursor-pointer active:scale-[0.98]"
-            title="Bulk upload spreadsheet to update prices, possession, and statuses"
-          >
-            <Upload size={14} className="text-blue-600 dark:text-blue-400" />
-            <span>Bulk Update</span>
-          </button>}
+          {mayBulkUpdate && (
+            <button
+              onClick={() => setIsBulkModalOpen(true)}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-blue-700 dark:text-blue-300 bg-blue-50/80 dark:bg-blue-950/50 border border-blue-200/80 dark:border-blue-800/60 rounded-xl shadow-2xs hover:bg-blue-100/70 transition-all cursor-pointer active:scale-[0.98]"
+              title="Bulk upload spreadsheet to update prices, possession, and statuses"
+            >
+              <Upload size={13} className="text-blue-500" />
+              <span>Bulk Update</span>
+            </button>
+          )}
 
           {mayEditCatalogue && (
             <Link
               href="/admin/projects/new"
-              className="inline-flex items-center gap-2 px-4 py-2 text-xs font-bold text-white bg-blue-600 hover:bg-blue-500 rounded-xl shadow-xs transition-all cursor-pointer active:scale-[0.98]"
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-medium text-white bg-[#0066cc] hover:bg-[#0077ed] rounded-xl shadow-xs transition-all cursor-pointer active:scale-[0.98]"
             >
-              <Plus size={14} />
+              <Plus size={13} />
               <span>New Project</span>
             </Link>
           )}
@@ -1151,14 +1186,14 @@ Provide structured JSON with the exact verified data for each project so it can 
 
       {/* ── Tokenized Intelligent Search Bar ───────────────────────────────── */}
       <div className="relative" ref={popoverRef}>
-        <div className="group flex items-center flex-wrap gap-2 px-3.5 py-2.5 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl shadow-xs focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/10 transition-all">
-          <Search size={16} className="text-zinc-400 group-focus-within:text-blue-500 transition-colors shrink-0 ml-1" />
+        <div className="group flex items-center flex-wrap gap-2 px-3 py-2 bg-white dark:bg-zinc-900 border border-zinc-200/90 dark:border-zinc-800 rounded-xl shadow-2xs focus-within:border-[#0066cc] focus-within:ring-2 focus-within:ring-[#0066cc]/10 transition-all">
+          <Search size={15} className="text-zinc-400 group-focus-within:text-[#0066cc] transition-colors shrink-0 ml-1" />
 
           {/* Active Token Chips */}
           {activeTokens.map(t => (
             <span
               key={t.id}
-              className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-lg bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200/80 dark:border-blue-800/60 animate-in fade-in zoom-in duration-150"
+              className="inline-flex items-center gap-1.5 px-2 py-0.5 text-xs font-medium rounded-lg bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200/80 dark:border-blue-800/60 animate-in fade-in zoom-in duration-150"
             >
               {t.type === 'builder' && <Building2 size={12} className="text-blue-500" />}
               {t.type === 'sector' && <MapPin size={12} className="text-blue-500" />}
@@ -1166,12 +1201,31 @@ Provide structured JSON with the exact verified data for each project so it can 
               <button
                 type="button"
                 onClick={() => removeFilterToken(t.id)}
-                className="p-0.5 rounded-md hover:bg-blue-200/60 dark:hover:bg-blue-900/60 text-blue-600 dark:text-blue-300 transition-colors cursor-pointer"
+                className="p-0.5 rounded hover:bg-blue-200/60 dark:hover:bg-blue-900/60 text-blue-600 dark:text-blue-300 transition-colors cursor-pointer"
               >
                 <X size={12} />
               </button>
             </span>
           ))}
+
+          {issueFilter !== 'all' && (
+            <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 text-xs font-medium rounded-lg border animate-in fade-in zoom-in duration-150 ${
+              issueFilter === 'no_image'
+                ? 'bg-amber-50 dark:bg-amber-950/60 text-amber-800 dark:text-amber-200 border-amber-300/80 dark:border-amber-800/80'
+                : 'bg-violet-50 dark:bg-violet-950/60 text-violet-800 dark:text-violet-200 border-violet-300/80 dark:border-violet-800/80'
+            }`}>
+              <AlertTriangle size={12} className={issueFilter === 'no_image' ? 'text-amber-600 dark:text-amber-400' : 'text-violet-600 dark:text-violet-400'} />
+              <span>{issueFilter === 'no_image' ? 'Issue: Missing Cover Photo' : 'Issue: Missing RERA Number'}</span>
+              <button
+                type="button"
+                onClick={() => setIssueFilter('all')}
+                className="p-0.5 rounded hover:opacity-80 transition-opacity cursor-pointer"
+                title="Clear issue filter"
+              >
+                <X size={12} />
+              </button>
+            </span>
+          )}
 
           <input
             ref={searchInputRef}
@@ -1194,7 +1248,7 @@ Provide structured JSON with the exact verified data for each project so it can 
                 onClick={() => setQuery('')}
                 className="p-1 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 transition-colors"
               >
-                <X size={14} />
+                <X size={13} />
               </button>
             )}
           </div>
@@ -1228,10 +1282,10 @@ Provide structured JSON with the exact verified data for each project so it can 
       </div>
 
       {/* ── Segmented Micro-Filter Bar ─────────────────────────────────────── */}
-      <div className="flex flex-wrap items-center justify-between gap-3 p-1.5 bg-zinc-100/80 dark:bg-zinc-800/60 rounded-2xl border border-zinc-200/80 dark:border-zinc-700/60">
+      <div className="flex flex-wrap items-center justify-between gap-2.5 p-1 bg-zinc-100/90 dark:bg-zinc-800/70 rounded-xl border border-zinc-200/80 dark:border-zinc-700/60 shadow-2xs">
 
         {/* Status Segmented Buttons */}
-        <div className="flex items-center gap-1 overflow-visible max-w-full pb-1 sm:pb-0 flex-wrap sm:flex-nowrap">
+        <div className="flex items-center gap-1 overflow-visible max-w-full flex-wrap sm:flex-nowrap">
           {[
             { id: 'all', label: 'All Statuses', count: counts.all },
             { id: 'ready_to_move', label: 'Ready to Move', count: counts.ready },
@@ -1243,16 +1297,18 @@ Provide structured JSON with the exact verified data for each project so it can 
               onClick={() => {
                 setStatusFilter(tab.id as any)
               }}
-              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-xl font-semibold transition-all cursor-pointer whitespace-nowrap ${statusFilter === tab.id
-                  ? 'bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white shadow-xs'
-                  : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white'
-                }`}
+              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-lg font-medium transition-all cursor-pointer whitespace-nowrap ${
+                statusFilter === tab.id
+                  ? 'bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white shadow-2xs font-semibold'
+                  : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-white/50 dark:hover:bg-zinc-800/50'
+              }`}
             >
               <span>{tab.label}</span>
-              <span className={`px-1.5 py-0.2 text-[10px] font-bold rounded-md ${statusFilter === tab.id
-                  ? 'bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white'
+              <span className={`px-1.5 py-0.5 text-[10px] font-mono rounded-md ${
+                statusFilter === tab.id
+                  ? 'bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white font-semibold'
                   : 'bg-zinc-200/60 dark:bg-zinc-700/60 text-zinc-600 dark:text-zinc-400'
-                }`}>
+              }`}>
                 {tab.count}
               </span>
             </button>
@@ -1457,34 +1513,34 @@ Provide structured JSON with the exact verified data for each project so it can 
                     </button>
 
                     {/* Thumbnail */}
-                    <div className="mr-4">
+                    <div className="mr-3.5">
                       <ProjectThumbnail src={project.hero_image_url} alt={project.name} />
                     </div>
 
                     {/* Name, Developer & Sector */}
                     <div className="flex-1 min-w-0 pr-4">
                       <div className="flex items-center gap-2">
-                        <span className="text-xs font-bold text-zinc-900 dark:text-zinc-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors truncate">
+                        <span className="text-[13px] font-semibold text-zinc-900 dark:text-zinc-100 group-hover:text-[#0066cc] dark:group-hover:text-[#3399ff] transition-colors truncate">
                           {project.name}
                         </span>
                       </div>
-                      <div className="flex items-center gap-1.5 text-[11px] text-zinc-400 mt-0.5 truncate">
+                      <div className="flex items-center gap-1.5 text-[11.5px] text-zinc-500 dark:text-zinc-400 mt-0.5 truncate">
                         <span>{project.builder?.name || 'Unknown Developer'}</span>
-                        <span>•</span>
+                        <span className="text-zinc-300 dark:text-zinc-600">•</span>
                         <span>{project.sector}, {project.city}</span>
                       </div>
                     </div>
 
                     {/* Status Badge */}
                     <div className="w-[140px] flex items-center">
-                      <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-semibold rounded-lg border ${statusCfg.chip}`}>
-                        <StatusIcon size={12} />
+                      <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 text-[11px] font-medium rounded-full border shadow-2xs ${statusCfg.chip}`}>
+                        <span className={`w-1.5 h-1.5 rounded-full ${statusCfg.dot}`} />
                         <span>{statusCfg.label}</span>
                       </span>
                     </div>
 
                     {/* Pricing Range */}
-                    <div className="w-[120px] flex items-center justify-end pr-6 text-xs font-mono font-bold text-zinc-700 dark:text-zinc-300">
+                    <div className="w-[120px] flex items-center justify-end pr-6 text-xs font-mono font-semibold text-zinc-800 dark:text-zinc-200 tabular-nums">
                       {priceRange(project.unit_types)}
                     </div>
 
@@ -1495,7 +1551,7 @@ Provide structured JSON with the exact verified data for each project so it can 
 
                     {/* Row Action Arrow */}
                     <div className="w-[60px] flex items-center justify-end">
-                      <ChevronRight size={15} className="text-zinc-300 group-hover:text-blue-500 group-hover:translate-x-0.5 transition-all" />
+                      <ChevronRight size={14} className="text-zinc-300 dark:text-zinc-600 group-hover:text-[#0066cc] group-hover:translate-x-0.5 transition-all" />
                     </div>
                   </div>
 
@@ -1520,23 +1576,23 @@ Provide structured JSON with the exact verified data for each project so it can 
                         </button>
                         <ProjectThumbnail src={project.hero_image_url} alt={project.name} />
                         <div className="min-w-0">
-                          <h4 className="text-xs font-bold text-zinc-900 dark:text-zinc-100 truncate">{project.name}</h4>
+                          <h4 className="text-xs font-semibold text-zinc-900 dark:text-zinc-100 truncate">{project.name}</h4>
                           <p className="text-[11px] text-zinc-500 dark:text-zinc-400 truncate mt-0.5">
                             {project.builder?.name || 'Unknown'} • {project.sector}
                           </p>
                         </div>
                       </div>
-                      <ChevronRight size={16} className="text-zinc-400 shrink-0 mt-1" />
+                      <ChevronRight size={15} className="text-zinc-400 shrink-0 mt-1" />
                     </div>
 
                     <div className="flex items-center justify-between pt-2 border-t border-zinc-100 dark:border-zinc-800/60">
-                      <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 text-[10.5px] font-semibold rounded-md border ${statusCfg.chip}`}>
-                        <StatusIcon size={11} />
+                      <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 text-[10.5px] font-medium rounded-full border ${statusCfg.chip}`}>
+                        <span className={`w-1.5 h-1.5 rounded-full ${statusCfg.dot}`} />
                         <span>{statusCfg.label}</span>
                       </span>
 
                       <div className="flex items-center gap-3">
-                        <span className="text-xs font-mono font-bold text-zinc-700 dark:text-zinc-300">
+                        <span className="text-xs font-mono font-semibold text-zinc-800 dark:text-zinc-200 tabular-nums">
                           {priceRange(project.unit_types)}
                         </span>
                         <HealthBadgeWithTooltip project={project} />

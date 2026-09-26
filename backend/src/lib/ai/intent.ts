@@ -4,6 +4,7 @@ import { meteredClient } from './geminiMeter'
 import OpenAI from 'openai'
 import { z } from 'zod'
 import { INTENT_EXTRACTION_PROMPT } from './prompts/index'
+import { parseJevDecision, JEV_PROMPT_SECTION, type JevDecision } from '../jev/decision'
 import type { Intent } from '../discovery'
 import { MODELS, FALLBACK_CHAIN } from '../config'
 import { IntentSchema } from '../discovery/intent'
@@ -284,6 +285,8 @@ export interface IntentResult {
   intent: Intent
   /** True when all providers failed and previousIntent was returned as fallback. */
   degraded: boolean
+  /** JEV's routing decision, when JEV_MODE is on and the leg returned one. Shadow-only in Phase 3. */
+  decision?: JevDecision
 }
 
 import { isKeyFailed, markKeyFailed } from './providerStatus'
@@ -510,6 +513,7 @@ export async function extractIntent(message: string, previousIntent: Intent): Pr
    */
   refreshKnownSectors()
   const deterministic = extractDeterministic(message, KNOWN_SECTOR_NUMBERS)
+  const jevOn = process.env.JEV_MODE === 'shadow' || process.env.JEV_MODE === 'on'
 
   if (process.env.INTENT_FAST_PATH !== 'false') {
     const heuristic = applyLiterals(extractIntentHeuristic(message, previousIntent), deterministic, message, previousIntent)
@@ -574,14 +578,15 @@ export async function extractIntent(message: string, previousIntent: Intent): Pr
           model: config.model || 'gemini-3.6-flash',
           contents: [{ role: 'user', parts: [{ text: `Previous intent: ${slimIntentForPrompt(previousIntent)}\n\nUser message: ${message}` }] }],
           config: {
-            systemInstruction: INTENT_EXTRACTION_PROMPT,
+            systemInstruction: jevOn ? INTENT_EXTRACTION_PROMPT + JEV_PROMPT_SECTION : INTENT_EXTRACTION_PROMPT,
             temperature: 0.1,
             responseMimeType: 'application/json',
           },
         })
         const raw = res.text?.trim() ?? '{}'
         const result = tryParseIntentJson(raw, previousIntent)
-        if (result) return { intent: applyLiterals(result, deterministic, message, previousIntent), degraded: false }
+        const decision = jevOn ? parseJevDecision(raw) : null
+        if (result) return { intent: applyLiterals(result, deterministic, message, previousIntent), degraded: false, ...(decision ? { decision } : {}) }
       }
       if (config.provider === 'groq') {
         console.log(`[INTENT] Trying Groq (${config.model}) via ${config.envKey}`)

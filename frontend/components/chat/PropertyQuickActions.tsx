@@ -29,7 +29,7 @@ export default function PropertyQuickActions({ project, onCallback, onOpenShareS
       <button
         type="button"
         onClick={(e) => { e.stopPropagation(); onCallback?.(project); }}
-        className="flex-[3] h-11 flex flex-shrink-0 items-center justify-center gap-1.5 rounded-full bg-zinc-50 dark:bg-zinc-900/90 border border-zinc-200/80 dark:border-zinc-800 text-zinc-700 dark:text-zinc-300 hover:bg-emerald-50/80 dark:hover:bg-emerald-950/40 hover:text-emerald-600 dark:hover:text-emerald-400 hover:border-emerald-300 dark:hover:border-emerald-800 transition-all duration-200 shadow-xs group cursor-pointer"
+        className="flex-[3] h-11 flex flex-shrink-0 items-center justify-center gap-1.5 rounded-full bg-zinc-50 dark:bg-zinc-900/90 border border-zinc-200/80 dark:border-zinc-800 text-zinc-700 dark:text-zinc-300 hover:bg-emerald-50/80 dark:hover:bg-emerald-950/40 hover:text-emerald-600 dark:hover:text-emerald-400 hover:border-emerald-300 dark:hover:border-emerald-800 transition-colors duration-150 group cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1"
         aria-label="Request Callback"
         title="Request Callback from Advisor"
       >
@@ -43,9 +43,9 @@ export default function PropertyQuickActions({ project, onCallback, onOpenShareS
       <button
         type="button"
         onClick={(e) => { e.stopPropagation(); handleAskAI(); }}
-        className="flex-[4] h-11 flex flex-shrink-0 items-center justify-center gap-1.5 bg-[#3061F2] hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-500 text-white rounded-full text-[14px] font-semibold shadow-[0_4px_14px_rgba(48,97,242,0.3)] hover:shadow-[0_6px_20px_rgba(48,97,242,0.4)] active:scale-[0.98] transition-all duration-200 cursor-pointer"
+        className="flex-[4] h-11 flex flex-shrink-0 items-center justify-center gap-1.5 bg-primary hover:bg-primary-dark text-white rounded-full text-[13px] font-medium active:scale-[0.98] transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1"
       >
-        <Robot size={18} weight="duotone" />
+        <Robot size={18} weight="duotone" aria-hidden="true" />
         Ask AI
       </button>
 
@@ -53,7 +53,7 @@ export default function PropertyQuickActions({ project, onCallback, onOpenShareS
       <button
         type="button"
         onClick={(e) => { e.stopPropagation(); onOpenShareSheet(); }}
-        className="flex-[3] h-11 flex flex-shrink-0 items-center justify-center rounded-full bg-zinc-50 dark:bg-zinc-900/90 border border-zinc-200/80 dark:border-zinc-800 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-zinc-100 transition-all duration-200 shadow-xs group cursor-pointer"
+        className="flex-[3] h-11 flex flex-shrink-0 items-center justify-center rounded-full bg-zinc-50 dark:bg-zinc-900/90 border border-zinc-200/80 dark:border-zinc-800 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors duration-150 group cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1"
         aria-label="Share"
         title="Share Project"
       >

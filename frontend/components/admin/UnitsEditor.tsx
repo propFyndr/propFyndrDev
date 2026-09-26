@@ -303,12 +303,12 @@ export default function UnitsEditor({
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-zinc-100 dark:border-zinc-800/80">
+    <div className="space-y-5">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-zinc-200/80 dark:border-zinc-800">
         <div>
-          <h2 className="text-base sm:text-lg font-black text-zinc-900 dark:text-zinc-100 flex items-center gap-2.5">
+          <h2 className="text-base font-bold text-zinc-900 dark:text-zinc-100 flex items-center gap-2.5">
             <span>Unit Configurations & Floor Plans</span>
-            <span className="text-[11px] font-mono font-bold bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 px-2.5 py-0.5 rounded-lg border border-zinc-200 dark:border-zinc-700">
+            <span className="text-[11px] font-mono font-semibold bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 px-2 py-0.5 rounded-md border border-zinc-200 dark:border-zinc-700">
               {rows.length} Configs
             </span>
           </h2>
@@ -319,13 +319,13 @@ export default function UnitsEditor({
         <button
           type="button"
           onClick={() => setShowAdd(v => !v)}
-          className={`self-start sm:self-auto inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold rounded-xl transition-all cursor-pointer shadow-xs active:scale-95 whitespace-nowrap ${
+          className={`self-start sm:self-auto inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-medium rounded-xl transition-all cursor-pointer shadow-2xs active:scale-[0.98] whitespace-nowrap ${
             showAdd
               ? 'bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700'
-              : 'bg-zinc-900 hover:bg-zinc-800 text-white dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-100'
+              : 'bg-[#0066cc] hover:bg-[#0077ed] text-white'
           }`}
         >
-          {showAdd ? <X size={14} /> : <Plus size={14} />}
+          {showAdd ? <X size={13} /> : <Plus size={13} />}
           <span>{showAdd ? 'Cancel' : 'Add Unit Type'}</span>
         </button>
       </div>
