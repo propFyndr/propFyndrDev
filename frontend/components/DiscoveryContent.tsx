@@ -543,17 +543,6 @@ export default function DiscoveryContent({ userId, guestToken, onSessionChange, 
   // ── Image carousel state for in-chat galleries ──
   const [carouselIndexes, setCarouselIndexes] = useState<Record<number, number>>({});
 
-  // ── Mobile detection state ──
-  const [isMobile, setIsMobile] = useState(false);
-
-  // Detect mobile screen
-  useEffect(() => {
-    const checkMobile = () => setIsMobile(window.innerWidth < 768);
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
-
   // [TIMING] DiscoveryContent mount — distinct from page-mount (page has auth init first)
   useEffect(() => {
     const nt = getNavTimings()
@@ -744,8 +733,12 @@ export default function DiscoveryContent({ userId, guestToken, onSessionChange, 
   }, [chatHistory, isSubmitting, scrollToLatestResponse]);
 
   // ── Mobile keyboard handling via Visual Viewport API ──
+  // Detection only. The canvas height is never driven from here: pinning it to
+  // visualViewport.height anchored a keyboard-sized box at the top of a 100dvh
+  // page, so on iOS (which pans instead of resizing) and after any pinch-zoom
+  // the composer floated mid-screen with dead space below it. Android resizes
+  // the layout itself via `interactiveWidget: 'resizes-content'` in layout.tsx.
   const [keyboardOpen, setKeyboardOpen] = useState(false);
-  const [viewportHeight, setViewportHeight] = useState('100vh');
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -755,7 +748,6 @@ export default function DiscoveryContent({ userId, guestToken, onSessionChange, 
       if (!vv) return;
       const isOpen = vv.height < window.innerHeight * 0.75;
       setKeyboardOpen(isOpen);
-      setViewportHeight(`${vv.height}px`);
 
       if (isOpen) {
         setTimeout(scrollToBottom, 50);
@@ -1692,7 +1684,6 @@ export default function DiscoveryContent({ userId, guestToken, onSessionChange, 
   return (
     <div
       className="discover-canvas flex-1 flex flex-col min-h-0 overflow-hidden"
-      style={isMobile ? { height: viewportHeight } : undefined}
     >
       {/* Seamless Floating Header (Container is 100% transparent; only individual pills have frosted blur) */}
       <div className="absolute top-2.5 sm:top-3 left-0 right-0 z-30 flex items-center justify-between px-3 sm:px-6 pointer-events-none">
@@ -1825,7 +1816,7 @@ export default function DiscoveryContent({ userId, guestToken, onSessionChange, 
           </div>
         ) : !hasUserReplied ? (
           /* Welcome screen */
-          <div className="flex-1 flex flex-col items-center justify-center px-4 sm:px-6 py-8 relative z-10 overflow-y-auto">
+          <div className="flex-1 flex flex-col items-center [justify-content:safe_center] px-4 sm:px-6 pt-16 pb-8 sm:py-8 relative z-10 overflow-y-auto">
             {/* Brand hero. The wordmark is set in Afacad bold italic to match
                 the logo artwork — keep the two in step. */}
             <div className="text-center mb-8 w-full max-w-[768px] animate-fade-in-up flex flex-col items-center select-none">
