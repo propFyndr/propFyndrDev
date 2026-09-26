@@ -916,7 +916,7 @@ export default function PortalShell({ nav, rootHref, rootLabel, allowRoles, scop
       `}>
 
         {/* Brand Header */}
-        <div className="h-14 pt-[env(safe-area-inset-top,0px)] flex items-center justify-between border-b border-zinc-100/80 dark:border-zinc-800 w-full px-3.5 shrink-0 box-content">
+        <div className="h-14 pt-[env(safe-area-inset-top,0px)] flex items-center justify-between border-b border-zinc-100/80 dark:border-zinc-800 w-full px-3.5 shrink-0">
           {!isCollapsed ? (
             <>
               <Link href={rootHref} className="flex items-center gap-2.5 min-w-0 group/logo">
@@ -949,14 +949,11 @@ export default function PortalShell({ nav, rootHref, rootLabel, allowRoles, scop
                   if (window.innerWidth < 768) setMobileOpen(false)
                   else setIsCollapsed(true)
                 }}
-                className="w-8 h-8 rounded-lg text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800 flex items-center justify-center transition-colors cursor-pointer"
+                className="w-8 h-8 rounded-lg text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800 flex items-center justify-center transition-colors cursor-pointer shrink-0"
                 title="Collapse sidebar"
                 aria-label="Collapse sidebar"
               >
-                <svg width="17" height="17" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <rect x="1.5" y="2.5" width="13" height="11" rx="2.5" stroke="currentColor" strokeWidth="1.25" />
-                  <path d="M5.5 2.5V13.5" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" />
-                </svg>
+                <SidebarSimple size={18} weight="regular" />
               </button>
             </>
           ) : (
@@ -964,11 +961,11 @@ export default function PortalShell({ nav, rootHref, rootLabel, allowRoles, scop
               <button
                 type="button"
                 onClick={() => setIsCollapsed(false)}
-                className="w-9 h-9 rounded-xl flex items-center justify-center hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-all cursor-pointer group"
+                className="w-10 h-10 rounded-xl flex items-center justify-center text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-all cursor-pointer group"
                 title="Expand sidebar"
                 aria-label="Expand sidebar"
               >
-                <div className="w-8 h-8 rounded-lg overflow-hidden flex items-center justify-center group-hover:hidden shadow-2xs">
+                <div className="w-8 h-8 rounded-lg overflow-hidden flex items-center justify-center shadow-2xs group-hover:hidden">
                   <Image
                     src="/images/icons/logo-square-black.png"
                     alt="PropFyndr"
@@ -986,12 +983,7 @@ export default function PortalShell({ nav, rootHref, rootLabel, allowRoles, scop
                     unoptimized
                   />
                 </div>
-                <div className="hidden group-hover:flex items-center justify-center text-zinc-600 dark:text-zinc-200">
-                  <svg width="17" height="17" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <rect x="1.5" y="2.5" width="13" height="11" rx="2.5" stroke="currentColor" strokeWidth="1.25" />
-                    <path d="M5.5 2.5V13.5" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" />
-                  </svg>
-                </div>
+                <SidebarSimple size={18} weight="bold" className="hidden group-hover:block text-zinc-700 dark:text-zinc-200" />
               </button>
             </div>
           )}
@@ -1093,14 +1085,14 @@ export default function PortalShell({ nav, rootHref, rootLabel, allowRoles, scop
                 if (hasChildren && n.children) {
                   return (
                     <div key={n.label} className="space-y-0.5">
-                      <div className="flex items-center group/navitem relative">
+                      <div className="flex items-center group/navitem relative rounded-xl overflow-hidden">
                         <Link
                           href={n.href}
                           onClick={() => {
                             setExpandedItems((prev) => ({ ...prev, [n.label]: true }))
                           }}
                           className={`
-                            flex items-center flex-1 gap-2.5 px-3 py-2 rounded-xl transition-all duration-150 overflow-hidden whitespace-nowrap text-left
+                            flex items-center flex-1 min-w-0 gap-2.5 px-3 py-2 transition-all duration-150 overflow-hidden whitespace-nowrap text-left
                             ${(isCurrentActive && !isChildActive)
                               ? 'bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 font-semibold shadow-xs'
                               : isChildActive
@@ -1125,11 +1117,19 @@ export default function PortalShell({ nav, rootHref, rootLabel, allowRoles, scop
                             e.stopPropagation()
                             toggleExpand(n.label)
                           }}
-                          className="p-1.5 mr-1 rounded-lg text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-200/60 dark:hover:bg-zinc-700/60 transition-colors cursor-pointer"
+                          className={`
+                            p-2 transition-colors cursor-pointer shrink-0 flex items-center justify-center
+                            ${(isCurrentActive && !isChildActive)
+                              ? 'bg-zinc-900 dark:bg-zinc-100 text-zinc-300 dark:text-zinc-700 hover:text-white dark:hover:text-zinc-900'
+                              : isChildActive
+                              ? 'bg-zinc-100/70 dark:bg-zinc-800/50 text-zinc-400 hover:text-zinc-900 dark:hover:text-white'
+                              : 'text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100/70 dark:hover:bg-zinc-800/60'
+                            }
+                          `}
                           aria-label={`Toggle ${n.label} sub-navigation`}
                         >
                           <CaretDown
-                            size={13}
+                            size={12}
                             weight="bold"
                             className={`transition-transform duration-200 ${isExpanded ? 'rotate-0' : '-rotate-90'}`}
                           />
@@ -1369,6 +1369,19 @@ export default function PortalShell({ nav, rootHref, rootLabel, allowRoles, scop
               <span className="w-[16px] h-[2px] bg-current rounded-full" />
               <span className="w-[16px] h-[2px] bg-current rounded-full" />
             </button>
+
+            {/* Desktop Expand Button when sidebar is collapsed */}
+            {isCollapsed && (
+              <button
+                type="button"
+                onClick={() => setIsCollapsed(false)}
+                className="hidden md:flex items-center justify-center w-8 h-8 rounded-lg text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer mr-1 shrink-0"
+                title="Expand sidebar"
+                aria-label="Expand sidebar"
+              >
+                <SidebarSimple size={18} weight="regular" />
+              </button>
+            )}
 
             {/* Kravio-style Lightweight Breadcrumbs */}
             <nav className="flex items-center gap-2 text-xs min-w-0 font-medium">
