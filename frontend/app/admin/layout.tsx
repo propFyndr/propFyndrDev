@@ -38,34 +38,94 @@ const LEAD_WORKERS = ['SUPER_ADMIN', 'SALES'] as const
  * Sections everyone shares are left unmarked.
  */
 const NAV: PortalNavItem[] = [
-  // Core & Daily Workflow
-  { href: '/admin',                       label: 'Dashboard',     icon: Gauge,             roles: [...OWNERS],      section: 'Core' },
-  { href: '/admin/queue',                 label: 'My queue',      icon: PhoneCall,         roles: [...LEAD_WORKERS], section: 'Core' },
-  { href: '/admin/quality',               label: 'Data quality',  icon: SealCheck,         roles: [...EDITORS],     section: 'Core' },
-  // The only way into /admin/lookup. Removing this line orphaned the page —
-  // nothing else in the app links to it — and with it the read-only catalogue
-  // a salesperson answers a buyer from mid-call, which is the whole reason
-  // SALES does not get the editable Projects tab.
-  { href: '/admin/lookup',                label: 'Lookup',        icon: MagnifyingGlass,                            section: 'Core' },
+  // MAIN NAVIGATION
+  {
+    href: '/admin',
+    label: 'Overview',
+    icon: Gauge,
+    roles: [...OWNERS],
+    section: 'Main Navigation',
+  },
+  {
+    href: '/admin/projects',
+    label: 'Projects',
+    icon: Buildings,
+    roles: [...STAFF],
+    section: 'Main Navigation',
+    children: [
+      { href: '/admin/projects', label: 'All Projects', roles: [...EDITORS] },
+      { href: '/admin/projects/new', label: 'New Project', roles: [...EDITORS] },
+      { href: '/admin/quality', label: 'Data Quality', roles: [...EDITORS] },
+      { href: '/admin/lookup', label: 'Fact Lookup' },
+    ],
+  },
+  {
+    href: '/admin/builders',
+    label: 'Builders & Partners',
+    icon: UsersThree,
+    roles: [...EDITORS],
+    section: 'Main Navigation',
+    children: [
+      { href: '/admin/builders', label: 'All Builders', roles: [...EDITORS] },
+      { href: '/admin/builder-applications', label: 'Registrations', roles: [...EDITORS] },
+      { href: '/admin/partners', label: 'Channel Partners', roles: [...EDITORS] },
+    ],
+  },
+  {
+    href: '/admin/leads',
+    label: 'Leads & Inquiries',
+    icon: PhoneCall,
+    roles: [...LEAD_WORKERS],
+    section: 'Main Navigation',
+    children: [
+      { href: '/admin/queue', label: 'My Queue', roles: [...LEAD_WORKERS] },
+      { href: '/admin/leads', label: 'All Leads', roles: [...LEAD_WORKERS] },
+      { href: '/admin/conversations', label: 'AI Conversations', roles: [...OWNERS] },
+    ],
+  },
 
-  // Catalogue & Inventory
-  { href: '/admin/projects',              label: 'Projects',      icon: Buildings,         roles: [...EDITORS],     section: 'Catalogue' },
-  { href: '/admin/builders',              label: 'Builders',      icon: UsersThree,        roles: [...EDITORS],     section: 'Catalogue' },
-  { href: '/admin/partners',              label: 'Partners',      icon: Handshake,         roles: [...EDITORS],     section: 'Catalogue' },
-  { href: '/admin/builder-applications',  label: 'Registrations', icon: IdentificationBadge, roles: [...EDITORS],   section: 'Catalogue' },
+  // MARKETING & CONTENT
+  {
+    href: '/admin/blog',
+    label: 'Content & Editorial',
+    icon: BookOpen,
+    roles: [...EDITORS],
+    section: 'Marketing & Content',
+    children: [
+      { href: '/admin/blog', label: 'Blog Articles', roles: [...EDITORS] },
+      { href: '/admin/news', label: 'Real Estate News', roles: [...EDITORS] },
+      { href: '/admin/promotions', label: 'Promotions', roles: [...EDITORS] },
+    ],
+  },
 
-  // Growth & Interactions
-  { href: '/admin/leads',                 label: 'Leads',         icon: PhoneCall,         roles: [...LEAD_WORKERS], section: 'Growth' },
-  { href: '/admin/news',                  label: 'News',          icon: NewspaperClipping, roles: [...EDITORS],     section: 'Growth' },
-  { href: '/admin/blog',                  label: 'Blog',          icon: BookOpen,          roles: [...EDITORS],     section: 'Growth' },
-  { href: '/admin/promotions',            label: 'Promotions',    icon: Megaphone,         roles: [...EDITORS],     section: 'Growth' },
-  { href: '/admin/conversations',         label: 'Conversations', icon: ChatCircleText,    roles: [...OWNERS],      section: 'Growth' },
-
-  // System & Settings
-  { href: '/admin/analytics',             label: 'Analytics',     icon: ChartLineUp,       roles: [...EDITORS],     section: 'System' },
-  { href: '/admin/team',                  label: 'Team',          icon: UsersFour,         roles: [...OWNERS],      section: 'System' },
-  { href: '/admin/outbox',                label: 'Outbox',        icon: EnvelopeSimple,    roles: [...OWNERS],      section: 'System' },
-  { href: '/admin/account',               label: 'Account',       icon: UserCircle,                                 section: 'System' },
+  // ANALYTICS & SYSTEM
+  {
+    href: '/admin/analytics',
+    label: 'Analytics',
+    icon: ChartLineUp,
+    roles: [...EDITORS],
+    section: 'Analytics & System',
+  },
+  {
+    href: '/admin/team',
+    label: 'Team',
+    icon: UsersFour,
+    roles: [...OWNERS],
+    section: 'Analytics & System',
+  },
+  {
+    href: '/admin/outbox',
+    label: 'Outbox',
+    icon: EnvelopeSimple,
+    roles: [...OWNERS],
+    section: 'Analytics & System',
+  },
+  {
+    href: '/admin/account',
+    label: 'Account',
+    icon: UserCircle,
+    section: 'Analytics & System',
+  },
 ]
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {

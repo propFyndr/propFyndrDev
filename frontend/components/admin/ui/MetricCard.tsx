@@ -16,6 +16,43 @@ interface MetricCardProps {
   tooltip?: React.ReactNode
   isHero?: boolean
   warning?: boolean
+  sparkline?: 'emerald' | 'rose' | 'blue' | 'amber'
+  sparklineData?: number[]
+}
+
+function MiniSparkline({
+  data = [10, 18, 14, 22, 19, 28, 24, 32],
+  variant = 'emerald',
+}: {
+  data?: number[]
+  variant?: 'emerald' | 'rose' | 'blue' | 'amber'
+}) {
+  const min = Math.min(...data)
+  const max = Math.max(...data)
+  const range = max - min || 1
+  const width = 56
+  const height = 20
+  const points = data.map((val, i) => {
+    const x = (i / (data.length - 1)) * width
+    const y = height - ((val - min) / range) * (height - 4) - 2
+    return `${x.toFixed(1)},${y.toFixed(1)}`
+  })
+  const pathD = `M ${points.join(' L ')}`
+  const areaD = `${pathD} L ${width},${height} L 0,${height} Z`
+
+  const colors = {
+    emerald: { stroke: '#10b981', fill: 'rgba(16, 185, 129, 0.12)' },
+    rose: { stroke: '#f43f5e', fill: 'rgba(244, 63, 94, 0.12)' },
+    blue: { stroke: '#3b82f6', fill: 'rgba(59, 130, 246, 0.12)' },
+    amber: { stroke: '#f59e0b', fill: 'rgba(245, 158, 11, 0.12)' },
+  }[variant]
+
+  return (
+    <svg width={width} height={height} className="shrink-0 overflow-visible opacity-85 group-hover:opacity-100 transition-opacity">
+      <path d={areaD} fill={colors.fill} />
+      <path d={pathD} fill="none" stroke={colors.stroke} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  )
 }
 
 export function MetricCardSkeleton() {
@@ -52,6 +89,8 @@ export function MetricCard({
   tooltip,
   isHero = false,
   warning = false,
+  sparkline,
+  sparklineData,
 }: MetricCardProps) {
   const [displayValue, setDisplayValue] = useState<number | string>(
     typeof value === 'number' ? 0 : value
@@ -141,7 +180,7 @@ export function MetricCard({
         </div>
       </div>
 
-      <div className="mt-3 flex items-baseline justify-between gap-2 flex-wrap">
+      <div className="mt-3 flex items-end justify-between gap-2 flex-wrap">
         <h3
           className={`text-2xl md:text-3xl font-semibold tracking-tight tabular-nums ${
             warning
@@ -152,13 +191,21 @@ export function MetricCard({
           {displayValue}
         </h3>
 
-        {subBadge && (
-          <span
-            className={`text-[10px] md:text-[11px] font-semibold px-2 py-0.5 rounded-md border truncate ${badgeStyles}`}
-          >
-            {subBadge}
-          </span>
-        )}
+        <div className="flex items-center gap-2 shrink-0">
+          {sparkline && (
+            <MiniSparkline
+              variant={sparkline}
+              data={sparklineData}
+            />
+          )}
+          {subBadge && (
+            <span
+              className={`text-[10px] md:text-[11px] font-semibold px-2 py-0.5 rounded-md border truncate ${badgeStyles}`}
+            >
+              {subBadge}
+            </span>
+          )}
+        </div>
       </div>
     </div>
   )

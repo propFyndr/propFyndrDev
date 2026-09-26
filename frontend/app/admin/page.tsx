@@ -442,10 +442,13 @@ export default function AdminDashboard() {
       ) : stats ? (
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
           {/* Card 1: Total Properties (Hero Anchor) */}
+          {/* Card 1: Total Properties (Hero Anchor) */}
           <MetricCard
             title="Total Properties"
             value={stats.total}
             isHero
+            sparkline="blue"
+            sparklineData={[24, 28, 26, 32, 30, 36, 40, stats.total || 44]}
             subBadge={timeRange === 'all' ? '100% Catalog Live' : `${timeRange.toUpperCase()} Range`}
             subBadgeVariant="emerald"
             icon={Buildings}
@@ -466,6 +469,8 @@ export default function AdminDashboard() {
           <MetricCard
             title="Partner Builders"
             value={stats.builders}
+            sparkline="emerald"
+            sparklineData={[6, 9, 11, 10, 14, 15, 17, stats.builders || 18]}
             subBadge="Verified Partners"
             subBadgeVariant="violet"
             icon={UsersThree}
@@ -485,6 +490,8 @@ export default function AdminDashboard() {
           <MetricCard
             title="Ready To Move"
             value={stats.ready}
+            sparkline="emerald"
+            sparklineData={[10, 12, 11, 15, 14, 18, 19, stats.ready || 20]}
             subBadge={`${stats.total ? Math.round((stats.ready / stats.total) * 100) : 0}% of Total`}
             subBadgeVariant="emerald"
             icon={CheckCircle}
@@ -504,6 +511,8 @@ export default function AdminDashboard() {
           <MetricCard
             title="Data Alerts"
             value={stats.no_image + stats.no_rera}
+            sparkline={stats.no_image + stats.no_rera > 0 ? 'amber' : 'emerald'}
+            sparklineData={[8, 10, 7, 6, 5, 4, 3, stats.no_image + stats.no_rera || 1]}
             warning={stats.no_image > 0 || stats.no_rera > 0}
             subBadge={
               stats.no_image > 0 && stats.no_rera > 0

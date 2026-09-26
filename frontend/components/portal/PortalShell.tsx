@@ -22,6 +22,8 @@ import {
   SignOut,
   MagnifyingGlass,
   CaretRight,
+  CaretDown,
+  CaretUpDown,
   SidebarSimple,
   CircleNotch,
   ArrowRight,
@@ -42,12 +44,21 @@ import { ScopeParam, useScopeId } from '@/lib/portalScope'
 import { tenantFromHost } from '@/lib/subdomain'
 import { API_BASE } from '@/lib/env'
 
+export interface PortalNavSubItem {
+  href: string
+  label: string
+  roles?: PortalRole[]
+  badge?: string | number
+}
+
 export interface PortalNavItem {
   href: string
   label: string
   icon: React.ElementType
   roles?: PortalRole[]
   section?: string
+  badge?: string | number
+  children?: PortalNavSubItem[]
 }
 
 export type PortalRole = 'SUPER_ADMIN' | 'ANALYST' | 'SALES' | 'BUILDER' | 'PARTNER'
@@ -162,10 +173,14 @@ export default function PortalShell({ nav, rootHref, rootLabel, allowRoles, scop
   const [tenantName, setTenantName] = useState<string | null>(null)
   /** The builder or partner this session belongs to, from the session itself. */
   const [orgName, setOrgName] = useState<string | null>(null)
+  const [userEmail, setUserEmail] = useState<string | null>(null)
 
   const pathname = usePathname()
   const [checking, setChecking] = useState(true)
   const [role, setRole] = useState<PortalRole | null>(null)
+  const [userMenuOpen, setUserMenuOpen] = useState(false)
+  const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>({})
+
   /**
    * What this console is called for the person looking at it.
    *
@@ -188,11 +203,6 @@ export default function PortalShell({ nav, rootHref, rootLabel, allowRoles, scop
 
   /**
    * The org name is preferred over the tenant slug's name when both exist.
-   *
-   * The tenant comes from the host, which anyone can type; the org comes from
-   * the session, which they cannot. If the two ever disagree the session is the
-   * true one, and showing it is what stops a builder acting on the assumption
-   * that the address bar told them where they are.
    */
   const whoAmI = orgName ?? tenantName
   const scopeId = useScopeId(scopeParam ?? 'builder_id')
@@ -204,22 +214,43 @@ export default function PortalShell({ nav, rootHref, rootLabel, allowRoles, scop
   const [loadingProject, setLoadingProject] = useState(false)
   const [copiedFacts, setCopiedFacts] = useState(false)
 
+  // Compute initials and display names for user profile widget
+  const userInitials = useMemo(() => {
+    if (whoAmI) {
+      const parts = whoAmI.trim().split(/\s+/)
+      if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase()
+      return whoAmI.slice(0, 2).toUpperCase()
+    }
+    if (userEmail) {
+      const local = userEmail.split('@')[0]
+      return local.slice(0, 2).toUpperCase()
+    }
+    return 'PF'
+  }, [whoAmI, userEmail])
+
+  const displayName = whoAmI || (userEmail ? userEmail.split('@')[0] : (role ? ROLE_LABEL[role].replace(' Console', '') : 'Admin User'))
+  const roleBadgeLabel = role ? ROLE_LABEL[role].replace(' Console', '') : rootLabel
+
   useEffect(() => {
     const down = (e: KeyboardEvent) => {
       if (e.key === 'k' && (e.metaKey || e.ctrlKey)) {
         e.preventDefault()
         setCmdOpen((open) => !open)
-      } else if (e.key === 'Escape' && cmdOpen) {
-        if (selectedProject) {
-          setSelectedProject(null)
-        } else {
-          setCmdOpen(false)
+      } else if (e.key === 'Escape') {
+        if (userMenuOpen) {
+          setUserMenuOpen(false)
+        } else if (cmdOpen) {
+          if (selectedProject) {
+            setSelectedProject(null)
+          } else {
+            setCmdOpen(false)
+          }
         }
       }
     }
     document.addEventListener('keydown', down)
     return () => document.removeEventListener('keydown', down)
-  }, [cmdOpen, selectedProject])
+  }, [cmdOpen, selectedProject, userMenuOpen])
 
   useEffect(() => {
     if (!cmdOpen) {
@@ -231,12 +262,6 @@ export default function PortalShell({ nav, rootHref, rootLabel, allowRoles, scop
 
   /**
    * Resolve the host's tenant label, once, client-side.
-   *
-   * `lib/subdomain.ts` already decides what counts as a tenant host; this
-   * reuses that rule rather than parsing the host a second way, so the two
-   * cannot disagree about whether `www` or a Vercel preview is a tenant.
-   * A miss leaves the label as the console name — the plain shell, never a
-   * half-branded one.
    */
   useEffect(() => {
     const slug = tenantFromHost(typeof window === 'undefined' ? null : window.location.host)
@@ -250,14 +275,78 @@ export default function PortalShell({ nav, rootHref, rootLabel, allowRoles, scop
   }, [])
 
   /**
-   * The sections this signed-in role may actually open.
-   *
-   * Computed before the role resolves as "nothing role-restricted", so the
-   * sidebar never flashes a Team link and then removes it.
+   * The sections and sub-items this signed-in role may actually open.
+   * Filters both parent items and nested children dynamically based on role.
    */
-  const visibleNav = nav.filter((n) => !n.roles || (role !== null && n.roles.includes(role)))
+  const visibleNav = useMemo(() => {
+    return nav
+      .map((item) => {
+        if (item.children && item.children.length > 0) {
+          const visibleChildren = item.children.filter(
+            (c) => !c.roles || (role !== null && c.roles.includes(role))
+          )
+          if (visibleChildren.length === 0) {
+            if (item.roles && (role === null || !item.roles.includes(role))) {
+              return null
+            }
+            return { ...item, children: undefined }
+          }
+          const parentAllowed = !item.roles || (role !== null && item.roles.includes(role))
+          return {
+            ...item,
+            href: parentAllowed ? item.href : visibleChildren[0].href,
+            children: visibleChildren,
+          }
+        }
+        if (item.roles && (role === null || !item.roles.includes(role))) {
+          return null
+        }
+        return item
+      })
+      .filter((n): n is PortalNavItem => n !== null)
+  }, [nav, role])
 
-  const filteredNav = visibleNav.filter((n) => n.label.toLowerCase().includes(cmdQuery.trim().toLowerCase()))
+  // Automatically expand parent if current route matches parent or any child
+  useEffect(() => {
+    for (const item of visibleNav) {
+      if (item.children && item.children.length > 0) {
+        const isChildActive = item.children.some(
+          (c) => pathname === c.href || (c.href !== rootHref && pathname.startsWith(c.href))
+        )
+        const isParentActive = pathname === item.href || (item.href !== rootHref && pathname.startsWith(item.href))
+        if (isChildActive || isParentActive) {
+          setExpandedItems((prev) => (prev[item.label] ? prev : { ...prev, [item.label]: true }))
+        }
+      }
+    }
+  }, [pathname, visibleNav, rootHref])
+
+  const toggleExpand = (label: string) => {
+    setExpandedItems((prev) => ({ ...prev, [label]: !prev[label] }))
+  }
+
+  const filteredNav = useMemo(() => {
+    const q = cmdQuery.trim().toLowerCase()
+    if (!q) return []
+    const flat: Array<{ href: string; label: string; icon: React.ElementType }> = []
+    for (const item of visibleNav) {
+      if (item.label.toLowerCase().includes(q)) {
+        flat.push({ href: item.href, label: item.label, icon: item.icon })
+      }
+      if (item.children) {
+        for (const child of item.children) {
+          if (child.label.toLowerCase().includes(q)) {
+            flat.push({
+              href: child.href,
+              label: `${child.label} (${item.label})`,
+              icon: item.icon,
+            })
+          }
+        }
+      }
+    }
+    return flat
+  }, [visibleNav, cmdQuery])
 
   const [projectResults, setProjectResults] = useState<Array<{ id: string; name: string; sector: string; city: string; status: string; builder?: { name: string } }>>([])
   const [builderResults, setBuilderResults] = useState<Array<{ id: string; name: string; slug: string }>>([])
@@ -407,7 +496,7 @@ export default function PortalShell({ nav, rootHref, rootLabel, allowRoles, scop
 
     adminFetch('/portal/me')
       .then((r) => (r.ok ? r.json() : Promise.reject(r.status)))
-      .then((me: { role: PortalRole; builder?: { name: string } | null; partner?: { name: string } | null }) => {
+      .then((me: { role: PortalRole; builder?: { name: string } | null; partner?: { name: string } | null; email?: string | null }) => {
         if (cancelled) return
         clearTimeout(timer)
         if (!allowRoles.includes(me.role)) {
@@ -415,6 +504,7 @@ export default function PortalShell({ nav, rootHref, rootLabel, allowRoles, scop
           return
         }
         setRole(me.role)
+        setUserEmail(me.email ?? null)
         setOrgName(me.builder?.name ?? me.partner?.name ?? null)
         setChecking(false)
       })
@@ -820,56 +910,90 @@ export default function PortalShell({ nav, rootHref, rootLabel, allowRoles, scop
       `}>
 
         {/* Brand Header */}
-        <div className="group h-14 pt-[env(safe-area-inset-top,0px)] flex items-center justify-center border-b border-zinc-100/80 dark:border-zinc-800 w-full px-3 shrink-0 relative box-content">
+        <div className="h-14 pt-[env(safe-area-inset-top,0px)] flex items-center justify-between border-b border-zinc-100/80 dark:border-zinc-800 w-full px-3.5 shrink-0 box-content">
           {!isCollapsed ? (
             <>
-              <div className="flex flex-1 items-center justify-center transition-opacity duration-300">
-                <Image src="/images/icons/logo-wordmark-black.png" alt="PropFyndr" width={75} height={34} className="object-contain block dark:hidden" unoptimized />
-                <Image src="/images/icons/logo-wordmark-white.png" alt="PropFyndr" width={75} height={34} className="object-contain hidden dark:block" unoptimized />
-              </div>
-              <div className="absolute right-3 flex items-center justify-center">
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (window.innerWidth < 768) setMobileOpen(false)
-                    else setIsCollapsed(true)
-                  }}
-                  className="p-2 rounded-lg text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors cursor-pointer"
-                  title="Collapse sidebar"
-                  aria-label="Collapse sidebar"
-                >
-                  <SidebarSimple size={18} weight="bold" />
-                </button>
-              </div>
+              <Link href={rootHref} className="flex items-center gap-2.5 min-w-0 group/logo">
+                <div className="w-8 h-8 rounded-lg overflow-hidden flex items-center justify-center shrink-0 shadow-2xs">
+                  <Image
+                    src="/images/icons/logo-square-black.png"
+                    alt="PropFyndr"
+                    width={32}
+                    height={32}
+                    className="object-contain block dark:hidden"
+                    unoptimized
+                  />
+                  <Image
+                    src="/images/icons/logo-square-white.png"
+                    alt="PropFyndr"
+                    width={32}
+                    height={32}
+                    className="object-contain hidden dark:block"
+                    unoptimized
+                  />
+                </div>
+                <span className="text-[15.5px] font-bold text-zinc-950 dark:text-white tracking-tight truncate leading-none group-hover/logo:text-blue-600 dark:group-hover/logo:text-blue-400 transition-colors">
+                  PropFyndr
+                </span>
+              </Link>
+
+              <button
+                type="button"
+                onClick={() => {
+                  if (window.innerWidth < 768) setMobileOpen(false)
+                  else setIsCollapsed(true)
+                }}
+                className="w-8 h-8 rounded-lg text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800 flex items-center justify-center transition-colors cursor-pointer"
+                title="Collapse sidebar"
+                aria-label="Collapse sidebar"
+              >
+                <svg width="17" height="17" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <rect x="1.5" y="2.5" width="13" height="11" rx="2.5" stroke="currentColor" strokeWidth="1.25" />
+                  <path d="M5.5 2.5V13.5" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" />
+                </svg>
+              </button>
             </>
           ) : (
-            <div className="relative w-full h-full flex items-center justify-center">
-              <div className="absolute inset-0 flex items-center justify-center transition-opacity duration-200 group-hover:opacity-0 pointer-events-none">
-                <Image src="/images/icons/logo-square-black.png" alt="PropFyndr" width={40} height={40} className="object-contain block dark:hidden" unoptimized />
-                <Image src="/images/icons/logo-square-white.png" alt="PropFyndr" width={40} height={40} className="object-contain hidden dark:block" unoptimized />
-              </div>
+            <div className="w-full h-full flex items-center justify-center">
               <button
                 type="button"
                 onClick={() => setIsCollapsed(false)}
-                className="absolute inset-0 m-auto w-10 h-10 flex items-center justify-center opacity-0 group-hover:opacity-100 rounded-lg text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-zinc-100 transition-all duration-200 cursor-pointer"
+                className="w-9 h-9 rounded-xl flex items-center justify-center hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-all cursor-pointer group"
                 title="Expand sidebar"
                 aria-label="Expand sidebar"
               >
-                <SidebarSimple size={18} weight="bold" />
+                <div className="w-8 h-8 rounded-lg overflow-hidden flex items-center justify-center group-hover:hidden shadow-2xs">
+                  <Image
+                    src="/images/icons/logo-square-black.png"
+                    alt="PropFyndr"
+                    width={32}
+                    height={32}
+                    className="object-contain block dark:hidden"
+                    unoptimized
+                  />
+                  <Image
+                    src="/images/icons/logo-square-white.png"
+                    alt="PropFyndr"
+                    width={32}
+                    height={32}
+                    className="object-contain hidden dark:block"
+                    unoptimized
+                  />
+                </div>
+                <div className="hidden group-hover:flex items-center justify-center text-zinc-600 dark:text-zinc-200">
+                  <svg width="17" height="17" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="1.5" y="2.5" width="13" height="11" rx="2.5" stroke="currentColor" strokeWidth="1.25" />
+                    <path d="M5.5 2.5V13.5" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" />
+                  </svg>
+                </div>
               </button>
             </div>
           )}
         </div>
 
-        {/* Console label — the one thing that tells the three consoles apart.
-            On a tenant subdomain it says the tenant's name instead, so a builder
-            at lotus.propfyndr.in is not reading the word "Builder Console" over
-            their own data. */}
+        {/* Console label — the one thing that tells the three consoles apart. */}
         {!isCollapsed && (
-          <div className="px-4 pt-3 pb-2 shrink-0">
-            {/* Who, then where. Both, because a builder needs to know which
-                organisation they are acting as AND which console they are in —
-                showing only one leaves the other to be assumed. */}
+          <div className="px-4 pt-2.5 pb-1 shrink-0">
             {whoAmI && (
               <p className="text-[13px] font-bold text-zinc-900 dark:text-white truncate leading-tight">
                 {whoAmI}
@@ -881,8 +1005,36 @@ export default function PortalShell({ nav, rootHref, rootLabel, allowRoles, scop
           </div>
         )}
 
+        {/* Quick Search Widget */}
+        {!isCollapsed ? (
+          <div className="px-3 pt-1 pb-2 shrink-0">
+            <button
+              type="button"
+              onClick={() => setCmdOpen(true)}
+              className="w-full flex items-center justify-between px-3 py-2 bg-zinc-100/70 hover:bg-zinc-100 dark:bg-zinc-800/60 dark:hover:bg-zinc-800 border border-zinc-200/60 dark:border-zinc-700/60 rounded-xl text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 transition-all cursor-pointer group shadow-2xs text-left"
+            >
+              <div className="flex items-center gap-2 min-w-0">
+                <MagnifyingGlass size={15} weight="bold" className="text-zinc-400 group-hover:text-zinc-600 dark:group-hover:text-zinc-300 shrink-0" />
+                <span className="text-[12.5px] font-medium text-zinc-400 group-hover:text-zinc-600 dark:group-hover:text-zinc-300 truncate">Search anything</span>
+              </div>
+              <kbd className="font-sans text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-700 text-zinc-400 dark:text-zinc-500 shadow-2xs shrink-0">⌘K</kbd>
+            </button>
+          </div>
+        ) : (
+          <div className="px-2 pt-2 pb-1 flex justify-center shrink-0">
+            <button
+              type="button"
+              onClick={() => setCmdOpen(true)}
+              className="w-10 h-10 flex items-center justify-center rounded-xl bg-zinc-100/70 hover:bg-zinc-200/70 dark:bg-zinc-800/60 dark:hover:bg-zinc-800 text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 transition-all cursor-pointer"
+              title="Search (⌘K)"
+            >
+              <MagnifyingGlass size={16} weight="bold" />
+            </button>
+          </div>
+        )}
+
         {/* Navigation Items */}
-        <nav className="flex-1 px-3 py-2 space-y-3 overflow-y-auto">
+        <nav className="flex-1 px-3 py-1 space-y-3 overflow-y-auto">
           {groupedNav.map((group, gIdx) => (
             <div key={group.name} className="space-y-1">
               {!isCollapsed && group.name !== 'General' && (
@@ -894,35 +1046,180 @@ export default function PortalShell({ nav, rootHref, rootLabel, allowRoles, scop
                 <div className="my-2 border-t border-zinc-200/60 dark:border-zinc-800/80 mx-2" />
               )}
               {group.items.map((n) => {
-                const isActive = pathname === n.href || (n.href !== rootHref && pathname.startsWith(n.href))
+                const hasChildren = Boolean(n.children && n.children.length > 0)
+                const isCurrentActive = pathname === n.href || (n.href !== rootHref && pathname.startsWith(n.href))
+                const isChildActive = Boolean(n.children?.some((c) => pathname === c.href || (c.href !== rootHref && pathname.startsWith(c.href))))
+                const isActive = isCurrentActive || isChildActive
+                const isExpanded = expandedItems[n.label] ?? isActive
+
+                if (isCollapsed) {
+                  return (
+                    <div key={n.href || n.label} className="relative group/navitem flex justify-center">
+                      <Link
+                        href={n.href}
+                        className={`
+                          w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-150
+                          ${isActive
+                            ? 'bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 font-semibold shadow-xs'
+                            : 'text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-zinc-100'
+                          }
+                        `}
+                      >
+                        <n.icon size={18} weight={isActive ? 'fill' : 'duotone'} />
+                      </Link>
+                      {/* Collapsed flyout */}
+                      <div className="absolute left-full top-1/2 -translate-y-1/2 ml-2 py-2 px-3 bg-zinc-900 text-white text-[12px] font-medium rounded-xl opacity-0 group-hover/navitem:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-[100] shadow-xl border border-zinc-800 min-w-[140px]">
+                        <div className="font-semibold text-white mb-0.5">{n.label}</div>
+                        {n.children && (
+                          <div className="space-y-1 pt-1.5 mt-1 border-t border-zinc-800 text-[11px] text-zinc-400">
+                            {n.children.map((sub) => (
+                              <div key={sub.href} className="hover:text-white truncate">
+                                • {sub.label}
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )
+                }
+
+                if (hasChildren && n.children) {
+                  return (
+                    <div key={n.label} className="space-y-0.5">
+                      <div className="flex items-center group/navitem relative">
+                        <Link
+                          href={n.href}
+                          onClick={() => {
+                            setExpandedItems((prev) => ({ ...prev, [n.label]: true }))
+                          }}
+                          className={`
+                            flex items-center flex-1 gap-2.5 px-3 py-2 rounded-xl transition-all duration-150 overflow-hidden whitespace-nowrap text-left
+                            ${(isCurrentActive && !isChildActive)
+                              ? 'bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 font-semibold shadow-xs'
+                              : isChildActive
+                              ? 'text-zinc-900 dark:text-zinc-100 font-semibold bg-zinc-100/70 dark:bg-zinc-800/50'
+                              : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100/70 dark:hover:bg-zinc-800/60 hover:text-zinc-950 dark:hover:text-zinc-100 font-medium'
+                            }
+                          `}
+                        >
+                          <n.icon
+                            size={17}
+                            weight={(isCurrentActive || isChildActive) ? 'fill' : 'duotone'}
+                            className={(isCurrentActive && !isChildActive) ? 'text-white dark:text-zinc-900 shrink-0' : (isChildActive ? 'text-blue-600 dark:text-blue-400 shrink-0' : 'text-zinc-400 dark:text-zinc-500 group-hover/navitem:text-zinc-700 dark:group-hover/navitem:text-zinc-300 shrink-0')}
+                          />
+                          <span className="text-[13px] tracking-tight truncate flex-1">{n.label}</span>
+                        </Link>
+
+                        {/* Dedicated expand/collapse chevron */}
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.preventDefault()
+                            e.stopPropagation()
+                            toggleExpand(n.label)
+                          }}
+                          className="p-1.5 mr-1 rounded-lg text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-200/60 dark:hover:bg-zinc-700/60 transition-colors cursor-pointer"
+                          aria-label={`Toggle ${n.label} sub-navigation`}
+                        >
+                          <CaretDown
+                            size={13}
+                            weight="bold"
+                            className={`transition-transform duration-200 ${isExpanded ? 'rotate-0' : '-rotate-90'}`}
+                          />
+                        </button>
+                      </div>
+
+                      {/* Kravio Curved Tree Connector */}
+                      <AnimatePresence initial={false}>
+                        {isExpanded && (
+                          <m.div
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: 'auto' }}
+                            exit={{ opacity: 0, height: 0 }}
+                            transition={{ duration: 0.18, ease: 'easeInOut' }}
+                            className="overflow-hidden"
+                          >
+                            <div className="relative pl-6 pr-1 py-1 space-y-0.5">
+                              {/* Continuous vertical trunk line */}
+                              <div className="absolute left-[21px] top-1.5 bottom-3.5 w-[1.5px] bg-zinc-200 dark:bg-zinc-800 rounded-full" />
+
+                              {n.children.map((sub) => {
+                                const isSubActive = pathname === sub.href
+                                return (
+                                  <Link
+                                    key={sub.href}
+                                    href={sub.href}
+                                    onClick={() => setMobileOpen(false)}
+                                    className={`
+                                      group/sub flex items-center justify-between py-1.5 px-2.5 rounded-lg text-[12.5px] transition-all relative
+                                      ${isSubActive
+                                        ? 'font-semibold text-zinc-950 dark:text-white bg-zinc-100 dark:bg-zinc-800/90 shadow-2xs'
+                                        : 'text-zinc-500 hover:text-zinc-950 dark:text-zinc-400 dark:hover:text-zinc-100 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 font-medium'
+                                      }
+                                    `}
+                                  >
+                                    <div className="flex items-center gap-2 min-w-0">
+                                      {/* Horizontal branch line */}
+                                      <span
+                                        className={`absolute -left-[5px] w-2.5 h-[1.5px] rounded-full transition-colors ${
+                                          isSubActive
+                                            ? 'bg-zinc-900 dark:bg-zinc-100'
+                                            : 'bg-zinc-200 dark:bg-zinc-800 group-hover/sub:bg-zinc-400'
+                                        }`}
+                                      />
+                                      {/* Dot indicator */}
+                                      <span
+                                        className={`w-1.5 h-1.5 rounded-full transition-all shrink-0 ${
+                                          isSubActive
+                                            ? 'bg-blue-600 dark:bg-blue-400 ring-2 ring-blue-100 dark:ring-blue-900/60 scale-110'
+                                            : 'bg-zinc-300 dark:bg-zinc-600 group-hover/sub:bg-zinc-400'
+                                        }`}
+                                      />
+                                      <span className="truncate">{sub.label}</span>
+                                    </div>
+                                    {sub.badge && (
+                                      <span className="text-[10px] font-bold px-1.5 py-0.2 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300">
+                                        {sub.badge}
+                                      </span>
+                                    )}
+                                  </Link>
+                                )
+                              })}
+                            </div>
+                          </m.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
+                  )
+                }
+
+                // Regular Single Nav Item
                 return (
-                  <div key={n.href} className="relative group/navitem flex justify-center">
+                  <div key={n.href} className="relative group/navitem flex">
                     <Link
                       href={n.href}
                       onClick={() => setMobileOpen(false)}
                       className={`
-                        flex items-center transition-all duration-150 overflow-hidden whitespace-nowrap
-                        ${isCollapsed ? 'w-10 h-10 rounded-lg justify-center' : 'w-full gap-3 px-3 py-2 rounded-lg'}
-                        ${isActive
+                        flex items-center w-full gap-2.5 px-3 py-2 rounded-xl transition-all duration-150 overflow-hidden whitespace-nowrap
+                        ${isCurrentActive
                           ? 'bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 font-semibold shadow-xs'
-                          : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800/80 hover:text-zinc-950 dark:hover:text-zinc-100 font-medium'
+                          : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100/70 dark:hover:bg-zinc-800/60 hover:text-zinc-950 dark:hover:text-zinc-100 font-medium'
                         }
                       `}
                     >
                       <n.icon
                         size={17}
-                        weight={isActive ? 'fill' : 'duotone'}
-                        className={isActive ? 'text-white dark:text-zinc-900 shrink-0' : 'text-zinc-400 dark:text-zinc-500 group-hover/navitem:text-zinc-700 dark:group-hover/navitem:text-zinc-300 shrink-0'}
+                        weight={isCurrentActive ? 'fill' : 'duotone'}
+                        className={isCurrentActive ? 'text-white dark:text-zinc-900 shrink-0' : 'text-zinc-400 dark:text-zinc-500 group-hover/navitem:text-zinc-700 dark:group-hover/navitem:text-zinc-300 shrink-0'}
                       />
-                      {!isCollapsed && (
-                        <span className="text-[13px] tracking-tight">{n.label}</span>
+                      <span className="text-[13px] tracking-tight truncate flex-1">{n.label}</span>
+                      {n.badge && (
+                        <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300">
+                          {n.badge}
+                        </span>
                       )}
                     </Link>
-                    {isCollapsed && (
-                      <div className="absolute left-full top-1/2 -translate-y-1/2 ml-2 py-1.5 px-2.5 bg-zinc-900 text-white text-[11px] font-medium rounded-md opacity-0 group-hover/navitem:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-[100] shadow-xl border border-zinc-800">
-                        {n.label}
-                      </div>
-                    )}
                   </div>
                 )
               })}
@@ -930,40 +1227,125 @@ export default function PortalShell({ nav, rootHref, rootLabel, allowRoles, scop
           ))}
         </nav>
 
-        {/* Footer Actions */}
-        <div className="p-3 border-t border-border dark:border-zinc-800 space-y-1 shrink-0 pb-[calc(env(safe-area-inset-bottom,0px)+12px)]">
-          <div className="relative group/navitem flex justify-center">
-            <Link
-              href="/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className={`flex items-center transition-all duration-200 overflow-hidden whitespace-nowrap ${isCollapsed ? 'w-10 h-10 rounded-md justify-center' : 'w-full gap-3 px-3 py-2.5 rounded-md'} text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100/80 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-zinc-100`}
-            >
-              <Buildings size={18} weight="duotone" className="text-zinc-400 dark:text-zinc-500 group-hover/navitem:text-zinc-600 dark:group-hover/navitem:text-zinc-300" />
-              {!isCollapsed && <span className="text-[13px] font-semibold tracking-wide">View site</span>}
-            </Link>
-            {isCollapsed && (
-              <div className="absolute left-full top-1/2 -translate-y-1/2 ml-2 py-1.5 px-2.5 bg-zinc-800 text-white text-[11px] font-medium rounded-md opacity-0 group-hover/navitem:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-[100] shadow-xl">
-                View site
-              </div>
-            )}
-          </div>
+        {/* Footer Actions — Kravio User Profile Card */}
+        <div className="p-3 border-t border-border dark:border-zinc-800 shrink-0 pb-[calc(env(safe-area-inset-bottom,0px)+12px)] relative">
+          {/* User Menu Popover */}
+          <AnimatePresence>
+            {userMenuOpen && (
+              <>
+                <div
+                  className="fixed inset-0 z-30"
+                  onClick={() => setUserMenuOpen(false)}
+                />
+                <m.div
+                  initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                  transition={{ duration: 0.15 }}
+                  className="absolute bottom-full left-3 right-3 mb-2 p-2 bg-white dark:bg-zinc-900 rounded-2xl shadow-xl border border-zinc-200/80 dark:border-zinc-800 z-40 space-y-1"
+                >
+                  <div className="px-3 py-2 border-b border-zinc-100 dark:border-zinc-800">
+                    <p className="text-[12px] font-bold text-zinc-900 dark:text-white truncate">
+                      {displayName}
+                    </p>
+                    <p className="text-[11px] text-zinc-400 truncate">
+                      {userEmail || 'admin@propfyndr.in'}
+                    </p>
+                    <div className="mt-1.5 flex items-center gap-1.5">
+                      <span className="text-[9.5px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200/50 dark:border-blue-800/40">
+                        {roleBadgeLabel}
+                      </span>
+                    </div>
+                  </div>
 
-          <div className="relative group/navitem flex justify-center">
+                  <Link
+                    href="/admin/account"
+                    onClick={() => setUserMenuOpen(false)}
+                    className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-[12.5px] text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-white transition-colors"
+                  >
+                    <UserGear size={15} weight="duotone" className="text-zinc-400" />
+                    <span>Account Settings</span>
+                  </Link>
+
+                  <Link
+                    href="/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={() => setUserMenuOpen(false)}
+                    className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-[12.5px] text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-white transition-colors"
+                  >
+                    <Buildings size={15} weight="duotone" className="text-zinc-400" />
+                    <span>View Live Site</span>
+                    <ArrowSquareOut size={12} className="ml-auto text-zinc-400" />
+                  </Link>
+
+                  <div className="pt-1 border-t border-zinc-100 dark:border-zinc-800">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setUserMenuOpen(false)
+                        handleLogout()
+                      }}
+                      className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-[12.5px] font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 transition-colors cursor-pointer text-left"
+                    >
+                      <SignOut size={15} weight="bold" />
+                      <span>Sign Out</span>
+                    </button>
+                  </div>
+                </m.div>
+              </>
+            )}
+          </AnimatePresence>
+
+          {!isCollapsed ? (
             <button
               type="button"
-              onClick={handleLogout}
-              className={`flex items-center transition-all duration-base overflow-hidden whitespace-nowrap ${isCollapsed ? 'w-10 h-10 rounded-md justify-center' : 'w-full gap-3 px-3 py-2.5 rounded-md'} text-zinc-500 dark:text-zinc-400 hover:bg-red-50 dark:hover:bg-red-950/40 hover:text-red-600 dark:hover:text-red-400 cursor-pointer`}
+              onClick={() => setUserMenuOpen((prev) => !prev)}
+              className="w-full flex items-center justify-between p-2 rounded-xl hover:bg-zinc-100/80 dark:hover:bg-zinc-800/80 transition-colors cursor-pointer group text-left border border-transparent hover:border-zinc-200/50 dark:hover:border-zinc-700/50"
             >
-              <SignOut size={18} weight="bold" className="text-zinc-400 dark:text-zinc-500 group-hover/navitem:text-red-500" />
-              {!isCollapsed && <span className="text-[13px] font-semibold tracking-wide">Sign Out</span>}
-            </button>
-            {isCollapsed && (
-              <div className="absolute left-full top-1/2 -translate-y-1/2 ml-2 py-1.5 px-2.5 bg-zinc-800 text-white text-[11px] font-medium rounded-md opacity-0 group-hover/navitem:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-[100] shadow-xl">
-                Sign Out
+              <div className="flex items-center gap-2.5 min-w-0">
+                <div className="relative shrink-0">
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-zinc-800 to-zinc-600 dark:from-zinc-700 dark:to-zinc-500 text-white flex items-center justify-center text-[11px] font-bold shadow-2xs">
+                    {userInitials}
+                  </div>
+                  <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 rounded-full ring-2 ring-white dark:ring-zinc-900" />
+                </div>
+
+                <div className="min-w-0 flex-1">
+                  <p className="text-[12.5px] font-semibold text-zinc-900 dark:text-zinc-100 truncate group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                    {displayName}
+                  </p>
+                  <p className="text-[11px] text-zinc-400 truncate">
+                    {userEmail || `${roleBadgeLabel} Session`}
+                  </p>
+                </div>
               </div>
-            )}
-          </div>
+
+              <CaretUpDown size={14} weight="bold" className="text-zinc-400 group-hover:text-zinc-700 dark:group-hover:text-zinc-200 shrink-0 ml-1" />
+            </button>
+          ) : (
+            <div className="flex flex-col items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setUserMenuOpen((prev) => !prev)}
+                className="relative w-10 h-10 rounded-full bg-zinc-800 text-white flex items-center justify-center text-[12px] font-bold hover:scale-105 transition-all cursor-pointer shadow-2xs"
+                title={`${displayName} (${roleBadgeLabel})`}
+              >
+                {userInitials}
+                <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 rounded-full ring-2 ring-white dark:ring-zinc-900" />
+              </button>
+
+              <button
+                type="button"
+                onClick={handleLogout}
+                className="w-10 h-10 flex items-center justify-center rounded-xl text-zinc-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/40 transition-colors cursor-pointer"
+                title="Sign Out"
+                aria-label="Sign Out"
+              >
+                <SignOut size={16} weight="bold" />
+              </button>
+            </div>
+          )}
         </div>
       </aside>
 
