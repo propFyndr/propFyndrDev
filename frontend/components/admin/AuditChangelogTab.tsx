@@ -276,24 +276,24 @@ export default function AuditChangelogTab({ projectId, projectName }: AuditChang
             />
           </div>
 
-          <div className="flex items-center gap-1.5 overflow-x-auto [scrollbar-width:none]">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:inline-flex lg:items-center gap-1.5 p-1 bg-zinc-100/90 dark:bg-zinc-800/80 rounded-2xl border border-zinc-200/80 dark:border-zinc-700/60 shadow-2xs w-full sm:w-auto">
             {[
               { id: 'all', label: 'All Categories' },
               { id: 'pricing', label: 'Pricing & Cost' },
               { id: 'status', label: 'Status & Timeline' },
-              { id: 'legal', label: 'RERA & Clear Title' },
+              { id: 'legal', label: 'RERA & Legal' },
               { id: 'overview', label: 'Core Specs' },
             ].map(f => (
               <button
                 key={f.id}
                 onClick={() => setSelectedFieldFilter(f.id)}
-                className={`px-3 py-1.5 text-xs font-medium rounded-xl whitespace-nowrap transition-all cursor-pointer ${
+                className={`px-3 py-2 sm:py-1.5 text-xs font-semibold rounded-xl truncate text-center transition-all cursor-pointer min-w-0 ${
                   selectedFieldFilter === f.id
-                    ? 'bg-blue-50/80 dark:bg-blue-950/60 text-[#0066cc] dark:text-blue-300 border border-blue-200/80 dark:border-blue-800/60 font-semibold shadow-2xs'
-                    : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 border border-transparent'
+                    ? 'bg-white dark:bg-zinc-900 text-[#0066cc] dark:text-blue-400 font-bold shadow-xs border border-zinc-200/80 dark:border-zinc-700/80'
+                    : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-white/40 dark:hover:bg-zinc-850'
                 }`}
               >
-                {f.label}
+                <span className="truncate">{f.label}</span>
               </button>
             ))}
           </div>
@@ -405,7 +405,7 @@ export default function AuditChangelogTab({ projectId, projectName }: AuditChang
                                     )}
                                   </div>
 
-                                  <div className="flex items-center gap-2 font-mono text-[11.5px] overflow-x-auto">
+                                  <div className="flex flex-wrap items-center gap-2 font-mono text-[11.5px]">
                                     {/* Old Value */}
                                     <div className="px-2 py-0.5 rounded-md bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 border border-rose-200/60 dark:border-rose-900/40 line-through">
                                       {renderValueBadge(change.old_value)}

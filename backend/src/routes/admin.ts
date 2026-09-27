@@ -2243,23 +2243,15 @@ router.post('/blog/:id/restore', async (req: Request, res: Response) => {
 })
 
 // GET /api/v1/admin/analytics/summary — system analytics
-router.get('/analytics/summary', async (_req: Request, res: Response) => {
+router.get('/analytics/summary', async (req: Request, res: Response) => {
   try {
-    /**
-     * One round trip, not four.
-     *
-     * These nine reads were issued in four sequential waves — six in parallel,
-     * then the clarification average, then the sector rollup, then the builder
-     * rollup — even though none of the last three depends on anything before
-     * it. Against a database on the other side of a network that is four
-     * latencies where one would do, and latency is most of what this endpoint
-     * costs: the query COUNT is unchanged, only the waiting.
-     *
-     * The two fallbacks further down stay sequential on purpose. They run only
-     * when a rollup came back empty, which is the cold-start case, and paying
-     * for them on every request to save a round trip in a case that mostly does
-     * not happen is the wrong trade.
-     */
+    const isRefresh = req.query.refresh === 'true'
+    const cacheKey = 'admin:analytics:summary'
+    if (!isRefresh) {
+      const cached = await getCached<object>(cacheKey)
+      if (cached) return res.json(cached)
+    }
+
     const [
       totalChats, totalQueries, zeroResultSearches, totalCallbacks, totalProjects, totalBuilders,
       avgClarificationsAgg, sectorGroups, builderGroups,
@@ -2326,7 +2318,7 @@ router.get('/analytics/summary', async (_req: Request, res: Response) => {
         .sort((a, b) => b.count - a.count)
     }
 
-    res.json({
+    const responseData = {
       totalChats,
       totalQueries,
       avgQueriesPerChat,
@@ -2342,7 +2334,10 @@ router.get('/analytics/summary', async (_req: Request, res: Response) => {
         totalCallbacks,
         totalUsers: totalChats,
       }
-    })
+    }
+
+    await setCached(cacheKey, responseData, 60)
+    res.json(responseData)
   } catch (err) {
     console.error('[admin] analytics summary failed:', err)
     res.status(500).json({ error: 'Failed to fetch analytics summary' })
@@ -2350,8 +2345,15 @@ router.get('/analytics/summary', async (_req: Request, res: Response) => {
 })
 
 // GET /api/v1/admin/analytics/quality — data health score
-router.get('/analytics/quality', async (_req: Request, res: Response) => {
+router.get('/analytics/quality', async (req: Request, res: Response) => {
   try {
+    const isRefresh = req.query.refresh === 'true'
+    const cacheKey = 'admin:analytics:quality'
+    if (!isRefresh) {
+      const cached = await getCached<object>(cacheKey)
+      if (cached) return res.json(cached)
+    }
+
     const [totalSearches, zeroResultSearches, searchWithResults, totalProjects, withImage, withRera] = await Promise.all([
       prisma.queryMetrics.count(),
       prisma.queryMetrics.count({ where: { had_results: false } }),
@@ -2371,7 +2373,7 @@ router.get('/analytics/quality', async (_req: Request, res: Response) => {
     const avgClarifications = aggregates._avg.clarification_count ? Math.round(aggregates._avg.clarification_count * 10) / 10 : 0
     const avgResultsCount = aggregates._avg.results_count ? Math.round(aggregates._avg.results_count * 10) / 10 : 0
 
-    res.json({
+    const responseData = {
       totalSearches,
       zeroResultSearches,
       zeroResultRate,
@@ -2385,7 +2387,10 @@ router.get('/analytics/quality', async (_req: Request, res: Response) => {
         withRera,
         completenessScore,
       }
-    })
+    }
+
+    await setCached(cacheKey, responseData, 60)
+    res.json(responseData)
   } catch (err) {
     console.error('[admin] analytics quality failed:', err)
     res.status(500).json({ error: 'Failed to fetch analytics quality' })
@@ -2393,8 +2398,15 @@ router.get('/analytics/quality', async (_req: Request, res: Response) => {
 })
 
 // GET /api/v1/admin/analytics/users — user stats
-router.get('/analytics/users', async (_req: Request, res: Response) => {
+router.get('/analytics/users', async (req: Request, res: Response) => {
   try {
+    const isRefresh = req.query.refresh === 'true'
+    const cacheKey = 'admin:analytics:users'
+    if (!isRefresh) {
+      const cached = await getCached<object>(cacheKey)
+      if (cached) return res.json(cached)
+    }
+
     let totalChats = 0
     let totalQueries = 0
     let totalClicks = 0
@@ -2411,26 +2423,30 @@ router.get('/analytics/users', async (_req: Request, res: Response) => {
       console.warn('[admin] analytics/users count warning (pool pressure, using defaults):', countErr)
     }
 
-    const uniqueUsersAgg = await prisma.chatSession.groupBy({
-      by: ['user_id'],
-      // `is_bot` excluded. Crawlers, uptime checks and our own corpus runs are
-      // flagged by lib/botDetection.ts and were being counted here as buyers:
-      // 1,872 of 46,202 sessions at the time of writing, so every session
-      // metric on these dashboards read about 4% high. Small, but a metric that
-      // counts our own uptime checks is not measuring anything.
-      where: { user_id: { not: null }, is_bot: false },
-    })
-    const totalUsers = Math.max(uniqueUsersAgg.length, totalChats > 0 ? 1 : 0)
-    const repeatedVisitors = Math.max(0, totalChats - totalUsers)
+    // Accurate buyer user counting across signed-in and guest sessions
+    const userCountRes = await prisma.$queryRaw<Array<{ count: number }>>`
+      SELECT COUNT(DISTINCT COALESCE(user_id, guest_token, id))::int as count
+      FROM chat_sessions
+      WHERE is_bot = false
+    `.catch(() => [{ count: totalChats }])
+    const totalUsers = userCountRes[0]?.count ?? Math.max(totalChats, 1)
+
+    // Repeat visitors: distinct buyers with > 1 session
+    const repeatRes = await prisma.$queryRaw<Array<{ count: number }>>`
+      SELECT COUNT(*)::int as count FROM (
+        SELECT COALESCE(user_id, guest_token) as uid
+        FROM chat_sessions
+        WHERE is_bot = false AND COALESCE(user_id, guest_token) IS NOT NULL
+        GROUP BY COALESCE(user_id, guest_token)
+        HAVING COUNT(*) > 1
+      ) r
+    `.catch(() => [{ count: 0 }])
+    const repeatedVisitors = repeatRes[0]?.count ?? 0
     const avgQueriesPerUser = totalUsers > 0 ? parseFloat((totalQueries / totalUsers).toFixed(1)) : 0
+
     // Compute real dynamic avg session duration from DB (created_at vs last_active)
     const sessionsForDuration = await prisma.chatSession.findMany({
       take: 100,
-      // `is_bot` excluded. Crawlers, uptime checks and our own corpus runs are
-      // flagged by lib/botDetection.ts and were being counted here as buyers:
-      // 1,872 of 46,202 sessions at the time of writing, so every session
-      // metric on these dashboards read about 4% high. Small, but a metric that
-      // counts our own uptime checks is not measuring anything.
       where: { is_bot: false },
       select: { created_at: true, last_active: true },
     })
@@ -2448,11 +2464,6 @@ router.get('/analytics/users', async (_req: Request, res: Response) => {
     // Dynamic list of active user chat sessions from DB
     const recentSessions = await prisma.chatSession.findMany({
       take: 25,
-      // `is_bot` excluded. Crawlers, uptime checks and our own corpus runs are
-      // flagged by lib/botDetection.ts and were being counted here as buyers:
-      // 1,872 of 46,202 sessions at the time of writing, so every session
-      // metric on these dashboards read about 4% high. Small, but a metric that
-      // counts our own uptime checks is not measuring anything.
       where: { is_bot: false },
       orderBy: { last_active: 'desc' },
       select: {
@@ -2505,7 +2516,7 @@ router.get('/analytics/users', async (_req: Request, res: Response) => {
         .slice(0, 5)
     }
 
-    res.json({
+    const responseData = {
       totalUsers,
       repeatedVisitors,
       totalConversions,
@@ -2520,7 +2531,10 @@ router.get('/analytics/users', async (_req: Request, res: Response) => {
       },
       mostActiveSectors,
       users: activeUserList,
-    })
+    }
+
+    await setCached(cacheKey, responseData, 60)
+    res.json(responseData)
   } catch (err) {
     console.error('[admin] analytics users failed:', err)
     res.status(500).json({ error: 'Failed to fetch users analytics' })
@@ -2651,8 +2665,15 @@ router.get('/analytics/ai-costs', async (_req: Request, res: Response) => {
 })
 
 // GET /api/v1/admin/analytics/market-demand — Supply vs Demand Matrix
-router.get('/analytics/market-demand', async (_req: Request, res: Response) => {
+router.get('/analytics/market-demand', async (req: Request, res: Response) => {
   try {
+    const isRefresh = req.query.refresh === 'true'
+    const cacheKey = 'admin:analytics:market-demand'
+    if (!isRefresh) {
+      const cached = await getCached<object>(cacheKey)
+      if (cached) return res.json(cached)
+    }
+
     const [searches, projects] = await Promise.all([
       prisma.queryMetrics.findMany({
         where: { sector: { not: null } },
@@ -2713,7 +2734,9 @@ router.get('/analytics/market-demand', async (_req: Request, res: Response) => {
       }
     }).sort((a, b) => b.searchDemandCount - a.searchDemandCount)
 
-    res.json({ matrix, totalDemandQueries: searches.length, totalCatalogProjects: projects.length })
+    const responseData = { matrix, totalDemandQueries: searches.length, totalCatalogProjects: projects.length }
+    await setCached(cacheKey, responseData, 60)
+    res.json(responseData)
   } catch (err) {
     console.error('[admin] analytics market-demand failed:', err)
     res.status(500).json({ error: 'Failed to fetch market demand matrix' })
@@ -2721,8 +2744,15 @@ router.get('/analytics/market-demand', async (_req: Request, res: Response) => {
 })
 
 // GET /api/v1/admin/analytics/unmet-demand — Zero result demand ledger
-router.get('/analytics/unmet-demand', async (_req: Request, res: Response) => {
+router.get('/analytics/unmet-demand', async (req: Request, res: Response) => {
   try {
+    const isRefresh = req.query.refresh === 'true'
+    const cacheKey = 'admin:analytics:unmet-demand'
+    if (!isRefresh) {
+      const cached = await getCached<object>(cacheKey)
+      if (cached) return res.json(cached)
+    }
+
     const unmetQueries = await prisma.queryMetrics.findMany({
       where: {
         OR: [
@@ -2771,7 +2801,9 @@ router.get('/analytics/unmet-demand', async (_req: Request, res: Response) => {
       .sort((a, b) => b.count - a.count)
       .slice(0, 15)
 
-    res.json({ ledger, totalUnmetLogged: unmetQueries.length })
+    const responseData = { ledger, totalUnmetLogged: unmetQueries.length }
+    await setCached(cacheKey, responseData, 60)
+    res.json(responseData)
   } catch (err) {
     console.error('[admin] analytics unmet-demand failed:', err)
     res.status(500).json({ error: 'Failed to fetch unmet demand ledger' })
@@ -2779,8 +2811,15 @@ router.get('/analytics/unmet-demand', async (_req: Request, res: Response) => {
 })
 
 // GET /api/v1/admin/analytics/funnel — 5-stage conversion funnel
-router.get('/analytics/funnel', async (_req: Request, res: Response) => {
+router.get('/analytics/funnel', async (req: Request, res: Response) => {
   try {
+    const isRefresh = req.query.refresh === 'true'
+    const cacheKey = 'admin:analytics:funnel'
+    if (!isRefresh) {
+      const cached = await getCached<object>(cacheKey)
+      if (cached) return res.json(cached)
+    }
+
     const [totalSessions, totalSearches, viewClicks, saves, totalCallbacks, totalSiteVisits] = await Promise.all([
       prisma.chatSession.count({ where: { is_bot: false } }).catch(() => 0),
       prisma.queryMetrics.count().catch(() => 0),
@@ -2801,7 +2840,9 @@ router.get('/analytics/funnel', async (_req: Request, res: Response) => {
 
     const overallConversionRate = totalSessions > 0 ? `${((leads / totalSessions) * 100).toFixed(2)}%` : '0.00%'
 
-    res.json({ stages, overallConversionRate, totalLeads: leads })
+    const responseData = { stages, overallConversionRate, totalLeads: leads }
+    await setCached(cacheKey, responseData, 60)
+    res.json(responseData)
   } catch (err) {
     console.error('[admin] analytics funnel failed:', err)
     res.status(500).json({ error: 'Failed to fetch funnel analytics' })

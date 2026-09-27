@@ -204,7 +204,7 @@ function Input({ value, onChange, ...rest }: Omit<React.InputHTMLAttributes<HTML
       value={value}
       onChange={(e) => onChange(e.target.value)}
       {...rest}
-      className="w-full bg-white dark:bg-zinc-850/80 border border-zinc-200/90 dark:border-zinc-700/80 hover:border-zinc-300 dark:hover:border-zinc-600 focus:border-[#0066cc] dark:focus:border-[#0066cc] focus:ring-2 focus:ring-[#0066cc]/15 rounded-xl h-10 px-3.5 text-[13px] text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-500 focus:outline-none transition-all shadow-2xs"
+      className="w-full bg-white dark:bg-zinc-900 border border-zinc-200/90 dark:border-zinc-700/80 hover:border-zinc-300 dark:hover:border-zinc-600 focus:border-[#0066cc] dark:focus:border-[#0066cc] focus:ring-2 focus:ring-[#0066cc]/15 rounded-xl h-10 px-3.5 text-[13px] text-zinc-900 dark:text-zinc-50 placeholder:text-zinc-400 dark:placeholder:text-zinc-500 focus:outline-none transition-all shadow-2xs dark:[color-scheme:dark]"
     />
   )
 }
@@ -221,7 +221,7 @@ function Textarea({ value, onChange, rows = 3, placeholder }: {
       onChange={(e) => onChange(e.target.value)}
       rows={rows}
       placeholder={placeholder}
-      className="w-full bg-white dark:bg-zinc-850/80 border border-zinc-200/90 dark:border-zinc-700/80 hover:border-zinc-300 dark:hover:border-zinc-600 focus:border-[#0066cc] dark:focus:border-[#0066cc] focus:ring-2 focus:ring-[#0066cc]/15 rounded-xl p-3.5 text-[13px] text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-500 focus:outline-none transition-all shadow-2xs resize-none"
+      className="w-full bg-white dark:bg-zinc-900 border border-zinc-200/90 dark:border-zinc-700/80 hover:border-zinc-300 dark:hover:border-zinc-600 focus:border-[#0066cc] dark:focus:border-[#0066cc] focus:ring-2 focus:ring-[#0066cc]/15 rounded-xl p-3.5 text-[13px] text-zinc-900 dark:text-zinc-50 placeholder:text-zinc-400 dark:placeholder:text-zinc-500 focus:outline-none transition-all shadow-2xs resize-none dark:[color-scheme:dark]"
     />
   )
 }
@@ -265,7 +265,7 @@ function TagInput({ tags, onChange, placeholder }: {
             if (e.key === 'Enter' || e.key === ',') { e.preventDefault(); add() }
           }}
           placeholder={placeholder ?? 'Type and press Enter'}
-          className="flex-1 bg-white dark:bg-zinc-850/80 border border-zinc-200/90 dark:border-zinc-700/80 hover:border-zinc-300 dark:hover:border-zinc-600 focus:border-[#0066cc] dark:focus:border-[#0066cc] focus:ring-2 focus:ring-[#0066cc]/15 rounded-xl h-10 px-3.5 text-[13px] text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-500 focus:outline-none transition-all shadow-2xs"
+          className="flex-1 bg-white dark:bg-zinc-900 border border-zinc-200/90 dark:border-zinc-700/80 hover:border-zinc-300 dark:hover:border-zinc-600 focus:border-[#0066cc] dark:focus:border-[#0066cc] focus:ring-2 focus:ring-[#0066cc]/15 rounded-xl h-10 px-3.5 text-[13px] text-zinc-900 dark:text-zinc-50 placeholder:text-zinc-400 dark:placeholder:text-zinc-500 focus:outline-none transition-all shadow-2xs dark:[color-scheme:dark]"
         />
         <button
           type="button"

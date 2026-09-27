@@ -6,6 +6,7 @@
  * consoles inherit that look rather than re-inventing a near-miss of it.
  */
 
+import React, { useEffect, useRef, useState } from 'react'
 import { Fire, Flame, Snowflake } from '@phosphor-icons/react'
 
 export function PageHeader({ title, subtitle, action }: { title: string; subtitle?: string; action?: React.ReactNode }) {
@@ -63,6 +64,52 @@ export function StatCard({
   tone?: 'neutral' | 'hot' | 'good'
   loading?: boolean
 }) {
+  const [displayValue, setDisplayValue] = useState<React.ReactNode>(value)
+  const prevNumericRef = useRef<number | null>(null)
+  const isMountedRef = useRef(false)
+
+  // Smooth numeric ticker if value is a number
+  useEffect(() => {
+    if (typeof value !== 'number') {
+      setDisplayValue(value)
+      return
+    }
+
+    const target = value
+    const start = isMountedRef.current && prevNumericRef.current !== null
+      ? prevNumericRef.current
+      : 0
+
+    prevNumericRef.current = target
+    isMountedRef.current = true
+
+    if (start === target) {
+      setDisplayValue(target.toLocaleString())
+      return
+    }
+
+    const duration = start === 0 ? 650 : 400
+    const startTime = performance.now()
+    let rafId: number
+
+    function step(currentTime: number) {
+      const elapsed = currentTime - startTime
+      const progress = Math.min(elapsed / duration, 1)
+      const easeOut = 1 - Math.pow(1 - progress, 3)
+      const current = Math.round(start + (target - start) * easeOut)
+      setDisplayValue(current.toLocaleString())
+
+      if (progress < 1) {
+        rafId = requestAnimationFrame(step)
+      } else {
+        setDisplayValue(target.toLocaleString())
+      }
+    }
+
+    rafId = requestAnimationFrame(step)
+    return () => cancelAnimationFrame(rafId)
+  }, [value])
+
   const valueTone =
     tone === 'hot' ? 'text-rose-600 dark:text-rose-400'
     : tone === 'good' ? 'text-emerald-600 dark:text-emerald-400'
@@ -76,19 +123,19 @@ export function StatCard({
       : 'bg-blue-50/70 dark:bg-blue-950/50 text-[#0066cc] dark:text-blue-400 border border-blue-200/60 dark:border-blue-800/60'
 
   return (
-    <div className="rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 p-5 shadow-2xs hover:border-zinc-300 dark:hover:border-zinc-700 transition-all">
-      <div className="flex items-center justify-between">
-        <span className="text-[11px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">{label}</span>
-        <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 shadow-2xs ${iconBox}`}>
+    <div className="rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 p-4 sm:p-5 shadow-2xs hover:border-zinc-300 dark:hover:border-zinc-700 transition-all flex flex-col justify-between min-h-[120px] min-w-0">
+      <div className="flex items-center justify-between gap-2 min-w-0">
+        <span className="text-[10.5px] sm:text-[11px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider truncate">{label}</span>
+        <div className={`w-8 h-8 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center shrink-0 shadow-2xs ${iconBox}`}>
           {icon}
         </div>
       </div>
-      <div className="mt-3 flex items-baseline justify-between gap-2">
-        <span className={`text-2xl sm:text-3xl font-black font-mono tracking-tight tabular-nums ${valueTone}`}>
-          {loading ? <span className="inline-block h-8 w-16 rounded-md bg-zinc-100 dark:bg-zinc-800 animate-pulse align-middle" /> : value}
+      <div className="mt-3 flex items-baseline justify-between gap-2 flex-wrap min-w-0">
+        <span className={`text-2xl sm:text-3xl font-black font-mono tracking-tight tabular-nums truncate ${valueTone}`}>
+          {loading ? <span className="inline-block h-8 w-16 rounded-md bg-zinc-100 dark:bg-zinc-800 animate-pulse align-middle" /> : displayValue}
         </span>
         {hint && (
-          <span className="text-[11px] font-semibold text-zinc-500 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-800/80 px-2 py-0.5 rounded-md border border-zinc-200/60 dark:border-zinc-700/60 truncate">
+          <span className="text-[10px] sm:text-[11px] font-semibold text-zinc-500 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-800/80 px-2 py-0.5 rounded-md border border-zinc-200/60 dark:border-zinc-700/60 truncate max-w-full">
             {hint}
           </span>
         )}

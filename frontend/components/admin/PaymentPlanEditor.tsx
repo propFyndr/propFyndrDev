@@ -128,8 +128,8 @@ export default function PaymentPlanEditor({ projectId, initialData }: { projectI
         </button>
       </div>
 
-      {/* Plan Type Selector Tabs */}
-      <div className="flex items-center gap-1.5 p-1 bg-zinc-100 dark:bg-zinc-800/70 rounded-xl border border-zinc-200/80 dark:border-zinc-700/60 overflow-x-auto [scrollbar-width:none]">
+      {/* Plan Type Selector Tabs — Clean Responsive Grid matching AnalyticsNav */}
+      <div className="grid grid-cols-2 sm:inline-flex sm:items-center gap-1.5 p-1 bg-zinc-100 dark:bg-zinc-800/70 rounded-2xl border border-zinc-200/80 dark:border-zinc-700/60 w-full sm:w-auto shadow-2xs">
         {PLAN_TYPES.map(t => {
           const isConfigured = plans.some(p => p.plan_type === t.id)
           const isActive = activeType === t.id
@@ -137,14 +137,14 @@ export default function PaymentPlanEditor({ projectId, initialData }: { projectI
             <button
               key={t.id}
               onClick={() => setActiveType(t.id)}
-              className={`px-3 py-1.5 rounded-lg text-[12px] font-medium whitespace-nowrap transition-all flex items-center gap-1.5 ${
+              className={`px-3 py-2 sm:py-1.5 rounded-xl text-[12px] font-semibold transition-all flex items-center justify-center gap-1.5 min-w-0 truncate cursor-pointer ${
                 isActive
-                  ? 'bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 shadow-2xs font-semibold'
-                  : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100'
+                  ? 'bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 shadow-xs font-bold'
+                  : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-white/40 dark:hover:bg-zinc-850'
               }`}
             >
-              <span>{t.name}</span>
-              {isConfigured && <span className={`w-1.5 h-1.5 rounded-full ${isActive ? 'bg-[#0066cc]' : 'bg-emerald-500'}`} />}
+              <span className="truncate">{t.name}</span>
+              {isConfigured && <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${isActive ? 'bg-[#0066cc]' : 'bg-emerald-500'}`} />}
             </button>
           )
         })}

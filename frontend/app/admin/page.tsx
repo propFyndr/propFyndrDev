@@ -26,6 +26,7 @@ import {
 import { Activity, FileSpreadsheet } from 'lucide-react'
 import AdminInfoTooltip from '@/components/admin/AdminInfoTooltip'
 import { adminFetch } from '@/lib/adminFetch'
+import { usePortalIdentity } from '@/components/portal/PortalShell'
 import {
   BarChart,
   Bar,
@@ -76,6 +77,7 @@ const TIME_RANGE_OPTIONS: DropdownOption<TimeRange>[] = [
 ]
 
 export default function AdminDashboard() {
+  const { displayName, orgName } = usePortalIdentity()
   const [allProjects, setAllProjects] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [mounted, setMounted] = useState(false)
@@ -378,9 +380,13 @@ export default function AdminDashboard() {
         <div>
           <div className="flex items-center gap-3 flex-wrap">
             <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50 tracking-tight flex items-center gap-2">
-              <span>Hello, Administrator</span>
-              <span className="text-2xl select-none" role="img" aria-label="Waving hand">👋</span>
+              <span>Hello, {displayName || 'Admin'}</span>
             </h1>
+            {orgName && (
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 text-[11px] font-semibold text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/60 border border-blue-200/80 dark:border-blue-800/60 rounded-full shadow-2xs">
+                <span>{orgName}</span>
+              </span>
+            )}
             <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-semibold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200/80 dark:border-emerald-800/60 rounded-full shadow-2xs">
               <span className="relative flex h-2 w-2">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
@@ -467,6 +473,8 @@ export default function AdminDashboard() {
             sparklineData={[24, 28, 26, 32, 30, 36, 40, stats.total || 44]}
             subBadge={timeRange === 'all' ? '100% Catalog Live' : `${timeRange.toUpperCase()} Range`}
             subBadgeVariant="emerald"
+            delta={{ value: '100% Live', direction: 'up', context: 'catalog coverage' }}
+            contextText="Active listings across catalog"
             icon={Buildings}
             iconBgClass="bg-blue-50 dark:bg-blue-950/60"
             iconColorClass="text-[#0066cc] dark:text-blue-400"
@@ -489,6 +497,8 @@ export default function AdminDashboard() {
             sparklineData={[6, 9, 11, 10, 14, 15, 17, stats.builders || 18]}
             subBadge="Verified Partners"
             subBadgeVariant="violet"
+            delta={{ value: 'Active', direction: 'up', context: 'onboarded' }}
+            contextText="Verified developer groups"
             icon={UsersThree}
             iconBgClass="bg-violet-50 dark:bg-violet-950/60"
             iconColorClass="text-violet-600 dark:text-violet-400"
@@ -510,6 +520,12 @@ export default function AdminDashboard() {
             sparklineData={[10, 12, 11, 15, 14, 18, 19, stats.ready || 20]}
             subBadge={`${stats.total ? Math.round((stats.ready / stats.total) * 100) : 0}% of Total`}
             subBadgeVariant="emerald"
+            delta={{
+              value: `${stats.total ? Math.round((stats.ready / stats.total) * 100) : 0}%`,
+              direction: 'up',
+              context: 'of catalog',
+            }}
+            contextText="Immediate possession units"
             icon={CheckCircle}
             iconBgClass="bg-emerald-50 dark:bg-emerald-950/60"
             iconColorClass="text-emerald-600 dark:text-emerald-400"
@@ -530,6 +546,12 @@ export default function AdminDashboard() {
             sparkline={stats.no_image + stats.no_rera > 0 ? 'amber' : 'emerald'}
             sparklineData={[8, 10, 7, 6, 5, 4, 3, stats.no_image + stats.no_rera || 1]}
             warning={stats.no_image > 0 || stats.no_rera > 0}
+            delta={{
+              value: stats.no_image + stats.no_rera > 0 ? 'Action Needed' : 'Clean',
+              direction: stats.no_image + stats.no_rera > 0 ? 'down' : 'neutral',
+              context: 'quality audit',
+            }}
+            contextText="Pending image/RERA check"
             subBadge={
               stats.no_image > 0 && stats.no_rera > 0
                 ? 'Images & RERA'
@@ -721,7 +743,7 @@ export default function AdminDashboard() {
                         if (active && payload && payload.length) {
                           const data = payload[0].payload
                           return (
-                            <div className="bg-zinc-900 border border-zinc-800 text-white px-3 py-2 rounded-xl shadow-xl flex items-center gap-2 z-50">
+                            <div className="bg-zinc-950/95 dark:bg-zinc-900/95 backdrop-blur-md border border-zinc-800 dark:border-zinc-700 text-white px-3 py-2 rounded-xl shadow-2xl flex items-center gap-2.5 z-50">
                               <div
                                 className="w-2.5 h-2.5 rounded-full shrink-0"
                                 style={{ backgroundColor: data.color }}

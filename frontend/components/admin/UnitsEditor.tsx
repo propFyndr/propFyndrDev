@@ -601,7 +601,7 @@ export default function UnitsEditor({
               {/* Unit Views (Images) */}
               <div className="pt-4 mt-4 border-t border-zinc-100">
                 <p className="text-[11px] font-bold text-zinc-500 uppercase tracking-widest mb-2">Unit Views & Floor Plan Images</p>
-                <div className="flex gap-2 overflow-x-auto pb-2">
+                <div className="flex flex-wrap gap-2 pb-2">
                   {row._views.map((vw: any, idx: number) => (
                     <div key={idx} className="relative w-24 h-24 rounded-xl bg-zinc-100 flex-shrink-0 group overflow-hidden border border-zinc-200">
                       {vw.image_url && <Image src={vw.image_url} alt="View" fill sizes="96px" className="absolute inset-0 w-full h-full object-cover" />}

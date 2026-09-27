@@ -398,8 +398,8 @@ export default function BuilderLeadsPage() {
           />
         </div>
 
-        {/* Segmented Pipeline Stage Tabs */}
-        <div className="flex items-center p-1 bg-zinc-100/90 dark:bg-zinc-800/60 rounded-xl border border-zinc-200/80 dark:border-zinc-700/60 shrink-0 overflow-x-auto w-full sm:w-auto">
+        {/* Segmented Pipeline Stage Tabs — Clean Responsive Grid matching AnalyticsNav */}
+        <div className="grid grid-cols-3 sm:inline-flex sm:items-center gap-1.5 p-1 bg-zinc-100/90 dark:bg-zinc-800/80 rounded-2xl border border-zinc-200/80 dark:border-zinc-700/60 shadow-2xs w-full sm:w-auto shrink-0">
           {(
             [
               { id: 'all', label: 'All Leads' },
@@ -413,10 +413,10 @@ export default function BuilderLeadsPage() {
             <button
               key={tab.id}
               onClick={() => setStatusFilter(tab.id as 'all' | StatusType)}
-              className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all cursor-pointer whitespace-nowrap capitalize ${
+              className={`px-2 sm:px-3.5 py-2 sm:py-1.5 text-xs font-semibold rounded-xl transition-all cursor-pointer truncate text-center capitalize min-w-0 ${
                 statusFilter === tab.id
-                  ? 'bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white shadow-2xs font-bold'
-                  : 'text-zinc-500 hover:text-zinc-900 dark:hover:text-white'
+                  ? 'bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white shadow-xs font-bold'
+                  : 'text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 hover:bg-white/40 dark:hover:bg-zinc-850'
               }`}
             >
               {tab.label}

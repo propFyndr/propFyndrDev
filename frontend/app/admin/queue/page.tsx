@@ -401,15 +401,15 @@ export default function SalesQueuePage() {
 
       {/* Queue Toolbar: Search & Segmented Filter Pills */}
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-2">
-        {/* Apple Segmented Pills */}
-        <div className="inline-flex p-1 bg-zinc-100/80 dark:bg-zinc-800/60 rounded-full border border-zinc-200/60 dark:border-zinc-700/60 overflow-x-auto max-w-full">
+        {/* Segmented Filter Control — Clean Responsive Grid matching AnalyticsNav */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:inline-flex lg:items-center gap-1.5 p-1 bg-zinc-100/90 dark:bg-zinc-800/80 rounded-2xl border border-zinc-200/60 dark:border-zinc-700/60 w-full sm:w-auto shadow-2xs shrink-0">
           <button
             type="button"
             onClick={() => setActiveTab('all')}
-            className={`px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
+            className={`px-3 py-2 sm:py-1.5 rounded-xl text-xs font-semibold truncate text-center transition-all cursor-pointer min-w-0 ${
               activeTab === 'all'
-                ? 'bg-white dark:bg-zinc-900 text-[#1d1d1f] dark:text-white shadow-2xs'
-                : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200'
+                ? 'bg-white dark:bg-zinc-900 text-[#1d1d1f] dark:text-white shadow-xs font-bold'
+                : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-white/40 dark:hover:bg-zinc-850'
             }`}
           >
             All ({tabCounts.all})
@@ -417,10 +417,10 @@ export default function SalesQueuePage() {
           <button
             type="button"
             onClick={() => setActiveTab('needs_call')}
-            className={`px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
+            className={`px-3 py-2 sm:py-1.5 rounded-xl text-xs font-semibold truncate text-center transition-all cursor-pointer min-w-0 ${
               activeTab === 'needs_call'
-                ? 'bg-white dark:bg-zinc-900 text-[#1d1d1f] dark:text-white shadow-2xs'
-                : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200'
+                ? 'bg-white dark:bg-zinc-900 text-[#1d1d1f] dark:text-white shadow-xs font-bold'
+                : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-white/40 dark:hover:bg-zinc-850'
             }`}
           >
             Needs call ({tabCounts.needs_call})
@@ -428,10 +428,10 @@ export default function SalesQueuePage() {
           <button
             type="button"
             onClick={() => setActiveTab('called')}
-            className={`px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
+            className={`px-3 py-2 sm:py-1.5 rounded-xl text-xs font-semibold truncate text-center transition-all cursor-pointer min-w-0 ${
               activeTab === 'called'
-                ? 'bg-white dark:bg-zinc-900 text-[#1d1d1f] dark:text-white shadow-2xs'
-                : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200'
+                ? 'bg-white dark:bg-zinc-900 text-[#1d1d1f] dark:text-white shadow-xs font-bold'
+                : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-white/40 dark:hover:bg-zinc-850'
             }`}
           >
             Called ({tabCounts.called})
@@ -439,10 +439,10 @@ export default function SalesQueuePage() {
           <button
             type="button"
             onClick={() => setActiveTab('priority')}
-            className={`px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
+            className={`px-3 py-2 sm:py-1.5 rounded-xl text-xs font-semibold truncate text-center transition-all cursor-pointer min-w-0 ${
               activeTab === 'priority'
-                ? 'bg-white dark:bg-zinc-900 text-[#1d1d1f] dark:text-white shadow-2xs'
-                : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200'
+                ? 'bg-white dark:bg-zinc-900 text-[#1d1d1f] dark:text-white shadow-xs font-bold'
+                : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-white/40 dark:hover:bg-zinc-850'
             }`}
           >
             Hot & Warm ({tabCounts.priority})
@@ -450,10 +450,10 @@ export default function SalesQueuePage() {
           <button
             type="button"
             onClick={() => setActiveTab('going_cold')}
-            className={`px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
+            className={`px-3 py-2 sm:py-1.5 rounded-xl text-xs font-semibold truncate text-center transition-all cursor-pointer min-w-0 ${
               activeTab === 'going_cold'
-                ? 'bg-white dark:bg-zinc-900 text-amber-700 dark:text-amber-400 shadow-2xs'
-                : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200'
+                ? 'bg-white dark:bg-zinc-900 text-amber-700 dark:text-amber-400 shadow-xs font-bold'
+                : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-white/40 dark:hover:bg-zinc-850'
             }`}
           >
             Going cold ({tabCounts.going_cold})

@@ -66,17 +66,33 @@ export async function invalidateSessionList(userId: string): Promise<void> {
 
 const memTestCache = new Map<string, unknown>()
 
+interface MemEntry {
+  value: unknown
+  expiresAt: number
+}
+const memFallbackCache = new Map<string, MemEntry>()
+
 export async function getCached<T>(key: string): Promise<T | null> {
   // Tests must not read a shared, persistent cache. We use an isolated in-memory map
   // so external Upstash Redis is never polluted, while test assertions work deterministically.
   if (process.env.NODE_ENV === 'test') return (memTestCache.get(key) as T) ?? null
   const redis = getRedis()
-  if (!redis) return null
-  try {
-    return await redis.get<T>(key)
-  } catch {
-    return null
+  if (redis) {
+    try {
+      const val = await redis.get<T>(key)
+      if (val !== null && val !== undefined) return val
+    } catch {
+      // Degrade to memory fallback on Redis error
+    }
   }
+  const mem = memFallbackCache.get(key)
+  if (mem) {
+    if (Date.now() < mem.expiresAt) {
+      return mem.value as T
+    }
+    memFallbackCache.delete(key)
+  }
+  return null
 }
 
 // Returns true if the value was written, false if Redis is absent or errored.
@@ -89,14 +105,18 @@ export async function setCached<T>(key: string, value: T, ttlSecs = 3600): Promi
     memTestCache.set(key, value)
     return true
   }
+  memFallbackCache.set(key, {
+    value,
+    expiresAt: Date.now() + ttlSecs * 1000,
+  })
   const redis = getRedis()
-  if (!redis) return false
+  if (!redis) return true
   try {
     await redis.set(key, value, { ex: ttlSecs })
     return true
   } catch (e) {
     console.error('[cache] setCached failed:', e)
-    return false
+    return true
   }
 }
 
@@ -116,6 +136,7 @@ export async function deleteCached(key: string): Promise<void> {
     memTestCache.delete(key)
     return
   }
+  memFallbackCache.delete(key)
   const redis = getRedis()
   if (!redis) return
   try {

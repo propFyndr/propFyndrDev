@@ -302,18 +302,19 @@ export default function BlogAdminPage() {
           )}
         </div>
 
-        <div className="flex items-center p-1 bg-zinc-100 dark:bg-zinc-800/60 rounded-xl border border-zinc-200/80 dark:border-zinc-700/60 shrink-0 overflow-x-auto">
+        {/* Segmented Filter Control — Clean Responsive Grid matching AnalyticsNav */}
+        <div className="grid grid-cols-2 sm:inline-flex sm:items-center gap-1.5 p-1 bg-zinc-100 dark:bg-zinc-800/80 rounded-2xl border border-zinc-200/80 dark:border-zinc-700/60 shadow-2xs w-full sm:w-auto shrink-0">
           {(['all', 'published', 'draft', 'archived'] as const).map(st => (
             <button
               key={st}
               onClick={() => setFilter(st)}
-              className={`px-3 py-1 text-xs font-semibold rounded-lg transition-all cursor-pointer whitespace-nowrap capitalize ${
+              className={`px-3 py-2 sm:py-1.5 text-xs font-semibold rounded-xl transition-all cursor-pointer truncate text-center capitalize min-w-0 ${
                 filter === st
-                  ? 'bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white shadow-2xs font-bold'
-                  : 'text-zinc-500 hover:text-zinc-900 dark:hover:text-white'
+                  ? 'bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white shadow-xs font-bold'
+                  : 'text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 hover:bg-white/40 dark:hover:bg-zinc-850'
               }`}
             >
-              {st === 'all' ? 'All Posts' : st}
+              <span className="truncate">{st === 'all' ? 'All Posts' : st}</span>
             </button>
           ))}
         </div>

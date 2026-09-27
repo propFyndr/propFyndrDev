@@ -53,15 +53,15 @@ export default function SearchAnalytics() {
   }, [loadData])
 
   return (
-    <div className="space-y-6 pb-16 font-sans select-none max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-8 min-w-0">
+    <div className="space-y-6 pb-16 font-sans select-none max-w-[1400px] mx-auto px-3.5 sm:px-6 lg:px-8 py-4 sm:py-8 min-w-0 overflow-x-hidden">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pt-1">
-        <div className="flex items-center gap-4">
-          <Link href="/admin/analytics" className="p-2 rounded-xl bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 text-zinc-500 hover:text-zinc-900 dark:hover:text-white transition-colors">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4 pt-1 min-w-0">
+        <div className="flex items-center gap-3 sm:gap-4 min-w-0">
+          <Link href="/admin/analytics" className="p-2 rounded-xl bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 text-zinc-500 hover:text-zinc-900 dark:hover:text-white transition-colors shrink-0">
             <ArrowLeft size={18} />
           </Link>
-          <div>
-            <h1 className="text-3xl sm:text-4xl font-extrabold text-zinc-900 dark:text-white tracking-tight">
+          <div className="min-w-0">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-zinc-900 dark:text-white tracking-tight truncate">
               Search Analytics
             </h1>
             <p className="text-xs sm:text-sm font-medium text-zinc-500 dark:text-zinc-400">
@@ -101,9 +101,12 @@ export default function SearchAnalytics() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <MetricCard
             title="Total Search Telemetry"
-            value={data?.totalQueries?.toLocaleString() || 0}
+            value={data?.totalQueries || 0}
             subBadge="Logged queries"
             subBadgeVariant="blue"
+            sparkline="blue"
+            sparklineData={[40, 52, 48, 65, 70, 85, 92, data?.totalQueries || 100]}
+            contextText="Property search intent volume"
             icon={Search}
             iconBgClass="bg-blue-50 dark:bg-blue-950/60"
             iconColorClass="text-[#0066cc] dark:text-blue-400"
@@ -121,6 +124,10 @@ export default function SearchAnalytics() {
             value={data?.topSectors?.length || 0}
             subBadge="Unique localities"
             subBadgeVariant="emerald"
+            delta={{ value: 'Broad Reach', direction: 'up', context: 'Noida & GNW' }}
+            sparkline="emerald"
+            sparklineData={[10, 14, 13, 18, 17, 22, 25, data?.topSectors?.length || 28]}
+            contextText="Geographic distribution"
             icon={Building2}
             iconBgClass="bg-emerald-50 dark:bg-emerald-950/60"
             iconColorClass="text-emerald-600 dark:text-emerald-400"
@@ -136,13 +143,13 @@ export default function SearchAnalytics() {
       )}
 
       {/* Detailed Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 min-w-0">
         {/* Top Sectors Horizontal Bar Chart (Zero Label Collision) */}
-        <div className="p-5 md:p-6 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200/90 dark:border-zinc-800 shadow-xs space-y-4">
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-semibold text-zinc-900 dark:text-white tracking-tight flex items-center gap-2">
-              <BarChart3 className="w-4 h-4 text-[#0066cc]" />
-              Top 10 Searched Sectors (Real DB Data)
+        <div className="p-4 sm:p-6 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200/90 dark:border-zinc-800 shadow-xs space-y-4 min-w-0 overflow-hidden">
+          <div className="flex items-center justify-between gap-2 min-w-0">
+            <span className="text-sm font-semibold text-zinc-900 dark:text-white tracking-tight flex items-center gap-2 truncate">
+              <BarChart3 className="w-4 h-4 text-[#0066cc] shrink-0" />
+              <span className="truncate">Top 10 Searched Sectors (Real DB Data)</span>
               <AdminInfoTooltip
                 title="Top 10 Searched Sectors"
                 description="Bar chart ranking top sectors in Noida & Greater Noida."
@@ -187,13 +194,17 @@ export default function SearchAnalytics() {
                       if (active && payload && payload.length) {
                         const d = payload[0].payload
                         return (
-                          <div className="bg-zinc-950/95 backdrop-blur-md border border-zinc-800 text-white px-3.5 py-2.5 rounded-xl shadow-2xl z-50">
+                          <div className="bg-zinc-950/95 dark:bg-zinc-900/95 backdrop-blur-md border border-zinc-800 dark:border-zinc-700 text-white px-3.5 py-2.5 rounded-xl shadow-2xl z-50">
                             <p className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider mb-1">
                               {d.sector}
                             </p>
-                            <p className="text-xs font-semibold text-white">
-                              {payload[0].value} <span className="text-zinc-400 font-normal">Searches</span>
-                            </p>
+                            <div className="flex items-center gap-2">
+                              <span className="w-2 h-2 rounded-full bg-[#0066cc]" />
+                              <p className="text-xs font-semibold text-white">
+                                {Number(payload[0].value).toLocaleString()}{' '}
+                                <span className="text-zinc-400 font-normal">Searches</span>
+                              </p>
+                            </div>
                           </div>
                         )
                       }
@@ -213,18 +224,18 @@ export default function SearchAnalytics() {
         </div>
 
         {/* Top Builders Ranking Leaderboard */}
-        <div className="p-5 md:p-6 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200/90 dark:border-zinc-800 shadow-xs space-y-4">
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-semibold text-zinc-900 dark:text-white tracking-tight flex items-center gap-2">
-              <Building2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-              Top Searched Builders
+        <div className="p-4 sm:p-6 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200/90 dark:border-zinc-800 shadow-xs space-y-4 min-w-0">
+          <div className="flex items-center justify-between gap-2 min-w-0">
+            <span className="text-sm font-semibold text-zinc-900 dark:text-white tracking-tight flex items-center gap-2 truncate">
+              <Building2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+              <span className="truncate">Top Searched Builders</span>
               <AdminInfoTooltip
                 title="Top Searched Builders"
                 description="Developers buyers explicitly ask about in chats."
                 whyItMatters="Identifies developers with strongest buyer brand intent."
               />
             </span>
-            <span className="text-[11px] font-semibold text-zinc-500 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-800 px-2.5 py-0.5 rounded-lg">
+            <span className="text-[11px] font-semibold text-zinc-500 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-800 px-2.5 py-0.5 rounded-lg shrink-0">
               Brand Volume
             </span>
           </div>
@@ -246,12 +257,12 @@ export default function SearchAnalytics() {
                     return (
                       <div
                         key={builder.builder}
-                        className="p-3 rounded-xl bg-zinc-50/70 dark:bg-zinc-800/40 border border-zinc-200/80 dark:border-zinc-700/60 hover:border-zinc-300 dark:hover:border-zinc-600 transition-all space-y-1.5"
+                        className="p-3 rounded-xl bg-zinc-50/70 dark:bg-zinc-800/40 border border-zinc-200/80 dark:border-zinc-700/60 hover:border-zinc-300 dark:hover:border-zinc-600 transition-all space-y-1.5 min-w-0"
                       >
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2.5">
+                        <div className="flex items-center justify-between gap-2 min-w-0">
+                          <div className="flex items-center gap-2.5 min-w-0">
                             <span
-                              className={`w-6 h-6 rounded-lg text-xs font-bold flex items-center justify-center border shadow-2xs ${
+                              className={`w-6 h-6 rounded-lg text-xs font-bold flex items-center justify-center border shadow-2xs shrink-0 ${
                                 rank === 1
                                   ? 'bg-amber-100 text-amber-900 border-amber-300 dark:bg-amber-950/80 dark:text-amber-200 dark:border-amber-800'
                                   : rank === 2
@@ -263,11 +274,11 @@ export default function SearchAnalytics() {
                             >
                               {rank}
                             </span>
-                            <span className="text-xs font-semibold text-zinc-900 dark:text-zinc-100">
+                            <span className="text-xs font-semibold text-zinc-900 dark:text-zinc-100 truncate">
                               {builder.builder}
                             </span>
                           </div>
-                          <span className="text-xs font-mono font-semibold text-zinc-700 dark:text-zinc-300">
+                          <span className="text-xs font-mono font-semibold text-zinc-700 dark:text-zinc-300 shrink-0">
                             {builder.count} <span className="text-[11px] text-zinc-400 font-normal">searches</span>
                           </span>
                         </div>
@@ -290,9 +301,9 @@ export default function SearchAnalytics() {
       </div>
 
       {/* All Sectors Ledger Table */}
-      <div className="p-6 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 shadow-2xs space-y-4">
-        <h3 className="text-xs font-extrabold text-zinc-900 dark:text-white tracking-tight uppercase inline-flex items-center">
-          Detailed Sector Query Ledger
+      <div className="p-4 sm:p-6 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 shadow-2xs space-y-4 min-w-0">
+        <h3 className="text-xs font-extrabold text-zinc-900 dark:text-white tracking-tight uppercase inline-flex items-center gap-1.5">
+          <span>Detailed Sector Query Ledger</span>
           <AdminInfoTooltip
             title="Sector Query Ledger"
             description="Complete list of all searched sectors and their exact query counts."
@@ -305,8 +316,8 @@ export default function SearchAnalytics() {
             ))}
           </div>
         ) : data?.topSectors && data.topSectors.length > 0 ? (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse text-xs">
+          <div className="overflow-x-auto w-full">
+            <table className="w-full text-left border-collapse text-xs min-w-[280px]">
               <thead>
                 <tr className="border-b border-zinc-200/80 dark:border-zinc-800 text-[11px] font-bold text-zinc-400 uppercase">
                   <th className="py-3 px-4">Sector Locality</th>

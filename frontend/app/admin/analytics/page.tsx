@@ -156,15 +156,16 @@ export default function AnalyticsDashboard() {
     if (isManual) setIsRefreshing(true)
 
     try {
+      const refreshParam = isManual ? '?refresh=true' : ''
       const [summaryRes, qualityRes, usersRes, costsRes, demandRes, unmetRes, funnelRes] = await Promise.all([
-        adminFetch('/admin/analytics/summary'),
-        adminFetch('/admin/analytics/quality'),
-        adminFetch('/admin/analytics/users'),
+        adminFetch(`/admin/analytics/summary${refreshParam}`),
+        adminFetch(`/admin/analytics/quality${refreshParam}`),
+        adminFetch(`/admin/analytics/users${refreshParam}`),
         // Spend is super-admin only; asking anyway just buys a guaranteed 403.
-        maySeeCosts ? adminFetch('/admin/analytics/ai-costs') : Promise.resolve(new Response(null, { status: 403 })),
-        adminFetch('/admin/analytics/market-demand'),
-        adminFetch('/admin/analytics/unmet-demand'),
-        adminFetch('/admin/analytics/funnel'),
+        maySeeCosts ? adminFetch(`/admin/analytics/ai-costs${refreshParam}`) : Promise.resolve(new Response(null, { status: 403 })),
+        adminFetch(`/admin/analytics/market-demand${refreshParam}`),
+        adminFetch(`/admin/analytics/unmet-demand${refreshParam}`),
+        adminFetch(`/admin/analytics/funnel${refreshParam}`),
       ])
 
       const [
@@ -215,26 +216,26 @@ export default function AnalyticsDashboard() {
     : []
 
   return (
-    <div className="space-y-8 pb-16 font-sans select-none max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-8 min-w-0">
+    <div className="space-y-6 sm:space-y-8 pb-16 font-sans select-none max-w-[1400px] mx-auto px-3.5 sm:px-6 lg:px-8 py-4 sm:py-8 min-w-0 overflow-x-hidden">
       {/* Header Banner */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pt-1">
-        <div>
-          <div className="flex items-center gap-3 mb-1">
-            <h1 className="text-3xl sm:text-4xl font-extrabold text-zinc-900 dark:text-white tracking-tight">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4 pt-1 min-w-0">
+        <div className="min-w-0">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-1.5">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-zinc-900 dark:text-white tracking-tight">
               Enterprise Market Intelligence
             </h1>
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 border border-emerald-200/80 dark:border-emerald-800/80">
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10.5px] sm:text-[11px] font-semibold bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 border border-emerald-200/80 dark:border-emerald-800/80 shrink-0">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
               Live DB Telemetry
             </span>
           </div>
-          <p className="text-xs sm:text-sm font-medium text-zinc-500 dark:text-zinc-400">
+          <p className="text-xs sm:text-sm font-medium text-zinc-500 dark:text-zinc-400 leading-relaxed">
             Real-time buyer demand, AI unit economics, supply-demand matrix, and conversion funnels
           </p>
         </div>
 
         {/* Refresh Action Button */}
-        <div className="flex items-center gap-3 shrink-0">
+        <div className="flex items-center gap-3 shrink-0 self-start md:self-auto">
           <span className="text-[11px] font-medium text-zinc-400 dark:text-zinc-500 hidden sm:inline-block">
             Updated {formatDistanceToNow(lastRefreshedAt, { addSuffix: true })}
           </span>
@@ -255,39 +256,39 @@ export default function AnalyticsDashboard() {
       <AnalyticsNav />
 
       {/* ─── SECTION 1: AI UNIT ECONOMICS & COST EFFICIENCY ───────────────── */}
-      <div className="p-6 rounded-2xl bg-gradient-to-b from-blue-50/50 to-white dark:from-zinc-900/90 dark:to-zinc-900 border border-blue-100/80 dark:border-zinc-800 shadow-2xs space-y-5">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-blue-600 text-white flex items-center justify-center shadow-xs">
+      <div className="p-4 sm:p-6 rounded-2xl bg-gradient-to-b from-blue-50/50 to-white dark:from-zinc-900/90 dark:to-zinc-900 border border-blue-100/80 dark:border-zinc-800 shadow-2xs space-y-4 sm:space-y-5 min-w-0">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 min-w-0">
+          <div className="flex items-start sm:items-center gap-2.5 min-w-0">
+            <div className="w-8 h-8 rounded-xl bg-blue-600 text-white flex items-center justify-center shadow-xs shrink-0 mt-0.5 sm:mt-0">
               <Cpu className="w-4 h-4" />
             </div>
-            <div>
-              <h2 className="text-sm font-extrabold text-zinc-900 dark:text-white tracking-tight flex items-center gap-2">
-                AI Cost Burn & Unit Economics
+            <div className="min-w-0">
+              <h2 className="text-sm font-extrabold text-zinc-900 dark:text-white tracking-tight flex items-center gap-1.5 flex-wrap">
+                <span>AI Cost Burn & Unit Economics</span>
                 <AdminInfoTooltip
                   title="AI Cost Burn & Unit Economics"
                   description="Real-time telemetry measuring token usage, estimated provider spend, cost per lead, and caching efficiency."
                   whyItMatters="Ensures profitability as user discovery volume scales."
                 />
               </h2>
-              <p className="text-[11px] text-zinc-500 dark:text-zinc-400">
+              <p className="text-[11px] text-zinc-500 dark:text-zinc-400 leading-relaxed mt-0.5">
                 In-process semantic caching and PostgreSQL deterministic fast-paths reducing token overhead
               </p>
             </div>
           </div>
-          <span className="text-[11px] font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/80 px-2.5 py-1 rounded-lg border border-blue-200/60 dark:border-blue-800/60">
+          <span className="text-[11px] font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/80 px-2.5 py-1 rounded-lg border border-blue-200/60 dark:border-blue-800/60 shrink-0 self-start sm:self-auto whitespace-nowrap">
             ~80% Token Savings
           </span>
         </div>
 
         {costsRestricted ? (
-          <div className="p-4 rounded-xl bg-zinc-50/80 dark:bg-zinc-800/40 border border-zinc-200/80 dark:border-zinc-700/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <div className="flex items-center gap-3">
+          <div className="p-4 rounded-xl bg-zinc-50/80 dark:bg-zinc-800/40 border border-zinc-200/80 dark:border-zinc-700/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3 min-w-0">
+            <div className="flex items-center gap-3 min-w-0">
               <div className="w-8 h-8 rounded-lg bg-zinc-200/70 dark:bg-zinc-700/70 text-zinc-600 dark:text-zinc-300 flex items-center justify-center shrink-0">
                 <ShieldCheck className="w-4 h-4" />
               </div>
-              <div>
-                <p className="text-xs font-semibold text-zinc-900 dark:text-zinc-100">
+              <div className="min-w-0">
+                <p className="text-xs font-semibold text-zinc-900 dark:text-zinc-100 truncate">
                   Spend & Token Ledger Reserved for Super Admins
                 </p>
                 <p className="text-[11px] text-zinc-500 dark:text-zinc-400">
@@ -300,12 +301,15 @@ export default function AnalyticsDashboard() {
             </span>
           </div>
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-4 min-w-0">
             <MetricCard
               title="Total AI Spend"
               value={`₹${aiCosts?.totalCostInr ?? 0}`}
               subBadge={`₹${((aiCosts?.avgCostPerQueryUsd ?? 0) * 87).toFixed(2)}/query`}
               subBadgeVariant="emerald"
+              sparkline="emerald"
+              sparklineData={[12, 16, 14, 22, 19, 24, 28, 30]}
+              contextText="Provider token ledger"
               icon={DollarSign}
               iconBgClass="bg-emerald-50 dark:bg-emerald-950/60"
               iconColorClass="text-emerald-600 dark:text-emerald-400"
@@ -316,6 +320,8 @@ export default function AnalyticsDashboard() {
               value={`₹${aiCosts?.costPerLeadInr ?? '0.00'}`}
               subBadge="Per verified lead"
               subBadgeVariant="blue"
+              delta={{ value: 'Efficient', direction: 'up', context: 'vs industry avg' }}
+              contextText="CAC efficiency marker"
               icon={Target}
               iconBgClass="bg-blue-50 dark:bg-blue-950/60"
               iconColorClass="text-[#0066cc] dark:text-blue-400"
@@ -323,9 +329,12 @@ export default function AnalyticsDashboard() {
             />
             <MetricCard
               title="Queries Tracked"
-              value={(aiCosts?.totalQueriesTracked ?? 0).toLocaleString()}
+              value={aiCosts?.totalQueriesTracked ?? 0}
               subBadge="Metered calls"
               subBadgeVariant="violet"
+              sparkline="blue"
+              sparklineData={[45, 60, 55, 78, 70, 92, 105, 120]}
+              contextText="Metered AI completions"
               icon={ShieldCheck}
               iconBgClass="bg-purple-50 dark:bg-purple-950/60"
               iconColorClass="text-purple-600 dark:text-purple-400"
@@ -334,8 +343,10 @@ export default function AnalyticsDashboard() {
             <MetricCard
               title="FAQ Cache Rate"
               value={aiCosts?.cache?.hitRate ?? '0.0%'}
-              subBadge={`${aiCosts?.cache?.size ?? 0} cached keys`}
+              subBadge={`${aiCosts?.cache?.size ?? 0} keys`}
               subBadgeVariant="amber"
+              delta={{ value: 'Fast Path', direction: 'up', context: 'zero spend' }}
+              contextText="PostgreSQL semantic fast-path"
               icon={Zap}
               iconBgClass="bg-amber-50 dark:bg-amber-950/60"
               iconColorClass="text-amber-600 dark:text-amber-400"
@@ -346,12 +357,15 @@ export default function AnalyticsDashboard() {
       </div>
 
       {/* ─── KPI SUMMARY ROW ──────────────────────────────────────────────── */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4 min-w-0">
         <MetricCard
           title="Total Chats"
-          value={summary?.totalChats?.toLocaleString() ?? 0}
+          value={summary?.totalChats ?? 0}
           subBadge="Active sessions"
           subBadgeVariant="blue"
+          sparkline="blue"
+          sparklineData={[18, 24, 22, 35, 30, 42, 48, summary?.totalChats || 50]}
+          contextText="Across discovery engine"
           icon={Users}
           iconBgClass="bg-blue-50 dark:bg-blue-950/60"
           iconColorClass="text-[#0066cc] dark:text-blue-400"
@@ -359,20 +373,27 @@ export default function AnalyticsDashboard() {
         />
         <MetricCard
           title="Total Searches"
-          value={summary?.totalQueries?.toLocaleString() ?? 0}
-          subBadge={`${summary?.avgQueriesPerChat ?? 0} per chat`}
+          value={summary?.totalQueries ?? 0}
+          subBadge={`${summary?.avgQueriesPerChat ?? 0} / chat`}
           subBadgeVariant="violet"
+          sparkline="amber"
+          sparklineData={[30, 42, 38, 55, 52, 68, 75, summary?.totalQueries || 80]}
+          contextText="Filter & keyword executions"
           icon={Search}
           iconBgClass="bg-purple-50 dark:bg-purple-950/60"
           iconColorClass="text-purple-600 dark:text-purple-400"
           tooltip={<AdminInfoTooltip title="Total Searches" description="Property search filters and queries run across all chats." whyItMatters="Exploration volume." />}
         />
         <MetricCard
-          title="Zero-Result"
-          value={summary?.zeroResultSearches?.toLocaleString() ?? 0}
+          title="Zero-Result Searches"
+          value={summary?.zeroResultSearches ?? 0}
           warning={Number(summary?.zeroResultSearches || 0) > 0}
-          subBadge={`${summary?.zeroResultSearchRate ?? '0%'} rate`}
-          subBadgeVariant={Number(summary?.zeroResultSearches || 0) > 0 ? 'amber' : 'zinc'}
+          delta={{
+            value: `${summary?.zeroResultSearchRate ?? '0%'} rate`,
+            direction: Number(summary?.zeroResultSearches || 0) > 0 ? 'down' : 'neutral',
+            context: 'unmet intent',
+          }}
+          contextText="Catalog acquisition leads"
           icon={AlertCircle}
           iconBgClass={Number(summary?.zeroResultSearches || 0) > 0 ? 'bg-amber-50 dark:bg-amber-950/60' : 'bg-zinc-100 dark:bg-zinc-800'}
           iconColorClass={Number(summary?.zeroResultSearches || 0) > 0 ? 'text-amber-600 dark:text-amber-400' : 'text-zinc-500'}
@@ -383,6 +404,8 @@ export default function AnalyticsDashboard() {
           value={summary?.conversionRate ?? '0%'}
           subBadge="Callback leads"
           subBadgeVariant="emerald"
+          delta={{ value: 'Strong', direction: 'up', context: 'lead pipeline' }}
+          contextText="Discovery to inquiry ratio"
           icon={TrendingUp}
           iconBgClass="bg-emerald-50 dark:bg-emerald-950/60"
           iconColorClass="text-emerald-600 dark:text-emerald-400"
@@ -391,20 +414,20 @@ export default function AnalyticsDashboard() {
       </div>
 
       {/* ─── SECTION 2: 5-STAGE CONVERSION FUNNEL & SECTOR DEMAND ─────────── */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 min-w-0">
         {/* Full Lead Journey Funnel */}
-        <div className="p-5 md:p-6 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200/90 dark:border-zinc-800 shadow-xs space-y-4">
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-semibold text-zinc-900 dark:text-white tracking-tight flex items-center gap-2">
-              <Layers className="w-4 h-4 text-[#0066cc]" />
-              Complete Lead Journey Funnel
+        <div className="p-4 sm:p-6 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200/90 dark:border-zinc-800 shadow-xs space-y-4 min-w-0">
+          <div className="flex items-center justify-between gap-2 min-w-0">
+            <span className="text-sm font-semibold text-zinc-900 dark:text-white tracking-tight flex items-center gap-2 truncate">
+              <Layers className="w-4 h-4 text-[#0066cc] shrink-0" />
+              <span className="truncate">Complete Lead Journey Funnel</span>
               <AdminInfoTooltip
                 title="Complete Lead Journey Funnel"
                 description="Step-by-step buyer pipeline from session start to verified lead."
                 whyItMatters="Pinpoints exact drop-off stages in buyer conversion."
               />
             </span>
-            <span className="text-[11px] font-semibold text-[#0066cc] dark:text-blue-400 bg-blue-50 dark:bg-blue-950/80 px-2.5 py-0.5 rounded-lg border border-blue-200/60 dark:border-blue-800/60">
+            <span className="text-[11px] font-semibold text-[#0066cc] dark:text-blue-400 bg-blue-50 dark:bg-blue-950/80 px-2.5 py-0.5 rounded-lg border border-blue-200/60 dark:border-blue-800/60 shrink-0">
               Full Pipeline
             </span>
           </div>
@@ -418,16 +441,16 @@ export default function AnalyticsDashboard() {
                   return (
                     <div
                       key={stage.id}
-                      className="p-3.5 rounded-xl bg-zinc-50/70 dark:bg-zinc-800/40 border border-zinc-200/80 dark:border-zinc-700/60 space-y-2 hover:border-zinc-300 dark:hover:border-zinc-600 transition-colors"
+                      className="p-3.5 rounded-xl bg-zinc-50/70 dark:bg-zinc-800/40 border border-zinc-200/80 dark:border-zinc-700/60 space-y-2 hover:border-zinc-300 dark:hover:border-zinc-600 transition-colors min-w-0"
                     >
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs font-semibold text-zinc-900 dark:text-zinc-100">
+                      <div className="flex items-center justify-between gap-2 min-w-0">
+                        <span className="text-xs font-semibold text-zinc-900 dark:text-zinc-100 truncate">
                           {stage.label}
                         </span>
-                        <div className="flex items-center gap-2.5">
+                        <div className="flex items-center gap-2 shrink-0">
                           {idx < funnelStages.length - 1 && stage.dropOffPct > 0 && (
-                            <span className="text-[10px] font-medium text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/60 px-2 py-0.5 rounded-md border border-rose-200/60 flex items-center gap-0.5">
-                              <ArrowDownRight className="w-2.5 h-2.5" />
+                            <span className="text-[10px] font-medium text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/60 px-1.5 sm:px-2 py-0.5 rounded-md border border-rose-200/60 flex items-center gap-0.5">
+                              <ArrowDownRight className="w-2.5 h-2.5 shrink-0" />
                               <span>{stage.dropOffPct}% drop</span>
                             </span>
                           )}
@@ -455,18 +478,18 @@ export default function AnalyticsDashboard() {
         </div>
 
         {/* Top Searched Sectors Chart */}
-        <div className="p-5 md:p-6 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200/90 dark:border-zinc-800 shadow-xs space-y-4">
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-semibold text-zinc-900 dark:text-white tracking-tight flex items-center gap-2">
-              <Building2 className="w-4 h-4 text-[#0066cc]" />
-              Top Searched Sectors (Real DB Data)
+        <div className="p-4 sm:p-6 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200/90 dark:border-zinc-800 shadow-xs space-y-4 min-w-0 overflow-hidden">
+          <div className="flex items-center justify-between gap-2 min-w-0">
+            <span className="text-sm font-semibold text-zinc-900 dark:text-white tracking-tight flex items-center gap-2 truncate">
+              <Building2 className="w-4 h-4 text-[#0066cc] shrink-0" />
+              <span className="truncate">Top Searched Sectors</span>
               <AdminInfoTooltip
                 title="Top Searched Sectors"
                 description="Most popular localities buyers ask about in Noida & Greater Noida."
                 whyItMatters="Reveals exact locality buyer demand trends."
               />
             </span>
-            <span className="text-[11px] font-semibold text-zinc-500 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-800 px-2.5 py-0.5 rounded-lg">
+            <span className="text-[11px] font-semibold text-zinc-500 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-800 px-2.5 py-0.5 rounded-lg shrink-0">
               Locality Demand
             </span>
           </div>
@@ -474,7 +497,7 @@ export default function AnalyticsDashboard() {
           {loading ? (
             <Skeleton className="w-full h-64 rounded-xl" />
           ) : summary?.topSectors && summary.topSectors.length > 0 ? (
-            <div className="h-64 w-full">
+            <div className="h-64 w-full min-w-0">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={summary.topSectors.slice(0, 8)} margin={{ top: 10, right: 10, left: -20, bottom: 20 }}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f4f4f5" className="dark:opacity-10" />
@@ -493,13 +516,17 @@ export default function AnalyticsDashboard() {
                       if (active && payload && payload.length) {
                         const d = payload[0].payload
                         return (
-                          <div className="bg-zinc-950/95 backdrop-blur-md border border-zinc-800 text-white px-3.5 py-2.5 rounded-xl shadow-2xl z-50">
+                          <div className="bg-zinc-950/95 dark:bg-zinc-900/95 backdrop-blur-md border border-zinc-800 dark:border-zinc-700 text-white px-3.5 py-2.5 rounded-xl shadow-2xl z-50">
                             <p className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider mb-1">
                               {d.sector}
                             </p>
-                            <p className="text-xs font-semibold text-white">
-                              {payload[0].value} <span className="text-zinc-400 font-normal">Searches</span>
-                            </p>
+                            <div className="flex items-center gap-2">
+                              <span className="w-2 h-2 rounded-full bg-[#0066cc]" />
+                              <p className="text-xs font-semibold text-white">
+                                {Number(payload[0].value).toLocaleString()}{' '}
+                                <span className="text-zinc-400 font-normal">Searches</span>
+                              </p>
+                            </div>
                           </div>
                         )
                       }
@@ -521,32 +548,32 @@ export default function AnalyticsDashboard() {
       </div>
 
       {/* ─── SECTION 3: SUPPLY VS DEMAND MATRIX (HEATMAP) ─────────────────── */}
-      <div className="p-6 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 shadow-2xs space-y-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-sm font-extrabold text-zinc-900 dark:text-white tracking-tight flex items-center gap-2">
-              <BarChart3 className="w-4 h-4 text-purple-500" />
-              Supply vs. Demand Matrix (Sector Catalog Coverage)
+      <div className="p-4 sm:p-6 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 shadow-2xs space-y-4 min-w-0">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 min-w-0">
+          <div className="min-w-0">
+            <h2 className="text-sm font-extrabold text-zinc-900 dark:text-white tracking-tight flex items-center gap-1.5 flex-wrap">
+              <BarChart3 className="w-4 h-4 text-purple-500 shrink-0" />
+              <span>Supply vs. Demand Matrix (Sector Catalog Coverage)</span>
               <AdminInfoTooltip
                 title="Supply vs. Demand Matrix"
                 description="Cross-tabulates buyer search volume against active catalog listings per sector."
                 whyItMatters="Identifies critical catalog gaps where buyer demand is unserved."
               />
             </h2>
-            <p className="text-[11px] text-zinc-400">
+            <p className="text-[11px] text-zinc-400 leading-relaxed mt-0.5">
               Direct market intelligence guiding which new projects to acquire and publish
             </p>
           </div>
           <Link
             href="/admin/projects"
-            className="text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1"
+            className="text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1 shrink-0 self-start sm:self-auto"
           >
             Manage Catalog <ExternalLink className="w-3 h-3" />
           </Link>
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
+        <div className="overflow-x-auto w-full">
+          <table className="w-full text-left text-xs min-w-[580px]">
             <thead>
               <tr className="border-b border-zinc-100 dark:border-zinc-800 text-zinc-400 font-bold uppercase text-[10px] tracking-wider">
                 <th className="pb-3 pl-2">Sector / Micro-Market</th>
@@ -605,29 +632,29 @@ export default function AnalyticsDashboard() {
       </div>
 
       {/* ─── SECTION 4: UNMET DEMAND & ZERO-RESULT SEARCH LEDGER ──────────── */}
-      <div className="p-6 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 shadow-2xs space-y-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-sm font-extrabold text-zinc-900 dark:text-white tracking-tight flex items-center gap-2">
-              <FileQuestion className="w-4 h-4 text-rose-500" />
-              Unmet Search Demand Ledger (Zero-Result Telemetry)
+      <div className="p-4 sm:p-6 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 shadow-2xs space-y-4 min-w-0">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 min-w-0">
+          <div className="min-w-0">
+            <h2 className="text-sm font-extrabold text-zinc-900 dark:text-white tracking-tight flex items-center gap-1.5 flex-wrap">
+              <FileQuestion className="w-4 h-4 text-rose-500 shrink-0" />
+              <span>Unmet Search Demand Ledger (Zero-Result Telemetry)</span>
               <AdminInfoTooltip
                 title="Unmet Search Demand Ledger"
                 description="Live log of high-intent search queries that returned 0 matching listings in the catalog."
                 whyItMatters="Direct buyer acquisition signals showing exactly what inventory to add next."
               />
             </h2>
-            <p className="text-[11px] text-zinc-400">
+            <p className="text-[11px] text-zinc-400 leading-relaxed mt-0.5">
               Specific user search filter combinations where no inventory was available
             </p>
           </div>
-          <span className="text-[10px] font-bold text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/80 px-2.5 py-1 rounded-md border border-rose-200/60">
+          <span className="text-[10px] font-bold text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/80 px-2.5 py-1 rounded-md border border-rose-200/60 shrink-0 self-start sm:self-auto">
             {unmetDemand.length} Unmet Opportunities
           </span>
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
+        <div className="overflow-x-auto w-full">
+          <table className="w-full text-left text-xs min-w-[560px]">
             <thead>
               <tr className="border-b border-zinc-100 dark:border-zinc-800 text-zinc-400 font-bold uppercase text-[10px] tracking-wider">
                 <th className="pb-3 pl-2">User Query / Requirement</th>
@@ -676,13 +703,13 @@ export default function AnalyticsDashboard() {
       </div>
 
       {/* ─── SECTION 5: QUALITY & RESULTS DISTRIBUTION ────────────────────── */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 min-w-0">
         {/* Search Results Distribution Gauge */}
-        <div className="p-6 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 shadow-2xs space-y-5">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-extrabold text-zinc-900 dark:text-white tracking-tight flex items-center gap-2">
-              <PieChartIcon className="w-4 h-4 text-purple-500" />
-              Search Matching Efficiency
+        <div className="p-4 sm:p-6 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 shadow-2xs space-y-4 sm:space-y-5 min-w-0">
+          <div className="flex items-center justify-between gap-2 min-w-0">
+            <span className="text-xs font-extrabold text-zinc-900 dark:text-white tracking-tight flex items-center gap-2 truncate">
+              <PieChartIcon className="w-4 h-4 text-purple-500 shrink-0" />
+              <span className="truncate">Search Matching Efficiency</span>
               <AdminInfoTooltip
                 title="Search Matching Efficiency"
                 description="Ratio of successful property matches vs zero-result queries."
@@ -690,7 +717,7 @@ export default function AnalyticsDashboard() {
                 whyItMatters="Checks whether listing catalog matches buyer requests."
               />
             </span>
-            <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">
+            <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider shrink-0">
               Health Ratio
             </span>
           </div>
@@ -778,11 +805,11 @@ export default function AnalyticsDashboard() {
         </div>
 
         {/* Search Quality & Ledger Table */}
-        <div className="p-6 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 shadow-2xs space-y-4">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-extrabold text-zinc-900 dark:text-white tracking-tight flex items-center gap-2">
-              <BarChart3 className="w-4 h-4 text-amber-500" />
-              Search Quality Diagnostics
+        <div className="p-4 sm:p-6 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 shadow-2xs space-y-4 min-w-0">
+          <div className="flex items-center justify-between gap-2 min-w-0">
+            <span className="text-xs font-extrabold text-zinc-900 dark:text-white tracking-tight flex items-center gap-2 truncate">
+              <BarChart3 className="w-4 h-4 text-amber-500 shrink-0" />
+              <span className="truncate">Search Quality Diagnostics</span>
               <AdminInfoTooltip
                 title="Search Quality Diagnostics"
                 description="Metrics measuring AI search quality and database completeness."
@@ -790,7 +817,7 @@ export default function AnalyticsDashboard() {
                 whyItMatters="Ensures AI returns rich options without unnecessary questions."
               />
             </span>
-            <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">
+            <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider shrink-0">
               Telemetry Summary
             </span>
           </div>

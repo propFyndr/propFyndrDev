@@ -447,8 +447,8 @@ export default function BuilderNewsPage() {
             )}
           </div>
 
-          {/* Segmented Filter Pills */}
-          <div className="flex items-center p-1 bg-zinc-100/90 dark:bg-zinc-900/80 rounded-xl border border-zinc-200/80 dark:border-zinc-800 shrink-0 overflow-x-auto max-w-full">
+          {/* Segmented Filter Pills — Clean Responsive Grid matching AnalyticsNav */}
+          <div className="grid grid-cols-3 sm:inline-flex sm:items-center gap-1.5 p-1 bg-zinc-100/90 dark:bg-zinc-900/80 rounded-2xl border border-zinc-200/80 dark:border-zinc-800 shrink-0 w-full sm:w-auto shadow-2xs">
             {(
               [
                 { id: 'all', label: 'All Active' },
@@ -464,13 +464,13 @@ export default function BuilderNewsPage() {
                 <button
                   key={tab.id}
                   onClick={() => setFilter(tab.id as FilterTab)}
-                  className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all cursor-pointer whitespace-nowrap ${
+                  className={`px-2 sm:px-3 py-2 sm:py-1.5 text-xs font-semibold rounded-xl transition-all cursor-pointer truncate text-center min-w-0 ${
                     active
-                      ? 'bg-white dark:bg-zinc-800 text-zinc-950 dark:text-white shadow-2xs font-bold'
-                      : 'text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-200'
+                      ? 'bg-white dark:bg-zinc-800 text-zinc-950 dark:text-white shadow-xs font-bold'
+                      : 'text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-200 hover:bg-white/40 dark:hover:bg-zinc-850'
                   }`}
                 >
-                  {tab.label}
+                  <span className="truncate">{tab.label}</span>
                 </button>
               )
             })}

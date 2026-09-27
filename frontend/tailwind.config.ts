@@ -29,6 +29,11 @@ const config: Config = {
         "surface-3": "var(--color-surface-3)",
         border: "var(--color-border)",
         "border-heavy": "var(--color-border-heavy)",
+        zinc: {
+          750: '#2e2e34',
+          850: '#1f1f23',
+          950: '#0c0c0e',
+        },
         text: {
           primary: "var(--color-text-primary)",
           secondary: "var(--color-text-secondary)",

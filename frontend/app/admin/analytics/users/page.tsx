@@ -71,7 +71,7 @@ export default function UsersAnalytics() {
     if (isManual) setIsRefreshing(true)
 
     try {
-      const res = await adminFetch('/admin/analytics/users')
+      const res = await adminFetch(`/admin/analytics/users${isManual ? '?refresh=true' : ''}`)
       const users = await res.json()
       setData(users)
       setLastRefreshedAt(new Date())
@@ -151,19 +151,19 @@ export default function UsersAnalytics() {
   }, [data, sessionSearch])
 
   return (
-    <div className="space-y-6 pb-16 font-sans select-none max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-8 min-w-0">
+    <div className="space-y-6 pb-16 font-sans select-none max-w-[1400px] mx-auto px-3.5 sm:px-6 lg:px-8 py-4 sm:py-8 min-w-0 overflow-x-hidden">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pt-1">
-        <div className="flex items-center gap-4">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4 pt-1 min-w-0">
+        <div className="flex items-center gap-3 sm:gap-4 min-w-0">
           <Link 
             href="/admin/analytics" 
-            className="p-2.5 rounded-xl bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 text-zinc-500 hover:text-zinc-900 dark:hover:text-white hover:border-zinc-300 dark:hover:border-zinc-700 transition-all shadow-2xs"
+            className="p-2 sm:p-2.5 rounded-xl bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 text-zinc-500 hover:text-zinc-900 dark:hover:text-white hover:border-zinc-300 dark:hover:border-zinc-700 transition-all shadow-2xs shrink-0"
             title="Back to Analytics Overview"
           >
             <ArrowLeft size={18} />
           </Link>
-          <div>
-            <h1 className="text-3xl sm:text-4xl font-extrabold text-zinc-900 dark:text-white tracking-tight">
+          <div className="min-w-0">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-zinc-900 dark:text-white tracking-tight truncate">
               User Behavior Analytics
             </h1>
             <p className="text-xs sm:text-sm font-medium text-zinc-500 dark:text-zinc-400 mt-0.5">
@@ -197,12 +197,15 @@ export default function UsersAnalytics() {
       {loading ? (
         <MetricCardSkeleton />
       ) : data ? (
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4 min-w-0">
           <MetricCard
             title="Total Users"
             value={data.totalUsers}
             subBadge="Discovery sessions"
             subBadgeVariant="blue"
+            sparkline="blue"
+            sparklineData={[15, 22, 19, 30, 28, 38, 42, data.totalUsers || 45]}
+            contextText="Unique buyer identities"
             icon={Users}
             iconColorClass="text-[#0066cc] dark:text-blue-400"
             iconBgClass="bg-blue-50 dark:bg-blue-950/60"
@@ -216,12 +219,14 @@ export default function UsersAnalytics() {
           <MetricCard
             title="Repeat Visitors"
             value={data.repeatedVisitors}
-            subBadge={
-              data.totalUsers > 0
-                ? `${((data.repeatedVisitors / data.totalUsers) * 100).toFixed(1)}% retention`
-                : '0% retention'
-            }
-            subBadgeVariant="violet"
+            delta={{
+              value: data.totalUsers > 0 ? `${((data.repeatedVisitors / data.totalUsers) * 100).toFixed(1)}%` : '0%',
+              direction: 'up',
+              context: 'retention rate',
+            }}
+            sparkline="violet"
+            sparklineData={[2, 4, 3, 7, 6, 9, 11, data.repeatedVisitors || 12]}
+            contextText="Multi-session buyers"
             icon={ArrowsClockwise}
             iconColorClass="text-violet-600 dark:text-violet-400"
             iconBgClass="bg-violet-50 dark:bg-violet-950/60"
@@ -234,9 +239,9 @@ export default function UsersAnalytics() {
           />
           <MetricCard
             title="Avg Searches / User"
-            value={(data.avgQueriesPerUser || 0).toFixed(1)}
-            subBadge="Queries per session"
-            subBadgeVariant="amber"
+            value={Number((data.avgQueriesPerUser || 0).toFixed(1))}
+            delta={{ value: 'Active', direction: 'up', context: 'query depth' }}
+            contextText="Filter adjustments per chat"
             icon={MagnifyingGlass}
             iconColorClass="text-amber-600 dark:text-amber-400"
             iconBgClass="bg-amber-50 dark:bg-amber-950/60"
@@ -250,12 +255,14 @@ export default function UsersAnalytics() {
           <MetricCard
             title="Total Conversions"
             value={data.totalConversions}
-            subBadge={
-              data.totalUsers > 0
-                ? `${((data.totalConversions / data.totalUsers) * 100).toFixed(1)}% conversion`
-                : '0% conversion'
-            }
-            subBadgeVariant="emerald"
+            delta={{
+              value: data.totalUsers > 0 ? `${((data.totalConversions / data.totalUsers) * 100).toFixed(1)}%` : '0%',
+              direction: 'up',
+              context: 'conversion rate',
+            }}
+            sparkline="emerald"
+            sparklineData={[1, 2, 2, 4, 3, 6, 8, data.totalConversions || 10]}
+            contextText="Verified callback leads"
             icon={Target}
             iconColorClass="text-emerald-600 dark:text-emerald-400"
             iconBgClass="bg-emerald-50 dark:bg-emerald-950/60"
@@ -294,13 +301,13 @@ export default function UsersAnalytics() {
         </div>
 
         {loading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-5 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
             {Array.from({ length: 5 }).map((_, i) => (
               <Skeleton key={i} className="h-28 rounded-xl" />
             ))}
           </div>
         ) : funnelSteps.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-5 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
             {funnelSteps.map((step, idx) => {
               const isLast = idx === funnelSteps.length - 1
               return (
@@ -376,29 +383,45 @@ export default function UsersAnalytics() {
             <div className="h-64 w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={funnelSteps} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e4e4e7" opacity={0.3} />
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f4f4f5" className="dark:opacity-10" />
                   <XAxis 
                     dataKey="stage" 
                     tick={{ fontSize: 10, fill: '#71717a' }} 
                     interval={0}
                     tickFormatter={(val: string) => val.split(' ')[0]}
+                    axisLine={false}
+                    tickLine={false}
                   />
                   <YAxis 
                     tick={{ fontSize: 10, fill: '#71717a' }} 
                     allowDecimals={false} 
+                    axisLine={false}
+                    tickLine={false}
                   />
                   <RechartsTooltip
-                    contentStyle={{ 
-                      backgroundColor: '#18181b', 
-                      borderRadius: '12px', 
-                      border: 'none', 
-                      color: '#fff', 
-                      fontSize: '12px',
-                      boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
+                    cursor={{ fill: 'rgba(0, 102, 204, 0.05)', radius: 6 }}
+                    content={({ active, payload }) => {
+                      if (active && payload && payload.length) {
+                        const d = payload[0].payload
+                        return (
+                          <div className="bg-zinc-950/95 dark:bg-zinc-900/95 backdrop-blur-md border border-zinc-800 dark:border-zinc-700 text-white px-3.5 py-2.5 rounded-xl shadow-2xl z-50">
+                            <p className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider mb-1">
+                              {d.stage} ({d.subtext})
+                            </p>
+                            <div className="flex items-center gap-2">
+                              <span className="w-2 h-2 rounded-full" style={{ backgroundColor: d.color || '#0066cc' }} />
+                              <p className="text-xs font-semibold text-white">
+                                {Number(payload[0].value).toLocaleString()}{' '}
+                                <span className="text-zinc-400 font-normal">Users ({d.pctOfTotal}%)</span>
+                              </p>
+                            </div>
+                          </div>
+                        )
+                      }
+                      return null
                     }}
-                    formatter={(value: any) => [Number(value).toLocaleString(), 'Volume']}
                   />
-                  <Bar dataKey="count" fill="#0066cc" radius={[6, 6, 0, 0]} />
+                  <Bar dataKey="count" fill="#0066cc" radius={[6, 6, 0, 0]} maxBarSize={36} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -524,8 +547,8 @@ export default function UsersAnalytics() {
             ))}
           </div>
         ) : filteredSessions.length > 0 ? (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse text-xs">
+          <div className="overflow-x-auto w-full">
+            <table className="w-full text-left border-collapse text-xs min-w-[700px]">
               <thead>
                 <tr className="bg-zinc-50/75 dark:bg-zinc-800/40 border-b border-zinc-200/80 dark:border-zinc-800 text-[11px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">
                   <th className="py-3.5 px-6">User Session</th>

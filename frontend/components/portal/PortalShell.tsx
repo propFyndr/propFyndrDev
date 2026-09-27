@@ -13,10 +13,11 @@
  * request will 403.
  */
 
-import { useEffect, useState, useMemo } from 'react'
+import { useEffect, useState, useMemo, createContext, useContext } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
+import ThemeToggle from '@/components/ThemeToggle'
 import {
   Buildings,
   SignOut,
@@ -65,6 +66,24 @@ export interface PortalNavItem {
 }
 
 export type PortalRole = 'SUPER_ADMIN' | 'ANALYST' | 'SALES' | 'BUILDER' | 'PARTNER'
+
+export interface PortalIdentity {
+  role: PortalRole | null
+  orgName: string | null
+  userEmail: string | null
+  displayName: string
+  roleBadgeLabel: string
+}
+
+export const PortalIdentityContext = createContext<PortalIdentity>({
+  role: null,
+  orgName: null,
+  userEmail: null,
+  displayName: 'Admin',
+  roleBadgeLabel: 'Admin',
+})
+
+export const usePortalIdentity = () => useContext(PortalIdentityContext)
 
 /**
  * Where each role belongs when it lands on a console that is not its own.
@@ -555,7 +574,8 @@ export default function PortalShell({ nav, rootHref, rootLabel, allowRoles, scop
   }
 
   return (
-    <div className="h-[100dvh] min-h-[100dvh] bg-surface-3 dark:bg-zinc-950 font-sans text-text-primary selection:bg-slate-200 selection:text-text-primary flex overflow-hidden">
+    <PortalIdentityContext.Provider value={{ role, orgName, userEmail, displayName, roleBadgeLabel }}>
+      <div className="h-[100dvh] min-h-[100dvh] bg-surface-3 dark:bg-zinc-950 font-sans text-text-primary selection:bg-slate-200 selection:text-text-primary flex overflow-hidden">
 
       {/* Command Palette */}
       <AnimatePresence>
@@ -1504,10 +1524,13 @@ export default function PortalShell({ nav, rootHref, rootLabel, allowRoles, scop
             >
               <Gear size={18} weight="bold" />
             </Link>
+
+            {/* Theme Toggle (Light / Dark mode) */}
+            <ThemeToggle className="p-2 rounded-xl text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-850 transition-colors cursor-pointer flex items-center justify-center shrink-0" />
           </div>
         </header>
 
-        <main className="flex-1 overflow-y-auto overflow-x-hidden min-w-0 w-full bg-slate-50/50 dark:bg-zinc-950/50 relative pb-20 md:pb-8">
+        <main className="flex-1 overflow-y-auto overflow-x-hidden min-w-0 w-full bg-slate-50/50 dark:bg-zinc-950/50 relative pb-8">
           {scopeNeeded ? (
             <div className="max-w-xl mx-auto px-6 py-20 text-center">
               <div className="w-12 h-12 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 shadow-2xs flex items-center justify-center mx-auto mb-5 text-zinc-400">
@@ -1531,28 +1554,8 @@ export default function PortalShell({ nav, rootHref, rootLabel, allowRoles, scop
             </div>
           ) : children}
         </main>
-
-        {/* Mobile tab bar */}
-        <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-zinc-900/95 backdrop-blur-lg border-t border-zinc-200 dark:border-zinc-800 px-1 pt-1.5 pb-[calc(env(safe-area-inset-bottom,0px)+6px)] flex items-center justify-around shadow-lg">
-          {nav.slice(0, 5).map((n) => {
-            const isActive = pathname === n.href || (n.href !== rootHref && pathname.startsWith(n.href))
-            return (
-              <Link
-                key={n.href}
-                href={n.href}
-                className={`flex flex-col items-center justify-center py-1 px-1.5 rounded-xl transition-all duration-200 min-w-[48px] ${
-                  isActive
-                    ? 'text-blue-600 dark:text-blue-400 font-bold scale-105'
-                    : 'text-zinc-500 dark:text-zinc-400 font-medium hover:text-zinc-900 dark:hover:text-zinc-100'
-                }`}
-              >
-                <n.icon size={18} weight={isActive ? 'fill' : 'duotone'} className={isActive ? 'text-blue-600 dark:text-blue-400' : ''} />
-                <span className="text-[9.5px] tracking-tight mt-0.5 font-semibold">{n.label}</span>
-              </Link>
-            )
-          })}
-        </nav>
       </div>
     </div>
+    </PortalIdentityContext.Provider>
   )
 }

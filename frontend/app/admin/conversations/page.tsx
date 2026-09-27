@@ -1188,7 +1188,7 @@ export default function ConversationsPage() {
 
                 {/* Multi-Session User History Links (if user has past dialogues) */}
                 {detail.userDossier?.otherSessions && detail.userDossier.otherSessions.length > 0 && (
-                  <div className="pt-2 border-t border-zinc-100 dark:border-zinc-800 flex items-center gap-2 overflow-x-auto text-xs">
+                  <div className="pt-2 border-t border-zinc-100 dark:border-zinc-800 flex flex-wrap items-center gap-2 text-xs">
                     <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider shrink-0">
                       User Past Chats ({detail.userDossier.otherSessions.length}):
                     </span>

@@ -424,9 +424,9 @@ export default function AdminProjectEditPage({
           <Skeleton className="h-10 w-1/4 rounded-lg" />
           <Skeleton className="h-6 w-1/3 rounded-lg" />
         </div>
-        <div className="flex gap-2 overflow-x-auto pb-1">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <Skeleton key={i} className="h-10 w-32 rounded-lg shrink-0" />
+        <div className="grid grid-cols-2 sm:grid-cols-4 lg:flex gap-1.5 p-1 bg-zinc-100/90 dark:bg-zinc-800/80 rounded-2xl border border-zinc-200/80 dark:border-zinc-700/70 w-full">
+          {Array.from({ length: 8 }).map((_, i) => (
+            <Skeleton key={i} className="h-9 w-full lg:w-28 rounded-xl" />
           ))}
         </div>
         <AdminProjectEditorSkeleton />
@@ -561,21 +561,25 @@ export default function AdminProjectEditPage({
         <div className="max-w-[1400px] mx-auto space-y-3">
 
           {/* Identity row */}
-          <div className="flex items-center justify-between gap-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-4">
 
-            <div className="flex items-center gap-3 min-w-0">
-              <Link
-                href="/admin/projects"
-                className="w-8 h-8 rounded-xl border border-zinc-200/90 dark:border-zinc-700/80 bg-white dark:bg-zinc-850 text-zinc-600 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-all flex-shrink-0 shadow-2xs flex items-center justify-center group"
-                title="Back to Projects"
-              >
-                <ArrowLeft size={15} className="group-hover:-translate-x-0.5 transition-transform" />
-              </Link>
+            <div className="flex items-center justify-between sm:justify-start gap-2.5 sm:gap-3 min-w-0 flex-1">
+              <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
+                <Link
+                  href="/admin/projects"
+                  className="w-8 h-8 rounded-xl border border-zinc-200/90 dark:border-zinc-700/80 bg-white dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-50 dark:hover:bg-zinc-750 transition-all flex-shrink-0 shadow-2xs flex items-center justify-center group"
+                  title="Back to Projects"
+                >
+                  <ArrowLeft size={15} className="group-hover:-translate-x-0.5 transition-transform" />
+                </Link>
 
-              <div className="flex items-center gap-2.5 min-w-0">
-                <h1 className="text-lg md:text-xl font-bold text-zinc-900 dark:text-zinc-50 tracking-tight truncate leading-none">
+                <h1 className="text-base sm:text-lg md:text-xl font-bold text-zinc-900 dark:text-zinc-50 tracking-tight truncate leading-tight">
                   {data.name}
                 </h1>
+              </div>
+
+              {/* Status and Health Badges for Desktop */}
+              <div className="hidden md:flex items-center gap-2 shrink-0">
                 <span className={`px-2.5 py-0.5 text-[10.5px] font-medium rounded-full border shadow-2xs flex-shrink-0 flex items-center gap-1.5 ${
                   data.status === 'ready_to_move'
                     ? 'bg-emerald-50/80 text-emerald-800 border-emerald-200/80 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800/50'
@@ -600,75 +604,102 @@ export default function AdminProjectEditPage({
               </div>
             </div>
 
-            <div className="flex items-center gap-2 flex-shrink-0">
-              {adminTab === 'core' && (
-                <div className="hidden sm:flex items-center gap-1.5 text-xs font-medium text-emerald-700 dark:text-emerald-300 bg-emerald-50/80 dark:bg-emerald-950/40 border border-emerald-200/60 dark:border-emerald-800/40 rounded-full px-2.5 py-1 shadow-2xs">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                  <span>Live Preview Sync</span>
-                </div>
-              )}
-              <a
-                href={`/projects/${data.slug}`}
-                target="_blank"
-                rel="noreferrer"
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-zinc-900 hover:bg-black dark:bg-zinc-100 dark:hover:bg-white text-xs font-medium text-white dark:text-zinc-900 transition-all shadow-2xs active:scale-[0.98]"
-              >
-                <Eye size={13} />
-                <span>View Public</span>
-              </a>
-            </div>
+            <div className="flex items-center justify-between sm:justify-end gap-2 shrink-0">
+              {/* Badges on mobile visible in second row */}
+              <div className="flex md:hidden items-center gap-1.5 flex-wrap">
+                <span className={`px-2 py-0.5 text-[10.5px] font-medium rounded-full border shadow-2xs flex-shrink-0 flex items-center gap-1 ${
+                  data.status === 'ready_to_move'
+                    ? 'bg-emerald-50/80 text-emerald-800 border-emerald-200/80 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800/50'
+                    : data.status === 'under_construction'
+                    ? 'bg-amber-50/80 text-amber-800 border-amber-200/80 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-800/50'
+                    : 'bg-blue-50/80 text-blue-800 border-blue-200/80 dark:bg-blue-950/40 dark:text-blue-300 dark:border-blue-800/50'
+                }`}>
+                  <span className={`w-1.5 h-1.5 rounded-full ${
+                    data.status === 'ready_to_move' ? 'bg-emerald-500' : data.status === 'under_construction' ? 'bg-amber-500' : 'bg-blue-500'
+                  }`} />
+                  {data.status?.replace('_', ' ')}
+                </span>
+                <span className={`px-2 py-0.5 text-[10.5px] font-mono font-medium rounded-full border shadow-2xs flex-shrink-0 ${
+                  overallHealth >= 90
+                    ? 'bg-emerald-50/80 text-emerald-800 border-emerald-200/80 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800/50'
+                    : overallHealth >= 70
+                    ? 'bg-blue-50/80 text-blue-800 border-blue-200/80 dark:bg-blue-950/40 dark:text-blue-300 dark:border-blue-800/50'
+                    : 'bg-rose-50/80 text-rose-800 border-rose-200/80 dark:bg-rose-950/40 dark:text-rose-300 dark:border-rose-800/50'
+                }`}>
+                  {overallHealth}% Health
+                </span>
+              </div>
 
-          </div>
-
-          {/* Tab rail with calm Apple HIG segmented indicators */}
-          <div className="p-1 bg-zinc-100/90 dark:bg-zinc-800/80 backdrop-blur-xl rounded-2xl border border-zinc-200/80 dark:border-zinc-700/70 shadow-2xs">
-            <div className="flex items-center md:flex-wrap gap-1 overflow-x-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden w-full py-0.5 px-0.5">
-              {TAB_ITEMS.map(({ id: tabId, label, icon: Icon }) => {
-                const isActive = adminTab === tabId
-                const pct = tabScores[tabId] ?? 100
-                const isComplete = pct >= 90
-
-                return (
-                  <div key={tabId} className="relative shrink-0">
-                    <button
-                      onClick={() => setAdminTab(tabId)}
-                      className={`relative flex items-center gap-2 px-3 py-1.5 text-xs rounded-xl transition-all duration-150 cursor-pointer select-none ${
-                        isActive
-                          ? 'bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white shadow-2xs border border-zinc-200/90 dark:border-zinc-700/80 font-semibold'
-                          : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-white/60 dark:hover:bg-zinc-800/60 font-medium'
-                      }`}
-                    >
-                      <Icon
-                        size={14}
-                        className={`transition-colors ${
-                          isActive
-                            ? 'text-[#0066cc] dark:text-[#3399ff]'
-                            : 'text-zinc-400 dark:text-zinc-500'
-                        }`}
-                      />
-                      <span>{label}</span>
-
-                      {/* Calm completion status: only highlight if incomplete */}
-                      {isComplete ? (
-                        <span className="flex items-center gap-1 text-[10.5px] font-mono text-zinc-400 dark:text-zinc-500 font-medium">
-                          {pct === 100 ? (
-                            <CheckCircle2 size={12} className="text-emerald-500/80 shrink-0" />
-                          ) : (
-                            <span>{pct}%</span>
-                          )}
-                        </span>
-                      ) : (
-                        <span className="flex items-center gap-1 text-[10px] font-mono font-semibold px-1.5 py-0.5 rounded-md bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-400 border border-amber-200/80 dark:border-amber-800/60">
-                          <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
-                          <span>{pct}%</span>
-                        </span>
-                      )}
-                    </button>
+              <div className="flex items-center gap-2">
+                {adminTab === 'core' && (
+                  <div className="hidden lg:flex items-center gap-1.5 text-xs font-medium text-emerald-700 dark:text-emerald-300 bg-emerald-50/80 dark:bg-emerald-950/40 border border-emerald-200/60 dark:border-emerald-800/40 rounded-full px-2.5 py-1 shadow-2xs">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <span>Live Preview Sync</span>
                   </div>
-                )
-              })}
+                )}
+                <a
+                  href={`/projects/${data.slug}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-zinc-900 hover:bg-black dark:bg-zinc-100 dark:hover:bg-white text-xs font-medium text-white dark:text-zinc-900 transition-all shadow-2xs active:scale-[0.98] shrink-0"
+                >
+                  <Eye size={13} />
+                  <span>View Public</span>
+                </a>
+              </div>
             </div>
+
           </div>
+
+          {/* Tab Navigation — Clean Responsive Grid matching AnalyticsNav */}
+          <nav className="grid grid-cols-2 sm:grid-cols-4 lg:flex lg:flex-wrap items-center gap-1.5 p-1 bg-zinc-100/90 dark:bg-zinc-800/80 rounded-2xl border border-zinc-200/80 dark:border-zinc-700/70 shadow-2xs w-full">
+            {TAB_ITEMS.map(({ id: tabId, label, icon: Icon }) => {
+              const isActive = adminTab === tabId
+              const pct = tabScores[tabId] ?? 100
+              const isComplete = pct >= 90
+
+              return (
+                <button
+                  key={tabId}
+                  type="button"
+                  onClick={() => setAdminTab(tabId)}
+                  className={`px-3 py-2 sm:py-1.5 text-xs font-semibold rounded-xl transition-all flex items-center justify-between lg:justify-start gap-2 min-w-0 select-none cursor-pointer flex-1 sm:flex-initial ${
+                    isActive
+                      ? 'bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white shadow-xs font-semibold border border-zinc-200/90 dark:border-zinc-700/80'
+                      : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-white/40 dark:hover:bg-zinc-850'
+                  }`}
+                >
+                  <div className="flex items-center gap-2 min-w-0 truncate">
+                    <Icon
+                      size={14}
+                      className={`shrink-0 transition-colors ${
+                        isActive
+                          ? 'text-[#0066cc] dark:text-[#3399ff]'
+                          : 'text-zinc-400 dark:text-zinc-500'
+                      }`}
+                    />
+                    <span className="truncate">{label}</span>
+                  </div>
+
+                  {/* Calm completion status: only highlight if incomplete */}
+                  {isComplete ? (
+                    <span className="flex items-center gap-1 text-[10.5px] font-mono text-zinc-400 dark:text-zinc-500 font-medium shrink-0">
+                      {pct === 100 ? (
+                        <CheckCircle2 size={12} className="text-emerald-500/80 shrink-0" />
+                      ) : (
+                        <span>{pct}%</span>
+                      )}
+                    </span>
+                  ) : (
+                    <span className="flex items-center gap-1 text-[10px] font-mono font-semibold px-1.5 py-0.5 rounded-md bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-400 border border-amber-200/80 dark:border-amber-800/60 shrink-0">
+                      <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+                      <span>{pct}%</span>
+                    </span>
+                  )}
+                </button>
+              )
+            })}
+          </nav>
 
         </div>
       </div>
@@ -683,9 +714,9 @@ export default function AdminProjectEditPage({
 
         {/* 1. Core Info tab */}
         {adminTab === 'core' && (
-          <div className="grid grid-cols-1 xl:grid-cols-[1fr_360px] gap-8 items-start">
-            <div className="space-y-6 max-w-2xl w-full">
-              <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200/90 dark:border-zinc-800 shadow-2xs p-5 sm:p-7 md:p-8 w-full">
+          <div className="grid grid-cols-1 xl:grid-cols-[1fr_360px] gap-6 lg:gap-8 items-start w-full min-w-0">
+            <div className="space-y-6 w-full min-w-0">
+              <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200/90 dark:border-zinc-800 shadow-2xs p-4 sm:p-7 md:p-8 w-full min-w-0 overflow-hidden">
                 <ProjectForm
                   initialData={formData}
                   projectId={id}
@@ -704,7 +735,7 @@ export default function AdminProjectEditPage({
                 onSaved={handleSaved}
               />
             </div>
-            <div className="sticky top-24 space-y-4 max-h-[calc(100vh-7rem)] overflow-y-auto pr-1 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+            <div className="w-full xl:sticky xl:top-24 space-y-4 max-h-none xl:max-h-[calc(100vh-7rem)] overflow-y-auto pr-1 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden min-w-0">
               {/* Core Info Right View Switcher */}
               <div className="flex items-center p-0.5 bg-zinc-100/90 dark:bg-zinc-800/70 rounded-xl border border-zinc-200/80 dark:border-zinc-700/60 shadow-2xs">
                 <button

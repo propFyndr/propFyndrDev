@@ -112,7 +112,7 @@ export default function PartnerOverviewPage() {
     <PageShell>
       {/* Header Banner */}
       <PageHeader
-        title={partner.name}
+        title={`Hello, ${partner.name}`}
         subtitle={partner.builder ? `Authorized Channel Partner for ${partner.builder.name}` : 'Authorized Channel Partner Agency'}
         action={
           <div className="flex items-center gap-2.5">

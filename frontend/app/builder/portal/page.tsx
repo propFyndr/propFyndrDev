@@ -21,6 +21,7 @@ import {
 } from '@phosphor-icons/react'
 import { adminFetch } from '@/lib/adminFetch'
 import { useScopeId, withScope } from '@/lib/portalScope'
+import { usePortalIdentity } from '@/components/portal/PortalShell'
 import {
   PageShell,
   PageHeader,
@@ -50,6 +51,7 @@ function getInitials(name: string): string {
 }
 
 export default function BuilderOverviewPage() {
+  const { displayName, orgName } = usePortalIdentity()
   const [projects, setProjects] = useState<Project[]>([])
   const [leads, setLeads] = useState<Lead[]>([])
   const [partners, setPartners] = useState<Partner[]>([])
@@ -91,12 +93,14 @@ export default function BuilderOverviewPage() {
   const awaitingApproval = partners.filter((p) => p.status !== 'approved' && p.status !== 'rejected').length
   const activePartners = partners.filter((p) => p.status === 'approved' && p.is_active).length
 
+  const greetingName = orgName || displayName || 'Developer'
+
   return (
     <PageShell>
       {/* Header Banner */}
       <PageHeader
-        title="Developer Console"
-        subtitle="Catalog developments, verified buyer inquiries, and active broker connections."
+        title={`Hello, ${greetingName}`}
+        subtitle={orgName ? `Enterprise Developer Portal for ${orgName} — catalog developments and active buyer inquiries.` : 'Catalog developments, verified buyer inquiries, and active broker connections.'}
         action={
           <div className="flex items-center gap-2.5">
             <button
