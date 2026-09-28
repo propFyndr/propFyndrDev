@@ -156,6 +156,7 @@ import {
   trackDropOff,
   trackPromotionalClick
 } from '../lib/analytics/tracking'
+import { tryDeterministicFactBypass } from '../lib/chat/deterministicFactRouter'
 
 
 /**
@@ -618,6 +619,21 @@ router.post('/', async (req: Request, res: Response) => {
   let ownershipFailed = false
 
   try {
+    // ─── TASK 1.1: DETERMINISTIC FACTUAL QUERY FAST-PATH BYPASS ───────────────
+    // Directly answers RERA ID, OC status, Water TDS, UP Lifts Act, and Land Dues
+    // from Postgres in <50ms with 0 tokens billed, strictly before extractIntent.
+    if (action.type === 'TEXT_MESSAGE' && message) {
+      const handled = await tryDeterministicFactBypass(message, {
+        res,
+        send,
+        sessionId,
+        userId,
+        turnTrace,
+        timer,
+      })
+      if (handled) return
+    }
+
     // ─── SEMANTIC FAQ CACHE (Instant $0.00 Token Fast Path) ────────────────────
     if (action.type === 'TEXT_MESSAGE' && message) {
       // Fingerprinted on the intent carried into this turn, so a cached answer

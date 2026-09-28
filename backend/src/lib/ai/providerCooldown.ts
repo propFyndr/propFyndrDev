@@ -43,6 +43,9 @@ const BALANCE_EXHAUSTED = [
   'insufficient_quota',
   'exceeded your current quota',
   'billing',
+  'trial key',
+  'calls / month',
+  'monthly limit',
 ]
 
 /** Quota windows are usually per-minute or per-day; five minutes splits it sensibly. */
@@ -71,6 +74,9 @@ const NOT_MERELY_RATE_LIMITED = [
   'daily limit',
   'requests per day',
   'insufficient_quota',
+  'trial key',
+  'calls / month',
+  'monthly limit',
 ]
 
 /** Classifies a provider failure. */

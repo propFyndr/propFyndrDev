@@ -78,6 +78,7 @@ const LANE: Record<string, Task[]> = {
   'id-document': ['lead'],
   'unknown-project': ['project_fact'],
   'ground-truth-db': ['project_fact'],
+  'deterministic-fact': ['project_fact', 'legal_process'],
   OPEN: ['legal_process', 'market_explain'],
   NEWS_MILESTONE: ['market_explain', 'project_fact'],
   PROJECT_DETAIL_NO_PROJECT: ['project_fact'],

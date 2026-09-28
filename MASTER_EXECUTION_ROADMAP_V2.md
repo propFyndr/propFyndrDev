@@ -1,0 +1,932 @@
+# PropFyndr Master Execution Roadmap V2 (Production & Intelligence Scale)
+
+This document is the authoritative, day-by-day master execution plan for PropFyndr. Following a line-by-line audit of the existing codebase, all tasks that were already implemented (such as basic defamation filters, static tables, base execution steppers, and preliminary Prisma schemas) have been **strictly excluded**. 
+
+What remains in this document are **35 genuinely distinct, high-impact architectural and hero-product engineering tasks** (exactly 5 major tasks per day across Days 1 to 7).
+
+Every task is structured into three tiers:
+1. **Authoritative Engineering Header**: Clear, serious, and immediately understandable.
+2. **Team & Stakeholder Shareable Brief**: A 2-bullet executive summary (everyday analogy/problem solved + business/user impact) that any non-technical leader can understand.
+3. **Technical Deep Dive & Execution Specs**: Exact files, code contracts, architecture relationships, dependencies, and testable pass conditions for coding agents.
+
+---
+
+## High-Level Execution Architecture
+
+| Day | Focus Area | Core Objective | Key Deliverables (5 Major Tasks Each) |
+|---|---|---|---|
+| **Day 1** | **Zero-Hallucination Front-Door Bypass & Verification Calibration** | Eliminate LLM latency on database facts, enforce price AST provenance, and calibrate the benchmark. | 1. Line-260 Front-Door Factual Bypass Gateway<br>2. AST Price & Rate Range Provenance Firewall<br>3. Upstream Billing Restoration & Circuit Breakers<br>4. 300-Query Router Evaluation Baseline Calibration<br>5. Multi-Turn Conversation Benchmark Engine |
+| **Day 2** | **Byte-Invariant Prompt Ladder, JIT Fact Projection & Live Badges** | Slash AI query costs by 75–80%, eliminate prompt bloat, and label live web records transparently. | 1. 4-Tier Byte-Invariant Prompt Ladder Architecture<br>2. Gemini Explicit Cache Rolling Manager Activation<br>3. Intent-Scoped JIT Fact Projection (Field-Diet Engine)<br>4. Table Prompt Inlining Instruction Standard<br>5. Transparent Public-Record Provenance Badges |
+| **Day 3** | **JEV Master Decision Cutover, Router De-Bloat & Intent Unification** | Replace 33 fragile regex exits with our in-house JEV decision engine and de-bloat `chat-router.ts`. | 1. JEV Live Execution Engine (`execute.ts`)<br>2. Deletion of 20+ Legacy Regex Gates (Pruning 2,000+ Lines)<br>3. Consolidation of Double-Intent (Retiring `extendedIntent.ts`)<br>4. Single Front-Door Injection & Profiling Orchestrator<br>5. Entity Database Resolver (`resolve.ts`) |
+| **Day 4** | **Resilient SSE Streaming Protocol, Mobile Reconnect & Web-Fact Cache** | Eliminate dropped streams, client freezes, and 504 timeouts while persistently caching web facts. | 1. Stream Sequence Numbering & Typed Event V2 Envelope<br>2. Redis Stream Cursor & Zero-Loss Mobile Reconnect Engine<br>3. Bi-Directional Keep-Alive Ping Harness<br>4. Consolidation of Web Sourcing & `WebFact` Persistent Cache<br>5. Stream Chaos & Reconnect Fault Injection Suite |
+| **Day 5** | **Hero Chat Interface: Micro-UX, Token-Free Interactive Tools & Proof Drawers** | Transform chat into an engaging financial cockpit with live sliders and verified inspection drawers. | 1. Fluid 20ms Typewriter Chunk Buffer & Viewport Scroll-Lock<br>2. Client-Side Interactive Down Payment, Loan & Rate Shock Sliders<br>3. Interactive RERA Carpet Loading & Usable Area Visualizer<br>4. Clickable Provenance Trust Pills & Official Proof Drawer<br>5. Chat Action Quick-Filter Dock & Mobile Shortlist Drawer |
+| **Day 6** | **Conversational Memory, Curated Knowledge Base & Commute Ranking** | Retain multi-turn memory under 1,800 tokens, provide GDPR privacy, and rank by actual commute. | 1. Rolling 10-Turn Context Compressor (`contextCompressor.ts`)<br>2. Authenticated Buyer Memory Center & Privacy Controls<br>3. Commute-First Discovery Weight Tuning<br>4. Curated Knowledge Base & Postgres Full-Text Hybrid Search<br>5. 10-Turn Context Benchmark & 100-Query Hinglish Evaluation |
+| **Day 7** | **National Scale, Automated Regulatory Fetchers & Release Gate** | Expand beyond hardcoded Noida literals into a dynamic national engine with automated release gates. | 1. National Geography & Dynamic Statutory Tax Engine<br>2. Out-of-City Market Lane & `DemandSignal` Admin Analytics Portal<br>3. Scheduled Regulatory Cron Fetchers & Fast Local Classifier<br>4. Hierarchical Langfuse Tracing & PostHog Conversion Funnels<br>5. 100-Query Automated Production Release Gate |
+
+---
+
+## Day 1: Zero-Hallucination Front-Door Bypass & Verification Calibration
+
+### Goal
+Eliminate the 1.5–2.5s LLM latency tax on pure factual database lookups, enforce price AST provenance, restore upstream Gemini billing health, and calibrate the 300-query router evaluation baseline.
+
+---
+
+### Task 1.1: Line-260 Front-Door Factual Bypass Gateway
+* **Team & Stakeholder Shareable Brief:**
+  * When a buyer asks for exact numbers like a project's RERA registration ID, OC status, lift safety compliance, or tap water TDS, we bypass the AI entirely and read directly from our verified database in under 50 milliseconds.
+  * Previously, our system made an expensive 2-second AI call just to read the question before checking the database; moving this check right to the front door saves 100% of AI costs on factual queries and guarantees zero delay.
+* **Action:** CREATE `backend/src/lib/chat/deterministicFactRouter.ts` and MODIFY `backend/src/routes/chat-router.ts`
+* **What to do:**
+  * Build a deterministic pre-filter in `chat-router.ts` placed at **Line 260** (immediately after payload validation, strictly before `extractIntent` at line 782):
+    1. Match explicit attribute questions:
+       * RERA Registration ID: `/\b(?:what is the|show me|check)?\s*rera\s*(?:number|id|registration|details)?\s*(?:for|of)\s+([^?]+)/i`
+       * OC Status / Completion: `/\b(?:is|has)\s+([^?]+)\s+(?:got\s+)?(?:oc|occupancy certificate|completion certificate|ready for possession)/i`
+       * Water Source / TDS: `/\b(?:what is the|check)?\s*water\s*(?:source|supply|tds|quality)?\s*(?:in|at|for)\s+([^?]+)/i`
+       * UP Lifts Act: `/\b(?:are the lifts|is lift)\s*(?:safe|compliant|registered)?\s*(?:in|for)\s+([^?]+)/i`
+       * Land Dues / Amitabh Kant: `/\b(?:land dues|registry status|amitabh kant|25% dues)\s*(?:for|in)\s+([^?]+)/i`
+    2. Resolve target project via canonical database search (`findFirst` with alias matching against `Project` table).
+    3. If resolved, build and stream a structured fact card immediately.
+    4. If attribute is null, return verified refusal: *"We have not verified this record on-ground, so we will not guess."*
+* **Current system relationship:** Sits at line 260 of `backend/src/routes/chat-router.ts`. Bypasses `extractIntent()` and `fallbackChain.ts` completely.
+* **Depends On:** None.
+* **Done When:**
+  * Queries asking for RERA number, OC status, water TDS, or lift compliance for a named project respond in $<50\text{ms}$ with 0 LLM tokens billed.
+  * Projects with `occupancy_certificate_status: null` state that OC docket is unverified without guessing a date.
+  * Completely bypasses `extractIntent()` and `fallbackChain.ts`.
+
+---
+
+### Task 1.2: AST Price & Rate Range Provenance Firewall
+* **Team & Stakeholder Shareable Brief:**
+  * Like a financial compliance officer reviewing a contract before it goes to a client, this background scanner checks every rupee price, rate per square foot, and percentage generated by the AI against our verified database before it reaches the buyer's screen.
+  * If the AI tries to invent a fake discount or misquote a property price, the scanner instantly intercepts it, eliminating 100% of price hallucinations.
+* **Action:** CREATE `backend/src/lib/ai/provenanceChecker.ts` and MODIFY `backend/src/lib/ai/answerIntegrity.ts`
+* **What to do:**
+  * While `answerIntegrity.ts` already checks dates (`unsourced_date`) and developer warnings (`unfounded_warning`), it currently lacks strict price and rate extraction.
+  * Implement an AST token extractor scanning generated prose prior to stream flush:
+    1. **Monetary & Price Extractor:** Extracts all `₹X Cr`, `₹X Lakh`, and `₹Y/sqft`.
+    2. **Percentage Extractor:** Extracts all discount and statutory percentages.
+  * Compare extracted numbers against `project.price_min_cr`, `project.price_max_cr`, and prompt `VERIFIED_FACTS_BLOCK`.
+  * If an unverified price is detected:
+    * Abort stream flush.
+    * Record an `answerIntegrity:PRICE_FABRICATION` violation in `TurnTrace`.
+    * Fallback to deterministic fact presentation summary.
+* **Current system relationship:** Integrates into `checkAnswerIntegrity` in `backend/src/lib/ai/answerIntegrity.ts`.
+* **Depends On:** Task 1.1.
+* **Done When:**
+  * Synthetic test injecting a fake price ("₹8,500/sqft" when DB has ₹12,000–₹14,000) triggers instant turn discard.
+  * Zero false positives on statutory tax figures (UP Stamp Duty 7%, GST 5%, Registration 1%).
+  * Provenance check executes in $<5\text{ms}$ on raw text.
+
+---
+
+### Task 1.3: Upstream Billing Restoration & Circuit Breakers
+* **Team & Stakeholder Shareable Brief:**
+  * We clear the prepaid credit depletion on our primary Google Gemini AI engine and connect our automated circuit breakers to prevent backup engines from hitting rate limits.
+  * Prevents AI service outages, keeps response times snappy, and ensures users never see broken error messages.
+* **Action:** CONFIGURE `backend/.env` and MODIFY `backend/src/lib/ai/fallbackChain.ts`
+* **What to do:**
+  * Configure prepaid billing key for Google AI Studio (`GEMINI_API_KEY`) to eliminate HTTP 402 prepayment depleted errors.
+  * Ensure `rateBudget.ts` sliding-window checks actively gate every provider before dispatch:
+    * Gemini Paid: Primary tier.
+    * Groq: 25 req/min ceiling before preemptive cooldown.
+    * Mistral: 25 req/min ceiling.
+    * Cerebras: 25 req/min ceiling.
+  * Verify `providerCooldown.ts` catches transient errors and cascades to next leg in $<250\text{ms}$.
+* **Current system relationship:** Configures execution harness in `fallbackChain.ts`.
+* **Depends On:** None.
+* **Done When:**
+  * Live chat corpus run achieves 0% HTTP 402 billing errors.
+  * Outage notice wording is never shown during transient single-provider rate limits.
+
+---
+
+### Task 1.4: 300-Query Router Evaluation Baseline Calibration
+* **Team & Stakeholder Shareable Brief:**
+  * An automated test battery that reviews the 61 ambiguous queries in our 300-question router exam (`router-labels.json`) and establishes our mathematical accuracy scorecard using real database traces.
+  * Gives leadership and the engineering team clear, proven numbers showing exactly where our router sends questions vs what the buyer actually asked.
+* **Action:** MODIFY `backend/scripts/corpus/router-labels.json` and RUN `backend/scripts/corpus/baseline.ts`
+* **What to do:**
+  * Review and finalize all 61 rows marked `"uncertain": true` in `router-labels.json` with ground-truth lane assignments (`discover`, `project_fact`, `compare`, `calculate`, `market_explain`, `legal_process`).
+  * Run `npx tsx scripts/corpus/run-corpus.ts --labels --limit=0 --tag=baseline-d1`.
+  * Score current baseline accuracy against the 300 labelled set and commit `scorecards/day1-baseline.json`.
+* **Current system relationship:** Establishes the authoritative benchmark for all subsequent router cutovers.
+* **Depends On:** Tasks 1.1, 1.2, 1.3.
+* **Done When:**
+  * All 300 rows in `router-labels.json` have verified task labels (0 marked uncertain).
+  * `TurnTrace` rows record distinct lanes for 100% of corpus turns.
+  * First dated scorecard committed as the regression benchmark.
+
+---
+
+### Task 1.5: Multi-Turn Conversation Benchmark Engine
+* **Team & Stakeholder Shareable Brief:**
+  * Real home buyers don't ask one question and leave—they have extended 5- to 10-message conversations where they change their budget, pivot sectors, and compare options.
+  * This automated test suite simulates 10 full buyer journeys to guarantee the AI remembers earlier requirements and never gives contradictory advice across a conversation.
+* **Action:** CREATE `backend/scripts/corpus/multiTurnRunner.ts`
+* **What to do:**
+  * Build a multi-turn conversation test harness executing 10 canonical buyer journeys:
+    1. Discovery $\rightarrow$ Sector Pivot $\rightarrow$ Budget Tightening $\rightarrow$ Project Deep-Dive $\rightarrow$ EMI Calculation.
+    2. Comparison between two projects $\rightarrow$ Developer Track Record check $\rightarrow$ Registry Verification.
+    3. Hinglish inquiry $\rightarrow$ Commute query $\rightarrow$ Site visit request.
+  * Track context token growth, intent vector accuracy, and response consistency at each turn.
+* **Current system relationship:** Extends `backend/scripts/corpus/baseline.ts`.
+* **Depends On:** Task 1.4.
+* **Done When:**
+  * Multi-turn runner executes 10 scenarios (50+ total turns) and outputs a structured delta report.
+  * Confirms intent state carries forward across sector pivots without resetting.
+
+---
+
+### Day 1 Completion Gate
+* [x] Fast-path router handles factual attribute queries in $<50\text{ms}$ with 0 LLM tokens billed.
+* [x] AST price provenance catches fabricated rates with 100% precision.
+* [x] Gemini primary key operates with zero HTTP 402 billing errors.
+* [x] All 300 rows in `router-labels.json` have verified labels (0 uncertain).
+* [x] Multi-turn benchmark runner executes and records baseline scorecard.
+
+---
+
+## Day 2: Byte-Invariant Prompt Ladder, JIT Fact Projection & Live Badges
+
+### Goal
+Restructure the system prompt into a strictly byte-invariant prefix ladder that unlocks 85%+ Gemini explicit context caching, dynamically scope injected project facts to reduce token payloads by 60%, and label live web records transparently.
+
+---
+
+### Task 2.1: 4-Tier Byte-Invariant Prompt Ladder Architecture
+* **Team & Stakeholder Shareable Brief:**
+  * Modern AI providers offer a massive 75% discount if you send the exact same instruction rulebook every time; previously, changing dynamic details in the middle broke this cache. We reorganize the AI's instructions into a rigid ladder where the rulebook is permanently fixed at the top.
+  * Slashes our AI server bill by 75% to 80% and cuts user waiting time in half.
+* **Action:** REFACTOR `backend/src/lib/ai/systemPromptCache.ts` and `backend/src/lib/ai/prompts/base.ts`
+* **What to do:**
+  * Currently, `getCachedBasePrompt()` varies its cache key based on `city`, `intentState`, `queryKind`, and `blockedBuilders?.length`, producing multiple variants that fragment provider-side caching.
+  * Re-architect into 4 strictly ordered, nested layers:
+    * **Tier 0 (Invariant Rulebook Core - 4,800 tokens):** Persona, 15 Hard Rules, sentinels, competitor ban, Indian real estate terms, statutory tax formulas, and anti-hallucination rules. 100% byte-identical across ALL requests (zero dynamic variables, no timestamps, no city strings).
+    * **Tier 1 (Lane Directives - 600 tokens):** Task-specific instructions (Discovery vs Comparison vs Due Diligence vs Affordability) placed *strictly after* Tier 0.
+    * **Tier 2 (JIT Entity Facts - 600–1,000 tokens):** Facts for only the active entities resolved in the turn.
+    * **Tier 3 (Conversation History - 300–500 tokens):** Last 3 turns + compressed state vector.
+* **Current system relationship:** Replaces variant-keyed prompt builder in `systemPromptCache.ts`.
+* **Depends On:** None.
+* **Done When:**
+  * `promptPrefixStability.test.ts` asserts 100% byte-equality of Tier 0 across all lanes.
+  * Tier 0 byte count is invariant across discovery, comparison, and deep-dive lanes.
+
+---
+
+### Task 2.2: Gemini Explicit Cache Rolling Manager Activation
+* **Team & Stakeholder Shareable Brief:**
+  * Instead of uploading a heavy 40-page real estate rulebook over the internet on every single message, we park it directly inside Google Gemini’s high-speed memory for 1 hour at a time.
+  * Shaves 1 to 2 seconds off every single chat turn and ensures high-traffic spikes don't run up surprise server bills.
+* **Action:** CONFIGURE `backend/.env` and MODIFY `backend/src/lib/ai/geminiCache.ts`
+* **What to do:**
+  * Activate `GEMINI_EXPLICIT_CACHE=true` in `backend/.env`.
+  * Verify that Tier 0 from Task 2.1 exceeds Gemini's minimum cacheable threshold (1,024 tokens) and registers successfully via `client.caches.create`.
+  * Ensure rolling renewal extends the cache 10 minutes prior to expiration.
+  * Log cache creation, hit status, and token savings in `TurnTrace`.
+* **Current system relationship:** Integrates into `streamGeminiWithCache` in `geminiCache.ts`.
+* **Depends On:** Task 2.1.
+* **Done When:**
+  * `audit-gemini-cache.ts` confirms cache hits on subsequent turns.
+  * Input tokens billed drop by $\ge 75\%$ on warm cache turns.
+  * Latency p90 drops below 2,000ms.
+
+---
+
+### Task 2.3: Intent-Scoped JIT Fact Projection (Field-Diet Engine)
+* **Team & Stakeholder Shareable Brief:**
+  * Rather than stuffing our entire 150-column property catalogue into every conversation, our system intelligently injects only the specific details the user is actively asking about.
+  * Reduces data sent to the AI by over 60%, speeding up response times and preventing the AI from getting confused by irrelevant property data.
+* **Action:** MODIFY `backend/src/lib/projectFactsBlock.ts`
+* **What to do:**
+  * Currently, `buildProjectFacts()` projects all non-null public fields (~2,200 tokens per project).
+  * Scope field projection based on resolved query intent:
+    * If query is about pricing: inject cost sheet and statutory tax lines; omit amenities and green ratings.
+    * If query is about registry: inject OC status, Amitabh Kant clearance, and land dues; omit floor plans.
+    * If query is about layout/amenities: inject unit types, carpet area, and lifestyle features; omit financial breakdowns.
+  * Strictly filter all selected fields through `PROJECT_PUBLIC_SELECT`.
+* **Current system relationship:** Optimizes fact injection in `chat-router.ts`.
+* **Depends On:** Task 2.1.
+* **Done When:**
+  * Injected facts block size drops from ~2,200 tokens to $\le 750$ tokens per project.
+  * `projectExposure.test.ts` passes with zero unclassified fields.
+
+---
+
+### Task 2.4: Table Prompt Inlining Instruction Standard
+* **Team & Stakeholder Shareable Brief:**
+  * While our server already calculates comparison and tax tables in pure code, the AI sometimes tries to re-type the entire table character-by-character, which takes extra time and occasionally cuts off on mobile screens.
+  * We instruct the AI to quote our pre-assembled table directly, speeding up answers and guaranteeing perfect mobile formatting.
+* **Action:** MODIFY `backend/src/lib/ai/prompts/base.ts` and `backend/src/lib/ai/marketTable.ts`
+* **What to do:**
+  * Existing pre-rendered tables in `marketTable.ts` (`renderMicroMarketTable`, `renderCostSheetTable`, `renderCityBandShelf`) and `yieldTable.ts` are already generated.
+  * Add a strict prompt instruction in Tier 1:
+    *"When a pre-rendered markdown table is provided in the context, output that exact table block without modifying column structure or re-calculating values. Focus generation tokens on concise 2-sentence explanatory takeaways."*
+* **Current system relationship:** Optimizes rendering speed of `marketTable.ts` outputs.
+* **Depends On:** None.
+* **Done When:**
+  * LLM generation time for table responses drops by $\ge 40\%$.
+  * Tables render with 100% consistent column alignment and zero truncated markdown.
+
+---
+
+### Task 2.5: Transparent Public-Record Provenance Badges
+* **Team & Stakeholder Shareable Brief:**
+  * When a buyer asks about a brand new launch or a project not yet in our database, we don't return an empty error. We perform a live, targeted search on verified public records and clearly label the answer with an official "Live Web Source" trust badge.
+  * Keeps the AI helpful for any property question without ever misleading the user into thinking we conducted an on-ground physical inspection.
+* **Action:** MODIFY `backend/src/lib/ai/groundedAnswer.ts` and `backend/src/lib/chat/coverageGap.ts`
+* **What to do:**
+  * In `runGroundedAnswer()` and `coverageGap.ts`:
+    * When an unlisted project is researched via web search, prepend an official markdown badge:
+      `> 🌐 **Public Record Notice**: Sourced from live public filings. PropFyndr has not conducted an on-ground physical inspection for this project.`
+    * Ensure `answerIntegrity.ts` validates that no unverified claims or analyst scores are emitted.
+* **Current system relationship:** Upgrades fallback research lane in `chat-router.ts`.
+* **Depends On:** None.
+* **Done When:**
+  * Inquiries on unlisted new launches produce detailed factual summaries rather than generic refusals.
+  * Streamed answers display the live web provenance badge cleanly.
+
+---
+
+### Day 2 Completion Gate
+* [ ] Prompt ladder Tier 0 is 100% byte-identical across all query lanes.
+* [ ] Gemini Explicit Cache manager serves Tier 0 from cache with 1-hour rolling TTL.
+* [ ] Intent-scoped JIT fact injection reduces entity context payload by $>60\%$.
+* [ ] Table quoting instructions eliminate LLM table-generation latency.
+* [ ] Out-of-database projects display transparent public-record provenance badges.
+
+---
+
+## Day 3: JEV Live Decision Cutover, Router De-Bloat & Intent Unification
+
+### Goal
+Switch JEV—our unified, in-house decision engine—from shadow mode to live traffic, permanently delete 20+ legacy regex gates from `chat-router.ts` (pruning 2,000+ lines), retire `extendedIntent.ts`, and unify model profiling into a single front-door gate.
+
+---
+
+### Task 3.1: JEV Live Execution Engine (`execute.ts`)
+* **Team & Stakeholder Shareable Brief:**
+  * JEV currently watches conversations in the background to learn routing. We activate it to take full command of chat turns, directing greetings, calculators, project facts, comparisons, and broad property search with complete accuracy.
+  * Replaces 33 brittle pattern rules with one unified brain that understands nuanced property inquiries.
+* **Action:** CREATE `backend/src/lib/jev/execute.ts` and MODIFY `backend/src/routes/chat-router.ts`
+* **What to do:**
+  * Implement `executeJevDecision(decision, ctx)` with feature flag `JEV_TASKS=smalltalk,meta,calculate,project_fact,compare,discover`:
+    * `smalltalk`: Return deterministic greeting/thanks.
+    * `calculate`: Route directly to `lib/calculators.ts`.
+    * `project_fact`: Route to factual handlers with `fieldsNeeded`.
+    * `compare`: Route to `comparisonHandler.ts`.
+    * `discover`: Route to `discoverProjects`.
+  * Wire JEV execution at Line 550 of `chat-router.ts`. Route unenabled tasks through legacy cascade until verified.
+* **Current system relationship:** Sits at line 550 of `chat-router.ts`. Transitions JEV from shadow to active execution.
+* **Depends On:** Day 1 (Task 1.4 baseline).
+* **Done When:**
+  * Flagged tasks execute through `executeJevDecision` with zero regressions on 300 test queries.
+  * Fallback path cleanly handles LLM decision timeouts in $<10\text{ms}$.
+
+---
+
+### Task 3.2: Deletion of 20+ Legacy Regex Gates (Pruning 2,000+ Lines)
+* **Team & Stakeholder Shareable Brief:**
+  * Once JEV successfully takes over a task, we permanently delete the old, fragile spaghetti code from our core routing file.
+  * Makes the application much faster to maintain, easier to debug, and drastically lowers the risk of introducing new bugs in the future.
+* **Action:** REFACTOR `backend/src/routes/chat-router.ts`
+* **What to do:**
+  * Safely remove redundant legacy topic-flag regexes (lines 3100–3400):
+    * Remove duplicate regex matchers for RERA, payment plans, due diligence, and legal risk.
+    * Remove dead query classifiers (`classifyQuery`, `intentTypeDetector`).
+  * Reduce `chat-router.ts` code footprint by $>2,000$ lines.
+* **Current system relationship:** Cleans up `chat-router.ts`.
+* **Depends On:** Task 3.1.
+* **Done When:**
+  * `npm test` runs green across all 2,748 backend tests.
+  * `chat-router.ts` line count decreases by at least 2,000 lines.
+  * Zero regressions on 300-question corpus test.
+
+---
+
+### Task 3.3: Consolidation of Double-Intent (Retiring `extendedIntent.ts`)
+* **Team & Stakeholder Shareable Brief:**
+  * Previously, our property search made two separate AI calls back-to-back just to understand user filters, wasting 2.5 seconds. We combine both into JEV's single structured call.
+  * Instantly shaves 1.5 to 2.5 seconds of waiting time off the most popular search queries on the site.
+* **Action:** REFACTOR `backend/src/routes/chat-router.ts` and DELETE `backend/src/lib/ai/extendedIntent.ts`
+* **What to do:**
+  * Eliminate the secondary LLM call on ranking turns (`extractExtendedIntent`, which burned 2.5s and 500 tokens).
+  * Fold extended parameter extraction (carpet preference, view preference, density tolerance) directly into JEV's single structured intent call.
+* **Current system relationship:** Replaces `extendedIntent.ts` calls in `chat-router.ts`.
+* **Depends On:** Task 3.1.
+* **Done When:**
+  * Secondary LLM call is eliminated on ranking turns.
+  * Turn latency on discovery/ranking turns drops by 1.5–2.5 seconds.
+  * Token consumption drops by ~500 tokens on affected turns.
+
+---
+
+### Task 3.4: Single Front-Door Injection & Profiling Orchestrator
+* **Team & Stakeholder Shareable Brief:**
+  * We merge multiple duplicate model selectors and security checks into a single front-door firewall that blocks malicious prompts and routes simple questions to lightweight AI models and complex financial questions to reasoning models.
+  * Protects our system from hacks while keeping simple queries running in under 1 second.
+* **Action:** REFACTOR `backend/src/routes/chat-router.ts`
+* **What to do:**
+  * Consolidate duplicate injection checks (`sanitizeUserMessage`, `inputGuardrail`) into a single high-speed entry middleware executed once at turn start.
+  * Replace fragmented calls to `profileFor()` across lines 247, 565, 2820, and 5599 with a single profile assignment attached to request context.
+* **Current system relationship:** Streamlines `chat-router.ts` entry flow.
+* **Depends On:** None.
+* **Done When:**
+  * Injection checking executes exactly once per turn with 0 duplicate regex scans.
+  * Query profile is attached to request context at turn start.
+
+---
+
+### Task 3.5: Entity Database Resolver (`resolve.ts`)
+* **Team & Stakeholder Shareable Brief:**
+  * When a buyer misspells a project name (like "Godrej Wood" instead of "Godrej Woods") or mentions a local sector alias, this module maps it directly to the exact property record in our database.
+  * Ensures the AI always pulls the right property facts without ever getting confused by typos or nicknames.
+* **Action:** CREATE `backend/src/lib/jev/resolve.ts`
+* **What to do:**
+  * Build deterministic entity resolution matching JEV entity candidates against Postgres:
+    * Projects: Canonical names, slugs, and common aliases (`Project` table).
+    * Localities: Sector names, micro-market bands, and expressway belts (`SectorIntelligence` table).
+    * Builders: Canonical developer names and parent groups (`Builder` table).
+  * Output verified database UUIDs; omit unverified entity guesses.
+* **Current system relationship:** Feeds resolved entities into `execute.ts`.
+* **Depends On:** Task 3.1.
+* **Done When:**
+  * Resolves project aliases and minor typos to exact database UUIDs in $<10\text{ms}$.
+  * Unmatched entities return null rather than fuzzy guesses.
+
+---
+
+### Day 3 Completion Gate
+* [ ] JEV decision engine actively executes smalltalk, calculate, fact, compare, and discover tasks.
+* [ ] 20+ legacy regex gates deleted from `chat-router.ts` (pruning 2,000+ lines).
+* [ ] Secondary extended intent LLM call eliminated; `extendedIntent.ts` deleted.
+* [ ] Single model profiler and unified injection firewall active at entry.
+* [ ] Entity resolver maps fuzzy names to canonical database UUIDs.
+
+---
+
+## Day 4: Resilient SSE Streaming Protocol, Mobile Reconnect & Web-Fact Cache
+
+### Goal
+Guarantee 100% stream reliability across unstable mobile networks, eliminate broken or frozen responses with monotonic sequence numbers, implement zero-loss Redis reconnection, and consolidate web search into a persistent cached store (`WebFact`).
+
+---
+
+### Task 4.1: Stream Sequence Numbering & Typed Event V2 Envelope
+* **Team & Stakeholder Shareable Brief:**
+  * Replaces unnumbered plain text streaming with a numbered event envelope. Every single word and card sent to the phone carries a sequence number (1, 2, 3...).
+  * If a mobile connection blinks, the phone knows exactly which word it received last, allowing it to seamlessly request the missing pieces without missing a beat.
+* **Action:** MODIFY `backend/src/routes/chat-helpers.ts` and `frontend/lib/chat/streamReducer.ts`
+* **What to do:**
+  * Standardize all streaming data into a monotonic sequenced envelope:
+    ```typescript
+    export type SSEvent =
+      | { type: 'heartbeat'; ts: number }
+      | { type: 'token'; token: string; seq: number }
+      | { type: 'ui_state'; stage: string; thinking: string; chips: any[]; seq: number }
+      | { type: 'properties'; exactResults: any[]; nearbyResults: any[]; seq: number }
+      | { type: 'components'; response: any; seq: number }
+      | { type: 'done'; sessionId: string; intentState: string; seq: number }
+      | { type: 'error'; message: string; retryable: boolean };
+    ```
+  * Update `sseWrite()` in `chat-helpers.ts` to assign and increment `seq` monotonically per turn.
+  * Update `streamReducer.ts` to track highest received `seq`.
+* **Current system relationship:** Upgrades `sseWrite()` in `chat-helpers.ts` and `streamReducer.ts`.
+* **Depends On:** None.
+* **Done When:**
+  * 100% of streamed events carry monotonically increasing `seq` numbers.
+  * Client reducer tracks sequence state with zero parse errors.
+
+---
+
+### Task 4.2: Redis Stream Cursor & Zero-Loss Mobile Reconnect Engine
+* **Team & Stakeholder Shareable Brief:**
+  * If an on-the-go buyer walks into an elevator, drives through a tunnel, or drops Wi-Fi for 10 seconds while the AI is answering, their phone automatically reconnects and seamlessly fills in the missing words from temporary server memory.
+  * The user never loses their answer, never sees a "network error" popup, and the business never pays twice for the same AI response.
+* **Action:** CREATE `backend/src/lib/chat/streamBuffer.ts` and MODIFY `frontend/lib/backend-api.ts`
+* **What to do:**
+  * In `streamBuffer.ts`:
+    * Store emitted chunks in Redis list `stream:turn:<sessionId>:<turnId>` with a 120-second TTL.
+  * In `frontend/lib/backend-api.ts`:
+    * On `fetch` connection drop mid-stream, immediately reconnect passing header `Last-Event-Seq: N`.
+    * Backend reads Redis buffer and replays chunks from `N + 1` before resuming live stream.
+* **Current system relationship:** Sits between streaming generator and client fetch connection.
+* **Depends On:** Task 4.1.
+* **Done When:**
+  * Severing the socket at sequence 20 and reconnecting recovers sequence 21+ with zero missing characters.
+  * No duplicate LLM turns are executed or billed upon reconnect.
+
+---
+
+### Task 4.3: Bi-Directional Keep-Alive Ping Harness
+* **Team & Stakeholder Shareable Brief:**
+  * Like a radar beep between a ship and a lighthouse, our server sends subtle 12-second background pings during deep property searches to reassure cloud servers (Render, Cloudflare) that the connection is alive.
+  * Eliminates frustrating "504 Gateway Timeout" crashes on complex research queries.
+* **Action:** MODIFY `backend/src/routes/chat-router.ts` and `frontend/lib/backend-api.ts`
+* **What to do:**
+  * Implement an automatic 12-second timer during streaming execution:
+    * If no LLM chunk has been emitted for 12 seconds (e.g. during deep Postgres aggregation or cold-start fallback), emit an SSE comment ping: `: ping\n\n`.
+  * Ensure proxies (Cloudflare, Render) keep the HTTP socket open indefinitely.
+  * Client ignores comment pings without disrupting markdown rendering.
+* **Current system relationship:** Adds socket keep-alive in `chat-router.ts`.
+* **Depends On:** None.
+* **Done When:**
+  * Synthetic 30-second server pause completes without HTTP 504 Gateway Timeout.
+  * Pings do not leak into the buyer's chat bubble.
+
+---
+
+### Task 4.4: Consolidation of Web Sourcing & `WebFact` Persistent Cache
+* **Team & Stakeholder Shareable Brief:**
+  * We merge our two duplicate web search modules into one clean system that saves every web result to our database with an expiration date.
+  * When buyers ask about new infrastructure or local news, repeat questions are answered instantly from our copy rather than paying an outside search service every time.
+* **Action:** REFACTOR `backend/src/lib/web.ts`, DELETE `backend/src/lib/ai/tavily.ts`, and EXTEND `backend/prisma/schema.prisma`
+* **What to do:**
+  * Add `WebFact` model to `schema.prisma`:
+    ```prisma
+    model WebFact {
+      id             String   @id @default(uuid())
+      query_key      String   @unique
+      answer_snippet String
+      source_url     String
+      source_name    String
+      fetched_at     DateTime @default(now())
+      expires_at     DateTime
+      @@index([query_key, expires_at])
+    }
+    ```
+  * Merge `tavily.ts` into `web.ts` as a unified web sourcing engine.
+  * Check `WebFact` before calling external search APIs (market prices: 30 days, infrastructure news: 7 days, regulations: 90 days).
+* **Current system relationship:** Eliminates duplicate web search code and caches external queries.
+* **Depends On:** None.
+* **Done When:**
+  * `tavily.ts` deleted with zero broken imports across backend.
+  * Repeat web searches hit `WebFact` in $<10\text{ms}$ with zero API calls.
+
+---
+
+### Task 4.5: Stream Chaos & Reconnect Fault Injection Suite
+* **Team & Stakeholder Shareable Brief:**
+  * A stress-testing suite that intentionally pulls the plug on the internet connection at 25%, 50%, and 75% of text delivery to verify that the app reconnects and finishes the answer flawlessly.
+  * Guarantees bulletproof reliability for real-world buyers browsing on erratic mobile connections.
+* **Action:** CREATE `backend/src/lib/chat/__tests__/streamResilience.test.ts`
+* **What to do:**
+  * Build an automated chaos test suite simulating:
+    * Premature TCP RST packet at 25% of stream.
+    * Mobile network switch (Wi-Fi to 4G) mid-stream.
+    * 20-second upstream LLM stall.
+  * Assert that the client recovers seamlessly in all scenarios.
+* **Current system relationship:** Verification test suite.
+* **Depends On:** Tasks 4.1, 4.2, 4.3.
+* **Done When:**
+  * Chaos test suite achieves 100% recovery rate across 20 simulated failure scenarios.
+  * Zero blank screens or unhandled promise rejections.
+
+---
+
+### Day 4 Completion Gate
+* [ ] Monotonic `seq` numbers present on 100% of streamed events.
+* [ ] Redis stream cursor restores mid-stream drops without re-billing tokens.
+* [ ] Keep-alive pings eliminate HTTP 504 reverse-proxy timeouts.
+* [ ] `tavily.ts` merged into `web.ts` and backed by `WebFact` database cache.
+* [ ] Stream chaos test passes with 100% recovery.
+
+---
+
+## Day 5: Hero Chat Interface: Micro-UX, Token-Free Interactive Tools & Proof Drawers
+
+### Goal
+Transform the chat interface into our hero product: deliver smooth typewriter streaming, embed interactive client-side loan calculators, visualize RERA carpet loading efficiency, and display official inspection proof drawers.
+
+---
+
+### Task 5.1: Fluid 20ms Typewriter Chunk Buffer & Viewport Scroll-Lock
+* **Team & Stakeholder Shareable Brief:**
+  * Incoming stream chunks are smoothed through a gentle 20-millisecond typewriter easing curve, creating a calm, premium reading experience without jittery text jumps.
+  * Protects the user's scroll position: if a user scrolls up to re-read an earlier point, the screen stays put rather than violently snapping to the bottom.
+* **Action:** CREATE `frontend/lib/chat/typewriterBuffer.ts` and MODIFY `frontend/components/chat/MessageBubble.tsx`
+* **What to do:**
+  * Implement a client-side chunk smoother:
+    * Feed raw SSE text chunks into a queue.
+    * Drain the queue at a variable 15–25ms easing curve.
+    * Prevent large chunk bursts from causing jarring layout jumps.
+  * Maintain user scroll position: if the user scrolls up, disable auto-scroll instantly; re-enable auto-scroll when scrolled back to bottom.
+* **Current system relationship:** Wraps markdown rendering in `MessageBubble.tsx`.
+* **Depends On:** None.
+* **Done When:**
+  * Streaming text appears fluid and natural, matching human reading speed.
+  * Scrolling up to read past messages never jerks the viewport back to the bottom.
+
+---
+
+### Task 5.2: Client-Side Interactive Down Payment, Loan & Rate Shock Sliders
+* **Team & Stakeholder Shareable Brief:**
+  * When discussing home loans, the AI embeds an interactive calculator directly inside the chat message, letting buyers slide down payments (10% to 50%) and loan tenures with real-time updates and tax savings calculations.
+  * Runs 100% inside the user's browser with zero server delay and zero AI token burn, encouraging buyers to play with their budget on the fly.
+* **Action:** MODIFY `frontend/components/chat/AffordabilityCard.tsx`
+* **What to do:**
+  * Upgrade `AffordabilityCard.tsx` from a static number display into an interactive financial cockpit:
+    * Slider 1: Down Payment (10% to 50% in 5% increments).
+    * Slider 2: Loan Tenure (10 to 30 years).
+    * Toggle: "+1.5% RBI Rate Shock Stress Test".
+  * Compute monthly net EMI, Section 24(b) tax savings, and net out-of-pocket outflow instantly in client memory using pure TypeScript math from `calculators.ts`.
+  * Zero network requests, 0 tokens billed.
+* **Current system relationship:** Upgrades `AffordabilityCard.tsx`.
+* **Depends On:** None.
+* **Done When:**
+  * Adjusting sliders updates EMI and tax calculations in $<5\text{ms}$.
+  * Calculations match UP banking schedules to the rupee.
+  * Mobile tap targets are $\ge 48\text{px}$ with complete touch support.
+
+---
+
+### Task 5.3: Interactive RERA Carpet Loading & Usable Area Visualizer
+* **Team & Stakeholder Shareable Brief:**
+  * Displays an interactive proportional bar comparing actual usable carpet area against common area loading (e.g. 1,400 sq.ft living area vs 600 sq.ft corridor/lift loading) with an instant calculation of the real cost per usable sqft.
+  * Unmasks deceptive builder marketing in seconds, creating an unforgettable "aha!" moment that builds deep buyer trust.
+* **Action:** CREATE `frontend/components/chat/CarpetLoadingVisualizer.tsx` and MODIFY `frontend/components/ComponentRenderer.tsx`
+* **What to do:**
+  * Render a visual layout efficiency component:
+    * Stacked proportional bar: Usable Carpet Area (green) vs Common Area Loading (amber).
+    * Metrics: Super Area, Carpet Area, Loading %, Advertised Rate vs Effective Carpet Rate.
+    * Elevator Congestion Index (ECI) badge: Low Wait / Standard / High Peak Congestion.
+* **Current system relationship:** Rendered via `ComponentRenderer.tsx` on unit configuration queries.
+* **Depends On:** None.
+* **Done When:**
+  * Visualizes carpet vs super area clearly with animated percentage bars.
+  * Effective carpet rate recalculates dynamically.
+  * Fully responsive on 360px mobile viewports.
+
+---
+
+### Task 5.4: Clickable Provenance Trust Pills & Official Proof Drawer
+* **Team & Stakeholder Shareable Brief:**
+  * Attaches verified trust badges to factual claims (e.g. `[Verified: Ganga Jal Supply (TDS 220 ppm)]` or `[Verified: UP Lifts Act Registered]`). Tapping a badge opens a sleek slide-over drawer showing official inspection records, certificate numbers, and dates.
+  * Proves to skeptical home buyers that PropFyndr's data comes from official on-ground audits, separating us from generic listing portals.
+* **Action:** CREATE `frontend/components/chat/ProvenancePill.tsx` and `frontend/components/chat/VerificationProofDrawer.tsx`
+* **What to do:**
+  * Render interactive provenance badges on verified statements:
+    * `[Verified: Ganga Jal Supply (TDS 220 ppm)]`
+    * `[Verified: UP Lifts Act Registered]`
+    * `[Verified: Amitabh Kant 25% Dues Cleared]`
+  * Clicking any pill opens a slide-over drawer showing:
+    * Official verification document name & portal link.
+    * Inspection date & field notes.
+    * Official certificate number.
+  * Include keyboard accessibility (`Escape` to close, focus trap).
+* **Current system relationship:** Extends `ResponseFormatter.tsx` and `MessageBubble.tsx`.
+* **Depends On:** Day 1 (Task 1.1).
+* **Done When:**
+  * Clicking a pill opens the proof drawer with 100% accurate database records.
+  * Emits PostHog event `provenance_pill_clicked`.
+  * Passes WCAG keyboard accessibility standards.
+
+---
+
+### Task 5.5: Chat Action Quick-Filter Dock & Mobile Shortlist Drawer
+* **Team & Stakeholder Shareable Brief:**
+  * On mobile phones, buyers often want to adjust filters or peek at their shortlist without losing their chat transcript. This task adds a sleek bottom action dock for instant filter clearing and quick-comparison overlays.
+  * Makes mobile property exploration effortless and friction-free.
+* **Action:** MODIFY `frontend/components/chat/FilterDock.tsx` and `frontend/components/chat/MobileCardShelf.tsx`
+* **What to do:**
+  * Optimize mobile bottom dock:
+    * Add 1-tap chip removal with animated exit transitions.
+    * Add floating "Compare (N)" badge that slides open `CompareSelectorOverlay.tsx`.
+    * Ensure touch targets meet minimum 48px standard.
+* **Current system relationship:** Upgrades `FilterDock.tsx` and `MobileCardShelf.tsx`.
+* **Depends On:** None.
+* **Done When:**
+  * Tapping filter chips updates query context with zero layout shifts.
+  * Compare overlay slides open smoothly on mobile touch devices.
+
+---
+
+### Day 5 Completion Gate
+* [ ] Typewriter buffer delivers smooth streaming without layout thrashing or scroll jerking.
+* [ ] Interactive loan sliders calculate EMIs client-side in $<5\text{ms}$ with zero network requests.
+* [ ] Carpet loading visualizer renders on layout queries with dynamic effective rates.
+* [ ] Clickable provenance pills open proof drawers with verified inspection metadata.
+* [ ] Mobile filter dock and comparison overlay operate with 100% responsive touch support.
+
+---
+
+## Day 6: Conversational Memory, Curated Knowledge Base & Commute Ranking
+
+### Goal
+Retain deep conversational intelligence across multi-turn consultations while compressing context history by >75%, provide GDPR user privacy controls, tune commute-first ranking, and launch our in-house curated knowledge base (`KnowledgeDoc`) without RAM crashes.
+
+---
+
+### Task 6.1: Rolling 10-Turn Context Compressor (`contextCompressor.ts`)
+* **Team & Stakeholder Shareable Brief:**
+  * Instead of resending a bloated 10-page chat transcript back and forth to the AI on every single message, we compress past conversations into a clean 10-line structured summary (budget, preferred sectors, rejected projects, family size).
+  * Keeps long 10-turn consultations sharp, fast, and 75% cheaper without the AI ever forgetting earlier requirements.
+* **Action:** CREATE `backend/src/lib/chat/contextCompressor.ts` and MODIFY `backend/src/routes/chat-helpers.ts`
+* **What to do:**
+  * Build a context compressor module:
+    * Maintain a persistent JSON intent vector per session (`buyerBudget`, `preferredSectors`, `preferredTypologies`, `hardDisqualifiers`, `shortlistedProjectIds`).
+    * For turns 4+, substitute older raw message text with this compact structured intent block.
+    * Retain only the last 3 turns in full verbatim text.
+* **Current system relationship:** Integrates into `trimMessagesToBudget()` in `chat-helpers.ts`.
+* **Depends On:** Day 2.
+* **Done When:**
+  * 10-turn conversation maintains system prompt payload under 1,800 tokens.
+  * Token consumption on turn 10 drops by $\ge 75\%$ compared to uncompressed raw history.
+  * Buyer criteria are preserved accurately.
+
+---
+
+### Task 6.2: Authenticated Buyer Memory Center & Privacy Controls
+* **Team & Stakeholder Shareable Brief:**
+  * When a logged-in buyer returns days later, the AI warmly greets them with their saved context: *"Welcome back! Continuing your search for 3BHKs under ₹1.8 Cr near the metro?"* with full controls to view or clear their profile.
+  * Dramatically boosts user retention and return engagement while respecting personal data privacy.
+* **Action:** CREATE `backend/src/routes/userMemory.ts` and `frontend/components/UserMemoryModal.tsx`
+* **What to do:**
+  * Utilize existing `UserMemory` table in `schema.prisma`.
+  * Build authenticated REST endpoints:
+    * `GET /api/v1/user/memory`: Returns buyer's stored preferences (budget, preferred sectors, saved homes).
+    * `DELETE /api/v1/user/memory`: Clears stored profile (GDPR compliance).
+  * Build frontend modal letting buyers view and reset their remembered criteria in 1 click.
+* **Current system relationship:** Connects `backend/src/lib/ai/memory.ts` to public API and UI.
+* **Depends On:** None.
+* **Done When:**
+  * Returning logged-in user is greeted with remembered criteria.
+  * User can inspect and clear their memory in 1 click.
+  * Guest users never share memory across tokens.
+
+---
+
+### Task 6.3: Commute-First Discovery Weight Tuning
+* **Team & Stakeholder Shareable Brief:**
+  * When a buyer mentions their workplace ("I commute to Candor TechSpace Sector 62" or "Cyber City Gurgaon"), our engine automatically ranks matching projects by actual commute time rather than arbitrary sector numbers.
+  * Solves the single most important daily lifestyle constraint for Indian working professionals.
+* **Action:** MODIFY `backend/src/lib/discovery/projects.ts`
+* **What to do:**
+  * In `discoverProjects()`:
+    * Integrate detected commute destination from `commuteAnchor.ts`.
+    * Apply weighted travel time scores: $<30\text{ min}$ (100 pts), $30\text{–}45\text{ min}$ (80 pts), $>60\text{ min}$ (40 pts).
+    * Ensure commute-friendly projects rank above generic popularity without promotional distortion.
+* **Current system relationship:** Connects `commuteAnchor.ts` into `discovery/projects.ts`.
+* **Depends On:** None.
+* **Done When:**
+  * Queries specifying "commute to Sector 62" rank Sector 62/63/71 projects first.
+  * Verified commute time appears on every recommended card.
+
+---
+
+### Task 6.4: Curated Knowledge Base & Postgres Full-Text Hybrid Search
+* **Team & Stakeholder Shareable Brief:**
+  * Instead of sending buyers' general questions (like "What is the difference between carpet area and super area?" or "Can I claim HRA and home-loan tax deductions together?") to expensive live web search, we answer them from our own verified library of 200+ checked articles.
+  * Answers are instant, cited with official government sources, and cost zero search-API fees.
+* **Action:** EXTEND `backend/prisma/schema.prisma` and CREATE `backend/src/lib/search/hybridSearch.ts`
+* **What to do:**
+  * Add `KnowledgeDoc` and `KnowledgeChunk` models:
+    ```prisma
+    model KnowledgeDoc {
+      id           String   @id @default(uuid())
+      slug         String   @unique
+      title        String
+      body_md      String
+      tier         String   // "statutory" | "market"
+      state_code   String?  // null = All India
+      source_url   String
+      source_name  String
+      last_checked DateTime
+      status       String   @default("PUBLISHED")
+      chunks       KnowledgeChunk[]
+      updated_at   DateTime @updatedAt
+    }
+
+    model KnowledgeChunk {
+      id        String   @id @default(uuid())
+      doc_id    String
+      doc       KnowledgeDoc @relation(fields: [doc_id], references: [id], onDelete: Cascade)
+      ordinal   Int
+      text      String
+      tsv       Unsupported("tsvector")?
+      embedding Unsupported("vector")?
+    }
+    ```
+  * Resolve Render 512MB RAM constraint: use Postgres Full-Text Search (`tsvector`) + external vector embeddings (avoiding in-process ONNX memory load).
+  * Implement hybrid search merging keyword FTS + semantic vector score using Reciprocal Rank Fusion (RRF).
+* **Current system relationship:** Replaces untrusted web queries for generic real estate topics.
+* **Depends On:** None.
+* **Done When:**
+  * Schema migrations apply cleanly without memory crashes on Render.
+  * Searching "carpet vs super area" returns the verified article in $<20\text{ms}$.
+
+---
+
+### Task 6.5: 10-Turn Context Benchmark & 100-Query Hinglish Evaluation Suite
+* **Team & Stakeholder Shareable Brief:**
+  * A multi-turn conversation test that simulates a complex negotiation across 10 distinct messages, verifying that prompt size stays strictly under 1,800 tokens while retaining 100% memory accuracy across English and Hindi (Hinglish).
+  * Proves that long, in-depth buyer consultations do not cause memory degradation or runaway server costs.
+* **Action:** CREATE `backend/scripts/audit-context-compression.ts` and `backend/scripts/corpus/hinglish.json`
+* **What to do:**
+  * Construct a 100-query Hinglish evaluation dataset (`hinglish.json`) testing everyday conversational Indian real estate phrasing ("3bhk kitne ka padega", "registry ka kya scene hai", "water tds kaisa hai").
+  * Simulate a 10-turn real estate negotiation session.
+  * Assert prompt token ceilings and memory retention at every turn.
+* **Current system relationship:** Automated benchmark script in `backend/scripts/corpus/`.
+* **Depends On:** Tasks 6.1, 6.2, 6.3, 6.4.
+* **Done When:**
+  * Turn 10 prompt size remains $\le 1,800$ tokens.
+  * All buyer criteria are retained on Turn 10.
+  * Hinglish test corpus achieves judge score within 5 points of standard English queries.
+
+---
+
+### Day 6 Completion Gate
+* [ ] Rolling intent vector compresses multi-turn context by $\ge 75\%$.
+* [ ] Authenticated buyer memory operates with user-facing inspection and erasure.
+* [ ] Commute ranking prioritizes travel time without promotional bias.
+* [ ] Knowledge base schema and hybrid FTS search implemented without RAM crashes.
+* [ ] 10-turn context benchmark passes with $\le 1,800$ tokens per turn.
+
+---
+
+## Day 7: National Scale, Automated Regulatory Fetchers & Release Gate
+
+### Goal
+Expand beyond hardcoded Noida literals into a data-driven national geography engine, build an administrative demand analytics dashboard, set up automated regulatory fetchers, complete hierarchical Langfuse observability, and pass the final production quality gate.
+
+---
+
+### Task 7.1: National Geography & Dynamic Statutory Tax Engine
+* **Team & Stakeholder Shareable Brief:**
+  * We eliminate 800+ hardcoded "Noida" words across the application and move States, Cities, Localities, and statutory Stamp Duty rates into database tables.
+  * Makes launching in Gurgaon, Bengaluru, or Mumbai a pure data entry job rather than a months-long code rewrite.
+* **Action:** EXTEND `backend/prisma/schema.prisma` and MIGRATE database
+* **What to do:**
+  * Add canonical geographic and tax models:
+    ```prisma
+    model State {
+      code   String @id
+      name   String
+      cities City[]
+    }
+
+    model City {
+      id             String     @id @default(uuid())
+      name           String
+      state_code     String
+      state          State      @relation(fields: [state_code], references: [code])
+      inventory_live Boolean    @default(false)
+      localities     Locality[]
+      @@unique([name, state_code])
+    }
+
+    model Locality {
+      id       String   @id @default(uuid())
+      city_id  String
+      city     City     @relation(fields: [city_id], references: [id])
+      name     String
+      aliases  String[]
+      kind     String   // "sector" | "neighbourhood"
+      @@unique([city_id, name])
+    }
+
+    model StatutoryRate {
+      id             String   @id @default(uuid())
+      state_code     String
+      kind           String   // "stamp_duty" | "registration" | "gst"
+      rate_pct       Float
+      condition      Json?
+      effective_from DateTime
+      source_url     String
+      @@index([state_code, kind, effective_from])
+    }
+    ```
+  * Seed UP statutory rates (7% male, 6% female, 1% registration, 5% GST).
+  * Migrate `calculators.ts` to read rates from `StatutoryRate` with in-memory caching.
+  * Add custom ESLint rule banning hardcoded `'Noida'` string literals in new `backend/src` code.
+* **Current system relationship:** Replaces hardcoded rates in `calculators.ts` and `sectorToCity.ts`.
+* **Depends On:** None.
+* **Done When:**
+  * Calculator outputs for UP match existing statutory tests to the rupee.
+  * Adding a test city via SQL enables geographic recognition with zero code changes.
+  * Zero new hardcoded city string literals allowed in backend code.
+
+---
+
+### Task 7.2: Out-of-City Market Lane & `DemandSignal` Admin Analytics Portal
+* **Team & Stakeholder Shareable Brief:**
+  * When buyers ask about cities we don't cover yet (like Bengaluru or Gurgaon), we record their interest. This task builds a live analytics dashboard for leadership and sales to see exactly which cities have the highest buyer demand.
+  * Helps the company make data-backed expansion decisions based on real user interest.
+* **Action:** CREATE `frontend/app/admin/demand/page.tsx` and MODIFY `backend/src/routes/admin.ts`
+* **What to do:**
+  * Connect to existing `DemandSignal` table in Postgres.
+  * Build admin endpoint `GET /api/v1/admin/demand`:
+    * Aggregates by City $\times$ Inquiry Count, Median Desired Budget, Desired BHK.
+  * Build frontend page `frontend/app/admin/demand/page.tsx`:
+    * Interactive sorting, city leaderboard, and export to CSV.
+* **Current system relationship:** Visualizes telemetry captured by `demandSignal.ts`.
+* **Depends On:** Task 7.1.
+* **Done When:**
+  * Admin dashboard renders aggregated demand metrics with zero test pollution.
+  * Out-of-city queries immediately reflect on the admin leaderboard.
+
+---
+
+### Task 7.3: Scheduled Regulatory Cron Fetchers & Fast In-Process Classifier
+* **Team & Stakeholder Shareable Brief:**
+  * Automatic background fetchers check the UP-RERA portal, RBI repo rate updates, and state stamp duty gazettes to keep our rates up to date, while an in-process local router handles standard questions with zero AI tokens.
+  * Keeps our real estate data 100% fresh while continuously lowering our external API reliance.
+* **Action:** CREATE `backend/scripts/fetchers/` and `backend/src/lib/jev/localClassifier.ts`
+* **What to do:**
+  * Build scheduled scrapers running via background cron:
+    * `fetchReraStatus.ts`: Probes UP-RERA for quarterly progress report updates.
+    * `fetchRepoRate.ts`: Probes RBI announcements for repo rate changes.
+    * Store outputs in `StatutoryRate` or `KnowledgeDoc` as `DRAFT` for analyst review.
+  * Train an in-process TF-IDF / logistic regression classifier (`localClassifier.ts`) on $\ge 5,000$ agreed JEV decisions:
+    * When confidence $\ge 95\%$, make the routing decision in-process in $<2\text{ms}$ with 0 LLM calls.
+* **Current system relationship:** Integrates into `jev/decide.ts`.
+* **Depends On:** Day 3.
+* **Done When:**
+  * Fetcher fixture tests pass against saved HTML fixtures.
+  * Local classifier handles $\ge 40\%$ of routine queries in $<2\text{ms}$ with zero API calls.
+
+---
+
+### Task 7.4: Hierarchical Langfuse Tracing & PostHog Conversion Funnels
+* **Team & Stakeholder Shareable Brief:**
+  * Langfuse tracks every conversation turn, token cost, and fallback failover in real-time, while PostHog tracks high-intent buyer milestones (saving flats, calculating EMIs, generating dossiers, booking site visits).
+  * Gives leadership real-time visibility into conversion funnels and AI system health.
+* **Action:** MODIFY `backend/src/lib/monitoring/langfuse.ts` and `frontend/lib/analytics.ts`
+* **What to do:**
+  * Wrap every chat turn in a hierarchical Langfuse span:
+    * Root: `Turn` (`sessionId`, `userId`, `turnSeq`).
+    * Children: `fast_path_router` $\rightarrow$ `jev_decide` $\rightarrow$ `db_retrieval` $\rightarrow$ `llm_generation` $\rightarrow$ `answer_integrity`.
+  * Verify PostHog client conversion funnels:
+    * `chat_started` $\rightarrow$ `loan_slider_adjusted` $\rightarrow$ `dossier_shared` $\rightarrow$ `site_visit_booked`.
+* **Current system relationship:** Connects monitoring across backend and frontend.
+* **Depends On:** Days 1, 2, 3, 4, 5.
+* **Done When:**
+  * 100% of production chat turns generate complete hierarchical trace trees in Langfuse.
+  * PostHog conversion funnel records real user milestones with zero test pollution.
+
+---
+
+### Task 7.5: 100-Query Automated Production Release Gate
+* **Team & Stakeholder Shareable Brief:**
+  * A comprehensive 100-question automated test suite that fires real buyer questions across all legal, financial, comparison, and trick probes, asserting 100% pass rates, zero hallucinations, and sub-3.5s latency.
+  * Serves as the final safety barrier that must pass before any new release is deployed to live users.
+* **Action:** CREATE `backend/scripts/run-production-gate.ts`
+* **What to do:**
+  * Run the comprehensive 100-query benchmark across all capabilities:
+    * 25 Factual due diligence queries.
+    * 25 Comparison and affordability queries.
+    * 25 Multi-turn conversational pivot queries.
+    * 25 Out-of-city, trick, and jailbreak queries.
+  * Verify:
+    1. Zero hallucinations or fabricated dates.
+    2. Pass rate $= 100\%$.
+    3. p99 latency $< 3,500\text{ms}$.
+    4. Average cost $< \$0.0015$ per turn.
+* **Current system relationship:** CI/CD release gate script.
+* **Depends On:** All previous tasks.
+* **Done When:**
+  * 100 out of 100 queries pass.
+  * Both `backend` and `frontend` typecheck and production builds compile cleanly.
+
+---
+
+### Day 7 Completion Gate
+* [ ] Database geography and statutory tax models deployed and seeded.
+* [ ] Out-of-city market lane captures demand signals in admin portal.
+* [ ] Scheduled regulatory fetchers and local distilled router active.
+* [ ] Langfuse trace spans display end-to-end hierarchical trees for 100% of turns.
+* [ ] PostHog conversion funnels active and recording milestones.
+* [ ] 100-query automated production gate passes with 100% success.
+
+---
+
+## Daily Quality Gates & Verification Commands
+
+Execute these verification checks at the conclusion of each day:
+
+```bash
+# 1. Backend typecheck & unit test suite (2,748+ tests)
+cd backend && npm run build && npm test
+
+# 2. Frontend typecheck & production build
+cd ../frontend && npm run typecheck && npm run build
+
+# 3. Gemini cache & prefix stability audit
+npx ts-node backend/scripts/audit-gemini-cache.ts
+
+# 4. Zero-hallucination ground-truth probe suite
+node --require tsx/cjs --test backend/src/lib/ai/__tests__/groundTruthAccuracy.test.ts
+
+# 5. Production quality release gate
+npx ts-node backend/scripts/run-production-gate.ts
+```
+
+---
+
+## Strategic Summary: The PropFyndr Value Engine
+
+1. **Zero Hallucination Guarantee**: Factual parameters (RERA, OC, water, lifts, statutory fees) are resolved deterministically or checked through an AST provenance gate. We never guess.
+2. **Extreme Token & Cost Efficiency**: The 4-tier prompt ladder combined with Gemini Explicit Caching slashes input tokens by 75–80%, delivering sub-2-second answers at $< $0.0015 per query.
+3. **Hero Chat Experience**: Rather than a static text box, the chat is a dynamic financial cockpit with animated execution steps, smooth typewriter streaming, interactive loan sliders, and verified provenance proof drawers.
+4. **Data Moat & National Ready**: Grounded in 620+ hyper-local Noida/Greater Noida/Yamuna forensic records, backed by a national geography schema ready to scale across India.

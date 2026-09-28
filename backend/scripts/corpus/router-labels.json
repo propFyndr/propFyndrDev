@@ -106,7 +106,7 @@
       "general"
     ],
     "shape": "factual",
-    "uncertain": true,
+    "uncertain": false,
     "note": "\"4/5 star properties\" reads as hotel-grade search, not residential inventory we carry"
   },
   {
@@ -146,7 +146,7 @@
       "general"
     ],
     "shape": "factual",
-    "uncertain": true,
+    "uncertain": false,
     "note": "tenure (leasehold/freehold) is a legal/process question, not rent/resale/commercial/auction, so not out_of_scope"
   },
   {
@@ -456,7 +456,7 @@
       "general"
     ],
     "shape": "factual",
-    "uncertain": true,
+    "uncertain": false,
     "note": "Taj is a hotel brand here, not a residential builder"
   },
   {
@@ -1722,7 +1722,7 @@
       "db"
     ],
     "shape": "lookup",
-    "uncertain": true,
+    "uncertain": false,
     "note": "Jewar/Yamuna Expressway micro-market adjacent to our 3-city inventory; treated as knowledge/market question, not out_of_scope"
   },
   {
@@ -1744,7 +1744,7 @@
       "db"
     ],
     "shape": "lookup",
-    "uncertain": true,
+    "uncertain": false,
     "note": "Jewar/Yamuna Expressway micro-market adjacent to our 3-city inventory; treated as knowledge/market question, not out_of_scope"
   },
   {
@@ -1766,7 +1766,7 @@
       "db"
     ],
     "shape": "lookup",
-    "uncertain": true,
+    "uncertain": false,
     "note": "Yamuna Expressway is outside the Noida/Greater Noida/GNW inventory core; market_explain not discover"
   },
   {
@@ -2675,7 +2675,7 @@
       "general"
     ],
     "shape": "reasoning",
-    "uncertain": true,
+    "uncertain": false,
     "note": "rental yield expectation needs a market yield assumption, not pure formula"
   },
   {
@@ -3181,7 +3181,7 @@
       "knowledge"
     ],
     "shape": "advisory",
-    "uncertain": true,
+    "uncertain": false,
     "note": "\"best builder/society\" asks for a reputation judgement across builders, not a single project fact or a plain listing search"
   },
   {
@@ -3202,14 +3202,14 @@
       "knowledge"
     ],
     "shape": "advisory",
-    "uncertain": true,
+    "uncertain": false,
     "note": "\"best builder/society\" asks for a reputation judgement across builders, not a single project fact or a plain listing search"
   },
   {
     "id": "q048",
     "q": "best new project in sector 150",
     "history": [],
-    "task": "market_explain",
+    "task": "discover",
     "entities": {
       "city": null,
       "localities": [
@@ -3225,7 +3225,7 @@
       "knowledge"
     ],
     "shape": "advisory",
-    "uncertain": true,
+    "uncertain": false,
     "note": "\"best builder/society\" asks for a reputation judgement across builders, not a single project fact or a plain listing search"
   },
   {
@@ -3248,7 +3248,7 @@
       "knowledge"
     ],
     "shape": "advisory",
-    "uncertain": true,
+    "uncertain": false,
     "note": "\"best builder/society\" asks for a reputation judgement across builders, not a single project fact or a plain listing search"
   },
   {
@@ -3271,7 +3271,7 @@
       "knowledge"
     ],
     "shape": "advisory",
-    "uncertain": true,
+    "uncertain": false,
     "note": "\"best builder/society\" asks for a reputation judgement across builders, not a single project fact or a plain listing search"
   },
   {
@@ -3294,7 +3294,7 @@
       "knowledge"
     ],
     "shape": "advisory",
-    "uncertain": true,
+    "uncertain": false,
     "note": "\"best builder/society\" asks for a reputation judgement across builders, not a single project fact or a plain listing search"
   },
   {
@@ -3785,7 +3785,7 @@
     "id": "q289",
     "q": "What is the current price difference between Sector 75 and Sector 137 Noida?",
     "history": [],
-    "task": "discover",
+    "task": "compare",
     "entities": {
       "city": "Noida",
       "localities": [
@@ -3801,7 +3801,7 @@
       "db"
     ],
     "shape": "lookup",
-    "uncertain": true,
+    "uncertain": false,
     "note": "no strong rule matched; defaulted to discover"
   },
   {
@@ -4031,7 +4031,7 @@
       "knowledge"
     ],
     "shape": "reasoning",
-    "uncertain": true,
+    "uncertain": false,
     "note": "affordability math from income + down payment, feeding a property-type recommendation"
   },
   {
@@ -4071,7 +4071,7 @@
       "db"
     ],
     "shape": "lookup",
-    "uncertain": true,
+    "uncertain": false,
     "note": "query text is malformed/keyword-stuffed but intent reads as a plain inventory search"
   },
   {
@@ -4091,7 +4091,7 @@
       "db"
     ],
     "shape": "lookup",
-    "uncertain": true,
+    "uncertain": false,
     "note": "query text is malformed/keyword-stuffed but intent reads as a plain inventory search"
   },
   {
@@ -4111,7 +4111,7 @@
       "db"
     ],
     "shape": "lookup",
-    "uncertain": true,
+    "uncertain": false,
     "note": "query text is malformed/keyword-stuffed but intent reads as a plain inventory search"
   },
   {
@@ -4131,7 +4131,7 @@
       "db"
     ],
     "shape": "lookup",
-    "uncertain": true,
+    "uncertain": false,
     "note": "query text is malformed/keyword-stuffed but intent reads as a plain inventory search"
   },
   {
@@ -4152,7 +4152,7 @@
       "web"
     ],
     "shape": "factual",
-    "uncertain": true,
+    "uncertain": false,
     "note": "time-bound market question; needs current data we may not hold, could fall back to web"
   },
   {
@@ -4173,7 +4173,7 @@
       "web"
     ],
     "shape": "factual",
-    "uncertain": true,
+    "uncertain": false,
     "note": "time-bound market question; needs current data we may not hold, could fall back to web"
   },
   {
@@ -4194,7 +4194,7 @@
       "web"
     ],
     "shape": "factual",
-    "uncertain": true,
+    "uncertain": false,
     "note": "time-bound market question; needs current data we may not hold, could fall back to web"
   },
   {
@@ -4215,7 +4215,7 @@
       "web"
     ],
     "shape": "factual",
-    "uncertain": true,
+    "uncertain": false,
     "note": "time-bound market question; needs current data we may not hold, could fall back to web"
   },
   {
@@ -4237,7 +4237,7 @@
       "db"
     ],
     "shape": "factual",
-    "uncertain": true,
+    "uncertain": false,
     "note": "generic project-name query without a specific fact requested; assumed project overview lookup"
   },
   {
@@ -4259,7 +4259,7 @@
       "db"
     ],
     "shape": "factual",
-    "uncertain": true,
+    "uncertain": false,
     "note": "generic project-name query without a specific fact requested; assumed project overview lookup"
   },
   {
@@ -4283,7 +4283,7 @@
       "db"
     ],
     "shape": "factual",
-    "uncertain": true,
+    "uncertain": false,
     "note": "generic project-name query without a specific fact requested; assumed project overview lookup"
   },
   {
@@ -4305,7 +4305,7 @@
       "db"
     ],
     "shape": "factual",
-    "uncertain": true,
+    "uncertain": false,
     "note": "generic project-name query without a specific fact requested; assumed project overview lookup"
   },
   {
@@ -4327,7 +4327,7 @@
       "db"
     ],
     "shape": "factual",
-    "uncertain": true,
+    "uncertain": false,
     "note": "generic project-name query without a specific fact requested; assumed project overview lookup"
   },
   {
@@ -4349,7 +4349,7 @@
       "db"
     ],
     "shape": "factual",
-    "uncertain": true,
+    "uncertain": false,
     "note": "generic project-name query without a specific fact requested; assumed project overview lookup"
   },
   {
@@ -4371,7 +4371,7 @@
       "db"
     ],
     "shape": "factual",
-    "uncertain": true,
+    "uncertain": false,
     "note": "generic project-name query without a specific fact requested; assumed project overview lookup"
   },
   {
@@ -4393,7 +4393,7 @@
       "db"
     ],
     "shape": "factual",
-    "uncertain": true,
+    "uncertain": false,
     "note": "generic project-name query without a specific fact requested; assumed project overview lookup"
   },
   {
@@ -4415,7 +4415,7 @@
       "db"
     ],
     "shape": "factual",
-    "uncertain": true,
+    "uncertain": false,
     "note": "generic project-name query without a specific fact requested; assumed project overview lookup"
   },
   {
@@ -4437,7 +4437,7 @@
       "db"
     ],
     "shape": "factual",
-    "uncertain": true,
+    "uncertain": false,
     "note": "generic project-name query without a specific fact requested; assumed project overview lookup"
   },
   {
@@ -4459,7 +4459,7 @@
       "db"
     ],
     "shape": "factual",
-    "uncertain": true,
+    "uncertain": false,
     "note": "generic project-name query without a specific fact requested; assumed project overview lookup"
   },
   {
@@ -4481,7 +4481,7 @@
       "db"
     ],
     "shape": "lookup",
-    "uncertain": true,
+    "uncertain": false,
     "note": "named builder/project + locality; could be project_fact if that project exists in our DB, else a discover miss"
   },
   {
@@ -4525,7 +4525,7 @@
       "db"
     ],
     "shape": "lookup",
-    "uncertain": true,
+    "uncertain": false,
     "note": "named builder/project + locality; could be project_fact if that project exists in our DB, else a discover miss"
   },
   {
@@ -4547,14 +4547,14 @@
       "db"
     ],
     "shape": "lookup",
-    "uncertain": true,
+    "uncertain": false,
     "note": "named builder/project + locality; could be project_fact if that project exists in our DB, else a discover miss"
   },
   {
     "id": "lt072",
     "q": "coco county sector 10 noida extension",
     "history": [],
-    "task": "discover",
+    "task": "project_fact",
     "entities": {
       "city": "Greater Noida West",
       "localities": [
@@ -4569,14 +4569,14 @@
       "db"
     ],
     "shape": "lookup",
-    "uncertain": true,
+    "uncertain": false,
     "note": "named builder/project + locality; could be project_fact if that project exists in our DB, else a discover miss"
   },
   {
     "id": "lt074",
     "q": "nirala diadem sector 10 noida extension",
     "history": [],
-    "task": "discover",
+    "task": "project_fact",
     "entities": {
       "city": "Greater Noida West",
       "localities": [
@@ -4591,7 +4591,7 @@
       "db"
     ],
     "shape": "lookup",
-    "uncertain": true,
+    "uncertain": false,
     "note": "named builder/project + locality; could be project_fact if that project exists in our DB, else a discover miss"
   },
   {
@@ -4657,7 +4657,7 @@
       "db"
     ],
     "shape": "lookup",
-    "uncertain": true,
+    "uncertain": false,
     "note": "named builder/project + locality; could be project_fact if that project exists in our DB, else a discover miss"
   },
   {
@@ -4679,7 +4679,7 @@
       "db"
     ],
     "shape": "lookup",
-    "uncertain": true,
+    "uncertain": false,
     "note": "named builder/project + locality; could be project_fact if that project exists in our DB, else a discover miss"
   },
   {
@@ -4708,7 +4708,7 @@
     "id": "lt096",
     "q": "sector 75 noida jm aroma",
     "history": [],
-    "task": "discover",
+    "task": "project_fact",
     "entities": {
       "city": "Noida",
       "localities": [
@@ -4723,14 +4723,14 @@
       "db"
     ],
     "shape": "lookup",
-    "uncertain": true,
+    "uncertain": false,
     "note": "named builder/project + locality; could be project_fact if that project exists in our DB, else a discover miss"
   },
   {
     "id": "lt098",
     "q": "golf avenue sector 75 noida",
     "history": [],
-    "task": "discover",
+    "task": "project_fact",
     "entities": {
       "city": "Noida",
       "localities": [
@@ -4745,7 +4745,7 @@
       "db"
     ],
     "shape": "lookup",
-    "uncertain": true,
+    "uncertain": false,
     "note": "named builder/project + locality; could be project_fact if that project exists in our DB, else a discover miss"
   },
   {
@@ -4767,14 +4767,14 @@
       "general"
     ],
     "shape": "factual",
-    "uncertain": true,
+    "uncertain": false,
     "note": "location matches our coverage area, but the query itself is a local-amenity/POI lookup, not a property question"
   },
   {
     "id": "lt103",
     "q": "sector 75 noida apex athena",
     "history": [],
-    "task": "discover",
+    "task": "project_fact",
     "entities": {
       "city": "Noida",
       "localities": [
@@ -4789,7 +4789,7 @@
       "db"
     ],
     "shape": "lookup",
-    "uncertain": true,
+    "uncertain": false,
     "note": "named builder/project + locality; could be project_fact if that project exists in our DB, else a discover miss"
   },
   {
@@ -4811,7 +4811,7 @@
       "db"
     ],
     "shape": "lookup",
-    "uncertain": true,
+    "uncertain": false,
     "note": "named builder/project + locality; could be project_fact if that project exists in our DB, else a discover miss"
   },
   {
@@ -4833,7 +4833,7 @@
       "general"
     ],
     "shape": "factual",
-    "uncertain": true,
+    "uncertain": false,
     "note": "location matches our coverage area, but the query itself is a local-amenity/POI lookup, not a property question"
   },
   {
@@ -4855,7 +4855,7 @@
       "general"
     ],
     "shape": "factual",
-    "uncertain": true,
+    "uncertain": false,
     "note": "location matches our coverage area, but the query itself is a local-amenity/POI lookup, not a property question"
   },
   {
@@ -4877,7 +4877,7 @@
       "general"
     ],
     "shape": "factual",
-    "uncertain": true,
+    "uncertain": false,
     "note": "location matches our coverage area, but the query itself is a local-amenity/POI lookup, not a property question"
   },
   {
@@ -4966,7 +4966,7 @@
       "knowledge"
     ],
     "shape": "factual",
-    "uncertain": true,
+    "uncertain": false,
     "note": "locality-level location/distance question, could be answered from sector data or knowledge"
   },
   {
@@ -4989,14 +4989,14 @@
       "knowledge"
     ],
     "shape": "factual",
-    "uncertain": true,
+    "uncertain": false,
     "note": "locality-level location/distance question, could be answered from sector data or knowledge"
   },
   {
     "id": "lt117",
     "q": "pnb sector 75 noida address",
     "history": [],
-    "task": "market_explain",
+    "task": "out_of_scope",
     "entities": {
       "city": "Noida",
       "localities": [
@@ -5012,7 +5012,7 @@
       "knowledge"
     ],
     "shape": "factual",
-    "uncertain": true,
+    "uncertain": false,
     "note": "locality-level location/distance question, could be answered from sector data or knowledge"
   },
   {
@@ -5188,7 +5188,7 @@
       "general"
     ],
     "shape": "factual",
-    "uncertain": true,
+    "uncertain": false,
     "note": "mall restaurant buffet price, not property price"
   },
   {
@@ -5586,7 +5586,7 @@
       "general"
     ],
     "shape": "factual",
-    "uncertain": true,
+    "uncertain": false,
     "note": "keyword-stuffed SEO scrape noise unrelated to real estate (portal name / chemist / court / US place-name collision)"
   },
   {
@@ -5675,7 +5675,7 @@
       "general"
     ],
     "shape": "factual",
-    "uncertain": true,
+    "uncertain": false,
     "note": "keyword-stuffed SEO scrape noise unrelated to real estate (portal name / chemist / court / US place-name collision)"
   },
   {
@@ -6128,7 +6128,7 @@
       "general"
     ],
     "shape": "factual",
-    "uncertain": true,
+    "uncertain": false,
     "note": "reads like discover, but Gurgaon is not our inventory city (Noida/Greater Noida/GNW only), so no listings can be surfaced; treated as out_of_scope for routing purposes"
   },
   {
@@ -6216,7 +6216,7 @@
       "general"
     ],
     "shape": "factual",
-    "uncertain": true,
+    "uncertain": false,
     "note": "resale question about a city we do not cover; both the resale rule and the out-of-city rule point to out_of_scope, kept as one label rather than double-counted"
   },
   {
@@ -6284,7 +6284,7 @@
       "db"
     ],
     "shape": "reasoning",
-    "uncertain": true,
+    "uncertain": false,
     "note": "\"it\" and \"the second one\" refer to prior turns (Project A vs Project B); router must resolve reference from history, not the current message alone"
   },
   {
@@ -6400,7 +6400,7 @@
       "db"
     ],
     "shape": "advisory",
-    "uncertain": true,
+    "uncertain": false,
     "note": "correction narrows out Sector 150 but keeps bhk/budget from history; router should not restart the whole intent"
   },
   {
@@ -6464,7 +6464,7 @@
       "knowledge"
     ],
     "shape": "advisory",
-    "uncertain": true,
+    "uncertain": false,
     "note": "\"that one\" refers to the single option just surfaced; needs the builder name carried over from history"
   },
   {
@@ -6526,7 +6526,7 @@
       "db"
     ],
     "shape": "lookup",
-    "uncertain": true,
+    "uncertain": false,
     "note": "buyer is asking the assistant to justify/re-state a fact it already gave; router should re-fetch/re-confirm the same DB fact rather than treat as a new discover"
   }
 ]

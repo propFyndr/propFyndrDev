@@ -394,10 +394,11 @@ async function extractWithGroq(
 async function extractWithGemini(
   message: string,
   previousIntent: ExtendedIntentWithConfidence | undefined,
+  envKey = 'GEMINI_API_KEY',
 ): Promise<ExtendedIntentWithConfidence> {
-  console.log('[EXTENDED_INTENT] START extractWithGemini', Date.now())
-  const apiKey = process.env.GEMINI_API_KEY
-  if (!apiKey) throw new Error('No GEMINI_API_KEY')
+  console.log(`[EXTENDED_INTENT] START extractWithGemini (${envKey})`, Date.now())
+  const apiKey = process.env[envKey]
+  if (!apiKey) throw new Error(`No ${envKey}`)
   const client = meteredClient({ apiKey, endpoint: 'extended-intent' })
 
   const userContent = previousIntent
@@ -415,7 +416,7 @@ async function extractWithGemini(
     } as any,
   })
 
-  console.log('[EXTENDED_INTENT] END extractWithGemini', Date.now())
+  console.log(`[EXTENDED_INTENT] END extractWithGemini (${envKey})`, Date.now())
   const raw = response.text || '{}'
   return parseExtendedIntentJson(raw, previousIntent, 'gemini')
 }
@@ -528,15 +529,26 @@ export async function extractExtendedIntent(
 ): Promise<ExtendedIntentResult> {
   const { userMessage, previousIntent } = options
 
-  // 1. PRIMARY: Google Gemini 2.0 Flash (Paid, high throughput, zero rate limits)
-  if (process.env.GEMINI_API_KEY && !isKeyFailed('GEMINI_API_KEY')) {
-    try {
-      console.log('[EXTENDED_INTENT] trying Gemini path', Date.now())
-      const result = await extractWithGemini(userMessage, previousIntent)
-      console.log('[EXTENDED_INTENT] Gemini path succeeded', Date.now(), { result })
-      return { intent: result, degraded: false }
-    } catch (err) {
-      console.warn('[extended_intent] Gemini failed, trying Groq:', (err as Error).message)
+  // 1. PRIMARY: Google Gemini (Tries configured keys, blacklisting depleted keys on 402/429)
+  const candidateGeminiKeys = ['GEMINI_API_KEY', 'GEMINI_API_KEY1', 'GEMINI_API_KEY2']
+  for (const envKey of candidateGeminiKeys) {
+    if (process.env[envKey] && !isKeyFailed(envKey)) {
+      try {
+        console.log(`[EXTENDED_INTENT] trying Gemini path with ${envKey}`, Date.now())
+        const result = await extractWithGemini(userMessage, previousIntent, envKey)
+        console.log(`[EXTENDED_INTENT] Gemini path succeeded with ${envKey}`, Date.now(), { result })
+        return { intent: result, degraded: false }
+      } catch (err) {
+        const errMsg = (err as Error).message || ''
+        const isDepleted = errMsg.includes('402') || errMsg.includes('depleted') || errMsg.includes('prepayment')
+        const isRateLimit = errMsg.includes('429') || errMsg.includes('quota')
+        if (isDepleted) {
+          markKeyFailed(envKey, 60 * 60 * 1000)
+        } else if (isRateLimit) {
+          markKeyFailed(envKey, 65 * 1000)
+        }
+        console.warn(`[extended_intent] Gemini (${envKey}) failed, trying next:`, errMsg)
+      }
     }
   }
 

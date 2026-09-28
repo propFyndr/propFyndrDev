@@ -38,6 +38,7 @@
 
 import { checkToolBlindAnswer, checkToolBlindAnswerSync, type ToolBlindViolation } from './toolBlindGuard'
 import { MARKET_QUALIFIER } from '../factPresentation'
+import { verifyPriceProvenance } from './provenanceChecker'
 
 export type IntegrityKind =
   | 'fabrication'
@@ -578,6 +579,7 @@ export function checkAnswerIntegritySync(text: string, prompt: string): Integrit
     ...scanDisclosure(body),
     ...unfoundedWarnings(body, prompt),
     ...unsourcedDates(body, prompt),
+    ...verifyPriceProvenance(body, prompt),
   ]
   if (violations.length > 0) return violations
 
@@ -597,6 +599,7 @@ export async function checkAnswerIntegrity(
     ...scanDisclosure(body),
     ...unfoundedWarnings(body, prompt),
     ...unsourcedDates(body, prompt),
+    ...verifyPriceProvenance(body, prompt),
   ]
 
   // Only worth the database round-trip when nothing cheaper has already failed
