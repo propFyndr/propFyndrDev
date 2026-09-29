@@ -174,48 +174,18 @@ export function detectFactTopics(message: string): Set<FactTopic> {
 export interface ProjectFactsOptions {
   /**
    * Registration numbers claimed by more than one project.
-   *
-   * Measured 4 Sep 2026: 19 numbers are shared, across 43 projects — 15% of
-   * inventory. Mostly different projects from different builders, not duplicate
-   * rows: UPRERAPRJ1504 sits on both Godrej Palm Retreat and Apex Golf Avenue,
-   * UPRERAPRJ1001 on three projects.
-   *
-   * The registration number is the one fact we tell buyers to verify for
-   * themselves, so a wrong one does more damage than any other field: the buyer
-   * looks it up, finds a different development, and correctly concludes we
-   * invent data — which makes every other figure in the answer suspect too.
-   *
-   * We cannot tell which project owns which number, so the number is withheld
-   * rather than guessed. Pass the set from `ambiguousReraNumbers()`; omitting it
-   * renders every number as before, which is the right default for a caller
-   * that has not loaded it.
    */
   ambiguousRera?: ReadonlySet<string>
   /** Cap on the long prose columns, which dominate the token cost. */
   maxDescriptionChars?: number
   /** Cap on list relations such as amenities. */
   maxListItems?: number
-  /**
-   * Heavy relations to include. Omit for the default core set; pass the result
-   * of detectFactTopics(message) to add the ones the question actually needs.
-   */
+  /** Heavy relations to include. */
   topics?: Set<FactTopic>
-  /**
-   * Shortlist mode: the fields that separate one project from another, only.
-   *
-   * The full block is ~6.4 KB per project, which is right for a drilldown and
-   * ruinous for a shortlist. Measured on a six-project Sector 150 search: the
-   * facts came to 38,682 characters against a 33,313-character system prompt —
-   * the projects were bigger than the entire instruction set — and the turn
-   * took 11.1 seconds to its FIRST token on gemini-3.6-flash. Time to first
-   * token tracked input size, not output: the same call emitted only 262
-   * characters.
-   *
-   * A buyer comparing six wants price, size, status, builder, location and the
-   * one or two things that distinguish them. Nobody is reading six water
-   * sources. When they pick one, the drilldown fetches everything.
-   */
+  /** Shortlist mode. */
   shortlist?: boolean
+  /** Intent-scoped JIT fact projection slice. */
+  intentSlice?: IntentSlice
 }
 
 /**
@@ -230,6 +200,67 @@ const SHORTLIST_FIELDS = new Set([
   'rera_number', 'total_units', 'total_towers', 'open_space_pct',
   'land_area_acres', 'tagline', 'location_concerns',
 ])
+
+export type IntentSlice = 'pricing' | 'legal' | 'livability' | 'overview' | 'all'
+
+/** Common baseline identity fields always preserved in all slices */
+export const CORE_IDENTITY_FIELDS = new Set([
+  'name', 'builder', 'sector', 'city', 'status', 'slug', 'project_name',
+])
+
+export const PRICING_FACT_FIELDS = new Set([
+  ...CORE_IDENTITY_FIELDS,
+  'possession_date', 'possession_label',
+  'price_min_cr', 'price_max_cr', 'price_range_label', 'price_per_sqft',
+  'maintenance_per_sqft_monthly', 'gst_pass_through', 'price_includes_plc',
+  'price_includes_club', 'price_includes_taxes', 'dg_power_rate_per_unit',
+  'resale_lock_in_months',
+])
+
+export const LEGAL_FACT_FIELDS = new Set([
+  ...CORE_IDENTITY_FIELDS,
+  'rera_number', 'rera_number_status', 'land_title_clear',
+  'nclt_moratorium_active', 'nclt_status', 'authority_dues_cleared',
+  'fir_against_project', 'litigation_count', 'ongoing_litigation_count',
+  'legal_flag', 'project_risk_flag', 'escrow_verified', 'oc_obtained',
+  'land_tenure', 'resale_lock_in_months', 'occupancy_restriction_months',
+  'legal_risk_summary', 'developer_legal_standing',
+])
+
+export const LIVABILITY_FACT_FIELDS = new Set([
+  ...CORE_IDENTITY_FIELDS,
+  'open_space_pct', 'green_cover_percent', 'walkability_score',
+  'women_safety_score', 'construction_quality_rating', 'buyer_satisfaction_rating',
+  'noise_level_db', 'pet_friendly', 'bachelor_tenants_allowed', 'vastu_compliant',
+  'top_school_distance_km', 'college_distance_km', 'hospital_distance_km',
+  'airport_distance_km', 'airport_distances', 'police_station_distance_km',
+  'has_security_24x7', 'has_cctv', 'street_lights', 'has_png_gas_pipeline',
+  'has_service_lift', 'total_units', 'total_towers', 'ceiling_height_ft',
+  'density_units_per_acre',
+])
+
+export const OVERVIEW_FACT_FIELDS = new Set([
+  ...CORE_IDENTITY_FIELDS,
+  'possession_date', 'possession_label',
+  'price_min_cr', 'price_max_cr', 'price_range_label', 'price_per_sqft',
+  'rera_number', 'rera_number_status', 'total_units', 'total_towers',
+  'open_space_pct', 'land_area_acres', 'tagline', 'location_concerns',
+])
+
+export function detectIntentSlice(message: string): IntentSlice | null {
+  const m = message.toLowerCase()
+  if (/\b(rera|litigation|nclt|court|dispute|legal|title|dues|registry|fir|defaulter|moratorium)\b/i.test(m)) {
+    return 'legal'
+  }
+  if (/\b(price|pricing|cost|payment plan|payment plans|rate|rates|maintenance|budget|per sqft|emi|clp|plc|gst|discount|cheapest|expensive)\b/i.test(m)) {
+    return 'pricing'
+  }
+  if (/\b(amenit|gym|pool|park|green|walkab|safety|school|hospital|metro|connect|pet|bachelor|vastu|noise|security)\b/i.test(m)) {
+    return 'livability'
+  }
+  return null
+}
+
 
 /**
  * Flattens one project row into `key: value` lines, omitting everything empty.
@@ -271,29 +302,21 @@ export function projectScalarFacts(
   const safe = redactProject(row) as Record<string, unknown>
   const out: Record<string, string> = {}
 
+  const slice = options.intentSlice
+  const sliceFields = slice === 'pricing'
+    ? PRICING_FACT_FIELDS
+    : slice === 'legal'
+    ? LEGAL_FACT_FIELDS
+    : slice === 'livability'
+    ? LIVABILITY_FACT_FIELDS
+    : slice === 'overview'
+    ? OVERVIEW_FACT_FIELDS
+    : null
+
   for (const [key, value] of Object.entries(safe)) {
     if (!isPublicField(key)) continue // relations are handled separately
     if (PROMPT_EXCLUDED_FIELDS.has(key)) continue
-    /**
-     * A value whose only provenance is a schema default is not a fact.
-     *
-     * Measured 4 Sep 2026: 190 of 280 projects carried ceiling_height_ft
-     * exactly 10.2, 219 carried mobile_network_rating exactly 4, and 166
-     * carried lifts_per_tower exactly 3 — the literals Postgres wrote because
-     * nobody filled the column in. A third of each column is real, which is
-     * what makes rendering them worse rather than better: for one project the
-     * default is indistinguishable from a measurement, and a buyer plans around
-     * a ceiling height. Withheld here rather than at the select, because the
-     * column is genuinely useful on the rows where it was researched.
-     */
     if (isSchemaDefault(key, value)) continue
-    /**
-     * A registration number two projects claim is not this project's number.
-     *
-     * Replaced with a note rather than silently dropped: an absent
-     * `rera_number` reads as "unregistered", which is a different and worse
-     * claim about a project than "we cannot confirm which number is yours".
-     */
     if (key === 'rera_number' && options.ambiguousRera) {
       const norm = normalizeRera(value)
       if (norm && options.ambiguousRera.has(norm)) {
@@ -302,6 +325,7 @@ export function projectScalarFacts(
       }
     }
     if (options.shortlist && !SHORTLIST_FIELDS.has(key)) continue
+    if (sliceFields && !sliceFields.has(key)) continue
     let formatted = formatValue(key, value)
     if (formatted === null) continue
     if ((key === 'description' || key === 'long_description') && formatted.length > maxDescription) {
@@ -311,23 +335,16 @@ export function projectScalarFacts(
   }
 
   // Both airports, computed from this project's own coordinates.
-  //
-  // `airport_distance_km` is a single stored number and nothing records which
-  // airport it means. Checked against our coordinates it is Jewar — a real
-  // measurement, median error 5.5km — but a buyer asking "how far is the
-  // airport" today usually means Delhi, and answering with the other one
-  // without saying so is a confident wrong number.
-  //
-  // Naming both removes the ambiguity instead of picking a side, and the
-  // stored column stays where it is for anything that already reads it.
-  const distances = airportDistances(
-    (safe.lat as number | null) ?? null,
-    (safe.lng as number | null) ?? null,
-  )
-  if (distances.length) {
-    out.airport_distances = distances
-      .map((d) => `${d.airport} ${d.km} km`)
-      .join('; ') + ' (straight line)'
+  if (!sliceFields || sliceFields.has('airport_distances') || sliceFields.has('airport_distance_km')) {
+    const distances = airportDistances(
+      (safe.lat as number | null) ?? null,
+      (safe.lng as number | null) ?? null,
+    )
+    if (distances.length) {
+      out.airport_distances = distances
+        .map((d) => `${d.airport} ${d.km} km`)
+        .join('; ') + ' (straight line)'
+    }
   }
 
   return out
@@ -376,43 +393,22 @@ function cleanRelation(name: string, row: Record<string, unknown> | null | undef
  */
 export function buildProjectFacts(
   row: Record<string, unknown> & RelationShapes,
-  options: ProjectFactsOptions = {},
+  rawOptions: ProjectFactsOptions | string = {},
 ): Record<string, unknown> {
-  // In shortlist mode the relations are capped hard too: a comparison needs the
-  // configurations and a handful of amenities, not forty of each across six
-  // projects. Amenity lists and connectivity rows are the other half of the
-  // 6.4 KB-per-project cost the scalar allowlist alone does not reach.
+  const options: ProjectFactsOptions = typeof rawOptions === 'string'
+    ? { topics: detectFactTopics(rawOptions) }
+    : (rawOptions ?? {})
+
   const shortlist = options.shortlist === true
   const maxItems = options.maxListItems ?? (shortlist ? 4 : 15)
   const facts: Record<string, unknown> = projectScalarFacts(row, options)
 
-  /**
-   * Was `row.builder.name` alone until 7 Sep 2026 — a bare string, the same
-   * question "which fields may a relation carry" that RELATION_INTERNAL_FIELDS
-   * already answers for cost_sheet, decision_profile and the rest. `builder`
-   * had simply never been given an entry, so nothing beyond the name reached
-   * the model: not founded_year, not delivered units, not the average handover
-   * delay, not RERA promoter id, not awards or CREDAI membership — all facts a
-   * buyer can genuinely ask about, and all already vetted safe for exactly this
-   * purpose by `builderReputationHandler`, the 215-line handler that exists
-   * because this projection had nothing to answer a builder question with.
-   *
-   * `cleanRelation` is the same helper cost_sheet/decision_profile/etc. already
-   * go through — it applies stripOpaqueScores (drops the analyst-set 0-100
-   * scores) and stripRelationInternals (drops cin/legal_entities/executives/
-   * outstanding_dues_cr/audit_flags_log/verification_level/data_source/
-   * intelligence_completeness, per the builder entry in RELATION_INTERNAL_FIELDS)
-   * before anything reaches the prompt.
-   *
-   * `slug` and `logo_url` are safe (they are in KNOWN_PUBLIC_BUILDER_FIELDS in
-   * the exposure test) but pure waste as prompt text — the same reason
-   * PROMPT_EXCLUDED_FIELDS withholds Project's own `hero_image_url` and
-   * `rera_url`. Not added to that shared Set: Project already uses `slug` for
-   * links, so a name collision there would drop the wrong field. Measured on
-   * a real seeded builder: dropping these two is 104 of the object's 1,092
-   * characters before either was even the largest line — a URL the model
-   * cannot render and an identifier no prompt rule ever reads.
-   */
+  const slice = options.intentSlice
+  const isPricing = slice === 'pricing'
+  const isLegal = slice === 'legal'
+  const isLivability = slice === 'livability'
+  const isOverview = slice === 'overview'
+
   const builderFacts = cleanRelation('builder', row.builder)
   if (builderFacts) {
     delete builderFacts.slug
@@ -420,31 +416,6 @@ export function buildProjectFacts(
     facts.builder = builderFacts
   }
 
-  /**
-   * A developer's insolvency outranks the project's own "clean" markers.
-   *
-   * Measured on Amrapali Crystal Homes, and the database contradicts itself:
-   *
-   *   builder.insolvency_history   true
-   *   legal_flag                   "none"
-   *   project_risk_flag            "low_risk"
-   *   nclt_status                  "Clean - No NCLT Moratorium"
-   *
-   * Only the first is right. The Supreme Court cancelled Amrapali's RERA
-   * registrations in 2019 and handed the projects to NBCC. The project-level
-   * markers are batch-templated — `legal_flag` is "none" on all 94 of its
-   * populated rows — and none of them had ever reached the prompt anyway,
-   * because only `builder.name` was projected from the relation. So the model
-   * had the reassuring half of the record and not the disqualifying half, and
-   * told a buyer the project "has a clean legal standing with no active NCLT
-   * insolvency proceedings".
-   *
-   * Two changes, and the order matters. Surface the insolvency, because it is
-   * the single most consequential thing a buyer can know about a developer. And
-   * suppress the project-level markers that contradict it, because leaving both
-   * in the prompt asks the model to arbitrate between two of our own facts —
-   * which is how the wrong one gets picked.
-   */
   const insolvent = row.builder?.insolvency_history === true
   const builderFlag = typeof row.builder?.legal_flag === 'string' ? row.builder.legal_flag : null
   if (insolvent || builderFlag) {
@@ -482,7 +453,7 @@ export function buildProjectFacts(
       `HARD RULE 6f REQUIRES you to state this upfront in your opening sentence before evaluating any amenities, layouts, or pricing.`
   }
 
-  if (row.unit_types?.length) {
+  if (row.unit_types?.length && !isLegal && !isLivability) {
     facts.unit_types = row.unit_types.slice(0, maxItems).map(u => {
       const bhk = u.bhk ?? '?'
       const area = u.super_area_sqft ?? u.carpet_area_sqft
@@ -491,11 +462,11 @@ export function buildProjectFacts(
     })
   }
 
-  if (row.amenities?.length) {
+  if (row.amenities?.length && !isPricing && !isLegal) {
     facts.amenities = row.amenities.slice(0, shortlist ? 8 : 40).map(a => a.name).filter(Boolean)
   }
 
-  if (row.connectivity?.length) {
+  if (row.connectivity?.length && !isPricing && !isLegal) {
     facts.connectivity = row.connectivity.slice(0, maxItems).map(c => {
       const distance = c.distance_km != null ? `${c.distance_km} km` : ''
       const time = c.travel_time_min != null ? `, ${c.travel_time_min} min` : ''
@@ -503,7 +474,7 @@ export function buildProjectFacts(
     })
   }
 
-  if (row.payment_plans?.length) {
+  if (row.payment_plans?.length && !isLegal && !isLivability) {
     facts.payment_plans = row.payment_plans.slice(0, maxItems).map((p: any) => {
       const milestones = Array.isArray(p.milestones) && p.milestones.length > 0
         ? ' [Milestones: ' + p.milestones.map((m: any) => {
@@ -518,67 +489,33 @@ export function buildProjectFacts(
     })
   }
 
-  const sheet = cleanRelation('cost_sheet', row.cost_sheet)
-  if (sheet) facts.cost_sheet = sheet
+  if (!isLegal && !isLivability && !isOverview) {
+    const sheet = cleanRelation('cost_sheet', row.cost_sheet)
+    if (sheet) facts.cost_sheet = sheet
+  }
 
-  // ── Analyst intelligence ───────────────────────────────────────────────────
-  // base.ts rules 13-15 instruct the model to reason from decision_thesis,
-  // why_buy, why_avoid, tier and walk_away_conditions — and none of them were
-  // ever put in the prompt, so the model was told to use data it never received.
-  // stripRelationInternals also enforces the PUBLISHED gate here: DRAFT and
-  // IN_REVIEW analyst opinion must not reach a buyer.
   const decision = cleanRelation('decision_profile', row.decision_profile)
-  if (decision) {
-    // The four *_intelligence narratives are the largest single item in the
-    // block — 1,556 of 2,514 characters of decision_profile on a fully-seeded
-    // record, ~19% of the whole thing — and no prompt rule names any of them.
-    // Rules 13-15 name decision_thesis, why_buy, why_avoid, tier and
-    // walk_away_conditions; best_for / not_ideal_for feed persona matching.
-    //
-    // They became a per-turn cost on 30 Aug, when a bulk pass filled
-    // decision_profile for the 189 projects that had none. Before that the
-    // majority of turns never carried them and the budget was never tested.
-    //
-    // So they follow the same rule as price_history and specifications: pulled
-    // in when the question is actually asking for that depth. `deep_reasoning`
-    // is set for comparisons and multi-constraint advisory turns, which is
-    // exactly where a market or financial narrative earns its tokens.
+  if (decision && !isPricing && !isLegal && !isOverview) {
     facts.decision_profile = options.topics?.has('deep_reasoning')
       ? decision
       : Object.fromEntries(Object.entries(decision).filter(([k]) => !DEEP_NARRATIVE_KEYS.has(k)))
+  } else if (decision && options.topics?.has('deep_reasoning')) {
+    facts.decision_profile = decision
   }
 
-  const recommendation = cleanRelation('recommendation_profile', row.recommendation_profile)
-  if (recommendation) facts.recommendation_profile = recommendation
+  if (!isPricing && !isLegal) {
+    const recommendation = cleanRelation('recommendation_profile', row.recommendation_profile)
+    if (recommendation) facts.recommendation_profile = recommendation
+  }
 
-  const persona = cleanRelation('persona_profile', row.persona_profile)
-  if (persona) facts.buyer_fit = persona
+  if (!isPricing && !isLegal) {
+    const persona = cleanRelation('persona_profile', row.persona_profile)
+    if (persona) facts.buyer_fit = persona
+  }
 
-  // ── Heavy, topic-gated relations ───────────────────────────────────────────
-  // Included only when the question is about them. On a fully-seeded record
-  // these three are ~35% of the block, and a turn asking "is it pet friendly"
-  // has no use for six price snapshots and thirty fittings.
   const topics = options.topics
 
-  /**
-   * Price history, carrying whether the points were observed.
-   *
-   * 1,400 of our 1,680 `price_history` rows have `source:
-   * 'historical_benchmark'` and step by an identical amount each quarter — 8,990,
-   * 10,540, 12,090 — which is a generated arithmetic series, not a market
-   * observation. Handed to the model as bare numbers it does exactly what the
-   * numbers invite: measured live, "how much has Godrej Woods appreciated"
-   * returned "a 72.44% appreciation … a strong 5-year CAGR supported by metro and
-   * expressway upgrades", every digit of it derived from a constant.
-   *
-   * So the block states what the series is. An unobserved series arrives with an
-   * explicit instruction not to derive a rate from it, because the alternative —
-   * withholding the rows — loses the honest answer too: the buyer asked what we
-   * hold, and we do hold these numbers. Showing the points and withholding the
-   * conclusion is the shape `yieldTable.renderPriceChangeTable` uses, and the two
-   * must not disagree.
-   */
-  if (topics?.has('price_history') && row.price_history?.length) {
+  if ((topics?.has('price_history') || isPricing) && row.price_history?.length && !isLegal && !isLivability) {
     const series = row.price_history.slice(-maxItems)
     const OBSERVED = new Set(['market_verified_2026', 'active_market_listing', 'admin_update'])
     const observedPoints = series.filter(
@@ -586,54 +523,26 @@ export function buildProjectFacts(
     ).length
 
     facts.price_history = series.map(h => cleanRelation('price_history', h)).filter(Boolean)
-    /**
-     * A STATEMENT about the data, never an instruction to the model.
-     *
-     * The first version read "Do NOT compute or state a percentage change, a
-     * CAGR, or an annual growth rate from them" — and the model printed that
-     * sentence to the buyer verbatim as the body of its answer. Everything in
-     * this block is quotable by design: it is the facts block, and the whole
-     * point is that the model repeats what is in it. An imperative dropped in
-     * here is an internal prompt handed to the buyer, which the security rules
-     * forbid outright.
-     *
-     * So it describes what the numbers ARE. A model that repeats this one has
-     * said something true and useful. Handling rules belong in the system prompt
-     * — `YIELD_TABLE_SHOWN` in `prompts/base.ts` carries them.
-     */
     facts.price_history_basis =
       observedPoints >= 2
         ? `${observedPoints} of these price points are observed market prices, recorded on the dates shown.`
         : 'These figures are internal benchmark records, not prices we observed being paid. They were generated on a fixed step and carry no market signal, so the interval between them does not measure anything.'
   }
 
-  if (topics?.has('construction') && row.construction_milestones?.length) {
+  if (topics?.has('construction') && row.construction_milestones?.length && !isPricing) {
     facts.construction_milestones = row.construction_milestones
       .slice(0, maxItems)
       .map(m => cleanRelation('construction_milestones', m))
       .filter(Boolean)
   }
 
-  // Fittings and finishes: brand-level detail buyers ask about by name.
-  if (topics?.has('specifications') && row.spec_items?.length) {
+  if (topics?.has('specifications') && row.spec_items?.length && !isPricing && !isLegal) {
     facts.specifications = row.spec_items.slice(0, 30).map(s => {
       const brand = s.brand ? ` (${s.brand})` : ''
       return `${s.category ? `${s.category}: ` : ''}${s.label} — ${s.value}${brand}`
     })
   }
 
-  /**
-   * Three relations `ALLOWED_RELATIONS` has permitted since before this file
-   * existed, and nothing had ever asked the database for them — added 7 Sep
-   * 2026. Each backs a real section of the project detail page that the chat
-   * could not previously discuss at all.
-   */
-
-  // Competitor comparisons — small, per-project, and inherently comparison
-  // content, so gated the same as decision_profile's narrative fields rather
-  // than shipped on every ordinary turn. `project_competitors` is still a
-  // real tool for a turn that has no facts block at all; this is the fast
-  // path when one is already being built.
   if (topics?.has('deep_reasoning') && row.competitors?.length) {
     facts.competitors = row.competitors
       .slice(0, 5)
@@ -641,13 +550,7 @@ export function buildProjectFacts(
       .filter(Boolean)
   }
 
-  // Channel partners — small (a handful per project at most), so included
-  // unconditionally like builder. The interesting data is nested one level
-  // down inside the junction row; cleaning the junction row alone would
-  // JSON.stringify the nested channel_partner object whole, which would ship
-  // its commission rate and lead-conversion numbers verbatim. Cleaned
-  // separately, then merged back in.
-  if (row.channel_partners?.length) {
+  if (row.channel_partners?.length && !isLegal && !isLivability) {
     const partners = row.channel_partners
       .map(pcp => {
         const cleaned = cleanRelation('channel_partner', pcp.channel_partner)
@@ -658,12 +561,7 @@ export function buildProjectFacts(
     if (partners.length) facts.channel_partners = partners
   }
 
-  // Unit-level availability — can be hundreds of rows on a large project, so
-  // topic-gated behind an explicit ask rather than shipped by default. No
-  // RELATION_INTERNAL_FIELDS entry needed: UNIVERSAL_INTERNAL already covers
-  // every bookkeeping column this relation carries (id, project_id,
-  // unit_type_id, created_at) and nothing else on it is internal.
-  if (topics?.has('availability') && row.unit_inventory?.length) {
+  if (topics?.has('availability') && row.unit_inventory?.length && !isPricing && !isLegal) {
     facts.unit_inventory = row.unit_inventory
       .slice(0, maxItems)
       .map(u => cleanRelation('unit_inventory', u))

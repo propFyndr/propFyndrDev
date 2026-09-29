@@ -571,6 +571,24 @@ function scan(text: string, table: Array<[RegExp, string]>, kind: IntegrityKind)
  * fabrication half never ran. A caller releasing text early must treat that as
  * a reason to keep buffering, never as a pass.
  */
+
+export const UNLISTED_PROPRIETARY_METRICS: Array<[RegExp, string]> = [
+  [
+    /\b(?:PropFyndr\s+(?:Score|Rating|Index|Audit)|On[- ]Ground\s+Verified|Physical(?:ly)?\s+(?:Inspected|Verified))\b/i,
+    'attributes proprietary inspection or audit rating to an unlisted project',
+  ],
+]
+
+export function unlistedProprietaryViolations(text: string, prompt: string): IntegrityViolation[] {
+  const isUnlistedProject =
+    prompt.includes('PROJECT NOT IN OUR DATABASE') ||
+    prompt.includes('Public Record Notice') ||
+    prompt.includes('coverage_gap')
+
+  if (!isUnlistedProject) return []
+  return scan(text, UNLISTED_PROPRIETARY_METRICS, 'opaque_score')
+}
+
 export function checkAnswerIntegritySync(text: string, prompt: string): IntegrityViolation[] | null {
   const body = text.trim()
   if (!body) return []
@@ -580,6 +598,7 @@ export function checkAnswerIntegritySync(text: string, prompt: string): Integrit
     ...unfoundedWarnings(body, prompt),
     ...unsourcedDates(body, prompt),
     ...verifyPriceProvenance(body, prompt),
+    ...unlistedProprietaryViolations(body, prompt),
   ]
   if (violations.length > 0) return violations
 
@@ -600,6 +619,7 @@ export async function checkAnswerIntegrity(
     ...unfoundedWarnings(body, prompt),
     ...unsourcedDates(body, prompt),
     ...verifyPriceProvenance(body, prompt),
+    ...unlistedProprietaryViolations(body, prompt),
   ]
 
   // Only worth the database round-trip when nothing cheaper has already failed

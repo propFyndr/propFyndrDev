@@ -250,11 +250,11 @@ Restructure the system prompt into a strictly byte-invariant prefix ladder that 
 ---
 
 ### Day 2 Completion Gate
-* [ ] Prompt ladder Tier 0 is 100% byte-identical across all query lanes.
-* [ ] Gemini Explicit Cache manager serves Tier 0 from cache with 1-hour rolling TTL.
-* [ ] Intent-scoped JIT fact injection reduces entity context payload by $>60\%$.
-* [ ] Table quoting instructions eliminate LLM table-generation latency.
-* [ ] Out-of-database projects display transparent public-record provenance badges.
+* [x] Prompt ladder Tier 0 is 100% byte-identical across all query lanes.
+* [x] Gemini Explicit Cache manager serves Tier 0 from cache with 1-hour rolling TTL.
+* [x] Intent-scoped JIT fact injection reduces entity context payload by $>60\%$.
+* [x] Table quoting instructions eliminate LLM table-generation latency.
+* [x] Out-of-database projects display transparent public-record provenance badges.
 
 ---
 

@@ -2,7 +2,7 @@
 // Separates static base prompt (cached) from dynamic rules (injected per request)
 // Reduces token overhead ~30-40% by reusing cached static content across requests
 
-import { getBaseSystemPrompt, splitSystemPrompt, SYSTEM_PROMPT_BOUNDARY } from './prompts/base'
+import { getBaseSystemPrompt, splitSystemPrompt, SYSTEM_PROMPT_BOUNDARY, getTier0InvariantCore, TIER_0_CORE_END } from './prompts/base'
 import type { Intent, ScoredProject } from '../discovery'
 import type { TopicSummaries } from '../chat/summaryCompression'
 
@@ -15,6 +15,40 @@ interface CachedSystemPrompt {
 const CACHE_VERSION = 2
 let cachedBasePrompt: CachedSystemPrompt | null = null
 const CACHE_TTL = 3600000 // 1 hour
+
+let cachedTier0: { text: string; version: number } | null = null
+
+/**
+ * Returns the byte-invariant Tier 0 core rulebook.
+ * Byte-identical across all requests, cached in-process as a singleton.
+ */
+export function getCachedTier0Core(): string {
+  if (cachedTier0 && cachedTier0.version === CACHE_VERSION) {
+    return cachedTier0.text
+  }
+  const text = getTier0InvariantCore()
+  cachedTier0 = { text, version: CACHE_VERSION }
+  return text
+}
+
+/**
+ * 4-Tier Ladder Assembler:
+ * Tier 0: Invariant Rulebook Core (byte-identical)
+ * Tier 1: Lane Directives & Output Contract
+ * Tier 2: JIT Fact Projection
+ * Tier 3: Conversation History & Memory
+ */
+export function assembleTieredPrompt(tiers: {
+  tier0: string
+  tier1: string
+  tier2?: string
+  tier3?: string
+}): { full: string; cacheableHead: string; dynamicTail: string } {
+  const cacheableHead = `${tiers.tier0}\n\n${TIER_0_CORE_END}\n\n${tiers.tier1}`.trim()
+  const dynamicTail = [tiers.tier2, tiers.tier3].filter(Boolean).join('\n\n').trim()
+  const full = `${cacheableHead}\n\n${SYSTEM_PROMPT_BOUNDARY}\n\n${dynamicTail}`.trim()
+  return { full, cacheableHead, dynamicTail }
+}
 
 /**
  * Sentinel marking the end of the provider-independent static prefix.

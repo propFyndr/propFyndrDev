@@ -27,14 +27,12 @@ import 'dotenv/config'
 import { GoogleGenAI } from '@google/genai'
 import { MODELS } from '../src/lib/config'
 import { explicitCacheEnabled } from '../src/lib/ai/geminiCache'
+import { getTier0InvariantCore } from '../src/lib/ai/prompts/base'
 
 const MODEL = process.argv[2] || MODELS.GEMINI_LITE
 
-/** Comfortably past every documented implicit-cache minimum. */
-const PREFIX = (
-  'You are PropFyndr, a candid expert real estate advisor for Noida. ' +
-  'Rule: never invent data. Rule: show trade-offs. Rule: cite the tier of every fact. '
-).repeat(220)
+/** Use our real byte-invariant Tier 0 rulebook core. */
+const PREFIX = getTier0InvariantCore()
 
 function keyFor(): { key: string; label: string } {
   for (const label of ['GEMINI_API_KEY1', 'GEMINI_API_KEY2', 'GEMINI_API_KEY']) {

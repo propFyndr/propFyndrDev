@@ -187,6 +187,9 @@ export async function fetchUnknownProjectContext(name: string, city = 'Noida'): 
  * no card (we have no rows), no external destination (rule 17), and the
  * disclaimer attached to the answer rather than to a footnote nobody reads.
  */
+export const PUBLIC_RECORD_NOTICE_BADGE =
+  '> 🌐 **Public Record Notice**: Sourced from live public filings. PropFyndr has not conducted an on-ground physical inspection for this project.'
+
 export function unknownProjectDirective(name: string): string {
   return [
     '',
@@ -196,12 +199,16 @@ export function unknownProjectDirective(name: string): string {
     'context above is UNVERIFIED and may be out of date or wrong.',
     '',
     'Answer like this, and only like this:',
+    `- You MUST prepend this exact banner to the very top of your answer:`,
+    `  ${PUBLIC_RECORD_NOTICE_BADGE}`,
     `- Say plainly, in your first sentence, that ${name} is not yet in our verified`,
     '  database and that what follows is unconfirmed background.',
     '- Give what the web context actually supports. Do not fill gaps from memory.',
     '  If it supports little, say little.',
     '- Do NOT present prices, possession dates or RERA numbers as facts. Attribute',
     '  them as reported and unconfirmed, or leave them out.',
+    '- STRICTLY FORBIDDEN: Do NOT emit PropFyndr scores, PropFyndr ratings, or claim',
+    '  on-ground physical verification for this unlisted project.',
     '- Close by offering our own advisory team to confirm the details.',
     '- Never name or link another website, portal or government site. Our team is',
     '  the only destination.',

@@ -712,8 +712,8 @@ export function renderCityBandShelf(projects: BandShelfRow[], city = 'Noida'): s
   if (chosen.length < 2) return ''
 
   const header =
-    '| Budget | Project | Builder | Sector | Entry price | Possession |\n' +
-    '| :--- | :--- | :--- | :--- | :--- | :--- |'
+    '| Budget | Project | Sector | Entry price | Possession |\n' +
+    '| :--- | :--- | :--- | :--- | :--- |'
 
   const body = chosen.map(({ band, row, price }) => {
     // `humanPlanType` and not the raw column: measured live, one row printed
@@ -722,7 +722,8 @@ export function renderCityBandShelf(projects: BandShelfRow[], city = 'Noida'): s
     // fallback was the enum. Two spellings of the same state in one table reads
     // as two different states.
     const possession = row.possession_label ?? humanPlanType(row.status) ?? ABSENT
-    return `| **${cell(band)}** | ${cell(row.name ?? '')} | ${cell(row.builder?.name ?? '')} | ${cell(sectorName(row.sector))} | ${cell(`from ₹${price} Cr`)} | ${cell(possession)} |`
+    const builderSuffix = row.builder?.name ? ` (${cell(row.builder.name)})` : ''
+    return `| **${cell(band)}** | ${cell(row.name ?? '')}${builderSuffix} | ${cell(sectorName(row.sector))} | ${cell(`from ₹${price} Cr`)} | ${cell(possession)} |`
   })
 
   // The rule is printed, not implied. A buyer who disagrees with the ranking can

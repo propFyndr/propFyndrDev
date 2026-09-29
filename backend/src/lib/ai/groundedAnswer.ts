@@ -22,6 +22,7 @@ import type { OpenQueryDetection } from '../discovery/openQuery'
 import { buildGeneralConversationalPrompt } from './prompts/generalPrompt'
 import { isPublicField } from '../projectExposure'
 import { findSectorsAsked } from '../discovery/proseEntities'
+import { PUBLIC_RECORD_NOTICE_BADGE } from '../chat/coverageGap'
 
 /** Cache scope. Open answers hold no session-specific facts, so they are shareable. */
 export const OPEN_CACHE_SCOPE = 'open'
@@ -631,6 +632,10 @@ export async function runGroundedAnswer(
   }
 
   if (!text || text.length < 10) return null
+
+  if (fromWeb && !fromDatabase && !text.includes(PUBLIC_RECORD_NOTICE_BADGE)) {
+    text = `${PUBLIC_RECORD_NOTICE_BADGE}\n\n${text}`
+  }
 
   if (shareable) {
     setCachedResponse(message, { token: text, responseMode: 'grounded' }, OPEN_CACHE_TTL_MS, OPEN_CACHE_SCOPE)
