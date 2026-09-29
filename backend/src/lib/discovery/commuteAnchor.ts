@@ -45,13 +45,13 @@ const ANCHOR_NOUN =
 // "is" alone has to count as a connector: "my workplace is Sector 16A" carries
 // no in/at/near, and it is a perfectly ordinary way to say it.
 const WORKPLACE_BEFORE = new RegExp(
-  `\\b(?:my\\s+)?${ANCHOR_NOUN}\\s+(?:(?:is\\s+)?(?:in|at|near)|is)\\s+([^.,?!]{2,40})`,
+  `\\b(?:my\\s+)?${ANCHOR_NOUN}\\s+(?:(?:is\\s+)?(?:in|at|near|around|close to)|is)\\s+([^.,?!]{2,40})`,
   'i',
 )
 // The adverb is optional but common: "i commute daily to the expressway" put
 // "daily" between the verb and the preposition and matched nothing.
 const WORKPLACE_VERB =
-  /\b(?:i\s+)?(?:work|working|commute|commuting|travel|travelling|traveling|drive|driving)(?:\s+(?:daily|everyday|every\s+day|regularly|often|each\s+day))?\s+(?:in|at|to|from|towards?)\s+([^.,?!]{2,40})/i
+  /\b(?:i\s+)?(?:work|working|commute|commuting|travel|travelling|traveling|drive|driving)(?:\s+(?:daily|everyday|every\s+day|regularly|often|each\s+day))?(?:\s+somewhere)?\s+(?:in|at|to|from|towards?|around|near|close to)\s+([^.,?!]{2,40})/i
 
 /**
  * People the buyer visits, rather than a place they go to work.
