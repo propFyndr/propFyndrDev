@@ -22,6 +22,7 @@ export interface Intent {
 
   // Phase 0: Query classification
   queryKind?: 'DISCOVERY' | 'DRILLDOWN' | 'RANKING' | 'COMPARISON' | 'SUMMARY' | 'ADVISORY' | 'CLARIFY' | 'OPEN'
+  exactOnly?: boolean
 
   // Spatial scope: disambiguate "in Sector 75" (EXACT) vs "near Sector 75" (PROXIMITY)
   spatialScope?: 'EXACT' | 'PROXIMITY' | 'BROAD'
@@ -171,6 +172,8 @@ export interface ScoredProject {
   matchReasons: string[]
   concerns: string[]
   budgetStatus?: BudgetStatus
+  compromiseTags?: string[]
+  violatedConstraint?: string
   /**
    * True when this project only appears because nothing cleared
    * SCORE_THRESHOLD and scoreAndSort fell back to MIN_SCORE_FLOOR — the

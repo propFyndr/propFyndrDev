@@ -28,7 +28,7 @@ import { selectAnswerRules } from './answerRules'
  * in the wrong place.
  */
 export const SYSTEM_PROMPT_BOUNDARY = '--- PER-TURN CONTEXT BELOW ---'
-export const TIER_0_CORE_END = '<!--rp:tier-0-end-->'
+export const TIER_0_CORE_END = '=== TIER 0 END ==='
 
 /**
  * Standard directive for pre-computed markdown tables.
@@ -587,6 +587,7 @@ When a buyer asks *"What is the best project?"*, *"How do you categorize them as
   const toolsSection = toolsEnabled
     ? `## TOOLS
 Call tools instead of guessing. Never mention tool names or internal mechanics in responses.
+Always use calculate_emi, calculate_stamp_duty, and calculate_gst tools. Never calculate manually.
 
 ${(() => {
       // Phase 2: Dynamic tool injection based on queryKind
@@ -644,7 +645,7 @@ The properties block above is a summary. These tools read verified detail that i
 - **sector_projects** — projects in a sector or city ranked by our verified score, filterable by BHK and budget. Call for "top properties in Sector X", "what is available under Y crore", "best projects in this area". The order is our verified score then entry price — never call it a market ranking or imply paid placement.
 
 **Pull, do not push.** Answer the question asked at the depth asked. Do not open a floor-plan table, price history, cost breakdown or full amenity list the user did not ask for, and do not call these tools to pad a short answer. Mentioning that detail is available is fine — one short line, e.g. "I can break down the full cost or the floor plans if useful." Dumping it unprompted buries the answer and reads as a brochure.`
-    : "## NO LIVE LOOKUPS IN THIS SESSION\r\nYou cannot call tools here. Builder lookups, RERA portal checks, live web search, commute times and the calculator tools are unavailable. Every rule elsewhere in this prompt still applies in full — the notes below only cover what changes without tools.\r\n\r\n**Builder questions.** The verified-data redirect elsewhere in this prompt assumes a lookup ran and came back thin. Here no lookup runs at all, so say instead: \"I can't reach our builder database right now. We can initiate a verified compliance audit or connect you with our advisory team to pull verified filings.\" STOP there. Do not add \"generally speaking\", CREDAI signals, \"well-regarded builders like\", or any builder name from training memory. The legal facts in the BLOCKED BUILDERS rule are not lookups — state them immediately as normal.\r\n\r\n**RERA.** \"I can't verify live RERA details right now — our advisory team can pull verified project filings for you.\" Never generate a UPRERAPRJ string. A rera value already present in the data block may be quoted, flagged for independent verification.\r\n\r\n**Live/market data.** Never give market price trends, appreciation projections, historical growth claims, construction progress, or possession predictions. Say: \"I'm in limited mode right now — try that again in a moment.\" You MAY use general knowledge for area geography, roads, metro, schools, hospitals and landmarks ONLY, prefixed verbatim with: \"Based on general knowledge (not a live search) —\". Never present training memory as current or verified. The COMPETITOR BAN still applies — never name a rival portal as an alternative.\r\n\r\n**Cost-sheet charges** (maintenance, floor rise, PLC, IFMS, parking, payment-plan terms): no lookup is possible here, so do not quote figures. \"I can't pull the cost sheet right now — connect with our advisory team for the verified developer breakdown.\" Never say \"typically ₹X\".\r\n\r\n**Calculations.** This is the one exception: with the calculator tools unavailable, compute EMI, stamp duty and GST directly in-prompt using the formula and anchors in CALCULATION FORMAT, and show your working. Do not refuse a calculation for lack of a tool."
+    : "## NO LIVE LOOKUPS IN THIS SESSION\r\nYou cannot call tools here. Builder lookups, RERA portal checks, live web search, commute times and the calculator tools are unavailable. Every rule elsewhere in this prompt still applies in full — the notes below only cover what changes without tools.\r\n\r\n**Builder questions.** The verified-data redirect elsewhere in this prompt assumes a lookup ran and came back thin. Here no lookup runs at all, so say instead: \"I can't reach our builder database right now. We can initiate a verified compliance audit or connect you with our advisory team to pull verified filings.\" STOP there. Do not add \"generally speaking\", CREDAI signals, \"well-regarded builders like\", or any builder name from training memory. The legal facts in the BLOCKED BUILDERS rule are not lookups — state them immediately as normal.\r\n\r\n**RERA.** \"I can't verify live RERA details right now — our advisory team can pull verified project filings for you.\" Never generate a UPRERAPRJ string. A rera value already present in the data block may be quoted, flagged for independent verification.\r\n\r\n**Live/market data.** Never give market price trends, appreciation projections, historical growth claims, construction progress, or possession predictions. Say: \"I'm in limited mode right now — try that again in a moment.\" You MAY use general knowledge for area geography, roads, metro, schools, hospitals and landmarks ONLY, prefixed verbatim with: \"Based on general knowledge (not a live search) —\". Never present training memory as current or verified. The COMPETITOR BAN still applies — never name a rival portal as an alternative.\r\n\r\n**Cost-sheet charges** (maintenance, floor rise, PLC, IFMS, parking, payment-plan terms): no lookup is possible here, so do not quote figures. \"I can't pull the cost sheet right now — connect with our advisory team for the verified developer breakdown.\" Never say \"typically ₹X\".\r\n\r\n**Calculations.** This is the one exception: with the calculator tools unavailable, compute directly and show your working using the formula and anchors in CALCULATION FORMAT. Do not refuse a calculation for lack of a tool."
 
   // The prompt is assembled invariant-head-first, variable-tail-last, and that
   // ordering is load-bearing rather than cosmetic.
@@ -686,7 +687,7 @@ The properties block above is a summary. These tools read verified detail that i
     .filter(Boolean)
     .join('\n\n')
 
-  return `${tier0}\n\n${TIER_0_CORE_END}${laneDirectives ? `\n\n${laneDirectives}` : ''}\n\n${SYSTEM_PROMPT_BOUNDARY}\n\n${PRE_RENDERED_TABLE_STANDARD}
+  return `${tier0}\n\n${TIER_0_CORE_END}\n\n${SYSTEM_PROMPT_BOUNDARY}\n\n${PRE_RENDERED_TABLE_STANDARD}${laneDirectives ? `\n\n${laneDirectives}` : ''}
 
 ${selectPlaybooks(userMessage ?? '', intent as Partial<Intent>)}
 ${selectAnswerRules(userMessage ?? '')}

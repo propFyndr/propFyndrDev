@@ -453,6 +453,14 @@ export function buildProjectFacts(
       `HARD RULE 6f REQUIRES you to state this upfront in your opening sentence before evaluating any amenities, layouts, or pricing.`
   }
 
+  // Maintenance charges and loading ratio unknowns
+  if ((row as any).maintenance_per_sqft_monthly != null) {
+    facts.maintenance_charges = `₹${(row as any).maintenance_per_sqft_monthly}/sq.ft monthly`
+  } else {
+    facts.maintenance_charges = 'UNKNOWN (Not declared by builder on record; state as unknown, do not estimate)'
+  }
+  facts.super_to_carpet_ratio = 'UNKNOWN (Loading ratio unconfirmed on official record; do not derive or claim a super built-up area from carpet area)'
+
   if (row.unit_types?.length && !isLegal && !isLivability) {
     facts.unit_types = row.unit_types.slice(0, maxItems).map(u => {
       const bhk = u.bhk ?? '?'

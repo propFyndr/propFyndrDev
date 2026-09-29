@@ -579,6 +579,18 @@ export const UNLISTED_PROPRIETARY_METRICS: Array<[RegExp, string]> = [
   ],
 ]
 
+export const UNGROUNDED_AREA_DERIVATION: Array<[RegExp, string]> = [
+  [
+    /\b(?:implying|assumed|calculating|assuming|corresponds?\s+to)\s+(?:a\s+)?super\s+(?:built[- ]?up\s+)?area\s+of\b/i,
+    'ungrounded calculation or assumption of super built-up area from carpet area without supporting fact',
+  ],
+]
+
+export function ungroundedAreaViolations(text: string, prompt: string): IntegrityViolation[] {
+  if (prompt.includes('super_area') || prompt.includes('super built-up')) return []
+  return scan(text, UNGROUNDED_AREA_DERIVATION, 'fabrication')
+}
+
 export function unlistedProprietaryViolations(text: string, prompt: string): IntegrityViolation[] {
   const isUnlistedProject =
     prompt.includes('PROJECT NOT IN OUR DATABASE') ||
@@ -589,7 +601,7 @@ export function unlistedProprietaryViolations(text: string, prompt: string): Int
   return scan(text, UNLISTED_PROPRIETARY_METRICS, 'opaque_score')
 }
 
-export function checkAnswerIntegritySync(text: string, prompt: string): IntegrityViolation[] | null {
+export function checkAnswerIntegritySync(text: string, prompt: string, userMessage?: string): IntegrityViolation[] | null {
   const body = text.trim()
   if (!body) return []
 
@@ -597,8 +609,9 @@ export function checkAnswerIntegritySync(text: string, prompt: string): Integrit
     ...scanDisclosure(body),
     ...unfoundedWarnings(body, prompt),
     ...unsourcedDates(body, prompt),
-    ...verifyPriceProvenance(body, prompt),
+    ...verifyPriceProvenance(body, prompt, userMessage),
     ...unlistedProprietaryViolations(body, prompt),
+    ...ungroundedAreaViolations(body, prompt),
   ]
   if (violations.length > 0) return violations
 
@@ -610,6 +623,7 @@ export function checkAnswerIntegritySync(text: string, prompt: string): Integrit
 export async function checkAnswerIntegrity(
   text: string,
   prompt: string,
+  userMessage?: string,
 ): Promise<IntegrityViolation[]> {
   const body = text.trim()
   if (!body) return []
@@ -618,8 +632,9 @@ export async function checkAnswerIntegrity(
     ...scanDisclosure(body),
     ...unfoundedWarnings(body, prompt),
     ...unsourcedDates(body, prompt),
-    ...verifyPriceProvenance(body, prompt),
+    ...verifyPriceProvenance(body, prompt, userMessage),
     ...unlistedProprietaryViolations(body, prompt),
+    ...ungroundedAreaViolations(body, prompt),
   ]
 
   // Only worth the database round-trip when nothing cheaper has already failed

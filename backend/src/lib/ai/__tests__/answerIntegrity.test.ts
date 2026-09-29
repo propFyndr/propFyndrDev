@@ -387,3 +387,10 @@ test('a count scoped to the question the buyer asked is still allowed', () => {
     assert.equal(scanDisclosure(t).length, 0, t)
   }
 })
+
+test('ungroundedAreaViolations flags unverified super built-up area derivations', async () => {
+  const prompt = 'VERIFIED_FACTS_BLOCK: Project: ACE Parkway\ncarpet_area_sqft: 1500'
+  const text = 'ACE Parkway offers 1,500 sq ft carpet area, implying a super built-up area of 2,100 sq ft.'
+  const violations = await checkAnswerIntegrity(text, prompt)
+  assert.ok(violations.some((v) => v.detail.includes('ungrounded calculation or assumption of super built-up area')))
+})

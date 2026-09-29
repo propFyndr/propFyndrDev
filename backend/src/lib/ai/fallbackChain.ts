@@ -256,6 +256,7 @@ function createBufferedSend(
    * duplicated, confusing table.
    */
   priorCarryText = '',
+  userMessage = '',
 ) {
   // Sits between the buffer and the client, so it sees whole chunks and can
   // reassemble the lines a table is made of.
@@ -372,7 +373,7 @@ function createBufferedSend(
     if (cut < 0) return
 
     const complete = buffer.slice(0, cut + 2)
-    const verdict = checkAnswerIntegritySync(releasedText + complete, systemPrompt)
+    const verdict = checkAnswerIntegritySync(releasedText + complete, systemPrompt, userMessage)
     // null is "cannot judge", not "clean" - hold, and the end-of-stream gate
     // will make the call with the database available.
     if (verdict === null) return
@@ -777,6 +778,7 @@ export async function executeWithFallbackChain(options: FallbackChainOptions): P
       options.suppressTables === true,
       PARAGRAPH_STREAMING,
       carryText,
+      options.userMessage,
     )
 
     const effectiveConfig = options.config || { maxTokens: 3000 }
@@ -920,7 +922,7 @@ export async function executeWithFallbackChain(options: FallbackChainOptions): P
         // Scanned in the model's own words, before any rewriting. The raw text
         // is what it meant to say, and a rewrite could file the edge off the
         // very phrase the scan exists to catch.
-        const violations = await checkAnswerIntegrity(text, effectivePrompt)
+        const violations = await checkAnswerIntegrity(text, effectivePrompt, options.userMessage)
         if (violations.length > 0) {
           console.warn(
             `[FALLBACK:INTEGRITY] ${item.label} — discarding: ` +

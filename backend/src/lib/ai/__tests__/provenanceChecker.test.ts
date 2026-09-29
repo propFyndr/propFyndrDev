@@ -63,4 +63,12 @@ rate_sqft: 14500`
     const violations = verifyPriceProvenance(response, prompt)
     assert.equal(violations.length, 0)
   })
+
+  it('permits user stated budget numbers from userMessage', () => {
+    const prompt = 'VERIFIED_FACTS_BLOCK: Project: Stellar Mi\nprice_min_cr: 1.80'
+    const userMessage = 'Looking for 3BHK in Central Noida under ₹1.20 Cr'
+    const response = 'You asked for options under ₹1.20 Cr, but Stellar Mi starts at ₹1.80 Cr.'
+    const violations = verifyPriceProvenance(response, prompt, userMessage)
+    assert.equal(violations.length, 0)
+  })
 })

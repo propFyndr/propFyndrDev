@@ -59,6 +59,8 @@ export interface ProjectCard {
   matchReasons?: string[]
   concerns?: string[]
   budgetStatus?: 'within' | 'slightly_over' | 'over'
+  compromiseTags?: string[]
+  violatedConstraint?: string
 
   builder: { name: string; slug: string }
   rera_number?: string | null

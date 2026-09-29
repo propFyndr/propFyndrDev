@@ -42,3 +42,39 @@ export function calcGst(
   const rate = isAffordable ? 1 : 5
   return { gst: (price * rate) / 100, rate, category: isAffordable ? 'affordable_housing' : 'standard' }
 }
+
+export function sqmToSqft(sqm: number): number {
+  return Math.round(sqm * 10.7639)
+}
+
+export function calcRentalYield(
+  monthlyRent: number,
+  propertyCostCr: number,
+  options?: { vacancyMonths?: number; monthlyMaintenance?: number }
+): {
+  grossYieldPct: number
+  netYieldPct: number
+  annualGrossRent: number
+  annualNetRent: number
+  effectiveOccupancyMonths: number
+} {
+  const propertyCost = propertyCostCr * 1_00_00_000
+  const vacancyMonths = options?.vacancyMonths ?? 0
+  const monthlyMaintenance = options?.monthlyMaintenance ?? 0
+  const effectiveOccupancyMonths = Math.max(0, 12 - vacancyMonths)
+
+  const annualGrossRent = monthlyRent * effectiveOccupancyMonths
+  const grossYieldPct = propertyCost > 0 ? (annualGrossRent / propertyCost) * 100 : 0
+
+  const netMonthly = Math.max(0, monthlyRent - monthlyMaintenance)
+  const annualNetRent = netMonthly * effectiveOccupancyMonths
+  const netYieldPct = propertyCost > 0 ? (annualNetRent / propertyCost) * 100 : 0
+
+  return {
+    grossYieldPct: parseFloat(grossYieldPct.toFixed(2)),
+    netYieldPct: parseFloat(netYieldPct.toFixed(2)),
+    annualGrossRent,
+    annualNetRent,
+    effectiveOccupancyMonths,
+  }
+}

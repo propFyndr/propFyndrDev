@@ -48,6 +48,8 @@ import { computeConversationState, CONVERTING_TURN_THRESHOLD } from '../lib/disc
 import { getMemory, upsertMemory } from '../lib/ai/memory'
 import { buildContextMessages } from '../lib/ai/context'
 import { maybeCompress } from '../lib/ai/compression'
+import { executeJevDecision } from '../lib/jev/execute'
+import { parseRequirementState } from '../lib/discovery/requirementState'
 import { maybeCompressTopical, TopicSummaries } from '../lib/chat/summaryCompression'
 import { isSpecificUnknownProject, logCoverageGap, fetchUnknownProjectContext, unknownProjectDirective } from '../lib/chat/coverageGap'
 import { statedMonthlyIncome, isAffordabilityQuestion, computeAffordability, renderAffordabilityTable, affordabilityDirective } from '../lib/ai/affordability'
@@ -1085,6 +1087,25 @@ router.post('/', async (req: Request, res: Response) => {
       (hydratedIntent.riskProfile === 'retiree' || hydratedIntent.riskProfile === 'first_time_buyer')
     ) ? { ...hydratedIntent, purpose: 'endUse' } : hydratedIntent
     console.log('[CHAT] END extractIntent', Date.now(), { intent })
+
+    const reqState = parseRequirementState(message, intent)
+    if (rawIntentResult.decision && (process.env.JEV_MODE === 'on' || process.env.JEV_LIVE === 'true')) {
+      const handled = await executeJevDecision(rawIntentResult.decision, {
+        res,
+        send,
+        sessionId: currentSessionId,
+        userId,
+        message,
+        intent,
+        chatHistory,
+        turnTrace,
+        timer,
+      })
+      if (handled) {
+        persistEarlyTurn('jev_live', lastAnswerText)
+        return
+      }
+    }
 
     let isFreshSearch = false;
     let isOpenAdvisoryQuery = false;
@@ -2337,6 +2358,10 @@ router.post('/', async (req: Request, res: Response) => {
       hasVerifiedProjectNames,
       projectReferenced: projectReferencedThisTurn,
     })
+    if (reqState.control.hasExploratoryQuestion && queryClassification.queryKind === 'DISCOVERY') {
+      console.log('[CHAT:ADVISORY_OVERRIDE] Exploratory question detected — routing to ADVISORY')
+      queryClassification.queryKind = 'ADVISORY'
+    }
     intent.queryKind = queryClassification.queryKind
     renderTarget = queryClassification.renderTarget
     console.log('[CHAT] Query classification', Date.now(), {
@@ -4731,6 +4756,7 @@ EXECUTIVE RESPONSE INSTRUCTIONS:
      * then ask. The refining question still rides along with the results.
      */
     const asksForInventoryNow =
+      !reqState.control.hasExploratoryQuestion &&
       namesInventory && (asksToBeShown || Boolean(intent.sector) || Boolean(intent.city))
 
     // Single-signal with no geographic or lifestyle context → ask rather than guess.

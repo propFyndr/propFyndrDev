@@ -1199,7 +1199,8 @@ export async function discoverProjects(intent: Intent, offset: number = 0): Prom
     effectiveIntent.sector &&
     !isCityLevel(effectiveIntent.sector) &&
     spatialScope !== 'EXACT' &&
-    spatialScope !== 'PROXIMITY'
+    spatialScope !== 'PROXIMITY' &&
+    !effectiveIntent.exactOnly
   ) {
     const nearbySectors = getNearbySectors(effectiveIntent.sector)
     if (nearbySectors.length > 0) {
@@ -1240,13 +1241,13 @@ export async function discoverProjects(intent: Intent, offset: number = 0): Prom
     }
   }
 
-  // ── Branch 5: NO-FALLBACK enforcement for EXACT spatial scope ──────────
-  // If user explicitly asked for "in Sector X" (EXACT scope) and we have zero results,
-  // DO NOT fall back to city-wide recommendations. This prevents false positives and
-  // maintains trust. Show empty state with error messaging in frontend.
-  if (effectiveIntent.sector && spatialScope === 'EXACT') {
+  // ── Branch 5: ZERO-SILENT-FALLBACK enforcement for any requested sector ──────────
+  // If user requested a sector or region (e.g. "Central Noida", "Sector 62") and we have
+  // zero results, DO NOT fall back to citywide inventory (Sectors 168, 144, 82).
+  // This prevents geographic hallucination and maintains trust. Return 0 exact results.
+  if (effectiveIntent.sector && !isCityLevel(effectiveIntent.sector)) {
     console.warn(
-      `[DISCOVERY:NOFALLBACK] EXACT scope query for "${effectiveIntent.sector}" yielded no results — refusing fallback per trust policy`
+      `[DISCOVERY:NO_SILENT_FALLBACK] Query for "${effectiveIntent.sector}" yielded no matching results — refusing citywide fallback per trust policy`
     )
     const res: DiscoveryResult = {
       exactResults: [],
@@ -1254,11 +1255,11 @@ export async function discoverProjects(intent: Intent, offset: number = 0): Prom
       expansion: {
         requestedSector: effectiveIntent.sector,
         searchedSectors: [effectiveIntent.sector],
-        reason: 'no_inventory_in_exact_sector_nofallback',
+        reason: 'no_results_in_requested_sector',
       },
       spatialContext: {
         ...spatialContext,
-        spatialScope: 'EXACT',
+        spatialScope: spatialScope || 'EXACT',
         anchorSector: effectiveIntent.sector,
       },
       pageIndex: Math.floor(offset / RESULTS_PER_PAGE),
@@ -1269,10 +1270,22 @@ export async function discoverProjects(intent: Intent, offset: number = 0): Prom
     return res
   }
 
-  // ── Branch 6: Fallback to top city projects ─────────────────────────────
-  // If the sector was completely unknown, fetch top projects across the city
-  // so we can still push our own inventory instead of a dead end.
-  // NOTE: This fallback is ONLY for BROAD scope queries (region-level searches)
+  if (effectiveIntent.exactOnly) {
+    const res: DiscoveryResult = {
+      exactResults: [],
+      nearbyResults: [],
+      pageIndex: Math.floor(offset / RESULTS_PER_PAGE),
+      totalCount: 0,
+      hasMore: false,
+      spatialContext,
+    }
+    await setCached(cacheKey, res, 300)
+    return res
+  }
+
+  // ── Branch 6: Citywide band shelf (ONLY for queries with NO sector) ─────────────
+  // When the user asked a citywide question with no sector ("best projects in Noida"),
+  // return a spread across price bands instead of picking an arbitrary winner.
   const fallbackWhere = { city: { equals: DISCOVERY.DEFAULT_CITY, mode: 'insensitive' as const } }
 
   /**

@@ -1183,7 +1183,7 @@ function MessageBubbleInner({
 
         // Build header label based on spatial scope
         let headerLabel = useNewFormat && !hasExact && hasNearby
-          ? `${totalCards} nearby ${totalCards === 1 ? 'alternative' : 'alternatives'}`
+          ? `0 exact matches | ${rawNearbyList.length} closest ${rawNearbyList.length === 1 ? 'alternative' : 'alternatives'}`
           : `${totalCards} ${totalCards === 1 ? 'property' : 'properties'} found`
 
         // NO-FALLBACK for EXACT scope: show error message if no results
@@ -1217,8 +1217,8 @@ function MessageBubbleInner({
           || (new Set(rawExactList.map(p => p.sector)).size === 1
             ? rawExactList[0]?.sector
             : undefined)
-          || rawNearbyList[0]?.sector
-          || rawLegacyList[0]?.sector
+          || (hasExact ? rawNearbyList[0]?.sector : undefined)
+          || (hasExact ? rawLegacyList[0]?.sector : undefined)
 
         return (
           <div className="hidden sm:block mt-2 w-full">
@@ -1334,6 +1334,15 @@ function MessageBubbleInner({
                           transition={{ duration: 0.3, delay: pi * 0.07, ease: 'easeOut' }}
                           className="w-full h-full flex flex-col"
                         >
+                          {property.compromiseTags && property.compromiseTags.length > 0 && (
+                            <div className="mb-1.5 flex flex-wrap gap-1.5">
+                              {property.compromiseTags.map((tag, ti) => (
+                                <span key={ti} className="text-[11px] font-semibold px-2 py-0.5 rounded-md bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20">
+                                  {tag}
+                                </span>
+                              ))}
+                            </div>
+                          )}
                           <ProjectCard
                             project={property}
                             userId={userId}

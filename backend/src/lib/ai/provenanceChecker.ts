@@ -45,19 +45,27 @@ function normalizeNumeric(val: string): string {
   return cleaned
 }
 
-/** Extracts all grounded numbers appearing in the prompt or facts block. */
-function extractPromptNumbers(prompt: string): Set<string> {
+/** Extracts all grounded numbers appearing in the prompt, facts block, or user prompt. */
+export function extractPromptNumbers(prompt: string, userMessage?: string): Set<string> {
   const set = new Set<string>()
-  if (!prompt) return set
+  const combined = `${prompt || ''} ${userMessage || ''}`
+  if (!combined.trim()) return set
 
   // Extract all digit runs, decimals, and comma-separated amounts
-  const matches = prompt.match(/\b\d+(?:\.\d+)?\b/g) ?? []
+  const matches = combined.match(/\b\d+(?:\.\d+)?\b/g) ?? []
   for (const m of matches) {
-    set.add(normalizeNumeric(m))
+    const norm = normalizeNumeric(m)
+    set.add(norm)
+    const num = parseFloat(norm)
+    if (!isNaN(num)) {
+      set.add(num.toFixed(2))
+      set.add(num.toFixed(1))
+      set.add(num.toString())
+    }
   }
 
   // Also include comma-formatted variants without commas
-  const commaMatches = prompt.match(/\b\d{1,3}(?:,\d{3})+\b/g) ?? []
+  const commaMatches = combined.match(/\b\d{1,3}(?:,\d{3})+\b/g) ?? []
   for (const m of commaMatches) {
     set.add(normalizeNumeric(m))
   }
@@ -68,12 +76,12 @@ function extractPromptNumbers(prompt: string): Set<string> {
 /**
  * Extracts and validates price claims against prompt containment.
  */
-export function verifyPriceProvenance(text: string, prompt: string): IntegrityViolation[] {
+export function verifyPriceProvenance(text: string, prompt: string, userMessage?: string): IntegrityViolation[] {
   if (!text || !prompt) return []
 
   const violations: IntegrityViolation[] = []
-  const promptNumbers = extractPromptNumbers(prompt)
-  const promptLower = prompt.toLowerCase()
+  const promptNumbers = extractPromptNumbers(prompt, userMessage)
+  const promptLower = `${prompt} ${userMessage || ''}`.toLowerCase()
 
   // 1. Check Crore figures (e.g., ₹1.45 Cr)
   for (const m of text.matchAll(CRORE_PATTERN)) {
