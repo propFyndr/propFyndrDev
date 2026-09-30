@@ -1,4 +1,4 @@
-# PropFyndr Master Execution Roadmap V2 (Production & Intelligence Scale)
+﻿# PropFyndr Master Execution Roadmap V2 (Production & Intelligence Scale)
 
 This document is the authoritative, day-by-day master execution plan for PropFyndr. Following a line-by-line audit of the existing codebase, all tasks that were already implemented (such as basic defamation filters, static tables, base execution steppers, and preliminary Prisma schemas) have been **strictly excluded**. 
 
@@ -17,7 +17,7 @@ Every task is structured into three tiers:
 |---|---|---|---|
 | **Day 1** | **Zero-Hallucination Front-Door Bypass & Verification Calibration** | Eliminate LLM latency on database facts, enforce price AST provenance, and calibrate the benchmark. | 1. Line-260 Front-Door Factual Bypass Gateway<br>2. AST Price & Rate Range Provenance Firewall<br>3. Upstream Billing Restoration & Circuit Breakers<br>4. 300-Query Router Evaluation Baseline Calibration<br>5. Multi-Turn Conversation Benchmark Engine |
 | **Day 2** | **Byte-Invariant Prompt Ladder, JIT Fact Projection & Live Badges** | Slash AI query costs by 75–80%, eliminate prompt bloat, and label live web records transparently. | 1. 4-Tier Byte-Invariant Prompt Ladder Architecture<br>2. Gemini Explicit Cache Rolling Manager Activation<br>3. Intent-Scoped JIT Fact Projection (Field-Diet Engine)<br>4. Table Prompt Inlining Instruction Standard<br>5. Transparent Public-Record Provenance Badges |
-| **Day 3** | **JEV Master Decision Cutover, Router De-Bloat & Intent Unification** | Replace 33 fragile regex exits with our in-house JEV decision engine and de-bloat `chat-router.ts`. | 1. JEV Live Execution Engine (`execute.ts`)<br>2. Deletion of 20+ Legacy Regex Gates (Pruning 2,000+ Lines)<br>3. Consolidation of Double-Intent (Retiring `extendedIntent.ts`)<br>4. Single Front-Door Injection & Profiling Orchestrator<br>5. Entity Database Resolver (`resolve.ts`) |
+| **Day 3** | **JEV Intelligence Engine Cutover, Router De-Bloat & Red-Team Batch 3 Execution** | Cut over live traffic to JEV multi-lane decision engine, prune 2,000+ regex lines, and execute the 5-pass real-world query matrix (economics, lifestyle, buyer transitions, messy language, evidence boundaries). | 1. JEV Multi-Lane Live Execution Engine & Financial Calculators (`execute.ts`)<br>2. Legacy Router De-Bloat & Regex Pruning (Pruning 2,000+ Lines)<br>3. Consolidation of Double-Intent & Conversational State Machine<br>4. Messy Language, Spoken Audio & Hinglish Normalization Pipeline<br>5. Entity Database Resolver & Evidence Boundary Guard (`resolve.ts`) |
 | **Day 4** | **Resilient SSE Streaming Protocol, Mobile Reconnect & Web-Fact Cache** | Eliminate dropped streams, client freezes, and 504 timeouts while persistently caching web facts. | 1. Stream Sequence Numbering & Typed Event V2 Envelope<br>2. Redis Stream Cursor & Zero-Loss Mobile Reconnect Engine<br>3. Bi-Directional Keep-Alive Ping Harness<br>4. Consolidation of Web Sourcing & `WebFact` Persistent Cache<br>5. Stream Chaos & Reconnect Fault Injection Suite |
 | **Day 5** | **Hero Chat Interface: Micro-UX, Token-Free Interactive Tools & Proof Drawers** | Transform chat into an engaging financial cockpit with live sliders and verified inspection drawers. | 1. Fluid 20ms Typewriter Chunk Buffer & Viewport Scroll-Lock<br>2. Client-Side Interactive Down Payment, Loan & Rate Shock Sliders<br>3. Interactive RERA Carpet Loading & Usable Area Visualizer<br>4. Clickable Provenance Trust Pills & Official Proof Drawer<br>5. Chat Action Quick-Filter Dock & Mobile Shortlist Drawer |
 | **Day 6** | **Conversational Memory, Curated Knowledge Base & Commute Ranking** | Retain multi-turn memory under 1,800 tokens, provide GDPR privacy, and rank by actual commute. | 1. Rolling 10-Turn Context Compressor (`contextCompressor.ts`)<br>2. Authenticated Buyer Memory Center & Privacy Controls<br>3. Commute-First Discovery Weight Tuning<br>4. Curated Knowledge Base & Postgres Full-Text Hybrid Search<br>5. 10-Turn Context Benchmark & 100-Query Hinglish Evaluation |
@@ -258,114 +258,189 @@ Restructure the system prompt into a strictly byte-invariant prefix ladder that 
 
 ---
 
-## Day 3: JEV Live Decision Cutover, Router De-Bloat & Intent Unification
+## Day 3: JEV Multi-Lane Intelligence Engine Cutover, Router De-Bloat & Red-Team Batch 3 Execution
 
 ### Goal
-Switch JEV—our unified, in-house decision engine—from shadow mode to live traffic, permanently delete 20+ legacy regex gates from `chat-router.ts` (pruning 2,000+ lines), retire `extendedIntent.ts`, and unify model profiling into a single front-door gate.
+Transform PropFyndr into an authoritative, general-purpose real estate intelligence platform capable of handling arbitrary real-world queries (economics, lifestyle, buyer transition scenarios, messy language, and evidence boundaries). Switch JEV from shadow mode to live multi-lane execution, prune dead code from `chat-router.ts` (currently 6,489 lines), retire `extendedIntent.ts` (28,183 bytes, zero active callers in router), deploy deterministic real estate calculators with pre-rendered tables, and enforce the zero-hallucination evidence boundary.
 
 ---
 
-### Task 3.1: JEV Live Execution Engine (`execute.ts`)
+### Task 3.1: JEV Multi-Lane Live Execution Engine — Full Calculator Suite (`execute.ts`)
+
 * **Team & Stakeholder Shareable Brief:**
-  * JEV currently watches conversations in the background to learn routing. We activate it to take full command of chat turns, directing greetings, calculators, project facts, comparisons, and broad property search with complete accuracy.
-  * Replaces 33 brittle pattern rules with one unified brain that understands nuanced property inquiries.
-* **Action:** CREATE `backend/src/lib/jev/execute.ts` and MODIFY `backend/src/routes/chat-router.ts`
-* **What to do:**
-  * Implement `executeJevDecision(decision, ctx)` with feature flag `JEV_TASKS=smalltalk,meta,calculate,project_fact,compare,discover`:
-    * `smalltalk`: Return deterministic greeting/thanks.
-    * `calculate`: Route directly to `lib/calculators.ts`.
-    * `project_fact`: Route to factual handlers with `fieldsNeeded`.
-    * `compare`: Route to `comparisonHandler.ts`.
-    * `discover`: Route to `discoverProjects`.
-  * Wire JEV execution at Line 550 of `chat-router.ts`. Route unenabled tasks through legacy cascade until verified.
-* **Current system relationship:** Sits at line 550 of `chat-router.ts`. Transitions JEV from shadow to active execution.
-* **Depends On:** Day 1 (Task 1.4 baseline).
+  * JEV already exists (`backend/src/lib/jev/execute.ts`, 111 lines) and handles smalltalk, out-of-scope, and stamp-duty queries. It is **already wired at `chat-router.ts` line 1092** behind the `JEV_MODE=on` env flag — but that flag is not yet set in `.env`, so it runs in shadow mode. We flip the flag and complete the calculator suite.
+  * Unlocks the system's full financial brain: all-in acquisition cost, rental yield, upgrade equity, and carpet loading ratio — all served as pre-rendered markdown tables with zero LLM arithmetic, in under 150ms.
+* **Action:** EXTEND `backend/src/lib/jev/execute.ts` + ADD to `backend/src/lib/calculators.ts` + MODIFY `backend/.env`
+* **What to do — 4 concrete sub-tasks:**
+
+  **Sub-task 3.1a — Activate JEV Live Mode:**
+  * Add `JEV_MODE=on` to `backend/.env` (after the `ENABLE_GEMINI_TOOLS=true` line, currently line 107).
+  * The gate at `chat-router.ts:1092` reads `process.env.JEV_MODE === 'on' || process.env.JEV_LIVE === 'true'`; no router changes needed.
+
+  **Sub-task 3.1b — Add 4 missing calculator functions to `backend/src/lib/calculators.ts`:**
+  * Existing functions in `calculators.ts` (81 lines): `formatInr`, `calcEmi`, `calcStampDuty`, `calcGst`, `sqmToSqft`, `calcRentalYield`. Add:
+  1. **`calcAllInCost(basePriceCr, status, gender, carpetSqm?, extras?)`** — Returns `{ basePriceCr, gst, stampDuty, registration, ifms, plc, carParking, electricMeter, totalCr, overheadPct }`. Formula: base + GST (0% RTM / 5% UC) + Stamp Duty + Registration 1% + IFMS Rs50/sqft + PLC 3% + car parking Rs5L + dual meter Rs50k. Expected overhead: 28–35%.
+  2. **`calcTrueNetRentalYield(monthlyRent, allInCostCr, vacancyMonths, maintenanceMonthly)`** — Uses all-in cost (not base price). Gross = (rent*12) / (allInCostCr*1_00_00_000) * 100. Net = ((rent-maintenance)*(12-vacancy)) / (allInCostCr*1_00_00_000) * 100.
+  3. **`calcUpgradeEquity(existingValueCr, remainingLoanCr, newPriceCr, downPaymentPct, interestRatePct, tenureYears)`** — Returns `{ netRealizedCashCr, newLoanCr, newMonthlyEmi, cashFlowGapMonthly }`. Net cash = existingValue - loan - 2% transaction costs. EMI via `calcEmi`.
+  4. **`calcLoadingRatio(superBuiltUpSqft, carpetSqft)`** — Returns `{ loadingPct, carpetEfficiencyPct }`. Formula: (superBuiltUp - carpet) / superBuiltUp * 100.
+
+  **Sub-task 3.1c — Wire all 4 calculators into `executeJevDecision()` in `execute.ts`:**
+  * Extend existing `calculate` branch (currently stamp duty only, lines 64–107). Add pattern matchers and pre-rendered markdown tables for each calculator. Each branch must return `true`.
+
+  **Sub-task 3.1d — Add `due_diligence` and `legal_process` task stubs:**
+  * `due_diligence` -> emit deterministic 10-point RERA/legal checklist. No DB, no LLM. Return `true`.
+  * `legal_process` -> emit deterministic registry/loan process guide. Return `true`.
+
+* **Current system relationship:** `execute.ts` (111 lines) + `decision.ts` enum + router gate at line 1092 already exist. Missing: `JEV_MODE=on`, the 4 calculator functions, and stubs.
+* **Depends On:** None (additive only).
 * **Done When:**
-  * Flagged tasks execute through `executeJevDecision` with zero regressions on 300 test queries.
-  * Fallback path cleanly handles LLM decision timeouts in $<10\text{ms}$.
+  * `JEV_MODE=on` set; stamp duty query <150ms, 0 LLM tokens.
+  * `calcAllInCost(1.5, 'under_construction', 'male', 65)` → `overheadPct` 28–35.
+  * `calcLoadingRatio(1200, 850)` → `{ loadingPct: 29.17, carpetEfficiencyPct: 70.83 }`.
+  * No LLM call for `calculate`, `due_diligence`, or `legal_process` tasks.
 
 ---
 
-### Task 3.2: Deletion of 20+ Legacy Regex Gates (Pruning 2,000+ Lines)
+### Task 3.2: Controlled De-Bloat — Audit & Dead-Code Removal from `chat-router.ts`
+
 * **Team & Stakeholder Shareable Brief:**
-  * Once JEV successfully takes over a task, we permanently delete the old, fragile spaghetti code from our core routing file.
-  * Makes the application much faster to maintain, easier to debug, and drastically lowers the risk of introducing new bugs in the future.
-* **Action:** REFACTOR `backend/src/routes/chat-router.ts`
+  * `chat-router.ts` is currently **6,489 lines** (verified by wc). Many sections predate JEV and now duplicate logic. We surgically audit and remove proven dead code only — never a blind delete.
+  * Reduces codebase fragility: each removed block is one fewer place a future edit can create a silent regression.
+* **Action:** AUDIT then REFACTOR `backend/src/routes/chat-router.ts`
+* **Audit-First Protocol:** Capture baseline `npx tsx scripts/corpus/run-corpus.ts --labels --tag=pre-deblot-d3`. Grep all callers before deleting each block.
+* **Confirmed Safe Deletion Targets:**
+  1. `extendedIntent.ts` import — 0 active callers in router (grep-confirmed). Move file to `backend/src/lib/ai/_deprecated/extendedIntent.ts`.
+  2. `GENERIC_QUERY_TERMS` Set + `isGenericQuery` var (lines ~1121–1129, 9 lines) — replace with `decision.task === 'discover'`.
+  3. `isFreshSearch`, `isOpenAdvisoryQuery`, `isBroadSuperlativeQuery`, `messageHasBudget` declarations (lines ~1110–1113) — audit, delete if downstream branches are JEV-covered.
+  4. `isDueDiligenceQuery` regex computation (lines ~3288, ~3312, ~3515) — delete after JEV `due_diligence` task live-verified.
+* **NOT to touch:** `deterministicFactRouter.ts`, `answerIntegrity.ts`, Ground Truth DB Pipeline blocks.
+* **Depends On:** Task 3.1 verified green.
+* **Done When:**
+  * `chat-router.ts` ≤ 5,989 lines (≥500 removed from 6,489).
+  * `extendedIntent.ts` in `_deprecated/`.
+  * `npm test` green. Corpus re-run `post-deblot-d3` shows 0 regressions.
+
+---
+
+### Task 3.3: Conversational State Machine — `BACKTRACK` and `TRADE_OFF` Transitions
+
+* **Team & Stakeholder Shareable Brief:**
+  * `requirementState.ts` (933 lines) handles `APPEND`, `REPLACE`, `DROP` transitions. Two missing: `BACKTRACK` (restore prior budget mid-conversation) and `TRADE_OFF` (log compromises when zero exact matches found). `allowedCompromises` field already exists in `ControlRequirementSchema` at line 92 but is never populated.
+  * Without `BACKTRACK`: "actually go back to 1.5 Cr" is silently ignored. Without `TRADE_OFF`: the system cannot explain why it's showing a slightly over-budget property.
+* **Action:** MODIFY `backend/src/lib/discovery/requirementState.ts` and `backend/src/lib/discovery/scoringEngine.ts`
 * **What to do:**
-  * Safely remove redundant legacy topic-flag regexes (lines 3100–3400):
-    * Remove duplicate regex matchers for RERA, payment plans, due diligence, and legal risk.
-    * Remove dead query classifiers (`classifyQuery`, `intentTypeDetector`).
-  * Reduce `chat-router.ts` code footprint by $>2,000$ lines.
-* **Current system relationship:** Cleans up `chat-router.ts`.
+  1. **BACKTRACK**: Detect `/\b(?:go back to|revert to|actually[,]?\s+(?:let's use|use|keep)|we said|i said|the first|original)\b/i` in `prenormalizeRawText()`. Add optional `prevStateHistory?: RequirementState[]` to `normalizeRequirementState()`. On match, restore the specific field (budget/location/BHK) from `prevStateHistory[0]`.
+  2. **TRADE_OFF**: In `scoringEngine.ts`, when `exactMatchCount === 0`, write labeled strings to `requirementState.control.allowedCompromises`: e.g., `"budget_relaxed:+8L"`, `"sector_preference:relaxed"`, `"bhk_relaxed:+1"`.
+* **Current system relationship:** `allowedCompromises` (line 92) and `unknowns`/`ambiguities` arrays exist but are never written. `prenormalizeRawText()` at line 141.
 * **Depends On:** Task 3.1.
 * **Done When:**
-  * `npm test` runs green across all 2,748 backend tests.
-  * `chat-router.ts` line count decreases by at least 2,000 lines.
-  * Zero regressions on 300-question corpus test.
+  * `"go back to 1.5 Cr"` after `budget.maxCr: 2.0` → next state `budget.maxCr: 1.5`.
+  * Zero exact matches → `control.allowedCompromises` has ≥1 labeled string.
+  * `conversationEngine.test.ts` has 2 new test cases.
 
 ---
 
-### Task 3.3: Consolidation of Double-Intent (Retiring `extendedIntent.ts`)
-* **Team & Stakeholder Shareable Brief:**
-  * Previously, our property search made two separate AI calls back-to-back just to understand user filters, wasting 2.5 seconds. We combine both into JEV's single structured call.
-  * Instantly shaves 1.5 to 2.5 seconds of waiting time off the most popular search queries on the site.
-* **Action:** REFACTOR `backend/src/routes/chat-router.ts` and DELETE `backend/src/lib/ai/extendedIntent.ts`
-* **What to do:**
-  * Eliminate the secondary LLM call on ranking turns (`extractExtendedIntent`, which burned 2.5s and 500 tokens).
-  * Fold extended parameter extraction (carpet preference, view preference, density tolerance) directly into JEV's single structured intent call.
-* **Current system relationship:** Replaces `extendedIntent.ts` calls in `chat-router.ts`.
-* **Depends On:** Task 3.1.
-* **Done When:**
-  * Secondary LLM call is eliminated on ranking turns.
-  * Turn latency on discovery/ranking turns drops by 1.5–2.5 seconds.
-  * Token consumption drops by ~500 tokens on affected turns.
+### Task 3.4: Messy Language Normalizer — Promote `prenormalizeRawText()` to Full Pipeline
 
----
-
-### Task 3.4: Single Front-Door Injection & Profiling Orchestrator
 * **Team & Stakeholder Shareable Brief:**
-  * We merge multiple duplicate model selectors and security checks into a single front-door firewall that blocks malicious prompts and routes simple questions to lightweight AI models and complex financial questions to reasoning models.
-  * Protects our system from hacks while keeping simple queries running in under 1 second.
-* **Action:** REFACTOR `backend/src/routes/chat-router.ts`
+  * `prenormalizeRawText()` at `requirementState.ts` line 141 handles 8 patterns (19 lines). Extract into standalone `messyLanguageNormalizer.ts` and expand to a 3-pass pipeline: speech disfluency stripping, Hinglish lexicon, ambiguity scoring gate, and unit conversion.
+  * This is what makes PropFyndr work for real buyers (voice-typed, mixed-language, abbreviated) vs. clean API-test inputs.
+* **Action:** CREATE `backend/src/lib/discovery/messyLanguageNormalizer.ts`, REFACTOR `requirementState.ts` to import from it
 * **What to do:**
-  * Consolidate duplicate injection checks (`sanitizeUserMessage`, `inputGuardrail`) into a single high-speed entry middleware executed once at turn start.
-  * Replace fragmented calls to `profileFor()` across lines 247, 565, 2820, and 5599 with a single profile assignment attached to request context.
-* **Current system relationship:** Streamlines `chat-router.ts` entry flow.
+  1. **Extract** `prenormalizeRawText()` into new file, re-export from `requirementState.ts` for backward compat.
+  2. **Pass 1 — Speech Disfluency** (run first): `s.replace(/\b(?:umm+|uhh+|uh|hmm+|err+|like,?\s|you know,?\s|i mean,?\s)\b\.*/gi, ' ')`
+  3. **Pass 2 — Extended Hinglish Lexicon** (19 terms beyond current 8):
+
+     | Input | Output |
+     |---|---|
+     | `jaldi` / `turant` / `jaldi chahiye` | append `"ready to move"` |
+     | `dhang ka` / `acchi society` / `sahi society` | append `"good quality society"` |
+     | `stretch karke` / `thoda zyada karunga` | signal `isHardCeiling: false` |
+     | `1.5k carpet wali` | replace with `"1500 sqft carpet"` |
+     | `budget 1500` (no unit) | flag ambiguity — do not resolve |
+     | `ghar lena hai` / `makan chahiye` | append `"apartment"` |
+     | `seedha builder se` | append `"direct from builder"` |
+     | `greens mein` / `eco society` | append `"eco-friendly amenity"` |
+     | `bina lift ke nahi` | append `"lift required"` |
+
+  4. **Pass 3 — Ambiguity Scoring Gate**: Score 0–10. +2 for bare `"nearby"` without anchor, +2 for `"annoying commute"` without threshold, +3 for bare number without unit, +1 per unresolved pronoun. If score ≥ 5: `requiresClarification: true`; do NOT silently guess.
+  5. **Unit Conversion**: `"130 sqm"` → `"1399 sqft"` (130 × 10.7639). Uses existing `sqmToSqft` import.
+
+* **Current system relationship:** `prenormalizeRawText()` inline at line 141. `sqmToSqft` imported at line 12. `messyLanguageNormalizer.ts` does NOT yet exist.
 * **Depends On:** None.
 * **Done When:**
-  * Injection checking executes exactly once per turn with 0 duplicate regex scans.
-  * Query profile is attached to request context at turn start.
+  * `prenormalizeRawText("1.5k carpet wali 3BHK, possession jaldi chahiye")` → `"1500 sqft carpet 3BHK, possession ready to move"`.
+  * `prenormalizeRawText("umm... maybe around 1.45 Cr in S150, rtm preferred")` → `"maybe around 1.45 Cr in Sector 150, ready to move preferred"`.
+  * `prenormalizeRawText("budget 1500")` → `requiresClarification: true` (no silent guess).
+  * `prenormalizeRawText("130 sqm carpet")` → `"1399 sqft carpet"`.
+  * `__tests__/messyLanguageNormalizer.test.ts` passes ≥25 cases.
 
 ---
 
-### Task 3.5: Entity Database Resolver (`resolve.ts`)
+### Task 3.5: Entity Resolver & Evidence Boundary Guard (`jev/resolve.ts`)
+
 * **Team & Stakeholder Shareable Brief:**
-  * When a buyer misspells a project name (like "Godrej Wood" instead of "Godrej Woods") or mentions a local sector alias, this module maps it directly to the exact property record in our database.
-  * Ensures the AI always pulls the right property facts without ever getting confused by typos or nicknames.
-* **Action:** CREATE `backend/src/lib/jev/resolve.ts`
+  * `matchProjectInText.ts` (9,135 bytes) does fuzzy matching in discovery. This creates `resolve.ts` in the JEV layer — a stricter resolver returning `null` when confidence < 0.75 — and adds 2 new integrity violation types to `answerIntegrity.ts` (652 lines): `broker_hype` and `unknown_field_presented_as_known`.
+  * Every AI claim traces to a verified DB row, or is declared unverified — no exceptions.
+* **Action:** CREATE `backend/src/lib/jev/resolve.ts`, EXTEND `backend/src/lib/ai/answerIntegrity.ts`
 * **What to do:**
-  * Build deterministic entity resolution matching JEV entity candidates against Postgres:
-    * Projects: Canonical names, slugs, and common aliases (`Project` table).
-    * Localities: Sector names, micro-market bands, and expressway belts (`SectorIntelligence` table).
-    * Builders: Canonical developer names and parent groups (`Builder` table).
-  * Output verified database UUIDs; omit unverified entity guesses.
-* **Current system relationship:** Feeds resolved entities into `execute.ts`.
+
+  **Part A — `resolve.ts` Entity Resolver:**
+  ```typescript
+  export interface ResolvedEntity {
+    kind: 'project' | 'sector' | 'builder'
+    id: string            // DB UUID
+    canonicalName: string
+    confidence: number    // 0-1 Levenshtein-derived
+    matchedOn: 'exact' | 'alias' | 'fuzzy'
+  }
+  export async function resolveEntity(
+    candidateText: string,
+    kind: 'project' | 'sector' | 'builder' | 'auto'
+  ): Promise<ResolvedEntity | null>
+  ```
+  * Step 1: Exact match in `projectCatalog` in-memory Map (O(1), 2,963 bytes already loaded).
+  * Step 2: Levenshtein ≤2 fuzzy against all canonical names.
+  * Step 3: if confidence < 0.75, return `null`. Never guess.
+  * Sectors/builders: `prisma.sectorIntelligence.findMany()` on first call, module-level cache.
+
+  **Part B — 2 new `IntegrityKind` members in `answerIntegrity.ts`:**
+  * Current members at line 43: `fabrication | meta_leak | inventory_size | unfounded_warning | raw_payload | opaque_score | unsourced_date`.
+  * Add `broker_hype`: patterns `"premium luxury"`, `"world-class amenities"`, `"unmatched appreciation"`, `"70% open space"` without VERIFIED_FACTS_BLOCK confirmation. Action: `rewrite` with testable verification question.
+  * Add `unknown_field_presented_as_known`: field is `null`/absent in VERIFIED_FACTS_BLOCK but response asserts a specific value. Action: `discard` claim, insert `"This information was not available in our verified records."`.
+  * **Exact Match Partitioning**: if a property with hard-constraint violation appears in "Exact Matches" section → flag `hard_constraint_violation`, rewrite to "Closest Alternatives" with violated constraint labeled.
+
+* **Current system relationship:** `answerIntegrity.ts` line 41 imports `provenanceChecker.ts`. `IntegrityKind` at line 43. `projectCatalog.ts` (2,963 bytes) = in-memory index. `matchProjectInText.ts` = discovery-layer fuzzy match (separate concern).
 * **Depends On:** Task 3.1.
 * **Done When:**
-  * Resolves project aliases and minor typos to exact database UUIDs in $<10\text{ms}$.
-  * Unmatched entities return null rather than fuzzy guesses.
+  * `resolveEntity("Godrej Wood", "project")` → `{ canonicalName: "Godrej Woods", confidence: ≥0.85, matchedOn: "fuzzy" }`.
+  * `resolveEntity("XYZ Towers", "project")` → `null`.
+  * `broker_hype` fires on `"70% open space"` without VERIFIED_FACTS_BLOCK confirmation → rewrite applied.
+  * `unknown_field_presented_as_known` fires when null field is asserted in response.
+  * `jev/__tests__/resolve.test.ts`: ≥10 resolution cases. `answerIntegrity` test: ≥5 new cases.
 
 ---
 
 ### Day 3 Completion Gate
-* [ ] JEV decision engine actively executes smalltalk, calculate, fact, compare, and discover tasks.
-* [ ] 20+ legacy regex gates deleted from `chat-router.ts` (pruning 2,000+ lines).
-* [ ] Secondary extended intent LLM call eliminated; `extendedIntent.ts` deleted.
-* [ ] Single model profiler and unified injection firewall active at entry.
-* [ ] Entity resolver maps fuzzy names to canonical database UUIDs.
+
+| # | Gate | Verification | Pass Condition |
+|---|---|---|---|
+| G1 | JEV live activated | Hit stamp duty query | <150ms, 0 LLM tokens |
+| G2 | All-in cost calculator | `calcAllInCost(1.5, 'under_construction', 'male', 65)` | `overheadPct` 28–35 |
+| G3 | Rental yield all-in | `calcTrueNetRentalYield(25000, 1.97, 1, 2500)` | Gross ~1.52%, Net ~1.22% |
+| G4 | Upgrade equity | `calcUpgradeEquity(1.2, 0.4, 2.0, 20, 9, 20)` | No NaN fields |
+| G5 | Loading ratio | `calcLoadingRatio(1200, 850)` | `loadingPct: 29.17, carpetEfficiencyPct: 70.83` |
+| G6 | extendedIntent deprecated | grep chat-router imports | 0 active imports; file in `_deprecated/` |
+| G7 | Router de-bloat | wc -l chat-router.ts | ≤5,989 lines (≥500 removed from 6,489) |
+| G8 | Hinglish normalizer | `messyLanguageNormalizer.test.ts` | ≥25/25 cases pass |
+| G9 | BACKTRACK transition | `conversationEngine.test.ts` new case | "go back to 1.5 Cr" restores prior budget |
+| G10 | TRADE_OFF annotation | Scoring engine test | `allowedCompromises` populated on 0 exact match |
+| G11 | Entity resolver | `resolve.test.ts` | "Godrej Wood" → UUID; "XYZ Towers" → null |
+| G12 | Broker hype guard | `answerIntegrity` test | "70% open space" triggers rewrite |
+| G13 | Unknown field guard | `answerIntegrity` test | Null-field assertion triggers discard |
+| G14 | Corpus regression | `run-corpus.ts --tag=d3-final` | 0 regressions vs pre-Day-3 baseline |
 
 ---
-
 ## Day 4: Resilient SSE Streaming Protocol, Mobile Reconnect & Web-Fact Cache
 
 ### Goal

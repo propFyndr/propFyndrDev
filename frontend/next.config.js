@@ -109,6 +109,12 @@ const nextConfig = {
         destination: '/builder-register',
         permanent: true,
       },
+      {
+        // Handle underscore variation in legacy or manually typed email links
+        source: '/admin/accept_invite',
+        destination: '/admin/accept-invite',
+        permanent: true,
+      },
     ]
   },
   async headers() {

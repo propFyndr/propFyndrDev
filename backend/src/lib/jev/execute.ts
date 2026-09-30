@@ -1,12 +1,35 @@
 // backend/src/lib/jev/execute.ts
 //
-// Live JEV Execution Dispatcher (Phase 1).
+// Live JEV Execution Dispatcher (Phase 1 & Phase 2).
 // Routes decisions to deterministic handlers, pure calculators, or discovery.
 
 import type { Response } from 'express'
 import type { JevDecision } from './decision'
 import type { Intent } from '../discovery/types'
-import { calcEmi, calcStampDuty, formatInr } from '../calculators'
+import {
+  calcEmi,
+  calcStampDuty,
+  calcGst,
+  calcAllInCost,
+  calcTrueNetRentalYield,
+  calcUpgradeEquity,
+  calcLoadingRatio,
+  formatInr,
+} from '../calculators'
+import {
+  isRentalInquiry,
+  isResaleInquiry,
+  isCommercialInquiry,
+  isChainOfTitleQuery,
+  isSocietyFinancialQuery,
+  isOwnerNicheQuery,
+  formatRentalAdvisory,
+  formatResaleAdvisory,
+  formatCommercialAdvisory,
+  getChainOfTitleChecklist,
+  getSocietyFinancialHealthChecklist,
+  getNonObviousOwnerFactorsGuide,
+} from '../advisory/marketAdvisory'
 
 export interface JevExecutionContext {
   res: Response
@@ -49,8 +72,26 @@ export async function executeJevDecision(
     return true
   }
 
-  // 3. Out of Scope Handler
+  // 3. Out of Scope Handler (Sales-OS Advisory Bridges)
   if (decision.task === 'out_of_scope') {
+    if (isRentalInquiry(message)) {
+      send('token', { token: formatRentalAdvisory(message) })
+      send('done', { sessionId: sessionId ?? null, intentState: 'COLD', intent: ctx.intent })
+      res.end()
+      return true
+    }
+    if (isResaleInquiry(message)) {
+      send('token', { token: formatResaleAdvisory(message) })
+      send('done', { sessionId: sessionId ?? null, intentState: 'COLD', intent: ctx.intent })
+      res.end()
+      return true
+    }
+    if (isCommercialInquiry(message)) {
+      send('token', { token: formatCommercialAdvisory(message) })
+      send('done', { sessionId: sessionId ?? null, intentState: 'COLD', intent: ctx.intent })
+      res.end()
+      return true
+    }
     send('token', {
       token:
         "I'm specifically focused on residential property search, builder verification, and legal/financial advisory in Noida and Greater Noida. How can I help you with your home search?",
@@ -60,10 +101,46 @@ export async function executeJevDecision(
     return true
   }
 
-  // 4. Pure Calculator Handler (EMI & Statutory Stamp Duty)
-  if (decision.task === 'calculate' && decision.sources.includes('statutory')) {
+  // 4. Pure Calculator Handler (Stamp Duty, All-In Cost, Yield, Upgrade Equity, Loading)
+  if (decision.task === 'calculate') {
     const handled = handleDeterministicCalculations(message, ctx)
     if (handled) return true
+  }
+
+  // 5. Legal & Due Diligence Advisory / Market Explanations
+  if (decision.task === 'legal_process' || decision.task === 'market_explain') {
+    if (isChainOfTitleQuery(message)) {
+      send('token', { token: getChainOfTitleChecklist(message) })
+      send('done', { sessionId: sessionId ?? null, intentState: 'WARM', intent: ctx.intent })
+      res.end()
+      return true
+    }
+    if (isSocietyFinancialQuery(message)) {
+      send('token', { token: getSocietyFinancialHealthChecklist(message) })
+      send('done', { sessionId: sessionId ?? null, intentState: 'WARM', intent: ctx.intent })
+      res.end()
+      return true
+    }
+    if (isOwnerNicheQuery(message)) {
+      send('token', { token: getNonObviousOwnerFactorsGuide(message) })
+      send('done', { sessionId: sessionId ?? null, intentState: 'WARM', intent: ctx.intent })
+      res.end()
+      return true
+    }
+    if (/\b(?:due\s+diligence|checklist|checks|verify|rera\s+check)\b/i.test(message)) {
+      const checklist = getDueDiligenceChecklist(message)
+      send('token', { token: checklist })
+      send('done', { sessionId: sessionId ?? null, intentState: 'WARM', intent: ctx.intent })
+      res.end()
+      return true
+    }
+    if (decision.task === 'legal_process') {
+      const legalGuide = getLegalProcessGuide(message)
+      send('token', { token: legalGuide })
+      send('done', { sessionId: sessionId ?? null, intentState: 'WARM', intent: ctx.intent })
+      res.end()
+      return true
+    }
   }
 
   // Otherwise, fall through to main pipeline with JEV context attached
@@ -81,11 +158,13 @@ function getSmalltalkResponse(message: string): string {
   return 'Hello! How can I assist with your home search or property evaluation in Noida and Greater Noida today?'
 }
 
-function handleDeterministicCalculations(message: string, ctx: JevExecutionContext): boolean {
+export function handleDeterministicCalculations(message: string, ctx: JevExecutionContext): boolean {
   const { res, send, sessionId } = ctx
-  const stampDutyMatch = /\bstamp\s+duty\b.*?(?:₹|rs\.?|inr)?\s*(\d+(?:\.\d+)?)\s*(?:cr(?:ore)?|lakh?s?)/i.exec(message)
+  const lower = (message || '').toLowerCase()
 
-  if (stampDutyMatch) {
+  // Branch A: UP Statutory Stamp Duty & Registration
+  const stampDutyMatch = /\bstamp\s+duty\b.*?(?:₹|rs\.?|inr)?\s*(\d+(?:\.\d+)?)\s*(?:cr(?:ore)?|lakh?s?)/i.exec(message)
+  if (stampDutyMatch && !/\ball[- ]?in|total\s+cost/i.test(lower)) {
     const isCr = /cr(?:ore)?/i.test(stampDutyMatch[0])
     const amountCr = parseFloat(stampDutyMatch[1]) * (isCr ? 1 : 0.01)
     const isWoman = /\b(?:woman|female|mother|wife|daughter|lady)\b/i.test(message)
@@ -106,5 +185,154 @@ function handleDeterministicCalculations(message: string, ctx: JevExecutionConte
     return true
   }
 
+  // Branch B: All-In True Landed Cost Breakdown
+  if (/\b(?:all[- ]?in|total\s+cost|true\s+cost|actual\s+outflow|landed\s+cost)\b/i.test(lower)) {
+    const amountMatch = /(?:₹|rs\.?|inr)?\s*(\d+(?:\.\d+)?)\s*(?:cr(?:ore)?|lakh?s?)/i.exec(message)
+    const isCr = amountMatch ? /cr(?:ore)?/i.test(amountMatch[0]) : true
+    const basePriceCr = amountMatch ? parseFloat(amountMatch[1]) * (isCr ? 1 : 0.01) : 1.5
+    const isRtm = /\b(?:ready\s+to\s+move|rtm|completed|delivered)\b/i.test(lower)
+    const isWoman = /\b(?:woman|female|mother|wife|daughter|lady)\b/i.test(lower)
+    const carpetMatch = /(\d{3,4})\s*(?:sqft|sq\.?ft|sft)/i.exec(message)
+    const carpetSqft = carpetMatch ? parseInt(carpetMatch[1], 10) : 1200
+
+    const r = calcAllInCost(
+      basePriceCr,
+      isRtm ? 'ready_to_move' : 'under_construction',
+      isWoman ? 'female' : 'male',
+      carpetSqft,
+    )
+
+    const text =
+      `**Estimated All-In True Landed Cost Breakdown**\n\n` +
+      `| Component | Amount | Details |\n` +
+      `|---|---|---|\n` +
+      `| **Base Agreement Value** | **₹${r.basePriceCr.toFixed(2)} Cr** | Base quoted price |\n` +
+      `| GST (${isRtm ? '0%' : '5%'}) | ${formatInr(r.gst)} | ${isRtm ? 'Exempt (OC received)' : 'Standard residential'} |\n` +
+      `| Stamp Duty & Registration | ${formatInr(r.stampDuty + r.registration)} | UP state statutory dues (7% + 1%) |\n` +
+      `| IFMS (Maintenance Sinking Fund) | ${formatInr(r.ifms)} | ₹50/sqft on ${carpetSqft} sqft |\n` +
+      `| Preferential Location Charge (PLC) | ${formatInr(r.plc)} | Estimated ~3% of base |\n` +
+      `| Car Parking Allotment | ${formatInr(r.carParking)} | Estimated single covered parking |\n` +
+      `| Electricity Meter & Power Backup | ${formatInr(r.electricMeter)} | Dual source installation |\n` +
+      `| **Total Landed Outflow** | **₹${r.totalCr.toFixed(2)} Cr** | **+${r.overheadPct}% above base price** |\n\n` +
+      `*Note: Depending on developer policies, club membership (₹1.5L–₹3L) and advance maintenance charges may apply at possession.*`
+
+    send('token', { token: text })
+    send('done', { sessionId: sessionId ?? null, intentState: 'WARM', intent: ctx.intent })
+    res.end()
+    return true
+  }
+
+  // Branch C: True Net Rental Yield
+  if (/\b(?:rental\s+yield|net\s+yield|true\s+yield|yield\s+calc|passive\s+income)\b/i.test(lower)) {
+    const rentMatch = /(?:rent\s*(?:of|is|at)?\s*(?:₹|rs\.?)?\s*(\d{2,3})(?:k|,000)?)|(?:(\d{4,6})\s*(?:per\s*month|\/month|\/mo))/i.exec(message)
+    const costMatch = /(?:cost|price|property|value)\s*(?:of|is|at)?\s*(?:₹|rs\.?)?\s*(\d+(?:\.\d+)?)\s*(?:cr(?:ore)?)/i.exec(message)
+    const monthlyRent = rentMatch ? (rentMatch[1] ? parseInt(rentMatch[1], 10) * 1000 : parseInt(rentMatch[2], 10)) : 35000
+    const propertyCostCr = costMatch ? parseFloat(costMatch[1]) : 1.5
+
+    const r = calcTrueNetRentalYield(monthlyRent, propertyCostCr, 1, 3500)
+
+    const text =
+      `**True Net Rental Yield Analysis**\n\n` +
+      `| Metric | Value | Commentary |\n` +
+      `|---|---|---|\n` +
+      `| Monthly Expected Rent | ${formatInr(monthlyRent)} | Market rent benchmark |\n` +
+      `| Annual Gross Rent | ${formatInr(r.annualGrossRent)} | 12 months full tenancy |\n` +
+      `| All-In Acquisition Basis | ₹${propertyCostCr.toFixed(2)} Cr | Total capital invested |\n` +
+      `| **Gross Rental Yield** | **${r.grossYieldPct}%** | Pre-expense cash-on-cost |\n` +
+      `| **True Net Rental Yield** | **${r.netYieldPct}%** | Factoring 1 mo vacancy & maintenance |\n\n` +
+      `*Benchmark: Residential yields across Central Noida and Noida Expressway typically sit between 2.2% and 3.2%.*`
+
+    send('token', { token: text })
+    send('done', { sessionId: sessionId ?? null, intentState: 'WARM', intent: ctx.intent })
+    res.end()
+    return true
+  }
+
+  // Branch D: Two-Property Upgrade Equity
+  if (/\b(?:upgrade|selling\s+.*buying|already\s+own|sell\s+.*buy)\b/i.test(lower)) {
+    const values = Array.from(message.matchAll(/(\d+(?:\.\d+)?)\s*(?:cr(?:ore)?)/gi)).map(m => parseFloat(m[1]))
+    const existingVal = values[0] ?? 1.2
+    const newVal = values[1] ?? 2.0
+    const loanMatch = /(?:loan|debt|outstanding)\s*(?:of|is)?\s*(?:₹|rs\.?)?\s*(\d+(?:\.\d+)?)\s*(?:cr|lakh?s?)/i.exec(message)
+    const remainingLoanCr = loanMatch
+      ? /cr/i.test(loanMatch[0])
+        ? parseFloat(loanMatch[1])
+        : parseFloat(loanMatch[1]) * 0.01
+      : 0.3
+
+    const r = calcUpgradeEquity(existingVal, remainingLoanCr, newVal, 20, 8.6, 20)
+
+    const text =
+      `**Two-Property Upgrade Equity & Cashflow Analysis**\n\n` +
+      `| Step | Amount | Details |\n` +
+      `|---|---|---|\n` +
+      `| Current Home Sale Value | ₹${existingVal.toFixed(2)} Cr | Expected gross realization |\n` +
+      `| Outstanding Loan Repayment | (₹${remainingLoanCr.toFixed(2)} Cr) | Cleared at sale closure |\n` +
+      `| Brokerage & Legal Friction (2%) | (₹${r.transactionCostsCr.toFixed(2)} Cr) | Transaction overhead |\n` +
+      `| **Net Unlocked Cash Equity** | **₹${r.netRealizedCashCr.toFixed(2)} Cr** | Cash in hand for redeployment |\n` +
+      `| Down Payment Needed (20%) | ₹${r.downPaymentCr.toFixed(2)} Cr | 20% on new ₹${newVal.toFixed(2)} Cr home |\n` +
+      `| **Surplus Liquid Capital** | **₹${r.cashFlowGapMonthly.toFixed(2)} Cr** | Buffer for registry & interiors |\n` +
+      `| New Home Loan (80%) | ₹${r.newLoanCr.toFixed(2)} Cr | Funded via home loan |\n` +
+      `| **New Monthly EMI** | **${formatInr(r.newMonthlyEmi)}/mo** | 20 years @ 8.6% p.a. |\n`
+
+    send('token', { token: text })
+    send('done', { sessionId: sessionId ?? null, intentState: 'WARM', intent: ctx.intent })
+    res.end()
+    return true
+  }
+
+  // Branch E: Carpet Loading & Usable Area Ratio
+  if (/\b(?:loading|carpet\s+efficiency|usable\s+area|super\s+built.?up\s+vs\s+carpet)\b/i.test(lower)) {
+    const nums = Array.from(message.matchAll(/(\d{3,4})\s*(?:sqft|sq\.?ft|sft)?/gi)).map(m => parseInt(m[1], 10))
+    const superArea = Math.max(...nums.filter(n => n >= 800)) || 1400
+    const carpetArea = Math.min(...nums.filter(n => n >= 400 && n < superArea)) || 980
+
+    const r = calcLoadingRatio(superArea, carpetArea)
+    const verdictLabel =
+      r.verdict === 'efficient'
+        ? 'High efficiency (excellent usable space)'
+        : r.verdict === 'average'
+          ? 'Standard high-rise efficiency'
+          : 'High loading (substantial common/circulation space)'
+
+    const text =
+      `**Carpet Area Efficiency & Loading Analysis**\n\n` +
+      `- **Super Built-Up Area:** ${r.superBuiltUpSqft.toLocaleString('en-IN')} sqft\n` +
+      `- **Usable Carpet Area:** ${r.carpetSqft.toLocaleString('en-IN')} sqft\n` +
+      `- **Loading Ratio:** **${r.loadingPct}%**\n` +
+      `- **Carpet Efficiency:** **${r.carpetEfficiencyPct}%**\n` +
+      `- **Evaluation:** ${verdictLabel}\n\n` +
+      `*In modern Noida high-rise projects, carpet efficiency between 68%–74% is typical. Efficiency above 75% indicates well-optimized layouts with minimal common area wastage.*`
+
+    send('token', { token: text })
+    send('done', { sessionId: sessionId ?? null, intentState: 'WARM', intent: ctx.intent })
+    res.end()
+    return true
+  }
+
   return false
+}
+
+function getDueDiligenceChecklist(_message: string): string {
+  return (
+    `**UP RERA Due Diligence Checklist for Noida & Greater Noida**\n\n` +
+    `Before signing any agreement or paying an advance booking amount, verify these 5 critical checks:\n\n` +
+    `1. **UP RERA Registration & Phase Validity:** Search on \`up-rera.in\` using the project's RERA ID. Verify that the promoter's declared completion deadline matches what the sales representative quoted.\n` +
+    `2. **Authority Land Dues Status:** Verify whether the developer has cleared installment dues with the Noida or Greater Noida Authority. Pending authority dues are the #1 cause of registry delays.\n` +
+    `3. **Sanctioned Tower & Floor Plans:** Request the sanctioned building layout approved by the Authority. Confirm that your specific tower, floor, and unit configuration exist on the approved map.\n` +
+    `4. **RERA Designated 70% Escrow Account:** All payments must be deposited strictly into the RERA-designated escrow bank account, not a general corporate account.\n` +
+    `5. **Occupancy Certificate (for Ready Homes):** Never accept "fit-out possession" without an official Occupancy Certificate (OC) or Completion Certificate (CC) issued by the Authority.\n`
+  )
+}
+
+function getLegalProcessGuide(_message: string): string {
+  return (
+    `**Step-by-Step Property Registration & Legal Process in UP**\n\n` +
+    `1. **Builder-Buyer Agreement (BBA):** Upon paying 10% of the property value, the builder executes a formal BBA. In UP, BBAs must be registered under RERA guidelines.\n` +
+    `2. **Authority NOC & Completion:** Upon completion, the developer obtains Authority CC/OC and receives permission to execute tripartite sub-lease deeds.\n` +
+    `3. **E-Stamping & Challan Generation:** Book an appointment on \`igrsup.gov.in\`. Generate an e-challan for 7% stamp duty (6% for women) and 1% registration fee.\n` +
+    `4. **Sub-Registrar Office Execution:** The buyer, developer representative, and two witnesses present original IDs, allotment letters, and biometric verification.\n` +
+    `5. **Tripartite Sub-Lease Deed Issuance:** The deed is stamped and registered, transferring leasehold rights from the Authority and Builder to the Buyer.\n` +
+    `6. **Authority Mutation:** Submit the registered deed copy to the Authority to update municipal records and utility connections in your name.\n`
+  )
 }

@@ -10,6 +10,7 @@ import { detectCommuteAnchor, beltFor } from './commuteAnchor'
 import { normalizeSectorName } from '../ai/intent'
 import type { Intent } from './types'
 import { sqmToSqft } from '../calculators'
+import { prenormalizeRawText as _prenormExternalPipeline } from './messyLanguageNormalizer'
 
 export const INTENT_MODES = [
   'DISCOVER',
@@ -139,24 +140,7 @@ const EXCLUSION_PATTERNS = [
 ]
 
 export function prenormalizeRawText(raw: string): string {
-  let s = (raw || '').trim()
-  // Typos: secotr -> Sector, undr -> under, radymov -> ready to move, shw -> show
-  s = s.replace(/\bsecotr\b/gi, 'Sector')
-  s = s.replace(/\bundr\b/gi, 'under')
-  s = s.replace(/\brady\s*mov(?:e)?\b/gi, 'ready to move')
-  s = s.replace(/\brtm\b/gi, 'ready to move')
-  s = s.replace(/\bshw\b/gi, 'show')
-  // Abbreviations: CN -> Central Noida, S150 -> Sector 150
-  s = s.replace(/\bCN\b/g, 'Central Noida')
-  s = s.replace(/\bS(\d{1,3}[A-Za-z]?)\b/g, 'Sector $1')
-  // Symbol: ≤1.4C or <= 1.4C -> under 1.4 Cr
-  s = s.replace(/(?:≤|<=)\s*(\d+(?:\.\d+)?)\s*C\b/gi, 'under $1 Cr')
-  // Spoken numbers: one point four five -> 1.45 Cr, three bedroom -> 3 bhk, one fifty -> Sector 150, sixty two -> Sector 62
-  s = s.replace(/\bone\s+point\s+four\s+five\b/gi, '1.45 Cr')
-  s = s.replace(/\bthree\s+bedrooms?\b/gi, '3 BHK')
-  s = s.replace(/\bone\s+fifty\b/gi, 'Sector 150')
-  s = s.replace(/\bsixty\s+two\b/gi, 'Sector 62')
-  return s
+  return _prenormExternalPipeline(raw).normalized
 }
 
 /**
@@ -166,6 +150,7 @@ export function normalizeRequirementState(
   rawText: string,
   intent: Partial<Intent> = {},
   prevState?: Partial<RequirementState>,
+  prevStateHistory?: RequirementState[],
 ): RequirementState {
   let effectivePrevState = prevState
   const text = prenormalizeRawText(rawText)
@@ -173,6 +158,33 @@ export function normalizeRequirementState(
   // 0. State Reset Handling
   if (/\b(?:clear\s+(?:my\s+)?(?:current\s+)?filters|reset\s+(?:my\s+)?(?:search|filters)|start\s+over)\b/i.test(text)) {
     effectivePrevState = undefined
+  }
+
+  // 0b. BACKTRACK Handling: Restore earlier budget/constraint from message or history
+  const BACKTRACK_RE = /\b(?:go\s+back\s+to|revert\s+to|actually[,]?\s+(?:let'?s\s+use|use|keep)|we\s+said|i\s+said|the\s+first|original\s+budget)\b/i
+  if (BACKTRACK_RE.test(text)) {
+    const budgetHint = /(\d+(?:\.\d+)?)\s*(cr(?:ore)?|lakh?s?)/i.exec(text)
+    if (budgetHint) {
+      const isCr = /cr(?:ore)?/i.test(budgetHint[2])
+      const val = parseFloat(budgetHint[1]) * (isCr ? 1 : 0.01)
+      if (effectivePrevState) {
+        effectivePrevState = {
+          ...effectivePrevState,
+          budget: { ...(effectivePrevState.budget ?? {}), maxCr: val, isHardCeiling: true },
+        } as typeof effectivePrevState
+      }
+    } else if (prevStateHistory && prevStateHistory.length > 0) {
+      const isOriginal = /\b(?:original|first)\b/i.test(text)
+      const historicalState = isOriginal
+        ? prevStateHistory.find(s => s.budget?.maxCr !== undefined)
+        : [...prevStateHistory].reverse().find(s => s.budget?.maxCr !== undefined && s.budget.maxCr !== effectivePrevState?.budget?.maxCr)
+      if (historicalState && effectivePrevState) {
+        effectivePrevState = {
+          ...effectivePrevState,
+          budget: { ...(effectivePrevState.budget ?? {}), maxCr: historicalState.budget.maxCr, isHardCeiling: true },
+        } as typeof effectivePrevState
+      }
+    }
   }
 
   // Single constraint removal
@@ -854,6 +866,12 @@ export function normalizeRequirementState(
     : []
   if (/\b(?:compromise\s+on\s+carpet|flexible\s+on\s+carpet)\b/i.test(text)) {
     if (!allowedCompromises.includes('carpet_area')) allowedCompromises.push('carpet_area')
+  }
+  if (/\b(?:flexible\s+on\s+budget|stretch\s+karke|can\s+stretch\s+budget|budget\s+slightly\s+flexible)\b/i.test(text)) {
+    if (!allowedCompromises.includes('budget_relaxed')) allowedCompromises.push('budget_relaxed')
+  }
+  if (/\b(?:flexible\s+on\s+sector|any\s+nearby\s+sector|compromise\s+on\s+location)\b/i.test(text)) {
+    if (!allowedCompromises.includes('location_relaxed')) allowedCompromises.push('location_relaxed')
   }
 
   let reportExpansion = effectivePrevState?.control?.reportExpansion ?? false

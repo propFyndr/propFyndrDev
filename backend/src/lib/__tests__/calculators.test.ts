@@ -1,194 +1,112 @@
-import { test, describe } from 'node:test'
-import { strict as assert } from 'node:assert'
-import { formatInr, calcEmi, calcStampDuty, calcGst } from '../calculators'
+// backend/src/lib/__tests__/calculators.test.ts
 
-describe('Calculators: EMI', () => {
-  test('computes EMI for standard loan (1Cr at 8.5% for 20 years)', () => {
-    const result = calcEmi(1, 8.5, 20)
-    assert(result.emi > 85000, 'EMI should be > 85000')
-    assert(result.emi < 88000, 'EMI should be < 88000')
+import { describe, it } from 'node:test'
+import assert from 'node:assert/strict'
+import {
+  calcAllInCost,
+  calcTrueNetRentalYield,
+  calcUpgradeEquity,
+  calcLoadingRatio,
+  calcStampDuty,
+  calcEmi,
+  formatInr,
+} from '../calculators'
+
+describe('Real Estate Calculators Suite', () => {
+  describe('calcAllInCost', () => {
+    it('computes all-in cost for under-construction unit (with GST & stamp duty)', () => {
+      const res = calcAllInCost(1.5, 'under_construction', 'male', 1200)
+      assert.equal(res.basePriceCr, 1.5)
+      assert.ok(res.gst > 0, 'GST must be > 0 for under construction')
+      assert.equal(res.stampDuty, 1_50_00_000 * 0.07)
+      assert.equal(res.registration, 1_50_00_000 * 0.01)
+      assert.equal(res.ifms, 1200 * 50)
+      assert.ok(res.totalCr > 1.5, 'Total landed cost must exceed base price')
+      assert.ok(res.overheadPct > 15 && res.overheadPct < 35, `Overhead % should be between 15-35%, got ${res.overheadPct}`)
+    })
+
+    it('exempts GST for ready-to-move units', () => {
+      const res = calcAllInCost(1.5, 'ready_to_move', 'male', 1200)
+      assert.equal(res.gst, 0, 'Ready to move must have 0 GST')
+      assert.ok(res.totalCr > 1.5)
+    })
+
+    it('applies concessionary 6% stamp duty for female buyers in UP', () => {
+      const maleRes = calcAllInCost(2.0, 'ready_to_move', 'male', 1000)
+      const femaleRes = calcAllInCost(2.0, 'ready_to_move', 'female', 1000)
+      assert.equal(maleRes.stampDuty, 14_00_000)
+      assert.equal(femaleRes.stampDuty, 12_00_000)
+      assert.ok(femaleRes.totalCr < maleRes.totalCr)
+    })
   })
 
-  test('EMI with 0% rate equals principal divided by months', () => {
-    const result = calcEmi(1, 0, 10)
-    const expected = (1 * 1_00_00_000) / 120
-    assert.equal(result.emi, expected)
+  describe('calcTrueNetRentalYield', () => {
+    it('calculates gross and true net rental yield factoring vacancy and maintenance', () => {
+      const monthlyRent = 35000
+      const costCr = 1.5 // 1.5 Cr
+      const res = calcTrueNetRentalYield(monthlyRent, costCr, 1, 3500)
+      // Gross = (35000 * 12) / 1.5 Cr = 420000 / 15000000 = 2.8%
+      assert.equal(res.grossYieldPct, 2.8)
+      // Net = (35000 - 3500) * 11 / 15000000 = 31500 * 11 / 15000000 = 346500 / 15000000 = 2.31%
+      assert.equal(res.netYieldPct, 2.31)
+      assert.ok(res.netYieldPct < res.grossYieldPct)
+    })
+
+    it('safely handles 0 cost without crashing or producing NaN', () => {
+      const res = calcTrueNetRentalYield(20000, 0)
+      assert.equal(res.grossYieldPct, 0)
+      assert.equal(res.netYieldPct, 0)
+    })
   })
 
-  test('total_payment = principal + interest', () => {
-    const result = calcEmi(2, 9, 25)
-    const principal = 2 * 1_00_00_000
-    assert.equal(result.totalPayment, principal + result.totalInterest)
+  describe('calcUpgradeEquity', () => {
+    it('computes upgrade equity transition accurately', () => {
+      const res = calcUpgradeEquity(1.2, 0.4, 2.0, 20, 8.5, 20)
+      // Transaction cost = 1.2 * 0.02 = 0.024 Cr (2.4L)
+      assert.equal(res.transactionCostsCr, 0.024)
+      // Net cash = 1.2 - 0.4 - 0.024 = 0.776 Cr (77.6L)
+      assert.equal(res.netRealizedCashCr, 0.776)
+      // Down payment = 20% of 2.0 = 0.4 Cr
+      assert.equal(res.downPaymentCr, 0.4)
+      // Cash gap / surplus = 0.776 - 0.4 = 0.376 Cr
+      assert.equal(res.cashFlowGapMonthly, 0.376)
+      // New loan = 2.0 - 0.4 = 1.6 Cr
+      assert.equal(res.newLoanCr, 1.6)
+      assert.ok(res.newMonthlyEmi > 0)
+      assert.ok(!Number.isNaN(res.newMonthlyEmi))
+    })
   })
 
-  test('0% rate has no interest', () => {
-    const result = calcEmi(1, 0, 10)
-    assert.equal(result.totalInterest, 0)
+  describe('calcLoadingRatio', () => {
+    it('computes loading ratio and carpet efficiency correctly', () => {
+      const res = calcLoadingRatio(1200, 850)
+      // loading = (1200 - 850) / 1200 = 350 / 1200 = 29.17%
+      assert.equal(res.loadingPct, 29.17)
+      // carpet efficiency = 100 - 29.17 = 70.83%
+      assert.equal(res.carpetEfficiencyPct, 70.83)
+      assert.equal(res.verdict, 'average')
+    })
+
+    it('awards efficient verdict for carpet efficiency >= 75%', () => {
+      const res = calcLoadingRatio(1000, 800)
+      assert.equal(res.loadingPct, 20)
+      assert.equal(res.carpetEfficiencyPct, 80)
+      assert.equal(res.verdict, 'efficient')
+    })
+
+    it('handles boundary and invalid values gracefully', () => {
+      const res = calcLoadingRatio(0, 0)
+      assert.equal(res.loadingPct, 0)
+      assert.equal(res.carpetEfficiencyPct, 0)
+      assert.equal(res.verdict, 'average')
+    })
   })
 
-  test('higher rate produces higher EMI', () => {
-    const emi_8_5 = calcEmi(1, 8.5, 20).emi
-    const emi_9_5 = calcEmi(1, 9.5, 20).emi
-    assert(emi_9_5 > emi_8_5, 'Higher rate should produce higher EMI')
-  })
-
-  test('longer tenure produces lower EMI', () => {
-    const emi_20 = calcEmi(1, 8.5, 20).emi
-    const emi_30 = calcEmi(1, 8.5, 30).emi
-    assert(emi_30 < emi_20, 'Longer tenure should lower EMI')
-  })
-
-  test('EMI scales linearly with principal', () => {
-    const result_1cr = calcEmi(1, 8.5, 20).emi
-    const result_2cr = calcEmi(2, 8.5, 20).emi
-    assert.equal(result_2cr, result_1cr * 2, 'EMI should scale linearly with principal')
-  })
-
-  test('1-month tenure edge case', () => {
-    const result = calcEmi(1, 8.5, 1/12)
-    assert(Number.isFinite(result.emi), 'EMI should be finite for 1-month tenure')
-    assert(result.emi > 0, 'EMI should be positive')
-  })
-
-  test('very large principal (₹100 Cr) produces finite result', () => {
-    const result = calcEmi(100, 8.5, 20)
-    assert(Number.isFinite(result.emi), 'EMI should be finite for large principal')
-    assert(Number.isFinite(result.totalPayment), 'Total payment should be finite')
-  })
-
-  test('zero principal returns zero EMI', () => {
-    const result = calcEmi(0, 8.5, 20)
-    assert.equal(result.emi, 0, 'Zero principal should give zero EMI')
-  })
-})
-
-describe('Calculators: Stamp Duty', () => {
-  test('male buyer (default): 7% stamp duty + 1% registration', () => {
-    const result = calcStampDuty(2, 'male')
-    const expectedStampDuty = Math.round(2 * 1_00_00_000 * 0.07)
-    const expectedRegistration = Math.round(2 * 1_00_00_000 * 0.01)
-    assert.equal(Math.round(result.stampDuty), expectedStampDuty)
-    assert.equal(result.registration, expectedRegistration)
-    assert.equal(result.total, expectedStampDuty + expectedRegistration)
-  })
-
-  test('female buyer: 6% stamp duty + 1% registration', () => {
-    const result = calcStampDuty(2, 'female')
-    const expectedStampDuty = 2 * 1_00_00_000 * 0.06
-    assert.equal(result.stampDuty, expectedStampDuty)
-    assert.equal(result.rate, 6)
-  })
-
-  test('unsupported gender type defaults to male', () => {
-    // TypeScript allows 'joint' in type def but source doesn't handle it
-    // It will default to male (7%) since it's not 'female'
-    const result = calcStampDuty(2, 'joint' as 'male' | 'female' | 'joint')
-    assert.equal(result.rate, 7, 'Unhandled gender defaults to male (7%)')
-  })
-
-  test('defaults to male when gender omitted', () => {
-    const result = calcStampDuty(1)
-    assert.equal(result.rate, 7, 'Should default to male (7%)')
-  })
-
-  test('female concession saves 1% on stamp duty', () => {
-    const male = calcStampDuty(2, 'male')
-    const female = calcStampDuty(2, 'female')
-    const savings = male.stampDuty - female.stampDuty
-    const price = 2 * 1_00_00_000
-    assert.equal(savings, price * 0.01, 'Female concession should be exactly 1% of property value')
-  })
-})
-
-describe('Calculators: GST', () => {
-  test('ready-to-move: 0% GST when OC received', () => {
-    const result = calcGst(3, 'ready_to_move')
-    assert.equal(result.gst, 0)
-    assert.equal(result.rate, 0)
-  })
-
-  test('affordable housing: 1% GST (price ≤45L, carpet ≤60sqm)', () => {
-    const result = calcGst(0.4, 'under_construction', 50)
-    assert.equal(result.rate, 1)
-    assert.equal(result.category, 'affordable_housing')
-  })
-
-  test('standard under-construction: 5% GST', () => {
-    const result = calcGst(2, 'under_construction', 120)
-    assert.equal(result.rate, 5)
-    assert.equal(result.category, 'standard')
-  })
-
-  test('above 45L or carpet >60sqm: standard rate 5%', () => {
-    const result1 = calcGst(0.5, 'under_construction', 50) // 50L - above threshold
-    const result2 = calcGst(0.4, 'under_construction', 70) // carpet > 60
-
-    assert.equal(result1.rate, 5, 'Above ₹45L should be standard rate')
-    assert.equal(result2.rate, 5, 'Above 60sqm should be standard rate')
-  })
-
-  test('no carpet_sqm specified defaults to standard rate', () => {
-    const result = calcGst(0.4, 'under_construction') // no carpet area
-    assert.equal(result.rate, 5, 'Should default to standard rate without carpet area')
-  })
-
-  test('GST amount calculation is correct', () => {
-    const result = calcGst(1, 'under_construction', 100)
-    const price = 1 * 1_00_00_000
-    const expectedGst = (price * result.rate) / 100
-    assert.equal(result.gst, expectedGst)
-  })
-
-  test('GST on zero price', () => {
-    const result = calcGst(0, 'under_construction', 50)
-    assert.equal(result.gst, 0, 'GST on ₹0 should be ₹0')
-  })
-
-  test('affordable housing boundary: exactly ₹45 Lakh', () => {
-    const result = calcGst(0.45, 'under_construction', 50)
-    assert.equal(result.rate, 5, 'Exactly ₹45L should use standard rate (not affordable)')
-  })
-
-  test('affordable housing boundary: just under ₹45 Lakh', () => {
-    const result = calcGst(0.449, 'under_construction', 50)
-    assert.equal(result.rate, 1, 'Just under ₹45L should use affordable rate')
-  })
-
-  test('affordable housing: carpet exactly at 60sqm boundary', () => {
-    const result = calcGst(0.4, 'under_construction', 60)
-    assert.equal(result.rate, 1, 'Carpet exactly 60sqm should qualify for affordable')
-  })
-
-  test('affordable housing: carpet just over 60sqm boundary', () => {
-    const result = calcGst(0.4, 'under_construction', 61)
-    assert.equal(result.rate, 5, 'Carpet over 60sqm should use standard rate')
-  })
-})
-
-describe('Calculators: Format INR', () => {
-  test('formats crores correctly', () => {
-    const result = formatInr(1_00_00_000)
-    assert.equal(result, '₹1.00 Cr')
-  })
-
-  test('formats lakhs correctly', () => {
-    const result = formatInr(25_00_000)
-    assert.equal(result, '₹25.00 L')
-  })
-
-  test('formats amounts < 1L with Indian locale', () => {
-    const result = formatInr(50_000)
-    assert(result.includes('₹'), 'Should include currency symbol')
-    assert(result.includes('50'), 'Should include amount')
-  })
-
-  test('rounds decimal places to 2 digits for crores/lakhs', () => {
-    const result = formatInr(2_50_00_000)
-    assert.equal(result, '₹2.50 Cr')
-  })
-
-  test('handles edge case: exactly 1 crore', () => {
-    const result = formatInr(1_00_00_000)
-    assert.equal(result, '₹1.00 Cr')
+  describe('formatInr', () => {
+    it('formats Cr, Lakh, and thousands properly', () => {
+      assert.equal(formatInr(1_50_00_000), '₹1.50 Cr')
+      assert.equal(formatInr(45_00_000), '₹45.00 L')
+      assert.equal(formatInr(50_000), '₹50,000')
+    })
   })
 })

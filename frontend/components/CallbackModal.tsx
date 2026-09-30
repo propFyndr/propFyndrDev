@@ -113,7 +113,7 @@ export default function CallbackModal({ project, isDone, onClose }: CallbackModa
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/65 backdrop-blur-md p-4 font-sans select-none"
-        onClick={(e) => { if (e.target === e.currentTarget) onClose() }}
+        onClick={onClose}
       >
         <m.div
           initial={{ y: 16, scale: 0.96, opacity: 0 }}
@@ -121,6 +121,7 @@ export default function CallbackModal({ project, isDone, onClose }: CallbackModa
           exit={{ y: 16, scale: 0.96, opacity: 0 }}
           transition={{ type: 'spring', damping: 26, stiffness: 350 }}
           className="w-full max-w-md rounded-[28px] bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 shadow-2xl overflow-hidden relative font-sans z-10"
+          onClick={(e) => e.stopPropagation()}
         >
           <div className="p-6 sm:p-7">
             {!submittedSuccess ? (

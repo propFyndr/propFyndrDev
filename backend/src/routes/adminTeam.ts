@@ -13,6 +13,7 @@ import { prisma } from '../lib/db'
 import { requireIdentity, requireRole, hashPassword, generateInviteToken, recordAudit, revokeAllSessions } from '../lib/adminIdentity'
 import type { AdminIdentitySession } from '../lib/adminIdentity'
 import { preferredInviteOrigin, sendInviteEmail, INVITE_TTL_MS } from '../lib/adminInvite'
+import { supabaseAdmin } from '../lib/supabase'
 
 const router = Router()
 
@@ -144,8 +145,70 @@ router.post('/invite', requireIdentity, requireRole('SUPER_ADMIN'), async (req: 
   res.json({ admin: { id: admin.id, email: admin.email, role: admin.role }, inviteUrl, emailed })
 })
 
+/**
+ * GET /api/v1/admin/team/search-users — search registered users by name or email.
+ * Allows super admins to find and promote existing buyers without manually entering UUIDs.
+ */
+router.get('/search-users', requireIdentity, requireRole('SUPER_ADMIN'), async (req: Request, res: Response) => {
+  try {
+    const q = typeof req.query.q === 'string' ? req.query.q.trim().toLowerCase() : ''
+
+    const { data: supaData, error: supaErr } = await supabaseAdmin.auth.admin.listUsers({
+      page: 1,
+      perPage: 100,
+    })
+
+    if (supaErr) {
+      console.error('[adminTeam] listUsers error:', supaErr)
+      res.status(500).json({ error: 'Could not fetch registered users' })
+      return
+    }
+
+    const allAdmins = await prisma.adminUser.findMany({
+      select: { email: true, linked_supabase_user_id: true, role: true },
+    })
+    const adminByEmail = new Map(allAdmins.map((a) => [a.email.toLowerCase(), a.role]))
+    const adminByUid = new Map(
+      allAdmins.filter((a) => a.linked_supabase_user_id).map((a) => [a.linked_supabase_user_id as string, a.role])
+    )
+
+    const rawUsers = supaData?.users || []
+    const results = rawUsers
+      .map((u) => {
+        const fullName =
+          (u.user_metadata?.full_name ||
+            u.user_metadata?.name ||
+            u.user_metadata?.first_name ||
+            '') as string
+        const email = (u.email || '').trim().toLowerCase()
+        const existingRole = adminByEmail.get(email) || adminByUid.get(u.id) || null
+
+        return {
+          id: u.id,
+          email,
+          name: fullName || email.split('@')[0] || 'Registered User',
+          phone: u.phone || null,
+          created_at: u.created_at,
+          last_sign_in_at: u.last_sign_in_at || null,
+          is_already_admin: Boolean(existingRole),
+          current_role: existingRole,
+        }
+      })
+      .filter((u) => {
+        if (!q) return true
+        return u.email.includes(q) || u.name.toLowerCase().includes(q)
+      })
+      .slice(0, 25)
+
+    res.json({ users: results })
+  } catch (err: any) {
+    console.error('[adminTeam] search-users error:', err)
+    res.status(500).json({ error: 'Failed to search registered users' })
+  }
+})
+
 const promoteSchema = z.object({
-  supabase_user_id: z.string().min(1, 'Supabase User ID is required'),
+  supabase_user_id: z.string().optional().or(z.literal('').transform(() => undefined)),
   email: z.string().email('Please enter a valid email address'),
   role: ROLE_ENUM,
   builder_id: z.string().uuid('Invalid builder organization ID').optional().or(z.literal('').transform(() => undefined)),
@@ -153,8 +216,8 @@ const promoteSchema = z.object({
 })
 
 // POST /api/v1/admin/team/promote — grant admin access to an existing buyer
-// account by their Supabase user id. No invite flow: they already have
-// credentials, just not admin-panel access.
+// account. Automatically resolves the Supabase User ID from email if omitted,
+// eliminating the need for administrators to look up raw UUIDs.
 router.post('/promote', requireIdentity, requireRole('SUPER_ADMIN'), async (req: Request, res: Response) => {
   const parsed = promoteSchema.safeParse(req.body)
   if (!parsed.success) {
@@ -163,7 +226,9 @@ router.post('/promote', requireIdentity, requireRole('SUPER_ADMIN'), async (req:
     res.status(400).json({ error: firstFieldErr || 'Invalid input', details: flattened })
     return
   }
-  const { supabase_user_id, email, role, builder_id, partner_id } = parsed.data
+  const { role, builder_id, partner_id } = parsed.data
+  const email = parsed.data.email.trim().toLowerCase()
+  let supabase_user_id = parsed.data.supabase_user_id?.trim()
 
   if (role === 'BUILDER' && !builder_id) {
     res.status(400).json({ error: 'Please choose a target builder organization for the Builder role.' })
@@ -174,26 +239,45 @@ router.post('/promote', requireIdentity, requireRole('SUPER_ADMIN'), async (req:
     return
   }
 
-  const existingByUser = await prisma.adminUser.findUnique({ where: { linked_supabase_user_id: supabase_user_id } })
-  if (existingByUser) {
-    res.status(409).json({ error: 'This user already has an admin account' })
-    return
+  // Auto-resolve Supabase User ID from email if not provided directly
+  if (!supabase_user_id) {
+    try {
+      const { data: supaUsers } = await supabaseAdmin.auth.admin.listUsers({ page: 1, perPage: 1000 })
+      const matched = supaUsers?.users?.find((u) => u.email?.toLowerCase().trim() === email)
+      if (matched) {
+        supabase_user_id = matched.id
+      }
+    } catch (err) {
+      console.warn('[adminTeam] could not lookup supabase user by email:', err)
+    }
   }
-  const existingByEmail = await prisma.adminUser.findUnique({ where: { email: email.toLowerCase() } })
+
+  if (supabase_user_id) {
+    const existingByUser = await prisma.adminUser.findUnique({ where: { linked_supabase_user_id: supabase_user_id } })
+    if (existingByUser) {
+      res.status(409).json({ error: 'This user already has an active administrator account' })
+      return
+    }
+  }
+
+  const existingByEmail = await prisma.adminUser.findUnique({ where: { email } })
   if (existingByEmail) {
     res.status(409).json({ error: 'An admin with this email already exists' })
     return
   }
 
   const identity = identityOf(req)
+  const inviteToken = generateInviteToken()
   const admin = await prisma.adminUser.create({
     data: {
-      email: email.toLowerCase(),
+      email,
       role,
       builder_id: role === 'BUILDER' ? builder_id : null,
       partner_id: role === 'PARTNER' ? partner_id : null,
-      linked_supabase_user_id: supabase_user_id,
+      linked_supabase_user_id: supabase_user_id || null,
       invited_by_admin_id: identity.adminUserId === 'root' ? null : identity.adminUserId,
+      invite_token: inviteToken,
+      invite_expires_at: new Date(Date.now() + INVITE_TTL_MS),
       is_active: true,
     },
   })
@@ -202,10 +286,13 @@ router.post('/promote', requireIdentity, requireRole('SUPER_ADMIN'), async (req:
     entityType: 'admin_user', entityId: admin.id, entityName: admin.email,
     action: 'CREATE', actorAdminId: identity.adminUserId === 'root' ? null : identity.adminUserId,
     actorLabel: identity.email, ipAddress: clientIp(req),
-    summary: `Promoted existing user ${supabase_user_id} (${admin.email}) to ${role}`,
+    summary: `Promoted existing user ${supabase_user_id || '(email-resolved)'} (${admin.email}) to ${role}`,
   })
 
-  res.json({ admin: { id: admin.id, email: admin.email, role: admin.role } })
+  const inviteUrl = `${preferredInviteOrigin(process.env.FRONTEND_URL)}/admin/accept-invite?token=${inviteToken}`
+  const { emailed } = await sendInviteEmail(admin.email, admin.role, inviteUrl, admin.id)
+
+  res.json({ admin: { id: admin.id, email: admin.email, role: admin.role }, inviteUrl, emailed })
 })
 
 /**

@@ -24,16 +24,27 @@ import { enqueueAndSend } from './outboxDispatcher'
  * domain; fall back to the first entry only if none match.
  */
 export function preferredInviteOrigin(frontendUrlEnv: string | undefined): string {
-  const origins = (frontendUrlEnv || '').split(',').map((s) => s.trim()).filter(Boolean)
+  const sanitize = (url: string) =>
+    url
+      .trim()
+      .replace(/^https?:\/\/app\.propfyndr\.in/i, 'https://propfyndr.in')
+      .replace(/\/+$/, '')
+
+  const origins = (frontendUrlEnv || '')
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean)
+    .map(sanitize)
+
   const propfyndr = origins.find((o) => o.includes('propfyndr.in'))
-  if (propfyndr) return propfyndr
+  if (propfyndr) return sanitize(propfyndr)
 
   if (process.env.NODE_ENV === 'production') {
     const nonLocal = origins.find((o) => !o.includes('localhost') && !o.includes('127.0.0.1'))
-    return nonLocal || 'https://propfyndr.in'
+    return nonLocal ? sanitize(nonLocal) : 'https://propfyndr.in'
   }
 
-  return origins[0] || 'https://propfyndr.in'
+  return origins[0] ? sanitize(origins[0]) : 'https://propfyndr.in'
 }
 
 /**

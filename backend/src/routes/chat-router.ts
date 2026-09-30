@@ -49,6 +49,20 @@ import { getMemory, upsertMemory } from '../lib/ai/memory'
 import { buildContextMessages } from '../lib/ai/context'
 import { maybeCompress } from '../lib/ai/compression'
 import { executeJevDecision } from '../lib/jev/execute'
+import {
+  isRentalInquiry,
+  isResaleInquiry,
+  isCommercialInquiry,
+  isMultiFactorAdvisoryQuery,
+  isChainOfTitleQuery,
+  isSocietyFinancialQuery,
+  formatRentalAdvisory,
+  formatResaleAdvisory,
+  formatCommercialAdvisory,
+  getChainOfTitleChecklist,
+  getSocietyFinancialHealthChecklist,
+  getNonObviousOwnerFactorsGuide,
+} from '../lib/advisory/marketAdvisory'
 import { parseRequirementState } from '../lib/discovery/requirementState'
 import { maybeCompressTopical, TopicSummaries } from '../lib/chat/summaryCompression'
 import { isSpecificUnknownProject, logCoverageGap, fetchUnknownProjectContext, unknownProjectDirective } from '../lib/chat/coverageGap'
@@ -330,6 +344,78 @@ router.post('/', async (req: Request, res: Response) => {
    * answer every day), so the rental branch requires a phrase that reads as
    * wanting a rental/lease listing, not a yield calculation.
    */
+  // 1. High-Value Advisory & Due Diligence Fast-Path (Spec 4: Chain-of-Title, Society Financials, Owner Niche)
+  if (action.type === 'TEXT_MESSAGE') {
+    if (isChainOfTitleQuery(message)) {
+      res.setHeader('Content-Type', 'text/event-stream')
+      res.setHeader('Cache-Control', 'no-cache')
+      res.setHeader('Connection', 'keep-alive')
+      res.setHeader('X-Accel-Buffering', 'no')
+      res.flushHeaders()
+      sseWrite(res, 'token', { token: getChainOfTitleChecklist(message) })
+      sseWrite(res, 'ui_state', {
+        stage: 'RESEARCH',
+        thinking: 'Chain-of-title & resale legal verification sequence.',
+        chips: [
+          { id: `chip_rera_${Date.now()}`, actionType: 'TEXT_MESSAGE', label: 'Verify UP RERA Registration', icon: 'shield', analyticsId: 'chip_rera', priority: 1, payload: { text: 'How do I verify UP RERA registration online?' } },
+          { id: `chip_stamp_${Date.now()}`, actionType: 'TEXT_MESSAGE', label: 'Calculate Stamp Duty & Fees', icon: 'calculator', analyticsId: 'chip_stamp', priority: 2, payload: { text: 'What is the stamp duty in Noida?' } },
+        ],
+        missingFields: [],
+        confidence: 'HIGH',
+      })
+      sseWrite(res, 'done', { sessionId: sessionId ?? null, intentState: 'WARM', intent: {}, responseMode: 'chat' })
+      res.end()
+      console.log('[CHAT:CHAIN_OF_TITLE_DISPATCH]', { preview: message.slice(0, 60) })
+      return
+    }
+
+    if (isSocietyFinancialQuery(message)) {
+      res.setHeader('Content-Type', 'text/event-stream')
+      res.setHeader('Cache-Control', 'no-cache')
+      res.setHeader('Connection', 'keep-alive')
+      res.setHeader('X-Accel-Buffering', 'no')
+      res.flushHeaders()
+      sseWrite(res, 'token', { token: getSocietyFinancialHealthChecklist(message) })
+      sseWrite(res, 'ui_state', {
+        stage: 'RESEARCH',
+        thinking: 'Society financial management & maintenance due diligence.',
+        chips: [
+          { id: `chip_ifms_${Date.now()}`, actionType: 'TEXT_MESSAGE', label: 'What is IFMS charge?', icon: 'calculator', analyticsId: 'chip_ifms', priority: 1, payload: { text: 'What is IFMS and when is it transferred?' } },
+        ],
+        missingFields: [],
+        confidence: 'HIGH',
+      })
+      sseWrite(res, 'done', { sessionId: sessionId ?? null, intentState: 'WARM', intent: {}, responseMode: 'chat' })
+      res.end()
+      console.log('[CHAT:SOCIETY_FINANCIAL_DISPATCH]', { preview: message.slice(0, 60) })
+      return
+    }
+
+    if (isMultiFactorAdvisoryQuery(message)) {
+      res.setHeader('Content-Type', 'text/event-stream')
+      res.setHeader('Cache-Control', 'no-cache')
+      res.setHeader('Connection', 'keep-alive')
+      res.setHeader('X-Accel-Buffering', 'no')
+      res.flushHeaders()
+      sseWrite(res, 'token', { token: getNonObviousOwnerFactorsGuide(message) })
+      sseWrite(res, 'ui_state', {
+        stage: 'RESEARCH',
+        thinking: '5 Less-obvious owner factors evaluated by data availability.',
+        chips: [
+          { id: `chip_water_${Date.now()}`, actionType: 'TEXT_MESSAGE', label: 'Which sectors have Ganga Jal?', icon: 'droplet', analyticsId: 'chip_water', priority: 1, payload: { text: 'Which sectors in Noida have 100% Ganga Jal supply?' } },
+          { id: `chip_loading_${Date.now()}`, actionType: 'TEXT_MESSAGE', label: 'Check Carpet Efficiency', icon: 'ruler', analyticsId: 'chip_loading', priority: 2, payload: { text: 'How do I calculate loading ratio and carpet efficiency?' } },
+        ],
+        missingFields: [],
+        confidence: 'HIGH',
+      })
+      sseWrite(res, 'done', { sessionId: sessionId ?? null, intentState: 'WARM', intent: {}, responseMode: 'chat' })
+      res.end()
+      console.log('[CHAT:MULTI_FACTOR_ADVISORY_DISPATCH]', { preview: message.slice(0, 60) })
+      return
+    }
+  }
+
+  // 2. Excluded Property Type Guard with Sales-OS Market Intelligence & Advisory Bridging
   const isExcludedPropertyType =
     action.type === 'TEXT_MESSAGE' && (
       /\b(bank\s+)?auction(?:ed)?\s+propert/i.test(message) ||
@@ -337,47 +423,55 @@ router.post('/', async (req: Request, res: Response) => {
       /\b(resale|second[- ]?hand|pre[- ]?owned)\s+(flat|propert|apartment|home|house)/i.test(message) ||
       /\bcommercial\s+(propert|space|shop|office|showroom)/i.test(message) ||
       /\b(rent(?:al)?\s+(?:a\s+|an\s+)?(?:flat|apartment|house|home|room|property)|properties?\s+(?:for|to)\s+rent|looking\s+for\s+a\s+rental|tenant|landlord|airbnb|short[- ]?term\s+rental)\b/i.test(message) ||
-      // Broader than the phrase above on purpose: measured live, 8 Sep corpus,
-      // "flats in sector 75 noida for rent" and "flats on rent in sector 75
-      // noida" both walked past it — "rent" sat far from the noun it modifies.
-      // "for/to/on rent" is not a phrase this app's own vocabulary ever uses
-      // (rental YIELD is "rental yield", never bare "rent"), so it is safe
-      // to match anywhere in the message rather than anchored to a noun.
       /\b(?:for|to|on)\s+rent\b/i.test(message) ||
       /\brental\s+propert/i.test(message) ||
       /\bpropert\w*\s+for\s+auction\b/i.test(message) ||
-      // A bare "rent" (never "rental" — that's a real word boundary, matched
-      // above already) anywhere alongside a property noun. Broad on purpose:
-      // this app has no legitimate use of the word "rent" outside a rental
-      // listing request — "rental yield"/"rental income" don't contain it as
-      // a separate word — so co-occurrence alone is a safe signal here.
       (/\brent\b/i.test(message) && /\b(flat|apartment|house|home|room|propert|bhk)/i.test(message)) ||
-      // Hospitality brands and star-rated hotels, not real estate developers.
       /\b\d\s*[- ]?star\s+propert/i.test(message) ||
       /\b(accor|marriott|taj|oberoi|hyatt|radisson|hilton|leela|ihg|lemon\s+tree)\b.*\bpropert/i.test(message) ||
       /\bproperty\s+dealers?\b/i.test(message)
     )
+
   if (isExcludedPropertyType) {
     res.setHeader('Content-Type', 'text/event-stream')
     res.setHeader('Cache-Control', 'no-cache')
     res.setHeader('Connection', 'keep-alive')
     res.setHeader('X-Accel-Buffering', 'no')
     res.flushHeaders()
-    sseWrite(res, 'token', {
-      token: `PropFyndr covers new-construction, under-construction and ready-to-move residential purchase in Noida and Greater Noida — not rentals, resale, commercial space, or auction/distressed listings.\n\nLooking for a new or ready-to-move flat instead? Tell me the sector, budget or BHK and I'll pull verified options.`,
-    })
+
+    let advisoryText = ''
+    let chipLabel = 'Show verified properties in Noida'
+    let chipPayload = 'Show verified properties in Noida'
+
+    if (isRentalInquiry(message)) {
+      advisoryText = formatRentalAdvisory(message)
+      chipLabel = 'Show Ready-to-Move Flats in Noida'
+      chipPayload = 'Show verified ready to move flats in Noida'
+    } else if (isResaleInquiry(message)) {
+      advisoryText = formatResaleAdvisory(message)
+      chipLabel = 'Show Verified Direct Developer Homes'
+      chipPayload = 'Show verified primary developer homes in Noida'
+    } else if (isCommercialInquiry(message)) {
+      advisoryText = formatCommercialAdvisory(message)
+      chipLabel = 'Show Expressway Residential Projects'
+      chipPayload = 'Show residential projects along Noida Expressway'
+    } else {
+      advisoryText = `PropFyndr covers new-construction, under-construction and ready-to-move residential purchase in Noida and Greater Noida — not hotel/hospitality properties or bank distressed auctions.\n\nLooking for a verified residential home instead? Tell me the sector, budget or BHK and I'll pull verified options.`
+    }
+
+    sseWrite(res, 'token', { token: advisoryText })
     sseWrite(res, 'ui_state', {
       stage: 'RESEARCH',
-      thinking: 'Outside PropFyndr\'s V1 scope.',
+      thinking: 'Advisory market intelligence & positioning bridge.',
       chips: [
-        { id: `chip_scope_noida_${Date.now()}`, actionType: 'TEXT_MESSAGE', label: 'Show properties in Noida', icon: 'building', analyticsId: 'chip_scope_noida', priority: 1, payload: { text: 'Show verified properties in Noida' } },
+        { id: `chip_scope_noida_${Date.now()}`, actionType: 'TEXT_MESSAGE', label: chipLabel, icon: 'building', analyticsId: 'chip_scope_noida', priority: 1, payload: { text: chipPayload } },
       ],
       missingFields: [],
       confidence: 'HIGH',
     })
     sseWrite(res, 'done', { sessionId: sessionId ?? null, intentState: 'COLD', intent: {}, responseMode: 'chat' })
     res.end()
-    console.log('[CHAT:OUT_OF_SCOPE_PROPERTY_TYPE]', { preview: message.slice(0, 60) })
+    console.log('[CHAT:OUT_OF_SCOPE_ADVISORY_BRIDGE]', { preview: message.slice(0, 60) })
     return
   }
 

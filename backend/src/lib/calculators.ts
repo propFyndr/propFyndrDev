@@ -78,3 +78,143 @@ export function calcRentalYield(
     effectiveOccupancyMonths,
   }
 }
+
+// ─── ALL-IN TRUE LANDED COST ─────────────────────────────────────────────────
+
+export interface AllInCostResult {
+  basePriceCr: number
+  gst: number
+  stampDuty: number
+  registration: number
+  ifms: number
+  plc: number
+  carParking: number
+  electricMeter: number
+  totalCr: number
+  overheadPct: number
+}
+
+export function calcAllInCost(
+  basePriceCr: number,
+  status: 'ready_to_move' | 'under_construction',
+  gender: 'male' | 'female' | 'joint' = 'male',
+  carpetSqft = 0,
+  extras?: { plcPct?: number; carParkingLakhs?: number },
+): AllInCostResult {
+  const base = basePriceCr * 1_00_00_000
+  const gstResult = calcGst(basePriceCr, status, carpetSqft / 10.7639)
+  const stampResult = calcStampDuty(basePriceCr, gender)
+  const ifms = carpetSqft > 0 ? carpetSqft * 50 : 0
+  const plcPct = extras?.plcPct ?? 3
+  const plc = (base * plcPct) / 100
+  const carParking = (extras?.carParkingLakhs ?? 5) * 1_00_000
+  const electricMeter = 50_000
+  const totalRs =
+    base +
+    gstResult.gst +
+    stampResult.stampDuty +
+    stampResult.registration +
+    ifms +
+    plc +
+    carParking +
+    electricMeter
+  const totalCr = totalRs / 1_00_00_000
+  return {
+    basePriceCr,
+    gst: gstResult.gst,
+    stampDuty: stampResult.stampDuty,
+    registration: stampResult.registration,
+    ifms,
+    plc,
+    carParking,
+    electricMeter,
+    totalCr: parseFloat(totalCr.toFixed(4)),
+    overheadPct: parseFloat((((totalCr - basePriceCr) / basePriceCr) * 100).toFixed(2)),
+  }
+}
+
+// ─── TRUE NET RENTAL YIELD (all-in cost basis) ───────────────────────────────
+
+export function calcTrueNetRentalYield(
+  monthlyRent: number,
+  allInCostCr: number,
+  vacancyMonths = 0,
+  maintenanceMonthly = 0,
+): {
+  grossYieldPct: number
+  netYieldPct: number
+  annualGrossRent: number
+  annualNetRent: number
+  effectiveMonths: number
+} {
+  const allInCost = allInCostCr * 1_00_00_000
+  const effectiveMonths = Math.max(0, 12 - vacancyMonths)
+  const annualGrossRent = monthlyRent * 12
+  const annualNetRent = Math.max(0, monthlyRent - maintenanceMonthly) * effectiveMonths
+  return {
+    grossYieldPct: allInCost > 0 ? parseFloat(((annualGrossRent / allInCost) * 100).toFixed(2)) : 0,
+    netYieldPct: allInCost > 0 ? parseFloat(((annualNetRent / allInCost) * 100).toFixed(2)) : 0,
+    annualGrossRent,
+    annualNetRent,
+    effectiveMonths,
+  }
+}
+
+// ─── TWO-PROPERTY UPGRADE EQUITY ─────────────────────────────────────────────
+
+export function calcUpgradeEquity(
+  existingValueCr: number,
+  remainingLoanCr: number,
+  newPriceCr: number,
+  downPaymentPct: number,
+  interestRatePct: number,
+  tenureYears: number,
+): {
+  netRealizedCashCr: number
+  transactionCostsCr: number
+  newLoanCr: number
+  newMonthlyEmi: number
+  cashFlowGapMonthly: number
+  downPaymentCr: number
+} {
+  const transactionCosts = existingValueCr * 0.02
+  const netRealizedCashCr = parseFloat((existingValueCr - remainingLoanCr - transactionCosts).toFixed(4))
+  const downPaymentCr = parseFloat(((newPriceCr * downPaymentPct) / 100).toFixed(4))
+  const newLoanCr = parseFloat((newPriceCr - downPaymentCr).toFixed(4))
+  const emiResult = calcEmi(newLoanCr, interestRatePct, tenureYears)
+  return {
+    netRealizedCashCr,
+    transactionCostsCr: parseFloat(transactionCosts.toFixed(4)),
+    newLoanCr,
+    newMonthlyEmi: Math.round(emiResult.emi),
+    cashFlowGapMonthly: parseFloat((netRealizedCashCr - downPaymentCr).toFixed(4)),
+    downPaymentCr,
+  }
+}
+
+// ─── CARPET LOADING & USABLE AREA RATIO ──────────────────────────────────────
+
+export function calcLoadingRatio(
+  superBuiltUpSqft: number,
+  carpetSqft: number,
+): {
+  loadingPct: number
+  carpetEfficiencyPct: number
+  superBuiltUpSqft: number
+  carpetSqft: number
+  verdict: 'efficient' | 'average' | 'high_loading'
+} {
+  if (superBuiltUpSqft <= 0 || carpetSqft <= 0 || carpetSqft > superBuiltUpSqft) {
+    return { loadingPct: 0, carpetEfficiencyPct: 0, superBuiltUpSqft, carpetSqft, verdict: 'average' }
+  }
+  const loadingPct = parseFloat((((superBuiltUpSqft - carpetSqft) / superBuiltUpSqft) * 100).toFixed(2))
+  const carpetEfficiencyPct = parseFloat((100 - loadingPct).toFixed(2))
+  return {
+    loadingPct,
+    carpetEfficiencyPct,
+    superBuiltUpSqft,
+    carpetSqft,
+    verdict: carpetEfficiencyPct >= 75 ? 'efficient' : carpetEfficiencyPct >= 65 ? 'average' : 'high_loading',
+  }
+}
+

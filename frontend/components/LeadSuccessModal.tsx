@@ -36,6 +36,7 @@ export default function LeadSuccessModal({ type, projectName, name, visitDate, t
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         className="fixed inset-0 z-[70] flex items-center justify-center bg-black/60 backdrop-blur-md p-4"
+        onClick={onClose}
       >
         <m.div
           initial={{ scale: 0.8, opacity: 0, y: 20 }}
@@ -43,6 +44,7 @@ export default function LeadSuccessModal({ type, projectName, name, visitDate, t
           exit={{ scale: 0.9, opacity: 0 }}
           transition={{ type: 'spring', damping: 20, stiffness: 300 }}
           className="bg-white rounded-3xl p-8 max-w-sm w-full text-center shadow-2xl"
+          onClick={(e) => e.stopPropagation()}
         >
           <m.div
             initial={{ scale: 0 }}

@@ -48,6 +48,9 @@ export type IntegrityKind =
   | 'raw_payload'
   | 'opaque_score'
   | 'unsourced_date'
+  | 'broker_hype'
+  | 'unknown_field_presented_as_known'
+  | 'hard_constraint_violation'
 
 /**
  * The answer is not an answer — it is the data we handed the model.
@@ -280,6 +283,9 @@ function unsourcedDates(text: string, prompt: string): IntegrityViolation[] {
 export interface IntegrityViolation {
   kind: IntegrityKind
   detail: string
+  action?: 'discard' | 'rewrite'
+  rewrite?: string
+  excerpt?: string
 }
 
 /**
@@ -591,6 +597,32 @@ export function ungroundedAreaViolations(text: string, prompt: string): Integrit
   return scan(text, UNGROUNDED_AREA_DERIVATION, 'fabrication')
 }
 
+export const BROKER_HYPE_PATTERNS: Array<[RegExp, string]> = [
+  [/\bpremium\s+luxury\b/i, 'uses marketing superlative "premium luxury"'],
+  [/\bunmatched\s+appreciation\b/i, 'claims speculative "unmatched appreciation"'],
+  [/\bworld[- ]class\s+amenities\b/i, 'uses unsubstantiated "world-class amenities"'],
+  [/\b(\d{2,3})%\s+open\s+space\b/i, 'asserts exact open space percentage without RERA verification'],
+  [/\bexclusive\s+(?:lifestyle|community|township)\b/i, 'uses promotional marketing superlative "exclusive lifestyle/community"'],
+]
+
+export function detectBrokerHype(text: string, prompt = ''): IntegrityViolation[] {
+  const violations: IntegrityViolation[] = []
+  for (const [pattern, detail] of BROKER_HYPE_PATTERNS) {
+    const m = pattern.exec(text)
+    if (m) {
+      if (prompt && prompt.includes(m[0])) continue
+      violations.push({
+        kind: 'broker_hype',
+        detail: `${detail}: "${m[0]}"`,
+        action: 'rewrite',
+        excerpt: m[0],
+        rewrite: `The developer describes this property as "${m[0]}". To verify: ask the builder for the specific measurement, independent inspection report, or RERA-filed specification.`,
+      })
+    }
+  }
+  return violations
+}
+
 export function unlistedProprietaryViolations(text: string, prompt: string): IntegrityViolation[] {
   const isUnlistedProject =
     prompt.includes('PROJECT NOT IN OUR DATABASE') ||
@@ -612,6 +644,7 @@ export function checkAnswerIntegritySync(text: string, prompt: string, userMessa
     ...verifyPriceProvenance(body, prompt, userMessage),
     ...unlistedProprietaryViolations(body, prompt),
     ...ungroundedAreaViolations(body, prompt),
+    ...detectBrokerHype(body, prompt),
   ]
   if (violations.length > 0) return violations
 
@@ -635,6 +668,7 @@ export async function checkAnswerIntegrity(
     ...verifyPriceProvenance(body, prompt, userMessage),
     ...unlistedProprietaryViolations(body, prompt),
     ...ungroundedAreaViolations(body, prompt),
+    ...detectBrokerHype(body, prompt),
   ]
 
   // Only worth the database round-trip when nothing cheaper has already failed

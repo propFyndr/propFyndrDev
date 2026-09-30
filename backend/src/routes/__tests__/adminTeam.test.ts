@@ -31,4 +31,10 @@ describe('preferredInviteOrigin', () => {
     const env = ' https://preview.vercel.app , https://propfyndr.in '
     assert.equal(preferredInviteOrigin(env), 'https://propfyndr.in')
   })
+
+  it('sanitizes app.propfyndr.in to canonical https://propfyndr.in to prevent NXDOMAIN errors', () => {
+    const env = 'https://app.propfyndr.in'
+    assert.equal(preferredInviteOrigin(env), 'https://propfyndr.in')
+    assert.equal(preferredInviteOrigin('https://app.propfyndr.in,https://preview.vercel.app'), 'https://propfyndr.in')
+  })
 })

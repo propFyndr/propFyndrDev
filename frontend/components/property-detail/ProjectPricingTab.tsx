@@ -1174,8 +1174,14 @@ export default function ProjectPricingTab({ unitTypes, detail, loading, onGoToCo
 
       {/* ── PLAN COMPARISON MODAL ── */}
       {showCompareModal && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-[#151515] rounded-[24px] max-w-2xl w-full p-6 shadow-2xl space-y-6 relative border border-gray-200 dark:border-white/10">
+        <div
+          className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4"
+          onClick={() => setShowCompareModal(false)}
+        >
+          <div
+            className="bg-white dark:bg-[#151515] rounded-[24px] max-w-2xl w-full p-6 shadow-2xl space-y-6 relative border border-gray-200 dark:border-white/10"
+            onClick={(e) => e.stopPropagation()}
+          >
             <button
               onClick={() => setShowCompareModal(false)}
               className="absolute top-5 right-5 w-8 h-8 rounded-full bg-gray-100 dark:bg-white/10 flex items-center justify-center text-gray-500 hover:text-gray-900"
@@ -1226,8 +1232,14 @@ export default function ProjectPricingTab({ unitTypes, detail, loading, onGoToCo
 
       {/* ── CHECK ELIGIBILITY MODAL ── */}
       {showEligibilityModal && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-[#151515] rounded-[24px] max-w-md w-full p-6 shadow-2xl space-y-6 relative border border-gray-200 dark:border-white/10">
+        <div
+          className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4"
+          onClick={() => setShowEligibilityModal(false)}
+        >
+          <div
+            className="bg-white dark:bg-[#151515] rounded-[24px] max-w-md w-full p-6 shadow-2xl space-y-6 relative border border-gray-200 dark:border-white/10"
+            onClick={(e) => e.stopPropagation()}
+          >
             <button
               onClick={() => setShowEligibilityModal(false)}
               className="absolute top-5 right-5 w-8 h-8 rounded-full bg-gray-100 dark:bg-white/10 flex items-center justify-center text-gray-500 hover:text-gray-900"

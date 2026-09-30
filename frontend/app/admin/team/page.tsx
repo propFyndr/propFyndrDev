@@ -103,6 +103,47 @@ export default function AdminTeamPage() {
   const [submitting, setSubmitting] = useState(false)
   const [fetchingInviteId, setFetchingInviteId] = useState<string | null>(null)
 
+  // Registered Buyer Search & Selection for Promote Flow
+  const [userSearchQuery, setUserSearchQuery] = useState('')
+  const [userSearchResults, setUserSearchResults] = useState<Array<{
+    id: string
+    email: string
+    name: string
+    phone: string | null
+    is_already_admin: boolean
+    current_role: string | null
+  }>>([])
+  const [isSearchingUsers, setIsSearchingUsers] = useState(false)
+  const [selectedUser, setSelectedUser] = useState<{
+    id: string
+    email: string
+    name: string
+    is_already_admin: boolean
+  } | null>(null)
+
+  useEffect(() => {
+    if (mode !== 'promote' || selectedUser) return
+    let active = true
+    const timer = setTimeout(async () => {
+      setIsSearchingUsers(true)
+      try {
+        const res = await adminFetch(`/admin/team/search-users?q=${encodeURIComponent(userSearchQuery.trim())}`)
+        if (res.ok && active) {
+          const data = await res.json()
+          setUserSearchResults(data.users || [])
+        }
+      } catch (err) {
+        console.error('Failed to search users:', err)
+      } finally {
+        if (active) setIsSearchingUsers(false)
+      }
+    }, 200)
+    return () => {
+      active = false
+      clearTimeout(timer)
+    }
+  }, [mode, userSearchQuery, selectedUser])
+
   const load = useCallback(async (isSilent = false) => {
     if (!isSilent) setLoading(true)
     else setIsRefreshing(true)
@@ -263,7 +304,7 @@ export default function AdminTeamPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          supabase_user_id: supabaseUserId.trim(),
+          supabase_user_id: supabaseUserId.trim() || undefined,
           email: email.trim(),
           role,
           builder_id: role === 'BUILDER' && builderId ? builderId : undefined,
@@ -279,11 +320,21 @@ export default function AdminTeamPage() {
         setSubmitting(false)
         return
       }
+      const data = await res.json().catch(() => ({}))
       setSuccessToast(`Granted ${role} privileges to ${email}!`)
       setTimeout(() => setSuccessToast(''), 5000)
 
+      if (data.inviteUrl) {
+        setLastInviteUrl(data.inviteUrl)
+        setLastInviteEmailed(Boolean(data.emailed))
+        setLastInvitedEmail(email.trim())
+        setLastInvitedRole(role)
+      }
+
       setEmail('')
       setSupabaseUserId('')
+      setSelectedUser(null)
+      setUserSearchQuery('')
       setBuilderId('')
       setPartnerId('')
       setMode(null)
@@ -920,8 +971,18 @@ export default function AdminTeamPage() {
 
       {/* ── Apple HIG Modal Sheet: Invite or Promote Administrator ──── */}
       {mode && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-150">
-          <div className="relative w-full max-w-lg bg-white dark:bg-zinc-900 border border-zinc-200/90 dark:border-zinc-800 rounded-3xl p-6 sm:p-7 shadow-2xl space-y-5 animate-in zoom-in-95 duration-150">
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-150"
+          onClick={() => {
+            setMode(null)
+            setSelectedUser(null)
+            setUserSearchQuery('')
+          }}
+        >
+          <div
+            className="relative w-full max-w-lg bg-white dark:bg-zinc-900 border border-zinc-200/90 dark:border-zinc-800 rounded-3xl p-6 sm:p-7 shadow-2xl space-y-5 animate-in zoom-in-95 duration-150"
+            onClick={(e) => e.stopPropagation()}
+          >
             {/* Modal Header */}
             <div className="flex items-center justify-between border-b border-zinc-100 dark:border-zinc-800 pb-4">
               <div className="flex items-center gap-3">
@@ -944,7 +1005,11 @@ export default function AdminTeamPage() {
                 </div>
               </div>
               <button
-                onClick={() => setMode(null)}
+                onClick={() => {
+                  setMode(null)
+                  setSelectedUser(null)
+                  setUserSearchQuery('')
+                }}
                 className="w-8 h-8 rounded-xl border border-zinc-200 dark:border-zinc-700 flex items-center justify-center text-zinc-400 hover:text-zinc-700 dark:hover:text-white transition-colors cursor-pointer"
               >
                 <X size={15} />
@@ -1095,31 +1160,118 @@ export default function AdminTeamPage() {
             {/* Promote Flow */}
             {mode === 'promote' && (
               <form onSubmit={submitPromote} className="space-y-4">
+                {/* User Search & Selection */}
                 <div>
                   <label className="block text-[11px] font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider mb-1.5">
-                    Supabase User ID (UUID)
+                    Select Registered User or Enter Email
                   </label>
-                  <input
-                    required
-                    placeholder="e.g. 550e8400-e29b-41d4-a716..."
-                    value={supabaseUserId}
-                    onChange={(e) => setSupabaseUserId(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-200/90 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-white text-xs font-mono focus:ring-1 focus:ring-purple-500 focus:border-purple-500 outline-none transition-all"
-                  />
-                </div>
 
-                <div>
-                  <label className="block text-[11px] font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider mb-1.5">
-                    Registered Email Address
-                  </label>
-                  <input
-                    required
-                    type="email"
-                    placeholder="user@gmail.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-200/90 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-white text-xs font-medium focus:ring-1 focus:ring-purple-500 focus:border-purple-500 outline-none transition-all"
-                  />
+                  {selectedUser ? (
+                    <div className="flex items-center justify-between p-3 rounded-2xl bg-purple-50/80 dark:bg-purple-950/40 border border-purple-200 dark:border-purple-800/60 animate-in fade-in duration-150">
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className="w-9 h-9 rounded-xl bg-purple-600 text-white font-bold text-xs flex items-center justify-center shrink-0 shadow-2xs">
+                          {selectedUser.name.slice(0, 2).toUpperCase()}
+                        </div>
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs font-bold text-zinc-900 dark:text-white truncate">
+                              {selectedUser.name}
+                            </span>
+                            <span className="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-purple-100 dark:bg-purple-900/60 text-purple-700 dark:text-purple-300">
+                              Supabase Verified
+                            </span>
+                          </div>
+                          <span className="text-[11px] text-zinc-500 dark:text-zinc-400 truncate block">
+                            {selectedUser.email}
+                          </span>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSelectedUser(null)
+                          setEmail('')
+                          setSupabaseUserId('')
+                          setUserSearchQuery('')
+                        }}
+                        className="px-2.5 py-1 rounded-lg text-[11px] font-semibold text-purple-700 dark:text-purple-300 hover:bg-purple-100 dark:hover:bg-purple-900/50 transition-colors cursor-pointer"
+                      >
+                        Change
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="relative">
+                      <div className="relative">
+                        <MagnifyingGlass size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400 pointer-events-none" />
+                        <input
+                          type="text"
+                          placeholder="Search registered user by name or type email..."
+                          value={userSearchQuery}
+                          onChange={(e) => {
+                            setUserSearchQuery(e.target.value)
+                            setEmail(e.target.value)
+                          }}
+                          className="w-full pl-9 pr-8 py-2.5 rounded-xl border border-zinc-200/90 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-white text-xs font-medium focus:ring-1 focus:ring-purple-500 focus:border-purple-500 outline-none transition-all"
+                        />
+                        {isSearchingUsers && (
+                          <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                            <ArrowsClockwise size={13} className="animate-spin text-zinc-400" />
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Dropdown list of users */}
+                      {userSearchResults.length > 0 && !selectedUser && (
+                        <div className="absolute z-20 top-full left-0 right-0 mt-1 max-h-56 overflow-y-auto bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl shadow-xl divide-y divide-zinc-100 dark:divide-zinc-700/60 custom-scrollbar">
+                          {userSearchResults.map((u) => (
+                            <button
+                              key={u.id}
+                              type="button"
+                              disabled={u.is_already_admin}
+                              onClick={() => {
+                                setSelectedUser(u)
+                                setEmail(u.email)
+                                setSupabaseUserId(u.id)
+                                setUserSearchResults([])
+                              }}
+                              className={`w-full p-2.5 text-left flex items-center justify-between gap-3 transition-colors ${
+                                u.is_already_admin
+                                  ? 'opacity-50 cursor-not-allowed bg-zinc-50 dark:bg-zinc-800/50'
+                                  : 'hover:bg-purple-50/60 dark:hover:bg-purple-950/30 cursor-pointer'
+                              }`}
+                            >
+                              <div className="flex items-center gap-2.5 min-w-0">
+                                <div className="w-7 h-7 rounded-lg bg-zinc-100 dark:bg-zinc-700 text-zinc-600 dark:text-zinc-300 font-bold text-[11px] flex items-center justify-center shrink-0">
+                                  {u.name.slice(0, 2).toUpperCase()}
+                                </div>
+                                <div className="min-w-0">
+                                  <div className="text-xs font-semibold text-zinc-900 dark:text-white truncate">
+                                    {u.name}
+                                  </div>
+                                  <div className="text-[11px] text-zinc-400 truncate">
+                                    {u.email}
+                                  </div>
+                                </div>
+                              </div>
+                              {u.is_already_admin ? (
+                                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-zinc-200 dark:bg-zinc-700 text-zinc-600 dark:text-zinc-300 shrink-0">
+                                  Already {u.current_role}
+                                </span>
+                              ) : (
+                                <span className="text-[11px] font-bold text-purple-600 dark:text-purple-400 shrink-0">
+                                  Select
+                                </span>
+                              )}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  <p className="text-[11px] text-zinc-400 dark:text-zinc-500 mt-1.5">
+                    Search from registered accounts, or enter any email directly. The internal Supabase ID is resolved automatically.
+                  </p>
                 </div>
 
                 <div>
@@ -1134,16 +1286,67 @@ export default function AdminTeamPage() {
                   />
                 </div>
 
+                {/* Role scope inputs if BUILDER or PARTNER */}
+                {role === 'BUILDER' && (
+                  <div className="bg-amber-50/70 dark:bg-amber-950/30 border border-amber-200/70 dark:border-amber-800/60 p-3.5 rounded-xl space-y-2">
+                    <label className="block text-[11px] font-bold text-amber-900 dark:text-amber-200 uppercase tracking-wider">
+                      Target Builder Organization
+                    </label>
+                    {buildersList.length > 0 ? (
+                      <CustomSelect
+                        value={builderId}
+                        onChange={(v) => setBuilderId(v)}
+                        options={buildersList.map((b) => ({ value: b.id, label: b.name }))}
+                        placeholder="Choose developer from catalog…"
+                        size="md"
+                      />
+                    ) : (
+                      <input
+                        required
+                        placeholder="Builder UUID"
+                        value={builderId}
+                        onChange={(e) => setBuilderId(e.target.value)}
+                        className="w-full px-3 py-2 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-xs"
+                      />
+                    )}
+                  </div>
+                )}
+
+                {role === 'PARTNER' && (
+                  <div className="bg-rose-50/70 dark:bg-rose-950/30 border border-rose-200/70 dark:border-rose-800/60 p-3.5 rounded-xl space-y-2">
+                    <label className="block text-[11px] font-bold text-rose-900 dark:text-rose-200 uppercase tracking-wider">
+                      Channel Partner Agency
+                    </label>
+                    {partnersList.length > 0 ? (
+                      <CustomSelect
+                        value={partnerId}
+                        onChange={(v) => setPartnerId(v)}
+                        options={partnersList.map((p) => ({ value: p.id, label: p.name }))}
+                        placeholder="Choose an approved partner…"
+                        size="md"
+                      />
+                    ) : (
+                      <p className="text-xs font-medium text-rose-900/80 dark:text-rose-200/80">
+                        No approved channel partners yet — approve one under Partners first.
+                      </p>
+                    )}
+                  </div>
+                )}
+
                 <div className="flex items-center justify-end gap-2 pt-3 border-t border-zinc-100 dark:border-zinc-800">
                   <button
                     type="button"
-                    onClick={() => setMode(null)}
+                    onClick={() => {
+                      setMode(null)
+                      setSelectedUser(null)
+                      setUserSearchQuery('')
+                    }}
                     className="px-4 py-2 rounded-xl border border-zinc-200 dark:border-zinc-700 text-xs font-semibold hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-300 cursor-pointer"
                   >
                     Cancel
                   </button>
                   <button
-                    disabled={submitting || !supabaseUserId || !email}
+                    disabled={submitting || !email}
                     type="submit"
                     className="px-5 py-2 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold transition-all shadow-sm active:scale-[0.98] disabled:opacity-50 cursor-pointer"
                   >
@@ -1169,8 +1372,14 @@ export default function AdminTeamPage() {
 
       {/* ── Apple HIG Delete Confirmation Modal ─────────────────────── */}
       {deleteTarget && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-150">
-          <div className="relative w-full max-w-md bg-white dark:bg-zinc-900 border border-zinc-200/90 dark:border-zinc-800 rounded-3xl p-6 shadow-2xl space-y-4 animate-in zoom-in-95 duration-150">
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-150"
+          onClick={() => setDeleteTarget(null)}
+        >
+          <div
+            className="relative w-full max-w-md bg-white dark:bg-zinc-900 border border-zinc-200/90 dark:border-zinc-800 rounded-3xl p-6 shadow-2xl space-y-4 animate-in zoom-in-95 duration-150"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-2xl bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-800 text-rose-600 dark:text-rose-400 flex items-center justify-center shrink-0">
                 <Trash size={20} weight="bold" />

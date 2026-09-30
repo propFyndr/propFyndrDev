@@ -60,7 +60,7 @@ export default function ShareShortlistModal({ isOpen, shortlist, onClose }: Shar
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm p-0 sm:p-4"
-        onClick={(e) => { if (e.target === e.currentTarget) { onClose(); setCopied(false) } }}
+        onClick={() => { onClose(); setCopied(false) }}
       >
         <m.div
           initial={{ y: 60, opacity: 0 }}
@@ -68,6 +68,7 @@ export default function ShareShortlistModal({ isOpen, shortlist, onClose }: Shar
           exit={{ y: 60, opacity: 0 }}
           transition={{ type: 'spring', damping: 28, stiffness: 320 }}
           className="w-full sm:max-w-md rounded-t-3xl sm:rounded-2xl bg-white dark:bg-gray-900 shadow-2xl p-6 pb-safe"
+          onClick={(e) => e.stopPropagation()}
         >
           <div className="w-10 h-1 bg-gray-200 dark:bg-gray-700 rounded-full mx-auto mb-5 sm:hidden" />
           <div className="flex items-center justify-between mb-4">
