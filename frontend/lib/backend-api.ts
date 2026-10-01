@@ -80,14 +80,15 @@ export interface NearbyExpansion {
 }
 
 export type SSEEvent =
-  | { type: 'intent'; intent: Record<string, unknown>; intentState: string }
-  | { type: 'properties'; exactResults: ScoredProject[]; nearbyResults: ScoredProject[]; expansion: NearbyExpansion | null }
-  | { type: 'token'; token: string }
-  | { type: 'components'; response: ComponentResponse }
-  | { type: 'done'; sessionId: string; intentState: string; intent?: Record<string, unknown>; responseMode: 'search' | 'comparison' | 'chat' }
-  | { type: 'error'; message: string }
-  | { type: 'ui_state'; stage: ConversationStage; thinking: string; chips: ChipAction[]; missingFields: string[]; confidence: 'HIGH' | 'MEDIUM' | 'LOW' }
-  | { type: 'focus'; projectId: string; name: string; anchor: string }
+  | { type: 'heartbeat'; ts: number }
+  | { type: 'intent'; intent: Record<string, unknown>; intentState: string; seq?: number }
+  | { type: 'properties'; exactResults: ScoredProject[]; nearbyResults: ScoredProject[]; expansion: NearbyExpansion | null; seq?: number }
+  | { type: 'token'; token: string; seq?: number }
+  | { type: 'components'; response: ComponentResponse; seq?: number }
+  | { type: 'done'; sessionId: string; turnId?: string; intentState: string; intent?: Record<string, unknown>; responseMode?: 'search' | 'comparison' | 'chat'; seq?: number }
+  | { type: 'error'; message: string; retryable?: boolean; seq?: number }
+  | { type: 'ui_state'; stage: ConversationStage; thinking: string; chips: ChipAction[]; missingFields: string[]; confidence: 'HIGH' | 'MEDIUM' | 'LOW'; seq?: number }
+  | { type: 'focus'; projectId: string; name: string; anchor: string; seq?: number }
 
 export function streamChat(
   action: ConversationAction,
@@ -102,76 +103,143 @@ export function streamChat(
     signal?: AbortSignal
   }
 ): void {
-  authHeaders({ 'Content-Type': 'application/json' }).then((headers) => fetch(`${BACKEND}/api/v1/chat`, {
-    method: 'POST',
-    headers,
-    body: JSON.stringify({
-      action,
-      sessionId: options.sessionId,
-      guestToken: options.guestToken,
-      intent: options.intent,
-      currentSessionViewed: options.currentSessionViewed,
-    }),
-    signal: options.signal,
-  })).then(async (res) => {
-    if (!res.ok || !res.body) {
-      // Surface the real reason (auth/rate-limit/etc.) instead of a generic message.
-      let msg = 'The advisor is having trouble right now. Please try again in a moment.'
-      try {
-        const err = await res.json()
-        if (res.status === 429) msg = 'You’re sending messages a bit fast — give it a few seconds and try again.'
-        else if (res.status === 401 || res.status === 403) msg = 'Your session expired. Please sign in again.'
-        else if (err?.error) msg = err.error
-      } catch { /* non-JSON body */ }
-      options.onEvent({ type: 'error', message: msg })
-      options.onDone?.()
-      return
+  let highestSeq = 0
+  const turnId = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `turn_${Date.now()}`
+  let reconnectAttempts = 0
+  const MAX_RECONNECTS = 3
+  let isTerminal = false
+
+  async function connectStream() {
+    const baseHeaders = await authHeaders({ 'Content-Type': 'application/json' })
+    const headers: Record<string, string> = {
+      ...baseHeaders,
+      'X-Turn-Id': turnId,
+    }
+    if (highestSeq > 0) {
+      headers['Last-Event-Seq'] = String(highestSeq)
     }
 
-    const reader = res.body.getReader()
-    const decoder = new TextDecoder()
-    let buffer = ''
-    const STALL_MS = 60000
+    try {
+      const res = await fetch(`${BACKEND}/api/v1/chat`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          action,
+          sessionId: options.sessionId,
+          turnId,
+          guestToken: options.guestToken,
+          intent: options.intent,
+          currentSessionViewed: options.currentSessionViewed,
+        }),
+        signal: options.signal,
+      })
 
-    while (true) {
-      let readResult: ReadableStreamReadResult<Uint8Array>
-      try {
-        readResult = await Promise.race([
-          reader.read(),
-          new Promise<never>((_, rej) => setTimeout(() => rej(new Error('STALL')), STALL_MS)),
-        ])
-      } catch {
-        reader.cancel().catch(() => {})
-        options.onEvent({ type: 'error', message: 'The advisor stopped responding. Please try again.' })
-        break
-      }
-      const { done, value } = readResult
-      if (done) break
+      if (!res.ok || !res.body) {
+        if (reconnectAttempts < MAX_RECONNECTS && highestSeq > 0) {
+          reconnectAttempts++
+          const delay = Math.min(1000 * Math.pow(2, reconnectAttempts - 1), 3000)
+          setTimeout(() => connectStream(), delay)
+          return
+        }
 
-      buffer += decoder.decode(value, { stream: true })
-      const parts = buffer.split('\n\n')
-      buffer = parts.pop() ?? ''
-
-      for (const part of parts) {
-        if (!part.trim()) continue
-        const eventLine = part.match(/^event: (\w+)/m)
-        const dataLine = part.match(/^data: (.+)/m)
-        if (!eventLine || !dataLine) continue
-
-        const eventType = eventLine[1]
+        let msg = 'The advisor is having trouble right now. Please try again in a moment.'
         try {
-          const data = JSON.parse(dataLine[1])
-          options.onEvent({ type: eventType, ...data } as SSEEvent)
-        } catch { /* ignore parse errors */ }
+          const err = await res.json()
+          if (res.status === 429) msg = 'You’re sending messages a bit fast — give it a few seconds and try again.'
+          else if (res.status === 401 || res.status === 403) msg = 'Your session expired. Please sign in again.'
+          else if (err?.error) msg = err.error
+        } catch { /* non-JSON body */ }
+        options.onEvent({ type: 'error', message: msg })
+        options.onDone?.()
+        return
       }
-    }
-    options.onDone?.()
-  }).catch((err) => {
-    if ((err as Error).name !== 'AbortError') {
+
+      const reader = res.body.getReader()
+      const decoder = new TextDecoder()
+      let buffer = ''
+      const STALL_MS = 60000
+
+      while (true) {
+        let readResult: ReadableStreamReadResult<Uint8Array>
+        let stallTimer: ReturnType<typeof setTimeout> | undefined
+        try {
+          readResult = await Promise.race([
+            reader.read(),
+            new Promise<never>((_, rej) => { stallTimer = setTimeout(() => rej(new Error('STALL')), STALL_MS) }),
+          ])
+          clearTimeout(stallTimer)
+        } catch {
+          clearTimeout(stallTimer)
+          reader.cancel().catch(() => {})
+          // The buyer stopped this turn: not a dropped connection, so no reconnect.
+          if (options.signal?.aborted) { options.onDone?.(); return }
+          if (reconnectAttempts < MAX_RECONNECTS && highestSeq > 0) {
+            reconnectAttempts++
+            const delay = Math.min(1000 * Math.pow(2, reconnectAttempts - 1), 3000)
+            setTimeout(() => connectStream(), delay)
+            return
+          }
+          options.onEvent({ type: 'error', message: 'The advisor stopped responding. Please try again.' })
+          isTerminal = true
+          break
+        }
+
+        const { done, value } = readResult
+        if (done) break
+
+        buffer += decoder.decode(value, { stream: true })
+        const parts = buffer.split('\n\n')
+        buffer = parts.pop() ?? ''
+
+        for (const part of parts) {
+          const trimmed = part.trim()
+          if (!trimmed) continue
+          // Task 2.3: Discard SSE comment lines (e.g. ": ping")
+          if (trimmed.startsWith(':')) continue
+
+          const eventLine = part.match(/^event: (\w+)/m)
+          const dataLine = part.match(/^data: (.+)/m)
+          if (!eventLine || !dataLine) continue
+
+          const eventType = eventLine[1]
+          try {
+            const data = JSON.parse(dataLine[1])
+            if (typeof data.seq === 'number' && data.seq > highestSeq) {
+              highestSeq = data.seq
+            }
+            if (eventType === 'done' || eventType === 'error') {
+              isTerminal = true
+            }
+            options.onEvent({ type: eventType, ...data } as SSEEvent)
+          } catch { /* ignore parse errors */ }
+        }
+      }
+
+      if (!isTerminal && highestSeq > 0 && reconnectAttempts < MAX_RECONNECTS) {
+        reconnectAttempts++
+        const delay = Math.min(1000 * Math.pow(2, reconnectAttempts - 1), 3000)
+        setTimeout(() => connectStream(), delay)
+        return
+      }
+
+      options.onDone?.()
+    } catch (err) {
+      if ((err as Error).name === 'AbortError') {
+        options.onDone?.()
+        return
+      }
+      if (reconnectAttempts < MAX_RECONNECTS && highestSeq > 0) {
+        reconnectAttempts++
+        const delay = Math.min(1000 * Math.pow(2, reconnectAttempts - 1), 3000)
+        setTimeout(() => connectStream(), delay)
+        return
+      }
       options.onEvent({ type: 'error', message: 'Connection error. Please try again.' })
+      options.onDone?.()
     }
-    options.onDone?.()
-  })
+  }
+
+  connectStream()
 }
 
 export async function getSessions(userId?: string, guestToken?: string) {

@@ -75,4 +75,17 @@ describe('detectFactualAttribute', () => {
     assert.equal(detectFactualAttribute('compare ATS Pious and Ace Parkway'), null)
     assert.equal(detectFactualAttribute('best builders in Noida'), null)
   })
+
+  it('leaves comparison, discovery and loose mentions to the lanes that handle them', () => {
+    // Each of these returned a one-project fact card before the keyword gate.
+    for (const q of [
+      'Compare Godrej Woods and ATS Pious, both rera registered?',
+      'is there water logging near Mahagun Mezzaria in monsoon?',
+      'are there elevators in every tower of Lotus Boulevard',
+      'show me 3bhk with good water supply in sector 150',
+      'which one is better for oc, Ace Parkway or ATS Pious?',
+    ]) {
+      assert.equal(detectFactualAttribute(q), null, q)
+    }
+  })
 })

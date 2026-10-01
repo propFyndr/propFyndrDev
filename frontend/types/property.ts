@@ -230,6 +230,8 @@ export interface ChatMessage {
   streamingStartedAt?: number | null;
   /** Seconds the turn took, fixed at `done`. Absent means never measured. */
   streamingElapsedSeconds?: number | null;
+  lastSeq?: number;
+  turnId?: string;
   missingDimension?: 'budget' | 'bhk' | 'location' | null;
   suggestedChips?: Array<{ emoji: string; label: string; msg: string }>;
   intent?: {

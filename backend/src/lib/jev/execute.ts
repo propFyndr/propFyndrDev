@@ -30,6 +30,27 @@ import {
   getSocietyFinancialHealthChecklist,
   getNonObviousOwnerFactorsGuide,
 } from '../advisory/marketAdvisory'
+import { matchesLegalRiskQuestion } from '../chat/handlers/legalRisk'
+import { statedBasePriceInr } from '../chat/handlers/totalOutflow'
+import { ASKS_FOR_THE_CATCH } from '../chat/handlers/projectCatch'
+import { ASKS_FAIRNESS } from '../chat/handlers/priceFairness'
+import { MARKET_QUALIFIER } from '../factPresentation'
+
+/**
+ * A question a dedicated handler further down the router answers from law and
+ * our own rows. JEV runs first, so without this its canned replies (the
+ * clarify gate, the generic registration guide) pre-empted them: "is sector
+ * 150 sports city registry solved", "10 lakh EOI refundable hai" and
+ * "bsp 1.2 cr total kitna padega" all lost their specific answers.
+ */
+function ownedByDedicatedHandler(message: string): boolean {
+  return matchesLegalRiskQuestion(message) || statedBasePriceInr(message) !== null ||
+    ASKS_FOR_THE_CATCH.test(message) || ASKS_FAIRNESS.test(message)
+}
+
+/** "How does registry work", not "is registry safe in X". */
+const ASKS_REGISTRATION_PROCESS =
+  /\b(?:process|procedure|steps?|how\s+(?:do|does|to|is)|kaise|kya\s+karna)\b[^?]*\b(?:regist(?:ry|ration|er)|sub[- ]?lease|e[- ]?stamp)/i
 
 export interface JevExecutionContext {
   res: Response
@@ -53,6 +74,8 @@ export async function executeJevDecision(
   ctx: JevExecutionContext,
 ): Promise<boolean> {
   const { res, send, sessionId, message } = ctx
+
+  if (ownedByDedicatedHandler(message)) return false
 
   // 1. Clarification Gate Trigger
   if (decision.clarify && decision.clarify.trim().length > 0) {
@@ -134,7 +157,7 @@ export async function executeJevDecision(
       res.end()
       return true
     }
-    if (decision.task === 'legal_process') {
+    if (decision.task === 'legal_process' && ASKS_REGISTRATION_PROCESS.test(message)) {
       const legalGuide = getLegalProcessGuide(message)
       send('token', { token: legalGuide })
       send('done', { sessionId: sessionId ?? null, intentState: 'WARM', intent: ctx.intent })
@@ -185,49 +208,19 @@ export function handleDeterministicCalculations(message: string, ctx: JevExecuti
     return true
   }
 
-  // Branch B: All-In True Landed Cost Breakdown
-  if (/\b(?:all[- ]?in|total\s+cost|true\s+cost|actual\s+outflow|landed\s+cost)\b/i.test(lower)) {
-    const amountMatch = /(?:₹|rs\.?|inr)?\s*(\d+(?:\.\d+)?)\s*(?:cr(?:ore)?|lakh?s?)/i.exec(message)
-    const isCr = amountMatch ? /cr(?:ore)?/i.test(amountMatch[0]) : true
-    const basePriceCr = amountMatch ? parseFloat(amountMatch[1]) * (isCr ? 1 : 0.01) : 1.5
-    const isRtm = /\b(?:ready\s+to\s+move|rtm|completed|delivered)\b/i.test(lower)
-    const isWoman = /\b(?:woman|female|mother|wife|daughter|lady)\b/i.test(lower)
-    const carpetMatch = /(\d{3,4})\s*(?:sqft|sq\.?ft|sft)/i.exec(message)
-    const carpetSqft = carpetMatch ? parseInt(carpetMatch[1], 10) : 1200
-
-    const r = calcAllInCost(
-      basePriceCr,
-      isRtm ? 'ready_to_move' : 'under_construction',
-      isWoman ? 'female' : 'male',
-      carpetSqft,
-    )
-
-    const text =
-      `**Estimated All-In True Landed Cost Breakdown**\n\n` +
-      `| Component | Amount | Details |\n` +
-      `|---|---|---|\n` +
-      `| **Base Agreement Value** | **₹${r.basePriceCr.toFixed(2)} Cr** | Base quoted price |\n` +
-      `| GST (${isRtm ? '0%' : '5%'}) | ${formatInr(r.gst)} | ${isRtm ? 'Exempt (OC received)' : 'Standard residential'} |\n` +
-      `| Stamp Duty & Registration | ${formatInr(r.stampDuty + r.registration)} | UP state statutory dues (7% + 1%) |\n` +
-      `| IFMS (Maintenance Sinking Fund) | ${formatInr(r.ifms)} | ₹50/sqft on ${carpetSqft} sqft |\n` +
-      `| Preferential Location Charge (PLC) | ${formatInr(r.plc)} | Estimated ~3% of base |\n` +
-      `| Car Parking Allotment | ${formatInr(r.carParking)} | Estimated single covered parking |\n` +
-      `| Electricity Meter & Power Backup | ${formatInr(r.electricMeter)} | Dual source installation |\n` +
-      `| **Total Landed Outflow** | **₹${r.totalCr.toFixed(2)} Cr** | **+${r.overheadPct}% above base price** |\n\n` +
-      `*Note: Depending on developer policies, club membership (₹1.5L–₹3L) and advance maintenance charges may apply at possession.*`
-
-    send('token', { token: text })
-    send('done', { sessionId: sessionId ?? null, intentState: 'WARM', intent: ctx.intent })
-    res.end()
-    return true
-  }
+  // Branch B (all-in cost) is deliberately absent. It invented a 1.5 Cr base,
+  // 1,200 sqft, PLC and parking whenever "all-in" appeared, so "1.5 cr all
+  // inclusive, what can I get" — a budget — got a cost sheet for a flat nobody
+  // named. totalOutflowHandler computes on a price the buyer actually stated.
 
   // Branch C: True Net Rental Yield
   if (/\b(?:rental\s+yield|net\s+yield|true\s+yield|yield\s+calc|passive\s+income)\b/i.test(lower)) {
-    const rentMatch = /(?:rent\s*(?:of|is|at)?\s*(?:₹|rs\.?)?\s*(\d{2,3})(?:k|,000)?)|(?:(\d{4,6})\s*(?:per\s*month|\/month|\/mo))/i.exec(message)
-    const costMatch = /(?:cost|price|property|value)\s*(?:of|is|at)?\s*(?:₹|rs\.?)?\s*(\d+(?:\.\d+)?)\s*(?:cr(?:ore)?)/i.exec(message)
-    const monthlyRent = rentMatch ? (rentMatch[1] ? parseInt(rentMatch[1], 10) * 1000 : parseInt(rentMatch[2], 10)) : 35000
-    const propertyCostCr = costMatch ? parseFloat(costMatch[1]) : 1.5
+    const monthlyRent = parseMonthlyRent(message)
+    const costMatch = /(?:cost|price|property|value|worth|for)\s*(?:of|is|at)?\s*(?:₹|rs\.?)?\s*(\d+(?:\.\d+)?)\s*(?:cr(?:ore)?)/i.exec(message)
+    const propertyCostCr = costMatch ? parseFloat(costMatch[1]) : null
+    // Both inputs are the buyer's or there is no calculation: a "typical" rent
+    // or price is a guess dressed as arithmetic.
+    if (!monthlyRent || !propertyCostCr) return false
 
     const r = calcTrueNetRentalYield(monthlyRent, propertyCostCr, 1, 3500)
 
@@ -235,12 +228,12 @@ export function handleDeterministicCalculations(message: string, ctx: JevExecuti
       `**True Net Rental Yield Analysis**\n\n` +
       `| Metric | Value | Commentary |\n` +
       `|---|---|---|\n` +
-      `| Monthly Expected Rent | ${formatInr(monthlyRent)} | Market rent benchmark |\n` +
+      `| Monthly Expected Rent | ${formatInr(monthlyRent)} | Your figure |\n` +
       `| Annual Gross Rent | ${formatInr(r.annualGrossRent)} | 12 months full tenancy |\n` +
-      `| All-In Acquisition Basis | ₹${propertyCostCr.toFixed(2)} Cr | Total capital invested |\n` +
+      `| Acquisition Basis | ₹${propertyCostCr.toFixed(2)} Cr | Your figure — use the all-in cost for a true yield |\n` +
       `| **Gross Rental Yield** | **${r.grossYieldPct}%** | Pre-expense cash-on-cost |\n` +
-      `| **True Net Rental Yield** | **${r.netYieldPct}%** | Factoring 1 mo vacancy & maintenance |\n\n` +
-      `*Benchmark: Residential yields across Central Noida and Noida Expressway typically sit between 2.2% and 3.2%.*`
+      `| **True Net Rental Yield** | **${r.netYieldPct}%** | Assumes 1 month vacancy a year and ₹3,500/month maintenance |\n\n` +
+      `*Residential gross yields in Noida usually sit around 2–3.5% (${MARKET_QUALIFIER}).*`
 
     send('token', { token: text })
     send('done', { sessionId: sessionId ?? null, intentState: 'WARM', intent: ctx.intent })
@@ -251,14 +244,16 @@ export function handleDeterministicCalculations(message: string, ctx: JevExecuti
   // Branch D: Two-Property Upgrade Equity
   if (/\b(?:upgrade|selling\s+.*buying|already\s+own|sell\s+.*buy)\b/i.test(lower)) {
     const values = Array.from(message.matchAll(/(\d+(?:\.\d+)?)\s*(?:cr(?:ore)?)/gi)).map(m => parseFloat(m[1]))
-    const existingVal = values[0] ?? 1.2
-    const newVal = values[1] ?? 2.0
+    // Needs the buyer's own sale value and target price; never a default pair.
+    if (values.length < 2) return false
+    const existingVal = values[0]
+    const newVal = values[1]
     const loanMatch = /(?:loan|debt|outstanding)\s*(?:of|is)?\s*(?:₹|rs\.?)?\s*(\d+(?:\.\d+)?)\s*(?:cr|lakh?s?)/i.exec(message)
     const remainingLoanCr = loanMatch
       ? /cr/i.test(loanMatch[0])
         ? parseFloat(loanMatch[1])
         : parseFloat(loanMatch[1]) * 0.01
-      : 0.3
+      : 0
 
     const r = calcUpgradeEquity(existingVal, remainingLoanCr, newVal, 20, 8.6, 20)
 
@@ -267,7 +262,7 @@ export function handleDeterministicCalculations(message: string, ctx: JevExecuti
       `| Step | Amount | Details |\n` +
       `|---|---|---|\n` +
       `| Current Home Sale Value | ₹${existingVal.toFixed(2)} Cr | Expected gross realization |\n` +
-      `| Outstanding Loan Repayment | (₹${remainingLoanCr.toFixed(2)} Cr) | Cleared at sale closure |\n` +
+      `| Outstanding Loan Repayment | (₹${remainingLoanCr.toFixed(2)} Cr) | ${loanMatch ? 'Cleared at sale closure' : 'No loan mentioned, so none assumed'} |\n` +
       `| Brokerage & Legal Friction (2%) | (₹${r.transactionCostsCr.toFixed(2)} Cr) | Transaction overhead |\n` +
       `| **Net Unlocked Cash Equity** | **₹${r.netRealizedCashCr.toFixed(2)} Cr** | Cash in hand for redeployment |\n` +
       `| Down Payment Needed (20%) | ₹${r.downPaymentCr.toFixed(2)} Cr | 20% on new ₹${newVal.toFixed(2)} Cr home |\n` +
@@ -283,9 +278,15 @@ export function handleDeterministicCalculations(message: string, ctx: JevExecuti
 
   // Branch E: Carpet Loading & Usable Area Ratio
   if (/\b(?:loading|carpet\s+efficiency|usable\s+area|super\s+built.?up\s+vs\s+carpet)\b/i.test(lower)) {
-    const nums = Array.from(message.matchAll(/(\d{3,4})\s*(?:sqft|sq\.?ft|sft)?/gi)).map(m => parseInt(m[1], 10))
-    const superArea = Math.max(...nums.filter(n => n >= 800)) || 1400
-    const carpetArea = Math.min(...nums.filter(n => n >= 400 && n < superArea)) || 980
+    const nums = Array.from(message.matchAll(/(\d{1,2},?\d{3}|\d{3,4})\s*(?:sqft|sq\.?\s*ft|sft)?/gi)).map(m => parseInt(m[1].replace(',', ''), 10))
+    const supers = nums.filter(n => n >= 400)
+    // Two areas from the buyer or no ratio. Math.max() of nothing is -Infinity,
+    // which is truthy, so the old `|| 1400` default never applied and the
+    // answer came out as NaN.
+    if (supers.length < 2) return false
+    const superArea = Math.max(...supers)
+    const carpetArea = Math.min(...supers)
+    if (carpetArea >= superArea) return false
 
     const r = calcLoadingRatio(superArea, carpetArea)
     const verdictLabel =
@@ -302,7 +303,7 @@ export function handleDeterministicCalculations(message: string, ctx: JevExecuti
       `- **Loading Ratio:** **${r.loadingPct}%**\n` +
       `- **Carpet Efficiency:** **${r.carpetEfficiencyPct}%**\n` +
       `- **Evaluation:** ${verdictLabel}\n\n` +
-      `*In modern Noida high-rise projects, carpet efficiency between 68%–74% is typical. Efficiency above 75% indicates well-optimized layouts with minimal common area wastage.*`
+      `*Carpet efficiency of about 68–74% is common in Noida high-rises (${MARKET_QUALIFIER}); above 75% means little space lost to common areas.*`
 
     send('token', { token: text })
     send('done', { sessionId: sessionId ?? null, intentState: 'WARM', intent: ctx.intent })
@@ -311,6 +312,23 @@ export function handleDeterministicCalculations(message: string, ctx: JevExecuti
   }
 
   return false
+}
+
+/**
+ * Monthly rent as the buyer wrote it: "rent is 25000", "25k rent",
+ * "₹25,000 per month", "rent 25 thousand". The old pattern captured "250" out of
+ * "25000" and multiplied by 1,000 — a ₹2.5 lakh rent.
+ */
+export function parseMonthlyRent(message: string): number | null {
+  const m =
+    /\brent(?:al)?\s*(?:of|is|at|=|:|hai|around|about)?\s*(?:₹|rs\.?|inr)?\s*(\d{1,3}(?:,\d{2,3})+|\d+(?:\.\d+)?)\s*(k|thousand|lakh|l)?\b/i.exec(message) ??
+    /(?:₹|rs\.?|inr)?\s*(\d{1,3}(?:,\d{2,3})+|\d+(?:\.\d+)?)\s*(k|thousand|lakh|l)?\s*(?:per\s*month|\/\s*month|\/mo|a\s*month|monthly|rent)\b/i.exec(message)
+  if (!m) return null
+  const n = parseFloat(m[1].replace(/,/g, ''))
+  if (!Number.isFinite(n) || n <= 0) return null
+  const unit = (m[2] ?? '').toLowerCase()
+  const rent = unit === 'k' || unit === 'thousand' ? n * 1000 : unit === 'lakh' || unit === 'l' ? n * 100_000 : n
+  return rent >= 1000 ? Math.round(rent) : null
 }
 
 function getDueDiligenceChecklist(_message: string): string {

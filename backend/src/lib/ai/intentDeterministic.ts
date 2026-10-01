@@ -32,6 +32,12 @@ export interface DeterministicIntent {
   possession?: string
   areaMin?: number
   areaMax?: number
+  /**
+   * Sectors the buyer ruled out ("not in Sector 150, avoid 137"). Never search
+   * filters: they are stripped from `sector` and `sectorsMentioned`, including
+   * any the model put there.
+   */
+  excludedSectors?: string[]
   /** Field names read literally from the message. The model may not clear these. */
   literal: Set<string>
 }
@@ -87,8 +93,24 @@ const ABOVE = /\b(above|over|more\s+than|greater\s+than|starting\s+(?:at|from)|m
 const BELOW = /\b(under|below|within|upto|up\s*to|less\s+than|maximum|max|at\s+most|no\s+more\s+than|budget\s+(?:is|of)?|afford)\b/i
 const RANGE = /\b(between|from|range)\b|[-–]/i
 
+/**
+ * Amounts that are not what the buyer will spend: cash in hand, a down
+ * payment, a price someone else quoted. "40 lakh cash, finance the rest" set a
+ * ₹40 L ceiling, and "sales guy quoted 1.9cr, fair?" searched under ₹1.9 Cr.
+ */
+const NOT_A_BUDGET = /\b(?:cash|saved|savings|down\s*-?\s*payment|dp|quoted?|quoting|asking|bol\s+rah[ae]|eoi|token|booking\s+amount)\b/i
+
+/** "Sorry, I meant 1.35": the later figure replaces the earlier one. */
+const CORRECTION = /\b(?:meant|sorry|correction|i\s+mean|actually|make\s+(?:it|that)|change\s+(?:it|that)\s+to)\b/i
+
+/** "Up to 1.5, rather closer to 1.3": a preference inside the ceiling, not a band. */
+const PREFERENCE_TO = /\b(?:closer|close|nearer|near|ideally|preferably|rather)\s+to\b/i
+
 function readBudget(text: string): { min?: number; max?: number } {
-  const amounts = amountsIn(text)
+  const amounts = amountsIn(text).filter(a => {
+    const around = text.slice(Math.max(0, a.index - 18), a.index + 22)
+    return !NOT_A_BUDGET.test(around)
+  })
   if (amounts.length === 0) return {}
 
   if (amounts.length >= 2) {
@@ -98,6 +120,8 @@ function readBudget(text: string): { min?: number; max?: number } {
     // plus the run-up, which is where "between" and "from" sit.
     const span = text.slice(amounts[0].index, amounts[1].index + 1)
     const runUp = text.slice(Math.max(0, amounts[0].index - 20), amounts[0].index)
+    if (CORRECTION.test(span)) return { max: amounts[amounts.length - 1].value }
+    if (PREFERENCE_TO.test(span)) return { max: values[values.length - 1] }
     if (RANGE.test(span) || RANGE.test(runUp) || /\b(and|to|or)\b/i.test(span)) {
       return { min: values[0], max: values[values.length - 1] }
     }
@@ -106,6 +130,7 @@ function readBudget(text: string): { min?: number; max?: number } {
 
   const only = amounts[0]
   const before = text.slice(Math.max(0, only.index - 30), only.index)
+  if (/\b(?:not|no)\s+(?:more|greater|over|above)\b/i.test(before)) return { max: only.value }
   if (ABOVE.test(before)) return { min: only.value }
   if (BELOW.test(before)) return { max: only.value }
   // Unqualified — "80 lakh", "my budget 1.5cr". A stated figure is a ceiling.
@@ -160,14 +185,38 @@ function readArea(text: string): { min?: number; max?: number } {
  * anchored bare-number rule; an empty list still resolves every explicit
  * "Sector N", which is the common case.
  */
+/**
+ * Sector numbers ruled out by a negation in front of them, or Hinglish "nahi"
+ * after them. No digits may sit in the gap, so "not more than 1.5 cr in sector
+ * 150" does not exclude 150.
+ */
+export function readExcludedSectorNumbers(text: string): Set<string> {
+  const out = new Set<string>()
+  const before = /\b(?:not|avoid|avoiding|except|excluding|exclude|skip|don'?t\s+want|no)\b[^.;\d]{0,25}?\b(?:sector|sec)?\.?\s*-?\s*(\d{1,3}\s*[a-d]?)\b(?![.\d]|\s*(?:cr|crore|l|lakh|lac|k|bhk|%|sq))/gi
+  const after = /\b(?:sector|sec)\.?\s*-?\s*(\d{1,3}\s*[a-d]?)\s+(?:nahi|mat|not|avoid)\b/gi
+  for (const re of [before, after]) {
+    for (const m of text.matchAll(re)) out.add(m[1].replace(/\s+/g, '').toUpperCase())
+  }
+  return out
+}
+
+/** "Sector 150" -> "150", for comparing against excluded numbers. */
+export function sectorNumberOf(sector: string): string | null {
+  const m = /(\d{1,3}\s*[a-d]?)\b/i.exec(sector)
+  return m ? m[1].replace(/\s+/g, '').toUpperCase() : null
+}
+
 export function extractDeterministic(message: string, knownSectorNumbers: Iterable<string> = []): DeterministicIntent {
   const text = String(message ?? '')
   const literal = new Set<string>()
 
   // Canonicalised: the extractor lowercases while matching, so "Sector 16B"
   // came back "Sector 16b" and no longer equalled the column.
-  const sectors = extractSectorMentions(text, knownSectorNumbers)
+  const excluded = readExcludedSectorNumbers(text)
+  const mentioned = extractSectorMentions(text, knownSectorNumbers)
     .map(s => canonicalSector(s) ?? s)
+  const sectors = mentioned.filter(s => !excluded.has(sectorNumberOf(s) ?? ''))
+  const excludedSectors = [...excluded].map(n => `Sector ${n}`)
   if (sectors.length > 0) literal.add('sector')
 
   const bhk = readBhk(text)
@@ -186,6 +235,7 @@ export function extractDeterministic(message: string, knownSectorNumbers: Iterab
 
   return {
     sectors,
+    excludedSectors,
     bhk,
     budgetMin: budget.min,
     budgetMax: budget.max,

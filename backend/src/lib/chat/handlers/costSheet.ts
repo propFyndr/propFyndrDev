@@ -21,8 +21,12 @@ export const costSheetHandler: ChatTopicHandler = {
   // A buyer who quoted their own BSP and named no project wants that number
   // worked through — totalOutflow does it; this handler would print a generic
   // cost sheet and ignore the figure they gave.
+  // "Quoted 1.9cr all inclusive, fair or overpriced?" asks for a verdict
+  // against comparables, not a cost sheet; "all inclusive" alone used to win it
+  // here and the buyer got a table with no answer to the question.
   matches: ctx => ctx.flags.isCostSheetRequest === true &&
-    !(statedBasePriceInr(ctx.message) && !(ctx.intent.projectNames?.length)),
+    !(statedBasePriceInr(ctx.message) && !(ctx.intent.projectNames?.length)) &&
+    !/\b(?:fair|overpriced|over\s*priced|negotiat\w*|good\s+deal|too\s+(?:high|expensive))\b/i.test(ctx.message),
 
   handle: async ctx => {
     const matchedTarget = ctx.catalog.find(p => p.name.toLowerCase() === ctx.activeProjectName?.toLowerCase() || p.id === ctx.activeProjectName) ||

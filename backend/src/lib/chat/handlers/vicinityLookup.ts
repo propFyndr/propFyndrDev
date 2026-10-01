@@ -1,6 +1,6 @@
 import type { ChatTopicHandler } from '../handlerContext'
 import { prisma } from '../../db'
-import { tavilySearch } from '../../ai/tavily'
+import { tavilySearch } from '../../web'
 
 /**
  * "Does Ace Parkway have a stadium or sports city nearby?"

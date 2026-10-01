@@ -88,7 +88,7 @@ import { getProjectDataForQuery, computeResponseConfidence } from '../lib/projec
 import { FEATURE_PROBES } from '../lib/featureProbes'
 import { unverified, unverifiedFeature, confidenceFor, headingFor, UP_STATUTORY, NOIDA_MARKET_RANGES, MARKET_QUALIFIER, type FactTier } from '../lib/factPresentation'
 import { redactProject, redactForResponse } from '../lib/projectExposure'
-import { buildProjectFacts, detectFactTopics } from '../lib/projectFactsBlock'
+import { buildProjectFacts, detectFactTopics, detectIntentSlice } from '../lib/projectFactsBlock'
 import { buildComponentResponse } from '../lib/discovery/componentSpec'
 import { loadMentionedProjectCards } from '../lib/chat/mentionedProjectCards'
 import { buildUnknownProjectReply } from '../lib/chat/unknownProject'
@@ -113,6 +113,8 @@ import {
 } from '../lib/chat/topicFlags'
 import { CHAT_TOPIC_HANDLERS } from '../lib/chat/handlers'
 import { matchesLegalRiskQuestion } from '../lib/chat/handlers/legalRisk'
+import { statedBasePriceInr } from '../lib/chat/handlers/totalOutflow'
+import { computePick, pickDirective, type PickCandidate } from '../lib/chat/pickOne'
 
 /**
  * Empty flag set for probing a handler's matcher outside the dispatch loop.
@@ -173,6 +175,10 @@ import {
   trackPromotionalClick
 } from '../lib/analytics/tracking'
 import { tryDeterministicFactBypass } from '../lib/chat/deterministicFactRouter'
+import { appendStreamEvent, tailBufferedEvents } from '../lib/chat/streamBuffer'
+
+/** Buffer scope for stream replay: keyed by the client's turn id alone (see the reconnect interceptor). */
+const STREAM_BUFFER_SCOPE = 'turn'
 
 
 /**
@@ -216,6 +222,7 @@ const BodySchema = z.object({
     z.object({ type: z.literal('OPEN_TOOL'), payload: z.record(z.unknown()) }),
   ]),
   sessionId: z.string().nullable().optional(),
+  turnId: z.string().optional(),
   guestToken: z.string().optional(),
   intent: IntentSchema.optional(),
   offset: z.number().int().min(0).default(0).optional(),
@@ -239,6 +246,42 @@ router.post('/', async (req: Request, res: Response) => {
   let { guestToken } = parsed.data
   let sessionId = parsed.data.sessionId
   const prevIntent = (sessionId ? (parsed.data.intent ?? {}) : {}) as Record<string, unknown>
+  // The client mints a random turn id per message; it is the only key to that
+  // turn's buffer, so it must be long enough not to be guessed. Keyed by turn
+  // alone: a new session gets its id mid-turn, so a session-scoped key differed
+  // between the original request and the reconnect and the replay always missed.
+  const rawTurnId = (req.headers['x-turn-id'] as string) || parsed.data.turnId
+  const clientTurnId = rawTurnId && /^[A-Za-z0-9_-]{16,64}$/.test(rawTurnId) ? rawTurnId : null
+  const turnId = clientTurnId ?? crypto.randomUUID()
+
+  // ─── TASK 4.2 / 4.3: ZERO-LOSS MOBILE RECONNECT INTERCEPTOR ────────────────
+  // A reconnect is never re-executed. Re-running it re-bills the model, writes
+  // the buyer's message to the session a second time, and restarts seq at 1 —
+  // which the client drops as stale, so the buyer saw a frozen half-answer.
+  const lastEventSeqHeader = req.headers['last-event-seq'] || req.headers['x-last-event-seq']
+  const clientLastSeq = lastEventSeqHeader ? parseInt(String(lastEventSeqHeader), 10) : NaN
+  if (clientTurnId && Number.isFinite(clientLastSeq) && clientLastSeq >= 0) {
+    res.setHeader('Content-Type', 'text/event-stream')
+    res.setHeader('Cache-Control', 'no-cache')
+    res.setHeader('Connection', 'keep-alive')
+    res.setHeader('X-Accel-Buffering', 'no')
+    res.flushHeaders()
+    let closed = false
+    res.on('close', () => { closed = true })
+    const ping = setInterval(() => { if (!closed) res.write(': ping\n\n') }, 12000)
+    const outcome = await tailBufferedEvents(STREAM_BUFFER_SCOPE, clientTurnId, clientLastSeq, (ev) => {
+      if (!closed) res.write(`event: ${ev.event}\ndata: ${JSON.stringify(ev.data)}\n\n`)
+    }, { isClosed: () => closed })
+    clearInterval(ping)
+    if (outcome !== 'complete' && !closed) {
+      res.write(`event: error\ndata: ${JSON.stringify({
+        message: 'The connection dropped before this answer finished. Reload the chat to see the full reply.',
+        retryable: false,
+      })}\n\n`)
+    }
+    res.end()
+    return
+  }
   let message = action.type === 'TEXT_MESSAGE' ? (action.payload.text as string) : ''
   if (action.type === 'INTENT_PATCH' || action.type === 'REMOVE_FILTER') {
     // The label names the field AND the new value ("Change location to Sector
@@ -420,7 +463,10 @@ router.post('/', async (req: Request, res: Response) => {
     action.type === 'TEXT_MESSAGE' && (
       /\b(bank\s+)?auction(?:ed)?\s+propert/i.test(message) ||
       /\bdistressed\s+propert/i.test(message) ||
-      /\b(resale|second[- ]?hand|pre[- ]?owned)\s+(flat|propert|apartment|home|house)/i.test(message) ||
+      // A resale question about a legal risk (no registry, builder "will
+      // transfer later") is answered by legalRiskHandler; the resale pitch here
+      // said nothing about the missing registry.
+      (/\b(resale|second[- ]?hand|pre[- ]?owned)\s+(flat|propert|apartment|home|house)/i.test(message) && !matchesLegalRiskQuestion(message)) ||
       /\bcommercial\s+(propert|space|shop|office|showroom)/i.test(message) ||
       /\b(rent(?:al)?\s+(?:a\s+|an\s+)?(?:flat|apartment|house|home|room|property)|properties?\s+(?:for|to)\s+rent|looking\s+for\s+a\s+rental|tenant|landlord|airbnb|short[- ]?term\s+rental)\b/i.test(message) ||
       /\b(?:for|to|on)\s+rent\b/i.test(message) ||
@@ -618,8 +664,27 @@ router.post('/', async (req: Request, res: Response) => {
   const turnTrace: TurnTraceDraft = { lane: 'unlabelled' }
   res.on('finish', () => recordTurnTrace(turnTrace, timer.elapsed()))
 
+  let turnSeq = 0
+  let lastWriteTimestamp = Date.now()
+
+  // Buffers exactly the bytes the client was sent — after card capping, field
+  // stripping and sanitisation. Buffering the raw `data` (as this first did)
+  // meant a reconnect replayed internal ranker fields and unsanitised tokens.
+  const writeBuffered = (r: Response, event: string, payload: Record<string, unknown>, seq: number) => {
+    appendStreamEvent(STREAM_BUFFER_SCOPE, turnId, {
+      seq,
+      event,
+      data: { ...payload, seq },
+      timestamp: Date.now(),
+    }).catch(() => {})
+    sseWrite(r, event, payload, seq)
+  }
+
   const send = (event: string, data: Record<string, unknown>) => {
     if (res.writableEnded) return
+    turnSeq++
+    lastWriteTimestamp = Date.now()
+
     // Internal ranker artifacts never leave the server, whichever emit produced
     // the payload. Measured: 51% of every project object, 80KB of a 120KB
     // response, read by no client. Per-emit stripping missed three call sites.
@@ -627,23 +692,6 @@ router.post('/', async (req: Request, res: Response) => {
       const shape = (list: unknown) =>
         Array.isArray(list) ? list.map((p) => (p && typeof p === 'object' ? redactForResponse(stripInternalFields(p as object) as Record<string, unknown>) : p)) : list
 
-      /**
-       * The card budget, applied here because there are seven emit sites.
-       *
-       * Measured across four 15-turn runs: 17-20 cards on nearly every
-       * discovery turn, whatever the buyer had said. Nineteen came back for "my
-       * budget would be 2cr max", and nineteen again for "how much would the
-       * EMI be" and "i want to visit this weekend" — neither of which asks for
-       * inventory. Nineteen cards is a directory, not a shortlist.
-       *
-       * One guard at the choke point rather than seven, for the same reason
-       * `runTopicHandlers` ends the response in one place: a rule that has to
-       * be remembered at every call site is a rule that will be missed at one.
-       */
-      // `intent` is a `let` declared below this closure, so reading it before
-      // that line executes throws a ReferenceError rather than yielding
-      // undefined. Every card emission happens long after, but an uncapped
-      // try/catch is cheaper than depending on that ordering staying true.
       let budget = { limit: MAX_CARDS, reason: 'intent not resolved yet' }
       try {
         budget = cardBudgetFor(intent ?? ({} as Intent), message)
@@ -652,7 +700,7 @@ router.post('/', async (req: Request, res: Response) => {
       }
       if (budget.limit <= 0) {
         cardsShownThisTurn = 0
-        return sseWrite(res, event, { ...data, exactResults: [], nearbyResults: [] })
+        return writeBuffered(res, event, { ...data, exactResults: [], nearbyResults: [] }, turnSeq)
       }
       const exact = capCards(shape(data.exactResults) as unknown[], budget.limit)
       const nearby = capCards(shape(data.nearbyResults) as unknown[], Math.max(0, budget.limit - exact.length))
@@ -669,7 +717,7 @@ router.post('/', async (req: Request, res: Response) => {
           expansion: data.expansion ?? null,
         }
       }
-      return sseWrite(res, event, { ...data, exactResults: exact, nearbyResults: nearby })
+      return writeBuffered(res, event, { ...data, exactResults: exact, nearbyResults: nearby }, turnSeq)
     }
     if (event === 'token' && typeof data.token === 'string') {
       const clean = sanitizeOutput(data.token)
@@ -680,15 +728,20 @@ router.post('/', async (req: Request, res: Response) => {
       }
       if (!clean.text) return
       if (lastAnswerText.length < 4000) lastAnswerText += clean.text
-      return sseWrite(res, event, { ...data, token: clean.text })
+      return writeBuffered(res, event, { ...data, token: clean.text }, turnSeq)
     }
-    return sseWrite(res, event, data)
+    return writeBuffered(res, event, data, turnSeq)
   }
-  const heartbeatTimer = setInterval(() => {
-    if (!res.writableEnded) send('ping', {})
-  }, 3000)
-  res.on('finish', () => clearInterval(heartbeatTimer))
-  res.on('close', () => clearInterval(heartbeatTimer))
+
+  // 12-second silent keep-alive comment ping to keep Cloudflare / Render reverse proxies open
+  const keepAliveTimer = setInterval(() => {
+    if (!res.writableEnded && Date.now() - lastWriteTimestamp >= 12000) {
+      res.write(': ping\n\n')
+      lastWriteTimestamp = Date.now()
+    }
+  }, 4000)
+  res.on('finish', () => clearInterval(keepAliveTimer))
+  res.on('close', () => clearInterval(keepAliveTimer))
 
   const guardrailCheck = await inputGuardrail(message || JSON.stringify(action.payload));
   if (guardrailCheck.blocked) {
@@ -724,6 +777,7 @@ router.post('/', async (req: Request, res: Response) => {
         send,
         sessionId,
         userId,
+        guestToken,
         turnTrace,
         timer,
       })
@@ -2977,6 +3031,9 @@ router.post('/', async (req: Request, res: Response) => {
       // EOI / unregistered resale / Sports City: answered from RERA law and our
       // registry rows by legalRiskHandler, never by the open lane's web search.
       !matchesLegalRiskQuestion(message) &&
+      // "bsp 1.2 cr … total kitna padega": totalOutflowHandler computes it on
+      // the buyer's own number; the open lane handed it to the model.
+      statedBasePriceInr(message) === null &&
       !claimingHandler
     ) {
       await answerAsGeneralQuestion('OPEN')
@@ -3863,6 +3920,10 @@ I can help you with:
               ...buildProjectFacts(p as unknown as Record<string, unknown>, {
                 topics: askedFactTopics,
                 shortlist: detailedTargetProjects.length > 2,
+                // Day 2.3 field diet: a single-topic question carries that
+                // topic's fields plus the overview line. Mixed or unrecognised
+                // questions keep everything (detectIntentSlice returns null).
+                intentSlice: detailedTargetProjects.length <= 2 ? detectIntentSlice(message) ?? undefined : undefined,
                 // 19 registration numbers are claimed by two or three projects
                 // each. Withheld rather than guessed — see reraIntegrity.ts.
                 ambiguousRera: sharedReraNumbers,
@@ -3907,9 +3968,19 @@ EXECUTIVE SUMMARY INSTRUCTIONS:
 2. Below the table, provide a concise summary for each discussed project.
 3. Never invent facts outside PostgreSQL DB.`
           } else if (pickOneFromShown && targetProjects.length >= 2) {
+            // Code makes the pick; the model writes it. Price is the asked
+            // BHK's, not the project's cheapest unit of any size.
+            const wantBhk = intent.bhk?.[0]
+            const computed = computePick(detailedTargetProjects.map((p) => {
+              const units = (p.unit_types ?? []).filter((u) => (wantBhk ? u.bhk === wantBhk : true) && typeof u.price_min_cr === 'number')
+              return {
+                ...p,
+                price_min_cr: units.length ? Math.min(...units.map((u) => u.price_min_cr as number)) : p.price_min_cr,
+              } as unknown as PickCandidate
+            }), intent.budgetMax)
             systemPrompt = `You are PropFyndr, a professional real estate advisor for Noida and Greater Noida.
 Verified facts from database: ${dbFactsJson}
-${pickOneTail(intent.projectNames ?? [])}
+${pickOneTail(intent.projectNames ?? [])}${computed ? pickDirective(computed) : ''}
 
 Format: the chosen project's name in bold in the first sentence, then the reason, then "Biggest drawback:" and that one drawback. Under 120 words. End with one short follow-up question (for example, whether to book a site visit for that project).`
           } else if (isCompareRequest && targetProjects.length >= 2) {

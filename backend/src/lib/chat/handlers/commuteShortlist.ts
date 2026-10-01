@@ -18,6 +18,21 @@ import { prisma } from '../../db'
 import type { ChatTopicHandler } from '../handlerContext'
 import { renderProjectTable } from '../../ai/marketTable'
 import { loadMentionedProjectCards } from '../mentionedProjectCards'
+import { UP_STATUTORY } from '../../factPresentation'
+
+/**
+ * "1.5 cr all inclusive" is a ceiling on what leaves the buyer's account, not
+ * on the base price. Read as base, a ₹1.45 Cr under-construction flat passed
+ * the filter and cost ~₹1.64 Cr once stamp duty, registration and GST landed.
+ */
+export const ALL_IN_BUDGET = /\b(?:all[- ]?in(?:clusive)?|inclusive of (?:all|taxes|stamp)|including (?:stamp|registration|gst|taxes|all)|sab\s+mila\s*ke|sab\s+milake)\b/i
+
+/** Statutory multiplier on a base price: stamp duty + registration, plus GST if under construction. */
+export function statutoryMultiplier(status: string | null | undefined): number {
+  const s = UP_STATUTORY
+  const gst = status === 'ready_to_move' ? s.gstReadyToMovePct : s.gstUnderConstructionPct
+  return 1 + (s.stampDutyPct + s.registrationPct + gst) / 100
+}
 
 /** Projects per sector in the belt summary, and sectors in the belt. */
 const PER_SECTOR = 3
@@ -65,22 +80,39 @@ export const commuteShortlistHandler: ChatTopicHandler = {
     const belt = ((ctx.intent as { workplace_belt?: string[] }).workplace_belt ?? []).slice(0, MAX_SECTORS)
     const bhk = ctx.intent.bhk?.[0]
     const budgetMax = ctx.intent.budgetMax
+    const allIn = budgetMax != null && ALL_IN_BUDGET.test(ctx.message)
+    // Loosest base ceiling first (ready-to-move pays no GST); each row is then
+    // checked against its own status below.
+    const baseCeiling = budgetMax == null ? null : allIn ? budgetMax / statutoryMultiplier('ready_to_move') : budgetMax
 
     // Inventory in the belt, filtered by whatever the buyer has already told us.
+    // The price test sits on the unit of the asked BHK — the project's cheapest
+    // unit of any size let a 2 BHK's price admit a 3 BHK search.
     // Belt order is commute order, so the grouping below preserves it.
-    const rows = await prisma.project.findMany({
+    const unitWhere = {
+      ...(bhk != null ? { bhk } : {}),
+      ...(baseCeiling != null ? { price_min_cr: { lte: baseCeiling } } : {}),
+    }
+    const fetched = await prisma.project.findMany({
       where: {
         sector: { in: belt, mode: 'insensitive' },
-        ...(budgetMax != null ? { price_min_cr: { lte: budgetMax } } : {}),
-        ...(bhk != null ? { unit_types: { some: { bhk } } } : {}),
+        ...(Object.keys(unitWhere).length ? { unit_types: { some: unitWhere } } : {}),
       },
       select: {
         id: true, name: true, sector: true, status: true,
         price_min_cr: true, price_range_label: true,
         builder: { select: { name: true } },
+        unit_types: { where: unitWhere, select: { price_min_cr: true }, orderBy: { price_min_cr: 'asc' }, take: 1 },
       },
-      orderBy: [{ price_min_cr: 'asc' }],
     })
+    const rows = fetched
+      .map(r => {
+        const base = r.unit_types[0]?.price_min_cr ?? null
+        // The table's price column shows the asked BHK's price, not the project's cheapest unit.
+        return { ...r, price_min_cr: base ?? r.price_min_cr, matchedBase: base, allInFrom: base != null ? base * statutoryMultiplier(r.status) : null }
+      })
+      .filter(r => !allIn || r.allInFrom == null || r.allInFrom <= (budgetMax as number))
+      .sort((a, b) => (a.matchedBase ?? Infinity) - (b.matchedBase ?? Infinity))
 
     // Nothing in the belt within their constraints. Decline rather than
     // widening silently — the generic path can ask about budget, and inventing
@@ -99,7 +131,7 @@ export const commuteShortlistHandler: ChatTopicHandler = {
 
     const constraint = [
       bhk != null ? `${bhk} BHK` : null,
-      budgetMax != null ? `under ₹${budgetMax} Cr` : null,
+      budgetMax != null ? `under ₹${budgetMax} Cr${allIn ? ' all-in' : ''}` : null,
     ].filter(Boolean).join(' ')
 
     const lines: string[] = [
@@ -127,6 +159,17 @@ export const commuteShortlistHandler: ChatTopicHandler = {
     const shortlist = rows.slice(0, 6)
     const table = renderProjectTable(shortlist as never)
     if (table) lines.push('', table)
+
+    if (allIn) {
+      const priced = shortlist.filter(p => p.allInFrom != null)
+      if (priced.length) {
+        lines.push('', `**All-in from** (base + ${UP_STATUTORY.stampDutyPct}% stamp duty + ${UP_STATUTORY.registrationPct}% registration, + ${UP_STATUTORY.gstUnderConstructionPct}% GST if under construction):`)
+        for (const p of priced) {
+          lines.push(`- ${p.name}: ₹${(p.allInFrom as number).toFixed(2)} Cr${p.status === 'ready_to_move' ? ' (ready to move, no GST)' : ''}`)
+        }
+        lines.push('', '_Developer charges (parking, club, power backup, IFMS) come on top and vary by project — ask for the cost sheet before you count on these totals._')
+      }
+    }
 
     lines.push('', `Which belt suits you — or shall I pull the full comparison for the closest one?`)
 

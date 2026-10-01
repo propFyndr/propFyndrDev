@@ -3,7 +3,7 @@
  * Searches web for builder news, RERA violations, delivery track record, and buyer sentiment.
  * Uses Tavily (primary) + Serper (fallback) — no new API keys needed.
  */
-import { tavilySearch } from './tavily'
+import { tavilySearch } from '../web'
 
 export interface ReputationSignal {
   type: 'positive' | 'negative' | 'neutral'

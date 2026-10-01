@@ -38,9 +38,22 @@ export function isSafeUrl(urlString: string): boolean {
   }
 }
 
-// ── Web search: Tavily primary, Serper fallback ────────────────────────────
+// ── Web search: Tavily primary, Serper fallback & WebFact DB Cache ────────
+import { prisma } from './db'
+import crypto from 'node:crypto'
 
-interface WebResult { title: string; url: string; content: string }
+export interface WebResult {
+  title: string
+  url: string
+  content: string
+  score?: number
+}
+
+export interface WebSearchResponse {
+  answer: string
+  results: WebResult[]
+  source: 'tavily' | 'serper' | 'cache' | 'none'
+}
 
 /**
  * Domains trusted for price, market and RERA claims.
@@ -49,15 +62,38 @@ interface WebResult { title: string; url: string; content: string }
  * the wrong list for looking up who founded a company or what a brokerage does —
  * pass `restrictDomains: false` for those, or the search returns nothing at all.
  */
-const TRUSTED_DOMAINS = [
-  'up-rera.in', 'credai.org', '99acres.com', 'magicbricks.com',
-  'nobroker.in', 'housing.com', 'economictimes.com', 'hindustantimes.com',
-  'thehindu.com', 'ndtv.com', 'moneycontrol.com',
+export const TRUSTED_DOMAINS = [
+  'up-rera.in', 'credai.org', 'economictimes.com', 'hindustantimes.com',
+  'thehindu.com', 'ndtv.com', 'moneycontrol.com', 'livemint.com',
+  'business-standard.com', 'financialexpress.com',
 ]
 
 export interface WebSearchOptions {
   /** Restrict results to TRUSTED_DOMAINS. Default true. */
   restrictDomains?: boolean
+  maxResults?: number
+}
+
+export function computeWebFactKey(query: string, restrictDomains = true): string {
+  const norm = query.toLowerCase().replace(/[^\p{L}\p{N}]+/gu, ' ').trim()
+  return crypto.createHash('sha256').update(`${restrictDomains ? 'res' : 'open'}:${norm}`).digest('hex')
+}
+
+export function determineFactCategoryAndTtl(query: string): { category: string; ttlMs: number } {
+  if (/\b(?:price|rate|sqft|cost|circle rate|appreciation)\b/i.test(query)) {
+    return { category: 'price_trend', ttlMs: 30 * 86400 * 1000 } // 30 days
+  }
+  if (/\b(?:infra|metro|airport|expressway|highway|inauguration|status|delay)\b/i.test(query)) {
+    return { category: 'infrastructure', ttlMs: 7 * 86400 * 1000 } // 7 days
+  }
+  if (/\b(?:law|rera|act|stamp duty|gst|circle rate|policy|guideline|amitabh kant)\b/i.test(query)) {
+    return { category: 'regulation', ttlMs: 90 * 86400 * 1000 } // 90 days
+  }
+  return { category: 'general', ttlMs: 7 * 86400 * 1000 } // 7 days
+}
+
+export function computeFactTtl(typeOrQuery: string): number {
+  return determineFactCategoryAndTtl(typeOrQuery).ttlMs
 }
 
 async function searchTavily(query: string, maxResults: number, restrictDomains: boolean): Promise<{ answer: string; results: WebResult[] } | null> {
@@ -101,49 +137,130 @@ async function searchSerper(query: string, maxResults: number): Promise<{ answer
   return { answer, results }
 }
 
-/** Returns a compact, source-attributed context string, or '' if nothing found. */
 /**
- * A web answer is paid for once. Every search result we use is kept in our own
- * Redis for a week, so the next buyer asking the same thing reads our copy
- * instead of paying Tavily/Serper again (CHAT_INTELLIGENCE_ROADMAP.md, Phase 7).
- * A week because what this is used for — market direction, infrastructure news,
- * another city's market — moves slower than that. Misses and errors are not cached.
+ * Universal search function with persistent PostgreSQL WebFact cache and fallback.
  */
-const WEB_CACHE_TTL_SECS = 7 * 24 * 3600
+export async function tavilySearch(query: string, maxResults = 3, opts: WebSearchOptions = {}): Promise<WebSearchResponse> {
+  const restrictDomains = opts.restrictDomains !== false
+  const factKey = computeWebFactKey(query, restrictDomains)
 
-function webCacheKey(query: string, maxResults: number, restrictDomains: boolean): string {
-  const q = query.toLowerCase().replace(/[^\p{L}\p{N}]+/gu, ' ').trim()
-  return `web:v1:${restrictDomains ? 'r' : 'o'}:${maxResults}:${q}`
+  // 1. Check persistent database cache (WebFact)
+  try {
+    const cached = await prisma.webFact.findFirst({
+      where: {
+        query_key: factKey,
+        expires_at: { gt: new Date() },
+      },
+    })
+    if (cached) {
+      const parsedResults: WebResult[] = cached.results_json ? JSON.parse(cached.results_json) : []
+      return {
+        answer: cached.answer_snippet,
+        results: parsedResults.slice(0, maxResults),
+        source: (cached.source_name as any) || 'cache',
+      }
+    }
+  } catch (err) {
+    console.warn('[WEB_FACT:CACHE_READ_ERROR]', err)
+  }
+
+  // 2. Fetch fresh results via Tavily -> Serper
+  let answer = ''
+  let results: WebResult[] = []
+  let source: 'tavily' | 'serper' | 'none' = 'none'
+
+  try {
+    const tData = await searchTavily(query, maxResults, restrictDomains)
+    if (tData && (tData.answer || tData.results.length > 0)) {
+      answer = tData.answer
+      results = tData.results
+      source = 'tavily'
+    } else {
+      const sData = await searchSerper(query, maxResults)
+      if (sData) {
+        answer = sData.answer
+        results = sData.results
+        source = 'serper'
+      }
+    }
+  } catch {
+    try {
+      const sData = await searchSerper(query, maxResults)
+      if (sData) {
+        answer = sData.answer
+        results = sData.results
+        source = 'serper'
+      }
+    } catch {
+      return { answer: '', results: [], source: 'none' }
+    }
+  }
+
+  // 3. Persist to WebFact table
+  if (results.length > 0 || answer) {
+    const { category, ttlMs } = determineFactCategoryAndTtl(query)
+    const expiresAt = new Date(Date.now() + ttlMs)
+    const firstUrl = results[0]?.url || 'https://up-rera.in'
+
+    prisma.webFact.upsert({
+      where: { query_key: factKey },
+      update: {
+        answer_snippet: answer,
+        results_json: JSON.stringify(results),
+        source_url: firstUrl,
+        source_name: source,
+        category,
+        fetched_at: new Date(),
+        expires_at: expiresAt,
+      },
+      create: {
+        query_key: factKey,
+        query_text: query.slice(0, 500),
+        answer_snippet: answer,
+        results_json: JSON.stringify(results),
+        source_url: firstUrl,
+        source_name: source,
+        category,
+        expires_at: expiresAt,
+      },
+    }).catch((err) => console.warn('[WEB_FACT:UPSERT_ERROR]', err))
+  }
+
+  return { answer, results, source }
+}
+
+/** Formats web search results into a compact LLM context string. */
+export function formatTavilyContext(answer: string, results: WebResult[]): string {
+  const lines: string[] = []
+  if (answer) lines.push(`Summary: ${answer}`)
+  results.slice(0, 3).forEach((r, i) => {
+    lines.push(`\n[Source ${i + 1}] ${r.title} — ${r.url}`)
+    lines.push(r.content.slice(0, 400))
+  })
+  return lines.join('\n').trim()
 }
 
 export async function webSearch(query: string, maxResults = 3, opts: WebSearchOptions = {}): Promise<string> {
   const restrictDomains = opts.restrictDomains !== false
-  const cacheKey = webCacheKey(query, maxResults, restrictDomains)
+  const cacheKey = `web:v1:${restrictDomains ? 'r' : 'o'}:${maxResults}:${query.toLowerCase().replace(/[^\p{L}\p{N}]+/gu, ' ').trim()}`
   const cached = await getCached<string>(cacheKey)
   if (cached) return cached
-  const fresh = await webSearchUncached(query, maxResults, restrictDomains)
-  if (fresh) void setCached(cacheKey, fresh, WEB_CACHE_TTL_SECS)
-  return fresh
-}
 
-async function webSearchUncached(query: string, maxResults: number, restrictDomains: boolean): Promise<string> {
-  let data: { answer: string; results: WebResult[] } | null = null
-  try {
-    data = await searchTavily(query, maxResults, restrictDomains)
-    if (!data || (!data.answer && data.results.length === 0)) data = await searchSerper(query, maxResults)
-  } catch {
-    try { data = await searchSerper(query, maxResults) } catch { data = null }
-  }
-  if (!data) return ''
+  const data = await tavilySearch(query, maxResults, opts)
+  if (!data.answer && data.results.length === 0) return ''
+
   const lines: string[] = []
   lines.push('\n<untrusted_source url="web-search">')
   if (data.answer) lines.push(`Summary: ${data.answer}`)
-  data.results.slice(0, 3).forEach((r, i) => {
+  data.results.slice(0, maxResults).forEach((r, i) => {
     lines.push(`\n[Source ${i + 1}] ${r.title} — ${r.url}`)
     lines.push(r.content.slice(0, 400))
   })
   lines.push('\n</untrusted_source>\n')
-  return lines.join('\n').trim()
+  const formatted = lines.join('\n').trim()
+
+  if (formatted) void setCached(cacheKey, formatted, 7 * 24 * 3600)
+  return formatted
 }
 
 // ── Area background: Wikipedia (free, no key) ──────────────────────────────

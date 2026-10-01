@@ -225,3 +225,14 @@ describe('legal risk summary synthesis', () => {
     assert.ok(!('legal_risk_summary' in facts))
   })
 })
+
+describe('a schema-default boolean is not a verified fact', () => {
+  it('authority_dues_cleared = true (the default on every row) never reaches the prompt', () => {
+    const facts = projectScalarFacts({ name: 'X', authority_dues_cleared: true } as Record<string, unknown>)
+    assert.equal(facts.authority_dues_cleared, undefined)
+  })
+  it('recorded outstanding dues (false) still do', () => {
+    const facts = projectScalarFacts({ name: 'X', authority_dues_cleared: false } as Record<string, unknown>)
+    assert.equal(facts.authority_dues_cleared, 'not cleared')
+  })
+})

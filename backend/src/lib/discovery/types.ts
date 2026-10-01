@@ -66,6 +66,14 @@ export interface Intent {
    * discovery across a named group — not just `sector`.
    */
   sectorsMentioned?: string[]
+
+  /**
+   * Sectors the buyer ruled out ("not in Sector 150, avoid 137"). A hard NOT
+   * filter in `buildHardFilters`, carried across turns until the buyer names
+   * one of them again. Without it a city-wide search after "avoid 137" could
+   * still put Sector 137 at the top of the shortlist.
+   */
+  excludeSectors?: string[]
 }
 
 export type IntentState = 'COLD' | 'GATHERING' | 'READY_TO_SEARCH' | 'SHORTLISTED'

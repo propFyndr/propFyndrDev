@@ -214,7 +214,8 @@ export const PRICING_FACT_FIELDS = new Set([
   'price_min_cr', 'price_max_cr', 'price_range_label', 'price_per_sqft',
   'maintenance_per_sqft_monthly', 'gst_pass_through', 'price_includes_plc',
   'price_includes_club', 'price_includes_taxes', 'dg_power_rate_per_unit',
-  'resale_lock_in_months',
+  'resale_lock_in_months', 'all_in_cost_multiplier', 'launch_date', 'nri_eligible',
+  'unit_types',
 ])
 
 export const LEGAL_FACT_FIELDS = new Set([
@@ -225,6 +226,8 @@ export const LEGAL_FACT_FIELDS = new Set([
   'legal_flag', 'project_risk_flag', 'escrow_verified', 'oc_obtained',
   'land_tenure', 'resale_lock_in_months', 'occupancy_restriction_months',
   'legal_risk_summary', 'developer_legal_standing',
+  'oc_status', 'oc_details', 'amitabh_kant_clearance', 'registry_status',
+  'possession_confidence', 'lift_act_compliant', 'flood_zone',
 ])
 
 export const LIVABILITY_FACT_FIELDS = new Set([
@@ -237,6 +240,11 @@ export const LIVABILITY_FACT_FIELDS = new Set([
   'has_security_24x7', 'has_cctv', 'street_lights', 'has_png_gas_pipeline',
   'has_service_lift', 'total_units', 'total_towers', 'ceiling_height_ft',
   'density_units_per_acre',
+  'water_source', 'water_source_type', 'water_tds_range', 'aqi_annual_avg',
+  'air_quality_index_avg', 'flood_waterlogging_risk', 'flood_zone',
+  'shahdara_drain_impact', 'commute_matrix', 'floors', 'lift_act_compliant',
+  'power_supply_type', 'green_rating', 'north_facing_units', 'east_facing_preferred',
+  'description', 'amenities', 'unit_types',
 ])
 
 export const OVERVIEW_FACT_FIELDS = new Set([
@@ -247,18 +255,21 @@ export const OVERVIEW_FACT_FIELDS = new Set([
   'open_space_pct', 'land_area_acres', 'tagline', 'location_concerns',
 ])
 
+/**
+ * The one topic a question is about, or null.
+ *
+ * Null whenever two topics are asked at once ("price and rera status"): a
+ * slice drops every field outside it, and the prompt reads an absent field as
+ * one we do not hold — so a mixed question narrowed to one slice would have
+ * the advisor deny a fact sitting in our rows.
+ */
 export function detectIntentSlice(message: string): IntentSlice | null {
   const m = message.toLowerCase()
-  if (/\b(rera|litigation|nclt|court|dispute|legal|title|dues|registry|fir|defaulter|moratorium)\b/i.test(m)) {
-    return 'legal'
-  }
-  if (/\b(price|pricing|cost|payment plan|payment plans|rate|rates|maintenance|budget|per sqft|emi|clp|plc|gst|discount|cheapest|expensive)\b/i.test(m)) {
-    return 'pricing'
-  }
-  if (/\b(amenit|gym|pool|park|green|walkab|safety|school|hospital|metro|connect|pet|bachelor|vastu|noise|security)\b/i.test(m)) {
-    return 'livability'
-  }
-  return null
+  const hits: IntentSlice[] = []
+  if (/\b(rera|litigation|nclt|court|dispute|legal|title|dues|registry|fir|defaulter|moratorium)\b/i.test(m)) hits.push('legal')
+  if (/\b(price|pricing|cost|payment plan|payment plans|rate|rates|maintenance|budget|per sqft|emi|clp|plc|gst|discount|cheapest|expensive)\b/i.test(m)) hits.push('pricing')
+  if (/\b(amenit\w*|gym|pool|park|green|walkab\w*|safety|school|hospital|metro|connect\w*|pet|bachelor|vastu|noise|security)\b/i.test(m)) hits.push('livability')
+  return hits.length === 1 ? hits[0] : null
 }
 
 
@@ -303,7 +314,7 @@ export function projectScalarFacts(
   const out: Record<string, string> = {}
 
   const slice = options.intentSlice
-  const sliceFields = slice === 'pricing'
+  const topicFields = slice === 'pricing'
     ? PRICING_FACT_FIELDS
     : slice === 'legal'
     ? LEGAL_FACT_FIELDS
@@ -312,6 +323,7 @@ export function projectScalarFacts(
     : slice === 'overview'
     ? OVERVIEW_FACT_FIELDS
     : null
+  const sliceFields = topicFields
 
   for (const [key, value] of Object.entries(safe)) {
     if (!isPublicField(key)) continue // relations are handled separately

@@ -98,17 +98,28 @@ export function applyStreamEvent(
   event: SSEEvent,
   ctx: StreamContext = {},
 ): ChatMessage {
+  // Task 2.1: Discard stale or duplicate packets on mobile reconnect
+  if (typeof (event as any).seq === 'number') {
+    const seq = (event as any).seq as number
+    const currentLastSeq = message.lastSeq ?? 0
+    if (seq <= currentLastSeq) {
+      return message
+    }
+  }
+
+  const nextSeq = typeof (event as any).seq === 'number'
+    ? Math.max(message.lastSeq ?? 0, (event as any).seq)
+    : message.lastSeq
+
   switch (event.type) {
     case 'intent':
       return {
         ...message,
-        // The clock starts at the first event of the turn and is read once at
-        // `done`. The duration shown to the buyer used to be the literal 8,
-        // whatever the turn cost.
         streamingStartedAt: message.streamingStartedAt ?? Date.now(),
         streamingPhase: isSearchState(event.intentState) ? 'searching' : 'extracting',
         streamingIntent: event.intent,
         streamingIntentState: event.intentState,
+        lastSeq: nextSeq,
       }
 
     case 'properties': {
@@ -124,11 +135,12 @@ export function applyStreamEvent(
         properties: shortlist,
         streamingPhase: 'generating',
         streamingResultCount: shortlist.length,
+        lastSeq: nextSeq,
       }
     }
 
     case 'token':
-      return { ...message, content: message.content + event.token, isSearching: false }
+      return { ...message, content: message.content + event.token, isSearching: false, lastSeq: nextSeq }
 
     case 'components':
       return {
@@ -136,6 +148,7 @@ export function applyStreamEvent(
         responseMode: 'components' as const,
         componentResponse: event.response,
         isSearching: false,
+        lastSeq: nextSeq,
       }
 
     case 'ui_state':
@@ -143,6 +156,7 @@ export function applyStreamEvent(
         ...message,
         ...(Array.isArray(event.chips) && event.chips.length > 0 ? { chips: event.chips } : {}),
         ...((event as any).affordabilityData ? { affordabilityData: (event as any).affordabilityData } : {}),
+        lastSeq: nextSeq,
       }
 
     case 'error':
@@ -150,6 +164,7 @@ export function applyStreamEvent(
         ...message,
         content: event.message || 'Something went wrong. Please try again.',
         isSearching: false,
+        lastSeq: nextSeq,
       }
 
     case 'done': {
@@ -174,6 +189,7 @@ export function applyStreamEvent(
         streamingPhase: null,
         streamingIntent: null,
         streamingResultCount: null,
+        lastSeq: nextSeq,
         // Fixed here so it stops counting, and stays absent when the turn
         // produced no `intent` event to start the clock.
         streamingElapsedSeconds:

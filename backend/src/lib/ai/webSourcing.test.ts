@@ -17,12 +17,10 @@ import { COMPETITOR_PATTERNS } from './patterns'
  * Reads the source rather than importing, because the list is a literal inside
  * a request body and there is no seam to export without inventing one.
  */
+import { TRUSTED_DOMAINS } from '../web'
+
 function allowlistedDomains(): string[] {
-  const src = readFileSync(join(__dirname, 'tavily.ts'), 'utf8')
-  const start = src.indexOf('include_domains')
-  assert.notEqual(start, -1, 'include_domains no longer exists in tavily.ts')
-  const block = src.slice(start, src.indexOf('],', start))
-  return [...block.matchAll(/'([a-z0-9.-]+\.[a-z]{2,})'/g)].map((m) => m[1])
+  return TRUSTED_DOMAINS
 }
 
 describe('web search sourcing', () => {

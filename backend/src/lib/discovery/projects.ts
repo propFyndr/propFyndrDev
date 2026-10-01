@@ -244,6 +244,13 @@ export function buildHardFilters(
     }
   }
 
+  if (intent.excludeSectors?.length) {
+    where.AND = [
+      ...(Array.isArray(where.AND) ? where.AND : where.AND ? [where.AND] : []),
+      ...intent.excludeSectors.map((s) => ({ NOT: { sector: { equals: s, mode: 'insensitive' as const } } })),
+    ]
+  }
+
   // Sector — whole-word match (case-insensitive) over the resolved sector set.
   const sectorsToSearch = overrideSectors
     ?? (intent.sector && !isCityLevel(intent.sector) ? [intent.sector] : [])

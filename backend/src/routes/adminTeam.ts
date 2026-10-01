@@ -186,7 +186,8 @@ router.get('/search-users', requireIdentity, requireRole('SUPER_ADMIN'), async (
         return {
           id: u.id,
           email,
-          name: fullName || email.split('@')[0] || 'Registered User',
+          // No name on the account means no name: the console shows the email.
+          name: fullName || email.split('@')[0] || null,
           phone: u.phone || null,
           created_at: u.created_at,
           last_sign_in_at: u.last_sign_in_at || null,
@@ -196,7 +197,7 @@ router.get('/search-users', requireIdentity, requireRole('SUPER_ADMIN'), async (
       })
       .filter((u) => {
         if (!q) return true
-        return u.email.includes(q) || u.name.toLowerCase().includes(q)
+        return u.email.includes(q) || (u.name ?? '').toLowerCase().includes(q)
       })
       .slice(0, 25)
 

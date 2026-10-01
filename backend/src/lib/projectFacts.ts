@@ -6,6 +6,7 @@
 // return the stored values, list what is missing in `data_gaps`, and never
 // substitute a guess for a null.
 import { prisma } from './db'
+import { isSchemaDefault } from './projectExposure'
 
 /** Fields shared by every lookup so the model can attribute and hedge correctly. */
 interface FactEnvelope extends Record<string, unknown> {
@@ -432,7 +433,7 @@ function buildLivingSpecifications(project: Record<string, unknown>): Record<str
   put('ceiling_height', project.ceiling_height_ft, (v: number) => `${v} ft`)
   put('privacy_layout', project.shared_walls_type)
   put('land_tenure', project.land_tenure)
-  put('authority_dues_cleared', project.authority_dues_cleared)
+  put('authority_dues_cleared', isSchemaDefault('authority_dues_cleared', project.authority_dues_cleared) ? null : project.authority_dues_cleared)
   put('pet_friendly', project.pet_friendly)
   put('bachelor_tenants_allowed', project.bachelor_tenants_allowed)
   put('open_space_percentage', project.open_space_pct, (v: number) => `${v}%`)
@@ -1377,7 +1378,7 @@ export async function getProjectDueDiligence(nameOrId: string): Promise<Record<s
       },
       registry_and_clearances: {
         amitabh_kant_clearance: project.amitabh_kant_clearance ?? null,
-        authority_dues_cleared: project.authority_dues_cleared ?? null,
+        authority_dues_cleared: isSchemaDefault('authority_dues_cleared', project.authority_dues_cleared) ? null : (project.authority_dues_cleared ?? null),
         rera_number: project.rera_number,
         builder_insolvency_history: project.builder?.insolvency_history ?? false,
       },

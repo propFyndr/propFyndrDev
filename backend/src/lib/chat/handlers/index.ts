@@ -19,6 +19,8 @@ import { authorityMechanicsHandler } from './authorityMechanics'
 import { affordabilityHandler } from './affordabilityHandler'
 import { dossierHandler } from './dossierHandler'
 import { legalRiskHandler } from './legalRisk'
+import { projectCatchHandler } from './projectCatch'
+import { priceFairnessHandler } from './priceFairness'
 
 /**
  * Topic handlers, in priority order — the first match wins.
@@ -75,6 +77,13 @@ export const CHAT_TOPIC_HANDLERS: readonly ChatTopicHandler[] = [
   // -> amenities). Its matcher is narrow — EOI/pre-launch with money words,
   // resale without registry, Sports City with a registry/status word.
   legalRiskHandler,
+  // "What's the catch with X": record-based negatives and gaps for one named
+  // project. Narrow matcher (a catch/negatives phrase AND a project we hold).
+  projectCatchHandler,
+  // "Quoted X for Y, fair? how much can I negotiate": our recorded price for
+  // that BHK and same-sector comparables. Before costSheet, which "all
+  // inclusive" alone used to hand the turn to.
+  priceFairnessHandler,
   builderReputationHandler,
   newcomerOrientationHandler,
   vicinityLookupHandler,

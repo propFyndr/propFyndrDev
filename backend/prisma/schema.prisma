@@ -2158,3 +2158,20 @@ model Dossier {
   @@index([created_at])
   @@map("dossiers")
 }
+
+/// Persistent cache for web search facts (Task 4.4)
+model WebFact {
+  id             String   @id @default(uuid())
+  query_key      String   @unique
+  query_text     String?
+  answer_snippet String   @db.Text
+  results_json   String?  @db.Text
+  source_url     String
+  source_name    String
+  category       String   @default("general")
+  fetched_at     DateTime @default(now())
+  expires_at     DateTime
+
+  @@index([query_key, expires_at])
+  @@map("web_facts")
+}

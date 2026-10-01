@@ -583,10 +583,18 @@ export const SYNTHETIC_FIELDS = [
  * true fact. Saying "not recorded" about something true is recoverable on the
  * site visit; asserting a specific wrong measurement is not.
  */
-export const SCHEMA_DEFAULT_SENTINELS: Record<string, number> = {
+export const SCHEMA_DEFAULT_SENTINELS: Record<string, number | boolean> = {
   ceiling_height_ft: 10.2,
   mobile_network_rating: 4,
   lifts_per_tower: 3,
+  /**
+   * `@default(true)`, and measured on 2026-10-02: true on all 382 rows. Not one
+   * project has ever had it set by hand, so "authority dues: cleared" was being
+   * stated about every project we hold — Sports City sectors under a registry
+   * hold included. Only `false` (someone recorded outstanding dues) carries
+   * information; `true` is withheld until a row is genuinely verified.
+   */
+  authority_dues_cleared: true,
 }
 
 /**
@@ -597,7 +605,7 @@ export const SCHEMA_DEFAULT_SENTINELS: Record<string, number> = {
  */
 export function isSchemaDefault(field: string, value: unknown): boolean {
   const sentinel = SCHEMA_DEFAULT_SENTINELS[field]
-  return sentinel !== undefined && typeof value === 'number' && value === sentinel
+  return sentinel !== undefined && typeof value === typeof sentinel && value === sentinel
 }
 
 /**

@@ -103,6 +103,8 @@ const READ_REGISTRY: Record<string, Record<Role, boolean>> = {
   // ── Oversight. Not read by the people it covers. ──
   '/audit-logs': OWNER_ONLY,
   '/team': OWNER_ONLY,
+  // Lists registered buyers' emails and phones to promote one — buyer PII.
+  '/team/search-users': OWNER_ONLY,
   '/outbox': OWNER_ONLY,
 }
 

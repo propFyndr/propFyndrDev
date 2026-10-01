@@ -290,3 +290,14 @@ describe('a stated constraint is not a referent', () => {
     assert.equal(resolveSuperlativeReference('the most expensive option', shown)?.project.name, 'Dear One')
   })
 })
+
+describe('commute anchor reads how buyers actually write a workplace', () => {
+  it('"sec 62" and a connector-less "wife ka office sec 125" are workplaces', () => {
+    assert.equal(detectCommuteAnchor('1.5 cr all inclusive, need 3bhk noida, office in sec 62. what can i get?')?.place, 'Sector 62')
+    assert.equal(detectCommuteAnchor('budget 1.2 cr, wife ka office sec 125')?.place, 'Sector 125')
+  })
+
+  it('"office space" is not a workplace anchor', () => {
+    assert.equal(detectCommuteAnchor('office space in sector 18'), null)
+  })
+})

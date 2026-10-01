@@ -101,9 +101,14 @@ describe('system prompt head size', () => {
 
   it('the gated lanes are actually cheaper than the ungated ones', () => {
     // If a future edit makes a gated block unconditional again, this is what
-    // notices — the per-kind ratchets above would all still pass.
-    assert.ok(headTokens('COST_BREAKDOWN') < headTokens('COMPARISON'), 'named-project lane must skip the ranking pillars')
-    assert.ok(headTokens('COMPARISON') < headTokens('DISCOVERY'), 'comparison lane must skip the geography taxonomy')
+    // notices — the per-kind ratchets above would all still pass. Since the
+    // Day 2 prompt ladder the gated blocks are lane directives BELOW the cache
+    // boundary (the head is invariant), so the saving is measured on the whole
+    // prompt, not the head.
+    const fullTokens = (kind?: string) =>
+      estimateTokensReal(getBaseSystemPrompt(undefined, undefined, 'Noida' as never, undefined, kind as never, undefined, true))
+    assert.ok(fullTokens('COST_BREAKDOWN') < fullTokens('COMPARISON'), 'named-project lane must skip the ranking pillars')
+    assert.ok(fullTokens('COMPARISON') < fullTokens('DISCOVERY'), 'comparison lane must skip the geography taxonomy')
   })
 
   it('no lane loses a rule that stops it inventing a number', () => {

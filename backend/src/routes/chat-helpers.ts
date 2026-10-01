@@ -154,8 +154,19 @@ export function trimMessagesToBudget(
   return trimmed.length === 0 ? msgs.slice(-1) : trimmed
 }
 
-export function sseWrite(res: Response, event: string, data: Record<string, unknown>): void {
-  res.write(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`)
+export type SSEvent =
+  | { type: 'heartbeat'; ts: number }
+  | { type: 'token'; token: string; seq: number }
+  | { type: 'ui_state'; stage: string; thinking: string; chips: any[]; missingFields?: string[]; confidence?: string; seq: number }
+  | { type: 'properties'; exactResults: any[]; nearbyResults: any[]; expansion?: any; seq: number }
+  | { type: 'components'; response: any; seq: number }
+  | { type: 'done'; sessionId: string; turnId?: string; intentState: string; intent?: any; responseMode?: string; seq: number }
+  | { type: 'error'; message: string; retryable?: boolean; seq?: number }
+  | { type: 'focus'; projectId: string; name: string; anchor: string; seq?: number }
+
+export function sseWrite(res: Response, event: string, data: Record<string, unknown>, seq?: number): void {
+  const payload = seq !== undefined ? { ...data, seq } : data
+  res.write(`event: ${event}\ndata: ${JSON.stringify(payload)}\n\n`)
 }
 
 export function formatSessionList(sessions: Array<{ id: string; title: string | null; last_active: Date }>) {

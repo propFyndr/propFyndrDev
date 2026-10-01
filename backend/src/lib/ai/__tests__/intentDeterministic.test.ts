@@ -2,6 +2,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { INTENT_CORPUS } from './intentExtraction.corpus'
 import { extractDeterministic } from '../intentDeterministic'
+import { buildHardFilters } from '../../discovery/projects'
 import { readFileSync } from 'fs'
 import { join } from 'path'
 
@@ -127,4 +128,44 @@ test('"something bigger" steps the remembered BHK up once', () => {
   // Model already stepped it: no double step.
   const out2 = applyLiterals({ bhk: [3] } as any, extractDeterministic('show me something bigger'), 'show me something bigger', prev)
   assert.deepEqual(out2.bhk, [3])
+})
+
+
+test('budget: a preference inside the ceiling is not a floor', () => {
+  const r = extractDeterministic('up to 1.5 Cr, rather closer to 1.3 cr')
+  assert.equal(r.budgetMax, 1.5)
+  assert.equal(r.budgetMin, undefined)
+})
+test('budget: a correction replaces the earlier figure', () => {
+  assert.equal(extractDeterministic('budget 1.5 Cr. Sorry, I meant 1.35 cr').budgetMax, 1.35)
+})
+test('budget: cash in hand and a quoted price are not budget ceilings', () => {
+  assert.equal(extractDeterministic('40 lakh cash, finance the rest').budgetMax, undefined)
+  assert.equal(extractDeterministic('sales guy quoted 1.9cr for 3bhk in gulshan botnia. fair?').budgetMax, undefined)
+  assert.equal(extractDeterministic('budget 1.5 cr, have 40 lakh cash').budgetMax, 1.5)
+})
+test('sectors: a sector the buyer ruled out is never a search filter', () => {
+  const r = extractDeterministic('3bhk not in Sector 150, avoid 137, sector 79 is fine')
+  assert.deepEqual(r.sectors, ['Sector 79'])
+  assert.deepEqual(r.excludedSectors, ['Sector 150', 'Sector 137'])
+  assert.deepEqual(extractDeterministic('sector 150 nahi chahiye').sectors, [])
+})
+test('sectors: "not more than 1.5 cr in sector 150" is a ceiling and keeps the sector', () => {
+  const r = extractDeterministic('budget not more than 1.5 cr in sector 150')
+  assert.equal(r.budgetMax, 1.5)
+  assert.equal(r.budgetMin, undefined)
+  assert.deepEqual(r.sectors, ['Sector 150'])
+})
+test('sectors: exclusions carry across turns and become a hard NOT filter', () => {
+  const q1 = '3bhk under 2 cr, avoid sector 137'
+  const t1 = applyLiterals({} as any, extractDeterministic(q1), q1)
+  assert.deepEqual(t1.excludeSectors, ['Sector 137'])
+  const q2 = 'show me something bigger'
+  const t2 = applyLiterals({} as any, extractDeterministic(q2), q2, t1)
+  assert.deepEqual(t2.excludeSectors, ['Sector 137'], 'an exclusion is not forgotten next turn')
+  const q3 = 'ok actually show sector 137 too'
+  const t3 = applyLiterals({} as any, extractDeterministic(q3), q3, t2)
+  assert.equal(t3.excludeSectors, undefined, 'naming it again lifts the exclusion')
+  const where = JSON.stringify(buildHardFilters(t1 as any, undefined))
+  assert.match(where, /"NOT":\{"sector":\{"equals":"Sector 137"/)
 })

@@ -22,10 +22,12 @@ import type { QueryKind } from '../../../discovery'
  *      middle of the rules.
  */
 
-const head = (queryKind: string, userMessage = 'tell me about this') =>
-  splitSystemPrompt(
-    getBaseSystemPrompt({}, [], 'noida' as SupportedCity, 'READY_TO_SEARCH', queryKind as QueryKind, userMessage),
-  ).head
+// Since the Day 2 prompt ladder the gated blocks are lane directives below the
+// cache boundary: the head is byte-invariant across lanes and the scoping is
+// paid for in the tail. `head` here is therefore the whole prompt.
+const render = (queryKind: string, userMessage = 'tell me about this') =>
+  getBaseSystemPrompt({}, [], 'noida' as SupportedCity, 'READY_TO_SEARCH', queryKind as QueryKind, userMessage)
+const head = (queryKind: string, userMessage?: string) => render(queryKind, userMessage)
 
 const GEOGRAPHY = '## STRICT GEOGRAPHIC & CIVIC JURISDICTION ARCHITECTURE'
 const PILLARS = '## THE 4 PILLARS OF "BEST" & MAXIMUM RETURNS'
@@ -54,10 +56,10 @@ describe('system prompt head is scoped to the question shape', () => {
     }
   })
 
-  it('the short variant is a strict prefix of the long one', () => {
-    const short = head('COST_BREAKDOWN')
-    const long = head('DISCOVERY')
-    assert.ok(long.startsWith(short), 'gated blocks must sit at the END of the head, not in the middle')
+  it('gating never touches the cached head, and still removes something', () => {
+    const short = render('COST_BREAKDOWN')
+    const long = render('DISCOVERY')
+    assert.equal(splitSystemPrompt(short).head, splitSystemPrompt(long).head, 'a gated block leaked above the cache boundary')
     assert.ok(long.length > short.length, 'the gate is not actually removing anything')
   })
 

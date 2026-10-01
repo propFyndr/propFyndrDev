@@ -1,4 +1,4 @@
-﻿# PropFyndr Master Execution Roadmap V2 (Production & Intelligence Scale)
+# PropFyndr Master Execution Roadmap V2 (Production & Intelligence Scale)
 
 This document is the authoritative, day-by-day master execution plan for PropFyndr. Following a line-by-line audit of the existing codebase, all tasks that were already implemented (such as basic defamation filters, static tables, base execution steppers, and preliminary Prisma schemas) have been **strictly excluded**. 
 
@@ -561,11 +561,35 @@ Guarantee 100% stream reliability across unstable mobile networks, eliminate bro
 ---
 
 ### Day 4 Completion Gate
-* [ ] Monotonic `seq` numbers present on 100% of streamed events.
-* [ ] Redis stream cursor restores mid-stream drops without re-billing tokens.
-* [ ] Keep-alive pings eliminate HTTP 504 reverse-proxy timeouts.
-* [ ] `tavily.ts` merged into `web.ts` and backed by `WebFact` database cache.
-* [ ] Stream chaos test passes with 100% recovery.
+* [x] Monotonic `seq` numbers present on 100% of streamed events.
+* [x] Redis stream cursor restores mid-stream drops without re-billing tokens.
+* [x] Keep-alive pings eliminate HTTP 504 reverse-proxy timeouts.
+* [x] `tavily.ts` merged into `web.ts` and backed by `WebFact` database cache.
+* [x] Stream chaos test passes with 100% recovery.
+
+---
+
+## Audit Note (2026-10-02) — what the [x] gates above actually hold
+
+A read-only audit against the code found several Day 1–3 gates marked done that are not. Corrected status:
+
+| Task | Status | Evidence |
+|---|---|---|
+| 1.1 Fact bypass | Partial → fixed | Misfired on comparison/discovery turns, wrote into unowned sessions (IDOR), stated nulls as facts. Fixed 2026-10-02. |
+| 1.2 Price firewall | Partial | Percentage extractor never built; any number in the prompt whitelists a ₹ figure. |
+| 1.3 Billing | Not met | Committed baseline shows 59% outage turns. |
+| 1.4 Baseline | Partial | `day1-baseline.json` is a copy of the 09-28 p0 scorecard (31.3% pass). |
+| 1.5 Multi-turn | Partial | Default run merges hardcoded intent updates; cannot fail. |
+| 2.3 Field diet | Was unwired → wired | Single-topic project turns now ~50% smaller. |
+| 2.5 Badge | Partial | Prompt instruction only. |
+| 3.1 JEV / calculators | Partial | `calcAllInCost` overhead 19.7% (spec 28–35%); JEV runs after the LLM extraction, so never 0 tokens. Invented-input and parse bugs fixed 2026-10-02. |
+| 3.2 De-bloat | Not done | `chat-router.ts` is ~7,100 lines (up); `extendedIntent.ts` still live via `multiDimensionalIntegration.ts`. |
+| 3.3 BACKTRACK / TRADE_OFF | Not wired | Router calls `parseRequirementState` without history; TRADE_OFF absent. |
+| 3.5 Resolver / guards | Partial | `jev/resolve.ts` has no callers; `unknown_field_presented_as_known` and `hard_constraint_violation` are never emitted. |
+| Red-team scorecards | Overstated | Runners test `requirementState`/`compileQueryPlan`, which the live path does not use; many cases pass by default. |
+| Day 4 | Done, with fixes | Reconnect re-executed the turn on an empty buffer, replayed unsanitised payloads, and spent 2 Redis commands per token. Fixed 2026-10-02. `web_facts` migration not yet applied. |
+
+Details: MEMORY.md, entry 2026-10-02.
 
 ---
 

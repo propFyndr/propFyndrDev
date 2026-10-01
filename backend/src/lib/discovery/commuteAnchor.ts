@@ -48,6 +48,13 @@ const WORKPLACE_BEFORE = new RegExp(
   `\\b(?:my\\s+)?${ANCHOR_NOUN}\\s+(?:(?:is\\s+)?(?:in|at|near|around|close to)|is)\\s+([^.,?!]{2,40})`,
   'i',
 )
+// No connector at all, when what follows is plainly a sector: "office sec 62",
+// "wife ka office sec 125". Restricted to a sector token so "office space" or
+// "office building" never reads as a place.
+const WORKPLACE_BARE_SECTOR = new RegExp(
+  `\\b${ANCHOR_NOUN}\\s+(?:(?:ka|ki|ke)\\s+)?(sec(?:tor)?\\.?\\s*-?\\s*\\d{1,3}\\s*[a-d]?)\\b`,
+  'i',
+)
 // The adverb is optional but common: "i commute daily to the expressway" put
 // "daily" between the verb and the preposition and matched nothing.
 const WORKPLACE_VERB =
@@ -123,6 +130,7 @@ export function detectCommuteAnchor(message: string): CommuteAnchor | null {
 
   for (const [re, reason] of [
     [WORKPLACE_BEFORE, 'anchor noun named before the place'],
+    [WORKPLACE_BARE_SECTOR, 'anchor noun followed directly by a sector'],
     [ANCHOR_RESIDENTS, 'family named as living at the place'],
     [WORKPLACE_VERB, 'work/commute verb before the place'],
     [WORKPLACE_AFTER, 'place named before "for office"'],
@@ -132,7 +140,7 @@ export function detectCommuteAnchor(message: string): CommuteAnchor | null {
 
     // Keep only the sector phrase when the capture dragged in surrounding words
     // ("central noida, sector 63 noida" -> "Sector 63").
-    const sector = /\bsector\s*[-\s]?(\d{1,3}\s*[a-d]?)\b/i.exec(raw)
+    const sector = /\bsec(?:tor)?\.?\s*[-\s]?(\d{1,3}\s*[a-d]?)\b/i.exec(raw)
     const label = sector ? `Sector ${sector[1].replace(/\s+/g, '').toUpperCase()}` : raw
     const place = (sector ? normalizeSectorName(label) : raw) ?? label
     if (place.length < 2) continue

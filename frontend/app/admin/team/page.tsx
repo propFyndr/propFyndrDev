@@ -108,7 +108,7 @@ export default function AdminTeamPage() {
   const [userSearchResults, setUserSearchResults] = useState<Array<{
     id: string
     email: string
-    name: string
+    name: string | null
     phone: string | null
     is_already_admin: boolean
     current_role: string | null
@@ -117,7 +117,7 @@ export default function AdminTeamPage() {
   const [selectedUser, setSelectedUser] = useState<{
     id: string
     email: string
-    name: string
+    name: string | null
     is_already_admin: boolean
   } | null>(null)
 
@@ -1170,12 +1170,12 @@ export default function AdminTeamPage() {
                     <div className="flex items-center justify-between p-3 rounded-2xl bg-purple-50/80 dark:bg-purple-950/40 border border-purple-200 dark:border-purple-800/60 animate-in fade-in duration-150">
                       <div className="flex items-center gap-3 min-w-0">
                         <div className="w-9 h-9 rounded-xl bg-purple-600 text-white font-bold text-xs flex items-center justify-center shrink-0 shadow-2xs">
-                          {selectedUser.name.slice(0, 2).toUpperCase()}
+                          {(selectedUser.name || selectedUser.email || '?').slice(0, 2).toUpperCase()}
                         </div>
                         <div className="min-w-0">
                           <div className="flex items-center gap-2">
                             <span className="text-xs font-bold text-zinc-900 dark:text-white truncate">
-                              {selectedUser.name}
+                              {selectedUser.name || 'No name on account'}
                             </span>
                             <span className="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-purple-100 dark:bg-purple-900/60 text-purple-700 dark:text-purple-300">
                               Supabase Verified
@@ -1242,11 +1242,11 @@ export default function AdminTeamPage() {
                             >
                               <div className="flex items-center gap-2.5 min-w-0">
                                 <div className="w-7 h-7 rounded-lg bg-zinc-100 dark:bg-zinc-700 text-zinc-600 dark:text-zinc-300 font-bold text-[11px] flex items-center justify-center shrink-0">
-                                  {u.name.slice(0, 2).toUpperCase()}
+                                  {(u.name || u.phone || '?').slice(0, 2).toUpperCase()}
                                 </div>
                                 <div className="min-w-0">
                                   <div className="text-xs font-semibold text-zinc-900 dark:text-white truncate">
-                                    {u.name}
+                                    {u.name || u.phone || 'No name on account'}
                                   </div>
                                   <div className="text-[11px] text-zinc-400 truncate">
                                     {u.email}

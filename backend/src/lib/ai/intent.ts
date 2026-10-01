@@ -8,7 +8,7 @@ import { parseJevDecision, JEV_PROMPT_SECTION, type JevDecision } from '../jev/d
 import type { Intent } from '../discovery'
 import { MODELS, FALLBACK_CHAIN } from '../config'
 import { IntentSchema } from '../discovery/intent'
-import { extractDeterministic, type DeterministicIntent } from './intentDeterministic'
+import { extractDeterministic, sectorNumberOf, type DeterministicIntent } from './intentDeterministic'
 import { cityNamedIn } from '../discovery/constants'
 import { getSectorLocation, isSectorInCity } from '../discovery/sectorToCity'
 import { prisma } from '../db'
@@ -451,6 +451,20 @@ export function applyLiterals(intent: Intent, deterministic: DeterministicIntent
     // `discoverProjects` now reads this to search all of them, not only the
     // first. See the field's own doc comment in discovery/types.ts.
     out.sectorsMentioned = deterministic.sectors
+  }
+  // A sector the buyer ruled out is never a search filter, whoever proposed it.
+  const ruledOut = new Set((deterministic.excludedSectors ?? []).map(x => sectorNumberOf(x)))
+  // Exclusions persist across turns; naming a sector positively lifts it.
+  const positive = new Set(deterministic.sectors.map(x => sectorNumberOf(x)))
+  const carried = (previousIntent?.excludeSectors ?? []).filter(x => !positive.has(sectorNumberOf(x)))
+  const excludeSectors = [...new Set([...carried, ...(deterministic.excludedSectors ?? [])])]
+  if (excludeSectors.length > 0) out.excludeSectors = excludeSectors
+  else delete out.excludeSectors
+  if (ruledOut.size > 0) {
+    if (typeof out.sector === 'string' && ruledOut.has(sectorNumberOf(out.sector))) delete out.sector
+    if (Array.isArray(out.sectorsMentioned)) {
+      out.sectorsMentioned = out.sectorsMentioned.filter(x => !ruledOut.has(sectorNumberOf(String(x))))
+    }
   }
   if (lit.has('bhk')) out.bhk = deterministic.bhk
   if (lit.has('budgetMin')) out.budgetMin = deterministic.budgetMin
