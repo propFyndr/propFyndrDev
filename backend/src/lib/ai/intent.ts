@@ -8,7 +8,8 @@ import { parseJevDecision, JEV_PROMPT_SECTION, type JevDecision } from '../jev/d
 import type { Intent } from '../discovery'
 import { MODELS, FALLBACK_CHAIN } from '../config'
 import { IntentSchema } from '../discovery/intent'
-import { extractDeterministic, sectorNumberOf, type DeterministicIntent } from './intentDeterministic'
+import { extractDeterministic, sectorNumberOf, nonBudgetAmounts, type DeterministicIntent } from './intentDeterministic'
+import { isLlmStubbed } from './llmStub'
 import { cityNamedIn } from '../discovery/constants'
 import { getSectorLocation, isSectorInCity } from '../discovery/sectorToCity'
 import { prisma } from '../db'
@@ -466,6 +467,20 @@ export function applyLiterals(intent: Intent, deterministic: DeterministicIntent
       out.sectorsMentioned = out.sectorsMentioned.filter(x => !ruledOut.has(sectorNumberOf(String(x))))
     }
   }
+  // A quoted price or cash in hand proposed as the budget by the model or the
+  // heuristic reader: drop it and keep what the buyer had already told us.
+  const notBudgets = nonBudgetAmounts(message)
+  if (notBudgets.length) {
+    const near = (v: unknown) => typeof v === 'number' && notBudgets.some(n => Math.abs(n - v) < 1e-6)
+    if (!lit.has('budgetMax') && near(out.budgetMax)) {
+      if (previousIntent?.budgetMax != null) out.budgetMax = previousIntent.budgetMax
+      else delete out.budgetMax
+    }
+    if (!lit.has('budgetMin') && near(out.budgetMin)) {
+      if (previousIntent?.budgetMin != null) out.budgetMin = previousIntent.budgetMin
+      else delete out.budgetMin
+    }
+  }
   if (lit.has('bhk')) out.bhk = deterministic.bhk
   if (lit.has('budgetMin')) out.budgetMin = deterministic.budgetMin
   if (lit.has('budgetMax')) out.budgetMax = deterministic.budgetMax
@@ -546,6 +561,8 @@ export async function extractIntent(message: string, previousIntent: Intent): Pr
       console.log(`[INTENT:NO_SIGNAL] skipped extraction for "${message.slice(0, 60)}"`)
       return { intent: heuristic, degraded: false }
     }
+    // Route replay: the model leg is replaced by the deterministic reading.
+    if (isLlmStubbed()) return { intent: heuristic, degraded: false }
   }
 
   /**

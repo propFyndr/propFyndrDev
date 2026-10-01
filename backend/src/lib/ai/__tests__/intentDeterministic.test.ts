@@ -169,3 +169,10 @@ test('sectors: exclusions carry across turns and become a hard NOT filter', () =
   const where = JSON.stringify(buildHardFilters(t1 as any, undefined))
   assert.match(where, /"NOT":\{"sector":\{"equals":"Sector 137"/)
 })
+test('budget: a quoted price proposed as the budget by another reader is dropped', () => {
+  const q = 'sales guy quoted 1.9cr for 3bhk in gulshan botnia. fair?'
+  const out = applyLiterals({ budgetMax: 1.9, bhk: [3] } as any, extractDeterministic(q), q)
+  assert.equal(out.budgetMax, undefined)
+  const kept = applyLiterals({ budgetMax: 1.9 } as any, extractDeterministic(q), q, { budgetMax: 2.5 } as any)
+  assert.equal(kept.budgetMax, 2.5, 'the budget the buyer stated earlier survives')
+})

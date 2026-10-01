@@ -24,6 +24,7 @@
     "audit:prices": "tsx scripts/fix-price-labels.ts",
     "audit:data": "tsx scripts/audit-data.ts",
     "audit:routing": "tsx scripts/corpus/route-check.ts",
+    "replay": "tsx scripts/corpus/route-replay.ts",
     "judge": "tsx scripts/corpus/judge-answers.ts",
     "corpus": "tsx scripts/corpus/run-corpus.ts",
     "check-all": "npm run lint && npm run typecheck && npm test",

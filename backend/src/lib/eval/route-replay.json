@@ -1,0 +1,74 @@
+[
+  { "id": "q1-allin-commute", "source": "claudeQueries.md #1", "turns": [
+    { "text": "1.5 cr all inclusive, need 3bhk noida, office in sec 62. what can i actually get?",
+      "expect": { "lane": "topic:commute-shortlist", "llm": false, "contains": ["Living near Sector 62", "All-in from"] } }
+  ] },
+  { "id": "q2-fairness", "source": "claudeQueries.md #2", "turns": [
+    { "text": "sales guy quoted 1.9cr all inclusive for 3bhk in gulshan botnia 144. fair or overpriced? how much can i negotiate",
+      "expect": { "lane": "topic:price_fairness", "llm": false, "contains": ["Our record", "Your quote", "Comparable 3 BHKs"], "notContains": ["usually give"], "intent": { "budgetMax": null } } }
+  ] },
+  { "id": "q3-extension-vs-expressway", "source": "claudeQueries.md #3 (known gap: no GNW-vs-Expressway comparison yet)", "turns": [
+    { "text": "noida extension ya noida expressway? family hai 2 kids, budget 1.2 cr, wife ka office sec 125",
+      "expect": { "lane": "topic:commute-shortlist", "llm": false, "contains": ["Living near Sector 125"] } }
+  ] },
+  { "id": "q4-resale-no-registry", "source": "claudeQueries.md #4", "turns": [
+    { "text": "resale flat mil raha gaur city side, seller ke paas registry nahi hai, builder bol raha baad me transfer kar denge. safe hai?",
+      "expect": { "lane": "topic:legal_risk", "llm": false, "contains": ["Not safe", "allotment"] } }
+  ] },
+  { "id": "q5-catch", "source": "claudeQueries.md #5", "turns": [
+    { "text": "whats the catch with godrej tropical isle? what will sales team not tell me",
+      "expect": { "lane": "topic:project_catch", "llm": false, "contains": ["What our records show", "What we do not hold"], "notContains": ["dues cleared", "in good standing"] } }
+  ] },
+  { "id": "q6-sports-city", "source": "claudeQueries.md #6 (known gap: no dated authority record)", "turns": [
+    { "text": "is sector 150 sports city registry problem solved now? which projects are affected",
+      "expect": { "lane": "topic:legal_risk", "llm": false, "contains": ["Sports City", "dated authority decision"] } }
+  ] },
+  { "id": "q7-bsp-total", "source": "claudeQueries.md #7", "turns": [
+    { "text": "bsp 1.2 cr for 3bhk under construction on expressway. total kitna padega sab milake? and monthly maintenance?",
+      "expect": { "lane": "topic:total_outflow", "llm": false, "contains": ["₹8.40 L", "female primary owner", "Monthly maintenance"] } }
+  ] },
+  { "id": "q8-pick-one", "source": "claudeQueries.md #8 (after #1)", "turns": [
+    { "text": "1.5 cr all inclusive, need 3bhk noida, office in sec 62. what can i actually get?",
+      "expect": { "lane": "topic:commute-shortlist" } },
+    { "text": "compare the top 3 you showed. dont give pros cons, just tell me which one you'd buy for a family and why",
+      "expect": { "lane": "ground-truth-db", "llm": true } }
+  ] },
+  { "id": "q9-eoi", "source": "claudeQueries.md #9", "turns": [
+    { "text": "ace new launch sector 150 asking 10 lakh EOI. refundable hai? should i pay",
+      "expect": { "lane": "topic:legal_risk", "llm": false, "contains": ["RERA", "own"], "notContains": ["limited time", "hurry"] } }
+  ] },
+  { "id": "q10-metro-date", "source": "claudeQueries.md #10 (known gap: no dated metro record, model answers)", "turns": [
+    { "text": "gaur city side metro kab tak aayega? exact date batao",
+      "expect": { "lane": "OPEN", "llm": true } }
+  ] },
+  { "id": "fact-rera", "source": "fact bypass", "turns": [
+    { "text": "what is the rera number for Godrej Woods?",
+      "expect": { "lane": "deterministic-fact", "llm": false, "contains": ["UPRERAPRJ7047"], "notContains": ["market data", "](http"] } }
+  ] },
+  { "id": "fact-bypass-compare-misfire", "source": "fixed 2026-10-02", "turns": [
+    { "text": "Compare Godrej Woods and Gulshan Botnia, both rera registered?",
+      "expect": { "laneNot": ["deterministic-fact"] } }
+  ] },
+  { "id": "fact-bypass-discovery-misfire", "source": "fixed 2026-10-02", "turns": [
+    { "text": "show me 3bhk with good water supply in sector 150",
+      "expect": { "laneNot": ["deterministic-fact"] } }
+  ] },
+  { "id": "exclusion-carries", "source": "fixed 2026-10-02", "turns": [
+    { "text": "3bhk under 2 cr in noida, not in sector 150, avoid 137",
+      "expect": { "intent": { "excludeSectors": ["Sector 150", "Sector 137"], "budgetMax": 2 } } },
+    { "text": "show me something bigger",
+      "expect": { "intent": { "excludeSectors": ["Sector 150", "Sector 137"] } } }
+  ] },
+  { "id": "budget-correction", "source": "fixed 2026-10-02", "turns": [
+    { "text": "3bhk in sector 79 budget 1.5 Cr. Sorry, I meant 1.35 cr",
+      "expect": { "intent": { "budgetMax": 1.35 } } }
+  ] },
+  { "id": "stamp-duty", "source": "statutory", "turns": [
+    { "text": "how much stamp duty on a 1.5 cr flat in noida for a woman buyer",
+      "expect": { "lane": "topic:statutory_tax", "llm": false, "contains": ["On ₹1.50 Cr", "₹10,40,000"] } }
+  ] },
+  { "id": "greeting", "source": "smalltalk", "turns": [
+    { "text": "hi", "expect": { "lane": "greeting", "llm": false } },
+    { "text": "thanks", "expect": { "lane": "thanks", "llm": false } }
+  ] }
+]

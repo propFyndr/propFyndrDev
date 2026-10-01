@@ -162,7 +162,6 @@ export async function tryDeterministicFactBypass(
       city: true,
       status: true,
       rera_number: true,
-      rera_url: true,
       occupancy_certificate_status: true,
       oc_status: true,
       oc_details: true,
@@ -190,14 +189,12 @@ export async function tryDeterministicFactBypass(
   switch (detection.attribute) {
     case 'rera': {
       if (project.rera_number) {
-        const portalUrl = project.rera_url || 'https://up-rera.in'
         responseMarkdown = `### UP-RERA Registration Details — ${project.name}
 
 | Parameter | Official Record | Status / Link |
 | :--- | :--- | :--- |
 | **Project** | **${project.name}**${builderName} | ${project.sector}, ${project.city} |
 | **UP-RERA Registration ID** | \`${project.rera_number}\` | Registered with UP-RERA |
-| **Official Regulator Portal** | UP Real Estate Regulatory Authority | [View Official UP-RERA Filing](${portalUrl}) |
 | **Possession Timeline** | ${project.possession_label ?? UNVERIFIED} | ${project.status ? project.status.replace(/_/g, ' ') : UNVERIFIED} |
 
 > This registration number is from our project record. Confirm it on the UP-RERA portal before paying any booking amount.`

@@ -115,6 +115,8 @@ import { CHAT_TOPIC_HANDLERS } from '../lib/chat/handlers'
 import { matchesLegalRiskQuestion } from '../lib/chat/handlers/legalRisk'
 import { statedBasePriceInr } from '../lib/chat/handlers/totalOutflow'
 import { computePick, pickDirective, type PickCandidate } from '../lib/chat/pickOne'
+import { ASKS_FAIRNESS } from '../lib/chat/handlers/priceFairness'
+import { ASKS_FOR_THE_CATCH } from '../lib/chat/handlers/projectCatch'
 
 /**
  * Empty flag set for probing a handler's matcher outside the dispatch loop.
@@ -191,6 +193,17 @@ function pickOneTail(names: readonly string[]): string {
 
 BUYER ASKS FOR A VERDICT: The buyer is asking you to choose ONE of these shortlisted projects: ${names.join(', ')}. Name exactly one, by name, in the first sentence. Give the reason in one or two sentences tied to what the buyer told you (family, budget, commute). Then state that project's single biggest drawback plainly. No pros/cons list, no table, and no comparison of every project on every factor. Use only facts from the project data above. If a fact you would need is missing, say so instead of guessing.`
 }
+
+/**
+ * Greetings and thanks, answered by fixed text further down the cascade.
+ * Shared with the open lane, which sits earlier and was answering "hi" and
+ * "thanks" with a model call before these lanes were ever reached.
+ */
+const GREETING = /^(hi|hello|hey|good\s+(morning|afternoon|evening)|namaste|hola|what's\s+up|help|start)\b[\s!.]*$/i
+const GREETING_META = /^(who\s+are\s+you|what\s+can\s+you\s+do|what\s+is\s+propfyndr|how\s+can\s+you\s+help(\s+me)?)\??$/i
+const THANKS = /^(thank\s+you|thanks|thanks\s+a\s+lot|thx|great|awesome|helpful|ok\s+thanks)\b[\s!.]*$/i
+function isGreetingMessage(m: string): boolean { return GREETING.test(m.trim()) || GREETING_META.test(m.trim()) }
+function isThanksMessage(m: string): boolean { return THANKS.test(m.trim()) }
 
 const router = Router()
 
@@ -3034,6 +3047,7 @@ router.post('/', async (req: Request, res: Response) => {
       // "bsp 1.2 cr … total kitna padega": totalOutflowHandler computes it on
       // the buyer's own number; the open lane handed it to the model.
       statedBasePriceInr(message) === null &&
+      !isGreetingMessage(message) && !isThanksMessage(message) &&
       !claimingHandler
     ) {
       await answerAsGeneralQuestion('OPEN')
@@ -3162,8 +3176,7 @@ For legal statutory schedules (UP Stamp Duty, GST, TDS) or verified property che
      * court near Sector 62" is still answered.
      */
     // ─── Conversational Greetings & Politeness (ChatGPT / Gemini Grade) ───────
-    const isGreeting = /^(hi|hello|hey|good\s+(morning|afternoon|evening)|namaste|hola|what's\s+up|help|start)\b[\s!.]*$/i.test(message.trim()) ||
-      /^(who\s+are\s+you|what\s+can\s+you\s+do|what\s+is\s+propfyndr|how\s+can\s+you\s+help(\s+me)?)\??$/i.test(message.trim());
+    const isGreeting = isGreetingMessage(message);
 
     if (isGreeting && action.type === 'TEXT_MESSAGE') {
       const welcomeText = `### Welcome to PropFyndr AI Advisor
@@ -3204,7 +3217,7 @@ I can help you with:
       return;
     }
 
-    const isThankYou = /^(thank\s+you|thanks|thanks\s+a\s+lot|thx|great|awesome|helpful|ok\s+thanks)\b[\s!.]*$/i.test(message.trim());
+    const isThankYou = isThanksMessage(message);
     if (isThankYou && action.type === 'TEXT_MESSAGE') {
       const thankYouText = `You're very welcome! If you need any further analysis — such as detailed cost sheets, floor plan comparisons, or RERA verifications — just ask anytime.`;
       const thankYouChips = [
@@ -3369,7 +3382,11 @@ I can help you with:
     // model wrote the breakdown from memory — without the women-buyer rate or
     // the maintenance GST rule we already hold.
     const statesOwnBasePrice = /\b(bsp|base\s*(sale\s*)?price|basic\s*(sale\s*)?price)\b/i.test(topicText)
-    const isInventorySearch = (/\b(show\s+me|find\s+me|list\s+(all|the)?|options\s+in|available\s+in|looking\s+for|search\s+for)\b/i.test(topicText) ||
+    // A verdict on a named project ("quoted 1.9cr for 3bhk in X, fair?", "the
+    // catch with X") mentions a BHK and "in", which read as an inventory search
+    // and locked the turn out of the handlers that answer it.
+    const asksProjectVerdict = ASKS_FAIRNESS.test(topicText) || ASKS_FOR_THE_CATCH.test(topicText)
+    const isInventorySearch = !asksProjectVerdict && (/\b(show\s+me|find\s+me|list\s+(all|the)?|options\s+in|available\s+in|looking\s+for|search\s+for)\b/i.test(topicText) ||
       // `under` is a budget word; "under construction" is a status.
       (/\b(\d\s*bhk)\b/i.test(topicText) && /\b(sector|in|under(?!\s*[- ]?construction)|budget|crore|lakh)\b/i.test(topicText))) &&
       !isCompareRequest && !isSectorCompare && !isAdvisoryPhrasing && !asksForProjectArtefact && !statesOwnBasePrice
@@ -3460,7 +3477,7 @@ I can help you with:
     ].filter(Boolean).length
     const singleTopic = topicFlagCount <= 1
 
-    if ((!isInventorySearch || isLegalRiskQuery) && (isLegalRiskQuery || activeProjectName || isSummaryRequest || isCompareRequest || isSectorCompare || isPaymentPlanRequest || isCostSheetRequest || isStatutoryTaxQuery || isReraCheckQuery || isBuilderReputationQuery || isNewcomerOrientation || isReadyToMoveQuery || isAmenityQuery || isConnectivityQuery || isConfigurationQuery || isTotalOutflowQuery || isDueDiligenceQuery) && action.type === 'TEXT_MESSAGE') {
+    if ((!isInventorySearch || isLegalRiskQuery || commuteAnchorJustStated) && (isLegalRiskQuery || commuteAnchorJustStated || asksProjectVerdict || activeProjectName || isSummaryRequest || isCompareRequest || isSectorCompare || isPaymentPlanRequest || isCostSheetRequest || isStatutoryTaxQuery || isReraCheckQuery || isBuilderReputationQuery || isNewcomerOrientation || isReadyToMoveQuery || isAmenityQuery || isConnectivityQuery || isConfigurationQuery || isTotalOutflowQuery || isDueDiligenceQuery) && action.type === 'TEXT_MESSAGE') {
       try {
         console.log('[CHAT:GROUND_TRUTH_DB] Executing Ground Truth DB Pipeline...', { activeProjectName, isSummaryRequest, isCompareRequest, isSectorCompare, isPaymentPlanRequest, isCostSheetRequest, isStatutoryTaxQuery, isReraCheckQuery, isBuilderReputationQuery, isNewcomerOrientation, isReadyToMoveQuery, isAmenityQuery, isConnectivityQuery, isReraFactQuery, isDueDiligenceQuery, topicFlagCount, sectorMatches })
 

@@ -103,6 +103,7 @@ import { endCleanly } from './endCleanly'
 import { wouldExceed, recordAttempt, recordRateLimited, limitFor } from './rateBudget'
 import { sanitizeOutput } from './sanitizeOutput'
 import { oneQuestion } from './oneQuestion'
+import { isLlmStubbed, LLM_STUB_ANSWER } from './llmStub'
 
 /** Remove the prefix sentinel — it must never reach a provider. */
 function stripMarker(prompt: string): string {
@@ -549,6 +550,10 @@ function createBufferedSend(
 }
 
 export async function executeWithFallbackChain(options: FallbackChainOptions): Promise<FallbackChainResult> {
+  if (isLlmStubbed()) {
+    options.send('token', { token: LLM_STUB_ANSWER })
+    return { text: LLM_STUB_ANSWER, provider: 'stub', model: 'stub', envKey: 'LLM_STUB', is_verified: false }
+  }
   const {
     systemPrompt,
     messages,

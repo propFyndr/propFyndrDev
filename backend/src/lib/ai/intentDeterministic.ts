@@ -106,11 +106,22 @@ const CORRECTION = /\b(?:meant|sorry|correction|i\s+mean|actually|make\s+(?:it|t
 /** "Up to 1.5, rather closer to 1.3": a preference inside the ceiling, not a band. */
 const PREFERENCE_TO = /\b(?:closer|close|nearer|near|ideally|preferably|rather)\s+to\b/i
 
+function isNonBudgetAmount(text: string, index: number): boolean {
+  return NOT_A_BUDGET.test(text.slice(Math.max(0, index - 18), index + 22))
+}
+
+/**
+ * Amounts in the message that are NOT the buyer's budget (cash, a quote, a
+ * down payment). Exported so `applyLiterals` can strip them from whatever the
+ * model or the heuristic reader proposed — leaving `budgetMax` unpinned is not
+ * enough, because those readers take any amount as a ceiling.
+ */
+export function nonBudgetAmounts(text: string): number[] {
+  return amountsIn(text).filter(a => isNonBudgetAmount(text, a.index)).map(a => a.value)
+}
+
 function readBudget(text: string): { min?: number; max?: number } {
-  const amounts = amountsIn(text).filter(a => {
-    const around = text.slice(Math.max(0, a.index - 18), a.index + 22)
-    return !NOT_A_BUDGET.test(around)
-  })
+  const amounts = amountsIn(text).filter(a => !isNonBudgetAmount(text, a.index))
   if (amounts.length === 0) return {}
 
   if (amounts.length >= 2) {

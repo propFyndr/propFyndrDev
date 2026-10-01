@@ -21,8 +21,23 @@ export interface TurnTraceDraft {
   jev_shadow?: unknown
 }
 
+const listeners = new Set<(t: TurnTraceDraft) => void>()
+
+/**
+ * Observe every finished turn in-process. Used by the route replay
+ * (`lib/eval/routeReplay.ts`) to read which lane answered without writing a
+ * telemetry row. Returns the unsubscribe function.
+ */
+export function onTurnTrace(fn: (t: TurnTraceDraft) => void): () => void {
+  listeners.add(fn)
+  return () => listeners.delete(fn)
+}
+
 /** Fire-and-forget. Telemetry must never fail or slow a buyer's turn. */
 export function recordTurnTrace(t: TurnTraceDraft, latencyMs: number): void {
+  for (const fn of listeners) {
+    try { fn({ ...t }) } catch { /* an observer never breaks a turn */ }
+  }
   if (process.env.TURN_TRACE === 'off' || process.env.NODE_ENV === 'test') return
   prisma.turnTrace
     .create({

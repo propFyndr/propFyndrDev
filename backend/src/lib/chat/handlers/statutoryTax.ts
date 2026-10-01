@@ -1,5 +1,41 @@
 import type { ChatTopicHandler } from '../handlerContext'
 import { UP_STATUTORY, NOIDA_MARKET_RANGES, MARKET_QUALIFIER } from '../../factPresentation'
+import { femaleStampDutySaving } from './totalOutflow'
+import { quotedAmountCr } from './priceFairness'
+
+/**
+ * "How much stamp duty on a 1.5 cr flat for a woman buyer" got the rate table
+ * and no number. When the buyer gives an amount, the arithmetic leads; these
+ * are statutory rates, so computing on their figure is not a guess.
+ */
+export function computedOnAmount(message: string): string {
+  const amountCr = quotedAmountCr(message)
+  if (!amountCr) return ''
+  const s = UP_STATUTORY
+  const v = Math.round(amountCr * 1_00_00_000)
+  const stamp = Math.round(v * s.stampDutyPct / 100)
+  const stampFemale = stamp - femaleStampDutySaving(v)
+  const reg = Math.min(s.registrationCapInr, Math.round(v * s.registrationPct / 100))
+  const gstUc = Math.round(v * s.gstUnderConstructionPct / 100)
+  const asksWoman = /\b(?:woman|women|female|wife|mother|daughter|lady|mahila)\b/i.test(message)
+  const rows = [
+    asksWoman
+      ? `| Stamp duty, female primary owner (${s.stampDutyFemalePct}%, concession capped) | **${inr(stampFemale)}** |\n| Stamp duty, male owner (${s.stampDutyPct}%) for comparison | ${inr(stamp)} |`
+      : `| Stamp duty (${s.stampDutyPct}%) | **${inr(stamp)}** |\n| Stamp duty if a woman is primary owner (${s.stampDutyFemalePct}%, concession capped) | ${inr(stampFemale)} |`,
+    `| Registration (${s.registrationPct}%, capped) | ${inr(reg)} |`,
+    `| GST if under construction (${s.gstUnderConstructionPct}%) | ${inr(gstUc)} |`,
+    `| GST if ready to move with OC | ₹0 |`,
+  ]
+  return `### On ₹${amountCr.toFixed(2)} Cr
+
+| Charge | Amount |
+| :--- | ---: |
+${rows.join('\n')}
+
+Stamp duty is charged on the agreement value or the circle rate, whichever is higher, so the figure above is the floor.${v > s.tdsThresholdInr ? ` You also deduct ${s.tdsPct}% TDS (${inr(Math.round(v * s.tdsPct / 100))}) from the payment to the seller and deposit it with Form 26QB.` : ''}
+
+`
+}
 
 /** ₹ with Indian digit grouping. */
 const inr = (n: number) => `₹${n.toLocaleString('en-IN')}`
@@ -57,7 +93,7 @@ What legitimately reduces the bill:
 `
       : ''
 
-    const text = `${avoidanceAnswer}### Statutory taxes & registration charges (Uttar Pradesh)
+    const text = `${avoidanceAnswer}${asksHowToAvoid ? '' : computedOnAmount(ctx.message)}### Statutory taxes & registration charges (Uttar Pradesh)
 
 These are set by law and are the same for every project.
 
