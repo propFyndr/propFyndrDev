@@ -17,6 +17,7 @@ import { requireRole } from '../lib/adminIdentity'
 import { checkRateLimit } from '../lib/cache'
 import { clientIp } from '../lib/request'
 import { validateUploadedFile } from '../lib/uploadValidator'
+import { REAL_DOCUMENT_WHERE, isRealDocumentUrl } from '../lib/realDocuments'
 
 const router = Router()
 
@@ -50,7 +51,7 @@ router.post('/ask', async (req: Request, res: Response) => {
   const { document_id, question } = parsed.data
 
   const doc = await prisma.projectDocument.findUnique({ where: { id: document_id } })
-  if (!doc) {
+  if (!doc || !isRealDocumentUrl(doc.storage_url)) {
     res.status(404).json({ error: 'Document not found' })
     return
   }
@@ -108,7 +109,7 @@ router.get('/', async (req: Request, res: Response) => {
   }
 
   const docs = await prisma.projectDocument.findMany({
-    where: { project_slug: slug },
+    where: { project_slug: slug, ...REAL_DOCUMENT_WHERE },
     orderBy: { created_at: 'desc' },
     select: { id: true, name: true, storage_url: true, doc_type: true, created_at: true, file_size_bytes: true },
   })

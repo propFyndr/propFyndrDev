@@ -8,6 +8,7 @@ import { gatePublished } from '../lib/intelligenceGate'
 import { routeCache } from '../lib/routeCache'
 import { computeLiveActivity } from '../lib/liveActivity'
 import { computeOnTimeDeliveryPct } from '../lib/builderDelivery'
+import { REAL_DOCUMENT_WHERE } from '../lib/realDocuments'
 
 const router = Router()
 
@@ -187,7 +188,7 @@ router.get('/:slug/documents', async (req: Request, res: Response) => {
   const project = await prisma.project.findUnique({ where: { slug: req.params.slug }, select: { id: true } })
   if (!project) { res.status(404).json({ error: 'Not found' }); return }
   const documents = await prisma.projectDocument.findMany({
-    where: { project_id: project.id },
+    where: { project_id: project.id, ...REAL_DOCUMENT_WHERE },
     select: { id: true, doc_type: true, name: true, storage_url: true, created_at: true },
     orderBy: { created_at: 'desc' },
   })

@@ -1,4 +1,5 @@
 import { prisma } from '../../db'
+import { REAL_DOCUMENT_WHERE } from '../../realDocuments'
 import { gatePublished } from '../../intelligenceGate'
 import { getBuilderRecord } from '../../builders'
 import { FINANCIAL, DISCOVERY } from '../../config'
@@ -409,7 +410,7 @@ export function createToolHandler(ctx: ToolContext) {
             return { error: 'project_id is required' };
           }
           const documents = await (prisma as any).projectDocument.findMany({
-            where: { project_id: projectId },
+            where: { project_id: projectId, ...REAL_DOCUMENT_WHERE },
             take: 3,
           });
           if (!documents || !documents.length) {
