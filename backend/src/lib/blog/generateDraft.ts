@@ -102,6 +102,17 @@ export const STATUTORY = `STATUTORY FACTS (fixed by Uttar Pradesh law and verifi
 - Registration: ${REGISTRATION_PCT}% of the property value.
 - GST: ${GST_UC}% on under-construction flats; ${GST_AFFORDABLE}% on affordable housing (under ₹45 lakh with carpet area up to 60 sq m); none on ready-to-move flats with an occupancy certificate.`
 
+/**
+ * Words that mark text as machine-written (AIslopReduct.md, the house style
+ * guide). Banned in the prompt and counted by checkDraftQuality, so a slip
+ * shows up in the reviewer notes.
+ */
+export const AI_WORDS = [
+  'delve', 'crucial', 'pivotal', 'robust', 'intricate', 'interplay', 'tapestry', 'testament', 'underscore',
+  'showcase', 'foster', 'enhance', 'landscape', 'transformative', 'multifaceted', 'nuanced', 'significant',
+  'noteworthy', 'vibrant', 'seamless', 'navigate', 'leverage', 'unlock', 'elevate', 'realm', 'game-changer',
+]
+
 const SYSTEM = `You write blog articles for PropFyndr, an AI real estate advisor for home buyers in Noida, India.
 Voice: a capable, honest peer. Plain and direct. No hype, no exclamation marks, no "dream home" language.
 Show trade-offs and risks as readily as benefits.
@@ -119,6 +130,15 @@ FACT RULES (non-negotiable):
 
 ${STATUTORY}
 
+STYLE (write like a person who knows the market, not like a template):
+- Answer first. No padding, no recap paragraph at the end, no "In conclusion".
+- Vary sentence length. Do not start consecutive sentences or paragraphs the same way. No canned transitions ("Moreover", "Furthermore", "Additionally", "That said").
+- Plain words and ordinary verbs. Do not use: ${AI_WORDS.join(', ')}.
+- No vague attributions: never "studies show", "experts say", "many buyers believe". Name the source with a link, or leave the claim out.
+- Punctuation: no em or en dashes; use a comma or a full stop. Few colons, semicolons and parentheses. No exclamation marks, no emojis.
+- No labels such as "Key takeaway:", "Note:", "Pro tip:". Cite only as [phrase](URL): never "[1]", "【URL】" or "(source)" markers.
+- Do not manufacture importance or hedge everything. Say what is known, what is inferred, and what is uncertain, plainly.
+
 STRUCTURE (checked in code; a draft that breaks these is sent back):
 1. title: 40-65 characters, the phrase a buyer would search for, and name Noida (or UP / Uttar Pradesh for a state-wide rule). No clickbait, no question marks.
 2. meta_title: at most 60 characters. meta_description: 120-155 characters, saying what the reader will learn.
@@ -128,7 +148,7 @@ STRUCTURE (checked in code; a draft that breaks these is sent back):
 6. Paragraphs at most 4 sentences. At least one list in the body.
 7. Then the h2 "What to check before you decide" with a list of 4-6 checks.
 8. Then the h2 "Frequently asked questions" with 3-4 h3 questions, each followed by a 1-3 sentence paragraph answer. FACT RULES apply.
-9. Bold at most one key takeaway per section; italics for terms being defined.
+9. Bold sparingly: at most one phrase per section, inside an ordinary sentence. Italics only for a term being defined.
 10. 550-750 words in total; under 400 is sent back. High-signal advice, with a worked example where it helps. No filler, no repeated points.
 11. UNIQUENESS: the article must take an angle that none of the EXISTING ARTICLES already covers. Never reuse one of their titles or near-copies of them.
 
@@ -208,7 +228,18 @@ export function checkDraftQuality(d: Draft): { hard: string[]; soft: string[] } 
   if (b.some(x => x.type === 'h3' && x.text.length > 110)) soft.push('An FAQ question is over 110 characters.')
   const longParas = b.filter(x => x.type === 'p' && wordCount(spanText(x.spans)) > 110).length
   if (longParas) soft.push(`${longParas} paragraph(s) over 110 words; split them for readability.`)
-// The checklist is one list; the body should carry at least one more.
+
+  // House style (AIslopReduct.md). Notes only: each is a one-word edit for the reviewer.
+  const text = `${d.title}\n${d.excerpt}\n${blockText(b)}`
+  const aiWords = AI_WORDS.filter(w => new RegExp(`\\b${w}`, 'i').test(text))
+  if (aiWords.length) soft.push(`Template vocabulary to replace: ${aiWords.join(', ')}.`)
+  const vague = text.match(/\b(studies (show|suggest)|experts (say|agree|believe)|research (shows|suggests)|many (buyers|people|experts) (believe|say|feel))\b/gi)
+  if (vague) soft.push(`Vague attribution, name the source or cut it: "${[...new Set(vague.map(v => v.toLowerCase()))].join('", "')}".`)
+  if (/\[\d+\]/.test(text)) soft.push('Leftover "[n]" citation markers.')
+  const dashes = (text.match(/[–—]/g) ?? []).length
+  if (dashes) soft.push(`${dashes} en/em dash(es) left in the text.`)
+
+  // The checklist is one list; the body should carry at least one more.
   if (b.filter(x => x.type === 'ul' || x.type === 'ol').length < 2) soft.push('No list in the body besides the checklist.')
   return { hard, soft }
 }
@@ -230,20 +261,22 @@ async function uniqueSlug(title: string): Promise<string> {
 interface DraftRequest {
   topic: string
   sourceBlock: string
+  /** In SOURCES order, so a stray "[2]" footnote can still become a real link. */
+  sourceUrls: string[]
   /** Most similar existing titles, so the model can steer away from them. */
   existingTitles: string[]
   /** Rule breaks from a previous attempt, for the one rewrite. */
   feedback?: string[]
 }
 
-async function requestDraft({ topic, sourceBlock, existingTitles, feedback }: DraftRequest): Promise<Draft> {
+async function requestDraft({ topic, sourceBlock, sourceUrls, existingTitles, feedback }: DraftRequest): Promise<Draft> {
   const user = [
     `TOPIC: ${topic}`,
     `EXISTING ARTICLES (do not repeat; take a different angle):\n${existingTitles.length ? existingTitles.map(t => `- ${t}`).join('\n') : '(none yet)'}`,
     `SOURCES:\n${sourceBlock || '(none found — write a general article with no figures and no links)'}`,
     ...(feedback?.length ? [`YOUR PREVIOUS DRAFT BROKE THESE RULES. Rewrite it so none apply:\n${feedback.map(f => `- ${f}`).join('\n')}`] : []),
   ].join('\n\n')
-  return callModel(user)
+  return callModel(user, sourceUrls)
 }
 
 /**
@@ -251,7 +284,7 @@ async function requestDraft({ topic, sourceBlock, existingTitles, feedback }: Dr
  * JSON schema is the main speed decision here: see markdownDraft.ts for the
  * measurements. A malformed reply is retried once.
  */
-async function callModel(user: string): Promise<Draft> {
+async function callModel(user: string, sourceUrls: string[]): Promise<Draft> {
   let lastErr: unknown
   for (let attempt = 1; attempt <= 2; attempt++) {
     try {
@@ -268,7 +301,7 @@ async function callModel(user: string): Promise<Draft> {
         // produced thinner drafts. 3000 tokens covers a 750-word article.
         ...({ max_completion_tokens: 3000, include_reasoning: false } as object),
       })
-      const draft = parseMarkdownDraft(resp.choices[0]?.message?.content ?? '')
+      const draft = parseMarkdownDraft(resp.choices[0]?.message?.content ?? '', sourceUrls)
       const parsed = draft && DraftSchema.safeParse(draft)
       if (parsed?.success) return parsed.data
       lastErr = new Error(parsed ? `Model returned an invalid draft: ${parsed.error.issues[0]?.path.join('.')} ${parsed.error.issues[0]?.message}` : 'Model reply had no TITLE line or no article body')
@@ -367,7 +400,9 @@ export async function generateBlogDraft(keyword?: string): Promise<GenerateResul
   const tSearch = Date.now()
   const search = await searchSources(topic)
   const sources: WebResult[] = search.results.filter(r => isCitable(r.url)).slice(0, SOURCES_USED)
-  const sourceBlock = sources.map((s, i) => `[${i + 1}] ${s.title}\nURL: ${s.url}\n${s.content.slice(0, 1500)}`).join('\n\n')
+  // Not numbered: "[1] title" made the model cite "[1]" footnotes instead of
+  // links. Order still matters, since linkFootnotes maps any stray "[n]" back.
+  const sourceBlock = sources.map(s => `SOURCE: ${s.title}\nURL: ${s.url}\n${s.content.slice(0, 1500)}`).join('\n\n')
   // Titles count as source text: the model sees them, and a figure from a headline is sourced.
   // So do the statutory facts: "₹45 lakh" or "60 sq m" from them is not unsourced.
   const sourceText = [STATUTORY, ...sources.map(s => `${s.title}\n${s.content}`)].join('\n')
@@ -381,7 +416,7 @@ export async function generateBlogDraft(keyword?: string): Promise<GenerateResul
   // into the reviewer notes instead, loudly.
   const allowedUrls = new Set(sources.map(s => s.url))
   const tWrite = Date.now()
-  let draft = await requestDraft({ topic, sourceBlock, existingTitles: closest })
+  let draft = await requestDraft({ topic, sourceBlock, sourceUrls: sources.map(s => s.url), existingTitles: closest })
   const writeMs = Date.now() - tWrite
   let rewriteMs = 0
   let rewriteReasons: string[] = []
@@ -393,7 +428,7 @@ export async function generateBlogDraft(keyword?: string): Promise<GenerateResul
       ...(duplicateOf ? [`the title repeats the existing article "${duplicateOf}"; choose a different angle and title`] : []),
     ]
     const tRewrite = Date.now()
-    draft = await requestDraft({ topic, sourceBlock, existingTitles: closest, feedback })
+    draft = await requestDraft({ topic, sourceBlock, sourceUrls: sources.map(s => s.url), existingTitles: closest, feedback })
     rewriteMs = Date.now() - tRewrite
     quality = checkDraftQuality(draft)
     duplicateOf = findDuplicateTitle(draft.title, existing)

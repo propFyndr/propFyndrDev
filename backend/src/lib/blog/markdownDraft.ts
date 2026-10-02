@@ -32,10 +32,75 @@ export function parseInline(line: string): Span[] {
 
 const META = /^\s*\**\s*(TITLE|EXCERPT|META_TITLE|META_DESCRIPTION)\s*\**\s*:\s*(.*)$/i
 const LIST_ITEM = /^\s*(?:([-*•])|(\d+)[.)])\s+(.*)$/
+const TABLE_ROW = /^\s*\|.*\|\s*$/
+const TABLE_RULE = /^\s*\|?\s*:?-{3,}:?\s*(\|\s*:?-{3,}:?\s*)*\|?\s*$/
+
+/**
+ * "phrase.[2]" footnote citations become a link on the clause before the
+ * marker: the model numbers sources when it sees them in a list, and a bare
+ * "[2]" on a public page is a citation artefact with no link behind it.
+ */
+export function linkFootnotes(text: string, sourceUrls: string[]): string {
+  const link = (clause: string, punct: string, url: string | undefined) => {
+    if (!url) return clause + punct // unknown reference: drop the artefact, keep the words
+    const lead = /^\s*/.exec(clause)![0]
+    return `${lead}[${clause.trim()}](${url})${punct}`
+  }
+  // A decimal point is not a sentence end: "29.7 km" must stay in one clause.
+  const DECIMAL = '\u0000'
+  return text
+    .replace(/(\d)\.(\d)/g, `$1${DECIMAL}$2`)
+    // "clause[2]" — numbered footnotes.
+    .replace(/([^.!?\n\[\]【]*[^.!?\n\[\]【\s])([.!?,;:]?)((?:\s?\[\d+\])+)/g, (_w, clause: string, punct: string, refs: string) =>
+      link(clause, punct, sourceUrls[Number(/\d+/.exec(refs)![0]) - 1]))
+    // "clause【https://…】" or "clause【3】" — the corner-bracket style gpt-oss also emits.
+    // A URL is kept only if it is one of the sources; anything else is dropped.
+    .replace(/([^.!?\n\[\]【]*[^.!?\n\[\]【\s])\s?【([^】]*)】([.!?,;:]?)/g, (_w, clause: string, ref: string, punct: string) => {
+      const url = /^https?:\/\//.test(ref.trim()) ? sourceUrls.find(u => u === ref.trim()) : sourceUrls[Number(/\d+/.exec(ref)?.[0] ?? 0) - 1]
+      return link(clause, punct, url)
+    })
+    .replaceAll(DECIMAL, '.')
+}
+
+/** A Markdown table becomes a list: the article renderer has no tables. */
+function tableToList(rows: string[]): string[] {
+  const cells = (r: string) => r.trim().replace(/^\||\|$/g, '').split('|').map(c => c.trim())
+  const [head, ...body] = rows.filter(r => !TABLE_RULE.test(r)).map(cells)
+  if (!head || !body.length) return []
+  return body.map(row => `- **${row[0]}**: ${row.slice(1).map((c, i) => `${head[i + 1] ?? ''} ${c}`.trim()).join('. ')}.`)
+}
+
+/**
+ * Typography the style guide asks for. Non-breaking and figure hyphens become
+ * plain ones; a spaced dash between numbers reads "to"; after a bold list
+ * label it becomes a colon; anywhere else, a comma. Em dashes are the most
+ * recognisable machine-writing tell.
+ */
+export function normalizeTypography(line: string): string {
+  return line
+    .replace(/[‐‑‒]/g, '-')
+    .replace(/(\d)[   ]%/g, '$1%') // also the non-breaking spaces models use before %
+    .replace(/(\d)\s*[–—]\s*(\d)/g, '$1 to $2')
+    .replace(/^(\s*(?:[-*•]|\d+[.)])\s+\*\*[^*]+\*\*)\s*[–—-]\s+/, '$1: ')
+    .replace(/\s+[–—]\s+/g, ', ')
+    .replace(/(\w)[—](\w)/g, '$1, $2')
+    // "Key takeaway: X" is template residue; the sentence stands on its own.
+    .replace(/^(\s*(?:[-*•]\s+)?)\**\s*(?:key takeaways?|note|pro tip|bottom line|tl;?dr)\s*:\s*\**\s*(\S?)/i,
+      (_m, lead: string, first: string) => lead + first.toUpperCase())
+}
 
 /** Returns null when the text is not a usable article (no title or no body). */
-export function parseMarkdownDraft(raw: string): Draft | null {
-  const text = raw.replace(/^```(?:markdown|md)?\s*\n/i, '').replace(/\n```\s*$/, '')
+export function parseMarkdownDraft(raw: string, sourceUrls: string[] = []): Draft | null {
+  const unfenced = raw.replace(/^```(?:markdown|md)?\s*\n/i, '').replace(/\n```\s*$/, '')
+  const lines: string[] = []
+  let table: string[] = []
+  for (const l of linkFootnotes(unfenced, sourceUrls).split(/\r?\n/)) {
+    if (TABLE_ROW.test(l) || (table.length && TABLE_RULE.test(l))) { table.push(l); continue }
+    if (table.length) { lines.push(...tableToList(table), ''); table = [] }
+    lines.push(normalizeTypography(l))
+  }
+  if (table.length) lines.push(...tableToList(table))
+  const text = lines.join('\n')
   const meta: Record<string, string> = {}
   const blocks: Block[] = []
   let para: string[] = []
