@@ -4542,7 +4542,7 @@ three design docs. Fixed what was broken; nothing committed, migrated or deploye
    - The generator now uses Groq strict `json_schema` (see ERRORS.md).
    - New prompt rules: calculated examples get no source link; no procedures unless a source states them; Noida/UP only; examples never invent project, builder or registration numbers.
    - 3 real drafts created, all status=draft and none published. Drafts run ~600 words against the 900+ target (gpt-oss writes short).
-**Open, needs the user:** the women's stamp duty rule. The draft's source says the 1% rebate applies only up to ₹1 crore; `calculators.ts:28` gives women 6% at any price. Verify the current UP rule and fix whichever is wrong.
+**Resolved 2026-10-02 (user confirmed):** UP stamp duty for women is 6% at every property value, with no cap. `calculators.ts` was right; the web source the draft used was wrong. The published "True Landed Cost" post already states it correctly. The generator now gets a STATUTORY FACTS block built from `calcStampDuty`/`calcGst` that overrides any disagreeing source (`generateDraft.ts`, tested).
 
 
 ## 2026-10-02 (cont.) — Blog generation is manual-only; secrets removed from scripts

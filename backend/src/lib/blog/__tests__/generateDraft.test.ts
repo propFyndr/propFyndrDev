@@ -1,6 +1,6 @@
 import { describe, it } from 'node:test'
 import assert from 'node:assert/strict'
-import { toTiptap, unsourcedFigures, DraftSchema, findDuplicateTitle, titleSimilarity, checkDraftQuality, isCitable, type Draft } from '../generateDraft'
+import { toTiptap, unsourcedFigures, DraftSchema, findDuplicateTitle, titleSimilarity, checkDraftQuality, isCitable, STATUTORY, type Draft } from '../generateDraft'
 
 describe('blog draft conversion', () => {
   it('keeps links the search returned and strips any other URL', () => {
@@ -112,3 +112,17 @@ describe('blog structure rules', () => {
   })
 })
 
+
+describe('statutory facts given to the writer', () => {
+  // A web source claimed the women's rate stops at ₹1 crore and a draft repeated
+  // it. Confirmed 2026-10-02: 6% for women at every property value.
+  it('states the UP stamp duty rates with no price cap on the women\'s rate', () => {
+    assert.match(STATUTORY, /7% for men, 6% for women, at every property value/)
+    assert.match(STATUTORY, /no price cap/i)
+    assert.doesNotMatch(STATUTORY, /1 crore/i)
+  })
+
+  it('tells the writer that a disagreeing source is wrong', () => {
+    assert.match(STATUTORY, /if a SOURCE disagrees, the SOURCE is wrong/)
+  })
+})
