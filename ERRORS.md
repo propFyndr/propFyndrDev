@@ -28,3 +28,8 @@
 **What didn't work:** `scoop install tesseract`, then `tesseract --list-langs` showed 0 languages, so OCRmyPDF could not OCR anything.
 **What worked:** downloading `eng.traineddata` and `hin.traineddata` from `tesseract-ocr/tessdata_best`, and `osd.traineddata` from `tesseract-ocr/tessdata`, into `~/scoop/apps/tesseract/current/tessdata/`. Skipped `tesseract-languages` (every language).
 **Note for next time:** OCR English documents with `-l eng` only. `eng+hin` on English artwork makes the Hindi model invent Devanagari text.
+
+## 2026-10-02 — Blog generation was slow for reasons none of the first fixes touched
+**What didn't work:** tuning around the symptom. `reasoning_effort: 'low'` made drafts thinner. An expand pass made drafts longer but added 13s. Rewrite triggers added calls that Groq then throttled.
+**What worked:** measuring with Groq's own `usage` fields (prompt/completion tokens, completion_time) and `x-ratelimit-*` headers. The strict JSON schema added ~5k prompt tokens and its null-padded output hit the completion cap, truncating the article. That truncation was the "short drafts" problem all along. The key's 8k tokens/min explained the 25-48s outliers.
+**Note for next time:** before optimising an LLM call, log usage (prompt/completion tokens and time) and read the rate-limit headers. Structured-output schemas have a real token cost; Markdown plus a parser is often both faster and longer.

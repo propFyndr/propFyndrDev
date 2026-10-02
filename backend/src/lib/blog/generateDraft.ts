@@ -12,6 +12,7 @@ import { prisma } from '../db'
 import { tavilySearch, type WebResult } from '../web'
 import { MODELS } from '../config'
 import type { BlogPost } from '@prisma/client'
+import { parseMarkdownDraft } from './markdownDraft'
 
 const Span = z.object({
   text: z.string().min(1),
@@ -30,9 +31,11 @@ const Block = z.discriminatedUnion('type', [
 ])
 export const DraftSchema = z.object({
   title: z.string().min(10).max(120),
-  excerpt: z.string().min(20).max(300),
-  meta_title: z.string().max(70),
-  meta_description: z.string().max(170),
+  excerpt: z.string().max(500),
+  // Loose on purpose: lengths are SEO targets that checkDraftQuality reports;
+  // rejecting here would force a whole new model call for a quick edit.
+  meta_title: z.string().max(200),
+  meta_description: z.string().max(400),
   blocks: z.array(Block).min(4),
 })
 export type Draft = z.infer<typeof DraftSchema>
@@ -89,8 +92,9 @@ Show trade-offs and risks as readily as benefits.
 
 FACT RULES (non-negotiable):
 - State a number, date, rate, rule or named fact ONLY if it appears in the SOURCES. Otherwise speak generally.
-- When you use a fact from a source, attach that source's URL as "href" on the span stating it. Use URLs exactly as given in SOURCES; never invent or modify a URL.
-- A number you calculate yourself (an example) gets NO href. Introduce it as "for example" and show the arithmetic.
+- When you use a fact from a source, make the phrase stating it a Markdown link to that source: [phrase](URL). Use URLs exactly as given in SOURCES; never invent or modify a URL. Link the phrase once, not every mention.
+- Nothing from memory: a figure, date or event you know but cannot find in SOURCES must not appear, not even as "a recent report says". Quoting a source without its link is not allowed either.
+- A number you calculate yourself (an example) gets NO link. Introduce it as "for example" and show the arithmetic.
 - Do not describe forms, procedures, offices or deadlines unless a source states them.
 - Examples must not invent project names, builder names, registration numbers or account numbers.
 - Stay on Noida and Uttar Pradesh. Do not compare with other states or cities.
@@ -107,15 +111,15 @@ STRUCTURE (checked in code; a draft that breaks these is sent back):
 7. Then the h2 "What to check before you decide" with a list of 4-6 checks.
 8. Then the h2 "Frequently asked questions" with 3-4 h3 questions, each followed by a 1-3 sentence paragraph answer. FACT RULES apply.
 9. Bold at most one key takeaway per section; italics for terms being defined.
-10. 600-850 words in total; under 400 is sent back. High-signal advice, with a worked example where it helps.
+10. 550-750 words in total; under 400 is sent back. High-signal advice, with a worked example where it helps. No filler, no repeated points.
 11. UNIQUENESS: the article must take an angle that none of the EXISTING ARTICLES already covers. Never reuse one of their titles or near-copies of them.
 
-FORMAT: one JSON object: title, excerpt, meta_title, meta_description, blocks.
-Each block has type, text, spans, items; set the ones a type does not use to null:
-- "h2" / "h3": text is the heading.
-- "p" / "quote": spans is the paragraph as a list of Span.
-- "ul" / "ol": items is a list of list items, each a list of Span.
-Span = {text, bold, italic, href}: bold/italic true or null, href a SOURCES URL or null.`
+FORMAT: plain Markdown, nothing else (no code fences). The first four lines, exactly:
+TITLE: ...
+EXCERPT: ...
+META_TITLE: ...
+META_DESCRIPTION: ...
+Then a blank line and the article: "## " for sections, "### " for FAQ questions, "- " or "1. " for list items, **bold**, *italic*, [phrase](URL) for a cited fact. No "# " heading, no images, no tables, no HTML.`
 
 // ── Uniqueness ──────────────────────────────────────────────────────────────
 // Words that say nothing about what an article is about.
@@ -170,8 +174,8 @@ export function checkDraftQuality(d: Draft): { hard: string[]; soft: string[] } 
   }
 
   const words = wordCount(blockText(b))
-  if (words < 400) hard.push(`the article is ${words} words; it must be 600-850 (add depth to each section, not filler)`)
-  else if (words < 550 || words > 1000) soft.push(`Length is ${words} words (target 600-850).`)
+  if (words < 400) hard.push(`the article is ${words} words; it must be 550-750 (add depth to each section, not filler)`)
+  else if (words < 500 || words > 900) soft.push(`Length is ${words} words (target 550-750).`)
 
   if (d.title.length < 40 || d.title.length > 65) soft.push(`Title is ${d.title.length} characters (SEO target 40-65).`)
   if (d.title.includes('?')) soft.push('Title is a question; a statement ranks and reads better.')
@@ -205,54 +209,6 @@ async function uniqueSlug(title: string): Promise<string> {
   }
 }
 
-// Strict schema: Groq constrains decoding to it, so malformed JSON cannot come
-// back (json_object mode returned stray quotes between spans on long drafts).
-const SPAN_SCHEMA = {
-  type: 'object',
-  additionalProperties: false,
-  required: ['text', 'bold', 'italic', 'href'],
-  properties: {
-    text: { type: 'string' },
-    bold: { anyOf: [{ type: 'boolean' }, { type: 'null' }] },
-    italic: { anyOf: [{ type: 'boolean' }, { type: 'null' }] },
-    href: { anyOf: [{ type: 'string' }, { type: 'null' }] },
-  },
-}
-const DRAFT_JSON_SCHEMA = {
-  type: 'object',
-  additionalProperties: false,
-  required: ['title', 'excerpt', 'meta_title', 'meta_description', 'blocks'],
-  properties: {
-    title: { type: 'string' },
-    excerpt: { type: 'string' },
-    meta_title: { type: 'string' },
-    meta_description: { type: 'string' },
-    blocks: {
-      type: 'array',
-      items: {
-        type: 'object',
-        additionalProperties: false,
-        required: ['type', 'text', 'spans', 'items'],
-        properties: {
-          type: { type: 'string', enum: ['h2', 'h3', 'p', 'quote', 'ul', 'ol'] },
-          text: { anyOf: [{ type: 'string' }, { type: 'null' }] },
-          spans: { anyOf: [{ type: 'array', items: SPAN_SCHEMA }, { type: 'null' }] },
-          items: { anyOf: [{ type: 'array', items: { type: 'array', items: SPAN_SCHEMA } }, { type: 'null' }] },
-        },
-      },
-    },
-  },
-}
-
-/** The strict schema sends null for unused fields; Zod wants them absent. */
-export function dropNulls(v: unknown): unknown {
-  if (Array.isArray(v)) return v.map(dropNulls)
-  if (v && typeof v === 'object') {
-    return Object.fromEntries(Object.entries(v).filter(([, x]) => x !== null).map(([k, x]) => [k, dropNulls(x)]))
-  }
-  return v
-}
-
 interface DraftRequest {
   topic: string
   sourceBlock: string
@@ -272,39 +228,11 @@ async function requestDraft({ topic, sourceBlock, existingTitles, feedback }: Dr
   return callModel(user)
 }
 
-/** Below this, a draft gets the expand pass. */
-export const EXPAND_BELOW_WORDS = 600
-
 /**
- * Second pass for a draft that came out short. The model gets its own draft
- * back and deepens the body; title and metadata are kept from the original
- * in `pickExpansion`, so the uniqueness check already passed still holds.
- * No EXISTING ARTICLES list here: it would only add input tokens.
+ * One Markdown completion, parsed into blocks. Markdown rather than a strict
+ * JSON schema is the main speed decision here: see markdownDraft.ts for the
+ * measurements. A malformed reply is retried once.
  */
-async function expandDraft(draft: Draft, sourceBlock: string, words: number): Promise<Draft> {
-  const user = [
-    `This draft is ${words} words. Expand it to 650-850 words.`,
-    'Keep every section, heading, list, the checklist and the FAQ, in the same order. Deepen the body sections: explain the why, add the trade-off, and add a worked example where it helps. Add one more FAQ question if it is useful. No filler, no repetition.',
-    'Every FACT RULE still applies: new facts only from SOURCES, with their href; calculated examples carry no href.',
-    `DRAFT:\n${JSON.stringify(draft.blocks)}`,
-    `SOURCES:\n${sourceBlock || '(none)'}`,
-  ].join('\n\n')
-  return callModel(user)
-}
-
-/**
- * The expanded body is used only if it is longer and breaks no rewrite rule
- * the original passed; otherwise the original stands. Title, meta and excerpt
- * always come from the original.
- */
-export function pickExpansion(original: Draft, expanded: Draft): Draft {
-  const before = checkDraftQuality(original).hard
-  const after = checkDraftQuality({ ...original, blocks: expanded.blocks }).hard
-  const longer = wordCount(blockText(expanded.blocks)) > wordCount(blockText(original.blocks))
-  const noNewBreaks = after.every(h => before.includes(h))
-  return longer && noNewBreaks ? { ...original, blocks: expanded.blocks } : original
-}
-
 async function callModel(user: string): Promise<Draft> {
   let lastErr: unknown
   for (let attempt = 1; attempt <= 2; attempt++) {
@@ -319,20 +247,17 @@ async function callModel(user: string): Promise<Draft> {
         // groq-sdk 0.7 types predate these; the API accepts them.
         // include_reasoning false: the hidden reasoning is not sent back to us.
         // reasoning_effort stays at the default ('medium'): 'low' saved ~1s but
-        // cut drafts from ~600 to ~350 words, which then cost a rewrite.
-        ...({
-          max_completion_tokens: 5000,
-          include_reasoning: false,
-          response_format: { type: 'json_schema', json_schema: { name: 'blog_draft', strict: true, schema: DRAFT_JSON_SCHEMA } },
-        } as object),
+        // produced thinner drafts. 3000 tokens covers a 750-word article.
+        ...({ max_completion_tokens: 3000, include_reasoning: false } as object),
       })
-      const parsed = DraftSchema.safeParse(dropNulls(JSON.parse(resp.choices[0]?.message?.content ?? '{}')))
-      if (parsed.success) return parsed.data
-      lastErr = new Error(`Model returned an invalid draft: ${parsed.error.issues[0]?.path.join('.')} ${parsed.error.issues[0]?.message}`)
+      const draft = parseMarkdownDraft(resp.choices[0]?.message?.content ?? '')
+      const parsed = draft && DraftSchema.safeParse(draft)
+      if (parsed?.success) return parsed.data
+      lastErr = new Error(parsed ? `Model returned an invalid draft: ${parsed.error.issues[0]?.path.join('.')} ${parsed.error.issues[0]?.message}` : 'Model reply had no TITLE line or no article body')
     } catch (err) {
       lastErr = err
-      console.warn(`[blog:generate] attempt ${attempt} failed:`, err instanceof Error ? err.message.slice(0, 200) : err)
     }
+    console.warn(`[blog:generate] attempt ${attempt} failed:`, lastErr instanceof Error ? lastErr.message.slice(0, 200) : lastErr)
   }
   throw lastErr
 }
@@ -343,11 +268,64 @@ export interface GenerateResult {
   reviewNotes: string[]
   post: BlogPost
   /** Wall-clock per stage, so slow runs can be traced to search or model. */
-  timingsMs: { search: number; write: number; rewrite: number; expand: number; total: number }
+  timingsMs: { search: number; write: number; rewrite: number; total: number }
 }
 
 /** How many of the closest existing titles the model is shown. */
 const SIMILAR_TITLES_SHOWN = 25
+
+/** The rotation's next topic, or the named one (and its row, if it is in the list). */
+function findTopicRow(named: string | undefined) {
+  return named
+    ? prisma.blogKeyword.findUnique({ where: { keyword: named } })
+    : prisma.blogKeyword.findFirst({
+        where: { active: true },
+        orderBy: [{ last_used_at: { sort: 'asc', nulls: 'first' } }, { created_at: 'asc' }],
+      })
+}
+
+/** Sources the model sees and may cite. */
+const SOURCES_USED = 5
+
+// Social posts are not citable on a public article: unverifiable, often
+// deleted, and they make a buyer-facing page look like a rumour roundup.
+const SOCIAL_HOSTS = /(^|\.)(facebook|instagram|linkedin|twitter|x|youtube|reddit|quora|pinterest|threads|t)\.(com|net|me)$/i
+
+export function isCitable(url: string): boolean {
+  try {
+    const u = new URL(url)
+    return u.protocol === 'https:' && !SOCIAL_HOSTS.test(u.hostname)
+  } catch {
+    return false
+  }
+}
+
+// One search per topic at a time. The admin dialog prefetches while it is open;
+// if Generate is clicked before that finishes, generation joins the same request
+// instead of paying for a second one. Finished results live in web_facts.
+const inflightSearches = new Map<string, ReturnType<typeof tavilySearch>>()
+
+function searchSources(topic: string): ReturnType<typeof tavilySearch> {
+  const existing = inflightSearches.get(topic)
+  if (existing) return existing
+  // Ask for more than SOURCES_USED: social posts are filtered out afterwards.
+  const p = tavilySearch(`${topic} Noida home buyers`, 8, { restrictDomains: false, includeAnswer: false })
+    .finally(() => inflightSearches.delete(topic))
+  inflightSearches.set(topic, p)
+  return p
+}
+
+/**
+ * Warms the search cache for the topic Generate would use, so the click only
+ * waits for the model. Returns the topic, or null when there is nothing to write.
+ */
+export async function prefetchBlogSources(keyword?: string): Promise<string | null> {
+  const named = keyword?.trim()
+  const topic = named || (await findTopicRow(undefined))?.keyword
+  if (!topic) return null
+  void searchSources(topic).catch(() => {}) // best-effort; generation searches again if this failed
+  return topic
+}
 
 /** Generates one draft. `keyword` overrides the rotation (admin "generate on this topic"). */
 export async function generateBlogDraft(keyword?: string): Promise<GenerateResult> {
@@ -355,12 +333,7 @@ export async function generateBlogDraft(keyword?: string): Promise<GenerateResul
   const t0 = Date.now()
   const named = keyword?.trim()
   const [kwRow, allPosts] = await Promise.all([
-    named
-      ? prisma.blogKeyword.findUnique({ where: { keyword: named } })
-      : prisma.blogKeyword.findFirst({
-          where: { active: true },
-          orderBy: [{ last_used_at: { sort: 'asc', nulls: 'first' } }, { created_at: 'asc' }],
-        }),
+    findTopicRow(named),
     // Every title ever written, archived included: an archived article is still
     // one we already have, and repeating it is still a repeat.
     prisma.blogPost.findMany({ select: { title: true } }),
@@ -374,21 +347,32 @@ export async function generateBlogDraft(keyword?: string): Promise<GenerateResul
     .slice(0, SIMILAR_TITLES_SHOWN)
 
   const tSearch = Date.now()
-  const search = await tavilySearch(`${topic} Noida home buyers`, 5, { restrictDomains: false, includeAnswer: false })
-  const sources: WebResult[] = search.results.filter(r => r.url.startsWith('https://'))
+  const search = await searchSources(topic)
+  const sources: WebResult[] = search.results.filter(r => isCitable(r.url)).slice(0, SOURCES_USED)
   const sourceBlock = sources.map((s, i) => `[${i + 1}] ${s.title}\nURL: ${s.url}\n${s.content.slice(0, 1500)}`).join('\n\n')
+  // Titles count as source text: the model sees them, and a figure from a headline is sourced.
+  const sourceText = sources.map(s => `${s.title}\n${s.content}`).join('\n')
 
-  // One rewrite at most: a second model call only when the first draft broke a
-  // hard rule or repeats an existing article. Speed matters more than perfection
-  // here; whatever still fails goes into the reviewer notes.
+  // One rewrite at most, and only for what a reviewer cannot fix in a minute:
+  // a missing section, a stub, or a repeat of an existing article. Every model
+  // call counts against the key's 8,000 tokens/minute (measured from Groq's
+  // headers); one draft fits, a second call in the same minute is throttled for
+  // up to ~35s. Citation gaps were tried as a trigger and dropped: worked
+  // examples look like unsourced figures, so it rewrote for nothing. They go
+  // into the reviewer notes instead, loudly.
+  const allowedUrls = new Set(sources.map(s => s.url))
   const tWrite = Date.now()
   let draft = await requestDraft({ topic, sourceBlock, existingTitles: closest })
   const writeMs = Date.now() - tWrite
   let rewriteMs = 0
+  let rewriteReasons: string[] = []
   let quality = checkDraftQuality(draft)
   let duplicateOf = findDuplicateTitle(draft.title, existing)
   if (quality.hard.length || duplicateOf) {
-    const feedback = [...quality.hard, ...(duplicateOf ? [`the title repeats the existing article "${duplicateOf}"; choose a different angle and title`] : [])]
+    const feedback = rewriteReasons = [
+      ...quality.hard,
+      ...(duplicateOf ? [`the title repeats the existing article "${duplicateOf}"; choose a different angle and title`] : []),
+    ]
     const tRewrite = Date.now()
     draft = await requestDraft({ topic, sourceBlock, existingTitles: closest, feedback })
     rewriteMs = Date.now() - tRewrite
@@ -396,27 +380,7 @@ export async function generateBlogDraft(keyword?: string): Promise<GenerateResul
     duplicateOf = findDuplicateTitle(draft.title, existing)
   }
 
-  // Expand pass, only for a short draft. A failure here keeps the draft we have
-  // rather than losing the whole generation.
-  let expandMs = 0
-  let expandNote = ''
-  const words = wordCount(blockText(draft.blocks))
-  if (words < EXPAND_BELOW_WORDS) {
-    const tExpand = Date.now()
-    try {
-      const chosen = pickExpansion(draft, await expandDraft(draft, sourceBlock, words))
-      const after = wordCount(blockText(chosen.blocks))
-      expandNote = chosen === draft ? ` Expand pass did not improve it (kept ${words} words).` : ` Expanded from ${words} to ${after} words.`
-      draft = chosen
-      quality = checkDraftQuality(draft)
-    } catch (err) {
-      expandNote = ' Expand pass failed; kept the shorter draft.'
-      console.warn('[blog:generate] expand failed:', err instanceof Error ? err.message.slice(0, 200) : err)
-    }
-    expandMs = Date.now() - tExpand
-  }
-
-  const { doc, cited, dropped } = toTiptap(draft.blocks, new Set(sources.map(s => s.url)))
+  const { doc, cited, dropped } = toTiptap(draft.blocks, allowedUrls)
   if (cited.size) {
     doc.content!.push(
       { type: 'heading', attrs: { level: 2 }, content: [{ type: 'text', text: 'Sources' }] },
@@ -426,9 +390,12 @@ export async function generateBlogDraft(keyword?: string): Promise<GenerateResul
     )
   }
 
-  const notes = [`AI draft on "${topic}". ${sources.length} sources found, ${cited.size} cited.${rewriteMs ? ' Rewritten once to meet the structure rules.' : ''}${expandNote}`]
+  const notes = [`AI draft on "${topic}". ${sources.length} sources found, ${cited.size} cited.${rewriteMs ? ` Rewritten once because: ${rewriteReasons.map(r => r.split(';')[0]).join('; ')}.` : ''}`]
+  if (sources.length && !cited.size) notes.push('NO SOURCE CITED. Treat every figure and claim as unverified until checked.')
+  // A normal call takes 4-7s; far longer means Groq held it for the per-minute limit.
+  if (writeMs > 15_000 || rewriteMs > 15_000) notes.push(`Slowed by Groq's per-minute token limit (${Math.round((writeMs + rewriteMs) / 1000)}s writing). Space drafts about a minute apart for full speed.`)
   if (dropped.length) notes.push(`Removed ${dropped.length} link(s) not returned by search.`)
-  const unsourced = unsourcedFigures(blockText(draft.blocks), sources.map(s => s.content).join('\n'))
+  const unsourced = unsourcedFigures(blockText(draft.blocks), sourceText)
   if (unsourced.length) notes.push(`Figures not found in any source, verify or remove: ${unsourced.slice(0, 12).join(', ')}`)
   if (!sources.length) notes.push('Web search returned nothing; article is general only.')
   if (duplicateOf) notes.push(`POSSIBLE DUPLICATE of "${duplicateOf}". Retitle or discard.`)
@@ -450,7 +417,7 @@ export async function generateBlogDraft(keyword?: string): Promise<GenerateResul
   if (kwRow) {
     await prisma.blogKeyword.update({ where: { id: kwRow.id }, data: { last_used_at: new Date(), use_count: { increment: 1 } } })
   }
-  const timingsMs = { search: tWrite - tSearch, write: writeMs, rewrite: rewriteMs, expand: expandMs, total: Date.now() - t0 }
+  const timingsMs = { search: tWrite - tSearch, write: writeMs, rewrite: rewriteMs, total: Date.now() - t0 }
   console.info('[blog:generate]', topic, timingsMs)
   return { postId: post.id, keyword: topic, reviewNotes: notes, post, timingsMs }
 }

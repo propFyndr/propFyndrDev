@@ -4561,3 +4561,24 @@ three design docs. Fixed what was broken; nothing committed, migrated or deploye
 - *Rewrite triggers:* missing checklist, missing FAQ (fewer than 3 answered questions), under 400 words.
 - *Reviewer notes only:* title 40-65 chars, no question in the title, title names Noida/UP, meta title ≤60, meta description 120-155, excerpt 100-200, intro paragraph first, 5-7 h2s, unique headings, h2 ≤70 / h3 ≤110 chars, paragraphs ≤110 words, a body list. Slugs are capped at 60 characters.
 **Expand pass (user approved, 2026-10-02):** a draft under 600 words gets one more call (`expandDraft`): the model receives its own blocks and the sources, and deepens the body to 650-850 words. `pickExpansion` keeps it only if it is longer and breaks no rewrite rule the original passed. Title, meta and excerpt always stay from the original, so the uniqueness check still holds. Measured: 470 → 704 words, +13.6s (27.5s total). Drafts already ≥600 words skip it. If it fails, the shorter draft is kept, with a note.
+
+## 2026-10-02 (cont.) — Blog generation 27.5s → ~5s
+**Measured on the same topic and sources (Groq usage fields):**
+
+| Setup | Total time | Completion tokens | Prompt tokens | Words |
+|---|---|---|---|---|
+| Strict JSON schema, gpt-oss-120b | 11.3s | 5,000 (cap hit) | 6,416 | 345 |
+| Markdown, gpt-oss-120b | 4.5s | 1,916 | 1,393 | 697 |
+| Markdown, gpt-oss-20b | 2.3s | 1,875 | 1,393 | 819 |
+
+The schema cost ~5k prompt tokens per call, and the null-padded output truncated drafts, which is why the expand pass existed.
+**Decided:**
+1. Markdown output parsed by `lib/blog/markdownDraft.ts` into the same blocks, so every check is unchanged. Strict schema, `dropNulls` and the expand pass are removed.
+2. Stay on gpt-oss-120b. 20b was 2x faster but invented figures ("18-24 months", a "0.5% per day" penalty).
+3. Target 550-750 words.
+4. Search prefetch: `POST /admin/blog/prefetch` fires when the generate dialog opens or a custom topic pauses; in-flight searches are de-duplicated per topic.
+5. Social posts (facebook, instagram, linkedin, x, youtube, reddit, quora, t.me…) are filtered out of sources; the search asks for 8 and keeps 5.
+6. Figure checks include source titles.
+
+**Rate limit is the real ceiling:** the blog key has **8,000 tokens/min** on gpt-oss-120b (1,000 req/day), read from `x-ratelimit-*` headers. One draft (~3.5-4.5k incl. hidden reasoning) fits; a second call within the minute is throttled up to ~35s. So rewrites are only for missing sections, a sub-400-word stub, or a duplicate title. "Cites nothing" was tried as a trigger and dropped: worked examples look like unsourced figures. It is now a loud note. Slow calls (>15s) get a "slowed by Groq's limit" note. A paid Groq tier would lift the limit (exact numbers at console.groq.com → Settings → Limits; not verified here).
+**Result:** a prefetched draft takes ~5s (search 0.16s + write 4.0s). Cold (per-topic button) is ~8-9s.

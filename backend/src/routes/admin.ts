@@ -10,7 +10,7 @@ import { computeCompleteness } from '../lib/completeness'
 import { normalisePortalSubdomain } from '../lib/portalSubdomain'
 import { checkRateLimit, getCached, setCached, deleteCached } from '../lib/cache'
 import { z } from 'zod'
-import { generateBlogDraft } from '../lib/blog/generateDraft'
+import { generateBlogDraft, prefetchBlogSources } from '../lib/blog/generateDraft'
 
 /**
  * A number the admin actually supplied, or null — never a substituted zero.
@@ -2172,6 +2172,28 @@ router.delete('/blog/keywords/:id', async (req: Request, res: Response) => {
   } catch (err) {
     console.error('[admin] blog keyword delete failed:', err)
     res.status(500).json({ error: 'Failed to delete keyword' })
+  }
+})
+
+// POST /api/v1/admin/blog/prefetch — warm the search for the topic Generate would use.
+// Called when the generate dialog opens; replies at once and searches in the background.
+router.post('/blog/prefetch', async (req: Request, res: Response) => {
+  const parsed = z.object({ keyword: z.string().trim().min(3).max(120).optional() }).safeParse(req.body ?? {})
+  if (!parsed.success) {
+    res.status(400).json({ error: parsed.error.issues[0]?.message ?? 'Invalid keyword' })
+    return
+  }
+  // A search is cheap but not free; the same cap shape as generation.
+  const { allowed } = await checkRateLimit('admin:blog:prefetch', 60, 3600)
+  if (!allowed) {
+    res.status(202).json({ topic: null })
+    return
+  }
+  try {
+    res.status(202).json({ topic: await prefetchBlogSources(parsed.data.keyword) })
+  } catch (err) {
+    console.error('[admin] blog prefetch failed:', err)
+    res.status(202).json({ topic: null })
   }
 })
 

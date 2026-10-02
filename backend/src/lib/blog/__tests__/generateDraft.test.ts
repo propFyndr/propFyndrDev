@@ -1,6 +1,6 @@
 import { describe, it } from 'node:test'
 import assert from 'node:assert/strict'
-import { toTiptap, unsourcedFigures, DraftSchema, dropNulls, findDuplicateTitle, titleSimilarity, checkDraftQuality, pickExpansion, type Draft } from '../generateDraft'
+import { toTiptap, unsourcedFigures, DraftSchema, findDuplicateTitle, titleSimilarity, checkDraftQuality, isCitable, type Draft } from '../generateDraft'
 
 describe('blog draft conversion', () => {
   it('keeps links the search returned and strips any other URL', () => {
@@ -35,19 +35,17 @@ describe('blog draft conversion', () => {
     assert.equal(DraftSchema.safeParse({ title: 'A proper title', excerpt: 'x'.repeat(30), meta_title: 't', meta_description: 'd', blocks: [] }).success, false)
   })
 
-  it('accepts the strict-schema shape once nulls are dropped', () => {
-    const raw = {
-      title: 'A proper title', excerpt: 'x'.repeat(30), meta_title: 't', meta_description: 'd',
-      blocks: [
-        { type: 'h2', text: 'Heading', spans: null, items: null },
-        { type: 'p', text: null, spans: [{ text: 'a', bold: null, italic: true, href: null }], items: null },
-        { type: 'ul', text: null, spans: null, items: [[{ text: 'b', bold: true, italic: null, href: null }]] },
-        { type: 'h3', text: 'Sub', spans: null, items: null },
-      ],
+})
+
+describe('citable sources', () => {
+  it('drops social posts and non-https links, keeps publishers and government sites', () => {
+    for (const bad of ['https://www.facebook.com/groups/1/posts/2', 'https://www.instagram.com/p/x', 'https://m.facebook.com/a',
+      'https://www.linkedin.com/posts/a', 'https://x.com/a/status/1', 'https://t.me/channel', 'http://up-rera.in/a', 'not a url']) {
+      assert.equal(isCitable(bad), false, bad)
     }
-    const parsed = DraftSchema.safeParse(dropNulls(raw))
-    assert.equal(parsed.success, true)
-    assert.deepEqual(parsed.success && parsed.data.blocks[1], { type: 'p', spans: [{ text: 'a', italic: true }] })
+    for (const good of ['https://www.up-rera.in/verify', 'https://igrsup.gov.in/x', 'https://www.360propguide.com/blogs/a', 'https://textbook.com/a']) {
+      assert.equal(isCitable(good), true, good)
+    }
   })
 })
 
@@ -103,23 +101,9 @@ describe('blog structure rules', () => {
     assert.ok(!hard.some(h => /meta|intro/i.test(h)))
   })
 
-  it('sends back a draft under 450 words', () => {
+  it('sends back a draft under 400 words', () => {
     const short: Draft = { ...good, blocks: [p('Intro.'), ...good.blocks.slice(1)] }
     assert.ok(checkDraftQuality(short).hard.some(h => h.includes('words')))
-  })
-
-  it('keeps a longer expansion but always the original title and meta', () => {
-    const expanded: Draft = { ...good, title: 'A different title the model invented', blocks: [p('word '.repeat(700)), ...good.blocks.slice(1)] }
-    const chosen = pickExpansion(good, expanded)
-    assert.equal(chosen.title, good.title)
-    assert.equal(chosen.meta_description, good.meta_description)
-    assert.equal(chosen.blocks, expanded.blocks)
-  })
-
-  it('rejects an expansion that is not longer, or that drops a required section', () => {
-    assert.equal(pickExpansion(good, { ...good, blocks: [p('short'), ...good.blocks.slice(1)] }), good)
-    const noFaq: Draft = { ...good, blocks: [p('word '.repeat(900)), ...good.blocks.slice(1, 10)] }
-    assert.equal(pickExpansion(good, noFaq), good)
   })
 
   it('needs at least three answered FAQ questions', () => {
