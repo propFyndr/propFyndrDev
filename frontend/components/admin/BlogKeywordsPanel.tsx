@@ -1,9 +1,9 @@
 'use client'
 
 // Topics the AI draft generator rotates through (least recently used first).
-// The daily cron and the "Generate AI Draft" button both pick from this list.
+// "Generate AI Draft" picks the least recently used active topic.
 import { useState, useEffect, useCallback, useRef } from 'react'
-import { Plus, Trash2, Tag, ChevronDown } from 'lucide-react'
+import { Plus, Trash2, Tag, ChevronDown, Sparkles } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
 import { adminFetch } from '@/lib/adminFetch'
 
@@ -15,7 +15,16 @@ interface BlogKeyword {
   last_used_at: string | null
 }
 
-export default function BlogKeywordsPanel({ onError: onErrorProp }: { onError: (msg: string) => void }) {
+interface Props {
+  onError: (msg: string) => void
+  /** Generates a draft on this exact topic. */
+  onGenerate: (keyword: string) => void
+  generating: boolean
+  /** Bumped by the page after any generation, so "last used" stays current. */
+  reloadToken: number
+}
+
+export default function BlogKeywordsPanel({ onError: onErrorProp, onGenerate, generating, reloadToken }: Props) {
   // Ref so a parent passing an inline callback doesn't re-trigger the load effect.
   const onErrorRef = useRef(onErrorProp)
   onErrorRef.current = onErrorProp
@@ -30,7 +39,7 @@ export default function BlogKeywordsPanel({ onError: onErrorProp }: { onError: (
     else onErrorRef.current('Failed to load blog keywords')
   }, [])
 
-  useEffect(() => { load() }, [load])
+  useEffect(() => { load() }, [load, reloadToken])
 
   const add = async () => {
     const keyword = draft.trim()
@@ -73,7 +82,7 @@ export default function BlogKeywordsPanel({ onError: onErrorProp }: { onError: (
         <span className="flex items-center gap-2 text-xs font-bold text-zinc-900 dark:text-white">
           <Tag size={14} className="text-blue-600" />
           AI draft topics
-          <span className="font-medium text-zinc-400">{activeCount} active · one draft daily at 9:00 IST</span>
+          <span className="font-medium text-zinc-400">{activeCount} active · used in rotation, least recent first</span>
         </span>
         <ChevronDown size={15} className={`text-zinc-400 transition-transform ${open ? 'rotate-180' : ''}`} />
       </button>
@@ -111,6 +120,14 @@ export default function BlogKeywordsPanel({ onError: onErrorProp }: { onError: (
                     </p>
                   </div>
                   <div className="flex items-center gap-1.5 shrink-0">
+                    <button
+                      onClick={() => onGenerate(k.keyword)}
+                      disabled={generating}
+                      title="Write a draft on this topic now"
+                      className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-bold border border-zinc-200/80 dark:border-zinc-800 text-blue-600 dark:text-blue-400 cursor-pointer disabled:opacity-50 disabled:cursor-wait"
+                    >
+                      <Sparkles size={12} /> Generate
+                    </button>
                     <button onClick={() => toggle(k)} className="px-2.5 py-1 rounded-lg text-[11px] font-bold border border-zinc-200/80 dark:border-zinc-800 text-zinc-600 dark:text-zinc-300 cursor-pointer">
                       {k.active ? 'Pause' : 'Resume'}
                     </button>

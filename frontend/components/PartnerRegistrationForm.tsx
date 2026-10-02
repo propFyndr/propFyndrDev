@@ -910,9 +910,9 @@ export default function PartnerRegistrationForm() {
                                   Selected
                                 </span>
                               </div>
-                              <p className="text-[11px] text-zinc-500 font-medium">
-                                {selectedBuilder.headquarters || 'Registered Developer Partner'}
-                              </p>
+                              {selectedBuilder.headquarters && (
+                                <p className="text-[11px] text-zinc-500 font-medium">{selectedBuilder.headquarters}</p>
+                              )}
                             </div>
                           </div>
                           <button

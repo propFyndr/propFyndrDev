@@ -196,10 +196,13 @@ export interface GenerateResult { postId: string; keyword: string; reviewNotes: 
 
 /** Generates one draft. `keyword` overrides the rotation (admin "generate on this topic"). */
 export async function generateBlogDraft(keyword?: string): Promise<GenerateResult> {
-  const kwRow = keyword ? null : await prisma.blogKeyword.findFirst({
-    where: { active: true },
-    orderBy: [{ last_used_at: { sort: 'asc', nulls: 'first' } }, { created_at: 'asc' }],
-  })
+  // A named topic that is in the list still counts as used, so the rotation moves past it.
+  const kwRow = keyword
+    ? await prisma.blogKeyword.findUnique({ where: { keyword: keyword.trim() } })
+    : await prisma.blogKeyword.findFirst({
+        where: { active: true },
+        orderBy: [{ last_used_at: { sort: 'asc', nulls: 'first' } }, { created_at: 'asc' }],
+      })
   const topic = keyword?.trim() || kwRow?.keyword
   if (!topic) throw new Error('No active blog keywords. Add one in /admin/blog.')
 

@@ -92,6 +92,7 @@ export default function BlogAdminPage() {
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null)
 
   const [generating, setGenerating] = useState(false)
+  const [keywordsVersion, setKeywordsVersion] = useState(0)
   const isFetchingRef = useRef(false)
   const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
@@ -138,13 +139,14 @@ export default function BlogAdminPage() {
   }, [])
 
   // Writes an AI draft (never published) and opens it in the editor for review.
-  const handleGenerate = async () => {
+  // No keyword = next topic in the rotation.
+  const handleGenerate = async (keyword?: string) => {
     setGenerating(true)
     try {
       const res = await adminFetch('/admin/blog/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: '{}',
+        body: JSON.stringify(keyword ? { keyword } : {}),
       })
       const data = await res.json().catch(() => ({}))
       if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`)
@@ -155,6 +157,7 @@ export default function BlogAdminPage() {
         setShowModal(true)
       }
       showToast(`Draft generated on "${data.keyword}". Review before publishing.`, 'success')
+      setKeywordsVersion(v => v + 1)
     } catch (err) {
       showToast(err instanceof Error ? err.message : 'Draft generation failed', 'error')
     } finally {
@@ -261,7 +264,7 @@ export default function BlogAdminPage() {
           </button>
 
           <button
-            onClick={handleGenerate}
+            onClick={() => handleGenerate()}
             disabled={generating}
             className="flex items-center gap-2 bg-white dark:bg-zinc-900 hover:bg-zinc-50 dark:hover:bg-zinc-800 text-zinc-900 dark:text-white border border-zinc-200/80 dark:border-zinc-800 px-3.5 py-2 rounded-xl text-xs font-bold transition-all shadow-2xs active:scale-[0.98] cursor-pointer disabled:opacity-60"
           >
@@ -323,7 +326,12 @@ export default function BlogAdminPage() {
         </div>
       </div>
 
-      <BlogKeywordsPanel onError={msg => showToast(msg, 'error')} />
+      <BlogKeywordsPanel
+        onError={msg => showToast(msg, 'error')}
+        onGenerate={handleGenerate}
+        generating={generating}
+        reloadToken={keywordsVersion}
+      />
 
       {/* Control Toolbar */}
       <div className="flex flex-col sm:flex-row items-center justify-between gap-3">

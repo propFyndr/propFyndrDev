@@ -4544,3 +4544,10 @@ three design docs. Fixed what was broken; nothing committed, migrated or deploye
    - 3 real drafts created, all status=draft and none published. Drafts run ~600 words against the 900+ target (gpt-oss writes short).
 **Open, needs the user:** the women's stamp duty rule. The draft's source says the 1% rebate applies only up to ₹1 crore; `calculators.ts:28` gives women 6% at any price. Verify the current UP rule and fix whichever is wrong.
 
+
+## 2026-10-02 (cont.) — Blog generation is manual-only; secrets removed from scripts
+**Decided (user):** no cron. AI blog drafts are generated only from /admin/blog: the top button takes the next topic in the rotation, and each topic row has its own Generate button. Removed the Render cron service and `POST /internal/blog/daily-draft`. A named-topic generation now also stamps that topic's `last_used_at`.
+**Done:** `furqan.workk@gmail.com` set up as SUPER_ADMIN via `scripts/set-super-admin-password.ts`. The password was given in chat; the user was told to change it after first login.
+**Security, needs the user:**
+1. `scripts/set-super-admin-password.ts` hardcoded the password of `admin@propfyndr.in` (active, last login 2026-10-01) and was pushed in f8af515. The script now reads `ADMIN_PASSWORD` from env. **That account's password must be rotated**; it stays in git history.
+2. A Langfuse secret key (`sk-lf-1…`) was hardcoded in 3 committed scripts (analyze/fetch/inspect-langfuse). They now read `LANGFUSE_SECRET_KEY`/`LANGFUSE_PUBLIC_KEY`. **Rotate the Langfuse key pair.**
