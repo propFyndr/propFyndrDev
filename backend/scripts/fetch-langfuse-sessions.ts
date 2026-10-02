@@ -1,7 +1,14 @@
 import https from 'https'
 
-const SECRET_KEY = 'sk-lf-132cebf4-282a-49a3-a220-cf1dc1668345'
-const PUBLIC_KEY = 'pk-lf-b953c5f2-2520-41cb-a6f8-d57c7739a588'
+import 'dotenv/config'
+// Keys come from the environment, as in src/lib/monitoring/langfuse.ts. A hardcoded
+// secret here shipped to git once; never inline one again.
+const SECRET_KEY = process.env.LANGFUSE_SECRET_KEY ?? ''
+const PUBLIC_KEY = process.env.LANGFUSE_PUBLIC_KEY ?? ''
+if (!SECRET_KEY || !PUBLIC_KEY) {
+  console.error('Set LANGFUSE_SECRET_KEY and LANGFUSE_PUBLIC_KEY (backend/.env).')
+  process.exit(1)
+}
 const BASE_URL = 'us.cloud.langfuse.com'
 
 function getAuthHeader() {
