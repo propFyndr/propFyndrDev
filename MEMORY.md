@@ -4519,3 +4519,28 @@ three design docs. Fixed what was broken; nothing committed, migrated or deploye
 **Done (user confirmed):** `scripts/migrate-blog-keywords.ts` was applied to the live DB. Placeholder documents are hidden from buyers by `lib/realDocuments.ts`: only files in the `project-docs` bucket show, applied to `/projects/:slug/documents`, `GET /documents`, `/documents/ask` and the chat `project_documents` tool. Admin still sees all 258 rows, and none were deleted. Live check: 0 of 258 visible.
 **Pending:** set `GROQ_BLOG_API_KEY`, `BACKEND_URL` and `INTERNAL_API_KEY` on Render. Get real PDFs for the trial. Install Tesseract (+hin) and Ghostscript for OCR.
 **Trial on Elite X PDFs (`EliteXfiles/`, kept out of git):** Brochure, Legal and Specs are byte-identical (same MD5), so there are 3 distinct docs, not 5. 4 of 5 are image-only (0 text without OCR). The price list (2 pages) extracted: notes and clauses came out clean (TIFMS ₹45/sq ft carpet, covered parking ₹4L, bay parking ₹6.5L, club ₹2L, power backup ₹25k/KVA, mandatory SS door ₹25k, 1% TDS, super-area bundle pricing, RERA no.). **The price grid did not**: it sits beside the payment-plan table and the columns came out interleaved. Structured prices therefore need a table-aware step (pdfplumber with crop areas, or a vision model) plus a human check before any number reaches a buyer. The RERA no. in the PDF matches the DB row (`elite-x-sector-10`). Next: install Tesseract (+hin) and Ghostscript, then re-run on the 3 scanned docs.
+
+## 2026-10-02 (cont.) — OCR live, admin conversation times, blog topics seeded
+**Done:**
+1. **OCR toolchain** (local, scoop): Tesseract 5.5.3 with eng/hin/osd from tessdata_best, plus Ghostscript 10.08. `trial.py` v2:
+   - English OCR by default; `--lang eng+hin` only for Hindi documents.
+   - Plain OCR text on scanned pages, because MarkItDown invents tables from OCR'd words.
+   - pdfplumber for tables on text pages: it split the Elite X price list into 4 clean tables (price grid, two payment plans, charges) with no manual crop areas. **Decision: pdfplumber for price tables; no vision model needed so far.**
+   - Keeps OCR output from damaged PDFs and warns.
+   - Skips byte-identical files.
+2. **Elite X results:**
+   - Brochure: 15 of 16 pages OCR'd. The masterplan amenity labels and per-unit areas are readable ("Tower A Unit 1&2 Carpet 1471.92 / Built up 2061.51 / Super 2638 sq ft"). This labels the price list's three unlabeled area rows, a cross-document match.
+   - The "FloorPlan" PDF has truncated image streams at the source, but OCR still read the specifications pages cleanly.
+3. **Admin conversations times:**
+   - User messages were saved after the answer finished, so a question carried the answer's end time. `receivedAt` is now captured at the start of POST /chat and stamped on the user row at all 5 save points (4 in chat-router, 1 in deterministicFactRouter).
+   - Rows older than today now show the date.
+   - The list and open transcript refresh silently every 20s while the tab is visible.
+   - The "Registered User" made-up name was removed from both conversation APIs.
+   - Rows saved before this fix keep their old (answer-end) times; no backfill.
+4. **Blog:**
+   - 20 V1-scope topics seeded in `blog_keywords`.
+   - The generator now uses Groq strict `json_schema` (see ERRORS.md).
+   - New prompt rules: calculated examples get no source link; no procedures unless a source states them; Noida/UP only; examples never invent project, builder or registration numbers.
+   - 3 real drafts created, all status=draft and none published. Drafts run ~600 words against the 900+ target (gpt-oss writes short).
+**Open, needs the user:** the women's stamp duty rule. The draft's source says the 1% rebate applies only up to ₹1 crore; `calculators.ts:28` gives women 6% at any price. Verify the current UP rule and fix whichever is wrong.
+

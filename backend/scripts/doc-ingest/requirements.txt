@@ -1,4 +1,7 @@
 markitdown[pdf,docx,xlsx]==0.1.8
 pypdf
-# ocrmypdf needs Tesseract (with the hin language pack) and Ghostscript installed separately
+pdfplumber
+# ocrmypdf needs Tesseract and Ghostscript on PATH. On Windows: `scoop install tesseract ghostscript`,
+# then put eng.traineddata (and hin.traineddata for Hindi docs) from github.com/tesseract-ocr/tessdata_best
+# into the tesseract tessdata folder (scoop ships it with no languages).
 ocrmypdf
