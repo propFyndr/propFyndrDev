@@ -53,7 +53,7 @@ export async function middleware(request: NextRequest) {
     },
   })
 
-  if (pathname.startsWith('/api/')) {
+  if (process.env.DEBUG_MIDDLEWARE === 'true' && pathname.startsWith('/api/')) {
     const hasAuth = requestHeaders.has('Authorization')
     console.log(`[mw] ${request.method} ${pathname} auth=${hasAuth ? 'yes' : 'no'}`)
   }

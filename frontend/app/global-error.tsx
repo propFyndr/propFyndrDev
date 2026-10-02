@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import { isChunkLoadError, reloadOnceForChunkError } from '@/lib/chunkReload';
 
 export default function GlobalError({
   error,
@@ -10,11 +11,8 @@ export default function GlobalError({
   reset: () => void;
 }) {
   useEffect(() => {
-    // Auto-retry ChunkLoadErrors by doing a hard refresh
-    if (error?.message?.includes('ChunkLoadError') || error?.message?.includes('Loading chunk')) {
-      window.location.reload();
-      return;
-    }
+    // Stale chunk after a deploy — one auto-refresh, then show the error
+    if (isChunkLoadError(error) && reloadOnceForChunkError()) return;
     console.error('[global-error]', error);
   }, [error]);
 

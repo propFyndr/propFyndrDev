@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import { isChunkLoadError, reloadOnceForChunkError } from '@/lib/chunkReload';
 
 export default function DiscoverError({
   error,
@@ -10,11 +11,8 @@ export default function DiscoverError({
   reset: () => void;
 }) {
   useEffect(() => {
-    // ChunkLoadError = stale cache after deploy — auto-refresh
-    if (error?.message?.includes('ChunkLoadError') || error?.message?.includes('Loading chunk')) {
-      window.location.reload();
-      return;
-    }
+    // ChunkLoadError = stale cache after deploy — one auto-refresh, then show the error
+    if (isChunkLoadError(error) && reloadOnceForChunkError()) return;
     console.error('[discover-error]', error);
   }, [error]);
 

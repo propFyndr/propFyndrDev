@@ -8,7 +8,7 @@ import ChatErrorBoundary from '@/components/ChatErrorBoundary';
 import UniversalLoader from '@/components/ui/universal-loader';
 import { getSupabaseClient } from '@/lib/supabase';
 import { migrateSessions } from '@/lib/backend-api';
-import { getOrCreateGuestToken, clearGuestToken } from '@/lib/guestToken';
+import { getOrCreateGuestToken, getGuestToken, clearGuestToken } from '@/lib/guestToken';
 
 export default function SessionDiscoverPage() {
   const { sessionId } = useParams<{ sessionId: string }>();
@@ -55,7 +55,7 @@ export default function SessionDiscoverPage() {
       const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
         if (session) {
           const uid = session.user.id;
-          const existingGuestToken = getOrCreateGuestToken();
+          const existingGuestToken = getGuestToken();
           if (existingGuestToken) {
             migrateSessions(uid, existingGuestToken).catch(() => {}).finally(() => {
               clearGuestToken();

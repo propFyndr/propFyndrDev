@@ -7,7 +7,7 @@ import ChatErrorBoundary from '@/components/ChatErrorBoundary';
 import { DiscoveryHomeSkeleton } from '@/components/skeletons';
 import { getSupabaseClient } from '@/lib/supabase';
 import { migrateSessions } from '@/lib/backend-api';
-import { getOrCreateGuestToken, clearGuestToken } from '@/lib/guestToken';
+import { getOrCreateGuestToken, getGuestToken, clearGuestToken } from '@/lib/guestToken';
 
 export default function DiscoverPage() {
   const [userId, setUserId] = useState<string | null>(null);
@@ -50,7 +50,7 @@ export default function DiscoverPage() {
       supabase.auth.getSession().then(({ data }) => {
         if (data.session?.user) {
           const uid = data.session.user.id;
-          const existingGuestToken = getOrCreateGuestToken();
+          const existingGuestToken = getGuestToken();
           if (existingGuestToken) {
             migrateSessions(uid, existingGuestToken).catch(() => {}).finally(() => {
               clearGuestToken();
@@ -72,7 +72,7 @@ export default function DiscoverPage() {
       const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
         if (session?.user) {
           const uid = session.user.id;
-          const existingGuestToken = getOrCreateGuestToken();
+          const existingGuestToken = getGuestToken();
           if (existingGuestToken) {
             migrateSessions(uid, existingGuestToken).catch(() => {}).finally(() => {
               clearGuestToken();
