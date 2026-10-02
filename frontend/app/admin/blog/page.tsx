@@ -15,8 +15,12 @@ import {
   Archive,
   ExternalLink,
   Bot,
-  Zap,
   Loader2,
+  Copy,
+  Check,
+  Sparkles,
+  Clock,
+  Globe,
 } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
 import { AnimatePresence, m } from 'framer-motion'
@@ -27,6 +31,8 @@ import { useAdminRole, canDeleteRecords } from '@/lib/adminRole'
 import { Skeleton } from '@/components/ui/skeleton'
 import { StatCard } from '@/components/portal/ui'
 import BlogKeywordsPanel from '@/components/admin/BlogKeywordsPanel'
+import DraftReviewAuditCard from '@/components/admin/DraftReviewAuditCard'
+import AIGenerationWidget from '@/components/admin/AIGenerationWidget'
 
 type BlogStatus = 'draft' | 'published' | 'archived'
 
@@ -58,10 +64,10 @@ const STATUS_CONFIG: Record<BlogStatus, { label: string; bg: string; text: strin
   },
   draft: {
     label: 'Draft',
-    bg: 'bg-zinc-100 dark:bg-zinc-800',
-    text: 'text-zinc-700 dark:text-zinc-300',
-    border: 'border-zinc-200 dark:border-zinc-700',
-    dot: 'bg-zinc-400',
+    bg: 'bg-amber-50/80 dark:bg-amber-950/40',
+    text: 'text-amber-700 dark:text-amber-300',
+    border: 'border-amber-200/80 dark:border-amber-800/80',
+    dot: 'bg-amber-500 shadow-2xs shadow-amber-500/50',
   },
   archived: {
     label: 'Archived',
@@ -72,6 +78,14 @@ const STATUS_CONFIG: Record<BlogStatus, { label: string; bg: string; text: strin
   },
 }
 
+/** How many rotation topics the generate dialog offers as one-click suggestions. */
+const SUGGESTIONS_SHOWN = 5
+
+/** The site's title template (app/layout.tsx) appends this to every article title. */
+const TITLE_SUFFIX = ' | PropFyndr'
+/** Google truncates titles at roughly 60 characters, suffix included. */
+const SERP_TITLE_LIMIT = 60
+
 function slugify(s: string): string {
   return s
     .toLowerCase()
@@ -80,6 +94,60 @@ function slugify(s: string): string {
     .replace(/\s+/g, '-')
     .replace(/-+/g, '-')
 }
+
+type TiptapNode = { type?: string; text?: string; content?: TiptapNode[] }
+
+/**
+ * Words and reading time from the stored Tiptap JSON. Counts text nodes only:
+ * counting the stringified JSON also counted "type", "paragraph", "marks"…,
+ * which inflated every figure. Older posts may hold plain text or Markdown.
+ */
+function articleStats(content: string): { words: number; readingTime: number } {
+  let text = content
+  try {
+    const walk = (n: TiptapNode): string => (n.text ?? '') + ' ' + (n.content ?? []).map(walk).join(' ')
+    text = walk(JSON.parse(content) as TiptapNode)
+  } catch {
+    // Not JSON: count it as written.
+  }
+  const words = text.split(/\s+/).filter(Boolean).length
+  return { words, readingTime: Math.max(1, Math.round(words / 200)) }
+}
+
+function CopySlugButton({ slug }: { slug: string }) {
+  const [copied, setCopied] = useState(false)
+
+  const handleCopy = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    // The admin runs on the public site's host, so its origin is the article's.
+    navigator.clipboard.writeText(`${window.location.origin}/blog/${slug}`).then(
+      () => {
+        setCopied(true)
+        setTimeout(() => setCopied(false), 2000)
+      },
+      () => {}, // clipboard blocked: the path stays visible to copy by hand
+    )
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={handleCopy}
+      title="Click to copy public URL"
+      className="inline-flex items-center gap-1.5 text-[11px] font-mono text-zinc-400 dark:text-zinc-500 hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer group/copy"
+    >
+      <span>/blog/{slug}</span>
+      {copied ? (
+        <span className="inline-flex items-center gap-1 text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold font-sans">
+          <Check size={11} /> Copied
+        </span>
+      ) : (
+        <Copy size={11} className="opacity-0 group-hover/copy:opacity-100 transition-opacity text-zinc-400" />
+      )}
+    </button>
+  )
+}
+
 
 export default function BlogAdminPage() {
   const [posts, setPosts] = useState<BlogPost[]>([])
@@ -97,6 +165,23 @@ export default function BlogAdminPage() {
   const [generatingProgress, setGeneratingProgress] = useState<{ step: number; text: string; topic: string } | null>(null)
   const [showGenerateModal, setShowGenerateModal] = useState(false)
   const [customTopic, setCustomTopic] = useState('')
+  const [suggestions, setSuggestions] = useState<string[]>([])
+  /** Bumped after each generation, so topic "last used" views refresh. */
+  const [keywordsVersion, setKeywordsVersion] = useState(0)
+
+  // One-click suggestions: the next active topics in the rotation. The API
+  // returns them least recently used first, which is the order Generate uses.
+  useEffect(() => {
+    if (!showGenerateModal) return
+    let cancelled = false
+    adminFetch('/admin/blog/keywords')
+      .then(r => (r.ok ? r.json() : { keywords: [] }))
+      .then(({ keywords }: { keywords?: { keyword: string; active: boolean }[] }) => {
+        if (!cancelled) setSuggestions((keywords ?? []).filter(k => k.active).slice(0, SUGGESTIONS_SHOWN).map(k => k.keyword))
+      })
+      .catch(() => {})
+    return () => { cancelled = true }
+  }, [showGenerateModal, keywordsVersion])
 
   // While the dialog is open, warm the server's search for the topic Generate
   // would use (the next one in rotation, or the custom one once typing pauses),
@@ -114,7 +199,6 @@ export default function BlogAdminPage() {
     }, topic ? 800 : 0)
     return () => clearTimeout(t)
   }, [showGenerateModal, customTopic])
-  const [keywordsVersion, setKeywordsVersion] = useState(0)
   const isFetchingRef = useRef(false)
   const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
@@ -268,6 +352,9 @@ export default function BlogAdminPage() {
   // Analysts may delete drafts; a post that has been public is super-admin only (server enforces).
   const mayDeletePublished = canDeleteRecords(useAdminRole())
   const canDelete = (p: BlogPost) => p.status === 'draft' || mayDeletePublished
+
+  // Parsed once per post list, not on every render (each parse walks the whole article).
+  const statsById = useMemo(() => new Map(posts.map(p => [p.id, articleStats(p.content)])), [posts])
 
   const filteredPosts = useMemo(() => {
     return posts.filter(item => {
@@ -472,30 +559,46 @@ export default function BlogAdminPage() {
         <div className="space-y-4">
           {filteredPosts.map(item => {
             const stCfg = STATUS_CONFIG[item.status]
+            const { words, readingTime } = statsById.get(item.id) ?? { words: 0, readingTime: 0 }
+
             return (
               <div
                 key={item.id}
-                className="p-5 sm:p-6 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 shadow-2xs hover:border-zinc-300 dark:hover:border-zinc-700 transition-all font-sans"
+                className="p-5 sm:p-6 rounded-3xl bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 shadow-sm hover:border-zinc-300 dark:hover:border-zinc-700 hover:shadow-md transition-all font-sans group"
               >
                 <div className="flex flex-col sm:flex-row gap-5 items-start">
-                  <div className="w-24 h-24 rounded-2xl bg-zinc-100 dark:bg-zinc-800 text-zinc-400 flex items-center justify-center shrink-0 overflow-hidden border border-zinc-200/60 dark:border-zinc-800">
+                  {/* Thumbnail / Monogram */}
+                  <div className="w-24 sm:w-28 h-24 sm:h-28 rounded-2xl bg-zinc-100 dark:bg-zinc-800 text-zinc-400 flex items-center justify-center shrink-0 overflow-hidden border border-zinc-200/70 dark:border-zinc-800 relative group-hover:shadow-sm transition-all">
                     {item.cover_image_url ? (
                       // eslint-disable-next-line @next/next/no-img-element
-                      <img src={item.cover_image_url} alt={item.title} className="w-full h-full object-cover" />
+                      <img
+                        src={item.cover_image_url}
+                        alt={item.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
                     ) : (
-                      <div className="w-full h-full bg-gradient-to-br from-blue-500/10 to-indigo-500/20 flex items-center justify-center text-blue-600 dark:text-blue-400 font-bold text-lg">
-                        {item.title.slice(0, 2).toUpperCase()}
+                      <div className="w-full h-full bg-gradient-to-br from-blue-600 via-indigo-600 to-slate-900 text-white flex flex-col items-center justify-center shrink-0 p-2 relative overflow-hidden group-hover:scale-[1.02] transition-transform">
+                        <div className="text-xl font-black tracking-tight">
+                          {item.title.slice(0, 2).toUpperCase()}
+                        </div>
+                        <span className="text-[10px] font-bold text-blue-200 uppercase tracking-wider mt-0.5">
+                          Article
+                        </span>
+                        <div className="absolute -right-3 -bottom-3 w-12 h-12 bg-white/10 rounded-full blur-xs pointer-events-none" />
                       </div>
                     )}
                   </div>
 
-                  <div className="flex-1 min-w-0 space-y-2">
+                  {/* Body Content Info */}
+                  <div className="flex-1 min-w-0 space-y-2.5">
                     <div className="flex items-start justify-between gap-3">
-                      <div className="min-w-0">
-                        <h3 className="text-base font-extrabold text-zinc-900 dark:text-white truncate tracking-tight">
+                      <div className="min-w-0 space-y-1">
+                        <h3 className="text-base sm:text-lg font-extrabold text-zinc-900 dark:text-white truncate tracking-tight group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                           {item.title}
                         </h3>
-                        <p className="text-[11px] font-mono text-zinc-400 dark:text-zinc-500">/blog/{item.slug}</p>
+                        <div className="flex items-center gap-2">
+                          <CopySlugButton slug={item.slug} />
+                        </div>
                       </div>
                       <span className={`px-2.5 py-1 rounded-full text-xs font-bold border flex items-center gap-1.5 shrink-0 ${stCfg.bg} ${stCfg.text} ${stCfg.border}`}>
                         <span className={`w-1.5 h-1.5 rounded-full ${stCfg.dot}`} />
@@ -509,30 +612,48 @@ export default function BlogAdminPage() {
                       </p>
                     )}
 
+                    {/* AI Draft Quality Fact-Check & Verification Audit Card */}
                     {item.status === 'draft' && item.review_notes && (
-                      <p className="text-[11px] font-medium text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/40 border border-amber-200/80 dark:border-amber-800/60 rounded-lg px-2.5 py-1.5 whitespace-pre-line">
-                        {item.review_notes}
-                      </p>
+                      <div className="pt-1">
+                        <DraftReviewAuditCard notes={item.review_notes} />
+                      </div>
                     )}
 
-                    <div className="flex items-center gap-4 text-[11px] font-medium text-zinc-400 dark:text-zinc-500 pt-2 border-t border-zinc-100 dark:border-zinc-800 flex-wrap">
-                      {item.author_name && <span className="font-bold text-zinc-700 dark:text-zinc-300">{item.author_name}</span>}
+                    {/* Meta Row */}
+                    <div className="flex items-center gap-3 sm:gap-4 text-[11px] font-medium text-zinc-400 dark:text-zinc-500 pt-2 border-t border-zinc-100 dark:border-zinc-800 flex-wrap">
+                      {item.author_name && (
+                        <span className="inline-flex items-center gap-1.5 font-bold text-zinc-700 dark:text-zinc-300">
+                          <span className="w-4 h-4 rounded-full bg-blue-600 text-white text-[9px] font-extrabold flex items-center justify-center">
+                            {item.author_name[0].toUpperCase()}
+                          </span>
+                          {item.author_name}
+                        </span>
+                      )}
                       <span>
                         {item.status === 'published' && item.published_at
                           ? `Published ${formatDistanceToNow(new Date(item.published_at), { addSuffix: true })}`
                           : `Created ${formatDistanceToNow(new Date(item.created_at), { addSuffix: true })}`}
                       </span>
+                      {words > 0 && (
+                        <span className="inline-flex items-center gap-1 text-zinc-500 dark:text-zinc-400">
+                          <Clock size={11} />
+                          <span>~{words} words · {readingTime} min read</span>
+                        </span>
+                      )}
                     </div>
 
-                    <div className="flex items-center gap-2 pt-2 flex-wrap">
+                    {/* Actions Row */}
+                    <div className="flex items-center gap-2 pt-1 flex-wrap">
                       <button
+                        type="button"
                         onClick={() => {
                           setEditingItem(item)
                           setShowModal(true)
                         }}
-                        className="px-3 py-1.5 rounded-xl border border-zinc-200/80 dark:border-zinc-700/80 bg-white dark:bg-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-700/80 text-zinc-700 dark:text-zinc-200 text-xs font-semibold transition-all shadow-2xs flex items-center gap-1 cursor-pointer"
+                        className="px-3.5 py-1.5 rounded-xl bg-zinc-900 hover:bg-black dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-100 text-white text-xs font-bold transition-all shadow-2xs flex items-center gap-1.5 cursor-pointer active:scale-[0.98]"
                       >
-                        <Edit2 size={13} /> Edit
+                        <Edit2 size={13} />
+                        <span>Edit Article</span>
                       </button>
 
                       {item.status === 'published' && (
@@ -542,12 +663,13 @@ export default function BlogAdminPage() {
                           rel="noreferrer"
                           className="px-3 py-1.5 rounded-xl border border-zinc-200/80 dark:border-zinc-700/80 bg-white dark:bg-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-700/80 text-zinc-700 dark:text-zinc-200 text-xs font-semibold transition-all shadow-2xs flex items-center gap-1 cursor-pointer"
                         >
-                          <ExternalLink size={13} /> View
+                          <ExternalLink size={13} /> View Live
                         </a>
                       )}
 
                       {item.status === 'archived' ? (
                         <button
+                          type="button"
                           onClick={() => handleRestore(item.id)}
                           className="px-3 py-1.5 rounded-xl border border-emerald-200/80 dark:border-emerald-800/80 bg-emerald-50/60 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 text-xs font-semibold transition-all shadow-2xs flex items-center gap-1 cursor-pointer"
                           title={item.published_at ? 'Put it back on the public blog' : 'Back to drafts (it was never published)'}
@@ -556,6 +678,7 @@ export default function BlogAdminPage() {
                         </button>
                       ) : (
                         <button
+                          type="button"
                           onClick={() => handleArchive(item.id)}
                           className="px-3 py-1.5 rounded-xl border border-zinc-200/80 dark:border-zinc-700/80 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800 text-xs font-semibold transition-all shadow-2xs flex items-center gap-1 cursor-pointer"
                         >
@@ -564,8 +687,9 @@ export default function BlogAdminPage() {
                       )}
                       {canDelete(item) && (
                         <button
+                          type="button"
                           onClick={() => handlePermanentDelete(item.id)}
-                          className="px-3 py-1.5 rounded-xl border border-rose-200/80 dark:border-rose-900/40 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 text-xs font-semibold transition-all shadow-2xs flex items-center gap-1 cursor-pointer"
+                          className="px-3 py-1.5 rounded-xl border border-rose-200/80 dark:border-rose-900/40 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 text-xs font-semibold transition-all shadow-2xs flex items-center gap-1 cursor-pointer ml-auto"
                           title={item.status === 'draft' ? 'Delete this draft permanently' : 'Permanently delete (super admin)'}
                         >
                           <Trash2 size={13} /> {item.status === 'draft' ? 'Delete Draft' : 'Delete'}
@@ -608,7 +732,7 @@ export default function BlogAdminPage() {
         )}
       </AnimatePresence>
 
-      {/* Generate AI Draft Modal with Custom Topic input ("Outside of it") */}
+      {/* Generate AI Draft Modal with Custom Topic input and Quick Suggestions */}
       <AnimatePresence>
         {showGenerateModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -627,15 +751,15 @@ export default function BlogAdminPage() {
             >
               <div className="flex items-start justify-between gap-4">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-2xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center border border-blue-200/60 dark:border-blue-800/60 shrink-0">
-                    <Bot size={22} />
+                  <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-violet-600 text-white flex items-center justify-center shrink-0 shadow-sm shadow-blue-500/20">
+                    <Sparkles size={20} />
                   </div>
                   <div>
-                    <h3 className="text-base font-extrabold text-zinc-900 dark:text-white">
-                      Generate AI Article Draft
+                    <h3 id="generate-dialog-title" className="text-base font-extrabold text-zinc-900 dark:text-white">
+                      Generate an article draft
                     </h3>
                     <p className="text-xs text-zinc-500 dark:text-zinc-400 font-medium">
-                      Searches the web, writes a cited draft. Nothing goes live until you publish it.
+                      Searches the web, writes a draft that links its sources. Nothing goes live until you publish it.
                     </p>
                   </div>
                 </div>
@@ -648,12 +772,13 @@ export default function BlogAdminPage() {
                 </button>
               </div>
 
-              <div className="space-y-3">
+              <div className="space-y-3.5">
                 <div>
-                  <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-300 mb-1.5">
+                  <label htmlFor="generate-topic" className="block text-xs font-bold text-zinc-700 dark:text-zinc-300 mb-1.5">
                     Custom topic (optional)
                   </label>
                   <input
+                    id="generate-topic"
                     type="text"
                     value={customTopic}
                     onChange={e => setCustomTopic(e.target.value)}
@@ -668,9 +793,31 @@ export default function BlogAdminPage() {
                     autoFocus
                   />
                   <p className="text-[11px] text-zinc-400 dark:text-zinc-500 mt-1.5">
-                    Leave blank to write the next topic in your rotation. A custom topic is not added to the rotation.
+                    Leave blank to generate the next topic in your queue. Press Enter ↵ to begin.
                   </p>
                 </div>
+
+                {/* Suggestions come from the rotation, least recently used first:
+                    a hardcoded list repeated published articles and bypassed the topics table. */}
+                {suggestions.length > 0 && (
+                <div className="space-y-1.5 pt-1">
+                  <p className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">
+                    From your topic rotation
+                  </p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {suggestions.map(topic => (
+                      <button
+                        key={topic}
+                        type="button"
+                        onClick={() => setCustomTopic(topic)}
+                        className="text-left px-2.5 py-1 rounded-xl text-[11px] font-medium bg-zinc-100 hover:bg-blue-50 dark:bg-zinc-800 dark:hover:bg-blue-950/40 text-zinc-700 dark:text-zinc-300 hover:text-blue-600 dark:hover:text-blue-400 border border-zinc-200/70 dark:border-zinc-700/70 hover:border-blue-300 transition-all cursor-pointer"
+                      >
+                        + {topic}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                )}
               </div>
 
               <div className="flex items-center justify-end gap-2.5 pt-2 border-t border-zinc-100 dark:border-zinc-800">
@@ -706,53 +853,8 @@ export default function BlogAdminPage() {
         )}
       </AnimatePresence>
 
-      {/* Floating Live Generation Progress Overlay */}
-      <AnimatePresence>
-        {generating && (
-          <m.div
-            initial={{ opacity: 0, y: 20, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 20, scale: 0.95 }}
-            className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-[92vw] max-w-lg bg-zinc-900/95 dark:bg-zinc-900/95 text-white p-4 rounded-2xl shadow-2xl border border-zinc-800 backdrop-blur-md"
-          >
-            <div className="flex items-center gap-3 mb-2.5">
-              <div className="w-8 h-8 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center shrink-0 border border-blue-500/30">
-                <Bot size={18} className="animate-pulse" />
-              </div>
-              <div className="min-w-0 flex-1">
-                <div className="flex items-center justify-between gap-2">
-                  <p className="text-xs font-bold text-zinc-100 truncate">
-                    AI Drafting Engine
-                  </p>
-                  <span className="text-[10px] font-mono text-blue-400 font-semibold px-2 py-0.5 rounded-full bg-blue-950/60 border border-blue-800/60 shrink-0">
-                    Step {generatingProgress?.step || 1} of 3
-                  </span>
-                </div>
-                <p className="text-[11px] text-zinc-400 truncate">
-                  {generatingProgress?.topic}
-                </p>
-              </div>
-            </div>
-
-            <div className="space-y-1.5">
-              <div className="flex items-center justify-between text-[11px] font-medium text-zinc-300">
-                <span className="flex items-center gap-1.5">
-                  <Loader2 size={12} className="animate-spin text-blue-400" />
-                  {generatingProgress?.text}
-                </span>
-              </div>
-              <div className="w-full h-1.5 bg-zinc-800 rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-gradient-to-r from-blue-500 via-indigo-500 to-emerald-400 rounded-full transition-all duration-700 ease-out"
-                  style={{
-                    width: generatingProgress?.step === 1 ? '35%' : generatingProgress?.step === 2 ? '70%' : '95%',
-                  }}
-                />
-              </div>
-            </div>
-          </m.div>
-        )}
-      </AnimatePresence>
+      {/* Floating Live Generation Progress Overlay (Command Center HUD) */}
+      <AIGenerationWidget generating={generating} progress={generatingProgress} />
 
       {toast && (
         <div className={`fixed bottom-6 right-6 px-4 py-3 rounded-2xl text-white text-xs font-bold shadow-2xl transition-all flex items-center gap-3 z-50 ${
@@ -814,6 +916,18 @@ function BlogModal({
     meta_description: item?.meta_description || '',
     author_name: item?.author_name || 'PropFyndr Advisory Research',
   })
+
+  // Search preview. Host is read after mount (no window on the server render),
+  // and the title is the one the page template renders: "<meta title> | PropFyndr".
+  const [siteHost, setSiteHost] = useState('')
+  useEffect(() => setSiteHost(window.location.host), [])
+  const serpTitle = `${formData.meta_title || formData.title || 'Article title'}${TITLE_SUFFIX}`
+  const serpTitleClass =
+    serpTitle.length > SERP_TITLE_LIMIT
+      ? { text: 'text-rose-600', bar: 'bg-rose-500' }
+      : serpTitle.length >= 45
+      ? { text: 'text-emerald-600', bar: 'bg-emerald-500' }
+      : { text: 'text-zinc-400', bar: 'bg-blue-500' }
 
   const handleTitleChange = (title: string) => {
     setFormData(prev => ({
@@ -1168,44 +1282,100 @@ function BlogModal({
               </div>
 
               {/* Search Engine Optimization (SEO) */}
-              <div className="p-4 bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 rounded-2xl space-y-3.5 shadow-2xs">
+              <div className="p-4 bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 rounded-2xl space-y-4 shadow-2xs font-sans">
                 <div className="flex items-center justify-between">
-                  <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">
-                    Google SERP Metadata
+                  <div className="flex items-center gap-2">
+                    <Globe size={15} className="text-blue-600 dark:text-blue-400" />
+                    <span className="text-[11px] font-bold text-zinc-900 dark:text-white uppercase tracking-wider">
+                      Google SERP Simulator
+                    </span>
+                  </div>
+                  <span className="text-[10px] font-semibold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/60 px-2 py-0.5 rounded-full border border-blue-200/70 dark:border-blue-800/70">
+                    Live Preview
                   </span>
-                  <span className="text-[10px] text-blue-600 font-semibold">SEO Card</span>
                 </div>
 
-                <div>
-                  <div className="flex justify-between items-center mb-1">
-                    <label className="text-xs font-bold text-zinc-700 dark:text-zinc-300">Meta Title</label>
-                    <span className="text-[10px] text-zinc-400 font-mono">
-                      {formData.meta_title?.length || 0}/60
+                {/* Authentic Google SERP Card Simulation */}
+                <div className="p-3.5 rounded-2xl bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200/80 dark:border-zinc-700/70 space-y-1.5 shadow-2xs">
+                  <div className="flex items-center gap-2 text-[11px] text-zinc-500 dark:text-zinc-400 font-sans">
+                    <span className="w-4 h-4 rounded-full bg-blue-600 text-white text-[9px] font-black flex items-center justify-center shrink-0">
+                      P
+                    </span>
+                    <span className="font-semibold text-zinc-800 dark:text-zinc-200">{siteHost || 'your-site'}</span>
+                    <span className="text-zinc-400 dark:text-zinc-500">› blog › {formData.slug || 'url-slug'}</span>
+                  </div>
+                  {/* Rendered exactly as the page title template produces it, and cut where Google cuts. */}
+                  <div className="text-sm font-semibold text-blue-700 dark:text-blue-400 leading-snug">
+                    {serpTitle.length > SERP_TITLE_LIMIT ? `${serpTitle.slice(0, SERP_TITLE_LIMIT - 1).trimEnd()}…` : serpTitle}
+                  </div>
+                  <div className="text-xs text-zinc-600 dark:text-zinc-400 line-clamp-2 leading-relaxed">
+                    {formData.meta_description || formData.excerpt || 'Add a meta description: it is the snippet searchers read before clicking.'}
+                  </div>
+                </div>
+
+                {/* Meta title: counted as Google sees it, with the site suffix included */}
+                <div className="space-y-1.5">
+                  <div className="flex justify-between items-center text-xs">
+                    <label htmlFor="meta-title" className="font-bold text-zinc-700 dark:text-zinc-300">Meta Title</label>
+                    <span
+                      title={`Includes "${TITLE_SUFFIX.trim()}", which the site adds to every title`}
+                      className={`text-[10px] font-mono font-bold ${serpTitleClass.text}`}
+                    >
+                      {serpTitle.length}/{SERP_TITLE_LIMIT} with suffix
                     </span>
                   </div>
                   <input
+                    id="meta-title"
                     type="text"
                     placeholder="Defaults to article title if blank"
                     value={formData.meta_title}
                     onChange={e => setFormData({ ...formData, meta_title: e.target.value })}
-                    className="w-full px-3 py-1.5 bg-zinc-50 dark:bg-zinc-800/80 border border-zinc-200/90 dark:border-zinc-700/80 rounded-xl outline-none text-zinc-900 dark:text-white font-medium text-xs"
+                    className="w-full px-3 py-2 bg-zinc-50 dark:bg-zinc-800/80 border border-zinc-200/90 dark:border-zinc-700/80 rounded-xl outline-none text-zinc-900 dark:text-white font-medium text-xs focus:border-blue-500 transition-colors"
                   />
+                  <div className="w-full h-1 bg-zinc-100 dark:bg-zinc-800 rounded-full overflow-hidden">
+                    <div
+                      className={`h-full rounded-full transition-all duration-300 ${serpTitleClass.bar}`}
+                      style={{ width: `${Math.min(100, (serpTitle.length / SERP_TITLE_LIMIT) * 100)}%` }}
+                    />
+                  </div>
                 </div>
 
-                <div>
-                  <div className="flex justify-between items-center mb-1">
-                    <label className="text-xs font-bold text-zinc-700 dark:text-zinc-300">Meta Description</label>
-                    <span className="text-[10px] text-zinc-400 font-mono">
-                      {formData.meta_description?.length || 0}/160
-                    </span>
+                {/* Meta Description Input with length progress */}
+                <div className="space-y-1.5">
+                  <div className="flex justify-between items-center text-xs">
+                    <label htmlFor="meta-description" className="font-bold text-zinc-700 dark:text-zinc-300">Meta Description</label>
+                    <div className="flex items-center gap-1.5">
+                      <span className={`text-[10px] font-mono font-bold ${
+                        (formData.meta_description?.length || 0) > 160
+                          ? 'text-rose-600'
+                          : (formData.meta_description?.length || 0) >= 120
+                          ? 'text-emerald-600'
+                          : 'text-zinc-400'
+                      }`}>
+                        {formData.meta_description?.length || 0}/160
+                      </span>
+                    </div>
                   </div>
                   <textarea
+                    id="meta-description"
                     placeholder="Defaults to excerpt if blank"
                     value={formData.meta_description}
                     onChange={e => setFormData({ ...formData, meta_description: e.target.value })}
-                    className="w-full px-3 py-1.5 bg-zinc-50 dark:bg-zinc-800/80 border border-zinc-200/90 dark:border-zinc-700/80 rounded-xl outline-none text-zinc-900 dark:text-white font-medium text-xs resize-none"
+                    className="w-full px-3 py-2 bg-zinc-50 dark:bg-zinc-800/80 border border-zinc-200/90 dark:border-zinc-700/80 rounded-xl outline-none text-zinc-900 dark:text-white font-medium text-xs resize-none focus:border-blue-500 transition-colors leading-relaxed"
                     rows={2}
                   />
+                  <div className="w-full h-1 bg-zinc-100 dark:bg-zinc-800 rounded-full overflow-hidden">
+                    <div
+                      className={`h-full rounded-full transition-all duration-300 ${
+                        (formData.meta_description?.length || 0) > 160
+                          ? 'bg-rose-500'
+                          : (formData.meta_description?.length || 0) >= 120
+                          ? 'bg-emerald-500'
+                          : 'bg-blue-500'
+                      }`}
+                      style={{ width: `${Math.min(100, ((formData.meta_description?.length || 0) / 160) * 100)}%` }}
+                    />
+                  </div>
                 </div>
               </div>
             </div>

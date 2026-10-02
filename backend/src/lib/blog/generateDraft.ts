@@ -141,7 +141,7 @@ STYLE (write like a person who knows the market, not like a template):
 
 STRUCTURE (checked in code; a draft that breaks these is sent back):
 1. title: 40-65 characters, the phrase a buyer would search for, and name Noida (or UP / Uttar Pradesh for a state-wide rule). No clickbait, no question marks.
-2. meta_title: at most 60 characters. meta_description: 120-155 characters, saying what the reader will learn.
+2. meta_title: at most 48 characters (the site appends " | PropFyndr", and Google cuts titles near 60). meta_description: 120-155 characters, saying what the reader will learn.
 3. excerpt: 1-2 sentences, 100-200 characters.
 4. Start with 1-2 intro paragraphs, no heading first. The first two sentences answer the core question directly.
 5. Then 3-5 body h2 sections, each answering a different sub-question with 2-3 paragraphs (or a paragraph plus a list). Section headings at most 70 characters, FAQ questions at most 110, all different. h3 only inside a section.
@@ -182,6 +182,8 @@ export function findDuplicateTitle(title: string, existing: string[]): string | 
 }
 
 // ── Structure and SEO rules ─────────────────────────────────────────────────
+/** 60 (where Google cuts) minus " | PropFyndr", which the page title template appends. */
+const META_TITLE_MAX = 48
 const wordCount = (s: string) => s.split(/\s+/).filter(Boolean).length
 const spanText = (ss: SpanT[]) => ss.map(s => s.text).join('')
 
@@ -218,7 +220,8 @@ export function checkDraftQuality(d: Draft): { hard: string[]; soft: string[] } 
   if (d.title.length < 40 || d.title.length > 65) soft.push(`Title is ${d.title.length} characters (SEO target 40-65).`)
   if (d.title.includes('?')) soft.push('Title is a question; a statement ranks and reads better.')
   if (!/\b(noida|uttar pradesh|up)\b/i.test(d.title)) soft.push('Title does not name Noida or UP (local SEO).')
-  if (d.meta_title.length > 60) soft.push(`Meta title is ${d.meta_title.length} characters (max 60; search results cut it).`)
+  // The page title template adds " | PropFyndr" (12 chars); Google cuts near 60.
+  if (d.meta_title.length > META_TITLE_MAX) soft.push(`Meta title is ${d.meta_title.length} characters (max ${META_TITLE_MAX}; with " | PropFyndr" it gets cut in search results).`)
   if (d.meta_description.length < 120 || d.meta_description.length > 160) soft.push(`Meta description is ${d.meta_description.length} characters (target 120-155).`)
   if (d.excerpt.length < 100 || d.excerpt.length > 220) soft.push(`Excerpt is ${d.excerpt.length} characters (target 100-200).`)
   if (b[0]?.type !== 'p') soft.push('Opens with a heading or list instead of an intro paragraph.')
