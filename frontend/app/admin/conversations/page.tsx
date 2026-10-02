@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState, useCallback, useMemo } from 'react'
+import React, { useEffect, useState, useCallback, useMemo, useRef } from 'react'
 import { adminFetch } from '@/lib/adminFetch'
 import CustomSelect from '@/components/admin/CustomSelect'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -196,7 +196,10 @@ export default function ConversationsPage() {
       const d = new Date(iso)
       if (isNaN(d.getTime())) return { time: '', relative: 'Recently', exact: '' }
 
-      const timeStr = d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true })
+      const clock = d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true })
+      // A bare clock time on an older row reads as today; show the date unless it is today.
+      const isToday = d.toDateString() === new Date(currentTime).toDateString()
+      const timeStr = isToday ? clock : `${d.toLocaleDateString([], { month: 'short', day: 'numeric' })}, ${clock}`
       const diffSec = Math.max(0, Math.floor((currentTime - d.getTime()) / 1000))
 
       let relative = ''
@@ -301,6 +304,31 @@ export default function ConversationsPage() {
     loadSessions()
     loadIntelligence()
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Live tracking: silently re-pull the list and the open transcript every 20s
+  // while the tab is visible, so new queries show up without a manual refresh.
+  const loadSessionsRef = useRef(loadSessions)
+  loadSessionsRef.current = loadSessions
+  const selectedRef = useRef(selected)
+  selectedRef.current = selected
+  useEffect(() => {
+    const poll = async () => {
+      if (document.visibilityState !== 'visible') return
+      loadSessionsRef.current(true)
+      const id = selectedRef.current
+      if (!id) return
+      try {
+        const res = await adminFetch(`/admin/conversations/${id}`)
+        if (res.ok && selectedRef.current === id) setDetail(await res.json())
+      } catch {}
+    }
+    const timer = setInterval(poll, 20000)
+    document.addEventListener('visibilitychange', poll)
+    return () => {
+      clearInterval(timer)
+      document.removeEventListener('visibilitychange', poll)
+    }
+  }, [])
 
   // Reload when filters change (with slight debounce on search query)
   useEffect(() => {

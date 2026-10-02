@@ -248,6 +248,9 @@ const MAX_MESSAGES = 50
 
 // POST /chat — main chat endpoint
 router.post('/', async (req: Request, res: Response) => {
+  // The moment the buyer's message arrived. Turns are saved after the answer
+  // finishes, so without this the question would carry the answer's end time.
+  const receivedAt = new Date()
   const parsed = BodySchema.safeParse(req.body)
   if (!parsed.success) {
     console.error('[CHAT_ROUTE_ERROR]', parsed.error);
@@ -793,6 +796,7 @@ router.post('/', async (req: Request, res: Response) => {
         guestToken,
         turnTrace,
         timer,
+        receivedAt,
       })
       if (handled) return
     }
@@ -869,6 +873,7 @@ router.post('/', async (req: Request, res: Response) => {
                   session_id: sessionId,
                   role: 'user',
                   content: message,
+                  created_at: receivedAt,
                   intent_snapshot: prevIntent as unknown as Prisma.InputJsonValue,
                 },
                 {
@@ -1100,6 +1105,7 @@ router.post('/', async (req: Request, res: Response) => {
               session_id: currentSessionId,
               role: 'user',
               content: message,
+              created_at: receivedAt,
               intent_snapshot: intent as unknown as Prisma.InputJsonValue,
             },
             {
@@ -6361,6 +6367,7 @@ EXECUTIVE RESPONSE INSTRUCTIONS:
                 session_id: newId,
                 role: 'user',
                 content: message,
+                created_at: receivedAt,
                 intent_snapshot: intent as unknown as Prisma.InputJsonValue,
               },
               {
@@ -6478,6 +6485,7 @@ EXECUTIVE RESPONSE INSTRUCTIONS:
               session_id: currentSessionId!,
               role: 'user',
               content: message,
+              created_at: receivedAt,
               intent_snapshot: intent as unknown as Prisma.InputJsonValue,
             },
             {

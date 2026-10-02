@@ -442,7 +442,8 @@ betaRouter.get(
 
         // Connected User Dossier Identity
         const userProfile = {
-          name: lead?.name || (s.user_id ? 'Registered User' : null),
+          // No invented names: the UI labels an unnamed account by its kind.
+          name: lead?.name || null,
           phone: lead?.phone || mem?.contact_phone || null,
           isRegistered: Boolean(s.user_id),
           leadTier: lead?.lead_tier || null,
@@ -646,7 +647,7 @@ betaRouter.get(
         focusProject,
       },
       userDossier: {
-        name: lead?.name || (session.user_id ? 'Registered User' : null),
+        name: lead?.name || null,
         phone: lead?.phone || userMemory?.contact_phone || null,
         isRegistered: Boolean(session.user_id),
         leadTier: lead?.lead_tier || null,

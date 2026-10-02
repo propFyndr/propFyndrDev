@@ -117,6 +117,8 @@ export interface FactDispatchContext {
   guestToken?: string | null
   turnTrace?: TurnTraceDraft
   timer?: TurnTimer
+  /** When the buyer's message reached the server; stamped on the saved user row. */
+  receivedAt?: Date
 }
 
 /**
@@ -378,6 +380,7 @@ We do **not hold a verified UP-RERA registration number** on record for **${proj
             session_id: sessionId,
             role: 'user',
             content: message,
+            created_at: ctx.receivedAt ?? new Date(),
           },
           {
             session_id: sessionId,
