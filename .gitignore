@@ -161,3 +161,6 @@ extracted_amenities.json
 
 # Vitest JSON reports
 **/.vitest/
+
+# Builder PDFs used for local extraction trials (copyrighted, large)
+EliteXfiles/

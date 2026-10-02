@@ -1,0 +1,4 @@
+markitdown[pdf,docx,xlsx]==0.1.8
+pypdf
+# ocrmypdf needs Tesseract (with the hin language pack) and Ghostscript installed separately
+ocrmypdf
