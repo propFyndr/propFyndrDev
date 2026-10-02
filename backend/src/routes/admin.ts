@@ -2296,6 +2296,16 @@ router.delete('/blog/:id', async (req: Request, res: Response) => {
   const permanent = req.query.permanent === 'true'
   try {
     if (permanent) {
+      // Same rule as news: an editor may discard a draft, but a post that has
+      // been public is archived, and only a super admin can erase it outright.
+      const role = (req as Request & { adminIdentity?: AdminIdentitySession }).adminIdentity?.role
+      if (role !== 'SUPER_ADMIN') {
+        const post = await prisma.blogPost.findUnique({ where: { id }, select: { status: true } })
+        if (post && post.status !== 'draft') {
+          res.status(403).json({ error: 'Only a super admin can permanently delete a post that has been published. Archive it instead.' })
+          return
+        }
+      }
       await prisma.blogPost.delete({ where: { id } })
       res.json({ success: true, message: 'Post permanently deleted' })
     } else {
@@ -2315,11 +2325,17 @@ router.delete('/blog/:id', async (req: Request, res: Response) => {
 router.post('/blog/:id/restore', async (req: Request, res: Response) => {
   const { id } = req.params
   try {
-    const post = await prisma.blogPost.update({
-      where: { id },
-      data: { status: 'published' },
-    })
-    res.json({ success: true, post, message: 'Post restored to published' })
+    // Restore to where the post was before archiving. A post that was never
+    // published (an archived AI draft) comes back as a draft, never straight
+    // onto the public blog without review.
+    const current = await prisma.blogPost.findUnique({ where: { id }, select: { published_at: true } })
+    if (!current) {
+      res.status(404).json({ error: 'Post not found' })
+      return
+    }
+    const status = current.published_at ? 'published' : 'draft'
+    const post = await prisma.blogPost.update({ where: { id }, data: { status } })
+    res.json({ success: true, post, message: `Post restored to ${status}` })
   } catch (err) {
     console.error('[admin] blog restore failed:', err)
     res.status(500).json({ error: 'Failed to restore blog post' })

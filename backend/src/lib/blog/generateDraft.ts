@@ -11,6 +11,7 @@ import { z } from 'zod'
 import { prisma } from '../db'
 import { tavilySearch, type WebResult } from '../web'
 import { MODELS } from '../config'
+import type { BlogPost } from '@prisma/client'
 
 const Span = z.object({
   text: z.string().min(1),
@@ -96,14 +97,99 @@ FACT RULES (non-negotiable):
 - Do not recommend, rank or praise any specific project or builder.
 - If the sources are thin, write a shorter, more general article rather than filling gaps.
 
-FORMAT: one JSON object: title, excerpt (1-2 sentences), meta_title (<=60 chars), meta_description (<=155 chars), blocks.
+STRUCTURE (checked in code; a draft that breaks these is sent back):
+1. title: 40-65 characters, the phrase a buyer would search for, and name Noida (or UP / Uttar Pradesh for a state-wide rule). No clickbait, no question marks.
+2. meta_title: at most 60 characters. meta_description: 120-155 characters, saying what the reader will learn.
+3. excerpt: 1-2 sentences, 100-200 characters.
+4. Start with 1-2 intro paragraphs, no heading first. The first two sentences answer the core question directly.
+5. Then 3-5 body h2 sections, each answering a different sub-question with 2-3 paragraphs (or a paragraph plus a list). Section headings at most 70 characters, FAQ questions at most 110, all different. h3 only inside a section.
+6. Paragraphs at most 4 sentences. At least one list in the body.
+7. Then the h2 "What to check before you decide" with a list of 4-6 checks.
+8. Then the h2 "Frequently asked questions" with 3-4 h3 questions, each followed by a 1-3 sentence paragraph answer. FACT RULES apply.
+9. Bold at most one key takeaway per section; italics for terms being defined.
+10. 600-850 words in total; under 400 is sent back. High-signal advice, with a worked example where it helps.
+11. UNIQUENESS: the article must take an angle that none of the EXISTING ARTICLES already covers. Never reuse one of their titles or near-copies of them.
+
+FORMAT: one JSON object: title, excerpt, meta_title, meta_description, blocks.
 Each block has type, text, spans, items; set the ones a type does not use to null:
 - "h2" / "h3": text is the heading.
 - "p" / "quote": spans is the paragraph as a list of Span.
 - "ul" / "ol": items is a list of list items, each a list of Span.
-Span = {text, bold, italic, href}: bold/italic true or null, href a SOURCES URL or null.
-Use bold for the one key takeaway in a section, italics for terms being defined. Use 4-7 h2 sections, at least one list,
-and end with a short "What to check before you decide" list. Aim for 900-1300 words: explain each point fully, with a worked example where it helps.`
+Span = {text, bold, italic, href}: bold/italic true or null, href a SOURCES URL or null.`
+
+// ── Uniqueness ──────────────────────────────────────────────────────────────
+// Words that say nothing about what an article is about.
+const STOP = new Set('a an and the of for in on to with what how why your you is are vs from at by or noida up uttar pradesh buyers buyer home homes flat flats guide explained'.split(' '))
+const titleWords = (t: string) => new Set(t.toLowerCase().replace(/[^a-z0-9 ]+/g, ' ').split(/\s+/).filter(w => w.length > 2 && !STOP.has(w)))
+
+/** Jaccard overlap of the meaningful words in two titles (0..1). */
+export function titleSimilarity(a: string, b: string): number {
+  const x = titleWords(a), y = titleWords(b)
+  if (!x.size || !y.size) return 0
+  let shared = 0
+  for (const w of x) if (y.has(w)) shared++
+  return shared / (x.size + y.size - shared)
+}
+
+/** At or above this, two titles are treated as the same article. */
+export const DUPLICATE_THRESHOLD = 0.6
+
+export function findDuplicateTitle(title: string, existing: string[]): string | null {
+  const norm = title.trim().toLowerCase()
+  return existing.find(e => e.trim().toLowerCase() === norm || titleSimilarity(title, e) >= DUPLICATE_THRESHOLD) ?? null
+}
+
+// ── Structure and SEO rules ─────────────────────────────────────────────────
+const wordCount = (s: string) => s.split(/\s+/).filter(Boolean).length
+const spanText = (ss: SpanT[]) => ss.map(s => s.text).join('')
+
+/**
+ * `rewrite` problems send the draft back once; `notes` only go to the reviewer.
+ * The split is deliberate: a second call costs 5-50s (Groq's per-minute token
+ * limit can stall it), so only problems a reviewer cannot fix in a minute —
+ * missing sections, a stub — earn one. Character counts are a quick edit.
+ */
+export function checkDraftQuality(d: Draft): { hard: string[]; soft: string[] } {
+  const hard: string[] = []
+  const soft: string[] = []
+  const b = d.blocks
+  const h2s = b.flatMap((x, i) => (x.type === 'h2' ? [{ text: x.text, i }] : []))
+  const headings = b.flatMap(x => (x.type === 'h2' || x.type === 'h3' ? [x.text.trim().toLowerCase()] : []))
+
+  const checklist = h2s.find(h => /what to check/i.test(h.text))
+  if (!checklist || !['ul', 'ol'].includes(b[checklist.i + 1]?.type ?? '')) hard.push('missing the "What to check before you decide" h2 followed by a list')
+
+  const faq = h2s.find(h => /frequently asked|faq/i.test(h.text))
+  if (!faq) hard.push('missing the "Frequently asked questions" h2')
+  else {
+    const after = b.slice(faq.i + 1)
+    const end = after.findIndex(x => x.type === 'h2')
+    const section = end === -1 ? after : after.slice(0, end)
+    const answered = section.filter((x, i) => x.type === 'h3' && section[i + 1]?.type === 'p').length
+    if (answered < 3) hard.push(`the FAQ has ${answered} answered questions; it needs 3-4 h3 questions each followed by a paragraph`)
+  }
+
+  const words = wordCount(blockText(b))
+  if (words < 400) hard.push(`the article is ${words} words; it must be 600-850 (add depth to each section, not filler)`)
+  else if (words < 550 || words > 1000) soft.push(`Length is ${words} words (target 600-850).`)
+
+  if (d.title.length < 40 || d.title.length > 65) soft.push(`Title is ${d.title.length} characters (SEO target 40-65).`)
+  if (d.title.includes('?')) soft.push('Title is a question; a statement ranks and reads better.')
+  if (!/\b(noida|uttar pradesh|up)\b/i.test(d.title)) soft.push('Title does not name Noida or UP (local SEO).')
+  if (d.meta_title.length > 60) soft.push(`Meta title is ${d.meta_title.length} characters (max 60; search results cut it).`)
+  if (d.meta_description.length < 120 || d.meta_description.length > 160) soft.push(`Meta description is ${d.meta_description.length} characters (target 120-155).`)
+  if (d.excerpt.length < 100 || d.excerpt.length > 220) soft.push(`Excerpt is ${d.excerpt.length} characters (target 100-200).`)
+  if (b[0]?.type !== 'p') soft.push('Opens with a heading or list instead of an intro paragraph.')
+  if (h2s.length < 5 || h2s.length > 7) soft.push(`${h2s.length} h2 sections (target 3-5 body sections plus checklist and FAQ).`)
+  if (new Set(headings).size !== headings.length) soft.push('Two headings are identical.')
+  if (b.some(x => x.type === 'h2' && x.text.length > 70)) soft.push('A section heading is over 70 characters.')
+  if (b.some(x => x.type === 'h3' && x.text.length > 110)) soft.push('An FAQ question is over 110 characters.')
+  const longParas = b.filter(x => x.type === 'p' && wordCount(spanText(x.spans)) > 110).length
+  if (longParas) soft.push(`${longParas} paragraph(s) over 110 words; split them for readability.`)
+// The checklist is one list; the body should carry at least one more.
+  if (b.filter(x => x.type === 'ul' || x.type === 'ol').length < 2) soft.push('No list in the body besides the checklist.')
+  return { hard, soft }
+}
 
 function groqClient(): Groq {
   const apiKey = process.env.GROQ_BLOG_API_KEY || process.env.GROQ_API_KEY
@@ -112,7 +198,7 @@ function groqClient(): Groq {
 }
 
 async function uniqueSlug(title: string): Promise<string> {
-  const base = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 70)
+  const base = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 60).replace(/-$/, '')
   for (let i = 0; ; i++) {
     const slug = i ? `${base}-${i + 1}` : base
     if (!(await prisma.blogPost.findUnique({ where: { slug }, select: { id: true } }))) return slug
@@ -167,50 +253,112 @@ export function dropNulls(v: unknown): unknown {
   return v
 }
 
-async function requestDraft(topic: string, sourceBlock: string): Promise<Draft> {
+interface DraftRequest {
+  topic: string
+  sourceBlock: string
+  /** Most similar existing titles, so the model can steer away from them. */
+  existingTitles: string[]
+  /** Rule breaks from a previous attempt, for the one rewrite. */
+  feedback?: string[]
+}
+
+async function requestDraft({ topic, sourceBlock, existingTitles, feedback }: DraftRequest): Promise<Draft> {
+  const user = [
+    `TOPIC: ${topic}`,
+    `EXISTING ARTICLES (do not repeat; take a different angle):\n${existingTitles.length ? existingTitles.map(t => `- ${t}`).join('\n') : '(none yet)'}`,
+    `SOURCES:\n${sourceBlock || '(none found — write a general article with no figures and no links)'}`,
+    ...(feedback?.length ? [`YOUR PREVIOUS DRAFT BROKE THESE RULES. Rewrite it so none apply:\n${feedback.map(f => `- ${f}`).join('\n')}`] : []),
+  ].join('\n\n')
+
   let lastErr: unknown
   for (let attempt = 1; attempt <= 2; attempt++) {
     try {
       const resp = await groqClient().chat.completions.create({
         model: MODELS.GROQ_SMART,
-        temperature: 0.3,
-        max_tokens: 8000,
-        // groq-sdk 0.7 types predate json_schema; the API accepts it.
-        response_format: { type: 'json_schema', json_schema: { name: 'blog_draft', strict: true, schema: DRAFT_JSON_SCHEMA } } as never,
+        temperature: 0.2,
         messages: [
           { role: 'system', content: SYSTEM },
-          { role: 'user', content: `TOPIC: ${topic}\n\nSOURCES:\n${sourceBlock || '(none found — write a general article with no figures and no links)'}` },
+          { role: 'user', content: user },
         ],
+        // groq-sdk 0.7 types predate these; the API accepts them.
+        // include_reasoning false: the hidden reasoning is not sent back to us.
+        // reasoning_effort stays at the default ('medium'): 'low' saved ~1s but
+        // cut drafts from ~600 to ~350 words, which then cost a rewrite.
+        ...({
+          max_completion_tokens: 5000,
+          include_reasoning: false,
+          response_format: { type: 'json_schema', json_schema: { name: 'blog_draft', strict: true, schema: DRAFT_JSON_SCHEMA } },
+        } as object),
       })
       const parsed = DraftSchema.safeParse(dropNulls(JSON.parse(resp.choices[0]?.message?.content ?? '{}')))
       if (parsed.success) return parsed.data
       lastErr = new Error(`Model returned an invalid draft: ${parsed.error.issues[0]?.path.join('.')} ${parsed.error.issues[0]?.message}`)
     } catch (err) {
       lastErr = err
+      console.warn(`[blog:generate] attempt ${attempt} failed:`, err instanceof Error ? err.message.slice(0, 200) : err)
     }
   }
   throw lastErr
 }
 
-export interface GenerateResult { postId: string; keyword: string; reviewNotes: string[] }
+export interface GenerateResult {
+  postId: string
+  keyword: string
+  reviewNotes: string[]
+  post: BlogPost
+  /** Wall-clock per stage, so slow runs can be traced to search or model. */
+  timingsMs: { search: number; write: number; rewrite: number; total: number }
+}
+
+/** How many of the closest existing titles the model is shown. */
+const SIMILAR_TITLES_SHOWN = 25
 
 /** Generates one draft. `keyword` overrides the rotation (admin "generate on this topic"). */
 export async function generateBlogDraft(keyword?: string): Promise<GenerateResult> {
   // A named topic that is in the list still counts as used, so the rotation moves past it.
-  const kwRow = keyword
-    ? await prisma.blogKeyword.findUnique({ where: { keyword: keyword.trim() } })
-    : await prisma.blogKeyword.findFirst({
-        where: { active: true },
-        orderBy: [{ last_used_at: { sort: 'asc', nulls: 'first' } }, { created_at: 'asc' }],
-      })
-  const topic = keyword?.trim() || kwRow?.keyword
+  const t0 = Date.now()
+  const named = keyword?.trim()
+  const [kwRow, allPosts] = await Promise.all([
+    named
+      ? prisma.blogKeyword.findUnique({ where: { keyword: named } })
+      : prisma.blogKeyword.findFirst({
+          where: { active: true },
+          orderBy: [{ last_used_at: { sort: 'asc', nulls: 'first' } }, { created_at: 'asc' }],
+        }),
+    // Every title ever written, archived included: an archived article is still
+    // one we already have, and repeating it is still a repeat.
+    prisma.blogPost.findMany({ select: { title: true } }),
+  ])
+  const topic = named || kwRow?.keyword
   if (!topic) throw new Error('No active blog keywords. Add one in /admin/blog.')
 
-  const search = await tavilySearch(`${topic} Noida home buyers`, 6, { restrictDomains: false })
+  const existing = allPosts.map(p => p.title)
+  const closest = [...existing]
+    .sort((a, b) => titleSimilarity(topic, b) - titleSimilarity(topic, a))
+    .slice(0, SIMILAR_TITLES_SHOWN)
+
+  const tSearch = Date.now()
+  const search = await tavilySearch(`${topic} Noida home buyers`, 5, { restrictDomains: false, includeAnswer: false })
   const sources: WebResult[] = search.results.filter(r => r.url.startsWith('https://'))
   const sourceBlock = sources.map((s, i) => `[${i + 1}] ${s.title}\nURL: ${s.url}\n${s.content.slice(0, 1500)}`).join('\n\n')
 
-  const draft = await requestDraft(topic, sourceBlock)
+  // One rewrite at most: a second model call only when the first draft broke a
+  // hard rule or repeats an existing article. Speed matters more than perfection
+  // here; whatever still fails goes into the reviewer notes.
+  const tWrite = Date.now()
+  let draft = await requestDraft({ topic, sourceBlock, existingTitles: closest })
+  const writeMs = Date.now() - tWrite
+  let rewriteMs = 0
+  let quality = checkDraftQuality(draft)
+  let duplicateOf = findDuplicateTitle(draft.title, existing)
+  if (quality.hard.length || duplicateOf) {
+    const feedback = [...quality.hard, ...(duplicateOf ? [`the title repeats the existing article "${duplicateOf}"; choose a different angle and title`] : [])]
+    const tRewrite = Date.now()
+    draft = await requestDraft({ topic, sourceBlock, existingTitles: closest, feedback })
+    rewriteMs = Date.now() - tRewrite
+    quality = checkDraftQuality(draft)
+    duplicateOf = findDuplicateTitle(draft.title, existing)
+  }
 
   const { doc, cited, dropped } = toTiptap(draft.blocks, new Set(sources.map(s => s.url)))
   if (cited.size) {
@@ -222,11 +370,14 @@ export async function generateBlogDraft(keyword?: string): Promise<GenerateResul
     )
   }
 
-  const notes = [`AI draft on "${topic}". ${sources.length} sources found, ${cited.size} cited.`]
+  const notes = [`AI draft on "${topic}". ${sources.length} sources found, ${cited.size} cited.${rewriteMs ? ' Rewritten once to meet the structure rules.' : ''}`]
   if (dropped.length) notes.push(`Removed ${dropped.length} link(s) not returned by search.`)
   const unsourced = unsourcedFigures(blockText(draft.blocks), sources.map(s => s.content).join('\n'))
   if (unsourced.length) notes.push(`Figures not found in any source, verify or remove: ${unsourced.slice(0, 12).join(', ')}`)
   if (!sources.length) notes.push('Web search returned nothing; article is general only.')
+  if (duplicateOf) notes.push(`POSSIBLE DUPLICATE of "${duplicateOf}". Retitle or discard.`)
+  if (quality.hard.length) notes.push(`Structure rules still broken: ${quality.hard.join('; ')}.`)
+  notes.push(...quality.soft)
 
   const post = await prisma.blogPost.create({
     data: {
@@ -243,5 +394,7 @@ export async function generateBlogDraft(keyword?: string): Promise<GenerateResul
   if (kwRow) {
     await prisma.blogKeyword.update({ where: { id: kwRow.id }, data: { last_used_at: new Date(), use_count: { increment: 1 } } })
   }
-  return { postId: post.id, keyword: topic, reviewNotes: notes }
+  const timingsMs = { search: tWrite - tSearch, write: writeMs, rewrite: rewriteMs, total: Date.now() - t0 }
+  console.info('[blog:generate]', topic, timingsMs)
+  return { postId: post.id, keyword: topic, reviewNotes: notes, post, timingsMs }
 }

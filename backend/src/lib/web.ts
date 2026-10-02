@@ -72,11 +72,16 @@ export interface WebSearchOptions {
   /** Restrict results to TRUSTED_DOMAINS. Default true. */
   restrictDomains?: boolean
   maxResults?: number
+  /** Whether Tavily should synthesize an answer. Default true. Set false to save 1.5-2s when only sources are needed. */
+  includeAnswer?: boolean
 }
 
-export function computeWebFactKey(query: string, restrictDomains = true): string {
+export function computeWebFactKey(query: string, restrictDomains = true, includeAnswer = true): string {
   const norm = query.toLowerCase().replace(/[^\p{L}\p{N}]+/gu, ' ').trim()
-  return crypto.createHash('sha256').update(`${restrictDomains ? 'res' : 'open'}:${norm}`).digest('hex')
+  // A sources-only fetch must not share a key with one that synthesised an
+  // answer: a later caller would get the cached row with an empty answer.
+  const mode = `${restrictDomains ? 'res' : 'open'}${includeAnswer ? '' : ':noans'}`
+  return crypto.createHash('sha256').update(`${mode}:${norm}`).digest('hex')
 }
 
 export function determineFactCategoryAndTtl(query: string): { category: string; ttlMs: number } {
@@ -96,7 +101,7 @@ export function computeFactTtl(typeOrQuery: string): number {
   return determineFactCategoryAndTtl(typeOrQuery).ttlMs
 }
 
-async function searchTavily(query: string, maxResults: number, restrictDomains: boolean): Promise<{ answer: string; results: WebResult[] } | null> {
+async function searchTavily(query: string, maxResults: number, restrictDomains: boolean, includeAnswer = true): Promise<{ answer: string; results: WebResult[] } | null> {
   const key = process.env.TAVILY_API_KEY
   if (!key) return null
   const res = await fetch('https://api.tavily.com/search', {
@@ -107,7 +112,7 @@ async function searchTavily(query: string, maxResults: number, restrictDomains: 
       query,
       search_depth: 'basic',
       max_results: maxResults,
-      include_answer: true,
+      include_answer: includeAnswer,
       ...(restrictDomains ? { include_domains: TRUSTED_DOMAINS } : {}),
     }),
     signal: AbortSignal.timeout(5000),
@@ -142,7 +147,8 @@ async function searchSerper(query: string, maxResults: number): Promise<{ answer
  */
 export async function tavilySearch(query: string, maxResults = 3, opts: WebSearchOptions = {}): Promise<WebSearchResponse> {
   const restrictDomains = opts.restrictDomains !== false
-  const factKey = computeWebFactKey(query, restrictDomains)
+  const includeAnswer = opts.includeAnswer ?? true
+  const factKey = computeWebFactKey(query, restrictDomains, includeAnswer)
 
   // 1. Check persistent database cache (WebFact)
   try {
@@ -170,7 +176,7 @@ export async function tavilySearch(query: string, maxResults = 3, opts: WebSearc
   let source: 'tavily' | 'serper' | 'none' = 'none'
 
   try {
-    const tData = await searchTavily(query, maxResults, restrictDomains)
+    const tData = await searchTavily(query, maxResults, restrictDomains, includeAnswer)
     if (tData && (tData.answer || tData.results.length > 0)) {
       answer = tData.answer
       results = tData.results

@@ -3,7 +3,7 @@
 // Topics the AI draft generator rotates through (least recently used first).
 // "Generate AI Draft" picks the least recently used active topic.
 import { useState, useEffect, useCallback, useRef } from 'react'
-import { Plus, Trash2, Tag, ChevronDown, Sparkles } from 'lucide-react'
+import { Plus, Trash2, Tag, ChevronDown, Bot } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
 import { adminFetch } from '@/lib/adminFetch'
 
@@ -126,7 +126,7 @@ export default function BlogKeywordsPanel({ onError: onErrorProp, onGenerate, ge
                       title="Write a draft on this topic now"
                       className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-bold border border-zinc-200/80 dark:border-zinc-800 text-blue-600 dark:text-blue-400 cursor-pointer disabled:opacity-50 disabled:cursor-wait"
                     >
-                      <Sparkles size={12} /> Generate
+                      <Bot size={13} /> Generate
                     </button>
                     <button onClick={() => toggle(k)} className="px-2.5 py-1 rounded-lg text-[11px] font-bold border border-zinc-200/80 dark:border-zinc-800 text-zinc-600 dark:text-zinc-300 cursor-pointer">
                       {k.active ? 'Pause' : 'Resume'}

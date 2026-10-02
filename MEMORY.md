@@ -4551,3 +4551,12 @@ three design docs. Fixed what was broken; nothing committed, migrated or deploye
 **Security, needs the user:**
 1. `scripts/set-super-admin-password.ts` hardcoded the password of `admin@propfyndr.in` (active, last login 2026-10-01) and was pushed in f8af515. The script now reads `ADMIN_PASSWORD` from env. **That account's password must be rotated**; it stays in git history.
 2. A Langfuse secret key (`sk-lf-1…`) was hardcoded in 3 committed scripts (analyze/fetch/inspect-langfuse). They now read `LANGFUSE_SECRET_KEY`/`LANGFUSE_PUBLIC_KEY`. **Rotate the Langfuse key pair.**
+
+## 2026-10-02 (cont.) — Blog writer: speed, uniqueness, structure rules, access
+**Access (user decided: keep as is):** SUPER_ADMIN and ANALYST use /admin/blog; SALES, BUILDER and PARTNER have no access. **Deletes (user decided):** editors may permanently delete drafts; a post that was ever published can only be archived, except by a SUPER_ADMIN (enforced in `DELETE /admin/blog/:id`; the UI hides the button via `canDeleteRecords`). Same rule as news.
+**Fixed:** `/blog/:id/restore` always set `published`, so archiving an AI draft and restoring it put an unreviewed draft live. It now restores to `published` only if `published_at` is set, otherwise to `draft`.
+**Speed (measured):** a draft is search ~3s + write 6-9s, about 9-13s total. `reasoning_effort: 'low'` was tried and reverted: ~1s faster but drafts fell from ~600 to ~350 words, which cost a rewrite. A rewrite took 48s once (likely Groq's per-minute token limit), so rewrites are reserved for structural failures only. Kept `include_reasoning: false`, Tavily without a synthesized answer (the cache key now includes that, so chat callers never get an answer-less cached row), and the DB reads run in parallel.
+**Uniqueness:** there is no separate "headers" table; `blog_posts.title` (every post, archived included) is the record. The 25 titles closest to the topic go into the prompt, and `findDuplicateTitle` (Jaccard ≥ 0.6 on meaningful words, or exact match) triggers the one rewrite, then a POSSIBLE DUPLICATE review note.
+**Structure rules** (`checkDraftQuality`, mirrored in the prompt):
+- *Rewrite triggers:* missing checklist, missing FAQ (fewer than 3 answered questions), under 400 words.
+- *Reviewer notes only:* title 40-65 chars, no question in the title, title names Noida/UP, meta title ≤60, meta description 120-155, excerpt 100-200, intro paragraph first, 5-7 h2s, unique headings, h2 ≤70 / h3 ≤110 chars, paragraphs ≤110 words, a body list. Slugs are capped at 60 characters.

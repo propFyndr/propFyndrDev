@@ -14,7 +14,8 @@ import {
   FileText,
   Archive,
   ExternalLink,
-  Sparkles,
+  Bot,
+  Zap,
   Loader2,
 } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
@@ -22,6 +23,7 @@ import { AnimatePresence, m } from 'framer-motion'
 import CustomSelect from '@/components/admin/CustomSelect'
 import TiptapEditor from '@/components/admin/TiptapEditor'
 import { adminFetch } from '@/lib/adminFetch'
+import { useAdminRole, canDeleteRecords } from '@/lib/adminRole'
 import { Skeleton } from '@/components/ui/skeleton'
 import { StatCard } from '@/components/portal/ui'
 import BlogKeywordsPanel from '@/components/admin/BlogKeywordsPanel'
@@ -92,6 +94,9 @@ export default function BlogAdminPage() {
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null)
 
   const [generating, setGenerating] = useState(false)
+  const [generatingProgress, setGeneratingProgress] = useState<{ step: number; text: string; topic: string } | null>(null)
+  const [showGenerateModal, setShowGenerateModal] = useState(false)
+  const [customTopic, setCustomTopic] = useState('')
   const [keywordsVersion, setKeywordsVersion] = useState(0)
   const isFetchingRef = useRef(false)
   const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -132,6 +137,7 @@ export default function BlogAdminPage() {
       if (e.key === 'Escape') {
         setShowModal(false)
         setEditingItem(null)
+        setShowGenerateModal(false)
       }
     }
     window.addEventListener('keydown', handleKeyDown)
@@ -141,27 +147,52 @@ export default function BlogAdminPage() {
   // Writes an AI draft (never published) and opens it in the editor for review.
   // No keyword = next topic in the rotation.
   const handleGenerate = async (keyword?: string) => {
+    setShowGenerateModal(false)
+    const topicToUse = keyword?.trim()
     setGenerating(true)
+    // The server does not stream progress, so these steps are paced to its
+    // measured stages (search ~3s, writing ~6-9s). The wording only claims what
+    // the pipeline actually does: a web search, not a "verified records" lookup.
+    setGeneratingProgress({
+      step: 1,
+      text: 'Searching the web for sources on this topic…',
+      topic: topicToUse || 'Next topic in queue',
+    })
+
+    const timer1 = setTimeout(() => {
+      setGeneratingProgress(p => p ? { ...p, step: 2, text: 'Writing the draft from those sources…' } : null)
+    }, 3000)
+
+    const timer2 = setTimeout(() => {
+      setGeneratingProgress(p => p ? { ...p, step: 3, text: 'Checking links, figures and structure…' } : null)
+    }, 9000)
+
     try {
       const res = await adminFetch('/admin/blog/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(keyword ? { keyword } : {}),
+        body: JSON.stringify(topicToUse ? { keyword: topicToUse } : {}),
       })
       const data = await res.json().catch(() => ({}))
       if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`)
-      await fetchPosts()
-      const postRes = await adminFetch(`/admin/blog/${data.postId}`)
-      if (postRes.ok) {
-        setEditingItem(await postRes.json())
-        setShowModal(true)
-      }
-      showToast(`Draft generated on "${data.keyword}". Review before publishing.`, 'success')
+
+      // The server returns the saved post, so no second fetch is needed to open it.
+      const post: BlogPost = data.post
+      setPosts(prev => [post, ...prev.filter(p => p.id !== post.id)])
+      setEditingItem(post)
+      setShowModal(true)
+
+      const secs = data.timingsMs?.total ? ` in ${(data.timingsMs.total / 1000).toFixed(1)}s` : ''
+      showToast(`Draft written${secs} on "${data.keyword}". Review the notes before publishing.`, 'success')
       setKeywordsVersion(v => v + 1)
+      setCustomTopic('')
     } catch (err) {
       showToast(err instanceof Error ? err.message : 'Draft generation failed', 'error')
     } finally {
+      clearTimeout(timer1)
+      clearTimeout(timer2)
       setGenerating(false)
+      setGeneratingProgress(null)
     }
   }
 
@@ -184,8 +215,10 @@ export default function BlogAdminPage() {
     try {
       const res = await adminFetch(`/admin/blog/${id}/restore`, { method: 'POST' })
       if (res.ok) {
-        setPosts(prev => prev.map(p => (p.id === id ? { ...p, status: 'published' } : p)))
-        showToast('Post restored to published', 'success')
+        // The server decides: published if it ever was, otherwise back to draft.
+        const { post } = await res.json()
+        setPosts(prev => prev.map(p => (p.id === id ? { ...p, status: post.status } : p)))
+        showToast(`Post restored to ${post.status}`, 'success')
       } else {
         showToast('Failed to restore post', 'error')
       }
@@ -194,20 +227,29 @@ export default function BlogAdminPage() {
     }
   }
 
-  const handlePermanentDelete = async (id: string) => {
-    if (!confirm('Permanently delete this post? This action CANNOT be undone.')) return
+  /** One delete path for the list and the editor. Returns whether it deleted. */
+  const handlePermanentDelete = async (id: string): Promise<boolean> => {
+    const isDraft = posts.find(p => p.id === id)?.status === 'draft'
+    const label = isDraft ? 'draft' : 'article'
+    if (!confirm(`Permanently delete this ${label}? This action CANNOT be undone.`)) return false
     try {
       const res = await adminFetch(`/admin/blog/${id}?permanent=true`, { method: 'DELETE' })
       if (res.ok) {
         setPosts(prev => prev.filter(p => p.id !== id))
-        showToast('Post permanently deleted', 'success')
-      } else {
-        showToast('Failed to delete post', 'error')
+        showToast(`${isDraft ? 'Draft' : 'Article'} permanently deleted`, 'success')
+        return true
       }
+      const data = await res.json().catch(() => ({}))
+      showToast(data.error || 'Failed to delete post', 'error')
     } catch {
       showToast('Error deleting post', 'error')
     }
+    return false
   }
+
+  // Analysts may delete drafts; a post that has been public is super-admin only (server enforces).
+  const mayDeletePublished = canDeleteRecords(useAdminRole())
+  const canDelete = (p: BlogPost) => p.status === 'draft' || mayDeletePublished
 
   const filteredPosts = useMemo(() => {
     return posts.filter(item => {
@@ -264,11 +306,16 @@ export default function BlogAdminPage() {
           </button>
 
           <button
-            onClick={() => handleGenerate()}
+            onClick={() => setShowGenerateModal(true)}
             disabled={generating}
             className="flex items-center gap-2 bg-white dark:bg-zinc-900 hover:bg-zinc-50 dark:hover:bg-zinc-800 text-zinc-900 dark:text-white border border-zinc-200/80 dark:border-zinc-800 px-3.5 py-2 rounded-xl text-xs font-bold transition-all shadow-2xs active:scale-[0.98] cursor-pointer disabled:opacity-60"
+            title="Generate AI Draft on next topic or custom prompt"
           >
-            {generating ? <Loader2 size={14} className="animate-spin text-blue-600" /> : <Sparkles size={14} className="text-blue-600" />}
+            {generating ? (
+              <Loader2 size={14} className="animate-spin text-blue-600" />
+            ) : (
+              <Bot size={15} className="text-blue-600 dark:text-blue-400" />
+            )}
             <span>{generating ? 'Writing draft...' : 'Generate AI Draft'}</span>
           </button>
 
@@ -481,28 +528,30 @@ export default function BlogAdminPage() {
                         </a>
                       )}
 
-                      {item.status !== 'archived' ? (
+                      {item.status === 'archived' ? (
+                        <button
+                          onClick={() => handleRestore(item.id)}
+                          className="px-3 py-1.5 rounded-xl border border-emerald-200/80 dark:border-emerald-800/80 bg-emerald-50/60 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 text-xs font-semibold transition-all shadow-2xs flex items-center gap-1 cursor-pointer"
+                          title={item.published_at ? 'Put it back on the public blog' : 'Back to drafts (it was never published)'}
+                        >
+                          <CheckCircle2 size={13} /> {item.published_at ? 'Restore to Live' : 'Restore to Draft'}
+                        </button>
+                      ) : (
                         <button
                           onClick={() => handleArchive(item.id)}
                           className="px-3 py-1.5 rounded-xl border border-zinc-200/80 dark:border-zinc-700/80 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800 text-xs font-semibold transition-all shadow-2xs flex items-center gap-1 cursor-pointer"
                         >
                           <Archive size={13} /> Archive
                         </button>
-                      ) : (
-                        <>
-                          <button
-                            onClick={() => handleRestore(item.id)}
-                            className="px-3 py-1.5 rounded-xl border border-emerald-200/80 dark:border-emerald-800/80 bg-emerald-50/60 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 text-xs font-semibold transition-all shadow-2xs flex items-center gap-1 cursor-pointer"
-                          >
-                            <CheckCircle2 size={13} /> Restore to Live
-                          </button>
-                          <button
-                            onClick={() => handlePermanentDelete(item.id)}
-                            className="px-3 py-1.5 rounded-xl border border-rose-200/80 dark:border-rose-900/40 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 text-xs font-semibold transition-all shadow-2xs flex items-center gap-1 cursor-pointer"
-                          >
-                            <Trash2 size={13} /> Delete Permanently
-                          </button>
-                        </>
+                      )}
+                      {canDelete(item) && (
+                        <button
+                          onClick={() => handlePermanentDelete(item.id)}
+                          className="px-3 py-1.5 rounded-xl border border-rose-200/80 dark:border-rose-900/40 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 text-xs font-semibold transition-all shadow-2xs flex items-center gap-1 cursor-pointer"
+                          title={item.status === 'draft' ? 'Delete this draft permanently' : 'Permanently delete (super admin)'}
+                        >
+                          <Trash2 size={13} /> {item.status === 'draft' ? 'Delete Draft' : 'Delete'}
+                        </button>
                       )}
                     </div>
                   </div>
@@ -526,8 +575,164 @@ export default function BlogAdminPage() {
               setShowModal(false)
               setEditingItem(null)
             }}
+            onDelete={
+              editingItem && canDelete(editingItem)
+                ? async id => {
+                    if (await handlePermanentDelete(id)) {
+                      setShowModal(false)
+                      setEditingItem(null)
+                    }
+                  }
+                : undefined
+            }
             showToast={showToast}
           />
+        )}
+      </AnimatePresence>
+
+      {/* Generate AI Draft Modal with Custom Topic input ("Outside of it") */}
+      <AnimatePresence>
+        {showGenerateModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <m.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-zinc-950/60 backdrop-blur-xs"
+              onClick={() => setShowGenerateModal(false)}
+            />
+            <m.div
+              initial={{ opacity: 0, scale: 0.95, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              className="relative w-full max-w-lg bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 rounded-3xl shadow-2xl p-6 z-10 space-y-5"
+            >
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-2xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center border border-blue-200/60 dark:border-blue-800/60 shrink-0">
+                    <Bot size={22} />
+                  </div>
+                  <div>
+                    <h3 className="text-base font-extrabold text-zinc-900 dark:text-white">
+                      Generate AI Article Draft
+                    </h3>
+                    <p className="text-xs text-zinc-500 dark:text-zinc-400 font-medium">
+                      Searches the web, writes a cited draft. Nothing goes live until you publish it.
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setShowGenerateModal(false)}
+                  aria-label="Close"
+                  className="p-1.5 rounded-xl text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 cursor-pointer"
+                >
+                  <X size={18} />
+                </button>
+              </div>
+
+              <div className="space-y-3">
+                <div>
+                  <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-300 mb-1.5">
+                    Custom topic (optional)
+                  </label>
+                  <input
+                    type="text"
+                    value={customTopic}
+                    onChange={e => setCustomTopic(e.target.value)}
+                    maxLength={120}
+                    onKeyDown={e => {
+                      if (e.key === 'Enter' && !e.nativeEvent.isComposing && !generating) {
+                        handleGenerate(customTopic.trim() || undefined)
+                      }
+                    }}
+                    placeholder="e.g. Authority flat registry delay in Sector 137 or metro extension impact..."
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-200/80 dark:border-zinc-800 bg-zinc-50/60 dark:bg-zinc-800/60 text-xs font-medium text-zinc-900 dark:text-zinc-100 outline-none focus:border-blue-500 focus:bg-white dark:focus:bg-zinc-900 transition-all placeholder:text-zinc-400"
+                    autoFocus
+                  />
+                  <p className="text-[11px] text-zinc-400 dark:text-zinc-500 mt-1.5">
+                    Leave blank to write the next topic in your rotation. A custom topic is not added to the rotation.
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-end gap-2.5 pt-2 border-t border-zinc-100 dark:border-zinc-800">
+                <button
+                  type="button"
+                  onClick={() => setShowGenerateModal(false)}
+                  className="px-4 py-2 rounded-xl text-xs font-bold text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 cursor-pointer transition-all"
+                >
+                  Cancel
+                </button>
+                {customTopic.trim() ? (
+                  <button
+                    type="button"
+                    onClick={() => handleGenerate(customTopic.trim())}
+                    className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-md transition-all active:scale-[0.98] cursor-pointer"
+                  >
+                    <Bot size={14} />
+                    <span>Generate Custom Draft</span>
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => handleGenerate()}
+                    className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-zinc-900 dark:bg-white dark:text-zinc-900 text-white font-bold text-xs shadow-md transition-all active:scale-[0.98] cursor-pointer"
+                  >
+                    <Bot size={14} />
+                    <span>Generate Next in Queue</span>
+                  </button>
+                )}
+              </div>
+            </m.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Floating Live Generation Progress Overlay */}
+      <AnimatePresence>
+        {generating && (
+          <m.div
+            initial={{ opacity: 0, y: 20, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 20, scale: 0.95 }}
+            className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-[92vw] max-w-lg bg-zinc-900/95 dark:bg-zinc-900/95 text-white p-4 rounded-2xl shadow-2xl border border-zinc-800 backdrop-blur-md"
+          >
+            <div className="flex items-center gap-3 mb-2.5">
+              <div className="w-8 h-8 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center shrink-0 border border-blue-500/30">
+                <Bot size={18} className="animate-pulse" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center justify-between gap-2">
+                  <p className="text-xs font-bold text-zinc-100 truncate">
+                    AI Drafting Engine
+                  </p>
+                  <span className="text-[10px] font-mono text-blue-400 font-semibold px-2 py-0.5 rounded-full bg-blue-950/60 border border-blue-800/60 shrink-0">
+                    Step {generatingProgress?.step || 1} of 3
+                  </span>
+                </div>
+                <p className="text-[11px] text-zinc-400 truncate">
+                  {generatingProgress?.topic}
+                </p>
+              </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between text-[11px] font-medium text-zinc-300">
+                <span className="flex items-center gap-1.5">
+                  <Loader2 size={12} className="animate-spin text-blue-400" />
+                  {generatingProgress?.text}
+                </span>
+              </div>
+              <div className="w-full h-1.5 bg-zinc-800 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-gradient-to-r from-blue-500 via-indigo-500 to-emerald-400 rounded-full transition-all duration-700 ease-out"
+                  style={{
+                    width: generatingProgress?.step === 1 ? '35%' : generatingProgress?.step === 2 ? '70%' : '95%',
+                  }}
+                />
+              </div>
+            </div>
+          </m.div>
         )}
       </AnimatePresence>
 
@@ -547,11 +752,13 @@ function BlogModal({
   item,
   onSave,
   onCancel,
+  onDelete,
   showToast,
 }: {
   item: BlogPost | null
   onSave: () => void
   onCancel: () => void
+  onDelete?: (id: string) => void
   showToast: (message: string, type?: 'success' | 'error') => void
 }) {
   const [loading, setLoading] = useState(false)
@@ -708,6 +915,19 @@ function BlogModal({
             </div>
 
             <div className="h-5 w-px bg-zinc-200 dark:bg-zinc-800 mx-1 hidden sm:block" />
+
+            {/* Shown only when the page passes onDelete, i.e. this role may delete this post. */}
+            {item && onDelete && (
+              <button
+                type="button"
+                onClick={() => onDelete(item.id)}
+                className="px-3 py-1.5 rounded-xl border border-rose-200/80 dark:border-rose-900/50 text-rose-600 dark:text-rose-400 font-bold text-xs hover:bg-rose-50 dark:hover:bg-rose-950/40 cursor-pointer flex items-center gap-1.5 transition-all"
+                title={`Permanently delete this ${item.status === 'draft' ? 'draft' : 'article'}`}
+              >
+                <Trash2 size={13} />
+                <span className="hidden sm:inline">Delete {item.status === 'draft' ? 'Draft' : 'Article'}</span>
+              </button>
+            )}
 
             <button
               type="button"
