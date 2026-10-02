@@ -89,15 +89,21 @@ Show trade-offs and risks as readily as benefits.
 FACT RULES (non-negotiable):
 - State a number, date, rate, rule or named fact ONLY if it appears in the SOURCES. Otherwise speak generally.
 - When you use a fact from a source, attach that source's URL as "href" on the span stating it. Use URLs exactly as given in SOURCES; never invent or modify a URL.
+- A number you calculate yourself (an example) gets NO href. Introduce it as "for example" and show the arithmetic.
+- Do not describe forms, procedures, offices or deadlines unless a source states them.
+- Examples must not invent project names, builder names, registration numbers or account numbers.
+- Stay on Noida and Uttar Pradesh. Do not compare with other states or cities.
 - Do not recommend, rank or praise any specific project or builder.
 - If the sources are thin, write a shorter, more general article rather than filling gaps.
 
-FORMAT: return ONE JSON object:
-{"title": str, "excerpt": str (1-2 sentences), "meta_title": str (<=60 chars), "meta_description": str (<=155 chars),
- "blocks": [ {"type":"h2","text":str} | {"type":"h3","text":str} | {"type":"p","spans":[Span]} | {"type":"quote","spans":[Span]} | {"type":"ul"|"ol","items":[[Span]]} ]}
-Span = {"text": str, "bold"?: true, "italic"?: true, "href"?: str}
+FORMAT: one JSON object: title, excerpt (1-2 sentences), meta_title (<=60 chars), meta_description (<=155 chars), blocks.
+Each block has type, text, spans, items; set the ones a type does not use to null:
+- "h2" / "h3": text is the heading.
+- "p" / "quote": spans is the paragraph as a list of Span.
+- "ul" / "ol": items is a list of list items, each a list of Span.
+Span = {text, bold, italic, href}: bold/italic true or null, href a SOURCES URL or null.
 Use bold for the one key takeaway in a section, italics for terms being defined. Use 4-7 h2 sections, at least one list,
-and end with a short "What to check before you decide" list. 800-1300 words.`
+and end with a short "What to check before you decide" list. Aim for 900-1300 words: explain each point fully, with a worked example where it helps.`
 
 function groqClient(): Groq {
   const apiKey = process.env.GROQ_BLOG_API_KEY || process.env.GROQ_API_KEY
@@ -111,6 +117,79 @@ async function uniqueSlug(title: string): Promise<string> {
     const slug = i ? `${base}-${i + 1}` : base
     if (!(await prisma.blogPost.findUnique({ where: { slug }, select: { id: true } }))) return slug
   }
+}
+
+// Strict schema: Groq constrains decoding to it, so malformed JSON cannot come
+// back (json_object mode returned stray quotes between spans on long drafts).
+const SPAN_SCHEMA = {
+  type: 'object',
+  additionalProperties: false,
+  required: ['text', 'bold', 'italic', 'href'],
+  properties: {
+    text: { type: 'string' },
+    bold: { anyOf: [{ type: 'boolean' }, { type: 'null' }] },
+    italic: { anyOf: [{ type: 'boolean' }, { type: 'null' }] },
+    href: { anyOf: [{ type: 'string' }, { type: 'null' }] },
+  },
+}
+const DRAFT_JSON_SCHEMA = {
+  type: 'object',
+  additionalProperties: false,
+  required: ['title', 'excerpt', 'meta_title', 'meta_description', 'blocks'],
+  properties: {
+    title: { type: 'string' },
+    excerpt: { type: 'string' },
+    meta_title: { type: 'string' },
+    meta_description: { type: 'string' },
+    blocks: {
+      type: 'array',
+      items: {
+        type: 'object',
+        additionalProperties: false,
+        required: ['type', 'text', 'spans', 'items'],
+        properties: {
+          type: { type: 'string', enum: ['h2', 'h3', 'p', 'quote', 'ul', 'ol'] },
+          text: { anyOf: [{ type: 'string' }, { type: 'null' }] },
+          spans: { anyOf: [{ type: 'array', items: SPAN_SCHEMA }, { type: 'null' }] },
+          items: { anyOf: [{ type: 'array', items: { type: 'array', items: SPAN_SCHEMA } }, { type: 'null' }] },
+        },
+      },
+    },
+  },
+}
+
+/** The strict schema sends null for unused fields; Zod wants them absent. */
+export function dropNulls(v: unknown): unknown {
+  if (Array.isArray(v)) return v.map(dropNulls)
+  if (v && typeof v === 'object') {
+    return Object.fromEntries(Object.entries(v).filter(([, x]) => x !== null).map(([k, x]) => [k, dropNulls(x)]))
+  }
+  return v
+}
+
+async function requestDraft(topic: string, sourceBlock: string): Promise<Draft> {
+  let lastErr: unknown
+  for (let attempt = 1; attempt <= 2; attempt++) {
+    try {
+      const resp = await groqClient().chat.completions.create({
+        model: MODELS.GROQ_SMART,
+        temperature: 0.3,
+        max_tokens: 8000,
+        // groq-sdk 0.7 types predate json_schema; the API accepts it.
+        response_format: { type: 'json_schema', json_schema: { name: 'blog_draft', strict: true, schema: DRAFT_JSON_SCHEMA } } as never,
+        messages: [
+          { role: 'system', content: SYSTEM },
+          { role: 'user', content: `TOPIC: ${topic}\n\nSOURCES:\n${sourceBlock || '(none found — write a general article with no figures and no links)'}` },
+        ],
+      })
+      const parsed = DraftSchema.safeParse(dropNulls(JSON.parse(resp.choices[0]?.message?.content ?? '{}')))
+      if (parsed.success) return parsed.data
+      lastErr = new Error(`Model returned an invalid draft: ${parsed.error.issues[0]?.path.join('.')} ${parsed.error.issues[0]?.message}`)
+    } catch (err) {
+      lastErr = err
+    }
+  }
+  throw lastErr
 }
 
 export interface GenerateResult { postId: string; keyword: string; reviewNotes: string[] }
@@ -128,19 +207,7 @@ export async function generateBlogDraft(keyword?: string): Promise<GenerateResul
   const sources: WebResult[] = search.results.filter(r => r.url.startsWith('https://'))
   const sourceBlock = sources.map((s, i) => `[${i + 1}] ${s.title}\nURL: ${s.url}\n${s.content.slice(0, 1500)}`).join('\n\n')
 
-  const resp = await groqClient().chat.completions.create({
-    model: MODELS.GROQ_SMART,
-    temperature: 0.4,
-    max_tokens: 4000,
-    response_format: { type: 'json_object' },
-    messages: [
-      { role: 'system', content: SYSTEM },
-      { role: 'user', content: `TOPIC: ${topic}\n\nSOURCES:\n${sourceBlock || '(none found — write a general article with no figures and no links)'}` },
-    ],
-  })
-  const parsed = DraftSchema.safeParse(JSON.parse(resp.choices[0]?.message?.content ?? '{}'))
-  if (!parsed.success) throw new Error(`Model returned an invalid draft: ${parsed.error.issues[0]?.message}`)
-  const draft = parsed.data
+  const draft = await requestDraft(topic, sourceBlock)
 
   const { doc, cited, dropped } = toTiptap(draft.blocks, new Set(sources.map(s => s.url)))
   if (cited.size) {

@@ -1,6 +1,6 @@
 import { describe, it } from 'node:test'
 import assert from 'node:assert/strict'
-import { toTiptap, unsourcedFigures, DraftSchema } from '../generateDraft'
+import { toTiptap, unsourcedFigures, DraftSchema, dropNulls } from '../generateDraft'
 
 describe('blog draft conversion', () => {
   it('keeps links the search returned and strips any other URL', () => {
@@ -33,5 +33,20 @@ describe('blog draft conversion', () => {
 
   it('rejects a draft with no body', () => {
     assert.equal(DraftSchema.safeParse({ title: 'A proper title', excerpt: 'x'.repeat(30), meta_title: 't', meta_description: 'd', blocks: [] }).success, false)
+  })
+
+  it('accepts the strict-schema shape once nulls are dropped', () => {
+    const raw = {
+      title: 'A proper title', excerpt: 'x'.repeat(30), meta_title: 't', meta_description: 'd',
+      blocks: [
+        { type: 'h2', text: 'Heading', spans: null, items: null },
+        { type: 'p', text: null, spans: [{ text: 'a', bold: null, italic: true, href: null }], items: null },
+        { type: 'ul', text: null, spans: null, items: [[{ text: 'b', bold: true, italic: null, href: null }]] },
+        { type: 'h3', text: 'Sub', spans: null, items: null },
+      ],
+    }
+    const parsed = DraftSchema.safeParse(dropNulls(raw))
+    assert.equal(parsed.success, true)
+    assert.deepEqual(parsed.success && parsed.data.blocks[1], { type: 'p', spans: [{ text: 'a', italic: true }] })
   })
 })
