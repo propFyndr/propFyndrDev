@@ -1,6 +1,6 @@
 import { describe, it } from 'node:test'
 import assert from 'node:assert/strict'
-import { toTiptap, unsourcedFigures, DraftSchema, dropNulls, findDuplicateTitle, titleSimilarity, checkDraftQuality, type Draft } from '../generateDraft'
+import { toTiptap, unsourcedFigures, DraftSchema, dropNulls, findDuplicateTitle, titleSimilarity, checkDraftQuality, pickExpansion, type Draft } from '../generateDraft'
 
 describe('blog draft conversion', () => {
   it('keeps links the search returned and strips any other URL', () => {
@@ -106,6 +106,20 @@ describe('blog structure rules', () => {
   it('sends back a draft under 450 words', () => {
     const short: Draft = { ...good, blocks: [p('Intro.'), ...good.blocks.slice(1)] }
     assert.ok(checkDraftQuality(short).hard.some(h => h.includes('words')))
+  })
+
+  it('keeps a longer expansion but always the original title and meta', () => {
+    const expanded: Draft = { ...good, title: 'A different title the model invented', blocks: [p('word '.repeat(700)), ...good.blocks.slice(1)] }
+    const chosen = pickExpansion(good, expanded)
+    assert.equal(chosen.title, good.title)
+    assert.equal(chosen.meta_description, good.meta_description)
+    assert.equal(chosen.blocks, expanded.blocks)
+  })
+
+  it('rejects an expansion that is not longer, or that drops a required section', () => {
+    assert.equal(pickExpansion(good, { ...good, blocks: [p('short'), ...good.blocks.slice(1)] }), good)
+    const noFaq: Draft = { ...good, blocks: [p('word '.repeat(900)), ...good.blocks.slice(1, 10)] }
+    assert.equal(pickExpansion(good, noFaq), good)
   })
 
   it('needs at least three answered FAQ questions', () => {

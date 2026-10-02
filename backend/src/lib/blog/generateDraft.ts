@@ -269,7 +269,43 @@ async function requestDraft({ topic, sourceBlock, existingTitles, feedback }: Dr
     `SOURCES:\n${sourceBlock || '(none found — write a general article with no figures and no links)'}`,
     ...(feedback?.length ? [`YOUR PREVIOUS DRAFT BROKE THESE RULES. Rewrite it so none apply:\n${feedback.map(f => `- ${f}`).join('\n')}`] : []),
   ].join('\n\n')
+  return callModel(user)
+}
 
+/** Below this, a draft gets the expand pass. */
+export const EXPAND_BELOW_WORDS = 600
+
+/**
+ * Second pass for a draft that came out short. The model gets its own draft
+ * back and deepens the body; title and metadata are kept from the original
+ * in `pickExpansion`, so the uniqueness check already passed still holds.
+ * No EXISTING ARTICLES list here: it would only add input tokens.
+ */
+async function expandDraft(draft: Draft, sourceBlock: string, words: number): Promise<Draft> {
+  const user = [
+    `This draft is ${words} words. Expand it to 650-850 words.`,
+    'Keep every section, heading, list, the checklist and the FAQ, in the same order. Deepen the body sections: explain the why, add the trade-off, and add a worked example where it helps. Add one more FAQ question if it is useful. No filler, no repetition.',
+    'Every FACT RULE still applies: new facts only from SOURCES, with their href; calculated examples carry no href.',
+    `DRAFT:\n${JSON.stringify(draft.blocks)}`,
+    `SOURCES:\n${sourceBlock || '(none)'}`,
+  ].join('\n\n')
+  return callModel(user)
+}
+
+/**
+ * The expanded body is used only if it is longer and breaks no rewrite rule
+ * the original passed; otherwise the original stands. Title, meta and excerpt
+ * always come from the original.
+ */
+export function pickExpansion(original: Draft, expanded: Draft): Draft {
+  const before = checkDraftQuality(original).hard
+  const after = checkDraftQuality({ ...original, blocks: expanded.blocks }).hard
+  const longer = wordCount(blockText(expanded.blocks)) > wordCount(blockText(original.blocks))
+  const noNewBreaks = after.every(h => before.includes(h))
+  return longer && noNewBreaks ? { ...original, blocks: expanded.blocks } : original
+}
+
+async function callModel(user: string): Promise<Draft> {
   let lastErr: unknown
   for (let attempt = 1; attempt <= 2; attempt++) {
     try {
@@ -307,7 +343,7 @@ export interface GenerateResult {
   reviewNotes: string[]
   post: BlogPost
   /** Wall-clock per stage, so slow runs can be traced to search or model. */
-  timingsMs: { search: number; write: number; rewrite: number; total: number }
+  timingsMs: { search: number; write: number; rewrite: number; expand: number; total: number }
 }
 
 /** How many of the closest existing titles the model is shown. */
@@ -360,6 +396,26 @@ export async function generateBlogDraft(keyword?: string): Promise<GenerateResul
     duplicateOf = findDuplicateTitle(draft.title, existing)
   }
 
+  // Expand pass, only for a short draft. A failure here keeps the draft we have
+  // rather than losing the whole generation.
+  let expandMs = 0
+  let expandNote = ''
+  const words = wordCount(blockText(draft.blocks))
+  if (words < EXPAND_BELOW_WORDS) {
+    const tExpand = Date.now()
+    try {
+      const chosen = pickExpansion(draft, await expandDraft(draft, sourceBlock, words))
+      const after = wordCount(blockText(chosen.blocks))
+      expandNote = chosen === draft ? ` Expand pass did not improve it (kept ${words} words).` : ` Expanded from ${words} to ${after} words.`
+      draft = chosen
+      quality = checkDraftQuality(draft)
+    } catch (err) {
+      expandNote = ' Expand pass failed; kept the shorter draft.'
+      console.warn('[blog:generate] expand failed:', err instanceof Error ? err.message.slice(0, 200) : err)
+    }
+    expandMs = Date.now() - tExpand
+  }
+
   const { doc, cited, dropped } = toTiptap(draft.blocks, new Set(sources.map(s => s.url)))
   if (cited.size) {
     doc.content!.push(
@@ -370,7 +426,7 @@ export async function generateBlogDraft(keyword?: string): Promise<GenerateResul
     )
   }
 
-  const notes = [`AI draft on "${topic}". ${sources.length} sources found, ${cited.size} cited.${rewriteMs ? ' Rewritten once to meet the structure rules.' : ''}`]
+  const notes = [`AI draft on "${topic}". ${sources.length} sources found, ${cited.size} cited.${rewriteMs ? ' Rewritten once to meet the structure rules.' : ''}${expandNote}`]
   if (dropped.length) notes.push(`Removed ${dropped.length} link(s) not returned by search.`)
   const unsourced = unsourcedFigures(blockText(draft.blocks), sources.map(s => s.content).join('\n'))
   if (unsourced.length) notes.push(`Figures not found in any source, verify or remove: ${unsourced.slice(0, 12).join(', ')}`)
@@ -394,7 +450,7 @@ export async function generateBlogDraft(keyword?: string): Promise<GenerateResul
   if (kwRow) {
     await prisma.blogKeyword.update({ where: { id: kwRow.id }, data: { last_used_at: new Date(), use_count: { increment: 1 } } })
   }
-  const timingsMs = { search: tWrite - tSearch, write: writeMs, rewrite: rewriteMs, total: Date.now() - t0 }
+  const timingsMs = { search: tWrite - tSearch, write: writeMs, rewrite: rewriteMs, expand: expandMs, total: Date.now() - t0 }
   console.info('[blog:generate]', topic, timingsMs)
   return { postId: post.id, keyword: topic, reviewNotes: notes, post, timingsMs }
 }

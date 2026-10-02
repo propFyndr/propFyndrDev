@@ -151,8 +151,9 @@ export default function BlogAdminPage() {
     const topicToUse = keyword?.trim()
     setGenerating(true)
     // The server does not stream progress, so these steps are paced to its
-    // measured stages (search ~3s, writing ~6-9s). The wording only claims what
-    // the pipeline actually does: a web search, not a "verified records" lookup.
+    // measured stages (search ~3s, writing ~6-9s, then an expand pass when the
+    // draft is short). The wording only claims what the pipeline actually does:
+    // a web search, not a "verified records" lookup.
     setGeneratingProgress({
       step: 1,
       text: 'Searching the web for sources on this topic…',
@@ -164,7 +165,7 @@ export default function BlogAdminPage() {
     }, 3000)
 
     const timer2 = setTimeout(() => {
-      setGeneratingProgress(p => p ? { ...p, step: 3, text: 'Checking links, figures and structure…' } : null)
+      setGeneratingProgress(p => p ? { ...p, step: 3, text: 'Checking structure, expanding short sections and verifying links…' } : null)
     }, 9000)
 
     try {
