@@ -79,7 +79,7 @@ function tableToList(rows: string[]): string[] {
 export function normalizeTypography(line: string): string {
   return line
     .replace(/[‐‑‒]/g, '-')
-    .replace(/(\d)[   ]%/g, '$1%') // also the non-breaking spaces models use before %
+    .replace(/(\d)[ \u00a0\u202f]%/g, '$1%') // also the non-breaking spaces models use before %
     .replace(/(\d)\s*[–—]\s*(\d)/g, '$1 to $2')
     .replace(/^(\s*(?:[-*•]|\d+[.)])\s+\*\*[^*]+\*\*)\s*[–—-]\s+/, '$1: ')
     .replace(/\s+[–—]\s+/g, ', ')
