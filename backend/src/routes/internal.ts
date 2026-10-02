@@ -15,6 +15,7 @@ import { Router, Request, Response, NextFunction } from 'express'
 import { timingSafeEqual } from 'crypto'
 import { prisma } from '../lib/db'
 import { replayDeadLetters } from '../lib/webhook'
+import { generateBlogDraft } from '../lib/blog/generateDraft'
 
 const router = Router()
 
@@ -175,6 +176,30 @@ router.post('/dead-letters/replay', async (_req: Request, res: Response) => {
   } catch (err) {
     console.error('[internal] dead-letter replay failed:', err)
     res.status(500).json({ error: 'Failed to replay dead letters' })
+  }
+})
+
+/**
+ * POST /api/v1/internal/blog/daily-draft
+ *
+ * Called once a day by the Render cron job. Writes ONE draft from the keyword
+ * rotation; it never publishes. Skips if a draft was already generated in the
+ * last 20 hours, so a retried or double-fired cron does not pile up drafts.
+ */
+router.post('/blog/daily-draft', async (_req: Request, res: Response) => {
+  try {
+    const recent = await prisma.blogPost.findFirst({
+      where: { review_notes: { startsWith: 'AI draft' }, created_at: { gt: new Date(Date.now() - 20 * 3600_000) } },
+      select: { id: true },
+    })
+    if (recent) {
+      res.json({ skipped: true, reason: 'A draft was generated in the last 20 hours', postId: recent.id })
+      return
+    }
+    res.status(201).json(await generateBlogDraft())
+  } catch (err) {
+    console.error('[internal] daily blog draft failed:', err)
+    res.status(502).json({ error: err instanceof Error ? err.message : 'Draft generation failed' })
   }
 })
 

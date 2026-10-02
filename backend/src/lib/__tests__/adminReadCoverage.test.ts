@@ -84,6 +84,7 @@ const READ_REGISTRY: Record<string, Record<Role, boolean>> = {
   // ── Unpublished copy and internal scoring. ──
   '/news': EDITORS,
   '/blog': EDITORS,
+  '/blog/keywords': EDITORS,
   '/blog/:id': EDITORS,
   '/promotions': EDITORS,
   '/promotions/:id': EDITORS,

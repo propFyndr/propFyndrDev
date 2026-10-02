@@ -14,6 +14,8 @@ import {
   FileText,
   Archive,
   ExternalLink,
+  Sparkles,
+  Loader2,
 } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
 import { AnimatePresence, m } from 'framer-motion'
@@ -22,6 +24,7 @@ import TiptapEditor from '@/components/admin/TiptapEditor'
 import { adminFetch } from '@/lib/adminFetch'
 import { Skeleton } from '@/components/ui/skeleton'
 import { StatCard } from '@/components/portal/ui'
+import BlogKeywordsPanel from '@/components/admin/BlogKeywordsPanel'
 
 type BlogStatus = 'draft' | 'published' | 'archived'
 
@@ -36,6 +39,7 @@ interface BlogPost {
   meta_title?: string | null
   meta_description?: string | null
   author_name?: string | null
+  review_notes?: string | null
   published_at?: string | null
   created_at: string
 }
@@ -87,6 +91,7 @@ export default function BlogAdminPage() {
   const [editingItem, setEditingItem] = useState<BlogPost | null>(null)
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null)
 
+  const [generating, setGenerating] = useState(false)
   const isFetchingRef = useRef(false)
   const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
@@ -131,6 +136,31 @@ export default function BlogAdminPage() {
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [])
+
+  // Writes an AI draft (never published) and opens it in the editor for review.
+  const handleGenerate = async () => {
+    setGenerating(true)
+    try {
+      const res = await adminFetch('/admin/blog/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: '{}',
+      })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`)
+      await fetchPosts()
+      const postRes = await adminFetch(`/admin/blog/${data.postId}`)
+      if (postRes.ok) {
+        setEditingItem(await postRes.json())
+        setShowModal(true)
+      }
+      showToast(`Draft generated on "${data.keyword}". Review before publishing.`, 'success')
+    } catch (err) {
+      showToast(err instanceof Error ? err.message : 'Draft generation failed', 'error')
+    } finally {
+      setGenerating(false)
+    }
+  }
 
   const handleArchive = async (id: string) => {
     if (!confirm('Archive this post? It will no longer be visible on /blog.')) return
@@ -231,6 +261,15 @@ export default function BlogAdminPage() {
           </button>
 
           <button
+            onClick={handleGenerate}
+            disabled={generating}
+            className="flex items-center gap-2 bg-white dark:bg-zinc-900 hover:bg-zinc-50 dark:hover:bg-zinc-800 text-zinc-900 dark:text-white border border-zinc-200/80 dark:border-zinc-800 px-3.5 py-2 rounded-xl text-xs font-bold transition-all shadow-2xs active:scale-[0.98] cursor-pointer disabled:opacity-60"
+          >
+            {generating ? <Loader2 size={14} className="animate-spin text-blue-600" /> : <Sparkles size={14} className="text-blue-600" />}
+            <span>{generating ? 'Writing draft...' : 'Generate AI Draft'}</span>
+          </button>
+
+          <button
             onClick={() => {
               setEditingItem(null)
               setShowModal(true)
@@ -283,6 +322,8 @@ export default function BlogAdminPage() {
           />
         </div>
       </div>
+
+      <BlogKeywordsPanel onError={msg => showToast(msg, 'error')} />
 
       {/* Control Toolbar */}
       <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
@@ -392,6 +433,12 @@ export default function BlogAdminPage() {
                     {item.excerpt && (
                       <p className="text-xs font-medium text-zinc-600 dark:text-zinc-300 line-clamp-2 leading-relaxed">
                         {item.excerpt}
+                      </p>
+                    )}
+
+                    {item.status === 'draft' && item.review_notes && (
+                      <p className="text-[11px] font-medium text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/40 border border-amber-200/80 dark:border-amber-800/60 rounded-lg px-2.5 py-1.5 whitespace-pre-line">
+                        {item.review_notes}
                       </p>
                     )}
 

@@ -1432,6 +1432,8 @@ model BlogPost {
   meta_title        String?
   meta_description  String?
   author_name       String?
+  /// Set on AI-generated drafts: what a reviewer must check before publishing.
+  review_notes      String?
 
   published_at      DateTime?
   created_at        DateTime   @default(now())
@@ -1440,6 +1442,18 @@ model BlogPost {
   @@index([status])
   @@index([published_at])
   @@map("blog_posts")
+}
+
+/// Topics the daily draft generator rotates through, least recently used first.
+model BlogKeyword {
+  id           String    @id @default(uuid())
+  keyword      String    @unique
+  active       Boolean   @default(true)
+  use_count    Int       @default(0)
+  last_used_at DateTime?
+  created_at   DateTime  @default(now())
+
+  @@map("blog_keywords")
 }
 
 enum BlogStatus {

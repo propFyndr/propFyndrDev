@@ -10,6 +10,7 @@ import { computeCompleteness } from '../lib/completeness'
 import { normalisePortalSubdomain } from '../lib/portalSubdomain'
 import { checkRateLimit, getCached, setCached, deleteCached } from '../lib/cache'
 import { z } from 'zod'
+import { generateBlogDraft } from '../lib/blog/generateDraft'
 
 /**
  * A number the admin actually supplied, or null — never a substituted zero.
@@ -2109,6 +2110,89 @@ router.get('/blog', async (req: Request, res: Response) => {
   } catch (err) {
     console.error('[admin] blog query failed:', err)
     res.status(500).json({ error: 'Failed to fetch blog posts' })
+  }
+})
+
+// ── AI blog drafts ── registered before /blog/:id so "keywords" is not read as an id.
+// GET /api/v1/admin/blog/keywords — rotation list, least recently used first
+router.get('/blog/keywords', async (_req: Request, res: Response) => {
+  try {
+    const keywords = await prisma.blogKeyword.findMany({
+      orderBy: [{ last_used_at: { sort: 'asc', nulls: 'first' } }, { created_at: 'asc' }],
+    })
+    res.json({ keywords })
+  } catch (err) {
+    console.error('[admin] blog keywords query failed:', err)
+    res.status(500).json({ error: 'Failed to fetch keywords' })
+  }
+})
+
+const BlogKeywordSchema = z.object({ keyword: z.string().trim().min(3).max(120) })
+
+// POST /api/v1/admin/blog/keywords — add a topic
+router.post('/blog/keywords', async (req: Request, res: Response) => {
+  const parsed = BlogKeywordSchema.safeParse(req.body)
+  if (!parsed.success) {
+    res.status(400).json({ error: parsed.error.issues[0]?.message ?? 'Invalid keyword' })
+    return
+  }
+  try {
+    const keyword = await prisma.blogKeyword.create({ data: { keyword: parsed.data.keyword } })
+    res.status(201).json(keyword)
+  } catch (err) {
+    if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2002') {
+      res.status(409).json({ error: 'That keyword already exists' })
+      return
+    }
+    console.error('[admin] blog keyword create failed:', err)
+    res.status(500).json({ error: 'Failed to add keyword' })
+  }
+})
+
+// PATCH /api/v1/admin/blog/keywords/:id — pause or resume a topic
+router.patch('/blog/keywords/:id', async (req: Request, res: Response) => {
+  const parsed = z.object({ active: z.boolean() }).safeParse(req.body)
+  if (!parsed.success) {
+    res.status(400).json({ error: 'active (boolean) required' })
+    return
+  }
+  try {
+    res.json(await prisma.blogKeyword.update({ where: { id: req.params.id }, data: { active: parsed.data.active } }))
+  } catch (err) {
+    console.error('[admin] blog keyword update failed:', err)
+    res.status(500).json({ error: 'Failed to update keyword' })
+  }
+})
+
+// DELETE /api/v1/admin/blog/keywords/:id
+router.delete('/blog/keywords/:id', async (req: Request, res: Response) => {
+  try {
+    await prisma.blogKeyword.delete({ where: { id: req.params.id } })
+    res.json({ success: true })
+  } catch (err) {
+    console.error('[admin] blog keyword delete failed:', err)
+    res.status(500).json({ error: 'Failed to delete keyword' })
+  }
+})
+
+// POST /api/v1/admin/blog/generate — one AI draft now. Body { keyword? } overrides rotation.
+router.post('/blog/generate', async (req: Request, res: Response) => {
+  const parsed = z.object({ keyword: z.string().trim().min(3).max(120).optional() }).safeParse(req.body ?? {})
+  if (!parsed.success) {
+    res.status(400).json({ error: parsed.error.issues[0]?.message ?? 'Invalid keyword' })
+    return
+  }
+  // Each run is a paid search + model call; cap it so a stuck button can't drain quota.
+  const { allowed } = await checkRateLimit('admin:blog:generate', 20, 3600)
+  if (!allowed) {
+    res.status(429).json({ error: 'Generation limit reached (20/hour). Try again later.' })
+    return
+  }
+  try {
+    res.status(201).json(await generateBlogDraft(parsed.data.keyword))
+  } catch (err) {
+    console.error('[admin] blog generate failed:', err)
+    res.status(502).json({ error: err instanceof Error ? err.message : 'Draft generation failed' })
   }
 })
 

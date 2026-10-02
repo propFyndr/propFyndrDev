@@ -63,6 +63,10 @@ services:
         sync: false
       - key: GROQ_API_KEY
         sync: false
+      # Dedicated key for AI blog drafts so blog generation never spends the
+      # chat's Groq quota. Falls back to GROQ_API_KEY when unset.
+      - key: GROQ_BLOG_API_KEY
+        sync: false
       - key: OPENAI_API_KEY
         sync: false
       - key: SENTRY_DSN
@@ -100,4 +104,22 @@ services:
       - key: EMAIL_FROM
         sync: false
       - key: EMAIL_TO
+        sync: false
+
+  # Daily AI blog DRAFT (never publishes). 03:30 UTC = 09:00 IST. Calls the
+  # backend's internal endpoint, which skips if a draft already exists today.
+  - type: cron
+    name: propfyndr-blog-daily-draft
+    env: node
+    schedule: "30 3 * * *"
+    buildCommand: "true"
+    startCommand: >-
+      node -e "fetch(process.env.BACKEND_URL + '/api/v1/internal/blog/daily-draft',
+      {method:'POST', headers:{'x-internal-key': process.env.INTERNAL_API_KEY}})
+      .then(async r => { console.log(r.status, await r.text()); if (r.status >= 500) process.exit(1) })
+      .catch(e => { console.error(e); process.exit(1) })"
+    envVars:
+      - key: BACKEND_URL
+        sync: false
+      - key: INTERNAL_API_KEY
         sync: false

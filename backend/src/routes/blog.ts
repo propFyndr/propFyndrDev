@@ -43,7 +43,9 @@ router.get('/:slug', routeCache(900), async (req: Request, res: Response) => {
     return
   }
 
-  res.json({ post })
+  // review_notes is the internal reviewer checklist on AI drafts; never public.
+  const { review_notes: _internal, ...publicPost } = post
+  res.json({ post: publicPost })
 })
 
 export default router
