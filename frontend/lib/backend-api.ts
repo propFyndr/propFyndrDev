@@ -142,6 +142,14 @@ export function streamChat(
           return
         }
 
+        // Transient backend wake-up / gateway warm-up retry
+        if ((res.status === 502 || res.status === 503 || res.status === 504) && reconnectAttempts < 2 && highestSeq === 0) {
+          reconnectAttempts++
+          const delay = 1500 * reconnectAttempts
+          setTimeout(() => connectStream(), delay)
+          return
+        }
+
         let msg = 'The advisor is having trouble right now. Please try again in a moment.'
         try {
           const err = await res.json()
@@ -231,6 +239,14 @@ export function streamChat(
       if (reconnectAttempts < MAX_RECONNECTS && highestSeq > 0) {
         reconnectAttempts++
         const delay = Math.min(1000 * Math.pow(2, reconnectAttempts - 1), 3000)
+        setTimeout(() => connectStream(), delay)
+        return
+      }
+      // If the backend was sleeping or cold-starting when the prompt was submitted, give it one grace retry.
+      // Safe even if the first request did arrive: the server tails a turn id it already claimed.
+      if (reconnectAttempts < 2 && highestSeq === 0) {
+        reconnectAttempts++
+        const delay = 1500 * reconnectAttempts
         setTimeout(() => connectStream(), delay)
         return
       }

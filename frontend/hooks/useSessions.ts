@@ -52,6 +52,10 @@ export function useSessions(userId: string | null, guestToken?: string | null) {
         headers: await authHeaders(),
         signal: abortControllerRef.current.signal,
       });
+      if (res.status === 429) {
+        // Under rate limit: keep cached sessions and do not immediately retry
+        return;
+      }
       if (!res.ok) throw new Error('Failed to load sessions');
       const data = await res.json();
       const list = data.sessions ?? [];

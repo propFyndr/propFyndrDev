@@ -5,6 +5,7 @@ import {
   appendStreamEvent,
   getBufferedEvents,
   clearInMemoryBuffer,
+  claimTurn,
   tailBufferedEvents,
   BufferedEvent,
 } from '../streamBuffer'
@@ -13,6 +14,22 @@ import { computeFactTtl } from '../../web'
 describe('Stream Resilience & SSE Reconnection Protocol', () => {
   beforeEach(() => {
     clearInMemoryBuffer()
+  })
+
+  it('claims a turn once; a retry of the same turn tails the original instead of re-running', async () => {
+    const turnId = `turn-claim-${Date.now()}-${Math.random().toString(36).slice(2)}`
+    assert.equal(await claimTurn('turn', turnId), true)
+    assert.equal(await claimTurn('turn', turnId), false)
+
+    // The original produces its answer after the retry started tailing.
+    setTimeout(() => {
+      void appendStreamEvent('turn', turnId, { seq: 1, event: 'token', data: { token: 'Hi' }, timestamp: Date.now() })
+      void appendStreamEvent('turn', turnId, { seq: 2, event: 'done', data: {}, timestamp: Date.now() })
+    }, 50)
+    const seen: number[] = []
+    const outcome = await tailBufferedEvents('turn', turnId, 0, (ev) => seen.push(ev.seq), { pollMs: 10 })
+    assert.equal(outcome, 'complete')
+    assert.deepEqual(seen, [1, 2])
   })
 
   it('buffers events and retrieves them filtered by afterSeq in strict monotonic order', async () => {

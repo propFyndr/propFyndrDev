@@ -92,10 +92,13 @@ const PORT = parseInt(process.env.PORT ?? '3001', 10)
 const VERSION = process.env.npm_package_version ?? '1.0.0'
 const startTime = Date.now()
 
+import { clientIp } from './lib/request'
+
 export const app = express()
 
 // All deployments sit behind a proxy (Render, Railway, Fly, etc.).
-// This makes req.ip trustworthy and fixes x-forwarded-for-based rate limiting.
+// One hop only: `true` would let req.ip come from a client-forged
+// X-Forwarded-For. The real client IP comes from clientIp() (lib/request.ts).
 app.set('trust proxy', 1)
 
 app.use(helmet({
@@ -111,16 +114,25 @@ const allowedOrigins = new Set([
   'http://127.0.0.1:3000',
   'http://localhost:3001',
   'http://localhost:3002',
+  'https://propfyndr.in',
+  'https://www.propfyndr.in',
   ...envOrigins
 ])
+
+// Anchored patterns: a bare endsWith('propfyndr.in') also matched
+// evilpropfyndr.in, and any app on vercel.app / onrender.com got credentialed access.
+const allowedOriginPatterns = [
+  /^https:\/\/([a-z0-9-]+\.)?propfyndr\.in$/,
+  /^https:\/\/(propfyndr|realtypals|realty-pals)[a-z0-9-]*\.vercel\.app$/,
+  /^https:\/\/(propfyndr|realtypals)[a-z0-9-]*\.onrender\.com$/,
+]
 
 app.use(cors({
   origin: (origin, callback) => {
     if (
       !origin ||
       allowedOrigins.has(origin) ||
-      origin.endsWith('.vercel.app') ||
-      origin.endsWith('.onrender.com') ||
+      allowedOriginPatterns.some((p) => p.test(origin)) ||
       process.env.NODE_ENV !== 'production'
     ) {
       callback(null, true)
@@ -130,7 +142,22 @@ app.use(cors({
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Guest-Token', 'x-guest-token', 'X-Request-ID', 'x-request-id', 'Accept'],
+  // Header names are case-insensitive in CORS; one spelling each is enough.
+  allowedHeaders: [
+    'Content-Type',
+    'Authorization',
+    'X-Guest-Token',
+    'X-Turn-Id',
+    'Last-Event-Seq',
+    'X-Request-ID',
+    'X-Session-ID',
+    'Accept',
+    'Cache-Control',
+    'Pragma',
+    'sentry-trace',
+    'baggage',
+  ],
+  exposedHeaders: ['X-RateLimit-Limit', 'X-RateLimit-Remaining', 'X-Request-ID'],
 }))
 app.use(express.json({ limit: '10mb' }))
 app.use(express.urlencoded({ limit: '10mb', extended: true }))
@@ -159,28 +186,42 @@ app.use(compression({
 
 // Global Rate Limiting Middleware
 app.use(async (req: Request, res: Response, next: NextFunction) => {
-  // Exclude healthchecks (webhooks are now rate-limited for security)
+  // Exclude healthchecks
   if (req.path.startsWith('/api/v1/health')) {
     return next()
   }
+
+  // Public cached/read-only endpoints must not count towards or exhaust rate limits on page load
+  if (req.method === 'GET' && (
+    req.path.startsWith('/api/v1/news') ||
+    req.path.startsWith('/api/v1/promotionals') ||
+    req.path.startsWith('/api/v1/sitemap') ||
+    req.path.startsWith('/api/v1/sectors') ||
+    req.path.startsWith('/api/v1/blog')
+  )) {
+    return next()
+  }
   
-  // Keyed on the guest token or auth header when present, IP only as a
-  // fallback.
-  //
-  // A pure IP key means every beta user behind one office NAT or one mobile
-  // carrier gateway shares a single 100/minute budget. At 50-200 testers that
-  // produces throttling you cannot reproduce and they cannot explain, and the
-  // IP fallback still catches an unidentified flood.
-  const ip = req.ip || '127.0.0.1'
-  const guestToken = (req.headers['x-guest-token'] as string | undefined)?.slice(0, 64)
+  // Keyed on guest token (header or query), auth header, or resolved client IP as fallback.
+  const ip = clientIp(req)
+  const guestToken = (
+    (req.headers['x-guest-token'] as string | undefined) ||
+    (req.query.guestToken as string | undefined)
+  )?.slice(0, 64)
   const authHeader = (req.headers.authorization as string | undefined)?.slice(0, 128)
   const identity = guestToken || authHeader || ip
-  const rateLimit = await checkRateLimit(`global:${identity}`, 100, 60)
+  const rateLimit = await checkRateLimit(`global:${identity}`, 200, 60)
 
-  res.setHeader('X-RateLimit-Limit', 100)
+  res.setHeader('X-RateLimit-Limit', 200)
   res.setHeader('X-RateLimit-Remaining', rateLimit.remaining)
   
   if (rateLimit.remaining <= 0) {
+    console.warn('[RATE_LIMIT:GLOBAL]', {
+      keyType: guestToken ? 'guest' : authHeader ? 'auth' : 'ip',
+      ip,
+      path: req.path,
+      requestId: (req as any).requestId,
+    })
     res.status(429).json({ error: 'Too many requests, please try again later.' })
     return
   }

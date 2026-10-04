@@ -83,6 +83,34 @@ export async function appendStreamEvent(
   }
 }
 
+/**
+ * Marks a turn as started. Returns false when this turn id already ran or is
+ * running: the client retried the same message (a cold-start retry carries no
+ * Last-Event-Seq), and the caller must tail the original, never re-run it.
+ * The empty buffer it leaves makes that tail wait for the original's events.
+ */
+export async function claimTurn(sessionId: string, turnId: string): Promise<boolean> {
+  const key = getBufferKey(sessionId, turnId)
+  if (memoryStreamBuffer.has(key)) return false
+  if (memoryStreamBuffer.size >= MAX_MEM_TURNS) {
+    const oldestKey = memoryStreamBuffer.keys().next().value
+    if (oldestKey) memoryStreamBuffer.delete(oldestKey)
+  }
+  memoryStreamBuffer.set(key, [])
+
+  const redis = getRedis()
+  if (!redis) return true
+  try {
+    // Another instance may hold this turn.
+    const claimed = await redis.set(`${key}:claim`, '1', { nx: true, ex: REDIS_TTL_S })
+    if (claimed !== null) return true
+    memoryStreamBuffer.delete(key)
+    return false
+  } catch {
+    return true
+  }
+}
+
 export async function getBufferedEvents(
   sessionId: string,
   turnId: string,

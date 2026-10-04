@@ -177,7 +177,7 @@ import {
   trackPromotionalClick
 } from '../lib/analytics/tracking'
 import { tryDeterministicFactBypass } from '../lib/chat/deterministicFactRouter'
-import { appendStreamEvent, tailBufferedEvents } from '../lib/chat/streamBuffer'
+import { appendStreamEvent, claimTurn, tailBufferedEvents } from '../lib/chat/streamBuffer'
 
 /** Buffer scope for stream replay: keyed by the client's turn id alone (see the reconnect interceptor). */
 const STREAM_BUFFER_SCOPE = 'turn'
@@ -545,6 +545,54 @@ router.post('/', async (req: Request, res: Response) => {
     guestToken = `guest_${Math.random().toString(36).substring(2, 15)}_${Date.now()}`
   }
 
+  // Limits run before anything is written, so a rejected request creates no
+  // session or analytics row. Guests are already held by the sliding window above.
+  const ip = clientIp(req)
+  // Ceilings: per-identity (20/min for authenticated users) AND per-IP (60/min) so rotating guest tokens
+  // from one source can't bypass the limit and drain the AI budget.
+  const [byKey, byIp] = await Promise.all([
+    userId ? checkRateLimit(`user:${userId}`, 20, 60) : Promise.resolve({ allowed: true, remaining: 25 }),
+    checkRateLimit(`ip:${ip}`, 60, 60),
+  ])
+  const remaining = Math.min(byKey.remaining, byIp.remaining)
+  if (!byKey.allowed || !byIp.allowed) {
+    console.warn('[RATE_LIMIT:CHAT]', { keyType: byKey.allowed ? 'ip' : 'user', ip, requestId: (req as any).requestId })
+    res.setHeader('Retry-After', '60')
+    res.status(429).json({ error: 'Too many messages. Please wait a moment.' })
+    return
+  }
+
+  // Check per-user daily AI cost budget (includes guest tokens)
+  const budgetKey = userId || guestToken || null
+  if (await isOverDailyBudget(budgetKey)) {
+    res.status(429).json({ error: "You've reached today's usage limit. Please try again tomorrow." })
+    return
+  }
+
+  // A retry of a turn that already reached us tails it instead of running it twice.
+  if (clientTurnId && !(await claimTurn(STREAM_BUFFER_SCOPE, clientTurnId))) {
+    res.setHeader('Content-Type', 'text/event-stream')
+    res.setHeader('Cache-Control', 'no-cache')
+    res.setHeader('Connection', 'keep-alive')
+    res.setHeader('X-Accel-Buffering', 'no')
+    res.flushHeaders()
+    let closed = false
+    res.on('close', () => { closed = true })
+    const ping = setInterval(() => { if (!closed) res.write(': ping\n\n') }, 12000)
+    const outcome = await tailBufferedEvents(STREAM_BUFFER_SCOPE, clientTurnId, 0, (ev) => {
+      if (!closed) res.write(`event: ${ev.event}\ndata: ${JSON.stringify(ev.data)}\n\n`)
+    }, { isClosed: () => closed })
+    clearInterval(ping)
+    if (outcome !== 'complete' && !closed) {
+      res.write(`event: error\ndata: ${JSON.stringify({
+        message: 'The connection dropped before this answer finished. Reload the chat to see the full reply.',
+        retryable: false,
+      })}\n\n`)
+    }
+    res.end()
+    return
+  }
+
   // Create session for new guest users (no sessionId + guest token)
   // Crawlers, uptime checks and our own corpus runs are answered exactly as
   // before — this only marks the session so metrics can exclude them.
@@ -618,28 +666,6 @@ router.post('/', async (req: Request, res: Response) => {
   // does not enter the funnel it would otherwise distort.
   if (!requestIsBot) {
     await initializeChatAnalytics(sessionId ?? undefined, userId, guestToken ?? undefined)
-  }
-
-  const ip = clientIp(req)
-  // Ceilings: per-identity (20/min for authenticated users) AND per-IP (40/min) so rotating guest tokens
-  // from one source can't bypass the limit and drain the AI budget.
-  // Note: guestToken is already checked against the 25 req / 10 min sliding window.
-  const [byKey, byIp] = await Promise.all([
-    userId ? checkRateLimit(`user:${userId}`, 20, 60) : Promise.resolve({ allowed: true, remaining: 25 }),
-    checkRateLimit(`ip:${ip}`, 40, 60),
-  ])
-  const remaining = Math.min(byKey.remaining, byIp.remaining)
-  if (!byKey.allowed || !byIp.allowed) {
-    res.setHeader('Retry-After', '60')
-    res.status(429).json({ error: 'Too many messages. Please wait a moment.' })
-    return
-  }
-
-  // Check per-user daily AI cost budget (includes guest tokens)
-  const budgetKey = userId || guestToken || null
-  if (await isOverDailyBudget(budgetKey)) {
-    res.status(429).json({ error: "You've reached today's usage limit. Please try again tomorrow." })
-    return
   }
 
   res.setHeader('Content-Type', 'text/event-stream')
@@ -6656,9 +6682,10 @@ router.get('/session/list', async (req: Request, res: Response) => {
     return
   }
 
-  // Rate limit per IP
+  // Rate limit per identity/IP
   const ip = clientIp(req)
-  const rateLimit = await checkRateLimit(`ip:${ip}`, 40, 60)
+  const rateKey = userId ? `user:${userId}` : guestToken ? `guest:${guestToken}` : `ip:${ip}`
+  const rateLimit = await checkRateLimit(`sessions:${rateKey}`, 60, 60)
   if (rateLimit.remaining <= 0) {
     res.status(429).json({ error: 'Rate limit exceeded' })
     return
