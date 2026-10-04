@@ -156,9 +156,13 @@ describe('Scoring: Project Score', () => {
     const intent: Intent = { budgetMax: 2.0, possession: 'immediate' }
     const score1 = scoreProject({ ...baseProject, possession_date: new Date() }, intent)
 
+    // Relative, not a fixed date: '2027-01-01' fell inside the 3-month window
+    // by late 2026 and the test started failing on the calendar alone.
+    const twoYearsOut = new Date()
+    twoYearsOut.setFullYear(twoYearsOut.getFullYear() + 2)
     const futureProject = {
       ...baseProject,
-      possession_date: new Date('2027-01-01'),
+      possession_date: twoYearsOut,
     }
     const score2 = scoreProject(futureProject, intent)
 
