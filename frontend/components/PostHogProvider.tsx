@@ -16,7 +16,15 @@ function PostHogPageView() {
   useEffect(() => {
     if (!pathname) return
     const qs = searchParams.toString()
-    capture('$pageview', { $current_url: window.origin + pathname + (qs ? `?${qs}` : '') })
+    const url = window.origin + pathname + (qs ? `?${qs}` : '')
+    capture('$pageview', { $current_url: url })
+
+    // Client-side navigation never unloads the page, so posthog-js never sends
+    // $pageleave for it. Tab close is not handled here: `capture_pageleave`
+    // already sends that one on unload, by beacon.
+    return () => {
+      capture('$pageleave', { $current_url: url })
+    }
   }, [pathname, searchParams])
 
   return null
