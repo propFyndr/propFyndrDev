@@ -1941,10 +1941,10 @@ export default function DiscoveryContent({ userId, guestToken, onSessionChange, 
                 PropFyndr
               </h1>
               <p className="mt-2 text-2xl md:text-[28px] font-medium tracking-wide text-zinc-500 dark:text-zinc-400 font-[family-name:var(--font-afacad)]">
-                Decide Better
+                Know before you buy
               </p>
               <p className="mt-4 text-[15px] text-text-secondary max-w-[560px] text-balance select-text">
-                Budget, BHK, sector, possession — say it in one line. I&apos;ll show the trade-offs, not just listings.
+                Ask about any home in Noida, in your own words.
               </p>
             </div>
 
