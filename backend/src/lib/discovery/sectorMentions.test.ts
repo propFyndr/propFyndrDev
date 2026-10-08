@@ -75,3 +75,65 @@ test('a list stops at an item carrying its own unit', () => {
   assert.deepEqual(extractSectorMentions('sector 150 and 2 crore', HELD), ['Sector 150'])
   assert.deepEqual(extractSectorMentions('sector 137 and 3 BHK', HELD), ['Sector 137'])
 })
+
+test('"sec" is read as "sector", abbreviated', () => {
+  assert.deepEqual(extractSectorMentions('sec 62 near metro', HELD), ['Sector 62'])
+  assert.deepEqual(extractSectorMentions('sec. 150', HELD), ['Sector 150'])
+})
+
+test('a plausible sector resolves even when we hold no project there', () => {
+  // We hold "93A"/"93B" in HELD, never bare "93" or "15A" — but both are real
+  // Noida sectors (1-168), and recognising them is what lets the turn answer
+  // honestly ("we don't list Sector 15A") instead of silently going citywide.
+  assert.deepEqual(extractSectorMentions('Sector 15A?', HELD), ['Sector 15A'])
+  assert.deepEqual(extractSectorMentions('93', HELD), ['Sector 93'])
+})
+
+test('"15A93" — glued, no separator — splits at the letter boundary', () => {
+  // Reported from live use: a buyer meant Sector 15A and Sector 93, typed as
+  // one run-together token, and the parser dropped both.
+  assert.deepEqual(extractSectorMentions('15A93', HELD).sort(), ['Sector 15A', 'Sector 93'])
+  assert.deepEqual(extractSectorMentions('93A15', HELD).sort(), ['Sector 15', 'Sector 93A'])
+})
+
+test('a glued run with no letter boundary is left unresolved', () => {
+  // "1593" could be 15|93, 159|3 or 1|593 — equally plausible, nothing to
+  // choose between them. Guessing wrong is worse than asking.
+  assert.deepEqual(extractSectorMentions('1593', HELD), [])
+})
+
+test('separated short fragments resolve the same way the glued one does', () => {
+  assert.deepEqual(extractSectorMentions('15a 93', HELD).sort(), ['Sector 15A', 'Sector 93'])
+  assert.deepEqual(extractSectorMentions('15A, 93', HELD).sort(), ['Sector 15A', 'Sector 93'])
+  assert.deepEqual(extractSectorMentions('15a/93', HELD).sort(), ['Sector 15A', 'Sector 93'])
+  assert.deepEqual(extractSectorMentions('15a & 93', HELD).sort(), ['Sector 15A', 'Sector 93'])
+  assert.deepEqual(extractSectorMentions('150 and 137', HELD).sort(), ['Sector 137', 'Sector 150'])
+  assert.deepEqual(extractSectorMentions('150 ya 137?', HELD).sort(), ['Sector 137', 'Sector 150'])
+})
+
+test('two bare numbers with nothing else at all stay unresolved', () => {
+  // No letter suffix and no connector word or punctuation to anchor the
+  // read — "137 150" alone is as ambiguous as "is 76 better than 75?".
+  assert.deepEqual(extractSectorMentions('137 150', HELD), [])
+})
+
+test('a bare sector number inside a real-estate sentence resolves without the word "sector"', () => {
+  // "noida 150 3bhk 1.5" and "kya 150 mein 2bhk mil jayega 1 cr mein" both
+  // dropped 150 silently; the fast path then read only the BHK and budget
+  // and searched citywide.
+  assert.deepEqual(extractSectorMentions('noida 150 3bhk 1.5', HELD), ['Sector 150'])
+  assert.deepEqual(extractSectorMentions('kya 150 mein 2bhk mil jayega 1 cr mein', HELD), ['Sector 150'])
+  assert.deepEqual(extractSectorMentions('family ke liye 150?', HELD), ['Sector 150'])
+})
+
+test('a bare number stays unresolved without a real-estate signal, comparison words included', () => {
+  // Unchanged from the anchored-comparison test above, restated for the new
+  // unanchored rule: a comparison word alone is not enough.
+  assert.deepEqual(extractSectorMentions('is 76 better than 75?', HELD), [])
+})
+
+test('a single bare digit stays ambiguous even with a signal word', () => {
+  // Sector 1 and Sector 2 exist, but a lone "1" or "2" beside "bhk"/"crore" is
+  // too easily the BHK count or a budget digit rather than a sector.
+  assert.deepEqual(extractSectorMentions('2 bhk near sector', HELD), [])
+})

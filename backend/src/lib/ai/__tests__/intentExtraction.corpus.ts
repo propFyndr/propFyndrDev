@@ -94,4 +94,32 @@ export const INTENT_CORPUS: IntentCase[] = [
     message: 'What is the stamp duty for a woman buyer in UP?',
     expect: { absent: ['sector', 'bhk', 'budgetMax', 'possession'] },
   },
+
+  // ─── fragments reported live: "15A93" lost both sectors entirely ─────────
+  // The buyer meant Sector 15A and Sector 93 (we hold 93A/93B, never bare
+  // "93" or anything in "15A") — neither half is a sector we hold inventory
+  // in, which is exactly why `isPlausibleSectorToken` has to look past the
+  // held set to Noida's documented 1-168 numbering.
+  { message: '15A93', expect: { sectors: ['Sector 15A', 'Sector 93'] } },
+  { message: '15a 93', expect: { sectors: ['Sector 15A', 'Sector 93'] } },
+  { message: '15A, 93', expect: { sectors: ['Sector 15A', 'Sector 93'] } },
+  // No letter boundary to cut at: left unresolved rather than guessed.
+  { message: '1593', expect: { absent: ['sector'] } },
+  // Two bare 3-digit numbers, no connector, no letter: also left unresolved.
+  { message: '137 150', expect: { absent: ['sector'] } },
+
+  // ─── the sector that went missing because another field was read first ──
+  // The fast path used to read `bhk` (or `bhk`+`budgetMax`) alone, see
+  // `literal.size > 0`, and skip the model entirely — so the sector was never
+  // read by anyone. Reported live: both searched citywide instead of in the
+  // sector the buyer named.
+  { message: 'noida 150 3bhk 1.5', expect: { sector: 'Sector 150', bhk: [3] } },
+  {
+    message: 'kya 150 mein 2bhk mil jayega 1 cr mein',
+    expect: { sector: 'Sector 150', bhk: [2], budgetMax: 1 },
+  },
+  { message: 'family ke liye 150?', expect: { sector: 'Sector 150' } },
+  // "150 ya 137?" (Hinglish "or"): a bare sector-vs-sector question, no
+  // "sector" word anywhere.
+  { message: '150 ya 137?', expect: { sectors: ['Sector 150', 'Sector 137'] } },
 ]
