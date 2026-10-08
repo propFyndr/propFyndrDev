@@ -272,10 +272,13 @@ export default function ProjectPricingTab({ unitTypes, detail, loading, onGoToCo
   })
 
   // Dynamic Cost Sheet Rates from DB (all from project.cost_sheet)
-  const stampDutyPct = dbCostSheet?.stamp_duty_pct ?? 6.0
-  const isStampEstimated = dbCostSheet?.stamp_duty_pct == null
-  const regPct = dbCostSheet?.registration_pct ?? 1.0
-  const isRegEstimated = dbCostSheet?.registration_pct == null
+  // Statutory: fixed by UP law and identical for every project, so never read
+  // from the row — the CostSheet column defaults to 6.0 and printed 6% stamp
+  // duty for a male buyer when UP charges 7% (6% applies to women owners).
+  const stampDutyPct = 7
+  const isStampEstimated = false
+  const regPct = 1
+  const isRegEstimated = false
   const gstPct = dbCostSheet?.gst_rate_pct ?? 5.0
   const isGstEstimated = dbCostSheet?.gst_rate_pct == null
   const clubAmt = dbCostSheet?.club_membership ?? 200000

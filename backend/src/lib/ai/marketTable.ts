@@ -1,5 +1,6 @@
 // backend/src/lib/ai/marketTable.ts
 import { priceLabelFor } from '../discovery/scoring'
+import { UP_STATUTORY } from '../factPresentation'
 
 import type { MicroMarketSummary } from '../discovery/sectorDataGateway'
 
@@ -586,8 +587,11 @@ export function renderCostSheetTable(
   //    rate here is a lookup rather than a guess — the statutory tier.
   const gstRate = isRtm ? '0% (Exempt with OC)' : (typeof sheet?.gst_rate_pct === 'number' ? `${sheet.gst_rate_pct}%` : '5%')
   lines.push(['GST', gstRate, isRtm ? 'Ready to move with OC' : 'Under-construction residential'])
-  lines.push(['UP Stamp Duty', typeof sheet?.stamp_duty_pct === 'number' ? `${sheet.stamp_duty_pct}%` : '7%', 'At registration (6% for women)'])
-  lines.push(['Registration Fee', typeof sheet?.registration_pct === 'number' ? `${sheet.registration_pct}%` : '1%', 'State sub-registrar fee'])
+  // Stamp duty and registration come from UP_STATUTORY, never the row: the
+  // CostSheet column defaults to 6.0, so every sheet printed 6% stamp duty for
+  // a male buyer when UP charges 7%. A schema default is not data.
+  lines.push(['UP Stamp Duty', `${UP_STATUTORY.stampDutyPct}%`, `At registration (${UP_STATUTORY.stampDutyFemalePct}% for women)`])
+  lines.push(['Registration Fee', `${UP_STATUTORY.registrationPct}%`, 'State sub-registrar fee'])
 
   if (typeof sheet?.all_inclusive_price_cr === 'number') {
     lines.push(['**Estimated All-Inclusive Total**', `**₹${sheet.all_inclusive_price_cr} Cr**`, 'Including BSP, charges & taxes'])
