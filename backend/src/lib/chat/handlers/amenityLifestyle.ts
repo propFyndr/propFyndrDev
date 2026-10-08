@@ -161,6 +161,9 @@ export const amenityLifestyleHandler: ChatTopicHandler = {
 
     // No sector and no projects in play: no cards. The old fallback showed the
     // four most expensive projects with a pool, whatever amenity was asked about.
+    // Nothing to tabulate either, so step aside rather than print an empty
+    // table under a heading (red-team 2026-10-05).
+    if (amenityProjects.length === 0) return false
 
     if (amenityProjects.length > 0) {
       ctx.send('properties', {

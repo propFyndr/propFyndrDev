@@ -22,20 +22,37 @@ import { tavilySearch } from '../../web'
  * card or a recommendation.
  */
 
-/** Landmark kinds a buyer asks about, and how they appear in a row's name. */
-const LANDMARKS: Array<[RegExp, string]> = [
-  [/\b(stadium|sports\s+city|sports\s+complex|cricket\s+ground|golf\s+course)\b/i, 'sports venue'],
-  [/\b(mall|malls|shopping\s+(?:centre|center|complex)|market)\b/i, 'shopping'],
-  [/\b(metro|metro\s+station|aqua\s+line|blue\s+line)\b/i, 'metro'],
-  [/\b(hospital|hospitals|medical|clinic|healthcare)\b/i, 'hospital'],
-  [/\b(school|schools|college|university|creche|daycare)\b/i, 'school'],
-  [/\b(airport|jewar|igi)\b/i, 'airport'],
-  [/\b(park|parks|biodiversity|golf|green\s+belt)\b/i, 'park'],
-  [/\b(temple|mosque|church|gurudwara)\b/i, 'place of worship'],
-  [/\b(expressway|highway|fng|dnd|link\s+road)\b/i, 'road'],
-  [/\b(office|it\s+park|business\s+park|tech\s+park|corporate)\b/i, 'workplace'],
-  [/\b(restaurant|cafe|food\s+court|cinema|multiplex|pvr|theatre)\b/i, 'leisure'],
+/**
+ * Landmark kinds a buyer asks about, and the `connectivity.type` values that
+ * answer each.
+ *
+ * Rows are selected by type, not by name. Name matching put "Gaur City Mall &
+ * Spectrum Metro High Street" into a metro answer because a mall had "Metro"
+ * in its name, and every airport row — IGI included — into a Jewar answer.
+ */
+const LANDMARKS: Array<[RegExp, string, string[]]> = [
+  [/\b(stadium|sports\s+city|sports\s+complex|cricket\s+ground|golf\s+course)\b/i, 'sports venue', ['landmark', 'park']],
+  [/\b(mall|malls|shopping\s+(?:centre|center|complex)|market)\b/i, 'shopping', ['mall', 'commercial']],
+  [/\b(metro|metro\s+station|aqua\s+line|blue\s+line)\b/i, 'metro', ['metro']],
+  [/\b(hospital|hospitals|medical|clinic|healthcare)\b/i, 'hospital', ['hospital']],
+  [/\b(school|schools|college|university|creche|daycare)\b/i, 'school', ['school', 'university']],
+  [/\b(airport|jewar|igi)\b/i, 'airport', ['airport']],
+  [/\b(park|parks|biodiversity|golf|green\s+belt)\b/i, 'park', ['park']],
+  [/\b(temple|mosque|church|gurudwara)\b/i, 'place of worship', ['landmark']],
+  [/\b(expressway|highway|fng|dnd|link\s+road)\b/i, 'road', ['road', 'expressway']],
+  [/\b(office|it\s+park|business\s+park|tech\s+park|corporate)\b/i, 'workplace', ['it_park', 'commercial']],
+  [/\b(restaurant|cafe|food\s+court|cinema|multiplex|pvr|theatre)\b/i, 'leisure', ['mall', 'commercial', 'landmark']],
 ]
+
+/** A named airport narrows the airport rows to that airport. */
+const NAMED_AIRPORT: Array<[RegExp, RegExp]> = [
+  [/\bjewar\b|noida\s+international/i, /jewar|noida\s+international/i],
+  [/\bigi\b|indira\s+gandhi|delhi\s+airport/i, /igi|indira\s+gandhi|delhi/i],
+]
+
+/** One landmark entered twice ("… Airport (Jewar DXN)", "… Airport (Jewar)") is one landmark. */
+const landmarkKey = (type: string, name: string) =>
+  `${type}:${name.toLowerCase().replace(/\(.*?\)/g, '').replace(/[^a-z0-9]+/g, ' ').trim()}`
 
 /** Words that make a question about the surroundings rather than the building. */
 const PROXIMITY =
@@ -48,7 +65,7 @@ export const vicinityLookupHandler: ChatTopicHandler = {
   matches: ctx =>
     ctx.flags.isCompareRequest !== true &&
     PROXIMITY.test(ctx.message) &&
-    LANDMARKS.some(([re]) => re.test(ctx.message)) &&
+    // "What is near Elite X?" names no landmark kind and wants all of them.
     Boolean(ctx.activeProjectName),
 
   handle: async ctx => {
@@ -72,25 +89,50 @@ export const vicinityLookupHandler: ChatTopicHandler = {
     })
     if (!project) return false // the unknown-project path handles this properly
 
-    const asked = LANDMARKS.filter(([re]) => re.test(ctx.message)).map(([, label]) => label)
-    const askedRe = new RegExp(
-      LANDMARKS.filter(([re]) => re.test(ctx.message)).map(([re]) => re.source).join('|'),
-      'i',
-    )
+    const askedKinds = LANDMARKS.filter(([re]) => re.test(ctx.message))
+    const asked = askedKinds.map(([, label]) => label)
+    // Never empty: `new RegExp('')` matches everything, which is how a bare
+    // "what is near X" used to pass every web answer.
+    const askedRe = askedKinds.length
+      ? new RegExp(askedKinds.map(([re]) => re.source).join('|'), 'i')
+      : /(?!)/
 
-    // Our own rows first: a match on the row's name or its type.
-    const hits = project.connectivity.filter(
-      c => askedRe.test(c.name) || askedRe.test(String(c.type).replace(/_/g, ' ')),
-    )
+    // Duplicates collapsed, nearest kept (rows arrive nearest first).
+    const seen = new Set<string>()
+    const rowsHeld = project.connectivity.filter(c => {
+      const key = landmarkKey(String(c.type), c.name)
+      if (seen.has(key)) return false
+      seen.add(key)
+      return true
+    })
+    const airportName = NAMED_AIRPORT.find(([asks]) => asks.test(ctx.message))?.[1]
+    const ofKind = (types: string[]) =>
+      rowsHeld.filter(c =>
+        types.includes(String(c.type)) &&
+        (String(c.type) !== 'airport' || !airportName || airportName.test(c.name)))
+
+    // Nothing specific asked: everything around the project, by type.
+    const hits = askedKinds.length ? askedKinds.flatMap(([, , types]) => ofKind(types)) : rowsHeld
 
     const km = (d: number | null) => (d == null ? null : d < 1 ? `${Math.round(d * 1000)} m` : `${d} km`)
 
     let body: string
     let tier: 'verified' | 'missing'
 
-    if (hits.length > 0) {
+    // "How far is ACE Parkway from the metro and Jewar airport?" asks for two
+    // numbers. It got a six-row table with two malls in it. One or two named
+    // kinds, each with a row, get one sentence: the nearest of each.
+    const nearestPerKind = askedKinds.map(([, , types]) => ofKind(types)[0])
+    if (askedKinds.length > 0 && askedKinds.length <= 2 && nearestPerKind.every(Boolean)) {
       tier = 'verified'
-      const rows = hits.slice(0, 6).map(c => {
+      const parts = nearestPerKind.map(c => {
+        const time = c.travel_time_min != null ? ` (about ${c.travel_time_min} min by road)` : ''
+        return `${km(c.distance_km) ?? 'an unrecorded distance'} from ${c.name}${time}`
+      })
+      body = `${project.name} (${project.sector}) is ${parts.join(', and ')}. Road distances from our records.`
+    } else if (hits.length > 0) {
+      tier = 'verified'
+      const rows = hits.slice(0, askedKinds.length ? 6 : 10).map(c => {
         const dist = km(c.distance_km)
         const time = c.travel_time_min != null ? `${c.travel_time_min} min` : '—'
         return `| ${c.name} | ${String(c.type).replace(/_/g, ' ').toLowerCase()} | ${dist ?? '—'} | ${time} |`
@@ -111,8 +153,9 @@ export const vicinityLookupHandler: ChatTopicHandler = {
        * it is named as one.
        */
       const query = `${project.name} ${project.sector} ${project.city ?? 'Noida'} ${asked.join(' ')} nearby distance`
+      const sectorLine = await sectorLevelDistances(project.sector, project.city, asked)
       let web = ''
-      try {
+      if (!sectorLine) try {
         const { answer, results } = await tavilySearch(query, 3)
         web = usableWebAnswer(answer || results[0]?.content?.slice(0, 320) || '', project.name, project.sector, askedRe)
       } catch (e) {
@@ -125,11 +168,15 @@ export const vicinityLookupHandler: ChatTopicHandler = {
           held.map(c => `| ${c.name} | ${String(c.type).replace(/_/g, ' ').toLowerCase()} | ${km(c.distance_km) ?? '—'} |`).join('\n')
         : ''
 
-      body =
-        `We have not recorded a ${asked.join(' or ')} against ${project.name}, so I can't confirm one from our own data.` +
+      if (sectorLine) {
+        body = `${sectorLine}\n\nThese are sector-level figures from our sector records, not measured from ${project.name}'s gate, so allow a kilometre or two either way.`
+      } else body =
+        (asked.length
+          ? `We have not recorded ${asked.length === 1 && /^[aeiou]/i.test(asked[0]) ? 'an' : 'a'} ${asked.join(' or ')} against ${project.name}, so I can't confirm one from our own data.`
+          : `We have not recorded the landmarks around ${project.name} yet, so I can't list them from our own data.`) +
         (web
           ? `\n\n**From public sources, not our records:** ${web.trim()}\n\nTreat that as unverified — worth confirming on the site visit or with the advisory team.`
-          : `\n\nI'd rather say that than guess. The advisory team can check it against the sanctioned layout.`) +
+          : `\n\nI'd rather say that than guess. The advisory team can share the location map and drive times, or you can check them on a site visit.`) +
         heldBlock
     }
 
@@ -148,6 +195,42 @@ export const vicinityLookupHandler: ChatTopicHandler = {
     ctx.res.end()
     return true
   },
+}
+
+/**
+ * Metro and airport distance for the project's sector, when the project has no
+ * row of its own.
+ *
+ * Most project-level connectivity rows were a copied template and were removed
+ * on 2026-10-05. sector_intelligence still holds a metro station and an airport
+ * distance per sector; a value shared by more than two sectors is that same
+ * template in another table and is not used.
+ */
+async function sectorLevelDistances(sector: string | null, city: string | null, asked: string[]): Promise<string> {
+  if (!sector) return ''
+  const wantMetro = asked.length === 0 || asked.includes('metro')
+  const wantAirport = asked.length === 0 || asked.includes('airport')
+  if (!wantMetro && !wantAirport) return ''
+
+  const rows = await prisma.sectorIntelligence.findMany({
+    where: { sector: { equals: sector, mode: 'insensitive' } },
+    select: { city: true, nearest_metro_station: true, metro_distance_km: true, airport_distance_km: true },
+  })
+  const r = rows.find(x => city && x.city.toLowerCase() === city.toLowerCase()) ?? (rows.length === 1 ? rows[0] : undefined)
+  if (!r) return ''
+
+  const parts: string[] = []
+  if (wantMetro && r.nearest_metro_station && r.metro_distance_km != null) {
+    const shared = await prisma.sectorIntelligence.count({
+      where: { nearest_metro_station: r.nearest_metro_station, metro_distance_km: r.metro_distance_km },
+    })
+    if (shared <= 2) parts.push(`the nearest metro is ${r.nearest_metro_station}, about ${r.metro_distance_km} km away`)
+  }
+  if (wantAirport && r.airport_distance_km != null) {
+    const shared = await prisma.sectorIntelligence.count({ where: { airport_distance_km: r.airport_distance_km } })
+    if (shared <= 2) parts.push(`Noida International Airport (Jewar) is about ${r.airport_distance_km} km away`)
+  }
+  return parts.length ? `From ${sector}, ${parts.join(', and ')}.` : ''
 }
 
 /**

@@ -68,7 +68,8 @@ import { parseLoanEmiQuestion } from '../lib/chat/handlers/loanEmi'
 import { maybeCompressTopical, TopicSummaries } from '../lib/chat/summaryCompression'
 import { isSpecificUnknownProject, logCoverageGap, fetchUnknownProjectContext, unknownProjectDirective } from '../lib/chat/coverageGap'
 import { statedMonthlyIncome, isAffordabilityQuestion, computeAffordability, renderAffordabilityTable, affordabilityDirective } from '../lib/ai/affordability'
-import { createChatTrace, recordChatTurn } from '../lib/monitoring/langfuse'
+import { createChatTrace, recordChatTurn, startTraceSpan, endTraceSpan } from '../lib/monitoring/langfuse'
+import { classifyQueryLocal } from '../lib/jev/localClassifier'
 import { isOutageNotice } from '../lib/ai/outageNotice'
 import { shouldCarryFocus } from '../lib/chat/focusCarry'
 import { scorePropertyEngagement } from '../lib/chat/propertyEngagement'
@@ -491,6 +492,7 @@ router.post('/', async (req: Request, res: Response) => {
       /\b(rent(?:al)?\s+(?:a\s+|an\s+)?(?:flat|apartment|house|home|room|property)|properties?\s+(?:for|to)\s+rent|looking\s+for\s+a\s+rental|(?:find|finding|get|getting|need|looking\s+for)\s+(?:a\s+|good\s+)?tenants?|tenant\s+(?:agreement|verification|screening)|landlord|airbnb|short[- ]?term\s+rental)\b/i.test(message) ||
       /\b(?:for|to|on)\s+rent\b/i.test(message) ||
       /\brental\s+propert/i.test(message) ||
+      /\b(pg\s+accommodation|paying\s+guest|hostel\s+accommodation)\b/i.test(message) ||
       /\bpropert\w*\s+for\s+auction\b/i.test(message) ||
       (/\brent\b/i.test(message) && /\b(flat|apartment|house|home|room|propert|bhk)/i.test(message)) ||
       /\b\d\s*[- ]?star\s+propert/i.test(message) ||
@@ -2590,6 +2592,30 @@ router.post('/', async (req: Request, res: Response) => {
     })
     turnTrace.query_kind = queryClassification.queryKind
 
+    /**
+     * One Langfuse trace for the whole turn, created here (not at the topic
+     * handler registry further down) so the spans below — the fast
+     * classifier, the catalog read, the topic-handler pass — all land as
+     * children of the same `chat_turn` trace instead of starting their own.
+     */
+    const chatTrace = createChatTrace({
+      id: langfuseTraceId,
+      sessionId: currentSessionId,
+      userId,
+      userMessage: message,
+      intent: String((intent as { queryKind?: string }).queryKind ?? ''),
+    })
+
+    // Day-7 fast classifier (Task 2.3): <2ms, zero-token read on the raw
+    // message. Instrumentation-only for now — nothing here changes the
+    // route. See backend/src/lib/jev/localClassifier.ts.
+    const fastClassifierSpan = startTraceSpan(chatTrace, 'fast_path_classifier', { message })
+    const fastClassification = classifyQueryLocal(message)
+    endTraceSpan(fastClassifierSpan, fastClassification)
+    if (fastClassification.matched) {
+      console.log('[CHAT:FAST_CLASSIFIER]', fastClassification)
+    }
+
     // ─── COVERAGE LANE ─────────────────────────────────────────────────────────
     if (action.type === 'TEXT_MESSAGE' && message) {
       let coverage: import('../lib/chat/coverageAnswer').CoverageAnswer | { text: string; projects?: never } | null = null
@@ -3182,10 +3208,12 @@ router.post('/', async (req: Request, res: Response) => {
     send('ui_state', preSearchUiState as unknown as Record<string, unknown>)
 
     // ─── GROUND TRUTH DATABASE PIPELINE (Lightweight Catalog Cache) ─────────────
+    const catalogSpan = startTraceSpan(chatTrace, 'db_project_retrieval')
     const allDbProjects = await timer.time('projectCatalog', () => projectCatalog())
+    endTraceSpan(catalogSpan, { projectCount: allDbProjects.length })
 
     // 0. ADVERSARIAL & JAILBREAK SHIELD
-    const isJailbreak = /ignore\s+(all\s+)?(previous\s+)?instructions|system\s+prompt|dan\s+mode|unrestricted\s+assistant|bypass\s+(paying\s+)?(taxes|laws)|jailbreak/i.test(message)
+    const isJailbreak = /ignore\s+(all\s+)?(previous\s+)?instructions|system\s+prompt|system\s+instructions|(print|reveal|repeat|show|output|display)\s+(me\s+)?(the\s+)?(exact\s+)?(your\s+)?(original\s+|internal\s+)?(system\s+|initial\s+)?(prompt|instructions)|dan\s+mode|unrestricted\s+assistant|bypass\s+(paying\s+)?(taxes|laws)|jailbreak/i.test(message)
     if (isJailbreak && action.type === 'TEXT_MESSAGE') {
       const jailbreakText = `### Security & Compliance Notice
 
@@ -3680,7 +3708,8 @@ I can help you with:
          * emitted, handlers included, so the answer needs no new plumbing.
          */
         let topicHandlerId = 'unknown'
-        if (await runTopicHandlers(CHAT_TOPIC_HANDLERS, {
+        const topicHandlerSpan = startTraceSpan(chatTrace, 'topic_handlers')
+        const topicHandlerMatched = await runTopicHandlers(CHAT_TOPIC_HANDLERS, {
           message,
           intent,
           sessionId: currentSessionId,
@@ -3691,14 +3720,12 @@ I can help you with:
            * other turn's trace is built — a handler answers from Postgres and
            * returns. So the deterministic half of the product, the half whose
            * tables we most want to see rendered, had no trace at all.
+           *
+           * Reuses `chatTrace`, the one trace created for this turn right
+           * after query classification, so this span and the fast-classifier /
+           * catalog spans above land on the same trace instead of three.
            */
-          trace: createChatTrace({
-            id: langfuseTraceId,
-            sessionId: currentSessionId,
-            userId,
-            userMessage: message,
-            intent: String((intent as { queryKind?: string }).queryKind ?? ''),
-          }),
+          trace: chatTrace,
           send,
           emitUiState,
           res,
@@ -3760,7 +3787,9 @@ I can help you with:
             // handler cannot claim every later turn off a sticky field.
             commuteAnchorJustStated,
           },
-        }, (id) => { topicHandlerId = id })) {
+        }, (id) => { topicHandlerId = id })
+        endTraceSpan(topicHandlerSpan, { matched: topicHandlerMatched, handlerId: topicHandlerId })
+        if (topicHandlerMatched) {
           /**
            * The integrity gate ran on model output and nowhere else.
            *

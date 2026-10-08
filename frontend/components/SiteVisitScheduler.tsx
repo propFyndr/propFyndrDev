@@ -5,7 +5,7 @@ import {  m, AnimatePresence  } from 'framer-motion'
 import { Calendar, Clock, User, X } from 'lucide-react'
 
 import { API_BASE } from '@/lib/env'
-import { track } from '@/lib/analytics'
+import { track, trackSiteVisitBooked } from '@/lib/analytics'
 import { authHeaders } from '@/lib/authedFetch'
 import LeadSuccessModal from '@/components/LeadSuccessModal'
 
@@ -94,7 +94,7 @@ export default function SiteVisitScheduler({ projectId, projectSlug, projectName
       const data = await res.json()
       if (!res.ok) throw new Error(data.error ?? 'Failed to schedule visit')
       track('site_visit_requested', { project_slug: projectSlug, project_name: projectName })
-      track('site_visit_booked', {
+      trackSiteVisitBooked(projectId, {
         project_slug: projectSlug,
         project_name: projectName,
         visit_date: selectedDate.toISOString(),

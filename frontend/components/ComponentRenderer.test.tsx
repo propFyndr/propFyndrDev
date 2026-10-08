@@ -268,6 +268,31 @@ describe('ComponentRenderer', () => {
     })
   })
 
+  describe('CarpetLoadingVisualizer', () => {
+    it('renders carpet loading and layout efficiency visualizer correctly', () => {
+      const specs: ComponentSpec[] = [
+        {
+          type: 'carpet-loading-visualizer',
+          props: {
+            projectName: 'Gulshan Dynasty',
+            unitType: '4 BHK Luxury',
+            superAreaSqft: 2000,
+            carpetAreaSqft: 1500,
+            totalPriceCr: 2.5,
+            advertisedRatePerSqft: 12500,
+            totalFlats: 60,
+            totalLifts: 2,
+          },
+        },
+      ]
+      render(<ComponentRenderer specs={specs} />)
+      expect(screen.getByText('Gulshan Dynasty')).toBeInTheDocument()
+      expect(screen.getByText(/4 BHK Luxury · RERA Space Audit/)).toBeInTheDocument()
+      expect(screen.getAllByText(/25%/).length).toBeGreaterThan(0)
+      expect(screen.getByText(/Usable Carpet: 1500 sq.ft/)).toBeInTheDocument()
+    })
+  })
+
   describe('Dark Mode Support', () => {
     it('includes dark mode classes', () => {
       const specs: ComponentSpec[] = [

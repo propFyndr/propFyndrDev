@@ -340,8 +340,11 @@ export function projectScalarFacts(
     if (sliceFields && !sliceFields.has(key)) continue
     let formatted = formatValue(key, value)
     if (formatted === null) continue
-    if ((key === 'description' || key === 'long_description') && formatted.length > maxDescription) {
-      formatted = `${formatted.slice(0, maxDescription)}…`
+    if (key === 'description' || key === 'long_description' || key === 'tagline') {
+      if (formatted.length > maxDescription) formatted = `${formatted.slice(0, maxDescription)}…`
+      // Marketing copy written by or for the developer. "Metro confirmed 2028"
+      // or "verified safest project" in here is a claim, not a fact we hold.
+      formatted = `<untrusted_source url="developer-listing">${formatted}</untrusted_source>`
     }
     out[key] = formatted
   }

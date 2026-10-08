@@ -237,9 +237,14 @@ describe('rendered sector comparison', () => {
     // Atmosphere" and "Social Infrastructure" — three rows with nothing behind
     // them, which the model filled from memory under a "Verified" header.
     const t = renderSectorComparisonTable(stats(), stats({ sector: 'Sector 137' }))
-    assert.match(t, /Projects listed/) // renamed: a market question, not an inventory count
     assert.match(t, /Price band/)
     assert.ok(!/Livability|Social Infrastructure|Metro & Transit/.test(t))
+    // Row counts of our own database are not a reason to choose a sector.
+    assert.ok(!/Projects listed|Ready to move/.test(t))
+    // A livability row appears only when a sector holds one.
+    assert.ok(!/Strengths/.test(t))
+    const withIntel = renderSectorComparisonTable(stats({ strengths: ['Dual metro interchange'] }), stats({ sector: 'Sector 137' }))
+    assert.match(withIntel, /\| \*\*Strengths\*\* \| Dual metro interchange \| Not recorded \|/)
   })
 })
 

@@ -2,6 +2,7 @@ import type { ChatTopicHandler } from '../handlerContext'
 import { sectorWhereClause } from '../../discovery/normalize'
 import { prisma } from '../../db'
 import { UP_STATUTORY, unverified } from '../../factPresentation'
+import { matchProjectInText } from '../../discovery/matchProjectInText'
 
 /**
  * "Which of these are ready to move?" / "ready vs under construction"
@@ -30,6 +31,33 @@ export const possessionStatusHandler: ChatTopicHandler = {
   matches: ctx => ctx.flags.singleTopic === true && (ctx.flags.isReadyToMoveQuery === true),
 
   handle: async ctx => {
+    /**
+     * "Is Elite X ready to move?" is a yes or no about one building. It got a
+     * six-project table of its sector, with the answer in row one.
+     */
+    // Named in this message only — a focus carried from an earlier turn must
+    // not turn "ready to move flats in Sector 150" into one project's answer.
+    const named = matchProjectInText(ctx.message, ctx.catalog)
+    const one = named
+      ? await prisma.project.findUnique({
+          where: { id: named.id },
+          select: { name: true, status: true, possession_label: true, rera_number: true },
+        })
+      : null
+    if (one) {
+      const ready = one.status === 'ready_to_move' || !!one.possession_label?.toLowerCase().includes('delivered')
+      const when = one.possession_label ? `; possession is committed for ${one.possession_label}` : '; we do not hold a committed possession date'
+      const rera = one.rera_number ? ` (UP-RERA ${one.rera_number})` : ''
+      const text = ready
+        ? `**Yes — ${one.name} is ready to move**${rera}. Ask for the Occupancy Certificate for your tower before paying: GST is ${UP_STATUTORY.gstReadyToMovePct}% only once OC is granted.`
+        : `**No — ${one.name} is under construction**${when}${rera}. An under-construction purchase carries ${UP_STATUTORY.gstUnderConstructionPct}% GST, and the RERA date is the one the builder is legally held to.`
+      ctx.send('token', { token: text })
+      ctx.emitUiState({ stage: 'RESEARCH', thinking: `Move-in status for ${one.name}:`, chips: [], missingFields: [], confidence: 'HIGH' })
+      ctx.send('done', { sessionId: ctx.sessionId, intentState: 'SHORTLISTED', intent: ctx.intent, responseMode: 'chat' })
+      ctx.res.end()
+      return
+    }
+
     const sectorMatch = ctx.message.match(/Sector\s*(\d+[A-Za-z]?)/i)
     const sector = sectorMatch
       ? `Sector ${sectorMatch[1]}`

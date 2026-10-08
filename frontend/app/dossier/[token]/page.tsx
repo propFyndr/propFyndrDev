@@ -33,7 +33,7 @@ import {
   Scale,
 } from 'lucide-react'
 import { API_BASE } from '@/lib/env'
-import { track } from '@/lib/analytics'
+import { trackDossierShared } from '@/lib/analytics'
 
 interface ConsultationStep {
   step: number
@@ -152,7 +152,7 @@ export default function DossierPage({ params }: { params?: { token?: string } })
 
   const handleCopyLink = () => {
     if (typeof window !== 'undefined') {
-      track('dossier_shared', { channel: 'copy', surface: 'dossier_page' })
+      trackDossierShared(String(token), { channel: 'copy', surface: 'dossier_page' })
       navigator.clipboard.writeText(window.location.href)
       setCopiedLink(true)
       setTimeout(() => setCopiedLink(false), 2500)
@@ -161,7 +161,7 @@ export default function DossierPage({ params }: { params?: { token?: string } })
 
   const handleShareWhatsApp = () => {
     if (typeof window !== 'undefined' && dossier) {
-      track('dossier_shared', { channel: 'whatsapp', surface: 'dossier_page' })
+      trackDossierShared(String(token), { channel: 'whatsapp', surface: 'dossier_page' })
       const trailBullets = (dossier.consultationTrail || [])
         .slice(0, 3)
         .map(s => `• ${s.userQuestion} — ${s.groundRealityVerdict}`)

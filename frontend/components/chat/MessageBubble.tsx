@@ -37,6 +37,8 @@ import PropertyQuickActions from '@/components/chat/PropertyQuickActions'
 import { SuggestionChip } from '@/components/chat/SuggestionChip'
 import { CardSelectorChip } from '@/components/chat/CardSelectorChip'
 import { useInlineEdit } from '@/hooks/useInlineEdit'
+import { useTypewriter } from '@/lib/chat/typewriterBuffer'
+import { tagHeldReraNumbers } from '@/lib/chat/reraPills'
 import type { ChatMessage } from '@/types/property'
 import type { ProjectCard as ProjectCardType } from '@/types/project'
 import type { ChipPickerState } from './types'
@@ -48,6 +50,10 @@ const RealtyChart = dynamic(() => import('@/components/RealtyChart'), {
 import RealtyBox from '@/components/RealtyBox'
 import ContactButton from '@/components/ContactButton'
 import { DossierShareCard } from './DossierShareCard'
+import ProvenancePill from '@/components/chat/ProvenancePill'
+import type { VerificationProofData } from '@/components/chat/VerificationProofDrawer'
+
+const VerificationProofDrawer = dynamic(() => import('@/components/chat/VerificationProofDrawer'), { ssr: false })
 
 // Narrowed shape of ChipAction.payload actually read by the card-selector chip flow.
 interface ChipCardPayload {
@@ -69,6 +75,7 @@ const Markdown = dynamic(() => import('@/components/response/Markdown'), {
 
 const SectorMap = dynamic(() => import('@/components/SectorMap'), { ssr: false })
 const ComparisonTable = dynamic(() => import('@/components/ComparisonTable'), { ssr: false })
+const CarpetLoadingVisualizer = dynamic(() => import('@/components/chat/CarpetLoadingVisualizer'), { ssr: false })
 const AffordabilityCard = dynamic(() => import('@/components/chat/AffordabilityCard'), { ssr: false })
 const ComponentRenderer = dynamic(() => import('@/components/ComponentRenderer').then(m => ({ default: m.ComponentRenderer })), { ssr: false })
 
@@ -475,6 +482,7 @@ function areEqual(prev: MessageBubbleProps, next: MessageBubbleProps): boolean {
     prev.message.responseMode === next.message.responseMode &&
     prev.message.showComparisonTable === next.message.showComparisonTable &&
     prev.message.affordabilityData === next.message.affordabilityData &&
+    prev.message.carpetData === next.message.carpetData &&
     prev.message.highlights === next.message.highlights &&
     prev.message.amenities === next.message.amenities &&
     prev.message.images === next.message.images &&
@@ -505,14 +513,17 @@ function MessageBubbleInner({
   // answer is a loading skeleton, and actions under a skeleton act on nothing
   // the buyer can see. The import resolves from cache after the first message.
   const [markdownReady, setMarkdownReady] = useState(false)
+  const [selectedProof, setSelectedProof] = useState<VerificationProofData | null>(null)
   useEffect(() => {
     let live = true
     const done = () => { if (live) setMarkdownReady(true) }
     import('@/components/response/Markdown').then(done, done)
     return () => { live = false }
   }, [])
-  const displayContent = message.content || ''
-  const inlineEdit = useInlineEdit(displayContent)
+  const rawDisplayContent = message.content || ''
+  const isStreamingActive = !isUser && isLast && isSubmitting
+  const displayContent = useTypewriter(rawDisplayContent, isStreamingActive)
+  const inlineEdit = useInlineEdit(rawDisplayContent)
   const rawChips: import('./types').ChipAction[] = [...((message.chips as import('./types').ChipAction[]) || []), ...(isLast ? chips : [])]
 
   // If no backend chips provided yet on this message, adapt intelligent discovery chips into native SuggestionChips
@@ -626,6 +637,69 @@ function MessageBubbleInner({
     []
   ) as ProjectCardType[];
 
+  const renderAnchor = ({ node, ...props }: any) => {
+    const href = props.href || ''
+    if (href.startsWith('#provenance:')) {
+      const claim = decodeURIComponent(href.slice(12))
+      // The claim text is model-written, so a badge alone proves nothing. It
+      // earns one only when it names a RERA number we hold for a project in
+      // this turn; anything else is shown as the plain words it is.
+      const claimUpper = claim.toUpperCase()
+      const backing = [...shelfProjects, ...lastShortlist].find(
+        p => p.rera_number && claimUpper.includes(p.rera_number.toUpperCase())
+      )
+      if (!backing) return <span>{claim}</span>
+      const haryana = backing.rera_number!.toUpperCase().startsWith('HRERA')
+      return (
+        <ProvenancePill
+          claim={claim}
+          onClick={() => {
+            track('provenance_pill_clicked', { claim, session_id: sessionId })
+            setSelectedProof({
+              claim,
+              projectName: backing.name,
+              authorityName: haryana
+                ? 'Haryana Real Estate Regulatory Authority (HARERA)'
+                : 'Uttar Pradesh Real Estate Regulatory Authority (UP RERA)',
+              certificateId: backing.rera_number,
+              officialUrl: haryana ? 'https://haryanarera.gov.in' : 'https://up-rera.in',
+            })
+          }}
+        />
+      )
+    }
+    if (href.startsWith('#entity:')) {
+      const projectId = href.slice(8)
+      const projectName = String(props.children)
+      return (
+        <button
+          onClick={() => onAction?.({
+            id: `entity:${projectId}`,
+            actionType: 'TEXT_MESSAGE',
+            label: `Tell me more about ${projectName}`,
+            icon: 'ℹ️',
+            analyticsId: `entity_mention:${projectId}`,
+            priority: 2,
+            payload: { text: `Tell me more about ${projectName}` },
+          })}
+          className="text-primary hover:underline cursor-pointer font-medium rounded-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+        >
+          {projectName}
+        </button>
+      )
+    }
+    if (href.startsWith('/dossier/') || href.includes('/dossier/')) {
+      return (
+        <DossierShareCard
+          href={href}
+          label={String(props.children) || 'Dossier of this conversation'}
+          onToast={onToast}
+        />
+      )
+    }
+    return <a {...props} className="text-primary hover:underline" />
+  }
+
   return (
     <m.div
       initial={isRestoring ? false : { opacity: 0, y: 4 }}
@@ -644,6 +718,7 @@ function MessageBubbleInner({
           sector={shelfProjects[0]?.sector ?? null}
           onMap={() => window.dispatchEvent(new CustomEvent('propfyndr:open-map'))}
           canCompare={shelfProjects.length >= 2}
+          onOpenCompareOverlay={() => onOpenCompare(shelfProjects)}
           compareActive={comparingMessageId === message.id}
           onCompare={() => {
             if (comparingMessageId === message.id) {
@@ -727,8 +802,6 @@ function MessageBubbleInner({
                 const intent = message.streamingIntent ?? currentIntent ?? null
                 const resultCount = message.streamingResultCount ?? (message.exactResults?.length ?? 0) + (message.nearbyResults?.length ?? 0)
                 const phase = (phaseStr || undefined) as 'searching' | 'generating' | 'extracting' | undefined
-                const isStreamingActive = isLast && isSubmitting
-
                 // Render Domain Execution Timeline at top of AI message (during streaming or when active)
                 const showTimeline = isStreamingActive || (!message.content && !hasProperties)
 
@@ -764,7 +837,7 @@ function MessageBubbleInner({
                         {/* Summary */}
                         {message.chatResponse.message && (
                           <div className="leading-relaxed font-normal">
-                            <Markdown>
+                            <Markdown raw components={{ a: renderAnchor } as any}>
                               {message.chatResponse.message}
                             </Markdown>
                           </div>
@@ -802,7 +875,7 @@ function MessageBubbleInner({
                         {/* Summary text */}
                         {summary && (
                           <div className="leading-relaxed font-normal">
-                            <Markdown>
+                            <Markdown raw components={{ a: renderAnchor } as any}>
                               {summary}
                             </Markdown>
                           </div>
@@ -831,7 +904,8 @@ function MessageBubbleInner({
                   const cleanDisplayContent = displayContent
                     .replace(/<realty-chart\b[^>]*\bdata=["']([\s\S]*?)["'][^>]*\/?>/gi, (_m, data) => '\n\n' + data.trim() + '\n\n')
                     .replace(/<\/?realty-(?:chart|box|action)[^>]*>/gi, '')
-                  const blocks = streaming ? null : parseResponseBlocks(cleanDisplayContent)
+                  const withPills = streaming ? cleanDisplayContent : tagHeldReraNumbers(cleanDisplayContent, [...shelfProjects, ...lastShortlist])
+                  const blocks = streaming ? null : parseResponseBlocks(withPills)
                   const renderMarkdown = (text: string) => (
                     <Markdown
                       raw
@@ -842,39 +916,7 @@ function MessageBubbleInner({
                         // sanitizer schema allows realty-action, so it must render as
                         // something rather than leaking an unknown element.
                         'realty-action': ({ node, ...props }: { node?: unknown } & HTMLAttributes<HTMLElement> & { label?: string }) => <ContactButton label={props.label || 'Request Callback'} className="my-2" />,
-                        a: ({ node, ...props }: any) => {
-                          const href = props.href || ''
-                          if (href.startsWith('#entity:')) {
-                            const projectId = href.slice(8)
-                            const projectName = String(props.children)
-                            return (
-                              <button
-                                onClick={() => onAction?.({
-                                  id: `entity:${projectId}`,
-                                  actionType: 'TEXT_MESSAGE',
-                                  label: `Tell me more about ${projectName}`,
-                                  icon: 'ℹ️',
-                                  analyticsId: `entity_mention:${projectId}`,
-                                  priority: 2,
-                                  payload: { text: `Tell me more about ${projectName}` },
-                                })}
-                                className="text-primary hover:underline cursor-pointer font-medium rounded-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-                              >
-                                {projectName}
-                              </button>
-                            )
-                          }
-                          if (href.startsWith('/dossier/') || href.includes('/dossier/')) {
-                            return (
-                              <DossierShareCard
-                                href={href}
-                                label={String(props.children) || 'Dossier of this conversation'}
-                                onToast={onToast}
-                              />
-                            )
-                          }
-                          return <a {...props} className="text-primary hover:underline" />
-                        }
+                        a: renderAnchor,
                       } as any}
                     >
                       {text}
@@ -913,7 +955,7 @@ function MessageBubbleInner({
                           <ResponseBlockRenderer blocks={blocks} renderText={(body) => <div className={ANSWER_PROSE}>{renderMarkdown(body)}</div>} />
                         ) : (
                           <>
-                            {renderMarkdown(displayContent)}
+                            {renderMarkdown(withPills)}
                             {streaming && (
                               <span className="inline-block w-1.5 h-4 bg-blue-600 dark:bg-blue-400 animate-pulse rounded-xs align-middle ml-1.5 shadow-xs" />
                             )}
@@ -1657,6 +1699,12 @@ function MessageBubbleInner({
         </div>
       )}
 
+      {message.type === 'ai' && message.carpetData && (
+        <div className="mt-3 w-full">
+          <CarpetLoadingVisualizer props={message.carpetData} />
+        </div>
+      )}
+
       {/* Context Menu (Right Click / Long Press) */}
       <AnimatePresence mode="wait">
         {contextMenu && (
@@ -1690,6 +1738,12 @@ function MessageBubbleInner({
           </m.div>
         )}
       </AnimatePresence>
+
+      <VerificationProofDrawer
+        proof={selectedProof}
+        onClose={() => setSelectedProof(null)}
+        onToast={onToast}
+      />
     </m.div>
 
   )

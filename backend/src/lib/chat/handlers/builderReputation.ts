@@ -151,8 +151,12 @@ export const builderReputationHandler: ChatTopicHandler = {
         add('Units delivered', b.delivered_units != null ? b.delivered_units.toLocaleString('en-IN') : null,
           'Homes handed over across all projects')
         add('Operating since', b.founded_year != null ? String(b.founded_year) : null, 'Year founded')
-        add('Litigation count', b.litigation_count != null ? (b.litigation_count === 0 ? 'Clean (0 active cases)' : `${b.litigation_count} public record(s)`) : 'None recorded', 'Public court & UP RERA records')
-        add('Insolvency / NCLT', b.insolvency_history ? 'Under NCLT proceedings' : 'Clean (No active moratorium)', 'Insolvency & Bankruptcy Board of India')
+        // Only what a row positively records. An empty litigation count read
+        // "None recorded" and a false-by-default insolvency flag read "Clean (No
+        // active moratorium)" — a clean bill asserted from a column nobody
+        // filled, about the exact risk the buyer asked to assess.
+        add('Litigation on record', b.litigation_count ? `${b.litigation_count} public record(s)` : null, 'Public court & UP RERA records')
+        add('Insolvency / NCLT', b.insolvency_history ? 'Insolvency proceedings on record' : null, 'Insolvency & Bankruptcy Board of India')
         if (b.legal_flag && b.legal_flag !== 'none') {
           add('Legal status flag', b.legal_flag, 'Verified regulatory status')
         }

@@ -97,3 +97,58 @@ describe('parseMonthlyIncome', () => {
     assert.equal(parseMonthlyIncome('flat for 2.5 cr'), undefined)
   })
 })
+
+import { parseStatedPrice } from '../affordabilityHandler'
+
+describe('parseStatedPrice', () => {
+  it('never reads an income figure as a price', () => {
+    assert.equal(parseStatedPrice('can I afford this on 2.5L salary?'), undefined)
+    assert.equal(parseStatedPrice('I earn 35 LPA can I buy?'), undefined)
+    assert.equal(parseStatedPrice('salary 50 lakh, can I afford?'), undefined)
+    assert.equal(parseStatedPrice('income is 1.2 cr per annum'), undefined)
+  })
+  it('reads a stated price', () => {
+    assert.equal(parseStatedPrice('emi for 2 crore house'), 20_000_000)
+    assert.equal(parseStatedPrice('flat for 90 lakh on 2L salary'), 9_000_000)
+  })
+})
+
+describe('affordabilityHandler with no price', () => {
+  const run = async (message: string, intent: Record<string, unknown>) => {
+    const tokens: string[] = []
+    const ui: any[] = []
+    await affordabilityHandler.handle({
+      message,
+      intent: { type: 'QUERY', ...intent } as any,
+      sessionId: 's-1',
+      send: (ev: string, data: any) => { if (ev === 'token') tokens.push(data.token) },
+      emitUiState: (s: any) => { ui.push(s) },
+      res: { end: () => {} } as any,
+      cachedProjects: [],
+      flags: {},
+      builders: [],
+      catalog: [],
+      intentState: 'START',
+    } as any)
+    return { text: tokens.join(''), ui: ui[0] }
+  }
+
+  it('asks for a price instead of inventing a benchmark', async () => {
+    const { text, ui } = await run('can I afford this on 2.5L salary?', {})
+    assert.match(text, /need a price/)
+    assert.doesNotMatch(text, /1\.50 Cr|Benchmark|EMI \*\*/)
+    assert.equal(ui.affordabilityData, undefined)
+    assert.ok(ui.chips.length > 0)
+  })
+
+  it('falls back to the budget remembered in intent, labelling assumptions', async () => {
+    const { text, ui } = await run('can I afford this on 2.5L salary?', { budgetMax: 2 })
+    assert.match(text, /₹2\.00 Cr/)
+    assert.match(text, /assumed rate/)
+    assert.match(text, /assumes 30% slab/)
+    assert.match(text, /typical for Noida — not verified/)
+    assert.match(text, /Rate Shock \(10\.0%\)/)
+    assert.equal(ui.affordabilityData.userMonthlyIncome, 250000)
+    assert.equal(ui.confidence, 'MEDIUM')
+  })
+})

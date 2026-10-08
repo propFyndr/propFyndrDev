@@ -126,6 +126,24 @@ async function buildSectorPricingContext(message: string, city: string): Promise
 
 import { searchNewsHybrid } from './vectorSearch'
 import { isNewsQuery } from '../chat/newsQuery'
+import { matchProjectInText } from '../discovery/matchProjectInText'
+import { projectCatalog } from '../projectCatalog'
+
+/**
+ * The row of a project the buyer named, when no other block answered.
+ *
+ * This lane looked up news, sector pricing and builders — never a project. So
+ * "Is Elite X ready to move?" reached the model with nothing about Elite X, and
+ * the prompt's own rule ("not in context: say we do not hold verified data")
+ * produced exactly that, about a project whose row says under construction,
+ * possession Dec 2028. A project we hold is never "not in context".
+ */
+async function buildNamedProjectContext(message: string): Promise<string> {
+  const hit = matchProjectInText(message, await projectCatalog())
+  if (!hit) return ''
+  const row = await prisma.project.findUnique({ where: { id: hit.id }, select: PROMPT_PROJECT_SELECT })
+  return row ? `Project on record (from this project's own rows):\n${projectLine(row)}` : ''
+}
 
 /**
  * One project line for the prompt, built only from the fields the row holds.
@@ -152,6 +170,7 @@ const PROMPT_PROJECT_SELECT = {
   price_range_label: true,
   status: true,
   rera_number: true,
+  possession_label: true,
 } as const
 
 for (const field of Object.keys(PROMPT_PROJECT_SELECT)) {
@@ -170,6 +189,7 @@ function projectLine(p: {
   price_range_label?: string | null
   status?: string | null
   rera_number?: string | null
+  possession_label?: string | null
   builder_name?: string | null
 }): string {
   const head = p.builder_name ? `${p.name} (${p.builder_name})` : p.name
@@ -179,6 +199,7 @@ function projectLine(p: {
   const price = p.price_range_label ?? (p.price_min_cr != null ? `from ₹${p.price_min_cr} Cr` : null)
   if (price) facts.push(price)
   if (p.status) facts.push(`status: ${p.status}`)
+  if (p.possession_label) facts.push(`possession: ${p.possession_label}`)
   if (p.rera_number) facts.push(`RERA: ${p.rera_number}`)
 
   return `- ${head}${where}${facts.length ? ` — ${facts.join(', ')}` : ''}`
@@ -240,7 +261,7 @@ async function buildNewsContext(message: string): Promise<string> {
   const parts = [
     `BUILDER ANNOUNCEMENT ON RECORD — published by the developer, not independently verified by us:`,
     `- Headline: "${newsItem.title}"`,
-    `- Announcement text, as supplied by the developer: ${newsItem.description}`,
+    `- Announcement text, as supplied by the developer: <untrusted_source url="developer-announcement">${newsItem.description}</untrusted_source>`,
   ]
   if (developer) parts.push(`- Developer: ${developer}`)
 
@@ -324,8 +345,10 @@ async function buildEntityContext(entity: string): Promise<string> {
     })
     if (news.length > 0) {
       parts.push(
-        `Recent verified announcements for ${builder.name}:\n` +
-          news.map((n) => `- "${n.title}": ${n.description}`).join('\n')
+        `Recent announcements by ${builder.name} — published by the developer, not verified by us:\n` +
+          `<untrusted_source url="developer-announcements">\n` +
+          news.map((n) => `- "${n.title}": ${n.description}`).join('\n') +
+          `\n</untrusted_source>`
       )
     }
   } catch {
@@ -339,6 +362,10 @@ async function buildEntityContext(entity: string): Promise<string> {
 // Was its own unbounded `prisma.builder.findMany` on every GENERAL turn,
 // including "hi". `builderMentionedIn` is the same match against a 300s cache.
 const findBuilderMentioned = builderMentionedIn
+
+/** A question about whether a builder can be trusted to deliver. */
+const BUILDER_TRUST_RE =
+  /\b(reliab\w*|trust\w*|track\s+record|reputation|credib\w*|safe|genuine|legit\w*|delays?|delayed|nclt|insolven\w*|bankrupt\w*|complaints?|fraud|scam|stuck|stalled|good\s+builder|bad\s+builder)\b/i
 
 /** Digits that carry no factual weight on their own. */
 const TRIVIAL_NUMBERS = new Set(['1', '2', '3', '0'])
@@ -449,6 +476,8 @@ export async function runGroundedAnswer(
   let dbContext = ''
   let fromDatabase = false
   let fromWeb = false
+  /** The builder this turn's database block describes, when it describes one. */
+  let builderName: string | null = null
 
   // 1. Check Database Fast-Path — nothing to find for a city we do not cover.
   if (!input.outOfCoverage) try {
@@ -461,11 +490,15 @@ export async function runGroundedAnswer(
         dbContext = await buildSectorPricingContext(message, city)
       } else if (detection.topic === 'ENTITY' && detection.entity) {
         dbContext = await buildEntityContext(detection.entity)
+        if (dbContext) builderName = detection.entity
       } else if (detection.topic === 'GENERAL') {
         const builderGuess = await findBuilderMentioned(message)
         if (builderGuess) dbContext = await buildEntityContext(builderGuess)
+        if (dbContext) builderName = builderGuess
       }
     }
+
+    if (!dbContext) dbContext = await buildNamedProjectContext(message)
 
     if (dbContext) fromDatabase = true
   } catch (err) {
@@ -501,10 +534,25 @@ export async function runGroundedAnswer(
     const query = input.outOfCoverage
       ? `${message.replace(/["“”]/g, ' ').slice(0, 100)} real estate market`
       : isEntity
-      ? `${detection.entity} ${city} real estate`
+      ? // The buyer's question rides along: "${entity} real estate" alone
+        // returns a generic profile, not the possession date or RERA status asked.
+        `${detection.entity} ${message.replace(/["“”]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 80)} ${city} real estate`
       : `${message.replace(/["“”]/g, ' ').slice(0, 100)} ${city}`
     try {
       webContext = await webSearch(query, 3)
+      if (webContext) fromWeb = true
+    } catch (err) {
+      console.warn('[GROUNDED:WEB_ERROR]', err)
+    }
+  } else if (builderName && BUILDER_TRUST_RE.test(message)) {
+    // "How reliable is Antriksh?" — our builder row holds what the builder
+    // filed and what an analyst entered; it does not hold NCLT petitions,
+    // RERA complaint counts or stalled towers. Answered from the row alone,
+    // a builder known for exactly those was called a solid operator. The
+    // record of trouble lives in public reporting, so a trust question reads
+    // it as well, from the trusted-domain list.
+    try {
+      webContext = await webSearch(`${builderName} builder Noida NCLT insolvency RERA complaints delayed projects`, 4)
       if (webContext) fromWeb = true
     } catch (err) {
       console.warn('[GROUNDED:WEB_ERROR]', err)
@@ -622,7 +670,10 @@ export async function runGroundedAnswer(
   // general knowledge are deliberately out of scope.
   let text = raw.trim()
   if (dbContext) {
-    const { text: checked, dropped } = stripUngroundedSentences(text, dbContext)
+    // A trust answer quotes figures from the public record we fetched; those
+    // are supplied numbers too, not drift.
+    const reference = builderName && webContext ? `${dbContext}\n${webContext}` : dbContext
+    const { text: checked, dropped } = stripUngroundedSentences(text, reference)
     if (dropped.length > 0) {
       console.warn('[GROUNDED:UNGROUNDED_DROPPED]', { count: dropped.length, first: dropped[0]?.slice(0, 120) })
     }
@@ -633,7 +684,7 @@ export async function runGroundedAnswer(
 
   if (!text || text.length < 10) return null
 
-  if (fromWeb && !fromDatabase && !text.includes(PUBLIC_RECORD_NOTICE_BADGE)) {
+  if (fromWeb && (!fromDatabase || builderName) && !text.includes(PUBLIC_RECORD_NOTICE_BADGE)) {
     text = `${PUBLIC_RECORD_NOTICE_BADGE}\n\n${text}`
   }
 

@@ -71,9 +71,30 @@ export async function rentalAnswer(message: string, city = 'Noida'): Promise<Ren
   }
 }
 
-/** True when the question is about renting a home rather than rental yield. */
+/**
+ * Rent mentioned as context, not asked about: yield/ROI maths, letting out a
+ * flat the buyer would own, rent-vs-buy, or the buyer's own current tenancy
+ * ("we currently rent in Indirapuram, want to buy a 3bhk"). This lane runs
+ * before every other lane in chat-router, so each of these must fall through.
+ */
+const RENT_AS_CONTEXT = new RegExp(
+  [
+    String.raw`\b(?:yield|roi|returns?|income|potential|appreciation)\b`,
+    String.raw`\b(?:buy|buying|purchase|purchasing|invest|investing|investment)\b`,
+    String.raw`\brent(?:ing)?\s+(?:it|this|that|them)\b`,
+    String.raw`\b(?:rent|let)\s+out\b`,
+    String.raw`\brents?\s+(?:for|at)\s+(?:₹|rs\.?\s*|inr\s*)?\d`,
+    // "can I rent a 2bhk" is a real ask, so a bare "i rent" is not excluded.
+    String.raw`\b(?:i|we)\s+(?:now|already)\s+rent\b`,
+    String.raw`\b(?:i\s+am|i'm|we\s+are|we're)\s+(?:currently\s+)?renting\b`,
+    String.raw`\b(?:living|staying)\s+(?:on|in)\s+(?:a\s+)?rent`,
+    String.raw`\b(?:currently|keep|still)\s+rent(?:ing)?\b`,
+  ].join('|'),
+)
+
+/** True only when the buyer is asking what it costs to rent a flat. */
 export function isRentalQuestion(message: string): boolean {
   const m = (message || '').toLowerCase()
-  if (/\byield\b/.test(m)) return false
-  return /\brent(al|als|ing)?\b|\bfor rent\b|\bto let\b|\btenant\b/.test(m)
+  if (RENT_AS_CONTEXT.test(m)) return false
+  return /\brent(?:s|al|als|ing)?\b|\bto[ -]let\b|\bkira(?:a)?y[ae]\b/.test(m)
 }

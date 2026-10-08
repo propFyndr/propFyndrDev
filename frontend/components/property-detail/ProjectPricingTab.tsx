@@ -76,8 +76,20 @@ export default function ProjectPricingTab({ unitTypes, detail, loading, onGoToCo
   const unitMaxCr: number | null = selectedUnit?.price_max_cr ?? null
   const unitAreaSqft: number | null = selectedUnit?.super_area_sqft ?? null
 
+  const normalizeToRupees = (val: number | null | undefined): number => {
+    if (!val || isNaN(val)) return 10_000_000
+    return val > 10_000 ? Math.round(val) : Math.round(val * 10_000_000)
+  }
+
   // Interactive EMI State (synced precisely with property price & selected unit)
-  const [propertyPrice, setPropertyPrice] = useState<number>(unitMinCr ? unitMinCr * 10000000 : 0)
+  const [propertyPrice, setPropertyPrice] = useState<number>(() => normalizeToRupees(unitMinCr))
+
+  useEffect(() => {
+    if (unitMinCr != null) {
+      setPropertyPrice(normalizeToRupees(unitMinCr))
+    }
+  }, [unitMinCr])
+
   const [downPaymentPct, setDownPaymentPct] = useState<number>(20)
   const [tenureYears, setTenureYears] = useState<number>(20)
 

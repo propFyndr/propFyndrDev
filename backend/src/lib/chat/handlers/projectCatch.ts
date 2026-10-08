@@ -31,6 +31,10 @@ function loadProject(id: string) {
   return prisma.project.findUnique({ where: { id }, select })
 }
 
+/** `legal_flag` stores the string 'none' for a clean record; that is not a flag. */
+const isFlag = (f: string | null | undefined): f is string => Boolean(f) && !/^none$/i.test(f!.trim())
+const humanFlag = (f: string) => f.replace(/_/g, ' ').toLowerCase()
+
 /** Same BHK listed at per-sqft rates more than 15% apart: which one is current? */
 function priceInconsistency(row: Row): string | null {
   const byBhk = new Map<number, number[]>()
@@ -72,12 +76,12 @@ export function catchAnswer(row: Row): string {
   }
 
   if (!row.rera_number) found.push('We hold no UP-RERA registration number for it. Do not pay any amount until you have seen one.')
-  if (row.legal_flag) found.push(`Legal flag on record: ${row.legal_flag}.`)
+  if (isFlag(row.legal_flag)) found.push(`Legal flag on record: ${humanFlag(row.legal_flag)}.`)
   const litigation = row.ongoing_litigation_count ?? row.litigation_count
   if (typeof litigation === 'number' && litigation > 0) found.push(`${litigation} litigation case${litigation === 1 ? '' : 's'} on record against the project.`)
   if (row.nclt_moratorium_active) found.push('An NCLT moratorium is active on the project.')
   if (row.builder?.insolvency_history) found.push(`${row.builder.name} has insolvency history on record.`)
-  if (row.builder?.legal_flag) found.push(`Legal flag on the developer: ${row.builder.legal_flag}.`)
+  if (isFlag(row.builder?.legal_flag)) found.push(`Legal flag on the developer, ${row.builder.name}: ${humanFlag(row.builder.legal_flag)}.`)
   if (typeof row.builder?.delayed_projects_count === 'number' && row.builder.delayed_projects_count > 0) {
     found.push(`${row.builder.name} has ${row.builder.delayed_projects_count} delayed project${row.builder.delayed_projects_count === 1 ? '' : 's'} on record.`)
   }
@@ -95,9 +99,12 @@ export function catchAnswer(row: Row): string {
   gaps.push('The carpet area of your exact unit, in writing, next to the super area')
   gaps.push('Every charge beyond the base price: PLC, parking, club, IFMS, power backup')
 
+  // The empty case used to read "Nothing adverse in our records. That is not
+  // the same as nothing adverse" — defensive, and it told the buyer nothing.
+  // Name what was checked; the gaps list below covers what was not.
   const foundBlock = found.length
     ? found.map((f) => `- ${f}`).join('\n')
-    : '- Nothing adverse in our records. That is not the same as nothing adverse — our records do not cover everything below.'
+    : `- No court case, NCLT proceeding, authority-dues block or registry restriction is on record against ${row.name} or its developer.`
 
   return `### The catch with ${row.name}
 

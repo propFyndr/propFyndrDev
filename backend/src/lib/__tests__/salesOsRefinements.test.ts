@@ -22,6 +22,7 @@ import {
   getNonObviousOwnerFactorsGuide,
   detectSectorCluster,
 } from '../advisory/marketAdvisory'
+import { MARKET_QUALIFIER } from '../factPresentation'
 import { executeJevDecision, type JevExecutionContext } from '../jev/execute'
 import type { JevDecision } from '../jev/decision'
 import type { Intent } from '../discovery/types'
@@ -128,13 +129,50 @@ describe('Sales-OS Market Advisory & Zero-Project-Name Invariant (Phase 6)', () 
       assert.equal(/\b(?:ATS|Godrej|Mahagun|Eldeco|Supertech)\s+[A-Za-z]+/i.test(output), false)
     })
 
-    it('resale response explains 90-year leasehold and tripartite deed when tenure is asked', () => {
+    it('resale response explains leasehold tenure and tripartite deed when tenure is asked', () => {
       const output = formatResaleAdvisory('before buying a resale flat in noida is land leasehold or freehold')
 
-      assert.ok(/90-year\s+leasehold/i.test(output), 'Must explain 90-year leasehold')
+      assert.ok(/most noida\/greater noida apartment land is authority leasehold \(typically 90-year\)/i.test(output), 'Must state the hedged leasehold norm')
+      assert.ok(/confirm the tenure in the sale deed/i.test(output), 'Must send the buyer to the deed')
       assert.ok(/tripartite\s+sub-lease\s+deed/i.test(output), 'Must explain Tripartite Sub-Lease Deed')
       assert.ok(/transfer\s+memorandum\s*\(\s*tm\s*\)/i.test(output), 'Must explain TM / NOC')
-      assert.ok(/no\s+freehold/i.test(output), 'Must clarify absence of freehold apartment land')
+      // No absolute tenure claims: some Noida land is not 90-year leasehold.
+      assert.equal(/no\s+freehold|all\s+residential\s+land/i.test(output), false)
+    })
+  })
+
+  describe('Market-tier figures and capability claims (CLAUDE.md Four Tiers)', () => {
+    const outputs: Array<[string, string]> = [
+      ['rental table', formatRentalAdvisory('rent in sector 150')],
+      ['rental tenant', formatRentalAdvisory('tenant demand to rent out in noida expressway')],
+      ['resale', formatResaleAdvisory('resale flat in greater noida west')],
+      ['resale tenure', formatResaleAdvisory('is resale land leasehold or freehold in central noida')],
+      ['out of scope city', formatOutOfScopeCityAdvisory('flats in gurgaon', 'gurgaon')],
+      ['commercial', formatCommercialAdvisory('commercial shop')],
+      ['society', getSocietyFinancialHealthChecklist()],
+      ['owner factors', getNonObviousOwnerFactorsGuide()],
+    ]
+
+    for (const [name, output] of outputs) {
+      it(`${name}: makes no "100%" claim`, () => {
+        assert.equal(/100\s*%/.test(output), false)
+      })
+
+      it(`${name}: every ₹ figure or % range line carries the market qualifier`, () => {
+        const figureLines = output
+          .split('\n')
+          .filter(l => /₹\s?\d|\d(?:\.\d+)?%?\s*[–-]\s*\d+(?:\.\d+)?%/.test(l))
+        for (const line of figureLines) {
+          assert.ok(line.includes(MARKET_QUALIFIER), `Unqualified figure line: ${line}`)
+        }
+      })
+    }
+
+    it('makes no unverifiable capability or sales-pitch claims', () => {
+      const all = outputs.map(([, o]) => o).join('\n')
+      assert.equal(/ground-level verification|testing municipal|exceptional|consumption|!/i.test(all), false)
+      assert.equal(/Land Dues[^\n]*Evaluable from our data/.test(all), false)
+      assert.equal(/Primary Tenant Segments|High-Velocity/i.test(all), false)
     })
   })
 

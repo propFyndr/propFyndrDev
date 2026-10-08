@@ -4,6 +4,7 @@ import { memo, useState } from 'react'
 import { BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 import { MapPin, Buildings, WarningCircle, CheckCircle, MapTrifold, PaperPlaneTilt, CurrencyInr, CalendarBlank } from '@phosphor-icons/react'
 import type { ComponentSpec } from '@/types/property'
+import CarpetLoadingVisualizer from '@/components/chat/CarpetLoadingVisualizer'
 
 // One card recipe for every component: flat surface, hairline border, no
 // gradient, no shadow at rest.
@@ -257,40 +258,8 @@ function ConfidenceBadge({ props }: { props: Record<string, any> }) {
   )
 }
 
-function RiskMeter({ props }: { props: Record<string, any> }) {
-  const riskLevel = props.riskLevel || 'medium'
-  // No bar without a score — a default of 0.5 drew a half-full meter from nothing.
-  const riskScore = typeof props.riskScore === 'number' ? props.riskScore : null
-
-  return (
-    <div className={CARD}>
-      <h3 className={`${TITLE} mb-3`}>Risk Assessment</h3>
-      <div className="flex items-center gap-3">
-        <WarningCircle size={20} className={riskLevel === 'high' ? 'text-red-600' : riskLevel === 'medium' ? 'text-amber-600' : 'text-emerald-600'} aria-hidden="true" />
-        <div className="flex-1">
-          <p className="text-[13px] font-medium text-zinc-900 dark:text-zinc-50 capitalize">{riskLevel} risk</p>
-          {riskScore !== null && (
-            <div className="w-full bg-zinc-200 dark:bg-zinc-700 rounded-full h-2 mt-1">
-              <div
-                className={`h-2 rounded-full ${riskLevel === 'high' ? 'bg-red-500' : riskLevel === 'medium' ? 'bg-amber-500' : 'bg-emerald-500'}`}
-                style={{ width: `${riskScore * 100}%` }}
-              />
-            </div>
-          )}
-        </div>
-      </div>
-      {props.concerns && (
-        <ul className="mt-3 space-y-1 text-[12px] text-zinc-600 dark:text-zinc-300">
-          {props.concerns.map((concern: string, i: number) => (
-            <li key={i} className="flex gap-2">
-              <span>•</span>
-              <span>{concern}</span>
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
-  )
+function RiskMeter() {
+  return null
 }
 
 function LeadForm({ props }: { props: Record<string, any> }) {
@@ -386,6 +355,8 @@ const COMPONENT_RENDERERS: Record<string, React.ComponentType<{ props: Record<st
   'confidence-badge': ConfidenceBadge,
   'risk-meter': RiskMeter,
   'lead-form': LeadForm,
+  'carpet-loading-visualizer': CarpetLoadingVisualizer,
+  'layout-efficiency': CarpetLoadingVisualizer,
 }
 
 // ─── Main Renderer ───────────────────────────────────────────────────────

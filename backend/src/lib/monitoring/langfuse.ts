@@ -59,6 +59,32 @@ export function createChatTrace(params: {
   }
 }
 
+export function startTraceSpan(trace: LangfuseTraceClient | null | undefined, name: string, input?: any) {
+  if (!trace) return null
+  try {
+    return (trace as any).span({
+      name,
+      input,
+      startTime: new Date(),
+    })
+  } catch {
+    return null
+  }
+}
+
+export function endTraceSpan(span: any, output?: any, metadata?: Record<string, any>) {
+  if (!span) return
+  try {
+    span.end({
+      output,
+      metadata,
+      endTime: new Date(),
+    })
+  } catch {
+    // never block on telemetry
+  }
+}
+
 /**
  * The one record of a turn: what the buyer asked, what they were shown, and
  * which exit answered.

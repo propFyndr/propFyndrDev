@@ -16,6 +16,14 @@ describe('detectOpenQuery', () => {
     }
   })
 
+  it('reads Elite as a brand unless it qualifies people or a place', () => {
+    assert.equal(detectOpenQuery('where do elite people live in noida', false)?.topic, 'SECTOR_PROFILE')
+    for (const q of ['its elite x by elite group sector 10 greater noida west.', 'should I move to elite homz sector 77']) {
+      assert.notEqual(detectOpenQuery(q, false)?.topic, 'SECTOR_PROFILE', q)
+      assert.equal(detectOpenQuery(q, true), null, q)
+    }
+  })
+
   it('extracts the subject of a named-entity lookup', () => {
     assert.equal(detectOpenQuery('Tell me about Investors Clinic', false)?.entity, 'Investors Clinic')
     assert.equal(detectOpenQuery('Who are the founders of Elite Group?', false)?.entity, 'Elite Group')

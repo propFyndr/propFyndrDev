@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
+import { m, AnimatePresence } from 'framer-motion'
 import { useDialogA11y } from '@/hooks/useDialogA11y'
 import { CaretDown, Check, MagnifyingGlass, X } from '@phosphor-icons/react'
 
@@ -247,9 +248,9 @@ export function FilterDock({
             type="button"
             onClick={() => setOpenField(null)}
             aria-label="Close"
-            className="p-1.5 -m-1 text-text-muted hover:text-text-primary cursor-pointer"
+            className="p-2.5 -m-1 min-h-[48px] min-w-[48px] flex items-center justify-center text-text-muted hover:text-text-primary cursor-pointer"
           >
-            <X size={13} weight="bold" />
+            <X size={14} weight="bold" />
           </button>
         )}
       </div>
@@ -277,7 +278,7 @@ export function FilterDock({
           <button
             type="submit"
             disabled={!draft.trim()}
-            className="mt-1.5 w-full py-2.5 rounded-xs text-[13px] font-semibold bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer transition-opacity"
+            className="mt-1.5 w-full py-2.5 min-h-[48px] sm:min-h-[38px] rounded-xs text-[13px] font-semibold bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer transition-opacity"
           >
             Apply
           </button>
@@ -312,12 +313,21 @@ export function FilterDock({
     </>
   )
 
+  const activeCount = PILLS.filter(p => p.format(state) !== null).length
+
   return (
     <>
       <div
         className="flex flex-wrap items-center gap-1 sm:gap-1.5 min-w-0 w-full"
         aria-label="Search filters"
       >
+        {activeCount > 0 && (
+          <div className="shrink-0 flex items-center pr-0.5">
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-semibold rounded-full bg-primary/10 text-primary border border-primary/20 select-none">
+              {activeCount} {activeCount === 1 ? 'filter' : 'filters'}
+            </span>
+          </div>
+        )}
         {PILLS.map(p => {
           const value = p.format(state)
           const isSet = value !== null
@@ -362,20 +372,26 @@ export function FilterDock({
                   />
                 </button>
 
-                {isSet && (
-                  <button
-                    type="button"
-                    disabled={disabled}
-                    // One dispatch, not one per cleared field: budget clears two
-                    // fields, and the second call hit the submit lock and
-                    // surfaced "still working on your last request".
-                    onClick={() => onRemove(p.clears, `Clear ${p.title.toLowerCase()}`)}
-                    aria-label={`Clear ${p.title.toLowerCase()}`}
-                    className="pr-2 pl-0.5 py-1.5 min-h-[32px] flex items-center text-text-muted hover:text-text-primary cursor-pointer"
-                  >
-                    <X size={10} weight="bold" />
-                  </button>
-                )}
+                <AnimatePresence>
+                  {isSet && (
+                    <m.button
+                      initial={{ opacity: 0, scale: 0.8, width: 0 }}
+                      animate={{ opacity: 1, scale: 1, width: 24 }}
+                      exit={{ opacity: 0, scale: 0.8, width: 0 }}
+                      transition={{ duration: 0.15 }}
+                      type="button"
+                      disabled={disabled}
+                      // One dispatch, not one per cleared field: budget clears two
+                      // fields, and the second call hit the submit lock and
+                      // surfaced "still working on your last request".
+                      onClick={() => onRemove(p.clears, `Clear ${p.title.toLowerCase()}`)}
+                      aria-label={`Clear ${p.title.toLowerCase()}`}
+                      className="pr-2 pl-0.5 py-1.5 min-h-[48px] sm:min-h-[32px] min-w-[28px] flex items-center justify-center text-text-muted hover:text-text-primary cursor-pointer overflow-hidden"
+                    >
+                      <X size={10} weight="bold" />
+                    </m.button>
+                  )}
+                </AnimatePresence>
               </div>
             </div>
           )

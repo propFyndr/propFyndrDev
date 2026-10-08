@@ -15,6 +15,9 @@ import {
   TrendingUp,
 } from 'lucide-react'
 import type { ProjectDetail, UnitTypeSummary } from '@/types/project'
+import { calculateStampDuty, calculateGst } from '@/lib/calculators'
+
+export const NOT_ON_RECORD = 'Not on record — ask the builder in writing'
 
 export interface CostSheetSectionProps {
   detail: ProjectDetail | null
@@ -36,7 +39,7 @@ export default function CostSheetSection({
   initialBhk,
 }: CostSheetSectionProps) {
   const availableBhks = useMemo(() => {
-    if (!unitTypes || unitTypes.length === 0) return ['2 BHK', '3 BHK', '4 BHK']
+    if (!unitTypes || unitTypes.length === 0) return []
     return Array.from(new Set(unitTypes.map((u) => `${u.bhk} BHK`)))
   }, [unitTypes])
 
@@ -52,60 +55,80 @@ export default function CostSheetSection({
     return unitTypes.find((u) => `${u.bhk} BHK` === selectedBhk) || unitTypes[0]
   }, [unitTypes, selectedBhk])
 
-  // Derive parameters from detail or unit
-  const areaSqft = customArea ?? unit?.super_area_sqft ?? (selectedBhk.includes('2') ? 1200 : selectedBhk.includes('3') ? 1650 : 2200)
-  const rawPriceMinCr = unit?.price_min_cr ?? 1.25
-  const baseRatePerSqft = customBspRate ?? (areaSqft > 0 ? Math.round((rawPriceMinCr * 10000000) / areaSqft) : 7500)
+  // Every builder charge below comes from this project's cost_sheet row. A
+  // charge we don't hold is shown as NOT_ON_RECORD and left out of the totals —
+  // never replaced with a typical Noida figure.
+  const cs = detail?.cost_sheet ?? null
 
-  // Base Agreement Value
-  const baseSalePrice = areaSqft * baseRatePerSqft
+  // No unit area → no per-sqft charges. No price → no sheet.
+  const areaSqft: number | null = customArea ?? unit?.super_area_sqft ?? null
+  const unitPriceRs = unit?.price_min_cr ? unit.price_min_cr * 10000000 : null
+  const baseRatePerSqft: number | null =
+    customBspRate ?? cs?.base_price_per_sqft ?? (unitPriceRs && areaSqft ? Math.round(unitPriceRs / areaSqft) : null)
+  const baseSalePrice: number | null =
+    areaSqft && baseRatePerSqft ? areaSqft * baseRatePerSqft : unitPriceRs
 
-  // Preferential Location & Parking / Other builder charges
-  const plcCharges = Math.round(baseSalePrice * 0.05) // ~5% typical PLC (corner, park, road)
-  const coveredParking = 350000 // Standard covered car parking slot in Noida/Gr Noida
-  const clubhouseCharges = 300000 // Standard club membership
+  // PLC is a list of options (corner, park, floor) — which apply depends on the unit,
+  // so it is not summed into the agreement value.
+  const plcOptions = cs?.plc_charges ?? []
+  const coveredParking = cs?.parking_cost ?? null
+  const clubhouseCharges = cs?.club_membership ?? null
+  const otherCharges = (cs?.other_charges ?? []).length > 0 && baseSalePrice != null
+    ? (cs?.other_charges ?? []).reduce(
+        (s, c) => s + (typeof c.amount === 'number' ? c.amount : typeof c.percent === 'number' ? Math.round(baseSalePrice * c.percent / 100) : 0),
+        0,
+      )
+    : null
+
+  const sum = (...xs: (number | null)[]) => xs.reduce<number>((s, x) => s + (x ?? 0), 0)
 
   // Agreement Value subject to Stamp Duty & Registration
-  const agreementValue = baseSalePrice + plcCharges + coveredParking + clubhouseCharges
+  const agreementValue = baseSalePrice != null ? sum(baseSalePrice, coveredParking, clubhouseCharges, otherCharges) : null
 
-  // Status & Statutory Schedule (UP RERA & Noida Authority Norms)
+  // Status & Statutory Schedule — rates from lib/calculators (UP statutory)
   const isReadyToMove = detail?.status === 'ready_to_move'
   const hasOc = detail?.oc_status === 'FULL_OC' || isReadyToMove
 
-  // GST: 0% on RTM with OC, 5% on under-construction non-affordable
-  const gstRate = hasOc ? 0 : 0.05
-  const gstAmount = Math.round(agreementValue * gstRate)
+  const stamp = agreementValue != null ? calculateStampDuty(agreementValue / 10000000, buyerGender) : null
+  const gst = agreementValue != null
+    ? (cs?.gst_applicable === false
+        ? { gst_amount: 0, gst_rate: 0 }
+        : calculateGst(agreementValue / 10000000, hasOc ? 'ready_to_move' : 'under_construction'))
+    : null
+  const gstAmount = gst?.gst_amount ?? null
+  const stampDutyRate = stamp?.stamp_duty_rate ?? calculateStampDuty(0, buyerGender).stamp_duty_rate
+  const stampDutyAmount = stamp?.stamp_duty ?? null
+  const registrationAmount = stamp?.registration ?? null
 
-  // Stamp Duty (UP): 7% for male/joint, 6% for sole female buyer
-  const stampDutyRate = buyerGender === 'female' ? 0.06 : 0.07
-  const stampDutyAmount = Math.round(agreementValue * stampDutyRate)
-
-  // Registration Charges: 1% capped/standard in UP
-  const registrationAmount = Math.round(agreementValue * 0.01)
-
-  // Possession & Operational Fixed Charges
-  const ifmsPerSqft = 75 // Interest-Free Maintenance Security standard ₹50-100/sqft
-  const ifmsAmount = areaSqft * ifmsPerSqft
-
-  const monthlyMaintRate = detail?.maintenance_per_sqft_monthly ?? 3.5
+  // Possession & Operational charges (rupees, per the cost_sheet convention)
+  const ifmsAmount = cs?.ifms ?? null
+  const monthlyMaintRate = cs?.maintenance_psf_monthly ?? detail?.maintenance_per_sqft_monthly ?? null
   const advanceMaintenanceMonths = 12
-  const advanceMaintenanceAmount = Math.round(areaSqft * monthlyMaintRate * advanceMaintenanceMonths)
-
-  const dualMeterCharges = 50000 // Dual source pre-paid smart meter installation (NPCL/PVVNL)
-  const legalAdvocateCharges = 25000 // Title search & registry advocate fee
+  const advanceMaintenanceAmount = monthlyMaintRate != null && areaSqft
+    ? Math.round(areaSqft * monthlyMaintRate * advanceMaintenanceMonths)
+    : null
+  const electricityCharges = cs?.electricity_connection ?? null
+  const waterSewerCharges = cs?.water_sewer_connection ?? null
 
   // Total Statutory & Government Outgo
-  const statutoryTotal = gstAmount + stampDutyAmount + registrationAmount + legalAdvocateCharges
+  const statutoryTotal = sum(gstAmount, stampDutyAmount, registrationAmount)
 
   // Total Possession & Operational Outgo
-  const possessionOutgoTotal = ifmsAmount + advanceMaintenanceAmount + dualMeterCharges
+  const possessionOutgoTotal = sum(ifmsAmount, advanceMaintenanceAmount, electricityCharges, waterSewerCharges)
 
-  // Total All-Inclusive Landed Purchase Outlay
-  const landedTotalCost = agreementValue + statutoryTotal + possessionOutgoTotal
+  // Total of the charges on record (missing ones are excluded, and flagged in the UI)
+  const landedTotalCost = agreementValue != null ? agreementValue + statutoryTotal + possessionOutgoTotal : null
+  const missingCount = [coveredParking, clubhouseCharges, ifmsAmount, advanceMaintenanceAmount, electricityCharges]
+    .filter((x) => x == null).length
 
-  // Multiplier over bare BSP
-  const multiplier = baseSalePrice > 0 ? (landedTotalCost / baseSalePrice) : 1.30
-  const outOfPocketDeltaPercent = Math.round((multiplier - 1) * 100)
+  const outOfPocketDeltaPercent = landedTotalCost != null && baseSalePrice
+    ? Math.round((landedTotalCost / baseSalePrice - 1) * 100)
+    : null
+
+  const money = (v: number | null) =>
+    v != null
+      ? <span className="font-bold text-gray-900 dark:text-white">{fmtRs(v)}</span>
+      : <span className="text-[11px] font-medium text-gray-400 text-right">{NOT_ON_RECORD}</span>
 
   return (
     <div className="bg-white dark:bg-[#111] ring-1 ring-inset ring-black/5 dark:ring-white/10 rounded-[24px] p-6 shadow-[0_2px_12px_rgba(0,0,0,0.03)] space-y-6">
@@ -158,20 +181,28 @@ export default function CostSheetSection({
               <span className="text-[11px] font-extrabold uppercase tracking-widest text-indigo-300">
                 Reality Check
               </span>
-              <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-400/20 text-amber-300 border border-amber-400/30 font-bold">
-                +{outOfPocketDeltaPercent}% over Base BSP
-              </span>
+              {outOfPocketDeltaPercent != null && (
+                <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-400/20 text-amber-300 border border-amber-400/30 font-bold">
+                  +{outOfPocketDeltaPercent}% over Base BSP
+                </span>
+              )}
             </div>
             <div className="mt-2 flex items-baseline gap-3">
               <span className="text-[28px] sm:text-[34px] font-black tracking-tight text-white">
-                {fmtCr(landedTotalCost / 10000000)}
+                {landedTotalCost != null ? fmtCr(landedTotalCost / 10000000) : 'Price not on record'}
               </span>
-              <span className="text-[13px] text-indigo-200/80 line-through">
-                BSP: {fmtCr(baseSalePrice / 10000000)}
-              </span>
+              {baseSalePrice != null && (
+                <span className="text-[13px] text-indigo-200/80 line-through">
+                  BSP: {fmtCr(baseSalePrice / 10000000)}
+                </span>
+              )}
             </div>
             <p className="text-[12px] text-indigo-200/90 font-medium mt-1">
-              Estimated total cheque + statutory outflow required to take legal possession.
+              {landedTotalCost == null
+                ? 'We do not hold a price for this unit — ask the builder for a written cost sheet.'
+                : missingCount > 0
+                  ? `Total of the charges on record. ${missingCount} builder charge${missingCount > 1 ? 's are' : ' is'} not on record and not included — ask the builder in writing.`
+                  : 'Total cheque + statutory outflow required to take legal possession, from the charges on record.'}
             </p>
           </div>
 
@@ -191,7 +222,7 @@ export default function CostSheetSection({
                       : 'text-white/80 hover:bg-white/10'
                   }`}
                 >
-                  {gender === 'joint' ? 'Male / Joint (7%)' : gender === 'female' ? 'Sole Female (6%)' : 'Male (7%)'}
+                  {`${gender === 'joint' ? 'Joint' : gender === 'female' ? 'Sole Female' : 'Male'} (${calculateStampDuty(0, gender).stamp_duty_rate}%)`}
                 </button>
               ))}
             </div>
@@ -209,14 +240,18 @@ export default function CostSheetSection({
             ) : (
               <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-300 font-bold text-[11px] border border-amber-500/30">
                 <AlertTriangle size={13} />
-                Under-Construction: 5% GST Applicable ({fmtRs(gstAmount)})
+                Under-Construction: {gst?.gst_rate ?? 5}% GST Applicable{gstAmount != null ? ` (${fmtRs(gstAmount)})` : ''}
               </span>
             )}
           </div>
-          <span className="text-white/60 text-[11px]">
-            Super Area: <strong className="text-white">{areaSqft.toLocaleString('en-IN')} sq.ft</strong> @{' '}
-            <strong className="text-white">₹{baseRatePerSqft.toLocaleString('en-IN')}/sq.ft</strong>
-          </span>
+          {areaSqft && baseRatePerSqft ? (
+            <span className="text-white/60 text-[11px]">
+              Super Area: <strong className="text-white">{areaSqft.toLocaleString('en-IN')} sq.ft</strong> @{' '}
+              <strong className="text-white">₹{baseRatePerSqft.toLocaleString('en-IN')}/sq.ft</strong>
+            </span>
+          ) : (
+            <span className="text-white/60 text-[11px]">Unit area not on record — per-sq.ft charges not computed</span>
+          )}
         </div>
       </div>
 
@@ -230,29 +265,37 @@ export default function CostSheetSection({
               <span>1. Agreement Value</span>
             </div>
             <span className="text-[12.5px] font-black text-gray-900 dark:text-white">
-              {fmtRs(agreementValue)}
+              {agreementValue != null ? fmtRs(agreementValue) : '—'}
             </span>
           </div>
 
           <div className="space-y-2 text-[12px]">
-            <div className="flex justify-between items-center text-gray-600 dark:text-gray-300">
-              <span>Base Sale Price ({areaSqft} sqft)</span>
-              <span className="font-bold text-gray-900 dark:text-white">{fmtRs(baseSalePrice)}</span>
+            <div className="flex justify-between items-center gap-3 text-gray-600 dark:text-gray-300">
+              <span>Base Sale Price{areaSqft ? ` (${areaSqft} sqft)` : ''}</span>
+              {money(baseSalePrice)}
             </div>
-            <div className="flex justify-between items-center text-gray-600 dark:text-gray-300">
+            <div className="flex justify-between items-center gap-3 text-gray-600 dark:text-gray-300">
               <span className="flex items-center gap-1">
-                PLC (Floor / Green / Road ~5%)
+                PLC (Floor / Green / Road)
               </span>
-              <span className="font-bold text-gray-900 dark:text-white">{fmtRs(plcCharges)}</span>
+              {plcOptions.length > 0
+                ? <span className="text-[11px] font-medium text-gray-500 text-right">Unit-dependent — {plcOptions.map((p) => p.label).join(', ')}</span>
+                : <span className="text-[11px] font-medium text-gray-400 text-right">{NOT_ON_RECORD}</span>}
             </div>
-            <div className="flex justify-between items-center text-gray-600 dark:text-gray-300">
-              <span>Covered Car Parking (1 Bay)</span>
-              <span className="font-bold text-gray-900 dark:text-white">{fmtRs(coveredParking)}</span>
+            <div className="flex justify-between items-center gap-3 text-gray-600 dark:text-gray-300">
+              <span>Covered Car Parking</span>
+              {money(coveredParking)}
             </div>
-            <div className="flex justify-between items-center text-gray-600 dark:text-gray-300">
+            <div className="flex justify-between items-center gap-3 text-gray-600 dark:text-gray-300">
               <span>Clubhouse Membership</span>
-              <span className="font-bold text-gray-900 dark:text-white">{fmtRs(clubhouseCharges)}</span>
+              {money(clubhouseCharges)}
             </div>
+            {otherCharges != null && (
+              <div className="flex justify-between items-center gap-3 text-gray-600 dark:text-gray-300">
+                <span>Other Charges on record</span>
+                {money(otherCharges)}
+              </div>
+            )}
           </div>
           <p className="text-[10.5px] text-gray-400 pt-1">
             *Agreement value constitutes the base contract amount on which government taxes are calculated.
@@ -272,21 +315,17 @@ export default function CostSheetSection({
           </div>
 
           <div className="space-y-2 text-[12px]">
-            <div className="flex justify-between items-center text-gray-600 dark:text-gray-300">
-              <span>UP Stamp Duty ({Math.round(stampDutyRate * 100)}%)</span>
-              <span className="font-bold text-gray-900 dark:text-white">{fmtRs(stampDutyAmount)}</span>
+            <div className="flex justify-between items-center gap-3 text-gray-600 dark:text-gray-300">
+              <span>UP Stamp Duty ({stampDutyRate}%)</span>
+              {money(stampDutyAmount)}
             </div>
-            <div className="flex justify-between items-center text-gray-600 dark:text-gray-300">
+            <div className="flex justify-between items-center gap-3 text-gray-600 dark:text-gray-300">
               <span>UP Registration Fee (1%)</span>
-              <span className="font-bold text-gray-900 dark:text-white">{fmtRs(registrationAmount)}</span>
+              {money(registrationAmount)}
             </div>
-            <div className="flex justify-between items-center text-gray-600 dark:text-gray-300">
-              <span>GST {hasOc ? '(0% - OC Exempt)' : '(5% - Under Construction)'}</span>
-              <span className="font-bold text-gray-900 dark:text-white">{fmtRs(gstAmount)}</span>
-            </div>
-            <div className="flex justify-between items-center text-gray-600 dark:text-gray-300">
-              <span>Advocate Legal & Stamping</span>
-              <span className="font-bold text-gray-900 dark:text-white">{fmtRs(legalAdvocateCharges)}</span>
+            <div className="flex justify-between items-center gap-3 text-gray-600 dark:text-gray-300">
+              <span>GST {hasOc ? '(0% - OC Exempt)' : `(${gst?.gst_rate ?? 5}% - Under Construction)`}</span>
+              {money(gstAmount)}
             </div>
           </div>
           <p className="text-[10.5px] text-gray-400 pt-1">
@@ -307,22 +346,24 @@ export default function CostSheetSection({
           </div>
 
           <div className="space-y-2 text-[12px]">
-            <div className="flex justify-between items-center text-gray-600 dark:text-gray-300">
-              <span>IFMS Security (₹{ifmsPerSqft}/sqft)</span>
-              <span className="font-bold text-gray-900 dark:text-white">{fmtRs(ifmsAmount)}</span>
+            <div className="flex justify-between items-center gap-3 text-gray-600 dark:text-gray-300">
+              <span>IFMS Security</span>
+              {money(ifmsAmount)}
             </div>
-            <div className="flex justify-between items-center text-gray-600 dark:text-gray-300">
-              <span>12 Months Maint. (₹{monthlyMaintRate}/sqft)</span>
-              <span className="font-bold text-gray-900 dark:text-white">{fmtRs(advanceMaintenanceAmount)}</span>
+            <div className="flex justify-between items-center gap-3 text-gray-600 dark:text-gray-300">
+              <span>12 Months Maint.{monthlyMaintRate != null ? ` (₹${monthlyMaintRate}/sqft)` : ''}</span>
+              {money(advanceMaintenanceAmount)}
             </div>
-            <div className="flex justify-between items-center text-gray-600 dark:text-gray-300">
-              <span>Dual Prepaid Smart Meter</span>
-              <span className="font-bold text-gray-900 dark:text-white">{fmtRs(dualMeterCharges)}</span>
+            <div className="flex justify-between items-center gap-3 text-gray-600 dark:text-gray-300">
+              <span>Electricity Connection</span>
+              {money(electricityCharges)}
             </div>
-            <div className="flex justify-between items-center text-gray-600 dark:text-gray-300">
-              <span>DG Power Backup Setup</span>
-              <span className="font-bold text-emerald-600 dark:text-emerald-400">Included in Meter</span>
-            </div>
+            {waterSewerCharges != null && (
+              <div className="flex justify-between items-center gap-3 text-gray-600 dark:text-gray-300">
+                <span>Water & Sewer Connection</span>
+                {money(waterSewerCharges)}
+              </div>
+            )}
           </div>
           <p className="text-[10.5px] text-gray-400 pt-1">
             *IFMS is an escrow corpus transferred to the Apartment Owners Association (AOA) upon formation.
@@ -359,7 +400,7 @@ export default function CostSheetSection({
               <span>
                 DG Rate:{' '}
                 <strong className="text-gray-900 dark:text-white">
-                  ₹{detail?.dg_power_rate_per_unit ?? 18}/unit
+                  {detail?.dg_power_rate_per_unit != null ? `₹${detail.dg_power_rate_per_unit}/unit` : 'Not verified'}
                 </strong>
               </span>
             </div>

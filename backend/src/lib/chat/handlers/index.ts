@@ -21,6 +21,7 @@ import { dossierHandler } from './dossierHandler'
 import { legalRiskHandler } from './legalRisk'
 import { projectCatchHandler } from './projectCatch'
 import { priceFairnessHandler } from './priceFairness'
+import { loanEmiHandler } from './loanEmi'
 
 /**
  * Topic handlers, in priority order — the first match wins.
@@ -103,6 +104,9 @@ export const CHAT_TOPIC_HANDLERS: readonly ChatTopicHandler[] = [
   statutoryTaxHandler,
   possessionStatusHandler,
   totalOutflowHandler,
+  // Before affordability: a stated loan amount is plain arithmetic, and the
+  // affordability lane would build a whole purchase around a default price.
+  loanEmiHandler,
   affordabilityHandler,
   dossierHandler,
   connectivityHandler,

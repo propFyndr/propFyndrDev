@@ -54,7 +54,7 @@ export const costSheetHandler: ChatTopicHandler = {
 | Component | Rate | Stage | Note |
 | :--- | :--- | :--- | :--- |
 | **UP Stamp Duty** | ${UP_STATUTORY.stampDutyPct}% of agreement value | At registration | ${UP_STATUTORY.stampDutyFemalePct}% for single/joint women owners |
-| **Registration Fee** | ${UP_STATUTORY.registrationPct}% (capped ₹${UP_STATUTORY.registrationCapInr.toLocaleString('en-IN')}) | At registration | Sub-registrar fee |
+| **Registration Fee** | ${UP_STATUTORY.registrationPct}% | At registration | Sub-registrar fee |
 | **GST** | ${UP_STATUTORY.gstUnderConstructionPct}% (without ITC) | With construction milestones | ${UP_STATUTORY.gstReadyToMovePct}% on ready-to-move with OC |
 
 **Developer charges — ${MARKET_QUALIFIER}.** These vary by developer, so treat them as a planning band, not a quote:

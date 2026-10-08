@@ -20,6 +20,7 @@ import { API_BASE } from "@/lib/env";
 import { useSessions, Session } from "@/hooks/useSessions";
 import { SessionItem } from "@/components/Sidebar/SessionItem";
 import { authHeaders } from "@/lib/authedFetch";
+import { UserMemoryModal } from "@/components/UserMemoryModal";
 
 type SidebarView =
   | "discovery"
@@ -45,11 +46,11 @@ const TOOLTIP =
   "absolute left-full top-1/2 -translate-y-1/2 ml-2.5 px-2 py-1 bg-zinc-900 text-white text-[11px] font-medium rounded-xs shadow-md opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-[100]";
 
 // One selected recipe for menu items and sessions alike.
-const ROW_ACTIVE = "bg-zinc-100 dark:bg-white/[0.06] text-zinc-900 dark:text-zinc-50 font-medium";
-const ROW_IDLE = "text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100/70 dark:hover:bg-white/[0.04] hover:text-zinc-900 dark:hover:text-zinc-100";
+const ROW_ACTIVE = "bg-zinc-100 dark:bg-zinc-900 text-zinc-900 dark:text-white font-semibold shadow-2xs";
+const ROW_IDLE = "text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-900/80 hover:text-zinc-900 dark:hover:text-white";
 const FOCUS = "outline-none focus-visible:ring-2 focus-visible:ring-blue-500/60";
-const LABEL = "px-2.5 text-[11px] font-medium text-zinc-500 dark:text-zinc-400";
-const EDGE = "border-zinc-200/70 dark:border-white/[0.06]";
+const LABEL = "px-2.5 text-[11px] font-semibold tracking-wider uppercase text-zinc-500 dark:text-zinc-400";
+const EDGE = "border-zinc-200/90 dark:border-zinc-800/80";
 
 function groupSessionsByDate(
   sessions: Session[],
@@ -102,6 +103,7 @@ export default function Sidebar({
   const [leadsToday, setLeadsToday] = useState<number | null>(null);
   const [userInitial, setUserInitial] = useState("U");
   const [isNavigating, setIsNavigating] = useState(false);
+  const [isMemoryModalOpen, setIsMemoryModalOpen] = useState(false);
   // Saved projects power the counts beside Saved/Compare and the collapsed
   // rail's tray. Null means "not loaded yet" so a badge never flashes 0.
   const [savedCount, setSavedCount] = useState<number | null>(null);
@@ -341,7 +343,7 @@ export default function Sidebar({
         {...(isDrawer && mobileOpen ? { role: 'dialog', 'aria-modal': true, 'aria-label': 'Menu' } : {})}
         className={`
         w-[280px] sm:w-[300px] ${isCollapsed ? 'md:w-[64px]' : 'md:w-[260px]'}
-        text-zinc-900 dark:text-zinc-100 flex flex-col h-full border-r ${EDGE} bg-surface
+        text-zinc-900 dark:text-zinc-100 flex flex-col h-full border-r ${EDGE} bg-white dark:bg-zinc-950
         fixed md:relative z-[60] md:z-20 shrink-0 md:shadow-none
         transition-[width,transform] duration-300 ease-[var(--ease-smooth)]
         ${collapsed ? 'overflow-visible' : 'overflow-hidden'}
@@ -618,6 +620,13 @@ export default function Sidebar({
               </div>
             </details>
 
+            <button
+              type="button"
+              onClick={() => setIsMemoryModalOpen(true)}
+              className={`w-full flex items-center gap-2.5 h-8 px-2.5 rounded-xs text-[12px] transition-colors cursor-pointer text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white ${FOCUS}`}
+            >
+              <span>🧠 AI Memory & Privacy</span>
+            </button>
             {userId ? (
               /* Two sibling buttons, not a clickable icon nested inside a button:
                  the old form made sign-out mouse-only and unreachable by keyboard. */
@@ -679,6 +688,12 @@ export default function Sidebar({
           </div>
         )}
       </div>
+
+      <UserMemoryModal
+        isOpen={isMemoryModalOpen}
+        onClose={() => setIsMemoryModalOpen(false)}
+        guestToken={guestToken}
+      />
     </>
   );
 }

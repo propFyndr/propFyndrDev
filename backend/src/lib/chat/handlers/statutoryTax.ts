@@ -15,14 +15,14 @@ export function computedOnAmount(message: string): string {
   const v = Math.round(amountCr * 1_00_00_000)
   const stamp = Math.round(v * s.stampDutyPct / 100)
   const stampFemale = stamp - femaleStampDutySaving(v)
-  const reg = Math.min(s.registrationCapInr, Math.round(v * s.registrationPct / 100))
+  const reg = Math.round(v * s.registrationPct / 100)
   const gstUc = Math.round(v * s.gstUnderConstructionPct / 100)
   const asksWoman = /\b(?:woman|women|female|wife|mother|daughter|lady|mahila)\b/i.test(message)
   const rows = [
     asksWoman
-      ? `| Stamp duty, female primary owner (${s.stampDutyFemalePct}%, concession capped) | **${inr(stampFemale)}** |\n| Stamp duty, male owner (${s.stampDutyPct}%) for comparison | ${inr(stamp)} |`
-      : `| Stamp duty (${s.stampDutyPct}%) | **${inr(stamp)}** |\n| Stamp duty if a woman is primary owner (${s.stampDutyFemalePct}%, concession capped) | ${inr(stampFemale)} |`,
-    `| Registration (${s.registrationPct}%, capped) | ${inr(reg)} |`,
+      ? `| Stamp duty, female primary owner (${s.stampDutyFemalePct}%) | **${inr(stampFemale)}** |\n| Stamp duty, male owner (${s.stampDutyPct}%) for comparison | ${inr(stamp)} |`
+      : `| Stamp duty (${s.stampDutyPct}%) | **${inr(stamp)}** |\n| Stamp duty if a woman is primary owner (${s.stampDutyFemalePct}%) | ${inr(stampFemale)} |`,
+    `| Registration (${s.registrationPct}%) | ${inr(reg)} |`,
     `| GST if under construction (${s.gstUnderConstructionPct}%) | ${inr(gstUc)} |`,
     `| GST if ready to move with OC | ₹0 |`,
   ]
@@ -86,7 +86,7 @@ export const statutoryTaxHandler: ChatTopicHandler = {
 Stamp duty and registration are levies of the Uttar Pradesh government, not charges the builder can waive. A builder-buyer agreement on plain or notarised stamp paper is a contract to sell, not a title transfer: until the sale deed is registered and stamp duty paid, the flat is not legally yours. You would have no registered title to mortgage, sell or defend, and no protection if the same unit were sold to someone else.
 
 What legitimately reduces the bill:
-- Registering with a **female primary owner** — ${UP_STATUTORY.stampDutyFemalePct}% instead of ${UP_STATUTORY.stampDutyPct}%, concession capped at ${inr(UP_STATUTORY.stampDutyFemaleConcessionCapInr)}.
+- Registering with a **female primary owner** — ${UP_STATUTORY.stampDutyFemalePct}% instead of ${UP_STATUTORY.stampDutyPct}%.
 - Buying **ready-to-move with an Occupancy Certificate** — GST drops to ${UP_STATUTORY.gstReadyToMovePct}% from ${UP_STATUTORY.gstUnderConstructionPct}%, which on a ₹2 Cr flat is around ₹10 L.
 - Valuing at the **circle rate** where it is genuinely lower than the agreement value; duty is charged on the higher of the two, so this only helps where the circle rate is above your price.
 
@@ -100,8 +100,8 @@ These are set by law and are the same for every project.
 | Component | Rate | Nature | Paid when & to whom |
 | :--- | :--- | :--- | :--- |
 | **Stamp duty** | ${UP_STATUTORY.stampDutyPct}% of agreement or circle value, whichever is higher | Mandatory | At registry, to the UP Stamp & Registration Department |
-| **Stamp duty — female primary owner** | ${UP_STATUTORY.stampDutyFemalePct}% (concession capped at ${inr(UP_STATUTORY.stampDutyFemaleConcessionCapInr)}) | Concession | At registry |
-| **Registration fee** | ${UP_STATUTORY.registrationPct}% of value, capped at ${inr(UP_STATUTORY.registrationCapInr)} | Mandatory | At deed execution, to the Sub-Registrar |
+| **Stamp duty — female primary owner** | ${UP_STATUTORY.stampDutyFemalePct}% | Concession | At registry |
+| **Registration fee** | ${UP_STATUTORY.registrationPct}% of value | Mandatory | At deed execution, to the Sub-Registrar |
 | **GST — under construction** | ${UP_STATUTORY.gstUnderConstructionPct}% (without input tax credit) | Statutory | Billed across construction milestones |
 | **GST — ready to move with OC** | ${UP_STATUTORY.gstReadyToMovePct}% | Exempt | Not applicable once the Occupancy Certificate is granted |
 | **TDS (Section 194-IA)** | ${UP_STATUTORY.tdsPct}% of sale consideration | Mandatory | Deducted by the buyer when value exceeds ${lakh(UP_STATUTORY.tdsThresholdInr)} (Form 26QB) |

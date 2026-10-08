@@ -45,12 +45,27 @@ export async function checkRateLimit(key: string, limit = 20, windowSecs = 60): 
 
   const redisKey = `rl:${key}`
   try {
-    const count = await redis.incr(redisKey)
-    if (count === 1) await redis.expire(redisKey, windowSecs)
+    // INCR and TTL together; set the expiry whenever the key has none, not only
+    // on count 1. A lost EXPIRE used to leave the key with no TTL — a permanent
+    // lockout. Plain EXPIRE (no 'NX') so this works on any Redis version.
+    const [count, ttl] = await redis.multi().incr(redisKey).ttl(redisKey).exec() as [number, number]
+    if (ttl < 0) await redis.expire(redisKey, windowSecs)
     return { allowed: count <= limit, remaining: Math.max(0, limit - count) }
   } catch {
     // Redis errored → degrade to the in-memory limiter rather than failing open.
     return memRateLimit(key, limit, windowSecs)
+  }
+}
+
+/** Clears a rate-limit bucket, e.g. after a successful login. */
+export async function resetRateLimit(key: string): Promise<void> {
+  memBuckets.delete(key)
+  const redis = getRedis()
+  if (!redis) return
+  try {
+    await redis.del(`rl:${key}`)
+  } catch {
+    // non-fatal: the bucket expires on its own
   }
 }
 

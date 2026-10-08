@@ -424,23 +424,25 @@ function buildLivingSpecifications(project: Record<string, unknown>): Record<str
     if (value === null || value === undefined || value === '') return
     spec[key] = format ? format(value as never) : value
   }
+  // A schema default or enrichment template is not a value (SCHEMA_DEFAULT_SENTINELS).
+  const own = (field: string) => (isSchemaDefault(field, project[field]) ? null : project[field])
 
   put('water_source', project.water_source)
   put('dg_power_rate_per_unit', project.dg_power_rate_per_unit, (v: number) => `₹${v}/kWh`)
   put('monthly_maintenance', project.maintenance_per_sqft_monthly, (v: number) => `₹${v}/sq.ft/month`)
-  put('piped_gas_png', project.has_png_gas_pipeline)
-  put('mobile_network_rating', project.mobile_network_rating, (v: number) => `${v}/5`)
-  put('ceiling_height', project.ceiling_height_ft, (v: number) => `${v} ft`)
+  put('piped_gas_png', own('has_png_gas_pipeline'))
+  put('mobile_network_rating', own('mobile_network_rating'), (v: number) => `${v}/5`)
+  put('ceiling_height', own('ceiling_height_ft'), (v: number) => `${v} ft`)
   put('privacy_layout', project.shared_walls_type)
-  put('land_tenure', project.land_tenure)
-  put('authority_dues_cleared', isSchemaDefault('authority_dues_cleared', project.authority_dues_cleared) ? null : project.authority_dues_cleared)
-  put('pet_friendly', project.pet_friendly)
-  put('bachelor_tenants_allowed', project.bachelor_tenants_allowed)
+  put('land_tenure', own('land_tenure'))
+  put('authority_dues_cleared', own('authority_dues_cleared'))
+  put('pet_friendly', own('pet_friendly'))
+  put('bachelor_tenants_allowed', own('bachelor_tenants_allowed'))
   put('open_space_percentage', project.open_space_pct, (v: number) => `${v}%`)
 
   const elevators: Record<string, unknown> = {}
-  if (project.lifts_per_tower != null) elevators.lifts_per_tower = project.lifts_per_tower
-  if (project.has_service_lift != null) elevators.has_dedicated_service_lift = project.has_service_lift
+  if (own('lifts_per_tower') != null) elevators.lifts_per_tower = project.lifts_per_tower
+  if (own('has_service_lift') != null) elevators.has_dedicated_service_lift = project.has_service_lift
   if (Object.keys(elevators).length > 0) spec.elevators = elevators
 
   return spec
@@ -1380,7 +1382,7 @@ export async function getProjectDueDiligence(nameOrId: string): Promise<Record<s
         amitabh_kant_clearance: project.amitabh_kant_clearance ?? null,
         authority_dues_cleared: isSchemaDefault('authority_dues_cleared', project.authority_dues_cleared) ? null : (project.authority_dues_cleared ?? null),
         rera_number: project.rera_number,
-        builder_insolvency_history: project.builder?.insolvency_history ?? false,
+        builder_insolvency_history: project.builder?.insolvency_history === true ? true : null,
       },
       living_quality_and_utilities: {
         water_source: project.water_source_type ?? null,

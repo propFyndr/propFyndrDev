@@ -1,4 +1,4 @@
-import { calculateEmi, calculateStampDuty, calculateGst } from '../lib/calculators'
+import { calculateEmi, calculateStampDuty, calculateGst, calculateLoanCockpit } from '../lib/calculators'
 import { formatInr } from '../lib/format'
 
 
@@ -74,17 +74,50 @@ describe('calculateGst', () => {
   })
 })
 
-describe('formatInr', () => {
-  it('formats crores', () => {
-    expect(formatInr(10000000)).toBe('₹1.00 Cr')
-    expect(formatInr(25000000)).toBe('₹2.50 Cr')
+describe('calculateLoanCockpit', () => {
+  it('computes correct loan principal and down payment', () => {
+    const res = calculateLoanCockpit({
+      totalLandedCost: 10000000, // 1 Cr
+      downPaymentPct: 20,
+      tenureYears: 20,
+      annualInterestRatePct: 8.5,
+    })
+    expect(res.downPaymentAmount).toBe(2000000)
+    expect(res.loanPrincipal).toBe(8000000)
+    expect(res.standardMonthlyEmi).toBeGreaterThan(69000)
+    expect(res.standardMonthlyEmi).toBeLessThan(70000)
   })
 
-  it('formats lakhs', () => {
-    expect(formatInr(500000)).toBe('₹5.00 L')
+  it('computes Sec 24b tax shield capped at 5000/mo', () => {
+    const res = calculateLoanCockpit({
+      totalLandedCost: 20000000, // 2 Cr, 80% loan = 1.6 Cr
+      downPaymentPct: 20,
+      tenureYears: 20,
+      annualInterestRatePct: 8.5,
+    })
+    // 1.6 Cr * 8.5% = 13.6 Lakh interest >> 2 Lakh ceiling. (200000 * 0.30) / 12 = 5000
+    expect(res.monthlyTaxShieldSec24b).toBe(5000)
+    expect(res.netMonthlyOutflow).toBe(res.standardMonthlyEmi - 5000)
   })
 
-  it('formats small amounts', () => {
-    expect(formatInr(50000)).toContain('₹')
+  it('computes rate shock buffer when enabled', () => {
+    const withoutShock = calculateLoanCockpit({
+      totalLandedCost: 10000000,
+      downPaymentPct: 20,
+      tenureYears: 20,
+      annualInterestRatePct: 8.5,
+      enableRateShock: false,
+    })
+    const withShock = calculateLoanCockpit({
+      totalLandedCost: 10000000,
+      downPaymentPct: 20,
+      tenureYears: 20,
+      annualInterestRatePct: 8.5,
+      enableRateShock: true,
+    })
+    expect(withShock.shockMonthlyEmi).toBeGreaterThan(withoutShock.standardMonthlyEmi)
+    expect(withShock.activeInterestRatePct).toBe(10) // 8.5 + 1.5
+    expect(withShock.monthlyRateShockDelta).toBe(withShock.shockMonthlyEmi - withoutShock.standardMonthlyEmi)
   })
 })
+

@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react'
 import { FileText, ArrowSquareOut, Copy, Check, ShareNetwork, CheckCircle, LockSimple } from '@phosphor-icons/react'
-import { track } from '@/lib/analytics'
+import { trackDossierShared } from '@/lib/analytics'
 
 interface DossierShareCardProps {
   href: string
@@ -12,6 +12,9 @@ interface DossierShareCardProps {
 
 export function DossierShareCard({ href, label, onToast }: DossierShareCardProps) {
   const [copied, setCopied] = useState(false)
+  // href is `/dossier/{token}` (or the full URL form of it); the token is the
+  // last path segment either way.
+  const dossierToken = href.split('/').filter(Boolean).pop() || href
 
   // Ensure full URL for clipboard and sharing
   const getFullUrl = () => {
@@ -26,7 +29,7 @@ export function DossierShareCard({ href, label, onToast }: DossierShareCardProps
     e.preventDefault()
     e.stopPropagation()
     const fullUrl = getFullUrl()
-    track('dossier_shared', { channel: 'copy' })
+    trackDossierShared(dossierToken, { channel: 'copy' })
 
     if (navigator?.clipboard?.writeText) {
       navigator.clipboard.writeText(fullUrl).then(() => {
@@ -46,7 +49,7 @@ export function DossierShareCard({ href, label, onToast }: DossierShareCardProps
   const handleOpen = (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
-    track('dossier_shared', { channel: 'open' })
+    trackDossierShared(dossierToken, { channel: 'open' })
     if (typeof window !== 'undefined') {
       window.open(href, '_blank', 'noopener,noreferrer')
     }
@@ -56,7 +59,7 @@ export function DossierShareCard({ href, label, onToast }: DossierShareCardProps
     e.preventDefault()
     e.stopPropagation()
     const fullUrl = getFullUrl()
-    track('dossier_shared', { channel: 'whatsapp' })
+    trackDossierShared(dossierToken, { channel: 'whatsapp' })
     const text = `My property research on PropFyndr — the questions I asked, the answers, and the projects side by side:\n${fullUrl}`
     if (typeof window !== 'undefined') {
       window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank')

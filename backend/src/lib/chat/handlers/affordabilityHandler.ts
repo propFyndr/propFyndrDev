@@ -126,13 +126,31 @@ const inrLakh = (n: number) => `₹${(n / LAKH).toFixed(2)} Lakhs`
  * With no period stated, a figure of ₹10 lakh or more is read as annual and
  * anything smaller as monthly — how Indian buyers quote the two.
  */
-export function parseMonthlyIncome(message: string): number | undefined {
+function matchIncome(message: string): RegExpExecArray | null {
   const NUM = String.raw`(\d+(?:\.\d+)?)\s*(k|l|lakhs?|lacs?|lpa|cr|crores?)?`
   const PERIOD = String.raw`(pm|p\.m\.|per\s+month|a\s+month|monthly|\/\s*mo(?:nth)?|pa|p\.a\.|per\s+annum|a\s+year|per\s+year|annual(?:ly)?|yearly|\/\s*yr)?`
   const WORD = String.raw`(?:salary|income|earn(?:ing)?s?|take[-\s]?home|in[-\s]?hand|ctc|package)`
   const after = new RegExp(String.raw`\b${NUM}\s*${PERIOD}\s*(?:of\s+)?${WORD}`, 'i').exec(message)
-  const before = after ? null : new RegExp(String.raw`${WORD}\s*(?:of|is|:)?\s*(?:rs\.?|inr|₹)?\s*${NUM}\s*${PERIOD}`, 'i').exec(message)
-  const m = after ?? before
+  return after ?? new RegExp(String.raw`${WORD}\s*(?:of|is|:)?\s*(?:rs\.?|inr|₹)?\s*${NUM}\s*${PERIOD}`, 'i').exec(message)
+}
+
+/**
+ * Property price in rupees the buyer stated in the message, or undefined.
+ * The income phrase is removed first, so "2.5L salary" or "35 LPA" is never
+ * read as a price.
+ */
+export function parseStatedPrice(message: string): number | undefined {
+  const income = matchIncome(message)
+  const text = income ? message.replace(income[0], ' ') : message
+  const cr = /(\d+(?:\.\d+)?)\s*(?:cr|crores?)\b/i.exec(text)
+  if (cr) return parseFloat(cr[1]) * CRORE
+  const l = /(\d+(?:\.\d+)?)\s*(?:l|lakhs?|lacs?)\b/i.exec(text)
+  if (l && parseFloat(l[1]) > 30) return parseFloat(l[1]) * LAKH
+  return undefined
+}
+
+export function parseMonthlyIncome(message: string): number | undefined {
+  const m = matchIncome(message)
   if (!m) return undefined
   const value = parseFloat(m[1])
   if (!Number.isFinite(value) || value <= 0) return undefined
@@ -185,28 +203,39 @@ export const affordabilityHandler: ChatTopicHandler = {
         })
       : null
 
-    // 2. Parse price or use project min price
-    let basePrice = 1.5 * CRORE // 1.5 Cr default benchmark
-    let isProjectSpecific = false
-
-    if (project?.price_min_cr && project.price_min_cr > 0) {
-      basePrice = project.price_min_cr * CRORE
-      isProjectSpecific = true
-    } else {
-      // Check if message states a price (e.g., "for 2 cr", "budget 2.5 crore")
-      const crMatch = ctx.message.match(/(\d+(?:\.\d+)?)\s*(?:cr|crore)/i)
-      if (crMatch) {
-        basePrice = parseFloat(crMatch[1]) * CRORE
-      } else {
-        const lMatch = ctx.message.match(/(\d+(?:\.\d+)?)\s*(?:l|lakh)/i)
-        if (lMatch && parseFloat(lMatch[1]) > 30) {
-          basePrice = parseFloat(lMatch[1]) * LAKH
-        }
-      }
-    }
+    // 2. Price: the project's own row, else a figure the buyer stated (this
+    // message, then the budget remembered in intent). No invented benchmark.
+    const isProjectSpecific = !!(project?.price_min_cr && project.price_min_cr > 0)
+    const intentBudgetCr = typeof ctx.intent.budgetMax === 'number' && ctx.intent.budgetMax > 0 ? ctx.intent.budgetMax : undefined
+    const basePrice = isProjectSpecific
+      ? project!.price_min_cr! * CRORE
+      : parseStatedPrice(ctx.message) ?? (intentBudgetCr != null ? intentBudgetCr * CRORE : undefined)
 
     // 3. Parse user income if stated
     const userMonthlyIncome = parseMonthlyIncome(ctx.message)
+
+    if (basePrice == null) {
+      const incomeLine = userMonthlyIncome
+        ? ` I have your income as ${inr(userMonthlyIncome)} a month.`
+        : ''
+      ctx.send('token', {
+        token: `To run the EMI and cash-flow check I need a price to work from — I don't have one for ${project ? project.name : 'this'} yet.${incomeLine}\n\nTell me the property price or your budget (e.g. "1.5 cr"), or name a project and I'll use its listed price.`,
+      })
+      ctx.emitUiState({
+        stage: 'FINANCE',
+        thinking: 'No price or budget on record:',
+        chips: [
+          { id: `chip_budget_1_${Date.now()}`, actionType: 'TEXT_MESSAGE', label: 'Budget ₹1 Cr', icon: 'calculator', analyticsId: 'chip_afford_budget', priority: 1, payload: { text: 'Can I afford a 1 cr flat?' } },
+          { id: `chip_budget_2_${Date.now()}`, actionType: 'TEXT_MESSAGE', label: 'Budget ₹2 Cr', icon: 'calculator', analyticsId: 'chip_afford_budget', priority: 2, payload: { text: 'Can I afford a 2 cr flat?' } },
+          { id: `chip_reco_${Date.now()}`, actionType: 'TEXT_MESSAGE', label: 'Show projects in my budget', icon: 'search', analyticsId: 'chip_afford_reco', priority: 3, payload: { text: 'Show me projects I can afford' } },
+        ],
+        missingFields: ['price'],
+        confidence: 'LOW',
+      })
+      ctx.send('done', { sessionId: ctx.sessionId, intentState: 'CLARIFYING', intent: ctx.intent, responseMode: 'chat' })
+      ctx.res.end()
+      return
+    }
 
     // The 1.30 fallback is a Noida-wide band, not this project's charges —
     // stated with the market qualifier whenever it is used.
@@ -218,9 +247,9 @@ export const affordabilityHandler: ChatTopicHandler = {
       userMonthlyIncome,
     })
 
-    const title = project
+    const title = project && isProjectSpecific
       ? `Financial Reality & Cash-Flow Stress Test — ${project.name}`
-      : `Home Financing Cash-Flow & Rate Shock Analysis (${inrCr(basePrice)} Benchmark)`
+      : `Home Financing Cash-Flow & Rate Shock Analysis (${inrCr(basePrice)}, your figure)`
 
     const foirComment = calc.userFoirPct !== undefined
       ? `\n### Household Affordability Verdict
@@ -238,13 +267,13 @@ ${calc.foirStatus === 'comfortable'
 | Financial Dimension | Benchmark / Breakdown | Impact on Monthly Outflow |
 | :--- | :--- | :--- |
 | **Headline Base Price** | ${inrCr(calc.basePrice)} | Developer quoted base |
-| **True Landed Cost** | **${inrCr(calc.totalLandedCost)}** (+${Math.round((calc.landedMultiplier - 1) * 100)}%${multiplierOnRecord ? '' : `, ${MARKET_QUALIFIER}`}) | Stamp duty, GST, IFMS & club charges |
+| **True Landed Cost** | **${inrCr(calc.totalLandedCost)}** (+${Math.round((calc.landedMultiplier - 1) * 100)}%${multiplierOnRecord ? '' : `, estimate — ${MARKET_QUALIFIER}`}) | Stamp duty, GST, IFMS & club charges |
 | **Recommended Downpayment (20%)** | ${inrCr(calc.downpaymentAmount)} | Upfront equity needed |
-| **Home Loan Principal (80%)** | ${inrCr(calc.loanPrincipal)} | 20-year tenure at ${calc.baseInterestRatePct}% p.a. |
+| **Home Loan Principal (80%)** | ${inrCr(calc.loanPrincipal)} | 20-year tenure at ${calc.baseInterestRatePct}% p.a. (assumed rate — your bank's offer will differ) |
 | **Standard Bank EMI** | **${inr(calc.standardEmi)} / month** | Contractual bank debit |
-| **Sec 24(b) Tax Shield** | **- ${inr(calc.monthlyTaxShieldSec24b)} / month** | ₹2L/yr interest deduction (30% bracket) |
+| **Sec 24(b) Tax Shield** | **- ${inr(calc.monthlyTaxShieldSec24b)} / month** | ₹2L/yr interest deduction (assumes 30% slab + 4% cess) |
 | **Net Out-of-Pocket Outflow** | **${inr(calc.netMonthlyOutflow)} / month** | Real cost to household budget |
-| **+1.5% RBI Rate Shock (10.0%)** | **${inr(calc.shockEmi)} / month** | **+${inr(calc.rateShockBufferMonthly)} / month buffer needed** |
+| **+1.5% Rate Shock (${calc.shockInterestRatePct.toFixed(1)}%)** | **${inr(calc.shockEmi)} / month** | **+${inr(calc.rateShockBufferMonthly)} / month buffer needed** |
 | **Min. Safe Monthly Income (40% FOIR)** | **${inr(calc.safeMonthlyTakeHome)} / month** | Recommended take-home (~${inrLakh(calc.safeAnnualHouseholdIncome)} gross/yr) |
 ${foirComment}
 > **Advisor Strategy Note:** Banks typically calculate eligibility purely on standard EMI (${inr(calc.standardEmi)}/mo), but smart buyers budget for the **Rate Shock EMI (${inr(calc.shockEmi)}/mo)** to survive RBI repo rate hiking cycles without liquidity distress.`
@@ -283,7 +312,7 @@ ${foirComment}
         },
       ],
       affordabilityData: calc,
-      confidence: isProjectSpecific ? 'HIGH' : 'MEDIUM',
+      confidence: isProjectSpecific && multiplierOnRecord ? 'HIGH' : 'MEDIUM',
     })
     ctx.send('done', { sessionId: ctx.sessionId, intentState: 'FINANCED', intent: ctx.intent, responseMode: 'chat' })
     ctx.res.end()

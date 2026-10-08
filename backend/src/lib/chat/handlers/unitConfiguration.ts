@@ -1,6 +1,7 @@
 import type { ChatTopicHandler } from '../handlerContext'
 import { prisma } from '../../db'
 import { unverified } from '../../factPresentation'
+import { isSchemaDefault } from '../../projectExposure'
 
 /**
  * "What sizes / layouts / how many balconies does X have?"
@@ -25,10 +26,11 @@ import { unverified } from '../../factPresentation'
  * rather than presented as a measurement.
  */
 
+// A missing carpet area stays missing. It used to be filled in as super × 0.7
+// "(est.)" — a typical value standing in for a fact we do not hold, which the
+// four-tier rules forbid, and the loading and carpet rate were then computed
+// from that guess.
 const NOT_RECORDED = '—'
-
-/** carpet ÷ super. Only used when the real carpet figure is absent. */
-const CARPET_RATIO = 0.7
 
 function sqft(value: number | null | undefined): string {
   return value == null ? NOT_RECORDED : `${value.toLocaleString('en-IN')} sq.ft`
@@ -119,11 +121,7 @@ export const unitConfigurationHandler: ChatTopicHandler = {
 
     let lead = ''
     if (focus) {
-      const carpet = focus.carpet_area_sqft
-        ? sqft(focus.carpet_area_sqft)
-        : focus.super_area_sqft
-          ? `${Math.round(focus.super_area_sqft * CARPET_RATIO).toLocaleString('en-IN')} sq.ft (estimated from super area)`
-          : NOT_RECORDED
+      const carpet = focus.carpet_area_sqft ? sqft(focus.carpet_area_sqft) : 'Not recorded — ask for the RERA carpet area in writing'
       const detail: string[] = [
         `- **Carpet Area (Usable):** ${carpet}`,
         `- **Built-Up Area:** ${focus.built_up_area_sqft ? sqft(focus.built_up_area_sqft) : NOT_RECORDED}`,
@@ -147,15 +145,11 @@ export const unitConfigurationHandler: ChatTopicHandler = {
       lead = `### ${focus.name || `${focus.bhk} BHK Layout`} — ${project.name}\n\n${detail.join('\n')}\n\n`
     }
 
-    let anyEstimated = false
     let anyMissing = false
     const rows = units.map(u => {
       let carpetStr = ''
       if (u.carpet_area_sqft) {
         carpetStr = `${u.carpet_area_sqft.toLocaleString('en-IN')} sq.ft`
-      } else if (u.super_area_sqft) {
-        carpetStr = `${Math.round(u.super_area_sqft * CARPET_RATIO).toLocaleString('en-IN')} sq.ft (est.)`
-        anyEstimated = true
       } else {
         carpetStr = '—'
         anyMissing = true
@@ -173,13 +167,14 @@ export const unitConfigurationHandler: ChatTopicHandler = {
     const auditUnit = focus || units[0]
     const auditSuper = auditUnit?.super_area_sqft || 0
     const carpetRecorded = Boolean(auditUnit?.carpet_area_sqft)
-    const auditCarpet = auditUnit?.carpet_area_sqft || (auditSuper ? Math.round(auditSuper * CARPET_RATIO) : 0)
-    // Loading from an estimated carpet is the estimate's own ratio played back
-    // (always ~30%), not a finding — so it is only stated when the carpet
-    // area is on record. The same goes for a lift count we do not hold.
+    const auditCarpet = auditUnit?.carpet_area_sqft || 0
+    // Loading and carpet rate are only stated when the carpet area is on
+    // record. The same goes for a lift count we do not hold: 3 is the schema
+    // default, not a count anyone entered.
     const loadingPct = carpetRecorded ? calculateCarpetLoading(auditSuper, auditCarpet) : 0
-    const effectiveRate = calculateEffectiveCarpetRate(auditUnit?.price_min_cr || 0, auditCarpet)
-    const liftsPerTower = (project as { lifts_per_tower?: number | null }).lifts_per_tower
+    const effectiveRate = carpetRecorded ? calculateEffectiveCarpetRate(auditUnit?.price_min_cr || 0, auditCarpet) : 0
+    const rawLifts = (project as { lifts_per_tower?: number | null }).lifts_per_tower
+    const liftsPerTower = rawLifts && !isSchemaDefault('lifts_per_tower', rawLifts) ? rawLifts : null
     const eci = liftsPerTower
       ? calculateElevatorCongestionIndex(project.total_units, project.total_towers, liftsPerTower)
       : { unitsPerLift: null as number | null, rating: '' }
@@ -191,7 +186,7 @@ export const unitConfigurationHandler: ChatTopicHandler = {
         auditSection += `- **Loading Efficiency:** **${loadingPct}%** of super area is common space (lobbies, stairwells, shafts).\n`
       }
       if (effectiveRate > 0) {
-        auditSection += `- **Effective Usable Carpet Rate:** **₹${effectiveRate.toLocaleString('en-IN')}/sq.ft** (actual rate on carpet area inside your front door${carpetRecorded ? '' : '; carpet area estimated, confirm against the RERA sanction plan'}).\n`
+        auditSection += `- **Effective Usable Carpet Rate:** **₹${effectiveRate.toLocaleString('en-IN')}/sq.ft** (actual rate on carpet area inside your front door).\n`
       }
       if (eci.unitsPerLift) {
         auditSection += `- **Vertical Transit Index:** ~**${eci.unitsPerLift} units per lift** (${eci.rating}).\n`
@@ -203,7 +198,7 @@ export const unitConfigurationHandler: ChatTopicHandler = {
 | Layout | Carpet Area | Built-Up | Super Area | Baths / Balc. | Price Band |
 | :--- | :--- | :--- | :--- | :--- | :--- |
 ${rows}${auditSection}
-${anyEstimated ? '\n_Note: Carpet areas marked (est.) are calculated per standard RERA efficiency ratios._' : ''}${anyMissing ? '\n_A dash indicates specific measurement to be confirmed against developer sanction blueprints._' : ''}`
+${anyMissing ? '\n_A dash means we do not hold that measurement. Ask the builder for the RERA carpet area in writing._' : ''}`
 
     ctx.send('token', { token: text })
     ctx.emitUiState({
@@ -215,7 +210,21 @@ ${anyEstimated ? '\n_Note: Carpet areas marked (est.) are calculated per standar
         { id: `chip_plan_${Date.now()}`, actionType: 'TEXT_MESSAGE', label: 'Payment Plans', icon: 'file-text', analyticsId: 'chip_plan', priority: 3, payload: { text: `Show payment plans for ${project.name}` } },
       ],
       missingFields: anyMissing ? ['unit_measurements'] : [],
-      confidence: anyEstimated || anyMissing ? 'MEDIUM' : 'HIGH',
+      confidence: anyMissing ? 'MEDIUM' : 'HIGH',
+      // The visualizer gets only measured areas; without both it is not sent.
+      ...(carpetRecorded && auditSuper > auditCarpet ? {
+        carpetData: {
+          projectName: project.name,
+          unitType: auditUnit.name || `${auditUnit.bhk} BHK`,
+          superAreaSqft: auditSuper,
+          carpetAreaSqft: auditCarpet,
+          totalPriceCr: auditUnit.price_min_cr ?? 0,
+          ...(eci.unitsPerLift && liftsPerTower && project.total_units && project.total_towers ? {
+            totalFlats: Math.round(project.total_units / project.total_towers),
+            totalLifts: liftsPerTower,
+          } : {}),
+        },
+      } : {}),
     })
     ctx.send('done', { sessionId: ctx.sessionId, intentState: 'SHORTLISTED', intent: ctx.intent, responseMode: 'chat' })
     ctx.res.end()

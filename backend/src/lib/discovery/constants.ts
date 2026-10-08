@@ -70,10 +70,18 @@ const REGION_TO_CITY: Record<string, string> = {
   greater_noida_west: 'Greater Noida West',
 }
 
+/** "I don't want Greater Noida", "anywhere except Noida Extension": ruled out, not named. */
+const CITY_NEGATED = / (?:not|no|except|excluding|avoid|avoiding|skip|other than|apart from|don t want|dont want|do not want)(?: (?:in|at|the|any|anything|anywhere|properties|projects|flats))* $/
+
 export function cityNamedIn(message: string): string | undefined {
-  const text = ` ${(message ?? '').toLowerCase().replace(/[^a-z\s]/g, ' ').replace(/\s+/g, ' ')} `
+  let text = ` ${(message ?? '').toLowerCase().replace(/[^a-z\s]/g, ' ').replace(/\s+/g, ' ')} `
   for (const alias of CITY_ALIAS_BY_LENGTH) {
-    if (text.includes(` ${alias} `)) return REGION_TO_CITY[CITY_LEVEL_ALIASES[alias]]
+    let i: number
+    while ((i = text.indexOf(` ${alias} `)) !== -1) {
+      if (!CITY_NEGATED.test(text.slice(0, i + 1))) return REGION_TO_CITY[CITY_LEVEL_ALIASES[alias]]
+      // Mask the negated mention so the "noida" inside "greater noida" is not read as a second city.
+      text = text.slice(0, i + 1) + '#'.repeat(alias.length) + text.slice(i + 1 + alias.length)
+    }
   }
   return undefined
 }

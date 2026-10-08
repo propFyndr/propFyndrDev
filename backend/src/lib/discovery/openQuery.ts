@@ -24,9 +24,16 @@ export interface OpenQueryDetection {
   reason: string
 }
 
-/** Buyer-class / demographic vocabulary — the "who lives here" family of questions. */
+/**
+ * Buyer-class / demographic vocabulary — the "who lives here" family of questions.
+ *
+ * `elite` counts only when it qualifies people or a place. Bare, it is a brand:
+ * Elite X, Elite Group, Elite Homz. "its elite x by elite group sector 10" was
+ * read as "where do the elite live" and answered with "we do not hold verified
+ * data" — about a project we hold.
+ */
 const DEMOGRAPHIC_RE =
-  /\b(rich|richest|wealthy|wealthiest|affluent|posh|poshest|elite|upscale|hnw|high[- ]net[- ]worth|millionaires?|middle[- ]class|lower[- ]middle|upper[- ]class|working[- ]class|budget[- ]conscious|celebrities|politicians|bureaucrats|expats?|nris?)\b/i
+  /\b(rich|richest|wealthy|wealthiest|affluent|posh|poshest|elite(?=\s+(?:people|famil\w+|class|crowd|buyers|residents|folks|areas?|sectors?|localit\w+|neighbou?rhoods?))|upscale|hnw|high[- ]net[- ]worth|millionaires?|middle[- ]class|lower[- ]middle|upper[- ]class|working[- ]class|budget[- ]conscious|celebrities|politicians|bureaucrats|expats?|nris?)\b/i
 
 /** Verbs that turn a demographic noun into a "where do they live" question. */
 const RESIDENCE_RE =
@@ -190,12 +197,14 @@ export function detectOpenQuery(
     return { topic: 'GENERAL', reason: 'Real estate advisory / financial / legal / strategy question' }
   }
 
+  // A project we hold is named: the property lanes own it, whatever adjective
+  // shares a word with its brand.
+  if (hasProjectNames) return null
+
   // 2. "Where do the rich / middle class live" — answerable from sector_intelligence.
   if (DEMOGRAPHIC_RE.test(msg) && (RESIDENCE_RE.test(msg) || AREA_NOUN_RE.test(msg))) {
     return { topic: 'SECTOR_PROFILE', reason: 'Demographic + residence/area question' }
   }
-
-  if (hasProjectNames) return null
 
   /**
    * Shopping vocabulary anywhere in the message disqualifies the entity patterns.

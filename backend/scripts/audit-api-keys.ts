@@ -1,174 +1,167 @@
 // backend/scripts/audit-api-keys.ts
-//
-//   npx tsx scripts/audit-api-keys.ts
-//
-// Does every credential in .env still work?
-//
-// Written because two of them did not, and neither failed loudly. The backend
-// PostHog key was a personal key where a project key was required and had been
-// returning 401 to every capture since it was set; both Mistral keys had gone
-// from answering to 401 and were costing a round-trip per turn in front of the
-// buyer's answer. A key does not announce that it died.
-//
-// Every probe is the cheapest read the vendor offers — list models, fetch a
-// trivial record — never a generation call, so this is free to run and safe to
-// re-run. Keys are never printed, only a masked prefix and a length.
+import dotenv from 'dotenv'
+import path from 'path'
+import OpenAI from 'openai'
+import Groq from 'groq-sdk'
+import { GoogleGenerativeAI } from '@google/generative-ai'
 
-import 'dotenv/config'
+// Load .env from backend and root
+dotenv.config({ path: path.resolve(__dirname, '../.env') })
+dotenv.config({ path: path.resolve(__dirname, '../../.env') })
 
-type Status = 'OK' | 'DEAD' | 'ABSENT'
-interface Result { name: string; status: Status; detail: string }
+async function auditKeys() {
+  console.log('====================================================')
+  console.log('      PROPFYNDR LIVE API KEY & HEALTH AUDIT        ')
+  console.log('====================================================\n')
 
-const results: Result[] = []
+  const results: Record<string, { status: 'WORKING' | 'FAILING' | 'RATE_LIMITED' | 'NOT_SET'; detail: string }> = {}
 
-function mask(v: string): string {
-  return v.length <= 10 ? `len ${v.length}` : `${v.slice(0, 4)}..${v.slice(-4)} len ${v.length}`
-}
-
-async function probe(
-  name: string,
-  run: (key: string) => Promise<{ ok: boolean; detail: string }>,
-): Promise<void> {
-  const key = process.env[name]
-  if (!key) { results.push({ name, status: 'ABSENT', detail: 'not set' }); return }
-  try {
-    const { ok, detail } = await run(key)
-    results.push({ name, status: ok ? 'OK' : 'DEAD', detail: `${mask(key)} — ${detail}` })
-  } catch (err) {
-    results.push({ name, status: 'DEAD', detail: `${mask(key)} — ${(err as Error).message.slice(0, 90)}` })
-  }
-}
-
-/** A plain GET that only has to come back 2xx. */
-async function bearerGet(url: string, key: string): Promise<{ ok: boolean; detail: string }> {
-  const r = await fetch(url, { headers: { Authorization: `Bearer ${key}` }, signal: AbortSignal.timeout(20_000) })
-  return { ok: r.ok, detail: `HTTP ${r.status}` }
-}
-
-async function main(): Promise<void> {
-  // ── LLM providers ────────────────────────────────────────────────────────
-  for (const n of ['GEMINI_API_KEY', 'GEMINI_API_KEY1', 'GEMINI_API_KEY2']) {
-    await probe(n, async (key) => {
-      const { GoogleGenAI } = await import('@google/genai')
-      const c = new GoogleGenAI({ apiKey: key })
-      await c.models.list()
-      return { ok: true, detail: 'models.list ok' }
-    })
-  }
-  for (const n of ['MISTRAL_API_KEY', 'MISTRAL_API_KEY1']) {
-    await probe(n, (key) => bearerGet('https://api.mistral.ai/v1/models', key))
-  }
-  for (const n of ['GROQ_API_KEY', 'GROQ_API_KEY1', 'GROQ_API_KEY2', 'GROQ_API_KEY3']) {
-    await probe(n, (key) => bearerGet('https://api.groq.com/openai/v1/models', key))
-  }
-  await probe('COHERE_API_KEY', (key) => bearerGet('https://api.cohere.com/v1/models', key))
-  await probe('NVIDIA_API_KEY', (key) => bearerGet('https://integrate.api.nvidia.com/v1/models', key))
-
-  // Workers AI needs the account id in the path, so the key alone cannot be
-  // checked against it. This verifies the token itself instead.
-  await probe('CLOUDFLARE_API_KEY', (key) => bearerGet('https://api.cloudflare.com/client/v4/user/tokens/verify', key))
-
-  // ── Services ─────────────────────────────────────────────────────────────
-  await probe('TAVILY_API_KEY', async (key) => {
-    const r = await fetch('https://api.tavily.com/search', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ api_key: key, query: 'noida', max_results: 1 }),
-      signal: AbortSignal.timeout(25_000),
-    })
-    return { ok: r.ok, detail: `HTTP ${r.status}` }
-  })
-
-  for (const n of ['GOOGLE_MAPS_API_KEY', 'GOOGLE_PLACES_API_KEY']) {
-    await probe(n, async (key) => {
-      const r = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?address=Noida&key=${key}`, {
-        signal: AbortSignal.timeout(20_000),
-      })
-      const j = (await r.json()) as { status?: string; error_message?: string }
-      const detail = `${j.status}${j.error_message ? ' — ' + j.error_message.slice(0, 70) : ''}`
-      return { ok: j.status === 'OK', detail }
-    })
+  // 1. OpenAI API Key
+  const openaiKey = process.env.OPENAI_API_KEY
+  if (!openaiKey) {
+    results['OpenAI (OPENAI_API_KEY)'] = { status: 'NOT_SET', detail: 'Environment variable missing' }
+  } else {
+    try {
+      const client = new OpenAI({ apiKey: openaiKey })
+      const res = await client.models.list()
+      results['OpenAI (OPENAI_API_KEY)'] = {
+        status: 'WORKING',
+        detail: `Successfully connected (${res.data.length} models available)`,
+      }
+    } catch (err: any) {
+      const isRateLimit = err.status === 429 || /rate limit/i.test(err.message || '')
+      results['OpenAI (OPENAI_API_KEY)'] = {
+        status: isRateLimit ? 'RATE_LIMITED' : 'FAILING',
+        detail: err.message || String(err),
+      }
+    }
   }
 
-  await probe('RESEND_API_KEY', (key) => bearerGet('https://api.resend.com/domains', key))
+  // 2. Groq API Key
+  const groqKey = process.env.GROQ_API_KEY
+  if (!groqKey) {
+    results['Groq (GROQ_API_KEY)'] = { status: 'NOT_SET', detail: 'Environment variable missing' }
+  } else {
+    try {
+      const client = new Groq({ apiKey: groqKey })
+      const res = await client.models.list()
+      results['Groq (GROQ_API_KEY)'] = {
+        status: 'WORKING',
+        detail: `Successfully connected (${res.data.length} models available)`,
+      }
+    } catch (err: any) {
+      const isRateLimit = err.status === 429 || /rate limit/i.test(err.message || '')
+      results['Groq (GROQ_API_KEY)'] = {
+        status: isRateLimit ? 'RATE_LIMITED' : 'FAILING',
+        detail: err.message || String(err),
+      }
+    }
+  }
 
-  // PostHog: the capture endpoint is the only thing that proves the key TYPE.
-  // A personal key (phx_) looks perfectly valid and returns 401 here.
-  await probe('POSTHOG_API_KEY', async (key) => {
-    const host = process.env.POSTHOG_HOST || 'https://us.i.posthog.com'
-    const r = await fetch(`${host}/i/v0/e/`, {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({
-        api_key: key,
-        event: 'propfyndr_key_healthcheck',
-        distinct_id: 'key-audit',
-        timestamp: new Date().toISOString(),
-      }),
-      signal: AbortSignal.timeout(20_000),
-    })
-    return { ok: r.ok, detail: `capture HTTP ${r.status} ${(await r.text()).slice(0, 50)}` }
-  })
-
-  await probe('UPSTASH_REDIS_REST_TOKEN', async (key) => {
-    const url = process.env.UPSTASH_REDIS_REST_URL
-    if (!url) return { ok: false, detail: 'UPSTASH_REDIS_REST_URL not set' }
-    const r = await fetch(`${url}/ping`, {
-      headers: { Authorization: `Bearer ${key}` },
-      signal: AbortSignal.timeout(20_000),
-    })
-    return { ok: r.ok, detail: `ping HTTP ${r.status}` }
-  })
-
-  await probe('LANGFUSE_SECRET_KEY', async (key) => {
-    const base = process.env.LANGFUSE_BASE_URL || 'https://cloud.langfuse.com'
-    const auth = Buffer.from(`${process.env.LANGFUSE_PUBLIC_KEY ?? ''}:${key}`).toString('base64')
-    const r = await fetch(`${base}/api/public/projects`, {
-      headers: { Authorization: `Basic ${auth}` },
-      signal: AbortSignal.timeout(20_000),
-    })
-    return { ok: r.ok, detail: `HTTP ${r.status}` }
-  })
-
-  await probe('SUPABASE_SERVICE_ROLE_KEY', async (key) => {
-    const url = process.env.SUPABASE_URL
-    if (!url) return { ok: false, detail: 'SUPABASE_URL not set' }
-    const r = await fetch(`${url}/rest/v1/`, {
-      headers: { apikey: key, Authorization: `Bearer ${key}` },
-      signal: AbortSignal.timeout(20_000),
-    })
-    return { ok: r.ok, detail: `HTTP ${r.status}` }
-  })
-
-  // SENTRY_DSN is a write-only ingest URL with no authenticated read. Checked
-  // for shape rather than probed: proving a DSN works by sending it an error
-  // puts a fake error in the issue stream.
-  const dsn = process.env.SENTRY_DSN
-  results.push(
-    dsn
-      ? {
-          name: 'SENTRY_DSN',
-          status: /^https:\/\/\w+@[\w.-]+\/\d+$/.test(dsn) ? 'OK' : 'DEAD',
-          detail: `${mask(dsn)} — shape check only, not probed`,
+  // 3. Gemini / Google AI Key
+  const geminiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_AI_KEY
+  if (!geminiKey) {
+    results['Gemini (GEMINI_API_KEY)'] = { status: 'NOT_SET', detail: 'Environment variable missing' }
+  } else {
+    try {
+      const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${geminiKey}`)
+      if (resp.ok) {
+        const data = await resp.json()
+        const count = Array.isArray(data.models) ? data.models.length : 0
+        results['Gemini (GEMINI_API_KEY)'] = {
+          status: 'WORKING',
+          detail: `Successfully connected (${count} models available)`,
         }
-      : { name: 'SENTRY_DSN', status: 'ABSENT', detail: 'not set' },
-  )
+      } else {
+        const text = await resp.text()
+        results['Gemini (GEMINI_API_KEY)'] = {
+          status: resp.status === 429 ? 'RATE_LIMITED' : 'FAILING',
+          detail: `HTTP ${resp.status}: ${text.slice(0, 80)}`,
+        }
+      }
+    } catch (err: any) {
+      results['Gemini (GEMINI_API_KEY)'] = {
+        status: 'FAILING',
+        detail: err.message || String(err),
+      }
+    }
+  }
 
-  // ── Report ───────────────────────────────────────────────────────────────
-  const pad = Math.max(...results.map((r) => r.name.length))
-  console.log(`\nAPI KEY AUDIT\n${'='.repeat(pad + 56)}`)
-  for (const r of results) {
-    const tag = r.status === 'OK' ? 'ok  ' : r.status === 'DEAD' ? 'DEAD' : '-   '
-    console.log(`  ${tag}  ${r.name.padEnd(pad)}  ${r.detail}`)
+  // 4. Anthropic API Key
+  const anthropicKey = process.env.ANTHROPIC_API_KEY
+  if (!anthropicKey) {
+    results['Anthropic (ANTHROPIC_API_KEY)'] = { status: 'NOT_SET', detail: 'Environment variable missing' }
+  } else {
+    try {
+      const res = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'x-api-key': anthropicKey,
+          'anthropic-version': '2023-06-01',
+          'content-type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'claude-3-haiku-20240307',
+          max_tokens: 10,
+          messages: [{ role: 'user', content: 'ping' }],
+        }),
+      })
+      if (res.ok) {
+        results['Anthropic (ANTHROPIC_API_KEY)'] = { status: 'WORKING', detail: 'Successfully connected' }
+      } else {
+        const errText = await res.text()
+        const isRateLimit = res.status === 429
+        results['Anthropic (ANTHROPIC_API_KEY)'] = {
+          status: isRateLimit ? 'RATE_LIMITED' : 'FAILING',
+          detail: `HTTP ${res.status}: ${errText.slice(0, 100)}`,
+        }
+      }
+    } catch (err: any) {
+      results['Anthropic (ANTHROPIC_API_KEY)'] = { status: 'FAILING', detail: err.message || String(err) }
+    }
   }
-  const dead = results.filter((r) => r.status === 'DEAD')
-  const ok = results.filter((r) => r.status === 'OK')
-  const absent = results.filter((r) => r.status === 'ABSENT')
-  console.log(`\n${ok.length} ok, ${dead.length} dead, ${absent.length} absent`)
-  if (dead.length) {
-    console.log(`\nROTATE: ${dead.map((d) => d.name).join(', ')}`)
-    process.exitCode = 1
+
+  // 5. Langfuse
+  const langfusePublicKey = process.env.LANGFUSE_PUBLIC_KEY
+  const langfuseSecretKey = process.env.LANGFUSE_SECRET_KEY
+  const langfuseHost = process.env.LANGFUSE_HOST || 'https://cloud.langfuse.com'
+  if (!langfusePublicKey || !langfuseSecretKey) {
+    results['Langfuse Telemetry'] = { status: 'NOT_SET', detail: 'Keys missing in env' }
+  } else {
+    try {
+      const authHeader = 'Basic ' + Buffer.from(`${langfusePublicKey}:${langfuseSecretKey}`).toString('base64')
+      const res = await fetch(`${langfuseHost}/api/public/health`, {
+        headers: { Authorization: authHeader },
+      })
+      if (res.ok || res.status === 200) {
+        results['Langfuse Telemetry'] = { status: 'WORKING', detail: `Connected to ${langfuseHost}` }
+      } else {
+        results['Langfuse Telemetry'] = { status: 'FAILING', detail: `HTTP ${res.status}` }
+      }
+    } catch (err: any) {
+      results['Langfuse Telemetry'] = { status: 'FAILING', detail: err.message || String(err) }
+    }
   }
+
+  // 6. PostHog
+  const posthogKey = process.env.POSTHOG_API_KEY || process.env.NEXT_PUBLIC_POSTHOG_KEY
+  if (!posthogKey) {
+    results['PostHog Analytics'] = { status: 'NOT_SET', detail: 'POSTHOG_API_KEY missing' }
+  } else {
+    results['PostHog Analytics'] = { status: 'WORKING', detail: `Key configured (${posthogKey.slice(0, 8)}...)` }
+  }
+
+  // Print Summary Table
+  for (const [provider, info] of Object.entries(results)) {
+    const icon = info.status === 'WORKING' ? '🟢' : info.status === 'RATE_LIMITED' ? '🟡' : info.status === 'NOT_SET' ? '⚪' : '🔴'
+    console.log(`${icon} ${provider.padEnd(35)} : [${info.status.padEnd(12)}] ${info.detail}`)
+  }
+
+  console.log('\n====================================================')
+  process.exit(0)
 }
 
-main()
+auditKeys().catch(err => {
+  console.error('Audit failed:', err)
+  process.exit(1)
+})

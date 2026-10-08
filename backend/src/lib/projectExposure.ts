@@ -583,7 +583,7 @@ export const SYNTHETIC_FIELDS = [
  * true fact. Saying "not recorded" about something true is recoverable on the
  * site visit; asserting a specific wrong measurement is not.
  */
-export const SCHEMA_DEFAULT_SENTINELS: Record<string, number | boolean> = {
+export const SCHEMA_DEFAULT_SENTINELS: Record<string, number | boolean | string> = {
   ceiling_height_ft: 10.2,
   mobile_network_rating: 4,
   lifts_per_tower: 3,
@@ -595,6 +595,22 @@ export const SCHEMA_DEFAULT_SENTINELS: Record<string, number | boolean> = {
    * information; `true` is withheld until a row is genuinely verified.
    */
   authority_dues_cleared: true,
+  /**
+   * `Boolean @default(false)`, not nullable, so false cannot tell "checked: no
+   * insolvency" from "never researched". Antriksh carried it while it was being
+   * answered as "clean NCLT/insolvency standing". Only `true` carries information.
+   */
+  insolvency_history: false,
+  /**
+   * Measured 2026-10-05: each holds one identical value on all 382 rows, written
+   * by the enrich scripts or the schema default, never researched. "99-Year
+   * Authority Leasehold" is also not the usual Noida term (typically 90).
+   */
+  land_tenure: '99-Year Authority Leasehold',
+  pet_friendly: true,
+  bachelor_tenants_allowed: true,
+  has_png_gas_pipeline: true,
+  has_service_lift: true,
 }
 
 /**

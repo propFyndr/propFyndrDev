@@ -15,14 +15,14 @@ function row(overrides: Record<string, unknown> = {}) {
     rera_number: 'UPRERAPRJ123456',
     // The long tail that used to be invisible to the model
     maintenance_per_sqft_monthly: 4.5,
-    pet_friendly: true,
+    pet_friendly: false,
     bachelor_tenants_allowed: false,
     airport_distance_km: 28.4,
     top_school_distance_km: 1.2,
     lifts_per_tower: 4,
     ceiling_height_ft: 10.2,
     water_source: 'Ganga jal + borewell',
-    land_tenure: '99-Year Authority Leasehold',
+    land_tenure: '90-Year Authority Leasehold',
     oc_obtained: false,
     nri_eligible: true,
     resale_lock_in_months: 24,
@@ -54,7 +54,7 @@ describe('projectScalarFacts', () => {
     // withheld — see SCHEMA_DEFAULT_SENTINELS.
     assert.ok(!('ceiling_height_ft' in facts), 'a schema-default ceiling height reached the prompt')
     assert.equal(facts.water_source, 'Ganga jal + borewell')
-    assert.equal(facts.land_tenure, '99-Year Authority Leasehold')
+    assert.equal(facts.land_tenure, '90-Year Authority Leasehold')
     assert.equal(facts.flood_waterlogging_risk, 'low')
     // resale_lock_in_months and women_safety_score are withheld now, and the
     // reason is the same one this block exists for. Measured across all 280
@@ -67,7 +67,7 @@ describe('projectScalarFacts', () => {
 
   it('renders booleans as buyer-readable states, not true/false', () => {
     const facts = projectScalarFacts(row())
-    assert.equal(facts.pet_friendly, 'pet friendly')
+    assert.equal(facts.pet_friendly, 'pets not allowed')
     assert.equal(facts.bachelor_tenants_allowed, 'not allowed')
     assert.equal(facts.oc_obtained, 'not obtained')
     assert.equal(facts.nri_eligible, 'eligible')
@@ -108,11 +108,18 @@ describe('projectScalarFacts', () => {
     assert.equal(facts.litigation_count, '0')
   })
 
-  it('truncates long prose rather than dropping it', () => {
+  it('truncates long prose rather than dropping it, and marks it as developer text', () => {
     const long = 'x'.repeat(2000)
     const facts = projectScalarFacts(row({ description: long }), { maxDescriptionChars: 100 })
-    assert.equal(facts.description.length, 101) // 100 + ellipsis
-    assert.ok(facts.description.endsWith('…'))
+    assert.equal(facts.description, `<untrusted_source url="developer-listing">${'x'.repeat(100)}…</untrusted_source>`)
+  })
+
+  it('withholds values every row carries from the enrich template', () => {
+    // All 382 rows: '99-Year Authority Leasehold', pet friendly, bachelors allowed (2026-10-05).
+    const facts = projectScalarFacts(row({ land_tenure: '99-Year Authority Leasehold', pet_friendly: true, bachelor_tenants_allowed: true }))
+    assert.ok(!('land_tenure' in facts))
+    assert.ok(!('pet_friendly' in facts))
+    assert.ok(!('bachelor_tenants_allowed' in facts))
   })
 })
 

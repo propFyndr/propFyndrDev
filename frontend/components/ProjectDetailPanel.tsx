@@ -5,6 +5,7 @@ import {
 } from 'lucide-react'
 
 import { useState, useEffect, useRef, useCallback } from 'react'
+import { createPortal } from 'react-dom'
 import { useRouter, useSearchParams } from 'next/navigation'
 import {  AnimatePresence, m  } from 'framer-motion'
 import Image from 'next/image'
@@ -1007,7 +1008,14 @@ export default function ProjectDetailPanel({ project, onClose, inline, initialDe
   )
 
   // ── Modal ──────────────────────────────────────────────────────────────────
-  return (
+  // Portalled to <body>: rendered inline, this used to sit inside
+  // `.discover-canvas`, whose `isolation: isolate` (for the background
+  // gradient layer) traps everything under it — including this panel's
+  // `z-[80]` backdrop — in one stacking context. That context itself has no
+  // explicit z-index, so it painted behind the sidebar's `z-20`, which does,
+  // regardless of the 80 vs 20 comparison happening inside it. A portal takes
+  // the panel out of that subtree entirely.
+  const modalContent = (
     <div className="project-detail-wrapper">
       <AnimatePresence mode="wait">
         {isOpen && !isMobile && (
@@ -1019,7 +1027,7 @@ export default function ProjectDetailPanel({ project, onClose, inline, initialDe
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
-              className="fixed inset-0 z-50 bg-black/70 hidden md:flex items-center justify-center p-4 md:p-8"
+              className="fixed inset-0 z-[80] bg-black/70 hidden md:flex items-center justify-center p-4 md:p-8"
               onClick={onClose}
             >
               {/* ── Desktop dialog ── */}
@@ -1037,63 +1045,63 @@ export default function ProjectDetailPanel({ project, onClose, inline, initialDe
                 ref={desktopDialogRef}
                 onClick={(e) => e.stopPropagation()}
               >
-              {/* Scrollable Content */}
-              <div
-                ref={scrollContainerRef}
-                id={PANEL_ID}
-                role="tabpanel"
-                aria-labelledby={tabId(activeTab)}
-                tabIndex={0}
-                className="flex-1 overflow-y-auto w-full relative pb-24 hide-scrollbar"
-                onScroll={handleScroll}
-              >
-                {/* Hero Section */}
-                {renderHero()}
+                {/* Scrollable Content */}
+                <div
+                  ref={scrollContainerRef}
+                  id={PANEL_ID}
+                  role="tabpanel"
+                  aria-labelledby={tabId(activeTab)}
+                  tabIndex={0}
+                  className="flex-1 overflow-y-auto w-full relative pb-24 hide-scrollbar"
+                  onScroll={handleScroll}
+                >
+                  {/* Hero Section */}
+                  {renderHero()}
 
-                {/* Sticky Header / Tabs */}
-                {stickyHeader}
+                  {/* Sticky Header / Tabs */}
+                  {stickyHeader}
 
-                {/* Main Content Area */}
-                <div className="p-8 md:p-10 max-w-[1200px] mx-auto">
-                  <div className="bg-white dark:bg-[#111] rounded-2xl shadow-sm border border-gray-100 dark:border-white/5 overflow-hidden min-h-[400px]">
-                     {tabBody}
+                  {/* Main Content Area */}
+                  <div className="p-8 md:p-10 max-w-[1200px] mx-auto">
+                    <div className="bg-white dark:bg-[#111] rounded-2xl shadow-sm border border-gray-100 dark:border-white/5 overflow-hidden min-h-[400px]">
+                       {tabBody}
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              {/* Floating Footer CTA (Pill Dock) */}
-              <div className="absolute bottom-8 inset-x-0 z-50 hidden md:flex justify-center pointer-events-none">
-                <div className="flex gap-3 bg-white/90 dark:bg-gray-900/90 backdrop-blur-xl p-2 rounded-full shadow-[0_8px_32px_rgba(0,0,0,0.12)] border border-gray-200/50 dark:border-white/10 pointer-events-auto">
-                  <button onClick={() => onSiteVisitClick()} className="px-8 py-3 bg-gray-900 hover:bg-black dark:bg-white dark:text-gray-900 text-white font-semibold rounded-full text-[14px] transition-all flex items-center gap-2 shadow-sm">
-                    <CalendarDays size={16} />
-                    Book Site Visit
-                  </button>
-                  {(() => {
-                    const waUrl = d ? buildWhatsAppUrl(d as any, 'panel') : null
-                    return waUrl ? (
-                      <a href={waUrl} target="_blank" rel="noopener noreferrer"
-                        onClick={() => trackWhatsAppHandoff(d as any, 'panel')}
-                        className="px-6 py-3 bg-white dark:bg-white/10 hover:bg-gray-50 dark:hover:bg-white/20 border border-gray-200 dark:border-white/10 text-gray-700 dark:text-gray-200 font-semibold rounded-full text-[14px] transition-all flex items-center gap-2">
-                        <WhatsAppIcon size={16} />
-                        Ask on WhatsApp
-                      </a>
-                    ) : null
-                  })()}
+                {/* Floating Footer CTA (Pill Dock) */}
+                <div className="absolute bottom-8 inset-x-0 z-50 hidden md:flex justify-center pointer-events-none">
+                  <div className="flex gap-3 bg-white/90 dark:bg-gray-900/90 backdrop-blur-xl p-2 rounded-full shadow-[0_8px_32px_rgba(0,0,0,0.12)] border border-gray-200/50 dark:border-white/10 pointer-events-auto">
+                    <button onClick={() => onSiteVisitClick()} className="px-8 py-3 bg-gray-900 hover:bg-black dark:bg-white dark:text-gray-900 text-white font-semibold rounded-full text-[14px] transition-all flex items-center gap-2 shadow-sm">
+                      <CalendarDays size={16} />
+                      Book Site Visit
+                    </button>
+                    {(() => {
+                      const waUrl = d ? buildWhatsAppUrl(d as any, 'panel') : null
+                      return waUrl ? (
+                        <a href={waUrl} target="_blank" rel="noopener noreferrer"
+                          onClick={() => trackWhatsAppHandoff(d as any, 'panel')}
+                          className="px-6 py-3 bg-white dark:bg-white/10 hover:bg-gray-50 dark:hover:bg-white/20 border border-gray-200 dark:border-white/10 text-gray-700 dark:text-gray-200 font-semibold rounded-full text-[14px] transition-all flex items-center gap-2">
+                          <WhatsAppIcon size={16} />
+                          Ask on WhatsApp
+                        </a>
+                      ) : null
+                    })()}
+                  </div>
                 </div>
-              </div>
-            </m.div>
-            {/* End Backdrop & Centering Wrapper for Desktop */}
-            </m.div>
-          </>
-        )}
-      </AnimatePresence>
+              </m.div>
+              {/* End Backdrop & Centering Wrapper for Desktop */}
+              </m.div>
+            </>
+          )}
+        </AnimatePresence>
 
-       {/* Mobile bottom sheet gets its own AnimatePresence with full clickable backdrop */}
-      <AnimatePresence mode="wait">
-        {isOpen && isMobile && (
-          <div
-            key="backdrop-mobile"
-            className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex flex-col justify-end"
+         {/* Mobile bottom sheet gets its own AnimatePresence with full clickable backdrop */}
+        <AnimatePresence mode="wait">
+          {isOpen && isMobile && (
+            <div
+              key="backdrop-mobile"
+              className="fixed inset-0 z-[80] bg-black/60 backdrop-blur-xs flex flex-col justify-end"
             onClick={onClose}
           >
             <m.div
@@ -1165,6 +1173,7 @@ export default function ProjectDetailPanel({ project, onClose, inline, initialDe
         )}
       </AnimatePresence>
     </div>
-
   )
+
+  return typeof document === 'undefined' ? null : createPortal(modalContent, document.body)
 }

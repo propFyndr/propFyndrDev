@@ -39,7 +39,7 @@ function priceBand(projects: ProjectCardType[]): string | null {
 }
 
 const ACTION_CLASS =
-  'flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-bold border transition-all active:scale-95 cursor-pointer'
+  'flex items-center gap-1.5 px-3 py-2 rounded-lg text-[11px] font-bold border transition-all active:scale-95 cursor-pointer min-h-[48px] min-w-[48px] justify-center tap-target-y'
 
 export function MobileCardShelf({
   projects,
@@ -47,6 +47,7 @@ export function MobileCardShelf({
   label,
   onMap,
   onCompare,
+  onOpenCompareOverlay,
   canCompare = false,
   compareActive = false,
   children,
@@ -58,6 +59,8 @@ export function MobileCardShelf({
   label?: string | null
   onMap?: () => void
   onCompare?: () => void
+  /** Floating badge: opens the compare picker over the transcript. */
+  onOpenCompareOverlay?: () => void
   canCompare?: boolean
   compareActive?: boolean
   /** The card grid, rendered only once expanded so collapsed costs nothing. */
@@ -93,7 +96,7 @@ export function MobileCardShelf({
           type="button"
           onClick={() => setOpen(v => !v)}
           aria-expanded={open}
-          className="flex-1 min-w-0 flex items-center gap-2.5 px-3.5 py-3 text-left active:bg-zinc-50 dark:active:bg-zinc-800/60 transition-colors"
+          className="flex-1 min-w-0 flex items-center gap-2.5 px-3.5 py-3 min-h-[48px] text-left active:bg-zinc-50 dark:active:bg-zinc-800/60 transition-colors"
         >
           <CaretDown
             size={15}
@@ -145,10 +148,24 @@ export function MobileCardShelf({
       </div>
 
       {open && (
-        <div className="px-3 pb-3">
+        <div className="relative px-3 pb-3">
           {typeof children === 'function'
             ? children({ visibleProjects, hasMore, showAll, setShowAll })
             : children}
+
+          {canCompare && onOpenCompareOverlay && !compareActive && projects.length >= 2 && (
+            <div className="sticky bottom-2 z-10 flex justify-center w-full pt-2 pointer-events-none">
+              <button
+                type="button"
+                onClick={onOpenCompareOverlay}
+                aria-label={`Compare ${projects.length} properties`}
+                className="pointer-events-auto shadow-lg backdrop-blur-md px-4 py-2 rounded-full bg-primary hover:bg-primary-dark text-white font-semibold text-[12px] flex items-center gap-2 min-h-[48px] transition-all active:scale-95 cursor-pointer"
+              >
+                <Scales size={15} weight="bold" />
+                <span>{`Compare (${projects.length})`}</span>
+              </button>
+            </div>
+          )}
         </div>
       )}
     </div>

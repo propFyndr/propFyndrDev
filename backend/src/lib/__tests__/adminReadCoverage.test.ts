@@ -64,6 +64,7 @@ const READ_REGISTRY: Record<string, Record<Role, boolean>> = {
   // Which catalogue rows are missing fields. Catalogue metadata, no buyer in it.
   '/boards/data-quality': ALL,
   '/stats': ALL,
+  '/demand': ALL,
   '/channel-partners': ALL,
   '/channel-partners/:id': ALL,
 

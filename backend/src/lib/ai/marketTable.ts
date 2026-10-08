@@ -596,25 +596,45 @@ export interface SectorStats {
   priceRange: string
   readyCount: number
   topProjects: string
+  /** From sector_intelligence; null when absent or when the text is a template shared across sectors. */
+  strengths?: string[] | null
+  weaknesses?: string[] | null
+  suits?: string | null
+  avoidIf?: string | null
+  metro?: string | null
+  ratePerSqft?: number | null
 }
 
-/** Two sectors side by side, from counts we computed rather than prose we asked for. */
+/**
+ * Two sectors side by side: what each is good and bad for, then price.
+ *
+ * It used to lead with "Projects listed: 21 vs 25" and "Ready to move: 16 vs 7"
+ * — counts of our own rows. A buyer comparing Sector 75 with Sector 150 is
+ * asking what it is like to live in each, and a row count answers neither that
+ * nor anything else they can act on. The livability rows come from
+ * sector_intelligence, and a row neither sector holds is left out rather than
+ * printed as two dashes.
+ */
 export function renderSectorComparisonTable(a: SectorStats, b: SectorStats): string {
   if (!a?.sector || !b?.sector) return ''
 
-  const rows: Array<[string, string, string]> = [
-    // Not "Projects we hold". A buyer comparing two sectors is asking about
-    // the market, and a row phrased as our inventory count answers a question
-    // they did not ask — it reads as bookkeeping, and it invites the reading
-    // that a sector with fewer rows in our database has fewer buildings in it.
-    ['Projects listed', String(a.totalProjects), String(b.totalProjects)],
-    ['Ready to move', String(a.readyCount), String(b.readyCount)],
+  const list = (xs?: string[] | null) => (xs?.length ? xs.join('; ') : null)
+  const rate = (n?: number | null) => (n ? `₹${Math.round(n).toLocaleString('en-IN')}/sq.ft` : null)
+  const rows: Array<[string, string | null, string | null]> = [
+    ['Strengths', list(a.strengths), list(b.strengths)],
+    ['Watch-outs', list(a.weaknesses), list(b.weaknesses)],
+    ['Nearest metro', a.metro ?? null, b.metro ?? null],
+    ['Average rate', rate(a.ratePerSqft), rate(b.ratePerSqft)],
     ['Price band', a.priceRange, b.priceRange],
     ['Landmark societies', a.topProjects, b.topProjects],
+    ['Suits', a.suits ?? null, b.suits ?? null],
+    ['Not for', a.avoidIf ?? null, b.avoidIf ?? null],
   ]
 
   const header = `| | ${cell(a.sector)} | ${cell(b.sector)} |\n| :--- | :--- | :--- |`
-  const body = rows.map(([label, x, y]) => `| **${cell(label)}** | ${cell(x)} | ${cell(y)} |`)
+  const body = rows
+    .filter(([, x, y]) => x || y)
+    .map(([label, x, y]) => `| **${cell(label)}** | ${cell(x ?? 'Not recorded')} | ${cell(y ?? 'Not recorded')} |`)
   return `${header}\n${body.join('\n')}`
 }
 

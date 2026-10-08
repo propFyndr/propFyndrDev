@@ -38,3 +38,8 @@
 **What didn't work:** asking for `[phrase](URL)` links while listing sources as `[1] title`. The model wrote `[1]` footnotes. With sources unnumbered it switched to `phrase【URL】`. It also wrote a Markdown table despite "no tables". Each left artefacts on the page and "0 cited" in the notes.
 **What worked:** an unnumbered SOURCES block, plus a parser fallback (`linkFootnotes`) that turns `[n]`, `【n】` and `【URL】` into real links on the preceding clause (unknown refs dropped, URLs only if they are ours), and a table-to-list conversion. Gotcha found live: a decimal point ("29.7 km") looked like a sentence end and split the clause; protect `\d.\d` before splitting.
 **Note for next time:** treat any instruction to an LLM about output format as a preference, and parse defensively for the formats it falls back to. Test with real replies, not just the format you asked for.
+
+## 2026-10-05 — Regex edits through Python/sed heredocs corrupted `\b`
+**What didn't work:** editing TypeScript regexes with `python - <<'EOF'` string replaces and `sed -i`. `\b` became a literal backspace (0x08) in one pass and a bare `b` in the repair; `\n` inside template literals became real line breaks. Typecheck stayed green, because a regex with a stray `b` is still valid.
+**What worked:** the Edit tool for any line holding a regex or an escape; then `grep -P "\x08"` and a diff read to catch what slipped.
+**Note for next time:** never route regex or `\n` text through a shell-quoted script. Typecheck does not catch it, so read the diff.

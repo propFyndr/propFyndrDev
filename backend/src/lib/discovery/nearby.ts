@@ -302,6 +302,9 @@ export async function findNearby(
  * Returns null when the message is not a proximity question, so the caller can
  * fall through to everything else unchanged.
  */
+/** The buyer wants other buildings, not the neighbourhood. */
+const INVENTORY_ASK_RE = /\b(projects?|flats?|apartments?|propert\w*|homes?|societ\w*|options|alternatives|towers?|launches)\b/i
+
 export async function nearbyCoverage(
   message: string,
   focusProjectId?: string | null,
@@ -334,6 +337,12 @@ export async function nearbyCoverage(
   }
 
   if (anchor.kind === 'unresolved') return null
+
+  // "What is near Elite X?" asks about the surroundings — metro, malls,
+  // hospitals — which the project's own connectivity rows answer. Only an
+  // explicit inventory ask ("projects near Elite X") is a nearby-projects
+  // question; the rest fall through to the vicinity handler.
+  if (anchor.kind === 'project' && !INVENTORY_ASK_RE.test(message)) return null
 
   const result = await findNearby(anchor, requestedRadiusKm(message), {
     excludeProjectId: anchor.kind === 'project' && focusProjectId ? focusProjectId : undefined,

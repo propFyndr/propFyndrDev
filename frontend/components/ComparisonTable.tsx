@@ -190,13 +190,6 @@ function renderAdvantages(d: ProjectDetail | null): React.ReactNode {
       </span>,
     )
   }
-  if (risk === 'Low') {
-    chips.push(
-      <span key="risk" className="inline-flex items-center gap-1 text-emerald-600">
-        <Zap size={12} /> Low Risk
-      </span>,
-    )
-  }
   return <div className="flex flex-col gap-1">{chips}</div>
 }
 

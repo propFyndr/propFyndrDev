@@ -159,6 +159,7 @@ export type ComponentType =
   | 'confidence-badge' | 'risk-meter' | 'possession-timeline'
   | 'society-stats' | 'commute-card' | 'rental-yield-card'
   | 'nearby-projects' | 'reviews-summary' | 'transaction-history' | 'lead-form'
+  | 'carpet-loading-visualizer' | 'layout-efficiency'
 
 export type QueryIntent = 'payment' | 'investment' | 'location' | 'timeline' | 'builder' | 'details' | 'compare'
 
@@ -211,6 +212,7 @@ export interface ChatMessage {
   showComparisonTable?: boolean;
   comparisonProjects?: ProjectCard[];
   affordabilityData?: import('@/components/chat/AffordabilityCard').AffordabilityData | null;
+  carpetData?: import('@/components/chat/CarpetLoadingVisualizer').CarpetLoadingProps | null;
   isSearching?: boolean;
   searchingTool?: 'search_properties' | 'search_web' | 'commute' | 'rera';
   userQuery?: string;

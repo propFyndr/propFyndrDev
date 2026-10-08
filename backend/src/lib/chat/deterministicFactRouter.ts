@@ -185,13 +185,29 @@ export async function tryDeterministicFactBypass(
   if (!project) return false
 
   let responseMarkdown = ''
+  const SEPARATOR = '\n\n---\n\n'
   const builderName = project.builder?.name ? ` by ${project.builder.name}` : ''
   const UNVERIFIED = 'Not verified'
+/** `subvention_restricted` → "Subvention restricted". A stored code never reaches a buyer as-is. */
+const readable = (code: string) => code.charAt(0).toUpperCase() + code.slice(1).replace(/_/g, ' ')
 
-  switch (detection.attribute) {
+  /**
+   * Every fact the buyer asked for, not just the first. "Does Elite X have its
+   * OC? What about water quality?" answered the OC and dropped the water — the
+   * detector returns on its first hit and this used to render that one block.
+   * The project is already resolved, so the bare keyword is enough for the rest.
+   */
+  const attributes = [
+    detection.attribute,
+    ...(Object.keys(STRICT_KEYWORD) as FactAttribute[]).filter(
+      a => a !== detection.attribute && STRICT_KEYWORD[a].test(message),
+    ),
+  ]
+
+  for (const attribute of attributes) switch (attribute) {
     case 'rera': {
       if (project.rera_number) {
-        responseMarkdown = `### UP-RERA Registration Details — ${project.name}
+        responseMarkdown += `${responseMarkdown ? SEPARATOR : ''}### UP-RERA Registration Details — ${project.name}
 
 | Parameter | Official Record | Status / Link |
 | :--- | :--- | :--- |
@@ -201,7 +217,7 @@ export async function tryDeterministicFactBypass(
 
 > This registration number is from our project record. Confirm it on the UP-RERA portal before paying any booking amount.`
       } else {
-        responseMarkdown = `### UP-RERA Registration Status — ${project.name}
+        responseMarkdown += `${responseMarkdown ? SEPARATOR : ''}### UP-RERA Registration Status — ${project.name}
 
 We do **not hold a verified UP-RERA registration number** on record for **${project.name}** in ${project.sector}, ${project.city}.
 
@@ -225,13 +241,13 @@ We do **not hold a verified UP-RERA registration number** on record for **${proj
 
       const isClear = project.oc_status === 'FULL_OC' || project.occupancy_certificate_status?.toLowerCase().includes('obtained')
 
-      responseMarkdown = `### Occupancy Certificate (OC) Status — ${project.name}
+      responseMarkdown += `${responseMarkdown ? SEPARATOR : ''}### Occupancy Certificate (OC) Status — ${project.name}
 
 | Checkpoint | Status for this Project | Legal & Living Impact |
 | :--- | :--- | :--- |
 | **Occupancy Certificate (OC)** | **${ocDisplay}** | ${isClear ? 'OC on record: possession and registry can proceed' : 'Registry cannot complete without a full OC'} |
 | **Current Project Stage** | ${project.status ? project.status.replace(/_/g, ' ') : UNVERIFIED} | Possession marker: ${project.possession_label ?? UNVERIFIED} |
-| **Authority Registry Standing** | ${project.registry_status ?? (project.authority_dues_cleared === false ? 'Outstanding authority dues reported' : UNVERIFIED)} | From our project record |
+| **Authority Registry Standing** | ${project.registry_status ? readable(project.registry_status) : (project.authority_dues_cleared === false ? 'Outstanding authority dues reported' : UNVERIFIED)} | From our project record |
 
 > ℹ️ **Registry Notice:** In Noida and Greater Noida, authority registry requires both the final Occupancy Certificate and developer land dues clearance. We never invent or approximate OC grant dates.`
       break
@@ -248,13 +264,14 @@ We do **not hold a verified UP-RERA registration number** on record for **${proj
           ? 'Mixed: Authority Borewell & Central WTP'
           : UNVERIFIED)
       const tdsRange = project.water_tds_range ?? UNVERIFIED
+      const unbuilt = project.status === 'under_construction' || project.status === 'new_launch'
 
-      responseMarkdown = `### Water Source & Quality — ${project.name} (${project.sector}, ${project.city})
+      responseMarkdown += `${responseMarkdown ? SEPARATOR : ''}### Water Source & Quality — ${project.name} (${project.sector}, ${project.city})
 
-| Parameter | Verified Record | Practical Ground Reality |
+| Parameter | Our Record | Practical Ground Reality |
 | :--- | :--- | :--- |
-| **Primary Water Supply** | **${waterSourceLabel}** | ${project.water_source_type === 'GANGA_JAL' ? 'Municipal Ganga Jal network on record' : project.water_source_type === 'BOREWELL' || project.water_source_type === 'MIXED' ? 'Groundwater in the mix: check the society WTP treatment' : 'Ask the society for its latest water test report'} |
-| **Tested TDS Level** | **${tdsRange}** | ${tdsRange === UNVERIFIED ? 'Ask for a recent lab TDS report' : /(?:[6-9]\d{2}|\d{4})/.test(tdsRange) ? 'High TDS on record: plan for a multi-stage RO' : 'TDS on record is within the usual drinking range'} |
+| **Primary Water Supply** | **${waterSourceLabel}** | ${project.water_source_type === 'GANGA_JAL' ? 'Municipal Ganga Jal network on record' : project.water_source_type === 'BOREWELL' || project.water_source_type === 'MIXED' ? 'Groundwater in the mix: check the society WTP treatment' : unbuilt ? 'Ask the builder for the sanctioned water source and the planned treatment plant' : 'Ask the society for its latest water test report'} |
+| **Tested TDS Level** | **${tdsRange}** | ${tdsRange === UNVERIFIED ? (unbuilt ? 'Nothing to test until the society is occupied' : 'Ask for a recent lab TDS report') : /(?:[6-9]\d{2}|\d{4})/.test(tdsRange) ? 'High TDS on record: plan for a multi-stage RO' : 'TDS on record is within the usual drinking range'} |
 
 > Supply in a Noida society is often a blend of authority Ganga Jal and borewell water (${MARKET_QUALIFIER}). The society's own test report is the record that counts.`
       break
@@ -269,7 +286,7 @@ We do **not hold a verified UP-RERA registration number** on record for **${proj
           : UNVERIFIED
       const liftsPerTower = project.lifts_per_tower && !isSchemaDefault('lifts_per_tower', project.lifts_per_tower) ? `${project.lifts_per_tower} lifts per core/tower` : UNVERIFIED
 
-      responseMarkdown = `### Lift Safety & UP Lifts Act 2024 — ${project.name}
+      responseMarkdown += `${responseMarkdown ? SEPARATOR : ''}### Lift Safety & UP Lifts Act 2024 — ${project.name}
 
 | Compliance Item | Project Record | Statutory Requirement (UP Lifts Act 2024) |
 | :--- | :--- | :--- |
@@ -294,13 +311,13 @@ We do **not hold a verified UP-RERA registration number** on record for **${proj
           ? 'Outstanding Authority Dues Reported'
           : UNVERIFIED
 
-      responseMarkdown = `### Land Dues & Registry Clearance — ${project.name}
+      responseMarkdown += `${responseMarkdown ? SEPARATOR : ''}### Land Dues & Registry Clearance — ${project.name}
 
 | Legal Factor | Status for this Project | Buyer Impact |
 | :--- | :--- | :--- |
 | **Amitabh Kant Policy (25% Dues)** | **${kantDisplay}** | ${project.amitabh_kant_clearance === true ? 'Clearance on record: registry is unblocked' : project.amitabh_kant_clearance === false ? 'No clearance on record: registry may stay blocked until the 25% dues are paid' : 'Ask the builder for the authority clearance letter'} |
 | **Authority Dues Status** | ${duesStatus} | From our project record |
-| **Registry Eligibility** | ${project.registry_status ?? UNVERIFIED} | Requires the developer's no-dues certificate from the authority |
+| **Registry Eligibility** | ${project.registry_status ? readable(project.registry_status) : UNVERIFIED} | Requires the developer's no-dues certificate from the authority |
 
 > ⚖️ **Buyer Protection Advisory:** Always verify the authority No-Dues Certificate (NDC) before paying final registry installments.`
       break

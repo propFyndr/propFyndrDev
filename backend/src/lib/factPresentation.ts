@@ -89,10 +89,11 @@ export function headingFor(topic: string, projectName: string, tiers: FactTier[]
  */
 export const UP_STATUTORY = {
   stampDutyPct: 7,
+  // 6% for a female primary owner at every value, no cap (user-confirmed
+  // 2026-10-02; the old ₹10,000 cap was the pre-2025 ₹10 lakh rule).
   stampDutyFemalePct: 6,
-  stampDutyFemaleConcessionCapInr: 10_000,
+  // Flat 1%, no cap. The ₹30,000 cap here had no source.
   registrationPct: 1,
-  registrationCapInr: 30_000,
   gstUnderConstructionPct: 5,
   gstReadyToMovePct: 0,
   tdsThresholdInr: 5_000_000,

@@ -23,6 +23,8 @@ export interface Intent {
   // Phase 0: Query classification
   queryKind?: 'DISCOVERY' | 'DRILLDOWN' | 'RANKING' | 'COMPARISON' | 'SUMMARY' | 'ADVISORY' | 'CLARIFY' | 'OPEN'
   exactOnly?: boolean
+  /** The buyer said the ceiling is absolute ("max", "cannot exceed"): no over-budget tolerance in retrieval. */
+  budgetHard?: boolean
 
   // Spatial scope: disambiguate "in Sector 75" (EXACT) vs "near Sector 75" (PROXIMITY)
   spatialScope?: 'EXACT' | 'PROXIMITY' | 'BROAD'

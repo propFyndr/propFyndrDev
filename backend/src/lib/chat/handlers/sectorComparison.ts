@@ -72,8 +72,61 @@ export const sectorComparisonHandler: ChatTopicHandler = {
       }
     }
 
-    const s1Stats = getStats(s1DetailedProjs, s1)
-    const s2Stats = getStats(s2DetailedProjs, s2)
+    /**
+     * What each sector is like to live in, from sector_intelligence.
+     *
+     * Only 17 of its 65 rows carry distinct text — the rest repeat a template
+     * ("Sector 76 Metro (via Parthala) / Sector 52, 5.2 km" on 22 sectors). A
+     * value shared by several sectors describes none of them, so it is dropped
+     * here and the row reads "Not recorded" rather than a stranger's facts.
+     */
+    const intel = await prisma.sectorIntelligence.findMany({
+      select: {
+        city: true, sector: true, sector_strengths: true, sector_weaknesses: true,
+        who_should_buy: true, who_should_avoid: true, nearest_metro_station: true,
+        metro_distance_km: true, avg_price_per_sqft: true,
+      },
+    })
+    const shared = (pick: (r: (typeof intel)[number]) => unknown) => {
+      const counts = new Map<string, number>()
+      for (const r of intel) {
+        const k = JSON.stringify(pick(r) ?? null)
+        counts.set(k, (counts.get(k) ?? 0) + 1)
+      }
+      return (r: (typeof intel)[number]) => (counts.get(JSON.stringify(pick(r) ?? null)) ?? 0) > 2
+    }
+    const templated = {
+      strengths: shared(r => r.sector_strengths),
+      weaknesses: shared(r => r.sector_weaknesses),
+      suits: shared(r => r.who_should_buy),
+      avoid: shared(r => r.who_should_avoid),
+      metro: shared(r => [r.nearest_metro_station, r.metro_distance_km]),
+    }
+    const livability = (sector: string, projs: typeof s1DetailedProjs) => {
+      // "Sector 10" exists in Noida and in Greater Noida West; take the row in
+      // the city the sector's projects are in.
+      const rows = intel.filter(r => r.sector.toLowerCase() === sector.toLowerCase())
+      const city = projs[0]?.city
+      const r = rows.find(x => city && x.city.toLowerCase() === city.toLowerCase()) ?? (rows.length === 1 ? rows[0] : undefined)
+      if (!r) return {}
+      const metro = templated.metro(r) || !r.nearest_metro_station
+        ? null
+        : `${r.nearest_metro_station}${r.metro_distance_km != null ? `, ${r.metro_distance_km} km` : ''}`
+      // With a metro row on screen, a free-text "metro is ~3.5km" beside its
+      // "3.2 km" is the table contradicting itself (Sector 150, 2026-10-05).
+      const offMetroRow = (items: string[]) => metro ? items.filter(t => !(/metro/i.test(t) && /\d\s*km/i.test(t))) : items
+      return {
+        strengths: templated.strengths(r) ? null : offMetroRow(r.sector_strengths),
+        weaknesses: templated.weaknesses(r) ? null : offMetroRow(r.sector_weaknesses),
+        suits: templated.suits(r) ? null : r.who_should_buy,
+        avoidIf: templated.avoid(r) ? null : r.who_should_avoid,
+        metro,
+        ratePerSqft: r.avg_price_per_sqft,
+      }
+    }
+
+    const s1Stats = { ...getStats(s1DetailedProjs, s1), ...livability(s1, s1DetailedProjs) }
+    const s2Stats = { ...getStats(s2DetailedProjs, s2), ...livability(s2, s2DetailedProjs) }
     // Rendered here rather than by the model. The old prompt was a table
     // template with these very values already interpolated into its cells —
     // `${s1Stats.priceRange}`, `${s1Stats.topProjects}` — so the model was paid
@@ -104,7 +157,7 @@ export const sectorComparisonHandler: ChatTopicHandler = {
     const systemPrompt = `You are PropFyndr, a professional real estate advisor for Noida and Greater Noida.
 
 THE TABLE IS ALREADY ON SCREEN.
-A comparison of the two sectors named in the verified facts below has just been rendered for the buyer from our own rows — inventory counts, price bands and the landmark societies in each. Do not draw a table and do not restate its figures.
+A comparison of the two sectors named in the verified facts below has just been rendered for the buyer from our own rows — strengths, watch-outs, metro, price bands and the landmark societies in each. Do not draw a table and do not restate its figures.
 
 Always write both sectors by their full names exactly as the facts spell them. Never call them "the first" or "the second".
 

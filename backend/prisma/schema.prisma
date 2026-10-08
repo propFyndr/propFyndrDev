@@ -2189,3 +2189,88 @@ model WebFact {
   @@index([query_key, expires_at])
   @@map("web_facts")
 }
+
+/// Curated Knowledge Base document (Task 6.4)
+model KnowledgeDoc {
+  id           String           @id @default(uuid())
+  slug         String           @unique
+  title        String
+  body_md      String           @db.Text
+  tier         String           // "statutory" | "market" | "educational"
+  state_code   String?          // null = All India
+  source_url   String?
+  source_name  String?
+  last_checked DateTime         @default(now())
+  status       String           @default("PUBLISHED")
+  chunks       KnowledgeChunk[]
+  created_at   DateTime         @default(now())
+  updated_at   DateTime         @updatedAt
+
+  @@map("knowledge_docs")
+}
+
+/// Knowledge Base chunk for hybrid search (Task 6.4)
+model KnowledgeChunk {
+  id      String       @id @default(uuid())
+  doc_id  String
+  doc     KnowledgeDoc @relation(fields: [doc_id], references: [id], onDelete: Cascade)
+  ordinal Int
+  text    String       @db.Text
+
+  @@index([doc_id])
+  @@map("knowledge_chunks")
+}
+
+/// National Geography Models (Task 7.1)
+model State {
+  code       String   @id
+  name       String
+  cities     City[]
+  created_at DateTime @default(now())
+
+  @@map("states")
+}
+
+model City {
+  id             String     @id @default(uuid())
+  name           String
+  state_code     String
+  state          State      @relation(fields: [state_code], references: [code])
+  inventory_live Boolean    @default(false)
+  localities     Locality[]
+  created_at     DateTime   @default(now())
+
+  @@unique([name, state_code])
+  @@map("cities")
+}
+
+model Locality {
+  id         String   @id @default(uuid())
+  city_id    String
+  city       City     @relation(fields: [city_id], references: [id])
+  name       String
+  aliases    String[]
+  kind       String   // "sector" | "neighbourhood"
+  created_at DateTime @default(now())
+
+  @@unique([city_id, name])
+  @@map("localities")
+}
+
+/// Dynamic Statutory Tax Engine Model (Task 7.1)
+model StatutoryRate {
+  id             String   @id @default(uuid())
+  state_code     String
+  kind           String   // "stamp_duty" | "registration" | "gst"
+  rate_pct       Float
+  condition      Json?
+  effective_from DateTime
+  source_url     String
+  status         String   @default("PUBLISHED") // "DRAFT" | "PUBLISHED"
+  created_at     DateTime @default(now())
+
+  @@index([state_code, kind, effective_from])
+  @@map("statutory_rates")
+}
+
+

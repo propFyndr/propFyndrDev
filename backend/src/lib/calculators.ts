@@ -1,4 +1,4 @@
-// backend/src/lib/calculators.ts
+import { getSyncStampDutyRate, getSyncGstRate } from './tax/taxEngine'
 
 export function formatInr(amount: number): string {
   if (amount >= 1_00_00_000) return `₹${(amount / 1_00_00_000).toFixed(2)} Cr`
@@ -22,10 +22,11 @@ export function calcEmi(
 
 export function calcStampDuty(
   priceCr: number,
-  gender: 'male' | 'female' | 'joint' = 'male'
+  gender: 'male' | 'female' | 'joint' = 'male',
+  stateCode: string = 'UP'
 ): { stampDuty: number; registration: number; total: number; rate: number } {
   const price = priceCr * 1_00_00_000
-  const rate = gender === 'female' ? 6 : 7   // UP rates
+  const rate = getSyncStampDutyRate(gender, stateCode)
   const stampDuty = (price * rate) / 100
   const registration = price * 0.01
   return { stampDuty, registration, total: stampDuty + registration, rate }
@@ -34,12 +35,13 @@ export function calcStampDuty(
 export function calcGst(
   priceCr: number,
   status: 'under_construction' | 'ready_to_move',
-  carpetSqm = 0
+  carpetSqm = 0,
+  stateCode: string = 'UP'
 ): { gst: number; rate: number; category: string } {
   if (status === 'ready_to_move') return { gst: 0, rate: 0, category: 'OC received — no GST' }
   const price = priceCr * 1_00_00_000
   const isAffordable = priceCr < 0.45 && carpetSqm > 0 && carpetSqm <= 60
-  const rate = isAffordable ? 1 : 5
+  const rate = getSyncGstRate(status, isAffordable, stateCode)
   return { gst: (price * rate) / 100, rate, category: isAffordable ? 'affordable_housing' : 'standard' }
 }
 

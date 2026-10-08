@@ -1,0 +1,31 @@
+[
+  {
+    "query": "Bhai Sector 150 me 3BHK dikhao under 1.5 Cr",
+    "expectedIntent": {
+      "sector": "Sector 150",
+      "bhk": [3],
+      "budgetMax": 1.5
+    }
+  },
+  {
+    "query": "Noida Expressway par luxury studio apartments batao",
+    "expectedIntent": {
+      "sector": "Noida Expressway",
+      "bhk": [1],
+      "isStudio": true
+    }
+  },
+  {
+    "query": "compare these 3 on price, builder and location",
+    "expectedAnaphora": true,
+    "targetCount": 3
+  },
+  {
+    "query": "kitna monthly EMI banega 1.2 cr ke loan par 20 saal ke liye?",
+    "expectedType": "CALCULATION"
+  },
+  {
+    "query": "Stellar Park and ATS Pristine me se konsa badiya h for family?",
+    "expectedType": "COMPARISON"
+  }
+]

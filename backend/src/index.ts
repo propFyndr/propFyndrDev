@@ -184,6 +184,9 @@ app.use(compression({
 
 // Sentry Middleware (v8 uses errorHandler in error middleware, not request handler)
 
+// Liveness only — no DB, no Redis. For keep-alive pings; /health stays the deep probe.
+app.get('/api/v1/healthz', (_req, res) => { res.json({ ok: true }) })
+
 // Global Rate Limiting Middleware
 app.use(async (req: Request, res: Response, next: NextFunction) => {
   // Exclude healthchecks
@@ -252,8 +255,11 @@ app.get('/api/v1/health', async (_req, res) => {
   })
 })
 
+import { userMemoryRouter } from './routes/userMemory'
+
 app.use('/api/v1/chat', chatRouter)
 app.use('/api/v1/sessions', sessionsRouter)
+app.use('/api/v1/user/memory', userMemoryRouter)
 app.use('/api/v1/blog', blogRouter)
 app.use('/api/v1/projects', projectsRouter)
 app.use('/api/v1/saved', savedRouter)

@@ -16,18 +16,33 @@ export default function AdminLogin() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
+    if (loading) return
     setLoading(true)
     setError('')
+    const WAKING = 'Server is waking up — try again in about 30 seconds.'
     // An email present means a real admin account; omitted, this falls back
     // to the single shared password every deploy has always had.
-    const res = await fetch(`${API_BASE}/admin/auth`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(email ? { email, password } : { password }),
-    })
+    let res: Response
+    try {
+      res = await fetch(`${API_BASE}/admin/auth`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(email ? { email, password } : { password }),
+      })
+    } catch {
+      setLoading(false)
+      setError(WAKING)
+      return
+    }
+    // A cold start answers with a proxy 5xx or an HTML page, not our JSON —
+    // that is not a wrong password and must not read like one.
+    const data = await res.json().catch(() => null)
     setLoading(false)
+    if (!data || res.status >= 500) {
+      setError(WAKING)
+      return
+    }
     if (res.ok) {
-      const data = await res.json()
       if (data.token) {
         localStorage.setItem('admin_token', data.token)
         if (data.role) localStorage.setItem('admin_role', data.role)
@@ -37,9 +52,10 @@ export default function AdminLogin() {
           '/admin'
         router.push(destination)
       }
+    } else if (res.status === 401) {
+      setError('Wrong password.')
     } else {
-      const errData = await res.json().catch(() => ({}))
-      setError(errData.error || 'Wrong password.')
+      setError(data.error || 'Sign-in failed. Try again.')
     }
   }
 

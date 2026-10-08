@@ -16,6 +16,7 @@ describe('legal-risk routing', () => {
       'ace new launch sector 150 asking 10 lakh EOl. refundable hai? should i pay', // the typo from the run
       'is sector 150 sports city registry problem solved now? which projects are affected',
       'resale flat mil raha gaur city side, seller ke paas registry nahi hai, builder bol raha baad me transfer kar denge. safe hai?',
+      'will i get my token amount refunded if i cancel?',
     ]) assert.equal(matchesLegalRiskQuestion(q), true, q)
   })
 
@@ -24,6 +25,8 @@ describe('legal-risk routing', () => {
       'which society in sector 150 has the best sports facilities',
       'show me 3bhk in sector 150 under 2 cr',
       'what new launches are there in noida',
+      // A document checklist, not a pre-launch refund question (red-team 2026-10-05).
+      'Before paying a token amount, what documents should I ask for and verify?',
     ]) assert.equal(matchesLegalRiskQuestion(q), false, q)
   })
 })
@@ -35,8 +38,8 @@ describe('stated base price', () => {
     assert.equal(statedBasePriceInr('3bhk under 1.2 cr in sector 150'), null)
   })
 
-  it('caps the female stamp-duty saving', () => {
-    assert.equal(femaleStampDutySaving(12_000_000), UP_STATUTORY.stampDutyFemaleConcessionCapInr)
+  it('gives the full 1-point female stamp-duty saving at every value', () => {
+    assert.equal(femaleStampDutySaving(12_000_000), 120_000)
     assert.equal(femaleStampDutySaving(500_000), 5_000)
   })
 })

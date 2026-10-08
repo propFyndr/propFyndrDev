@@ -518,7 +518,7 @@ function report(results: Result[]) {
   console.log('\n========================================')
   console.log(`CORPUS RUN COMPLETE: ${passes} / ${total} PASSED (${passPct}%)`)
   console.log(`Blended Cost: < $${Number(blendedCostPer1k) < 1.5 ? '1.50' : blendedCostPer1k} / 1,000 queries`)
-  console.log(`Caching Hit Rate: >= 75%`)
+  console.log(`Caching hit rate: not measured`)
   console.log('========================================\n')
 
   if (passes < total) {

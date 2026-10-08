@@ -7,7 +7,8 @@ export function PingBackend() {
 
   useEffect(() => {
     // Same resolver as every other API call (the /api/v1 rewrite in the browser).
-    const healthUrl = `${API_BASE}/health`;
+    // /healthz is liveness only (no DB/Redis) — enough to keep the instance awake.
+    const healthUrl = `${API_BASE}/healthz`;
 
     function ping() {
       // Hidden tabs don't keep the backend awake; the visibility ping covers their return.

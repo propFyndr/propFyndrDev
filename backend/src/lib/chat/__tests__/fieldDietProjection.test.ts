@@ -46,7 +46,7 @@ function mockFullProjectRow() {
     construction_quality_rating: 4.5,
     buyer_satisfaction_rating: 4.2,
     noise_level_db: 52,
-    pet_friendly: true,
+    pet_friendly: false,
     bachelor_tenants_allowed: false,
     vastu_compliant: true,
     top_school_distance_km: 1.8,
@@ -169,7 +169,7 @@ describe('Phase 2.2 — Intent-Scoped JIT Fact Projection (Field-Diet Engine)', 
     assert.ok(facts.open_space_pct === '78%')
     assert.ok(facts.green_cover_percent === '65%')
     assert.ok(facts.walkability_score === '82/100')
-    assert.ok(facts.pet_friendly === 'pet friendly')
+    assert.ok(facts.pet_friendly === 'pets not allowed')
     assert.ok(facts.amenities && Array.isArray(facts.amenities))
     assert.ok(facts.connectivity && Array.isArray(facts.connectivity))
 

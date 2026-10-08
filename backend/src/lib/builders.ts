@@ -98,7 +98,8 @@ export async function getBuilderRecord(name: string): Promise<Record<string, unk
 
     // Compliance
     litigation_count: b.litigation_count ?? null,
-    insolvency_history: b.insolvency_history ?? false,
+    // false is the schema default, not a finding (SCHEMA_DEFAULT_SENTINELS).
+    insolvency_history: b.insolvency_history === true ? true : null,
     legal_flag: b.legal_flag ?? null,
 
     // Market Position

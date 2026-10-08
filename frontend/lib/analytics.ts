@@ -37,7 +37,25 @@ type EventName =
   | 'dossier_shared'
   | 'property_feedback_submitted'
   | 'quick_button_clicked'
-  | 'session_resumed'
+  | 'loan_slider_adjusted'
+  | 'provenance_pill_clicked'
+  | 'provenance_certificate_copied'
+
+export function trackChatStarted(sessionId: string) {
+  track('chat_started', { session_id: sessionId })
+}
+
+export function trackLoanSliderAdjusted(principalCr: number, emi: number) {
+  track('loan_slider_adjusted', { principal_cr: principalCr, emi })
+}
+
+export function trackDossierShared(dossierToken: string, metadata?: Record<string, unknown>) {
+  track('dossier_shared', { dossier_token: dossierToken, ...metadata })
+}
+
+export function trackSiteVisitBooked(projectId: string, metadata?: Record<string, unknown>) {
+  track('site_visit_booked', { project_id: projectId, ...metadata })
+}
 
 export function track(event: EventName, properties?: Record<string, unknown>) {
   try {

@@ -176,3 +176,67 @@ test('budget: a quoted price proposed as the budget by another reader is dropped
   const kept = applyLiterals({ budgetMax: 1.9 } as any, extractDeterministic(q), q, { budgetMax: 2.5 } as any)
   assert.equal(kept.budgetMax, 2.5, 'the budget the buyer stated earlier survives')
 })
+
+import { readExcludedSectorNumbers } from '../intentDeterministic'
+import { cityNamedIn } from '../../discovery/constants'
+
+test('sectors: a negation carries across a list of sector numbers', () => {
+  for (const q of ['except 137, 143 and 150', 'not in 137, 143 or 150']) {
+    assert.deepEqual([...readExcludedSectorNumbers(q)].sort(), ['137', '143', '150'], q)
+    assert.deepEqual(extractDeterministic(q, HELD).sectors, [], `${q}: an excluded sector is not also included`)
+  }
+})
+test('sectors: forget / drop / remove / skip / avoid all rule a sector out', () => {
+  for (const [q, n] of [['Forget Sector 150', '150'], ['drop sector 150', '150'], ['remove 150', '150'], ['skip 150', '150'], ['avoid 137', '137']]) {
+    assert.deepEqual([...readExcludedSectorNumbers(q)], [n], q)
+    assert.deepEqual(extractDeterministic(q, HELD).sectors, [], q)
+  }
+})
+test('sectors: a negation does not jump unrelated words, and durations are not sectors', () => {
+  for (const q of ['not extension maybe 150', 'older than 10 years', 'not older than 10 years', '10 years old', 'not within 10 minutes of metro']) {
+    assert.equal(readExcludedSectorNumbers(q).size, 0, q)
+  }
+})
+test('budget: a loan, down payment, EMI or top-up is not a budget', () => {
+  for (const q of ['need ₹90 lakh loan', '₹45 lakh down payment', '₹1 lakh EMI', 'another ₹7 lakh', '₹8 lakh more', 'stretch 10 lakh extra']) {
+    const d = extractDeterministic(q)
+    assert.equal(d.budgetMax, undefined, q)
+    assert.equal(d.budgetMin, undefined, q)
+  }
+  assert.equal(extractDeterministic('budget 1.5 cr, have 45 lakh down payment').budgetMax, 1.5)
+  assert.equal(extractDeterministic('₹90 lakh loan, budget 1.2 cr').budgetMax, 1.2)
+  assert.equal(extractDeterministic('EMI of 1 lakh per month, budget 1.5cr').budgetMax, 1.5)
+  const orMore = extractDeterministic('1.5 cr or more')
+  assert.equal(orMore.budgetMin ?? orMore.budgetMax, 1.5, '"or more" is not a top-up')
+})
+test('budget: the stated max wins, with or without a unit', () => {
+  for (const [q, max] of [['around 1.5 maybe 1.6 max', 1.6], ['1.2 but 1.35 max', 1.35], ['around 1.5 cr maybe 1.6 cr max', 1.6], ['budget 1.5', 1.5], ['under 1.5 in sector 150', 1.5]] as Array<[string, number]>) {
+    const d = extractDeterministic(q)
+    assert.equal(d.budgetMax, max, q)
+    assert.equal(d.budgetMin, undefined, q)
+  }
+  for (const q of ['within 1.5 km of metro', 'sector 1.5', 'under 2', '2.5 bhk']) {
+    assert.equal(extractDeterministic(q).budgetMax, undefined, q)
+  }
+})
+test('area: commas, plus signs, minimums and square metres', () => {
+  const area = (q: string) => { const d = extractDeterministic(q); return [d.areaMin, d.areaMax] }
+  assert.deepEqual(area('1,500 sq ft'), [1350, 1650])
+  assert.deepEqual(area('minimum 1400 sqft'), [1400, undefined])
+  assert.deepEqual(area('1400+ sq.ft'), [1400, undefined])
+  assert.deepEqual(area('130 sqm'), [1259, 1539])
+  assert.deepEqual(area('about 1500 sqft'), [1350, 1650])
+  assert.deepEqual(area('1200-1500 sq ft'), [1200, 1500])
+})
+test('city: a negated city is not the city named', () => {
+  assert.equal(cityNamedIn("I don't want Greater Noida"), undefined)
+  assert.equal(cityNamedIn('not Greater Noida proper'), undefined)
+  assert.equal(cityNamedIn('anywhere except Noida Extension'), undefined)
+  assert.equal(cityNamedIn("don't want Noida Extension unless it is cheap"), undefined)
+  assert.equal(cityNamedIn("I don't want Greater Noida, show Noida"), 'Noida')
+  assert.equal(cityNamedIn('not Greater Noida West, Noida please'), 'Noida')
+  assert.equal(cityNamedIn('best properties in sector 107 NOIDA'), 'Noida')
+  assert.equal(cityNamedIn('sector 107 greater noida west'), 'Greater Noida West')
+  assert.equal(cityNamedIn('flats in noida extension'), 'Greater Noida West')
+  assert.equal(cityNamedIn('sector 107'), undefined)
+})

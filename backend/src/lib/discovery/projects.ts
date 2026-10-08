@@ -291,7 +291,7 @@ export function buildHardFilters(
     // This ensures projects with incomplete pricing still appear (AI already handles "pricing not disclosed")
     unitConditions.push({
       OR: [
-        { price_min_cr: { lte: intent.budgetMax * BUDGET_TOLERANCE_MAX } },
+        { price_min_cr: { lte: intent.budgetMax * (intent.budgetHard ? 1 : BUDGET_TOLERANCE_MAX) } },
         { price_min_cr: null }  // Include unpriced units
       ]
     })
@@ -1045,6 +1045,12 @@ export async function discoverProjects(intent: Intent, offset: number = 0): Prom
     effectiveIntent.sector &&
     !isCityLevel(effectiveIntent.sector) &&
     !effectiveIntent.projectNames?.length &&
+    // Dropping a possession or builder filter and returning the rest of the
+    // sector as exact results is a silent relaxation ("ready to move in 150"
+    // answered with under-construction projects).
+    !effectiveIntent.possession &&
+    !effectiveIntent.builderName &&
+    !effectiveIntent.exactOnly &&
     (spatialScope !== 'EXACT' || (!effectiveIntent.bhk?.length && !effectiveIntent.budgetMax))
   ) {
     console.log(`[DISCOVERY:B2-FALLBACK] No results with full filters. Trying sector-only query for "${effectiveIntent.sector}"`)

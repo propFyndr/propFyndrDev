@@ -2,6 +2,7 @@
 import Groq from 'groq-sdk'
 import { MODELS } from '../config'
 import { recordUsage } from './cost'
+import { adaptSystemPromptForProvider } from './promptAdapter'
 
 // Singleton for non-streaming routes (documents, transcribe).
 // Streaming routes create fresh instances per fallback key.
@@ -53,11 +54,8 @@ export async function streamWithGroq(
     maxRetries: 0,
   })
 
-  // Prune over-length prompt & messages if context exceeds 8k chars for Groq rate-limit safety
-  let trimmedSystem = system
-  if (trimmedSystem.length > 8000) {
-    trimmedSystem = trimmedSystem.slice(0, 8000)
-  }
+  const trimmedSystem = adaptSystemPromptForProvider(system, 'groq')
+
   const trimmedMsgs = messages.slice(-3).map((m) => ({
     role: m.role as 'user' | 'assistant',
     content: (m.content || '').slice(0, 2000)

@@ -232,7 +232,7 @@ export function handleDeterministicCalculations(message: string, ctx: JevExecuti
       `| Annual Gross Rent | ${formatInr(r.annualGrossRent)} | 12 months full tenancy |\n` +
       `| Acquisition Basis | ₹${propertyCostCr.toFixed(2)} Cr | Your figure — use the all-in cost for a true yield |\n` +
       `| **Gross Rental Yield** | **${r.grossYieldPct}%** | Pre-expense cash-on-cost |\n` +
-      `| **True Net Rental Yield** | **${r.netYieldPct}%** | Assumes 1 month vacancy a year and ₹3,500/month maintenance |\n\n` +
+      `| **True Net Rental Yield** | **${r.netYieldPct}%** | Assumes 1 month vacancy a year and ₹3,500/month maintenance (${MARKET_QUALIFIER}) |\n\n` +
       `*Residential gross yields in Noida usually sit around 2–3.5% (${MARKET_QUALIFIER}).*`
 
     send('token', { token: text })
@@ -263,12 +263,12 @@ export function handleDeterministicCalculations(message: string, ctx: JevExecuti
       `|---|---|---|\n` +
       `| Current Home Sale Value | ₹${existingVal.toFixed(2)} Cr | Expected gross realization |\n` +
       `| Outstanding Loan Repayment | (₹${remainingLoanCr.toFixed(2)} Cr) | ${loanMatch ? 'Cleared at sale closure' : 'No loan mentioned, so none assumed'} |\n` +
-      `| Brokerage & Legal Friction (2%) | (₹${r.transactionCostsCr.toFixed(2)} Cr) | Transaction overhead |\n` +
+      `| Brokerage & Legal Friction (2%) | (₹${r.transactionCostsCr.toFixed(2)} Cr) | Assumed 2% transaction overhead (${MARKET_QUALIFIER}) |\n` +
       `| **Net Unlocked Cash Equity** | **₹${r.netRealizedCashCr.toFixed(2)} Cr** | Cash in hand for redeployment |\n` +
-      `| Down Payment Needed (20%) | ₹${r.downPaymentCr.toFixed(2)} Cr | 20% on new ₹${newVal.toFixed(2)} Cr home |\n` +
+      `| Down Payment Needed (20%) | ₹${r.downPaymentCr.toFixed(2)} Cr | Assumed 20% down on new ₹${newVal.toFixed(2)} Cr home (${MARKET_QUALIFIER}) |\n` +
       `| **Surplus Liquid Capital** | **₹${r.cashFlowGapMonthly.toFixed(2)} Cr** | Buffer for registry & interiors |\n` +
       `| New Home Loan (80%) | ₹${r.newLoanCr.toFixed(2)} Cr | Funded via home loan |\n` +
-      `| **New Monthly EMI** | **${formatInr(r.newMonthlyEmi)}/mo** | 20 years @ 8.6% p.a. |\n`
+      `| **New Monthly EMI** | **${formatInr(r.newMonthlyEmi)}/mo** | Assumes 20 years @ 8.6% p.a. (${MARKET_QUALIFIER}); your lender's rate sets the real EMI |\n`
 
     send('token', { token: text })
     send('done', { sessionId: sessionId ?? null, intentState: 'WARM', intent: ctx.intent })

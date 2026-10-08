@@ -179,21 +179,20 @@ export const comparisonHandler: ChatTopicHandler = {
 
     const vectors = buildForensicVectors(p1, p2)
 
-    const tableRows = vectors.map(v => {
-      const adv1 = v.winner === 'p1' ? ' **(Advantage)**' : ''
-      const adv2 = v.winner === 'p2' ? ' **(Advantage)**' : ''
-      return `| **${v.label}** | ${v.p1Value}${adv1} | ${v.p2Value}${adv2} |`
-    }).join('\n')
+    /**
+     * No table here. The `done` event below carries `comparisonProjects`, and
+     * the client renders its own side-by-side ComparisonTable from them — so a
+     * markdown table in the text put two tables of the same two projects on
+     * one message. The text says what the table cannot: where each one leads.
+     */
+    const leads = (side: 'p1' | 'p2') => vectors.filter(v => v.winner === side).map(v => v.label.toLowerCase())
+    const leadLine = (name: string, labels: string[]) =>
+      labels.length ? `**${name}** leads on ${labels.join(', ')}.` : `**${name}** leads on nothing we can measure from our records.`
+    const summaryText = `### ${p1.name} vs ${p2.name}
 
-    const summaryText = `### Head-to-Head Forensic Battle: ${p1.name} vs ${p2.name}
+${leadLine(p1.name, leads('p1'))} ${leadLine(p2.name, leads('p2'))} The full side-by-side is below.
 
-| Forensic Vector | ${p1.name} | ${p2.name} |
-| :--- | :--- | :--- |
-${tableRows}
-
-> **PropFyndr Advisory Verdict:**
-> - Compare landed cost (stamp duty, registration and charges), not the advertised base selling price.
-> - Verify UP Lifts Act registration and Amitabh Kant land dues before placing a token deposit.`
+Before a token deposit on either, compare landed cost (stamp duty, registration and charges) rather than the advertised base price, and ask for UP Lifts Act registration and the Amitabh Kant land-dues clearance in writing.`
 
     ctx.send('token', { token: summaryText })
 

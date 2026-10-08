@@ -14,6 +14,7 @@
     "eval:staging": "tsx src/lib/eval/eval-runner.ts --endpoint=https://staging.propfyndr.com",
     "eval:prod": "tsx src/lib/eval/eval-runner.ts --endpoint=https://propfyndr.com",
     "lint": "eslint src --ext .ts --max-warnings=0",
+    "lint:geo": "tsx scripts/audit-hardcoded-noida.ts",
     "db:generate": "prisma generate",
     "postinstall": "prisma generate",
     "typecheck": "tsc --noEmit",
@@ -44,7 +45,9 @@
     "verify:chat": "tsx scripts/verify-chat.ts",
     "audit:plans": "tsx scripts/audit-payment-plans.ts",
     "reconcile:rera": "tsx scripts/reconcile-rera.ts",
-    "audit:synthetic": "tsx scripts/audit-synthetic-fields.ts"
+    "audit:synthetic": "tsx scripts/audit-synthetic-fields.ts",
+    "audit:langfuse": "tsx scripts/langfuse-queries.ts",
+    "fix:templated": "tsx scripts/fix-templated-data.ts"
   },
   "prisma": {
     "schema": "prisma/schema.prisma"

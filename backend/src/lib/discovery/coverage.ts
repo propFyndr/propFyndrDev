@@ -33,7 +33,7 @@ const ANCHOR_CONTEXT =
 
 /** Ways of naming a place you intend to buy in. */
 const TARGET_CONTEXT =
-  /\b(buy\w*|purchas\w*|propert\w*|flat|flats|apartment\w*|hous\w*|home|homes|project\w*|societ\w*|invest\w*|shortlist\w*|looking|interested|considering|in\s+mind|options?|budget|bhk)\b/i
+  /\b(buy\w*|purchas\w*|propert\w*|flat|flats|apartment\w*|hous\w*|home|homes|project\w*|societ\w*|invest\w*|shortlist\w*|looking|interested|considering|in\s+mind|options?|budget|bhk|villa\w*|plot\w*|land|farmhouse\w*|listing\w*|for\s+sale|yield|rent\w*|kothi|bungalow\w*)\b/i
 
 export interface CoverageVerdict {
   /** The out-of-scope city they want to buy in, if that is what this is. */
@@ -55,7 +55,15 @@ export function buyingTargetOutOfScope(message: string): CoverageVerdict {
 
   // A stated intention to buy in one of OUR cities settles it, whatever else
   // the message mentions: "moving from Gurgaon, want a 3BHK in Sector 150".
-  if (/\b(noida|greater\s+noida)\b/i.test(text)) {
+  //
+  // Exception: "Noida or Bangalore" names Noida only to compare against it —
+  // the buying target is still open, and the out-of-scope city still needs
+  // its honest disclosure rather than being silently absorbed into "we cover
+  // Noida so this is fine".
+  const mentionsNoida = /\b(noida|greater\s+noida)\b/i.test(text)
+  const comparedAgainstNoida =
+    mentionsNoida && /\b(or|vs\.?|versus|compared?\s+to|better\s+than|against)\b/i.test(text)
+  if (mentionsNoida && !comparedAgainstNoida) {
     return { city: null, reason: 'the buying target is a city we cover' }
   }
 

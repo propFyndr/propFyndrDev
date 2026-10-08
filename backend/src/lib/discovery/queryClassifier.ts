@@ -181,7 +181,7 @@ export function classifyQueryDeterministic(
   }
 
   // 1. DRILLDOWN: User asks specific property attributes of a project (payment plan, cost sheet, rera, floor plan, amenities, etc.)
-  const attributeKeywords = /\b(payment\s+plans?|cost\s+sheets?|price\s+breakdown|carpet|carpet\s+area|super\s+area|emi|maintenance|parking|amenities|facilities|layout|configuration|timeline|possession|construction|status|builder|reputation|trust|verification|rera|floor\s+plans?|floors|top\s+floor|height|tower|towers|address|full\s+address|complete\s+address|location|where|vastu|facing|orientation|security|safety|cctv|aqi|green|architect|designer|theme|tagline|specs)\b/i
+  const attributeKeywords = /\b(payment\s+plans?|cost\s+sheets?|price\s+breakdown|carpet|carpet\s+area|super\s+area|emi|maintenance|parking|amenities|facilities|layout|configuration|timeline|possession|ready\s+to\s+move|construction|status|builder|reputation|trust|verification|rera|floor\s+plans?|floors|top\s+floor|height|tower|towers|address|full\s+address|complete\s+address|location|where|vastu|facing|orientation|security|safety|cctv|aqi|green|architect|designer|theme|tagline|specs)\b/i
 
   /**
    * DRILLDOWN is a question about ONE project, so it needs a project in scope.

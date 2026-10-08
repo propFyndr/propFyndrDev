@@ -106,4 +106,68 @@ export function calculateGst(
   }
 }
 
+export interface LoanCockpitParams {
+  totalLandedCost: number
+  downPaymentPct: number // 10 to 50
+  tenureYears: number // 10 to 30
+  annualInterestRatePct: number // e.g. 8.5
+  enableRateShock?: boolean // +1.5%
+}
+
+export interface LoanCockpitResult {
+  downPaymentAmount: number
+  loanPrincipal: number
+  activeInterestRatePct: number
+  standardMonthlyEmi: number
+  shockMonthlyEmi: number
+  monthlyRateShockDelta: number
+  monthlyTaxShieldSec24b: number
+  netMonthlyOutflow: number
+  safeMonthlyTakeHome: number
+}
+
+/**
+ * Real-time client-side loan calculations with Sec 24(b) tax relief and RBI rate shock.
+ */
+export function calculateLoanCockpit(params: LoanCockpitParams): LoanCockpitResult {
+  const downPaymentAmount = Math.round(params.totalLandedCost * (params.downPaymentPct / 100))
+  const loanPrincipal = Math.max(0, params.totalLandedCost - downPaymentAmount)
+  const baseRate = params.annualInterestRatePct || 8.5
+  const shockRate = baseRate + 1.5
+
+  const calcEmiRupees = (principal: number, ratePct: number, years: number) => {
+    if (principal <= 0) return 0
+    const r = ratePct / 12 / 100
+    const n = years * 12
+    if (r === 0) return Math.round(principal / n)
+    return Math.round((principal * r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1))
+  }
+
+  const standardMonthlyEmi = calcEmiRupees(loanPrincipal, baseRate, params.tenureYears)
+  const shockMonthlyEmi = calcEmiRupees(loanPrincipal, shockRate, params.tenureYears)
+  const monthlyRateShockDelta = Math.max(0, shockMonthlyEmi - standardMonthlyEmi)
+
+  // Sec 24(b) deduction on interest: max ₹2,00,000/yr. Tax savings at 30% slab: max ₹5,000/mo.
+  const approxFirstYearInterest = loanPrincipal * (baseRate / 100)
+  const annualSec24bDeduction = Math.min(approxFirstYearInterest, 200000)
+  const monthlyTaxShieldSec24b = Math.round((annualSec24bDeduction * 0.30) / 12)
+
+  const activeInterestRatePct = params.enableRateShock ? shockRate : baseRate
+  const effectiveEmi = params.enableRateShock ? shockMonthlyEmi : standardMonthlyEmi
+  const netMonthlyOutflow = Math.max(0, effectiveEmi - monthlyTaxShieldSec24b)
+  const safeMonthlyTakeHome = Math.round(effectiveEmi / 0.40)
+
+  return {
+    downPaymentAmount,
+    loanPrincipal,
+    activeInterestRatePct,
+    standardMonthlyEmi,
+    shockMonthlyEmi,
+    monthlyRateShockDelta,
+    monthlyTaxShieldSec24b,
+    netMonthlyOutflow,
+    safeMonthlyTakeHome,
+  }
+}
+
 

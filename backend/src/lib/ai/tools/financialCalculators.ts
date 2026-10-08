@@ -50,7 +50,7 @@ export function calculateCircleRateDuty(params: {
   // 7% male / 6% female in Uttar Pradesh
   const stampDutyPct = params.isMale !== false ? 7 : 6
   const stampDutyAmountInr = Math.round(taxableBaseInr * (stampDutyPct / 100))
-  const registrationFeeInr = Math.min(Math.round(taxableBaseInr * 0.01), 20000) // 1% or capped
+  const registrationFeeInr = Math.round(taxableBaseInr * 0.01) // flat 1%, no cap (see UP_STATUTORY)
   const totalStatutoryTaxInr = stampDutyAmountInr + registrationFeeInr
 
   const explanation = `Stamp duty (${stampDutyPct}%) and registration fees (1%) are computed on the taxable base of ₹${(taxableBaseInr / 1_00_000).toFixed(2)} Lakhs (Circle Rate: ₹${effectiveCircleRateSqm.toLocaleString('en-IN')}/sqm with +${amenitySurchargePct}% amenity loading and -${floorReliefDiscountPct}% floor relief discount). Total statutory outgo: ₹${(totalStatutoryTaxInr / 1_00_000).toFixed(2)} Lakhs.`

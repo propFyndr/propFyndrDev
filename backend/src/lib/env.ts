@@ -71,6 +71,13 @@ if (envParsed.NODE_ENV === 'production') {
     missingKeys.push('SUPABASE_SERVICE_ROLE_KEY')
   }
 
+  // Read the raw value: the schema default is localhost, which in production
+  // would silently point CORS and every emailed link at a dev machine.
+  const frontendUrls = (process.env.FRONTEND_URL ?? '').split(',').map(s => s.trim()).filter(Boolean)
+  if (frontendUrls.length === 0 || frontendUrls.some(u => /localhost|127\.0\.0\.1/i.test(u))) {
+    missingKeys.push('FRONTEND_URL (the deployed frontend origin; localhost/127.0.0.1 is not allowed in production)')
+  }
+
   if (missingKeys.length > 0) {
     console.error('❌ Production server requires these environment variables:')
     missingKeys.forEach(key => console.error(`   - ${key}`))

@@ -8,7 +8,7 @@ import { createIdentitySession, verifyPassword, requireIdentity, requireRole, se
 import type { AdminIdentitySession } from '../lib/adminIdentity'
 import { computeCompleteness } from '../lib/completeness'
 import { normalisePortalSubdomain } from '../lib/portalSubdomain'
-import { checkRateLimit, getCached, setCached, deleteCached } from '../lib/cache'
+import { checkRateLimit, resetRateLimit, getCached, setCached, deleteCached } from '../lib/cache'
 import { z } from 'zod'
 import { generateBlogDraft, prefetchBlogSources } from '../lib/blog/generateDraft'
 
@@ -193,14 +193,17 @@ const router = Router()
 // bootstrap while no AdminUser rows did; three now exist with passwords set, so
 // it bought nothing and cost the audit trail its meaning.
 router.post('/auth', async (req: Request, res: Response) => {
+  // TODO: switch to clientIp(req) from lib/request.ts once its proxy trust (CF vs Vercel rewrite) is decided.
   const rawIp = (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() || req.ip || 'unknown'
   const isValidIp = /^(\d{1,3}\.){3}\d{1,3}$|^[a-f0-9:]+$/i.test(rawIp)
   const ip = isValidIp ? rawIp : 'unknown'
   const userAgent = (req.headers['user-agent'] as string) || 'unknown'
 
-  // Rate limit: 50 attempts in dev, 5 in prod per 15 minutes per IP
+  // Rate limit: 50 attempts in dev, 5 in prod per 15 minutes per IP. The bucket
+  // is cleared on success below, so only failures accumulate.
   const maxAttempts = process.env.NODE_ENV === 'development' ? 50 : 5
-  const { allowed } = await checkRateLimit(`admin:login:${ip}`, maxAttempts, 900)
+  const loginRlKey = `admin:login:${ip}`
+  const { allowed } = await checkRateLimit(loginRlKey, maxAttempts, 900)
   if (!allowed) {
     res.status(429).json({ error: 'Too many login attempts. Try again later.' })
     return
@@ -240,6 +243,7 @@ router.post('/auth', async (req: Request, res: Response) => {
     await deleteCached(`admin:fail_attempts:${email}`)
     await deleteCached(`admin:lockout:${email}`)
   }
+  await resetRateLimit(loginRlKey)
 
   await prisma.adminUser.update({ where: { id: admin.id }, data: { last_login_at: new Date() } })
   const token = await createIdentitySession({
@@ -399,6 +403,95 @@ router.get('/stats', async (req: Request, res: Response) => {
   } catch (err) {
     console.error('[admin] stats failed:', err)
     res.status(500).json({ error: 'Failed to fetch stats' })
+  }
+})
+
+// GET /api/v1/admin/demand — aggregated demand intelligence for unserved markets (Task 7.2)
+router.get('/demand', async (req: Request, res: Response) => {
+  const { sortBy = 'count', limit = '50' } = req.query
+  const limitNum = Math.min(100, Math.max(1, parseInt(limit as string, 10) || 50))
+
+  try {
+    const rawSignals = await prisma.demandSignal.findMany({
+      orderBy: { created_at: 'desc' },
+      take: 2000,
+    })
+
+    const cityMap = new Map<string, {
+      city: string
+      inquiryCount: number
+      budgets: number[]
+      bhkCounts: Record<number, number>
+      lastInquiryAt: Date
+    }>()
+
+    for (const item of rawSignals) {
+      const cityKey = item.city.trim()
+      let entry = cityMap.get(cityKey)
+      if (!entry) {
+        entry = {
+          city: cityKey,
+          inquiryCount: 0,
+          budgets: [],
+          bhkCounts: {},
+          lastInquiryAt: item.created_at,
+        }
+        cityMap.set(cityKey, entry)
+      }
+
+      entry.inquiryCount++
+      if (item.budget_max_cr && item.budget_max_cr > 0) {
+        entry.budgets.push(item.budget_max_cr)
+      }
+      if (item.bhk && item.bhk > 0) {
+        entry.bhkCounts[item.bhk] = (entry.bhkCounts[item.bhk] || 0) + 1
+      }
+      if (item.created_at > entry.lastInquiryAt) {
+        entry.lastInquiryAt = item.created_at
+      }
+    }
+
+    const aggregated = Array.from(cityMap.values()).map((c) => {
+      let medianBudgetCr: number | null = null
+      if (c.budgets.length > 0) {
+        const sorted = [...c.budgets].sort((a, b) => a - b)
+        const mid = Math.floor(sorted.length / 2)
+        medianBudgetCr = sorted.length % 2 !== 0 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2
+      }
+
+      let topBhk: number | null = null
+      let maxBhkCount = 0
+      for (const [bhkStr, count] of Object.entries(c.bhkCounts)) {
+        if (count > maxBhkCount) {
+          maxBhkCount = count
+          topBhk = parseInt(bhkStr, 10)
+        }
+      }
+
+      return {
+        city: c.city,
+        inquiryCount: c.inquiryCount,
+        medianBudgetCr: medianBudgetCr ? parseFloat(medianBudgetCr.toFixed(2)) : null,
+        topBhk,
+        lastInquiryAt: c.lastInquiryAt,
+      }
+    })
+
+    if (sortBy === 'budget') {
+      aggregated.sort((a, b) => (b.medianBudgetCr ?? 0) - (a.medianBudgetCr ?? 0))
+    } else if (sortBy === 'date') {
+      aggregated.sort((a, b) => b.lastInquiryAt.getTime() - a.lastInquiryAt.getTime())
+    } else {
+      aggregated.sort((a, b) => b.inquiryCount - a.inquiryCount)
+    }
+
+    res.json({
+      demandSignals: aggregated.slice(0, limitNum),
+      totalCities: aggregated.length,
+    })
+  } catch (err) {
+    console.error('[admin] demand query failed:', err)
+    res.status(500).json({ error: 'Failed to fetch demand signals' })
   }
 })
 

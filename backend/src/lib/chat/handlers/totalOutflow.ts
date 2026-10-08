@@ -30,14 +30,10 @@ const CRORE = 10_000_000
 const inr = (n: number) => `₹${Math.round(n).toLocaleString('en-IN')}`
 const lakh = (n: number) => `₹${(n / 100_000).toFixed(2)} L`
 
-/**
- * What a female primary owner actually saves. The concession is 1 point of
- * stamp duty but capped — this line used to print the uncapped 1% (₹1.2 L on a
- * ₹1.2 Cr flat) while the cap is ₹10,000, overstating the saving ~12×.
- */
+/** What a female primary owner saves: the full rate difference, uncapped (see UP_STATUTORY). */
 export function femaleStampDutySaving(base: number): number {
   const s = UP_STATUTORY
-  return Math.min(s.stampDutyFemaleConcessionCapInr, Math.round(base * ((s.stampDutyPct - s.stampDutyFemalePct) / 100)))
+  return Math.round(base * ((s.stampDutyPct - s.stampDutyFemalePct) / 100))
 }
 
 /**
@@ -50,6 +46,8 @@ export function femaleStampDutySaving(base: number): number {
 export function statedBasePriceInr(message: string): number | null {
   const m = message.match(/\b(?:bsp|base\s*(?:sale\s*)?price|basic\s*(?:sale\s*)?price)\b\D{0,12}?(\d+(?:\.\d+)?)\s*(cr(?:ore)?s?|l(?:akh|ac|acs|akhs)?)\b/i)
     ?? message.match(/(\d+(?:\.\d+)?)\s*(cr(?:ore)?s?|l(?:akh|ac|acs|akhs)?)\s*(?:ka\s*)?(?:bsp|base\s*(?:sale\s*)?price)\b/i)
+    // "Total cost if I buy at 1.5 cr" — a purchase price, not a ceiling.
+    ?? message.match(/\b(?:buy|buying|purchase|book|booking|get)\s+(?:it\s+|a\s+flat\s+)?(?:at|for)\s+(?:₹|rs\.?\s*)?(\d+(?:\.\d+)?)\s*(cr(?:ore)?s?|l(?:akh|ac|acs|akhs)?)\b/i)
   if (!m) return null
   const n = Number(m[1])
   if (!Number.isFinite(n) || n <= 0) return null
@@ -69,7 +67,7 @@ function statedBasePriceBreakdown(base: number, message: string): string {
   const gstPct = ready ? s.gstReadyToMovePct : s.gstUnderConstructionPct
   const stamp = Math.round(base * (s.stampDutyPct / 100))
   const stampFemale = stamp - femaleStampDutySaving(base)
-  const registration = Math.min(s.registrationCapInr, Math.round(base * (s.registrationPct / 100)))
+  const registration = Math.round(base * (s.registrationPct / 100))
   const gst = Math.round(base * (gstPct / 100))
   const statutory = stamp + registration + gst
 
@@ -86,7 +84,7 @@ function statedBasePriceBreakdown(base: number, message: string): string {
 
   return `### All-in estimate on your quoted BSP of ${cr(base)}
 
-${ready ? 'Ready to move with OC, so GST is nil.' : 'Under construction, so 5% GST applies. Check whether your quote is inclusive or exclusive of it.'}
+${ready ? 'Ready to move with OC, so GST is nil.' : /\b(under\s*construction|uc|new\s*launch|pre\s*launch)\b/i.test(message) ? `Under construction, so ${s.gstUnderConstructionPct}% GST applies. Check whether your quote is inclusive or exclusive of it.` : `I've assumed under construction, so ${s.gstUnderConstructionPct}% GST applies. If the flat is ready to move with an OC, GST is nil and the total drops by ${lakh(Math.round(base * s.gstUnderConstructionPct / 100))}.`}
 
 **Fixed by law. These apply to every project:**
 
@@ -94,8 +92,8 @@ ${ready ? 'Ready to move with OC, so GST is nil.' : 'Under construction, so 5% G
 | :--- | :--- | ---: |
 | Base sale price | Your quote | ${cr(base)} |
 | Stamp duty | ${s.stampDutyPct}% | ${lakh(stamp)} |
-| Stamp duty, female primary owner | ${s.stampDutyFemalePct}%, concession capped at ${inr(s.stampDutyFemaleConcessionCapInr)} | ${lakh(stampFemale)} |
-| Registration | ${s.registrationPct}%, capped at ${inr(s.registrationCapInr)} | ${inr(registration)} |
+| Stamp duty, female primary owner | ${s.stampDutyFemalePct}% | ${lakh(stampFemale)} |
+| Registration | ${s.registrationPct}% | ${lakh(registration)} |
 | GST | ${gstPct}%${ready ? ' (OC issued)' : ' (under construction)'} | ${gst ? lakh(gst) : '₹0'} |
 | **Base + statutory** | | **${cr(base + statutory)}** |
 
@@ -223,7 +221,14 @@ Name the project, or give me a budget and configuration, and I'll compute the fu
 
     const bhkMatch = ctx.message.match(/(\d)\s*bhk/i)
     const bhk = bhkMatch ? Number(bhkMatch[1]) : null
-    const unit = bhk ? project.unit_types.find(u => u.bhk === bhk) : project.unit_types[0]
+    // No BHK named: price the configuration nearest the figure the buyer gave
+    // ("total cost if I buy at 1.5 cr", then "its elite x") — not the cheapest.
+    const target = ctx.intent.budgetMax
+    const nearest = target != null
+      ? [...project.unit_types].filter(u => u.price_min_cr != null)
+          .sort((a, b) => Math.abs(a.price_min_cr! - target) - Math.abs(b.price_min_cr! - target))[0]
+      : undefined
+    const unit = bhk ? project.unit_types.find(u => u.bhk === bhk) : (nearest ?? project.unit_types[0])
     const basePriceCr = unit?.price_min_cr ?? project.price_min_cr
 
     if (basePriceCr == null) {
@@ -246,7 +251,7 @@ Name the project, or give me a budget and configuration, and I'll compute the fu
     const isReady = project.status === 'ready_to_move' || !!project.possession_label?.toLowerCase().includes('delivered')
 
     const stampDuty = Math.round(base * (UP_STATUTORY.stampDutyPct / 100))
-    const registration = Math.min(UP_STATUTORY.registrationCapInr, Math.round(base * (UP_STATUTORY.registrationPct / 100)))
+    const registration = Math.round(base * (UP_STATUTORY.registrationPct / 100))
     const gstPct = isReady ? UP_STATUTORY.gstReadyToMovePct : UP_STATUTORY.gstUnderConstructionPct
     const gst = Math.round(base * (gstPct / 100))
 
@@ -269,16 +274,19 @@ Name the project, or give me a budget and configuration, and I'll compute the fu
     const rows = [
       `| **Base price (${config})** | Recorded | **₹${basePriceCr.toFixed(2)} Cr** |`,
       `| Stamp duty | ${UP_STATUTORY.stampDutyPct}% statutory | ${lakh(stampDuty)} |`,
-      `| Registration | ${UP_STATUTORY.registrationPct}%, capped | ${inr(registration)} |`,
+      `| Registration | ${UP_STATUTORY.registrationPct}% statutory | ${lakh(registration)} |`,
       `| GST | ${gstPct}%${isReady ? ' — exempt with OC' : ' under construction'} | ${gstPct === 0 ? '₹0' : lakh(gst)} |`,
       ...developerLines.map(l => `| ${l.label} | Developer, on record | ${lakh(l.amount)} |`),
     ].join('\n')
 
     const missingDeveloperCharges = developerLines.length === 0
 
+    const nearestNote = !bhk && unit && unit === nearest && target != null
+      ? `Priced on the ${config}, the configuration closest to your ₹${target} Cr.\n\n`
+      : ''
     const text = `### All-in cost — ${project.name} (${project.sector})
 
-| Component | Basis | Amount |
+${nearestNote}| Component | Basis | Amount |
 | :--- | :--- | :--- |
 ${rows}
 | **Total** | | **₹${(total / CRORE).toFixed(2)} Cr** |
@@ -287,7 +295,7 @@ ${missingDeveloperCharges
   ? `This total covers the base price and statutory charges only. Parking, club membership and IFMS are not in our records for ${project.name} and vary by developer, so they are **not** included above — expect the final figure to be higher. Our advisory team can pull the official booking cost sheet.`
   : `Developer charges above are from ${project.name}'s recorded cost sheet. Confirm against the official booking document before transferring anything.`}
 
-A female primary owner pays ${UP_STATUTORY.stampDutyFemalePct}% stamp duty instead of ${UP_STATUTORY.stampDutyPct}%, concession capped at ${inr(UP_STATUTORY.stampDutyFemaleConcessionCapInr)}, so about ${inr(femaleStampDutySaving(base))} saved here.`
+A female primary owner pays ${UP_STATUTORY.stampDutyFemalePct}% stamp duty instead of ${UP_STATUTORY.stampDutyPct}%, so about ${inr(femaleStampDutySaving(base))} saved here.`
 
     ctx.send('token', { token: text })
     ctx.emitUiState({

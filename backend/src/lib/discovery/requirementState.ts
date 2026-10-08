@@ -948,3 +948,17 @@ export function normalizeRequirementState(
 }
 
 export const parseRequirementState = normalizeRequirementState
+
+const HARD_CEILING_RE = /\b(?:max(?:imum)?|at\s+most|(?:not|no)\s+more\s+than|absolute\s+(?:limit|max)|hard\s+(?:limit|cap)|upper\s+limit|strict\s+budget|budget\s+is\s+strict|(?:can\s*not|can'?t|won'?t|will\s+not|do\s+not|don'?t)\s+(?:go\s+|be\s+)?(?:above|beyond|over|exceed|cross)|isse\s+upar\s+nahi|(?:se\s+)?upar\s+nahi)\b/i
+const FLEXIBLE_CEILING_RE = /\b(?:flexible|stretch|can\s+go\s+(?:a\s+bit\s+)?(?:above|higher|up)|little\s+more\s+is\s+(?:ok|fine))\b/i
+
+/**
+ * Whether this turn makes the budget ceiling absolute (true), loosens it
+ * (false), or says nothing about it (undefined, so an earlier stance carries).
+ * Read by retrieval, which otherwise lets prices up to 10% over the ceiling in
+ * as labelled near-misses — wrong when the buyer said "cannot exceed".
+ */
+export function budgetCeilingStance(message: string): boolean | undefined {
+  if (FLEXIBLE_CEILING_RE.test(message)) return false
+  return HARD_CEILING_RE.test(message) ? true : undefined
+}

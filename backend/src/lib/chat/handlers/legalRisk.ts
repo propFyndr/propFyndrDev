@@ -23,7 +23,13 @@ import { prisma } from '../../db'
  */
 
 const ASKS_EOI =
-  /\b(eo[il]s?|expression\s+of\s+interest|pre[- ]?launch|soft[- ]?launch|new\s+launch|token\s+(?:amount|money)|booking\s+amount|advance\s+booking)\b/i
+  /\b(eo[il]s?|expression\s+of\s+interest|pre[- ]?launch|soft[- ]?launch|new\s+launch)\b/i
+// Token or booking money alone is any purchase, not a pre-launch: "what documents
+// before paying a token amount" got the EOI answer and "we hold no RERA
+// registration for this launch". It counts only when the question is about
+// getting that money back.
+const ASKS_TOKEN_REFUND =
+  /\b(token\s+(?:amount|money)|booking\s+amount|advance\s+booking)\b[^.?!]*\b(refund\w*|return\w*|wapas|forfeit\w*|get\s+(?:it|my\s+money)\s+back)\b|\b(refund\w*|wapas|forfeit\w*)\b[^.?!]*\b(token|booking\s+amount)\b/i
 const MONEY_OR_SAFETY =
   /\b(refund\w*|pay|paying|should\s+i|safe|lakh|lac|cr(?:ore)?|amount|deposit|cheque|transfer)\b/i
 
@@ -38,6 +44,7 @@ const SPORTS_CITY_SECTORS = ['Sector 78', 'Sector 79', 'Sector 101', 'Sector 150
 export function matchesLegalRiskQuestion(message: string): boolean {
   if (ASKS_SPORTS_CITY.test(message)) return /\b(registry|registration|problem|issue|ban|solved|affected|stuck|legal|safe|status|dues)\b/i.test(message)
   if (ASKS_UNREGISTERED_RESALE.test(message)) return true
+  if (ASKS_TOKEN_REFUND.test(message)) return true
   return ASKS_EOI.test(message) && MONEY_OR_SAFETY.test(message)
 }
 

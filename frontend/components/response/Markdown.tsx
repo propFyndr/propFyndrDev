@@ -27,7 +27,7 @@ export const REALTY_SCHEMA = {
   tagNames: [...(base.tagNames ?? []), 'realty-chart', 'realty-box', 'realty-action'],
   protocols: {
     ...(base.protocols ?? {}),
-    href: [...(base.protocols?.href ?? ['http', 'https', 'mailto', 'tel']), '#entity'],
+    href: [...(base.protocols?.href ?? ['http', 'https', 'mailto', 'tel']), '#entity', '#provenance'],
   },
   attributes: {
     ...(base.attributes ?? {}),
@@ -55,6 +55,8 @@ function beautifyMarkdown(content: string): string {
   if (!content || typeof content !== 'string') return ''
 
   return content
+    // Transform [Verified: X] into clickable provenance pills
+    .replace(/\[Verified:\s*([^\]]+)\]/gi, (_m, claim) => `[Verified: ${claim}](#provenance:${encodeURIComponent(claim.trim())})`)
     // Fix split entity links: [Name] ... (#entity:uuid) -> [Name](#entity:uuid)
     .replace(/\[([^\]]+)\](?:\s*[A-Za-z0-9]+)?\s*\(#entity:([0-9a-fA-F-]+)\)/g, '[$1](#entity:$2)')
     // Strip any raw or unlinked entity UUIDs so they never leak into buyer view

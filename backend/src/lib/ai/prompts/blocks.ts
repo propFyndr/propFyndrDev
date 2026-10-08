@@ -316,32 +316,27 @@ export function buildProjectsBlock(
 This sector currently has no exact matches in our database.
 You MUST NOT invent project names, prices, carpet areas, or any property data for it.
 
-Use EXACTLY this response structure — no deviations. The tone must be highly professional and welcoming:
-
-🌟 **Curated Premium Options**
-We don't currently have verified projects matching those exact criteria, but we have an exceptional portfolio of premium properties across the city!
-
-**Here are some of our top curated options you might love:**
-• [Curated Project 1] — [one-line why it's a great choice]
-• [Curated Project 2] — [one-line relevance]
-
-(Use the context provided to recommend 2-3 top properties. If no context is provided, ask if they'd like to explore our top premium projects.)
-
-Then ask: "Would you like me to share some of our most exclusive listings?"
-
-NEVER say: "No results found" or "I couldn't find any properties".`
+Say plainly, in one sentence, that nothing we hold matches every requirement the buyer gave. Do not present any project as a match and do not recommend projects that break a requirement.
+Then offer the one or two relaxations that would most likely produce results (for example a nearby sector, the next BHK, or a slightly higher budget), and ask which one the buyer is willing to accept. Never relax a requirement on the buyer's behalf.`
   }
 
   let block = ''
 
   if (hasExact) {
-    const overBudgetCount = exactResults.filter(
-      (p) => p.budgetStatus === 'slightly_over' || p.budgetStatus === 'over'
-    ).length
-    const budgetWarningNote = overBudgetCount > 0
-      ? `\nBUDGET NOTE: ${overBudgetCount} of ${exactResults.length} results exceed the user's stated budget. You MUST disclose this. Mention the actual price and that it is above their budget.`
-      : ''
-    block += `\n\n## Exact Matches — Use RESPONSE FORMAT — SEARCH RESULTS${budgetWarningNote}\n${serializeProjects(exactResults)}`
+    // Retrieval allows up to 10% over the ceiling so a near-miss can be offered,
+    // but a project above the buyer's budget is not an exact match and must not
+    // be listed under that heading (red-team spec: hard-filter violation = P0).
+    const isOver = (p: (typeof exactResults)[number]) => p.budgetStatus === 'slightly_over' || p.budgetStatus === 'over'
+    const within = exactResults.filter((p) => !isOver(p))
+    const over = exactResults.filter(isOver)
+    if (within.length) {
+      block += `\n\n## Exact Matches — Use RESPONSE FORMAT — SEARCH RESULTS\n${serializeProjects(within)}`
+    } else {
+      block += `\n\n## No Exact Matches\nNothing we hold meets every requirement within the stated budget. Say so plainly before mentioning anything below.`
+    }
+    if (over.length) {
+      block += `\n\n## Above the Stated Budget — NOT MATCHES. Label each as above budget, give its actual price and how far over it is, and ask whether the buyer would stretch. Never call these matches.\n${serializeProjects(over)}`
+    }
   }
 
   if (hasNearby && nearbyResults) {

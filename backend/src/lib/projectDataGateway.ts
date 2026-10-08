@@ -929,11 +929,7 @@ async function getBuilderWithValidation(
       builderFact(
         'insolvency_status',
         'Insolvency History',
-        b.insolvency_history == null
-          ? null
-          : b.insolvency_history
-            ? 'Flagged — insolvency history on record'
-            : 'No NCLT or insolvency filings on record',
+        b.insolvency_history === true ? 'Flagged — insolvency history on record' : null,
       )
       builderFact(
         'rera_registration',
@@ -991,9 +987,8 @@ async function getBuilderWithValidation(
         if (b.litigation_count != null) {
           legal.push(b.litigation_count === 0 ? '0 active litigation cases' : `${b.litigation_count} active cases`)
         }
-        if (b.insolvency_history != null) {
-          legal.push(b.insolvency_history ? 'insolvency history on record' : 'clean NCLT/insolvency standing')
-        }
+        // false is the schema default, not a finding (SCHEMA_DEFAULT_SENTINELS).
+        if (b.insolvency_history === true) legal.push('insolvency history on record')
         if (legal.length > 0) clauses.push(`Legal & Compliance: ${legal.join(' and ')}`)
         if (Array.isArray(b.delivered_projects) && b.delivered_projects.length > 0) {
           clauses.push(`Proven Portfolio: delivered ${b.delivered_projects.slice(0, 3).join(', ')}`)

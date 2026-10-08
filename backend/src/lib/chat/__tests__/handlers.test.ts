@@ -163,7 +163,8 @@ describe('statutory_tax handler', () => {
     assert.match(text, new RegExp(`${UP_STATUTORY.stampDutyPct}%`))
     assert.match(text, new RegExp(`${UP_STATUTORY.stampDutyFemalePct}%`))
     assert.match(text, new RegExp(`${UP_STATUTORY.gstUnderConstructionPct}%`))
-    assert.match(text, /₹30,000/)   // registration cap, Indian grouping
+    assert.match(text, new RegExp(`${UP_STATUTORY.registrationPct}% of value \\|`))
+    assert.doesNotMatch(text, /capped/)  // neither UP levy is capped
     assert.match(text, /₹50 Lakh/)  // TDS threshold, rendered in lakh
   })
 

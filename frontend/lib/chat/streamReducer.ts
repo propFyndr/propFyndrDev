@@ -156,6 +156,7 @@ export function applyStreamEvent(
         ...message,
         ...(Array.isArray(event.chips) && event.chips.length > 0 ? { chips: event.chips } : {}),
         ...((event as any).affordabilityData ? { affordabilityData: (event as any).affordabilityData } : {}),
+        ...((event as any).carpetData ? { carpetData: (event as any).carpetData } : {}),
         lastSeq: nextSeq,
       }
 
