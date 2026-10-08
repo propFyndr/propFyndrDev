@@ -197,6 +197,7 @@ Every fact shown to a buyer belongs to exactly one tier. Reference `lib/factPres
 | `verified` | Read from **this project's** own rows | Plainly |
 | `statutory` | Fixed by UP law, identical for every project (stamp duty, registration, GST) | Plainly |
 | `market` | Genuinely Noida-wide, **not** verified for this project | Only with `MARKET_QUALIFIER`, every time |
+| `computed` | Arithmetic over our own rows (average, median, count) — `lib/chat/aggregateQuery.ts` | Only with `computedQualifier(n)`: states how many projects it rests on; estimated prices excluded |
 | `missing` | We do not hold it | Say so and offer the advisory handoff. Never substitute a typical value |
 
 (When the supply chain ships, `builder-attested` joins as a label on `verified` facts, always with its date.)

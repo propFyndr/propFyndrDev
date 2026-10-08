@@ -17,6 +17,7 @@ export const CORE_TOOLS: string[] = [
   'web_search',
   'project_intelligence',
   'sector_projects',
+  'query_projects',
   'calculate_emi',
   'calculate_stamp_duty',
   'calculate_gst',

@@ -43,3 +43,8 @@
 **What didn't work:** editing TypeScript regexes with `python - <<'EOF'` string replaces and `sed -i`. `\b` became a literal backspace (0x08) in one pass and a bare `b` in the repair; `\n` inside template literals became real line breaks. Typecheck stayed green, because a regex with a stray `b` is still valid.
 **What worked:** the Edit tool for any line holding a regex or an escape; then `grep -P "\x08"` and a diff read to catch what slipped.
 **Note for next time:** never route regex or `\n` text through a shell-quoted script. Typecheck does not catch it, so read the diff.
+
+## 2026-10-09 — `npm ci` run against a live workspace
+**What didn't work:** concluding "dependencies not installed" from a garbled `ls node_modules/.bin | grep -c` (the rtk hook rewrites output) and running `npm ci` at the repo root. `npm ci` deletes `node_modules` first; it then failed with EPERM on `@next/swc` held open by the running `next dev`, leaving a half-deleted tree under four live dev servers. The backend dev server died.
+**What worked:** `npm install` (adds what is missing, deletes nothing), then `git checkout -- package-lock.json` because install rewrote it, then `prisma generate` (engine DLL still locked while `next dev` runs).
+**Note for next time:** check for running node processes (`Get-CimInstance Win32_Process -Filter "Name='node.exe'"`) and test for a specific package path (`test -e node_modules/typescript`) before any install. Never `npm ci` in a workspace someone is running.

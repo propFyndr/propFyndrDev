@@ -101,6 +101,8 @@ import { recordTurnTrace, type TurnTraceDraft } from '../lib/turnTrace'
 import { recordDemandSignal } from '../lib/demandSignal'
 import { scanDisclosure } from '../lib/ai/answerIntegrity'
 import { projectCatalog, catalogNamesSync } from '../lib/projectCatalog'
+import { matchProjectInText, fuzzyMatchProject, suggestProjects } from '../lib/discovery/matchProjectInText'
+import { parseAggregateQuestion, queryProjects, renderAggregateAnswer } from '../lib/chat/aggregateQuery'
 import { applyCommuteAnchor, beltFor } from '../lib/discovery/commuteAnchor'
 import { resolveOrdinalReference, resolveOrdinalPair, resolveSuperlativeReference, needsShownContext, resolveSectorReference, sectorsShownIn, resolveShownSet, asksForSinglePick } from '../lib/discovery/reference'
 import { cardBudgetFor, capCards, MAX_CARDS } from '../lib/discovery/cardBudget'
@@ -1379,6 +1381,26 @@ router.post('/', async (req: Request, res: Response) => {
             matched = matchingInMsg[0];
           }
         }
+
+        // 3. A typo or a dropped word ("ATS Happy Trails" for "ATS Homekraft
+        //    Happy Trails"). Strict: one clear winner or nothing.
+        if (!matched) matched = fuzzyMatchProject(lowerMsg, dbProjects);
+
+        // 4. The extractor's guess, when it is a partial or misspelt name.
+        //    Handlers resolve `projectNames[0]` by exact catalogue name, so a
+        //    raw guess like "Godrej Wood" reached the payment-plan handler,
+        //    matched nothing, and the buyer was asked "which project?" about
+        //    the project they had just named.
+        if (!matched) {
+          for (const guess of intent.projectNames ?? []) {
+            if (typeof guess !== 'string' || guess.trim().length < 4) continue;
+            const hit = dbProjects.find(p => p.name.toLowerCase() === guess.toLowerCase().trim())
+              ?? matchProjectInText(guess, dbProjects, 5);
+            // Only when the guess is in THIS message, so a stale name carried
+            // forward by extraction cannot hijack a turn that moved on.
+            if (hit && fuzzyMatchProject(lowerMsg, [hit])) { matched = hit; break; }
+          }
+        }
       }
 
       if (matched) {
@@ -2544,6 +2566,35 @@ router.post('/', async (req: Request, res: Response) => {
         (n): n is string => typeof n === 'string' && n.trim().length >= 5,
       )
       const namedHere = guessed.find(n => (message ?? '').toLowerCase().includes(n.toLowerCase()))
+      // A near miss on a project we do hold is a "did you mean", not a
+      // "we don't have it" — the second is false and ends the conversation.
+      const nearMisses = namedHere && !hasVerifiedProjectNames
+        ? suggestProjects(`${namedHere} ${message}`, await projectCatalog())
+        : []
+      if (namedHere && nearMisses.length > 0) {
+        console.log('[CHAT:UNKNOWN_PROJECT:SUGGEST]', { name: namedHere, suggestions: nearMisses.map(p => p.name) })
+        // namedHere was found in the message, so this index is never -1.
+        const at = message.toLowerCase().indexOf(namedHere.toLowerCase())
+        const list = nearMisses.map(p => `- **${p.name}** — ${p.sector}`).join('\n')
+        const suggestText = `I don't have a project called **${namedHere}** in our verified list. Did you mean one of these?\n\n${list}`
+        send('token', { token: suggestText })
+        emitUiState({
+          stage: 'RESEARCH',
+          thinking: 'Closest matches in our records:',
+          chips: nearMisses.map((p, i) => ({
+            id: `chip_dym_${i}_${Date.now()}`, actionType: 'TEXT_MESSAGE', label: p.name, icon: 'building',
+            analyticsId: 'chip_did_you_mean', priority: i + 1,
+            // The buyer's own question, with the corrected name swapped in.
+            payload: { text: message.slice(0, at) + p.name + message.slice(at + namedHere.length) },
+          })),
+          missingFields: [],
+          confidence: 'HIGH',
+        }, { skipDedup: true })
+        send('done', { sessionId: currentSessionId, intentState, intent, responseMode: 'chat' })
+        persistEarlyTurn('unknown-project-suggest', suggestText)
+        res.end()
+        return
+      }
       if (namedHere && !hasVerifiedProjectNames) {
         console.log('[CHAT:UNKNOWN_PROJECT]', { name: namedHere })
         const unknown = await buildUnknownProjectReply(namedHere, {
@@ -2567,6 +2618,44 @@ router.post('/', async (req: Request, res: Response) => {
         }, { skipDedup: true })
         send('done', { sessionId: currentSessionId, intentState, intent, responseMode: 'chat' })
         persistEarlyTurn('unknown-project', lastAnswerText)
+        res.end()
+        return
+      }
+    }
+
+    /**
+     * Arithmetic over the catalogue: averages, medians, counts, filtered lists.
+     *
+     * "Average maintenance in Noida" or "how many projects does Godrej have"
+     * went to the open lane, where the model wrote prose over the few rows in
+     * its prompt. The figures are in the table, so they are computed here and
+     * stated with the number of projects behind them (lib/chat/aggregateQuery).
+     *
+     * Before classification for the same reason as the check above: every lane
+     * is downstream. Skipped when this message names a project, so a question
+     * about one project's maintenance stays with that project's rows.
+     */
+    if (!matchProjectInText(message, await projectCatalog())) {
+      const aggregate = await parseAggregateQuestion(message).catch(() => null)
+      const aggregateResult = aggregate ? await queryProjects(aggregate).catch((e) => {
+        console.warn('[CHAT:AGGREGATE:DB_ERROR]', (e as Error).message)
+        return null
+      }) : null
+      if (aggregate && aggregateResult) {
+        const aggregateText = renderAggregateAnswer(aggregateResult)
+        console.log('[CHAT:AGGREGATE]', {
+          metric: aggregate.metric, field: aggregate.field, matched: aggregateResult.matched, used: aggregateResult.used,
+        })
+        send('token', { token: aggregateText })
+        emitUiState({
+          stage: 'RESEARCH',
+          thinking: 'Computed from the projects we hold:',
+          chips: [],
+          missingFields: [],
+          confidence: aggregateResult.used >= 3 || aggregate.metric === 'count' || aggregate.metric === 'list' ? 'HIGH' : 'MEDIUM',
+        }, { skipDedup: true })
+        send('done', { sessionId: currentSessionId, intentState, intent, responseMode: 'chat' })
+        persistEarlyTurn('aggregate', aggregateText)
         res.end()
         return
       }
@@ -3717,7 +3806,17 @@ I can help you with:
          */
         let topicHandlerId = 'unknown'
         const topicHandlerSpan = startTraceSpan(chatTrace, 'topic_handlers')
-        const topicHandlerMatched = await runTopicHandlers(CHAT_TOPIC_HANDLERS, {
+        // "Compare the payment plans of X and Y" names two projects AND one
+        // aspect. Every handler is single-shape: the forensic comparison prints
+        // its fixed eight rows (no payment plan), and the payment-plan handler
+        // prints one project's plan. The inline comparison below scopes its
+        // table to the named aspect with both projects' rows, so it gets the turn.
+        const isAspectCompare = isCompareRequest && !isSectorCompare &&
+          (intent.projectNames?.length ?? 0) >= 2 &&
+          (isPaymentPlanRequest || isCostSheetRequest || isAmenityQuery || isConnectivityQuery ||
+            isConfigurationQuery || isDueDiligenceQuery || isReraCheckQuery ||
+            /\b(possession|handover|rera|specifications?|maintenance|price\s*per\s*sq|psf|unit\s*sizes?|floor\s*plans?)\b/i.test(topicText))
+        const topicHandlerMatched = isAspectCompare ? false : await runTopicHandlers(CHAT_TOPIC_HANDLERS, {
           message,
           intent,
           sessionId: currentSessionId,
@@ -6132,8 +6231,16 @@ EXECUTIVE RESPONSE INSTRUCTIONS:
         const shown = projects.slice(0, Math.max(cardsShownThisTurn, 1))
         const namesAny = shown.some((p) => p.name && fullText.includes(p.name))
         if (!namesAny) {
-          send('token', { token: closer })
-          fullText = `${fullText.trimEnd()}${closer}`
+          // "We don't have verified data for Sector 128" followed by "they're on
+          // the cards above" contradicts itself on screen (Langfuse, 8 Oct). When
+          // the model denied coverage, name what the cards actually hold.
+          const deniedCoverage = /\b(?:don'?t|do\s+not|not|no)\b[^.]{0,40}\b(?:have|hold|cover|record|data|projects?)\b/i.test(fullText)
+          const names = shown.map((p) => p.name).filter(Boolean).join(', ')
+          const tail = deniedCoverage && names
+            ? `\n\nWhat we do hold closest to this is on the cards above: ${names}. Tell me which one to open up, or what to relax.`
+            : closer
+          send('token', { token: tail })
+          fullText = `${fullText.trimEnd()}${tail}`
           console.log('[CHAT:STRIPPED_LIST_CLOSED]', { shown: shown.length, chars: fullText.length })
         }
       }

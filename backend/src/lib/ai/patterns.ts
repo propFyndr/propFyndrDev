@@ -2,9 +2,16 @@
 export const INJECTION_PATTERNS: RegExp[] = [
   /ignore\s+(?:all\s+|previous\s+|your\s+)*(?:system\s+|prior\s+)?instructions/i,
   /disregard\s+(your\s+|the\s+)?(system\s+|prior\s+|previous\s+)?prompt/i,
-  /you\s+are\s+now\s+/i, // Tightened: any "you are now" is suspicious; lookahead escapes are trivial
+  // "You are now" alone refused "you are now showing me 2BHKs?". The jailbreak
+  // is "you are now" plus a persona defined by not having our rules.
+  /you\s+are\s+now\s+(?:an?\s+)?(?:dan\b|free\b|unrestricted|unfiltered|uncensored|jailbroken|evil|in\s+(?:developer|dev|god|jailbreak)\s+mode|no\s+longer|not\s+bound|(?:a\s+)?different\s+(?:ai|assistant|model|bot)|(?:ai|assistant|model|chatbot)\s+(?:without|with\s+no|that\s+ignores))/i,
+  // The persona can be anything ("you are now an advisor who…"); the tell is
+  // the rule it drops.
+  /\b(?:ignores?|ignoring|bypass(?:es|ing)?|disregards?|disregarding)\s+(?:(?:all|any|your|its|the|of)\s+)*(?:safety|rules|restrictions|guidelines|guardrails|filters)\b/i,
   /repeat\s+(the\s+|your\s+|above\s+|following\s+)(text|prompt|instructions)/i,
-  /\bDAN\b/i,
+  // Upper case only: /\bDAN\b/i refused every buyer named Dan.
+  /\bDAN\b/,
+  /\bdo\s+anything\s+now\b/i,
   // "act as" alone blocked "can you act as my negotiator" — a request this
   // product exists to serve; `negotiat` is in the classifier's own advisory
   // pattern. A guardrail that dead-ends a buyer asking for negotiation help is
@@ -12,11 +19,18 @@ export const INJECTION_PATTERNS: RegExp[] = [
   // is always "act as" plus a persona defined by NOT having our rules.
   /\bact\s+as\s+(?:a|an|the)?\s*(?:dan\b|unrestricted|unfiltered|uncensored|jailbreak|jailbroken|different\s+(?:ai|assistant|model)|another\s+(?:ai|assistant|model)|chatgpt|gpt|claude|language\s+model|ai\s+(?:without|with\s+no))/i,
   /\bact\s+as\s+if\s+you\s+(?:have\s+no|had\s+no|are\s+not\s+bound|don'?t\s+have)/i,
-  /pretend\s+(?:you\s+)?(are|have\s+no|to be|that you)/i, // Expanded to cover more pretend framings
+  // A persona without rules, not any "pretend": "pretend I am a first-time
+  // buyer, what should I check?" is a normal question.
+  /pretend\s+(?:that\s+)?(?:you\s+)?(?:are|to\s+be)\s+(?:an?\s+)?(?:dan\b|unrestricted|unfiltered|uncensored|jailbroken|evil|free\s+(?:from|of)|no\s+longer|not\s+bound|(?:a\s+)?different\s+(?:ai|assistant|model|bot)|(?:ai|assistant|model|chatbot)\s+(?:without|with\s+no))/i,
+  /pretend\s+(?:that\s+)?(?:you\s+)?(?:have|had)\s+no\s+(?:rules|restrictions|guidelines|instructions|filters|limits)/i,
   /hypothetically\s+you\s+/i, // "hypothetically you are..."
-  /for\s+a\s+(?:screenplay|novel|story|scene|script|game)/i, // Fiction framings
+  // "Space for a game room" is a flat requirement; games are covered by the
+  // let's-play pattern below.
+  /for\s+a\s+(?:screenplay|novel|story|scene|script)\b/i, // Fiction framings
   /let'?s?\s+play\s+a?\s+(?:game|scenario|roleplay|role\s+play)/i, // Roleplay framings
-  /my\s+(?:grandmother|friend|uncle|teacher|boss)\s+(?:told|said|used to|would)/i, // Authority transfer attempts
+  // The grandma exploit, not hearsay: "my friend said Sector 150 is good" is a
+  // buyer repeating advice and was refused as a jailbreak.
+  /my\s+(?:late\s+|dead\s+)?(?:grandmother|grandma|granny|dadi|nani)\s+(?:used\s+to|would)\s+(?:read|tell|recite|say)/i,
   /translate\s+(?:the\s+)?following\s+(?:and\s+then\s+)?(?:execute|follow|obey|run)/i, // Indirect instruction injection
   /override\s+(your\s+)?(programming|training|instructions)/i,
   /what\s+(is|are)\s+your\s+system\s+prompt/i,

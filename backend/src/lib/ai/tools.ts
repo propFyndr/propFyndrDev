@@ -325,6 +325,27 @@ export const NEUTRAL_TOOLS: NeutralTool[] = [
     },
   },
   {
+    name: 'query_projects',
+    description: 'Compute over the projects we hold: average / median / lowest / highest entry price, price per sq.ft or monthly maintenance, a count of projects, or a filtered list. Use for "average price in Sector 150", "average maintenance in Noida", "how many projects does Godrej have", "which projects have a clubhouse and possession before 2027". Every figure is computed over the returned `used` count of projects we hold — always state that count, and never present the result as a market-wide figure.',
+    parameters: {
+      type: 'object',
+      properties: {
+        metric: { type: 'string', description: 'One of: avg, median, min, max, count, list' },
+        field: { type: 'string', description: 'One of: price (entry price, Cr), price_per_sqft, maintenance (per sq.ft per month), projects (for count/list)' },
+        sector: { type: 'string', description: 'Sector number or name, e.g. "150" or "Sector 150"' },
+        city: { type: 'string', description: 'Noida, Greater Noida or Greater Noida West' },
+        builder: { type: 'string', description: 'Builder name or part of it, e.g. "Godrej"' },
+        bhk: { type: 'number', description: 'Bedroom count' },
+        max_budget_cr: { type: 'number', description: 'Maximum budget in crore' },
+        status: { type: 'string', description: 'One of: under_construction, ready_to_move, new_launch' },
+        possession_before_year: { type: 'number', description: 'Only projects with possession before 1 Jan of this year' },
+        amenity: { type: 'string', description: 'Amenity name or part of it, e.g. "club", "pool"' },
+        limit: { type: 'number', description: 'Rows to list for count/list, default 15, max 25' },
+      },
+      required: ['metric', 'field'],
+    },
+  },
+  {
     name: 'project_due_diligence',
     description: 'Look up forensic due diligence & living quality parameters for a project from the PropFyndr database: Occupancy Certificate (OC) status & tower specifics, Amitabh Kant registry clearance, water source type (Ganga Jal vs Borewell) and tested TDS range, power supply metering (PVVNL Multipoint vs Bulk), UP Lifts Act 2024 compliance, Shahdara drain odor risk, and recurring monthly maintenance / DG power tariff. Never speculate on OC or water source; use this tool.',
     parameters: {
@@ -378,6 +399,7 @@ const TOOL_ARG_LIMITS: Record<string, Record<string, number>> = {
   fastest_possession_projects: { sector: 50, city: 50 },
   best_for_families_projects: { sector: 50, city: 50 },
   project_due_diligence:       { project_name: 100 },
+  query_projects:              { metric: 10, field: 20, sector: 50, city: 50, builder: 100, status: 30, amenity: 50 },
 }
 
 export function validateToolArgs(name: string, args: Record<string, unknown>): Record<string, unknown> {

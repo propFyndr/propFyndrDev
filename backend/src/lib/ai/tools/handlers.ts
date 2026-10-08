@@ -23,6 +23,7 @@ import {
   getBestForFamiliesProjects,
   getProjectDueDiligence,
 } from '../../projectFacts'
+import { queryProjects, renderAggregateAnswer } from '../../chat/aggregateQuery'
 
 const DEFAULT_CITY = DISCOVERY.DEFAULT_CITY
 
@@ -191,7 +192,9 @@ export function createToolHandler(ctx: ToolContext) {
         if (name === 'sector_projects') {
           return getSectorProjects({
             sector: args.sector,
-            city: args.city ?? DEFAULT_CITY,
+            // A sector already places the project; defaulting the city to Noida
+            // emptied every Greater Noida West sector the model asked about.
+            city: args.city ?? (args.sector ? undefined : DEFAULT_CITY),
             bhk: args.bhk != null ? Number(args.bhk) : undefined,
             maxBudgetCr: args.max_budget_cr != null ? Number(args.max_budget_cr) : undefined,
             limit: args.limit != null ? Number(args.limit) : undefined,
@@ -201,7 +204,9 @@ export function createToolHandler(ctx: ToolContext) {
         if (name === 'best_value_projects') {
           return getBestValueProjects({
             sector: args.sector,
-            city: args.city ?? DEFAULT_CITY,
+            // A sector already places the project; defaulting the city to Noida
+            // emptied every Greater Noida West sector the model asked about.
+            city: args.city ?? (args.sector ? undefined : DEFAULT_CITY),
             bhk: args.bhk != null ? Number(args.bhk) : undefined,
             maxBudgetCr: args.max_budget_cr != null ? Number(args.max_budget_cr) : undefined,
             limit: args.limit != null ? Number(args.limit) : undefined,
@@ -211,7 +216,9 @@ export function createToolHandler(ctx: ToolContext) {
         if (name === 'fastest_possession_projects') {
           return getFastestPossessionProjects({
             sector: args.sector,
-            city: args.city ?? DEFAULT_CITY,
+            // A sector already places the project; defaulting the city to Noida
+            // emptied every Greater Noida West sector the model asked about.
+            city: args.city ?? (args.sector ? undefined : DEFAULT_CITY),
             bhk: args.bhk != null ? Number(args.bhk) : undefined,
             limit: args.limit != null ? Number(args.limit) : undefined,
           });
@@ -220,10 +227,39 @@ export function createToolHandler(ctx: ToolContext) {
         if (name === 'best_for_families_projects') {
           return getBestForFamiliesProjects({
             sector: args.sector,
-            city: args.city ?? DEFAULT_CITY,
+            // A sector already places the project; defaulting the city to Noida
+            // emptied every Greater Noida West sector the model asked about.
+            city: args.city ?? (args.sector ? undefined : DEFAULT_CITY),
             maxBudgetCr: args.max_budget_cr != null ? Number(args.max_budget_cr) : undefined,
             limit: args.limit != null ? Number(args.limit) : undefined,
           });
+        }
+
+        if (name === 'query_projects') {
+          const metrics = ['avg', 'median', 'min', 'max', 'count', 'list'] as const
+          const fields = ['price', 'price_per_sqft', 'maintenance', 'projects'] as const
+          const metric = metrics.find((m) => m === args.metric)
+          const field = fields.find((f) => f === args.field)
+          if (!metric || !field) {
+            return { found: false, message: `metric must be one of ${metrics.join(', ')}; field one of ${fields.join(', ')}.` }
+          }
+          const year = args.possession_before_year != null ? Number(args.possession_before_year) : NaN
+          const result = await queryProjects({
+            metric,
+            field,
+            sector: args.sector,
+            city: args.city,
+            builder: args.builder,
+            bhk: args.bhk != null ? Number(args.bhk) : undefined,
+            maxBudgetCr: args.max_budget_cr != null ? Number(args.max_budget_cr) : undefined,
+            status: ['under_construction', 'ready_to_move', 'new_launch'].includes(args.status) ? args.status : undefined,
+            possessionBefore: year >= 2000 && year <= 2100 ? new Date(Date.UTC(year, 0, 1)) : undefined,
+            amenity: args.amenity,
+            limit: args.limit != null ? Number(args.limit) : undefined,
+          });
+          // The rendered answer carries the count and the caveats; the model
+          // quotes it rather than re-deriving numbers from raw rows.
+          return { found: result.found, matched: result.matched, used: result.used, stats: result.stats, answer: renderAggregateAnswer(result) };
         }
 
         if (name === 'project_due_diligence') {

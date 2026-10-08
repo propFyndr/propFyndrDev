@@ -89,7 +89,11 @@ Name a project and I'll pull whichever of these we hold verified for it.`
     }
 
     // Rendered here. Complete breakdown table including BSP, developer charges & UP taxes
-    const costTable = renderCostSheetTable(costProject?.cost_sheet as CostSheetRow | null, {
+    // The cost-sheet row's maintenance first; the project column when the
+    // sheet does not carry one. Both are this project's own rows.
+    const sheetRow = costProject?.cost_sheet as CostSheetRow | null
+    const maintenance = sheetRow?.maintenance_psf_monthly ?? costProject?.maintenance_per_sqft_monthly ?? null
+    const costTable = renderCostSheetTable(sheetRow || maintenance ? { ...(sheetRow ?? {}), maintenance_psf_monthly: maintenance } : null, {
       name: costProject?.name,
       price_range_label: costProject?.price_range_label,
       status: costProject?.status

@@ -7,6 +7,7 @@
 // substitute a guess for a null.
 import { prisma } from './db'
 import { isSchemaDefault } from './projectExposure'
+import { sectorWhereClause } from './discovery/normalize'
 
 /** Fields shared by every lookup so the model can attribute and hedge correctly. */
 interface FactEnvelope extends Record<string, unknown> {
@@ -743,7 +744,10 @@ export async function getSectorProjects(opts: {
   const sector = opts.sector?.trim().replace(/^sector\s*/i, '')
 
   const where: Record<string, unknown> = {}
-  if (sector) where.sector = { equals: sector, mode: 'insensitive' }
+  // The column holds "Sector 128", not "128": an equals on the stripped
+  // number matched no row, so every sector lookup the model made came back
+  // empty and it told buyers we hold nothing while the cards showed projects.
+  if (sector) where.OR = sectorWhereClause(sector)
   if (opts.city) where.city = { equals: opts.city.trim(), mode: 'insensitive' }
   if (opts.bhk || opts.maxBudgetCr) {
     // Both constraints must hold for the SAME unit type, otherwise a project with
@@ -1058,7 +1062,10 @@ export async function getBestValueProjects(opts: {
   const sector = opts.sector?.trim().replace(/^sector\s*/i, '')
 
   const where: Record<string, unknown> = {}
-  if (sector) where.sector = { equals: sector, mode: 'insensitive' }
+  // The column holds "Sector 128", not "128": an equals on the stripped
+  // number matched no row, so every sector lookup the model made came back
+  // empty and it told buyers we hold nothing while the cards showed projects.
+  if (sector) where.OR = sectorWhereClause(sector)
   if (opts.city) where.city = { equals: opts.city.trim(), mode: 'insensitive' }
   if (opts.bhk || opts.maxBudgetCr) {
     const unitWhere: Record<string, unknown> = {}
@@ -1147,7 +1154,10 @@ export async function getFastestPossessionProjects(opts: {
   const sector = opts.sector?.trim().replace(/^sector\s*/i, '')
 
   const where: Record<string, unknown> = {}
-  if (sector) where.sector = { equals: sector, mode: 'insensitive' }
+  // The column holds "Sector 128", not "128": an equals on the stripped
+  // number matched no row, so every sector lookup the model made came back
+  // empty and it told buyers we hold nothing while the cards showed projects.
+  if (sector) where.OR = sectorWhereClause(sector)
   if (opts.city) where.city = { equals: opts.city.trim(), mode: 'insensitive' }
   if (opts.bhk) where.unit_types = { some: { bhk: opts.bhk } }
 
@@ -1217,7 +1227,10 @@ export async function getBestForFamiliesProjects(opts: {
   const sector = opts.sector?.trim().replace(/^sector\s*/i, '')
 
   const where: Record<string, unknown> = {}
-  if (sector) where.sector = { equals: sector, mode: 'insensitive' }
+  // The column holds "Sector 128", not "128": an equals on the stripped
+  // number matched no row, so every sector lookup the model made came back
+  // empty and it told buyers we hold nothing while the cards showed projects.
+  if (sector) where.OR = sectorWhereClause(sector)
   if (opts.city) where.city = { equals: opts.city.trim(), mode: 'insensitive' }
   if (opts.maxBudgetCr) where.unit_types = { some: { price_min_cr: { lte: opts.maxBudgetCr } } }
 

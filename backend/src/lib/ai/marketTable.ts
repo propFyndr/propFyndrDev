@@ -494,6 +494,8 @@ export interface CostSheetRow {
   stamp_duty_pct?: number | null
   registration_pct?: number | null
   all_inclusive_price_cr?: number | null
+  /** ₹ per sq.ft per month — recurring, so it is a rate, never a total. */
+  maintenance_psf_monthly?: number | null
 }
 
 /** Rupee amounts stored raw, shown at whatever scale reads naturally. */
@@ -565,6 +567,13 @@ export function renderCostSheetTable(
     projectSpecificFigures += 1
   } else {
     charge('IFMS (Maintenance Security)', sheet?.ifms, 'Interest-free refundable corpus')
+  }
+
+  // Maintenance is the charge buyers ask about most and it was the one row the
+  // table never had: "maintenance charges at X" drew a cost sheet without it.
+  if (typeof sheet?.maintenance_psf_monthly === 'number' && sheet.maintenance_psf_monthly > 0) {
+    lines.push(['Maintenance', `₹${sheet.maintenance_psf_monthly}/sqft per month`, 'Recurring, from possession'])
+    projectSpecificFigures += 1
   }
 
   if (typeof sheet?.all_inclusive_price_cr === 'number') {

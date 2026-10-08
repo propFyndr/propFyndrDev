@@ -13,6 +13,7 @@ import type { Response } from 'express'
 import { prisma } from '../db'
 import { projectCatalog, type DbCatalogEntry } from '../projectCatalog'
 import { matchProjectInText } from '../discovery/matchProjectInText'
+import { ambiguousReraNumbers, normalizeRera, RERA_AMBIGUOUS_NOTE } from '../reraIntegrity'
 import { MARKET_QUALIFIER } from '../factPresentation'
 import { isSchemaDefault } from '../projectExposure'
 import type { TurnTraceDraft } from '../turnTrace'
@@ -206,7 +207,14 @@ const readable = (code: string) => code.charAt(0).toUpperCase() + code.slice(1).
 
   for (const attribute of attributes) switch (attribute) {
     case 'rera': {
-      if (project.rera_number) {
+      // Same withholding the main path applies: a number recorded against two
+      // different projects is not quoted for either (lib/reraIntegrity.ts).
+      const reraKey = normalizeRera(project.rera_number)
+      if (reraKey && (await ambiguousReraNumbers()).has(reraKey)) {
+        responseMarkdown += `${responseMarkdown ? SEPARATOR : ''}### UP-RERA Registration — ${project.name}
+
+${RERA_AMBIGUOUS_NOTE}`
+      } else if (project.rera_number) {
         responseMarkdown += `${responseMarkdown ? SEPARATOR : ''}### UP-RERA Registration Details — ${project.name}
 
 | Parameter | Official Record | Status / Link |
@@ -381,6 +389,7 @@ We do **not hold a verified UP-RERA registration number** on record for **${proj
           title: message.slice(0, 60),
           chat_phase: 'SHORTLISTED',
           message_count: 0,
+          focus_project_id: project.id,
         },
         select: { id: true },
       })
@@ -408,7 +417,9 @@ We do **not hold a verified UP-RERA registration number** on record for **${proj
       })
       await prisma.chatSession.update({
         where: { id: sessionId },
-        data: { message_count: { increment: 2 }, last_active: new Date() },
+        // The project this turn answered about is the one "its" means next
+        // turn. Without it, "RERA of X" then "what's its payment plan?" lost X.
+        data: { message_count: { increment: 2 }, last_active: new Date(), focus_project_id: project.id },
       })
     } catch (e) {
       console.warn('[DETERMINISTIC_FACT:SAVE_ERROR]', (e as Error).message)

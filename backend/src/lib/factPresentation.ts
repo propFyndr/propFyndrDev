@@ -32,6 +32,17 @@ export type FactTier = 'verified' | 'statutory' | 'market' | 'missing'
 export const MARKET_QUALIFIER = 'typical for Noida — not verified for this project'
 
 /**
+ * Qualifier for a figure computed over our own rows (an average, a count).
+ *
+ * Not `verified` — no single project's row says it — and not `market` — it is
+ * not a Noida-wide survey. It is exactly what it says: arithmetic over the
+ * projects we hold, so it always states how many.
+ */
+export function computedQualifier(n: number): string {
+  return `computed over ${n} project${n === 1 ? '' : 's'} we hold, not a market-wide survey`
+}
+
+/**
  * Honest line for a fact we do not hold, with the handoff.
  *
  * `topic` should read naturally after "the": "cost sheet", "payment plans".
