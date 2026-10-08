@@ -206,7 +206,9 @@ describe('ComponentRenderer', () => {
   })
 
   describe('RiskMeter', () => {
-    it('displays risk level and concerns', () => {
+    // RiskMeter is retired (a39cbb3): its level/score were heuristic, so it
+    // renders nothing rather than a confident-looking meter.
+    it('renders nothing, even when given a risk level and concerns', () => {
       const specs: ComponentSpec[] = [
         {
           type: 'risk-meter',
@@ -218,8 +220,8 @@ describe('ComponentRenderer', () => {
         },
       ]
       render(<ComponentRenderer specs={specs} />)
-      expect(screen.getByText(/medium risk/i)).toBeInTheDocument()
-      expect(screen.getByText('Possession delay risk')).toBeInTheDocument()
+      expect(screen.queryByText(/medium risk/i)).not.toBeInTheDocument()
+      expect(screen.queryByText('Possession delay risk')).not.toBeInTheDocument()
     })
   })
 

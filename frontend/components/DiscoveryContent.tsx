@@ -1940,10 +1940,10 @@ export default function DiscoveryContent({ userId, guestToken, onSessionChange, 
               <h1 className="text-[4.2rem] md:text-[5.5rem] font-bold italic tracking-tight leading-none text-zinc-900 dark:text-white font-[family-name:var(--font-afacad)]">
                 PropFyndr
               </h1>
-              <p className="mt-2 text-2xl md:text-[28px] font-medium tracking-wide text-zinc-500 dark:text-zinc-400 font-[family-name:var(--font-afacad)]">
+              <p className="mt-3 text-[22px] md:text-[26px] font-normal tracking-[-0.01em] leading-tight text-zinc-700 dark:text-zinc-300 font-[family-name:var(--font-afacad)]">
                 Know before you buy
               </p>
-              <p className="mt-4 text-[15px] text-text-secondary max-w-[560px] text-balance select-text">
+              <p className="mt-3 text-[14px] md:text-[15px] leading-relaxed text-zinc-500 dark:text-zinc-400 max-w-[480px] text-balance select-text">
                 Ask about any home in Noida, in your own words.
               </p>
             </div>
