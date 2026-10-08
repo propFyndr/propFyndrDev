@@ -8,7 +8,7 @@ import { ChatMessage, NearbyExpansion } from '@/types/property';
 import type { ProjectCard as ProjectCardType } from '@/types/project';
 import Toast from '@/components/Toast';
 import { API_BASE } from '@/lib/env'
-import { track, trackSearch, trackChatStarted } from '@/lib/analytics';
+import { track, trackSearch, trackChatStarted, trackDossierShared } from '@/lib/analytics';
 import { streamChat as streamChatBackend } from '@/lib/backend-api'
 import {
   applyStreamEvent,
@@ -35,6 +35,10 @@ import {
   ArrowDown,
   WifiSlash,
   FileText,
+  ArrowSquareOut,
+  Copy,
+  Check,
+  ShareNetwork,
 } from '@phosphor-icons/react';
 import { FilterDock } from '@/components/chat/FilterDock';
 import { useSessions } from '@/hooks/useSessions';
@@ -455,6 +459,56 @@ export default function DiscoveryContent({ userId, guestToken, onSessionChange, 
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  // Sharing lives in one place: the header. Once the advisor has generated a
+  // dossier link for this session, the header's "Share research" button
+  // becomes the single entry point for it — the link used to also render as
+  // a full share card inline on whichever message created it, so a buyer
+  // had the same three actions (open/copy/WhatsApp) in two places on screen
+  // at once. The message still names the link, as plain text; the card is gone.
+  const dossierHref = (() => {
+    for (let i = chatHistory.length - 1; i >= 0; i--) {
+      const m = chatHistory[i];
+      if (m.type !== 'ai') continue;
+      const match = /\]\((\/dossier\/[^)\s]+)\)/.exec(m.content || '');
+      if (match) return match[1];
+    }
+    return null;
+  })();
+  const [showDossierMenu, setShowDossierMenu] = useState(false);
+  const [dossierCopied, setDossierCopied] = useState(false);
+  const dossierMenuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (dossierMenuRef.current && !dossierMenuRef.current.contains(e.target as Node)) {
+        setShowDossierMenu(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const dossierToken = dossierHref?.split('/').filter(Boolean).pop() || '';
+  const dossierFullUrl = dossierHref && typeof window !== 'undefined' ? `${window.location.origin}${dossierHref}` : '';
+
+  const handleDossierCopy = () => {
+    trackDossierShared(dossierToken, { channel: 'copy' });
+    if (navigator?.clipboard?.writeText) {
+      navigator.clipboard.writeText(dossierFullUrl).catch(() => {});
+    }
+    setDossierCopied(true);
+    setTimeout(() => setDossierCopied(false), 2500);
+  };
+  const handleDossierOpen = () => {
+    trackDossierShared(dossierToken, { channel: 'open' });
+    if (dossierHref) window.open(dossierHref, '_blank', 'noopener,noreferrer');
+  };
+  const handleDossierWhatsApp = () => {
+    trackDossierShared(dossierToken, { channel: 'whatsapp' });
+    const text = `My property research on PropFyndr — the questions I asked, the answers, and the projects side by side:\n${dossierFullUrl}`;
+    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+  };
 
   const [showCalculator, setShowCalculator] = useState(false);
   const [chipPicker, setChipPicker] = useState<ChipPickerState | null>(null);
@@ -1772,17 +1826,47 @@ export default function DiscoveryContent({ userId, guestToken, onSessionChange, 
 
         <div className="flex items-center justify-end gap-2 pointer-events-auto">
           {/* Quiet, persistent dossier entry point. The inline offer appears
-              once (on the Nth answer); after that, this is where it lives. */}
+              once (on the Nth answer); after that, this is where it lives.
+              Two states, one control: before a dossier exists, it creates
+              one; once it does, it opens the same open/copy/WhatsApp actions
+              that used to also render as a full card inline in the chat. */}
           {!isSubmitting && chatHistory.filter(m => m.type === 'ai').length >= DOSSIER_MIN_AI_TURNS && (
-            <button
-              onClick={() => handleChipAction({ id: 'gen_dossier', actionType: 'TEXT_MESSAGE', label: 'Create a shareable dossier', payload: { text: 'Create a shareable dossier of this chat' } } as any)}
-              className="flex items-center justify-center gap-1.5 h-10 px-3 sm:px-3.5 rounded-full bg-surface/90 dark:bg-surface-2/90 backdrop-blur-md border border-border-heavy hover:bg-surface-3 dark:hover:bg-zinc-800 text-text-primary text-[13px] font-medium transition-colors cursor-pointer active:scale-95"
-              title="Share your research"
-              aria-label="Share research"
-            >
-              <FileText size={18} weight="bold" className="text-text-secondary" />
-              <span className="hidden sm:inline">Share research</span>
-            </button>
+            <div className="relative" ref={dossierMenuRef}>
+              <button
+                onClick={() => dossierHref
+                  ? setShowDossierMenu(v => !v)
+                  : handleChipAction({ id: 'gen_dossier', actionType: 'TEXT_MESSAGE', label: 'Create a shareable dossier', payload: { text: 'Create a shareable dossier of this chat' } } as any)}
+                className="flex items-center justify-center gap-1.5 h-10 px-3 sm:px-3.5 rounded-full bg-surface/90 dark:bg-surface-2/90 backdrop-blur-md border border-border-heavy hover:bg-surface-3 dark:hover:bg-zinc-800 text-text-primary text-[13px] font-medium transition-colors cursor-pointer active:scale-95"
+                title={dossierHref ? 'Share your dossier' : 'Share your research'}
+                aria-label={dossierHref ? 'Share dossier' : 'Share research'}
+                aria-haspopup={dossierHref ? 'menu' : undefined}
+                aria-expanded={dossierHref ? showDossierMenu : undefined}
+              >
+                <FileText size={18} weight="bold" className="text-text-secondary" />
+                <span className="hidden sm:inline">{dossierHref ? 'Share dossier' : 'Share research'}</span>
+              </button>
+
+              {dossierHref && showDossierMenu && (
+                <div
+                  role="menu"
+                  aria-label="Share dossier"
+                  className="absolute top-full right-0 mt-1.5 w-60 bg-surface dark:bg-surface-2 rounded-sm shadow-md border border-border-heavy overflow-hidden p-1 animate-in fade-in zoom-in-95 duration-100 z-50"
+                >
+                  <button role="menuitem" onClick={handleDossierOpen} className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xs text-[13px] text-text-primary hover:bg-surface-3 dark:hover:bg-zinc-800 outline-none transition-colors cursor-pointer">
+                    <ArrowSquareOut size={15} weight="bold" className="text-text-muted" />
+                    <span>Open summary</span>
+                  </button>
+                  <button role="menuitem" onClick={handleDossierCopy} className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xs text-[13px] text-text-primary hover:bg-surface-3 dark:hover:bg-zinc-800 outline-none transition-colors cursor-pointer">
+                    {dossierCopied ? <Check size={15} weight="bold" className="text-emerald-600" /> : <Copy size={15} weight="bold" className="text-text-muted" />}
+                    <span>{dossierCopied ? 'Link copied' : 'Copy share link'}</span>
+                  </button>
+                  <button role="menuitem" onClick={handleDossierWhatsApp} className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xs text-[13px] text-text-primary hover:bg-surface-3 dark:hover:bg-zinc-800 outline-none transition-colors cursor-pointer">
+                    <ShareNetwork size={15} weight="bold" className="text-text-muted" />
+                    <span>Share to WhatsApp</span>
+                  </button>
+                </div>
+              )}
+            </div>
           )}
           {/* Individual Frosted Pill New Chat Button */}
           <AnimatePresence>

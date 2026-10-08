@@ -49,7 +49,6 @@ const RealtyChart = dynamic(() => import('@/components/RealtyChart'), {
 })
 import RealtyBox from '@/components/RealtyBox'
 import ContactButton from '@/components/ContactButton'
-import { DossierShareCard } from './DossierShareCard'
 import ProvenancePill from '@/components/chat/ProvenancePill'
 import type { VerificationProofData } from '@/components/chat/VerificationProofDrawer'
 
@@ -688,16 +687,11 @@ function MessageBubbleInner({
         </button>
       )
     }
-    if (href.startsWith('/dossier/') || href.includes('/dossier/')) {
-      return (
-        <DossierShareCard
-          href={href}
-          label={String(props.children) || 'Dossier of this conversation'}
-          onToast={onToast}
-        />
-      )
-    }
-    return <a {...props} className="text-primary hover:underline" />
+    // Sharing lives in the header's "Share dossier" button, not as a second
+    // card inline here — this used to render the full open/copy/WhatsApp
+    // card on whichever message happened to create the link, duplicating the
+    // header control that appears the moment a dossier exists for the turn.
+    return <a {...props} className="text-primary hover:underline" target={href.includes('/dossier/') ? '_blank' : undefined} rel={href.includes('/dossier/') ? 'noopener noreferrer' : undefined} />
   }
 
   return (

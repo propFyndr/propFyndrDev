@@ -8,7 +8,8 @@ import {
   NotePencil,
   List,
   Buildings,
-  CaretDown
+  CaretDown,
+  Brain
 } from '@phosphor-icons/react';
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter, usePathname } from "next/navigation";
@@ -420,7 +421,7 @@ export default function Sidebar({
               type="button"
               onClick={startNewChat}
               disabled={isNavigating}
-              className={`flex items-center justify-between w-full h-9 px-2.5 rounded-xs text-[13px] font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer ${ROW_IDLE} ${FOCUS}`}
+              className={`flex items-center justify-between w-full h-9 px-2.5 rounded-xs text-[13px] font-semibold border ${EDGE} bg-white dark:bg-zinc-900 shadow-2xs hover:bg-zinc-50 dark:hover:bg-zinc-900/60 hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer text-zinc-900 dark:text-zinc-100 ${FOCUS}`}
             >
               <span className="flex items-center gap-2.5">
                 <NotePencil size={16} className="shrink-0" />
@@ -448,7 +449,7 @@ export default function Sidebar({
         )}
 
         {/* Menu Section */}
-        <nav aria-label="Primary" className={collapsed ? "px-3 space-y-0.5 w-full flex flex-col items-center" : "w-full shrink-0 px-3 pb-3"}>
+        <nav aria-label="Primary" className={collapsed ? "px-3 space-y-0.5 w-full flex flex-col items-center" : `w-full shrink-0 px-3 pt-3 pb-3 border-t ${EDGE}`}>
           {!collapsed && <div className={`${LABEL} mb-1`}>Menu</div>}
           <div className={collapsed ? "contents" : "space-y-0.5 w-full"}>
             {menuItems.map((item) => {
@@ -530,7 +531,7 @@ export default function Sidebar({
 
         {/* Recent Chats Section (Only in Expanded mode) */}
         {!collapsed && (userId || guestToken) && (
-          <nav aria-label="Chat history" className="flex-1 min-h-0 overflow-y-auto w-full px-3 pb-6">
+          <nav aria-label="Chat history" className={`flex-1 min-h-0 overflow-y-auto w-full px-3 pt-3 pb-6 border-t ${EDGE}`}>
             <div className={`${LABEL} pt-1 pb-1`}>Recent</div>
             {sessionsLoading ? (
               <ChatSidebarGroupedSkeleton />
@@ -580,53 +581,61 @@ export default function Sidebar({
           </nav>
         )}
 
-        {/* Footer: one band — lead count, builder links, account. */}
+        {/* Footer: two bands — supply-side + privacy controls, then account.
+            A divider separates them so the account row (the one identity-
+            bearing control) doesn't read as just another item in the list. */}
         {!collapsed ? (
-          <div className={`mt-auto px-3 py-2 border-t ${EDGE} shrink-0 w-full space-y-0.5`}>
-            {/* NOTE: leadsToday is an internal sales metric shown to any logged-in
-                user regardless of role — needs a product decision on role-gating,
-                not silently fixed here. */}
-            {leadsToday !== null && leadsToday > 0 && (
-              <div className="px-2.5 py-1 text-[11px] font-medium text-emerald-700 dark:text-emerald-400 tabular-nums">
-                {leadsToday} lead{leadsToday !== 1 ? 's' : ''} captured today
-              </div>
-            )}
+          <div className={`mt-auto px-3 py-2 border-t ${EDGE} shrink-0 w-full`}>
+            <div className="space-y-0.5 pb-1.5">
+              {/* NOTE: leadsToday is an internal sales metric shown to any logged-in
+                  user regardless of role — needs a product decision on role-gating,
+                  not silently fixed here. */}
+              {leadsToday !== null && leadsToday > 0 && (
+                <div className="px-2.5 py-1 text-[11px] font-medium text-emerald-700 dark:text-emerald-400 tabular-nums">
+                  {leadsToday} lead{leadsToday !== 1 ? 's' : ''} captured today
+                </div>
+              )}
 
-            {/* The two ways onto the supply side. Without these the registration
-                pages existed but nothing on the site linked to them. */}
-            <details className="group/builders">
-              <summary className={`list-none [&::-webkit-details-marker]:hidden flex items-center justify-between h-9 px-2.5 rounded-xs text-[13px] cursor-pointer transition-colors ${ROW_IDLE} ${FOCUS}`}>
-                <span className="flex items-center gap-2.5">
-                  <Buildings size={16} className="shrink-0" />
-                  For builders
-                </span>
-                <CaretDown size={12} className="transition-transform group-open/builders:rotate-180" />
-              </summary>
-              <div className="space-y-0.5 pt-0.5">
-                <Link
-                  href="/builder-register"
-                  onClick={closeMobile}
-                  className={`flex items-center gap-2.5 h-9 pl-9 pr-2.5 rounded-xs text-[13px] transition-colors ${ROW_IDLE} ${FOCUS}`}
-                >
-                  List your project
-                </Link>
-                <Link
-                  href="/partner-register"
-                  onClick={closeMobile}
-                  className={`flex items-center gap-2.5 h-9 pl-9 pr-2.5 rounded-xs text-[13px] transition-colors ${ROW_IDLE} ${FOCUS}`}
-                >
-                  Partner with us
-                </Link>
-              </div>
-            </details>
+              {/* The two ways onto the supply side. Without these the registration
+                  pages existed but nothing on the site linked to them. */}
+              <details className="group/builders">
+                <summary className={`list-none [&::-webkit-details-marker]:hidden flex items-center justify-between h-9 px-2.5 rounded-xs text-[13px] cursor-pointer transition-colors ${ROW_IDLE} ${FOCUS}`}>
+                  <span className="flex items-center gap-2.5">
+                    <Buildings size={16} className="shrink-0" />
+                    For builders
+                  </span>
+                  <CaretDown size={12} className="transition-transform group-open/builders:rotate-180" />
+                </summary>
+                <div className="space-y-0.5 pt-0.5">
+                  <Link
+                    href="/builder-register"
+                    onClick={closeMobile}
+                    className={`flex items-center gap-2.5 h-9 pl-9 pr-2.5 rounded-xs text-[13px] transition-colors ${ROW_IDLE} ${FOCUS}`}
+                  >
+                    List your project
+                  </Link>
+                  <Link
+                    href="/partner-register"
+                    onClick={closeMobile}
+                    className={`flex items-center gap-2.5 h-9 pl-9 pr-2.5 rounded-xs text-[13px] transition-colors ${ROW_IDLE} ${FOCUS}`}
+                  >
+                    Partner with us
+                  </Link>
+                </div>
+              </details>
 
-            <button
-              type="button"
-              onClick={() => setIsMemoryModalOpen(true)}
-              className={`w-full flex items-center gap-2.5 h-8 px-2.5 rounded-xs text-[12px] transition-colors cursor-pointer text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white ${FOCUS}`}
-            >
-              <span>🧠 AI Memory & Privacy</span>
-            </button>
+              <button
+                type="button"
+                onClick={() => setIsMemoryModalOpen(true)}
+                title="See and clear what the advisor remembers about your budget, BHK and sector across chats"
+                className={`w-full flex items-center gap-2.5 h-9 px-2.5 rounded-xs text-[13px] cursor-pointer transition-colors ${ROW_IDLE} ${FOCUS}`}
+              >
+                <Brain size={16} className="shrink-0" />
+                <span>AI Memory &amp; Privacy</span>
+              </button>
+            </div>
+
+            <div className={`border-t ${EDGE} pt-1.5`}>
             {userId ? (
               /* Two sibling buttons, not a clickable icon nested inside a button:
                  the old form made sign-out mouse-only and unreachable by keyboard. */
@@ -661,6 +670,7 @@ export default function Sidebar({
                 <span>Sign in</span>
               </button>
             )}
+            </div>
           </div>
         ) : (
           <div className={`mt-auto p-3 border-t ${EDGE} shrink-0 w-full flex justify-center`}>
