@@ -46,7 +46,11 @@ function load(): Promise<void> | null {
         api_host: apiHost,
         ui_host: process.env.NEXT_PUBLIC_POSTHOG_UI_HOST ?? 'https://us.posthog.com',
         person_profiles: 'always',
-        capture_pageview: true,
+        // PostHogProvider captures every $pageview (first load included) from
+        // the router; letting posthog-js capture the first one too counted it
+        // twice. `capture_pageleave` must stay `true`, not the default
+        // 'if_capture_pageview', or the tab-close $pageleave stops.
+        capture_pageview: false,
         capture_pageleave: true,
         autocapture: true,
         /**
