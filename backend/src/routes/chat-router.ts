@@ -63,11 +63,13 @@ import {
   getSocietyFinancialHealthChecklist,
   getNonObviousOwnerFactorsGuide,
 } from '../lib/advisory/marketAdvisory'
-import { parseRequirementState } from '../lib/discovery/requirementState'
+import { parseRequirementState, budgetCeilingStance } from '../lib/discovery/requirementState'
+import { parseLoanEmiQuestion } from '../lib/chat/handlers/loanEmi'
 import { maybeCompressTopical, TopicSummaries } from '../lib/chat/summaryCompression'
 import { isSpecificUnknownProject, logCoverageGap, fetchUnknownProjectContext, unknownProjectDirective } from '../lib/chat/coverageGap'
 import { statedMonthlyIncome, isAffordabilityQuestion, computeAffordability, renderAffordabilityTable, affordabilityDirective } from '../lib/ai/affordability'
-import { createChatTrace } from '../lib/monitoring/langfuse'
+import { createChatTrace, recordChatTurn } from '../lib/monitoring/langfuse'
+import { isOutageNotice } from '../lib/ai/outageNotice'
 import { shouldCarryFocus } from '../lib/chat/focusCarry'
 import { scorePropertyEngagement } from '../lib/chat/propertyEngagement'
 import { detectPropertyReactions, PropertyReaction } from '../lib/chat/reactionDetector'
@@ -132,7 +134,6 @@ import { sanitizeUserMessage } from '../lib/ai/sanitize'
 import { filterNewChips, markChipShown, hydrateFromDb, persistToDb, suppressTopicChips } from '../lib/discovery/chipDedup'
 import { isOverDailyBudget } from '../lib/ai/cost'
 import { trackEvent, ANALYTICS_EVENTS, trackUserProperties } from '../lib/monitoring/posthog'
-import { getLangfuse } from '../lib/monitoring/langfuse'
 import { captureException, addBreadcrumb, setSentryUser } from '../sentry.server.config'
 import { inputGuardrail } from '../lib/ai/guardrails'
 import { profileFor, classifyShape } from '../lib/ai/inferenceProfile'
@@ -142,6 +143,7 @@ import { renderCityShelfForCity } from '../lib/ai/cityShelf'
 import { deriveSectorsFromProjects } from '../lib/discovery/derivedSectors'
 import { buildAdaptiveChips } from '../lib/discovery/adaptiveChips'
 import { buildTopicChips } from '../lib/discovery/topicChips'
+import { buildCityMicroMarketsContext, getCityMicroMarkets } from '../lib/discovery/sectorDataGateway'
 import { sanitizeOutput } from '../lib/ai/sanitizeOutput'
 import { stripInternalFields } from '../lib/projectRepository'
 import { builderCoverage, sectorCoverage, sectorPinCode } from '../lib/chat/coverageAnswer'
@@ -484,7 +486,9 @@ router.post('/', async (req: Request, res: Response) => {
       // said nothing about the missing registry.
       (/\b(resale|second[- ]?hand|pre[- ]?owned)\s+(flat|propert|apartment|home|house)/i.test(message) && !matchesLegalRiskQuestion(message)) ||
       /\bcommercial\s+(propert|space|shop|office|showroom)/i.test(message) ||
-      /\b(rent(?:al)?\s+(?:a\s+|an\s+)?(?:flat|apartment|house|home|room|property)|properties?\s+(?:for|to)\s+rent|looking\s+for\s+a\s+rental|tenant|landlord|airbnb|short[- ]?term\s+rental)\b/i.test(message) ||
+      // A bare "tenant" is not a rental request: "society maintenance charges
+      // tenants pay in Paras Tierea" is a buyer asking about a project's costs.
+      /\b(rent(?:al)?\s+(?:a\s+|an\s+)?(?:flat|apartment|house|home|room|property)|properties?\s+(?:for|to)\s+rent|looking\s+for\s+a\s+rental|(?:find|finding|get|getting|need|looking\s+for)\s+(?:a\s+|good\s+)?tenants?|tenant\s+(?:agreement|verification|screening)|landlord|airbnb|short[- ]?term\s+rental)\b/i.test(message) ||
       /\b(?:for|to|on)\s+rent\b/i.test(message) ||
       /\brental\s+propert/i.test(message) ||
       /\bpropert\w*\s+for\s+auction\b/i.test(message) ||
@@ -705,6 +709,22 @@ router.post('/', async (req: Request, res: Response) => {
   /** This turn's telemetry row, filled as the turn runs and written once when the response closes. */
   const turnTrace: TurnTraceDraft = { lane: 'unlabelled' }
   res.on('finish', () => recordTurnTrace(turnTrace, timer.elapsed()))
+  const langfuseTraceId = `chat-${turnId}`
+  res.on('finish', () => recordChatTurn({
+    id: langfuseTraceId,
+    sessionId: turnTrace.session_id,
+    userId: userId || guestToken,
+    message,
+    answer: lastAnswerText,
+    lane: turnTrace.lane,
+    queryKind: turnTrace.query_kind,
+    latencyMs: timer.elapsed(),
+    provider: turnTrace.provider,
+    model: turnTrace.model,
+    degraded: turnTrace.degraded,
+    outage: isOutageNotice(lastAnswerText),
+    cardsShown: cardsShownThisTurn,
+  }))
 
   let turnSeq = 0
   let lastWriteTimestamp = Date.now()
@@ -1282,6 +1302,8 @@ router.post('/', async (req: Request, res: Response) => {
     console.log('[CHAT] END extractIntent', Date.now(), { intent })
 
     const reqState = parseRequirementState(message, intent)
+    const ceilingStance = reqState.budget?.isHardCeiling ? true : budgetCeilingStance(message)
+    if (ceilingStance !== undefined) intent = { ...intent, budgetHard: ceilingStance }
     if (rawIntentResult.decision && (process.env.JEV_MODE === 'on' || process.env.JEV_LIVE === 'true')) {
       const handled = await executeJevDecision(rawIntentResult.decision, {
         res,
@@ -2180,7 +2202,10 @@ router.post('/', async (req: Request, res: Response) => {
       [/\b(school admission|admission (?:process|odds|chances)|cut[- ]?off)\b/i, 'school admissions'],
       [/\b(resale value|market value|valuation|what.*worth)\b.*\b(my|our)\b|\b(my|our)\b.*\b(resale value|valuation|worth)\b/i, 'valuing a property you already own'],
     ]
-    const offTopicSubject = offTopic.find(([re]) => re.test(message))?.[1]
+    // "My current flat is worth roughly ₹90 lakh … what should I compare" gives
+    // us the figure; it does not ask us to value anything (red-team 2026-10-05).
+    const statesItsWorth = /\bworth\s+(?:roughly|about|around|approx\w*|nearly|close\s+to)?\s*(?:₹|rs\.?|inr)?\s*\d/i.test(message)
+    const offTopicSubject = offTopic.find(([re, subject]) => re.test(message) && !(subject.startsWith('valuing') && statesItsWorth))?.[1]
     if (offTopicSubject) {
       console.log('[CHAT:OFF_TOPIC]', { subject: offTopicSubject, q: message.slice(0, 50) })
       send('token', {
@@ -3079,6 +3104,8 @@ router.post('/', async (req: Request, res: Response) => {
       // "bsp 1.2 cr … total kitna padega": totalOutflowHandler computes it on
       // the buyer's own number; the open lane handed it to the model.
       statedBasePriceInr(message) === null &&
+      // "₹90 lakh loan at 8.1%, EMI?": arithmetic for loanEmiHandler, not prose maths.
+      parseLoanEmiQuestion(message) === null &&
       !isGreetingMessage(message) && !isThanksMessage(message) &&
       !claimingHandler
     ) {
@@ -3472,23 +3499,34 @@ I can help you with:
     const isAmenityQuery = !isInventorySearch && !isLegalRiskQuery && // The short tokens carry word boundaries. Without them `spa` matched inside
 // "spacious", `park` inside "parking" and `court` inside "courtyard" — each
 // one turning an unrelated question into an amenity answer.
-/(amenit|sports(?!\s*city)|clubhouse|\bclubs?\b|\bgym\b|fitness|\bpools?\b|swimming|snooker|billiards|table tennis|squash|tennis|badminton|cricket|playground|play area|kid'?s? play|creche|daycare|\bparks?\b|green cover|open space|ev charg|theatre|library|banquet|\bspa\b|sauna|jacuzzi|which society has the best|best amenit|lifestyle|\bcourts?\b|jogging|skating|\bgolf\b)/i.test(topicText) && !isPaymentPlanRequest && !isCostSheetRequest
+/(amenit|sports(?!\s*city)|clubhouse|\bclubs?\b|\bgym\b|fitness|\bpools?\b|swimming|snooker|billiards|table tennis|squash|tennis|badminton|cricket|playground|play area|kid'?s? play|creche|daycare|\bparks?\b|green cover|open space|ev charg|theatre|library|banquet|\bspa\b|sauna|jacuzzi|which society has the best|best amenit|lifestyle|\bcourts?\b|jogging|skating|\bgolf\b)/i.test(topicText) && !isPaymentPlanRequest && !isCostSheetRequest &&
+// "don't care about amenities", "no crazy amenities": a search that rules
+// amenities OUT, which was answered with an amenity table (red-team 2026-10-05).
+!/\b(?:don'?t|do\s+not|no|not|without|never)\b[^.?!]{0,25}\bamenit/i.test(topicText)
     const isConnectivityQuery = !isInventorySearch && !isLegalRiskQuery && // "What is near X" and "what's around it" are the same question as "how far
 // is the metro", and reached no handler — the connectivity table renders the
 // stored road distances and travel times, so the answer existed and the
 // matcher was the only thing missing.
 /(connectivity|distance to|how far|metro proximity|airport distance|jewar|expressway access|transit|commute|near(?:by|est)?\s+(?:a\s+|the\s+)?(?:metro|school|hospital|mall|airport))/i.test(topicText)
       || /\b(what(?:'s| is| are)?\s+(?:all\s+)?(?:near|nearby|around|close to)|anything\s+near|nearby\s+(?:landmarks?|places?|amenities|schools?|hospitals?|malls?|metro)|what\s+surrounds)\b/i.test(topicText) && !isPaymentPlanRequest
-    const isConfigurationQuery = !isInventorySearch && /(balcon|bedroom|bathroom|carpet area|super area|sqft|square feet|size of|how big|how many (balconies|rooms|bhk|bathrooms)|configuration|unit type|floor plan)/i.test(topicText) && !isPaymentPlanRequest && !isCostSheetRequest &&
+    const isConfigurationQuery = !isInventorySearch && /(balcon|bedroom|bathroom|carpet area|super area|sqft|square feet|size of|\bsizes?\b|how big|how large|how many (balconies|rooms|bhk|bathrooms)|configuration|unit type|floor plan)/i.test(topicText) && !isPaymentPlanRequest && !isCostSheetRequest &&
       // "price per sqft" / "rate per sqft" is a price question; the configuration
       // handler holds areas, not rates, and answered it with unit sizes.
       !/\b(price|rate|cost)\s*(per|\/)\s*(sq\.?\s*ft|sqft|square\s*f(ee|oo)t)\b|\bpsf\b/i.test(topicText)
     const isTotalOutflowQuery = /(total (price|cost|amount|outflow)|on.?road|all.?inclusive price|how much (in total|total will it cost)|with registry|final price|landed cost|kitna padega|kitna lagega|kitne ka padega|sab mila\s*(ke|kar)|total kitna)/i.test(topicText)
       || (statesOwnBasePrice && /\b(total|all[- ]?in|kitna|landed|final|maintenance)\b/i.test(topicText))
+      // The last answer was an all-in cost without a project ("Name the
+      // project…", or an estimate on the buyer's own price). "its elite x by
+      // elite group sector 10" answers that, and was read cold — as a
+      // stranger's project lookup that came back "we do not hold verified data".
+      || ((intent.projectNames?.length ?? 0) > 0 &&
+        /^### All-in (purchase cost|estimate on your quoted)/m.test([...chatHistory].reverse().find(m => m.role === 'assistant')?.content ?? ''))
     const isDueDiligenceQuery = !isInventorySearch &&
       /\b(water\s*(?:source|supply|quality|issue)|ganga\s*jal|borewell|water\s*tds|tds\s*(?:level|range|ppm)|lifts?|elevators?|up\s*lifts?\s*act|emergency\s*rescue\s*device|\bard\b|\bamc\b|amitabh\s*kant|land\s*dues|25%\s*dues|registry\s*clearance|oc\s*status|occupancy\s*certificate|completion\s*certificate|partial\s*oc|full\s*oc|basement\s*(?:health|seepage|leakage|water|dampness)|shahdara\s*drain|drain\s*(?:corridor|impact|smell|stench)|power\s*supply\s*type|multipoint\s*connection|pvvnl)\b/i.test(topicText)
 
     const activeProjectName = intent.projectNames?.[0] || (intent as any)?.targetProjectId
+    // "EMI on a 90 lakh loan" — arithmetic on the buyer's own figure (handlers/loanEmi.ts).
+    const isLoanEmiQuery = parseLoanEmiQuestion(message) !== null
 
 
     // A project-specific RERA number question ("what is X's RERA number") is a
@@ -3509,7 +3547,7 @@ I can help you with:
     ].filter(Boolean).length
     const singleTopic = topicFlagCount <= 1
 
-    if ((!isInventorySearch || isLegalRiskQuery || commuteAnchorJustStated) && (isLegalRiskQuery || commuteAnchorJustStated || asksProjectVerdict || activeProjectName || isSummaryRequest || isCompareRequest || isSectorCompare || isPaymentPlanRequest || isCostSheetRequest || isStatutoryTaxQuery || isReraCheckQuery || isBuilderReputationQuery || isNewcomerOrientation || isReadyToMoveQuery || isAmenityQuery || isConnectivityQuery || isConfigurationQuery || isTotalOutflowQuery || isDueDiligenceQuery) && action.type === 'TEXT_MESSAGE') {
+    if ((!isInventorySearch || isLegalRiskQuery || commuteAnchorJustStated) && (isLegalRiskQuery || commuteAnchorJustStated || asksProjectVerdict || activeProjectName || isSummaryRequest || isCompareRequest || isSectorCompare || isPaymentPlanRequest || isCostSheetRequest || isStatutoryTaxQuery || isReraCheckQuery || isBuilderReputationQuery || isNewcomerOrientation || isReadyToMoveQuery || isAmenityQuery || isConnectivityQuery || isConfigurationQuery || isTotalOutflowQuery || isDueDiligenceQuery || isLoanEmiQuery) && action.type === 'TEXT_MESSAGE') {
       try {
         console.log('[CHAT:GROUND_TRUTH_DB] Executing Ground Truth DB Pipeline...', { activeProjectName, isSummaryRequest, isCompareRequest, isSectorCompare, isPaymentPlanRequest, isCostSheetRequest, isStatutoryTaxQuery, isReraCheckQuery, isBuilderReputationQuery, isNewcomerOrientation, isReadyToMoveQuery, isAmenityQuery, isConnectivityQuery, isReraFactQuery, isDueDiligenceQuery, topicFlagCount, sectorMatches })
 
@@ -3655,6 +3693,7 @@ I can help you with:
            * tables we most want to see rendered, had no trace at all.
            */
           trace: createChatTrace({
+            id: langfuseTraceId,
             sessionId: currentSessionId,
             userId,
             userMessage: message,
@@ -4060,28 +4099,22 @@ Verified facts from database: ${dbFactsJson}
 ${transparentClarificationText}${comparisonDiffText}
 CRITICAL FORMATTING MANDATE:
 - Maintain a clean, executive tone. Do NOT use decorative emojis or icons in headings or text.
-- Render the comparison as a clean, structured Markdown Comparison Table with concise data points.
+- The app renders a side-by-side comparison table of both projects directly below your answer (price, possession, RERA, landed cost, risks). Do NOT draw a general comparison table — a second table restating it is noise.
 - COMPUTED COMPARISON, when present above, already carries the price/sqft leader, the possession gap in months, the builder track-record delta, and which amenities are shared vs unique to each project — quote those figures directly rather than recomputing them from the raw facts.
 
 WHAT TO COMPARE:
-- If the buyer named a specific aspect — payment plans, cost sheet or all-in pricing, connectivity or commute, construction/possession status, builder track record, RERA or legal standing, specifications, amenities, or anything else the facts block holds for both projects — build the table around THAT aspect only, with rows drawn from the real fields in the facts block (e.g. a payment-plan comparison rows on booking %, construction-linked milestones, subvention terms; a connectivity comparison rows on nearest metro, expressway access, commute to a named workplace). Do not force the generic table below onto a question that named something specific.
-- Only when the buyer asked a general "which is better" / "compare these two" question with no aspect named, use this default:
+- If the buyer named a specific aspect — payment plans, cost sheet or all-in pricing, connectivity or commute, construction/possession status, builder track record, RERA or legal standing, specifications, amenities, or anything else the facts block holds for both projects — answer THAT aspect, and you may draw one small Markdown table for it, with rows drawn from the real fields in the facts block (e.g. a payment-plan comparison rows on booking %, construction-linked milestones, subvention terms).
+- For a general "which is better" / "compare these two" question, write no table.
 
-| Core Metric | ${targetProjects[0].name} | ${targetProjects[1].name} |
-| :--- | :--- | :--- |
-| **Price / sq.ft** | [Price per sqft range] | [Price per sqft range] |
-| **Unit Configurations** | [BHK offerings & size range] | [BHK offerings & size range] |
-| **Status & Possession** | [Possession date & status] | [Possession date & status] |
-| **Key Advantage** | [1-line top strength] | [1-line top strength] |
-| **Critical Watch-out** | [1-line risk factor or delay history] | [1-line risk factor or delay history] |
-| **Ideal Buyer** | [1-line best suited profile] | [1-line best suited profile] |
-
-OUTPUT STRUCTURE (either case):
+OUTPUT STRUCTURE:
 
 ### Verdict
-1-2 direct sentences on the overall winner and key tradeoff between ${projectHeaders}, scoped to whatever aspect the table above covers.
+2-3 direct sentences: which project suits which buyer, and the single trade-off that decides it between ${projectHeaders}.
 
-[the table — the aspect-specific one when one was named, the default one otherwise]
+[only for a named aspect: the small aspect table]
+
+### Watch-out
+1-2 sentences on the most important due-diligence risk the facts show for either project (delay history, OC, land dues, legal flag). If the facts show none, name the one document to ask for.
 
 ### Recommendation
 1 actionable decision sentence: "Choose **${targetProjects[0].name}** if [profile]; choose **${targetProjects[1].name}** if [profile]."
@@ -4144,7 +4177,7 @@ USING THE FACTS:
             const statutoryRows = [
               `| **GST** | ${p.status === 'ready_to_move' ? `${UP_STATUTORY.gstReadyToMovePct}% (exempt — OC obtained)` : `${UP_STATUTORY.gstUnderConstructionPct}% (without ITC)`} | With construction installments | Statutory |`,
               `| **UP Stamp Duty** | ${UP_STATUTORY.stampDutyPct}% of agreement value | At registration | ${UP_STATUTORY.stampDutyFemalePct}% for female primary owners |`,
-              `| **Registration Fee** | ${UP_STATUTORY.registrationPct}% (capped ₹${UP_STATUTORY.registrationCapInr.toLocaleString('en-IN')}) | At registration | Sub-registrar charge |`,
+              `| **Registration Fee** | ${UP_STATUTORY.registrationPct}% | At registration | Sub-registrar charge |`,
             ].join('\n')
 
             // Developer charges are per-project.
@@ -4199,6 +4232,7 @@ USING THE FACTS:
               sessionId: currentSessionId,
               guestToken,
               focusProjectId,
+              traceId: langfuseTraceId,
               // See InferenceConfig.tools: a stub handler must not be paired
               // with a tool catalogue, or the model loops and returns nothing.
               // Raised from 1500 — measured live 8 Sep 2026: a comparison
@@ -4634,6 +4668,7 @@ EXECUTIVE RESPONSE INSTRUCTIONS:
           sessionId: currentSessionId,
           guestToken,
           focusProjectId,
+          traceId: langfuseTraceId,
           // Project detail summary: use smart chain, without tools — the handler
           // above answers every call with an error, so offering them only burns
           // tool cycles. See InferenceConfig.tools.
@@ -5443,7 +5478,6 @@ EXECUTIVE RESPONSE INSTRUCTIONS:
     let microMarketsTail = ''
     if (wantsPriceContext) {
       try {
-        const { buildCityMicroMarketsContext } = await import('../lib/discovery/sectorDataGateway')
         const city = (intent as any)?.city || DEFAULT_CITY
         // Same scope as the rendered table below. If these two ever disagree,
         // the model transcribes the block and the buyer sees two different
@@ -5735,7 +5769,6 @@ EXECUTIVE RESPONSE INSTRUCTIONS:
 
     if (!renderedTable && message && wantsPriceContext) {
       try {
-        const { getCityMicroMarkets } = await import('../lib/discovery/sectorDataGateway')
         const markets = await getCityMicroMarkets((intent as any)?.city || DEFAULT_CITY)
         renderedTable = renderMicroMarketTable(markets, {
           // A premium brief reads top-down, everything else bottom-up.
@@ -6009,6 +6042,7 @@ EXECUTIVE RESPONSE INSTRUCTIONS:
         sessionId: currentSessionId,
         guestToken,
         focusProjectId,
+        traceId: langfuseTraceId,
         config: inferenceConfig,
         // We rendered the table above; drop any the model draws anyway.
         // Suppress when WE rendered a table, and also whenever cards are on
@@ -6564,29 +6598,6 @@ EXECUTIVE RESPONSE INSTRUCTIONS:
             console.warn('[CHAT:ANALYTICS_ERROR]', (e as Error).message)
           }
 
-          try {
-            const lf = getLangfuse()
-            if (lf) {
-              const trace = lf.trace({
-                id: `chat-${currentSessionId}-${Date.now()}`,
-                sessionId: currentSessionId,
-                userId: userId || guestToken || undefined,
-                name: 'chat_turn',
-                input: { message, intent },
-                output: { response: fullText },
-                tags: [queryClassification?.queryKind || 'chat', intentState || 'active'],
-              })
-              trace.generation({
-                name: 'assistant_reply',
-                input: message,
-                output: fullText,
-                metadata: { sector: intent?.sector, intentState, projectCount: projects?.length ?? 0 },
-              })
-              lf.flushAsync().catch(() => {})
-            }
-          } catch (e) {
-            console.warn('[CHAT:LANGFUSE_ERROR]', (e as Error).message)
-          }
         }
       })
       .catch((e) => console.error('[chat] persist error:', e))

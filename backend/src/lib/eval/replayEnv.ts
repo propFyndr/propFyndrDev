@@ -8,6 +8,11 @@
  *   answer can never be written into the production cache and served to a
  *   real buyer. dotenv never overrides a variable already set, even to ''.
  * - Provider and search keys faked, in case any path calls a vendor directly.
+ * - Langfuse off: a replay turn's answer is `[[LLM_STUB_ANSWER]]`, not
+ *   something a reviewer should ever find mixed into real buyer traces.
+ *   Previously unset, so every replay and corpus run wrote its stub turns
+ *   straight into the production Langfuse project — `getLangfuse()` only
+ *   returns null when the key is genuinely absent, and `.env` supplies one.
  */
 process.env.NODE_ENV = 'test'
 process.env.LLM_STUB = '1'
@@ -16,6 +21,9 @@ process.env.UPSTASH_REDIS_REST_TOKEN = ''
 process.env.UPSTASH_REDIS_URL = ''
 process.env.UPSTASH_REDIS_TOKEN = ''
 process.env.TURN_TRACE = 'off'
+process.env.LANGFUSE_SECRET_KEY = ''
+process.env.LANGFUSE_PUBLIC_KEY = ''
+process.env.LANGFUSE_BASE_URL = ''
 for (const k of [
   'GEMINI_API_KEY', 'GEMINI_API_KEY1', 'GEMINI_API_KEY2', 'GROQ_API_KEY', 'GROQ_API_KEY1', 'GROQ_API_KEY2', 'GROQ_API_KEY3',
   'MISTRAL_API_KEY', 'MISTRAL_API_KEY1', 'COHERE_API_KEY', 'NVIDIA_API_KEY', 'CLOUDFLARE_API_KEY', 'OPENAI_API_KEY',

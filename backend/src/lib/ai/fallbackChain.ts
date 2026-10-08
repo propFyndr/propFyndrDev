@@ -42,6 +42,14 @@ export interface FallbackChainOptions {
   config?: InferenceConfig
   /** Drop any markdown table the model emits. */
   suppressTables?: boolean
+  /**
+   * The router's own trace id for this turn (`chat-${turnId}`), so the model
+   * legs land as children of the SAME Langfuse trace `recordChatTurn` writes
+   * the final answer to, instead of an orphaned `llm_chain` trace nothing
+   * links back to. Falls back to the old per-call id when absent, so a
+   * caller outside the router (tests, scripts) is unaffected.
+   */
+  traceId?: string
 }
 
 /**
@@ -567,6 +575,7 @@ export async function executeWithFallbackChain(options: FallbackChainOptions): P
     guestToken,
     focusProjectId,
     chainConfig = FALLBACK_CHAIN,
+    traceId,
   } = options
 
   // Feature flag: disable Gemini fallback if disabled (defaults to enabled)
@@ -617,10 +626,16 @@ export async function executeWithFallbackChain(options: FallbackChainOptions): P
   const lf = getLangfuse()
   const rootTrace = lf && sessionId
     ? lf.trace({
-        id: `chat-${sessionId}-${turnStartedAt}`,
+        // Same id as `recordChatTurn` writes to when `traceId` is supplied —
+        // the router always supplies it. The two calls upsert the same
+        // Langfuse trace: this one attaches the model legs and tool spans as
+        // it runs, `recordChatTurn` lands the final answer on it afterwards.
+        // Without this they were two disconnected traces, and the one with
+        // the generation spans never carried the answer at all.
+        id: traceId ?? `chat-${sessionId}-${turnStartedAt}`,
         sessionId,
         userId: userId || undefined,
-        name: 'chat_turn',
+        name: 'llm_chain',
         input: { userMessage, messagesCount: messages.length },
         tags: ['fallback_chain'],
         metadata: {

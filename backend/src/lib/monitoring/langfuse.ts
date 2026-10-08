@@ -35,6 +35,8 @@ export function getLangfuse(): Langfuse | null {
 }
 
 export function createChatTrace(params: {
+  /** The turn's trace id, so handler events land on the same trace as the answer. */
+  id?: string
   sessionId?: string | null
   userId?: string | null
   userMessage: string
@@ -45,16 +47,78 @@ export function createChatTrace(params: {
 
   try {
     const trace = client.trace({
-      id: params.sessionId ? `chat-${params.sessionId}-${Date.now()}` : undefined,
+      id: params.id,
       sessionId: params.sessionId || undefined,
       userId: params.userId || undefined,
       name: 'chat_turn',
       input: { message: params.userMessage, intent: params.intent },
-      tags: ['production', 'chat'],
     })
     return trace
   } catch (err) {
     return null
+  }
+}
+
+/**
+ * The one record of a turn: what the buyer asked, what they were shown, and
+ * which exit answered.
+ *
+ * Written when the response closes, so every early return records itself. It
+ * used to be written at the bottom of the LLM path only — every deterministic
+ * handler ends the response first — so Langfuse held the question and never
+ * the answer for exactly the turns most worth reviewing.
+ */
+export function recordChatTurn(params: {
+  id: string
+  sessionId?: string | null
+  userId?: string | null
+  message: string
+  answer: string
+  lane: string
+  queryKind?: string
+  latencyMs: number
+  /** Which provider/model actually answered, when a model leg ran. */
+  provider?: string
+  model?: string
+  /** True when the turn fell back to a weaker leg or the deterministic floor. */
+  degraded?: boolean
+  /** True when every leg failed and the buyer saw the outage notice. The
+   *  single most important field for triage: filters straight to the turns
+   *  that failed the buyer, whatever the lane says. */
+  outage?: boolean
+  /** How many project cards rendered this turn, so a reviewer can tell a
+   *  cards-plus-prose turn from a text-only one without opening the UI. */
+  cardsShown?: number
+}): void {
+  const client = getLangfuse()
+  if (!client) return
+  try {
+    client.trace({
+      id: params.id,
+      sessionId: params.sessionId || undefined,
+      userId: params.userId || undefined,
+      name: 'chat_turn',
+      input: { message: params.message },
+      output: { response: params.answer },
+      metadata: {
+        lane: params.lane,
+        queryKind: params.queryKind,
+        latencyMs: Math.round(params.latencyMs),
+        provider: params.provider,
+        model: params.model,
+        degraded: params.degraded ?? false,
+        outage: params.outage ?? false,
+        cardsShown: params.cardsShown ?? 0,
+      },
+      tags: [
+        'chat',
+        params.lane,
+        ...(params.queryKind ? [params.queryKind] : []),
+        ...(params.outage ? ['outage'] : []),
+      ],
+    })
+  } catch {
+    // never block execution on telemetry
   }
 }
 
