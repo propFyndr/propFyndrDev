@@ -1,4 +1,4 @@
-import { capture, identify } from '@/lib/posthogClient'
+import { capture, identify, reset as resetPostHog } from '@/lib/posthogClient'
 import { redactPii } from '@/lib/redactPii'
 
 type EventName =
@@ -97,6 +97,12 @@ export function identifyUser(userId: string, traits?: Record<string, unknown>) {
   try {
     if (typeof window === 'undefined') return
     identify(userId, traits)
+  } catch {}
+}
+
+export function resetAnalyticsUser() {
+  try {
+    resetPostHog()
   } catch {}
 }
 type PropertyAction = 'view' | 'save' | 'compare' | 'share' | 'whatsapp_inquiry' | 'call' | 'ask_ai' | 'site_visit' | 'image_viewed' | 'tab_opened' | 'floorplan_viewed' | 'document_download' | 'calculator_used' | 'card_click' | 'filter_applied'

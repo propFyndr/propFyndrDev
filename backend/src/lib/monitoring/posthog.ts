@@ -21,8 +21,11 @@ export function initPostHog(): PostHog {
 
   posthog = new PostHog(apiKey, {
     host: process.env.POSTHOG_HOST || 'https://us.i.posthog.com',
-    flushInterval: 1000,
-    flushAt: 1,
+    // Batched: events go out every 20 or every 10s, and on shutdown
+    // (closePostHog in index.ts). flushAt: 1 plus a flush per call was one
+    // HTTP request per event.
+    flushInterval: 10_000,
+    flushAt: 20,
   })
 
   return posthog
@@ -57,9 +60,11 @@ export function trackEvent(
       properties: {
         ...properties,
         timestamp: new Date().toISOString(),
+        // Server events never create or update a person profile — that
+        // happens on sign-in in the browser — so guests are not billed as one.
+        $process_person_profile: false,
       },
     })
-    client.flush().catch(() => {})
   } catch (err) {
     console.error('PostHog capture failed:', err)
   }

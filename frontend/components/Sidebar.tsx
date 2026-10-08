@@ -12,6 +12,7 @@ import {
   Brain
 } from '@phosphor-icons/react';
 import { useState, useEffect, useRef, useCallback } from "react";
+import { resetAnalyticsUser } from "@/lib/analytics";
 import { useRouter, usePathname } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
@@ -173,6 +174,7 @@ export default function Sidebar({
 
   const handleLogout = () => {
     localStorage.removeItem("user_id");
+    resetAnalyticsUser();
     getSupabaseClient()
       .then((supabase) => supabase.auth.signOut())
       .catch(() => {});

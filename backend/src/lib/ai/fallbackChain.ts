@@ -105,6 +105,7 @@ import { env } from '../env'
 import { adaptiveCapMessages, CONTEXT_TOKEN_CEILING } from './adaptiveMessaging'
 import { STATIC_PREFIX_MARKER } from './systemPromptCache'
 import { estimateTokensReal } from './tokenizer'
+import { priceFor } from './cost'
 import { createTableStripper, stripTables } from './stripTables'
 import { checkToolBlindAnswer } from './toolBlindGuard'
 import { endCleanly } from './endCleanly'
@@ -636,9 +637,11 @@ export async function executeWithFallbackChain(options: FallbackChainOptions): P
         sessionId,
         userId: userId || undefined,
         name: 'llm_chain',
-        input: { userMessage, messagesCount: messages.length },
+        // No input here: recordChatTurn puts the buyer's message on this same
+        // trace once. Sending it from every layer stored it four times a turn.
         tags: ['fallback_chain'],
         metadata: {
+          messagesCount: messages.length,
           chat_session_id: sessionId,
           guest_token: guestToken || undefined,
           focus_project_id: focusProjectId || undefined,
@@ -836,10 +839,8 @@ export async function executeWithFallbackChain(options: FallbackChainOptions): P
         legSpan = rootTrace.generation({
           name: `llm_call:${item.provider}:${effectiveModel}`,
           model: effectiveModel,
-          input: {
-            userMessage,
-            messagesCount: turnMessages.length,
-          },
+          // The buyer's message is on the trace; the leg records only its shape.
+          input: { messagesCount: turnMessages.length },
           metadata: {
             provider: item.provider,
             envKey: item.envKey,
@@ -897,30 +898,9 @@ export async function executeWithFallbackChain(options: FallbackChainOptions): P
         text = await streamWithGroq(effectivePrompt, turnMessages, bufferedSend, userId, sessionId, apiKey, legMaxTokens)
       }
 
-      const legLatency = Date.now() - legStart
-      if (legSpan) {
-        try {
-          const promptTokensEst = estimateTokensReal(effectivePrompt) + estimateTokensReal(JSON.stringify(turnMessages))
-          const completionTokensEst = estimateTokensReal(text)
-          legSpan.end({
-            output: text.slice(0, 1500),
-            usage: {
-              promptTokens: promptTokensEst,
-              completionTokens: completionTokensEst,
-              totalTokens: promptTokensEst + completionTokensEst,
-            },
-            metadata: {
-              latency_ms: legLatency,
-              provider: item.provider,
-              model: effectiveModel,
-              cache_hit: text.length > 0,
-            },
-          })
-        } catch {
-                // Telemetry only. A Langfuse span that fails to open must never
-                // interrupt the answer the buyer is waiting on.
-              }
-      }
+      // The generation is closed once: on success below (with the provider's
+      // own usage), or in the catch on failure. Closing it here as well sent
+      // every leg twice.
 
       /**
        * The integrity gate, before `flushRemaining` and therefore before the
@@ -1013,6 +993,15 @@ export async function executeWithFallbackChain(options: FallbackChainOptions): P
               promptTokens: legUsage.promptTokens || undefined,
               completionTokens: legUsage.completionTokens || Math.ceil(text.length / 4),
             },
+            // Same price table as AiUsageEvent, and only from provider-reported
+            // usage: an estimated cost would read as a measured one.
+            ...(legUsage.promptTokens > 0 && legUsage.completionTokens > 0
+              ? {
+                  costDetails: {
+                    total: priceFor(effectiveModel, legUsage.promptTokens, legUsage.completionTokens, legUsage.cachedTokens),
+                  },
+                }
+              : {}),
             metadata: {
               latency_ms: Date.now() - legStart,
               tokens_sent: getTokensSent(),

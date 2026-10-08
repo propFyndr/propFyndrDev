@@ -2616,7 +2616,8 @@ router.post('/', async (req: Request, res: Response) => {
     // Day-7 fast classifier (Task 2.3): <2ms, zero-token read on the raw
     // message. Instrumentation-only for now — nothing here changes the
     // route. See backend/src/lib/jev/localClassifier.ts.
-    const fastClassifierSpan = startTraceSpan(chatTrace, 'fast_path_classifier', { message })
+    // The message itself is on the trace; the span records only its length.
+    const fastClassifierSpan = startTraceSpan(chatTrace, 'fast_path_classifier', { messageLength: message.length })
     const fastClassification = classifyQueryLocal(message)
     endTraceSpan(fastClassifierSpan, fastClassification)
     if (fastClassification.matched) {
@@ -6616,7 +6617,10 @@ EXECUTIVE RESPONSE INSTRUCTIONS:
       .then(() => {
         if (currentSessionId) {
           try {
-            trackEvent(userId || guestToken || 'anonymous', 'message_sent', {
+            // Not 'message_sent': the browser already sends that one, under the
+            // id that joins it to the buyer's pageviews. This is the server's
+            // view of the same turn (intent, sector, query kind).
+            trackEvent(userId || guestToken || 'anonymous', 'chat_turn_completed', {
               session_id: currentSessionId,
               intentState,
               sector: intent?.sector,

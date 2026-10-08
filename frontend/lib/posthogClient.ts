@@ -13,6 +13,7 @@ type PostHog = typeof import('posthog-js').default
 type QueuedCall =
   | { kind: 'capture'; event: string; properties?: Record<string, unknown> }
   | { kind: 'identify'; userId: string; traits?: Record<string, unknown> }
+  | { kind: 'reset' }
 
 let client: PostHog | null = null
 let loading: Promise<void> | null = null
@@ -26,7 +27,8 @@ function flush() {
   if (!client) return
   for (const call of queue.splice(0, queue.length)) {
     if (call.kind === 'capture') client.capture(call.event, call.properties)
-    else client.identify(call.userId, call.traits)
+    else if (call.kind === 'identify') client.identify(call.userId, call.traits)
+    else client.reset()
   }
 }
 
@@ -45,14 +47,22 @@ function load(): Promise<void> | null {
       posthog.init(key, {
         api_host: apiHost,
         ui_host: process.env.NEXT_PUBLIC_POSTHOG_UI_HOST ?? 'https://us.posthog.com',
-        person_profiles: 'always',
+        // Guests are not billed as person profiles; their events still carry
+        // a distinct id, so funnels and replays work. identify() on sign-in
+        // creates the profile.
+        person_profiles: 'identified_only',
         // PostHogProvider captures every $pageview (first load included) from
         // the router; letting posthog-js capture the first one too counted it
         // twice. `capture_pageleave` must stay `true`, not the default
         // 'if_capture_pageview', or the tab-close $pageleave stops.
         capture_pageview: false,
         capture_pageleave: true,
-        autocapture: true,
+        // Clicks and form submits on real controls only. Every other DOM event
+        // was noise on top of the named events in lib/analytics.ts.
+        autocapture: {
+          dom_event_allowlist: ['click', 'submit'],
+          element_allowlist: ['a', 'button', 'form'],
+        },
         /**
          * Disable feature flags to avoid unused network roundtrips, but keep
          * decide active so Session Replay receives its remote configuration
@@ -104,6 +114,17 @@ export function capture(event: string, properties?: Record<string, unknown>) {
     return
   }
   if (queue.length < MAX_QUEUE) queue.push({ kind: 'capture', event, properties })
+  load()
+}
+
+/** Forget the signed-in person, so whoever uses this browser next is not them. */
+export function reset() {
+  if (typeof window === 'undefined' || process.env.NODE_ENV === 'test') return
+  if (client) {
+    client.reset()
+    return
+  }
+  if (queue.length < MAX_QUEUE) queue.push({ kind: 'reset' })
   load()
 }
 

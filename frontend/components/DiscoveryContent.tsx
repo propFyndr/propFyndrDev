@@ -1354,9 +1354,9 @@ export default function DiscoveryContent({ userId, guestToken, onSessionChange, 
     if (isSubmitting) {
       abortControllerRef.current?.abort();
     }
+    // message_sent is tracked once, in dispatchAction.
     dispatchAction({ type: 'TEXT_MESSAGE', payload: { text } });
-    track('message_sent', { session_id: sessionId, turn: chatTurnCount });
-  }, [chatInput, chatTurnCount, dispatchAction, sessionId, isSubmitting]);
+  }, [chatInput, dispatchAction, isSubmitting]);
 
   // ── Regenerate: re-send the last user message ──
   const handleRegenerate = useCallback((aiMsgIndex: number) => {

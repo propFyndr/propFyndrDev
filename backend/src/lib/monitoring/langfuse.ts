@@ -5,8 +5,32 @@
 
 import { Langfuse } from 'langfuse'
 import type { LangfuseTraceClient } from 'langfuse'
+import { redactPii } from '../redactPii'
 
 let langfuse: Langfuse | null = null
+
+/** Longest string kept in a trace input/output. Tool results and long answers
+ *  past this are cut, so one turn cannot ship a megabyte to Langfuse. */
+export const LANGFUSE_MAX_STRING = 4000
+
+/**
+ * Applied by the SDK to every `input` and `output` it sends — traces, spans,
+ * generations, events — so no call site can forget it. Buyers type phone
+ * numbers and emails into chat; those never leave the server.
+ */
+export function maskForLangfuse(data: unknown): unknown {
+  if (typeof data === 'string') {
+    const clean = redactPii(data)
+    return clean.length > LANGFUSE_MAX_STRING
+      ? `${clean.slice(0, LANGFUSE_MAX_STRING)}… [truncated ${clean.length - LANGFUSE_MAX_STRING} chars]`
+      : clean
+  }
+  if (Array.isArray(data)) return data.map(maskForLangfuse)
+  if (data && typeof data === 'object') {
+    return Object.fromEntries(Object.entries(data).map(([k, v]) => [k, maskForLangfuse(v)]))
+  }
+  return data
+}
 
 export function getLangfuse(): Langfuse | null {
   if (langfuse) return langfuse
@@ -15,7 +39,9 @@ export function getLangfuse(): Langfuse | null {
   const publicKey = process.env.LANGFUSE_PUBLIC_KEY
   const baseUrl = process.env.LANGFUSE_BASE_URL || 'https://us.cloud.langfuse.com'
 
-  if (!secretKey || !publicKey) {
+  // Test runs never trace: they would fill the production project with
+  // fixture turns.
+  if (!secretKey || !publicKey || process.env.NODE_ENV === 'test') {
     return null
   }
 
@@ -24,8 +50,14 @@ export function getLangfuse(): Langfuse | null {
       secretKey,
       publicKey,
       baseUrl,
-      flushInterval: 1000,
-      flushAt: 1,
+      // Batched: one request per 15 events or 5s instead of one per event.
+      // flushLangfuse() on shutdown (index.ts) sends the remainder.
+      flushInterval: 5000,
+      flushAt: 15,
+      // Separates dev and prod turns in one Langfuse project.
+      environment: process.env.LANGFUSE_ENVIRONMENT
+        || (process.env.NODE_ENV === 'production' ? 'production' : 'development'),
+      mask: ({ data }) => maskForLangfuse(data),
     })
     return langfuse
   } catch (err) {

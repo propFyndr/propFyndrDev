@@ -66,7 +66,9 @@ export default function AuthPage() {
         }
         if (data.user) {
           localStorage.setItem('user_id', data.user.id);
-          identifyUser(data.user.id, { email: data.user.email })
+          // No email trait: the user id is enough to join events, and PostHog
+          // need not hold the address.
+          identifyUser(data.user.id)
 
           const guestToken = getGuestToken();
           if (guestToken) {
