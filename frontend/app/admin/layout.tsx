@@ -138,13 +138,17 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   if (PUBLIC.includes(pathname)) return <>{children}</>
 
   return (
-    <PortalShell
-      nav={NAV}
-      rootHref="/admin"
-      rootLabel="Admin"
-      allowRoles={[...STAFF]}
-    >
-      {children}
-    </PortalShell>
+    // ph-no-capture: session replay never records this area — it shows buyers'
+    // names, phones and Lead Briefs.
+    <div className="ph-no-capture contents">
+      <PortalShell
+        nav={NAV}
+        rootHref="/admin"
+        rootLabel="Admin"
+        allowRoles={[...STAFF]}
+      >
+        {children}
+      </PortalShell>
+    </div>
   )
 }

@@ -13,15 +13,19 @@ const NAV: PortalNavItem[] = [
 
 export default function BuilderPortalLayout({ children }: { children: React.ReactNode }) {
   return (
-    <PortalShell
-      nav={NAV}
-      rootHref="/builder/portal"
-      rootLabel="Builder"
-      allowRoles={['BUILDER', 'SUPER_ADMIN']}
-      scopeParam="builder_id"
-      ownRole="BUILDER"
-    >
-      {children}
-    </PortalShell>
+    // ph-no-capture: session replay never records this area — it shows buyers'
+    // names, phones and Lead Briefs.
+    <div className="ph-no-capture contents">
+      <PortalShell
+        nav={NAV}
+        rootHref="/builder/portal"
+        rootLabel="Builder"
+        allowRoles={['BUILDER', 'SUPER_ADMIN']}
+        scopeParam="builder_id"
+        ownRole="BUILDER"
+      >
+        {children}
+      </PortalShell>
+    </div>
   )
 }

@@ -2062,7 +2062,9 @@ export default function DiscoveryContent({ userId, guestToken, onSessionChange, 
                     <div
                       key={message.id}
                       id={`msg-${message.id}`}
-                      className={`scroll-mt-16 ${isComparingThis ? 'relative z-30' : ''}`}
+                      // ph-mask: a sent message is what the buyer typed (budget,
+                      // phone, family), so session replay masks it like an input.
+                      className={`scroll-mt-16 ${isComparingThis ? 'relative z-30' : ''} ${message.type === 'user' ? 'ph-mask' : ''}`}
                       style={answerMinHeight?.id === message.id ? { minHeight: answerMinHeight.px } : undefined}
                     >
                       <MessageBubble

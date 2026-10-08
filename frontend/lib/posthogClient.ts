@@ -44,43 +44,26 @@ function load(): Promise<void> | null {
 
       posthog.init(key, {
         api_host: apiHost,
-        ui_host: 'https://us.posthog.com',
+        ui_host: process.env.NEXT_PUBLIC_POSTHOG_UI_HOST ?? 'https://us.posthog.com',
         person_profiles: 'always',
         capture_pageview: true,
         capture_pageleave: true,
         autocapture: true,
         /**
-         * We use PostHog for analytics only — no flags, no experiments, no
-         * remote config.
-         *
-         * `advanced_disable_feature_flags*` and the cast-in
-         * `disable_remote_config` that used to sit here are not options in
-         * posthog-js 1.430: the first pair is an older API and the second never
-         * existed, which is why it needed `as any` to compile. None of the
-         * three did anything, and the remote-config fetch they were meant to
-         * stop ran on every page load and 404'd twice in the console:
-         *
-         *   [PostHog.js] Bad HTTP status: 404
-         *   [RemoteConfig] Failed to fetch remote config from PostHog.
-         *
-         * `advanced_disable_decide` is the real option and is typed, so a
-         * future rename fails the build instead of going quiet again.
+         * Disable feature flags to avoid unused network roundtrips, but keep
+         * decide active so Session Replay receives its remote configuration
+         * and records sessions across any active domain.
          */
-        advanced_disable_decide: true,
         advanced_disable_flags: true,
         disable_surveys: true,
         disable_session_recording: false,
         /**
          * Inputs are masked in replay.
          *
-         * This was `maskAllInputs: false`, which meant session replay captured
-         * buyers typing into the chat box keystroke by keystroke — budgets,
-         * phone numbers, family circumstances, whatever they wrote before
-         * deciding not to send it. Replay is for seeing where people get stuck,
-         * and it does that without recording what they typed.
-         *
-         * `text` stays unmasked so the replay still shows which screen and
-         * which cards the buyer was looking at; only what they ENTER is hidden.
+         * Replay is for seeing where people get stuck without recording what they typed.
+         * Text stays unmasked so replay still shows screens and cards; the
+         * buyer's sent chat messages carry `ph-mask`, and /admin and the
+         * builder/partner portals carry `ph-no-capture`.
          */
         session_recording: {
           maskAllInputs: true,

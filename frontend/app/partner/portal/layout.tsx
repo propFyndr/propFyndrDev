@@ -11,15 +11,19 @@ const NAV: PortalNavItem[] = [
 
 export default function PartnerPortalLayout({ children }: { children: React.ReactNode }) {
   return (
-    <PortalShell
-      nav={NAV}
-      rootHref="/partner/portal"
-      rootLabel="Partner"
-      allowRoles={['PARTNER', 'SUPER_ADMIN']}
-      scopeParam="partner_id"
-      ownRole="PARTNER"
-    >
-      {children}
-    </PortalShell>
+    // ph-no-capture: session replay never records this area — it shows buyers'
+    // names, phones and Lead Briefs.
+    <div className="ph-no-capture contents">
+      <PortalShell
+        nav={NAV}
+        rootHref="/partner/portal"
+        rootLabel="Partner"
+        allowRoles={['PARTNER', 'SUPER_ADMIN']}
+        scopeParam="partner_id"
+        ownRole="PARTNER"
+      >
+        {children}
+      </PortalShell>
+    </div>
   )
 }
