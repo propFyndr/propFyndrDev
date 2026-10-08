@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Check, X, DotsThree } from '@phosphor-icons/react';
+import { MoreHorizontal, Check, X } from 'lucide-react';
 import Link from 'next/link';
 import { Session } from '@/hooks/useSessions';
 import { toast } from 'sonner';
@@ -205,7 +205,7 @@ export function SessionItem({ session, isActive, onDelete, onRename, onClick }: 
           aria-label="Save name"
           className={`${TOUCH} flex items-center justify-center rounded-xs text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 transition-colors disabled:opacity-50 ${FOCUS}`}
         >
-          <Check size={14} />
+          <Check size={14} strokeWidth={2.5} />
         </button>
         <button
           type="button"
@@ -215,7 +215,7 @@ export function SessionItem({ session, isActive, onDelete, onRename, onClick }: 
           aria-label="Cancel rename"
           className={`${TOUCH} flex items-center justify-center rounded-xs text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-white/[0.06] transition-colors disabled:opacity-50 ${FOCUS}`}
         >
-          <X size={14} />
+          <X size={14} strokeWidth={2.5} />
         </button>
       </div>
     );
@@ -235,7 +235,7 @@ export function SessionItem({ session, isActive, onDelete, onRename, onClick }: 
             type="button"
             onClick={handleDelete}
             disabled={isProcessing}
-            className={`h-8 [@media(pointer:coarse)]:h-11 px-2.5 text-[11px] font-medium bg-red-600 hover:bg-red-700 text-white rounded-xs transition-colors disabled:opacity-50 ${FOCUS}`}
+            className={`h-7 [@media(pointer:coarse)]:h-10 px-2.5 text-[11px] font-medium bg-red-600 hover:bg-red-700 text-white rounded-xs transition-colors disabled:opacity-50 ${FOCUS}`}
           >
             {isProcessing ? '…' : 'Delete'}
           </button>
@@ -244,7 +244,7 @@ export function SessionItem({ session, isActive, onDelete, onRename, onClick }: 
             type="button"
             onClick={closeConfirm}
             disabled={isProcessing}
-            className={`h-8 [@media(pointer:coarse)]:h-11 px-2.5 text-[11px] font-medium text-zinc-600 hover:text-zinc-900 dark:text-zinc-300 dark:hover:text-zinc-100 rounded-xs disabled:opacity-50 ${FOCUS}`}
+            className={`h-7 [@media(pointer:coarse)]:h-10 px-2.5 text-[11px] font-medium text-zinc-600 hover:text-zinc-900 dark:text-zinc-300 dark:hover:text-zinc-100 rounded-xs disabled:opacity-50 ${FOCUS}`}
           >
             Cancel
           </button>
@@ -261,14 +261,15 @@ export function SessionItem({ session, isActive, onDelete, onRename, onClick }: 
         isNavigating ? 'opacity-60' : ''
       } ${
         isActive
-          ? 'bg-zinc-100 dark:bg-white/[0.06] text-zinc-900 dark:text-zinc-50 font-medium'
-          : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100/70 dark:hover:bg-white/[0.04] hover:text-zinc-900 dark:hover:text-zinc-100'
+          ? 'bg-black/[0.08] dark:bg-white/[0.08] text-zinc-950 dark:text-white font-medium'
+          : 'text-zinc-600 dark:text-zinc-300 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-zinc-950 dark:hover:text-white'
       }`}
     >
       <Link
         href={`/discover/${session.id}`}
         aria-current={isActive ? 'page' : undefined}
-        className="flex-1 min-w-0 h-full flex items-center pl-2.5 pr-1 outline-none after:absolute after:inset-0 after:rounded-xs focus-visible:after:ring-2 focus-visible:after:ring-blue-500/60"
+        title={session.label}
+        className="flex-1 min-w-0 h-full flex items-center pl-2.5 pr-2 outline-none after:absolute after:inset-0 after:rounded-xs focus-visible:after:ring-2 focus-visible:after:ring-blue-500/60"
         onClick={(e) => {
           if (isNavigating) {
             e.preventDefault();
@@ -304,14 +305,8 @@ export function SessionItem({ session, isActive, onDelete, onRename, onClick }: 
         <span className="text-[13px] truncate">{session.label}</span>
       </Link>
 
-      {/* Right Slot: fixed width, zero layout shift. Timestamp yields to the
-          options button on hover, keyboard focus, or touch devices. */}
-      <div className={`relative ${menuOpen ? 'z-30' : 'z-10'} w-14 h-full flex items-center justify-end shrink-0 pr-1`}>
-        <span
-          className={`text-[11px] font-medium tabular-nums text-zinc-500 dark:text-zinc-400 absolute right-1.5 whitespace-nowrap transition-opacity duration-150 group-hover/session:opacity-0 group-focus-within/session:opacity-0 [@media(hover:none)]:opacity-0 pointer-events-none ${menuOpen ? 'opacity-0' : ''}`}
-        >
-          {timeAgo(session.last_active)}
-        </span>
+      {/* Options trigger: reveals on row hover / focus just like ChatGPT */}
+      <div className={`relative ${menuOpen ? 'z-30' : 'z-10'} flex items-center justify-end shrink-0 pr-1`}>
         <button
           ref={optionsRef}
           type="button"
@@ -319,9 +314,9 @@ export function SessionItem({ session, isActive, onDelete, onRename, onClick }: 
           aria-label="Chat options"
           aria-haspopup="menu"
           aria-expanded={menuOpen}
-          className={`${TOUCH} flex items-center justify-center rounded-xs text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-200/70 dark:hover:bg-white/[0.08] transition-opacity duration-150 opacity-0 group-hover/session:opacity-100 group-focus-within/session:opacity-100 [@media(hover:none)]:opacity-100 ${menuOpen ? 'opacity-100' : ''} ${FOCUS}`}
+          className={`size-7 [@media(pointer:coarse)]:size-11 flex items-center justify-center rounded-xs text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200 hover:bg-black/[0.06] dark:hover:bg-white/[0.08] transition duration-150 opacity-0 group-hover/session:opacity-100 group-focus-within/session:opacity-100 [@media(hover:none)]:opacity-100 ${menuOpen ? 'opacity-100' : ''} ${FOCUS}`}
         >
-          <DotsThree size={16} />
+          <MoreHorizontal size={15} strokeWidth={2} />
         </button>
         {menuOpen && (
           <div
@@ -331,13 +326,13 @@ export function SessionItem({ session, isActive, onDelete, onRename, onClick }: 
             onKeyDown={(e) => {
               if (e.key === 'Escape') { setMenuOpen(false); optionsRef.current?.focus(); }
             }}
-            className={`absolute right-0 ${menuUp ? 'bottom-full mb-1' : 'top-full mt-1'} z-20 w-32 p-1 rounded-sm bg-surface border border-zinc-200/70 dark:border-white/[0.08] shadow-md`}
+            className={`absolute right-0 ${menuUp ? 'bottom-full mb-1' : 'top-full mt-1'} z-20 w-32 p-1 rounded-sm bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-lg`}
           >
             <button
               type="button"
               role="menuitem"
               onClick={() => { setMenuOpen(false); setIsRenaming(true); }}
-              className={`w-full h-9 px-2.5 text-left text-[13px] font-normal rounded-xs text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-white/[0.06] ${FOCUS}`}
+              className={`w-full h-9 [@media(pointer:coarse)]:h-11 px-2.5 text-left text-[13px] font-medium rounded-xs text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 ${FOCUS}`}
             >
               Rename
             </button>
@@ -345,7 +340,7 @@ export function SessionItem({ session, isActive, onDelete, onRename, onClick }: 
               type="button"
               role="menuitem"
               onClick={() => { setMenuOpen(false); setConfirmDelete(true); }}
-              className={`w-full h-9 px-2.5 text-left text-[13px] font-normal rounded-xs text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 ${FOCUS}`}
+              className={`w-full h-9 [@media(pointer:coarse)]:h-11 px-2.5 text-left text-[13px] font-medium rounded-xs text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 ${FOCUS}`}
             >
               Delete
             </button>

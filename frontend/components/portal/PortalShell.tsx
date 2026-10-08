@@ -123,6 +123,24 @@ interface Props {
   children: React.ReactNode
 }
 
+/**
+ * The command palette filters builders client-side, so the list is fetched once
+ * per page load instead of once per keystroke. A failed fetch is not cached.
+ */
+let buildersOnce: Promise<any> | null = null
+function loadBuildersOnce(): Promise<any> {
+  if (!buildersOnce) {
+    buildersOnce = adminFetch(`/builders`)
+      .then((r) => (r.ok ? r.json() : null))
+      .catch(() => null)
+      .then((data) => {
+        if (!data) buildersOnce = null
+        return data
+      })
+  }
+  return buildersOnce
+}
+
 /** "builder-applications" -> "Builder Applications" */
 function titleCase(segment: string): string {
   return segment.split('-').map((s) => s.charAt(0).toUpperCase() + s.slice(1)).join(' ')
@@ -392,7 +410,7 @@ export default function PortalShell({ nav, rootHref, rootLabel, allowRoles, scop
       try {
         const [projRes, bldRes] = await Promise.all([
           adminFetch(`/admin/projects?q=${encodeURIComponent(q)}&limit=5`).then((r) => (r.ok ? r.json() : null)).catch(() => null),
-          adminFetch(`/builders`).then((r) => (r.ok ? r.json() : null)).catch(() => null),
+          loadBuildersOnce(),
         ])
         if (cancelled) return
         if (projRes?.projects) {

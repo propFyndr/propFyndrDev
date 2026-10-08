@@ -2,7 +2,8 @@ import { Router, Request, Response } from 'express'
 import { Prisma } from '@prisma/client'
 import { prisma } from '../lib/db'
 import { buildLeadBrief } from '../lib/leadBrief'
-import { loadScoreMap, missingFrom, saveScoreMap } from '../lib/completenessCache'
+import { loadScoreState, missingFrom, saveScoreMap } from '../lib/completenessCache'
+import type { ScoreMap } from '../lib/completenessCache'
 import { requireAdmin, destroyAdminSession } from '../lib/adminAuth'
 import { createIdentitySession, verifyPassword, requireIdentity, requireRole, sessionTtlForRole, recordAudit } from '../lib/adminIdentity'
 import type { AdminIdentitySession } from '../lib/adminIdentity'
@@ -495,6 +496,134 @@ router.get('/demand', async (req: Request, res: Response) => {
   }
 })
 
+/**
+ * Completeness scores for these projects, from the scoring inputs — the
+ * expensive relation read the completeness cache exists to avoid. Returns only
+ * the projects it scored.
+ */
+async function scoreProjects(targets: Array<{ id: string; slug: string }>): Promise<ScoreMap> {
+  const needScoring = targets.map((t) => t.id)
+  const scoreMap: ScoreMap = {}
+  const [heavy, docs] = await Promise.all([
+    prisma.project.findMany({
+      where: { id: { in: needScoring } },
+      select: {
+        id: true, slug: true, name: true, status: true, possession_date: true,
+        rera_number: true, rera_url: true, description: true, long_description: true,
+        tagline: true, address: true, lat: true, lng: true, total_units: true,
+        total_towers: true, land_area_acres: true, possession_label: true,
+        hero_image_url: true, price_min_cr: true, price_range_label: true,
+        nri_eligible: true, vastu_compliant: true, women_safety_score: true,
+        air_quality_index_avg: true, water_source: true, dg_power_rate_per_unit: true,
+        maintenance_per_sqft_monthly: true, has_png_gas_pipeline: true,
+        mobile_network_rating: true, ceiling_height_ft: true, lifts_per_tower: true,
+        has_service_lift: true, shared_walls_type: true, authority_dues_cleared: true,
+        land_tenure: true, pet_friendly: true, bachelor_tenants_allowed: true,
+        builder: { select: { id: true, name: true } },
+        unit_types: {
+          select: {
+            id: true, price_min_cr: true, super_area_sqft: true,
+            carpet_area_sqft: true, balconies: true, balcony_area_sqft: true,
+          },
+        },
+        images: { select: { type: true } },
+        // Counted, not fetched: the scorer asks each of these only how many
+        // there are.
+        _count: {
+          select: {
+            amenities: true, connectivity: true, competitors: true,
+            construction_milestones: true, construction_updates: true,
+            lifecycle_updates: true, price_history: true, channel_partners: true,
+          },
+        },
+        dna: {
+          select: {
+            builder_score: true, price_score: true, location_score: true,
+            legal_score: true, amenity_score: true, possession_score: true,
+          },
+        },
+        decision_profile: {
+          select: { decision_thesis: true, why_buy: true, why_avoid: true, best_for: true },
+        },
+        // `income_range`, `family_stage` and `work_location` are read through
+        // an `as any` cast in the scorer and are NOT on its declared
+        // interface. Narrowing to the interface cost every project 3 points
+        // and was caught by completenessParity.test.ts.
+        persona_profile: {
+          select: {
+            primary_persona: true, secondary_personas: true,
+            income_range: true, family_stage: true, work_location: true,
+          },
+        },
+        recommendation_profile: { select: { tier: true, primary_thesis: true } },
+        cost_sheet: { select: { base_price_per_sqft: true, base_cost_cr: true } },
+        payment_plans: { select: { id: true, milestones: true } },
+      },
+    }),
+    /**
+     * Brochures. `ProjectDocument` has no Prisma relation to `Project` — it
+     * matches on `project_id` OR `project_slug` — so it cannot be an
+     * include. One batched query, grouped in memory; a lookup per project
+     * would be the N+1 this endpoint was cleaned of.
+     */
+    prisma.projectDocument.findMany({
+      where: {
+        OR: [
+          { project_id: { in: needScoring } },
+          { project_slug: { in: targets.map((t) => t.slug) } },
+        ],
+      },
+      select: { project_id: true, project_slug: true, doc_type: true },
+    }),
+  ])
+
+  // Keyed by both, because the rows match on either and some carry only one.
+  const docsByProject = new Map<string, Array<{ doc_type: string }>>()
+  for (const d of docs) {
+    for (const key of [d.project_id, d.project_slug]) {
+      if (!key) continue
+      const list = docsByProject.get(key)
+      if (list) list.push({ doc_type: d.doc_type })
+      else docsByProject.set(key, [{ doc_type: d.doc_type }])
+    }
+  }
+
+  /** The scorer takes arrays and asks only their length. */
+  const fromCount = (n: number) => Array.from({ length: n }, () => ({}))
+
+  for (const p of heavy) {
+    const counts = (p as any)._count ?? {}
+    const completeness = computeCompleteness({
+      ...p,
+      documents: docsByProject.get(p.id) ?? docsByProject.get(p.slug) ?? [],
+      amenities: fromCount(counts.amenities ?? 0),
+      connectivity: fromCount(counts.connectivity ?? 0),
+      competitors: fromCount(counts.competitors ?? 0),
+      construction_milestones: fromCount(counts.construction_milestones ?? 0),
+      construction_updates: fromCount(counts.construction_updates ?? 0),
+      lifecycle_updates: fromCount(counts.lifecycle_updates ?? 0),
+      price_history: fromCount(counts.price_history ?? 0),
+      channel_partners: fromCount(counts.channel_partners ?? 0),
+    } as any)
+    scoreMap[p.id] = { score: completeness.totalScore, tabScores: { ...completeness.tabScores } }
+  }
+
+
+  return scoreMap
+}
+
+/** One background refresh at a time per process; a second stale read just serves stale. */
+let scoreRefreshInFlight = false
+
+function refreshScoresInBackground(targets: Array<{ id: string; slug: string }>, current: ScoreMap): void {
+  if (scoreRefreshInFlight) return
+  scoreRefreshInFlight = true
+  scoreProjects(targets)
+    .then((fresh) => saveScoreMap({ ...current, ...fresh }))
+    .catch((err) => console.warn('[admin] background score refresh failed:', err instanceof Error ? err.message : err))
+    .finally(() => { scoreRefreshInFlight = false })
+}
+
 // GET /api/v1/admin/projects — list projects for dashboard & management
 router.get('/projects', async (req: Request, res: Response) => {
   const { limit = '1000', offset = '0', q, search } = req.query
@@ -602,121 +731,26 @@ router.get('/projects', async (req: Request, res: Response) => {
       }
     }
 
-    const scoreMap = await loadScoreMap()
+    const { scores: scoreMap, stale, at: scoredAt } = await loadScoreState()
     const needScoring = missingFrom(scoreMap, projects.map((p) => p.id))
 
     /**
      * Query two: the scoring inputs, for cache misses only.
      *
      * On a warm cache this does not run at all. On a cold one it costs what the
-     * whole endpoint used to cost, once, and then not again for TTL_SECS.
+     * whole endpoint used to cost, once. A stale map is served as is and
+     * re-scored in the background (see lib/completenessCache.ts).
      */
     if (needScoring.length > 0) {
-      const [heavy, docs] = await Promise.all([
-        prisma.project.findMany({
-          where: { id: { in: needScoring } },
-          select: {
-            id: true, slug: true, name: true, status: true, possession_date: true,
-            rera_number: true, rera_url: true, description: true, long_description: true,
-            tagline: true, address: true, lat: true, lng: true, total_units: true,
-            total_towers: true, land_area_acres: true, possession_label: true,
-            hero_image_url: true, price_min_cr: true, price_range_label: true,
-            nri_eligible: true, vastu_compliant: true, women_safety_score: true,
-            air_quality_index_avg: true, water_source: true, dg_power_rate_per_unit: true,
-            maintenance_per_sqft_monthly: true, has_png_gas_pipeline: true,
-            mobile_network_rating: true, ceiling_height_ft: true, lifts_per_tower: true,
-            has_service_lift: true, shared_walls_type: true, authority_dues_cleared: true,
-            land_tenure: true, pet_friendly: true, bachelor_tenants_allowed: true,
-            builder: { select: { id: true, name: true } },
-            unit_types: {
-              select: {
-                id: true, price_min_cr: true, super_area_sqft: true,
-                carpet_area_sqft: true, balconies: true, balcony_area_sqft: true,
-              },
-            },
-            images: { select: { type: true } },
-            // Counted, not fetched: the scorer asks each of these only how many
-            // there are.
-            _count: {
-              select: {
-                amenities: true, connectivity: true, competitors: true,
-                construction_milestones: true, construction_updates: true,
-                lifecycle_updates: true, price_history: true, channel_partners: true,
-              },
-            },
-            dna: {
-              select: {
-                builder_score: true, price_score: true, location_score: true,
-                legal_score: true, amenity_score: true, possession_score: true,
-              },
-            },
-            decision_profile: {
-              select: { decision_thesis: true, why_buy: true, why_avoid: true, best_for: true },
-            },
-            // `income_range`, `family_stage` and `work_location` are read through
-            // an `as any` cast in the scorer and are NOT on its declared
-            // interface. Narrowing to the interface cost every project 3 points
-            // and was caught by completenessParity.test.ts.
-            persona_profile: {
-              select: {
-                primary_persona: true, secondary_personas: true,
-                income_range: true, family_stage: true, work_location: true,
-              },
-            },
-            recommendation_profile: { select: { tier: true, primary_thesis: true } },
-            cost_sheet: { select: { base_price_per_sqft: true, base_cost_cr: true } },
-            payment_plans: { select: { id: true, milestones: true } },
-          },
-        }),
-        /**
-         * Brochures. `ProjectDocument` has no Prisma relation to `Project` — it
-         * matches on `project_id` OR `project_slug` — so it cannot be an
-         * include. One batched query, grouped in memory; a lookup per project
-         * would be the N+1 this endpoint was cleaned of.
-         */
-        prisma.projectDocument.findMany({
-          where: {
-            OR: [
-              { project_id: { in: needScoring } },
-              { project_slug: { in: projects.filter((p) => needScoring.includes(p.id)).map((p) => p.slug) } },
-            ],
-          },
-          select: { project_id: true, project_slug: true, doc_type: true },
-        }),
-      ])
-
-      // Keyed by both, because the rows match on either and some carry only one.
-      const docsByProject = new Map<string, Array<{ doc_type: string }>>()
-      for (const d of docs) {
-        for (const key of [d.project_id, d.project_slug]) {
-          if (!key) continue
-          const list = docsByProject.get(key)
-          if (list) list.push({ doc_type: d.doc_type })
-          else docsByProject.set(key, [{ doc_type: d.doc_type }])
-        }
-      }
-
-      /** The scorer takes arrays and asks only their length. */
-      const fromCount = (n: number) => Array.from({ length: n }, () => ({}))
-
-      for (const p of heavy) {
-        const counts = (p as any)._count ?? {}
-        const completeness = computeCompleteness({
-          ...p,
-          documents: docsByProject.get(p.id) ?? docsByProject.get(p.slug) ?? [],
-          amenities: fromCount(counts.amenities ?? 0),
-          connectivity: fromCount(counts.connectivity ?? 0),
-          competitors: fromCount(counts.competitors ?? 0),
-          construction_milestones: fromCount(counts.construction_milestones ?? 0),
-          construction_updates: fromCount(counts.construction_updates ?? 0),
-          lifecycle_updates: fromCount(counts.lifecycle_updates ?? 0),
-          price_history: fromCount(counts.price_history ?? 0),
-          channel_partners: fromCount(counts.channel_partners ?? 0),
-        } as any)
-        scoreMap[p.id] = { score: completeness.totalScore, tabScores: { ...completeness.tabScores } }
-      }
-
-      await saveScoreMap(scoreMap)
+      Object.assign(scoreMap, await scoreProjects(projects.filter((p) => needScoring.includes(p.id))))
+      // Scoring every listed project is a fresh map; topping up a few keeps the
+      // old stamp, so a stale map stays stale and is still refreshed.
+      const scoredWholeList = !searchTerm && needScoring.length === projects.length
+      await saveScoreMap(scoreMap, scoredWholeList ? Date.now() : scoredAt)
+    } else if (stale && !searchTerm) {
+      // Stale-while-revalidate: this response uses the stale scores, the next
+      // one gets fresh ones. Never awaited — no request pays for the refresh.
+      refreshScoresInBackground(projects, scoreMap)
     }
 
     const safeProjects = projects.map((p) => {
@@ -774,6 +808,44 @@ router.post('/projects', async (req: Request, res: Response) => {
   } catch (err) {
     console.error('[admin] project create failed:', err)
     res.status(500).json({ error: 'Failed to create project' })
+  }
+})
+
+/**
+ * GET /api/v1/admin/projects/summary — one slim row per project for the dashboard.
+ *
+ * The dashboard used to pull `/projects?limit=1000` (units, images, completeness
+ * cache) to compute a handful of counts. This is one query, one round trip, and
+ * booleans instead of the text it only tested for presence. Registered before
+ * `/projects/:id` so that route does not claim "summary" as an id.
+ */
+router.get('/projects/summary', async (_req: Request, res: Response) => {
+  try {
+    const rows = await prisma.$queryRaw<Array<{
+      id: string
+      status: string
+      created_at: Date
+      updated_at: Date
+      has_image: boolean
+      has_rera: boolean
+      has_description: boolean
+      unit_count: number
+      builder_id: string | null
+      builder_name: string | null
+    }>>`
+      SELECT p.id, p.status::text AS status, p.created_at, p.updated_at,
+             NULLIF(p.hero_image_url, '') IS NOT NULL AS has_image,
+             NULLIF(p.rera_number, '') IS NOT NULL AS has_rera,
+             NULLIF(p.description, '') IS NOT NULL AS has_description,
+             (SELECT COUNT(*)::int FROM unit_types u WHERE u.project_id = p.id) AS unit_count,
+             b.id AS builder_id, b.name AS builder_name
+      FROM projects p
+      LEFT JOIN builders b ON b.id = p.builder_id
+    `
+    res.json({ projects: rows })
+  } catch (err) {
+    console.error('[admin] project summary failed:', err)
+    res.status(500).json({ error: 'Failed to fetch project summary' })
   }
 })
 

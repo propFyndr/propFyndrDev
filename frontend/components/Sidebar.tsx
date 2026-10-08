@@ -1,16 +1,18 @@
 'use client';
 
 import {
-  BookmarkSimple,
-  ArrowsLeftRight,
-  SidebarSimple,
-  SignOut,
-  NotePencil,
-  List,
-  Buildings,
-  CaretDown,
-  Brain
-} from '@phosphor-icons/react';
+  SquarePen,
+  Bookmark,
+  ArrowLeftRight,
+  PanelLeftClose,
+  PanelLeft,
+  Building2,
+  Sparkles,
+  ChevronDown,
+  LogOut,
+  LogIn,
+  Menu,
+} from 'lucide-react';
 import { useState, useEffect, useRef, useCallback } from "react";
 import { resetAnalyticsUser } from "@/lib/analytics";
 import { useRouter, usePathname } from "next/navigation";
@@ -45,14 +47,16 @@ interface SidebarProps {
 // Collapsed-rail tooltip. Lives inside the control it labels (which carries
 // `group`) so keyboard focus reveals it as well as hover.
 const TOOLTIP =
-  "absolute left-full top-1/2 -translate-y-1/2 ml-2.5 px-2 py-1 bg-zinc-900 text-white text-[11px] font-medium rounded-xs shadow-md opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-[100]";
+  "absolute left-full top-1/2 -translate-y-1/2 ml-2.5 px-2 py-1 bg-zinc-900 text-white text-[11px] font-medium rounded-xs shadow-md opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-[100] border border-zinc-800";
 
-// One selected recipe for menu items and sessions alike.
-const ROW_ACTIVE = "bg-zinc-100 dark:bg-zinc-900 text-zinc-900 dark:text-white font-semibold shadow-2xs";
-const ROW_IDLE = "text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-900/80 hover:text-zinc-900 dark:hover:text-white";
+// Subtle translucent recipes matching ChatGPT's polished sidebar
+const ROW_ACTIVE = "bg-black/[0.08] dark:bg-white/[0.08] text-zinc-950 dark:text-white font-medium";
+const ROW_IDLE = "text-zinc-600 dark:text-zinc-300 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] hover:text-zinc-950 dark:hover:text-white";
 const FOCUS = "outline-none focus-visible:ring-2 focus-visible:ring-blue-500/60";
+// zinc-500 on #f9f9f9 / zinc-400 on #171717 both clear 4.5:1; one step lighter does not.
 const LABEL = "px-2.5 text-[11px] font-semibold tracking-wider uppercase text-zinc-500 dark:text-zinc-400";
-const EDGE = "border-zinc-200/90 dark:border-zinc-800/80";
+// Opaque hairline: at /60 the zone dividers vanished into the #f9f9f9 / #171717 canvas.
+const EDGE = "border-zinc-200 dark:border-zinc-800";
 
 function groupSessionsByDate(
   sessions: Session[],
@@ -213,8 +217,8 @@ export default function Sidebar({
   // Compare takes the freed slot; /compare and ComparisonTable already existed
   // and had simply never been reachable from the sidebar.
   const menuItems: { id: SidebarView; label: string; icon: React.ElementType; href: string; count?: number }[] = [
-    { id: "saved", label: "Saved", icon: BookmarkSimple, href: "/saved", count: savedCount ?? undefined },
-    { id: "compare", label: "Compare", icon: ArrowsLeftRight, href: "/compare", count: savedCount ?? undefined },
+    { id: "saved", label: "Saved", icon: Bookmark, href: "/saved", count: savedCount ?? undefined },
+    { id: "compare", label: "Compare", icon: ArrowLeftRight, href: "/compare", count: savedCount ?? undefined },
   ];
 
   // Edge swipe opens the drawer. Only a touch that starts in the leftmost 24px
@@ -325,12 +329,12 @@ export default function Sidebar({
         ref={hamburgerRef}
         type="button"
         onClick={() => setMobileOpen(true)}
-        className={`md:hidden fixed top-2.5 sm:top-3 left-3 z-[65] w-11 h-11 shrink-0 flex items-center justify-center text-zinc-800 dark:text-zinc-200 hover:text-black dark:hover:text-white active:scale-95 transition-all cursor-pointer rounded-full bg-white/85 dark:bg-zinc-800/85 backdrop-blur-md border border-zinc-200/70 dark:border-white/[0.08] shadow-xs hover:bg-white dark:hover:bg-zinc-700 ${FOCUS} ${mobileOpen ? 'invisible' : ''}`}
+        className={`md:hidden fixed top-2.5 sm:top-3 left-3 z-[65] w-11 h-11 shrink-0 flex items-center justify-center text-zinc-700 dark:text-zinc-300 hover:text-black dark:hover:text-white active:scale-95 transition cursor-pointer rounded-xs bg-[#f9f9f9]/95 dark:bg-[#171717]/95 backdrop-blur-md border ${EDGE} shadow-xs hover:bg-white dark:hover:bg-zinc-800 ${FOCUS} ${mobileOpen ? 'invisible' : ''}`}
         aria-label="Open sidebar menu"
         aria-expanded={mobileOpen}
         title="Open menu"
       >
-        <List size={20} />
+        <Menu size={18} strokeWidth={2} />
       </button>
 
       <div
@@ -345,8 +349,8 @@ export default function Sidebar({
         onTouchEnd={onDrawerTouchEnd}
         {...(isDrawer && mobileOpen ? { role: 'dialog', 'aria-modal': true, 'aria-label': 'Menu' } : {})}
         className={`
-        w-[280px] sm:w-[300px] ${isCollapsed ? 'md:w-[64px]' : 'md:w-[260px]'}
-        text-zinc-900 dark:text-zinc-100 flex flex-col h-full border-r ${EDGE} bg-white dark:bg-zinc-950
+        w-[280px] sm:w-[300px] ${isCollapsed ? 'md:w-[60px]' : 'md:w-[260px]'}
+        text-zinc-900 dark:text-zinc-100 flex flex-col h-full border-r ${EDGE} bg-[#f9f9f9] dark:bg-[#171717]
         fixed md:relative z-[60] md:z-20 shrink-0 md:shadow-none
         transition-[width,transform] duration-300 ease-[var(--ease-smooth)]
         ${collapsed ? 'overflow-visible' : 'overflow-hidden'}
@@ -355,11 +359,11 @@ export default function Sidebar({
       >
         {/* Header: Expanded vs Collapsed */}
         {!collapsed ? (
-          <div className={`h-14 flex items-center justify-between border-b ${EDGE} w-full px-3 shrink-0`}>
+          <div className="h-14 flex items-center justify-between w-full px-3 shrink-0">
             <Link
               href="/discover"
               onClick={handleFreshDiscovery}
-              className={`flex items-center px-2.5 py-1 rounded-xs transition-opacity hover:opacity-80 cursor-pointer ${FOCUS}`}
+              className={`flex items-center px-1.5 py-1 rounded-xs transition-opacity hover:opacity-85 cursor-pointer ${FOCUS}`}
               title="Start fresh discovery"
             >
               <Image src="/images/icons/logo-wordmark-black.png" alt="PropFyndr Logo" width={75} height={34} className="object-contain block dark:hidden" priority />
@@ -371,20 +375,20 @@ export default function Sidebar({
                 if (isDrawer) closeMobile();
                 else onToggleCollapse?.();
               }}
-              className={`w-9 h-9 [@media(pointer:coarse)]:size-11 rounded-xs text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-white/[0.06] transition-colors cursor-pointer flex items-center justify-center ${FOCUS}`}
+              className={`w-8 h-8 [@media(pointer:coarse)]:size-11 rounded-xs text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200 hover:bg-black/[0.05] dark:hover:bg-white/[0.08] transition-colors cursor-pointer flex items-center justify-center ${FOCUS}`}
               title={isDrawer ? "Close menu" : "Collapse sidebar"}
               aria-label={isDrawer ? "Close menu" : "Collapse sidebar"}
               aria-expanded={true}
             >
-              <SidebarSimple size={18} />
+              <PanelLeftClose size={17} strokeWidth={1.8} />
             </button>
           </div>
         ) : (
-          <div className={`h-14 flex items-center justify-center border-b ${EDGE} w-full shrink-0`}>
+          <div className="h-14 flex items-center justify-center w-full shrink-0">
             <button
               type="button"
               onClick={onToggleCollapse}
-              className={`w-10 h-10 flex items-center justify-center rounded-xs hover:bg-zinc-100 dark:hover:bg-white/[0.06] transition-colors relative cursor-pointer group ${FOCUS}`}
+              className={`w-9 h-9 flex items-center justify-center rounded-xs hover:bg-black/[0.05] dark:hover:bg-white/[0.08] transition-colors relative cursor-pointer group ${FOCUS}`}
               aria-label="Expand sidebar"
               aria-expanded={false}
             >
@@ -393,22 +397,22 @@ export default function Sidebar({
                 <Image
                   src="/images/icons/logo-square-black.png"
                   alt=""
-                  width={40}
-                  height={40}
+                  width={34}
+                  height={34}
                   className="object-contain block dark:hidden"
                 />
                 <Image
                   src="/images/icons/logo-square-white.png"
                   alt=""
-                  width={40}
-                  height={40}
+                  width={34}
+                  height={34}
                   className="object-contain hidden dark:block"
                 />
               </div>
 
               {/* Hover Expand Icon */}
               <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 text-zinc-700 dark:text-zinc-200 transition-opacity duration-200 pointer-events-none">
-                <SidebarSimple size={18} />
+                <PanelLeft size={18} strokeWidth={1.8} />
               </div>
 
               <span className={TOOLTIP}>Expand sidebar</span>
@@ -416,44 +420,26 @@ export default function Sidebar({
           </div>
         )}
 
-        {/* New Chat Button */}
+        {/* Primary Action Items: New chat, Saved, Compare */}
         {!collapsed ? (
-          <div className="px-3 pt-3 pb-2 w-full shrink-0">
+          <div className="w-full shrink-0 px-2 pt-1 pb-1 space-y-0.5">
+            {/* New chat row */}
             <button
               type="button"
               onClick={startNewChat}
               disabled={isNavigating}
-              className={`flex items-center justify-between w-full h-9 px-2.5 rounded-xs text-[13px] font-semibold border ${EDGE} bg-white dark:bg-zinc-900 shadow-2xs hover:bg-zinc-50 dark:hover:bg-zinc-900/60 hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer text-zinc-900 dark:text-zinc-100 ${FOCUS}`}
+              className={`group flex items-center gap-2.5 w-full h-9 px-2.5 rounded-xs text-[13.5px] font-medium transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${ROW_IDLE} ${FOCUS}`}
             >
-              <span className="flex items-center gap-2.5">
-                <NotePencil size={16} className="shrink-0" />
-                <span>{isNavigating ? 'Opening…' : 'New chat'}</span>
-              </span>
+              <SquarePen size={16} strokeWidth={1.8} className="shrink-0 text-zinc-500 dark:text-zinc-400 group-hover:text-zinc-900 dark:group-hover:text-white transition-colors" />
+              <span>{isNavigating ? 'Opening…' : 'New chat'}</span>
               {!isDrawer && (
-                <kbd className="hidden [@media(pointer:fine)]:inline-flex items-center h-5 px-1.5 text-[11px] font-medium font-sans text-zinc-500 dark:text-zinc-400 rounded-xs border border-zinc-200 dark:border-white/[0.08]">
+                <kbd className="ml-auto hidden [@media(pointer:fine)]:inline-flex items-center h-5 px-1.5 text-[11px] font-medium font-sans text-zinc-500 dark:text-zinc-400 opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 transition-opacity">
                   {isMac ? '⇧⌘O' : 'Ctrl+Shift+O'}
                 </kbd>
               )}
             </button>
-          </div>
-        ) : (
-          <div className="px-3 py-3 w-full shrink-0 flex justify-center">
-            <button
-              type="button"
-              onClick={startNewChat}
-              disabled={isNavigating}
-              className={`w-10 h-10 rounded-xs bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 flex items-center justify-center shadow-xs transition-opacity hover:opacity-90 active:scale-95 group relative disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer ${FOCUS}`}
-            >
-              <NotePencil size={18} />
-              <span className={TOOLTIP}>New chat</span>
-            </button>
-          </div>
-        )}
 
-        {/* Menu Section */}
-        <nav aria-label="Primary" className={collapsed ? "px-3 space-y-0.5 w-full flex flex-col items-center" : `w-full shrink-0 px-3 pt-3 pb-3 border-t ${EDGE}`}>
-          {!collapsed && <div className={`${LABEL} mb-1`}>Menu</div>}
-          <div className={collapsed ? "contents" : "space-y-0.5 w-full"}>
+            {/* Saved & Compare items */}
             {menuItems.map((item) => {
               const Icon = item.icon;
               const isActive = activeView === item.id;
@@ -462,35 +448,57 @@ export default function Sidebar({
                 closeMobile();
                 onViewChange?.(item.id);
               };
-              return !collapsed ? (
+              return (
                 <Link
                   key={item.id}
                   href={item.href}
                   prefetch={true}
                   onClick={onClick}
                   aria-current={isActive ? 'page' : undefined}
-                  className={`flex items-center w-full h-9 gap-2.5 px-2.5 rounded-xs text-[13px] transition-colors ${isActive ? ROW_ACTIVE : ROW_IDLE} ${FOCUS}`}
+                  className={`flex items-center w-full h-9 gap-2.5 px-2.5 rounded-xs text-[13.5px] transition-colors ${isActive ? ROW_ACTIVE : ROW_IDLE} ${FOCUS}`}
                 >
-                  <Icon size={16} weight={isActive ? 'fill' : 'regular'} className="shrink-0" />
+                  <Icon size={16} strokeWidth={1.8} className={`shrink-0 ${isActive && item.id === 'saved' ? 'fill-current' : ''}`} />
                   <span>{item.label}</span>
                   {typeof item.count === 'number' && item.count > 0 && (
-                    <span className="ml-auto text-[11px] font-medium tabular-nums text-zinc-500 dark:text-zinc-400">
+                    <span className="ml-auto text-[11px] font-mono tabular-nums px-1.5 leading-[18px] rounded-full bg-zinc-200/80 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400">
                       {item.count}
                     </span>
                   )}
                 </Link>
-              ) : (
+              );
+            })}
+          </div>
+        ) : (
+          <div className="px-2 pt-1 space-y-1 w-full shrink-0 flex flex-col items-center">
+            <button
+              type="button"
+              onClick={startNewChat}
+              disabled={isNavigating}
+              className={`w-9 h-9 rounded-xs bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 flex items-center justify-center shadow-xs transition-opacity hover:opacity-90 active:scale-95 group relative disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer ${FOCUS}`}
+            >
+              <SquarePen size={16} strokeWidth={1.8} />
+              <span className={TOOLTIP}>New chat</span>
+            </button>
+            {menuItems.map((item) => {
+              const Icon = item.icon;
+              const isActive = activeView === item.id;
+              const onClick = (e: React.MouseEvent) => {
+                handleMenuItemClick(e, item.id, item.href);
+                closeMobile();
+                onViewChange?.(item.id);
+              };
+              return (
                 <Link
                   key={item.id}
                   href={item.href}
                   prefetch={true}
                   onClick={onClick}
                   aria-current={isActive ? 'page' : undefined}
-                  className={`w-10 h-10 rounded-xs flex items-center justify-center transition-colors group relative ${isActive ? ROW_ACTIVE : ROW_IDLE} ${FOCUS}`}
+                  className={`w-9 h-9 rounded-xs flex items-center justify-center transition-colors group relative ${isActive ? ROW_ACTIVE : ROW_IDLE} ${FOCUS}`}
                 >
-                  <Icon size={18} weight={isActive ? 'fill' : 'regular'} />
+                  <Icon size={16} strokeWidth={1.8} className={isActive && item.id === 'saved' ? 'fill-current' : ''} />
                   {typeof item.count === 'number' && item.count > 0 && (
-                    <span className="absolute -top-0.5 -right-0.5 min-w-[15px] h-[15px] px-1 flex items-center justify-center rounded-full bg-blue-600 text-white text-[10px] font-semibold tabular-nums leading-none ring-2 ring-white dark:ring-zinc-950">
+                    <span className="absolute -top-0.5 -right-0.5 min-w-[15px] h-[15px] px-1 flex items-center justify-center rounded-full bg-blue-600 text-white text-[10px] font-semibold tabular-nums leading-none ring-2 ring-[#f9f9f9] dark:ring-[#171717]">
                       {item.count > 9 ? '9+' : item.count}
                     </span>
                   )}
@@ -499,16 +507,11 @@ export default function Sidebar({
               );
             })}
           </div>
-        </nav>
+        )}
 
-        {/* Compare tray — collapsed rail only.
-            Collapsed, the rail was the expanded menu with the words removed:
-            the same two icons and nothing else, so collapsing bought space and
-            gave nothing back. These are the buyer's saved projects, the set
-            /compare actually operates on, so the rail becomes a way in rather
-            than a smaller copy of the menu. */}
+        {/* Compare tray — collapsed rail only */}
         {collapsed && savedThumbs.length > 0 && (
-          <div className={`px-3 mt-2 pt-2.5 w-full flex flex-col items-center gap-1.5 border-t ${EDGE}`}>
+          <div className={`px-2 mt-2 pt-2.5 w-full flex flex-col items-center gap-1.5 border-t ${EDGE}`}>
             {savedThumbs.map((t) => (
               <Link
                 key={t.id}
@@ -516,10 +519,10 @@ export default function Sidebar({
                 prefetch={false}
                 onClick={closeMobile}
                 aria-label={`Compare ${t.name}`}
-                className={`w-9 h-9 rounded-xs bg-zinc-100 dark:bg-zinc-800 ring-1 ring-zinc-200/70 dark:ring-white/[0.08] hover:ring-blue-500 transition-shadow group relative shrink-0 ${FOCUS}`}
+                className={`size-[34px] rounded-xs bg-zinc-200/60 dark:bg-zinc-800 ring-1 ring-zinc-300 dark:ring-zinc-700 hover:ring-blue-500 transition-shadow group relative shrink-0 ${FOCUS}`}
               >
                 {t.image ? (
-                  <Image src={t.image} alt="" width={36} height={36} className="w-full h-full object-cover rounded-xs" unoptimized />
+                  <Image src={t.image} alt="" width={34} height={34} className="w-full h-full object-cover rounded-xs" unoptimized />
                 ) : (
                   <span className="w-full h-full flex items-center justify-center text-[11px] font-semibold text-zinc-500 dark:text-zinc-400">
                     {t.name.slice(0, 2).toUpperCase()}
@@ -533,8 +536,10 @@ export default function Sidebar({
 
         {/* Recent Chats Section (Only in Expanded mode) */}
         {!collapsed && (userId || guestToken) && (
-          <nav aria-label="Chat history" className={`flex-1 min-h-0 overflow-y-auto w-full px-3 pt-3 pb-6 border-t ${EDGE}`}>
-            <div className={`${LABEL} pt-1 pb-1`}>Recent</div>
+          <div className="flex-1 min-h-0 flex flex-col w-full">
+          <div className={`mx-3 mt-2 border-t ${EDGE}`} />
+          <div className={`${LABEL} mx-2 pt-3 pb-1`}>Recents</div>
+          <nav aria-label="Chat history" className="flex-1 min-h-0 overflow-y-auto w-full px-2 pb-4">
             {sessionsLoading ? (
               <ChatSidebarGroupedSkeleton />
             ) : sessionsError ? (
@@ -543,7 +548,7 @@ export default function Sidebar({
                 <button
                   type="button"
                   onClick={() => refreshSessions()}
-                  className={`rounded-xs px-2 h-7 text-[11px] font-medium text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/40 transition-colors ${FOCUS}`}
+                  className={`rounded-xs px-2 h-6 text-[11px] font-medium text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/40 transition-colors ${FOCUS}`}
                 >
                   Retry
                 </button>
@@ -554,16 +559,16 @@ export default function Sidebar({
                 <button
                   type="button"
                   onClick={startNewChat}
-                  className={`-ml-2 rounded-xs px-2 h-7 text-[11px] font-medium text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/40 transition-colors ${FOCUS}`}
+                  className={`-ml-2 rounded-xs px-2 h-6 text-[11px] font-medium text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/40 transition-colors ${FOCUS}`}
                 >
                   Start a chat
                 </button>
               </div>
             ) : (
-              <div className="space-y-3">
+              <div className="space-y-2">
                 {grouped.map(({ label: groupLabel, items }) => (
                   <div key={groupLabel}>
-                    <div className={`${LABEL} sticky top-0 z-20 bg-surface py-1`}>{groupLabel}</div>
+                    <div className="px-2.5 pt-2 pb-0.5 text-[11px] font-medium text-zinc-500 dark:text-zinc-400 sticky top-0 z-20 bg-[#f9f9f9] dark:bg-[#171717]">{groupLabel}</div>
                     <div className="space-y-0.5">
                       {items.map((session) => (
                         <SessionItem
@@ -581,45 +586,39 @@ export default function Sidebar({
               </div>
             )}
           </nav>
+          </div>
         )}
 
-        {/* Footer: two bands — supply-side + privacy controls, then account.
-            A divider separates them so the account row (the one identity-
-            bearing control) doesn't read as just another item in the list. */}
+        {/* Footer: builders, memory, and ChatGPT-style user account pill */}
         {!collapsed ? (
-          <div className={`mt-auto px-3 py-2 border-t ${EDGE} shrink-0 w-full`}>
-            <div className="space-y-0.5 pb-1.5">
-              {/* NOTE: leadsToday is an internal sales metric shown to any logged-in
-                  user regardless of role — needs a product decision on role-gating,
-                  not silently fixed here. */}
+          <div className={`mt-auto px-2 py-2 border-t ${EDGE} shrink-0 w-full`}>
+            <div className="space-y-0.5 pb-1">
               {leadsToday !== null && leadsToday > 0 && (
                 <div className="px-2.5 py-1 text-[11px] font-medium text-emerald-700 dark:text-emerald-400 tabular-nums">
                   {leadsToday} lead{leadsToday !== 1 ? 's' : ''} captured today
                 </div>
               )}
 
-              {/* The two ways onto the supply side. Without these the registration
-                  pages existed but nothing on the site linked to them. */}
               <details className="group/builders">
                 <summary className={`list-none [&::-webkit-details-marker]:hidden flex items-center justify-between h-9 px-2.5 rounded-xs text-[13px] cursor-pointer transition-colors ${ROW_IDLE} ${FOCUS}`}>
                   <span className="flex items-center gap-2.5">
-                    <Buildings size={16} className="shrink-0" />
-                    For builders
+                    <Building2 size={16} strokeWidth={1.8} className="shrink-0 text-zinc-400 dark:text-zinc-500" />
+                    <span>For builders</span>
                   </span>
-                  <CaretDown size={12} className="transition-transform group-open/builders:rotate-180" />
+                  <ChevronDown size={13} strokeWidth={2} className="transition-transform duration-200 group-open/builders:rotate-180 text-zinc-400" />
                 </summary>
                 <div className="space-y-0.5 pt-0.5">
                   <Link
                     href="/builder-register"
                     onClick={closeMobile}
-                    className={`flex items-center gap-2.5 h-9 pl-9 pr-2.5 rounded-xs text-[13px] transition-colors ${ROW_IDLE} ${FOCUS}`}
+                    className={`flex items-center gap-2.5 h-8 pl-8 pr-2.5 rounded-xs text-[12.5px] transition-colors ${ROW_IDLE} ${FOCUS}`}
                   >
                     List your project
                   </Link>
                   <Link
                     href="/partner-register"
                     onClick={closeMobile}
-                    className={`flex items-center gap-2.5 h-9 pl-9 pr-2.5 rounded-xs text-[13px] transition-colors ${ROW_IDLE} ${FOCUS}`}
+                    className={`flex items-center gap-2.5 h-8 pl-8 pr-2.5 rounded-xs text-[12.5px] transition-colors ${ROW_IDLE} ${FOCUS}`}
                   >
                     Partner with us
                   </Link>
@@ -632,34 +631,32 @@ export default function Sidebar({
                 title="See and clear what the advisor remembers about your budget, BHK and sector across chats"
                 className={`w-full flex items-center gap-2.5 h-9 px-2.5 rounded-xs text-[13px] cursor-pointer transition-colors ${ROW_IDLE} ${FOCUS}`}
               >
-                <Brain size={16} className="shrink-0" />
+                <Sparkles size={16} strokeWidth={1.8} className="shrink-0 text-zinc-400 dark:text-zinc-500" />
                 <span>AI Memory &amp; Privacy</span>
               </button>
             </div>
 
-            <div className={`border-t ${EDGE} pt-1.5`}>
+            <div className="pt-1">
             {userId ? (
-              /* Two sibling buttons, not a clickable icon nested inside a button:
-                 the old form made sign-out mouse-only and unreachable by keyboard. */
-              <div className="w-full flex items-center gap-1 rounded-xs hover:bg-zinc-100/70 dark:hover:bg-white/[0.04] transition-colors">
+              <div className="w-full flex items-center justify-between rounded-xs p-1 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] transition-colors">
                 <button
                   type="button"
                   onClick={() => { router.push('/account'); closeMobile(); }}
-                  className={`flex-1 min-w-0 flex items-center gap-2.5 h-9 px-2.5 rounded-xs cursor-pointer ${FOCUS}`}
+                  className={`flex-1 min-w-0 flex items-center gap-2.5 h-8 px-1.5 rounded-xs cursor-pointer ${FOCUS}`}
                 >
-                  <span className="w-6 h-6 flex items-center justify-center shrink-0 rounded-full bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400 font-semibold text-[11px]">
+                  <span className="size-[26px] flex items-center justify-center shrink-0 rounded-full bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 font-semibold text-[11px]">
                     {userInitial}
                   </span>
-                  <span className="text-[13px] font-medium text-zinc-700 dark:text-zinc-200 truncate">My Account</span>
+                  <span className="text-[13px] font-medium text-zinc-800 dark:text-zinc-200 truncate">My Account</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => { handleLogout(); closeMobile(); }}
                   title="Sign out"
                   aria-label="Sign out"
-                  className={`shrink-0 w-8 h-8 [@media(pointer:coarse)]:size-11 flex items-center justify-center rounded-xs text-zinc-500 dark:text-zinc-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors cursor-pointer ${FOCUS}`}
+                  className={`shrink-0 w-7 h-7 [@media(pointer:coarse)]:size-11 flex items-center justify-center rounded-xs text-zinc-500 dark:text-zinc-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors cursor-pointer ${FOCUS}`}
                 >
-                  <SignOut size={16} />
+                  <LogOut size={15} strokeWidth={1.8} />
                 </button>
               </div>
             ) : (
@@ -668,20 +665,20 @@ export default function Sidebar({
                 onClick={() => { router.push('/auth'); closeMobile(); }}
                 className={`w-full flex items-center gap-2.5 h-9 px-2.5 rounded-xs text-[13px] transition-colors cursor-pointer ${ROW_IDLE} ${FOCUS}`}
               >
-                <SignOut size={16} className="shrink-0 rotate-180" />
+                <LogIn size={16} strokeWidth={1.8} className="shrink-0 text-zinc-400 dark:text-zinc-500" />
                 <span>Sign in</span>
               </button>
             )}
             </div>
           </div>
         ) : (
-          <div className={`mt-auto p-3 border-t ${EDGE} shrink-0 w-full flex justify-center`}>
+          <div className={`mt-auto p-2 border-t ${EDGE} shrink-0 w-full flex justify-center`}>
             {userId ? (
               <button
                 type="button"
                 onClick={() => { router.push('/account'); closeMobile(); }}
                 aria-label="My account"
-                className={`group relative w-10 h-10 flex items-center justify-center rounded-xs bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400 font-semibold text-sm hover:opacity-90 transition-opacity cursor-pointer ${FOCUS}`}
+                className={`group relative w-9 h-9 flex items-center justify-center rounded-xs bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 font-semibold text-[11px] hover:opacity-90 transition-opacity cursor-pointer ${FOCUS}`}
               >
                 {userInitial}
                 <span className={TOOLTIP}>My Account</span>
@@ -690,10 +687,10 @@ export default function Sidebar({
               <button
                 type="button"
                 onClick={() => { router.push('/auth'); closeMobile(); }}
-                className={`group relative w-10 h-10 flex items-center justify-center rounded-xs transition-colors cursor-pointer ${ROW_IDLE} ${FOCUS}`}
+                className={`group relative w-9 h-9 flex items-center justify-center rounded-xs transition-colors cursor-pointer ${ROW_IDLE} ${FOCUS}`}
                 aria-label="Sign in"
               >
-                <SignOut size={18} className="rotate-180" />
+                <LogIn size={16} strokeWidth={1.8} className="text-zinc-400" />
                 <span className={TOOLTIP}>Sign in</span>
               </button>
             )}

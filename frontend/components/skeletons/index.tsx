@@ -405,7 +405,6 @@ export function ChatSidebarGroupedSkeleton() {
   const row = (w: string, i: number) => (
     <div key={i} className="flex items-center gap-2 h-9 px-2.5 rounded-xs">
       <div className={`h-3 rounded img-skeleton ${w}`} />
-      <div className="ml-auto w-8 h-2.5 rounded img-skeleton opacity-60 shrink-0" />
     </div>
   )
   return (

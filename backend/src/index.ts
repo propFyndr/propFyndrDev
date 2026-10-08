@@ -276,6 +276,20 @@ app.use('/api/v1/news', newsRouter)
 // admin guard so a request's queries are counted from its first line.
 app.use(queryCountingMiddleware)
 
+// Admin requests over a second are logged with their duration, so "the admin
+// panel is slow sometimes" shows up in Render logs as a path and a number.
+// Mounted before the guard so the time includes the Redis session lookup.
+app.use('/api/v1/admin', (req: Request, res: Response, next: NextFunction) => {
+  const started = process.hrtime.bigint()
+  res.on('finish', () => {
+    const ms = Number(process.hrtime.bigint() - started) / 1e6
+    if (ms > 1000) {
+      console.warn('[ADMIN:SLOW]', { method: req.method, path: req.path, status: res.statusCode, ms: Math.round(ms), requestId: (req as any).requestId })
+    }
+  })
+  next()
+})
+
 app.use('/api/v1/admin', adminAreaGuard)
 app.use('/api/admin', adminAreaGuard)
 

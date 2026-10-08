@@ -263,6 +263,16 @@ function getNonMediaScore(p: Project): number {
   return getProjectHealth(p)
 }
 
+/**
+ * Local paths and hosts listed in next.config.js `images.remotePatterns` go
+ * through the optimizer (a 36px thumbnail instead of the full hero). Anything
+ * else stays `unoptimized`, because next/image throws on an unlisted host.
+ */
+const OPTIMIZABLE_IMAGE = /^(\/(?!\/)|https:\/\/([a-z0-9-]+\.)?(supabase\.co|supabase\.in|images\.unsplash\.com|plus\.unsplash\.com|storage\.propfyndr\.com)\/)/i
+function isOptimizableImage(src: string): boolean {
+  return OPTIMIZABLE_IMAGE.test(src)
+}
+
 function ProjectThumbnail({ src, alt }: { src?: string | null; alt: string }) {
   const [error, setError] = useState(false)
   if (!src || error) {
@@ -274,7 +284,7 @@ function ProjectThumbnail({ src, alt }: { src?: string | null; alt: string }) {
   }
   return (
     <div className="w-9 h-9 rounded-xl overflow-hidden relative ring-1 ring-zinc-200/90 dark:ring-zinc-700/80 flex-shrink-0 shadow-2xs">
-      <Image src={src} alt={alt} fill sizes="36px" className="object-cover" unoptimized onError={() => setError(true)} />
+      <Image src={src} alt={alt} fill sizes="36px" className="object-cover" unoptimized={!isOptimizableImage(src)} onError={() => setError(true)} />
     </div>
   )
 }

@@ -102,7 +102,7 @@ export default function AdminDashboard() {
   const load = useCallback(async () => {
     setLoading(true)
     try {
-      const res = await adminFetch('/admin/projects?limit=1000')
+      const res = await adminFetch('/admin/projects/summary')
       const data = await res.json()
       const projects = data.projects ?? []
       setAllProjects(projects)
@@ -181,11 +181,11 @@ export default function AdminDashboard() {
     let readyToDeployCount = 0
 
     projects.forEach((p: any) => {
-      if (p.builder?.name) {
-        builderCounts[p.builder.name] = (builderCounts[p.builder.name] ?? 0) + 1
+      if (p.builder_name) {
+        builderCounts[p.builder_name] = (builderCounts[p.builder_name] ?? 0) + 1
       }
       // Calculate completeness readiness (has hero image, rera number, description, and units)
-      if (p.hero_image_url && p.rera_number && p.description && (p.unit_types?.length || 0) > 0) {
+      if (p.has_image && p.has_rera && p.has_description && p.unit_count > 0) {
         readyToDeployCount++
       }
     })
@@ -206,9 +206,9 @@ export default function AdminDashboard() {
       ready: projects.filter((p: any) => p.status === 'ready_to_move').length,
       under_construction: projects.filter((p: any) => p.status === 'under_construction').length,
       new_launch: projects.filter((p: any) => p.status === 'new_launch').length,
-      no_image: projects.filter((p: any) => !p.hero_image_url).length,
-      no_rera: projects.filter((p: any) => !p.rera_number).length,
-      builders: new Set(projects.map((p: any) => p.builder?.id).filter(Boolean)).size,
+      no_image: projects.filter((p: any) => !p.has_image).length,
+      no_rera: projects.filter((p: any) => !p.has_rera).length,
+      builders: new Set(projects.map((p: any) => p.builder_id).filter(Boolean)).size,
       topBuilders,
       readinessPct,
     }

@@ -37,10 +37,21 @@
 // the query it replaces.
 import { getCached, setCached } from './cache'
 
-/** Ten minutes. See the staleness note above — this number IS the guarantee. */
+/**
+ * Ten minutes. See the staleness note above — this number IS the guarantee.
+ *
+ * It is now a FRESHNESS window, not an expiry. The map is kept for KEEP_SECS and
+ * marked stale after TTL_SECS; a stale map is still served, and the projects list
+ * re-scores in the background (stale-while-revalidate). So a score can be stale
+ * for TTL_SECS plus one background refresh, and no request pays the cold cost
+ * except the very first after KEEP_SECS of disuse.
+ */
 export const TTL_SECS = 600
 
-const KEY = 'admin:project-completeness:v1'
+/** How long the map survives at all. A day of admin inactivity = one cold load. */
+export const KEEP_SECS = 24 * 60 * 60
+
+const KEY = 'admin:project-completeness:v2'
 
 export interface CachedScore {
   score: number
@@ -54,17 +65,25 @@ export interface CachedScore {
 
 export type ScoreMap = Record<string, CachedScore>
 
+interface Stored { at: number; scores: ScoreMap }
+
 /**
- * The cached map, or an empty one.
+ * The cached map (empty if absent) and whether it is past TTL_SECS.
  *
  * Never throws and never distinguishes "cache is down" from "cache is empty" —
  * both mean the same thing to the caller: compute it. `getCached` already
  * returns null in tests and without Redis, so the uncached path is the one that
  * runs in CI and stays exercised.
  */
+export async function loadScoreState(): Promise<{ scores: ScoreMap; stale: boolean; at: number }> {
+  const hit = await getCached<Stored>(KEY)
+  if (!hit || typeof hit !== 'object' || !hit.scores) return { scores: {}, stale: true, at: 0 }
+  return { scores: hit.scores, stale: Date.now() - hit.at > TTL_SECS * 1000, at: hit.at }
+}
+
+/** The cached map, or an empty one. For readers that do not refresh it. */
 export async function loadScoreMap(): Promise<ScoreMap> {
-  const hit = await getCached<ScoreMap>(KEY)
-  return hit && typeof hit === 'object' ? hit : {}
+  return (await loadScoreState()).scores
 }
 
 /** Which of these projects still need computing. */
@@ -77,10 +96,12 @@ export function missingFrom(map: ScoreMap, projectIds: readonly string[]): strin
  *
  * Merged rather than replaced, so a request that computed three new projects
  * does not discard the other 390 and make the next request pay for them again.
+ * `at` stamps when the scores were computed; a merge of a few new projects into
+ * a stale map passes the old `at` through so it stays stale and still refreshes.
  *
  * Best-effort: a failed write costs the next request its speed, never its
  * correctness, so it is not worth failing a response over.
  */
-export async function saveScoreMap(map: ScoreMap): Promise<void> {
-  await setCached(KEY, map, TTL_SECS).catch(() => false)
+export async function saveScoreMap(map: ScoreMap, at: number = Date.now()): Promise<void> {
+  await setCached<Stored>(KEY, { at, scores: map }, KEEP_SECS).catch(() => false)
 }

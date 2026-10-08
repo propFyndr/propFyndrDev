@@ -57,6 +57,8 @@ const READ_REGISTRY: Record<string, Record<Role, boolean>> = {
   '/projects/:id/specs': ALL,
   '/projects/:id/updates': ALL,
   '/projects/export': ALL,
+  // Dashboard counts: presence booleans, unit count, builder name. No buyer in it.
+  '/projects/summary': ALL,
   '/builders': ALL,
   '/sectors': ALL,
   '/sector-tiers': ALL,

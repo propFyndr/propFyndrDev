@@ -41,7 +41,7 @@ async function main() {
     }
   }
 
-  await deleteCached('admin:project-completeness:v1')
+  await deleteCached('admin:project-completeness:v2')
   console.log('Completeness cache key invalidated.')
 }
 
