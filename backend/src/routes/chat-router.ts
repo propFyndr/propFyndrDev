@@ -45,7 +45,7 @@ import { detectOpenQuery } from '../lib/discovery/openQuery'
 import { runGroundedAnswer, buildNoGroundingReply } from '../lib/ai/groundedAnswer'
 import { findProjectsMentioned, buildProseChips, linkProjectNames, findSectorsMentioned, findSectorsAsked, buildOpenAnswerChips, resolveProjectNames } from '../lib/discovery/proseEntities'
 import { computeConversationState, CONVERTING_TURN_THRESHOLD } from '../lib/discovery/conversationEngine'
-import { getMemory, upsertMemory } from '../lib/ai/memory'
+import { upsertMemory } from '../lib/ai/memory'
 import { buildContextMessages } from '../lib/ai/context'
 import { maybeCompress } from '../lib/ai/compression'
 import { executeJevDecision } from '../lib/jev/execute'
@@ -954,8 +954,16 @@ router.post('/', async (req: Request, res: Response) => {
     console.log('[CHAT] START intent/memory/session', Date.now(), { action: action.type })
 
     // Neither of these reads depends on the extracted intent, so start them now.
+    //
+    // UserMemory (budget/BHK/sector/viewed-slugs, keyed by guest/user token
+    // across EVERY session) used to be read here and folded into the system
+    // prompt on every turn, including a brand-new chat's very first one — so
+    // "new chat" carried the previous conversation's budget and sector in
+    // silently, with nothing on screen saying so. A new chat is now a fresh
+    // start: this table is still written to (upsertMemory below) and still
+    // readable from the "AI Memory & Privacy" panel, but nothing reads it
+    // back into a conversation automatically.
     let sessionReadError: unknown
-    const memoryPromise = getMemory(userId, guestToken)
     const firstUserMessagePromise = (sessionId
       ? prisma.chatMessage.findFirst({
           where: { session_id: sessionId, role: 'user' },
@@ -1018,9 +1026,8 @@ router.post('/', async (req: Request, res: Response) => {
     // Join point: the two reads above have been in flight for the whole duration
     // of intent extraction. Only the hydrate step genuinely depends on the intent.
     const baseIntent = rawIntentResult.intent
-    const [, memory, sessionData, firstUserMessage] = await Promise.all([
+    const [, sessionData, firstUserMessage] = await Promise.all([
       hydrateIntentFromMemory(sessionId ?? '', baseIntent).then(h => (hydratedIntent = h)),
-      memoryPromise,
       sessionPromise,
       firstUserMessagePromise,
     ])
@@ -5425,7 +5432,9 @@ EXECUTIVE RESPONSE INSTRUCTIONS:
       : ''
     const selectedSummary = topicalJoined || existingSummary
 
-    const { systemSuffix, messages: rawMessages } = buildContextMessages(modelMessage, compressedHistory, selectedSummary, memory)
+    // No cross-session memory passed here either — see the note above
+    // buildPromptForProvider on why a new chat stays a fresh start.
+    const { systemSuffix, messages: rawMessages } = buildContextMessages(modelMessage, compressedHistory, selectedSummary, null)
     // ponytail: cache blockedBuilders for 1h, invalidate when legal flag updated.
     let blockedBuilders: Array<{ name: string; legal_flag?: string }> | null = await getCached('blockedBuilders')
     if (!blockedBuilders) {
@@ -5902,29 +5911,19 @@ EXECUTIVE RESPONSE INSTRUCTIONS:
       return prompt.replace(token, `\n${block}\n${token}`)
     }
 
-    let memoryForPrompt = memory
-    if (isOpenAdvisoryQuery || isBroadSuperlativeQuery || !messageHasBudget) {
-      if (memoryForPrompt && typeof memoryForPrompt === 'object') {
-        const memObj = memoryForPrompt as any
-        const { budget_max_cr, bhk_preference, ...rest } = memObj
-        memoryForPrompt = {
-          ...rest,
-          historical_profile_note: (budget_max_cr || bhk_preference)
-            ? `Buyer previously browsed for ${bhk_preference ? `${bhk_preference}BHK` : ''}${budget_max_cr ? ` under ₹${budget_max_cr}Cr` : ''}. For this open/advisory query, evaluate the whole market objectively; do NOT restrict recommendations to this previous budget.`
-            : undefined,
-        }
-      }
-    }
-
     // Built per provider: only the OpenAI legs can call tools, so everyone else
     // gets a prompt with no tool catalogue at all rather than the catalogue plus
     // a suffix retracting it.
+    //
+    // No cross-session memory here (see the comment where memoryPromise used
+    // to live, above): a new chat is a fresh start, so nothing from a past
+    // conversation's budget/BHK/sector is folded into this one's prompt.
     const buildPromptForProvider = (supportsTools: boolean): string =>
       spliceIntoStaticPrefix(
         buildSystemPromptWithCache(
         intent as any,
         trimmedProjects as any,
-        memoryForPrompt,
+        null,
         sectorCtx ?? undefined,
         sectorsOverview ?? undefined,
         discoveryExpansion ?? undefined,
