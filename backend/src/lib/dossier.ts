@@ -21,6 +21,7 @@ import {
   type TradeOffDilemma,
 } from './chat/dossierNarrativeExtractor'
 import { MARKET_QUALIFIER } from './factPresentation'
+import { trackEvent } from './monitoring/posthog'
 
 const CRORE = 10_000_000
 export const DOSSIER_TTL_DAYS = 30
@@ -482,6 +483,15 @@ export async function buildDossier(input: BuildDossierInput): Promise<BuildDossi
       payload: dossier as any,
       expires_at: expiresAt,
     },
+  })
+
+  // The buyer-report high-intent event. dossier_shared (the link opened,
+  // copied or sent) was already tracked client-side -- this is the other
+  // half: PostHog had no visibility into a dossier being generated at all,
+  // only into the DB row, which a PostHog funnel/insight cannot query.
+  trackEvent(input.userId ?? input.guestToken ?? null, 'dossier_generated', {
+    project_count: rows.length,
+    session_id: input.sessionId ?? null,
   })
 
   return { ok: true, dossier, questionCount: narrative.consultationTrail.length, previousReactions: previous }
