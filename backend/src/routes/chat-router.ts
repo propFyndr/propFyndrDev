@@ -19,7 +19,6 @@ import { computeConfidence, buildClarificationOptions } from '../lib/discovery/c
 import { getMultiDimensionalRecommendations } from '../lib/discovery/multiDimensionalIntegration'
 import { planProjectDetailQuery, isActionable, getClarificationMessage } from '../lib/discovery/queryPlanner'
 import {
-  getBuyerFit,
   getFloorPlans,
   getPriceHistory,
   getConstructionStatus,
@@ -4088,9 +4087,7 @@ I can help you with:
               amenities: true,
               images: { take: 3, orderBy: { sort_order: 'asc' } },
               connectivity: { take: 12, orderBy: { distance_km: 'asc' } },
-              recommendation_profile: true,
               decision_profile: true,
-              persona_profile: true,
               // Small on every project seen so far — a handful of partner rows
               // at most — so included unconditionally like builder, not gated.
               channel_partners: { include: { channel_partner: true } },
@@ -4865,15 +4862,12 @@ EXECUTIVE RESPONSE INSTRUCTIONS:
               price_min_cr: true,
               price_max_cr: true,
               price_label: true,
-              inventory_left: true,
             }
           },
           images: { take: 3, orderBy: { sort_order: 'asc' } },
           amenities: { take: 10 },
           connectivity: { take: 5, orderBy: { distance_km: 'asc' } },
-          recommendation_profile: true,
           decision_profile: true,
-          dna: true,
         }
       })
 
@@ -5277,8 +5271,6 @@ EXECUTIVE RESPONSE INSTRUCTIONS:
       console.log('[INTELLIGENCE:RETRIEVED]', discoveryResult.exactResults.map(p => ({
         name:            p.name,
         score:           p.matchScore,
-        rec_tier:        p.recommendation_profile?.tier          ?? 'MISSING',
-        persona:         p.persona_profile?.primary_persona      ?? 'MISSING',
         decision_thesis: p.decision_profile?.decision_thesis?.slice(0, 60) ?? 'MISSING',
         competitor_count: (p.competitors?.length ?? 0),
       })))

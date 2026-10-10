@@ -6,7 +6,6 @@ import { FINANCIAL, DISCOVERY } from '../../config'
 import { webSearch, areaInfo, commute, readPage } from '../../web'
 import { calcEmi, calcStampDuty, calcGst, formatInr } from '../../calculators'
 import {
-  getBuyerFit,
   getFloorPlans,
   getPriceHistory,
   getConstructionStatus,
@@ -145,10 +144,6 @@ export function createToolHandler(ctx: ToolContext) {
         // ── On-demand detail lookups ────────────────────────────────────────
         // Pull-based by design: these read tables the system prompt does not
         // carry, so the buyer sees this depth only when they ask for it.
-        if (name === 'buyer_fit_analysis') {
-          return getBuyerFit(args.project_name ?? '');
-        }
-
         if (name === 'floor_plans_lookup') {
           return getFloorPlans(args.project_name ?? '');
         }
@@ -469,14 +464,12 @@ export function createToolHandler(ctx: ToolContext) {
               unit_types: { select: { bhk: true, price_min_cr: true, price_max_cr: true, super_area_sqft: true } },
               images: { where: { type: 'hero' }, take: 1, select: { url: true } },
               decision_profile: { select: { status: true, why_buy: true, why_avoid: true, decision_thesis: true } },
-              recommendation_profile: { select: { status: true, primary_thesis: true } }
             }
           });
           if (!raw) return { error: 'Property not found.' };
           const property = {
             ...raw,
             decision_profile: gatePublished(raw.decision_profile),
-            recommendation_profile: gatePublished(raw.recommendation_profile),
           };
           return { property };
         }

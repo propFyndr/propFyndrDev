@@ -104,7 +104,6 @@ export async function getFloorPlans(nameOrId: string): Promise<Record<string, un
   if (units.some(u => u.carpet_area_sqft == null)) dataGaps.push('carpet area missing on one or more configurations')
   if (units.some(u => u.super_area_sqft == null)) dataGaps.push('super area missing on one or more configurations')
   if (units.some(u => u.price_min_cr == null)) dataGaps.push('price missing on one or more configurations')
-  if (units.every(u => u.inventory_left == null)) dataGaps.push('unit availability not tracked')
 
   return {
     found: true,
@@ -117,43 +116,32 @@ export async function getFloorPlans(nameOrId: string): Promise<Record<string, un
     total_floors: project.floors ?? null,
     total_towers: project.total_towers ?? null,
     configuration_count: units.length,
-    configurations: units.map(u => {
-      // Carpet efficiency is the number buyers actually care about and is cheap
-      // to derive, but only when both areas are present.
-      const ratio =
-        u.carpet_area_sqft && u.super_area_sqft
-          ? Math.round((u.carpet_area_sqft / u.super_area_sqft) * 1000) / 10
-          : null
-
-      return {
-        name: u.name,
-        bhk: u.bhk,
-        subtitle: u.subtitle ?? null,
-        description: u.description ?? null,
-        carpet_area_sqft: u.carpet_area_sqft ?? null,
-        super_area_sqft: u.super_area_sqft ?? null,
-        balcony_area_sqft: u.balcony_area_sqft ?? null,
-        carpet_to_super_ratio_pct: ratio,
-        bathrooms: u.bathrooms ?? null,
-        utility_room: u.utility_room,
-        dress_area: u.dress_area,
-        towers: u.towers,
-        price_label: u.price_label ?? null,
-        price_min_cr: u.price_min_cr ?? null,
-        price_max_cr: u.price_max_cr ?? null,
-        price_is_estimated: u.price_is_estimated,
-        inventory_left: u.inventory_left ?? null,
-        category_badge: u.category_badge ?? null,
-        perfect_for: u.perfect_for,
-        key_highlights: u.key_highlights ?? null,
-        whats_included: u.whats_included ?? null,
-        views: u.views ?? null,
-      }
-    }),
+    configurations: units.map(u => ({
+      name: u.name,
+      bhk: u.bhk,
+      subtitle: u.subtitle ?? null,
+      description: u.description ?? null,
+      carpet_area_sqft: u.carpet_area_sqft ?? null,
+      super_area_sqft: u.super_area_sqft ?? null,
+      balcony_area_sqft: u.balcony_area_sqft ?? null,
+      // Computed once, at write time (lean-schema migration) — read straight
+      // from the stored column rather than re-derived here, which used to
+      // round to a different precision (1 decimal place here vs. 2 at write
+      // time) than the one actually persisted.
+      carpet_to_super_ratio_pct: u.carpet_to_super_ratio_pct ?? null,
+      bathrooms: u.bathrooms ?? null,
+      utility_room: u.utility_room,
+      dress_area: u.dress_area,
+      towers: u.towers,
+      price_label: u.price_label ?? null,
+      price_min_cr: u.price_min_cr ?? null,
+      price_max_cr: u.price_max_cr ?? null,
+      category_badge: u.category_badge ?? null,
+      whats_included: u.whats_included ?? null,
+    })),
     data_gaps: dataGaps,
     note:
       'One entry per configuration — never merge two layouts of the same BHK. ' +
-      'When price_is_estimated is true, say the price is indicative. ' +
       'carpet_to_super_ratio_pct is derived from the stored areas; state it as carpet efficiency, and if it is null do not estimate it.',
   }
 }
@@ -519,57 +507,13 @@ export async function getAmenitiesAndConnectivity(nameOrId: string): Promise<Rec
 }
 
 // ── Buyer fit profiles ───────────────────────────────────────────────────────
-
-/** Detailed buyer-fit analysis: who this project is built for and negotiation room. */
-export async function getBuyerFit(nameOrId: string): Promise<Record<string, unknown>> {
-  const project = await resolveProject(nameOrId)
-  if (!project) return NOT_FOUND(nameOrId) as Record<string, unknown>
-
-  const [persona, rec] = await Promise.all([
-    prisma.personaProfile.findUnique({ where: { project_id: project.id } }),
-    prisma.recommendationProfile.findUnique({ where: { project_id: project.id } }),
-  ])
-
-  if (!persona && !rec) {
-    return {
-      found: false,
-      project_name: project.name,
-      message: `No buyer-fit analysis recorded for ${project.name}. Say this analysis is not yet available.`,
-    }
-  }
-
-  return {
-    found: true,
-    project_name: project.name,
-    persona_profile: persona
-      ? {
-          primary_persona: persona.primary_persona ?? null,
-          secondary_personas: persona.secondary_personas ?? [],
-          income_range: persona.income_range ?? null,
-          family_stage: persona.family_stage ?? null,
-          work_location: persona.work_location ?? null,
-          risk_appetite: persona.risk_appetite ?? null,
-          timeline_horizon: persona.timeline_horizon ?? null,
-          motivation_note: persona.motivation_note ?? null,
-          last_verified_at: persona.last_verified_at ? persona.last_verified_at.toISOString().split('T')[0] : null,
-        }
-      : null,
-    recommendation_profile: rec
-      ? {
-          tier: rec.tier ?? null,
-          primary_thesis: rec.primary_thesis ?? null,
-          walk_away_conditions: rec.walk_away_conditions ?? [],
-          timeline_advice: rec.timeline_advice ?? null,
-          negotiation_leverage: rec.negotiation_leverage ?? [],
-          last_verified_at: rec.last_verified_at ? rec.last_verified_at.toISOString().split('T')[0] : null,
-        }
-      : null,
-    note:
-      'Use persona_profile to answer "is this right for X family?" or "what income level". ' +
-      'Use recommendation_profile timeline_advice for "when should I buy" and negotiation_leverage for "is there room to negotiate". ' +
-      'If either profile is null, say that analysis is not yet verified.',
-  }
-}
+//
+// getBuyerFit (and the buyer_fit_analysis tool it backed) removed in the
+// lean-schema migration (2026-10): it read only PersonaProfile and
+// RecommendationProfile, both dropped from the schema entirely (unsourced
+// scores and a tier that was STRONG_BUY on all 395 rows). Unlike
+// getProjectIntelligence just above — which reads only DecisionProfile, kept
+// — there was no surviving data source to redirect this one to.
 
 // ── Project images ──────────────────────────────────────────────────────────
 
@@ -771,8 +715,7 @@ export async function getSectorProjects(opts: {
       possession_label: true,
       rera_number: true,
       project_risk_flag: true,
-      builder: { select: { name: true, delivery_score: true } },
-      dna: { select: { overall_score: true } },
+      builder: { select: { name: true } },
       unit_types: { select: { bhk: true }, orderBy: { bhk: 'asc' } },
     },
     take: limit * 3,
@@ -786,15 +729,13 @@ export async function getSectorProjects(opts: {
     }
   }
 
-  // Rank by verified score, then by cheaper entry price. Projects with no score
-  // sort last rather than being treated as zero.
+  // Ranked by entry price alone (lean-schema migration, 2026-10: the earlier
+  // `dna.overall_score` primary sort was a manually-entered 0-100 analyst
+  // number, the same fabrication class as BUYER_OPAQUE_SCORES elsewhere, and
+  // ProjectDna was dropped from the schema entirely — there is no verified
+  // score left to rank by).
   const ranked = projects
-    .sort((a, b) => {
-      const sa = a.dna?.overall_score ?? -1
-      const sb = b.dna?.overall_score ?? -1
-      if (sb !== sa) return sb - sa
-      return (a.price_min_cr ?? Infinity) - (b.price_min_cr ?? Infinity)
-    })
+    .sort((a, b) => (a.price_min_cr ?? Infinity) - (b.price_min_cr ?? Infinity))
     .slice(0, limit)
 
   return {
@@ -810,18 +751,14 @@ export async function getSectorProjects(opts: {
       price: p.price_range_label ?? null,
       bhk_available: [...new Set(p.unit_types.map(u => u.bhk))],
       possession_claimed_by_builder: p.possession_label ?? null,
-      // No scores. An earlier pass removed these and the edit did not land;
-      // the demo replay then produced "Ready-to-move with a 92% builder
-      // delivery score" twice in one answer. See BUYER_OPAQUE_SCORES — the
-      // ordering below still uses `overall_score`, which is the honest use.
       rera: p.rera_number ?? 'NOT_IN_DATABASE',
       project_risk_flag: p.project_risk_flag ?? null,
     })),
-    data_gaps: ranked.some(p => p.dna?.overall_score == null)
-      ? ['some projects have no verified score and are ranked last, not lowest']
+    data_gaps: ranked.some(p => p.price_min_cr == null)
+      ? ['some projects have no price on record and are ranked last, not cheapest']
       : [],
     note:
-      'Ranking is by our own verified assessment, then by entry price — it is not a market ranking or a paid placement. Say so if asked how the order is decided. Never quote a numeric score: the ordering is the judgement, and the figures beside each project are the evidence. ' +
+      'Ranking is by entry price alone — it is not a market ranking, a quality ranking, or a paid placement. Say so if asked how the order is decided. Never quote a numeric score: this product holds none. ' +
       'A project_risk_flag must be disclosed and that project must not be recommended. ' +
       'rera NOT_IN_DATABASE means we hold no number; do not invent one.',
   }
@@ -1214,9 +1151,21 @@ export async function getFastestPossessionProjects(opts: {
   }
 }
 
-/** Ranked by real, checkable family-relevant signals: nearby schools and
- *  hospitals (the project's own recorded counts), and whether 3BHK+ is
- *  available - not an invented "family friendliness" score. */
+/**
+ * Ranked by whether 3BHK+ is available, then by entry price.
+ *
+ * Used to also factor in schools_nearby_count / hospitals_nearby_count,
+ * presented as "real, checkable" counts rather than an invented score. They
+ * were not: the lean-schema migration's audit found schools_nearby_count at
+ * exactly 8 on 81 of 91 populated rows and hospitals_nearby_count at exactly
+ * 5 on the same 81 — one import repeated, the same fabrication class as the
+ * scores this function's own docstring used to contrast itself against.
+ * Both columns were dropped from the schema entirely. The Connectivity
+ * relation holds real per-project landmark distances and is unaffected, but
+ * querying it per-type with a distance threshold is a bigger change than
+ * this migration's reader cutover — tracked as a gap, not silently
+ * resurrected with the same templated columns under a different name.
+ */
 export async function getBestForFamiliesProjects(opts: {
   sector?: string
   city?: string
@@ -1239,9 +1188,8 @@ export async function getBestForFamiliesProjects(opts: {
     select: {
       name: true, sector: true, city: true, status: true,
       price_range_label: true, project_risk_flag: true,
-      schools_nearby_count: true, hospitals_nearby_count: true,
       builder: { select: { name: true } },
-      unit_types: { select: { bhk: true } },
+      unit_types: { select: { bhk: true, price_min_cr: true } },
     },
     take: limit * 3,
   })
@@ -1258,11 +1206,11 @@ export async function getBestForFamiliesProjects(opts: {
     .map((p) => ({
       p,
       hasLargeConfig: p.unit_types.some((u) => u.bhk >= 3),
-      nearbyScore: (p.schools_nearby_count ?? 0) + (p.hospitals_nearby_count ?? 0),
+      entryPrice: p.unit_types.reduce<number>((min, u) => (u.price_min_cr != null && u.price_min_cr < min ? u.price_min_cr : min), Infinity),
     }))
     .sort((a, b) => {
       if (a.hasLargeConfig !== b.hasLargeConfig) return a.hasLargeConfig ? -1 : 1
-      return b.nearbyScore - a.nearbyScore
+      return a.entryPrice - b.entryPrice
     })
     .slice(0, limit)
 
@@ -1270,7 +1218,7 @@ export async function getBestForFamiliesProjects(opts: {
     found: true,
     match_count: ranked.length,
     filters_applied: { sector: sector ?? null, city: opts.city ?? null, max_budget_cr: opts.maxBudgetCr ?? null },
-    projects: ranked.map(({ p, nearbyScore }) => ({
+    projects: ranked.map(({ p }) => ({
       name: p.name,
       builder: p.builder.name,
       sector: p.sector,
@@ -1278,12 +1226,10 @@ export async function getBestForFamiliesProjects(opts: {
       status: String(p.status),
       price: p.price_range_label ?? null,
       bhk_available: [...new Set(p.unit_types.map((u) => u.bhk))],
-      schools_nearby_count: p.schools_nearby_count ?? null,
-      hospitals_nearby_count: p.hospitals_nearby_count ?? null,
       project_risk_flag: p.project_risk_flag ?? null,
     })),
     note:
-      'Best for families is ranked by whether a 3BHK+ configuration is available, then by our own recorded count of nearby schools and hospitals - real, checkable numbers, not a subjective family-friendliness score. A missing school/hospital count means we have not recorded one nearby, not that there are none. ' +
+      'Best for families is ranked by whether a 3BHK+ configuration is available, then by entry price — it is not a family-friendliness score. ' +
       'A project_risk_flag must be disclosed and that project must not be recommended.',
   }
 }

@@ -56,7 +56,7 @@ const projectSelect = {
   rera_number: true,
   registry_status: true,
   registry_embargo_reasons: true,
-  legal_flag: true,
+  project_risk_flag: true,
   legal_flag_detail: true,
   oc_obtained: true,
   builder: { select: { name: true } },
@@ -69,7 +69,7 @@ type Row = {
   rera_number: string | null
   registry_status: string | null
   registry_embargo_reasons: string[]
-  legal_flag: string | null
+  project_risk_flag: string | null
   legal_flag_detail: string | null
   oc_obtained: boolean | null
   builder: { name: string } | null
@@ -104,7 +104,10 @@ async function projectsMentioned(ctx: ChatHandlerContext, sectors: readonly stri
 
 function statusRow(p: Row): string {
   const reasons = p.registry_embargo_reasons?.length ? ` — ${p.registry_embargo_reasons.join('; ')}` : ''
-  const legal = p.legal_flag && p.legal_flag !== 'none' ? `${p.legal_flag.replace(/_/g, ' ')}${p.legal_flag_detail ? `: ${p.legal_flag_detail}` : ''}` : (p.legal_flag === 'none' ? 'none on record' : 'not on record')
+  // project_risk_flag replaced legal_flag in the lean-schema migration
+  // (2026-10) — legal_flag was templated noise; project_risk_flag is the
+  // real, varying column (also what scoring.ts's NCLT disqualification reads).
+  const legal = p.project_risk_flag && p.project_risk_flag !== 'none' ? `${p.project_risk_flag.replace(/_/g, ' ')}${p.legal_flag_detail ? `: ${p.legal_flag_detail}` : ''}` : (p.project_risk_flag === 'none' ? 'none on record' : 'not on record')
   const oc = p.oc_obtained == null ? 'not on record' : p.oc_obtained ? 'issued' : 'not issued'
   return `| ${p.name} | ${p.sector} | ${p.registry_status ? `${p.registry_status.replace(/_/g, ' ')}${reasons}` : 'not on record'} | ${oc} | ${legal} |`
 }

@@ -130,17 +130,10 @@ export const unitConfigurationHandler: ChatTopicHandler = {
         `- **Bathrooms:** ${focus.bathrooms != null ? focus.bathrooms : NOT_RECORDED}`,
         `- **Price Range:** ${price(focus.price_min_cr, focus.price_max_cr)}`,
       ]
-      if (focus.has_study) detail.push('- **Additional Spaces:** Includes Dedicated Study Room')
       if (focus.has_servant_room) detail.push('- **Additional Spaces:** Includes Servant Room & Washroom')
       if (focus.utility_room) detail.push('- **Utility:** Includes Utility Balcony / Wash Area')
       if (focus.unit_orientations?.length) {
         detail.push(`- **Orientations Available:** ${focus.unit_orientations.map(o => o.replace(/_/g, ' ')).join(', ')}`)
-      }
-      if (Array.isArray(focus.perfect_for) && focus.perfect_for.length > 0) {
-        detail.push(`- **Ideal For:** ${focus.perfect_for.join(', ')}`)
-      }
-      if (Array.isArray(focus.key_highlights) && focus.key_highlights.length > 0) {
-        detail.push(`- **Layout Highlights:** ${focus.key_highlights.join('; ')}`)
       }
       lead = `### ${focus.name || `${focus.bhk} BHK Layout`} — ${project.name}\n\n${detail.join('\n')}\n\n`
     }

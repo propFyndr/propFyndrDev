@@ -175,9 +175,7 @@ export async function tryDeterministicFactBypass(
       water_tds_range: true,
       lift_act_compliant: true,
       lifts_per_tower: true,
-      has_service_lift: true,
       amitabh_kant_clearance: true,
-      authority_dues_cleared: true,
       registry_status: true,
       builder: { select: { name: true, slug: true } },
     },
@@ -255,7 +253,7 @@ We do **not hold a verified UP-RERA registration number** on record for **${proj
 | :--- | :--- | :--- |
 | **Occupancy Certificate (OC)** | **${ocDisplay}** | ${isClear ? 'OC on record: possession and registry can proceed' : 'Registry cannot complete without a full OC'} |
 | **Current Project Stage** | ${project.status ? project.status.replace(/_/g, ' ') : UNVERIFIED} | Possession marker: ${project.possession_label ?? UNVERIFIED} |
-| **Authority Registry Standing** | ${project.registry_status ? readable(project.registry_status) : (project.authority_dues_cleared === false ? 'Outstanding authority dues reported' : UNVERIFIED)} | From our project record |
+| **Authority Registry Standing** | ${project.registry_status ? readable(project.registry_status) : UNVERIFIED} | From our project record |
 
 > ℹ️ **Registry Notice:** In Noida and Greater Noida, authority registry requires both the final Occupancy Certificate and developer land dues clearance. We never invent or approximate OC grant dates.`
       break
@@ -314,17 +312,11 @@ We do **not hold a verified UP-RERA registration number** on record for **${proj
           : project.amitabh_kant_clearance === false
           ? 'No Clearance on Record'
           : UNVERIFIED
-      const duesStatus =
-        project.authority_dues_cleared === false
-          ? 'Outstanding Authority Dues Reported'
-          : UNVERIFIED
-
       responseMarkdown += `${responseMarkdown ? SEPARATOR : ''}### Land Dues & Registry Clearance — ${project.name}
 
 | Legal Factor | Status for this Project | Buyer Impact |
 | :--- | :--- | :--- |
 | **Amitabh Kant Policy (25% Dues)** | **${kantDisplay}** | ${project.amitabh_kant_clearance === true ? 'Clearance on record: registry is unblocked' : project.amitabh_kant_clearance === false ? 'No clearance on record: registry may stay blocked until the 25% dues are paid' : 'Ask the builder for the authority clearance letter'} |
-| **Authority Dues Status** | ${duesStatus} | From our project record |
 | **Registry Eligibility** | ${project.registry_status ? readable(project.registry_status) : UNVERIFIED} | Requires the developer's no-dues certificate from the authority |
 
 > ⚖️ **Buyer Protection Advisory:** Always verify the authority No-Dues Certificate (NDC) before paying final registry installments.`

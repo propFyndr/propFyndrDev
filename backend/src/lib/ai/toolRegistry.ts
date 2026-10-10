@@ -73,11 +73,6 @@ export const INTENT_ROUTED_TOOLS: ToolIntentConfig[] = [
     keywordTriggers: ['builder news', 'builder activity', 'completion', 'launch', 'builder track record'],
   },
   {
-    name: 'buyer_fit_analysis',
-    intentKeywords: ['DRILLDOWN', 'ADVISORY'],
-    keywordTriggers: ['fit for', 'right for', 'income', 'family', 'lifestyle', 'target buyer'],
-  },
-  {
     name: 'price_history_lookup',
     intentKeywords: ['ADVISORY', 'COMPARISON'],
     keywordTriggers: ['price history', 'price trend', 'appreciation', 'past price'],
