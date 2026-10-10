@@ -1,5 +1,32 @@
 [
   {
+    "id": "compound-advisor-ask",
+    "source": "founder test 2026-10-10 — one message, four distinct asks",
+    "turns": [
+      {
+        "text": "I am looking for a 3 BHK in Noida under 2 CR, preferably near my office in Sector 62. I want to understand which sectors are better, compare builders and assets, and evaluate whether a particular project is worth the money.",
+        "expect": {
+          "laneNot": ["off-topic"],
+          "llm": false,
+          "contains": ["Sector"]
+        }
+      }
+    ]
+  },
+  {
+    "id": "resale-valuation-still-declined",
+    "source": "founder test 2026-10-10 — pins the off-topic gate after narrowing its regex",
+    "turns": [
+      {
+        "text": "What's the resale value of my flat in Sector 62?",
+        "expect": {
+          "lane": "off-topic",
+          "contains": ["valuing a property you already own"]
+        }
+      }
+    ]
+  },
+  {
     "id": "q1-allin-commute",
     "source": "claudeQueries.md #1",
     "turns": [
@@ -192,7 +219,7 @@
           "lane": "deterministic-fact",
           "llm": false,
           "contains": [
-            "UPRERAPRJ7047"
+            "UPRERAPRJ145318"
           ],
           "notContains": [
             "market data",

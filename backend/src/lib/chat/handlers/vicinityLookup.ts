@@ -122,14 +122,28 @@ export const vicinityLookupHandler: ChatTopicHandler = {
     // "How far is ACE Parkway from the metro and Jewar airport?" asks for two
     // numbers. It got a six-row table with two malls in it. One or two named
     // kinds, each with a row, get one sentence: the nearest of each.
-    const nearestPerKind = askedKinds.map(([, , types]) => ofKind(types)[0])
-    if (askedKinds.length > 0 && askedKinds.length <= 2 && nearestPerKind.every(Boolean)) {
+    //
+    // ACE Parkway holds four metro rows and zero airport rows — a project can
+    // have one asked kind on record and not the other. Requiring every kind to
+    // resolve from the project's own rows sent that case to the table branch
+    // below with whatever partial rows existed, the exact shape this branch
+    // exists to avoid. A kind missing at the project level still tries the
+    // sector-level figure (the same source the fully-missing case already
+    // uses) before this composes a sentence or gives up on it.
+    const resolvedPerKind = askedKinds.length > 0 && askedKinds.length <= 2
+      ? await Promise.all(askedKinds.map(async ([, label, types]) => {
+          const row = ofKind(types)[0]
+          if (row) {
+            const time = row.travel_time_min != null ? ` (about ${row.travel_time_min} min by road)` : ''
+            return `${km(row.distance_km) ?? 'an unrecorded distance'} from ${row.name}${time}`
+          }
+          const sectorPart = await sectorLevelDistances(project.sector, project.city, [label])
+          return sectorPart ? sectorPart.replace(/^From [^,]+,\s*/, '') : null
+        }))
+      : []
+    if (resolvedPerKind.length > 0 && resolvedPerKind.every(Boolean)) {
       tier = 'verified'
-      const parts = nearestPerKind.map(c => {
-        const time = c.travel_time_min != null ? ` (about ${c.travel_time_min} min by road)` : ''
-        return `${km(c.distance_km) ?? 'an unrecorded distance'} from ${c.name}${time}`
-      })
-      body = `${project.name} (${project.sector}) is ${parts.join(', and ')}. Road distances from our records.`
+      body = `${project.name} (${project.sector}) is ${resolvedPerKind.join(', and ')}. Road distances from our records where held, sector-level otherwise.`
     } else if (hits.length > 0) {
       tier = 'verified'
       const rows = hits.slice(0, askedKinds.length ? 6 : 10).map(c => {

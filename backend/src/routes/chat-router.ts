@@ -2231,7 +2231,12 @@ router.post('/', async (req: Request, res: Response) => {
       [/\b(biryani|restaurants?|eateries|dhaba|cafes?|coffee\s+shops?|pubs?|breweries|brewery|nightlife|clubs?\s+to\s+party|street\s+food|places?\s+to\s+eat)\b/i, 'places to eat and go out'],
       [/\b(traffic|jam|congestion)\b.*\b(right now|today|currently|live)\b|\blive traffic\b/i, 'live traffic'],
       [/\b(school admission|admission (?:process|odds|chances)|cut[- ]?off)\b/i, 'school admissions'],
-      [/\b(resale value|market value|valuation|what.*worth)\b.*\b(my|our)\b|\b(my|our)\b.*\b(resale value|valuation|worth)\b/i, 'valuing a property you already own'],
+      // Bounded to ~40 chars and never crossing a sentence end, so "my office"
+      // in one sentence can't link up with "worth the money" three sentences
+      // later and misfire on an unrelated compound question (2026-10-10:
+      // "...near my office... evaluate whether a project is worth the money"
+      // was declined as a property-valuation request).
+      [/\b(resale value|market value|valuation|what[^.?!]{0,40}worth)\b[^.?!]{0,40}\b(my|our)\b|\b(my|our)\b[^.?!]{0,40}\b(resale value|valuation|worth)\b/i, 'valuing a property you already own'],
     ]
     // "My current flat is worth roughly ₹90 lakh … what should I compare" gives
     // us the figure; it does not ask us to value anything (red-team 2026-10-05).

@@ -24,6 +24,26 @@ export async function middleware(request: NextRequest) {
     }
   }
 
+  const rawHost = request.headers.get('host') || ''
+  const host = rawHost.split(':')[0].trim().toLowerCase()
+
+  // App subdomain routing: app.propfyndr.in directly serves the discovery / chat app
+  if (host === 'app.propfyndr.in') {
+    if (pathname === '/') {
+      const url = request.nextUrl.clone()
+      url.pathname = '/discover'
+      return NextResponse.rewrite(url, { request: { headers: requestHeaders } })
+    }
+  }
+
+  // Apex domain routing: if user navigates to /discover on the landing domain, send them to app.propfyndr.in
+  if ((host === 'propfyndr.in' || host === 'www.propfyndr.in') && pathname === '/discover') {
+    const url = request.nextUrl.clone()
+    url.host = 'app.propfyndr.in'
+    url.protocol = 'https:'
+    return NextResponse.redirect(url)
+  }
+
   /**
    * Tenant subdomain routing. `lotus.propfyndr.in/` serves the portal entry
    * instead of the buyer homepage.
