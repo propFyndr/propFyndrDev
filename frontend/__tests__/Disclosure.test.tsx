@@ -61,7 +61,7 @@ describe('VerificationPanel', () => {
 
   it('surfaces a raised legal flag rather than hiding it', () => {
     render(<VerificationPanel project={project({
-      legal_flag: 'nclt_moratorium',
+      project_risk_flag: 'nclt_moratorium',
       legal_flag_detail: 'Insolvency proceedings admitted.',
     })} />)
     expect(screen.getByText('Nclt Moratorium')).toBeInTheDocument()
@@ -69,7 +69,7 @@ describe('VerificationPanel', () => {
   })
 
   it('does not show a legal row when the flag is explicitly "none"', () => {
-    const { container } = render(<VerificationPanel project={project({ legal_flag: 'none' })} />)
+    const { container } = render(<VerificationPanel project={project({ project_risk_flag: 'none' })} />)
     expect(container).toBeEmptyDOMElement()
   })
 

@@ -64,9 +64,6 @@ const UNITS: Record<string, string> = {
   open_space_pct: '%',
   green_cover_percent: '%',
   walkability_score: '/100',
-  construction_quality_rating: '/5',
-  buyer_satisfaction_rating: '/5',
-  handover_defect_rate: '%',
   ceiling_height_ft: ' ft',
   top_school_distance_km: ' km',
   hospital_distance_km: ' km',
@@ -228,7 +225,6 @@ export const LEGAL_FACT_FIELDS = new Set([
 export const LIVABILITY_FACT_FIELDS = new Set([
   ...CORE_IDENTITY_FIELDS,
   'open_space_pct', 'green_cover_percent', 'walkability_score',
-  'construction_quality_rating', 'buyer_satisfaction_rating',
   'top_school_distance_km', 'hospital_distance_km',
   'airport_distance_km', 'airport_distances', 'police_station_distance_km',
   'has_security_24x7', 'has_cctv', 'street_lights',
