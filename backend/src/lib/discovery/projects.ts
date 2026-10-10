@@ -74,23 +74,11 @@ const PROJECT_INCLUDE = {
       price_min_cr: true,
       price_max_cr: true,
       price_label: true,
-      inventory_left: true,
     },
   },
   images: { take: 3, orderBy: { sort_order: 'asc' as const } },
   amenities: { take: 10 },
   connectivity: { take: 5, orderBy: { distance_km: 'asc' as const } },
-  // `status` is selected purely so gatePublished() can drop DRAFT profiles —
-  // it is stripped again before the project leaves mapToScored().
-  recommendation_profile: {
-    select: {
-      status: true,
-      tier: true,
-      primary_thesis: true,
-      walk_away_conditions: true,
-      timeline_advice: true,
-    },
-  },
   decision_profile: {
     select: {
       status: true,
@@ -102,16 +90,6 @@ const PROJECT_INCLUDE = {
       not_ideal_for: true,
     },
   },
-  persona_profile: {
-    select: {
-      primary_persona: true,
-      secondary_personas: true,
-      income_range: true,
-      family_stage: true,
-      risk_appetite: true,
-      timeline_horizon: true,
-    },
-  },
   competitors: {
     select: {
       competitor_name: true,
@@ -121,17 +99,6 @@ const PROJECT_INCLUDE = {
       sort_order: true,
     },
     orderBy: { sort_order: 'asc' as const },
-  },
-  dna: {
-    select: {
-      overall_score:    true,
-      builder_score:    true,
-      price_score:      true,
-      location_score:   true,
-      legal_score:      true,
-      amenity_score:    true,
-      possession_score: true,
-    },
   },
   payment_plans: {
     select: {
@@ -412,7 +379,6 @@ function mapToScored(raw: RawProject, intent: Intent): ScoredProject {
   const p = {
     ...raw,
     decision_profile: gatePublished(raw.decision_profile),
-    recommendation_profile: gatePublished(raw.recommendation_profile),
   }
 
   const allPrices    = p.unit_types.filter((u) => u.price_min_cr != null).map((u) => u.price_min_cr!)
@@ -505,9 +471,7 @@ function mapToScored(raw: RawProject, intent: Intent): ScoredProject {
         hero_image_url: p.hero_image_url,
         images: p.images,
         rera_number: p.rera_number,
-        recommendation_profile: p.recommendation_profile,
         project_risk_flag: p.project_risk_flag,
-        persona_profile: p.persona_profile,
       },
       intent,
       budgetStatus,
@@ -561,7 +525,6 @@ function mapToScored(raw: RawProject, intent: Intent): ScoredProject {
       price_min_cr: u.price_min_cr ?? null,
       price_max_cr: u.price_max_cr ?? null,
       price_label: u.price_label ?? null,
-      inventory_left: u.inventory_left ?? null,
     })),
     top_amenities: p.amenities.map((a) => ({
       name: a.name,
@@ -597,7 +560,6 @@ function mapToScored(raw: RawProject, intent: Intent): ScoredProject {
         project_risk_flag: p.project_risk_flag ?? null,
         builder: p.builder,
         decision_profile: p.decision_profile,
-        recommendation_profile: p.recommendation_profile,
         amenities: p.amenities,
         ai_search_keywords: p.ai_search_keywords,
       },
@@ -606,38 +568,43 @@ function mapToScored(raw: RawProject, intent: Intent): ScoredProject {
     ),
     budgetStatus,
     best_for: p.decision_profile?.best_for ?? null,
-    recommendation_profile: p.recommendation_profile ?? null,
+    recommendation_profile: null,
     decision_profile: p.decision_profile ?? null,
-    persona_profile: p.persona_profile ?? null,
+    persona_profile: null,
     competitors: p.competitors ?? [],
-    dna: (p.dna ?? null) as any,
+    // ProjectDna, PersonaProfile and RecommendationProfile dropped entirely in
+    // the lean-schema migration (2026-10) — unsourced 0-100 analyst scores and
+    // a tier that was STRONG_BUY on all 395 rows. The builder functions below
+    // already tolerate null for all three (scoring.ts's own tier/persona
+    // bonuses were already removed in 3f6e8b5, ahead of this).
+    dna: null,
     // Eager intelligence — pure sync, no DB cost
     decisionIntelligence: buildDecisionIntelligence({
-      dna: p.dna ?? null,
+      dna: null,
       project_risk_flag: p.project_risk_flag ?? null,
       rera_number: p.rera_number ?? null,
       status: String(p.status),
       possession_date: p.possession_date ? p.possession_date.toISOString() : null,
       builder: p.builder,
       decision_profile: p.decision_profile ?? null,
-      recommendation_profile: p.recommendation_profile ?? null,
-      persona_profile: p.persona_profile ?? null,
+      recommendation_profile: null,
+      persona_profile: null,
       sector: p.sector,
       amenities: p.amenities,
     }),
     intelligenceCompleteness: buildIntelligenceCompleteness({
-      dna: p.dna ?? null,
+      dna: null,
       rera_number: p.rera_number ?? null,
     }),
     buyerPersonas: buildBuyerPersonas({
-      dna: p.dna ?? null,
+      dna: null,
       status: String(p.status),
       project_risk_flag: p.project_risk_flag ?? null,
-      persona_profile: p.persona_profile ?? null,
+      persona_profile: null,
       amenities: p.amenities,
     }),
     dealBreakers: buildDealBreakers({
-      dna: p.dna ?? null,
+      dna: null,
       builder: p.builder,
       rera_number: p.rera_number ?? null,
       project_risk_flag: p.project_risk_flag ?? null,

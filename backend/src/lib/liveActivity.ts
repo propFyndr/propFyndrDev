@@ -31,7 +31,13 @@ export async function computeLiveActivity(projectId: string): Promise<LiveActivi
   const windowStart = new Date(Date.now() - VIEWING_NOW_WINDOW_MINUTES * 60 * 1000)
   const hourAgo = new Date(Date.now() - 60 * 60 * 1000)
 
-  const [viewingSessions, visitsBooked, unitTypes] = await Promise.all([
+  // UnitType.inventory_left (dropped, lean-schema migration 2026-10) had no
+  // write path either and was never a real count. UnitInventory is the real,
+  // per-unit table this product intends for this — also has no write path
+  // yet (CLAUDE.md: "table exists, no write path"), so this correctly reads
+  // null today and starts working the moment that ships, with no further
+  // code change needed here.
+  const [viewingSessions, visitsBooked, availableUnitCount, anyInventoryRows] = await Promise.all([
     prisma.propertyEvent.findMany({
       where: { project_id: projectId, action: 'view', created_at: { gte: windowStart } },
       select: { session_id: true },
@@ -40,15 +46,13 @@ export async function computeLiveActivity(projectId: string): Promise<LiveActivi
     prisma.siteVisitRequest.count({
       where: { project_id: projectId, created_at: { gte: hourAgo } },
     }),
-    prisma.unitType.findMany({
-      where: { project_id: projectId },
-      select: { inventory_left: true },
+    prisma.unitInventory.count({
+      where: { project_id: projectId, status: 'available' },
     }),
+    prisma.unitInventory.count({ where: { project_id: projectId } }),
   ])
 
-  const unitsLeftTotal = unitTypes.some((u) => u.inventory_left != null)
-    ? unitTypes.reduce((sum, u) => sum + (u.inventory_left ?? 0), 0)
-    : null
+  const unitsLeftTotal = anyInventoryRows > 0 ? availableUnitCount : null
 
   return applyActivityThresholds(viewingSessions.length, visitsBooked, unitsLeftTotal)
 }

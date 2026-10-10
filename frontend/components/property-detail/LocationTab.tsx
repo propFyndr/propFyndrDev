@@ -417,9 +417,9 @@ export default function LocationTab({ project, detail, d, projectAddress, loadin
             <div>
               <p className="text-[9.5px] sm:text-[10px] text-gray-400 font-black uppercase tracking-wider leading-none">Ambient Noise</p>
               <p className="text-[16px] sm:text-[18px] font-black text-gray-900 dark:text-white mt-1">
-                {(detail as any)?.noise_level_db ?? (project as any)?.noise_level_db ? `${(detail as any)?.noise_level_db ?? (project as any)?.noise_level_db} dB` : '< 52 dB'}
+                Not available
               </p>
-              <p className="text-[9.5px] sm:text-[10.5px] text-emerald-600 font-bold mt-0.5">Quiet Residential</p>
+              <p className="text-[9.5px] sm:text-[10.5px] text-gray-400 font-semibold mt-0.5">Not yet measured</p>
             </div>
           </div>
         </div>

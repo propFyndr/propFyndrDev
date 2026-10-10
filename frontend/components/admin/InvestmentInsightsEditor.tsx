@@ -62,14 +62,9 @@ export default function InvestmentInsightsEditor({ projectId, initialData }: { p
   const handleSave = async () => {
     try {
       const parsedYield = parseFloat(String(rentalYield).replace(/[^0-9.]/g, '')) || null
-      const parsedAppreciation = parseFloat(String(appreciationAnnual).replace(/[^0-9.]/g, '')) || null
 
       if (parsedYield !== null && (parsedYield < 0 || parsedYield > 20)) {
         toast.error('Rental yield should be between 0-20%')
-        return
-      }
-      if (parsedAppreciation !== null && (parsedAppreciation < 0 || parsedAppreciation > 50)) {
-        toast.error('Appreciation should be between 0-50%')
         return
       }
 
@@ -78,8 +73,6 @@ export default function InvestmentInsightsEditor({ projectId, initialData }: { p
         headers: { 'Content-Type': 'application/json', ...adminAuthHeaders() },
         body: JSON.stringify({
           rental_yield_annual_percent: parsedYield,
-          appreciation_potential_5yr: parsedAppreciation ? parsedAppreciation * 5 : null,
-          market_demand_score: marketTrend === 'Bullish' ? 92 : 82,
         })
       })
       if (!projectRes.ok) throw new Error('Failed to save project metrics')

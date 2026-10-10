@@ -8,6 +8,7 @@ import { requireAdmin, destroyAdminSession } from '../lib/adminAuth'
 import { createIdentitySession, verifyPassword, requireIdentity, requireRole, sessionTtlForRole, recordAudit } from '../lib/adminIdentity'
 import type { AdminIdentitySession } from '../lib/adminIdentity'
 import { computeCompleteness } from '../lib/completeness'
+import { computeCarpetToSuperRatio } from '../lib/calculators'
 import { normalisePortalSubdomain } from '../lib/portalSubdomain'
 import { checkRateLimit, resetRateLimit, getCached, setCached, deleteCached } from '../lib/cache'
 import { z } from 'zod'
@@ -513,12 +514,10 @@ async function scoreProjects(targets: Array<{ id: string; slug: string }>): Prom
         tagline: true, address: true, lat: true, lng: true, total_units: true,
         total_towers: true, land_area_acres: true, possession_label: true,
         hero_image_url: true, price_min_cr: true, price_range_label: true,
-        nri_eligible: true, vastu_compliant: true, women_safety_score: true,
         air_quality_index_avg: true, water_source: true, dg_power_rate_per_unit: true,
-        maintenance_per_sqft_monthly: true, has_png_gas_pipeline: true,
-        mobile_network_rating: true, ceiling_height_ft: true, lifts_per_tower: true,
-        has_service_lift: true, shared_walls_type: true, authority_dues_cleared: true,
-        land_tenure: true, pet_friendly: true, bachelor_tenants_allowed: true,
+        maintenance_per_sqft_monthly: true,
+        ceiling_height_ft: true, lifts_per_tower: true,
+        shared_walls_type: true,
         builder: { select: { id: true, name: true } },
         unit_types: {
           select: {
@@ -536,26 +535,9 @@ async function scoreProjects(targets: Array<{ id: string; slug: string }>): Prom
             lifecycle_updates: true, price_history: true, channel_partners: true,
           },
         },
-        dna: {
-          select: {
-            builder_score: true, price_score: true, location_score: true,
-            legal_score: true, amenity_score: true, possession_score: true,
-          },
-        },
         decision_profile: {
           select: { decision_thesis: true, why_buy: true, why_avoid: true, best_for: true },
         },
-        // `income_range`, `family_stage` and `work_location` are read through
-        // an `as any` cast in the scorer and are NOT on its declared
-        // interface. Narrowing to the interface cost every project 3 points
-        // and was caught by completenessParity.test.ts.
-        persona_profile: {
-          select: {
-            primary_persona: true, secondary_personas: true,
-            income_range: true, family_stage: true, work_location: true,
-          },
-        },
-        recommendation_profile: { select: { tier: true, primary_thesis: true } },
         cost_sheet: { select: { base_price_per_sqft: true, base_cost_cr: true } },
         payment_plans: { select: { id: true, milestones: true } },
       },
@@ -864,10 +846,7 @@ router.get('/projects/:id', async (req: Request, res: Response) => {
         images: true,
         amenities: true,
         connectivity: true,
-        dna: true,
         decision_profile: true,
-        persona_profile: true,
-        recommendation_profile: true,
         competitors: { orderBy: { sort_order: 'asc' } },
         spec_items: { include: { unit_type: { select: { id: true, name: true, bhk: true } } }, orderBy: [{ sort_order: 'asc' }, { category: 'asc' }] },
         construction_milestones: { orderBy: { completion_pct: 'desc' } },
@@ -888,7 +867,6 @@ router.get('/projects/:id', async (req: Request, res: Response) => {
     const p = project as any
     const safeProject = {
       ...p,
-      dna: p.dna ?? null,
       unit_types: p.unit_types ?? [],
       images: p.images ?? [],
       payment_plans: p.payment_plans ?? [],
@@ -938,10 +916,7 @@ router.get('/projects/:id/completeness', async (req: Request, res: Response) => 
         images: true,
         amenities: true,
         connectivity: true,
-        dna: true,
         decision_profile: true,
-        persona_profile: true,
-        recommendation_profile: true,
         competitors: true,
         cost_sheet: true,
         payment_plans: true,
@@ -1050,10 +1025,7 @@ router.get('/projects/export', async (req: Request, res: Response) => {
         images: true,
         amenities: true,
         connectivity: true,
-        dna: true,
         decision_profile: true,
-        persona_profile: true,
-        recommendation_profile: true,
         competitors: true,
         cost_sheet: true,
         payment_plans: true,
@@ -1372,10 +1344,10 @@ router.delete('/projects/:id', async (req: Request, res: Response) => {
       await tx.savedProperty.deleteMany({ where: { project_id: targetId } }).catch(e => console.warn('[admin] savedProperty delete failed:', e))
       await tx.priceAlert.deleteMany({ where: { project_id: targetId } }).catch(e => console.warn('[admin] priceAlert delete failed:', e))
       await tx.builderLead.deleteMany({ where: { project_id: targetId } }).catch(e => console.warn('[admin] builderLead delete failed:', e))
-      await tx.projectDna.deleteMany({ where: { project_id: targetId } }).catch(e => console.warn('[admin] projectDna delete failed:', e))
+      // projectDna / personaProfile / recommendationProfile: tables dropped
+      // entirely in the lean-schema migration (2026-10) — nothing left to
+      // clean up before the FK-constrained project delete below.
       await tx.decisionProfile.deleteMany({ where: { project_id: targetId } }).catch(e => console.warn('[admin] decisionProfile delete failed:', e))
-      await tx.personaProfile.deleteMany({ where: { project_id: targetId } }).catch(() => {})
-      await tx.recommendationProfile.deleteMany({ where: { project_id: targetId } }).catch(() => {})
 
       // Unlink focused project from chat sessions
       await tx.chatSession.updateMany({
@@ -3269,33 +3241,6 @@ router.put('/projects/:id/updates', async (req: Request, res: Response) => {
   }
 })
 
-// PATCH /api/v1/admin/projects/:id/dna — save/update project DNA profile
-router.patch('/projects/:id/dna', async (req: Request, res: Response) => {
-  const { id } = req.params
-  const data = req.body
-
-  try {
-    const project = await prisma.project.findFirst({
-      where: { OR: [{ id }, { slug: id }] },
-      select: { id: true }
-    })
-    if (!project) {
-      res.status(404).json({ error: 'Project not found' })
-      return
-    }
-
-    const updated = await (prisma as any).projectDna.upsert({
-      where: { project_id: project.id },
-      update: { ...data, updated_at: new Date() },
-      create: { project_id: project.id, ...data }
-    })
-    res.json({ success: true, data: updated })
-  } catch (err) {
-    console.error('[admin] save DNA failed:', err)
-    res.status(500).json({ error: 'Failed to save DNA profile' })
-  }
-})
-
 // PATCH /api/v1/admin/projects/:id/decision-profile — save/update decision profile
 router.patch('/projects/:id/decision-profile', async (req: Request, res: Response) => {
   const { id } = req.params
@@ -3320,60 +3265,6 @@ router.patch('/projects/:id/decision-profile', async (req: Request, res: Respons
   } catch (err) {
     console.error('[admin] save decision profile failed:', err)
     res.status(500).json({ error: 'Failed to save decision profile' })
-  }
-})
-
-// PATCH /api/v1/admin/projects/:id/persona-profile — save/update persona profile
-router.patch('/projects/:id/persona-profile', async (req: Request, res: Response) => {
-  const { id } = req.params
-  const data = req.body
-
-  try {
-    const project = await prisma.project.findFirst({
-      where: { OR: [{ id }, { slug: id }] },
-      select: { id: true }
-    })
-    if (!project) {
-      res.status(404).json({ error: 'Project not found' })
-      return
-    }
-
-    const updated = await (prisma as any).personaProfile.upsert({
-      where: { project_id: project.id },
-      update: { ...data, updated_at: new Date() },
-      create: { project_id: project.id, ...data }
-    })
-    res.json({ success: true, data: updated })
-  } catch (err) {
-    console.error('[admin] save persona profile failed:', err)
-    res.status(500).json({ error: 'Failed to save persona profile' })
-  }
-})
-
-// PATCH /api/v1/admin/projects/:id/recommendation-profile — save/update recommendation profile
-router.patch('/projects/:id/recommendation-profile', async (req: Request, res: Response) => {
-  const { id } = req.params
-  const data = req.body
-
-  try {
-    const project = await prisma.project.findFirst({
-      where: { OR: [{ id }, { slug: id }] },
-      select: { id: true }
-    })
-    if (!project) {
-      res.status(404).json({ error: 'Project not found' })
-      return
-    }
-
-    const updated = await (prisma as any).recommendationProfile.upsert({
-      where: { project_id: project.id },
-      update: { ...data, updated_at: new Date() },
-      create: { project_id: project.id, ...data }
-    })
-    res.json({ success: true, data: updated })
-  } catch (err) {
-    console.error('[admin] save recommendation profile failed:', err)
-    res.status(500).json({ error: 'Failed to save recommendation profile' })
   }
 })
 
@@ -3611,10 +3502,10 @@ router.post('/projects/:id/units', async (req: Request, res: Response) => {
 
     const superArea = data.super_area_sqft ? parseInt(data.super_area_sqft) : null
     const carpetArea = data.carpet_area_sqft ? parseInt(data.carpet_area_sqft) : null
-    let ratio = data.carpet_to_super_ratio_pct ? parseFloat(data.carpet_to_super_ratio_pct) : null
-    if (!ratio && superArea && carpetArea && superArea > 0) {
-      ratio = Math.round((carpetArea / superArea) * 1000) / 10
-    }
+    // carpet_to_super_ratio_pct is computed from the areas, not accepted from
+    // the request body — layout_efficiency_pct (the old second copy of this
+    // same number) was dropped from the schema in the lean-schema migration.
+    const ratio = computeCarpetToSuperRatio(carpetArea, superArea)
 
     const unit = await (prisma as any).unitType.create({
       data: {
@@ -3625,7 +3516,6 @@ router.post('/projects/:id/units', async (req: Request, res: Response) => {
         carpet_area_sqft: carpetArea,
         carpet_to_super_ratio_pct: ratio,
         built_up_area_sqft: data.built_up_area_sqft ? parseInt(data.built_up_area_sqft) : (carpetArea ? Math.round(carpetArea * 1.15) : null),
-        layout_efficiency_pct: data.layout_efficiency_pct ? parseFloat(data.layout_efficiency_pct) : ratio,
         unit_orientations: Array.isArray(data.unit_orientations) ? data.unit_orientations : ['east_facing', 'north_facing'],
         balconies: data.balconies ? parseInt(data.balconies) : null,
         balcony_area_sqft: data.balcony_area_sqft ? parseInt(data.balcony_area_sqft) : null,
@@ -3633,8 +3523,6 @@ router.post('/projects/:id/units', async (req: Request, res: Response) => {
         price_min_cr: data.price_min_cr ? parseFloat(data.price_min_cr) : null,
         price_max_cr: data.price_max_cr ? parseFloat(data.price_max_cr) : null,
         price_label: data.price_label || null,
-        price_is_estimated: data.price_is_estimated ?? true,
-        views: data.views || []
       }
     })
     res.json({ success: true, unit })
@@ -3651,10 +3539,20 @@ router.patch('/units/:id', async (req: Request, res: Response) => {
   try {
     const superArea = data.super_area_sqft !== undefined ? (data.super_area_sqft ? parseInt(data.super_area_sqft) : null) : undefined
     const carpetArea = data.carpet_area_sqft !== undefined ? (data.carpet_area_sqft ? parseInt(data.carpet_area_sqft) : null) : undefined
-    
-    let ratio = data.carpet_to_super_ratio_pct !== undefined ? (data.carpet_to_super_ratio_pct ? parseFloat(data.carpet_to_super_ratio_pct) : null) : undefined
-    if (ratio === undefined && superArea !== undefined && carpetArea !== undefined && superArea && carpetArea) {
-      ratio = Math.round((carpetArea / superArea) * 1000) / 10
+
+    // Only recompute the ratio when at least one of the two areas is part of
+    // this update — an unrelated field edit (price, balconies, ...) must not
+    // silently touch it. When recomputing, read whichever side wasn't part of
+    // this request from the existing row rather than assume it's unchanged to
+    // null.
+    let ratio: number | null | undefined
+    if (superArea !== undefined || carpetArea !== undefined) {
+      const existing = (superArea === undefined || carpetArea === undefined)
+        ? await (prisma as any).unitType.findUnique({ where: { id }, select: { super_area_sqft: true, carpet_area_sqft: true } })
+        : null
+      const effectiveSuper = superArea !== undefined ? superArea : existing?.super_area_sqft ?? null
+      const effectiveCarpet = carpetArea !== undefined ? carpetArea : existing?.carpet_area_sqft ?? null
+      ratio = computeCarpetToSuperRatio(effectiveCarpet, effectiveSuper)
     }
 
     const unit = await (prisma as any).unitType.update({
@@ -3666,7 +3564,6 @@ router.patch('/units/:id', async (req: Request, res: Response) => {
         ...(carpetArea !== undefined && { carpet_area_sqft: carpetArea }),
         ...(ratio !== undefined && { carpet_to_super_ratio_pct: ratio }),
         ...(data.built_up_area_sqft !== undefined && { built_up_area_sqft: data.built_up_area_sqft ? parseInt(data.built_up_area_sqft) : null }),
-        ...(data.layout_efficiency_pct !== undefined && { layout_efficiency_pct: data.layout_efficiency_pct ? parseFloat(data.layout_efficiency_pct) : null }),
         ...(data.unit_orientations !== undefined && { unit_orientations: Array.isArray(data.unit_orientations) ? data.unit_orientations : [] }),
         ...(data.balconies !== undefined && { balconies: data.balconies ? parseInt(data.balconies) : null }),
         ...(data.balcony_area_sqft !== undefined && { balcony_area_sqft: data.balcony_area_sqft ? parseInt(data.balcony_area_sqft) : null }),
@@ -3674,9 +3571,7 @@ router.patch('/units/:id', async (req: Request, res: Response) => {
         ...(data.price_min_cr !== undefined && { price_min_cr: data.price_min_cr ? parseFloat(data.price_min_cr) : null }),
         ...(data.price_max_cr !== undefined && { price_max_cr: data.price_max_cr ? parseFloat(data.price_max_cr) : null }),
         ...(data.price_label !== undefined && { price_label: data.price_label }),
-        ...(data.layout_variant_name !== undefined && { layout_variant_name: data.layout_variant_name }),
-        ...(data.towers !== undefined && { towers: data.towers, tower_association: data.towers }),
-        ...(data.views !== undefined && { views: data.views })
+        ...(data.towers !== undefined && { towers: data.towers, tower_association: data.towers })
       }
     })
     res.json({ success: true, unit })

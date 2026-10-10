@@ -127,13 +127,12 @@ model Project {
   has_duplex               Boolean                @default(false)
   has_penthouse            Boolean                @default(false)
   project_type             String?                @default("Residential")
-  schools_nearby_count     Int?
-  hospitals_nearby_count   Int?
-  shopping_nearby_count    Int?
-  it_parks_nearby_count    Int?
-  banks_nearby_count       Int?
-  restaurants_nearby_count Int?
   status                   ProjectStatus
+  // Null for a live row. Set to the winning row's id when this row lost a
+  // duplicate merge (lean-schema migration, 2026-10). Kept, not deleted, so
+  // anything with an FK to this id stays valid. Every buyer-facing Project
+  // query must filter archived_duplicate_of: null.
+  archived_duplicate_of    String?
   launch_date              DateTime?
   possession_date          DateTime?
   possession_label         String?
@@ -146,9 +145,6 @@ model Project {
   oc_valid_until           String?
   oc_restrictions          String?
   rera_valid_until         DateTime?
-  rera_compliance_score    Int?
-  // none | litigation_pending | nclt_moratorium | registry_embargo | dispute_flagged (§8.9)
-  legal_flag               String?
   legal_flag_detail        String?
   litigation_count         Int?
   // Location intelligence (§6.4)
@@ -158,7 +154,6 @@ model Project {
   walkability_score        Int?
   // low | medium | high  (§11.5.E)
   flood_waterlogging_risk  String?
-  aqi_annual_avg           Float?
   // Commute matrix (§6.3) — [{destination, distance_km, travel_time_min, ...}]
   commute_matrix           Json?
   description              String?
@@ -171,15 +166,11 @@ model Project {
   hero_image_url           String?
   price_min_cr             Float?
   price_range_label        String?
-  price_includes_plc       Boolean  @default(false)
-  price_includes_club      Boolean  @default(false)
-  price_includes_taxes     Boolean  @default(false)
   builder_theme            Json?    // {primaryColor, secondaryColor, logoUrl, active_until}
   created_at               DateTime               @default(now())
   updated_at               DateTime               @updatedAt
   embedding                Unsupported("vector")?
   project_risk_flag        String?
-  escrow_verified          Boolean?
   escrow_bank_name         String?
   registry_status          String?
   registry_embargo_reasons String[]
@@ -190,12 +181,10 @@ model Project {
   // ──────────────────────────────────────────────────────────────
 
   // 1. Resale & Investment Terms
-  resale_lock_in_months           Int?
   rental_income_allowed           Boolean?
   occupancy_restriction_months    Int?
 
   // 2. NRI & Eligibility
-  nri_eligible                    Boolean?
   nri_approval_months             Int?
   foreign_currency_payment_allowed Boolean?
 
@@ -204,69 +193,44 @@ model Project {
   occupancy_expected_date         DateTime?
   ongoing_litigation_count        Int?
   litigation_types                String[]
-  nclt_status                     String?
-
-  // 4. Quality & Reputation
-  construction_quality_rating     Float?
-  buyer_satisfaction_rating       Float?
-  handover_defect_rate            Float?
 
   // 5. Lifestyle & Safety
-  women_safety_score              Int?
   has_security_24x7               Boolean?
   has_cctv                        Boolean?
   police_station_distance_km      Float?
   street_lights                   Boolean?
 
-  // 6. Vastu & Preferences
-  vastu_compliant                 Boolean?
-  north_facing_units              Boolean?
-  east_facing_preferred           Boolean?
-
   // 7. Environmental & Area Quality
   air_quality_index_avg           Int?
-  noise_level_db                  Int?
   flood_zone                      String?
   proximity_to_industrial         String?
   green_cover_percent             Int?
 
   // 8. Education & Connectivity
   top_school_distance_km          Float?
-  college_distance_km             Float?
   hospital_distance_km            Float?
   airport_distance_km             Float?
 
   // 9. Market & Pricing
-  market_demand_score             Int?
-  appreciation_potential_5yr      Float?
   rental_yield_annual_percent     Float?
-  competing_projects_nearby       Int?
 
   // 10. Possession & Timeline
   foundation_stone_date           DateTime?
   expected_handover_quarter       String?
-  average_builder_delay_months    Int?
 
   // 11. Regulatory & Compliance
   gst_pass_through                Boolean?
   land_title_clear                Boolean?
-  fir_against_project             Boolean?
+  fir_against_project              Boolean?
   approvals_status                String?
 
   // 12. Utilities, Civic Infra & Architectural Specs (2026 Comprehensive Living Standards)
   water_source                    String?
   dg_power_rate_per_unit          Float?
   maintenance_per_sqft_monthly    Float?
-  has_png_gas_pipeline            Boolean?               @default(true)
-  mobile_network_rating           Int?                   // no default — see SCHEMA_DEFAULT_SENTINELS
   ceiling_height_ft               Float?                 // no default — see SCHEMA_DEFAULT_SENTINELS
   lifts_per_tower                 Int?                   // no default — see SCHEMA_DEFAULT_SENTINELS
-  has_service_lift                Boolean?               @default(true)
   shared_walls_type               String?
-  authority_dues_cleared          Boolean?               @default(true)
-  land_tenure                     String?                @default("99-Year Authority Leasehold")
-  pet_friendly                    Boolean?               @default(true)
-  bachelor_tenants_allowed        Boolean?               @default(true)
 
   // 13. Forensic Due Diligence & Living Quality (Day 3 Expansion)
   //
@@ -299,13 +263,10 @@ model Project {
   amenities                Amenity[]
   connectivity             Connectivity[]
   decision_profile         DecisionProfile?
-  persona_profile          PersonaProfile?
   referenced_as_competitor ProjectCompetitor[]    @relation("CompetitorProject")
   competitors              ProjectCompetitor[]    @relation("SourceProject")
-  dna                      ProjectDna?
   images                   ProjectImage[]
   builder                  Builder                @relation(fields: [builder_id], references: [id])
-  recommendation_profile   RecommendationProfile?
   saved_by                 SavedProperty[]
   unit_types               UnitType[]
   payment_plans            PaymentPlan[]
@@ -324,37 +285,8 @@ model Project {
   @@index([status])
   @@index([possession_date])
   @@index([builder_id])
-  @@index([nri_eligible])
-  @@index([women_safety_score])
   @@index([air_quality_index_avg])
   @@map("projects")
-}
-
-model ProjectDna {
-  id                 String    @id @default(uuid())
-  project_id         String    @unique
-
-  // Overall score (0-100)
-  overall_score      Int?
-
-  // Category scores (0-100, simple manual entry)
-  builder_score      Int?      // Track record + quality
-  price_score        Int?      // Position relative to location/market
-  location_score     Int?      // Proximity, connectivity, future growth
-  legal_score        Int?      // RERA, litigation, compliance
-  amenity_score      Int?      // Amenities, spacing, common areas
-  possession_score   Int?      // Timeline certainty, builder track record
-
-  // Tracking
-  last_verified_at   DateTime?
-  verified_by        String?
-  created_at         DateTime  @default(now())
-  updated_at         DateTime  @updatedAt
-
-  // Relation
-  project            Project   @relation(fields: [project_id], references: [id], onDelete: Cascade)
-
-  @@map("project_dna")
 }
 
 model DecisionProfile {
@@ -389,56 +321,6 @@ model DecisionProfile {
   project              Project            @relation(fields: [project_id], references: [id], onDelete: Cascade)
 
   @@map("decision_profiles")
-}
-
-model PersonaProfile {
-  id                 String    @id @default(uuid())
-  project_id         String    @unique
-  primary_persona    String?
-  secondary_personas String[]  @default([])
-  persona_descriptions Json?
-  income_range       String?
-  family_stage       String?
-  work_location      String?
-  risk_appetite      String?
-  timeline_horizon   String?
-  motivation_note    String?
-  last_verified_at   DateTime?
-  verified_by        String?
-  created_at         DateTime  @default(now())
-  updated_at         DateTime  @updatedAt
-  project            Project   @relation(fields: [project_id], references: [id], onDelete: Cascade)
-
-  @@map("persona_profiles")
-}
-
-model RecommendationProfile {
-  id                   String             @id @default(uuid())
-  project_id           String             @unique
-  project              Project            @relation(fields: [project_id], references: [id], onDelete: Cascade)
-
-  status               IntelligenceStatus @default(DRAFT)
-
-  // Single recommendation (replaces 6 specialized thesis fields)
-  tier                 String?            // "STRONG_BUY" | "BUY" | "HOLD" | "WATCH" | "AVOID"
-  primary_thesis       String?            // Main reason for this tier
-
-  // Deal conditions
-  walk_away_conditions String[]           @default([])
-  timeline_advice      String?
-  negotiation_leverage String[]           @default([])
-
-  // Admin notes
-  internal_confidence  String?
-  admin_notes          String?
-
-  // Tracking
-  last_verified_at     DateTime?
-  verified_by          String?
-  created_at           DateTime           @default(now())
-  updated_at           DateTime           @updatedAt
-
-  @@map("recommendation_profiles")
 }
 
 model ProjectCompetitor {
@@ -490,7 +372,6 @@ model UnitType {
   project_id         String
   name               String
   bhk                Int
-  has_study          Boolean  @default(false)
   has_servant_room   Boolean  @default(false)
   super_area_sqft    Int?
   super_area_range_sqft String?
@@ -512,27 +393,16 @@ model UnitType {
   price_label        String?
   // price_min ÷ SUPER area — never carpet (§Global Conventions)
   price_per_sqft     Float?
-  price_is_estimated Boolean  @default(true)
   subtitle           String?
   description        String?
   category_badge     String?
-  inventory_left     Int?
   inventory_as_of    DateTime?
-  perfect_for        String[]
-  key_highlights     Json?
   whats_included     Json?
-  views              Json?
   // Layout quality (§3.4)
   layout_shape           String?
-  layout_efficiency_pct  Float?
-  layout_pros            String[]
-  layout_cons            String[]
-  layout_variant_name    String?  @default("Type A")
   tower_association      String[] @default(["Tower A"])
   built_up_area_sqft     Int?
-  utility_area_sqft      Int?
   common_area_shaft_sqft Int?
-  efficiency_rating      String?  @default("Excellent")
   project            Project  @relation(fields: [project_id], references: [id], onDelete: Cascade)
   unit_inventory     UnitInventory[]
   spec_items         ProjectSpecItem[]
@@ -1109,7 +979,6 @@ model CostSheet {
   base_price_per_sqft   Float?
   base_cost_cr          Float?
   floor_rise_per_floor  Float?
-  base_interest_rate    Float? // Home loan interest rate benchmark (e.g. 8.5)
   plc_charges           Json     @default("[]")
   // ⚠️ parking_cost / ifms / club_membership store RUPEES, not lakhs.
   // See dictionary §11.7.2b. routes/projects.ts divides these by 1e7 to reach crores.
@@ -1156,6 +1025,32 @@ enum IntelligenceStatus {
   DRAFT
   IN_REVIEW
   PUBLISHED
+}
+
+enum FactTier {
+  SCRAPED
+  BUILDER_ATTESTED
+  VERIFIED
+  STATUTORY
+  COMPUTED
+}
+
+model FactVerification {
+  id          String    @id @default(cuid())
+  entityType  String    // "Project" | "UnitType" | "CostSheet" | "PaymentPlan" | "Builder" | "DecisionProfile"
+  entityId    String
+  fieldName   String
+  tier        FactTier
+  sourceUrl   String?
+  sourceDoc   String?
+  verifiedAt  DateTime?
+  verifiedBy  String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@unique([entityType, entityId, fieldName])
+  @@index([entityType, entityId])
+  @@map("fact_verifications")
 }
 
 enum SiteVisitStatus {

@@ -45,7 +45,6 @@ const REDACTED_FIELDS: Partial<Record<AdminRole, readonly string[]>> = {
     'cost_usd',
     // Analyst working notes and internal scoring.
     'internal_confidence',
-    'market_demand_score',
     'ai_search_keywords',
   ],
   ANALYST: [

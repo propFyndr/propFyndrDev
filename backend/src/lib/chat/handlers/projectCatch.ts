@@ -1,6 +1,5 @@
 import { prisma } from '../../db'
 import { matchProjectInText } from '../../discovery/matchProjectInText'
-import { isSchemaDefault } from '../../projectExposure'
 import type { ChatTopicHandler } from '../handlerContext'
 
 /**
@@ -17,9 +16,9 @@ export const ASKS_FOR_THE_CATCH =
 
 const select = {
   name: true, status: true, possession_date: true, possession_label: true,
-  oc_status: true, rera_number: true, legal_flag: true, litigation_count: true,
+  oc_status: true, rera_number: true, project_risk_flag: true, litigation_count: true,
   ongoing_litigation_count: true, nclt_moratorium_active: true, location_concerns: true,
-  flood_waterlogging_risk: true, amitabh_kant_clearance: true, authority_dues_cleared: true,
+  flood_waterlogging_risk: true, amitabh_kant_clearance: true,
   registry_status: true, maintenance_per_sqft_monthly: true, water_source_type: true,
   builder: { select: { name: true, insolvency_history: true, legal_flag: true, delayed_projects_count: true } },
   unit_types: { select: { bhk: true, price_min_cr: true, price_per_sqft: true } },
@@ -76,7 +75,7 @@ export function catchAnswer(row: Row): string {
   }
 
   if (!row.rera_number) found.push('We hold no UP-RERA registration number for it. Do not pay any amount until you have seen one.')
-  if (isFlag(row.legal_flag)) found.push(`Legal flag on record: ${humanFlag(row.legal_flag)}.`)
+  if (isFlag(row.project_risk_flag)) found.push(`Risk flag on record: ${humanFlag(row.project_risk_flag)}.`)
   const litigation = row.ongoing_litigation_count ?? row.litigation_count
   if (typeof litigation === 'number' && litigation > 0) found.push(`${litigation} litigation case${litigation === 1 ? '' : 's'} on record against the project.`)
   if (row.nclt_moratorium_active) found.push('An NCLT moratorium is active on the project.')
@@ -86,7 +85,6 @@ export function catchAnswer(row: Row): string {
     found.push(`${row.builder.name} has ${row.builder.delayed_projects_count} delayed project${row.builder.delayed_projects_count === 1 ? '' : 's'} on record.`)
   }
   if (row.amitabh_kant_clearance === false) found.push('No Amitabh Kant 25% dues clearance on record, so registry may stay blocked until the developer pays.')
-  if (row.authority_dues_cleared === false && !isSchemaDefault('authority_dues_cleared', row.authority_dues_cleared)) found.push('Outstanding authority dues on record.')
   if (row.registry_status && /block|hold|restrict|embargo/i.test(row.registry_status)) found.push(`Registry status on record: ${row.registry_status.replace(/_/g, ' ')}.`)
   for (const c of row.location_concerns ?? []) found.push(`Location concern on record: ${c.trim().replace(/\.+$/, '')}.`)
   if (row.flood_waterlogging_risk && /high|moderate/i.test(row.flood_waterlogging_risk)) found.push(`Waterlogging risk on record: ${row.flood_waterlogging_risk.toLowerCase()}.`)

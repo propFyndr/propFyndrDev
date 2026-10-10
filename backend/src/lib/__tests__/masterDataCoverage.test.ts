@@ -55,7 +55,7 @@ describe('master data coverage', { skip: !available && 'newProj/75 master JSON n
   it('surfaces the long-tail living-standard fields', () => {
     const facts = buildProjectFacts(firstProject() as never)
     // Present on the seeded record; each is a question a buyer actually asks.
-    for (const key of ['water_source', 'land_tenure', 'ceiling_height_ft', 'lifts_per_tower', 'maintenance_per_sqft_monthly']) {
+    for (const key of ['water_source', 'registry_status', 'ceiling_height_ft', 'lifts_per_tower', 'maintenance_per_sqft_monthly']) {
       assert.ok(key in facts, `${key} not surfaced from master data`)
     }
   })
@@ -220,35 +220,27 @@ describe('publish gate', () => {
       stripRelationInternals('decision_profile', { status: 'DRAFT', decision_thesis: 'unreviewed take' }),
       null,
     )
-    assert.equal(
-      stripRelationInternals('recommendation_profile', { status: 'IN_REVIEW', tier: 'STRONG_BUY' }),
-      null,
-    )
   })
 
   it('strips the analyst notes from PUBLISHED content', () => {
-    const cleaned = stripRelationInternals('recommendation_profile', {
+    const cleaned = stripRelationInternals('decision_profile', {
       status: 'PUBLISHED',
-      tier: 'BUY',
-      primary_thesis: 'solid',
-      internal_confidence: 'medium — thin comparables',
-      admin_notes: 'call the desk before quoting',
+      decision_thesis: 'solid',
+      advisor_notes: 'call the desk before quoting',
+      recommendation_notes: 'internal only',
       verified_by: 'analyst@propfyndr',
-      id: 'r1',
-      project_id: 'p1',
+      last_verified_at: '2026-09-01',
     })
     assert.ok(cleaned)
-    // Stripped from PUBLISHED content too. The publish gate is about review
-    // status; this field is withheld for a different reason — it has no spread
-    // across the table at all — so being reviewed does not restore it.
-    assert.ok(!('tier' in cleaned!), 'tier survived the strip')
-    assert.equal(cleaned!.primary_thesis, 'solid')
-    for (const banned of ['internal_confidence', 'admin_notes', 'verified_by', 'id', 'project_id', 'status', 'tier']) {
+    assert.equal(cleaned!.decision_thesis, 'solid')
+    for (const banned of ['advisor_notes', 'recommendation_notes', 'verified_by', 'last_verified_at', 'status']) {
       assert.ok(!(banned in cleaned!), `${banned} survived the strip`)
     }
   })
 
-  it('excludes the DNA relation outright', () => {
+  it('excludes the DNA, persona and recommendation relations outright — ProjectDna/PersonaProfile/RecommendationProfile are dropped entirely', () => {
     assert.equal(stripRelationInternals('dna', { builder_score: 95, legal_score: 94 }), null)
+    assert.equal(stripRelationInternals('persona_profile', { primary_persona: 'FAMILY' }), null)
+    assert.equal(stripRelationInternals('recommendation_profile', { status: 'PUBLISHED', tier: 'STRONG_BUY' }), null)
   })
 })

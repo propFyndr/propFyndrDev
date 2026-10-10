@@ -169,15 +169,6 @@ export const NEUTRAL_TOOLS: NeutralTool[] = [
   // detail reaches the buyer only when they ask for it. Call them when asked;
   // do not call them to pad an answer.
   {
-    name: 'buyer_fit_analysis',
-    description: 'Get detailed buyer-fit analysis for a project from the PropFyndr database: target persona (income, family stage, work location, risk appetite, timeline), and deal conditions (walk-away criteria, timing advice, negotiation leverage). Use for "is this right for a young family", "what income level", "when should I buy", "can I negotiate on price".',
-    parameters: {
-      type: 'object',
-      properties: { project_name: { type: 'string', description: 'Project name as the user referred to it' } },
-      required: ['project_name'],
-    },
-  },
-  {
     name: 'floor_plans_lookup',
     description: 'Get every unit configuration (floor plan) for a project from the PropFyndr database: carpet/super/balcony area, carpet efficiency, bathrooms, towers, price per configuration, availability, inclusions and views. Use whenever the user asks about floor plans, layouts, configurations, sizes, carpet area, or "what BHK options are there". Two different layouts of the same BHK are returned separately — keep them distinct.',
     parameters: {
@@ -383,7 +374,6 @@ const TOOL_ARG_LIMITS: Record<string, Record<string, number>> = {
 
   // On-demand detail lookups. project_name is fed straight into a `contains`
   // query, so it is capped for the same reason as the others.
-  buyer_fit_analysis:    { project_name: 100 },
   floor_plans_lookup:    { project_name: 100 },
   price_history_lookup:  { project_name: 100 },
   construction_status:   { project_name: 100 },

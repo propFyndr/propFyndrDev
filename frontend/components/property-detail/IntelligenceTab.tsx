@@ -248,7 +248,7 @@ export default function IntelligenceTab({
   const rentalYield = pData?.rental_yield_annual_percent
     ? `${pData.rental_yield_annual_percent}%`
     : (finIntel?.rental_yield_pct ? `${finIntel.rental_yield_pct}%` : null)
-  const investmentGrade = recommendationProfile?.tier === 'STRONG_BUY' || recommendationProfile?.tier === 'BUY' ? 'A' : (recommendationProfile?.tier === 'HOLD' ? 'B+' : (recommendationProfile?.tier ? 'B' : 'A-'))
+  const investmentGrade = recommendationProfile?.tier === 'STRONG_BUY' || recommendationProfile?.tier === 'BUY' ? 'A' : (recommendationProfile?.tier === 'HOLD' ? 'B+' : (recommendationProfile?.tier === 'WATCH' || recommendationProfile?.tier === 'AVOID' ? 'B' : null))
   const liquidityScore = dna?.location_score ? `${dna.location_score}/100` : (dna?.overall_score ? `${dna.overall_score}/100` : (pData?.market_demand_score ? `${pData.market_demand_score}/100` : null))
   const breakevenYrs = finIntel?.breakeven_months
     ? `${(finIntel.breakeven_months / 12).toFixed(1)} Yrs`
@@ -312,7 +312,7 @@ export default function IntelligenceTab({
   const incomeBracket = personaProfile?.income_range || null
   const primaryBuyerType = personaProfile?.primary_persona || null
   const sectorPreference = pData?.sector || pData?.city || null
-  const nriEligible = pData?.nri_eligible
+  const hasBuyerProfileData = avgBuyerAge !== null || incomeBracket !== null || primaryBuyerType !== null
 
   // Return scenario multiplier
   const sectorCagrVal = pData?.appreciation_potential_5yr ?? marketIntel?.sector_cagr ?? null
@@ -364,7 +364,7 @@ export default function IntelligenceTab({
 
           <div className="p-3.5 rounded-2xl bg-gray-50/70 dark:bg-white/5 border border-gray-100 dark:border-white/5 space-y-1 min-w-0">
             <p className="text-[10px] font-black text-gray-400 uppercase tracking-wider truncate">Investment Grade</p>
-            <p className="text-[18px] sm:text-[20px] font-black text-gray-900 dark:text-white truncate">{renderMetricVal(investmentGrade, loading, "w-12")}</p>
+            <p className="text-[18px] sm:text-[20px] font-black text-gray-900 dark:text-white truncate">{renderMetricVal(investmentGrade, loading, "w-12", 'Not available')}</p>
           </div>
 
           <div className="p-3.5 rounded-2xl bg-gray-50/70 dark:bg-white/5 border border-gray-100 dark:border-white/5 space-y-1 min-w-0">
@@ -473,28 +473,30 @@ export default function IntelligenceTab({
                   <div className="w-1/4 h-full bg-indigo-600 rounded-r-full" title="Ultra Premium" />
                 </div>
 
-                {/* Dynamically position slider dot using dna price_score or fallback 65% */}
-                <div 
-                  className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 flex flex-col items-center z-10 pointer-events-none"
-                  style={{ left: `${Math.min(Math.max(dna?.price_score ?? 65, 14), 86)}%` }}
-                >
-                  <div className="bg-gray-900 text-white dark:bg-white dark:text-gray-900 text-[9.5px] sm:text-[10px] font-black px-2.5 py-1 rounded-lg shadow-xl whitespace-nowrap -mt-9 border border-white/20 dark:border-black/10 flex items-center gap-1">
-                    <span>{pData?.name || 'Project'}</span>
-                    <span className="opacity-60">•</span>
-                    <span>₹{pricePsf ? pricePsf.toLocaleString('en-IN') : '--'}/sq.ft</span>
+                {/* Position the slider dot only from a real dna.price_score — no default position to invent a ranking */}
+                {dna?.price_score != null && (
+                  <div
+                    className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 flex flex-col items-center z-10 pointer-events-none"
+                    style={{ left: `${Math.min(Math.max(dna.price_score, 14), 86)}%` }}
+                  >
+                    <div className="bg-gray-900 text-white dark:bg-white dark:text-gray-900 text-[9.5px] sm:text-[10px] font-black px-2.5 py-1 rounded-lg shadow-xl whitespace-nowrap -mt-9 border border-white/20 dark:border-black/10 flex items-center gap-1">
+                      <span>{pData?.name || 'Project'}</span>
+                      <span className="opacity-60">•</span>
+                      <span>₹{pricePsf ? pricePsf.toLocaleString('en-IN') : '--'}/sq.ft</span>
+                    </div>
+                    <div className="relative flex items-center justify-center">
+                      <div className="w-5 h-5 bg-blue-600 dark:bg-white rounded-full ring-4 ring-white dark:ring-gray-900 shadow-md flex items-center justify-center" />
+                      <span className="w-2 h-2 bg-white dark:bg-blue-600 rounded-full absolute" />
+                    </div>
                   </div>
-                  <div className="relative flex items-center justify-center">
-                    <div className="w-5 h-5 bg-blue-600 dark:bg-white rounded-full ring-4 ring-white dark:ring-gray-900 shadow-md flex items-center justify-center" />
-                    <span className="w-2 h-2 bg-white dark:bg-blue-600 rounded-full absolute" />
-                  </div>
-                </div>
+                )}
               </div>
 
               {/* Segment Labels */}
               <div className="grid grid-cols-4 text-center text-[10px] sm:text-[11px] font-bold text-gray-500 dark:text-gray-400 pt-1">
                 <span>Value</span>
                 <span>Competitive</span>
-                <span className="text-blue-600 dark:text-blue-400 font-black">Premium</span>
+                <span>Premium</span>
                 <span>Ultra Luxury</span>
               </div>
             </div>
@@ -751,71 +753,73 @@ export default function IntelligenceTab({
         </div>
       )}
 
-      {/* ── 6. INCOME & BUYER PROFILE INSIGHTS ── */}
-      <div className="bg-white dark:bg-[#111] ring-1 ring-inset ring-black/5 dark:ring-white/10 rounded-[24px] p-5 sm:p-6 shadow-[0_2px_12px_rgba(0,0,0,0.03)] space-y-4 sm:space-y-5">
-        <div>
-          <h2 className="text-[18px] font-black text-gray-900 dark:text-white tracking-tight">
-            Income & Buyer Profile Insights
-          </h2>
-          <p className="text-[11.5px] sm:text-[12px] text-gray-500 font-medium mt-0.5">
-            Who is buying in this micro-market?
-          </p>
+      {/* ── 6. INCOME & BUYER PROFILE INSIGHTS (hidden until PersonaProfile data exists) ── */}
+      {hasBuyerProfileData && (
+        <div className="bg-white dark:bg-[#111] ring-1 ring-inset ring-black/5 dark:ring-white/10 rounded-[24px] p-5 sm:p-6 shadow-[0_2px_12px_rgba(0,0,0,0.03)] space-y-4 sm:space-y-5">
+          <div>
+            <h2 className="text-[18px] font-black text-gray-900 dark:text-white tracking-tight">
+              Income & Buyer Profile Insights
+            </h2>
+            <p className="text-[11.5px] sm:text-[12px] text-gray-500 font-medium mt-0.5">
+              Who is buying in this micro-market?
+            </p>
+          </div>
+
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
+            <div className="p-3.5 sm:p-4 rounded-2xl bg-gray-50/70 dark:bg-white/5 border border-gray-100 dark:border-white/5 flex flex-col justify-between space-y-2 min-h-[110px]">
+              <div className="flex items-center justify-between">
+                <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-blue-50 text-blue-600 dark:bg-blue-950/50 dark:text-blue-400 flex items-center justify-center flex-shrink-0">
+                  <UserCheck size={16} />
+                </div>
+                <span className="text-[9px] sm:text-[9.5px] text-gray-400 font-black uppercase tracking-wider">Avg. Age</span>
+              </div>
+              <div>
+                <p className="text-[12.5px] sm:text-[14.5px] font-black text-gray-900 dark:text-white leading-tight line-clamp-2">{avgBuyerAge || 'Not available'}</p>
+                <p className="text-[9.5px] sm:text-[10px] text-gray-400 font-semibold mt-0.5 truncate">Primary Buyers</p>
+              </div>
+            </div>
+
+            <div className="p-3.5 sm:p-4 rounded-2xl bg-gray-50/70 dark:bg-white/5 border border-gray-100 dark:border-white/5 flex flex-col justify-between space-y-2 min-h-[110px]">
+              <div className="flex items-center justify-between">
+                <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-indigo-50 text-indigo-600 dark:bg-indigo-950/50 dark:text-indigo-400 flex items-center justify-center flex-shrink-0">
+                  <DollarSign size={16} />
+                </div>
+                <span className="text-[9px] sm:text-[9.5px] text-gray-400 font-black uppercase tracking-wider">Income</span>
+              </div>
+              <div>
+                <p className="text-[12.5px] sm:text-[14.5px] font-black text-gray-900 dark:text-white leading-tight line-clamp-2">{incomeBracket || 'Not available'}</p>
+                <p className="text-[9.5px] sm:text-[10px] text-gray-400 font-semibold mt-0.5 truncate">Annual Household</p>
+              </div>
+            </div>
+
+            <div className="p-3.5 sm:p-4 rounded-2xl bg-gray-50/70 dark:bg-white/5 border border-gray-100 dark:border-white/5 flex flex-col justify-between space-y-2 min-h-[110px]">
+              <div className="flex items-center justify-between">
+                <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-purple-50 text-purple-600 dark:bg-purple-950/50 dark:text-purple-400 flex items-center justify-center flex-shrink-0">
+                  <Users size={16} />
+                </div>
+                <span className="text-[9px] sm:text-[9.5px] text-gray-400 font-black uppercase tracking-wider">Buyer Type</span>
+              </div>
+              <div>
+                <p className="text-[12.5px] sm:text-[14.5px] font-black text-gray-900 dark:text-white leading-tight line-clamp-2">{primaryBuyerType || 'Not available'}</p>
+                <p className="text-[9.5px] sm:text-[10px] text-gray-400 font-semibold mt-0.5 truncate">Target Audience</p>
+              </div>
+            </div>
+
+            <div className="p-3.5 sm:p-4 rounded-2xl bg-gray-50/70 dark:bg-white/5 border border-gray-100 dark:border-white/5 flex flex-col justify-between space-y-2 min-h-[110px]">
+              <div className="flex items-center justify-between">
+                <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-rose-50 text-rose-600 dark:bg-rose-950/50 dark:text-rose-400 flex items-center justify-center flex-shrink-0">
+                  <Award size={16} />
+                </div>
+                <span className="text-[9px] sm:text-[9.5px] text-gray-400 font-black uppercase tracking-wider">Locality</span>
+              </div>
+              <div>
+                <p className="text-[12.5px] sm:text-[14.5px] font-black text-gray-900 dark:text-white leading-tight line-clamp-2">{sectorPreference || '--'}</p>
+                <p className="text-[9.5px] sm:text-[10px] text-gray-400 font-semibold mt-0.5 truncate">Top Choice</p>
+              </div>
+            </div>
+          </div>
         </div>
-
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
-          <div className="p-3.5 sm:p-4 rounded-2xl bg-gray-50/70 dark:bg-white/5 border border-gray-100 dark:border-white/5 flex flex-col justify-between space-y-2 min-h-[110px]">
-            <div className="flex items-center justify-between">
-              <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-blue-50 text-blue-600 dark:bg-blue-950/50 dark:text-blue-400 flex items-center justify-center flex-shrink-0">
-                <UserCheck size={16} />
-              </div>
-              <span className="text-[9px] sm:text-[9.5px] text-gray-400 font-black uppercase tracking-wider">Avg. Age</span>
-            </div>
-            <div>
-              <p className="text-[12.5px] sm:text-[14.5px] font-black text-gray-900 dark:text-white leading-tight line-clamp-2">{avgBuyerAge}</p>
-              <p className="text-[9.5px] sm:text-[10px] text-gray-400 font-semibold mt-0.5 truncate">Primary Buyers</p>
-            </div>
-          </div>
-
-          <div className="p-3.5 sm:p-4 rounded-2xl bg-gray-50/70 dark:bg-white/5 border border-gray-100 dark:border-white/5 flex flex-col justify-between space-y-2 min-h-[110px]">
-            <div className="flex items-center justify-between">
-              <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-indigo-50 text-indigo-600 dark:bg-indigo-950/50 dark:text-indigo-400 flex items-center justify-center flex-shrink-0">
-                <DollarSign size={16} />
-              </div>
-              <span className="text-[9px] sm:text-[9.5px] text-gray-400 font-black uppercase tracking-wider">Income</span>
-            </div>
-            <div>
-              <p className="text-[12.5px] sm:text-[14.5px] font-black text-gray-900 dark:text-white leading-tight line-clamp-2">{incomeBracket}</p>
-              <p className="text-[9.5px] sm:text-[10px] text-gray-400 font-semibold mt-0.5 truncate">Annual Household</p>
-            </div>
-          </div>
-
-          <div className="p-3.5 sm:p-4 rounded-2xl bg-gray-50/70 dark:bg-white/5 border border-gray-100 dark:border-white/5 flex flex-col justify-between space-y-2 min-h-[110px]">
-            <div className="flex items-center justify-between">
-              <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-purple-50 text-purple-600 dark:bg-purple-950/50 dark:text-purple-400 flex items-center justify-center flex-shrink-0">
-                <Users size={16} />
-              </div>
-              <span className="text-[9px] sm:text-[9.5px] text-gray-400 font-black uppercase tracking-wider">Buyer Type</span>
-            </div>
-            <div>
-              <p className="text-[12.5px] sm:text-[14.5px] font-black text-gray-900 dark:text-white leading-tight line-clamp-2">{primaryBuyerType}</p>
-              <p className="text-[9.5px] sm:text-[10px] text-gray-400 font-semibold mt-0.5 truncate">Target Audience</p>
-            </div>
-          </div>
-
-          <div className="p-3.5 sm:p-4 rounded-2xl bg-gray-50/70 dark:bg-white/5 border border-gray-100 dark:border-white/5 flex flex-col justify-between space-y-2 min-h-[110px]">
-            <div className="flex items-center justify-between">
-              <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-rose-50 text-rose-600 dark:bg-rose-950/50 dark:text-rose-400 flex items-center justify-center flex-shrink-0">
-                <Award size={16} />
-              </div>
-              <span className="text-[9px] sm:text-[9.5px] text-gray-400 font-black uppercase tracking-wider">Locality</span>
-            </div>
-            <div>
-              <p className="text-[12.5px] sm:text-[14.5px] font-black text-gray-900 dark:text-white leading-tight line-clamp-2">{sectorPreference || '--'}</p>
-              <p className="text-[9.5px] sm:text-[10px] text-gray-400 font-semibold mt-0.5 truncate">Top Choice</p>
-            </div>
-          </div>
-        </div>
-      </div>
+      )}
 
       {/* ── 7. RISK & COMPLIANCE CHECK (2-Column Grid on Mobile) ── */}
       <div className="bg-white dark:bg-[#111] ring-1 ring-inset ring-black/5 dark:ring-white/10 rounded-[24px] p-5 sm:p-6 shadow-[0_2px_12px_rgba(0,0,0,0.03)] space-y-4 sm:space-y-5">

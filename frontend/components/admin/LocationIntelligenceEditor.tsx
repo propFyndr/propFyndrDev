@@ -8,18 +8,9 @@ import { toast } from 'sonner'
 import JsonEditor from './JsonEditor'
 
 interface LocationIntelligenceData {
-  schools_nearby_count?: number | string
-  hospitals_nearby_count?: number | string
-  shopping_nearby_count?: number | string
-  it_parks_nearby_count?: number | string
-  banks_nearby_count?: number | string
-  restaurants_nearby_count?: number | string
   walkability_score?: number | string
   green_cover_percent?: number | string
   air_quality_index_avg?: number | string
-  aqi_annual_avg?: number | string
-  women_safety_score?: number | string
-  noise_level_db?: number | string
   top_school_distance_km?: number | string
   hospital_distance_km?: number | string
   airport_distance_km?: number | string
@@ -42,18 +33,10 @@ interface LocationIntelligenceData {
 }
 
 export default function LocationIntelligenceEditor({ projectId, initialData }: { projectId: string, initialData?: LocationIntelligenceData }) {
-  const [schools, setSchools] = useState(String(initialData?.schools_nearby_count ?? ''))
-  const [hospitals, setHospitals] = useState(String(initialData?.hospitals_nearby_count ?? ''))
-  const [shopping, setShopping] = useState(String(initialData?.shopping_nearby_count ?? ''))
-  const [itParks, setItParks] = useState(String(initialData?.it_parks_nearby_count ?? ''))
-  const [banks, setBanks] = useState(String(initialData?.banks_nearby_count ?? ''))
-  const [restaurants, setRestaurants] = useState(String(initialData?.restaurants_nearby_count ?? ''))
   const [walkability, setWalkability] = useState(String(initialData?.walkability_score ?? ''))
   const [greenCover, setGreenCover] = useState(String(initialData?.green_cover_percent ?? ''))
-  const [aqi, setAqi] = useState(String(initialData?.air_quality_index_avg ?? initialData?.aqi_annual_avg ?? ''))
-  const [safetyScore, setSafetyScore] = useState(String(initialData?.women_safety_score ?? ''))
-  const [noiseLevel, setNoiseLevel] = useState(String(initialData?.noise_level_db ?? ''))
-  
+  const [aqi, setAqi] = useState(String(initialData?.air_quality_index_avg ?? ''))
+
   const [schoolDist, setSchoolDist] = useState(String(initialData?.top_school_distance_km ?? ''))
   const [hospitalDist, setHospitalDist] = useState(String(initialData?.hospital_distance_km ?? ''))
   const [airportDist, setAirportDist] = useState(String(initialData?.airport_distance_km ?? ''))
@@ -99,8 +82,6 @@ export default function LocationIntelligenceEditor({ projectId, initialData }: {
       const walkabilityNum = walkability ? parseInt(String(walkability), 10) : null
       const greenCoverNum = greenCover ? parseInt(String(greenCover), 10) : null
       const aqiNum = aqi ? parseFloat(String(aqi)) : null
-      const safetyNum = safetyScore ? parseInt(String(safetyScore), 10) : null
-      const noiseLevelNum = noiseLevel ? parseInt(String(noiseLevel), 10) : null
 
       if (walkabilityNum !== null && (walkabilityNum < 0 || walkabilityNum > 100)) {
         toast.error('Walkability score must be 0-100')
@@ -117,18 +98,9 @@ export default function LocationIntelligenceEditor({ projectId, initialData }: {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json', ...adminAuthHeaders() },
         body: JSON.stringify({
-          schools_nearby_count: schools ? String(parseInt(schools)) : null,
-          hospitals_nearby_count: hospitals ? String(parseInt(hospitals)) : null,
-          shopping_nearby_count: shopping ? String(parseInt(shopping)) : null,
-          it_parks_nearby_count: itParks ? String(parseInt(itParks)) : null,
-          banks_nearby_count: banks ? String(parseInt(banks)) : null,
-          restaurants_nearby_count: restaurants ? String(parseInt(restaurants)) : null,
           walkability_score: walkabilityNum ? String(walkabilityNum) : null,
           green_cover_percent: greenCoverNum ? String(greenCoverNum) : null,
           air_quality_index_avg: aqiNum ? String(Math.round(aqiNum)) : null,
-          aqi_annual_avg: aqiNum,
-          women_safety_score: safetyNum,
-          noise_level_db: noiseLevelNum ? String(noiseLevelNum) : null,
           top_school_distance_km: schoolDist ? parseFloat(schoolDist) : null,
           hospital_distance_km: hospitalDist ? parseFloat(hospitalDist) : null,
           airport_distance_km: airportDist ? parseFloat(airportDist) : null,
@@ -225,10 +197,6 @@ export default function LocationIntelligenceEditor({ projectId, initialData }: {
         <div>
           <label className="block text-[11px] font-medium text-zinc-500 dark:text-zinc-400 mb-1">Air Quality (AQI)</label>
           <input value={aqi} onChange={(e) => setAqi(e.target.value)} type="number" className="w-full bg-white dark:bg-zinc-900 border border-zinc-200/90 dark:border-zinc-700/80 rounded-xl px-3 py-2 text-[13px] font-mono font-semibold text-zinc-900 dark:text-zinc-100 focus:border-[#0066cc] outline-none shadow-2xs" placeholder="178" />
-        </div>
-        <div>
-          <label className="block text-[11px] font-medium text-zinc-500 dark:text-zinc-400 mb-1">Safety Score (0-100)</label>
-          <input value={safetyScore} onChange={(e) => setSafetyScore(e.target.value)} type="number" className="w-full bg-white dark:bg-zinc-900 border border-zinc-200/90 dark:border-zinc-700/80 rounded-xl px-3 py-2 text-[13px] font-mono font-semibold text-zinc-900 dark:text-zinc-100 focus:border-[#0066cc] outline-none shadow-2xs" placeholder="92" />
         </div>
         <div>
           <label className="block text-[11px] font-medium text-zinc-500 dark:text-zinc-400 mb-1">Litigation Count</label>
