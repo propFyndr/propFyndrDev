@@ -514,12 +514,10 @@ async function scoreProjects(targets: Array<{ id: string; slug: string }>): Prom
         tagline: true, address: true, lat: true, lng: true, total_units: true,
         total_towers: true, land_area_acres: true, possession_label: true,
         hero_image_url: true, price_min_cr: true, price_range_label: true,
-        nri_eligible: true, vastu_compliant: true, women_safety_score: true,
         air_quality_index_avg: true, water_source: true, dg_power_rate_per_unit: true,
-        maintenance_per_sqft_monthly: true, has_png_gas_pipeline: true,
-        mobile_network_rating: true, ceiling_height_ft: true, lifts_per_tower: true,
-        has_service_lift: true, shared_walls_type: true, authority_dues_cleared: true,
-        land_tenure: true, pet_friendly: true, bachelor_tenants_allowed: true,
+        maintenance_per_sqft_monthly: true,
+        ceiling_height_ft: true, lifts_per_tower: true,
+        shared_walls_type: true,
         builder: { select: { id: true, name: true } },
         unit_types: {
           select: {
@@ -537,26 +535,9 @@ async function scoreProjects(targets: Array<{ id: string; slug: string }>): Prom
             lifecycle_updates: true, price_history: true, channel_partners: true,
           },
         },
-        dna: {
-          select: {
-            builder_score: true, price_score: true, location_score: true,
-            legal_score: true, amenity_score: true, possession_score: true,
-          },
-        },
         decision_profile: {
           select: { decision_thesis: true, why_buy: true, why_avoid: true, best_for: true },
         },
-        // `income_range`, `family_stage` and `work_location` are read through
-        // an `as any` cast in the scorer and are NOT on its declared
-        // interface. Narrowing to the interface cost every project 3 points
-        // and was caught by completenessParity.test.ts.
-        persona_profile: {
-          select: {
-            primary_persona: true, secondary_personas: true,
-            income_range: true, family_stage: true, work_location: true,
-          },
-        },
-        recommendation_profile: { select: { tier: true, primary_thesis: true } },
         cost_sheet: { select: { base_price_per_sqft: true, base_cost_cr: true } },
         payment_plans: { select: { id: true, milestones: true } },
       },
@@ -865,10 +846,7 @@ router.get('/projects/:id', async (req: Request, res: Response) => {
         images: true,
         amenities: true,
         connectivity: true,
-        dna: true,
         decision_profile: true,
-        persona_profile: true,
-        recommendation_profile: true,
         competitors: { orderBy: { sort_order: 'asc' } },
         spec_items: { include: { unit_type: { select: { id: true, name: true, bhk: true } } }, orderBy: [{ sort_order: 'asc' }, { category: 'asc' }] },
         construction_milestones: { orderBy: { completion_pct: 'desc' } },
@@ -889,7 +867,6 @@ router.get('/projects/:id', async (req: Request, res: Response) => {
     const p = project as any
     const safeProject = {
       ...p,
-      dna: p.dna ?? null,
       unit_types: p.unit_types ?? [],
       images: p.images ?? [],
       payment_plans: p.payment_plans ?? [],
@@ -939,10 +916,7 @@ router.get('/projects/:id/completeness', async (req: Request, res: Response) => 
         images: true,
         amenities: true,
         connectivity: true,
-        dna: true,
         decision_profile: true,
-        persona_profile: true,
-        recommendation_profile: true,
         competitors: true,
         cost_sheet: true,
         payment_plans: true,
@@ -1051,10 +1025,7 @@ router.get('/projects/export', async (req: Request, res: Response) => {
         images: true,
         amenities: true,
         connectivity: true,
-        dna: true,
         decision_profile: true,
-        persona_profile: true,
-        recommendation_profile: true,
         competitors: true,
         cost_sheet: true,
         payment_plans: true,
@@ -1373,10 +1344,10 @@ router.delete('/projects/:id', async (req: Request, res: Response) => {
       await tx.savedProperty.deleteMany({ where: { project_id: targetId } }).catch(e => console.warn('[admin] savedProperty delete failed:', e))
       await tx.priceAlert.deleteMany({ where: { project_id: targetId } }).catch(e => console.warn('[admin] priceAlert delete failed:', e))
       await tx.builderLead.deleteMany({ where: { project_id: targetId } }).catch(e => console.warn('[admin] builderLead delete failed:', e))
-      await tx.projectDna.deleteMany({ where: { project_id: targetId } }).catch(e => console.warn('[admin] projectDna delete failed:', e))
+      // projectDna / personaProfile / recommendationProfile: tables dropped
+      // entirely in the lean-schema migration (2026-10) — nothing left to
+      // clean up before the FK-constrained project delete below.
       await tx.decisionProfile.deleteMany({ where: { project_id: targetId } }).catch(e => console.warn('[admin] decisionProfile delete failed:', e))
-      await tx.personaProfile.deleteMany({ where: { project_id: targetId } }).catch(() => {})
-      await tx.recommendationProfile.deleteMany({ where: { project_id: targetId } }).catch(() => {})
 
       // Unlink focused project from chat sessions
       await tx.chatSession.updateMany({
@@ -3270,33 +3241,6 @@ router.put('/projects/:id/updates', async (req: Request, res: Response) => {
   }
 })
 
-// PATCH /api/v1/admin/projects/:id/dna — save/update project DNA profile
-router.patch('/projects/:id/dna', async (req: Request, res: Response) => {
-  const { id } = req.params
-  const data = req.body
-
-  try {
-    const project = await prisma.project.findFirst({
-      where: { OR: [{ id }, { slug: id }] },
-      select: { id: true }
-    })
-    if (!project) {
-      res.status(404).json({ error: 'Project not found' })
-      return
-    }
-
-    const updated = await (prisma as any).projectDna.upsert({
-      where: { project_id: project.id },
-      update: { ...data, updated_at: new Date() },
-      create: { project_id: project.id, ...data }
-    })
-    res.json({ success: true, data: updated })
-  } catch (err) {
-    console.error('[admin] save DNA failed:', err)
-    res.status(500).json({ error: 'Failed to save DNA profile' })
-  }
-})
-
 // PATCH /api/v1/admin/projects/:id/decision-profile — save/update decision profile
 router.patch('/projects/:id/decision-profile', async (req: Request, res: Response) => {
   const { id } = req.params
@@ -3321,60 +3265,6 @@ router.patch('/projects/:id/decision-profile', async (req: Request, res: Respons
   } catch (err) {
     console.error('[admin] save decision profile failed:', err)
     res.status(500).json({ error: 'Failed to save decision profile' })
-  }
-})
-
-// PATCH /api/v1/admin/projects/:id/persona-profile — save/update persona profile
-router.patch('/projects/:id/persona-profile', async (req: Request, res: Response) => {
-  const { id } = req.params
-  const data = req.body
-
-  try {
-    const project = await prisma.project.findFirst({
-      where: { OR: [{ id }, { slug: id }] },
-      select: { id: true }
-    })
-    if (!project) {
-      res.status(404).json({ error: 'Project not found' })
-      return
-    }
-
-    const updated = await (prisma as any).personaProfile.upsert({
-      where: { project_id: project.id },
-      update: { ...data, updated_at: new Date() },
-      create: { project_id: project.id, ...data }
-    })
-    res.json({ success: true, data: updated })
-  } catch (err) {
-    console.error('[admin] save persona profile failed:', err)
-    res.status(500).json({ error: 'Failed to save persona profile' })
-  }
-})
-
-// PATCH /api/v1/admin/projects/:id/recommendation-profile — save/update recommendation profile
-router.patch('/projects/:id/recommendation-profile', async (req: Request, res: Response) => {
-  const { id } = req.params
-  const data = req.body
-
-  try {
-    const project = await prisma.project.findFirst({
-      where: { OR: [{ id }, { slug: id }] },
-      select: { id: true }
-    })
-    if (!project) {
-      res.status(404).json({ error: 'Project not found' })
-      return
-    }
-
-    const updated = await (prisma as any).recommendationProfile.upsert({
-      where: { project_id: project.id },
-      update: { ...data, updated_at: new Date() },
-      create: { project_id: project.id, ...data }
-    })
-    res.json({ success: true, data: updated })
-  } catch (err) {
-    console.error('[admin] save recommendation profile failed:', err)
-    res.status(500).json({ error: 'Failed to save recommendation profile' })
   }
 })
 
