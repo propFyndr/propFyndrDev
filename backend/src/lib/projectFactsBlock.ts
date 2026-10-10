@@ -27,59 +27,55 @@ import { airportDistances } from './discovery/airports'
 import { redactProject, isPublicField, stripRelationInternals, isSchemaDefault, stripOpaqueScores } from './projectExposure'
 import { normalizeRera, RERA_AMBIGUOUS_NOTE } from './reraIntegrity'
 
-/** Columns rendered as "yes"/"no" rather than true/false. */
+/**
+ * Columns rendered as "yes"/"no" rather than true/false.
+ *
+ * nri_eligible, pet_friendly, bachelor_tenants_allowed, vastu_compliant,
+ * has_png_gas_pipeline, has_service_lift, escrow_verified,
+ * authority_dues_cleared, price_includes_plc/club/taxes, north_facing_units
+ * and east_facing_preferred were removed (lean-schema migration, 2026-10 —
+ * the columns are dropped or never existed on Project).
+ */
 const BOOLEAN_LABELS: Record<string, [string, string]> = {
   oc_obtained: ['obtained', 'not obtained'],
-  nri_eligible: ['eligible', 'not eligible'],
   rental_income_allowed: ['allowed', 'not allowed'],
   foreign_currency_payment_allowed: ['allowed', 'not allowed'],
-  pet_friendly: ['pet friendly', 'pets not allowed'],
-  bachelor_tenants_allowed: ['allowed', 'not allowed'],
-  vastu_compliant: ['vastu compliant', 'not vastu compliant'],
   has_security_24x7: ['24x7 security', 'no 24x7 security'],
   has_cctv: ['CCTV', 'no CCTV'],
   street_lights: ['street lighting', 'no street lighting'],
-  has_png_gas_pipeline: ['piped gas', 'no piped gas'],
-  has_service_lift: ['service lift', 'no service lift'],
   land_title_clear: ['clear', 'not clear'],
   fir_against_project: ['FIR on record', 'no FIR on record'],
-  escrow_verified: ['escrow verified', 'escrow not verified'],
   nclt_moratorium_active: ['NCLT moratorium ACTIVE', 'no NCLT moratorium'],
-  authority_dues_cleared: ['cleared', 'not cleared'],
   gst_pass_through: ['passed through', 'not passed through'],
-  price_includes_plc: ['included', 'not included'],
-  price_includes_club: ['included', 'not included'],
-  price_includes_taxes: ['included', 'not included'],
   has_duplex: ['available', 'not available'],
   has_penthouse: ['available', 'not available'],
-  north_facing_units: ['available', 'not available'],
-  east_facing_preferred: ['yes', 'no'],
 }
 
-/** Units appended to numeric columns so the model does not have to guess. */
+/**
+ * Units appended to numeric columns so the model does not have to guess.
+ *
+ * women_safety_score, noise_level_db, mobile_network_rating,
+ * resale_lock_in_months, average_builder_delay_months and
+ * college_distance_km were removed (lean-schema migration, 2026-10 — the
+ * columns are dropped or never existed on Project).
+ */
 const UNITS: Record<string, string> = {
   land_area_acres: ' acres',
   open_space_pct: '%',
   green_cover_percent: '%',
   walkability_score: '/100',
-  women_safety_score: '/100',
   construction_quality_rating: '/5',
   buyer_satisfaction_rating: '/5',
   handover_defect_rate: '%',
-  noise_level_db: ' dB',
   ceiling_height_ft: ' ft',
-  mobile_network_rating: '/5',
   top_school_distance_km: ' km',
-  college_distance_km: ' km',
   hospital_distance_km: ' km',
   airport_distance_km: ' km',
   police_station_distance_km: ' km',
   maintenance_per_sqft_monthly: ' per sq.ft per month',
   dg_power_rate_per_unit: ' per unit',
-  resale_lock_in_months: ' months',
   occupancy_restriction_months: ' months',
   nri_approval_months: ' months',
-  average_builder_delay_months: ' months',
   price_min_cr: ' Cr',
 }
 
@@ -212,19 +208,18 @@ export const PRICING_FACT_FIELDS = new Set([
   ...CORE_IDENTITY_FIELDS,
   'possession_date', 'possession_label',
   'price_min_cr', 'price_max_cr', 'price_range_label', 'price_per_sqft',
-  'maintenance_per_sqft_monthly', 'gst_pass_through', 'price_includes_plc',
-  'price_includes_club', 'price_includes_taxes', 'dg_power_rate_per_unit',
-  'resale_lock_in_months', 'all_in_cost_multiplier', 'launch_date', 'nri_eligible',
+  'maintenance_per_sqft_monthly', 'gst_pass_through',
+  'dg_power_rate_per_unit', 'all_in_cost_multiplier', 'launch_date',
   'unit_types',
 ])
 
 export const LEGAL_FACT_FIELDS = new Set([
   ...CORE_IDENTITY_FIELDS,
   'rera_number', 'rera_number_status', 'land_title_clear',
-  'nclt_moratorium_active', 'nclt_status', 'authority_dues_cleared',
+  'nclt_moratorium_active',
   'fir_against_project', 'litigation_count', 'ongoing_litigation_count',
-  'legal_flag', 'project_risk_flag', 'escrow_verified', 'oc_obtained',
-  'land_tenure', 'resale_lock_in_months', 'occupancy_restriction_months',
+  'project_risk_flag', 'oc_obtained',
+  'occupancy_restriction_months',
   'legal_risk_summary', 'developer_legal_standing',
   'oc_status', 'oc_details', 'amitabh_kant_clearance', 'registry_status',
   'possession_confidence', 'lift_act_compliant', 'flood_zone',
@@ -233,17 +228,15 @@ export const LEGAL_FACT_FIELDS = new Set([
 export const LIVABILITY_FACT_FIELDS = new Set([
   ...CORE_IDENTITY_FIELDS,
   'open_space_pct', 'green_cover_percent', 'walkability_score',
-  'women_safety_score', 'construction_quality_rating', 'buyer_satisfaction_rating',
-  'noise_level_db', 'pet_friendly', 'bachelor_tenants_allowed', 'vastu_compliant',
-  'top_school_distance_km', 'college_distance_km', 'hospital_distance_km',
+  'construction_quality_rating', 'buyer_satisfaction_rating',
+  'top_school_distance_km', 'hospital_distance_km',
   'airport_distance_km', 'airport_distances', 'police_station_distance_km',
-  'has_security_24x7', 'has_cctv', 'street_lights', 'has_png_gas_pipeline',
-  'has_service_lift', 'total_units', 'total_towers', 'ceiling_height_ft',
-  'density_units_per_acre',
-  'water_source', 'water_source_type', 'water_tds_range', 'aqi_annual_avg',
+  'has_security_24x7', 'has_cctv', 'street_lights',
+  'total_units', 'total_towers', 'ceiling_height_ft',
+  'water_source', 'water_source_type', 'water_tds_range',
   'air_quality_index_avg', 'flood_waterlogging_risk', 'flood_zone',
   'shahdara_drain_impact', 'commute_matrix', 'floors', 'lift_act_compliant',
-  'power_supply_type', 'green_rating', 'north_facing_units', 'east_facing_preferred',
+  'power_supply_type', 'green_rating',
   'description', 'amenities', 'unit_types',
 ])
 
@@ -373,8 +366,6 @@ interface RelationShapes {
   payment_plans?: Array<Record<string, unknown>> | null
   cost_sheet?: Record<string, unknown> | null
   decision_profile?: Record<string, unknown> | null
-  recommendation_profile?: Record<string, unknown> | null
-  persona_profile?: Record<string, unknown> | null
   price_history?: Array<Record<string, unknown>> | null
   construction_milestones?: Array<Record<string, unknown>> | null
   spec_items?: Array<Record<string, unknown>> | null
@@ -452,15 +443,15 @@ export function buildProjectFacts(
   const ongoingLitigation = Number(row.ongoing_litigation_count) || 0
   const builderLitigation = Number((row.builder as any)?.litigation_count) || 0
   const ncltActive = row.nclt_moratorium_active === true
-  const duesPending = row.authority_dues_cleared === false
-  const projFlag = typeof row.legal_flag === 'string' && row.legal_flag !== 'none' ? row.legal_flag : null
+  // authority_dues_cleared is dropped (lean-schema migration, 2026-10) — no
+  // signal to derive a dues-pending disclosure from until re-sourced.
+  const projFlag = typeof row.project_risk_flag === 'string' && row.project_risk_flag !== 'none' ? row.project_risk_flag : null
 
-  if (projLitigation > 0 || ongoingLitigation > 0 || builderLitigation > 0 || ncltActive || duesPending || projFlag) {
+  if (projLitigation > 0 || ongoingLitigation > 0 || builderLitigation > 0 || ncltActive || projFlag) {
     const issues: string[] = []
     if (projLitigation > 0) issues.push(`${projLitigation} project litigation record(s) (${ongoingLitigation} ongoing)`)
     if (builderLitigation > 0) issues.push(`${builderLitigation} builder litigation record(s)`)
     if (ncltActive) issues.push('ACTIVE NCLT insolvency moratorium')
-    if (duesPending) issues.push('Uncleared Noida/Greater Noida Authority land dues (sub-lease deed registry may be blocked)')
     if (projFlag) issues.push(`Project legal flag: ${projFlag}`)
 
     facts.legal_risk_summary =
@@ -526,15 +517,9 @@ export function buildProjectFacts(
     facts.decision_profile = decision
   }
 
-  if (!isPricing && !isLegal) {
-    const recommendation = cleanRelation('recommendation_profile', row.recommendation_profile)
-    if (recommendation) facts.recommendation_profile = recommendation
-  }
-
-  if (!isPricing && !isLegal) {
-    const persona = cleanRelation('persona_profile', row.persona_profile)
-    if (persona) facts.buyer_fit = persona
-  }
+  // RecommendationProfile and PersonaProfile are dropped (lean-schema
+  // migration, 2026-10) — nothing left to project into buyer_fit or a
+  // recommendation_profile fact until sub-project C re-sources them.
 
   const topics = options.topics
 

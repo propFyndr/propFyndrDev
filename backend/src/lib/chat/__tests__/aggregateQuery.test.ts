@@ -55,30 +55,34 @@ describe('parseAggregateQuestion', () => {
 })
 
 describe('queryProjects + renderAggregateAnswer', () => {
-  const unit = (psf: number, estimated: boolean) => ({ bhk: 3, price_min_cr: 1.5, price_per_sqft: psf, price_is_estimated: estimated })
+  // price_is_estimated is dropped (lean-schema migration, 2026-10) — every
+  // price_per_sqft is now treated uniformly; there is no measured/estimated
+  // split left to exclude.
+  const unit = (psf: number) => ({ bhk: 3, price_min_cr: 1.5, price_per_sqft: psf })
   const projects = [
-    { name: 'A', sector: 'Sector 150', price_min_cr: 1.2, possession_label: 'Dec 2026', maintenance_per_sqft_monthly: 3, unit_types: [unit(8000, false)] },
-    { name: 'B', sector: 'Sector 150', price_min_cr: 2.0, possession_label: null, maintenance_per_sqft_monthly: 4, unit_types: [unit(10000, false)] },
-    { name: 'C', sector: 'Sector 150', price_min_cr: 3.0, possession_label: null, maintenance_per_sqft_monthly: null, unit_types: [unit(12000, false)] },
-    { name: 'D', sector: 'Sector 150', price_min_cr: null, possession_label: null, maintenance_per_sqft_monthly: null, unit_types: [unit(99000, true)] },
+    { name: 'A', sector: 'Sector 150', price_min_cr: 1.2, possession_label: 'Dec 2026', maintenance_per_sqft_monthly: 3, unit_types: [unit(8000)] },
+    { name: 'B', sector: 'Sector 150', price_min_cr: 2.0, possession_label: null, maintenance_per_sqft_monthly: 4, unit_types: [unit(10000)] },
+    { name: 'C', sector: 'Sector 150', price_min_cr: 3.0, possession_label: null, maintenance_per_sqft_monthly: null, unit_types: [unit(12000)] },
+    { name: 'D', sector: 'Sector 150', price_min_cr: null, possession_label: null, maintenance_per_sqft_monthly: null, unit_types: [] },
   ]
   let restore: () => void
   before(() => { restore = stub('project', { findMany: async () => projects }) })
   after(() => restore())
 
-  it('averages measured price per sq ft and leaves estimates out', async () => {
-    const r = await queryProjects({ metric: 'avg', field: 'price_per_sqft', sector: 'Sector 150' })
-    assert.equal(r.matched, 4)
-    assert.equal(r.used, 3)
-    assert.equal(r.excludedEstimated, 1)
-    assert.equal(r.stats?.avg, 10000)
-    assert.equal(r.stats?.median, 10000)
-    assert.equal(r.stats?.min.name, 'A')
-    assert.equal(r.stats?.max.name, 'C')
-    const text = renderAggregateAnswer(r)
-    assert.match(text, /Average price per sq\.ft: \*\*₹10,000\/sq\.ft\*\*/)
-    assert.match(text, /computed over 3 projects we hold/)
-    assert.match(text, /1 only an estimate/)
+  it('averages price per sq ft, leaving projects without a priced unit out', () => {
+    return queryProjects({ metric: 'avg', field: 'price_per_sqft', sector: 'Sector 150' }).then((r) => {
+      assert.equal(r.matched, 4)
+      // D has no unit_types, so it contributes no price_per_sqft figure.
+      assert.equal(r.used, 3)
+      assert.equal(r.excludedEstimated, 0)
+      assert.equal(r.stats?.avg, 10000)
+      assert.equal(r.stats?.median, 10000)
+      assert.equal(r.stats?.min.name, 'A')
+      assert.equal(r.stats?.max.name, 'C')
+      const text = renderAggregateAnswer(r)
+      assert.match(text, /Average price per sq\.ft: \*\*₹10,000\/sq\.ft\*\*/)
+      assert.match(text, /computed over 3 projects we hold/)
+    })
   })
 
   it('says how few projects a figure rests on', async () => {

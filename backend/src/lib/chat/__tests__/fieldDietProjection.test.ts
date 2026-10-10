@@ -25,38 +25,25 @@ function mockFullProjectRow() {
     price_per_sqft: 14500,
     maintenance_per_sqft_monthly: 4.5,
     gst_pass_through: true,
-    price_includes_plc: true,
-    price_includes_club: false,
-    price_includes_taxes: false,
     dg_power_rate_per_unit: 18.5,
-    resale_lock_in_months: 12,
     rera_number: 'UPRERAPRJ7047',
     land_title_clear: true,
     nclt_moratorium_active: false,
-    authority_dues_cleared: true,
     fir_against_project: false,
     litigation_count: 0,
     ongoing_litigation_count: 0,
-    escrow_verified: true,
     oc_obtained: false,
     open_space_pct: 78,
     green_cover_percent: 65,
     walkability_score: 82,
-    women_safety_score: 88,
     construction_quality_rating: 4.5,
     buyer_satisfaction_rating: 4.2,
-    noise_level_db: 52,
-    pet_friendly: false,
-    bachelor_tenants_allowed: false,
-    vastu_compliant: true,
     top_school_distance_km: 1.8,
     hospital_distance_km: 2.4,
     airport_distance_km: 42,
     has_security_24x7: true,
     has_cctv: true,
     street_lights: true,
-    has_png_gas_pipeline: true,
-    has_service_lift: true,
     total_units: 1200,
     total_towers: 10,
     ceiling_height_ft: 11.5,
@@ -169,7 +156,7 @@ describe('Phase 2.2 — Intent-Scoped JIT Fact Projection (Field-Diet Engine)', 
     assert.ok(facts.open_space_pct === '78%')
     assert.ok(facts.green_cover_percent === '65%')
     assert.ok(facts.walkability_score === '82/100')
-    assert.ok(facts.pet_friendly === 'pets not allowed')
+    assert.ok(facts.has_cctv === 'CCTV')
     assert.ok(facts.amenities && Array.isArray(facts.amenities))
     assert.ok(facts.connectivity && Array.isArray(facts.connectivity))
 

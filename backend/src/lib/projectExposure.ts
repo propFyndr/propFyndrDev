@@ -576,32 +576,17 @@ export const SYNTHETIC_FIELDS: readonly string[] = []
  */
 export const SCHEMA_DEFAULT_SENTINELS: Record<string, number | boolean | string> = {
   ceiling_height_ft: 10.2,
-  mobile_network_rating: 4,
   lifts_per_tower: 3,
-  /**
-   * `@default(true)`, and measured on 2026-10-02: true on all 382 rows. Not one
-   * project has ever had it set by hand, so "authority dues: cleared" was being
-   * stated about every project we hold — Sports City sectors under a registry
-   * hold included. Only `false` (someone recorded outstanding dues) carries
-   * information; `true` is withheld until a row is genuinely verified.
-   */
-  authority_dues_cleared: true,
   /**
    * `Boolean @default(false)`, not nullable, so false cannot tell "checked: no
    * insolvency" from "never researched". Antriksh carried it while it was being
    * answered as "clean NCLT/insolvency standing". Only `true` carries information.
    */
   insolvency_history: false,
-  /**
-   * Measured 2026-10-05: each holds one identical value on all 382 rows, written
-   * by the enrich scripts or the schema default, never researched. "99-Year
-   * Authority Leasehold" is also not the usual Noida term (typically 90).
-   */
-  land_tenure: '99-Year Authority Leasehold',
-  pet_friendly: true,
-  bachelor_tenants_allowed: true,
-  has_png_gas_pipeline: true,
-  has_service_lift: true,
+  // mobile_network_rating, authority_dues_cleared, land_tenure, pet_friendly,
+  // bachelor_tenants_allowed, has_png_gas_pipeline and has_service_lift were
+  // dropped entirely (lean-schema migration, 2026-10) rather than left as
+  // columns a sentinel could mask — see the migration's cutover audit.
 }
 
 /**

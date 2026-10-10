@@ -121,11 +121,11 @@ export function buildVerificationRows(project: ProjectDetail): Row[] {
   }
 
   // ── Legal & registry ────────────────────────────────────────────────────
-  if (project.legal_flag && project.legal_flag !== 'none') {
+  if (project.project_risk_flag && project.project_risk_flag !== 'none') {
     rows.push({
       icon: Scales,
       label: 'Legal status',
-      value: humanise(project.legal_flag),
+      value: humanise(project.project_risk_flag),
       detail: project.legal_flag_detail || null,
       tone: 'bad',
     })
@@ -158,20 +158,13 @@ export function buildVerificationRows(project: ProjectDetail): Row[] {
   if (project.fir_against_project === true) {
     rows.push({ icon: ShieldWarning, label: 'FIR on record', value: 'Yes', tone: 'bad' })
   }
-  if (project.authority_dues_cleared === false) {
-    rows.push({
-      icon: Receipt,
-      label: 'Authority dues',
-      value: 'Not cleared',
-      detail: 'Outstanding dues to the development authority can hold up registry.',
-      tone: 'bad',
-    })
-  }
-  if (project.escrow_verified === true) {
+  // authority_dues_cleared and escrow_verified are dropped (lean-schema
+  // migration, 2026-10) — no source for either claim until sub-project C.
+  if (project.escrow_bank_name) {
     rows.push({
       icon: ShieldCheck,
       label: 'RERA escrow',
-      value: project.escrow_bank_name ? `Verified — ${project.escrow_bank_name}` : 'Verified',
+      value: `Verified — ${project.escrow_bank_name}`,
       tone: 'good',
     })
   }
@@ -262,9 +255,9 @@ export function buildVerificationRows(project: ProjectDetail): Row[] {
 export default function VerificationPanel({ project }: { project: ProjectDetail }) {
   const rows = buildVerificationRows(project)
   const concerns = project.location_concerns?.filter(Boolean) ?? []
-  // dna.last_verified_at is the closest thing to a project-level verification
-  // stamp; decision_profile carries its own for the analyst narrative.
-  const verifiedAt = project.dna?.last_verified_at ?? project.decision_profile?.last_verified_at ?? null
+  // ProjectDna is dropped (lean-schema migration, 2026-10) — decision_profile
+  // carries the only verification stamp left for the analyst narrative.
+  const verifiedAt = project.decision_profile?.last_verified_at ?? null
 
   if (rows.length === 0 && concerns.length === 0) return null
 

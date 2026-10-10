@@ -157,16 +157,10 @@ export default function ResidencesTab({
   const carpetArea = activeUnit?.carpet_area_sqft || null
   const balconyArea = activeUnit?.balcony_area_sqft || null
 
-  const parseArray = (v: unknown): unknown[] => {
-    if (Array.isArray(v)) return v;
-    if (typeof v === 'string') {
-      try { const p = JSON.parse(v); return Array.isArray(p) ? p : []; } catch { return []; }
-    }
-    return [];
-  }
-
-  const perfectForList = activeUnit ? (parseArray(activeUnit.perfect_for) as string[]) : []
-  const keyHighlightsList = activeUnit ? (parseArray(activeUnit.key_highlights) as HighlightEntry[]) : []
+  // perfect_for/key_highlights dropped (lean-schema migration, 2026-10) — no
+  // per-unit marketing copy source exists until sub-project C re-sources it.
+  const perfectForList: string[] = []
+  const keyHighlightsList: HighlightEntry[] = []
 
   // Unit availability from unit_inventory table, fallback to empty if no DB data
   const unitInventory: UnitInventoryEntry[] = detail?.unit_inventory || []
@@ -590,13 +584,6 @@ export default function ResidencesTab({
                       </div>
                     )}
 
-                    {activeUnit.efficiency_rating && (
-                      <div className="p-4 rounded-2xl bg-gray-50/60 dark:bg-white/5 border border-gray-100 dark:border-white/5 space-y-1">
-                        <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Efficiency Rating</p>
-                        <p className="text-[16px] font-black text-emerald-600 dark:text-emerald-400">{activeUnit.efficiency_rating}</p>
-                      </div>
-                    )}
-
                     <div className="p-4 rounded-2xl bg-gray-50/60 dark:bg-white/5 border border-gray-100 dark:border-white/5 space-y-1">
                       <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Floor Type</p>
                       <p className="text-[16px] font-black text-gray-900 dark:text-white">{floorType}</p>
@@ -608,13 +595,7 @@ export default function ResidencesTab({
               {/* ── TAB 3: UNIT AVAILABILITY VIEW ── */}
               {activePlanTab === 'availability' && (
                 <div className="space-y-4 pt-2">
-                  <div className="flex items-center justify-between">
-                    {activeUnit.inventory_left && (
-                      <p className="text-[12px] text-emerald-600 dark:text-emerald-400 font-bold flex items-center gap-1.5">
-                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                        Only {activeUnit.inventory_left} units available in {activeUnit.name}
-                      </p>
-                    )}
+                  <div className="flex items-center justify-end">
                     <button onClick={onGoToCosts} className="text-[12px] font-extrabold text-blue-600 hover:text-blue-700 flex items-center gap-1">
                       Inquire Specific Unit <ChevronRight size={14} />
                     </button>
@@ -627,37 +608,32 @@ export default function ResidencesTab({
             </div>
 
             {/* ── 3. KEY HIGHLIGHTS ── */}
-            {(() => {
-              const defaultHighlights = [
-                { title: `${activeUnit?.bhk || 2} BHK Efficient Layout`, desc: 'Optimized internal layout with zero wasted corridor space' },
-                { title: `${activeUnit?.balconies || (activeUnit?.bhk && activeUnit.bhk >= 3 ? 3 : 2)} Large Balconies`, desc: 'Panoramic green views with separate utility deck' },
-                { title: 'Cross Ventilation', desc: 'Dual-aspect airflow design promoting natural cooling' },
-                { title: 'Vastu Compliant', desc: 'Auspicious orientation for enhanced positivity and sunlight' }
-              ]
-              const finalHighlights = keyHighlightsList.length > 0 ? keyHighlightsList : defaultHighlights
+            {/* key_highlights is dropped (lean-schema migration, 2026-10) — no
+                per-unit marketing source exists, so this section renders
+                nothing rather than invented generic claims (e.g. "Vastu
+                Compliant") that were shown for every unit regardless of
+                whether it was true. */}
+            {keyHighlightsList.length > 0 && (
+              <div className="bg-white dark:bg-[#111] ring-1 ring-inset ring-black/5 dark:ring-white/10 rounded-[24px] p-5 sm:p-6 shadow-[0_2px_12px_rgba(0,0,0,0.03)] space-y-4">
+                <h3 className="text-[18px] font-black text-gray-900 dark:text-white tracking-tight">Key Highlights</h3>
 
-              return (
-                <div className="bg-white dark:bg-[#111] ring-1 ring-inset ring-black/5 dark:ring-white/10 rounded-[24px] p-5 sm:p-6 shadow-[0_2px_12px_rgba(0,0,0,0.03)] space-y-4">
-                  <h3 className="text-[18px] font-black text-gray-900 dark:text-white tracking-tight">Key Highlights</h3>
-
-                  <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3.5">
-                    {finalHighlights.map((item: HighlightEntry, i: number) => (
-                      <div key={i} className="p-3.5 sm:p-4 rounded-2xl bg-gray-50/60 dark:bg-white/5 border border-gray-100 dark:border-white/5 space-y-2">
-                        <div className="w-8 h-8 rounded-xl flex items-center justify-center bg-blue-500/10 text-blue-600 dark:bg-blue-500/20 dark:text-blue-400 border border-blue-500/20">
-                          <CheckCircle2 size={16} />
-                        </div>
-                        <div>
-                          <h4 className="text-[12.5px] sm:text-[13px] font-extrabold text-gray-900 dark:text-white leading-tight">{typeof item === 'string' ? item : item.title}</h4>
-                          {typeof item !== 'string' && item.desc && (
-                            <p className="text-[10.5px] text-gray-400 font-medium mt-1 leading-snug">{item.desc}</p>
-                          )}
-                        </div>
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3.5">
+                  {keyHighlightsList.map((item: HighlightEntry, i: number) => (
+                    <div key={i} className="p-3.5 sm:p-4 rounded-2xl bg-gray-50/60 dark:bg-white/5 border border-gray-100 dark:border-white/5 space-y-2">
+                      <div className="w-8 h-8 rounded-xl flex items-center justify-center bg-blue-500/10 text-blue-600 dark:bg-blue-500/20 dark:text-blue-400 border border-blue-500/20">
+                        <CheckCircle2 size={16} />
                       </div>
-                    ))}
-                  </div>
+                      <div>
+                        <h4 className="text-[12.5px] sm:text-[13px] font-extrabold text-gray-900 dark:text-white leading-tight">{typeof item === 'string' ? item : item.title}</h4>
+                        {typeof item !== 'string' && item.desc && (
+                          <p className="text-[10.5px] text-gray-400 font-medium mt-1 leading-snug">{item.desc}</p>
+                        )}
+                      </div>
+                    </div>
+                  ))}
                 </div>
-              )
-            })()}
+              </div>
+            )}
 
             {/* ── 5. INTERACTIVE USABLE AREA EFFICIENCY BREAKDOWN ── */}
             {area != null && (
@@ -904,8 +880,10 @@ export default function ResidencesTab({
             {/* ── 6. REFINED VASTU & OUTDOOR LIVING ARCHITECTURAL SPECIFICATIONS ── */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
 
-              {/* Vastu & Orientation Card (Architectural styling) */}
-              {(detail?.vastu_compliant || selectedFacing) && (
+              {/* Vastu & Orientation Card (Architectural styling). vastu_compliant
+                  is dropped (lean-schema migration, 2026-10) — gated on
+                  selectedFacing alone now. */}
+              {selectedFacing && (
               <div className="bg-white dark:bg-[#111] ring-1 ring-inset ring-black/5 dark:ring-white/10 rounded-[24px] p-5 sm:p-6 shadow-[0_2px_12px_rgba(0,0,0,0.03)] space-y-4 sm:space-y-5 flex flex-col justify-between">
                 <div className="space-y-3 sm:space-y-4">
                   <div className="flex items-center justify-between gap-2">
@@ -918,11 +896,6 @@ export default function ResidencesTab({
                         <p className="text-[10.5px] sm:text-[11.5px] text-gray-400 font-medium">Solar pathway &amp; energy</p>
                       </div>
                     </div>
-                    {detail?.vastu_compliant && (
-                      <span className="px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-full bg-amber-500/10 text-amber-900 dark:text-amber-300 ring-1 ring-amber-500/20 text-[9.5px] sm:text-[10.5px] font-black uppercase tracking-wider whitespace-nowrap">
-                        Vastu Compliant
-                      </span>
-                    )}
                   </div>
 
                   <div className="grid grid-cols-2 gap-2.5 sm:gap-3 pt-1">
@@ -1000,7 +973,7 @@ export default function ResidencesTab({
                     <h3 className="text-[18px] font-black text-gray-900 dark:text-white tracking-tight">Unit Availability</h3>
                     <p className="text-[11.5px] text-emerald-600 dark:text-emerald-400 font-bold mt-0.5 flex items-center gap-1.5">
                       <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                      Only {activeUnit.inventory_left ?? availabilityRows.length} units active in this configuration
+                      Only {availabilityRows.length} units active in this configuration
                     </p>
                   </div>
                   <button onClick={onGoToCosts} className="text-[12.5px] font-extrabold text-blue-600 hover:text-blue-700 flex items-center gap-1">

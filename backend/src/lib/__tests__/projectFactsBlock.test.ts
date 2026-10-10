@@ -15,18 +15,16 @@ function row(overrides: Record<string, unknown> = {}) {
     rera_number: 'UPRERAPRJ123456',
     // The long tail that used to be invisible to the model
     maintenance_per_sqft_monthly: 4.5,
-    pet_friendly: false,
-    bachelor_tenants_allowed: false,
+    has_cctv: true,
+    street_lights: false,
     airport_distance_km: 28.4,
     top_school_distance_km: 1.2,
     lifts_per_tower: 4,
     ceiling_height_ft: 10.2,
     water_source: 'Ganga jal + borewell',
-    land_tenure: '90-Year Authority Leasehold',
+    registry_status: 'open',
     oc_obtained: false,
-    nri_eligible: true,
-    resale_lock_in_months: 24,
-    women_safety_score: 82,
+    gst_pass_through: true,
     flood_waterlogging_risk: 'low',
     nclt_moratorium_active: false,
     // Must never appear
@@ -54,23 +52,16 @@ describe('projectScalarFacts', () => {
     // withheld — see SCHEMA_DEFAULT_SENTINELS.
     assert.ok(!('ceiling_height_ft' in facts), 'a schema-default ceiling height reached the prompt')
     assert.equal(facts.water_source, 'Ganga jal + borewell')
-    assert.equal(facts.land_tenure, '90-Year Authority Leasehold')
+    assert.equal(facts.registry_status, 'open')
     assert.equal(facts.flood_waterlogging_risk, 'low')
-    // resale_lock_in_months and women_safety_score are withheld now, and the
-    // reason is the same one this block exists for. Measured across all 280
-    // projects: the lock-in is exactly 36 on every one of its 95 populated
-    // rows, and the "safety score" takes two values in the whole table. A
-    // column that does not vary is not a measurement. See INTERNAL_ONLY_FIELDS.
-    assert.ok(!('resale_lock_in_months' in facts), 'a one-value lock-in reached the prompt')
-    assert.ok(!('women_safety_score' in facts), 'a two-value safety score reached the prompt')
   })
 
   it('renders booleans as buyer-readable states, not true/false', () => {
     const facts = projectScalarFacts(row())
-    assert.equal(facts.pet_friendly, 'pets not allowed')
-    assert.equal(facts.bachelor_tenants_allowed, 'not allowed')
+    assert.equal(facts.has_cctv, 'CCTV')
+    assert.equal(facts.street_lights, 'no street lighting')
     assert.equal(facts.oc_obtained, 'not obtained')
-    assert.equal(facts.nri_eligible, 'eligible')
+    assert.equal(facts.gst_pass_through, 'passed through')
     assert.equal(facts.nclt_moratorium_active, 'no NCLT moratorium')
   })
 
@@ -87,20 +78,20 @@ describe('projectScalarFacts', () => {
   it('omits empty values so an absent key reads as "we do not hold this"', () => {
     const facts = projectScalarFacts(row({
       water_source: null,
-      land_tenure: '',
+      registry_status: '',
       litigation_types: [],
       commute_matrix: {},
       airport_distance_km: undefined,
     }))
-    for (const key of ['water_source', 'land_tenure', 'litigation_types', 'commute_matrix', 'airport_distance_km']) {
+    for (const key of ['water_source', 'registry_status', 'litigation_types', 'commute_matrix', 'airport_distance_km']) {
       assert.ok(!(key in facts), `${key} should be omitted when empty`)
     }
   })
 
   it('keeps false distinct from missing', () => {
-    // `false` is a real answer ("not pet friendly"); it must not be dropped as empty.
-    const facts = projectScalarFacts(row({ pet_friendly: false }))
-    assert.equal(facts.pet_friendly, 'pets not allowed')
+    // `false` is a real answer ("no street lighting"); it must not be dropped as empty.
+    const facts = projectScalarFacts(row({ street_lights: false }))
+    assert.equal(facts.street_lights, 'no street lighting')
   })
 
   it('keeps zero distinct from missing', () => {
@@ -112,14 +103,6 @@ describe('projectScalarFacts', () => {
     const long = 'x'.repeat(2000)
     const facts = projectScalarFacts(row({ description: long }), { maxDescriptionChars: 100 })
     assert.equal(facts.description, `<untrusted_source url="developer-listing">${'x'.repeat(100)}…</untrusted_source>`)
-  })
-
-  it('withholds values every row carries from the enrich template', () => {
-    // All 382 rows: '99-Year Authority Leasehold', pet friendly, bachelors allowed (2026-10-05).
-    const facts = projectScalarFacts(row({ land_tenure: '99-Year Authority Leasehold', pet_friendly: true, bachelor_tenants_allowed: true }))
-    assert.ok(!('land_tenure' in facts))
-    assert.ok(!('pet_friendly' in facts))
-    assert.ok(!('bachelor_tenants_allowed' in facts))
   })
 })
 
@@ -178,16 +161,14 @@ describe('buildProjectFacts — relations', () => {
 describe('schema-default sentinels', () => {
   it('withholds a value that is only there because Postgres wrote it', () => {
     // Measured 4 Sep 2026 across 280 live projects: ceiling_height_ft was
-    // exactly 10.2 on 190 of them, mobile_network_rating exactly 4 on 219, and
-    // lifts_per_tower exactly 3 on 166 — the schema defaults. Roughly a third
-    // of each column is real, which is why they are withheld per-row rather
-    // than dropped from the select.
+    // exactly 10.2 on 190 of them, and lifts_per_tower exactly 3 on 166 — the
+    // schema defaults. Roughly a third of each column is real, which is why
+    // they are withheld per-row rather than dropped from the select.
     const facts = projectScalarFacts(row({
       ceiling_height_ft: 10.2,
-      mobile_network_rating: 4,
       lifts_per_tower: 3,
     }) as never)
-    for (const f of ['ceiling_height_ft', 'mobile_network_rating', 'lifts_per_tower']) {
+    for (const f of ['ceiling_height_ft', 'lifts_per_tower']) {
       assert.ok(!(f in facts), `${f} reached the prompt carrying only a schema default`)
     }
   })
@@ -195,29 +176,27 @@ describe('schema-default sentinels', () => {
   it('keeps a researched value that differs from the default', () => {
     const facts = projectScalarFacts(row({
       ceiling_height_ft: 11.5,
-      mobile_network_rating: 5,
       lifts_per_tower: 2,
     }) as never)
     assert.equal(facts.ceiling_height_ft, '11.5 ft')
-    assert.equal(facts.mobile_network_rating, '5/5')
     assert.equal(facts.lifts_per_tower, '2')
   })
 })
 
 describe('legal risk summary synthesis', () => {
-  it('synthesizes legal_risk_summary when litigation, NCLT, or dues exist', () => {
+  it('synthesizes legal_risk_summary when litigation, NCLT, or a project risk flag exist', () => {
     const facts = buildProjectFacts(row({
       litigation_count: 5,
       ongoing_litigation_count: 2,
       nclt_moratorium_active: true,
-      authority_dues_cleared: false,
+      project_risk_flag: 'under_review',
     }) as never)
 
     assert.ok(typeof facts.legal_risk_summary === 'string')
     assert.ok((facts.legal_risk_summary as string).includes('[MANDATORY LEGAL DISCLOSURE]'))
     assert.ok((facts.legal_risk_summary as string).includes('5 project litigation record(s) (2 ongoing)'))
     assert.ok((facts.legal_risk_summary as string).includes('ACTIVE NCLT insolvency moratorium'))
-    assert.ok((facts.legal_risk_summary as string).includes('Uncleared Noida/Greater Noida Authority land dues'))
+    assert.ok((facts.legal_risk_summary as string).includes('Project legal flag: under_review'))
   })
 
   it('omits legal_risk_summary when project has clean legal standing', () => {
@@ -225,21 +204,9 @@ describe('legal risk summary synthesis', () => {
       litigation_count: 0,
       ongoing_litigation_count: 0,
       nclt_moratorium_active: false,
-      authority_dues_cleared: true,
-      legal_flag: 'none',
+      project_risk_flag: 'none',
     }) as never)
 
     assert.ok(!('legal_risk_summary' in facts))
-  })
-})
-
-describe('a schema-default boolean is not a verified fact', () => {
-  it('authority_dues_cleared = true (the default on every row) never reaches the prompt', () => {
-    const facts = projectScalarFacts({ name: 'X', authority_dues_cleared: true } as Record<string, unknown>)
-    assert.equal(facts.authority_dues_cleared, undefined)
-  })
-  it('recorded outstanding dues (false) still do', () => {
-    const facts = projectScalarFacts({ name: 'X', authority_dues_cleared: false } as Record<string, unknown>)
-    assert.equal(facts.authority_dues_cleared, 'not cleared')
   })
 })
