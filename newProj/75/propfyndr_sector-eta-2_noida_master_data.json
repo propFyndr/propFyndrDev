@@ -512,95 +512,7 @@
         "updated_at": "2026-09-12T16:08:02.868Z"
       }
     ],
-    "cost_sheet": {
-      "id": "3706c7fb-08c8-46c0-b1ba-2d9735c38e76",
-      "project_id": "32f7ab36-1931-4e0d-9fe2-a1b410c407f3",
-      "base_price_per_sqft": 7694,
-      "base_cost_cr": null,
-      "floor_rise_per_floor": 30,
-      "base_interest_rate": 8.55,
-      "plc_charges": [
-        {
-          "type": "Corner Unit PLC",
-          "rate_psf": 150,
-          "description": "Dual side open balcony with maximum cross ventilation"
-        },
-        {
-          "type": "Park / Green Central Lawn Facing PLC",
-          "rate_psf": 200,
-          "description": "Unobstructed scenic view overlooking central landscaped podium"
-        },
-        {
-          "type": "Clubhouse / Swimming Pool View PLC",
-          "rate_psf": 175,
-          "description": "Direct visual line to Olympic-size swimming pool and club water body"
-        },
-        {
-          "type": "Wide Master Sector Road Facing PLC",
-          "rate_psf": 100,
-          "description": "Open front access facing wide 45-meter sector peripheral road"
-        }
-      ],
-      "parking_cost": 325000,
-      "ifms": 50,
-      "club_membership": 150000,
-      "other_charges": [
-        {
-          "name": "Dual Meter & Power Infrastructure Charge",
-          "type": "mandatory_fixed",
-          "amount": 35000
-        },
-        {
-          "name": "IGL Piped Natural Gas Connection",
-          "type": "mandatory_fixed",
-          "amount": 18500
-        },
-        {
-          "name": "Power Backup Installation (1 KVA / BHK)",
-          "type": "per_kva",
-          "amount": 30000,
-          "rate_per_kva": 28000
-        },
-        {
-          "name": "Sinking Fund / Society Corpus Deposit",
-          "type": "per_sqft",
-          "amount": 60000,
-          "rate_per_sqft": 50
-        },
-        {
-          "name": "Legal & Administrative Documentation",
-          "type": "mandatory_fixed",
-          "amount": 25000
-        },
-        {
-          "name": "Labour Welfare Cess & Fire Fighting System",
-          "type": "per_sqft",
-          "amount": 35000,
-          "rate_per_sqft": 35
-        }
-      ],
-      "gst_applicable": false,
-      "gst_rate_pct": 0,
-      "gst_note": "0% GST applicable — Ready-to-Move with Occupancy Certificate (OC)",
-      "stamp_duty_pct": 6,
-      "registration_pct": 1,
-      "electricity_connection": 35000,
-      "water_sewer_connection": 25000,
-      "maintenance_psf_monthly": 2.75,
-      "all_inclusive_price_cr": null,
-      "all_inclusive_per_sqft": null,
-      "assumptions": [
-        "Base Sale Price benchmarked at Rs. 7694/sqft as per Q1 2026 Noida/Greater Noida market registries",
-        "Covered basement parking allotted at Rs. 3.25 Lakhs",
-        "Clubhouse development & lifetime membership at Rs. 1.50 Lakhs",
-        "Interest-Free Maintenance Security (IFMS) at Rs. 50/sqft refundable to AOA on handover",
-        "Mandatory civic and dual-meter electrification charges calculated as per NPCL / PVVNL statutory tariffs"
-      ],
-      "verified_at": "2026-09-12T16:20:29.265Z",
-      "verified_by": null,
-      "created_at": "2026-09-12T16:08:03.184Z",
-      "updated_at": "2026-09-12T16:20:29.435Z"
-    },
+    "cost_sheet": null,
     "payment_plans": [
       {
         "id": "2811de2b-6499-414e-a026-8a5b8eb038c6",
@@ -1144,15 +1056,15 @@
     "name": "Migsun Wynn",
     "tagline": "Mid-Segment Landmark Residences in Sector Eta 2",
     "builder_id": "bf5b0a6c-aa9d-4424-a19a-5f11a33b72b6",
-    "rera_number": "UPRERAPRJ2980",
+    "rera_number": "UPRERAPRJ2981",
     "rera_url": null,
     "city": "Greater Noida",
     "state": "Uttar Pradesh",
     "country": "India",
     "sector": "Sector Eta 2",
     "address": "Migsun Wynn Phase 1, Sector Eta 2, Noida, Uttar Pradesh",
-    "lat": 28.57,
-    "lng": 77.38,
+    "lat": null,
+    "lng": null,
     "land_area_acres": 6.5,
     "total_units": 2300,
     "total_towers": 20,
@@ -1197,7 +1109,7 @@
     "interior_designer": null,
     "marketing_claims": [],
     "ai_search_keywords": [],
-    "hero_image_url": "https://images.unsplash.com/photo-1545325343?auto=format&fit=crop&w=1200&q=80",
+    "hero_image_url": "https://images.unsplash.com/photo-1545324718?auto=format&fit=crop&w=1200&q=80",
     "price_min_cr": 0.75,
     "price_range_label": "₹0.75 Cr - ₹1.10 Cr",
     "price_includes_plc": false,

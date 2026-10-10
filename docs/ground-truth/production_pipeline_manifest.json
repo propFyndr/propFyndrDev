@@ -1,0 +1,4732 @@
+{
+  "execution_time": "2026-10-10T09:59:03.190Z",
+  "summary": {
+    "total_projects": 382,
+    "rera_overwrites": 52,
+    "escrow_overwrites": 69,
+    "possession_overwrites": 18,
+    "purged_payment_plans": 452,
+    "purged_cost_sheets": 0,
+    "cleared_centroids": 80
+  },
+  "manifest": [
+    {
+      "id": "0316458a-aae6-49e1-80bb-ab118376d5ec",
+      "name": "VVIP Addresses",
+      "slug": "vvip-addresses-sector-12",
+      "original_rera": "UPRERAPRJ456123/04/2024",
+      "matchMethod": "FUZZY_NAME",
+      "rera_verified": true,
+      "builder_verified": false,
+      "changes": [
+        "RERA number updated: 'UPRERAPRJ456123/04/2024' -> 'UPRERAPRJ600767/11/2024'",
+        "Escrow verified: State Bank of India (43402543306)",
+        "Deleted 2 synthetic payment plans"
+      ],
+      "official_rera": "UPRERAPRJ600767/11/2024",
+      "official_promoter": "Vibhor Vaibhav infrahome Pvt. Ltd.",
+      "rera_source_url": "https://www.up-rera.in/Projectsummary?UI0aPA1ISD=SVEMZIrbyiM=&hfFlag=9emr4VdBw22M7BGjKtJWMPDI4s5cHQZP&NPJ6RAme=N3hHlnQwTO+/L6F0oJHbk6qwo3SB2QY/W7NrrHnx2OvpErk6JKNX6A==&PaURJEMAN4=ZL9MNERkNdbYsTR4VcCEnU2o0GHQ8dZO&IRSAHEB=D6PY3lyims8="
+    },
+    {
+      "id": "0630fb09-0f4c-4c31-8ea9-ad69973da58d",
+      "name": "Divine Meadows",
+      "slug": "divine-meadows-sector-108-noida",
+      "original_rera": "UPRERAPRJ1081",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "01e14266-bd55-432b-9489-59e502a9b633",
+      "name": "Jaypee Greens Pavilion Court",
+      "slug": "jaypee-greens-pavilion-court-sector-128",
+      "original_rera": "UPRERAPRJ8823",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": []
+    },
+    {
+      "id": "990b4e59-a562-46b3-b26e-59d5e9dd11c2",
+      "name": "Antriksh Golf View II",
+      "slug": "antriksh-golf-view-2-sector-78",
+      "original_rera": "UPRERAPRJ78107",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "e0412f51-4650-4793-9ab7-9672d9d87a32",
+      "name": "Ace Hanei",
+      "slug": "ace-hanei-sector-12-greater-noida-west",
+      "original_rera": "UPRERAPRJ677887",
+      "matchMethod": "EXACT_NAME",
+      "rera_verified": true,
+      "builder_verified": true,
+      "changes": [
+        "RERA number updated: 'UPRERAPRJ677887' -> 'UPRERAPRJ677887/10/2024'",
+        "Escrow verified: ICICI BANK LTD (157905004223)",
+        "Deleted 2 synthetic payment plans"
+      ],
+      "official_rera": "UPRERAPRJ677887/10/2024",
+      "official_promoter": "LA BUILDTECH PRIVATE LIMITED",
+      "rera_source_url": "https://www.up-rera.in/Projectsummary?UI0aPA1ISD=WM9CIk51v3M=&hfFlag=9emr4VdBw22M7BGjKtJWMPDI4s5cHQZP&NPJ6RAme=W/rdDkzp7AbacS3cq0jCTg==&PaURJEMAN4=ZL9MNERkNdbv6f3WPUKKGebrv/UfXkkt&IRSAHEB=D6PY3lyims8="
+    },
+    {
+      "id": "10e78a3e-2c9a-47fe-8639-7a87731a8f2d",
+      "name": "Mahagun Mezzaria",
+      "slug": "mahagun-mezzaria-sector-78-noida",
+      "original_rera": "UPRERAPRJ3306",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": []
+    },
+    {
+      "id": "09f087b6-5288-488d-8482-e572f09e4181",
+      "name": "Jaypee Kensington Boulevard",
+      "slug": "jaypee-kensington-boulevard-sector-128",
+      "original_rera": "UPRERAPRJ12814",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "4c364196-06ab-480e-8973-f5ec5ae67139",
+      "name": "Antriksh Kanball 3G",
+      "slug": "antriksh-kanball-3g-sector-77",
+      "original_rera": "UPRERAPRJ77108",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "4bdbe391-8309-47c1-a3de-9ef13a4a72e3",
+      "name": "DASNAC Burj Noida",
+      "slug": "dasnac-burj-noida-sector-75",
+      "original_rera": "UPRERAPRJ15456",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Cleared shared sector centroid: 28.5750,77.3820",
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "943bc6f8-51bc-4323-97af-c39f11d49f54",
+      "name": "Jaypee Greens Aman",
+      "slug": "jaypee-greens-aman-sector-151",
+      "original_rera": "UPRERAPRJ8825",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": []
+    },
+    {
+      "id": "0a6e23a3-5401-4adb-a778-ec47d8e51766",
+      "name": "Prateek Wisteria",
+      "slug": "prateek-wisteria-sector-77-noida",
+      "original_rera": "UPRERAPRJ77102",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": true,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "6d8a29b5-0ded-4241-864f-307a299bf707",
+      "name": "Apex Athena / Diamond Tower",
+      "slug": "apex-athena-sector-75",
+      "original_rera": "UPRERAPRJ6789",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "0c96a3ab-4247-456f-a895-8fd6bb6c2526",
+      "name": "Great Value Sharanam",
+      "slug": "great-value-sharanam-sector-107-noida",
+      "original_rera": "UPRERAPRJ10702",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": []
+    },
+    {
+      "id": "0ecf019a-f0e2-4295-8020-15ce2dbd4218",
+      "name": "Jaypee Sun Court",
+      "slug": "jaypee-sun-court-pari-chowk",
+      "original_rera": "UPRERAPRJ3922",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": []
+    },
+    {
+      "id": "0b5ee16e-31f8-4bd5-b248-cc110b5c2219",
+      "name": "Victory Central",
+      "slug": "victory-central-sector-12",
+      "original_rera": "UPRERAPRJ345678",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "86d58fd8-a88d-41af-adea-7e7069aaf417",
+      "name": "Omaxe Riviera",
+      "slug": "omaxe-riviera-surajpur",
+      "original_rera": "UPRERAPRJ2107",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": true,
+      "changes": []
+    },
+    {
+      "id": "40ebe694-2e84-4df6-ab8c-ee5763d12d15",
+      "name": "Eldeco La Vida Bella",
+      "slug": "eldeco-la-vida-bella-sector-12",
+      "original_rera": "UPRERAPRJ321654/03/2024",
+      "matchMethod": "EXACT_NAME",
+      "rera_verified": true,
+      "builder_verified": false,
+      "changes": [
+        "RERA number updated: 'UPRERAPRJ321654/03/2024' -> 'UPRERAPRJ136219/04/2024'",
+        "Escrow verified: HDFC BANK LIMITED (57500001388922)",
+        "Deleted 2 synthetic payment plans"
+      ],
+      "official_rera": "UPRERAPRJ136219/04/2024",
+      "official_promoter": "Eldeco Real Estate Limited",
+      "rera_source_url": "https://www.up-rera.in/Projectsummary?UI0aPA1ISD=N7kNmBRc6sI=&hfFlag=9emr4VdBw22M7BGjKtJWMPDI4s5cHQZP&NPJ6RAme=jpIqjeMy3pAp3wMMYaIxUjhwPAZVJ883&PaURJEMAN4=ZL9MNERkNdauvPTSzJsvpaYxps4tE7Bi&IRSAHEB=D6PY3lyims8="
+    },
+    {
+      "id": "ecae9f5d-aabf-4ef0-b1b1-2f92dbb2af0b",
+      "name": "ABA Cherry County",
+      "slug": "aba-cherry-county-techzone-4",
+      "original_rera": "UPRERAPRJ4285",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "07923cce-1c9b-4619-a7a3-5396caeb6646",
+      "name": "Ashiana Amaltas",
+      "slug": "ashiana-amaltas-sector-79",
+      "original_rera": "UPRERAPRJ79115",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": true,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "d54acc58-62ad-47a9-a522-9cc49ab299dd",
+      "name": "Aditya Celebrity Homes",
+      "slug": "aditya-celebrity-homes-sector-76",
+      "original_rera": "UPRERAPRJ76130",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "0794fc2d-8f0c-47ad-ac2a-6f6d81378f56",
+      "name": "Ajnara The Belvedere",
+      "slug": "ajnara-the-belvedere-sector-79",
+      "original_rera": "UPRERAPRJ79110",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "193ac99f-9198-458e-a7d2-55810e151649",
+      "name": "Amrapali Crystal Homes",
+      "slug": "amrapali-crystal-homes-sector-76",
+      "original_rera": "UPRERAPRJ76126",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "73778a72-2460-400c-9315-6aed4b1ff616",
+      "name": "IBP Windsor Valley",
+      "slug": "ibp-windsor-valley-sector-10",
+      "original_rera": "UPRERAPRJ721094",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 6 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "cdcde9ba-0f83-4565-b216-4232f7ed1870",
+      "name": "Godrej Nurture",
+      "slug": "godrej-nurture-sector-150-noida",
+      "original_rera": "UPRERAPRJ17861",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": true,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "92cee7de-5fc8-4dfe-8f0c-dc5c5bfaaf6c",
+      "name": "Ambr Aspire",
+      "slug": "ambr-aspire-sector-10",
+      "original_rera": "UPRERAPRJ941203/11/2024",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 6 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "65c203cb-59e2-489f-af59-4aa964fe4da1",
+      "name": "Godrej Tropical Isle",
+      "slug": "godrej-tropical-isle-sector-146-noida",
+      "original_rera": "UPRERAPRJ303390",
+      "matchMethod": "EXACT_RERA",
+      "rera_verified": true,
+      "builder_verified": true,
+      "changes": [
+        "Escrow verified: Axis Bank (923020027662076)",
+        "Deleted 2 synthetic payment plans"
+      ],
+      "official_rera": "UPRERAPRJ303390",
+      "official_promoter": "Godrej Properties Limited",
+      "rera_source_url": "https://www.up-rera.in/Projectsummary?UI0aPA1ISD=u6Trg3svB/M=&hfFlag=9emr4VdBw22M7BGjKtJWMPDI4s5cHQZP&NPJ6RAme=EYKWIVqmDvSUDMjvbtRAi3+sjG4lSZT8&PaURJEMAN4=ZL9MNERkNdZvcUmB/P2uFQ==&IRSAHEB=D6PY3lyims8="
+    },
+    {
+      "id": "42e2157b-ba9d-4cad-a48a-1ec52c820816",
+      "name": "Golden Palms",
+      "slug": "golden-palms-sector-168-noida",
+      "original_rera": "UPRERAPRJ1681",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "da59e665-8705-449c-a187-0b0efca4d396",
+      "name": "Golf Avenue II",
+      "slug": "golf-avenue-ii-sector-75",
+      "original_rera": "UPRERAPRJ1236",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "2058dbb5-60fb-4b56-833c-cb17b448066f",
+      "name": "Rajhans Residency",
+      "slug": "rajhans-residency-sector-1",
+      "original_rera": "UPRERAPRJ8110",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Cleared shared sector centroid: 28.6012,77.4421"
+      ]
+    },
+    {
+      "id": "1ee07889-22c5-4986-9174-063d5aaab4fc",
+      "name": "ATS Destinaire",
+      "slug": "ats-destinaire-sector-1",
+      "original_rera": "UPRERAPRJ0103",
+      "matchMethod": "EXACT_NAME",
+      "rera_verified": true,
+      "builder_verified": false,
+      "changes": [
+        "RERA number updated: 'UPRERAPRJ0103' -> 'UPRERAPRJ417134'",
+        "Escrow verified: Kotak Mahindra Bank (2513285820)",
+        "Deleted 2 synthetic payment plans"
+      ],
+      "official_rera": "UPRERAPRJ417134",
+      "official_promoter": "ATS Grand Realtors Private Limited",
+      "rera_source_url": "https://www.up-rera.in/Projectsummary?UI0aPA1ISD=bWF9ghg9Ls0=&hfFlag=9emr4VdBw22M7BGjKtJWMPDI4s5cHQZP&NPJ6RAme=dXLU2FrG0jO/aYqK2MSI8g==&PaURJEMAN4=ZL9MNERkNdYo0mMRIzSxwQ==&IRSAHEB=D6PY3lyims8="
+    },
+    {
+      "id": "4019b480-af1c-4df6-ae12-17406ba6ed94",
+      "name": "ATS Pristine Phase 2",
+      "slug": "ats-pristine-phase-2-sector-150",
+      "original_rera": "UPRERAPRJ2876",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": []
+    },
+    {
+      "id": "5fd8baa9-1544-4119-97fa-ba76520fbfcf",
+      "name": "SKA Metro Ville",
+      "slug": "ska-metro-ville-eta-2-greno-w",
+      "original_rera": "UPRERAPRJ10875",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": true,
+      "changes": []
+    },
+    {
+      "id": "0a5b22e6-19a2-4f68-a5ba-5e474bb9b203",
+      "name": "Grand Ajnara Heritage",
+      "slug": "grand-ajnara-heritage-sector-74-noida",
+      "original_rera": "UPRERAPRJ5655",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "47eb6cfa-0c88-4dc4-a000-c11e9cb053e7",
+      "name": "Grand Omaxe",
+      "slug": "grand-omaxe-sector-93b",
+      "original_rera": "UPRERAPRJ9303",
+      "matchMethod": "FUZZY_NAME",
+      "rera_verified": true,
+      "builder_verified": true,
+      "changes": [
+        "RERA number updated: 'UPRERAPRJ9303' -> 'UPRERAPRJ283534'",
+        "Escrow verified: ICICI BANK LTD (777705226252)",
+        "Deleted 2 synthetic payment plans"
+      ],
+      "official_rera": "UPRERAPRJ283534",
+      "official_promoter": "Omaxe Limited",
+      "rera_source_url": "https://www.up-rera.in/Projectsummary?UI0aPA1ISD=Pev6RwsdPc8=&hfFlag=GL34ZTSSjlw=&NPJ6RAme=f2vTvG/8QhHn7dv9/VN2CYNe/IsQd1XvCx6xUdDfbVA=&PaURJEMAN4=ZL9MNERkNdZdwJfgE+lT3A==&IRSAHEB=D6PY3lyims8="
+    },
+    {
+      "id": "9c07851e-8afb-495a-97b2-20f74c711b79",
+      "name": "Great Value Sharanam Greno",
+      "slug": "great-value-sharanam-greno-sector-1",
+      "original_rera": "UPRERAPRJ6110",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": []
+    },
+    {
+      "id": "8259f60e-8269-4bff-b7c8-57d790b24263",
+      "name": "Greenarch",
+      "slug": "greenarch-techzone-4-greater-noida-west",
+      "original_rera": "UPRERAPRJ2010",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": []
+    },
+    {
+      "id": "5a043dea-8465-43c4-96d1-1922a28c272a",
+      "name": "Habitech Panchtatva",
+      "slug": "habitech-panchtatva-techzone-4",
+      "original_rera": "UPRERAPRJ8811",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Cleared shared sector centroid: 28.5910,77.4540"
+      ]
+    },
+    {
+      "id": "39010335-85dd-4cfd-89da-b86877d2809a",
+      "name": "Hawelia Valencia Homes",
+      "slug": "hawelia-valencia-homes-sector-1",
+      "original_rera": "UPRERAPRJ3218",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "87b14ab9-7ffe-4960-9080-7e154261e456",
+      "name": "Himalaya Pride",
+      "slug": "himalaya-pride-techzone-4",
+      "original_rera": "UPRERAPRJ3910",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "8937cc6f-31c0-4d0f-8273-c932480186ed",
+      "name": "Jaypee Kosmos",
+      "slug": "jaypee-kosmos-sector-134-noida",
+      "original_rera": "UPRERAPRJ3914",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": []
+    },
+    {
+      "id": "6546b2af-5148-408f-9831-0e28b7738da8",
+      "name": "Homes 121",
+      "slug": "homes-121-sector-121",
+      "original_rera": "UPRERAPRJ1211",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "19658ea6-e38b-44eb-9fea-b1176a11b612",
+      "name": "ATS Dolce",
+      "slug": "ats-dolce-sector-zeta-1",
+      "original_rera": "UPRERAPRJ3774",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "66e3004e-5466-4b08-9376-c81e236523a5",
+      "name": "Hyde Park",
+      "slug": "hyde-park-sector-78",
+      "original_rera": "UPRERAPRJ7803",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "94fc9d31-52f3-41f6-9755-f1d85c98f367",
+      "name": "Stellar MI City Homes",
+      "slug": "stellar-mi-city-homes-sector-omicron-3",
+      "original_rera": "UPRERAPRJ3948",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "704e98bf-974c-49f3-9f8a-5293f3d66681",
+      "name": "ACE Terrains / Terra",
+      "slug": "ace-terrains-terra-sector-22d-sec-1",
+      "original_rera": "UPRERAPRJ622101",
+      "matchMethod": "FUZZY_NAME",
+      "rera_verified": true,
+      "builder_verified": false,
+      "changes": [
+        "RERA number updated: 'UPRERAPRJ622101' -> 'UPRERAPRJ683816/04/2024'",
+        "Escrow verified: ICICI Bank Ltd (157905004111)"
+      ],
+      "official_rera": "UPRERAPRJ683816/04/2024",
+      "official_promoter": "AJAY REALCON INDIA LLP",
+      "rera_source_url": "https://www.up-rera.in/Projectsummary?UI0aPA1ISD=ha1rI+Yf8dQ=&hfFlag=9emr4VdBw22M7BGjKtJWMPDI4s5cHQZP&NPJ6RAme=j15oIVL3AujW2Ldh+vh7kw==&PaURJEMAN4=ZL9MNERkNdYVibfTHi0iwAANqXFIUX8E&IRSAHEB=D6PY3lyims8="
+    },
+    {
+      "id": "2dad69e6-eb91-436a-b5e7-e09b214a8597",
+      "name": "Lotus Arena",
+      "slug": "lotus-arena-sector-79-noida",
+      "original_rera": "UPRERAPRJ10034",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "7044a0ae-81c8-490c-bd58-f00ed54804c8",
+      "name": "Royal Nest",
+      "slug": "royal-nest-sector-16c-greater-noida-west",
+      "original_rera": "UPRERAPRJ1011",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Cleared shared sector centroid: 28.6120,77.4380"
+      ]
+    },
+    {
+      "id": "277cda37-8dd3-4233-ba33-af3382b70d16",
+      "name": "Gaur Mulberry Mansions",
+      "slug": "gaur-mulberry-mansions-sector-1",
+      "original_rera": "UPRERAPRJ7102",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": true,
+      "changes": [
+        "Cleared shared sector centroid: 28.6012,77.4421"
+      ]
+    },
+    {
+      "id": "c9b44903-bff0-4f42-a75a-34479f8d8a3d",
+      "name": "Prateek Edifice",
+      "slug": "prateek-edifice-sector-107-noida",
+      "original_rera": "UPRERAPRJ1073",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": true,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "3032c30c-07e3-40c4-a629-f8a54cd78727",
+      "name": "Nirala Greenshire",
+      "slug": "nirala-greenshire-sector-2-greater-noida-west",
+      "original_rera": "UPRERAPRJ2927",
+      "matchMethod": "FUZZY_NAME",
+      "rera_verified": true,
+      "builder_verified": false,
+      "changes": [
+        "RERA number updated: 'UPRERAPRJ2927' -> 'UPRERAPRJ120088'",
+        "Escrow verified: ICICI BANK (777705226349)",
+        "Cleared shared sector centroid: 28.6145,77.4489"
+      ],
+      "official_rera": "UPRERAPRJ120088",
+      "official_promoter": "NIRALA PROJECTS PRIVATE  LIMITED",
+      "rera_source_url": "https://www.up-rera.in/Projectsummary?UI0aPA1ISD=coh8f2lCM+I=&hfFlag=9emr4VdBw22M7BGjKtJWMPDI4s5cHQZP&NPJ6RAme=wbN9LUu9fq4NzMym4G1TAbZWtnv8FYf9&PaURJEMAN4=ZL9MNERkNdazU1IB33N+AQ==&IRSAHEB=D6PY3lyims8="
+    },
+    {
+      "id": "2dd3bb36-a107-4533-8156-61404064042c",
+      "name": "Panchsheel Pinnacle",
+      "slug": "panchsheel-pinnacle-sector-16b",
+      "original_rera": "UPRERAPRJ8640",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Cleared shared sector centroid: 28.6050,77.4450"
+      ]
+    },
+    {
+      "id": "324b7d3e-af83-4fc6-830c-845832ae2299",
+      "name": "Prateek Stylome",
+      "slug": "prateek-stylome-sector-45-noida",
+      "original_rera": "UPRERAPRJ4501",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": true,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "96ddcbd7-3ea0-4396-9bf0-c2efdc63e98f",
+      "name": "Purvanchal Sunbliss",
+      "slug": "purvanchal-sunbliss-sector-22d",
+      "original_rera": "UPRERAPRJ22D910",
+      "matchMethod": "FUZZY_NAME",
+      "rera_verified": true,
+      "builder_verified": true,
+      "changes": [
+        "RERA number updated: 'UPRERAPRJ22D910' -> 'UPRERAPRJ746863/04/2025'",
+        "Escrow verified: HDFC BANK LIMITED (99999971593476)",
+        "Deleted 2 synthetic payment plans"
+      ],
+      "official_rera": "UPRERAPRJ746863/04/2025",
+      "official_promoter": "PURVANCHAL PROJECTS PRIVATE LIMITED",
+      "rera_source_url": "https://www.up-rera.in/Projectsummary?UI0aPA1ISD=xR+wyQ0QrY4=&hfFlag=9emr4VdBw22M7BGjKtJWMPDI4s5cHQZP&NPJ6RAme=Oq4WtnhfFzTXEiqh0qQW8/Vn1+0WJAKd8UDJQSWO763Eud1LcQC2p0iIZorH6SkBpOKqurRu4VQ=&PaURJEMAN4=ZL9MNERkNdZt8EFRNGdqs9nU3sH6FbM7&IRSAHEB=D6PY3lyims8="
+    },
+    {
+      "id": "18711f8b-2fad-47a1-9361-334d4699c75d",
+      "name": "Samridhi Luxuriate",
+      "slug": "samridhi-luxuriate-sector-150",
+      "original_rera": "UPRERAPRJ1503",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Cleared shared sector centroid: 28.5750,77.3850",
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "7154d9e3-3ac1-4097-82bb-40f111f456f1",
+      "name": "Sikka Kaamya Greens",
+      "slug": "sikka-kaamya-greens-sector-10",
+      "original_rera": "UPRERAPRJ5805",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 6 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "15d27663-b1e8-4241-901c-a9dfb2e1fbc9",
+      "name": "SKA Greenarch",
+      "slug": "ska-greenarch-sector-16b",
+      "original_rera": "UPRERAPRJ10874",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Cleared shared sector centroid: 28.6050,77.4450"
+      ]
+    },
+    {
+      "id": "e61e7231-eafa-4791-8dce-18035ac71343",
+      "name": "Skytech Matrott",
+      "slug": "skytech-matrott-sector-76",
+      "original_rera": "UPRERAPRJ76124",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "ac03fbc9-e803-420d-ad02-c3d9cb2d7af9",
+      "name": "Arihant Ambar",
+      "slug": "arihant-ambar-sector-1",
+      "original_rera": "UPRERAPRJ8418",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Cleared shared sector centroid: 28.6012,77.4421"
+      ]
+    },
+    {
+      "id": "e8318e26-8cfd-47bb-b90c-9b25b3ac0f93",
+      "name": "CRC Joyous",
+      "slug": "crc-joyous-techzone-4",
+      "original_rera": "UPRERAPRJ15182",
+      "matchMethod": "EXACT_NAME",
+      "rera_verified": true,
+      "builder_verified": false,
+      "changes": [
+        "RERA number updated: 'UPRERAPRJ15182' -> 'UPRERAPRJ613747'",
+        "Escrow verified: Kotak Mahindra Bank Ltd. (7645243250)",
+        "Cleared shared sector centroid: 28.5910,77.4540"
+      ],
+      "official_rera": "UPRERAPRJ613747",
+      "official_promoter": "CRC Homes Private Limited",
+      "rera_source_url": "https://www.up-rera.in/Projectsummary?UI0aPA1ISD=/svXIZoKzSM=&hfFlag=9emr4VdBw22M7BGjKtJWMPDI4s5cHQZP&NPJ6RAme=MoKGreHeYR28A0ViKKIp6Q==&PaURJEMAN4=ZL9MNERkNdZZOADA+410KA==&IRSAHEB=D6PY3lyims8="
+    },
+    {
+      "id": "c878d669-ba20-44d9-b699-f3e4c5098e3d",
+      "name": "Lotus Greens Arena",
+      "slug": "lotus-greens-arena-sector-79",
+      "original_rera": "UPRERAPRJ79103",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "faa891db-e74d-4ebd-a40a-a5487f22bb68",
+      "name": "Patel Neotown",
+      "slug": "patel-neotown-techzone-4-greater-noida-west",
+      "original_rera": "UPRERAPRJ8010",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Cleared shared sector centroid: 28.5910,77.4540"
+      ]
+    },
+    {
+      "id": "850fc11d-ee73-4607-bffa-46e03c448913",
+      "name": "Rise Resort Residences",
+      "slug": "rise-resort-residences-sector-1",
+      "original_rera": "UPRERAPRJ6610",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Cleared shared sector centroid: 28.6012,77.4421"
+      ]
+    },
+    {
+      "id": "63d6f482-7a4b-4d8b-8255-bf486f809930",
+      "name": "Saraswati Landmark",
+      "slug": "saraswati-landmark-sector-1",
+      "original_rera": "UPRERAPRJ3110",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Cleared shared sector centroid: 28.6012,77.4421"
+      ]
+    },
+    {
+      "id": "bc6ef9d6-2f05-4e3b-80c0-be33fe6ff11e",
+      "name": "Sikka Kimaantra Greens",
+      "slug": "sikka-kimaantra-greens-sector-79",
+      "original_rera": "UPRERAPRJ79108",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "1d7f636f-fade-4687-bd1f-4b8fed33852a",
+      "name": "Mahagun Mantra II",
+      "slug": "mahagun-mantra-ii-sector-10",
+      "original_rera": "UPRERAPRJ1871",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": []
+    },
+    {
+      "id": "c3ec8d9a-7ce5-4fbc-9564-b2fcee2c2196",
+      "name": "Mahagun Mirabella",
+      "slug": "mahagun-mirabella-sector-79-noida",
+      "original_rera": "UPRERAPRJ1866",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": []
+    },
+    {
+      "id": "b8d1a48b-9bb0-484d-b28f-249589b5e1a8",
+      "name": "Maxblis White House",
+      "slug": "maxblis-white-house-sector-75-noida",
+      "original_rera": "UPRERAPRJ7418",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "edc4db5d-2b39-49e7-90a9-d196e230f328",
+      "name": "Migsun Wynn",
+      "slug": "migsun-wynn-sector-eta-2-noida",
+      "original_rera": "UPRERAPRJ2981",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Cleared shared sector centroid: 28.5675,77.3775"
+      ]
+    },
+    {
+      "id": "a907482a-bebb-4861-9d94-869aeab1c13b",
+      "name": "NBCC Aspire Eternia",
+      "slug": "nbcc-aspire-eternia-techzone-4",
+      "original_rera": "UPRERAPRJ882190",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "63ad787f-69e4-4a2e-825c-ba45d65a695c",
+      "name": "NBCC Leisure Valley",
+      "slug": "nbcc-leisure-valley-sector-1-greater-noida-west",
+      "original_rera": "UPRERAPRJ882230",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "dab91118-7476-4537-b7b4-dcb9dc85e9a6",
+      "name": "Supertech Eco Village 2",
+      "slug": "supertech-eco-village-2-sector-16b-greater-noida-west",
+      "original_rera": "UPRERAPRJ16B2",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "29312f72-d638-4633-89aa-09d870aef169",
+      "name": "ATS Kingston Heath",
+      "slug": "ats-kingston-heath-sector-150",
+      "original_rera": "UPRERAPRJ852370",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": true,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "122eaf91-013f-427f-9546-da52c5b69251",
+      "name": "ATS Knightsbridge",
+      "slug": "ats-knightsbridge-sector-124",
+      "original_rera": "UPRERAPRJ3574",
+      "matchMethod": "EXACT_RERA",
+      "rera_verified": true,
+      "builder_verified": true,
+      "changes": [
+        "Escrow verified: Kotak Mahindra Bank (8011487056)",
+        "Deleted 2 synthetic payment plans"
+      ],
+      "official_rera": "UPRERAPRJ3574",
+      "official_promoter": "ATS HEIGHTS PRIVATE LIMITED",
+      "rera_source_url": "https://www.up-rera.in/Projectsummary?UI0aPA1ISD=AhtWfXciyE8=&hfFlag=9emr4VdBw22M7BGjKtJWMPDI4s5cHQZP&NPJ6RAme=AiH/7oBXmCsVU+bEy8/befBqohZgt4zm&PaURJEMAN4=ZL9MNERkNdbxJ0RhiQ1QXA==&IRSAHEB=D6PY3lyims8="
+    },
+    {
+      "id": "259ad521-019d-403e-a6dd-4b16e5f349dd",
+      "name": "ATS Le Grandiose Phase 2",
+      "slug": "ats-le-grandiose-phase-2-sector-150",
+      "original_rera": "UPRERAPRJ3251",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": []
+    },
+    {
+      "id": "88319d1f-5049-410e-9c2a-2913c1f373b3",
+      "name": "ATS Pious Hideaways / Orchards",
+      "slug": "ats-pious-hideaways-sector-150",
+      "original_rera": "UPRERAPRJ417136",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": []
+    },
+    {
+      "id": "5c276485-53f8-4672-8edc-029d5ad13c42",
+      "name": "ATS Pristine & Golf Meadows",
+      "slug": "ats-pristine-golf-meadows-sector-150",
+      "original_rera": "UPRERAPRJ1502",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "5eee432b-818f-40fb-a8d0-03d3df3687a9",
+      "name": "Amrapali La Residentia",
+      "slug": "amrapali-la-residentia-techzone-4",
+      "original_rera": "UPRERAPRJ8810",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Cleared shared sector centroid: 28.5910,77.4540"
+      ]
+    },
+    {
+      "id": "aa928daf-6954-4f8a-8ce6-83a5741d723d",
+      "name": "Apex Aura",
+      "slug": "apex-aura-sector-1",
+      "original_rera": "UPRERAPRJ2912",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Cleared shared sector centroid: 28.6012,77.4421"
+      ]
+    },
+    {
+      "id": "fdd2de65-e073-47c0-a9cd-5ae72e532941",
+      "name": "ACE Arte",
+      "slug": "ace-arte-sector-150",
+      "original_rera": "UPRERAPRJ992384",
+      "matchMethod": "EXACT_NAME",
+      "rera_verified": true,
+      "builder_verified": false,
+      "changes": [
+        "RERA number updated: 'UPRERAPRJ992384' -> 'UPRERAPRJ528653/07/2026'",
+        "Escrow verified: ICICI BANK LIMITED (157905004675)",
+        "Deleted 2 synthetic payment plans"
+      ],
+      "official_rera": "UPRERAPRJ528653/07/2026",
+      "official_promoter": "ACE INFRACITY DEVELOPERS PRIVATE LIMITED",
+      "rera_source_url": "https://www.up-rera.in/Projectsummary?UI0aPA1ISD=xUSa4tKhGhk=&hfFlag=9emr4VdBw22M7BGjKtJWMPDI4s5cHQZP&NPJ6RAme=Em2FYKM8mjSqGV8236uAbg==&PaURJEMAN4=ZL9MNERkNdYI5L8l2mqTKuXRqHt5Wuex&IRSAHEB=D6PY3lyims8="
+    },
+    {
+      "id": "4315ac08-c95c-4e50-8152-79967b6badfc",
+      "name": "Capital Athena",
+      "slug": "capital-athena-sector-144-noida",
+      "original_rera": "UPRERAPRJ1442",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "cd749874-8da0-456d-9a2e-b31442d7fc24",
+      "name": "CRC Maesta",
+      "slug": "crc-maesta-sector-1-greater-noida-west",
+      "original_rera": "UPRERAPRJ724518/07/2024",
+      "matchMethod": "EXACT_RERA",
+      "rera_verified": true,
+      "builder_verified": false,
+      "changes": [
+        "Escrow verified: ICICI  BANK LTD (003105043797)",
+        "Deleted 2 synthetic payment plans"
+      ],
+      "official_rera": "UPRERAPRJ724518/07/2024",
+      "official_promoter": "CRC Homes Private Limited",
+      "rera_source_url": "https://www.up-rera.in/Projectsummary?UI0aPA1ISD=Yt9tecrjRww=&hfFlag=9emr4VdBw22M7BGjKtJWMPDI4s5cHQZP&NPJ6RAme=xO0Qn9v7HXizaeo+zP9HqA==&PaURJEMAN4=ZL9MNERkNdb7VFJYof0wZlDfF7xy39Dt&IRSAHEB=D6PY3lyims8="
+    },
+    {
+      "id": "d3251d89-7c12-4278-a810-1986425bafe8",
+      "name": "Eldeco Echoes of Eden",
+      "slug": "eldeco-echoes-of-eden-sector-22d",
+      "original_rera": "UPRERAPRJ22D890",
+      "matchMethod": "EXACT_NAME",
+      "rera_verified": true,
+      "builder_verified": true,
+      "changes": [
+        "RERA number updated: 'UPRERAPRJ22D890' -> 'UPRERAPRJ125342/02/2026'",
+        "Escrow verified: HDFC BANK (57500001893809)",
+        "Deleted 2 synthetic payment plans"
+      ],
+      "official_rera": "UPRERAPRJ125342/02/2026",
+      "official_promoter": "Eldeco Sohna Projects Limited",
+      "rera_source_url": "https://www.up-rera.in/Projectsummary?UI0aPA1ISD=Qg3HG9xqOuA=&hfFlag=9emr4VdBw22M7BGjKtJWMPDI4s5cHQZP&NPJ6RAme=srrBtD8MpCIJ/jz0av5MeJhrpxIwNHcg&PaURJEMAN4=ZL9MNERkNdaoPxNpyDcoKxG8/y5gjrXD&IRSAHEB=D6PY3lyims8="
+    },
+    {
+      "id": "f143296c-a2f1-462c-be2d-850e0ca557bd",
+      "name": "Eldeco Mystic Greens",
+      "slug": "eldeco-mystic-greens-sector-omicron-1",
+      "original_rera": "UPRERAPRJ2004",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "e3e6d203-17ae-44a5-a0ca-036277ad3219",
+      "name": "Exotica Fresco",
+      "slug": "exotica-fresco-sector-137",
+      "original_rera": "UPRERAPRJ1371",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "49602b3d-172b-426f-86ed-5ca4340b7d93",
+      "name": "Galaxy North Avenue 1",
+      "slug": "galaxy-north-avenue-1-sector-4",
+      "original_rera": "UPRERAPRJ2212",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Cleared shared sector centroid: 28.5980,77.4310"
+      ]
+    },
+    {
+      "id": "2557bef7-f83a-4a75-84b6-ad7afe154242",
+      "name": "Gardenia Golf City (AIMS Max)",
+      "slug": "gardenia-golf-city-sector-75-noida",
+      "original_rera": "UPRERAPRJ11485",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": true,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "b3ad9dac-7c81-475f-bde9-bb3ba8280ab4",
+      "name": "Gaur City 1 - 4th Avenue",
+      "slug": "gaur-city-1-4th-avenue-sector-4",
+      "original_rera": "UPRERAPRJ6744",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": []
+    },
+    {
+      "id": "267f086d-ba0f-4713-bb40-8639566ac99f",
+      "name": "Gaur City 1 - 5th Avenue",
+      "slug": "gaur-city-1-5th-avenue-sector-4",
+      "original_rera": "UPRERAPRJ4451",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": []
+    },
+    {
+      "id": "f424b1a4-9ff4-4aa4-8638-8025103113ef",
+      "name": "Prateek Fedicia",
+      "slug": "prateek-fedicia-sector-120",
+      "original_rera": "UPRERAPRJ3812",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "732f90ee-c557-4d8f-9a3b-1856f3864383",
+      "name": "IITL Nimbus The Hyde Park",
+      "slug": "iitl-nimbus-the-hyde-park-sector-78-noida",
+      "original_rera": "UPRERAPRJ9689",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "092da15d-2dbf-49f9-83e0-42092ddb9f1e",
+      "name": "Jaypee Greens Golf Course Residences",
+      "slug": "jaypee-greens-golf-course-pari-chowk",
+      "original_rera": "UPRERAPRJ3310",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Cleared shared sector centroid: 28.4720,77.5080",
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "1f113990-ef0f-4780-828c-91ff6f736cfc",
+      "name": "Gulshan Botnia",
+      "slug": "gulshan-botnia-sector-144",
+      "original_rera": "UPRERAPRJ1441",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": []
+    },
+    {
+      "id": "bdcd7845-9255-4382-9af6-40bc471ca5e6",
+      "name": "Eldeco Live By The Greens",
+      "slug": "eldeco-live-by-the-greens-sector-150",
+      "original_rera": "UPRERAPRJ15112",
+      "matchMethod": "FUZZY_NAME",
+      "rera_verified": true,
+      "builder_verified": false,
+      "changes": [
+        "RERA number updated: 'UPRERAPRJ15112' -> 'UPRERAPRJ794678/09/2024'",
+        "Escrow verified: ICICI BANK LTD. (777705345112)",
+        "Cleared shared sector centroid: 28.5750,77.3850"
+      ],
+      "official_rera": "UPRERAPRJ794678/09/2024",
+      "official_promoter": "GULSHAN HOMES AND INFRASTRUCTURE  PRIVATE LIMITED",
+      "rera_source_url": "https://www.up-rera.in/Projectsummary?UI0aPA1ISD=8BwCUtBpea8=&hfFlag=9emr4VdBw22M7BGjKtJWMPDI4s5cHQZP&NPJ6RAme=m48Id4EsNxM=&PaURJEMAN4=ZL9MNERkNdZZBROyiXAJEVC/K5JbBwuL&IRSAHEB=D6PY3lyims8="
+    },
+    {
+      "id": "0a90ecbc-6b1b-478b-855d-fd1ad1e2e03f",
+      "name": "Jaypee Pebble Court",
+      "slug": "jaypee-pebble-court-sector-128",
+      "original_rera": "UPRERAPRJ3921",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": []
+    },
+    {
+      "id": "ddfc4a9e-0fd2-4d6a-8443-827049709a59",
+      "name": "Nimbus The Hyde Park",
+      "slug": "nimbus-the-hyde-park-sector-78",
+      "original_rera": "UPRERAPRJ78104",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "c0f5a640-4bad-4f1a-afb7-48c94e170e2d",
+      "name": "Nirala Diadem",
+      "slug": "nirala-diadem-sector-10-greater-noida-west",
+      "original_rera": "UPRERAPRJ761820",
+      "matchMethod": "EXACT_NAME",
+      "rera_verified": true,
+      "builder_verified": false,
+      "changes": [
+        "RERA number updated: 'UPRERAPRJ761820' -> 'UPRERAPRJ825497/11/2025'",
+        "Escrow verified: YES BANK LIMITED (001464500000010)",
+        "Deleted 2 synthetic payment plans"
+      ],
+      "official_rera": "UPRERAPRJ825497/11/2025",
+      "official_promoter": "Parth Builtech Private Limited",
+      "rera_source_url": "https://www.up-rera.in/Projectsummary?UI0aPA1ISD=OBs3j3FUCcw=&hfFlag=9emr4VdBw22M7BGjKtJWMPDI4s5cHQZP&NPJ6RAme=DX983uJQvQzymvSeCNG9DA==&PaURJEMAN4=ZL9MNERkNdZR3Gv/TyeFUHKi6+15Yi0X&IRSAHEB=D6PY3lyims8="
+    },
+    {
+      "id": "0485efd5-c5ba-4dde-a339-8c5983f0cff3",
+      "name": "Omaxe Palm Greens",
+      "slug": "omaxe-palm-greens-sector-mu-1-greater-noida",
+      "original_rera": "UPRERAPRJ2105",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": true,
+      "changes": []
+    },
+    {
+      "id": "e98b34a4-33d5-4f2c-9f05-a45d77cd01a4",
+      "name": "Paras Tierea",
+      "slug": "paras-tierea-sector-137-noida",
+      "original_rera": "UPRERAPRJ14831",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "d564f8ec-4b16-46e2-b120-8b52af97920c",
+      "name": "Gaur City 1 - 7th Avenue",
+      "slug": "gaur-city-1-7th-avenue-sector-4",
+      "original_rera": "UPRERAPRJ4471",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": []
+    },
+    {
+      "id": "1946d2de-750a-4257-9262-ccff4b57dfd4",
+      "name": "La Palacia Towers A-D",
+      "slug": "la-palacia-towers-a-d-techzone-4",
+      "original_rera": "UPRERAPRJ4010",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Cleared shared sector centroid: 28.5910,77.4540"
+      ]
+    },
+    {
+      "id": "a2af63de-687c-4d14-8301-8f3256e81ce6",
+      "name": "Jaypee Star Court",
+      "slug": "jaypee-star-court-pari-chowk",
+      "original_rera": "UPRERAPRJ3925",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Cleared shared sector centroid: 28.5696,77.3796"
+      ]
+    },
+    {
+      "id": "5edc271e-074a-44b9-9a7f-24039b200e18",
+      "name": "Tata Eureka Park Phase 2",
+      "slug": "tata-eureka-park-phase-2-sector-150",
+      "original_rera": "UPRERAPRJ5449",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": true,
+      "changes": [
+        "Cleared shared sector centroid: 28.4322,77.4805"
+      ]
+    },
+    {
+      "id": "2a5e3bb9-047f-4afb-9489-3d11ce69cf62",
+      "name": "Vihaan Heritage",
+      "slug": "vihaan-heritage-sector-1",
+      "original_rera": "UPRERAPRJ7711",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Cleared shared sector centroid: 28.6012,77.4421"
+      ]
+    },
+    {
+      "id": "74994caf-4ec0-436a-8688-9ca9f5ba42c3",
+      "name": "ABA Cleo County",
+      "slug": "aba-cleo-county-sector-121",
+      "original_rera": "UPRERAPRJ6210",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "40475b9e-f770-47ea-9171-bbabded828e0",
+      "name": "Cleo County",
+      "slug": "cleo-county-sector-121-noida",
+      "original_rera": "UPRERAPRJ5931 / UPRERAPRJ2369 / UPRERAPRJ2437",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "5c82f67b-0c40-46a3-b269-c693ab0d0bee",
+      "name": "Gaur City 1 - 2nd Avenue",
+      "slug": "gaur-city-1-2nd-avenue-sector-4",
+      "original_rera": "UPRERAPRJ6743",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": []
+    },
+    {
+      "id": "a13bf649-e05a-4b97-acc8-569979c5c4b6",
+      "name": "ATS Greens 1",
+      "slug": "ats-greens-1-sector-50",
+      "original_rera": "UPRERAPRJ1013",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": []
+    },
+    {
+      "id": "1c86a2b2-956b-486b-9003-22ac55cb0ae2",
+      "name": "Eldeco Utopia",
+      "slug": "eldeco-utopia-sector-93a",
+      "original_rera": "UPRERAPRJ9302",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": []
+    },
+    {
+      "id": "da63b3ac-404a-43c6-b598-7b1a12ab8ce6",
+      "name": "Gaur City 2 - 12th Avenue",
+      "slug": "gaur-city-2-12th-avenue-sector-16c",
+      "original_rera": "UPRERAPRJ16C12",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": []
+    },
+    {
+      "id": "20a939d6-f338-410e-a3b9-fd9962e1038f",
+      "name": "Godrej Majesty",
+      "slug": "godrej-majesty-sector-12",
+      "original_rera": "UPRERAPRJ250823/04/2025",
+      "matchMethod": "EXACT_RERA",
+      "rera_verified": true,
+      "builder_verified": true,
+      "changes": [
+        "Escrow verified: HDFC Bank (50200107034042)",
+        "Deleted 2 synthetic payment plans"
+      ],
+      "official_rera": "UPRERAPRJ250823/04/2025",
+      "official_promoter": "Godrej Properties Limited",
+      "rera_source_url": "https://www.up-rera.in/Projectsummary?UI0aPA1ISD=1KgVN+x63SY=&hfFlag=9emr4VdBw22M7BGjKtJWMPDI4s5cHQZP&NPJ6RAme=7SjZzJH+V62Vn4g95O6k7ysdTwrVl5oUwytdSnc7s5LWpsN2B5UB+Ec1Tv6DSDTI9vHZ8T/exig=&PaURJEMAN4=ZL9MNERkNdYEAoaNysUJFkOR1GIwKlWy&IRSAHEB=D6PY3lyims8="
+    },
+    {
+      "id": "611d1e69-3db0-4150-8aa3-48e1d8569fae",
+      "name": "Hawelia Valencia Homes",
+      "slug": "hawelia-valencia-homes-techzone-4-greater-noida-west",
+      "original_rera": "UPRERAPRJ3320",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": []
+    },
+    {
+      "id": "324135fb-2a5e-43d8-bc52-8d0991ab4515",
+      "name": "Jaypee Garden Isles",
+      "slug": "jaypee-garden-isles-sector-133",
+      "original_rera": "UPRERAPRJ3920",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Cleared shared sector centroid: 28.5150,77.3780"
+      ]
+    },
+    {
+      "id": "63aaae26-0fa8-4d4c-bc28-3d732ca4dba5",
+      "name": "Sikka Kaamna Greens",
+      "slug": "sikka-kaamna-greens-sector-143",
+      "original_rera": "UPRERAPRJ1432",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "d4ab589e-d6fd-46f1-a970-694a034010be",
+      "name": "Supertech North Eye",
+      "slug": "supertech-north-eye-sector-74",
+      "original_rera": "UPRERAPRJ4015",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": []
+    },
+    {
+      "id": "b5185d63-a5d2-4be1-a774-331705a454c1",
+      "name": "Mahagun Meadow",
+      "slug": "mahagun-meadow-sector-150",
+      "original_rera": "UPRERAPRJ2058",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": []
+    },
+    {
+      "id": "32f7ab36-1931-4e0d-9fe2-a1b410c407f3",
+      "name": "Migsun Villa",
+      "slug": "migsun-villa-sector-eta-2",
+      "original_rera": "UPRERAPRJ2983",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": []
+    },
+    {
+      "id": "9a6e7661-627f-4d06-a555-dbc97c6dafd6",
+      "name": "Stellar Kings Court",
+      "slug": "stellar-kings-court-sector-alpha-2",
+      "original_rera": "UPRERAPRJ3015",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": []
+    },
+    {
+      "id": "9c731183-1c91-4c6b-ad9e-4f262334a711",
+      "name": "Gaur Yamuna City - KrishnVilas",
+      "slug": "gaur-yamuna-city-krishnvilas-yamuna-expressway",
+      "original_rera": "UPRERAPRJ16103",
+      "matchMethod": "FUZZY_NAME",
+      "rera_verified": true,
+      "builder_verified": true,
+      "changes": [
+        "RERA number updated: 'UPRERAPRJ16103' -> 'UPRERAPRJ379836/06/2025'",
+        "Escrow verified: ICICI BANK LTD (101705002107)"
+      ],
+      "official_rera": "UPRERAPRJ379836/06/2025",
+      "official_promoter": "MADHYAM LAND BASE PRIVATE LIMITED",
+      "rera_source_url": "https://www.up-rera.in/Projectsummary?UI0aPA1ISD=NLJUQKLhYII=&hfFlag=v1P/c8ksBrs=&NPJ6RAme=ZmnSAyILidE7bavTq73InQ==&PaURJEMAN4=ZL9MNERkNdYDsBbEyM8V1jLYHmcdfjUp&IRSAHEB=D6PY3lyims8="
+    },
+    {
+      "id": "9600d0de-a36c-4813-85c7-b9da2bcbc227",
+      "name": "Indosam Iconic",
+      "slug": "indosam-iconic-sector-75",
+      "original_rera": "UPRERAPRJ876543",
+      "matchMethod": "EXACT_NAME",
+      "rera_verified": true,
+      "builder_verified": false,
+      "changes": [
+        "RERA number updated: 'UPRERAPRJ876543' -> 'UPRERAPRJ303620/05/2026'",
+        "Escrow verified: HDFC Bank Ltd. (99997838242424)",
+        "Deleted 2 synthetic payment plans"
+      ],
+      "official_rera": "UPRERAPRJ303620/05/2026",
+      "official_promoter": "Indosam Infra Private Limited",
+      "rera_source_url": "https://www.up-rera.in/Projectsummary?UI0aPA1ISD=yz+yAdSdN9k=&hfFlag=9emr4VdBw22M7BGjKtJWMPDI4s5cHQZP&NPJ6RAme=3YWJ9vkiQuAkEcgCdL4EDA==&PaURJEMAN4=ZL9MNERkNdYlbUeBON/FV2lfBWp9tfhd&IRSAHEB=D6PY3lyims8="
+    },
+    {
+      "id": "792ec6f4-45a3-4f73-b99b-84dee7828baf",
+      "name": "Mahagun Manorialle",
+      "slug": "mahagun-manorialle-sector-128",
+      "original_rera": "UPRERAPRJ2051",
+      "matchMethod": "EXACT_RERA",
+      "rera_verified": true,
+      "builder_verified": false,
+      "changes": [
+        "Escrow verified: HDFC Bank Ltd. (57500000004451)"
+      ],
+      "official_rera": "UPRERAPRJ2051",
+      "official_promoter": "MAHAGUN (INDIA) PVT. LTD.",
+      "rera_source_url": "https://www.up-rera.in/Projectsummary?UI0aPA1ISD=2wKgfuaMrEY=&hfFlag=9emr4VdBw22M7BGjKtJWMPDI4s5cHQZP&NPJ6RAme=IG9HrJW/fuAYIy+2rSXKnQvC7bwm4v4Z&PaURJEMAN4=ZL9MNERkNdbtssvplqIlmg==&IRSAHEB=D6PY3lyims8="
+    },
+    {
+      "id": "4e7dd63b-78c4-44c9-97e0-7c8d0e1c5317",
+      "name": "Migsun Atharva",
+      "slug": "migsun-atharva-sector-techzone-4",
+      "original_rera": "UPRERAPRJ2984",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Cleared shared sector centroid: 28.5723,77.3823"
+      ]
+    },
+    {
+      "id": "629e13b6-a526-4eb3-84c9-38a51072fa63",
+      "name": "Mahagun Mantra I",
+      "slug": "mahagun-mantra-i-sector-10",
+      "original_rera": "UPRERAPRJ1870",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": []
+    },
+    {
+      "id": "674b31aa-a1b8-4f18-9f0b-baba8a2da4c6",
+      "name": "Devika Gold Homz",
+      "slug": "devika-gold-homz-sector-1",
+      "original_rera": "UPRERAPRJ6010",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Cleared shared sector centroid: 28.6012,77.4421"
+      ]
+    },
+    {
+      "id": "7533e111-ec22-4378-9af7-04c1280d7af7",
+      "name": "Supertech Ecociti",
+      "slug": "supertech-ecociti-sector-137-noida",
+      "original_rera": "UPRERAPRJ1372",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "2467440e-86a6-4547-8fee-02b357f9a6d4",
+      "name": "Nimbus Express Park View 1 & 2",
+      "slug": "nimbus-express-park-view-sector-chi-5",
+      "original_rera": "UPRERAPRJ4912",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": true,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "213e0f44-3eb7-45e6-9a2e-25065ebae61d",
+      "name": "Amrapali Centurian Park - Tropical Garden",
+      "slug": "amrapali-centurian-park-tropical-garden-techzone-4",
+      "original_rera": "UPRERAPRJ8807",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": []
+    },
+    {
+      "id": "00d3c13f-f0f2-4429-afc0-ca01ad9550bd",
+      "name": "Antriksh Golf View I",
+      "slug": "antriksh-golf-view-1-sector-78",
+      "original_rera": "UPRERAPRJ78106",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "38b353ee-e14f-40e3-9589-ef69e74794f7",
+      "name": "Jaypee Sports City (Kassia)",
+      "slug": "jaypee-sports-city-kassia-sector-25",
+      "original_rera": "UPRERAPRJ8826",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": []
+    },
+    {
+      "id": "ab208851-3bae-4fcb-a900-684c9774ec51",
+      "name": "Paramount Floraville",
+      "slug": "paramount-floraville-sector-137",
+      "original_rera": "UPRERAPRJ13702",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "a917e8a5-8242-4252-8675-1a1b6f707328",
+      "name": "Jaypee Greens Wish Town Klassic",
+      "slug": "jaypee-greens-wish-town-klassic-sector-134",
+      "original_rera": "UPRERAPRJ8821",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Cleared shared sector centroid: 28.5150,77.3780"
+      ]
+    },
+    {
+      "id": "937f754c-98ee-4236-ba7e-fe2e5c8f0073",
+      "name": "Mahagun Medalleo Towers E-G",
+      "slug": "mahagun-medalleo-towers-e-g-sector-107",
+      "original_rera": "UPRERAPRJ125562",
+      "matchMethod": "FUZZY_NAME",
+      "rera_verified": true,
+      "builder_verified": false,
+      "changes": [
+        "RERA number updated: 'UPRERAPRJ125562' -> 'UPRERAPRJ125561'",
+        "Escrow verified: ICICI Bank Ltd (777705432189)"
+      ],
+      "official_rera": "UPRERAPRJ125561",
+      "official_promoter": "Mahagun Infratech Private Limited",
+      "rera_source_url": "https://www.up-rera.in/Projectsummary?UI0aPA1ISD=ZckM3uRHbsM=&hfFlag=9emr4VdBw22M7BGjKtJWMPDI4s5cHQZP&NPJ6RAme=IG9HrJW/fuCkqWxug1j3vYKV0g11DFXN&PaURJEMAN4=ZL9MNERkNdZzvQPoQdI4XA==&IRSAHEB=D6PY3lyims8="
+    },
+    {
+      "id": "c4eb3274-c662-4bc7-b61b-27a0cc62c5e7",
+      "name": "ATS Le Grandiose",
+      "slug": "ats-le-grandiose-sector-150",
+      "original_rera": "UPRERAPRJ3250",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": []
+    },
+    {
+      "id": "8260119a-4865-439a-b3cd-d94c5287a274",
+      "name": "Samridhi Luxuriya Avenue",
+      "slug": "samridhi-luxuriya-avenue-sector-150",
+      "original_rera": "UPRERAPRJ2291",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": []
+    },
+    {
+      "id": "dcafe5f1-8eb8-469c-817d-f0c49245c11a",
+      "name": "Fusion Homes",
+      "slug": "fusion-homes-techzone-4-greater-noida-west",
+      "original_rera": "UPRERAPRJ0402",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "91cd772a-6c30-4631-a62c-178d41a4b4c2",
+      "name": "Supertech Capetown",
+      "slug": "supertech-capetown-sector-74-noida",
+      "original_rera": "UPRERAPRJ7401",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "b551f816-cf6a-4bc8-90d6-e006f9f5d998",
+      "name": "Trecento Residencies by Gaurs",
+      "slug": "trecento-residencies-by-gaurs-jaypee-greens",
+      "original_rera": "UPRERAPRJ283531",
+      "matchMethod": "EXACT_RERA",
+      "rera_verified": true,
+      "builder_verified": false,
+      "changes": [
+        "Escrow verified: ICICI BANK (739105000716)"
+      ],
+      "official_rera": "UPRERAPRJ283531",
+      "official_promoter": "GOLF LAKE LLP",
+      "rera_source_url": "https://www.up-rera.in/Projectsummary?UI0aPA1ISD=eZRKcU0Qtr8=&hfFlag=9emr4VdBw22M7BGjKtJWMPDI4s5cHQZP&NPJ6RAme=kmPwJkWBCqPDwPuTajCgqAFSMQ3PySSg&PaURJEMAN4=ZL9MNERkNdY77ZhY98MoXg==&IRSAHEB=D6PY3lyims8="
+    },
+    {
+      "id": "ff87be00-c157-4ad4-88da-7edfa41b8bdd",
+      "name": "Gaur Saundaryam",
+      "slug": "gaur-saundaryam-techzone-4-greater-noida-west",
+      "original_rera": "UPRERAPRJ6312",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": true,
+      "changes": []
+    },
+    {
+      "id": "c5a5de4b-e47c-40ee-a5c5-0fb672d3f4ba",
+      "name": "Galaxy North Avenue 2",
+      "slug": "galaxy-north-avenue-2-sector-16c",
+      "original_rera": "UPRERAPRJ2213",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Cleared shared sector centroid: 28.6120,77.4380"
+      ]
+    },
+    {
+      "id": "d3bcaa71-c56b-4d67-8e1d-ade45fb51e83",
+      "name": "Galaxy Vega",
+      "slug": "galaxy-vega-techzone-4-greater-noida-west",
+      "original_rera": "UPRERAPRJ2210",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Cleared shared sector centroid: 28.5910,77.4540"
+      ]
+    },
+    {
+      "id": "31a07d6c-d5f3-445e-adba-706f34adfd5b",
+      "name": "KVD Wind Park",
+      "slug": "kvd-wind-park-techzone-4-greater-noida-west",
+      "original_rera": "UPRERAPRJ9010",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Cleared shared sector centroid: 28.5910,77.4540"
+      ]
+    },
+    {
+      "id": "02403744-4808-4c6a-8849-c3581b0225fb",
+      "name": "Lotus Zing",
+      "slug": "lotus-zing-sector-168",
+      "original_rera": "UPRERAPRJ16801",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": []
+    },
+    {
+      "id": "0cc1aff7-32fe-4b32-86bc-8b9832e40519",
+      "name": "Mahagun Mywoods",
+      "slug": "mahagun-mywoods-sector-16c-greater-noida-west",
+      "original_rera": "UPRERAPRJ3330",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": []
+    },
+    {
+      "id": "ea2b690f-4021-4eb5-9f03-7d7eff297a3f",
+      "name": "NCR Monarch",
+      "slug": "ncr-monarch-sector-1",
+      "original_rera": "UPRERAPRJ7110",
+      "matchMethod": "EXACT_NAME",
+      "rera_verified": true,
+      "builder_verified": false,
+      "changes": [
+        "RERA number updated: 'UPRERAPRJ7110' -> 'UPRERAPRJ4790'",
+        "Escrow verified: YES BANK (008585800000647)",
+        "Cleared shared sector centroid: 28.6012,77.4421"
+      ],
+      "official_rera": "UPRERAPRJ4790",
+      "official_promoter": "M/S JSS BUILDCON PRIVATE LIMITED",
+      "rera_source_url": "https://www.up-rera.in/Projectsummary?UI0aPA1ISD=G+IuIqfkHvY=&hfFlag=9emr4VdBw22M7BGjKtJWMPDI4s5cHQZP&NPJ6RAme=GZqDhr58KzbHrGRQIz7xYg==&PaURJEMAN4=ZL9MNERkNdaaBN8rXX0NiQ==&IRSAHEB=D6PY3lyims8="
+    },
+    {
+      "id": "4404263b-ab6a-41eb-b195-1373a293a0d0",
+      "name": "Purvanchal Silver City",
+      "slug": "purvanchal-silver-city-pari-chowk-noida",
+      "original_rera": "UPRERAPRJ3120",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": []
+    },
+    {
+      "id": "efd4ca4f-4f42-477a-bcf7-4bd86c7ce931",
+      "name": "Palm Olympia",
+      "slug": "palm-olympia-sector-16c-greater-noida-west",
+      "original_rera": "UPRERAPRJ9910",
+      "matchMethod": "FUZZY_NAME",
+      "rera_verified": true,
+      "builder_verified": false,
+      "changes": [
+        "RERA number updated: 'UPRERAPRJ9910' -> 'UPRERAPRJ308567'",
+        "Escrow verified: HDFC BANK LTD (50200076773572)",
+        "Cleared shared sector centroid: 28.6120,77.4380"
+      ],
+      "official_rera": "UPRERAPRJ308567",
+      "official_promoter": "Sam India Abhimanyu Housing",
+      "rera_source_url": "https://www.up-rera.in/Projectsummary?UI0aPA1ISD=2Us8rJ+tUIo=&hfFlag=9emr4VdBw22M7BGjKtJWMPDI4s5cHQZP&NPJ6RAme=kzAtB1w3mbDsjAS8KRoTr9hCWAOJp/k4&PaURJEMAN4=ZL9MNERkNdb/Hgrh9VojMQ==&IRSAHEB=D6PY3lyims8="
+    },
+    {
+      "id": "51007411-9117-4ff8-95b6-b5ac7fb9e2f7",
+      "name": "Eldeco Green Meadows",
+      "slug": "eldeco-green-meadows-sector-pi-1",
+      "original_rera": "UPRERAPRJ1182",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": []
+    },
+    {
+      "id": "6fd124bf-f39d-45a4-94cb-843a27fc4a7a",
+      "name": "Mahagun My Laagoon Phase 1",
+      "slug": "mahagun-my-laagoon-phase-1-sector-12",
+      "original_rera": "UPRERAPRJ999197",
+      "matchMethod": "EXACT_NAME",
+      "rera_verified": true,
+      "builder_verified": false,
+      "changes": [
+        "RERA number updated: 'UPRERAPRJ999197' -> 'UPRERAPRJ999197/09/2024'",
+        "Escrow verified: HDFC Bank Ltd (99900000100113)"
+      ],
+      "official_rera": "UPRERAPRJ999197/09/2024",
+      "official_promoter": "Aura Infrabiz LLP",
+      "rera_source_url": "https://www.up-rera.in/Projectsummary?UI0aPA1ISD=S+Wd1Ql0OBQ=&hfFlag=9emr4VdBw22M7BGjKtJWMPDI4s5cHQZP&NPJ6RAme=IG9HrJW/fuDmihnqrJCreV51yjv69nDGMnNNWfVkM+o=&PaURJEMAN4=ZL9MNERkNdZmEieHoHpKoWbPrq62GU5h&IRSAHEB=D6PY3lyims8="
+    },
+    {
+      "id": "6d48bdd2-2322-49e2-b6d7-180371f92da5",
+      "name": "Gaur Atulyam",
+      "slug": "gaur-atulyam-sector-omicron-1",
+      "original_rera": "UPRERAPRJ6804",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": []
+    },
+    {
+      "id": "a2d6bae9-4e9a-4d9e-af2d-85509ccd03f2",
+      "name": "Logix Blossom County",
+      "slug": "logix-blossom-county-sector-137-noida",
+      "original_rera": "UPRERAPRJ6601",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": []
+    },
+    {
+      "id": "6d265da6-d12f-4a09-a77d-e4c3fd2ce60f",
+      "name": "SRPL Flora Heritage",
+      "slug": "srpl-flora-heritage-sector-1",
+      "original_rera": "UPRERAPRJ9110",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Cleared shared sector centroid: 28.6012,77.4421"
+      ]
+    },
+    {
+      "id": "863224f4-8cde-433e-bfb5-e138029b5091",
+      "name": "Ace Platinum",
+      "slug": "ace-platinum-sector-zeta-1",
+      "original_rera": "UPRERAPRJ2002",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": true,
+      "changes": []
+    },
+    {
+      "id": "83b13dc3-5eb6-45c0-b357-903276205582",
+      "name": "Parsvnath Prestige",
+      "slug": "parsvnath-prestige-sector-93a",
+      "original_rera": "UPRERAPRJ3912",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "8f20e140-15db-4dd8-a0c1-2f9eb5a272a4",
+      "name": "Gulshan Dynasty",
+      "slug": "gulshan-dynasty-sector-144",
+      "original_rera": "UPRERAPRJ4682",
+      "matchMethod": "FUZZY_NAME",
+      "rera_verified": true,
+      "builder_verified": false,
+      "changes": [
+        "RERA number updated: 'UPRERAPRJ4682' -> 'UPRERAPRJ686395'",
+        "Escrow verified: ICICI BANK LTD (777705019001)"
+      ],
+      "official_rera": "UPRERAPRJ686395",
+      "official_promoter": "GULSHAN HOMZ PRIVATE LIMITED",
+      "rera_source_url": "https://www.up-rera.in/Projectsummary?UI0aPA1ISD=fSHWRllwELU=&hfFlag=1E4qQMUGS4qnuSnOY2gD/g==&NPJ6RAme=Z1j6HSOA30Qd0dkKTY/N3ReDTf6NJ4DCjLeah+BRS8I=&PaURJEMAN4=ZL9MNERkNdb7qshdFbTorA==&IRSAHEB=D6PY3lyims8="
+    },
+    {
+      "id": "3b615169-1a6f-43bf-bc7b-514d60c5f176",
+      "name": "Sethi Max Royal",
+      "slug": "sethi-max-royal-sector-76",
+      "original_rera": "UPRERAPRJ7601",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Cleared shared sector centroid: 28.5740,77.3810"
+      ]
+    },
+    {
+      "id": "8d32dfd8-e4c5-46c8-b758-f694ebf181d1",
+      "name": "Express Zenith",
+      "slug": "express-zenith-sector-77",
+      "original_rera": "UPRERAPRJ7702",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": true,
+      "changes": []
+    },
+    {
+      "id": "73ffe4a3-21ea-434f-b411-96050be4558a",
+      "name": "ATS Greens 2",
+      "slug": "ats-greens-2-sector-50",
+      "original_rera": "UPRERAPRJ1014",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": []
+    },
+    {
+      "id": "8a2d0939-0d58-4bbe-bc94-2a17547138dc",
+      "name": "Gaur Yamuna City - 16th Parkview",
+      "slug": "gaur-yamuna-city-16th-parkview-yamuna-expressway",
+      "original_rera": "UPRERAPRJ6801",
+      "matchMethod": "FUZZY_NAME",
+      "rera_verified": true,
+      "builder_verified": false,
+      "changes": [
+        "RERA number updated: 'UPRERAPRJ6801' -> 'UPRERAPRJ379836/06/2025'",
+        "Escrow verified: ICICI BANK LTD (101705002107)"
+      ],
+      "official_rera": "UPRERAPRJ379836/06/2025",
+      "official_promoter": "MADHYAM LAND BASE PRIVATE LIMITED",
+      "rera_source_url": "https://www.up-rera.in/Projectsummary?UI0aPA1ISD=NLJUQKLhYII=&hfFlag=v1P/c8ksBrs=&NPJ6RAme=ZmnSAyILidE7bavTq73InQ==&PaURJEMAN4=ZL9MNERkNdYDsBbEyM8V1jLYHmcdfjUp&IRSAHEB=D6PY3lyims8="
+    },
+    {
+      "id": "abaf3828-92d5-4c49-9b36-1923fdfbcb7e",
+      "name": "ATS Pristine Golf Villas Phase 1",
+      "slug": "ats-pristine-golf-villas-phase-1-sector-150",
+      "original_rera": "UPRERAPRJ3796",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Cleared shared sector centroid: 28.4322,77.4805"
+      ]
+    },
+    {
+      "id": "55e29630-faa7-4d5d-b203-c0d97a76de6e",
+      "name": "Jaypee Earth Court",
+      "slug": "jaypee-earth-court-pari-chowk",
+      "original_rera": "UPRERAPRJ3924",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Cleared shared sector centroid: 28.5686,77.3786"
+      ]
+    },
+    {
+      "id": "4a084e79-8f85-4bce-8b0a-29cab768e45d",
+      "name": "ATS Pious Hideaways Phase 2",
+      "slug": "ats-pious-hideaways-phase-2-sector-150",
+      "original_rera": "UPRERAPRJ417137",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": []
+    },
+    {
+      "id": "f6eea319-8ed6-4d79-b417-689a9f0f95cc",
+      "name": "Amrapali Leisure Valley",
+      "slug": "amrapali-leisure-valley-techzone-4",
+      "original_rera": "UPRERAPRJ8803",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": []
+    },
+    {
+      "id": "9bb89773-d810-46a1-bd82-44f218533f96",
+      "name": "Jaypee Greens Golf Course Villas",
+      "slug": "jaypee-greens-golf-course-villas-pari-chowk",
+      "original_rera": "UPRERAPRJ1314",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": []
+    },
+    {
+      "id": "d6b77de5-f32b-48c4-b03b-446bc903f5bc",
+      "name": "CRC Sublimis",
+      "slug": "crc-sublimis-sector-1-greater-noida-west",
+      "original_rera": "UPRERAPRJ15181",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Cleared shared sector centroid: 28.6012,77.4421"
+      ]
+    },
+    {
+      "id": "67051f07-c9c2-4e42-8064-d40cc95a0c1d",
+      "name": "Eldeco Aangan",
+      "slug": "eldeco-aangan-sector-82",
+      "original_rera": "UPRERAPRJ8201",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": []
+    },
+    {
+      "id": "e35d0295-5513-45c2-a0d1-509cc6d2abd9",
+      "name": "Gayatri Life",
+      "slug": "gayatri-life-sector-16",
+      "original_rera": "UPRERAPRJ2110",
+      "matchMethod": "EXACT_RERA",
+      "rera_verified": true,
+      "builder_verified": false,
+      "changes": [
+        "Escrow verified: Kotak Mahindra bank Limited (4811963967)"
+      ],
+      "official_rera": "UPRERAPRJ2110",
+      "official_promoter": "MAHAGUN (INDIA) PVT. LTD.",
+      "rera_source_url": "https://www.up-rera.in/Projectsummary?UI0aPA1ISD=qVbzEyG2woc=&hfFlag=q5Tk0QUeJB8oatkp/Oqbxw==&NPJ6RAme=IG9HrJW/fuCMRENMelij9A==&PaURJEMAN4=ZL9MNERkNdanGHaPEfClTQ==&IRSAHEB=D6PY3lyims8="
+    },
+    {
+      "id": "d371a980-6774-4c92-ac23-f8a3fb9d372c",
+      "name": "Gaur City 2 - 14th Avenue",
+      "slug": "gaur-city-2-14th-avenue-sector-16c",
+      "original_rera": "UPRERAPRJ16C14",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": []
+    },
+    {
+      "id": "6946cd0f-74e5-45bd-9a39-b02366355b1e",
+      "name": "Arihant One",
+      "slug": "arihant-one-sector-1",
+      "original_rera": "UPRERAPRJ0123",
+      "matchMethod": "EXACT_NAME",
+      "rera_verified": true,
+      "builder_verified": false,
+      "changes": [
+        "RERA number updated: 'UPRERAPRJ0123' -> 'UPRERAPRJ723911'",
+        "Escrow verified: Kotak Mahindra Bank (5345913602)",
+        "Cleared shared sector centroid: 28.6012,77.4421"
+      ],
+      "official_rera": "UPRERAPRJ723911",
+      "official_promoter": "ARHAM ESCON PVT. LTD.",
+      "rera_source_url": "https://www.up-rera.in/Projectsummary?UI0aPA1ISD=SOJXJvs421Q=&hfFlag=9emr4VdBw22M7BGjKtJWMPDI4s5cHQZP&NPJ6RAme=wIcfXA6f2Ik5XdwSslQmdA==&PaURJEMAN4=ZL9MNERkNdZGu5src+zzwA==&IRSAHEB=D6PY3lyims8="
+    },
+    {
+      "id": "3c8b6d03-bdc7-4d22-84c8-2d6bcbbc730a",
+      "name": "Ashtech Presidential Towers",
+      "slug": "ashtech-presidential-towers-sector-12",
+      "original_rera": "UPRERAPRJ654123/06/2024",
+      "matchMethod": "EXACT_NAME",
+      "rera_verified": true,
+      "builder_verified": true,
+      "changes": [
+        "RERA number updated: 'UPRERAPRJ654123/06/2024' -> 'UPRERAPRJ746615/10/2025'",
+        "Escrow verified: Kotak Mahindra Bank Ltd. (9049912848)",
+        "Deleted 2 synthetic payment plans"
+      ],
+      "official_rera": "UPRERAPRJ746615/10/2025",
+      "official_promoter": "Ashtech Industries Private Limited",
+      "rera_source_url": "https://www.up-rera.in/Projectsummary?UI0aPA1ISD=V0qlpXyXEqQ=&hfFlag=9emr4VdBw22M7BGjKtJWMPDI4s5cHQZP&NPJ6RAme=f6LBue+e+FE6t2G1dKF8+NiNNa4sKcjGaqZ8snbFPaw=&PaURJEMAN4=ZL9MNERkNdaLa3MOi8ieXJvraCyBXVM1&IRSAHEB=D6PY3lyims8="
+    },
+    {
+      "id": "f1c17f37-ffc2-4056-b491-8816d7b60abd",
+      "name": "Express Astra",
+      "slug": "express-astra-sector-1-greater-noida-west",
+      "original_rera": "UPRERAPRJ4796",
+      "matchMethod": "FUZZY_NAME",
+      "rera_verified": true,
+      "builder_verified": true,
+      "changes": [
+        "RERA number updated: 'UPRERAPRJ4796' -> 'UPRERAPRJ229234'",
+        "Escrow verified: HDFC Bank Ltd. (50200069311911)",
+        "Cleared shared sector centroid: 28.5750,77.3850",
+        "Deleted 2 synthetic payment plans"
+      ],
+      "official_rera": "UPRERAPRJ229234",
+      "official_promoter": "Express Projects Pvt. Ltd.",
+      "rera_source_url": "https://www.up-rera.in/Projectsummary?UI0aPA1ISD=AZ6bGSBCQR4=&hfFlag=9emr4VdBw22M7BGjKtJWMPDI4s5cHQZP&NPJ6RAme=aegj1/sZSQuuL4G2hw1RDTHWR9lYqvY24pyDp7y+OLg=&PaURJEMAN4=ZL9MNERkNdb4Kh8vV/pvFg==&IRSAHEB=D6PY3lyims8="
+    },
+    {
+      "id": "1164bb5d-86cc-4b8c-b0f8-fb3dd959d44c",
+      "name": "ATS Destinaire",
+      "slug": "ats-destinaire-sector-1-greater-noida-west",
+      "original_rera": "UPRERAPRJ417134",
+      "matchMethod": "EXACT_RERA",
+      "rera_verified": true,
+      "builder_verified": false,
+      "changes": [
+        "Escrow verified: Kotak Mahindra Bank (2513285820)",
+        "Cleared shared sector centroid: 28.5891,77.4400"
+      ],
+      "official_rera": "UPRERAPRJ417134",
+      "official_promoter": "ATS Grand Realtors Private Limited",
+      "rera_source_url": "https://www.up-rera.in/Projectsummary?UI0aPA1ISD=bWF9ghg9Ls0=&hfFlag=9emr4VdBw22M7BGjKtJWMPDI4s5cHQZP&NPJ6RAme=dXLU2FrG0jO/aYqK2MSI8g==&PaURJEMAN4=ZL9MNERkNdYo0mMRIzSxwQ==&IRSAHEB=D6PY3lyims8="
+    },
+    {
+      "id": "24b79a8d-09ab-4d4d-9fc0-e07480202f6a",
+      "name": "Fusion The Rivulet",
+      "slug": "fusion-the-rivulet-sector-12",
+      "original_rera": "UPRERAPRJ999198",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": []
+    },
+    {
+      "id": "42d459db-357b-4286-93a5-b0a9f7e2fc1c",
+      "name": "SKA Orion",
+      "slug": "ska-orion-sector-143b",
+      "original_rera": "UPRERAPRJ582373",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": true,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "d3e5797e-fe37-45b6-a240-05713004a8ad",
+      "name": "IVY County",
+      "slug": "ivy-county-sector-75",
+      "original_rera": "UPRERAPRJ637123",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Cleared shared sector centroid: 28.5740,77.3810",
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "0ffd4f5c-ee97-4650-b619-83052a9233f3",
+      "name": "ATS Nobility",
+      "slug": "ats-nobility-sector-4",
+      "original_rera": "UPRERAPRJ0403",
+      "matchMethod": "FUZZY_NAME",
+      "rera_verified": true,
+      "builder_verified": false,
+      "changes": [
+        "RERA number updated: 'UPRERAPRJ0403' -> 'UPRERAPRJ284035'",
+        "Escrow verified: HDFC BANK (57500000203747)"
+      ],
+      "official_rera": "UPRERAPRJ284035",
+      "official_promoter": "Homekraft  Infra Private Limited",
+      "rera_source_url": "https://www.up-rera.in/Projectsummary?UI0aPA1ISD=cSw3i4oUQ4M=&hfFlag=9emr4VdBw22M7BGjKtJWMPDI4s5cHQZP&NPJ6RAme=QuC0InUJg/zQemJ2XTJt/g==&PaURJEMAN4=ZL9MNERkNdaw1NY/TPUnGA==&IRSAHEB=D6PY3lyims8="
+    },
+    {
+      "id": "09f7649b-8178-4d6d-a62e-fdcff904be7f",
+      "name": "Panchsheel Greens 1 & 2",
+      "slug": "panchsheel-greens-sector-16",
+      "original_rera": "UPRERAPRJ1601",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "87b169a7-f43a-45f0-8b53-e973d8439067",
+      "name": "Saviour Greenarch",
+      "slug": "saviour-greenarch-techzone-4",
+      "original_rera": "UPRERAPRJ4812",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "814100df-017d-4b02-b53a-d70e452b134b",
+      "name": "The Jewel of Noida",
+      "slug": "the-jewel-of-noida-sector-75",
+      "original_rera": "UPRERAPRJ3421",
+      "matchMethod": "FUZZY_NAME",
+      "rera_verified": true,
+      "builder_verified": false,
+      "changes": [
+        "RERA number updated: 'UPRERAPRJ3421' -> 'UPRERAPRJ498423'",
+        "Escrow verified: ICICI BANK LIMITED (777705226220)",
+        "Deleted 2 synthetic payment plans"
+      ],
+      "official_rera": "UPRERAPRJ498423",
+      "official_promoter": "E HOMES INFRASTRUCTURE PVT LTD",
+      "rera_source_url": "https://www.up-rera.in/Projectsummary?UI0aPA1ISD=2OAT6v6OdrM=&hfFlag=9emr4VdBw22M7BGjKtJWMPDI4s5cHQZP&NPJ6RAme=WMIU1HnALcQywCA711YzlryD3FeSTGTygmZak8W5JYPK2zlnQi/GQuWaC7tPCrOb&PaURJEMAN4=ZL9MNERkNdYS8JP0FgFBJQ==&IRSAHEB=D6PY3lyims8="
+    },
+    {
+      "id": "590aa3f6-20e5-424c-8b3a-a9d59ca47389",
+      "name": "SKA Divya Towers",
+      "slug": "ska-divya-towers-sector-16b",
+      "original_rera": "UPRERAPRJ10873",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": true,
+      "changes": [
+        "Cleared shared sector centroid: 28.6050,77.4450"
+      ]
+    },
+    {
+      "id": "17b0c842-0887-415c-8c95-a1316cea1c8e",
+      "name": "AU Aspire",
+      "slug": "au-aspire-sector-76",
+      "original_rera": "UPRERAPRJ76123",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "53e12b17-015b-4afd-8731-41f01f1c5df9",
+      "name": "Purvanchal Royal Park",
+      "slug": "purvanchal-royal-park-sector-137",
+      "original_rera": "UPRERAPRJ9912",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Cleared shared sector centroid: 28.5750,77.3850",
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "731c18b6-ff5d-46b3-ad6e-f8b5fdfa61d5",
+      "name": "Jaypee Kalypso Court",
+      "slug": "jaypee-kalypso-court-sector-128",
+      "original_rera": "UPRERAPRJ1280",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Cleared shared sector centroid: 28.5750,77.3850",
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "fee975d5-aaa1-4482-b6ad-86c149a7c4ff",
+      "name": "Paramount Emotions",
+      "slug": "paramount-emotions-sector-1-greater-noida-west",
+      "original_rera": "UPRERAPRJ3452",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Cleared shared sector centroid: 28.6012,77.4421"
+      ]
+    },
+    {
+      "id": "465b937f-1e88-4699-8ea6-76083237965d",
+      "name": "Amrapali Dream Valley",
+      "slug": "amrapali-dream-valley-techzone-4-greater-noida-west",
+      "original_rera": "UPRERAPRJ8801",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": []
+    },
+    {
+      "id": "4ea2df37-3090-400b-a6dd-3014d3ca4496",
+      "name": "Sunworld Arista",
+      "slug": "sunworld-arista-sector-168-noida",
+      "original_rera": "UPRERAPRJ1682",
+      "matchMethod": "FUZZY_NAME",
+      "rera_verified": true,
+      "builder_verified": false,
+      "changes": [
+        "RERA number updated: 'UPRERAPRJ1682' -> 'UPRERAPRJ11625'",
+        "Escrow verified: ICICI Bank Limited (77770557072)"
+      ],
+      "official_rera": "UPRERAPRJ11625",
+      "official_promoter": "Sunworld Residency Private Limited",
+      "rera_source_url": "https://www.up-rera.in/Projectsummary?UI0aPA1ISD=NEmFVjofNBE=&hfFlag=9emr4VdBw22M7BGjKtJWMPDI4s5cHQZP&NPJ6RAme=sZDnOIhb4UeVqc0h/ymbYRs3seyrW5Ze5RzyfEUpdaejYjriWDMcWw==&PaURJEMAN4=ZL9MNERkNdbMb4vMR6sBUQ==&IRSAHEB=D6PY3lyims8="
+    },
+    {
+      "id": "1d012564-5f17-4494-82e6-a85cfa5fdb20",
+      "name": "Amrapali Verona Heights",
+      "slug": "amrapali-verona-heights-techzone-4-greater-noida-west",
+      "original_rera": "UPRERAPRJ8804",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": []
+    },
+    {
+      "id": "2383e720-762b-450b-b124-74bc37b16c48",
+      "name": "RG Luxury Homes",
+      "slug": "rg-luxury-homes-sector-16b-greater-noida-west",
+      "original_rera": "UPRERAPRJ2831",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "9570f5a8-5b81-49be-9267-e48d74190641",
+      "name": "Amrapali Centurian Park - O2 Valley",
+      "slug": "amrapali-centurian-park-o2-valley-techzone-4",
+      "original_rera": "UPRERAPRJ8806",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": []
+    },
+    {
+      "id": "292b0d9c-a096-4535-b68c-d482224eb148",
+      "name": "Mahagun My Laagoon",
+      "slug": "mahagun-my-laagoon-sector-12",
+      "original_rera": "UPRERAPRJ789456/08/2024",
+      "matchMethod": "FUZZY_NAME",
+      "rera_verified": true,
+      "builder_verified": false,
+      "changes": [
+        "RERA number updated: 'UPRERAPRJ789456/08/2024' -> 'UPRERAPRJ999197/09/2024'",
+        "Escrow verified: HDFC Bank Ltd (99900000100113)",
+        "Deleted 2 synthetic payment plans"
+      ],
+      "official_rera": "UPRERAPRJ999197/09/2024",
+      "official_promoter": "Aura Infrabiz LLP",
+      "rera_source_url": "https://www.up-rera.in/Projectsummary?UI0aPA1ISD=S+Wd1Ql0OBQ=&hfFlag=9emr4VdBw22M7BGjKtJWMPDI4s5cHQZP&NPJ6RAme=IG9HrJW/fuDmihnqrJCreV51yjv69nDGMnNNWfVkM+o=&PaURJEMAN4=ZL9MNERkNdZmEieHoHpKoWbPrq62GU5h&IRSAHEB=D6PY3lyims8="
+    },
+    {
+      "id": "fd2dff4c-4552-4a53-8a91-2f50fd959a82",
+      "name": "Amrapali Golf Homes",
+      "slug": "amrapali-golf-homes-sector-4-greater-noida-west",
+      "original_rera": "UPRERAPRJ8808",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": []
+    },
+    {
+      "id": "68b1999b-03d8-4cc6-8307-7acf78fcdf4a",
+      "name": "Supertech Eco Village 1",
+      "slug": "supertech-eco-village-1-sector-1-greater-noida-west",
+      "original_rera": "UPRERAPRJ4921",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": []
+    },
+    {
+      "id": "2ae87b71-476b-4432-a79f-030a634de437",
+      "name": "Saya Zion",
+      "slug": "saya-zion-sector-16b",
+      "original_rera": "UPRERAPRJ1604",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": true,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "bb6b3c13-888c-4dfe-8e76-b0dfdf324a2f",
+      "name": "Gaurs Platinum Towers",
+      "slug": "gaurs-platinum-towers-sector-79",
+      "original_rera": "UPRERAPRJ79113",
+      "matchMethod": "FUZZY_NAME",
+      "rera_verified": true,
+      "builder_verified": true,
+      "changes": [
+        "RERA number updated: 'UPRERAPRJ79113' -> 'UPRERAPRJ542943/09/2026'",
+        "Escrow verified: AXIS BANK (926020013335509)",
+        "Deleted 2 synthetic payment plans"
+      ],
+      "official_rera": "UPRERAPRJ542943/09/2026",
+      "official_promoter": "NAVKUL BUILDCON PRIVATE LIMITED",
+      "rera_source_url": "https://www.up-rera.in/Projectsummary?UI0aPA1ISD=uZEqaNErrKA=&hfFlag=q5Tk0QUeJB8oatkp/Oqbxw==&NPJ6RAme=Qd3hCkFBNXLvPSM/ADwdcA==&PaURJEMAN4=ZL9MNERkNdaSV22QoigIhmOGijVo03Kq&IRSAHEB=D6PY3lyims8="
+    },
+    {
+      "id": "6a46eba7-775b-44d7-a91b-72d96e9e820a",
+      "name": "Civitech Strings",
+      "slug": "civitech-strings-sector-12",
+      "original_rera": "UPRERAPRJ654987/07/2024",
+      "matchMethod": "EXACT_NAME",
+      "rera_verified": true,
+      "builder_verified": false,
+      "changes": [
+        "RERA number updated: 'UPRERAPRJ654987/07/2024' -> 'UPRERAPRJ646272'",
+        "Escrow verified: PUNJAB NAIONAL BANK (6717002900000075)"
+      ],
+      "official_rera": "UPRERAPRJ646272",
+      "official_promoter": "SA.G.Realtech Private Limited",
+      "rera_source_url": "https://www.up-rera.in/Projectsummary?UI0aPA1ISD=aE9jeu6Qb8w=&hfFlag=9emr4VdBw22M7BGjKtJWMPDI4s5cHQZP&NPJ6RAme=P5rLJI9Ns6cNpLwizj3MGw3sVComtAOW&PaURJEMAN4=ZL9MNERkNdZiAdOpbWsZMw==&IRSAHEB=D6PY3lyims8="
+    },
+    {
+      "id": "dace15b4-beb2-4f81-9fe6-f7e551807c1f",
+      "name": "Panchsheel Greens 2",
+      "slug": "panchsheel-greens-2-sector-16-greater-noida-west",
+      "original_rera": "UPRERAPRJ8532",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": []
+    },
+    {
+      "id": "dde44de5-946c-4be4-adaa-2aa5a45bf4ce",
+      "name": "Apex Golf Avenue",
+      "slug": "apex-golf-avenue-sector-1-greater-noida-west",
+      "original_rera": "UPRERAPRJ8585",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Cleared shared sector centroid: 28.5891,77.4400"
+      ]
+    },
+    {
+      "id": "79719bfe-3694-49ab-b343-403acdd60d0e",
+      "name": "Earth Towne",
+      "slug": "earth-towne-sector-1-greater-noida-west",
+      "original_rera": "UPRERAPRJ6477",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": []
+    },
+    {
+      "id": "38e0616b-811c-4638-bfbe-d8772567f366",
+      "name": "Nirala Aspire",
+      "slug": "nirala-aspire-sector-16",
+      "original_rera": "UPRERAPRJ2118",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "54a7b78a-888c-488c-a7b9-a069e276fc86",
+      "name": "RG Pleiaddes",
+      "slug": "rg-pleiaddes-sector-1-greater-noida-west",
+      "original_rera": "UPRERAPRJ124816",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": []
+    },
+    {
+      "id": "db1df127-1c88-4163-983c-ab91873005ac",
+      "name": "Trident Embassy Resenso",
+      "slug": "trident-embassy-resenso-sector-1",
+      "original_rera": "UPRERAPRJ3512",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": []
+    },
+    {
+      "id": "69eeb5c0-255f-43ff-a7b7-a851a2ffbc37",
+      "name": "JM Orchid",
+      "slug": "jm-orchid-sector-76",
+      "original_rera": "UPRERAPRJ76125",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "7f3b4480-7b69-4b5e-a052-74e0d9a8453d",
+      "name": "Supertech Eco City",
+      "slug": "supertech-eco-city-sector-137-noida",
+      "original_rera": "UPRERAPRJ4012",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": []
+    },
+    {
+      "id": "1b5153b7-2f1a-4130-b9c7-7eed248f0786",
+      "name": "Lotus Greens Yardscape",
+      "slug": "lotus-greens-yardscape-sector-79",
+      "original_rera": "UPRERAPRJ79105",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "26620dc3-3a1f-4c7c-a678-fda534e66eb9",
+      "name": "AIMS Golf City",
+      "slug": "aims-golf-city-sector-75-sec-1",
+      "original_rera": "UPRERAPRJ1102",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Cleared shared sector centroid: 28.5686,77.3786"
+      ]
+    },
+    {
+      "id": "c400f357-9095-465f-a3de-90ce83bc1a05",
+      "name": "Cherry County Towers A-F",
+      "slug": "cherry-county-towers-a-f-techzone-4",
+      "original_rera": "UPRERAPRJ4410",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": []
+    },
+    {
+      "id": "2d12577b-559f-4da6-b0a9-77d291dd341e",
+      "name": "JM Aroma",
+      "slug": "jm-aroma-sector-75",
+      "original_rera": "UPRERAPRJ4567",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "fe71f569-d9af-4de9-81f3-6f9df8bb4865",
+      "name": "Panchsheel Greens 1",
+      "slug": "panchsheel-greens-1-sector-16b-greater-noida-west",
+      "original_rera": "UPRERAPRJ16BPG1",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "85329d53-6771-46a5-9629-88321784ba86",
+      "name": "Amrapali Enchante",
+      "slug": "amrapali-enchante-techzone-4",
+      "original_rera": "UPRERAPRJ882215",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "fafa768d-d3f6-4287-a1a5-7276942cc526",
+      "name": "Amrapali Silicon City",
+      "slug": "amrapali-silicon-city-sector-76",
+      "original_rera": "UPRERAPRJ76128",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "fdf810a5-109c-4eac-a90c-92b1fb786f65",
+      "name": "Elite Homz",
+      "slug": "elite-homz-sector-77",
+      "original_rera": "UPRERAPRJ77103",
+      "matchMethod": "FUZZY_NAME",
+      "rera_verified": true,
+      "builder_verified": false,
+      "changes": [
+        "RERA number updated: 'UPRERAPRJ77103' -> 'UPRERAPRJ954073/10/2024'",
+        "Escrow verified: Punjab National Bank (0384102100000948)",
+        "Deleted 2 synthetic payment plans"
+      ],
+      "official_rera": "UPRERAPRJ954073/10/2024",
+      "official_promoter": "AGRASEN REALTORS & DEVELOPERS PRIVATE LIMITED",
+      "rera_source_url": "https://www.up-rera.in/Projectsummary?UI0aPA1ISD=AaWUMXtscR0=&hfFlag=Vve7Vt7phxw2J45GP78XiQ==&NPJ6RAme=FnA5IGfsJBg=&PaURJEMAN4=ZL9MNERkNdZ+OxUqUAWsQ4IJ4yhFJx/z&IRSAHEB=D6PY3lyims8="
+    },
+    {
+      "id": "359889f6-6174-4916-a326-97f0c08c62e8",
+      "name": "Ace Mahagun Medalleo",
+      "slug": "ace-mahagun-medalleo-sector-107",
+      "original_rera": "UPRERAPRJ125561",
+      "matchMethod": "EXACT_RERA",
+      "rera_verified": true,
+      "builder_verified": true,
+      "changes": [
+        "Escrow verified: ICICI Bank Ltd (777705432189)"
+      ],
+      "official_rera": "UPRERAPRJ125561",
+      "official_promoter": "Mahagun Infratech Private Limited",
+      "rera_source_url": "https://www.up-rera.in/Projectsummary?UI0aPA1ISD=ZckM3uRHbsM=&hfFlag=9emr4VdBw22M7BGjKtJWMPDI4s5cHQZP&NPJ6RAme=IG9HrJW/fuCkqWxug1j3vYKV0g11DFXN&PaURJEMAN4=ZL9MNERkNdZzvQPoQdI4XA==&IRSAHEB=D6PY3lyims8="
+    },
+    {
+      "id": "c270d881-50ed-454c-a300-8e9932012a9f",
+      "name": "Amrapali Eden Park",
+      "slug": "amrapali-eden-park-sector-50",
+      "original_rera": "UPRERAPRJ1050",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "6c7505f1-28af-4c9c-b41b-770fd557fa0b",
+      "name": "Elite Golf Greens",
+      "slug": "elite-golf-greens-sector-79",
+      "original_rera": "UPRERAPRJ79107",
+      "matchMethod": "FUZZY_NAME",
+      "rera_verified": true,
+      "builder_verified": false,
+      "changes": [
+        "RERA number updated: 'UPRERAPRJ79107' -> 'UPRERAPRJ954073/10/2024'",
+        "Escrow verified: Punjab National Bank (0384102100000948)",
+        "Deleted 2 synthetic payment plans"
+      ],
+      "official_rera": "UPRERAPRJ954073/10/2024",
+      "official_promoter": "AGRASEN REALTORS & DEVELOPERS PRIVATE LIMITED",
+      "rera_source_url": "https://www.up-rera.in/Projectsummary?UI0aPA1ISD=AaWUMXtscR0=&hfFlag=Vve7Vt7phxw2J45GP78XiQ==&NPJ6RAme=FnA5IGfsJBg=&PaURJEMAN4=ZL9MNERkNdZ+OxUqUAWsQ4IJ4yhFJx/z&IRSAHEB=D6PY3lyims8="
+    },
+    {
+      "id": "64137eb6-2e30-4e6d-8508-a9052bef101b",
+      "name": "3C Lotus 300",
+      "slug": "3c-lotus-300-sector-107",
+      "original_rera": "UPRERAPRJ3300",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Cleared shared sector centroid: 28.5750,77.3850",
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "2f5a8248-e9da-44d6-99e7-c403aca87bbe",
+      "name": "Amaatra Homes",
+      "slug": "amaatra-homes-sector-10",
+      "original_rera": "UPRERAPRJ3010",
+      "matchMethod": "EXACT_RERA",
+      "rera_verified": true,
+      "builder_verified": false,
+      "changes": [
+        "Escrow verified: HDFC BANK (50200116475132)"
+      ],
+      "official_rera": "UPRERAPRJ3010",
+      "official_promoter": "Techman Buildwell Pvt. Ltd",
+      "rera_source_url": "https://www.up-rera.in/Projectsummary?UI0aPA1ISD=0YPDzl3CE0M=&hfFlag=q5Tk0QUeJB8oatkp/Oqbxw==&NPJ6RAme=3m4j8WZQ2kUEMlOhYtyYbdGF22gqOoCQ/sSMq8R4ZdVdjwuoxdnudw==&PaURJEMAN4=ZL9MNERkNdYyQ+MW7NvtZQ==&IRSAHEB=D6PY3lyims8="
+    },
+    {
+      "id": "bf165595-cf13-4cfa-9e87-dfe158d97679",
+      "name": "Golden I Residential Blocks",
+      "slug": "golden-i-residential-blocks-techzone-4",
+      "original_rera": "UPRERAPRJ7010",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": true,
+      "changes": [
+        "Cleared shared sector centroid: 28.5910,77.4540"
+      ]
+    },
+    {
+      "id": "7a1ec30d-34d3-4461-875e-f313d2a68b9d",
+      "name": "Purvanchal Silver City 1 & 2",
+      "slug": "purvanchal-silver-city-sector-chi-5",
+      "original_rera": "UPRERAPRJ2003",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Cleared shared sector centroid: 28.4680,77.5120",
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "87ed080b-2562-4539-b6ad-8058ee442847",
+      "name": "SKA Green Mansion",
+      "slug": "ska-green-mansion-sector-12",
+      "original_rera": "UPRERAPRJ123789",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": true,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "c19ecfd2-d72a-4525-aa32-93e67aef1285",
+      "name": "Rudra Palace Heights",
+      "slug": "rudra-palace-heights-sector-1-greater-noida-west",
+      "original_rera": "UPRERAPRJ1110",
+      "matchMethod": "EXACT_NAME",
+      "rera_verified": true,
+      "builder_verified": false,
+      "changes": [
+        "RERA number updated: 'UPRERAPRJ1110' -> 'UPRERAPRJ7895'",
+        "Escrow verified: HDFC BANK (57500000114328)",
+        "Cleared shared sector centroid: 28.5928,77.4437"
+      ],
+      "official_rera": "UPRERAPRJ7895",
+      "official_promoter": "RUDRA BUILDWELL PROJECTS PRIVATE LIMITED",
+      "rera_source_url": "https://www.up-rera.in/Projectsummary?UI0aPA1ISD=BJdQgWHnauo=&hfFlag=9emr4VdBw22M7BGjKtJWMPDI4s5cHQZP&NPJ6RAme=8V3EyUK67/OdYCvzM7cRDm1vacqHKncO&PaURJEMAN4=ZL9MNERkNdaygcwBnX6+ig==&IRSAHEB=D6PY3lyims8="
+    },
+    {
+      "id": "f815eae4-0c4a-4927-b422-77d2db9dbcd7",
+      "name": "Migsun Vilaasa",
+      "slug": "migsun-vilaasa-sector-eta-2",
+      "original_rera": "UPRERAPRJ2006",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "a9573feb-2420-4ddd-8878-3be364c9cf0f",
+      "name": "Renox Thrive",
+      "slug": "renox-thrive-sector-10",
+      "original_rera": "UPRERAPRJ742692/09/2024",
+      "matchMethod": "EXACT_RERA",
+      "rera_verified": true,
+      "builder_verified": false,
+      "changes": [
+        "Escrow verified: Indian Bank (7820766459)"
+      ],
+      "official_rera": "UPRERAPRJ742692/09/2024",
+      "official_promoter": "Nivas Promoters Private Limited",
+      "rera_source_url": "https://www.up-rera.in/Projectsummary?UI0aPA1ISD=Klf+H5t/nGI=&hfFlag=9emr4VdBw22M7BGjKtJWMPDI4s5cHQZP&NPJ6RAme=JB6n5EhV+SGsIDN6plxBCg==&PaURJEMAN4=ZL9MNERkNdYx4jlQwqz8PFuzYVcaAlR7&IRSAHEB=D6PY3lyims8="
+    },
+    {
+      "id": "30df5cd8-7b2b-4f55-a05a-0d76d1b94795",
+      "name": "Ace Starlit",
+      "slug": "ace-starlit-sector-152",
+      "original_rera": "UPRERAPRJ6772",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": true,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "06894481-6cd9-45c7-9c59-d9a9e8a775ab",
+      "name": "Purvanchal Royal City",
+      "slug": "purvanchal-royal-city-sector-chi-v-greater-noida",
+      "original_rera": "UPRERAPRJ521882",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "3340c38e-6320-46b6-93a7-63365daac681",
+      "name": "Prateek Canary",
+      "slug": "prateek-canary-sector-150",
+      "original_rera": "UPRERAPRJ591564",
+      "matchMethod": "EXACT_NAME",
+      "rera_verified": true,
+      "builder_verified": true,
+      "changes": [
+        "RERA number updated: 'UPRERAPRJ591564' -> 'UPRERAPRJ591510'",
+        "Escrow verified: HDFC BANK LTD (50200039337851)"
+      ],
+      "official_rera": "UPRERAPRJ591510",
+      "official_promoter": "STRONGBIZ PROPBUILD PRIVATE LIMITED",
+      "rera_source_url": "https://www.up-rera.in/Projectsummary?UI0aPA1ISD=08sLDXZPs2k=&hfFlag=9emr4VdBw22M7BGjKtJWMPDI4s5cHQZP&NPJ6RAme=kkMH+II/kt1Orwh6lujsbw==&PaURJEMAN4=ZL9MNERkNdZhOpuphzglfw==&IRSAHEB=D6PY3lyims8="
+    },
+    {
+      "id": "ae7a7756-1b87-401d-8247-3db41c362a87",
+      "name": "Aniket Antalya Heights",
+      "slug": "aniket-antalya-heights-sector-1",
+      "original_rera": "UPRERAPRJ4110",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Cleared shared sector centroid: 28.6012,77.4421"
+      ]
+    },
+    {
+      "id": "6c96be63-6084-42f0-b4fc-b6043866e15d",
+      "name": "Antriksh Golf Link",
+      "slug": "antriksh-golf-link-sector-1",
+      "original_rera": "UPRERAPRJ1210",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Cleared shared sector centroid: 28.5928,77.4437"
+      ]
+    },
+    {
+      "id": "ded88df5-eb6e-4af5-af42-867c22824976",
+      "name": "Bhutani Astrathum",
+      "slug": "bhutani-astrathum-sector-12-greater-noida-west",
+      "original_rera": "UPRERAPRJ982310",
+      "matchMethod": "FUZZY_NAME",
+      "rera_verified": true,
+      "builder_verified": false,
+      "changes": [
+        "RERA number updated: 'UPRERAPRJ982310' -> 'UPRERAPRJ202227/09/2025'",
+        "Escrow verified: ICICI Bank Limited (777705345141)",
+        "Deleted 2 synthetic payment plans"
+      ],
+      "official_rera": "UPRERAPRJ202227/09/2025",
+      "official_promoter": "Parmesh Construction Company Limited",
+      "rera_source_url": "https://www.up-rera.in/Projectsummary?UI0aPA1ISD=ZVdgUfSdmcI=&hfFlag=9emr4VdBw22M7BGjKtJWMPDI4s5cHQZP&NPJ6RAme=nwyfZYn7abX+Mgyok8u3aw==&PaURJEMAN4=ZL9MNERkNdb2Na0dOxQMNtq/wWQbLh0w&IRSAHEB=D6PY3lyims8="
+    },
+    {
+      "id": "0bf0fd19-8393-44cf-835e-58f00433e0bc",
+      "name": "Elite X",
+      "slug": "elite-x-sector-10",
+      "original_rera": "UPRERAPRJ916631/02/2024",
+      "matchMethod": "EXACT_RERA",
+      "rera_verified": true,
+      "builder_verified": false,
+      "changes": [
+        "Escrow verified: HDFC BANK (50200089507379)",
+        "Deleted 6 synthetic payment plans"
+      ],
+      "official_rera": "UPRERAPRJ916631/02/2024",
+      "official_promoter": "GOLFGREEN MANSIONS PVT. LTD.",
+      "rera_source_url": "https://www.up-rera.in/Projectsummary?UI0aPA1ISD=/egv3VFJtLA=&hfFlag=9emr4VdBw22M7BGjKtJWMPDI4s5cHQZP&NPJ6RAme=Kw6BdKmCruo=&PaURJEMAN4=ZL9MNERkNdYr20+l7mTeBSHy3WJOYGK/&IRSAHEB=D6PY3lyims8="
+    },
+    {
+      "id": "1ccb48fa-d390-4574-8a4b-6ea712ac4381",
+      "name": "Arihant Seasons",
+      "slug": "arihant-seasons-sector-22d",
+      "original_rera": "UPRERAPRJ22D980",
+      "matchMethod": "EXACT_NAME",
+      "rera_verified": true,
+      "builder_verified": false,
+      "changes": [
+        "RERA number updated: 'UPRERAPRJ22D980' -> 'UPRERAPRJ974543/02/2026'",
+        "Escrow verified: HDFC BANK LTD (99992804202527)",
+        "Deleted 2 synthetic payment plans"
+      ],
+      "official_rera": "UPRERAPRJ974543/02/2026",
+      "official_promoter": "Arihant Urban Space Private Limited",
+      "rera_source_url": "https://www.up-rera.in/Projectsummary?UI0aPA1ISD=yKOHdP5VC7w=&hfFlag=9emr4VdBw22M7BGjKtJWMPDI4s5cHQZP&NPJ6RAme=wIcfXA6f2Im8mB74MnGc+Q==&PaURJEMAN4=ZL9MNERkNdaabFzvKD/iZM4pJXU7ac5c&IRSAHEB=D6PY3lyims8="
+    },
+    {
+      "id": "ff0c2a44-30f0-4283-8c8c-4d10f504923c",
+      "name": "Gulshan Vivante",
+      "slug": "gulshan-vivante-sector-137",
+      "original_rera": "UPRERAPRJ2100",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": []
+    },
+    {
+      "id": "bdfafcd8-fd5c-44dc-ab46-e1cc2b372491",
+      "name": "ATS Picturesque Reprieves",
+      "slug": "ats-picturesque-reprieves-sector-152",
+      "original_rera": "UPRERAPRJ6310",
+      "matchMethod": "FUZZY_NAME",
+      "rera_verified": true,
+      "builder_verified": false,
+      "changes": [
+        "RERA number updated: 'UPRERAPRJ6310' -> 'UPRERAPRJ396176'",
+        "Escrow verified: HDFC (57500000328897)",
+        "Deleted 2 synthetic payment plans"
+      ],
+      "official_rera": "UPRERAPRJ396176",
+      "official_promoter": "ATS HOMES PRIVATE LIMITED",
+      "rera_source_url": "https://www.up-rera.in/Projectsummary?UI0aPA1ISD=nffnnE2PJOk=&hfFlag=9emr4VdBw22M7BGjKtJWMPDI4s5cHQZP&NPJ6RAme=6C/AqDhCDUT0A3Xwpa1CBeuk3pvKhhftTZAfzaSYE6SX04jJD9kMsw==&PaURJEMAN4=ZL9MNERkNdbVlk5c9A1CKg==&IRSAHEB=D6PY3lyims8="
+    },
+    {
+      "id": "dbfa1b3f-4ea5-434f-95f4-a1731cc3ebd7",
+      "name": "Orris Greenbay Golf Homes",
+      "slug": "orris-greenbay-golf-homes-sector-22d",
+      "original_rera": "UPRERAPRJ5528",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "2da9ff8c-8632-42a4-9134-5963d89d3ba6",
+      "name": "Supertech Golf Country",
+      "slug": "supertech-golf-country-sector-22d",
+      "original_rera": "UPRERAPRJ4910",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "7b8d12f6-1cb6-41e9-9438-05f55f2fc95e",
+      "name": "Ajnara Le Garden",
+      "slug": "ajnara-le-garden-sector-16b",
+      "original_rera": "UPRERAPRJ4819",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "8a7aee75-7fdf-414d-9719-57169ab2dd13",
+      "name": "Gaur City 2 - 11th Avenue",
+      "slug": "gaur-city-2-11th-avenue-sector-16c",
+      "original_rera": "UPRERAPRJ16C11",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": []
+    },
+    {
+      "id": "b928e6fa-f939-4a26-8095-994ef7ada22f",
+      "name": "Shri Radha Sky Gardens",
+      "slug": "shri-radha-sky-gardens-sector-16b",
+      "original_rera": "UPRERAPRJ7158",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "479f7942-1f6d-4ddb-869a-5d56d941cbd5",
+      "name": "Supertech Upcountry (Golf Village)",
+      "slug": "supertech-upcountry-golf-village-sector-17a",
+      "original_rera": "UPRERAPRJ6619",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "5133278f-4550-432d-8971-816de544335e",
+      "name": "Irish Platinum",
+      "slug": "irish-platinum-sector-10",
+      "original_rera": "UPRERAPRJ503189/03/2024",
+      "matchMethod": "EXACT_RERA",
+      "rera_verified": true,
+      "builder_verified": false,
+      "changes": [
+        "Escrow verified: ICICI BANK (414605001685)",
+        "Deleted 6 synthetic payment plans"
+      ],
+      "official_rera": "UPRERAPRJ503189/03/2024",
+      "official_promoter": "Irish Buildcon Private Limited",
+      "rera_source_url": "https://www.up-rera.in/Projectsummary?UI0aPA1ISD=wOroRc/w/d0=&hfFlag=9emr4VdBw22M7BGjKtJWMPDI4s5cHQZP&NPJ6RAme=mAgLh2uaUWMotyQw/mVtJQ==&PaURJEMAN4=ZL9MNERkNdahN/Bo4BN6gemt2JkT1FEp&IRSAHEB=D6PY3lyims8="
+    },
+    {
+      "id": "2656d2d2-b542-40de-9d20-14661097df34",
+      "name": "Mahagun Meadows",
+      "slug": "mahagun-meadows-sector-150",
+      "original_rera": "UPRERAPRJ1257",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "5c10b8e6-d026-454e-8de1-bcf7a048e8d8",
+      "name": "NBCC Aspire Dream Valley",
+      "slug": "nbcc-aspire-dream-valley-techzone-4",
+      "original_rera": "UPRERAPRJ882205",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "1254753f-834d-4116-9ff1-c1b4119665b4",
+      "name": "ATS One Hamlet",
+      "slug": "ats-one-hamlet-sector-104-noida",
+      "original_rera": "UPRERAPRJ1041",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "57036cfd-3537-4117-805e-5a06dff049ab",
+      "name": "Gulshan Ikebana Towers A-F",
+      "slug": "gulshan-ikebana-towers-a-f-sector-143",
+      "original_rera": "UPRERAPRJ2101",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": []
+    },
+    {
+      "id": "cba89104-e173-401a-ba0d-a1989e957fe2",
+      "name": "ATS Green Paradiso",
+      "slug": "ats-green-paradiso-sector-chi-4",
+      "original_rera": "UPRERAPRJ2005",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "c9e935f2-7e3c-4a78-9596-49faa91310ae",
+      "name": "Gardenia Golf City",
+      "slug": "gardenia-golf-city-sector-75",
+      "original_rera": "UPRERAPRJ1234",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": true,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "24b1661d-8688-464e-b9f0-58838020895a",
+      "name": "Ajnara Daffodil",
+      "slug": "ajnara-daffodil-sector-137",
+      "original_rera": "UPRERAPRJ1373",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Cleared shared sector centroid: 28.5750,77.3850",
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "6be84ef7-d53c-4415-8e06-ca7f3da8faa0",
+      "name": "Supertech Supernova",
+      "slug": "supertech-supernova-sector-94",
+      "original_rera": "UPRERAPRJ4016",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": []
+    },
+    {
+      "id": "10c8ec88-175c-465a-add4-6cf2d483e025",
+      "name": "Ambr Mangolia",
+      "slug": "ambr-mangolia-sector-10",
+      "original_rera": "UPRERAPRJ834521/08/2024",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 6 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "56810c4e-ff3f-425a-8204-c929415a9324",
+      "name": "Ajnara Elements",
+      "slug": "ajnara-elements-sector-137",
+      "original_rera": "UPRERAPRJ13708",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "db03ae39-1a51-4851-a069-24308f2b59e2",
+      "name": "Kalpataru Vista",
+      "slug": "kalpataru-vista-sector-128",
+      "original_rera": "UPRERAPRJ14980",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "02efcac2-114b-47c2-b486-f9e73c3c6dd8",
+      "name": "Lotus Boulevard Espacia",
+      "slug": "lotus-boulevard-espacia-sector-100",
+      "original_rera": "UPRERAPRJ2025",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Cleared shared sector centroid: 28.5750,77.3850",
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "12106c85-4f4d-4a2b-a870-5093262a9567",
+      "name": "Om Centrum Heights I",
+      "slug": "om-centrum-heights-sector-76",
+      "original_rera": "UPRERAPRJ76131",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "7bf755c6-e5d6-4a98-abc7-b1247886d229",
+      "name": "Supertech Emerald Court",
+      "slug": "supertech-emerald-court-sector-93a",
+      "original_rera": "UPRERAPRJ1035",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "4181e405-1425-4fb4-b114-4e73786a68f5",
+      "name": "Sindhuja Greens",
+      "slug": "sindhuja-greens-sector-10",
+      "original_rera": "UPRERAPRJ642190",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 6 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "be9421d0-0314-41ab-965a-088fcfdfc3ed",
+      "name": "Tata Eureka Park",
+      "slug": "tata-eureka-park-sector-150",
+      "original_rera": "UPRERAPRJ5448",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": true,
+      "changes": []
+    },
+    {
+      "id": "6968a821-5605-464c-9c76-3a3136d50a9d",
+      "name": "Jaypee Pavilion Court",
+      "slug": "jaypee-pavilion-court-sector-128",
+      "original_rera": "UPRERAPRJ1282",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Cleared shared sector centroid: 28.5750,77.3850",
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "c74aa2c2-4d2d-4127-bb9b-2b4cd7b2d031",
+      "name": "Parx Laureate",
+      "slug": "parx-laureate-sector-108",
+      "original_rera": "UPRERAPRJ1082",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "1d7984c8-5f82-4909-886c-aff2f18e150f",
+      "name": "Max Estate 128",
+      "slug": "max-estate-128-sector-128",
+      "original_rera": "UPRERAPRJ446459",
+      "matchMethod": "EXACT_RERA",
+      "rera_verified": true,
+      "builder_verified": false,
+      "changes": [
+        "Escrow verified: ICICI Bank Ltd. (003105042349)",
+        "Deleted 2 synthetic payment plans"
+      ],
+      "official_rera": "UPRERAPRJ446459",
+      "official_promoter": "Max Estates 128 Private Limited",
+      "rera_source_url": "https://www.up-rera.in/Projectsummary?UI0aPA1ISD=r/w5umYBtHg=&hfFlag=9emr4VdBw22M7BGjKtJWMPDI4s5cHQZP&NPJ6RAme=hvQNdyOuuYBgxCJ917xJEA==&PaURJEMAN4=ZL9MNERkNdb7S/6OejI7BA==&IRSAHEB=D6PY3lyims8="
+    },
+    {
+      "id": "c10a068e-0c5f-4baa-b820-bbd0f6e7a37f",
+      "name": "Godrej Palm Retreat",
+      "slug": "godrej-palm-retreat-sector-150-noida",
+      "original_rera": "UPRERAPRJ11234",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": true,
+      "changes": []
+    },
+    {
+      "id": "c19889f7-0991-4366-aeca-6ebc33a56797",
+      "name": "Jaypee Klassic",
+      "slug": "jaypee-klassic-sector-128",
+      "original_rera": "UPRERAPRJ3916",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Cleared shared sector centroid: 28.5750,77.3850"
+      ]
+    },
+    {
+      "id": "d2146fcc-7cc9-400d-8d4d-5355650f0c08",
+      "name": "Logix Blossom Zest",
+      "slug": "logix-blossom-zest-sector-143",
+      "original_rera": "UPRERAPRJ1430",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Cleared shared sector centroid: 28.5750,77.3850"
+      ]
+    },
+    {
+      "id": "b6c288b7-3fed-42d2-891c-f81b17eebb90",
+      "name": "Unitech Horizon",
+      "slug": "unitech-horizon-beta-2",
+      "original_rera": "UPRERAPRJBETA2",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Cleared shared sector centroid: 28.4720,77.5080",
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "00d89685-f2c1-462d-9716-66a4257dd85f",
+      "name": "NRI City Township",
+      "slug": "nri-city-township-omega-1",
+      "original_rera": "UPRERAPRJ2901",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "9636de44-4b7d-4b57-842a-ff5ba422e378",
+      "name": "Sikka Samrat Homes",
+      "slug": "sikka-samrat-homes-sector-79",
+      "original_rera": "UPRERAPRJ79109",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "252a5492-5f1b-4e2c-af13-a71a6cb78123",
+      "name": "ATS Sovereign",
+      "slug": "ats-sovereign-sector-104-noida",
+      "original_rera": "UPRERAPRJ1042",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "285960fb-e6ba-4d19-887e-647e3998230b",
+      "name": "Civitech Sampriti",
+      "slug": "civitech-sampriti-sector-77",
+      "original_rera": "UPRERAPRJ77104",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "8285b164-67cd-4831-89a0-c015df2878f6",
+      "name": "County 107",
+      "slug": "county-107-sector-107",
+      "original_rera": "UPRERAPRJ837374",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": []
+    },
+    {
+      "id": "b16721eb-1ad1-4489-82c9-4fccd87d6e6d",
+      "name": "Nimbus Hyde Park",
+      "slug": "nimbus-hyde-park-sector-78-noida",
+      "original_rera": "UPRERAPRJ6689",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "e44fe1bf-f815-4088-870d-216dafc1a22c",
+      "name": "Godrej Jardinia",
+      "slug": "godrej-jardinia-sector-146",
+      "original_rera": "UPRERAPRJ1461",
+      "matchMethod": "EXACT_NAME",
+      "rera_verified": true,
+      "builder_verified": true,
+      "changes": [
+        "RERA number updated: 'UPRERAPRJ1461' -> 'UPRERAPRJ288309/04/2024'",
+        "Escrow verified: Axis Bank (923020071210191)",
+        "Deleted 2 synthetic payment plans"
+      ],
+      "official_rera": "UPRERAPRJ288309/04/2024",
+      "official_promoter": "Godrej Properties Limited",
+      "rera_source_url": "https://www.up-rera.in/Projectsummary?UI0aPA1ISD=vaogVPPQy/g=&hfFlag=9emr4VdBw22M7BGjKtJWMPDI4s5cHQZP&NPJ6RAme=5/xrexSpavwavA6uQQ/eCg==&PaURJEMAN4=ZL9MNERkNdZyLXfxQcaDQuAzAZO1sseU&IRSAHEB=D6PY3lyims8="
+    },
+    {
+      "id": "bf1f8f50-f49b-48ba-8602-4bdfd3add664",
+      "name": "Aditya Urban Casa",
+      "slug": "aditya-urban-casa-sector-78",
+      "original_rera": "UPRERAPRJ7801",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": []
+    },
+    {
+      "id": "9a8d8561-6bbb-4027-a6b3-f5bd055cbedd",
+      "name": "Sunworld Vanalika",
+      "slug": "sunworld-vanalika-sector-107",
+      "original_rera": "UPRERAPRJ1072",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": []
+    },
+    {
+      "id": "7b6f60dd-9d09-43a6-b6b7-6b31ffa91c68",
+      "name": "Gaur City 1 - 6th Avenue",
+      "slug": "gaur-city-1-6th-avenue-sector-4",
+      "original_rera": "UPRERAPRJ4461",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": []
+    },
+    {
+      "id": "9521a90f-1ad2-4de1-bcc8-198a6e6f2713",
+      "name": "Lotus Boulevard",
+      "slug": "lotus-boulevard-sector-100-greater-noida-west",
+      "original_rera": "UPRERAPRJ2019",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Cleared shared sector centroid: 28.5750,77.3850",
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "50ac9d58-596e-4f84-b23d-ae492bf7ab92",
+      "name": "Gaur City 2 - 10th Avenue",
+      "slug": "gaur-city-2-10th-avenue-sector-16c",
+      "original_rera": "UPRERAPRJ16C10",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": []
+    },
+    {
+      "id": "63506755-89ce-440a-8d0b-8f2155e99fb5",
+      "name": "Godrej Golf Links & The Crest",
+      "slug": "godrej-golf-links-the-crest-sector-27",
+      "original_rera": "UPRERAPRJ151",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": true,
+      "changes": [
+        "Cleared shared sector centroid: 28.4680,77.5120",
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "192d2b14-89dd-4be4-9f4c-c33138bbb866",
+      "name": "Sunshine Helios",
+      "slug": "sunshine-helios-sector-78",
+      "original_rera": "UPRERAPRJ78109",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "844ec651-cd80-495d-ab6b-9bc745ba402f",
+      "name": "Supertech Supernova Astralis",
+      "slug": "supertech-supernova-astralis-sector-94",
+      "original_rera": "UPRERAPRJ4017",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": []
+    },
+    {
+      "id": "88c182cd-3465-4358-8f39-bfbdce7290eb",
+      "name": "Jaypee Klassic Block 6-10",
+      "slug": "jaypee-klassic-block-6-10-sector-134",
+      "original_rera": "UPRERAPRJ3917",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": []
+    },
+    {
+      "id": "e4c1dde1-83e5-41aa-a99e-5bc7f342d673",
+      "name": "Amrapali Silicon City Phase 1",
+      "slug": "amrapali-silicon-city-phase-1-sector-76",
+      "original_rera": "UPRERAPRJ8820",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": []
+    },
+    {
+      "id": "a71150e1-39d7-4d09-af01-a90c66bfebed",
+      "name": "Jaypee Aman",
+      "slug": "jaypee-aman-sector-151-noida",
+      "original_rera": "UPRERAPRJ3918",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": []
+    },
+    {
+      "id": "36320546-8a3d-4d87-94bc-6c53df6bd641",
+      "name": "Jaypee Greens Kalypso Court",
+      "slug": "jaypee-greens-kalypso-court-sector-128",
+      "original_rera": "UPRERAPRJ8822",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": []
+    },
+    {
+      "id": "faa03642-1649-4f24-a91b-054f6d5cd4ba",
+      "name": "Jaypee Greens Kosmos",
+      "slug": "jaypee-greens-kosmos-sector-134",
+      "original_rera": "UPRERAPRJ8824",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": []
+    },
+    {
+      "id": "a1eb5e00-9037-40c7-8f96-39f939d77d25",
+      "name": "Jaypee Imperial Court",
+      "slug": "jaypee-imperial-court-sector-128",
+      "original_rera": "UPRERAPRJ3926",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Cleared shared sector centroid: 28.5750,77.3850"
+      ]
+    },
+    {
+      "id": "fb8cd6d4-7895-4b90-b586-16ab3b75c420",
+      "name": "Logix Blossom Greens Phase 1",
+      "slug": "logix-blossom-greens-phase-1-sector-143",
+      "original_rera": "UPRERAPRJ6604",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": []
+    },
+    {
+      "id": "85141048-0d74-482b-9c00-ac6d8531b341",
+      "name": "Gardenia Glory",
+      "slug": "gardenia-glory-sector-46",
+      "original_rera": "UPRERAPRJ4601",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": true,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "ce35a68b-782d-410a-a619-d9e7241dfd84",
+      "name": "Gaur City 2 - 16th Avenue",
+      "slug": "gaur-city-2-16th-avenue-sector-16c",
+      "original_rera": "UPRERAPRJ16C16",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": []
+    },
+    {
+      "id": "e31bf20e-aa1a-4e28-8d53-a7e58eff902d",
+      "name": "ATS Allure",
+      "slug": "ats-allure-sector-22d",
+      "original_rera": "UPRERAPRJ22D1",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Cleared shared sector centroid: 28.5750,77.3850",
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "f0dcff71-e26b-4aee-aa62-99fe95a5518c",
+      "name": "Migsun Ultimo",
+      "slug": "migsun-ultimo-sector-omicron-3",
+      "original_rera": "UPRERAPRJ2491",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "5bb536ad-aecf-4595-9c4b-6e638f707211",
+      "name": "Antriksh Golf View",
+      "slug": "antriksh-golf-view-sector-78-noida",
+      "original_rera": "UPRERAPRJ6688",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "cf21147d-b183-484c-9dbc-4b001fbdb5f5",
+      "name": "Lotus 300",
+      "slug": "lotus-300-sector-107",
+      "original_rera": "UPRERAPRJ10704",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": []
+    },
+    {
+      "id": "f9eb69e3-c4e8-4ba6-804e-7091778dd058",
+      "name": "Panchsheel Hynish",
+      "slug": "panchsheel-hynish-sector-1-greater-noida-west",
+      "original_rera": "UPRERAPRJ0104",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Cleared shared sector centroid: 28.5870,77.4410",
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "63b411a5-2503-4cd3-9e31-242bf2386efd",
+      "name": "Eldeco Live By The Greens Phase 2",
+      "slug": "eldeco-live-by-the-greens-phase-2-sector-150",
+      "original_rera": "UPRERAPRJ15113",
+      "matchMethod": "FUZZY_NAME",
+      "rera_verified": true,
+      "builder_verified": false,
+      "changes": [
+        "RERA number updated: 'UPRERAPRJ15113' -> 'UPRERAPRJ794678/09/2024'",
+        "Escrow verified: ICICI BANK LTD. (777705345112)"
+      ],
+      "official_rera": "UPRERAPRJ794678/09/2024",
+      "official_promoter": "GULSHAN HOMES AND INFRASTRUCTURE  PRIVATE LIMITED",
+      "rera_source_url": "https://www.up-rera.in/Projectsummary?UI0aPA1ISD=8BwCUtBpea8=&hfFlag=9emr4VdBw22M7BGjKtJWMPDI4s5cHQZP&NPJ6RAme=m48Id4EsNxM=&PaURJEMAN4=ZL9MNERkNdZZBROyiXAJEVC/K5JbBwuL&IRSAHEB=D6PY3lyims8="
+    },
+    {
+      "id": "0ce4d314-683d-44ae-88b7-5a8e147bf95c",
+      "name": "Supertech Eco Village 1",
+      "slug": "supertech-eco-village-1-sector-16b",
+      "original_rera": "UPRERAPRJ16B1",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Cleared shared sector centroid: 28.5980,77.4420",
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "415374b4-0da3-4d26-96ca-a6f26a38b9ba",
+      "name": "Fusion The Brook",
+      "slug": "fusion-the-brook-sector-12",
+      "original_rera": "UPRERAPRJ987654/05/2024",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": []
+    },
+    {
+      "id": "5282826d-b687-4520-854e-a38f2a5a2e0f",
+      "name": "Maxblis Grand Wellington",
+      "slug": "maxblis-grand-wellington-sector-75",
+      "original_rera": "UPRERAPRJ2345",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "33857ae6-1ab5-4dda-9842-50893cb7cad3",
+      "name": "Gulshan Ikebana",
+      "slug": "gulshan-ikebana-sector-143-noida",
+      "original_rera": "UPRERAPRJ2102",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": []
+    },
+    {
+      "id": "5487826c-2dac-4483-9d3f-b5f0a0a67954",
+      "name": "Godrej Nest",
+      "slug": "godrej-nest-sector-150-noida",
+      "original_rera": "UPRERAPRJ13521",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": true,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "22e34043-37b8-47fe-95a9-b8c43c1bea1d",
+      "name": "Nirala Estate",
+      "slug": "nirala-estate-techzone-4-greater-noida-west",
+      "original_rera": "UPRERAPRJ2918",
+      "matchMethod": "FUZZY_NAME",
+      "rera_verified": true,
+      "builder_verified": false,
+      "changes": [
+        "RERA number updated: 'UPRERAPRJ2918' -> 'UPRERAPRJ265789'",
+        "Escrow verified: YES BANK LTD (001472500000182)",
+        "Cleared shared sector centroid: 28.5750,77.3850",
+        "Deleted 2 synthetic payment plans"
+      ],
+      "official_rera": "UPRERAPRJ265789",
+      "official_promoter": "NIRALA INFRATECH PRIVATE LIMITED",
+      "rera_source_url": "https://www.up-rera.in/Projectsummary?UI0aPA1ISD=Zgqlqu2Vvug=&hfFlag=9emr4VdBw22M7BGjKtJWMPDI4s5cHQZP&NPJ6RAme=oRPCb+2GqnFLtfJpRJ05apikjtux7yPb&PaURJEMAN4=ZL9MNERkNdZlRpcfUtGXmg==&IRSAHEB=D6PY3lyims8="
+    },
+    {
+      "id": "2e775551-cebc-48fe-abe2-d45c7e6b9420",
+      "name": "Stellar Jeevan",
+      "slug": "stellar-jeevan-sector-1-greaternoidawest",
+      "original_rera": "UPRERAPRJ1001",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Cleared shared sector centroid: 28.5980,77.4420",
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "25ce8ba2-2511-4801-842a-42cc48565620",
+      "name": "The Rivulet",
+      "slug": "the-rivulet-sector-12",
+      "original_rera": "UPRERAPRJ432109/06/2024",
+      "matchMethod": "FUZZY_NAME",
+      "rera_verified": true,
+      "builder_verified": false,
+      "changes": [
+        "RERA number updated: 'UPRERAPRJ432109/06/2024' -> 'UPRERAPRJ145736'",
+        "Escrow verified: ICICI Bank (033005008552)",
+        "Deleted 2 synthetic payment plans"
+      ],
+      "official_rera": "UPRERAPRJ145736",
+      "official_promoter": "Grand Realtech Limited",
+      "rera_source_url": "https://www.up-rera.in/Projectsummary?UI0aPA1ISD=a+Ak0jH3BL8=&hfFlag=9emr4VdBw22M7BGjKtJWMPDI4s5cHQZP&NPJ6RAme=Y6wlIMvnWEUNi0vgywxhg3U5SwWc/QJn&PaURJEMAN4=ZL9MNERkNdauMDyNbATx4g==&IRSAHEB=D6PY3lyims8="
+    },
+    {
+      "id": "77aac96e-faf2-4649-800f-fdf32006658b",
+      "name": "Jaypee Kosmos",
+      "slug": "jaypee-kosmos-sector-128",
+      "original_rera": "UPRERAPRJ12808",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "628580dd-4101-4a33-b812-2cb69a78f96c",
+      "name": "Sunshine Solaris",
+      "slug": "sunshine-solaris-sector-79",
+      "original_rera": "UPRERAPRJ79114",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "9836d171-28ff-4ffd-9b6c-cb9b9dd5b6df",
+      "name": "AVS Orchard",
+      "slug": "avs-orchard-sector-77",
+      "original_rera": "UPRERAPRJ77105",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "e65551fa-9428-4d3a-8fb2-0c33fa4517ad",
+      "name": "Eldeco Residency Greens",
+      "slug": "eldeco-residency-greens-sector-alpha-2",
+      "original_rera": "UPRERAPRJ4105",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Cleared shared sector centroid: 28.5696,77.3796"
+      ]
+    },
+    {
+      "id": "26b10364-bb08-4580-b4c7-9dec37d8b5f6",
+      "name": "Prateek Laurel",
+      "slug": "prateek-laurel-sector-120-noida",
+      "original_rera": "UPRERAPRJ4522",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": true,
+      "changes": []
+    },
+    {
+      "id": "cc9813fb-c349-4ea5-988b-19c7c55b7844",
+      "name": "Migsun Ultima",
+      "slug": "migsun-ultima-sector-zeta-1",
+      "original_rera": "UPRERAPRJ2982",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Cleared shared sector centroid: 28.5675,77.3775"
+      ]
+    },
+    {
+      "id": "16eaaa91-b8d8-420c-914d-a0625f62e264",
+      "name": "Coco County",
+      "slug": "coco-county-sector-10",
+      "original_rera": "UPRERAPRJ958386",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "8e3670ab-ae14-4a85-b8f8-88322426c5e9",
+      "name": "Civitech Stadia",
+      "slug": "civitech-stadia-sector-79",
+      "original_rera": "UPRERAPRJ79102",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "5d0dbebc-1067-481d-ab0a-eae77f240720",
+      "name": "Omaxe Grandwoods",
+      "slug": "omaxe-grandwoods-sector-forest-lane",
+      "original_rera": "UPRERAPRJ2108",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": []
+    },
+    {
+      "id": "4ad33819-682b-46df-8cf6-6d12ec2518c7",
+      "name": "Stellar Mi City",
+      "slug": "stellar-mi-city-sector-zeta-1",
+      "original_rera": "UPRERAPRJ3014",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Cleared shared sector centroid: 28.5723,77.3823"
+      ]
+    },
+    {
+      "id": "0d991ae3-ed48-4dd7-ac4a-fc5ca2ece4fb",
+      "name": "Gaur Yamuna City - 1st-B Parkview",
+      "slug": "gaur-yamuna-city-1st-b-parkview-yamuna-expressway",
+      "original_rera": "UPRERAPRJ235739",
+      "matchMethod": "FUZZY_NAME",
+      "rera_verified": true,
+      "builder_verified": false,
+      "changes": [
+        "RERA number updated: 'UPRERAPRJ235739' -> 'UPRERAPRJ379836/06/2025'",
+        "Escrow verified: ICICI BANK LTD (101705002107)"
+      ],
+      "official_rera": "UPRERAPRJ379836/06/2025",
+      "official_promoter": "MADHYAM LAND BASE PRIVATE LIMITED",
+      "rera_source_url": "https://www.up-rera.in/Projectsummary?UI0aPA1ISD=NLJUQKLhYII=&hfFlag=v1P/c8ksBrs=&NPJ6RAme=ZmnSAyILidE7bavTq73InQ==&PaURJEMAN4=ZL9MNERkNdYDsBbEyM8V1jLYHmcdfjUp&IRSAHEB=D6PY3lyims8="
+    },
+    {
+      "id": "bd7ce502-3c2a-423f-bc9e-63f4e0941201",
+      "name": "AIMS Golf Avenue I",
+      "slug": "aims-golf-avenue-sector-75",
+      "original_rera": "UPRERAPRJ1235",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "fda2d903-8b2f-4fe1-9e93-9a3bb924ce34",
+      "name": "Gaur Yamuna City - 32nd Parkview",
+      "slug": "gaur-yamuna-city-32nd-parkview-yamuna-expressway",
+      "original_rera": "UPRERAPRJ6802",
+      "matchMethod": "FUZZY_NAME",
+      "rera_verified": true,
+      "builder_verified": false,
+      "changes": [
+        "RERA number updated: 'UPRERAPRJ6802' -> 'UPRERAPRJ379836/06/2025'",
+        "Escrow verified: ICICI BANK LTD (101705002107)"
+      ],
+      "official_rera": "UPRERAPRJ379836/06/2025",
+      "official_promoter": "MADHYAM LAND BASE PRIVATE LIMITED",
+      "rera_source_url": "https://www.up-rera.in/Projectsummary?UI0aPA1ISD=NLJUQKLhYII=&hfFlag=v1P/c8ksBrs=&NPJ6RAme=ZmnSAyILidE7bavTq73InQ==&PaURJEMAN4=ZL9MNERkNdYDsBbEyM8V1jLYHmcdfjUp&IRSAHEB=D6PY3lyims8="
+    },
+    {
+      "id": "c78b5e04-8e17-4961-bb1d-bda4b76b8491",
+      "name": "ATS Pristine",
+      "slug": "ats-pristine-sector-150",
+      "original_rera": "UPRERAPRJ2875",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": true,
+      "changes": [
+        "Cleared shared sector centroid: 28.5750,77.3850"
+      ]
+    },
+    {
+      "id": "733c06b0-7fb7-4609-90c0-1bd9d9b79cf0",
+      "name": "Jaypee Moon Court",
+      "slug": "jaypee-moon-court-pari-chowk",
+      "original_rera": "UPRERAPRJ3923",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": []
+    },
+    {
+      "id": "e3871eb3-edb5-4621-9e99-494fcd94a25b",
+      "name": "ACE City",
+      "slug": "ace-city-sector-1-greater-noida-west",
+      "original_rera": "UPRERAPRJ0101",
+      "matchMethod": "FUZZY_NAME",
+      "rera_verified": true,
+      "builder_verified": true,
+      "changes": [
+        "RERA number updated: 'UPRERAPRJ0101' -> 'UPRERAPRJ885615'",
+        "Escrow verified: State Bank of India (40988433771)",
+        "Deleted 2 synthetic payment plans"
+      ],
+      "official_rera": "UPRERAPRJ885615",
+      "official_promoter": "Graceland Developers Private Limited",
+      "rera_source_url": "https://www.up-rera.in/Projectsummary?UI0aPA1ISD=5NES4G2zHpQ=&hfFlag=St7QmTPH3DA0WXAPIgkSFw==&NPJ6RAme=raXcNsBA+i+Cvo0LHlymYg==&PaURJEMAN4=ZL9MNERkNdbVHQfVFudb9A==&IRSAHEB=D6PY3lyims8="
+    },
+    {
+      "id": "dea10d72-a329-43cb-aba1-0420c04f4a78",
+      "name": "Gaur Grandeur",
+      "slug": "gaur-grandeur-sector-119",
+      "original_rera": "UPRERAPRJ1191",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "c1b5ac82-1f85-44d9-a9ab-0c635f5ddf43",
+      "name": "SDS NRI Township Phase 2",
+      "slug": "sds-nri-township-phase-2-yamuna-expressway",
+      "original_rera": "UPRERAPRJ1103",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": []
+    },
+    {
+      "id": "99f9f1ec-22b2-4887-a36c-5e26e8cf1562",
+      "name": "Saviour Greenisle",
+      "slug": "saviour-greenisle-sector-16c",
+      "original_rera": "UPRERAPRJ9901",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": []
+    },
+    {
+      "id": "3bca4621-44df-4105-a728-a0e4ab13b8c1",
+      "name": "Amrapali Sapphire",
+      "slug": "amrapali-sapphire-sector-45",
+      "original_rera": "UPRERAPRJ4502",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "5d09bdc0-6c37-4e7c-ad55-14b03f289765",
+      "name": "Eros Sampoornam",
+      "slug": "eros-sampoornam-sector-2-greater-noida-west",
+      "original_rera": "UPRERAPRJ2941",
+      "matchMethod": "FUZZY_NAME",
+      "rera_verified": true,
+      "builder_verified": false,
+      "changes": [
+        "RERA number updated: 'UPRERAPRJ2941' -> 'UPRERAPRJ512436/07/2024'",
+        "Escrow verified: Axis Bank Limited (924020016651730)",
+        "Deleted 2 synthetic payment plans"
+      ],
+      "official_rera": "UPRERAPRJ512436/07/2024",
+      "official_promoter": "AJAY ENTERPRISES PRIVATE LIMITED",
+      "rera_source_url": "https://www.up-rera.in/Projectsummary?UI0aPA1ISD=Kyvr+SXOPt0=&hfFlag=9emr4VdBw22M7BGjKtJWMPDI4s5cHQZP&NPJ6RAme=oW39amnFZ8qr5JrCV6uw7jZ3aYI0U4s8&PaURJEMAN4=ZL9MNERkNdaHUPvXK9FM35wpUJFQS4KC&IRSAHEB=D6PY3lyims8="
+    },
+    {
+      "id": "1b815e38-4003-43bd-9fba-eab47b06a907",
+      "name": "Nirala Estate Phase 1",
+      "slug": "nirala-estate-phase-1-sector-16b",
+      "original_rera": "UPRERAPRJ16B4",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "8efa2985-d105-4f4d-b2e8-b37498d46ad7",
+      "name": "Apex Athena",
+      "slug": "apex-athena-sector-75-noida",
+      "original_rera": "UPRERAPRJ10394",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "ed6dd269-a656-4efb-8f6a-8277f9d258a3",
+      "name": "RG Residency",
+      "slug": "rg-residency-sector-120",
+      "original_rera": "UPRERAPRJ1202",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "86a06149-ffe1-48d7-b834-3de1ae3ae658",
+      "name": "VVIP Homes",
+      "slug": "vvip-homes-sector-16c",
+      "original_rera": "UPRERAPRJ16C0",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Cleared shared sector centroid: 28.5750,77.3850",
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "966ab0fa-98a6-4460-8f29-4fddd698d124",
+      "name": "Salcon Verandas Noida",
+      "slug": "salcon-verandas-sector-107",
+      "original_rera": "UPRERAPRJ1075",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Cleared shared sector centroid: 28.5750,77.3850",
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "b4d99162-9e9d-4fa7-8f84-bba750ad5939",
+      "name": "Supertech Eco Suites",
+      "slug": "supertech-eco-suites-sector-137",
+      "original_rera": "UPRERAPRJ13712",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "21d94614-4671-4dd6-a3ec-de5f678a6f2f",
+      "name": "Ace Aspire",
+      "slug": "ace-aspire-techzone-4-greater-noida-west",
+      "original_rera": "UPRERAPRJ0401",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": true,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "7ba97604-813f-4924-9044-53936a3737ce",
+      "name": "ATS Greens Village",
+      "slug": "ats-greens-village-sector-93a",
+      "original_rera": "UPRERAPRJ9301",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "d3fdbe07-a903-454a-b343-31215facdb6d",
+      "name": "Eldeco Aamantran",
+      "slug": "eldeco-aamantran-sector-119",
+      "original_rera": "UPRERAPRJ1192",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "3728b828-938e-4f2d-b03c-68f2f3c8e02d",
+      "name": "Omaxe Forest Spa",
+      "slug": "omaxe-forest-spa-sector-93b",
+      "original_rera": "UPRERAPRJ9304",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "c7a2614a-08c1-4fc8-b90e-3af3ee1bbe66",
+      "name": "Stellar Park",
+      "slug": "stellar-park-sector-62-noida",
+      "original_rera": "UPRERAPRJ621",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "53f11fcb-e92e-47fc-be8e-424615e826a9",
+      "name": "Maxblis White House II",
+      "slug": "maxblis-white-house-sector-75",
+      "original_rera": "UPRERAPRJ2345C",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "73098f39-bfd6-479a-a14c-d7cca26e0e19",
+      "name": "Panchsheel Pratishtha",
+      "slug": "panchsheel-pratishtha-sector-75",
+      "original_rera": "UPRERAPRJ5678",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": []
+    },
+    {
+      "id": "29c1d4d2-6dad-4be5-b68b-9c2dbfae211e",
+      "name": "Urbtech Hilston",
+      "slug": "urbtech-hilston-sector-79-noida",
+      "original_rera": "UPRERAPRJ6819",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "76bd9947-7a1a-48af-987b-de8ca19c240f",
+      "name": "Mahagun Mantraa 1 & 2",
+      "slug": "mahagun-mantraa-sector-10",
+      "original_rera": "UPRERAPRJ1846 / UPRERAPRJ1870",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 6 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "6e7aeac6-64e5-4a1d-b629-9519ae11ff6c",
+      "name": "ATS Happy Trails",
+      "slug": "ats-happy-trails-sector-10",
+      "original_rera": "UPRERAPRJ15574",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 6 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "dad31a35-e72a-42c4-a359-52c5ff24238a",
+      "name": "Paras Seasons",
+      "slug": "paras-seasons-sector-168-noida",
+      "original_rera": "UPRERAPRJ1683",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": []
+    },
+    {
+      "id": "dc8427b3-0bfc-4f74-9d81-5aba9b232541",
+      "name": "Trinity Primus",
+      "slug": "trinity-primus-sector-10",
+      "original_rera": "UPRERAPRJ872145/05/2024",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 6 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "4b1a3462-7aab-4988-a585-20ab1e848373",
+      "name": "Amrapali Zodiac",
+      "slug": "amrapali-zodiac-sector-120-noida",
+      "original_rera": "UPRERAPRJ1201",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "1470c33e-ad3f-42f6-9655-42a23ca7f54e",
+      "name": "Gaur Yamuna City 16th Park View",
+      "slug": "gaur-yamuna-city-16th-park-view",
+      "original_rera": "UPRERAPRJ22D2",
+      "matchMethod": "FUZZY_NAME",
+      "rera_verified": true,
+      "builder_verified": false,
+      "changes": [
+        "RERA number updated: 'UPRERAPRJ22D2' -> 'UPRERAPRJ379836/06/2025'",
+        "Escrow verified: ICICI BANK LTD (101705002107)",
+        "Cleared shared sector centroid: 28.5750,77.3850",
+        "Deleted 2 synthetic payment plans"
+      ],
+      "official_rera": "UPRERAPRJ379836/06/2025",
+      "official_promoter": "MADHYAM LAND BASE PRIVATE LIMITED",
+      "rera_source_url": "https://www.up-rera.in/Projectsummary?UI0aPA1ISD=NLJUQKLhYII=&hfFlag=v1P/c8ksBrs=&NPJ6RAme=ZmnSAyILidE7bavTq73InQ==&PaURJEMAN4=ZL9MNERkNdYDsBbEyM8V1jLYHmcdfjUp&IRSAHEB=D6PY3lyims8="
+    },
+    {
+      "id": "e0a8ab69-4bf7-48dd-aac0-67b795ee06ea",
+      "name": "Godrej Woods",
+      "slug": "godrej-woods-sector-43-noida",
+      "original_rera": "UPRERAPRJ7047",
+      "matchMethod": "FUZZY_NAME",
+      "rera_verified": true,
+      "builder_verified": true,
+      "changes": [
+        "RERA number updated: 'UPRERAPRJ7047' -> 'UPRERAPRJ145318'",
+        "Escrow verified: HDFC (50200055769794)",
+        "Deleted 2 synthetic payment plans"
+      ],
+      "official_rera": "UPRERAPRJ145318",
+      "official_promoter": "Roseberry Estate LLP",
+      "rera_source_url": "https://www.up-rera.in/Projectsummary?UI0aPA1ISD=VOOldJLkxOo=&hfFlag=9emr4VdBw22M7BGjKtJWMPDI4s5cHQZP&NPJ6RAme=0LgQIb8Q0D7KOgY+uNfLLusyqpBtu3oU&PaURJEMAN4=ZL9MNERkNdaUBD5W20tIJg==&IRSAHEB=D6PY3lyims8="
+    },
+    {
+      "id": "20a66666-3f28-4c0b-b4ce-1f31ad1d9a86",
+      "name": "Hilston by Urbtech",
+      "slug": "hilston-by-urbtech-sector-79",
+      "original_rera": "UPRERAPRJ79111",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "0fe55cc4-643d-4715-b1b8-7594e40cb910",
+      "name": "Gaur City 1 - 1st Avenue",
+      "slug": "gaur-city-1-1st-avenue-sector-4",
+      "original_rera": "UPRERAPRJ4411",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Cleared shared sector centroid: 28.5980,77.4310"
+      ]
+    },
+    {
+      "id": "00d61805-9a3d-46d5-83cf-4547dc3deeff",
+      "name": "Nirala Trio",
+      "slug": "nirala-trio-sector-2",
+      "original_rera": "UPRERAPRJ2929",
+      "matchMethod": "EXACT_NAME",
+      "rera_verified": true,
+      "builder_verified": false,
+      "changes": [
+        "RERA number updated: 'UPRERAPRJ2929' -> 'UPRERAPRJ707952'",
+        "Escrow verified: ICICI BANK LTD (081605009047)",
+        "Cleared shared sector centroid: 28.6145,77.4489"
+      ],
+      "official_rera": "UPRERAPRJ707952",
+      "official_promoter": "NIRALA WORLD RESIDENCY PRIVATE LIMITED",
+      "rera_source_url": "https://www.up-rera.in/Projectsummary?UI0aPA1ISD=enWirpy+sco=&hfFlag=9emr4VdBw22M7BGjKtJWMPDI4s5cHQZP&NPJ6RAme=/JcTm3rRFV8uEbnAOqN3uw==&PaURJEMAN4=ZL9MNERkNdZA/DjLbBWSPQ==&IRSAHEB=D6PY3lyims8="
+    },
+    {
+      "id": "9d3863f6-dc9b-4d3a-a712-7effb6c60859",
+      "name": "Supertech Eco Village 3",
+      "slug": "supertech-eco-village-3-sector-16b-greater-noida-west",
+      "original_rera": "UPRERAPRJ16BEV3",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "ebd773ab-00a8-4341-bb2c-5753ee8f5424",
+      "name": "Vihaan Greens Phase 1",
+      "slug": "vihaan-greens-phase-1-sector-1",
+      "original_rera": "UPRERAPRJ7710",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Cleared shared sector centroid: 28.6012,77.4421"
+      ]
+    },
+    {
+      "id": "f7e44741-fec1-47ec-866b-eca41630536b",
+      "name": "AIMS Golf Avenue I & II",
+      "slug": "aims-golf-avenue-sector-75-noida",
+      "original_rera": "UPRERAPRJ10635",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Cleared shared sector centroid: 28.5750,77.3820",
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "90e1ef80-6fe5-461c-8fb4-90b6cbc7c7b4",
+      "name": "Gardenia Gateway",
+      "slug": "gardenia-gateway-sector-75-noida",
+      "original_rera": "UPRERAPRJ11023",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": true,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "f160d5d5-c966-4730-86c3-7281ade3c0ec",
+      "name": "Amrapali Princely Estate",
+      "slug": "amrapali-princely-estate-sector-76",
+      "original_rera": "UPRERAPRJ76127",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "3005cb76-c85b-4bc6-b049-6bdec60bc715",
+      "name": "Amrapali Aurum Towers",
+      "slug": "amrapali-aurum-towers-sector-76",
+      "original_rera": "UPRERAPRJ76129",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "1596bf90-1954-4ac3-9003-ecd6b5e207cd",
+      "name": "Purvanchal Heights",
+      "slug": "purvanchal-heights-sector-zeta-1",
+      "original_rera": "UPRERAPRJ3122",
+      "matchMethod": "EXACT_RERA",
+      "rera_verified": true,
+      "builder_verified": false,
+      "changes": [
+        "Escrow verified: HDFC BANK LIMITED (57500001513875)"
+      ],
+      "official_rera": "UPRERAPRJ3122",
+      "official_promoter": "KV Developers Private Limited",
+      "rera_source_url": "https://www.up-rera.in/Projectsummary?UI0aPA1ISD=bzkf6Uw1UEo=&hfFlag=9emr4VdBw22M7BGjKtJWMPDI4s5cHQZP&NPJ6RAme=CQIFQqKlkcXEZX47yFC0pg==&PaURJEMAN4=ZL9MNERkNdbFn3gx0KsVgw==&IRSAHEB=D6PY3lyims8="
+    },
+    {
+      "id": "61578c3f-0f78-4a76-affb-94f40dfa4e43",
+      "name": "Antriksh Forest",
+      "slug": "antriksh-forest-sector-77",
+      "original_rera": "UPRERAPRJ77107",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "5c12f956-353f-439b-b3ad-ccafa5b2adac",
+      "name": "Lotus Greens Arena II",
+      "slug": "lotus-greens-arena-2-sector-79",
+      "original_rera": "UPRERAPRJ79104",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "82d8fe1d-f69b-40c4-9a6a-2d0eef6dc257",
+      "name": "Shubhkamna Lords",
+      "slug": "shubhkamna-lords-sector-79",
+      "original_rera": "UPRERAPRJ79112",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "a8e651ef-722a-4dd0-8d81-5ec53a19550b",
+      "name": "Mahagun Moderne",
+      "slug": "mahagun-moderne-sector-78",
+      "original_rera": "UPRERAPRJ2052",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": []
+    },
+    {
+      "id": "f1b3e3bb-7d5c-4534-bee5-7e398322fde4",
+      "name": "Nirala Aspire Towers A1-A8",
+      "slug": "nirala-aspire-towers-a1-a8-sector-16b",
+      "original_rera": "UPRERAPRJ2928",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": []
+    },
+    {
+      "id": "33780dcc-b32b-4f78-b75e-330c26fae29f",
+      "name": "Supertech Orb",
+      "slug": "supertech-orb-sector-74",
+      "original_rera": "UPRERAPRJ4014",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": []
+    },
+    {
+      "id": "38a5fb1c-0a7c-4432-b9a0-5812ad70a949",
+      "name": "Ace Divino",
+      "slug": "ace-divino-sector-1-greater-noida-west",
+      "original_rera": "UPRERAPRJ0102",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": true,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "beb1b1d5-8256-469f-8cab-7902ae71f81d",
+      "name": "Assotech Windsor Court",
+      "slug": "assotech-windsor-court-sector-78",
+      "original_rera": "UPRERAPRJ7802",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": []
+    },
+    {
+      "id": "ab5daea9-2e38-4f23-8db0-b955aa6a252c",
+      "name": "Solitairian City",
+      "slug": "solitairian-city-sector-25",
+      "original_rera": "UPRERAPRJ7701",
+      "matchMethod": "FUZZY_NAME",
+      "rera_verified": true,
+      "builder_verified": false,
+      "changes": [
+        "RERA number updated: 'UPRERAPRJ7701' -> 'UPRERAPRJ6856'",
+        "Escrow verified: ICICI Bank (165405001343)"
+      ],
+      "official_rera": "UPRERAPRJ6856",
+      "official_promoter": "PARY DEVELOPERS PRIVATE LIMITED",
+      "rera_source_url": "https://www.up-rera.in/Projectsummary?UI0aPA1ISD=DgZBz94kGF8=&hfFlag=9emr4VdBw22M7BGjKtJWMPDI4s5cHQZP&NPJ6RAme=PSuoqNoCbzEUg9mCSf/ciJyFJ1oQrxWk/hBonyycIStBIX6X7HW+Dw==&PaURJEMAN4=ZL9MNERkNdamnUutWE4kgg==&IRSAHEB=D6PY3lyims8="
+    },
+    {
+      "id": "d2c48b0d-2110-4d23-b8e7-c19e7927b1b7",
+      "name": "3C Lotus Panache",
+      "slug": "3c-lotus-panache-sector-110-noida",
+      "original_rera": "UPRERAPRJ1101",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": []
+    },
+    {
+      "id": "9e10f970-2a20-441b-949d-819a72309ab9",
+      "name": "ATS Village",
+      "slug": "ats-village-sector-93a-noida",
+      "original_rera": "UPRERAPRJ93A1",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": true,
+      "changes": []
+    },
+    {
+      "id": "f38b09ff-d5c6-4978-a95e-c47dc7a6bc1b",
+      "name": "Pan Oasis",
+      "slug": "pan-oasis-sector-70",
+      "original_rera": "UPRERAPRJ7001",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "270c74d9-7873-4ad2-b5f3-0aa72e7e2c5e",
+      "name": "Aims Max Gardenia Golf City",
+      "slug": "aims-max-gardenia-golf-city-sector-75-noida",
+      "original_rera": "UPRERAPRJ11481",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": true,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "11c4a12a-6767-48f6-90b9-1e8d294a7406",
+      "name": "Mahagun Marvella",
+      "slug": "mahagun-marvella-sector-78",
+      "original_rera": "UPRERAPRJ78103",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "f233b417-f624-4aee-a42a-c5cf6a1748c0",
+      "name": "Maxblis Grand Kingston",
+      "slug": "maxblis-grand-kingston-sector-75",
+      "original_rera": "UPRERAPRJ2345B",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": true,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "74f76e86-4a57-471c-8bd7-1c51cd29f87b",
+      "name": "ATS Pious Orchards",
+      "slug": "ats-pious-orchards-sector-150",
+      "original_rera": "UPRERAPRJ183246",
+      "matchMethod": "EXACT_RERA",
+      "rera_verified": true,
+      "builder_verified": false,
+      "changes": [
+        "Escrow verified: ICICI Bank  Ltd (777705020823)"
+      ],
+      "official_rera": "UPRERAPRJ183246",
+      "official_promoter": "Homekraft  Infra Private Limited",
+      "rera_source_url": "https://www.up-rera.in/Projectsummary?UI0aPA1ISD=siDsgwiH0is=&hfFlag=9emr4VdBw22M7BGjKtJWMPDI4s5cHQZP&NPJ6RAme=hVJD6tmpzuSbwZqd51Tumg==&PaURJEMAN4=ZL9MNERkNdaOgRrOGrMn1Q==&IRSAHEB=D6PY3lyims8="
+    },
+    {
+      "id": "a292564e-6e1d-4984-b58f-c70cc98f4b64",
+      "name": "Samridhi Daksh Avenue",
+      "slug": "samridhi-daksh-avenue-sector-150",
+      "original_rera": "UPRERAPRJ168120",
+      "matchMethod": "EXACT_NAME",
+      "rera_verified": true,
+      "builder_verified": false,
+      "changes": [
+        "RERA number updated: 'UPRERAPRJ168120' -> 'UPRERAPRJ155408'",
+        "Escrow verified: ICICI BANK (033005006468)",
+        "Deleted 2 synthetic payment plans"
+      ],
+      "official_rera": "UPRERAPRJ155408",
+      "official_promoter": "SAMRIDHI BUILDMART PRIVATE LIMITED",
+      "rera_source_url": "https://www.up-rera.in/Projectsummary?UI0aPA1ISD=o3gpkwB8b8I=&hfFlag=9emr4VdBw22M7BGjKtJWMPDI4s5cHQZP&NPJ6RAme=yRP9J5/Iv1Q/lfUMs9C668PnIbeP8quc&PaURJEMAN4=ZL9MNERkNdaJcs49LGsXew==&IRSAHEB=D6PY3lyims8="
+    },
+    {
+      "id": "147ee95e-d3a8-490e-b1ca-ff148089fd92",
+      "name": "ACE Parkway",
+      "slug": "ace-parkway-sector-150",
+      "original_rera": "UPRERAPRJ4510",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": true,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "a0a02e1e-3207-4ec2-a135-6999857022c3",
+      "name": "Spring Meadows",
+      "slug": "spring-meadows-sector-1",
+      "original_rera": "UPRERAPRJ1741",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "bc733a34-fb8d-4e23-9453-805ef64cadee",
+      "name": "Eldeco Ballads of Bliss",
+      "slug": "eldeco-ballads-of-bliss-sector-22d-yamuna-expressway",
+      "original_rera": "UPRERAPRJ921261/05/2025",
+      "matchMethod": "EXACT_RERA",
+      "rera_verified": true,
+      "builder_verified": false,
+      "changes": [
+        "Escrow verified: HDFC BANK LIMITED (57500001750791)",
+        "Deleted 2 synthetic payment plans"
+      ],
+      "official_rera": "UPRERAPRJ921261/05/2025",
+      "official_promoter": "Eldeco Goodliving Properties Limited",
+      "rera_source_url": "https://www.up-rera.in/Projectsummary?UI0aPA1ISD=dD8mwtivXUM=&hfFlag=9emr4VdBw22M7BGjKtJWMPDI4s5cHQZP&NPJ6RAme=04IDFx7NwrrnkKWnMVTgaFdEciBpU0IW&PaURJEMAN4=ZL9MNERkNdbWgb+w3i7zDg3bCXDmQ9i5&IRSAHEB=D6PY3lyims8="
+    },
+    {
+      "id": "28c22505-99b9-436d-82ca-0d8e5d8e9199",
+      "name": "Gaur Yamuna City (7th Parkview)",
+      "slug": "gaur-yamuna-city-7th-parkview-sector-19",
+      "original_rera": "UPRERAPRJ9928",
+      "matchMethod": "FUZZY_NAME",
+      "rera_verified": true,
+      "builder_verified": false,
+      "changes": [
+        "RERA number updated: 'UPRERAPRJ9928' -> 'UPRERAPRJ379836/06/2025'",
+        "Escrow verified: ICICI BANK LTD (101705002107)",
+        "Deleted 2 synthetic payment plans"
+      ],
+      "official_rera": "UPRERAPRJ379836/06/2025",
+      "official_promoter": "MADHYAM LAND BASE PRIVATE LIMITED",
+      "rera_source_url": "https://www.up-rera.in/Projectsummary?UI0aPA1ISD=NLJUQKLhYII=&hfFlag=v1P/c8ksBrs=&NPJ6RAme=ZmnSAyILidE7bavTq73InQ==&PaURJEMAN4=ZL9MNERkNdYDsBbEyM8V1jLYHmcdfjUp&IRSAHEB=D6PY3lyims8="
+    },
+    {
+      "id": "d76fa457-5ab4-4b35-8c87-100e5fa32d6c",
+      "name": "Supercity Mayfair",
+      "slug": "supercity-mayfair-techzone-4",
+      "original_rera": "UPRERAPRJ5513",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "40c9032a-fe11-48f2-bb75-d9039d11a04d",
+      "name": "Panchsheel Greens 2",
+      "slug": "panchsheel-greens-2-sector-16b",
+      "original_rera": "UPRERAPRJ16BPG2",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "1765326b-4ec6-4662-aa98-e71ec6702c94",
+      "name": "Griha Pravesh",
+      "slug": "griha-pravesh-sector-77",
+      "original_rera": "UPRERAPRJ77106",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "bb92e434-cab2-43e0-ac50-1bd3e079f2e4",
+      "name": "Sikka Karmic Greens",
+      "slug": "sikka-karmic-greens-sector-78",
+      "original_rera": "UPRERAPRJ78108",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "f5d74ff4-c35b-45f1-b9b8-55c2cc9b4e8b",
+      "name": "Gaur Sportswood",
+      "slug": "gaur-sportswood-sector-79",
+      "original_rera": "UPRERAPRJ7901",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "57437956-2873-457a-ae05-cd0ca93df4b1",
+      "name": "JM Solitaire",
+      "slug": "jm-solitaire-sector-75",
+      "original_rera": "UPRERAPRJ4568",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "a9c643f8-b05b-4e1b-aa6b-e58e641be355",
+      "name": "Paramount Golf Foreste",
+      "slug": "paramount-golf-foreste-sector-zeta-2",
+      "original_rera": "UPRERAPRJ2001",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "6ecb28ab-48b6-4310-8b28-07f487b16628",
+      "name": "Arihant Abode",
+      "slug": "arihant-abode-sector-10",
+      "original_rera": "UPRERAPRJ15792",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": []
+    },
+    {
+      "id": "6a261a9e-d470-4813-b65f-8ff4e8ddcf84",
+      "name": "Arihant Arden",
+      "slug": "arihant-arden-sector-1-greater-noida-west",
+      "original_rera": "UPRERAPRJ0105",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Deleted 2 synthetic payment plans"
+      ]
+    },
+    {
+      "id": "d81009ea-e40e-4abf-9aa2-c106e4905bc8",
+      "name": "Trident Embassy",
+      "slug": "trident-embassy-sector-1-greater-noida-west",
+      "original_rera": "UPRERAPRJ3510",
+      "matchMethod": "NONE",
+      "rera_verified": false,
+      "builder_verified": false,
+      "changes": [
+        "Cleared shared sector centroid: 28.5870,77.4410"
+      ]
+    },
+    {
+      "id": "4693a35a-346e-4dad-b3fa-c36e6e169cd3",
+      "name": "Greenbay The Monarque",
+      "slug": "greenbay-the-monarque-sector-22d",
+      "original_rera": "UPRERAPRJ22D950",
+      "matchMethod": "FUZZY_NAME",
+      "rera_verified": true,
+      "builder_verified": false,
+      "changes": [
+        "RERA number updated: 'UPRERAPRJ22D950' -> 'UPRERAPRJ710489/10/2025'",
+        "Escrow verified: Punjab National Bank (6064002900000016)",
+        "Deleted 2 synthetic payment plans"
+      ],
+      "official_rera": "UPRERAPRJ710489/10/2025",
+      "official_promoter": "Green Bay Infrastructure Private Limited",
+      "rera_source_url": "https://www.up-rera.in/Projectsummary?UI0aPA1ISD=doc4Q7n0XaQ=&hfFlag=9emr4VdBw22M7BGjKtJWMPDI4s5cHQZP&NPJ6RAme=DDCIQ7iFTk0RValxWO7AZg==&PaURJEMAN4=ZL9MNERkNdbfU2vgJ8F8SemS7D866T4Y&IRSAHEB=D6PY3lyims8="
+    }
+  ]
+}

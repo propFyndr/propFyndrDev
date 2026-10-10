@@ -3,7 +3,6 @@
 import {
   SquarePen,
   Bookmark,
-  ArrowLeftRight,
   PanelLeftClose,
   PanelLeft,
   Building2,
@@ -29,7 +28,6 @@ import { UserMemoryModal } from "@/components/UserMemoryModal";
 type SidebarView =
   | "discovery"
   | "saved"
-  | "compare"
   | "value-estimator"
   | "market-intelligence"
   | "lead-snapshot";
@@ -113,7 +111,6 @@ export default function Sidebar({
   // Saved projects power the counts beside Saved/Compare and the collapsed
   // rail's tray. Null means "not loaded yet" so a badge never flashes 0.
   const [savedCount, setSavedCount] = useState<number | null>(null);
-  const [savedThumbs, setSavedThumbs] = useState<{ id: string; name: string; image?: string }[]>([]);
   // Both start false so server and client render the same tree; the real
   // values arrive in an effect. Collapse is a desktop idea only — below md the
   // sidebar is always a drawer, whatever the parent's collapsed flag says.
@@ -168,7 +165,6 @@ export default function Sidebar({
   const routeToView: Record<string, SidebarView> = {
     "/discover": "discovery",
     "/saved": "saved",
-    "/compare": "compare",
     "/value-estimator": "value-estimator",
     "/market-intelligence": "market-intelligence",
     "/lead-snapshot": "lead-snapshot",
@@ -197,13 +193,6 @@ export default function Sidebar({
         const rows: Array<Record<string, unknown>> = Array.isArray(data) ? data : (data?.projects ?? []);
         if (cancelled) return;
         setSavedCount(rows.length);
-        setSavedThumbs(
-          rows.slice(0, 6).map(r => ({
-            id: String(r.id ?? r.slug ?? ''),
-            name: String(r.name ?? ''),
-            image: typeof r.cover_image === 'string' ? r.cover_image : undefined,
-          })),
-        );
       } catch {
         // A count is decoration; never let it break the sidebar.
       }
@@ -214,11 +203,14 @@ export default function Sidebar({
   // "Property Discovery" was removed: it navigated to /discover, which is
   // exactly where the wordmark above and the New chat button already go. Three
   // controls, one destination — the menu read as padding rather than navigation.
-  // Compare takes the freed slot; /compare and ComparisonTable already existed
-  // and had simply never been reachable from the sidebar.
+  //
+  // A "Compare" entry used to sit here, pointing at /compare — a stub that
+  // redirected straight to /discover ("not yet implemented"). That gave the
+  // buyer two different "compare" surfaces where only one did anything: the
+  // real comparison lives in chat (ComparisonTable), so the dead entry point
+  // was removed rather than built out.
   const menuItems: { id: SidebarView; label: string; icon: React.ElementType; href: string; count?: number }[] = [
     { id: "saved", label: "Saved", icon: Bookmark, href: "/saved", count: savedCount ?? undefined },
-    { id: "compare", label: "Compare", icon: ArrowLeftRight, href: "/compare", count: savedCount ?? undefined },
   ];
 
   // Edge swipe opens the drawer. Only a touch that starts in the leftmost 24px
@@ -506,31 +498,6 @@ export default function Sidebar({
                 </Link>
               );
             })}
-          </div>
-        )}
-
-        {/* Compare tray — collapsed rail only */}
-        {collapsed && savedThumbs.length > 0 && (
-          <div className={`px-2 mt-2 pt-2.5 w-full flex flex-col items-center gap-1.5 border-t ${EDGE}`}>
-            {savedThumbs.map((t) => (
-              <Link
-                key={t.id}
-                href={`/compare?ids=${encodeURIComponent(t.id)}`}
-                prefetch={false}
-                onClick={closeMobile}
-                aria-label={`Compare ${t.name}`}
-                className={`size-[34px] rounded-xs bg-zinc-200/60 dark:bg-zinc-800 ring-1 ring-zinc-300 dark:ring-zinc-700 hover:ring-blue-500 transition-shadow group relative shrink-0 ${FOCUS}`}
-              >
-                {t.image ? (
-                  <Image src={t.image} alt="" width={34} height={34} className="w-full h-full object-cover rounded-xs" unoptimized />
-                ) : (
-                  <span className="w-full h-full flex items-center justify-center text-[11px] font-semibold text-zinc-500 dark:text-zinc-400">
-                    {t.name.slice(0, 2).toUpperCase()}
-                  </span>
-                )}
-                <span className={TOOLTIP}>{t.name}</span>
-              </Link>
-            ))}
           </div>
         )}
 

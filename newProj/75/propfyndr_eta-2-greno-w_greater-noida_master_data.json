@@ -67,7 +67,7 @@
       "flats in eta 2 / greno w greater noida",
       "mid-segment apartments in greater noida"
     ],
-    "hero_image_url": "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=1200&q=80",
+    "hero_image_url": null,
     "price_min_cr": 0.65,
     "price_range_label": "₹65 Lakh - ₹1.20 Cr",
     "price_includes_plc": false,
@@ -523,95 +523,7 @@
         "updated_at": "2026-09-12T15:58:48.437Z"
       }
     ],
-    "cost_sheet": {
-      "id": "163abd13-8a29-4fb7-91a2-56620b999616",
-      "project_id": "5fd8baa9-1544-4119-97fa-ba76520fbfcf",
-      "base_price_per_sqft": 7805,
-      "base_cost_cr": null,
-      "floor_rise_per_floor": 30,
-      "base_interest_rate": 8.55,
-      "plc_charges": [
-        {
-          "type": "Corner Unit PLC",
-          "rate_psf": 150,
-          "description": "Dual side open balcony with maximum cross ventilation"
-        },
-        {
-          "type": "Park / Green Central Lawn Facing PLC",
-          "rate_psf": 200,
-          "description": "Unobstructed scenic view overlooking central landscaped podium"
-        },
-        {
-          "type": "Clubhouse / Swimming Pool View PLC",
-          "rate_psf": 175,
-          "description": "Direct visual line to Olympic-size swimming pool and club water body"
-        },
-        {
-          "type": "Wide Master Sector Road Facing PLC",
-          "rate_psf": 100,
-          "description": "Open front access facing wide 45-meter sector peripheral road"
-        }
-      ],
-      "parking_cost": 325000,
-      "ifms": 50,
-      "club_membership": 150000,
-      "other_charges": [
-        {
-          "name": "Dual Meter & Power Infrastructure Charge",
-          "type": "mandatory_fixed",
-          "amount": 35000
-        },
-        {
-          "name": "IGL Piped Natural Gas Connection",
-          "type": "mandatory_fixed",
-          "amount": 18500
-        },
-        {
-          "name": "Power Backup Installation (1 KVA / BHK)",
-          "type": "per_kva",
-          "amount": 30000,
-          "rate_per_kva": 28000
-        },
-        {
-          "name": "Sinking Fund / Society Corpus Deposit",
-          "type": "per_sqft",
-          "amount": 60000,
-          "rate_per_sqft": 50
-        },
-        {
-          "name": "Legal & Administrative Documentation",
-          "type": "mandatory_fixed",
-          "amount": 25000
-        },
-        {
-          "name": "Labour Welfare Cess & Fire Fighting System",
-          "type": "per_sqft",
-          "amount": 35000,
-          "rate_per_sqft": 35
-        }
-      ],
-      "gst_applicable": false,
-      "gst_rate_pct": 0,
-      "gst_note": "0% GST applicable — Ready-to-Move with Occupancy Certificate (OC)",
-      "stamp_duty_pct": 6,
-      "registration_pct": 1,
-      "electricity_connection": 35000,
-      "water_sewer_connection": 25000,
-      "maintenance_psf_monthly": 2.75,
-      "all_inclusive_price_cr": null,
-      "all_inclusive_per_sqft": null,
-      "assumptions": [
-        "Base Sale Price benchmarked at Rs. 7805/sqft as per Q1 2026 Noida/Greater Noida market registries",
-        "Covered basement parking allotted at Rs. 3.25 Lakhs",
-        "Clubhouse development & lifetime membership at Rs. 1.50 Lakhs",
-        "Interest-Free Maintenance Security (IFMS) at Rs. 50/sqft refundable to AOA on handover",
-        "Mandatory civic and dual-meter electrification charges calculated as per NPCL / PVVNL statutory tariffs"
-      ],
-      "verified_at": "2026-09-12T16:21:52.916Z",
-      "verified_by": null,
-      "created_at": "2026-09-12T15:58:48.724Z",
-      "updated_at": "2026-09-12T16:21:53.080Z"
-    },
+    "cost_sheet": null,
     "payment_plans": [
       {
         "id": "ef2b5d4a-75d3-4ab1-9406-ae884860ef5b",

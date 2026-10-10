@@ -5,8 +5,8 @@
     "name": "Arihant Seasons",
     "tagline": "Modern 2 & 3 BHK Homes with Four-Season Thematic Parks",
     "builder_id": "2091559a-cb13-4533-9fa6-bd486a46716d",
-    "rera_number": "UPRERAPRJ22D980",
-    "rera_url": "https://www.up-rera.in/",
+    "rera_number": "UPRERAPRJ974543/02/2026",
+    "rera_url": "https://www.up-rera.in/Projectsummary?UI0aPA1ISD=yKOHdP5VC7w=&hfFlag=9emr4VdBw22M7BGjKtJWMPDI4s5cHQZP&NPJ6RAme=wIcfXA6f2Im8mB74MnGc+Q==&PaURJEMAN4=ZL9MNERkNdaabFzvKD/iZM4pJXU7ac5c&IRSAHEB=D6PY3lyims8=",
     "city": "Yamuna Expressway",
     "state": "Uttar Pradesh",
     "country": "India",
@@ -31,7 +31,7 @@
     "restaurants_nearby_count": null,
     "status": "new_launch",
     "launch_date": "2023-08-15T00:00:00.000Z",
-    "possession_date": "2028-03-31T00:00:00.000Z",
+    "possession_date": "2031-04-30T18:30:00.000Z",
     "possession_label": "Q1 2028",
     "possession_confidence": "delivered",
     "possession_confidence_note": null,
@@ -105,7 +105,7 @@
       "flat for sale in arihant seasons",
       "arihant buildcon projects in yamuna expressway"
     ],
-    "hero_image_url": "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=1200&q=80",
+    "hero_image_url": null,
     "price_min_cr": 0.75,
     "price_range_label": "₹0.75–1.40Cr",
     "price_includes_plc": false,
@@ -115,8 +115,8 @@
     "created_at": "2026-08-13T11:07:17.002Z",
     "updated_at": "2026-09-12T16:20:54.803Z",
     "project_risk_flag": null,
-    "escrow_verified": null,
-    "escrow_bank_name": null,
+    "escrow_verified": true,
+    "escrow_bank_name": "HDFC BANK LTD",
     "registry_status": null,
     "registry_embargo_reasons": [],
     "nclt_moratorium_active": null,
@@ -552,173 +552,8 @@
         "updated_at": "2026-08-31T07:03:09.157Z"
       }
     ],
-    "cost_sheet": {
-      "id": "766889b7-7927-4c08-aafa-dd80cd7bd7a6",
-      "project_id": "1ccb48fa-d390-4574-8a4b-6ea712ac4381",
-      "base_price_per_sqft": 5715,
-      "base_cost_cr": null,
-      "floor_rise_per_floor": 30,
-      "base_interest_rate": 8.55,
-      "plc_charges": [
-        {
-          "type": "Corner Unit PLC",
-          "rate_psf": 150,
-          "description": "Dual side open balcony with maximum cross ventilation"
-        },
-        {
-          "type": "Park / Green Central Lawn Facing PLC",
-          "rate_psf": 200,
-          "description": "Unobstructed scenic view overlooking central landscaped podium"
-        },
-        {
-          "type": "Clubhouse / Swimming Pool View PLC",
-          "rate_psf": 175,
-          "description": "Direct visual line to Olympic-size swimming pool and club water body"
-        },
-        {
-          "type": "Wide Master Sector Road Facing PLC",
-          "rate_psf": 100,
-          "description": "Open front access facing wide 45-meter sector peripheral road"
-        }
-      ],
-      "parking_cost": 325000,
-      "ifms": 50,
-      "club_membership": 150000,
-      "other_charges": [
-        {
-          "name": "Dual Meter & Power Infrastructure Charge",
-          "type": "mandatory_fixed",
-          "amount": 35000
-        },
-        {
-          "name": "IGL Piped Natural Gas Connection",
-          "type": "mandatory_fixed",
-          "amount": 18500
-        },
-        {
-          "name": "Power Backup Installation (1 KVA / BHK)",
-          "type": "per_kva",
-          "amount": 30000,
-          "rate_per_kva": 28000
-        },
-        {
-          "name": "Sinking Fund / Society Corpus Deposit",
-          "type": "per_sqft",
-          "amount": 60000,
-          "rate_per_sqft": 50
-        },
-        {
-          "name": "Legal & Administrative Documentation",
-          "type": "mandatory_fixed",
-          "amount": 25000
-        },
-        {
-          "name": "Labour Welfare Cess & Fire Fighting System",
-          "type": "per_sqft",
-          "amount": 35000,
-          "rate_per_sqft": 35
-        }
-      ],
-      "gst_applicable": true,
-      "gst_rate_pct": 5,
-      "gst_note": "5% Standard Residential GST without Input Tax Credit (ITC)",
-      "stamp_duty_pct": 6,
-      "registration_pct": 1,
-      "electricity_connection": 35000,
-      "water_sewer_connection": 25000,
-      "maintenance_psf_monthly": 2.09,
-      "all_inclusive_price_cr": 1.08,
-      "all_inclusive_per_sqft": 9076,
-      "assumptions": [
-        "Base Sale Price benchmarked at Rs. 5715/sqft as per Q1 2026 Noida/Greater Noida market registries",
-        "Covered basement parking allotted at Rs. 3.25 Lakhs",
-        "Clubhouse development & lifetime membership at Rs. 1.50 Lakhs",
-        "Interest-Free Maintenance Security (IFMS) at Rs. 50/sqft refundable to AOA on handover",
-        "Mandatory civic and dual-meter electrification charges calculated as per NPCL / PVVNL statutory tariffs"
-      ],
-      "verified_at": "2026-09-12T16:20:54.799Z",
-      "verified_by": null,
-      "created_at": "2026-08-13T11:16:03.492Z",
-      "updated_at": "2026-09-12T16:20:54.960Z"
-    },
-    "payment_plans": [
-      {
-        "id": "f1064c19-d965-4bf3-bc0e-3bd9c48dc54d",
-        "project_id": "1ccb48fa-d390-4574-8a4b-6ea712ac4381",
-        "plan_type": "construction_linked",
-        "plan_name": "Construction Linked Payment Plan (CLP)",
-        "description": "Stage-wise payment tied to construction progress",
-        "milestones": [
-          {
-            "pct": 10,
-            "stage": "Booking",
-            "milestone": "At Booking"
-          },
-          {
-            "pct": 20,
-            "stage": "Foundation",
-            "milestone": "On Foundation Completion"
-          },
-          {
-            "pct": 40,
-            "stage": "Superstructure",
-            "milestone": "On Superstructure Casting"
-          },
-          {
-            "pct": 30,
-            "stage": "Possession",
-            "milestone": "On Offer of Possession"
-          }
-        ],
-        "down_payment_pct": 10,
-        "booking_amount_lakh": null,
-        "total_duration_months": null,
-        "discount_offered_pct": null,
-        "best_for": null,
-        "watch_out": null,
-        "sort_order": 0,
-        "source": "inferred_default",
-        "source_url": null,
-        "verified_at": null,
-        "verified_by": null,
-        "notes": null,
-        "created_at": "2026-08-14T19:13:38.222Z",
-        "updated_at": "2026-09-03T16:52:13.729Z"
-      },
-      {
-        "id": "70d7124e-4a6c-41f6-8b9b-fdcb721c3ea1",
-        "project_id": "1ccb48fa-d390-4574-8a4b-6ea712ac4381",
-        "plan_type": "resale_down_payment",
-        "plan_name": "Ready Resale Down Payment Plan",
-        "description": "100% Payment on Registry & Possession Handover",
-        "milestones": [
-          {
-            "pct": 10,
-            "stage": "Agreement",
-            "milestone": "At Agreement to Sell"
-          },
-          {
-            "pct": 90,
-            "stage": "Handover",
-            "milestone": "At Registry & Key Handover"
-          }
-        ],
-        "down_payment_pct": 100,
-        "booking_amount_lakh": null,
-        "total_duration_months": null,
-        "discount_offered_pct": null,
-        "best_for": null,
-        "watch_out": null,
-        "sort_order": 0,
-        "source": "inferred_default",
-        "source_url": null,
-        "verified_at": null,
-        "verified_by": null,
-        "notes": null,
-        "created_at": "2026-08-14T19:13:38.264Z",
-        "updated_at": "2026-09-03T16:52:13.729Z"
-      }
-    ],
+    "cost_sheet": null,
+    "payment_plans": [],
     "images": [
       {
         "id": "202d4ef8-1d25-403a-97fe-3882ab692969",
@@ -1375,8 +1210,8 @@
     "country": "India",
     "sector": "Sector 22D Yamuna Expressway",
     "address": "Sector 22D Yamuna Expressway, Yamuna Expressway, UP 201301",
-    "lat": 28.575,
-    "lng": 77.385,
+    "lat": null,
+    "lng": null,
     "land_area_acres": 8.5,
     "total_units": 1100,
     "total_towers": 8,
@@ -1464,7 +1299,7 @@
       "sector 22d yamuna expressway",
       "apartments in sector 22d yamuna expressway"
     ],
-    "hero_image_url": "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=1200&q=80",
+    "hero_image_url": null,
     "price_min_cr": 0.74,
     "price_range_label": "₹0.74–0.82Cr",
     "price_includes_plc": false,
@@ -1864,206 +1699,8 @@
         "updated_at": "2026-08-31T07:03:38.365Z"
       }
     ],
-    "cost_sheet": {
-      "id": "87cb7282-561b-45d8-bce4-dbc53f79263d",
-      "project_id": "e31bf20e-aa1a-4e28-8d53-a7e58eff902d",
-      "base_price_per_sqft": 5530,
-      "base_cost_cr": null,
-      "floor_rise_per_floor": 30,
-      "base_interest_rate": 8.55,
-      "plc_charges": [
-        {
-          "type": "Corner Unit PLC",
-          "rate_psf": 150,
-          "description": "Dual side open balcony with maximum cross ventilation"
-        },
-        {
-          "type": "Park / Green Central Lawn Facing PLC",
-          "rate_psf": 200,
-          "description": "Unobstructed scenic view overlooking central landscaped podium"
-        },
-        {
-          "type": "Clubhouse / Swimming Pool View PLC",
-          "rate_psf": 175,
-          "description": "Direct visual line to Olympic-size swimming pool and club water body"
-        },
-        {
-          "type": "Wide Master Sector Road Facing PLC",
-          "rate_psf": 100,
-          "description": "Open front access facing wide 45-meter sector peripheral road"
-        }
-      ],
-      "parking_cost": 325000,
-      "ifms": 50,
-      "club_membership": 150000,
-      "other_charges": [
-        {
-          "name": "Dual Meter & Power Infrastructure Charge",
-          "type": "mandatory_fixed",
-          "amount": 35000
-        },
-        {
-          "name": "IGL Piped Natural Gas Connection",
-          "type": "mandatory_fixed",
-          "amount": 18500
-        },
-        {
-          "name": "Power Backup Installation (1 KVA / BHK)",
-          "type": "per_kva",
-          "amount": 30000,
-          "rate_per_kva": 28000
-        },
-        {
-          "name": "Sinking Fund / Society Corpus Deposit",
-          "type": "per_sqft",
-          "amount": 60000,
-          "rate_per_sqft": 50
-        },
-        {
-          "name": "Legal & Administrative Documentation",
-          "type": "mandatory_fixed",
-          "amount": 25000
-        },
-        {
-          "name": "Labour Welfare Cess & Fire Fighting System",
-          "type": "per_sqft",
-          "amount": 35000,
-          "rate_per_sqft": 35
-        }
-      ],
-      "gst_applicable": false,
-      "gst_rate_pct": 0,
-      "gst_note": "0% GST applicable — Ready-to-Move with Occupancy Certificate (OC)",
-      "stamp_duty_pct": 6,
-      "registration_pct": 1,
-      "electricity_connection": 35000,
-      "water_sewer_connection": 25000,
-      "maintenance_psf_monthly": 2.09,
-      "all_inclusive_price_cr": 0.92,
-      "all_inclusive_per_sqft": 8000,
-      "assumptions": [
-        "Base Sale Price benchmarked at Rs. 5530/sqft as per Q1 2026 Noida/Greater Noida market registries",
-        "Covered basement parking allotted at Rs. 3.25 Lakhs",
-        "Clubhouse development & lifetime membership at Rs. 1.50 Lakhs",
-        "Interest-Free Maintenance Security (IFMS) at Rs. 50/sqft refundable to AOA on handover",
-        "Mandatory civic and dual-meter electrification charges calculated as per NPCL / PVVNL statutory tariffs"
-      ],
-      "verified_at": "2026-09-12T16:21:28.271Z",
-      "verified_by": null,
-      "created_at": "2026-08-13T07:51:56.188Z",
-      "updated_at": "2026-09-12T16:21:28.434Z"
-    },
-    "payment_plans": [
-      {
-        "id": "0b29ab3d-417b-4e6b-a977-b4cdb54c9bd8",
-        "project_id": "e31bf20e-aa1a-4e28-8d53-a7e58eff902d",
-        "plan_type": "construction_linked",
-        "plan_name": "Construction-Linked Plan (CLP)",
-        "description": null,
-        "milestones": [
-          {
-            "amt": "₹7.4 Lakhs",
-            "due": "Stage 1 / Booking",
-            "pct": "10%",
-            "done": true,
-            "stage": "Booking Amount",
-            "timeline": "Immediate",
-            "milestone": "On Booking & Allotment"
-          },
-          {
-            "amt": "₹11.1 Lakhs",
-            "due": "Stage 2 / Foundation",
-            "pct": "15%",
-            "done": true,
-            "stage": "Foundation Raft",
-            "timeline": "Within 3 Months",
-            "milestone": "On Excavation & Foundation Raft"
-          },
-          {
-            "amt": "₹33.3 Lakhs",
-            "due": "Stage 3 / Superstructure",
-            "pct": "45%",
-            "done": false,
-            "stage": "Superstructure Slabs",
-            "timeline": "Milestone Linked",
-            "milestone": "On Superstructure & Floor Slabs"
-          },
-          {
-            "amt": "₹14.8 Lakhs",
-            "due": "Stage 4 / Finishing",
-            "pct": "20%",
-            "done": false,
-            "stage": "Finishing Works",
-            "timeline": "Near Completion",
-            "milestone": "On Brickwork, Plastering & External Painting"
-          },
-          {
-            "amt": "₹7.4 Lakhs",
-            "due": "Stage 5 / Possession",
-            "pct": "10%",
-            "done": false,
-            "stage": "Offer of Possession",
-            "timeline": "At Possession",
-            "milestone": "On Notice of Possession & Keys Handover"
-          }
-        ],
-        "down_payment_pct": null,
-        "booking_amount_lakh": null,
-        "total_duration_months": null,
-        "discount_offered_pct": null,
-        "best_for": null,
-        "watch_out": null,
-        "sort_order": 0,
-        "source": "inferred_default",
-        "source_url": null,
-        "verified_at": null,
-        "verified_by": null,
-        "notes": "Standard 10% booking, 80% milestone linked, 10% on possession handover.",
-        "created_at": "2026-08-14T17:06:39.788Z",
-        "updated_at": "2026-09-03T16:52:13.729Z"
-      },
-      {
-        "id": "21247003-3c2f-48e8-8d6f-58e859f97b9c",
-        "project_id": "e31bf20e-aa1a-4e28-8d53-a7e58eff902d",
-        "plan_type": "possession_linked",
-        "plan_name": "Possession-Linked Plan (30:70 PLP)",
-        "description": null,
-        "milestones": [
-          {
-            "amt": "₹22.2 Lakhs",
-            "due": "Stage 1 / Agreement",
-            "pct": "30%",
-            "done": true,
-            "stage": "Booking & Agreement",
-            "timeline": "Within 30 Days",
-            "milestone": "On Booking & Agreement Execution"
-          },
-          {
-            "amt": "₹51.8 Lakhs",
-            "due": "Stage 2 / Handover",
-            "pct": "70%",
-            "done": false,
-            "stage": "Offer of Possession",
-            "timeline": "At Handover",
-            "milestone": "On Notice of Possession & Keys Handover"
-          }
-        ],
-        "down_payment_pct": null,
-        "booking_amount_lakh": null,
-        "total_duration_months": null,
-        "discount_offered_pct": null,
-        "best_for": null,
-        "watch_out": null,
-        "sort_order": 0,
-        "source": "inferred_default",
-        "source_url": null,
-        "verified_at": null,
-        "verified_by": null,
-        "notes": "Pay 30% now, 70% at possession handover.",
-        "created_at": "2026-08-14T17:06:39.820Z",
-        "updated_at": "2026-09-03T16:52:13.729Z"
-      }
-    ],
+    "cost_sheet": null,
+    "payment_plans": [],
     "images": [
       {
         "id": "3c276e3e-13db-49f7-8666-06a085cde388",
@@ -2714,7 +2351,7 @@
     "tagline": "Poetry of Premium Vertical Living",
     "builder_id": "5e350730-64b4-4683-b8de-7f28091ce24b",
     "rera_number": "UPRERAPRJ921261/05/2025",
-    "rera_url": "https://www.up-rera.in/",
+    "rera_url": "https://www.up-rera.in/Projectsummary?UI0aPA1ISD=dD8mwtivXUM=&hfFlag=9emr4VdBw22M7BGjKtJWMPDI4s5cHQZP&NPJ6RAme=04IDFx7NwrrnkKWnMVTgaFdEciBpU0IW&PaURJEMAN4=ZL9MNERkNdbWgb+w3i7zDg3bCXDmQ9i5&IRSAHEB=D6PY3lyims8=",
     "city": "Yamuna Expressway",
     "state": "Uttar Pradesh",
     "country": "India",
@@ -2739,7 +2376,7 @@
     "restaurants_nearby_count": null,
     "status": "under_construction",
     "launch_date": "2016-03-01T00:00:00.000Z",
-    "possession_date": "2030-04-04T00:00:00.000Z",
+    "possession_date": "2030-03-03T18:30:00.000Z",
     "possession_label": "Under Construction",
     "possession_confidence": "delivered",
     "possession_confidence_note": null,
@@ -2797,8 +2434,8 @@
     ],
     "description": "Exclusive G+32 pre-launch luxury residential development featuring VRF air-conditioning on the booming Yamuna Expressway corridor.",
     "long_description": "Eldeco Ballads of Bliss is an upcoming flagship luxury residential high-rise project located in the high-growth corridor of Sector 22D, Yamuna Expressway. Spanning a prime 5-acre corner plot, the development comprises only 3 exclusive high-rise towers rising G+32 floors, housing a total of 580 corner-layout units. Structure-designed on a two-side open plot with 120-meter expressway road frontage, every home features spacious 3 BHK and duplex layouts with three open sides for spectacular natural light and cross ventilation. Each apartment is pre-equipped with advanced centralized VRF air conditioning, expansive private balconies connected to every bedroom, and premium wood framing. The central community layout features an elevated luxury clubhouse, adult and kids swimming pools, a jogging path, and 3-tier gated security, positioned just minutes away from the upcoming Noida International Airport.",
-    "design_theme": null,
-    "architect": null,
+    "design_theme": "Modern Neo-Classic Green Living",
+    "architect": "Eldeco Appointed Master Architects",
     "interior_designer": null,
     "marketing_claims": [
       "Prime Residential Living in Sector 22D Yamuna Expressway",
@@ -2825,7 +2462,7 @@
     "updated_at": "2026-09-12T16:20:22.422Z",
     "project_risk_flag": "low_risk",
     "escrow_verified": true,
-    "escrow_bank_name": "HDFC Bank",
+    "escrow_bank_name": "HDFC BANK LIMITED",
     "registry_status": "open",
     "registry_embargo_reasons": [],
     "nclt_moratorium_active": null,
@@ -3266,206 +2903,8 @@
         "updated_at": "2026-08-31T07:02:24.328Z"
       }
     ],
-    "cost_sheet": {
-      "id": "894e5e2e-f4f3-4ff0-a135-f489acb0a179",
-      "project_id": "bc733a34-fb8d-4e23-9453-805ef64cadee",
-      "base_price_per_sqft": 5311,
-      "base_cost_cr": null,
-      "floor_rise_per_floor": 30,
-      "base_interest_rate": 8.55,
-      "plc_charges": [
-        {
-          "type": "Corner Unit PLC",
-          "rate_psf": 150,
-          "description": "Dual side open balcony with maximum cross ventilation"
-        },
-        {
-          "type": "Park / Green Central Lawn Facing PLC",
-          "rate_psf": 200,
-          "description": "Unobstructed scenic view overlooking central landscaped podium"
-        },
-        {
-          "type": "Clubhouse / Swimming Pool View PLC",
-          "rate_psf": 175,
-          "description": "Direct visual line to Olympic-size swimming pool and club water body"
-        },
-        {
-          "type": "Wide Master Sector Road Facing PLC",
-          "rate_psf": 100,
-          "description": "Open front access facing wide 45-meter sector peripheral road"
-        }
-      ],
-      "parking_cost": 325000,
-      "ifms": 50,
-      "club_membership": 150000,
-      "other_charges": [
-        {
-          "name": "Dual Meter & Power Infrastructure Charge",
-          "type": "mandatory_fixed",
-          "amount": 35000
-        },
-        {
-          "name": "IGL Piped Natural Gas Connection",
-          "type": "mandatory_fixed",
-          "amount": 18500
-        },
-        {
-          "name": "Power Backup Installation (1 KVA / BHK)",
-          "type": "per_kva",
-          "amount": 30000,
-          "rate_per_kva": 28000
-        },
-        {
-          "name": "Sinking Fund / Society Corpus Deposit",
-          "type": "per_sqft",
-          "amount": 60000,
-          "rate_per_sqft": 50
-        },
-        {
-          "name": "Legal & Administrative Documentation",
-          "type": "mandatory_fixed",
-          "amount": 25000
-        },
-        {
-          "name": "Labour Welfare Cess & Fire Fighting System",
-          "type": "per_sqft",
-          "amount": 35000,
-          "rate_per_sqft": 35
-        }
-      ],
-      "gst_applicable": true,
-      "gst_rate_pct": 5,
-      "gst_note": "5% Standard Residential GST without Input Tax Credit (ITC)",
-      "stamp_duty_pct": 6,
-      "registration_pct": 1,
-      "electricity_connection": 35000,
-      "water_sewer_connection": 25000,
-      "maintenance_psf_monthly": 2.09,
-      "all_inclusive_price_cr": 2.4,
-      "all_inclusive_per_sqft": 11707,
-      "assumptions": [
-        "Base Sale Price benchmarked at Rs. 5311/sqft as per Q1 2026 Noida/Greater Noida market registries",
-        "Covered basement parking allotted at Rs. 3.25 Lakhs",
-        "Clubhouse development & lifetime membership at Rs. 1.50 Lakhs",
-        "Interest-Free Maintenance Security (IFMS) at Rs. 50/sqft refundable to AOA on handover",
-        "Mandatory civic and dual-meter electrification charges calculated as per NPCL / PVVNL statutory tariffs"
-      ],
-      "verified_at": "2026-09-12T16:20:22.419Z",
-      "verified_by": null,
-      "created_at": "2026-08-13T07:51:55.905Z",
-      "updated_at": "2026-09-12T16:20:22.577Z"
-    },
-    "payment_plans": [
-      {
-        "id": "684166ed-1189-4360-a856-c39530c5ef32",
-        "project_id": "bc733a34-fb8d-4e23-9453-805ef64cadee",
-        "plan_type": "construction_linked",
-        "plan_name": "Construction-Linked Plan (CLP)",
-        "description": null,
-        "milestones": [
-          {
-            "amt": "₹11.1 Lakhs",
-            "due": "Stage 1 / Booking",
-            "pct": "10%",
-            "done": true,
-            "stage": "Booking Amount",
-            "timeline": "Immediate",
-            "milestone": "On Booking & Allotment"
-          },
-          {
-            "amt": "₹16.7 Lakhs",
-            "due": "Stage 2 / Foundation",
-            "pct": "15%",
-            "done": true,
-            "stage": "Foundation Raft",
-            "timeline": "Within 3 Months",
-            "milestone": "On Excavation & Foundation Raft"
-          },
-          {
-            "amt": "₹50.0 Lakhs",
-            "due": "Stage 3 / Superstructure",
-            "pct": "45%",
-            "done": false,
-            "stage": "Superstructure Slabs",
-            "timeline": "Milestone Linked",
-            "milestone": "On Superstructure & Floor Slabs"
-          },
-          {
-            "amt": "₹22.2 Lakhs",
-            "due": "Stage 4 / Finishing",
-            "pct": "20%",
-            "done": false,
-            "stage": "Finishing Works",
-            "timeline": "Near Completion",
-            "milestone": "On Brickwork, Plastering & External Painting"
-          },
-          {
-            "amt": "₹11.1 Lakhs",
-            "due": "Stage 5 / Possession",
-            "pct": "10%",
-            "done": false,
-            "stage": "Offer of Possession",
-            "timeline": "At Possession",
-            "milestone": "On Notice of Possession & Keys Handover"
-          }
-        ],
-        "down_payment_pct": null,
-        "booking_amount_lakh": null,
-        "total_duration_months": null,
-        "discount_offered_pct": null,
-        "best_for": null,
-        "watch_out": null,
-        "sort_order": 0,
-        "source": "inferred_default",
-        "source_url": null,
-        "verified_at": null,
-        "verified_by": null,
-        "notes": "Standard 10% booking, 80% milestone linked, 10% on possession handover.",
-        "created_at": "2026-08-14T17:06:41.005Z",
-        "updated_at": "2026-09-03T16:52:13.729Z"
-      },
-      {
-        "id": "c258ed8c-3c59-4e3f-94fc-d392f5613dc6",
-        "project_id": "bc733a34-fb8d-4e23-9453-805ef64cadee",
-        "plan_type": "possession_linked",
-        "plan_name": "Possession-Linked Plan (30:70 PLP)",
-        "description": null,
-        "milestones": [
-          {
-            "amt": "₹33.3 Lakhs",
-            "due": "Stage 1 / Agreement",
-            "pct": "30%",
-            "done": true,
-            "stage": "Booking & Agreement",
-            "timeline": "Within 30 Days",
-            "milestone": "On Booking & Agreement Execution"
-          },
-          {
-            "amt": "₹77.7 Lakhs",
-            "due": "Stage 2 / Handover",
-            "pct": "70%",
-            "done": false,
-            "stage": "Offer of Possession",
-            "timeline": "At Handover",
-            "milestone": "On Notice of Possession & Keys Handover"
-          }
-        ],
-        "down_payment_pct": null,
-        "booking_amount_lakh": null,
-        "total_duration_months": null,
-        "discount_offered_pct": null,
-        "best_for": null,
-        "watch_out": null,
-        "sort_order": 0,
-        "source": "inferred_default",
-        "source_url": null,
-        "verified_at": null,
-        "verified_by": null,
-        "notes": "Pay 30% now, 70% at possession handover.",
-        "created_at": "2026-08-14T17:06:41.036Z",
-        "updated_at": "2026-09-03T16:52:13.729Z"
-      }
-    ],
+    "cost_sheet": null,
+    "payment_plans": [],
     "images": [
       {
         "id": "59bac465-883b-4b60-844f-0d6ca7bd4394",
@@ -4071,8 +3510,8 @@
     "name": "Eldeco Echoes of Eden",
     "tagline": "Airport Corridor 2 & 3 BHK Resort Residences in Sector 22D",
     "builder_id": "5e350730-64b4-4683-b8de-7f28091ce24b",
-    "rera_number": "UPRERAPRJ22D890",
-    "rera_url": "https://www.up-rera.in/",
+    "rera_number": "UPRERAPRJ125342/02/2026",
+    "rera_url": "https://www.up-rera.in/Projectsummary?UI0aPA1ISD=Qg3HG9xqOuA=&hfFlag=9emr4VdBw22M7BGjKtJWMPDI4s5cHQZP&NPJ6RAme=srrBtD8MpCIJ/jz0av5MeJhrpxIwNHcg&PaURJEMAN4=ZL9MNERkNdaoPxNpyDcoKxG8/y5gjrXD&IRSAHEB=D6PY3lyims8=",
     "city": "Yamuna Expressway",
     "state": "Uttar Pradesh",
     "country": "India",
@@ -4097,7 +3536,7 @@
     "restaurants_nearby_count": null,
     "status": "new_launch",
     "launch_date": "2023-09-01T00:00:00.000Z",
-    "possession_date": "2028-06-30T00:00:00.000Z",
+    "possession_date": "2031-10-31T18:30:00.000Z",
     "possession_label": "Q2 2028",
     "possession_confidence": "delivered",
     "possession_confidence_note": null,
@@ -4171,7 +3610,7 @@
       "flat for sale in eldeco echoes of eden",
       "eldeco group projects in yamuna expressway"
     ],
-    "hero_image_url": "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=1200&q=80",
+    "hero_image_url": null,
     "price_min_cr": 0.95,
     "price_range_label": "₹0.95–1.85Cr",
     "price_includes_plc": false,
@@ -4181,8 +3620,8 @@
     "created_at": "2026-08-13T11:07:16.397Z",
     "updated_at": "2026-09-12T16:21:28.748Z",
     "project_risk_flag": null,
-    "escrow_verified": null,
-    "escrow_bank_name": null,
+    "escrow_verified": true,
+    "escrow_bank_name": "HDFC BANK",
     "registry_status": null,
     "registry_embargo_reasons": [],
     "nclt_moratorium_active": null,
@@ -4623,173 +4062,8 @@
         "updated_at": "2026-08-31T07:03:39.473Z"
       }
     ],
-    "cost_sheet": {
-      "id": "cb224079-78f2-4f14-bf72-e11adda6f994",
-      "project_id": "d3251d89-7c12-4278-a810-1986425bafe8",
-      "base_price_per_sqft": 5237,
-      "base_cost_cr": null,
-      "floor_rise_per_floor": 30,
-      "base_interest_rate": 8.55,
-      "plc_charges": [
-        {
-          "type": "Corner Unit PLC",
-          "rate_psf": 150,
-          "description": "Dual side open balcony with maximum cross ventilation"
-        },
-        {
-          "type": "Park / Green Central Lawn Facing PLC",
-          "rate_psf": 200,
-          "description": "Unobstructed scenic view overlooking central landscaped podium"
-        },
-        {
-          "type": "Clubhouse / Swimming Pool View PLC",
-          "rate_psf": 175,
-          "description": "Direct visual line to Olympic-size swimming pool and club water body"
-        },
-        {
-          "type": "Wide Master Sector Road Facing PLC",
-          "rate_psf": 100,
-          "description": "Open front access facing wide 45-meter sector peripheral road"
-        }
-      ],
-      "parking_cost": 325000,
-      "ifms": 50,
-      "club_membership": 150000,
-      "other_charges": [
-        {
-          "name": "Dual Meter & Power Infrastructure Charge",
-          "type": "mandatory_fixed",
-          "amount": 35000
-        },
-        {
-          "name": "IGL Piped Natural Gas Connection",
-          "type": "mandatory_fixed",
-          "amount": 18500
-        },
-        {
-          "name": "Power Backup Installation (1 KVA / BHK)",
-          "type": "per_kva",
-          "amount": 30000,
-          "rate_per_kva": 28000
-        },
-        {
-          "name": "Sinking Fund / Society Corpus Deposit",
-          "type": "per_sqft",
-          "amount": 60000,
-          "rate_per_sqft": 50
-        },
-        {
-          "name": "Legal & Administrative Documentation",
-          "type": "mandatory_fixed",
-          "amount": 25000
-        },
-        {
-          "name": "Labour Welfare Cess & Fire Fighting System",
-          "type": "per_sqft",
-          "amount": 35000,
-          "rate_per_sqft": 35
-        }
-      ],
-      "gst_applicable": true,
-      "gst_rate_pct": 5,
-      "gst_note": "5% Standard Residential GST without Input Tax Credit (ITC)",
-      "stamp_duty_pct": 6,
-      "registration_pct": 1,
-      "electricity_connection": 35000,
-      "water_sewer_connection": 25000,
-      "maintenance_psf_monthly": 2.09,
-      "all_inclusive_price_cr": 1.36,
-      "all_inclusive_per_sqft": 10880,
-      "assumptions": [
-        "Base Sale Price benchmarked at Rs. 5237/sqft as per Q1 2026 Noida/Greater Noida market registries",
-        "Covered basement parking allotted at Rs. 3.25 Lakhs",
-        "Clubhouse development & lifetime membership at Rs. 1.50 Lakhs",
-        "Interest-Free Maintenance Security (IFMS) at Rs. 50/sqft refundable to AOA on handover",
-        "Mandatory civic and dual-meter electrification charges calculated as per NPCL / PVVNL statutory tariffs"
-      ],
-      "verified_at": "2026-09-12T16:21:28.741Z",
-      "verified_by": null,
-      "created_at": "2026-08-13T11:15:57.422Z",
-      "updated_at": "2026-09-12T16:21:28.907Z"
-    },
-    "payment_plans": [
-      {
-        "id": "e739acdb-8af5-4ada-9955-51feb5680296",
-        "project_id": "d3251d89-7c12-4278-a810-1986425bafe8",
-        "plan_type": "construction_linked",
-        "plan_name": "Construction Linked Payment Plan (CLP)",
-        "description": "Stage-wise payment tied to construction progress",
-        "milestones": [
-          {
-            "pct": 10,
-            "stage": "Booking",
-            "milestone": "At Booking"
-          },
-          {
-            "pct": 20,
-            "stage": "Foundation",
-            "milestone": "On Foundation Completion"
-          },
-          {
-            "pct": 40,
-            "stage": "Superstructure",
-            "milestone": "On Superstructure Casting"
-          },
-          {
-            "pct": 30,
-            "stage": "Possession",
-            "milestone": "On Offer of Possession"
-          }
-        ],
-        "down_payment_pct": 10,
-        "booking_amount_lakh": null,
-        "total_duration_months": null,
-        "discount_offered_pct": null,
-        "best_for": null,
-        "watch_out": null,
-        "sort_order": 0,
-        "source": "inferred_default",
-        "source_url": null,
-        "verified_at": null,
-        "verified_by": null,
-        "notes": null,
-        "created_at": "2026-08-14T19:13:44.944Z",
-        "updated_at": "2026-09-03T16:52:13.729Z"
-      },
-      {
-        "id": "411d5c5c-e62e-4fd2-b95f-4f6e8ec2b364",
-        "project_id": "d3251d89-7c12-4278-a810-1986425bafe8",
-        "plan_type": "resale_down_payment",
-        "plan_name": "Ready Resale Down Payment Plan",
-        "description": "100% Payment on Registry & Possession Handover",
-        "milestones": [
-          {
-            "pct": 10,
-            "stage": "Agreement",
-            "milestone": "At Agreement to Sell"
-          },
-          {
-            "pct": 90,
-            "stage": "Handover",
-            "milestone": "At Registry & Key Handover"
-          }
-        ],
-        "down_payment_pct": 100,
-        "booking_amount_lakh": null,
-        "total_duration_months": null,
-        "discount_offered_pct": null,
-        "best_for": null,
-        "watch_out": null,
-        "sort_order": 0,
-        "source": "inferred_default",
-        "source_url": null,
-        "verified_at": null,
-        "verified_by": null,
-        "notes": null,
-        "created_at": "2026-08-14T19:13:44.989Z",
-        "updated_at": "2026-09-03T16:52:13.729Z"
-      }
-    ],
+    "cost_sheet": null,
+    "payment_plans": [],
     "images": [
       {
         "id": "5f960ad9-e129-4bdb-a80a-1ce86298bd08",
@@ -5439,15 +4713,15 @@
     "name": "Gaur Yamuna City 16th Park View",
     "tagline": "Gaur Yamuna City 16th Park View Luxury Gated Living in Sector 22D Yamuna Expressway",
     "builder_id": "b0ac929b-ae4d-4b94-af32-555e3d433151",
-    "rera_number": "UPRERAPRJ22D2",
-    "rera_url": "https://www.up-rera.in/",
+    "rera_number": "UPRERAPRJ379836/06/2025",
+    "rera_url": "https://www.up-rera.in/Projectsummary?UI0aPA1ISD=NLJUQKLhYII=&hfFlag=v1P/c8ksBrs=&NPJ6RAme=ZmnSAyILidE7bavTq73InQ==&PaURJEMAN4=ZL9MNERkNdYDsBbEyM8V1jLYHmcdfjUp&IRSAHEB=D6PY3lyims8=",
     "city": "Yamuna Expressway",
     "state": "Uttar Pradesh",
     "country": "India",
     "sector": "Sector 22D Yamuna Expressway",
     "address": "Sector 22D Yamuna Expressway, Yamuna Expressway, UP 201301",
-    "lat": 28.575,
-    "lng": 77.385,
+    "lat": null,
+    "lng": null,
     "land_area_acres": 25,
     "total_units": 2500,
     "total_towers": 22,
@@ -5535,7 +4809,7 @@
       "sector 22d yamuna expressway",
       "apartments in sector 22d yamuna expressway"
     ],
-    "hero_image_url": "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=1200&q=80",
+    "hero_image_url": null,
     "price_min_cr": 0.85,
     "price_range_label": "₹0.85–0.95Cr",
     "price_includes_plc": false,
@@ -5545,8 +4819,8 @@
     "created_at": "2026-08-13T06:03:38.721Z",
     "updated_at": "2026-09-12T16:23:31.085Z",
     "project_risk_flag": null,
-    "escrow_verified": null,
-    "escrow_bank_name": null,
+    "escrow_verified": true,
+    "escrow_bank_name": "ICICI BANK LTD",
     "registry_status": null,
     "registry_embargo_reasons": [],
     "nclt_moratorium_active": null,
@@ -5920,206 +5194,8 @@
         "updated_at": "2026-08-31T07:05:35.250Z"
       }
     ],
-    "cost_sheet": {
-      "id": "1b2db4d8-f297-41dc-983d-cec1addf1190",
-      "project_id": "1470c33e-ad3f-42f6-9655-42a23ca7f54e",
-      "base_price_per_sqft": 5607,
-      "base_cost_cr": null,
-      "floor_rise_per_floor": 30,
-      "base_interest_rate": 8.55,
-      "plc_charges": [
-        {
-          "type": "Corner Unit PLC",
-          "rate_psf": 150,
-          "description": "Dual side open balcony with maximum cross ventilation"
-        },
-        {
-          "type": "Park / Green Central Lawn Facing PLC",
-          "rate_psf": 200,
-          "description": "Unobstructed scenic view overlooking central landscaped podium"
-        },
-        {
-          "type": "Clubhouse / Swimming Pool View PLC",
-          "rate_psf": 175,
-          "description": "Direct visual line to Olympic-size swimming pool and club water body"
-        },
-        {
-          "type": "Wide Master Sector Road Facing PLC",
-          "rate_psf": 100,
-          "description": "Open front access facing wide 45-meter sector peripheral road"
-        }
-      ],
-      "parking_cost": 325000,
-      "ifms": 50,
-      "club_membership": 150000,
-      "other_charges": [
-        {
-          "name": "Dual Meter & Power Infrastructure Charge",
-          "type": "mandatory_fixed",
-          "amount": 35000
-        },
-        {
-          "name": "IGL Piped Natural Gas Connection",
-          "type": "mandatory_fixed",
-          "amount": 18500
-        },
-        {
-          "name": "Power Backup Installation (1 KVA / BHK)",
-          "type": "per_kva",
-          "amount": 30000,
-          "rate_per_kva": 28000
-        },
-        {
-          "name": "Sinking Fund / Society Corpus Deposit",
-          "type": "per_sqft",
-          "amount": 60000,
-          "rate_per_sqft": 50
-        },
-        {
-          "name": "Legal & Administrative Documentation",
-          "type": "mandatory_fixed",
-          "amount": 25000
-        },
-        {
-          "name": "Labour Welfare Cess & Fire Fighting System",
-          "type": "per_sqft",
-          "amount": 35000,
-          "rate_per_sqft": 35
-        }
-      ],
-      "gst_applicable": false,
-      "gst_rate_pct": 0,
-      "gst_note": "0% GST applicable — Ready-to-Move with Occupancy Certificate (OC)",
-      "stamp_duty_pct": 6,
-      "registration_pct": 1,
-      "electricity_connection": 35000,
-      "water_sewer_connection": 25000,
-      "maintenance_psf_monthly": 2.09,
-      "all_inclusive_price_cr": 1.04,
-      "all_inclusive_per_sqft": 7564,
-      "assumptions": [
-        "Base Sale Price benchmarked at Rs. 5607/sqft as per Q1 2026 Noida/Greater Noida market registries",
-        "Covered basement parking allotted at Rs. 3.25 Lakhs",
-        "Clubhouse development & lifetime membership at Rs. 1.50 Lakhs",
-        "Interest-Free Maintenance Security (IFMS) at Rs. 50/sqft refundable to AOA on handover",
-        "Mandatory civic and dual-meter electrification charges calculated as per NPCL / PVVNL statutory tariffs"
-      ],
-      "verified_at": "2026-09-12T16:23:31.083Z",
-      "verified_by": null,
-      "created_at": "2026-08-13T07:51:56.499Z",
-      "updated_at": "2026-09-12T16:23:31.245Z"
-    },
-    "payment_plans": [
-      {
-        "id": "09bcdfa8-54df-481d-bcbd-a18588697b4e",
-        "project_id": "1470c33e-ad3f-42f6-9655-42a23ca7f54e",
-        "plan_type": "construction_linked",
-        "plan_name": "Construction-Linked Plan (CLP)",
-        "description": null,
-        "milestones": [
-          {
-            "amt": "₹8.5 Lakhs",
-            "due": "Stage 1 / Booking",
-            "pct": "10%",
-            "done": true,
-            "stage": "Booking Amount",
-            "timeline": "Immediate",
-            "milestone": "On Booking & Allotment"
-          },
-          {
-            "amt": "₹12.8 Lakhs",
-            "due": "Stage 2 / Foundation",
-            "pct": "15%",
-            "done": true,
-            "stage": "Foundation Raft",
-            "timeline": "Within 3 Months",
-            "milestone": "On Excavation & Foundation Raft"
-          },
-          {
-            "amt": "₹38.3 Lakhs",
-            "due": "Stage 3 / Superstructure",
-            "pct": "45%",
-            "done": false,
-            "stage": "Superstructure Slabs",
-            "timeline": "Milestone Linked",
-            "milestone": "On Superstructure & Floor Slabs"
-          },
-          {
-            "amt": "₹17.0 Lakhs",
-            "due": "Stage 4 / Finishing",
-            "pct": "20%",
-            "done": false,
-            "stage": "Finishing Works",
-            "timeline": "Near Completion",
-            "milestone": "On Brickwork, Plastering & External Painting"
-          },
-          {
-            "amt": "₹8.5 Lakhs",
-            "due": "Stage 5 / Possession",
-            "pct": "10%",
-            "done": false,
-            "stage": "Offer of Possession",
-            "timeline": "At Possession",
-            "milestone": "On Notice of Possession & Keys Handover"
-          }
-        ],
-        "down_payment_pct": null,
-        "booking_amount_lakh": null,
-        "total_duration_months": null,
-        "discount_offered_pct": null,
-        "best_for": null,
-        "watch_out": null,
-        "sort_order": 0,
-        "source": "inferred_default",
-        "source_url": null,
-        "verified_at": null,
-        "verified_by": null,
-        "notes": "Standard 10% booking, 80% milestone linked, 10% on possession handover.",
-        "created_at": "2026-08-14T17:06:43.323Z",
-        "updated_at": "2026-09-03T16:52:13.729Z"
-      },
-      {
-        "id": "97db7e05-634c-4bc8-86f6-78f614893b82",
-        "project_id": "1470c33e-ad3f-42f6-9655-42a23ca7f54e",
-        "plan_type": "possession_linked",
-        "plan_name": "Possession-Linked Plan (30:70 PLP)",
-        "description": null,
-        "milestones": [
-          {
-            "amt": "₹25.5 Lakhs",
-            "due": "Stage 1 / Agreement",
-            "pct": "30%",
-            "done": true,
-            "stage": "Booking & Agreement",
-            "timeline": "Within 30 Days",
-            "milestone": "On Booking & Agreement Execution"
-          },
-          {
-            "amt": "₹59.5 Lakhs",
-            "due": "Stage 2 / Handover",
-            "pct": "70%",
-            "done": false,
-            "stage": "Offer of Possession",
-            "timeline": "At Handover",
-            "milestone": "On Notice of Possession & Keys Handover"
-          }
-        ],
-        "down_payment_pct": null,
-        "booking_amount_lakh": null,
-        "total_duration_months": null,
-        "discount_offered_pct": null,
-        "best_for": null,
-        "watch_out": null,
-        "sort_order": 0,
-        "source": "inferred_default",
-        "source_url": null,
-        "verified_at": null,
-        "verified_by": null,
-        "notes": "Pay 30% now, 70% at possession handover.",
-        "created_at": "2026-08-14T17:06:43.354Z",
-        "updated_at": "2026-09-03T16:52:13.729Z"
-      }
-    ],
+    "cost_sheet": null,
+    "payment_plans": [],
     "images": [
       {
         "id": "f7deb37b-3003-4412-a8fc-059c5cf7cfc2",
@@ -6769,8 +5845,8 @@
     "name": "Greenbay The Monarque",
     "tagline": "Golf-Facing Ultra-Luxury 3 & 4 BHK Sky Residences",
     "builder_id": "de1cf23b-3a89-4ac1-9f28-c20f2fd9cfc5",
-    "rera_number": "UPRERAPRJ22D950",
-    "rera_url": "https://www.up-rera.in/",
+    "rera_number": "UPRERAPRJ710489/10/2025",
+    "rera_url": "https://www.up-rera.in/Projectsummary?UI0aPA1ISD=doc4Q7n0XaQ=&hfFlag=9emr4VdBw22M7BGjKtJWMPDI4s5cHQZP&NPJ6RAme=DDCIQ7iFTk0RValxWO7AZg==&PaURJEMAN4=ZL9MNERkNdbfU2vgJ8F8SemS7D866T4Y&IRSAHEB=D6PY3lyims8=",
     "city": "Yamuna Expressway",
     "state": "Uttar Pradesh",
     "country": "India",
@@ -6869,7 +5945,7 @@
       "flat for sale in greenbay the monarque",
       "silverglades projects in yamuna expressway"
     ],
-    "hero_image_url": "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=1200&q=80",
+    "hero_image_url": null,
     "price_min_cr": 1.85,
     "price_range_label": "₹1.85–3.50Cr",
     "price_includes_plc": false,
@@ -6879,8 +5955,8 @@
     "created_at": "2026-08-13T11:07:16.800Z",
     "updated_at": "2026-09-12T16:21:43.953Z",
     "project_risk_flag": null,
-    "escrow_verified": null,
-    "escrow_bank_name": null,
+    "escrow_verified": true,
+    "escrow_bank_name": "Punjab National Bank",
     "registry_status": null,
     "registry_embargo_reasons": [],
     "nclt_moratorium_active": null,
@@ -7315,173 +6391,8 @@
         "updated_at": "2026-08-31T07:03:55.152Z"
       }
     ],
-    "cost_sheet": {
-      "id": "075e0114-0753-4819-b226-436df6ee8059",
-      "project_id": "4693a35a-346e-4dad-b3fa-c36e6e169cd3",
-      "base_price_per_sqft": 6397,
-      "base_cost_cr": null,
-      "floor_rise_per_floor": 45,
-      "base_interest_rate": 8.55,
-      "plc_charges": [
-        {
-          "type": "Corner Unit PLC",
-          "rate_psf": 150,
-          "description": "Dual side open balcony with maximum cross ventilation"
-        },
-        {
-          "type": "Park / Green Central Lawn Facing PLC",
-          "rate_psf": 200,
-          "description": "Unobstructed scenic view overlooking central landscaped podium"
-        },
-        {
-          "type": "Clubhouse / Swimming Pool View PLC",
-          "rate_psf": 175,
-          "description": "Direct visual line to Olympic-size swimming pool and club water body"
-        },
-        {
-          "type": "Wide Master Sector Road Facing PLC",
-          "rate_psf": 100,
-          "description": "Open front access facing wide 45-meter sector peripheral road"
-        }
-      ],
-      "parking_cost": 450000,
-      "ifms": 75,
-      "club_membership": 225000,
-      "other_charges": [
-        {
-          "name": "Dual Meter & Power Infrastructure Charge",
-          "type": "mandatory_fixed",
-          "amount": 45000
-        },
-        {
-          "name": "IGL Piped Natural Gas Connection",
-          "type": "mandatory_fixed",
-          "amount": 18500
-        },
-        {
-          "name": "Power Backup Installation (1 KVA / BHK)",
-          "type": "per_kva",
-          "amount": 30000,
-          "rate_per_kva": 28000
-        },
-        {
-          "name": "Sinking Fund / Society Corpus Deposit",
-          "type": "per_sqft",
-          "amount": 90000,
-          "rate_per_sqft": 75
-        },
-        {
-          "name": "Legal & Administrative Documentation",
-          "type": "mandatory_fixed",
-          "amount": 25000
-        },
-        {
-          "name": "Labour Welfare Cess & Fire Fighting System",
-          "type": "per_sqft",
-          "amount": 35000,
-          "rate_per_sqft": 35
-        }
-      ],
-      "gst_applicable": true,
-      "gst_rate_pct": 5,
-      "gst_note": "5% Standard Residential GST without Input Tax Credit (ITC)",
-      "stamp_duty_pct": 6,
-      "registration_pct": 1,
-      "electricity_connection": 45000,
-      "water_sewer_connection": 30000,
-      "maintenance_psf_monthly": 2.42,
-      "all_inclusive_price_cr": 2.56,
-      "all_inclusive_per_sqft": 11770,
-      "assumptions": [
-        "Base Sale Price benchmarked at Rs. 6397/sqft as per Q1 2026 Noida/Greater Noida market registries",
-        "Covered basement parking allotted at Rs. 4.50 Lakhs",
-        "Clubhouse development & lifetime membership at Rs. 2.25 Lakhs",
-        "Interest-Free Maintenance Security (IFMS) at Rs. 75/sqft refundable to AOA on handover",
-        "Mandatory civic and dual-meter electrification charges calculated as per NPCL / PVVNL statutory tariffs"
-      ],
-      "verified_at": "2026-09-12T16:21:43.950Z",
-      "verified_by": null,
-      "created_at": "2026-08-13T11:16:01.518Z",
-      "updated_at": "2026-09-12T16:21:44.109Z"
-    },
-    "payment_plans": [
-      {
-        "id": "3b4539d9-8106-412a-aabe-269c039ae445",
-        "project_id": "4693a35a-346e-4dad-b3fa-c36e6e169cd3",
-        "plan_type": "construction_linked",
-        "plan_name": "Construction Linked Payment Plan (CLP)",
-        "description": "Stage-wise payment tied to construction progress",
-        "milestones": [
-          {
-            "pct": 10,
-            "stage": "Booking",
-            "milestone": "At Booking"
-          },
-          {
-            "pct": 20,
-            "stage": "Foundation",
-            "milestone": "On Foundation Completion"
-          },
-          {
-            "pct": 40,
-            "stage": "Superstructure",
-            "milestone": "On Superstructure Casting"
-          },
-          {
-            "pct": 30,
-            "stage": "Possession",
-            "milestone": "On Offer of Possession"
-          }
-        ],
-        "down_payment_pct": 10,
-        "booking_amount_lakh": null,
-        "total_duration_months": null,
-        "discount_offered_pct": null,
-        "best_for": null,
-        "watch_out": null,
-        "sort_order": 0,
-        "source": "inferred_default",
-        "source_url": null,
-        "verified_at": null,
-        "verified_by": null,
-        "notes": null,
-        "created_at": "2026-08-14T19:13:47.848Z",
-        "updated_at": "2026-09-03T16:52:13.729Z"
-      },
-      {
-        "id": "607e27ed-367c-47c2-9a37-be12741ea596",
-        "project_id": "4693a35a-346e-4dad-b3fa-c36e6e169cd3",
-        "plan_type": "resale_down_payment",
-        "plan_name": "Ready Resale Down Payment Plan",
-        "description": "100% Payment on Registry & Possession Handover",
-        "milestones": [
-          {
-            "pct": 10,
-            "stage": "Agreement",
-            "milestone": "At Agreement to Sell"
-          },
-          {
-            "pct": 90,
-            "stage": "Handover",
-            "milestone": "At Registry & Key Handover"
-          }
-        ],
-        "down_payment_pct": 100,
-        "booking_amount_lakh": null,
-        "total_duration_months": null,
-        "discount_offered_pct": null,
-        "best_for": null,
-        "watch_out": null,
-        "sort_order": 0,
-        "source": "inferred_default",
-        "source_url": null,
-        "verified_at": null,
-        "verified_by": null,
-        "notes": null,
-        "created_at": "2026-08-14T19:13:47.889Z",
-        "updated_at": "2026-09-03T16:52:13.729Z"
-      }
-    ],
+    "cost_sheet": null,
+    "payment_plans": [],
     "images": [
       {
         "id": "f3daf99a-ef5c-45e8-b56a-87fd1c47cf7b",
@@ -8131,8 +7042,8 @@
     "name": "Purvanchal Sunbliss",
     "tagline": "Premium 3 & 4 BHK High-Rise Living near Jewar Airport Corridor",
     "builder_id": "ce504712-b51a-4177-8369-6d2f604fe684",
-    "rera_number": "UPRERAPRJ22D910",
-    "rera_url": "https://www.up-rera.in/",
+    "rera_number": "UPRERAPRJ746863/04/2025",
+    "rera_url": "https://www.up-rera.in/Projectsummary?UI0aPA1ISD=xR+wyQ0QrY4=&hfFlag=9emr4VdBw22M7BGjKtJWMPDI4s5cHQZP&NPJ6RAme=Oq4WtnhfFzTXEiqh0qQW8/Vn1+0WJAKd8UDJQSWO763Eud1LcQC2p0iIZorH6SkBpOKqurRu4VQ=&PaURJEMAN4=ZL9MNERkNdZt8EFRNGdqs9nU3sH6FbM7&IRSAHEB=D6PY3lyims8=",
     "city": "Yamuna Expressway",
     "state": "Uttar Pradesh",
     "country": "India",
@@ -8231,7 +7142,7 @@
       "flat for sale in purvanchal sunbliss",
       "purvanchal projects projects in yamuna expressway"
     ],
-    "hero_image_url": "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=1200&q=80",
+    "hero_image_url": null,
     "price_min_cr": 1.65,
     "price_range_label": "₹1.65–3.20Cr",
     "price_includes_plc": false,
@@ -8241,8 +7152,8 @@
     "created_at": "2026-08-13T11:07:16.595Z",
     "updated_at": "2026-09-12T16:20:09.194Z",
     "project_risk_flag": null,
-    "escrow_verified": null,
-    "escrow_bank_name": null,
+    "escrow_verified": true,
+    "escrow_bank_name": "HDFC BANK LIMITED",
     "registry_status": null,
     "registry_embargo_reasons": [],
     "nclt_moratorium_active": null,
@@ -8681,173 +7592,8 @@
         "updated_at": "2026-08-31T07:02:00.095Z"
       }
     ],
-    "cost_sheet": {
-      "id": "8bbd9c7b-b0d0-4123-8467-d0860e36644f",
-      "project_id": "96ddcbd7-3ea0-4396-9bf0-c2efdc63e98f",
-      "base_price_per_sqft": 5163,
-      "base_cost_cr": null,
-      "floor_rise_per_floor": 30,
-      "base_interest_rate": 8.55,
-      "plc_charges": [
-        {
-          "type": "Corner Unit PLC",
-          "rate_psf": 150,
-          "description": "Dual side open balcony with maximum cross ventilation"
-        },
-        {
-          "type": "Park / Green Central Lawn Facing PLC",
-          "rate_psf": 200,
-          "description": "Unobstructed scenic view overlooking central landscaped podium"
-        },
-        {
-          "type": "Clubhouse / Swimming Pool View PLC",
-          "rate_psf": 175,
-          "description": "Direct visual line to Olympic-size swimming pool and club water body"
-        },
-        {
-          "type": "Wide Master Sector Road Facing PLC",
-          "rate_psf": 100,
-          "description": "Open front access facing wide 45-meter sector peripheral road"
-        }
-      ],
-      "parking_cost": 325000,
-      "ifms": 50,
-      "club_membership": 150000,
-      "other_charges": [
-        {
-          "name": "Dual Meter & Power Infrastructure Charge",
-          "type": "mandatory_fixed",
-          "amount": 35000
-        },
-        {
-          "name": "IGL Piped Natural Gas Connection",
-          "type": "mandatory_fixed",
-          "amount": 18500
-        },
-        {
-          "name": "Power Backup Installation (1 KVA / BHK)",
-          "type": "per_kva",
-          "amount": 30000,
-          "rate_per_kva": 28000
-        },
-        {
-          "name": "Sinking Fund / Society Corpus Deposit",
-          "type": "per_sqft",
-          "amount": 60000,
-          "rate_per_sqft": 50
-        },
-        {
-          "name": "Legal & Administrative Documentation",
-          "type": "mandatory_fixed",
-          "amount": 25000
-        },
-        {
-          "name": "Labour Welfare Cess & Fire Fighting System",
-          "type": "per_sqft",
-          "amount": 35000,
-          "rate_per_sqft": 35
-        }
-      ],
-      "gst_applicable": true,
-      "gst_rate_pct": 5,
-      "gst_note": "5% Standard Residential GST without Input Tax Credit (ITC)",
-      "stamp_duty_pct": 6,
-      "registration_pct": 1,
-      "electricity_connection": 35000,
-      "water_sewer_connection": 25000,
-      "maintenance_psf_monthly": 2.09,
-      "all_inclusive_price_cr": 2.32,
-      "all_inclusive_per_sqft": 11514,
-      "assumptions": [
-        "Base Sale Price benchmarked at Rs. 5163/sqft as per Q1 2026 Noida/Greater Noida market registries",
-        "Covered basement parking allotted at Rs. 3.25 Lakhs",
-        "Clubhouse development & lifetime membership at Rs. 1.50 Lakhs",
-        "Interest-Free Maintenance Security (IFMS) at Rs. 50/sqft refundable to AOA on handover",
-        "Mandatory civic and dual-meter electrification charges calculated as per NPCL / PVVNL statutory tariffs"
-      ],
-      "verified_at": "2026-09-12T16:20:09.192Z",
-      "verified_by": null,
-      "created_at": "2026-08-13T11:15:59.497Z",
-      "updated_at": "2026-09-12T16:20:09.400Z"
-    },
-    "payment_plans": [
-      {
-        "id": "59756327-3894-4833-a294-379fc0f84b0a",
-        "project_id": "96ddcbd7-3ea0-4396-9bf0-c2efdc63e98f",
-        "plan_type": "resale_down_payment",
-        "plan_name": "Ready Resale Down Payment Plan",
-        "description": "100% Payment on Registry & Possession Handover",
-        "milestones": [
-          {
-            "pct": 10,
-            "stage": "Agreement",
-            "milestone": "At Agreement to Sell"
-          },
-          {
-            "pct": 90,
-            "stage": "Handover",
-            "milestone": "At Registry & Key Handover"
-          }
-        ],
-        "down_payment_pct": 100,
-        "booking_amount_lakh": null,
-        "total_duration_months": null,
-        "discount_offered_pct": null,
-        "best_for": null,
-        "watch_out": null,
-        "sort_order": 0,
-        "source": "inferred_default",
-        "source_url": null,
-        "verified_at": null,
-        "verified_by": null,
-        "notes": null,
-        "created_at": "2026-08-14T19:13:46.269Z",
-        "updated_at": "2026-09-03T16:52:13.729Z"
-      },
-      {
-        "id": "c81d04a0-3111-45a3-b903-794ae2b4f2cb",
-        "project_id": "96ddcbd7-3ea0-4396-9bf0-c2efdc63e98f",
-        "plan_type": "construction_linked",
-        "plan_name": "Construction Linked Payment Plan (CLP)",
-        "description": "Stage-wise payment tied to construction progress",
-        "milestones": [
-          {
-            "pct": 10,
-            "stage": "Booking",
-            "milestone": "At Booking"
-          },
-          {
-            "pct": 20,
-            "stage": "Foundation",
-            "milestone": "On Foundation Completion"
-          },
-          {
-            "pct": 40,
-            "stage": "Superstructure",
-            "milestone": "On Superstructure Casting"
-          },
-          {
-            "pct": 30,
-            "stage": "Possession",
-            "milestone": "On Offer of Possession"
-          }
-        ],
-        "down_payment_pct": 10,
-        "booking_amount_lakh": null,
-        "total_duration_months": null,
-        "discount_offered_pct": null,
-        "best_for": null,
-        "watch_out": null,
-        "sort_order": 0,
-        "source": "inferred_default",
-        "source_url": null,
-        "verified_at": null,
-        "verified_by": null,
-        "notes": null,
-        "created_at": "2026-08-14T19:13:45.982Z",
-        "updated_at": "2026-09-03T16:52:13.729Z"
-      }
-    ],
+    "cost_sheet": null,
+    "payment_plans": [],
     "images": [
       {
         "id": "c3ed5eee-8962-483e-8762-6a234c1e9dab",

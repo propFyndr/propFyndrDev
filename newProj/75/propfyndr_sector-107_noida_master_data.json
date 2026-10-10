@@ -88,7 +88,7 @@
       }
     ],
     "description": "County 107 by ABA Corp is an iconic ultra-luxury residential development in Sector 107 Noida. Featuring platinum LEED certified vertical forest design, private elevated walkways between towers, double-height ceilings, and private plunge pools.",
-    "long_description": "County 107 is a premier residential township situated in Sector 107, Noida. Featuring modern architectural design, 75-80% open green landscapes, and multi-tier security, it offers high usable carpet area, active sports arenas, and seamless connectivity to expressways and Aqua Line metro stations.",
+    "long_description": null,
     "design_theme": null,
     "architect": null,
     "interior_designer": null,
@@ -583,95 +583,7 @@
         "updated_at": "2026-09-12T16:05:03.501Z"
       }
     ],
-    "cost_sheet": {
-      "id": "de7c579b-3948-461d-aa8e-f1b700a536e2",
-      "project_id": "8285b164-67cd-4831-89a0-c015df2878f6",
-      "base_price_per_sqft": 20030,
-      "base_cost_cr": null,
-      "floor_rise_per_floor": 65,
-      "base_interest_rate": 8.55,
-      "plc_charges": [
-        {
-          "type": "Corner Unit PLC",
-          "rate_psf": 250,
-          "description": "Dual side open balcony with maximum cross ventilation"
-        },
-        {
-          "type": "Park / Green Central Lawn Facing PLC",
-          "rate_psf": 350,
-          "description": "Unobstructed scenic view overlooking central landscaped podium"
-        },
-        {
-          "type": "Clubhouse / Swimming Pool View PLC",
-          "rate_psf": 300,
-          "description": "Direct visual line to Olympic-size swimming pool and club water body"
-        },
-        {
-          "type": "Wide Master Sector Road Facing PLC",
-          "rate_psf": 100,
-          "description": "Open front access facing wide 45-meter sector peripheral road"
-        }
-      ],
-      "parking_cost": 650000,
-      "ifms": 125,
-      "club_membership": 350000,
-      "other_charges": [
-        {
-          "name": "Dual Meter & Power Infrastructure Charge",
-          "type": "mandatory_fixed",
-          "amount": 65000
-        },
-        {
-          "name": "IGL Piped Natural Gas Connection",
-          "type": "mandatory_fixed",
-          "amount": 18500
-        },
-        {
-          "name": "Power Backup Installation (1 KVA / BHK)",
-          "type": "per_kva",
-          "amount": 45000,
-          "rate_per_kva": 28000
-        },
-        {
-          "name": "Sinking Fund / Society Corpus Deposit",
-          "type": "per_sqft",
-          "amount": 150000,
-          "rate_per_sqft": 125
-        },
-        {
-          "name": "Legal & Administrative Documentation",
-          "type": "mandatory_fixed",
-          "amount": 25000
-        },
-        {
-          "name": "Labour Welfare Cess & Fire Fighting System",
-          "type": "per_sqft",
-          "amount": 35000,
-          "rate_per_sqft": 35
-        }
-      ],
-      "gst_applicable": true,
-      "gst_rate_pct": 5,
-      "gst_note": "5% Standard Residential GST without Input Tax Credit (ITC)",
-      "stamp_duty_pct": 6,
-      "registration_pct": 1,
-      "electricity_connection": 65000,
-      "water_sewer_connection": 40000,
-      "maintenance_psf_monthly": 5.85,
-      "all_inclusive_price_cr": null,
-      "all_inclusive_per_sqft": null,
-      "assumptions": [
-        "Base Sale Price benchmarked at Rs. 20030/sqft as per Q1 2026 Noida/Greater Noida market registries",
-        "Covered basement parking allotted at Rs. 6.50 Lakhs",
-        "Clubhouse development & lifetime membership at Rs. 3.50 Lakhs",
-        "Interest-Free Maintenance Security (IFMS) at Rs. 125/sqft refundable to AOA on handover",
-        "Mandatory civic and dual-meter electrification charges calculated as per NPCL / PVVNL statutory tariffs"
-      ],
-      "verified_at": "2026-09-12T16:24:29.816Z",
-      "verified_by": null,
-      "created_at": "2026-09-12T16:05:03.794Z",
-      "updated_at": "2026-09-12T16:24:29.968Z"
-    },
+    "cost_sheet": null,
     "payment_plans": [
       {
         "id": "918e552a-566b-4c8d-a118-34c67e779015",
@@ -1499,7 +1411,7 @@
       "sector 107 flats",
       "noida properties"
     ],
-    "hero_image_url": "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=1200&q=80",
+    "hero_image_url": null,
     "price_min_cr": 1.45,
     "price_range_label": "₹1.45–3.20Cr",
     "price_includes_plc": false,
@@ -3301,95 +3213,7 @@
         "updated_at": "2026-09-12T16:05:05.356Z"
       }
     ],
-    "cost_sheet": {
-      "id": "a61181c5-f7ac-4abe-aa69-33f4eb142aa7",
-      "project_id": "0c96a3ab-4247-456f-a895-8fd6bb6c2526",
-      "base_price_per_sqft": 13096,
-      "base_cost_cr": null,
-      "floor_rise_per_floor": 30,
-      "base_interest_rate": 8.55,
-      "plc_charges": [
-        {
-          "type": "Corner Unit PLC",
-          "rate_psf": 150,
-          "description": "Dual side open balcony with maximum cross ventilation"
-        },
-        {
-          "type": "Park / Green Central Lawn Facing PLC",
-          "rate_psf": 200,
-          "description": "Unobstructed scenic view overlooking central landscaped podium"
-        },
-        {
-          "type": "Clubhouse / Swimming Pool View PLC",
-          "rate_psf": 175,
-          "description": "Direct visual line to Olympic-size swimming pool and club water body"
-        },
-        {
-          "type": "Wide Master Sector Road Facing PLC",
-          "rate_psf": 100,
-          "description": "Open front access facing wide 45-meter sector peripheral road"
-        }
-      ],
-      "parking_cost": 325000,
-      "ifms": 50,
-      "club_membership": 150000,
-      "other_charges": [
-        {
-          "name": "Dual Meter & Power Infrastructure Charge",
-          "type": "mandatory_fixed",
-          "amount": 35000
-        },
-        {
-          "name": "IGL Piped Natural Gas Connection",
-          "type": "mandatory_fixed",
-          "amount": 18500
-        },
-        {
-          "name": "Power Backup Installation (1 KVA / BHK)",
-          "type": "per_kva",
-          "amount": 30000,
-          "rate_per_kva": 28000
-        },
-        {
-          "name": "Sinking Fund / Society Corpus Deposit",
-          "type": "per_sqft",
-          "amount": 60000,
-          "rate_per_sqft": 50
-        },
-        {
-          "name": "Legal & Administrative Documentation",
-          "type": "mandatory_fixed",
-          "amount": 25000
-        },
-        {
-          "name": "Labour Welfare Cess & Fire Fighting System",
-          "type": "per_sqft",
-          "amount": 35000,
-          "rate_per_sqft": 35
-        }
-      ],
-      "gst_applicable": false,
-      "gst_rate_pct": 0,
-      "gst_note": "0% GST applicable — Ready-to-Move with Occupancy Certificate (OC)",
-      "stamp_duty_pct": 6,
-      "registration_pct": 1,
-      "electricity_connection": 35000,
-      "water_sewer_connection": 25000,
-      "maintenance_psf_monthly": 4.27,
-      "all_inclusive_price_cr": null,
-      "all_inclusive_per_sqft": null,
-      "assumptions": [
-        "Base Sale Price benchmarked at Rs. 13096/sqft as per Q1 2026 Noida/Greater Noida market registries",
-        "Covered basement parking allotted at Rs. 3.25 Lakhs",
-        "Clubhouse development & lifetime membership at Rs. 1.50 Lakhs",
-        "Interest-Free Maintenance Security (IFMS) at Rs. 50/sqft refundable to AOA on handover",
-        "Mandatory civic and dual-meter electrification charges calculated as per NPCL / PVVNL statutory tariffs"
-      ],
-      "verified_at": "2026-09-12T16:24:30.113Z",
-      "verified_by": null,
-      "created_at": "2026-09-12T16:05:05.664Z",
-      "updated_at": "2026-09-12T16:24:30.269Z"
-    },
+    "cost_sheet": null,
     "payment_plans": [
       {
         "id": "0cea6f1d-e015-4c28-a332-4708036eb0b0",
@@ -4453,95 +4277,7 @@
         "updated_at": "2026-09-12T16:05:12.144Z"
       }
     ],
-    "cost_sheet": {
-      "id": "a57f48f5-69a9-4fcc-b70b-d87a6a678b85",
-      "project_id": "cf21147d-b183-484c-9dbc-4b001fbdb5f5",
-      "base_price_per_sqft": 15853,
-      "base_cost_cr": null,
-      "floor_rise_per_floor": 45,
-      "base_interest_rate": 8.55,
-      "plc_charges": [
-        {
-          "type": "Corner Unit PLC",
-          "rate_psf": 150,
-          "description": "Dual side open balcony with maximum cross ventilation"
-        },
-        {
-          "type": "Park / Green Central Lawn Facing PLC",
-          "rate_psf": 200,
-          "description": "Unobstructed scenic view overlooking central landscaped podium"
-        },
-        {
-          "type": "Clubhouse / Swimming Pool View PLC",
-          "rate_psf": 175,
-          "description": "Direct visual line to Olympic-size swimming pool and club water body"
-        },
-        {
-          "type": "Wide Master Sector Road Facing PLC",
-          "rate_psf": 100,
-          "description": "Open front access facing wide 45-meter sector peripheral road"
-        }
-      ],
-      "parking_cost": 450000,
-      "ifms": 75,
-      "club_membership": 225000,
-      "other_charges": [
-        {
-          "name": "Dual Meter & Power Infrastructure Charge",
-          "type": "mandatory_fixed",
-          "amount": 45000
-        },
-        {
-          "name": "IGL Piped Natural Gas Connection",
-          "type": "mandatory_fixed",
-          "amount": 18500
-        },
-        {
-          "name": "Power Backup Installation (1 KVA / BHK)",
-          "type": "per_kva",
-          "amount": 30000,
-          "rate_per_kva": 28000
-        },
-        {
-          "name": "Sinking Fund / Society Corpus Deposit",
-          "type": "per_sqft",
-          "amount": 90000,
-          "rate_per_sqft": 75
-        },
-        {
-          "name": "Legal & Administrative Documentation",
-          "type": "mandatory_fixed",
-          "amount": 25000
-        },
-        {
-          "name": "Labour Welfare Cess & Fire Fighting System",
-          "type": "per_sqft",
-          "amount": 35000,
-          "rate_per_sqft": 35
-        }
-      ],
-      "gst_applicable": false,
-      "gst_rate_pct": 0,
-      "gst_note": "0% GST applicable — Ready-to-Move with Occupancy Certificate (OC)",
-      "stamp_duty_pct": 6,
-      "registration_pct": 1,
-      "electricity_connection": 45000,
-      "water_sewer_connection": 30000,
-      "maintenance_psf_monthly": 4.95,
-      "all_inclusive_price_cr": null,
-      "all_inclusive_per_sqft": null,
-      "assumptions": [
-        "Base Sale Price benchmarked at Rs. 15853/sqft as per Q1 2026 Noida/Greater Noida market registries",
-        "Covered basement parking allotted at Rs. 4.50 Lakhs",
-        "Clubhouse development & lifetime membership at Rs. 2.25 Lakhs",
-        "Interest-Free Maintenance Security (IFMS) at Rs. 75/sqft refundable to AOA on handover",
-        "Mandatory civic and dual-meter electrification charges calculated as per NPCL / PVVNL statutory tariffs"
-      ],
-      "verified_at": "2026-09-12T16:24:34.473Z",
-      "verified_by": null,
-      "created_at": "2026-09-12T16:05:12.423Z",
-      "updated_at": "2026-09-12T16:24:34.679Z"
-    },
+    "cost_sheet": null,
     "payment_plans": [
       {
         "id": "3e70355a-a3b2-41e5-9dd0-125094bcc1c7",
@@ -5085,8 +4821,8 @@
     "name": "Mahagun Medalleo Towers E-G",
     "tagline": "Ultra-Luxury Landmark Residences in Sector 107",
     "builder_id": "e183bd5c-7b24-4a2e-bb3f-26ce345bc989",
-    "rera_number": "UPRERAPRJ125562",
-    "rera_url": null,
+    "rera_number": "UPRERAPRJ125561",
+    "rera_url": "https://www.up-rera.in/Projectsummary?UI0aPA1ISD=ZckM3uRHbsM=&hfFlag=9emr4VdBw22M7BGjKtJWMPDI4s5cHQZP&NPJ6RAme=IG9HrJW/fuCkqWxug1j3vYKV0g11DFXN&PaURJEMAN4=ZL9MNERkNdZzvQPoQdI4XA==&IRSAHEB=D6PY3lyims8=",
     "city": "Noida",
     "state": "Uttar Pradesh",
     "country": "India",
@@ -5111,7 +4847,7 @@
     "restaurants_nearby_count": null,
     "status": "under_construction",
     "launch_date": "2021-06-01T00:00:00.000Z",
-    "possession_date": "2027-12-31T00:00:00.000Z",
+    "possession_date": "2029-07-08T18:30:00.000Z",
     "possession_label": "Q4 2027",
     "possession_confidence": null,
     "possession_confidence_note": null,
@@ -5123,7 +4859,7 @@
     "rera_compliance_score": null,
     "legal_flag": null,
     "legal_flag_detail": null,
-    "litigation_count": null,
+    "litigation_count": 0,
     "location_advantages": null,
     "location_concerns": [],
     "location_verdict": null,
@@ -5148,8 +4884,8 @@
     "created_at": "2026-09-12T16:02:50.111Z",
     "updated_at": "2026-09-12T16:19:22.169Z",
     "project_risk_flag": null,
-    "escrow_verified": null,
-    "escrow_bank_name": null,
+    "escrow_verified": true,
+    "escrow_bank_name": "ICICI Bank Ltd",
     "registry_status": null,
     "registry_embargo_reasons": [],
     "nclt_moratorium_active": null,
@@ -5625,95 +5361,7 @@
         "updated_at": "2026-09-12T16:02:50.391Z"
       }
     ],
-    "cost_sheet": {
-      "id": "562d389d-0554-444e-a3bb-0e015205526f",
-      "project_id": "937f754c-98ee-4236-ba7e-fe2e5c8f0073",
-      "base_price_per_sqft": 15819,
-      "base_cost_cr": null,
-      "floor_rise_per_floor": 45,
-      "base_interest_rate": 8.55,
-      "plc_charges": [
-        {
-          "type": "Corner Unit PLC",
-          "rate_psf": 150,
-          "description": "Dual side open balcony with maximum cross ventilation"
-        },
-        {
-          "type": "Park / Green Central Lawn Facing PLC",
-          "rate_psf": 200,
-          "description": "Unobstructed scenic view overlooking central landscaped podium"
-        },
-        {
-          "type": "Clubhouse / Swimming Pool View PLC",
-          "rate_psf": 175,
-          "description": "Direct visual line to Olympic-size swimming pool and club water body"
-        },
-        {
-          "type": "Wide Master Sector Road Facing PLC",
-          "rate_psf": 100,
-          "description": "Open front access facing wide 45-meter sector peripheral road"
-        }
-      ],
-      "parking_cost": 450000,
-      "ifms": 75,
-      "club_membership": 225000,
-      "other_charges": [
-        {
-          "name": "Dual Meter & Power Infrastructure Charge",
-          "type": "mandatory_fixed",
-          "amount": 45000
-        },
-        {
-          "name": "IGL Piped Natural Gas Connection",
-          "type": "mandatory_fixed",
-          "amount": 18500
-        },
-        {
-          "name": "Power Backup Installation (1 KVA / BHK)",
-          "type": "per_kva",
-          "amount": 30000,
-          "rate_per_kva": 28000
-        },
-        {
-          "name": "Sinking Fund / Society Corpus Deposit",
-          "type": "per_sqft",
-          "amount": 90000,
-          "rate_per_sqft": 75
-        },
-        {
-          "name": "Legal & Administrative Documentation",
-          "type": "mandatory_fixed",
-          "amount": 25000
-        },
-        {
-          "name": "Labour Welfare Cess & Fire Fighting System",
-          "type": "per_sqft",
-          "amount": 35000,
-          "rate_per_sqft": 35
-        }
-      ],
-      "gst_applicable": true,
-      "gst_rate_pct": 5,
-      "gst_note": "5% Standard Residential GST without Input Tax Credit (ITC)",
-      "stamp_duty_pct": 6,
-      "registration_pct": 1,
-      "electricity_connection": 45000,
-      "water_sewer_connection": 30000,
-      "maintenance_psf_monthly": 4.95,
-      "all_inclusive_price_cr": null,
-      "all_inclusive_per_sqft": null,
-      "assumptions": [
-        "Base Sale Price benchmarked at Rs. 15819/sqft as per Q1 2026 Noida/Greater Noida market registries",
-        "Covered basement parking allotted at Rs. 4.50 Lakhs",
-        "Clubhouse development & lifetime membership at Rs. 2.25 Lakhs",
-        "Interest-Free Maintenance Security (IFMS) at Rs. 75/sqft refundable to AOA on handover",
-        "Mandatory civic and dual-meter electrification charges calculated as per NPCL / PVVNL statutory tariffs"
-      ],
-      "verified_at": "2026-09-12T16:19:22.166Z",
-      "verified_by": null,
-      "created_at": "2026-09-12T16:02:50.670Z",
-      "updated_at": "2026-09-12T16:19:22.359Z"
-    },
+    "cost_sheet": null,
     "payment_plans": [
       {
         "id": "25a47e62-cce4-4de8-896b-2310b6114f07",
@@ -6427,7 +6075,7 @@
       "sector 107 flats",
       "noida properties"
     ],
-    "hero_image_url": "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=1200&q=80",
+    "hero_image_url": null,
     "price_min_cr": 2.4,
     "price_range_label": "₹2.40 Cr - ₹11.51 Cr",
     "price_includes_plc": false,
@@ -7004,188 +6652,8 @@
         "updated_at": "2026-08-31T07:03:28.359Z"
       }
     ],
-    "cost_sheet": {
-      "id": "1ea2f459-e9ad-466e-8b76-3b952c765f4d",
-      "project_id": "c9b44903-bff0-4f42-a75a-34479f8d8a3d",
-      "base_price_per_sqft": 16075,
-      "base_cost_cr": null,
-      "floor_rise_per_floor": 45,
-      "base_interest_rate": 8.55,
-      "plc_charges": [
-        {
-          "type": "Corner Unit PLC",
-          "rate_psf": 150,
-          "description": "Dual side open balcony with maximum cross ventilation"
-        },
-        {
-          "type": "Park / Green Central Lawn Facing PLC",
-          "rate_psf": 200,
-          "description": "Unobstructed scenic view overlooking central landscaped podium"
-        },
-        {
-          "type": "Clubhouse / Swimming Pool View PLC",
-          "rate_psf": 175,
-          "description": "Direct visual line to Olympic-size swimming pool and club water body"
-        },
-        {
-          "type": "Wide Master Sector Road Facing PLC",
-          "rate_psf": 100,
-          "description": "Open front access facing wide 45-meter sector peripheral road"
-        }
-      ],
-      "parking_cost": 450000,
-      "ifms": 75,
-      "club_membership": 225000,
-      "other_charges": [
-        {
-          "name": "Dual Meter & Power Infrastructure Charge",
-          "type": "mandatory_fixed",
-          "amount": 45000
-        },
-        {
-          "name": "IGL Piped Natural Gas Connection",
-          "type": "mandatory_fixed",
-          "amount": 18500
-        },
-        {
-          "name": "Power Backup Installation (1 KVA / BHK)",
-          "type": "per_kva",
-          "amount": 30000,
-          "rate_per_kva": 28000
-        },
-        {
-          "name": "Sinking Fund / Society Corpus Deposit",
-          "type": "per_sqft",
-          "amount": 90000,
-          "rate_per_sqft": 75
-        },
-        {
-          "name": "Legal & Administrative Documentation",
-          "type": "mandatory_fixed",
-          "amount": 25000
-        },
-        {
-          "name": "Labour Welfare Cess & Fire Fighting System",
-          "type": "per_sqft",
-          "amount": 35000,
-          "rate_per_sqft": 35
-        }
-      ],
-      "gst_applicable": false,
-      "gst_rate_pct": 0,
-      "gst_note": "0% GST applicable — Ready-to-Move with Occupancy Certificate (OC)",
-      "stamp_duty_pct": 6,
-      "registration_pct": 1,
-      "electricity_connection": 45000,
-      "water_sewer_connection": 30000,
-      "maintenance_psf_monthly": 4.95,
-      "all_inclusive_price_cr": 3.86,
-      "all_inclusive_per_sqft": 14376,
-      "assumptions": [
-        "Base Sale Price benchmarked at Rs. 16075/sqft as per Q1 2026 Noida/Greater Noida market registries",
-        "Covered basement parking allotted at Rs. 4.50 Lakhs",
-        "Clubhouse development & lifetime membership at Rs. 2.25 Lakhs",
-        "Interest-Free Maintenance Security (IFMS) at Rs. 75/sqft refundable to AOA on handover",
-        "Mandatory civic and dual-meter electrification charges calculated as per NPCL / PVVNL statutory tariffs"
-      ],
-      "verified_at": "2026-09-12T16:21:19.780Z",
-      "verified_by": null,
-      "created_at": "2026-08-16T08:04:19.571Z",
-      "updated_at": "2026-09-12T16:21:19.935Z"
-    },
-    "payment_plans": [
-      {
-        "id": "d8ad7513-0097-476e-8b34-4dbee215c18e",
-        "project_id": "c9b44903-bff0-4f42-a75a-34479f8d8a3d",
-        "plan_type": "construction_linked",
-        "plan_name": "Construction Linked Payment Plan (CLP)",
-        "description": null,
-        "milestones": [
-          {
-            "due": "Within 15 days",
-            "pct": 10,
-            "milestone": "At the Time of Booking Token"
-          },
-          {
-            "due": "Agreement registration",
-            "pct": 10,
-            "milestone": "Within 30 Days of Allotment"
-          },
-          {
-            "due": "Raft completion",
-            "pct": 15,
-            "milestone": "On Foundation & Substructure"
-          },
-          {
-            "due": "Tower top roof slab",
-            "pct": 35,
-            "milestone": "On Superstructure Completion"
-          },
-          {
-            "due": "Finishing stage",
-            "pct": 20,
-            "milestone": "On Internal Plaster & Finishing"
-          },
-          {
-            "due": "Handover & key transfer",
-            "pct": 10,
-            "milestone": "On Notice of Possession & OC"
-          }
-        ],
-        "down_payment_pct": null,
-        "booking_amount_lakh": null,
-        "total_duration_months": null,
-        "discount_offered_pct": null,
-        "best_for": null,
-        "watch_out": null,
-        "sort_order": 1,
-        "source": "inferred_default",
-        "source_url": null,
-        "verified_at": null,
-        "verified_by": null,
-        "notes": null,
-        "created_at": "2026-08-16T08:04:19.637Z",
-        "updated_at": "2026-09-03T16:52:13.729Z"
-      },
-      {
-        "id": "ac61f750-cbe3-4fc4-a1d7-a1dffd3ccd2f",
-        "project_id": "c9b44903-bff0-4f42-a75a-34479f8d8a3d",
-        "plan_type": "down_payment",
-        "plan_name": "Investor Special Down Payment Plan",
-        "description": null,
-        "milestones": [
-          {
-            "due": "Within 15 days",
-            "pct": 10,
-            "milestone": "At the Time of Booking"
-          },
-          {
-            "due": "Down payment discount",
-            "pct": 80,
-            "milestone": "Within 45 Days of Booking"
-          },
-          {
-            "due": "Final keys handover",
-            "pct": 10,
-            "milestone": "On Offer of Possession"
-          }
-        ],
-        "down_payment_pct": null,
-        "booking_amount_lakh": null,
-        "total_duration_months": null,
-        "discount_offered_pct": null,
-        "best_for": null,
-        "watch_out": null,
-        "sort_order": 2,
-        "source": "inferred_default",
-        "source_url": null,
-        "verified_at": null,
-        "verified_by": null,
-        "notes": null,
-        "created_at": "2026-08-16T08:04:19.637Z",
-        "updated_at": "2026-09-03T16:52:13.729Z"
-      }
-    ],
+    "cost_sheet": null,
+    "payment_plans": [],
     "images": [
       {
         "id": "aff38c3c-93d5-4623-b072-65376cc7df19",
@@ -7853,7 +7321,7 @@
       "sector 107 flats",
       "noida properties"
     ],
-    "hero_image_url": "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=1200&q=80",
+    "hero_image_url": null,
     "price_min_cr": 1.35,
     "price_range_label": "₹1.35–2.85Cr",
     "price_includes_plc": false,
@@ -8312,95 +7780,7 @@
         "updated_at": "2026-09-12T16:05:15.519Z"
       }
     ],
-    "cost_sheet": {
-      "id": "20933c3f-4566-473a-bc4c-4875364838e3",
-      "project_id": "9a8d8561-6bbb-4027-a6b3-f5bd055cbedd",
-      "base_price_per_sqft": 13389,
-      "base_cost_cr": null,
-      "floor_rise_per_floor": 30,
-      "base_interest_rate": 8.55,
-      "plc_charges": [
-        {
-          "type": "Corner Unit PLC",
-          "rate_psf": 150,
-          "description": "Dual side open balcony with maximum cross ventilation"
-        },
-        {
-          "type": "Park / Green Central Lawn Facing PLC",
-          "rate_psf": 200,
-          "description": "Unobstructed scenic view overlooking central landscaped podium"
-        },
-        {
-          "type": "Clubhouse / Swimming Pool View PLC",
-          "rate_psf": 175,
-          "description": "Direct visual line to Olympic-size swimming pool and club water body"
-        },
-        {
-          "type": "Wide Master Sector Road Facing PLC",
-          "rate_psf": 100,
-          "description": "Open front access facing wide 45-meter sector peripheral road"
-        }
-      ],
-      "parking_cost": 325000,
-      "ifms": 50,
-      "club_membership": 150000,
-      "other_charges": [
-        {
-          "name": "Dual Meter & Power Infrastructure Charge",
-          "type": "mandatory_fixed",
-          "amount": 35000
-        },
-        {
-          "name": "IGL Piped Natural Gas Connection",
-          "type": "mandatory_fixed",
-          "amount": 18500
-        },
-        {
-          "name": "Power Backup Installation (1 KVA / BHK)",
-          "type": "per_kva",
-          "amount": 30000,
-          "rate_per_kva": 28000
-        },
-        {
-          "name": "Sinking Fund / Society Corpus Deposit",
-          "type": "per_sqft",
-          "amount": 60000,
-          "rate_per_sqft": 50
-        },
-        {
-          "name": "Legal & Administrative Documentation",
-          "type": "mandatory_fixed",
-          "amount": 25000
-        },
-        {
-          "name": "Labour Welfare Cess & Fire Fighting System",
-          "type": "per_sqft",
-          "amount": 35000,
-          "rate_per_sqft": 35
-        }
-      ],
-      "gst_applicable": false,
-      "gst_rate_pct": 0,
-      "gst_note": "0% GST applicable — Ready-to-Move with Occupancy Certificate (OC)",
-      "stamp_duty_pct": 6,
-      "registration_pct": 1,
-      "electricity_connection": 35000,
-      "water_sewer_connection": 25000,
-      "maintenance_psf_monthly": 4.27,
-      "all_inclusive_price_cr": null,
-      "all_inclusive_per_sqft": null,
-      "assumptions": [
-        "Base Sale Price benchmarked at Rs. 13389/sqft as per Q1 2026 Noida/Greater Noida market registries",
-        "Covered basement parking allotted at Rs. 3.25 Lakhs",
-        "Clubhouse development & lifetime membership at Rs. 1.50 Lakhs",
-        "Interest-Free Maintenance Security (IFMS) at Rs. 50/sqft refundable to AOA on handover",
-        "Mandatory civic and dual-meter electrification charges calculated as per NPCL / PVVNL statutory tariffs"
-      ],
-      "verified_at": "2026-09-12T16:20:52.953Z",
-      "verified_by": null,
-      "created_at": "2026-09-12T16:05:15.836Z",
-      "updated_at": "2026-09-12T16:20:53.110Z"
-    },
+    "cost_sheet": null,
     "payment_plans": [
       {
         "id": "c22dd099-74bb-4a94-8046-3093ca486841",

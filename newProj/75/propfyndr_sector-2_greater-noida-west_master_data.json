@@ -5,8 +5,8 @@
     "name": "Eros Sampoornam",
     "tagline": "25-Acre Ready Township with Complete Amenities in Sector 2",
     "builder_id": "8de33108-a00b-4475-b36b-894137ca8aa6",
-    "rera_number": "UPRERAPRJ2941",
-    "rera_url": "https://www.up-rera.in/",
+    "rera_number": "UPRERAPRJ512436/07/2024",
+    "rera_url": "https://www.up-rera.in/Projectsummary?UI0aPA1ISD=Kyvr+SXOPt0=&hfFlag=9emr4VdBw22M7BGjKtJWMPDI4s5cHQZP&NPJ6RAme=oW39amnFZ8qr5JrCV6uw7jZ3aYI0U4s8&PaURJEMAN4=ZL9MNERkNdaHUPvXK9FM35wpUJFQS4KC&IRSAHEB=D6PY3lyims8=",
     "city": "Greater Noida West",
     "state": "Uttar Pradesh",
     "country": "India",
@@ -98,7 +98,7 @@
       "sector 2 flats",
       "greater noida west properties"
     ],
-    "hero_image_url": "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=1200&q=80",
+    "hero_image_url": null,
     "price_min_cr": 0.72,
     "price_range_label": "₹0.72 Cr - ₹1.35 Cr",
     "price_includes_plc": false,
@@ -108,8 +108,8 @@
     "created_at": "2026-08-16T07:49:14.367Z",
     "updated_at": "2026-09-12T16:21:26.874Z",
     "project_risk_flag": null,
-    "escrow_verified": null,
-    "escrow_bank_name": null,
+    "escrow_verified": true,
+    "escrow_bank_name": "Axis Bank Limited",
     "registry_status": null,
     "registry_embargo_reasons": [],
     "nclt_moratorium_active": null,
@@ -756,188 +756,8 @@
         "updated_at": "2026-08-31T07:03:37.289Z"
       }
     ],
-    "cost_sheet": {
-      "id": "b6a86426-cc61-4ec8-9fda-88985813dfa1",
-      "project_id": "5d09bdc0-6c37-4e7c-ad55-14b03f289765",
-      "base_price_per_sqft": 7805,
-      "base_cost_cr": null,
-      "floor_rise_per_floor": 30,
-      "base_interest_rate": 8.55,
-      "plc_charges": [
-        {
-          "type": "Corner Unit PLC",
-          "rate_psf": 150,
-          "description": "Dual side open balcony with maximum cross ventilation"
-        },
-        {
-          "type": "Park / Green Central Lawn Facing PLC",
-          "rate_psf": 200,
-          "description": "Unobstructed scenic view overlooking central landscaped podium"
-        },
-        {
-          "type": "Clubhouse / Swimming Pool View PLC",
-          "rate_psf": 175,
-          "description": "Direct visual line to Olympic-size swimming pool and club water body"
-        },
-        {
-          "type": "Wide Master Sector Road Facing PLC",
-          "rate_psf": 100,
-          "description": "Open front access facing wide 45-meter sector peripheral road"
-        }
-      ],
-      "parking_cost": 325000,
-      "ifms": 50,
-      "club_membership": 150000,
-      "other_charges": [
-        {
-          "name": "Dual Meter & Power Infrastructure Charge",
-          "type": "mandatory_fixed",
-          "amount": 35000
-        },
-        {
-          "name": "IGL Piped Natural Gas Connection",
-          "type": "mandatory_fixed",
-          "amount": 18500
-        },
-        {
-          "name": "Power Backup Installation (1 KVA / BHK)",
-          "type": "per_kva",
-          "amount": 30000,
-          "rate_per_kva": 28000
-        },
-        {
-          "name": "Sinking Fund / Society Corpus Deposit",
-          "type": "per_sqft",
-          "amount": 60000,
-          "rate_per_sqft": 50
-        },
-        {
-          "name": "Legal & Administrative Documentation",
-          "type": "mandatory_fixed",
-          "amount": 25000
-        },
-        {
-          "name": "Labour Welfare Cess & Fire Fighting System",
-          "type": "per_sqft",
-          "amount": 35000,
-          "rate_per_sqft": 35
-        }
-      ],
-      "gst_applicable": false,
-      "gst_rate_pct": 0,
-      "gst_note": "0% GST applicable — Ready-to-Move with Occupancy Certificate (OC)",
-      "stamp_duty_pct": 6,
-      "registration_pct": 1,
-      "electricity_connection": 35000,
-      "water_sewer_connection": 25000,
-      "maintenance_psf_monthly": 2.75,
-      "all_inclusive_price_cr": 1.22,
-      "all_inclusive_per_sqft": 8790,
-      "assumptions": [
-        "Base Sale Price benchmarked at Rs. 7805/sqft as per Q1 2026 Noida/Greater Noida market registries",
-        "Covered basement parking allotted at Rs. 3.25 Lakhs",
-        "Clubhouse development & lifetime membership at Rs. 1.50 Lakhs",
-        "Interest-Free Maintenance Security (IFMS) at Rs. 50/sqft refundable to AOA on handover",
-        "Mandatory civic and dual-meter electrification charges calculated as per NPCL / PVVNL statutory tariffs"
-      ],
-      "verified_at": "2026-09-12T16:21:26.871Z",
-      "verified_by": null,
-      "created_at": "2026-08-16T07:50:45.841Z",
-      "updated_at": "2026-09-12T16:21:27.027Z"
-    },
-    "payment_plans": [
-      {
-        "id": "35524094-175a-450b-a379-b67b5a191672",
-        "project_id": "5d09bdc0-6c37-4e7c-ad55-14b03f289765",
-        "plan_type": "construction_linked",
-        "plan_name": "Construction Linked Payment Plan (CLP)",
-        "description": null,
-        "milestones": [
-          {
-            "due": "Within 15 days",
-            "pct": 10,
-            "milestone": "At the Time of Booking Token"
-          },
-          {
-            "due": "Agreement registration",
-            "pct": 10,
-            "milestone": "Within 30 Days of Allotment"
-          },
-          {
-            "due": "Raft completion",
-            "pct": 15,
-            "milestone": "On Foundation & Substructure"
-          },
-          {
-            "due": "Tower top roof slab",
-            "pct": 35,
-            "milestone": "On Superstructure Completion"
-          },
-          {
-            "due": "Finishing stage",
-            "pct": 20,
-            "milestone": "On Internal Plaster & Finishing"
-          },
-          {
-            "due": "Handover & key transfer",
-            "pct": 10,
-            "milestone": "On Notice of Possession & OC"
-          }
-        ],
-        "down_payment_pct": null,
-        "booking_amount_lakh": null,
-        "total_duration_months": null,
-        "discount_offered_pct": null,
-        "best_for": null,
-        "watch_out": null,
-        "sort_order": 1,
-        "source": "inferred_default",
-        "source_url": null,
-        "verified_at": null,
-        "verified_by": null,
-        "notes": null,
-        "created_at": "2026-08-16T07:50:45.899Z",
-        "updated_at": "2026-09-03T16:52:13.729Z"
-      },
-      {
-        "id": "5a39151f-8649-4c35-8e33-78451b6e249a",
-        "project_id": "5d09bdc0-6c37-4e7c-ad55-14b03f289765",
-        "plan_type": "down_payment",
-        "plan_name": "Investor Special Down Payment Plan",
-        "description": null,
-        "milestones": [
-          {
-            "due": "Within 15 days",
-            "pct": 10,
-            "milestone": "At the Time of Booking"
-          },
-          {
-            "due": "Down payment discount",
-            "pct": 80,
-            "milestone": "Within 45 Days of Booking"
-          },
-          {
-            "due": "Final keys handover",
-            "pct": 10,
-            "milestone": "On Offer of Possession"
-          }
-        ],
-        "down_payment_pct": null,
-        "booking_amount_lakh": null,
-        "total_duration_months": null,
-        "discount_offered_pct": null,
-        "best_for": null,
-        "watch_out": null,
-        "sort_order": 2,
-        "source": "inferred_default",
-        "source_url": null,
-        "verified_at": null,
-        "verified_by": null,
-        "notes": null,
-        "created_at": "2026-08-16T07:50:45.899Z",
-        "updated_at": "2026-09-03T16:52:13.729Z"
-      }
-    ],
+    "cost_sheet": null,
+    "payment_plans": [],
     "images": [
       {
         "id": "647a56e9-8aa9-4d31-bbd3-79607c91c5bd",
@@ -1506,17 +1326,17 @@
     "id": "6bf7b778-3df5-4ec3-bf39-a60fcdc5763e",
     "slug": "nirala-greenshire-sector-2-greater-noida-west",
     "name": "Nirala Greenshire",
-    "tagline": "Mid-Segment 1250-Unit Gated Society in Sector 2, Greater Noida West",
+    "tagline": "Mid-Segment 900-Unit Gated Society in Sector 2, Greater Noida West",
     "builder_id": "a7d2225a-9e29-47d3-9992-6fcb521664e7",
-    "rera_number": "UPRERAPRJ2926",
-    "rera_url": "https://www.up-rera.in/",
+    "rera_number": "UPRERAPRJ120088",
+    "rera_url": "https://www.up-rera.in/Projectsummary?UI0aPA1ISD=coh8f2lCM+I=&hfFlag=9emr4VdBw22M7BGjKtJWMPDI4s5cHQZP&NPJ6RAme=wbN9LUu9fq4NzMym4G1TAbZWtnv8FYf9&PaURJEMAN4=ZL9MNERkNdazU1IB33N+AQ==&IRSAHEB=D6PY3lyims8=",
     "city": "Greater Noida West",
     "state": "Uttar Pradesh",
     "country": "India",
     "sector": "Sector 2",
     "address": "Nirala Greenshire Phase 1, Sector 2, Greater Noida West, UP",
-    "lat": 28.6145,
-    "lng": 77.4489,
+    "lat": null,
+    "lng": null,
     "land_area_acres": 15.6,
     "total_units": 2150,
     "total_towers": 14,
@@ -1546,7 +1366,7 @@
     "rera_compliance_score": null,
     "legal_flag": null,
     "legal_flag_detail": null,
-    "litigation_count": null,
+    "litigation_count": 0,
     "location_advantages": null,
     "location_concerns": [],
     "location_verdict": null,
@@ -1570,7 +1390,7 @@
       "flats in sector 2 greater noida west",
       "mid-segment apartments in greater noida west"
     ],
-    "hero_image_url": "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=1200&q=80",
+    "hero_image_url": null,
     "price_min_cr": 0.73,
     "price_range_label": "₹0.73 Cr - ₹1.18 Cr",
     "price_includes_plc": false,
@@ -1580,8 +1400,8 @@
     "created_at": "2026-09-12T15:09:44.935Z",
     "updated_at": "2026-09-12T16:19:44.567Z",
     "project_risk_flag": null,
-    "escrow_verified": null,
-    "escrow_bank_name": null,
+    "escrow_verified": true,
+    "escrow_bank_name": "ICICI BANK",
     "registry_status": null,
     "registry_embargo_reasons": [],
     "nclt_moratorium_active": null,
@@ -2514,15 +2334,15 @@
     "name": "Nirala Trio",
     "tagline": "Premium 620-Unit Gated Society in Sector 2, Greater Noida West",
     "builder_id": "a7d2225a-9e29-47d3-9992-6fcb521664e7",
-    "rera_number": "UPRERAPRJ2929",
-    "rera_url": "https://www.up-rera.in/",
+    "rera_number": "UPRERAPRJ707952",
+    "rera_url": "https://www.up-rera.in/Projectsummary?UI0aPA1ISD=enWirpy+sco=&hfFlag=9emr4VdBw22M7BGjKtJWMPDI4s5cHQZP&NPJ6RAme=/JcTm3rRFV8uEbnAOqN3uw==&PaURJEMAN4=ZL9MNERkNdZA/DjLbBWSPQ==&IRSAHEB=D6PY3lyims8=",
     "city": "Greater Noida West",
     "state": "Uttar Pradesh",
     "country": "India",
     "sector": "Sector 2",
     "address": "Nirala Trio, Sector 2, Greater Noida West, UP",
-    "lat": 28.6145,
-    "lng": 77.4489,
+    "lat": null,
+    "lng": null,
     "land_area_acres": 7.8,
     "total_units": 620,
     "total_towers": 4,
@@ -2552,7 +2372,7 @@
     "rera_compliance_score": null,
     "legal_flag": null,
     "legal_flag_detail": null,
-    "litigation_count": null,
+    "litigation_count": 0,
     "location_advantages": null,
     "location_concerns": [],
     "location_verdict": null,
@@ -2576,7 +2396,7 @@
       "flats in sector 2 greater noida west",
       "premium apartments in greater noida west"
     ],
-    "hero_image_url": "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=1200&q=80",
+    "hero_image_url": null,
     "price_min_cr": 1.25,
     "price_range_label": "₹125 Lakh - ₹2.65 Cr",
     "price_includes_plc": false,
@@ -2586,8 +2406,8 @@
     "created_at": "2026-09-12T15:10:06.904Z",
     "updated_at": "2026-09-12T16:19:47.338Z",
     "project_risk_flag": null,
-    "escrow_verified": null,
-    "escrow_bank_name": null,
+    "escrow_verified": true,
+    "escrow_bank_name": "ICICI BANK LTD",
     "registry_status": null,
     "registry_embargo_reasons": [],
     "nclt_moratorium_active": null,
@@ -3041,95 +2861,7 @@
         "updated_at": "2026-09-12T15:58:10.862Z"
       }
     ],
-    "cost_sheet": {
-      "id": "57a96854-fd20-4c7d-ac61-c78449dbaef8",
-      "project_id": "00d61805-9a3d-46d5-83cf-4547dc3deeff",
-      "base_price_per_sqft": 7657,
-      "base_cost_cr": null,
-      "floor_rise_per_floor": 30,
-      "base_interest_rate": 8.55,
-      "plc_charges": [
-        {
-          "type": "Corner Unit PLC",
-          "rate_psf": 150,
-          "description": "Dual side open balcony with maximum cross ventilation"
-        },
-        {
-          "type": "Park / Green Central Lawn Facing PLC",
-          "rate_psf": 200,
-          "description": "Unobstructed scenic view overlooking central landscaped podium"
-        },
-        {
-          "type": "Clubhouse / Swimming Pool View PLC",
-          "rate_psf": 175,
-          "description": "Direct visual line to Olympic-size swimming pool and club water body"
-        },
-        {
-          "type": "Wide Master Sector Road Facing PLC",
-          "rate_psf": 100,
-          "description": "Open front access facing wide 45-meter sector peripheral road"
-        }
-      ],
-      "parking_cost": 325000,
-      "ifms": 50,
-      "club_membership": 150000,
-      "other_charges": [
-        {
-          "name": "Dual Meter & Power Infrastructure Charge",
-          "type": "mandatory_fixed",
-          "amount": 35000
-        },
-        {
-          "name": "IGL Piped Natural Gas Connection",
-          "type": "mandatory_fixed",
-          "amount": 18500
-        },
-        {
-          "name": "Power Backup Installation (1 KVA / BHK)",
-          "type": "per_kva",
-          "amount": 30000,
-          "rate_per_kva": 28000
-        },
-        {
-          "name": "Sinking Fund / Society Corpus Deposit",
-          "type": "per_sqft",
-          "amount": 60000,
-          "rate_per_sqft": 50
-        },
-        {
-          "name": "Legal & Administrative Documentation",
-          "type": "mandatory_fixed",
-          "amount": 25000
-        },
-        {
-          "name": "Labour Welfare Cess & Fire Fighting System",
-          "type": "per_sqft",
-          "amount": 35000,
-          "rate_per_sqft": 35
-        }
-      ],
-      "gst_applicable": true,
-      "gst_rate_pct": 5,
-      "gst_note": "5% Standard Residential GST without Input Tax Credit (ITC)",
-      "stamp_duty_pct": 6,
-      "registration_pct": 1,
-      "electricity_connection": 35000,
-      "water_sewer_connection": 25000,
-      "maintenance_psf_monthly": 2.75,
-      "all_inclusive_price_cr": null,
-      "all_inclusive_per_sqft": null,
-      "assumptions": [
-        "Base Sale Price benchmarked at Rs. 7657/sqft as per Q1 2026 Noida/Greater Noida market registries",
-        "Covered basement parking allotted at Rs. 3.25 Lakhs",
-        "Clubhouse development & lifetime membership at Rs. 1.50 Lakhs",
-        "Interest-Free Maintenance Security (IFMS) at Rs. 50/sqft refundable to AOA on handover",
-        "Mandatory civic and dual-meter electrification charges calculated as per NPCL / PVVNL statutory tariffs"
-      ],
-      "verified_at": "2026-09-12T16:19:47.336Z",
-      "verified_by": null,
-      "created_at": "2026-09-12T15:58:11.153Z",
-      "updated_at": "2026-09-12T16:19:47.484Z"
-    },
+    "cost_sheet": null,
     "payment_plans": [
       {
         "id": "49ebbfbf-5c09-4243-af0f-292c142e2b10",

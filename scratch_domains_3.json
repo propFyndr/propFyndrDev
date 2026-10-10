@@ -1,0 +1,442 @@
+[
+  {
+    "name": "kharaghar",
+    "com": false,
+    "in": true
+  },
+  {
+    "name": "kharaacre",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "sateekghar",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "sateekacre",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "pramanikghar",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "pramanacre",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "pramanghar",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "pramanikacre",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "dastavejsure",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "kagazsure",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "kagazclean",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "asliacre",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "aslikhasra",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "haqpatra",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "haqacre",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "haqghar",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "nidargahr",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "nidaracre",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "sanadsure",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "sanadacre",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "khatasure",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "khataaudit",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "patraclear",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "patracheck",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "acresleuth",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "acregauge",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "acresense",
+    "com": false,
+    "in": true
+  },
+  {
+    "name": "plotproof",
+    "com": false,
+    "in": true
+  },
+  {
+    "name": "plotsure",
+    "com": false,
+    "in": false
+  },
+  {
+    "name": "floorsure",
+    "com": false,
+    "in": true
+  },
+  {
+    "name": "floorproof",
+    "com": false,
+    "in": true
+  },
+  {
+    "name": "carpetsure",
+    "com": false,
+    "in": true
+  },
+  {
+    "name": "carpetproof",
+    "com": false,
+    "in": true
+  },
+  {
+    "name": "towersure",
+    "com": false,
+    "in": true
+  },
+  {
+    "name": "towerproof",
+    "com": false,
+    "in": true
+  },
+  {
+    "name": "acreledger",
+    "com": false,
+    "in": true
+  },
+  {
+    "name": "gharledger",
+    "com": false,
+    "in": true
+  },
+  {
+    "name": "propledger",
+    "com": false,
+    "in": false
+  },
+  {
+    "name": "titleacre",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "titlesure",
+    "com": false,
+    "in": true
+  },
+  {
+    "name": "titleguard",
+    "com": false,
+    "in": true
+  },
+  {
+    "name": "acresift",
+    "com": false,
+    "in": true
+  },
+  {
+    "name": "propcandid",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "candidacre",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "vettedacre",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "validacre",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "pureplot",
+    "com": false,
+    "in": true
+  },
+  {
+    "name": "sureplot",
+    "com": false,
+    "in": false
+  },
+  {
+    "name": "acrevora",
+    "com": false,
+    "in": true
+  },
+  {
+    "name": "propvana",
+    "com": false,
+    "in": true
+  },
+  {
+    "name": "terravue",
+    "com": false,
+    "in": false
+  },
+  {
+    "name": "terrasure",
+    "com": false,
+    "in": true
+  },
+  {
+    "name": "acreology",
+    "com": false,
+    "in": true
+  },
+  {
+    "name": "clarityacre",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "truvora",
+    "com": false,
+    "in": false
+  },
+  {
+    "name": "veridoc",
+    "com": false,
+    "in": false
+  },
+  {
+    "name": "acrezen",
+    "com": false,
+    "in": true
+  },
+  {
+    "name": "gharzen",
+    "com": false,
+    "in": true
+  },
+  {
+    "name": "surevastu",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "acrevibe",
+    "com": false,
+    "in": true
+  },
+  {
+    "name": "acrecartel",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "propvalid",
+    "com": false,
+    "in": true
+  },
+  {
+    "name": "propsift",
+    "com": false,
+    "in": true
+  },
+  {
+    "name": "propaudit",
+    "com": false,
+    "in": false
+  },
+  {
+    "name": "acrebeacon",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "gharbeacon",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "propbeacon",
+    "com": false,
+    "in": false
+  },
+  {
+    "name": "acreanchor",
+    "com": false,
+    "in": true
+  },
+  {
+    "name": "gharanchor",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "terrafacta",
+    "com": false,
+    "in": true
+  },
+  {
+    "name": "veraterra",
+    "com": false,
+    "in": true
+  },
+  {
+    "name": "diligentacre",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "acreprahari",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "gharprahari",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "zameenprahari",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "propsentinel",
+    "com": false,
+    "in": true
+  },
+  {
+    "name": "acresentinel",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "acreguardian",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "gharrakshak",
+    "com": false,
+    "in": true
+  },
+  {
+    "name": "zameenrakshak",
+    "com": false,
+    "in": false
+  },
+  {
+    "name": "propkavach",
+    "com": false,
+    "in": false
+  },
+  {
+    "name": "kavachplot",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "pakkakhata",
+    "com": false,
+    "in": true
+  },
+  {
+    "name": "pakkapatra",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "pakkasanad",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "shuddhzameen",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "shuddhpatra",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "shuddhplot",
+    "com": true,
+    "in": true
+  }
+]

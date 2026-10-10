@@ -1,0 +1,2717 @@
+{
+  "stats": {
+    "totalDb": 382,
+    "matched": 69,
+    "unmatched": 313
+  },
+  "matches": [
+    {
+      "dbId": "0316458a-aae6-49e1-80bb-ab118376d5ec",
+      "dbName": "VVIP Addresses",
+      "dbRera": "UPRERAPRJ456123/04/2024",
+      "dbCity": "Greater Noida West",
+      "dbSector": "Sector 12",
+      "reraName": "VVIP ADDRESSES GREATER NOIDA (WEST)",
+      "reraNumber": "UPRERAPRJ600767/11/2024",
+      "promoter": "Vibhor Vaibhav infrahome Pvt. Ltd.",
+      "matchType": "FUZZY_NAME",
+      "hasDetails": true
+    },
+    {
+      "dbId": "e0412f51-4650-4793-9ab7-9672d9d87a32",
+      "dbName": "Ace Hanei",
+      "dbRera": "UPRERAPRJ677887",
+      "dbCity": "Greater Noida West",
+      "dbSector": "Sector 12",
+      "reraName": "ACE HANEI",
+      "reraNumber": "UPRERAPRJ677887/10/2024",
+      "promoter": "LA BUILDTECH PRIVATE LIMITED",
+      "matchType": "EXACT_NAME",
+      "hasDetails": true
+    },
+    {
+      "dbId": "40ebe694-2e84-4df6-ab8c-ee5763d12d15",
+      "dbName": "Eldeco La Vida Bella",
+      "dbRera": "UPRERAPRJ321654/03/2024",
+      "dbCity": "Greater Noida West",
+      "dbSector": "Sector 12",
+      "reraName": "Eldeco La Vida Bella",
+      "reraNumber": "UPRERAPRJ136219/04/2024",
+      "promoter": "Eldeco Real Estate Limited",
+      "matchType": "EXACT_NAME",
+      "hasDetails": true
+    },
+    {
+      "dbId": "65c203cb-59e2-489f-af59-4aa964fe4da1",
+      "dbName": "Godrej Tropical Isle",
+      "dbRera": "UPRERAPRJ303390",
+      "dbCity": "Noida",
+      "dbSector": "Sector 146",
+      "reraName": "Godrej Tropical Isle",
+      "reraNumber": "UPRERAPRJ303390",
+      "promoter": "Godrej Properties Limited",
+      "matchType": "EXACT_RERA",
+      "hasDetails": true
+    },
+    {
+      "dbId": "1ee07889-22c5-4986-9174-063d5aaab4fc",
+      "dbName": "ATS Destinaire",
+      "dbRera": "UPRERAPRJ0103",
+      "dbCity": "Greater Noida West",
+      "dbSector": "Sector 1",
+      "reraName": "ATS DESTINAIRE",
+      "reraNumber": "UPRERAPRJ417134",
+      "promoter": "ATS Grand Realtors Private Limited",
+      "matchType": "EXACT_NAME",
+      "hasDetails": true
+    },
+    {
+      "dbId": "47eb6cfa-0c88-4dc4-a000-c11e9cb053e7",
+      "dbName": "Grand Omaxe",
+      "dbRera": "UPRERAPRJ9303",
+      "dbCity": "Noida",
+      "dbSector": "Sector 93B",
+      "reraName": "GH-1 GRAND OMAXE PHASE-6",
+      "reraNumber": "UPRERAPRJ283534",
+      "promoter": "Omaxe Limited",
+      "matchType": "FUZZY_NAME",
+      "hasDetails": false
+    },
+    {
+      "dbId": "704e98bf-974c-49f3-9f8a-5293f3d66681",
+      "dbName": "ACE Terrains / Terra",
+      "dbRera": "UPRERAPRJ622101",
+      "dbCity": "Yamuna Expressway",
+      "dbSector": "Sector 22D",
+      "reraName": "Ace Terra",
+      "reraNumber": "UPRERAPRJ683816/04/2024",
+      "promoter": "AJAY REALCON INDIA LLP",
+      "matchType": "FUZZY_NAME",
+      "hasDetails": true
+    },
+    {
+      "dbId": "3032c30c-07e3-40c4-a629-f8a54cd78727",
+      "dbName": "Nirala Greenshire",
+      "dbRera": "UPRERAPRJ2927",
+      "dbCity": "Greater Noida West",
+      "dbSector": "Sector 2",
+      "reraName": "NIRALA GREENSHIRE PH-II",
+      "reraNumber": "UPRERAPRJ120088",
+      "promoter": "NIRALA PROJECTS PRIVATE  LIMITED",
+      "matchType": "FUZZY_NAME",
+      "hasDetails": true
+    },
+    {
+      "dbId": "96ddcbd7-3ea0-4396-9bf0-c2efdc63e98f",
+      "dbName": "Purvanchal Sunbliss",
+      "dbRera": "UPRERAPRJ22D910",
+      "dbCity": "Yamuna Expressway",
+      "dbSector": "Sector 22D",
+      "reraName": "PURVANCHAL SUNBLISS PLOT NO. GH-1A/1 SECTOR 22D YEIDA",
+      "reraNumber": "UPRERAPRJ746863/04/2025",
+      "promoter": "PURVANCHAL PROJECTS PRIVATE LIMITED",
+      "matchType": "FUZZY_NAME",
+      "hasDetails": true
+    },
+    {
+      "dbId": "e8318e26-8cfd-47bb-b90c-9b25b3ac0f93",
+      "dbName": "CRC Joyous",
+      "dbRera": "UPRERAPRJ15182",
+      "dbCity": "Greater Noida West",
+      "dbSector": "Techzone 4",
+      "reraName": "CRC Joyous",
+      "reraNumber": "UPRERAPRJ613747",
+      "promoter": "CRC Homes Private Limited",
+      "matchType": "EXACT_NAME",
+      "hasDetails": true
+    },
+    {
+      "dbId": "122eaf91-013f-427f-9546-da52c5b69251",
+      "dbName": "ATS Knightsbridge",
+      "dbRera": "UPRERAPRJ3574",
+      "dbCity": "Noida",
+      "dbSector": "Sector 124",
+      "reraName": "ATS Knightsbridge",
+      "reraNumber": "UPRERAPRJ3574",
+      "promoter": "ATS HEIGHTS PRIVATE LIMITED",
+      "matchType": "EXACT_RERA",
+      "hasDetails": true
+    },
+    {
+      "dbId": "fdd2de65-e073-47c0-a9cd-5ae72e532941",
+      "dbName": "ACE Arte",
+      "dbRera": "UPRERAPRJ992384",
+      "dbCity": "Noida",
+      "dbSector": "Sector 150",
+      "reraName": "ACE ARTE",
+      "reraNumber": "UPRERAPRJ528653/07/2026",
+      "promoter": "ACE INFRACITY DEVELOPERS PRIVATE LIMITED",
+      "matchType": "EXACT_NAME",
+      "hasDetails": true
+    },
+    {
+      "dbId": "cd749874-8da0-456d-9a2e-b31442d7fc24",
+      "dbName": "CRC Maesta",
+      "dbRera": "UPRERAPRJ724518/07/2024",
+      "dbCity": "Greater Noida West",
+      "dbSector": "Sector 1",
+      "reraName": "CRC MAESTA",
+      "reraNumber": "UPRERAPRJ724518/07/2024",
+      "promoter": "CRC Homes Private Limited",
+      "matchType": "EXACT_RERA",
+      "hasDetails": true
+    },
+    {
+      "dbId": "d3251d89-7c12-4278-a810-1986425bafe8",
+      "dbName": "Eldeco Echoes of Eden",
+      "dbRera": "UPRERAPRJ22D890",
+      "dbCity": "Yamuna Expressway",
+      "dbSector": "Sector 22D",
+      "reraName": "ELDECO ECHOES OF EDEN",
+      "reraNumber": "UPRERAPRJ125342/02/2026",
+      "promoter": "Eldeco Sohna Projects Limited",
+      "matchType": "EXACT_NAME",
+      "hasDetails": true
+    },
+    {
+      "dbId": "bdcd7845-9255-4382-9af6-40bc471ca5e6",
+      "dbName": "Eldeco Live By The Greens",
+      "dbRera": "UPRERAPRJ15112",
+      "dbCity": "Noida",
+      "dbSector": "Sector 150",
+      "reraName": "The G",
+      "reraNumber": "UPRERAPRJ794678/09/2024",
+      "promoter": "GULSHAN HOMES AND INFRASTRUCTURE  PRIVATE LIMITED",
+      "matchType": "FUZZY_NAME",
+      "hasDetails": true
+    },
+    {
+      "dbId": "c0f5a640-4bad-4f1a-afb7-48c94e170e2d",
+      "dbName": "Nirala Diadem",
+      "dbRera": "UPRERAPRJ761820",
+      "dbCity": "Greater Noida West",
+      "dbSector": "Sector 10",
+      "reraName": "NIRALA DIADEM",
+      "reraNumber": "UPRERAPRJ825497/11/2025",
+      "promoter": "Parth Builtech Private Limited",
+      "matchType": "EXACT_NAME",
+      "hasDetails": true
+    },
+    {
+      "dbId": "20a939d6-f338-410e-a3b9-fd9962e1038f",
+      "dbName": "Godrej Majesty",
+      "dbRera": "UPRERAPRJ250823/04/2025",
+      "dbCity": "Greater Noida West",
+      "dbSector": "Sector 12",
+      "reraName": "Godrej Majesty GH-01/B,C,D,E.J and K  Sec 12 -G Noida",
+      "reraNumber": "UPRERAPRJ250823/04/2025",
+      "promoter": "Godrej Properties Limited",
+      "matchType": "EXACT_RERA",
+      "hasDetails": true
+    },
+    {
+      "dbId": "9c731183-1c91-4c6b-ad9e-4f262334a711",
+      "dbName": "Gaur Yamuna City - KrishnVilas",
+      "dbRera": "UPRERAPRJ16103",
+      "dbCity": "Yamuna Expressway",
+      "dbSector": "Yamuna Expressway",
+      "reraName": "YAMUNA CITY",
+      "reraNumber": "UPRERAPRJ379836/06/2025",
+      "promoter": "MADHYAM LAND BASE PRIVATE LIMITED",
+      "matchType": "FUZZY_NAME",
+      "hasDetails": false
+    },
+    {
+      "dbId": "9600d0de-a36c-4813-85c7-b9da2bcbc227",
+      "dbName": "Indosam Iconic",
+      "dbRera": "UPRERAPRJ876543",
+      "dbCity": "Noida",
+      "dbSector": "Sector 75",
+      "reraName": "Indosam Iconic",
+      "reraNumber": "UPRERAPRJ303620/05/2026",
+      "promoter": "Indosam Infra Private Limited",
+      "matchType": "EXACT_NAME",
+      "hasDetails": true
+    },
+    {
+      "dbId": "792ec6f4-45a3-4f73-b99b-84dee7828baf",
+      "dbName": "Mahagun Manorialle",
+      "dbRera": "UPRERAPRJ2051",
+      "dbCity": "Noida",
+      "dbSector": "Sector 128",
+      "reraName": "Mahagun Manorial",
+      "reraNumber": "UPRERAPRJ2051",
+      "promoter": "MAHAGUN (INDIA) PVT. LTD.",
+      "matchType": "EXACT_RERA",
+      "hasDetails": true
+    },
+    {
+      "dbId": "937f754c-98ee-4236-ba7e-fe2e5c8f0073",
+      "dbName": "Mahagun Medalleo Towers E-G",
+      "dbRera": "UPRERAPRJ125562",
+      "dbCity": "Noida",
+      "dbSector": "Sector 107",
+      "reraName": "Mahagun Medalleo",
+      "reraNumber": "UPRERAPRJ125561",
+      "promoter": "Mahagun Infratech Private Limited",
+      "matchType": "FUZZY_NAME",
+      "hasDetails": true
+    },
+    {
+      "dbId": "b551f816-cf6a-4bc8-90d6-e006f9f5d998",
+      "dbName": "Trecento Residencies by Gaurs",
+      "dbRera": "UPRERAPRJ283531",
+      "dbCity": "Greater Noida",
+      "dbSector": "Jaypee Greens",
+      "reraName": "TRECENTO RESIDENCES-A",
+      "reraNumber": "UPRERAPRJ283531",
+      "promoter": "GOLF LAKE LLP",
+      "matchType": "EXACT_RERA",
+      "hasDetails": true
+    },
+    {
+      "dbId": "ea2b690f-4021-4eb5-9f03-7d7eff297a3f",
+      "dbName": "NCR Monarch",
+      "dbRera": "UPRERAPRJ7110",
+      "dbCity": "Greater Noida West",
+      "dbSector": "Sector 1",
+      "reraName": "NCR MONARCH",
+      "reraNumber": "UPRERAPRJ4790",
+      "promoter": "M/S JSS BUILDCON PRIVATE LIMITED",
+      "matchType": "EXACT_NAME",
+      "hasDetails": true
+    },
+    {
+      "dbId": "efd4ca4f-4f42-477a-bcf7-4bd86c7ce931",
+      "dbName": "Palm Olympia",
+      "dbRera": "UPRERAPRJ9910",
+      "dbCity": "Greater Noida West",
+      "dbSector": "Sector 16C",
+      "reraName": "PALM OLYMPIA PH 2",
+      "reraNumber": "UPRERAPRJ308567",
+      "promoter": "Sam India Abhimanyu Housing",
+      "matchType": "FUZZY_NAME",
+      "hasDetails": true
+    },
+    {
+      "dbId": "6fd124bf-f39d-45a4-94cb-843a27fc4a7a",
+      "dbName": "Mahagun My Laagoon Phase 1",
+      "dbRera": "UPRERAPRJ999197",
+      "dbCity": "Greater Noida West",
+      "dbSector": "Sector 12",
+      "reraName": "Mahagun My Laagoon Phase 1",
+      "reraNumber": "UPRERAPRJ999197/09/2024",
+      "promoter": "Aura Infrabiz LLP",
+      "matchType": "EXACT_NAME",
+      "hasDetails": true
+    },
+    {
+      "dbId": "8f20e140-15db-4dd8-a0c1-2f9eb5a272a4",
+      "dbName": "Gulshan Dynasty",
+      "dbRera": "UPRERAPRJ4682",
+      "dbCity": "Noida",
+      "dbSector": "Sector 144",
+      "reraName": "GULSHAN DYNASTY MORADABAD",
+      "reraNumber": "UPRERAPRJ686395",
+      "promoter": "GULSHAN HOMZ PRIVATE LIMITED",
+      "matchType": "FUZZY_NAME",
+      "hasDetails": false
+    },
+    {
+      "dbId": "8a2d0939-0d58-4bbe-bc94-2a17547138dc",
+      "dbName": "Gaur Yamuna City - 16th Parkview",
+      "dbRera": "UPRERAPRJ6801",
+      "dbCity": "Yamuna Expressway",
+      "dbSector": "Yamuna Expressway",
+      "reraName": "YAMUNA CITY",
+      "reraNumber": "UPRERAPRJ379836/06/2025",
+      "promoter": "MADHYAM LAND BASE PRIVATE LIMITED",
+      "matchType": "FUZZY_NAME",
+      "hasDetails": false
+    },
+    {
+      "dbId": "e35d0295-5513-45c2-a0d1-509cc6d2abd9",
+      "dbName": "Gayatri Life",
+      "dbRera": "UPRERAPRJ2110",
+      "dbCity": "Greater Noida West",
+      "dbSector": "Sector 16",
+      "reraName": "Mahagun Montage",
+      "reraNumber": "UPRERAPRJ2110",
+      "promoter": "MAHAGUN (INDIA) PVT. LTD.",
+      "matchType": "EXACT_RERA",
+      "hasDetails": true
+    },
+    {
+      "dbId": "6946cd0f-74e5-45bd-9a39-b02366355b1e",
+      "dbName": "Arihant One",
+      "dbRera": "UPRERAPRJ0123",
+      "dbCity": "Greater Noida West",
+      "dbSector": "Sector 1",
+      "reraName": "ARIHANT ONE",
+      "reraNumber": "UPRERAPRJ723911",
+      "promoter": "ARHAM ESCON PVT. LTD.",
+      "matchType": "EXACT_NAME",
+      "hasDetails": true
+    },
+    {
+      "dbId": "3c8b6d03-bdc7-4d22-84c8-2d6bcbbc730a",
+      "dbName": "Ashtech Presidential Towers",
+      "dbRera": "UPRERAPRJ654123/06/2024",
+      "dbCity": "Greater Noida West",
+      "dbSector": "Sector 12",
+      "reraName": "Ashtech Presidential Towers",
+      "reraNumber": "UPRERAPRJ746615/10/2025",
+      "promoter": "Ashtech Industries Private Limited",
+      "matchType": "EXACT_NAME",
+      "hasDetails": true
+    },
+    {
+      "dbId": "f1c17f37-ffc2-4056-b491-8816d7b60abd",
+      "dbName": "Express Astra",
+      "dbRera": "UPRERAPRJ4796",
+      "dbCity": "Greater Noida West",
+      "dbSector": "Sector 1",
+      "reraName": "Express Astra (Phase-II)",
+      "reraNumber": "UPRERAPRJ229234",
+      "promoter": "Express Projects Pvt. Ltd.",
+      "matchType": "FUZZY_NAME",
+      "hasDetails": true
+    },
+    {
+      "dbId": "1164bb5d-86cc-4b8c-b0f8-fb3dd959d44c",
+      "dbName": "ATS Destinaire",
+      "dbRera": "UPRERAPRJ417134",
+      "dbCity": "Greater Noida West",
+      "dbSector": "Sector 1",
+      "reraName": "ATS DESTINAIRE",
+      "reraNumber": "UPRERAPRJ417134",
+      "promoter": "ATS Grand Realtors Private Limited",
+      "matchType": "EXACT_RERA",
+      "hasDetails": true
+    },
+    {
+      "dbId": "0ffd4f5c-ee97-4650-b619-83052a9233f3",
+      "dbName": "ATS Nobility",
+      "dbRera": "UPRERAPRJ0403",
+      "dbCity": "Greater Noida West",
+      "dbSector": "Sector 4",
+      "reraName": "Nobility",
+      "reraNumber": "UPRERAPRJ284035",
+      "promoter": "Homekraft  Infra Private Limited",
+      "matchType": "FUZZY_NAME",
+      "hasDetails": true
+    },
+    {
+      "dbId": "814100df-017d-4b02-b53a-d70e452b134b",
+      "dbName": "The Jewel of Noida",
+      "dbRera": "UPRERAPRJ3421",
+      "dbCity": "Noida",
+      "dbSector": "Sector 75",
+      "reraName": "The Jewel of Noida (Phase III) - Burj Noida",
+      "reraNumber": "UPRERAPRJ498423",
+      "promoter": "E HOMES INFRASTRUCTURE PVT LTD",
+      "matchType": "FUZZY_NAME",
+      "hasDetails": true
+    },
+    {
+      "dbId": "4ea2df37-3090-400b-a6dd-3014d3ca4496",
+      "dbName": "Sunworld Arista",
+      "dbRera": "UPRERAPRJ1682",
+      "dbCity": "Noida",
+      "dbSector": "Sector 168",
+      "reraName": "SUNWORLD ARISTA (PH-2 T-5,7,8,9), CLUB",
+      "reraNumber": "UPRERAPRJ11625",
+      "promoter": "Sunworld Residency Private Limited",
+      "matchType": "FUZZY_NAME",
+      "hasDetails": true
+    },
+    {
+      "dbId": "292b0d9c-a096-4535-b68c-d482224eb148",
+      "dbName": "Mahagun My Laagoon",
+      "dbRera": "UPRERAPRJ789456/08/2024",
+      "dbCity": "Greater Noida West",
+      "dbSector": "Sector 12",
+      "reraName": "Mahagun My Laagoon Phase 1",
+      "reraNumber": "UPRERAPRJ999197/09/2024",
+      "promoter": "Aura Infrabiz LLP",
+      "matchType": "FUZZY_NAME",
+      "hasDetails": true
+    },
+    {
+      "dbId": "bb6b3c13-888c-4dfe-8e76-b0dfdf324a2f",
+      "dbName": "Gaurs Platinum Towers",
+      "dbRera": "UPRERAPRJ79113",
+      "dbCity": "Noida",
+      "dbSector": "Sector 79",
+      "reraName": "PLATINUM TOWER",
+      "reraNumber": "UPRERAPRJ542943/09/2026",
+      "promoter": "NAVKUL BUILDCON PRIVATE LIMITED",
+      "matchType": "FUZZY_NAME",
+      "hasDetails": true
+    },
+    {
+      "dbId": "6a46eba7-775b-44d7-a91b-72d96e9e820a",
+      "dbName": "Civitech Strings",
+      "dbRera": "UPRERAPRJ654987/07/2024",
+      "dbCity": "Greater Noida West",
+      "dbSector": "Sector 12",
+      "reraName": "Civitech Strings",
+      "reraNumber": "UPRERAPRJ646272",
+      "promoter": "SA.G.Realtech Private Limited",
+      "matchType": "EXACT_NAME",
+      "hasDetails": true
+    },
+    {
+      "dbId": "fdf810a5-109c-4eac-a90c-92b1fb786f65",
+      "dbName": "Elite Homz",
+      "dbRera": "UPRERAPRJ77103",
+      "dbCity": "Noida",
+      "dbSector": "Sector 77",
+      "reraName": "ELITE",
+      "reraNumber": "UPRERAPRJ954073/10/2024",
+      "promoter": "AGRASEN REALTORS & DEVELOPERS PRIVATE LIMITED",
+      "matchType": "FUZZY_NAME",
+      "hasDetails": false
+    },
+    {
+      "dbId": "359889f6-6174-4916-a326-97f0c08c62e8",
+      "dbName": "Ace Mahagun Medalleo",
+      "dbRera": "UPRERAPRJ125561",
+      "dbCity": "Noida",
+      "dbSector": "Sector 107",
+      "reraName": "Mahagun Medalleo",
+      "reraNumber": "UPRERAPRJ125561",
+      "promoter": "Mahagun Infratech Private Limited",
+      "matchType": "EXACT_RERA",
+      "hasDetails": true
+    },
+    {
+      "dbId": "6c7505f1-28af-4c9c-b41b-770fd557fa0b",
+      "dbName": "Elite Golf Greens",
+      "dbRera": "UPRERAPRJ79107",
+      "dbCity": "Noida",
+      "dbSector": "Sector 79",
+      "reraName": "ELITE",
+      "reraNumber": "UPRERAPRJ954073/10/2024",
+      "promoter": "AGRASEN REALTORS & DEVELOPERS PRIVATE LIMITED",
+      "matchType": "FUZZY_NAME",
+      "hasDetails": false
+    },
+    {
+      "dbId": "2f5a8248-e9da-44d6-99e7-c403aca87bbe",
+      "dbName": "Amaatra Homes",
+      "dbRera": "UPRERAPRJ3010",
+      "dbCity": "Greater Noida West",
+      "dbSector": "Sector 10",
+      "reraName": "Moti Residency- Phase II (Tower H)",
+      "reraNumber": "UPRERAPRJ3010",
+      "promoter": "Techman Buildwell Pvt. Ltd",
+      "matchType": "EXACT_RERA",
+      "hasDetails": true
+    },
+    {
+      "dbId": "c19ecfd2-d72a-4525-aa32-93e67aef1285",
+      "dbName": "Rudra Palace Heights",
+      "dbRera": "UPRERAPRJ1110",
+      "dbCity": "Greater Noida West",
+      "dbSector": "Sector 1",
+      "reraName": "RUDRA PALACE HEIGHTS",
+      "reraNumber": "UPRERAPRJ7895",
+      "promoter": "RUDRA BUILDWELL PROJECTS PRIVATE LIMITED",
+      "matchType": "EXACT_NAME",
+      "hasDetails": true
+    },
+    {
+      "dbId": "a9573feb-2420-4ddd-8878-3be364c9cf0f",
+      "dbName": "Renox Thrive",
+      "dbRera": "UPRERAPRJ742692/09/2024",
+      "dbCity": "Greater Noida West",
+      "dbSector": "Sector 10",
+      "reraName": "Renox Thrive",
+      "reraNumber": "UPRERAPRJ742692/09/2024",
+      "promoter": "Nivas Promoters Private Limited",
+      "matchType": "EXACT_RERA",
+      "hasDetails": true
+    },
+    {
+      "dbId": "3340c38e-6320-46b6-93a7-63365daac681",
+      "dbName": "Prateek Canary",
+      "dbRera": "UPRERAPRJ591564",
+      "dbCity": "Noida",
+      "dbSector": "Sector 150",
+      "reraName": "PRATEEK CANARY",
+      "reraNumber": "UPRERAPRJ591510",
+      "promoter": "STRONGBIZ PROPBUILD PRIVATE LIMITED",
+      "matchType": "EXACT_NAME",
+      "hasDetails": true
+    },
+    {
+      "dbId": "ded88df5-eb6e-4af5-af42-867c22824976",
+      "dbName": "Bhutani Astrathum",
+      "dbRera": "UPRERAPRJ982310",
+      "dbCity": "Greater Noida West",
+      "dbSector": "Sector 12",
+      "reraName": "Astrathum",
+      "reraNumber": "UPRERAPRJ202227/09/2025",
+      "promoter": "Parmesh Construction Company Limited",
+      "matchType": "FUZZY_NAME",
+      "hasDetails": true
+    },
+    {
+      "dbId": "0bf0fd19-8393-44cf-835e-58f00433e0bc",
+      "dbName": "Elite X",
+      "dbRera": "UPRERAPRJ916631/02/2024",
+      "dbCity": "Greater Noida West",
+      "dbSector": "Sector 10",
+      "reraName": "Elite X",
+      "reraNumber": "UPRERAPRJ916631/02/2024",
+      "promoter": "GOLFGREEN MANSIONS PVT. LTD.",
+      "matchType": "EXACT_RERA",
+      "hasDetails": true
+    },
+    {
+      "dbId": "1ccb48fa-d390-4574-8a4b-6ea712ac4381",
+      "dbName": "Arihant Seasons",
+      "dbRera": "UPRERAPRJ22D980",
+      "dbCity": "Yamuna Expressway",
+      "dbSector": "Sector 22D",
+      "reraName": "ARIHANT SEASONS",
+      "reraNumber": "UPRERAPRJ974543/02/2026",
+      "promoter": "Arihant Urban Space Private Limited",
+      "matchType": "EXACT_NAME",
+      "hasDetails": true
+    },
+    {
+      "dbId": "bdfafcd8-fd5c-44dc-ab46-e1cc2b372491",
+      "dbName": "ATS Picturesque Reprieves",
+      "dbRera": "UPRERAPRJ6310",
+      "dbCity": "Noida",
+      "dbSector": "Sector 152",
+      "reraName": "ATS Picturesque Reprieves  Phase 2",
+      "reraNumber": "UPRERAPRJ396176",
+      "promoter": "ATS HOMES PRIVATE LIMITED",
+      "matchType": "FUZZY_NAME",
+      "hasDetails": true
+    },
+    {
+      "dbId": "5133278f-4550-432d-8971-816de544335e",
+      "dbName": "Irish Platinum",
+      "dbRera": "UPRERAPRJ503189/03/2024",
+      "dbCity": "Greater Noida West",
+      "dbSector": "Sector 10",
+      "reraName": "Irish Platinum",
+      "reraNumber": "UPRERAPRJ503189/03/2024",
+      "promoter": "Irish Buildcon Private Limited",
+      "matchType": "EXACT_RERA",
+      "hasDetails": true
+    },
+    {
+      "dbId": "1d7984c8-5f82-4909-886c-aff2f18e150f",
+      "dbName": "Max Estate 128",
+      "dbRera": "UPRERAPRJ446459",
+      "dbCity": "Noida",
+      "dbSector": "Sector 128",
+      "reraName": "Estate 128",
+      "reraNumber": "UPRERAPRJ446459",
+      "promoter": "Max Estates 128 Private Limited",
+      "matchType": "EXACT_RERA",
+      "hasDetails": true
+    },
+    {
+      "dbId": "e44fe1bf-f815-4088-870d-216dafc1a22c",
+      "dbName": "Godrej Jardinia",
+      "dbRera": "UPRERAPRJ1461",
+      "dbCity": "Noida",
+      "dbSector": "Sector 146",
+      "reraName": "Godrej Jardinia",
+      "reraNumber": "UPRERAPRJ288309/04/2024",
+      "promoter": "Godrej Properties Limited",
+      "matchType": "EXACT_NAME",
+      "hasDetails": true
+    },
+    {
+      "dbId": "63b411a5-2503-4cd3-9e31-242bf2386efd",
+      "dbName": "Eldeco Live By The Greens Phase 2",
+      "dbRera": "UPRERAPRJ15113",
+      "dbCity": "Noida",
+      "dbSector": "Sector 150",
+      "reraName": "The G",
+      "reraNumber": "UPRERAPRJ794678/09/2024",
+      "promoter": "GULSHAN HOMES AND INFRASTRUCTURE  PRIVATE LIMITED",
+      "matchType": "FUZZY_NAME",
+      "hasDetails": true
+    },
+    {
+      "dbId": "22e34043-37b8-47fe-95a9-b8c43c1bea1d",
+      "dbName": "Nirala Estate",
+      "dbRera": "UPRERAPRJ2918",
+      "dbCity": "Greater Noida West",
+      "dbSector": "Techzone 4",
+      "reraName": "NIRALA ESTATE PHASE-III",
+      "reraNumber": "UPRERAPRJ265789",
+      "promoter": "NIRALA INFRATECH PRIVATE LIMITED",
+      "matchType": "FUZZY_NAME",
+      "hasDetails": true
+    },
+    {
+      "dbId": "25ce8ba2-2511-4801-842a-42cc48565620",
+      "dbName": "The Rivulet",
+      "dbRera": "UPRERAPRJ432109/06/2024",
+      "dbCity": "Greater Noida West",
+      "dbSector": "Sector 12",
+      "reraName": "The Rivulet Phase-1",
+      "reraNumber": "UPRERAPRJ145736",
+      "promoter": "Grand Realtech Limited",
+      "matchType": "FUZZY_NAME",
+      "hasDetails": true
+    },
+    {
+      "dbId": "0d991ae3-ed48-4dd7-ac4a-fc5ca2ece4fb",
+      "dbName": "Gaur Yamuna City - 1st-B Parkview",
+      "dbRera": "UPRERAPRJ235739",
+      "dbCity": "Yamuna Expressway",
+      "dbSector": "Yamuna Expressway",
+      "reraName": "YAMUNA CITY",
+      "reraNumber": "UPRERAPRJ379836/06/2025",
+      "promoter": "MADHYAM LAND BASE PRIVATE LIMITED",
+      "matchType": "FUZZY_NAME",
+      "hasDetails": false
+    },
+    {
+      "dbId": "fda2d903-8b2f-4fe1-9e93-9a3bb924ce34",
+      "dbName": "Gaur Yamuna City - 32nd Parkview",
+      "dbRera": "UPRERAPRJ6802",
+      "dbCity": "Yamuna Expressway",
+      "dbSector": "Yamuna Expressway",
+      "reraName": "YAMUNA CITY",
+      "reraNumber": "UPRERAPRJ379836/06/2025",
+      "promoter": "MADHYAM LAND BASE PRIVATE LIMITED",
+      "matchType": "FUZZY_NAME",
+      "hasDetails": false
+    },
+    {
+      "dbId": "e3871eb3-edb5-4621-9e99-494fcd94a25b",
+      "dbName": "ACE City",
+      "dbRera": "UPRERAPRJ0101",
+      "dbCity": "Greater Noida West",
+      "dbSector": "Sector 1",
+      "reraName": "GRACE CITY 2",
+      "reraNumber": "UPRERAPRJ885615",
+      "promoter": "Graceland Developers Private Limited",
+      "matchType": "FUZZY_NAME",
+      "hasDetails": false
+    },
+    {
+      "dbId": "5d09bdc0-6c37-4e7c-ad55-14b03f289765",
+      "dbName": "Eros Sampoornam",
+      "dbRera": "UPRERAPRJ2941",
+      "dbCity": "Greater Noida West",
+      "dbSector": "Sector 2",
+      "reraName": "Eros Sampoornam 3",
+      "reraNumber": "UPRERAPRJ512436/07/2024",
+      "promoter": "AJAY ENTERPRISES PRIVATE LIMITED",
+      "matchType": "FUZZY_NAME",
+      "hasDetails": true
+    },
+    {
+      "dbId": "1470c33e-ad3f-42f6-9655-42a23ca7f54e",
+      "dbName": "Gaur Yamuna City 16th Park View",
+      "dbRera": "UPRERAPRJ22D2",
+      "dbCity": "Yamuna Expressway",
+      "dbSector": "Sector 22D",
+      "reraName": "YAMUNA CITY",
+      "reraNumber": "UPRERAPRJ379836/06/2025",
+      "promoter": "MADHYAM LAND BASE PRIVATE LIMITED",
+      "matchType": "FUZZY_NAME",
+      "hasDetails": false
+    },
+    {
+      "dbId": "e0a8ab69-4bf7-48dd-aac0-67b795ee06ea",
+      "dbName": "Godrej Woods",
+      "dbRera": "UPRERAPRJ7047",
+      "dbCity": "Noida",
+      "dbSector": "Sector 43",
+      "reraName": "Godrej Woods Phase II",
+      "reraNumber": "UPRERAPRJ145318",
+      "promoter": "Roseberry Estate LLP",
+      "matchType": "FUZZY_NAME",
+      "hasDetails": true
+    },
+    {
+      "dbId": "00d61805-9a3d-46d5-83cf-4547dc3deeff",
+      "dbName": "Nirala Trio",
+      "dbRera": "UPRERAPRJ2929",
+      "dbCity": "Greater Noida West",
+      "dbSector": "Sector 2",
+      "reraName": "Nirala Trio",
+      "reraNumber": "UPRERAPRJ707952",
+      "promoter": "NIRALA WORLD RESIDENCY PRIVATE LIMITED",
+      "matchType": "EXACT_NAME",
+      "hasDetails": true
+    },
+    {
+      "dbId": "1596bf90-1954-4ac3-9003-ecd6b5e207cd",
+      "dbName": "Purvanchal Heights",
+      "dbRera": "UPRERAPRJ3122",
+      "dbCity": "Greater Noida",
+      "dbSector": "Zeta 1",
+      "reraName": "KVD WINDPARK",
+      "reraNumber": "UPRERAPRJ3122",
+      "promoter": "KV Developers Private Limited",
+      "matchType": "EXACT_RERA",
+      "hasDetails": true
+    },
+    {
+      "dbId": "ab5daea9-2e38-4f23-8db0-b955aa6a252c",
+      "dbName": "Solitairian City",
+      "dbRera": "UPRERAPRJ7701",
+      "dbCity": "Yamuna Expressway",
+      "dbSector": "Sector 25",
+      "reraName": "SOLITAIRIAN CITY - (PARY) PHASE-2",
+      "reraNumber": "UPRERAPRJ6856",
+      "promoter": "PARY DEVELOPERS PRIVATE LIMITED",
+      "matchType": "FUZZY_NAME",
+      "hasDetails": true
+    },
+    {
+      "dbId": "74f76e86-4a57-471c-8bd7-1c51cd29f87b",
+      "dbName": "ATS Pious Orchards",
+      "dbRera": "UPRERAPRJ183246",
+      "dbCity": "Noida",
+      "dbSector": "Sector 150",
+      "reraName": "Pious Orchards",
+      "reraNumber": "UPRERAPRJ183246",
+      "promoter": "Homekraft  Infra Private Limited",
+      "matchType": "EXACT_RERA",
+      "hasDetails": true
+    },
+    {
+      "dbId": "a292564e-6e1d-4984-b58f-c70cc98f4b64",
+      "dbName": "Samridhi Daksh Avenue",
+      "dbRera": "UPRERAPRJ168120",
+      "dbCity": "Noida",
+      "dbSector": "Sector 150",
+      "reraName": "Samridhi Daksh Avenue",
+      "reraNumber": "UPRERAPRJ155408",
+      "promoter": "SAMRIDHI BUILDMART PRIVATE LIMITED",
+      "matchType": "EXACT_NAME",
+      "hasDetails": true
+    },
+    {
+      "dbId": "bc733a34-fb8d-4e23-9453-805ef64cadee",
+      "dbName": "Eldeco Ballads of Bliss",
+      "dbRera": "UPRERAPRJ921261/05/2025",
+      "dbCity": "Yamuna Expressway",
+      "dbSector": "Sector 22D",
+      "reraName": "Eldeco Ballads of Bliss",
+      "reraNumber": "UPRERAPRJ921261/05/2025",
+      "promoter": "Eldeco Goodliving Properties Limited",
+      "matchType": "EXACT_RERA",
+      "hasDetails": true
+    },
+    {
+      "dbId": "28c22505-99b9-436d-82ca-0d8e5d8e9199",
+      "dbName": "Gaur Yamuna City (7th Parkview)",
+      "dbRera": "UPRERAPRJ9928",
+      "dbCity": "Yamuna Expressway",
+      "dbSector": "Sector 19",
+      "reraName": "YAMUNA CITY",
+      "reraNumber": "UPRERAPRJ379836/06/2025",
+      "promoter": "MADHYAM LAND BASE PRIVATE LIMITED",
+      "matchType": "FUZZY_NAME",
+      "hasDetails": false
+    },
+    {
+      "dbId": "4693a35a-346e-4dad-b3fa-c36e6e169cd3",
+      "dbName": "Greenbay The Monarque",
+      "dbRera": "UPRERAPRJ22D950",
+      "dbCity": "Yamuna Expressway",
+      "dbSector": "Sector 22D",
+      "reraName": "The Monarque",
+      "reraNumber": "UPRERAPRJ710489/10/2025",
+      "promoter": "Green Bay Infrastructure Private Limited",
+      "matchType": "FUZZY_NAME",
+      "hasDetails": true
+    }
+  ],
+  "unmatchedProjects": [
+    {
+      "name": "Divine Meadows",
+      "slug": "divine-meadows-sector-108-noida",
+      "rera": "UPRERAPRJ1081",
+      "builder": "Divine India Group"
+    },
+    {
+      "name": "Jaypee Greens Pavilion Court",
+      "slug": "jaypee-greens-pavilion-court-sector-128",
+      "rera": "UPRERAPRJ8823",
+      "builder": "Jaypee Greens (Suraksha Group Resolution)"
+    },
+    {
+      "name": "Antriksh Golf View II",
+      "slug": "antriksh-golf-view-2-sector-78",
+      "rera": "UPRERAPRJ78107",
+      "builder": "Antriksh Group"
+    },
+    {
+      "name": "Mahagun Mezzaria",
+      "slug": "mahagun-mezzaria-sector-78-noida",
+      "rera": "UPRERAPRJ3306",
+      "builder": "ACE Group & Mahagun"
+    },
+    {
+      "name": "Jaypee Kensington Boulevard",
+      "slug": "jaypee-kensington-boulevard-sector-128",
+      "rera": "UPRERAPRJ12814",
+      "builder": "Jaypee Greens (Suraksha Group Resolution)"
+    },
+    {
+      "name": "Antriksh Kanball 3G",
+      "slug": "antriksh-kanball-3g-sector-77",
+      "rera": "UPRERAPRJ77108",
+      "builder": "Antriksh Group"
+    },
+    {
+      "name": "DASNAC Burj Noida",
+      "slug": "dasnac-burj-noida-sector-75",
+      "rera": "UPRERAPRJ15456",
+      "builder": "DASNAC Design Architecture"
+    },
+    {
+      "name": "Jaypee Greens Aman",
+      "slug": "jaypee-greens-aman-sector-151",
+      "rera": "UPRERAPRJ8825",
+      "builder": "Jaypee Greens (Suraksha Group Resolution)"
+    },
+    {
+      "name": "Prateek Wisteria",
+      "slug": "prateek-wisteria-sector-77-noida",
+      "rera": "UPRERAPRJ77102",
+      "builder": "Prateek Group"
+    },
+    {
+      "name": "Apex Athena / Diamond Tower",
+      "slug": "apex-athena-sector-75",
+      "rera": "UPRERAPRJ6789",
+      "builder": "Apex Group"
+    },
+    {
+      "name": "Great Value Sharanam",
+      "slug": "great-value-sharanam-sector-107-noida",
+      "rera": "UPRERAPRJ10702",
+      "builder": "Great Value Realty"
+    },
+    {
+      "name": "Jaypee Sun Court",
+      "slug": "jaypee-sun-court-pari-chowk",
+      "rera": "UPRERAPRJ3922",
+      "builder": "Jaypee Greens (Suraksha Group Resolution)"
+    },
+    {
+      "name": "Victory Central",
+      "slug": "victory-central-sector-12",
+      "rera": "UPRERAPRJ345678",
+      "builder": "Victory Infratech"
+    },
+    {
+      "name": "Omaxe Riviera",
+      "slug": "omaxe-riviera-surajpur",
+      "rera": "UPRERAPRJ2107",
+      "builder": "Omaxe Limited"
+    },
+    {
+      "name": "ABA Cherry County",
+      "slug": "aba-cherry-county-techzone-4",
+      "rera": "UPRERAPRJ4285",
+      "builder": "ABA Corp"
+    },
+    {
+      "name": "Ashiana Amaltas",
+      "slug": "ashiana-amaltas-sector-79",
+      "rera": "UPRERAPRJ79115",
+      "builder": "Ashiana Housing"
+    },
+    {
+      "name": "Aditya Celebrity Homes",
+      "slug": "aditya-celebrity-homes-sector-76",
+      "rera": "UPRERAPRJ76130",
+      "builder": "Aditya Builders (Agarwal Associates)"
+    },
+    {
+      "name": "Ajnara The Belvedere",
+      "slug": "ajnara-the-belvedere-sector-79",
+      "rera": "UPRERAPRJ79110",
+      "builder": "Ajnara India Ltd"
+    },
+    {
+      "name": "Amrapali Crystal Homes",
+      "slug": "amrapali-crystal-homes-sector-76",
+      "rera": "UPRERAPRJ76126",
+      "builder": "Amrapali Group (NBCC Supervised)"
+    },
+    {
+      "name": "IBP Windsor Valley",
+      "slug": "ibp-windsor-valley-sector-10",
+      "rera": "UPRERAPRJ721094",
+      "builder": "IBP Group"
+    },
+    {
+      "name": "Godrej Nurture",
+      "slug": "godrej-nurture-sector-150-noida",
+      "rera": "UPRERAPRJ17861",
+      "builder": "Godrej Properties"
+    },
+    {
+      "name": "Ambr Aspire",
+      "slug": "ambr-aspire-sector-10",
+      "rera": "UPRERAPRJ941203/11/2024",
+      "builder": "Ambr Group"
+    },
+    {
+      "name": "Golden Palms",
+      "slug": "golden-palms-sector-168-noida",
+      "rera": "UPRERAPRJ1681",
+      "builder": "IITL Nimbus Group"
+    },
+    {
+      "name": "Golf Avenue II",
+      "slug": "golf-avenue-ii-sector-75",
+      "rera": "UPRERAPRJ1236",
+      "builder": "AIMS Golf Developers"
+    },
+    {
+      "name": "Rajhans Residency",
+      "slug": "rajhans-residency-sector-1",
+      "rera": "UPRERAPRJ8110",
+      "builder": "Rajhans"
+    },
+    {
+      "name": "ATS Pristine Phase 2",
+      "slug": "ats-pristine-phase-2-sector-150",
+      "rera": "UPRERAPRJ2876",
+      "builder": "ATS Homekraft"
+    },
+    {
+      "name": "SKA Metro Ville",
+      "slug": "ska-metro-ville-eta-2-greno-w",
+      "rera": "UPRERAPRJ10875",
+      "builder": "SKA Group"
+    },
+    {
+      "name": "Grand Ajnara Heritage",
+      "slug": "grand-ajnara-heritage-sector-74-noida",
+      "rera": "UPRERAPRJ5655",
+      "builder": "Ajnara India Ltd"
+    },
+    {
+      "name": "Great Value Sharanam Greno",
+      "slug": "great-value-sharanam-greno-sector-1",
+      "rera": "UPRERAPRJ6110",
+      "builder": "Great Value Realty"
+    },
+    {
+      "name": "Greenarch",
+      "slug": "greenarch-techzone-4-greater-noida-west",
+      "rera": "UPRERAPRJ2010",
+      "builder": "Greenarch"
+    },
+    {
+      "name": "Habitech Panchtatva",
+      "slug": "habitech-panchtatva-techzone-4",
+      "rera": "UPRERAPRJ8811",
+      "builder": "Habitech"
+    },
+    {
+      "name": "Hawelia Valencia Homes",
+      "slug": "hawelia-valencia-homes-sector-1",
+      "rera": "UPRERAPRJ3218",
+      "builder": "Hawelia Group"
+    },
+    {
+      "name": "Himalaya Pride",
+      "slug": "himalaya-pride-techzone-4",
+      "rera": "UPRERAPRJ3910",
+      "builder": "Himalaya Group"
+    },
+    {
+      "name": "Jaypee Kosmos",
+      "slug": "jaypee-kosmos-sector-134-noida",
+      "rera": "UPRERAPRJ3914",
+      "builder": "Jaypee Wish Town"
+    },
+    {
+      "name": "Homes 121",
+      "slug": "homes-121-sector-121",
+      "rera": "UPRERAPRJ1211",
+      "builder": "ABA Corp"
+    },
+    {
+      "name": "ATS Dolce",
+      "slug": "ats-dolce-sector-zeta-1",
+      "rera": "UPRERAPRJ3774",
+      "builder": "ATS Infrastructure"
+    },
+    {
+      "name": "Hyde Park",
+      "slug": "hyde-park-sector-78",
+      "rera": "UPRERAPRJ7803",
+      "builder": "The 3C Company"
+    },
+    {
+      "name": "Stellar MI City Homes",
+      "slug": "stellar-mi-city-homes-sector-omicron-3",
+      "rera": "UPRERAPRJ3948",
+      "builder": "Stellar Group"
+    },
+    {
+      "name": "Lotus Arena",
+      "slug": "lotus-arena-sector-79-noida",
+      "rera": "UPRERAPRJ10034",
+      "builder": "Lotus Greens"
+    },
+    {
+      "name": "Royal Nest",
+      "slug": "royal-nest-sector-16c-greater-noida-west",
+      "rera": "UPRERAPRJ1011",
+      "builder": "Royal Nest"
+    },
+    {
+      "name": "Gaur Mulberry Mansions",
+      "slug": "gaur-mulberry-mansions-sector-1",
+      "rera": "UPRERAPRJ7102",
+      "builder": "Gaursons"
+    },
+    {
+      "name": "Prateek Edifice",
+      "slug": "prateek-edifice-sector-107-noida",
+      "rera": "UPRERAPRJ1073",
+      "builder": "Prateek Group"
+    },
+    {
+      "name": "Panchsheel Pinnacle",
+      "slug": "panchsheel-pinnacle-sector-16b",
+      "rera": "UPRERAPRJ8640",
+      "builder": "Panchsheel Buildtech"
+    },
+    {
+      "name": "Prateek Stylome",
+      "slug": "prateek-stylome-sector-45-noida",
+      "rera": "UPRERAPRJ4501",
+      "builder": "Prateek Group"
+    },
+    {
+      "name": "Samridhi Luxuriate",
+      "slug": "samridhi-luxuriate-sector-150",
+      "rera": "UPRERAPRJ1503",
+      "builder": "Samridhi Group"
+    },
+    {
+      "name": "Sikka Kaamya Greens",
+      "slug": "sikka-kaamya-greens-sector-10",
+      "rera": "UPRERAPRJ5805",
+      "builder": "Sikka Group"
+    },
+    {
+      "name": "SKA Greenarch",
+      "slug": "ska-greenarch-sector-16b",
+      "rera": "UPRERAPRJ10874",
+      "builder": "SKA Group"
+    },
+    {
+      "name": "Skytech Matrott",
+      "slug": "skytech-matrott-sector-76",
+      "rera": "UPRERAPRJ76124",
+      "builder": "Skytech Group"
+    },
+    {
+      "name": "Arihant Ambar",
+      "slug": "arihant-ambar-sector-1",
+      "rera": "UPRERAPRJ8418",
+      "builder": "Arihant Group"
+    },
+    {
+      "name": "Lotus Greens Arena",
+      "slug": "lotus-greens-arena-sector-79",
+      "rera": "UPRERAPRJ79103",
+      "builder": "Lotus Greens"
+    },
+    {
+      "name": "Patel Neotown",
+      "slug": "patel-neotown-techzone-4-greater-noida-west",
+      "rera": "UPRERAPRJ8010",
+      "builder": "Patel"
+    },
+    {
+      "name": "Rise Resort Residences",
+      "slug": "rise-resort-residences-sector-1",
+      "rera": "UPRERAPRJ6610",
+      "builder": "Rise Group"
+    },
+    {
+      "name": "Saraswati Landmark",
+      "slug": "saraswati-landmark-sector-1",
+      "rera": "UPRERAPRJ3110",
+      "builder": "Saraswati"
+    },
+    {
+      "name": "Sikka Kimaantra Greens",
+      "slug": "sikka-kimaantra-greens-sector-79",
+      "rera": "UPRERAPRJ79108",
+      "builder": "Sikka Group"
+    },
+    {
+      "name": "Mahagun Mantra II",
+      "slug": "mahagun-mantra-ii-sector-10",
+      "rera": "UPRERAPRJ1871",
+      "builder": "ACE Group & Mahagun"
+    },
+    {
+      "name": "Mahagun Mirabella",
+      "slug": "mahagun-mirabella-sector-79-noida",
+      "rera": "UPRERAPRJ1866",
+      "builder": "ACE Group & Mahagun"
+    },
+    {
+      "name": "Maxblis White House",
+      "slug": "maxblis-white-house-sector-75-noida",
+      "rera": "UPRERAPRJ7418",
+      "builder": "Maxblis Construction"
+    },
+    {
+      "name": "Migsun Wynn",
+      "slug": "migsun-wynn-sector-eta-2-noida",
+      "rera": "UPRERAPRJ2981",
+      "builder": "Migsun Group"
+    },
+    {
+      "name": "NBCC Aspire Eternia",
+      "slug": "nbcc-aspire-eternia-techzone-4",
+      "rera": "UPRERAPRJ882190",
+      "builder": "NBCC India Ltd"
+    },
+    {
+      "name": "NBCC Leisure Valley",
+      "slug": "nbcc-leisure-valley-sector-1-greater-noida-west",
+      "rera": "UPRERAPRJ882230",
+      "builder": "NBCC India Ltd"
+    },
+    {
+      "name": "Supertech Eco Village 2",
+      "slug": "supertech-eco-village-2-sector-16b-greater-noida-west",
+      "rera": "UPRERAPRJ16B2",
+      "builder": "Supertech Limited"
+    },
+    {
+      "name": "ATS Kingston Heath",
+      "slug": "ats-kingston-heath-sector-150",
+      "rera": "UPRERAPRJ852370",
+      "builder": "ATS Infrastructure"
+    },
+    {
+      "name": "ATS Le Grandiose Phase 2",
+      "slug": "ats-le-grandiose-phase-2-sector-150",
+      "rera": "UPRERAPRJ3251",
+      "builder": "ATS Homekraft"
+    },
+    {
+      "name": "ATS Pious Hideaways / Orchards",
+      "slug": "ats-pious-hideaways-sector-150",
+      "rera": "UPRERAPRJ417136",
+      "builder": "ATS Infrastructure"
+    },
+    {
+      "name": "ATS Pristine & Golf Meadows",
+      "slug": "ats-pristine-golf-meadows-sector-150",
+      "rera": "UPRERAPRJ1502",
+      "builder": "ATS Infrastructure"
+    },
+    {
+      "name": "Amrapali La Residentia",
+      "slug": "amrapali-la-residentia-techzone-4",
+      "rera": "UPRERAPRJ8810",
+      "builder": "Amrapali Group (NBCC Supervised)"
+    },
+    {
+      "name": "Apex Aura",
+      "slug": "apex-aura-sector-1",
+      "rera": "UPRERAPRJ2912",
+      "builder": "Apex Buildcon"
+    },
+    {
+      "name": "Capital Athena",
+      "slug": "capital-athena-sector-144-noida",
+      "rera": "UPRERAPRJ1442",
+      "builder": "Capital Infratech"
+    },
+    {
+      "name": "Eldeco Mystic Greens",
+      "slug": "eldeco-mystic-greens-sector-omicron-1",
+      "rera": "UPRERAPRJ2004",
+      "builder": "Eldeco Group"
+    },
+    {
+      "name": "Exotica Fresco",
+      "slug": "exotica-fresco-sector-137",
+      "rera": "UPRERAPRJ1371",
+      "builder": "Exotica Housing"
+    },
+    {
+      "name": "Galaxy North Avenue 1",
+      "slug": "galaxy-north-avenue-1-sector-4",
+      "rera": "UPRERAPRJ2212",
+      "builder": "Galaxy Group"
+    },
+    {
+      "name": "Gardenia Golf City (AIMS Max)",
+      "slug": "gardenia-golf-city-sector-75-noida",
+      "rera": "UPRERAPRJ11485",
+      "builder": "AIMS Max Gardenia Developers"
+    },
+    {
+      "name": "Gaur City 1 - 4th Avenue",
+      "slug": "gaur-city-1-4th-avenue-sector-4",
+      "rera": "UPRERAPRJ6744",
+      "builder": "Gaursons"
+    },
+    {
+      "name": "Gaur City 1 - 5th Avenue",
+      "slug": "gaur-city-1-5th-avenue-sector-4",
+      "rera": "UPRERAPRJ4451",
+      "builder": "Gaurs Group"
+    },
+    {
+      "name": "Prateek Fedicia",
+      "slug": "prateek-fedicia-sector-120",
+      "rera": "UPRERAPRJ3812",
+      "builder": "Prateek Group"
+    },
+    {
+      "name": "IITL Nimbus The Hyde Park",
+      "slug": "iitl-nimbus-the-hyde-park-sector-78-noida",
+      "rera": "UPRERAPRJ9689",
+      "builder": "Nimbus Projects Ltd"
+    },
+    {
+      "name": "Jaypee Greens Golf Course Residences",
+      "slug": "jaypee-greens-golf-course-pari-chowk",
+      "rera": "UPRERAPRJ3310",
+      "builder": "Jaypee Greens (Suraksha Group Resolution)"
+    },
+    {
+      "name": "Gulshan Botnia",
+      "slug": "gulshan-botnia-sector-144",
+      "rera": "UPRERAPRJ1441",
+      "builder": "Gulshan Homz"
+    },
+    {
+      "name": "Jaypee Pebble Court",
+      "slug": "jaypee-pebble-court-sector-128",
+      "rera": "UPRERAPRJ3921",
+      "builder": "Jaypee Wish Town"
+    },
+    {
+      "name": "Nimbus The Hyde Park",
+      "slug": "nimbus-the-hyde-park-sector-78",
+      "rera": "UPRERAPRJ78104",
+      "builder": "Nimbus Group (IITL Nimbus)"
+    },
+    {
+      "name": "Omaxe Palm Greens",
+      "slug": "omaxe-palm-greens-sector-mu-1-greater-noida",
+      "rera": "UPRERAPRJ2105",
+      "builder": "Omaxe Limited"
+    },
+    {
+      "name": "Paras Tierea",
+      "slug": "paras-tierea-sector-137-noida",
+      "rera": "UPRERAPRJ14831",
+      "builder": "Paras Buildtech"
+    },
+    {
+      "name": "Gaur City 1 - 7th Avenue",
+      "slug": "gaur-city-1-7th-avenue-sector-4",
+      "rera": "UPRERAPRJ4471",
+      "builder": "Gaurs Group"
+    },
+    {
+      "name": "La Palacia Towers A-D",
+      "slug": "la-palacia-towers-a-d-techzone-4",
+      "rera": "UPRERAPRJ4010",
+      "builder": "La Palacia"
+    },
+    {
+      "name": "Jaypee Star Court",
+      "slug": "jaypee-star-court-pari-chowk",
+      "rera": "UPRERAPRJ3925",
+      "builder": "Jaypee Greens (Suraksha Group Resolution)"
+    },
+    {
+      "name": "Tata Eureka Park Phase 2",
+      "slug": "tata-eureka-park-phase-2-sector-150",
+      "rera": "UPRERAPRJ5449",
+      "builder": "Tata Realty"
+    },
+    {
+      "name": "Vihaan Heritage",
+      "slug": "vihaan-heritage-sector-1",
+      "rera": "UPRERAPRJ7711",
+      "builder": "Vihaan Group"
+    },
+    {
+      "name": "ABA Cleo County",
+      "slug": "aba-cleo-county-sector-121",
+      "rera": "UPRERAPRJ6210",
+      "builder": "ABA Corp"
+    },
+    {
+      "name": "Cleo County",
+      "slug": "cleo-county-sector-121-noida",
+      "rera": "UPRERAPRJ5931 / UPRERAPRJ2369 / UPRERAPRJ2437",
+      "builder": "ABA Corp"
+    },
+    {
+      "name": "Gaur City 1 - 2nd Avenue",
+      "slug": "gaur-city-1-2nd-avenue-sector-4",
+      "rera": "UPRERAPRJ6743",
+      "builder": "Gaursons"
+    },
+    {
+      "name": "ATS Greens 1",
+      "slug": "ats-greens-1-sector-50",
+      "rera": "UPRERAPRJ1013",
+      "builder": "ATS Homekraft"
+    },
+    {
+      "name": "Eldeco Utopia",
+      "slug": "eldeco-utopia-sector-93a",
+      "rera": "UPRERAPRJ9302",
+      "builder": "Eldeco Group"
+    },
+    {
+      "name": "Gaur City 2 - 12th Avenue",
+      "slug": "gaur-city-2-12th-avenue-sector-16c",
+      "rera": "UPRERAPRJ16C12",
+      "builder": "Gaurs Group"
+    },
+    {
+      "name": "Hawelia Valencia Homes",
+      "slug": "hawelia-valencia-homes-techzone-4-greater-noida-west",
+      "rera": "UPRERAPRJ3320",
+      "builder": "Hawelia Group"
+    },
+    {
+      "name": "Jaypee Garden Isles",
+      "slug": "jaypee-garden-isles-sector-133",
+      "rera": "UPRERAPRJ3920",
+      "builder": "Jaypee Wish Town"
+    },
+    {
+      "name": "Sikka Kaamna Greens",
+      "slug": "sikka-kaamna-greens-sector-143",
+      "rera": "UPRERAPRJ1432",
+      "builder": "Sikka Group"
+    },
+    {
+      "name": "Supertech North Eye",
+      "slug": "supertech-north-eye-sector-74",
+      "rera": "UPRERAPRJ4015",
+      "builder": "Supertech Limited"
+    },
+    {
+      "name": "Mahagun Meadow",
+      "slug": "mahagun-meadow-sector-150",
+      "rera": "UPRERAPRJ2058",
+      "builder": "ACE Group & Mahagun"
+    },
+    {
+      "name": "Migsun Villa",
+      "slug": "migsun-villa-sector-eta-2",
+      "rera": "UPRERAPRJ2983",
+      "builder": "Migsun Group"
+    },
+    {
+      "name": "Stellar Kings Court",
+      "slug": "stellar-kings-court-sector-alpha-2",
+      "rera": "UPRERAPRJ3015",
+      "builder": "Stellar Group"
+    },
+    {
+      "name": "Migsun Atharva",
+      "slug": "migsun-atharva-sector-techzone-4",
+      "rera": "UPRERAPRJ2984",
+      "builder": "Migsun Group"
+    },
+    {
+      "name": "Mahagun Mantra I",
+      "slug": "mahagun-mantra-i-sector-10",
+      "rera": "UPRERAPRJ1870",
+      "builder": "ACE Group & Mahagun"
+    },
+    {
+      "name": "Devika Gold Homz",
+      "slug": "devika-gold-homz-sector-1",
+      "rera": "UPRERAPRJ6010",
+      "builder": "Devika"
+    },
+    {
+      "name": "Supertech Ecociti",
+      "slug": "supertech-ecociti-sector-137-noida",
+      "rera": "UPRERAPRJ1372",
+      "builder": "Supertech Limited"
+    },
+    {
+      "name": "Nimbus Express Park View 1 & 2",
+      "slug": "nimbus-express-park-view-sector-chi-5",
+      "rera": "UPRERAPRJ4912",
+      "builder": "Nimbus Group (IITL Nimbus)"
+    },
+    {
+      "name": "Amrapali Centurian Park - Tropical Garden",
+      "slug": "amrapali-centurian-park-tropical-garden-techzone-4",
+      "rera": "UPRERAPRJ8807",
+      "builder": "Amrapali Group (NBCC Supervised)"
+    },
+    {
+      "name": "Antriksh Golf View I",
+      "slug": "antriksh-golf-view-1-sector-78",
+      "rera": "UPRERAPRJ78106",
+      "builder": "Antriksh Group"
+    },
+    {
+      "name": "Jaypee Sports City (Kassia)",
+      "slug": "jaypee-sports-city-kassia-sector-25",
+      "rera": "UPRERAPRJ8826",
+      "builder": "Jaypee Greens (Suraksha Group Resolution)"
+    },
+    {
+      "name": "Paramount Floraville",
+      "slug": "paramount-floraville-sector-137",
+      "rera": "UPRERAPRJ13702",
+      "builder": "Paramount Group"
+    },
+    {
+      "name": "Jaypee Greens Wish Town Klassic",
+      "slug": "jaypee-greens-wish-town-klassic-sector-134",
+      "rera": "UPRERAPRJ8821",
+      "builder": "Jaypee Greens (Suraksha Group Resolution)"
+    },
+    {
+      "name": "ATS Le Grandiose",
+      "slug": "ats-le-grandiose-sector-150",
+      "rera": "UPRERAPRJ3250",
+      "builder": "ATS Infrastructure"
+    },
+    {
+      "name": "Samridhi Luxuriya Avenue",
+      "slug": "samridhi-luxuriya-avenue-sector-150",
+      "rera": "UPRERAPRJ2291",
+      "builder": "Samridhi Group"
+    },
+    {
+      "name": "Fusion Homes",
+      "slug": "fusion-homes-techzone-4-greater-noida-west",
+      "rera": "UPRERAPRJ0402",
+      "builder": "Fusion Buildtech"
+    },
+    {
+      "name": "Supertech Capetown",
+      "slug": "supertech-capetown-sector-74-noida",
+      "rera": "UPRERAPRJ7401",
+      "builder": "Supertech Limited"
+    },
+    {
+      "name": "Gaur Saundaryam",
+      "slug": "gaur-saundaryam-techzone-4-greater-noida-west",
+      "rera": "UPRERAPRJ6312",
+      "builder": "Gaursons"
+    },
+    {
+      "name": "Galaxy North Avenue 2",
+      "slug": "galaxy-north-avenue-2-sector-16c",
+      "rera": "UPRERAPRJ2213",
+      "builder": "Galaxy Group"
+    },
+    {
+      "name": "Galaxy Vega",
+      "slug": "galaxy-vega-techzone-4-greater-noida-west",
+      "rera": "UPRERAPRJ2210",
+      "builder": "Galaxy Group"
+    },
+    {
+      "name": "KVD Wind Park",
+      "slug": "kvd-wind-park-techzone-4-greater-noida-west",
+      "rera": "UPRERAPRJ9010",
+      "builder": "KVD"
+    },
+    {
+      "name": "Lotus Zing",
+      "slug": "lotus-zing-sector-168",
+      "rera": "UPRERAPRJ16801",
+      "builder": "The 3C Company"
+    },
+    {
+      "name": "Mahagun Mywoods",
+      "slug": "mahagun-mywoods-sector-16c-greater-noida-west",
+      "rera": "UPRERAPRJ3330",
+      "builder": "ACE Group & Mahagun"
+    },
+    {
+      "name": "Purvanchal Silver City",
+      "slug": "purvanchal-silver-city-pari-chowk-noida",
+      "rera": "UPRERAPRJ3120",
+      "builder": "Purvanchal Projects"
+    },
+    {
+      "name": "Eldeco Green Meadows",
+      "slug": "eldeco-green-meadows-sector-pi-1",
+      "rera": "UPRERAPRJ1182",
+      "builder": "Eldeco Group"
+    },
+    {
+      "name": "Gaur Atulyam",
+      "slug": "gaur-atulyam-sector-omicron-1",
+      "rera": "UPRERAPRJ6804",
+      "builder": "Gaursons"
+    },
+    {
+      "name": "Logix Blossom County",
+      "slug": "logix-blossom-county-sector-137-noida",
+      "rera": "UPRERAPRJ6601",
+      "builder": "Logix Group"
+    },
+    {
+      "name": "SRPL Flora Heritage",
+      "slug": "srpl-flora-heritage-sector-1",
+      "rera": "UPRERAPRJ9110",
+      "builder": "SRPL"
+    },
+    {
+      "name": "Ace Platinum",
+      "slug": "ace-platinum-sector-zeta-1",
+      "rera": "UPRERAPRJ2002",
+      "builder": "ACE Group"
+    },
+    {
+      "name": "Parsvnath Prestige",
+      "slug": "parsvnath-prestige-sector-93a",
+      "rera": "UPRERAPRJ3912",
+      "builder": "Parsvnath Developers"
+    },
+    {
+      "name": "Sethi Max Royal",
+      "slug": "sethi-max-royal-sector-76",
+      "rera": "UPRERAPRJ7601",
+      "builder": "Sethi Group"
+    },
+    {
+      "name": "Express Zenith",
+      "slug": "express-zenith-sector-77",
+      "rera": "UPRERAPRJ7702",
+      "builder": "Express Builders"
+    },
+    {
+      "name": "ATS Greens 2",
+      "slug": "ats-greens-2-sector-50",
+      "rera": "UPRERAPRJ1014",
+      "builder": "ATS Homekraft"
+    },
+    {
+      "name": "ATS Pristine Golf Villas Phase 1",
+      "slug": "ats-pristine-golf-villas-phase-1-sector-150",
+      "rera": "UPRERAPRJ3796",
+      "builder": "ATS Homekraft"
+    },
+    {
+      "name": "Jaypee Earth Court",
+      "slug": "jaypee-earth-court-pari-chowk",
+      "rera": "UPRERAPRJ3924",
+      "builder": "Jaypee Greens (Suraksha Group Resolution)"
+    },
+    {
+      "name": "ATS Pious Hideaways Phase 2",
+      "slug": "ats-pious-hideaways-phase-2-sector-150",
+      "rera": "UPRERAPRJ417137",
+      "builder": "ATS Homekraft"
+    },
+    {
+      "name": "Amrapali Leisure Valley",
+      "slug": "amrapali-leisure-valley-techzone-4",
+      "rera": "UPRERAPRJ8803",
+      "builder": "Amrapali Group (NBCC Supervised)"
+    },
+    {
+      "name": "Jaypee Greens Golf Course Villas",
+      "slug": "jaypee-greens-golf-course-villas-pari-chowk",
+      "rera": "UPRERAPRJ1314",
+      "builder": "Jaypee Greens (Suraksha Group Resolution)"
+    },
+    {
+      "name": "CRC Sublimis",
+      "slug": "crc-sublimis-sector-1-greater-noida-west",
+      "rera": "UPRERAPRJ15181",
+      "builder": "CRC Group"
+    },
+    {
+      "name": "Eldeco Aangan",
+      "slug": "eldeco-aangan-sector-82",
+      "rera": "UPRERAPRJ8201",
+      "builder": "Eldeco Group"
+    },
+    {
+      "name": "Gaur City 2 - 14th Avenue",
+      "slug": "gaur-city-2-14th-avenue-sector-16c",
+      "rera": "UPRERAPRJ16C14",
+      "builder": "Gaurs Group"
+    },
+    {
+      "name": "Fusion The Rivulet",
+      "slug": "fusion-the-rivulet-sector-12",
+      "rera": "UPRERAPRJ999198",
+      "builder": "Fusion Buildtech"
+    },
+    {
+      "name": "SKA Orion",
+      "slug": "ska-orion-sector-143b",
+      "rera": "UPRERAPRJ582373",
+      "builder": "SKA Group"
+    },
+    {
+      "name": "IVY County",
+      "slug": "ivy-county-sector-75",
+      "rera": "UPRERAPRJ637123",
+      "builder": "ABA Corp"
+    },
+    {
+      "name": "Panchsheel Greens 1 & 2",
+      "slug": "panchsheel-greens-sector-16",
+      "rera": "UPRERAPRJ1601",
+      "builder": "Panchsheel Buildtech"
+    },
+    {
+      "name": "Saviour Greenarch",
+      "slug": "saviour-greenarch-techzone-4",
+      "rera": "UPRERAPRJ4812",
+      "builder": "Saviour Builders"
+    },
+    {
+      "name": "SKA Divya Towers",
+      "slug": "ska-divya-towers-sector-16b",
+      "rera": "UPRERAPRJ10873",
+      "builder": "SKA Group"
+    },
+    {
+      "name": "AU Aspire",
+      "slug": "au-aspire-sector-76",
+      "rera": "UPRERAPRJ76123",
+      "builder": "AU Realtech"
+    },
+    {
+      "name": "Purvanchal Royal Park",
+      "slug": "purvanchal-royal-park-sector-137",
+      "rera": "UPRERAPRJ9912",
+      "builder": "Purvanchal Projects"
+    },
+    {
+      "name": "Jaypee Kalypso Court",
+      "slug": "jaypee-kalypso-court-sector-128",
+      "rera": "UPRERAPRJ1280",
+      "builder": "Jaypee Greens (Suraksha Group Resolution)"
+    },
+    {
+      "name": "Paramount Emotions",
+      "slug": "paramount-emotions-sector-1-greater-noida-west",
+      "rera": "UPRERAPRJ3452",
+      "builder": "Paramount Group"
+    },
+    {
+      "name": "Amrapali Dream Valley",
+      "slug": "amrapali-dream-valley-techzone-4-greater-noida-west",
+      "rera": "UPRERAPRJ8801",
+      "builder": "Amrapali Group (NBCC Supervised)"
+    },
+    {
+      "name": "Amrapali Verona Heights",
+      "slug": "amrapali-verona-heights-techzone-4-greater-noida-west",
+      "rera": "UPRERAPRJ8804",
+      "builder": "Amrapali Group (NBCC Supervised)"
+    },
+    {
+      "name": "RG Luxury Homes",
+      "slug": "rg-luxury-homes-sector-16b-greater-noida-west",
+      "rera": "UPRERAPRJ2831",
+      "builder": "RG Group"
+    },
+    {
+      "name": "Amrapali Centurian Park - O2 Valley",
+      "slug": "amrapali-centurian-park-o2-valley-techzone-4",
+      "rera": "UPRERAPRJ8806",
+      "builder": "Amrapali Group (NBCC Supervised)"
+    },
+    {
+      "name": "Amrapali Golf Homes",
+      "slug": "amrapali-golf-homes-sector-4-greater-noida-west",
+      "rera": "UPRERAPRJ8808",
+      "builder": "Amrapali Group (NBCC Supervised)"
+    },
+    {
+      "name": "Supertech Eco Village 1",
+      "slug": "supertech-eco-village-1-sector-1-greater-noida-west",
+      "rera": "UPRERAPRJ4921",
+      "builder": "Supertech Limited"
+    },
+    {
+      "name": "Saya Zion",
+      "slug": "saya-zion-sector-16b",
+      "rera": "UPRERAPRJ1604",
+      "builder": "Saya Homes"
+    },
+    {
+      "name": "Panchsheel Greens 2",
+      "slug": "panchsheel-greens-2-sector-16-greater-noida-west",
+      "rera": "UPRERAPRJ8532",
+      "builder": "Panchsheel Buildtech"
+    },
+    {
+      "name": "Apex Golf Avenue",
+      "slug": "apex-golf-avenue-sector-1-greater-noida-west",
+      "rera": "UPRERAPRJ8585",
+      "builder": "Apex Buildcon"
+    },
+    {
+      "name": "Earth Towne",
+      "slug": "earth-towne-sector-1-greater-noida-west",
+      "rera": "UPRERAPRJ6477",
+      "builder": "Earth Towne"
+    },
+    {
+      "name": "Nirala Aspire",
+      "slug": "nirala-aspire-sector-16",
+      "rera": "UPRERAPRJ2118",
+      "builder": "Nirala World"
+    },
+    {
+      "name": "RG Pleiaddes",
+      "slug": "rg-pleiaddes-sector-1-greater-noida-west",
+      "rera": "UPRERAPRJ124816",
+      "builder": "RG Group"
+    },
+    {
+      "name": "Trident Embassy Resenso",
+      "slug": "trident-embassy-resenso-sector-1",
+      "rera": "UPRERAPRJ3512",
+      "builder": "Trident Group"
+    },
+    {
+      "name": "JM Orchid",
+      "slug": "jm-orchid-sector-76",
+      "rera": "UPRERAPRJ76125",
+      "builder": "JM Housing"
+    },
+    {
+      "name": "Supertech Eco City",
+      "slug": "supertech-eco-city-sector-137-noida",
+      "rera": "UPRERAPRJ4012",
+      "builder": "Supertech Limited"
+    },
+    {
+      "name": "Lotus Greens Yardscape",
+      "slug": "lotus-greens-yardscape-sector-79",
+      "rera": "UPRERAPRJ79105",
+      "builder": "Lotus Greens"
+    },
+    {
+      "name": "AIMS Golf City",
+      "slug": "aims-golf-city-sector-75-sec-1",
+      "rera": "UPRERAPRJ1102",
+      "builder": "AIMS Golf Developers"
+    },
+    {
+      "name": "Cherry County Towers A-F",
+      "slug": "cherry-county-towers-a-f-techzone-4",
+      "rera": "UPRERAPRJ4410",
+      "builder": "Cherry County"
+    },
+    {
+      "name": "JM Aroma",
+      "slug": "jm-aroma-sector-75",
+      "rera": "UPRERAPRJ4567",
+      "builder": "JM Housing"
+    },
+    {
+      "name": "Panchsheel Greens 1",
+      "slug": "panchsheel-greens-1-sector-16b-greater-noida-west",
+      "rera": "UPRERAPRJ16BPG1",
+      "builder": "Panchsheel Buildtech"
+    },
+    {
+      "name": "Amrapali Enchante",
+      "slug": "amrapali-enchante-techzone-4",
+      "rera": "UPRERAPRJ882215",
+      "builder": "Amrapali Group (NBCC Supervised)"
+    },
+    {
+      "name": "Amrapali Silicon City",
+      "slug": "amrapali-silicon-city-sector-76",
+      "rera": "UPRERAPRJ76128",
+      "builder": "Amrapali Group (NBCC Supervised)"
+    },
+    {
+      "name": "Amrapali Eden Park",
+      "slug": "amrapali-eden-park-sector-50",
+      "rera": "UPRERAPRJ1050",
+      "builder": "Amrapali Group (NBCC Supervised)"
+    },
+    {
+      "name": "3C Lotus 300",
+      "slug": "3c-lotus-300-sector-107",
+      "rera": "UPRERAPRJ3300",
+      "builder": "The 3C Company"
+    },
+    {
+      "name": "Golden I Residential Blocks",
+      "slug": "golden-i-residential-blocks-techzone-4",
+      "rera": "UPRERAPRJ7010",
+      "builder": "Golden"
+    },
+    {
+      "name": "Purvanchal Silver City 1 & 2",
+      "slug": "purvanchal-silver-city-sector-chi-5",
+      "rera": "UPRERAPRJ2003",
+      "builder": "Purvanchal Projects"
+    },
+    {
+      "name": "SKA Green Mansion",
+      "slug": "ska-green-mansion-sector-12",
+      "rera": "UPRERAPRJ123789",
+      "builder": "SKA Group"
+    },
+    {
+      "name": "Migsun Vilaasa",
+      "slug": "migsun-vilaasa-sector-eta-2",
+      "rera": "UPRERAPRJ2006",
+      "builder": "Migsun Group"
+    },
+    {
+      "name": "Ace Starlit",
+      "slug": "ace-starlit-sector-152",
+      "rera": "UPRERAPRJ6772",
+      "builder": "ACE Group"
+    },
+    {
+      "name": "Purvanchal Royal City",
+      "slug": "purvanchal-royal-city-sector-chi-v-greater-noida",
+      "rera": "UPRERAPRJ521882",
+      "builder": "Purvanchal Projects"
+    },
+    {
+      "name": "Aniket Antalya Heights",
+      "slug": "aniket-antalya-heights-sector-1",
+      "rera": "UPRERAPRJ4110",
+      "builder": "Aniket"
+    },
+    {
+      "name": "Antriksh Golf Link",
+      "slug": "antriksh-golf-link-sector-1",
+      "rera": "UPRERAPRJ1210",
+      "builder": "Antriksh Group"
+    },
+    {
+      "name": "Gulshan Vivante",
+      "slug": "gulshan-vivante-sector-137",
+      "rera": "UPRERAPRJ2100",
+      "builder": "Gulshan Homz"
+    },
+    {
+      "name": "Orris Greenbay Golf Homes",
+      "slug": "orris-greenbay-golf-homes-sector-22d",
+      "rera": "UPRERAPRJ5528",
+      "builder": "Orris Infrastructure"
+    },
+    {
+      "name": "Supertech Golf Country",
+      "slug": "supertech-golf-country-sector-22d",
+      "rera": "UPRERAPRJ4910",
+      "builder": "Supertech Limited"
+    },
+    {
+      "name": "Ajnara Le Garden",
+      "slug": "ajnara-le-garden-sector-16b",
+      "rera": "UPRERAPRJ4819",
+      "builder": "Ajnara India Ltd"
+    },
+    {
+      "name": "Gaur City 2 - 11th Avenue",
+      "slug": "gaur-city-2-11th-avenue-sector-16c",
+      "rera": "UPRERAPRJ16C11",
+      "builder": "Gaurs Group"
+    },
+    {
+      "name": "Shri Radha Sky Gardens",
+      "slug": "shri-radha-sky-gardens-sector-16b",
+      "rera": "UPRERAPRJ7158",
+      "builder": "Shri Group"
+    },
+    {
+      "name": "Supertech Upcountry (Golf Village)",
+      "slug": "supertech-upcountry-golf-village-sector-17a",
+      "rera": "UPRERAPRJ6619",
+      "builder": "Supertech Limited"
+    },
+    {
+      "name": "Mahagun Meadows",
+      "slug": "mahagun-meadows-sector-150",
+      "rera": "UPRERAPRJ1257",
+      "builder": "Mahagun Group"
+    },
+    {
+      "name": "NBCC Aspire Dream Valley",
+      "slug": "nbcc-aspire-dream-valley-techzone-4",
+      "rera": "UPRERAPRJ882205",
+      "builder": "NBCC India Ltd"
+    },
+    {
+      "name": "ATS One Hamlet",
+      "slug": "ats-one-hamlet-sector-104-noida",
+      "rera": "UPRERAPRJ1041",
+      "builder": "ATS Infrastructure"
+    },
+    {
+      "name": "Gulshan Ikebana Towers A-F",
+      "slug": "gulshan-ikebana-towers-a-f-sector-143",
+      "rera": "UPRERAPRJ2101",
+      "builder": "Gulshan Group"
+    },
+    {
+      "name": "ATS Green Paradiso",
+      "slug": "ats-green-paradiso-sector-chi-4",
+      "rera": "UPRERAPRJ2005",
+      "builder": "ATS Infrastructure"
+    },
+    {
+      "name": "Gardenia Golf City",
+      "slug": "gardenia-golf-city-sector-75",
+      "rera": "UPRERAPRJ1234",
+      "builder": "AIMS Golf Developers"
+    },
+    {
+      "name": "Ajnara Daffodil",
+      "slug": "ajnara-daffodil-sector-137",
+      "rera": "UPRERAPRJ1373",
+      "builder": "Ajnara India Ltd"
+    },
+    {
+      "name": "Supertech Supernova",
+      "slug": "supertech-supernova-sector-94",
+      "rera": "UPRERAPRJ4016",
+      "builder": "Supertech Limited"
+    },
+    {
+      "name": "Ambr Mangolia",
+      "slug": "ambr-mangolia-sector-10",
+      "rera": "UPRERAPRJ834521/08/2024",
+      "builder": "Ambr Group"
+    },
+    {
+      "name": "Ajnara Elements",
+      "slug": "ajnara-elements-sector-137",
+      "rera": "UPRERAPRJ13708",
+      "builder": "Ajnara India Ltd"
+    },
+    {
+      "name": "Kalpataru Vista",
+      "slug": "kalpataru-vista-sector-128",
+      "rera": "UPRERAPRJ14980",
+      "builder": "Kalpataru Group"
+    },
+    {
+      "name": "Lotus Boulevard Espacia",
+      "slug": "lotus-boulevard-espacia-sector-100",
+      "rera": "UPRERAPRJ2025",
+      "builder": "The 3C Company"
+    },
+    {
+      "name": "Om Centrum Heights I",
+      "slug": "om-centrum-heights-sector-76",
+      "rera": "UPRERAPRJ76131",
+      "builder": "Om Infracon"
+    },
+    {
+      "name": "Supertech Emerald Court",
+      "slug": "supertech-emerald-court-sector-93a",
+      "rera": "UPRERAPRJ1035",
+      "builder": "Supertech Limited"
+    },
+    {
+      "name": "Sindhuja Greens",
+      "slug": "sindhuja-greens-sector-10",
+      "rera": "UPRERAPRJ642190",
+      "builder": "Sindhuja Group"
+    },
+    {
+      "name": "Tata Eureka Park",
+      "slug": "tata-eureka-park-sector-150",
+      "rera": "UPRERAPRJ5448",
+      "builder": "Tata Value Homes"
+    },
+    {
+      "name": "Jaypee Pavilion Court",
+      "slug": "jaypee-pavilion-court-sector-128",
+      "rera": "UPRERAPRJ1282",
+      "builder": "Jaypee Greens (Suraksha Group Resolution)"
+    },
+    {
+      "name": "Parx Laureate",
+      "slug": "parx-laureate-sector-108",
+      "rera": "UPRERAPRJ1082",
+      "builder": "Laureate Buildwell"
+    },
+    {
+      "name": "Godrej Palm Retreat",
+      "slug": "godrej-palm-retreat-sector-150-noida",
+      "rera": "UPRERAPRJ11234",
+      "builder": "Godrej Properties"
+    },
+    {
+      "name": "Jaypee Klassic",
+      "slug": "jaypee-klassic-sector-128",
+      "rera": "UPRERAPRJ3916",
+      "builder": "Jaypee Greens (Suraksha Group Resolution)"
+    },
+    {
+      "name": "Logix Blossom Zest",
+      "slug": "logix-blossom-zest-sector-143",
+      "rera": "UPRERAPRJ1430",
+      "builder": "Logix Group"
+    },
+    {
+      "name": "Unitech Horizon",
+      "slug": "unitech-horizon-beta-2",
+      "rera": "UPRERAPRJBETA2",
+      "builder": "Unitech Limited"
+    },
+    {
+      "name": "NRI City Township",
+      "slug": "nri-city-township-omega-1",
+      "rera": "UPRERAPRJ2901",
+      "builder": "Parsvnath Developers"
+    },
+    {
+      "name": "Sikka Samrat Homes",
+      "slug": "sikka-samrat-homes-sector-79",
+      "rera": "UPRERAPRJ79109",
+      "builder": "Sikka Group"
+    },
+    {
+      "name": "ATS Sovereign",
+      "slug": "ats-sovereign-sector-104-noida",
+      "rera": "UPRERAPRJ1042",
+      "builder": "ATS Infrastructure"
+    },
+    {
+      "name": "Civitech Sampriti",
+      "slug": "civitech-sampriti-sector-77",
+      "rera": "UPRERAPRJ77104",
+      "builder": "Civitech Developers"
+    },
+    {
+      "name": "County 107",
+      "slug": "county-107-sector-107",
+      "rera": "UPRERAPRJ837374",
+      "builder": "ABA Corp"
+    },
+    {
+      "name": "Nimbus Hyde Park",
+      "slug": "nimbus-hyde-park-sector-78-noida",
+      "rera": "UPRERAPRJ6689",
+      "builder": "IITL Nimbus Realty"
+    },
+    {
+      "name": "Aditya Urban Casa",
+      "slug": "aditya-urban-casa-sector-78",
+      "rera": "UPRERAPRJ7801",
+      "builder": "Agarwal Associates"
+    },
+    {
+      "name": "Sunworld Vanalika",
+      "slug": "sunworld-vanalika-sector-107",
+      "rera": "UPRERAPRJ1072",
+      "builder": "Sunworld Developers"
+    },
+    {
+      "name": "Gaur City 1 - 6th Avenue",
+      "slug": "gaur-city-1-6th-avenue-sector-4",
+      "rera": "UPRERAPRJ4461",
+      "builder": "Gaurs Group"
+    },
+    {
+      "name": "Lotus Boulevard",
+      "slug": "lotus-boulevard-sector-100-greater-noida-west",
+      "rera": "UPRERAPRJ2019",
+      "builder": "The 3C Company"
+    },
+    {
+      "name": "Gaur City 2 - 10th Avenue",
+      "slug": "gaur-city-2-10th-avenue-sector-16c",
+      "rera": "UPRERAPRJ16C10",
+      "builder": "Gaurs Group"
+    },
+    {
+      "name": "Godrej Golf Links & The Crest",
+      "slug": "godrej-golf-links-the-crest-sector-27",
+      "rera": "UPRERAPRJ151",
+      "builder": "Godrej Properties"
+    },
+    {
+      "name": "Sunshine Helios",
+      "slug": "sunshine-helios-sector-78",
+      "rera": "UPRERAPRJ78109",
+      "builder": "Sunshine Group"
+    },
+    {
+      "name": "Supertech Supernova Astralis",
+      "slug": "supertech-supernova-astralis-sector-94",
+      "rera": "UPRERAPRJ4017",
+      "builder": "Supertech Limited"
+    },
+    {
+      "name": "Jaypee Klassic Block 6-10",
+      "slug": "jaypee-klassic-block-6-10-sector-134",
+      "rera": "UPRERAPRJ3917",
+      "builder": "Jaypee Wish Town"
+    },
+    {
+      "name": "Amrapali Silicon City Phase 1",
+      "slug": "amrapali-silicon-city-phase-1-sector-76",
+      "rera": "UPRERAPRJ8820",
+      "builder": "Amrapali Group (NBCC Supervised)"
+    },
+    {
+      "name": "Jaypee Aman",
+      "slug": "jaypee-aman-sector-151-noida",
+      "rera": "UPRERAPRJ3918",
+      "builder": "Jaypee Wish Town"
+    },
+    {
+      "name": "Jaypee Greens Kalypso Court",
+      "slug": "jaypee-greens-kalypso-court-sector-128",
+      "rera": "UPRERAPRJ8822",
+      "builder": "Jaypee Greens (Suraksha Group Resolution)"
+    },
+    {
+      "name": "Jaypee Greens Kosmos",
+      "slug": "jaypee-greens-kosmos-sector-134",
+      "rera": "UPRERAPRJ8824",
+      "builder": "Jaypee Greens (Suraksha Group Resolution)"
+    },
+    {
+      "name": "Jaypee Imperial Court",
+      "slug": "jaypee-imperial-court-sector-128",
+      "rera": "UPRERAPRJ3926",
+      "builder": "Jaypee Greens (Suraksha Group Resolution)"
+    },
+    {
+      "name": "Logix Blossom Greens Phase 1",
+      "slug": "logix-blossom-greens-phase-1-sector-143",
+      "rera": "UPRERAPRJ6604",
+      "builder": "Logix Group"
+    },
+    {
+      "name": "Gardenia Glory",
+      "slug": "gardenia-glory-sector-46",
+      "rera": "UPRERAPRJ4601",
+      "builder": "AIMS Max Gardenia Developers"
+    },
+    {
+      "name": "Gaur City 2 - 16th Avenue",
+      "slug": "gaur-city-2-16th-avenue-sector-16c",
+      "rera": "UPRERAPRJ16C16",
+      "builder": "Gaurs Group"
+    },
+    {
+      "name": "ATS Allure",
+      "slug": "ats-allure-sector-22d",
+      "rera": "UPRERAPRJ22D1",
+      "builder": "ATS Infrastructure"
+    },
+    {
+      "name": "Migsun Ultimo",
+      "slug": "migsun-ultimo-sector-omicron-3",
+      "rera": "UPRERAPRJ2491",
+      "builder": "Migsun Group"
+    },
+    {
+      "name": "Antriksh Golf View",
+      "slug": "antriksh-golf-view-sector-78-noida",
+      "rera": "UPRERAPRJ6688",
+      "builder": "Antriksh Group"
+    },
+    {
+      "name": "Lotus 300",
+      "slug": "lotus-300-sector-107",
+      "rera": "UPRERAPRJ10704",
+      "builder": "The 3C Company"
+    },
+    {
+      "name": "Panchsheel Hynish",
+      "slug": "panchsheel-hynish-sector-1-greater-noida-west",
+      "rera": "UPRERAPRJ0104",
+      "builder": "Panchsheel Buildtech"
+    },
+    {
+      "name": "Supertech Eco Village 1",
+      "slug": "supertech-eco-village-1-sector-16b",
+      "rera": "UPRERAPRJ16B1",
+      "builder": "Supertech Limited"
+    },
+    {
+      "name": "Fusion The Brook",
+      "slug": "fusion-the-brook-sector-12",
+      "rera": "UPRERAPRJ987654/05/2024",
+      "builder": "Fusion Buildtech"
+    },
+    {
+      "name": "Maxblis Grand Wellington",
+      "slug": "maxblis-grand-wellington-sector-75",
+      "rera": "UPRERAPRJ2345",
+      "builder": "Maxblis Construction"
+    },
+    {
+      "name": "Gulshan Ikebana",
+      "slug": "gulshan-ikebana-sector-143-noida",
+      "rera": "UPRERAPRJ2102",
+      "builder": "Gulshan Homz"
+    },
+    {
+      "name": "Godrej Nest",
+      "slug": "godrej-nest-sector-150-noida",
+      "rera": "UPRERAPRJ13521",
+      "builder": "Godrej Properties"
+    },
+    {
+      "name": "Stellar Jeevan",
+      "slug": "stellar-jeevan-sector-1-greaternoidawest",
+      "rera": "UPRERAPRJ1001",
+      "builder": "Stellar Group"
+    },
+    {
+      "name": "Jaypee Kosmos",
+      "slug": "jaypee-kosmos-sector-128",
+      "rera": "UPRERAPRJ12808",
+      "builder": "Jaypee Greens (Suraksha Group Resolution)"
+    },
+    {
+      "name": "Sunshine Solaris",
+      "slug": "sunshine-solaris-sector-79",
+      "rera": "UPRERAPRJ79114",
+      "builder": "Sunshine Group"
+    },
+    {
+      "name": "AVS Orchard",
+      "slug": "avs-orchard-sector-77",
+      "rera": "UPRERAPRJ77105",
+      "builder": "AVS Group"
+    },
+    {
+      "name": "Eldeco Residency Greens",
+      "slug": "eldeco-residency-greens-sector-alpha-2",
+      "rera": "UPRERAPRJ4105",
+      "builder": "Eldeco Group"
+    },
+    {
+      "name": "Prateek Laurel",
+      "slug": "prateek-laurel-sector-120-noida",
+      "rera": "UPRERAPRJ4522",
+      "builder": "Prateek Group"
+    },
+    {
+      "name": "Migsun Ultima",
+      "slug": "migsun-ultima-sector-zeta-1",
+      "rera": "UPRERAPRJ2982",
+      "builder": "Migsun Group"
+    },
+    {
+      "name": "Coco County",
+      "slug": "coco-county-sector-10",
+      "rera": "UPRERAPRJ958386",
+      "builder": "ABA Corp"
+    },
+    {
+      "name": "Civitech Stadia",
+      "slug": "civitech-stadia-sector-79",
+      "rera": "UPRERAPRJ79102",
+      "builder": "Civitech Developers"
+    },
+    {
+      "name": "Omaxe Grandwoods",
+      "slug": "omaxe-grandwoods-sector-forest-lane",
+      "rera": "UPRERAPRJ2108",
+      "builder": "Omaxe Limited"
+    },
+    {
+      "name": "Stellar Mi City",
+      "slug": "stellar-mi-city-sector-zeta-1",
+      "rera": "UPRERAPRJ3014",
+      "builder": "Stellar Group"
+    },
+    {
+      "name": "AIMS Golf Avenue I",
+      "slug": "aims-golf-avenue-sector-75",
+      "rera": "UPRERAPRJ1235",
+      "builder": "AIMS Golf Developers"
+    },
+    {
+      "name": "ATS Pristine",
+      "slug": "ats-pristine-sector-150",
+      "rera": "UPRERAPRJ2875",
+      "builder": "ATS Infrastructure"
+    },
+    {
+      "name": "Jaypee Moon Court",
+      "slug": "jaypee-moon-court-pari-chowk",
+      "rera": "UPRERAPRJ3923",
+      "builder": "Jaypee Greens (Suraksha Group Resolution)"
+    },
+    {
+      "name": "Gaur Grandeur",
+      "slug": "gaur-grandeur-sector-119",
+      "rera": "UPRERAPRJ1191",
+      "builder": "Gaurs Group"
+    },
+    {
+      "name": "SDS NRI Township Phase 2",
+      "slug": "sds-nri-township-phase-2-yamuna-expressway",
+      "rera": "UPRERAPRJ1103",
+      "builder": "SDS Infracon"
+    },
+    {
+      "name": "Saviour Greenisle",
+      "slug": "saviour-greenisle-sector-16c",
+      "rera": "UPRERAPRJ9901",
+      "builder": "Saviour Builders"
+    },
+    {
+      "name": "Amrapali Sapphire",
+      "slug": "amrapali-sapphire-sector-45",
+      "rera": "UPRERAPRJ4502",
+      "builder": "Amrapali Group (NBCC Supervised)"
+    },
+    {
+      "name": "Nirala Estate Phase 1",
+      "slug": "nirala-estate-phase-1-sector-16b",
+      "rera": "UPRERAPRJ16B4",
+      "builder": "Nirala World"
+    },
+    {
+      "name": "Apex Athena",
+      "slug": "apex-athena-sector-75-noida",
+      "rera": "UPRERAPRJ10394",
+      "builder": "Apex Group"
+    },
+    {
+      "name": "RG Residency",
+      "slug": "rg-residency-sector-120",
+      "rera": "UPRERAPRJ1202",
+      "builder": "RG Group"
+    },
+    {
+      "name": "VVIP Homes",
+      "slug": "vvip-homes-sector-16c",
+      "rera": "UPRERAPRJ16C0",
+      "builder": "VVIP Group"
+    },
+    {
+      "name": "Salcon Verandas Noida",
+      "slug": "salcon-verandas-sector-107",
+      "rera": "UPRERAPRJ1075",
+      "builder": "Salcon Building"
+    },
+    {
+      "name": "Supertech Eco Suites",
+      "slug": "supertech-eco-suites-sector-137",
+      "rera": "UPRERAPRJ13712",
+      "builder": "Supertech Limited"
+    },
+    {
+      "name": "Ace Aspire",
+      "slug": "ace-aspire-techzone-4-greater-noida-west",
+      "rera": "UPRERAPRJ0401",
+      "builder": "ACE Group"
+    },
+    {
+      "name": "ATS Greens Village",
+      "slug": "ats-greens-village-sector-93a",
+      "rera": "UPRERAPRJ9301",
+      "builder": "ATS Infrastructure"
+    },
+    {
+      "name": "Eldeco Aamantran",
+      "slug": "eldeco-aamantran-sector-119",
+      "rera": "UPRERAPRJ1192",
+      "builder": "Eldeco Group"
+    },
+    {
+      "name": "Omaxe Forest Spa",
+      "slug": "omaxe-forest-spa-sector-93b",
+      "rera": "UPRERAPRJ9304",
+      "builder": "Omaxe Limited"
+    },
+    {
+      "name": "Stellar Park",
+      "slug": "stellar-park-sector-62-noida",
+      "rera": "UPRERAPRJ621",
+      "builder": "Stellar Group"
+    },
+    {
+      "name": "Maxblis White House II",
+      "slug": "maxblis-white-house-sector-75",
+      "rera": "UPRERAPRJ2345C",
+      "builder": "Maxblis Construction"
+    },
+    {
+      "name": "Panchsheel Pratishtha",
+      "slug": "panchsheel-pratishtha-sector-75",
+      "rera": "UPRERAPRJ5678",
+      "builder": "Panchsheel Buildtech"
+    },
+    {
+      "name": "Urbtech Hilston",
+      "slug": "urbtech-hilston-sector-79-noida",
+      "rera": "UPRERAPRJ6819",
+      "builder": "Urbtech India"
+    },
+    {
+      "name": "Mahagun Mantraa 1 & 2",
+      "slug": "mahagun-mantraa-sector-10",
+      "rera": "UPRERAPRJ1846 / UPRERAPRJ1870",
+      "builder": "Mahagun Group"
+    },
+    {
+      "name": "ATS Happy Trails",
+      "slug": "ats-happy-trails-sector-10",
+      "rera": "UPRERAPRJ15574",
+      "builder": "ATS Homekraft"
+    },
+    {
+      "name": "Paras Seasons",
+      "slug": "paras-seasons-sector-168-noida",
+      "rera": "UPRERAPRJ1683",
+      "builder": "Paras Buildtech"
+    },
+    {
+      "name": "Trinity Primus",
+      "slug": "trinity-primus-sector-10",
+      "rera": "UPRERAPRJ872145/05/2024",
+      "builder": "Trinity Group"
+    },
+    {
+      "name": "Amrapali Zodiac",
+      "slug": "amrapali-zodiac-sector-120-noida",
+      "rera": "UPRERAPRJ1201",
+      "builder": "Amrapali Group (NBCC Supervised)"
+    },
+    {
+      "name": "Hilston by Urbtech",
+      "slug": "hilston-by-urbtech-sector-79",
+      "rera": "UPRERAPRJ79111",
+      "builder": "Urbtech India"
+    },
+    {
+      "name": "Gaur City 1 - 1st Avenue",
+      "slug": "gaur-city-1-1st-avenue-sector-4",
+      "rera": "UPRERAPRJ4411",
+      "builder": "Gaurs Group"
+    },
+    {
+      "name": "Supertech Eco Village 3",
+      "slug": "supertech-eco-village-3-sector-16b-greater-noida-west",
+      "rera": "UPRERAPRJ16BEV3",
+      "builder": "Supertech Limited"
+    },
+    {
+      "name": "Vihaan Greens Phase 1",
+      "slug": "vihaan-greens-phase-1-sector-1",
+      "rera": "UPRERAPRJ7710",
+      "builder": "Vihaan Group"
+    },
+    {
+      "name": "AIMS Golf Avenue I & II",
+      "slug": "aims-golf-avenue-sector-75-noida",
+      "rera": "UPRERAPRJ10635",
+      "builder": "AIMS Golf Developers"
+    },
+    {
+      "name": "Gardenia Gateway",
+      "slug": "gardenia-gateway-sector-75-noida",
+      "rera": "UPRERAPRJ11023",
+      "builder": "AIMS Max Gardenia Developers"
+    },
+    {
+      "name": "Amrapali Princely Estate",
+      "slug": "amrapali-princely-estate-sector-76",
+      "rera": "UPRERAPRJ76127",
+      "builder": "Amrapali Group (NBCC Supervised)"
+    },
+    {
+      "name": "Amrapali Aurum Towers",
+      "slug": "amrapali-aurum-towers-sector-76",
+      "rera": "UPRERAPRJ76129",
+      "builder": "Amrapali Group (NBCC Supervised)"
+    },
+    {
+      "name": "Antriksh Forest",
+      "slug": "antriksh-forest-sector-77",
+      "rera": "UPRERAPRJ77107",
+      "builder": "Antriksh Group"
+    },
+    {
+      "name": "Lotus Greens Arena II",
+      "slug": "lotus-greens-arena-2-sector-79",
+      "rera": "UPRERAPRJ79104",
+      "builder": "Lotus Greens"
+    },
+    {
+      "name": "Shubhkamna Lords",
+      "slug": "shubhkamna-lords-sector-79",
+      "rera": "UPRERAPRJ79112",
+      "builder": "Shubhkamna Group (Court Receiver Supervision)"
+    },
+    {
+      "name": "Mahagun Moderne",
+      "slug": "mahagun-moderne-sector-78",
+      "rera": "UPRERAPRJ2052",
+      "builder": "Mahagun Group"
+    },
+    {
+      "name": "Nirala Aspire Towers A1-A8",
+      "slug": "nirala-aspire-towers-a1-a8-sector-16b",
+      "rera": "UPRERAPRJ2928",
+      "builder": "Nirala World"
+    },
+    {
+      "name": "Supertech Orb",
+      "slug": "supertech-orb-sector-74",
+      "rera": "UPRERAPRJ4014",
+      "builder": "Supertech Limited"
+    },
+    {
+      "name": "Ace Divino",
+      "slug": "ace-divino-sector-1-greater-noida-west",
+      "rera": "UPRERAPRJ0102",
+      "builder": "ACE Group"
+    },
+    {
+      "name": "Assotech Windsor Court",
+      "slug": "assotech-windsor-court-sector-78",
+      "rera": "UPRERAPRJ7802",
+      "builder": "Assotech Group"
+    },
+    {
+      "name": "3C Lotus Panache",
+      "slug": "3c-lotus-panache-sector-110-noida",
+      "rera": "UPRERAPRJ1101",
+      "builder": "The 3C Company"
+    },
+    {
+      "name": "ATS Village",
+      "slug": "ats-village-sector-93a-noida",
+      "rera": "UPRERAPRJ93A1",
+      "builder": "ATS Infrastructure"
+    },
+    {
+      "name": "Pan Oasis",
+      "slug": "pan-oasis-sector-70",
+      "rera": "UPRERAPRJ7001",
+      "builder": "PAN Realtors"
+    },
+    {
+      "name": "Aims Max Gardenia Golf City",
+      "slug": "aims-max-gardenia-golf-city-sector-75-noida",
+      "rera": "UPRERAPRJ11481",
+      "builder": "AIMS Max Gardenia Developers"
+    },
+    {
+      "name": "Mahagun Marvella",
+      "slug": "mahagun-marvella-sector-78",
+      "rera": "UPRERAPRJ78103",
+      "builder": "Mahagun Group"
+    },
+    {
+      "name": "Maxblis Grand Kingston",
+      "slug": "maxblis-grand-kingston-sector-75",
+      "rera": "UPRERAPRJ2345B",
+      "builder": "Maxblis Construction"
+    },
+    {
+      "name": "ACE Parkway",
+      "slug": "ace-parkway-sector-150",
+      "rera": "UPRERAPRJ4510",
+      "builder": "ACE Group"
+    },
+    {
+      "name": "Spring Meadows",
+      "slug": "spring-meadows-sector-1",
+      "rera": "UPRERAPRJ1741",
+      "builder": "Spring Group"
+    },
+    {
+      "name": "Supercity Mayfair",
+      "slug": "supercity-mayfair-techzone-4",
+      "rera": "UPRERAPRJ5513",
+      "builder": "Supercity Group"
+    },
+    {
+      "name": "Panchsheel Greens 2",
+      "slug": "panchsheel-greens-2-sector-16b",
+      "rera": "UPRERAPRJ16BPG2",
+      "builder": "Panchsheel Buildtech"
+    },
+    {
+      "name": "Griha Pravesh",
+      "slug": "griha-pravesh-sector-77",
+      "rera": "UPRERAPRJ77106",
+      "builder": "Griha Pravesh Buildteck"
+    },
+    {
+      "name": "Sikka Karmic Greens",
+      "slug": "sikka-karmic-greens-sector-78",
+      "rera": "UPRERAPRJ78108",
+      "builder": "Sikka Group"
+    },
+    {
+      "name": "Gaur Sportswood",
+      "slug": "gaur-sportswood-sector-79",
+      "rera": "UPRERAPRJ7901",
+      "builder": "Gaurs Group"
+    },
+    {
+      "name": "JM Solitaire",
+      "slug": "jm-solitaire-sector-75",
+      "rera": "UPRERAPRJ4568",
+      "builder": "JM Housing"
+    },
+    {
+      "name": "Paramount Golf Foreste",
+      "slug": "paramount-golf-foreste-sector-zeta-2",
+      "rera": "UPRERAPRJ2001",
+      "builder": "Paramount Group"
+    },
+    {
+      "name": "Arihant Abode",
+      "slug": "arihant-abode-sector-10",
+      "rera": "UPRERAPRJ15792",
+      "builder": "Arihant Group"
+    },
+    {
+      "name": "Arihant Arden",
+      "slug": "arihant-arden-sector-1-greater-noida-west",
+      "rera": "UPRERAPRJ0105",
+      "builder": "Arihant Group"
+    },
+    {
+      "name": "Trident Embassy",
+      "slug": "trident-embassy-sector-1-greater-noida-west",
+      "rera": "UPRERAPRJ3510",
+      "builder": "Trident Group"
+    }
+  ]
+}

@@ -1,0 +1,477 @@
+[
+  {
+    "name": "saudasure",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "saudacheck",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "saudapakka",
+    "com": false,
+    "in": true
+  },
+  {
+    "name": "saudaproof",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "saudaguard",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "bayanasure",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "bayanacheck",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "bayanaproof",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "bayanaguard",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "bayanaclear",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "khulasaprop",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "khulasaghar",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "khulasarealty",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "faislaghar",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "faislaprop",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "registrysure",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "registrycheck",
+    "com": false,
+    "in": true
+  },
+  {
+    "name": "registryproof",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "registryguard",
+    "com": false,
+    "in": true
+  },
+  {
+    "name": "registryclear",
+    "com": false,
+    "in": true
+  },
+  {
+    "name": "dakhilsure",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "dakhilcheck",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "dakhilproof",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "dakhilclear",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "dakhilguard",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "abhilekhghar",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "abhilekhprop",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "abhilekhsure",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "panjikaransure",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "panjikaranchat",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "nirdoshghar",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "nirdoshprop",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "nirdoshrealty",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "spashtaghar",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "spashtaprop",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "spashtarealty",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "vishuddhghar",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "vishuddhprop",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "suchighar",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "suchiprop",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "drishyaghar",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "drishyaprop",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "pramitighar",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "pramitiprop",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "bodhaghar",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "factnest",
+    "com": false,
+    "in": true
+  },
+  {
+    "name": "proofnest",
+    "com": false,
+    "in": true
+  },
+  {
+    "name": "sureurvest",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "clearnest",
+    "com": false,
+    "in": true
+  },
+  {
+    "name": "auditnest",
+    "com": false,
+    "in": false
+  },
+  {
+    "name": "nestaudit",
+    "com": false,
+    "in": true
+  },
+  {
+    "name": "nestproof",
+    "com": false,
+    "in": true
+  },
+  {
+    "name": "nestsure",
+    "com": false,
+    "in": false
+  },
+  {
+    "name": "nestclarity",
+    "com": false,
+    "in": true
+  },
+  {
+    "name": "nestguard",
+    "com": false,
+    "in": false
+  },
+  {
+    "name": "keysure",
+    "com": false,
+    "in": true
+  },
+  {
+    "name": "keyproof",
+    "com": false,
+    "in": false
+  },
+  {
+    "name": "keyguard",
+    "com": false,
+    "in": false
+  },
+  {
+    "name": "clearkey",
+    "com": false,
+    "in": false
+  },
+  {
+    "name": "factkey",
+    "com": false,
+    "in": true
+  },
+  {
+    "name": "roofaudit",
+    "com": false,
+    "in": true
+  },
+  {
+    "name": "roofproof",
+    "com": false,
+    "in": false
+  },
+  {
+    "name": "roofclarity",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "habitatsure",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "habitatcheck",
+    "com": false,
+    "in": true
+  },
+  {
+    "name": "nyayghar",
+    "com": false,
+    "in": true
+  },
+  {
+    "name": "nyayprop",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "nyayrealty",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "vidhighar",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "vidhiprop",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "nirnayghar",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "nirnayprop",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "nirnayrealty",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "vakalatprop",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "dharasprop",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "propvanta",
+    "com": false,
+    "in": true
+  },
+  {
+    "name": "gharvanta",
+    "com": false,
+    "in": false
+  },
+  {
+    "name": "veridwell",
+    "com": false,
+    "in": true
+  },
+  {
+    "name": "certihome",
+    "com": false,
+    "in": true
+  },
+  {
+    "name": "dwellsure",
+    "com": false,
+    "in": true
+  },
+  {
+    "name": "dwellproof",
+    "com": false,
+    "in": true
+  },
+  {
+    "name": "dwellcheck",
+    "com": false,
+    "in": true
+  },
+  {
+    "name": "terrascan",
+    "com": false,
+    "in": false
+  },
+  {
+    "name": "clarirealty",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "credirealty",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "proppulse",
+    "com": false,
+    "in": false
+  },
+  {
+    "name": "gharpulse",
+    "com": false,
+    "in": true
+  },
+  {
+    "name": "realtypulse",
+    "com": false,
+    "in": false
+  },
+  {
+    "name": "propstance",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "gharstance",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "propradar",
+    "com": false,
+    "in": false
+  },
+  {
+    "name": "realtyradar",
+    "com": false,
+    "in": false
+  },
+  {
+    "name": "propscope",
+    "com": false,
+    "in": false
+  },
+  {
+    "name": "realtyscope",
+    "com": false,
+    "in": false
+  },
+  {
+    "name": "proppinspect",
+    "com": true,
+    "in": true
+  }
+]

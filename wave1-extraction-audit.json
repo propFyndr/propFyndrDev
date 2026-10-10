@@ -1,0 +1,3054 @@
+[
+  {
+    "project_id": "a9c643f8-b05b-4e1b-aa6b-e58e641be355",
+    "project_name": "Paramount Golf Foreste",
+    "status": "ok",
+    "fields": [
+      {
+        "field_name": "rera_number",
+        "value": "UPRERAPRJ2001",
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.170Z"
+      },
+      {
+        "field_name": "possession_date",
+        "value": "2017-12-31T00:00:00.000Z",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.170Z"
+      },
+      {
+        "field_name": "oc_obtained",
+        "value": true,
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.170Z"
+      },
+      {
+        "field_name": "total_units",
+        "value": 1600,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.170Z"
+      },
+      {
+        "field_name": "status",
+        "value": "ready_to_move",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.170Z"
+      }
+    ],
+    "conflicts": [],
+    "quality_score": 14,
+    "notes": []
+  },
+  {
+    "project_id": "863224f4-8cde-433e-bfb5-e138029b5091",
+    "project_name": "Ace Platinum",
+    "status": "ok",
+    "fields": [
+      {
+        "field_name": "rera_number",
+        "value": "UPRERAPRJ2002",
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.170Z"
+      },
+      {
+        "field_name": "possession_date",
+        "value": "2016-10-31T00:00:00.000Z",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.170Z"
+      },
+      {
+        "field_name": "oc_obtained",
+        "value": true,
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.170Z"
+      },
+      {
+        "field_name": "total_units",
+        "value": 1200,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.170Z"
+      },
+      {
+        "field_name": "status",
+        "value": "ready_to_move",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.170Z"
+      }
+    ],
+    "conflicts": [],
+    "quality_score": 14,
+    "notes": []
+  },
+  {
+    "project_id": "8a2d0939-0d58-4bbe-bc94-2a17547138dc",
+    "project_name": "Gaur Yamuna City - 16th Parkview",
+    "status": "ok",
+    "fields": [
+      {
+        "field_name": "rera_number",
+        "value": "UPRERAPRJ6801",
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.170Z"
+      },
+      {
+        "field_name": "possession_date",
+        "value": "2023-12-31T00:00:00.000Z",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.170Z"
+      },
+      {
+        "field_name": "oc_obtained",
+        "value": true,
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.170Z"
+      },
+      {
+        "field_name": "oc_obtained_date",
+        "value": "2023-11-15T00:00:00.000Z",
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.170Z"
+      },
+      {
+        "field_name": "total_units",
+        "value": 1800,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.170Z"
+      },
+      {
+        "field_name": "status",
+        "value": "ready_to_move",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.170Z"
+      }
+    ],
+    "conflicts": [],
+    "quality_score": 15,
+    "notes": []
+  },
+  {
+    "project_id": "ecae9f5d-aabf-4ef0-b1b1-2f92dbb2af0b",
+    "project_name": "ABA Cherry County",
+    "status": "ok",
+    "fields": [
+      {
+        "field_name": "rera_number",
+        "value": "UPRERAPRJ4285",
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.170Z"
+      },
+      {
+        "field_name": "rera_compliance_score",
+        "value": 96,
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.170Z"
+      },
+      {
+        "field_name": "possession_date",
+        "value": "2018-05-31T00:00:00.000Z",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.170Z"
+      },
+      {
+        "field_name": "oc_obtained",
+        "value": true,
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.170Z"
+      },
+      {
+        "field_name": "total_units",
+        "value": 1780,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.170Z"
+      },
+      {
+        "field_name": "status",
+        "value": "ready_to_move",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.170Z"
+      }
+    ],
+    "conflicts": [],
+    "quality_score": 15,
+    "notes": []
+  },
+  {
+    "project_id": "86d58fd8-a88d-41af-adea-7e7069aaf417",
+    "project_name": "Omaxe Riviera",
+    "status": "ok",
+    "fields": [
+      {
+        "field_name": "rera_number",
+        "value": "UPRERAPRJ2107",
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.170Z"
+      },
+      {
+        "field_name": "possession_date",
+        "value": "2021-12-31T00:00:00.000Z",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.170Z"
+      },
+      {
+        "field_name": "total_units",
+        "value": 780,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.170Z"
+      },
+      {
+        "field_name": "status",
+        "value": "ready_to_move",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.170Z"
+      }
+    ],
+    "conflicts": [],
+    "quality_score": 0,
+    "notes": [
+      "Low field count, quality penalized"
+    ]
+  },
+  {
+    "project_id": "99d45697-5999-47fc-ab2e-11dde2c7613a",
+    "project_name": "ACE Group Enclave Phase 13 (Block C)",
+    "status": "ok",
+    "fields": [
+      {
+        "field_name": "rera_number",
+        "value": "UPRERAPRJ3077",
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.170Z"
+      },
+      {
+        "field_name": "possession_date",
+        "value": "2027-12-31T00:00:00.000Z",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.170Z"
+      },
+      {
+        "field_name": "oc_obtained",
+        "value": false,
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.170Z"
+      },
+      {
+        "field_name": "total_units",
+        "value": 527,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.170Z"
+      },
+      {
+        "field_name": "status",
+        "value": "under_construction",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.170Z"
+      }
+    ],
+    "conflicts": [],
+    "quality_score": 14,
+    "notes": []
+  },
+  {
+    "project_id": "1596bf90-1954-4ac3-9003-ecd6b5e207cd",
+    "project_name": "Purvanchal Heights",
+    "status": "ok",
+    "fields": [
+      {
+        "field_name": "rera_number",
+        "value": "UPRERAPRJ3122",
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.170Z"
+      },
+      {
+        "field_name": "possession_date",
+        "value": "2021-12-31T00:00:00.000Z",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.170Z"
+      },
+      {
+        "field_name": "total_units",
+        "value": 920,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.170Z"
+      },
+      {
+        "field_name": "status",
+        "value": "ready_to_move",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.170Z"
+      }
+    ],
+    "conflicts": [],
+    "quality_score": 0,
+    "notes": [
+      "Low field count, quality penalized"
+    ]
+  },
+  {
+    "project_id": "a109a117-45da-4beb-a18f-a344e00f3286",
+    "project_name": "ACE Group Enclave Phase 17 (Block C)",
+    "status": "ok",
+    "fields": [
+      {
+        "field_name": "rera_number",
+        "value": "UPRERAPRJ3097",
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.170Z"
+      },
+      {
+        "field_name": "possession_date",
+        "value": "2027-12-31T00:00:00.000Z",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.170Z"
+      },
+      {
+        "field_name": "oc_obtained",
+        "value": false,
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.170Z"
+      },
+      {
+        "field_name": "total_units",
+        "value": 1147,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.170Z"
+      },
+      {
+        "field_name": "status",
+        "value": "under_construction",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.170Z"
+      }
+    ],
+    "conflicts": [],
+    "quality_score": 14,
+    "notes": []
+  },
+  {
+    "project_id": "4e7dd63b-78c4-44c9-97e0-7c8d0e1c5317",
+    "project_name": "Migsun Atharva",
+    "status": "ok",
+    "fields": [
+      {
+        "field_name": "rera_number",
+        "value": "UPRERAPRJ2984",
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.170Z"
+      },
+      {
+        "field_name": "possession_date",
+        "value": "2027-12-31T00:00:00.000Z",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.170Z"
+      },
+      {
+        "field_name": "oc_obtained",
+        "value": false,
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.170Z"
+      },
+      {
+        "field_name": "total_units",
+        "value": 890,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.170Z"
+      },
+      {
+        "field_name": "status",
+        "value": "under_construction",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.170Z"
+      }
+    ],
+    "conflicts": [],
+    "quality_score": 14,
+    "notes": []
+  },
+  {
+    "project_id": "f6b51a2f-73d8-42fb-b80f-c0b75ceba3fb",
+    "project_name": "ACE Group Enclave Phase 12 (Block C)",
+    "status": "ok",
+    "fields": [
+      {
+        "field_name": "rera_number",
+        "value": "UPRERAPRJ3067",
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.170Z"
+      },
+      {
+        "field_name": "possession_date",
+        "value": "2027-12-31T00:00:00.000Z",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.170Z"
+      },
+      {
+        "field_name": "oc_obtained",
+        "value": false,
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.170Z"
+      },
+      {
+        "field_name": "total_units",
+        "value": 1007,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.170Z"
+      },
+      {
+        "field_name": "status",
+        "value": "under_construction",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.170Z"
+      }
+    ],
+    "conflicts": [],
+    "quality_score": 14,
+    "notes": []
+  },
+  {
+    "project_id": "8d3a3931-ec7c-4d94-983f-c6e5308d7ceb",
+    "project_name": "ACE Group Enclave Phase 15 (Block C)",
+    "status": "ok",
+    "fields": [
+      {
+        "field_name": "rera_number",
+        "value": "UPRERAPRJ3087",
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.170Z"
+      },
+      {
+        "field_name": "possession_date",
+        "value": "2027-12-31T00:00:00.000Z",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.170Z"
+      },
+      {
+        "field_name": "oc_obtained",
+        "value": false,
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.170Z"
+      },
+      {
+        "field_name": "total_units",
+        "value": 837,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.170Z"
+      },
+      {
+        "field_name": "status",
+        "value": "under_construction",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.170Z"
+      }
+    ],
+    "conflicts": [],
+    "quality_score": 14,
+    "notes": []
+  },
+  {
+    "project_id": "0485efd5-c5ba-4dde-a339-8c5983f0cff3",
+    "project_name": "Omaxe Palm Greens Phase 1",
+    "status": "ok",
+    "fields": [
+      {
+        "field_name": "rera_number",
+        "value": "UPRERAPRJ2105",
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.170Z"
+      },
+      {
+        "field_name": "possession_date",
+        "value": "2021-12-31T00:00:00.000Z",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.170Z"
+      },
+      {
+        "field_name": "total_units",
+        "value": 1100,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.170Z"
+      },
+      {
+        "field_name": "status",
+        "value": "ready_to_move",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.170Z"
+      }
+    ],
+    "conflicts": [],
+    "quality_score": 0,
+    "notes": [
+      "Low field count, quality penalized"
+    ]
+  },
+  {
+    "project_id": "5d0dbebc-1067-481d-ab0a-eae77f240720",
+    "project_name": "Omaxe Grandwoods",
+    "status": "ok",
+    "fields": [
+      {
+        "field_name": "rera_number",
+        "value": "UPRERAPRJ2108",
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.170Z"
+      },
+      {
+        "field_name": "possession_date",
+        "value": "2021-12-31T00:00:00.000Z",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.170Z"
+      },
+      {
+        "field_name": "total_units",
+        "value": 850,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.170Z"
+      },
+      {
+        "field_name": "status",
+        "value": "ready_to_move",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.170Z"
+      }
+    ],
+    "conflicts": [],
+    "quality_score": 0,
+    "notes": [
+      "Low field count, quality penalized"
+    ]
+  },
+  {
+    "project_id": "5846044f-d6eb-42b4-87ae-8255a3af83a2",
+    "project_name": "ACE Group Enclave Phase 10 (Block C)",
+    "status": "ok",
+    "fields": [
+      {
+        "field_name": "rera_number",
+        "value": "UPRERAPRJ3057",
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.170Z"
+      },
+      {
+        "field_name": "possession_date",
+        "value": "2027-12-31T00:00:00.000Z",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.170Z"
+      },
+      {
+        "field_name": "oc_obtained",
+        "value": false,
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.170Z"
+      },
+      {
+        "field_name": "total_units",
+        "value": 697,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.170Z"
+      },
+      {
+        "field_name": "status",
+        "value": "under_construction",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.170Z"
+      }
+    ],
+    "conflicts": [],
+    "quality_score": 14,
+    "notes": []
+  },
+  {
+    "project_id": "fee6dd81-709a-441f-be86-f0838c60a302",
+    "project_name": "ATS Enclave Phase 10 (Block D)",
+    "status": "ok",
+    "fields": [
+      {
+        "field_name": "rera_number",
+        "value": "UPRERAPRJ3058",
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.170Z"
+      },
+      {
+        "field_name": "possession_date",
+        "value": "2023-12-31T00:00:00.000Z",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.170Z"
+      },
+      {
+        "field_name": "oc_obtained",
+        "value": true,
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.170Z"
+      },
+      {
+        "field_name": "oc_obtained_date",
+        "value": "2023-11-15T00:00:00.000Z",
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.170Z"
+      },
+      {
+        "field_name": "total_units",
+        "value": 728,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.170Z"
+      },
+      {
+        "field_name": "status",
+        "value": "ready_to_move",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.170Z"
+      }
+    ],
+    "conflicts": [],
+    "quality_score": 15,
+    "notes": []
+  },
+  {
+    "project_id": "06894481-6cd9-45c7-9c59-d9a9e8a775ab",
+    "project_name": "Purvanchal Royal City - Phase 1 (Towers 1-8)",
+    "status": "ok",
+    "fields": [
+      {
+        "field_name": "rera_number",
+        "value": "UPRERAPRJ521882",
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.170Z"
+      },
+      {
+        "field_name": "possession_date",
+        "value": "2021-12-31T00:00:00.000Z",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.170Z"
+      },
+      {
+        "field_name": "oc_obtained",
+        "value": true,
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.170Z"
+      },
+      {
+        "field_name": "total_units",
+        "value": 1600,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.170Z"
+      },
+      {
+        "field_name": "status",
+        "value": "ready_to_move",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.170Z"
+      }
+    ],
+    "conflicts": [],
+    "quality_score": 14,
+    "notes": []
+  },
+  {
+    "project_id": "19ad5a96-a30c-4466-955a-6bd86ebe269e",
+    "project_name": "ATS Enclave Phase 12 (Block D)",
+    "status": "ok",
+    "fields": [
+      {
+        "field_name": "rera_number",
+        "value": "UPRERAPRJ3068",
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.170Z"
+      },
+      {
+        "field_name": "possession_date",
+        "value": "2023-12-31T00:00:00.000Z",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.170Z"
+      },
+      {
+        "field_name": "oc_obtained",
+        "value": true,
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.170Z"
+      },
+      {
+        "field_name": "oc_obtained_date",
+        "value": "2023-11-15T00:00:00.000Z",
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.170Z"
+      },
+      {
+        "field_name": "total_units",
+        "value": 1038,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.170Z"
+      },
+      {
+        "field_name": "status",
+        "value": "ready_to_move",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.170Z"
+      }
+    ],
+    "conflicts": [],
+    "quality_score": 15,
+    "notes": []
+  },
+  {
+    "project_id": "9a6e7661-627f-4d06-a555-dbc97c6dafd6",
+    "project_name": "Stellar Kings Court",
+    "status": "ok",
+    "fields": [
+      {
+        "field_name": "rera_number",
+        "value": "UPRERAPRJ3015",
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.170Z"
+      },
+      {
+        "field_name": "possession_date",
+        "value": "2021-12-31T00:00:00.000Z",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.170Z"
+      },
+      {
+        "field_name": "total_units",
+        "value": 580,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.170Z"
+      },
+      {
+        "field_name": "status",
+        "value": "ready_to_move",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.170Z"
+      }
+    ],
+    "conflicts": [],
+    "quality_score": 0,
+    "notes": [
+      "Low field count, quality penalized"
+    ]
+  },
+  {
+    "project_id": "a650f529-0629-4945-8fcc-a7302d7f71ea",
+    "project_name": "ACE Group Residency Phase 19 (Tower A)",
+    "status": "ok",
+    "fields": [
+      {
+        "field_name": "rera_number",
+        "value": "UPRERAPRJ8184",
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.170Z"
+      },
+      {
+        "field_name": "possession_date",
+        "value": "2023-12-31T00:00:00.000Z",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.170Z"
+      },
+      {
+        "field_name": "oc_obtained",
+        "value": true,
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.170Z"
+      },
+      {
+        "field_name": "oc_obtained_date",
+        "value": "2023-11-15T00:00:00.000Z",
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.170Z"
+      },
+      {
+        "field_name": "total_units",
+        "value": 708,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.170Z"
+      },
+      {
+        "field_name": "status",
+        "value": "ready_to_move",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.170Z"
+      }
+    ],
+    "conflicts": [],
+    "quality_score": 15,
+    "notes": []
+  },
+  {
+    "project_id": "6be84ef7-d53c-4415-8e06-ca7f3da8faa0",
+    "project_name": "Supertech Supernova",
+    "status": "ok",
+    "fields": [
+      {
+        "field_name": "rera_number",
+        "value": "UPRERAPRJ4016",
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.170Z"
+      },
+      {
+        "field_name": "possession_date",
+        "value": "2026-12-31T00:00:00.000Z",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.170Z"
+      },
+      {
+        "field_name": "oc_obtained",
+        "value": false,
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.170Z"
+      },
+      {
+        "field_name": "total_units",
+        "value": 1800,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.170Z"
+      },
+      {
+        "field_name": "status",
+        "value": "under_construction",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.170Z"
+      }
+    ],
+    "conflicts": [],
+    "quality_score": 14,
+    "notes": []
+  },
+  {
+    "project_id": "47eb6cfa-0c88-4dc4-a000-c11e9cb053e7",
+    "project_name": "Grand Omaxe",
+    "status": "ok",
+    "fields": [
+      {
+        "field_name": "rera_number",
+        "value": "UPRERAPRJ9303",
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.170Z"
+      },
+      {
+        "field_name": "rera_compliance_score",
+        "value": 96,
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.170Z"
+      },
+      {
+        "field_name": "possession_date",
+        "value": "2014-04-30T00:00:00.000Z",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.170Z"
+      },
+      {
+        "field_name": "oc_obtained",
+        "value": true,
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.170Z"
+      },
+      {
+        "field_name": "total_units",
+        "value": 1320,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.170Z"
+      },
+      {
+        "field_name": "status",
+        "value": "ready_to_move",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.170Z"
+      }
+    ],
+    "conflicts": [],
+    "quality_score": 15,
+    "notes": []
+  },
+  {
+    "project_id": "7ba97604-813f-4924-9044-53936a3737ce",
+    "project_name": "ATS Greens Village",
+    "status": "ok",
+    "fields": [
+      {
+        "field_name": "rera_number",
+        "value": "UPRERAPRJ9301",
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "possession_date",
+        "value": "2008-12-31T00:00:00.000Z",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "oc_obtained",
+        "value": true,
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "total_units",
+        "value": 750,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "status",
+        "value": "ready_to_move",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      }
+    ],
+    "conflicts": [],
+    "quality_score": 14,
+    "notes": []
+  },
+  {
+    "project_id": "7b29ddbb-d46e-4847-8da3-43b531c07b99",
+    "project_name": "Amrapali / NBCC Residency Phase 16 (Tower H)",
+    "status": "ok",
+    "fields": [
+      {
+        "field_name": "rera_number",
+        "value": "UPRERAPRJ8151",
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "possession_date",
+        "value": "2023-12-31T00:00:00.000Z",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "oc_obtained",
+        "value": true,
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "oc_obtained_date",
+        "value": "2023-11-15T00:00:00.000Z",
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "total_units",
+        "value": 1387,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "status",
+        "value": "ready_to_move",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      }
+    ],
+    "conflicts": [],
+    "quality_score": 15,
+    "notes": []
+  },
+  {
+    "project_id": "67051f07-c9c2-4e42-8064-d40cc95a0c1d",
+    "project_name": "Eldeco Aangan",
+    "status": "ok",
+    "fields": [
+      {
+        "field_name": "rera_number",
+        "value": "UPRERAPRJ8201",
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "possession_date",
+        "value": "2021-12-31T00:00:00.000Z",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "total_units",
+        "value": 720,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "status",
+        "value": "ready_to_move",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      }
+    ],
+    "conflicts": [],
+    "quality_score": 0,
+    "notes": [
+      "Low field count, quality penalized"
+    ]
+  },
+  {
+    "project_id": "492d052f-0f4d-4053-a867-13a549e31cce",
+    "project_name": "ACE Group Residency Phase 14 (Tower G)",
+    "status": "ok",
+    "fields": [
+      {
+        "field_name": "rera_number",
+        "value": "UPRERAPRJ8134",
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "possession_date",
+        "value": "2023-12-31T00:00:00.000Z",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "oc_obtained",
+        "value": true,
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "oc_obtained_date",
+        "value": "2023-11-15T00:00:00.000Z",
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "total_units",
+        "value": 758,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "status",
+        "value": "ready_to_move",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      }
+    ],
+    "conflicts": [],
+    "quality_score": 15,
+    "notes": []
+  },
+  {
+    "project_id": "0794fc2d-8f0c-47ad-ac2a-6f6d81378f56",
+    "project_name": "Ajnara The Belvedere",
+    "status": "ok",
+    "fields": [
+      {
+        "field_name": "rera_number",
+        "value": "UPRERAPRJ79110",
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "rera_compliance_score",
+        "value": 90,
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "possession_date",
+        "value": "2023-07-15T00:00:00.000Z",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "oc_obtained",
+        "value": true,
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "oc_obtained_date",
+        "value": "2023-07-15T00:00:00.000Z",
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "total_units",
+        "value": 700,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "status",
+        "value": "ready_to_move",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      }
+    ],
+    "conflicts": [],
+    "quality_score": 16,
+    "notes": []
+  },
+  {
+    "project_id": "bf1f8f50-f49b-48ba-8602-4bdfd3add664",
+    "project_name": "Aditya Urban Casa",
+    "status": "ok",
+    "fields": [
+      {
+        "field_name": "rera_number",
+        "value": "UPRERAPRJ7801",
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "rera_compliance_score",
+        "value": 90,
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "possession_date",
+        "value": "2016-08-31T00:00:00.000Z",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "oc_obtained",
+        "value": true,
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "oc_obtained_date",
+        "value": "2023-09-28T00:00:00.000Z",
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "total_units",
+        "value": 650,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "status",
+        "value": "ready_to_move",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      }
+    ],
+    "conflicts": [],
+    "quality_score": 16,
+    "notes": []
+  },
+  {
+    "project_id": "61578c3f-0f78-4a76-affb-94f40dfa4e43",
+    "project_name": "Antriksh Forest",
+    "status": "ok",
+    "fields": [
+      {
+        "field_name": "rera_number",
+        "value": "UPRERAPRJ77107",
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "rera_compliance_score",
+        "value": 90,
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "possession_date",
+        "value": "2024-02-15T00:00:00.000Z",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "oc_obtained",
+        "value": true,
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "oc_obtained_date",
+        "value": "2024-02-15T00:00:00.000Z",
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "total_units",
+        "value": 820,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "status",
+        "value": "ready_to_move",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      }
+    ],
+    "conflicts": [],
+    "quality_score": 16,
+    "notes": []
+  },
+  {
+    "project_id": "d54acc58-62ad-47a9-a522-9cc49ab299dd",
+    "project_name": "Aditya Celebrity Homes",
+    "status": "ok",
+    "fields": [
+      {
+        "field_name": "rera_number",
+        "value": "UPRERAPRJ76130",
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "rera_compliance_score",
+        "value": 90,
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "possession_date",
+        "value": "2023-11-25T00:00:00.000Z",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "oc_obtained",
+        "value": true,
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "oc_obtained_date",
+        "value": "2023-11-25T00:00:00.000Z",
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "total_units",
+        "value": 750,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "status",
+        "value": "ready_to_move",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      }
+    ],
+    "conflicts": [],
+    "quality_score": 16,
+    "notes": []
+  },
+  {
+    "project_id": "bd7ce502-3c2a-423f-bc9e-63f4e0941201",
+    "project_name": "AIMS Golf Avenue I",
+    "status": "ok",
+    "fields": [
+      {
+        "field_name": "rera_number",
+        "value": "UPRERAPRJ1235",
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "rera_compliance_score",
+        "value": 90,
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "possession_date",
+        "value": "2023-09-15T00:00:00.000Z",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "oc_obtained",
+        "value": true,
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "oc_obtained_date",
+        "value": "2023-09-15T00:00:00.000Z",
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "total_units",
+        "value": 650,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "status",
+        "value": "ready_to_move",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      }
+    ],
+    "conflicts": [],
+    "quality_score": 16,
+    "notes": []
+  },
+  {
+    "project_id": "26620dc3-3a1f-4c7c-a678-fda534e66eb9",
+    "project_name": "AIMS Golf City",
+    "status": "ok",
+    "fields": [
+      {
+        "field_name": "rera_number",
+        "value": "UPRERAPRJ1102",
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "possession_date",
+        "value": "2023-12-31T00:00:00.000Z",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "oc_obtained",
+        "value": true,
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "oc_obtained_date",
+        "value": "2023-11-15T00:00:00.000Z",
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "total_units",
+        "value": 1600,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "status",
+        "value": "ready_to_move",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      }
+    ],
+    "conflicts": [],
+    "quality_score": 15,
+    "notes": []
+  },
+  {
+    "project_id": "950fbc8a-15b0-4a42-b53e-fe18a3bd7909",
+    "project_name": "Amrapali / NBCC Heights Phase 20 (Tower A)",
+    "status": "ok",
+    "fields": [
+      {
+        "field_name": "rera_number",
+        "value": "UPRERAPRJ5156",
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "possession_date",
+        "value": "2023-12-31T00:00:00.000Z",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "oc_obtained",
+        "value": true,
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "oc_obtained_date",
+        "value": "2023-11-15T00:00:00.000Z",
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "total_units",
+        "value": 1068,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "status",
+        "value": "ready_to_move",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      }
+    ],
+    "conflicts": [],
+    "quality_score": 15,
+    "notes": []
+  },
+  {
+    "project_id": "f38b09ff-d5c6-4978-a95e-c47dc7a6bc1b",
+    "project_name": "Pan Oasis",
+    "status": "ok",
+    "fields": [
+      {
+        "field_name": "rera_number",
+        "value": "UPRERAPRJ7001",
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "possession_date",
+        "value": "2015-10-31T00:00:00.000Z",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "oc_obtained",
+        "value": true,
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "total_units",
+        "value": 1800,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "status",
+        "value": "ready_to_move",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      }
+    ],
+    "conflicts": [],
+    "quality_score": 14,
+    "notes": []
+  },
+  {
+    "project_id": "6712e123-30b3-4a7b-adf2-6ac6c0068b29",
+    "project_name": "Amrapali / NBCC Residency Phase 19 (Tower F)",
+    "status": "ok",
+    "fields": [
+      {
+        "field_name": "rera_number",
+        "value": "UPRERAPRJ8181",
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "possession_date",
+        "value": "2023-12-31T00:00:00.000Z",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "oc_obtained",
+        "value": true,
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "oc_obtained_date",
+        "value": "2023-11-15T00:00:00.000Z",
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "total_units",
+        "value": 597,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "status",
+        "value": "ready_to_move",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      }
+    ],
+    "conflicts": [],
+    "quality_score": 15,
+    "notes": []
+  },
+  {
+    "project_id": "c7a2614a-08c1-4fc8-b90e-3af3ee1bbe66",
+    "project_name": "Stellar Park",
+    "status": "ok",
+    "fields": [
+      {
+        "field_name": "rera_number",
+        "value": "UPRERAPRJ621",
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "rera_compliance_score",
+        "value": 96,
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "possession_date",
+        "value": "2014-11-30T00:00:00.000Z",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "oc_obtained",
+        "value": true,
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "total_units",
+        "value": 1000,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "status",
+        "value": "ready_to_move",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      }
+    ],
+    "conflicts": [],
+    "quality_score": 15,
+    "notes": []
+  },
+  {
+    "project_id": "f96c1fb8-e4d7-4592-b7a0-f3e24635bc04",
+    "project_name": "ACE Group Residency Phase 17 (Tower E)",
+    "status": "ok",
+    "fields": [
+      {
+        "field_name": "rera_number",
+        "value": "UPRERAPRJ8164",
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "possession_date",
+        "value": "2023-12-31T00:00:00.000Z",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "oc_obtained",
+        "value": true,
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "oc_obtained_date",
+        "value": "2023-11-15T00:00:00.000Z",
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "total_units",
+        "value": 918,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "status",
+        "value": "ready_to_move",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      }
+    ],
+    "conflicts": [],
+    "quality_score": 15,
+    "notes": []
+  },
+  {
+    "project_id": "c270d881-50ed-454c-a300-8e9932012a9f",
+    "project_name": "Amrapali Eden Park",
+    "status": "ok",
+    "fields": [
+      {
+        "field_name": "rera_number",
+        "value": "UPRERAPRJ1050",
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "possession_date",
+        "value": "2013-12-31T00:00:00.000Z",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "oc_obtained",
+        "value": true,
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "total_units",
+        "value": 320,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "status",
+        "value": "ready_to_move",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      }
+    ],
+    "conflicts": [],
+    "quality_score": 14,
+    "notes": []
+  },
+  {
+    "project_id": "fd2dff4c-4552-4a53-8a91-2f50fd959a82",
+    "project_name": "Amrapali Golf Homes Phase 1",
+    "status": "ok",
+    "fields": [
+      {
+        "field_name": "rera_number",
+        "value": "UPRERAPRJ8808",
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "possession_date",
+        "value": "2027-12-31T00:00:00.000Z",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "oc_obtained",
+        "value": false,
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "total_units",
+        "value": 2400,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "status",
+        "value": "under_construction",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      }
+    ],
+    "conflicts": [],
+    "quality_score": 14,
+    "notes": []
+  },
+  {
+    "project_id": "85141048-0d74-482b-9c00-ac6d8531b341",
+    "project_name": "Gardenia Glory",
+    "status": "ok",
+    "fields": [
+      {
+        "field_name": "rera_number",
+        "value": "UPRERAPRJ4601",
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "possession_date",
+        "value": "2017-08-31T00:00:00.000Z",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "oc_obtained",
+        "value": true,
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "total_units",
+        "value": 1100,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "status",
+        "value": "ready_to_move",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      }
+    ],
+    "conflicts": [],
+    "quality_score": 14,
+    "notes": []
+  },
+  {
+    "project_id": "3bca4621-44df-4105-a728-a0e4ab13b8c1",
+    "project_name": "Amrapali Sapphire",
+    "status": "ok",
+    "fields": [
+      {
+        "field_name": "rera_number",
+        "value": "UPRERAPRJ4502",
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "possession_date",
+        "value": "2016-06-30T00:00:00.000Z",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "oc_obtained",
+        "value": true,
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "total_units",
+        "value": 1600,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "status",
+        "value": "ready_to_move",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      }
+    ],
+    "conflicts": [],
+    "quality_score": 14,
+    "notes": []
+  },
+  {
+    "project_id": "e0a8ab69-4bf7-48dd-aac0-67b795ee06ea",
+    "project_name": "Godrej Woods",
+    "status": "ok",
+    "fields": [
+      {
+        "field_name": "rera_number",
+        "value": "UPRERAPRJ7047",
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "rera_compliance_score",
+        "value": 96,
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "possession_date",
+        "value": "2026-09-30T00:00:00.000Z",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "oc_obtained",
+        "value": false,
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "total_units",
+        "value": 1200,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "status",
+        "value": "under_construction",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      }
+    ],
+    "conflicts": [],
+    "quality_score": 15,
+    "notes": []
+  },
+  {
+    "project_id": "647901fc-dd46-44ce-a6a4-29c6e37451f9",
+    "project_name": "Apex Residency Phase 18 (Tower C)",
+    "status": "ok",
+    "fields": [
+      {
+        "field_name": "rera_number",
+        "value": "UPRERAPRJ8178",
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "possession_date",
+        "value": "2023-12-31T00:00:00.000Z",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "oc_obtained",
+        "value": true,
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "oc_obtained_date",
+        "value": "2023-11-15T00:00:00.000Z",
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "total_units",
+        "value": 1436,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "status",
+        "value": "ready_to_move",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      }
+    ],
+    "conflicts": [],
+    "quality_score": 15,
+    "notes": []
+  },
+  {
+    "project_id": "204e18e6-473a-46a2-8da4-aeab5485d4b5",
+    "project_name": "Amrapali / NBCC Residency Phase 17 (Tower B)",
+    "status": "ok",
+    "fields": [
+      {
+        "field_name": "rera_number",
+        "value": "UPRERAPRJ8161",
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "possession_date",
+        "value": "2023-12-31T00:00:00.000Z",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "oc_obtained",
+        "value": true,
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "oc_obtained_date",
+        "value": "2023-11-15T00:00:00.000Z",
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "total_units",
+        "value": 807,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "status",
+        "value": "ready_to_move",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      }
+    ],
+    "conflicts": [],
+    "quality_score": 15,
+    "notes": []
+  },
+  {
+    "project_id": "63506755-89ce-440a-8d0b-8f2155e99fb5",
+    "project_name": "Godrej Golf Links & The Crest",
+    "status": "ok",
+    "fields": [
+      {
+        "field_name": "rera_number",
+        "value": "UPRERAPRJ151",
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "possession_date",
+        "value": "2022-03-31T00:00:00.000Z",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "oc_obtained",
+        "value": true,
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "total_units",
+        "value": 650,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "status",
+        "value": "ready_to_move",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      }
+    ],
+    "conflicts": [],
+    "quality_score": 14,
+    "notes": []
+  },
+  {
+    "project_id": "38b353ee-e14f-40e3-9589-ef69e74794f7",
+    "project_name": "Jaypee Sports City (Kassia)",
+    "status": "ok",
+    "fields": [
+      {
+        "field_name": "rera_number",
+        "value": "UPRERAPRJ8826",
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "possession_date",
+        "value": "2019-12-31T00:00:00.000Z",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "oc_obtained",
+        "value": true,
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "total_units",
+        "value": 920,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "status",
+        "value": "ready_to_move",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      }
+    ],
+    "conflicts": [],
+    "quality_score": 14,
+    "notes": []
+  },
+  {
+    "project_id": "dbfa1b3f-4ea5-434f-95f4-a1731cc3ebd7",
+    "project_name": "Orris Greenbay Golf Homes",
+    "status": "ok",
+    "fields": [
+      {
+        "field_name": "rera_number",
+        "value": "UPRERAPRJ5528",
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "possession_date",
+        "value": "2026-06-30T00:00:00.000Z",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "oc_obtained",
+        "value": false,
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "total_units",
+        "value": 950,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "status",
+        "value": "under_construction",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      }
+    ],
+    "conflicts": [],
+    "quality_score": 14,
+    "notes": []
+  },
+  {
+    "project_id": "1ccb48fa-d390-4574-8a4b-6ea712ac4381",
+    "project_name": "Arihant Seasons",
+    "status": "ok",
+    "fields": [
+      {
+        "field_name": "rera_number",
+        "value": "UPRERAPRJ22D980",
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "rera_compliance_score",
+        "value": 96,
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "possession_date",
+        "value": "2028-03-31T00:00:00.000Z",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "oc_obtained",
+        "value": false,
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "total_units",
+        "value": 720,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "status",
+        "value": "new_launch",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      }
+    ],
+    "conflicts": [],
+    "quality_score": 15,
+    "notes": []
+  },
+  {
+    "project_id": "704e98bf-974c-49f3-9f8a-5293f3d66681",
+    "project_name": "ACE Terrains / Terra",
+    "status": "ok",
+    "fields": [
+      {
+        "field_name": "rera_number",
+        "value": "UPRERAPRJ622101",
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "possession_date",
+        "value": "2026-12-31T00:00:00.000Z",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "total_units",
+        "value": 980,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "status",
+        "value": "under_construction",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      }
+    ],
+    "conflicts": [],
+    "quality_score": 0,
+    "notes": [
+      "Low field count, quality penalized"
+    ]
+  },
+  {
+    "project_id": "e3871eb3-edb5-4621-9e99-494fcd94a25b",
+    "project_name": "Ace City",
+    "status": "ok",
+    "fields": [
+      {
+        "field_name": "rera_number",
+        "value": "UPRERAPRJ0101",
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "possession_date",
+        "value": "2018-09-30T00:00:00.000Z",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "oc_obtained",
+        "value": true,
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "total_units",
+        "value": 2800,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "status",
+        "value": "ready_to_move",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      }
+    ],
+    "conflicts": [],
+    "quality_score": 14,
+    "notes": []
+  },
+  {
+    "project_id": "28c22505-99b9-436d-82ca-0d8e5d8e9199",
+    "project_name": "Gaur Yamuna City (7th Parkview)",
+    "status": "ok",
+    "fields": [
+      {
+        "field_name": "rera_number",
+        "value": "UPRERAPRJ9928",
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "possession_date",
+        "value": "2026-06-30T00:00:00.000Z",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "oc_obtained",
+        "value": false,
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "total_units",
+        "value": 1800,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "status",
+        "value": "under_construction",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      }
+    ],
+    "conflicts": [],
+    "quality_score": 14,
+    "notes": []
+  },
+  {
+    "project_id": "479f7942-1f6d-4ddb-869a-5d56d941cbd5",
+    "project_name": "Supertech Upcountry (Golf Village)",
+    "status": "ok",
+    "fields": [
+      {
+        "field_name": "rera_number",
+        "value": "UPRERAPRJ6619",
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "possession_date",
+        "value": "2019-06-30T00:00:00.000Z",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "oc_obtained",
+        "value": true,
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "total_units",
+        "value": 1400,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "status",
+        "value": "ready_to_move",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      }
+    ],
+    "conflicts": [],
+    "quality_score": 14,
+    "notes": []
+  },
+  {
+    "project_id": "e35d0295-5513-45c2-a0d1-509cc6d2abd9",
+    "project_name": "Gayatri Life",
+    "status": "ok",
+    "fields": [
+      {
+        "field_name": "rera_number",
+        "value": "UPRERAPRJ2110",
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "possession_date",
+        "value": "2021-12-31T00:00:00.000Z",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "total_units",
+        "value": 850,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "status",
+        "value": "ready_to_move",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      }
+    ],
+    "conflicts": [],
+    "quality_score": 0,
+    "notes": [
+      "Low field count, quality penalized"
+    ]
+  },
+  {
+    "project_id": "c5a5de4b-e47c-40ee-a5c5-0fb672d3f4ba",
+    "project_name": "Galaxy North Avenue 2",
+    "status": "ok",
+    "fields": [
+      {
+        "field_name": "rera_number",
+        "value": "UPRERAPRJ2213",
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "possession_date",
+        "value": "2021-12-31T00:00:00.000Z",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "total_units",
+        "value": 1300,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "status",
+        "value": "ready_to_move",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      }
+    ],
+    "conflicts": [],
+    "quality_score": 0,
+    "notes": [
+      "Low field count, quality penalized"
+    ]
+  },
+  {
+    "project_id": "7b8d12f6-1cb6-41e9-9438-05f55f2fc95e",
+    "project_name": "Ajnara Le Garden",
+    "status": "ok",
+    "fields": [
+      {
+        "field_name": "rera_number",
+        "value": "UPRERAPRJ4819",
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "rera_compliance_score",
+        "value": 96,
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "possession_date",
+        "value": "2020-09-30T00:00:00.000Z",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "oc_obtained",
+        "value": true,
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "total_units",
+        "value": 1650,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "status",
+        "value": "ready_to_move",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      }
+    ],
+    "conflicts": [],
+    "quality_score": 15,
+    "notes": []
+  },
+  {
+    "project_id": "2d685112-498e-41f7-ac1e-f977522115e1",
+    "project_name": "Eldeco Heights Phase 15 (Tower F)",
+    "status": "ok",
+    "fields": [
+      {
+        "field_name": "rera_number",
+        "value": "UPRERAPRJ5119",
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "possession_date",
+        "value": "2027-12-31T00:00:00.000Z",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "oc_obtained",
+        "value": false,
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "total_units",
+        "value": 1237,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "status",
+        "value": "under_construction",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      }
+    ],
+    "conflicts": [],
+    "quality_score": 14,
+    "notes": []
+  },
+  {
+    "project_id": "04c0d31f-c62e-4799-8a2a-8bc20b2d3eb9",
+    "project_name": "ACE Group Residency Phase 18 (Tower G)",
+    "status": "ok",
+    "fields": [
+      {
+        "field_name": "rera_number",
+        "value": "UPRERAPRJ8174",
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "possession_date",
+        "value": "2027-12-31T00:00:00.000Z",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "oc_obtained",
+        "value": false,
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "total_units",
+        "value": 1288,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "status",
+        "value": "under_construction",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      }
+    ],
+    "conflicts": [],
+    "quality_score": 14,
+    "notes": []
+  },
+  {
+    "project_id": "30df5cd8-7b2b-4f55-a05a-0d76d1b94795",
+    "project_name": "Ace Starlit",
+    "status": "ok",
+    "fields": [
+      {
+        "field_name": "rera_number",
+        "value": "UPRERAPRJ6772",
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "possession_date",
+        "value": "2026-06-30T00:00:00.000Z",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "oc_obtained",
+        "value": false,
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "total_units",
+        "value": 490,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "status",
+        "value": "under_construction",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      }
+    ],
+    "conflicts": [],
+    "quality_score": 14,
+    "notes": []
+  },
+  {
+    "project_id": "ebe56ae7-de69-4289-913f-95f74e9af757",
+    "project_name": "Jaypee Aman",
+    "status": "ok",
+    "fields": [
+      {
+        "field_name": "rera_number",
+        "value": "UPRERAPRJ1510",
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "rera_compliance_score",
+        "value": 96,
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "possession_date",
+        "value": "2023-06-01T00:00:00.000Z",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "oc_obtained",
+        "value": true,
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "total_units",
+        "value": 3200,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "status",
+        "value": "ready_to_move",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      }
+    ],
+    "conflicts": [],
+    "quality_score": 15,
+    "notes": []
+  },
+  {
+    "project_id": "fdd2de65-e073-47c0-a9cd-5ae72e532941",
+    "project_name": "ACE Arte",
+    "status": "ok",
+    "fields": [
+      {
+        "field_name": "rera_number",
+        "value": "UPRERAPRJ992384",
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "rera_compliance_score",
+        "value": 96,
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "possession_date",
+        "value": "2028-12-31T00:00:00.000Z",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "oc_obtained",
+        "value": false,
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "total_units",
+        "value": 420,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "status",
+        "value": "new_launch",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      }
+    ],
+    "conflicts": [],
+    "quality_score": 15,
+    "notes": []
+  },
+  {
+    "project_id": "8a15ff10-371d-4411-a1d6-4735e6b4f32d",
+    "project_name": "Amrapali / NBCC Residency Phase 15 (Tower F)",
+    "status": "ok",
+    "fields": [
+      {
+        "field_name": "rera_number",
+        "value": "UPRERAPRJ8141",
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "possession_date",
+        "value": "2027-12-31T00:00:00.000Z",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "oc_obtained",
+        "value": false,
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "total_units",
+        "value": 1017,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "status",
+        "value": "under_construction",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      }
+    ],
+    "conflicts": [],
+    "quality_score": 14,
+    "notes": []
+  },
+  {
+    "project_id": "e44fe1bf-f815-4088-870d-216dafc1a22c",
+    "project_name": "Godrej Jardinia",
+    "status": "ok",
+    "fields": [
+      {
+        "field_name": "rera_number",
+        "value": "UPRERAPRJ1461",
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "possession_date",
+        "value": "2028-12-31T00:00:00.000Z",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "oc_obtained",
+        "value": false,
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "total_units",
+        "value": 650,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "status",
+        "value": "new_launch",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      }
+    ],
+    "conflicts": [],
+    "quality_score": 14,
+    "notes": []
+  },
+  {
+    "project_id": "4315ac08-c95c-4e50-8152-79967b6badfc",
+    "project_name": "Capital Athena",
+    "status": "ok",
+    "fields": [
+      {
+        "field_name": "rera_number",
+        "value": "UPRERAPRJ1442",
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "rera_compliance_score",
+        "value": 96,
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "possession_date",
+        "value": "2018-10-31T00:00:00.000Z",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "oc_obtained",
+        "value": true,
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "total_units",
+        "value": 1200,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "status",
+        "value": "ready_to_move",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      }
+    ],
+    "conflicts": [],
+    "quality_score": 15,
+    "notes": []
+  },
+  {
+    "project_id": "752cf0cc-749d-4f56-964b-47f4c9146a6a",
+    "project_name": "Eldeco Heights Phase 17 (Tower D)",
+    "status": "ok",
+    "fields": [
+      {
+        "field_name": "rera_number",
+        "value": "UPRERAPRJ5129",
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "possession_date",
+        "value": "2027-12-31T00:00:00.000Z",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "oc_obtained",
+        "value": false,
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "total_units",
+        "value": 787,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "status",
+        "value": "under_construction",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      }
+    ],
+    "conflicts": [],
+    "quality_score": 14,
+    "notes": []
+  },
+  {
+    "project_id": "42d459db-357b-4286-93a5-b0a9f7e2fc1c",
+    "project_name": "SKA Orion",
+    "status": "ok",
+    "fields": [
+      {
+        "field_name": "rera_number",
+        "value": "UPRERAPRJ582373",
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "possession_date",
+        "value": "2025-10-01T00:00:00.000Z",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "oc_obtained",
+        "value": false,
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "total_units",
+        "value": 520,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      },
+      {
+        "field_name": "status",
+        "value": "under_construction",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-10T11:07:12.171Z"
+      }
+    ],
+    "conflicts": [],
+    "quality_score": 14,
+    "notes": []
+  }
+]

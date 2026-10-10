@@ -102,7 +102,7 @@
       "ats one hamlet noida",
       "flats in sector 104 noida"
     ],
-    "hero_image_url": "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=1200&q=80",
+    "hero_image_url": null,
     "price_min_cr": 1.65,
     "price_range_label": "₹1.65–3.50Cr",
     "price_includes_plc": false,
@@ -629,173 +629,8 @@
         "updated_at": "2026-08-31T07:02:37.862Z"
       }
     ],
-    "cost_sheet": {
-      "id": "0a57c27b-27e2-4cb3-a907-219925ccef81",
-      "project_id": "1254753f-834d-4116-9ff1-c1b4119665b4",
-      "base_price_per_sqft": 6913,
-      "base_cost_cr": null,
-      "floor_rise_per_floor": 30,
-      "base_interest_rate": 8.55,
-      "plc_charges": [
-        {
-          "type": "Corner Unit PLC",
-          "rate_psf": 150,
-          "description": "Dual side open balcony with maximum cross ventilation"
-        },
-        {
-          "type": "Park / Green Central Lawn Facing PLC",
-          "rate_psf": 200,
-          "description": "Unobstructed scenic view overlooking central landscaped podium"
-        },
-        {
-          "type": "Clubhouse / Swimming Pool View PLC",
-          "rate_psf": 175,
-          "description": "Direct visual line to Olympic-size swimming pool and club water body"
-        },
-        {
-          "type": "Wide Master Sector Road Facing PLC",
-          "rate_psf": 100,
-          "description": "Open front access facing wide 45-meter sector peripheral road"
-        }
-      ],
-      "parking_cost": 325000,
-      "ifms": 50,
-      "club_membership": 150000,
-      "other_charges": [
-        {
-          "name": "Dual Meter & Power Infrastructure Charge",
-          "type": "mandatory_fixed",
-          "amount": 35000
-        },
-        {
-          "name": "IGL Piped Natural Gas Connection",
-          "type": "mandatory_fixed",
-          "amount": 18500
-        },
-        {
-          "name": "Power Backup Installation (1 KVA / BHK)",
-          "type": "per_kva",
-          "amount": 30000,
-          "rate_per_kva": 28000
-        },
-        {
-          "name": "Sinking Fund / Society Corpus Deposit",
-          "type": "per_sqft",
-          "amount": 60000,
-          "rate_per_sqft": 50
-        },
-        {
-          "name": "Legal & Administrative Documentation",
-          "type": "mandatory_fixed",
-          "amount": 25000
-        },
-        {
-          "name": "Labour Welfare Cess & Fire Fighting System",
-          "type": "per_sqft",
-          "amount": 35000,
-          "rate_per_sqft": 35
-        }
-      ],
-      "gst_applicable": false,
-      "gst_rate_pct": 0,
-      "gst_note": "0% GST applicable — Ready-to-Move with Occupancy Certificate (OC)",
-      "stamp_duty_pct": 6,
-      "registration_pct": 1,
-      "electricity_connection": 35000,
-      "water_sewer_connection": 25000,
-      "maintenance_psf_monthly": 2.38,
-      "all_inclusive_price_cr": 2.74,
-      "all_inclusive_per_sqft": 11923,
-      "assumptions": [
-        "Base Sale Price benchmarked at Rs. 6913/sqft as per Q1 2026 Noida/Greater Noida market registries",
-        "Covered basement parking allotted at Rs. 3.25 Lakhs",
-        "Clubhouse development & lifetime membership at Rs. 1.50 Lakhs",
-        "Interest-Free Maintenance Security (IFMS) at Rs. 50/sqft refundable to AOA on handover",
-        "Mandatory civic and dual-meter electrification charges calculated as per NPCL / PVVNL statutory tariffs"
-      ],
-      "verified_at": "2026-09-12T16:20:28.132Z",
-      "verified_by": null,
-      "created_at": "2026-08-14T19:06:42.063Z",
-      "updated_at": "2026-09-12T16:20:28.287Z"
-    },
-    "payment_plans": [
-      {
-        "id": "75c30d1d-aa92-4771-aae2-0496cc049707",
-        "project_id": "1254753f-834d-4116-9ff1-c1b4119665b4",
-        "plan_type": "construction_linked",
-        "plan_name": "Construction Linked Payment Plan (CLP)",
-        "description": "Stage-wise payment tied to construction progress",
-        "milestones": [
-          {
-            "pct": 10,
-            "stage": "Booking",
-            "milestone": "At Booking"
-          },
-          {
-            "pct": 20,
-            "stage": "Foundation",
-            "milestone": "On Foundation Completion"
-          },
-          {
-            "pct": 40,
-            "stage": "Superstructure",
-            "milestone": "On Superstructure Casting"
-          },
-          {
-            "pct": 30,
-            "stage": "Possession",
-            "milestone": "On Offer of Possession"
-          }
-        ],
-        "down_payment_pct": 10,
-        "booking_amount_lakh": null,
-        "total_duration_months": null,
-        "discount_offered_pct": null,
-        "best_for": null,
-        "watch_out": null,
-        "sort_order": 0,
-        "source": "inferred_default",
-        "source_url": null,
-        "verified_at": null,
-        "verified_by": null,
-        "notes": null,
-        "created_at": "2026-08-14T19:13:36.643Z",
-        "updated_at": "2026-09-03T16:52:13.729Z"
-      },
-      {
-        "id": "3e7e4aa4-663a-4525-8f69-72f25acdb082",
-        "project_id": "1254753f-834d-4116-9ff1-c1b4119665b4",
-        "plan_type": "resale_down_payment",
-        "plan_name": "Ready Resale Down Payment Plan",
-        "description": "100% Payment on Registry & Possession Handover",
-        "milestones": [
-          {
-            "pct": 10,
-            "stage": "Agreement",
-            "milestone": "At Agreement to Sell"
-          },
-          {
-            "pct": 90,
-            "stage": "Handover",
-            "milestone": "At Registry & Key Handover"
-          }
-        ],
-        "down_payment_pct": 100,
-        "booking_amount_lakh": null,
-        "total_duration_months": null,
-        "discount_offered_pct": null,
-        "best_for": null,
-        "watch_out": null,
-        "sort_order": 0,
-        "source": "inferred_default",
-        "source_url": null,
-        "verified_at": null,
-        "verified_by": null,
-        "notes": null,
-        "created_at": "2026-08-14T19:13:36.686Z",
-        "updated_at": "2026-09-03T16:52:13.729Z"
-      }
-    ],
+    "cost_sheet": null,
+    "payment_plans": [],
     "images": [
       {
         "id": "24d15085-37e1-4a8b-be49-30b21c171fdb",
@@ -1455,17 +1290,17 @@
     "id": "246a829b-8486-4042-8104-f9c2e893fb9b",
     "slug": "ats-one-hamlet-sector-104-noida",
     "name": "ATS One Hamlet",
-    "tagline": "Luxury Landmark Residences in Sector 104",
+    "tagline": "1,000-Unit Spanish Villa Luxury Township in Sector 104",
     "builder_id": "72607518-d67c-4834-a06a-48b9418e7d57",
-    "rera_number": "UPRERAPRJ1015",
-    "rera_url": null,
+    "rera_number": "UPRERAPRJ1041",
+    "rera_url": "https://www.up-rera.in/",
     "city": "Noida",
     "state": "Uttar Pradesh",
     "country": "India",
     "sector": "Sector 104",
     "address": "ATS One Hamlet Phase 1, Sector 104, Noida, Uttar Pradesh",
-    "lat": 28.5371,
-    "lng": 77.3738,
+    "lat": 28.532,
+    "lng": 77.365,
     "land_area_acres": 6.5,
     "total_units": 1830,
     "total_towers": 16,
@@ -1483,12 +1318,12 @@
     "restaurants_nearby_count": null,
     "status": "ready_to_move",
     "launch_date": "2021-06-01T00:00:00.000Z",
-    "possession_date": "2023-12-31T00:00:00.000Z",
+    "possession_date": "2015-10-31T00:00:00.000Z",
     "possession_label": "Delivered & Ready",
     "possession_confidence": null,
     "possession_confidence_note": null,
     "oc_obtained": true,
-    "oc_obtained_date": "2023-11-15T00:00:00.000Z",
+    "oc_obtained_date": null,
     "oc_valid_until": null,
     "oc_restrictions": null,
     "rera_valid_until": null,
@@ -1504,13 +1339,13 @@
     "aqi_annual_avg": null,
     "commute_matrix": null,
     "description": "ATS One Hamlet Phase 1 is a prestigious luxury residential community by ATS located in Sector 104, offering modern architecture and comprehensive lifestyle amenities.",
-    "long_description": null,
+    "long_description": "Spanning 14 acres of Spanish architecture with 80% open green lawns, 24x7 security, heated swimming pool, resident clubhouse, and walking distance to Sector 104 Starling Commercial Market.",
     "design_theme": null,
-    "architect": null,
+    "architect": "Hafeez Contractor",
     "interior_designer": null,
     "marketing_claims": [],
     "ai_search_keywords": [],
-    "hero_image_url": "https://images.unsplash.com/photo-1545324736?auto=format&fit=crop&w=1200&q=80",
+    "hero_image_url": null,
     "price_min_cr": 3.32,
     "price_range_label": "₹3.32 Cr - ₹5.23 Cr",
     "price_includes_plc": false,
@@ -2762,7 +2597,7 @@
       "ats sovereign noida",
       "luxury 3bhk in sector 104 noida"
     ],
-    "hero_image_url": "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=1200&q=80",
+    "hero_image_url": null,
     "price_min_cr": 2.25,
     "price_range_label": "₹2.25–4.35Cr",
     "price_includes_plc": false,
@@ -3226,173 +3061,8 @@
         "updated_at": "2026-08-31T07:03:02.404Z"
       }
     ],
-    "cost_sheet": {
-      "id": "6f11df02-7939-428f-a900-33bab52c8fff",
-      "project_id": "252a5492-5f1b-4e2c-af13-a71a6cb78123",
-      "base_price_per_sqft": 8296,
-      "base_cost_cr": null,
-      "floor_rise_per_floor": 45,
-      "base_interest_rate": 8.55,
-      "plc_charges": [
-        {
-          "type": "Corner Unit PLC",
-          "rate_psf": 150,
-          "description": "Dual side open balcony with maximum cross ventilation"
-        },
-        {
-          "type": "Park / Green Central Lawn Facing PLC",
-          "rate_psf": 200,
-          "description": "Unobstructed scenic view overlooking central landscaped podium"
-        },
-        {
-          "type": "Clubhouse / Swimming Pool View PLC",
-          "rate_psf": 175,
-          "description": "Direct visual line to Olympic-size swimming pool and club water body"
-        },
-        {
-          "type": "Wide Master Sector Road Facing PLC",
-          "rate_psf": 100,
-          "description": "Open front access facing wide 45-meter sector peripheral road"
-        }
-      ],
-      "parking_cost": 450000,
-      "ifms": 75,
-      "club_membership": 225000,
-      "other_charges": [
-        {
-          "name": "Dual Meter & Power Infrastructure Charge",
-          "type": "mandatory_fixed",
-          "amount": 45000
-        },
-        {
-          "name": "IGL Piped Natural Gas Connection",
-          "type": "mandatory_fixed",
-          "amount": 18500
-        },
-        {
-          "name": "Power Backup Installation (1 KVA / BHK)",
-          "type": "per_kva",
-          "amount": 30000,
-          "rate_per_kva": 28000
-        },
-        {
-          "name": "Sinking Fund / Society Corpus Deposit",
-          "type": "per_sqft",
-          "amount": 90000,
-          "rate_per_sqft": 75
-        },
-        {
-          "name": "Legal & Administrative Documentation",
-          "type": "mandatory_fixed",
-          "amount": 25000
-        },
-        {
-          "name": "Labour Welfare Cess & Fire Fighting System",
-          "type": "per_sqft",
-          "amount": 35000,
-          "rate_per_sqft": 35
-        }
-      ],
-      "gst_applicable": false,
-      "gst_rate_pct": 0,
-      "gst_note": "0% GST applicable — Ready-to-Move with Occupancy Certificate (OC)",
-      "stamp_duty_pct": 6,
-      "registration_pct": 1,
-      "electricity_connection": 45000,
-      "water_sewer_connection": 30000,
-      "maintenance_psf_monthly": 2.75,
-      "all_inclusive_price_cr": 3.62,
-      "all_inclusive_per_sqft": 12591,
-      "assumptions": [
-        "Base Sale Price benchmarked at Rs. 8296/sqft as per Q1 2026 Noida/Greater Noida market registries",
-        "Covered basement parking allotted at Rs. 4.50 Lakhs",
-        "Clubhouse development & lifetime membership at Rs. 2.25 Lakhs",
-        "Interest-Free Maintenance Security (IFMS) at Rs. 75/sqft refundable to AOA on handover",
-        "Mandatory civic and dual-meter electrification charges calculated as per NPCL / PVVNL statutory tariffs"
-      ],
-      "verified_at": "2026-09-12T16:20:49.238Z",
-      "verified_by": null,
-      "created_at": "2026-08-14T19:06:45.500Z",
-      "updated_at": "2026-09-12T16:20:49.393Z"
-    },
-    "payment_plans": [
-      {
-        "id": "58d5e345-0f50-4e62-8492-c1d2d7b659ef",
-        "project_id": "252a5492-5f1b-4e2c-af13-a71a6cb78123",
-        "plan_type": "construction_linked",
-        "plan_name": "Construction Linked Payment Plan (CLP)",
-        "description": "Stage-wise payment tied to construction progress",
-        "milestones": [
-          {
-            "pct": 10,
-            "stage": "Booking",
-            "milestone": "At Booking"
-          },
-          {
-            "pct": 20,
-            "stage": "Foundation",
-            "milestone": "On Foundation Completion"
-          },
-          {
-            "pct": 40,
-            "stage": "Superstructure",
-            "milestone": "On Superstructure Casting"
-          },
-          {
-            "pct": 30,
-            "stage": "Possession",
-            "milestone": "On Offer of Possession"
-          }
-        ],
-        "down_payment_pct": 10,
-        "booking_amount_lakh": null,
-        "total_duration_months": null,
-        "discount_offered_pct": null,
-        "best_for": null,
-        "watch_out": null,
-        "sort_order": 0,
-        "source": "inferred_default",
-        "source_url": null,
-        "verified_at": null,
-        "verified_by": null,
-        "notes": null,
-        "created_at": "2026-08-14T19:13:36.388Z",
-        "updated_at": "2026-09-03T16:52:13.729Z"
-      },
-      {
-        "id": "0116fa98-8998-4475-afa5-a84077486c6b",
-        "project_id": "252a5492-5f1b-4e2c-af13-a71a6cb78123",
-        "plan_type": "resale_down_payment",
-        "plan_name": "Ready Resale Down Payment Plan",
-        "description": "100% Payment on Registry & Possession Handover",
-        "milestones": [
-          {
-            "pct": 10,
-            "stage": "Agreement",
-            "milestone": "At Agreement to Sell"
-          },
-          {
-            "pct": 90,
-            "stage": "Handover",
-            "milestone": "At Registry & Key Handover"
-          }
-        ],
-        "down_payment_pct": 100,
-        "booking_amount_lakh": null,
-        "total_duration_months": null,
-        "discount_offered_pct": null,
-        "best_for": null,
-        "watch_out": null,
-        "sort_order": 0,
-        "source": "inferred_default",
-        "source_url": null,
-        "verified_at": null,
-        "verified_by": null,
-        "notes": null,
-        "created_at": "2026-08-14T19:13:36.433Z",
-        "updated_at": "2026-09-03T16:52:13.729Z"
-      }
-    ],
+    "cost_sheet": null,
+    "payment_plans": [],
     "images": [
       {
         "id": "5a4849e6-a4ac-4ed7-a60f-079f0cd79fe7",

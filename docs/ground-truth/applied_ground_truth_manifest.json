@@ -1,0 +1,1841 @@
+[
+  {
+    "id": "0316458a-aae6-49e1-80bb-ab118376d5ec",
+    "name": "VVIP Addresses",
+    "slug": "vvip-addresses-sector-12",
+    "sources": [
+      "SURVEYED_DOSSIER"
+    ],
+    "fieldsUpdated": [
+      "lat",
+      "lng"
+    ]
+  },
+  {
+    "id": "10e78a3e-2c9a-47fe-8639-7a87731a8f2d",
+    "name": "Mahagun Mezzaria",
+    "slug": "mahagun-mezzaria-sector-78-noida",
+    "sources": [
+      "UP_RERA_FILING",
+      "SURVEYED_DOSSIER"
+    ],
+    "fieldsUpdated": [
+      "rera_url",
+      "rera_valid_until",
+      "escrow_bank_name",
+      "escrow_verified",
+      "approvals_status",
+      "lat",
+      "lng"
+    ]
+  },
+  {
+    "id": "0a6e23a3-5401-4adb-a778-ec47d8e51766",
+    "name": "Prateek Wisteria",
+    "slug": "prateek-wisteria-sector-77-noida",
+    "sources": [
+      "SURVEYED_DOSSIER"
+    ],
+    "fieldsUpdated": [
+      "lat",
+      "lng"
+    ]
+  },
+  {
+    "id": "0794fc2d-8f0c-47ad-ac2a-6f6d81378f56",
+    "name": "Ajnara The Belvedere",
+    "slug": "ajnara-the-belvedere-sector-79",
+    "sources": [
+      "SURVEYED_DOSSIER"
+    ],
+    "fieldsUpdated": [
+      "lat",
+      "lng"
+    ]
+  },
+  {
+    "id": "193ac99f-9198-458e-a7d2-55810e151649",
+    "name": "Amrapali Crystal Homes",
+    "slug": "amrapali-crystal-homes-sector-76",
+    "sources": [
+      "SURVEYED_DOSSIER"
+    ],
+    "fieldsUpdated": [
+      "lat",
+      "lng"
+    ]
+  },
+  {
+    "id": "e0412f51-4650-4793-9ab7-9672d9d87a32",
+    "name": "Ace Hanei",
+    "slug": "ace-hanei-sector-12-greater-noida-west",
+    "sources": [
+      "UP_RERA_SUMMARY",
+      "SURVEYED_DOSSIER"
+    ],
+    "fieldsUpdated": [
+      "rera_url",
+      "escrow_bank_name",
+      "escrow_verified",
+      "litigation_count",
+      "lat",
+      "lng"
+    ]
+  },
+  {
+    "id": "4bdbe391-8309-47c1-a3de-9ef13a4a72e3",
+    "name": "DASNAC Burj Noida",
+    "slug": "dasnac-burj-noida-sector-75",
+    "sources": [
+      "SURVEYED_DOSSIER"
+    ],
+    "fieldsUpdated": [
+      "lat",
+      "lng"
+    ]
+  },
+  {
+    "id": "9c07851e-8afb-495a-97b2-20f74c711b79",
+    "name": "Great Value Sharanam Greno",
+    "slug": "great-value-sharanam-greno-sector-1",
+    "sources": [
+      "UP_RERA_FILING"
+    ],
+    "fieldsUpdated": [
+      "rera_url",
+      "rera_valid_until",
+      "escrow_bank_name",
+      "escrow_verified",
+      "architect",
+      "approvals_status"
+    ]
+  },
+  {
+    "id": "8937cc6f-31c0-4d0f-8273-c932480186ed",
+    "name": "Jaypee Kosmos",
+    "slug": "jaypee-kosmos-sector-134-noida",
+    "sources": [
+      "UP_RERA_FILING"
+    ],
+    "fieldsUpdated": [
+      "rera_url",
+      "rera_valid_until",
+      "escrow_bank_name",
+      "escrow_verified",
+      "architect",
+      "approvals_status"
+    ]
+  },
+  {
+    "id": "cdcde9ba-0f83-4565-b216-4232f7ed1870",
+    "name": "Godrej Nurture",
+    "slug": "godrej-nurture-sector-150-noida",
+    "sources": [
+      "UP_RERA_FILING"
+    ],
+    "fieldsUpdated": [
+      "rera_url",
+      "rera_valid_until",
+      "escrow_bank_name",
+      "escrow_verified",
+      "architect"
+    ]
+  },
+  {
+    "id": "2dad69e6-eb91-436a-b5e7-e09b214a8597",
+    "name": "Lotus Arena",
+    "slug": "lotus-arena-sector-79-noida",
+    "sources": [
+      "SURVEYED_DOSSIER"
+    ],
+    "fieldsUpdated": [
+      "lat",
+      "lng"
+    ]
+  },
+  {
+    "id": "40ebe694-2e84-4df6-ab8c-ee5763d12d15",
+    "name": "Eldeco La Vida Bella",
+    "slug": "eldeco-la-vida-bella-sector-12",
+    "sources": [
+      "UP_RERA_SUMMARY",
+      "SURVEYED_DOSSIER"
+    ],
+    "fieldsUpdated": [
+      "rera_url",
+      "escrow_bank_name",
+      "escrow_verified",
+      "lat",
+      "lng"
+    ]
+  },
+  {
+    "id": "0a5b22e6-19a2-4f68-a5ba-5e474bb9b203",
+    "name": "Grand Ajnara Heritage",
+    "slug": "grand-ajnara-heritage-sector-74-noida",
+    "sources": [
+      "UP_RERA_FILING"
+    ],
+    "fieldsUpdated": [
+      "rera_url",
+      "rera_valid_until",
+      "escrow_bank_name",
+      "escrow_verified"
+    ]
+  },
+  {
+    "id": "19658ea6-e38b-44eb-9fea-b1176a11b612",
+    "name": "ATS Dolce",
+    "slug": "ats-dolce-sector-zeta-1",
+    "sources": [
+      "UP_RERA_FILING"
+    ],
+    "fieldsUpdated": [
+      "rera_url",
+      "rera_valid_until",
+      "escrow_bank_name",
+      "escrow_verified",
+      "approvals_status"
+    ]
+  },
+  {
+    "id": "1ee07889-22c5-4986-9174-063d5aaab4fc",
+    "name": "ATS Destinaire",
+    "slug": "ats-destinaire-sector-1",
+    "sources": [
+      "UP_RERA_SUMMARY"
+    ],
+    "fieldsUpdated": [
+      "rera_url",
+      "escrow_bank_name",
+      "escrow_verified"
+    ]
+  },
+  {
+    "id": "7154d9e3-3ac1-4097-82bb-40f111f456f1",
+    "name": "Sikka Kaamya Greens",
+    "slug": "sikka-kaamya-greens-sector-10",
+    "sources": [
+      "UP_RERA_FILING"
+    ],
+    "fieldsUpdated": [
+      "rera_url",
+      "escrow_bank_name",
+      "escrow_verified"
+    ]
+  },
+  {
+    "id": "e8318e26-8cfd-47bb-b90c-9b25b3ac0f93",
+    "name": "CRC Joyous",
+    "slug": "crc-joyous-techzone-4",
+    "sources": [
+      "UP_RERA_SUMMARY"
+    ],
+    "fieldsUpdated": [
+      "rera_url",
+      "escrow_bank_name",
+      "escrow_verified",
+      "litigation_count"
+    ]
+  },
+  {
+    "id": "bc6ef9d6-2f05-4e3b-80c0-be33fe6ff11e",
+    "name": "Sikka Kimaantra Greens",
+    "slug": "sikka-kimaantra-greens-sector-79",
+    "sources": [
+      "SURVEYED_DOSSIER"
+    ],
+    "fieldsUpdated": [
+      "lat",
+      "lng"
+    ]
+  },
+  {
+    "id": "b8d1a48b-9bb0-484d-b28f-249589b5e1a8",
+    "name": "Maxblis White House",
+    "slug": "maxblis-white-house-sector-75-noida",
+    "sources": [
+      "UP_RERA_FILING",
+      "SURVEYED_DOSSIER"
+    ],
+    "fieldsUpdated": [
+      "rera_url",
+      "escrow_bank_name",
+      "escrow_verified",
+      "lat",
+      "lng"
+    ]
+  },
+  {
+    "id": "65c203cb-59e2-489f-af59-4aa964fe4da1",
+    "name": "Godrej Tropical Isle",
+    "slug": "godrej-tropical-isle-sector-146-noida",
+    "sources": [
+      "UP_RERA_SUMMARY"
+    ],
+    "fieldsUpdated": [
+      "rera_url",
+      "escrow_bank_name",
+      "escrow_verified"
+    ]
+  },
+  {
+    "id": "cd749874-8da0-456d-9a2e-b31442d7fc24",
+    "name": "CRC Maesta",
+    "slug": "crc-maesta-sector-1-greater-noida-west",
+    "sources": [
+      "UP_RERA_SUMMARY",
+      "SURVEYED_DOSSIER"
+    ],
+    "fieldsUpdated": [
+      "rera_url",
+      "escrow_bank_name",
+      "escrow_verified",
+      "litigation_count",
+      "lat",
+      "lng"
+    ]
+  },
+  {
+    "id": "d3251d89-7c12-4278-a810-1986425bafe8",
+    "name": "Eldeco Echoes of Eden",
+    "slug": "eldeco-echoes-of-eden-sector-22d",
+    "sources": [
+      "UP_RERA_SUMMARY"
+    ],
+    "fieldsUpdated": [
+      "rera_url",
+      "escrow_bank_name",
+      "escrow_verified",
+      "litigation_count"
+    ]
+  },
+  {
+    "id": "fdd2de65-e073-47c0-a9cd-5ae72e532941",
+    "name": "ACE Arte",
+    "slug": "ace-arte-sector-150",
+    "sources": [
+      "UP_RERA_SUMMARY"
+    ],
+    "fieldsUpdated": [
+      "rera_url",
+      "escrow_bank_name",
+      "escrow_verified",
+      "litigation_count"
+    ]
+  },
+  {
+    "id": "2557bef7-f83a-4a75-84b6-ad7afe154242",
+    "name": "Gardenia Golf City (AIMS Max)",
+    "slug": "gardenia-golf-city-sector-75-noida",
+    "sources": [
+      "UP_RERA_FILING",
+      "SURVEYED_DOSSIER"
+    ],
+    "fieldsUpdated": [
+      "rera_url",
+      "escrow_bank_name",
+      "escrow_verified",
+      "lat",
+      "lng"
+    ]
+  },
+  {
+    "id": "732f90ee-c557-4d8f-9a3b-1856f3864383",
+    "name": "IITL Nimbus The Hyde Park",
+    "slug": "iitl-nimbus-the-hyde-park-sector-78-noida",
+    "sources": [
+      "UP_RERA_FILING",
+      "SURVEYED_DOSSIER"
+    ],
+    "fieldsUpdated": [
+      "rera_url",
+      "escrow_bank_name",
+      "escrow_verified",
+      "lat",
+      "lng"
+    ]
+  },
+  {
+    "id": "e98b34a4-33d5-4f2c-9f05-a45d77cd01a4",
+    "name": "Paras Tierea",
+    "slug": "paras-tierea-sector-137-noida",
+    "sources": [
+      "UP_RERA_FILING"
+    ],
+    "fieldsUpdated": [
+      "rera_url",
+      "rera_valid_until",
+      "escrow_bank_name",
+      "escrow_verified"
+    ]
+  },
+  {
+    "id": "3032c30c-07e3-40c4-a629-f8a54cd78727",
+    "name": "Nirala Greenshire",
+    "slug": "nirala-greenshire-sector-2-greater-noida-west",
+    "sources": [
+      "UP_RERA_SUMMARY"
+    ],
+    "fieldsUpdated": [
+      "rera_url",
+      "escrow_bank_name",
+      "escrow_verified",
+      "litigation_count"
+    ]
+  },
+  {
+    "id": "122eaf91-013f-427f-9546-da52c5b69251",
+    "name": "ATS Knightsbridge",
+    "slug": "ats-knightsbridge-sector-124",
+    "sources": [
+      "UP_RERA_FILING",
+      "UP_RERA_SUMMARY"
+    ],
+    "fieldsUpdated": [
+      "rera_url",
+      "rera_valid_until",
+      "approvals_status",
+      "escrow_bank_name",
+      "escrow_verified"
+    ]
+  },
+  {
+    "id": "c0f5a640-4bad-4f1a-afb7-48c94e170e2d",
+    "name": "Nirala Diadem",
+    "slug": "nirala-diadem-sector-10-greater-noida-west",
+    "sources": [
+      "UP_RERA_SUMMARY"
+    ],
+    "fieldsUpdated": [
+      "rera_url",
+      "escrow_bank_name",
+      "escrow_verified"
+    ]
+  },
+  {
+    "id": "1946d2de-750a-4257-9262-ccff4b57dfd4",
+    "name": "La Palacia Towers A-D",
+    "slug": "la-palacia-towers-a-d-techzone-4",
+    "sources": [
+      "UP_RERA_FILING"
+    ],
+    "fieldsUpdated": [
+      "rera_url",
+      "rera_valid_until",
+      "escrow_bank_name",
+      "escrow_verified",
+      "approvals_status",
+      "lat",
+      "lng"
+    ]
+  },
+  {
+    "id": "5c82f67b-0c40-46a3-b269-c693ab0d0bee",
+    "name": "Gaur City 1 - 2nd Avenue",
+    "slug": "gaur-city-1-2nd-avenue-sector-4",
+    "sources": [
+      "UP_RERA_FILING"
+    ],
+    "fieldsUpdated": [
+      "rera_url",
+      "rera_valid_until",
+      "escrow_bank_name",
+      "escrow_verified",
+      "architect",
+      "approvals_status"
+    ]
+  },
+  {
+    "id": "55e29630-faa7-4d5d-b203-c0d97a76de6e",
+    "name": "Jaypee Earth Court",
+    "slug": "jaypee-earth-court-pari-chowk",
+    "sources": [
+      "UP_RERA_FILING"
+    ],
+    "fieldsUpdated": [
+      "rera_url",
+      "rera_valid_until",
+      "architect",
+      "approvals_status",
+      "lat",
+      "lng"
+    ]
+  },
+  {
+    "id": "c3ec8d9a-7ce5-4fbc-9564-b2fcee2c2196",
+    "name": "Mahagun Mirabella",
+    "slug": "mahagun-mirabella-sector-79-noida",
+    "sources": [
+      "UP_RERA_FILING",
+      "SURVEYED_DOSSIER"
+    ],
+    "fieldsUpdated": [
+      "rera_url",
+      "rera_valid_until",
+      "escrow_bank_name",
+      "escrow_verified",
+      "approvals_status",
+      "lat",
+      "lng"
+    ]
+  },
+  {
+    "id": "20a939d6-f338-410e-a3b9-fd9962e1038f",
+    "name": "Godrej Majesty",
+    "slug": "godrej-majesty-sector-12",
+    "sources": [
+      "SURVEYED_DOSSIER"
+    ],
+    "fieldsUpdated": [
+      "lat",
+      "lng"
+    ]
+  },
+  {
+    "id": "40475b9e-f770-47ea-9171-bbabded828e0",
+    "name": "Cleo County",
+    "slug": "cleo-county-sector-121-noida",
+    "sources": [
+      "UP_RERA_FILING"
+    ],
+    "fieldsUpdated": [
+      "rera_url",
+      "rera_valid_until"
+    ]
+  },
+  {
+    "id": "9600d0de-a36c-4813-85c7-b9da2bcbc227",
+    "name": "Indosam Iconic",
+    "slug": "indosam-iconic-sector-75",
+    "sources": [
+      "UP_RERA_SUMMARY"
+    ],
+    "fieldsUpdated": [
+      "rera_url",
+      "escrow_bank_name",
+      "escrow_verified",
+      "litigation_count"
+    ]
+  },
+  {
+    "id": "2f5a8248-e9da-44d6-99e7-c403aca87bbe",
+    "name": "Amaatra Homes",
+    "slug": "amaatra-homes-sector-10",
+    "sources": [
+      "UP_RERA_FILING",
+      "UP_RERA_SUMMARY"
+    ],
+    "fieldsUpdated": [
+      "rera_url",
+      "rera_valid_until",
+      "architect",
+      "approvals_status",
+      "escrow_bank_name",
+      "escrow_verified"
+    ]
+  },
+  {
+    "id": "629e13b6-a526-4eb3-84c9-38a51072fa63",
+    "name": "Mahagun Mantra I",
+    "slug": "mahagun-mantra-i-sector-10",
+    "sources": [
+      "UP_RERA_FILING"
+    ],
+    "fieldsUpdated": [
+      "rera_url",
+      "rera_valid_until",
+      "escrow_bank_name",
+      "escrow_verified",
+      "architect",
+      "approvals_status"
+    ]
+  },
+  {
+    "id": "674b31aa-a1b8-4f18-9f0b-baba8a2da4c6",
+    "name": "Devika Gold Homz",
+    "slug": "devika-gold-homz-sector-1",
+    "sources": [
+      "UP_RERA_FILING"
+    ],
+    "fieldsUpdated": [
+      "rera_url",
+      "rera_valid_until",
+      "escrow_bank_name",
+      "escrow_verified",
+      "approvals_status",
+      "lat",
+      "lng"
+    ]
+  },
+  {
+    "id": "792ec6f4-45a3-4f73-b99b-84dee7828baf",
+    "name": "Mahagun Manorialle",
+    "slug": "mahagun-manorialle-sector-128",
+    "sources": [
+      "UP_RERA_FILING",
+      "UP_RERA_SUMMARY",
+      "SURVEYED_DOSSIER"
+    ],
+    "fieldsUpdated": [
+      "rera_url",
+      "rera_valid_until",
+      "escrow_bank_name",
+      "escrow_verified",
+      "lat",
+      "lng"
+    ]
+  },
+  {
+    "id": "e35d0295-5513-45c2-a0d1-509cc6d2abd9",
+    "name": "Gayatri Life",
+    "slug": "gayatri-life-sector-16",
+    "sources": [
+      "UP_RERA_FILING",
+      "UP_RERA_SUMMARY"
+    ],
+    "fieldsUpdated": [
+      "rera_url",
+      "rera_valid_until",
+      "architect",
+      "approvals_status",
+      "escrow_bank_name",
+      "escrow_verified"
+    ]
+  },
+  {
+    "id": "a917e8a5-8242-4252-8675-1a1b6f707328",
+    "name": "Jaypee Greens Wish Town Klassic",
+    "slug": "jaypee-greens-wish-town-klassic-sector-134",
+    "sources": [
+      "UP_RERA_FILING"
+    ],
+    "fieldsUpdated": [
+      "rera_url",
+      "rera_valid_until",
+      "escrow_bank_name",
+      "escrow_verified",
+      "approvals_status",
+      "lat",
+      "lng"
+    ]
+  },
+  {
+    "id": "213e0f44-3eb7-45e6-9a2e-25065ebae61d",
+    "name": "Amrapali Centurian Park - Tropical Garden",
+    "slug": "amrapali-centurian-park-tropical-garden-techzone-4",
+    "sources": [
+      "UP_RERA_FILING"
+    ],
+    "fieldsUpdated": [
+      "rera_url",
+      "rera_valid_until",
+      "escrow_bank_name",
+      "escrow_verified",
+      "architect",
+      "approvals_status"
+    ]
+  },
+  {
+    "id": "6fd124bf-f39d-45a4-94cb-843a27fc4a7a",
+    "name": "Mahagun My Laagoon Phase 1",
+    "slug": "mahagun-my-laagoon-phase-1-sector-12",
+    "sources": [
+      "UP_RERA_SUMMARY"
+    ],
+    "fieldsUpdated": [
+      "rera_url",
+      "escrow_bank_name",
+      "escrow_verified"
+    ]
+  },
+  {
+    "id": "937f754c-98ee-4236-ba7e-fe2e5c8f0073",
+    "name": "Mahagun Medalleo Towers E-G",
+    "slug": "mahagun-medalleo-towers-e-g-sector-107",
+    "sources": [
+      "UP_RERA_SUMMARY"
+    ],
+    "fieldsUpdated": [
+      "rera_url",
+      "escrow_bank_name",
+      "escrow_verified",
+      "litigation_count"
+    ]
+  },
+  {
+    "id": "c4eb3274-c662-4bc7-b61b-27a0cc62c5e7",
+    "name": "ATS Le Grandiose",
+    "slug": "ats-le-grandiose-sector-150",
+    "sources": [
+      "UP_RERA_FILING"
+    ],
+    "fieldsUpdated": [
+      "rera_url",
+      "rera_valid_until",
+      "escrow_bank_name",
+      "escrow_verified",
+      "architect"
+    ]
+  },
+  {
+    "id": "ff87be00-c157-4ad4-88da-7edfa41b8bdd",
+    "name": "Gaur Saundaryam",
+    "slug": "gaur-saundaryam-techzone-4-greater-noida-west",
+    "sources": [
+      "UP_RERA_FILING"
+    ],
+    "fieldsUpdated": [
+      "rera_url",
+      "rera_valid_until",
+      "escrow_bank_name",
+      "escrow_verified",
+      "architect",
+      "approvals_status"
+    ]
+  },
+  {
+    "id": "b551f816-cf6a-4bc8-90d6-e006f9f5d998",
+    "name": "Trecento Residencies by Gaurs",
+    "slug": "trecento-residencies-by-gaurs-jaypee-greens",
+    "sources": [
+      "UP_RERA_SUMMARY"
+    ],
+    "fieldsUpdated": [
+      "rera_url",
+      "escrow_bank_name",
+      "escrow_verified",
+      "litigation_count"
+    ]
+  },
+  {
+    "id": "31a07d6c-d5f3-445e-adba-706f34adfd5b",
+    "name": "KVD Wind Park",
+    "slug": "kvd-wind-park-techzone-4-greater-noida-west",
+    "sources": [
+      "UP_RERA_SUMMARY"
+    ],
+    "fieldsUpdated": [
+      "rera_url",
+      "escrow_bank_name",
+      "escrow_verified",
+      "litigation_count"
+    ]
+  },
+  {
+    "id": "0cc1aff7-32fe-4b32-86bc-8b9832e40519",
+    "name": "Mahagun Mywoods",
+    "slug": "mahagun-mywoods-sector-16c-greater-noida-west",
+    "sources": [
+      "UP_RERA_FILING"
+    ],
+    "fieldsUpdated": [
+      "rera_url",
+      "rera_valid_until",
+      "escrow_bank_name",
+      "escrow_verified",
+      "architect",
+      "approvals_status"
+    ]
+  },
+  {
+    "id": "ea2b690f-4021-4eb5-9f03-7d7eff297a3f",
+    "name": "NCR Monarch",
+    "slug": "ncr-monarch-sector-1",
+    "sources": [
+      "UP_RERA_FILING",
+      "UP_RERA_SUMMARY"
+    ],
+    "fieldsUpdated": [
+      "rera_url",
+      "rera_valid_until",
+      "escrow_bank_name",
+      "escrow_verified",
+      "architect",
+      "approvals_status"
+    ]
+  },
+  {
+    "id": "efd4ca4f-4f42-477a-bcf7-4bd86c7ce931",
+    "name": "Palm Olympia",
+    "slug": "palm-olympia-sector-16c-greater-noida-west",
+    "sources": [
+      "UP_RERA_SUMMARY"
+    ],
+    "fieldsUpdated": [
+      "rera_url",
+      "escrow_bank_name",
+      "escrow_verified",
+      "litigation_count"
+    ]
+  },
+  {
+    "id": "6d48bdd2-2322-49e2-b6d7-180371f92da5",
+    "name": "Gaur Atulyam",
+    "slug": "gaur-atulyam-sector-omicron-1",
+    "sources": [
+      "UP_RERA_FILING"
+    ],
+    "fieldsUpdated": [
+      "rera_url",
+      "rera_valid_until",
+      "escrow_bank_name",
+      "escrow_verified",
+      "architect",
+      "approvals_status"
+    ]
+  },
+  {
+    "id": "83b13dc3-5eb6-45c0-b357-903276205582",
+    "name": "Parsvnath Prestige",
+    "slug": "parsvnath-prestige-sector-93a",
+    "sources": [
+      "UP_RERA_FILING"
+    ],
+    "fieldsUpdated": [
+      "rera_url",
+      "launch_date",
+      "rera_valid_until",
+      "escrow_bank_name",
+      "escrow_verified",
+      "architect"
+    ]
+  },
+  {
+    "id": "8d32dfd8-e4c5-46c8-b758-f694ebf181d1",
+    "name": "Express Zenith",
+    "slug": "express-zenith-sector-77",
+    "sources": [
+      "SURVEYED_DOSSIER"
+    ],
+    "fieldsUpdated": [
+      "lat",
+      "lng"
+    ]
+  },
+  {
+    "id": "3b615169-1a6f-43bf-bc7b-514d60c5f176",
+    "name": "Sethi Max Royal",
+    "slug": "sethi-max-royal-sector-76",
+    "sources": [
+      "UP_RERA_FILING",
+      "SURVEYED_DOSSIER"
+    ],
+    "fieldsUpdated": [
+      "rera_url",
+      "rera_valid_until",
+      "escrow_bank_name",
+      "escrow_verified",
+      "approvals_status",
+      "lat",
+      "lng"
+    ]
+  },
+  {
+    "id": "abaf3828-92d5-4c49-9b36-1923fdfbcb7e",
+    "name": "ATS Pristine Golf Villas Phase 1",
+    "slug": "ats-pristine-golf-villas-phase-1-sector-150",
+    "sources": [
+      "UP_RERA_FILING"
+    ],
+    "fieldsUpdated": [
+      "rera_url",
+      "rera_valid_until",
+      "escrow_bank_name",
+      "escrow_verified",
+      "architect",
+      "approvals_status",
+      "lat",
+      "lng"
+    ]
+  },
+  {
+    "id": "67051f07-c9c2-4e42-8064-d40cc95a0c1d",
+    "name": "Eldeco Aangan",
+    "slug": "eldeco-aangan-sector-82",
+    "sources": [
+      "UP_RERA_FILING"
+    ],
+    "fieldsUpdated": [
+      "rera_url",
+      "rera_valid_until",
+      "escrow_bank_name",
+      "escrow_verified",
+      "architect",
+      "approvals_status"
+    ]
+  },
+  {
+    "id": "6946cd0f-74e5-45bd-9a39-b02366355b1e",
+    "name": "Arihant One",
+    "slug": "arihant-one-sector-1",
+    "sources": [
+      "UP_RERA_SUMMARY"
+    ],
+    "fieldsUpdated": [
+      "rera_url",
+      "escrow_bank_name",
+      "escrow_verified",
+      "litigation_count"
+    ]
+  },
+  {
+    "id": "f1c17f37-ffc2-4056-b491-8816d7b60abd",
+    "name": "Express Astra",
+    "slug": "express-astra-sector-1-greater-noida-west",
+    "sources": [
+      "UP_RERA_SUMMARY"
+    ],
+    "fieldsUpdated": [
+      "rera_url",
+      "escrow_bank_name",
+      "escrow_verified"
+    ]
+  },
+  {
+    "id": "3c8b6d03-bdc7-4d22-84c8-2d6bcbbc730a",
+    "name": "Ashtech Presidential Towers",
+    "slug": "ashtech-presidential-towers-sector-12",
+    "sources": [
+      "UP_RERA_SUMMARY"
+    ],
+    "fieldsUpdated": [
+      "rera_url",
+      "escrow_bank_name",
+      "escrow_verified",
+      "litigation_count"
+    ]
+  },
+  {
+    "id": "1164bb5d-86cc-4b8c-b0f8-fb3dd959d44c",
+    "name": "ATS Destinaire",
+    "slug": "ats-destinaire-sector-1-greater-noida-west",
+    "sources": [
+      "UP_RERA_SUMMARY"
+    ],
+    "fieldsUpdated": [
+      "rera_url",
+      "escrow_bank_name",
+      "escrow_verified"
+    ]
+  },
+  {
+    "id": "0ffd4f5c-ee97-4650-b619-83052a9233f3",
+    "name": "ATS Nobility",
+    "slug": "ats-nobility-sector-4",
+    "sources": [
+      "UP_RERA_SUMMARY"
+    ],
+    "fieldsUpdated": [
+      "rera_url",
+      "escrow_bank_name",
+      "escrow_verified"
+    ]
+  },
+  {
+    "id": "814100df-017d-4b02-b53a-d70e452b134b",
+    "name": "The Jewel of Noida",
+    "slug": "the-jewel-of-noida-sector-75",
+    "sources": [
+      "UP_RERA_SUMMARY",
+      "SURVEYED_DOSSIER"
+    ],
+    "fieldsUpdated": [
+      "rera_url",
+      "escrow_bank_name",
+      "escrow_verified",
+      "lat",
+      "lng"
+    ]
+  },
+  {
+    "id": "4ea2df37-3090-400b-a6dd-3014d3ca4496",
+    "name": "Sunworld Arista",
+    "slug": "sunworld-arista-sector-168-noida",
+    "sources": [
+      "UP_RERA_FILING",
+      "UP_RERA_SUMMARY"
+    ],
+    "fieldsUpdated": [
+      "rera_url",
+      "rera_valid_until",
+      "escrow_bank_name",
+      "escrow_verified"
+    ]
+  },
+  {
+    "id": "9570f5a8-5b81-49be-9267-e48d74190641",
+    "name": "Amrapali Centurian Park - O2 Valley",
+    "slug": "amrapali-centurian-park-o2-valley-techzone-4",
+    "sources": [
+      "UP_RERA_FILING"
+    ],
+    "fieldsUpdated": [
+      "rera_url",
+      "rera_valid_until",
+      "escrow_bank_name",
+      "escrow_verified",
+      "architect",
+      "approvals_status"
+    ]
+  },
+  {
+    "id": "68b1999b-03d8-4cc6-8307-7acf78fcdf4a",
+    "name": "Supertech Eco Village 1",
+    "slug": "supertech-eco-village-1-sector-1-greater-noida-west",
+    "sources": [
+      "UP_RERA_FILING"
+    ],
+    "fieldsUpdated": [
+      "rera_url",
+      "rera_valid_until",
+      "escrow_bank_name",
+      "escrow_verified",
+      "architect",
+      "approvals_status"
+    ]
+  },
+  {
+    "id": "6a46eba7-775b-44d7-a91b-72d96e9e820a",
+    "name": "Civitech Strings",
+    "slug": "civitech-strings-sector-12",
+    "sources": [
+      "UP_RERA_SUMMARY",
+      "SURVEYED_DOSSIER"
+    ],
+    "fieldsUpdated": [
+      "rera_url",
+      "escrow_bank_name",
+      "escrow_verified",
+      "lat",
+      "lng"
+    ]
+  },
+  {
+    "id": "dde44de5-946c-4be4-adaa-2aa5a45bf4ce",
+    "name": "Apex Golf Avenue",
+    "slug": "apex-golf-avenue-sector-1-greater-noida-west",
+    "sources": [
+      "UP_RERA_FILING"
+    ],
+    "fieldsUpdated": [
+      "rera_url",
+      "rera_valid_until",
+      "escrow_bank_name",
+      "escrow_verified",
+      "architect",
+      "approvals_status"
+    ]
+  },
+  {
+    "id": "2d12577b-559f-4da6-b0a9-77d291dd341e",
+    "name": "JM Aroma",
+    "slug": "jm-aroma-sector-75",
+    "sources": [
+      "SURVEYED_DOSSIER"
+    ],
+    "fieldsUpdated": [
+      "lat",
+      "lng"
+    ]
+  },
+  {
+    "id": "fafa768d-d3f6-4287-a1a5-7276942cc526",
+    "name": "Amrapali Silicon City",
+    "slug": "amrapali-silicon-city-sector-76",
+    "sources": [
+      "SURVEYED_DOSSIER"
+    ],
+    "fieldsUpdated": [
+      "lat",
+      "lng"
+    ]
+  },
+  {
+    "id": "359889f6-6174-4916-a326-97f0c08c62e8",
+    "name": "Ace Mahagun Medalleo",
+    "slug": "ace-mahagun-medalleo-sector-107",
+    "sources": [
+      "UP_RERA_SUMMARY"
+    ],
+    "fieldsUpdated": [
+      "rera_url",
+      "escrow_bank_name",
+      "escrow_verified",
+      "litigation_count"
+    ]
+  },
+  {
+    "id": "6c7505f1-28af-4c9c-b41b-770fd557fa0b",
+    "name": "Elite Golf Greens",
+    "slug": "elite-golf-greens-sector-79",
+    "sources": [
+      "SURVEYED_DOSSIER"
+    ],
+    "fieldsUpdated": [
+      "lat",
+      "lng"
+    ]
+  },
+  {
+    "id": "c270d881-50ed-454c-a300-8e9932012a9f",
+    "name": "Amrapali Eden Park",
+    "slug": "amrapali-eden-park-sector-50",
+    "sources": [
+      "UP_RERA_FILING"
+    ],
+    "fieldsUpdated": [
+      "rera_url",
+      "rera_valid_until",
+      "escrow_bank_name",
+      "escrow_verified",
+      "approvals_status"
+    ]
+  },
+  {
+    "id": "bf165595-cf13-4cfa-9e87-dfe158d97679",
+    "name": "Golden I Residential Blocks",
+    "slug": "golden-i-residential-blocks-techzone-4",
+    "sources": [
+      "UP_RERA_FILING"
+    ],
+    "fieldsUpdated": [
+      "rera_url",
+      "rera_valid_until",
+      "approvals_status",
+      "lat",
+      "lng"
+    ]
+  },
+  {
+    "id": "c19ecfd2-d72a-4525-aa32-93e67aef1285",
+    "name": "Rudra Palace Heights",
+    "slug": "rudra-palace-heights-sector-1-greater-noida-west",
+    "sources": [
+      "UP_RERA_FILING",
+      "UP_RERA_SUMMARY"
+    ],
+    "fieldsUpdated": [
+      "rera_url",
+      "rera_valid_until",
+      "architect",
+      "approvals_status",
+      "lat",
+      "lng",
+      "escrow_bank_name",
+      "escrow_verified"
+    ]
+  },
+  {
+    "id": "a9573feb-2420-4ddd-8878-3be364c9cf0f",
+    "name": "Renox Thrive",
+    "slug": "renox-thrive-sector-10",
+    "sources": [
+      "UP_RERA_SUMMARY"
+    ],
+    "fieldsUpdated": [
+      "rera_url",
+      "escrow_bank_name",
+      "escrow_verified"
+    ]
+  },
+  {
+    "id": "3340c38e-6320-46b6-93a7-63365daac681",
+    "name": "Prateek Canary",
+    "slug": "prateek-canary-sector-150",
+    "sources": [
+      "UP_RERA_SUMMARY"
+    ],
+    "fieldsUpdated": [
+      "rera_url",
+      "escrow_bank_name",
+      "escrow_verified"
+    ]
+  },
+  {
+    "id": "0bf0fd19-8393-44cf-835e-58f00433e0bc",
+    "name": "Elite X",
+    "slug": "elite-x-sector-10",
+    "sources": [
+      "UP_RERA_SUMMARY"
+    ],
+    "fieldsUpdated": [
+      "rera_url",
+      "escrow_bank_name",
+      "escrow_verified",
+      "litigation_count"
+    ]
+  },
+  {
+    "id": "1ccb48fa-d390-4574-8a4b-6ea712ac4381",
+    "name": "Arihant Seasons",
+    "slug": "arihant-seasons-sector-22d",
+    "sources": [
+      "UP_RERA_SUMMARY"
+    ],
+    "fieldsUpdated": [
+      "rera_url",
+      "escrow_bank_name",
+      "escrow_verified",
+      "litigation_count"
+    ]
+  },
+  {
+    "id": "bdfafcd8-fd5c-44dc-ab46-e1cc2b372491",
+    "name": "ATS Picturesque Reprieves",
+    "slug": "ats-picturesque-reprieves-sector-152",
+    "sources": [
+      "UP_RERA_SUMMARY"
+    ],
+    "fieldsUpdated": [
+      "rera_url",
+      "escrow_bank_name",
+      "escrow_verified"
+    ]
+  },
+  {
+    "id": "5133278f-4550-432d-8971-816de544335e",
+    "name": "Irish Platinum",
+    "slug": "irish-platinum-sector-10",
+    "sources": [
+      "UP_RERA_SUMMARY",
+      "SURVEYED_DOSSIER"
+    ],
+    "fieldsUpdated": [
+      "rera_url",
+      "escrow_bank_name",
+      "escrow_verified",
+      "litigation_count",
+      "lat",
+      "lng"
+    ]
+  },
+  {
+    "id": "c9e935f2-7e3c-4a78-9596-49faa91310ae",
+    "name": "Gardenia Golf City",
+    "slug": "gardenia-golf-city-sector-75",
+    "sources": [
+      "UP_RERA_FILING"
+    ],
+    "fieldsUpdated": [
+      "rera_url",
+      "escrow_bank_name",
+      "escrow_verified"
+    ]
+  },
+  {
+    "id": "56810c4e-ff3f-425a-8204-c929415a9324",
+    "name": "Ajnara Elements",
+    "slug": "ajnara-elements-sector-137",
+    "sources": [
+      "UP_RERA_FILING"
+    ],
+    "fieldsUpdated": [
+      "rera_url",
+      "rera_valid_until",
+      "escrow_bank_name",
+      "escrow_verified",
+      "architect"
+    ]
+  },
+  {
+    "id": "db03ae39-1a51-4851-a069-24308f2b59e2",
+    "name": "Kalpataru Vista",
+    "slug": "kalpataru-vista-sector-128",
+    "sources": [
+      "UP_RERA_FILING"
+    ],
+    "fieldsUpdated": [
+      "rera_url",
+      "rera_valid_until",
+      "approvals_status"
+    ]
+  },
+  {
+    "id": "be9421d0-0314-41ab-965a-088fcfdfc3ed",
+    "name": "Tata Eureka Park",
+    "slug": "tata-eureka-park-sector-150",
+    "sources": [
+      "UP_RERA_FILING"
+    ],
+    "fieldsUpdated": [
+      "rera_url",
+      "rera_valid_until",
+      "escrow_bank_name",
+      "escrow_verified"
+    ]
+  },
+  {
+    "id": "1d7984c8-5f82-4909-886c-aff2f18e150f",
+    "name": "Max Estate 128",
+    "slug": "max-estate-128-sector-128",
+    "sources": [
+      "UP_RERA_SUMMARY"
+    ],
+    "fieldsUpdated": [
+      "rera_url",
+      "escrow_bank_name",
+      "escrow_verified",
+      "litigation_count"
+    ]
+  },
+  {
+    "id": "c19889f7-0991-4366-aeca-6ebc33a56797",
+    "name": "Jaypee Klassic",
+    "slug": "jaypee-klassic-sector-128",
+    "sources": [
+      "UP_RERA_FILING"
+    ],
+    "fieldsUpdated": [
+      "rera_url",
+      "rera_valid_until",
+      "escrow_bank_name",
+      "escrow_verified",
+      "architect"
+    ]
+  },
+  {
+    "id": "e44fe1bf-f815-4088-870d-216dafc1a22c",
+    "name": "Godrej Jardinia",
+    "slug": "godrej-jardinia-sector-146",
+    "sources": [
+      "UP_RERA_SUMMARY"
+    ],
+    "fieldsUpdated": [
+      "rera_url",
+      "escrow_bank_name",
+      "escrow_verified"
+    ]
+  },
+  {
+    "id": "b16721eb-1ad1-4489-82c9-4fccd87d6e6d",
+    "name": "Nimbus Hyde Park",
+    "slug": "nimbus-hyde-park-sector-78-noida",
+    "sources": [
+      "SURVEYED_DOSSIER"
+    ],
+    "fieldsUpdated": [
+      "lat",
+      "lng"
+    ]
+  },
+  {
+    "id": "63506755-89ce-440a-8d0b-8f2155e99fb5",
+    "name": "Godrej Golf Links & The Crest",
+    "slug": "godrej-golf-links-the-crest-sector-27",
+    "sources": [
+      "UP_RERA_FILING"
+    ],
+    "fieldsUpdated": [
+      "rera_url",
+      "rera_valid_until",
+      "escrow_bank_name",
+      "escrow_verified",
+      "approvals_status",
+      "lat",
+      "lng"
+    ]
+  },
+  {
+    "id": "faa03642-1649-4f24-a91b-054f6d5cd4ba",
+    "name": "Jaypee Greens Kosmos",
+    "slug": "jaypee-greens-kosmos-sector-134",
+    "sources": [
+      "UP_RERA_FILING"
+    ],
+    "fieldsUpdated": [
+      "rera_url",
+      "rera_valid_until",
+      "escrow_bank_name",
+      "escrow_verified",
+      "approvals_status"
+    ]
+  },
+  {
+    "id": "5bb536ad-aecf-4595-9c4b-6e638f707211",
+    "name": "Antriksh Golf View",
+    "slug": "antriksh-golf-view-sector-78-noida",
+    "sources": [
+      "SURVEYED_DOSSIER"
+    ],
+    "fieldsUpdated": [
+      "lat",
+      "lng"
+    ]
+  },
+  {
+    "id": "415374b4-0da3-4d26-96ca-a6f26a38b9ba",
+    "name": "Fusion The Brook",
+    "slug": "fusion-the-brook-sector-12",
+    "sources": [
+      "SURVEYED_DOSSIER"
+    ],
+    "fieldsUpdated": [
+      "lat",
+      "lng"
+    ]
+  },
+  {
+    "id": "5487826c-2dac-4483-9d3f-b5f0a0a67954",
+    "name": "Godrej Nest",
+    "slug": "godrej-nest-sector-150-noida",
+    "sources": [
+      "UP_RERA_FILING"
+    ],
+    "fieldsUpdated": [
+      "rera_url",
+      "rera_valid_until",
+      "escrow_bank_name",
+      "escrow_verified",
+      "architect"
+    ]
+  },
+  {
+    "id": "22e34043-37b8-47fe-95a9-b8c43c1bea1d",
+    "name": "Nirala Estate",
+    "slug": "nirala-estate-techzone-4-greater-noida-west",
+    "sources": [
+      "UP_RERA_SUMMARY"
+    ],
+    "fieldsUpdated": [
+      "rera_url",
+      "escrow_bank_name",
+      "escrow_verified",
+      "litigation_count"
+    ]
+  },
+  {
+    "id": "25ce8ba2-2511-4801-842a-42cc48565620",
+    "name": "The Rivulet",
+    "slug": "the-rivulet-sector-12",
+    "sources": [
+      "UP_RERA_SUMMARY"
+    ],
+    "fieldsUpdated": [
+      "rera_url",
+      "escrow_bank_name",
+      "escrow_verified"
+    ]
+  },
+  {
+    "id": "9836d171-28ff-4ffd-9b6c-cb9b9dd5b6df",
+    "name": "AVS Orchard",
+    "slug": "avs-orchard-sector-77",
+    "sources": [
+      "SURVEYED_DOSSIER"
+    ],
+    "fieldsUpdated": [
+      "lat",
+      "lng"
+    ]
+  },
+  {
+    "id": "8e3670ab-ae14-4a85-b8f8-88322426c5e9",
+    "name": "Civitech Stadia",
+    "slug": "civitech-stadia-sector-79",
+    "sources": [
+      "SURVEYED_DOSSIER"
+    ],
+    "fieldsUpdated": [
+      "lat",
+      "lng"
+    ]
+  },
+  {
+    "id": "5d0dbebc-1067-481d-ab0a-eae77f240720",
+    "name": "Omaxe Grandwoods",
+    "slug": "omaxe-grandwoods-sector-forest-lane",
+    "sources": [
+      "UP_RERA_FILING"
+    ],
+    "fieldsUpdated": [
+      "rera_url",
+      "rera_valid_until",
+      "escrow_bank_name",
+      "escrow_verified",
+      "architect",
+      "approvals_status"
+    ]
+  },
+  {
+    "id": "c78b5e04-8e17-4961-bb1d-bda4b76b8491",
+    "name": "ATS Pristine",
+    "slug": "ats-pristine-sector-150",
+    "sources": [
+      "UP_RERA_FILING"
+    ],
+    "fieldsUpdated": [
+      "rera_url",
+      "rera_valid_until",
+      "escrow_bank_name",
+      "escrow_verified",
+      "architect",
+      "lat",
+      "lng"
+    ]
+  },
+  {
+    "id": "3bca4621-44df-4105-a728-a0e4ab13b8c1",
+    "name": "Amrapali Sapphire",
+    "slug": "amrapali-sapphire-sector-45",
+    "sources": [
+      "UP_RERA_FILING"
+    ],
+    "fieldsUpdated": [
+      "rera_url",
+      "rera_valid_until",
+      "escrow_bank_name",
+      "escrow_verified",
+      "approvals_status"
+    ]
+  },
+  {
+    "id": "86a06149-ffe1-48d7-b834-3de1ae3ae658",
+    "name": "VVIP Homes",
+    "slug": "vvip-homes-sector-16c",
+    "sources": [
+      "SURVEYED_DOSSIER"
+    ],
+    "fieldsUpdated": [
+      "lat",
+      "lng",
+      "architect",
+      "design_theme"
+    ]
+  },
+  {
+    "id": "8efa2985-d105-4f4d-b2e8-b37498d46ad7",
+    "name": "Apex Athena",
+    "slug": "apex-athena-sector-75-noida",
+    "sources": [
+      "UP_RERA_FILING",
+      "SURVEYED_DOSSIER"
+    ],
+    "fieldsUpdated": [
+      "rera_url",
+      "escrow_bank_name",
+      "escrow_verified",
+      "lat",
+      "lng"
+    ]
+  },
+  {
+    "id": "73098f39-bfd6-479a-a14c-d7cca26e0e19",
+    "name": "Panchsheel Pratishtha",
+    "slug": "panchsheel-pratishtha-sector-75",
+    "sources": [
+      "SURVEYED_DOSSIER"
+    ],
+    "fieldsUpdated": [
+      "lat",
+      "lng"
+    ]
+  },
+  {
+    "id": "29c1d4d2-6dad-4be5-b68b-9c2dbfae211e",
+    "name": "Urbtech Hilston",
+    "slug": "urbtech-hilston-sector-79-noida",
+    "sources": [
+      "UP_RERA_FILING",
+      "SURVEYED_DOSSIER"
+    ],
+    "fieldsUpdated": [
+      "rera_url",
+      "rera_valid_until",
+      "escrow_bank_name",
+      "escrow_verified",
+      "lat",
+      "lng"
+    ]
+  },
+  {
+    "id": "76bd9947-7a1a-48af-987b-de8ca19c240f",
+    "name": "Mahagun Mantraa 1 & 2",
+    "slug": "mahagun-mantraa-sector-10",
+    "sources": [
+      "UP_RERA_FILING"
+    ],
+    "fieldsUpdated": [
+      "rera_url",
+      "escrow_bank_name",
+      "escrow_verified"
+    ]
+  },
+  {
+    "id": "6e7aeac6-64e5-4a1d-b629-9519ae11ff6c",
+    "name": "ATS Happy Trails",
+    "slug": "ats-happy-trails-sector-10",
+    "sources": [
+      "UP_RERA_FILING",
+      "SURVEYED_DOSSIER"
+    ],
+    "fieldsUpdated": [
+      "rera_url",
+      "escrow_bank_name",
+      "escrow_verified",
+      "lat",
+      "lng"
+    ]
+  },
+  {
+    "id": "e0a8ab69-4bf7-48dd-aac0-67b795ee06ea",
+    "name": "Godrej Woods",
+    "slug": "godrej-woods-sector-43-noida",
+    "sources": [
+      "UP_RERA_SUMMARY"
+    ],
+    "fieldsUpdated": [
+      "rera_url",
+      "escrow_bank_name",
+      "escrow_verified"
+    ]
+  },
+  {
+    "id": "0fe55cc4-643d-4715-b1b8-7594e40cb910",
+    "name": "Gaur City 1 - 1st Avenue",
+    "slug": "gaur-city-1-1st-avenue-sector-4",
+    "sources": [
+      "UP_RERA_FILING"
+    ],
+    "fieldsUpdated": [
+      "rera_url",
+      "rera_valid_until"
+    ]
+  },
+  {
+    "id": "00d61805-9a3d-46d5-83cf-4547dc3deeff",
+    "name": "Nirala Trio",
+    "slug": "nirala-trio-sector-2",
+    "sources": [
+      "UP_RERA_SUMMARY"
+    ],
+    "fieldsUpdated": [
+      "rera_url",
+      "escrow_bank_name",
+      "escrow_verified",
+      "litigation_count"
+    ]
+  },
+  {
+    "id": "f7e44741-fec1-47ec-866b-eca41630536b",
+    "name": "AIMS Golf Avenue I & II",
+    "slug": "aims-golf-avenue-sector-75-noida",
+    "sources": [
+      "UP_RERA_FILING",
+      "SURVEYED_DOSSIER"
+    ],
+    "fieldsUpdated": [
+      "rera_url",
+      "escrow_bank_name",
+      "escrow_verified",
+      "lat",
+      "lng"
+    ]
+  },
+  {
+    "id": "90e1ef80-6fe5-461c-8fb4-90b6cbc7c7b4",
+    "name": "Gardenia Gateway",
+    "slug": "gardenia-gateway-sector-75-noida",
+    "sources": [
+      "UP_RERA_FILING",
+      "SURVEYED_DOSSIER"
+    ],
+    "fieldsUpdated": [
+      "rera_url",
+      "escrow_bank_name",
+      "escrow_verified",
+      "lat",
+      "lng"
+    ]
+  },
+  {
+    "id": "f160d5d5-c966-4730-86c3-7281ade3c0ec",
+    "name": "Amrapali Princely Estate",
+    "slug": "amrapali-princely-estate-sector-76",
+    "sources": [
+      "SURVEYED_DOSSIER"
+    ],
+    "fieldsUpdated": [
+      "lat",
+      "lng"
+    ]
+  },
+  {
+    "id": "1596bf90-1954-4ac3-9003-ecd6b5e207cd",
+    "name": "Purvanchal Heights",
+    "slug": "purvanchal-heights-sector-zeta-1",
+    "sources": [
+      "UP_RERA_FILING",
+      "UP_RERA_SUMMARY"
+    ],
+    "fieldsUpdated": [
+      "rera_url",
+      "rera_valid_until",
+      "architect",
+      "approvals_status",
+      "escrow_bank_name",
+      "escrow_verified"
+    ]
+  },
+  {
+    "id": "61578c3f-0f78-4a76-affb-94f40dfa4e43",
+    "name": "Antriksh Forest",
+    "slug": "antriksh-forest-sector-77",
+    "sources": [
+      "SURVEYED_DOSSIER"
+    ],
+    "fieldsUpdated": [
+      "lat",
+      "lng"
+    ]
+  },
+  {
+    "id": "a8e651ef-722a-4dd0-8d81-5ec53a19550b",
+    "name": "Mahagun Moderne",
+    "slug": "mahagun-moderne-sector-78",
+    "sources": [
+      "SURVEYED_DOSSIER"
+    ],
+    "fieldsUpdated": [
+      "lat",
+      "lng"
+    ]
+  },
+  {
+    "id": "beb1b1d5-8256-469f-8cab-7902ae71f81d",
+    "name": "Assotech Windsor Court",
+    "slug": "assotech-windsor-court-sector-78",
+    "sources": [
+      "SURVEYED_DOSSIER"
+    ],
+    "fieldsUpdated": [
+      "lat",
+      "lng"
+    ]
+  },
+  {
+    "id": "ab5daea9-2e38-4f23-8db0-b955aa6a252c",
+    "name": "Solitairian City",
+    "slug": "solitairian-city-sector-25",
+    "sources": [
+      "UP_RERA_FILING",
+      "UP_RERA_SUMMARY"
+    ],
+    "fieldsUpdated": [
+      "rera_url",
+      "rera_valid_until",
+      "approvals_status",
+      "escrow_bank_name",
+      "escrow_verified"
+    ]
+  },
+  {
+    "id": "270c74d9-7873-4ad2-b5f3-0aa72e7e2c5e",
+    "name": "Aims Max Gardenia Golf City",
+    "slug": "aims-max-gardenia-golf-city-sector-75-noida",
+    "sources": [
+      "UP_RERA_FILING",
+      "SURVEYED_DOSSIER"
+    ],
+    "fieldsUpdated": [
+      "rera_url",
+      "escrow_bank_name",
+      "escrow_verified",
+      "lat",
+      "lng"
+    ]
+  },
+  {
+    "id": "74f76e86-4a57-471c-8bd7-1c51cd29f87b",
+    "name": "ATS Pious Orchards",
+    "slug": "ats-pious-orchards-sector-150",
+    "sources": [
+      "UP_RERA_SUMMARY"
+    ],
+    "fieldsUpdated": [
+      "rera_url",
+      "escrow_bank_name",
+      "escrow_verified"
+    ]
+  },
+  {
+    "id": "a292564e-6e1d-4984-b58f-c70cc98f4b64",
+    "name": "Samridhi Daksh Avenue",
+    "slug": "samridhi-daksh-avenue-sector-150",
+    "sources": [
+      "UP_RERA_SUMMARY"
+    ],
+    "fieldsUpdated": [
+      "rera_url",
+      "escrow_bank_name",
+      "escrow_verified"
+    ]
+  },
+  {
+    "id": "bc733a34-fb8d-4e23-9453-805ef64cadee",
+    "name": "Eldeco Ballads of Bliss",
+    "slug": "eldeco-ballads-of-bliss-sector-22d-yamuna-expressway",
+    "sources": [
+      "UP_RERA_SUMMARY",
+      "SURVEYED_DOSSIER"
+    ],
+    "fieldsUpdated": [
+      "rera_url",
+      "escrow_bank_name",
+      "escrow_verified",
+      "lat",
+      "lng"
+    ]
+  },
+  {
+    "id": "bb92e434-cab2-43e0-ac50-1bd3e079f2e4",
+    "name": "Sikka Karmic Greens",
+    "slug": "sikka-karmic-greens-sector-78",
+    "sources": [
+      "SURVEYED_DOSSIER"
+    ],
+    "fieldsUpdated": [
+      "lat",
+      "lng"
+    ]
+  },
+  {
+    "id": "f5d74ff4-c35b-45f1-b9b8-55c2cc9b4e8b",
+    "name": "Gaur Sportswood",
+    "slug": "gaur-sportswood-sector-79",
+    "sources": [
+      "SURVEYED_DOSSIER"
+    ],
+    "fieldsUpdated": [
+      "lat",
+      "lng"
+    ]
+  },
+  {
+    "id": "57437956-2873-457a-ae05-cd0ca93df4b1",
+    "name": "JM Solitaire",
+    "slug": "jm-solitaire-sector-75",
+    "sources": [
+      "UP_RERA_FILING"
+    ],
+    "fieldsUpdated": [
+      "rera_url",
+      "escrow_bank_name",
+      "escrow_verified"
+    ]
+  },
+  {
+    "id": "6ecb28ab-48b6-4310-8b28-07f487b16628",
+    "name": "Arihant Abode",
+    "slug": "arihant-abode-sector-10",
+    "sources": [
+      "UP_RERA_FILING",
+      "SURVEYED_DOSSIER"
+    ],
+    "fieldsUpdated": [
+      "rera_url",
+      "lat",
+      "lng"
+    ]
+  }
+]

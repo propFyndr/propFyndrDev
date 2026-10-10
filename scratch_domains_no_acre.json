@@ -1,0 +1,577 @@
+[
+  {
+    "name": "bhoomitruth",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "bhoomipraman",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "bhoomiclear",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "bhoomicheck",
+    "com": false,
+    "in": false
+  },
+  {
+    "name": "bhoomikavach",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "bhoomiprahari",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "bhoomishield",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "bhoomisure",
+    "com": false,
+    "in": false
+  },
+  {
+    "name": "bhoomiproof",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "bhoomicert",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "zameenradar",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "zameenguard",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "zameenspot",
+    "com": false,
+    "in": true
+  },
+  {
+    "name": "zameencheck",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "zameenproof",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "dhartitruth",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "dhartisure",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "dharticheck",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "dhartikavach",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "dhartipraman",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "gharradar",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "gharguard",
+    "com": false,
+    "in": false
+  },
+  {
+    "name": "gharclarity",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "gharsleuth",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "gharspot",
+    "com": false,
+    "in": false
+  },
+  {
+    "name": "awaskavach",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "awassure",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "awascheck",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "awastarget",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "awasprahari",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "makansure",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "makancheck",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "makantruth",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "makanproof",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "makankavach",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "trueroof",
+    "com": false,
+    "in": true
+  },
+  {
+    "name": "roofsure",
+    "com": false,
+    "in": true
+  },
+  {
+    "name": "proofroof",
+    "com": false,
+    "in": true
+  },
+  {
+    "name": "roofcheck",
+    "com": false,
+    "in": true
+  },
+  {
+    "name": "clearkey",
+    "com": false,
+    "in": false
+  },
+  {
+    "name": "surekey",
+    "com": false,
+    "in": true
+  },
+  {
+    "name": "factkey",
+    "com": false,
+    "in": true
+  },
+  {
+    "name": "truthkey",
+    "com": false,
+    "in": true
+  },
+  {
+    "name": "proofkey",
+    "com": false,
+    "in": true
+  },
+  {
+    "name": "guardkey",
+    "com": false,
+    "in": true
+  },
+  {
+    "name": "kagazcheck",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "kagazproof",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "kagazclear",
+    "com": true,
+    "in": false
+  },
+  {
+    "name": "kagazguard",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "kagazaudit",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "patrasure",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "patraproof",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "patraclear",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "patracheck",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "patraguard",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "lekhacheck",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "lekhasure",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "lekhapraman",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "sanadcheck",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "sanadproof",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "dastavejcheck",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "dastavejproof",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "dastavejclear",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "dastavejguard",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "dastavejaudit",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "niveshtruth",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "niveshproof",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "niveshcheck",
+    "com": true,
+    "in": false
+  },
+  {
+    "name": "niveshclarity",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "niveshaudit",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "sampatticheck",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "sampattiproof",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "sampattikavach",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "sampattiprahari",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "sampatticlear",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "vastucheck",
+    "com": false,
+    "in": false
+  },
+  {
+    "name": "vastuproof",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "vastutruth",
+    "com": false,
+    "in": true
+  },
+  {
+    "name": "vastuclear",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "vastuaudit",
+    "com": false,
+    "in": false
+  },
+  {
+    "name": "tathyaghar",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "tathyabhoomi",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "tathyaprop",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "tathyasthal",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "tathyarealty",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "sateekprop",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "sateekbhoomi",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "sateekdeal",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "sateekpatra",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "sateekawas",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "chaukasprop",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "chaukasghar",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "chaukasrealty",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "chaukasbhoomi",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "chaukasnivesh",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "nishchayprop",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "nishchayghar",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "nishchayrealty",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "nishchaybhoomi",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "nishchaynivesh",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "propleuth",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "propgauge",
+    "com": false,
+    "in": false
+  },
+  {
+    "name": "propdarpan",
+    "com": false,
+    "in": true
+  },
+  {
+    "name": "ghardarpan",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "bhoomidarpan",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "propkasauti",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "gharkasauti",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "zameenkasauti",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "propkavach",
+    "com": false,
+    "in": false
+  },
+  {
+    "name": "realtykavach",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "propprove",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "proptrusty",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "propveto",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "propcertify",
+    "com": false,
+    "in": true
+  },
+  {
+    "name": "proptrue",
+    "com": false,
+    "in": false
+  }
+]

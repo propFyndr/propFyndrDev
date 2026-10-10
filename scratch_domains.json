@@ -1,0 +1,362 @@
+[
+  {
+    "name": "sureacre",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "trueacre",
+    "com": false,
+    "in": true
+  },
+  {
+    "name": "pureacre",
+    "com": false,
+    "in": true
+  },
+  {
+    "name": "factacre",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "proofacre",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "clearacre",
+    "com": false,
+    "in": false
+  },
+  {
+    "name": "surekhasra",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "acresure",
+    "com": false,
+    "in": true
+  },
+  {
+    "name": "trupatra",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "surepatra",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "pakkaacre",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "pakkaghar",
+    "com": false,
+    "in": true
+  },
+  {
+    "name": "sachghar",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "sachzameen",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "sachplot",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "haqeeqathomes",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "aslighar",
+    "com": false,
+    "in": true
+  },
+  {
+    "name": "zameensach",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "pakkarealty",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "sachpatra",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "acreprism",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "gharlens",
+    "com": false,
+    "in": true
+  },
+  {
+    "name": "acrelens",
+    "com": false,
+    "in": true
+  },
+  {
+    "name": "zameenlens",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "plotscope",
+    "com": false,
+    "in": true
+  },
+  {
+    "name": "acrescan",
+    "com": false,
+    "in": true
+  },
+  {
+    "name": "propprism",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "factprism",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "realtyscan",
+    "com": false,
+    "in": true
+  },
+  {
+    "name": "terraprism",
+    "com": false,
+    "in": true
+  },
+  {
+    "name": "realtylens",
+    "com": false,
+    "in": false
+  },
+  {
+    "name": "propforensics",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "auditacre",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "acreforensic",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "deepacre",
+    "com": false,
+    "in": true
+  },
+  {
+    "name": "acrevet",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "plotlens",
+    "com": false,
+    "in": false
+  },
+  {
+    "name": "acreshield",
+    "com": false,
+    "in": true
+  },
+  {
+    "name": "gharshield",
+    "com": false,
+    "in": false
+  },
+  {
+    "name": "propkavach",
+    "com": false,
+    "in": false
+  },
+  {
+    "name": "zameenkavach",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "kavachrealty",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "safeacre",
+    "com": false,
+    "in": true
+  },
+  {
+    "name": "guardacre",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "vigilacre",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "shieldacre",
+    "com": false,
+    "in": true
+  },
+  {
+    "name": "rakshaacre",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "rakshaghar",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "terrafact",
+    "com": false,
+    "in": true
+  },
+  {
+    "name": "certacre",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "acruity",
+    "com": false,
+    "in": true
+  },
+  {
+    "name": "veriterra",
+    "com": false,
+    "in": false
+  },
+  {
+    "name": "factterra",
+    "com": false,
+    "in": true
+  },
+  {
+    "name": "rerawise",
+    "com": false,
+    "in": true
+  },
+  {
+    "name": "zameeniq",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "propveritas",
+    "com": false,
+    "in": true
+  },
+  {
+    "name": "veriksha",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "praveeksh",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "proptruth",
+    "com": false,
+    "in": false
+  },
+  {
+    "name": "reracheck",
+    "com": false,
+    "in": false
+  },
+  {
+    "name": "zameentruth",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "factghara",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "veriacre",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "verighar",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "acrelogic",
+    "com": false,
+    "in": true
+  },
+  {
+    "name": "claracre",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "credacre",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "propvetted",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "truthacre",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "zameenaudit",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "pakkadeal",
+    "com": false,
+    "in": false
+  },
+  {
+    "name": "gharaudit",
+    "com": false,
+    "in": false
+  }
+]

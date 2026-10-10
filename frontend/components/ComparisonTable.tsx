@@ -334,45 +334,42 @@ function starRatingRow(
 function buildMatrix(details: (ProjectDetail | null)[], projects: ProjectCard[]): MatrixRow[] {
   const rows: MatrixRow[] = []
 
-  // Advisor Rating
+  // Advisor Rating — recommendation_profile.tier is withheld at the exposure
+  // layer (every row was STRONG_BUY, a constant masquerading as a signal, per
+  // projectExposure.ts SYNTHETIC_FIELDS). Nothing reaches here to show, so the
+  // row is dropped rather than rendering a dash for every comparison forever.
   const tiers = details.map(d => d?.recommendation_profile?.tier ?? null)
-  rows.push({
-    label: 'Advisor Rating',
-    values: tiers.map(t => {
-      const cfg = t ? TIER_CFG[t] : null
-      return cfg ? (
-        <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-black tracking-wide ${cfg.chipCls}`}>
-          <span className={`inline-block w-2 h-2 rounded-full mr-1.5 align-middle ${cfg.dot}`} />{cfg.label}
-        </span>
-      ) : (
-        <span className="text-gray-400 text-[11px]">—</span>
-      )
-    }),
-    winners: winnerIdx(tiers.map(t => TIER_ORDER[t ?? ''] ?? 0)),
-    winnerLabel: 'Highest Rated',
-  })
+  if (tiers.some(t => t)) {
+    rows.push({
+      label: 'Advisor Rating',
+      values: tiers.map(t => {
+        const cfg = t ? TIER_CFG[t] : null
+        return cfg ? (
+          <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-black tracking-wide ${cfg.chipCls}`}>
+            <span className={`inline-block w-2 h-2 rounded-full mr-1.5 align-middle ${cfg.dot}`} />{cfg.label}
+          </span>
+        ) : (
+          <span className="text-gray-400 text-[11px]">—</span>
+        )
+      }),
+      winners: winnerIdx(tiers.map(t => TIER_ORDER[t ?? ''] ?? 0)),
+      winnerLabel: 'Highest Rated',
+    })
+  }
 
-  // Builder Standing
+  // Builder Standing — same withheld-field situation as above (dna is
+  // INTERNAL_ONLY_RELATIONS). Gated like RERA/Value/Location/Lifestyle below,
+  // instead of always rendering five empty stars.
   const builderLabels = details.map(d => d?.dna?.builder_track_record_label)
-  rows.push(starRatingRow('Builder', builderLabels, 'Best Builder'))
+  if (builderLabels.map(l => starsCount(l)).some(s => s > 0)) {
+    rows.push(starRatingRow('Builder', builderLabels, 'Best Builder'))
+  }
 
-  // Delivery Risk
-  const risks = details.map(d => deriveRisk(d))
-  rows.push({
-    label: 'Delivery Risk',
-    values: risks.map((r, i) => {
-      const cls =
-        r === 'Low' ? 'text-emerald-600 dark:text-emerald-400' :
-          r === 'High' ? 'text-red-500 dark:text-red-400' :
-            'text-amber-500'
-      const dot = r === 'Low' ? 'bg-emerald-500' : r === 'High' ? 'bg-red-500' : 'bg-amber-400'
-      return (
-        <span key={i} className={`text-[11px] font-bold inline-flex items-center gap-1.5 ${cls}`}><span className={`inline-block w-2 h-2 rounded-full ${dot}`} />{r}</span>
-      )
-    }),
-    winners: winnerIdx(risks.map(r => RISK_ORDER[r] ?? 0)),
-    winnerLabel: 'Safest',
-  })
+  // Delivery Risk — deriveRisk() only has a real signal when tier or the dna
+  // possession-certainty label is present; both are withheld now, so this
+  // always resolved to the same 'Medium' for every project in every
+  // comparison — a fabricated constant, not a risk read. Dropped until the
+  // lean-schema rework gives it a real source.
 
   // RERA Standing
   const reraLabels = details.map(d => d?.dna?.rera_compliance_label)
@@ -1098,27 +1095,33 @@ export default function ComparisonTable({ projects }: { projects: ProjectCard[] 
 
           {/* ── Detailed Comparison Accordions ────────────────────────────── */}
           <Section title="Detailed Breakdown" icon={HeartHandshake}>
-            <Accordion title="Trust & Legal" icon={ShieldCheck}>
-              <div className="flex divide-x divide-gray-100 dark:divide-gray-700/60">
-                {projects.map((p, i) => (
-                  <div key={p.id} className="flex-1 p-3 space-y-2 text-[11px]">
-                    <div className="flex justify-between border-b border-gray-100 dark:border-gray-700 pb-1">
-                      <span className="text-gray-500">RERA</span>
-                      <span className="font-bold text-gray-900 dark:text-gray-100">{details[i]?.dna?.rera_compliance_label || '--'}</span>
-                    </div>
-                    <div className="flex justify-between border-b border-gray-100 dark:border-gray-700 pb-1">
-                      <span className="text-gray-500">Builder</span>
-                      <span className="font-bold text-gray-900 dark:text-gray-100 line-clamp-1 text-right ml-2">{details[i]?.dna?.builder_track_record_label || '--'}</span>
-                    </div>
-                    <div className="flex justify-between border-b border-gray-100 dark:border-gray-700 pb-1">
-                      <span className="text-gray-500">Delivery Risk</span>
-                      <span className="font-bold text-gray-900 dark:text-gray-100 line-clamp-1 text-right ml-2">{details[i]?.dna?.possession_certainty_label || '--'}</span>
-                    </div>
+            {/* dna.* is INTERNAL_ONLY_RELATIONS now — this accordion rendered
+                "--" for every row in every comparison, forever, with nothing
+                behind it. Gated instead of deleted: the lean-schema rework can
+                repopulate it honestly without touching this component again. */}
+            {details.some(d => d?.dna?.rera_compliance_label || d?.dna?.builder_track_record_label || d?.dna?.possession_certainty_label) && (
+              <Accordion title="Trust & Legal" icon={ShieldCheck}>
+                <div className="flex divide-x divide-gray-100 dark:divide-gray-700/60">
+                  {projects.map((p, i) => (
+                    <div key={p.id} className="flex-1 p-3 space-y-2 text-[11px]">
+                      <div className="flex justify-between border-b border-gray-100 dark:border-gray-700 pb-1">
+                        <span className="text-gray-500">RERA</span>
+                        <span className="font-bold text-gray-900 dark:text-gray-100">{details[i]?.dna?.rera_compliance_label || '--'}</span>
+                      </div>
+                      <div className="flex justify-between border-b border-gray-100 dark:border-gray-700 pb-1">
+                        <span className="text-gray-500">Builder</span>
+                        <span className="font-bold text-gray-900 dark:text-gray-100 line-clamp-1 text-right ml-2">{details[i]?.dna?.builder_track_record_label || '--'}</span>
+                      </div>
+                      <div className="flex justify-between border-b border-gray-100 dark:border-gray-700 pb-1">
+                        <span className="text-gray-500">Delivery Risk</span>
+                        <span className="font-bold text-gray-900 dark:text-gray-100 line-clamp-1 text-right ml-2">{details[i]?.dna?.possession_certainty_label || '--'}</span>
+                      </div>
 
-                  </div>
-                ))}
-              </div>
-            </Accordion>
+                    </div>
+                  ))}
+                </div>
+              </Accordion>
+            )}
 
             <Accordion title="Price & Cost" icon={IndianRupee}>
               <div className="flex divide-x divide-gray-100 dark:divide-gray-700/60">
@@ -1170,19 +1173,21 @@ export default function ComparisonTable({ projects }: { projects: ProjectCard[] 
               </div>
             </Accordion>
 
-            <Accordion title="Lifestyle & Build" icon={Trees}>
-              <div className="flex divide-x divide-gray-100 dark:divide-gray-700/60">
-                {projects.map((p, i) => (
-                  <div key={p.id} className="flex-1 p-3 space-y-2 text-[11px]">
+            {details.some(d => d?.dna?.amenity_depth_label) && (
+              <Accordion title="Lifestyle & Build" icon={Trees}>
+                <div className="flex divide-x divide-gray-100 dark:divide-gray-700/60">
+                  {projects.map((p, i) => (
+                    <div key={p.id} className="flex-1 p-3 space-y-2 text-[11px]">
 
-                    <div className="flex justify-between pb-1">
-                      <span className="text-gray-500">Amenities</span>
-                      <span className="font-bold text-gray-900 dark:text-gray-100 line-clamp-1 text-right ml-2">{details[i]?.dna?.amenity_depth_label || '--'}</span>
+                      <div className="flex justify-between pb-1">
+                        <span className="text-gray-500">Amenities</span>
+                        <span className="font-bold text-gray-900 dark:text-gray-100 line-clamp-1 text-right ml-2">{details[i]?.dna?.amenity_depth_label || '--'}</span>
+                      </div>
                     </div>
-                  </div>
-                ))}
-              </div>
-            </Accordion>
+                  ))}
+                </div>
+              </Accordion>
+            )}
 
             <Accordion title="Social Proof" icon={Users}>
               <div className="flex divide-x divide-gray-100 dark:divide-gray-700/60">

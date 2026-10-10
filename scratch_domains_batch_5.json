@@ -1,0 +1,382 @@
+[
+  {
+    "name": "befikrghar",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "befikrprop",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "befikrdeal",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "befikrrealty",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "befikrnivesh",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "nischintghar",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "nischintprop",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "nischintrealty",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "sukoonghar",
+    "com": false,
+    "in": false
+  },
+  {
+    "name": "sukoonprop",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "rahatghar",
+    "com": false,
+    "in": true
+  },
+  {
+    "name": "rahatprop",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "chainghar",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "chainprop",
+    "com": false,
+    "in": true
+  },
+  {
+    "name": "chaabisure",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "chaabicheck",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "chaabiproof",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "chaabiguard",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "pakkichaabi",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "sachhichaabi",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "chabisure",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "chabicheck",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "chabiproof",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "chabiguard",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "pakkineenv",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "neenvsure",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "neenvcheck",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "neenvproof",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "neenvguard",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "buniyadsure",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "buniyadcheck",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "buniyadproof",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "sachhineenv",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "padtalprop",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "padtalghar",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "padtalrealty",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "janchghar",
+    "com": false,
+    "in": false
+  },
+  {
+    "name": "janchprop",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "parakhghar",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "parakhprop",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "parakhrealty",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "muayanaghar",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "muayanaprop",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "muayanarealty",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "chhanbeengahr",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "chhanbeenprop",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "nishkapatghar",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "nishkapatprop",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "abhedyaghar",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "abhedyaprop",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "abhedyarealty",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "titleradar",
+    "com": false,
+    "in": true
+  },
+  {
+    "name": "titlepulse",
+    "com": false,
+    "in": true
+  },
+  {
+    "name": "titlesleuth",
+    "com": false,
+    "in": true
+  },
+  {
+    "name": "titlescope",
+    "com": false,
+    "in": true
+  },
+  {
+    "name": "deedradar",
+    "com": false,
+    "in": true
+  },
+  {
+    "name": "deedpulse",
+    "com": false,
+    "in": true
+  },
+  {
+    "name": "deedsleuth",
+    "com": false,
+    "in": true
+  },
+  {
+    "name": "deedscope",
+    "com": false,
+    "in": true
+  },
+  {
+    "name": "deedclarity",
+    "com": false,
+    "in": true
+  },
+  {
+    "name": "deedguard",
+    "com": false,
+    "in": true
+  },
+  {
+    "name": "factdeed",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "proofdeed",
+    "com": false,
+    "in": true
+  },
+  {
+    "name": "verideed",
+    "com": false,
+    "in": false
+  },
+  {
+    "name": "truedeed",
+    "com": false,
+    "in": true
+  },
+  {
+    "name": "cleardeed",
+    "com": false,
+    "in": false
+  },
+  {
+    "name": "nestradar",
+    "com": false,
+    "in": true
+  },
+  {
+    "name": "nestpulse",
+    "com": false,
+    "in": true
+  },
+  {
+    "name": "nestsleuth",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "nestscope",
+    "com": false,
+    "in": true
+  },
+  {
+    "name": "nestshield",
+    "com": false,
+    "in": false
+  },
+  {
+    "name": "propdissect",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "plotdissect",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "ghardissect",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "propprobe",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "gharprobe",
+    "com": true,
+    "in": true
+  }
+]

@@ -5,8 +5,8 @@
     "name": "Godrej Jardinia",
     "tagline": "European-Themed Ultra-Luxury Launches Adjacent to Metro",
     "builder_id": "676e2ffe-1897-4122-9c51-fbc78f1da131",
-    "rera_number": "UPRERAPRJ1461",
-    "rera_url": "https://www.up-rera.in/",
+    "rera_number": "UPRERAPRJ288309/04/2024",
+    "rera_url": "https://www.up-rera.in/Projectsummary?UI0aPA1ISD=vaogVPPQy/g=&hfFlag=9emr4VdBw22M7BGjKtJWMPDI4s5cHQZP&NPJ6RAme=5/xrexSpavwavA6uQQ/eCg==&PaURJEMAN4=ZL9MNERkNdZyLXfxQcaDQuAzAZO1sseU&IRSAHEB=D6PY3lyims8=",
     "city": "Noida",
     "state": "Uttar Pradesh",
     "country": "India",
@@ -31,7 +31,7 @@
     "restaurants_nearby_count": null,
     "status": "new_launch",
     "launch_date": "2024-04-01T00:00:00.000Z",
-    "possession_date": "2028-12-31T00:00:00.000Z",
+    "possession_date": "2028-03-11T18:30:00.000Z",
     "possession_label": "New Launch (Excavation Stage)",
     "possession_confidence": "high",
     "possession_confidence_note": null,
@@ -98,7 +98,7 @@
       "sector 146 flats",
       "noida properties"
     ],
-    "hero_image_url": "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=1200&q=80",
+    "hero_image_url": null,
     "price_min_cr": 3.2,
     "price_range_label": "₹3.20–6.80Cr",
     "price_includes_plc": false,
@@ -108,8 +108,8 @@
     "created_at": "2026-08-16T08:05:53.878Z",
     "updated_at": "2026-09-12T16:20:50.153Z",
     "project_risk_flag": null,
-    "escrow_verified": null,
-    "escrow_bank_name": null,
+    "escrow_verified": true,
+    "escrow_bank_name": "Axis Bank",
     "registry_status": null,
     "registry_embargo_reasons": [],
     "nclt_moratorium_active": null,
@@ -555,188 +555,8 @@
         "updated_at": "2026-08-31T07:03:03.547Z"
       }
     ],
-    "cost_sheet": {
-      "id": "2e5020ba-53f8-446b-a246-1d08372436b4",
-      "project_id": "e44fe1bf-f815-4088-870d-216dafc1a22c",
-      "base_price_per_sqft": 10500,
-      "base_cost_cr": null,
-      "floor_rise_per_floor": 65,
-      "base_interest_rate": 8.55,
-      "plc_charges": [
-        {
-          "type": "Corner Unit PLC",
-          "rate_psf": 250,
-          "description": "Dual side open balcony with maximum cross ventilation"
-        },
-        {
-          "type": "Park / Green Central Lawn Facing PLC",
-          "rate_psf": 350,
-          "description": "Unobstructed scenic view overlooking central landscaped podium"
-        },
-        {
-          "type": "Clubhouse / Swimming Pool View PLC",
-          "rate_psf": 300,
-          "description": "Direct visual line to Olympic-size swimming pool and club water body"
-        },
-        {
-          "type": "Wide Master Sector Road Facing PLC",
-          "rate_psf": 100,
-          "description": "Open front access facing wide 45-meter sector peripheral road"
-        }
-      ],
-      "parking_cost": 650000,
-      "ifms": 125,
-      "club_membership": 350000,
-      "other_charges": [
-        {
-          "name": "Dual Meter & Power Infrastructure Charge",
-          "type": "mandatory_fixed",
-          "amount": 65000
-        },
-        {
-          "name": "IGL Piped Natural Gas Connection",
-          "type": "mandatory_fixed",
-          "amount": 18500
-        },
-        {
-          "name": "Power Backup Installation (1 KVA / BHK)",
-          "type": "per_kva",
-          "amount": 45000,
-          "rate_per_kva": 28000
-        },
-        {
-          "name": "Sinking Fund / Society Corpus Deposit",
-          "type": "per_sqft",
-          "amount": 150000,
-          "rate_per_sqft": 125
-        },
-        {
-          "name": "Legal & Administrative Documentation",
-          "type": "mandatory_fixed",
-          "amount": 25000
-        },
-        {
-          "name": "Labour Welfare Cess & Fire Fighting System",
-          "type": "per_sqft",
-          "amount": 35000,
-          "rate_per_sqft": 35
-        }
-      ],
-      "gst_applicable": true,
-      "gst_rate_pct": 5,
-      "gst_note": "5% Standard Residential GST without Input Tax Credit (ITC)",
-      "stamp_duty_pct": 6,
-      "registration_pct": 1,
-      "electricity_connection": 65000,
-      "water_sewer_connection": 40000,
-      "maintenance_psf_monthly": 3.25,
-      "all_inclusive_price_cr": 4.96,
-      "all_inclusive_per_sqft": 20040,
-      "assumptions": [
-        "Base Sale Price benchmarked at Rs. 10500/sqft as per Q1 2026 Noida/Greater Noida market registries",
-        "Covered basement parking allotted at Rs. 6.50 Lakhs",
-        "Clubhouse development & lifetime membership at Rs. 3.50 Lakhs",
-        "Interest-Free Maintenance Security (IFMS) at Rs. 125/sqft refundable to AOA on handover",
-        "Mandatory civic and dual-meter electrification charges calculated as per NPCL / PVVNL statutory tariffs"
-      ],
-      "verified_at": "2026-09-12T16:20:50.149Z",
-      "verified_by": null,
-      "created_at": "2026-08-16T08:05:54.740Z",
-      "updated_at": "2026-09-12T16:20:50.323Z"
-    },
-    "payment_plans": [
-      {
-        "id": "4b7b7939-493f-4517-a69a-51236a096e64",
-        "project_id": "e44fe1bf-f815-4088-870d-216dafc1a22c",
-        "plan_type": "construction_linked",
-        "plan_name": "Construction Linked Payment Plan (CLP)",
-        "description": null,
-        "milestones": [
-          {
-            "due": "Within 15 days",
-            "pct": 10,
-            "milestone": "At the Time of Booking Token"
-          },
-          {
-            "due": "Agreement registration",
-            "pct": 10,
-            "milestone": "Within 30 Days of Allotment"
-          },
-          {
-            "due": "Raft completion",
-            "pct": 15,
-            "milestone": "On Foundation & Substructure"
-          },
-          {
-            "due": "Tower top roof slab",
-            "pct": 35,
-            "milestone": "On Superstructure Completion"
-          },
-          {
-            "due": "Finishing stage",
-            "pct": 20,
-            "milestone": "On Internal Plaster & Finishing"
-          },
-          {
-            "due": "Handover & key transfer",
-            "pct": 10,
-            "milestone": "On Notice of Possession & OC"
-          }
-        ],
-        "down_payment_pct": null,
-        "booking_amount_lakh": null,
-        "total_duration_months": null,
-        "discount_offered_pct": null,
-        "best_for": null,
-        "watch_out": null,
-        "sort_order": 1,
-        "source": "inferred_default",
-        "source_url": null,
-        "verified_at": null,
-        "verified_by": null,
-        "notes": null,
-        "created_at": "2026-08-16T08:05:54.798Z",
-        "updated_at": "2026-09-03T16:52:13.729Z"
-      },
-      {
-        "id": "828b3b97-4d1e-4fd8-ad77-f89a4483a12a",
-        "project_id": "e44fe1bf-f815-4088-870d-216dafc1a22c",
-        "plan_type": "down_payment",
-        "plan_name": "Investor Special Down Payment Plan",
-        "description": null,
-        "milestones": [
-          {
-            "due": "Within 15 days",
-            "pct": 10,
-            "milestone": "At the Time of Booking"
-          },
-          {
-            "due": "Down payment discount",
-            "pct": 80,
-            "milestone": "Within 45 Days of Booking"
-          },
-          {
-            "due": "Final keys handover",
-            "pct": 10,
-            "milestone": "On Offer of Possession"
-          }
-        ],
-        "down_payment_pct": null,
-        "booking_amount_lakh": null,
-        "total_duration_months": null,
-        "discount_offered_pct": null,
-        "best_for": null,
-        "watch_out": null,
-        "sort_order": 2,
-        "source": "inferred_default",
-        "source_url": null,
-        "verified_at": null,
-        "verified_by": null,
-        "notes": null,
-        "created_at": "2026-08-16T08:05:54.798Z",
-        "updated_at": "2026-09-03T16:52:13.729Z"
-      }
-    ],
+    "cost_sheet": null,
+    "payment_plans": [],
     "images": [
       {
         "id": "c38cfe9f-e030-40e4-a8a7-4ffcd9d7291a",
@@ -1308,7 +1128,7 @@
     "tagline": "Tropical island resort-themed luxury high-rise towers directly anchored at Sector 146 Metro Station.",
     "builder_id": "676e2ffe-1897-4122-9c51-fbc78f1da131",
     "rera_number": "UPRERAPRJ303390",
-    "rera_url": null,
+    "rera_url": "https://www.up-rera.in/Projectsummary?UI0aPA1ISD=u6Trg3svB/M=&hfFlag=9emr4VdBw22M7BGjKtJWMPDI4s5cHQZP&NPJ6RAme=EYKWIVqmDvSUDMjvbtRAi3+sjG4lSZT8&PaURJEMAN4=ZL9MNERkNdZvcUmB/P2uFQ==&IRSAHEB=D6PY3lyims8=",
     "city": "Noida",
     "state": "Uttar Pradesh",
     "country": "India",
@@ -1333,7 +1153,7 @@
     "restaurants_nearby_count": null,
     "status": "under_construction",
     "launch_date": null,
-    "possession_date": "2028-06-30T00:00:00.000Z",
+    "possession_date": "2028-07-05T18:30:00.000Z",
     "possession_label": "Under Construction",
     "possession_confidence": null,
     "possession_confidence_note": null,
@@ -1390,7 +1210,7 @@
       }
     ],
     "description": "Godrej Tropical Isle in Sector 146 Noida Expressway is a ultra-luxury resort residence inspired by tropical islands. Features artificial beach pool, floating cabanas, sky club, and zero-footstep distance to Sector 146 Metro Station.",
-    "long_description": "Godrej Tropical Isle is a premier residential township situated in Sector 146, Noida. Featuring modern architectural design, 75-80% open green landscapes, and multi-tier security, it offers high usable carpet area, active sports arenas, and seamless connectivity to expressways and Aqua Line metro stations.",
+    "long_description": null,
     "design_theme": null,
     "architect": null,
     "interior_designer": "Singapore RSP Design Consultants",
@@ -1400,7 +1220,7 @@
       "High Capital Appreciation Corridor"
     ],
     "ai_search_keywords": [],
-    "hero_image_url": "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=1200&q=80",
+    "hero_image_url": null,
     "price_min_cr": 3.2,
     "price_range_label": "₹3.20 Cr - ₹7.31 Cr",
     "price_includes_plc": false,
@@ -1410,8 +1230,8 @@
     "created_at": "2026-08-15T08:15:32.717Z",
     "updated_at": "2026-09-12T16:21:39.645Z",
     "project_risk_flag": null,
-    "escrow_verified": null,
-    "escrow_bank_name": "HDFC Bank",
+    "escrow_verified": true,
+    "escrow_bank_name": "Axis Bank",
     "registry_status": null,
     "registry_embargo_reasons": [],
     "nclt_moratorium_active": null,
@@ -2003,173 +1823,8 @@
         "updated_at": "2026-08-31T07:03:54.023Z"
       }
     ],
-    "cost_sheet": {
-      "id": "9759f43f-db95-40d2-85e5-01d4d6c071ad",
-      "project_id": "65c203cb-59e2-489f-af59-4aa964fe4da1",
-      "base_price_per_sqft": 9985,
-      "base_cost_cr": null,
-      "floor_rise_per_floor": 65,
-      "base_interest_rate": 8.55,
-      "plc_charges": [
-        {
-          "type": "Corner Unit PLC",
-          "rate_psf": 250,
-          "description": "Dual side open balcony with maximum cross ventilation"
-        },
-        {
-          "type": "Park / Green Central Lawn Facing PLC",
-          "rate_psf": 350,
-          "description": "Unobstructed scenic view overlooking central landscaped podium"
-        },
-        {
-          "type": "Clubhouse / Swimming Pool View PLC",
-          "rate_psf": 300,
-          "description": "Direct visual line to Olympic-size swimming pool and club water body"
-        },
-        {
-          "type": "Wide Master Sector Road Facing PLC",
-          "rate_psf": 100,
-          "description": "Open front access facing wide 45-meter sector peripheral road"
-        }
-      ],
-      "parking_cost": 650000,
-      "ifms": 125,
-      "club_membership": 350000,
-      "other_charges": [
-        {
-          "name": "Dual Meter & Power Infrastructure Charge",
-          "type": "mandatory_fixed",
-          "amount": 65000
-        },
-        {
-          "name": "IGL Piped Natural Gas Connection",
-          "type": "mandatory_fixed",
-          "amount": 18500
-        },
-        {
-          "name": "Power Backup Installation (1 KVA / BHK)",
-          "type": "per_kva",
-          "amount": 45000,
-          "rate_per_kva": 28000
-        },
-        {
-          "name": "Sinking Fund / Society Corpus Deposit",
-          "type": "per_sqft",
-          "amount": 150000,
-          "rate_per_sqft": 125
-        },
-        {
-          "name": "Legal & Administrative Documentation",
-          "type": "mandatory_fixed",
-          "amount": 25000
-        },
-        {
-          "name": "Labour Welfare Cess & Fire Fighting System",
-          "type": "per_sqft",
-          "amount": 35000,
-          "rate_per_sqft": 35
-        }
-      ],
-      "gst_applicable": true,
-      "gst_rate_pct": 5,
-      "gst_note": "5% Standard Residential GST without Input Tax Credit (ITC)",
-      "stamp_duty_pct": 6,
-      "registration_pct": 1,
-      "electricity_connection": 65000,
-      "water_sewer_connection": 40000,
-      "maintenance_psf_monthly": 3.25,
-      "all_inclusive_price_cr": 7.68,
-      "all_inclusive_per_sqft": 30416,
-      "assumptions": [
-        "Base Sale Price benchmarked at Rs. 9985/sqft as per Q1 2026 Noida/Greater Noida market registries",
-        "Covered basement parking allotted at Rs. 6.50 Lakhs",
-        "Clubhouse development & lifetime membership at Rs. 3.50 Lakhs",
-        "Interest-Free Maintenance Security (IFMS) at Rs. 125/sqft refundable to AOA on handover",
-        "Mandatory civic and dual-meter electrification charges calculated as per NPCL / PVVNL statutory tariffs"
-      ],
-      "verified_at": "2026-09-12T16:21:39.642Z",
-      "verified_by": null,
-      "created_at": "2026-08-15T08:17:01.950Z",
-      "updated_at": "2026-09-12T16:21:39.800Z"
-    },
-    "payment_plans": [
-      {
-        "id": "97a48e58-5d5b-4338-bafb-345ff2e439d3",
-        "project_id": "65c203cb-59e2-489f-af59-4aa964fe4da1",
-        "plan_type": "construction_linked",
-        "plan_name": "Construction Linked Payment Plan (CLP)",
-        "description": "Stage-wise payment tied to construction progress",
-        "milestones": [
-          {
-            "pct": 10,
-            "stage": "Booking",
-            "milestone": "At Booking"
-          },
-          {
-            "pct": 20,
-            "stage": "Foundation",
-            "milestone": "On Foundation Completion"
-          },
-          {
-            "pct": 40,
-            "stage": "Superstructure",
-            "milestone": "On Superstructure Casting"
-          },
-          {
-            "pct": 30,
-            "stage": "Possession",
-            "milestone": "On Offer of Possession"
-          }
-        ],
-        "down_payment_pct": 10,
-        "booking_amount_lakh": null,
-        "total_duration_months": null,
-        "discount_offered_pct": null,
-        "best_for": null,
-        "watch_out": null,
-        "sort_order": 0,
-        "source": "inferred_default",
-        "source_url": null,
-        "verified_at": null,
-        "verified_by": null,
-        "notes": null,
-        "created_at": "2026-08-15T08:17:01.896Z",
-        "updated_at": "2026-09-03T16:52:13.729Z"
-      },
-      {
-        "id": "7190c4a2-c4c2-41f0-ba52-1befd082f3b4",
-        "project_id": "65c203cb-59e2-489f-af59-4aa964fe4da1",
-        "plan_type": "resale_down_payment",
-        "plan_name": "Ready Resale Down Payment Plan",
-        "description": "100% Payment on Registry & Possession Handover",
-        "milestones": [
-          {
-            "pct": 10,
-            "stage": "Agreement",
-            "milestone": "At Agreement to Sell"
-          },
-          {
-            "pct": 90,
-            "stage": "Handover",
-            "milestone": "At Registry & Key Handover"
-          }
-        ],
-        "down_payment_pct": 100,
-        "booking_amount_lakh": null,
-        "total_duration_months": null,
-        "discount_offered_pct": null,
-        "best_for": null,
-        "watch_out": null,
-        "sort_order": 0,
-        "source": "inferred_default",
-        "source_url": null,
-        "verified_at": null,
-        "verified_by": null,
-        "notes": null,
-        "created_at": "2026-08-15T08:17:01.923Z",
-        "updated_at": "2026-09-03T16:52:13.729Z"
-      }
-    ],
+    "cost_sheet": null,
+    "payment_plans": [],
     "images": [
       {
         "id": "49b98f7d-2f2f-4701-b235-0407cdf46bfe",

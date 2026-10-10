@@ -71,4 +71,30 @@ rate_sqft: 14500`
     const violations = verifyPriceProvenance(response, prompt, userMessage)
     assert.equal(violations.length, 0)
   })
+
+  it('allows statutory and prompt-grounded percentages, catches a fabricated one', () => {
+    const prompt = 'VERIFIED_FACTS_BLOCK: Project: Stellar Mi\nprice_min_cr: 1.80'
+    const statutory = 'Stamp duty is 7% and GST on an under-construction unit is 5%.'
+    assert.equal(verifyPriceProvenance(statutory, prompt).length, 0)
+
+    const fabricated = 'This project has 94% carpet efficiency, among the best in Noida.'
+    const violations = verifyPriceProvenance(fabricated, prompt)
+    assert.equal(violations.length, 1)
+    assert.equal(violations[0].kind, 'fabrication')
+    assert.ok(violations[0].detail.includes('94%'))
+  })
+
+  it('permits a percentage labelled as a market assumption', () => {
+    const prompt = 'VERIFIED_FACTS_BLOCK: General market discussion'
+    const response = 'Carpet efficiency of about 68–74% is common in Noida high-rises (typical for Noida — not verified for this project).'
+    const violations = verifyPriceProvenance(response, prompt)
+    assert.equal(violations.length, 0)
+  })
+
+  it('does not treat a rate-shock delta already on screen as a fresh claim', () => {
+    const prompt = 'VERIFIED_FACTS_BLOCK: Project: Stellar Mi\nprice_min_cr: 1.80'
+    const response = 'The +1.5% rate shock pushes your EMI up by ₹4,200/month.'
+    const violations = verifyPriceProvenance(response, prompt)
+    assert.equal(violations.length, 0)
+  })
 })

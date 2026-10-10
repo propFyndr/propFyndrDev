@@ -6,7 +6,7 @@
     "tagline": "Ultra-Luxury Landmark Residences in Jaypee Greens",
     "builder_id": "d9f26b87-54b5-462a-8973-b7cfeb086142",
     "rera_number": "UPRERAPRJ283531",
-    "rera_url": null,
+    "rera_url": "https://www.up-rera.in/Projectsummary?UI0aPA1ISD=eZRKcU0Qtr8=&hfFlag=9emr4VdBw22M7BGjKtJWMPDI4s5cHQZP&NPJ6RAme=kmPwJkWBCqPDwPuTajCgqAFSMQ3PySSg&PaURJEMAN4=ZL9MNERkNdY77ZhY98MoXg==&IRSAHEB=D6PY3lyims8=",
     "city": "Noida",
     "state": "Uttar Pradesh",
     "country": "India",
@@ -43,7 +43,7 @@
     "rera_compliance_score": null,
     "legal_flag": null,
     "legal_flag_detail": null,
-    "litigation_count": null,
+    "litigation_count": 0,
     "location_advantages": null,
     "location_concerns": [],
     "location_verdict": null,
@@ -68,8 +68,8 @@
     "created_at": "2026-09-12T16:08:15.661Z",
     "updated_at": "2026-09-12T16:25:19.598Z",
     "project_risk_flag": null,
-    "escrow_verified": null,
-    "escrow_bank_name": null,
+    "escrow_verified": true,
+    "escrow_bank_name": "ICICI BANK",
     "registry_status": null,
     "registry_embargo_reasons": [],
     "nclt_moratorium_active": null,
@@ -521,95 +521,7 @@
         "updated_at": "2026-09-12T16:08:15.996Z"
       }
     ],
-    "cost_sheet": {
-      "id": "08796d48-86f6-4173-a8ff-1b14baf58e4a",
-      "project_id": "b551f816-cf6a-4bc8-90d6-e006f9f5d998",
-      "base_price_per_sqft": 7623,
-      "base_cost_cr": null,
-      "floor_rise_per_floor": 30,
-      "base_interest_rate": 8.55,
-      "plc_charges": [
-        {
-          "type": "Corner Unit PLC",
-          "rate_psf": 150,
-          "description": "Dual side open balcony with maximum cross ventilation"
-        },
-        {
-          "type": "Park / Green Central Lawn Facing PLC",
-          "rate_psf": 200,
-          "description": "Unobstructed scenic view overlooking central landscaped podium"
-        },
-        {
-          "type": "Clubhouse / Swimming Pool View PLC",
-          "rate_psf": 175,
-          "description": "Direct visual line to Olympic-size swimming pool and club water body"
-        },
-        {
-          "type": "Wide Master Sector Road Facing PLC",
-          "rate_psf": 100,
-          "description": "Open front access facing wide 45-meter sector peripheral road"
-        }
-      ],
-      "parking_cost": 325000,
-      "ifms": 50,
-      "club_membership": 150000,
-      "other_charges": [
-        {
-          "name": "Dual Meter & Power Infrastructure Charge",
-          "type": "mandatory_fixed",
-          "amount": 35000
-        },
-        {
-          "name": "IGL Piped Natural Gas Connection",
-          "type": "mandatory_fixed",
-          "amount": 18500
-        },
-        {
-          "name": "Power Backup Installation (1 KVA / BHK)",
-          "type": "per_kva",
-          "amount": 30000,
-          "rate_per_kva": 28000
-        },
-        {
-          "name": "Sinking Fund / Society Corpus Deposit",
-          "type": "per_sqft",
-          "amount": 60000,
-          "rate_per_sqft": 50
-        },
-        {
-          "name": "Legal & Administrative Documentation",
-          "type": "mandatory_fixed",
-          "amount": 25000
-        },
-        {
-          "name": "Labour Welfare Cess & Fire Fighting System",
-          "type": "per_sqft",
-          "amount": 35000,
-          "rate_per_sqft": 35
-        }
-      ],
-      "gst_applicable": true,
-      "gst_rate_pct": 5,
-      "gst_note": "5% Standard Residential GST without Input Tax Credit (ITC)",
-      "stamp_duty_pct": 6,
-      "registration_pct": 1,
-      "electricity_connection": 35000,
-      "water_sewer_connection": 25000,
-      "maintenance_psf_monthly": 2.75,
-      "all_inclusive_price_cr": null,
-      "all_inclusive_per_sqft": null,
-      "assumptions": [
-        "Base Sale Price benchmarked at Rs. 7623/sqft as per Q1 2026 Noida/Greater Noida market registries",
-        "Covered basement parking allotted at Rs. 3.25 Lakhs",
-        "Clubhouse development & lifetime membership at Rs. 1.50 Lakhs",
-        "Interest-Free Maintenance Security (IFMS) at Rs. 50/sqft refundable to AOA on handover",
-        "Mandatory civic and dual-meter electrification charges calculated as per NPCL / PVVNL statutory tariffs"
-      ],
-      "verified_at": "2026-09-12T16:25:19.596Z",
-      "verified_by": null,
-      "created_at": "2026-09-12T16:08:16.290Z",
-      "updated_at": "2026-09-12T16:25:19.751Z"
-    },
+    "cost_sheet": null,
     "payment_plans": [
       {
         "id": "91b32e48-d94e-40f7-b7c7-3435910a6a19",

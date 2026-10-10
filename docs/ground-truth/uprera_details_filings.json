@@ -1,0 +1,3971 @@
+{
+  "16": {
+    "success": false,
+    "id": 16,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "22": {
+    "success": false,
+    "id": 22,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "93": {
+    "success": false,
+    "id": 93,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "102": {
+    "success": false,
+    "id": 102,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "104": {
+    "success": false,
+    "id": 104,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "105": {
+    "success": false,
+    "id": 105,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "151": {
+    "success": true,
+    "id": 151,
+    "status": 200,
+    "data": {
+      "uprera_id": 151,
+      "rera_url": "https://www.up-rera.in/Frm_View_Project_Details.aspx?id=151",
+      "lat": 28.470542,
+      "lng": 77.535038,
+      "land_area_acres": 15.08,
+      "project_cost_cr": 516.2,
+      "launch_date": "2017-04-25T00:00:00.000Z",
+      "rera_valid_until": "2022-04-21T00:00:00.000Z",
+      "escrow": {
+        "account_no": "389005000129",
+        "account_name": "Godrej golf link I RERA 70 account AR Landcraft LLP",
+        "bank_name": "ICICI BANK LTD",
+        "branch_name": "ICICI BANK LTD SCO 130,HUDA MARKET,SECTOR 46, GURGAON-122002",
+        "ifsc": "ICIC0003890",
+        "verified": true
+      },
+      "professionals": {
+        "architect": "Arcop Associates Pvt. Ltd",
+        "arch_license": "CA/2001/27447",
+        "structural_engineer": "BMSF Design Consultants Pvt. Ltd",
+        "contractor": "(a)M/S Ascent Constructions Pvt Ltd.  (b)M/S Chand"
+      },
+      "permit": {
+        "permit_number": "253",
+        "permit_date": "2017-01-13T00:00:00.000Z"
+      },
+      "project_type": "Ongoing",
+      "project_category": "Commercial"
+    }
+  },
+  "401": {
+    "success": false,
+    "id": 401,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "402": {
+    "success": false,
+    "id": 402,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "621": {
+    "success": false,
+    "id": 621,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "1001": {
+    "success": false,
+    "id": 1001,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "1011": {
+    "success": false,
+    "id": 1011,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "1013": {
+    "success": false,
+    "id": 1013,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "1014": {
+    "success": false,
+    "id": 1014,
+    "timeout": true
+  },
+  "1035": {
+    "success": false,
+    "id": 1035,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "1041": {
+    "success": false,
+    "id": 1041,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "1042": {
+    "success": false,
+    "id": 1042,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "1050": {
+    "success": true,
+    "id": 1050,
+    "status": 200,
+    "data": {
+      "uprera_id": 1050,
+      "rera_url": "https://www.up-rera.in/Frm_View_Project_Details.aspx?id=1050",
+      "lat": 28.584722,
+      "lng": 72.448611,
+      "land_area_acres": 4.94,
+      "project_cost_cr": 324,
+      "launch_date": "2013-10-13T00:00:00.000Z",
+      "rera_valid_until": "2020-12-27T00:00:00.000Z",
+      "escrow": {
+        "account_no": "110611100004818",
+        "account_name": "AASTHA INFRACITY LIMITED",
+        "bank_name": "ANDHRA BANK",
+        "branch_name": "SECTOR 18 NOIDA",
+        "ifsc": "ANDB0001106",
+        "verified": true
+      },
+      "professionals": {
+        "architect": "RAJIV GANDHI",
+        "arch_license": "CA/91/13852",
+        "structural_engineer": "NNC DESIGN INTERNATIONAL",
+        "contractor": "G V CONSTRUCTION"
+      },
+      "permit": {
+        "permit_number": "I) PLG/(BP-3160/44/CPA-7027 DT 25.10.2013  2.) BP-",
+        "permit_date": "2013-10-25T00:00:00.000Z"
+      },
+      "project_type": "New",
+      "project_category": "Residential"
+    }
+  },
+  "1072": {
+    "success": false,
+    "id": 1072,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "1073": {
+    "success": false,
+    "id": 1073,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "1075": {
+    "success": false,
+    "id": 1075,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "1081": {
+    "success": false,
+    "id": 1081,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "1082": {
+    "success": false,
+    "id": 1082,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "1101": {
+    "success": false,
+    "id": 1101,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "1102": {
+    "success": false,
+    "id": 1102,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "1103": {
+    "success": false,
+    "id": 1103,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "1182": {
+    "success": false,
+    "id": 1182,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "1191": {
+    "success": false,
+    "id": 1191,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "1192": {
+    "success": false,
+    "id": 1192,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "1201": {
+    "success": false,
+    "id": 1201,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "1202": {
+    "success": false,
+    "id": 1202,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "1210": {
+    "success": false,
+    "id": 1210,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "1211": {
+    "success": false,
+    "id": 1211,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "1234": {
+    "success": true,
+    "id": 1234,
+    "status": 200,
+    "data": {
+      "uprera_id": 1234,
+      "rera_url": "https://www.up-rera.in/Frm_View_Project_Details.aspx?id=1234",
+      "lat": 26.304164,
+      "lng": 80.17148,
+      "land_area_acres": 2.28,
+      "project_cost_cr": 81.5,
+      "launch_date": "2012-11-02T00:00:00.000Z",
+      "rera_valid_until": "2018-11-01T00:00:00.000Z",
+      "escrow": {
+        "account_no": "0727002100054819",
+        "account_name": "SHREESRI BUILDTECH PVT LTD NRI HEIGHTS AND DIAMOND",
+        "bank_name": "Punjab National Bank",
+        "branch_name": "SWAROOP NAGAR",
+        "ifsc": "PUNB0072700",
+        "verified": true
+      },
+      "professionals": {
+        "architect": "Mr. Sidhartha Singh",
+        "arch_license": "C8/2002/29384",
+        "structural_engineer": "Mr. Ajay Gupta",
+        "contractor": "By Promoters"
+      },
+      "permit": {
+        "permit_number": "942/BHAWAN/2011-12",
+        "permit_date": "2012-11-02T00:00:00.000Z"
+      },
+      "project_type": "Ongoing",
+      "project_category": "Residential"
+    }
+  },
+  "1235": {
+    "success": false,
+    "id": 1235,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "1236": {
+    "success": false,
+    "id": 1236,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "1257": {
+    "success": false,
+    "id": 1257,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "1280": {
+    "success": false,
+    "id": 1280,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "1282": {
+    "success": false,
+    "id": 1282,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "1314": {
+    "success": false,
+    "id": 1314,
+    "timeout": true
+  },
+  "1371": {
+    "success": false,
+    "id": 1371,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "1372": {
+    "success": false,
+    "id": 1372,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "1373": {
+    "success": false,
+    "id": 1373,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "1430": {
+    "success": false,
+    "id": 1430,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "1432": {
+    "success": false,
+    "id": 1432,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "1441": {
+    "success": false,
+    "id": 1441,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "1442": {
+    "success": false,
+    "id": 1442,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "1502": {
+    "success": false,
+    "id": 1502,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "1503": {
+    "success": false,
+    "id": 1503,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "1601": {
+    "success": false,
+    "id": 1601,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "1604": {
+    "success": false,
+    "id": 1604,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "1681": {
+    "success": false,
+    "id": 1681,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "1683": {
+    "success": false,
+    "id": 1683,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "1741": {
+    "success": false,
+    "id": 1741,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "1846": {
+    "success": true,
+    "id": 1846,
+    "status": 200,
+    "data": {
+      "uprera_id": 1846,
+      "rera_url": "https://www.up-rera.in/Frm_View_Project_Details.aspx?id=1846",
+      "lat": 28.571272,
+      "lng": 77.47585,
+      "land_area_acres": 3.03,
+      "project_cost_cr": 177.41,
+      "launch_date": "2013-12-01T00:00:00.000Z",
+      "rera_valid_until": "2020-12-29T00:00:00.000Z",
+      "escrow": {
+        "account_no": "57500000231800",
+        "account_name": "DHANYA MANTRA-I RERA PROJECT ESCROW ACCOUNT",
+        "bank_name": "HDFC BANK LTD.",
+        "branch_name": "Vaishali, Ghaziabad",
+        "ifsc": "HDFC0000422",
+        "verified": true
+      },
+      "professionals": {
+        "architect": "Peeyush Chaudhry",
+        "arch_license": "CA/93/16189",
+        "structural_engineer": "Optimum Design Pvt. Ltd.",
+        "contractor": "Rohini Infrastructure Pvt. Ltd."
+      },
+      "permit": {
+        "permit_number": "PLG(BP)3263/8487",
+        "permit_date": "2016-11-24T00:00:00.000Z"
+      },
+      "project_type": "Ongoing",
+      "project_category": "Residential"
+    }
+  },
+  "1866": {
+    "success": true,
+    "id": 1866,
+    "status": 200,
+    "data": {
+      "uprera_id": 1866,
+      "rera_url": "https://www.up-rera.in/Frm_View_Project_Details.aspx?id=1866",
+      "lat": 28.563439,
+      "lng": 77.397506,
+      "land_area_acres": 4.94,
+      "project_cost_cr": 320.12,
+      "launch_date": "2013-09-01T00:00:00.000Z",
+      "rera_valid_until": "2019-12-31T00:00:00.000Z",
+      "escrow": {
+        "account_no": "025305005174",
+        "account_name": "GOLFGREEN INFRA PVT LTD RETENTION A/C",
+        "bank_name": "ICICI BANK LTD",
+        "branch_name": "SEC-63,NOIDA",
+        "ifsc": "ICIC0000816",
+        "verified": true
+      },
+      "professionals": {
+        "architect": "Peeyush Chaudhry",
+        "arch_license": "CA/93/16189",
+        "structural_engineer": "Mahimtura Consultants Pvt. Ltd.",
+        "contractor": "Golf Green Infra Pvt. Ltd."
+      },
+      "permit": {
+        "permit_number": "NOIDA/CTP/2013/IV-1401/671",
+        "permit_date": "2013-06-24T00:00:00.000Z"
+      },
+      "project_type": "Ongoing",
+      "project_category": "Residential"
+    }
+  },
+  "1870": {
+    "success": true,
+    "id": 1870,
+    "status": 200,
+    "data": {
+      "uprera_id": 1870,
+      "rera_url": "https://www.up-rera.in/Frm_View_Project_Details.aspx?id=1870",
+      "lat": 28.570914,
+      "lng": 77.475308,
+      "land_area_acres": 5.85,
+      "project_cost_cr": 352.28,
+      "launch_date": "2014-07-01T00:00:00.000Z",
+      "rera_valid_until": "2021-12-29T00:00:00.000Z",
+      "escrow": {
+        "account_no": "57500000231402",
+        "account_name": "HEBE-MANTR-II RERA PROJECT ESCROW ACCOUNT",
+        "bank_name": "HDFC BANK",
+        "branch_name": "VAISHALI, GHAZIABAD",
+        "ifsc": "HDFC000042",
+        "verified": true
+      },
+      "professionals": {
+        "architect": "Peeyush Chaudhry",
+        "arch_license": "CA/93/16189",
+        "structural_engineer": "Optimum Design Pvt. Ltd. &amp; SABC",
+        "contractor": "M/s Rohni Infrastructure Pvt. Ltd and VVS Construc"
+      },
+      "permit": {
+        "permit_number": "PLG(BP)3153/7666",
+        "permit_date": "2016-10-19T00:00:00.000Z"
+      },
+      "project_type": "Ongoing",
+      "project_category": "Residential"
+    }
+  },
+  "1871": {
+    "success": false,
+    "id": 1871,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "2001": {
+    "success": false,
+    "id": 2001,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "2002": {
+    "success": false,
+    "id": 2002,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "2003": {
+    "success": false,
+    "id": 2003,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "2004": {
+    "success": false,
+    "id": 2004,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "2005": {
+    "success": false,
+    "id": 2005,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "2006": {
+    "success": false,
+    "id": 2006,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "2010": {
+    "success": false,
+    "id": 2010,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "2019": {
+    "success": false,
+    "id": 2019,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "2025": {
+    "success": false,
+    "id": 2025,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "2051": {
+    "success": true,
+    "id": 2051,
+    "status": 200,
+    "data": {
+      "uprera_id": 2051,
+      "rera_url": "https://www.up-rera.in/Frm_View_Project_Details.aspx?id=2051",
+      "lat": 28.525058,
+      "lng": 77.360983,
+      "land_area_acres": 3.85,
+      "project_cost_cr": 1338.99,
+      "launch_date": "2015-09-01T00:00:00.000Z",
+      "rera_valid_until": "2027-06-30T00:00:00.000Z",
+      "escrow": {
+        "account_no": null,
+        "account_name": null,
+        "bank_name": null,
+        "branch_name": null,
+        "ifsc": null,
+        "verified": false
+      },
+      "professionals": {
+        "architect": "Peeyush Chaudhry",
+        "arch_license": "CA/93/16189",
+        "structural_engineer": "Mahimtura Consultants Pvt. Ltd.",
+        "contractor": "Mahagun India Pvt. Ltd."
+      },
+      "permit": {
+        "permit_number": "NOIDA/CTP/2015/III-293/785",
+        "permit_date": "2015-05-06T00:00:00.000Z"
+      },
+      "project_type": "Ongoing",
+      "project_category": "Residential"
+    }
+  },
+  "2052": {
+    "success": false,
+    "id": 2052,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "2058": {
+    "success": false,
+    "id": 2058,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "2100": {
+    "success": false,
+    "id": 2100,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "2101": {
+    "success": false,
+    "id": 2101,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "2102": {
+    "success": false,
+    "id": 2102,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "2105": {
+    "success": false,
+    "id": 2105,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "2107": {
+    "success": false,
+    "id": 2107,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "2108": {
+    "success": true,
+    "id": 2108,
+    "status": 200,
+    "data": {
+      "uprera_id": 2108,
+      "rera_url": "https://www.up-rera.in/Frm_View_Project_Details.aspx?id=2108",
+      "lat": 26.811455,
+      "lng": 80.996416,
+      "land_area_acres": 0.56,
+      "project_cost_cr": 22,
+      "launch_date": "2016-03-26T00:00:00.000Z",
+      "rera_valid_until": "2023-07-30T00:00:00.000Z",
+      "escrow": {
+        "account_no": "0632102000013688",
+        "account_name": "OMAXE LTD PROJECT MINI HAZRATGANJ COMMERCIAL RERA A/C",
+        "bank_name": "IDBI BANK LIMITED",
+        "branch_name": "C.R. PARK NEW DELHI",
+        "ifsc": "IBKL0000632",
+        "verified": true
+      },
+      "professionals": {
+        "architect": "PRAKASH KUMAR",
+        "arch_license": "CA/2008/43012",
+        "structural_engineer": "Sanjeev Jain",
+        "contractor": "Omaxe Ltd"
+      },
+      "permit": {
+        "permit_number": "41134",
+        "permit_date": "2017-02-21T00:00:00.000Z"
+      },
+      "project_type": "Ongoing",
+      "project_category": "Commercial"
+    }
+  },
+  "2110": {
+    "success": true,
+    "id": 2110,
+    "status": 200,
+    "data": {
+      "uprera_id": 2110,
+      "rera_url": "https://www.up-rera.in/Frm_View_Project_Details.aspx?id=2110",
+      "lat": 28.631944,
+      "lng": 77.436358,
+      "land_area_acres": 4.71,
+      "project_cost_cr": 272.64,
+      "launch_date": "2017-01-01T00:00:00.000Z",
+      "rera_valid_until": "2028-06-30T00:00:00.000Z",
+      "escrow": {
+        "account_no": null,
+        "account_name": null,
+        "bank_name": null,
+        "branch_name": null,
+        "ifsc": null,
+        "verified": false
+      },
+      "professionals": {
+        "architect": "Peeyush Chaudhry",
+        "arch_license": "CA/93/16189",
+        "structural_engineer": "Optimum Design Pvt. Ltd.",
+        "contractor": "Mahagun (India) Pvt. Ltd."
+      },
+      "permit": {
+        "permit_number": "116/ZONE-5/2016-17",
+        "permit_date": "2016-09-06T00:00:00.000Z"
+      },
+      "project_type": "Ongoing",
+      "project_category": "Residential"
+    }
+  },
+  "2118": {
+    "success": false,
+    "id": 2118,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "2210": {
+    "success": false,
+    "id": 2210,
+    "timeout": true
+  },
+  "2212": {
+    "success": false,
+    "id": 2212,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "2213": {
+    "success": false,
+    "id": 2213,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "2291": {
+    "success": false,
+    "id": 2291,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "2345": {
+    "success": false,
+    "id": 2345,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "2491": {
+    "success": false,
+    "id": 2491,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "2831": {
+    "success": false,
+    "id": 2831,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "2875": {
+    "success": true,
+    "id": 2875,
+    "status": 200,
+    "data": {
+      "uprera_id": 2875,
+      "rera_url": "https://www.up-rera.in/Frm_View_Project_Details.aspx?id=2875",
+      "lat": 28.438778,
+      "lng": 77.483737,
+      "land_area_acres": 4.44,
+      "project_cost_cr": 317.97,
+      "launch_date": "2016-03-01T00:00:00.000Z",
+      "rera_valid_until": "2023-06-29T00:00:00.000Z",
+      "escrow": {
+        "account_no": "4811964858",
+        "account_name": "ATS HOUSING PRIVATE LIMITED",
+        "bank_name": "KOTAK BANK",
+        "branch_name": "KOTAK BANK PLOT NO. 4&amp;5, BLOCK-F,SECTOR-18, NOIDA",
+        "ifsc": "KKBK00000181",
+        "verified": true
+      },
+      "professionals": {
+        "architect": "VARUN JUNEJA",
+        "arch_license": "CA/2005/37244",
+        "structural_engineer": "KAMAL SABHARWAL",
+        "contractor": null
+      },
+      "permit": {
+        "permit_number": "NOIDA/CAP/2015/IV-1398/823",
+        "permit_date": "2015-09-15T00:00:00.000Z"
+      },
+      "project_type": "Ongoing",
+      "project_category": "Residential"
+    }
+  },
+  "2876": {
+    "success": false,
+    "id": 2876,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "2901": {
+    "success": false,
+    "id": 2901,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "2912": {
+    "success": false,
+    "id": 2912,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "2928": {
+    "success": false,
+    "id": 2928,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "2981": {
+    "success": false,
+    "id": 2981,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "2982": {
+    "success": false,
+    "id": 2982,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "2983": {
+    "success": false,
+    "id": 2983,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "2984": {
+    "success": false,
+    "id": 2984,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "3010": {
+    "success": true,
+    "id": 3010,
+    "status": 200,
+    "data": {
+      "uprera_id": 3010,
+      "rera_url": "https://www.up-rera.in/Frm_View_Project_Details.aspx?id=3010",
+      "lat": 28.7225,
+      "lng": 77.445,
+      "land_area_acres": 0.37,
+      "project_cost_cr": 13.25,
+      "launch_date": "2016-09-01T00:00:00.000Z",
+      "rera_valid_until": "2030-09-03T00:00:00.000Z",
+      "escrow": {
+        "account_no": null,
+        "account_name": null,
+        "bank_name": null,
+        "branch_name": null,
+        "ifsc": null,
+        "verified": false
+      },
+      "professionals": {
+        "architect": "Sh. Anuj Agrawal",
+        "arch_license": "CA/96/19503",
+        "structural_engineer": "Sh. Vikas Garg",
+        "contractor": null
+      },
+      "permit": {
+        "permit_number": "GROUPHOUSING/09392/GDA/BP/25-26/0552/01092025",
+        "permit_date": "2016-05-12T00:00:00.000Z"
+      },
+      "project_type": "Ongoing",
+      "project_category": "Residential"
+    }
+  },
+  "3014": {
+    "success": false,
+    "id": 3014,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "3015": {
+    "success": false,
+    "id": 3015,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "3110": {
+    "success": false,
+    "id": 3110,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "3120": {
+    "success": false,
+    "id": 3120,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "3122": {
+    "success": true,
+    "id": 3122,
+    "status": 200,
+    "data": {
+      "uprera_id": 3122,
+      "rera_url": "https://www.up-rera.in/Frm_View_Project_Details.aspx?id=3122",
+      "lat": 28.009722,
+      "lng": 28.009722,
+      "land_area_acres": 4.94,
+      "project_cost_cr": 273.12,
+      "launch_date": "2014-11-22T00:00:00.000Z",
+      "rera_valid_until": "2029-03-10T00:00:00.000Z",
+      "escrow": {
+        "account_no": null,
+        "account_name": null,
+        "bank_name": null,
+        "branch_name": null,
+        "ifsc": null,
+        "verified": false
+      },
+      "professionals": {
+        "architect": "RT &amp; Associates Pvt. Ltd.",
+        "arch_license": "CA/97/22027",
+        "structural_engineer": "Dr.P.C.Ragtah",
+        "contractor": "Purvee Construction"
+      },
+      "permit": {
+        "permit_number": "BP3276/1129",
+        "permit_date": "2024-03-11T00:00:00.000Z"
+      },
+      "project_type": "Ongoing",
+      "project_category": "Residential"
+    }
+  },
+  "3218": {
+    "success": false,
+    "id": 3218,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "3250": {
+    "success": true,
+    "id": 3250,
+    "status": 200,
+    "data": {
+      "uprera_id": 3250,
+      "rera_url": "https://www.up-rera.in/Frm_View_Project_Details.aspx?id=3250",
+      "lat": 28.425123,
+      "lng": 77.487052,
+      "land_area_acres": 13.32,
+      "project_cost_cr": 768.21,
+      "launch_date": "2016-03-01T00:00:00.000Z",
+      "rera_valid_until": "2023-06-30T00:00:00.000Z",
+      "escrow": {
+        "account_no": "57500000144541",
+        "account_name": "NOBILITY ESTATES PRIVATE LIMITED",
+        "bank_name": "HDFC BANK",
+        "branch_name": "HDFC BANK ANSAL’S ARCADE, K-BLOCK, Sec-18, Noida",
+        "ifsc": "HDFC0000088",
+        "verified": true
+      },
+      "professionals": {
+        "architect": "AR.GAURAV SOOD",
+        "arch_license": "CA/2011/52656",
+        "structural_engineer": "KAMAL SABHARWAL",
+        "contractor": null
+      },
+      "permit": {
+        "permit_number": "NOIDA/CAP/2016/IV-1445/932",
+        "permit_date": "2016-10-07T00:00:00.000Z"
+      },
+      "project_type": "Ongoing",
+      "project_category": "Residential"
+    }
+  },
+  "3251": {
+    "success": false,
+    "id": 3251,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "3300": {
+    "success": false,
+    "id": 3300,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "3306": {
+    "success": true,
+    "id": 3306,
+    "status": 200,
+    "data": {
+      "uprera_id": 3306,
+      "rera_url": "https://www.up-rera.in/Frm_View_Project_Details.aspx?id=3306",
+      "lat": 28.56185,
+      "lng": 77.384186,
+      "land_area_acres": 10,
+      "project_cost_cr": 1048.54,
+      "launch_date": "2012-07-01T00:00:00.000Z",
+      "rera_valid_until": "2021-09-28T00:00:00.000Z",
+      "escrow": {
+        "account_no": "57500000058730",
+        "account_name": "Nexgen-Mezzaria RERA Project ESCROW A/c",
+        "bank_name": "HDFC Bank",
+        "branch_name": "Vaishali, Ghaziabad",
+        "ifsc": "HDFC0000422",
+        "verified": true
+      },
+      "professionals": {
+        "architect": "Peeyush Chaudhry",
+        "arch_license": "CA/93/16189",
+        "structural_engineer": "Mahimtura Consultants Pvt. Ltd.",
+        "contractor": "JMC Projects Pvt.Ltd."
+      },
+      "permit": {
+        "permit_number": "NOIDA/CTP/2016/III-272/888",
+        "permit_date": "2016-04-13T00:00:00.000Z"
+      },
+      "project_type": "Ongoing",
+      "project_category": "Residential"
+    }
+  },
+  "3310": {
+    "success": false,
+    "id": 3310,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "3320": {
+    "success": false,
+    "id": 3320,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "3330": {
+    "success": true,
+    "id": 3330,
+    "status": 200,
+    "data": {
+      "uprera_id": 3330,
+      "rera_url": "https://www.up-rera.in/Frm_View_Project_Details.aspx?id=3330",
+      "lat": 28.622336,
+      "lng": 77.425025,
+      "land_area_acres": 36.01,
+      "project_cost_cr": 2103.18,
+      "launch_date": "2011-04-01T00:00:00.000Z",
+      "rera_valid_until": "2023-09-28T00:00:00.000Z",
+      "escrow": {
+        "account_no": "57500000055323",
+        "account_name": "MIPL-MYWOODS RERA PROJECT ESCROW",
+        "bank_name": "HDFC BANK",
+        "branch_name": "VAISHALI, GHAZIABAD",
+        "ifsc": "HDFC0000422",
+        "verified": true
+      },
+      "professionals": {
+        "architect": "GIAN.P.MATHUR",
+        "arch_license": "CA/80/5769",
+        "structural_engineer": "Optimum Design Pvt. Ltd. &amp; Chordia Tech.",
+        "contractor": "B.L. GUPTA Construction Company"
+      },
+      "permit": {
+        "permit_number": "PLG(BP)2572/7667",
+        "permit_date": "2016-10-19T00:00:00.000Z"
+      },
+      "project_type": "Ongoing",
+      "project_category": "Residential"
+    }
+  },
+  "3452": {
+    "success": false,
+    "id": 3452,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "3510": {
+    "success": false,
+    "id": 3510,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "3512": {
+    "success": false,
+    "id": 3512,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "3574": {
+    "success": true,
+    "id": 3574,
+    "status": 200,
+    "data": {
+      "uprera_id": 3574,
+      "rera_url": "https://www.up-rera.in/Frm_View_Project_Details.aspx?id=3574",
+      "lat": 28.55118,
+      "lng": 77.32979,
+      "land_area_acres": 6.15,
+      "project_cost_cr": 1684.13,
+      "launch_date": "2016-10-01T00:00:00.000Z",
+      "rera_valid_until": "2030-03-28T00:00:00.000Z",
+      "escrow": {
+        "account_no": null,
+        "account_name": null,
+        "bank_name": null,
+        "branch_name": null,
+        "ifsc": null,
+        "verified": false
+      },
+      "professionals": {
+        "architect": "Prabhleen Singh Saggu",
+        "arch_license": "CA/2008/43599",
+        "structural_engineer": "KAMAL SABHARWAL",
+        "contractor": null
+      },
+      "permit": {
+        "permit_number": "Noida/Planning /2026/IV-1476/185",
+        "permit_date": "2021-05-06T00:00:00.000Z"
+      },
+      "project_type": "Ongoing",
+      "project_category": "Residential"
+    }
+  },
+  "3774": {
+    "success": true,
+    "id": 3774,
+    "status": 200,
+    "data": {
+      "uprera_id": 3774,
+      "rera_url": "https://www.up-rera.in/Frm_View_Project_Details.aspx?id=3774",
+      "lat": 28.496666,
+      "lng": 77.52244,
+      "land_area_acres": 14,
+      "project_cost_cr": 831.5,
+      "launch_date": "2014-08-07T00:00:00.000Z",
+      "rera_valid_until": "2025-11-04T00:00:00.000Z",
+      "escrow": {
+        "account_no": "57500000190638",
+        "account_name": "DOMUS GREENS PRIVATE LIMITED Rera Project Escrow",
+        "bank_name": "HDFC Bank",
+        "branch_name": "HDFC Bank ANSAL’S  ARCADE K-BLOCK SECTOR-18,NOIDA",
+        "ifsc": "HDFC0000088",
+        "verified": true
+      },
+      "professionals": {
+        "architect": "Manish Gupta",
+        "arch_license": "CA/2005/35549",
+        "structural_engineer": "Kamal Kumar Sabharwal",
+        "contractor": null
+      },
+      "permit": {
+        "permit_number": "BP-3272/GH/FTS-4696",
+        "permit_date": "2014-06-05T00:00:00.000Z"
+      },
+      "project_type": "Ongoing",
+      "project_category": "Residential"
+    }
+  },
+  "3796": {
+    "success": true,
+    "id": 3796,
+    "status": 200,
+    "data": {
+      "uprera_id": 3796,
+      "rera_url": "https://www.up-rera.in/Frm_View_Project_Details.aspx?id=3796",
+      "lat": 28.426285,
+      "lng": 77.485689,
+      "land_area_acres": 24.17,
+      "project_cost_cr": 636.87,
+      "launch_date": "2016-10-01T00:00:00.000Z",
+      "rera_valid_until": "2023-06-30T00:00:00.000Z",
+      "escrow": {
+        "account_no": "8211935869",
+        "account_name": "CELERITY INFRASTRUCTURE PRIVATE LIMITED RERA A/C",
+        "bank_name": "KOTAK MAHINDRA BANK",
+        "branch_name": "SECTOR-18 NOIDA",
+        "ifsc": "KKBK0000181",
+        "verified": true
+      },
+      "professionals": {
+        "architect": "KAMAL NARAYAN",
+        "arch_license": "CA/2002/29445",
+        "structural_engineer": "Kamal Sabharwal",
+        "contractor": null
+      },
+      "permit": {
+        "permit_number": "NOIDA/M/V/N/2016/IV-1478/922",
+        "permit_date": "2016-08-05T00:00:00.000Z"
+      },
+      "project_type": "Ongoing",
+      "project_category": "Residential"
+    }
+  },
+  "3812": {
+    "success": false,
+    "id": 3812,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "3910": {
+    "success": false,
+    "id": 3910,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "3912": {
+    "success": true,
+    "id": 3912,
+    "status": 200,
+    "data": {
+      "uprera_id": 3912,
+      "rera_url": "https://www.up-rera.in/Frm_View_Project_Details.aspx?id=3912",
+      "lat": 28.511667,
+      "lng": 77.383889,
+      "land_area_acres": 0.7,
+      "project_cost_cr": null,
+      "launch_date": "2016-10-27T00:00:00.000Z",
+      "rera_valid_until": "2018-04-30T00:00:00.000Z",
+      "escrow": {
+        "account_no": "0127103000018726",
+        "account_name": "Jaypee Infratech Limited-CKA ACCOUNT",
+        "bank_name": "IDBI Bank",
+        "branch_name": "JHANDEWALAN",
+        "ifsc": "IBKL0000127",
+        "verified": true
+      },
+      "professionals": {
+        "architect": "M/s ARCOP ASSOCIATES PVT. LTD",
+        "arch_license": "Mr Nitin Gupta (CA/93/15869)",
+        "structural_engineer": "APPOINTED BY M/S JAIPRAKASH ASSOCIATES LIMITED",
+        "contractor": "M/s JAIPRAKASH ASSOCIATES LIMITED"
+      },
+      "permit": {
+        "permit_number": "Noida/CAP/2015/774",
+        "permit_date": "2015-02-20T00:00:00.000Z"
+      },
+      "project_type": "Ongoing",
+      "project_category": "Commercial"
+    }
+  },
+  "3914": {
+    "success": true,
+    "id": 3914,
+    "status": 200,
+    "data": {
+      "uprera_id": 3914,
+      "rera_url": "https://www.up-rera.in/Frm_View_Project_Details.aspx?id=3914",
+      "lat": 28.527778,
+      "lng": 77.353889,
+      "land_area_acres": 7.07,
+      "project_cost_cr": null,
+      "launch_date": "2008-05-24T00:00:00.000Z",
+      "rera_valid_until": "2021-03-29T00:00:00.000Z",
+      "escrow": {
+        "account_no": "157905001275",
+        "account_name": "Jaiprakash Associates Limited-PCPH",
+        "bank_name": "ICICI Bank",
+        "branch_name": "Express Trade Tower2",
+        "ifsc": "ICIC0001579",
+        "verified": true
+      },
+      "professionals": {
+        "architect": "&quot;M/s ARCOP ASSOCIATES  PVT. LTD&quot;",
+        "arch_license": "&quot;Mr Nitin Gupta CA/93/15869&quot;",
+        "structural_engineer": "M/s VINTECH",
+        "contractor": "Jaiprakash Associates Limited"
+      },
+      "permit": {
+        "permit_number": "revalidation No. JIL/NOIDA/2016/693",
+        "permit_date": "2016-11-08T00:00:00.000Z"
+      },
+      "project_type": "Ongoing",
+      "project_category": "Residential"
+    }
+  },
+  "3916": {
+    "success": true,
+    "id": 3916,
+    "status": 200,
+    "data": {
+      "uprera_id": 3916,
+      "rera_url": "https://www.up-rera.in/Frm_View_Project_Details.aspx?id=3916",
+      "lat": 28.826194,
+      "lng": 78.689591,
+      "land_area_acres": 0.67,
+      "project_cost_cr": 24.13,
+      "launch_date": "2012-12-03T00:00:00.000Z",
+      "rera_valid_until": "2021-04-30T00:00:00.000Z",
+      "escrow": {
+        "account_no": "90361010015936",
+        "account_name": "PARSVNATH DEVELOPERS LIMITED",
+        "bank_name": "SYNDICATE BANK",
+        "branch_name": "SYNDICATE BANK BARAKHAMBA",
+        "ifsc": "SYNB0009036",
+        "verified": true
+      },
+      "professionals": {
+        "architect": "Mr C L Sharma",
+        "arch_license": "CA/75/9",
+        "structural_engineer": "Er. Maqsud E. Nazar",
+        "contractor": "-"
+      },
+      "permit": {
+        "permit_number": "BF/MH/VC/151(06-07)14-15",
+        "permit_date": "2014-08-11T00:00:00.000Z"
+      },
+      "project_type": "Ongoing",
+      "project_category": "Residential"
+    }
+  },
+  "3917": {
+    "success": false,
+    "id": 3917,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "3918": {
+    "success": false,
+    "id": 3918,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "3920": {
+    "success": false,
+    "id": 3920,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "3921": {
+    "success": false,
+    "id": 3921,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "3922": {
+    "success": false,
+    "id": 3922,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "3923": {
+    "success": false,
+    "id": 3923,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "3924": {
+    "success": true,
+    "id": 3924,
+    "status": 200,
+    "data": {
+      "uprera_id": 3924,
+      "rera_url": "https://www.up-rera.in/Frm_View_Project_Details.aspx?id=3924",
+      "lat": 28.603536,
+      "lng": 77.45,
+      "land_area_acres": 2.47,
+      "project_cost_cr": 300,
+      "launch_date": "2017-02-01T00:00:00.000Z",
+      "rera_valid_until": "2025-06-30T00:00:00.000Z",
+      "escrow": {
+        "account_no": null,
+        "account_name": null,
+        "bank_name": null,
+        "branch_name": null,
+        "ifsc": null,
+        "verified": false
+      },
+      "professionals": {
+        "architect": "Gian P Mathur &amp; Associates",
+        "arch_license": null,
+        "structural_engineer": "Keen Designers Pvt Ltd",
+        "contractor": "Kamal &amp; Associates Pvt Ltd"
+      },
+      "permit": {
+        "permit_number": "PLG/BP/38785/620",
+        "permit_date": "2017-02-01T00:00:00.000Z"
+      },
+      "project_type": "New",
+      "project_category": "Commercial"
+    }
+  },
+  "3925": {
+    "success": false,
+    "id": 3925,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "3926": {
+    "success": false,
+    "id": 3926,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "3948": {
+    "success": false,
+    "id": 3948,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "4010": {
+    "success": true,
+    "id": 4010,
+    "status": 200,
+    "data": {
+      "uprera_id": 4010,
+      "rera_url": "https://www.up-rera.in/Frm_View_Project_Details.aspx?id=4010",
+      "lat": 28.654205,
+      "lng": 77.514557,
+      "land_area_acres": 61.2,
+      "project_cost_cr": 24.4,
+      "launch_date": "2015-03-16T00:00:00.000Z",
+      "rera_valid_until": "2021-12-29T00:00:00.000Z",
+      "escrow": {
+        "account_no": "913020000332052",
+        "account_name": "Wave Royal Castel A  Project of Suncity Hi-Tech Infrastructures Pvt Ltd",
+        "bank_name": "Axis Bank",
+        "branch_name": "Ghaziabad",
+        "ifsc": "UTIB0000095",
+        "verified": true
+      },
+      "professionals": {
+        "architect": null,
+        "arch_license": null,
+        "structural_engineer": null,
+        "contractor": "Infra-13"
+      },
+      "permit": {
+        "permit_number": "09/zone-05/2014-15",
+        "permit_date": "2014-09-09T00:00:00.000Z"
+      },
+      "project_type": "Ongoing",
+      "project_category": "Residential"
+    }
+  },
+  "4012": {
+    "success": false,
+    "id": 4012,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "4014": {
+    "success": false,
+    "id": 4014,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "4015": {
+    "success": false,
+    "id": 4015,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "4016": {
+    "success": false,
+    "id": 4016,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "4017": {
+    "success": false,
+    "id": 4017,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "4105": {
+    "success": false,
+    "id": 4105,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "4110": {
+    "success": false,
+    "id": 4110,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "4285": {
+    "success": false,
+    "id": 4285,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "4410": {
+    "success": false,
+    "id": 4410,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "4411": {
+    "success": true,
+    "id": 4411,
+    "status": 200,
+    "data": {
+      "uprera_id": 4411,
+      "rera_url": "https://www.up-rera.in/Frm_View_Project_Details.aspx?id=4411",
+      "lat": 77.4135,
+      "lng": 28.5092,
+      "land_area_acres": 4.6,
+      "project_cost_cr": 96.49,
+      "launch_date": "2010-03-12T00:00:00.000Z",
+      "rera_valid_until": "2018-10-31T00:00:00.000Z",
+      "escrow": {
+        "account_no": null,
+        "account_name": null,
+        "bank_name": null,
+        "branch_name": null,
+        "ifsc": null,
+        "verified": false
+      },
+      "professionals": {
+        "architect": null,
+        "arch_license": null,
+        "structural_engineer": null,
+        "contractor": null
+      },
+      "permit": {
+        "permit_number": "NOIDA / CAP /2010/ III-188/194",
+        "permit_date": "2010-03-12T00:00:00.000Z"
+      },
+      "project_type": "Ongoing",
+      "project_category": "Residential"
+    }
+  },
+  "4451": {
+    "success": false,
+    "id": 4451,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "4461": {
+    "success": false,
+    "id": 4461,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "4471": {
+    "success": false,
+    "id": 4471,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "4501": {
+    "success": false,
+    "id": 4501,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "4502": {
+    "success": true,
+    "id": 4502,
+    "status": 200,
+    "data": {
+      "uprera_id": 4502,
+      "rera_url": "https://www.up-rera.in/Frm_View_Project_Details.aspx?id=4502",
+      "lat": 28.43824,
+      "lng": 79.476163,
+      "land_area_acres": 5.99,
+      "project_cost_cr": 42.73,
+      "launch_date": "2016-12-01T00:00:00.000Z",
+      "rera_valid_until": "2022-05-24T00:00:00.000Z",
+      "escrow": {
+        "account_no": "8211935050",
+        "account_name": "Anand Lifespace Development LLP-Project A/C- Special Account (RERA)",
+        "bank_name": "KOTAK MAHINDRA BANK",
+        "branch_name": "KOTAK MAHINDRA BANK PLOT 31 &amp; 32 ,BLOCK-G, SECTOR-18, NOIDA ,DISTT-GAUTAM BUDH NAGAR, NOIDA-201301",
+        "ifsc": "KKBK0000181S",
+        "verified": true
+      },
+      "professionals": {
+        "architect": "Manish Kumar Gupta",
+        "arch_license": "CA/2005/35549",
+        "structural_engineer": "CE CON Engg",
+        "contractor": null
+      },
+      "permit": {
+        "permit_number": "4814 M/K BDA/2016",
+        "permit_date": "2016-11-28T00:00:00.000Z"
+      },
+      "project_type": "Ongoing",
+      "project_category": "Residential"
+    }
+  },
+  "4510": {
+    "success": false,
+    "id": 4510,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "4522": {
+    "success": false,
+    "id": 4522,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "4567": {
+    "success": false,
+    "id": 4567,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "4568": {
+    "success": true,
+    "id": 4568,
+    "status": 200,
+    "data": {
+      "uprera_id": 4568,
+      "rera_url": "https://www.up-rera.in/Frm_View_Project_Details.aspx?id=4568",
+      "lat": 28.964856,
+      "lng": 77.653401,
+      "land_area_acres": 8.28,
+      "project_cost_cr": 1.48,
+      "launch_date": "2014-04-01T00:00:00.000Z",
+      "rera_valid_until": "2018-07-31T00:00:00.000Z",
+      "escrow": {
+        "account_no": "007010200060604",
+        "account_name": "Herman Propreties Pvt Ltd",
+        "bank_name": "Axis Bank Ltd",
+        "branch_name": "Barakhamba Road",
+        "ifsc": "UTIB00000077",
+        "verified": true
+      },
+      "professionals": {
+        "architect": "Design Axis",
+        "arch_license": "N/A",
+        "structural_engineer": "N/A",
+        "contractor": "N/A"
+      },
+      "permit": {
+        "permit_number": "23/2011",
+        "permit_date": "2011-12-23T00:00:00.000Z"
+      },
+      "project_type": "Ongoing",
+      "project_category": "Residential"
+    }
+  },
+  "4601": {
+    "success": false,
+    "id": 4601,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "4790": {
+    "success": true,
+    "id": 4790,
+    "status": 200,
+    "data": {
+      "uprera_id": 4790,
+      "rera_url": "https://www.up-rera.in/Frm_View_Project_Details.aspx?id=4790",
+      "lat": 2856377,
+      "lng": 7745203,
+      "land_area_acres": 3.64,
+      "project_cost_cr": 11,
+      "launch_date": "2015-06-30T00:00:00.000Z",
+      "rera_valid_until": "2026-12-31T00:00:00.000Z",
+      "escrow": {
+        "account_no": "008585800000647",
+        "account_name": "JSS BUILDCON PRIVATE LIMITED",
+        "bank_name": "YES BANK",
+        "branch_name": "SECTOR-27 NOIDA",
+        "ifsc": "YESB0000085",
+        "verified": true
+      },
+      "professionals": {
+        "architect": "Creative Lines(Ar. Amit Kumar Dubey)",
+        "arch_license": "CA/2016/74029",
+        "structural_engineer": "SS Raj Solutions(Er. Abdul Samad)",
+        "contractor": "AM REAL ESTATE"
+      },
+      "permit": {
+        "permit_number": "BP-3040/44/9432",
+        "permit_date": "2019-12-17T00:00:00.000Z"
+      },
+      "project_type": "Ongoing",
+      "project_category": "Residential"
+    }
+  },
+  "4812": {
+    "success": false,
+    "id": 4812,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "4819": {
+    "success": false,
+    "id": 4819,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "4910": {
+    "success": false,
+    "id": 4910,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "4912": {
+    "success": false,
+    "id": 4912,
+    "timeout": true
+  },
+  "4921": {
+    "success": true,
+    "id": 4921,
+    "status": 200,
+    "data": {
+      "uprera_id": 4921,
+      "rera_url": "https://www.up-rera.in/Frm_View_Project_Details.aspx?id=4921",
+      "lat": 28.323889,
+      "lng": 77.533611,
+      "land_area_acres": 6.6,
+      "project_cost_cr": null,
+      "launch_date": "2013-10-12T00:00:00.000Z",
+      "rera_valid_until": "2022-12-29T00:00:00.000Z",
+      "escrow": {
+        "account_no": "0127103000018902",
+        "account_name": "JIL REAL ESTATE COLLECTIONUDBC A/C",
+        "bank_name": "IDBI Bank",
+        "branch_name": "IDBI Bank Jhandewalan",
+        "ifsc": "IBKL0000127",
+        "verified": true
+      },
+      "professionals": {
+        "architect": "M/s Design Forum International",
+        "arch_license": "Mr. Anuj Tevatia (CA No. 95/18739)",
+        "structural_engineer": "APPOINTED BY M/S JAIPRAKASH ASSOCIATES LIMITED",
+        "contractor": "M/s JAIPRAKASH ASSOCIATES LIMITED"
+      },
+      "permit": {
+        "permit_number": "JIL/YEIDA/MLP-III/2014/358",
+        "permit_date": "2013-07-07T00:00:00.000Z"
+      },
+      "project_type": "Ongoing",
+      "project_category": "Residential"
+    }
+  },
+  "5448": {
+    "success": true,
+    "id": 5448,
+    "status": 200,
+    "data": {
+      "uprera_id": 5448,
+      "rera_url": "https://www.up-rera.in/Frm_View_Project_Details.aspx?id=5448",
+      "lat": 28,
+      "lng": 77,
+      "land_area_acres": 11.97,
+      "project_cost_cr": 742.63,
+      "launch_date": "2017-08-05T00:00:00.000Z",
+      "rera_valid_until": "2025-06-29T00:00:00.000Z",
+      "escrow": {
+        "account_no": "777705224476",
+        "account_name": "Land Kart Builders Pvt. Ltd.- RERA Account",
+        "bank_name": "ICICI Bank Ltd.",
+        "branch_name": "Connaught Place",
+        "ifsc": "ICIC0000007",
+        "verified": true
+      },
+      "professionals": {
+        "architect": "Kulmeet Shangari",
+        "arch_license": "CA/97/21741",
+        "structural_engineer": "Technical Projects Consultants (p) Ltd.",
+        "contractor": "To be Appointed."
+      },
+      "permit": {
+        "permit_number": "IV-1500/934",
+        "permit_date": "2016-10-24T00:00:00.000Z"
+      },
+      "project_type": "New",
+      "project_category": "Residential"
+    }
+  },
+  "5449": {
+    "success": false,
+    "id": 5449,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "5513": {
+    "success": false,
+    "id": 5513,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "5528": {
+    "success": false,
+    "id": 5528,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "5655": {
+    "success": true,
+    "id": 5655,
+    "status": 200,
+    "data": {
+      "uprera_id": 5655,
+      "rera_url": "https://www.up-rera.in/Frm_View_Project_Details.aspx?id=5655",
+      "lat": 28.572431,
+      "lng": 77.391345,
+      "land_area_acres": 1.27,
+      "project_cost_cr": 115,
+      "launch_date": "2016-06-30T00:00:00.000Z",
+      "rera_valid_until": "2022-06-29T00:00:00.000Z",
+      "escrow": {
+        "account_no": "6420002900000159",
+        "account_name": "AJNARA INDIA LIMITED",
+        "bank_name": "PUNJAB NATIONAL BANK",
+        "branch_name": "LCB, Sector - 63",
+        "ifsc": "PUNB0642000",
+        "verified": true
+      },
+      "professionals": {
+        "architect": "AR. VISHAL MITTAL",
+        "arch_license": "CA/98/23185",
+        "structural_engineer": "SDAC ENGINEERS (INDIA)",
+        "contractor": "Inhouse"
+      },
+      "permit": {
+        "permit_number": "NOIDA/CAP/2015/III-228/913",
+        "permit_date": "2016-06-30T00:00:00.000Z"
+      },
+      "project_type": "Ongoing",
+      "project_category": "Residential"
+    }
+  },
+  "5678": {
+    "success": false,
+    "id": 5678,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "5805": {
+    "success": true,
+    "id": 5805,
+    "status": 200,
+    "data": {
+      "uprera_id": 5805,
+      "rera_url": "https://www.up-rera.in/Frm_View_Project_Details.aspx?id=5805",
+      "lat": 28,
+      "lng": 77,
+      "land_area_acres": 2.73,
+      "project_cost_cr": 345.8,
+      "launch_date": "2014-08-02T00:00:00.000Z",
+      "rera_valid_until": "2023-06-30T00:00:00.000Z",
+      "escrow": {
+        "account_no": "003705017202",
+        "account_name": "GRANITE HILL PROPERTIES PVT LTD",
+        "bank_name": "ICICI BANK  LTD",
+        "branch_name": "PREET VIHAR",
+        "ifsc": "ICIC0000037",
+        "verified": true
+      },
+      "professionals": {
+        "architect": "DHARMINDRA ACPL DESIGN LTD",
+        "arch_license": "CA/2001/27400",
+        "structural_engineer": "TECHNICAL PROJECTS CONSULTANTS PVT LTD",
+        "contractor": "SWARIKA SETH INFRATECH PVT LTD"
+      },
+      "permit": {
+        "permit_number": "IV-1388/685",
+        "permit_date": "2013-07-19T00:00:00.000Z"
+      },
+      "project_type": "Ongoing",
+      "project_category": "Commercial"
+    }
+  },
+  "5931": {
+    "success": true,
+    "id": 5931,
+    "status": 200,
+    "data": {
+      "uprera_id": 5931,
+      "rera_url": "https://www.up-rera.in/Frm_View_Project_Details.aspx?id=5931",
+      "lat": 28.598451,
+      "lng": 77.391327,
+      "land_area_acres": 6.8,
+      "project_cost_cr": 524.44,
+      "launch_date": "2012-05-01T00:00:00.000Z",
+      "rera_valid_until": "2018-08-31T00:00:00.000Z",
+      "escrow": {
+        "account_no": null,
+        "account_name": null,
+        "bank_name": null,
+        "branch_name": null,
+        "ifsc": null,
+        "verified": false
+      },
+      "professionals": {
+        "architect": "MR VISHAL SHARMA",
+        "arch_license": "CA/9823261",
+        "structural_engineer": "M/S VINTECH CONSULTANTS",
+        "contractor": "Modern Construction (delhi)"
+      },
+      "permit": {
+        "permit_number": "NOIDA/MVN/2013/III-289/651",
+        "permit_date": "2013-05-03T00:00:00.000Z"
+      },
+      "project_type": "Ongoing",
+      "project_category": "Residential"
+    }
+  },
+  "6010": {
+    "success": true,
+    "id": 6010,
+    "status": 200,
+    "data": {
+      "uprera_id": 6010,
+      "rera_url": "https://www.up-rera.in/Frm_View_Project_Details.aspx?id=6010",
+      "lat": 28.560892,
+      "lng": 77.339564,
+      "land_area_acres": 0.52,
+      "project_cost_cr": 12,
+      "launch_date": "2014-02-10T00:00:00.000Z",
+      "rera_valid_until": "2018-08-09T00:00:00.000Z",
+      "escrow": {
+        "account_no": "712600301000760",
+        "account_name": "SDS INFRASTRUCTURE PRIVATE LIMITED",
+        "bank_name": "VIJAYA BANK",
+        "branch_name": "NOIDA COMPLEX",
+        "ifsc": "VIJB0007126",
+        "verified": true
+      },
+      "professionals": {
+        "architect": null,
+        "arch_license": null,
+        "structural_engineer": null,
+        "contractor": null
+      },
+      "permit": {
+        "permit_number": "NOIDA/CAP/2014/IV-1368/721",
+        "permit_date": "2014-01-29T00:00:00.000Z"
+      },
+      "project_type": "Ongoing",
+      "project_category": "Commercial"
+    }
+  },
+  "6110": {
+    "success": true,
+    "id": 6110,
+    "status": 200,
+    "data": {
+      "uprera_id": 6110,
+      "rera_url": "https://www.up-rera.in/Frm_View_Project_Details.aspx?id=6110",
+      "lat": 28.586631,
+      "lng": 77.445942,
+      "land_area_acres": 4.62,
+      "project_cost_cr": 68.1,
+      "launch_date": "2016-01-03T00:00:00.000Z",
+      "rera_valid_until": "2021-06-20T00:00:00.000Z",
+      "escrow": {
+        "account_no": "35618411478",
+        "account_name": "Urbainia Spaces Pvt Ltd",
+        "bank_name": "SBI",
+        "branch_name": "SBI,SEC.62,NOIDA",
+        "ifsc": "SBIN0005222",
+        "verified": true
+      },
+      "professionals": {
+        "architect": "Confluence Consultancy Services",
+        "arch_license": "CA-98/23361",
+        "structural_engineer": "Keen Associates Pvt Ltd",
+        "contractor": null
+      },
+      "permit": {
+        "permit_number": "PLG(BP-3532)6808",
+        "permit_date": "2015-11-10T00:00:00.000Z"
+      },
+      "project_type": "Ongoing",
+      "project_category": "Commercial"
+    }
+  },
+  "6210": {
+    "success": false,
+    "id": 6210,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "6312": {
+    "success": true,
+    "id": 6312,
+    "status": 200,
+    "data": {
+      "uprera_id": 6312,
+      "rera_url": "https://www.up-rera.in/Frm_View_Project_Details.aspx?id=6312",
+      "lat": 28.41,
+      "lng": 77.2,
+      "land_area_acres": 4.94,
+      "project_cost_cr": 2.7,
+      "launch_date": "2014-04-01T00:00:00.000Z",
+      "rera_valid_until": "2020-10-29T00:00:00.000Z",
+      "escrow": {
+        "account_no": "2768214000025",
+        "account_name": "CURRENT ACCOUNT",
+        "bank_name": "CANARA BANK",
+        "branch_name": "LAXMI NAGAR",
+        "ifsc": "CNRB0002768",
+        "verified": true
+      },
+      "professionals": {
+        "architect": "Deepak Mehta &amp; Associates",
+        "arch_license": "COA/87/10840",
+        "structural_engineer": "VIKAS KAUSHIK",
+        "contractor": "Vishwakarma construction"
+      },
+      "permit": {
+        "permit_number": "BP-3445/AS-3572",
+        "permit_date": "2015-06-24T00:00:00.000Z"
+      },
+      "project_type": "Ongoing",
+      "project_category": "Residential"
+    }
+  },
+  "6477": {
+    "success": false,
+    "id": 6477,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "6601": {
+    "success": false,
+    "id": 6601,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "6604": {
+    "success": false,
+    "id": 6604,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "6610": {
+    "success": false,
+    "id": 6610,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "6619": {
+    "success": false,
+    "id": 6619,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "6688": {
+    "success": false,
+    "id": 6688,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "6689": {
+    "success": false,
+    "id": 6689,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "6743": {
+    "success": true,
+    "id": 6743,
+    "status": 200,
+    "data": {
+      "uprera_id": 6743,
+      "rera_url": "https://www.up-rera.in/Frm_View_Project_Details.aspx?id=6743",
+      "lat": 26.769575,
+      "lng": 26.768904,
+      "land_area_acres": 1.27,
+      "project_cost_cr": 15.84,
+      "launch_date": "2015-10-15T00:00:00.000Z",
+      "rera_valid_until": "2022-03-28T00:00:00.000Z",
+      "escrow": {
+        "account_no": "6741335544",
+        "account_name": "R. R. CIVIL TECH PVT LTD",
+        "bank_name": "INDIAN BANK",
+        "branch_name": "HAZRATGANJ LUCKNOW",
+        "ifsc": "IDIB000L002",
+        "verified": true
+      },
+      "professionals": {
+        "architect": "Viresh Kumar",
+        "arch_license": "CA/2005/35401",
+        "structural_engineer": "Ashok Gupta",
+        "contractor": "Nazir Khan"
+      },
+      "permit": {
+        "permit_number": "38981",
+        "permit_date": "2015-10-15T00:00:00.000Z"
+      },
+      "project_type": "Ongoing",
+      "project_category": "Residential"
+    }
+  },
+  "6744": {
+    "success": false,
+    "id": 6744,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "6772": {
+    "success": false,
+    "id": 6772,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "6789": {
+    "success": false,
+    "id": 6789,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "6804": {
+    "success": true,
+    "id": 6804,
+    "status": 200,
+    "data": {
+      "uprera_id": 6804,
+      "rera_url": "https://www.up-rera.in/Frm_View_Project_Details.aspx?id=6804",
+      "lat": 25.317645,
+      "lng": 82.973914,
+      "land_area_acres": 0.58,
+      "project_cost_cr": 10,
+      "launch_date": "2011-06-02T00:00:00.000Z",
+      "rera_valid_until": "2018-06-01T00:00:00.000Z",
+      "escrow": {
+        "account_no": "50250710852",
+        "account_name": "BHAVANI CONSTRUCTION",
+        "bank_name": "ALLAHABAD BANK",
+        "branch_name": "U P COLLAGE",
+        "ifsc": "ALLA0210319",
+        "verified": true
+      },
+      "professionals": {
+        "architect": "AJAY SINGH",
+        "arch_license": "CA/94/17563",
+        "structural_engineer": "RAGHVENDRA SINGH",
+        "contractor": null
+      },
+      "permit": {
+        "permit_number": "55",
+        "permit_date": "2011-05-19T00:00:00.000Z"
+      },
+      "project_type": "Ongoing",
+      "project_category": "Residential"
+    }
+  },
+  "6819": {
+    "success": true,
+    "id": 6819,
+    "status": 200,
+    "data": {
+      "uprera_id": 6819,
+      "rera_url": "https://www.up-rera.in/Frm_View_Project_Details.aspx?id=6819",
+      "lat": 28.555726,
+      "lng": 77.389667,
+      "land_area_acres": 1.33,
+      "project_cost_cr": 88.8,
+      "launch_date": "2017-08-01T00:00:00.000Z",
+      "rera_valid_until": "2024-01-30T00:00:00.000Z",
+      "escrow": {
+        "account_no": "201000846795",
+        "account_name": "GOLF GREEN BUILDCON PRIVATE LIMITED",
+        "bank_name": "Indusind bank",
+        "branch_name": "BARAKHAMBA ROAD",
+        "ifsc": "INDB000005",
+        "verified": true
+      },
+      "professionals": {
+        "architect": null,
+        "arch_license": null,
+        "structural_engineer": null,
+        "contractor": null
+      },
+      "permit": {
+        "permit_number": "IV-1409/692",
+        "permit_date": "2013-09-04T00:00:00.000Z"
+      },
+      "project_type": "Ongoing",
+      "project_category": "Residential"
+    }
+  },
+  "6856": {
+    "success": true,
+    "id": 6856,
+    "status": 200,
+    "data": {
+      "uprera_id": 6856,
+      "rera_url": "https://www.up-rera.in/Frm_View_Project_Details.aspx?id=6856",
+      "lat": 28.358525,
+      "lng": 77.531036,
+      "land_area_acres": 1.1,
+      "project_cost_cr": 84.43,
+      "launch_date": "2014-09-08T00:00:00.000Z",
+      "rera_valid_until": "2026-10-29T00:00:00.000Z",
+      "escrow": {
+        "account_no": null,
+        "account_name": null,
+        "bank_name": null,
+        "branch_name": null,
+        "ifsc": null,
+        "verified": false
+      },
+      "professionals": {
+        "architect": "VISHAL SHARMA",
+        "arch_license": "CA-98/23261",
+        "structural_engineer": "VINTECH CONSULTANAT",
+        "contractor": null
+      },
+      "permit": {
+        "permit_number": "Y.E.A./NIYOJAN/98/2024",
+        "permit_date": "2024-06-28T00:00:00.000Z"
+      },
+      "project_type": "Ongoing",
+      "project_category": "Residential"
+    }
+  },
+  "7001": {
+    "success": false,
+    "id": 7001,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "7010": {
+    "success": true,
+    "id": 7010,
+    "status": 200,
+    "data": {
+      "uprera_id": 7010,
+      "rera_url": "https://www.up-rera.in/Frm_View_Project_Details.aspx?id=7010",
+      "lat": 28,
+      "lng": 77,
+      "land_area_acres": 7.61,
+      "project_cost_cr": 285.37,
+      "launch_date": "2017-12-04T00:00:00.000Z",
+      "rera_valid_until": "2021-12-31T00:00:00.000Z",
+      "escrow": {
+        "account_no": null,
+        "account_name": null,
+        "bank_name": null,
+        "branch_name": null,
+        "ifsc": null,
+        "verified": false
+      },
+      "professionals": {
+        "architect": null,
+        "arch_license": null,
+        "structural_engineer": null,
+        "contractor": null
+      },
+      "permit": {
+        "permit_number": "III-151/871",
+        "permit_date": "2016-02-18T00:00:00.000Z"
+      },
+      "project_type": "Ongoing",
+      "project_category": "Residential"
+    }
+  },
+  "7102": {
+    "success": false,
+    "id": 7102,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "7158": {
+    "success": false,
+    "id": 7158,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "7401": {
+    "success": false,
+    "id": 7401,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "7418": {
+    "success": true,
+    "id": 7418,
+    "status": 200,
+    "data": {
+      "uprera_id": 7418,
+      "rera_url": "https://www.up-rera.in/Frm_View_Project_Details.aspx?id=7418",
+      "lat": null,
+      "lng": null,
+      "land_area_acres": 0.99,
+      "project_cost_cr": 55,
+      "launch_date": "2014-06-10T00:00:00.000Z",
+      "rera_valid_until": "2019-12-30T00:00:00.000Z",
+      "escrow": {
+        "account_no": "070166200000020",
+        "account_name": "MCPL MAXBLIS WHITE HOUSE RERA AC",
+        "bank_name": "YES BANK LTD",
+        "branch_name": "SECTOR 50",
+        "ifsc": "YESB000701",
+        "verified": true
+      },
+      "professionals": {
+        "architect": "DEEPAK MEHTA &amp; ASSOCIATES",
+        "arch_license": "COA/87/10840",
+        "structural_engineer": "KEEN ASSOCIATES PVT LTD",
+        "contractor": "VMAX CONSTRUCTIONS PVT LTD"
+      },
+      "permit": {
+        "permit_number": "NOIDA/CTP/2013/III/233/650",
+        "permit_date": "2013-05-03T00:00:00.000Z"
+      },
+      "project_type": "Ongoing",
+      "project_category": "Residential"
+    }
+  },
+  "7601": {
+    "success": true,
+    "id": 7601,
+    "status": 200,
+    "data": {
+      "uprera_id": 7601,
+      "rera_url": "https://www.up-rera.in/Frm_View_Project_Details.aspx?id=7601",
+      "lat": 28.651997,
+      "lng": 77.403775,
+      "land_area_acres": 28.7,
+      "project_cost_cr": 465,
+      "launch_date": "2017-06-01T00:00:00.000Z",
+      "rera_valid_until": "2021-11-29T00:00:00.000Z",
+      "escrow": {
+        "account_no": "128211031212",
+        "account_name": "APEX HEIGHTS PRIVATE LIMITED",
+        "bank_name": "DENA BANK",
+        "branch_name": "MAYUR VIHAR PHASE -1",
+        "ifsc": "BKDN0711282",
+        "verified": true
+      },
+      "professionals": {
+        "architect": "SPACE DESIGNERS INTERNATIONAL",
+        "arch_license": "CA/98/23185",
+        "structural_engineer": "OPTIMUM DESIGN PVT. LTD.",
+        "contractor": "RENOHTRA CONSTRUCTION PVT.LTD."
+      },
+      "permit": {
+        "permit_number": "981",
+        "permit_date": "2017-04-12T00:00:00.000Z"
+      },
+      "project_type": "Ongoing",
+      "project_category": "Residential"
+    }
+  },
+  "7702": {
+    "success": false,
+    "id": 7702,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "7710": {
+    "success": false,
+    "id": 7710,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "7711": {
+    "success": false,
+    "id": 7711,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "7801": {
+    "success": false,
+    "id": 7801,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "7802": {
+    "success": false,
+    "id": 7802,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "7803": {
+    "success": false,
+    "id": 7803,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "7895": {
+    "success": true,
+    "id": 7895,
+    "status": 200,
+    "data": {
+      "uprera_id": 7895,
+      "rera_url": "https://www.up-rera.in/Frm_View_Project_Details.aspx?id=7895",
+      "lat": 28.563935,
+      "lng": 77.450797,
+      "land_area_acres": 8.29,
+      "project_cost_cr": 487.93,
+      "launch_date": "2013-01-01T00:00:00.000Z",
+      "rera_valid_until": "2026-12-31T00:00:00.000Z",
+      "escrow": {
+        "account_no": null,
+        "account_name": null,
+        "bank_name": null,
+        "branch_name": null,
+        "ifsc": null,
+        "verified": false
+      },
+      "professionals": {
+        "architect": "DEEPAK MEHTA",
+        "arch_license": "COA/87/10840",
+        "structural_engineer": "OPTIMIZATION CONSULTANTS",
+        "contractor": "APACE BUILDERS AND CONTRACTORS"
+      },
+      "permit": {
+        "permit_number": "BP3022/GH/FTS/4299",
+        "permit_date": "2025-07-14T00:00:00.000Z"
+      },
+      "project_type": "Ongoing",
+      "project_category": "Residential"
+    }
+  },
+  "7901": {
+    "success": false,
+    "id": 7901,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "8010": {
+    "success": false,
+    "id": 8010,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "8110": {
+    "success": false,
+    "id": 8110,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "8201": {
+    "success": true,
+    "id": 8201,
+    "status": 200,
+    "data": {
+      "uprera_id": 8201,
+      "rera_url": "https://www.up-rera.in/Frm_View_Project_Details.aspx?id=8201",
+      "lat": 27.22,
+      "lng": 77.94,
+      "land_area_acres": 1.35,
+      "project_cost_cr": 23.45,
+      "launch_date": "2014-06-07T00:00:00.000Z",
+      "rera_valid_until": "2018-01-31T00:00:00.000Z",
+      "escrow": {
+        "account_no": "50076556955",
+        "account_name": "EXECUTIVE ENGINEER CD-29 UP AWAS EVAM VIKAS PARISHAD AGRA",
+        "bank_name": "ALLAHABAD BANK",
+        "branch_name": "UP AWAS EVAM VIKAS PARISHAD",
+        "ifsc": "ALLA0212300",
+        "verified": true
+      },
+      "professionals": {
+        "architect": "Er. A.K. UPADHYAY",
+        "arch_license": "A-549085-6",
+        "structural_engineer": "A ONE INFRA CONSULTANT PVT. LTD.",
+        "contractor": "M/S GAUTAM BUILDERS"
+      },
+      "permit": {
+        "permit_number": "949",
+        "permit_date": "2014-03-04T00:00:00.000Z"
+      },
+      "project_type": "Ongoing",
+      "project_category": "Residential"
+    }
+  },
+  "8418": {
+    "success": false,
+    "id": 8418,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "8532": {
+    "success": false,
+    "id": 8532,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "8585": {
+    "success": true,
+    "id": 8585,
+    "status": 200,
+    "data": {
+      "uprera_id": 8585,
+      "rera_url": "https://www.up-rera.in/Frm_View_Project_Details.aspx?id=8585",
+      "lat": 28.582739,
+      "lng": 28.582544,
+      "land_area_acres": 4.94,
+      "project_cost_cr": 330,
+      "launch_date": "2015-06-09T00:00:00.000Z",
+      "rera_valid_until": "2019-06-30T00:00:00.000Z",
+      "escrow": {
+        "account_no": "405112098",
+        "account_name": "FLORAL REALCON PVT LTD",
+        "bank_name": "ICICI",
+        "branch_name": "MUMBAI NARIMAN POINT",
+        "ifsc": "ICIC0000004",
+        "verified": true
+      },
+      "professionals": {
+        "architect": "ANDLEYS ASSOCIATES PVT LTD",
+        "arch_license": "CA/75/1841",
+        "structural_engineer": "DR. MAQSOOD",
+        "contractor": "C.B BUILDCON"
+      },
+      "permit": {
+        "permit_number": "BP 3409/FTS-2916",
+        "permit_date": "2015-05-22T00:00:00.000Z"
+      },
+      "project_type": "Ongoing",
+      "project_category": "Residential"
+    }
+  },
+  "8640": {
+    "success": false,
+    "id": 8640,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "8801": {
+    "success": false,
+    "id": 8801,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "8803": {
+    "success": false,
+    "id": 8803,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "8804": {
+    "success": false,
+    "id": 8804,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "8806": {
+    "success": true,
+    "id": 8806,
+    "status": 200,
+    "data": {
+      "uprera_id": 8806,
+      "rera_url": "https://www.up-rera.in/Frm_View_Project_Details.aspx?id=8806",
+      "lat": 282955,
+      "lng": 772530,
+      "land_area_acres": 2.85,
+      "project_cost_cr": 175,
+      "launch_date": "2013-10-05T00:00:00.000Z",
+      "rera_valid_until": "2016-12-28T00:00:00.000Z",
+      "escrow": {
+        "account_no": "662805600064",
+        "account_name": "Gulshan Homes And Infrastructure Pvt.Ltd.",
+        "bank_name": "ICICI BANK LIMITED",
+        "branch_name": "HARGOVIND ENCLAVE",
+        "ifsc": "ICIC0006628",
+        "verified": true
+      },
+      "professionals": {
+        "architect": "M/S DEEPAK MEHTA &amp; ASSOCIATES",
+        "arch_license": "COA/87/10840",
+        "structural_engineer": "ENGINEERING CREATIONS CONSULTING ENGINEERS",
+        "contractor": "SELF"
+      },
+      "permit": {
+        "permit_number": "NOIDA/CAP/III-274/545",
+        "permit_date": "2012-08-23T00:00:00.000Z"
+      },
+      "project_type": "Ongoing",
+      "project_category": "Residential"
+    }
+  },
+  "8807": {
+    "success": true,
+    "id": 8807,
+    "status": 200,
+    "data": {
+      "uprera_id": 8807,
+      "rera_url": "https://www.up-rera.in/Frm_View_Project_Details.aspx?id=8807",
+      "lat": 26.758889,
+      "lng": 26.759444,
+      "land_area_acres": 1.06,
+      "project_cost_cr": 35,
+      "launch_date": "2014-03-01T00:00:00.000Z",
+      "rera_valid_until": "2021-03-29T00:00:00.000Z",
+      "escrow": {
+        "account_no": "08941131002254",
+        "account_name": "SANJAR BUILDERS AND CONSTRUCTIONS PRIVATE LIMITED",
+        "bank_name": "ORIENTAL BANK OF COMMERCE",
+        "branch_name": "VIKAS NAGAR",
+        "ifsc": "ORBC0101584",
+        "verified": true
+      },
+      "professionals": {
+        "architect": "REPUNJAY PATEL",
+        "arch_license": "CA/2001/28562",
+        "structural_engineer": "IRSHAD AHMAD",
+        "contractor": "SANJAR BUILDERS AND CONSTRUCTIONS PRIVATE LIMITED"
+      },
+      "permit": {
+        "permit_number": "922",
+        "permit_date": "2016-04-07T00:00:00.000Z"
+      },
+      "project_type": "Ongoing",
+      "project_category": "Commercial"
+    }
+  },
+  "8808": {
+    "success": false,
+    "id": 8808,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "8810": {
+    "success": false,
+    "id": 8810,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "8811": {
+    "success": false,
+    "id": 8811,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "8820": {
+    "success": false,
+    "id": 8820,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "8821": {
+    "success": true,
+    "id": 8821,
+    "status": 200,
+    "data": {
+      "uprera_id": 8821,
+      "rera_url": "https://www.up-rera.in/Frm_View_Project_Details.aspx?id=8821",
+      "lat": 28,
+      "lng": 77,
+      "land_area_acres": 3.49,
+      "project_cost_cr": 70.83,
+      "launch_date": "2017-08-09T00:00:00.000Z",
+      "rera_valid_until": "2019-12-31T00:00:00.000Z",
+      "escrow": {
+        "account_no": "418005000033",
+        "account_name": "SHOMIT FINANCE LIMITED DEVIKA SKYPERS PROJECT",
+        "bank_name": "ICICI BANK LIMITED",
+        "branch_name": "NEHRU PLACE",
+        "ifsc": "ICIC0004180",
+        "verified": true
+      },
+      "professionals": {
+        "architect": "Mr. Vishal Mittal",
+        "arch_license": "CA/98/23185",
+        "structural_engineer": "Mr. V. D. Sharma",
+        "contractor": "In House Construction"
+      },
+      "permit": {
+        "permit_number": "70/MASTER PLAN/ZONE-1/15",
+        "permit_date": "2015-09-19T00:00:00.000Z"
+      },
+      "project_type": "Ongoing",
+      "project_category": "Residential"
+    }
+  },
+  "8822": {
+    "success": false,
+    "id": 8822,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "8823": {
+    "success": false,
+    "id": 8823,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "8824": {
+    "success": true,
+    "id": 8824,
+    "status": 200,
+    "data": {
+      "uprera_id": 8824,
+      "rera_url": "https://www.up-rera.in/Frm_View_Project_Details.aspx?id=8824",
+      "lat": 26.774222,
+      "lng": 80.9146,
+      "land_area_acres": 0.94,
+      "project_cost_cr": 31.91,
+      "launch_date": "2015-12-19T00:00:00.000Z",
+      "rera_valid_until": "2018-12-31T00:00:00.000Z",
+      "escrow": {
+        "account_no": "0276104000192415",
+        "account_name": "MRIGSHIRA APARTMENT",
+        "bank_name": "IDBI Bank",
+        "branch_name": "IDBI Bank 565K/183, SNEH NAGAR ALAMBAGH,KANPUR ROAD,LUCKNOW,UTTAR PRADESH",
+        "ifsc": "IBKL0000276",
+        "verified": true
+      },
+      "professionals": {
+        "architect": "RAJESH KUMAR AGARWAL",
+        "arch_license": "CA/80/15966",
+        "structural_engineer": "OMKAR VERMA",
+        "contractor": "M/S PRATAP TRADING CO."
+      },
+      "permit": {
+        "permit_number": "26/04/2016",
+        "permit_date": "2016-04-26T00:00:00.000Z"
+      },
+      "project_type": "Ongoing",
+      "project_category": "Residential"
+    }
+  },
+  "8825": {
+    "success": false,
+    "id": 8825,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "8826": {
+    "success": false,
+    "id": 8826,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "9010": {
+    "success": false,
+    "id": 9010,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "9110": {
+    "success": false,
+    "id": 9110,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "9301": {
+    "success": false,
+    "id": 9301,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "9302": {
+    "success": false,
+    "id": 9302,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "9304": {
+    "success": false,
+    "id": 9304,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "9689": {
+    "success": true,
+    "id": 9689,
+    "status": 200,
+    "data": {
+      "uprera_id": 9689,
+      "rera_url": "https://www.up-rera.in/Frm_View_Project_Details.aspx?id=9689",
+      "lat": 28.56406,
+      "lng": 77.388595,
+      "land_area_acres": 2.34,
+      "project_cost_cr": 90.16,
+      "launch_date": "2010-06-09T00:00:00.000Z",
+      "rera_valid_until": "2018-12-31T00:00:00.000Z",
+      "escrow": {
+        "account_no": "605322410000005",
+        "account_name": "IITL NIMBUS THE HYDE PARK, PHASE-Iv (S,T &amp; U)",
+        "bank_name": "BANK OF INDIA",
+        "branch_name": "VIKAS MARG, DELHI-110092",
+        "ifsc": "BKID0006053",
+        "verified": true
+      },
+      "professionals": {
+        "architect": "M/S. NATIONAL ARCHITECTS &amp; ENGINEERS",
+        "arch_license": "CA/2006/38172",
+        "structural_engineer": "M/S. OPTIMUM DESIGN PRIVATE LIMITED",
+        "contractor": "M/S. FASTECH PROJECTS PRIVATE LIMITED"
+      },
+      "permit": {
+        "permit_number": "NOIDA/B.C/III/204/25",
+        "permit_date": "2010-08-09T00:00:00.000Z"
+      },
+      "project_type": "Ongoing",
+      "project_category": "Residential"
+    }
+  },
+  "9901": {
+    "success": false,
+    "id": 9901,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "9912": {
+    "success": false,
+    "id": 9912,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "10034": {
+    "success": false,
+    "id": 10034,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "10394": {
+    "success": true,
+    "id": 10394,
+    "status": 200,
+    "data": {
+      "uprera_id": 10394,
+      "rera_url": "https://www.up-rera.in/Frm_View_Project_Details.aspx?id=10394",
+      "lat": 28.579167,
+      "lng": 77.384722,
+      "land_area_acres": 4.94,
+      "project_cost_cr": 240,
+      "launch_date": "2014-01-03T00:00:00.000Z",
+      "rera_valid_until": "2019-05-01T00:00:00.000Z",
+      "escrow": {
+        "account_no": "128211031124",
+        "account_name": "Apex Dream Homes Private Limited",
+        "bank_name": "Dena bank",
+        "branch_name": "Mayur Vihar",
+        "ifsc": "BKDN0711282",
+        "verified": true
+      },
+      "professionals": {
+        "architect": "ANDLEYS ASSOCIATES PVT LTD",
+        "arch_license": "CA/99/24866",
+        "structural_engineer": "Maqsood Alam",
+        "contractor": "ADITYA ASSOCIATES"
+      },
+      "permit": {
+        "permit_number": "961",
+        "permit_date": "2017-03-03T00:00:00.000Z"
+      },
+      "project_type": "Ongoing",
+      "project_category": "Residential"
+    }
+  },
+  "10635": {
+    "success": true,
+    "id": 10635,
+    "status": 200,
+    "data": {
+      "uprera_id": 10635,
+      "rera_url": "https://www.up-rera.in/Frm_View_Project_Details.aspx?id=10635",
+      "lat": 28.571896,
+      "lng": 77.380164,
+      "land_area_acres": 2.1,
+      "project_cost_cr": 132,
+      "launch_date": "2017-06-06T00:00:00.000Z",
+      "rera_valid_until": "2017-12-31T00:00:00.000Z",
+      "escrow": {
+        "account_no": "1592864000062",
+        "account_name": "AIMS RG ANGEL PROMOTERS PRIVATE LIMITED",
+        "bank_name": "HDFC Bank",
+        "branch_name": "Sector 18",
+        "ifsc": "HDFC0001592",
+        "verified": true
+      },
+      "professionals": {
+        "architect": "Gian P. Mathur &amp; Associates",
+        "arch_license": "CA/80/5769",
+        "structural_engineer": "Abha",
+        "contractor": null
+      },
+      "permit": {
+        "permit_number": "1003",
+        "permit_date": "2017-06-06T00:00:00.000Z"
+      },
+      "project_type": "Ongoing",
+      "project_category": "Residential"
+    }
+  },
+  "10702": {
+    "success": false,
+    "id": 10702,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "10704": {
+    "success": false,
+    "id": 10704,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "10873": {
+    "success": false,
+    "id": 10873,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "10874": {
+    "success": false,
+    "id": 10874,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "10875": {
+    "success": false,
+    "id": 10875,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "11023": {
+    "success": true,
+    "id": 11023,
+    "status": 200,
+    "data": {
+      "uprera_id": 11023,
+      "rera_url": "https://www.up-rera.in/Frm_View_Project_Details.aspx?id=11023",
+      "lat": 28572425,
+      "lng": 37383271,
+      "land_area_acres": 2.68,
+      "project_cost_cr": 162,
+      "launch_date": "2012-03-05T00:00:00.000Z",
+      "rera_valid_until": "2021-01-30T00:00:00.000Z",
+      "escrow": {
+        "account_no": "125505000153",
+        "account_name": "GARDENIA INDIA LTD.",
+        "bank_name": "ICICI BANK LTD.",
+        "branch_name": "VASUNDHARA, GHAZIABAD",
+        "ifsc": "ICIC0001255",
+        "verified": true
+      },
+      "professionals": {
+        "architect": "DEEPAK MEHTA &amp; ASSOCIATES",
+        "arch_license": "COA/87/10840",
+        "structural_engineer": "KEEN ASSOCIATES PVT. LTD.",
+        "contractor": null
+      },
+      "permit": {
+        "permit_number": "Noida/III 223/460",
+        "permit_date": "2011-10-12T00:00:00.000Z"
+      },
+      "project_type": "Ongoing",
+      "project_category": "Residential"
+    }
+  },
+  "11234": {
+    "success": false,
+    "id": 11234,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "11481": {
+    "success": true,
+    "id": 11481,
+    "status": 200,
+    "data": {
+      "uprera_id": 11481,
+      "rera_url": "https://www.up-rera.in/Frm_View_Project_Details.aspx?id=11481",
+      "lat": 283231,
+      "lng": 772215,
+      "land_area_acres": 3.05,
+      "project_cost_cr": 191.51,
+      "launch_date": "2012-03-05T00:00:00.000Z",
+      "rera_valid_until": "2020-03-05T00:00:00.000Z",
+      "escrow": {
+        "account_no": "628405019774",
+        "account_name": "AIMS MAX GARDENIA DEVELOPERS PRIVATE LIMITED",
+        "bank_name": "ICICI BANK",
+        "branch_name": "ICICI BANK SECTOR 50 NOIDA",
+        "ifsc": "ICIC0006284",
+        "verified": true
+      },
+      "professionals": {
+        "architect": "DEEPAK MEHTA",
+        "arch_license": "CA/87/10840",
+        "structural_engineer": "Mr. Sadanand",
+        "contractor": null
+      },
+      "permit": {
+        "permit_number": "NOIDA/CAP/III-215/310",
+        "permit_date": "2010-11-03T00:00:00.000Z"
+      },
+      "project_type": "Ongoing",
+      "project_category": "Residential"
+    }
+  },
+  "11485": {
+    "success": true,
+    "id": 11485,
+    "status": 200,
+    "data": {
+      "uprera_id": 11485,
+      "rera_url": "https://www.up-rera.in/Frm_View_Project_Details.aspx?id=11485",
+      "lat": 283231,
+      "lng": 772215,
+      "land_area_acres": 1.14,
+      "project_cost_cr": 74.13,
+      "launch_date": "2012-03-05T00:00:00.000Z",
+      "rera_valid_until": "2020-03-05T00:00:00.000Z",
+      "escrow": {
+        "account_no": "628405019745",
+        "account_name": "AIMS MAX GARDENIA DEVELOPERS PRIVATE LIMITED",
+        "bank_name": "ICICI BANK",
+        "branch_name": "ICICI BANK SECTOR 50 NOIDA",
+        "ifsc": "ICIC0006284",
+        "verified": true
+      },
+      "professionals": {
+        "architect": "DEEPAK MEHTA",
+        "arch_license": "CA/87/10840",
+        "structural_engineer": "Mr. Sadanand",
+        "contractor": null
+      },
+      "permit": {
+        "permit_number": "NOIDA/CAP/III-243/352",
+        "permit_date": "2011-03-04T00:00:00.000Z"
+      },
+      "project_type": "Ongoing",
+      "project_category": "Residential"
+    }
+  },
+  "11625": {
+    "success": true,
+    "id": 11625,
+    "status": 200,
+    "data": {
+      "uprera_id": 11625,
+      "rera_url": "https://www.up-rera.in/Frm_View_Project_Details.aspx?id=11625",
+      "lat": 282936.63,
+      "lng": 772422.34,
+      "land_area_acres": 2.71,
+      "project_cost_cr": 479,
+      "launch_date": "2017-01-20T00:00:00.000Z",
+      "rera_valid_until": "2030-01-23T00:00:00.000Z",
+      "escrow": {
+        "account_no": null,
+        "account_name": null,
+        "bank_name": null,
+        "branch_name": null,
+        "ifsc": null,
+        "verified": false
+      },
+      "professionals": {
+        "architect": "R.N. Gupta &amp; Associates",
+        "arch_license": "CA/76/2361",
+        "structural_engineer": "CE. CON. Engg.",
+        "contractor": null
+      },
+      "permit": {
+        "permit_number": "NOIDA/MU VA NI/III-268/954",
+        "permit_date": "2017-01-20T00:00:00.000Z"
+      },
+      "project_type": "Ongoing",
+      "project_category": "Residential"
+    }
+  },
+  "12808": {
+    "success": false,
+    "id": 12808,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "12814": {
+    "success": false,
+    "id": 12814,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "13521": {
+    "success": true,
+    "id": 13521,
+    "status": 200,
+    "data": {
+      "uprera_id": 13521,
+      "rera_url": "https://www.up-rera.in/Frm_View_Project_Details.aspx?id=13521",
+      "lat": 28.420189,
+      "lng": 77.493981,
+      "land_area_acres": 6.56,
+      "project_cost_cr": 422.19,
+      "launch_date": "2018-04-01T00:00:00.000Z",
+      "rera_valid_until": "2024-09-30T00:00:00.000Z",
+      "escrow": {
+        "account_no": "251100202001",
+        "account_name": "BRICK RISE DEVELOPERS PVT. LTD",
+        "bank_name": "INDUSLND BANK LTD",
+        "branch_name": "GOPAL DAS BHAWAN 28 BARAH KHAMBHA ROAD NEW DELHI",
+        "ifsc": "INDB0000005",
+        "verified": true
+      },
+      "professionals": {
+        "architect": "Arcop Associates. Pvt. Ltd.",
+        "arch_license": "CA/2001/27447",
+        "structural_engineer": "TPC Technical Projects Consultants Pvt. ltd.",
+        "contractor": null
+      },
+      "permit": {
+        "permit_number": "1) Master Plan No. IV/1451/950 dated 17.01.2017 2)Building Plan No. IV/1490/929 dated 30.09.2016",
+        "permit_date": "2017-01-17T00:00:00.000Z"
+      },
+      "project_type": "New",
+      "project_category": "Residential"
+    }
+  },
+  "13702": {
+    "success": false,
+    "id": 13702,
+    "timeout": true
+  },
+  "13708": {
+    "success": true,
+    "id": 13708,
+    "status": 200,
+    "data": {
+      "uprera_id": 13708,
+      "rera_url": "https://www.up-rera.in/Frm_View_Project_Details.aspx?id=13708",
+      "lat": 29.0471,
+      "lng": 77.7058,
+      "land_area_acres": 1.77,
+      "project_cost_cr": 6,
+      "launch_date": "2011-12-17T00:00:00.000Z",
+      "rera_valid_until": "2016-12-16T00:00:00.000Z",
+      "escrow": {
+        "account_no": "3698002100028081",
+        "account_name": "METRO INFRASTRUCTURES",
+        "bank_name": "PUNJAB NATIONAL BANK",
+        "branch_name": "BEGUM BRIDGE",
+        "ifsc": "PUNB0369800",
+        "verified": true
+      },
+      "professionals": {
+        "architect": "SHRI ANKUR BANSAL",
+        "arch_license": "CA/2003/30670",
+        "structural_engineer": "0",
+        "contractor": null
+      },
+      "permit": {
+        "permit_number": "35/2011",
+        "permit_date": "2011-12-17T00:00:00.000Z"
+      },
+      "project_type": "Ongoing",
+      "project_category": "Residential"
+    }
+  },
+  "13712": {
+    "success": false,
+    "id": 13712,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "14831": {
+    "success": true,
+    "id": 14831,
+    "status": 200,
+    "data": {
+      "uprera_id": 14831,
+      "rera_url": "https://www.up-rera.in/Frm_View_Project_Details.aspx?id=14831",
+      "lat": 25.447154,
+      "lng": 81.754261,
+      "land_area_acres": 7.15,
+      "project_cost_cr": 120,
+      "launch_date": "2018-01-01T00:00:00.000Z",
+      "rera_valid_until": "2023-06-30T00:00:00.000Z",
+      "escrow": {
+        "account_no": "HDFC0000226",
+        "account_name": "PARAS GREENS",
+        "bank_name": "HDFC BANK",
+        "branch_name": "CIVIL LINES, ALLAHABAD",
+        "ifsc": "HDFC0000226",
+        "verified": true
+      },
+      "professionals": {
+        "architect": "SHIVARPIT KATOCH",
+        "arch_license": "CA/99/25542",
+        "structural_engineer": "REWATI RAMAN SINGH",
+        "contractor": "DINABANDHU SHAW"
+      },
+      "permit": {
+        "permit_number": "117 / PRA.AA.(TA.SA.-2) / ZONE-1 / GRU.HA. / 2014-15",
+        "permit_date": "2018-01-01T00:00:00.000Z"
+      },
+      "project_type": "New",
+      "project_category": "Residential"
+    }
+  },
+  "14980": {
+    "success": true,
+    "id": 14980,
+    "status": 200,
+    "data": {
+      "uprera_id": 14980,
+      "rera_url": "https://www.up-rera.in/Frm_View_Project_Details.aspx?id=14980",
+      "lat": 28.519908,
+      "lng": 77.360749,
+      "land_area_acres": 2.7,
+      "project_cost_cr": 735.37,
+      "launch_date": "2017-09-01T00:00:00.000Z",
+      "rera_valid_until": "2025-06-28T00:00:00.000Z",
+      "escrow": {
+        "account_no": null,
+        "account_name": null,
+        "bank_name": null,
+        "branch_name": null,
+        "ifsc": null,
+        "verified": false
+      },
+      "professionals": {
+        "architect": "Liaison Architect - Rajiv Goel ( R N Gupta &amp; Associates) &amp; Design Architect – Rajinder Kumar (Rajinder Kumar &amp; Associates)",
+        "arch_license": "CA/76/2361 &amp; CA/75/2490",
+        "structural_engineer": "Optimal Consultancy Services Pvt Ltd",
+        "contractor": "JMC Projects India Limited"
+      },
+      "permit": {
+        "permit_number": "Noida/CAP/2017/III-297/987",
+        "permit_date": "2017-07-28T00:00:00.000Z"
+      },
+      "project_type": "New",
+      "project_category": "Residential"
+    }
+  },
+  "15181": {
+    "success": false,
+    "id": 15181,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "15456": {
+    "success": false,
+    "id": 15456,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "15574": {
+    "success": true,
+    "id": 15574,
+    "status": 200,
+    "data": {
+      "uprera_id": 15574,
+      "rera_url": "https://www.up-rera.in/Frm_View_Project_Details.aspx?id=15574",
+      "lat": 28.567175,
+      "lng": 77.476674,
+      "land_area_acres": 8.59,
+      "project_cost_cr": 594.12,
+      "launch_date": "2018-05-01T00:00:00.000Z",
+      "rera_valid_until": "2025-10-29T00:00:00.000Z",
+      "escrow": {
+        "account_no": "070166300000013",
+        "account_name": "Shridhara Infratech Pvt Ltd Rera A/C",
+        "bank_name": "YES BANK",
+        "branch_name": "YES BANK Ground Floor, Plot No B-I/68, Sec-50, Noida",
+        "ifsc": "YESB0000085",
+        "verified": true
+      },
+      "professionals": {
+        "architect": "MANISH KUMAR GUPTA",
+        "arch_license": "CA/2005/35549",
+        "structural_engineer": "KAMAL SABHARWAL",
+        "contractor": null
+      },
+      "permit": {
+        "permit_number": "PLG/(BP)3574/2023",
+        "permit_date": "2018-03-23T00:00:00.000Z"
+      },
+      "project_type": "New",
+      "project_category": "Residential"
+    }
+  },
+  "15792": {
+    "success": true,
+    "id": 15792,
+    "status": 200,
+    "data": {
+      "uprera_id": 15792,
+      "rera_url": "https://www.up-rera.in/Frm_View_Project_Details.aspx?id=15792",
+      "lat": 28.572091,
+      "lng": 77.481905,
+      "land_area_acres": 5,
+      "project_cost_cr": 243,
+      "launch_date": "2018-04-18T00:00:00.000Z",
+      "rera_valid_until": "2026-05-18T00:00:00.000Z",
+      "escrow": {
+        "account_no": null,
+        "account_name": null,
+        "bank_name": null,
+        "branch_name": null,
+        "ifsc": null,
+        "verified": false
+      },
+      "professionals": {
+        "architect": "DEEPAK MEHTA",
+        "arch_license": "COA/87/10840",
+        "structural_engineer": "V. D. SHARMA",
+        "contractor": "SHAKYA SUPER CONSTRUCTION PVT. LTD."
+      },
+      "permit": {
+        "permit_number": "PLG/BP3719/FTSNO7759",
+        "permit_date": "2017-11-17T00:00:00.000Z"
+      },
+      "project_type": "New",
+      "project_category": "Residential"
+    }
+  },
+  "16801": {
+    "success": false,
+    "id": 16801,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "17861": {
+    "success": true,
+    "id": 17861,
+    "status": 200,
+    "data": {
+      "uprera_id": 17861,
+      "rera_url": "https://www.up-rera.in/Frm_View_Project_Details.aspx?id=17861",
+      "lat": 28.420189,
+      "lng": 77.493981,
+      "land_area_acres": 6.52,
+      "project_cost_cr": 367.98,
+      "launch_date": "2019-01-01T00:00:00.000Z",
+      "rera_valid_until": "2025-09-28T00:00:00.000Z",
+      "escrow": {
+        "account_no": "250000001502",
+        "account_name": "Brick Rise Developers Pvt. Ltd.",
+        "bank_name": "IndusInd Bank Ltd",
+        "branch_name": "Gurgaon",
+        "ifsc": "INDB0000724",
+        "verified": true
+      },
+      "professionals": {
+        "architect": "Arcop Associates. Pvt. Ltd.",
+        "arch_license": "CA/2001/27447",
+        "structural_engineer": "TPC Technical Projects Consultants Pvt. ltd",
+        "contractor": "Contractor to be decided"
+      },
+      "permit": {
+        "permit_number": null,
+        "permit_date": null
+      },
+      "project_type": "New",
+      "project_category": "Residential"
+    }
+  },
+  "76123": {
+    "success": false,
+    "id": 76123,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "76124": {
+    "success": false,
+    "id": 76124,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "76125": {
+    "success": false,
+    "id": 76125,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "76126": {
+    "success": false,
+    "id": 76126,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "76127": {
+    "success": false,
+    "id": 76127,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "76128": {
+    "success": false,
+    "id": 76128,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "76129": {
+    "success": false,
+    "id": 76129,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "76130": {
+    "success": false,
+    "id": 76130,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "76131": {
+    "success": false,
+    "id": 76131,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "77102": {
+    "success": false,
+    "id": 77102,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "77104": {
+    "success": false,
+    "id": 77104,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "77105": {
+    "success": false,
+    "id": 77105,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "77106": {
+    "success": false,
+    "id": 77106,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "77107": {
+    "success": false,
+    "id": 77107,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "77108": {
+    "success": false,
+    "id": 77108,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "78103": {
+    "success": false,
+    "id": 78103,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "78104": {
+    "success": false,
+    "id": 78104,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "78106": {
+    "success": false,
+    "id": 78106,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "78107": {
+    "success": false,
+    "id": 78107,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "78108": {
+    "success": false,
+    "id": 78108,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "78109": {
+    "success": false,
+    "id": 78109,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "79102": {
+    "success": false,
+    "id": 79102,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "79103": {
+    "success": false,
+    "id": 79103,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "79104": {
+    "success": false,
+    "id": 79104,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "79105": {
+    "success": false,
+    "id": 79105,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "79108": {
+    "success": false,
+    "id": 79108,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "79109": {
+    "success": false,
+    "id": 79109,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "79110": {
+    "success": false,
+    "id": 79110,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "79111": {
+    "success": false,
+    "id": 79111,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "79112": {
+    "success": false,
+    "id": 79112,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "79114": {
+    "success": false,
+    "id": 79114,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "79115": {
+    "success": false,
+    "id": 79115,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "120088": {
+    "success": false,
+    "id": 120088,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "123789": {
+    "success": false,
+    "id": 123789,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "124816": {
+    "success": false,
+    "id": 124816,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "125342": {
+    "success": false,
+    "id": 125342,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "125561": {
+    "success": false,
+    "id": 125561,
+    "timeout": true
+  },
+  "136219": {
+    "success": false,
+    "id": 136219,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "145318": {
+    "success": false,
+    "id": 145318,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "145736": {
+    "success": false,
+    "id": 145736,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "155408": {
+    "success": false,
+    "id": 155408,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "183246": {
+    "success": false,
+    "id": 183246,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "202227": {
+    "success": false,
+    "id": 202227,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "229234": {
+    "success": false,
+    "id": 229234,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "250823": {
+    "success": false,
+    "id": 250823,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "265789": {
+    "success": false,
+    "id": 265789,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "283531": {
+    "success": false,
+    "id": 283531,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "283534": {
+    "success": false,
+    "id": 283534,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "284035": {
+    "success": false,
+    "id": 284035,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "288309": {
+    "success": false,
+    "id": 288309,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "303390": {
+    "success": false,
+    "id": 303390,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "303620": {
+    "success": false,
+    "id": 303620,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "308567": {
+    "success": false,
+    "id": 308567,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "345678": {
+    "success": false,
+    "id": 345678,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "379836": {
+    "success": false,
+    "id": 379836,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "396176": {
+    "success": false,
+    "id": 396176,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "417134": {
+    "success": false,
+    "id": 417134,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "417136": {
+    "success": false,
+    "id": 417136,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "417137": {
+    "success": false,
+    "id": 417137,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "446459": {
+    "success": false,
+    "id": 446459,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "498423": {
+    "success": false,
+    "id": 498423,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "503189": {
+    "success": false,
+    "id": 503189,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "512436": {
+    "success": false,
+    "id": 512436,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "521882": {
+    "success": false,
+    "id": 521882,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "528653": {
+    "success": false,
+    "id": 528653,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "542943": {
+    "success": false,
+    "id": 542943,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "582373": {
+    "success": false,
+    "id": 582373,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "591510": {
+    "success": false,
+    "id": 591510,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "600767": {
+    "success": false,
+    "id": 600767,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "613747": {
+    "success": false,
+    "id": 613747,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "637123": {
+    "success": false,
+    "id": 637123,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "642190": {
+    "success": false,
+    "id": 642190,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "646272": {
+    "success": false,
+    "id": 646272,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "677887": {
+    "success": false,
+    "id": 677887,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "683816": {
+    "success": false,
+    "id": 683816,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "686395": {
+    "success": false,
+    "id": 686395,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "707952": {
+    "success": false,
+    "id": 707952,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "710489": {
+    "success": false,
+    "id": 710489,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "721094": {
+    "success": false,
+    "id": 721094,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "723911": {
+    "success": false,
+    "id": 723911,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "724518": {
+    "success": false,
+    "id": 724518,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "742692": {
+    "success": false,
+    "id": 742692,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "746615": {
+    "success": false,
+    "id": 746615,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "746863": {
+    "success": false,
+    "id": 746863,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "794678": {
+    "success": false,
+    "id": 794678,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "825497": {
+    "success": false,
+    "id": 825497,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "834521": {
+    "success": false,
+    "id": 834521,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "837374": {
+    "success": false,
+    "id": 837374,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "852370": {
+    "success": false,
+    "id": 852370,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "872145": {
+    "success": false,
+    "id": 872145,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "882190": {
+    "success": false,
+    "id": 882190,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "882205": {
+    "success": false,
+    "id": 882205,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "882215": {
+    "success": false,
+    "id": 882215,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "882230": {
+    "success": false,
+    "id": 882230,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "885615": {
+    "success": false,
+    "id": 885615,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "916631": {
+    "success": false,
+    "id": 916631,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "921261": {
+    "success": false,
+    "id": 921261,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "941203": {
+    "success": false,
+    "id": 941203,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "954073": {
+    "success": false,
+    "id": 954073,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "958386": {
+    "success": false,
+    "id": 958386,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "974543": {
+    "success": false,
+    "id": 974543,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "987654": {
+    "success": false,
+    "id": 987654,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "999197": {
+    "success": false,
+    "id": 999197,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  },
+  "999198": {
+    "success": false,
+    "id": 999198,
+    "status": 302,
+    "location": "/servermaintenance.aspx?aspxerrorpath=/Frm_View_Project_Details.aspx"
+  }
+}

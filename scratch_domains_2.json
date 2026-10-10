@@ -1,0 +1,227 @@
+[
+  {
+    "name": "reracheck",
+    "com": false,
+    "in": false
+  },
+  {
+    "name": "rerasafe",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "reratruth",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "reraguard",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "rerainspect",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "acreproof",
+    "com": false,
+    "in": true
+  },
+  {
+    "name": "acrecheck",
+    "com": false,
+    "in": true
+  },
+  {
+    "name": "acreclarity",
+    "com": false,
+    "in": true
+  },
+  {
+    "name": "acretrust",
+    "com": false,
+    "in": true
+  },
+  {
+    "name": "acrecert",
+    "com": false,
+    "in": true
+  },
+  {
+    "name": "zameensure",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "zameenproof",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "zameenpatra",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "zameenshield",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "zameenclarity",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "gharsure",
+    "com": false,
+    "in": true
+  },
+  {
+    "name": "gharproof",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "gharverify",
+    "com": false,
+    "in": true
+  },
+  {
+    "name": "gharsach",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "gharaudit",
+    "com": false,
+    "in": false
+  },
+  {
+    "name": "propvet",
+    "com": false,
+    "in": true
+  },
+  {
+    "name": "propcert",
+    "com": false,
+    "in": true
+  },
+  {
+    "name": "proptrue",
+    "com": false,
+    "in": false
+  },
+  {
+    "name": "propclear",
+    "com": false,
+    "in": false
+  },
+  {
+    "name": "propdetect",
+    "com": false,
+    "in": true
+  },
+  {
+    "name": "niveshsure",
+    "com": false,
+    "in": false
+  },
+  {
+    "name": "niveshsach",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "niveshshield",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "niveshguard",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "niveshpatra",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "vastusure",
+    "com": false,
+    "in": false
+  },
+  {
+    "name": "khasrasure",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "patrasure",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "satyaacre",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "satyaghar",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "satyaawash",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "shuddhacre",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "shuddhghar",
+    "com": false,
+    "in": true
+  },
+  {
+    "name": "pakkasampatti",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "sachsampatti",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "sampattisure",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "sampattisach",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "tathyaacre",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "tathyaghar",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "tathyam",
+    "com": false,
+    "in": false
+  }
+]

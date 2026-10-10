@@ -24,6 +24,10 @@ const LAKH_PATTERN = /₹\s*(\d+(?:\.\d+)?)\s*(?:Lakh|Lakhs|lakh|lakhs|Lac|Lacs|
 // ₹14,500/sqft, ₹12,000 per sq ft
 const SQFT_RATE_PATTERN = /₹\s*(\d{1,2}(?:,\d{3})+|\d{4,6})\s*(?:\/|\s*per\s*)(?:sq\.?\s*ft|sqft|sft)\b/gi
 
+// 7%, 8.5 %, 20 percent — excludes a leading "+"/"-" so a delta like "+1.5%" in
+// a table the buyer already trusts (rate shock, FOIR) isn't treated as a fresh claim.
+const PERCENTAGE_PATTERN = /(?<![+\-\d.])\b(\d{1,3}(?:\.\d+)?)\s*(?:%|percent\b)/gi
+
 /**
  * Common statutory, banking, and standard benchmark numbers that are universally
  * valid across Indian and UP real estate and must never be falsely flagged:
@@ -156,6 +160,32 @@ export function verifyPriceProvenance(text: string, prompt: string, userMessage?
     violations.push({
       kind: 'fabrication',
       detail: `quoted rate "${asWritten}", which never appeared in prompt facts`,
+    })
+  }
+
+  // 4. Check percentages (e.g., 8.5%, 20 percent) — stamp duty, GST, interest
+  // rates, FOIR, down payment, carpet efficiency and the like.
+  for (const m of text.matchAll(PERCENTAGE_PATTERN)) {
+    const asWritten = m[0]
+    const rawVal = m[1]
+    const norm = normalizeNumeric(rawVal)
+
+    if (STATUTORY_ALLOWED_PERCENTAGES.has(norm)) continue
+    if (promptNumbers.has(norm) || promptLower.includes(asWritten.toLowerCase())) continue
+
+    // A labelled market assumption is not a fabrication — it already discloses
+    // it is not project-specific.
+    const idx = text.indexOf(asWritten)
+    if (idx >= 0) {
+      const windowAfter = text.slice(idx, idx + asWritten.length + 100).toLowerCase()
+      if (windowAfter.includes('typical') || windowAfter.includes('market average') || windowAfter.includes('estimated') || windowAfter.includes('assumed') || windowAfter.includes('not verified for this project')) {
+        continue
+      }
+    }
+
+    violations.push({
+      kind: 'fabrication',
+      detail: `quoted percentage "${asWritten}", which never appeared in prompt facts and is not a labelled market assumption`,
     })
   }
 

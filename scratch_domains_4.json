@@ -1,0 +1,102 @@
+[
+  {
+    "name": "titletruth",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "truthplot",
+    "com": false,
+    "in": true
+  },
+  {
+    "name": "auditplot",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "clearkhasra",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "purekhasra",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "safekhasra",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "satyaaudit",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "suredeed",
+    "com": false,
+    "in": false
+  },
+  {
+    "name": "deedsure",
+    "com": false,
+    "in": false
+  },
+  {
+    "name": "deedcheck",
+    "com": false,
+    "in": false
+  },
+  {
+    "name": "deedproof",
+    "com": false,
+    "in": true
+  },
+  {
+    "name": "floorclarity",
+    "com": false,
+    "in": true
+  },
+  {
+    "name": "trustkhasra",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "khasracheck",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "khasraproof",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "zameenfyi",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "gharfyi",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "propfyi",
+    "com": false,
+    "in": true
+  },
+  {
+    "name": "zameenscope",
+    "com": true,
+    "in": true
+  },
+  {
+    "name": "gharscope",
+    "com": true,
+    "in": true
+  }
+]
