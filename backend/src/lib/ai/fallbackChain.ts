@@ -924,12 +924,14 @@ export async function executeWithFallbackChain(options: FallbackChainOptions): P
         // very phrase the scan exists to catch.
         const violations = await checkAnswerIntegrity(text, effectivePrompt, options.userMessage)
         if (violations.length > 0) {
+          rootTrace?.score({ name: 'answer_integrity', value: 0, comment: violations[0].kind + ': ' + violations[0].detail })
           console.warn(
             `[FALLBACK:INTEGRITY] ${item.label} — discarding: ` +
             violations.map(v => `${v.kind}(${v.detail})`).join(', '),
           )
           throw new Error(`${item.label} failed integrity: ${violations[0].kind} — ${violations[0].detail}`)
         }
+        rootTrace?.score({ name: 'answer_integrity', value: 1 })
         const framed = rewriteFraming(text)
         if (framed.rewrites > 0) {
           console.log(`[FALLBACK:REFRAMED] ${item.label} — ${framed.rewrites} house-style phrase(s) rewritten`)
