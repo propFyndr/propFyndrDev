@@ -14,6 +14,7 @@ import { attributeCallbackToPromotional } from '../lib/promotionalAttribution'
 import { buildLeadDossier } from '../lib/leadDossier'
 import { analyzeGhostPoolByProject } from '../lib/ghostPool'
 import { analyzeProjectDemand, getDemandSnapshot } from '../lib/demandIntelligence'
+import { trackEvent } from '../lib/monitoring/posthog'
 
 const router = Router()
 
@@ -269,6 +270,21 @@ router.post('/callback', async (req: Request, res: Response) => {
 
   // Not the row. It carries lead_score, lead_tier, ai_summary, guest_token and
   // user_id — internal qualification the buyer must never read back.
+  // PostHog, alongside the DB-only trackConversion call above: that one feeds
+  // ChatAnalytics for our own funnel queries, this is the high-intent event
+  // CLAUDE.md's Lead Qualification section names, so a PostHog funnel/cohort
+  // can be built around it too. No PII in the properties -- name/phone stay
+  // out of PostHog the same way they stay out of the buyer-facing response.
+  trackEvent(userId ?? guestToken ?? null, 'callback_requested', {
+    project_id: project?.id ?? null,
+    project_slug: finalProjectSlug ?? null,
+    sector: projectSector,
+    intent_tier: intent_tier ?? null,
+    loan_pre_approved: loanPreApproved,
+    lead_score: score,
+    lead_tier: tier,
+  })
+
   res.status(201).json({ success: true, callback_id: cb.id })
 })
 
@@ -427,6 +443,15 @@ router.post('/site-visit', async (req: Request, res: Response) => {
     chat_session_id: resolvedSessionId ?? null,
     created_at: sv.created_at.toISOString(),
   }).catch((e) => console.error('[leads] webhook failed:', e))
+
+  trackEvent(userId ?? guestToken ?? null, 'site_visit_requested', {
+    project_id: project.id,
+    project_slug: projectSlug,
+    sector: project.sector,
+    lead_score: svScore,
+    lead_tier: svTier,
+    loan_pre_approved: svProfile.loan_pre_approved ?? false,
+  })
 
   res.status(201).json({ success: true, site_visit_id: sv.id })
 })
