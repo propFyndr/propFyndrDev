@@ -3,64 +3,10 @@
 import { useState, useEffect, useMemo } from 'react'
 import Image from 'next/image'
 import { m } from 'framer-motion'
-import { Trophy, TrendingUp, ShieldCheck, Users, Zap, ChevronDown, IndianRupee, Trees, HeartHandshake, Star } from 'lucide-react'
-import { Building2, BadgeCheck } from 'lucide-react'
+import { TrendingUp, Users, Zap, ChevronDown, IndianRupee, HeartHandshake, Building2 } from 'lucide-react'
 import type { ProjectCard, ProjectDetail } from '@/types/project'
 import { API_BASE } from '@/lib/env'
 import { usePreferredImages } from '@/lib/hooks'
-
-// ── Tier configuration ────────────────────────────────────────────────────────
-
-const TIER_ORDER: Record<string, number> = {
-  STRONG_BUY: 5, BUY: 4, HOLD: 3, WATCH: 2, AVOID: 1,
-}
-
-const TIER_CFG: Record<string, {
-  label: string
-  dot: string
-  chipCls: string       // for tier badges on cards/headers
-  borderCls: string     // for winner card ring
-}> = {
-  STRONG_BUY: {
-    label: 'STRONG BUY',
-    dot: 'bg-[#0064E5]',
-    chipCls: 'bg-[#0064E5] text-white',
-    borderCls: 'ring-2 ring-[#0064E5]/30 border-[#0064E5]/40 dark:border-[#0064E5]/50',
-  },
-  BUY: {
-    label: 'BUY',
-    dot: 'bg-emerald-500',
-    chipCls: 'bg-emerald-600 text-white',
-    borderCls: 'ring-1 ring-emerald-400/30 border-emerald-300 dark:border-emerald-700',
-  },
-  HOLD: {
-    label: 'CONSIDER',
-    dot: 'bg-amber-400',
-    chipCls: 'bg-amber-500 text-white',
-    borderCls: 'border-amber-300 dark:border-amber-700',
-  },
-  WATCH: {
-    label: 'WATCH',
-    dot: 'bg-orange-500',
-    chipCls: 'bg-orange-500 text-white',
-    borderCls: 'border-orange-300 dark:border-orange-700',
-  },
-  AVOID: {
-    label: 'AVOID',
-    dot: 'bg-red-500',
-    chipCls: 'bg-red-600 text-white',
-    borderCls: 'border-red-300 dark:border-red-700',
-  },
-}
-
-const PERSONA_LABEL: Record<string, string> = {
-  FAMILY: 'Family',
-  PROFESSIONAL: 'Professional',
-  INVESTOR: 'Investor',
-  NRI: '✈️ NRI',
-  UPGRADER: 'Upgrader',
-  RETIREE: 'Retiree',
-}
 
 // ── Data helpers ──────────────────────────────────────────────────────────────
 
@@ -75,62 +21,6 @@ interface IntelligenceData {
     demographic_tags?: string[]
     sentiment_summary?: string | null
   }
-}
-
-function starsCount(label: string | null | undefined): number {
-  if (!label) return 0
-  const l = label.toLowerCase()
-  if (
-    l.includes('market leader') || l.includes('outstanding') ||
-    l.includes('excellent') || l.includes('very high') || l.includes('top tier')
-  ) return 5
-  if (
-    l.includes('strong') || l.includes('established') ||
-    l.includes('high') || l.includes('above average')
-  ) return 4
-  if (
-    l.includes('growing') || l.includes('average') ||
-    l.includes('moderate') || l.includes('mid')
-  ) return 3
-  if (
-    l.includes('emerging') || l.includes('limited') ||
-    l.includes('below') || l.includes('developing')
-  ) return 2
-  if (
-    l.includes('poor') || l.includes('concern') ||
-    l.includes('weak') || l.includes('low')
-  ) return 1
-  return 3
-}
-
-function StarRow({ count, size = 'md' }: { count: number; size?: 'sm' | 'md' }) {
-  const full = Math.max(0, Math.min(5, count))
-  const iconSize = size === 'sm' ? 12 : 14
-  return (
-    <span className="inline-flex items-center gap-0.5">
-      {Array.from({ length: 5 }).map((_, i) => (
-        <Star
-          key={i}
-          size={iconSize}
-          className={i < full ? 'fill-amber-400 text-amber-400' : 'fill-slate-200 text-slate-200 dark:fill-zinc-800 dark:text-zinc-800'}
-        />
-      ))}
-    </span>
-  )
-}
-
-function deriveRisk(d: ProjectDetail | null): 'Low' | 'Medium' | 'High' {
-  const tier = d?.recommendation_profile?.tier
-  if (tier === 'AVOID' || tier === 'WATCH') return 'High'
-  if (tier === 'STRONG_BUY' || tier === 'BUY') {
-    const cert = d?.dna?.possession_certainty_label?.toLowerCase() ?? ''
-    if (cert.includes('risk') || cert.includes('concern') || cert.includes('low')) return 'Medium'
-    return 'Low'
-  }
-  const cert = d?.dna?.possession_certainty_label?.toLowerCase() ?? ''
-  if (cert.includes('high') || cert.includes('certain') || cert.includes('strong')) return 'Low'
-  if (cert.includes('low') || cert.includes('risk') || cert.includes('concern')) return 'High'
-  return 'Medium'
 }
 
 // ── Render helpers ────────────────────────────────────────────────────────────
@@ -171,45 +61,13 @@ function formatArea(d: ProjectDetail | null): React.ReactNode {
   )
 }
 
-function renderAdvantages(d: ProjectDetail | null): React.ReactNode {
-  const builder = d?.dna?.builder_track_record_label
-  const rera = d?.dna?.rera_compliance_label
-  const risk = deriveRisk(d)
-  const chips: React.ReactNode[] = []
-  if (builder) {
-    chips.push(
-      <span key="builder" className="inline-flex items-center gap-1 text-emerald-600">
-        <Trophy size={12} /> {builder}
-      </span>,
-    )
-  }
-  if (rera) {
-    chips.push(
-      <span key="rera" className="inline-flex items-center gap-1 text-amber-600">
-        <ShieldCheck size={12} /> {rera}
-      </span>,
-    )
-  }
-  return <div className="flex flex-col gap-1">{chips}</div>
-}
-
 function renderCons(d: ProjectDetail | null): string {
   const reasons = d?.decision_profile?.why_avoid ?? []
   if (reasons.length === 0) return '—'
   return reasons.slice(0, 2).join(', ')
 }
 
-// Original risk order
-const RISK_ORDER: Record<string, number> = { Low: 3, Medium: 2, High: 1 }
-
 const MATRIX_WHITELIST = [
-  'Advisor Rating',
-  'Builder',
-  'Delivery Risk',
-  'RERA Standing',
-  'Value',
-  'Location',
-  'Lifestyle',
   'Entry Price',
   'Possession',
   'Area',
@@ -219,7 +77,6 @@ const MATRIX_WHITELIST = [
   'UP Lifts Act 2024',
   'Drain Corridor Buffer',
   'Density / Acre',
-  'Advantages',
   'Cons',
 ];
 
@@ -228,76 +85,20 @@ function winnerIdx(scores: number[]): number[] {
   return max === 0 ? [] : scores.map((s, i) => (s === max ? i : -1)).filter(i => i >= 0)
 }
 
-function findOverallWinner(details: (ProjectDetail | null)[], projects: ProjectCard[]): number {
-  let bestIdx = 0
-  let bestScore = -1
-  details.forEach((d, i) => {
-    const tierScore = TIER_ORDER[d?.recommendation_profile?.tier ?? ''] ?? 0
-    const matchScore = projects[i].matchScore ?? 0
-    const combined = tierScore * 1000 + matchScore
-    if (combined > bestScore) { bestScore = combined; bestIdx = i }
-  })
-  return bestIdx
-}
-
+// ProjectDna and PersonaProfile are dropped (lean-schema migration, 2026-10)
+// — 'overall'/'risk'/'family'/'investor'/'luxury' categories had no signal
+// besides those two models, so only the price-based 'value' category remains.
 function categoryWinner(
   details: (ProjectDetail | null)[],
   projects: ProjectCard[],
   cat: string,
 ): number | null {
   switch (cat) {
-    case 'overall': {
-      if (!details.some(d => d?.recommendation_profile?.tier)) return null
-      return findOverallWinner(details, projects)
-    }
     case 'value': {
-      const scores = details.map(d => starsCount(d?.dna?.price_position_label))
-      const max = Math.max(...scores)
-      if (max > 0) {
-        const candidates = scores.map((s, i) => (s === max ? i : -1)).filter(i => i >= 0)
-        if (candidates.length === 1) return candidates[0]
-        const prices = candidates.map(i => projects[i].price_min_cr ?? Infinity)
-        return candidates[prices.indexOf(Math.min(...prices))]
-      }
       const prices = projects.map(p => p.price_min_cr ?? Infinity)
       const min = Math.min(...prices)
       const idx = prices.indexOf(min)
       return min < Infinity ? idx : null
-    }
-    case 'risk': {
-      const risks = details.map(d => deriveRisk(d))
-      const scores = risks.map(r => RISK_ORDER[r] ?? 0)
-      const candidates = winnerIdx(scores)
-      return candidates.length === 1 ? candidates[0] : null
-    }
-    case 'family': {
-      const scores = details.map(d => {
-        const personas = [
-          d?.persona_profile?.primary_persona,
-          ...(d?.persona_profile?.secondary_personas ?? []),
-        ]
-        return (personas.includes('FAMILY') ? 2 : 0)
-      })
-      const candidates = winnerIdx(scores)
-      return candidates.length === 1 ? candidates[0] : null
-    }
-    case 'investor': {
-      const scores = details.map(d => {
-        const personas = [
-          d?.persona_profile?.primary_persona,
-          ...(d?.persona_profile?.secondary_personas ?? []),
-        ]
-        return (personas.includes('INVESTOR') ? 2 : 0)
-      })
-      const candidates = winnerIdx(scores)
-      return candidates.length === 1 ? candidates[0] : null
-    }
-    case 'luxury': {
-      const scores = details.map(d =>
-        starsCount(d?.dna?.amenity_depth_label)
-      )
-      const candidates = winnerIdx(scores)
-      return candidates.length === 1 ? candidates[0] : null
     }
     default: return null
   }
@@ -312,92 +113,14 @@ interface MatrixRow {
   winnerLabel: string
 }
 
-function starRatingRow(
-  label: string,
-  values: (string | null | undefined)[],
-  winnerLabel: string,
-): MatrixRow {
-  const scores = values.map(l => starsCount(l))
-  return {
-    label,
-    values: values.map((l, i) => (
-      <span key={i} className="inline-flex flex-col gap-0.5">
-        <StarRow count={scores[i]} size="sm" />
-        {l && <span className="text-[9px] text-gray-500 dark:text-gray-400">{l}</span>}
-      </span>
-    )),
-    winners: winnerIdx(scores),
-    winnerLabel,
-  }
-}
-
 function buildMatrix(details: (ProjectDetail | null)[], projects: ProjectCard[]): MatrixRow[] {
   const rows: MatrixRow[] = []
 
-  // Advisor Rating — recommendation_profile.tier is withheld at the exposure
-  // layer (every row was STRONG_BUY, a constant masquerading as a signal, per
-  // projectExposure.ts SYNTHETIC_FIELDS). Nothing reaches here to show, so the
-  // row is dropped rather than rendering a dash for every comparison forever.
-  const tiers = details.map(d => d?.recommendation_profile?.tier ?? null)
-  if (tiers.some(t => t)) {
-    rows.push({
-      label: 'Advisor Rating',
-      values: tiers.map(t => {
-        const cfg = t ? TIER_CFG[t] : null
-        return cfg ? (
-          <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-black tracking-wide ${cfg.chipCls}`}>
-            <span className={`inline-block w-2 h-2 rounded-full mr-1.5 align-middle ${cfg.dot}`} />{cfg.label}
-          </span>
-        ) : (
-          <span className="text-gray-400 text-[11px]">—</span>
-        )
-      }),
-      winners: winnerIdx(tiers.map(t => TIER_ORDER[t ?? ''] ?? 0)),
-      winnerLabel: 'Highest Rated',
-    })
-  }
-
-  // Builder Standing — same withheld-field situation as above (dna is
-  // INTERNAL_ONLY_RELATIONS). Gated like RERA/Value/Location/Lifestyle below,
-  // instead of always rendering five empty stars.
-  const builderLabels = details.map(d => d?.dna?.builder_track_record_label)
-  if (builderLabels.map(l => starsCount(l)).some(s => s > 0)) {
-    rows.push(starRatingRow('Builder', builderLabels, 'Best Builder'))
-  }
-
-  // Delivery Risk — deriveRisk() only has a real signal when tier or the dna
-  // possession-certainty label is present; both are withheld now, so this
-  // always resolved to the same 'Medium' for every project in every
-  // comparison — a fabricated constant, not a risk read. Dropped until the
-  // lean-schema rework gives it a real source.
-
-  // RERA Standing
-  const reraLabels = details.map(d => d?.dna?.rera_compliance_label)
-  const reraScores = reraLabels.map(l => starsCount(l))
-  if (reraScores.some(s => s > 0)) {
-    rows.push(starRatingRow('RERA Standing', reraLabels, 'Best Compliance'))
-  }
-
-  // Value Position
-  const valueLabels = details.map(d => d?.dna?.price_position_label)
-  const valueScores = valueLabels.map(l => starsCount(l))
-  if (valueScores.some(s => s > 0)) {
-    rows.push(starRatingRow('Value', valueLabels, 'Best Value'))
-  }
-
-  // Location Quality
-  const locLabels = details.map(d => d?.dna?.locality_label)
-  const locScores = locLabels.map(l => starsCount(l))
-  if (locScores.some(s => s > 0)) {
-    rows.push(starRatingRow('Location', locLabels, 'Best Location'))
-  }
-
-  // Amenity Depth
-  const amenityLabels = details.map(d => d?.dna?.amenity_depth_label)
-  const amenityScores = amenityLabels.map(l => starsCount(l))
-  if (amenityScores.some(s => s > 0)) {
-    rows.push(starRatingRow('Lifestyle', amenityLabels, 'Best Amenities'))
-  }
+  // Advisor Rating, Builder, Delivery Risk, RERA Standing, Value, Location and
+  // Lifestyle rows all read ProjectDna/RecommendationProfile, both dropped
+  // (lean-schema migration, 2026-10). Re-sourcing them with real data is
+  // sub-project C, not this one — dropped entirely rather than rendering a
+  // dash for every project in every comparison forever.
 
   // Entry Price (lowest wins)
   const prices = projects.map(p => p.price_min_cr ?? 0)
@@ -585,15 +308,8 @@ function buildMatrix(details: (ProjectDetail | null)[], projects: ProjectCard[])
     })
   }
 
-  // Advantages — only show if at least one project has a builder/RERA/risk signal
-  if (details.some(d => d?.dna?.builder_track_record_label || d?.dna?.rera_compliance_label || deriveRisk(d) === 'Low')) {
-    rows.push({
-      label: 'Advantages',
-      values: details.map(d => renderAdvantages(d)),
-      winners: [],
-      winnerLabel: '',
-    });
-  }
+  // Advantages read dna.builder_track_record_label/rera_compliance_label —
+  // both dropped (lean-schema migration, 2026-10). No honest signal left.
 
   // Cons — only show if at least one project has a recorded reason to avoid
   if (details.some(d => (d?.decision_profile?.why_avoid?.length ?? 0) > 0)) {
@@ -640,23 +356,14 @@ function Section({
 
 function ProjectMiniCard({
   project,
-  detail,
-  isWinner,
 }: {
   project: ProjectCard
-  detail: ProjectDetail | null
-  isWinner: boolean
 }) {
   const { activeUrl, allFailed } = usePreferredImages(project)
-  const tier = detail?.recommendation_profile?.tier
-  const cfg = tier ? TIER_CFG[tier] : null
   const isRTM = project.status === 'ready_to_move'
 
   return (
-    <div className={`flex-1 rounded-2xl overflow-hidden border transition-all duration-300 ${isWinner
-        ? 'border-blue-500/30 dark:border-blue-400/30 ring-2 ring-blue-500/10 shadow-[0_4px_20px_rgba(59,130,246,0.1)]'
-        : 'border-black/[0.04] dark:border-white/[0.05] hover:shadow-[0_4px_20px_rgba(0,0,0,0.04)]'
-      } bg-white dark:bg-[#111]`}>
+    <div className="flex-1 rounded-2xl overflow-hidden border border-black/[0.04] dark:border-white/[0.05] hover:shadow-[0_4px_20px_rgba(0,0,0,0.04)] transition-all duration-300 bg-white dark:bg-[#111]">
       {/* Image */}
       <div className="relative h-[110px] bg-zinc-50 dark:bg-zinc-900">
         {activeUrl && !allFailed ? (
@@ -673,28 +380,6 @@ function ProjectMiniCard({
           </div>
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/5 to-transparent" />
-
-        {/* Winner crown */}
-        {isWinner && (
-          <div className="absolute top-2 left-2 flex items-center gap-1 bg-[#0064E5] text-white text-[9px] font-bold px-2 py-0.5 rounded-full shadow-sm">
-            <Trophy size={8} />
-            Top Pick
-          </div>
-        )}
-
-        {/* Tier badge — only show on non-winner to avoid crowding */}
-        {cfg && !isWinner && (
-          <div className={`absolute top-2 left-2 text-[9px] font-bold px-1.5 py-0.5 rounded-full ${cfg.chipCls} shadow-sm`}>
-            {cfg.dot} {cfg.label}
-          </div>
-        )}
-
-        {/* Tier on winner — bottom right */}
-        {cfg && isWinner && (
-          <div className={`absolute top-2 right-2 text-[9px] font-bold px-1.5 py-0.5 rounded-full ${cfg.chipCls} shadow-sm`}>
-            {cfg.dot} {cfg.label}
-          </div>
-        )}
 
         {/* Status */}
         <div className={`absolute bottom-2 left-2 text-[9px] font-medium px-1.5 py-0.5 rounded-full shadow-sm backdrop-blur-md ${isRTM ? 'bg-emerald-500/90 text-white' : 'bg-zinc-800/80 text-white'
@@ -796,19 +481,7 @@ export default function ComparisonTable({ projects }: { projects: ProjectCard[] 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [slugKey])
 
-  const hasIntelligence = details.some(d => d?.recommendation_profile?.tier)
   const isMulti = projects.length > 2
-
-  const overallWinnerIdx = useMemo(
-    () => (hasIntelligence ? findOverallWinner(details, projects) : null),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [details, hasIntelligence]
-  )
-
-  const winner = overallWinnerIdx !== null ? projects[overallWinnerIdx] : null
-  const winnerDetail = overallWinnerIdx !== null ? details[overallWinnerIdx] : null
-  const winnerTier = winnerDetail?.recommendation_profile?.tier
-  const winnerCfg = winnerTier ? TIER_CFG[winnerTier] : null
 
   const matrixRows = useMemo(
     () => buildMatrix(details, projects),
@@ -829,13 +502,10 @@ export default function ComparisonTable({ projects }: { projects: ProjectCard[] 
     })
   }, [matrixRows, onlyDifferences, projects.length])
 
+  // ProjectDna/RecommendationProfile dropped (lean-schema migration, 2026-10)
+  // — 'overall'/'risk'/'family'/'investor'/'luxury' had no honest signal left.
   const EXEC_CATS = [
-    { key: 'overall', label: 'Best Overall' },
     { key: 'value', label: 'Best Value' },
-    { key: 'risk', label: 'Lowest Risk' },
-    { key: 'family', label: 'Best Family' },
-    { key: 'investor', label: 'Best Investor' },
-    { key: 'luxury', label: 'Best Luxury', icon: '✨' },
   ] as const
 
 
@@ -846,35 +516,6 @@ export default function ComparisonTable({ projects }: { projects: ProjectCard[] 
       transition={{ duration: 0.3 }}
       className="w-full rounded-[24px] overflow-hidden border border-black/[0.04] dark:border-white/[0.05] bg-white dark:bg-[#111] shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)]"
     >
-      {/* ── AI Verdict Header ──────────────────────────────────────────────── */}
-      {hasIntelligence && winner && winnerCfg && (
-        <div className="bg-[#0064E5] px-4 pt-4 pb-4">
-          <div className="flex items-start gap-3">
-            <div className="w-8 h-8 rounded-xl bg-white/15 flex items-center justify-center flex-shrink-0 mt-0.5">
-              <Trophy size={15} className="text-white" />
-            </div>
-            <div className="min-w-0 flex-1">
-              <div className="flex flex-wrap items-center gap-2 mb-1.5">
-                <span className="text-[10px] font-black text-blue-200 uppercase tracking-[0.12em]">
-                  AI Verdict
-                </span>
-                <span className={`text-[10px] font-black px-2 py-0.5 rounded-full bg-white/20 text-white border border-white/30`}>
-                  {winnerCfg.dot} {winnerCfg.label}
-                </span>
-              </div>
-              <p className="text-[15px] font-black text-white leading-snug">
-                {winner.name} wins this comparison
-              </p>
-              {winnerDetail?.recommendation_profile?.primary_thesis && (
-                <p className="text-[12px] text-blue-100 mt-1 leading-relaxed line-clamp-2">
-                  {winnerDetail.recommendation_profile.primary_thesis}
-                </p>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* ── Content ───────────────────────────────────────────────────────── */}
       {loading ? (
         <Skeleton n={projects.length} />
@@ -884,64 +525,50 @@ export default function ComparisonTable({ projects }: { projects: ProjectCard[] 
           {/* Project cards */}
           {isMulti ? (
             <div className="flex gap-2.5 overflow-x-auto pb-0.5">
-              {projects.map((p, i) => (
+              {projects.map((p) => (
                 <div key={p.id} className="flex-none w-[150px]">
-                  <ProjectMiniCard
-                    project={p}
-                    detail={details[i]}
-                    isWinner={overallWinnerIdx === i}
-                  />
+                  <ProjectMiniCard project={p} />
                 </div>
               ))}
             </div>
           ) : (
             <div className="flex gap-3">
-              <ProjectMiniCard
-                project={projects[0]}
-                detail={details[0]}
-                isWinner={overallWinnerIdx === 0}
-              />
+              <ProjectMiniCard project={projects[0]} />
               <div className="flex items-center justify-center w-6 flex-shrink-0">
                 <span className="text-[10px] font-black text-gray-200 dark:text-gray-700 rotate-0">
                   VS
                 </span>
               </div>
-              <ProjectMiniCard
-                project={projects[1]}
-                detail={details[1]}
-                isWinner={overallWinnerIdx === 1}
-              />
+              <ProjectMiniCard project={projects[1]} />
             </div>
           )}
 
           {/* ── Executive Summary ────────────────────────────────────────── */}
-          {hasIntelligence && (
-            <Section title="Decision Summary" icon={Zap}>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                {EXEC_CATS.map(cat => {
-                  const idx = categoryWinner(details, projects, cat.key)
-                  const w = idx !== null ? projects[idx] : null
-                  return (
-                    <div
-                      key={cat.key}
-                      className={`rounded-xl px-3 py-2.5 border transition-colors ${w
-                          ? 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700'
-                          : 'bg-gray-50/60 dark:bg-gray-800/30 border-gray-100 dark:border-gray-700/40 opacity-60'
-                        }`}
-                    >
+          <Section title="Decision Summary" icon={Zap}>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+              {EXEC_CATS.map(cat => {
+                const idx = categoryWinner(details, projects, cat.key)
+                const w = idx !== null ? projects[idx] : null
+                return (
+                  <div
+                    key={cat.key}
+                    className={`rounded-xl px-3 py-2.5 border transition-colors ${w
+                        ? 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700'
+                        : 'bg-gray-50/60 dark:bg-gray-800/30 border-gray-100 dark:border-gray-700/40 opacity-60'
+                      }`}
+                  >
 
-                      <span className="text-[9px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wide block">
-                        {cat.label}
-                      </span>
-                      <span className="text-[11px] font-black text-gray-900 dark:text-gray-100 block mt-0.5 line-clamp-1">
-                        {w ? w.name : 'Tied'}
-                      </span>
-                    </div>
-                  )
-                })}
-              </div>
-            </Section>
-          )}
+                    <span className="text-[9px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wide block">
+                      {cat.label}
+                    </span>
+                    <span className="text-[11px] font-black text-gray-900 dark:text-gray-100 block mt-0.5 line-clamp-1">
+                      {w ? w.name : 'Tied'}
+                    </span>
+                  </div>
+                )
+              })}
+            </div>
+          </Section>
 
           {/* ── Decision Matrix ──────────────────────────────────────────── */}
           <div className="space-y-2.5">
@@ -971,15 +598,11 @@ export default function ComparisonTable({ projects }: { projects: ProjectCard[] 
                       <th className="px-4 py-3 text-[10px] font-semibold uppercase tracking-wider text-slate-500">
                         Feature
                       </th>
-                      {projects.map((p, i) => (
+                      {projects.map((p) => (
                         <th
                           key={p.id}
-                          className={`px-4 py-3 text-[11px] font-bold tracking-wide text-center w-[160px] ${overallWinnerIdx === i
-                              ? 'text-blue-600 dark:text-blue-400 bg-blue-50/50 dark:bg-blue-900/20'
-                              : 'text-slate-700 dark:text-slate-300'
-                            }`}
+                          className="px-4 py-3 text-[11px] font-bold tracking-wide text-center w-[160px] text-slate-700 dark:text-slate-300"
                         >
-                          {overallWinnerIdx === i && <span className="inline-block w-1.5 h-1.5 rounded-full bg-blue-500 mr-1.5 align-middle" />}
                           {p.name.split(' ').slice(0, 2).join(' ')}
                         </th>
                       ))}
@@ -1094,35 +717,10 @@ export default function ComparisonTable({ projects }: { projects: ProjectCard[] 
           </div>
 
           {/* ── Detailed Comparison Accordions ────────────────────────────── */}
+          {/* Trust & Legal / Lifestyle & Build read dna.*, dropped entirely
+              (lean-schema migration, 2026-10) — removed along with the gates
+              that always evaluated false once the relation stopped existing. */}
           <Section title="Detailed Breakdown" icon={HeartHandshake}>
-            {/* dna.* is INTERNAL_ONLY_RELATIONS now — this accordion rendered
-                "--" for every row in every comparison, forever, with nothing
-                behind it. Gated instead of deleted: the lean-schema rework can
-                repopulate it honestly without touching this component again. */}
-            {details.some(d => d?.dna?.rera_compliance_label || d?.dna?.builder_track_record_label || d?.dna?.possession_certainty_label) && (
-              <Accordion title="Trust & Legal" icon={ShieldCheck}>
-                <div className="flex divide-x divide-gray-100 dark:divide-gray-700/60">
-                  {projects.map((p, i) => (
-                    <div key={p.id} className="flex-1 p-3 space-y-2 text-[11px]">
-                      <div className="flex justify-between border-b border-gray-100 dark:border-gray-700 pb-1">
-                        <span className="text-gray-500">RERA</span>
-                        <span className="font-bold text-gray-900 dark:text-gray-100">{details[i]?.dna?.rera_compliance_label || '--'}</span>
-                      </div>
-                      <div className="flex justify-between border-b border-gray-100 dark:border-gray-700 pb-1">
-                        <span className="text-gray-500">Builder</span>
-                        <span className="font-bold text-gray-900 dark:text-gray-100 line-clamp-1 text-right ml-2">{details[i]?.dna?.builder_track_record_label || '--'}</span>
-                      </div>
-                      <div className="flex justify-between border-b border-gray-100 dark:border-gray-700 pb-1">
-                        <span className="text-gray-500">Delivery Risk</span>
-                        <span className="font-bold text-gray-900 dark:text-gray-100 line-clamp-1 text-right ml-2">{details[i]?.dna?.possession_certainty_label || '--'}</span>
-                      </div>
-
-                    </div>
-                  ))}
-                </div>
-              </Accordion>
-            )}
-
             <Accordion title="Price & Cost" icon={IndianRupee}>
               <div className="flex divide-x divide-gray-100 dark:divide-gray-700/60">
                 {projects.map((p, i) => {
@@ -1173,22 +771,6 @@ export default function ComparisonTable({ projects }: { projects: ProjectCard[] 
               </div>
             </Accordion>
 
-            {details.some(d => d?.dna?.amenity_depth_label) && (
-              <Accordion title="Lifestyle & Build" icon={Trees}>
-                <div className="flex divide-x divide-gray-100 dark:divide-gray-700/60">
-                  {projects.map((p, i) => (
-                    <div key={p.id} className="flex-1 p-3 space-y-2 text-[11px]">
-
-                      <div className="flex justify-between pb-1">
-                        <span className="text-gray-500">Amenities</span>
-                        <span className="font-bold text-gray-900 dark:text-gray-100 line-clamp-1 text-right ml-2">{details[i]?.dna?.amenity_depth_label || '--'}</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </Accordion>
-            )}
-
             <Accordion title="Social Proof" icon={Users}>
               <div className="flex divide-x divide-gray-100 dark:divide-gray-700/60">
                 {projects.map((p, i) => {
@@ -1214,116 +796,9 @@ export default function ComparisonTable({ projects }: { projects: ProjectCard[] 
             </Accordion>
           </Section>
 
-          {/* ── Builder Intelligence ─────────────────────────────────────── */}
-          {details.some(d => d?.dna?.builder_track_record_label) && (
-            <Section title="Builder Intelligence" icon={ShieldCheck}>
-              <div className={`${isMulti ? 'flex gap-2.5 overflow-x-auto' : 'grid grid-cols-2 gap-2.5'}`}>
-                {projects.map((p, i) => {
-                  const d = details[i]
-                  const trackLabel = d?.dna?.builder_track_record_label
-                  const reraLabel = d?.dna?.rera_compliance_label
-                  const deliveryLabel = d?.dna?.possession_certainty_label
-                  const n = starsCount(trackLabel)
-                  const isW = overallWinnerIdx === i
-                  return (
-                    <div
-                      key={p.id}
-                      className={`${isMulti ? 'flex-none w-[180px]' : ''} rounded-xl border p-3 ${isW
-                          ? 'border-[#0064E5]/30 dark:border-[#0064E5]/40 bg-blue-50/40 dark:bg-blue-900/15'
-                          : 'border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800'
-                        }`}
-                    >
-                      <p className="text-[9px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-wide mb-1.5 truncate">
-                        {p.builder.name}
-                      </p>
-                      <div className="flex items-center gap-1.5 mb-1">
-                        <StarRow count={n} size="md" />
-                        {isW && (
-                          <span className="text-[8px] font-black text-[#0064E5] dark:text-blue-400 bg-blue-100 dark:bg-blue-900/40 px-1.5 py-0.5 rounded-full">
-                            Top Pick
-                          </span>
-                        )}
-                      </div>
-                      {trackLabel && (
-                        <p className="text-[10px] font-bold text-gray-700 dark:text-gray-300 mb-1.5">
-                          {trackLabel}
-                        </p>
-                      )}
-                      {reraLabel && (
-                        <div className="flex items-start gap-1 mt-1">
-                          <BadgeCheck size={10} className="fill-current text-[#0064E5] flex-shrink-0 mt-0.5" />
-                          <span className="text-[9px] text-gray-500 dark:text-gray-400 leading-tight">
-                            {reraLabel}
-                          </span>
-                        </div>
-                      )}
-                      {deliveryLabel && (
-                        <div className="mt-1.5 text-[9px] text-gray-400 dark:text-gray-500 border-t border-gray-100 dark:border-gray-700 pt-1.5">
-                          Delivery: {deliveryLabel}
-                        </div>
-                      )}
-                    </div>
-                  )
-                })}
-              </div>
-            </Section>
-          )}
-
-          {/* ── Buyer Persona Match ──────────────────────────────────────── */}
-          {details.some(d => d?.persona_profile?.primary_persona) && (
-            <Section title="Best For" icon={Users}>
-              <div className={`${isMulti ? 'flex gap-2.5 overflow-x-auto' : 'grid grid-cols-2 gap-2.5'}`}>
-                {projects.map((p, i) => {
-                  const profile = details[i]?.persona_profile
-                  if (!profile?.primary_persona) {
-                    return (
-                      <div
-                        key={p.id}
-                        className={`${isMulti ? 'flex-none w-[160px]' : ''} rounded-xl border border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 p-3`}
-                      >
-                        <p className="text-[9px] font-black text-gray-400 uppercase tracking-wide mb-1 truncate">
-                          {p.name}
-                        </p>
-                        <p className="text-[10px] text-gray-400">—</p>
-                      </div>
-                    )
-                  }
-                  const personas = [
-                    profile.primary_persona,
-                    ...(profile.secondary_personas ?? []),
-                  ].filter(Boolean)
-                  return (
-                    <div
-                      key={p.id}
-                      className={`${isMulti ? 'flex-none w-[160px]' : ''} rounded-xl border border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800 p-3`}
-                    >
-                      <p className="text-[9px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-wide mb-2 truncate">
-                        {p.name}
-                      </p>
-                      <div className="flex flex-wrap gap-1">
-                        {personas.slice(0, 3).map(persona => (
-                          <span
-                            key={persona}
-                            className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${persona === profile.primary_persona
-                                ? 'bg-[#0064E5]/10 text-[#0064E5] dark:text-blue-400 dark:bg-blue-900/30'
-                                : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400'
-                              }`}
-                          >
-                            {PERSONA_LABEL[persona ?? ''] ?? persona}
-                          </span>
-                        ))}
-                      </div>
-                      {profile.family_stage && (
-                        <p className="text-[10px] text-gray-400 dark:text-gray-500 mt-2 leading-snug">
-                          {profile.family_stage}
-                        </p>
-                      )}
-                    </div>
-                  )
-                })}
-              </div>
-            </Section>
-          )}
+          {/* Builder Intelligence and Buyer Persona Match read dna / persona_profile,
+              both dropped entirely (lean-schema migration, 2026-10) — removed
+              along with their always-false gates. */}
 
           {/* ── Pros & Cons ──────────────────────────────────────────────── */}
           {details.some(
@@ -1376,22 +851,15 @@ export default function ComparisonTable({ projects }: { projects: ProjectCard[] 
                 {projects.map((p, i) => {
                   const dp = details[i]?.decision_profile
                   const thesis = dp?.decision_thesis
-                  const tier = details[i]?.recommendation_profile?.tier
-                  const tierCfg = tier ? TIER_CFG[tier] : null
                   return (
                     <div
                       key={p.id}
                       className={`${isMulti ? 'flex-none w-[220px]' : ''} rounded-xl border border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800 overflow-hidden`}
                     >
-                      <div className="px-3 py-2 bg-gray-50/80 dark:bg-gray-900/60 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between">
+                      <div className="px-3 py-2 bg-gray-50/80 dark:bg-gray-900/60 border-b border-gray-100 dark:border-gray-700">
                         <span className="text-[9px] font-black text-gray-500 dark:text-gray-400 uppercase tracking-wide line-clamp-1">
                           {p.name}
                         </span>
-                        {tierCfg && (
-                          <span className={`text-[9px] font-black px-1.5 py-0.5 rounded ${tierCfg.chipCls}`}>
-                            {tierCfg.label}
-                          </span>
-                        )}
                       </div>
                       <div className="p-3">
                         {thesis ? (
@@ -1407,61 +875,6 @@ export default function ComparisonTable({ projects }: { projects: ProjectCard[] 
                 })}
               </div>
             </Section>
-          )}
-
-          {/* ── Final Verdict ─────────────────────────────────────────────── */}
-          {hasIntelligence && winner && overallWinnerIdx !== null && (
-            <m.div
-              initial={{ opacity: 0, y: 4 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3, delay: 0.12 }}
-              className="rounded-xl border border-[#0064E5]/20 dark:border-[#0064E5]/30 bg-gradient-to-br from-blue-50/80 to-indigo-50/40 dark:from-blue-950/40 dark:to-indigo-950/20 p-4"
-            >
-              <div className="flex items-center gap-2 mb-2.5">
-                <Trophy size={13} className="text-[#0064E5] dark:text-blue-400" />
-                <span className="text-[10px] font-black text-[#0064E5] dark:text-blue-400 uppercase tracking-[0.12em]">
-                  Our Recommendation
-                </span>
-              </div>
-
-              <p className="text-[13px] font-black text-gray-900 dark:text-gray-100 mb-1.5">
-                Buy {winner.name}
-              </p>
-
-              {winnerDetail?.decision_profile?.decision_thesis && (
-                <p className="text-[12px] text-gray-600 dark:text-gray-400 leading-relaxed">
-                  {winnerDetail.decision_profile.decision_thesis}
-                </p>
-              )}
-
-              {/* When to pick the other project */}
-              {projects.length === 2 && (() => {
-                const loserIdx = overallWinnerIdx === 0 ? 1 : 0
-                const loserDetail = details[loserIdx]
-                const altThesis =
-                  loserDetail?.decision_profile?.not_ideal_for
-                if (!altThesis) return null
-                return (
-                  <div className="mt-3 pt-3 border-t border-[#0064E5]/15 dark:border-[#0064E5]/20">
-                    <p className="text-[10px] font-bold text-gray-500 dark:text-gray-400 mb-1">
-                      Consider {projects[loserIdx].name} instead if:
-                    </p>
-                    <p className="text-[11px] text-gray-600 dark:text-gray-400 leading-relaxed">
-                      {altThesis}
-                    </p>
-                  </div>
-                )
-              })()}
-            </m.div>
-          )}
-
-          {/* ── No intelligence fallback ──────────────────────────────────── */}
-          {!hasIntelligence && (
-            <div className="rounded-xl border border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/40 p-4 text-center">
-              <p className="text-[11px] text-gray-400 dark:text-gray-500">
-                AI intelligence not yet published for these projects.
-              </p>
-            </div>
           )}
         </div>
       )}
