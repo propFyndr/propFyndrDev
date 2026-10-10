@@ -82,8 +82,6 @@ const WhatsAppIcon = ({ size = 16 }: { size?: number }) => (
 const SECTION_TABS = ['Overview', 'Analysis', 'Floor Plans', 'Pricing', 'Location', 'Builder'] as const
 type Tab = typeof SECTION_TABS[number]
 
-const tierLabel: Record<string, string> = { STRONG_BUY: 'Strong Buy', BUY: 'Buy', HOLD: 'Hold', WATCH: 'Watch', AVOID: 'Avoid' }
-
 /** Stable ids so each tab can point at the panel it controls. */
 const PANEL_ID = 'project-detail-panel-content'
 const tabId = (tab: Tab): string => `project-detail-tab-${tab.toLowerCase().replace(/\s+/g, '-')}`
@@ -291,7 +289,9 @@ export default function ProjectDetailPanel({ project, onClose, inline, initialDe
 
   const bhkLabel = [...new Set((d?.unit_types ?? []).map((u) => `${u.bhk}BHK`))].join(' · ')
 
-  const tier          = detail?.recommendation_profile?.tier ?? null
+  // recommendation_profile.tier removed from display (2026-10-10): every
+  // seeded project carries tier STRONG_BUY, so "Rated as Strong Buy" was
+  // shown unconditionally rather than reflecting a real assessment.
   const persona       = detail?.persona_profile?.primary_persona ?? null
   const decisionThesis = detail?.decision_profile?.decision_thesis ?? null
   const whyBuy        = detail?.decision_profile?.why_buy ?? []
@@ -301,15 +301,14 @@ export default function ProjectDetailPanel({ project, onClose, inline, initialDe
   const walkAwayConditions  = detail?.recommendation_profile?.walk_away_conditions ?? []
   const competitors   = detail?.competitors ?? []
 
-  // ── Tier + persona Notion-style callout (shared mobile/desktop) ─────────────────────
-  const intelligenceChips = (tier || persona) && (
+  // ── Persona Notion-style callout (shared mobile/desktop) ─────────────────────
+  const intelligenceChips = persona && (
     <div className="flex items-start gap-md bg-surface-2 border border-border rounded-lg p-lg">
       <Award size={16} className="text-primary mt-0.5 flex-shrink-0" />
       <div>
         <p className="text-xs font-bold text-text-primary mb-md">Investment Thesis</p>
         <p className="text-sm text-text-secondary leading-relaxed">
-          {tier && <span>Rated as <strong className="text-text-primary">{tierLabel[tier] ?? tier}</strong>. </span>}
-          {persona && <span>Ideal for {persona.charAt(0) + persona.slice(1).toLowerCase()}.</span>}
+          Ideal for {persona.charAt(0) + persona.slice(1).toLowerCase()}.
         </p>
       </div>
     </div>
@@ -855,7 +854,6 @@ export default function ProjectDetailPanel({ project, onClose, inline, initialDe
     }
 
     const displayPossession = d?.possession_label ?? null
-    const displayScore = detail?.recommendation_score?.total ?? (d as any)?.recommendation_score?.total ?? null
     const builderName = typeof d?.builder === 'object' ? (d.builder as any)?.name : (d?.builder ?? null)
 
     const rates = unitTypes.map((u: any) => u.super_area_sqft && u.price_min_cr ? Math.round((u.price_min_cr * 10000000) / u.super_area_sqft) : null).filter(Boolean) as number[]
@@ -899,21 +897,9 @@ export default function ProjectDetailPanel({ project, onClose, inline, initialDe
           </span>
         </div>
 
-        {/* Top-right: AI Score Badge (Clean, isolated) */}
-        {displayScore && (
-          <div className="absolute top-3.5 right-3.5 z-20 bg-black/60 backdrop-blur-md border border-white/20 rounded-2xl p-2.5 px-3 text-right flex flex-col items-center justify-center shadow-lg">
-            <p className="text-[8.5px] text-gray-300 font-bold tracking-wider flex items-center gap-0.5 justify-end">⚡ AI SCORE</p>
-            <div className="flex items-baseline gap-0.5 mt-0.5">
-              <span className="text-xl font-black text-white leading-none">{displayScore}</span>
-              <span className="text-[9.5px] text-gray-400 font-bold">/100</span>
-            </div>
-            {tier && (
-              <span className="text-[8.5px] font-extrabold text-emerald-400 mt-1 uppercase tracking-wider">
-                🛡️ {tierLabel[tier] ?? tier}
-              </span>
-            )}
-          </div>
-        )}
+        {/* AI Score badge removed (2026-10-10): recommendation_score is a weighted
+            composite of ProjectDna fields that are unsourced heuristics, not
+            verified facts. See docs/superpowers/specs/2026-10-10-intelligence-trust-leak-design.md. */}
 
         {/* Middle: Title, Builder, and Location */}
         <div className="absolute bottom-[86px] left-3.5 right-3.5 z-10 space-y-1">

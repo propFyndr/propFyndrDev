@@ -170,16 +170,20 @@ describe('Scoring: Project Score', () => {
   })
 
   // "maximum score never exceeds 60" — this test used to assert exactly that,
-  // and passed, without ever setting recommendation_profile.tier to a value
-  // that earns a bonus, persona_profile alongside intent.purpose, or a
-  // sectorTier argument. A passing test that avoids the code paths it claims
-  // to cover is worse than no test: it told the next reader this was
-  // verified. It wasn't — scoreProject stacks tier (+8), persona (+5), sector
-  // tier (+10) and market-tier bias (+20) on top of the 59-point base signal
-  // total, so the real ceiling is well past 60. Split into two tests: the
-  // true base-signal cap (no bonus category populated), and proof the score
-  // genuinely exceeds it once those categories are.
-  it('base signals alone (no tier/persona/sectorTier/budget bonus) never exceed 59', () => {
+  // and passed, without ever setting a sectorTier argument. A passing test
+  // that avoids the code paths it claims to cover is worse than no test: it
+  // told the next reader this was verified. It wasn't — scoreProject stacks
+  // sector tier (+10) and market-tier bias on top of the 59-point base
+  // signal total, so the real ceiling is well past 60. Split into two tests:
+  // the true base-signal cap (no bonus category populated), and proof the
+  // score genuinely exceeds it once those categories are.
+  //
+  // recommendation_profile.tier and persona_profile dropped out of scoring
+  // entirely (2026-10-10): every seeded project carried the same STRONG_BUY
+  // tier and a templated persona, so that bonus rewarded every project
+  // equally while looking like a real signal. noBonusProject below keeps the
+  // fields at null only because the fixture type still carries them.
+  it('base signals alone (no sectorTier/budget bonus) never exceed 59', () => {
     const intent: Intent = {} // no budgetMax → market-tier bias never fires either
     const noBonusProject = {
       ...baseProject,
@@ -190,14 +194,9 @@ describe('Scoring: Project Score', () => {
     assert(score <= 59, `Score ${score} exceeds the 59-point base-signal cap`)
   })
 
-  it('stacks tier + persona + sectorTier + market-tier bias past the base-signal cap', () => {
-    const intent: Intent = { budgetMax: 2.5, purpose: 'investment' }
-    const maxedProject = {
-      ...baseProject,
-      recommendation_profile: { tier: 'STRONG_BUY' },
-      persona_profile: { primary_persona: 'INVESTOR' },
-    }
-    const score = scoreProject(maxedProject, intent, 'within', 'tier1')
+  it('stacks sectorTier + market-tier bias past the base-signal cap', () => {
+    const intent: Intent = { budgetMax: 4.0 } // max headroom bonus, still 'within'
+    const score = scoreProject(baseProject, intent, 'within', 'tier1')
     assert(score > 59, `Score ${score} did not exceed the base-signal cap — a bonus category silently stopped contributing`)
   })
 

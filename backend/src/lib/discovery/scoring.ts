@@ -233,31 +233,11 @@ export function scoreProject(
   if (p.hero_image_url || p.images.some((i) => i.type === 'exterior' || i.type === 'hero')) score += 2
   if (p.rera_number)    score += 1
 
-  // ── Recommendation tier ──────────────────────────────────────────────
-  const tier = p.recommendation_profile?.tier
-  if (tier === 'STRONG_BUY' || tier === 'Tier 1 Top Pick' || tier?.includes('Top Pick') || tier?.includes('Tier 1')) {
-    score += 8
-  } else if (tier === 'BUY' || tier?.includes('BUY') || tier?.includes('Tier 2')) {
-    score += 4
-  } else if (tier === 'WATCH') {
-    score -= 4
-  } else if (tier === 'AVOID' || tier === 'HIGH_RISK') {
-    score -= 25
-  }
-
-  // ── Persona match (max +5) ───────────────────────────────────────────
-  if (p.persona_profile && intent.purpose) {
-    const primary   = p.persona_profile.primary_persona ?? ''
-    const secondary = p.persona_profile.secondary_personas ?? []
-    if (intent.purpose === 'investment') {
-      if (primary === 'INVESTOR')              score += 5
-      else if (secondary.includes('INVESTOR')) score += 2
-    } else {
-      const END_USE = new Set(['FAMILY', 'PROFESSIONAL', 'UPGRADER', 'RETIREE', 'NRI'])
-      if (END_USE.has(primary))                         score += 5
-      else if (secondary.some((s) => END_USE.has(s)))   score += 2
-    }
-  }
+  // recommendation_profile.tier and persona_profile no longer score here.
+  // Audit (2026-10-10) found every project seeded with tier STRONG_BUY and a
+  // templated persona — both constants that reward every project equally
+  // while LOOKING like a real signal. Scoring only the fields above, which
+  // come from the project's own rows. See docs/superpowers/specs/2026-10-10-intelligence-trust-leak-design.md.
 
   // ── Risk penalties ───────────────────────────────────────────────────
   if (p.project_risk_flag) {
