@@ -42,6 +42,7 @@ export const INTERNAL_ONLY_FIELDS: Record<string, string> = {
   builder_id: 'raw foreign key — the builder relation carries the usable data',
   created_at: 'row bookkeeping, not a project fact',
   updated_at: 'row bookkeeping, not a project fact',
+  archived_duplicate_of: 'record-lifecycle bookkeeping from the dedup migration, not a project fact a buyer asked about',
   market_demand_score: 'internal analyst score; V1 scope excludes investment analysis',
   appreciation_potential_5yr: 'forward-looking estimate — the prompt forbids presenting projections as fact',
   rental_yield_annual_percent: 'forward-looking estimate — same rule',
@@ -164,7 +165,6 @@ export const PROJECT_PUBLIC_SELECT = {
    */
   expected_handover_quarter: false,
   foundation_stone_date: true,
-  average_builder_delay_months: true,
 
   // Legal, compliance, disclosure — buyers are entitled to all of this
   rera_number: true,
@@ -176,21 +176,17 @@ export const PROJECT_PUBLIC_SELECT = {
   oc_restrictions: true,
   occupancy_certificate_status: true,
   occupancy_expected_date: true,
-  legal_flag: true,
   legal_flag_detail: true,
   litigation_count: true,
   ongoing_litigation_count: true,
   litigation_types: true,
   nclt_moratorium_active: true,
   project_risk_flag: true,
-  escrow_verified: true,
   escrow_bank_name: true,
   registry_status: true,
   registry_embargo_reasons: true,
   land_title_clear: true,
   fir_against_project: true,
-  authority_dues_cleared: true,
-  land_tenure: true,
   gst_pass_through: true,
 
   // Location intelligence
@@ -207,7 +203,6 @@ export const PROJECT_PUBLIC_SELECT = {
   // Environment & safety
   flood_waterlogging_risk: true,
   flood_zone: true,
-  aqi_annual_avg: true,
   air_quality_index_avg: true,
   green_cover_percent: true,
   has_security_24x7: true,
@@ -217,34 +212,20 @@ export const PROJECT_PUBLIC_SELECT = {
   // Pricing (headline only — the cost sheet relation carries the breakdown)
   price_min_cr: true,
   price_range_label: true,
-  price_includes_plc: true,
-  price_includes_club: true,
-  price_includes_taxes: true,
 
   // Ownership & eligibility terms
   rental_income_allowed: true,
-  nri_eligible: true,
   foreign_currency_payment_allowed: true,
-  pet_friendly: true,
-  bachelor_tenants_allowed: true,
 
   // Build quality
   // buyer_satisfaction_rating is deliberately absent — see SYNTHETIC_FIELDS.
-
-  // Vastu & orientation
-  vastu_compliant: true,
-  north_facing_units: true,
-  east_facing_preferred: true,
 
   // Utilities & living standards
   water_source: true,
   dg_power_rate_per_unit: true,
   maintenance_per_sqft_monthly: true,
-  has_png_gas_pipeline: true,
-  mobile_network_rating: true,
   ceiling_height_ft: true,
   lifts_per_tower: true,
-  has_service_lift: true,
 
   // Forensic Due Diligence & Living Quality (Day 3 Expansion)
   oc_status: true,
@@ -286,9 +267,6 @@ export const ALLOWED_RELATIONS = [
   'competitors',
   'referenced_as_competitor',
   'decision_profile',
-  'persona_profile',
-  'recommendation_profile',
-  'dna',
 ] as const
 
 /**
@@ -347,6 +325,11 @@ export function redactForResponse<T extends Record<string, unknown>>(row: T): Pa
   const drop = new Set<string>([
     ...Object.keys(INTERNAL_ONLY_FIELDS).filter((k) => k !== 'created_at' && k !== 'updated_at' && k !== 'builder_id'),
     ...FORBIDDEN_RELATIONS,
+    // A relation in this list is, by definition, never on ALLOWED_RELATIONS —
+    // so without this, redactForResponse's blocklist (fail-open by design,
+    // unlike redactProject's allowlist) would pass a stray key like `dna`
+    // straight through instead of stripping it.
+    ...INTERNAL_ONLY_RELATIONS,
     ...SYNTHETIC_FIELDS.filter((f) => f.startsWith('Project.')).map((f) => f.slice('Project.'.length)),
   ])
   const out: Record<string, unknown> = {}
@@ -407,8 +390,6 @@ export const UNIVERSAL_INTERNAL = ['id', 'project_id', 'unit_type_id', 'channel_
  */
 export const RELATION_INTERNAL_FIELDS: Record<string, readonly string[]> = {
   decision_profile: ['advisor_notes', 'recommendation_notes', 'confidence_sources', 'verified_by', 'last_verified_at', 'status'],
-  recommendation_profile: ['internal_confidence', 'admin_notes', 'verified_by', 'last_verified_at', 'status', 'tier'],
-  persona_profile: ['verified_by', 'last_verified_at'],
   cost_sheet: ['verified_by', 'verified_at'],
   payment_plans: ['verified_by', 'verified_at', 'notes'],
   spec_items: ['verified_by', 'verified_at', 'notes'],
@@ -477,21 +458,26 @@ export const RELATION_INTERNAL_FIELDS: Record<string, readonly string[]> = {
 /**
  * Relations excluded from buyer-facing output entirely.
  *
- * ProjectDna is a set of manually-entered 0-100 analyst scores with
- * last_verified_at commonly null. Handing the model "builder_score: 95" invites
- * it to present an unverified internal number as a rating, which is precisely
- * the "fake confidence score" CLAUDE.md forbids. The buyer-facing narrative
- * lives in decision_profile and recommendation_profile instead; DNA stays an
- * input to ranking.
+ * `dna`, `persona_profile` and `recommendation_profile` were dropped from the
+ * schema entirely in the lean-schema migration (2026-10) — a set of
+ * manually-entered 0-100 analyst scores and a tier that was STRONG_BUY on all
+ * 395 rows, with no real signal. No live Prisma query can produce a row
+ * carrying any of these three keys any more. They stay listed here anyway:
+ * this module's own docstring is explicit that `redactProject`/
+ * `redactForResponse` exist as defence in depth for "any project row that
+ * arrived from a wider query, a cache, or JSON persisted on a previous
+ * turn" — a row cached or session-persisted from before this migration can
+ * still carry one of these keys, and dropping them from this list would
+ * silently stop stripping it.
  */
-export const INTERNAL_ONLY_RELATIONS = ['dna'] as const
+export const INTERNAL_ONLY_RELATIONS = ['dna', 'persona_profile', 'recommendation_profile'] as const
 
 /**
  * Relations carrying an IntelligenceStatus. Analyst content is DRAFT until
  * someone publishes it, and only PUBLISHED may reach a buyer — nothing in the
  * chat path enforced that, so unreviewed opinion could be quoted as advisory.
  */
-export const PUBLISH_GATED_RELATIONS = ['decision_profile', 'recommendation_profile'] as const
+export const PUBLISH_GATED_RELATIONS = ['decision_profile'] as const
 
 /** True when a publish-gated relation row is cleared for buyer-facing use. */
 export function isPublished(row: unknown): boolean {
@@ -551,11 +537,16 @@ export function stripRelationInternals<T extends Record<string, unknown>>(
  * remove it from this list in the same commit that shows the new distribution.
  * `projectExposure.test.ts` pins the reasoning, not the values, so a real
  * spread of tiers is a deliberate re-exposure and not an accident.
+ *
+ * Empty since the lean-schema migration (2026-10): both original entries
+ * named a column the migration dropped from the schema entirely —
+ * `recommendation_profile.tier` with its whole relation, and
+ * `Project.buyer_satisfaction_rating` directly. Kept as a typed empty tuple
+ * for the same reason INTERNAL_ONLY_RELATIONS is above: the call sites that
+ * filter against it don't need a follow-up edit the next time a real
+ * batch-templated field is found.
  */
-export const SYNTHETIC_FIELDS = [
-  'recommendation_profile.tier',
-  'Project.buyer_satisfaction_rating',
-] as const
+export const SYNTHETIC_FIELDS: readonly string[] = []
 
 /**
  * Columns whose schema default is a specific, checkable, invented figure — and

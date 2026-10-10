@@ -110,7 +110,10 @@ describe('projectExposure — schema coverage', () => {
 
   it('does expose the legal disclosure fields — buyers are entitled to these', () => {
     for (const f of [
-      'rera_number', 'legal_flag', 'legal_flag_detail', 'nclt_moratorium_active',
+      // Project-level legal_flag was dropped entirely in the lean-schema
+      // migration (templated, same class of problem as nclt_status below) —
+      // project_risk_flag is the real, varying column that carries this signal.
+      'rera_number', 'legal_flag_detail', 'nclt_moratorium_active',
       'registry_status', 'litigation_count', 'ongoing_litigation_count',
       'oc_obtained', 'land_title_clear', 'project_risk_flag', 'possession_confidence',
     ]) {
@@ -345,6 +348,13 @@ describe('Builder exposure — schema coverage', () => {
 })
 
 describe('relations are cleaned on the way out, not passed through', () => {
+  // dna / recommendation_profile / persona_profile cannot appear in a row from
+  // a live query any more (the lean-schema migration dropped all three
+  // relations entirely) — they're still in this fixture to prove the
+  // defence-in-depth case the module's own docstring calls out: a row cached
+  // or session-persisted from before the migration can still carry one of
+  // these keys, and both redactors must drop it outright, not clean it down
+  // to a "safe" subset (there is no safe subset of a removed relation).
   const row = {
     id: 'p1', name: 'X', slug: 'x', embedding: [0.1], ai_search_keywords: 'k', buyer_satisfaction_rating: 4.7,
     match_reason: 'ranker output survives',
@@ -361,15 +371,13 @@ describe('relations are cleaned on the way out, not passed through', () => {
       assert.equal(out.embedding, undefined)
       assert.equal(out.buyer_satisfaction_rating, undefined)
       assert.equal(out.dna, undefined)
+      assert.equal(out.recommendation_profile, undefined)
       assert.equal(out.saved_by, undefined)
       assert.equal(out.builder.name, 'B')
       assert.equal(out.builder.outstanding_dues_cr, undefined)
       assert.equal(out.builder.portal_subdomain, undefined)
       assert.equal(out.builder.financial_hygiene_score, undefined)
       assert.equal(out.decision_profile, null)
-      assert.equal(out.recommendation_profile.tier, undefined)
-      assert.equal(out.recommendation_profile.admin_notes, undefined)
-      assert.equal(out.recommendation_profile.summary, 's')
       assert.equal(out.channel_partners[0].channel_partner.commission_rate_pct, undefined)
     })
   }

@@ -70,7 +70,7 @@ describe('admin field redaction', () => {
     // what a partner firm is paid does not.
     const ANALYST = REDACTION_MATRIX.ANALYST!
     assert.ok(ANALYST.includes('commission_rate_pct'))
-    assert.ok(!ANALYST.includes('market_demand_score'), 'analyst scoring is analyst work')
-    assert.ok(SALES.includes('market_demand_score'))
+    assert.ok(!ANALYST.includes('internal_confidence'), 'analyst scoring is analyst work')
+    assert.ok(SALES.includes('internal_confidence'))
   })
 })
