@@ -9,9 +9,18 @@ export async function middleware(request: NextRequest) {
   // Strip x-user-id to prevent spoofing
   requestHeaders.delete('x-user-id')
 
-  // Derive access token from the Supabase auth cookie dynamically
-  const cookieName = request.cookies.getAll().find(c => c.name.startsWith('sb-') && c.name.endsWith('-auth-token'))?.name
-  const supabaseToken = cookieName ? request.cookies.get(cookieName)?.value : undefined
+  // Derive access token from the Supabase auth cookie dynamically. A session
+  // past ~3.1KB (a JWT carrying extra claims) is chunked by @supabase/ssr into
+  // sb-<ref>-auth-token.0, .1, .2… — matching only the bare name silently drops
+  // the token for any such session, forwarding no Authorization header at all.
+  const authCookieParts = request.cookies.getAll()
+    .filter(c => /^sb-.+-auth-token(\.\d+)?$/.test(c.name))
+    .sort((a, b) => {
+      const ai = Number(a.name.match(/\.(\d+)$/)?.[1] ?? -1)
+      const bi = Number(b.name.match(/\.(\d+)$/)?.[1] ?? -1)
+      return ai - bi
+    })
+  const supabaseToken = authCookieParts.length ? authCookieParts.map(c => c.value).join('') : undefined
   if (supabaseToken) {
     try {
       const parsed = JSON.parse(supabaseToken)
@@ -36,8 +45,18 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // Apex domain routing: if user navigates to /discover on the landing domain, send them to app.propfyndr.in
-  if ((host === 'propfyndr.in' || host === 'www.propfyndr.in') && pathname === '/discover') {
+  // Apex domain routing: the buyer discovery/chat app lives on app.propfyndr.in,
+  // so an old bookmark or shared link to one of its routes on the marketing
+  // domain still ends up there. Deliberately NOT a blanket "redirect everything
+  // except a few pages" — /admin, /builder, /partner, /auth are separate apps,
+  // and /property, /dossier, /s are public share links meant to stay stable on
+  // the apex domain without an extra hop. Only the bounded set of real
+  // buyer-chat routes redirects.
+  const APP_SUBDOMAIN_ROUTES = ['/discover', '/saved']
+  if (
+    (host === 'propfyndr.in' || host === 'www.propfyndr.in') &&
+    APP_SUBDOMAIN_ROUTES.some(r => pathname === r || pathname.startsWith(`${r}/`))
+  ) {
     const url = request.nextUrl.clone()
     url.host = 'app.propfyndr.in'
     url.protocol = 'https:'
