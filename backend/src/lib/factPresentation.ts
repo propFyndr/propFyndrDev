@@ -26,7 +26,51 @@
  * failure the product exists to avoid.
  */
 
+import { prisma } from './db'
+import type { FactTier as SourceTier } from '@prisma/client'
+
+export type { SourceTier }
+
 export type FactTier = 'verified' | 'statutory' | 'market' | 'missing'
+
+export interface FactVerificationRecord {
+  tier: SourceTier
+  sourceUrl: string | null
+  sourceDoc: string | null
+  verifiedAt: Date | null
+}
+
+/**
+ * The FactVerification row for one field, or null when none exists.
+ *
+ * null is not "unknown" — it means this fact has no source behind it and
+ * must present as `missing` to a buyer, whatever the raw column holds.
+ * Prefer `getFactVerificationsFor` when a caller needs more than one field
+ * on the same entity; this one query-per-field shape is for a single lookup.
+ */
+export async function getFactVerification(
+  entityType: string,
+  entityId: string,
+  fieldName: string,
+): Promise<FactVerificationRecord | null> {
+  const row = await prisma.factVerification.findUnique({
+    where: { entityType_entityId_fieldName: { entityType, entityId, fieldName } },
+    select: { tier: true, sourceUrl: true, sourceDoc: true, verifiedAt: true },
+  })
+  return row ?? null
+}
+
+/** Every FactVerification row for one entity, keyed by fieldName. */
+export async function getFactVerificationsFor(
+  entityType: string,
+  entityId: string,
+): Promise<Map<string, FactVerificationRecord>> {
+  const rows = await prisma.factVerification.findMany({
+    where: { entityType, entityId },
+    select: { fieldName: true, tier: true, sourceUrl: true, sourceDoc: true, verifiedAt: true },
+  })
+  return new Map(rows.map(r => [r.fieldName, { tier: r.tier, sourceUrl: r.sourceUrl, sourceDoc: r.sourceDoc, verifiedAt: r.verifiedAt }]))
+}
 
 /** Qualifier that must accompany any market-tier figure. */
 export const MARKET_QUALIFIER = 'typical for Noida — not verified for this project'
