@@ -8,6 +8,7 @@ import { requireAdmin, destroyAdminSession } from '../lib/adminAuth'
 import { createIdentitySession, verifyPassword, requireIdentity, requireRole, sessionTtlForRole, recordAudit } from '../lib/adminIdentity'
 import type { AdminIdentitySession } from '../lib/adminIdentity'
 import { computeCompleteness } from '../lib/completeness'
+import { computeCarpetToSuperRatio } from '../lib/calculators'
 import { normalisePortalSubdomain } from '../lib/portalSubdomain'
 import { checkRateLimit, resetRateLimit, getCached, setCached, deleteCached } from '../lib/cache'
 import { z } from 'zod'
@@ -3611,10 +3612,10 @@ router.post('/projects/:id/units', async (req: Request, res: Response) => {
 
     const superArea = data.super_area_sqft ? parseInt(data.super_area_sqft) : null
     const carpetArea = data.carpet_area_sqft ? parseInt(data.carpet_area_sqft) : null
-    let ratio = data.carpet_to_super_ratio_pct ? parseFloat(data.carpet_to_super_ratio_pct) : null
-    if (!ratio && superArea && carpetArea && superArea > 0) {
-      ratio = Math.round((carpetArea / superArea) * 1000) / 10
-    }
+    // carpet_to_super_ratio_pct is computed from the areas, not accepted from
+    // the request body — layout_efficiency_pct (the old second copy of this
+    // same number) was dropped from the schema in the lean-schema migration.
+    const ratio = computeCarpetToSuperRatio(carpetArea, superArea)
 
     const unit = await (prisma as any).unitType.create({
       data: {
@@ -3625,7 +3626,6 @@ router.post('/projects/:id/units', async (req: Request, res: Response) => {
         carpet_area_sqft: carpetArea,
         carpet_to_super_ratio_pct: ratio,
         built_up_area_sqft: data.built_up_area_sqft ? parseInt(data.built_up_area_sqft) : (carpetArea ? Math.round(carpetArea * 1.15) : null),
-        layout_efficiency_pct: data.layout_efficiency_pct ? parseFloat(data.layout_efficiency_pct) : ratio,
         unit_orientations: Array.isArray(data.unit_orientations) ? data.unit_orientations : ['east_facing', 'north_facing'],
         balconies: data.balconies ? parseInt(data.balconies) : null,
         balcony_area_sqft: data.balcony_area_sqft ? parseInt(data.balcony_area_sqft) : null,
@@ -3633,8 +3633,6 @@ router.post('/projects/:id/units', async (req: Request, res: Response) => {
         price_min_cr: data.price_min_cr ? parseFloat(data.price_min_cr) : null,
         price_max_cr: data.price_max_cr ? parseFloat(data.price_max_cr) : null,
         price_label: data.price_label || null,
-        price_is_estimated: data.price_is_estimated ?? true,
-        views: data.views || []
       }
     })
     res.json({ success: true, unit })
@@ -3651,10 +3649,20 @@ router.patch('/units/:id', async (req: Request, res: Response) => {
   try {
     const superArea = data.super_area_sqft !== undefined ? (data.super_area_sqft ? parseInt(data.super_area_sqft) : null) : undefined
     const carpetArea = data.carpet_area_sqft !== undefined ? (data.carpet_area_sqft ? parseInt(data.carpet_area_sqft) : null) : undefined
-    
-    let ratio = data.carpet_to_super_ratio_pct !== undefined ? (data.carpet_to_super_ratio_pct ? parseFloat(data.carpet_to_super_ratio_pct) : null) : undefined
-    if (ratio === undefined && superArea !== undefined && carpetArea !== undefined && superArea && carpetArea) {
-      ratio = Math.round((carpetArea / superArea) * 1000) / 10
+
+    // Only recompute the ratio when at least one of the two areas is part of
+    // this update — an unrelated field edit (price, balconies, ...) must not
+    // silently touch it. When recomputing, read whichever side wasn't part of
+    // this request from the existing row rather than assume it's unchanged to
+    // null.
+    let ratio: number | null | undefined
+    if (superArea !== undefined || carpetArea !== undefined) {
+      const existing = (superArea === undefined || carpetArea === undefined)
+        ? await (prisma as any).unitType.findUnique({ where: { id }, select: { super_area_sqft: true, carpet_area_sqft: true } })
+        : null
+      const effectiveSuper = superArea !== undefined ? superArea : existing?.super_area_sqft ?? null
+      const effectiveCarpet = carpetArea !== undefined ? carpetArea : existing?.carpet_area_sqft ?? null
+      ratio = computeCarpetToSuperRatio(effectiveCarpet, effectiveSuper)
     }
 
     const unit = await (prisma as any).unitType.update({
@@ -3666,7 +3674,6 @@ router.patch('/units/:id', async (req: Request, res: Response) => {
         ...(carpetArea !== undefined && { carpet_area_sqft: carpetArea }),
         ...(ratio !== undefined && { carpet_to_super_ratio_pct: ratio }),
         ...(data.built_up_area_sqft !== undefined && { built_up_area_sqft: data.built_up_area_sqft ? parseInt(data.built_up_area_sqft) : null }),
-        ...(data.layout_efficiency_pct !== undefined && { layout_efficiency_pct: data.layout_efficiency_pct ? parseFloat(data.layout_efficiency_pct) : null }),
         ...(data.unit_orientations !== undefined && { unit_orientations: Array.isArray(data.unit_orientations) ? data.unit_orientations : [] }),
         ...(data.balconies !== undefined && { balconies: data.balconies ? parseInt(data.balconies) : null }),
         ...(data.balcony_area_sqft !== undefined && { balcony_area_sqft: data.balcony_area_sqft ? parseInt(data.balcony_area_sqft) : null }),
@@ -3674,9 +3681,7 @@ router.patch('/units/:id', async (req: Request, res: Response) => {
         ...(data.price_min_cr !== undefined && { price_min_cr: data.price_min_cr ? parseFloat(data.price_min_cr) : null }),
         ...(data.price_max_cr !== undefined && { price_max_cr: data.price_max_cr ? parseFloat(data.price_max_cr) : null }),
         ...(data.price_label !== undefined && { price_label: data.price_label }),
-        ...(data.layout_variant_name !== undefined && { layout_variant_name: data.layout_variant_name }),
-        ...(data.towers !== undefined && { towers: data.towers, tower_association: data.towers }),
-        ...(data.views !== undefined && { views: data.views })
+        ...(data.towers !== undefined && { towers: data.towers, tower_association: data.towers })
       }
     })
     res.json({ success: true, unit })
