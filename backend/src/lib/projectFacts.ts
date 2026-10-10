@@ -38,7 +38,7 @@ async function resolveProject(nameOrId: string) {
     select: {
       id: true, name: true, sector: true, city: true, state: true, status: true, price_range_label: true, floors: true, total_towers: true, address: true, rera_number: true,
       possession_date: true, possession_label: true, builder_id: true,
-      water_source: true, dg_power_rate_per_unit: true, maintenance_per_sqft_monthly: true, has_png_gas_pipeline: true, mobile_network_rating: true, ceiling_height_ft: true, lifts_per_tower: true, has_service_lift: true, shared_walls_type: true, authority_dues_cleared: true, land_tenure: true, pet_friendly: true, bachelor_tenants_allowed: true, open_space_pct: true,
+      water_source: true, dg_power_rate_per_unit: true, maintenance_per_sqft_monthly: true, ceiling_height_ft: true, lifts_per_tower: true, shared_walls_type: true, open_space_pct: true,
       oc_status: true, oc_details: true, amitabh_kant_clearance: true, bank_apf_codes: true, water_source_type: true, water_tds_range: true, shahdara_drain_impact: true, lift_act_compliant: true, power_supply_type: true, all_in_cost_multiplier: true
     },
     // Prefer an exact-ish match: shorter names rank first for a `contains` hit.
@@ -62,7 +62,7 @@ async function resolveProject(nameOrId: string) {
       select: {
         id: true, name: true, sector: true, city: true, state: true, status: true, price_range_label: true, floors: true, total_towers: true, address: true, rera_number: true,
         possession_date: true, possession_label: true, builder_id: true,
-        water_source: true, dg_power_rate_per_unit: true, maintenance_per_sqft_monthly: true, has_png_gas_pipeline: true, mobile_network_rating: true, ceiling_height_ft: true, lifts_per_tower: true, has_service_lift: true, shared_walls_type: true, authority_dues_cleared: true, land_tenure: true, pet_friendly: true, bachelor_tenants_allowed: true, open_space_pct: true,
+        water_source: true, dg_power_rate_per_unit: true, maintenance_per_sqft_monthly: true, ceiling_height_ft: true, lifts_per_tower: true, shared_walls_type: true, open_space_pct: true,
         oc_status: true, oc_details: true, amitabh_kant_clearance: true, bank_apf_codes: true, water_source_type: true, water_tds_range: true, shahdara_drain_impact: true, lift_act_compliant: true, power_supply_type: true, all_in_cost_multiplier: true
       },
     })
@@ -419,19 +419,12 @@ function buildLivingSpecifications(project: Record<string, unknown>): Record<str
   put('water_source', project.water_source)
   put('dg_power_rate_per_unit', project.dg_power_rate_per_unit, (v: number) => `₹${v}/kWh`)
   put('monthly_maintenance', project.maintenance_per_sqft_monthly, (v: number) => `₹${v}/sq.ft/month`)
-  put('piped_gas_png', own('has_png_gas_pipeline'))
-  put('mobile_network_rating', own('mobile_network_rating'), (v: number) => `${v}/5`)
   put('ceiling_height', own('ceiling_height_ft'), (v: number) => `${v} ft`)
   put('privacy_layout', project.shared_walls_type)
-  put('land_tenure', own('land_tenure'))
-  put('authority_dues_cleared', own('authority_dues_cleared'))
-  put('pet_friendly', own('pet_friendly'))
-  put('bachelor_tenants_allowed', own('bachelor_tenants_allowed'))
   put('open_space_percentage', project.open_space_pct, (v: number) => `${v}%`)
 
   const elevators: Record<string, unknown> = {}
   if (own('lifts_per_tower') != null) elevators.lifts_per_tower = project.lifts_per_tower
-  if (own('has_service_lift') != null) elevators.has_dedicated_service_lift = project.has_service_lift
   if (Object.keys(elevators).length > 0) spec.elevators = elevators
 
   return spec
@@ -1275,7 +1268,6 @@ export async function getProjectDueDiligence(nameOrId: string): Promise<Record<s
       all_in_cost_multiplier: true,
       maintenance_per_sqft_monthly: true,
       dg_power_rate_per_unit: true,
-      authority_dues_cleared: true,
       rera_number: true,
       rera_url: true,
       builder: {
@@ -1339,7 +1331,6 @@ export async function getProjectDueDiligence(nameOrId: string): Promise<Record<s
       },
       registry_and_clearances: {
         amitabh_kant_clearance: project.amitabh_kant_clearance ?? null,
-        authority_dues_cleared: isSchemaDefault('authority_dues_cleared', project.authority_dues_cleared) ? null : (project.authority_dues_cleared ?? null),
         rera_number: project.rera_number,
         builder_insolvency_history: project.builder?.insolvency_history === true ? true : null,
       },
