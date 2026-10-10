@@ -44,7 +44,6 @@ async function main() {
       carpet_area_sqft: 1650,
       super_area_sqft: 2100,
       bathrooms: 2,
-      inventory_left: 45,
     }
   })
 

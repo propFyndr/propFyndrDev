@@ -24,15 +24,6 @@ export interface DocumentSnapshot {
   doc_type: string
 }
 
-export interface DnaSnapshot {
-  builder_score?: number | null
-  price_score?:   number | null
-  location_score?: number | null
-  legal_score?:   number | null
-  amenity_score?: number | null
-  possession_score?: number | null
-}
-
 export interface DecisionProfileSnapshot {
   decision_thesis: string | null
   why_buy:         string[]
@@ -40,16 +31,6 @@ export interface DecisionProfileSnapshot {
   best_for?:       string | null
   financial_intelligence?: Record<string, unknown>
   market_intelligence?: Record<string, unknown>
-}
-
-export interface PersonaProfileSnapshot {
-  primary_persona?:    string | null
-  secondary_personas?: string[]
-}
-
-export interface RecommendationProfileSnapshot {
-  tier?:           string | null
-  primary_thesis?: string | null
 }
 
 export interface ProjectSnapshot {
@@ -73,25 +54,15 @@ export interface ProjectSnapshot {
   price_range_label?: string | null
 
   // Phase 5 fields
-  nri_eligible?:        boolean | null
-  vastu_compliant?:     boolean | null
-  women_safety_score?:  number | null
   air_quality_index_avg?: number | null
 
   // Living Specs & 2026 Standards
   water_source?:                 string | null
   dg_power_rate_per_unit?:       number | null
   maintenance_per_sqft_monthly?: number | null
-  has_png_gas_pipeline?:         boolean | null
-  mobile_network_rating?:        number | null
   ceiling_height_ft?:            number | null
   lifts_per_tower?:              number | null
-  has_service_lift?:             boolean | null
   shared_walls_type?:            string | null
-  authority_dues_cleared?:       boolean | null
-  land_tenure?:                  string | null
-  pet_friendly?:                 boolean | null
-  bachelor_tenants_allowed?:     boolean | null
 
   // Relations
   builder:                  { id: string; name: string } | null
@@ -99,10 +70,7 @@ export interface ProjectSnapshot {
   images:                   ImageSnapshot[]
   amenities:                { id: string }[]
   connectivity:             { id: string }[]
-  dna:                      DnaSnapshot | null
   decision_profile:         DecisionProfileSnapshot | null
-  persona_profile:          PersonaProfileSnapshot | null
-  recommendation_profile:   RecommendationProfileSnapshot | null
   competitors:              { id: string }[]
   cost_sheet?:              Record<string, unknown>
   payment_plans?:           Array<Record<string, unknown>>
@@ -275,37 +243,19 @@ export function computeCompleteness(project: ProjectSnapshot): CompletenessResul
   const decScore = Math.round((decPoints.filter(Boolean).length / decPoints.length) * 100)
   if (decScore < 100) missing.intelligence.push('Decision profile incomplete (thesis, why buy/avoid, target buyer)')
 
-  const hasPersona = present(project.persona_profile?.primary_persona ?? null)
-  const perPoints = [
-    hasPersona,
-    present((project.persona_profile as any)?.income_range ?? null),
-    present((project.persona_profile as any)?.family_stage ?? null),
-    present((project.persona_profile as any)?.work_location ?? null),
-  ]
-  const perScore = Math.round((perPoints.filter(Boolean).length / perPoints.length) * 100)
-  if (perScore < 100) missing.intelligence.push('Persona profile incomplete (primary persona, income range, family stage)')
-
-  const hasRecommendationTier = present(project.recommendation_profile?.tier ?? null)
-  const recPoints = [
-    hasRecommendationTier,
-    present(project.recommendation_profile?.primary_thesis ?? null),
-  ]
-  const recScore = Math.round((recPoints.filter(Boolean).length / recPoints.length) * 100)
-  if (recScore < 100) missing.intelligence.push('Recommendation profile incomplete (tier, thesis)')
-
-  const hasDna = project.dna != null
-  if (!hasDna) missing.intelligence.push('Project DNA scores missing')
+  // PersonaProfile, RecommendationProfile and ProjectDna are dropped entirely
+  // (lean-schema migration, 2026-10) — there is nothing left to score here
+  // until sub-project C re-sources them. Scoring them as permanently
+  // incomplete would have sat a hard ceiling under every project's
+  // intelligence score and nagged every admin with a "missing" item for a
+  // feature that no longer exists.
 
   const hasCompetitors = (project.competitors?.length ?? 0) >= 1
   if (!hasCompetitors) missing.intelligence.push('Competitor analysis missing')
 
-  const dnaScore = hasDna ? 100 : 0
   const compScore = hasCompetitors ? 100 : 0
 
   enrichment.push(hasDecisionThesis)
-  enrichment.push(hasPersona)
-  enrichment.push(hasRecommendationTier)
-  enrichment.push(hasDna)
   enrichment.push(hasCompetitors)
 
   // CostSheet, PaymentPlans & Timelines
@@ -388,7 +338,7 @@ export function computeCompleteness(project: ProjectSnapshot): CompletenessResul
   ))
 
   // 4. Intelligence Tab (20% weight)
-  const intelligenceScore = Math.round((dnaScore + decScore + perScore + recScore + compScore) / 5)
+  const intelligenceScore = Math.round((decScore + compScore) / 2)
 
   // 5. Updates & Timeline Tab (10% weight)
   const isReady = project.status === 'ready_to_move'

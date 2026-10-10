@@ -1,5 +1,20 @@
 import { getSyncStampDutyRate, getSyncGstRate } from './tax/taxEngine'
 
+/**
+ * carpet ÷ super × 100, or null when either area is unrecorded or super is 0.
+ *
+ * For a write path storing UnitType.carpet_to_super_ratio_pct — tolerates
+ * missing inputs (unlike calcLoadingRatio, built for a buyer-facing chat
+ * answer where both areas are already known to be present).
+ */
+export function computeCarpetToSuperRatio(
+  carpetAreaSqft: number | null | undefined,
+  superAreaSqft: number | null | undefined,
+): number | null {
+  if (carpetAreaSqft == null || superAreaSqft == null || superAreaSqft === 0) return null
+  return Math.round((carpetAreaSqft / superAreaSqft) * 10000) / 100
+}
+
 export function formatInr(amount: number): string {
   if (amount >= 1_00_00_000) return `₹${(amount / 1_00_00_000).toFixed(2)} Cr`
   if (amount >= 1_00_000) return `₹${(amount / 1_00_000).toFixed(2)} L`

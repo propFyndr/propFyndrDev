@@ -49,7 +49,7 @@ router.get('/', routeCache(300), async (req: Request, res: Response) => {
 })
 
 router.get('/:slug', routeCache(900), async (req: Request, res: Response) => {
-  const project: any = await (prisma.project.findUnique as any)({
+  const project = await prisma.project.findUnique({
     where: { slug: req.params.slug },
     include: {
       builder: true,
@@ -57,18 +57,6 @@ router.get('/:slug', routeCache(900), async (req: Request, res: Response) => {
       images: { orderBy: { sort_order: 'asc' } },
       amenities: true,
       connectivity: { orderBy: { distance_km: 'asc' } },
-      dna: {
-        select: {
-          overall_score:    true,
-          builder_score:    true,
-          price_score:      true,
-          location_score:   true,
-          legal_score:      true,
-          amenity_score:    true,
-          possession_score: true,
-          last_verified_at: true,
-        },
-      },
       decision_profile: {
         select: {
           status:             true,
@@ -85,18 +73,6 @@ router.get('/:slug', routeCache(900), async (req: Request, res: Response) => {
           comparative_analysis: true,
           resources_documents: true,
           last_verified_at:   true,
-        },
-      },
-      persona_profile: true,
-      recommendation_profile: {
-        select: {
-          status:               true,
-          tier:                 true,
-          primary_thesis:       true,
-          walk_away_conditions: true,
-          timeline_advice:      true,
-          negotiation_leverage: true,
-          last_verified_at:     true,
         },
       },
       competitors: {
@@ -141,7 +117,6 @@ router.get('/:slug', routeCache(900), async (req: Request, res: Response) => {
   const gated = {
     ...project,
     decision_profile: gatePublished(project.decision_profile),
-    recommendation_profile: gatePublished(project.recommendation_profile),
     payment_plan: project.payment_plans?.[0] ?? null,
     payment_plans: project.payment_plans ?? [],
     cost_sheet: project.cost_sheet ?? null,
@@ -152,26 +127,16 @@ router.get('/:slug', routeCache(900), async (req: Request, res: Response) => {
     promotions: activePromotions ?? [],
   }
 
-  // Compute deterministic recommendation score from raw DNA scores
+  // ProjectDna is dropped (lean-schema migration, 2026-10) — no DNA scores
+  // exist to compute a recommendation score from. basis_count: 0 means every
+  // downstream reader that gates on basis_count >= 3 correctly hides this.
   const recommendation_score = computeRecommendationScore({
-    dna: gated.dna ?? null,
+    dna: null,
     status: gated.status as 'under_construction' | 'ready_to_move' | 'new_launch',
     possession_date: gated.possession_date ?? null,
     project_risk_flag: gated.project_risk_flag ?? null,
     builder: { legal_flag: gated.builder?.legal_flag ?? null },
   })
-
-  // Public DNA with simplified scores
-  const publicDna = gated.dna ? {
-    overall_score:     gated.dna.overall_score,
-    builder_score:     gated.dna.builder_score,
-    price_score:       gated.dna.price_score,
-    location_score:    gated.dna.location_score,
-    legal_score:       gated.dna.legal_score,
-    amenity_score:     gated.dna.amenity_score,
-    possession_score:  gated.dna.possession_score,
-    last_verified_at:  gated.dna.last_verified_at,
-  } : null
 
   const reportUrl = `/api/projects/${gated.slug}/report`;
 
@@ -181,7 +146,7 @@ router.get('/:slug', routeCache(900), async (req: Request, res: Response) => {
   // matching and ranking work. builder_theme stays: the page uses it to theme.
   const { ai_search_keywords: _internalKeywords, ...publicProject } = gated
 
-  res.json({ project: { ...publicProject, builder_detail: gated.builder, dna: publicDna, recommendation_score, reportUrl, all_amenities: gated.amenities, all_connectivity: gated.connectivity } })
+  res.json({ project: { ...publicProject, builder_detail: gated.builder, recommendation_score, reportUrl, all_amenities: gated.amenities, all_connectivity: gated.connectivity } })
 })
 
 router.get('/:slug/documents', async (req: Request, res: Response) => {
@@ -278,55 +243,18 @@ router.get('/:slug/cost-sheet', async (req: Request, res: Response) => {
   })
 })
 
+// ProjectDna and RecommendationProfile are dropped (lean-schema migration,
+// 2026-10) — their re-sourcing with real data is sub-project C, not this one.
+// Render nothing rather than invent an appreciation estimate (CLAUDE.md:
+// no invented, defaulted, or unlabelled figure may reach a buyer).
 router.get('/:slug/investment', async (req: Request, res: Response) => {
   const project = await prisma.project.findUnique({
     where: { slug: req.params.slug },
-    select: {
-      id: true,
-      sector: true,
-      status: true,
-      possession_date: true,
-      dna: {
-        select: {
-          location_score: true,
-          price_score: true,
-          possession_score: true,
-          builder_score: true,
-        },
-      },
-      recommendation_profile: {
-        select: { tier: true, primary_thesis: true },
-      },
-    },
+    select: { id: true },
   })
   if (!project) { res.status(404).json({ error: 'Not found' }); return }
 
-  // Gate unverified intelligence before exposing it.
-  const recProfile = gatePublished(project.recommendation_profile)
-
-  // Investment intelligence is derived, never fabricated
-  const locationScore = project.dna?.location_score ?? null
-  const valueScore    = project.dna?.price_score ?? null
-
-  const potentialAppreciation = (() => {
-    if (locationScore == null || valueScore == null) return null
-    if (locationScore >= 70 && valueScore >= 65) return 'Strong'
-    if (locationScore >= 55 && valueScore >= 50) return 'Moderate'
-    return 'Weak'
-  })()
-
-  res.json({
-    available: true,
-    intelligence: {
-      sector:                 project.sector,
-      status:                 project.status,
-      possession_date:        project.possession_date,
-      recommendation_tier:    recProfile?.tier ?? null,
-      recommendation_thesis:  recProfile?.primary_thesis ?? null,
-      potential_appreciation: potentialAppreciation,
-      data_note:              'Investment projections are indicative only — not financial advice. Verify rental yields and capital appreciation with a licensed advisor.',
-    },
-  })
+  res.json({ available: false })
 })
 
 router.get('/:slug/overview', async (req: Request, res: Response) => {
@@ -338,17 +266,6 @@ router.get('/:slug/overview', async (req: Request, res: Response) => {
       possession_date: true,
       project_risk_flag: true,
       builder: { select: { id: true, legal_flag: true } },
-      dna: {
-        select: {
-          overall_score:    true,
-          builder_score:    true,
-          price_score:      true,
-          location_score:   true,
-          legal_score:      true,
-          amenity_score:    true,
-          possession_score: true,
-        },
-      },
     },
   })
   if (!project) { res.status(404).json({ error: 'Not found' }); return }
@@ -374,18 +291,11 @@ router.get('/:slug/overview', async (req: Request, res: Response) => {
     }),
   ])
 
-  const verdict = computeRecommendationScore({
-    dna: project.dna,
-    status: project.status as 'under_construction' | 'ready_to_move' | 'new_launch',
-    possession_date: project.possession_date,
-    project_risk_flag: project.project_risk_flag ?? null,
-    builder: { legal_flag: project.builder?.legal_flag ?? null },
-  })
-
+  // ProjectDna is dropped (lean-schema migration, 2026-10) — no DNA scores
+  // exist to compute a verdict badge from, so this never had a basis to show.
   res.json({
     available: true,
-    // Hide the whole verdict badge when fewer than half the DNA dimensions have real data.
-    verdict: verdict.basis_count >= 3 ? verdict : null,
+    verdict: null,
     live_activity: liveActivity,
     price_history: priceHistory.length > 0 ? priceHistory : null,
     construction_milestones: milestones.length > 0 ? milestones : null,

@@ -159,18 +159,6 @@ function getTabAuditDetails(
     if ((data?.decision_profile?.why_avoid?.length || 0) >= 1) completed.push(`Why Avoid Bullets (${data.decision_profile.why_avoid.length} added)`)
     else missing.push('Why Avoid Risk Points')
 
-    if (data?.persona_profile?.primary_persona) completed.push('Primary Buyer Persona')
-    else missing.push('Primary Buyer Persona')
-
-    if (data?.persona_profile?.income_range) completed.push('Persona Income Range')
-    else missing.push('Persona Income Range')
-
-    if (data?.recommendation_profile?.tier) completed.push(`Recommendation Tier (${data.recommendation_profile.tier})`)
-    else missing.push('Recommendation Tier')
-
-    if (data?.dna) completed.push('Project DNA Scores')
-    else missing.push('Project DNA Scores')
-
     if ((data?.competitors?.length || 0) >= 1) completed.push(`Competitor Analysis (${data.competitors.length} linked)`)
     else missing.push('Competitor Analysis')
   }
@@ -871,10 +859,7 @@ export default function AdminProjectEditPage({
             <div>
               <IntelligenceWorkspace
                 projectId={id}
-                initialDna={data.dna ?? data.project_dna}
                 initialDecision={data.decision_profile}
-                initialPersona={data.persona_profile}
-                initialRecommendation={data.recommendation_profile}
                 initialCompetitors={data.competitors ?? []}
                 initialSpecs={data.spec_items ?? []}
                 onSaved={handleSaved}

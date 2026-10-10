@@ -1,7 +1,7 @@
 'use client'
 import {
   Building2, CheckCircle2, LineChart, BedDouble,
-  MapPin, Award, CalendarDays, FileText, IndianRupee, X, ShieldCheck, Users, HardHat
+  MapPin, CalendarDays, FileText, IndianRupee, X, ShieldCheck, Users, HardHat
 } from 'lucide-react'
 
 import { useState, useEffect, useRef, useCallback } from 'react'
@@ -289,30 +289,16 @@ export default function ProjectDetailPanel({ project, onClose, inline, initialDe
 
   const bhkLabel = [...new Set((d?.unit_types ?? []).map((u) => `${u.bhk}BHK`))].join(' · ')
 
-  // recommendation_profile.tier removed from display (2026-10-10): every
-  // seeded project carries tier STRONG_BUY, so "Rated as Strong Buy" was
-  // shown unconditionally rather than reflecting a real assessment.
-  const persona       = detail?.persona_profile?.primary_persona ?? null
+  // PersonaProfile and RecommendationProfile are dropped (lean-schema
+  // migration, 2026-10) — nothing left to derive a persona or recommendation
+  // timeline/leverage from until sub-project C re-sources them.
   const decisionThesis = detail?.decision_profile?.decision_thesis ?? null
   const whyBuy        = detail?.decision_profile?.why_buy ?? []
   const whyAvoid      = detail?.decision_profile?.why_avoid ?? []
-  const timelineAdvice     = detail?.recommendation_profile?.timeline_advice ?? null
-  const negotiationLeverage = detail?.recommendation_profile?.negotiation_leverage ?? []
-  const walkAwayConditions  = detail?.recommendation_profile?.walk_away_conditions ?? []
+  const timelineAdvice: string | null = null
+  const negotiationLeverage: string[] = []
+  const walkAwayConditions: string[] = []
   const competitors   = detail?.competitors ?? []
-
-  // ── Persona Notion-style callout (shared mobile/desktop) ─────────────────────
-  const intelligenceChips = persona && (
-    <div className="flex items-start gap-md bg-surface-2 border border-border rounded-lg p-lg">
-      <Award size={16} className="text-primary mt-0.5 flex-shrink-0" />
-      <div>
-        <p className="text-xs font-bold text-text-primary mb-md">Investment Thesis</p>
-        <p className="text-sm text-text-secondary leading-relaxed">
-          Ideal for {persona.charAt(0) + persona.slice(1).toLowerCase()}.
-        </p>
-      </div>
-    </div>
-  )
 
   // ── Shared tab body ───────────────────────────────────────────────────────
   // Single tab-switch transition reused by all three render paths below

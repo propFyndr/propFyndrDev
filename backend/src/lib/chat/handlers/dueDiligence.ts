@@ -196,7 +196,6 @@ Name any project (e.g. *Elite X*, *ACE Parkway*, *Godrej Woods*) to view its ver
 | :--- | :--- | :--- |
 | **Occupancy Certificate (OC)** | **${ocDisplay}** | ${project.oc_status === 'FULL_OC' ? 'Direct registry and lawful move-in enabled' : 'Registry cannot complete until full OC is granted'} |
 | **Amitabh Kant policy (25% dues)** | **${kantDisplay}** | ${project.amitabh_kant_clearance === true ? 'The authority has unblocked sub-lease registry for buyers here' : 'Sub-lease registry stays blocked until the developer clears 25% of recalculated net dues'} |
-| **Authority dues** | ${told(isSchemaDefault('authority_dues_cleared', project.authority_dues_cleared) ? null : project.authority_dues_cleared, v => v ? 'In good standing' : 'Outstanding dues on record')} | From our project record |
 | **RERA registration** | ${project.rera_number ? `**UPRERA: ${project.rera_number}**` : 'Not recorded'} | ${project.rera_number ? 'Full statutory disclosure available on the UP RERA portal' : 'We hold no RERA number for this project — verify on up-rera.in before paying anything'} |
 | **Bank APF codes** | ${apfCodes.length ? `**${apfCodes.join(', ')}**` : UNVERIFIED} | An APF code means a lender has already appraised the project's title |
 

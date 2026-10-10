@@ -139,15 +139,10 @@ export interface UnitTypeSummary {
   subtitle?: string | null
   description?: string | null
   category_badge?: string | null
-  inventory_left?: number | null
-  perfect_for?: string[]
-  key_highlights?: any
   whats_included?: any
-  views?: any
   balconies?: number | null
   built_up_area_sqft?: number | null
   utility_area_sqft?: number | null
-  efficiency_rating?: string | null
   tower_association?: string[]
   price_per_sqft?: number | null
 }
@@ -230,17 +225,10 @@ export interface ProjectDetail extends ProjectCard {
   total_units: number | null
   has_penthouse?: boolean | null
   has_duplex?: boolean | null
-  vastu_compliant?: boolean | null
   price_per_sqft_current?: number | null
-  appreciation_potential_5yr?: number | null
   rental_yield_annual_percent?: number | null
-  resale_lock_in_months?: number | null
-  market_demand_score?: number | null
-  competing_projects_nearby?: number | null
-  nri_eligible?: boolean | null
   is_rera_approved?: boolean | null
   nclt_moratorium_active?: boolean | null
-  escrow_verified?: boolean | null
   escrow_bank_name?: string | null
   land_title_clear?: boolean | null
   litigation_count?: number | null
@@ -251,10 +239,7 @@ export interface ProjectDetail extends ProjectCard {
   channel_partners: { name: string; type: string; is_verified: boolean }[]
   spec_items: { label: string; value: string; brand?: string | null; tier?: string | null; category: string; verified_at?: Date | null }[]
   builder_detail: BuilderDetail
-  dna:                    ProjectDnaPublic | null
   decision_profile:       DecisionProfilePublic | null
-  persona_profile:        PersonaProfile | null
-  recommendation_profile: RecommendationProfilePublic | null
   competitors:            CompetitorSummary[]
   recommendation_score:   RecommendationScore | null
   promotions: Promotion[]
@@ -305,7 +290,6 @@ export interface ProjectDetail extends ProjectCard {
   average_builder_delay_months?: number | null
 
   /** Legal and registry standing. */
-  legal_flag?: string | null
   legal_flag_detail?: string | null
   project_risk_flag?: string | null
   registry_status?: string | null
@@ -314,7 +298,6 @@ export interface ProjectDetail extends ProjectCard {
   litigation_types?: string[] | null
   nclt_status?: string | null
   fir_against_project?: boolean | null
-  authority_dues_cleared?: boolean | null
 
   /** Location analysis — advantages must never appear without concerns. */
   location_advantages?: unknown
@@ -327,7 +310,6 @@ export interface ProjectDetail extends ProjectCard {
   flood_zone?: string | null
   aqi_annual_avg?: number | null
   air_quality_index_avg?: number | null
-  noise_level_db?: number | null
 
   project_type?: string | null
 }
@@ -340,16 +322,6 @@ export type BuyerPersona = 'FAMILY' | 'PROFESSIONAL' | 'INVESTOR' | 'NRI' | 'UPG
 export type RiskAppetite = 'LOW' | 'MEDIUM' | 'HIGH'
 export type ConfidenceSource = 'RERA' | 'Project Documents' | 'Site Visit' | 'Builder Claim' | 'Estimated'
 
-export interface ProjectDnaPublic {
-  builder_track_record_label: string | null
-  price_position_label:       string | null
-  locality_label:             string | null
-  rera_compliance_label:      string | null
-  amenity_depth_label:        string | null
-  possession_certainty_label: string | null
-  last_verified_at:           string | null
-}
-
 export interface DecisionProfilePublic {
   status:             IntelligenceStatus
   decision_thesis:    string | null
@@ -360,28 +332,6 @@ export interface DecisionProfilePublic {
   confidence_sources: ConfidenceSource[]
   intelligence_data?: any
   last_verified_at:   string | null
-}
-
-export interface PersonaProfile {
-  primary_persona:    BuyerPersona | null
-  secondary_personas: BuyerPersona[]
-  persona_descriptions: Record<string, string> | null
-  income_range:       string | null
-  family_stage:       string | null
-  work_location:      string | null
-  risk_appetite:      RiskAppetite | null
-  timeline_horizon:   string | null
-  motivation_note:    string | null
-}
-
-export interface RecommendationProfilePublic {
-  status:               IntelligenceStatus
-  tier:                 RecommendationTier | null
-  primary_thesis:       string | null
-  walk_away_conditions: string[]
-  timeline_advice:      string | null
-  negotiation_leverage: string[]
-  last_verified_at:     string | null
 }
 
 export interface ScoreDimension {

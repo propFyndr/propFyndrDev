@@ -45,36 +45,21 @@ interface ProjectData {
   ai_search_keywords: string[]
 
   // Phase 5 Fields
-  nri_eligible?: boolean
-  vastu_compliant?: boolean
   has_penthouse?: boolean
   has_duplex?: boolean
-  women_safety_score?: string
   air_quality_index_avg?: string
-  noise_level_db?: string
   green_cover_percent?: string
-  market_demand_score?: string
-  appreciation_potential_5yr?: string
   rental_yield_annual_percent?: string
-  resale_lock_in_months?: string
   approvals_status?: string
-  escrow_verified?: boolean
   registry_status?: string
 
   // Living Specs & 2026 Comprehensive Standards
   water_source?: string
   dg_power_rate_per_unit?: string
   maintenance_per_sqft_monthly?: string
-  has_png_gas_pipeline?: boolean
-  mobile_network_rating?: string
   ceiling_height_ft?: string
   lifts_per_tower?: string
-  has_service_lift?: boolean
   shared_walls_type?: string
-  authority_dues_cleared?: boolean
-  land_tenure?: string
-  pet_friendly?: boolean
-  bachelor_tenants_allowed?: boolean
 
   // Forensic Due Diligence & Living Quality (Day 3 Expansion)
   oc_status?: 'FULL_OC' | 'PHASED_OC' | 'APPLIED' | 'NONE'
@@ -122,24 +107,17 @@ const EMPTY: ProjectData = {
   description: '', long_description: '', design_theme: '', architect: '', interior_designer: '', floors: '', open_space_pct: '', green_rating: '',
 
   hero_image_url: '', marketing_claims: [], ai_search_keywords: [],
-  nri_eligible: true, vastu_compliant: true, has_penthouse: false, has_duplex: false,
-  women_safety_score: '92', air_quality_index_avg: '155', noise_level_db: '45', green_cover_percent: '75',
-  market_demand_score: '90', appreciation_potential_5yr: '14.5', rental_yield_annual_percent: '4.5',
-  resale_lock_in_months: '36', approvals_status: 'Fully Approved by RERA', escrow_verified: true, registry_status: 'open',
+  has_penthouse: false, has_duplex: false,
+  air_quality_index_avg: '155', green_cover_percent: '75',
+  rental_yield_annual_percent: '4.5',
+  approvals_status: 'Fully Approved by RERA', registry_status: 'open',
 
   water_source: 'Ganga Jal Pipeline (Noida Authority) + Centralized WTP',
   dg_power_rate_per_unit: '21.00',
   maintenance_per_sqft_monthly: '2.75',
-  has_png_gas_pipeline: true,
-  mobile_network_rating: '4',
   ceiling_height_ft: '10.2',
   lifts_per_tower: '3',
-  has_service_lift: true,
   shared_walls_type: 'Zero Shared Walls / 3-Side Open Layout',
-  authority_dues_cleared: true,
-  land_tenure: '99-Year Authority Leasehold',
-  pet_friendly: true,
-  bachelor_tenants_allowed: true,
 
   // Forensic Due Diligence & Living Quality.
   //
@@ -342,36 +320,21 @@ export default function ProjectForm({ initialData, projectId, onFormChange, onSa
       ai_search_keywords: form.ai_search_keywords,
 
       // Phase 5 Fields
-      nri_eligible:                form.nri_eligible,
-      vastu_compliant:             form.vastu_compliant,
       has_penthouse:               form.has_penthouse,
       has_duplex:                  form.has_duplex,
-      women_safety_score:          form.women_safety_score ? parseInt(form.women_safety_score) : undefined,
       air_quality_index_avg:       form.air_quality_index_avg ? parseInt(form.air_quality_index_avg) : undefined,
-      noise_level_db:              form.noise_level_db ? parseInt(form.noise_level_db) : undefined,
       green_cover_percent:         form.green_cover_percent ? parseInt(form.green_cover_percent) : undefined,
-      market_demand_score:         form.market_demand_score ? parseInt(form.market_demand_score) : undefined,
-      appreciation_potential_5yr:  form.appreciation_potential_5yr ? parseFloat(form.appreciation_potential_5yr) : undefined,
       rental_yield_annual_percent: form.rental_yield_annual_percent ? parseFloat(form.rental_yield_annual_percent) : undefined,
-      resale_lock_in_months:       form.resale_lock_in_months ? parseInt(form.resale_lock_in_months) : undefined,
       approvals_status:            form.approvals_status || undefined,
-      escrow_verified:             form.escrow_verified,
       registry_status:             form.registry_status || undefined,
 
       // Living Specs & 2026 Standards
       water_source:                 form.water_source || undefined,
       dg_power_rate_per_unit:       form.dg_power_rate_per_unit ? parseFloat(form.dg_power_rate_per_unit) : undefined,
       maintenance_per_sqft_monthly: form.maintenance_per_sqft_monthly ? parseFloat(form.maintenance_per_sqft_monthly) : undefined,
-      has_png_gas_pipeline:         form.has_png_gas_pipeline,
-      mobile_network_rating:        form.mobile_network_rating ? parseInt(form.mobile_network_rating) : undefined,
       ceiling_height_ft:            form.ceiling_height_ft ? parseFloat(form.ceiling_height_ft) : undefined,
       lifts_per_tower:              form.lifts_per_tower ? parseInt(form.lifts_per_tower) : undefined,
-      has_service_lift:             form.has_service_lift,
       shared_walls_type:            form.shared_walls_type || undefined,
-      authority_dues_cleared:       form.authority_dues_cleared,
-      land_tenure:                  form.land_tenure || undefined,
-      pet_friendly:                 form.pet_friendly,
-      bachelor_tenants_allowed:     form.bachelor_tenants_allowed,
 
       // Forensic Due Diligence & Living Quality (Day 3 Expansion)
       oc_status:                    form.oc_status || null,
@@ -592,48 +555,12 @@ export default function ProjectForm({ initialData, projectId, onFormChange, onSa
 
         <SectionHeader title="Advanced Intelligence & Compliance (Phase 5)" />
 
-        <Field label="NRI Eligible">
-          <label className="flex items-center gap-2 cursor-pointer pt-2">
-            <input
-              type="checkbox"
-              checked={!!form.nri_eligible}
-              onChange={(e) => setForm((f) => ({ ...f, nri_eligible: e.target.checked }))}
-              className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500"
-            />
-            <span className="text-xs font-semibold text-slate-700 dark:text-zinc-300">NRI Investment & Remittance Allowed</span>
-          </label>
-        </Field>
-
-        <Field label="Vastu Compliant">
-          <label className="flex items-center gap-2 cursor-pointer pt-2">
-            <input
-              type="checkbox"
-              checked={!!form.vastu_compliant}
-              onChange={(e) => setForm((f) => ({ ...f, vastu_compliant: e.target.checked }))}
-              className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500"
-            />
-            <span className="text-xs font-semibold text-slate-700">Vastu Compliant Orientations</span>
-          </label>
-        </Field>
-
-        <Field label="Women Safety Score (0-100)">
-          <Input value={form.women_safety_score || ''} onChange={set('women_safety_score')} placeholder="92" type="number" />
-        </Field>
-
         <Field label="Annual Avg AQI">
           <Input value={form.air_quality_index_avg || ''} onChange={set('air_quality_index_avg')} placeholder="155" type="number" />
         </Field>
 
         <Field label="Green Cover (%)">
           <Input value={form.green_cover_percent || ''} onChange={set('green_cover_percent')} placeholder="75" type="number" />
-        </Field>
-
-        <Field label="Market Demand Score (0-100)">
-          <Input value={form.market_demand_score || ''} onChange={set('market_demand_score')} placeholder="90" type="number" />
-        </Field>
-
-        <Field label="5-Yr Appreciation Potential (%)">
-          <Input value={form.appreciation_potential_5yr || ''} onChange={set('appreciation_potential_5yr')} placeholder="14.5" type="number" step="0.1" />
         </Field>
 
         <Field label="Annual Rental Yield (%)">
@@ -672,74 +599,6 @@ export default function ProjectForm({ initialData, projectId, onFormChange, onSa
 
         <Field label="Privacy & Shared Walls Layout" hint="e.g. Zero Shared Walls / 3-Side Open Layout">
           <Input value={form.shared_walls_type || ''} onChange={set('shared_walls_type')} placeholder="Zero Shared Walls / 3-Side Open Layout" />
-        </Field>
-
-        <Field label="Land Tenure" hint="e.g. 99-Year Authority Leasehold or Freehold">
-          <Input value={form.land_tenure || ''} onChange={set('land_tenure')} placeholder="99-Year Authority Leasehold" />
-        </Field>
-
-        <Field label="Mobile Network Rating (1-5)" hint="Airtel/Jio 5G connectivity score inside towers">
-          <Input value={form.mobile_network_rating || ''} onChange={set('mobile_network_rating')} placeholder="4" type="number" min="1" max="5" />
-        </Field>
-
-        <Field label="Service Elevator">
-          <label className="flex items-center gap-2 cursor-pointer pt-2">
-            <input
-              type="checkbox"
-              checked={!!form.has_service_lift}
-              onChange={(e) => setForm((f) => ({ ...f, has_service_lift: e.target.checked }))}
-              className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500"
-            />
-            <span className="text-xs font-semibold text-slate-700 dark:text-zinc-300">Dedicated Service / Stretcher Lift Available</span>
-          </label>
-        </Field>
-
-        <Field label="PNG Gas Pipeline">
-          <label className="flex items-center gap-2 cursor-pointer pt-2">
-            <input
-              type="checkbox"
-              checked={!!form.has_png_gas_pipeline}
-              onChange={(e) => setForm((f) => ({ ...f, has_png_gas_pipeline: e.target.checked }))}
-              className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500"
-            />
-            <span className="text-xs font-semibold text-slate-700 dark:text-zinc-300">Piped Natural Gas (PNG) Connection Active</span>
-          </label>
-        </Field>
-
-        <Field label="Authority Dues Cleared">
-          <label className="flex items-center gap-2 cursor-pointer pt-2">
-            <input
-              type="checkbox"
-              checked={!!form.authority_dues_cleared}
-              onChange={(e) => setForm((f) => ({ ...f, authority_dues_cleared: e.target.checked }))}
-              className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500"
-            />
-            <span className="text-xs font-semibold text-slate-700 dark:text-zinc-300">Authority Land Dues 100% Cleared by Builder</span>
-          </label>
-        </Field>
-
-        <Field label="Pet Friendly">
-          <label className="flex items-center gap-2 cursor-pointer pt-2">
-            <input
-              type="checkbox"
-              checked={!!form.pet_friendly}
-              onChange={(e) => setForm((f) => ({ ...f, pet_friendly: e.target.checked }))}
-              className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500"
-            />
-            <span className="text-xs font-semibold text-slate-700 dark:text-zinc-300">Society Permits Pets</span>
-          </label>
-        </Field>
-
-        <Field label="Bachelor Tenants Allowed">
-          <label className="flex items-center gap-2 cursor-pointer pt-2">
-            <input
-              type="checkbox"
-              checked={!!form.bachelor_tenants_allowed}
-              onChange={(e) => setForm((f) => ({ ...f, bachelor_tenants_allowed: e.target.checked }))}
-              className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500"
-            />
-            <span className="text-xs font-semibold text-slate-700 dark:text-zinc-300">RWA Permits Bachelor Tenants</span>
-          </label>
         </Field>
 
         <SectionHeader title="Forensic Due Diligence & Living Quality (Day 3 Expansion)" />

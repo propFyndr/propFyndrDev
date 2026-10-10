@@ -96,7 +96,7 @@ export async function queryProjects(q: ProjectQuery): Promise<ProjectQueryResult
       price_min_cr: true,
       possession_label: true,
       maintenance_per_sqft_monthly: true,
-      unit_types: { select: { bhk: true, price_min_cr: true, price_per_sqft: true, price_is_estimated: true } },
+      unit_types: { select: { bhk: true, price_min_cr: true, price_per_sqft: true } },
     },
     orderBy: { name: 'asc' },
   })
@@ -109,9 +109,14 @@ export async function queryProjects(q: ProjectQuery): Promise<ProjectQueryResult
       const unitPrices = units.map((u) => u.price_min_cr).filter((v): v is number => typeof v === 'number' && v > 0)
       value = unitPrices.length ? Math.min(...unitPrices) : (!q.bhk && typeof p.price_min_cr === 'number' && p.price_min_cr > 0 ? p.price_min_cr : null)
     } else if (q.field === 'price_per_sqft') {
-      const measured = units.filter((u) => typeof u.price_per_sqft === 'number' && u.price_per_sqft > 0 && u.price_is_estimated === false)
-      if (measured.length) value = Math.min(...measured.map((u) => u.price_per_sqft as number))
-      else if (units.some((u) => typeof u.price_per_sqft === 'number' && u.price_per_sqft > 0)) excludedEstimated += 1
+      // price_is_estimated (lean-schema migration, 2026-10) was dropped —
+      // defaulted to true on effectively every row, so it never reliably
+      // distinguished a measured rate from an estimated one. Every recorded
+      // rate is used uniformly now; excludedEstimated stays in the Row shape
+      // below but can no longer be incremented, since there is no longer a
+      // signal to exclude by — not fabricated, just a lost filter.
+      const recorded = units.filter((u) => typeof u.price_per_sqft === 'number' && u.price_per_sqft > 0)
+      if (recorded.length) value = Math.min(...recorded.map((u) => u.price_per_sqft as number))
     } else if (q.field === 'maintenance') {
       const m = p.maintenance_per_sqft_monthly
       value = typeof m === 'number' && m > 0 ? m : null

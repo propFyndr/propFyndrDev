@@ -34,6 +34,8 @@ module.exports = createJestConfig({
     'components/property-detail/__tests__/',
     'components/__tests__/data-integrity.test.ts',
     'components/__tests__/DiscoveryCompare.test.ts',
+    'components/__tests__/comparisonTableLean.test.ts',
+    'components/admin/__tests__/intelligenceComponentsLean.test.ts',
   ],
 
 })

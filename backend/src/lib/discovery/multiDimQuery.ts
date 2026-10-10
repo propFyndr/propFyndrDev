@@ -74,7 +74,7 @@ export interface ProjectWithMetadata {
 
   // Legal
   reraNumber: string | null
-  legalFlag: string | null
+  projectRiskFlag: string | null
   litigationCount: number | null
 
   // Location
@@ -169,9 +169,12 @@ function buildHardConstraintFilters(
     filters.rera_number = { not: null }
   }
 
-  // Exclude projects with active legal disputes
+  // Exclude projects with active legal disputes. legal_flag (dropped in the
+  // lean-schema migration, 2026-10) is replaced by project_risk_flag, the
+  // real, varying column — same field this file's select/type already use
+  // elsewhere for risk.
   if (intent.riskTolerance === 'very_conservative') {
-    filters.legal_flag = null
+    filters.project_risk_flag = null
   }
 
   // Construction stage preference
@@ -223,7 +226,7 @@ async function fetchProjectsWithMetadata(
     possession_label: string | null
     possession_confidence: string | null
     rera_number: string | null
-    legal_flag: string | null
+    project_risk_flag: string | null
     litigation_count: number | null
     builder_id: string
     builder: {
@@ -280,7 +283,7 @@ async function fetchProjectsWithMetadata(
       possession_label: true,
       possession_confidence: true,
       rera_number: true,
-      legal_flag: true,
+      project_risk_flag: true,
       litigation_count: true,
       builder_id: true,
       builder: {
@@ -583,7 +586,7 @@ async function assembleProjectMetadata(
     possessionLabel: rawProject.possession_label,
     possessionConfidence: rawProject.possession_confidence,
     reraNumber: rawProject.rera_number,
-    legalFlag: rawProject.legal_flag,
+    projectRiskFlag: rawProject.project_risk_flag,
     litigationCount: rawProject.litigation_count,
     lat: rawProject.lat,
     lng: rawProject.lng,
@@ -620,8 +623,8 @@ function detectDealBreakers(
     breakers.push('Missing RERA registration')
   }
 
-  if (metadata.legalFlag && intent.riskTolerance === 'very_conservative') {
-    breakers.push(`Legal flag: ${metadata.legalFlag}`)
+  if (metadata.projectRiskFlag && intent.riskTolerance === 'very_conservative') {
+    breakers.push(`Risk flag: ${metadata.projectRiskFlag}`)
   }
 
   // BHK deal breakers
@@ -715,7 +718,7 @@ export async function getProjectMetadata(
       possession_label: true,
       possession_confidence: true,
       rera_number: true,
-      legal_flag: true,
+      project_risk_flag: true,
       litigation_count: true,
       builder_id: true,
       builder: {

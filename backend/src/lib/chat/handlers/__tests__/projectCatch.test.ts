@@ -4,9 +4,9 @@ import { ASKS_FOR_THE_CATCH, catchAnswer } from '../projectCatch'
 
 const base = {
   name: 'Test Heights', status: 'under_construction', possession_date: null, possession_label: 'Under Construction',
-  oc_status: null, rera_number: 'UPRERAPRJ000001', legal_flag: null, litigation_count: null,
+  oc_status: null, rera_number: 'UPRERAPRJ000001', project_risk_flag: null, litigation_count: null,
   ongoing_litigation_count: null, nclt_moratorium_active: null, location_concerns: [],
-  flood_waterlogging_risk: null, amitabh_kant_clearance: null, authority_dues_cleared: true,
+  flood_waterlogging_risk: null, amitabh_kant_clearance: null,
   registry_status: null, maintenance_per_sqft_monthly: null, water_source_type: null,
   builder: { name: 'Test Builder', insolvency_history: false, legal_flag: null, delayed_projects_count: null },
   unit_types: [],

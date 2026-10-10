@@ -23,7 +23,7 @@ export async function generateDatabaseFallbackResponse(userMsg: string, projects
     const sector = p.sector || 'Noida'
 
     // Hydrate full project relations if missing
-    if (p.id && (!p.decision_profile || !p.persona_profile || !p.competitors)) {
+    if (p.id && (!p.decision_profile || !p.competitors)) {
       try {
         const fullProj = await prisma.project.findUnique({
           where: { id: p.id },
@@ -35,9 +35,6 @@ export async function generateDatabaseFallbackResponse(userMsg: string, projects
             amenities: true,
             connectivity: true,
             decision_profile: true,
-            persona_profile: true,
-            recommendation_profile: true,
-            dna: true,
             competitors: true,
             construction_updates: true,
             construction_milestones: true,

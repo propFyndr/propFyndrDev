@@ -35,15 +35,12 @@ const CARD_INCLUDE = {
       price_min_cr: true,
       price_max_cr: true,
       price_label: true,
-      inventory_left: true,
     },
   },
   images: { take: 3, orderBy: { sort_order: 'asc' as const } },
   amenities: { take: 10 },
   connectivity: { take: 5, orderBy: { distance_km: 'asc' as const } },
-  recommendation_profile: true,
   decision_profile: true,
-  dna: true,
 } as const
 
 /**

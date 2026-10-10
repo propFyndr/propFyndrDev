@@ -66,7 +66,6 @@ describe('Due Diligence Tool & Zero-Fabrication Guarantees', () => {
     assert.ok(dd, 'due_diligence block must be present')
     assert.equal(dd.occupancy_certificate.status, null)
     assert.equal(dd.registry_and_clearances.amitabh_kant_clearance, null)
-    assert.equal(dd.registry_and_clearances.authority_dues_cleared, null)
     assert.equal(dd.registry_and_clearances.builder_insolvency_history, null)
     assert.equal(dd.living_quality_and_utilities.lift_act_compliant, null, 'null must not become false')
     assert.equal(dd.living_quality_and_utilities.water_source, null)
@@ -92,6 +91,14 @@ describe('Due Diligence Tool & Zero-Fabrication Guarantees', () => {
     assert.equal(dd.financial_and_banking.all_in_cost_multiplier, 1.12)
     // Researched project: the whole-docket gap must not fire.
     assert.ok(!(res.data_gaps as string[]).some(g => /not in the forensic due-diligence docket/i.test(g)))
+  })
+
+  it('the due-diligence tool output has no field dropped by the lean-schema migration', async () => {
+    const res = await getProjectDueDiligence('Docketed Tower')
+    const serialized = JSON.stringify(res)
+    for (const f of ['nclt_status', 'authority_dues_cleared', 'legal_flag']) {
+      assert.ok(!serialized.includes(f), `due-diligence output should not reference dropped field ${f}`)
+    }
   })
 
   it('executes via createToolHandler dispatch without errors', async () => {

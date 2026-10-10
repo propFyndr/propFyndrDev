@@ -159,14 +159,16 @@ describe('Real Estate Advisory Pipeline - Integration Tests', () => {
       assert.match(facts.legal_risk_summary as string, /ACTIVE NCLT insolvency moratorium/)
     })
 
-    it('synthesizes legal_risk_summary when authority land dues are uncleared', () => {
-      const projectWithDues = {
+    it('synthesizes legal_risk_summary when a project legal flag is on record', () => {
+      // authority_dues_cleared is dropped (lean-schema migration, 2026-10) —
+      // project_risk_flag is the real live signal this disclosure reads now.
+      const projectWithFlag = {
         ...baseProject,
-        authority_dues_cleared: false,
+        project_risk_flag: 'under_review',
       }
-      const facts = buildProjectFacts(projectWithDues, 'Is this a good option?')
+      const facts = buildProjectFacts(projectWithFlag, 'Is this a good option?')
       assert.ok(facts.legal_risk_summary)
-      assert.match(facts.legal_risk_summary as string, /Uncleared Noida\/Greater Noida Authority land dues/)
+      assert.match(facts.legal_risk_summary as string, /Project legal flag: under_review/)
     })
 
     it('does NOT synthesize legal_risk_summary for clean projects', () => {
@@ -175,7 +177,7 @@ describe('Real Estate Advisory Pipeline - Integration Tests', () => {
         litigation_count: 0,
         ongoing_litigation_count: 0,
         nclt_moratorium_active: false,
-        authority_dues_cleared: true,
+        project_risk_flag: 'none',
       }
       const facts = buildProjectFacts(cleanProject, 'Is this a good option?')
       assert.equal(facts.legal_risk_summary, undefined)
