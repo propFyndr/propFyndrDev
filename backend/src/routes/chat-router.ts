@@ -11,6 +11,7 @@ import { asksAboutTheConversation } from '../lib/ai/metaQuestions'
 import { hydrateIntentFromMemory, persistIntentToMemory, trackPropertyReaction } from '../lib/ai/sessionMemory'
 import { gradeResponseAsync } from '../lib/ai/responseGrader'
 import { reportGrounding } from '../lib/ai/groundingCheck'
+import { detectObjections } from '../lib/detectObjections'
 import { IntentSchema, getIntentState, discoverProjects, getSectorContext, getAllSectorsOverview, isCityLevel, recordRetrieval, buildComparisonDiff } from '../lib/discovery'
 import { readLastProjectIds, readLastProjectCards } from '../lib/discovery/lastProjects'
 import type { Intent, ScoredProject } from '../lib/discovery'
@@ -1078,6 +1079,12 @@ router.post('/', async (req: Request, res: Response) => {
       console.log('[CHAT] TEXT_MESSAGE — running LLM extraction')
       rawIntentResult = await timer.time('intentExtract', () => extractIntent(message, prevIntent))
       if (rawIntentResult.decision) turnTrace.jev_shadow = rawIntentResult.decision
+
+      // Phase 4D: Detect buyer objections (PRICE, POSSESSION, BUILDER, LOCATION)
+      const detectedObjections = detectObjections(message)
+      if (detectedObjections.length > 0) {
+        console.log('[OBJECTION_DETECTION]', detectedObjections.map(o => o.type))
+      }
     }
 
     // Join point: the two reads above have been in flight for the whole duration
