@@ -105,3 +105,107 @@ describe('GET /api/v1/admin/referrals/nodes/:guestToken', () => {
     assert.equal(res.status, 404)
   })
 })
+
+describe('POST /api/v1/admin/referrals/:code/revoke', () => {
+  it('sets revoked_by_admin_id from the identity session', async () => {
+    const create = await request(buildApp())
+      .post('/api/v1/admin/referrals')
+      .send({ label: 'Revoke attribution test', greetingName: 'Furqan' })
+    const code = create.body.code as string
+
+    const res = await request(buildApp()).post(`/api/v1/admin/referrals/${code}/revoke`)
+    assert.equal(res.status, 200)
+
+    const link = await prisma.referralLink.findUnique({ where: { code } })
+    assert.equal(link?.revoked_by_admin_id, 'admin-1')
+    assert.ok(link?.revoked_at)
+  })
+})
+
+describe('GET /api/v1/admin/referrals (extended fields)', () => {
+  it('rows include createdByEmail (null/former-admin fallback) and broadcastFlagged', async () => {
+    const create = await request(buildApp())
+      .post('/api/v1/admin/referrals')
+      .send({ label: 'Extended fields test', greetingName: 'Furqan' })
+    const code = create.body.code as string
+
+    const res = await request(buildApp()).get('/api/v1/admin/referrals')
+    assert.equal(res.status, 200)
+    const link = res.body.links.find((l: any) => l.code === code)
+    assert.ok(link)
+    assert.ok('createdByEmail' in link)
+    assert.ok('revokedByEmail' in link)
+    assert.ok('trendSparkline' in link)
+    assert.equal(typeof link.broadcastFlagged, 'boolean')
+  })
+
+  it('flags a link as broadcast when >=10 arrivals land within a 1-hour window', async () => {
+    const create = await request(buildApp())
+      .post('/api/v1/admin/referrals')
+      .send({ label: 'Broadcast test', greetingName: 'Furqan' })
+    const code = create.body.code as string
+
+    const base = Date.now()
+    await prisma.referralVisit.createMany({
+      data: Array.from({ length: 10 }, (_, i) => ({
+        guest_token: `guest-broadcast-${base}-${i}`,
+        own_code: `BC${base}${i}`,
+        arrived_via_code: code,
+        root_code: code,
+        generation: 1,
+        device_class: 'mobile',
+        os: 'ios',
+        app_guess: 'unknown',
+        first_seen_at: new Date(base + i * 60_000),
+      })),
+    })
+
+    const res = await request(buildApp()).get('/api/v1/admin/referrals')
+    const link = res.body.links.find((l: any) => l.code === code)
+    assert.equal(link.broadcastFlagged, true)
+  })
+})
+
+describe('GET /api/v1/admin/referrals/:code/trends', () => {
+  it('respects the granularity query param and defaults to daily', async () => {
+    const create = await request(buildApp())
+      .post('/api/v1/admin/referrals')
+      .send({ label: 'Trends test', greetingName: 'Furqan' })
+    const code = create.body.code as string
+
+    const daily = await request(buildApp()).get(`/api/v1/admin/referrals/${code}/trends`)
+    assert.equal(daily.status, 200)
+    assert.ok(Array.isArray(daily.body.buckets))
+
+    const weekly = await request(buildApp()).get(`/api/v1/admin/referrals/${code}/trends?granularity=weekly`)
+    assert.equal(weekly.status, 200)
+    assert.ok(Array.isArray(weekly.body.buckets))
+
+    const all = await request(buildApp()).get(`/api/v1/admin/referrals/${code}/trends?granularity=all`)
+    assert.equal(all.status, 200)
+    assert.ok(Array.isArray(all.body.buckets))
+  })
+
+  it('404s for an unknown code', async () => {
+    const res = await request(buildApp()).get('/api/v1/admin/referrals/NOPE0000/trends')
+    assert.equal(res.status, 404)
+  })
+})
+
+describe('GET /api/v1/admin/referrals/metrics', () => {
+  it('returns growthSummary, byAdmin, and comparison sections with the documented shape', async () => {
+    const res = await request(buildApp()).get('/api/v1/admin/referrals/metrics')
+    assert.equal(res.status, 200)
+    assert.ok(res.body.growthSummary)
+    assert.ok('blendedKFactor' in res.body.growthSummary)
+    assert.ok('totalActiveReach' in res.body.growthSummary)
+    assert.ok('bestChannel' in res.body.growthSummary)
+    assert.ok('broadcastFlaggedCount' in res.body.growthSummary)
+    assert.ok(Array.isArray(res.body.byAdmin))
+    assert.ok(res.body.comparison)
+    assert.ok('referred' in res.body.comparison)
+    assert.ok('organic' in res.body.comparison)
+    assert.ok('sampleSize' in res.body.comparison.referred)
+    assert.ok('requirementStateBreakdown' in res.body.comparison.referred)
+  })
+})
