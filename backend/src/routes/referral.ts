@@ -39,7 +39,13 @@ referralRouter.post('/arrive', async (req: Request, res: Response) => {
   try {
     const existingVisit = await prisma.referralVisit.findUnique({ where: { guest_token: guestToken } })
     if (existingVisit) {
-      const ownLink = await prisma.referralLink.findUnique({ where: { code: existingVisit.own_code } })
+      const [ownLink] = await prisma.$transaction([
+        prisma.referralLink.findUnique({ where: { code: existingVisit.own_code } }),
+        prisma.referralVisit.update({
+          where: { guest_token: guestToken },
+          data: { visit_count: { increment: 1 }, last_seen_at: new Date() },
+        }),
+      ])
       res.json({ ownCode: existingVisit.own_code, greeting: null, revoked: Boolean(ownLink?.revoked_at) })
       return
     }

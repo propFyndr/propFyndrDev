@@ -4,27 +4,21 @@ import { useEffect, useState, useCallback, useMemo } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import { adminFetch } from '@/lib/adminFetch'
-import { 
-  ArrowLeft, 
-  Smartphone, 
-  Monitor, 
-  Tablet, 
-  Link as LinkIcon, 
-  Copy, 
-  Check, 
-  ExternalLink, 
-  RotateCcw, 
-  AlertCircle, 
-  Zap, 
-  GitBranch, 
-  Users, 
-  MessageSquare, 
-  Layers, 
-  Clock, 
-  Calendar, 
-  ShieldCheck, 
-  PhoneCall, 
-  FileText, 
+import {
+  ArrowLeft,
+  Smartphone,
+  Link as LinkIcon,
+  Copy,
+  Check,
+  ExternalLink,
+  RotateCcw,
+  AlertCircle,
+  Zap,
+  GitBranch,
+  Users,
+  MessageSquare,
+  ShieldCheck,
+  FileText,
   X,
   ChevronRight,
   Share2,
@@ -32,21 +26,10 @@ import {
 import { AnimatePresence, m } from 'framer-motion'
 import { toast } from 'sonner'
 import { StatCard } from '@/components/portal/ui'
+import ReferralTree, { type ReferralTreeNode } from '@/components/admin/referrals/ReferralTree'
+import TrendChart, { type Granularity, type TrendBucket } from '@/components/admin/referrals/TrendChart'
 
-interface TreeNode {
-  guestToken: string
-  label: string | null
-  generation: number
-  parentGuestToken: string | null
-  depthInferred: boolean
-  deviceClass: string
-  os: string
-  appGuess: string
-  shareChannel: string | null
-  messageCount: number
-  activated: boolean
-  firstSeenAt: string
-}
+type TreeNode = ReferralTreeNode & { depthInferred: boolean }
 
 interface NodeDrawerData {
   guestToken: string
@@ -60,12 +43,6 @@ interface NodeDrawerData {
   summary: { location: string | null; financial: string | null; timeline: string | null } | null
   actions: { callbacks: number; dossiersMade: number }
   chats: Array<{ id: string; messageCount: number; lastActive: string }>
-}
-
-function DeviceIcon({ deviceClass, className = '' }: { deviceClass: string; className?: string }) {
-  if (deviceClass === 'mobile') return <Smartphone size={16} className={className} />
-  if (deviceClass === 'tablet') return <Tablet size={16} className={className} />
-  return <Monitor size={16} className={className} />
 }
 
 export default function ReferralTreePage() {
@@ -83,6 +60,35 @@ export default function ReferralTreePage() {
   // Actions state
   const [revoking, setRevoking] = useState(false)
   const [resetting, setResetting] = useState(false)
+
+  // Trend chart + K-factor drill-down
+  const [granularity, setGranularity] = useState<Granularity>('daily')
+  const [trendBuckets, setTrendBuckets] = useState<TrendBucket[]>([])
+  const [trendLoading, setTrendLoading] = useState(false)
+  const [showKFactorDetail, setShowKFactorDetail] = useState(false)
+
+  const loadTrend = useCallback(
+    async (g: Granularity) => {
+      if (!code) return
+      setTrendLoading(true)
+      try {
+        const res = await adminFetch(`/admin/referrals/${code}/trends?granularity=${g}`)
+        if (res.ok) {
+          const data = await res.json()
+          setTrendBuckets(data.buckets || [])
+        }
+      } catch {
+        // non-fatal — trend chart just shows empty state
+      } finally {
+        setTrendLoading(false)
+      }
+    },
+    [code],
+  )
+
+  useEffect(() => {
+    loadTrend(granularity)
+  }, [loadTrend, granularity])
 
   const loadTree = useCallback(async () => {
     if (!code) return
@@ -169,22 +175,41 @@ export default function ReferralTreePage() {
     }
   }
 
-  // Group nodes by generation
-  const groupedNodes = useMemo(() => {
-    const groups: Record<number, TreeNode[]> = {}
-    nodes.forEach((n) => {
-      const gen = n.generation || 1
-      if (!groups[gen]) groups[gen] = []
-      groups[gen].push(n)
-    })
-    return groups
+  // Per-generation K-factor drill-down: activated count at each generation,
+  // and the simple ratio to the next (null where the denominator is zero —
+  // shown as "—", matching referralGrowthMetrics.ts's computeKFactor contract).
+  const perGenerationKFactor = useMemo(() => {
+    const activatedByGen = new Map<number, number>()
+    for (const n of nodes) {
+      if (!n.activated) continue
+      activatedByGen.set(n.generation, (activatedByGen.get(n.generation) ?? 0) + 1)
+    }
+    const gens = Array.from(activatedByGen.keys()).sort((a, b) => a - b)
+    const rows: { generation: number; activatedCount: number; k: number | null }[] = []
+    for (let i = 0; i < gens.length; i++) {
+      const gen = gens[i]
+      const count = activatedByGen.get(gen) ?? 0
+      const next = gens[i + 1]
+      const nextCount = next !== undefined ? activatedByGen.get(next) ?? 0 : null
+      rows.push({ generation: gen, activatedCount: count, k: nextCount !== null && count > 0 ? nextCount / count : null })
+    }
+    return rows
   }, [nodes])
 
-  const generations = useMemo(() => {
-    return Object.keys(groupedNodes)
-      .map(Number)
-      .sort((a, b) => a - b)
-  }, [groupedNodes])
+  // Channel/device breakdown — cross-tabs each channel against its activation rate.
+  const channelBreakdown = useMemo(() => {
+    const byChannel = new Map<string, { total: number; activated: number }>()
+    for (const n of nodes) {
+      const key = n.shareChannel || 'direct'
+      const row = byChannel.get(key) ?? { total: 0, activated: 0 }
+      row.total++
+      if (n.activated) row.activated++
+      byChannel.set(key, row)
+    }
+    return Array.from(byChannel.entries())
+      .map(([channel, { total, activated }]) => ({ channel, total, activated, rate: total > 0 ? activated / total : 0 }))
+      .sort((a, b) => b.total - a.total)
+  }, [nodes])
 
   // Tree Metrics
   const metrics = useMemo(() => {
@@ -355,105 +380,63 @@ export default function ReferralTreePage() {
             </button>
           </div>
         ) : (
-          <div className="space-y-8">
-            {generations.map((gen) => {
-              const genNodes = groupedNodes[gen] || []
+          <ReferralTree nodes={nodes} onSelectNode={openNode} />
+        )}
+      </div>
 
-              return (
-                <div key={gen} className="relative">
-                  {/* Generation header banner */}
-                  <div className="flex items-center gap-3 mb-3">
-                    <span
-                      className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono font-bold border ${
-                        gen === 1
-                          ? 'bg-[#0066cc]/10 text-[#0066cc] dark:text-[#2997ff] border-[#0066cc]/25'
-                          : gen === 2
-                          ? 'bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/25'
-                          : 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/25'
-                      }`}
-                    >
-                      <Layers size={13} />
-                      Generation {gen}
-                    </span>
+      {/* Trend + K-factor drill-down */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div className="bg-white dark:bg-[#1c1c1e] rounded-[18px] border border-[#e5e5ea] dark:border-[#2c2c2e] p-6">
+          <h2 className="text-sm font-bold text-[#1d1d1f] dark:text-[#f5f5f7] mb-3">Arrival Trend</h2>
+          <TrendChart buckets={trendBuckets} granularity={granularity} onGranularityChange={setGranularity} loading={trendLoading} />
+        </div>
 
-                    <span className="text-xs font-semibold text-[#86868b]">
-                      {gen === 1
-                        ? '• Direct Recipients (First Contact)'
-                        : gen === 2
-                        ? '• Secondary Referrals (Friends of Friends)'
-                        : '• Multigenerational Viral Cascade'}
-                    </span>
-
-                    <span className="text-[11px] font-mono text-[#86868b] ml-auto">
-                      {genNodes.length} device{genNodes.length === 1 ? '' : 's'}
+        <div className="bg-white dark:bg-[#1c1c1e] rounded-[18px] border border-[#e5e5ea] dark:border-[#2c2c2e] p-6">
+          <button
+            type="button"
+            onClick={() => setShowKFactorDetail((v) => !v)}
+            className="w-full flex items-center justify-between cursor-pointer active:scale-[0.99]"
+          >
+            <h2 className="text-sm font-bold text-[#1d1d1f] dark:text-[#f5f5f7]">K-Factor by Generation</h2>
+            <ChevronRight size={14} className={`text-[#86868b] transition-transform ${showKFactorDetail ? 'rotate-90' : ''}`} />
+          </button>
+          {showKFactorDetail && (
+            <div className="mt-3 space-y-1.5">
+              {perGenerationKFactor.length === 0 ? (
+                <p className="text-xs text-[#86868b] italic">No activated visitors yet.</p>
+              ) : (
+                perGenerationKFactor.map((row) => (
+                  <div key={row.generation} className="flex items-center justify-between text-xs py-1.5 border-b border-[#e5e5ea]/60 dark:border-[#2c2c2e]/60 last:border-0">
+                    <span className="font-mono text-[#86868b]">Gen {row.generation} → {row.generation + 1}</span>
+                    <span className="font-mono font-bold text-[#1d1d1f] dark:text-[#f5f5f7]">
+                      {row.activatedCount} activated · {row.k === null ? '—' : row.k.toFixed(2)}
                     </span>
                   </div>
+                ))
+              )}
+            </div>
+          )}
+        </div>
+      </div>
 
-                  {/* Node cards */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 pl-3 border-l-2 border-[#e5e5ea] dark:border-[#2c2c2e]">
-                    {genNodes.map((node) => (
-                      <button
-                        key={node.guestToken}
-                        type="button"
-                        onClick={() => openNode(node.guestToken)}
-                        className="text-left p-4 rounded-2xl bg-[#f5f5f7]/70 dark:bg-[#242426]/60 hover:bg-white dark:hover:bg-[#2c2c2e] border border-[#e5e5ea] dark:border-[#38383a] hover:border-[#0066cc]/40 dark:hover:border-[#0066cc]/40 hover:shadow-sm transition-all group cursor-pointer relative"
-                      >
-                        {/* Header: Device & Status */}
-                        <div className="flex items-center justify-between mb-2">
-                          <div className="flex items-center gap-2">
-                            <div className="w-8 h-8 rounded-xl bg-white dark:bg-[#1c1c1e] border border-[#e5e5ea] dark:border-[#38383a] flex items-center justify-center text-[#1d1d1f] dark:text-[#f5f5f7] group-hover:text-[#0066cc] transition-colors shadow-2xs">
-                              <DeviceIcon deviceClass={node.deviceClass} />
-                            </div>
-                            <div>
-                              <p className="text-xs font-bold text-[#1d1d1f] dark:text-[#f5f5f7] capitalize">
-                                {node.label || `${node.deviceClass} · Gen ${node.generation}`}
-                              </p>
-                              <p className="text-[10px] text-[#86868b] uppercase font-mono">
-                                {node.os} • {node.appGuess !== 'unknown' ? node.appGuess : node.shareChannel || 'direct'}
-                              </p>
-                            </div>
-                          </div>
-
-                          {node.activated ? (
-                            <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full">
-                              <Zap size={10} className="fill-emerald-500 text-emerald-500" />
-                              Activated
-                            </span>
-                          ) : (
-                            <span className="text-[10px] text-[#86868b] bg-zinc-200/50 dark:bg-zinc-800 px-2 py-0.5 rounded-full">
-                              Visitor
-                            </span>
-                          )}
-                        </div>
-
-                        {/* Engagement stats */}
-                        <div className="flex items-center justify-between pt-2 border-t border-[#e5e5ea]/60 dark:border-[#38383a]/60 text-[11px] text-[#86868b]">
-                          <span className="flex items-center gap-1">
-                            <MessageSquare size={12} />
-                            <strong className="text-[#1d1d1f] dark:text-[#f5f5f7]">{node.messageCount}</strong> msgs
-                          </span>
-
-                          <span className="flex items-center gap-1 font-mono text-[10px]">
-                            <Clock size={11} />
-                            {new Date(node.firstSeenAt).toLocaleDateString()}
-                          </span>
-                        </div>
-
-                        {node.depthInferred && (
-                          <div className="mt-2 text-[10px] text-amber-700 dark:text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-lg border border-amber-500/20">
-                            Parent inferred via heuristic
-                          </div>
-                        )}
-
-                        <div className="absolute top-4 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <ChevronRight size={14} className="text-[#0066cc]" />
-                        </div>
-                      </button>
-                    ))}
-                  </div>
+      {/* Channel / device breakdown */}
+      <div className="bg-white dark:bg-[#1c1c1e] rounded-[18px] border border-[#e5e5ea] dark:border-[#2c2c2e] p-6">
+        <h2 className="text-sm font-bold text-[#1d1d1f] dark:text-[#f5f5f7] mb-3">Channel Breakdown</h2>
+        {channelBreakdown.length === 0 ? (
+          <p className="text-xs text-[#86868b] italic">No visits yet.</p>
+        ) : (
+          <div className="space-y-2">
+            {channelBreakdown.map((row) => (
+              <div key={row.channel} className="flex items-center gap-3 text-xs">
+                <span className="w-20 font-mono text-[#86868b] shrink-0">{row.channel}</span>
+                <div className="flex-1 h-2 rounded-full bg-[#f5f5f7] dark:bg-[#242426] overflow-hidden">
+                  <div className="h-full bg-[#0066cc]" style={{ width: `${Math.round(row.rate * 100)}%` }} />
                 </div>
-              )
-            })}
+                <span className="font-mono text-[#1d1d1f] dark:text-[#f5f5f7] w-28 text-right shrink-0">
+                  {row.activated}/{row.total} ({Math.round(row.rate * 100)}%)
+                </span>
+              </div>
+            ))}
           </div>
         )}
       </div>
@@ -587,9 +570,11 @@ export default function ReferralTreePage() {
                       <p className="text-xs text-[#86868b] italic">No chat sessions recorded for this device.</p>
                     ) : (
                       selectedNode.chats.map((chat) => (
-                        <div
+                        <Link
                           key={chat.id}
-                          className="p-3 rounded-xl bg-[#f5f5f7] dark:bg-[#242426] border border-[#e5e5ea] dark:border-[#38383a] text-xs flex items-center justify-between"
+                          href={`/admin/conversations?sessionId=${chat.id}`}
+                          data-testid="chat-deep-link"
+                          className="p-3 rounded-xl bg-[#f5f5f7] dark:bg-[#242426] hover:bg-white dark:hover:bg-[#2c2c2e] border border-[#e5e5ea] dark:border-[#38383a] hover:border-[#0066cc]/40 text-xs flex items-center justify-between transition-all cursor-pointer active:scale-[0.99]"
                         >
                           <div>
                             <span className="font-semibold text-[#1d1d1f] dark:text-[#f5f5f7]">
@@ -599,10 +584,11 @@ export default function ReferralTreePage() {
                               Active: {new Date(chat.lastActive).toLocaleDateString()}
                             </span>
                           </div>
-                          <span className="text-[10px] font-mono text-[#86868b] truncate max-w-[100px]">
+                          <span className="flex items-center gap-1 text-[10px] font-mono text-[#0066cc] dark:text-[#2997ff] truncate max-w-[110px]">
                             {chat.id.slice(0, 8)}…
+                            <ExternalLink size={10} />
                           </span>
-                        </div>
+                        </Link>
                       ))
                     )}
                   </div>
@@ -612,8 +598,12 @@ export default function ReferralTreePage() {
               {/* Drawer Footer Action */}
               <div className="pt-6 border-t border-[#e5e5ea] dark:border-[#2c2c2e] mt-6">
                 <Link
-                  href="/admin/conversations"
-                  className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-[#0066cc] hover:bg-[#0055b3] text-white text-xs font-semibold transition-all cursor-pointer shadow-xs"
+                  href={
+                    selectedNode.chats[0]
+                      ? `/admin/conversations?sessionId=${selectedNode.chats[0].id}`
+                      : '/admin/conversations'
+                  }
+                  className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-[#0066cc] hover:bg-[#0055b3] text-white text-xs font-semibold transition-all cursor-pointer active:scale-[0.98]"
                 >
                   <span>Open in Conversations Dashboard</span>
                   <ExternalLink size={13} />
