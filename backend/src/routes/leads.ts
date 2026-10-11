@@ -16,6 +16,7 @@ import { analyzeGhostPoolByProject } from '../lib/ghostPool'
 import { analyzeProjectDemand, getDemandSnapshot } from '../lib/demandIntelligence'
 import { trackEvent } from '../lib/monitoring/posthog'
 import { buildLeadBrief } from '../lib/leadBrief'
+import { detectObjections } from '../lib/detectObjections'
 
 const router = Router()
 
@@ -221,6 +222,31 @@ router.post('/callback', async (req: Request, res: Response) => {
     },
   })
 
+  // Phase 5: Persist detected objections to lead_objections table
+  if (resolvedSessionId && project) {
+    prisma.chatMessage.findMany({
+      where: { session_id: resolvedSessionId },
+      orderBy: { created_at: 'desc' },
+      take: 20,
+      select: { content: true },
+    }).then(messages => {
+      messages.forEach(msg => {
+        const objections = detectObjections(msg.content)
+        objections.forEach(obj => {
+          prisma.leadObjection.create({
+            data: {
+              callback_request_id: cb.id,
+              project_slug: finalProjectSlug!,
+              project_name: finalProjectName,
+              reason_category: obj.type,
+              reason_text: obj.reason ?? obj.type,
+            },
+          }).catch(err => console.error('[objection] Store failed:', err))
+        })
+      })
+    }).catch(err => console.error('[objection] Message fetch failed:', err))
+  }
+
   // Phase 4C: Generate Lead Brief for partner portal (zero transcript guarantee)
   buildLeadBrief(cb.id, 'partner')
     .catch(err => console.error('[leads] Lead Brief generation failed:', err))
@@ -376,8 +402,42 @@ router.post('/site-visit', async (req: Request, res: Response) => {
     },
   })
 
-  // Resolve the conversation this lead came out of, server-side
+  // Phase 5: Persist detected objections to lead_objections table (site-visit)
   let resolvedSessionId = session_id
+  if (!resolvedSessionId && (userId || guestToken)) {
+    const recent = await prisma.chatSession.findFirst({
+      where: userId ? { user_id: userId } : { guest_token: guestToken },
+      orderBy: { last_active: 'desc' },
+      select: { id: true },
+    })
+    resolvedSessionId = recent?.id
+  }
+
+  if (resolvedSessionId && project) {
+    prisma.chatMessage.findMany({
+      where: { session_id: resolvedSessionId },
+      orderBy: { created_at: 'desc' },
+      take: 20,
+      select: { content: true },
+    }).then(messages => {
+      messages.forEach(msg => {
+        const objections = detectObjections(msg.content)
+        objections.forEach(obj => {
+          prisma.leadObjection.create({
+            data: {
+              callback_request_id: sv.id,
+              project_slug: projectSlug!,
+              project_name: projectName,
+              reason_category: obj.type,
+              reason_text: obj.reason ?? obj.type,
+            },
+          }).catch(err => console.error('[objection] Store failed:', err))
+        })
+      })
+    }).catch(err => console.error('[objection] Message fetch failed:', err))
+  }
+
+  // Resolve the conversation this lead came out of, server-side
   if (!resolvedSessionId && (userId || guestToken)) {
     const recent = await prisma.chatSession.findFirst({
       where: userId ? { user_id: userId } : { guest_token: guestToken },
