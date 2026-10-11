@@ -91,7 +91,7 @@ async function main() {
   const allProjects: ProjectExtraction[] = []
 
   for (let wave = 1; wave <= 6; wave++) {
-    const path = `wave${wave}-rera_enhanced-audit.json`
+    const path = `wave${wave}-project-rera_enhanced-audit.json`
     if (!fs.existsSync(path)) {
       console.log(`⚠ ${path} not found`)
       continue
