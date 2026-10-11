@@ -89,6 +89,23 @@ export interface SessionSummary {
   lead: { tier: string | null; at: string; name?: string; phone?: string } | null
   focusProject?: { id: string; name: string; slug: string; sector: string } | null
   summaryLocation?: string | null
+  statedRequirements?: string | null
+}
+
+export interface RequirementSnapshot {
+  sectors: string[]
+  excludedSectors: string[]
+  softSectors: string[]
+  budgetMaxCr: number | null
+  budgetMinCr: number | null
+  isHardCeiling: boolean
+  bhk: number[]
+  possessionStatus: string | null
+  possessionDeadlineYears: number | null
+  requiredAmenities: string[]
+  preferredAmenities: string[]
+  useCase: string | null
+  allowedCompromises: string[]
 }
 
 export interface Turn {
@@ -114,6 +131,7 @@ export interface Detail {
   }
   userDossier?: UserDossier
   turns: Turn[]
+  requirementSnapshot?: RequirementSnapshot | null
   lead: {
     name: string
     phone: string
@@ -1042,6 +1060,13 @@ export default function ConversationsPage() {
                           <span className="truncate italic">&quot;{s.openingQuestion}&quot;</span>
                         </p>
                       )}
+
+                      {s.statedRequirements && (
+                        <p className="text-[10.5px] text-zinc-500 dark:text-zinc-400 truncate flex items-center gap-1">
+                          <span className="font-semibold text-zinc-600 dark:text-zinc-300">Stated:</span>
+                          <span className="truncate">{s.statedRequirements}</span>
+                        </p>
+                      )}
                     </div>
 
                     {/* Entity Tracking Pills (Project & Sector) */}
@@ -1198,6 +1223,51 @@ export default function ConversationsPage() {
                     <User size={14} className="text-zinc-400" />
                     <span>Anonymous Visitor ({detail.session.identity.kind})</span>
                     <span className="font-mono text-[10px] text-zinc-400">Token: {detail.session.identity.id?.slice(0, 16)}…</span>
+                  </div>
+                )}
+
+                {/* Buyer Requirements — what they actually asked for, distilled
+                    from RequirementState rather than read off the transcript by
+                    eye. Only renders what the parser actually captured; an
+                    empty snapshot renders nothing rather than an empty shell. */}
+                {detail.requirementSnapshot && (
+                  <div className="p-3.5 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 space-y-2">
+                    <p className="text-[10px] font-extrabold uppercase tracking-wider text-zinc-400">
+                      Buyer Requirements
+                    </p>
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      {detail.requirementSnapshot.bhk.length > 0 && (
+                        <span className="px-2 py-0.5 rounded-md bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300 border border-blue-200/70 dark:border-blue-800/70 font-semibold text-[10.5px]">
+                          {detail.requirementSnapshot.bhk.join('/')} BHK
+                        </span>
+                      )}
+                      {detail.requirementSnapshot.sectors.map((sec) => (
+                        <span key={sec} className="px-2 py-0.5 rounded-md bg-purple-50 dark:bg-purple-950/50 text-purple-700 dark:text-purple-300 border border-purple-200/70 dark:border-purple-800/70 font-semibold text-[10.5px]">
+                          📍 {sec}
+                        </span>
+                      ))}
+                      {detail.requirementSnapshot.excludedSectors.map((sec) => (
+                        <span key={sec} className="px-2 py-0.5 rounded-md bg-rose-50 dark:bg-rose-950/50 text-rose-700 dark:text-rose-300 border border-rose-200/70 dark:border-rose-800/70 font-semibold text-[10.5px] line-through">
+                          {sec}
+                        </span>
+                      ))}
+                      {detail.requirementSnapshot.budgetMaxCr !== null && (
+                        <span className="px-2 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border border-emerald-200/70 dark:border-emerald-800/70 font-semibold text-[10.5px]">
+                          {detail.requirementSnapshot.isHardCeiling ? '≤' : '~'}₹{detail.requirementSnapshot.budgetMaxCr}Cr
+                          {detail.requirementSnapshot.isHardCeiling ? ' (hard)' : ' (soft)'}
+                        </span>
+                      )}
+                      {detail.requirementSnapshot.possessionStatus && (
+                        <span className="px-2 py-0.5 rounded-md bg-amber-50 dark:bg-amber-950/50 text-amber-700 dark:text-amber-300 border border-amber-200/70 dark:border-amber-800/70 font-semibold text-[10.5px]">
+                          {detail.requirementSnapshot.possessionStatus.replace(/_/g, ' ')}
+                        </span>
+                      )}
+                      {detail.requirementSnapshot.requiredAmenities.map((a) => (
+                        <span key={a} className="px-2 py-0.5 rounded-md bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 font-semibold text-[10.5px]">
+                          {a.replace(/_/g, ' ')}
+                        </span>
+                      ))}
+                    </div>
                   </div>
                 )}
 

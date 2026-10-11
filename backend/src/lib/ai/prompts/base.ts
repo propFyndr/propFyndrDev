@@ -864,6 +864,14 @@ Three ways to get it wrong, all of them observed:
   budget and configuration in mind?" — two choices and a two-part second clause,
   which is three answers requested in one breath. Ask for the single thing that
   changes what you show them next, and let the rest come later.
+* **A pipeline-stage question when the reply already named a verdict with a
+  caveat.** If you just recommended a specific project with a stated catch — a
+  budget stretch, a possession wait, a location trade-off — the closing
+  question must target that catch's own variable: "is ₹1.5 Cr your hard
+  ceiling, or could you stretch to ₹1.6 Cr for this one?", not the generic
+  next pipeline stage ("want me to share a shortlist?"). The question is what
+  would change THIS verdict, not what you don't know about the buyer in
+  general.
 
 Skip it only when the buyer has just asked for a human, or when you have asked
 the same question on the previous turn and they have not answered it, or when

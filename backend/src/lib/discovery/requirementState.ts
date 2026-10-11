@@ -722,7 +722,14 @@ export function normalizeRequirementState(
     isHardCeiling = true
   }
 
-  if (maxCr !== undefined && !betweenMatch && !upToCloserMatch && !budgetCorrectionMatch && !comfortableTargetLimitMatch) {
+  // A carried-forward maxCr (no figure restated this turn) must not be
+  // reclassified by this turn's incidental language — "what about elite x?"
+  // contains the word "about", which SOFT_BUDGET_INDICATORS also matches as
+  // in "around/about ₹Y", and would silently flip a carried-forward hard
+  // ceiling to soft on a turn that said nothing about budget at all. Only
+  // reclassify when this turn's text actually contains a currency figure.
+  const hasBudgetFigureThisTurn = /\d/.test(text) && /\b(?:cr(?:ore)?s?|lakh?s?|lac?s?)\b/i.test(text)
+  if (hasBudgetFigureThisTurn && maxCr !== undefined && !betweenMatch && !upToCloserMatch && !budgetCorrectionMatch && !comfortableTargetLimitMatch) {
     if (HARD_BUDGET_INDICATORS.test(text) || allInMaxMatch) {
       isHardCeiling = true
     } else if (SOFT_BUDGET_INDICATORS.test(text)) {
@@ -738,9 +745,16 @@ export function normalizeRequirementState(
     /(?:spend|budget)\s+(?:₹|rs\.?|inr)?\s*\d+(?:\.\d+)?\s*(?:cr(?:ore)?s?)\s+total\b/i.test(text)
 
   // 5. Unit Requirements (BHK, Carpet Area, Status)
-  let bhkList: number[] = Array.isArray(intent.bhk)
-    ? [...intent.bhk]
-    : effectivePrevState?.unit?.bhk ? [...effectivePrevState.unit.bhk] : []
+  //
+  // Current-turn statements must win over whatever was carried forward — a
+  // buyer correcting "actually make it a 2bhk" has to overwrite a prior 3bhk,
+  // not be silently ignored. Carried-forward state is the LAST resort, used
+  // only when neither structured `intent.bhk` nor this turn's own text names
+  // a BHK at all. The previous version initialized bhkList from prevState
+  // first, which made the `bhkList.length === 0` guard below permanently
+  // false for every later turn in a session once any BHK had ever been
+  // stated — a same-turn correction could never be parsed again.
+  let bhkList: number[] = Array.isArray(intent.bhk) ? [...intent.bhk] : []
   const multiBhkMatch = /\b(?:need\s+)?(\d)\s*(?:or|\/|-)\s*(\d)\s*(?:bhks?|bedrooms?)\b/i.exec(text)
   if (multiBhkMatch) {
     bhkList = [parseInt(multiBhkMatch[1], 10), parseInt(multiBhkMatch[2], 10)].sort()
@@ -748,6 +762,8 @@ export function normalizeRequirementState(
     const bhkMatch = /\b(\d)\s*(?:bhks?|bedrooms?)\b/i.exec(text)
     if (bhkMatch) {
       bhkList = [parseInt(bhkMatch[1], 10)]
+    } else if (effectivePrevState?.unit?.bhk && effectivePrevState.unit.bhk.length > 0) {
+      bhkList = [...effectivePrevState.unit.bhk]
     }
   }
 
@@ -832,6 +848,42 @@ export function normalizeRequirementState(
   } else if (UNDER_CONSTRUCTION_PHRASES.test(text)) {
     status = 'under_construction'
     isStatusHard = true
+  }
+
+  // Amenity requirements ("school nearby", "mall nearby", "want a gym") —
+  // previously hardcoded to [] unconditionally below; nothing a buyer asked
+  // for by name ever reached RequirementState, which meant it never reached
+  // the admin side's structured tracking either. Soft language ("maybe",
+  // "would be nice") downgrades to a preference; anything else stated reads
+  // as a real ask, matching how BHK/location hardness is classified above.
+  const AMENITY_KEYWORDS: ReadonlyArray<[RegExp, string]> = [
+    [/\bschools?\b/i, 'school'],
+    [/\bhospitals?\b/i, 'hospital'],
+    [/\bmalls?\b/i, 'mall'],
+    [/\bmarkets?\b/i, 'market'],
+    [/\bmetro(?:\s+station)?\b/i, 'metro_station'],
+    [/\bparks?\b/i, 'park'],
+    [/\bgyms?\b/i, 'gym'],
+    [/\bclubhouse\b/i, 'clubhouse'],
+    [/\b(?:swimming\s+pool|\bpool\b)\b/i, 'swimming_pool'],
+    [/\btemples?\b/i, 'temple'],
+    [/\b(?:open\s+space|green\s+space|landscaped|ample\s+(?:open\s+)?space)\b/i, 'open_space'],
+  ]
+  const AMENITY_SOFT_RE = /\b(?:maybe|preferably|ideally|would\s+be\s+nice|nice\s+to\s+have|if\s+possible)\b/i
+  let requiredAmenities = effectivePrevState?.preferences?.requiredAmenities
+    ? [...effectivePrevState.preferences.requiredAmenities]
+    : []
+  let preferredAmenities = effectivePrevState?.preferences?.preferredAmenities
+    ? [...effectivePrevState.preferences.preferredAmenities]
+    : []
+  for (const [rx, label] of AMENITY_KEYWORDS) {
+    if (!rx.test(text)) continue
+    if (requiredAmenities.includes(label) || preferredAmenities.includes(label)) continue
+    if (AMENITY_SOFT_RE.test(text)) {
+      preferredAmenities.push(label)
+    } else {
+      requiredAmenities.push(label)
+    }
   }
 
   // Preferences & family context
@@ -922,8 +974,8 @@ export function normalizeRequirementState(
     },
     preferences: {
       isLuxuryPreferred: /\b(?:luxury|premium|high-end)\b/i.test(text),
-      requiredAmenities: [],
-      preferredAmenities: [],
+      requiredAmenities,
+      preferredAmenities,
       negativePreferences: [],
       densityTolerance: 'any',
       useCase,

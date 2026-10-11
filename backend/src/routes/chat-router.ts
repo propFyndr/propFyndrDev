@@ -8,7 +8,7 @@ import { checkRateLimit, invalidateSessionList, getCached, setCached } from '../
 import { checkGuestRateLimit } from '../lib/rateLimit/guestRateLimiter'
 import { extractIntent } from '../lib/ai/intent'
 import { asksAboutTheConversation } from '../lib/ai/metaQuestions'
-import { hydrateIntentFromMemory, persistIntentToMemory, trackPropertyReaction } from '../lib/ai/sessionMemory'
+import { hydrateIntentFromMemory, persistIntentToMemory, hydrateRequirementStateFromMemory, persistRequirementStateToMemory, trackPropertyReaction } from '../lib/ai/sessionMemory'
 import { gradeResponseAsync } from '../lib/ai/responseGrader'
 import { reportGrounding } from '../lib/ai/groundingCheck'
 import { IntentSchema, getIntentState, discoverProjects, getSectorContext, getAllSectorsOverview, isCityLevel, recordRetrieval, buildComparisonDiff } from '../lib/discovery'
@@ -62,7 +62,7 @@ import {
   getSocietyFinancialHealthChecklist,
   getNonObviousOwnerFactorsGuide,
 } from '../lib/advisory/marketAdvisory'
-import { parseRequirementState, budgetCeilingStance } from '../lib/discovery/requirementState'
+import { budgetCeilingStance, RequirementStateSchema, type RequirementState } from '../lib/discovery/requirementState'
 import { parseLoanEmiQuestion } from '../lib/chat/handlers/loanEmi'
 import { maybeCompressTopical, TopicSummaries } from '../lib/chat/summaryCompression'
 import { isSpecificUnknownProject, logCoverageGap, fetchUnknownProjectContext, unknownProjectDirective } from '../lib/chat/coverageGap'
@@ -186,6 +186,13 @@ import { appendStreamEvent, claimTurn, tailBufferedEvents } from '../lib/chat/st
 /** Buffer scope for stream replay: keyed by the client's turn id alone (see the reconnect interceptor). */
 const STREAM_BUFFER_SCOPE = 'turn'
 
+
+/**
+ * Placeholder RequirementState for the window before a turn's real one is
+ * hydrated — every field already has a schema default, so this is just that
+ * default, computed once rather than hand-duplicated at each declaration site.
+ */
+const EMPTY_REQUIREMENT_STATE: RequirementState = RequirementStateSchema.parse({})
 
 /**
  * The buyer asked for a verdict on the shortlist ("just tell me which one
@@ -826,6 +833,10 @@ router.post('/', async (req: Request, res: Response) => {
   let sectorDisambiguation: { query: string; candidates: string[] } | undefined
   let renderTarget: 'cards' | 'text' | 'both' = 'text' // Phase 0: Default to text, updated by classifier
   let hydratedIntent: Intent = prevIntent as Intent // Phase 0: Persisted in finally
+  // Declared outside the inner try (like intent/hydratedIntent above) so the
+  // `finally` block's persist call can reach it; reassigned once the real
+  // turn's RequirementState is hydrated further down.
+  let reqState: RequirementState = EMPTY_REQUIREMENT_STATE
   let messageId: string | undefined // Phase 1: For grading
   let responseText: string = '' // Phase 1: Full response for grading
   /** The prompt actually sent, kept for the post-answer grounding check. */
@@ -1311,7 +1322,13 @@ router.post('/', async (req: Request, res: Response) => {
     ) ? { ...hydratedIntent, purpose: 'endUse' } : hydratedIntent
     console.log('[CHAT] END extractIntent', Date.now(), { intent })
 
-    const reqState = parseRequirementState(message, intent)
+    // Carries RequirementState (sector/budget/BHK/amenities) across turns —
+    // the prior call here (`parseRequirementState(message, intent)`) only
+    // ever passed 2 of the function's 4 parameters, so every turn parsed from
+    // a blank slate and a terse follow-up like "what about elite x?" lost
+    // every previously-stated constraint. See docs/planning/
+    // 2026-10-11-chatgpt-parity-implementation-plan.md, Phase 2.
+    reqState = await hydrateRequirementStateFromMemory(currentSessionId, message, intent)
     const ceilingStance = reqState.budget?.isHardCeiling ? true : budgetCeilingStance(message)
     if (ceilingStance !== undefined) intent = { ...intent, budgetHard: ceilingStance }
     if (rawIntentResult.decision && (process.env.JEV_MODE === 'on' || process.env.JEV_LIVE === 'true')) {
@@ -2385,6 +2402,9 @@ router.post('/', async (req: Request, res: Response) => {
     if (currentSessionId) {
       persistIntentToMemory(currentSessionId, userId, intent).catch(err =>
         console.warn('[CHAT:INTENT_PERSIST_EARLY]', (err as Error).message),
+      )
+      persistRequirementStateToMemory(currentSessionId, userId, reqState).catch(err =>
+        console.warn('[CHAT:REQSTATE_PERSIST_EARLY]', (err as Error).message),
       )
     }
 
@@ -5154,7 +5174,7 @@ EXECUTIVE RESPONSE INSTRUCTIONS:
     // ─── ANALYTICS: Track intent identification (moved after needsClarification definition)
     if (action.type === 'TEXT_MESSAGE' && message && sessionId) {
       const clarificationCount = needsClarification ? 1 : 0
-      await trackIntentIdentified(sessionId, intent, message, clarificationCount)
+      await trackIntentIdentified(sessionId, intent, message, clarificationCount, reqState)
     }
 
     // NEVER ask purpose when intentState is READY_TO_SEARCH — the state machine owns this.
@@ -6767,6 +6787,9 @@ EXECUTIVE RESPONSE INSTRUCTIONS:
       // are two calls.
       persistIntentToMemory(sessionId, userId, intent).catch((err) => {
         console.error('[PHASE0:PERSIST] Error persisting intent:', err.message)
+      })
+      persistRequirementStateToMemory(sessionId, userId, reqState).catch((err) => {
+        console.error('[PHASE0:PERSIST] Error persisting requirement state:', err.message)
       })
     }
 
