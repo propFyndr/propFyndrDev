@@ -81,8 +81,24 @@ const READ_REGISTRY: Record<string, Record<Role, boolean>> = {
   '/callbacks/:id': LEAD_WORKERS,
 
   // ── Transcripts. What a buyer told an ADVISOR. Owner only. ──
+  // `betaObservability.ts` registers each route under two path aliases
+  // (e.g. ['/', '/conversations']) and the router itself is mounted twice
+  // (at /conversations and /beta), so every alias × every mount needs its
+  // own verdict here — see the getPaths() comment above for why.
   '/conversations/metrics': OWNER_ONLY,
   '/beta/metrics': OWNER_ONLY,
+  '/conversations': OWNER_ONLY,
+  '/conversations/conversations': OWNER_ONLY,
+  '/conversations/:id': OWNER_ONLY,
+  '/conversations/conversations/:id': OWNER_ONLY,
+  '/conversations/intelligence': OWNER_ONLY,
+  '/conversations/top-entities': OWNER_ONLY,
+  '/beta': OWNER_ONLY,
+  '/beta/conversations': OWNER_ONLY,
+  '/beta/:id': OWNER_ONLY,
+  '/beta/conversations/:id': OWNER_ONLY,
+  '/beta/intelligence': OWNER_ONLY,
+  '/beta/top-entities': OWNER_ONLY,
 
   // ── Unpublished copy and internal scoring. ──
   '/news': EDITORS,
@@ -147,12 +163,27 @@ function mountedRouters(): Array<{ file: string; prefixes: string[] }> {
   return [...byFile].map(([file, prefixes]) => ({ file, prefixes: [...prefixes] }))
 }
 
-/** Every GET registered in a router file, whatever the router variable is named. */
+/**
+ * Every GET registered in a router file, whatever the router variable is named.
+ *
+ * A route can be registered with a single path string (`.get('/x', ...)`) or
+ * with an array of aliases (`.get(['/x', '/y'], ...)`) — `betaObservability.ts`
+ * uses the array form throughout. The single-string regex alone silently
+ * missed every one of those routes: `/conversations`, `/conversations/:id`,
+ * `/intelligence` and `/top-entities` were reachable under /admin with no
+ * registry entry and no test ever noticing, because nothing here looked past
+ * the first `'`. Both forms are matched below.
+ */
 function getPaths(file: string): string[] {
   const source = readFileSync(join(__dirname, '../../routes', file), 'utf-8')
   const found = new Set<string>()
-  for (const m of source.matchAll(/(\w+)\.get\(\s*'([^']+)'/g)) {
-    found.add(m[2])
+  for (const m of source.matchAll(/\.get\(\s*'([^']+)'/g)) {
+    found.add(m[1])
+  }
+  for (const m of source.matchAll(/\.get\(\s*\[([^\]]+)\]/g)) {
+    for (const p of m[1].matchAll(/'([^']+)'/g)) {
+      found.add(p[1])
+    }
   }
   return [...found]
 }

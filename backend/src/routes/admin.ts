@@ -2659,9 +2659,18 @@ router.get('/analytics/quality', async (req: Request, res: Response) => {
 // GET /api/v1/admin/analytics/users — user stats
 router.get('/analytics/users', async (req: Request, res: Response) => {
   try {
+    // The session list below supports a search term and a page number. Those
+    // vary per request, so caching them under one fixed key would either serve
+    // one searcher's results to the next, or never update — only the default,
+    // unfiltered first page is cached, same as before this param support.
+    const sessionSearch = typeof req.query.q === 'string' ? req.query.q.trim() : ''
+    const sessionPage = Math.max(1, Number(req.query.page) || 1)
+    const sessionPageSize = Math.min(100, Math.max(1, Number(req.query.pageSize) || 25))
+    const isDefaultSessionQuery = !sessionSearch && sessionPage === 1
+
     const isRefresh = req.query.refresh === 'true'
     const cacheKey = 'admin:analytics:users'
-    if (!isRefresh) {
+    if (!isRefresh && isDefaultSessionQuery) {
       const cached = await getCached<object>(cacheKey)
       if (cached) return res.json(cached)
     }
@@ -2720,23 +2729,39 @@ router.get('/analytics/users', async (req: Request, res: Response) => {
     }
     const avgSessionDuration = validDurationCount > 0 ? Math.round(totalDurationSeconds / validDurationCount) : 0
 
-    // Dynamic list of active user chat sessions from DB
-    const recentSessions = await prisma.chatSession.findMany({
-      take: 25,
-      where: { is_bot: false },
-      orderBy: { last_active: 'desc' },
-      select: {
-        id: true,
-        user_id: true,
-        guest_token: true,
-        title: true,
-        message_count: true,
-        created_at: true,
-        last_active: true,
-        chat_phase: true,
-        _count: { select: { query_metrics: true } },
-      },
-    })
+    // Dynamic, searchable, paginated list of active user chat sessions from DB.
+    // Previously hardcoded to the newest 25 with no way to reach anything
+    // older — search term and page number now hit the database directly
+    // instead of filtering whatever 25 rows happened to be in memory.
+    const sessionWhere: any = { is_bot: false }
+    if (sessionSearch) {
+      sessionWhere.OR = [
+        { user_id: { contains: sessionSearch, mode: 'insensitive' } },
+        { guest_token: { contains: sessionSearch, mode: 'insensitive' } },
+        { title: { contains: sessionSearch, mode: 'insensitive' } },
+      ]
+    }
+
+    const [recentSessions, totalSessionCount] = await Promise.all([
+      prisma.chatSession.findMany({
+        take: sessionPageSize,
+        skip: (sessionPage - 1) * sessionPageSize,
+        where: sessionWhere,
+        orderBy: { last_active: 'desc' },
+        select: {
+          id: true,
+          user_id: true,
+          guest_token: true,
+          title: true,
+          message_count: true,
+          created_at: true,
+          last_active: true,
+          chat_phase: true,
+          _count: { select: { query_metrics: true } },
+        },
+      }),
+      prisma.chatSession.count({ where: sessionWhere }),
+    ])
 
     const activeUserList = recentSessions.map((s) => ({
       id: s.id,
@@ -2790,9 +2815,16 @@ router.get('/analytics/users', async (req: Request, res: Response) => {
       },
       mostActiveSectors,
       users: activeUserList,
+      usersPagination: {
+        page: sessionPage,
+        pageSize: sessionPageSize,
+        total: totalSessionCount,
+      },
     }
 
-    await setCached(cacheKey, responseData, 60)
+    if (isDefaultSessionQuery) {
+      await setCached(cacheKey, responseData, 60)
+    }
     res.json(responseData)
   } catch (err) {
     console.error('[admin] analytics users failed:', err)

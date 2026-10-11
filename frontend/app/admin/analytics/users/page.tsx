@@ -53,6 +53,7 @@ interface UserMetrics {
   }
   mostActiveSectors: Array<{ sector: string; searches: number }>
   users?: ActiveUserSession[]
+  usersPagination?: { page: number; pageSize: number; total: number }
 }
 
 export default function UsersAnalytics() {
@@ -61,17 +62,26 @@ export default function UsersAnalytics() {
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [lastRefreshedAt, setLastRefreshedAt] = useState<Date>(new Date())
   const [sessionSearch, setSessionSearch] = useState('')
+  const [sessionPage, setSessionPage] = useState(1)
 
   const isFetchingRef = useRef(false)
 
-  const loadData = useCallback(async (isManual = false) => {
+  // Session search and page both hit the database (see backend/src/routes/admin.ts
+  // '/analytics/users') — this used to filter only the 25 most recent sessions
+  // already in memory, so searching never found anything older than that.
+  const loadData = useCallback(async (isManual = false, page = 1, search = '') => {
     if (isFetchingRef.current) return
     isFetchingRef.current = true
 
     if (isManual) setIsRefreshing(true)
 
     try {
-      const res = await adminFetch(`/admin/analytics/users${isManual ? '?refresh=true' : ''}`)
+      const params = new URLSearchParams()
+      if (isManual) params.set('refresh', 'true')
+      if (search.trim()) params.set('q', search.trim())
+      if (page > 1) params.set('page', String(page))
+      const qs = params.toString()
+      const res = await adminFetch(`/admin/analytics/users${qs ? `?${qs}` : ''}`)
       const users = await res.json()
       setData(users)
       setLastRefreshedAt(new Date())
@@ -84,9 +94,27 @@ export default function UsersAnalytics() {
     }
   }, [])
 
-  useEffect(() => { 
-    loadData() 
+  useEffect(() => {
+    loadData()
   }, [loadData])
+
+  // Debounce search, and reset to page 1 whenever the term changes.
+  useEffect(() => {
+    const handle = setTimeout(() => {
+      setSessionPage(1)
+      loadData(false, 1, sessionSearch)
+    }, 300)
+    return () => clearTimeout(handle)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sessionSearch])
+
+  const goToPage = useCallback(
+    (page: number) => {
+      setSessionPage(page)
+      loadData(false, page, sessionSearch)
+    },
+    [loadData, sessionSearch],
+  )
 
   const funnelSteps = useMemo(() => {
     if (!data?.conversionFunnel) return []
@@ -138,17 +166,10 @@ export default function UsersAnalytics() {
     return Math.max(...data.mostActiveSectors.map(s => s.searches), 1)
   }, [data])
 
-  // Filtered sessions
-  const filteredSessions = useMemo(() => {
-    if (!data?.users) return []
-    if (!sessionSearch.trim()) return data.users
-    const q = sessionSearch.toLowerCase().trim()
-    return data.users.filter(u =>
-      u.userLabel.toLowerCase().includes(q) ||
-      u.title.toLowerCase().includes(q) ||
-      u.phase?.toLowerCase().includes(q)
-    )
-  }, [data, sessionSearch])
+  // The backend now does the filtering (search term + page hit the DB
+  // directly), so this is just the current page as returned.
+  const sessions = data?.users ?? []
+  const pagination = data?.usersPagination
 
   return (
     <div className="space-y-6 pb-16 font-sans select-none max-w-[1400px] mx-auto px-3.5 sm:px-6 lg:px-8 py-4 sm:py-8 min-w-0 overflow-x-hidden">
@@ -179,7 +200,7 @@ export default function UsersAnalytics() {
           </span>
 
           <button
-            onClick={() => loadData(true)}
+            onClick={() => loadData(true, sessionPage, sessionSearch)}
             disabled={isRefreshing}
             className="flex items-center gap-2 bg-white dark:bg-zinc-900 hover:bg-zinc-50 dark:hover:bg-zinc-800 text-zinc-900 dark:text-white border border-zinc-200/80 dark:border-zinc-800 px-3.5 py-2 rounded-xl text-xs font-bold transition-all shadow-2xs active:scale-[0.98] cursor-pointer disabled:opacity-60"
             title="Refresh user behavior analytics"
@@ -546,7 +567,7 @@ export default function UsersAnalytics() {
               <Skeleton key={i} className="h-12 w-full rounded-xl" />
             ))}
           </div>
-        ) : filteredSessions.length > 0 ? (
+        ) : sessions.length > 0 ? (
           <div className="overflow-x-auto w-full">
             <table className="w-full text-left border-collapse text-xs min-w-[700px]">
               <thead>
@@ -560,7 +581,7 @@ export default function UsersAnalytics() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800/60 font-medium">
-                {filteredSessions.map((u) => {
+                {sessions.map((u) => {
                   const lastActiveDate = new Date(u.lastActive)
                   const isValidDate = !isNaN(lastActiveDate.getTime())
                   const isRecent = isValidDate && (Date.now() - lastActiveDate.getTime() < 30 * 60 * 1000)
@@ -628,6 +649,34 @@ export default function UsersAnalytics() {
         ) : (
           <div className="p-12 text-center text-xs text-zinc-400 italic">
             {sessionSearch ? `No sessions matching "${sessionSearch}"` : 'No user chat sessions logged yet'}
+          </div>
+        )}
+
+        {/* Pagination */}
+        {pagination && pagination.total > pagination.pageSize && (
+          <div className="flex items-center justify-between px-5 sm:px-6 py-3.5 border-t border-zinc-100 dark:border-zinc-800/80 text-xs font-medium text-zinc-500 dark:text-zinc-400">
+            <span>
+              Showing {(pagination.page - 1) * pagination.pageSize + 1}
+              –{Math.min(pagination.page * pagination.pageSize, pagination.total)} of {pagination.total.toLocaleString()}
+            </span>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => goToPage(sessionPage - 1)}
+                disabled={pagination.page <= 1 || loading}
+                className="px-3 py-1.5 rounded-lg border border-zinc-200 dark:border-zinc-700 font-bold text-zinc-700 dark:text-zinc-200 hover:bg-zinc-50 dark:hover:bg-zinc-800 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+              >
+                Prev
+              </button>
+              <button
+                type="button"
+                onClick={() => goToPage(sessionPage + 1)}
+                disabled={pagination.page * pagination.pageSize >= pagination.total || loading}
+                className="px-3 py-1.5 rounded-lg border border-zinc-200 dark:border-zinc-700 font-bold text-zinc-700 dark:text-zinc-200 hover:bg-zinc-50 dark:hover:bg-zinc-800 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+              >
+                Next
+              </button>
+            </div>
           </div>
         )}
       </div>
