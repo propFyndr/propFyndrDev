@@ -44,6 +44,15 @@ const MATRIX: Array<[string, string, Record<Role, boolean>]> = [
   ['GET', '/conversations', { SUPER_ADMIN: true, ANALYST: false, SALES: false }],
   ['GET', '/beta', { SUPER_ADMIN: true, ANALYST: false, SALES: false }],
 
+  // ── Referral tracking: founders only. Not a catalogue, lead or marketing
+  //    surface any staff role needs — it is product-validation telemetry the
+  //    three super admins watch themselves.
+  ['GET', '/referrals', { SUPER_ADMIN: true, ANALYST: false, SALES: false }],
+  ['POST', '/referrals', { SUPER_ADMIN: true, ANALYST: false, SALES: false }],
+  ['GET', '/referrals/K9X2ABCD/tree', { SUPER_ADMIN: true, ANALYST: false, SALES: false }],
+  ['GET', '/referrals/nodes/guest-1', { SUPER_ADMIN: true, ANALYST: false, SALES: false }],
+  ['POST', '/referrals/K9X2ABCD/revoke', { SUPER_ADMIN: true, ANALYST: false, SALES: false }],
+
   // ── Sending mail as us. Not a sales capability. ────────────────────────
   ['POST', '/email/send', { SUPER_ADMIN: true, ANALYST: true, SALES: false }],
   ['GET', '/email', { SUPER_ADMIN: true, ANALYST: false, SALES: false }],

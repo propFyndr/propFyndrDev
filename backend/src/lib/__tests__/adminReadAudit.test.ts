@@ -7,11 +7,12 @@ import { isAuditedRead } from '../adminReadAudit'
  * important question is who READ one, and it had no answer at all.
  */
 describe('which reads get audited', () => {
-  it('audits a single buyer’s contact row and their transcript', () => {
+  it('audits a single buyer contact row and their transcript', () => {
     assert.equal(isAuditedRead('GET', '/callbacks/abc-123'), true)
     assert.equal(isAuditedRead('GET', '/leads/abc-123'), true)
     assert.equal(isAuditedRead('GET', '/conversations/sess-1'), true)
     assert.equal(isAuditedRead('GET', '/beta/sessions/sess-1'), true)
+    assert.equal(isAuditedRead('GET', '/referrals/nodes/guest-1'), true)
   })
 
   it('does not audit list views', () => {
@@ -20,6 +21,7 @@ describe('which reads get audited', () => {
     assert.equal(isAuditedRead('GET', '/callbacks'), false)
     assert.equal(isAuditedRead('GET', '/leads'), false)
     assert.equal(isAuditedRead('GET', '/conversations'), false)
+    assert.equal(isAuditedRead('GET', '/referrals'), false)
   })
 
   it('does not audit the catalogue', () => {

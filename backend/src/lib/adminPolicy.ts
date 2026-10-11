@@ -93,6 +93,7 @@ const SALES_READ_DENIED: readonly RegExp[] = [
   /^\/news\b/,
   /^\/blog\b/,
   /^\/promotions\b/,
+  /^\/referrals\b/,
   /^\/analytics\/(?!summary\b)/,
 ]
 
@@ -117,6 +118,7 @@ const ANALYST_READ_DENIED: readonly RegExp[] = [
   // adminReadCoverage.test.ts on the day the board was added, which is the
   // whole reason that test walks the routers instead of trusting a list.
   /^\/boards\/queue\b/,
+  /^\/referrals\b/,
 ]
 
 /**
@@ -141,6 +143,7 @@ const ANALYST_WRITE_DENIED: readonly RegExp[] = [
   /^\/leads\b/,
   /^\/callbacks\b/,
   /^\/boards\/queue\b/,
+  /^\/referrals\b/,
 ]
 
 export interface PolicyDecision {

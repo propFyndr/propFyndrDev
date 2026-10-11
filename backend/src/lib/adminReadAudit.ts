@@ -35,6 +35,7 @@ const AUDITED_READS: ReadonlyArray<{ pattern: RegExp; entityType: string; what: 
   { pattern: /^\/beta\/sessions\/([^/]+)$/, entityType: 'chat_session', what: 'chat transcript' },
   { pattern: /^\/callbacks\/([^/]+)$/, entityType: 'callback_request', what: 'lead contact details' },
   { pattern: /^\/leads\/([^/]+)$/, entityType: 'callback_request', what: 'lead contact details' },
+  { pattern: /^\/referrals\/nodes\/([^/]+)$/, entityType: 'referral_node', what: 'referral person summary' },
 ]
 
 function matchAudited(path: string): { entityType: string; what: string; entityId: string } | null {
