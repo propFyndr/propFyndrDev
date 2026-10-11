@@ -178,6 +178,10 @@ model Project {
   water_tds_range                  String?
   embedding                        Unsupported("vector")?
   archived_duplicate_of            String?
+  verified_at                      DateTime?                @default(now())
+  verification_source              String?
+  data_freshness_category          String?
+  price_history                    PriceHistory[]
   amenities                        Amenity[]
   chat_sessions                    ChatSession[]            @relation("ProjectFocusedChats")
   connectivity                     Connectivity[]
@@ -205,6 +209,23 @@ model Project {
   @@index([builder_id])
   @@index([air_quality_index_avg])
   @@map("projects")
+}
+
+model PriceHistory {
+  id                       String            @id @default(uuid())
+  project_id               String
+  price_min_cr             Float?
+  price_max_cr             Float?
+  price_range_label        String?
+  verified_at              DateTime          @default(now())
+  verification_source      String?
+  source_document          String?
+  recorded_by              String?
+  created_at               DateTime          @default(now())
+  project                  Project           @relation(fields: [project_id], references: [id], onDelete: Cascade)
+
+  @@index([project_id, verified_at])
+  @@map("price_history")
 }
 
 model DecisionProfile {
