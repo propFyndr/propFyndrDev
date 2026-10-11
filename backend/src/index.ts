@@ -50,6 +50,7 @@ import partnerRegistrationRouter from './routes/partnerRegistration'
 import { adminPromotionsRouter } from './routes/adminPromotions'
 import portalRouter from './routes/portal'
 import { dossierRouter } from './routes/dossier'
+import { referralRouter } from './routes/referral'
 import sectorsRouter from './routes/sectors'
 import { adminAreaGuard } from './lib/adminGuard'
 import { initializeCaches } from './lib/projectDataGateway.cache'
@@ -331,6 +332,7 @@ app.use('/api/v1/builder-applications', builderApplicationsRouter)
 app.use('/api/v1/partner-registration', partnerRegistrationRouter)
 app.use('/api/v1/analytics', analyticsRouter)
 app.use('/api/v1/dossier', dossierRouter)
+app.use('/api/v1/referral', referralRouter)
 app.use('/api/v1/sectors', sectorsRouter)
 app.use('/api/v1/admin/intelligence', adminIntelligenceRouter)
 
