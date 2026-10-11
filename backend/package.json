@@ -50,7 +50,8 @@
     "fix:templated": "tsx scripts/fix-templated-data.ts"
   },
   "prisma": {
-    "schema": "prisma/schema.prisma"
+    "schema": "prisma/schema.prisma",
+    "seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
     "@google/genai": "^2.16.0",
