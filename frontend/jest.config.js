@@ -29,7 +29,7 @@ module.exports = createJestConfig({
     '<rootDir>/__tests__/e2e/',
     'app/admin/__tests__/',
     // These directories hold node:test files, run by `npm run test:node`.
-    'lib/__tests__/',
+    // lib/__tests__/ is enabled for jest (jsdom environment for frontend tests)
     'components/chat/__tests__/',
     'components/property-detail/__tests__/',
     'components/__tests__/data-integrity.test.ts',
