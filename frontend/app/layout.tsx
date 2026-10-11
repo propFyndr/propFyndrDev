@@ -9,6 +9,7 @@ import ThemedToaster from "@/components/ThemedToaster";
 import { PingBackend } from "@/components/PingBackend";
 import CookiesBanner from "@/components/CookiesBanner";
 import ReferralTracker from "@/components/ReferralTracker";
+import ReferralNotice from "@/components/ReferralNotice";
 import { LazyMotion, domAnimation, MotionConfig } from 'framer-motion'
 import ProgressBar from '@/components/ProgressBar'
 
@@ -127,6 +128,7 @@ export default function RootLayout({
         </MotionConfig>
         <ThemedToaster />
         <CookiesBanner />
+        <ReferralNotice />
 
       </body>
     </html>
