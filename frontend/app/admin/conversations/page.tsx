@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useEffect, useState, useCallback, useMemo, useRef } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { adminFetch } from '@/lib/adminFetch'
 import CustomSelect from '@/components/admin/CustomSelect'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -175,6 +176,7 @@ export interface IntelligenceData {
 const inr = (usd: number) => `₹${(usd * 88).toFixed(2)}`
 
 export default function ConversationsPage() {
+  const searchParams = useSearchParams()
   const [sessions, setSessions] = useState<SessionSummary[]>([])
   const [selected, setSelected] = useState<string | null>(null)
   const [detail, setDetail] = useState<Detail | null>(null)
@@ -331,6 +333,18 @@ export default function ConversationsPage() {
     loadSessions()
     loadIntelligence()
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Deep link support: /admin/conversations?sessionId=<id> opens that session
+  // directly, e.g. from the referrals node drawer's "View in Conversations"
+  // link. openSession already fetches /admin/conversations/:id, so this just
+  // needs to be triggered once the page mounts.
+  useEffect(() => {
+    const sessionId = searchParams.get('sessionId')
+    if (sessionId) {
+      openSession(sessionId)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams])
 
   // Live tracking: silently re-pull the list and the open transcript every 20s
   // while the tab is visible, so new queries show up without a manual refresh.

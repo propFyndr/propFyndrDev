@@ -3,30 +3,38 @@
 import { useEffect, useState, useCallback, useMemo, useRef } from 'react'
 import Link from 'next/link'
 import { adminFetch } from '@/lib/adminFetch'
-import { 
-  Copy, 
-  Check, 
-  Plus, 
-  Link as LinkIcon, 
-  Search, 
-  ExternalLink, 
-  Share2, 
-  RotateCcw, 
-  X, 
-  ArrowUpDown, 
-  ChevronRight, 
-  ShieldCheck, 
-  Users, 
-  Zap, 
-  GitBranch, 
-  Sparkles, 
-  AlertCircle, 
-  MessageSquare, 
-  Smartphone, 
+import {
+  Copy,
+  Check,
+  Plus,
+  Link as LinkIcon,
+  Search,
+  ExternalLink,
+  Share2,
+  RotateCcw,
+  X,
+  ArrowUpDown,
+  ChevronRight,
+  ShieldCheck,
+  Users,
+  Zap,
+  GitBranch,
+  Sparkles,
+  AlertCircle,
+  MessageSquare,
+  Smartphone,
   Calendar,
   Layers,
   Send,
   HelpCircle,
+  Handshake,
+  Briefcase,
+  Building2,
+  GraduationCap,
+  Target,
+  TrendingUp,
+  Trophy,
+  Radio,
 } from 'lucide-react'
 import { AnimatePresence, m } from 'framer-motion'
 import { toast } from 'sonner'
@@ -44,19 +52,85 @@ interface ReferralLinkRow {
   activatedCount: number
   lastActivity: string | null
   hasHolder?: boolean
+  createdByEmail?: string | null
+  revokedByEmail?: string | null
+  trendSparkline?: { date: string; newArrivals: number }[]
+  broadcastFlagged?: boolean
+}
+
+interface GrowthMetrics {
+  growthSummary: {
+    blendedKFactor: number | null
+    totalActiveReach: number
+    topAdmin: { email: string; totalDevicesReached: number } | null
+    bestChannel: string | null
+    broadcastFlaggedCount: number
+  }
+  byAdmin: {
+    adminId: string
+    email: string
+    linksCreated: number
+    totalDevicesReached: number
+    blendedKFactor: number | null
+    bestChannel: string | null
+    topLink: { code: string; label: string | null; devicesReached: number } | null
+  }[]
+  comparison: {
+    referred: CohortStats
+    organic: CohortStats
+  }
+}
+
+interface CohortStats {
+  sampleSize: number
+  activationRate: number | null
+  avgMessages: number
+  conversionRate: number | null
+  requirementStateBreakdown: {
+    sampleSize: number
+    budgetBands: Record<string, number>
+    hardCeilingCount: number
+    softCeilingCount: number
+    sectorDistribution: Record<string, number>
+    bhkDistribution: Record<string, number>
+    possessionStanceDistribution: Record<string, number>
+    topAmenities: { amenity: string; count: number }[]
+  }
 }
 
 type FilterTag = 'all' | 'active' | 'with_devices' | 'activated' | 'revoked'
 type SortField = 'createdAt' | 'devicesReached' | 'deepestGeneration' | 'activatedCount' | 'label'
+type MainTab = 'byLink' | 'byAdmin'
 
 const PRESET_LABELS = [
-  { label: 'Friend & Family', icon: '🤝' },
-  { label: 'WhatsApp Community', icon: '💬' },
-  { label: 'LinkedIn Post', icon: '💼' },
-  { label: 'Channel Partner', icon: '🏢' },
-  { label: 'Campus / Alumni', icon: '🎓' },
-  { label: 'Direct Buyer Lead', icon: '🎯' },
+  { label: 'Friend & Family', icon: Handshake },
+  { label: 'WhatsApp Community', icon: MessageSquare },
+  { label: 'LinkedIn Post', icon: Briefcase },
+  { label: 'Channel Partner', icon: Building2 },
+  { label: 'Campus / Alumni', icon: GraduationCap },
+  { label: 'Direct Buyer Lead', icon: Target },
 ]
+
+function Sparkline({ buckets }: { buckets: { date: string; newArrivals: number }[] }) {
+  if (!buckets || buckets.length === 0) return <span className="text-[10px] text-[#86868b]">—</span>
+  const max = Math.max(1, ...buckets.map((b) => b.newArrivals))
+  return (
+    <div className="flex items-end gap-px h-6 w-20">
+      {buckets.map((b) => (
+        <div
+          key={b.date}
+          className="flex-1 bg-[#0066cc]/60 rounded-t-sm min-w-0"
+          style={{ height: `${Math.max(8, (b.newArrivals / max) * 100)}%` }}
+          title={`${b.date}: ${b.newArrivals}`}
+        />
+      ))}
+    </div>
+  )
+}
+
+function pct(n: number | null): string {
+  return n === null ? '—' : `${Math.round(n * 100)}%`
+}
 
 export default function ReferralsAdminPage() {
   const [links, setLinks] = useState<ReferralLinkRow[]>([])
@@ -83,6 +157,29 @@ export default function ReferralsAdminPage() {
   const [actionLoading, setActionLoading] = useState(false)
 
   const searchInputRef = useRef<HTMLInputElement>(null)
+
+  // Growth metrics strip + By Link / By Admin tabs + referred-vs-organic comparison
+  const [growthMetrics, setGrowthMetrics] = useState<GrowthMetrics | null>(null)
+  const [growthMetricsLoading, setGrowthMetricsLoading] = useState(true)
+  const [mainTab, setMainTab] = useState<MainTab>('byLink')
+
+  const loadGrowthMetrics = useCallback(async () => {
+    setGrowthMetricsLoading(true)
+    try {
+      const res = await adminFetch('/admin/referrals/metrics')
+      if (res.ok) {
+        setGrowthMetrics(await res.json())
+      }
+    } catch {
+      // non-fatal — summary strip just shows placeholders
+    } finally {
+      setGrowthMetricsLoading(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    loadGrowthMetrics()
+  }, [loadGrowthMetrics])
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -365,6 +462,95 @@ export default function ReferralsAdminPage() {
         />
       </div>
 
+      {/* Growth Summary Strip */}
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+        <StatCard
+          label="Blended K-Factor"
+          value={growthMetrics?.growthSummary.blendedKFactor === null || growthMetrics?.growthSummary.blendedKFactor === undefined ? '—' : growthMetrics.growthSummary.blendedKFactor.toFixed(2)}
+          tone={growthMetrics && (growthMetrics.growthSummary.blendedKFactor ?? 0) >= 1 ? 'good' : 'neutral'}
+          icon={<TrendingUp size={18} />}
+          hint="Non-seed activations / seed base"
+          loading={growthMetricsLoading}
+        />
+        <StatCard
+          label="Total Active Reach"
+          value={growthMetrics?.growthSummary.totalActiveReach ?? 0}
+          icon={<Users size={18} />}
+          hint="Non-revoked links, combined"
+          loading={growthMetricsLoading}
+        />
+        <StatCard
+          label="Top Admin"
+          value={growthMetrics?.growthSummary.topAdmin?.email ?? '—'}
+          icon={<Trophy size={18} />}
+          hint={growthMetrics?.growthSummary.topAdmin ? `${growthMetrics.growthSummary.topAdmin.totalDevicesReached} devices` : 'No data yet'}
+          loading={growthMetricsLoading}
+        />
+        <StatCard
+          label="Best Channel"
+          value={growthMetrics?.growthSummary.bestChannel ?? '—'}
+          icon={<Share2 size={18} />}
+          hint="Most common share channel"
+          loading={growthMetricsLoading}
+        />
+        <StatCard
+          label="Broadcast Alerts"
+          value={growthMetrics?.growthSummary.broadcastFlaggedCount ?? 0}
+          tone={(growthMetrics?.growthSummary.broadcastFlaggedCount ?? 0) > 0 ? 'hot' : 'neutral'}
+          icon={<Radio size={18} />}
+          hint="≥10 arrivals/hour on one code"
+          loading={growthMetricsLoading}
+        />
+      </div>
+
+      {/* Referred vs Organic Comparison */}
+      {growthMetrics && (
+        <div className="bg-white dark:bg-[#1c1c1e] rounded-[18px] border border-[#e5e5ea] dark:border-[#2c2c2e] p-6">
+          <h2 className="text-sm font-bold text-[#1d1d1f] dark:text-[#f5f5f7] mb-1">Referred vs Organic</h2>
+          <p className="text-[11px] text-[#86868b] mb-4">
+            Organic excludes bot/test traffic, same filter as admin Analytics. Sample sizes shown so a small cohort never reads with false confidence.
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {([
+              ['referred', 'Referred', growthMetrics.comparison.referred],
+              ['organic', 'Organic', growthMetrics.comparison.organic],
+            ] as const).map(([key, title, cohort]) => (
+              <div key={key} className="p-4 rounded-2xl bg-[#f5f5f7]/70 dark:bg-[#242426]/60 border border-[#e5e5ea] dark:border-[#38383a]">
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="text-xs font-bold text-[#1d1d1f] dark:text-[#f5f5f7]">{title}</h3>
+                  <span className="text-[10px] font-mono text-[#86868b]">n={cohort.sampleSize}</span>
+                </div>
+                <div className="grid grid-cols-3 gap-2 text-center mb-3">
+                  <div>
+                    <p className="text-sm font-bold text-[#1d1d1f] dark:text-[#f5f5f7]">{pct(cohort.activationRate)}</p>
+                    <p className="text-[10px] text-[#86868b]">Activation</p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold text-[#1d1d1f] dark:text-[#f5f5f7]">{cohort.avgMessages.toFixed(1)}</p>
+                    <p className="text-[10px] text-[#86868b]">Avg Msgs</p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold text-[#1d1d1f] dark:text-[#f5f5f7]">{pct(cohort.conversionRate)}</p>
+                    <p className="text-[10px] text-[#86868b]">Conversion</p>
+                  </div>
+                </div>
+                <p className="text-[10px] font-semibold text-[#86868b] uppercase tracking-wider mb-1">
+                  Requirement state (n={cohort.requirementStateBreakdown.sampleSize})
+                </p>
+                <div className="text-[11px] text-[#1d1d1f] dark:text-[#f5f5f7] space-y-1">
+                  <p>Hard ceiling: {cohort.requirementStateBreakdown.hardCeilingCount} · Soft: {cohort.requirementStateBreakdown.softCeilingCount}</p>
+                  {cohort.requirementStateBreakdown.topAmenities.length > 0 && (
+                    <p className="truncate">
+                      Top amenities: {cohort.requirementStateBreakdown.topAmenities.map((a) => a.amenity).join(', ')}
+                    </p>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Generator Drawer / Form */}
       <AnimatePresence>
         {showGenerate && (
@@ -410,9 +596,9 @@ export default function ReferralsAdminPage() {
                     onClick={() => {
                       setLabel(preset.label)
                     }}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium bg-[#f5f5f7] dark:bg-[#242426] hover:bg-[#e5e5ea] dark:hover:bg-[#38383a] text-[#1d1d1f] dark:text-[#f5f5f7] border border-[#e5e5ea] dark:border-[#38383a] transition-all cursor-pointer"
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium bg-[#f5f5f7] dark:bg-[#242426] hover:bg-[#e5e5ea] dark:hover:bg-[#38383a] text-[#1d1d1f] dark:text-[#f5f5f7] border border-[#e5e5ea] dark:border-[#38383a] transition-all active:scale-95 cursor-pointer"
                   >
-                    <span>{preset.icon}</span>
+                    <preset.icon size={13} className="text-[#86868b]" />
                     <span>{preset.label}</span>
                   </button>
                 ))}
@@ -559,6 +745,74 @@ export default function ReferralsAdminPage() {
         )}
       </AnimatePresence>
 
+      {/* By Link / By Admin Tabs */}
+      <div className="flex items-center p-1 rounded-xl bg-[#f5f5f7] dark:bg-[#242426] border border-[#e5e5ea] dark:border-[#38383a] w-fit">
+        <button
+          type="button"
+          onClick={() => setMainTab('byLink')}
+          className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all active:scale-95 cursor-pointer ${
+            mainTab === 'byLink'
+              ? 'bg-white dark:bg-[#1c1c1e] text-[#1d1d1f] dark:text-[#f5f5f7] shadow-2xs'
+              : 'text-[#86868b] hover:text-[#1d1d1f] dark:hover:text-[#f5f5f7]'
+          }`}
+        >
+          By Link
+        </button>
+        <button
+          type="button"
+          onClick={() => setMainTab('byAdmin')}
+          className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all active:scale-95 cursor-pointer ${
+            mainTab === 'byAdmin'
+              ? 'bg-white dark:bg-[#1c1c1e] text-[#1d1d1f] dark:text-[#f5f5f7] shadow-2xs'
+              : 'text-[#86868b] hover:text-[#1d1d1f] dark:hover:text-[#f5f5f7]'
+          }`}
+        >
+          By Admin
+        </button>
+      </div>
+
+      {mainTab === 'byAdmin' ? (
+        <div className="bg-white dark:bg-[#1c1c1e] rounded-[18px] border border-[#e5e5ea] dark:border-[#2c2c2e] overflow-hidden">
+          <div className="flex items-center px-6 py-3.5 bg-[#f5f5f7]/80 dark:bg-[#242426]/60 border-b border-[#e5e5ea] dark:border-[#2c2c2e] text-[11px] font-semibold text-[#86868b] uppercase tracking-wider">
+            <span className="flex-1">Admin</span>
+            <span className="w-24 text-right">Links</span>
+            <span className="w-28 text-right">Reach</span>
+            <span className="w-28 text-right">K-Factor</span>
+            <span className="w-32 text-right">Best Channel</span>
+            <span className="w-40 text-right">Top Link</span>
+          </div>
+          <div className="divide-y divide-[#e5e5ea] dark:divide-[#2c2c2e]">
+            {growthMetricsLoading ? (
+              <div className="py-16 text-center text-xs text-[#86868b]">Loading admin leaderboard…</div>
+            ) : !growthMetrics || growthMetrics.byAdmin.length === 0 ? (
+              <div className="py-16 text-center text-xs text-[#86868b]">No admin has created a link yet.</div>
+            ) : (
+              growthMetrics.byAdmin
+                .slice()
+                .sort((a, b) => b.totalDevicesReached - a.totalDevicesReached)
+                .map((a) => (
+                  <div key={a.adminId} className="flex items-center px-6 py-3.5 text-xs">
+                    <span className="flex-1 font-semibold text-[#1d1d1f] dark:text-[#f5f5f7] truncate">{a.email}</span>
+                    <span className="w-24 text-right font-mono">{a.linksCreated}</span>
+                    <span className="w-28 text-right font-mono">{a.totalDevicesReached}</span>
+                    <span className="w-28 text-right font-mono">{a.blendedKFactor === null ? '—' : a.blendedKFactor.toFixed(2)}</span>
+                    <span className="w-32 text-right font-mono text-[#86868b]">{a.bestChannel ?? '—'}</span>
+                    <span className="w-40 text-right truncate">
+                      {a.topLink ? (
+                        <Link href={`/admin/referrals/${a.topLink.code}`} className="text-[#0066cc] dark:text-[#2997ff] hover:underline">
+                          {a.topLink.label || a.topLink.code}
+                        </Link>
+                      ) : (
+                        '—'
+                      )}
+                    </span>
+                  </div>
+                ))
+            )}
+          </div>
+        </div>
+      ) : (
+        <>
       {/* Filter and Search Bar */}
       <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
         {/* Search input */}
@@ -763,6 +1017,16 @@ export default function ReferralsAdminPage() {
                           Holder Bound
                         </span>
                       )}
+
+                      {link.broadcastFlagged && (
+                        <span
+                          className="inline-flex items-center gap-1 text-[10px] font-bold text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/40 px-2 py-0.5 rounded-full border border-amber-200/80 dark:border-amber-800/60"
+                          title="≥10 arrivals on this code within a 1-hour window"
+                        >
+                          <Radio size={10} />
+                          Broadcast
+                        </span>
+                      )}
                     </div>
 
                     <div className="flex items-center gap-2 mt-1 flex-wrap text-[11px] text-[#86868b]">
@@ -778,6 +1042,20 @@ export default function ReferralsAdminPage() {
 
                       <span>•</span>
                       <span>{new Date(link.createdAt).toLocaleDateString()}</span>
+
+                      {link.createdByEmail && (
+                        <>
+                          <span>•</span>
+                          <span className="text-zinc-600 dark:text-zinc-400">by {link.createdByEmail}</span>
+                        </>
+                      )}
+
+                      {link.revokedByEmail && (
+                        <>
+                          <span>•</span>
+                          <span className="text-rose-600 dark:text-rose-400">revoked by {link.revokedByEmail}</span>
+                        </>
+                      )}
 
                       {link.greetingName && (
                         <>
@@ -795,6 +1073,11 @@ export default function ReferralsAdminPage() {
                         </>
                       )}
                     </div>
+                  </div>
+
+                  {/* 14-day trend sparkline */}
+                  <div className="w-24 hidden xl:flex items-center justify-center pr-4">
+                    <Sparkline buckets={link.trendSparkline || []} />
                   </div>
 
                   {/* Reach (Devices) */}
@@ -909,6 +1192,8 @@ export default function ReferralsAdminPage() {
           )}
         </div>
       </div>
+        </>
+      )}
 
       {/* Revoke Confirmation Modal */}
       <AnimatePresence>
