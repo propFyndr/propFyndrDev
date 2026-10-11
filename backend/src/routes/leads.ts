@@ -15,7 +15,7 @@ import { buildLeadDossier } from '../lib/leadDossier'
 import { analyzeGhostPoolByProject } from '../lib/ghostPool'
 import { analyzeProjectDemand, getDemandSnapshot } from '../lib/demandIntelligence'
 import { trackEvent } from '../lib/monitoring/posthog'
-import { generateLeadBrief, validateLeadBrief } from '../lib/leadBrief'
+import { buildLeadBrief } from '../lib/leadBrief'
 
 const router = Router()
 
@@ -222,15 +222,8 @@ router.post('/callback', async (req: Request, res: Response) => {
   })
 
   // Phase 4C: Generate Lead Brief for partner portal (zero transcript guarantee)
-  if (project && resolvedSessionId) {
-    generateLeadBrief({
-      callback_id: cb.id,
-      project_id: project.id,
-      buyer_profile: profile,
-      intent_tier: intent_tier ?? 'unknown',
-      loan_pre_approved: loanPreApproved,
-    }).catch(err => console.error('[leads] Lead Brief generation failed:', err))
-  }
+  buildLeadBrief(cb.id, 'partner')
+    .catch(err => console.error('[leads] Lead Brief generation failed:', err))
 
   /**
    * Credit the news item that started this, if there was one.
@@ -404,6 +397,10 @@ router.post('/site-visit', async (req: Request, res: Response) => {
   // Qualify the visit the same way a callback is qualified, so both events reach
   // Make.com with one field set and the alert template renders for either.
   const svProfile = await loadLeadProfile(userId, guestToken)
+
+  // Phase 4C: Generate Lead Brief for site-visit (zero transcript guarantee)
+  buildLeadBrief(sv.id, 'partner')
+    .catch(err => console.error('[leads] Lead Brief generation failed:', err))
   const svUnitMins = project.unit_types.map((u) => u.price_min_cr).filter((v): v is number => typeof v === 'number')
   const svUnitMaxes = project.unit_types.map((u) => u.price_max_cr).filter((v): v is number => typeof v === 'number')
   const svPriceMin = svUnitMins.length ? Math.min(...svUnitMins) : null
