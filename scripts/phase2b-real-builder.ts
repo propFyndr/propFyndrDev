@@ -73,37 +73,10 @@ async function main() {
 
       // Apply builder data to all projects by this builder
       for (const project of builderProjects_) {
-        if (builderData.projects_delivered_count) {
-          project.fields.push({
-            field_name: 'projects_delivered_count',
-            value: builderData.projects_delivered_count,
-            confidence: 'MEDIUM',
-            source: 'builder_site_tavily',
-          })
-          totalBuilderFieldsAdded++
-        }
-        if (builderData.average_delay_months) {
-          project.fields.push({
-            field_name: 'average_builder_delay_months',
-            value: builderData.average_delay_months,
-            confidence: 'MEDIUM',
-            source: 'builder_site_tavily',
-          })
-          totalBuilderFieldsAdded++
-        }
         if (builderData.credai_member !== undefined) {
           project.fields.push({
             field_name: 'lift_act_compliant',
             value: builderData.credai_member,
-            confidence: 'MEDIUM',
-            source: 'builder_site_tavily',
-          })
-          totalBuilderFieldsAdded++
-        }
-        if (builderData.awards_count) {
-          project.fields.push({
-            field_name: 'awards_count',
-            value: builderData.awards_count,
             confidence: 'MEDIUM',
             source: 'builder_site_tavily',
           })

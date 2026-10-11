@@ -65,8 +65,7 @@ async function main() {
       SELECT
         COUNT(*) as total,
         COUNT(CASE WHEN rera_number IS NOT NULL THEN 1 END) as with_rera,
-        COUNT(CASE WHEN projects_delivered_count IS NOT NULL THEN 1 END) as with_builder,
-        COUNT(CASE WHEN average_builder_delay_months IS NOT NULL THEN 1 END) as with_delay,
+        COUNT(CASE WHEN lift_act_compliant IS NOT NULL THEN 1 END) as with_lift_act,
         COUNT(CASE WHEN oc_obtained IS NOT NULL THEN 1 END) as with_oc
       FROM projects
     `
@@ -74,8 +73,7 @@ async function main() {
     console.log(`COMBINED QUALITY VERIFICATION:`)
     console.log(`  Total projects: ${result[0]?.total || 0}`)
     console.log(`  With RERA: ${result[0]?.with_rera || 0}`)
-    console.log(`  With builder data: ${result[0]?.with_builder || 0}`)
-    console.log(`  With delay months: ${result[0]?.with_delay || 0}`)
+    console.log(`  With lift_act_compliant: ${result[0]?.with_lift_act || 0}`)
     console.log(`  With OC: ${result[0]?.with_oc || 0}\n`)
 
     console.log(`✓ Phase 2A+2B data LIVE`)

@@ -239,32 +239,14 @@
         "extracted_at": "2026-10-11T09:39:51.040Z"
       },
       {
-        "field_name": "projects_delivered_count",
-        "value": 43,
-        "confidence": "MEDIUM",
-        "source": "builder_site_tavily"
-      },
-      {
-        "field_name": "average_builder_delay_months",
-        "value": 18,
-        "confidence": "MEDIUM",
-        "source": "builder_site_tavily"
-      },
-      {
         "field_name": "lift_act_compliant",
         "value": true,
-        "confidence": "MEDIUM",
-        "source": "builder_site_tavily"
-      },
-      {
-        "field_name": "awards_count",
-        "value": 4,
         "confidence": "MEDIUM",
         "source": "builder_site_tavily"
       }
     ],
     "conflicts": [],
-    "quality_score": 128,
+    "quality_score": 113,
     "notes": []
   },
   {
@@ -650,32 +632,14 @@
         "extracted_at": "2026-10-11T09:39:51.040Z"
       },
       {
-        "field_name": "projects_delivered_count",
-        "value": 28,
-        "confidence": "MEDIUM",
-        "source": "builder_site_tavily"
-      },
-      {
-        "field_name": "average_builder_delay_months",
-        "value": 12,
-        "confidence": "MEDIUM",
-        "source": "builder_site_tavily"
-      },
-      {
         "field_name": "lift_act_compliant",
         "value": true,
-        "confidence": "MEDIUM",
-        "source": "builder_site_tavily"
-      },
-      {
-        "field_name": "awards_count",
-        "value": 2,
         "confidence": "MEDIUM",
         "source": "builder_site_tavily"
       }
     ],
     "conflicts": [],
-    "quality_score": 133,
+    "quality_score": 118,
     "notes": [
       "Low field count, quality penalized"
     ]
@@ -805,32 +769,14 @@
         "extracted_at": "2026-10-11T09:39:51.040Z"
       },
       {
-        "field_name": "projects_delivered_count",
-        "value": 43,
-        "confidence": "MEDIUM",
-        "source": "builder_site_tavily"
-      },
-      {
-        "field_name": "average_builder_delay_months",
-        "value": 18,
-        "confidence": "MEDIUM",
-        "source": "builder_site_tavily"
-      },
-      {
         "field_name": "lift_act_compliant",
         "value": true,
-        "confidence": "MEDIUM",
-        "source": "builder_site_tavily"
-      },
-      {
-        "field_name": "awards_count",
-        "value": 4,
         "confidence": "MEDIUM",
         "source": "builder_site_tavily"
       }
     ],
     "conflicts": [],
-    "quality_score": 133,
+    "quality_score": 118,
     "notes": []
   },
   {
@@ -1096,32 +1042,14 @@
         "extracted_at": "2026-10-11T09:39:51.040Z"
       },
       {
-        "field_name": "projects_delivered_count",
-        "value": 43,
-        "confidence": "MEDIUM",
-        "source": "builder_site_tavily"
-      },
-      {
-        "field_name": "average_builder_delay_months",
-        "value": 18,
-        "confidence": "MEDIUM",
-        "source": "builder_site_tavily"
-      },
-      {
         "field_name": "lift_act_compliant",
         "value": true,
-        "confidence": "MEDIUM",
-        "source": "builder_site_tavily"
-      },
-      {
-        "field_name": "awards_count",
-        "value": 4,
         "confidence": "MEDIUM",
         "source": "builder_site_tavily"
       }
     ],
     "conflicts": [],
-    "quality_score": 133,
+    "quality_score": 118,
     "notes": []
   },
   {
@@ -1371,32 +1299,14 @@
         "extracted_at": "2026-10-11T09:39:51.040Z"
       },
       {
-        "field_name": "projects_delivered_count",
-        "value": 43,
-        "confidence": "MEDIUM",
-        "source": "builder_site_tavily"
-      },
-      {
-        "field_name": "average_builder_delay_months",
-        "value": 18,
-        "confidence": "MEDIUM",
-        "source": "builder_site_tavily"
-      },
-      {
         "field_name": "lift_act_compliant",
         "value": true,
-        "confidence": "MEDIUM",
-        "source": "builder_site_tavily"
-      },
-      {
-        "field_name": "awards_count",
-        "value": 4,
         "confidence": "MEDIUM",
         "source": "builder_site_tavily"
       }
     ],
     "conflicts": [],
-    "quality_score": 128,
+    "quality_score": 113,
     "notes": []
   },
   {
@@ -1510,32 +1420,14 @@
         "extracted_at": "2026-10-11T09:39:51.040Z"
       },
       {
-        "field_name": "projects_delivered_count",
-        "value": 43,
-        "confidence": "MEDIUM",
-        "source": "builder_site_tavily"
-      },
-      {
-        "field_name": "average_builder_delay_months",
-        "value": 18,
-        "confidence": "MEDIUM",
-        "source": "builder_site_tavily"
-      },
-      {
         "field_name": "lift_act_compliant",
         "value": true,
-        "confidence": "MEDIUM",
-        "source": "builder_site_tavily"
-      },
-      {
-        "field_name": "awards_count",
-        "value": 4,
         "confidence": "MEDIUM",
         "source": "builder_site_tavily"
       }
     ],
     "conflicts": [],
-    "quality_score": 118,
+    "quality_score": 102,
     "notes": []
   },
   {
@@ -1663,32 +1555,14 @@
         "extracted_at": "2026-10-11T09:39:51.040Z"
       },
       {
-        "field_name": "projects_delivered_count",
-        "value": 28,
-        "confidence": "MEDIUM",
-        "source": "builder_site_tavily"
-      },
-      {
-        "field_name": "average_builder_delay_months",
-        "value": 12,
-        "confidence": "MEDIUM",
-        "source": "builder_site_tavily"
-      },
-      {
         "field_name": "lift_act_compliant",
         "value": true,
-        "confidence": "MEDIUM",
-        "source": "builder_site_tavily"
-      },
-      {
-        "field_name": "awards_count",
-        "value": 2,
         "confidence": "MEDIUM",
         "source": "builder_site_tavily"
       }
     ],
     "conflicts": [],
-    "quality_score": 128,
+    "quality_score": 113,
     "notes": [
       "Low field count, quality penalized"
     ]
@@ -1825,32 +1699,14 @@
         "extracted_at": "2026-10-11T09:39:51.040Z"
       },
       {
-        "field_name": "projects_delivered_count",
-        "value": 28,
-        "confidence": "MEDIUM",
-        "source": "builder_site_tavily"
-      },
-      {
-        "field_name": "average_builder_delay_months",
-        "value": 12,
-        "confidence": "MEDIUM",
-        "source": "builder_site_tavily"
-      },
-      {
         "field_name": "lift_act_compliant",
         "value": true,
-        "confidence": "MEDIUM",
-        "source": "builder_site_tavily"
-      },
-      {
-        "field_name": "awards_count",
-        "value": 2,
         "confidence": "MEDIUM",
         "source": "builder_site_tavily"
       }
     ],
     "conflicts": [],
-    "quality_score": 138,
+    "quality_score": 123,
     "notes": [
       "Low field count, quality penalized"
     ]
@@ -1980,32 +1836,14 @@
         "extracted_at": "2026-10-11T09:39:51.040Z"
       },
       {
-        "field_name": "projects_delivered_count",
-        "value": 43,
-        "confidence": "MEDIUM",
-        "source": "builder_site_tavily"
-      },
-      {
-        "field_name": "average_builder_delay_months",
-        "value": 18,
-        "confidence": "MEDIUM",
-        "source": "builder_site_tavily"
-      },
-      {
         "field_name": "lift_act_compliant",
         "value": true,
-        "confidence": "MEDIUM",
-        "source": "builder_site_tavily"
-      },
-      {
-        "field_name": "awards_count",
-        "value": 4,
         "confidence": "MEDIUM",
         "source": "builder_site_tavily"
       }
     ],
     "conflicts": [],
-    "quality_score": 128,
+    "quality_score": 113,
     "notes": []
   },
   {
@@ -2140,32 +1978,14 @@
         "extracted_at": "2026-10-11T09:39:51.040Z"
       },
       {
-        "field_name": "projects_delivered_count",
-        "value": 35,
-        "confidence": "MEDIUM",
-        "source": "builder_site_tavily"
-      },
-      {
-        "field_name": "average_builder_delay_months",
-        "value": 8,
-        "confidence": "MEDIUM",
-        "source": "builder_site_tavily"
-      },
-      {
         "field_name": "lift_act_compliant",
         "value": true,
-        "confidence": "MEDIUM",
-        "source": "builder_site_tavily"
-      },
-      {
-        "field_name": "awards_count",
-        "value": 3,
         "confidence": "MEDIUM",
         "source": "builder_site_tavily"
       }
     ],
     "conflicts": [],
-    "quality_score": 138,
+    "quality_score": 123,
     "notes": []
   },
   {
@@ -2429,32 +2249,14 @@
         "extracted_at": "2026-10-11T09:39:51.041Z"
       },
       {
-        "field_name": "projects_delivered_count",
-        "value": 35,
-        "confidence": "MEDIUM",
-        "source": "builder_site_tavily"
-      },
-      {
-        "field_name": "average_builder_delay_months",
-        "value": 8,
-        "confidence": "MEDIUM",
-        "source": "builder_site_tavily"
-      },
-      {
         "field_name": "lift_act_compliant",
         "value": true,
-        "confidence": "MEDIUM",
-        "source": "builder_site_tavily"
-      },
-      {
-        "field_name": "awards_count",
-        "value": 3,
         "confidence": "MEDIUM",
         "source": "builder_site_tavily"
       }
     ],
     "conflicts": [],
-    "quality_score": 138,
+    "quality_score": 123,
     "notes": []
   },
   {
@@ -2706,32 +2508,14 @@
         "extracted_at": "2026-10-11T09:39:51.041Z"
       },
       {
-        "field_name": "projects_delivered_count",
-        "value": 43,
-        "confidence": "MEDIUM",
-        "source": "builder_site_tavily"
-      },
-      {
-        "field_name": "average_builder_delay_months",
-        "value": 18,
-        "confidence": "MEDIUM",
-        "source": "builder_site_tavily"
-      },
-      {
         "field_name": "lift_act_compliant",
         "value": true,
-        "confidence": "MEDIUM",
-        "source": "builder_site_tavily"
-      },
-      {
-        "field_name": "awards_count",
-        "value": 4,
         "confidence": "MEDIUM",
         "source": "builder_site_tavily"
       }
     ],
     "conflicts": [],
-    "quality_score": 128,
+    "quality_score": 112,
     "notes": []
   },
   {
@@ -3152,32 +2936,14 @@
         "extracted_at": "2026-10-11T09:39:51.041Z"
       },
       {
-        "field_name": "projects_delivered_count",
-        "value": 35,
-        "confidence": "MEDIUM",
-        "source": "builder_site_tavily"
-      },
-      {
-        "field_name": "average_builder_delay_months",
-        "value": 8,
-        "confidence": "MEDIUM",
-        "source": "builder_site_tavily"
-      },
-      {
         "field_name": "lift_act_compliant",
         "value": true,
-        "confidence": "MEDIUM",
-        "source": "builder_site_tavily"
-      },
-      {
-        "field_name": "awards_count",
-        "value": 3,
         "confidence": "MEDIUM",
         "source": "builder_site_tavily"
       }
     ],
     "conflicts": [],
-    "quality_score": 143,
+    "quality_score": 128,
     "notes": []
   },
   {
@@ -3565,32 +3331,14 @@
         "extracted_at": "2026-10-11T09:39:51.041Z"
       },
       {
-        "field_name": "projects_delivered_count",
-        "value": 43,
-        "confidence": "MEDIUM",
-        "source": "builder_site_tavily"
-      },
-      {
-        "field_name": "average_builder_delay_months",
-        "value": 18,
-        "confidence": "MEDIUM",
-        "source": "builder_site_tavily"
-      },
-      {
         "field_name": "lift_act_compliant",
         "value": true,
-        "confidence": "MEDIUM",
-        "source": "builder_site_tavily"
-      },
-      {
-        "field_name": "awards_count",
-        "value": 4,
         "confidence": "MEDIUM",
         "source": "builder_site_tavily"
       }
     ],
     "conflicts": [],
-    "quality_score": 128,
+    "quality_score": 112,
     "notes": []
   },
   {
@@ -5001,32 +4749,14 @@
         "extracted_at": "2026-10-11T09:39:51.041Z"
       },
       {
-        "field_name": "projects_delivered_count",
-        "value": 43,
-        "confidence": "MEDIUM",
-        "source": "builder_site_tavily"
-      },
-      {
-        "field_name": "average_builder_delay_months",
-        "value": 18,
-        "confidence": "MEDIUM",
-        "source": "builder_site_tavily"
-      },
-      {
         "field_name": "lift_act_compliant",
         "value": true,
-        "confidence": "MEDIUM",
-        "source": "builder_site_tavily"
-      },
-      {
-        "field_name": "awards_count",
-        "value": 4,
         "confidence": "MEDIUM",
         "source": "builder_site_tavily"
       }
     ],
     "conflicts": [],
-    "quality_score": 128,
+    "quality_score": 112,
     "notes": []
   },
   {
@@ -6573,32 +6303,14 @@
         "extracted_at": "2026-10-11T09:39:51.041Z"
       },
       {
-        "field_name": "projects_delivered_count",
-        "value": 43,
-        "confidence": "MEDIUM",
-        "source": "builder_site_tavily"
-      },
-      {
-        "field_name": "average_builder_delay_months",
-        "value": 18,
-        "confidence": "MEDIUM",
-        "source": "builder_site_tavily"
-      },
-      {
         "field_name": "lift_act_compliant",
         "value": true,
-        "confidence": "MEDIUM",
-        "source": "builder_site_tavily"
-      },
-      {
-        "field_name": "awards_count",
-        "value": 4,
         "confidence": "MEDIUM",
         "source": "builder_site_tavily"
       }
     ],
     "conflicts": [],
-    "quality_score": 123,
+    "quality_score": 107,
     "notes": [
       "Low field count, quality penalized"
     ]
@@ -6735,32 +6447,14 @@
         "extracted_at": "2026-10-11T09:39:51.041Z"
       },
       {
-        "field_name": "projects_delivered_count",
-        "value": 43,
-        "confidence": "MEDIUM",
-        "source": "builder_site_tavily"
-      },
-      {
-        "field_name": "average_builder_delay_months",
-        "value": 18,
-        "confidence": "MEDIUM",
-        "source": "builder_site_tavily"
-      },
-      {
         "field_name": "lift_act_compliant",
         "value": true,
-        "confidence": "MEDIUM",
-        "source": "builder_site_tavily"
-      },
-      {
-        "field_name": "awards_count",
-        "value": 4,
         "confidence": "MEDIUM",
         "source": "builder_site_tavily"
       }
     ],
     "conflicts": [],
-    "quality_score": 133,
+    "quality_score": 118,
     "notes": []
   },
   {
@@ -7694,32 +7388,14 @@
         "extracted_at": "2026-10-11T09:39:51.041Z"
       },
       {
-        "field_name": "projects_delivered_count",
-        "value": 43,
-        "confidence": "MEDIUM",
-        "source": "builder_site_tavily"
-      },
-      {
-        "field_name": "average_builder_delay_months",
-        "value": 18,
-        "confidence": "MEDIUM",
-        "source": "builder_site_tavily"
-      },
-      {
         "field_name": "lift_act_compliant",
         "value": true,
-        "confidence": "MEDIUM",
-        "source": "builder_site_tavily"
-      },
-      {
-        "field_name": "awards_count",
-        "value": 4,
         "confidence": "MEDIUM",
         "source": "builder_site_tavily"
       }
     ],
     "conflicts": [],
-    "quality_score": 138,
+    "quality_score": 123,
     "notes": []
   },
   {
@@ -7854,32 +7530,14 @@
         "extracted_at": "2026-10-11T09:39:51.041Z"
       },
       {
-        "field_name": "projects_delivered_count",
-        "value": 43,
-        "confidence": "MEDIUM",
-        "source": "builder_site_tavily"
-      },
-      {
-        "field_name": "average_builder_delay_months",
-        "value": 18,
-        "confidence": "MEDIUM",
-        "source": "builder_site_tavily"
-      },
-      {
         "field_name": "lift_act_compliant",
         "value": true,
-        "confidence": "MEDIUM",
-        "source": "builder_site_tavily"
-      },
-      {
-        "field_name": "awards_count",
-        "value": 4,
         "confidence": "MEDIUM",
         "source": "builder_site_tavily"
       }
     ],
     "conflicts": [],
-    "quality_score": 138,
+    "quality_score": 123,
     "notes": []
   },
   {
@@ -8115,32 +7773,14 @@
         "extracted_at": "2026-10-11T09:39:51.041Z"
       },
       {
-        "field_name": "projects_delivered_count",
-        "value": 43,
-        "confidence": "MEDIUM",
-        "source": "builder_site_tavily"
-      },
-      {
-        "field_name": "average_builder_delay_months",
-        "value": 18,
-        "confidence": "MEDIUM",
-        "source": "builder_site_tavily"
-      },
-      {
         "field_name": "lift_act_compliant",
         "value": true,
-        "confidence": "MEDIUM",
-        "source": "builder_site_tavily"
-      },
-      {
-        "field_name": "awards_count",
-        "value": 4,
         "confidence": "MEDIUM",
         "source": "builder_site_tavily"
       }
     ],
     "conflicts": [],
-    "quality_score": 123,
+    "quality_score": 107,
     "notes": []
   },
   {

@@ -9,7 +9,7 @@ interface ProjectExtraction {
 }
 
 const VALID_COLUMNS = new Set([
-  'projects_delivered_count', 'average_builder_delay_months', 'lift_act_compliant', 'awards_count',
+  'lift_act_compliant',
   'rera_number', 'oc_obtained', 'possession_date', 'possession_label', 'total_units', 'status',
 ])
 
