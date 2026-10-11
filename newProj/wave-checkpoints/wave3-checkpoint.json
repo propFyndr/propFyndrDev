@@ -1,0 +1,19 @@
+{
+  "wave_number": 3,
+  "project_range": [129, 192],
+  "total_projects": 57,
+  "status": "completed",
+  "started_at": "2026-10-11T09:35:00Z",
+  "completed_at": "2026-10-11T09:35:30Z",
+  "extraction_audit_file": "wave3-extraction-audit.json",
+  "upsert_sql_file": "wave3-upsert.sql",
+  "conflicts_file": "wave3-conflicts.json",
+  "quality_stats": {
+    "avg_quality_score": 13,
+    "high_confidence_fields": 114,
+    "medium_confidence_fields": 57,
+    "conflicts_detected": 0,
+    "projects_with_conflicts": 0
+  },
+  "notes": ["MVP extraction: 57 projects, no conflicts"]
+}
