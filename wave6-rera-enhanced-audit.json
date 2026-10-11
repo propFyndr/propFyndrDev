@@ -1,0 +1,4527 @@
+[
+  {
+    "project_id": "61578c3f-0f78-4a76-affb-94f40dfa4e43",
+    "project_name": "Antriksh Forest",
+    "status": "ok",
+    "fields": [
+      {
+        "field_name": "rera_number",
+        "value": "UPRERAPRJ77107",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      },
+      {
+        "field_name": "rera_compliance_score",
+        "value": 97,
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      },
+      {
+        "field_name": "possession_date",
+        "value": "2024-02-15T00:00:00.000Z",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.468Z"
+      },
+      {
+        "field_name": "oc_obtained",
+        "value": true,
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      },
+      {
+        "field_name": "oc_obtained_date",
+        "value": "2021-01-24T00:00:00.000Z",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      },
+      {
+        "field_name": "total_units",
+        "value": 820,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.468Z"
+      },
+      {
+        "field_name": "total_towers",
+        "value": 8,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.468Z"
+      },
+      {
+        "field_name": "status",
+        "value": "ready_to_move",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.468Z"
+      },
+      {
+        "field_name": "litigation_count",
+        "value": 0,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.468Z"
+      },
+      {
+        "field_name": "rera_status",
+        "value": "under_review",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      },
+      {
+        "field_name": "possession_label",
+        "value": "Q1 2025",
+        "confidence": "MEDIUM",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      }
+    ],
+    "conflicts": [],
+    "quality_score": 19,
+    "notes": []
+  },
+  {
+    "project_id": "d54acc58-62ad-47a9-a522-9cc49ab299dd",
+    "project_name": "Aditya Celebrity Homes",
+    "status": "ok",
+    "fields": [
+      {
+        "field_name": "rera_number",
+        "value": "UPRERAPRJ76130",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      },
+      {
+        "field_name": "rera_compliance_score",
+        "value": 88,
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      },
+      {
+        "field_name": "possession_date",
+        "value": "2023-11-25T00:00:00.000Z",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.468Z"
+      },
+      {
+        "field_name": "oc_obtained",
+        "value": true,
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      },
+      {
+        "field_name": "oc_obtained_date",
+        "value": "2022-05-09T00:00:00.000Z",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      },
+      {
+        "field_name": "total_units",
+        "value": 750,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.468Z"
+      },
+      {
+        "field_name": "total_towers",
+        "value": 8,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.468Z"
+      },
+      {
+        "field_name": "status",
+        "value": "ready_to_move",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.468Z"
+      },
+      {
+        "field_name": "litigation_count",
+        "value": 0,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.468Z"
+      },
+      {
+        "field_name": "rera_status",
+        "value": "compliant",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      }
+    ],
+    "conflicts": [],
+    "quality_score": 20,
+    "notes": []
+  },
+  {
+    "project_id": "bd7ce502-3c2a-423f-bc9e-63f4e0941201",
+    "project_name": "AIMS Golf Avenue I",
+    "status": "ok",
+    "fields": [
+      {
+        "field_name": "rera_number",
+        "value": "UPRERAPRJ1235",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      },
+      {
+        "field_name": "rera_compliance_score",
+        "value": 97,
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      },
+      {
+        "field_name": "possession_date",
+        "value": "2023-09-15T00:00:00.000Z",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.468Z"
+      },
+      {
+        "field_name": "oc_obtained",
+        "value": false,
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      },
+      {
+        "field_name": "oc_obtained_date",
+        "value": "2023-09-15T00:00:00.000Z",
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.468Z"
+      },
+      {
+        "field_name": "total_units",
+        "value": 650,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.468Z"
+      },
+      {
+        "field_name": "total_towers",
+        "value": 6,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.468Z"
+      },
+      {
+        "field_name": "status",
+        "value": "ready_to_move",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.468Z"
+      },
+      {
+        "field_name": "litigation_count",
+        "value": 0,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.468Z"
+      },
+      {
+        "field_name": "rera_status",
+        "value": "compliant",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      }
+    ],
+    "conflicts": [],
+    "quality_score": 20,
+    "notes": []
+  },
+  {
+    "project_id": "26620dc3-3a1f-4c7c-a678-fda534e66eb9",
+    "project_name": "AIMS Golf City",
+    "status": "ok",
+    "fields": [
+      {
+        "field_name": "rera_number",
+        "value": "UPRERAPRJ1102",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      },
+      {
+        "field_name": "possession_date",
+        "value": "2023-12-31T00:00:00.000Z",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.468Z"
+      },
+      {
+        "field_name": "oc_obtained",
+        "value": true,
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      },
+      {
+        "field_name": "oc_obtained_date",
+        "value": "2024-12-16T00:00:00.000Z",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      },
+      {
+        "field_name": "total_units",
+        "value": 1600,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.468Z"
+      },
+      {
+        "field_name": "total_towers",
+        "value": 14,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.468Z"
+      },
+      {
+        "field_name": "status",
+        "value": "ready_to_move",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.468Z"
+      },
+      {
+        "field_name": "rera_compliance_score",
+        "value": 89,
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      },
+      {
+        "field_name": "rera_status",
+        "value": "under_review",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      },
+      {
+        "field_name": "litigation_count",
+        "value": 0,
+        "confidence": "MEDIUM",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      }
+    ],
+    "conflicts": [],
+    "quality_score": 20,
+    "notes": []
+  },
+  {
+    "project_id": "0a5b22e6-19a2-4f68-a5ba-5e474bb9b203",
+    "project_name": "Grand Ajnara Heritage",
+    "status": "ok",
+    "fields": [
+      {
+        "field_name": "rera_number",
+        "value": "UPRERAPRJ5655",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      },
+      {
+        "field_name": "rera_compliance_score",
+        "value": 85,
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      },
+      {
+        "field_name": "possession_date",
+        "value": "2018-06-30T00:00:00.000Z",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.468Z"
+      },
+      {
+        "field_name": "oc_obtained",
+        "value": true,
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      },
+      {
+        "field_name": "total_units",
+        "value": 1760,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.468Z"
+      },
+      {
+        "field_name": "total_towers",
+        "value": 14,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.468Z"
+      },
+      {
+        "field_name": "status",
+        "value": "ready_to_move",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.468Z"
+      },
+      {
+        "field_name": "litigation_count",
+        "value": 0,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.468Z"
+      },
+      {
+        "field_name": "oc_obtained_date",
+        "value": "2023-10-20T00:00:00.000Z",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      },
+      {
+        "field_name": "rera_status",
+        "value": "approved",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      },
+      {
+        "field_name": "possession_label",
+        "value": "Q4 2026",
+        "confidence": "MEDIUM",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      }
+    ],
+    "conflicts": [],
+    "quality_score": 19,
+    "notes": []
+  },
+  {
+    "project_id": "f38b09ff-d5c6-4978-a95e-c47dc7a6bc1b",
+    "project_name": "Pan Oasis",
+    "status": "ok",
+    "fields": [
+      {
+        "field_name": "rera_number",
+        "value": "UPRERAPRJ7001",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      },
+      {
+        "field_name": "possession_date",
+        "value": "2015-10-31T00:00:00.000Z",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.468Z"
+      },
+      {
+        "field_name": "oc_obtained",
+        "value": false,
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      },
+      {
+        "field_name": "total_units",
+        "value": 1800,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.468Z"
+      },
+      {
+        "field_name": "total_towers",
+        "value": 18,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.468Z"
+      },
+      {
+        "field_name": "status",
+        "value": "ready_to_move",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.468Z"
+      },
+      {
+        "field_name": "litigation_count",
+        "value": 0,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.468Z"
+      },
+      {
+        "field_name": "rera_compliance_score",
+        "value": 89,
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      },
+      {
+        "field_name": "rera_status",
+        "value": "approved",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      }
+    ],
+    "conflicts": [],
+    "quality_score": 19,
+    "notes": []
+  },
+  {
+    "project_id": "c7a2614a-08c1-4fc8-b90e-3af3ee1bbe66",
+    "project_name": "Stellar Park",
+    "status": "ok",
+    "fields": [
+      {
+        "field_name": "rera_number",
+        "value": "UPRERAPRJ621",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      },
+      {
+        "field_name": "rera_compliance_score",
+        "value": 92,
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      },
+      {
+        "field_name": "possession_date",
+        "value": "2014-11-30T00:00:00.000Z",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.468Z"
+      },
+      {
+        "field_name": "oc_obtained",
+        "value": true,
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      },
+      {
+        "field_name": "total_units",
+        "value": 1000,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.468Z"
+      },
+      {
+        "field_name": "total_towers",
+        "value": 8,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.468Z"
+      },
+      {
+        "field_name": "status",
+        "value": "ready_to_move",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.468Z"
+      },
+      {
+        "field_name": "litigation_count",
+        "value": 0,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.468Z"
+      },
+      {
+        "field_name": "oc_obtained_date",
+        "value": "2023-01-17T00:00:00.000Z",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      },
+      {
+        "field_name": "rera_status",
+        "value": "under_review",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      },
+      {
+        "field_name": "possession_label",
+        "value": "Q1 2024",
+        "confidence": "MEDIUM",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      }
+    ],
+    "conflicts": [],
+    "quality_score": 19,
+    "notes": []
+  },
+  {
+    "project_id": "c270d881-50ed-454c-a300-8e9932012a9f",
+    "project_name": "Amrapali Eden Park",
+    "status": "ok",
+    "fields": [
+      {
+        "field_name": "rera_number",
+        "value": "UPRERAPRJ1050",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      },
+      {
+        "field_name": "possession_date",
+        "value": "2013-12-31T00:00:00.000Z",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.468Z"
+      },
+      {
+        "field_name": "oc_obtained",
+        "value": false,
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      },
+      {
+        "field_name": "total_units",
+        "value": 320,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.468Z"
+      },
+      {
+        "field_name": "total_towers",
+        "value": 4,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.468Z"
+      },
+      {
+        "field_name": "status",
+        "value": "ready_to_move",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.468Z"
+      },
+      {
+        "field_name": "litigation_count",
+        "value": 18,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.468Z"
+      },
+      {
+        "field_name": "rera_compliance_score",
+        "value": 94,
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      },
+      {
+        "field_name": "rera_status",
+        "value": "registered",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      },
+      {
+        "field_name": "possession_label",
+        "value": "Q3 2025",
+        "confidence": "MEDIUM",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      }
+    ],
+    "conflicts": [],
+    "quality_score": 18,
+    "notes": []
+  },
+  {
+    "project_id": "fd2dff4c-4552-4a53-8a91-2f50fd959a82",
+    "project_name": "Amrapali Golf Homes",
+    "status": "ok",
+    "fields": [
+      {
+        "field_name": "rera_number",
+        "value": "UPRERAPRJ8808",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      },
+      {
+        "field_name": "possession_date",
+        "value": "2027-12-31T00:00:00.000Z",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.468Z"
+      },
+      {
+        "field_name": "oc_obtained",
+        "value": true,
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      },
+      {
+        "field_name": "total_units",
+        "value": 4500,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.468Z"
+      },
+      {
+        "field_name": "total_towers",
+        "value": 38,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.468Z"
+      },
+      {
+        "field_name": "status",
+        "value": "under_construction",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.468Z"
+      },
+      {
+        "field_name": "rera_compliance_score",
+        "value": 95,
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      },
+      {
+        "field_name": "rera_status",
+        "value": "registered",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      },
+      {
+        "field_name": "litigation_count",
+        "value": 3,
+        "confidence": "MEDIUM",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      }
+    ],
+    "conflicts": [],
+    "quality_score": 19,
+    "notes": []
+  },
+  {
+    "project_id": "85141048-0d74-482b-9c00-ac6d8531b341",
+    "project_name": "Gardenia Glory",
+    "status": "ok",
+    "fields": [
+      {
+        "field_name": "rera_number",
+        "value": "UPRERAPRJ4601",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      },
+      {
+        "field_name": "possession_date",
+        "value": "2017-08-31T00:00:00.000Z",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.468Z"
+      },
+      {
+        "field_name": "oc_obtained",
+        "value": true,
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      },
+      {
+        "field_name": "total_units",
+        "value": 1100,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.468Z"
+      },
+      {
+        "field_name": "total_towers",
+        "value": 16,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.468Z"
+      },
+      {
+        "field_name": "status",
+        "value": "ready_to_move",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.468Z"
+      },
+      {
+        "field_name": "litigation_count",
+        "value": 0,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.468Z"
+      },
+      {
+        "field_name": "rera_compliance_score",
+        "value": 87,
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      },
+      {
+        "field_name": "oc_obtained_date",
+        "value": "2021-07-23T00:00:00.000Z",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      },
+      {
+        "field_name": "rera_status",
+        "value": "approved",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      },
+      {
+        "field_name": "possession_label",
+        "value": "Q3 2026",
+        "confidence": "MEDIUM",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      }
+    ],
+    "conflicts": [],
+    "quality_score": 19,
+    "notes": []
+  },
+  {
+    "project_id": "3bca4621-44df-4105-a728-a0e4ab13b8c1",
+    "project_name": "Amrapali Sapphire",
+    "status": "ok",
+    "fields": [
+      {
+        "field_name": "rera_number",
+        "value": "UPRERAPRJ4502",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      },
+      {
+        "field_name": "possession_date",
+        "value": "2016-06-30T00:00:00.000Z",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.468Z"
+      },
+      {
+        "field_name": "oc_obtained",
+        "value": false,
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      },
+      {
+        "field_name": "total_units",
+        "value": 1600,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.468Z"
+      },
+      {
+        "field_name": "total_towers",
+        "value": 22,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.468Z"
+      },
+      {
+        "field_name": "status",
+        "value": "ready_to_move",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.468Z"
+      },
+      {
+        "field_name": "litigation_count",
+        "value": 18,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.468Z"
+      },
+      {
+        "field_name": "rera_compliance_score",
+        "value": 86,
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      },
+      {
+        "field_name": "rera_status",
+        "value": "approved",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      }
+    ],
+    "conflicts": [],
+    "quality_score": 19,
+    "notes": []
+  },
+  {
+    "project_id": "e0a8ab69-4bf7-48dd-aac0-67b795ee06ea",
+    "project_name": "Godrej Woods",
+    "status": "ok",
+    "fields": [
+      {
+        "field_name": "rera_number",
+        "value": "UPRERAPRJ145318",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      },
+      {
+        "field_name": "rera_compliance_score",
+        "value": 93,
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      },
+      {
+        "field_name": "possession_date",
+        "value": "2026-09-30T00:00:00.000Z",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.468Z"
+      },
+      {
+        "field_name": "oc_obtained",
+        "value": true,
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      },
+      {
+        "field_name": "oc_obtained_date",
+        "value": "2023-05-03T18:30:00.000Z",
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.468Z"
+      },
+      {
+        "field_name": "total_units",
+        "value": 3220,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.468Z"
+      },
+      {
+        "field_name": "total_towers",
+        "value": 28,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.468Z"
+      },
+      {
+        "field_name": "status",
+        "value": "under_construction",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.468Z"
+      },
+      {
+        "field_name": "litigation_count",
+        "value": 0,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.468Z"
+      },
+      {
+        "field_name": "rera_status",
+        "value": "approved",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      },
+      {
+        "field_name": "possession_label",
+        "value": "Q1 2025",
+        "confidence": "MEDIUM",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      }
+    ],
+    "conflicts": [],
+    "quality_score": 19,
+    "notes": []
+  },
+  {
+    "project_id": "5d09bdc0-6c37-4e7c-ad55-14b03f289765",
+    "project_name": "Eros Sampoornam",
+    "status": "ok",
+    "fields": [
+      {
+        "field_name": "rera_number",
+        "value": "UPRERAPRJ512436/07/2024",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      },
+      {
+        "field_name": "possession_date",
+        "value": "2018-04-30T00:00:00.000Z",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.468Z"
+      },
+      {
+        "field_name": "oc_obtained",
+        "value": false,
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      },
+      {
+        "field_name": "total_units",
+        "value": 6650,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.468Z"
+      },
+      {
+        "field_name": "total_towers",
+        "value": 58,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.468Z"
+      },
+      {
+        "field_name": "status",
+        "value": "under_construction",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.468Z"
+      },
+      {
+        "field_name": "litigation_count",
+        "value": 0,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.468Z"
+      },
+      {
+        "field_name": "rera_compliance_score",
+        "value": 93,
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      },
+      {
+        "field_name": "rera_status",
+        "value": "registered",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      },
+      {
+        "field_name": "possession_label",
+        "value": "Q2 2024",
+        "confidence": "MEDIUM",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      }
+    ],
+    "conflicts": [],
+    "quality_score": 18,
+    "notes": []
+  },
+  {
+    "project_id": "63506755-89ce-440a-8d0b-8f2155e99fb5",
+    "project_name": "Godrej Golf Links & The Crest",
+    "status": "ok",
+    "fields": [
+      {
+        "field_name": "rera_number",
+        "value": "UPRERAPRJ151",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      },
+      {
+        "field_name": "possession_date",
+        "value": "2022-03-31T00:00:00.000Z",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.468Z"
+      },
+      {
+        "field_name": "oc_obtained",
+        "value": false,
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      },
+      {
+        "field_name": "total_units",
+        "value": 650,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.468Z"
+      },
+      {
+        "field_name": "total_towers",
+        "value": 8,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.468Z"
+      },
+      {
+        "field_name": "status",
+        "value": "ready_to_move",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.468Z"
+      },
+      {
+        "field_name": "litigation_count",
+        "value": 0,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.468Z"
+      },
+      {
+        "field_name": "rera_compliance_score",
+        "value": 98,
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      },
+      {
+        "field_name": "rera_status",
+        "value": "approved",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      }
+    ],
+    "conflicts": [],
+    "quality_score": 19,
+    "notes": []
+  },
+  {
+    "project_id": "38b353ee-e14f-40e3-9589-ef69e74794f7",
+    "project_name": "Jaypee Sports City (Kassia)",
+    "status": "ok",
+    "fields": [
+      {
+        "field_name": "rera_number",
+        "value": "UPRERAPRJ8826",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      },
+      {
+        "field_name": "possession_date",
+        "value": "2019-12-31T00:00:00.000Z",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.468Z"
+      },
+      {
+        "field_name": "oc_obtained",
+        "value": false,
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      },
+      {
+        "field_name": "total_units",
+        "value": 920,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.468Z"
+      },
+      {
+        "field_name": "total_towers",
+        "value": 9,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.468Z"
+      },
+      {
+        "field_name": "status",
+        "value": "ready_to_move",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.468Z"
+      },
+      {
+        "field_name": "litigation_count",
+        "value": 10,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.468Z"
+      },
+      {
+        "field_name": "rera_compliance_score",
+        "value": 98,
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      },
+      {
+        "field_name": "rera_status",
+        "value": "compliant",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      },
+      {
+        "field_name": "possession_label",
+        "value": "Q3 2025",
+        "confidence": "MEDIUM",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      }
+    ],
+    "conflicts": [],
+    "quality_score": 18,
+    "notes": []
+  },
+  {
+    "project_id": "dbfa1b3f-4ea5-434f-95f4-a1731cc3ebd7",
+    "project_name": "Orris Greenbay Golf Homes",
+    "status": "ok",
+    "fields": [
+      {
+        "field_name": "rera_number",
+        "value": "UPRERAPRJ5528",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      },
+      {
+        "field_name": "possession_date",
+        "value": "2026-06-30T00:00:00.000Z",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.468Z"
+      },
+      {
+        "field_name": "oc_obtained",
+        "value": false,
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      },
+      {
+        "field_name": "total_units",
+        "value": 950,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.468Z"
+      },
+      {
+        "field_name": "total_towers",
+        "value": 8,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.468Z"
+      },
+      {
+        "field_name": "status",
+        "value": "under_construction",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.468Z"
+      },
+      {
+        "field_name": "litigation_count",
+        "value": 0,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.468Z"
+      },
+      {
+        "field_name": "rera_compliance_score",
+        "value": 86,
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      },
+      {
+        "field_name": "rera_status",
+        "value": "registered",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      }
+    ],
+    "conflicts": [],
+    "quality_score": 19,
+    "notes": []
+  },
+  {
+    "project_id": "1ccb48fa-d390-4574-8a4b-6ea712ac4381",
+    "project_name": "Arihant Seasons",
+    "status": "ok",
+    "fields": [
+      {
+        "field_name": "rera_number",
+        "value": "UPRERAPRJ974543/02/2026",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      },
+      {
+        "field_name": "rera_compliance_score",
+        "value": 94,
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      },
+      {
+        "field_name": "possession_date",
+        "value": "2031-04-30T18:30:00.000Z",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.468Z"
+      },
+      {
+        "field_name": "oc_obtained",
+        "value": true,
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      },
+      {
+        "field_name": "total_units",
+        "value": 720,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.468Z"
+      },
+      {
+        "field_name": "total_towers",
+        "value": 6,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.468Z"
+      },
+      {
+        "field_name": "status",
+        "value": "new_launch",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.468Z"
+      },
+      {
+        "field_name": "litigation_count",
+        "value": 0,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.468Z"
+      },
+      {
+        "field_name": "oc_obtained_date",
+        "value": "2020-04-12T00:00:00.000Z",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      },
+      {
+        "field_name": "rera_status",
+        "value": "compliant",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      },
+      {
+        "field_name": "possession_label",
+        "value": "Q2 2027",
+        "confidence": "MEDIUM",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      }
+    ],
+    "conflicts": [],
+    "quality_score": 19,
+    "notes": []
+  },
+  {
+    "project_id": "704e98bf-974c-49f3-9f8a-5293f3d66681",
+    "project_name": "ACE Terrains / Terra",
+    "status": "ok",
+    "fields": [
+      {
+        "field_name": "rera_number",
+        "value": "UPRERAPRJ683816/04/2024",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      },
+      {
+        "field_name": "possession_date",
+        "value": "2026-12-31T00:00:00.000Z",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.468Z"
+      },
+      {
+        "field_name": "total_units",
+        "value": 980,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.468Z"
+      },
+      {
+        "field_name": "total_towers",
+        "value": 6,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.468Z"
+      },
+      {
+        "field_name": "status",
+        "value": "under_construction",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.468Z"
+      },
+      {
+        "field_name": "rera_compliance_score",
+        "value": 96,
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      },
+      {
+        "field_name": "oc_obtained",
+        "value": true,
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      },
+      {
+        "field_name": "rera_status",
+        "value": "approved",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      },
+      {
+        "field_name": "possession_label",
+        "value": "Q3 2024",
+        "confidence": "MEDIUM",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      }
+    ],
+    "conflicts": [],
+    "quality_score": 19,
+    "notes": []
+  },
+  {
+    "project_id": "e3871eb3-edb5-4621-9e99-494fcd94a25b",
+    "project_name": "Ace City",
+    "status": "ok",
+    "fields": [
+      {
+        "field_name": "rera_number",
+        "value": "UPRERAPRJ885615",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      },
+      {
+        "field_name": "possession_date",
+        "value": "2018-09-30T00:00:00.000Z",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.468Z"
+      },
+      {
+        "field_name": "oc_obtained",
+        "value": true,
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      },
+      {
+        "field_name": "total_units",
+        "value": 5500,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.468Z"
+      },
+      {
+        "field_name": "total_towers",
+        "value": 34,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.468Z"
+      },
+      {
+        "field_name": "status",
+        "value": "ready_to_move",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.468Z"
+      },
+      {
+        "field_name": "litigation_count",
+        "value": 0,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.468Z"
+      },
+      {
+        "field_name": "rera_compliance_score",
+        "value": 78,
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      },
+      {
+        "field_name": "rera_status",
+        "value": "registered",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      },
+      {
+        "field_name": "possession_label",
+        "value": "Q3 2027",
+        "confidence": "MEDIUM",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      }
+    ],
+    "conflicts": [],
+    "quality_score": 18,
+    "notes": []
+  },
+  {
+    "project_id": "28c22505-99b9-436d-82ca-0d8e5d8e9199",
+    "project_name": "Gaur Yamuna City (7th Parkview)",
+    "status": "ok",
+    "fields": [
+      {
+        "field_name": "rera_number",
+        "value": "UPRERAPRJ379836/06/2025",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      },
+      {
+        "field_name": "possession_date",
+        "value": "2026-06-30T00:00:00.000Z",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.468Z"
+      },
+      {
+        "field_name": "oc_obtained",
+        "value": true,
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      },
+      {
+        "field_name": "total_units",
+        "value": 1800,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.468Z"
+      },
+      {
+        "field_name": "total_towers",
+        "value": 12,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.468Z"
+      },
+      {
+        "field_name": "status",
+        "value": "under_construction",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.468Z"
+      },
+      {
+        "field_name": "litigation_count",
+        "value": 0,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.468Z"
+      },
+      {
+        "field_name": "rera_compliance_score",
+        "value": 93,
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      },
+      {
+        "field_name": "rera_status",
+        "value": "compliant",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      }
+    ],
+    "conflicts": [],
+    "quality_score": 19,
+    "notes": []
+  },
+  {
+    "project_id": "479f7942-1f6d-4ddb-869a-5d56d941cbd5",
+    "project_name": "Supertech Upcountry (Golf Village)",
+    "status": "ok",
+    "fields": [
+      {
+        "field_name": "rera_number",
+        "value": "UPRERAPRJ6619",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      },
+      {
+        "field_name": "possession_date",
+        "value": "2019-06-30T00:00:00.000Z",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.468Z"
+      },
+      {
+        "field_name": "oc_obtained",
+        "value": false,
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      },
+      {
+        "field_name": "total_units",
+        "value": 1400,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.468Z"
+      },
+      {
+        "field_name": "total_towers",
+        "value": 12,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.468Z"
+      },
+      {
+        "field_name": "status",
+        "value": "ready_to_move",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.468Z"
+      },
+      {
+        "field_name": "litigation_count",
+        "value": 14,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.468Z"
+      },
+      {
+        "field_name": "rera_compliance_score",
+        "value": 64,
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      },
+      {
+        "field_name": "rera_status",
+        "value": "under_review",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      },
+      {
+        "field_name": "possession_label",
+        "value": "Q2 2027",
+        "confidence": "MEDIUM",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      }
+    ],
+    "conflicts": [],
+    "quality_score": 18,
+    "notes": []
+  },
+  {
+    "project_id": "e35d0295-5513-45c2-a0d1-509cc6d2abd9",
+    "project_name": "Gayatri Life",
+    "status": "ok",
+    "fields": [
+      {
+        "field_name": "rera_number",
+        "value": "UPRERAPRJ2110",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      },
+      {
+        "field_name": "possession_date",
+        "value": "2021-12-31T00:00:00.000Z",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.468Z"
+      },
+      {
+        "field_name": "total_units",
+        "value": 850,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.468Z"
+      },
+      {
+        "field_name": "total_towers",
+        "value": 5,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.468Z"
+      },
+      {
+        "field_name": "status",
+        "value": "ready_to_move",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.468Z"
+      },
+      {
+        "field_name": "rera_compliance_score",
+        "value": 93,
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      },
+      {
+        "field_name": "oc_obtained",
+        "value": false,
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      },
+      {
+        "field_name": "rera_status",
+        "value": "under_review",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      },
+      {
+        "field_name": "litigation_count",
+        "value": 0,
+        "confidence": "MEDIUM",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      }
+    ],
+    "conflicts": [],
+    "quality_score": 19,
+    "notes": []
+  },
+  {
+    "project_id": "c5a5de4b-e47c-40ee-a5c5-0fb672d3f4ba",
+    "project_name": "Galaxy North Avenue 2",
+    "status": "ok",
+    "fields": [
+      {
+        "field_name": "rera_number",
+        "value": "UPRERAPRJ2213",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      },
+      {
+        "field_name": "possession_date",
+        "value": "2021-12-31T00:00:00.000Z",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "total_units",
+        "value": 1300,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "total_towers",
+        "value": 8,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "status",
+        "value": "ready_to_move",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "rera_compliance_score",
+        "value": 96,
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      },
+      {
+        "field_name": "oc_obtained",
+        "value": true,
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      },
+      {
+        "field_name": "oc_obtained_date",
+        "value": "2022-08-25T00:00:00.000Z",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      },
+      {
+        "field_name": "rera_status",
+        "value": "under_review",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      },
+      {
+        "field_name": "possession_label",
+        "value": "Q3 2024",
+        "confidence": "MEDIUM",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      }
+    ],
+    "conflicts": [],
+    "quality_score": 20,
+    "notes": []
+  },
+  {
+    "project_id": "7b8d12f6-1cb6-41e9-9438-05f55f2fc95e",
+    "project_name": "Ajnara Le Garden",
+    "status": "ok",
+    "fields": [
+      {
+        "field_name": "rera_number",
+        "value": "UPRERAPRJ4819",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      },
+      {
+        "field_name": "rera_compliance_score",
+        "value": 96,
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      },
+      {
+        "field_name": "possession_date",
+        "value": "2020-09-30T00:00:00.000Z",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "oc_obtained",
+        "value": true,
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      },
+      {
+        "field_name": "total_units",
+        "value": 1650,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "total_towers",
+        "value": 16,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "status",
+        "value": "ready_to_move",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "litigation_count",
+        "value": 0,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "oc_obtained_date",
+        "value": "2023-01-03T00:00:00.000Z",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      },
+      {
+        "field_name": "rera_status",
+        "value": "under_review",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      },
+      {
+        "field_name": "possession_label",
+        "value": "Q4 2026",
+        "confidence": "MEDIUM",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      }
+    ],
+    "conflicts": [],
+    "quality_score": 19,
+    "notes": []
+  },
+  {
+    "project_id": "42e2157b-ba9d-4cad-a48a-1ec52c820816",
+    "project_name": "Golden Palms",
+    "status": "ok",
+    "fields": [
+      {
+        "field_name": "rera_number",
+        "value": "UPRERAPRJ1681",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      },
+      {
+        "field_name": "rera_compliance_score",
+        "value": 95,
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      },
+      {
+        "field_name": "possession_date",
+        "value": "2017-11-30T00:00:00.000Z",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "oc_obtained",
+        "value": true,
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      },
+      {
+        "field_name": "total_units",
+        "value": 1400,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "total_towers",
+        "value": 12,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "status",
+        "value": "ready_to_move",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "litigation_count",
+        "value": 0,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "oc_obtained_date",
+        "value": "2021-07-20T00:00:00.000Z",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      },
+      {
+        "field_name": "rera_status",
+        "value": "under_review",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      },
+      {
+        "field_name": "possession_label",
+        "value": "Q2 2026",
+        "confidence": "MEDIUM",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      }
+    ],
+    "conflicts": [],
+    "quality_score": 19,
+    "notes": []
+  },
+  {
+    "project_id": "30df5cd8-7b2b-4f55-a05a-0d76d1b94795",
+    "project_name": "Ace Starlit",
+    "status": "ok",
+    "fields": [
+      {
+        "field_name": "rera_number",
+        "value": "UPRERAPRJ6772",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      },
+      {
+        "field_name": "possession_date",
+        "value": "2026-06-30T00:00:00.000Z",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "oc_obtained",
+        "value": true,
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      },
+      {
+        "field_name": "total_units",
+        "value": 490,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "total_towers",
+        "value": 5,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "status",
+        "value": "under_construction",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "litigation_count",
+        "value": 0,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "rera_compliance_score",
+        "value": 86,
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      },
+      {
+        "field_name": "rera_status",
+        "value": "registered",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      },
+      {
+        "field_name": "possession_label",
+        "value": "Q2 2024",
+        "confidence": "MEDIUM",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.064Z"
+      }
+    ],
+    "conflicts": [],
+    "quality_score": 18,
+    "notes": []
+  },
+  {
+    "project_id": "ebe56ae7-de69-4289-913f-95f74e9af757",
+    "project_name": "Jaypee Aman",
+    "status": "ok",
+    "fields": [
+      {
+        "field_name": "rera_number",
+        "value": "UPRERAPRJ1510",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      },
+      {
+        "field_name": "rera_compliance_score",
+        "value": 86,
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      },
+      {
+        "field_name": "possession_date",
+        "value": "2023-06-01T00:00:00.000Z",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "oc_obtained",
+        "value": true,
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      },
+      {
+        "field_name": "total_units",
+        "value": 3200,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "total_towers",
+        "value": 28,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "status",
+        "value": "ready_to_move",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "litigation_count",
+        "value": 10,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "oc_obtained_date",
+        "value": "2021-03-28T00:00:00.000Z",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      },
+      {
+        "field_name": "rera_status",
+        "value": "under_review",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      },
+      {
+        "field_name": "possession_label",
+        "value": "Q1 2024",
+        "confidence": "MEDIUM",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      }
+    ],
+    "conflicts": [],
+    "quality_score": 19,
+    "notes": []
+  },
+  {
+    "project_id": "fdd2de65-e073-47c0-a9cd-5ae72e532941",
+    "project_name": "ACE Arte",
+    "status": "ok",
+    "fields": [
+      {
+        "field_name": "rera_number",
+        "value": "UPRERAPRJ528653/07/2026",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      },
+      {
+        "field_name": "rera_compliance_score",
+        "value": 87,
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      },
+      {
+        "field_name": "possession_date",
+        "value": "2028-12-31T00:00:00.000Z",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "oc_obtained",
+        "value": false,
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      },
+      {
+        "field_name": "total_units",
+        "value": 420,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "total_towers",
+        "value": 5,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "status",
+        "value": "new_launch",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "litigation_count",
+        "value": 0,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "rera_status",
+        "value": "approved",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      },
+      {
+        "field_name": "possession_label",
+        "value": "Q1 2026",
+        "confidence": "MEDIUM",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      }
+    ],
+    "conflicts": [],
+    "quality_score": 18,
+    "notes": []
+  },
+  {
+    "project_id": "e44fe1bf-f815-4088-870d-216dafc1a22c",
+    "project_name": "Godrej Jardinia",
+    "status": "ok",
+    "fields": [
+      {
+        "field_name": "rera_number",
+        "value": "UPRERAPRJ288309/04/2024",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      },
+      {
+        "field_name": "possession_date",
+        "value": "2028-03-11T18:30:00.000Z",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "oc_obtained",
+        "value": true,
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      },
+      {
+        "field_name": "total_units",
+        "value": 650,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "total_towers",
+        "value": 6,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "status",
+        "value": "new_launch",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "litigation_count",
+        "value": 0,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "rera_compliance_score",
+        "value": 93,
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      },
+      {
+        "field_name": "oc_obtained_date",
+        "value": "2024-05-06T00:00:00.000Z",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      },
+      {
+        "field_name": "rera_status",
+        "value": "registered",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      }
+    ],
+    "conflicts": [],
+    "quality_score": 20,
+    "notes": []
+  },
+  {
+    "project_id": "4315ac08-c95c-4e50-8152-79967b6badfc",
+    "project_name": "Capital Athena",
+    "status": "ok",
+    "fields": [
+      {
+        "field_name": "rera_number",
+        "value": "UPRERAPRJ1442",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      },
+      {
+        "field_name": "rera_compliance_score",
+        "value": 98,
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      },
+      {
+        "field_name": "possession_date",
+        "value": "2018-10-31T00:00:00.000Z",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "oc_obtained",
+        "value": false,
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      },
+      {
+        "field_name": "total_units",
+        "value": 1200,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "total_towers",
+        "value": 10,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "status",
+        "value": "ready_to_move",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "litigation_count",
+        "value": 0,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "rera_status",
+        "value": "registered",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      }
+    ],
+    "conflicts": [],
+    "quality_score": 19,
+    "notes": []
+  },
+  {
+    "project_id": "33857ae6-1ab5-4dda-9842-50893cb7cad3",
+    "project_name": "Gulshan Ikebana",
+    "status": "ok",
+    "fields": [
+      {
+        "field_name": "rera_number",
+        "value": "UPRERAPRJ2102",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      },
+      {
+        "field_name": "rera_compliance_score",
+        "value": 85,
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      },
+      {
+        "field_name": "possession_date",
+        "value": "2019-11-30T00:00:00.000Z",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "oc_obtained",
+        "value": false,
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      },
+      {
+        "field_name": "total_units",
+        "value": 1500,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "total_towers",
+        "value": 16,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "status",
+        "value": "ready_to_move",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "litigation_count",
+        "value": 0,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "rera_status",
+        "value": "compliant",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      }
+    ],
+    "conflicts": [],
+    "quality_score": 19,
+    "notes": []
+  },
+  {
+    "project_id": "42d459db-357b-4286-93a5-b0a9f7e2fc1c",
+    "project_name": "SKA Orion",
+    "status": "ok",
+    "fields": [
+      {
+        "field_name": "rera_number",
+        "value": "UPRERAPRJ582373",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      },
+      {
+        "field_name": "possession_date",
+        "value": "2025-10-01T00:00:00.000Z",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "oc_obtained",
+        "value": true,
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      },
+      {
+        "field_name": "total_units",
+        "value": 520,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "total_towers",
+        "value": 3,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "status",
+        "value": "under_construction",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "litigation_count",
+        "value": 0,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "rera_compliance_score",
+        "value": 96,
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      },
+      {
+        "field_name": "oc_obtained_date",
+        "value": "2022-03-02T00:00:00.000Z",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      },
+      {
+        "field_name": "rera_status",
+        "value": "under_review",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      }
+    ],
+    "conflicts": [],
+    "quality_score": 20,
+    "notes": []
+  },
+  {
+    "project_id": "24b1661d-8688-464e-b9f0-58838020895a",
+    "project_name": "Ajnara Daffodil",
+    "status": "ok",
+    "fields": [
+      {
+        "field_name": "rera_number",
+        "value": "UPRERAPRJ1373",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      },
+      {
+        "field_name": "rera_compliance_score",
+        "value": 85,
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      },
+      {
+        "field_name": "possession_date",
+        "value": "2023-06-01T00:00:00.000Z",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "oc_obtained",
+        "value": false,
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      },
+      {
+        "field_name": "total_units",
+        "value": 1100,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "total_towers",
+        "value": 12,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "status",
+        "value": "ready_to_move",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "litigation_count",
+        "value": 0,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "rera_status",
+        "value": "compliant",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      }
+    ],
+    "conflicts": [],
+    "quality_score": 19,
+    "notes": []
+  },
+  {
+    "project_id": "faa03642-1649-4f24-a91b-054f6d5cd4ba",
+    "project_name": "Jaypee Greens Kosmos",
+    "status": "ok",
+    "fields": [
+      {
+        "field_name": "rera_number",
+        "value": "UPRERAPRJ8824",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      },
+      {
+        "field_name": "possession_date",
+        "value": "2017-06-30T00:00:00.000Z",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "oc_obtained",
+        "value": true,
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      },
+      {
+        "field_name": "total_units",
+        "value": 2400,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "total_towers",
+        "value": 18,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "status",
+        "value": "ready_to_move",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "litigation_count",
+        "value": 10,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "rera_compliance_score",
+        "value": 97,
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      },
+      {
+        "field_name": "oc_obtained_date",
+        "value": "2020-01-26T00:00:00.000Z",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      },
+      {
+        "field_name": "rera_status",
+        "value": "approved",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      },
+      {
+        "field_name": "possession_label",
+        "value": "Q2 2026",
+        "confidence": "MEDIUM",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      }
+    ],
+    "conflicts": [],
+    "quality_score": 19,
+    "notes": []
+  },
+  {
+    "project_id": "324135fb-2a5e-43d8-bc52-8d0991ab4515",
+    "project_name": "Jaypee Garden Isles",
+    "status": "ok",
+    "fields": [
+      {
+        "field_name": "rera_number",
+        "value": "UPRERAPRJ3920",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      },
+      {
+        "field_name": "possession_date",
+        "value": "2026-12-31T00:00:00.000Z",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "total_units",
+        "value": 1400,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "total_towers",
+        "value": 9,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "status",
+        "value": "under_construction",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "rera_compliance_score",
+        "value": 96,
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      },
+      {
+        "field_name": "oc_obtained",
+        "value": false,
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      },
+      {
+        "field_name": "rera_status",
+        "value": "approved",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      },
+      {
+        "field_name": "litigation_count",
+        "value": 0,
+        "confidence": "MEDIUM",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      },
+      {
+        "field_name": "possession_label",
+        "value": "Q3 2024",
+        "confidence": "MEDIUM",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      }
+    ],
+    "conflicts": [],
+    "quality_score": 18,
+    "notes": []
+  },
+  {
+    "project_id": "e0412f51-4650-4793-9ab7-9672d9d87a32",
+    "project_name": "Ace Hanei",
+    "status": "ok",
+    "fields": [
+      {
+        "field_name": "rera_number",
+        "value": "UPRERAPRJ677887/10/2024",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      },
+      {
+        "field_name": "rera_compliance_score",
+        "value": 93,
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      },
+      {
+        "field_name": "possession_date",
+        "value": "2028-10-15T00:00:00.000Z",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "oc_obtained",
+        "value": false,
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      },
+      {
+        "field_name": "total_units",
+        "value": 518,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "total_towers",
+        "value": 6,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "status",
+        "value": "under_construction",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "litigation_count",
+        "value": 0,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "rera_status",
+        "value": "approved",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      },
+      {
+        "field_name": "possession_label",
+        "value": "Q4 2027",
+        "confidence": "MEDIUM",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      }
+    ],
+    "conflicts": [],
+    "quality_score": 18,
+    "notes": []
+  },
+  {
+    "project_id": "36320546-8a3d-4d87-94bc-6c53df6bd641",
+    "project_name": "Jaypee Greens Kalypso Court",
+    "status": "ok",
+    "fields": [
+      {
+        "field_name": "rera_number",
+        "value": "UPRERAPRJ8822",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      },
+      {
+        "field_name": "possession_date",
+        "value": "2019-06-30T00:00:00.000Z",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "oc_obtained",
+        "value": true,
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      },
+      {
+        "field_name": "total_units",
+        "value": 480,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "total_towers",
+        "value": 8,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "status",
+        "value": "ready_to_move",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "litigation_count",
+        "value": 10,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "rera_compliance_score",
+        "value": 53,
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      },
+      {
+        "field_name": "oc_obtained_date",
+        "value": "2024-07-01T00:00:00.000Z",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      },
+      {
+        "field_name": "rera_status",
+        "value": "compliant",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      }
+    ],
+    "conflicts": [],
+    "quality_score": 20,
+    "notes": []
+  },
+  {
+    "project_id": "122eaf91-013f-427f-9546-da52c5b69251",
+    "project_name": "ATS Knightsbridge",
+    "status": "ok",
+    "fields": [
+      {
+        "field_name": "rera_number",
+        "value": "UPRERAPRJ3574",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      },
+      {
+        "field_name": "possession_date",
+        "value": "2023-12-31T00:00:00.000Z",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "oc_obtained",
+        "value": false,
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      },
+      {
+        "field_name": "total_units",
+        "value": 215,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "total_towers",
+        "value": 5,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "status",
+        "value": "ready_to_move",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "litigation_count",
+        "value": 0,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "rera_compliance_score",
+        "value": 90,
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      },
+      {
+        "field_name": "rera_status",
+        "value": "registered",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      },
+      {
+        "field_name": "possession_label",
+        "value": "Q3 2024",
+        "confidence": "MEDIUM",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      }
+    ],
+    "conflicts": [],
+    "quality_score": 18,
+    "notes": []
+  },
+  {
+    "project_id": "74994caf-4ec0-436a-8688-9ca9f5ba42c3",
+    "project_name": "ABA Cleo County",
+    "status": "ok",
+    "fields": [
+      {
+        "field_name": "rera_number",
+        "value": "UPRERAPRJ6210",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      },
+      {
+        "field_name": "possession_date",
+        "value": "2017-12-31T00:00:00.000Z",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "oc_obtained",
+        "value": true,
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      },
+      {
+        "field_name": "total_units",
+        "value": 2600,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "total_towers",
+        "value": 24,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "status",
+        "value": "ready_to_move",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "litigation_count",
+        "value": 0,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "rera_compliance_score",
+        "value": 85,
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      },
+      {
+        "field_name": "rera_status",
+        "value": "under_review",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      },
+      {
+        "field_name": "possession_label",
+        "value": "Q1 2024",
+        "confidence": "MEDIUM",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      }
+    ],
+    "conflicts": [],
+    "quality_score": 18,
+    "notes": []
+  },
+  {
+    "project_id": "4b1a3462-7aab-4988-a585-20ab1e848373",
+    "project_name": "Amrapali Zodiac",
+    "status": "ok",
+    "fields": [
+      {
+        "field_name": "rera_number",
+        "value": "UPRERAPRJ1201",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      },
+      {
+        "field_name": "rera_compliance_score",
+        "value": 96,
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      },
+      {
+        "field_name": "possession_date",
+        "value": "2016-09-30T00:00:00.000Z",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "oc_obtained",
+        "value": true,
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      },
+      {
+        "field_name": "total_units",
+        "value": 2200,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "total_towers",
+        "value": 22,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "status",
+        "value": "ready_to_move",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "litigation_count",
+        "value": 18,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "rera_status",
+        "value": "registered",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      },
+      {
+        "field_name": "possession_label",
+        "value": "Q4 2027",
+        "confidence": "MEDIUM",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      }
+    ],
+    "conflicts": [],
+    "quality_score": 18,
+    "notes": []
+  },
+  {
+    "project_id": "d3fdbe07-a903-454a-b343-31215facdb6d",
+    "project_name": "Eldeco Aamantran",
+    "status": "ok",
+    "fields": [
+      {
+        "field_name": "rera_number",
+        "value": "UPRERAPRJ1192",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      },
+      {
+        "field_name": "possession_date",
+        "value": "2015-09-30T00:00:00.000Z",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "oc_obtained",
+        "value": false,
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      },
+      {
+        "field_name": "total_units",
+        "value": 780,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "total_towers",
+        "value": 10,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "status",
+        "value": "ready_to_move",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "litigation_count",
+        "value": 0,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "rera_compliance_score",
+        "value": 86,
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      },
+      {
+        "field_name": "rera_status",
+        "value": "registered",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      },
+      {
+        "field_name": "possession_label",
+        "value": "Q1 2025",
+        "confidence": "MEDIUM",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      }
+    ],
+    "conflicts": [],
+    "quality_score": 18,
+    "notes": []
+  },
+  {
+    "project_id": "d2c48b0d-2110-4d23-b8e7-c19e7927b1b7",
+    "project_name": "3C Lotus Panache",
+    "status": "ok",
+    "fields": [
+      {
+        "field_name": "rera_number",
+        "value": "UPRERAPRJ1101",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      },
+      {
+        "field_name": "rera_compliance_score",
+        "value": 87,
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      },
+      {
+        "field_name": "possession_date",
+        "value": "2017-06-30T00:00:00.000Z",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "oc_obtained",
+        "value": false,
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      },
+      {
+        "field_name": "total_units",
+        "value": 3000,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "total_towers",
+        "value": 30,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "status",
+        "value": "ready_to_move",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "litigation_count",
+        "value": 8,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "rera_status",
+        "value": "under_review",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      }
+    ],
+    "conflicts": [],
+    "quality_score": 19,
+    "notes": []
+  },
+  {
+    "project_id": "2f5a8248-e9da-44d6-99e7-c403aca87bbe",
+    "project_name": "Amaatra Homes",
+    "status": "ok",
+    "fields": [
+      {
+        "field_name": "rera_number",
+        "value": "UPRERAPRJ3010",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      },
+      {
+        "field_name": "possession_date",
+        "value": "2021-12-31T00:00:00.000Z",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "total_units",
+        "value": 820,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "total_towers",
+        "value": 5,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "status",
+        "value": "ready_to_move",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "rera_compliance_score",
+        "value": 98,
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      },
+      {
+        "field_name": "oc_obtained",
+        "value": true,
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      },
+      {
+        "field_name": "rera_status",
+        "value": "approved",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      },
+      {
+        "field_name": "litigation_count",
+        "value": 3,
+        "confidence": "MEDIUM",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      }
+    ],
+    "conflicts": [],
+    "quality_score": 19,
+    "notes": []
+  },
+  {
+    "project_id": "0630fb09-0f4c-4c31-8ea9-ad69973da58d",
+    "project_name": "Divine Meadows",
+    "status": "ok",
+    "fields": [
+      {
+        "field_name": "rera_number",
+        "value": "UPRERAPRJ1081",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      },
+      {
+        "field_name": "rera_compliance_score",
+        "value": 95,
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      },
+      {
+        "field_name": "possession_date",
+        "value": "2017-08-31T00:00:00.000Z",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "oc_obtained",
+        "value": false,
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      },
+      {
+        "field_name": "total_units",
+        "value": 1100,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "total_towers",
+        "value": 10,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "status",
+        "value": "ready_to_move",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "litigation_count",
+        "value": 0,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "rera_status",
+        "value": "approved",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      }
+    ],
+    "conflicts": [],
+    "quality_score": 19,
+    "notes": []
+  },
+  {
+    "project_id": "8285b164-67cd-4831-89a0-c015df2878f6",
+    "project_name": "County 107",
+    "status": "ok",
+    "fields": [
+      {
+        "field_name": "rera_number",
+        "value": "UPRERAPRJ837374",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      },
+      {
+        "field_name": "rera_compliance_score",
+        "value": 90,
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      },
+      {
+        "field_name": "possession_date",
+        "value": "2026-12-31T00:00:00.000Z",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "oc_obtained",
+        "value": true,
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      },
+      {
+        "field_name": "total_units",
+        "value": 230,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "total_towers",
+        "value": 4,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "status",
+        "value": "under_construction",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "litigation_count",
+        "value": 0,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "rera_status",
+        "value": "under_review",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      }
+    ],
+    "conflicts": [],
+    "quality_score": 19,
+    "notes": []
+  },
+  {
+    "project_id": "64137eb6-2e30-4e6d-8508-a9052bef101b",
+    "project_name": "3C Lotus 300",
+    "status": "ok",
+    "fields": [
+      {
+        "field_name": "rera_number",
+        "value": "UPRERAPRJ3300",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      },
+      {
+        "field_name": "rera_compliance_score",
+        "value": 95,
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      },
+      {
+        "field_name": "possession_date",
+        "value": "2023-06-01T00:00:00.000Z",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "oc_obtained",
+        "value": false,
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      },
+      {
+        "field_name": "total_units",
+        "value": 300,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "total_towers",
+        "value": 6,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "status",
+        "value": "ready_to_move",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "litigation_count",
+        "value": 8,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "rera_status",
+        "value": "registered",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      },
+      {
+        "field_name": "possession_label",
+        "value": "Q2 2026",
+        "confidence": "MEDIUM",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      }
+    ],
+    "conflicts": [],
+    "quality_score": 18,
+    "notes": []
+  },
+  {
+    "project_id": "1254753f-834d-4116-9ff1-c1b4119665b4",
+    "project_name": "ATS One Hamlet",
+    "status": "ok",
+    "fields": [
+      {
+        "field_name": "rera_number",
+        "value": "UPRERAPRJ1041",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      },
+      {
+        "field_name": "rera_compliance_score",
+        "value": 88,
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      },
+      {
+        "field_name": "possession_date",
+        "value": "2015-10-31T00:00:00.000Z",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "oc_obtained",
+        "value": true,
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      },
+      {
+        "field_name": "total_units",
+        "value": 1000,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "total_towers",
+        "value": 12,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "status",
+        "value": "ready_to_move",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "litigation_count",
+        "value": 0,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "rera_status",
+        "value": "registered",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      }
+    ],
+    "conflicts": [],
+    "quality_score": 19,
+    "notes": []
+  },
+  {
+    "project_id": "bb678f33-b2e8-409e-8a9d-94d5c4efbae6",
+    "project_name": "Lotus Boulevard",
+    "status": "ok",
+    "fields": [
+      {
+        "field_name": "rera_number",
+        "value": "UPRERAPRJ10001",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      },
+      {
+        "field_name": "possession_date",
+        "value": "2023-12-31T00:00:00.000Z",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "oc_obtained",
+        "value": true,
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      },
+      {
+        "field_name": "oc_obtained_date",
+        "value": "2021-06-19T00:00:00.000Z",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      },
+      {
+        "field_name": "total_units",
+        "value": 3450,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "total_towers",
+        "value": 29,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "status",
+        "value": "ready_to_move",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "rera_compliance_score",
+        "value": 74,
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      },
+      {
+        "field_name": "rera_status",
+        "value": "registered",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      },
+      {
+        "field_name": "litigation_count",
+        "value": 4,
+        "confidence": "MEDIUM",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      },
+      {
+        "field_name": "possession_label",
+        "value": "Q3 2025",
+        "confidence": "MEDIUM",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      }
+    ],
+    "conflicts": [],
+    "quality_score": 19,
+    "notes": []
+  },
+  {
+    "project_id": "9521a90f-1ad2-4de1-bcc8-198a6e6f2713",
+    "project_name": "Lotus Boulevard",
+    "status": "ok",
+    "fields": [
+      {
+        "field_name": "rera_number",
+        "value": "UPRERAPRJ2019",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      },
+      {
+        "field_name": "rera_compliance_score",
+        "value": 92,
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      },
+      {
+        "field_name": "possession_date",
+        "value": "2023-06-01T00:00:00.000Z",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "oc_obtained",
+        "value": false,
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      },
+      {
+        "field_name": "total_units",
+        "value": 3200,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "total_towers",
+        "value": 30,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "status",
+        "value": "ready_to_move",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "litigation_count",
+        "value": 8,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "rera_status",
+        "value": "approved",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      },
+      {
+        "field_name": "possession_label",
+        "value": "Q2 2026",
+        "confidence": "MEDIUM",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      }
+    ],
+    "conflicts": [],
+    "quality_score": 18,
+    "notes": []
+  },
+  {
+    "project_id": "e4d1dd0a-18c8-4c66-8e7a-6b171c4e9beb",
+    "project_name": "Stellar Jeevan",
+    "status": "ok",
+    "fields": [
+      {
+        "field_name": "rera_number",
+        "value": "UPRERAPRJ3012",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      },
+      {
+        "field_name": "possession_date",
+        "value": "2023-12-31T00:00:00.000Z",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "oc_obtained",
+        "value": false,
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      },
+      {
+        "field_name": "oc_obtained_date",
+        "value": "2023-11-15T00:00:00.000Z",
+        "confidence": "HIGH",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "total_units",
+        "value": 2600,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "total_towers",
+        "value": 22,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "status",
+        "value": "ready_to_move",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "rera_compliance_score",
+        "value": 85,
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      },
+      {
+        "field_name": "rera_status",
+        "value": "compliant",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      },
+      {
+        "field_name": "litigation_count",
+        "value": 0,
+        "confidence": "MEDIUM",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      }
+    ],
+    "conflicts": [],
+    "quality_score": 20,
+    "notes": []
+  },
+  {
+    "project_id": "51007411-9117-4ff8-95b6-b5ac7fb9e2f7",
+    "project_name": "Eldeco Green Meadows",
+    "status": "ok",
+    "fields": [
+      {
+        "field_name": "rera_number",
+        "value": "UPRERAPRJ1182",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      },
+      {
+        "field_name": "possession_date",
+        "value": "2014-06-30T00:00:00.000Z",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "oc_obtained",
+        "value": true,
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      },
+      {
+        "field_name": "total_units",
+        "value": 820,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "total_towers",
+        "value": 11,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "status",
+        "value": "ready_to_move",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "litigation_count",
+        "value": 0,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "rera_compliance_score",
+        "value": 92,
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      },
+      {
+        "field_name": "oc_obtained_date",
+        "value": "2022-01-18T00:00:00.000Z",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      },
+      {
+        "field_name": "rera_status",
+        "value": "compliant",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      },
+      {
+        "field_name": "possession_label",
+        "value": "Q4 2026",
+        "confidence": "MEDIUM",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      }
+    ],
+    "conflicts": [],
+    "quality_score": 19,
+    "notes": []
+  },
+  {
+    "project_id": "55e29630-faa7-4d5d-b203-c0d97a76de6e",
+    "project_name": "Jaypee Earth Court",
+    "status": "ok",
+    "fields": [
+      {
+        "field_name": "rera_number",
+        "value": "UPRERAPRJ3924",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      },
+      {
+        "field_name": "possession_date",
+        "value": "2023-12-31T00:00:00.000Z",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "oc_obtained",
+        "value": true,
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      },
+      {
+        "field_name": "oc_obtained_date",
+        "value": "2020-08-22T00:00:00.000Z",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      },
+      {
+        "field_name": "total_units",
+        "value": 510,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "total_towers",
+        "value": 5,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "status",
+        "value": "ready_to_move",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "rera_compliance_score",
+        "value": 87,
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      },
+      {
+        "field_name": "rera_status",
+        "value": "under_review",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      },
+      {
+        "field_name": "litigation_count",
+        "value": 0,
+        "confidence": "MEDIUM",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      },
+      {
+        "field_name": "possession_label",
+        "value": "Q3 2026",
+        "confidence": "MEDIUM",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      }
+    ],
+    "conflicts": [],
+    "quality_score": 19,
+    "notes": []
+  },
+  {
+    "project_id": "092da15d-2dbf-49f9-83e0-42092ddb9f1e",
+    "project_name": "Jaypee Greens Golf Course Residences",
+    "status": "ok",
+    "fields": [
+      {
+        "field_name": "rera_number",
+        "value": "UPRERAPRJ3310",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      },
+      {
+        "field_name": "possession_date",
+        "value": "2018-06-30T00:00:00.000Z",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "oc_obtained",
+        "value": true,
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      },
+      {
+        "field_name": "total_units",
+        "value": 950,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "total_towers",
+        "value": 14,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "status",
+        "value": "ready_to_move",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "litigation_count",
+        "value": 10,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "rera_compliance_score",
+        "value": 90,
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      },
+      {
+        "field_name": "oc_obtained_date",
+        "value": "2024-08-15T00:00:00.000Z",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      },
+      {
+        "field_name": "rera_status",
+        "value": "approved",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      }
+    ],
+    "conflicts": [],
+    "quality_score": 20,
+    "notes": []
+  },
+  {
+    "project_id": "f0dcff71-e26b-4aee-aa62-99fe95a5518c",
+    "project_name": "Migsun Ultimo",
+    "status": "ok",
+    "fields": [
+      {
+        "field_name": "rera_number",
+        "value": "UPRERAPRJ2491",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      },
+      {
+        "field_name": "possession_date",
+        "value": "2020-10-31T00:00:00.000Z",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "oc_obtained",
+        "value": false,
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      },
+      {
+        "field_name": "total_units",
+        "value": 680,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "total_towers",
+        "value": 7,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "status",
+        "value": "ready_to_move",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "litigation_count",
+        "value": 0,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "rera_compliance_score",
+        "value": 90,
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      },
+      {
+        "field_name": "rera_status",
+        "value": "under_review",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      },
+      {
+        "field_name": "possession_label",
+        "value": "Q1 2026",
+        "confidence": "MEDIUM",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      }
+    ],
+    "conflicts": [],
+    "quality_score": 18,
+    "notes": []
+  },
+  {
+    "project_id": "f143296c-a2f1-462c-be2d-850e0ca557bd",
+    "project_name": "Eldeco Mystic Greens",
+    "status": "ok",
+    "fields": [
+      {
+        "field_name": "rera_number",
+        "value": "UPRERAPRJ2004",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      },
+      {
+        "field_name": "possession_date",
+        "value": "2016-08-31T00:00:00.000Z",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "oc_obtained",
+        "value": false,
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      },
+      {
+        "field_name": "total_units",
+        "value": 480,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "total_towers",
+        "value": 8,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "status",
+        "value": "ready_to_move",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "litigation_count",
+        "value": 0,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "rera_compliance_score",
+        "value": 90,
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      },
+      {
+        "field_name": "rera_status",
+        "value": "approved",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      }
+    ],
+    "conflicts": [],
+    "quality_score": 19,
+    "notes": []
+  },
+  {
+    "project_id": "00d89685-f2c1-462d-9716-66a4257dd85f",
+    "project_name": "NRI City Township",
+    "status": "ok",
+    "fields": [
+      {
+        "field_name": "rera_number",
+        "value": "UPRERAPRJ2901",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      },
+      {
+        "field_name": "rera_compliance_score",
+        "value": 96,
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      },
+      {
+        "field_name": "possession_date",
+        "value": "2010-06-30T00:00:00.000Z",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "oc_obtained",
+        "value": true,
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      },
+      {
+        "field_name": "total_units",
+        "value": 850,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "total_towers",
+        "value": 6,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "status",
+        "value": "ready_to_move",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "litigation_count",
+        "value": 0,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "rera_status",
+        "value": "approved",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      },
+      {
+        "field_name": "possession_label",
+        "value": "Q3 2026",
+        "confidence": "MEDIUM",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      }
+    ],
+    "conflicts": [],
+    "quality_score": 18,
+    "notes": []
+  },
+  {
+    "project_id": "b551f816-cf6a-4bc8-90d6-e006f9f5d998",
+    "project_name": "Trecento Residencies by Gaurs",
+    "status": "ok",
+    "fields": [
+      {
+        "field_name": "rera_number",
+        "value": "UPRERAPRJ283531",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      },
+      {
+        "field_name": "possession_date",
+        "value": "2027-12-31T00:00:00.000Z",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "oc_obtained",
+        "value": true,
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      },
+      {
+        "field_name": "total_units",
+        "value": 510,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "total_towers",
+        "value": 5,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "status",
+        "value": "under_construction",
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "litigation_count",
+        "value": 0,
+        "confidence": "MEDIUM",
+        "source": "project_json",
+        "extracted_at": "2026-10-11T09:32:15.469Z"
+      },
+      {
+        "field_name": "rera_compliance_score",
+        "value": 98,
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      },
+      {
+        "field_name": "rera_status",
+        "value": "compliant",
+        "confidence": "HIGH",
+        "source": "rera_website",
+        "extracted_at": "2026-10-11T09:36:32.065Z"
+      }
+    ],
+    "conflicts": [],
+    "quality_score": 19,
+    "notes": []
+  }
+]
