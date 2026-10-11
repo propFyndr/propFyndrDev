@@ -59,7 +59,7 @@ betaRouter.get(
       const [focusedAgg, topProjectsList, userMessages, totalSessions, totalLeads, dbSectorsList, sessionLocations] = await Promise.all([
         prisma.chatSession.groupBy({
           by: ['focus_project_id'],
-          where: { focus_project_id: { not: null } },
+          where: { focus_project_id: { not: null }, is_bot: false },
           _count: { _all: true },
           orderBy: { _count: { focus_project_id: 'desc' } },
           take: 20,
@@ -72,6 +72,7 @@ betaRouter.get(
           where: {
             role: 'user',
             content: { notIn: ['test', 'Test', 'TEST', 'test.', 'Test.', 'testing', 'Testing'] },
+            session: { is_bot: false },
           },
           select: { content: true, session_id: true },
           orderBy: { created_at: 'desc' },
@@ -80,6 +81,7 @@ betaRouter.get(
         prisma.chatSession.count({
           where: {
             message_count: { gt: 0 },
+            is_bot: false,
             messages: {
               some: {
                 role: 'user',
@@ -96,7 +98,7 @@ betaRouter.get(
         }),
         prisma.chatSession.groupBy({
           by: ['summary_location'],
-          where: { summary_location: { not: null } },
+          where: { summary_location: { not: null }, is_bot: false },
           _count: { _all: true },
           orderBy: { _count: { summary_location: 'desc' } },
           take: 40,
@@ -247,7 +249,18 @@ betaRouter.get(
 
     const conditions: any[] = []
 
+    // is_bot (lib/botDetection.ts) already exists and is already correctly set
+    // on exactly this traffic -- crawlers, uptime checks, our own corpus runs
+    // and integration tests, none of which point at a separate database. This
+    // endpoint never read the flag, so the Conversations Observatory's first
+    // page was dominated by that traffic (confirmed: 212 bot sessions in one
+    // hour on 2026-10-11 vs. the last real buyer session hours earlier),
+    // which is the entire reason "it's always the same chats" was reported.
+    // admin.ts's /analytics/users already filters this; bringing this file in
+    // line with that, gated by the same includeTests escape hatch so bot
+    // traffic stays inspectable on demand rather than invisible.
     if (!includeTests) {
+      where.is_bot = false
       conditions.push(notTestCondition)
     }
 
@@ -365,10 +378,10 @@ betaRouter.get(
     ] = await Promise.all([
       prisma.callbackRequest.count(),
       prisma.aiUsageEvent.aggregate({ _sum: { cost_usd: true } }),
-      prisma.chatSession.count({ where: includeTests ? {} : notTestCondition }),
+      prisma.chatSession.count({ where: includeTests ? {} : { is_bot: false, ...notTestCondition } }),
       prisma.chatSession.count({ where: { callback_requests: { some: {} } } }),
-      prisma.chatSession.count({ where: { user_id: { not: null }, ...(includeTests ? {} : notTestCondition) } }),
-      prisma.chatSession.count({ where: { user_id: null, ...(includeTests ? {} : notTestCondition) } }),
+      prisma.chatSession.count({ where: { user_id: { not: null }, ...(includeTests ? {} : { is_bot: false, ...notTestCondition }) } }),
+      prisma.chatSession.count({ where: { user_id: null, ...(includeTests ? {} : { is_bot: false, ...notTestCondition }) } }),
     ])
 
     const ids = sessions.map((s) => s.id)
@@ -776,15 +789,15 @@ betaRouter.get(
       // they dragged turns-per-session to 0.58 and the conversion rate to
       // almost nothing. They are connection attempts, not conversations.
       prisma.chatSession.findMany({
-        where: { created_at: { gte: since }, message_count: { gt: 0 } },
+        where: { created_at: { gte: since }, message_count: { gt: 0 }, is_bot: false },
         select: { id: true, message_count: true, created_at: true, last_active: true },
       }),
       prisma.chatMessage.findMany({
-        where: { created_at: { gte: since }, role: 'user' },
+        where: { created_at: { gte: since }, role: 'user', session: { is_bot: false } },
         select: { session_id: true, content: true },
       }),
       prisma.chatMessage.findMany({
-        where: { created_at: { gte: since }, role: 'assistant' },
+        where: { created_at: { gte: since }, role: 'assistant', session: { is_bot: false } },
         select: { session_id: true, content: true },
       }),
       prisma.callbackRequest.findMany({
@@ -826,7 +839,7 @@ betaRouter.get(
       .map((m) => m.content)
 
     const emptySessions = await prisma.chatSession.count({
-      where: { created_at: { gte: since }, message_count: 0 },
+      where: { created_at: { gte: since }, message_count: 0, is_bot: false },
     })
     const totalCost = Number(usage._sum.cost_usd ?? 0)
     const leadSessions = new Set(leads.map((l) => l.chat_session_id).filter(Boolean))

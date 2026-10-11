@@ -1,6 +1,6 @@
 import { describe, it } from 'node:test'
 import assert from 'node:assert/strict'
-import { isBotUserAgent } from './botDetection'
+import { isBotUserAgent, isBotRequest } from './botDetection'
 
 const REAL_BROWSERS = [
   // Chrome on Windows
@@ -49,5 +49,34 @@ describe('bot detection', () => {
     // Every browser sends one. A request without it is a script.
     assert.equal(isBotUserAgent(undefined), true)
     assert.equal(isBotUserAgent(''), true)
+  })
+
+  it('isBotRequest is unconditionally true under NODE_ENV=test, regardless of user agent', () => {
+    // The integration test suite (chat.test.ts, conversationalFlows.test.ts)
+    // writes through the real Express app and the real Prisma client into
+    // production -- there is no separate test database. This guarantees that
+    // traffic stays out of product metrics by construction, rather than by
+    // supertest's user agent happening to match a BOT_PATTERN.
+    const prevEnv = process.env.NODE_ENV
+    process.env.NODE_ENV = 'test'
+    try {
+      const realBrowserReq = { get: () => REAL_BROWSERS[0] }
+      assert.equal(isBotRequest(realBrowserReq), true, 'must be true under NODE_ENV=test even with a real-browser UA')
+    } finally {
+      process.env.NODE_ENV = prevEnv
+    }
+  })
+
+  it('isBotRequest still falls back to UA detection outside test mode', () => {
+    const prevEnv = process.env.NODE_ENV
+    process.env.NODE_ENV = 'production'
+    try {
+      const realBrowserReq = { get: () => REAL_BROWSERS[0] }
+      assert.equal(isBotRequest(realBrowserReq), false)
+      const botReq = { get: () => NON_HUMANS[0] }
+      assert.equal(isBotRequest(botReq), true)
+    } finally {
+      process.env.NODE_ENV = prevEnv
+    }
   })
 })
