@@ -84,3 +84,24 @@ describe('GET /api/v1/admin/referrals', () => {
     assert.equal(link.activatedCount, 1)
   })
 })
+
+describe('GET /api/v1/admin/referrals/:code/tree', () => {
+  it('returns the node list for a root link, including the root label itself', async () => {
+    const create = await request(buildApp()).post('/api/v1/admin/referrals').send({ label: 'Tree test', greetingName: 'Furqan' })
+    const res = await request(buildApp()).get(`/api/v1/admin/referrals/${create.body.code}/tree`)
+    assert.equal(res.status, 200)
+    assert.ok(Array.isArray(res.body.nodes))
+  })
+
+  it('404s for an unknown code', async () => {
+    const res = await request(buildApp()).get('/api/v1/admin/referrals/NOPE0000/tree')
+    assert.equal(res.status, 404)
+  })
+})
+
+describe('GET /api/v1/admin/referrals/nodes/:guestToken', () => {
+  it('404s for a guest token with no visit', async () => {
+    const res = await request(buildApp()).get('/api/v1/admin/referrals/nodes/never-seen-guest')
+    assert.equal(res.status, 404)
+  })
+})

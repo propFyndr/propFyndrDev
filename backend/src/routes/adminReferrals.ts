@@ -170,3 +170,106 @@ adminReferralsRouter.post('/:code/reset-holder', async (req: Request, res: Respo
     res.status(500).json({ error: 'Failed to reset holder' })
   }
 })
+
+adminReferralsRouter.get('/:code/tree', async (req: Request, res: Response) => {
+  const { code } = req.params
+  try {
+    const root = await prisma.referralLink.findUnique({ where: { code } })
+    if (!root) {
+      res.status(404).json({ error: 'Referral link not found' })
+      return
+    }
+
+    const visits = await prisma.referralVisit.findMany({
+      where: { root_code: code },
+      orderBy: [{ generation: 'asc' }, { first_seen_at: 'asc' }],
+    })
+
+    const guestTokens = visits.map((v) => v.guest_token)
+    const activated = await countActivated(guestTokens)
+
+    const sessions = await prisma.chatSession.groupBy({
+      by: ['guest_token'],
+      where: { guest_token: { in: guestTokens } },
+      _sum: { message_count: true },
+    })
+    const messageCountByGuest = new Map(sessions.map((s) => [s.guest_token, s._sum.message_count ?? 0]))
+
+    const nodes = visits.map((v) => ({
+      guestToken: v.guest_token,
+      label: v.generation === 1 ? root.label : null,
+      generation: v.generation,
+      parentGuestToken: v.parent_guest_token,
+      depthInferred: v.depth_inferred,
+      deviceClass: v.device_class,
+      os: v.os,
+      appGuess: v.app_guess,
+      shareChannel: v.share_channel,
+      messageCount: messageCountByGuest.get(v.guest_token) ?? 0,
+      activated: activated.has(v.guest_token),
+      firstSeenAt: v.first_seen_at,
+    }))
+
+    res.json({ root: { code: root.code, label: root.label, revoked: Boolean(root.revoked_at) }, nodes })
+  } catch (err: any) {
+    console.error('[ADMIN_REFERRALS:TREE_FAILED]', err?.message)
+    res.status(500).json({ error: 'Failed to load referral tree' })
+  }
+})
+
+adminReferralsRouter.get('/nodes/:guestToken', async (req: Request, res: Response) => {
+  const { guestToken } = req.params
+  try {
+    const visit = await prisma.referralVisit.findUnique({ where: { guest_token: guestToken } })
+    if (!visit) {
+      res.status(404).json({ error: 'No visit found for this guest token' })
+      return
+    }
+
+    const sessions = await prisma.chatSession.findMany({
+      where: { guest_token: guestToken },
+      select: {
+        id: true,
+        message_count: true,
+        last_active: true,
+        summary_location: true,
+        summary_financial: true,
+        summary_timeline: true,
+      },
+      orderBy: { last_active: 'desc' },
+    })
+
+    const callbacks = await prisma.callbackRequest.count({ where: { guest_token: guestToken } })
+    const dossiersMade = await prisma.dossier.count({ where: { guest_token: guestToken } })
+
+    const latest = sessions[0]
+
+    res.json({
+      node: {
+        guestToken: visit.guest_token,
+        generation: visit.generation,
+        rootCode: visit.root_code,
+        deviceClass: visit.device_class,
+        os: visit.os,
+        appGuess: visit.app_guess,
+        depthInferred: visit.depth_inferred,
+        firstSeenAt: visit.first_seen_at,
+        summary: latest
+          ? {
+              location: latest.summary_location,
+              financial: latest.summary_financial,
+              timeline: latest.summary_timeline,
+            }
+          : null,
+        actions: {
+          callbacks,
+          dossiersMade,
+        },
+        chats: sessions.map((s) => ({ id: s.id, messageCount: s.message_count, lastActive: s.last_active })),
+      },
+    })
+  } catch (err: any) {
+    console.error('[ADMIN_REFERRALS:NODE_FAILED]', err?.message)
+    res.status(500).json({ error: 'Failed to load referral node' })
+  }
+})
