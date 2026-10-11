@@ -155,6 +155,16 @@ function amenityRow(s: RequirementState, p: ChecklistProject): ChecklistRow {
 }
 
 /**
+ * The card list with the checklist on the top pick, or the list unchanged
+ * below the threshold. Used for both the streamed cards and the stored
+ * message artifact, so a restored session shows the same card.
+ */
+export function withRequirementChecklist<T extends object>(s: RequirementState, list: T[]): T[] {
+  const rows = list[0] ? buildRequirementChecklist(s, list[0] as ChecklistProject) : null
+  return rows ? [{ ...list[0], requirement_checklist: rows }, ...list.slice(1)] : list
+}
+
+/**
  * Rows for each stated criterion, or null when fewer than
  * CHECKLIST_MIN_CRITERIA are stated (card not shown).
  */

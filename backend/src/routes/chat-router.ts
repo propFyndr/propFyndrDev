@@ -63,7 +63,7 @@ import {
   getNonObviousOwnerFactorsGuide,
 } from '../lib/advisory/marketAdvisory'
 import { budgetCeilingStance, RequirementStateSchema, type RequirementState } from '../lib/discovery/requirementState'
-import { buildRequirementChecklist } from '../lib/discovery/requirementChecklist'
+import { withRequirementChecklist } from '../lib/discovery/requirementChecklist'
 import { parseLoanEmiQuestion } from '../lib/chat/handlers/loanEmi'
 import { maybeCompressTopical, TopicSummaries } from '../lib/chat/summaryCompression'
 import { isSpecificUnknownProject, logCoverageGap, fetchUnknownProjectContext, unknownProjectDirective } from '../lib/chat/coverageGap'
@@ -5495,9 +5495,8 @@ EXECUTIVE RESPONSE INSTRUCTIONS:
         // Always send the properties event when intent is ready — even empty exactResults
         // is meaningful (triggers empty state UI and nearby section on the frontend, and clears previous results).
         // Requirements checklist on the top pick only, when 3+ criteria are stated.
-        const checklist = projects[0] ? buildRequirementChecklist(reqState, projects[0] as any) : null
         send('properties', {
-          exactResults: checklist ? [{ ...projects[0], requirement_checklist: checklist }, ...projects.slice(1)] : projects,
+          exactResults: withRequirementChecklist(reqState, projects),
           nearbyResults: nearbyProjects,
           expansion: discoveryExpansion ?? null,
           renderTarget,
@@ -6453,7 +6452,7 @@ EXECUTIVE RESPONSE INSTRUCTIONS:
     if (projects.length > 0 || nearbyProjects.length > 0) {
       messageArtifacts.push({
         type: 'property_results',
-        exactResults: projects,
+        exactResults: withRequirementChecklist(reqState, projects),
         nearbyResults: nearbyProjects,
         expansion: discoveryExpansion ?? null,
       })

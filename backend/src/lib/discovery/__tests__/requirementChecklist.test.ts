@@ -3,7 +3,7 @@
 import { describe, it } from 'node:test'
 import assert from 'node:assert/strict'
 import { RequirementStateSchema, type RequirementState } from '../requirementState'
-import { buildRequirementChecklist, countExplicitCriteria } from '../requirementChecklist'
+import { buildRequirementChecklist, countExplicitCriteria, withRequirementChecklist } from '../requirementChecklist'
 
 const NOW = new Date('2026-10-12T00:00:00Z')
 const state = (over: Record<string, unknown> = {}): RequirementState => RequirementStateSchema.parse(over)
@@ -89,5 +89,15 @@ describe('buildRequirementChecklist', () => {
     const s = state({ ...FULL, preferences: { requiredAmenities: ['park'] } })
     const p = { ...PROJECT, top_amenities: [{ name: 'Covered Parking' }], amenity_count: 1 }
     assert.equal(buildRequirementChecklist(s, p, NOW)![4].status, 'caution')
+  })
+})
+
+describe('withRequirementChecklist', () => {
+  it('attaches rows to the top pick only, and returns the same list below the threshold', () => {
+    const list = [PROJECT, { ...PROJECT, sector: 'Sector 10' }]
+    const out = withRequirementChecklist(FULL, list) as Array<Record<string, unknown>>
+    assert.ok(Array.isArray(out[0].requirement_checklist))
+    assert.equal('requirement_checklist' in out[1], false)
+    assert.equal(withRequirementChecklist(state({ unit: { bhk: [3] } }), list), list)
   })
 })
