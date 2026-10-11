@@ -45,5 +45,16 @@ export function isBotUserAgent(userAgent: string | undefined): boolean {
 
 /** True when this request should be kept out of product metrics. */
 export function isBotRequest(req: Pick<Request, 'get'>): boolean {
+  // The test suite's integration tests (chat.test.ts, conversationalFlows.test.ts)
+  // hit the real Express app in-process via supertest, writing through the real
+  // Prisma client into whatever DATABASE_URL is configured -- there is no
+  // separate test database. Until now these sessions were only caught by
+  // supertest's user agent happening to match a BOT_PATTERN, which is an
+  // incidental side effect of a library default, not a guarantee -- a future
+  // supertest upgrade could change that string and silently put real test
+  // traffic back into product metrics with no caller aware it had stopped
+  // being caught. test-runner.ts already sets NODE_ENV=test for every run, so
+  // this makes that unconditional rather than relying on what happens to match.
+  if (process.env.NODE_ENV === 'test') return true
   return isBotUserAgent(req.get('user-agent') ?? undefined)
 }
