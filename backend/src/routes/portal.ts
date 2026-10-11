@@ -13,6 +13,7 @@ import { createAdminInvite } from '../lib/adminInvite'
 import { eligiblePartners, nextInRotation, pickPartnerForBuilder } from '../lib/leadAssignment'
 import { buildLeadBrief, competitorNames, scrubCompetitors } from '../lib/leadBrief'
 import { canManageAccess } from '../lib/accessHierarchy'
+import { trackEvent } from '../lib/monitoring/posthog'
 
 const router = Router()
 
@@ -403,6 +404,22 @@ router.patch('/builder/leads/:id', requireIdentity, requireRole('BUILDER', 'SUPE
       assigned_partner_id: true, assigned_at: true,
     },
   })
+
+  // Phase 4E: Track lead status changes (contacted, qualified, converted)
+  if (d.status && d.status !== 'new') {
+    const eventMap: Record<string, string> = {
+      'contacted': 'lead_contacted',
+      'qualified': 'lead_qualified',
+      'converted': 'lead_converted',
+      'lost': 'lead_lost',
+    }
+    trackEvent(builderId, eventMap[d.status] ?? 'lead_status_changed', {
+      lead_id: lead.id,
+      new_status: d.status,
+      project: updated.project_name,
+    })
+  }
+
   res.json({ lead: updated })
 })
 
@@ -995,6 +1012,22 @@ router.patch('/partner/leads/:id', requireIdentity, requireRole('PARTNER', 'SUPE
     },
     select: PARTNER_LEAD_SELECT,
   })
+
+  // Phase 4E: Track lead status changes from partner portal
+  if (d.status && d.status !== 'new') {
+    const eventMap: Record<string, string> = {
+      'contacted': 'lead_contacted',
+      'qualified': 'lead_qualified',
+      'converted': 'lead_converted',
+      'lost': 'lead_lost',
+    }
+    trackEvent(partnerId, eventMap[d.status] ?? 'lead_status_changed', {
+      lead_id: lead.id,
+      new_status: d.status,
+      project: lead.project_name,
+    })
+  }
+
   res.json({ lead })
 })
 
