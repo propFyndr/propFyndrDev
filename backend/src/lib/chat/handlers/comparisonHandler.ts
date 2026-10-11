@@ -204,7 +204,7 @@ Before a token deposit on either, compare landed cost (stamp duty, registration 
         { id: `chip_visit_${p1.slug}`, actionType: 'TEXT_MESSAGE', label: `Book Visit (${p1.name.slice(0, 14)})`, icon: 'calendar', analyticsId: 'chip_v1', priority: 2, payload: { text: `Schedule site visit for ${p1.name}` } },
         { id: `chip_visit_${p2.slug}`, actionType: 'TEXT_MESSAGE', label: `Book Visit (${p2.name.slice(0, 14)})`, icon: 'calendar', analyticsId: 'chip_v2', priority: 3, payload: { text: `Schedule site visit for ${p2.name}` } },
       ],
-      confidence: 'HIGH',
+      confidence: (p1.price_min_cr && p2.price_min_cr && p1.oc_status && p2.oc_status) ? 'HIGH' : 'MEDIUM',
     })
 
     ctx.send('done', {
