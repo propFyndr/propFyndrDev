@@ -1722,6 +1722,13 @@ model SessionMemory {
   // Extracted intent snapshot for hydration across turns
   extracted_intent      Json?     // {bhk?, budget?, sector?, ...}
 
+  // Full RequirementState snapshot for hydration across turns (38-param
+  // engine in lib/discovery/requirementState.ts). Separate from
+  // extracted_intent: Intent is the lighter LLM-facing shape, RequirementState
+  // is the deterministic parser's richer, nested shape (location in/exclude,
+  // budget ceiling hardness, unit status, control/compromises).
+  requirement_state     Json?
+
   // Property reactions tracking
   property_reactions    Json      @default("[]") // [{projectId, sentiment, signals}]
 

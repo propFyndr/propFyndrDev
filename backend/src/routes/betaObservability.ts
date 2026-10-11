@@ -376,7 +376,7 @@ betaRouter.get(
     const guestTokens = sessions.map((s) => s.guest_token).filter(Boolean) as string[]
 
     // Batch fetch spend, leads, memories, and opening messages
-    const [spend, leads, memories, userMessagesList] = await Promise.all([
+    const [spend, leads, memories, userMessagesList, sessionMemories] = await Promise.all([
       prisma.aiUsageEvent.groupBy({
         by: ['session_id'],
         where: { session_id: { in: ids } },
@@ -427,6 +427,10 @@ betaRouter.get(
         orderBy: { created_at: 'asc' },
         select: { session_id: true, content: true, created_at: true },
       }),
+      prisma.sessionMemory.findMany({
+        where: { session_id: { in: ids } },
+        select: { session_id: true, requirement_state: true },
+      }),
     ])
 
     const spendBy = new Map(spend.map((s) => [s.session_id, s]))
@@ -458,6 +462,25 @@ betaRouter.get(
         userMsgsBySession.set(m.session_id, [])
       }
       userMsgsBySession.get(m.session_id)!.push(m)
+    }
+
+    // What this buyer actually stated, distilled from RequirementState — a
+    // one-line summary per row so the list is scannable without opening every
+    // transcript. Degrades to null when nothing was ever parsed for a session
+    // (e.g. a connection-only session with no real turns).
+    const reqStateBySession = new Map(sessionMemories.map((m) => [m.session_id, m.requirement_state]))
+    const summarizeRequirementState = (raw: unknown): string | null => {
+      if (!raw || typeof raw !== 'object') return null
+      const rs = raw as Record<string, any>
+      const parts: string[] = []
+      if (rs.unit?.bhk?.length) parts.push(`${rs.unit.bhk.join('/')}BHK`)
+      if (rs.location?.include?.length) parts.push(rs.location.include.join(', '))
+      if (rs.budget?.maxCr !== undefined && rs.budget?.maxCr !== null) {
+        parts.push(`${rs.budget.isHardCeiling ? '≤' : '~'}₹${rs.budget.maxCr}Cr`)
+      }
+      if (rs.unit?.status && rs.unit.status !== 'any') parts.push(rs.unit.status.replace(/_/g, ' '))
+      if (rs.preferences?.requiredAmenities?.length) parts.push(rs.preferences.requiredAmenities.join(', '))
+      return parts.length > 0 ? parts.join(' · ') : null
     }
 
     res.json({
@@ -492,6 +515,7 @@ betaRouter.get(
           id: s.id,
           identity: s.user_id ? { kind: 'user', id: s.user_id } : { kind: 'guest', id: s.guest_token },
           user: userProfile,
+          statedRequirements: summarizeRequirementState(reqStateBySession.get(s.id)),
           openingQuestion: openingMsg ? openingMsg.content : null,
           latestQuery: latestMsg ? { content: latestMsg.content, at: latestMsg.created_at.toISOString() } : null,
           queryTime: queryTimestamp,
@@ -640,6 +664,35 @@ betaRouter.get(
         : null,
     ])
 
+    // What the buyer actually asked for, distilled from RequirementState
+    // (lib/discovery/requirementState.ts) rather than re-read from the raw
+    // transcript by eye. Until this session's persistence work, this snapshot
+    // didn't exist anywhere past the end of a single turn.
+    const sessionMemory = await prisma.sessionMemory.findUnique({
+      where: { session_id: id },
+      select: { requirement_state: true },
+    })
+    const requirementSnapshot = (() => {
+      const raw = sessionMemory?.requirement_state
+      if (!raw || typeof raw !== 'object') return null
+      const rs = raw as Record<string, any>
+      return {
+        sectors: rs.location?.include ?? [],
+        excludedSectors: rs.location?.exclude ?? [],
+        softSectors: rs.location?.softPreferences ?? [],
+        budgetMaxCr: rs.budget?.maxCr ?? null,
+        budgetMinCr: rs.budget?.minCr ?? null,
+        isHardCeiling: Boolean(rs.budget?.isHardCeiling),
+        bhk: rs.unit?.bhk ?? [],
+        possessionStatus: rs.unit?.status && rs.unit.status !== 'any' ? rs.unit.status : null,
+        possessionDeadlineYears: rs.unit?.possessionDeadlineYears ?? null,
+        requiredAmenities: rs.preferences?.requiredAmenities ?? [],
+        preferredAmenities: rs.preferences?.preferredAmenities ?? [],
+        useCase: rs.preferences?.useCase && rs.preferences.useCase !== 'unknown' ? rs.preferences.useCase : null,
+        allowedCompromises: rs.control?.allowedCompromises ?? [],
+      }
+    })()
+
     // The reviewer's real question is "what did the buyer see", so the project
     // cards that were on screen come back with the turn that showed them rather
     // than as a separate blob to correlate by hand.
@@ -692,6 +745,7 @@ betaRouter.get(
       },
       turns,
       lead,
+      requirementSnapshot,
       cost: {
         totalUsd: usage.reduce((s, u) => s + Number(u.cost_usd), 0),
         calls: usage.map((u) => ({

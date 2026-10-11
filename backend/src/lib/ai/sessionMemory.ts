@@ -7,6 +7,7 @@
 
 import { prisma } from '../db'
 import type { Intent } from '../discovery'
+import { normalizeRequirementState, RequirementStateSchema, type RequirementState } from '../discovery/requirementState'
 
 /**
  * A field's stated values in order, with consecutive repeats collapsed.
@@ -144,6 +145,85 @@ export async function persistIntentToMemory(
     })
   } catch (err) {
     console.error(`[SESSION-MEMORY:PERSIST] Error for session ${sessionId}:`, err)
+    // Silent fail — memory is nice-to-have, not blocking
+  }
+}
+
+/**
+ * Hydrate RequirementState from session memory and fold in the current turn.
+ *
+ * Mirrors hydrateIntentFromMemory's role (read the prior snapshot, combine with
+ * this turn) but does NOT hand-write a field-by-field allowlist the way that
+ * function does. hydrateIntentFromMemory shipped a real bug precisely because
+ * of that shape: workplace and lifestyleKeywords were added to Intent without
+ * being added to the allowlist, and silently stopped surviving a turn. Instead,
+ * the merge is delegated entirely to normalizeRequirementState's own
+ * effectivePrevState logic, which is already written field-by-field against
+ * every sub-object (location, budget, unit, preferences, control) and was
+ * simply never given a real previous state to merge against — the call site
+ * in chat-router.ts only ever passed 2 of its 4 parameters.
+ *
+ * ponytail: no multi-entry history yet (prevStateHistory is always []), so
+ * "go back to the original budget" (BACKTRACK against >1 turn back) still only
+ * works when the budget figure is restated in the same message. Add a bounded
+ * history array (same pattern as appendRevision above) if that's ever needed.
+ */
+/**
+ * Pure: validates a raw stored JSON value against the current RequirementState
+ * schema. Separated from hydrateRequirementStateFromMemory so the
+ * schema-drift fallback (an older stored shape that no longer validates)
+ * is unit-testable without a database.
+ */
+export function parseStoredRequirementState(raw: unknown, sessionIdForLogging = 'unknown'): RequirementState | undefined {
+  if (!raw) return undefined
+  const parsed = RequirementStateSchema.safeParse(raw)
+  if (parsed.success) return parsed.data
+  console.warn(`[SESSION-MEMORY:REQSTATE] Stored state failed schema validation for session ${sessionIdForLogging}, ignoring it`, parsed.error.issues)
+  return undefined
+}
+
+export async function hydrateRequirementStateFromMemory(
+  sessionId: string,
+  currentTurnText: string,
+  currentIntent: Partial<Intent> = {},
+): Promise<RequirementState> {
+  const memory = await getSessionMemory(sessionId)
+  const storedState = parseStoredRequirementState(memory?.requirement_state, sessionId)
+  return normalizeRequirementState(currentTurnText, currentIntent, storedState, [])
+}
+
+/**
+ * Persist RequirementState to session memory after each turn.
+ * Safe UPSERT: creates if missing, updates if exists. Mirrors
+ * persistIntentToMemory's error-handling posture exactly — this is
+ * nice-to-have memory, not a blocking write.
+ */
+export async function persistRequirementStateToMemory(
+  sessionId: string,
+  userId: string | undefined,
+  requirementState: RequirementState,
+) {
+  try {
+    const session = await prisma.chatSession.findUnique({
+      where: { id: sessionId },
+      select: { id: true },
+    })
+    if (!session) return
+
+    await prisma.sessionMemory.upsert({
+      where: { session_id: sessionId },
+      create: {
+        session_id: sessionId,
+        user_id: userId,
+        requirement_state: requirementState as any,
+      },
+      update: {
+        requirement_state: requirementState as any,
+        updated_at: new Date(),
+      },
+    })
+  } catch (err) {
+    console.error(`[SESSION-MEMORY:PERSIST-REQSTATE] Error for session ${sessionId}:`, err)
     // Silent fail — memory is nice-to-have, not blocking
   }
 }

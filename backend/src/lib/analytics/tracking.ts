@@ -5,6 +5,7 @@
 
 import { prisma } from '../db'
 import type { Intent } from '../discovery'
+import type { RequirementState } from '../discovery/requirementState'
 
 // ─────────────────────────────────────────────────────────────
 // 1. CHAT INITIALIZATION
@@ -54,6 +55,7 @@ export async function trackIntentIdentified(
   intent: Intent,
   userMessage: string,
   clarificationCount: number = 0,
+  reqState?: RequirementState,
 ) {
   try {
     const analyticsRecord = await prisma.chatAnalytics.findFirst({
@@ -65,12 +67,22 @@ export async function trackIntentIdentified(
       return
     }
 
+    // intent_type and possession were hardcoded null here regardless of what
+    // was actually known — every row in both tables has always had empty
+    // values for them, so "most common query type" / "possession demand" were
+    // never answerable from this data at all. RequirementState (once a turn
+    // has hydrated it) names both: intentModes[0] is the primary detected
+    // mode (SEARCH, DUE_DILIGENCE, FINANCE, …), unit.status is the possession
+    // stance the buyer actually stated.
+    const intentType = reqState?.intentModes?.[0] ?? null
+    const possessionStatus = reqState?.unit?.status && reqState.unit.status !== 'any' ? reqState.unit.status : null
+
     // Update ChatAnalytics
     await prisma.chatAnalytics.update({
       where: { id: analyticsRecord.id },
       data: {
         intent_identified_at: new Date(),
-        intent_type: null,
+        intent_type: intentType,
         extracted_sector: intent.sector || null,
         extracted_bhk: intent.bhk?.[0] || null,
         extracted_budget_min: intent.budgetMin || null,
@@ -83,7 +95,7 @@ export async function trackIntentIdentified(
     await prisma.queryMetrics.create({
       data: {
         query_text: userMessage,
-        intent_type: null,
+        intent_type: intentType,
         sector: intent.sector || null,
         bhk: intent.bhk?.[0] || null,
         budget_min_cr: intent.budgetMin || null,
@@ -93,7 +105,7 @@ export async function trackIntentIdentified(
         week_start: weekStart,
         builder: intent.builderName || null,
         purpose: intent.purpose || null,
-        possession: null,
+        possession: possessionStatus,
         clarification_count: clarificationCount,
         clicked: false,
         converted: false,

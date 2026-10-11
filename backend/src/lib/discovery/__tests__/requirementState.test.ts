@@ -113,6 +113,28 @@ describe('RequirementState Normalization & Constraint Classifier', () => {
     )
   })
 
+  it('Test 9: Extracts stated amenities (school, mall) as required, not hardcoded empty', () => {
+    const raw = 'show me a 3bhk in sector 10, i want ample open space, and schools nearby, and should have a mall nearby too'
+    const state = normalizeRequirementState(raw)
+    assert.ok(state.preferences.requiredAmenities.includes('school'))
+    assert.ok(state.preferences.requiredAmenities.includes('mall'))
+    assert.ok(state.preferences.requiredAmenities.includes('open_space'))
+  })
+
+  it('Test 10: A soft amenity ask ("would be nice to have a gym") is preferred, not required', () => {
+    const state = normalizeRequirementState('3bhk, would be nice to have a gym')
+    assert.ok(state.preferences.preferredAmenities.includes('gym'))
+    assert.ok(!state.preferences.requiredAmenities.includes('gym'))
+  })
+
+  it('Test 11: Stated amenities survive a terse named-project follow-up turn', () => {
+    const turn1 = normalizeRequirementState('3bhk sector 10, school and mall nearby')
+    assert.ok(turn1.preferences.requiredAmenities.includes('school'))
+    const turn2 = normalizeRequirementState('what about elite x?', {}, turn1)
+    assert.ok(turn2.preferences.requiredAmenities.includes('school'), 'amenities must survive a turn that does not restate them')
+    assert.ok(turn2.preferences.requiredAmenities.includes('mall'))
+  })
+
   it('Test 8: Parses possession status as hard ready_to_move requirement', () => {
     const raw = 'Need a ready to move 2BHK in Sector 75 under 90 lakhs'
 
