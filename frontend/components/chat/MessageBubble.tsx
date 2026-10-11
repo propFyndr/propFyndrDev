@@ -50,6 +50,7 @@ const RealtyChart = dynamic(() => import('@/components/RealtyChart'), {
 import RealtyBox from '@/components/RealtyBox'
 import ContactButton from '@/components/ContactButton'
 import ProvenancePill from '@/components/chat/ProvenancePill'
+import RequirementChecklist from '@/components/chat/RequirementChecklist'
 import type { VerificationProofData } from '@/components/chat/VerificationProofDrawer'
 
 const VerificationProofDrawer = dynamic(() => import('@/components/chat/VerificationProofDrawer'), { ssr: false })
@@ -956,6 +957,12 @@ function MessageBubbleInner({
                           </>
                         )}
                       </m.div>
+                      {!streaming && message.exactResults?.[0] && (
+                        <RequirementChecklist
+                          projectName={message.exactResults[0].name}
+                          rows={message.exactResults[0].requirement_checklist}
+                        />
+                      )}
                     </>
                   )
                 }
