@@ -49,6 +49,13 @@ export interface DealBreaker {
 }
 
 
+/** One stated buyer criterion checked against the project's own rows (backend requirementChecklist.ts). */
+export interface RequirementChecklistRow {
+  criterion: string
+  status: 'met' | 'caution' | 'unmet' | 'unknown'
+  note: string
+}
+
 export interface ProjectCard {
   id: string
   slug: string
@@ -58,6 +65,8 @@ export interface ProjectCard {
   matchReason?: string
   matchReasons?: string[]
   concerns?: string[]
+  /** Top pick only, when the buyer stated 3+ criteria. */
+  requirement_checklist?: RequirementChecklistRow[]
   budgetStatus?: 'within' | 'slightly_over' | 'over'
   compromiseTags?: string[]
   violatedConstraint?: string
