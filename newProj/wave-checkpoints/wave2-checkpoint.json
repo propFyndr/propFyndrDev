@@ -1,0 +1,24 @@
+{
+  "wave_number": 2,
+  "project_range": [65, 128],
+  "total_projects": 59,
+  "status": "completed",
+  "started_at": "2026-10-11T09:30:00Z",
+  "completed_at": "2026-10-11T09:30:58Z",
+  "extraction_audit_file": "wave2-extraction-audit.json",
+  "upsert_sql_file": "wave2-upsert.sql",
+  "conflicts_file": "wave2-conflicts.json",
+  "quality_stats": {
+    "avg_quality_score": 13,
+    "high_confidence_fields": 118,
+    "medium_confidence_fields": 59,
+    "conflicts_detected": 0,
+    "projects_with_conflicts": 0
+  },
+  "notes": [
+    "MVP extraction: using existing project JSON",
+    "No real RERA/builder/external lookups yet",
+    "Quality 13/100 as expected - ready for data fetching layer",
+    "All 59 projects extracted successfully, no conflicts"
+  ]
+}
