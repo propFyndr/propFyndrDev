@@ -182,9 +182,16 @@ When scoping a chat feature, ask: *would a power user notice we're worse at this
 
 ## V1 Scope
 
-**Supported:** Noida and Greater Noida West; new launch, under construction and ready to move; recommendations; comparison; builder track record; EMI, stamp duty, GST, registration; callbacks; site visits; WhatsApp handoff; partner/builder lead portal.
+**Supported:** Noida and Greater Noida West only; new launch, under construction and ready to move; recommendations; comparison; builder track record; EMI, stamp duty, GST, registration; investment advisory (returns, rental yield); callbacks; site visits; WhatsApp handoff; partner/builder lead portal.
 
-**Out of scope:** rentals, resale, commercial, valuation, mortgage workflows, tenant/landlord tools, auctions, native apps, VR/AR, investment advice, broker CRM beyond lead handling. Other cities are not recommended as available inventory.
+**Out of scope (V1):** other cities (post-launch), rentals, resale, commercial, valuation, mortgage workflows, tenant/landlord tools, auctions, native apps, VR/AR, broker CRM beyond lead handling.
+
+**Post-V1 roadmap (in order):**
+1. **Phase 5:** Fix data integrity blockers (heuristic columns, cost sheet hardcoding, affordability defaults, price firewall)
+2. **Phase 6:** Investment advisory module (ROI, rental yield, tax benefits, capital appreciation projections)
+3. **Phase 7:** Market analytics dashboard (price trends, demand patterns, builder sentiment, sector velocity)
+4. **Phase 8:** AI-powered price negotiation (estimated fair price, negotiation leverage points, comparable transactions)
+5. **Post-Phase 8:** Validate fully in Noida; then decide on expansion (Gurugram, Pune, Mumbai) or depth features
 
 ---
 
@@ -359,4 +366,4 @@ When uncertain, choose the option that improves trust, improves decision quality
 ## Reference
 MEMORY.md (repo root) for dated decisions and audits. Memory notes: ai-provider-chain, admin-panel-reference, engineering-standards, project-structure, database-rules, ai-prompting-rules, success-metrics, roadmap-future. Roadmaps: `MASTER_EXECUTION_ROADMAP.md` (V1), `MASTER_EXECUTION_ROADMAP_V2.md`.
 
-**Last Updated:** 2026-10-05 — full rewrite: verified supply chain, three-sided product, V1 MVP status, data-integrity debts, definition of done.
+**Last Updated:** 2026-10-11 — Phase 4 complete (recommendations, lead briefs, objection detection, analytics, supply chain); roadmap locked: Phase 5-8 for Noida validation only (no multi-city until post-launch).
