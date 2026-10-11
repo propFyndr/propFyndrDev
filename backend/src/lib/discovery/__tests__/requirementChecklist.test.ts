@@ -92,6 +92,16 @@ describe('buildRequirementChecklist', () => {
   })
 })
 
+describe('location note', () => {
+  it('names the city for a sector match and the sector for a city match, never repeating the criterion', () => {
+    assert.equal(buildRequirementChecklist(FULL, PROJECT, NOW)![1].note, 'Noida')
+    const byCity = state({ ...FULL, location: { include: ['Greater Noida West'] } })
+    const p = { ...PROJECT, sector: 'Sector 1', city: 'Greater Noida West' }
+    assert.equal(buildRequirementChecklist(byCity, p, NOW)![1].note, 'Sector 1')
+    assert.equal(buildRequirementChecklist(FULL, { ...PROJECT, city: null }, NOW)![1].note, 'Matches')
+  })
+})
+
 describe('withRequirementChecklist', () => {
   it('attaches rows to the top pick only, and returns the same list below the threshold', () => {
     const list = [PROJECT, { ...PROJECT, sector: 'Sector 10' }]

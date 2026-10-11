@@ -96,13 +96,12 @@ function locationRow(s: RequirementState, p: ChecklistProject): ChecklistRow {
   if (!p.sector) return { criterion, status: 'unknown', note: 'Location not on record' }
   const sector = (normalizeSectorName(p.sector) ?? p.sector).toLowerCase()
   const city = (p.city ?? '').toLowerCase()
-  const hit = wanted.some((w) => {
-    const n = (normalizeSectorName(w) ?? w).toLowerCase()
-    return n === sector || (city !== '' && n === city)
-  })
-  return hit
-    ? { criterion, status: 'met', note: p.sector }
-    : { criterion, status: 'unmet', note: `In ${p.sector}` }
+  const asked = wanted.map((w) => (normalizeSectorName(w) ?? w).toLowerCase())
+  // The note adds the part the criterion doesn't already name: the city for a
+  // sector match ("Sector 75 · Noida"), the sector for a city match.
+  if (asked.includes(sector)) return { criterion, status: 'met', note: p.city || 'Matches' }
+  if (city !== '' && asked.includes(city)) return { criterion, status: 'met', note: p.sector }
+  return { criterion, status: 'unmet', note: `In ${p.sector}` }
 }
 
 function bhkRow(s: RequirementState, p: ChecklistProject): ChecklistRow {
