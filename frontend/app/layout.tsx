@@ -8,6 +8,8 @@ import { PostHogProvider } from "@/components/PostHogProvider";
 import ThemedToaster from "@/components/ThemedToaster";
 import { PingBackend } from "@/components/PingBackend";
 import CookiesBanner from "@/components/CookiesBanner";
+import ReferralTracker from "@/components/ReferralTracker";
+import ReferralNotice from "@/components/ReferralNotice";
 import { LazyMotion, domAnimation, MotionConfig } from 'framer-motion'
 import ProgressBar from '@/components/ProgressBar'
 
@@ -113,6 +115,7 @@ export default function RootLayout({
         </a>
         <ProgressBar />
         <PingBackend />
+        <ReferralTracker />
         {/* reducedMotion="user" makes every `m.*` component in the app honour
             the OS "reduce motion" setting: transform and layout animations are
             dropped, opacity still cross-fades. Nothing respected that before,
@@ -125,6 +128,7 @@ export default function RootLayout({
         </MotionConfig>
         <ThemedToaster />
         <CookiesBanner />
+        <ReferralNotice />
 
       </body>
     </html>

@@ -50,6 +50,8 @@ import partnerRegistrationRouter from './routes/partnerRegistration'
 import { adminPromotionsRouter } from './routes/adminPromotions'
 import portalRouter from './routes/portal'
 import { dossierRouter } from './routes/dossier'
+import { referralRouter } from './routes/referral'
+import { adminReferralsRouter } from './routes/adminReferrals'
 import sectorsRouter from './routes/sectors'
 import { adminAreaGuard } from './lib/adminGuard'
 import { initializeCaches } from './lib/projectDataGateway.cache'
@@ -307,6 +309,7 @@ app.use('/api/v1/admin/outbox', adminOutboxRouter)
 // route there cannot claim /boards first.
 app.use('/api/v1/admin/boards', adminBoardsRouter)
 app.use('/api/v1/admin/channel-partners', adminPartnersRouter)
+app.use('/api/v1/admin/referrals', adminReferralsRouter)
 app.use('/api/v1/admin/promotions', adminPromotionsRouter)
 app.use('/api/admin/promotions', adminPromotionsRouter)
 app.use('/api/v1/admin', adminRouter)
@@ -331,6 +334,7 @@ app.use('/api/v1/builder-applications', builderApplicationsRouter)
 app.use('/api/v1/partner-registration', partnerRegistrationRouter)
 app.use('/api/v1/analytics', analyticsRouter)
 app.use('/api/v1/dossier', dossierRouter)
+app.use('/api/v1/referral', referralRouter)
 app.use('/api/v1/sectors', sectorsRouter)
 app.use('/api/v1/admin/intelligence', adminIntelligenceRouter)
 

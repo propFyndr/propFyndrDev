@@ -28,8 +28,9 @@ module.exports = createJestConfig({
     '<rootDir>/e2e/',
     '<rootDir>/__tests__/e2e/',
     'app/admin/__tests__/',
-    // These directories hold node:test files, run by `npm run test:node`.
-    'lib/__tests__/',
+    // Pre-existing node:test files in lib/__tests__/ (run by `npm run test:node`).
+    // New jest-style tests in lib/__tests__/ are enabled for jest (jsdom environment).
+    'lib/__tests__/(adminRole|analytics|indianPhone|redactPii|reviewNotes|subdomain)\\.test\\.ts',
     'components/chat/__tests__/',
     'components/property-detail/__tests__/',
     'components/__tests__/data-integrity.test.ts',

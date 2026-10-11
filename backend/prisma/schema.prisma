@@ -2075,6 +2075,55 @@ model Dossier {
   @@map("dossiers")
 }
 
+enum ReferralLinkKind {
+  ROOT
+  PERSONAL
+}
+
+/// A referral code. ROOT links are admin-generated and labelled ("Rahul –
+/// college"); PERSONAL links are minted automatically for every device that
+/// arrives, so organic sharing forms a tree too. See lib/referralAttribution.ts.
+model ReferralLink {
+  code                String           @id
+  kind                ReferralLinkKind
+  created_by_admin_id String?
+  label               String?
+  note                String?
+  greeting_name       String?
+  holder_guest_token  String?
+  owner_guest_token   String?          @unique
+  revoked_at          DateTime?
+  created_at          DateTime         @default(now())
+
+  @@index([created_by_admin_id])
+  @@map("referral_links")
+}
+
+/// One row per device that has ever arrived on a referral link (or arrived
+/// organically, with no code at all). `parent_guest_token` is set once, on
+/// first arrival, and never changes. See lib/referralAttribution.ts.
+model ReferralVisit {
+  guest_token        String   @id
+  user_id            String?
+  own_code           String   @unique
+  arrived_via_code   String?
+  root_code          String
+  parent_guest_token String?
+  generation         Int
+  depth_inferred     Boolean  @default(false)
+  prior_user         Boolean  @default(false)
+  device_class       String
+  os                 String
+  app_guess          String
+  share_channel      String?
+  first_seen_at      DateTime @default(now())
+
+  @@index([root_code])
+  @@index([parent_guest_token])
+  @@index([arrived_via_code, first_seen_at])
+  @@map("referral_visits")
+}
+
 /// Persistent cache for web search facts (Task 4.4)
 model WebFact {
   id             String   @id @default(uuid())

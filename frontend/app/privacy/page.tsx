@@ -15,7 +15,8 @@ import {
   PhoneForwarded,
   UserX,
   Globe,
-  ExternalLink
+  ExternalLink,
+  Share2
 } from 'lucide-react'
 import type { Metadata } from 'next'
 
@@ -25,7 +26,7 @@ export const metadata: Metadata = {
 }
 
 export default function PrivacyPolicy() {
-  const lastUpdated = 'August 24, 2026'
+  const lastUpdated = 'October 11, 2026'
 
   const sections = [
     {
@@ -46,6 +47,9 @@ export default function PrivacyPolicy() {
             </li>
             <li>
               <strong>Technical &amp; Geolocation Data:</strong> IP address, device fingerprints, approximate geolocation (used strictly to recommend nearby NCR micro-markets such as Sector 150, Noida Expressway, Yamuna Expressway, or Greater Noida West), and anonymous session tokens via first-party analytics (PostHog).
+            </li>
+            <li>
+              <strong>Shared-Link Data:</strong> If you arrive on PropFyndr through a link someone shared with you, we record which link, your device type (phone, tablet, or desktop), a best-effort guess at which app you opened it from (for example Instagram or WhatsApp's in-app browser), and the time. We also give your device its own shareable link so we can see if you pass PropFyndr on. We do not ask for, or collect, your name through this process.
             </li>
           </ul>
         </div>
@@ -132,7 +136,7 @@ export default function PrivacyPolicy() {
               <strong>No Model Training on User Prompts:</strong> Your conversational queries, financial evaluations, and prompt inputs are processed via zero-data-retention enterprise APIs. Your conversations are <em>never</em> used to train public foundation models (such as Google Gemini, Anthropic Claude, or OpenAI models).
             </li>
             <li>
-              <strong>Encrypted Session Continuity:</strong> Chat transcripts are stored encrypted at rest (AES-256) within your authenticated session for your personal review and are purged according to our data retention schedule.
+              <strong>Encrypted Session Continuity:</strong> Chat transcripts are stored encrypted at rest (AES-256), may be reviewed by the PropFyndr founding team to improve answers and understand how the service is used, and are purged according to our data retention schedule.
             </li>
             <li>
               <strong>No Unconsented Behavioral Profiling:</strong> We do not sell prompt telemetry to ad-tech networks or data brokers for cross-site behavioral retargeting.
@@ -152,6 +156,7 @@ export default function PrivacyPolicy() {
             <li><strong>Contextual Property Matching:</strong> Generating real-time market evaluations, RERA comparisons, and price benchmark calculations.</li>
             <li><strong>Fulfilling User Inquiries:</strong> Enabling verified developers, RERA channel partners, and lending partners to coordinate site visits, pricing sheets, and loan pre-approvals.</li>
             <li><strong>Platform Security &amp; Anomaly Prevention:</strong> Monitoring query volume to prevent denial-of-service, scraping, or automated system abuse.</li>
+            <li><strong>Understanding Shared Reach:</strong> Seeing whether and how PropFyndr is shared from one person to another, so we can tell whether the product is genuinely useful.</li>
           </ul>
         </div>
       ),
@@ -246,7 +251,25 @@ export default function PrivacyPolicy() {
           <ul className="list-disc list-inside space-y-2 ml-2 text-slate-600 dark:text-slate-400">
             <li><strong>Essential Cookies:</strong> Required for user authentication, security verification, and session state.</li>
             <li><strong>Geolocation Data:</strong> Used ephemerally to center the search radius to your relevant NCR sub-market (e.g. Noida vs Greater Noida or Yamuna Expressway). You can disable location permissions in your browser at any time without disrupting manual search.</li>
+            <li><strong>Referral Code:</strong> Your device's own shareable code, and whether you have dismissed the chat-review notice, are stored in your browser's local storage.</li>
             <li><strong>Opt-Out:</strong> You can clear cookies or local storage directly in your browser settings at any time.</li>
+          </ul>
+        </div>
+      ),
+    },
+    {
+      id: 'shared-links',
+      icon: Share2,
+      title: '10a. Shared Links & Referral Tracking',
+      content: (
+        <div className="space-y-3">
+          <p>
+            PropFyndr lets people share a link to the service with others, and lets our own team generate labelled links to see how the product spreads.
+          </p>
+          <ul className="list-disc list-inside space-y-2 ml-2 text-slate-600 dark:text-slate-400">
+            <li><strong>No Names Collected:</strong> A link records only your device type, a best-effort guess at the app you opened it from, and the time — never your name, unless you separately give us one (for example, on a callback request).</li>
+            <li><strong>Internal Use Only:</strong> This data is visible only to PropFyndr's founding team, never to builders, channel partners, or any third party.</li>
+            <li><strong>Your Own Chats Stay Yours:</strong> Being part of a shared link does not change who can act on your account — it only lets us see that a chat happened and, at a summary level, what it was about.</li>
           </ul>
         </div>
       ),
@@ -277,7 +300,7 @@ export default function PrivacyPolicy() {
       content: (
         <div className="space-y-3">
           <p>
-            Chat transcripts and search queries from unauthenticated guest sessions are automatically expired after 30 days. Registered user profiles and saved property collections remain active until account deletion is initiated. Upon receiving an erasure request, personal identifiers are completely purged from our active databases within 15 days.
+            Chat transcripts and search queries from unauthenticated guest sessions, and referral-link data, are automatically expired after 12 months. Registered user profiles and saved property collections remain active until account deletion is initiated. Upon receiving an erasure request, personal identifiers are completely purged from our active databases within 15 days.
           </p>
         </div>
       ),
