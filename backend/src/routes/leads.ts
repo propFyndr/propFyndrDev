@@ -15,6 +15,7 @@ import { buildLeadDossier } from '../lib/leadDossier'
 import { analyzeGhostPoolByProject } from '../lib/ghostPool'
 import { analyzeProjectDemand, getDemandSnapshot } from '../lib/demandIntelligence'
 import { trackEvent } from '../lib/monitoring/posthog'
+import { generateLeadBrief, validateLeadBrief } from '../lib/leadBrief'
 
 const router = Router()
 
@@ -219,6 +220,17 @@ router.post('/callback', async (req: Request, res: Response) => {
       ai_summary: profile.ai_summary ?? summarizeProfile(profile),
     },
   })
+
+  // Phase 4C: Generate Lead Brief for partner portal (zero transcript guarantee)
+  if (project && resolvedSessionId) {
+    generateLeadBrief({
+      callback_id: cb.id,
+      project_id: project.id,
+      buyer_profile: profile,
+      intent_tier: intent_tier ?? 'unknown',
+      loan_pre_approved: loanPreApproved,
+    }).catch(err => console.error('[leads] Lead Brief generation failed:', err))
+  }
 
   /**
    * Credit the news item that started this, if there was one.
