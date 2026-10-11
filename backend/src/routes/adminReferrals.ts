@@ -123,6 +123,8 @@ adminReferralsRouter.get('/', async (req: Request, res: Response) => {
       return {
         code: link.code,
         label: link.label,
+        greetingName: link.greeting_name,
+        note: link.note,
         createdByAdminId: link.created_by_admin_id,
         createdAt: link.created_at,
         revoked: Boolean(link.revoked_at),
@@ -130,6 +132,7 @@ adminReferralsRouter.get('/', async (req: Request, res: Response) => {
         deepestGeneration,
         activatedCount,
         lastActivity,
+        hasHolder: Boolean(link.holder_guest_token),
       }
     })
 
