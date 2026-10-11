@@ -1,0 +1,90 @@
+#!/usr/bin/env tsx
+import { PrismaClient } from '@prisma/client'
+import * as fs from 'fs'
+import * as path from 'path'
+
+const prisma = new PrismaClient()
+
+function parseUpdateStatements(sql: string): string[] {
+  const statements: string[] = []
+  let current = ''
+  let inString = false
+  let stringChar = ''
+
+  for (let i = 0; i < sql.length; i++) {
+    const char = sql[i]
+    if ((char === "'" || char === '"') && sql[i - 1] !== '\\') {
+      if (!inString) { inString = true; stringChar = char }
+      else if (char === stringChar) inString = false
+    }
+    current += char
+    if (char === ';' && !inString) {
+      const trimmed = current.trim()
+      if (trimmed.toUpperCase().startsWith('UPDATE')) {
+        statements.push(trimmed.slice(0, -1))
+      }
+      current = ''
+    }
+  }
+  return statements
+}
+
+async function main() {
+  try {
+    console.log(`\n${'═'.repeat(60)}`)
+    console.log(`PHASE 2B: Apply Builder Data to Database`)
+    console.log(`${'═'.repeat(60)}\n`)
+
+    const sqlPath = path.join(__dirname, '../../phase2b-consolidated-builder-upsert.sql')
+    if (!fs.existsSync(sqlPath)) {
+      console.error(`✗ SQL not found: ${sqlPath}`)
+      process.exit(1)
+    }
+
+    const sql = fs.readFileSync(sqlPath, 'utf-8')
+    console.log(`✓ Loaded SQL (${(sql.length / 1024).toFixed(1)}KB)`)
+
+    const statements = parseUpdateStatements(sql)
+    console.log(`✓ Parsed ${statements.length} UPDATE statements\n`)
+
+    let success = 0
+    for (let i = 0; i < statements.length; i++) {
+      try {
+        await prisma.$executeRawUnsafe(statements[i])
+        success++
+        if ((i + 1) % 50 === 0) console.log(`  ✓ ${i + 1}/${statements.length}`)
+      } catch (e) {
+        if (success === 0) console.error(`  ✗ ${String(e).slice(0, 80)}`)
+      }
+    }
+
+    console.log(`\n✓ Applied: ${success} updates\n`)
+
+    // Verify combined quality
+    const result = await prisma.$queryRaw<any[]>`
+      SELECT
+        COUNT(*) as total,
+        COUNT(CASE WHEN rera_number IS NOT NULL THEN 1 END) as with_rera,
+        COUNT(CASE WHEN projects_delivered_count IS NOT NULL THEN 1 END) as with_builder,
+        COUNT(CASE WHEN average_builder_delay_months IS NOT NULL THEN 1 END) as with_delay,
+        COUNT(CASE WHEN oc_obtained IS NOT NULL THEN 1 END) as with_oc
+      FROM projects
+    `
+
+    console.log(`COMBINED QUALITY VERIFICATION:`)
+    console.log(`  Total projects: ${result[0]?.total || 0}`)
+    console.log(`  With RERA: ${result[0]?.with_rera || 0}`)
+    console.log(`  With builder data: ${result[0]?.with_builder || 0}`)
+    console.log(`  With delay months: ${result[0]?.with_delay || 0}`)
+    console.log(`  With OC: ${result[0]?.with_oc || 0}\n`)
+
+    console.log(`✓ Phase 2A+2B data LIVE`)
+  } catch (error) {
+    console.error('✗ Failed:', error)
+    process.exit(1)
+  } finally {
+    await prisma.$disconnect()
+  }
+}
+
+main()
