@@ -8,6 +8,8 @@ import { ChatMessage, NearbyExpansion } from '@/types/property';
 import type { ProjectCard as ProjectCardType } from '@/types/project';
 import Toast from '@/components/Toast';
 import { API_BASE } from '@/lib/env'
+import { appendReferralParams } from '@/lib/referral';
+import { ReferralShareButton } from '@/components/chat/ReferralShareButton';
 import { track, trackSearch, trackChatStarted, trackDossierShared } from '@/lib/analytics';
 import { streamChat as streamChatBackend } from '@/lib/backend-api'
 import {
@@ -490,7 +492,7 @@ export default function DiscoveryContent({ userId, guestToken, onSessionChange, 
   }, []);
 
   const dossierToken = dossierHref?.split('/').filter(Boolean).pop() || '';
-  const dossierFullUrl = dossierHref && typeof window !== 'undefined' ? `${window.location.origin}${dossierHref}` : '';
+  const dossierFullUrl = dossierHref && typeof window !== 'undefined' ? `${window.location.origin}${appendReferralParams(dossierHref)}` : '';
 
   const handleDossierCopy = () => {
     trackDossierShared(dossierToken, { channel: 'copy' });
@@ -502,7 +504,7 @@ export default function DiscoveryContent({ userId, guestToken, onSessionChange, 
   };
   const handleDossierOpen = () => {
     trackDossierShared(dossierToken, { channel: 'open' });
-    if (dossierHref) window.open(dossierHref, '_blank', 'noopener,noreferrer');
+    if (dossierHref) window.open(appendReferralParams(dossierHref), '_blank', 'noopener,noreferrer');
   };
   const handleDossierWhatsApp = () => {
     trackDossierShared(dossierToken, { channel: 'whatsapp' });
@@ -1868,6 +1870,7 @@ export default function DiscoveryContent({ userId, guestToken, onSessionChange, 
               )}
             </div>
           )}
+          <ReferralShareButton />
           {/* Individual Frosted Pill New Chat Button */}
           <AnimatePresence>
             {hasUserReplied && (

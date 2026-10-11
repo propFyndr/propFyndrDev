@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { AnimatePresence, m } from 'framer-motion';
 import type { ProjectCard } from '@/types/project';
 import { API_BASE } from '@/lib/env';
+import { appendReferralParams } from '@/lib/referral';
 
 interface ShareShortlistModalProps {
   isOpen: boolean;
@@ -35,7 +36,8 @@ export default function ShareShortlistModal({ isOpen, shortlist, onClose }: Shar
       });
       if (!res.ok) throw new Error('Failed to create share');
       const { url } = await res.json();
-      const fullUrl = typeof window !== 'undefined' ? `${window.location.origin}${url}` : url;
+      const taggedUrl = appendReferralParams(url);
+      const fullUrl = typeof window !== 'undefined' ? `${window.location.origin}${taggedUrl}` : taggedUrl;
       setShareUrl(fullUrl);
       return fullUrl;
     } catch (err) {
