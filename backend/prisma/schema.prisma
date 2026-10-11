@@ -2093,6 +2093,7 @@ model ReferralLink {
   holder_guest_token  String?
   owner_guest_token   String?          @unique
   revoked_at          DateTime?
+  revoked_by_admin_id String?
   created_at          DateTime         @default(now())
 
   @@index([created_by_admin_id])
@@ -2117,6 +2118,8 @@ model ReferralVisit {
   app_guess          String
   share_channel      String?
   first_seen_at      DateTime @default(now())
+  visit_count        Int      @default(1)
+  last_seen_at       DateTime @default(now())
 
   @@index([root_code])
   @@index([parent_guest_token])
