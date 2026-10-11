@@ -3,6 +3,7 @@ import assert from 'node:assert/strict'
 import express, { Request, Response, NextFunction } from 'express'
 import request from 'supertest'
 import { adminReferralsRouter } from '../adminReferrals'
+import { prisma } from '../../lib/db'
 
 // adminAreaGuard is mounted at the app level in production (backend/src/index.ts);
 // this test stubs an already-authenticated SUPER_ADMIN identity the same way
@@ -43,5 +44,43 @@ describe('GET /api/v1/admin/referrals', () => {
     const res = await request(buildApp()).get('/api/v1/admin/referrals')
     assert.equal(res.status, 200)
     assert.ok(Array.isArray(res.body.links))
+  })
+
+  it('counts a guest activated by a site visit alone, no messages/callback/dossier', async () => {
+    const createRes = await request(buildApp())
+      .post('/api/v1/admin/referrals')
+      .send({ label: 'Site-visit activation test', greetingName: 'Furqan' })
+    const code = createRes.body.code as string
+    const guestToken = `guest-sitevisit-${Date.now()}`
+
+    await prisma.referralVisit.create({
+      data: {
+        guest_token: guestToken,
+        own_code: `OWN${Date.now()}`,
+        root_code: code,
+        generation: 1,
+        device_class: 'mobile',
+        os: 'ios',
+        app_guess: 'unknown',
+      },
+    })
+    await prisma.siteVisitRequest.create({
+      data: {
+        project_id: 'test-project',
+        project_slug: 'test-project',
+        project_name: 'Test Project',
+        name: 'Test Buyer',
+        phone: '9999999999',
+        visit_date: new Date(),
+        time_slot: 'morning',
+        guest_token: guestToken,
+      },
+    })
+
+    const res = await request(buildApp()).get('/api/v1/admin/referrals')
+    assert.equal(res.status, 200)
+    const link = res.body.links.find((l: any) => l.code === code)
+    assert.ok(link, 'created link should appear in the list')
+    assert.equal(link.activatedCount, 1)
   })
 })

@@ -48,6 +48,13 @@ async function countActivated(guestTokens: string[]): Promise<Set<string>> {
   for (const d of dossiers) {
     if (d.guest_token) activated.add(d.guest_token)
   }
+  const siteVisits = await prisma.siteVisitRequest.findMany({
+    where: { guest_token: { in: guestTokens } },
+    select: { guest_token: true },
+  })
+  for (const v of siteVisits) {
+    if (v.guest_token) activated.add(v.guest_token)
+  }
   return activated
 }
 
@@ -136,10 +143,16 @@ adminReferralsRouter.get('/', async (req: Request, res: Response) => {
 adminReferralsRouter.post('/:code/revoke', async (req: Request, res: Response) => {
   const { code } = req.params
   try {
+    const link = await prisma.referralLink.findUnique({ where: { code } })
+    if (!link) {
+      res.status(404).json({ error: 'Referral link not found' })
+      return
+    }
     await prisma.referralLink.update({ where: { code }, data: { revoked_at: new Date() } })
     res.json({ success: true })
   } catch (err: any) {
-    res.status(404).json({ error: 'Referral link not found' })
+    console.error('[ADMIN_REFERRALS:REVOKE_FAILED]', err?.message)
+    res.status(500).json({ error: 'Failed to revoke referral link' })
   }
 })
 
