@@ -42,7 +42,6 @@ export type ComponentType =
   | 'investment-score'      // Investment recommendation
   | 'floor-plan-gallery'    // Floor plan images
   | 'decision-card'         // Decision summary (why buy / why avoid)
-  | 'confidence-badge'      // Data confidence indicator
   | 'risk-meter'            // Project risk visualization
   | 'possession-timeline'   // Possession date & construction progress
   | 'society-stats'         // Society life data (power, water, lift, maintenance)
@@ -164,12 +163,6 @@ export const COMPONENT_REQUIREMENTS: Record<ComponentType, {
     minConfidence: 0.8,
   },
 
-  'confidence-badge': {
-    required: [],
-    optional: [],
-    minConfidence: 0.0, // Always show confidence
-  },
-
   'risk-meter': {
     required: ['project_risk_flag'],
     optional: [],
@@ -242,9 +235,6 @@ export function selectComponents(params: {
 }): ComponentType[] {
   const { facts, intent, confidence, projectId } = params
   const selected: ComponentType[] = []
-
-  // Always include confidence badge
-  selected.push('confidence-badge')
 
   // Always include property card for context
   if (hasRequiredFields(facts, COMPONENT_REQUIREMENTS['property-card'])) {
@@ -440,9 +430,6 @@ export function buildComponentProps(params: {
         whyAvoid: facts['why_avoid']?.value,
       }
 
-    case 'confidence-badge':
-      return {}
-
     case 'property-card':
       return {
         projectId,
@@ -482,7 +469,7 @@ export function buildComponentResponse(params: {
   // Build each component
   const components: ComponentSpec[] = componentTypes.map((type) => ({
     type,
-    projectId: type === 'confidence-badge' ? undefined : projectId,
+    projectId,
     props: buildComponentProps({ type, facts, projectId }),
     confidence,
     source: sources[0],

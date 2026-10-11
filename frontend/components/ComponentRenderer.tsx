@@ -246,18 +246,6 @@ function LocationScorecard({ props }: { props: Record<string, any> }) {
   )
 }
 
-/**
- * Formerly a "92% confident" pill. A percentage computed from pipeline
- * heuristics reads as precision the advisor does not have, so only the
- * stated basis is shown, and nothing when there is none.
- */
-function ConfidenceBadge({ props }: { props: Record<string, any> }) {
-  if (!props.reason) return null
-  return (
-    <p className="text-[12px] text-zinc-500 dark:text-zinc-400">{props.reason}</p>
-  )
-}
-
 function RiskMeter() {
   return null
 }
@@ -352,7 +340,6 @@ const COMPONENT_RENDERERS: Record<string, React.ComponentType<{ props: Record<st
   'timeline': Timeline,
   'payment-breakdown': PaymentBreakdown,
   'location-scorecard': LocationScorecard,
-  'confidence-badge': ConfidenceBadge,
   'risk-meter': RiskMeter,
   'lead-form': LeadForm,
   'carpet-loading-visualizer': CarpetLoadingVisualizer,

@@ -174,26 +174,6 @@ describe('ComponentRenderer', () => {
     })
   })
 
-  describe('ConfidenceBadge', () => {
-    // A computed percentage reads as precision the advisor does not have, so
-    // the badge shows its stated basis only — never "N% confident".
-    it('shows the stated reason and no percentage', () => {
-      const specs: ComponentSpec[] = [
-        { type: 'confidence-badge', props: { confidence: 0.92, reason: 'All data from database' } },
-      ]
-      render(<ComponentRenderer specs={specs} />)
-      expect(screen.getByText('All data from database')).toBeInTheDocument()
-      expect(screen.queryByText(/% confident/)).not.toBeInTheDocument()
-    })
-
-    it('renders nothing without a reason', () => {
-      const specs: ComponentSpec[] = [{ type: 'confidence-badge', props: { confidence: 0.75 } }]
-      const { container } = render(<ComponentRenderer specs={specs} />)
-      expect(screen.queryByText(/confident/)).not.toBeInTheDocument()
-      expect(container.textContent).toBe('')
-    })
-  })
-
   describe('PaymentBreakdown without tax figures', () => {
     it('omits GST, stamp duty and total rather than assuming rates', () => {
       const specs: ComponentSpec[] = [{ type: 'payment-breakdown', props: { basePrice: 5000000 } }]
@@ -231,10 +211,6 @@ describe('ComponentRenderer', () => {
         {
           type: 'property-card',
           props: { name: 'ATS Pristine' },
-        },
-        {
-          type: 'confidence-badge',
-          props: { confidence: 0.92 },
         },
         {
           type: 'emi-calculator',
