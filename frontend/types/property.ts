@@ -156,7 +156,7 @@ export type ComponentType =
   | 'amenities-grid' | 'connectivity-list' | 'builder-card' | 'timeline'
   | 'comparison-table' | 'payment-breakdown' | 'location-scorecard'
   | 'investment-score' | 'floor-plan-gallery' | 'decision-card'
-  | 'confidence-badge' | 'risk-meter' | 'possession-timeline'
+  | 'risk-meter' | 'possession-timeline'
   | 'society-stats' | 'commute-card' | 'rental-yield-card'
   | 'nearby-projects' | 'reviews-summary' | 'transaction-history' | 'lead-form'
   | 'carpet-loading-visualizer' | 'layout-efficiency'
