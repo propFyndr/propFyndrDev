@@ -162,6 +162,7 @@ export default function ConversationsPage() {
   const [detail, setDetail] = useState<Detail | null>(null)
   const [loading, setLoading] = useState(true)
   const [isRefreshing, setIsRefreshing] = useState(false)
+  const [loadingMore, setLoadingMore] = useState(false)
   const [detailLoading, setDetailLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [copiedText, setCopiedText] = useState(false)
@@ -242,15 +243,19 @@ export default function ConversationsPage() {
     }
   }, [])
 
-  // Fetch Conversations with query params
+  // Fetch Conversations with query params. `append` pages in the next 100 past
+  // whatever is already loaded instead of replacing the list — used by "Load
+  // More" so a filter matching >100 sessions doesn't silently hide the rest.
   const loadSessions = useCallback(
-    async (silent = false) => {
-      if (!silent) setLoading(true)
+    async (silent = false, append = false) => {
+      if (append) setLoadingMore(true)
+      else if (!silent) setLoading(true)
       else setIsRefreshing(true)
       setError(null)
 
       try {
         const params = new URLSearchParams({ limit: '100' })
+        if (append) params.set('offset', String(sessions.length))
         if (searchQuery.trim()) params.set('q', searchQuery.trim())
         if (selectedProject) params.set('project', selectedProject)
         if (selectedSector) params.set('sector', selectedSector)
@@ -266,7 +271,7 @@ export default function ConversationsPage() {
         }
         const data = await res.json()
         const fetchedSessions: SessionSummary[] = data.sessions ?? []
-        setSessions(fetchedSessions)
+        setSessions((prev) => (append ? [...prev, ...fetchedSessions] : fetchedSessions))
 
         if (data.total !== undefined) {
           setServerTotals({
@@ -280,24 +285,28 @@ export default function ConversationsPage() {
           setTabCounts(data.tabCounts)
         }
 
-        // Keep current selected session or select first one
-        if (fetchedSessions.length > 0) {
-          const matchExisting = fetchedSessions.find((s) => s.id === selected)
-          if (!selected || !matchExisting) {
-            openSession(fetchedSessions[0].id)
+        // Keep current selected session or select first one — only on a fresh
+        // load, never while paging in more of the same list.
+        if (!append) {
+          if (fetchedSessions.length > 0) {
+            const matchExisting = fetchedSessions.find((s) => s.id === selected)
+            if (!selected || !matchExisting) {
+              openSession(fetchedSessions[0].id)
+            }
+          } else {
+            setSelected(null)
+            setDetail(null)
           }
-        } else {
-          setSelected(null)
-          setDetail(null)
         }
       } catch (e: any) {
         setError(e?.message || 'Failed to fetch conversations')
       } finally {
         setLoading(false)
         setIsRefreshing(false)
+        setLoadingMore(false)
       }
     },
-    [searchQuery, selectedProject, selectedSector, activeTab, sortBy, selected],
+    [searchQuery, selectedProject, selectedSector, activeTab, sortBy, selected, sessions.length],
   )
 
   useEffect(() => {
@@ -1060,6 +1069,19 @@ export default function ConversationsPage() {
                   </div>
                 )
               })}
+
+            {!loading && sessions.length > 0 && sessions.length < (serverTotals?.total ?? sessions.length) && (
+              <button
+                type="button"
+                onClick={() => loadSessions(true, true)}
+                disabled={loadingMore}
+                className="w-full py-2.5 rounded-xl border border-dashed border-zinc-300 dark:border-zinc-700 text-xs font-bold text-zinc-500 hover:text-zinc-900 dark:hover:text-white hover:border-zinc-400 dark:hover:border-zinc-600 transition-colors cursor-pointer disabled:opacity-60"
+              >
+                {loadingMore
+                  ? 'Loading…'
+                  : `Load More (${sessions.length} of ${(serverTotals?.total ?? sessions.length).toLocaleString()})`}
+              </button>
+            )}
           </div>
         </div>
 

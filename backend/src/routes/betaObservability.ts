@@ -301,9 +301,61 @@ betaRouter.get(
     if (sortBy === 'turns') orderByClause = { message_count: 'desc' }
     else if (sortBy === 'oldest') orderByClause = { created_at: 'asc' }
 
+    const sessionSelect = {
+      id: true,
+      user_id: true,
+      guest_token: true,
+      created_at: true,
+      last_active: true,
+      message_count: true,
+      chat_phase: true,
+      summary_location: true,
+      summary_financial: true,
+      summary_timeline: true,
+      focus_project_id: true,
+      focus_project: {
+        select: { id: true, name: true, slug: true, sector: true },
+      },
+    } as const
+
+    // "Highest AI Cost" has no column on ChatSession to order by — cost lives on
+    // aiUsageEvent, summed per session. Fetch every matching id, rank by its
+    // summed spend (sessions with no usage events cost 0), then slice the page.
+    let sessions: SessionRow[]
+    let totalSessions: number
+    if (sortBy === 'cost') {
+      const matchingIds = await prisma.chatSession.findMany({ where, select: { id: true } })
+      const idList = matchingIds.map((s) => s.id)
+      totalSessions = idList.length
+      const costSums = await prisma.aiUsageEvent.groupBy({
+        by: ['session_id'],
+        where: { session_id: { in: idList } },
+        _sum: { cost_usd: true },
+      })
+      const costBySessionId = new Map(costSums.map((c) => [c.session_id, Number(c._sum.cost_usd ?? 0)]))
+      const orderedIds = idList
+        .sort((a, b) => (costBySessionId.get(b) ?? 0) - (costBySessionId.get(a) ?? 0))
+        .slice(offset, offset + limit)
+      const rows = (await prisma.chatSession.findMany({
+        where: { id: { in: orderedIds } },
+        select: sessionSelect,
+      })) as SessionRow[]
+      const rowById = new Map(rows.map((r) => [r.id, r]))
+      sessions = orderedIds.map((id) => rowById.get(id)).filter((r): r is SessionRow => Boolean(r))
+    } else {
+      ;[sessions, totalSessions] = await Promise.all([
+        (prisma.chatSession.findMany({
+          where,
+          orderBy: orderByClause,
+          take: limit,
+          skip: offset,
+          select: sessionSelect,
+        })) as Promise<SessionRow[]>,
+        prisma.chatSession.count({ where }),
+      ])
+    }
+
     const [
-      sessions,
-      totalSessions,
       totalLeadsCount,
       totalCostAgg,
       totalPlatformSessions,
@@ -311,29 +363,6 @@ betaRouter.get(
       usersTabCount,
       guestsTabCount,
     ] = await Promise.all([
-      (prisma.chatSession.findMany({
-        where,
-        orderBy: orderByClause,
-        take: limit,
-        skip: offset,
-        select: {
-          id: true,
-          user_id: true,
-          guest_token: true,
-          created_at: true,
-          last_active: true,
-          message_count: true,
-          chat_phase: true,
-          summary_location: true,
-          summary_financial: true,
-          summary_timeline: true,
-          focus_project_id: true,
-          focus_project: {
-            select: { id: true, name: true, slug: true, sector: true },
-          },
-        },
-      })) as Promise<SessionRow[]>,
-      prisma.chatSession.count({ where }),
       prisma.callbackRequest.count(),
       prisma.aiUsageEvent.aggregate({ _sum: { cost_usd: true } }),
       prisma.chatSession.count({ where: includeTests ? {} : notTestCondition }),
