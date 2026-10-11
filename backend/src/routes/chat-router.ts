@@ -17,6 +17,7 @@ import type { Intent, ScoredProject } from '../lib/discovery'
 import { postProcessIntent } from '../lib/discovery/intentPostProcessor'
 import { computeConfidence, buildClarificationOptions } from '../lib/discovery/confidence'
 import { getMultiDimensionalRecommendations } from '../lib/discovery/multiDimensionalIntegration'
+import { rankProjects, type EnrichedProject } from '../lib/recommendationRanker'
 import { planProjectDetailQuery, isActionable, getClarificationMessage } from '../lib/discovery/queryPlanner'
 import {
   getBuyerFit,
@@ -250,6 +251,60 @@ const BodySchema = z.object({
 const SESSION_LIST_TTL = 3600 // 1 hour cache TTL
 const SESSION_LIST_LIMIT = 50
 const MAX_MESSAGES = 50
+
+/**
+ * Phase 4A: Enhance discovered projects with Phase 3D recommendation rankings
+ * Converts discovered projects to EnrichedProject format and applies rankProjects algorithm
+ */
+async function enhanceProjectsWithRankings(
+  discoveredProjects: ScoredProject[],
+  intent: Intent | Record<string, unknown>
+): Promise<ScoredProject[]> {
+  if (discoveredProjects.length === 0) return discoveredProjects
+
+  try {
+    const intObj = intent as any
+    const buyerProfile = {
+      budget_min_cr: intObj.budgetMax ? intObj.budgetMax : undefined,
+      budget_max_cr: intObj.budgetMax ? intObj.budgetMax : undefined,
+      preferred_sectors: intObj.sectors?.length > 0 ? intObj.sectors : undefined,
+      preferred_bhk: intObj.bhk,
+      possession_months: intObj.possessionMonths,
+      required_amenities: Array.isArray(intObj.amenities) ? intObj.amenities : undefined,
+      must_have_metro_distance_km: intObj.metroProximity,
+    }
+
+    const enrichedProjects = discoveredProjects.map(p => ({
+      id: p.id,
+      name: p.name,
+      price_min_cr: p.price_min_cr,
+      price_max_cr: p.price_max_cr,
+      sector: p.sector,
+      possession_date: p.possession_date,
+      walkability_score: (p as any).walkability_score,
+      hospital_distance_km: (p as any).hospital_distance_km,
+      top_school_distance_km: (p as any).top_school_distance_km,
+      lift_act_compliant: (p as any).lift_act_compliant,
+      oc_obtained: (p as any).oc_obtained,
+      amenities_list: (p as any).amenities_list,
+    })) as EnrichedProject[]
+
+    const rankedScores = rankProjects(enrichedProjects, buyerProfile)
+
+    return discoveredProjects.map(p => {
+      const ranking = rankedScores.find(r => r.project_id === p.id)
+      return {
+        ...p,
+        _ranking_score: ranking?.total_score ?? 0,
+        _ranking_reason: ranking?.reason ?? '',
+        _ranking_tradeoff: ranking?.tradeoff ?? '',
+      } as any
+    }).sort((a, b) => ((b as any)._ranking_score ?? 0) - ((a as any)._ranking_score ?? 0))
+  } catch (err) {
+    console.warn('[RANKING:ENHANCEMENT] Failed, using original discovery order:', err)
+    return discoveredProjects
+  }
+}
 
 // POST /chat — main chat endpoint
 router.post('/', async (req: Request, res: Response) => {
@@ -5282,7 +5337,11 @@ EXECUTIVE RESPONSE INSTRUCTIONS:
         decision_thesis: p.decision_profile?.decision_thesis?.slice(0, 60) ?? 'MISSING',
         competitor_count: (p.competitors?.length ?? 0),
       })))
-      projects = discoveryResult.exactResults
+
+      // Phase 4A: Enhance with Phase 3D recommendation rankings
+      console.log('[RANKING] Applying recommendation algorithm to discovered projects')
+      projects = await enhanceProjectsWithRankings(discoveryResult.exactResults, intent)
+
       nearbyProjects = discoveryResult.nearbyResults
       discoveryExpansion = discoveryResult.expansion
       notFoundNames = discoveryResult.notFoundNames
