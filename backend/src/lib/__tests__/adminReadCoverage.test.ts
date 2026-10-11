@@ -126,6 +126,8 @@ const READ_REGISTRY: Record<string, Record<Role, boolean>> = {
   // Lists registered buyers' emails and phones to promote one — buyer PII.
   '/team/search-users': OWNER_ONLY,
   '/outbox': OWNER_ONLY,
+  // Referral link stats and holder resets. SUPER_ADMIN only — see adminPolicy.ts.
+  '/referrals': OWNER_ONLY,
 }
 
 /**
