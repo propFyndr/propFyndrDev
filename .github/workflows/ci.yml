@@ -17,7 +17,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24'
           cache: 'npm'
           cache-dependency-path: 'package-lock.json'
           
@@ -35,9 +35,11 @@ jobs:
         env:
           NEXT_PUBLIC_API_URL: http://localhost:3001
         
+      # Lint and typecheck only: backend check-all also runs the test suite,
+      # which needs the Postgres/Redis services that only the test job has.
       - name: Run Typecheck & Lint (Backend)
         working-directory: ./backend
-        run: npm run check-all
+        run: npm run lint && npm run typecheck
 
   test:
     name: Test Suite & Verification
@@ -74,7 +76,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24'
           cache: 'npm'
           cache-dependency-path: 'package-lock.json'
 
@@ -89,12 +91,25 @@ jobs:
       - name: Enable pgvector extension
         run: psql postgresql://postgres:postgres@localhost:5432/propfyndr_test -c "CREATE EXTENSION IF NOT EXISTS vector;"
 
+      # The backend owns the database. frontend/prisma/schema.prisma is a stale
+      # copy (53 models vs 67) — pushing it left tables such as admin_users,
+      # dossiers and referral_visits missing, and every test touching them failed.
       - name: Backend DB Push
         working-directory: ./backend
-        run: npx prisma db push --schema=${{ github.workspace }}/frontend/prisma/schema.prisma --skip-generate
+        run: npx prisma db push --schema=${{ github.workspace }}/backend/prisma/schema.prisma --skip-generate
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/propfyndr_test
           DIRECT_URL: postgresql://postgres:postgres@localhost:5432/propfyndr_test
+
+      # Public catalogue only (projects, builders, unit types, connectivity, fact
+      # verifications…; no buyer or staff data — see scripts/ci/catalogue.ts).
+      # ~25 tests assert against real rows: route replay, dossier, geography
+      # integrity, sector neighbours. Refresh with scripts/ci/export-ci-catalogue.ts.
+      - name: Seed catalogue fixture
+        working-directory: ./backend
+        run: npx tsx scripts/ci/seed-ci-catalogue.ts
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/propfyndr_test
 
       # `npm test` is now a chain (jest, then the node:test suite), so extra argv
       # cannot be forwarded with `-- --passWithNoTests` — it would be appended to
@@ -112,8 +127,10 @@ jobs:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/propfyndr_test
           REDIS_URL: redis://localhost:6379
           ADMIN_PASSWORD: test-admin-password
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          # The app refuses to start without a key for some FALLBACK_CHAIN leg
+          # (index.ts). Tests stub the model, so a dummy satisfies the guard and
+          # CI never makes paid calls. OPENAI_API_KEY is no longer in the chain.
+          GEMINI_API_KEY: ci-dummy-not-a-real-key
           SUPABASE_URL: http://localhost:54321
           SUPABASE_SERVICE_ROLE_KEY: dummy-service-role-key
 

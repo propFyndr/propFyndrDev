@@ -133,6 +133,11 @@ const READ_REGISTRY: Record<string, Record<Role, boolean>> = {
   // adminPolicy.ts.
   '/referrals/:code/tree': OWNER_ONLY,
   '/referrals/nodes/:guestToken': OWNER_ONLY,
+  // Growth analytics: per-admin leaderboard (admin emails) and the
+  // referred-vs-organic cohort built from buyers' requirement state. Same
+  // SUPER_ADMIN-only verdict as the rest of /referrals.
+  '/referrals/metrics': OWNER_ONLY,
+  '/referrals/:code/trends': OWNER_ONLY,
 }
 
 /**

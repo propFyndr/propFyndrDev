@@ -78,6 +78,20 @@ function memDelete(token: string): void {
   memSessions.delete(token)
 }
 
+// Process-local owner index, kept alongside the Redis one. setCached reports
+// success even when Redis is absent or the write failed (the value then lives
+// only in this process's fallback cache), and indexSession skips silently
+// without Redis — so the Redis index alone can miss sessions, and a password
+// reset would then revoke nothing. Revocation uses the union of both.
+// ponytail: entries leave on logout/revoke; expired tokens linger until then
+// (admin logins are few), and revoking an expired token is harmless.
+const localIndex = new Map<string, Set<string>>()
+function indexLocally(adminUserId: string, token: string): void {
+  if (!adminUserId) return
+  if (!localIndex.has(adminUserId)) localIndex.set(adminUserId, new Set())
+  localIndex.get(adminUserId)!.add(token)
+}
+
 export async function createIdentitySession(session: Omit<AdminIdentitySession, 'createdAt' | 'lastSeen'>): Promise<string> {
   const token = randomUUID()
   const now = new Date().toISOString()
@@ -90,6 +104,7 @@ export async function createIdentitySession(session: Omit<AdminIdentitySession, 
   } else {
     await indexSession(session.adminUserId, token, ttl)
   }
+  indexLocally(session.adminUserId, token)
   return token
 }
 
@@ -119,21 +134,25 @@ async function indexSession(adminUserId: string, token: string, ttlSecs: number)
 export async function revokeAllSessions(adminUserId: string): Promise<number> {
   let revoked = 0
 
+  // Union of the Redis index (sessions created on any instance) and this
+  // process's own index (sessions that never reached Redis).
+  const tokens = new Set<string>(localIndex.get(adminUserId) ?? [])
   const redis = getRedis()
   if (redis && adminUserId) {
     try {
       const key = `${SESSION_INDEX_PREFIX}${adminUserId}`
-      const tokens: string[] = await redis.smembers(key)
-      for (const t of tokens) {
-        await deleteCached(`${SESSION_PREFIX}${t}`)
-        memDelete(t)
-        revoked++
-      }
+      for (const t of (await redis.smembers(key)) as string[]) tokens.add(t)
       await redis.del(key)
     } catch (err) {
       console.warn('[adminIdentity] session revocation via Redis failed:', err instanceof Error ? err.message : err)
     }
   }
+  for (const t of tokens) {
+    await deleteCached(`${SESSION_PREFIX}${t}`)
+    memDelete(t)
+    revoked++
+  }
+  localIndex.delete(adminUserId)
 
   // The in-memory fallback has no index, but it is small and single-process.
   for (const [token, entry] of memSessions) {
@@ -158,6 +177,7 @@ export async function destroyIdentitySession(token: string): Promise<void> {
   const session = await validateIdentitySession(token)
   await deleteCached(`${SESSION_PREFIX}${token}`)
   memDelete(token)
+  if (session?.adminUserId) localIndex.get(session.adminUserId)?.delete(token)
   const redis = getRedis()
   if (redis && session?.adminUserId) {
     try {

@@ -1,4 +1,4 @@
-import { getStoredReferralCode, storeReferralCode, appendReferralParams, REFERRAL_CODE_STORAGE_KEY } from '../referral'
+import { getStoredReferralCode, storeReferralCode, appendReferralParams, REFERRAL_CODE_STORAGE_KEY } from '@/lib/referral'
 
 describe('referral code storage', () => {
   beforeEach(() => {

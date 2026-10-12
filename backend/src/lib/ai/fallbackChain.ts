@@ -76,7 +76,7 @@ const ASKING_FOR_A_LIST = /\b(best|top|which|show|list|find|recommend|suggest|op
  * Skipping is not a loss of capability. The answer at the end of that path was
  * already the refusal; this only stops paying for the detour.
  */
-function turnNeedsALookup(userMessage: string, retrievedRows: number): boolean {
+export function turnNeedsALookup(userMessage: string, retrievedRows: number): boolean {
   if (retrievedRows > 0) return false
   return NAMED_INVENTORY_NOUN.test(userMessage) && ASKING_FOR_A_LIST.test(userMessage)
 }

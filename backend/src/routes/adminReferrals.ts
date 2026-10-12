@@ -523,7 +523,7 @@ adminReferralsRouter.get('/metrics', async (_req: Request, res: Response) => {
     })
     const organicSessions = organicCandidateSessions.filter((s) => s.guest_token && !referredGuestTokens.has(s.guest_token))
 
-    async function cohortStats(sessions: { id: string; guest_token: string | null; message_count: number }[]) {
+    const cohortStats = async (sessions: { id: string; guest_token: string | null; message_count: number }[]) => {
       // Rates are per person: one device with five chats counts once.
       const people = Array.from(new Set(sessions.map((s) => s.guest_token).filter((g): g is string => Boolean(g))))
       const breakdown = await computeActivationBreakdown(people)

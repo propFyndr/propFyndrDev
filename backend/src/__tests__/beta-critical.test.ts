@@ -11,6 +11,7 @@ import { buildAdaptiveChips } from '../lib/discovery/adaptiveChips'
 import { classifyShape, profileFor } from '../lib/ai/inferenceProfile'
 import { intentFingerprint } from '../lib/ai/semanticCache'
 import { isFreeTierKey, FALLBACK_CHAIN, OPENAI_BASE_URL } from '../lib/config'
+import { turnNeedsALookup } from '../lib/ai/fallbackChain'
 
 /**
  * The paths a 50-200 user beta cannot afford to have break.
@@ -310,31 +311,32 @@ describe('beta: the fallback chain is one chain', () => {
     assert.ok(vendors.size >= 3, `only ${vendors.size} vendor(s): ${[...vendors].join(', ')}`)
   })
 
-  it('never ranks a tool-blind leg above a tool-capable one', () => {
-    // This replaced "puts the billed Gemini key ahead of the free one".
-    //
-    // That rule existed because a free key at position 2 caught every failure
-    // of the paid one and returned an empty reply — a cause now fixed at its
-    // root in fallbackChain, which forces thinkingBudget = 0 and a reply
-    // ceiling for any key isFreeTierKey() names.
-    //
-    // The invariant worth protecting is not which key is billed but which leg
-    // can look anything up. When the billed balance ran out on 30 Aug the chain
-    // fell straight onto supportsTools: false legs, and those legs invented
-    // projects and RERA numbers rather than admitting they could not check.
-    const firstBlind = FALLBACK_CHAIN.findIndex((l) => !l.supportsTools)
-    if (firstBlind === -1) return
-    for (const leg of FALLBACK_CHAIN.slice(firstBlind)) {
-      assert.equal(
-        leg.supportsTools,
-        false,
-        `${leg.label} can call tools but is ranked below a leg that cannot`,
-      )
-    }
+  // The risk these guard: when the billed balance ran out on 30 Aug the chain
+  // fell onto supportsTools: false legs, which invented projects and RERA
+  // numbers rather than admitting they could not check.
+  //
+  // This used to be enforced by ORDER (tool-capable legs first). The chain is
+  // now deliberately cost-ordered — free Gemini Flash Lite leads — so order no
+  // longer carries the guarantee. What does: on a turn that needs rows and has
+  // none, fallbackChain skips every tool-blind leg (turnNeedsALookup), and
+  // answerIntegrity checks whatever any leg returns. These pin that instead.
+
+  it('holds at least one leg that can call tools, so a lookup turn always has somewhere to go', () => {
+    // Every tool-blind leg skips a lookup turn; with none tool-capable, that
+    // turn would fall through to the outage notice.
+    assert.ok(
+      FALLBACK_CHAIN.some((l) => l.supportsTools),
+      `no tool-capable leg in ${FALLBACK_CHAIN.map((l) => l.label).join(', ')}`,
+    )
   })
 
-  it('leads with a leg that can call tools', () => {
-    assert.ok(FALLBACK_CHAIN[0]?.supportsTools, `chain leads with tool-blind ${FALLBACK_CHAIN[0]?.label}`)
+  it('a list-of-projects question with no retrieved rows is kept away from tool-blind legs', () => {
+    assert.equal(turnNeedsALookup('best society in sector 137 noida', 0), true)
+    assert.equal(turnNeedsALookup('show me top projects near the metro', 0), true)
+    // Rows retrieved: any leg can answer from the facts block.
+    assert.equal(turnNeedsALookup('best society in sector 137 noida', 3), false)
+    // Not a request for named inventory: answered from market tables.
+    assert.equal(turnNeedsALookup('what is the stamp duty in noida', 0), false)
   })
 
   it('no leg points at a host that has been retired', () => {

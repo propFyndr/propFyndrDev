@@ -57,9 +57,10 @@ describe('Sidebar Component', () => {
   it('renders Sidebar with user logged in', () => {
     render(<Sidebar userId="user-123" />);
     
-    // 'Property Discovery' was removed: it navigated to /discover, which the
-    // wordmark and New chat already do. Compare took the freed slot.
-    expect(screen.getByText('Compare')).toBeInTheDocument();
+    // 'Property Discovery' was removed (the wordmark and New chat already go to
+    // /discover), and so was 'Compare', which pointed at a stub page — the real
+    // comparison lives in chat. Neither dead entry should come back.
+    expect(screen.queryByText('Compare')).not.toBeInTheDocument();
     expect(screen.getByText('Saved')).toBeInTheDocument();
     expect(screen.getByText('My Account')).toBeInTheDocument();
     
@@ -237,10 +238,8 @@ describe('Sidebar Identity Display', () => {
 
     render(<Sidebar userId={userId} />);
 
-    // Component should verify ownership of sessions before display
-    // This is implicit in the component rendering only useSessions data
-    // 'Property Discovery' was removed: it navigated to /discover, which the
-    // wordmark and New chat already do. Compare took the freed slot.
-    expect(screen.getByText('Compare')).toBeInTheDocument();
+    // The sidebar fetches sessions scoped to the signed-in user — the server
+    // enforces ownership, but the request must name this user, not another.
+    expect(useSessions).toHaveBeenCalledWith(userId, undefined);
   });
 });

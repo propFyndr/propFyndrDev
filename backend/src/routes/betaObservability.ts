@@ -356,7 +356,7 @@ betaRouter.get(
       const rowById = new Map(rows.map((r) => [r.id, r]))
       sessions = orderedIds.map((id) => rowById.get(id)).filter((r): r is SessionRow => Boolean(r))
     } else {
-      ;[sessions, totalSessions] = await Promise.all([
+      [sessions, totalSessions] = await Promise.all([
         (prisma.chatSession.findMany({
           where,
           orderBy: orderByClause,
