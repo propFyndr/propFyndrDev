@@ -96,3 +96,97 @@ export function detectBroadcastWindows(
 
   return windows
 }
+
+// ── Device engagement (activation inputs) ──────────────────────────────────
+
+const DAY_MS = 24 * 60 * 60 * 1000
+/** Messages, summed across a device's human chats, that count as activation. */
+export const ACTIVATION_MIN_MESSAGES = 3
+
+export interface SessionSignal {
+  guest_token: string | null
+  message_count: number
+  created_at: Date
+  last_active: Date
+  is_bot: boolean
+}
+
+/**
+ * Per-device engagement from its chat sessions.
+ *
+ * - Messages are summed across the device's human chats, so 2 + 2 messages in
+ *   two chats is 4, not "never more than 2 in one chat".
+ * - A device is engaged when that total reaches ACTIVATION_MIN_MESSAGES, or
+ *   when it came back: its human chats span 24h or more from the first
+ *   chat's start to the last activity.
+ * - Bot sessions add nothing. A device whose every session is a bot session
+ *   is `botOnly`, and callers leave it out of the funnel altogether.
+ */
+export function summariseDeviceEngagement(sessions: SessionSignal[]): {
+  messageCountByGuest: Map<string, number>
+  engaged: Set<string>
+  botOnly: Set<string>
+} {
+  const human = new Map<string, { messages: number; first: number; last: number }>()
+  const sawBot = new Set<string>()
+  for (const s of sessions) {
+    if (!s.guest_token) continue
+    if (s.is_bot) {
+      sawBot.add(s.guest_token)
+      continue
+    }
+    const first = s.created_at.getTime()
+    const last = s.last_active.getTime()
+    const cur = human.get(s.guest_token)
+    if (!cur) {
+      human.set(s.guest_token, { messages: s.message_count, first, last })
+    } else {
+      cur.messages += s.message_count
+      cur.first = Math.min(cur.first, first)
+      cur.last = Math.max(cur.last, last)
+    }
+  }
+
+  const messageCountByGuest = new Map<string, number>()
+  const engaged = new Set<string>()
+  for (const [token, h] of human) {
+    messageCountByGuest.set(token, h.messages)
+    if (h.messages >= ACTIVATION_MIN_MESSAGES || h.last - h.first >= DAY_MS) engaged.add(token)
+  }
+  const botOnly = new Set([...sawBot].filter((t) => !human.has(t)))
+  return { messageCountByGuest, engaged, botOnly }
+}
+
+// ── Arrival trend buckets (India time) ─────────────────────────────────────
+
+export type TrendGranularity = 'daily' | 'weekly' | 'all'
+
+// Admins read these in India; a UTC day would put 00:00–05:30 IST arrivals on
+// the previous date. IST has no daylight saving, so a fixed offset is exact.
+const IST_OFFSET_MS = (5 * 60 + 30) * 60 * 1000
+
+/** IST calendar date, e.g. "2026-10-12". */
+export function istDayKey(d: Date): string {
+  return new Date(d.getTime() + IST_OFFSET_MS).toISOString().slice(0, 10)
+}
+
+/** IST Monday-of-week for the week containing d. */
+export function istWeekKey(d: Date): string {
+  const shifted = new Date(d.getTime() + IST_OFFSET_MS)
+  const monday = new Date(Date.UTC(shifted.getUTCFullYear(), shifted.getUTCMonth(), shifted.getUTCDate()))
+  monday.setUTCDate(monday.getUTCDate() - ((monday.getUTCDay() + 6) % 7))
+  return monday.toISOString().slice(0, 10)
+}
+
+/** Buckets arrival dates by IST day or week; 'all' uses weekly buckets. */
+export function bucketArrivals(dates: Date[], granularity: TrendGranularity): { date: string; newArrivals: number }[] {
+  const keyFn = granularity === 'daily' ? istDayKey : istWeekKey
+  const counts = new Map<string, number>()
+  for (const d of dates) {
+    const key = keyFn(d)
+    counts.set(key, (counts.get(key) ?? 0) + 1)
+  }
+  return Array.from(counts.entries())
+    .sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))
+    .map(([date, newArrivals]) => ({ date, newArrivals }))
+}

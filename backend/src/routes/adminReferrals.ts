@@ -9,7 +9,14 @@ import { Router, Request, Response } from 'express'
 import { prisma } from '../lib/db'
 import type { AdminIdentitySession } from '../lib/adminIdentity'
 import { generateReferralCode } from '../lib/referralCode'
-import { computeKFactor, classifyFunnelStage, detectBroadcastWindows } from '../lib/referralGrowthMetrics'
+import {
+  computeKFactor,
+  classifyFunnelStage,
+  detectBroadcastWindows,
+  summariseDeviceEngagement,
+  bucketArrivals,
+  type TrendGranularity,
+} from '../lib/referralGrowthMetrics'
 
 export const adminReferralsRouter = Router()
 
@@ -18,12 +25,23 @@ function identity(req: Request): AdminIdentitySession {
 }
 
 export interface ActivationBreakdown {
-  /** Activated = ≥3 messages, OR a save/callback/site-visit/dossier, OR a return visit ≥24h after first arrival. */
+  /**
+   * Activated = 3+ messages summed across the device's human chats, OR a
+   * return (human chats spanning 24h+), OR a callback / dossier / site-visit
+   * request. See summariseDeviceEngagement.
+   */
   activated: Set<string>
   hasCallback: Set<string>
   hasDossier: Set<string>
   hasSiteVisit: Set<string>
   messageCountByGuest: Map<string, number>
+  /** Devices whose every chat session is a bot session — excluded from the funnel. */
+  botOnly: Set<string>
+}
+
+/** Visits minus bot-only devices: the population every funnel number is about. */
+function humanOnly<T extends { guest_token: string }>(visits: T[], botOnly: Set<string>): T[] {
+  return botOnly.size === 0 ? visits : visits.filter((v) => !botOnly.has(v.guest_token))
 }
 
 /**
@@ -51,27 +69,22 @@ async function computeActivationBreakdown(guestTokens: string[]): Promise<Activa
     hasDossier: new Set(),
     hasSiteVisit: new Set(),
     messageCountByGuest: new Map(),
+    botOnly: new Set(),
   }
   if (guestTokens.length === 0) return empty
   const batches = chunk(guestTokens)
 
-  const sessionRows: { guest_token: string | null; message_count: number; last_active: Date; created_at: Date }[] = []
+  const sessionRows: { guest_token: string | null; message_count: number; last_active: Date; created_at: Date; is_bot: boolean }[] = []
   for (const batch of batches) {
     sessionRows.push(
       ...(await prisma.chatSession.findMany({
         where: { guest_token: { in: batch } },
-        select: { guest_token: true, message_count: true, last_active: true, created_at: true },
+        select: { guest_token: true, message_count: true, last_active: true, created_at: true, is_bot: true },
       })),
     )
   }
-  const messageCountByGuest = new Map<string, number>()
-  const activated = new Set<string>()
-  for (const s of sessionRows) {
-    if (!s.guest_token) continue
-    messageCountByGuest.set(s.guest_token, (messageCountByGuest.get(s.guest_token) ?? 0) + s.message_count)
-    const returned = s.last_active.getTime() - s.created_at.getTime() >= 24 * 60 * 60 * 1000
-    if (s.message_count >= 3 || returned) activated.add(s.guest_token)
-  }
+  const { messageCountByGuest, engaged, botOnly } = summariseDeviceEngagement(sessionRows)
+  const activated = new Set(engaged)
 
   const hasCallback = new Set<string>()
   const hasDossier = new Set<string>()
@@ -102,45 +115,13 @@ async function computeActivationBreakdown(guestTokens: string[]): Promise<Activa
     }
   }
 
-  return { activated, hasCallback, hasDossier, hasSiteVisit, messageCountByGuest }
+  return { activated, hasCallback, hasDossier, hasSiteVisit, messageCountByGuest, botOnly }
 }
 
-/** Back-compat thin wrapper for call sites that only need the boolean set. */
-async function countActivated(guestTokens: string[]): Promise<Set<string>> {
-  return (await computeActivationBreakdown(guestTokens)).activated
-}
-
-type Granularity = 'daily' | 'weekly' | 'all'
+type Granularity = TrendGranularity
 
 function parseGranularity(raw: unknown): Granularity {
   return raw === 'weekly' || raw === 'all' ? raw : 'daily'
-}
-
-/** UTC-date bucket key, e.g. "2026-10-12". */
-function dayKey(d: Date): string {
-  return d.toISOString().slice(0, 10)
-}
-
-/** UTC Monday-of-week bucket key for the week containing d. */
-function weekKey(d: Date): string {
-  const copy = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()))
-  const day = copy.getUTCDay() // 0 = Sunday
-  const diffToMonday = (day + 6) % 7
-  copy.setUTCDate(copy.getUTCDate() - diffToMonday)
-  return dayKey(copy)
-}
-
-/** Buckets arrival dates by day or week; 'all' uses weekly buckets. */
-function bucketArrivals(dates: Date[], granularity: Granularity): { date: string; newArrivals: number }[] {
-  const keyFn = granularity === 'daily' ? dayKey : weekKey
-  const counts = new Map<string, number>()
-  for (const d of dates) {
-    const key = keyFn(d)
-    counts.set(key, (counts.get(key) ?? 0) + 1)
-  }
-  return Array.from(counts.entries())
-    .sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))
-    .map(([date, newArrivals]) => ({ date, newArrivals }))
 }
 
 async function adminEmailMap(adminIds: (string | null)[]): Promise<Map<string, string>> {
@@ -215,12 +196,13 @@ adminReferralsRouter.get('/', async (req: Request, res: Response) => {
       orderBy: { created_at: 'desc' },
     })
 
-    const allVisits = await prisma.referralVisit.findMany({
+    const rawVisits = await prisma.referralVisit.findMany({
       where: { root_code: { in: links.map((l) => l.code) } },
       select: { guest_token: true, root_code: true, arrived_via_code: true, generation: true, first_seen_at: true },
     })
 
-    const activated = await countActivated(allVisits.map((v) => v.guest_token))
+    const { activated, botOnly } = await computeActivationBreakdown(rawVisits.map((v) => v.guest_token))
+    const allVisits = humanOnly(rawVisits, botOnly)
     const emailByAdminId = await adminEmailMap([
       ...links.map((l) => l.created_by_admin_id),
       ...links.map((l) => l.revoked_by_admin_id),
@@ -309,13 +291,13 @@ adminReferralsRouter.get('/:code/tree', async (req: Request, res: Response) => {
       return
     }
 
-    const visits = await prisma.referralVisit.findMany({
+    const rawVisits = await prisma.referralVisit.findMany({
       where: { root_code: code },
       orderBy: [{ generation: 'asc' }, { first_seen_at: 'asc' }],
     })
 
-    const guestTokens = visits.map((v) => v.guest_token)
-    const breakdown = await computeActivationBreakdown(guestTokens)
+    const breakdown = await computeActivationBreakdown(rawVisits.map((v) => v.guest_token))
+    const visits = humanOnly(rawVisits, breakdown.botOnly)
 
     const nodes = visits.map((v) => {
       const messageCount = breakdown.messageCountByGuest.get(v.guest_token) ?? 0
@@ -419,10 +401,12 @@ adminReferralsRouter.get('/:code/trends', async (req: Request, res: Response) =>
       res.status(404).json({ error: 'Referral link not found' })
       return
     }
-    const visits = await prisma.referralVisit.findMany({
+    const rawVisits = await prisma.referralVisit.findMany({
       where: { root_code: code },
-      select: { first_seen_at: true },
+      select: { guest_token: true, first_seen_at: true },
     })
+    const { botOnly } = await computeActivationBreakdown(rawVisits.map((v) => v.guest_token))
+    const visits = humanOnly(rawVisits, botOnly)
     const buckets = bucketArrivals(
       visits.map((v) => v.first_seen_at),
       granularity,
@@ -444,7 +428,7 @@ adminReferralsRouter.get('/metrics', async (_req: Request, res: Response) => {
     const links = await prisma.referralLink.findMany({ where: { kind: 'ROOT' } })
     const codes = links.map((l) => l.code)
 
-    const allVisits = await prisma.referralVisit.findMany({
+    const rawVisits = await prisma.referralVisit.findMany({
       where: { root_code: { in: codes } },
       select: {
         guest_token: true,
@@ -455,7 +439,8 @@ adminReferralsRouter.get('/metrics', async (_req: Request, res: Response) => {
         first_seen_at: true,
       },
     })
-    const activated = await countActivated(allVisits.map((v) => v.guest_token))
+    const { activated, botOnly } = await computeActivationBreakdown(rawVisits.map((v) => v.guest_token))
+    const allVisits = humanOnly(rawVisits, botOnly)
 
     // ── growthSummary + byAdmin: network-wide and per-admin K-factor from
     // generation -> activated-count buckets. ──────────────────────────────
@@ -516,7 +501,11 @@ adminReferralsRouter.get('/metrics', async (_req: Request, res: Response) => {
       return detectBroadcastWindows(direct.map((v) => ({ arrivedAt: v.first_seen_at })), 10).length > 0
     }).length
 
-    // ── comparison: referred vs organic. ──────────────────────────────────
+    // ── comparison: referred vs organic, per person (guest token). ──────
+    // Referred: arrived through someone (generation >= 1). Organic: has human
+    // chats and no referred arrival. A codeless landing also writes a
+    // generation-0 visit row, so "has no visit row" would leave out almost
+    // every organic visitor — generation is the test.
     const referredGuestTokens = new Set(allVisits.filter((v) => v.generation >= 1).map((v) => v.guest_token))
 
     const referredSessions: { id: string; guest_token: string | null; message_count: number }[] = []
@@ -532,17 +521,18 @@ adminReferralsRouter.get('/metrics', async (_req: Request, res: Response) => {
       where: { is_bot: false, guest_token: { not: null } },
       select: { id: true, guest_token: true, message_count: true },
     })
-    const allVisitedGuestTokens = new Set(await prisma.referralVisit.findMany({ select: { guest_token: true } }).then((rows) => rows.map((r) => r.guest_token)))
-    const organicSessions = organicCandidateSessions.filter((s) => s.guest_token && !allVisitedGuestTokens.has(s.guest_token))
+    const organicSessions = organicCandidateSessions.filter((s) => s.guest_token && !referredGuestTokens.has(s.guest_token))
 
     async function cohortStats(sessions: { id: string; guest_token: string | null; message_count: number }[]) {
-      const guestTokens = sessions.map((s) => s.guest_token).filter((g): g is string => Boolean(g))
-      const breakdown = await computeActivationBreakdown(guestTokens)
-      const activatedCount = guestTokens.filter((g) => breakdown.activated.has(g)).length
-      const convertedCount = guestTokens.filter(
+      // Rates are per person: one device with five chats counts once.
+      const people = Array.from(new Set(sessions.map((s) => s.guest_token).filter((g): g is string => Boolean(g))))
+      const breakdown = await computeActivationBreakdown(people)
+      const activatedCount = people.filter((g) => breakdown.activated.has(g)).length
+      const convertedCount = people.filter(
         (g) => breakdown.hasCallback.has(g) || breakdown.hasDossier.has(g) || breakdown.hasSiteVisit.has(g),
       ).length
-      const avgMessages = sessions.length > 0 ? sessions.reduce((sum, s) => sum + s.message_count, 0) / sessions.length : 0
+      const avgMessages =
+        people.length > 0 ? people.reduce((sum, g) => sum + (breakdown.messageCountByGuest.get(g) ?? 0), 0) / people.length : 0
 
       const memories: { requirement_state: unknown }[] = []
       for (const batch of chunk(sessions.map((s) => s.id))) {
@@ -589,10 +579,10 @@ adminReferralsRouter.get('/metrics', async (_req: Request, res: Response) => {
         .map(([amenity, count]) => ({ amenity, count }))
 
       return {
-        sampleSize: sessions.length,
-        activationRate: sessions.length > 0 ? activatedCount / sessions.length : null,
+        sampleSize: people.length,
+        activationRate: people.length > 0 ? activatedCount / people.length : null,
         avgMessages,
-        conversionRate: sessions.length > 0 ? convertedCount / sessions.length : null,
+        conversionRate: people.length > 0 ? convertedCount / people.length : null,
         requirementStateBreakdown: {
           sampleSize: memories.length,
           budgetBands,

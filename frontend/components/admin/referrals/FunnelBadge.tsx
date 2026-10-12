@@ -28,15 +28,15 @@ const STYLES: Record<FunnelStage, { label: string; className: string; icon: Reac
   },
 }
 
-// How each stage is qualified — mirrors classifyFunnelStage
-// (backend/src/lib/referralGrowthMetrics.ts) and the activation rule in
-// backend/src/routes/adminReferrals.ts. Keep in step with both.
+// How each stage is qualified — mirrors classifyFunnelStage and
+// summariseDeviceEngagement (backend/src/lib/referralGrowthMetrics.ts) plus
+// the conversion events in backend/src/routes/adminReferrals.ts. Keep in step.
 export const FUNNEL_STAGE_DEFINITIONS: { stage: FunnelStage; rule: string }[] = [
   { stage: 'arrived_no_chat', rule: 'Opened a referral link on this device, but has not sent a message.' },
   { stage: 'chatted_shallow', rule: 'Sent at least one message (counted across all chats) but has not activated yet.' },
   {
     stage: 'activated',
-    rule: 'Any one chat reached 3+ messages, or one chat stayed open across 24h+. People who converted also count as activated in every total.',
+    rule: 'Sent 3+ messages in total across their chats, or came back 24h+ after their first chat. People who converted also count as activated in every total.',
   },
   { stage: 'converted', rule: 'Requested a callback, generated a dossier, or requested a site visit.' },
 ]
@@ -56,7 +56,7 @@ export function FunnelStageDefinitions() {
         ))}
       </ul>
       <p className="text-[#6e6e73] dark:text-[#98989d]">
-        A device is one browser (guest token). Counts cover all time and include bot sessions.
+        A device is one browser (guest token). Counts cover all time; bot chats are ignored, and devices with only bot chats are left out.
       </p>
     </div>
   )

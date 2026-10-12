@@ -1,6 +1,14 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { computeKFactor, classifyFunnelStage, detectBroadcastWindows } from '../referralGrowthMetrics'
+import {
+  computeKFactor,
+  classifyFunnelStage,
+  detectBroadcastWindows,
+  summariseDeviceEngagement,
+  bucketArrivals,
+  istDayKey,
+  type SessionSignal,
+} from '../referralGrowthMetrics'
 
 test('computeKFactor: zero denominator returns null, not NaN or 0', () => {
   const result = computeKFactor([
@@ -136,4 +144,60 @@ test('detectBroadcastWindows: multiple separate bursts are both reported', () =>
 
 test('detectBroadcastWindows: empty arrivals returns no windows', () => {
   assert.deepEqual(detectBroadcastWindows([], 10), [])
+})
+
+const t0 = new Date('2026-10-01T10:00:00Z')
+const hours = (h: number) => new Date(t0.getTime() + h * 3600_000)
+const session = (o: Partial<SessionSignal>): SessionSignal => ({
+  guest_token: 'g', message_count: 0, created_at: t0, last_active: t0, is_bot: false, ...o,
+})
+
+test('summariseDeviceEngagement: messages add up across chats (2 + 2 activates)', () => {
+  const r = summariseDeviceEngagement([
+    session({ guest_token: 'a', message_count: 2 }),
+    session({ guest_token: 'a', message_count: 2 }),
+    session({ guest_token: 'b', message_count: 2 }),
+  ])
+  assert.equal(r.messageCountByGuest.get('a'), 4)
+  assert.ok(r.engaged.has('a'))
+  assert.ok(!r.engaged.has('b'))
+})
+
+test('summariseDeviceEngagement: coming back 24h+ after the first chat activates', () => {
+  const r = summariseDeviceEngagement([
+    session({ guest_token: 'a', message_count: 1, created_at: t0, last_active: hours(1) }),
+    session({ guest_token: 'a', message_count: 1, created_at: hours(30), last_active: hours(30) }),
+    session({ guest_token: 'b', message_count: 1, created_at: t0, last_active: hours(23) }),
+  ])
+  assert.ok(r.engaged.has('a'))
+  assert.ok(!r.engaged.has('b'))
+})
+
+test('summariseDeviceEngagement: bot sessions add nothing; bot-only devices are flagged', () => {
+  const r = summariseDeviceEngagement([
+    session({ guest_token: 'bot', message_count: 9, is_bot: true }),
+    session({ guest_token: 'mixed', message_count: 9, is_bot: true }),
+    session({ guest_token: 'mixed', message_count: 1 }),
+  ])
+  assert.ok(r.botOnly.has('bot'))
+  assert.ok(!r.engaged.has('bot'))
+  assert.equal(r.messageCountByGuest.has('bot'), false)
+  assert.ok(!r.botOnly.has('mixed'))
+  assert.equal(r.messageCountByGuest.get('mixed'), 1)
+  assert.ok(!r.engaged.has('mixed'))
+})
+
+test('istDayKey: 00:00-05:30 IST lands on the IST date, not the UTC one', () => {
+  // 2026-10-11T20:00Z is 01:30 IST on 12 Oct.
+  assert.equal(istDayKey(new Date('2026-10-11T20:00:00Z')), '2026-10-12')
+  assert.equal(istDayKey(new Date('2026-10-11T18:29:00Z')), '2026-10-11')
+})
+
+test('bucketArrivals: weekly buckets start on the IST Monday', () => {
+  // Sunday 2026-10-18 19:00Z = Monday 2026-10-19 00:30 IST -> new week.
+  const b = bucketArrivals([new Date('2026-10-18T19:00:00Z'), new Date('2026-10-18T10:00:00Z')], 'weekly')
+  assert.deepEqual(b, [
+    { date: '2026-10-12', newArrivals: 1 },
+    { date: '2026-10-19', newArrivals: 1 },
+  ])
 })

@@ -501,8 +501,8 @@ export default function ReferralsAdminPage() {
               </h2>
               <DefinitionHint label="How these numbers are counted">
                   <div className="space-y-1.5">
-                    <p>A <b>device</b> is one browser (guest token); counts cover all time and include bot sessions.</p>
-                    <p><b>Activated</b>: a chat reached 3+ messages or stayed open across 24h+, or the device requested a callback, dossier or site visit.</p>
+                    <p>A <b>device</b> is one browser (guest token); counts cover all time. Bot chats are ignored, and devices with only bot chats are left out.</p>
+                    <p><b>Activated</b>: 3+ messages in total across the device&apos;s chats, or it came back 24h+ after its first chat, or it requested a callback, dossier or site visit.</p>
                     <p><b>Activation %</b>: activated devices ÷ devices reached.</p>
                     <p><b>K-factor</b>: activated devices in generation 2 and later ÷ activated devices in generations 0–1. Shown as — until a second generation exists.</p>
                     <p><b>Spike</b>: a link with 10+ arrivals inside any one hour. It is a flag only; those arrivals still count.</p>
@@ -709,7 +709,7 @@ export default function ReferralsAdminPage() {
                   <div className="flex items-center gap-2">
                     <span className="text-xs font-extrabold text-[#1d1d1f] dark:text-[#f5f5f7]">{title}</span>
                     <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-full border ${badgeStyle}`}>
-                      n = {cohort.sampleSize.toLocaleString()}
+                      n = {cohort.sampleSize.toLocaleString()} people
                     </span>
                   </div>
                   {isPrimary && (
@@ -1140,7 +1140,7 @@ export default function ReferralsAdminPage() {
                   <p className="font-semibold">These filter links, not people.</p>
                   <p><b>Active</b>: the link is not revoked.</p>
                   <p><b>With Visits</b>: at least one device has arrived through it.</p>
-                  <p><b>Activated</b>: at least one of its devices activated (a chat with 3+ messages or open 24h+, or a callback, dossier or site-visit request).</p>
+                  <p><b>Activated</b>: at least one of its devices activated (3+ messages across its chats, a return 24h+ later, or a callback, dossier or site-visit request).</p>
                   <p><b>Revoked</b>: switched off; new arrivals no longer count toward it.</p>
                 </div>
               </DefinitionHint>
