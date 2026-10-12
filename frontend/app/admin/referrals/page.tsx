@@ -420,7 +420,7 @@ export default function ReferralsAdminPage() {
                 setShowGenerate(true)
               }
             }}
-            className="flex items-center gap-2 bg-[#0066cc] hover:bg-[#0055b3] text-white px-4 py-2.5 rounded-xl text-xs font-semibold transition-all shadow-xs active:scale-[0.98] cursor-pointer"
+            className="flex items-center gap-2 bg-[#0066cc] hover:bg-[#0055b3] text-white px-4 py-2.5 rounded-xl text-xs font-semibold transition-all active:scale-[0.98] cursor-pointer"
           >
             {showGenerate ? <X size={15} strokeWidth={2.5} /> : <Plus size={15} strokeWidth={2.5} />}
             <span>{showGenerate ? 'Close' : 'Generate Link'}</span>
@@ -505,7 +505,7 @@ export default function ReferralsAdminPage() {
 
       {/* Referred vs Organic Comparison */}
       {growthMetrics && (
-        <div className="bg-white dark:bg-[#1c1c1e] rounded-[18px] border border-[#e5e5ea] dark:border-[#2c2c2e] p-6">
+        <div className="bg-white dark:bg-[#1c1c1e] rounded-2xl border border-[#e5e5ea] dark:border-[#2c2c2e] p-6">
           <h2 className="text-sm font-bold text-[#1d1d1f] dark:text-[#f5f5f7] mb-1">Referred vs Organic</h2>
           <p className="text-[11px] text-[#86868b] mb-4">
             Organic excludes bot/test traffic, same filter as admin Analytics. Sample sizes shown so a small cohort never reads with false confidence.
@@ -559,7 +559,7 @@ export default function ReferralsAdminPage() {
             animate={{ opacity: 1, height: 'auto', y: 0 }}
             exit={{ opacity: 0, height: 0, y: -8 }}
             transition={{ duration: 0.2 }}
-            className="bg-white dark:bg-[#1c1c1e] rounded-3xl border border-[#e5e5ea] dark:border-[#2c2c2e] p-6 shadow-sm overflow-hidden"
+            className="bg-white dark:bg-[#1c1c1e] rounded-2xl border border-[#e5e5ea] dark:border-[#2c2c2e] p-6 overflow-hidden"
           >
             <div className="flex items-center justify-between border-b border-[#e5e5ea] dark:border-[#2c2c2e] pb-3.5 mb-5">
               <div className="flex items-center gap-2">
@@ -577,7 +577,7 @@ export default function ReferralsAdminPage() {
               </div>
               <button
                 onClick={resetForm}
-                className="text-[#86868b] hover:text-[#1d1d1f] dark:hover:text-[#f5f5f7] p-1.5 rounded-lg transition-colors cursor-pointer"
+                className="text-[#86868b] hover:text-[#1d1d1f] dark:hover:text-[#f5f5f7] p-1.5 rounded-lg transition-colors active:scale-95 cursor-pointer"
               >
                 <X size={16} />
               </button>
@@ -660,14 +660,14 @@ export default function ReferralsAdminPage() {
                 <button
                   type="button"
                   onClick={resetForm}
-                  className="px-4 py-2 rounded-xl text-xs font-semibold text-[#86868b] hover:text-[#1d1d1f] dark:hover:text-[#f5f5f7] transition-colors cursor-pointer"
+                  className="px-4 py-2 rounded-xl text-xs font-semibold text-[#86868b] hover:text-[#1d1d1f] dark:hover:text-[#f5f5f7] transition-colors active:scale-95 cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={creating || !label.trim()}
-                  className="flex items-center gap-2 bg-[#0066cc] hover:bg-[#0055b3] disabled:opacity-50 text-white px-5 py-2.5 rounded-xl text-xs font-semibold transition-all shadow-xs active:scale-[0.98] cursor-pointer"
+                  className="flex items-center gap-2 bg-[#0066cc] hover:bg-[#0055b3] disabled:opacity-50 text-white px-5 py-2.5 rounded-xl text-xs font-semibold transition-all active:scale-[0.98] cursor-pointer"
                 >
                   {creating ? (
                     <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
@@ -705,7 +705,7 @@ export default function ReferralsAdminPage() {
                     <button
                       type="button"
                       onClick={() => handleCopy(newLinkUrl, 'new-link')}
-                      className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#0066cc] hover:bg-[#0055b3] text-white text-xs font-semibold transition-all cursor-pointer"
+                      className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#0066cc] hover:bg-[#0055b3] text-white text-xs font-semibold transition-all active:scale-[0.98] cursor-pointer"
                     >
                       {copiedCode === 'new-link' ? <Check size={14} /> : <Copy size={14} />}
                       <span>{copiedCode === 'new-link' ? 'Copied' : 'Copy Link'}</span>
@@ -717,7 +717,7 @@ export default function ReferralsAdminPage() {
                       )}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold transition-all cursor-pointer"
+                      className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold transition-all active:scale-[0.98] cursor-pointer"
                     >
                       <Share2 size={14} />
                       <span>WhatsApp</span>
@@ -728,7 +728,7 @@ export default function ReferralsAdminPage() {
                       target="_blank"
                       rel="noopener noreferrer"
                       title="Open safely without recording a visit or making you the holder device"
-                      className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white dark:bg-[#242426] hover:bg-zinc-100 dark:hover:bg-[#38383a] text-zinc-700 dark:text-zinc-200 border border-zinc-200 dark:border-zinc-700 text-xs font-semibold transition-all cursor-pointer"
+                      className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white dark:bg-[#242426] hover:bg-zinc-100 dark:hover:bg-[#38383a] text-zinc-700 dark:text-zinc-200 border border-zinc-200 dark:border-zinc-700 text-xs font-semibold transition-all active:scale-[0.98] cursor-pointer"
                     >
                       <ExternalLink size={14} />
                       <span>Safe Preview</span>
@@ -752,7 +752,7 @@ export default function ReferralsAdminPage() {
           onClick={() => setMainTab('byLink')}
           className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all active:scale-95 cursor-pointer ${
             mainTab === 'byLink'
-              ? 'bg-white dark:bg-[#1c1c1e] text-[#1d1d1f] dark:text-[#f5f5f7] shadow-2xs'
+              ? 'bg-white dark:bg-[#1c1c1e] text-[#1d1d1f] dark:text-[#f5f5f7]'
               : 'text-[#86868b] hover:text-[#1d1d1f] dark:hover:text-[#f5f5f7]'
           }`}
         >
@@ -763,7 +763,7 @@ export default function ReferralsAdminPage() {
           onClick={() => setMainTab('byAdmin')}
           className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all active:scale-95 cursor-pointer ${
             mainTab === 'byAdmin'
-              ? 'bg-white dark:bg-[#1c1c1e] text-[#1d1d1f] dark:text-[#f5f5f7] shadow-2xs'
+              ? 'bg-white dark:bg-[#1c1c1e] text-[#1d1d1f] dark:text-[#f5f5f7]'
               : 'text-[#86868b] hover:text-[#1d1d1f] dark:hover:text-[#f5f5f7]'
           }`}
         >
@@ -772,7 +772,7 @@ export default function ReferralsAdminPage() {
       </div>
 
       {mainTab === 'byAdmin' ? (
-        <div className="bg-white dark:bg-[#1c1c1e] rounded-[18px] border border-[#e5e5ea] dark:border-[#2c2c2e] overflow-hidden">
+        <div className="bg-white dark:bg-[#1c1c1e] rounded-2xl border border-[#e5e5ea] dark:border-[#2c2c2e] overflow-hidden">
           <div className="flex items-center px-6 py-3.5 bg-[#f5f5f7]/80 dark:bg-[#242426]/60 border-b border-[#e5e5ea] dark:border-[#2c2c2e] text-[11px] font-semibold text-[#86868b] uppercase tracking-wider">
             <span className="flex-1">Admin</span>
             <span className="w-24 text-right">Links</span>
@@ -824,12 +824,12 @@ export default function ReferralsAdminPage() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search campaigns by label, code, or creator (⌘F)..."
-            className="w-full h-10 pl-10 pr-9 rounded-xl text-xs font-medium text-[#1d1d1f] dark:text-[#f5f5f7] bg-white dark:bg-[#1c1c1e] border border-[#e5e5ea] dark:border-[#2c2c2e] focus:border-[#0066cc] focus:ring-4 focus:ring-[#0066cc]/10 transition-all outline-none placeholder:text-[#86868b]/70 shadow-2xs"
+            className="w-full h-10 pl-10 pr-9 rounded-xl text-xs font-medium text-[#1d1d1f] dark:text-[#f5f5f7] bg-white dark:bg-[#1c1c1e] border border-[#e5e5ea] dark:border-[#2c2c2e] focus:border-[#0066cc] focus:ring-4 focus:ring-[#0066cc]/10 transition-all outline-none placeholder:text-[#86868b]/70"
           />
           {query && (
             <button
               onClick={() => setQuery('')}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-[#86868b] hover:text-[#1d1d1f] dark:hover:text-[#f5f5f7] p-0.5 rounded cursor-pointer"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-[#86868b] hover:text-[#1d1d1f] dark:hover:text-[#f5f5f7] p-0.5 rounded active:scale-95 cursor-pointer"
             >
               <X size={14} />
             </button>
@@ -842,9 +842,9 @@ export default function ReferralsAdminPage() {
           <div className="flex items-center p-1 rounded-xl bg-[#f5f5f7] dark:bg-[#242426] border border-[#e5e5ea] dark:border-[#38383a]">
             <button
               onClick={() => setScope('all')}
-              className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+              className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all active:scale-95 cursor-pointer ${
                 scope === 'all'
-                  ? 'bg-white dark:bg-[#1c1c1e] text-[#1d1d1f] dark:text-[#f5f5f7] shadow-2xs'
+                  ? 'bg-white dark:bg-[#1c1c1e] text-[#1d1d1f] dark:text-[#f5f5f7]'
                   : 'text-[#86868b] hover:text-[#1d1d1f] dark:hover:text-[#f5f5f7]'
               }`}
             >
@@ -852,9 +852,9 @@ export default function ReferralsAdminPage() {
             </button>
             <button
               onClick={() => setScope('mine')}
-              className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+              className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all active:scale-95 cursor-pointer ${
                 scope === 'mine'
-                  ? 'bg-white dark:bg-[#1c1c1e] text-[#1d1d1f] dark:text-[#f5f5f7] shadow-2xs'
+                  ? 'bg-white dark:bg-[#1c1c1e] text-[#1d1d1f] dark:text-[#f5f5f7]'
                   : 'text-[#86868b] hover:text-[#1d1d1f] dark:hover:text-[#f5f5f7]'
               }`}
             >
@@ -876,9 +876,9 @@ export default function ReferralsAdminPage() {
               <button
                 key={tag.id}
                 onClick={() => setFilterTag(tag.id)}
-                className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+                className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all active:scale-95 cursor-pointer ${
                   filterTag === tag.id
-                    ? 'bg-[#0066cc] text-white shadow-2xs'
+                    ? 'bg-[#0066cc] text-white'
                     : 'bg-[#f5f5f7] dark:bg-[#242426] text-[#86868b] hover:text-[#1d1d1f] dark:hover:text-[#f5f5f7] border border-[#e5e5ea] dark:border-[#38383a]'
                 }`}
               >
@@ -890,14 +890,14 @@ export default function ReferralsAdminPage() {
       </div>
 
       {/* Main Table Container */}
-      <div className="bg-white dark:bg-[#1c1c1e] rounded-2xl border border-[#e5e5ea] dark:border-[#2c2c2e] shadow-2xs overflow-hidden">
+      <div className="bg-white dark:bg-[#1c1c1e] rounded-2xl border border-[#e5e5ea] dark:border-[#2c2c2e] overflow-hidden">
         {/* Table Header with Column Sorting */}
         <div className="flex items-center px-6 py-3.5 bg-[#f5f5f7]/80 dark:bg-[#242426]/60 border-b border-[#e5e5ea] dark:border-[#2c2c2e] text-[11px] font-semibold text-[#86868b] uppercase tracking-wider select-none">
           <div className="w-10 mr-4" />
 
           <button
             onClick={() => toggleSort('label')}
-            className="flex-1 flex items-center gap-1.5 hover:text-[#1d1d1f] dark:hover:text-white transition-colors cursor-pointer text-left"
+            className="flex-1 flex items-center gap-1.5 hover:text-[#1d1d1f] dark:hover:text-white transition-colors active:scale-[0.98] cursor-pointer text-left"
           >
             <span>Campaign / Code</span>
             <ArrowUpDown size={12} className={sortField === 'label' ? 'text-[#0066cc]' : 'text-[#86868b]'} />
@@ -905,7 +905,7 @@ export default function ReferralsAdminPage() {
 
           <button
             onClick={() => toggleSort('devicesReached')}
-            className="w-28 hidden sm:flex items-center justify-end gap-1.5 pr-4 hover:text-[#1d1d1f] dark:hover:text-white transition-colors cursor-pointer"
+            className="w-28 hidden sm:flex items-center justify-end gap-1.5 pr-4 hover:text-[#1d1d1f] dark:hover:text-white transition-colors active:scale-[0.98] cursor-pointer"
           >
             <span>Viral Reach</span>
             <ArrowUpDown size={12} className={sortField === 'devicesReached' ? 'text-[#0066cc]' : 'text-[#86868b]'} />
@@ -913,7 +913,7 @@ export default function ReferralsAdminPage() {
 
           <button
             onClick={() => toggleSort('deepestGeneration')}
-            className="w-28 hidden md:flex items-center justify-end gap-1.5 pr-4 hover:text-[#1d1d1f] dark:hover:text-white transition-colors cursor-pointer"
+            className="w-28 hidden md:flex items-center justify-end gap-1.5 pr-4 hover:text-[#1d1d1f] dark:hover:text-white transition-colors active:scale-[0.98] cursor-pointer"
           >
             <span>Deepest Gen</span>
             <ArrowUpDown size={12} className={sortField === 'deepestGeneration' ? 'text-[#0066cc]' : 'text-[#86868b]'} />
@@ -921,7 +921,7 @@ export default function ReferralsAdminPage() {
 
           <button
             onClick={() => toggleSort('activatedCount')}
-            className="w-28 hidden sm:flex items-center justify-end gap-1.5 pr-4 hover:text-[#1d1d1f] dark:hover:text-white transition-colors cursor-pointer"
+            className="w-28 hidden sm:flex items-center justify-end gap-1.5 pr-4 hover:text-[#1d1d1f] dark:hover:text-white transition-colors active:scale-[0.98] cursor-pointer"
           >
             <span>Activated</span>
             <ArrowUpDown size={12} className={sortField === 'activatedCount' ? 'text-[#0066cc]' : 'text-[#86868b]'} />
@@ -929,7 +929,7 @@ export default function ReferralsAdminPage() {
 
           <button
             onClick={() => toggleSort('createdAt')}
-            className="w-32 hidden lg:flex items-center gap-1.5 pr-4 hover:text-[#1d1d1f] dark:hover:text-white transition-colors cursor-pointer"
+            className="w-32 hidden lg:flex items-center gap-1.5 pr-4 hover:text-[#1d1d1f] dark:hover:text-white transition-colors active:scale-[0.98] cursor-pointer"
           >
             <span>Last Activity</span>
             <ArrowUpDown size={12} className={sortField === 'createdAt' ? 'text-[#0066cc]' : 'text-[#86868b]'} />
@@ -963,7 +963,7 @@ export default function ReferralsAdminPage() {
               {!showGenerate && (
                 <button
                   onClick={() => setShowGenerate(true)}
-                  className="mt-4 px-4 py-2 rounded-xl bg-[#0066cc] text-white text-xs font-semibold hover:bg-[#0055b3] transition-all cursor-pointer"
+                  className="mt-4 px-4 py-2 rounded-xl bg-[#0066cc] text-white text-xs font-semibold hover:bg-[#0055b3] transition-all active:scale-[0.98] cursor-pointer"
                 >
                   Generate First Link
                 </button>
@@ -985,7 +985,7 @@ export default function ReferralsAdminPage() {
                       link.revoked
                         ? 'bg-rose-50 dark:bg-rose-950/30 text-rose-600 dark:text-rose-400 border-rose-200 dark:border-rose-800/40'
                         : link.devicesReached > 0
-                        ? 'bg-blue-50 dark:bg-blue-950/40 text-[#0066cc] dark:text-[#2997ff] border-blue-200/80 dark:border-blue-800/60 shadow-2xs'
+                        ? 'bg-blue-50 dark:bg-blue-950/40 text-[#0066cc] dark:text-[#2997ff] border-blue-200/80 dark:border-blue-800/60'
                         : 'bg-[#f5f5f7] dark:bg-[#242426] text-[#86868b] border-[#e5e5ea] dark:border-[#38383a]'
                     }`}
                   >
@@ -1033,7 +1033,7 @@ export default function ReferralsAdminPage() {
                       <button
                         type="button"
                         onClick={() => handleCopy(fullUrl, link.code, `Copied /r/${link.code}`)}
-                        className="font-mono text-[#0066cc] dark:text-[#2997ff] hover:underline flex items-center gap-1 cursor-pointer"
+                        className="font-mono text-[#0066cc] dark:text-[#2997ff] hover:underline flex items-center gap-1 active:scale-95 cursor-pointer"
                         title="Click to copy link"
                       >
                         {link.code}
@@ -1135,7 +1135,7 @@ export default function ReferralsAdminPage() {
                     <button
                       type="button"
                       onClick={() => handleCopy(fullUrl, link.code, 'Copied link URL')}
-                      className="p-1.5 rounded-lg text-[#86868b] hover:text-[#0066cc] hover:bg-blue-50 dark:hover:bg-blue-950/40 transition-colors cursor-pointer"
+                      className="p-1.5 rounded-lg text-[#86868b] hover:text-[#0066cc] hover:bg-blue-50 dark:hover:bg-blue-950/40 transition-colors active:scale-95 cursor-pointer"
                       title="Copy referral link"
                     >
                       {isCopied ? <Check size={14} className="text-emerald-600" /> : <Copy size={14} />}
@@ -1146,7 +1146,7 @@ export default function ReferralsAdminPage() {
                       href={`${fullUrl}?preview=1`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="p-1.5 rounded-lg text-[#86868b] hover:text-[#1d1d1f] dark:hover:text-white hover:bg-[#f5f5f7] dark:hover:bg-[#242426] transition-colors cursor-pointer"
+                      className="p-1.5 rounded-lg text-[#86868b] hover:text-[#1d1d1f] dark:hover:text-white hover:bg-[#f5f5f7] dark:hover:bg-[#242426] transition-colors active:scale-95 cursor-pointer"
                       title="Safe preview link without recording visit"
                     >
                       <ExternalLink size={14} />
@@ -1155,7 +1155,7 @@ export default function ReferralsAdminPage() {
                     {/* View Tree button */}
                     <Link
                       href={`/admin/referrals/${link.code}`}
-                      className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#f5f5f7] dark:bg-[#242426] hover:bg-[#e5e5ea] dark:hover:bg-[#38383a] text-xs font-semibold text-[#1d1d1f] dark:text-[#f5f5f7] transition-all cursor-pointer"
+                      className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#f5f5f7] dark:bg-[#242426] hover:bg-[#e5e5ea] dark:hover:bg-[#38383a] text-xs font-semibold text-[#1d1d1f] dark:text-[#f5f5f7] transition-all active:scale-95 cursor-pointer"
                       title="Inspect referral tree"
                     >
                       <span>Tree</span>
@@ -1167,7 +1167,7 @@ export default function ReferralsAdminPage() {
                       <button
                         type="button"
                         onClick={() => setResettingCode(link.code)}
-                        className="p-1.5 rounded-lg text-[#86868b] hover:text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-950/30 transition-colors cursor-pointer"
+                        className="p-1.5 rounded-lg text-[#86868b] hover:text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-950/30 transition-colors active:scale-95 cursor-pointer"
                         title="Reset holder device (clear test bindings)"
                       >
                         <RotateCcw size={13} />
@@ -1179,7 +1179,7 @@ export default function ReferralsAdminPage() {
                       <button
                         type="button"
                         onClick={() => setRevokingCode(link.code)}
-                        className="text-xs font-semibold text-rose-500 hover:text-rose-700 px-2 py-1 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors cursor-pointer"
+                        className="text-xs font-semibold text-rose-500 hover:text-rose-700 px-2 py-1 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors active:scale-95 cursor-pointer"
                         title="Revoke referral link"
                       >
                         Revoke
@@ -1232,7 +1232,7 @@ export default function ReferralsAdminPage() {
                   type="button"
                   onClick={() => setRevokingCode(null)}
                   disabled={actionLoading}
-                  className="px-4 py-2 rounded-xl text-xs font-semibold text-[#86868b] hover:text-[#1d1d1f] dark:hover:text-[#f5f5f7] transition-colors cursor-pointer"
+                  className="px-4 py-2 rounded-xl text-xs font-semibold text-[#86868b] hover:text-[#1d1d1f] dark:hover:text-[#f5f5f7] transition-colors active:scale-95 cursor-pointer"
                 >
                   Cancel
                 </button>
@@ -1240,7 +1240,7 @@ export default function ReferralsAdminPage() {
                   type="button"
                   onClick={handleRevokeConfirm}
                   disabled={actionLoading}
-                  className="flex items-center gap-2 bg-rose-600 hover:bg-rose-700 text-white px-4 py-2 rounded-xl text-xs font-semibold transition-all shadow-xs cursor-pointer"
+                  className="flex items-center gap-2 bg-rose-600 hover:bg-rose-700 text-white px-4 py-2 rounded-xl text-xs font-semibold transition-all active:scale-[0.98] cursor-pointer"
                 >
                   {actionLoading ? 'Revoking…' : 'Yes, Revoke Link'}
                 </button>
@@ -1287,7 +1287,7 @@ export default function ReferralsAdminPage() {
                   type="button"
                   onClick={() => setResettingCode(null)}
                   disabled={actionLoading}
-                  className="px-4 py-2 rounded-xl text-xs font-semibold text-[#86868b] hover:text-[#1d1d1f] dark:hover:text-[#f5f5f7] transition-colors cursor-pointer"
+                  className="px-4 py-2 rounded-xl text-xs font-semibold text-[#86868b] hover:text-[#1d1d1f] dark:hover:text-[#f5f5f7] transition-colors active:scale-95 cursor-pointer"
                 >
                   Cancel
                 </button>
@@ -1295,7 +1295,7 @@ export default function ReferralsAdminPage() {
                   type="button"
                   onClick={handleResetHolderConfirm}
                   disabled={actionLoading}
-                  className="flex items-center gap-2 bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-xl text-xs font-semibold transition-all shadow-xs cursor-pointer"
+                  className="flex items-center gap-2 bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-xl text-xs font-semibold transition-all active:scale-[0.98] cursor-pointer"
                 >
                   {actionLoading ? 'Resetting…' : 'Confirm Reset'}
                 </button>
