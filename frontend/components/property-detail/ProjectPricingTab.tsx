@@ -110,10 +110,6 @@ export default function ProjectPricingTab({ unitTypes, detail, loading, onGoToCo
   // Loan eligibility (45% FOIR affordability against user's monthly income)
   const [monthlyIncome, setMonthlyIncome] = useState<number>(0)
 
-  if (loading && !detail) {
-    return <PricingTabSkeleton />
-  }
-
   // DB-backed payment plan & cost sheet properties
   const dbPaymentPlan = detail?.payment_plan ?? null
   const dbCostSheet = detail?.cost_sheet ?? null
@@ -335,6 +331,13 @@ export default function ProjectPricingTab({ unitTypes, detail, loading, onGoToCo
       })
     }
   }, [detail?.name, selectedUnit?.bhk, bhkFilter, propertyPrice, grandTotalAtPossession])
+
+  // After every hook: returning earlier skipped the effect above while loading,
+  // so the hook count changed between renders and React threw "Rendered more
+  // hooks than during the previous render" once the detail arrived.
+  if (loading && !detail) {
+    return <PricingTabSkeleton />
+  }
 
   // Adaptive breakdown components based on Stage Toggle (At Booking vs At Possession)
   const breakdownComponents = !unitAreaSqft ? [] : costBreakdownStage === 'construction' ? [
