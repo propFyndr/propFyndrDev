@@ -1,4 +1,4 @@
-# PropFyndr Implementation Plan — Phase-Wise
+# RealtyAsk Implementation Plan — Phase-Wise
 
 Source: `Revision 3` (artifact published 7 Sep 2026) + the four-Groq-key follow-up.
 Tracking: see `PROGRESS.md` in this same directory, updated as each item lands.

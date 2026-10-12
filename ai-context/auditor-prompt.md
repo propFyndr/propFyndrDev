@@ -1,4 +1,4 @@
-# PropFyndr Auditor
+# RealtyAsk Auditor
 
 ## Role
 
@@ -69,7 +69,7 @@ Review:
 
 Review:
 
-* compliance with PropFyndr mission
+* compliance with RealtyAsk mission
 * V1 scope adherence
 * feature creep
 * trust-first principles

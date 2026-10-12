@@ -1,3 +1,5 @@
+> **Superseded (2026-10-12):** this is the checklist from the earlier RealtyPals → PropFyndr rebrand. The product has since been renamed to **RealtyAsk** — see MEMORY.md, 2026-10-12. Kept for history; the domain/Render/env items below still apply to `propfyndr.*` names that remain live.
+
 # Rebrand: RealtyPals → PropFyndr — what is left
 
 The code is done. 1833 occurrences across 271 files and 72 file/directory paths were

@@ -270,4 +270,4 @@ The brochure does **not provide**:
 * Price Sheet
 * Payment Plan
 
-For your PropFyndr ingestion pipeline, I would estimate this brochure can populate about **60–70% of your schema automatically**, while the remaining fields would need to be sourced from RERA, project website, sales material, or ERP data.
+For your RealtyAsk ingestion pipeline, I would estimate this brochure can populate about **60–70% of your schema automatically**, while the remaining fields would need to be sourced from RERA, project website, sales material, or ERP data.

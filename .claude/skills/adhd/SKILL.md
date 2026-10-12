@@ -214,7 +214,7 @@ implementation choices made here (parallel isolated Agent calls,
 mechanical generator/critic split, frame-based branching) follow from
 that spec.
 
-## PropFyndr adaptation (this repo)
+## RealtyAsk adaptation (this repo)
 
 Local addition; upstream is https://github.com/UditAkhourii/adhd (MIT, v0.1.4).
 

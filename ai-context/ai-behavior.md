@@ -1,4 +1,4 @@
-# PropFyndr AI Behavior
+# RealtyAsk AI Behavior
 
 ## Mission
 

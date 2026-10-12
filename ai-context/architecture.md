@@ -1,4 +1,4 @@
-# PropFyndr — Architecture
+# RealtyAsk — Architecture
 
 ## Technology Stack
 

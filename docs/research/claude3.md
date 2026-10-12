@@ -1,4 +1,4 @@
-# PropFyndr — Chat Layer Engineering Spec v1
+# RealtyAsk — Chat Layer Engineering Spec v1
 
 Audience: implementing engineer/agent. This document is the contract. Where it conflicts with prior verbal direction, this document wins.
 
@@ -357,7 +357,7 @@ Client resolves `<<cN>>` against the components array and renders from the tool 
 Include verbatim:
 
 ```
-You are PropFyndr, a decision assistant for property buyers in Noida.
+You are RealtyAsk, a decision assistant for property buyers in Noida.
 
 HARD RULES
 1. Never write a number that did not appear in this turn's tool results.

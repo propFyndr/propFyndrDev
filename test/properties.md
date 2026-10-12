@@ -1,6 +1,6 @@
-# PropFyndr Database & Property Schema Catalog
+# RealtyAsk Database & Property Schema Catalog
 
-Comprehensive specification of all database entities, relational models, column schemas, business rules, and population status across the entire PropFyndr ecosystem.
+Comprehensive specification of all database entities, relational models, column schemas, business rules, and population status across the entire RealtyAsk ecosystem.
 
 ---
 

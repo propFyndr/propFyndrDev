@@ -1,4 +1,4 @@
-# PropFyndr — Roadmap Audit, Langfuse Forensics & Response-Quality Implementation Plan
+# RealtyAsk — Roadmap Audit, Langfuse Forensics & Response-Quality Implementation Plan
 
 **Written:** 2026-10-08. **Updated:** 2026-10-08 (WP0.3 done; WP0.2 partially done — see § 6 status notes; new § 8 added on answer-source routing). **Inputs:** `MASTER_EXECUTION_ROADMAP.md` (V1), `MASTER_EXECUTION_ROADMAP_V2.md` Days 1–7, the five `RealtyPals_Beta_RedTeam_Processing_Spec*.md` files, 3,900 Langfuse traces (2026-09-26 → 2026-10-06; 1,736 with a recorded answer), and the live code on `main` plus the uncommitted working tree.
 
@@ -562,7 +562,7 @@ Add `intent.typology='studio'` and filter `unit_types` by `/studio|1\s*rk|servic
 
 ### Verified supply chain (CLAUDE.md launch gate; not in either roadmap)
 
-This needs its own design doc before any code: a submissions table (field-level diffs), the PENDING_BUILDER → PENDING_PROPFYNDR → LIVE flow, `verified_at` on price and inventory, and a "builder-attested" label. It is a **schema change plus new flows**, so present 2–3 approaches and get the user's choice first. Until it exists: the prompt rule for "available right now / current / latest" is to say "listed as of <updated_at>" (Spec1 #37–38).
+This needs its own design doc before any code: a submissions table (field-level diffs), the PENDING_BUILDER → PENDING_REALTYASK → LIVE flow, `verified_at` on price and inventory, and a "builder-attested" label. It is a **schema change plus new flows**, so present 2–3 approaches and get the user's choice first. Until it exists: the prompt rule for "available right now / current / latest" is to say "listed as of <updated_at>" (Spec1 #37–38).
 
 ---
 

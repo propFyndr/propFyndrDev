@@ -1,6 +1,6 @@
 # Phase-Gated Implementation Plan: Day 5 — Hero Chat Interface (Micro-UX, Token-Free Interactive Tools & Proof Drawers)
 
-*Grounded in the live codebase state of PropFyndr (`frontend` and `backend`), strictly aligned with `docs/planning/phaseImplementation.md` and Day 5 of `MASTER_EXECUTION_ROADMAP_V2.md`.*
+*Grounded in the live codebase state of RealtyAsk (`frontend` and `backend`), strictly aligned with `docs/planning/phaseImplementation.md` and Day 5 of `MASTER_EXECUTION_ROADMAP_V2.md`.*
 
 ---
 

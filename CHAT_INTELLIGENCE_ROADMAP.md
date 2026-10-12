@@ -1,4 +1,4 @@
-# PropFyndr Chat Intelligence Roadmap (Phase-by-Phase)
+# RealtyAsk Chat Intelligence Roadmap (Phase-by-Phase)
 
 This is the execution plan for making the advisor **more precise, cheaper per turn, and ready for all-India**, while we stay Noida-first on inventory. It sits beside `MASTER_EXECUTION_ROADMAP.md` (Days 1–7) and does not replace it.
 
@@ -35,7 +35,7 @@ The real baseline is **31% pass, 59% of turns carrying the outage notice** (288 
 | + | Market figures in general prompt | ✅ | Landed-cost / loading / IFMS ranges now told to be quoted as typical, not verified. |
 | 2 | 2.1 `DemandSignal` table | ✅ | Applied 2026-09-26. No phone column: nothing can send a notification yet. |
 | 2 | 2.2 Market-answer lane | 🟡 | Built behind `OUT_OF_CITY_MARKET_ANSWERS=on`. Uses a separate out-of-coverage directive so the prompt never claims inventory in the other city. |
-| 2 | 2.3 Chips | 🟡 | "I want PropFyndr in {city}" (a vote, no promise to notify). |
+| 2 | 2.3 Chips | 🟡 | "I want RealtyAsk in {city}" (a vote, no promise to notify). |
 | 2 | 2.4 Record every signal | 🟡 | Fire-and-forget, on when the flag is on. |
 | 2 | 2.5 Demand panel in `/admin` | ❌ | Held back while the admin panel is being restyled by hand. |
 | 2 | 2.6 CLAUDE.md scope line | ❌ | Needs your approval (it edits your instructions file). |
@@ -302,7 +302,7 @@ When a buyer asks about a city we don't list (Whitefield, Gurgaon, Pune), give a
 #### 2. Step-by-Step Implementation
 
 ##### Step 2.1: `DemandSignal` table **[MIGRATION — confirm first]** (migration + model written; not applied)
-* **As built:** no phone column. Nothing sends a launch notification, so the chip is an honest vote — **"I want PropFyndr in {city}"** — never "tell me when you launch". A notify channel (and a phone column) comes when something can actually send one.
+* **As built:** no phone column. Nothing sends a launch notification, so the chip is an honest vote — **"I want RealtyAsk in {city}"** — never "tell me when you launch". A notify channel (and a phone column) comes when something can actually send one.
 ```prisma
 model DemandSignal {
   id           String   @id @default(uuid())

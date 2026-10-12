@@ -124,7 +124,7 @@ export interface FamilyDossier {
 * Update `handleShareWhatsApp`:
   * Construct a structured, high-conversion WhatsApp markdown message:
     ```text
-    🏡 *PropFyndr Family Deal Dossier — Executive Briefing*
+    🏡 *RealtyAsk Family Deal Dossier — Executive Briefing*
     
     📋 *Our Consultation Trail:*
     • Inquired: {Step 1 Inquiry} ➔ {Step 1 Verdict}

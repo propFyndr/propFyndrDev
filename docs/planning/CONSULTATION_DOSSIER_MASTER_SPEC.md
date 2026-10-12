@@ -1,4 +1,4 @@
-# PropFyndr Consultation Dossier & Narrative Memory Engine
+# RealtyAsk Consultation Dossier & Narrative Memory Engine
 ## Master Architectural Specification & Execution Blueprint
 
 **Document Version:** 1.0.0  
@@ -198,7 +198,7 @@ The narrative extractor ingests the raw conversation transcript and produces the
 3. **Primary Inference Prompt (Structured JSON):**
    ```text
    SYSTEM PROMPT:
-   You are an institutional real estate consultation recorder for PropFyndr.
+   You are an institutional real estate consultation recorder for RealtyAsk.
    Given the chronological buyer consultation messages, produce a JSON object with:
    1. "searchEvolutionSummary": 2 concise sentences explaining the buyer's search progression and key pivot.
    2. "consultationTrail": An array of steps (3 to 6 max). Each step MUST contain:
@@ -331,7 +331,7 @@ Adhering strictly to [docs/appleDESIGN.md](file:///c:/Users/Furqan/Desktop/Realt
 When the user taps the WhatsApp share button, the handler builds a rich markdown message:
 
 ```text
-🏡 *PropFyndr Family Property Briefing — Executive Due-Diligence Dossier*
+🏡 *RealtyAsk Family Property Briefing — Executive Due-Diligence Dossier*
 
 📋 *Our Consultation Trail:*
 • Inquired: Sector 76 Noida ➔ Metro access confirmed, but 3 BHK prices average ₹1.85 Cr+

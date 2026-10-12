@@ -1,6 +1,6 @@
 Yes — but I would **not build your own LLM from scratch yet**.
 
-For PropFyndr, I think the better approach is to build **your own real-estate AI system around an existing small/open model**, rather than trying to create a new language model yourself.
+For RealtyAsk, I think the better approach is to build **your own real-estate AI system around an existing small/open model**, rather than trying to create a new language model yourself.
 
 The distinction is important.
 
@@ -12,13 +12,13 @@ The distinction is important.
                     └──────────┬──────────┘
                                ↓
                     ┌─────────────────────┐
-                    │   PropFyndr AI     │
+                    │   RealtyAsk AI     │
                     │   Orchestrator      │
                     └──────────┬──────────┘
                                ↓
           ┌────────────────────┼────────────────────┐
           ↓                    ↓                    ↓
-   PropFyndr DB          Web Search          Calculators
+   RealtyAsk DB          Web Search          Calculators
    / Knowledge Base      / External Data       / APIs
           │                    │                    │
           └────────────────────┼────────────────────┘
@@ -39,7 +39,7 @@ The distinction is important.
                     └──────────┬──────────┘
                                ↓
                     ┌─────────────────────┐
-                    │ PropFyndr UI       │
+                    │ RealtyAsk UI       │
                     │ Beautiful rendering │
                     └─────────────────────┘
 ```
@@ -82,7 +82,7 @@ The LLM receives the **actual verified information** and explains it.
 
 That is considerably safer than asking an LLM to figure everything out.
 
-This aligns particularly well with the architecture we've discussed for PropFyndr: the model should essentially be a **presentation/reasoning layer over a deterministic Decision Package**, rather than the thing making the underlying property decision.
+This aligns particularly well with the architecture we've discussed for RealtyAsk: the model should essentially be a **presentation/reasoning layer over a deterministic Decision Package**, rather than the thing making the underlying property decision.
 
 ---
 
@@ -105,13 +105,13 @@ locally or on your own server.
 So instead of:
 
 ```text
-PropFyndr → OpenAI/Anthropic/etc.
+RealtyAsk → OpenAI/Anthropic/etc.
 ```
 
 you can eventually have:
 
 ```text
-PropFyndr → Your server → Ollama → Qwen/Llama/etc.
+RealtyAsk → Your server → Ollama → Qwen/Llama/etc.
 ```
 
 That gives you much more control.
@@ -133,7 +133,7 @@ Gemma
 Mistral
 ```
 
-Then benchmark them specifically against PropFyndr queries.
+Then benchmark them specifically against RealtyAsk queries.
 
 You might discover that a relatively small model is perfectly adequate for:
 
@@ -199,7 +199,7 @@ So the model **doesn't control presentation**.
 
 Your React/Next.js frontend does.
 
-That means you can make the experience look exactly like PropFyndr.
+That means you can make the experience look exactly like RealtyAsk.
 
 ---
 
@@ -308,7 +308,7 @@ You don't actually need to advertise:
 
 What you really want is:
 
-### **PropFyndr Intelligence Engine**
+### **RealtyAsk Intelligence Engine**
 
 with:
 
@@ -348,7 +348,7 @@ Turns all of that into understandable reasoning.
 
 Converts reasoning into structured output.
 
-**8. PropFyndr UI**
+**8. RealtyAsk UI**
 
 Turns that output into beautiful cards, tables, comparisons, warnings, maps, etc.
 
@@ -360,7 +360,7 @@ The LLM is only one component.
 
 # 8. Where I WOULD consider fine-tuning
 
-Once you have enough PropFyndr data, then things become interesting.
+Once you have enough RealtyAsk data, then things become interesting.
 
 You could collect examples like:
 
@@ -368,7 +368,7 @@ You could collect examples like:
 USER:
 I have ₹1.2 crore and want a 3BHK in Noida.
 
-PROPFYNDR EXPECTED INTERPRETATION:
+REALTYASK EXPECTED INTERPRETATION:
 budget = 1.2 crore
 configuration = 3BHK
 city = Noida
@@ -385,9 +385,9 @@ Then you could have:
 ```text
 Generic model
        ↓
-PropFyndr fine-tuning
+RealtyAsk fine-tuning
        ↓
-PropFyndr Model
+RealtyAsk Model
 ```
 
 The model becomes particularly good at:
@@ -408,12 +408,12 @@ The model becomes particularly good at:
 
 # 9. And you don't necessarily need one model
 
-This is where I'd eventually take PropFyndr.
+This is where I'd eventually take RealtyAsk.
 
 You could have:
 
 ```text
-                 PropFyndr AI
+                 RealtyAsk AI
                       │
           ┌───────────┼───────────┐
           ↓           ↓           ↓
@@ -455,14 +455,14 @@ I'd actually do this in phases.
 
 Continue using your current API.
 
-Build the **PropFyndr architecture around it**.
+Build the **RealtyAsk architecture around it**.
 
 Do NOT tightly couple your application to the provider.
 
 Create your own abstraction:
 
 ```text
-PropFyndr AI Interface
+RealtyAsk AI Interface
         │
         ├── Provider A
         ├── Provider B
@@ -485,7 +485,7 @@ OpenAI.whatever()
 
 ### Phase 2 — Benchmark
 
-Run the exact same ~50–200 difficult PropFyndr queries against:
+Run the exact same ~50–200 difficult RealtyAsk queries against:
 
 ```text
 Current API
@@ -529,34 +529,34 @@ You can eventually reduce that premium percentage.
 
 ### Phase 4 — Fine-tune
 
-Once you have substantial proprietary PropFyndr interaction data:
+Once you have substantial proprietary RealtyAsk interaction data:
 
 ```text
 Open model
      ↓
-PropFyndr datasets
+RealtyAsk datasets
      ↓
 Fine-tuning / LoRA
      ↓
-PropFyndr model
+RealtyAsk model
 ```
 
 Now you have something genuinely differentiated.
 
 ---
 
-# My recommendation for PropFyndr
+# My recommendation for RealtyAsk
 
 If I were designing this with you, **I would not call the project "build an LLM."**
 
 I'd call it:
 
-> **Build the PropFyndr Intelligence Engine.**
+> **Build the RealtyAsk Intelligence Engine.**
 
 And architect it like this:
 
 ```text
-                       PROPFYNDR
+                       REALTYASK
                            │
                     AI ORCHESTRATOR
                            │
@@ -575,7 +575,7 @@ And architect it like this:
                            ↓
                  STRICT JSON SCHEMA
                            ↓
-                 PROPFYNDR FRONTEND
+                 REALTYASK FRONTEND
                            ↓
            Cards / Tables / Scores / Warnings
            Comparisons / Sources / Explanations
@@ -583,7 +583,7 @@ And architect it like this:
 
 And **this is the key idea**:
 
-> **Don't try to make the model know real estate. Make PropFyndr know real estate, and make the model know how to use PropFyndr.**
+> **Don't try to make the model know real estate. Make RealtyAsk know real estate, and make the model know how to use RealtyAsk.**
 
 That gives you much better control, much lower hallucination risk, cleaner UI, easier model replacement, and eventually the ability to swap a third-party API for your own model without rebuilding the product.
 

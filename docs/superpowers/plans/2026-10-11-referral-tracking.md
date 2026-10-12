@@ -47,7 +47,7 @@
 | `frontend/app/r/[code]/page.tsx` | Redirects a labelled link visitor into `/discover?r=<code>` |
 | `frontend/app/r/[code]/opengraph-image.tsx` | Static (no DB call) preview card for link previews |
 | `frontend/components/ReferralNotice.tsx` | Small dismissible notice strip, cookie-banner style |
-| `frontend/components/chat/ReferralShareButton.tsx` | "Share PropFyndr" button (native share / WhatsApp / SMS / copy), carries the device's own code |
+| `frontend/components/chat/ReferralShareButton.tsx` | "Share RealtyAsk" button (native share / WhatsApp / SMS / copy), carries the device's own code |
 | `frontend/app/layout.tsx` | Modify: mount `ReferralTracker` and `ReferralNotice` |
 | `frontend/components/DiscoveryContent.tsx` | Modify: render `ReferralShareButton` in the header; append `r`/`c` params to the dossier/shortlist share URLs |
 | `frontend/app/privacy/page.tsx` | Modify: add shared-link disclosure, update retention section and AI-engine wording |
@@ -1919,7 +1919,7 @@ export default function ReferralLandingPage({ params }: { params: { code: string
 import { ImageResponse } from 'next/og'
 
 export const runtime = 'nodejs'
-export const alt = 'PropFyndr — AI Property Advisor'
+export const alt = 'RealtyAsk — AI Property Advisor'
 export const size = { width: 1200, height: 630 }
 export const contentType = 'image/png'
 
@@ -1942,7 +1942,7 @@ export default function OGImage() {
           fontFamily: 'system-ui, -apple-system',
         }}
       >
-        <div style={{ fontSize: 64, fontWeight: 'bold' }}>🏠 PropFyndr</div>
+        <div style={{ fontSize: 64, fontWeight: 'bold' }}>🏠 RealtyAsk</div>
         <div style={{ fontSize: 28, opacity: 0.85, marginTop: 16 }}>
           AI Property Advisor — someone thinks you&apos;d find this useful
         </div>
@@ -1997,7 +1997,7 @@ describe('ReferralShareButton', () => {
     Object.defineProperty(navigator, 'clipboard', { value: originalClipboard, configurable: true })
   })
 
-  it('renders a Share PropFyndr trigger', () => {
+  it('renders a Share RealtyAsk trigger', () => {
     render(<ReferralShareButton />)
     expect(screen.getByRole('button', { name: /share propfyndr/i })).toBeInTheDocument()
   })
@@ -2042,7 +2042,7 @@ import { ShareNetwork, ChatCircleText, Copy, Check } from '@phosphor-icons/react
 import { getStoredReferralCode } from '@/lib/referral'
 
 /**
- * Always-visible "Share PropFyndr" entry point, separate from the dossier
+ * Always-visible "Share RealtyAsk" entry point, separate from the dossier
  * share button (which only appears once a dossier exists for this session).
  * Every channel appends ?r=<this device's own code>&c=<channel>, so the
  * person who opens it is attributed to this device in the referral tree.
@@ -2072,13 +2072,13 @@ export function ReferralShareButton() {
   }
 
   const handleWhatsApp = () => {
-    const text = `Check out PropFyndr — an AI property advisor for Noida:\n${shareUrl('wa')}`
+    const text = `Check out RealtyAsk — an AI property advisor for Noida:\n${shareUrl('wa')}`
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank')
     setOpen(false)
   }
 
   const handleSms = () => {
-    const text = `Check out PropFyndr: ${shareUrl('sms')}`
+    const text = `Check out RealtyAsk: ${shareUrl('sms')}`
     window.open(`sms:?&body=${encodeURIComponent(text)}`, '_blank')
     setOpen(false)
   }
@@ -2098,19 +2098,19 @@ export function ReferralShareButton() {
       <button
         onClick={() => setOpen((v) => !v)}
         className="flex items-center justify-center gap-1.5 h-10 px-3 sm:px-3.5 rounded-full bg-surface/90 dark:bg-surface-2/90 backdrop-blur-md border border-border-heavy hover:bg-surface-3 dark:hover:bg-zinc-800 text-text-primary text-[13px] font-medium transition-colors cursor-pointer active:scale-95"
-        title="Share PropFyndr"
-        aria-label="Share PropFyndr"
+        title="Share RealtyAsk"
+        aria-label="Share RealtyAsk"
         aria-haspopup="menu"
         aria-expanded={open}
       >
         <ShareNetwork size={18} weight="bold" className="text-text-secondary" />
-        <span className="hidden sm:inline">Share PropFyndr</span>
+        <span className="hidden sm:inline">Share RealtyAsk</span>
       </button>
 
       {open && (
         <div
           role="menu"
-          aria-label="Share PropFyndr"
+          aria-label="Share RealtyAsk"
           className="absolute top-full right-0 mt-1.5 w-56 bg-surface dark:bg-surface-2 rounded-sm shadow-md border border-border-heavy overflow-hidden p-1 animate-in fade-in zoom-in-95 duration-100 z-50"
         >
           <button role="menuitem" onClick={handleWhatsApp} className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xs text-[13px] text-text-primary hover:bg-surface-3 dark:hover:bg-zinc-800 outline-none transition-colors cursor-pointer">
@@ -2200,13 +2200,13 @@ Expected: all existing tests pass; new tests pass.
 
 - [ ] **Step 8: Manual verification**
 
-Run `cd frontend && npm run dev`, open `/discover`, confirm the "Share PropFyndr" pill appears in the header next to (or in place of) the dossier button, and that clicking "Copy link" puts a URL containing `r=` and `c=copy` on the clipboard.
+Run `cd frontend && npm run dev`, open `/discover`, confirm the "Share RealtyAsk" pill appears in the header next to (or in place of) the dossier button, and that clicking "Copy link" puts a URL containing `r=` and `c=copy` on the clipboard.
 
 - [ ] **Step 9: Commit**
 
 ```bash
 git add frontend/components/chat/ReferralShareButton.tsx frontend/components/chat/__tests__/ReferralShareButton.test.tsx frontend/components/DiscoveryContent.tsx
-git commit -m "feat(referral): add Share PropFyndr button, tag dossier/shortlist links
+git commit -m "feat(referral): add Share RealtyAsk button, tag dossier/shortlist links
 
 Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>"
 ```
@@ -2295,8 +2295,8 @@ const AUTO_HIDE_MS = 10_000
 
 /**
  * Small, cookie-banner-style disclosure: chats may be reviewed by the
- * PropFyndr team (not just the person who sent it) to understand how
- * PropFyndr spreads. Shown once; dismissed on close, on sending the first
+ * RealtyAsk team (not just the person who sent it) to understand how
+ * RealtyAsk spreads. Shown once; dismissed on close, on sending the first
  * message, or automatically after 10 seconds — whichever comes first.
  */
 export default function ReferralNotice() {
@@ -2343,7 +2343,7 @@ export default function ReferralNotice() {
     >
       <div className="flex items-center gap-2 rounded-xl bg-[#0c0d14]/85 backdrop-blur-xl border border-white/10 shadow-lg px-3.5 py-2.5 text-white">
         <p className="text-[11px] text-zinc-300/90 leading-snug flex-1">
-          Chats are stored and may be reviewed by the PropFyndr team to improve answers.{' '}
+          Chats are stored and may be reviewed by the RealtyAsk team to improve answers.{' '}
           <Link href="/privacy" className="underline underline-offset-2 text-blue-400 hover:text-blue-300">
             Privacy policy
           </Link>
@@ -2422,7 +2422,7 @@ In the `collection` section (lines 36-51), add a fourth bullet after the "Techni
 
 ```tsx
             <li>
-              <strong>Shared-Link Data:</strong> If you arrive on PropFyndr through a link someone shared with you, we record which link, your device type (phone, tablet, or desktop), a best-effort guess at which app you opened it from (for example Instagram or WhatsApp's in-app browser), and the time. We also give your device its own shareable link so we can see if you pass PropFyndr on. We do not ask for, or collect, your name through this process.
+              <strong>Shared-Link Data:</strong> If you arrive on RealtyAsk through a link someone shared with you, we record which link, your device type (phone, tablet, or desktop), a best-effort guess at which app you opened it from (for example Instagram or WhatsApp's in-app browser), and the time. We also give your device its own shareable link so we can see if you pass RealtyAsk on. We do not ask for, or collect, your name through this process.
             </li>
 ```
 
@@ -2437,7 +2437,7 @@ In the `ai-prompt-privacy` section, change the "Encrypted Session Continuity" bu
 to:
 
 ```tsx
-              <strong>Encrypted Session Continuity:</strong> Chat transcripts are stored encrypted at rest (AES-256), may be reviewed by the PropFyndr founding team to improve answers and understand how the service is used, and are purged according to our data retention schedule.
+              <strong>Encrypted Session Continuity:</strong> Chat transcripts are stored encrypted at rest (AES-256), may be reviewed by the RealtyAsk founding team to improve answers and understand how the service is used, and are purged according to our data retention schedule.
 ```
 
 - [ ] **Step 4: Amend §6 Purpose & Lawful Grounds**
@@ -2445,7 +2445,7 @@ to:
 In the `usage` section (lines 148-157), add a bullet after "Platform Security & Anomaly Prevention":
 
 ```tsx
-              <li><strong>Understanding Shared Reach:</strong> Seeing whether and how PropFyndr is shared from one person to another, so we can tell whether the product is genuinely useful.</li>
+              <li><strong>Understanding Shared Reach:</strong> Seeing whether and how RealtyAsk is shared from one person to another, so we can tell whether the product is genuinely useful.</li>
 ```
 
 - [ ] **Step 5: Add a new "Shared Links" section**
@@ -2460,11 +2460,11 @@ Insert a new entry into the `sections` array, after the `cookies` section (ends 
       content: (
         <div className="space-y-3">
           <p>
-            PropFyndr lets people share a link to the service with others, and lets our own team generate labelled links to see how the product spreads.
+            RealtyAsk lets people share a link to the service with others, and lets our own team generate labelled links to see how the product spreads.
           </p>
           <ul className="list-disc list-inside space-y-2 ml-2 text-slate-600 dark:text-slate-400">
             <li><strong>No Names Collected:</strong> A link records only your device type, a best-effort guess at the app you opened it from, and the time — never your name, unless you separately give us one (for example, on a callback request).</li>
-            <li><strong>Internal Use Only:</strong> This data is visible only to PropFyndr's founding team, never to builders, channel partners, or any third party.</li>
+            <li><strong>Internal Use Only:</strong> This data is visible only to RealtyAsk's founding team, never to builders, channel partners, or any third party.</li>
             <li><strong>Your Own Chats Stay Yours:</strong> Being part of a shared link does not change who can act on your account — it only lets us see that a chat happened and, at a summary level, what it was about.</li>
           </ul>
         </div>

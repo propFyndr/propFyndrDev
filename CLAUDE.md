@@ -26,7 +26,7 @@
 
 ---
 
-# PropFyndr
+# RealtyAsk
 
 **A chat-first real estate advisor for Indian home buyers, built on supply that the people who sell it have verified.**
 
@@ -47,7 +47,7 @@ Buying a new home in India today means:
 
 The research effort is weeks; the confidence at the end is low.
 
-## What PropFyndr Is
+## What RealtyAsk Is
 
 1. **An advisor, not a listings site.** The buyer says what they want ("3BHK near a metro under 1.5 Cr, possession within a year"). The advisor answers with a short list, the reason for each, and the honest trade-off. The property database exists to support the advisor; **the advisor is the product.**
 2. **Verified supply, not scraped supply.** Listings come from partners — builders, channel partners, broker houses — and **go live only after the builder's team approves them**. No hoax listings, no stale inventory presented as live.
@@ -95,9 +95,9 @@ This is the core supply-side promise. **Status (2026-10-05): not built.** Today 
 
 **Target flow:**
 ```
-Partner / broker submits a change ─▶ PENDING_BUILDER ─▶ builder team approves ─▶ PENDING_PROPFYNDR ─▶ we publish ─▶ LIVE
+Partner / broker submits a change ─▶ PENDING_BUILDER ─▶ builder team approves ─▶ PENDING_REALTYASK ─▶ we publish ─▶ LIVE
                                          │ rejects ─▶ REJECTED (reason)              │ rejects ─▶ REJECTED
-Builder submits its own change ──────────────────────────────────────────────────▶ PENDING_PROPFYNDR
+Builder submits its own change ──────────────────────────────────────────────────▶ PENDING_REALTYASK
 ```
 
 **Rules for whoever builds it:**
@@ -141,7 +141,7 @@ Status is against live code as of 2026-10-05 (audits in MEMORY.md and `MASTER_EX
 | Builder / partner portal, role-scoped | Live |
 | Lead Brief (no transcript, competitors scrubbed) | Live |
 | Lead objections (abstract competitor pressure) | Live |
-| Partner approval by PropFyndr; builder proposes partner logins | Live |
+| Partner approval by RealtyAsk; builder proposes partner logins | Live |
 | Lead assignment to partners, site-visit status updates | Live |
 | **Partner submits listing → builder approves → live** | **Not built** |
 | Inventory updates by builder (units available / booked) | Not built (table `UnitInventory` exists, no write path) |
@@ -249,7 +249,7 @@ Every fact shown to a buyer belongs to exactly one tier. Reference `lib/factPres
 * **A builder never receives a chat transcript.** The conversation contains this buyer comparing this builder against competitors and our advisor naming this builder's trade-offs. Builders and partners receive a **Lead Brief** (`lib/leadBrief.ts`): one project, competitor names scrubbed, every field read from a stored column. Competitor *pressure* may be stated abstractly; competitor *identity* never.
 * **A promoted project is never ranked higher.** The news rail (`routes/promotionals.ts`, `components/NewsRail.tsx`) decides what a buyer is invited to ask about, never what is recommended.
 * **A tenant subdomain is addressing, never authorisation.** Scope comes from the session, server-side, on every request.
-* **Only PropFyndr mints identities.** A builder may propose a partner login; our approval creates it.
+* **Only RealtyAsk mints identities.** A builder may propose a partner login; our approval creates it.
 * **Invitees set their own password.** We never issue one.
 * **A partner never approves its own submission**, and a builder never approves another builder's project.
 
@@ -338,7 +338,7 @@ A ticked gate without these is worse than an unticked one: the next session trus
 
 ## What Drives Adoption
 * **Buyers** come back if the first answer is faster and more honest than an evening of PDFs — and if the dossier is good enough to send to family.
-* **Builders** pay if a PropFyndr lead converts better than a portal lead. Measure it: brief opened → contacted → site visit → booking, per source.
+* **Builders** pay if a RealtyAsk lead converts better than a portal lead. Measure it: brief opened → contacted → site visit → booking, per source.
 * **Partners** submit data if approval is fast and their leads are attributed to them.
 * **Trust compounds, one invented number destroys it.** That is why § Data Integrity Debts are launch blockers, not polish.
 

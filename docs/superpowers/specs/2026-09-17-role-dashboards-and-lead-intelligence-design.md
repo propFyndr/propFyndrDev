@@ -48,7 +48,7 @@ front, and the phases below only make sense against them. All five are now also 
    what a buyer is invited to *ask about*, never what the advisor *recommends*.
 3. **A tenant subdomain is addressing, never authorisation.** It decides what the page
    says; scope always comes from the session, server-side, per request.
-4. **Only PropFyndr mints identities.** A builder may propose a partner login; approval
+4. **Only RealtyAsk mints identities.** A builder may propose a partner login; approval
    creates it.
 5. **Invitees always set their own password.** We never issue one.
 
@@ -242,7 +242,7 @@ pick their builder from a dropdown — the question backwards from how anyone th
 | 3.3 | Mounted on builders | Panel appears in the builder detail modal with invite role and scope prefilled | ✅ |
 | 3.4 | Mounted on partners | Panel behind a "Manage access" toggle, offered only for approved partners | ✅ |
 | 3.5 | Tenant branding resolver | `GET /portal/tenant/:subdomain` returns name, slug, logo for a known slug; 404 otherwise | ✅ |
-| 3.6 | Portal entry uses it | `lotus.propfyndr.in` renders the tenant's name and logo, not PropFyndr's | ✅ |
+| 3.6 | Portal entry uses it | `lotus.propfyndr.in` renders the tenant's name and logo, not RealtyAsk's | ✅ |
 
 ### Decisions
 
@@ -625,7 +625,7 @@ and verified.
 | # | Item | Pass condition | State |
 |---|---|---|---|
 | O.1 | `RESEND_API_KEY` set | Present in `backend/.env` | ✅ |
-| O.2 | Verified sender domain | `EMAIL_FROM` is an address on a domain verified in Resend | ✅ — `propfyndr.in` returns `status: verified` from the Resend API (region ap-northeast-1, registered 2026-09-17) and `EMAIL_FROM` is now `PropFyndr <noreply@propfyndr.in>` |
+| O.2 | Verified sender domain | `EMAIL_FROM` is an address on a domain verified in Resend | ✅ — `propfyndr.in` returns `status: verified` from the Resend API (region ap-northeast-1, registered 2026-09-17) and `EMAIL_FROM` is now `RealtyAsk <noreply@propfyndr.in>` |
 | O.3 | One real invite delivered | An invite arrives and the recipient sets a password | 🟡 SENT 2026-09-18 to syedfurqaan83@gmail.com as SUPER_ADMIN; Resend accepted it and the outbox row reads `status: sent`, `sent_by: system`. Awaiting the recipient. **The link points at `http://localhost:3000` because `FRONTEND_URL` is unset for production** |
 | O.4 | `.env.example` updated | `RESEND_API_KEY` and `EMAIL_FROM` documented there | ⬜ OPEN — tracked as **10.6** |
 | O.5 | Per-account passwords | Each staff account has its own password | ⬜ OPEN — tracked as **10.6** |
@@ -779,7 +779,7 @@ deletion is the last step, not the first.
 ## Phase 11 — Hierarchical access control ✅ DONE
 
 Revocation lived only on the admin Team page and only a `SUPER_ADMIN` could reach it. So a
-builder whose sales manager left had to email PropFyndr and wait. That is the wrong shape
+builder whose sales manager left had to email RealtyAsk and wait. That is the wrong shape
 twice: it makes us a bottleneck on somebody else's staffing, and it leaves the person who
 actually knows someone has left unable to act on it.
 
@@ -826,7 +826,7 @@ database. A claim you can read in one screen is a claim somebody will notice is 
   distinguishes them is an oracle for probing other organisations' account ids.
 - **The server sends `can_manage` per row.** The UI never re-derives the hierarchy; two
   implementations of one rule is how the two come to disagree.
-- **Rows you cannot act on are still shown**, marked "Managed by PropFyndr". Who has access is
+- **Rows you cannot act on are still shown**, marked "Managed by RealtyAsk". Who has access is
   information even when the switch is not yours.
 
 ### Verified live

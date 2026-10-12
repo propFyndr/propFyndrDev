@@ -1,4 +1,4 @@
-# PropFyndr — Product Overview
+# RealtyAsk — Product Overview
 
 *Prepared for company documentation, registration and compliance use. Last updated: 7 September 2026.*
 
@@ -6,15 +6,15 @@
 
 ---
 
-## 1. What PropFyndr Is
+## 1. What RealtyAsk Is
 
-PropFyndr is a **property decision platform** — a technology product that helps home buyers in India reach a confident buying decision faster, using an AI-driven conversational interface grounded in a verified real estate database. It currently operates in Noida and Greater Noida (National Capital Region, Uttar Pradesh).
+RealtyAsk is a **property decision platform** — a technology product that helps home buyers in India reach a confident buying decision faster, using an AI-driven conversational interface grounded in a verified real estate database. It currently operates in Noida and Greater Noida (National Capital Region, Uttar Pradesh).
 
-PropFyndr is **not** a property listings portal, **not** a broker/agent marketplace, and **not** a generic chatbot bolted onto a listings site. It is best described as a **decision discovery and decision-support platform**: it helps a buyer surface, compare, and stress-test their own property decision against verified data — rather than simply presenting them with more listings, and rather than giving financial or investment advice.
+RealtyAsk is **not** a property listings portal, **not** a broker/agent marketplace, and **not** a generic chatbot bolted onto a listings site. It is best described as a **decision discovery and decision-support platform**: it helps a buyer surface, compare, and stress-test their own property decision against verified data — rather than simply presenting them with more listings, and rather than giving financial or investment advice.
 
 A buyer describes what they want in plain language ("3 BHK near a metro under 1.5 crore, ready to move") and the platform interprets the request, asks only for what is genuinely missing, and returns specific, reasoned options from a verified database of real projects — surfacing trade-offs the buyer would otherwise have to research manually across many disconnected sources.
 
-**Platform name:** PropFyndr
+**Platform name:** RealtyAsk
 **Sector:** PropTech / Real Estate Technology / Applied AI / Decision-support software
 **Category:** B2C property decision platform, with a B2B qualified-lead-generation layer for real estate developers and channel partners
 **What it is not:** not a real estate brokerage, not a registered real estate agent, not an investment or financial advisory service, not a lender, not a valuer — see Section 9.
@@ -30,7 +30,7 @@ Buying a home in India today, particularly for a first-time or NRI buyer, involv
 3. **Trust deficits specific to Indian real estate.** Builder delays, disputed RERA registrations, litigation history, and non-transparent all-in pricing (stamp duty, GST, PLC, club charges) are common and hard for an ordinary buyer to verify independently.
 4. **A widening gap between buyer expectations and existing tools.** Buyers now use AI assistants daily for everything else in their lives. A property tool that cannot hold context across a conversation, cannot correct itself without restarting, and gives vague non-answers reads as obviously worse than the tools they already trust — and they notice immediately.
 
-PropFyndr addresses this by giving the buyer a **structured decision-discovery process**: a system that remembers what they have said, surfaces trade-offs openly, states uncertainty instead of guessing, and always shows the negative alongside the positive — so the buyer arrives at their own decision faster and with more confidence, rather than being told what to decide.
+RealtyAsk addresses this by giving the buyer a **structured decision-discovery process**: a system that remembers what they have said, surfaces trade-offs openly, states uncertainty instead of guessing, and always shows the negative alongside the positive — so the buyer arrives at their own decision faster and with more confidence, rather than being told what to decide.
 
 ---
 
@@ -57,9 +57,9 @@ While the primary user is the home buyer, the platform is explicitly designed to
 
 ---
 
-## 4. How PropFyndr Is Different From Existing Players
+## 4. How RealtyAsk Is Different From Existing Players
 
-| Dimension | Traditional listing portals (99acres, Housing.com, MagicBricks-type) | Generic AI chat (ChatGPT, general assistants) | **PropFyndr** |
+| Dimension | Traditional listing portals (99acres, Housing.com, MagicBricks-type) | Generic AI chat (ChatGPT, general assistants) | **RealtyAsk** |
 |---|---|---|---|
 | Core interaction | Search filters, browsing | Open-ended chat, no domain grounding | Conversation grounded in verified project data, structured toward a decision |
 | Data trust | Builder-submitted listings, rarely independently verified | No access to real, current inventory | Every project verified against RERA, builder records, structured intake |
@@ -70,7 +70,7 @@ While the primary user is the home buyer, the platform is explicitly designed to
 | Monetisation model | Builder/broker ad placement | N/A | Qualified lead generation — buyer intent, not just contact details |
 | Lead quality for builders/partners | A phone number and a form submission | N/A | A phone number **plus** the buyer's stated budget flexibility, objections raised, projects compared, and reason for interest |
 
-**In one line:** other platforms sell *inventory*; generic AI has no *inventory*; PropFyndr is the only one that combines verified inventory with a decision-discovery process built to reason about it honestly.
+**In one line:** other platforms sell *inventory*; generic AI has no *inventory*; RealtyAsk is the only one that combines verified inventory with a decision-discovery process built to reason about it honestly.
 
 ---
 
@@ -118,7 +118,7 @@ The items below are scoped and sequenced but **not yet live**. They are organise
 - **Voice input**, tuned specifically for Hindi/English code-switched speech (e.g. "3 BHK chahiye Sector 150 mein under 1.5 crore") rather than generic English speech-to-text
 - **Semantic search** — understanding a buyer's phrased needs ("somewhere quiet with good schools") even when it doesn't literally match a project's stored text
 - **Builder Portal** — a self-serve dashboard for builders to see demand for their sectors, buyer objections about their projects, and their own performance analytics
-- **Channel Partner Hub** — a dashboard for real estate brokers/agents partnered with PropFyndr to manage assigned leads and track commission
+- **Channel Partner Hub** — a dashboard for real estate brokers/agents partnered with RealtyAsk to manage assigned leads and track commission
 - **Richer buyer-context handoff to builders/partners** — passing a qualified summary of the buyer's stated needs, budget flexibility, and reactions to specific projects alongside every lead, not just a phone number
 - **"What we couldn't answer" analytics** — systematically tracking every question the platform could not answer due to missing data, turned into a prioritised data-acquisition list for the internal data team
 
@@ -144,13 +144,13 @@ To keep the product focused, the following are deliberately **not** being built 
 
 ## 8. Revenue Model
 
-PropFyndr's revenue is generated on the **B2B side**, from real estate developers and channel partners, in exchange for qualified buyer leads and (planned) portal/dashboard access:
+RealtyAsk's revenue is generated on the **B2B side**, from real estate developers and channel partners, in exchange for qualified buyer leads and (planned) portal/dashboard access:
 
 - **Qualified lead generation** — developers and channel partners pay for leads that come with buyer intent context (stated requirements, budget, objections raised), not just contact details.
 - **(Planned) Builder Portal access** — a paid or tiered dashboard giving builders demand analytics for their own projects/sectors.
-- **(Planned) Channel Partner Hub access** — a paid or commission-linked dashboard for brokers/agents managing PropFyndr-sourced leads.
+- **(Planned) Channel Partner Hub access** — a paid or commission-linked dashboard for brokers/agents managing RealtyAsk-sourced leads.
 
-The buyer-facing product (chat, search, comparison, calculators) is **free to the end user**; sign-up is required only for specific high-intent actions (see Section 5.4). PropFyndr does not charge buyers for using the decision platform, does not charge for listings, and does not take a transaction/brokerage commission on any property sale.
+The buyer-facing product (chat, search, comparison, calculators) is **free to the end user**; sign-up is required only for specific high-intent actions (see Section 5.4). RealtyAsk does not charge buyers for using the decision platform, does not charge for listings, and does not take a transaction/brokerage commission on any property sale.
 
 ---
 
@@ -158,9 +158,9 @@ The buyer-facing product (chat, search, comparison, calculators) is **free to th
 
 This section states how the product is designed and intended to be classified. It is written so a CA or lawyer can quickly confirm or correct it against current law, not as a final determination.
 
-- **Not a real estate agent/broker.** PropFyndr does not list properties for sale on behalf of sellers, does not negotiate or conclude property transactions, and does not hold buyer or seller funds. It surfaces information about, and facilitates buyer interest in, projects that developers make available, and connects interested buyers to the developer/channel partner's own sales team. **Whether this activity nonetheless falls under "real estate agent" registration requirements under the Real Estate (Regulation and Development) Act, 2016 (RERA) — including state-level rules under RERA — should be independently confirmed with legal counsel before scaling B2B lead-sale operations**, particularly if commission-style revenue (as opposed to flat lead-access fees) is introduced.
+- **Not a real estate agent/broker.** RealtyAsk does not list properties for sale on behalf of sellers, does not negotiate or conclude property transactions, and does not hold buyer or seller funds. It surfaces information about, and facilitates buyer interest in, projects that developers make available, and connects interested buyers to the developer/channel partner's own sales team. **Whether this activity nonetheless falls under "real estate agent" registration requirements under the Real Estate (Regulation and Development) Act, 2016 (RERA) — including state-level rules under RERA — should be independently confirmed with legal counsel before scaling B2B lead-sale operations**, particularly if commission-style revenue (as opposed to flat lead-access fees) is introduced.
 - **Not an investment or financial advisor.** The platform explicitly does not provide investment advice, does not recommend a property as a financial investment, and the calculators (EMI, stamp duty, GST) are described to users as computational tools using stated formulas and current statutory rates, not financial recommendations. This is a deliberate product design choice (see Section 3.4) intended to keep the product outside the scope of investment-advisory regulation; it should be confirmed with counsel, especially before any feature described as "investment analysis" (currently explicitly out of scope, Section 6.3) is considered.
-- **Not a lender or loan facilitator.** PropFyndr does not originate, process, or facilitate loans. Any future "bank pre-approval" or lending-partner integration would need its own compliance review (RBI/NBFC-adjacent regulation) before launch.
+- **Not a lender or loan facilitator.** RealtyAsk does not originate, process, or facilitate loans. Any future "bank pre-approval" or lending-partner integration would need its own compliance review (RBI/NBFC-adjacent regulation) before launch.
 - **Not a licensed valuer.** The platform does not provide formal property valuations; pricing shown is the developer's stated pricing, not an independent valuation opinion.
 - **Consumer protection / e-commerce rules.** As a platform facilitating transactions between buyers and third-party developers/partners, applicability of the Consumer Protection (E-Commerce) Rules, 2020 (or successor rules) should be reviewed, particularly disclosure requirements around who the seller/developer is, grievance-redressal mechanisms, and return/refund policy language (if any paid features are introduced for buyers).
 - **Data protection.** The platform collects and processes personal data (name, phone, email, stated budget/preferences, conversation history) from buyers. This falls within scope of the **Digital Personal Data Protection Act, 2023 (DPDP Act)** — a privacy policy, consent mechanism, and data-retention/deletion process are needed before or at launch if not already in place, and should be drafted/reviewed by counsel. AI provider data-handling terms (where buyer conversation content is sent to third-party AI model providers for processing) should also be reviewed for DPDP and contractual compliance.
@@ -174,7 +174,7 @@ This section states how the product is designed and intended to be classified. I
 
 | Field | Value |
 |---|---|
-| Legal entity name | PropFyndr Technologies Private Limited |
+| Legal entity name | RealtyAsk Technologies Private Limited |
 | Company type | Private Limited (as named in own legal copy — confirm CIN reflects this before filing) |
 | Registered office (as published) | Sector 62, Noida, Gautam Buddh Nagar, Uttar Pradesh 201301, India |
 | Grievance & Compliance contact | grievance@propfyndr.in |
@@ -185,7 +185,7 @@ This section states how the product is designed and intended to be classified. I
 
 ### 10.2 To be completed by the founder(s) before filing
 
-Confirmed not present anywhere in this codebase, any config file, or the repo's own documentation — including `docs/BRAND_NAMING_TRADEMARK_DOMAIN_FRAMEWORK.md`, which is exploratory naming/domain research for *alternative* brand names (Yardly, PropPave, Wayfyn, etc.) and does not record a completed trademark filing or registration for "PropFyndr" itself. These are government-issued identifiers and legal facts that only the founder(s) or company records can supply correctly — filling them with a plausible-looking value here would be worse than leaving them blank. Enter each directly:
+Confirmed not present anywhere in this codebase, any config file, or the repo's own documentation — including `docs/BRAND_NAMING_TRADEMARK_DOMAIN_FRAMEWORK.md`, which is exploratory naming/domain research for *alternative* brand names (Yardly, PropPave, Wayfyn, etc.) and does not record a completed trademark filing or registration for "RealtyAsk" itself. These are government-issued identifiers and legal facts that only the founder(s) or company records can supply correctly — filling them with a plausible-looking value here would be worse than leaving them blank. Enter each directly:
 
 | Field | Value |
 |---|---|
@@ -206,4 +206,4 @@ Confirmed not present anywhere in this codebase, any config file, or the repo's 
 
 ## 11. Summary for Documentation Purposes
 
-PropFyndr is a technology platform providing an AI-driven property decision-discovery and comparison service to home buyers, generating revenue through qualified lead access sold to real estate developers and channel partners. It operates in the PropTech / Real Estate Technology / decision-support software sector, is currently live in the Noida/Greater Noida market (Uttar Pradesh), and is architected for multi-city expansion. The product is software-and-data-driven (a conversational decision-support system operating over a proprietary, verified real estate database) rather than a brokerage: it does not itself buy, sell, rent, value, or hold any real property; does not act as a licensed real estate agent, financial advisor, or lender; and does not guarantee any transaction, financial, or legal outcome. It informs, structures, and supports a buyer's own decision, and refers the buyer to human professionals (sales teams, legal, financial) at the point where that is what the buyer needs — see Section 9 for the specific regulatory positions this rests on, each flagged for counsel confirmation.
+RealtyAsk is a technology platform providing an AI-driven property decision-discovery and comparison service to home buyers, generating revenue through qualified lead access sold to real estate developers and channel partners. It operates in the PropTech / Real Estate Technology / decision-support software sector, is currently live in the Noida/Greater Noida market (Uttar Pradesh), and is architected for multi-city expansion. The product is software-and-data-driven (a conversational decision-support system operating over a proprietary, verified real estate database) rather than a brokerage: it does not itself buy, sell, rent, value, or hold any real property; does not act as a licensed real estate agent, financial advisor, or lender; and does not guarantee any transaction, financial, or legal outcome. It informs, structures, and supports a buyer's own decision, and refers the buyer to human professionals (sales teams, legal, financial) at the point where that is what the buyer needs — see Section 9 for the specific regulatory positions this rests on, each flagged for counsel confirmation.

@@ -1,6 +1,6 @@
-# PropFyndr Master Execution Roadmap (Day-by-Day)
+# RealtyAsk Master Execution Roadmap (Day-by-Day)
 
-This document is the unified, day-by-day master execution plan for PropFyndr. It synchronizes all application layers—backend APIs, database models, AI pipelines, analytics services, role-native dashboards, frontend UI, and the hyper-local due-diligence data engine.
+This document is the unified, day-by-day master execution plan for RealtyAsk. It synchronizes all application layers—backend APIs, database models, AI pipelines, analytics services, role-native dashboards, frontend UI, and the hyper-local due-diligence data engine.
 
 ---
 
@@ -64,7 +64,7 @@ Get the codebase deployed to production safely, fix critical onboarding email bu
 Configure the following in the production hosting dashboard (Render / Vercel):
 * `FRONTEND_URL=https://app.propfyndr.in` (points invite links to the live domain).
 * `RESEND_API_KEY`: Active production API key.
-* `EMAIL_FROM=PropFyndr <noreply@propfyndr.in>`: Verified domain address.
+* `EMAIL_FROM=RealtyAsk <noreply@propfyndr.in>`: Verified domain address.
 * `GEMINI_LEG_MAX_DURATION_MS=45000`: Hard timeout preventing runaway AI queries.
 * `FALLBACK_TURN_BUDGET_MS=30000`: Turn budget across provider fallbacks.
 * Document these variables in `.env.example`.
@@ -195,7 +195,7 @@ Reduce AI query costs by 75–80%, eliminate system prompt latency overhead, dep
 ## Day 3: Forensic Due-Diligence Data Engine & Project DNA Expansion
 
 ### Goal
-Differentiate PropFyndr from listing portals by structuring and exposing forensic ground-level buyer intelligence across Noida, Greater Noida, and Yamuna Expressway.
+Differentiate RealtyAsk from listing portals by structuring and exposing forensic ground-level buyer intelligence across Noida, Greater Noida, and Yamuna Expressway.
 
 ### Plain-English Summary (What We Are Doing Today & Why)
 
@@ -441,7 +441,7 @@ Eliminate generic UI patterns (anti-slop audit), polish mobile interactions for 
 ##### Step 5.3: Dynamic SEO Metadata & OpenGraph Images
 * In `frontend/app/property/[slug]/layout.tsx`:
   * Implement `generateMetadata()`:
-    * `title`: `"[Project Name], [Sector], [City] — Verified Review & Due Diligence | PropFyndr"`
+    * `title`: `"[Project Name], [Sector], [City] — Verified Review & Due Diligence | RealtyAsk"`
     * `description`: Dynamically generated summary with carpet area, possession date, RERA number, and starting price.
     * `openGraph`: Dynamic social preview card showing verified project badges.
 * In `frontend/app/sectors/[slug]/layout.tsx` (built 2026-09-25):
@@ -667,9 +667,9 @@ node --require tsx/cjs --test src/routes/__tests__/dueDiligenceFabrication.test.
 
 ---
 
-## Strategic Summary: The PropFyndr Competitive Moat
+## Strategic Summary: The RealtyAsk Competitive Moat
 
 1. **Objective Private Advisory vs Broker Portals**: We never sell buyer phone numbers to cold-calling brokers. The AI remains an uncompromised, objective consultant.
 2. **The Lead Brief (Monetization Engine)**: Builders pay for verified high-intent buyer briefs with known objections. They never see raw conversation transcripts, protecting buyer trust.
-3. **Forensic Data Moat**: Traditional portals provide marketing brochures; PropFyndr answers with lift safety registrations, Amitabh Kant dues clearance, true landed cost multipliers, and water TDS realities.
+3. **Forensic Data Moat**: Traditional portals provide marketing brochures; RealtyAsk answers with lift safety registrations, Amitabh Kant dues clearance, true landed cost multipliers, and water TDS realities.
 4. **Subdomain Addressing, Server Authorization**: External builder and partner portals are strictly isolated and authorized on the server, guaranteeing zero privilege escalation.

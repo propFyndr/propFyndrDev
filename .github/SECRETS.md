@@ -18,7 +18,7 @@ Go to: GitHub repo → Settings → Secrets and variables → Actions → New re
 
 ### How to get Vercel IDs (one-time setup):
 ```bash
-cd C:\Users\Furqan\Desktop\PropFyndrxElite
+cd C:\Users\Furqan\Desktop\RealtyAskxElite
 npm install -g vercel
 vercel link   # follow prompts, links this repo to Vercel project
 # IDs are now in .vercel/project.json — add them as secrets

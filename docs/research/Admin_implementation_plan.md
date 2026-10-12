@@ -1,4 +1,4 @@
-# PropFyndr — Admin, Builder & Partner Implementation Plan
+# RealtyAsk — Admin, Builder & Partner Implementation Plan
 
 **Revision 2 · 2026-08-29 · all figures below were measured against the live database, not estimated.**
 

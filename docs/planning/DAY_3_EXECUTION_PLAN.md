@@ -1,6 +1,6 @@
 # Phase-Gated Implementation Plan: Day 3 — JEV Cutover, Calculators, Evidence Boundary & Sales-OS Refinements
 
-*Grounded in the live codebase state of PropFyndr backend (2026-09-30), strictly aligned with `docs/planning/phaseImplementation.md`, `Skils/SALES-OS-MASTERY.md`, and Red-Team Specifications 1, 2, 3, and 4.*
+*Grounded in the live codebase state of RealtyAsk backend (2026-09-30), strictly aligned with `docs/planning/phaseImplementation.md`, `Skils/SALES-OS-MASTERY.md`, and Red-Team Specifications 1, 2, 3, and 4.*
 
 ---
 
@@ -28,7 +28,7 @@
    - *Required Modification (User Directive + Sales-OS):* 
      - Provide what the user asked for: **grounded numeric ranges / benchmarks** (e.g. typical 2BHK/3BHK rent bands or resale price/sqft ranges across Noida micro-markets).
      - **NEVER provide specific project names or individual listings** from our side for rental or resale.
-     - Pair the range with a customized, empathetic Sales-OS bridge: state clearly that PropFyndr exclusively handles direct developer sales (no resale/rental brokerage), and bridge to verified new/ready developer inventory with 0% GST and clean RERA title.
+     - Pair the range with a customized, empathetic Sales-OS bridge: state clearly that RealtyAsk exclusively handles direct developer sales (no resale/rental brokerage), and bridge to verified new/ready developer inventory with 0% GST and clean RERA title.
 2. **JEV `legal_process` Catch-All Fallback (`backend/src/lib/jev/execute.ts:79-92`):**
    - *Current Flaw:* Any decision with `task: 'legal_process'` that does not match the 5-word checklist regex falls back to `getLegalProcessGuide()`, which dumps a static 6-step guide for fresh builder allotments (BBA, Authority CC/OC, E-stamping, Sub-Registrar).
    - *Impact:* Spec 4 Q6 (5-year ownership chain tracing) receives a fresh-booking registration guide instead of chain-of-title verification. Spec 4 Q7 (society financial health and maintenance arrears) receives the exact same fresh registration guide instead of sinking fund and AOA audit instructions.
@@ -117,17 +117,17 @@ Implement the Sales-OS advisory framework (`SALES-OS-MASTERY.md`) across rental,
      - `formatRentalAdvisory(query, sector?, bhk?)`:
        - *Voss Label:* "It sounds like you're evaluating rental options in [Sector/Noida]..."
        - *Value Delivery:* Provide indicative rent range and yield benchmarks.
-       - *Positioning Statement:* "Currently, PropFyndr exclusively specializes in primary developer sales and verified direct developer homes across Noida & Greater Noida — we do not handle individual rental brokerage or lease listings."
+       - *Positioning Statement:* "Currently, RealtyAsk exclusively specializes in primary developer sales and verified direct developer homes across Noida & Greater Noida — we do not handle individual rental brokerage or lease listings."
        - *Hormozi / Brunson Bridge:* Explain rent-vs-EMI economics and the advantage of ready-to-move homes with 0% GST and verified title.
        - *Calibrated Voss Close:* "Are you looking to rent short-term while planning a purchase, or would you like to see what your monthly budget can secure in a verified ready-to-move project?"
      - `formatResaleAdvisory(query, sector?, bhk?)`:
        - *Voss Label:* "It sounds like you're exploring resale opportunities in [Sector/Noida]..."
        - *Value Delivery:* Provide typical price-per-sqft range and transaction friction overhead (TM charges, registry).
-       - *Positioning Statement:* "Currently, PropFyndr focuses exclusively on primary developer sales and direct builder inventory — we do not operate as an individual resale brokerage."
+       - *Positioning Statement:* "Currently, RealtyAsk focuses exclusively on primary developer sales and direct builder inventory — we do not operate as an individual resale brokerage."
        - *Hormozi / Brunson Bridge:* Highlight resale pitfalls (unpaid builder dues to the Authority blocking registry, cash components, TM transfer fees) vs primary developer purchases with clean RERA escrow and direct lease deeds.
        - *Calibrated Voss Close:* "What budget ceiling or sector are you targeting? I can share verified direct developer homes where title, RERA filings, and registry eligibility are 100% established."
      - `formatOutOfScopeCityAdvisory(query, city)`:
-       - Deliver high-level market context, state PropFyndr's deep ground-level forensic boundary in Noida/Greater Noida/YEIDA, and bridge to Expressway/Sector 150 alternatives.
+       - Deliver high-level market context, state RealtyAsk's deep ground-level forensic boundary in Noida/Greater Noida/YEIDA, and bridge to Expressway/Sector 150 alternatives.
      - `formatCommercialAdvisory(query)`:
        - Deliver commercial yield benchmark (6%–8%), state 100% residential focus, and bridge to low-maintenance residential alternatives.
   4. Export single predicate recognizers for each advisory category (complying with `ERRORS.md`).
@@ -283,7 +283,7 @@ Phase 6 (Sales-OS Market Intelligence & Advisory Bridging Engine) [DONE]
 - Marketing broker hype ("70% open space") is intercepted and converted to factual verification questions.
 - **Sales-OS Advisory Behavior:**
   - Rental and resale queries deliver grounded numerical ranges without mentioning project names.
-  - Every non-core inquiry transparently states PropFyndr's primary developer focus and builds a calibrated bridge.
+  - Every non-core inquiry transparently states RealtyAsk's primary developer focus and builds a calibrated bridge.
 - **Red-Team Spec 4 Compliance (10/10 PASS):**
   - Q1–Q4: Refuses to hallucinate unverified flood, power, or infrastructure data when project context is missing.
   - Q5: Explains 90-year leasehold, TM transfer fees, and authority transfer without an out-of-scope rejection.

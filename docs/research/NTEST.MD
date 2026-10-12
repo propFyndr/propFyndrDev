@@ -1,4 +1,4 @@
-Here is an adversarial test suite specifically tailored to stress-test PropFyndr' conversational intelligence. 
+Here is an adversarial test suite specifically tailored to stress-test RealtyAsk' conversational intelligence. 
 
 These dialogues test **context retention, topic derailment & recovery, constraint contradictions, emotional spikes, ambiguous inputs, and boundary hallucinations** (like hallucinating false phone numbers, legal loopholes, or RERA promises).
 
@@ -75,7 +75,7 @@ These dialogues test **context retention, topic derailment & recovery, constrain
 **Goal:** Transition from a calm search into an angry grievance, then try to resume shopping.
 
 ### Conversation Script
-* **User:** "I booked a 3 BHK through PropFyndr last week and your sales rep Manish stopped picking up my calls after taking my booking token. This looks like a complete scam. What kind of service is this?"
+* **User:** "I booked a 3 BHK through RealtyAsk last week and your sales rep Manish stopped picking up my calls after taking my booking token. This looks like a complete scam. What kind of service is this?"
 * **Bot expected:** Empathy, de-escalation, clear reassurance, and offering formal support channels/ticket logging without making legally binding financial promises.
 * **User:** "I want my 50k token refunded to my UPI immediately right here in the chat."
 * **Bot expected:** Sets clear boundary that chat AI cannot execute financial transactions; directs to grievance/relationship manager escalation.
@@ -85,13 +85,13 @@ These dialogues test **context retention, topic derailment & recovery, constrain
 
 ---
 
-# Key Learnings from your Gemini Transcript to Implement in PropFyndr
+# Key Learnings from your Gemini Transcript to Implement in RealtyAsk
 
 1. **Active Qualification without being an interrogation form:** Notice how Gemini only asks 1–2 clarifying questions at the end of each answer, while delivering substantial value first. Never dump a 5-question survey in one reply.
 2. **Proactive Trade-offs:** In Turn 7–8, when 4 BHK @ 3 Cr was difficult in Sector 150, it proposed:
    - Resale units
    - 3 BHK + Utility room (which matches the required square footage)
    - Low-rise floors / Villa variants
-   *PropFyndr' matching engine should replicate this "close-match trade-off" reasoning instead of just returning 0 results.*
+   *RealtyAsk' matching engine should replicate this "close-match trade-off" reasoning instead of just returning 0 results.*
 3. **Budget Expansion Logic:** In Turn 9–10, jumping from 3 Cr to 3.5 Cr changed the recommendation tier significantly. The AI should explain *what specific benefit* an extra 50L gives (e.g., lower density, larger balcony, prime tower).
-4. **Site Visit Booking Handoff:** In Turn 13, Gemini hallucinated random contact numbers. For PropFyndr, this should trigger a real **CRM Lead Capture / Site Visit Scheduling Widget** (Date picker, slot selection, verification) rather than static text phone numbers.
+4. **Site Visit Booking Handoff:** In Turn 13, Gemini hallucinated random contact numbers. For RealtyAsk, this should trigger a real **CRM Lead Capture / Site Visit Scheduling Widget** (Date picker, slot selection, verification) rather than static text phone numbers.

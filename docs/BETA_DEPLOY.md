@@ -38,7 +38,7 @@ set correctly in `backend/.env` locally; the deployed environment needs them too
 | Variable | Why it matters if missing |
 |---|---|
 | `RESEND_API_KEY` | No invite or password-reset email sends. Degrades rather than breaks — the UI reports `emailed:false` and hands over the link — but nobody gets an email |
-| `EMAIL_FROM` | Must be on a domain **verified in Resend**. `propfyndr.in` is verified; the current value `PropFyndr <noreply@propfyndr.in>` is correct. `onboarding@resend.dev` delivers only to the Resend account owner |
+| `EMAIL_FROM` | Must be on a domain **verified in Resend**. `propfyndr.in` is verified; the current value `RealtyAsk <noreply@propfyndr.in>` is correct. `onboarding@resend.dev` delivers only to the Resend account owner |
 | **`FRONTEND_URL`** | **The one that will bite you.** It is `http://localhost:3000` locally, and invite links are built from it. Deploy without changing it and every invite emails a localhost link |
 | `GEMINI_LEG_MAX_DURATION_MS` | Defaults to 45000. The cap that turned a 209-second query into 15 seconds |
 | `FALLBACK_TURN_BUDGET_MS` | Defaults to 30000 |

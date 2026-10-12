@@ -1,4 +1,4 @@
-# PropFyndr Phase 0-5: Deployment & Validation Guide
+# RealtyAsk Phase 0-5: Deployment & Validation Guide
 
 Commit: `43951fc` — all code changes complete. This guide covers manual steps to measure impact, deploy to staging, and push to production.
 

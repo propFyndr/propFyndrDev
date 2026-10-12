@@ -1,11 +1,11 @@
 {
   "openapi": "3.1.0",
   "info": {
-    "title": "PropFyndr Backend API",
+    "title": "RealtyAsk Backend API",
     "description": "AI-powered real estate advisor backend API. Provides endpoints for chat, property discovery, lead management, analytics, and admin operations.",
     "version": "1.0.0",
     "contact": {
-      "name": "PropFyndr Team",
+      "name": "RealtyAsk Team",
       "email": "team@propfyndr.com"
     },
     "license": {

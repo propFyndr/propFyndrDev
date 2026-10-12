@@ -1,4 +1,4 @@
-# PropFyndr — Query Resolution Spec v1
+# RealtyAsk — Query Resolution Spec v1
 
 Companion to `propfyndr-chat-spec.md`. Where the two differ, this document supersedes §3 and §4 of the base spec.
 

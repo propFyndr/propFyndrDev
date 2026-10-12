@@ -26,7 +26,7 @@ is ever expected for this specific code.
 signal — the purge script explicitly refuses on an ambiguous label match rather than picking
 one, consistent with this project's "surface conflicts, don't resolve them silently" convention.
 
-## Session 2026-09-26 — discovery screen design pass + PropFyndr brand sweep
+## Session 2026-09-26 — discovery screen design pass + RealtyAsk brand sweep
 
 **Worked on:** audit of /discover (sidebar, shell, chat components) against docs/appleDESIGN.md,
 master-design-engineering-skill.md, Premium_UI_UX_Engineering_Skill_v2.md; fixed every finding.
@@ -52,7 +52,7 @@ master-design-engineering-skill.md, Premium_UI_UX_Engineering_Skill_v2.md; fixed
 * **One price range format** "₹1.09 – 1.83 Cr" in `lib/format.ts sanitizePriceLabel`.
 
 * **Discovery keeps its hue + wordmark (user decision, overrides the design docs).** The first
-  pass flattened the page to white and replaced the Afacad "PropFyndr" wordmark with a text H1;
+  pass flattened the page to white and replaced the Afacad "RealtyAsk" wordmark with a text H1;
   user rejected both. Now: `.discover-canvas` (globals.css) — static lavender/indigo wash from the
   top corners settling into `--canvas-base`, 40s drift, dark variant; scrims/composer band use
   `--canvas-base`. Wordmark restored (Afacad bold italic, "Decide Better"), hint line kept below.
@@ -63,7 +63,7 @@ master-design-engineering-skill.md, Premium_UI_UX_Engineering_Skill_v2.md; fixed
 * New-session create path doesn't write `last_projects`.
 * Content: answers stated Noida-wide price ranges without MARKET_QUALIFIER and suggested resale.
 * SuggestionChip tone colours (indigo/emerald/amber/sky) break one-accent rule — undecided.
-* "Verified by PropFyndr Data" badge in database-mode answers — decide if tier-accurate.
+* "Verified by RealtyAsk Data" badge in database-mode answers — decide if tier-accurate.
 
 ## Session 2026-09-17 — role clearance, identity, lead intelligence, news rail
 
@@ -360,8 +360,8 @@ fix eventually — for now, re-run before believing a failure.
 
 ### Decision: inventory-size guard must not assume WE are the subject
 **What:** seven new patterns in `INVENTORY_SIZE` (answerIntegrity.ts) covering
-the product as subject ("PropFyndr covers 280 projects"), existentials with a
-platform locus ("there are 280 projects on PropFyndr"), the assistant's own
+the product as subject ("RealtyAsk covers 280 projects"), existentials with a
+platform locus ("there are 280 projects on RealtyAsk"), the assistant's own
 working set ("I have access to 280 projects"), scope nouns other than
 "database" (coverage/catalogue/dataset/portfolio), relationship counts ("we work
 with 117 builders") and raw data volume ("2 GB of project data").
@@ -438,10 +438,10 @@ so the test asserts nothing but `/auth` is registered above the guard.
 
 ## Session 2026-09-11 — Supply-side consoles: builder, channel partner, admin
 
-### Decision: A channel partner belongs to a builder, PropFyndr approves
+### Decision: A channel partner belongs to a builder, RealtyAsk approves
 **What:** `ChannelPartner` gained `builder_id` (FK to Builder), plus `status` (reuses the
 existing `FormStatus` enum), `reviewed_by`, `review_notes`, `submitted_at`.
-**Why:** PropFyndr does not run its own broker network. The builder onboards and manages
+**Why:** RealtyAsk does not run its own broker network. The builder onboards and manages
 their partners; we approve. Three facts kept deliberately separate — `status` is our review
 decision, `is_active` is whether they may sign in, `is_verified` is the buyer-facing badge.
 Collapsing them into one flag would have made "approved" and "trusted" the same claim.
@@ -452,7 +452,7 @@ and a way for the two to disagree.
 ### Decision: `CallbackRequest` is the one lead table, routed by `assigned_partner_id`
 **What:** Added `assigned_partner_id` (FK), `assigned_at`, `partner_notes` to
 `CallbackRequest`. Builder routes their own leads to their own approved partners; the
-partner sees only rows carrying their id; PropFyndr sees the routing on /admin/leads.
+partner sees only rows carrying their id; RealtyAsk sees the routing on /admin/leads.
 **Why:** Leads had to appear in all three consoles without being duplicated.
 `BuilderLead` and `ChannelLead` both exist in the schema and nothing writes to either —
 adding a third writer would have made "how many leads do we have" unanswerable.
@@ -530,7 +530,7 @@ was a working page no one could navigate to.
 
 ### Decision: CLAUDE.md Premium Doc Pass + Chat Design Philosophy
 **What:** Reframed CLAUDE.md's Purpose section as a working asset, not a rulebook. Added new top-level section "Chat Experience: Meeting the ChatGPT Power-User" (9 concrete expectations: no form-filling, persistent memory, correction without restart, meta-awareness, any-DB-fact answered, reasoning shown not asserted, proactive follow-ups, escalation as favor not funnel, capable-peer tone).
-**Why:** User explicitly asked to design the chat from the lens of a ChatGPT power-user encountering PropFyndr while property-hunting — bar is "would this user notice we're worse than their default assistant," not "is this a fine real-estate chatbot."
+**Why:** User explicitly asked to design the chat from the lens of a ChatGPT power-user encountering RealtyAsk while property-hunting — bar is "would this user notice we're worse than their default assistant," not "is this a fine real-estate chatbot."
 **Rejected:** Nothing removed — additive doc pass only.
 **Note:** This section is the standard for scoring future chat-feature priority; use it when deciding what to build next in the chat interface.
 
@@ -4070,7 +4070,7 @@ grep for readers of what it moves.
   API (`title`/`trend`), which the shipping component does not have.
 - 22 root scripts belonging to a different project. Seven of them hardcode
   `C:/Users/Furqan/Desktop/PeakPalsWebsite`; the rest are branding, logo, hero
-  and scaffolding tools with no PropFyndr reference. Only `find-app-name.mjs`
+  and scaffolding tools with no RealtyAsk reference. Only `find-app-name.mjs`
   was wired to npm (`find-name`), and that entry went with it.
 
 **Kept in `scripts/`:** `enrich_122_projects.cjs`, `enrich_393_ground_truth.cjs`,
@@ -4627,7 +4627,7 @@ The schema cost ~5k prompt tokens per call, and the null-padded output truncated
 ## 2026-10-05 (cont.) — CLAUDE.md rewritten, Day 5 fabrication fixed, full roadmap audit
 **Decided:**
 1. **CLAUDE.md rewritten** (user deleted it deliberately). Kept every guardrail that encodes a past bug (fact tiers, field exposure, role matrix, no transcript to builders, promoted ≠ ranked, guest-token signup). Added: the three-sided product, the **verified supply chain** spec (partner submits → builder approves → we publish; field-level diffs, never direct writes), V1 MVP status table, data-integrity debts as launch blockers, definition of done, realistic limits.
-2. **5.4 re-scoped (user chose "row-verified pills only"):** the proof drawer showed a hardcoded "Quarterly Physical Inspection Audit", invented field notes and the first card's RERA number for any claim. Now a pill appears only on a RERA number we hold for a project on screen (`frontend/lib/chat/reraPills.ts`, zero tokens); model-written `[Verified: …]` with no matching row renders as plain text; drawer shows project, RERA number, authority, portal link and "PropFyndr has not inspected the site".
+2. **5.4 re-scoped (user chose "row-verified pills only"):** the proof drawer showed a hardcoded "Quarterly Physical Inspection Audit", invented field notes and the first card's RERA number for any claim. Now a pill appears only on a RERA number we hold for a project on screen (`frontend/lib/chat/reraPills.ts`, zero tokens); model-written `[Verified: …]` with no matching row renders as plain text; drawer shows project, RERA number, authority, portal link and "RealtyAsk has not inspected the site".
 3. **5.3 wired:** `unitConfiguration.ts` sends `carpetData` on `ui_state` only when carpet and super area are both measured; the visualizer's 1000/750 sqft defaults and "High speed lifts" fallback are gone; ECI shows only with real lifts-per-tower and tower count.
 4. **5.5:** duplicate `CompareSelectorOverlay` removed (two rendered stacked); Day 5 touch targets 48px.
 5. **5.2:** card states the 8.5% rate as "typical for Noida — not your bank's quote" (no live caller passes a buyer rate) and that 24(b) assumes the old regime / 30% slab.
@@ -4674,3 +4674,10 @@ The schema cost ~5k prompt tokens per call, and the null-padded output truncated
 5. Injection patterns narrowed to persona-plus-rule-drop; hearsay ("my friend said"), "Dan", "you are now showing" no longer refused.
 **Rejected:** pg_trgm + alias column (migration) — the in-memory catalogue is 382 rows; word matching needs no schema change. Text-to-SQL for aggregates — an allow-listed filter set is safer and enough.
 **Open (needs a decision):** (a) every `unit_types.price_per_sqft` is `price_is_estimated = true`, so "average price per sq ft" answers "none measured" until rows are marked verified; (b) rate-limit IP behind Vercel needs a secret header from Next middleware before `x-vercel-forwarded-for` can be trusted; (c) `CostSheet.stamp_duty_pct` schema default 6.0 prints 6% for male buyers (UP is 7%); (d) data clean-up of templated payment plans / seeded builder delays; (e) prod env: `connection_limit`, `GUARDRAILS_OBSERVE_MODE=false`.
+
+## 2026-10-12 — Rebrand: PropFyndr → RealtyAsk
+**Decided:** the product is now **RealtyAsk** (logo: "RealtyAsk · FIND • ASK • MOVE"). All user-facing copy in frontend `app/components/lib` and `backend/src` (including the AI system prompt, emails, metadata, link previews), CLAUDE.md and the docs were renamed. New logo set: `images/icons/logo-mark.png` (single square mark, theme-independent), `logo-wordmark-black.png` / `logo-wordmark-white.png`, `/favicon.ico` + `favicon-96x96.png`, 180px opaque `apple-icon.png`.
+**Why:** the founder supplied RealtyAsk artwork and chose a full rebrand over logos-only.
+**Kept on purpose:** lowercase identifiers — `propfyndr.in` domains and CORS origins, `propfyndr:*` window events, `propfyndr_*` storage keys and cookies, the `propFyndr/propFyndrDev` GitHub repo, local folder paths. Renaming them breaks live links, sessions and deploys; a domain move needs DNS first.
+**Watch for:** any regex matching the brand in user/model text must accept both names — `(?:propfyndr|realtyask)`. `answerIntegrity.ts` builds these from template strings (`propfyndr|realtypal|…`), which a `/…/i` search misses; the inventory-leak guard silently stopped catching "RealtyAsk covers 280 projects" until fixed (1c36905).
+**Rejected:** renaming lowercase identifiers in the same pass (breaks production); using the supplied 424×512 transparent apple icon (iOS fills transparency black and expects a square).

@@ -358,9 +358,9 @@ Live-tested the exact previously-failing multi-sector query again after the deri
 
 ### Repo root cleaned up
 
-Removed `launch-your-agent/` — an entirely unrelated Anthropic reference-implementation skill repo sitting in the project root with no relation to PropFyndr, never tracked by git here. Deleted 13 `scratch_step_*.md` files and a recovered-response dump — untracked debug artifacts with nothing in them not already captured in CLAUDE.md/PROGRESS.md.
+Removed `launch-your-agent/` — an entirely unrelated Anthropic reference-implementation skill repo sitting in the project root with no relation to RealtyAsk, never tracked by git here. Deleted 13 `scratch_step_*.md` files and a recovered-response dump — untracked debug artifacts with nothing in them not already captured in CLAUDE.md/PROGRESS.md.
 
-Archived (not deleted) into `docs/research/`: raw AI-consultation transcripts (claude1-3.md, claudeResponse.md, chatGPT.md, chatgptflow.md, geminiflow.md, propFyndrAI.md, responses.md), an adversarial test-case draft (NTEST.MD), a design-system reference (DESIGN-apple.md), a brand-naming brainstorm (master_50_names_table.md), and the superseded Revision 2 admin plan (superseded by PLAN.md's Revision 3).
+Archived (not deleted) into `docs/research/`: raw AI-consultation transcripts (claude1-3.md, claudeResponse.md, chatGPT.md, chatgptflow.md, geminiflow.md, realtyAskAI.md, responses.md), an adversarial test-case draft (NTEST.MD), a design-system reference (DESIGN-apple.md), a brand-naming brainstorm (master_50_names_table.md), and the superseded Revision 2 admin plan (superseded by PLAN.md's Revision 3).
 
 Also committed PLAN.md, PRODUCT_OVERVIEW.md and 4 docs/*.md files that were real, current, actively-referenced project docs sitting untracked.
 

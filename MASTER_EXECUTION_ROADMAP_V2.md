@@ -1,6 +1,6 @@
-# PropFyndr Master Execution Roadmap V2 (Production & Intelligence Scale)
+# RealtyAsk Master Execution Roadmap V2 (Production & Intelligence Scale)
 
-This document is the authoritative, day-by-day master execution plan for PropFyndr. Following a line-by-line audit of the existing codebase, all tasks that were already implemented (such as basic defamation filters, static tables, base execution steppers, and preliminary Prisma schemas) have been **strictly excluded**. 
+This document is the authoritative, day-by-day master execution plan for RealtyAsk. Following a line-by-line audit of the existing codebase, all tasks that were already implemented (such as basic defamation filters, static tables, base execution steppers, and preliminary Prisma schemas) have been **strictly excluded**. 
 
 What remains in this document are **35 genuinely distinct, high-impact architectural and hero-product engineering tasks** (exactly 5 major tasks per day across Days 1 to 7).
 
@@ -239,7 +239,7 @@ Restructure the system prompt into a strictly byte-invariant prefix ladder that 
 * **What to do:**
   * In `runGroundedAnswer()` and `coverageGap.ts`:
     * When an unlisted project is researched via web search, prepend an official markdown badge:
-      `> 🌐 **Public Record Notice**: Sourced from live public filings. PropFyndr has not conducted an on-ground physical inspection for this project.`
+      `> 🌐 **Public Record Notice**: Sourced from live public filings. RealtyAsk has not conducted an on-ground physical inspection for this project.`
     * Ensure `answerIntegrity.ts` validates that no unverified claims or analyst scores are emitted.
 * **Current system relationship:** Upgrades fallback research lane in `chat-router.ts`.
 * **Depends On:** None.
@@ -261,7 +261,7 @@ Restructure the system prompt into a strictly byte-invariant prefix ladder that 
 ## Day 3: JEV Multi-Lane Intelligence Engine Cutover, Router De-Bloat & Red-Team Batch 3 Execution
 
 ### Goal
-Transform PropFyndr into an authoritative, general-purpose real estate intelligence platform capable of handling arbitrary real-world queries (economics, lifestyle, buyer transition scenarios, messy language, and evidence boundaries). Switch JEV from shadow mode to live multi-lane execution, prune dead code from `chat-router.ts` (currently 6,489 lines), retire `extendedIntent.ts` (28,183 bytes, zero active callers in router), deploy deterministic real estate calculators with pre-rendered tables, and enforce the zero-hallucination evidence boundary.
+Transform RealtyAsk into an authoritative, general-purpose real estate intelligence platform capable of handling arbitrary real-world queries (economics, lifestyle, buyer transition scenarios, messy language, and evidence boundaries). Switch JEV from shadow mode to live multi-lane execution, prune dead code from `chat-router.ts` (currently 6,489 lines), retire `extendedIntent.ts` (28,183 bytes, zero active callers in router), deploy deterministic real estate calculators with pre-rendered tables, and enforce the zero-hallucination evidence boundary.
 
 ---
 
@@ -344,7 +344,7 @@ Transform PropFyndr into an authoritative, general-purpose real estate intellige
 
 * **Team & Stakeholder Shareable Brief:**
   * `prenormalizeRawText()` at `requirementState.ts` line 141 handles 8 patterns (19 lines). Extract into standalone `messyLanguageNormalizer.ts` and expand to a 3-pass pipeline: speech disfluency stripping, Hinglish lexicon, ambiguity scoring gate, and unit conversion.
-  * This is what makes PropFyndr work for real buyers (voice-typed, mixed-language, abbreviated) vs. clean API-test inputs.
+  * This is what makes RealtyAsk work for real buyers (voice-typed, mixed-language, abbreviated) vs. clean API-test inputs.
 * **Action:** CREATE `backend/src/lib/discovery/messyLanguageNormalizer.ts`, REFACTOR `requirementState.ts` to import from it
 * **What to do:**
   1. **Extract** `prenormalizeRawText()` into new file, re-export from `requirementState.ts` for backward compat.
@@ -662,7 +662,7 @@ Transform the chat interface into our hero product: deliver smooth typewriter st
 ### Task 5.4: Clickable Provenance Trust Pills & Official Proof Drawer
 * **Team & Stakeholder Shareable Brief:**
   * Attaches verified trust badges to factual claims (e.g. `[Verified: Ganga Jal Supply (TDS 220 ppm)]` or `[Verified: UP Lifts Act Registered]`). Tapping a badge opens a sleek slide-over drawer showing official inspection records, certificate numbers, and dates.
-  * Proves to skeptical home buyers that PropFyndr's data comes from official on-ground audits, separating us from generic listing portals.
+  * Proves to skeptical home buyers that RealtyAsk's data comes from official on-ground audits, separating us from generic listing portals.
 * **Action:** CREATE `frontend/components/chat/ProvenancePill.tsx` and `frontend/components/chat/VerificationProofDrawer.tsx`
 * **What to do:**
   * Render interactive provenance badges on verified statements:
@@ -1032,7 +1032,7 @@ npx ts-node backend/scripts/run-production-gate.ts
 
 ---
 
-## Strategic Summary: The PropFyndr Value Engine
+## Strategic Summary: The RealtyAsk Value Engine
 
 1. **Zero Hallucination Guarantee**: Factual parameters (RERA, OC, water, lifts, statutory fees) are resolved deterministically or checked through an AST provenance gate. We never guess.
 2. **Extreme Token & Cost Efficiency**: The 4-tier prompt ladder combined with Gemini Explicit Caching slashes input tokens by 75–80%, delivering sub-2-second answers at $< $0.0015 per query.

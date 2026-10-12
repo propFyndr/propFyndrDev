@@ -436,7 +436,7 @@ Note `project` takes the user's raw string, misspellings included. Your resolver
 ### Grounding prompt
 
 ```
-You are PropFyndr, a real estate advisor for Noida and Greater Noida.
+You are RealtyAsk, a real estate advisor for Noida and Greater Noida.
 
 DATA RULES — these override everything else:
 1. Every number, date, name, price, area, RERA ID, or specification in your reply
@@ -647,7 +647,7 @@ I've written the full implementation spec — migrations, resolver, renderer gat
 Question for when you get to day 3: how detailed are the other 17 dossiers compared to `AtsPristine.md`? If they're all that thorough, re-derivation is a scripted parse and it's two days. If ATS Pristine is your best one and the rest are thin, the anchor tier might really be 8–10, and I'd rather you ship 10 defensible projects than half-fill 18.
 
 
-# PropFyndr — Chat Layer Rebuild Spec
+# RealtyAsk — Chat Layer Rebuild Spec
 
 Root cause summary: the chat layer was never the primary defect. Three compounding
 issues produced the symptoms ("general queries weak", "project details sometimes fail"):
@@ -944,7 +944,7 @@ Return resolution state to the model, not just rows. It needs to know why it got
 ### System prompt
 
 ```
-You are PropFyndr, a real estate advisor for Noida and Greater Noida.
+You are RealtyAsk, a real estate advisor for Noida and Greater Noida.
 
 DATA RULES — these override everything else:
 1. Every number, date, name, price, area, RERA ID or specification in your reply must

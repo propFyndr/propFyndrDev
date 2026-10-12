@@ -1,4 +1,4 @@
-# PropFyndr — Database Model
+# RealtyAsk — Database Model
 
 ## Builder
 

@@ -1,9 +1,9 @@
-# PropFyndr
+# RealtyAsk
 
 AI-powered real estate advisor for home buyers in Noida, Greater Noida, and
 Greater Noida West.
 
-PropFyndr is not a listings portal. Buyers describe what they want in plain
+RealtyAsk is not a listings portal. Buyers describe what they want in plain
 language and the advisor recommends projects with explicit reasoning and the
 trade-off attached to each one. The property database exists to support the
 advisor, not the other way round.

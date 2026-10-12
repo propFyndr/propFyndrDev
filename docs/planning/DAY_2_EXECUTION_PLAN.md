@@ -1,7 +1,7 @@
-# PropFyndr Day 2: Phase-Wise Implementation & Verification Plan
+# RealtyAsk Day 2: Phase-Wise Implementation & Verification Plan
 # Byte-Invariant Prompt Ladder, JIT Fact Projection & Live Badges
 
-This document is the authoritative, phase-gated implementation plan governing the execution of **Day 2: Byte-Invariant Prompt Ladder, JIT Fact Projection & Live Badges** from the PropFyndr Master Execution Roadmap V2.
+This document is the authoritative, phase-gated implementation plan governing the execution of **Day 2: Byte-Invariant Prompt Ladder, JIT Fact Projection & Live Badges** from the RealtyAsk Master Execution Roadmap V2.
 
 Every phase adheres strictly to [phaseImplementation.md](file:///c:/Users/Furqan/Desktop/RealtyPals/docs/planning/phaseImplementation.md) and contains an **immutable, mathematically checkable Pass Condition ("1 + 1 = 2")**. A task or phase is **NEVER** marked done until its exact output condition is verified by automated test assertions or command output.
 
@@ -363,7 +363,7 @@ Ensure inquiries regarding brand-new launches or unlisted developments not held 
   1. In [backend/src/lib/chat/coverageGap.ts](file:///c:/Users/Furqan/Desktop/RealtyPals/backend/src/lib/chat/coverageGap.ts):
      * Update `unknownProjectDirective(name)` to mandate prepending the badge at the very beginning of the response:
        ```markdown
-       > 🌐 **Public Record Notice**: Sourced from live public filings. PropFyndr has not conducted an on-ground physical inspection for this project.
+       > 🌐 **Public Record Notice**: Sourced from live public filings. RealtyAsk has not conducted an on-ground physical inspection for this project.
        ```
   2. In [backend/src/lib/ai/groundedAnswer.ts](file:///c:/Users/Furqan/Desktop/RealtyPals/backend/src/lib/ai/groundedAnswer.ts):
      * When `fromWeb === true` and answering about an unlisted entity, prepend the exact standardized badge to the response text.
@@ -377,7 +377,7 @@ Ensure inquiries regarding brand-new launches or unlisted developments not held 
 * **Action:** MODIFY
 * **What to do:**
   1. In [backend/src/lib/ai/answerIntegrity.ts](file:///c:/Users/Furqan/Desktop/RealtyPals/backend/src/lib/ai/answerIntegrity.ts):
-     * Add rule for unlisted projects: if response discusses an unlisted entity, assert it does NOT contain PropFyndr proprietary scores (e.g. `PropFyndr Score`, `livability rating /10`), claims of site visits, or external portal links.
+     * Add rule for unlisted projects: if response discusses an unlisted entity, assert it does NOT contain RealtyAsk proprietary scores (e.g. `RealtyAsk Score`, `livability rating /10`), claims of site visits, or external portal links.
      * If violation is detected, abort stream flush and substitute verified referral notice.
 * **Current system relationship:** Integrates into `checkAnswerIntegrity()` in `answerIntegrity.ts`.
 * **Depends On:** Task 2.4.1.
@@ -529,7 +529,7 @@ Phase 2.5 (Multi-Turn Benchmark & Calibrated Release Gate)
 
 ### Quality
 * Pre-rendered markdown tables maintain strict column alignment on mobile viewports ($\le 5$ columns).
-* Tone remains candid, grounded, and aligned with PropFyndr editorial guidelines.
+* Tone remains candid, grounded, and aligned with RealtyAsk editorial guidelines.
 
 ### Verification
 * `promptPrefixStability.test.ts` passes with 0 byte variance.

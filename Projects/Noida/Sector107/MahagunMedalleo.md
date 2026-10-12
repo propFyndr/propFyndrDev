@@ -322,7 +322,7 @@ The brochure continues beyond page 29 and likely contains:
 * Contact details
 * Price section
 
-If you want a **production-ready PropFyndr JSON with 90–95% extraction**, I can continue page-by-page and generate a complete nested JSON schema with:
+If you want a **production-ready RealtyAsk JSON with 90–95% extraction**, I can continue page-by-page and generate a complete nested JSON schema with:
 
 * Configurations
 * Floor Plans

@@ -4,7 +4,7 @@
 
 ## Goal
 
-Measure whether PropFyndr spreads on its own. A super admin generates a labelled link, sends it to one person, and watches the chain: who arrived through whom, on which device and app, what each person asked, and whether they activated. This is product validation, not marketing attribution.
+Measure whether RealtyAsk spreads on its own. A super admin generates a labelled link, sends it to one person, and watches the chain: who arrived through whom, on which device and app, what each person asked, and whether they activated. This is product validation, not marketing attribution.
 
 ## Non-goals
 
@@ -88,7 +88,7 @@ Migration is additive (two tables, one enum). It is run only after explicit conf
 ## Arrival flow
 
 1. Admin generates a root link in `/admin/referrals`: `propfyndr.com/r/k9x2`.
-2. `frontend/app/r/[code]/page.tsx` renders static OpenGraph metadata (generic PropFyndr card, no DB call) and a tiny client component that does `router.replace('/discover?r=k9x2')`. Preview bots read the card and never run the redirect.
+2. `frontend/app/r/[code]/page.tsx` renders static OpenGraph metadata (generic RealtyAsk card, no DB call) and a tiny client component that does `router.replace('/discover?r=k9x2')`. Preview bots read the card and never run the redirect.
 3. A client hook `useReferral`, mounted in the root layout and skipped on `/admin`, `/portal`, `/builder` and `/partner`:
    - If localStorage already holds this device's own code: no network call. It rewrites the address bar if `?r=` is present.
    - Otherwise it calls `POST /api/v1/referral/arrive` with `{ code?, guestToken, channel? }`, caches the returned `ownCode`, and shows the greeting if one is returned.
@@ -104,13 +104,13 @@ Migration is additive (two tables, one enum). It is run only after explicit conf
    - PERSONAL code: `parent = owner`, `generation = parent + 1`, `root_code = parent.root_code`.
    - In the same transaction: create the device's PERSONAL `ReferralLink` and the `ReferralVisit`.
    - Response: `{ ownCode, greeting: { name } | null }`. The name is the root's `greeting_name` only for the holder and inferred-downstream arrivals on a root link. Personal-code arrivals get a generic greeting.
-5. Greeting: a one-line note above the chat input, not an AI message (0 tokens). "Furqan thought you'd find this useful." / "A friend shared PropFyndr with you." Shown once.
+5. Greeting: a one-line note above the chat input, not an AI message (0 tokens). "Furqan thought you'd find this useful." / "A friend shared RealtyAsk with you." Shown once.
 
 ## Sharing surfaces
 
 All three append `?r=<ownCode>&c=<channel>`:
 
-- **New "Share PropFyndr" button** in the chat UI. It uses `navigator.share` where available (`c=native`); otherwise a menu with WhatsApp (`wa.me/?text=`, `c=wa`), SMS (`sms:?&body=`, `c=sms`) and Copy (`c=copy`).
+- **New "Share RealtyAsk" button** in the chat UI. It uses `navigator.share` where available (`c=native`); otherwise a menu with WhatsApp (`wa.me/?text=`, `c=wa`), SMS (`sms:?&body=`, `c=sms`) and Copy (`c=copy`).
 - **Dossier share URL** (`/dossier/:token`, `c=dossier`).
 - **Shortlist share URL** (`/s/:id`, `c=shortlist`).
 
@@ -158,16 +158,16 @@ Address-bar copies carry `r` only. That arrival records `share_channel = link`.
 
 Small text strip at the bottom of the chat, cookie-banner style, shown to every visitor:
 
-> Chats are stored and may be reviewed by the PropFyndr team to improve answers. [Privacy policy] ×
+> Chats are stored and may be reviewed by the RealtyAsk team to improve answers. [Privacy policy] ×
 
 - Hides on ×, on first message sent, or after 10 seconds, whichever comes first. Never shown again (localStorage flag, in try/catch).
 
 ## Privacy policy updates (`frontend/app/privacy/page.tsx`)
 
 - **§1 Information We Collect:** add "Shared-link data": the link a visitor arrived through, the link they share, device type, an in-app-browser guess, timestamps. Remove "device fingerprints" if implementation confirms nothing collects them.
-- **§5 AI Conversational Engine:** replace "for your personal review" with: transcripts may be reviewed by the PropFyndr founding team to improve answers and understand how the service is used.
-- **§6 Purpose:** add "understanding how PropFyndr is shared and improving answers".
-- **New section, "Shared Links":** how codes work; only PropFyndr founders see referral data; no names are collected from visitors; it is never shared with builders or partners.
+- **§5 AI Conversational Engine:** replace "for your personal review" with: transcripts may be reviewed by the RealtyAsk founding team to improve answers and understand how the service is used.
+- **§6 Purpose:** add "understanding how RealtyAsk is shared and improving answers".
+- **New section, "Shared Links":** how codes work; only RealtyAsk founders see referral data; no names are collected from visitors; it is never shared with builders or partners.
 - **§10 Cookies & Local Storage:** add the device referral code and the notice-dismissed flag.
 - **§12 Retention:** guest chat transcripts and referral data are kept for 12 months, then deleted.
 - `lastUpdated`.

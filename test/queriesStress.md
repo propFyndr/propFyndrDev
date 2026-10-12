@@ -52,7 +52,7 @@ Which Noida areas have historically had problems such as waterlogging, traffic c
 I found a 3 BHK in Noida that is ₹25 lakh cheaper than similar apartments nearby. What could explain the price difference, and what should I investigate before buying it?
 H. Temporal / real-time intelligence — 46–48
 
-These are critical because they test whether PropFyndr knows the difference between static knowledge and current information.
+These are critical because they test whether RealtyAsk knows the difference between static knowledge and current information.
 
 What has changed in the Noida property market in the last 12 months, and how has it affected buyers?
 Which Noida sectors have seen the strongest price appreciation recently?
