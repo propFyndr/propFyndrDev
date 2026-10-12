@@ -1,7 +1,7 @@
 'use client'
 
 /**
- * PropFyndr-side channel-partner control. Every partner on the platform,
+ * RealtyAsk-side channel-partner control. Every partner on the platform,
  * whichever builder they belong to and however they got here — self-registered
  * at /partner-register, added by their builder, or created here.
  *

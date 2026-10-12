@@ -2,7 +2,7 @@ import { describe, it } from 'node:test'
 import assert from 'node:assert/strict'
 import { outputGuardrail, inputGuardrail } from './guardrails'
 
-const systemPrompt = `You are PropFyndr AI. Only recommend projects from: Sector 150 Apartments (₹1-1.5 crore, 2-3 BHK).`
+const systemPrompt = `You are RealtyAsk AI. Only recommend projects from: Sector 150 Apartments (₹1-1.5 crore, 2-3 BHK).`
 
 describe('outputGuardrail (fact-check gate)', () => {
   it('should return result object with violations array', async () => {

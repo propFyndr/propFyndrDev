@@ -77,7 +77,7 @@ describe('Sales-OS Market Advisory & Zero-Project-Name Invariant (Phase 6)', () 
 
         // Transparent positioning statement must be present
         assert.ok(
-          output.includes('PropFyndr specializes') || output.includes('exclusively in direct primary developer sales'),
+          output.includes('RealtyAsk specializes') || output.includes('exclusively in direct primary developer sales'),
           'Must state primary developer sales focus',
         )
 
@@ -275,7 +275,7 @@ describe('Sales-OS Market Advisory & Zero-Project-Name Invariant (Phase 6)', () 
       assert.equal(handled, true)
       assert.equal(state.ended, true)
       assert.ok(events.some(e => e.event === 'token' && e.data.token.includes('Indicative Market Rental Overview')))
-      assert.ok(events.some(e => e.event === 'token' && e.data.token.includes('PropFyndr specializes')))
+      assert.ok(events.some(e => e.event === 'token' && e.data.token.includes('RealtyAsk specializes')))
     })
 
     it('dispatches legal_process chain-of-title inquiry to specialized sequence', async () => {

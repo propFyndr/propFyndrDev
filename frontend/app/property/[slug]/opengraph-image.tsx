@@ -1,8 +1,9 @@
 import { ImageResponse } from 'next/og'
+import { BRAND_MARK_SRC } from '@/lib/brandMark'
 import { API_BASE } from '@/lib/env'
 
 export const runtime = 'nodejs'
-export const alt = 'Property on PropFyndr'
+export const alt = 'Property on RealtyAsk'
 export const size = { width: 1200, height: 630 }
 export const contentType = 'image/png'
 
@@ -16,7 +17,7 @@ export default async function OgImage({ params }: { params: Promise<{ slug: stri
     p = null
   }
 
-  const name = p?.name ?? 'PropFyndr'
+  const name = p?.name ?? 'RealtyAsk'
   const price = p?.price_range_label ?? ''
   const sector = p?.sector ?? 'Noida'
   const builder = p?.builder?.name ?? ''
@@ -75,7 +76,9 @@ export default async function OgImage({ params }: { params: Promise<{ slug: stri
           <div
             style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 28, color: 'rgba(255,255,255,0.7)', fontSize: 26 }}
           >
-            Reviewed with PropFyndr AI
+            {/* eslint-disable-next-line @next/next/no-img-element -- next/og renders <img>, not next/image */}
+            <img src={BRAND_MARK_SRC} width={36} height={35} alt="" />
+            Reviewed with RealtyAsk AI
           </div>
         </div>
       </div>

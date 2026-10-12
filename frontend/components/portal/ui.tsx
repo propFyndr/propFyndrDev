@@ -193,7 +193,7 @@ export function Pill({ label, tone = 'zinc' }: { label: string; tone?: keyof typ
   )
 }
 
-/** Approval state of a channel partner, as PropFyndr decided it. */
+/** Approval state of a channel partner, as RealtyAsk decided it. */
 export function PartnerStatusPill({ status }: { status: string }) {
   const tone: keyof typeof PILL_TONES =
     status === 'approved' ? 'emerald'

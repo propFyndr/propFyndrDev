@@ -78,7 +78,7 @@ All planned sectors in the district are divided across three separate statutory 
 2. **GNIDA (Greater Noida Industrial Development Authority)**: Controls Greater Noida Core and **Greater Noida West (Noida Extension)**, including Sectors 1, 4, 10, 12, 16, and Techzone 4.
 3. **YEIDA (Yamuna Expressway Industrial Development Authority)**: Controls the Jewar Airport corridor, Formula 1 circuit, and Sectors 17A, 19, 22D, and 25.
 
-> **Important Note on "Non-Authority" Property:** Unplanned or rural village abadi land (such as *Khasra* or *Lal Dora* plots) does not fall under any authority development scheme. These properties carry high demolition risk, lack approved building plans, and banks will not sanction home loans for them. PropFyndr lists only verified authority-allotted and RERA-registered developments.`)
+> **Important Note on "Non-Authority" Property:** Unplanned or rural village abadi land (such as *Khasra* or *Lal Dora* plots) does not fall under any authority development scheme. These properties carry high demolition risk, lack approved building plans, and banks will not sanction home loans for them. RealtyAsk lists only verified authority-allotted and RERA-registered developments.`)
     }
 
     if (ASKS_TRANSFER.test(m)) {

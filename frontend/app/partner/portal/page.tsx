@@ -177,9 +177,9 @@ export default function PartnerOverviewPage() {
             </h4>
             <p className="text-amber-800/90 dark:text-amber-200/80 font-medium text-[11px] leading-relaxed mt-0.5">
               {partner.status === 'rejected'
-                ? `PropFyndr did not approve this brokerage account.${partner.review_notes ? ` Review feedback: ${partner.review_notes}` : ''}`
+                ? `RealtyAsk did not approve this brokerage account.${partner.review_notes ? ` Review feedback: ${partner.review_notes}` : ''}`
                 : partner.status !== 'approved'
-                ? 'PropFyndr compliance is currently reviewing your agency credentials. Lead routing activates upon verification.'
+                ? 'RealtyAsk compliance is currently reviewing your agency credentials. Lead routing activates upon verification.'
                 : 'Your associated developer has temporarily deactivated this account. Contact developer administration for reactivation.'}
             </p>
           </div>

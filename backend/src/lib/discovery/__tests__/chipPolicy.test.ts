@@ -14,7 +14,7 @@ describe('chip policy — when to stay silent', () => {
   // "Buyer Checklist Before Booking" and "Brokerage & Extra Charges Guide".
   it('offers nothing to a buyer alleging fraud', () => {
     const d = chipsAreWelcome(
-      'I booked a 3 BHK through PropFyndr last week and your sales rep stopped picking up my calls after taking my booking token. This looks like a complete scam.',
+      'I booked a 3 BHK through RealtyAsk last week and your sales rep stopped picking up my calls after taking my booking token. This looks like a complete scam.',
     )
     assert.equal(d.allowed, false)
     assert.equal(d.reason, 'grievance')

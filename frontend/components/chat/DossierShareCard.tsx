@@ -60,7 +60,7 @@ export function DossierShareCard({ href, label, onToast }: DossierShareCardProps
     e.stopPropagation()
     const fullUrl = getFullUrl()
     trackDossierShared(dossierToken, { channel: 'whatsapp' })
-    const text = `My property research on PropFyndr — the questions I asked, the answers, and the projects side by side:\n${fullUrl}`
+    const text = `My property research on RealtyAsk — the questions I asked, the answers, and the projects side by side:\n${fullUrl}`
     if (typeof window !== 'undefined') {
       window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank')
     }

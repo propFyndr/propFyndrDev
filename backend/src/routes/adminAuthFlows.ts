@@ -94,7 +94,7 @@ router.post('/forgot', async (req: Request, res: Response) => {
     await enqueueAndSend({
       toEmail: admin.email,
       template: 'password_reset',
-      subject: 'Reset your PropFyndr password',
+      subject: 'Reset your RealtyAsk password',
       body:
         `A password reset was requested for ${admin.email}.\n\n` +
         `Use the link below to set a new password. It expires in one hour.\n\n` +

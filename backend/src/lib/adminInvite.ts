@@ -101,9 +101,9 @@ export async function sendInviteEmail(
   const { emailed } = await enqueueAndSend({
     toEmail: email,
     template: 'admin_invite',
-    subject: 'Your PropFyndr account',
+    subject: 'Your RealtyAsk account',
     body:
-      `You have been invited to PropFyndr as ${ROLE_LABEL[role] ?? 'a team member'}.\n\n` +
+      `You have been invited to RealtyAsk as ${ROLE_LABEL[role] ?? 'a team member'}.\n\n` +
       `Use the link below to choose your own password and sign in. It expires in seven days.\n\n` +
       `If you were not expecting this, ignore it — no account is active until the link is used.`,
     actionUrl: inviteUrl,

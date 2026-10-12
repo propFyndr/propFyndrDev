@@ -79,7 +79,7 @@ export function canManageAccess(actor: AccessActor, target: AccessTarget): Acces
 
   /**
    * A builder owns the admins of their own organisation, and the admins of the
-   * channel partners they onboarded. Not PropFyndr staff — an external account
+   * channel partners they onboarded. Not RealtyAsk staff — an external account
    * must never be able to switch off an internal one, whatever else it owns.
    */
   if (actor.role === 'BUILDER') {
@@ -96,7 +96,7 @@ export function canManageAccess(actor: AccessActor, target: AccessTarget): Acces
         ? { allowed: true }
         : { allowed: false, reason: 'That partner was not onboarded by your organisation.' }
     }
-    return { allowed: false, reason: 'PropFyndr staff accounts are managed by PropFyndr.' }
+    return { allowed: false, reason: 'RealtyAsk staff accounts are managed by RealtyAsk.' }
   }
 
   /**
@@ -122,7 +122,7 @@ export function canManageAccess(actor: AccessActor, target: AccessTarget): Acces
  *
  * Separate from revocation on purpose, and stricter: switching an account off
  * is reversible and reduces access, while creating one grants it. Only
- * PropFyndr mints identities — a builder proposes a partner login and we
+ * RealtyAsk mints identities — a builder proposes a partner login and we
  * approve it (see `POST /portal/builder/partners/:id/request-access`).
  *
  * Stated here rather than left implicit so that the asymmetry is visible next
@@ -131,5 +131,5 @@ export function canManageAccess(actor: AccessActor, target: AccessTarget): Acces
 export function canInvite(actor: AccessActor): AccessDecision {
   return actor.role === 'SUPER_ADMIN'
     ? { allowed: true }
-    : { allowed: false, reason: 'Only PropFyndr can create a login. Request access instead.' }
+    : { allowed: false, reason: 'Only RealtyAsk can create a login. Request access instead.' }
 }

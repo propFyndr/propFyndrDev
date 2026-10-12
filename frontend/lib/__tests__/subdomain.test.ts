@@ -10,7 +10,7 @@ import { tenantFromHost, isUsableTenantLabel, isPassThroughPath, RESERVED_SUBDOM
 
 test('a tenant host resolves to its label', () => {
   assert.equal(tenantFromHost('lotus.propfyndr.in'), 'lotus')
-  assert.equal(tenantFromHost('Lotus.PropFyndr.in'), 'lotus', 'host matching is case-insensitive')
+  assert.equal(tenantFromHost('Lotus.RealtyAsk.in'), 'lotus', 'host matching is case-insensitive')
   assert.equal(tenantFromHost('lotus.propfyndr.in:3000'), 'lotus', 'the port is not part of the host')
   assert.equal(tenantFromHost('godrej-properties.propfyndr.in'), 'godrej-properties')
 })
@@ -67,7 +67,7 @@ test('assets and API calls pass through a tenant host untouched', () => {
   for (const path of [
     '/api/v1/portal/me',
     '/_next/static/chunk.js',
-    '/images/icons/logo-square-black.png',
+    '/images/icons/logo-mark.png',
     '/admin/login',
     '/builder/portal/leads',
     '/partner/portal',

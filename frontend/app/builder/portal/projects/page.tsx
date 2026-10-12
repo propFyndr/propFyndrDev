@@ -36,7 +36,7 @@ export default function BuilderProjectsPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   // Empty for a BUILDER session (the server reads the id off the session);
-  // set when a PropFyndr role is viewing this builder's console.
+  // set when a RealtyAsk role is viewing this builder's console.
   const scopeId = useScopeId('builder_id')
   const scoped = (path: string) => withScope(path, 'builder_id', scopeId)
 
@@ -102,7 +102,7 @@ export default function BuilderProjectsPage() {
           label="Total Developments"
           value={projects.length}
           icon={<Buildings size={16} />}
-          hint="Active on PropFyndr"
+          hint="Active on RealtyAsk"
         />
         <StatCard
           label="Ready to Move"
@@ -131,7 +131,7 @@ export default function BuilderProjectsPage() {
         <EmptyState
           icon={<Buildings size={32} />}
           title="No projects linked yet"
-          body="Once PropFyndr links your developer inventory to this account, your properties and analytics will appear here."
+          body="Once RealtyAsk links your developer inventory to this account, your properties and analytics will appear here."
         />
       ) : (
         <Card className="divide-y divide-zinc-100 dark:divide-zinc-800/80 overflow-hidden shadow-2xs">
@@ -186,7 +186,7 @@ export default function BuilderProjectsPage() {
           Listing specifications and floor plans are synchronized directly with state RERA records.
         </span>
         <span className="text-[11px] font-medium text-zinc-400 shrink-0">
-          Contact PropFyndr Analyst to update pricing or photos
+          Contact RealtyAsk Analyst to update pricing or photos
         </span>
       </div>
     </PageShell>

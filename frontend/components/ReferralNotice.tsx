@@ -10,8 +10,8 @@ const AUTO_HIDE_MS = 10_000
 
 /**
  * Small, cookie-banner-style disclosure: chats may be reviewed by the
- * PropFyndr team (not just the person who sent it) to understand how
- * PropFyndr spreads. Shown once; dismissed on close, on sending the first
+ * RealtyAsk team (not just the person who sent it) to understand how
+ * RealtyAsk spreads. Shown once; dismissed on close, on sending the first
  * message, or automatically after 10 seconds — whichever comes first.
  */
 export default function ReferralNotice() {
@@ -58,7 +58,7 @@ export default function ReferralNotice() {
     >
       <div className="flex items-center gap-2 rounded-xl bg-[#0c0d14]/85 backdrop-blur-xl border border-white/10 shadow-lg px-3.5 py-2.5 text-white">
         <p className="text-[11px] text-zinc-300/90 leading-snug flex-1">
-          Chats are stored and may be reviewed by the PropFyndr team to improve answers.{' '}
+          Chats are stored and may be reviewed by the RealtyAsk team to improve answers.{' '}
           <Link href="/privacy" className="underline underline-offset-2 text-blue-400 hover:text-blue-300">
             Privacy policy
           </Link>

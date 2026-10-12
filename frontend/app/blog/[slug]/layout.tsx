@@ -20,13 +20,13 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
 
   if (!post) {
     return {
-      title: 'Article on PropFyndr',
+      title: 'Article on RealtyAsk',
       description: 'Guides, market notes, and honest analysis for Noida home buyers.',
     }
   }
 
   const title = post.meta_title || post.title
-  const description = post.meta_description || post.excerpt || `${post.title} — read on the PropFyndr blog.`
+  const description = post.meta_description || post.excerpt || `${post.title} — read on the RealtyAsk blog.`
 
   return {
     title,
@@ -35,7 +35,7 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
       title,
       description,
       type: 'article',
-      siteName: 'PropFyndr',
+      siteName: 'RealtyAsk',
       images: post.cover_image_url ? [{ url: post.cover_image_url }] : undefined,
     },
     twitter: {

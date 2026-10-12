@@ -1,5 +1,5 @@
 /**
- * PropFyndr Transactional & Outreach Email Service
+ * RealtyAsk Transactional & Outreach Email Service
  * Powered by Resend API
  */
 
@@ -41,7 +41,7 @@ export async function sendEmail({
   }
 
   const defaultFrom =
-    process.env.EMAIL_FROM || 'PropFyndr <onboarding@resend.dev>'
+    process.env.EMAIL_FROM || 'RealtyAsk <onboarding@resend.dev>'
   const sender = from || defaultFrom
 
   const recipients = Array.isArray(to) ? to : [to]

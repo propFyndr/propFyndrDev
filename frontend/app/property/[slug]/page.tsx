@@ -82,8 +82,8 @@ export default function PropertyDetailPage() {
     if (navigator.share) {
       try {
         await navigator.share({
-          title: detail?.name ? `${detail.name} — PropFyndr` : 'PropFyndr Property Detail',
-          text: detail?.tagline || 'Explore verified project insights, price analysis, and RERA details on PropFyndr.',
+          title: detail?.name ? `${detail.name} — RealtyAsk` : 'RealtyAsk Property Detail',
+          text: detail?.tagline || 'Explore verified project insights, price analysis, and RERA details on RealtyAsk.',
           url,
         })
         return

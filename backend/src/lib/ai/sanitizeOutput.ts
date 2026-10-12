@@ -85,7 +85,7 @@ const ONPLATFORM_REFERRAL =
  * that we scraped one.
  */
 const ALLOWED_CITATION_RE =
-  /^\s*(?:propfyndr(?:\s+data)?|our\s+data|verified(?:\s+data)?|market\s+data|rera|up-?rera)\s*$/i
+  /^\s*(?:(?:propfyndr|realtyask)(?:\s+data)?|our\s+data|verified(?:\s+data)?|market\s+data|rera|up-?rera)\s*$/i
 
 /** The label an outside source collapses to. */
 const MARKET_CITATION = '(market data)'
@@ -165,7 +165,7 @@ export interface SanitizeResult {
 }
 
 /**
- * Promises no one at PropFyndr can keep.
+ * Promises no one at RealtyAsk can keep.
  *
  * Measured, on a question about Godrej Woods' registration: "This provides
  * buyers with complete regulatory transparency, statutory legal protections,

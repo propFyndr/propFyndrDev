@@ -842,7 +842,7 @@ function MessageBubbleInner({
                         <div className="flex items-center gap-3 text-xs text-gray-500 dark:text-gray-400">
                           <span className="flex items-center gap-1 font-medium">
                             <ShieldCheck size={14} weight="fill" className="text-blue-600 dark:text-blue-400" />
-                            Verified by PropFyndr Data
+                            Verified by RealtyAsk Data
                           </span>
                         </div>
 

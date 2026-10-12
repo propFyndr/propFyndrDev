@@ -1,7 +1,7 @@
 'use client'
 
 /**
- * PropFyndr Admin — Lead Intelligence & Pipeline.
+ * RealtyAsk Admin — Lead Intelligence & Pipeline.
  *
  * Implements Apple Design and Master Design Engineering principles:
  * - Anti-Nesting & Clarity: Elevated buyer dossier, clean typography, and
@@ -543,7 +543,7 @@ export default function BuilderLeadsPage() {
                       <div className="flex items-center justify-end gap-2">
                         <a
                           href={`https://wa.me/91${lead.phone.replace(/[^\d]/g, '').slice(-10)}?text=${encodeURIComponent(
-                            `Hi ${lead.name}, following up regarding your property inquiry on PropFyndr.`
+                            `Hi ${lead.name}, following up regarding your property inquiry on RealtyAsk.`
                           )}`}
                           target="_blank"
                           rel="noreferrer"
@@ -666,7 +666,7 @@ export default function BuilderLeadsPage() {
                       </button>
                       <a
                         href={`https://wa.me/91${selectedLead.phone.replace(/[^\d]/g, '').slice(-10)}?text=${encodeURIComponent(
-                          `Hi ${selectedLead.name}, reaching out regarding your inquiry on PropFyndr.`
+                          `Hi ${selectedLead.name}, reaching out regarding your inquiry on RealtyAsk.`
                         )}`}
                         target="_blank"
                         rel="noreferrer"

@@ -143,9 +143,9 @@ export default function AuthPage() {
       <div className="relative z-10 w-full max-w-[400px] my-auto py-4">
         {/* Wordmark Logo */}
         <div className="flex flex-col items-center mb-6 gap-3">
-          <Image src="/images/icons/logo-wordmark-white.png" alt="PropFyndr" width={106} height={48} className="object-contain drop-shadow-[0_4px_16px_rgba(0,0,0,0.5)]" priority />
+          <Image src="/images/icons/logo-wordmark-white.png" alt="RealtyAsk" width={106} height={35} className="object-contain drop-shadow-[0_4px_16px_rgba(0,0,0,0.5)]" priority />
           <div className="text-center">
-            <h1 className="text-white font-bold text-lg sm:text-xl tracking-tight">Welcome to PropFyndr</h1>
+            <h1 className="text-white font-bold text-lg sm:text-xl tracking-tight">Welcome to RealtyAsk</h1>
             <p className="text-zinc-400 text-xs mt-0.5 font-medium">Unbiased property guidance for Noida</p>
           </div>
         </div>

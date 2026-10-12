@@ -7,7 +7,7 @@ import { MODELS, FALLBACK_CHAIN, type FallbackKeyConfig } from '../../config'
 import type { ChipAction } from '../../discovery/conversationEngine'
 import { chip } from '../../discovery/conversationEngine'
 
-const CHIP_SYSTEM_PROMPT = `You predict the buyer's next question for PropFyndr (Noida & Greater Noida real estate).
+const CHIP_SYSTEM_PROMPT = `You predict the buyer's next question for RealtyAsk (Noida & Greater Noida real estate).
 Generate exactly 3 follow-up action chips.
 
 You receive: KNOWN CONSTRAINTS (what the buyer already told us), PROJECTS ON SCREEN,

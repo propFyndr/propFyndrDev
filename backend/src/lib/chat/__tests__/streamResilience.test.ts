@@ -39,7 +39,7 @@ describe('Stream Resilience & SSE Reconnection Protocol', () => {
     const events: BufferedEvent[] = [
       { seq: 1, event: 'text', data: { text: 'Hello' }, timestamp: Date.now() },
       { seq: 2, event: 'text', data: { text: ' from' }, timestamp: Date.now() },
-      { seq: 3, event: 'text', data: { text: ' PropFyndr' }, timestamp: Date.now() },
+      { seq: 3, event: 'text', data: { text: ' RealtyAsk' }, timestamp: Date.now() },
       { seq: 4, event: 'ui_state', data: { missingFields: [], confidence: 'HIGH' }, timestamp: Date.now() },
       { seq: 5, event: 'done', data: {}, timestamp: Date.now() },
     ]

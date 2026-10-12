@@ -28,7 +28,7 @@ export function adaptSystemPromptForProvider(
     payloadBlocks.push(...matches)
   }
 
-  const conciseHeader = `You are PropFyndr's Real Estate Advisor for Noida & Greater Noida.
+  const conciseHeader = `You are RealtyAsk's Real Estate Advisor for Noida & Greater Noida.
 Answer the buyer's query accurately using ONLY the verified facts provided below.
 Rules:
 1. Be concise, direct, and factual.

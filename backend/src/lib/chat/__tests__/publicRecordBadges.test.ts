@@ -24,7 +24,7 @@ describe('Phase 2.4 — Transparent Public-Record Provenance Badges', () => {
     )
     assert.match(
       directive,
-      /PropFyndr scores|PropFyndr ratings|physical verification/i,
+      /RealtyAsk scores|RealtyAsk ratings|physical verification/i,
       'Directive must strictly forbid emitting proprietary scores or physical inspection claims',
     )
   })
@@ -40,7 +40,7 @@ The buyer asked about "Supertech Supernova Spira" and we hold no verified rows f
 ${PUBLIC_RECORD_NOTICE_BADGE}
 
 Supertech Supernova Spira is a 300-meter mixed-use tower in Sector 94, Noida.
-We have given it an overall PropFyndr Score of 78/100 based on construction pace, and it is marked On-Ground Verified.
+We have given it an overall RealtyAsk Score of 78/100 based on construction pace, and it is marked On-Ground Verified.
 `
 
     const violations = unlistedProprietaryViolations(violatingAnswer, unlistedPrompt)
@@ -72,7 +72,7 @@ Godrej Aristocrat is not yet in our verified database. Based on live public fili
   it('PUBLIC_RECORD_NOTICE_BADGE matches the exact required wording', () => {
     assert.equal(
       PUBLIC_RECORD_NOTICE_BADGE,
-      '> 🌐 **Public Record Notice**: Sourced from live public filings. PropFyndr has not conducted an on-ground physical inspection for this project.',
+      '> 🌐 **Public Record Notice**: Sourced from live public filings. RealtyAsk has not conducted an on-ground physical inspection for this project.',
     )
   })
 })

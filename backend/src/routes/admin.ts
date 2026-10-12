@@ -296,7 +296,7 @@ router.delete('/auth', requireAdmin, async (req: Request, res: Response) => {
 })
 
 /**
- * Everything below this line is PropFyndr staff only.
+ * Everything below this line is RealtyAsk staff only.
  *
  * `requireAdmin` checks that a session EXISTS. It does not read the role — and
  * `adminAuth` and `adminIdentity` share one session store and one key prefix
@@ -1931,7 +1931,7 @@ router.get('/leads', async (req: Request, res: Response) => {
       prisma.callbackRequest.findMany({
         where,
         // Who is working this lead. A builder routes leads to their own channel
-        // partners from the builder console; PropFyndr sees that routing here.
+        // partners from the builder console; RealtyAsk sees that routing here.
         include: {
           assigned_partner: {
             select: { id: true, name: true, builder: { select: { id: true, name: true } } },
@@ -3456,7 +3456,7 @@ router.put('/projects/:id/lifecycle-updates', async (req: Request, res: Response
           update_date: u.update_date ? new Date(u.update_date) : new Date(),
           impact: u.impact || null,
           source: u.source || 'Admin Verification',
-          verified_by: u.verified_by || 'PropFyndr Data Desk',
+          verified_by: u.verified_by || 'RealtyAsk Data Desk',
           maintenance_fee_monthly_psf: u.maintenance_fee_monthly_psf ? parseFloat(u.maintenance_fee_monthly_psf) : null,
           note: u.note || null
         }))

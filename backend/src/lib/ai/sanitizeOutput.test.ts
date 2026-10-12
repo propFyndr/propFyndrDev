@@ -145,7 +145,7 @@ describe('citation scaffolding is collapsed to two labels', () => {
   })
 
   it('keeps our own attribution, which is the point of having any', () => {
-    const input = 'Possession is Dec 2027 (PropFyndr data).'
+    const input = 'Possession is Dec 2027 (RealtyAsk data).'
     const { text, normalizedCitations } = sanitizeOutput(input)
     assert.equal(text, input)
     assert.equal(normalizedCitations, 0)
@@ -162,7 +162,7 @@ describe('citation scaffolding is collapsed to two labels', () => {
   })
 
   it('reports an uncollapsed answer as clean', () => {
-    assert.equal(isClean('Possession is Dec 2027 (PropFyndr data).'), true)
+    assert.equal(isClean('Possession is Dec 2027 (RealtyAsk data).'), true)
     assert.equal(isClean('Possession is Dec 2027 (Web sources).'), false)
   })
 })

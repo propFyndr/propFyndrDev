@@ -191,7 +191,7 @@ export function decide(
   // BUILDER and PARTNER never reach here — adminAreaGuard refuses them at the
   // door — but the matrix states it rather than relying on that.
   if (role !== 'SUPER_ADMIN' && role !== 'ANALYST' && role !== 'SALES') {
-    return { allowed: false, reason: 'The admin area is for PropFyndr staff.' }
+    return { allowed: false, reason: 'The admin area is for RealtyAsk staff.' }
   }
 
   if (role === 'SUPER_ADMIN') return { allowed: true }

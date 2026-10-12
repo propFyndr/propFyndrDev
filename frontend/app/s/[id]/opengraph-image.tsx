@@ -1,4 +1,5 @@
 import { ImageResponse } from 'next/og'
+import { BRAND_MARK_SRC } from '@/lib/brandMark'
 
 const API_BASE = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3001/api/v1'
 
@@ -54,19 +55,10 @@ export default async function OGImage({ params }: { params: { id: string } }) {
       >
         {/* Header */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
-          <div
-            style={{
-              fontSize: 48,
-              fontWeight: 'bold',
-              background: 'rgba(255, 255, 255, 0.1)',
-              padding: '12px 20px',
-              borderRadius: 12,
-            }}
-          >
-            🏠
-          </div>
+          {/* eslint-disable-next-line @next/next/no-img-element -- next/og renders <img>, not next/image */}
+          <img src={BRAND_MARK_SRC} width={72} height={70} alt="" />
           <div>
-            <div style={{ fontSize: 32, fontWeight: 'bold' }}>My PropFyndr Shortlist</div>
+            <div style={{ fontSize: 32, fontWeight: 'bold' }}>My RealtyAsk Shortlist</div>
             <div style={{ fontSize: 18, opacity: 0.8 }}>{projectCount} properties researched with AI</div>
           </div>
         </div>

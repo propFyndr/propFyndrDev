@@ -2,9 +2,9 @@
 //
 // Public channel-partner (broker house / agency) registration.
 //
-// A channel partner always belongs to a builder — PropFyndr does not run its
+// A channel partner always belongs to a builder — RealtyAsk does not run its
 // own broker network. The applicant names the builder they work with, the row
-// lands as `status: new` and `is_active: false`, and a PropFyndr super admin
+// lands as `status: new` and `is_active: false`, and a RealtyAsk super admin
 // approves it before the partner can sign in. Mirrors builderRegistration.ts
 // deliberately: same rate limit shape, same Zod-strict body, same webhook.
 import { Router, Request, Response } from 'express'
@@ -73,7 +73,7 @@ router.post('/', async (req: Request, res: Response) => {
   // in no builder's portal and be invisible to the person meant to manage it.
   const builder = await prisma.builder.findUnique({ where: { id: d.builder_id }, select: { id: true, name: true } })
   if (!builder) {
-    res.status(400).json({ error: 'That builder is not on PropFyndr' })
+    res.status(400).json({ error: 'That builder is not on RealtyAsk' })
     return
   }
 
@@ -116,7 +116,7 @@ router.post('/', async (req: Request, res: Response) => {
     res.status(201).json({
       success: true,
       partner_id: partner.id,
-      message: 'Application submitted. PropFyndr reviews every partner before activation.',
+      message: 'Application submitted. RealtyAsk reviews every partner before activation.',
     })
   } catch (err) {
     // P2002 — name or slug already taken.

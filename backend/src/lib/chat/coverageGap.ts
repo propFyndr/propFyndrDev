@@ -188,7 +188,7 @@ export async function fetchUnknownProjectContext(name: string, city = 'Noida'): 
  * disclaimer attached to the answer rather than to a footnote nobody reads.
  */
 export const PUBLIC_RECORD_NOTICE_BADGE =
-  '> 🌐 **Public Record Notice**: Sourced from live public filings. PropFyndr has not conducted an on-ground physical inspection for this project.'
+  '> 🌐 **Public Record Notice**: Sourced from live public filings. RealtyAsk has not conducted an on-ground physical inspection for this project.'
 
 export function unknownProjectDirective(name: string): string {
   return [
@@ -207,7 +207,7 @@ export function unknownProjectDirective(name: string): string {
     '  If it supports little, say little.',
     '- Do NOT present prices, possession dates or RERA numbers as facts. Attribute',
     '  them as reported and unconfirmed, or leave them out.',
-    '- STRICTLY FORBIDDEN: Do NOT emit PropFyndr scores, PropFyndr ratings, or claim',
+    '- STRICTLY FORBIDDEN: Do NOT emit RealtyAsk scores, RealtyAsk ratings, or claim',
     '  on-ground physical verification for this unlisted project.',
     '- Close by offering our own advisory team to confirm the details.',
     '- Never name or link another website, portal or government site. Our team is',

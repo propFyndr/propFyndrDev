@@ -207,15 +207,15 @@ export default function DiscoveryContent({ userId, guestToken, onSessionChange, 
   useEffect(() => {
     const newTitle = (() => {
       if (sessionTitle && sessionTitle.trim()) {
-        return `${sessionTitle.trim()} | PropFyndr`
+        return `${sessionTitle.trim()} | RealtyAsk`
       }
       const userMsg = chatHistory.find(m => m.type === 'user')?.content
       if (userMsg && userMsg.trim()) {
         const cleanMsg = userMsg.trim()
         const truncated = cleanMsg.length > 35 ? `${cleanMsg.slice(0, 35)}...` : cleanMsg
-        return `${truncated} | PropFyndr`
+        return `${truncated} | RealtyAsk`
       }
-      return `PropFyndr — AI Property Advisor for Noida`
+      return `RealtyAsk — AI Property Advisor for Noida`
     })()
     if (document.title !== newTitle) {
       document.title = newTitle
@@ -508,7 +508,7 @@ export default function DiscoveryContent({ userId, guestToken, onSessionChange, 
   };
   const handleDossierWhatsApp = () => {
     trackDossierShared(dossierToken, { channel: 'whatsapp' });
-    const text = `My property research on PropFyndr — the questions I asked, the answers, and the projects side by side:\n${dossierFullUrl}`;
+    const text = `My property research on RealtyAsk — the questions I asked, the answers, and the projects side by side:\n${dossierFullUrl}`;
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
   };
 
@@ -1941,7 +1941,7 @@ export default function DiscoveryContent({ userId, guestToken, onSessionChange, 
                 the logo artwork — keep the two in step. */}
             <div className="text-center mb-8 w-full max-w-[768px] animate-fade-in-up flex flex-col items-center select-none">
               <h1 className="text-[4.2rem] md:text-[5.5rem] font-bold italic tracking-tight leading-none text-zinc-900 dark:text-white font-[family-name:var(--font-afacad)]">
-                PropFyndr
+                RealtyAsk
               </h1>
               <p className="mt-3 text-[22px] md:text-[26px] font-normal tracking-[-0.01em] leading-tight text-zinc-700 dark:text-zinc-300 font-[family-name:var(--font-afacad)]">
                 Know before you buy
@@ -1996,7 +1996,7 @@ export default function DiscoveryContent({ userId, guestToken, onSessionChange, 
               // finished answer once instead of every token.
               aria-busy={isSubmitting}
               aria-relevant="additions text"
-              aria-label="Conversation with PropFyndr advisor"
+              aria-label="Conversation with RealtyAsk advisor"
               // The session-title pill floats over this feed at z-30, sitting
               // between 10px and 52px from the top. Top padding used to drop to
               // pt-2 (8px) as soon as an intent existed — which is exactly when

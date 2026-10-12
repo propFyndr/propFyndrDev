@@ -290,11 +290,11 @@ test('a platform-wide count never reaches a buyer, whoever is the subject', () =
     '280 projects across 117 builders.',
     'Our verified database currently contains details for only one project.',
     // The product as subject.
-    'PropFyndr covers 280 projects in Noida.',
-    'PropFyndr currently tracks 117 builders.',
+    'RealtyAsk covers 280 projects in Noida.',
+    'RealtyAsk currently tracks 117 builders.',
     'The platform has 280 projects listed.',
     // Existential, with a platform locus.
-    'There are 280 projects on PropFyndr.',
+    'There are 280 projects on RealtyAsk.',
     'Across our platform there are 280 projects.',
     'There are 117 developers in our coverage.',
     // Scope nouns other than "database".

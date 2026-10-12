@@ -1,7 +1,7 @@
 /**
  * Phase 2: Multi-dimensional Ranking Engine
  *
- * 11 independent dimension scorers for PropFyndr recommendation engine.
+ * 11 independent dimension scorers for RealtyAsk recommendation engine.
  * Each scorer returns a 0-100 score with explanation and optional deal-breaker flag.
  *
  * Composite scoring uses geometric mean with dynamic weights based on intent priorities.

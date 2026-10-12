@@ -276,7 +276,7 @@ function normalise(result: any): DossierNarrative | null {
   }
 }
 
-const SYSTEM_PROMPT = `You record a property-research conversation for PropFyndr so the buyer can share it with anyone they choose.
+const SYSTEM_PROMPT = `You record a property-research conversation for RealtyAsk so the buyer can share it with anyone they choose.
 Return one JSON object:
 {
   "searchEvolutionSummary": "1-2 plain sentences: where the search started, how it changed, and the buyer's stated criteria.",

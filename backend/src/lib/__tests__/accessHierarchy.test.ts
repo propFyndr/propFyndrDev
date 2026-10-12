@@ -65,7 +65,7 @@ describe('who may switch off whose login', () => {
       assert.equal(canManageAccess(b, p).allowed, false)
     })
 
-    it('cannot touch PropFyndr staff', () => {
+    it('cannot touch RealtyAsk staff', () => {
       // The one that matters most: an external account must never be able to
       // switch off an internal one, whatever else it legitimately owns.
       for (const role of ['SUPER_ADMIN', 'ANALYST', 'SALES'] as const) {
@@ -97,7 +97,7 @@ describe('who may switch off whose login', () => {
       assert.equal(canManageAccess(p, b).allowed, false)
     })
 
-    it('cannot touch PropFyndr staff', () => {
+    it('cannot touch RealtyAsk staff', () => {
       assert.equal(canManageAccess(p, target('SUPER_ADMIN')).allowed, false)
     })
   })

@@ -1,7 +1,7 @@
 'use client'
 
 /**
- * PropFyndr Admin — Developer & Builder Registrations Review.
+ * RealtyAsk Admin — Developer & Builder Registrations Review.
  *
  * Implements Apple Design and Master Design Engineering principles:
  * - Anti-Nesting Rule: Replaces claustrophobic nested grey cards with an executive
@@ -811,7 +811,7 @@ export default function BuilderApplicationsPage() {
                             </button>
                             <a
                               href={`https://wa.me/91${selectedApp.phone.replace(/[^\d]/g, '').slice(-10)}?text=${encodeURIComponent(
-                                `Hi ${selectedApp.name}, following up regarding your builder registration application on PropFyndr.`
+                                `Hi ${selectedApp.name}, following up regarding your builder registration application on RealtyAsk.`
                               )}`}
                               target="_blank"
                               rel="noreferrer"

@@ -94,7 +94,7 @@ export default function EmailPreviewModal({
   defaultProjectName = 'Everest',
   defaultProjectsList = [],
   defaultTargetCity = 'Delhi-NCR & Greater Noida',
-  defaultSenderName = 'PropFyndr Team',
+  defaultSenderName = 'RealtyAsk Team',
   defaultSenderPhone = '+91 98712 34567',
   defaultSenderTitle = 'Developer Partnerships Desk',
   defaultRole = 'ANALYST',
@@ -213,8 +213,8 @@ export default function EmailPreviewModal({
   // Subject line computation — 100% focused on an exclusive, personal invitation
   const subject =
     template === 'builder_pitch'
-      ? `${recipientName || 'Developer'}, you're invited to join PropFyndr's developer network`
-      : `You've been invited to join PropFyndr Admin as ${defaultRole}`
+      ? `${recipientName || 'Developer'}, you're invited to join RealtyAsk's developer network`
+      : `You've been invited to join RealtyAsk Admin as ${defaultRole}`
 
   // Plaintext version — high-converting, low-friction invitation naming all projects
   const getPlainText = () => {
@@ -226,11 +226,11 @@ export default function EmailPreviewModal({
 
       return `PROPFYNDR PARTNER NETWORK
 
-${devName}, you're invited to PropFyndr.
+${devName}, you're invited to RealtyAsk.
 
 Bring all your developments directly in front of verified homebuyers actively looking across ${city}.
 
-Your Developments in PropFyndr Catalog:
+Your Developments in RealtyAsk Catalog:
 ${projectsListFormatted}
 
 Explore Your Developer Desk:
@@ -244,7 +244,7 @@ A BETTER WAY TO BE DISCOVERED
 
 Homebuyers are no longer just browsing listings. They're comparing projects, checking specifications, exploring locations, evaluating budgets and deciding where they want to visit.
 
-PropFyndr brings that discovery into one place — and gives developers a verified presence throughout the journey.
+RealtyAsk brings that discovery into one place — and gives developers a verified presence throughout the journey.
 
 For ${devName}, that means your entire development portfolio (${projectsInline}) can be presented with the information, specifications and availability your team controls.
 
@@ -272,7 +272,7 @@ WHAT YOU GET AS A PROPFYNDR PARTNER
 
 WE'D LIKE TO INVITE ${devName} TO JOIN
 
-We're opening PropFyndr's developer network to selected builders and project partners across ${city}. Your invitation is ready.
+We're opening RealtyAsk's developer network to selected builders and project partners across ${city}. Your invitation is ready.
 
 Accept Developer Invitation:
 ${generatedInviteLink}
@@ -280,7 +280,7 @@ ${generatedInviteLink}
 It takes a few minutes to review your developer desk and get started.
 
 ---
-PropFyndr · Developer Partnerships
+RealtyAsk · Developer Partnerships
 Building a more direct connection between India's homebuyers and the developers behind the projects they are considering.
 partnerships@propfyndr.in · ${senderPhone}
 This invitation was prepared specifically for the ${devName} team regarding: ${projectsInline}.`
@@ -288,7 +288,7 @@ This invitation was prepared specifically for the ${devName} team regarding: ${p
 
     return `Hi,
 
-You have been invited to join the PropFyndr platform with ${defaultRole} administrative access.
+You have been invited to join the RealtyAsk platform with ${defaultRole} administrative access.
 
 To accept your invitation, verify your credentials, and access the admin intelligence console, please click the secure link below:
 
@@ -297,7 +297,7 @@ ${generatedInviteLink}
 This link is valid for 7 days. If you did not request this invitation, you can safely ignore this email.
 
 Best regards,
-The PropFyndr Team
+The RealtyAsk Team
 https://propfyndr.in`
   }
 
@@ -310,13 +310,13 @@ https://propfyndr.in`
 
     return `Hi ${devName} Team,
 
-Greetings from PropFyndr.in.
+Greetings from RealtyAsk.in.
 
 We are officially inviting ${devName} to bring all your developments directly in front of verified homebuyers actively searching across ${city}:
 
 ${projectsListFormatted}
 
-Why developers are joining PropFyndr:
+Why developers are joining RealtyAsk:
 • Direct Buyer Inquiries: Inquiries route directly to your in-house sales gallery across all projects.
 • Zero Broker Dilution: No competing broker listings around ${projectsInline}.
 • Sanctioned RERA Specs: Keep approved layouts, inventory and project milestones accurate.
@@ -686,10 +686,10 @@ ${senderPhone}`
     <!-- HERO -->
     <div class="hero-header">
       <div style="font-size: 10.5px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: #fef08a; margin-bottom: 12px;">
-        PropFyndr Partner Network
+        RealtyAsk Partner Network
       </div>
       <h1 class="hero-title">
-        ${recipientLabel},<br><em>you're invited to PropFyndr.</em>
+        ${recipientLabel},<br><em>you're invited to RealtyAsk.</em>
       </h1>
       <div style="font-size: 13px; color: rgba(255, 255, 255, 0.85); line-height: 1.5; max-width: 440px; margin: 0 auto 20px auto;">
         Bring all your developments (${allProjects.join(', ')}) directly in front of verified homebuyers actively looking across ${cityLabel}.
@@ -717,7 +717,7 @@ ${senderPhone}`
         Homebuyers are no longer just browsing listings. They're comparing projects, checking specifications, exploring locations, evaluating budgets and deciding where they want to visit.
       </p>
       <p style="font-size: 13px; line-height: 1.65; color: ${palette.textSecondary}; margin: 0 0 14px 0;">
-        PropFyndr brings that discovery into one place — and gives developers a verified presence throughout the buyer journey.
+        RealtyAsk brings that discovery into one place — and gives developers a verified presence throughout the buyer journey.
       </p>
       <p style="font-size: 13px; line-height: 1.65; color: ${palette.textSecondary}; margin: 0 0 22px 0;">
         For <strong>${recipientLabel}</strong>, that means your entire development portfolio — <strong>${allProjects.join(', ')}</strong> — can be presented with the information, specifications and availability your team controls.
@@ -729,7 +729,7 @@ ${senderPhone}`
           <span class="showcase-badge">Your Developments · Verified RERA Presence</span>
           <div class="showcase-title">${recipientLabel} Development Portfolio</div>
           <div style="font-size: 11.5px; color: rgba(255, 255, 255, 0.7); margin-bottom: 14px;">
-            All ${allProjects.length} active developments in your catalog on PropFyndr.
+            All ${allProjects.length} active developments in your catalog on RealtyAsk.
           </div>
 
           <!-- Project Cards for ALL Projects -->
@@ -773,13 +773,13 @@ ${senderPhone}`
         Platform Capabilities
       </div>
       <div style="font-family: 'Newsreader', Georgia, serif; font-size: 21px; font-weight: 600; color: ${palette.textPrimary}; line-height: 1.3; margin: 0 0 14px 0;">
-        What you get as a PropFyndr partner
+        What you get as a RealtyAsk partner
       </div>
       <div style="display: grid; grid-template-columns: ${isMobile ? '1fr' : 'repeat(2, 1fr)'}; gap: 10px; margin: 14px 0 24px 0;">
         <div style="background: ${palette.cardBg}; border: 1px solid ${palette.cardBorder}; border-radius: 12px; padding: 14px;">
           <div style="font-size: 11px; font-weight: 800; color: #0066cc; margin-bottom: 4px;">01</div>
           <div style="font-size: 13px; font-weight: 700; color: ${palette.textPrimary}; margin-bottom: 4px;">Verified Presence</div>
-          <div style="font-size: 11.5px; color: ${palette.textSecondary}; line-height: 1.45;">Own your official developer and project presence across all ${allProjects.length} developments on PropFyndr.</div>
+          <div style="font-size: 11.5px; color: ${palette.textSecondary}; line-height: 1.45;">Own your official developer and project presence across all ${allProjects.length} developments on RealtyAsk.</div>
         </div>
         <div style="background: ${palette.cardBg}; border: 1px solid ${palette.cardBorder}; border-radius: 12px; padding: 14px;">
           <div style="font-size: 11px; font-weight: 800; color: #0066cc; margin-bottom: 4px;">02</div>
@@ -804,7 +804,7 @@ ${senderPhone}`
           We'd like to invite ${recipientLabel} to join.
         </div>
         <div style="font-size: 12.5px; color: ${palette.textSecondary}; line-height: 1.5; max-width: 420px; margin: 0 auto 18px auto;">
-          We're opening PropFyndr's developer network to selected builders across ${cityLabel} for ${allProjects.join(', ')}. Your invitation is ready.
+          We're opening RealtyAsk's developer network to selected builders across ${cityLabel} for ${allProjects.join(', ')}. Your invitation is ready.
         </div>
         <div>
           <a href="${generatedInviteLink}" class="cta-button">
@@ -819,7 +819,7 @@ ${senderPhone}`
 
     <!-- Editorial Footer -->
     <div class="footer-section">
-      <div class="signature-title">PropFyndr · Developer Partnerships</div>
+      <div class="signature-title">RealtyAsk · Developer Partnerships</div>
       <div style="margin: 2px 0 10px 0;">Building a more direct connection between India's homebuyers and the developers behind the projects they are considering.</div>
       <div>partnerships@propfyndr.in · Direct: ${senderPhone}</div>
       <div style="margin-top: 8px; font-size: 10.5px; opacity: 0.8;">
@@ -856,8 +856,8 @@ ${senderPhone}`
 <body>
   <div class="box">
     <span class="badge">Security Credentials</span>
-    <h1>Join PropFyndr Admin</h1>
-    <p>You have been assigned access credentials as <strong>${defaultRole}</strong> on the PropFyndr real estate intelligence console.</p>
+    <h1>Join RealtyAsk Admin</h1>
+    <p>You have been assigned access credentials as <strong>${defaultRole}</strong> on the RealtyAsk real estate intelligence console.</p>
     <a href="${generatedInviteLink}" class="btn">Accept Invitation &rarr;</a>
     <div class="footer">
       Direct Link: ${generatedInviteLink}

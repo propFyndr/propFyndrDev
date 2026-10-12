@@ -4,9 +4,9 @@ import { API_BASE } from '@/lib/env'
 
 export const metadata: Metadata = {
   title: 'Blog',
-  description: 'Guides, market notes, and honest analysis for Noida home buyers, from the PropFyndr team.',
+  description: 'Guides, market notes, and honest analysis for Noida home buyers, from the RealtyAsk team.',
   openGraph: {
-    title: 'PropFyndr Blog',
+    title: 'RealtyAsk Blog',
     description: 'Guides, market notes, and honest analysis for Noida home buyers.',
     type: 'website',
   },
@@ -44,11 +44,11 @@ export default async function BlogIndexPage() {
             href="/"
             className="text-xs font-semibold text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white transition-colors"
           >
-            ← PropFyndr
+            ← RealtyAsk
           </Link>
           <div className="mt-4 flex items-center gap-2">
             <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold tracking-wider uppercase bg-blue-50 dark:bg-blue-950/60 text-[#0066cc] dark:text-[#2997ff] border border-blue-200/60 dark:border-blue-800/60">
-              PropFyndr Editorial
+              RealtyAsk Editorial
             </span>
           </div>
           <h1 className="mt-3 text-4xl sm:text-5xl font-bold tracking-tight text-zinc-900 dark:text-white font-[family-name:var(--font-afacad)]">
@@ -98,7 +98,7 @@ export default async function BlogIndexPage() {
                   )}
                   <div className="mt-4 flex items-center gap-3 text-xs font-medium text-zinc-400 dark:text-zinc-500">
                     <span className="font-semibold text-zinc-700 dark:text-zinc-300">
-                      {post.author_name || 'PropFyndr Advisory Research'}
+                      {post.author_name || 'RealtyAsk Advisory Research'}
                     </span>
                     {post.published_at && (
                       <>

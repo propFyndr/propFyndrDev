@@ -138,7 +138,7 @@ export async function streamWithGroq(
         anyTokenSent = true
         
         if (
-          /propfyndr (ai |data |behavior |communication )/i.test(fullText) ||
+          /(?:propfyndr|realtyask) (ai |data |behavior |communication )/i.test(fullText) ||
           /hard rule|strong rule/i.test(fullText) ||
           /fallback mode/i.test(fullText) ||
           /prohibited|never invent|never share/i.test(fullText)

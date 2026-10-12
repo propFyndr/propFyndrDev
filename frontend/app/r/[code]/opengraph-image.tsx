@@ -1,7 +1,8 @@
 import { ImageResponse } from 'next/og'
+import { BRAND_MARK_SRC } from '@/lib/brandMark'
 
 export const runtime = 'nodejs'
-export const alt = 'PropFyndr — AI Property Advisor'
+export const alt = 'RealtyAsk — AI Property Advisor'
 export const size = { width: 1200, height: 630 }
 export const contentType = 'image/png'
 
@@ -24,7 +25,11 @@ export default function OGImage() {
           fontFamily: 'system-ui, -apple-system',
         }}
       >
-        <div style={{ fontSize: 64, fontWeight: 'bold' }}>🏠 PropFyndr</div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 20, fontSize: 64, fontWeight: 'bold' }}>
+          {/* eslint-disable-next-line @next/next/no-img-element -- next/og renders <img>, not next/image */}
+          <img src={BRAND_MARK_SRC} width={84} height={82} alt="" />
+          RealtyAsk
+        </div>
         <div style={{ fontSize: 28, opacity: 0.85, marginTop: 16 }}>
           AI Property Advisor — someone thinks you&apos;d find this useful
         </div>

@@ -53,7 +53,7 @@ export default function PartnersTab({ partners = [], projectName = 'this project
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {partners.map((partner, i) => {
           const partnerType = partner.partner_type ? partner.partner_type.replace('_', ' ').toUpperCase() : 'AUTHORIZED PARTNER'
-          const waMessage = encodeURIComponent(`Hi, I'm interested in ${projectName} and found your details on PropFyndr. Can you share details?`)
+          const waMessage = encodeURIComponent(`Hi, I'm interested in ${projectName} and found your details on RealtyAsk. Can you share details?`)
           const waUrl = partner.phone ? `https://wa.me/${partner.phone.replace(/[^0-9]/g, '')}?text=${waMessage}` : null
 
           return (

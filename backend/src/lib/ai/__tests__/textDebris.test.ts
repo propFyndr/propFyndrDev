@@ -14,7 +14,7 @@ import { beautifyResponse } from '../responseBeautifier'
 import { cleanDebris, sanitizeOutput } from '../sanitizeOutput'
 import { MARKET_QUALIFIER } from '../../factPresentation'
 
-const NO_FACTS = 'You are PropFyndr.\n\nVERIFIED FACTS\n(none)\n'
+const NO_FACTS = 'You are RealtyAsk.\n\nVERIFIED FACTS\n(none)\n'
 
 describe('market qualifier placement', () => {
   it('uses the comma form inside an open parenthesis', () => {

@@ -97,7 +97,7 @@ const STAMP_FEMALE = calcStampDuty(1, 'female').rate
 const REGISTRATION_PCT = (calcStampDuty(1, 'male').registration / 1_00_00_000) * 100
 const GST_UC = calcGst(1, 'under_construction').rate
 const GST_AFFORDABLE = calcGst(0.4, 'under_construction', 50).rate // mirrors calcGst: under ₹45 lakh and carpet ≤ 60 sq m
-export const STATUTORY = `STATUTORY FACTS (fixed by Uttar Pradesh law and verified by PropFyndr; state them plainly, without a link; if a SOURCE disagrees, the SOURCE is wrong, so do not repeat it):
+export const STATUTORY = `STATUTORY FACTS (fixed by Uttar Pradesh law and verified by RealtyAsk; state them plainly, without a link; if a SOURCE disagrees, the SOURCE is wrong, so do not repeat it):
 - Stamp duty: ${STAMP_MALE}% for men, ${STAMP_FEMALE}% for women, at every property value. There is no price cap on the women's rate.
 - Registration: ${REGISTRATION_PCT}% of the property value.
 - GST: ${GST_UC}% on under-construction flats; ${GST_AFFORDABLE}% on affordable housing (under ₹45 lakh with carpet area up to 60 sq m); none on ready-to-move flats with an occupancy certificate.`
@@ -113,7 +113,7 @@ export const AI_WORDS = [
   'noteworthy', 'vibrant', 'seamless', 'navigate', 'leverage', 'unlock', 'elevate', 'realm', 'game-changer',
 ]
 
-const SYSTEM = `You write blog articles for PropFyndr, an AI real estate advisor for home buyers in Noida, India.
+const SYSTEM = `You write blog articles for RealtyAsk, an AI real estate advisor for home buyers in Noida, India.
 Voice: a capable, honest peer. Plain and direct. No hype, no exclamation marks, no "dream home" language.
 Show trade-offs and risks as readily as benefits.
 
@@ -141,7 +141,7 @@ STYLE (write like a person who knows the market, not like a template):
 
 STRUCTURE (checked in code; a draft that breaks these is sent back):
 1. title: 40-65 characters, the phrase a buyer would search for, and name Noida (or UP / Uttar Pradesh for a state-wide rule). No clickbait, no question marks.
-2. meta_title: at most 48 characters (the site appends " | PropFyndr", and Google cuts titles near 60). meta_description: 120-155 characters, saying what the reader will learn.
+2. meta_title: at most 48 characters (the site appends " | RealtyAsk", and Google cuts titles near 60). meta_description: 120-155 characters, saying what the reader will learn.
 3. excerpt: 1-2 sentences, 100-200 characters.
 4. Start with 1-2 intro paragraphs, no heading first. The first two sentences answer the core question directly.
 5. Then 3-5 body h2 sections, each answering a different sub-question with 2-3 paragraphs (or a paragraph plus a list). Section headings at most 70 characters, FAQ questions at most 110, all different. h3 only inside a section.
@@ -182,7 +182,7 @@ export function findDuplicateTitle(title: string, existing: string[]): string | 
 }
 
 // ── Structure and SEO rules ─────────────────────────────────────────────────
-/** 60 (where Google cuts) minus " | PropFyndr", which the page title template appends. */
+/** 60 (where Google cuts) minus " | RealtyAsk", which the page title template appends. */
 const META_TITLE_MAX = 48
 const wordCount = (s: string) => s.split(/\s+/).filter(Boolean).length
 const spanText = (ss: SpanT[]) => ss.map(s => s.text).join('')
@@ -220,8 +220,8 @@ export function checkDraftQuality(d: Draft): { hard: string[]; soft: string[] } 
   if (d.title.length < 40 || d.title.length > 65) soft.push(`Title is ${d.title.length} characters (SEO target 40-65).`)
   if (d.title.includes('?')) soft.push('Title is a question; a statement ranks and reads better.')
   if (!/\b(noida|uttar pradesh|up)\b/i.test(d.title)) soft.push('Title does not name Noida or UP (local SEO).')
-  // The page title template adds " | PropFyndr" (12 chars); Google cuts near 60.
-  if (d.meta_title.length > META_TITLE_MAX) soft.push(`Meta title is ${d.meta_title.length} characters (max ${META_TITLE_MAX}; with " | PropFyndr" it gets cut in search results).`)
+  // The page title template adds " | RealtyAsk" (12 chars); Google cuts near 60.
+  if (d.meta_title.length > META_TITLE_MAX) soft.push(`Meta title is ${d.meta_title.length} characters (max ${META_TITLE_MAX}; with " | RealtyAsk" it gets cut in search results).`)
   if (d.meta_description.length < 120 || d.meta_description.length > 160) soft.push(`Meta description is ${d.meta_description.length} characters (target 120-155).`)
   if (d.excerpt.length < 100 || d.excerpt.length > 220) soft.push(`Excerpt is ${d.excerpt.length} characters (target 100-200).`)
   if (b[0]?.type !== 'p') soft.push('Opens with a heading or list instead of an intro paragraph.')

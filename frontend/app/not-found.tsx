@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import {
   ArrowLeft, House, ArrowRight, ArrowBendDownLeft, MagnifyingGlass,
@@ -30,13 +31,14 @@ export default function NotFound() {
 
       {/* Navigation Header */}
       <header className="relative z-10 max-w-6xl mx-auto w-full px-6 py-5 flex items-center justify-between border-b border-white/5">
-        <Link href="/" className="flex items-center gap-2.5 group">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center text-white font-black text-sm shadow-lg shadow-blue-500/25 group-hover:scale-105 transition-transform">
-            RP
-          </div>
-          <span className="font-extrabold text-lg tracking-tight text-white group-hover:text-blue-400 transition-colors">
-            PropFyndr
-          </span>
+        <Link href="/" className="flex items-center gap-2.5 group shrink-0">
+          <Image
+            src="/images/icons/logo-wordmark-white.png"
+            alt="RealtyAsk"
+            width={648}
+            height={216}
+            className="object-contain h-auto opacity-90 group-hover:opacity-100 transition-opacity w-28 sm:w-36"
+          />
         </Link>
 
         <button
@@ -150,7 +152,7 @@ export default function NotFound() {
 
       {/* Footer */}
       <footer className="relative z-10 max-w-6xl mx-auto w-full px-6 py-4 border-t border-white/5 text-center text-[11px] text-zinc-600">
-        © {new Date().getFullYear()} PropFyndr · Verified Real Estate Intelligence
+        © {new Date().getFullYear()} RealtyAsk · Verified Real Estate Intelligence
       </footer>
     </div>
   )

@@ -1,7 +1,7 @@
 'use client'
 
 /**
- * PropFyndr — Email Composer & Executive Preview Studio.
+ * RealtyAsk — Email Composer & Executive Preview Studio.
  *
  * Implements high-converting, psychology-aligned developer and partner
  * invitation outreach with 100% dynamic entity personalization.
@@ -114,7 +114,7 @@ function EmailPreviewStudioContent() {
   const [recipientPhone, setRecipientPhone] = useState(searchParams.get('phone') || '+91 98765 43210')
   const [projectName, setProjectName] = useState(searchParams.get('project') || 'Gayatri Life')
   const [targetCity, setTargetCity] = useState('Delhi-NCR & Greater Noida')
-  const [senderName, setSenderName] = useState('PropFyndr Team')
+  const [senderName, setSenderName] = useState('RealtyAsk Team')
   const [senderPhone, setSenderPhone] = useState('+91 98712 34567')
 
   // Real DB builders and partners for instant 1-click personalization
@@ -296,17 +296,17 @@ function EmailPreviewStudioContent() {
     const projSummary = allProjects.slice(0, 2).join(' & ')
     if (template === 'builder_invite') {
       if (heroStyle === 'direct') {
-        return `${recipientName}, you're invited to join PropFyndr's developer network`
+        return `${recipientName}, you're invited to join RealtyAsk's developer network`
       }
       if (heroStyle === 'premium') {
-        return `A new direct channel for ${recipientName} — PropFyndr Invitation`
+        return `A new direct channel for ${recipientName} — RealtyAsk Invitation`
       }
-      return `Your next homebuyer is looking at ${projSummary} — PropFyndr Invitation`
+      return `Your next homebuyer is looking at ${projSummary} — RealtyAsk Invitation`
     }
     if (template === 'partner_invite') {
-      return `${recipientName}, you're invited to PropFyndr's Channel Partner Network (${projSummary})`
+      return `${recipientName}, you're invited to RealtyAsk's Channel Partner Network (${projSummary})`
     }
-    return `You've been invited to join PropFyndr Admin`
+    return `You've been invited to join RealtyAsk Admin`
   }, [template, heroStyle, recipientName, allProjects])
 
   // WhatsApp Outreach Text — High-converting, direct, polite, names ALL projects
@@ -315,10 +315,10 @@ function EmailPreviewStudioContent() {
     const projectsInline = allProjects.join(', ')
 
     if (template === 'partner_invite') {
-      return `Hi ${recipientName} Team,\n\nGreetings from PropFyndr.in.\n\nWe are officially extending an invitation to ${recipientName} to join PropFyndr's Verified Channel Partner Network for all developments under your desk:\n\n${projectsListFormatted}\n\nKey benefits for ${recipientName}:\n1. Direct Developer Callbacks: Direct buyer inquiries for ${projectsInline} in ${targetCity}.\n2. Real-time Site Visit Bookings: Pre-qualified walkthroughs scheduled directly to your desk.\n3. Zero Broker Dilution: Transparent, direct buyer-to-partner pipeline with verified RERA terms.\n\nReview and accept your partner invitation here:\n${inviteTokenLink}\n\nBest regards,\n${senderName} | PropFyndr Developer Relations\n${senderPhone}`
+      return `Hi ${recipientName} Team,\n\nGreetings from RealtyAsk.in.\n\nWe are officially extending an invitation to ${recipientName} to join RealtyAsk's Verified Channel Partner Network for all developments under your desk:\n\n${projectsListFormatted}\n\nKey benefits for ${recipientName}:\n1. Direct Developer Callbacks: Direct buyer inquiries for ${projectsInline} in ${targetCity}.\n2. Real-time Site Visit Bookings: Pre-qualified walkthroughs scheduled directly to your desk.\n3. Zero Broker Dilution: Transparent, direct buyer-to-partner pipeline with verified RERA terms.\n\nReview and accept your partner invitation here:\n${inviteTokenLink}\n\nBest regards,\n${senderName} | RealtyAsk Developer Relations\n${senderPhone}`
     }
 
-    return `Hi ${recipientName} Team,\n\nGreetings from PropFyndr.in.\n\nWe are officially inviting ${recipientName} to bring all your developments directly in front of verified homebuyers actively searching across ${targetCity}:\n\n${projectsListFormatted}\n\nWhy developers are joining PropFyndr:\n• Direct Buyer Inquiries: Inquiries route directly to your in-house sales gallery across all projects.\n• Zero Broker Dilution: No competing broker listings around ${projectsInline}.\n• Sanctioned RERA Integrity: Full control over approved layouts, inventory and pricing.\n\nYour official developer invitation is ready to review:\n${inviteTokenLink}\n\nBest regards,\n${senderName} | Developer Partnerships\n${senderPhone}`
+    return `Hi ${recipientName} Team,\n\nGreetings from RealtyAsk.in.\n\nWe are officially inviting ${recipientName} to bring all your developments directly in front of verified homebuyers actively searching across ${targetCity}:\n\n${projectsListFormatted}\n\nWhy developers are joining RealtyAsk:\n• Direct Buyer Inquiries: Inquiries route directly to your in-house sales gallery across all projects.\n• Zero Broker Dilution: No competing broker listings around ${projectsInline}.\n• Sanctioned RERA Integrity: Full control over approved layouts, inventory and pricing.\n\nYour official developer invitation is ready to review:\n${inviteTokenLink}\n\nBest regards,\n${senderName} | Developer Partnerships\n${senderPhone}`
   }
 
   // Plaintext Outreach Text — Names ALL projects
@@ -327,10 +327,10 @@ function EmailPreviewStudioContent() {
     const projectsInline = allProjects.join(', ')
 
     if (template === 'partner_invite') {
-      return `PROPFYNDR CHANNEL PARTNER NETWORK\n\n${recipientName}, you are invited to join PropFyndr's Channel Partner Network.\n\nAuthorized Developments Under Your Mandate:\n${projectsListFormatted}\n\nAccept Partner Invitation:\n${inviteTokenLink}\n\nWe are opening our network to selected agencies and advisory firms across ${targetCity}. Receive verified buyer callbacks and site visit intent directly for ${projectsInline}.\n\n---\n\nDIRECT DEVELOPER ALLOCATION\n\nFor ${recipientName}, that means verified buyer inquiries and site visit walkthroughs for ${projectsInline} route directly to your desk without broker friction.\n\nKey Capabilities:\n• Direct Developer Callbacks: Genuine buyer interest routed to your team.\n• Verified Specifications & RERA Terms: Authoritative project information.\n• Direct Site Visit Scheduling: Turn high-intent searchers into walkthroughs.\n\n---\nPropFyndr Channel Partnerships · ${senderPhone}\npartnerships@propfyndr.in`
+      return `PROPFYNDR CHANNEL PARTNER NETWORK\n\n${recipientName}, you are invited to join RealtyAsk's Channel Partner Network.\n\nAuthorized Developments Under Your Mandate:\n${projectsListFormatted}\n\nAccept Partner Invitation:\n${inviteTokenLink}\n\nWe are opening our network to selected agencies and advisory firms across ${targetCity}. Receive verified buyer callbacks and site visit intent directly for ${projectsInline}.\n\n---\n\nDIRECT DEVELOPER ALLOCATION\n\nFor ${recipientName}, that means verified buyer inquiries and site visit walkthroughs for ${projectsInline} route directly to your desk without broker friction.\n\nKey Capabilities:\n• Direct Developer Callbacks: Genuine buyer interest routed to your team.\n• Verified Specifications & RERA Terms: Authoritative project information.\n• Direct Site Visit Scheduling: Turn high-intent searchers into walkthroughs.\n\n---\nRealtyAsk Channel Partnerships · ${senderPhone}\npartnerships@propfyndr.in`
     }
 
-    return `PROPFYNDR PARTNER NETWORK\n\n${recipientName}, you're invited to PropFyndr.\n\nBring your entire development portfolio directly in front of verified homebuyers actively looking across ${targetCity}.\n\nYour Developments in PropFyndr Catalog:\n${projectsListFormatted}\n\nExplore Your Developer Desk:\n${inviteTokenLink}\n\nNo brokerage on buyer inquiries. No competing listings around your projects. Just a direct channel between your team and interested buyers.\n\n---\n\nA BETTER WAY TO BE DISCOVERED\n\nHomebuyers are no longer just browsing listings. They're comparing projects, checking specifications, exploring locations, evaluating budgets and deciding where they want to visit.\n\nPropFyndr brings that discovery into one place — and gives developers a verified presence throughout the journey.\n\nFor ${recipientName}, that means your entire development portfolio (${projectsInline}) can be presented with the information, specifications and availability your team controls.\n\n---\n\nYOUR PROJECTS. YOUR INFORMATION. YOUR LEADS.\n\nActive Portfolio:\n${allProjects.map((p, i) => `${i + 1}. ${p} — A verified project presence built around the way buyers actually research.`).join('\n')}\n\n• Direct Buyer Inquiries: Buyer interest routes directly to your sales team.\n• Verified Project Details: Keep specifications, inventory and project info accurate.\n• Site Visit Intent: Turn serious discovery into a conversation with your team.\n\n---\n\nWHAT YOU GET AS A PROPFYNDR PARTNER\n\n01 — Verified Presence: Own your official developer presence across all ${allProjects.length} developments.\n02 — Buyer Demand: Understand what buyers are searching for, comparing and evaluating across ${projectsInline}.\n03 — Direct Enquiries: Receive relevant buyer interest without handing the lead to competing brokers.\n04 — Project Control: Keep your project information, inventory and approved details up to date.\n\n---\n\nWE'D LIKE TO INVITE ${recipientName} TO JOIN\n\nWe're opening PropFyndr's developer network to selected builders and project partners across ${targetCity}. Your invitation is ready.\n\nAccept Developer Invitation:\n${inviteTokenLink}\n\nIt takes a few minutes to review your developer desk and get started.\n\n---\nPropFyndr · Developer Partnerships\nBuilding a more direct connection between India's homebuyers and the developers behind the projects they are considering.\npartnerships@propfyndr.in · ${senderPhone}\nThis invitation was prepared specifically for the ${recipientName} team regarding: ${projectsInline}.`
+    return `PROPFYNDR PARTNER NETWORK\n\n${recipientName}, you're invited to RealtyAsk.\n\nBring your entire development portfolio directly in front of verified homebuyers actively looking across ${targetCity}.\n\nYour Developments in RealtyAsk Catalog:\n${projectsListFormatted}\n\nExplore Your Developer Desk:\n${inviteTokenLink}\n\nNo brokerage on buyer inquiries. No competing listings around your projects. Just a direct channel between your team and interested buyers.\n\n---\n\nA BETTER WAY TO BE DISCOVERED\n\nHomebuyers are no longer just browsing listings. They're comparing projects, checking specifications, exploring locations, evaluating budgets and deciding where they want to visit.\n\nRealtyAsk brings that discovery into one place — and gives developers a verified presence throughout the journey.\n\nFor ${recipientName}, that means your entire development portfolio (${projectsInline}) can be presented with the information, specifications and availability your team controls.\n\n---\n\nYOUR PROJECTS. YOUR INFORMATION. YOUR LEADS.\n\nActive Portfolio:\n${allProjects.map((p, i) => `${i + 1}. ${p} — A verified project presence built around the way buyers actually research.`).join('\n')}\n\n• Direct Buyer Inquiries: Buyer interest routes directly to your sales team.\n• Verified Project Details: Keep specifications, inventory and project info accurate.\n• Site Visit Intent: Turn serious discovery into a conversation with your team.\n\n---\n\nWHAT YOU GET AS A PROPFYNDR PARTNER\n\n01 — Verified Presence: Own your official developer presence across all ${allProjects.length} developments.\n02 — Buyer Demand: Understand what buyers are searching for, comparing and evaluating across ${projectsInline}.\n03 — Direct Enquiries: Receive relevant buyer interest without handing the lead to competing brokers.\n04 — Project Control: Keep your project information, inventory and approved details up to date.\n\n---\n\nWE'D LIKE TO INVITE ${recipientName} TO JOIN\n\nWe're opening RealtyAsk's developer network to selected builders and project partners across ${targetCity}. Your invitation is ready.\n\nAccept Developer Invitation:\n${inviteTokenLink}\n\nIt takes a few minutes to review your developer desk and get started.\n\n---\nRealtyAsk · Developer Partnerships\nBuilding a more direct connection between India's homebuyers and the developers behind the projects they are considering.\npartnerships@propfyndr.in · ${senderPhone}\nThis invitation was prepared specifically for the ${recipientName} team regarding: ${projectsInline}.`
   }
 
   // HTML Email Body — 100% Dynamic to recipientName, allProjects, and targetCity
@@ -386,9 +386,9 @@ function EmailPreviewStudioContent() {
     // Hero title variations based on user selection
     let heroHeadlineHtml = ''
     if (template === 'partner_invite') {
-      heroHeadlineHtml = `${recipientName},<br><em>you're invited to PropFyndr's Partner Network.</em>`
+      heroHeadlineHtml = `${recipientName},<br><em>you're invited to RealtyAsk's Partner Network.</em>`
     } else if (heroStyle === 'direct') {
-      heroHeadlineHtml = `${recipientName},<br><em>you're invited to PropFyndr.</em>`
+      heroHeadlineHtml = `${recipientName},<br><em>you're invited to RealtyAsk.</em>`
     } else if (heroStyle === 'premium') {
       heroHeadlineHtml = `A new direct channel for ${recipientName}.<br><em>Access high-intent homebuyers.</em>`
     } else {
@@ -648,7 +648,7 @@ function EmailPreviewStudioContent() {
   <div class="email-container">
     <!-- HERO -->
     <div class="hero-header">
-      <div class="network-badge">${template === 'partner_invite' ? 'PropFyndr Channel Partner Network' : 'PropFyndr Partner Network'}</div>
+      <div class="network-badge">${template === 'partner_invite' ? 'RealtyAsk Channel Partner Network' : 'RealtyAsk Partner Network'}</div>
       <div class="hero-title">${heroHeadlineHtml}</div>
       <div class="hero-subtext">
         ${
@@ -678,7 +678,7 @@ function EmailPreviewStudioContent() {
         Homebuyers are no longer just browsing listings. They're comparing projects, checking specifications, exploring locations, evaluating budgets and deciding where they want to visit.
       </div>
       <div class="body-paragraph">
-        PropFyndr brings that discovery into one place — and gives verified partners direct visibility throughout the buyer journey.
+        RealtyAsk brings that discovery into one place — and gives verified partners direct visibility throughout the buyer journey.
       </div>
       <div class="body-paragraph" style="margin-bottom: 22px;">
         ${
@@ -700,7 +700,7 @@ function EmailPreviewStudioContent() {
           ${
             template === 'partner_invite'
               ? `All ${allProjects.length} authorized developments under your partner desk in ${targetCity}.`
-              : `All ${allProjects.length} active developments in your catalog on PropFyndr.`
+              : `All ${allProjects.length} active developments in your catalog on RealtyAsk.`
           }
         </div>
 
@@ -741,12 +741,12 @@ function EmailPreviewStudioContent() {
 
       <!-- SECTION 3: WHAT YOU GET -->
       <div class="section-eyebrow">Platform Capabilities</div>
-      <div class="section-heading">What you get as a PropFyndr partner</div>
+      <div class="section-heading">What you get as a RealtyAsk partner</div>
       <div class="cards-grid">
         <div class="feature-card">
           <div class="feature-num">01</div>
           <div class="feature-title">Verified Presence</div>
-          <div class="feature-desc">Own your official verified presence across all ${allProjects.length} developments on PropFyndr.</div>
+          <div class="feature-desc">Own your official verified presence across all ${allProjects.length} developments on RealtyAsk.</div>
         </div>
         <div class="feature-card">
           <div class="feature-num">02</div>
@@ -769,7 +769,7 @@ function EmailPreviewStudioContent() {
       <div class="invite-block">
         <div class="invite-heading">We'd like to invite ${recipientName} to join.</div>
         <div class="invite-sub">
-          We're opening PropFyndr's network to selected partners across ${targetCity} for ${allProjects.join(', ')}. Your invitation is ready.
+          We're opening RealtyAsk's network to selected partners across ${targetCity} for ${allProjects.join(', ')}. Your invitation is ready.
         </div>
         <div>
           <a href="${inviteTokenLink}" class="main-cta">${template === 'partner_invite' ? 'Accept Channel Partner Invitation →' : 'Accept Developer Invitation →'}</a>
@@ -782,7 +782,7 @@ function EmailPreviewStudioContent() {
 
     <!-- FOOTER -->
     <div class="footer-panel">
-      <div class="footer-brand">PropFyndr · ${template === 'partner_invite' ? 'Channel Partner Relations' : 'Developer Partnerships'}</div>
+      <div class="footer-brand">RealtyAsk · ${template === 'partner_invite' ? 'Channel Partner Relations' : 'Developer Partnerships'}</div>
       <div>Building a more direct connection between India's homebuyers and the developers behind the projects they are considering.</div>
       <div style="margin-top: 6px;">partnerships@propfyndr.in · Direct: ${senderPhone}</div>
       <div style="margin-top: 8px; font-size: 10px; color: ${palette.textMuted};">

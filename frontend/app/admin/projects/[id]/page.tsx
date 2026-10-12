@@ -358,7 +358,7 @@ export default function AdminProjectEditPage({
 
   useEffect(() => {
     if (data?.name) {
-      document.title = `Admin · Projects · ${data.name} | PropFyndr`
+      document.title = `Admin · Projects · ${data.name} | RealtyAsk`
     }
   }, [data?.name])
 

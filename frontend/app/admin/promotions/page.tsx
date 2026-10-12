@@ -187,7 +187,7 @@ export default function PromotionsAdminPage() {
                 </span>
               </div>
               <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5 font-medium">
-                Manage high-intent discovery banners, sponsored CTA buttons, and spotlight announcements across PropFyndr.
+                Manage high-intent discovery banners, sponsored CTA buttons, and spotlight announcements across RealtyAsk.
               </p>
             </div>
           </div>

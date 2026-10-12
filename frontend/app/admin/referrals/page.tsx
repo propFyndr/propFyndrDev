@@ -632,12 +632,12 @@ export default function ReferralsAdminPage() {
                     type="text"
                     value={greetingName}
                     onChange={(e) => setGreetingName(e.target.value)}
-                    placeholder="e.g. Furqan, PropFyndr Team"
+                    placeholder="e.g. Furqan, RealtyAsk Team"
                     maxLength={60}
                     className="w-full h-10 px-3.5 rounded-xl text-[13px] font-medium text-[#1d1d1f] dark:text-[#f5f5f7] bg-[#f5f5f7] dark:bg-[#242426] border border-[#e5e5ea] dark:border-[#38383a] focus:bg-white dark:focus:bg-[#1c1c1e] focus:border-[#0066cc] focus:ring-4 focus:ring-[#0066cc]/10 transition-all outline-none placeholder:text-[#86868b]/60"
                   />
                   <p className="text-[11px] text-[#86868b] mt-1">
-                    Visitor sees: &quot;Your friend {greetingName || 'Furqan'} invited you to PropFyndr&quot;.
+                    Visitor sees: &quot;Your friend {greetingName || 'Furqan'} invited you to RealtyAsk&quot;.
                   </p>
                 </div>
               </div>
@@ -713,7 +713,7 @@ export default function ReferralsAdminPage() {
 
                     <a
                       href={`https://api.whatsapp.com/send?text=${encodeURIComponent(
-                        `Hey! Check out PropFyndr to explore verified properties and get unbiased RERA & price analysis: ${newLinkUrl}`
+                        `Hey! Check out RealtyAsk to explore verified properties and get unbiased RERA & price analysis: ${newLinkUrl}`
                       )}`}
                       target="_blank"
                       rel="noopener noreferrer"

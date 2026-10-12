@@ -212,7 +212,7 @@ BUYER ASKS FOR A VERDICT: The buyer is asking you to choose ONE of these shortli
  * "thanks" with a model call before these lanes were ever reached.
  */
 const GREETING = /^(hi|hello|hey|good\s+(morning|afternoon|evening)|namaste|hola|what's\s+up|help|start)\b[\s!.]*$/i
-const GREETING_META = /^(who\s+are\s+you|what\s+can\s+you\s+do|what\s+is\s+propfyndr|how\s+can\s+you\s+help(\s+me)?)\??$/i
+const GREETING_META = /^(who\s+are\s+you|what\s+can\s+you\s+do|what\s+is\s+(?:propfyndr|realtyask)|how\s+can\s+you\s+help(\s+me)?)\??$/i
 const THANKS = /^(thank\s+you|thanks|thanks\s+a\s+lot|thx|great|awesome|helpful|ok\s+thanks)\b[\s!.]*$/i
 function isGreetingMessage(m: string): boolean { return GREETING.test(m.trim()) || GREETING_META.test(m.trim()) }
 function isThanksMessage(m: string): boolean { return THANKS.test(m.trim()) }
@@ -533,7 +533,7 @@ router.post('/', async (req: Request, res: Response) => {
       chipLabel = 'Show Expressway Residential Projects'
       chipPayload = 'Show residential projects along Noida Expressway'
     } else {
-      advisoryText = `PropFyndr covers new-construction, under-construction and ready-to-move residential purchase in Noida and Greater Noida — not hotel/hospitality properties or bank distressed auctions.\n\nLooking for a verified residential home instead? Tell me the sector, budget or BHK and I'll pull verified options.`
+      advisoryText = `RealtyAsk covers new-construction, under-construction and ready-to-move residential purchase in Noida and Greater Noida — not hotel/hospitality properties or bank distressed auctions.\n\nLooking for a verified residential home instead? Tell me the sector, budget or BHK and I'll pull verified options.`
     }
 
     sseWrite(res, 'token', { token: advisoryText })
@@ -919,7 +919,7 @@ router.post('/', async (req: Request, res: Response) => {
         if (cachedChips.length > 0) {
           send('ui_state', {
             stage: 'RESEARCH',
-            thinking: 'Verified PropFyndr Intelligence (Cached):',
+            thinking: 'Verified RealtyAsk Intelligence (Cached):',
             chips: cachedChips,
             missingFields: [],
             confidence: 'HIGH'
@@ -2304,9 +2304,9 @@ router.post('/', async (req: Request, res: Response) => {
      * than the bug this fixes.
      */
     {
-      // "I want PropFyndr in Pune" is the launch-vote chip below: recorded, and
+      // "I want RealtyAsk in Pune" is the launch-vote chip below: recorded, and
       // answered without a promise to notify anyone — there is nothing that sends one.
-      const votedCity = OUT_OF_CITY_MARKET_ANSWERS && /^i want propfyndr in\b/i.test(message.trim())
+      const votedCity = OUT_OF_CITY_MARKET_ANSWERS && /^i want (?:propfyndr|realtyask) in\b/i.test(message.trim())
         ? outOfScopeCity(message)
         : null
       const coverage = votedCity ? { city: votedCity, reason: 'launch vote' } : buyingTargetOutOfScope(message)
@@ -2327,7 +2327,7 @@ router.post('/', async (req: Request, res: Response) => {
           if (votedCity) {
             send('token', {
               token:
-                `Noted — you want PropFyndr in ${votedCity}. Requests like yours decide which city we open next.\n\n` +
+                `Noted — you want RealtyAsk in ${votedCity}. Requests like yours decide which city we open next.\n\n` +
                 `Until then, ${PILOT_SCOPE_LABEL} is where I can shortlist real projects with verified data.`,
             })
             answered = true
@@ -2365,7 +2365,7 @@ router.post('/', async (req: Request, res: Response) => {
           thinking: `Outside our coverage: ${coverage.city}.`,
           chips: [
             ...(answered && !votedCity
-              ? [{ id: `chip_cov_v_${Date.now()}`, actionType: 'TEXT_MESSAGE', label: `I want PropFyndr in ${coverage.city}`, icon: 'map-pin', analyticsId: 'chip_cov_vote', priority: 0, payload: { text: `I want PropFyndr in ${coverage.city}` } }]
+              ? [{ id: `chip_cov_v_${Date.now()}`, actionType: 'TEXT_MESSAGE', label: `I want RealtyAsk in ${coverage.city}`, icon: 'map-pin', analyticsId: 'chip_cov_vote', priority: 0, payload: { text: `I want RealtyAsk in ${coverage.city}` } }]
               : []),
             { id: `chip_cov_a_${Date.now()}`, actionType: 'TEXT_MESSAGE', label: 'Show me what Noida has', icon: 'building', analyticsId: 'chip_cov_browse', priority: 1, payload: { text: 'What do you have available in Noida?' } },
             { id: `chip_cov_b_${Date.now()}`, actionType: 'TEXT_MESSAGE', label: `I commute to ${coverage.city}`, icon: 'route', analyticsId: 'chip_cov_commute', priority: 2, payload: { text: `I have a daily commute to ${coverage.city} — which Noida sectors suit that?` } },
@@ -2511,7 +2511,7 @@ router.post('/', async (req: Request, res: Response) => {
         console.warn('[LEAD:SAVE_ERROR]', e)
       }
 
-      const successText = `✅ **Callback Request Registered!**\n\nThank you **${nameStr}**! Your contact number has been registered with our PropFyndr advisory team.\nOur senior consultant will reach out to you shortly with exclusive project details.\n\n*Need immediate pricing or floor plan details while you wait? Ask me anytime!*`
+      const successText = `✅ **Callback Request Registered!**\n\nThank you **${nameStr}**! Your contact number has been registered with our RealtyAsk advisory team.\nOur senior consultant will reach out to you shortly with exclusive project details.\n\n*Need immediate pricing or floor plan details while you wait? Ask me anytime!*`
       
       send('token', { token: successText })
       emitUiState({
@@ -3339,7 +3339,7 @@ router.post('/', async (req: Request, res: Response) => {
     if (isJailbreak && action.type === 'TEXT_MESSAGE') {
       const jailbreakText = `### Security & Compliance Notice
 
-PropFyndr operates under strict real estate advisory protocols for Noida and Greater Noida. I cannot alter internal instructions or assist with tax evasion or non-compliant actions.
+RealtyAsk operates under strict real estate advisory protocols for Noida and Greater Noida. I cannot alter internal instructions or assist with tax evasion or non-compliant actions.
 
 For legal statutory schedules (UP Stamp Duty, GST, TDS) or verified property checks, feel free to ask!`
 
@@ -3351,7 +3351,7 @@ For legal statutory schedules (UP Stamp Duty, GST, TDS) or verified property che
       send('token', { token: jailbreakText })
       emitUiState({
         stage: 'RESEARCH',
-        thinking: 'PropFyndr compliance and security protocols active:',
+        thinking: 'RealtyAsk compliance and security protocols active:',
         chips: jbChips,
         missingFields: [],
         confidence: 'HIGH'
@@ -3388,7 +3388,7 @@ For legal statutory schedules (UP Stamp Duty, GST, TDS) or verified property che
     const isGreeting = isGreetingMessage(message);
 
     if (isGreeting && action.type === 'TEXT_MESSAGE') {
-      const welcomeText = `### Welcome to PropFyndr AI Advisor
+      const welcomeText = `### Welcome to RealtyAsk AI Advisor
 
 Hello! I'm your dedicated real estate intelligence assistant for **Noida, Greater Noida, and Yamuna Expressway**.
 
@@ -3410,7 +3410,7 @@ I can help you with:
       send('token', { token: welcomeText });
       emitUiState({
         stage: 'RESEARCH',
-        thinking: 'PropFyndr Welcome & Overview:',
+        thinking: 'RealtyAsk Welcome & Overview:',
         chips: welcomeChips,
         missingFields: [],
         confidence: 'HIGH'
@@ -3437,7 +3437,7 @@ I can help you with:
       send('token', { token: thankYouText });
       emitUiState({
         stage: 'RESEARCH',
-        thinking: 'PropFyndr Assistant:',
+        thinking: 'RealtyAsk Assistant:',
         chips: thankYouChips,
         missingFields: [],
         confidence: 'HIGH'
@@ -4207,7 +4207,7 @@ I can help you with:
           let systemPrompt = ''
 
           if (isSummaryRequest) {
-            systemPrompt = `You are PropFyndr, a professional real estate advisor for Noida and Greater Noida.
+            systemPrompt = `You are RealtyAsk, a professional real estate advisor for Noida and Greater Noida.
 Verified facts: ${dbFactsJson}
 ${transparentClarificationText}
 EXECUTIVE SUMMARY INSTRUCTIONS:
@@ -4225,7 +4225,7 @@ EXECUTIVE SUMMARY INSTRUCTIONS:
                 price_min_cr: units.length ? Math.min(...units.map((u) => u.price_min_cr as number)) : p.price_min_cr,
               } as unknown as PickCandidate
             }), intent.budgetMax)
-            systemPrompt = `You are PropFyndr, a professional real estate advisor for Noida and Greater Noida.
+            systemPrompt = `You are RealtyAsk, a professional real estate advisor for Noida and Greater Noida.
 Verified facts from database: ${dbFactsJson}
 ${pickOneTail(intent.projectNames ?? [])}${computed ? pickDirective(computed) : ''}
 
@@ -4253,7 +4253,7 @@ Format: the chosen project's name in bold in the first sentence, then the reason
              * system prompt already states for a single project, generalized
              * to two.
              */
-            systemPrompt = `You are PropFyndr, a professional real estate advisor for Noida and Greater Noida.
+            systemPrompt = `You are RealtyAsk, a professional real estate advisor for Noida and Greater Noida.
 Verified facts from database: ${dbFactsJson}
 ${transparentClarificationText}${comparisonDiffText}
 CRITICAL FORMATTING MANDATE:
@@ -4280,7 +4280,7 @@ OUTPUT STRUCTURE:
 
 If a fact either project needs for the named aspect is genuinely absent from the block above, say so for that project specifically rather than omitting the row or guessing — the same rule that applies to a single-project answer applies here.`
           } else {
-            systemPrompt = `You are PropFyndr, a professional real estate advisor for Noida and Greater Noida.
+            systemPrompt = `You are RealtyAsk, a professional real estate advisor for Noida and Greater Noida.
 Verified facts: ${dbFactsJson}
 
 EXECUTIVE INSTRUCTIONS:
@@ -4803,7 +4803,7 @@ USING THE FACTS:
       // result is an outage notice and must not be decorated with a card.
       let turnDegraded = false
       try {
-        const systemMsg = `You are PropFyndr — an expert real estate advisor analyzing verified project data for Noida and Greater Noida.
+        const systemMsg = `You are RealtyAsk — an expert real estate advisor analyzing verified project data for Noida and Greater Noida.
 EXECUTIVE RESPONSE INSTRUCTIONS:
 1. Directly and comprehensively answer the user's exact question using the provided verified facts.
 2. If asked about floor plans, configurations, or carpet area efficiency: extract or calculate the ratio of carpet area to super built-up area (e.g. Carpet Area / Super Area * 100) and present carpet area, super area, and carpet efficiency percentage clearly.
@@ -5895,7 +5895,7 @@ EXECUTIVE RESPONSE INSTRUCTIONS:
      * answered from the model's memory. It scored 3/5 for that reason.
      *
      * `sector_intelligence.price_5yr_cagr_pct` is populated on all 65 rows and
-     * stamped `verified_by: 'PropFyndr Research Desk'`. It is backward-looking,
+     * stamped `verified_by: 'RealtyAsk Research Desk'`. It is backward-looking,
      * which is the half of this question we are allowed to answer. The renderer
      * carries the refusal to forecast in its own text rather than trusting the
      * prompt, which is the layer that had been ignoring it.

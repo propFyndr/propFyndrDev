@@ -21,8 +21,8 @@ import {
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Privacy Policy | PropFyndr',
-  description: 'Privacy policy, data protection governance, DPDP Act 2023 compliance, TRAI communication consents, and cookie disclosures for PropFyndr users.',
+  title: 'Privacy Policy | RealtyAsk',
+  description: 'Privacy policy, data protection governance, DPDP Act 2023 compliance, TRAI communication consents, and cookie disclosures for RealtyAsk users.',
 }
 
 export default function PrivacyPolicy() {
@@ -36,7 +36,7 @@ export default function PrivacyPolicy() {
       content: (
         <div className="space-y-3">
           <p>
-            PropFyndr gathers only the data necessary to deliver personalized property intelligence, conversational assistance, and developer connections under the Digital Personal Data Protection Act, 2023 (DPDP Act):
+            RealtyAsk gathers only the data necessary to deliver personalized property intelligence, conversational assistance, and developer connections under the Digital Personal Data Protection Act, 2023 (DPDP Act):
           </p>
           <ul className="list-disc list-inside space-y-2 ml-2 text-slate-600 dark:text-slate-400">
             <li>
@@ -49,7 +49,7 @@ export default function PrivacyPolicy() {
               <strong>Technical &amp; Geolocation Data:</strong> IP address, device fingerprints, approximate geolocation (used strictly to recommend nearby NCR micro-markets such as Sector 150, Noida Expressway, Yamuna Expressway, or Greater Noida West), and anonymous session tokens via first-party analytics (PostHog).
             </li>
             <li>
-              <strong>Shared-Link Data:</strong> If you arrive on PropFyndr through a link someone shared with you, we record which link, your device type (phone, tablet, or desktop), a best-effort guess at which app you opened it from (for example Instagram or WhatsApp's in-app browser), and the time. We also give your device its own shareable link so we can see if you pass PropFyndr on. We do not ask for, or collect, your name through this process.
+              <strong>Shared-Link Data:</strong> If you arrive on RealtyAsk through a link someone shared with you, we record which link, your device type (phone, tablet, or desktop), a best-effort guess at which app you opened it from (for example Instagram or WhatsApp's in-app browser), and the time. We also give your device its own shareable link so we can see if you pass RealtyAsk on. We do not ask for, or collect, your name through this process.
             </li>
           </ul>
         </div>
@@ -63,11 +63,11 @@ export default function PrivacyPolicy() {
       content: (
         <div className="space-y-3">
           <p>
-            When you submit a request for a property callback, site visit, or brochure on PropFyndr:
+            When you submit a request for a property callback, site visit, or brochure on RealtyAsk:
           </p>
           <ul className="list-disc list-inside space-y-2 ml-2 text-slate-600 dark:text-slate-400">
             <li>
-              <strong>Authorized Third-Party Sharing:</strong> You explicitly authorize PropFyndr to transmit your contact information (name, phone number, email, and property interest) to the concerned UP-RERA registered developer or their authorized UP-RERA registered Channel Partner (Real Estate Agent) to service your inquiry.
+              <strong>Authorized Third-Party Sharing:</strong> You explicitly authorize RealtyAsk to transmit your contact information (name, phone number, email, and property interest) to the concerned UP-RERA registered developer or their authorized UP-RERA registered Channel Partner (Real Estate Agent) to service your inquiry.
             </li>
             <li>
               <strong>Overriding National DND / TRAI Preference:</strong> In accordance with the Telecom Commercial Communications Customer Preference Regulations, 2018 (TRAI TCCR), you agree that this inquiry grants express authorization for developers and channel partners to contact you via Voice Calls, SMS, WhatsApp, and Email, notwithstanding your registration on the National Do Not Call (NDNC / DND) Registry.
@@ -87,11 +87,11 @@ export default function PrivacyPolicy() {
       content: (
         <div className="space-y-3">
           <p>
-            When you opt for home loan eligibility assistance, builder Approved Project Financials (APF) validation, or custom EMI calculations on PropFyndr:
+            When you opt for home loan eligibility assistance, builder Approved Project Financials (APF) validation, or custom EMI calculations on RealtyAsk:
           </p>
           <ul className="list-disc list-inside space-y-2 ml-2 text-slate-600 dark:text-slate-400">
             <li>
-              <strong>Financial Data Transmission:</strong> You explicitly authorize PropFyndr to securely transmit your voluntarily submitted financial indicators (estimated budget, income range, employment type, loan requirement, and contact details) to scheduled partner commercial banks and NBFCs (e.g., HDFC Bank, State Bank of India, ICICI Bank, Axis Bank) or their officially registered Direct Selling Agents (DSAs).
+              <strong>Financial Data Transmission:</strong> You explicitly authorize RealtyAsk to securely transmit your voluntarily submitted financial indicators (estimated budget, income range, employment type, loan requirement, and contact details) to scheduled partner commercial banks and NBFCs (e.g., HDFC Bank, State Bank of India, ICICI Bank, Axis Bank) or their officially registered Direct Selling Agents (DSAs).
             </li>
             <li>
               <strong>Single-Purpose Processing:</strong> Transmitted financial data is used exclusively to evaluate home loan pre-approvals, check project APF tie-ups, and offer sanctioned interest rates.
@@ -108,7 +108,7 @@ export default function PrivacyPolicy() {
       content: (
         <div className="space-y-3">
           <p>
-            To deliver prompt real-time connectivity between property seekers and verified developers/channel partners, PropFyndr integrates cloud telephony infrastructure (e.g., Exotel, MyOperator, Twilio) and official WhatsApp Business APIs:
+            To deliver prompt real-time connectivity between property seekers and verified developers/channel partners, RealtyAsk integrates cloud telephony infrastructure (e.g., Exotel, MyOperator, Twilio) and official WhatsApp Business APIs:
           </p>
           <ul className="list-disc list-inside space-y-2 ml-2 text-slate-600 dark:text-slate-400">
             <li>
@@ -129,14 +129,14 @@ export default function PrivacyPolicy() {
       content: (
         <div className="space-y-3">
           <p>
-            PropFyndr provides a domain-specific real estate advisory engine powered by enterprise-grade foundation models:
+            RealtyAsk provides a domain-specific real estate advisory engine powered by enterprise-grade foundation models:
           </p>
           <ul className="list-disc list-inside space-y-2 ml-2 text-slate-600 dark:text-slate-400">
             <li>
               <strong>No Model Training on User Prompts:</strong> Your conversational queries, financial evaluations, and prompt inputs are processed via zero-data-retention enterprise APIs. Your conversations are <em>never</em> used to train public foundation models (such as Google Gemini, Anthropic Claude, or OpenAI models).
             </li>
             <li>
-              <strong>Encrypted Session Continuity:</strong> Chat transcripts are stored encrypted at rest (AES-256), may be reviewed by the PropFyndr founding team to improve answers and understand how the service is used, and are purged according to our data retention schedule.
+              <strong>Encrypted Session Continuity:</strong> Chat transcripts are stored encrypted at rest (AES-256), may be reviewed by the RealtyAsk founding team to improve answers and understand how the service is used, and are purged according to our data retention schedule.
             </li>
             <li>
               <strong>No Unconsented Behavioral Profiling:</strong> We do not sell prompt telemetry to ad-tech networks or data brokers for cross-site behavioral retargeting.
@@ -156,7 +156,7 @@ export default function PrivacyPolicy() {
             <li><strong>Contextual Property Matching:</strong> Generating real-time market evaluations, RERA comparisons, and price benchmark calculations.</li>
             <li><strong>Fulfilling User Inquiries:</strong> Enabling verified developers, RERA channel partners, and lending partners to coordinate site visits, pricing sheets, and loan pre-approvals.</li>
             <li><strong>Platform Security &amp; Anomaly Prevention:</strong> Monitoring query volume to prevent denial-of-service, scraping, or automated system abuse.</li>
-            <li><strong>Understanding Shared Reach:</strong> Seeing whether and how PropFyndr is shared from one person to another, so we can tell whether the product is genuinely useful.</li>
+            <li><strong>Understanding Shared Reach:</strong> Seeing whether and how RealtyAsk is shared from one person to another, so we can tell whether the product is genuinely useful.</li>
           </ul>
         </div>
       ),
@@ -173,7 +173,7 @@ export default function PrivacyPolicy() {
           </p>
           <ul className="list-disc list-inside space-y-2 ml-2 text-slate-600 dark:text-slate-400">
             <li>
-              <strong>Age Eligibility:</strong> PropFyndr is designed exclusively for individuals who are at least 18 years of age and legally competent to enter into binding contracts under the Indian Contract Act, 1872.
+              <strong>Age Eligibility:</strong> RealtyAsk is designed exclusively for individuals who are at least 18 years of age and legally competent to enter into binding contracts under the Indian Contract Act, 1872.
             </li>
             <li>
               <strong>No Minor Data Collection:</strong> We do not knowingly collect, process, track, or target personal data or behavioral profiles of children under 18 years of age.
@@ -193,7 +193,7 @@ export default function PrivacyPolicy() {
       content: (
         <div className="space-y-3">
           <p>
-            To deliver high availability, low-latency search indexing, and resilient AI advisory processing, PropFyndr utilizes global enterprise cloud partners:
+            To deliver high availability, low-latency search indexing, and resilient AI advisory processing, RealtyAsk utilizes global enterprise cloud partners:
           </p>
           <div className="grid sm:grid-cols-2 gap-3 mt-3">
             <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-800">
@@ -226,14 +226,14 @@ export default function PrivacyPolicy() {
       content: (
         <div className="space-y-3">
           <p>
-            PropFyndr showcases verified projects from premier developers across Delhi NCR (such as Godrej Properties, M3M, Gaurs Group, ATS, Eldeco, and others). In certain instances, property pages may incorporate embedded iframe brochures, 360° virtual tour players, or developer-hosted scheduling widgets:
+            RealtyAsk showcases verified projects from premier developers across Delhi NCR (such as Godrej Properties, M3M, Gaurs Group, ATS, Eldeco, and others). In certain instances, property pages may incorporate embedded iframe brochures, 360° virtual tour players, or developer-hosted scheduling widgets:
           </p>
           <ul className="list-disc list-inside space-y-2 ml-2 text-slate-600 dark:text-slate-400">
             <li>
-              <strong>Independent Privacy Policies:</strong> Submitting information directly inside an embedded developer form or following external links navigates you outside PropFyndr' direct governance. Such actions are subject solely to the respective builder's or vendor's privacy policy.
+              <strong>Independent Privacy Policies:</strong> Submitting information directly inside an embedded developer form or following external links navigates you outside RealtyAsk' direct governance. Such actions are subject solely to the respective builder's or vendor's privacy policy.
             </li>
             <li>
-              <strong>Release of Liability:</strong> PropFyndr is not responsible for data handling, storage, or unsolicited outreach initiated through independent third-party microsites or off-platform interactions.
+              <strong>Release of Liability:</strong> RealtyAsk is not responsible for data handling, storage, or unsolicited outreach initiated through independent third-party microsites or off-platform interactions.
             </li>
           </ul>
         </div>
@@ -246,7 +246,7 @@ export default function PrivacyPolicy() {
       content: (
         <div className="space-y-3">
           <p>
-            PropFyndr utilizes essential cookies and browser local storage to maintain session continuity, guest token states, and saved property shortlists:
+            RealtyAsk utilizes essential cookies and browser local storage to maintain session continuity, guest token states, and saved property shortlists:
           </p>
           <ul className="list-disc list-inside space-y-2 ml-2 text-slate-600 dark:text-slate-400">
             <li><strong>Essential Cookies:</strong> Required for user authentication, security verification, and session state.</li>
@@ -264,11 +264,11 @@ export default function PrivacyPolicy() {
       content: (
         <div className="space-y-3">
           <p>
-            PropFyndr lets people share a link to the service with others, and lets our own team generate labelled links to see how the product spreads.
+            RealtyAsk lets people share a link to the service with others, and lets our own team generate labelled links to see how the product spreads.
           </p>
           <ul className="list-disc list-inside space-y-2 ml-2 text-slate-600 dark:text-slate-400">
             <li><strong>No Names Collected:</strong> A link records only your device type, a best-effort guess at the app you opened it from, and the time — never your name, unless you separately give us one (for example, on a callback request).</li>
-            <li><strong>Internal Use Only:</strong> This data is visible only to PropFyndr's founding team, never to builders, channel partners, or any third party.</li>
+            <li><strong>Internal Use Only:</strong> This data is visible only to RealtyAsk's founding team, never to builders, channel partners, or any third party.</li>
             <li><strong>Your Own Chats Stay Yours:</strong> Being part of a shared link does not change who can act on your account — it only lets us see that a chat happened and, at a summary level, what it was about.</li>
           </ul>
         </div>
@@ -285,7 +285,7 @@ export default function PrivacyPolicy() {
             Under the Digital Personal Data Protection Act, 2023 (DPDP Act) of India, you hold clear, legally enforceable rights:
           </p>
           <ul className="list-disc list-inside space-y-2 ml-2 text-slate-600 dark:text-slate-400">
-            <li><strong>Right to Access &amp; Summary:</strong> Request an itemized summary of all personal data, inquiries, and transcripts processed by PropFyndr.</li>
+            <li><strong>Right to Access &amp; Summary:</strong> Request an itemized summary of all personal data, inquiries, and transcripts processed by RealtyAsk.</li>
             <li><strong>Right to Correction &amp; Erasure:</strong> Request the immediate rectification of outdated details or the complete permanent erasure of your account, contact details, and search history.</li>
             <li><strong>Right to Consent Withdrawal:</strong> You may revoke consent for developer communications or platform data processing at any time by emailing our Grievance Cell. Upon withdrawal, your data processing will cease within statutory timeframes.</li>
             <li><strong>Right to Nominate:</strong> Nominate an individual to exercise your Data Principal rights in the event of incapacity or demise.</li>
@@ -392,7 +392,7 @@ export default function PrivacyPolicy() {
             <div>
               <span className="font-semibold text-slate-900 dark:text-white block mb-1">Data Protection &amp; Grievance Officer:</span>
               <p>Legal &amp; Compliance Cell</p>
-              <p>PropFyndr Technologies Private Limited</p>
+              <p>RealtyAsk Technologies Private Limited</p>
               <p className="mt-1 flex items-center gap-1.5 text-slate-700 dark:text-slate-300">
                 <MapPin size={13} className="text-emerald-500 shrink-0" />
                 Sector 62, Noida, Gautam Buddh Nagar, UP 201301, India

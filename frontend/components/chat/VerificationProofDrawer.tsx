@@ -135,7 +135,7 @@ export function VerificationProofDrawer({ proof, onClose, onToast }: Verificatio
             )}
 
             <p className="text-[12px] text-zinc-600 dark:text-zinc-400 leading-relaxed">
-              This is the registration we hold for the project. PropFyndr has not inspected the site;
+              This is the registration we hold for the project. RealtyAsk has not inspected the site;
               check the number on the authority's portal before you pay a booking amount.
             </p>
           </div>

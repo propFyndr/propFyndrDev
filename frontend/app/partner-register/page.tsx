@@ -1,7 +1,7 @@
 import PartnerRegistrationForm from '@/components/PartnerRegistrationForm'
 
 export const metadata = {
-  title: 'Channel Partner Registration | PropFyndr',
+  title: 'Channel Partner Registration | RealtyAsk',
   description: 'Brokers and agencies: register to receive verified buyer leads from the developer you sell for.',
 }
 

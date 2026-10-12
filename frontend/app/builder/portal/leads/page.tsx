@@ -102,7 +102,7 @@ export default function BuilderLeadsPage() {
   const [autoAssigning, setAutoAssigning] = useState(false)
   const [notice, setNotice] = useState('')
   // Empty for a BUILDER session (the server reads the id off the session);
-  // set when a PropFyndr role is viewing this builder's console.
+  // set when a RealtyAsk role is viewing this builder's console.
   const scopeId = useScopeId('builder_id')
   const scoped = (path: string) => withScope(path, 'builder_id', scopeId)
 

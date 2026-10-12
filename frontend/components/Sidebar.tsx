@@ -358,8 +358,8 @@ export default function Sidebar({
               className={`flex items-center px-1.5 py-1 rounded-xs transition-opacity hover:opacity-85 cursor-pointer ${FOCUS}`}
               title="Start fresh discovery"
             >
-              <Image src="/images/icons/logo-wordmark-black.png" alt="PropFyndr Logo" width={75} height={34} className="object-contain block dark:hidden" priority />
-              <Image src="/images/icons/logo-wordmark-white.png" alt="PropFyndr Logo" width={75} height={34} className="object-contain hidden dark:block" priority />
+              <Image src="/images/icons/logo-wordmark-black.png" alt="RealtyAsk Logo" width={75} height={27} className="object-contain block dark:hidden" priority />
+              <Image src="/images/icons/logo-wordmark-white.png" alt="RealtyAsk Logo" width={75} height={25} className="object-contain hidden dark:block" priority />
             </Link>
             <button
               type="button"
@@ -384,21 +384,14 @@ export default function Sidebar({
               aria-label="Expand sidebar"
               aria-expanded={false}
             >
-              {/* Default PropFyndr Logo Mark */}
+              {/* Default RealtyAsk Logo Mark */}
               <div className="flex items-center justify-center transition-opacity duration-200 group-hover:opacity-0 group-focus-visible:opacity-0 pointer-events-none">
                 <Image
-                  src="/images/icons/logo-square-black.png"
+                  src="/images/icons/logo-mark.png"
                   alt=""
                   width={34}
                   height={34}
-                  className="object-contain block dark:hidden"
-                />
-                <Image
-                  src="/images/icons/logo-square-white.png"
-                  alt=""
-                  width={34}
-                  height={34}
-                  className="object-contain hidden dark:block"
+                  className="object-contain"
                 />
               </div>
 

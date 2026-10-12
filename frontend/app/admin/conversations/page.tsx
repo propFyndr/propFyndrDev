@@ -486,7 +486,7 @@ export default function ConversationsPage() {
             </span>
           </div>
           <p className="text-xs text-zinc-500 dark:text-zinc-400 font-medium">
-            Inspect live buyer AI discovery dialogues, connected user dossiers, and search entity tracking across PropFyndr.
+            Inspect live buyer AI discovery dialogues, connected user dossiers, and search entity tracking across RealtyAsk.
           </p>
         </div>
 
@@ -1362,7 +1362,7 @@ export default function ConversationsPage() {
                           <>
                             <span className="text-blue-600 dark:text-blue-400 flex items-center gap-1 font-bold">
                               <Bot size={13} />
-                              PropFyndr AI
+                              RealtyAsk AI
                             </span>
                             <span
                               className="font-mono text-zinc-500 dark:text-zinc-400"

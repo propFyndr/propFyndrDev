@@ -12,14 +12,14 @@ describe('ReferralShareButton', () => {
     Object.defineProperty(navigator, 'clipboard', { value: originalClipboard, configurable: true })
   })
 
-  it('renders a Share PropFyndr trigger', () => {
+  it('renders a Share RealtyAsk trigger', () => {
     render(<ReferralShareButton />)
-    expect(screen.getByRole('button', { name: /share propfyndr/i })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /share realtyask/i })).toBeInTheDocument()
   })
 
   it('opens a menu with WhatsApp, SMS and Copy options', () => {
     render(<ReferralShareButton />)
-    fireEvent.click(screen.getByRole('button', { name: /share propfyndr/i }))
+    fireEvent.click(screen.getByRole('button', { name: /share realtyask/i }))
     expect(screen.getByRole('menuitem', { name: /whatsapp/i })).toBeInTheDocument()
     expect(screen.getByRole('menuitem', { name: /sms/i })).toBeInTheDocument()
     expect(screen.getByRole('menuitem', { name: /copy link/i })).toBeInTheDocument()
@@ -30,7 +30,7 @@ describe('ReferralShareButton', () => {
     Object.defineProperty(navigator, 'clipboard', { value: { writeText }, configurable: true })
 
     render(<ReferralShareButton />)
-    fireEvent.click(screen.getByRole('button', { name: /share propfyndr/i }))
+    fireEvent.click(screen.getByRole('button', { name: /share realtyask/i }))
     fireEvent.click(screen.getByRole('menuitem', { name: /copy link/i }))
 
     expect(writeText).toHaveBeenCalledTimes(1)

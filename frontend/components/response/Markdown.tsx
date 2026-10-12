@@ -63,7 +63,7 @@ function beautifyMarkdown(content: string): string {
     .replace(/\s*\(#entity:[0-9a-fA-F-]+\)/gi, '')
     .replace(/#entity:[0-9a-fA-F-]+/gi, '')
     // 1. Strip any stray source parentheticals
-    .replace(/\s*\((?:market\s+data|propfyndr\s+data|verified\s+data|our\s+data|unverified)\)/gi, '')
+    .replace(/\s*\((?:market\s+data|(?:propfyndr|realtyask)\s+data|verified\s+data|our\s+data|unverified)\)/gi, '')
     // 2. Promote category subheadings ("Ready-to-Move Projects:", "Under-Construction Projects:")
     .replace(/(?:^|\n)(Ready-to-Move Projects|Under-Construction Projects|Key Projects|Recommended Projects|Top Societies):/gi, '\n\n#### $1\n')
     // 3. Highlight project name and sector tags cleanly in bullet items

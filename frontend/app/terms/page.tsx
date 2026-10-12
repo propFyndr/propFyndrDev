@@ -18,8 +18,8 @@ import {
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Terms of Service | PropFyndr',
-  description: 'Terms of service, RERA regulatory disclosures, DPDP Act compliance, TRAI DND waivers, and platform usage guidelines for PropFyndr real estate advisory.',
+  title: 'Terms of Service | RealtyAsk',
+  description: 'Terms of service, RERA regulatory disclosures, DPDP Act compliance, TRAI DND waivers, and platform usage guidelines for RealtyAsk real estate advisory.',
 }
 
 export default function TermsOfService() {
@@ -33,10 +33,10 @@ export default function TermsOfService() {
       content: (
         <div className="space-y-3">
           <p>
-            By accessing, browsing, or using PropFyndr (&quot;Platform&quot;, &quot;we&quot;, &quot;our&quot;, or &quot;us&quot;), including our AI-assisted advisory engine, multi-dimensional search matrix, property indices, and valuation models, you acknowledge that you have read, understood, and agree to be bound by these Terms of Service.
+            By accessing, browsing, or using RealtyAsk (&quot;Platform&quot;, &quot;we&quot;, &quot;our&quot;, or &quot;us&quot;), including our AI-assisted advisory engine, multi-dimensional search matrix, property indices, and valuation models, you acknowledge that you have read, understood, and agree to be bound by these Terms of Service.
           </p>
           <p>
-            PropFyndr operates as an analytical technology platform and digital intermediary under Section 79 of the Information Technology Act, 2000 and the Information Technology (Intermediary Guidelines and Digital Media Ethics Code) Rules, 2021, as amended. If you do not agree with any part of these terms, you must immediately discontinue use of the platform.
+            RealtyAsk operates as an analytical technology platform and digital intermediary under Section 79 of the Information Technology Act, 2000 and the Information Technology (Intermediary Guidelines and Digital Media Ethics Code) Rules, 2021, as amended. If you do not agree with any part of these terms, you must immediately discontinue use of the platform.
           </p>
         </div>
       ),
@@ -49,7 +49,7 @@ export default function TermsOfService() {
       content: (
         <div className="space-y-3">
           <p className="font-medium text-slate-900 dark:text-slate-100">
-            PropFyndr provides AI-powered real estate intelligence, historical market trajectory analysis, and comparative project evaluations strictly for informational, educational, and preliminary research purposes.
+            RealtyAsk provides AI-powered real estate intelligence, historical market trajectory analysis, and comparative project evaluations strictly for informational, educational, and preliminary research purposes.
           </p>
           <ul className="list-disc list-inside space-y-2 ml-2 text-slate-600 dark:text-slate-400">
             <li>
@@ -70,7 +70,7 @@ export default function TermsOfService() {
       content: (
         <div className="space-y-3">
           <p>
-            PropFyndr indexes and evaluates residential projects registered under the Real Estate (Regulation and Development) Act, 2016 (RERA) and registered with the Uttar Pradesh Real Estate Regulatory Authority (UP-RERA) for Noida, Greater Noida, and Yamuna Expressway micro-markets.
+            RealtyAsk indexes and evaluates residential projects registered under the Real Estate (Regulation and Development) Act, 2016 (RERA) and registered with the Uttar Pradesh Real Estate Regulatory Authority (UP-RERA) for Noida, Greater Noida, and Yamuna Expressway micro-markets.
           </p>
           <ul className="list-disc list-inside space-y-2 ml-2 text-slate-600 dark:text-slate-400">
             <li>
@@ -80,7 +80,7 @@ export default function TermsOfService() {
               <strong>Channel Partner &amp; Lead Fulfillment Routing:</strong> When a user requests a site visit, developer callback, brochure, or project cost sheet, lead coordination and site inspections are facilitated either directly by the respective UP-RERA registered developer or via authorized UP-RERA registered Channel Partners (Real Estate Agents), displaying their statutory CP registration numbers where applicable.
             </li>
             <li>
-              <strong>Technology Aggregator Status:</strong> PropFyndr functions strictly as an analytical intelligence layer. We do not solicit investments, underwrite developments, or act as an escrow agent.
+              <strong>Technology Aggregator Status:</strong> RealtyAsk functions strictly as an analytical intelligence layer. We do not solicit investments, underwrite developments, or act as an escrow agent.
             </li>
           </ul>
         </div>
@@ -94,11 +94,11 @@ export default function TermsOfService() {
       content: (
         <div className="space-y-3">
           <p>
-            By submitting your contact details (including phone number, email address, or scheduling preference) on PropFyndr for a project inquiry, brochure download, price sheet request, or site inspection:
+            By submitting your contact details (including phone number, email address, or scheduling preference) on RealtyAsk for a project inquiry, brochure download, price sheet request, or site inspection:
           </p>
           <ul className="list-disc list-inside space-y-2 ml-2 text-slate-600 dark:text-slate-400">
             <li>
-              <strong>Express Communication Authorization:</strong> You explicitly authorize PropFyndr, the concerned UP-RERA registered developers, and their authorized UP-RERA registered channel partners to contact you via Phone Calls, SMS, WhatsApp messages, and Electronic Mail regarding property updates, inventory availability, and scheduling details.
+              <strong>Express Communication Authorization:</strong> You explicitly authorize RealtyAsk, the concerned UP-RERA registered developers, and their authorized UP-RERA registered channel partners to contact you via Phone Calls, SMS, WhatsApp messages, and Electronic Mail regarding property updates, inventory availability, and scheduling details.
             </li>
             <li>
               <strong>TRAI / National DND Registry Waiver:</strong> You expressly agree that this request constitutes an unsolicited commercial communications exemption under the Telecom Commercial Communications Customer Preference Regulations, 2018 (TRAI TCCR). This consent explicitly overrides any existing registration on the National Do Not Call (NDNC / DND) Registry or Telecom Service Provider preference registers for a period of 12 months or until explicit written consent revocation.
@@ -141,7 +141,7 @@ export default function TermsOfService() {
       content: (
         <div className="space-y-3">
           <p>
-            PropFyndr collects anonymous technical data and device telemetry to deliver localized real estate intelligence across Delhi NCR micro-markets:
+            RealtyAsk collects anonymous technical data and device telemetry to deliver localized real estate intelligence across Delhi NCR micro-markets:
           </p>
           <ul className="list-disc list-inside space-y-2 ml-2 text-slate-600 dark:text-slate-400">
             <li>
@@ -166,7 +166,7 @@ export default function TermsOfService() {
           </p>
           <ul className="list-disc list-inside space-y-2 ml-2 text-slate-600 dark:text-slate-400">
             <li>
-              <strong>Right to Access:</strong> Obtain a summary of personal data and processing activities executed on PropFyndr.
+              <strong>Right to Access:</strong> Obtain a summary of personal data and processing activities executed on RealtyAsk.
             </li>
             <li>
               <strong>Right to Correction &amp; Erasure:</strong> Request the correction of inaccurate data or the complete erasure of your lead history, search trails, and registered profile.
@@ -207,7 +207,7 @@ export default function TermsOfService() {
           </p>
           <ul className="list-disc list-inside space-y-2 ml-2 text-slate-600 dark:text-slate-400">
             <li>Developers reserve the statutory right to modify unit layouts, finishings, and payment milestone structures subject to applicable RERA approvals and buyer consent rules.</li>
-            <li>PropFyndr is not liable for project completion delays, deviation in promised amenities, force majeure disruptions, or contractual disputes between buyers and builders.</li>
+            <li>RealtyAsk is not liable for project completion delays, deviation in promised amenities, force majeure disruptions, or contractual disputes between buyers and builders.</li>
           </ul>
         </div>
       ),
@@ -219,7 +219,7 @@ export default function TermsOfService() {
       content: (
         <div className="space-y-3">
           <p>
-            To the maximum extent permitted by applicable Indian law (including the Consumer Protection Act, 2019 and relevant e-commerce guidelines), PropFyndr, its directors, officers, employees, and technology partners shall not be liable for any indirect, incidental, special, consequential, or punitive damages, including loss of profits, property valuation differences, or business interruption arising from your access to or reliance upon platform insights.
+            To the maximum extent permitted by applicable Indian law (including the Consumer Protection Act, 2019 and relevant e-commerce guidelines), RealtyAsk, its directors, officers, employees, and technology partners shall not be liable for any indirect, incidental, special, consequential, or punitive damages, including loss of profits, property valuation differences, or business interruption arising from your access to or reliance upon platform insights.
           </p>
         </div>
       ),
@@ -266,7 +266,7 @@ export default function TermsOfService() {
             Terms of Service
           </h1>
           <p className="mt-3 text-base text-slate-600 dark:text-slate-400 max-w-3xl leading-relaxed">
-            Please read these terms carefully before utilizing PropFyndr. They outline the regulatory status of our AI advisory tools, RERA compliance standards, lead routing terms, and mutual responsibilities.
+            Please read these terms carefully before utilizing RealtyAsk. They outline the regulatory status of our AI advisory tools, RERA compliance standards, lead routing terms, and mutual responsibilities.
           </p>
         </div>
 
@@ -280,7 +280,7 @@ export default function TermsOfService() {
               RERA Compliant &amp; Independent Real Estate Intelligence
             </h2>
             <p className="text-xs sm:text-sm text-blue-800/80 dark:text-blue-300/80 mt-0.5">
-              PropFyndr indexes verified public UP-RERA records for Noida &amp; Greater Noida. We maintain strict analytical neutrality and transparent statutory compliance.
+              RealtyAsk indexes verified public UP-RERA records for Noida &amp; Greater Noida. We maintain strict analytical neutrality and transparent statutory compliance.
             </p>
           </div>
         </div>
@@ -338,7 +338,7 @@ export default function TermsOfService() {
             <div>
               <span className="font-semibold text-slate-900 dark:text-white block mb-1">Grievance &amp; Compliance Officer:</span>
               <p>Legal &amp; Regulatory Cell</p>
-              <p>PropFyndr Technologies Private Limited</p>
+              <p>RealtyAsk Technologies Private Limited</p>
               <p className="mt-1 flex items-center gap-1.5 text-slate-700 dark:text-slate-300">
                 <MapPin size={13} className="text-blue-500 shrink-0" />
                 Sector 62, Noida, Gautam Buddh Nagar, UP 201301, India

@@ -117,7 +117,7 @@ async function linkPropertyImages() {
     orderBy: [{ city: 'asc' }, { sector: 'asc' }, { name: 'asc' }]
   })
 
-  let mdContent = `# PropFyndr Missing Property Images Checklist\n\n`
+  let mdContent = `# RealtyAsk Missing Property Images Checklist\n\n`
   mdContent += `This document catalogs all properties currently in the database that do not yet have authentic local imagery attached.\n\n`
   mdContent += `### Instructions to Add Images:\n`
   mdContent += `1. Create a folder inside \`frontend/public/images/properties/\` named with the suggested folder slug below.\n`

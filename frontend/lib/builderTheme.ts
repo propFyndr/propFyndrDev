@@ -26,7 +26,7 @@ export interface BuilderTheme {
 
 export const DEFAULT_THEME: BuilderTheme = {
   id: 'default',
-  name: 'PropFyndr Default',
+  name: 'RealtyAsk Default',
   colors: {
     primary: '#3b82f6',
     secondary: '#e0e7ff',

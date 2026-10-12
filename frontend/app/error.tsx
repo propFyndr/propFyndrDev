@@ -52,9 +52,9 @@ export default function Error({
         <Link href="/" className="flex items-center gap-2.5 group shrink-0">
           <Image
             src="/images/icons/logo-wordmark-white.png"
-            alt="PropFyndr"
+            alt="RealtyAsk"
             width={648}
-            height={293}
+            height={216}
             className="object-contain h-auto opacity-90 group-hover:opacity-100 transition-opacity w-28 sm:w-36"
           />
         </Link>
@@ -137,7 +137,7 @@ export default function Error({
 
       {/* Footer */}
       <footer className="relative z-10 max-w-6xl mx-auto w-full px-6 py-4 border-t border-white/5 text-center text-[11px] text-zinc-600">
-        © {new Date().getFullYear()} PropFyndr · Verified Real Estate Intelligence
+        © {new Date().getFullYear()} RealtyAsk · Verified Real Estate Intelligence
       </footer>
     </div>
   )

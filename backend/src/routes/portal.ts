@@ -27,7 +27,7 @@ function identityOf(req: Request): AdminIdentitySession {
  * a session. That is exactly why the response is three fields. `portal_subdomain`
  * has existed on both models since subdomain routing shipped and nothing has
  * ever read it, so `lotus.propfyndr.in` showed a builder a page branded
- * "PropFyndr Admin" — a white-label that white-labels nothing.
+ * "RealtyAsk Admin" — a white-label that white-labels nothing.
  *
  * Branding only. It answers "whose door is this", never "what may they see":
  * a tenant slug is a public string anyone can type, so anything derived from it
@@ -36,7 +36,7 @@ function identityOf(req: Request): AdminIdentitySession {
  * says the same thing from the routing side.
  *
  * An unknown subdomain returns 404 rather than a default, so the caller renders
- * the plain PropFyndr shell instead of a half-branded one.
+ * the plain RealtyAsk shell instead of a half-branded one.
  */
 router.get('/tenant/:subdomain', async (req: Request, res: Response) => {
   const raw = String(req.params.subdomain || '').trim().toLowerCase()
@@ -219,7 +219,7 @@ router.get('/partner/profile', requireIdentity, requireRole('PARTNER', 'SUPER_AD
 // BUILDER -> their own channel partners
 //
 // A channel partner belongs to a builder. The builder onboards and manages
-// theirs; PropFyndr approves. So a builder may create and deactivate, but
+// theirs; RealtyAsk approves. So a builder may create and deactivate, but
 // never approve or verify — those two writes are super-admin-only and live in
 // adminPartners.ts.
 // ──────────────────────────────────────────────────────────────
@@ -239,7 +239,7 @@ function slugify(name: string): string {
 
 /**
  * Resolves the builder this request is scoped to. A BUILDER session carries
- * its own id and may not name another; a PropFyndr role must name one.
+ * its own id and may not name another; a RealtyAsk role must name one.
  * Returns null when the caller has no usable scope — the caller 400s.
  */
 function builderScope(req: Request): string | null {
@@ -299,7 +299,7 @@ router.post('/builder/partners', requireIdentity, requireRole('BUILDER', 'SUPER_
         primary_contact: d.primary_contact || null,
         operating_cities: d.operating_cities ?? [],
         specializations: d.specializations ?? [],
-        // Pending PropFyndr approval. A builder adding a partner does not grant
+        // Pending RealtyAsk approval. A builder adding a partner does not grant
         // that partner access — only approval does.
         status: 'new',
         is_active: false,
@@ -334,7 +334,7 @@ router.patch('/builder/partners/:id', requireIdentity, requireRole('BUILDER', 'S
   })
   if (!owned) { res.status(404).json({ error: 'Partner not found' }); return }
   if (parsed.data.is_active && owned.status !== 'approved') {
-    res.status(409).json({ error: 'PropFyndr has not approved this partner yet.' }); return
+    res.status(409).json({ error: 'RealtyAsk has not approved this partner yet.' }); return
   }
 
   const partner = await prisma.channelPartner.update({
@@ -410,7 +410,7 @@ router.patch('/builder/leads/:id', requireIdentity, requireRole('BUILDER', 'SUPE
  * Access management, from the organisation that owns the account.
  *
  * A builder whose sales manager leaves had to email us and wait for a super
- * admin to switch the login off. That makes PropFyndr a bottleneck on somebody
+ * admin to switch the login off. That makes RealtyAsk a bottleneck on somebody
  * else's staffing, and it leaves the person who actually knows someone has left
  * unable to act on it. The rules live in `lib/accessHierarchy.ts`.
  *
@@ -851,8 +851,8 @@ router.post('/builder/partners/:id/request-access', requireIdentity, requireRole
   res.status(202).json({
     ok: true,
     message: partner.status === 'approved'
-      ? `Access requested for ${parsed.data.email}. PropFyndr will send the invite.`
-      : `Access requested for ${parsed.data.email}. ${partner.name} needs PropFyndr approval first.`,
+      ? `Access requested for ${parsed.data.email}. RealtyAsk will send the invite.`
+      : `Access requested for ${parsed.data.email}. ${partner.name} needs RealtyAsk approval first.`,
   })
 })
 

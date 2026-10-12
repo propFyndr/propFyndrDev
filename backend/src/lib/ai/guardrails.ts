@@ -88,7 +88,7 @@ export async function outputGuardrail(
   // Check if response is leaking system prompt/context (fallback protection)
   if (systemPrompt) {
     const keyMarkers = [
-      /propfyndr (ai |data |behavior |communication )/i,
+      /(?:propfyndr|realtyask) (ai |data |behavior |communication )/i,
       /hard rule|strong rule/i,
       /fallback mode/i,
       /prohibited|never invent|never share/i,

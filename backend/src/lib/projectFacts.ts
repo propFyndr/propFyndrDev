@@ -73,7 +73,7 @@ async function resolveProject(nameOrId: string) {
 
 const NOT_FOUND = (nameOrId: string): FactEnvelope => ({
   found: false,
-  message: `No project matching "${nameOrId}" in the PropFyndr database. Do not guess — ask the user to confirm the project name, or use web_search and label the answer as unverified.`,
+  message: `No project matching "${nameOrId}" in the RealtyAsk database. Do not guess — ask the user to confirm the project name, or use web_search and label the answer as unverified.`,
 })
 
 // ── Floor plans / configurations ─────────────────────────────────────────────
@@ -566,7 +566,7 @@ export async function getBuilderNews(builderName: string): Promise<Record<string
   if (!builder) {
     return {
       found: false,
-      message: `No builder matching "${builderName}" in the PropFyndr database. Do not guess — ask the user to confirm the builder name.`,
+      message: `No builder matching "${builderName}" in the RealtyAsk database. Do not guess — ask the user to confirm the builder name.`,
     }
   }
 
