@@ -454,6 +454,18 @@ export default function ReferralsAdminPage() {
       </div>
 
       {/* Metric Summary Cards — Identical high-craft layout to Builders & Analytics */}
+      <div className="flex items-center gap-1 -mb-3">
+        <span className="text-[11px] font-semibold uppercase tracking-wider text-[#6e6e73] dark:text-[#98989d]">Campaign summary</span>
+        <DefinitionHint label="How the campaign summary is counted">
+          <div className="space-y-1.5">
+            <p><b>Total campaigns</b>: referral links an admin generated; <b>active</b> = not revoked.</p>
+            <p><b>Viral reach</b>: devices that arrived through any link&apos;s tree, all generations. A device is one browser (guest token).</p>
+            <p><b>Deepest cascade</b>: the furthest generation any link reached. Gen 1 opened the admin&apos;s link; Gen 2+ came through someone referred.</p>
+            <p><b>Activated users</b>: devices with 3+ messages across their chats, a return 24h+ later, or a callback, dossier or site-visit request. The % is activated ÷ reach.</p>
+            <p className="text-[#6e6e73] dark:text-[#98989d]">Devices with only bot chats are left out of every number.</p>
+          </div>
+        </DefinitionHint>
+      </div>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <StatCard
           label="Total Campaigns"
@@ -505,7 +517,10 @@ export default function ReferralsAdminPage() {
                     <p><b>Activated</b>: 3+ messages in total across the device&apos;s chats, or it came back 24h+ after its first chat, or it requested a callback, dossier or site visit.</p>
                     <p><b>Activation %</b>: activated devices ÷ devices reached.</p>
                     <p><b>K-factor</b>: activated devices in generation 2 and later ÷ activated devices in generations 0–1. Shown as — until a second generation exists.</p>
-                    <p><b>Spike</b>: a link with 10+ arrivals inside any one hour. It is a flag only; those arrivals still count.</p>
+                    <p><b>Active reach</b>: devices reached by links that are not revoked.</p>
+                    <p><b>Top admin</b>: the admin whose links reached the most devices.</p>
+                    <p><b>Best channel</b>: the channel most devices arrived through (most used, not most converting — see a link&apos;s channel breakdown for rates).</p>
+                    <p><b>Spike</b>: a link with 10+ direct arrivals inside any one hour — usually a post in a group or broadcast. It is a flag only; those arrivals still count.</p>
                   </div>
                 </DefinitionHint>
               </div>
@@ -607,7 +622,7 @@ export default function ReferralsAdminPage() {
                 <span className="text-[#6e6e73] dark:text-[#98989d] font-normal">—</span>
               )}
             </div>
-            <p className="text-[10px] text-[#6e6e73] dark:text-[#98989d] mt-1">Most effective share vector</p>
+            <p className="text-[10px] text-[#6e6e73] dark:text-[#98989d] mt-1">Most used share channel</p>
           </div>
 
           {/* Tile 5: Broadcast Alerts */}
@@ -653,6 +668,15 @@ export default function ReferralsAdminPage() {
                 <h2 className="text-sm font-bold text-[#1d1d1f] dark:text-[#f5f5f7]">
                   Cohort Intelligence: Referred vs Organic Baseline
                 </h2>
+                <DefinitionHint label="How the cohorts are built">
+                  <div className="space-y-1.5">
+                    <p><b>Referred</b>: people who arrived through someone (generation 1 or later) and chatted.</p>
+                    <p><b>Organic</b>: people who chatted without arriving through a referral.</p>
+                    <p>Rates are per person: activated ÷ people, converted ÷ people. Avg messages is per person across their chats. Bot chats are excluded.</p>
+                    <p><b>Activation-rate difference</b> is in percentage points (referred rate minus organic rate).</p>
+                    <p><b>Buyer intent</b> summarises the requirements people stated in chat (budget, sectors, BHK, amenities).</p>
+                  </div>
+                </DefinitionHint>
                 <span className="text-[10px] font-semibold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 rounded-full border border-emerald-200/80 dark:border-emerald-800/60">
                   Bot Filtered
                 </span>
@@ -1025,6 +1049,7 @@ export default function ReferralsAdminPage() {
       <div className="flex flex-col gap-3">
         {/* Row 1: Segmented Switch + Scope Controls */}
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+          <div className="flex items-center gap-1">
           {/* Main Segmented Mode Switch */}
           <div className="flex items-center p-1 rounded-xl bg-[#f5f5f7] dark:bg-[#242426] border border-[#e5e5ea] dark:border-[#38383a] w-fit">
             <button
@@ -1049,6 +1074,27 @@ export default function ReferralsAdminPage() {
             >
               By Admin Leaderboard
             </button>
+          </div>
+          {/* Lives here, not in the table header: the tables clip overflow. */}
+          {mainTab === 'byAdmin' ? (
+            <DefinitionHint label="How the leaderboard is ranked">
+              <div className="space-y-1.5">
+                <p>Ranked by <b>viral reach</b>: devices that arrived through all of the admin&apos;s links, every generation.</p>
+                <p><b>K-factor</b>: activated devices in generation 2+ ÷ activated devices in generations 0–1, across their links; — until a second generation exists.</p>
+                <p><b>Best channel</b>: the channel most of their devices arrived through. <b>Top link</b>: their link with the most devices.</p>
+              </div>
+            </DefinitionHint>
+          ) : (
+            <DefinitionHint label="What each column means">
+              <div className="space-y-1.5">
+                <p><b>14d trend</b>: new arrivals per India day over the last 14 days.</p>
+                <p><b>Viral reach</b>: devices that arrived through the link&apos;s tree, every generation.</p>
+                <p><b>Deepest gen</b>: the furthest generation reached.</p>
+                <p><b>Activated</b>: how many of those devices activated (3+ messages across chats, a return 24h+ later, or a callback, dossier or site-visit request), with the %.</p>
+                <p><b>Last activity</b>: when the newest device arrived.</p>
+              </div>
+            </DefinitionHint>
+          )}
           </div>
 
           {mainTab === 'byLink' && (

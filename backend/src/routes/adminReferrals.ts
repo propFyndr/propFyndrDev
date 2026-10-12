@@ -433,6 +433,7 @@ adminReferralsRouter.get('/metrics', async (_req: Request, res: Response) => {
       select: {
         guest_token: true,
         root_code: true,
+        arrived_via_code: true,
         generation: true,
         share_channel: true,
         device_class: true,
@@ -496,8 +497,11 @@ adminReferralsRouter.get('/metrics', async (_req: Request, res: Response) => {
     )
     const bestChannelOverall = mode(allVisits.map((v) => v.share_channel).filter((c): c is string => Boolean(c)))
 
+    // Direct arrivals only (people who opened the admin's own link), the same
+    // test the per-link flag in GET / uses. Counting the whole tree here meant
+    // a fast organic cascade read as a "broadcast", and the two disagreed.
     const broadcastFlaggedCount = links.filter((l) => {
-      const direct = allVisits.filter((v) => v.root_code === l.code)
+      const direct = allVisits.filter((v) => v.arrived_via_code === l.code)
       return detectBroadcastWindows(direct.map((v) => ({ arrivedAt: v.first_seen_at })), 10).length > 0
     }).length
 

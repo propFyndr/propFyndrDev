@@ -1,0 +1,116 @@
+name: Refresh CI catalogue fixture
+
+# Re-exports the public catalogue that CI seeds its test database with
+# (backend/scripts/ci/), so catalogue-dependent tests follow the live data.
+# A changed fixture is only committed after the whole backend suite passes
+# against it. Needs the CATALOGUE_DATABASE_URL secret — ideally a read-only
+# Postgres role; the export only ever runs findMany.
+on:
+  schedule:
+    - cron: '0 2 * * 1' # Mondays 02:00 UTC = 07:30 IST
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: catalogue-refresh
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    name: Export, verify, commit
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: propfyndr_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    env:
+      TEST_DB: postgresql://postgres:postgres@localhost:5432/propfyndr_test
+
+    steps:
+      - name: Check the source secret
+        id: secret
+        env:
+          SOURCE: ${{ secrets.CATALOGUE_DATABASE_URL }}
+        run: |
+          if [ -z "$SOURCE" ]; then
+            echo "::notice::CATALOGUE_DATABASE_URL is not set — skipping the refresh."
+            echo "present=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "present=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: actions/checkout@v4
+        if: steps.secret.outputs.present == 'true'
+        with:
+          ref: dev
+
+      - uses: actions/setup-node@v4
+        if: steps.secret.outputs.present == 'true'
+        with:
+          node-version: '24'
+          cache: 'npm'
+          cache-dependency-path: 'package-lock.json'
+
+      - name: Install and generate the Prisma client
+        if: steps.secret.outputs.present == 'true'
+        run: |
+          npm ci
+          cd backend && npm run db:generate
+
+      - name: Export the catalogue (read-only)
+        if: steps.secret.outputs.present == 'true'
+        working-directory: ./backend
+        env:
+          DATABASE_URL: ${{ secrets.CATALOGUE_DATABASE_URL }}
+        run: npx tsx scripts/ci/export-ci-catalogue.ts
+
+      - name: Did it change?
+        if: steps.secret.outputs.present == 'true'
+        id: diff
+        run: |
+          if git diff --quiet -- backend/scripts/ci/catalogue.json.gz; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::Catalogue unchanged — nothing to commit."
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Verify — seed a fresh DB and run the backend suite
+        if: steps.diff.outputs.changed == 'true'
+        working-directory: ./backend
+        env:
+          DATABASE_URL: ${{ env.TEST_DB }}
+          DIRECT_URL: ${{ env.TEST_DB }}
+          NODE_ENV: test
+          ADMIN_PASSWORD: test-admin-password
+          GEMINI_API_KEY: ci-dummy-not-a-real-key
+          SUPABASE_URL: http://localhost:54321
+          SUPABASE_SERVICE_ROLE_KEY: dummy-service-role-key
+        run: |
+          psql "$DATABASE_URL" -c "CREATE EXTENSION IF NOT EXISTS vector;"
+          npx prisma db push --skip-generate
+          npx tsx scripts/ci/seed-ci-catalogue.ts
+          npm test
+
+      - name: Commit the refreshed fixture to dev
+        if: steps.diff.outputs.changed == 'true'
+        run: |
+          git config user.name "catalogue-refresh[bot]"
+          git config user.email "catalogue-refresh@users.noreply.github.com"
+          git add backend/scripts/ci/catalogue.json.gz
+          git commit -m "chore(ci): refresh catalogue fixture ($(date -u +%F))"
+          git push origin HEAD:dev

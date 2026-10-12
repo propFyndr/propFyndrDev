@@ -317,6 +317,17 @@ export default function ReferralTreePage() {
       </div>
 
       {/* Metrics Grid */}
+      <div className="flex items-center gap-1 -mb-3">
+        <span className="text-[11px] font-semibold uppercase tracking-wider text-[#6e6e73] dark:text-[#98989d]">Link summary</span>
+        <DefinitionHint label="How the link summary is counted">
+          <div className="space-y-1.5">
+            <p><b>Total devices</b>: every browser that arrived through this link&apos;s tree. <b>Direct</b> = generation 1 (opened your link itself); <b>viral</b> = generation 2 and later (arrived through someone who was referred).</p>
+            <p><b>Viral depth</b>: the furthest generation reached.</p>
+            <p><b>Activated</b>: 3+ messages across the device&apos;s chats, a return 24h+ later, or a callback, dossier or site-visit request.</p>
+            <p><b>Chat messages</b>: messages in human chats only. Devices with only bot chats are left out of every number here.</p>
+          </div>
+        </DefinitionHint>
+      </div>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <StatCard
           label="Total Devices"
@@ -407,7 +418,12 @@ export default function ReferralTreePage() {
         <div className="bg-white dark:bg-[#1c1c1e] rounded-2xl border border-[#e5e5ea] dark:border-[#2c2c2e] p-6 shadow-xs">
           <div className="flex items-center justify-between mb-3">
             <div>
-              <h2 className="text-sm font-bold text-[#1d1d1f] dark:text-[#f5f5f7]">Arrival Trend</h2>
+              <div className="flex items-center gap-1">
+                <h2 className="text-sm font-bold text-[#1d1d1f] dark:text-[#f5f5f7]">Arrival Trend</h2>
+                <DefinitionHint label="How arrivals are counted">
+                  <p>One arrival per device, on the day it first opened a link in this tree (India time). Repeat visits are not counted again; devices with only bot chats are left out. Weekly buckets start on Monday; All-time uses weekly buckets.</p>
+                </DefinitionHint>
+              </div>
               <p className="text-[11px] text-[#6e6e73] dark:text-[#98989d]">Arrival volume partitioned by date and granularity.</p>
             </div>
           </div>
@@ -423,7 +439,16 @@ export default function ReferralTreePage() {
                   <GitBranch size={13} />
                 </div>
                 <div>
-                  <h2 className="text-sm font-bold text-[#1d1d1f] dark:text-[#f5f5f7]">K-Factor by Generation</h2>
+                  <div className="flex items-center gap-1">
+                    <h2 className="text-sm font-bold text-[#1d1d1f] dark:text-[#f5f5f7]">K-Factor by Generation</h2>
+                    <DefinitionHint label="How K-factor is calculated">
+                      <div className="space-y-1.5">
+                        <p><b>k (Gen N → N+1)</b> = activated devices in generation N+1 ÷ activated devices in generation N.</p>
+                        <p><b>k ≥ 1</b>: each activated person brought in at least one more activated person — the cascade is growing. Below 1 it is fading.</p>
+                        <p><b>—</b>: generation N+1 has no devices yet, so there is nothing to compare.</p>
+                      </div>
+                    </DefinitionHint>
+                  </div>
                   <p className="text-[11px] text-[#6e6e73] dark:text-[#98989d]">Viral transmission multiplier between successive waves.</p>
                 </div>
               </div>
@@ -513,7 +538,12 @@ export default function ReferralTreePage() {
               <Share2 size={13} />
             </div>
             <div>
-              <h2 className="text-sm font-bold text-[#1d1d1f] dark:text-[#f5f5f7]">Channel Attribution Breakdown</h2>
+              <div className="flex items-center gap-1">
+                <h2 className="text-sm font-bold text-[#1d1d1f] dark:text-[#f5f5f7]">Channel Attribution Breakdown</h2>
+                <DefinitionHint label="How channels are attributed">
+                  <p>The channel is how a device received the link (WhatsApp, SMS, copied link…), recorded when it first arrived. <b>Direct</b> means no channel was recorded. The rate is that channel&apos;s activated devices ÷ its devices.</p>
+                </DefinitionHint>
+              </div>
               <p className="text-[11px] text-[#6e6e73] dark:text-[#98989d]">Traffic source vectors mapped against conversational activation rates.</p>
             </div>
           </div>
