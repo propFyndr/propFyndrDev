@@ -39,7 +39,10 @@ function buildIndex(nodes: ReferralTreeNode[]): TreeIndex {
     if (!byParent.has(key)) byParent.set(key, [])
     byParent.get(key)!.push(n)
   }
-  const roots = nodes.filter((n) => n.generation === 1)
+  // A node whose parent isn't in this tree (e.g. a purged visit) is shown at the
+  // top level rather than silently dropped.
+  const tokens = new Set(nodes.map((n) => n.guestToken))
+  const roots = nodes.filter((n) => n.generation === 1 || !n.parentGuestToken || !tokens.has(n.parentGuestToken))
   return { byParent, roots }
 }
 
@@ -111,18 +114,18 @@ function TreeRow({
               </span>
               <FunnelBadge stage={node.funnelStage} />
               {node.visitCount > 1 && (
-                <span className="text-[10px] font-mono font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/40 px-1.5 py-0.2 rounded" title="Re-entered the arrival flow">
+                <span className="text-[10px] font-mono font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/40 px-1.5 py-0.5 rounded" title="Re-entered the arrival flow">
                   ×{node.visitCount} visits
                 </span>
               )}
             </div>
-            <p className="text-[10px] text-zinc-400 dark:text-zinc-500 font-mono mt-0.5 truncate">
+            <p className="text-[10px] text-zinc-500 dark:text-zinc-400 font-mono mt-0.5 truncate">
               {node.os} • {node.appGuess !== 'unknown' ? node.appGuess : node.shareChannel || 'direct'}
             </p>
           </div>
 
           {/* Telemetry metadata */}
-          <div className="flex items-center gap-3 shrink-0 text-zinc-400 dark:text-zinc-500 text-[11px]">
+          <div className="flex items-center gap-3 shrink-0 text-zinc-500 dark:text-zinc-400 text-[11px]">
             <span className="flex items-center gap-1 font-mono tabular-nums">
               <MessageSquare size={11} className="text-zinc-400" />
               <strong className="text-zinc-700 dark:text-zinc-300 font-semibold">{node.messageCount}</strong>
@@ -131,7 +134,7 @@ function TreeRow({
               <Clock size={11} className="text-zinc-400" />
               {new Date(node.lastSeenAt).toLocaleDateString()}
             </span>
-            <ArrowUpRight size={13} className="text-zinc-300 dark:text-zinc-600 group-hover:text-[#0066cc] transition-colors" />
+            <ArrowUpRight size={13} className="text-zinc-300 dark:text-zinc-600 group-hover:text-[#0066cc] dark:group-hover:text-[#2997ff] transition-colors" />
           </div>
         </button>
       </div>
@@ -164,7 +167,7 @@ export default function ReferralTree({
   }
 
   if (nodes.length === 0) {
-    return <p className="text-xs text-zinc-400 italic py-8 text-center">No devices have arrived through this link yet.</p>
+    return <p className="text-xs text-zinc-500 dark:text-zinc-400 italic py-8 text-center">No devices have arrived through this link yet.</p>
   }
 
   return (

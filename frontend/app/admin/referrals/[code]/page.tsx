@@ -7,20 +7,16 @@ import { adminFetch } from '@/lib/adminFetch'
 import {
   ArrowLeft,
   Smartphone,
-  Link as LinkIcon,
   Copy,
   Check,
   ExternalLink,
   RotateCcw,
-  AlertCircle,
   Zap,
   GitBranch,
-  Users,
   MessageSquare,
   ShieldCheck,
   FileText,
   X,
-  ChevronRight,
   Share2,
 } from 'lucide-react'
 import { AnimatePresence, m } from 'framer-motion'
@@ -28,6 +24,8 @@ import { toast } from 'sonner'
 import { StatCard } from '@/components/portal/ui'
 import ReferralTree, { type ReferralTreeNode } from '@/components/admin/referrals/ReferralTree'
 import TrendChart, { type Granularity, type TrendBucket } from '@/components/admin/referrals/TrendChart'
+import DefinitionHint from '@/components/admin/referrals/DefinitionHint'
+import { FunnelStageDefinitions } from '@/components/admin/referrals/FunnelBadge'
 
 type TreeNode = ReferralTreeNode & { depthInferred: boolean }
 
@@ -65,7 +63,6 @@ export default function ReferralTreePage() {
   const [granularity, setGranularity] = useState<Granularity>('daily')
   const [trendBuckets, setTrendBuckets] = useState<TrendBucket[]>([])
   const [trendLoading, setTrendLoading] = useState(false)
-  const [showKFactorDetail, setShowKFactorDetail] = useState(false)
 
   const loadTrend = useCallback(
     async (g: Granularity) => {
@@ -154,6 +151,8 @@ export default function ReferralTreePage() {
       } else {
         toast.error('Failed to revoke link')
       }
+    } catch {
+      toast.error('Error communicating with server')
     } finally {
       setRevoking(false)
     }
@@ -170,10 +169,21 @@ export default function ReferralTreePage() {
       } else {
         toast.error('Failed to reset holder')
       }
+    } catch {
+      toast.error('Error communicating with server')
     } finally {
       setResetting(false)
     }
   }
+
+  useEffect(() => {
+    if (!selectedNode) return
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setSelectedNode(null)
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [selectedNode])
 
   // Per-generation K-factor drill-down: activated count at each generation,
   // and the simple ratio to the next (null where the denominator is zero —
@@ -185,13 +195,15 @@ export default function ReferralTreePage() {
       activatedByGen.set(n.generation, (activatedByGen.get(n.generation) ?? 0) + 1)
     }
     const gens = Array.from(activatedByGen.keys()).sort((a, b) => a - b)
+    const presentGens = new Set(nodes.map((n) => n.generation))
     const rows: { generation: number; activatedCount: number; k: number | null }[] = []
-    for (let i = 0; i < gens.length; i++) {
-      const gen = gens[i]
+    for (const gen of gens) {
       const count = activatedByGen.get(gen) ?? 0
-      const next = gens[i + 1]
-      const nextCount = next !== undefined ? activatedByGen.get(next) ?? 0 : null
-      rows.push({ generation: gen, activatedCount: count, k: nextCount !== null && count > 0 ? nextCount / count : null })
+      // Gen N → N+1 only. If generation N+1 has no devices at all there is no
+      // ratio to show (a gap is not "next wave"); if it has devices but none
+      // activated, k is a real 0.
+      const k = count > 0 && presentGens.has(gen + 1) ? (activatedByGen.get(gen + 1) ?? 0) / count : null
+      rows.push({ generation: gen, activatedCount: count, k })
     }
     return rows
   }, [nodes])
@@ -229,7 +241,7 @@ export default function ReferralTreePage() {
       <div>
         <Link
           href="/admin/referrals"
-          className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#86868b] hover:text-[#0066cc] dark:hover:text-[#2997ff] transition-colors active:scale-95 mb-3 cursor-pointer"
+          className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#6e6e73] dark:text-[#98989d] hover:text-[#0066cc] dark:hover:text-[#2997ff] transition-colors active:scale-95 mb-3 cursor-pointer"
         >
           <ArrowLeft size={14} />
           <span>Back to All Referral Links</span>
@@ -255,7 +267,7 @@ export default function ReferralTreePage() {
             <h1 className="text-3xl sm:text-4xl font-extrabold text-[#1d1d1f] dark:text-[#f5f5f7] tracking-tight">
               {rootLabel || code}
             </h1>
-            <p className="text-xs sm:text-sm font-medium text-[#86868b] mt-1">
+            <p className="text-xs sm:text-sm font-medium text-[#6e6e73] dark:text-[#98989d] mt-1">
               Generational viral distribution tree and visitor attribution graph.
             </p>
           </div>
@@ -284,7 +296,7 @@ export default function ReferralTreePage() {
             <button
               onClick={handleResetHolder}
               disabled={resetting}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-amber-50 dark:bg-amber-950/30 hover:bg-amber-100 dark:hover:bg-amber-950/50 text-amber-700 dark:text-amber-400 border border-amber-200/80 dark:border-amber-800/60 text-xs font-semibold transition-all active:scale-[0.98] cursor-pointer"
+              className="disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5 px-3 py-2 rounded-xl bg-amber-50 dark:bg-amber-950/30 hover:bg-amber-100 dark:hover:bg-amber-950/50 text-amber-700 dark:text-amber-400 border border-amber-200/80 dark:border-amber-800/60 text-xs font-semibold transition-all active:scale-[0.98] cursor-pointer"
               title="Reset holder device"
             >
               <RotateCcw size={14} />
@@ -295,7 +307,7 @@ export default function ReferralTreePage() {
               <button
                 onClick={handleRevoke}
                 disabled={revoking}
-                className="flex items-center gap-1 px-3 py-2 rounded-xl bg-rose-50 dark:bg-rose-950/30 hover:bg-rose-100 dark:hover:bg-rose-950/50 text-rose-600 dark:text-rose-400 border border-rose-200/80 dark:border-rose-800/60 text-xs font-semibold transition-all active:scale-[0.98] cursor-pointer"
+                className="disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1 px-3 py-2 rounded-xl bg-rose-50 dark:bg-rose-950/30 hover:bg-rose-100 dark:hover:bg-rose-950/50 text-rose-600 dark:text-rose-400 border border-rose-200/80 dark:border-rose-800/60 text-xs font-semibold transition-all active:scale-[0.98] cursor-pointer"
               >
                 <span>Revoke</span>
               </button>
@@ -326,7 +338,7 @@ export default function ReferralTreePage() {
           value={metrics.activatedCount}
           tone={metrics.activatedCount > 0 ? 'good' : 'neutral'}
           icon={<Zap size={18} />}
-          hint={metrics.totalDevices > 0 ? `${Math.round((metrics.activatedCount / metrics.totalDevices) * 100)}% conversion` : 'No visits'}
+          hint={metrics.totalDevices > 0 ? `${Math.round((metrics.activatedCount / metrics.totalDevices) * 100)}% of devices activated` : 'No visits'}
           loading={loading}
         />
         <StatCard
@@ -342,15 +354,20 @@ export default function ReferralTreePage() {
       <div className="bg-white dark:bg-[#1c1c1e] rounded-2xl border border-[#e5e5ea] dark:border-[#2c2c2e] p-6">
         <div className="flex items-center justify-between border-b border-[#e5e5ea] dark:border-[#2c2c2e] pb-4 mb-6">
           <div>
-            <h2 className="text-base font-bold text-[#1d1d1f] dark:text-[#f5f5f7] flex items-center gap-2">
-              <GitBranch size={18} className="text-[#0066cc]" />
-              Generational Tree Hierarchy
-            </h2>
-            <p className="text-xs text-[#86868b] mt-0.5">
+            <div className="flex items-center gap-1">
+              <h2 className="text-base font-bold text-[#1d1d1f] dark:text-[#f5f5f7] flex items-center gap-2">
+                <GitBranch size={18} className="text-[#0066cc] dark:text-[#2997ff]" />
+                Generational Tree Hierarchy
+              </h2>
+              <DefinitionHint label="How funnel stages are assigned">
+                <FunnelStageDefinitions />
+              </DefinitionHint>
+            </div>
+            <p className="text-xs text-[#6e6e73] dark:text-[#98989d] mt-0.5">
               Click any device node to open the visitor intelligence drawer.
             </p>
           </div>
-          <span className="text-xs font-mono text-[#86868b] bg-[#f5f5f7] dark:bg-[#242426] px-3 py-1 rounded-full border border-[#e5e5ea] dark:border-[#38383a]">
+          <span className="text-xs font-mono text-[#6e6e73] dark:text-[#98989d] bg-[#f5f5f7] dark:bg-[#242426] px-3 py-1 rounded-full border border-[#e5e5ea] dark:border-[#38383a]">
             {nodes.length} total node{nodes.length === 1 ? '' : 's'}
           </span>
         </div>
@@ -358,17 +375,17 @@ export default function ReferralTreePage() {
         {loading ? (
           <div className="py-24 flex flex-col items-center justify-center text-center">
             <div className="w-8 h-8 border-2 border-[#0066cc] border-t-transparent rounded-full animate-spin mb-3" />
-            <p className="text-xs font-medium text-[#86868b]">Loading referral graph…</p>
+            <p className="text-xs font-medium text-[#6e6e73] dark:text-[#98989d]">Loading referral graph…</p>
           </div>
         ) : nodes.length === 0 ? (
           <div className="py-20 flex flex-col items-center justify-center text-center px-4">
-            <div className="w-12 h-12 rounded-2xl bg-[#f5f5f7] dark:bg-[#242426] flex items-center justify-center text-[#86868b] mb-3">
+            <div className="w-12 h-12 rounded-2xl bg-[#f5f5f7] dark:bg-[#242426] flex items-center justify-center text-[#6e6e73] dark:text-[#98989d] mb-3">
               <Share2 size={24} />
             </div>
             <p className="text-sm font-bold text-[#1d1d1f] dark:text-[#f5f5f7]">
               No devices have arrived through this link yet
             </p>
-            <p className="text-xs text-[#86868b] mt-1 max-w-sm">
+            <p className="text-xs text-[#6e6e73] dark:text-[#98989d] mt-1 max-w-sm">
               Share the link via WhatsApp or direct message. As recipients open it and share their personal links with others, the network tree will propagate here automatically.
             </p>
             <button
@@ -391,7 +408,7 @@ export default function ReferralTreePage() {
           <div className="flex items-center justify-between mb-3">
             <div>
               <h2 className="text-sm font-bold text-[#1d1d1f] dark:text-[#f5f5f7]">Arrival Trend</h2>
-              <p className="text-[11px] text-[#86868b]">Arrival volume partitioned by date and granularity.</p>
+              <p className="text-[11px] text-[#6e6e73] dark:text-[#98989d]">Arrival volume partitioned by date and granularity.</p>
             </div>
           </div>
           <TrendChart buckets={trendBuckets} granularity={granularity} onGranularityChange={setGranularity} loading={trendLoading} />
@@ -407,23 +424,23 @@ export default function ReferralTreePage() {
                 </div>
                 <div>
                   <h2 className="text-sm font-bold text-[#1d1d1f] dark:text-[#f5f5f7]">K-Factor by Generation</h2>
-                  <p className="text-[11px] text-[#86868b]">Viral transmission multiplier between successive waves.</p>
+                  <p className="text-[11px] text-[#6e6e73] dark:text-[#98989d]">Viral transmission multiplier between successive waves.</p>
                 </div>
               </div>
-              <span className="text-[10px] font-mono text-[#86868b] bg-[#f5f5f7] dark:bg-[#242426] px-2.5 py-0.5 rounded-full border border-[#e5e5ea] dark:border-[#38383a]">
+              <span className="text-[10px] font-mono text-[#6e6e73] dark:text-[#98989d] bg-[#f5f5f7] dark:bg-[#242426] px-2.5 py-0.5 rounded-full border border-[#e5e5ea] dark:border-[#38383a]">
                 Viral Cascade
               </span>
             </div>
 
             {perGenerationKFactor.length === 0 ? (
               <div className="py-12 flex flex-col items-center justify-center text-center px-4">
-                <div className="w-10 h-10 rounded-xl bg-[#f5f5f7] dark:bg-[#242426] flex items-center justify-center text-[#86868b] mb-2.5">
+                <div className="w-10 h-10 rounded-xl bg-[#f5f5f7] dark:bg-[#242426] flex items-center justify-center text-[#6e6e73] dark:text-[#98989d] mb-2.5">
                   <GitBranch size={18} />
                 </div>
                 <p className="text-xs font-semibold text-[#1d1d1f] dark:text-[#f5f5f7]">
                   No activated cascades yet
                 </p>
-                <p className="text-[11px] text-[#86868b] mt-1 max-w-xs">
+                <p className="text-[11px] text-[#6e6e73] dark:text-[#98989d] mt-1 max-w-xs">
                   When Gen 1 visitors activate and distribute their own referral links to friends, generational multipliers (k &ge; 1.0) appear here.
                 </p>
               </div>
@@ -441,11 +458,12 @@ export default function ReferralTreePage() {
                           <span className="font-mono text-xs font-bold text-[#1d1d1f] dark:text-[#f5f5f7]">
                             Gen {row.generation} → Gen {row.generation + 1}
                           </span>
-                          <span className="text-[10px] text-[#86868b] font-mono">
+                          <span className="text-[10px] text-[#6e6e73] dark:text-[#98989d] font-mono">
                             ({row.activatedCount} activated)
                           </span>
                         </div>
                         <div className="flex items-center gap-1.5">
+                          {row.k !== null && (
                           <span
                             className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
                               isViral
@@ -455,6 +473,7 @@ export default function ReferralTreePage() {
                           >
                             {isViral ? 'Exponential Amplification' : 'Linear Transmission'}
                           </span>
+                          )}
                           <span className="font-mono font-black text-xs text-[#1d1d1f] dark:text-[#f5f5f7]">
                             k = {row.k === null ? '—' : row.k.toFixed(2)}
                           </span>
@@ -479,7 +498,7 @@ export default function ReferralTreePage() {
             )}
           </div>
 
-          <div className="pt-3 mt-4 border-t border-[#e5e5ea]/80 dark:border-[#2c2c2e]/80 text-[10px] text-[#86868b] flex items-center justify-between">
+          <div className="pt-3 mt-4 border-t border-[#e5e5ea]/80 dark:border-[#2c2c2e]/80 text-[10px] text-[#6e6e73] dark:text-[#98989d] flex items-center justify-between">
             <span>Formula: next wave activations / current wave</span>
             <span className="font-mono">Threshold: k &ge; 1.0</span>
           </div>
@@ -495,16 +514,16 @@ export default function ReferralTreePage() {
             </div>
             <div>
               <h2 className="text-sm font-bold text-[#1d1d1f] dark:text-[#f5f5f7]">Channel Attribution Breakdown</h2>
-              <p className="text-[11px] text-[#86868b]">Traffic source vectors mapped against conversational activation rates.</p>
+              <p className="text-[11px] text-[#6e6e73] dark:text-[#98989d]">Traffic source vectors mapped against conversational activation rates.</p>
             </div>
           </div>
-          <span className="text-[10px] font-mono text-[#86868b] bg-[#f5f5f7] dark:bg-[#242426] px-2.5 py-0.5 rounded-full border border-[#e5e5ea] dark:border-[#38383a]">
+          <span className="text-[10px] font-mono text-[#6e6e73] dark:text-[#98989d] bg-[#f5f5f7] dark:bg-[#242426] px-2.5 py-0.5 rounded-full border border-[#e5e5ea] dark:border-[#38383a]">
             {channelBreakdown.reduce((sum, c) => sum + c.total, 0)} total sessions
           </span>
         </div>
 
         {channelBreakdown.length === 0 ? (
-          <div className="py-8 text-center text-xs text-[#86868b] italic">
+          <div className="py-8 text-center text-xs text-[#6e6e73] dark:text-[#98989d] italic">
             No channel visits recorded yet for this link.
           </div>
         ) : (
@@ -540,7 +559,7 @@ export default function ReferralTreePage() {
       <AnimatePresence>
         {selectedNode && (
           <div
-            className="fixed inset-0 bg-black/40 backdrop-blur-xs flex justify-end z-50"
+            className="fixed inset-0 bg-black/40 backdrop-blur-sm flex justify-end z-50"
             onClick={() => setSelectedNode(null)}
           >
             <m.div
@@ -549,26 +568,31 @@ export default function ReferralTreePage() {
               exit={{ x: '100%' }}
               transition={{ type: 'spring', damping: 25, stiffness: 250 }}
               onClick={(e) => e.stopPropagation()}
+              role="dialog"
+              aria-modal="true"
+              aria-label="Visitor details"
               className="w-full max-w-md h-full bg-white dark:bg-[#1c1c1e] p-6 overflow-y-auto border-l border-[#e5e5ea] dark:border-[#2c2c2e] shadow-2xl flex flex-col justify-between"
             >
               <div>
                 {/* Drawer Header */}
                 <div className="flex items-center justify-between pb-4 border-b border-[#e5e5ea] dark:border-[#2c2c2e] mb-6">
                   <div>
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-[#0066cc] bg-[#0066cc]/10 px-2 py-0.5 rounded-full border border-[#0066cc]/20">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-[#0066cc] dark:text-[#2997ff] bg-[#0066cc]/10 px-2 py-0.5 rounded-full border border-[#0066cc]/20">
                       Generation {selectedNode.generation}
                     </span>
                     <h2 className="text-xl font-extrabold text-[#1d1d1f] dark:text-[#f5f5f7] mt-1">
                       Visitor Dossier
                     </h2>
-                    <p className="text-[11px] font-mono text-[#86868b] truncate max-w-xs mt-0.5">
+                    <p className="text-[11px] font-mono text-[#6e6e73] dark:text-[#98989d] truncate max-w-xs mt-0.5">
                       token: {selectedNode.guestToken}
                     </p>
                   </div>
 
                   <button
+                    type="button"
+                    aria-label="Close visitor details"
                     onClick={() => setSelectedNode(null)}
-                    className="p-1.5 rounded-xl text-[#86868b] hover:text-[#1d1d1f] dark:hover:text-[#f5f5f7] hover:bg-[#f5f5f7] dark:hover:bg-[#242426] transition-colors active:scale-95 cursor-pointer"
+                    className="p-1.5 rounded-xl text-[#6e6e73] dark:text-[#98989d] hover:text-[#1d1d1f] dark:hover:text-[#f5f5f7] hover:bg-[#f5f5f7] dark:hover:bg-[#242426] transition-colors active:scale-95 cursor-pointer"
                   >
                     <X size={18} />
                   </button>
@@ -577,24 +601,24 @@ export default function ReferralTreePage() {
                 {/* Device & Client Profile */}
                 <div className="p-4 rounded-2xl bg-[#f5f5f7] dark:bg-[#242426] border border-[#e5e5ea] dark:border-[#38383a] mb-5">
                   <h3 className="text-xs font-bold text-[#1d1d1f] dark:text-[#f5f5f7] uppercase tracking-wider mb-2.5 flex items-center gap-1.5">
-                    <Smartphone size={14} className="text-[#0066cc]" />
+                    <Smartphone size={14} className="text-[#0066cc] dark:text-[#2997ff]" />
                     Device Profile
                   </h3>
                   <div className="grid grid-cols-2 gap-2 text-xs">
                     <div>
-                      <span className="text-[#86868b] text-[11px] block">Device Class</span>
+                      <span className="text-[#6e6e73] dark:text-[#98989d] text-[11px] block">Device Class</span>
                       <strong className="text-[#1d1d1f] dark:text-[#f5f5f7] capitalize">{selectedNode.deviceClass}</strong>
                     </div>
                     <div>
-                      <span className="text-[#86868b] text-[11px] block">Operating System</span>
+                      <span className="text-[#6e6e73] dark:text-[#98989d] text-[11px] block">Operating System</span>
                       <strong className="text-[#1d1d1f] dark:text-[#f5f5f7] capitalize">{selectedNode.os}</strong>
                     </div>
                     <div>
-                      <span className="text-[#86868b] text-[11px] block">Client / App</span>
+                      <span className="text-[#6e6e73] dark:text-[#98989d] text-[11px] block">Client / App</span>
                       <strong className="text-[#1d1d1f] dark:text-[#f5f5f7] capitalize">{selectedNode.appGuess}</strong>
                     </div>
                     <div>
-                      <span className="text-[#86868b] text-[11px] block">First Seen</span>
+                      <span className="text-[#6e6e73] dark:text-[#98989d] text-[11px] block">First Seen</span>
                       <strong className="text-[#1d1d1f] dark:text-[#f5f5f7]">
                         {new Date(selectedNode.firstSeenAt).toLocaleDateString()}
                       </strong>
@@ -606,25 +630,25 @@ export default function ReferralTreePage() {
                 {selectedNode.summary && (selectedNode.summary.location || selectedNode.summary.financial || selectedNode.summary.timeline) ? (
                   <div className="p-4 rounded-2xl bg-[#f5f5f7] dark:bg-[#242426] border border-[#e5e5ea] dark:border-[#38383a] mb-5">
                     <h3 className="text-xs font-bold text-[#1d1d1f] dark:text-[#f5f5f7] uppercase tracking-wider mb-2 flex items-center gap-1.5">
-                      <FileText size={14} className="text-[#0066cc]" />
+                      <FileText size={14} className="text-[#0066cc] dark:text-[#2997ff]" />
                       Extracted Buyer Intent
                     </h3>
                     <div className="space-y-2 text-xs">
                       {selectedNode.summary.location && (
                         <div>
-                          <span className="text-[#86868b] text-[11px] block">Preferred Location:</span>
+                          <span className="text-[#6e6e73] dark:text-[#98989d] text-[11px] block">Preferred Location:</span>
                           <span className="font-semibold text-[#1d1d1f] dark:text-[#f5f5f7]">{selectedNode.summary.location}</span>
                         </div>
                       )}
                       {selectedNode.summary.financial && (
                         <div>
-                          <span className="text-[#86868b] text-[11px] block">Budget &amp; Financial:</span>
+                          <span className="text-[#6e6e73] dark:text-[#98989d] text-[11px] block">Budget &amp; Financial:</span>
                           <span className="font-semibold text-[#1d1d1f] dark:text-[#f5f5f7]">{selectedNode.summary.financial}</span>
                         </div>
                       )}
                       {selectedNode.summary.timeline && (
                         <div>
-                          <span className="text-[#86868b] text-[11px] block">Purchase Timeline:</span>
+                          <span className="text-[#6e6e73] dark:text-[#98989d] text-[11px] block">Purchase Timeline:</span>
                           <span className="font-semibold text-[#1d1d1f] dark:text-[#f5f5f7]">{selectedNode.summary.timeline}</span>
                         </div>
                       )}
@@ -635,7 +659,7 @@ export default function ReferralTreePage() {
                 {/* Lead Actions Milestones */}
                 <div className="p-4 rounded-2xl bg-[#f5f5f7] dark:bg-[#242426] border border-[#e5e5ea] dark:border-[#38383a] mb-5">
                   <h3 className="text-xs font-bold text-[#1d1d1f] dark:text-[#f5f5f7] uppercase tracking-wider mb-2.5 flex items-center gap-1.5">
-                    <ShieldCheck size={14} className="text-[#0066cc]" />
+                    <ShieldCheck size={14} className="text-[#0066cc] dark:text-[#2997ff]" />
                     Lead Conversion Milestones
                   </h3>
                   <div className="grid grid-cols-2 gap-3">
@@ -643,13 +667,13 @@ export default function ReferralTreePage() {
                       <span className="text-xl font-bold font-mono text-[#1d1d1f] dark:text-[#f5f5f7]">
                         {selectedNode.actions.callbacks}
                       </span>
-                      <span className="text-[10px] text-[#86868b] block mt-0.5">Callbacks Requested</span>
+                      <span className="text-[10px] text-[#6e6e73] dark:text-[#98989d] block mt-0.5">Callbacks Requested</span>
                     </div>
                     <div className="p-2.5 rounded-xl bg-white dark:bg-[#1c1c1e] border border-[#e5e5ea] dark:border-[#38383a] text-center">
                       <span className="text-xl font-bold font-mono text-[#1d1d1f] dark:text-[#f5f5f7]">
                         {selectedNode.actions.dossiersMade}
                       </span>
-                      <span className="text-[10px] text-[#86868b] block mt-0.5">Dossiers Generated</span>
+                      <span className="text-[10px] text-[#6e6e73] dark:text-[#98989d] block mt-0.5">Dossiers Generated</span>
                     </div>
                   </div>
                 </div>
@@ -657,12 +681,12 @@ export default function ReferralTreePage() {
                 {/* Chat Sessions */}
                 <div>
                   <h3 className="text-xs font-bold text-[#1d1d1f] dark:text-[#f5f5f7] uppercase tracking-wider mb-2.5 flex items-center gap-1.5">
-                    <MessageSquare size={14} className="text-[#0066cc]" />
+                    <MessageSquare size={14} className="text-[#0066cc] dark:text-[#2997ff]" />
                     Chat History ({selectedNode.chats.length})
                   </h3>
                   <div className="space-y-2">
                     {selectedNode.chats.length === 0 ? (
-                      <p className="text-xs text-[#86868b] italic">No chat sessions recorded for this device.</p>
+                      <p className="text-xs text-[#6e6e73] dark:text-[#98989d] italic">No chat sessions recorded for this device.</p>
                     ) : (
                       selectedNode.chats.map((chat) => (
                         <Link
@@ -675,7 +699,7 @@ export default function ReferralTreePage() {
                             <span className="font-semibold text-[#1d1d1f] dark:text-[#f5f5f7]">
                               {chat.messageCount} messages
                             </span>
-                            <span className="text-[11px] text-[#86868b] block">
+                            <span className="text-[11px] text-[#6e6e73] dark:text-[#98989d] block">
                               Active: {new Date(chat.lastActive).toLocaleDateString()}
                             </span>
                           </div>
@@ -710,7 +734,7 @@ export default function ReferralTreePage() {
       </AnimatePresence>
 
       {drawerLoading && (
-        <div className="fixed bottom-6 right-6 px-4 py-2 rounded-xl bg-white dark:bg-[#1c1c1e] border border-[#e5e5ea] dark:border-[#2c2c2e] shadow-lg text-xs font-semibold text-[#0066cc] flex items-center gap-2 z-50">
+        <div className="fixed bottom-6 right-6 px-4 py-2 rounded-xl bg-white dark:bg-[#1c1c1e] border border-[#e5e5ea] dark:border-[#2c2c2e] shadow-lg text-xs font-semibold text-[#0066cc] dark:text-[#2997ff] flex items-center gap-2 z-50">
           <div className="w-3.5 h-3.5 border-2 border-[#0066cc] border-t-transparent rounded-full animate-spin" />
           <span>Loading visitor dossier…</span>
         </div>

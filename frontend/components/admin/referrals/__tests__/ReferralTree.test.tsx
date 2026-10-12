@@ -76,4 +76,13 @@ describe('ReferralTree', () => {
     fireEvent.click(screen.getByText('Clickable'))
     expect(onSelectNode).toHaveBeenCalledWith('g-click')
   })
+
+  it('shows a node whose parent is missing at the top level instead of dropping it', () => {
+    const nodes = [
+      node({ guestToken: 'root', generation: 1, label: 'Direct Recipient' }),
+      node({ guestToken: 'orphan', generation: 2, parentGuestToken: 'purged-parent', label: 'Orphaned Gen 2' }),
+    ]
+    render(<ReferralTree nodes={nodes} onSelectNode={() => {}} />)
+    expect(screen.getByText('Orphaned Gen 2')).toBeInTheDocument()
+  })
 })

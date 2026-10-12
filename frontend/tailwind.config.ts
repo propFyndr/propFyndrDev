@@ -58,6 +58,8 @@ const config: Config = {
         full: "var(--radius-full)",
       },
       boxShadow: {
+        // Used app-wide (shadow-2xs) but was never defined, so it rendered nothing.
+        "2xs": "0 1px rgb(0 0 0 / 0.05)",
         xs: "var(--shadow-1)",
         sm: "var(--shadow-2)",
         md: "var(--shadow-3)",

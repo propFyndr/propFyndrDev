@@ -15,7 +15,6 @@ import {
   X,
   ArrowUpDown,
   ChevronRight,
-  ShieldCheck,
   Users,
   Zap,
   GitBranch,
@@ -23,10 +22,6 @@ import {
   AlertCircle,
   MessageSquare,
   Smartphone,
-  Calendar,
-  Layers,
-  Send,
-  HelpCircle,
   Handshake,
   Briefcase,
   Building2,
@@ -38,6 +33,7 @@ import {
 } from 'lucide-react'
 import { AnimatePresence, m } from 'framer-motion'
 import { toast } from 'sonner'
+import DefinitionHint from '@/components/admin/referrals/DefinitionHint'
 import { StatCard } from '@/components/portal/ui'
 
 interface ReferralLinkRow {
@@ -99,7 +95,7 @@ interface CohortStats {
 }
 
 type FilterTag = 'all' | 'active' | 'with_devices' | 'activated' | 'revoked'
-type SortField = 'createdAt' | 'devicesReached' | 'deepestGeneration' | 'activatedCount' | 'label'
+type SortField = 'createdAt' | 'lastActivity' | 'devicesReached' | 'deepestGeneration' | 'activatedCount' | 'label'
 type MainTab = 'byLink' | 'byAdmin'
 
 const PRESET_LABELS = [
@@ -112,11 +108,11 @@ const PRESET_LABELS = [
 ]
 
 function Sparkline({ buckets }: { buckets: { date: string; newArrivals: number }[] }) {
-  if (!buckets || buckets.length === 0) return <span className="text-[10px] text-[#86868b] font-mono">—</span>
+  if (!buckets || buckets.length === 0) return <span className="text-[10px] text-[#6e6e73] dark:text-[#98989d] font-mono">—</span>
   const total = buckets.reduce((s, b) => s + b.newArrivals, 0)
   if (total === 0) {
     return (
-      <div className="flex items-center gap-1.5 text-[10px] text-[#86868b] font-mono">
+      <div className="flex items-center gap-1.5 text-[10px] text-[#6e6e73] dark:text-[#98989d] font-mono">
         <span className="w-1.5 h-1.5 rounded-full bg-zinc-300 dark:bg-zinc-700" />
         <span>No recent activity</span>
       </div>
@@ -224,9 +220,11 @@ export default function ReferralsAdminPage() {
   // Global keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === 'f') {
+      // Only take over ⌘F when the search box is on screen (By Link tab);
+      // otherwise leave the browser's own find alone.
+      if ((e.metaKey || e.ctrlKey) && e.key === 'f' && searchInputRef.current) {
         e.preventDefault()
-        searchInputRef.current?.focus()
+        searchInputRef.current.focus()
       } else if (e.key === 'Escape') {
         if (showGenerate) setShowGenerate(false)
         if (revokingCode) setRevokingCode(null)
@@ -354,6 +352,11 @@ export default function ReferralsAdminPage() {
     }
   }, [links])
 
+  const leaderboard = useMemo(
+    () => (growthMetrics ? [...growthMetrics.byAdmin].sort((a, b) => b.totalDevicesReached - a.totalDevicesReached) : []),
+    [growthMetrics],
+  )
+
   // Filtered links
   const filtered = useMemo(() => {
     return links.filter((link) => {
@@ -368,7 +371,8 @@ export default function ReferralsAdminPage() {
         const matchCode = link.code.toLowerCase().includes(q)
         const matchGreeting = link.greetingName?.toLowerCase().includes(q)
         const matchNote = link.note?.toLowerCase().includes(q)
-        return matchLabel || matchCode || matchGreeting || matchNote
+        const matchCreator = link.createdByEmail?.toLowerCase().includes(q)
+        return matchLabel || matchCode || matchGreeting || matchNote || matchCreator
       }
       return true
     })
@@ -386,6 +390,8 @@ export default function ReferralsAdminPage() {
         cmp = (a.deepestGeneration || 0) - (b.deepestGeneration || 0)
       } else if (sortField === 'activatedCount') {
         cmp = (a.activatedCount || 0) - (b.activatedCount || 0)
+      } else if (sortField === 'lastActivity') {
+        cmp = new Date(a.lastActivity ?? 0).getTime() - new Date(b.lastActivity ?? 0).getTime()
       } else {
         cmp = new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
       }
@@ -417,7 +423,7 @@ export default function ReferralsAdminPage() {
       {/* Header Banner */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-2">
         <div>
-          <div className="flex items-center gap-2 text-xs font-semibold text-[#86868b] uppercase tracking-wider mb-1">
+          <div className="flex items-center gap-2 text-xs font-semibold text-[#6e6e73] dark:text-[#98989d] uppercase tracking-wider mb-1">
             <span>Overview</span>
             <span>/</span>
             <span className="text-[#0066cc] dark:text-[#2997ff]">Referrals</span>
@@ -425,7 +431,7 @@ export default function ReferralsAdminPage() {
           <h1 className="text-3xl sm:text-4xl font-extrabold text-[#1d1d1f] dark:text-[#f5f5f7] tracking-tight">
             Referral Links
           </h1>
-          <p className="text-xs sm:text-sm font-medium text-[#86868b] mt-1">
+          <p className="text-xs sm:text-sm font-medium text-[#6e6e73] dark:text-[#98989d] mt-1">
             Generate viral attribution links, monitor multigenerational cascade, and track buyer conversions.
           </p>
         </div>
@@ -476,7 +482,7 @@ export default function ReferralsAdminPage() {
           value={metrics.totalActivated}
           tone={metrics.activationPct > 0 ? 'good' : 'neutral'}
           icon={<Zap size={18} />}
-          hint={`${metrics.activationPct}% overall conversion`}
+          hint={`${metrics.activationPct}% of devices activated`}
           loading={loading}
         />
       </div>
@@ -489,15 +495,26 @@ export default function ReferralsAdminPage() {
               <TrendingUp size={15} />
             </div>
             <div>
+              <div className="flex items-center gap-1">
               <h2 className="text-xs font-bold uppercase tracking-wider text-[#1d1d1f] dark:text-[#f5f5f7]">
                 Viral Velocity &amp; Distribution Telemetry
               </h2>
-              <p className="text-[11px] text-[#86868b]">
+              <DefinitionHint label="How these numbers are counted">
+                  <div className="space-y-1.5">
+                    <p>A <b>device</b> is one browser (guest token); counts cover all time and include bot sessions.</p>
+                    <p><b>Activated</b>: a chat reached 3+ messages or stayed open across 24h+, or the device requested a callback, dossier or site visit.</p>
+                    <p><b>Activation %</b>: activated devices ÷ devices reached.</p>
+                    <p><b>K-factor</b>: activated devices in generation 2 and later ÷ activated devices in generations 0–1. Shown as — until a second generation exists.</p>
+                    <p><b>Spike</b>: a link with 10+ arrivals inside any one hour. It is a flag only; those arrivals still count.</p>
+                  </div>
+                </DefinitionHint>
+              </div>
+              <p className="text-[11px] text-[#6e6e73] dark:text-[#98989d]">
                 Real-time attribution health, coefficient multiplier, and admin channel performance.
               </p>
             </div>
           </div>
-          <span className="text-[10px] font-mono font-medium text-[#86868b] bg-[#f5f5f7] dark:bg-[#242426] px-2.5 py-1 rounded-full border border-[#e5e5ea] dark:border-[#38383a]">
+          <span className="text-[10px] font-mono font-medium text-[#6e6e73] dark:text-[#98989d] bg-[#f5f5f7] dark:bg-[#242426] px-2.5 py-1 rounded-full border border-[#e5e5ea] dark:border-[#38383a]">
             Live Telemetry
           </span>
         </div>
@@ -506,7 +523,7 @@ export default function ReferralsAdminPage() {
           {/* Tile 1: Blended K-Factor */}
           <div className="pt-2 md:pt-0 md:pr-4">
             <div className="flex items-center justify-between mb-1.5">
-              <span className="text-[11px] font-semibold text-[#86868b] uppercase tracking-wider">
+              <span className="text-[11px] font-semibold text-[#6e6e73] dark:text-[#98989d] uppercase tracking-wider">
                 Blended K-Factor
               </span>
               <span
@@ -524,13 +541,13 @@ export default function ReferralsAdminPage() {
                 ? '—'
                 : growthMetrics.growthSummary.blendedKFactor.toFixed(2)}
             </div>
-            <p className="text-[10px] text-[#86868b] mt-1">Non-seed activations / seed base</p>
+            <p className="text-[10px] text-[#6e6e73] dark:text-[#98989d] mt-1">Non-seed activations / seed base</p>
           </div>
 
           {/* Tile 2: Total Active Reach */}
           <div className="pt-2 md:pt-0 md:px-4">
             <div className="flex items-center justify-between mb-1.5">
-              <span className="text-[11px] font-semibold text-[#86868b] uppercase tracking-wider">
+              <span className="text-[11px] font-semibold text-[#6e6e73] dark:text-[#98989d] uppercase tracking-wider">
                 Active Reach
               </span>
               <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-50 dark:bg-blue-950/40 text-[#0066cc] dark:text-[#2997ff] border border-blue-200 dark:border-blue-800/60">
@@ -540,13 +557,13 @@ export default function ReferralsAdminPage() {
             <div className="text-2xl font-black tracking-tight text-[#1d1d1f] dark:text-[#f5f5f7] tabular-nums font-mono">
               {growthMetrics?.growthSummary.totalActiveReach ?? 0}
             </div>
-            <p className="text-[10px] text-[#86868b] mt-1">Non-revoked links combined</p>
+            <p className="text-[10px] text-[#6e6e73] dark:text-[#98989d] mt-1">Non-revoked links combined</p>
           </div>
 
           {/* Tile 3: Top Admin */}
           <div className="pt-2 md:pt-0 md:px-4">
             <div className="flex items-center justify-between mb-1.5">
-              <span className="text-[11px] font-semibold text-[#86868b] uppercase tracking-wider">
+              <span className="text-[11px] font-semibold text-[#6e6e73] dark:text-[#98989d] uppercase tracking-wider">
                 Top Admin
               </span>
               <Trophy size={13} className="text-amber-500" />
@@ -570,33 +587,33 @@ export default function ReferralsAdminPage() {
                 </div>
               </div>
             ) : (
-              <div className="text-lg font-bold text-[#86868b]">—</div>
+              <div className="text-lg font-bold text-[#6e6e73] dark:text-[#98989d]">—</div>
             )}
-            <p className="text-[10px] text-[#86868b] mt-1">Highest viral outreach</p>
+            <p className="text-[10px] text-[#6e6e73] dark:text-[#98989d] mt-1">Highest viral outreach</p>
           </div>
 
           {/* Tile 4: Best Channel */}
           <div className="pt-2 md:pt-0 md:px-4">
             <div className="flex items-center justify-between mb-1.5">
-              <span className="text-[11px] font-semibold text-[#86868b] uppercase tracking-wider">
+              <span className="text-[11px] font-semibold text-[#6e6e73] dark:text-[#98989d] uppercase tracking-wider">
                 Best Channel
               </span>
-              <Share2 size={13} className="text-[#0066cc]" />
+              <Share2 size={13} className="text-[#0066cc] dark:text-[#2997ff]" />
             </div>
             <div className="text-sm font-bold text-[#1d1d1f] dark:text-[#f5f5f7] truncate py-1">
               {growthMetrics?.growthSummary.bestChannel ? (
                 <span className="capitalize">{growthMetrics.growthSummary.bestChannel}</span>
               ) : (
-                <span className="text-[#86868b] font-normal">—</span>
+                <span className="text-[#6e6e73] dark:text-[#98989d] font-normal">—</span>
               )}
             </div>
-            <p className="text-[10px] text-[#86868b] mt-1">Most effective share vector</p>
+            <p className="text-[10px] text-[#6e6e73] dark:text-[#98989d] mt-1">Most effective share vector</p>
           </div>
 
           {/* Tile 5: Broadcast Alerts */}
           <div className="pt-2 md:pt-0 md:pl-4">
             <div className="flex items-center justify-between mb-1.5">
-              <span className="text-[11px] font-semibold text-[#86868b] uppercase tracking-wider">
+              <span className="text-[11px] font-semibold text-[#6e6e73] dark:text-[#98989d] uppercase tracking-wider">
                 Spike Velocity
               </span>
               <Radio
@@ -615,14 +632,14 @@ export default function ReferralsAdminPage() {
               <span
                 className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full border ${
                   (growthMetrics?.growthSummary.broadcastFlaggedCount ?? 0) > 0
-                    ? 'bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 border-rose-200'
+                    ? 'bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 border-rose-200 dark:border-rose-800/60'
                     : 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800/60'
                 }`}
               >
                 {(growthMetrics?.growthSummary.broadcastFlaggedCount ?? 0) > 0 ? 'High Spike' : 'Normal Flow'}
               </span>
             </div>
-            <p className="text-[10px] text-[#86868b] mt-1">≥10 arrivals/hr spike monitor</p>
+            <p className="text-[10px] text-[#6e6e73] dark:text-[#98989d] mt-1">≥10 arrivals/hr spike monitor</p>
           </div>
         </div>
       </div>
@@ -640,7 +657,7 @@ export default function ReferralsAdminPage() {
                   Bot Filtered
                 </span>
               </div>
-              <p className="text-[11px] text-[#86868b] mt-0.5">
+              <p className="text-[11px] text-[#6e6e73] dark:text-[#98989d] mt-0.5">
                 Comparing conversational activation, buyer qualification, and explicit constraints between referred visitors and organic platform traffic.
               </p>
             </div>
@@ -648,8 +665,8 @@ export default function ReferralsAdminPage() {
             {growthMetrics.comparison.referred.activationRate !== null &&
               growthMetrics.comparison.organic.activationRate !== null && (
                 <div className="shrink-0 text-right">
-                  <span className="text-[10px] uppercase font-bold tracking-wider text-[#86868b] block">
-                    Attribution Conversion Differential
+                  <span className="text-[10px] uppercase font-bold tracking-wider text-[#6e6e73] dark:text-[#98989d] block">
+                    Activation-rate difference
                   </span>
                   <span className="text-xs font-mono font-bold text-[#0066cc] dark:text-[#2997ff]">
                     {growthMetrics.comparison.referred.activationRate >= growthMetrics.comparison.organic.activationRate
@@ -657,7 +674,7 @@ export default function ReferralsAdminPage() {
                           (growthMetrics.comparison.referred.activationRate -
                             growthMetrics.comparison.organic.activationRate) *
                             100
-                        )}% Viral Activation Lift`
+                        )} pts activation lift`
                       : 'Parity / Baseline Track'}
                   </span>
                 </div>
@@ -696,7 +713,7 @@ export default function ReferralsAdminPage() {
                     </span>
                   </div>
                   {isPrimary && (
-                    <span className="text-[10px] font-bold text-[#0066cc] bg-[#0066cc]/10 px-2 py-0.5 rounded-full">
+                    <span className="text-[10px] font-bold text-[#0066cc] dark:text-[#2997ff] bg-[#0066cc]/10 px-2 py-0.5 rounded-full">
                       Attributed
                     </span>
                   )}
@@ -706,7 +723,7 @@ export default function ReferralsAdminPage() {
                 <div className="grid grid-cols-3 gap-3 mb-5 p-3 rounded-xl bg-white/80 dark:bg-black/20 border border-[#e5e5ea]/80 dark:border-[#38383a]/60">
                   {/* Activation Rate */}
                   <div>
-                    <div className="flex items-center justify-between text-[10px] text-[#86868b] mb-1">
+                    <div className="flex items-center justify-between text-[10px] text-[#6e6e73] dark:text-[#98989d] mb-1">
                       <span>Activation</span>
                       <span className="font-mono font-bold text-[#1d1d1f] dark:text-[#f5f5f7]">
                         {pct(cohort.activationRate)}
@@ -724,7 +741,7 @@ export default function ReferralsAdminPage() {
 
                   {/* Avg Messages */}
                   <div>
-                    <div className="flex items-center justify-between text-[10px] text-[#86868b] mb-1">
+                    <div className="flex items-center justify-between text-[10px] text-[#6e6e73] dark:text-[#98989d] mb-1">
                       <span>Avg Depth</span>
                       <span className="font-mono font-bold text-[#1d1d1f] dark:text-[#f5f5f7]">
                         {cohort.avgMessages.toFixed(1)}
@@ -744,7 +761,7 @@ export default function ReferralsAdminPage() {
 
                   {/* Conversion Rate */}
                   <div>
-                    <div className="flex items-center justify-between text-[10px] text-[#86868b] mb-1">
+                    <div className="flex items-center justify-between text-[10px] text-[#6e6e73] dark:text-[#98989d] mb-1">
                       <span>Conversion</span>
                       <span className="font-mono font-bold text-[#1d1d1f] dark:text-[#f5f5f7]">
                         {pct(cohort.conversionRate)}
@@ -764,10 +781,10 @@ export default function ReferralsAdminPage() {
                 {/* Qualification & Constraint Telemetry */}
                 <div>
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-[10px] font-bold text-[#86868b] uppercase tracking-wider">
+                    <span className="text-[10px] font-bold text-[#6e6e73] dark:text-[#98989d] uppercase tracking-wider">
                       Buyer Intent &amp; Constraints
                     </span>
-                    <span className="text-[10px] font-mono text-[#86868b]">
+                    <span className="text-[10px] font-mono text-[#6e6e73] dark:text-[#98989d]">
                       Profiled: {cohort.requirementStateBreakdown.sampleSize}
                     </span>
                   </div>
@@ -777,7 +794,7 @@ export default function ReferralsAdminPage() {
                       <span className="w-2 h-2 rounded-full bg-amber-500" />
                       <span>{cohort.requirementStateBreakdown.hardCeilingCount} Hard Ceilings</span>
                     </span>
-                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-white dark:bg-black/30 border border-[#e5e5ea] dark:border-[#38383a] text-[#86868b]">
+                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-white dark:bg-black/30 border border-[#e5e5ea] dark:border-[#38383a] text-[#6e6e73] dark:text-[#98989d]">
                       <span className="w-2 h-2 rounded-full bg-zinc-400" />
                       <span>{cohort.requirementStateBreakdown.softCeilingCount} Soft Preferences</span>
                     </span>
@@ -786,7 +803,7 @@ export default function ReferralsAdminPage() {
                   {/* Top Amenities Chips */}
                   {cohort.requirementStateBreakdown.topAmenities.length > 0 ? (
                     <div className="flex items-center gap-1.5 flex-wrap">
-                      <span className="text-[10px] text-[#86868b] mr-1">Demanded:</span>
+                      <span className="text-[10px] text-[#6e6e73] dark:text-[#98989d] mr-1">Demanded:</span>
                       {cohort.requirementStateBreakdown.topAmenities.map((a) => (
                         <span
                           key={a.amenity}
@@ -797,7 +814,7 @@ export default function ReferralsAdminPage() {
                       ))}
                     </div>
                   ) : (
-                    <p className="text-[10px] text-[#86868b] italic">
+                    <p className="text-[10px] text-[#6e6e73] dark:text-[#98989d] italic">
                       No explicit amenity requirements registered in this cohort sample.
                     </p>
                   )}
@@ -827,14 +844,16 @@ export default function ReferralsAdminPage() {
                   <h3 className="text-sm font-bold text-[#1d1d1f] dark:text-[#f5f5f7]">
                     Create New Referral Campaign
                   </h3>
-                  <p className="text-[11px] text-[#86868b]">
+                  <p className="text-[11px] text-[#6e6e73] dark:text-[#98989d]">
                     Unique cryptographic link that tracks multi-tier viral trees while preserving user privacy.
                   </p>
                 </div>
               </div>
               <button
+                type="button"
+                aria-label="Close form"
                 onClick={resetForm}
-                className="text-[#86868b] hover:text-[#1d1d1f] dark:hover:text-[#f5f5f7] p-1.5 rounded-lg transition-colors active:scale-95 cursor-pointer"
+                className="text-[#6e6e73] dark:text-[#98989d] hover:text-[#1d1d1f] dark:hover:text-[#f5f5f7] p-1.5 rounded-lg transition-colors active:scale-95 cursor-pointer"
               >
                 <X size={16} />
               </button>
@@ -842,7 +861,7 @@ export default function ReferralsAdminPage() {
 
             {/* Quick preset chips */}
             <div className="mb-4">
-              <label className="text-[11px] font-semibold text-[#86868b] uppercase tracking-wider block mb-2">
+              <label className="text-[11px] font-semibold text-[#6e6e73] dark:text-[#98989d] uppercase tracking-wider block mb-2">
                 Quick Preset Templates
               </label>
               <div className="flex items-center gap-2 flex-wrap">
@@ -855,7 +874,7 @@ export default function ReferralsAdminPage() {
                     }}
                     className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium bg-[#f5f5f7] dark:bg-[#242426] hover:bg-[#e5e5ea] dark:hover:bg-[#38383a] text-[#1d1d1f] dark:text-[#f5f5f7] border border-[#e5e5ea] dark:border-[#38383a] transition-all active:scale-95 cursor-pointer"
                   >
-                    <preset.icon size={13} className="text-[#86868b]" />
+                    <preset.icon size={13} className="text-[#6e6e73] dark:text-[#98989d]" />
                     <span>{preset.label}</span>
                   </button>
                 ))}
@@ -876,14 +895,14 @@ export default function ReferralsAdminPage() {
                     maxLength={60}
                     className="w-full h-10 px-3.5 rounded-xl text-[13px] font-medium text-[#1d1d1f] dark:text-[#f5f5f7] bg-[#f5f5f7] dark:bg-[#242426] border border-[#e5e5ea] dark:border-[#38383a] focus:bg-white dark:focus:bg-[#1c1c1e] focus:border-[#0066cc] focus:ring-4 focus:ring-[#0066cc]/10 transition-all outline-none placeholder:text-[#86868b]/60"
                   />
-                  <p className="text-[11px] text-[#86868b] mt-1">
+                  <p className="text-[11px] text-[#6e6e73] dark:text-[#98989d] mt-1">
                     Internal name visible to admins in the dashboard.
                   </p>
                 </div>
 
                 <div>
                   <label className="text-[12px] font-semibold text-[#1d1d1f] dark:text-[#f5f5f7] block mb-1.5">
-                    From Name / Greeting <span className="text-[#86868b] font-normal">(Optional)</span>
+                    From Name / Greeting <span className="text-[#6e6e73] dark:text-[#98989d] font-normal">(Optional)</span>
                   </label>
                   <input
                     type="text"
@@ -893,7 +912,7 @@ export default function ReferralsAdminPage() {
                     maxLength={60}
                     className="w-full h-10 px-3.5 rounded-xl text-[13px] font-medium text-[#1d1d1f] dark:text-[#f5f5f7] bg-[#f5f5f7] dark:bg-[#242426] border border-[#e5e5ea] dark:border-[#38383a] focus:bg-white dark:focus:bg-[#1c1c1e] focus:border-[#0066cc] focus:ring-4 focus:ring-[#0066cc]/10 transition-all outline-none placeholder:text-[#86868b]/60"
                   />
-                  <p className="text-[11px] text-[#86868b] mt-1">
+                  <p className="text-[11px] text-[#6e6e73] dark:text-[#98989d] mt-1">
                     Visitor sees: &quot;Your friend {greetingName || 'Furqan'} invited you to RealtyAsk&quot;.
                   </p>
                 </div>
@@ -901,7 +920,7 @@ export default function ReferralsAdminPage() {
 
               <div>
                 <label className="text-[12px] font-semibold text-[#1d1d1f] dark:text-[#f5f5f7] block mb-1.5">
-                  Internal Notes &amp; Distribution Channel <span className="text-[#86868b] font-normal">(Optional)</span>
+                  Internal Notes &amp; Distribution Channel <span className="text-[#6e6e73] dark:text-[#98989d] font-normal">(Optional)</span>
                 </label>
                 <input
                   type="text"
@@ -917,7 +936,7 @@ export default function ReferralsAdminPage() {
                 <button
                   type="button"
                   onClick={resetForm}
-                  className="px-4 py-2 rounded-xl text-xs font-semibold text-[#86868b] hover:text-[#1d1d1f] dark:hover:text-[#f5f5f7] transition-colors active:scale-95 cursor-pointer"
+                  className="px-4 py-2 rounded-xl text-xs font-semibold text-[#6e6e73] dark:text-[#98989d] hover:text-[#1d1d1f] dark:hover:text-[#f5f5f7] transition-colors active:scale-95 cursor-pointer"
                 >
                   Cancel
                 </button>
@@ -1014,7 +1033,7 @@ export default function ReferralsAdminPage() {
               className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all active:scale-95 cursor-pointer ${
                 mainTab === 'byLink'
                   ? 'bg-white dark:bg-[#1c1c1e] text-[#1d1d1f] dark:text-[#f5f5f7] shadow-xs'
-                  : 'text-[#86868b] hover:text-[#1d1d1f] dark:hover:text-[#f5f5f7]'
+                  : 'text-[#6e6e73] dark:text-[#98989d] hover:text-[#1d1d1f] dark:hover:text-[#f5f5f7]'
               }`}
             >
               By Link Directory
@@ -1025,7 +1044,7 @@ export default function ReferralsAdminPage() {
               className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all active:scale-95 cursor-pointer ${
                 mainTab === 'byAdmin'
                   ? 'bg-white dark:bg-[#1c1c1e] text-[#1d1d1f] dark:text-[#f5f5f7] shadow-xs'
-                  : 'text-[#86868b] hover:text-[#1d1d1f] dark:hover:text-[#f5f5f7]'
+                  : 'text-[#6e6e73] dark:text-[#98989d] hover:text-[#1d1d1f] dark:hover:text-[#f5f5f7]'
               }`}
             >
               By Admin Leaderboard
@@ -1041,7 +1060,7 @@ export default function ReferralsAdminPage() {
                   className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all active:scale-95 cursor-pointer ${
                     scope === 'all'
                       ? 'bg-white dark:bg-[#1c1c1e] text-[#1d1d1f] dark:text-[#f5f5f7] shadow-xs'
-                      : 'text-[#86868b] hover:text-[#1d1d1f] dark:hover:text-[#f5f5f7]'
+                      : 'text-[#6e6e73] dark:text-[#98989d] hover:text-[#1d1d1f] dark:hover:text-[#f5f5f7]'
                   }`}
                 >
                   All Links
@@ -1051,7 +1070,7 @@ export default function ReferralsAdminPage() {
                   className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all active:scale-95 cursor-pointer ${
                     scope === 'mine'
                       ? 'bg-white dark:bg-[#1c1c1e] text-[#1d1d1f] dark:text-[#f5f5f7] shadow-xs'
-                      : 'text-[#86868b] hover:text-[#1d1d1f] dark:hover:text-[#f5f5f7]'
+                      : 'text-[#6e6e73] dark:text-[#98989d] hover:text-[#1d1d1f] dark:hover:text-[#f5f5f7]'
                   }`}
                 >
                   Created by Me
@@ -1066,7 +1085,7 @@ export default function ReferralsAdminPage() {
           <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
             {/* Search input with keyboard indicator */}
             <div className="relative flex-1 max-w-md">
-              <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#86868b]" />
+              <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#6e6e73] dark:text-[#98989d]" />
               <input
                 ref={searchInputRef}
                 type="text"
@@ -1077,19 +1096,22 @@ export default function ReferralsAdminPage() {
               />
               {query ? (
                 <button
+                  type="button"
+                  aria-label="Clear search"
                   onClick={() => setQuery('')}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#86868b] hover:text-[#1d1d1f] dark:hover:text-[#f5f5f7] p-0.5 rounded active:scale-95 cursor-pointer"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#6e6e73] dark:text-[#98989d] hover:text-[#1d1d1f] dark:hover:text-[#f5f5f7] p-0.5 rounded active:scale-95 cursor-pointer"
                 >
                   <X size={14} />
                 </button>
               ) : (
-                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-mono text-[#86868b] border border-[#e5e5ea] dark:border-[#38383a] rounded px-1.5 py-0.5 pointer-events-none">
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-mono text-[#6e6e73] dark:text-[#98989d] border border-[#e5e5ea] dark:border-[#38383a] rounded px-1.5 py-0.5 pointer-events-none">
                   ⌘F
                 </span>
               )}
             </div>
 
-            {/* Filter Status Pills */}
+            {/* Filter Status Pills — the hint sits outside the scroller so its tooltip isn't clipped */}
+            <div className="flex items-center gap-1.5 min-w-0">
             <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
               {(
                 [
@@ -1106,12 +1128,22 @@ export default function ReferralsAdminPage() {
                   className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all active:scale-95 cursor-pointer ${
                     filterTag === tag.id
                       ? 'bg-[#0066cc] text-white shadow-2xs'
-                      : 'bg-white dark:bg-[#1c1c1e] text-[#86868b] hover:text-[#1d1d1f] dark:hover:text-[#f5f5f7] border border-[#e5e5ea] dark:border-[#2c2c2e]'
+                      : 'bg-white dark:bg-[#1c1c1e] text-[#6e6e73] dark:text-[#98989d] hover:text-[#1d1d1f] dark:hover:text-[#f5f5f7] border border-[#e5e5ea] dark:border-[#2c2c2e]'
                   }`}
                 >
                   {tag.label}
                 </button>
               ))}
+            </div>
+              <DefinitionHint label="How these filters work" align="right">
+                <div className="space-y-1.5">
+                  <p className="font-semibold">These filter links, not people.</p>
+                  <p><b>Active</b>: the link is not revoked.</p>
+                  <p><b>With Visits</b>: at least one device has arrived through it.</p>
+                  <p><b>Activated</b>: at least one of its devices activated (a chat with 3+ messages or open 24h+, or a callback, dossier or site-visit request).</p>
+                  <p><b>Revoked</b>: switched off; new arrivals no longer count toward it.</p>
+                </div>
+              </DefinitionHint>
             </div>
           </div>
         )}
@@ -1119,7 +1151,9 @@ export default function ReferralsAdminPage() {
 
       {mainTab === 'byAdmin' ? (
         <div className="bg-white dark:bg-[#1c1c1e] rounded-2xl border border-[#e5e5ea] dark:border-[#2c2c2e] overflow-hidden shadow-xs">
-          <div className="flex items-center px-6 py-3.5 bg-[#f5f5f7]/80 dark:bg-[#242426]/60 border-b border-[#e5e5ea] dark:border-[#2c2c2e] text-[11px] font-semibold text-[#86868b] uppercase tracking-wider">
+          <div className="overflow-x-auto">
+          <div className="min-w-[760px]">
+          <div className="flex items-center px-6 py-3.5 bg-[#f5f5f7]/80 dark:bg-[#242426]/60 border-b border-[#e5e5ea] dark:border-[#2c2c2e] text-[11px] font-semibold text-[#6e6e73] dark:text-[#98989d] uppercase tracking-wider">
             <span className="w-12 text-center">Rank</span>
             <span className="flex-1">Admin</span>
             <span className="w-24 text-right">Links</span>
@@ -1132,15 +1166,12 @@ export default function ReferralsAdminPage() {
             {growthMetricsLoading ? (
               <div className="py-20 flex flex-col items-center justify-center text-center">
                 <div className="w-8 h-8 border-2 border-[#0066cc] border-t-transparent rounded-full animate-spin mb-3" />
-                <p className="text-xs font-medium text-[#86868b]">Loading admin leaderboard…</p>
+                <p className="text-xs font-medium text-[#6e6e73] dark:text-[#98989d]">Loading admin leaderboard…</p>
               </div>
             ) : !growthMetrics || growthMetrics.byAdmin.length === 0 ? (
-              <div className="py-16 text-center text-xs text-[#86868b]">No admin has created a link yet.</div>
+              <div className="py-16 text-center text-xs text-[#6e6e73] dark:text-[#98989d]">No admin has created a link yet.</div>
             ) : (
-              growthMetrics.byAdmin
-                .slice()
-                .sort((a, b) => b.totalDevicesReached - a.totalDevicesReached)
-                .map((a, idx) => (
+              leaderboard.map((a, idx) => (
                   <div key={a.adminId} className="flex items-center px-6 py-4 hover:bg-[#f5f5f7]/50 dark:hover:bg-[#242426]/40 transition-colors text-xs">
                     <span className="w-12 text-center font-bold text-xs">
                       {idx === 0 ? (
@@ -1156,7 +1187,7 @@ export default function ReferralsAdminPage() {
                           🥉
                         </span>
                       ) : (
-                        <span className="font-mono text-[#86868b]">#{idx + 1}</span>
+                        <span className="font-mono text-[#6e6e73] dark:text-[#98989d]">#{idx + 1}</span>
                       )}
                     </span>
                     <div className="flex-1 flex items-center gap-2 min-w-0 pr-4">
@@ -1172,7 +1203,7 @@ export default function ReferralsAdminPage() {
                     <span className="w-28 text-right font-mono font-bold text-[#1d1d1f] dark:text-[#f5f5f7]">
                       {a.blendedKFactor === null ? '—' : a.blendedKFactor.toFixed(2)}
                     </span>
-                    <span className="w-32 text-right font-mono text-[#86868b] capitalize">{a.bestChannel ?? '—'}</span>
+                    <span className="w-32 text-right font-mono text-[#6e6e73] dark:text-[#98989d] capitalize">{a.bestChannel ?? '—'}</span>
                     <span className="w-44 text-right truncate">
                       {a.topLink ? (
                         <Link
@@ -1180,15 +1211,17 @@ export default function ReferralsAdminPage() {
                           className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#0066cc] dark:text-[#2997ff] hover:underline"
                         >
                           <span className="truncate max-w-[130px]">{a.topLink.label || a.topLink.code}</span>
-                          <span className="font-mono text-[10px] text-[#86868b]">({a.topLink.devicesReached} dev)</span>
+                          <span className="font-mono text-[10px] text-[#6e6e73] dark:text-[#98989d]">({a.topLink.devicesReached} dev)</span>
                         </Link>
                       ) : (
-                        <span className="text-[#86868b]">—</span>
+                        <span className="text-[#6e6e73] dark:text-[#98989d]">—</span>
                       )}
                     </span>
                   </div>
                 ))
             )}
+          </div>
+          </div>
           </div>
         </div>
       ) : (
@@ -1197,7 +1230,7 @@ export default function ReferralsAdminPage() {
       {/* Main Table Container */}
       <div className="bg-white dark:bg-[#1c1c1e] rounded-2xl border border-[#e5e5ea] dark:border-[#2c2c2e] overflow-hidden">
         {/* Table Header with Column Sorting */}
-        <div className="flex items-center px-6 py-3.5 bg-[#f5f5f7]/80 dark:bg-[#242426]/60 border-b border-[#e5e5ea] dark:border-[#2c2c2e] text-[11px] font-semibold text-[#86868b] uppercase tracking-wider select-none">
+        <div className="flex items-center px-6 py-3.5 bg-[#f5f5f7]/80 dark:bg-[#242426]/60 border-b border-[#e5e5ea] dark:border-[#2c2c2e] text-[11px] font-semibold text-[#6e6e73] dark:text-[#98989d] uppercase tracking-wider select-none">
           <div className="w-10 mr-4" />
 
           <button
@@ -1205,15 +1238,17 @@ export default function ReferralsAdminPage() {
             className="flex-1 flex items-center gap-1.5 hover:text-[#1d1d1f] dark:hover:text-white transition-colors active:scale-[0.98] cursor-pointer text-left"
           >
             <span>Campaign / Code</span>
-            <ArrowUpDown size={12} className={sortField === 'label' ? 'text-[#0066cc]' : 'text-[#86868b]'} />
+            <ArrowUpDown size={12} className={sortField === 'label' ? 'text-[#0066cc] dark:text-[#2997ff]' : 'text-[#6e6e73] dark:text-[#98989d]'} />
           </button>
+
+          <div className="w-24 hidden xl:flex justify-center pr-4">14d trend</div>
 
           <button
             onClick={() => toggleSort('devicesReached')}
             className="w-28 hidden sm:flex items-center justify-end gap-1.5 pr-4 hover:text-[#1d1d1f] dark:hover:text-white transition-colors active:scale-[0.98] cursor-pointer"
           >
             <span>Viral Reach</span>
-            <ArrowUpDown size={12} className={sortField === 'devicesReached' ? 'text-[#0066cc]' : 'text-[#86868b]'} />
+            <ArrowUpDown size={12} className={sortField === 'devicesReached' ? 'text-[#0066cc] dark:text-[#2997ff]' : 'text-[#6e6e73] dark:text-[#98989d]'} />
           </button>
 
           <button
@@ -1221,7 +1256,7 @@ export default function ReferralsAdminPage() {
             className="w-28 hidden md:flex items-center justify-end gap-1.5 pr-4 hover:text-[#1d1d1f] dark:hover:text-white transition-colors active:scale-[0.98] cursor-pointer"
           >
             <span>Deepest Gen</span>
-            <ArrowUpDown size={12} className={sortField === 'deepestGeneration' ? 'text-[#0066cc]' : 'text-[#86868b]'} />
+            <ArrowUpDown size={12} className={sortField === 'deepestGeneration' ? 'text-[#0066cc] dark:text-[#2997ff]' : 'text-[#6e6e73] dark:text-[#98989d]'} />
           </button>
 
           <button
@@ -1229,15 +1264,15 @@ export default function ReferralsAdminPage() {
             className="w-28 hidden sm:flex items-center justify-end gap-1.5 pr-4 hover:text-[#1d1d1f] dark:hover:text-white transition-colors active:scale-[0.98] cursor-pointer"
           >
             <span>Activated</span>
-            <ArrowUpDown size={12} className={sortField === 'activatedCount' ? 'text-[#0066cc]' : 'text-[#86868b]'} />
+            <ArrowUpDown size={12} className={sortField === 'activatedCount' ? 'text-[#0066cc] dark:text-[#2997ff]' : 'text-[#6e6e73] dark:text-[#98989d]'} />
           </button>
 
           <button
-            onClick={() => toggleSort('createdAt')}
+            onClick={() => toggleSort('lastActivity')}
             className="w-32 hidden lg:flex items-center gap-1.5 pr-4 hover:text-[#1d1d1f] dark:hover:text-white transition-colors active:scale-[0.98] cursor-pointer"
           >
             <span>Last Activity</span>
-            <ArrowUpDown size={12} className={sortField === 'createdAt' ? 'text-[#0066cc]' : 'text-[#86868b]'} />
+            <ArrowUpDown size={12} className={sortField === 'lastActivity' ? 'text-[#0066cc] dark:text-[#2997ff]' : 'text-[#6e6e73] dark:text-[#98989d]'} />
           </button>
 
           <div className="w-44 text-right pr-2">
@@ -1250,17 +1285,17 @@ export default function ReferralsAdminPage() {
           {loading ? (
             <div className="py-20 flex flex-col items-center justify-center text-center">
               <div className="w-8 h-8 border-2 border-[#0066cc] border-t-transparent rounded-full animate-spin mb-3" />
-              <p className="text-xs font-medium text-[#86868b]">Loading referral campaigns…</p>
+              <p className="text-xs font-medium text-[#6e6e73] dark:text-[#98989d]">Loading referral campaigns…</p>
             </div>
           ) : sortedAndFiltered.length === 0 ? (
             <div className="py-16 flex flex-col items-center justify-center text-center px-4">
-              <div className="w-12 h-12 rounded-2xl bg-[#f5f5f7] dark:bg-[#242426] flex items-center justify-center text-[#86868b] mb-3">
+              <div className="w-12 h-12 rounded-2xl bg-[#f5f5f7] dark:bg-[#242426] flex items-center justify-center text-[#6e6e73] dark:text-[#98989d] mb-3">
                 <LinkIcon size={22} />
               </div>
               <p className="text-sm font-bold text-[#1d1d1f] dark:text-[#f5f5f7]">
                 {query || filterTag !== 'all' ? 'No matching referral links' : 'No referral campaigns generated yet'}
               </p>
-              <p className="text-xs text-[#86868b] mt-1 max-w-sm">
+              <p className="text-xs text-[#6e6e73] dark:text-[#98989d] mt-1 max-w-sm">
                 {query || filterTag !== 'all'
                   ? 'Try clearing your search query or switching filter tabs.'
                   : 'Create your first referral link above to begin tracking viral invitations.'}
@@ -1291,7 +1326,7 @@ export default function ReferralsAdminPage() {
                         ? 'bg-rose-50 dark:bg-rose-950/30 text-rose-600 dark:text-rose-400 border-rose-200 dark:border-rose-800/40'
                         : link.devicesReached > 0
                         ? 'bg-blue-50 dark:bg-blue-950/40 text-[#0066cc] dark:text-[#2997ff] border-blue-200/80 dark:border-blue-800/60'
-                        : 'bg-[#f5f5f7] dark:bg-[#242426] text-[#86868b] border-[#e5e5ea] dark:border-[#38383a]'
+                        : 'bg-[#f5f5f7] dark:bg-[#242426] text-[#6e6e73] dark:text-[#98989d] border-[#e5e5ea] dark:border-[#38383a]'
                     }`}
                   >
                     {link.label ? getInitials(link.label) : <LinkIcon size={16} />}
@@ -1334,7 +1369,7 @@ export default function ReferralsAdminPage() {
                       )}
                     </div>
 
-                    <div className="flex items-center gap-2 mt-1 flex-wrap text-[11px] text-[#86868b]">
+                    <div className="flex items-center gap-2 mt-1 flex-wrap text-[11px] text-[#6e6e73] dark:text-[#98989d]">
                       <button
                         type="button"
                         onClick={() => handleCopy(fullUrl, link.code, `Copied /r/${link.code}`)}
@@ -1389,9 +1424,9 @@ export default function ReferralsAdminPage() {
                   <div className="w-28 hidden sm:flex items-center justify-end pr-4">
                     <div className="flex flex-col items-end">
                       <span className="text-xs font-mono font-bold text-[#1d1d1f] dark:text-[#f5f5f7] tabular-nums flex items-center gap-1.5">
-                        <Smartphone size={13} className="text-[#86868b]" />
+                        <Smartphone size={13} className="text-[#6e6e73] dark:text-[#98989d]" />
                         {link.devicesReached}
-                        <span className="text-[10px] font-sans font-normal text-[#86868b]">dev</span>
+                        <span className="text-[10px] font-sans font-normal text-[#6e6e73] dark:text-[#98989d]">dev</span>
                       </span>
                       {link.devicesReached > 0 && (
                         <div className="w-12 h-1 rounded-full bg-zinc-100 dark:bg-zinc-800 mt-1 overflow-hidden">
@@ -1414,7 +1449,7 @@ export default function ReferralsAdminPage() {
                           ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border-emerald-300/80 dark:border-emerald-800/80'
                           : link.deepestGeneration === 1
                           ? 'bg-blue-50 dark:bg-blue-950/40 text-[#0066cc] dark:text-[#2997ff] border-blue-200/80 dark:border-blue-800/80'
-                          : 'bg-[#f5f5f7] dark:bg-[#242426] text-[#86868b] border-[#e5e5ea] dark:border-[#38383a]'
+                          : 'bg-[#f5f5f7] dark:bg-[#242426] text-[#6e6e73] dark:text-[#98989d] border-[#e5e5ea] dark:border-[#38383a]'
                       }`}
                     >
                       {link.deepestGeneration > 1 ? (
@@ -1437,12 +1472,12 @@ export default function ReferralsAdminPage() {
                         className={`text-xs font-mono font-bold tabular-nums flex items-center gap-1 ${
                           link.activatedCount > 0
                             ? 'text-emerald-600 dark:text-emerald-400'
-                            : 'text-[#86868b]'
+                            : 'text-[#6e6e73] dark:text-[#98989d]'
                         }`}
                       >
                         {link.activatedCount > 0 && <Zap size={12} className="text-emerald-500 fill-emerald-500" />}
                         {link.activatedCount}
-                        <span className="text-[10px] font-sans font-normal text-[#86868b]">
+                        <span className="text-[10px] font-sans font-normal text-[#6e6e73] dark:text-[#98989d]">
                           ({link.devicesReached > 0 ? Math.round((link.activatedCount / link.devicesReached) * 100) : 0}%)
                         </span>
                       </span>
@@ -1451,7 +1486,7 @@ export default function ReferralsAdminPage() {
 
                   {/* Last Activity */}
                   <div className="w-32 hidden lg:flex items-center pr-4">
-                    <span className="text-xs font-medium text-[#86868b] truncate">
+                    <span className="text-xs font-medium text-[#6e6e73] dark:text-[#98989d] truncate">
                       {link.lastActivity ? new Date(link.lastActivity).toLocaleDateString() : '—'}
                     </span>
                   </div>
@@ -1462,7 +1497,7 @@ export default function ReferralsAdminPage() {
                     <button
                       type="button"
                       onClick={() => handleCopy(fullUrl, link.code, 'Copied link URL')}
-                      className="p-1.5 rounded-lg text-[#86868b] hover:text-[#0066cc] hover:bg-blue-50 dark:hover:bg-blue-950/40 transition-colors active:scale-95 cursor-pointer"
+                      className="p-1.5 rounded-lg text-[#6e6e73] dark:text-[#98989d] hover:text-[#0066cc] hover:bg-blue-50 dark:hover:bg-blue-950/40 transition-colors active:scale-95 cursor-pointer"
                       title="Copy referral link"
                     >
                       {isCopied ? <Check size={14} className="text-emerald-600" /> : <Copy size={14} />}
@@ -1473,7 +1508,7 @@ export default function ReferralsAdminPage() {
                       href={`${fullUrl}?preview=1`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="p-1.5 rounded-lg text-[#86868b] hover:text-[#1d1d1f] dark:hover:text-white hover:bg-[#f5f5f7] dark:hover:bg-[#242426] transition-colors active:scale-95 cursor-pointer"
+                      className="p-1.5 rounded-lg text-[#6e6e73] dark:text-[#98989d] hover:text-[#1d1d1f] dark:hover:text-white hover:bg-[#f5f5f7] dark:hover:bg-[#242426] transition-colors active:scale-95 cursor-pointer"
                       title="Safe preview link without recording visit"
                     >
                       <ExternalLink size={14} />
@@ -1486,7 +1521,7 @@ export default function ReferralsAdminPage() {
                       title="Inspect referral tree"
                     >
                       <span>Tree</span>
-                      <ChevronRight size={13} className="text-[#86868b]" />
+                      <ChevronRight size={13} className="text-[#6e6e73] dark:text-[#98989d]" />
                     </Link>
 
                     {/* Holder reset button if bound */}
@@ -1494,7 +1529,7 @@ export default function ReferralsAdminPage() {
                       <button
                         type="button"
                         onClick={() => setResettingCode(link.code)}
-                        className="p-1.5 rounded-lg text-[#86868b] hover:text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-950/30 transition-colors active:scale-95 cursor-pointer"
+                        className="p-1.5 rounded-lg text-[#6e6e73] dark:text-[#98989d] hover:text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-950/30 transition-colors active:scale-95 cursor-pointer"
                         title="Reset holder device (clear test bindings)"
                       >
                         <RotateCcw size={13} />
@@ -1526,10 +1561,13 @@ export default function ReferralsAdminPage() {
       <AnimatePresence>
         {revokingCode && (
           <div
-            className="fixed inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center z-50 p-4"
+            className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4"
             onClick={() => setRevokingCode(null)}
           >
             <m.div
+              role="dialog"
+              aria-modal="true"
+              aria-label="Revoke referral link"
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
@@ -1544,13 +1582,13 @@ export default function ReferralsAdminPage() {
                   <h3 className="text-base font-bold text-[#1d1d1f] dark:text-[#f5f5f7]">
                     Revoke Referral Link?
                   </h3>
-                  <p className="text-xs font-mono text-[#86868b]">
+                  <p className="text-xs font-mono text-[#6e6e73] dark:text-[#98989d]">
                     Code: {revokingCode}
                   </p>
                 </div>
               </div>
 
-              <p className="text-xs text-[#86868b] leading-relaxed mb-6">
+              <p className="text-xs text-[#6e6e73] dark:text-[#98989d] leading-relaxed mb-6">
                 New visitors arriving via this link will land without attribution. All existing referral tree nodes and device analytics will be permanently preserved.
               </p>
 
@@ -1559,7 +1597,7 @@ export default function ReferralsAdminPage() {
                   type="button"
                   onClick={() => setRevokingCode(null)}
                   disabled={actionLoading}
-                  className="px-4 py-2 rounded-xl text-xs font-semibold text-[#86868b] hover:text-[#1d1d1f] dark:hover:text-[#f5f5f7] transition-colors active:scale-95 cursor-pointer"
+                  className="px-4 py-2 rounded-xl text-xs font-semibold text-[#6e6e73] dark:text-[#98989d] hover:text-[#1d1d1f] dark:hover:text-[#f5f5f7] transition-colors active:scale-95 cursor-pointer"
                 >
                   Cancel
                 </button>
@@ -1581,10 +1619,13 @@ export default function ReferralsAdminPage() {
       <AnimatePresence>
         {resettingCode && (
           <div
-            className="fixed inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center z-50 p-4"
+            className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4"
             onClick={() => setResettingCode(null)}
           >
             <m.div
+              role="dialog"
+              aria-modal="true"
+              aria-label="Reset holder device"
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
@@ -1599,13 +1640,13 @@ export default function ReferralsAdminPage() {
                   <h3 className="text-base font-bold text-[#1d1d1f] dark:text-[#f5f5f7]">
                     Reset Holder Device?
                   </h3>
-                  <p className="text-xs font-mono text-[#86868b]">
+                  <p className="text-xs font-mono text-[#6e6e73] dark:text-[#98989d]">
                     Code: {resettingCode}
                   </p>
                 </div>
               </div>
 
-              <p className="text-xs text-[#86868b] leading-relaxed mb-6">
+              <p className="text-xs text-[#6e6e73] dark:text-[#98989d] leading-relaxed mb-6">
                 This unbinds the first device registered as this root link&apos;s holder. Useful if an admin accidentally opened the link during testing without preview mode.
               </p>
 
@@ -1614,7 +1655,7 @@ export default function ReferralsAdminPage() {
                   type="button"
                   onClick={() => setResettingCode(null)}
                   disabled={actionLoading}
-                  className="px-4 py-2 rounded-xl text-xs font-semibold text-[#86868b] hover:text-[#1d1d1f] dark:hover:text-[#f5f5f7] transition-colors active:scale-95 cursor-pointer"
+                  className="px-4 py-2 rounded-xl text-xs font-semibold text-[#6e6e73] dark:text-[#98989d] hover:text-[#1d1d1f] dark:hover:text-[#f5f5f7] transition-colors active:scale-95 cursor-pointer"
                 >
                   Cancel
                 </button>

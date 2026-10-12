@@ -26,4 +26,20 @@ describe('TrendChart', () => {
     render(<TrendChart buckets={[]} granularity="daily" onGranularityChange={jest.fn()} />)
     expect(screen.getByText('No arrivals recorded yet.')).toBeDefined()
   })
+
+  it('draws no bar for a bucket with zero arrivals', () => {
+    render(
+      <TrendChart
+        buckets={[
+          { date: '2026-01-01', newArrivals: 0 },
+          { date: '2026-01-02', newArrivals: 4 },
+        ]}
+        granularity="daily"
+        onGranularityChange={() => {}}
+      />,
+    )
+    const bars = screen.getByTestId('trend-chart').querySelectorAll<HTMLElement>('[style*="height"]')
+    expect(bars[0].style.height).toBe('0%')
+    expect(bars[1].style.height).toBe('100%')
+  })
 })

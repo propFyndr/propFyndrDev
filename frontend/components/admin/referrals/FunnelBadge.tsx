@@ -28,6 +28,40 @@ const STYLES: Record<FunnelStage, { label: string; className: string; icon: Reac
   },
 }
 
+// How each stage is qualified — mirrors classifyFunnelStage
+// (backend/src/lib/referralGrowthMetrics.ts) and the activation rule in
+// backend/src/routes/adminReferrals.ts. Keep in step with both.
+export const FUNNEL_STAGE_DEFINITIONS: { stage: FunnelStage; rule: string }[] = [
+  { stage: 'arrived_no_chat', rule: 'Opened a referral link on this device, but has not sent a message.' },
+  { stage: 'chatted_shallow', rule: 'Sent at least one message (counted across all chats) but has not activated yet.' },
+  {
+    stage: 'activated',
+    rule: 'Any one chat reached 3+ messages, or one chat stayed open across 24h+. People who converted also count as activated in every total.',
+  },
+  { stage: 'converted', rule: 'Requested a callback, generated a dossier, or requested a site visit.' },
+]
+
+export function FunnelStageDefinitions() {
+  return (
+    <div className="space-y-2">
+      <p className="font-semibold">Each device shows its highest stage.</p>
+      <ul className="space-y-1.5">
+        {FUNNEL_STAGE_DEFINITIONS.map(({ stage, rule }) => (
+          <li key={stage} className="flex gap-2">
+            <span className="shrink-0">
+              <FunnelBadge stage={stage} />
+            </span>
+            <span>{rule}</span>
+          </li>
+        ))}
+      </ul>
+      <p className="text-[#6e6e73] dark:text-[#98989d]">
+        A device is one browser (guest token). Counts cover all time and include bot sessions.
+      </p>
+    </div>
+  )
+}
+
 export default function FunnelBadge({ stage }: { stage: FunnelStage }) {
   const style = STYLES[stage]
   return (

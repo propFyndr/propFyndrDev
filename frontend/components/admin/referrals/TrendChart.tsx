@@ -1,7 +1,7 @@
 // Arrival trend visualizer with Apple/Seline craft standards,
 // gradient bars, telemetry labels, and graceful empty/loading states.
 import { useMemo } from 'react'
-import { TrendingUp, Calendar, Activity } from 'lucide-react'
+import { Activity } from 'lucide-react'
 
 export type Granularity = 'daily' | 'weekly' | 'all'
 
@@ -32,9 +32,10 @@ export default function TrendChart({
           <span className="text-xl font-black font-mono tracking-tight text-zinc-900 dark:text-zinc-100 tabular-nums">
             {total}
           </span>
-          <span className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">
+          <span className="text-[11px] font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
             Total Arrivals
           </span>
+          <span className="text-[10px] text-zinc-500 dark:text-zinc-400">(days in UTC)</span>
         </div>
 
         {/* Granularity Segmented Switch */}
@@ -44,6 +45,7 @@ export default function TrendChart({
               key={g}
               type="button"
               data-testid={`granularity-${g}`}
+              aria-pressed={granularity === g}
               onClick={() => onGranularityChange(g)}
               className={`px-3 py-1 rounded-lg text-[11px] font-bold transition-all active:scale-95 cursor-pointer ${
                 granularity === g
@@ -66,7 +68,7 @@ export default function TrendChart({
         <div className="h-32 rounded-xl bg-zinc-50/50 dark:bg-zinc-800/20 border border-dashed border-zinc-200 dark:border-zinc-800 flex flex-col items-center justify-center text-center p-4">
           <Activity size={20} className="text-zinc-300 dark:text-zinc-600 mb-1.5" />
           <p className="text-xs font-semibold text-zinc-700 dark:text-zinc-300">No arrivals recorded yet.</p>
-          <p className="text-[10.5px] text-zinc-400 mt-0.5 max-w-xs">
+          <p className="text-[10.5px] text-zinc-500 dark:text-zinc-400 mt-0.5 max-w-xs">
             As visitors arrive via this link, arrival velocity will chart here automatically.
           </p>
         </div>
@@ -75,7 +77,8 @@ export default function TrendChart({
           {/* Bar Chart Area */}
           <div className="flex items-end gap-1.5 h-28 pt-4 px-1 border-b border-zinc-100 dark:border-zinc-800">
             {buckets.map((b) => {
-              const heightPct = Math.max(8, (b.newArrivals / max) * 100)
+              // No arrivals, no bar — a minimum height would read as activity.
+              const heightPct = b.newArrivals === 0 ? 0 : Math.max(8, (b.newArrivals / max) * 100)
               const isPeak = b.newArrivals === max && max > 1
 
               return (
@@ -104,7 +107,7 @@ export default function TrendChart({
           </div>
 
           {/* X-Axis Date Labels */}
-          <div className="flex items-center justify-between text-[10px] font-mono text-zinc-400 px-1">
+          <div className="flex items-center justify-between text-[10px] font-mono text-zinc-500 dark:text-zinc-400 px-1">
             <span>{buckets[0]?.date || ''}</span>
             {buckets.length > 2 && <span>{buckets[Math.floor(buckets.length / 2)]?.date || ''}</span>}
             <span>{buckets[buckets.length - 1]?.date || ''}</span>
