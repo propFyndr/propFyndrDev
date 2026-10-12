@@ -229,7 +229,7 @@ export default function ReferralTreePage() {
       <div>
         <Link
           href="/admin/referrals"
-          className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#86868b] hover:text-[#0066cc] dark:hover:text-[#2997ff] transition-colors mb-3 cursor-pointer"
+          className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#86868b] hover:text-[#0066cc] dark:hover:text-[#2997ff] transition-colors active:scale-95 mb-3 cursor-pointer"
         >
           <ArrowLeft size={14} />
           <span>Back to All Referral Links</span>
@@ -264,7 +264,7 @@ export default function ReferralTreePage() {
           <div className="flex items-center gap-2 shrink-0 flex-wrap">
             <button
               onClick={handleCopyLink}
-              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#0066cc] hover:bg-[#0055b3] text-white text-xs font-semibold transition-all shadow-xs cursor-pointer"
+              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#0066cc] hover:bg-[#0055b3] text-white text-xs font-semibold transition-all active:scale-[0.98] cursor-pointer"
             >
               {copied ? <Check size={14} /> : <Copy size={14} />}
               <span>{copied ? 'Copied' : 'Copy Link'}</span>
@@ -274,7 +274,7 @@ export default function ReferralTreePage() {
               href={`${fullUrl}?preview=1`}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white dark:bg-[#1c1c1e] hover:bg-[#f5f5f7] dark:hover:bg-[#242426] text-[#1d1d1f] dark:text-[#f5f5f7] border border-[#e5e5ea] dark:border-[#2c2c2e] text-xs font-semibold transition-all cursor-pointer"
+              className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white dark:bg-[#1c1c1e] hover:bg-[#f5f5f7] dark:hover:bg-[#242426] text-[#1d1d1f] dark:text-[#f5f5f7] border border-[#e5e5ea] dark:border-[#2c2c2e] text-xs font-semibold transition-all active:scale-[0.98] cursor-pointer"
               title="Preview without recording visit"
             >
               <ExternalLink size={14} />
@@ -284,7 +284,7 @@ export default function ReferralTreePage() {
             <button
               onClick={handleResetHolder}
               disabled={resetting}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-amber-50 dark:bg-amber-950/30 hover:bg-amber-100 dark:hover:bg-amber-950/50 text-amber-700 dark:text-amber-400 border border-amber-200/80 dark:border-amber-800/60 text-xs font-semibold transition-all cursor-pointer"
+              className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-amber-50 dark:bg-amber-950/30 hover:bg-amber-100 dark:hover:bg-amber-950/50 text-amber-700 dark:text-amber-400 border border-amber-200/80 dark:border-amber-800/60 text-xs font-semibold transition-all active:scale-[0.98] cursor-pointer"
               title="Reset holder device"
             >
               <RotateCcw size={14} />
@@ -295,7 +295,7 @@ export default function ReferralTreePage() {
               <button
                 onClick={handleRevoke}
                 disabled={revoking}
-                className="flex items-center gap-1 px-3 py-2 rounded-xl bg-rose-50 dark:bg-rose-950/30 hover:bg-rose-100 dark:hover:bg-rose-950/50 text-rose-600 dark:text-rose-400 border border-rose-200/80 dark:border-rose-800/60 text-xs font-semibold transition-all cursor-pointer"
+                className="flex items-center gap-1 px-3 py-2 rounded-xl bg-rose-50 dark:bg-rose-950/30 hover:bg-rose-100 dark:hover:bg-rose-950/50 text-rose-600 dark:text-rose-400 border border-rose-200/80 dark:border-rose-800/60 text-xs font-semibold transition-all active:scale-[0.98] cursor-pointer"
               >
                 <span>Revoke</span>
               </button>
@@ -339,7 +339,7 @@ export default function ReferralTreePage() {
       </div>
 
       {/* Network Tree Visualizer */}
-      <div className="bg-white dark:bg-[#1c1c1e] rounded-2xl border border-[#e5e5ea] dark:border-[#2c2c2e] p-6 shadow-2xs">
+      <div className="bg-white dark:bg-[#1c1c1e] rounded-2xl border border-[#e5e5ea] dark:border-[#2c2c2e] p-6">
         <div className="flex items-center justify-between border-b border-[#e5e5ea] dark:border-[#2c2c2e] pb-4 mb-6">
           <div>
             <h2 className="text-base font-bold text-[#1d1d1f] dark:text-[#f5f5f7] flex items-center gap-2">
@@ -373,7 +373,7 @@ export default function ReferralTreePage() {
             </p>
             <button
               onClick={handleCopyLink}
-              className="mt-4 flex items-center gap-2 px-4 py-2 rounded-xl bg-[#0066cc] text-white text-xs font-semibold hover:bg-[#0055b3] transition-all cursor-pointer"
+              className="mt-4 flex items-center gap-2 px-4 py-2 rounded-xl bg-[#0066cc] text-white text-xs font-semibold hover:bg-[#0055b3] transition-all active:scale-[0.98] cursor-pointer"
             >
               <Copy size={14} />
               <span>Copy Link &amp; Share</span>
@@ -386,12 +386,12 @@ export default function ReferralTreePage() {
 
       {/* Trend + K-factor drill-down */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <div className="bg-white dark:bg-[#1c1c1e] rounded-[18px] border border-[#e5e5ea] dark:border-[#2c2c2e] p-6">
+        <div className="bg-white dark:bg-[#1c1c1e] rounded-2xl border border-[#e5e5ea] dark:border-[#2c2c2e] p-6">
           <h2 className="text-sm font-bold text-[#1d1d1f] dark:text-[#f5f5f7] mb-3">Arrival Trend</h2>
           <TrendChart buckets={trendBuckets} granularity={granularity} onGranularityChange={setGranularity} loading={trendLoading} />
         </div>
 
-        <div className="bg-white dark:bg-[#1c1c1e] rounded-[18px] border border-[#e5e5ea] dark:border-[#2c2c2e] p-6">
+        <div className="bg-white dark:bg-[#1c1c1e] rounded-2xl border border-[#e5e5ea] dark:border-[#2c2c2e] p-6">
           <button
             type="button"
             onClick={() => setShowKFactorDetail((v) => !v)}
@@ -420,7 +420,7 @@ export default function ReferralTreePage() {
       </div>
 
       {/* Channel / device breakdown */}
-      <div className="bg-white dark:bg-[#1c1c1e] rounded-[18px] border border-[#e5e5ea] dark:border-[#2c2c2e] p-6">
+      <div className="bg-white dark:bg-[#1c1c1e] rounded-2xl border border-[#e5e5ea] dark:border-[#2c2c2e] p-6">
         <h2 className="text-sm font-bold text-[#1d1d1f] dark:text-[#f5f5f7] mb-3">Channel Breakdown</h2>
         {channelBreakdown.length === 0 ? (
           <p className="text-xs text-[#86868b] italic">No visits yet.</p>
@@ -473,7 +473,7 @@ export default function ReferralTreePage() {
 
                   <button
                     onClick={() => setSelectedNode(null)}
-                    className="p-1.5 rounded-xl text-[#86868b] hover:text-[#1d1d1f] dark:hover:text-[#f5f5f7] hover:bg-[#f5f5f7] dark:hover:bg-[#242426] transition-colors cursor-pointer"
+                    className="p-1.5 rounded-xl text-[#86868b] hover:text-[#1d1d1f] dark:hover:text-[#f5f5f7] hover:bg-[#f5f5f7] dark:hover:bg-[#242426] transition-colors active:scale-95 cursor-pointer"
                   >
                     <X size={18} />
                   </button>
