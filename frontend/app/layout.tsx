@@ -59,10 +59,10 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
-      { url: "/images/icons/logo-square-black.png", media: "(prefers-color-scheme: light)" },
-      { url: "/images/icons/logo-square-white.png", media: "(prefers-color-scheme: dark)" },
+      { url: "/favicon.ico", sizes: "48x48" },
+      { url: "/images/icons/favicon-96x96.png", type: "image/png", sizes: "96x96" },
     ],
-    shortcut: "/images/icons/logo-square-black.png",
+    shortcut: "/favicon.ico",
     apple: "/images/icons/apple-icon.png",
   },
   formatDetection: {

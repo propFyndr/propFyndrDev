@@ -1,7 +1,7 @@
 'use client'
 
 import 'leaflet/dist/leaflet.css'
-import { useEffect, useMemo } from 'react'
+import { useMemo } from 'react'
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
 import L from 'leaflet'
 import type { ProjectCard } from '@/types/project'
@@ -31,16 +31,8 @@ const CATEGORY_COLORS: Record<string, string> = {
 }
 
 export default function SectorMapInner({ properties, extraMarkers = [] }: Props) {
-  // Fix Leaflet broken marker icons in Next.js
-  useEffect(() => {
-
-    delete (L.Icon.Default.prototype as any)._getIconUrl
-    L.Icon.Default.mergeOptions({
-      iconRetinaUrl: '/leaflet/marker-icon-2x.png',
-      iconUrl: '/leaflet/marker-icon.png',
-      shadowUrl: '/leaflet/marker-shadow.png',
-    })
-  }, [])
+  // Every <Marker> below passes its own divIcon, so Leaflet's default PNG
+  // marker (and the usual bundler fix for it) is never used.
 
   // Each property gets a position
 
