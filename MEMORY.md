@@ -6,6 +6,26 @@ Format: What was decided / Why / What was rejected and why.
 
 ---
 
+## Session 2026-10-12 — referral test-campaign purge
+
+**What was decided:** Dev DB `ReferralLink` table had 93 rows, almost entirely test artifacts
+from repeated `adminReferrals.test.ts`/`referral.test.ts` runs across sessions (19 of them were
+duplicate "Rahul – college" entries alone, from re-running tests that create a link under that
+exact label). Purged everything down to one link: `KTECFP3U` ("Rahul – college", created
+2026-10-11 15:48:42 UTC). Ran `backend/scripts/purge-test-referrals.ts --apply` after a dry-run
+confirmed 93 links / 77 visits would be removed. Verified afterward: exactly 1 `ReferralLink` row
+remains.
+
+**Why this exact link survived:** all 19 "Rahul – college" duplicates had 0 visits, none revoked,
+no holder — no data distinguished a "real" one. Kept the earliest-created as a deterministic
+tiebreaker, not because it showed any actual usage. If a genuine campaign link existed with real
+traffic, it did not survive under this label — worth keeping in mind if historical referral data
+is ever expected for this specific code.
+
+**What was rejected:** guessing which of the 19 duplicates was "the real one" without a data
+signal — the purge script explicitly refuses on an ambiguous label match rather than picking
+one, consistent with this project's "surface conflicts, don't resolve them silently" convention.
+
 ## Session 2026-09-26 — discovery screen design pass + PropFyndr brand sweep
 
 **Worked on:** audit of /discover (sidebar, shell, chat components) against docs/appleDESIGN.md,
