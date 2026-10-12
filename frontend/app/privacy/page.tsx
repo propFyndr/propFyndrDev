@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import {
   ArrowLeft,
   Shield,
@@ -317,7 +318,9 @@ export default function PrivacyPolicy() {
             className="inline-flex items-center gap-2 text-sm font-semibold text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
           >
             <ArrowLeft size={16} />
-            <span>Back to Home</span>
+            <span className="sr-only">Back to </span>
+            <Image src="/images/icons/logo-wordmark-black.png" alt="RealtyAsk" width={96} height={34} className="object-contain block dark:hidden" />
+            <Image src="/images/icons/logo-wordmark-white.png" alt="RealtyAsk" width={96} height={32} className="object-contain hidden dark:block" />
           </Link>
           <div className="text-xs font-semibold text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-3 py-1 rounded-full">
             Last Updated: {lastUpdated}

@@ -266,7 +266,7 @@ export default function PortalShell({ nav, rootHref, rootLabel, allowRoles, scop
       const local = userEmail.split('@')[0]
       return local.slice(0, 2).toUpperCase()
     }
-    return 'PF'
+    return 'RA'
   }, [whoAmI, userEmail])
 
   const displayName = whoAmI || (userEmail ? userEmail.split('@')[0] : (role ? ROLE_LABEL[role].replace(' Console', '') : 'Admin User'))

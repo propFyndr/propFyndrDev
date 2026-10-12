@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
 import { ArrowLeft } from 'lucide-react'
+import Image from 'next/image'
 import ProjectCard from '@/components/ProjectCard'
 import type { ProjectCard as ProjectCardType } from '@/types/project'
 import { API_BASE } from '@/lib/env'
@@ -60,6 +61,7 @@ export default function SharedShortlistPage() {
               className="inline-flex items-center gap-2 text-xs font-bold text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 mb-3 bg-white/80 dark:bg-slate-800/80 px-3 py-1.5 rounded-xl border border-slate-200/80 dark:border-slate-700/80 shadow-2xs transition-colors"
             >
               <ArrowLeft size={15} />
+              <Image src="/images/icons/logo-mark.png" alt="" width={16} height={16} className="object-contain" />
               Back to RealtyAsk
             </a>
             <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">

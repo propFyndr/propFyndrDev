@@ -1534,7 +1534,7 @@ ${senderPhone}`
                         <div className="flex items-center justify-between text-[11px]">
                           <div className="flex items-center gap-2">
                             <div className="w-6 h-6 rounded-full bg-blue-600 text-white font-bold text-[10px] flex items-center justify-center shrink-0">
-                              {template === 'builder_pitch' ? 'P' : 'PF'}
+                              {template === 'builder_pitch' ? 'P' : 'RA'}
                             </div>
                             <div>
                               <div
@@ -1678,7 +1678,7 @@ ${senderPhone}`
                             <div className="flex items-center justify-between gap-3 text-xs">
                               <div className="flex items-center gap-2.5">
                                 <div className="w-7 h-7 rounded-full bg-blue-600 text-white font-bold text-[11px] flex items-center justify-center shrink-0">
-                                  {template === 'builder_pitch' ? 'P' : 'PF'}
+                                  {template === 'builder_pitch' ? 'P' : 'RA'}
                                 </div>
                                 <div>
                                   <div
@@ -1784,7 +1784,7 @@ ${senderPhone}`
                             <div className="flex items-center justify-between gap-3 text-xs">
                               <div className="flex items-center gap-2.5">
                                 <div className="w-7 h-7 rounded-full bg-[#0078d4] text-white font-bold text-[10px] flex items-center justify-center shrink-0">
-                                  {template === 'builder_pitch' ? 'P' : 'PF'}
+                                  {template === 'builder_pitch' ? 'P' : 'RA'}
                                 </div>
                                 <div>
                                   <div

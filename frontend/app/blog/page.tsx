@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import Image from 'next/image'
 import { API_BASE } from '@/lib/env'
 
 export const metadata: Metadata = {
@@ -42,9 +43,11 @@ export default async function BlogIndexPage() {
         <div className="mb-14">
           <Link
             href="/"
-            className="text-xs font-semibold text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white transition-colors"
+            aria-label="RealtyAsk home"
+            className="inline-flex items-center opacity-90 hover:opacity-100 transition-opacity"
           >
-            ← RealtyAsk
+            <Image src="/images/icons/logo-wordmark-black.png" alt="RealtyAsk" width={110} height={39} className="object-contain block dark:hidden" />
+            <Image src="/images/icons/logo-wordmark-white.png" alt="RealtyAsk" width={110} height={37} className="object-contain hidden dark:block" />
           </Link>
           <div className="mt-4 flex items-center gap-2">
             <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold tracking-wider uppercase bg-blue-50 dark:bg-blue-950/60 text-[#0066cc] dark:text-[#2997ff] border border-blue-200/60 dark:border-blue-800/60">

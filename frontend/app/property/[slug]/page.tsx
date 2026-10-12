@@ -2,6 +2,8 @@
 
 import { useEffect, useState, useMemo } from 'react'
 import { useParams, useRouter } from 'next/navigation'
+import Link from 'next/link'
+import Image from 'next/image'
 import { ArrowLeft, Share2 } from 'lucide-react'
 import { ChatCircleDots } from '@phosphor-icons/react'
 import type { ProjectDetail, ProjectCard as ProjectCardType } from '@/types/project'
@@ -106,6 +108,9 @@ export default function PropertyDetailPage() {
       <header className="sticky top-0 z-40 w-full bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-b border-slate-200/80 dark:border-slate-800/80 shadow-2xs">
         <div className="max-w-6xl xl:max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
+            <Link href="/" aria-label="RealtyAsk home" className="shrink-0 hover:opacity-85 transition-opacity">
+              <Image src="/images/icons/logo-mark.png" alt="RealtyAsk" width={30} height={29} className="object-contain" />
+            </Link>
             <button
               onClick={() => router.back()}
               className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800/90 hover:bg-slate-200 dark:hover:bg-slate-700 text-xs font-bold text-slate-700 dark:text-slate-200 transition-all active:scale-95 cursor-pointer border border-slate-200/60 dark:border-slate-700/60 shadow-2xs"

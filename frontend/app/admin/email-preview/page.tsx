@@ -1321,7 +1321,7 @@ function EmailPreviewStudioContent() {
                         <div className="flex items-center justify-between text-[11px]">
                           <div className="flex items-center gap-2">
                             <div className="w-6 h-6 rounded-full bg-blue-600 text-white font-bold text-[10px] flex items-center justify-center shrink-0">
-                              {template === 'partner_invite' ? 'CP' : 'PF'}
+                              {template === 'partner_invite' ? 'CP' : 'RA'}
                             </div>
                             <div>
                               <div className="font-semibold leading-tight">{senderName}</div>
@@ -1438,7 +1438,7 @@ function EmailPreviewStudioContent() {
                             <div className="flex items-center justify-between text-xs">
                               <div className="flex items-center gap-2">
                                 <div className="w-7 h-7 rounded-full bg-blue-600 text-white font-bold text-xs flex items-center justify-center shrink-0">
-                                  {template === 'partner_invite' ? 'CP' : 'PF'}
+                                  {template === 'partner_invite' ? 'CP' : 'RA'}
                                 </div>
                                 <div>
                                   <div
@@ -1538,7 +1538,7 @@ function EmailPreviewStudioContent() {
                             <div className="flex items-center justify-between gap-3 text-xs">
                               <div className="flex items-center gap-2.5">
                                 <div className="w-7 h-7 rounded-full bg-[#0078d4] text-white font-bold text-[10px] flex items-center justify-center shrink-0">
-                                  {template === 'partner_invite' ? 'CP' : 'PF'}
+                                  {template === 'partner_invite' ? 'CP' : 'RA'}
                                 </div>
                                 <div>
                                   <div

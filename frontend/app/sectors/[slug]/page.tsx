@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
+import Image from 'next/image'
 import { fetchSector } from './data'
 
 export const revalidate = 1800
@@ -79,7 +80,10 @@ export default async function SectorPage({ params }: { params: Promise<Params> }
   return (
     <main className="mx-auto w-full max-w-5xl px-4 py-10 sm:py-14">
       <nav className="text-sm text-zinc-500 dark:text-zinc-400">
-        <Link href="/" className="hover:text-zinc-900 dark:hover:text-zinc-100">Home</Link>
+        <Link href="/" className="inline-flex items-center gap-1.5 align-middle hover:text-zinc-900 dark:hover:text-zinc-100">
+          <Image src="/images/icons/logo-mark.png" alt="" width={16} height={16} className="object-contain" />
+          Home
+        </Link>
         <span className="mx-1.5">/</span>
         <Link href="/discover" className="hover:text-zinc-900 dark:hover:text-zinc-100">Discover</Link>
         <span className="mx-1.5">/</span>

@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import { notFound } from 'next/navigation'
 import dynamic from 'next/dynamic'
 import { ArrowLeft, Clock, CalendarBlank, User, ShareNetwork } from '@phosphor-icons/react/dist/ssr'
@@ -89,9 +90,11 @@ export default async function BlogPostPage({ params }: { params: Promise<Params>
             </span>
             <Link
               href="/"
-              className="text-xs font-semibold text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white transition-colors"
+              aria-label="RealtyAsk home"
+              className="flex items-center opacity-90 hover:opacity-100 transition-opacity"
             >
-              RealtyAsk
+              <Image src="/images/icons/logo-wordmark-black.png" alt="RealtyAsk" width={84} height={30} className="object-contain block dark:hidden" />
+              <Image src="/images/icons/logo-wordmark-white.png" alt="RealtyAsk" width={84} height={28} className="object-contain hidden dark:block" />
             </Link>
           </div>
         </div>
