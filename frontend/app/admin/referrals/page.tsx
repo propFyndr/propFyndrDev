@@ -112,18 +112,37 @@ const PRESET_LABELS = [
 ]
 
 function Sparkline({ buckets }: { buckets: { date: string; newArrivals: number }[] }) {
-  if (!buckets || buckets.length === 0) return <span className="text-[10px] text-[#86868b]">—</span>
+  if (!buckets || buckets.length === 0) return <span className="text-[10px] text-[#86868b] font-mono">—</span>
+  const total = buckets.reduce((s, b) => s + b.newArrivals, 0)
+  if (total === 0) {
+    return (
+      <div className="flex items-center gap-1.5 text-[10px] text-[#86868b] font-mono">
+        <span className="w-1.5 h-1.5 rounded-full bg-zinc-300 dark:bg-zinc-700" />
+        <span>No recent activity</span>
+      </div>
+    )
+  }
   const max = Math.max(1, ...buckets.map((b) => b.newArrivals))
   return (
-    <div className="flex items-end gap-px h-6 w-20">
-      {buckets.map((b) => (
-        <div
-          key={b.date}
-          className="flex-1 bg-[#0066cc]/60 rounded-t-sm min-w-0"
-          style={{ height: `${Math.max(8, (b.newArrivals / max) * 100)}%` }}
-          title={`${b.date}: ${b.newArrivals}`}
-        />
-      ))}
+    <div 
+      className="flex items-end gap-[3px] h-6 px-1.5 py-0.5 rounded-lg bg-zinc-100/70 dark:bg-zinc-900/60 border border-zinc-200/60 dark:border-zinc-800/60" 
+      title={`14-day activity: ${total} total arrivals`}
+    >
+      {buckets.slice(-14).map((b) => {
+        const heightPct = b.newArrivals > 0 ? Math.max(20, Math.round((b.newArrivals / max) * 100)) : 8
+        return (
+          <div
+            key={b.date}
+            className={`w-[4px] rounded-t-xs transition-all ${
+              b.newArrivals > 0
+                ? 'bg-[#0066cc] dark:bg-[#2997ff]'
+                : 'bg-zinc-300/60 dark:bg-zinc-700/60'
+            }`}
+            style={{ height: `${heightPct}%` }}
+            title={`${b.date}: ${b.newArrivals} arrival${b.newArrivals === 1 ? '' : 's'}`}
+          />
+        )
+      })}
     </div>
   )
 }
@@ -462,86 +481,324 @@ export default function ReferralsAdminPage() {
         />
       </div>
 
-      {/* Growth Summary Strip */}
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-        <StatCard
-          label="Blended K-Factor"
-          value={growthMetrics?.growthSummary.blendedKFactor === null || growthMetrics?.growthSummary.blendedKFactor === undefined ? '—' : growthMetrics.growthSummary.blendedKFactor.toFixed(2)}
-          tone={growthMetrics && (growthMetrics.growthSummary.blendedKFactor ?? 0) >= 1 ? 'good' : 'neutral'}
-          icon={<TrendingUp size={18} />}
-          hint="Non-seed activations / seed base"
-          loading={growthMetricsLoading}
-        />
-        <StatCard
-          label="Total Active Reach"
-          value={growthMetrics?.growthSummary.totalActiveReach ?? 0}
-          icon={<Users size={18} />}
-          hint="Non-revoked links, combined"
-          loading={growthMetricsLoading}
-        />
-        <StatCard
-          label="Top Admin"
-          value={growthMetrics?.growthSummary.topAdmin?.email ?? '—'}
-          icon={<Trophy size={18} />}
-          hint={growthMetrics?.growthSummary.topAdmin ? `${growthMetrics.growthSummary.topAdmin.totalDevicesReached} devices` : 'No data yet'}
-          loading={growthMetricsLoading}
-        />
-        <StatCard
-          label="Best Channel"
-          value={growthMetrics?.growthSummary.bestChannel ?? '—'}
-          icon={<Share2 size={18} />}
-          hint="Most common share channel"
-          loading={growthMetricsLoading}
-        />
-        <StatCard
-          label="Broadcast Alerts"
-          value={growthMetrics?.growthSummary.broadcastFlaggedCount ?? 0}
-          tone={(growthMetrics?.growthSummary.broadcastFlaggedCount ?? 0) > 0 ? 'hot' : 'neutral'}
-          icon={<Radio size={18} />}
-          hint="≥10 arrivals/hour on one code"
-          loading={growthMetricsLoading}
-        />
+      {/* Viral Velocity & Telemetry Strip — Replaces repetitive StatCard wall */}
+      <div className="bg-white dark:bg-[#1c1c1e] rounded-2xl border border-[#e5e5ea] dark:border-[#2c2c2e] p-5 shadow-xs">
+        <div className="flex items-center justify-between pb-3.5 mb-3.5 border-b border-[#e5e5ea]/80 dark:border-[#2c2c2e]/80">
+          <div className="flex items-center gap-2">
+            <div className="w-7 h-7 rounded-lg bg-blue-50 dark:bg-blue-950/40 text-[#0066cc] dark:text-[#2997ff] flex items-center justify-center">
+              <TrendingUp size={15} />
+            </div>
+            <div>
+              <h2 className="text-xs font-bold uppercase tracking-wider text-[#1d1d1f] dark:text-[#f5f5f7]">
+                Viral Velocity &amp; Distribution Telemetry
+              </h2>
+              <p className="text-[11px] text-[#86868b]">
+                Real-time attribution health, coefficient multiplier, and admin channel performance.
+              </p>
+            </div>
+          </div>
+          <span className="text-[10px] font-mono font-medium text-[#86868b] bg-[#f5f5f7] dark:bg-[#242426] px-2.5 py-1 rounded-full border border-[#e5e5ea] dark:border-[#38383a]">
+            Live Telemetry
+          </span>
+        </div>
+
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 divide-y md:divide-y-0 md:divide-x divide-[#e5e5ea]/80 dark:divide-[#2c2c2e]/80">
+          {/* Tile 1: Blended K-Factor */}
+          <div className="pt-2 md:pt-0 md:pr-4">
+            <div className="flex items-center justify-between mb-1.5">
+              <span className="text-[11px] font-semibold text-[#86868b] uppercase tracking-wider">
+                Blended K-Factor
+              </span>
+              <span
+                className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
+                  growthMetrics && (growthMetrics.growthSummary.blendedKFactor ?? 0) >= 1
+                    ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800/60'
+                    : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 border-zinc-200 dark:border-zinc-700'
+                }`}
+              >
+                {growthMetrics && (growthMetrics.growthSummary.blendedKFactor ?? 0) >= 1 ? 'Viral Spread' : 'Linear'}
+              </span>
+            </div>
+            <div className="text-2xl font-black tracking-tight text-[#1d1d1f] dark:text-[#f5f5f7] tabular-nums font-mono">
+              {growthMetrics?.growthSummary.blendedKFactor === null || growthMetrics?.growthSummary.blendedKFactor === undefined
+                ? '—'
+                : growthMetrics.growthSummary.blendedKFactor.toFixed(2)}
+            </div>
+            <p className="text-[10px] text-[#86868b] mt-1">Non-seed activations / seed base</p>
+          </div>
+
+          {/* Tile 2: Total Active Reach */}
+          <div className="pt-2 md:pt-0 md:px-4">
+            <div className="flex items-center justify-between mb-1.5">
+              <span className="text-[11px] font-semibold text-[#86868b] uppercase tracking-wider">
+                Active Reach
+              </span>
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-50 dark:bg-blue-950/40 text-[#0066cc] dark:text-[#2997ff] border border-blue-200 dark:border-blue-800/60">
+                Audience
+              </span>
+            </div>
+            <div className="text-2xl font-black tracking-tight text-[#1d1d1f] dark:text-[#f5f5f7] tabular-nums font-mono">
+              {growthMetrics?.growthSummary.totalActiveReach ?? 0}
+            </div>
+            <p className="text-[10px] text-[#86868b] mt-1">Non-revoked links combined</p>
+          </div>
+
+          {/* Tile 3: Top Admin */}
+          <div className="pt-2 md:pt-0 md:px-4">
+            <div className="flex items-center justify-between mb-1.5">
+              <span className="text-[11px] font-semibold text-[#86868b] uppercase tracking-wider">
+                Top Admin
+              </span>
+              <Trophy size={13} className="text-amber-500" />
+            </div>
+            {growthMetrics?.growthSummary.topAdmin ? (
+              <div className="space-y-1">
+                <div className="flex items-center gap-1.5">
+                  <div className="w-5 h-5 rounded-md bg-[#0066cc]/10 text-[#0066cc] dark:text-[#2997ff] text-[10px] font-black flex items-center justify-center shrink-0">
+                    {getInitials(growthMetrics.growthSummary.topAdmin.email)}
+                  </div>
+                  <span
+                    className="text-xs font-bold text-[#1d1d1f] dark:text-[#f5f5f7] truncate max-w-[130px]"
+                    title={growthMetrics.growthSummary.topAdmin.email}
+                  >
+                    {growthMetrics.growthSummary.topAdmin.email.split('@')[0]}
+                  </span>
+                </div>
+                <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-500/10 text-amber-700 dark:text-amber-300 text-[10px] font-semibold border border-amber-500/20">
+                  <Smartphone size={10} />
+                  <span>{growthMetrics.growthSummary.topAdmin.totalDevicesReached} devices</span>
+                </div>
+              </div>
+            ) : (
+              <div className="text-lg font-bold text-[#86868b]">—</div>
+            )}
+            <p className="text-[10px] text-[#86868b] mt-1">Highest viral outreach</p>
+          </div>
+
+          {/* Tile 4: Best Channel */}
+          <div className="pt-2 md:pt-0 md:px-4">
+            <div className="flex items-center justify-between mb-1.5">
+              <span className="text-[11px] font-semibold text-[#86868b] uppercase tracking-wider">
+                Best Channel
+              </span>
+              <Share2 size={13} className="text-[#0066cc]" />
+            </div>
+            <div className="text-sm font-bold text-[#1d1d1f] dark:text-[#f5f5f7] truncate py-1">
+              {growthMetrics?.growthSummary.bestChannel ? (
+                <span className="capitalize">{growthMetrics.growthSummary.bestChannel}</span>
+              ) : (
+                <span className="text-[#86868b] font-normal">—</span>
+              )}
+            </div>
+            <p className="text-[10px] text-[#86868b] mt-1">Most effective share vector</p>
+          </div>
+
+          {/* Tile 5: Broadcast Alerts */}
+          <div className="pt-2 md:pt-0 md:pl-4">
+            <div className="flex items-center justify-between mb-1.5">
+              <span className="text-[11px] font-semibold text-[#86868b] uppercase tracking-wider">
+                Spike Velocity
+              </span>
+              <Radio
+                size={13}
+                className={
+                  (growthMetrics?.growthSummary.broadcastFlaggedCount ?? 0) > 0
+                    ? 'text-rose-500 animate-pulse'
+                    : 'text-emerald-500'
+                }
+              />
+            </div>
+            <div className="flex items-baseline gap-2">
+              <span className="text-2xl font-black tracking-tight text-[#1d1d1f] dark:text-[#f5f5f7] tabular-nums font-mono">
+                {growthMetrics?.growthSummary.broadcastFlaggedCount ?? 0}
+              </span>
+              <span
+                className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full border ${
+                  (growthMetrics?.growthSummary.broadcastFlaggedCount ?? 0) > 0
+                    ? 'bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 border-rose-200'
+                    : 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800/60'
+                }`}
+              >
+                {(growthMetrics?.growthSummary.broadcastFlaggedCount ?? 0) > 0 ? 'High Spike' : 'Normal Flow'}
+              </span>
+            </div>
+            <p className="text-[10px] text-[#86868b] mt-1">≥10 arrivals/hr spike monitor</p>
+          </div>
+        </div>
       </div>
 
-      {/* Referred vs Organic Comparison */}
+      {/* Cohort Benchmark: Referred vs Organic — Editorial Intelligence Card */}
       {growthMetrics && (
-        <div className="bg-white dark:bg-[#1c1c1e] rounded-2xl border border-[#e5e5ea] dark:border-[#2c2c2e] p-6">
-          <h2 className="text-sm font-bold text-[#1d1d1f] dark:text-[#f5f5f7] mb-1">Referred vs Organic</h2>
-          <p className="text-[11px] text-[#86868b] mb-4">
-            Organic excludes bot/test traffic, same filter as admin Analytics. Sample sizes shown so a small cohort never reads with false confidence.
-          </p>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="bg-white dark:bg-[#1c1c1e] rounded-2xl border border-[#e5e5ea] dark:border-[#2c2c2e] p-6 shadow-xs">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-4 mb-5 border-b border-[#e5e5ea] dark:border-[#2c2c2e]">
+            <div>
+              <div className="flex items-center gap-2">
+                <h2 className="text-sm font-bold text-[#1d1d1f] dark:text-[#f5f5f7]">
+                  Cohort Intelligence: Referred vs Organic Baseline
+                </h2>
+                <span className="text-[10px] font-semibold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 rounded-full border border-emerald-200/80 dark:border-emerald-800/60">
+                  Bot Filtered
+                </span>
+              </div>
+              <p className="text-[11px] text-[#86868b] mt-0.5">
+                Comparing conversational activation, buyer qualification, and explicit constraints between referred visitors and organic platform traffic.
+              </p>
+            </div>
+
+            {growthMetrics.comparison.referred.activationRate !== null &&
+              growthMetrics.comparison.organic.activationRate !== null && (
+                <div className="shrink-0 text-right">
+                  <span className="text-[10px] uppercase font-bold tracking-wider text-[#86868b] block">
+                    Attribution Conversion Differential
+                  </span>
+                  <span className="text-xs font-mono font-bold text-[#0066cc] dark:text-[#2997ff]">
+                    {growthMetrics.comparison.referred.activationRate >= growthMetrics.comparison.organic.activationRate
+                      ? `+${Math.round(
+                          (growthMetrics.comparison.referred.activationRate -
+                            growthMetrics.comparison.organic.activationRate) *
+                            100
+                        )}% Viral Activation Lift`
+                      : 'Parity / Baseline Track'}
+                  </span>
+                </div>
+              )}
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             {([
-              ['referred', 'Referred', growthMetrics.comparison.referred],
-              ['organic', 'Organic', growthMetrics.comparison.organic],
-            ] as const).map(([key, title, cohort]) => (
-              <div key={key} className="p-4 rounded-2xl bg-[#f5f5f7]/70 dark:bg-[#242426]/60 border border-[#e5e5ea] dark:border-[#38383a]">
-                <div className="flex items-center justify-between mb-3">
-                  <h3 className="text-xs font-bold text-[#1d1d1f] dark:text-[#f5f5f7]">{title}</h3>
-                  <span className="text-[10px] font-mono text-[#86868b]">n={cohort.sampleSize}</span>
+              {
+                key: 'referred',
+                title: 'Referred Viral Cohort',
+                badgeStyle: 'bg-blue-50 dark:bg-blue-950/40 text-[#0066cc] dark:text-[#2997ff] border-blue-200/80 dark:border-blue-800/60',
+                borderStyle: 'border-blue-200/80 dark:border-blue-900/40 bg-blue-50/[0.15] dark:bg-blue-950/[0.1]',
+                cohort: growthMetrics.comparison.referred,
+                isPrimary: true,
+              },
+              {
+                key: 'organic',
+                title: 'Organic Platform Baseline',
+                badgeStyle: 'bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border-zinc-200 dark:border-zinc-700',
+                borderStyle: 'border-[#e5e5ea] dark:border-[#38383a] bg-[#f5f5f7]/50 dark:bg-[#242426]/40',
+                cohort: growthMetrics.comparison.organic,
+                isPrimary: false,
+              },
+            ] as const).map(({ key, title, badgeStyle, borderStyle, cohort, isPrimary }) => (
+              <div
+                key={key}
+                className={`p-5 rounded-2xl border transition-all ${borderStyle}`}
+              >
+                {/* Cohort Header */}
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-extrabold text-[#1d1d1f] dark:text-[#f5f5f7]">{title}</span>
+                    <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-full border ${badgeStyle}`}>
+                      n = {cohort.sampleSize.toLocaleString()}
+                    </span>
+                  </div>
+                  {isPrimary && (
+                    <span className="text-[10px] font-bold text-[#0066cc] bg-[#0066cc]/10 px-2 py-0.5 rounded-full">
+                      Attributed
+                    </span>
+                  )}
                 </div>
-                <div className="grid grid-cols-3 gap-2 text-center mb-3">
+
+                {/* Macro Metric Gauges */}
+                <div className="grid grid-cols-3 gap-3 mb-5 p-3 rounded-xl bg-white/80 dark:bg-black/20 border border-[#e5e5ea]/80 dark:border-[#38383a]/60">
+                  {/* Activation Rate */}
                   <div>
-                    <p className="text-sm font-bold text-[#1d1d1f] dark:text-[#f5f5f7]">{pct(cohort.activationRate)}</p>
-                    <p className="text-[10px] text-[#86868b]">Activation</p>
+                    <div className="flex items-center justify-between text-[10px] text-[#86868b] mb-1">
+                      <span>Activation</span>
+                      <span className="font-mono font-bold text-[#1d1d1f] dark:text-[#f5f5f7]">
+                        {pct(cohort.activationRate)}
+                      </span>
+                    </div>
+                    <div className="w-full h-1.5 rounded-full bg-zinc-200/80 dark:bg-zinc-800 overflow-hidden">
+                      <div
+                        className={`h-full rounded-full transition-all ${
+                          isPrimary ? 'bg-[#0066cc]' : 'bg-zinc-500'
+                        }`}
+                        style={{ width: `${cohort.activationRate ? Math.round(cohort.activationRate * 100) : 0}%` }}
+                      />
+                    </div>
                   </div>
+
+                  {/* Avg Messages */}
                   <div>
-                    <p className="text-sm font-bold text-[#1d1d1f] dark:text-[#f5f5f7]">{cohort.avgMessages.toFixed(1)}</p>
-                    <p className="text-[10px] text-[#86868b]">Avg Msgs</p>
+                    <div className="flex items-center justify-between text-[10px] text-[#86868b] mb-1">
+                      <span>Avg Depth</span>
+                      <span className="font-mono font-bold text-[#1d1d1f] dark:text-[#f5f5f7]">
+                        {cohort.avgMessages.toFixed(1)}
+                      </span>
+                    </div>
+                    <div className="w-full h-1.5 rounded-full bg-zinc-200/80 dark:bg-zinc-800 overflow-hidden">
+                      <div
+                        className={`h-full rounded-full transition-all ${
+                          isPrimary ? 'bg-emerald-500' : 'bg-zinc-500'
+                        }`}
+                        style={{
+                          width: `${Math.min(100, Math.round((cohort.avgMessages / 10) * 100))}%`,
+                        }}
+                      />
+                    </div>
                   </div>
+
+                  {/* Conversion Rate */}
                   <div>
-                    <p className="text-sm font-bold text-[#1d1d1f] dark:text-[#f5f5f7]">{pct(cohort.conversionRate)}</p>
-                    <p className="text-[10px] text-[#86868b]">Conversion</p>
+                    <div className="flex items-center justify-between text-[10px] text-[#86868b] mb-1">
+                      <span>Conversion</span>
+                      <span className="font-mono font-bold text-[#1d1d1f] dark:text-[#f5f5f7]">
+                        {pct(cohort.conversionRate)}
+                      </span>
+                    </div>
+                    <div className="w-full h-1.5 rounded-full bg-zinc-200/80 dark:bg-zinc-800 overflow-hidden">
+                      <div
+                        className={`h-full rounded-full transition-all ${
+                          isPrimary ? 'bg-indigo-500' : 'bg-zinc-500'
+                        }`}
+                        style={{ width: `${cohort.conversionRate ? Math.round(cohort.conversionRate * 100) : 0}%` }}
+                      />
+                    </div>
                   </div>
                 </div>
-                <p className="text-[10px] font-semibold text-[#86868b] uppercase tracking-wider mb-1">
-                  Requirement state (n={cohort.requirementStateBreakdown.sampleSize})
-                </p>
-                <div className="text-[11px] text-[#1d1d1f] dark:text-[#f5f5f7] space-y-1">
-                  <p>Hard ceiling: {cohort.requirementStateBreakdown.hardCeilingCount} · Soft: {cohort.requirementStateBreakdown.softCeilingCount}</p>
-                  {cohort.requirementStateBreakdown.topAmenities.length > 0 && (
-                    <p className="truncate">
-                      Top amenities: {cohort.requirementStateBreakdown.topAmenities.map((a) => a.amenity).join(', ')}
+
+                {/* Qualification & Constraint Telemetry */}
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-[10px] font-bold text-[#86868b] uppercase tracking-wider">
+                      Buyer Intent &amp; Constraints
+                    </span>
+                    <span className="text-[10px] font-mono text-[#86868b]">
+                      Profiled: {cohort.requirementStateBreakdown.sampleSize}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-2 flex-wrap mb-2.5">
+                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-white dark:bg-black/30 border border-[#e5e5ea] dark:border-[#38383a] text-[#1d1d1f] dark:text-[#f5f5f7]">
+                      <span className="w-2 h-2 rounded-full bg-amber-500" />
+                      <span>{cohort.requirementStateBreakdown.hardCeilingCount} Hard Ceilings</span>
+                    </span>
+                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-white dark:bg-black/30 border border-[#e5e5ea] dark:border-[#38383a] text-[#86868b]">
+                      <span className="w-2 h-2 rounded-full bg-zinc-400" />
+                      <span>{cohort.requirementStateBreakdown.softCeilingCount} Soft Preferences</span>
+                    </span>
+                  </div>
+
+                  {/* Top Amenities Chips */}
+                  {cohort.requirementStateBreakdown.topAmenities.length > 0 ? (
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <span className="text-[10px] text-[#86868b] mr-1">Demanded:</span>
+                      {cohort.requirementStateBreakdown.topAmenities.map((a) => (
+                        <span
+                          key={a.amenity}
+                          className="px-2 py-0.5 rounded-md text-[10px] font-medium bg-zinc-200/60 dark:bg-zinc-800 text-[#1d1d1f] dark:text-[#f5f5f7] border border-zinc-300/40 dark:border-zinc-700/60"
+                        >
+                          {a.amenity}
+                        </span>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-[10px] text-[#86868b] italic">
+                      No explicit amenity requirements registered in this cohort sample.
                     </p>
                   )}
                 </div>
@@ -745,65 +1002,188 @@ export default function ReferralsAdminPage() {
         )}
       </AnimatePresence>
 
-      {/* By Link / By Admin Tabs */}
-      <div className="flex items-center p-1 rounded-xl bg-[#f5f5f7] dark:bg-[#242426] border border-[#e5e5ea] dark:border-[#38383a] w-fit">
-        <button
-          type="button"
-          onClick={() => setMainTab('byLink')}
-          className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all active:scale-95 cursor-pointer ${
-            mainTab === 'byLink'
-              ? 'bg-white dark:bg-[#1c1c1e] text-[#1d1d1f] dark:text-[#f5f5f7]'
-              : 'text-[#86868b] hover:text-[#1d1d1f] dark:hover:text-[#f5f5f7]'
-          }`}
-        >
-          By Link
-        </button>
-        <button
-          type="button"
-          onClick={() => setMainTab('byAdmin')}
-          className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all active:scale-95 cursor-pointer ${
-            mainTab === 'byAdmin'
-              ? 'bg-white dark:bg-[#1c1c1e] text-[#1d1d1f] dark:text-[#f5f5f7]'
-              : 'text-[#86868b] hover:text-[#1d1d1f] dark:hover:text-[#f5f5f7]'
-          }`}
-        >
-          By Admin
-        </button>
+      {/* Unified Apple Control Shelf */}
+      <div className="flex flex-col gap-3">
+        {/* Row 1: Segmented Switch + Scope Controls */}
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+          {/* Main Segmented Mode Switch */}
+          <div className="flex items-center p-1 rounded-xl bg-[#f5f5f7] dark:bg-[#242426] border border-[#e5e5ea] dark:border-[#38383a] w-fit">
+            <button
+              type="button"
+              onClick={() => setMainTab('byLink')}
+              className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all active:scale-95 cursor-pointer ${
+                mainTab === 'byLink'
+                  ? 'bg-white dark:bg-[#1c1c1e] text-[#1d1d1f] dark:text-[#f5f5f7] shadow-xs'
+                  : 'text-[#86868b] hover:text-[#1d1d1f] dark:hover:text-[#f5f5f7]'
+              }`}
+            >
+              By Link Directory
+            </button>
+            <button
+              type="button"
+              onClick={() => setMainTab('byAdmin')}
+              className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all active:scale-95 cursor-pointer ${
+                mainTab === 'byAdmin'
+                  ? 'bg-white dark:bg-[#1c1c1e] text-[#1d1d1f] dark:text-[#f5f5f7] shadow-xs'
+                  : 'text-[#86868b] hover:text-[#1d1d1f] dark:hover:text-[#f5f5f7]'
+              }`}
+            >
+              By Admin Leaderboard
+            </button>
+          </div>
+
+          {mainTab === 'byLink' && (
+            <div className="flex items-center gap-2">
+              {/* Scope Segmented Control */}
+              <div className="flex items-center p-1 rounded-xl bg-[#f5f5f7] dark:bg-[#242426] border border-[#e5e5ea] dark:border-[#38383a]">
+                <button
+                  onClick={() => setScope('all')}
+                  className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all active:scale-95 cursor-pointer ${
+                    scope === 'all'
+                      ? 'bg-white dark:bg-[#1c1c1e] text-[#1d1d1f] dark:text-[#f5f5f7] shadow-xs'
+                      : 'text-[#86868b] hover:text-[#1d1d1f] dark:hover:text-[#f5f5f7]'
+                  }`}
+                >
+                  All Links
+                </button>
+                <button
+                  onClick={() => setScope('mine')}
+                  className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all active:scale-95 cursor-pointer ${
+                    scope === 'mine'
+                      ? 'bg-white dark:bg-[#1c1c1e] text-[#1d1d1f] dark:text-[#f5f5f7] shadow-xs'
+                      : 'text-[#86868b] hover:text-[#1d1d1f] dark:hover:text-[#f5f5f7]'
+                  }`}
+                >
+                  Created by Me
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Row 2: Search Input + Status Filter Pills (when in byLink view) */}
+        {mainTab === 'byLink' && (
+          <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
+            {/* Search input with keyboard indicator */}
+            <div className="relative flex-1 max-w-md">
+              <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#86868b]" />
+              <input
+                ref={searchInputRef}
+                type="text"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Search campaigns by label, code, or creator (⌘F)..."
+                className="w-full h-10 pl-10 pr-12 rounded-xl text-xs font-medium text-[#1d1d1f] dark:text-[#f5f5f7] bg-white dark:bg-[#1c1c1e] border border-[#e5e5ea] dark:border-[#2c2c2e] focus:border-[#0066cc] focus:ring-4 focus:ring-[#0066cc]/10 transition-all outline-none placeholder:text-[#86868b]/70 shadow-2xs"
+              />
+              {query ? (
+                <button
+                  onClick={() => setQuery('')}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#86868b] hover:text-[#1d1d1f] dark:hover:text-[#f5f5f7] p-0.5 rounded active:scale-95 cursor-pointer"
+                >
+                  <X size={14} />
+                </button>
+              ) : (
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-mono text-[#86868b] border border-[#e5e5ea] dark:border-[#38383a] rounded px-1.5 py-0.5 pointer-events-none">
+                  ⌘F
+                </span>
+              )}
+            </div>
+
+            {/* Filter Status Pills */}
+            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
+              {(
+                [
+                  { id: 'all', label: 'All' },
+                  { id: 'active', label: 'Active' },
+                  { id: 'with_devices', label: 'With Visits' },
+                  { id: 'activated', label: 'Activated' },
+                  { id: 'revoked', label: 'Revoked' },
+                ] as const
+              ).map((tag) => (
+                <button
+                  key={tag.id}
+                  onClick={() => setFilterTag(tag.id)}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all active:scale-95 cursor-pointer ${
+                    filterTag === tag.id
+                      ? 'bg-[#0066cc] text-white shadow-2xs'
+                      : 'bg-white dark:bg-[#1c1c1e] text-[#86868b] hover:text-[#1d1d1f] dark:hover:text-[#f5f5f7] border border-[#e5e5ea] dark:border-[#2c2c2e]'
+                  }`}
+                >
+                  {tag.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       {mainTab === 'byAdmin' ? (
-        <div className="bg-white dark:bg-[#1c1c1e] rounded-2xl border border-[#e5e5ea] dark:border-[#2c2c2e] overflow-hidden">
+        <div className="bg-white dark:bg-[#1c1c1e] rounded-2xl border border-[#e5e5ea] dark:border-[#2c2c2e] overflow-hidden shadow-xs">
           <div className="flex items-center px-6 py-3.5 bg-[#f5f5f7]/80 dark:bg-[#242426]/60 border-b border-[#e5e5ea] dark:border-[#2c2c2e] text-[11px] font-semibold text-[#86868b] uppercase tracking-wider">
+            <span className="w-12 text-center">Rank</span>
             <span className="flex-1">Admin</span>
             <span className="w-24 text-right">Links</span>
-            <span className="w-28 text-right">Reach</span>
+            <span className="w-28 text-right">Viral Reach</span>
             <span className="w-28 text-right">K-Factor</span>
             <span className="w-32 text-right">Best Channel</span>
-            <span className="w-40 text-right">Top Link</span>
+            <span className="w-44 text-right">Top Performing Link</span>
           </div>
           <div className="divide-y divide-[#e5e5ea] dark:divide-[#2c2c2e]">
             {growthMetricsLoading ? (
-              <div className="py-16 text-center text-xs text-[#86868b]">Loading admin leaderboard…</div>
+              <div className="py-20 flex flex-col items-center justify-center text-center">
+                <div className="w-8 h-8 border-2 border-[#0066cc] border-t-transparent rounded-full animate-spin mb-3" />
+                <p className="text-xs font-medium text-[#86868b]">Loading admin leaderboard…</p>
+              </div>
             ) : !growthMetrics || growthMetrics.byAdmin.length === 0 ? (
               <div className="py-16 text-center text-xs text-[#86868b]">No admin has created a link yet.</div>
             ) : (
               growthMetrics.byAdmin
                 .slice()
                 .sort((a, b) => b.totalDevicesReached - a.totalDevicesReached)
-                .map((a) => (
-                  <div key={a.adminId} className="flex items-center px-6 py-3.5 text-xs">
-                    <span className="flex-1 font-semibold text-[#1d1d1f] dark:text-[#f5f5f7] truncate">{a.email}</span>
-                    <span className="w-24 text-right font-mono">{a.linksCreated}</span>
-                    <span className="w-28 text-right font-mono">{a.totalDevicesReached}</span>
-                    <span className="w-28 text-right font-mono">{a.blendedKFactor === null ? '—' : a.blendedKFactor.toFixed(2)}</span>
-                    <span className="w-32 text-right font-mono text-[#86868b]">{a.bestChannel ?? '—'}</span>
-                    <span className="w-40 text-right truncate">
+                .map((a, idx) => (
+                  <div key={a.adminId} className="flex items-center px-6 py-4 hover:bg-[#f5f5f7]/50 dark:hover:bg-[#242426]/40 transition-colors text-xs">
+                    <span className="w-12 text-center font-bold text-xs">
+                      {idx === 0 ? (
+                        <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 font-mono text-[11px]">
+                          🥇
+                        </span>
+                      ) : idx === 1 ? (
+                        <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-zinc-200 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 font-mono text-[11px]">
+                          🥈
+                        </span>
+                      ) : idx === 2 ? (
+                        <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-amber-700/10 text-amber-700 dark:text-amber-500 font-mono text-[11px]">
+                          🥉
+                        </span>
+                      ) : (
+                        <span className="font-mono text-[#86868b]">#{idx + 1}</span>
+                      )}
+                    </span>
+                    <div className="flex-1 flex items-center gap-2 min-w-0 pr-4">
+                      <div className="w-7 h-7 rounded-lg bg-[#0066cc]/10 text-[#0066cc] dark:text-[#2997ff] text-xs font-black flex items-center justify-center shrink-0">
+                        {getInitials(a.email)}
+                      </div>
+                      <span className="font-semibold text-[#1d1d1f] dark:text-[#f5f5f7] truncate">{a.email}</span>
+                    </div>
+                    <span className="w-24 text-right font-mono font-semibold text-[#1d1d1f] dark:text-[#f5f5f7]">{a.linksCreated}</span>
+                    <span className="w-28 text-right font-mono font-bold text-[#0066cc] dark:text-[#2997ff]">
+                      {a.totalDevicesReached} dev
+                    </span>
+                    <span className="w-28 text-right font-mono font-bold text-[#1d1d1f] dark:text-[#f5f5f7]">
+                      {a.blendedKFactor === null ? '—' : a.blendedKFactor.toFixed(2)}
+                    </span>
+                    <span className="w-32 text-right font-mono text-[#86868b] capitalize">{a.bestChannel ?? '—'}</span>
+                    <span className="w-44 text-right truncate">
                       {a.topLink ? (
-                        <Link href={`/admin/referrals/${a.topLink.code}`} className="text-[#0066cc] dark:text-[#2997ff] hover:underline">
-                          {a.topLink.label || a.topLink.code}
+                        <Link
+                          href={`/admin/referrals/${a.topLink.code}`}
+                          className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#0066cc] dark:text-[#2997ff] hover:underline"
+                        >
+                          <span className="truncate max-w-[130px]">{a.topLink.label || a.topLink.code}</span>
+                          <span className="font-mono text-[10px] text-[#86868b]">({a.topLink.devicesReached} dev)</span>
                         </Link>
                       ) : (
-                        '—'
+                        <span className="text-[#86868b]">—</span>
                       )}
                     </span>
                   </div>
@@ -813,81 +1193,6 @@ export default function ReferralsAdminPage() {
         </div>
       ) : (
         <>
-      {/* Filter and Search Bar */}
-      <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
-        {/* Search input */}
-        <div className="relative flex-1 max-w-md">
-          <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#86868b]" />
-          <input
-            ref={searchInputRef}
-            type="text"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search campaigns by label, code, or creator (⌘F)..."
-            className="w-full h-10 pl-10 pr-9 rounded-xl text-xs font-medium text-[#1d1d1f] dark:text-[#f5f5f7] bg-white dark:bg-[#1c1c1e] border border-[#e5e5ea] dark:border-[#2c2c2e] focus:border-[#0066cc] focus:ring-4 focus:ring-[#0066cc]/10 transition-all outline-none placeholder:text-[#86868b]/70"
-          />
-          {query && (
-            <button
-              onClick={() => setQuery('')}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-[#86868b] hover:text-[#1d1d1f] dark:hover:text-[#f5f5f7] p-0.5 rounded active:scale-95 cursor-pointer"
-            >
-              <X size={14} />
-            </button>
-          )}
-        </div>
-
-        {/* Scope and Filter Pills */}
-        <div className="flex items-center gap-2 flex-wrap">
-          {/* Scope Segmented Control */}
-          <div className="flex items-center p-1 rounded-xl bg-[#f5f5f7] dark:bg-[#242426] border border-[#e5e5ea] dark:border-[#38383a]">
-            <button
-              onClick={() => setScope('all')}
-              className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all active:scale-95 cursor-pointer ${
-                scope === 'all'
-                  ? 'bg-white dark:bg-[#1c1c1e] text-[#1d1d1f] dark:text-[#f5f5f7]'
-                  : 'text-[#86868b] hover:text-[#1d1d1f] dark:hover:text-[#f5f5f7]'
-              }`}
-            >
-              All Links
-            </button>
-            <button
-              onClick={() => setScope('mine')}
-              className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all active:scale-95 cursor-pointer ${
-                scope === 'mine'
-                  ? 'bg-white dark:bg-[#1c1c1e] text-[#1d1d1f] dark:text-[#f5f5f7]'
-                  : 'text-[#86868b] hover:text-[#1d1d1f] dark:hover:text-[#f5f5f7]'
-              }`}
-            >
-              Created by Me
-            </button>
-          </div>
-
-          {/* Filter Status Pills */}
-          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
-            {(
-              [
-                { id: 'all', label: 'All' },
-                { id: 'active', label: 'Active' },
-                { id: 'with_devices', label: 'With Visits' },
-                { id: 'activated', label: 'Activated' },
-                { id: 'revoked', label: 'Revoked' },
-              ] as const
-            ).map((tag) => (
-              <button
-                key={tag.id}
-                onClick={() => setFilterTag(tag.id)}
-                className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all active:scale-95 cursor-pointer ${
-                  filterTag === tag.id
-                    ? 'bg-[#0066cc] text-white'
-                    : 'bg-[#f5f5f7] dark:bg-[#242426] text-[#86868b] hover:text-[#1d1d1f] dark:hover:text-[#f5f5f7] border border-[#e5e5ea] dark:border-[#38383a]'
-                }`}
-              >
-                {tag.label}
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
 
       {/* Main Table Container */}
       <div className="bg-white dark:bg-[#1c1c1e] rounded-2xl border border-[#e5e5ea] dark:border-[#2c2c2e] overflow-hidden">
@@ -1082,44 +1387,66 @@ export default function ReferralsAdminPage() {
 
                   {/* Reach (Devices) */}
                   <div className="w-28 hidden sm:flex items-center justify-end pr-4">
-                    <span className="text-xs font-mono font-bold text-[#1d1d1f] dark:text-[#f5f5f7] tabular-nums flex items-center gap-1.5">
-                      <Smartphone size={13} className="text-[#86868b]" />
-                      {link.devicesReached}
-                      <span className="text-[10px] font-sans font-normal text-[#86868b]">dev</span>
-                    </span>
+                    <div className="flex flex-col items-end">
+                      <span className="text-xs font-mono font-bold text-[#1d1d1f] dark:text-[#f5f5f7] tabular-nums flex items-center gap-1.5">
+                        <Smartphone size={13} className="text-[#86868b]" />
+                        {link.devicesReached}
+                        <span className="text-[10px] font-sans font-normal text-[#86868b]">dev</span>
+                      </span>
+                      {link.devicesReached > 0 && (
+                        <div className="w-12 h-1 rounded-full bg-zinc-100 dark:bg-zinc-800 mt-1 overflow-hidden">
+                          <div
+                            className="h-full bg-[#0066cc] dark:bg-[#2997ff] rounded-full"
+                            style={{
+                              width: `${Math.min(100, Math.max(15, (link.devicesReached / Math.max(1, metrics.totalDevices)) * 100))}%`,
+                            }}
+                          />
+                        </div>
+                      )}
+                    </div>
                   </div>
 
                   {/* Deepest Gen */}
                   <div className="w-28 hidden md:flex items-center justify-end pr-4">
                     <span
-                      className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-mono font-bold border ${
+                      className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold border transition-all ${
                         link.deepestGeneration > 1
-                          ? 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/20'
+                          ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border-emerald-300/80 dark:border-emerald-800/80'
                           : link.deepestGeneration === 1
-                          ? 'bg-blue-500/10 text-[#0066cc] dark:text-[#2997ff] border-[#0066cc]/20'
+                          ? 'bg-blue-50 dark:bg-blue-950/40 text-[#0066cc] dark:text-[#2997ff] border-blue-200/80 dark:border-blue-800/80'
                           : 'bg-[#f5f5f7] dark:bg-[#242426] text-[#86868b] border-[#e5e5ea] dark:border-[#38383a]'
                       }`}
                     >
-                      {link.deepestGeneration > 1 && <Sparkles size={11} className="text-emerald-500" />}
-                      Gen {link.deepestGeneration}
+                      {link.deepestGeneration > 1 ? (
+                        <>
+                          <Sparkles size={11} className="text-emerald-500" />
+                          <span>Gen {link.deepestGeneration}</span>
+                        </>
+                      ) : link.deepestGeneration === 1 ? (
+                        <span>Gen 1 Direct</span>
+                      ) : (
+                        <span>Gen 0</span>
+                      )}
                     </span>
                   </div>
 
                   {/* Activated */}
                   <div className="w-28 hidden sm:flex items-center justify-end pr-4">
-                    <span
-                      className={`text-xs font-mono font-bold tabular-nums flex items-center gap-1 ${
-                        link.activatedCount > 0
-                          ? 'text-emerald-600 dark:text-emerald-400'
-                          : 'text-[#86868b]'
-                      }`}
-                    >
-                      {link.activatedCount > 0 && <Zap size={12} className="text-emerald-500 fill-emerald-500" />}
-                      {link.activatedCount}
-                      <span className="text-[10px] font-sans font-normal text-[#86868b]">
-                        ({link.devicesReached > 0 ? Math.round((link.activatedCount / link.devicesReached) * 100) : 0}%)
+                    <div className="flex flex-col items-end">
+                      <span
+                        className={`text-xs font-mono font-bold tabular-nums flex items-center gap-1 ${
+                          link.activatedCount > 0
+                            ? 'text-emerald-600 dark:text-emerald-400'
+                            : 'text-[#86868b]'
+                        }`}
+                      >
+                        {link.activatedCount > 0 && <Zap size={12} className="text-emerald-500 fill-emerald-500" />}
+                        {link.activatedCount}
+                        <span className="text-[10px] font-sans font-normal text-[#86868b]">
+                          ({link.devicesReached > 0 ? Math.round((link.activatedCount / link.devicesReached) * 100) : 0}%)
+                        </span>
                       </span>
-                    </span>
+                    </div>
                   </div>
 
                   {/* Last Activity */}

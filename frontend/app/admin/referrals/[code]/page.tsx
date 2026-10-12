@@ -384,57 +384,152 @@ export default function ReferralTreePage() {
         )}
       </div>
 
-      {/* Trend + K-factor drill-down */}
+      {/* Trend + K-Factor Generational Cascade */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <div className="bg-white dark:bg-[#1c1c1e] rounded-2xl border border-[#e5e5ea] dark:border-[#2c2c2e] p-6">
-          <h2 className="text-sm font-bold text-[#1d1d1f] dark:text-[#f5f5f7] mb-3">Arrival Trend</h2>
+        {/* Arrival Trend Card */}
+        <div className="bg-white dark:bg-[#1c1c1e] rounded-2xl border border-[#e5e5ea] dark:border-[#2c2c2e] p-6 shadow-xs">
+          <div className="flex items-center justify-between mb-3">
+            <div>
+              <h2 className="text-sm font-bold text-[#1d1d1f] dark:text-[#f5f5f7]">Arrival Trend</h2>
+              <p className="text-[11px] text-[#86868b]">Arrival volume partitioned by date and granularity.</p>
+            </div>
+          </div>
           <TrendChart buckets={trendBuckets} granularity={granularity} onGranularityChange={setGranularity} loading={trendLoading} />
         </div>
 
-        <div className="bg-white dark:bg-[#1c1c1e] rounded-2xl border border-[#e5e5ea] dark:border-[#2c2c2e] p-6">
-          <button
-            type="button"
-            onClick={() => setShowKFactorDetail((v) => !v)}
-            className="w-full flex items-center justify-between cursor-pointer active:scale-[0.99]"
-          >
-            <h2 className="text-sm font-bold text-[#1d1d1f] dark:text-[#f5f5f7]">K-Factor by Generation</h2>
-            <ChevronRight size={14} className={`text-[#86868b] transition-transform ${showKFactorDetail ? 'rotate-90' : ''}`} />
-          </button>
-          {showKFactorDetail && (
-            <div className="mt-3 space-y-1.5">
-              {perGenerationKFactor.length === 0 ? (
-                <p className="text-xs text-[#86868b] italic">No activated visitors yet.</p>
-              ) : (
-                perGenerationKFactor.map((row) => (
-                  <div key={row.generation} className="flex items-center justify-between text-xs py-1.5 border-b border-[#e5e5ea]/60 dark:border-[#2c2c2e]/60 last:border-0">
-                    <span className="font-mono text-[#86868b]">Gen {row.generation} → {row.generation + 1}</span>
-                    <span className="font-mono font-bold text-[#1d1d1f] dark:text-[#f5f5f7]">
-                      {row.activatedCount} activated · {row.k === null ? '—' : row.k.toFixed(2)}
-                    </span>
-                  </div>
-                ))
-              )}
+        {/* Open Visual K-Factor by Generation Card */}
+        <div className="bg-white dark:bg-[#1c1c1e] rounded-2xl border border-[#e5e5ea] dark:border-[#2c2c2e] p-6 shadow-xs flex flex-col justify-between">
+          <div>
+            <div className="flex items-center justify-between pb-3 mb-4 border-b border-[#e5e5ea]/80 dark:border-[#2c2c2e]/80">
+              <div className="flex items-center gap-2">
+                <div className="w-6 h-6 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+                  <GitBranch size={13} />
+                </div>
+                <div>
+                  <h2 className="text-sm font-bold text-[#1d1d1f] dark:text-[#f5f5f7]">K-Factor by Generation</h2>
+                  <p className="text-[11px] text-[#86868b]">Viral transmission multiplier between successive waves.</p>
+                </div>
+              </div>
+              <span className="text-[10px] font-mono text-[#86868b] bg-[#f5f5f7] dark:bg-[#242426] px-2.5 py-0.5 rounded-full border border-[#e5e5ea] dark:border-[#38383a]">
+                Viral Cascade
+              </span>
             </div>
-          )}
+
+            {perGenerationKFactor.length === 0 ? (
+              <div className="py-12 flex flex-col items-center justify-center text-center px-4">
+                <div className="w-10 h-10 rounded-xl bg-[#f5f5f7] dark:bg-[#242426] flex items-center justify-center text-[#86868b] mb-2.5">
+                  <GitBranch size={18} />
+                </div>
+                <p className="text-xs font-semibold text-[#1d1d1f] dark:text-[#f5f5f7]">
+                  No activated cascades yet
+                </p>
+                <p className="text-[11px] text-[#86868b] mt-1 max-w-xs">
+                  When Gen 1 visitors activate and distribute their own referral links to friends, generational multipliers (k &ge; 1.0) appear here.
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {perGenerationKFactor.map((row) => {
+                  const isViral = (row.k ?? 0) >= 1
+                  return (
+                    <div
+                      key={row.generation}
+                      className="p-3.5 rounded-xl bg-[#f5f5f7]/60 dark:bg-[#242426]/50 border border-[#e5e5ea] dark:border-[#38383a] space-y-2"
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <span className="font-mono text-xs font-bold text-[#1d1d1f] dark:text-[#f5f5f7]">
+                            Gen {row.generation} → Gen {row.generation + 1}
+                          </span>
+                          <span className="text-[10px] text-[#86868b] font-mono">
+                            ({row.activatedCount} activated)
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                          <span
+                            className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
+                              isViral
+                                ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border-emerald-300/80 dark:border-emerald-800/80'
+                                : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 border-zinc-200 dark:border-zinc-700'
+                            }`}
+                          >
+                            {isViral ? 'Exponential Amplification' : 'Linear Transmission'}
+                          </span>
+                          <span className="font-mono font-black text-xs text-[#1d1d1f] dark:text-[#f5f5f7]">
+                            k = {row.k === null ? '—' : row.k.toFixed(2)}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Multiplier retention bar */}
+                      <div className="w-full h-1.5 rounded-full bg-zinc-200/80 dark:bg-zinc-800 overflow-hidden">
+                        <div
+                          className={`h-full rounded-full transition-all ${
+                            isViral ? 'bg-emerald-500' : 'bg-[#0066cc]'
+                          }`}
+                          style={{
+                            width: `${row.k ? Math.min(100, Math.round(row.k * 50)) : 0}%`,
+                          }}
+                        />
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+          </div>
+
+          <div className="pt-3 mt-4 border-t border-[#e5e5ea]/80 dark:border-[#2c2c2e]/80 text-[10px] text-[#86868b] flex items-center justify-between">
+            <span>Formula: next wave activations / current wave</span>
+            <span className="font-mono">Threshold: k &ge; 1.0</span>
+          </div>
         </div>
       </div>
 
-      {/* Channel / device breakdown */}
-      <div className="bg-white dark:bg-[#1c1c1e] rounded-2xl border border-[#e5e5ea] dark:border-[#2c2c2e] p-6">
-        <h2 className="text-sm font-bold text-[#1d1d1f] dark:text-[#f5f5f7] mb-3">Channel Breakdown</h2>
+      {/* Channel / Device Breakdown */}
+      <div className="bg-white dark:bg-[#1c1c1e] rounded-2xl border border-[#e5e5ea] dark:border-[#2c2c2e] p-6 shadow-xs">
+        <div className="flex items-center justify-between pb-3 mb-4 border-b border-[#e5e5ea]/80 dark:border-[#2c2c2e]/80">
+          <div className="flex items-center gap-2">
+            <div className="w-6 h-6 rounded-lg bg-blue-50 dark:bg-blue-950/40 text-[#0066cc] dark:text-[#2997ff] flex items-center justify-center">
+              <Share2 size={13} />
+            </div>
+            <div>
+              <h2 className="text-sm font-bold text-[#1d1d1f] dark:text-[#f5f5f7]">Channel Attribution Breakdown</h2>
+              <p className="text-[11px] text-[#86868b]">Traffic source vectors mapped against conversational activation rates.</p>
+            </div>
+          </div>
+          <span className="text-[10px] font-mono text-[#86868b] bg-[#f5f5f7] dark:bg-[#242426] px-2.5 py-0.5 rounded-full border border-[#e5e5ea] dark:border-[#38383a]">
+            {channelBreakdown.reduce((sum, c) => sum + c.total, 0)} total sessions
+          </span>
+        </div>
+
         {channelBreakdown.length === 0 ? (
-          <p className="text-xs text-[#86868b] italic">No visits yet.</p>
+          <div className="py-8 text-center text-xs text-[#86868b] italic">
+            No channel visits recorded yet for this link.
+          </div>
         ) : (
-          <div className="space-y-2">
+          <div className="space-y-3">
             {channelBreakdown.map((row) => (
-              <div key={row.channel} className="flex items-center gap-3 text-xs">
-                <span className="w-20 font-mono text-[#86868b] shrink-0">{row.channel}</span>
-                <div className="flex-1 h-2 rounded-full bg-[#f5f5f7] dark:bg-[#242426] overflow-hidden">
-                  <div className="h-full bg-[#0066cc]" style={{ width: `${Math.round(row.rate * 100)}%` }} />
+              <div
+                key={row.channel}
+                className="p-3 rounded-xl bg-[#f5f5f7]/50 dark:bg-[#242426]/40 border border-[#e5e5ea] dark:border-[#38383a] flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs"
+              >
+                <div className="flex items-center gap-2.5 min-w-[140px]">
+                  <span className="w-2 h-2 rounded-full bg-[#0066cc]" />
+                  <span className="font-semibold text-[#1d1d1f] dark:text-[#f5f5f7] capitalize">{row.channel}</span>
                 </div>
-                <span className="font-mono text-[#1d1d1f] dark:text-[#f5f5f7] w-28 text-right shrink-0">
-                  {row.activated}/{row.total} ({Math.round(row.rate * 100)}%)
-                </span>
+
+                <div className="flex-1 flex items-center gap-3">
+                  <div className="flex-1 h-2 rounded-full bg-zinc-200/80 dark:bg-zinc-800 overflow-hidden">
+                    <div
+                      className="h-full bg-[#0066cc] dark:bg-[#2997ff] rounded-full transition-all"
+                      style={{ width: `${Math.round(row.rate * 100)}%` }}
+                    />
+                  </div>
+                  <span className="font-mono text-[11px] font-bold text-[#1d1d1f] dark:text-[#f5f5f7] shrink-0 w-28 text-right">
+                    {row.activated}/{row.total} ({Math.round(row.rate * 100)}%)
+                  </span>
+                </div>
               </div>
             ))}
           </div>

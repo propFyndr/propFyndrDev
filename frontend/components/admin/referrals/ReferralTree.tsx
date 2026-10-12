@@ -1,8 +1,7 @@
-// Real nested referral tree — each node renders under its actual
-// parent_guest_token, not a flat generation band. Collapsed to Generation 1
-// by default; clicking a node expands its children.
+// Real nested referral tree with visual branch guides, telemetry cards,
+// and hierarchical generational navigation.
 import { useMemo, useState } from 'react'
-import { ChevronRight, ChevronDown, Smartphone, Monitor, Tablet, MessageSquare, Clock } from 'lucide-react'
+import { ChevronRight, ChevronDown, Smartphone, Monitor, Tablet, MessageSquare, Clock, ArrowUpRight } from 'lucide-react'
 import FunnelBadge, { type FunnelStage } from './FunnelBadge'
 
 export interface ReferralTreeNode {
@@ -40,8 +39,6 @@ function buildIndex(nodes: ReferralTreeNode[]): TreeIndex {
     if (!byParent.has(key)) byParent.set(key, [])
     byParent.get(key)!.push(n)
   }
-  // Roots: generation-1 nodes (direct recipients) regardless of parent field
-  // shape, matching the root link itself rather than another visit row.
   const roots = nodes.filter((n) => n.generation === 1)
   return { byParent, roots }
 }
@@ -65,10 +62,18 @@ function TreeRow({
   const isExpanded = expanded.has(node.guestToken)
 
   return (
-    <div data-testid="tree-node" data-generation={node.generation} className="select-none">
+    <div data-testid="tree-node" data-generation={node.generation} className="select-none relative">
+      {/* Branch connector visual guideline for nested nodes */}
+      {depth > 0 && (
+        <div 
+          className="absolute left-0 top-0 bottom-0 w-px border-l border-zinc-200 dark:border-zinc-800 pointer-events-none"
+          style={{ left: `${(depth - 1) * 24 + 18}px` }}
+        />
+      )}
+
       <div
-        className="flex items-center gap-2 py-2 px-2 rounded-xl hover:bg-zinc-50 dark:hover:bg-zinc-800/50 cursor-pointer group"
-        style={{ paddingLeft: `${depth * 20 + 8}px` }}
+        className="flex items-center gap-2.5 py-1.5 px-2 my-1 rounded-2xl hover:bg-zinc-50 dark:hover:bg-zinc-800/40 border border-transparent hover:border-zinc-200/60 dark:hover:border-zinc-800/60 transition-all cursor-pointer group"
+        style={{ paddingLeft: `${depth * 24 + 8}px` }}
       >
         {children.length > 0 ? (
           <button
@@ -78,35 +83,56 @@ function TreeRow({
               e.stopPropagation()
               toggle(node.guestToken)
             }}
-            className="p-0.5 rounded text-zinc-400 hover:text-zinc-900 dark:hover:text-white active:scale-95 cursor-pointer shrink-0"
+            className="w-6 h-6 rounded-lg bg-zinc-100 dark:bg-zinc-800/80 hover:bg-zinc-200 dark:hover:bg-zinc-700 flex items-center justify-center text-zinc-500 hover:text-zinc-900 dark:hover:text-white transition-all active:scale-95 cursor-pointer shrink-0 shadow-2xs"
           >
-            {isExpanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+            {isExpanded ? <ChevronDown size={13} strokeWidth={2.5} /> : <ChevronRight size={13} strokeWidth={2.5} />}
           </button>
         ) : (
-          <span className="w-[18px] shrink-0" />
+          <span className="w-6 flex items-center justify-center shrink-0">
+            <span className="w-1.5 h-1.5 rounded-full bg-zinc-300 dark:bg-zinc-700" />
+          </span>
         )}
 
-        <button type="button" onClick={() => onSelect(node.guestToken)} className="flex items-center gap-2 flex-1 min-w-0 text-left active:scale-[0.99] cursor-pointer">
-          <span className="text-zinc-400 dark:text-zinc-500 shrink-0">
+        <button
+          type="button"
+          onClick={() => onSelect(node.guestToken)}
+          className="flex items-center gap-3 flex-1 min-w-0 text-left p-2 rounded-xl bg-white/70 dark:bg-zinc-900/60 border border-zinc-200/70 dark:border-zinc-800 shadow-2xs hover:shadow-xs hover:border-[#0066cc]/40 dark:hover:border-[#0066cc]/40 transition-all active:scale-[0.99] cursor-pointer"
+        >
+          {/* Device Squircle */}
+          <div className="w-7 h-7 rounded-lg bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-zinc-500 dark:text-zinc-400 group-hover:text-[#0066cc] dark:group-hover:text-[#2997ff] transition-colors shrink-0">
             <DeviceIcon deviceClass={node.deviceClass} />
-          </span>
-          <span className="text-xs font-semibold text-zinc-900 dark:text-zinc-100 truncate">
-            {node.label || `${node.deviceClass} · Gen ${node.generation}`}
-          </span>
-          <FunnelBadge stage={node.funnelStage} />
-          {node.visitCount > 1 && (
-            <span className="text-[10px] font-mono text-zinc-400" title="Re-entered the arrive flow">
-              ×{node.visitCount}
+          </div>
+
+          {/* Node Identity */}
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-xs font-bold text-zinc-900 dark:text-zinc-100 group-hover:text-[#0066cc] dark:group-hover:text-[#2997ff] transition-colors truncate">
+                {node.label || `${node.deviceClass} · Gen ${node.generation}`}
+              </span>
+              <FunnelBadge stage={node.funnelStage} />
+              {node.visitCount > 1 && (
+                <span className="text-[10px] font-mono font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/40 px-1.5 py-0.2 rounded" title="Re-entered the arrival flow">
+                  ×{node.visitCount} visits
+                </span>
+              )}
+            </div>
+            <p className="text-[10px] text-zinc-400 dark:text-zinc-500 font-mono mt-0.5 truncate">
+              {node.os} • {node.appGuess !== 'unknown' ? node.appGuess : node.shareChannel || 'direct'}
+            </p>
+          </div>
+
+          {/* Telemetry metadata */}
+          <div className="flex items-center gap-3 shrink-0 text-zinc-400 dark:text-zinc-500 text-[11px]">
+            <span className="flex items-center gap-1 font-mono tabular-nums">
+              <MessageSquare size={11} className="text-zinc-400" />
+              <strong className="text-zinc-700 dark:text-zinc-300 font-semibold">{node.messageCount}</strong>
             </span>
-          )}
-          <span className="ml-auto flex items-center gap-1 text-[10px] text-zinc-400 shrink-0">
-            <MessageSquare size={10} />
-            {node.messageCount}
-          </span>
-          <span className="flex items-center gap-1 text-[10px] text-zinc-400 shrink-0">
-            <Clock size={10} />
-            {new Date(node.lastSeenAt).toLocaleDateString()}
-          </span>
+            <span className="flex items-center gap-1 font-mono text-[10.5px]">
+              <Clock size={11} className="text-zinc-400" />
+              {new Date(node.lastSeenAt).toLocaleDateString()}
+            </span>
+            <ArrowUpRight size={13} className="text-zinc-300 dark:text-zinc-600 group-hover:text-[#0066cc] transition-colors" />
+          </div>
         </button>
       </div>
 
@@ -142,7 +168,7 @@ export default function ReferralTree({
   }
 
   return (
-    <div data-testid="referral-tree">
+    <div data-testid="referral-tree" className="space-y-1">
       {index.roots.map((root) => (
         <TreeRow key={root.guestToken} node={root} index={index} depth={0} expanded={expanded} toggle={toggle} onSelect={onSelectNode} />
       ))}
