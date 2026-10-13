@@ -282,7 +282,7 @@ It takes a few minutes to review your developer desk and get started.
 ---
 RealtyAsk · Developer Partnerships
 Building a more direct connection between India's homebuyers and the developers behind the projects they are considering.
-partnerships@propfyndr.in · ${senderPhone}
+partnerships@realtyask.in · ${senderPhone}
 This invitation was prepared specifically for the ${devName} team regarding: ${projectsInline}.`
     }
 
@@ -821,7 +821,7 @@ ${senderPhone}`
     <div class="footer-section">
       <div class="signature-title">RealtyAsk · Developer Partnerships</div>
       <div style="margin: 2px 0 10px 0;">Building a more direct connection between India's homebuyers and the developers behind the projects they are considering.</div>
-      <div>partnerships@propfyndr.in · Direct: ${senderPhone}</div>
+      <div>partnerships@realtyask.in · Direct: ${senderPhone}</div>
       <div style="margin-top: 8px; font-size: 10.5px; opacity: 0.8;">
         This invitation was prepared specifically for the ${recipientLabel} team regarding: ${allProjects.join(', ')}.
       </div>
@@ -1688,7 +1688,7 @@ ${senderPhone}`
                                   >
                                     {senderName}{' '}
                                     <span className="font-normal text-zinc-400 text-[11px]">
-                                      &lt;partnerships@propfyndr.in&gt;
+                                      &lt;partnerships@realtyask.in&gt;
                                     </span>
                                   </div>
                                   <div className="text-[10px] text-zinc-400">
@@ -1792,7 +1792,7 @@ ${senderPhone}`
                                       isDarkPreview ? 'text-zinc-100' : 'text-zinc-900'
                                     }`}
                                   >
-                                    {senderName} &lt;partnerships@propfyndr.in&gt;
+                                    {senderName} &lt;partnerships@realtyask.in&gt;
                                   </div>
                                   <div className="text-zinc-400 text-[10px]">
                                     To: {recipientName} &lt;{recipientEmail}&gt;

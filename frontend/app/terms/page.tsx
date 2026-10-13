@@ -105,7 +105,7 @@ export default function TermsOfService() {
               <strong>TRAI / National DND Registry Waiver:</strong> You expressly agree that this request constitutes an unsolicited commercial communications exemption under the Telecom Commercial Communications Customer Preference Regulations, 2018 (TRAI TCCR). This consent explicitly overrides any existing registration on the National Do Not Call (NDNC / DND) Registry or Telecom Service Provider preference registers for a period of 12 months or until explicit written consent revocation.
             </li>
             <li>
-              <strong>Consent Revocation:</strong> You may withdraw your communication consent at any time by emailing <a href="mailto:privacy@propfyndr.in" className="text-blue-600 dark:text-blue-400 hover:underline font-semibold">privacy@propfyndr.in</a> with your registered phone number.
+              <strong>Consent Revocation:</strong> You may withdraw your communication consent at any time by emailing <a href="mailto:privacy@realtyask.in" className="text-blue-600 dark:text-blue-400 hover:underline font-semibold">privacy@realtyask.in</a> with your registered phone number.
             </li>
           </ul>
         </div>
@@ -176,7 +176,7 @@ export default function TermsOfService() {
               <strong>Right to Nominate:</strong> Nominate an individual to manage or exercise your data rights in the event of death or incapacity.
             </li>
             <li>
-              <strong>Consent Withdrawal:</strong> Revoke consent at any time by contacting our Grievance Redressal Cell at <a href="mailto:grievance@propfyndr.in" className="text-blue-600 dark:text-blue-400 hover:underline font-semibold">grievance@propfyndr.in</a>.
+              <strong>Consent Withdrawal:</strong> Revoke consent at any time by contacting our Grievance Redressal Cell at <a href="mailto:grievance@realtyask.in" className="text-blue-600 dark:text-blue-400 hover:underline font-semibold">grievance@realtyask.in</a>.
             </li>
           </ul>
         </div>
@@ -349,8 +349,8 @@ export default function TermsOfService() {
             </div>
             <div>
               <span className="font-semibold text-slate-900 dark:text-white block mb-1">Resolution SLA &amp; Contact:</span>
-              <p>Official Email: <a href="mailto:grievance@propfyndr.in" className="text-blue-600 dark:text-blue-400 hover:underline font-semibold">grievance@propfyndr.in</a></p>
-              <p>General Legal: <a href="mailto:legal@propfyndr.in" className="text-blue-600 dark:text-blue-400 hover:underline font-semibold">legal@propfyndr.in</a></p>
+              <p>Official Email: <a href="mailto:grievance@realtyask.in" className="text-blue-600 dark:text-blue-400 hover:underline font-semibold">grievance@realtyask.in</a></p>
+              <p>General Legal: <a href="mailto:legal@realtyask.in" className="text-blue-600 dark:text-blue-400 hover:underline font-semibold">legal@realtyask.in</a></p>
               <p className="mt-1 text-[11px] text-emerald-600 dark:text-emerald-400 font-medium">
                 ✓ Acknowledgment within 48 hours · Redressal within 15 days
               </p>

@@ -275,7 +275,7 @@ async function getWikiSummary(title: string): Promise<string | null> {
   const encoded = encodeURIComponent(title.replace(/\s+/g, '_'))
   try {
     const res = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encoded}`, {
-      headers: { 'User-Agent': 'RealtyAsk/1.0 (contact@propfyndr.in)' },
+      headers: { 'User-Agent': 'RealtyAsk/1.0 (contact@realtyask.in)' },
       signal: AbortSignal.timeout(4000),
     })
     if (!res.ok) return null

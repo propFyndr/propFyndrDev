@@ -403,8 +403,8 @@ export default function PrivacyPolicy() {
             </div>
             <div>
               <span className="font-semibold text-slate-900 dark:text-white block mb-1">Official Channels &amp; Turnaround SLA:</span>
-              <p>Email: <a href="mailto:privacy@propfyndr.in" className="text-blue-600 dark:text-blue-400 hover:underline font-semibold">privacy@propfyndr.in</a></p>
-              <p>Grievance Escalations: <a href="mailto:grievance@propfyndr.in" className="text-blue-600 dark:text-blue-400 hover:underline font-semibold">grievance@propfyndr.in</a></p>
+              <p>Email: <a href="mailto:privacy@realtyask.in" className="text-blue-600 dark:text-blue-400 hover:underline font-semibold">privacy@realtyask.in</a></p>
+              <p>Grievance Escalations: <a href="mailto:grievance@realtyask.in" className="text-blue-600 dark:text-blue-400 hover:underline font-semibold">grievance@realtyask.in</a></p>
               <p className="mt-1 text-[11px] text-emerald-600 dark:text-emerald-400 font-medium">
                 ✓ Acknowledgment within 48 hours · Resolution within statutory DPDP timelines
               </p>
