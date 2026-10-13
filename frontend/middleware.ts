@@ -36,31 +36,18 @@ export async function middleware(request: NextRequest) {
   const rawHost = request.headers.get('host') || ''
   const host = rawHost.split(':')[0].trim().toLowerCase()
 
-  // App subdomain routing: app.propfyndr.in directly serves the discovery / chat app
-  if (host === 'app.propfyndr.in') {
-    if (pathname === '/') {
-      const url = request.nextUrl.clone()
-      url.pathname = '/discover'
-      return NextResponse.rewrite(url, { request: { headers: requestHeaders } })
-    }
-  }
-
-  // Apex domain routing: the buyer discovery/chat app lives on app.propfyndr.in,
-  // so an old bookmark or shared link to one of its routes on the marketing
-  // domain still ends up there. Deliberately NOT a blanket "redirect everything
-  // except a few pages" — /admin, /builder, /partner, /auth are separate apps,
-  // and /property, /dossier, /s are public share links meant to stay stable on
-  // the apex domain without an extra hop. Only the bounded set of real
-  // buyer-chat routes redirects.
-  const APP_SUBDOMAIN_ROUTES = ['/discover', '/saved']
-  if (
-    (host === 'propfyndr.in' || host === 'www.propfyndr.in') &&
-    APP_SUBDOMAIN_ROUTES.some(r => pathname === r || pathname.startsWith(`${r}/`))
-  ) {
+  // App subdomain routing: app.realtyask.in directly serves the discovery / chat app.
+  //
+  // realtyask.in/discover and /saved move to the app host in the browser
+  // (components/AppHostRedirect), not here: the guest identity lives in
+  // localStorage, which a server redirect cannot see, so the page first
+  // mirrors it into a `.realtyask.in` cookie and only then hops
+  // (lib/sharedIdentity.ts). /property, /dossier and /s share links stay on
+  // the apex. propfyndr.in hosts are 308'd to realtyask.in by Vercel.
+  if (host === 'app.realtyask.in' && pathname === '/') {
     const url = request.nextUrl.clone()
-    url.host = 'app.propfyndr.in'
-    url.protocol = 'https:'
-    return NextResponse.redirect(url)
+    url.pathname = '/discover'
+    return NextResponse.rewrite(url, { request: { headers: requestHeaders } })
   }
 
   /**

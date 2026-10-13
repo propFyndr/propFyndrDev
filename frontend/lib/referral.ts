@@ -4,13 +4,16 @@
 // device shares onward (dossier, shortlist, the share button). See
 // docs/superpowers/specs/2026-10-11-referral-tracking-design.md.
 import { API_BASE } from './env'
+import { readSharedCookie, writeSharedCookie } from './sharedIdentity'
 
 export const REFERRAL_CODE_STORAGE_KEY = 'propfyndr_referral_code'
+/** Mirror on `.realtyask.in`: the same device keeps one code on both hosts. */
+export const REFERRAL_CODE_COOKIE = 'ra_referral_code'
 
 export function getStoredReferralCode(): string | null {
   if (typeof window === 'undefined') return null
   try {
-    return localStorage.getItem(REFERRAL_CODE_STORAGE_KEY)
+    return localStorage.getItem(REFERRAL_CODE_STORAGE_KEY) || readSharedCookie(REFERRAL_CODE_COOKIE)
   } catch {
     return null
   }
@@ -20,6 +23,7 @@ export function storeReferralCode(code: string): void {
   if (typeof window === 'undefined') return
   try {
     localStorage.setItem(REFERRAL_CODE_STORAGE_KEY, code)
+    writeSharedCookie(REFERRAL_CODE_COOKIE, code)
   } catch {
     // non-fatal: the device just won't carry a code into its own shares this session
   }

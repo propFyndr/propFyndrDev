@@ -1,4 +1,5 @@
 import type { createBrowserClient } from '@supabase/ssr'
+import { sharedDomainFor, migrateAuthCookiesToSharedDomain } from './sharedIdentity'
 
 type SupabaseBrowserClient = ReturnType<typeof createBrowserClient>
 
@@ -30,7 +31,13 @@ export function getSupabaseClient(): Promise<SupabaseBrowserClient> {
           }
         } as unknown as SupabaseBrowserClient
       }
-      return createBrowserClient(url, key)
+      // On realtyask.in hosts the session cookie is shared with the app
+      // subdomain, so a login on realtyask.in is still a login on
+      // app.realtyask.in. Older host-only cookies are moved across first.
+      const domain = sharedDomainFor(window.location.hostname)
+      if (!domain) return createBrowserClient(url, key)
+      migrateAuthCookiesToSharedDomain()
+      return createBrowserClient(url, key, { cookieOptions: { domain, path: '/', sameSite: 'lax', secure: true } })
     })
   }
   return clientPromise
