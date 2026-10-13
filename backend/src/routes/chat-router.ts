@@ -16,6 +16,7 @@ import { readLastProjectIds, readLastProjectCards } from '../lib/discovery/lastP
 import type { Intent, ScoredProject } from '../lib/discovery'
 import { postProcessIntent } from '../lib/discovery/intentPostProcessor'
 import { sectorAmbiguityNote } from '../lib/discovery/sectorToCity'
+import { renderAppreciationScenarios, horizonsFrom } from '../lib/ai/scenarioTable'
 import { computeConfidence, buildClarificationOptions } from '../lib/discovery/confidence'
 import { getMultiDimensionalRecommendations } from '../lib/discovery/multiDimensionalIntegration'
 import { planProjectDetailQuery, isActionable, getClarificationMessage } from '../lib/discovery/queryPlanner'
@@ -5926,6 +5927,31 @@ EXECUTIVE RESPONSE INSTRUCTIONS:
         }
       } catch (e) {
         console.warn('[CHAT:APPRECIATION] skipped:', e instanceof Error ? e.message : e)
+      }
+    }
+
+    /**
+     * "What could it be worth in 10 years?" — a ladder of hypothetical rates on
+     * the buyer's own amount, with the statutory break-even. Arithmetic, never a
+     * forecast (see lib/ai/scenarioTable.ts); it sits under the recorded table
+     * above when there is one, and stands alone when there is not.
+     */
+    if (message && asksAppreciation(message) && (!renderedTable || renderedTableKind === 'yield')) {
+      const focused = projects.length === 1 && typeof projects[0].price_min_cr === 'number' && projects[0].price_min_cr > 0
+        ? projects[0]
+        : null
+      const budgetCr = typeof intent.budgetMax === 'number' && intent.budgetMax > 0 && intent.budgetMax < 100 ? intent.budgetMax : null
+      const scenarios = renderAppreciationScenarios(
+        budgetCr
+          ? { amountCr: budgetCr, source: 'budget', years: horizonsFrom(message) }
+          : focused
+            ? { amountCr: focused.price_min_cr as number, source: 'project', projectName: focused.name, years: horizonsFrom(message) }
+            : { amountCr: 1, source: 'unit', years: horizonsFrom(message) },
+      )
+      if (scenarios) {
+        renderedTable = renderedTable ? `${renderedTable}\n\n${scenarios}` : scenarios
+        renderedTableKind = 'yield'
+        console.log(`[CHAT:SCENARIOS] basis=${budgetCr ? 'budget' : focused ? 'project' : 'unit'}`)
       }
     }
 
