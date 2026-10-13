@@ -29,6 +29,19 @@ describe('ReferralTracker', () => {
     expect(container.firstChild).toBeNull()
   })
 
+  it('passes the share channel from ?c= to arrive()', async () => {
+    const { arrive } = require('../../lib/referral')
+    window.history.pushState({}, '', '/?r=OLDCODE1&c=wa')
+    render(<ReferralTracker />)
+    await waitFor(() => expect(arrive).toHaveBeenCalledWith('OLDCODE1', 'wa'))
+  })
+
+  it('sends no channel when the link has none', async () => {
+    const { arrive } = require('../../lib/referral')
+    render(<ReferralTracker />)
+    await waitFor(() => expect(arrive).toHaveBeenCalledWith('OLDCODE1', undefined))
+  })
+
   it('skips arrive() entirely when ?preview=1 is present', async () => {
     const { arrive } = require('../../lib/referral')
     window.history.pushState({}, '', '/discover?r=OLDCODE1&preview=1')

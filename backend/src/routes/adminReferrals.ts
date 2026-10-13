@@ -6,6 +6,7 @@
 // automatically — this router never re-checks role itself, the same
 // convention as adminBoards.ts.
 import { Router, Request, Response } from 'express'
+import { Prisma } from '@prisma/client'
 import { prisma } from '../lib/db'
 import type { AdminIdentitySession } from '../lib/adminIdentity'
 import { generateReferralCode } from '../lib/referralCode'
@@ -15,10 +16,14 @@ import {
   detectBroadcastWindows,
   summariseDeviceEngagement,
   bucketArrivals,
+  ACTIVATION_MIN_MESSAGES,
   type TrendGranularity,
 } from '../lib/referralGrowthMetrics'
 
 export const adminReferralsRouter = Router()
+
+/** Sessions per cohort read for the requirement-state breakdown (budget, sector, BHK mix). */
+const REQUIREMENT_SAMPLE_SESSIONS = 2000
 
 function identity(req: Request): AdminIdentitySession {
   return (req as Request & { adminIdentity: AdminIdentitySession }).adminIdentity
@@ -510,36 +515,54 @@ adminReferralsRouter.get('/metrics', async (_req: Request, res: Response) => {
     // chats and no referred arrival. A codeless landing also writes a
     // generation-0 visit row, so "has no visit row" would leave out almost
     // every organic visitor — generation is the test.
-    const referredGuestTokens = new Set(allVisits.filter((v) => v.generation >= 1).map((v) => v.guest_token))
+    // Referred is the population `allVisits` holds (generation >= 1 under a
+    // ROOT link); organic is every other guest with human chats — i.e. nearly
+    // every guest who ever chatted. Loading that cohort into Node took 427s on
+    // the live DB and dropped the connection, so the per-person rates are
+    // computed in Postgres with the same rules as summariseDeviceEngagement.
+    const referredTokens = Prisma.sql`
+      SELECT guest_token FROM referral_visits
+      WHERE generation >= 1 AND root_code IN (SELECT code FROM referral_links WHERE kind = 'ROOT')`
+    const inCohort = (referred: boolean) =>
+      referred ? Prisma.sql`guest_token IN (${referredTokens})` : Prisma.sql`guest_token NOT IN (${referredTokens})`
 
-    const referredSessions: { id: string; guest_token: string | null; message_count: number }[] = []
-    for (const batch of chunk(Array.from(referredGuestTokens))) {
-      referredSessions.push(
-        ...(await prisma.chatSession.findMany({
-          where: { is_bot: false, guest_token: { in: batch } },
-          select: { id: true, guest_token: true, message_count: true },
-        })),
-      )
-    }
-    const organicCandidateSessions = await prisma.chatSession.findMany({
-      where: { is_bot: false, guest_token: { not: null } },
-      select: { id: true, guest_token: true, message_count: true },
-    })
-    const organicSessions = organicCandidateSessions.filter((s) => s.guest_token && !referredGuestTokens.has(s.guest_token))
-
-    const cohortStats = async (sessions: { id: string; guest_token: string | null; message_count: number }[]) => {
+    const cohortStats = async (referred: boolean) => {
       // Rates are per person: one device with five chats counts once.
-      const people = Array.from(new Set(sessions.map((s) => s.guest_token).filter((g): g is string => Boolean(g))))
-      const breakdown = await computeActivationBreakdown(people)
-      const activatedCount = people.filter((g) => breakdown.activated.has(g)).length
-      const convertedCount = people.filter(
-        (g) => breakdown.hasCallback.has(g) || breakdown.hasDossier.has(g) || breakdown.hasSiteVisit.has(g),
-      ).length
-      const avgMessages =
-        people.length > 0 ? people.reduce((sum, g) => sum + (breakdown.messageCountByGuest.get(g) ?? 0), 0) / people.length : 0
+      const [rates] = await prisma.$queryRaw<{ people: number; activated: number; converted: number; avg_messages: number }[]>`
+        WITH people AS (
+          SELECT guest_token,
+                 SUM(message_count)::int AS messages,
+                 MAX(last_active) - MIN(created_at) >= interval '24 hours' AS returned
+          FROM chat_sessions
+          WHERE is_bot = false AND guest_token IS NOT NULL AND ${inCohort(referred)}
+          GROUP BY guest_token
+        ), converted AS (
+          SELECT guest_token FROM callback_requests WHERE guest_token IS NOT NULL
+          UNION SELECT guest_token FROM dossiers WHERE guest_token IS NOT NULL
+          UNION SELECT guest_token FROM site_visit_requests WHERE guest_token IS NOT NULL
+        )
+        SELECT COUNT(*)::int AS people,
+               COUNT(*) FILTER (WHERE p.messages >= ${ACTIVATION_MIN_MESSAGES} OR p.returned OR c.guest_token IS NOT NULL)::int AS activated,
+               COUNT(c.guest_token)::int AS converted,
+               COALESCE(AVG(p.messages), 0)::float8 AS avg_messages
+        FROM people p LEFT JOIN converted c ON c.guest_token = p.guest_token`
+      const peopleCount = rates?.people ?? 0
+      const activatedCount = rates?.activated ?? 0
+      const convertedCount = rates?.converted ?? 0
+      const avgMessages = rates?.avg_messages ?? 0
+
+      // Requirement mix from the cohort's most recent sessions only; the
+      // breakdown's own sampleSize says how many memories it rests on.
+      const recentSessionIds = (
+        await prisma.$queryRaw<{ id: string }[]>`
+          SELECT id FROM chat_sessions
+          WHERE is_bot = false AND guest_token IS NOT NULL AND ${inCohort(referred)}
+          ORDER BY last_active DESC
+          LIMIT ${REQUIREMENT_SAMPLE_SESSIONS}`
+      ).map((r) => r.id)
 
       const memories: { requirement_state: unknown }[] = []
-      for (const batch of chunk(sessions.map((s) => s.id))) {
+      for (const batch of chunk(recentSessionIds)) {
         memories.push(
           ...(await prisma.sessionMemory.findMany({
             where: { session_id: { in: batch }, requirement_state: { not: null as any } },
@@ -583,10 +606,10 @@ adminReferralsRouter.get('/metrics', async (_req: Request, res: Response) => {
         .map(([amenity, count]) => ({ amenity, count }))
 
       return {
-        sampleSize: people.length,
-        activationRate: people.length > 0 ? activatedCount / people.length : null,
+        sampleSize: peopleCount,
+        activationRate: peopleCount > 0 ? activatedCount / peopleCount : null,
         avgMessages,
-        conversionRate: people.length > 0 ? convertedCount / people.length : null,
+        conversionRate: peopleCount > 0 ? convertedCount / peopleCount : null,
         requirementStateBreakdown: {
           sampleSize: memories.length,
           budgetBands,
@@ -600,7 +623,7 @@ adminReferralsRouter.get('/metrics', async (_req: Request, res: Response) => {
       }
     }
 
-    const [referredStats, organicStats] = await Promise.all([cohortStats(referredSessions), cohortStats(organicSessions)])
+    const [referredStats, organicStats] = await Promise.all([cohortStats(true), cohortStats(false)])
 
     res.json({
       growthSummary: {

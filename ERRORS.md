@@ -48,3 +48,13 @@
 **What didn't work:** concluding "dependencies not installed" from a garbled `ls node_modules/.bin | grep -c` (the rtk hook rewrites output) and running `npm ci` at the repo root. `npm ci` deletes `node_modules` first; it then failed with EPERM on `@next/swc` held open by the running `next dev`, leaving a half-deleted tree under four live dev servers. The backend dev server died.
 **What worked:** `npm install` (adds what is missing, deletes nothing), then `git checkout -- package-lock.json` because install rewrote it, then `prisma generate` (engine DLL still locked while `next dev` runs).
 **Note for next time:** check for running node processes (`Get-CimInstance Win32_Process -Filter "Name='node.exe'"`) and test for a specific package path (`test -e node_modules/typescript`) before any install. Never `npm ci` in a workspace someone is running.
+
+## 2026-10-13 — Running a live, chat-driven test suite outside the test runner
+**What didn't work:** (1) dynamic `import()` in a node:test file — it bypasses the `tsx/cjs` hook (ERR_MODULE_NOT_FOUND); (2) `NODE_ENV=development` — logger wants `pino-pretty`, which is not a dependency; (3) `NODE_ENV=staging` — env schema only allows development/production/test; (4) `NODE_ENV=test` — chat-router marks every session `is_bot`, so the referral tree drops every chatting device. Also: the live Supabase pooler (`connection_limit=3`) dropped mid-run twice, failing every later test and skipping cleanup.
+**What worked:** `require()` inside `before()`, `NODE_ENV=production FRONTEND_URL=https://realtyask.in`, `node --env-file=<main checkout>/backend/.env`, a `SELECT 1` wait in `beforeEach`/`before`/`after`, and a unique run prefix on every row so leftovers can be deleted by prefix.
+**Note for next time:** live suites need a DB-wait before each step and a prefix-scoped cleanup you can run by hand. Print the prefix first thing.
+
+## 2026-10-13 — `npm ci` in `frontend/` pruned the backend's hoisted deps
+**What didn't work:** `npm ci` inside `frontend/` of a workspace checkout reinstalled the shared root `node_modules` for the frontend only: `express` vanished (backend typecheck/tests failed with TS2307) and the generated Prisma client was replaced.
+**What worked:** `npm install` in `backend/` (adds, deletes nothing), `npx prisma generate` in `backend/`, then `git checkout -- package-lock.json` because install rewrote it.
+**Note for next time:** after installing either app in a workspace checkout, re-check the other (`test -e node_modules/express`) and regenerate the backend Prisma client.

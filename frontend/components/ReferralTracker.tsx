@@ -17,9 +17,11 @@ export default function ReferralTracker(): null {
     const params = new URLSearchParams(window.location.search)
     if (params.get('preview') === '1') return // admin previewing their own link — never arrive()
     const code = params.get('r')
+    // ReferralShareButton tags every shared link with ?c=<channel> (wa, sms, …).
+    const channel = params.get('c') ?? undefined
 
     let cancelled = false
-    arrive(code).then((result) => {
+    arrive(code, channel).then((result) => {
       if (cancelled || !result) return
       storeReferralCode(result.ownCode)
 
