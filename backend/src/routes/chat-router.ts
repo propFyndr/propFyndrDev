@@ -15,6 +15,7 @@ import { IntentSchema, getIntentState, discoverProjects, getSectorContext, getAl
 import { readLastProjectIds, readLastProjectCards } from '../lib/discovery/lastProjects'
 import type { Intent, ScoredProject } from '../lib/discovery'
 import { postProcessIntent } from '../lib/discovery/intentPostProcessor'
+import { sectorAmbiguityNote } from '../lib/discovery/sectorToCity'
 import { computeConfidence, buildClarificationOptions } from '../lib/discovery/confidence'
 import { getMultiDimensionalRecommendations } from '../lib/discovery/multiDimensionalIntegration'
 import { planProjectDetailQuery, isActionable, getClarificationMessage } from '../lib/discovery/queryPlanner'
@@ -829,6 +830,7 @@ router.post('/', async (req: Request, res: Response) => {
   let intentState: ReturnType<typeof getIntentState> = 'COLD'
   let intentDegraded = false
   let projects: Awaited<ReturnType<typeof discoverProjects>>['exactResults'] = []
+  let sectorNote: string | null = null
   let nearbyProjects: Awaited<ReturnType<typeof discoverProjects>>['nearbyResults'] = []
   let projectDisambiguation: Awaited<ReturnType<typeof discoverProjects>>['disambiguation'] | undefined
   let sectorDisambiguation: { query: string; candidates: string[] } | undefined
@@ -5297,6 +5299,9 @@ EXECUTIVE RESPONSE INSTRUCTIONS:
       })))
       projects = discoveryResult.exactResults
       nearbyProjects = discoveryResult.nearbyResults
+      // "Sector 1" alone is a real place in both Noida and Greater Noida West;
+      // when every result is in one of them, say which, and that the other exists.
+      sectorNote = sectorAmbiguityNote(message, projects.map((p) => p.city))
       discoveryExpansion = discoveryResult.expansion
       notFoundNames = discoveryResult.notFoundNames
 
@@ -6167,6 +6172,10 @@ EXECUTIVE RESPONSE INSTRUCTIONS:
       console.log(`[CHAT:MODEL_ROUTE] category=${classification.category} route=${modelRoute}`)
     }
 
+    if (sectorNote) {
+      send('token', { token: `${sectorNote}\n\n` })
+    }
+
     if (renderedTable) {
       send('token', { token: `${renderedTable}\n\n` })
       fullText += `${renderedTable}\n\n`
@@ -6205,7 +6214,7 @@ EXECUTIVE RESPONSE INSTRUCTIONS:
       suppressTables: Boolean(renderedTable) || cardsAreRendering,
       })
       timer.mark('llm')
-      fullText = fallbackResult.text
+      fullText = sectorNote ? `${sectorNote}\n\n${fallbackResult.text}` : fallbackResult.text
       usedProvider = { provider: fallbackResult.provider, envKey: fallbackResult.envKey }
       Object.assign(turnTrace, {
         lane: 'main',

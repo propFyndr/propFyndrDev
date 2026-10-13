@@ -6,7 +6,8 @@ import { SECTORS_OVERVIEW_MAX, SECTOR_ADJACENCY } from './constants'
 
 export async function getSectorContext(rawSector: string, city?: string): Promise<SectorContext | null> {
   const cleanSector = rawSector.replace(/,\s*(greater noida west|greater noida|noida extension|noida|up|uttar pradesh)$/i, '').replace(/^[,\s]+|[,\s]+$/g, '').trim()
-  const loc = getSectorLocation(cleanSector)
+  // Resolve on the text as given: its city suffix settles shared numbers ("Sector 1, Noida").
+  const loc = getSectorLocation(rawSector, city)
   const targetCity = loc ? loc.city : (city || undefined)
 
   const where: any = { sector: { equals: cleanSector, mode: 'insensitive' } }
