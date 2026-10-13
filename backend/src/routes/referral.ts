@@ -75,7 +75,17 @@ referralRouter.post('/arrive', async (req: Request, res: Response) => {
     // together. The claim is a conditional update, so of several devices
     // opening a fresh ROOT link at once exactly one gets count 1; the others
     // block on the row lock, find the seat taken, and attach under the holder.
-    const { linkRow, attribution } = await prisma.$transaction(async (tx) => {
+    const outcome = await prisma.$transaction(async (tx) => {
+      // Same device arriving twice at once (two tabs, a double-fired effect):
+      // queue the second behind the first on a per-device lock, then let it
+      // find the visit the first one wrote. Without this the second insert
+      // raised a unique violation that Prisma logs as an error even though it
+      // is handled below.
+      await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${guestToken}))`
+      if (await tx.referralVisit.findUnique({ where: { guest_token: guestToken }, select: { guest_token: true } })) {
+        return null
+      }
+
       let linkRow = code ? await tx.referralLink.findUnique({ where: { code } }) : null
 
       if (linkRow?.kind === 'ROOT' && !linkRow.revoked_at && !linkRow.holder_guest_token && !priorChat) {
@@ -158,15 +168,24 @@ referralRouter.post('/arrive', async (req: Request, res: Response) => {
       return { linkRow: link, attribution }
     })
 
+    if (!outcome) {
+      const existingNow = await existingArrival(guestToken, false)
+      if (existingNow) {
+        res.json(existingNow)
+        return
+      }
+      throw new Error('visit vanished between lock and read')
+    }
+    const { linkRow, attribution } = outcome
+
     const greeting = linkRow?.kind === 'ROOT' && !linkRow.revoked_at && linkRow.greeting_name && !attribution.prior_user
       ? { name: linkRow.greeting_name }
       : null
 
     res.json({ ownCode, greeting })
   } catch (err: any) {
-    // The same device arriving twice at once (two tabs, a double-fired effect):
-    // the second insert hits the unique guest_token. That is not a failure —
-    // answer with the code the first request created.
+    // Backstop for the per-device lock above: if a unique violation still
+    // slips through, the visit exists — answer with its code, not a 500.
     if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2002') {
       const existing = await existingArrival(guestToken, false).catch(() => null)
       if (existing) {
