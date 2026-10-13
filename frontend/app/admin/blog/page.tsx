@@ -1155,7 +1155,7 @@ function BlogModal({
 
               {/* Slug line */}
               <div className="flex items-center gap-2 text-xs py-1 px-3 bg-zinc-50 dark:bg-zinc-800/50 rounded-xl border border-zinc-100 dark:border-zinc-800">
-                <span className="text-zinc-400 font-mono shrink-0">propfyndr.com/blog/</span>
+                <span className="text-zinc-400 font-mono shrink-0">realtyask.in/blog/</span>
                 <input
                   type="text"
                   value={formData.slug}

@@ -26,7 +26,7 @@ function identityOf(req: Request): AdminIdentitySession {
  * Public, and it has to be: it renders on the sign-in screen, before anyone has
  * a session. That is exactly why the response is three fields. `portal_subdomain`
  * has existed on both models since subdomain routing shipped and nothing has
- * ever read it, so `lotus.propfyndr.in` showed a builder a page branded
+ * ever read it, so `lotus.realtyask.in` showed a builder a page branded
  * "RealtyAsk Admin" — a white-label that white-labels nothing.
  *
  * Branding only. It answers "whose door is this", never "what may they see":

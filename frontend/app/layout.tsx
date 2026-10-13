@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { SITE_URL } from '@/lib/site'
 import "./globals.css";
 
 import { Outfit, Playfair_Display, Afacad, Inter } from "next/font/google";
@@ -45,8 +46,7 @@ const afacad = Afacad({
 });
 
 export const metadata: Metadata = {
-  // TODO: confirm production domain — no NEXT_PUBLIC_SITE_URL/similar env var found in this codebase; using propfyndr.com as a placeholder (matches storage.propfyndr.com already referenced in next.config.js).
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://propfyndr.com'),
+  metadataBase: new URL(SITE_URL),
   title: {
     default: "RealtyAsk — AI Property Advisor for Noida",
     template: "%s | RealtyAsk",

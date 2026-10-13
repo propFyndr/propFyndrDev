@@ -3,7 +3,7 @@
 /**
  * Where a tenant subdomain lands.
  *
- * `lotus.propfyndr.in/` is rewritten here by middleware. This page does one
+ * `lotus.realtyask.in/` is rewritten here by middleware. This page does one
  * thing: ask the server who is signed in, and send them to their own console.
  * It deliberately does NOT read the subdomain to decide what to show — the
  * session decides. The subdomain is a door, not a key.
@@ -31,7 +31,7 @@ export default function PortalEntryPage() {
    * Branding for the subdomain that landed here.
    *
    * `portal_subdomain` had existed on Builder and ChannelPartner since
-   * subdomain routing shipped and nothing read it, so `lotus.propfyndr.in`
+   * subdomain routing shipped and nothing read it, so `lotus.realtyask.in`
    * showed a builder a page branded RealtyAsk — a white-label that
    * white-labelled nothing.
    *

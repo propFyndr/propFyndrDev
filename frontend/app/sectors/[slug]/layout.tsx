@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { SITE_URL } from '@/lib/site'
 import { fetchSector } from './data'
 
 type Params = { slug: string }
@@ -44,8 +45,8 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
     ' Independent ground due diligence — water source, air quality, flood risk and builder record — on RealtyAsk.'
   const description = rawDesc.length > 160 ? rawDesc.slice(0, 157) + '...' : rawDesc
 
-  const canonicalUrl = `https://propfyndr.in/sectors/${slug}`
-  const ogImages = [{ url: 'https://propfyndr.in/og-default.jpg', width: 1200, height: 630, alt: `${s.sector}, ${s.city}` }]
+  const canonicalUrl = `${SITE_URL}/sectors/${slug}`
+  const ogImages = [{ url: `${SITE_URL}/og-default.jpg`, width: 1200, height: 630, alt: `${s.sector}, ${s.city}` }]
 
   return {
     title,

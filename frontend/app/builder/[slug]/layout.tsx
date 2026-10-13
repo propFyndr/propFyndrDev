@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { SITE_URL } from '@/lib/site'
 import { API_BASE } from '@/lib/env'
 
 type Params = { slug: string }
@@ -30,7 +31,7 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
   const credaiClause = b.credai_member ? ' CREDAI Member.' : ''
   const description = `${b.name} profile on RealtyAsk.${deliveredClause}${credaiClause} Track record, delivery timelines, and project reviews across Noida, Greater Noida, and Yamuna Expressway.`
 
-  const canonicalUrl = `https://propfyndr.in/builder/${slug}`
+  const canonicalUrl = `${SITE_URL}/builder/${slug}`
 
   return {
     title,

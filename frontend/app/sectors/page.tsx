@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { SITE_URL } from '@/lib/site'
 import Link from 'next/link'
 import { API_BASE } from '@/lib/env'
 
@@ -8,7 +9,7 @@ export const metadata: Metadata = {
   title: 'Noida & Greater Noida Micro-Markets — Sector Guides | RealtyAsk',
   description:
     'Sector-by-sector ground reality across Noida, Greater Noida and the Yamuna Expressway: prices, water source, air quality, flood risk and who each micro-market actually suits.',
-  alternates: { canonical: 'https://propfyndr.in/sectors' },
+  alternates: { canonical: `${SITE_URL}/sectors` },
 }
 
 interface SectorRow {

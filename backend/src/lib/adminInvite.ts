@@ -20,14 +20,18 @@ import { enqueueAndSend } from './outboxDispatcher'
  * `FRONTEND_URL` is a comma-separated list (CORS reads it the same way in
  * index.ts) that carries the Vercel preview URL alongside the real domain.
  * Found live: taking the first entry handed back an invite link on
- * *-vercel.app instead of propfyndr.in. Prefer whichever entry is the real
- * domain; fall back to the first entry only if none match.
+ * *-vercel.app instead of the real domain. Prefer whichever entry is the real
+ * domain — realtyask.in, then the retired propfyndr.in, which Vercel 308s to
+ * it — and fall back to the first entry only if none match. Invite links go to
+ * /admin, which lives on the apex, never on the app.* buyer host.
  */
+export const CANONICAL_ORIGIN = 'https://realtyask.in'
+
 export function preferredInviteOrigin(frontendUrlEnv: string | undefined): string {
   const sanitize = (url: string) =>
     url
       .trim()
-      .replace(/^https?:\/\/app\.propfyndr\.in/i, 'https://propfyndr.in')
+      .replace(/^https?:\/\/app\.(realtyask|propfyndr)\.in/i, 'https://$1.in')
       .replace(/\/+$/, '')
 
   const origins = (frontendUrlEnv || '')
@@ -36,15 +40,15 @@ export function preferredInviteOrigin(frontendUrlEnv: string | undefined): strin
     .filter(Boolean)
     .map(sanitize)
 
-  const propfyndr = origins.find((o) => o.includes('propfyndr.in'))
-  if (propfyndr) return sanitize(propfyndr)
+  const real = origins.find((o) => o.includes('realtyask.in')) ?? origins.find((o) => o.includes('propfyndr.in'))
+  if (real) return real.includes('propfyndr.in') ? CANONICAL_ORIGIN : real
 
   if (process.env.NODE_ENV === 'production') {
     const nonLocal = origins.find((o) => !o.includes('localhost') && !o.includes('127.0.0.1'))
-    return nonLocal ? sanitize(nonLocal) : 'https://propfyndr.in'
+    return nonLocal ?? CANONICAL_ORIGIN
   }
 
-  return origins[0] ? sanitize(origins[0]) : 'https://propfyndr.in'
+  return origins[0] ?? CANONICAL_ORIGIN
 }
 
 /**

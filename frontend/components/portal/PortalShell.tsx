@@ -1277,7 +1277,7 @@ export default function PortalShell({ nav, rootHref, rootLabel, allowRoles, scop
                       {displayName}
                     </p>
                     <p className="text-[11px] text-zinc-400 truncate">
-                      {userEmail || 'admin@propfyndr.in'}
+                      {userEmail || 'admin@realtyask.in'}
                     </p>
                     <div className="mt-1.5 flex items-center gap-1.5">
                       <span className="text-[9.5px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200/50 dark:border-blue-800/40">

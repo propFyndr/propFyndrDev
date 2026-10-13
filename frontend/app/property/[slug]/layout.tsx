@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { SITE_URL } from '@/lib/site'
 import { API_BASE } from '@/lib/env'
 
 type Params = { slug: string }
@@ -34,10 +35,10 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
   const rawDesc = `${p.name}${builderClause} in ${p.sector || 'Noida'}, ${p.city || 'NCR'}.${priceClause}${reraClause}${groundClause} Independent ground due diligence and AI advisor on RealtyAsk.`
   const description = rawDesc.length > 160 ? rawDesc.slice(0, 157) + '...' : rawDesc
 
-  const canonicalUrl = `https://propfyndr.in/property/${slug}`
+  const canonicalUrl = `${SITE_URL}/property/${slug}`
   const ogImages = p.hero_image_url
     ? [{ url: p.hero_image_url, width: 1200, height: 630, alt: p.name }]
-    : [{ url: 'https://propfyndr.in/og-default.jpg', width: 1200, height: 630, alt: 'RealtyAsk' }]
+    : [{ url: `${SITE_URL}/og-default.jpg`, width: 1200, height: 630, alt: 'RealtyAsk' }]
 
   return {
     title,

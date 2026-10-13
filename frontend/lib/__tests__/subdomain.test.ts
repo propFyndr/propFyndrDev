@@ -9,16 +9,16 @@ import { tenantFromHost, isUsableTenantLabel, isPassThroughPath, RESERVED_SUBDOM
  */
 
 test('a tenant host resolves to its label', () => {
-  assert.equal(tenantFromHost('lotus.propfyndr.in'), 'lotus')
+  assert.equal(tenantFromHost('lotus.realtyask.in'), 'lotus')
   assert.equal(tenantFromHost('Lotus.RealtyAsk.in'), 'lotus', 'host matching is case-insensitive')
-  assert.equal(tenantFromHost('lotus.propfyndr.in:3000'), 'lotus', 'the port is not part of the host')
-  assert.equal(tenantFromHost('godrej-properties.propfyndr.in'), 'godrej-properties')
+  assert.equal(tenantFromHost('lotus.realtyask.in:3000'), 'lotus', 'the port is not part of the host')
+  assert.equal(tenantFromHost('godrej-properties.realtyask.in'), 'godrej-properties')
 })
 
 test('the buyer site is never a tenant', () => {
   for (const host of [
-    'propfyndr.in',        // apex
-    'www.propfyndr.in',    // reserved
+    'realtyask.in',        // apex
+    'www.realtyask.in',    // reserved
     'localhost',
     'localhost:3000',
     '127.0.0.1:3000',
@@ -41,9 +41,9 @@ test('infrastructure names cannot be claimed by a tenant', () => {
   for (const reserved of ['api', 'admin', 'www', 'app', 'mail', 'cdn', 'login', 'portal']) {
     assert.ok(RESERVED_SUBDOMAINS.has(reserved), `${reserved} should be reserved`)
     assert.equal(
-      tenantFromHost(`${reserved}.propfyndr.in`),
+      tenantFromHost(`${reserved}.realtyask.in`),
       null,
-      `${reserved}.propfyndr.in must stay infrastructure`,
+      `${reserved}.realtyask.in must stay infrastructure`,
     )
   }
 })

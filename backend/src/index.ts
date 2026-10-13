@@ -116,6 +116,9 @@ const allowedOrigins = new Set([
   'http://127.0.0.1:3000',
   'http://localhost:3001',
   'http://localhost:3002',
+  'https://realtyask.in',
+  'https://www.realtyask.in',
+  'https://app.realtyask.in',
   'https://propfyndr.in',
   'https://www.propfyndr.in',
   ...envOrigins
@@ -123,7 +126,9 @@ const allowedOrigins = new Set([
 
 // Anchored patterns: a bare endsWith('propfyndr.in') also matched
 // evilpropfyndr.in, and any app on vercel.app / onrender.com got credentialed access.
+// realtyask.in subdomains are partner portals (lib/subdomain.ts on the frontend).
 const allowedOriginPatterns = [
+  /^https:\/\/([a-z0-9-]+\.)?realtyask\.in$/,
   /^https:\/\/([a-z0-9-]+\.)?propfyndr\.in$/,
   /^https:\/\/(propfyndr|realtypals|realty-pals)[a-z0-9-]*\.vercel\.app$/,
   /^https:\/\/(propfyndr|realtypals)[a-z0-9-]*\.onrender\.com$/,

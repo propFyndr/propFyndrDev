@@ -75,7 +75,7 @@ export default function ForgotPasswordPage() {
                 autoFocus
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="you@propfyndr.in"
+                placeholder="you@realtyask.in"
                 className={AUTH_INPUT_CLASS}
               />
             </div>

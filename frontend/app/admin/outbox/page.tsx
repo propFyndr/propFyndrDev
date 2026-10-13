@@ -500,7 +500,7 @@ export default function OutboxPage() {
             <button
               onClick={() => {
                 setPreviewTemplate('team_invite')
-                setPreviewEmail('colleague@propfyndr.in')
+                setPreviewEmail('colleague@realtyask.in')
                 setPreviewLink('')
                 setIsPreviewOpen(true)
               }}

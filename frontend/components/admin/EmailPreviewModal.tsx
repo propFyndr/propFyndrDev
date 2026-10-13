@@ -208,7 +208,7 @@ export default function EmailPreviewModal({
     inviteLink ||
     (typeof window !== 'undefined'
       ? `${window.location.origin}/admin/accept-invite?token=prp_demo_invite_token`
-      : 'https://propfyndr.in/admin/accept-invite?token=prp_demo_invite_token')
+      : 'https://realtyask.in/admin/accept-invite?token=prp_demo_invite_token')
 
   // Subject line computation — 100% focused on an exclusive, personal invitation
   const subject =
@@ -224,7 +224,7 @@ export default function EmailPreviewModal({
       const projectsListFormatted = allProjects.map((p) => `• ${p}`).join('\n')
       const projectsInline = allProjects.join(', ')
 
-      return `PROPFYNDR PARTNER NETWORK
+      return `REALTYASK PARTNER NETWORK
 
 ${devName}, you're invited to RealtyAsk.
 
@@ -261,7 +261,7 @@ ${allProjects.map((p, i) => `${i + 1}. ${p} — A verified project presence buil
 
 ---
 
-WHAT YOU GET AS A PROPFYNDR PARTNER
+WHAT YOU GET AS A REALTYASK PARTNER
 
 01 — Verified Presence: Own your official developer presence across all ${allProjects.length} developments.
 02 — Buyer Demand: Understand what buyers are searching for, comparing and evaluating across ${projectsInline}.
@@ -298,7 +298,7 @@ This link is valid for 7 days. If you did not request this invitation, you can s
 
 Best regards,
 The RealtyAsk Team
-https://propfyndr.in`
+https://realtyask.in`
   }
 
   // WhatsApp formatted outreach pitch naming all projects

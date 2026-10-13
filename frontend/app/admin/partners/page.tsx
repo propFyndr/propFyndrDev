@@ -12,6 +12,7 @@
  */
 
 import { useEffect, useMemo, useState } from 'react'
+import { SITE_DOMAIN, portalHost } from '@/lib/site'
 import Link from 'next/link'
 import {
   Handshake,
@@ -58,7 +59,7 @@ interface Partner {
   is_verified: boolean
   leads_assigned: number
   leads_converted: number
-  /** Their own portal host, e.g. `acme` serves acme.propfyndr.in. */
+  /** Their own portal host, e.g. `acme` serves acme.realtyask.in. */
   portal_subdomain: string | null
   builder: { id: string; name: string; slug: string } | null
   created_at: string
@@ -171,7 +172,7 @@ export default function AdminPartnersPage() {
 
   async function copySubdomain(domain: string, partnerId: string) {
     try {
-      await navigator.clipboard.writeText(`https://${domain}.propfyndr.in`)
+      await navigator.clipboard.writeText(`https://${portalHost(domain)}`)
       setCopiedDomainId(partnerId)
       setTimeout(() => setCopiedDomainId(null), 2000)
     } catch {
@@ -547,7 +548,7 @@ export default function AdminPartnersPage() {
                                   className="px-2.5 py-1.5 w-32 bg-transparent outline-none text-[12px] font-mono text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400"
                                 />
                                 <span className="px-2 py-1.5 text-[12px] font-mono text-zinc-400 dark:text-zinc-500 border-l border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800">
-                                  .propfyndr.in
+                                  .{SITE_DOMAIN}
                                 </span>
                               </div>
                               <button
@@ -569,7 +570,7 @@ export default function AdminPartnersPage() {
                               {p.portal_subdomain ? (
                                 <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-mono bg-zinc-100/80 dark:bg-zinc-800/80 text-zinc-700 dark:text-zinc-300 border border-zinc-200/60 dark:border-zinc-700/60">
                                   <Globe size={13} className="text-zinc-400" />
-                                  <span>{p.portal_subdomain}.propfyndr.in</span>
+                                  <span>{portalHost(p.portal_subdomain)}</span>
                                   <button
                                     onClick={() => copySubdomain(p.portal_subdomain!, p.id)}
                                     title="Copy full portal URL"

@@ -86,7 +86,7 @@ export default function AdminLogin() {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="you@propfyndr.in"
+              placeholder="you@realtyask.in"
               className="w-full bg-surface-2 dark:bg-surface-3 border border-[var(--color-border)] rounded-[var(--radius-md)] px-3.5 py-3 text-[14px] text-[var(--color-text-primary)] placeholder:text-[var(--color-text-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/30 focus:border-[var(--color-primary)] transition-all"
             />
           </div>

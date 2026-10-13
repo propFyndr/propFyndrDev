@@ -1,8 +1,9 @@
 import { MetadataRoute } from 'next'
+import { SITE_URL } from '@/lib/site'
 import { API_BASE } from '@/lib/env'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://propfyndr.in'
+  const baseUrl = SITE_URL
 
   // Static pages
   const staticPages: MetadataRoute.Sitemap = [
