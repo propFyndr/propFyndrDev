@@ -5,7 +5,10 @@
  * 2. GREATER NOIDA WEST / NOIDA EXTENSION (GNIDA Authority - Sectors 1, 2, 3, 4, 10, 12, 16, 16B, 16C, Techzone 4, KP 5)
  * 3. GREATER NOIDA CORE (GNIDA Authority - Alpha, Beta, Gamma, Delta, Chi, Pi, Zeta, Eta, Omicron, Pari Chowk, Jaypee Greens, etc.)
  * 4. YAMUNA EXPRESSWAY (YEIDA Authority - Sectors 17A to 29, Jewar Airport zone)
+ *
+ * Numbers shared with Noida's own 1–168 are resolved in getSectorLocation.
  */
+import { cityNamedIn } from './constants'
 
 export type CityRegion = 'noida' | 'greater_noida' | 'greater_noida_west' | 'yamuna_expressway'
 export type CivicAuthority = 'NOIDA' | 'GNIDA' | 'YEIDA'
@@ -212,6 +215,7 @@ export function normalizeSectorLookupKey(raw: string): string {
   let s = raw.trim()
     .replace(/,\s*(greater noida west|greater noida|noida extension|yamuna expressway|noida|up|uttar pradesh)$/i, '')
     .replace(/\s+(greater noida west|greater noida|noida extension|yamuna expressway|noida|up|uttar pradesh)$/i, '')
+    .replace(/^(greater noida west|greater noida|noida extension|yamuna expressway|noida)[,\s]+(?=sector\b)/i, '')
     .replace(/^[,\s]+|[,\s]+$/g, '')
     .trim()
 
@@ -232,46 +236,111 @@ export function normalizeSectorLookupKey(raw: string): string {
   return s
 }
 
+export type NamedCity = 'Noida' | 'Greater Noida West' | 'Greater Noida' | 'Yamuna Expressway'
+
+/**
+ * The city a piece of text names explicitly, or null. Uses the buyer-message
+ * reader in constants.ts, which takes the longest alias and skips negated ones
+ * — "noida sector 1, not noida extension" names Noida.
+ */
+export function explicitCityIn(text: string | null | undefined): NamedCity | null {
+  if (!text) return null
+  if (/yamuna expressway|\byeida\b/i.test(text)) return 'Yamuna Expressway'
+  return (cityNamedIn(text) as NamedCity | undefined) ?? null
+}
+
+function noidaSector(num: number, label: string): SectorLocation {
+  return {
+    sector: label,
+    city: 'Noida',
+    region: 'noida',
+    authority: 'NOIDA',
+    subCorridor: num >= 124 && num <= 168 ? 'Expressway' : (num >= 70 && num <= 122 ? 'Central Noida' : 'Established Noida'),
+  }
+}
+
 /**
  * Resolves a sector to its canonical SectorLocation.
+ *
+ * Noida numbers its sectors 1–168, so most numbered sectors in Greater Noida
+ * West (1, 2, 3, 4, 10, 12, 16), Greater Noida (27, 31, 36, 37) and the Yamuna
+ * Expressway (18–29) share a number with a Noida sector. The map used to
+ * resolve those numbers unconditionally, so "Sector 18, Noida" — the market —
+ * resolved to the Yamuna Expressway and "Sector 1 Noida" to Greater Noida West.
+ *
+ * - A city named in the text (or `cityHint`) decides.
+ * - A bare shared number resolves to Greater Noida West when it is one of its
+ *   sectors (V1 covers Noida and GNW, and the catalogue's projects in those
+ *   numbers are there), otherwise to Noida: Greater Noida and the Yamuna
+ *   Expressway are outside V1 and must be named. `alternativeSectorCities`
+ *   reports the other reading so the advisor can say so.
+ * - Lettered sectors unique to one authority (16B, 22D, 17A…) need no city.
  */
-export function getSectorLocation(sectorName: string | null | undefined): SectorLocation | null {
+export function getSectorLocation(sectorName: string | null | undefined, cityHint?: string | null): SectorLocation | null {
   if (!sectorName) return null
   const key = normalizeSectorLookupKey(sectorName)
-  
-  if (SECTOR_CITY_MAP[key]) {
-    return SECTOR_CITY_MAP[key]
-  }
+  const named = explicitCityIn(sectorName) ?? explicitCityIn(cityHint)
+  const mapped = SECTOR_CITY_MAP[key]
 
-  // Fallback pattern: Any numbered sector not explicitly in GNW or YEIDA is Noida
   const numMatch = key.match(/^Sector\s+(\d+)([a-z]?)$/i)
-  if (numMatch) {
-    const num = parseInt(numMatch[1], 10)
-    // Greater Noida West numbered sectors: 1, 2, 3, 4, 10, 12, 16, 16B, 16C
-    const gnwNumbers = [1, 2, 3, 4, 10, 12, 16]
-    const isExplicitGnw = gnwNumbers.includes(num) && /greater noida west|noida extension|greno west/i.test(sectorName)
-    const isExplicitYeida = (num === 22 || num === 17 || num === 18 || num === 19 || num === 20 || num === 21 || num === 24 || num === 25) && /yamuna expressway|yeida/i.test(sectorName)
+  if (!numMatch) return mapped ?? null
 
-    if (isExplicitGnw) {
-      const suffix = numMatch[2] ? numMatch[2].toUpperCase() : ''
-      return { sector: `Sector ${num}${suffix}`, city: 'Greater Noida West', region: 'greater_noida_west', authority: 'GNIDA', subCorridor: 'Noida Extension' }
-    }
-    if (isExplicitYeida) {
-      return { sector: `Sector ${num}`, city: 'Yamuna Expressway', region: 'yamuna_expressway', authority: 'YEIDA', subCorridor: 'YEIDA' }
-    }
+  const num = parseInt(numMatch[1], 10)
+  const plainNumber = !numMatch[2]
+  const label = `Sector ${num}${numMatch[2] ? numMatch[2].toUpperCase() : ''}`
 
-    // Default: Sector 1 to 168 belongs to NOIDA (NOIDA Authority)
-    // Note: Sector 150 strictly maps here!
-    return {
-      sector: key,
-      city: 'Noida',
-      region: 'noida',
-      authority: 'NOIDA',
-      subCorridor: num >= 124 && num <= 168 ? 'Expressway' : (num >= 70 && num <= 122 ? 'Central Noida' : 'Established Noida')
-    }
+  if (named) {
+    if (mapped && mapped.city === named) return mapped
+    // GNW is sometimes written "Greater Noida" — a GNW sector named that way is still GNW.
+    if (mapped && named === 'Greater Noida' && mapped.region === 'greater_noida_west') return mapped
+    if (named === 'Noida' && plainNumber && num >= 1 && num <= 168) return noidaSector(num, label)
+    // Named city has no such sector ("Sector 150, Greater Noida West"): fall through,
+    // and isSectorInCity reports the mismatch.
   }
 
-  return null
+  if (mapped) {
+    const sharedWithNoida = plainNumber && num >= 1 && num <= 168
+    if (!sharedWithNoida || mapped.region === 'greater_noida_west') return mapped
+  }
+
+  return num >= 1 && num <= 168 ? noidaSector(num, label) : mapped ?? null
+}
+
+/**
+ * Other cities a bare sector number could mean, when no city was named.
+ * "Sector 1" → ['Noida'] (resolved to GNW); "Sector 18" → ['Yamuna Expressway'].
+ */
+export function alternativeSectorCities(sectorName: string | null | undefined): NamedCity[] {
+  if (!sectorName || explicitCityIn(sectorName)) return []
+  const key = normalizeSectorLookupKey(sectorName)
+  const m = key.match(/^Sector\s+(\d+)$/i)
+  if (!m) return []
+  const num = parseInt(m[1], 10)
+  const mapped = SECTOR_CITY_MAP[key]
+  if (!mapped || num < 1 || num > 168) return []
+  const chosen = getSectorLocation(key)
+  const all: NamedCity[] = ['Noida', mapped.city as NamedCity]
+  return all.filter((c) => c !== chosen?.city)
+}
+
+/**
+ * The note the advisor adds when a buyer named a sector number shared by two
+ * cities without saying which, and every project shown is in one of them —
+ * e.g. "Sector 1" answered from Greater Noida West while Noida has a Sector 1
+ * too. States only what the catalogue shows; null when no note is due.
+ */
+export function sectorAmbiguityNote(message: string, resultCities: string[]): string | null {
+  if (explicitCityIn(message)) return null
+  const m = message.match(/\bsec(?:tor)?[\s-]*(\d{1,3})\b(?![a-z])/i)
+  if (!m) return null
+  const sector = `Sector ${m[1]}`
+  const others = alternativeSectorCities(sector)
+  const cities = [...new Set(resultCities)]
+  if (others.length === 0 || cities.length !== 1) return null
+  const shown = cities[0]
+  const other = others.find((c) => c !== shown)
+  if (!other) return null
+  return `These are in ${sector}, ${shown}. ${other} also has a ${sector} — a different place, and none of the projects I hold there matched. Tell me if you meant that one.`
 }
 
 /**
@@ -280,7 +349,7 @@ export function getSectorLocation(sectorName: string | null | undefined): Sector
  */
 export function isSectorInCity(sectorName: string | null | undefined, targetCity: string | null | undefined): boolean {
   if (!sectorName || !targetCity) return true
-  const loc = getSectorLocation(sectorName)
+  const loc = getSectorLocation(sectorName, targetCity)
   if (!loc) return true // Unknown sector, pass through
 
   const tc = targetCity.toLowerCase().trim()
@@ -305,8 +374,8 @@ export function isSectorInCity(sectorName: string | null | undefined, targetCity
 /**
  * Qualified display string: "Sector 150, Noida" or "Sector 1, Greater Noida West"
  */
-export function getQualifiedSector(sectorName: string | null | undefined): string | null {
-  const loc = getSectorLocation(sectorName)
+export function getQualifiedSector(sectorName: string | null | undefined, cityHint?: string | null): string | null {
+  const loc = getSectorLocation(sectorName, cityHint)
   return loc ? `${loc.sector}, ${loc.city}` : null
 }
 

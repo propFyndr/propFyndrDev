@@ -36,7 +36,8 @@ export async function postProcessIntent(
 
   // Qualify sector with city if present
   if (rawIntent.sector) {
-    const qualified = getQualifiedSector(rawIntent.sector)
+    // The city the buyer named settles shared numbers: "Noida sector 1" is not GNW's Sector 1.
+    const qualified = getQualifiedSector(rawIntent.sector, rawIntent.city)
     if (qualified) {
       result.intent.sector = qualified
     }
