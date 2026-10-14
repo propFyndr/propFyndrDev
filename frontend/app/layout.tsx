@@ -57,6 +57,18 @@ export const metadata: Metadata = {
     title: "RealtyAsk — AI Property Advisor for Noida",
     description: "Find, compare, and evaluate Noida real estate with AI.",
     type: "website",
+    siteName: "RealtyAsk",
+    locale: "en_IN",
+  },
+  // Image comes from app/opengraph-image.tsx; this makes X/Twitter show it large.
+  twitter: {
+    card: "summary_large_image",
+    title: "RealtyAsk — AI Property Advisor for Noida",
+    description: "Find, compare, and evaluate Noida real estate with AI.",
+  },
+  // Modern counterpart of apple-mobile-web-app-capable; silences Chrome's deprecation warning.
+  other: {
+    "mobile-web-app-capable": "yes",
   },
   icons: {
     icon: [

@@ -37,7 +37,6 @@
   --shadow-4: 0 20px 48px rgba(0,0,0,0.12);
 
   /* ── Motion ── */
-  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
   --ease-smooth: cubic-bezier(0.16, 1, 0.3, 1);
   --duration-fast:   150ms;
   --duration-normal: 280ms;
@@ -73,7 +72,7 @@ html {
 body {
   color: var(--foreground);
   background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-outfit), system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   min-height: 100vh;
