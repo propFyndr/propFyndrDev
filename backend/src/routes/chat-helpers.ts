@@ -230,3 +230,22 @@ export async function buildRestoreUiState(
 
   return uiState
 }
+
+/**
+ * Strips residual web-search / provenance tags before an answer is saved.
+ *
+ * It used to finish with `.replace(/\s{2,}/g, ' ')`, which also turned every
+ * blank line into a space — so a reopened chat showed later answers as one run
+ * of text, with headings and tables that need a blank line before them no
+ * longer rendering. Only repeated spaces and tabs are collapsed now; line
+ * breaks are content.
+ */
+export function cleanForPersist(text: string): string {
+  return text
+    .replace(/[ \t]*\((?:web[-\s]?search|untrusted[-\s]?source|wikipedia|source:[^)]+)\)/gi, '')
+    .replace(/[ \t]*\[(?:Source|\d+)[^\]]*\]/gi, '')
+    .replace(/[ \t]{2,}/g, ' ')
+    .replace(/[ \t]+\n/g, '\n')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim()
+}

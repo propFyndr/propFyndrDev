@@ -171,6 +171,7 @@ import {
   buildRestoreUiState,
   CacheDecision,
   estimateTokens,
+  cleanForPersist,
 } from './chat-helpers'
 import {
   generateDatabaseFallbackResponse,
@@ -6211,6 +6212,7 @@ EXECUTIVE RESPONSE INSTRUCTIONS:
 
     if (sectorNote) {
       send('token', { token: `${sectorNote}\n\n` })
+      fullText += `${sectorNote}\n\n`
     }
 
     if (renderedTable) {
@@ -6251,7 +6253,10 @@ EXECUTIVE RESPONSE INSTRUCTIONS:
       suppressTables: Boolean(renderedTable) || cardsAreRendering,
       })
       timer.mark('llm')
-      fullText = sectorNote ? `${sectorNote}\n\n${fallbackResult.text}` : fallbackResult.text
+      // Keep what was already sent ahead of the model (the sector note and any
+      // table rendered in code): it was assigned over, so saved history — and a
+      // reopened chat — lost the appreciation, yield and micro-market tables.
+      fullText = `${fullText}${fallbackResult.text}`
       usedProvider = { provider: fallbackResult.provider, envKey: fallbackResult.envKey }
       Object.assign(turnTrace, {
         lane: 'main',
@@ -6594,11 +6599,7 @@ EXECUTIVE RESPONSE INSTRUCTIONS:
     const persistPromises: Promise<unknown>[] = []
 
     // Strip any residual web-search or provenance tags before persistence / rendering
-    const sanitizedFullText = (fullText || '')
-      .replace(/\s*\((?:web[-\s]?search|untrusted[-\s]?source|wikipedia|source:[^)]+)\)/gi, '')
-      .replace(/\[(?:Source|\d+)[^\]]*\]/gi, '')
-      .replace(/\s{2,}/g, ' ')
-      .trim();
+    const sanitizedFullText = cleanForPersist(fullText || '')
 
     let assistantTextToPersist = sanitizedFullText || fullText;
 
