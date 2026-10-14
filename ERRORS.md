@@ -63,3 +63,8 @@
 **What didn't work:** `git stash push -- <file>` on a file with no changes saves nothing, so the follow-up `git stash apply $(git stash list | grep <tag> …)` ran with an empty argument and applied the newest stash on the shared stack — another session's WIP. It conflicted on `.tokensave/tokensave.db`, which stopped the `&&` chain before the `drop` (which would also have dropped their stash).
 **What worked:** checking `git stash list` (their entry intact), confirming by mtime that the conflicted file was written by the apply, then `git rm --cached` + removing only that file.
 **Note for next time:** never pass a computed stash ref without checking it is non-empty (`[ -n "$S" ] || exit 1`). To compare old vs new code, copy the file aside instead of stashing.
+
+## 2026-10-14 — Background compaction OOM'd the 512 MB Render instance (dev crash-looped)
+**What didn't work:** the first `compactStoredArtifacts` selected 300 rows' `artifacts` JSON in one query. Rows reach ~256 KB of JSON (p99 122 KB stored), several times that once parsed, so the job ran the dev instance out of memory ~60 s after every boot; dev restarted in a loop and a chat request got a 502. Live was untouched (not deployed there).
+**What worked:** query ids only, then read/compact/write one row at a time, batch 50, first run 5 min after boot. Measured locally: peak RSS +29 MB over baseline.
+**Note for next time:** before any background job that reads JSON columns, measure `max(length(col::text))` and multiply by the batch size — and run one batch locally with an RSS probe before deploying.

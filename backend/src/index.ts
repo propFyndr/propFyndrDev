@@ -408,7 +408,7 @@ async function startup() {
       logger.warn({ err: (err as Error).message }, 'chat storage compaction skipped')
     }
   }
-  setTimeout(compactStorage, 60_000).unref()
+  setTimeout(compactStorage, 5 * 60_000).unref()
   setInterval(compactStorage, 3 * 60 * 60_000).unref()
   const server = app.listen(PORT, '0.0.0.0', () => {
     const elapsed = Date.now() - startTime
