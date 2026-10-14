@@ -4737,3 +4737,19 @@ The schema cost ~5k prompt tokens per call, and the null-padded output truncated
 
 ## 2026-10-14 — Environments settled
 **Render (workspace "RealtyPals's workspace", both free plan, Singapore):** propFyndrLive (`srv-d94csqsvikkc73c4lqi0`, branch main, realtypalsdev.onrender.com) → Neon; propFyndrDev (`srv-dauhdddg1s2s73cutjo0`, branch dev) → Supabase, `REDIS_KEY_PREFIX=dev:` (its Upstash keys are namespaced; live has no prefix). Neither has a health-check path set, so Render never queries the database for health. Only live is pinged (cron-job.org → `/api/v1/healthz`, no DB); dev sleeps when idle to stay inside the free instance hours. Render is reachable from Claude Code via the render plugin (OAuth).
+
+## 2026-10-14 — Landing, auth, share preview and discovery fit card shipped
+
+### What was decided
+* **Landing is the product, not a portal page.** The hero is a working chat box (prefills `/discover?q=`), the carousel shows buyer questions per project with no prices, and the proof row carries no counts: "Noida & Greater Noida West", "RERA details", "Free, no signup". A count goes back only when it is large and read live from the DB.
+* **Shared marketing chrome** (`components/landing/SiteChrome.tsx`): one header (mobile menu below md) and one photo backdrop for `/`, `/auth`, `/how-it-works`; dark mode via the existing `html.dark` class; CSS `zoom` above 1800px/2400px so proportions hold on large screens.
+* **Share preview is a static file**, `app/opengraph-image.jpg` + `twitter-image.jpg` (1200×630, 96 KB), rendered by `frontend/scripts/og/og-image.tsx`. Its example answer is labelled EXAMPLE and names no project.
+* **Sign-up signs the user in when Supabase auto-confirms** (confirm-email is off until launch); the "check your inbox" panel shows only when no session comes back. Duplicate sign-up shows the friendly message either way.
+* **Fit card honesty:** possession phrasing ("ready within a year", "possession in 2 years", "handover by 3 yrs") now reaches `RequirementState`; a past possession date on an under-construction project is *late*, not ready (caution for a deadline, unmet for ready-to-move); the top card says "Closest match, not a full fit" when any checklist row is unmet or caution.
+
+### Why
+The page claimed "500+ projects", "10,000+ happy users" and "100% RERA verified" (invented), and the live discovery card called a project that failed the buyer's possession requirement "Best fit for your brief" with only green ticks, contradicting the advisor's own answer.
+
+### What was rejected and why
+* **Runtime `opengraph-image.tsx` route:** ~500 KB PNG (WhatsApp drops previews over ~300 KB) and `@vercel/og` cannot render on Windows dev machines (`path.join` on a file URL).
+* **Merging `fix/analytics-coverage-gaps`:** 52 commits ahead / 112 behind main, carries schema changes, DB writes and an investment-advisory module that this CLAUDE.md lists as out of scope. Backed up to `origin/fix/analytics-coverage-gaps` (snapshot commit `46b556a6`) for review; not deployed.
