@@ -90,14 +90,20 @@ export function compactCardList(list: unknown): unknown {
   return Array.isArray(list) ? list.map(compactCard) : list
 }
 
+// Memory: a stored row can be 250 KB of JSON and several times that once
+// parsed. The first version selected 300 rows' JSON at once and ran the 512 MB
+// Render instance out of memory on every boot (dev crash-looped, 2026-10-14).
+// The queries now return ids only, and each row is read, compacted and written
+// on its own, so the job holds about one row at a time.
+
 /**
  * Trims last_projects to compact cards on chats idle for `idleDays`, in
  * batches. Returns how many sessions it rewrote. Safe to run repeatedly.
  */
-export async function compactInactiveSessions(idleDays = 7, batch = 300): Promise<number> {
+export async function compactInactiveSessions(idleDays = 7, batch = 50): Promise<number> {
   const cutoff = new Date(Date.now() - idleDays * 86_400_000)
-  const rows = await prisma.$queryRaw<{ id: string; last_projects: unknown }[]>`
-    SELECT id, last_projects FROM chat_sessions
+  const ids = await prisma.$queryRaw<{ id: string }[]>`
+    SELECT id FROM chat_sessions
     WHERE last_active < ${cutoff}
       AND jsonb_typeof(last_projects) = 'array'
       AND EXISTS (
@@ -105,19 +111,21 @@ export async function compactInactiveSessions(idleDays = 7, batch = 300): Promis
         WHERE jsonb_typeof(e) = 'object' AND NOT (e ? 'compact')
       )
     LIMIT ${batch}`
-  for (const r of rows) {
+  for (const { id } of ids) {
+    const row = await prisma.chatSession.findUnique({ where: { id }, select: { last_projects: true } })
+    if (!row) continue
     await prisma.chatSession.update({
-      where: { id: r.id },
-      data: { last_projects: compactCardList(r.last_projects) as Prisma.InputJsonValue },
+      where: { id },
+      data: { last_projects: compactCardList(row.last_projects) as Prisma.InputJsonValue },
     })
   }
-  return rows.length
+  return ids.length
 }
 
 /** Rewrites stored message artifacts that still hold full cards, in batches. */
-export async function compactStoredArtifacts(batch = 300): Promise<number> {
-  const rows = await prisma.$queryRaw<{ id: string; artifacts: unknown }[]>`
-    SELECT id, artifacts FROM chat_messages
+export async function compactStoredArtifacts(batch = 50): Promise<number> {
+  const ids = await prisma.$queryRaw<{ id: string }[]>`
+    SELECT id FROM chat_messages
     WHERE jsonb_typeof(artifacts) = 'array'
       AND EXISTS (
         SELECT 1 FROM jsonb_array_elements(artifacts) a,
@@ -128,11 +136,13 @@ export async function compactStoredArtifacts(batch = 300): Promise<number> {
         WHERE jsonb_typeof(p) = 'object' AND NOT (p ? 'compact')
       )
     LIMIT ${batch}`
-  for (const r of rows) {
+  for (const { id } of ids) {
+    const row = await prisma.chatMessage.findUnique({ where: { id }, select: { artifacts: true } })
+    if (!row) continue
     await prisma.chatMessage.update({
-      where: { id: r.id },
-      data: { artifacts: compactArtifacts(r.artifacts) as Prisma.InputJsonValue },
+      where: { id },
+      data: { artifacts: compactArtifacts(row.artifacts) as Prisma.InputJsonValue },
     })
   }
-  return rows.length
+  return ids.length
 }
