@@ -13,6 +13,7 @@ import { isLlmStubbed } from './llmStub'
 import { cityNamedIn } from '../discovery/constants'
 import { getSectorLocation, isSectorInCity } from '../discovery/sectorToCity'
 import { prisma } from '../db'
+import { prenormalizeRawText } from '../discovery/messyLanguageNormalizer'
 
 /**
  * Bare sector numbers we hold, for the extractor's anchored bare-number rule.
@@ -531,6 +532,10 @@ function deterministicCoversMessage(message: string, d: DeterministicIntent, pre
 }
 
 export async function extractIntent(message: string, previousIntent: Intent): Promise<IntentResult> {
+  // Hinglish and shorthand ("jaldi chahiye", "S150", "undr 1.5C") are rewritten
+  // before any reader sees them. The normalizer existed but ran only after
+  // intent, for the requirement checklist.
+  message = prenormalizeRawText(message).normalized || message
   /**
    * The deterministic pass runs on every turn, whatever happens next.
    *
@@ -593,7 +598,16 @@ export async function extractIntent(message: string, previousIntent: Intent): Pr
     timeout: leg.provider === 'gemini' ? 10_000 : 3_000,
   }))
 
+  // The walk had no overall bound: 4 Gemini legs at 10 s and 8 others at 3 s
+  // could spend ~64 s before the answer chain started, which then hit its own
+  // 30 s turn budget and sent the outage notice. Past this deadline the
+  // deterministic reading is the answer.
+  const deadline = Date.now() + (Number(process.env.INTENT_BUDGET_MS) || 12_000)
   for (const config of intentChain) {
+    if (Date.now() > deadline) {
+      console.warn(`[INTENT:BUDGET] model walk past ${process.env.INTENT_BUDGET_MS || 12_000} ms — using the deterministic reading`)
+      break
+    }
     if (isKeyFailed(config.envKey)) {
       console.log(`[INTENT:SKIP] ${config.provider}/${config.envKey} — blacklisted circuit breaker active`)
       continue

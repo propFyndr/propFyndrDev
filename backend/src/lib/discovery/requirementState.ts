@@ -8,6 +8,7 @@
 import { z } from 'zod'
 import { detectCommuteAnchor, beltFor } from './commuteAnchor'
 import { normalizeSectorName } from '../ai/intent'
+import { nonBudgetAmounts } from '../ai/intentDeterministic'
 import type { Intent } from './types'
 import { sqmToSqft } from '../calculators'
 import { prenormalizeRawText as _prenormExternalPipeline } from './messyLanguageNormalizer'
@@ -678,11 +679,15 @@ export function normalizeRequirementState(
 
   // General number parsing if still missing from text
   const crMatchInText = /(?:₹|rs\.?|inr)?\s*(\d+(?:\.\d+)?)\s*(?:cr(?:ore)?s?)\b/i.exec(text)
-  if (crMatchInText && !betweenMatch && !upToCloserMatch && !budgetCorrectionMatch && !underBudgetMatch && !comfortableTargetLimitMatch && !startingFromMatch) {
+  // A calculator amount ("stamp duty on a 1.2 crore flat") is not the ceiling.
+  const notBudget = nonBudgetAmounts(text)
+  if (crMatchInText && notBudget.includes(parseFloat(crMatchInText[1]))) {
+    // leave maxCr as read elsewhere
+  } else if (crMatchInText && !betweenMatch && !upToCloserMatch && !budgetCorrectionMatch && !underBudgetMatch && !comfortableTargetLimitMatch && !startingFromMatch) {
     maxCr = parseFloat(crMatchInText[1])
   } else if (maxCr === undefined && minCr === undefined) {
     const lakhMatch = /(?:₹|rs\.?|inr)?\s*(\d+(?:\.\d+)?)\s*(?:lakh?s?|lac?s?)\b/i.exec(text)
-    if (lakhMatch && !/saved|down\s+payment|emi/i.test(text)) {
+    if (lakhMatch && !/saved|down\s+payment|emi/i.test(text) && !notBudget.includes(parseFloat(lakhMatch[1]) / 100)) {
       maxCr = parseFloat(lakhMatch[1]) / 100
     }
   }

@@ -3,6 +3,12 @@
 
 export const SUPPORTED_CITIES = ['Noida', 'Greater Noida', 'Greater Noida West', 'Yamuna Expressway'] as const
 export const DEFAULT_CITY = 'Noida'
+/**
+ * Where a search with no sector, city, project or builder looks. V1 covers
+ * Noida and Greater Noida West; Greater Noida and Yamuna Expressway rows stay
+ * reachable when the buyer names them, but are not offered unasked.
+ */
+export const V1_DEFAULT_CITIES = ['Noida', 'Greater Noida West']
 export const PILOT_SCOPE_LABEL = 'Noida & Greater Noida'
 
 export type SupportedCity = typeof SUPPORTED_CITIES[number]

@@ -240,3 +240,12 @@ test('city: a negated city is not the city named', () => {
   assert.equal(cityNamedIn('flats in noida extension'), 'Greater Noida West')
   assert.equal(cityNamedIn('sector 107'), undefined)
 })
+test('budget: the amount in a calculator question is not a budget', () => {
+  // Replaced a stated 1.5 Cr ceiling with 1.2 and the next shortlist searched under it.
+  for (const q of ['what is the stamp duty and registration for a woman buyer on a 1.2 crore flat in noida', 'gst on a 90 lakh under construction flat', 'emi for 1.5 crore at 8.5%']) {
+    const d = extractDeterministic(q)
+    assert.equal(d.budgetMax, undefined, q)
+    assert.equal(d.budgetMin, undefined, q)
+  }
+  assert.equal(extractDeterministic('budget 1.5 cr, what is the stamp duty').budgetMax, 1.5)
+})

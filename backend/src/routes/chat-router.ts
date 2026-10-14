@@ -15,7 +15,7 @@ import { IntentSchema, getIntentState, discoverProjects, getSectorContext, getAl
 import { readLastProjectIds, readLastProjectCards } from '../lib/discovery/lastProjects'
 import type { Intent, ScoredProject } from '../lib/discovery'
 import { postProcessIntent } from '../lib/discovery/intentPostProcessor'
-import { sectorAmbiguityNote } from '../lib/discovery/sectorToCity'
+import { sectorAmbiguityNote, sectorCounterpart, counterpartNote } from '../lib/discovery/sectorToCity'
 import { renderAppreciationScenarios, horizonsFrom } from '../lib/ai/scenarioTable'
 import { compactArtifacts } from '../lib/chatStorage'
 import { computeConfidence, buildClarificationOptions } from '../lib/discovery/confidence'
@@ -6208,6 +6208,24 @@ EXECUTIVE RESPONSE INSTRUCTIONS:
     )
     if (process.env.DEBUG_FALLBACK) {
       console.log(`[CHAT:MODEL_ROUTE] category=${classification.category} route=${modelRoute}`)
+    }
+
+    // "Noida Sector 1" when we hold nothing there but 36 projects in Sector 1,
+    // Greater Noida West: say they are different places and offer the other —
+    // the distinction the buyer was drawing, on turns with no results too.
+    if (!sectorNote && message) {
+      const counterpart = sectorCounterpart(message)
+      if (counterpart) {
+        try {
+          const [askedCount, otherCount] = await Promise.all([
+            prisma.project.count({ where: { sector: { equals: counterpart.sector, mode: 'insensitive' }, city: { equals: counterpart.asked, mode: 'insensitive' } } }),
+            prisma.project.count({ where: { sector: { equals: counterpart.sector, mode: 'insensitive' }, city: { equals: counterpart.other, mode: 'insensitive' } } }),
+          ])
+          sectorNote = counterpartNote(counterpart, askedCount, otherCount)
+        } catch (e) {
+          console.warn('[CHAT:SECTOR_COUNTERPART] skipped:', e instanceof Error ? e.message : e)
+        }
+      }
     }
 
     if (sectorNote) {

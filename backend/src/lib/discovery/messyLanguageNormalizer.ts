@@ -17,7 +17,10 @@ export interface NormalizationResult {
 // ─── Pass 1: Speech Disfluency Stripper ─────────────────────────────────────
 
 const DISFLUENCY_RE =
-  /\b(?:umm+|uhh+|uh+|hmm+|err+|like,?\s+|you\s+know,?\s+|i\s+mean,?\s+|sort\s+of,?\s+|kind\s+of,?\s+)\b\.*/gi
+  // "like" is filler with its comma, opening the message, or after another
+  // filler — "I like the pool" is content. "Do you know" is a question.
+  // "I mean" is not filler at all — "1.5, I mean 1.35" is a budget correction.
+  /\b(?:umm+|uhh+|uh+|hmm+|err+|like,\s+|(?<=^|\b(?:umm+|uhh+|uh+|hmm+|err+)[\s,]+)like\s+|(?<!\b(?:do|did|don't)\s+)you\s+know,?\s+|sort\s+of,?\s+|kind\s+of,?\s+)\b\.*/gi
 
 function stripDisfluencies(s: string): string {
   return s.replace(DISFLUENCY_RE, ' ').replace(/\s{2,}/g, ' ').trim()
