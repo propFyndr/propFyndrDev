@@ -26,17 +26,20 @@ export const newcomerOrientationHandler: ChatTopicHandler = {
   matches: ctx => ctx.flags.isNewcomerOrientation === true,
 
   handle: async ctx => {
-    const [sectorsIntel, activeProjects] = await Promise.all([
-      prisma.sectorIntelligence.findMany({
-        where: { city: { in: ['Noida', 'Greater Noida'] } },
-        take: 8,
-        orderBy: { avg_price_per_sqft: 'desc' }
-      }),
-      prisma.project.findMany({
-        select: { name: true, sector: true, price_range_label: true, price_min_cr: true },
-        take: 30
-      })
-    ])
+    const sectorsIntel = await prisma.sectorIntelligence.findMany({
+      where: { city: { in: ['Noida', 'Greater Noida'] } },
+      take: 8,
+      orderBy: { avg_price_per_sqft: 'desc' }
+    })
+    // Projects for the sectors the table shows. This read the first 30 projects
+    // in the catalogue, in no order, so a sector we hold projects in — Sector
+    // 150 — printed "Not recorded" in the projects column.
+    const activeProjects = await prisma.project.findMany({
+      where: sectorsIntel.length > 0 ? { sector: { in: sectorsIntel.slice(0, 5).map(s => s.sector) } } : {},
+      select: { name: true, sector: true, price_range_label: true, price_min_cr: true },
+      orderBy: { name: 'asc' },
+      take: sectorsIntel.length > 0 ? 200 : 30,
+    })
 
     const projsBySector: Record<string, string[]> = {}
     const pricesBySector: Record<string, number[]> = {}
@@ -62,8 +65,11 @@ export const newcomerOrientationHandler: ChatTopicHandler = {
     const sectorProjects = (sec: string): string => projsBySector[sec]?.join(', ') || 'Not recorded'
 
     let rows = ''
+    let shownSectors: string[] = []
     if (sectorsIntel.length > 0) {
-      rows = sectorsIntel.slice(0, 5).map(s => {
+      const shown = sectorsIntel.slice(0, 5)
+      shownSectors = shown.map(s => s.sector)
+      rows = shown.map(s => {
         const priceBand = s.avg_price_per_sqft
           ? `₹${Math.round(s.avg_price_per_sqft).toLocaleString('en-IN')}/sq.ft`
           : sectorBand(s.sector)
@@ -71,13 +77,24 @@ export const newcomerOrientationHandler: ChatTopicHandler = {
         return `| **${s.sector}** (${s.city || 'Noida'}) | ${priceBand} | ${strength} | ${sectorProjects(s.sector)} |`
       }).join('\n')
     } else {
-      const uniqueSectors = Array.from(new Set(activeProjects.map(p => p.sector))).slice(0, 5)
-      rows = uniqueSectors.map(sec =>
+      shownSectors = Array.from(new Set(activeProjects.map(p => p.sector))).slice(0, 5)
+      rows = shownSectors.map(sec =>
         `| **${sec}** | ${sectorBand(sec)} | Not recorded | ${sectorProjects(sec)} |`
       ).join('\n')
     }
 
-    const rawOrientationText = `### Noida & Greater Noida Locality Guide for Families & Investors\n\n| Micro-Market / Sector | Price Spectrum | Locality Highlights | Top Listed Projects |\n| :--- | :--- | :--- | :--- |\n${rows}\n\n### Recommendation\nFor **metro connectivity and immediate family infrastructure**, prioritize **Sector 75 / 76**. For **expressway corporate commute and modern high-rises**, explore **Sector 137 / 150**.`
+    // No hard-coded verdict. This used to end every guide with "prioritize
+    // Sector 75 / 76 … explore Sector 137 / 150" whatever the table held and
+    // whoever was asking — sectors that were often not even in the table. We
+    // hold nothing that ranks sectors for a buyer we know nothing about yet, so
+    // the closing line asks for the three facts that would.
+    const heading = sectorsIntel.length > 0
+      ? `### ${shownSectors.length} micro-markets we track, highest average rate first`
+      : `### Sectors where we hold projects`
+    const nextStep =
+      `### To narrow this down\nTell me your **budget**, the **sector you commute to**, and **BHK** — ` +
+      `I'll shortlist 2–3 sectors from what we hold and give the trade-off for each.`
+    const rawOrientationText = `${heading}\n\n| Micro-Market / Sector | Price Spectrum | Locality Highlights | Top Listed Projects |\n| :--- | :--- | :--- | :--- |\n${rows}\n\n${nextStep}`
 
     // The "Top Listed Projects" column is real project names read straight from
     // the database. Leaving them as plain text makes the most card-ready moment
@@ -90,10 +107,23 @@ export const newcomerOrientationHandler: ChatTopicHandler = {
       console.warn('[CHAT:ORIENTATION:LINK_ERROR]', e)
     }
 
+    // Chips follow the table: the first two sectors shown that hold projects,
+    // not a fixed Sector 76 / 137 pair the table may not even contain.
+    const chipSectors = shownSectors.filter(sec => projsBySector[sec]?.length).slice(0, 2)
+    const slug = (sec: string) => sec.toLowerCase().replace(/[^a-z0-9]+/g, '_')
+    const now = Date.now()
     const orientationChips = [
-      { id: `chip_s76_${Date.now()}`, actionType: 'TEXT_MESSAGE', label: 'Flats in Sector 76', icon: 'building', analyticsId: 'chip_s76', priority: 1, payload: { text: 'Show 2 BHK and 3 BHK flats in Sector 76' } },
-      { id: `chip_s137_${Date.now()}`, actionType: 'TEXT_MESSAGE', label: 'Flats in Sector 137', icon: 'building', analyticsId: 'chip_s137', priority: 2, payload: { text: 'Show 2 BHK and 3 BHK flats in Sector 137' } },
-      { id: `chip_compare_${Date.now()}`, actionType: 'TEXT_MESSAGE', label: 'Compare Sector 76 vs 137', icon: 'arrow-right-left', analyticsId: 'chip_compare_76_137', priority: 3, payload: { text: 'Compare Sector 76 with Sector 137' } },
+      ...chipSectors.map((sec, i) => ({
+        id: `chip_${slug(sec)}_${now}`, actionType: 'TEXT_MESSAGE', label: `Flats in ${sec}`, icon: 'building',
+        analyticsId: `chip_orientation_sector`, priority: i + 1, payload: { text: `Show 2 BHK and 3 BHK flats in ${sec}` },
+      })),
+      ...(chipSectors.length === 2
+        ? [{
+            id: `chip_compare_${now}`, actionType: 'TEXT_MESSAGE', label: `Compare ${chipSectors[0]} vs ${chipSectors[1].replace(/^Sector\s+/i, '')}`,
+            icon: 'arrow-right-left', analyticsId: 'chip_orientation_compare', priority: 3,
+            payload: { text: `Compare ${chipSectors[0]} with ${chipSectors[1]}` },
+          }]
+        : []),
     ]
 
     ctx.send('token', { token: orientationText })
