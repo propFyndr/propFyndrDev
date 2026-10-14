@@ -1,7 +1,7 @@
 import BuilderRegistrationForm from '@/components/BuilderRegistrationForm'
 
 export const metadata = {
-  title: 'Builder Registration | RealtyAsk',
+  title: 'Builder Registration',
   description: 'Register your real estate business with RealtyAsk',
 }
 
