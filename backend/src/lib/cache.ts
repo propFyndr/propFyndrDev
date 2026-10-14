@@ -3,6 +3,40 @@ import { Redis } from '@upstash/redis'
 
 let _redis: Redis | null = null
 
+/** Commands whose first argument is the key. Every command the app sends is listed. */
+const KEY_FIRST = new Set([
+  'get', 'set', 'expire', 'ttl', 'incr', 'sadd', 'srem', 'smembers',
+  'zadd', 'zcard', 'zrange', 'zremrangebyscore', 'rpush', 'lrange',
+])
+
+/**
+ * Namespaces every key under `prefix`, including inside multi()/pipeline().
+ *
+ * Dev and live share one Upstash database but no longer one Postgres (live is
+ * on Neon, dev on Supabase), so their route/search caches, rate limits and
+ * admin sessions must not mix. Dev sets REDIS_KEY_PREFIX=dev:; live sets none
+ * and keeps its existing keys.
+ */
+export function withKeyPrefix<T extends object>(target: T, prefix: string): T {
+  const p = (k: unknown) => (typeof k === 'string' ? prefix + k : k)
+  const proxy: T = new Proxy(target, {
+    get(t, prop, recv) {
+      const v = Reflect.get(t, prop, recv)
+      if (typeof v !== 'function') return v
+      if (prop === 'multi' || prop === 'pipeline') return (...a: unknown[]) => withKeyPrefix(v.apply(t, a), prefix)
+      if (prop === 'del') return (...keys: unknown[]) => v.apply(t, keys.map(p))
+      if (typeof prop === 'string' && KEY_FIRST.has(prop)) {
+        return (key: unknown, ...rest: unknown[]) => {
+          const out = v.apply(t, [p(key), ...rest])
+          return out === t ? proxy : out // keep pipeline chains prefixed
+        }
+      }
+      return v.bind(t)
+    },
+  })
+  return proxy
+}
+
 /**
  * The shared Redis client, or null when Upstash is not configured.
  *
@@ -12,10 +46,12 @@ let _redis: Redis | null = null
 export function getRedis(): Redis | null {
   if (_redis) return _redis
   if (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN) {
-    _redis = new Redis({
+    const client = new Redis({
       url: process.env.UPSTASH_REDIS_REST_URL,
       token: process.env.UPSTASH_REDIS_REST_TOKEN,
     })
+    const prefix = (process.env.REDIS_KEY_PREFIX || '').trim()
+    _redis = prefix ? withKeyPrefix(client, prefix) : client
   }
   return _redis
 }
