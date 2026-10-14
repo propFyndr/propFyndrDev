@@ -17,6 +17,7 @@ import type { Intent, ScoredProject } from '../lib/discovery'
 import { postProcessIntent } from '../lib/discovery/intentPostProcessor'
 import { sectorAmbiguityNote } from '../lib/discovery/sectorToCity'
 import { renderAppreciationScenarios, horizonsFrom } from '../lib/ai/scenarioTable'
+import { compactArtifacts } from '../lib/chatStorage'
 import { computeConfidence, buildClarificationOptions } from '../lib/discovery/confidence'
 import { getMultiDimensionalRecommendations } from '../lib/discovery/multiDimensionalIntegration'
 import { planProjectDetailQuery, isActionable, getClarificationMessage } from '../lib/discovery/queryPlanner'
@@ -1183,7 +1184,7 @@ router.post('/', async (req: Request, res: Response) => {
               session_id: currentSessionId,
               role: 'assistant',
               content: answer || '[streamed]',
-              ...(artifacts ? { artifacts: artifacts as Prisma.InputJsonValue } : {}),
+              ...(artifacts ? { artifacts: compactArtifacts(artifacts) as Prisma.InputJsonValue } : {}),
             },
           ],
         })
@@ -5006,7 +5007,7 @@ EXECUTIVE RESPONSE INSTRUCTIONS:
             if (detailArtifacts.length > 0) {
               try {
                 // Ensure all objects are serializable
-                validatedArtifacts = JSON.parse(JSON.stringify(detailArtifacts)) as Prisma.InputJsonValue
+                validatedArtifacts = JSON.parse(JSON.stringify(compactArtifacts(detailArtifacts))) as Prisma.InputJsonValue
               } catch (validateErr) {
                 console.warn('[CHAT:ARTIFACT_VALIDATION_FAILED]', validateErr)
                 // Skip invalid artifacts rather than corrupt the message
@@ -6635,7 +6636,7 @@ EXECUTIVE RESPONSE INSTRUCTIONS:
                 role: 'assistant',
                 content: fullText || '[streamed]',
                 ...(messageArtifacts.length > 0
-                  ? { artifacts: messageArtifacts as unknown as Prisma.InputJsonValue }
+                  ? { artifacts: compactArtifacts(messageArtifacts) as unknown as Prisma.InputJsonValue }
                   : {}),
               },
             ],
@@ -6753,7 +6754,7 @@ EXECUTIVE RESPONSE INSTRUCTIONS:
               role: 'assistant',
               content: assistantTextToPersist || '[streamed]',
               ...(messageArtifacts.length > 0
-                ? { artifacts: messageArtifacts as unknown as Prisma.InputJsonValue }
+                ? { artifacts: compactArtifacts(messageArtifacts) as unknown as Prisma.InputJsonValue }
                 : {}),
             },
           ],

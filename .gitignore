@@ -164,3 +164,6 @@ extracted_amenities.json
 
 # Builder PDFs used for local extraction trials (copyrighted, large)
 EliteXfiles/
+
+# Local database backups — never committed
+backups/

@@ -50,5 +50,9 @@ export function readLastProjectCards(value: unknown): ScoredProject[] | null {
   // A mixed array means a writer clobbered the shape mid-flight; treat the whole
   // value as untrustworthy rather than handing back a partial result set.
   if (objects.length !== value.length) return null
+  // Compact cards (lib/chatStorage — an idle chat's trimmed copy) carry what the
+  // buyer saw, not what an answer needs (decision_profile, competitors, units).
+  // Reusing them would ground a follow-up on missing data; a fresh search won't.
+  if (objects.some((o) => (o as { compact?: unknown }).compact === true)) return null
   return objects as unknown as ScoredProject[]
 }

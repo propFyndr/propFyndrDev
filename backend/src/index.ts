@@ -263,6 +263,7 @@ app.get('/api/v1/health', async (_req, res) => {
 })
 
 import { userMemoryRouter } from './routes/userMemory'
+import { compactInactiveSessions, compactStoredArtifacts } from './lib/chatStorage'
 
 app.use('/api/v1/chat', chatRouter)
 app.use('/api/v1/sessions', sessionsRouter)
@@ -394,6 +395,21 @@ async function startup() {
   // Phase 2.1: Initialize in-memory caches for project data and query planning
   initializeCaches()
   logger.info('caches initialized')
+
+  // Trim stored chat cards in the background (lib/chatStorage.ts): idle chats'
+  // last_projects and any history still holding full cards. Small batches, a
+  // few times a day — the database only does the work when there is some.
+  const compactStorage = async () => {
+    try {
+      const sessions = await compactInactiveSessions()
+      const messages = await compactStoredArtifacts()
+      if (sessions || messages) logger.info({ sessions, messages }, 'chat storage compacted')
+    } catch (err) {
+      logger.warn({ err: (err as Error).message }, 'chat storage compaction skipped')
+    }
+  }
+  setTimeout(compactStorage, 60_000).unref()
+  setInterval(compactStorage, 3 * 60 * 60_000).unref()
   const server = app.listen(PORT, '0.0.0.0', () => {
     const elapsed = Date.now() - startTime
     logger.info({ port: PORT, elapsed }, `listening — ready`)
