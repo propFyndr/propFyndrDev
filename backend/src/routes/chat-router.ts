@@ -3636,7 +3636,10 @@ I can help you with:
       !isSectorCompare &&
       !isReraCheckQuery &&
       (intent.projectNames?.length ?? 0) < 2
-    const isNewcomerOrientation = /(new to noida|new to (the )?city|don'?t know (this area|this city|the area)|which sector|best sector|where (should|to) (buy|look)|area guide|sector guide|best area for family|best area near)/i.test(topicText) && (sectorMatches.length === 0 || /which sector/i.test(topicText))
+    // "Best sector to put money for 10-year appreciation" is an appreciation
+    // question, not orientation: it belongs to the recorded-appreciation and
+    // what-if tables further down, which the orientation gate pre-empted.
+    const isNewcomerOrientation = /(new to noida|new to (the )?city|don'?t know (this area|this city|the area)|which sector|best sector|where (should|to) (buy|look)|area guide|sector guide|best area for family|best area near)/i.test(topicText) && (sectorMatches.length === 0 || /which sector/i.test(topicText)) && !asksAppreciation(topicText)
     const isReadyToMoveQuery = !isInventorySearch && /\b(ready to move|rtm|occupancy certificates?|which.*ready|ready propert(y|ies)|ready flats?)\b/i.test(topicText) && !isPaymentPlanRequest && !isCostSheetRequest
     /**
      * Legal / money-at-risk questions outrank topic keywords.
@@ -5909,7 +5912,14 @@ EXECUTIVE RESPONSE INSTRUCTIONS:
      * With no sector named this becomes a ranking, which is the citywide
      * superlative shape — the same gap the band shelf closes for "best project".
      */
-    if (!renderedTable && message && asksAppreciation(message)) {
+    // OFF until sector_intelligence.price_5yr_cagr_pct is re-sourced: on
+    // 2026-10-13, 45 of its 65 rows were templated (24 × "15% @ ₹9,500/sqft",
+    // 21 × "21% @ ₹8,800/sqft") and the lowest value was 12.8% a year. This
+    // branch only stayed silent until then because asksAppreciation never
+    // matched "appreciation"; fixing the matcher would have put those rows in
+    // front of buyers. A templated value is not data (CLAUDE.md). See MEMORY.md.
+    const RECORDED_SECTOR_CAGR_TRUSTED = false
+    if (RECORDED_SECTOR_CAGR_TRUSTED && !renderedTable && message && asksAppreciation(message)) {
       try {
         const asked = findSectorsAsked(message)
         const sectorsForAppreciation =
@@ -5936,7 +5946,7 @@ EXECUTIVE RESPONSE INSTRUCTIONS:
      * forecast (see lib/ai/scenarioTable.ts); it sits under the recorded table
      * above when there is one, and stands alone when there is not.
      */
-    if (message && asksAppreciation(message) && (!renderedTable || renderedTableKind === 'yield')) {
+    if (message && asksAppreciation(message)) {
       const focused = projects.length === 1 && typeof projects[0].price_min_cr === 'number' && projects[0].price_min_cr > 0
         ? projects[0]
         : null
@@ -5950,7 +5960,7 @@ EXECUTIVE RESPONSE INSTRUCTIONS:
       )
       if (scenarios) {
         renderedTable = renderedTable ? `${renderedTable}\n\n${scenarios}` : scenarios
-        renderedTableKind = 'yield'
+        renderedTableKind = renderedTableKind ?? 'yield'
         console.log(`[CHAT:SCENARIOS] basis=${budgetCr ? 'budget' : focused ? 'project' : 'unit'}`)
       }
     }

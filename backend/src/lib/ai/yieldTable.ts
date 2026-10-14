@@ -296,7 +296,11 @@ export function asksAppreciation(message: string): boolean {
   const m = (message || '').toLowerCase()
   if (!m) return false
   return (
-    /\b(appreciat|capital\s+gain|price\s+(?:trend|growth|rise|movement|history|increase)|resale\s+value|how\s+much\s+(?:has|have|will)[^.?]{0,25}(?:grown|risen|gone\s+up|appreciate)|cagr)\b/.test(m) ||
+    // `appreciat\w*` and `gains?`: the trailing \b used to sit right after the
+    // stem, so "appreciation", "appreciate" and "capital gains" never matched —
+    // only "cagr" did — and the recorded table never fired on the commonest wording.
+    /\b(appreciat\w*|capital\s+gains?|price\s+(?:trend|growth|rise|movement|history|increase)|resale\s+value|how\s+much\s+(?:has|have|will)[^.?]{0,25}(?:grown|risen|gone\s+up|appreciate)|cagr)\b/.test(m) ||
+    /\bbest\s+(?:sector|area|place|location)\s+to\s+(?:put|invest)\b/.test(m) ||
     /\b(?:most|best|highest)\s+returns?\b/.test(m) ||
     /\bbest\s+area\s+to\s+put\s+money\b/.test(m)
   )

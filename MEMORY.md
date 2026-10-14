@@ -4707,3 +4707,9 @@ The schema cost ~5k prompt tokens per call, and the null-padded output truncated
 **Why:** the ChatGPT comparison showed buyers want to see the stakes of an appreciation assumption; refusing outright left the question to the model's memory.
 **How it keeps "FUTURE RETURN IS NOT OURS TO STATE" (yieldTable.ts):** no rate is ours or Noida's — the ladder is fixed and brackets outcomes including flat; the text says "arithmetic, not a forecast" and never uses the "N% appreciation/returns" phrasing guardrails.ts blocks; the only facts are the buyer's amount and statutory costs.
 **Rejected:** ChatGPT's 4–10% set with no flat row and no break-even (optimistic by construction); a "recorded past rate repeated" row (a projection off a real Noida number).
+
+## 2026-10-13 — sector_intelligence.price_5yr_cagr_pct is templated; recorded table OFF
+**Found:** 45 of 65 rows are templated — 24 × "15% a year @ ₹9,500/sqft", 21 × "21% @ ₹8,800/sqft" — all stamped "RealtyPals Research Desk", one date (2026-08-31); the lowest value is 12.8% a year. The recorded-appreciation table had never reached a buyer only because `asksAppreciation` never matched "appreciation"/"appreciate" (trailing `\b` after the stem). Fixing the matcher would have shown these rows.
+**Decided:** matcher fixed (`appreciat\w*`, `capital gains?`, "best sector/area to put/invest"); the recorded sector table stays OFF behind `RECORDED_SECTOR_CAGR_TRUSTED = false` in chat-router.ts; appreciation questions get the what-if table. The newcomer-orientation gate no longer takes appreciation questions.
+**Data debt (launch blocker, same class as § Data Integrity Debts):** null `price_5yr_cagr_pct` (backup first) and re-source it, then flip the flag. The duplicate "Sector 22D" / "Sector 22D Yamuna Expressway" rows also need merging.
+**Open:** newcomerOrientation.ts prints a hard-coded "prioritize Sector 75/76 … 137/150" recommendation (no-hardcoded-answer rule).

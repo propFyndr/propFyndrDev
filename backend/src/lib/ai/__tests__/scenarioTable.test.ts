@@ -58,3 +58,23 @@ describe('helpers', () => {
     assert.ok(Math.abs((yearsToRecover(0.08, 4) as number) - 1.96) < 0.01)
   })
 })
+
+describe('asksAppreciation recognises the common wording', () => {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const { asksAppreciation } = require('../yieldTable') as typeof import('../yieldTable')
+  it('matches appreciation questions it used to miss', () => {
+    for (const q of [
+      'price appreciation in Sector 150',
+      'which is the best sector to put the money in noida? good appreciation in around 10 years',
+      'how much appreciation can I expect',
+      'will it appreciate',
+      'capital gains on a flat in noida',
+      'best sector to invest in noida',
+    ]) assert.equal(asksAppreciation(q), true, q)
+  })
+  it('still ignores plain searches', () => {
+    for (const q of ['3bhk in sector 150 under 2 crore', 'best sector for families', 'ready to move flats']) {
+      assert.equal(asksAppreciation(q), false, q)
+    }
+  })
+})
