@@ -4729,3 +4729,8 @@ The schema cost ~5k prompt tokens per call, and the null-padded output truncated
 **Rejected:** copying as-is (full in ~2 months); IDs-only `last_projects` with re-hydration (would duplicate the discovery pipeline); dropping bot sessions (~33 MB, not the problem).
 **Backups:** `backups/live-public-2026-10-14.dump` (pg_dump custom format, pre-compaction) and the sector_intelligence JSON — gitignored.
 **Note:** `npm test` writes to whatever DATABASE_URL is set — after the move, point local tests at dev, not live.
+
+## 2026-10-14 — Live switched to Neon
+**Done:** RealtyPalsLive (Render, Singapore) now runs on Neon (Singapore): `DATABASE_URL` = pooled + `pgbouncer=true&connection_limit=5`, `DIRECT_URL` = non-pooler host. Data = the 14 Oct rehearsal copy, compacted (178 MB). The only rows written to Supabase after that snapshot were my backend test-suite rows (bot sessions, "John Doe" callbacks, "Test Buyer" site visit, referral fixtures) — deliberately not carried over. Storage code (compact cards + background compaction) deployed to live and verified: stable past the job run, new chat cards stored compact in Neon.
+**Now:** Supabase Postgres = dev database (PropfyndrDev); Supabase Auth + Storage still serve live — do not delete the Supabase project. Local `.env` DATABASE_URL still points at Supabase, so local tests hit dev, not live.
+**Open:** dev and live share one Upstash Redis — route/search caches and admin sessions can cross environments now that the databases differ; give dev its own Upstash DB. Render dashboard health check path → `/api/v1/healthz` (render.yaml only applies to Blueprint-managed services). Render free-tier hours: two services kept awake ≈ 1,460 h/month vs the 750 h allowance.
