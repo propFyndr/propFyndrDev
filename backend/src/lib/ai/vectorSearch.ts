@@ -1,5 +1,5 @@
 /**
- * PropFyndr - pgvector semantic and hybrid search.
+ * RealtyAsk - pgvector semantic and hybrid search.
  *
  * 1. Embedding generation via Cohere embed-english-light-v3.0 (384-dim), cached
  *    in-process and in Redis.

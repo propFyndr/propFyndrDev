@@ -176,7 +176,7 @@ function getSmalltalkResponse(message: string): string {
     return "You're very welcome! Let me know whenever you'd like to check specific sectors, compare projects, or calculate all-in acquisition costs."
   }
   if (/\b(?:who\s+are\s+you|what\s+can\s+you\s+do|help)\b/.test(lower)) {
-    return "I'm your PropFyndr real estate advisor for Noida and Greater Noida. I can help you find verified properties, check builder track records and RERA filings, calculate stamp duty and EMIs, and compare residential sectors."
+    return "I'm your RealtyAsk real estate advisor for Noida and Greater Noida. I can help you find verified properties, check builder track records and RERA filings, calculate stamp duty and EMIs, and compare residential sectors."
   }
   return 'Hello! How can I assist with your home search or property evaluation in Noida and Greater Noida today?'
 }

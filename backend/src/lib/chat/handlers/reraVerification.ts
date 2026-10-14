@@ -36,7 +36,7 @@ What it does enforce while building is the money: **70% of every buyer payment m
  */
 export const reraVerificationHandler: ChatTopicHandler = {
   id: 'rera_verification',
-  description: 'How PropFyndr verifies RERA registration and builder legal standing',
+  description: 'How RealtyAsk verifies RERA registration and builder legal standing',
 
   matches: ctx => ctx.flags.isReraCheckQuery === true,
 
@@ -44,7 +44,7 @@ export const reraVerificationHandler: ChatTopicHandler = {
     const asksAboutGuarantee = isReraGuaranteeQuestion(ctx.message)
     const text = `${asksAboutGuarantee ? GUARANTEE_ANSWER : ''}### How we verify a project
 
-Every project on PropFyndr is screened against four records before it is listed, and each one is shown on the project page:
+Every project on RealtyAsk is screened against four records before it is listed, and each one is shown on the project page:
 
 - **UP RERA registration** — the registration number, its validity date, and whether it has lapsed.
 - **Promoter standing** — whether the developer carries pending recovery certificates or a revoked registration.

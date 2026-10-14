@@ -97,7 +97,7 @@ function cleanEntity(raw: string): string {
 }
 
 /** A "name" that is really us, or the user, or nothing at all. */
-const OWN_RECORD_RE = /^(?:noida|greater\s+noida|noida\s+extension|propfyndr|you|this\s+project|the\s+project|this|that|it|them|they|him|her|us|these|those)$/i
+const OWN_RECORD_RE = /^(?:noida|greater\s+noida|noida\s+extension|realtyask|you|this\s+project|the\s+project|this|that|it|them|they|him|her|us|these|those)$/i
 
 /**
  * Property attributes that survive the "what is X" capture but are not names.

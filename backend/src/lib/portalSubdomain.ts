@@ -43,7 +43,7 @@ export function normalisePortalSubdomain(raw: unknown): SubdomainCheck {
     return { ok: false, error: 'Use letters, numbers and hyphens only, not starting or ending with a hyphen' }
   }
   if (RESERVED_SUBDOMAINS.has(value)) {
-    return { ok: false, error: `"${value}" is reserved by PropFyndr` }
+    return { ok: false, error: `"${value}" is reserved by RealtyAsk` }
   }
   return { ok: true, value }
 }

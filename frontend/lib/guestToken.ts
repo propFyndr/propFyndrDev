@@ -1,6 +1,6 @@
 // frontend/lib/guestToken.ts
 
-export const GUEST_TOKEN_KEY = 'propfyndr_guest_token';
+export const GUEST_TOKEN_KEY = 'realtyask_guest_token';
 const LEGACY_GUEST_TOKEN_KEY = 'guest_token';
 
 function generateGuestToken(): string {

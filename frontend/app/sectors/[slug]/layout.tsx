@@ -23,12 +23,12 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
 
   if (!s) {
     return {
-      title: 'Micro-market on PropFyndr',
+      title: 'Micro-market on RealtyAsk',
       description: 'AI-guided home buying in Noida. Compare projects, see RERA status, get honest trade-offs.',
     }
   }
 
-  const title = `${s.sector}, ${s.city} — Prices, Livability & Project Due Diligence | PropFyndr`
+  const title = `${s.sector}, ${s.city} — Prices, Livability & Project Due Diligence | RealtyAsk`
 
   const countClause = data.project_count
     ? ` ${data.project_count} verified project${data.project_count === 1 ? '' : 's'}.`
@@ -41,11 +41,11 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
 
   const rawDesc =
     `${s.sector} in ${s.city}.${stageClause}${countClause}${priceClause}${metroClause}` +
-    ' Independent ground due diligence — water source, air quality, flood risk and builder record — on PropFyndr.'
+    ' Independent ground due diligence — water source, air quality, flood risk and builder record — on RealtyAsk.'
   const description = rawDesc.length > 160 ? rawDesc.slice(0, 157) + '...' : rawDesc
 
-  const canonicalUrl = `https://propfyndr.in/sectors/${slug}`
-  const ogImages = [{ url: 'https://propfyndr.in/og-default.jpg', width: 1200, height: 630, alt: `${s.sector}, ${s.city}` }]
+  const canonicalUrl = `https://realtyask.in/sectors/${slug}`
+  const ogImages = [{ url: 'https://realtyask.in/og-default.jpg', width: 1200, height: 630, alt: `${s.sector}, ${s.city}` }]
 
   return {
     title,
@@ -56,7 +56,7 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
       description,
       url: canonicalUrl,
       type: 'website',
-      siteName: 'PropFyndr',
+      siteName: 'RealtyAsk',
       images: ogImages,
     },
     twitter: {

@@ -18,7 +18,7 @@ Go to: GitHub repo → Settings → Secrets and variables → Actions → New re
 
 ### How to get Vercel IDs (one-time setup):
 ```bash
-cd C:\Users\Furqan\Desktop\PropFyndrxElite
+cd C:\Users\Furqan\Desktop\RealtyAskxElite
 npm install -g vercel
 vercel link   # follow prompts, links this repo to Vercel project
 # IDs are now in .vercel/project.json — add them as secrets
@@ -30,7 +30,7 @@ cat .vercel/project.json
 | Secret | Value | Where to get |
 |--------|-------|--------------|
 | `RENDER_DEPLOY_HOOK_URL` | Render deploy hook URL | Render dashboard → Your service → Settings → Deploy Hook → Create |
-| `RENDER_BACKEND_URL` | Your Render service URL | e.g. `https://propfyndr-backend.onrender.com` |
+| `RENDER_BACKEND_URL` | Your Render service URL | e.g. `https://realtyask-backend.onrender.com` |
 
 ### How to get Render deploy hook:
 1. Go to render.com → your backend service

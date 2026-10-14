@@ -71,7 +71,7 @@ function getOpenAIProvider(apiKeyOverride?: string, baseUrlOverride?: string): O
 
 // ── Inference configuration ───────────────────────────────────────────────────
 // Centralise token limits so they can vary per request type without touching
-// inference logic. All response types PropFyndr generates fit within 1500 tokens;
+// inference logic. All response types RealtyAsk generates fit within 1500 tokens;
 // the cap prevents runaway generation and unexpected billing surprises.
 export interface InferenceConfig {
   maxTokens: number
@@ -350,7 +350,7 @@ export async function streamWithOpenAI(
           anyTokenSent = true;
           
           if (
-            /propfyndr (ai |data |behavior |communication )/i.test(fullText) ||
+            /realtyask (ai |data |behavior |communication )/i.test(fullText) ||
             /hard rule|strong rule/i.test(fullText) ||
             /fallback mode/i.test(fullText) ||
             /prohibited|never invent|never share/i.test(fullText)

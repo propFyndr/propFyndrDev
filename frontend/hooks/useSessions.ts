@@ -100,9 +100,9 @@ export function useSessions(userId: string | null, guestToken?: string | null) {
       }, 300);
     };
 
-    window.addEventListener('propfyndr:session-updated', handleSessionUpdate);
+    window.addEventListener('realtyask:session-updated', handleSessionUpdate);
     return () => {
-      window.removeEventListener('propfyndr:session-updated', handleSessionUpdate);
+      window.removeEventListener('realtyask:session-updated', handleSessionUpdate);
       if (refreshTimeoutRef.current) clearTimeout(refreshTimeoutRef.current);
     };
   }, []);

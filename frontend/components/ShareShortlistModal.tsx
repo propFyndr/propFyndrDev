@@ -18,9 +18,9 @@ export default function ShareShortlistModal({ isOpen, shortlist, onClose }: Shar
 
   if (!isOpen || shortlist.length === 0) return null;
 
-  const shortlistText = `🏠 My PropFyndr Shortlist\n\n` +
+  const shortlistText = `🏠 My RealtyAsk Shortlist\n\n` +
     shortlist.map((p, i) => `${i + 1}. ${p.name} — ${p.price_range_label ?? 'Price on request'} (${p.sector ?? 'Noida'})`).join('\n') +
-    `\n\nResearched with PropFyndr AI`;
+    `\n\nResearched with RealtyAsk AI`;
 
   const handleShare = async () => {
     if (sharing || shareUrl) return;
@@ -48,7 +48,7 @@ export default function ShareShortlistModal({ isOpen, shortlist, onClose }: Shar
   const handleCopyLink = async () => {
     const url = shareUrl || (await handleShare());
     if (!url) return;
-    navigator.clipboard.writeText(`Check out this property shortlist from PropFyndr AI:\n${url}`)
+    navigator.clipboard.writeText(`Check out this property shortlist from RealtyAsk AI:\n${url}`)
       .then(() => { setCopied(true); setTimeout(() => setCopied(false), 2000) })
       .catch(() => { /* clipboard blocked */ });
   };
@@ -76,11 +76,11 @@ export default function ShareShortlistModal({ isOpen, shortlist, onClose }: Shar
             <button onClick={onClose} className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 text-lg leading-none transition-colors">×</button>
           </div>
           <div className="bg-gray-50 dark:bg-gray-800 rounded-xl p-4 mb-4 border border-gray-100 dark:border-gray-700 text-[12px] text-gray-600 dark:text-gray-300 font-mono leading-relaxed">
-            <div className="font-bold text-gray-800 dark:text-gray-100 mb-1">🏠 My PropFyndr Shortlist</div>
+            <div className="font-bold text-gray-800 dark:text-gray-100 mb-1">🏠 My RealtyAsk Shortlist</div>
             {shortlist.map((p, i) => (
               <div key={p.id}>{i + 1}. {p.name} — {p.price_range_label ?? 'Price on request'} ({p.sector ?? 'Noida'})</div>
             ))}
-            <div className="mt-2 text-gray-400 text-[11px]">Researched with PropFyndr AI</div>
+            <div className="mt-2 text-gray-400 text-[11px]">Researched with RealtyAsk AI</div>
           </div>
           <div className="flex flex-col gap-2">
             <button
@@ -92,7 +92,7 @@ export default function ShareShortlistModal({ isOpen, shortlist, onClose }: Shar
             </button>
             {process.env.NEXT_PUBLIC_WHATSAPP_NUMBER && shareUrl && (
               <a
-                href={`https://wa.me/?text=${encodeURIComponent(`Check out this property shortlist from PropFyndr AI:\n${shareUrl}`)}`}
+                href={`https://wa.me/?text=${encodeURIComponent(`Check out this property shortlist from RealtyAsk AI:\n${shareUrl}`)}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center justify-center gap-2 py-3.5 bg-[#25D366] hover:bg-[#1da851] text-white font-bold rounded-xl text-sm transition-colors"

@@ -399,15 +399,15 @@ const INVENTORY_SIZE: Array<[RegExp, string]> = [
   // pattern here therefore requires a platform subject, a platform locus, or an
   // assistant-capability framing — never a bare number plus a noun.
 
-  // "PropFyndr covers 280 projects", "the platform lists 117 builders".
-  [new RegExp(`\\b(?:propfyndr|realtypal|(?:the|this|our)\\s+(?:platform|site|portal|service))\\s+(?:${HEDGE})?(?:covers?|tracks?|has|holds?|lists?|maintains?|contains?|spans?|carries|offers?)\\s+${HEDGE}${ANY_COUNT}\\s+(?:[\\w-]+\\s+){0,2}?(?:projects?|societies|properties|sectors?|builders?|developers?|listings?)`, 'i'), 'counts our holdings'],
+  // "RealtyAsk covers 280 projects", "the platform lists 117 builders".
+  [new RegExp(`\\b(?:realtyask|realtypal|(?:the|this|our)\\s+(?:platform|site|portal|service))\\s+(?:${HEDGE})?(?:covers?|tracks?|has|holds?|lists?|maintains?|contains?|spans?|carries|offers?)\\s+${HEDGE}${ANY_COUNT}\\s+(?:[\\w-]+\\s+){0,2}?(?:projects?|societies|properties|sectors?|builders?|developers?|listings?)`, 'i'), 'counts our holdings'],
 
-  // "There are 280 projects on PropFyndr / across our platform." A locus is
+  // "There are 280 projects on RealtyAsk / across our platform." A locus is
   // required so that "there are 3 projects in Sector 150" stays an answer.
-  [new RegExp(`\\bthere\\s+(?:are|is)\\s+${HEDGE}${ANY_COUNT}\\s+(?:[\\w-]+\\s+){0,2}?(?:projects?|societies|properties|builders?|developers?|listings?)\\s+(?:on|across|in|within)\\s+(?:propfyndr|realtypal|(?:our|the|this)\\s+(?:platform|site|portal|database|catalogue|catalog|coverage|records?|inventory|dataset|data\\s*set))`, 'i'), 'counts our holdings'],
+  [new RegExp(`\\bthere\\s+(?:are|is)\\s+${HEDGE}${ANY_COUNT}\\s+(?:[\\w-]+\\s+){0,2}?(?:projects?|societies|properties|builders?|developers?|listings?)\\s+(?:on|across|in|within)\\s+(?:realtyask|realtypal|(?:our|the|this)\\s+(?:platform|site|portal|database|catalogue|catalog|coverage|records?|inventory|dataset|data\\s*set))`, 'i'), 'counts our holdings'],
 
   // "Across our platform there are 280 projects" — the same claim, fronted.
-  [new RegExp(`\\b(?:across|on|in|within)\\s+(?:propfyndr|realtypal|(?:our|the|this)\\s+(?:platform|site|portal|coverage|catalogue|catalog|inventory|dataset|data\\s*set))\\b[^.]{0,40}?\\b${ANY_COUNT}\\s+(?:[\\w-]+\\s+){0,2}?(?:projects?|societies|properties|sectors?|builders?|developers?|listings?)`, 'i'), 'counts our holdings'],
+  [new RegExp(`\\b(?:across|on|in|within)\\s+(?:realtyask|realtypal|(?:our|the|this)\\s+(?:platform|site|portal|coverage|catalogue|catalog|inventory|dataset|data\\s*set))\\b[^.]{0,40}?\\b${ANY_COUNT}\\s+(?:[\\w-]+\\s+){0,2}?(?:projects?|societies|properties|sectors?|builders?|developers?|listings?)`, 'i'), 'counts our holdings'],
 
   // "I can see 280 projects", "I have access to 117 builders." The assistant
   // describing the size of its own working set is the prompt read aloud.
@@ -580,7 +580,7 @@ function scan(text: string, table: Array<[RegExp, string]>, kind: IntegrityKind)
 
 export const UNLISTED_PROPRIETARY_METRICS: Array<[RegExp, string]> = [
   [
-    /\b(?:PropFyndr\s+(?:Score|Rating|Index|Audit)|On[- ]Ground\s+Verified|Physical(?:ly)?\s+(?:Inspected|Verified))\b/i,
+    /\b(?:RealtyAsk\s+(?:Score|Rating|Index|Audit)|On[- ]Ground\s+Verified|Physical(?:ly)?\s+(?:Inspected|Verified))\b/i,
     'attributes proprietary inspection or audit rating to an unlisted project',
   ],
 ]

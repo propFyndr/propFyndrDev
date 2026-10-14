@@ -18,6 +18,7 @@ import {
   UserCircle,
   SealCheck,
   MagnifyingGlass,
+  ShareNetwork,
 } from '@phosphor-icons/react'
 import PortalShell, { PortalNavItem } from '@/components/portal/PortalShell'
 
@@ -104,6 +105,13 @@ const NAV: PortalNavItem[] = [
     label: 'Analytics',
     icon: ChartLineUp,
     roles: [...EDITORS],
+    section: 'Analytics & System',
+  },
+  {
+    href: '/admin/referrals',
+    label: 'Referrals',
+    icon: ShareNetwork,
+    roles: [...OWNERS],
     section: 'Analytics & System',
   },
   {

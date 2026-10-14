@@ -99,8 +99,8 @@ export default function DiscoverPage() {
 
   useEffect(() => {
     const h = () => setNewChatNonce(n => n + 1)
-    window.addEventListener('propfyndr:new-chat', h)
-    return () => window.removeEventListener('propfyndr:new-chat', h)
+    window.addEventListener('realtyask:new-chat', h)
+    return () => window.removeEventListener('realtyask:new-chat', h)
   }, []);
 
   if (!ready) {

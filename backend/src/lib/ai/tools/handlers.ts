@@ -121,7 +121,7 @@ export function createToolHandler(ctx: ToolContext) {
             return {
               found: false,
               project_name: nameToUse,
-              message: `Payment plan details for ${nameToUse} are available on request. Custom payment structures (including Construction-Linked, Down Payment, and Flexi options) can be tailored with our team. Instruct the user to connect with our PropFyndr team via the 'Book Site Visit' or 'Callback' button for custom payment slabs.`
+              message: `Payment plan details for ${nameToUse} are available on request. Custom payment structures (including Construction-Linked, Down Payment, and Flexi options) can be tailored with our team. Instruct the user to connect with our RealtyAsk team via the 'Book Site Visit' or 'Callback' button for custom payment slabs.`
             };
           }
 
@@ -136,7 +136,7 @@ export function createToolHandler(ctx: ToolContext) {
               });
               return {
                 found: false,
-                message: `No verified record for "${args.name}" in the PropFyndr database. You may share clearly-labelled general knowledge or call web_search, but never invent specific delivery counts or reputation scores.`,
+                message: `No verified record for "${args.name}" in the RealtyAsk database. You may share clearly-labelled general knowledge or call web_search, but never invent specific delivery counts or reputation scores.`,
               };
             }
             return rec;

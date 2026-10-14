@@ -66,7 +66,7 @@ export default async function OGImage({ params }: { params: { id: string } }) {
             🏠
           </div>
           <div>
-            <div style={{ fontSize: 32, fontWeight: 'bold' }}>My PropFyndr Shortlist</div>
+            <div style={{ fontSize: 32, fontWeight: 'bold' }}>My RealtyAsk Shortlist</div>
             <div style={{ fontSize: 18, opacity: 0.8 }}>{projectCount} properties researched with AI</div>
           </div>
         </div>
@@ -106,7 +106,7 @@ export default async function OGImage({ params }: { params: { id: string } }) {
           }}
         >
           <div>Explore properties with AI-powered insights</div>
-          <div style={{ fontWeight: 'bold' }}>propfyndr.io</div>
+          <div style={{ fontWeight: 'bold' }}>realtyask.io</div>
         </div>
       </div>
     ),

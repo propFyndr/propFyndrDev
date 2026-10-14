@@ -3,7 +3,7 @@
 /**
  * Where a tenant subdomain lands.
  *
- * `lotus.propfyndr.in/` is rewritten here by middleware. This page does one
+ * `lotus.realtyask.in/` is rewritten here by middleware. This page does one
  * thing: ask the server who is signed in, and send them to their own console.
  * It deliberately does NOT read the subdomain to decide what to show — the
  * session decides. The subdomain is a door, not a key.
@@ -31,8 +31,8 @@ export default function PortalEntryPage() {
    * Branding for the subdomain that landed here.
    *
    * `portal_subdomain` had existed on Builder and ChannelPartner since
-   * subdomain routing shipped and nothing read it, so `lotus.propfyndr.in`
-   * showed a builder a page branded PropFyndr — a white-label that
+   * subdomain routing shipped and nothing read it, so `lotus.realtyask.in`
+   * showed a builder a page branded RealtyAsk — a white-label that
    * white-labelled nothing.
    *
    * Presentation only, and it must stay that way: the tenant slug is a public
@@ -95,12 +95,12 @@ export default function PortalEntryPage() {
             <img src={tenant.logo_url} alt={tenant.name} className="h-12 object-contain" />
           ) : null}
           <p className="text-[15px] font-bold text-zinc-900 dark:text-white">{tenant.name}</p>
-          <p className="text-[12px] text-zinc-400 dark:text-zinc-500">Partner portal, powered by PropFyndr</p>
+          <p className="text-[12px] text-zinc-400 dark:text-zinc-500">Partner portal, powered by RealtyAsk</p>
         </div>
       ) : (
         <>
-          <Image src="/images/icons/logo-wordmark-black.png" alt="PropFyndr" width={110} height={50} className="object-contain block dark:hidden" unoptimized />
-          <Image src="/images/icons/logo-wordmark-white.png" alt="PropFyndr" width={110} height={50} className="object-contain hidden dark:block" unoptimized />
+          <Image src="/images/icons/logo-wordmark-black.png" alt="RealtyAsk" width={110} height={50} className="object-contain block dark:hidden" unoptimized />
+          <Image src="/images/icons/logo-wordmark-white.png" alt="RealtyAsk" width={110} height={50} className="object-contain hidden dark:block" unoptimized />
         </>
       )}
       <div className="w-7 h-7 border-2 border-zinc-800 dark:border-zinc-200 border-t-transparent dark:border-t-transparent rounded-full animate-spin" />

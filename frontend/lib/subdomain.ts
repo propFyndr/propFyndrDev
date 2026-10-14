@@ -1,5 +1,5 @@
 /**
- * Tenant subdomains: `lotus.propfyndr.in` instead of `/builder/portal`.
+ * Tenant subdomains: `lotus.realtyask.in` instead of `/builder/portal`.
  *
  * This is ADDRESSING, never authorisation. Resolving a subdomain grants
  * nothing — the session still decides what any request may read, and every
@@ -34,11 +34,11 @@ const LOCAL_HOSTS = new Set(['localhost', '127.0.0.1', '0.0.0.0', '[::1]'])
  * returns null and the request is served exactly as before. A false negative
  * costs a nice URL; a false positive would route a buyer into a portal.
  *
- *   lotus.propfyndr.in        -> 'lotus'
- *   www.propfyndr.in          -> null   (reserved)
- *   propfyndr.in              -> null   (apex)
+ *   lotus.realtyask.in        -> 'lotus'
+ *   www.realtyask.in          -> null   (reserved)
+ *   realtyask.in              -> null   (apex)
  *   lotus.localhost:3000      -> 'lotus' (local testing)
- *   propfyndr.vercel.app      -> null   (preview deploys are not tenants)
+ *   realtyask.vercel.app      -> null   (preview deploys are not tenants)
  */
 export function tenantFromHost(host: string | null | undefined): string | null {
   if (!host) return null
@@ -50,7 +50,7 @@ export function tenantFromHost(host: string | null | undefined): string | null {
   // A bare IP is never a tenant host.
   if (/^\d{1,3}(\.\d{1,3}){3}$/.test(bare)) return null
 
-  // Vercel preview deployments (`propfyndr-git-branch-team.vercel.app`) have a
+  // Vercel preview deployments (`realtyask-git-branch-team.vercel.app`) have a
   // subdomain shape but are the product, not a tenant.
   if (bare.endsWith('.vercel.app') || bare.endsWith('.onrender.com')) return null
 
@@ -62,7 +62,7 @@ export function tenantFromHost(host: string | null | undefined): string | null {
   }
 
   // Anything shorter than host.tld.something is the apex or unusable.
-  // `propfyndr.in` is two labels and has no tenant.
+  // `realtyask.in` is two labels and has no tenant.
   if (labels.length < 3) return null
 
   const candidate = labels[0]
@@ -81,7 +81,7 @@ export function isUsableTenantLabel(label: string): boolean {
  * Paths a tenant host serves unchanged.
  *
  * Everything else on a tenant host is rewritten to the portal entry, so
- * `lotus.propfyndr.in/` lands somewhere useful instead of the buyer homepage.
+ * `lotus.realtyask.in/` lands somewhere useful instead of the buyer homepage.
  */
 export function isPassThroughPath(pathname: string): boolean {
   return (

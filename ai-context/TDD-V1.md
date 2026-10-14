@@ -1,11 +1,11 @@
-PropFyndr TDD
+RealtyAsk TDD
 Technical Design Document (TDD)
 
 Version: 1.0
 
 Status: Active Development
 
-Product: PropFyndr
+Product: RealtyAsk
 
 Document Owner: Engineering
 
@@ -16,9 +16,9 @@ Intelligence Specification (ISD)
 Knowledge & Data Specification (KDS)
 Executive Summary
 
-PropFyndr is an AI-powered decision intelligence platform designed to assist homebuyers in discovering, evaluating, and selecting residential properties.
+RealtyAsk is an AI-powered decision intelligence platform designed to assist homebuyers in discovering, evaluating, and selecting residential properties.
 
-Unlike traditional real estate platforms where artificial intelligence acts as the primary decision-maker, PropFyndr separates business logic from language generation.
+Unlike traditional real estate platforms where artificial intelligence acts as the primary decision-maker, RealtyAsk separates business logic from language generation.
 
 Structured knowledge, deterministic algorithms, and domain-specific services form the foundation of the platform. Artificial intelligence acts as the conversational interface responsible for understanding users, explaining recommendations, and supporting decision-making.
 
@@ -30,11 +30,11 @@ Maintainability
 Scalability
 Trust
 
-The purpose of this document is to define the technical architecture, engineering principles, service boundaries, deployment model, and implementation strategy for the PropFyndr platform.
+The purpose of this document is to define the technical architecture, engineering principles, service boundaries, deployment model, and implementation strategy for the RealtyAsk platform.
 
 1. Engineering Philosophy
 
-Every architectural decision within PropFyndr follows one central belief:
+Every architectural decision within RealtyAsk follows one central belief:
 
 Business knowledge should outlive artificial intelligence.
 
@@ -48,13 +48,13 @@ Programming languages may eventually change.
 
 The knowledge platform, recommendation logic, and engineering principles should remain stable regardless of these technological changes.
 
-For this reason, PropFyndr is designed as a Domain-Driven Decision Intelligence Platform, where AI is treated as a capability rather than the core architecture.
+For this reason, RealtyAsk is designed as a Domain-Driven Decision Intelligence Platform, where AI is treated as a capability rather than the core architecture.
 
 2. Architectural Vision
 
-PropFyndr is fundamentally composed of four independent systems.
+RealtyAsk is fundamentally composed of four independent systems.
 
-                PropFyndr Platform
+                RealtyAsk Platform
 
                         │
 
@@ -153,7 +153,7 @@ It never replaces them.
 
 Principle 2 — Database Before AI
 
-Every factual response presented to users originates from the PropFyndr Knowledge Platform.
+Every factual response presented to users originates from the RealtyAsk Knowledge Platform.
 
 Large Language Models are never considered authoritative sources of factual information.
 
@@ -225,7 +225,7 @@ Future platforms—including mobile applications, partner dashboards, and white-
 
 Principle 9 — Knowledge as an Asset
 
-The most valuable asset within PropFyndr is not the AI model.
+The most valuable asset within RealtyAsk is not the AI model.
 
 It is the continuously evolving structured knowledge platform.
 
@@ -233,7 +233,7 @@ Every engineering decision should strengthen, enrich, or protect that knowledge.
 
 4. System Architecture
 
-PropFyndr adopts a layered Domain-Driven Modular Monolith architecture.
+RealtyAsk adopts a layered Domain-Driven Modular Monolith architecture.
 
                     User
 
@@ -310,7 +310,7 @@ Business logic belongs elsewhere.
 
 Layer 3 — Domain Layer
 
-This represents the heart of PropFyndr.
+This represents the heart of RealtyAsk.
 
 Every business capability exists as an independent domain.
 
@@ -477,7 +477,7 @@ These capabilities may be introduced in future versions but should not influence
 Part II — System Context & Request Lifecycle
 9. System Context
 
-The PropFyndr platform consists of multiple independent systems working together to transform a buyer's natural language requirements into explainable property recommendations.
+The RealtyAsk platform consists of multiple independent systems working together to transform a buyer's natural language requirements into explainable property recommendations.
 
 The platform separates user interaction from business logic, deterministic reasoning, artificial intelligence, and persistence.
 
@@ -526,7 +526,7 @@ Notice
 
 External systems never directly serve users.
 
-Everything passes through PropFyndr.
+Everything passes through RealtyAsk.
 
 10. Request Lifecycle
 
@@ -714,7 +714,7 @@ AI participates only here.
 
 12. Conversation Lifecycle
 
-Conversation represents the primary interface of PropFyndr.
+Conversation represents the primary interface of RealtyAsk.
 
 Every conversation progresses through structured stages.
 
@@ -1277,7 +1277,7 @@ Site Visit
 
 Broker
 
-This pipeline represents the canonical flow of the PropFyndr platform.
+This pipeline represents the canonical flow of the RealtyAsk platform.
 
 All future features should integrate into this lifecycle rather than bypass it.
 
@@ -1285,7 +1285,7 @@ All future features should integrate into this lifecycle rather than bypass it.
 Part III — Domain Architecture
 25. Domain-Driven Design
 
-PropFyndr is organized around business domains rather than technical layers.
+RealtyAsk is organized around business domains rather than technical layers.
 
 Every domain owns a specific business capability and is responsible for the complete lifecycle of that capability.
 
@@ -1307,7 +1307,7 @@ Communication occurs only through well-defined public interfaces.
 
 The backend consists of independent business domains.
 
-                     PropFyndr Backend
+                     RealtyAsk Backend
 
                            │
 
@@ -1609,7 +1609,7 @@ Knowledge Domain
 
 Purpose
 
-Central gateway into the PropFyndr Knowledge Platform.
+Central gateway into the RealtyAsk Knowledge Platform.
 
 Responsibilities
 
@@ -1869,7 +1869,7 @@ No business logic belongs here.
 
 34. Infrastructure Layer
 
-Infrastructure connects PropFyndr to external services.
+Infrastructure connects RealtyAsk to external services.
 
 Examples
 
@@ -1974,7 +1974,7 @@ Part IV — Decision Engine & AI Architecture
 38. The Decision Engine
 Purpose
 
-The Decision Engine is the core orchestration layer of PropFyndr.
+The Decision Engine is the core orchestration layer of RealtyAsk.
 
 Its responsibility is not merely to rank properties, but to assist buyers in making informed and explainable purchasing decisions.
 
@@ -2180,7 +2180,7 @@ These values support downstream reasoning but are not presented verbatim to user
 
 47. Trade-off Analysis
 
-One of PropFyndr' defining capabilities is explaining compromises.
+One of RealtyAsk' defining capabilities is explaining compromises.
 
 Every recommendation should identify both strengths and limitations.
 
@@ -2289,7 +2289,7 @@ Determines eligibility.
 
 Prompt construction is modular.
 
-Instead of a single large prompt, PropFyndr assembles prompts from structured components.
+Instead of a single large prompt, RealtyAsk assembles prompts from structured components.
 
 Example:
 
@@ -2367,7 +2367,7 @@ Core platform functionality should remain available even without AI.
 
 56. Engineering Principles for AI
 
-Every AI capability within PropFyndr must follow these rules:
+Every AI capability within RealtyAsk must follow these rules:
 
 AI never owns business logic.
 AI never invents factual information.
@@ -2381,11 +2381,11 @@ AI prompts should be modular, reusable, and versioned.
 Part V — Knowledge Platform Architecture
 57. Overview
 
-The Knowledge Platform is the foundation of the PropFyndr ecosystem.
+The Knowledge Platform is the foundation of the RealtyAsk ecosystem.
 
 It serves as the single operational source of truth for every business capability across the platform.
 
-Unlike traditional real estate systems that primarily store listings, the PropFyndr Knowledge Platform stores structured, interconnected knowledge that enables deterministic reasoning, explainable recommendations, and conversational advisory.
+Unlike traditional real estate systems that primarily store listings, the RealtyAsk Knowledge Platform stores structured, interconnected knowledge that enables deterministic reasoning, explainable recommendations, and conversational advisory.
 
 Every recommendation, comparison, investment insight, and builder analysis ultimately depends on this platform.
 
@@ -2711,7 +2711,7 @@ Invalid records are rejected before persistence.
 
 67. Intelligence Enrichment
 
-After structured facts exist, PropFyndr generates higher-order intelligence.
+After structured facts exist, RealtyAsk generates higher-order intelligence.
 
 Examples include:
 
@@ -2891,7 +2891,7 @@ Reflects the latest verified information available.
 
 75. Long-Term Knowledge Vision
 
-As PropFyndr expands, the Knowledge Platform should evolve into a comprehensive real estate knowledge graph.
+As RealtyAsk expands, the Knowledge Platform should evolve into a comprehensive real estate knowledge graph.
 
 Future entities may include:
 
@@ -2913,7 +2913,7 @@ Every new entity should integrate into the existing graph through explicit relat
 
 The purpose of the Knowledge Platform is not merely to store information.
 
-Its purpose is to enable every other system within PropFyndr.
+Its purpose is to enable every other system within RealtyAsk.
 
 Without it:
 
@@ -2925,13 +2925,13 @@ Investment insights become speculative.
 
 The Knowledge Platform transforms verified information into trusted decision-making.
 
-It is therefore the most valuable technical asset within the PropFyndr ecosystem.
+It is therefore the most valuable technical asset within the RealtyAsk ecosystem.
 
 
 Part VI — Backend Architecture & Service Design
 77. Backend Philosophy
 
-The PropFyndr backend is designed as a Domain-Driven Modular Monolith.
+The RealtyAsk backend is designed as a Domain-Driven Modular Monolith.
 
 Business capabilities are organized into independent modules that communicate through well-defined interfaces.
 
@@ -3532,7 +3532,7 @@ Every endpoint should be observable.
 Part VII — Conversation, Discovery & Decision Architecture
 100. Overview
 
-PropFyndr is fundamentally a decision support platform.
+RealtyAsk is fundamentally a decision support platform.
 
 Every buyer interaction follows a structured reasoning pipeline rather than a direct prompt-response interaction with a language model.
 
@@ -3591,7 +3591,7 @@ The Decision Engine never talks directly to the buyer.
 102. Conversation Engine
 Purpose
 
-The Conversation Engine owns every interaction between the buyer and PropFyndr.
+The Conversation Engine owns every interaction between the buyer and RealtyAsk.
 
 Its responsibility is to understand intent, maintain context, guide the buyer through clarification, and present structured decisions naturally.
 
@@ -3697,7 +3697,7 @@ Intent extraction should produce structured data rather than conversational summ
 
 105. Clarification Strategy
 
-PropFyndr should avoid asking unnecessary questions.
+RealtyAsk should avoid asking unnecessary questions.
 
 Clarification is progressive.
 
@@ -4079,7 +4079,7 @@ Maintain separation between facts, decisions, and language.
 Part VIII — Database Architecture & Persistence
 123. Purpose
 
-The PostgreSQL database is the operational source of truth for PropFyndr.
+The PostgreSQL database is the operational source of truth for RealtyAsk.
 
 Every factual piece of information presented to buyers originates from the database after passing through the knowledge ingestion and validation pipeline.
 
@@ -4094,7 +4094,7 @@ Performance
 Versionability
 124. Persistence Philosophy
 
-PropFyndr follows several principles regarding persistence.
+RealtyAsk follows several principles regarding persistence.
 
 Principle 1 — Database First
 
@@ -4236,7 +4236,7 @@ Investment Intelligence
 Decision Metadata
 127. Read Model vs Write Model
 
-PropFyndr separates operational storage from optimized reading.
+RealtyAsk separates operational storage from optimized reading.
 
                 User
 
@@ -4535,7 +4535,7 @@ Design for evolution, not perfection.
 Part IX — API Architecture & Integration Design
 141. Purpose
 
-The API layer provides a standardized interface between clients and the PropFyndr platform.
+The API layer provides a standardized interface between clients and the RealtyAsk platform.
 
 It abstracts the underlying business domains and exposes consistent, secure, and versioned interfaces for all supported clients.
 
@@ -4543,7 +4543,7 @@ The API should remain independent of presentation technologies, allowing multipl
 
 142. API Philosophy
 
-Every API within PropFyndr follows five principles.
+Every API within RealtyAsk follows five principles.
 
 Client Agnostic
 
@@ -5017,7 +5017,7 @@ Sensitive information should never be returned unnecessarily.
 
 160. API Design Principles
 
-Every API within PropFyndr should satisfy the following principles:
+Every API within RealtyAsk should satisfy the following principles:
 
 Stable contracts.
 Consistent request and response formats.
@@ -5034,7 +5034,7 @@ Easy to evolve without breaking existing integrations.
 Part X — Frontend Architecture
 161. Purpose
 
-The frontend is the presentation layer of PropFyndr.
+The frontend is the presentation layer of RealtyAsk.
 
 Its responsibility is to provide a fast, intuitive, and conversational experience while remaining completely independent of business logic.
 
@@ -5238,7 +5238,7 @@ Consistent design language.
 Part XI — Infrastructure, Deployment & DevOps Architecture
 171. Purpose
 
-The infrastructure layer provides the runtime environment for the PropFyndr platform.
+The infrastructure layer provides the runtime environment for the RealtyAsk platform.
 
 It is responsible for hosting, deployment, networking, scalability, reliability, and operational stability.
 
@@ -5586,7 +5586,7 @@ Keep operational complexity proportional to business needs.
 Part XII — Security Architecture
 191. Purpose
 
-Security within PropFyndr is a foundational architectural concern.
+Security within RealtyAsk is a foundational architectural concern.
 
 Every layer of the platform—including the frontend, backend, APIs, databases, infrastructure, and AI systems—must be designed to protect user data, preserve system integrity, and maintain trust.
 
@@ -5596,7 +5596,7 @@ It is embedded throughout the platform.
 
 192. Security Philosophy
 
-PropFyndr follows five security principles.
+RealtyAsk follows five security principles.
 
 Zero Trust
 
@@ -5659,7 +5659,7 @@ Each layer protects the next.
 
 194. Authentication
 
-PropFyndr authenticates users using Better Auth.
+RealtyAsk authenticates users using Better Auth.
 
 Supported methods:
 
@@ -5964,7 +5964,7 @@ Every major incident should produce actionable learnings.
 
 209. Compliance Considerations
 
-Although PropFyndr V1 is not pursuing formal certifications, the architecture should align with good practices that support future compliance efforts.
+Although RealtyAsk V1 is not pursuing formal certifications, the architecture should align with good practices that support future compliance efforts.
 
 Examples include:
 
@@ -5996,7 +5996,7 @@ Treat security as a product feature.
 Part XIII — Performance & Scalability Architecture
 211. Purpose
 
-The purpose of the scalability architecture is to ensure that PropFyndr remains responsive, reliable, and cost-efficient as the platform grows.
+The purpose of the scalability architecture is to ensure that RealtyAsk remains responsive, reliable, and cost-efficient as the platform grows.
 
 Scalability is not limited to infrastructure.
 
@@ -6146,7 +6146,7 @@ Cache failures should never cause platform failures.
 
 219. AI Cost Scaling
 
-One of PropFyndr' largest future costs will be AI.
+One of RealtyAsk' largest future costs will be AI.
 
 The architecture minimizes unnecessary AI usage.
 
@@ -6361,7 +6361,7 @@ AI Intelligence
 
 Decision Engine
 
-This pipeline allows PropFyndr to scale from tens of properties to hundreds of thousands while maintaining quality.
+This pipeline allows RealtyAsk to scale from tens of properties to hundreds of thousands while maintaining quality.
 
 226. Latency Targets
 
@@ -6426,7 +6426,7 @@ These capabilities should emerge through incremental evolution rather than whole
 Part XIV — Observability & Monitoring Architecture
 230. Purpose
 
-Observability enables PropFyndr engineers to understand the health, performance, reliability, and behavior of the platform in real time.
+Observability enables RealtyAsk engineers to understand the health, performance, reliability, and behavior of the platform in real time.
 
 Unlike traditional monitoring, observability provides sufficient information to answer not only what failed, but also why it failed.
 
@@ -6434,7 +6434,7 @@ Every production service should be observable.
 
 231. Observability Philosophy
 
-PropFyndr follows five principles.
+RealtyAsk follows five principles.
 
 Everything Important is Measured
 
@@ -6461,7 +6461,7 @@ LLMs should never become opaque black boxes.
 Every AI interaction should be measurable.
 
 232. Observability Stack
-                PropFyndr
+                RealtyAsk
 
                      │
 
@@ -6789,7 +6789,7 @@ Preserve auditability.
 Continuously evaluate AI quality.
 Use metrics to guide optimization.
 Treat observability as part of the product.
-246. The PropFyndr Operational Dashboard
+246. The RealtyAsk Operational Dashboard
 
 One dashboard should provide a real-time overview of platform health.
 
@@ -6823,7 +6823,7 @@ This dashboard becomes the operational command center for the platform.
 Part XV — Testing & Quality Assurance Architecture
 247. Purpose
 
-The testing architecture ensures that every component of the PropFyndr platform behaves correctly, consistently, and reliably throughout its lifecycle.
+The testing architecture ensures that every component of the RealtyAsk platform behaves correctly, consistently, and reliably throughout its lifecycle.
 
 Testing should verify:
 
@@ -6839,7 +6839,7 @@ Every release should be validated through automated and manual testing before re
 
 248. Testing Philosophy
 
-PropFyndr follows five testing principles.
+RealtyAsk follows five testing principles.
 
 Test Business Logic Before UI
 
@@ -7117,7 +7117,7 @@ Evaluation should use representative conversation datasets.
 
 260. Decision Evaluation ⭐
 
-This is unique to PropFyndr.
+This is unique to RealtyAsk.
 
 The Decision Engine should be evaluated independently of the language model.
 
@@ -7220,7 +7220,7 @@ Implementation alone does not constitute completion.
 Part XVI — Reliability, Failure Recovery & Resilience
 267. Purpose
 
-The reliability architecture ensures that PropFyndr continues to operate correctly despite failures in infrastructure, external services, software, or user behavior.
+The reliability architecture ensures that RealtyAsk continues to operate correctly despite failures in infrastructure, external services, software, or user behavior.
 
 Failures are considered inevitable.
 
@@ -7228,7 +7228,7 @@ The objective is to minimize their impact on users while enabling rapid recovery
 
 268. Reliability Philosophy
 
-PropFyndr follows five reliability principles.
+RealtyAsk follows five reliability principles.
 
 Assume Failure
 
@@ -7586,7 +7586,7 @@ Postmortems should focus on learning rather than blame.
 
 281. Business Continuity
 
-During major incidents, PropFyndr should prioritize core buyer capabilities.
+During major incidents, RealtyAsk should prioritize core buyer capabilities.
 
 Priority order:
 
@@ -7661,15 +7661,15 @@ Reliability is a feature, not an afterthought.
 Part XVII — Engineering Standards & Development Guidelines
 286. Purpose
 
-This chapter defines the engineering standards that govern the development of the PropFyndr platform.
+This chapter defines the engineering standards that govern the development of the RealtyAsk platform.
 
 Its objective is to ensure consistency, maintainability, scalability, and long-term code quality across all modules.
 
-Every engineer contributing to PropFyndr should follow these standards unless a documented architectural decision explicitly states otherwise.
+Every engineer contributing to RealtyAsk should follow these standards unless a documented architectural decision explicitly states otherwise.
 
 287. Engineering Philosophy
 
-PropFyndr engineering follows one principle:
+RealtyAsk engineering follows one principle:
 
 Write software that another engineer can confidently modify six months later.
 
@@ -8033,7 +8033,7 @@ Engineering decisions should optimize for the longevity of the platform rather t
 
 309. Definition of Engineering Excellence
 
-An engineer working on PropFyndr should strive to produce software that is:
+An engineer working on RealtyAsk should strive to produce software that is:
 
 Correct.
 Reliable.
@@ -8050,7 +8050,7 @@ Success is measured not only by shipped features, but also by the ease with whic
 Part XVIII — Future Architecture & Evolution
 310. Purpose
 
-The Future Architecture defines the long-term evolution of the PropFyndr platform beyond Version 1.
+The Future Architecture defines the long-term evolution of the RealtyAsk platform beyond Version 1.
 
 Its objective is to ensure that today's architectural decisions enable tomorrow's capabilities without requiring fundamental redesign.
 
@@ -8058,7 +8058,7 @@ The platform should evolve through incremental improvements while preserving its
 
 311. Long-Term Vision
 
-PropFyndr does not aspire to become another listings portal.
+RealtyAsk does not aspire to become another listings portal.
 
 Its long-term vision is to become:
 
@@ -8243,7 +8243,7 @@ The engine remains deterministic wherever possible.
 
 318. White-Label Platform
 
-PropFyndr should support white-label deployments.
+RealtyAsk should support white-label deployments.
 
 Example:
 
@@ -8422,11 +8422,11 @@ Can this support another business model?
 
 If the answer is consistently "yes," the architecture is evolving successfully.
 
-329. The PropFyndr End State
+329. The RealtyAsk End State
 
 The long-term platform can be visualized as:
 
-                   PropFyndr Platform
+                   RealtyAsk Platform
 
                            │
 
@@ -8462,7 +8462,7 @@ This architecture supports multiple products while preserving a single operation
 
 330. Architectural Vision Statement
 
-The architecture of PropFyndr exists to achieve one objective:
+The architecture of RealtyAsk exists to achieve one objective:
 
 To transform fragmented real estate information into trusted decision intelligence that helps every homebuyer make better property decisions.
 

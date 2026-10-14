@@ -48,7 +48,7 @@ const nextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'storage.propfyndr.com',
+        hostname: 'storage.realtyask.com',
       },
       {
         protocol: 'https',
@@ -187,8 +187,8 @@ const nextConfig = {
 const isDev = process.env.NODE_ENV !== 'production'
 
 module.exports = isDev ? nextConfig : withSentryConfig(nextConfig, {
-  org: 'propfyndr',
-  project: 'propfyndr-sentry',
+  org: 'realtyask',
+  project: 'realtyask-sentry',
   silent: true,
   widenClientFileUpload: true,
   hideSourceMaps: true,

@@ -62,8 +62,8 @@ const INVESTMENT_CLAIM_PATTERNS = [
  * turns an advisor back into a directory.
  */
 const EXTERNAL_URL_PATTERNS = [
-  /https?:\/\/(?!(?:[\w-]+\.)?uipropfyndr\.com)[^\s"]+/i,
-  /www\.(?!uipropfyndr\.com)[^\s"]+/i,
+  /https?:\/\/(?!(?:[\w-]+\.)?uirealtyask\.com)[^\s"]+/i,
+  /www\.(?!uirealtyask\.com)[^\s"]+/i,
   // Bare domains, which is how the model actually wrote it — "verify at
   // up-rera.in" carries no scheme and no www, so neither pattern above saw it.
   /\b(?:up-?rera|rera\.up\.gov)\.(?:in|gov\.in)\b/i,
@@ -88,7 +88,7 @@ export async function outputGuardrail(
   // Check if response is leaking system prompt/context (fallback protection)
   if (systemPrompt) {
     const keyMarkers = [
-      /propfyndr (ai |data |behavior |communication )/i,
+      /realtyask (ai |data |behavior |communication )/i,
       /hard rule|strong rule/i,
       /fallback mode/i,
       /prohibited|never invent|never share/i,

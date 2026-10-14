@@ -1,7 +1,7 @@
 'use client'
 
 /**
- * PropFyndr Admin — News & Announcements Management.
+ * RealtyAsk Admin — News & Announcements Management.
  *
  * Implements Apple Design and Master Design Engineering principles:
  * - Anti-Nesting & Visual Elegance: Clean telemetry, high-contrast badges,
@@ -328,7 +328,7 @@ export default function BuilderNewsPage() {
       'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map(r => r.join(','))].join('\n')
     const link = document.createElement('a')
     link.setAttribute('href', encodeURI(csvContent))
-    link.setAttribute('download', `propfyndr_news_${filter}_${Date.now()}.csv`)
+    link.setAttribute('download', `realtyask_news_${filter}_${Date.now()}.csv`)
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
@@ -775,7 +775,7 @@ function NewsThumbnail({ src, alt }: { src?: string | null; alt: string }) {
       <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-gradient-to-br from-zinc-100 to-zinc-200 dark:from-zinc-800 dark:to-zinc-900 border border-zinc-200/80 dark:border-zinc-700/80 flex flex-col items-center justify-center text-zinc-400 p-2 text-center shrink-0">
         <Newspaper size={28} weight="duotone" className="text-zinc-400 dark:text-zinc-500 mb-1" />
         <span className="text-[10px] font-semibold text-zinc-400 dark:text-zinc-500 line-clamp-1 max-w-full">
-          PropFyndr
+          RealtyAsk
         </span>
       </div>
     )

@@ -8,7 +8,7 @@ describe('Environment: Variable validation', () => {
   })
 
   it('validates DATABASE_URL is set and valid', () => {
-    const dbUrl = 'postgresql://user:pass@localhost:5432/propfyndr'
+    const dbUrl = 'postgresql://user:pass@localhost:5432/realtyask'
     assert(dbUrl.startsWith('postgresql://') || dbUrl.startsWith('postgres://'))
   })
 
@@ -78,7 +78,7 @@ describe('Environment: Feature flags', () => {
 describe('Environment: Startup validation', () => {
   it('fails fast if DATABASE_URL missing', () => {
     const dbUrl = process.env.DATABASE_URL || null
-    const canStart = dbUrl !== null && dbUrl !== 'postgresql://test:test@localhost:5432/propfyndr_test'
+    const canStart = dbUrl !== null && dbUrl !== 'postgresql://test:test@localhost:5432/realtyask_test'
     assert(!canStart || true) // Test or prod ok
   })
 

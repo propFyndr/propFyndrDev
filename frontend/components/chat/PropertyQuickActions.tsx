@@ -17,7 +17,7 @@ interface Props {
 export default function PropertyQuickActions({ project, onCallback, onOpenShareSheet }: Props) {
   const handleAskAI = () => {
     window.dispatchEvent(
-      new CustomEvent('propfyndr:ask-ai', {
+      new CustomEvent('realtyask:ask-ai', {
         detail: { text: `Tell me more about ${project.name}` },
       }),
     )

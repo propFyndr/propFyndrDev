@@ -6,7 +6,7 @@ Format: What was decided / Why / What was rejected and why.
 
 ---
 
-## Session 2026-09-26 — discovery screen design pass + PropFyndr brand sweep
+## Session 2026-09-26 — discovery screen design pass + RealtyAsk brand sweep
 
 **Worked on:** audit of /discover (sidebar, shell, chat components) against docs/appleDESIGN.md,
 master-design-engineering-skill.md, Premium_UI_UX_Engineering_Skill_v2.md; fixed every finding.
@@ -32,7 +32,7 @@ master-design-engineering-skill.md, Premium_UI_UX_Engineering_Skill_v2.md; fixed
 * **One price range format** "₹1.09 – 1.83 Cr" in `lib/format.ts sanitizePriceLabel`.
 
 * **Discovery keeps its hue + wordmark (user decision, overrides the design docs).** The first
-  pass flattened the page to white and replaced the Afacad "PropFyndr" wordmark with a text H1;
+  pass flattened the page to white and replaced the Afacad "RealtyAsk" wordmark with a text H1;
   user rejected both. Now: `.discover-canvas` (globals.css) — static lavender/indigo wash from the
   top corners settling into `--canvas-base`, 40s drift, dark variant; scrims/composer band use
   `--canvas-base`. Wordmark restored (Afacad bold italic, "Decide Better"), hint line kept below.
@@ -43,7 +43,7 @@ master-design-engineering-skill.md, Premium_UI_UX_Engineering_Skill_v2.md; fixed
 * New-session create path doesn't write `last_projects`.
 * Content: answers stated Noida-wide price ranges without MARKET_QUALIFIER and suggested resale.
 * SuggestionChip tone colours (indigo/emerald/amber/sky) break one-accent rule — undecided.
-* "Verified by PropFyndr Data" badge in database-mode answers — decide if tier-accurate.
+* "Verified by RealtyAsk Data" badge in database-mode answers — decide if tier-accurate.
 
 ## Session 2026-09-17 — role clearance, identity, lead intelligence, news rail
 
@@ -67,10 +67,10 @@ throughout.
   why a buyer is blocked on a specific project, in their words. It is the one thing no
   listings portal can hand a developer, and it only works because we are not their
   marketing department.
-* **Partner subdomains are flat (`partner.propfyndr.in`), not nested under a builder.**
+* **Partner subdomains are flat (`partner.realtyask.in`), not nested under a builder.**
   *Why:* a partner firm may work with several builders, so nesting asserts an exclusivity
-  the data model does not have; and `*.propfyndr.in` does not cover `*.*.propfyndr.in`,
-  so nesting needs a second TLS certificate. *Rejected:* `b.builder.propfyndr.in`.
+  the data model does not have; and `*.realtyask.in` does not cover `*.*.realtyask.in`,
+  so nesting needs a second TLS certificate. *Rejected:* `b.builder.realtyask.in`.
 * **Lead distribution is equal (round-robin), with the objection recorded.** *Why:* the
   brief asked for equal. *Noted:* equal is usually wrong — a partner converting at 40% and
   one at 5% should not get equal volume, and the weaker firm costs the *buyer* a worse
@@ -340,8 +340,8 @@ fix eventually — for now, re-run before believing a failure.
 
 ### Decision: inventory-size guard must not assume WE are the subject
 **What:** seven new patterns in `INVENTORY_SIZE` (answerIntegrity.ts) covering
-the product as subject ("PropFyndr covers 280 projects"), existentials with a
-platform locus ("there are 280 projects on PropFyndr"), the assistant's own
+the product as subject ("RealtyAsk covers 280 projects"), existentials with a
+platform locus ("there are 280 projects on RealtyAsk"), the assistant's own
 working set ("I have access to 280 projects"), scope nouns other than
 "database" (coverage/catalogue/dataset/portfolio), relationship counts ("we work
 with 117 builders") and raw data volume ("2 GB of project data").
@@ -418,10 +418,10 @@ so the test asserts nothing but `/auth` is registered above the guard.
 
 ## Session 2026-09-11 — Supply-side consoles: builder, channel partner, admin
 
-### Decision: A channel partner belongs to a builder, PropFyndr approves
+### Decision: A channel partner belongs to a builder, RealtyAsk approves
 **What:** `ChannelPartner` gained `builder_id` (FK to Builder), plus `status` (reuses the
 existing `FormStatus` enum), `reviewed_by`, `review_notes`, `submitted_at`.
-**Why:** PropFyndr does not run its own broker network. The builder onboards and manages
+**Why:** RealtyAsk does not run its own broker network. The builder onboards and manages
 their partners; we approve. Three facts kept deliberately separate — `status` is our review
 decision, `is_active` is whether they may sign in, `is_verified` is the buyer-facing badge.
 Collapsing them into one flag would have made "approved" and "trusted" the same claim.
@@ -432,7 +432,7 @@ and a way for the two to disagree.
 ### Decision: `CallbackRequest` is the one lead table, routed by `assigned_partner_id`
 **What:** Added `assigned_partner_id` (FK), `assigned_at`, `partner_notes` to
 `CallbackRequest`. Builder routes their own leads to their own approved partners; the
-partner sees only rows carrying their id; PropFyndr sees the routing on /admin/leads.
+partner sees only rows carrying their id; RealtyAsk sees the routing on /admin/leads.
 **Why:** Leads had to appear in all three consoles without being duplicated.
 `BuilderLead` and `ChannelLead` both exist in the schema and nothing writes to either —
 adding a third writer would have made "how many leads do we have" unanswerable.
@@ -510,7 +510,7 @@ was a working page no one could navigate to.
 
 ### Decision: CLAUDE.md Premium Doc Pass + Chat Design Philosophy
 **What:** Reframed CLAUDE.md's Purpose section as a working asset, not a rulebook. Added new top-level section "Chat Experience: Meeting the ChatGPT Power-User" (9 concrete expectations: no form-filling, persistent memory, correction without restart, meta-awareness, any-DB-fact answered, reasoning shown not asserted, proactive follow-ups, escalation as favor not funnel, capable-peer tone).
-**Why:** User explicitly asked to design the chat from the lens of a ChatGPT power-user encountering PropFyndr while property-hunting — bar is "would this user notice we're worse than their default assistant," not "is this a fine real-estate chatbot."
+**Why:** User explicitly asked to design the chat from the lens of a ChatGPT power-user encountering RealtyAsk while property-hunting — bar is "would this user notice we're worse than their default assistant," not "is this a fine real-estate chatbot."
 **Rejected:** Nothing removed — additive doc pass only.
 **Note:** This section is the standard for scoring future chat-feature priority; use it when deciding what to build next in the chat interface.
 
@@ -3890,7 +3890,7 @@ the stated pass condition.
 
 Six admin rows, **no shared password hashes** — the credential rotation is real.
 `preferredInviteOrigin` prefers a non-localhost entry out of the comma list and
-falls back to `https://propfyndr.in` when `FRONTEND_URL` is unset, so the
+falls back to `https://realtyask.in` when `FRONTEND_URL` is unset, so the
 invite-link bug cannot recur even if production forgets the variable. Frontend
 `next build` passes.
 
@@ -3965,7 +3965,7 @@ analytics.
 ### Corrections to what I reported earlier
 
 **1. Day 3.2 does NOT fail.** `scripts/verify_393_enrichment.cjs` crashed with
-ENOENT because it resolved `propfyndr-enrichment-393-projects.json` against the
+ENOENT because it resolved `realtyask-enrichment-393-projects.json` against the
 CWD, and a previous root cleanup (`scripts/cleanup-root.js`) had moved the file
 to `docs/enrichment/`. The data was there the whole time. Path fixed to resolve
 from `__dirname`; the script now runs and reports **100% PASSED** — 393/393 on
@@ -4032,7 +4032,7 @@ URLs in the sitemap. Building it is a new feature with product decisions in it
 Moved with `git mv`, nothing deleted: PLAN.md, PROGRESS.md,
 phaseImplementation.md and summary.md to `docs/planning/`; appleDESIGN.md and
 master-design-engineering-skill.md to `docs/`;
-propfyndr-enrichment-129-projects.json to `docs/enrichment/` (and its reader in
+realtyask-enrichment-129-projects.json to `docs/enrichment/` (and its reader in
 `backend/scripts/enrich-129-incomplete.ts` repointed);
 `scratch/compiled-73-projects-research.json` to `docs/research/`. Root markdown
 is now CLAUDE.md, MEMORY.md, README.md and MASTER_EXECUTION_ROADMAP.md.
@@ -4050,7 +4050,7 @@ grep for readers of what it moves.
   API (`title`/`trend`), which the shipping component does not have.
 - 22 root scripts belonging to a different project. Seven of them hardcode
   `C:/Users/Furqan/Desktop/PeakPalsWebsite`; the rest are branding, logo, hero
-  and scaffolding tools with no PropFyndr reference. Only `find-app-name.mjs`
+  and scaffolding tools with no RealtyAsk reference. Only `find-app-name.mjs`
   was wired to npm (`find-name`), and that entry went with it.
 
 **Kept in `scripts/`:** `enrich_122_projects.cjs`, `enrich_393_ground_truth.cjs`,
@@ -4514,7 +4514,7 @@ three design docs. Fixed what was broken; nothing committed, migrated or deploye
 **Found:** all 258 `project_documents` rows are placeholders (173 Unsplash photos, 44 project hero images with fake `file_size_bytes: 4500000`, 41 empty URLs), titled "Official Master E-Brochure" / "Verified Floor Plans" / "UP RERA Certificate". Buyers see them (`BuilderTab.tsx:544` "{N} Verified Docs", `OverviewTab.tsx:639`). Not yet hidden or deleted; needs the user's explicit yes. Also: PDF uploads never get text extracted (`routes/documents.ts:168`, images only).
 **Decided:**
 1. **Doc extraction = Option A**, a local Python batch (`backend/scripts/doc-ingest/trial.py`): pypdf page split → OCRmyPDF for scanned pages (if installed) → MarkItDown per page. Per-page conversion because MarkItDown drops page boundaries (verified on a synthetic PDF), and page numbers are what citations need. No DB writes and no model calls. Rejected: ScrapeGraphAI (an LLM call per scrape; README says "research purposes only"), Data Formulator (standalone analyst app, no embedding API), and Gemini-native PDF reading (per-document model cost; untested on scans).
-2. **AI blog drafts:** Groq (`GROQ_BLOG_API_KEY`, falls back to `GROQ_API_KEY`), drafts only, never auto-published. Admin "Generate AI Draft" button plus a Render cron (`propfyndr-blog-daily-draft`, 03:30 UTC) calling `POST /internal/blog/daily-draft` (INTERNAL_API_KEY; skips if an AI draft exists in the last 20h). Keywords live in a `blog_keywords` table, rotated least-recently-used first. Model output is constrained to JSON blocks, Zod-checked, and converted to Tiptap in code. **Links are kept only if Tavily returned that exact URL**; others are stripped. Figures not found in any source go into `blog_posts.review_notes` (admin-only; stripped from the public `/blog/:slug`). Rejected: underline (no Tiptap extension installed, and on the web it reads as a link).
+2. **AI blog drafts:** Groq (`GROQ_BLOG_API_KEY`, falls back to `GROQ_API_KEY`), drafts only, never auto-published. Admin "Generate AI Draft" button plus a Render cron (`realtyask-blog-daily-draft`, 03:30 UTC) calling `POST /internal/blog/daily-draft` (INTERNAL_API_KEY; skips if an AI draft exists in the last 20h). Keywords live in a `blog_keywords` table, rotated least-recently-used first. Model output is constrained to JSON blocks, Zod-checked, and converted to Tiptap in code. **Links are kept only if Tavily returned that exact URL**; others are stripped. Figures not found in any source go into `blog_posts.review_notes` (admin-only; stripped from the public `/blog/:slug`). Rejected: underline (no Tiptap extension installed, and on the web it reads as a link).
 3. Chat proposals written to `docs/planning/2026-10-02-chat-improvement-proposals.md`, for review only.
 **Done (user confirmed):** `scripts/migrate-blog-keywords.ts` was applied to the live DB. Placeholder documents are hidden from buyers by `lib/realDocuments.ts`: only files in the `project-docs` bucket show, applied to `/projects/:slug/documents`, `GET /documents`, `/documents/ask` and the chat `project_documents` tool. Admin still sees all 258 rows, and none were deleted. Live check: 0 of 258 visible.
 **Pending:** set `GROQ_BLOG_API_KEY`, `BACKEND_URL` and `INTERNAL_API_KEY` on Render. Get real PDFs for the trial. Install Tesseract (+hin) and Ghostscript for OCR.
@@ -4549,7 +4549,7 @@ three design docs. Fixed what was broken; nothing committed, migrated or deploye
 **Decided (user):** no cron. AI blog drafts are generated only from /admin/blog: the top button takes the next topic in the rotation, and each topic row has its own Generate button. Removed the Render cron service and `POST /internal/blog/daily-draft`. A named-topic generation now also stamps that topic's `last_used_at`.
 **Done:** `furqan.workk@gmail.com` set up as SUPER_ADMIN via `scripts/set-super-admin-password.ts`. The password was given in chat; the user was told to change it after first login.
 **Security, needs the user:**
-1. `scripts/set-super-admin-password.ts` hardcoded the password of `admin@propfyndr.in` (active, last login 2026-10-01) and was pushed in f8af515. The script now reads `ADMIN_PASSWORD` from env. **That account's password must be rotated**; it stays in git history.
+1. `scripts/set-super-admin-password.ts` hardcoded the password of `admin@realtyask.in` (active, last login 2026-10-01) and was pushed in f8af515. The script now reads `ADMIN_PASSWORD` from env. **That account's password must be rotated**; it stays in git history.
 2. A Langfuse secret key (`sk-lf-1…`) was hardcoded in 3 committed scripts (analyze/fetch/inspect-langfuse). They now read `LANGFUSE_SECRET_KEY`/`LANGFUSE_PUBLIC_KEY`. **Rotate the Langfuse key pair.**
 
 ## 2026-10-02 (cont.) — Blog writer: speed, uniqueness, structure rules, access
@@ -4607,7 +4607,7 @@ The schema cost ~5k prompt tokens per call, and the null-padded output truncated
 ## 2026-10-05 (cont.) — CLAUDE.md rewritten, Day 5 fabrication fixed, full roadmap audit
 **Decided:**
 1. **CLAUDE.md rewritten** (user deleted it deliberately). Kept every guardrail that encodes a past bug (fact tiers, field exposure, role matrix, no transcript to builders, promoted ≠ ranked, guest-token signup). Added: the three-sided product, the **verified supply chain** spec (partner submits → builder approves → we publish; field-level diffs, never direct writes), V1 MVP status table, data-integrity debts as launch blockers, definition of done, realistic limits.
-2. **5.4 re-scoped (user chose "row-verified pills only"):** the proof drawer showed a hardcoded "Quarterly Physical Inspection Audit", invented field notes and the first card's RERA number for any claim. Now a pill appears only on a RERA number we hold for a project on screen (`frontend/lib/chat/reraPills.ts`, zero tokens); model-written `[Verified: …]` with no matching row renders as plain text; drawer shows project, RERA number, authority, portal link and "PropFyndr has not inspected the site".
+2. **5.4 re-scoped (user chose "row-verified pills only"):** the proof drawer showed a hardcoded "Quarterly Physical Inspection Audit", invented field notes and the first card's RERA number for any claim. Now a pill appears only on a RERA number we hold for a project on screen (`frontend/lib/chat/reraPills.ts`, zero tokens); model-written `[Verified: …]` with no matching row renders as plain text; drawer shows project, RERA number, authority, portal link and "RealtyAsk has not inspected the site".
 3. **5.3 wired:** `unitConfiguration.ts` sends `carpetData` on `ui_state` only when carpet and super area are both measured; the visualizer's 1000/750 sqft defaults and "High speed lifts" fallback are gone; ECI shows only with real lifts-per-tower and tower count.
 4. **5.5:** duplicate `CompareSelectorOverlay` removed (two rendered stacked); Day 5 touch targets 48px.
 5. **5.2:** card states the 8.5% rate as "typical for Noida — not your bank's quote" (no live caller passes a buyer rate) and that 24(b) assumes the old regime / 30% slab.

@@ -96,7 +96,7 @@ export function beautifyResponse(text: string): string {
   beautified = beautified.replace(/\b(actually|basically|just|simply|really|literally|sort of|kind of)\b/gi, '')
   beautified = beautified.replace(/[^\S\r\n]{2,}/g, ' ')  // Re-collapse horizontal spaces after cleanup
 
-  // ── Phase 9: Enforce PropFyndr tone ──
+  // ── Phase 9: Enforce RealtyAsk tone ──
   // Convert weak language to confident advisor voice while preserving uncertainty signals
   // Hedges are left alone. This phase used to rewrite "might be"/"could be" to
   // "is likely", "maybe" to "likely" and delete "perhaps" — turning uncertainty

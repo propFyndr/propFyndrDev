@@ -292,7 +292,7 @@ export function buildProjectsBlock(
     ? `\n\n## ⛔ DATA INTEGRITY ALERT — PROJECT_NOT_FOUND\n` +
       notFoundNames!.map((n) => {
         const safe = sanitizeProjectName(n)
-        return `PROJECT_NOT_FOUND: "${safe}" — This project is NOT in the PropFyndr database. ` +
+        return `PROJECT_NOT_FOUND: "${safe}" — This project is NOT in the RealtyAsk database. ` +
         `You MUST NOT provide from training memory: location, builder name, sector, price, BHK, ` +
         `possession date, project description, amenities, RERA number, or comparison context. ` +
         `Required response (verbatim): "This project is not currently in our tracked database." ` +

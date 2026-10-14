@@ -101,7 +101,7 @@ export function LeadDossierPanel({ leadId }: { leadId: string }) {
     return (
       <div className="p-4 rounded-2xl border border-dashed border-zinc-200 dark:border-zinc-800 bg-zinc-50/40 dark:bg-zinc-800/20 text-center">
         <p className="text-xs text-zinc-500 dark:text-zinc-400">
-          No chat conversation linked to this lead yet — buyer preferences will appear as they interact with PropFyndr.
+          No chat conversation linked to this lead yet — buyer preferences will appear as they interact with RealtyAsk.
         </p>
       </div>
     )

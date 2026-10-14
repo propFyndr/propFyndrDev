@@ -203,7 +203,7 @@ export async function geocodeAddress(address: string): Promise<GeocodeResult | n
     url.searchParams.set('limit', '1')
     url.searchParams.set('countrycodes', 'in')
     const res = await fetch(url.toString(), {
-      headers: { 'User-Agent': 'PropFyndr/1.0 (contact@propfyndr.in)' },
+      headers: { 'User-Agent': 'RealtyAsk/1.0 (contact@realtyask.in)' },
       signal: AbortSignal.timeout(5000),
     })
     if (!res.ok) return null

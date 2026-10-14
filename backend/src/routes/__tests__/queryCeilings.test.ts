@@ -19,7 +19,7 @@ import assert from 'node:assert/strict'
  *
  *   MEASURE_DB_QUERIES=1 npm run dev
  *   CEILING_BASE_URL=http://localhost:3001/api/v1 \
- *   CEILING_EMAIL=analyst@propfyndr.in CEILING_PASSWORD=... npm test
+ *   CEILING_EMAIL=analyst@realtyask.in CEILING_PASSWORD=... npm test
  *
  * Skips loudly without those. A skipped check that reads as green is worse than
  * no check at all.

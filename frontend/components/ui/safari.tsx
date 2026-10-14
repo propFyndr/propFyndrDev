@@ -27,7 +27,7 @@ export interface SafariProps extends HTMLAttributes<HTMLDivElement> {
 export function Safari({
   imageSrc,
   videoSrc,
-  url = "propfyndr.in",
+  url = "realtyask.in",
   mode = "default",
   children,
   coloredControls = true,

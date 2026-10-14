@@ -280,7 +280,7 @@ export default function Sidebar({
     e.preventDefault();
     closeMobile();
     onViewChange?.('discovery');
-    window.dispatchEvent(new CustomEvent('propfyndr:new-chat'));
+    window.dispatchEvent(new CustomEvent('realtyask:new-chat'));
     router.push('/discover');
   };
 
@@ -291,7 +291,7 @@ export default function Sidebar({
     if (navigationTimeoutRef.current) clearTimeout(navigationTimeoutRef.current);
     closeMobile();
     navigationTimeoutRef.current = setTimeout(() => setIsNavigating(false), 1000);
-    window.dispatchEvent(new CustomEvent('propfyndr:new-chat'));
+    window.dispatchEvent(new CustomEvent('realtyask:new-chat'));
     router.push('/discover');
   }, [isNavigating, router]);
 
@@ -355,11 +355,30 @@ export default function Sidebar({
             <Link
               href="/discover"
               onClick={handleFreshDiscovery}
-              className={`flex items-center px-1.5 py-1 rounded-xs transition-opacity hover:opacity-85 cursor-pointer ${FOCUS}`}
+              className={`flex items-center gap-2.5 px-2 py-1 rounded-md transition-opacity hover:opacity-90 cursor-pointer ${FOCUS}`}
               title="Start fresh discovery"
             >
-              <Image src="/images/icons/logo-wordmark-black.png" alt="PropFyndr Logo" width={75} height={34} className="object-contain block dark:hidden" priority />
-              <Image src="/images/icons/logo-wordmark-white.png" alt="PropFyndr Logo" width={75} height={34} className="object-contain hidden dark:block" priority />
+              <Image
+                src="/images/icons/logo-square-black.png"
+                alt="RealtyAsk"
+                width={28}
+                height={28}
+                className="w-7 h-7 object-contain shrink-0 block dark:hidden"
+                unoptimized
+                priority
+              />
+              <Image
+                src="/images/icons/logo-square-white.png"
+                alt="RealtyAsk"
+                width={28}
+                height={28}
+                className="w-7 h-7 object-contain shrink-0 hidden dark:block"
+                unoptimized
+                priority
+              />
+              <span className="text-[17px] font-extrabold tracking-tight text-zinc-900 dark:text-white">
+                Realty<span className="text-[#1D63ED]">Ask</span>
+              </span>
             </Link>
             <button
               type="button"
@@ -384,21 +403,25 @@ export default function Sidebar({
               aria-label="Expand sidebar"
               aria-expanded={false}
             >
-              {/* Default PropFyndr Logo Mark */}
+              {/* Default RealtyAsk Logo Mark */}
               <div className="flex items-center justify-center transition-opacity duration-200 group-hover:opacity-0 group-focus-visible:opacity-0 pointer-events-none">
                 <Image
                   src="/images/icons/logo-square-black.png"
-                  alt=""
-                  width={34}
-                  height={34}
-                  className="object-contain block dark:hidden"
+                  alt="RealtyAsk"
+                  width={28}
+                  height={28}
+                  className="w-7 h-7 object-contain block dark:hidden"
+                  unoptimized
+                  priority
                 />
                 <Image
                   src="/images/icons/logo-square-white.png"
-                  alt=""
-                  width={34}
-                  height={34}
-                  className="object-contain hidden dark:block"
+                  alt="RealtyAsk"
+                  width={28}
+                  height={28}
+                  className="w-7 h-7 object-contain hidden dark:block"
+                  unoptimized
+                  priority
                 />
               </div>
 

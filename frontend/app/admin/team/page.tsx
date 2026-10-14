@@ -532,7 +532,7 @@ export default function AdminTeamPage() {
             onClick={() =>
               openEmailPreview(
                 'team_invite',
-                email || 'teammate@propfyndr.in',
+                email || 'teammate@realtyask.in',
                 'Colleague',
                 role,
                 lastInviteUrl || ''
@@ -1052,7 +1052,7 @@ export default function AdminTeamPage() {
                   <input
                     required
                     type="email"
-                    placeholder="colleague@propfyndr.in"
+                    placeholder="colleague@realtyask.in"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-200/90 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-white text-xs font-medium focus:ring-1 focus:ring-[#0066cc] focus:border-[#0066cc] outline-none transition-all"
@@ -1125,7 +1125,7 @@ export default function AdminTeamPage() {
                     onClick={() =>
                       openEmailPreview(
                         'team_invite',
-                        email || 'colleague@propfyndr.in',
+                        email || 'colleague@realtyask.in',
                         email.split('@')[0] || 'Teammate',
                         role,
                         ''

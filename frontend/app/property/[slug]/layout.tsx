@@ -20,24 +20,24 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
 
   if (!p) {
     return {
-      title: 'Property on PropFyndr',
+      title: 'Property on RealtyAsk',
       description: 'AI-guided home buying in Noida. Compare projects, see RERA status, get honest trade-offs.',
     }
   }
 
-  const title = `${p.name}, ${p.sector || 'Noida'}, ${p.city || 'NCR'} — Prices, Floor Plans & Due Diligence | PropFyndr`
+  const title = `${p.name}, ${p.sector || 'Noida'}, ${p.city || 'NCR'} — Prices, Floor Plans & Due Diligence | RealtyAsk`
   
   const builderClause = p.builder?.name ? ` by ${p.builder.name}` : ''
   const priceClause = p.price_range_label ? ` Pricing: ${p.price_range_label}.` : ''
   const reraClause = p.rera_number ? ` UP RERA #${p.rera_number}.` : ''
   const groundClause = p.tagline?.trim() ? ` ${p.tagline.trim()}` : ''
-  const rawDesc = `${p.name}${builderClause} in ${p.sector || 'Noida'}, ${p.city || 'NCR'}.${priceClause}${reraClause}${groundClause} Independent ground due diligence and AI advisor on PropFyndr.`
+  const rawDesc = `${p.name}${builderClause} in ${p.sector || 'Noida'}, ${p.city || 'NCR'}.${priceClause}${reraClause}${groundClause} Independent ground due diligence and AI advisor on RealtyAsk.`
   const description = rawDesc.length > 160 ? rawDesc.slice(0, 157) + '...' : rawDesc
 
-  const canonicalUrl = `https://propfyndr.in/property/${slug}`
+  const canonicalUrl = `https://realtyask.in/property/${slug}`
   const ogImages = p.hero_image_url
     ? [{ url: p.hero_image_url, width: 1200, height: 630, alt: p.name }]
-    : [{ url: 'https://propfyndr.in/og-default.jpg', width: 1200, height: 630, alt: 'PropFyndr' }]
+    : [{ url: 'https://realtyask.in/og-default.jpg', width: 1200, height: 630, alt: 'RealtyAsk' }]
 
   return {
     title,
@@ -50,7 +50,7 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
       description,
       url: canonicalUrl,
       type: 'website',
-      siteName: 'PropFyndr',
+      siteName: 'RealtyAsk',
       images: ogImages,
     },
     twitter: {

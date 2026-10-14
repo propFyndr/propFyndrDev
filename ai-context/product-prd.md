@@ -1,4 +1,4 @@
-# PropFyndr PRD
+# RealtyAsk PRD
 
 ## Product Requirements Document (PRD)
 
@@ -17,7 +17,7 @@ We are building an AI-powered real estate advisor for home buyers in India, star
 
 # 1. What This Product Is
 
-PropFyndr is an AI-first property advisor focused on helping buyers discover and evaluate new-construction and ready-to-move homes in Noida.
+RealtyAsk is an AI-first property advisor focused on helping buyers discover and evaluate new-construction and ready-to-move homes in Noida.
 
 Key principles:
 - Conversation-first
@@ -73,7 +73,7 @@ Key principles:
 | Property Type | New construction |
 | Sales Model | Purchase only |
 | Platform | Website |
-| AI | Existing PropFyndr AI |
+| AI | Existing RealtyAsk AI |
 | Data Source | Partner inventory |
 
 ---
@@ -82,7 +82,7 @@ Key principles:
 
 ## Product Name
 Options:
-- PropFyndr
+- RealtyAsk
 - New Brand
 - Partner-aligned Brand
 
@@ -410,7 +410,7 @@ Budget: ₹2–4 Cr
 - Database: PostgreSQL
 - Maps: Google Maps
 - Hosting: Render
-- Existing PropFyndr codebase reuse
+- Existing RealtyAsk codebase reuse
 
 ---
 

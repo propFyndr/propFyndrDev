@@ -174,7 +174,7 @@ export default function DossierPage({ params }: { params?: { token?: string } })
       const firstCaution = dossier.projects.flatMap(p => p.redFlags.map(f => `${p.name}: ${f}`))[0]
 
       const text = [
-        '*Property research — PropFyndr dossier*',
+        '*Property research — RealtyAsk dossier*',
         dossier.consultation.searchEvolutionSummary || null,
         trailBullets ? `*Some of the questions asked:*\n${trailBullets}` : null,
         `*Projects:*\n${projectSummary}`,
@@ -233,7 +233,7 @@ export default function DossierPage({ params }: { params?: { token?: string } })
   const copyChecklistForProject = (project: DossierProject) => {
     if (typeof window !== 'undefined') {
       const questions = project.siteVisitChecklist.map((q, idx) => `${idx + 1}. ${q}`).join('\n')
-      const text = `${project.name} (${locationLabel(project)}) — questions to ask on a site visit:\n\n${questions}\n\nFrom a PropFyndr dossier: ${window.location.href}`
+      const text = `${project.name} (${locationLabel(project)}) — questions to ask on a site visit:\n\n${questions}\n\nFrom a RealtyAsk dossier: ${window.location.href}`
       navigator.clipboard.writeText(text)
       setCopiedProjectChecklist(project.id)
       setTimeout(() => setCopiedProjectChecklist(null), 2500)
@@ -305,7 +305,7 @@ export default function DossierPage({ params }: { params?: { token?: string } })
                 <Building2 size={16} />
               </div>
               <span className="font-semibold text-base tracking-tight text-[#1d1d1f] dark:text-white">
-                PropFyndr
+                RealtyAsk
               </span>
             </Link>
             <div className="h-4 w-[1px] bg-[#e5e5ea] dark:bg-[#2c2c2e] hidden sm:block" />
@@ -354,7 +354,7 @@ export default function DossierPage({ params }: { params?: { token?: string } })
               className="px-3.5 py-1.5 rounded-full bg-[#0066cc] hover:bg-[#0071e3] text-white text-xs font-medium flex items-center gap-1.5 transition active:scale-[0.98] shadow-xs ml-1"
             >
               <MessageSquare size={13} />
-              <span className="hidden sm:inline">Ask PropFyndr</span>
+              <span className="hidden sm:inline">Ask RealtyAsk</span>
             </Link>
           </div>
         </div>
@@ -379,7 +379,7 @@ export default function DossierPage({ params }: { params?: { token?: string } })
                 What was asked, and what we found
               </h1>
               <p className="text-sm sm:text-base text-[#86868b] dark:text-[#a1a1a6] mt-2 max-w-2xl leading-relaxed print:text-slate-700">
-                Every question from one PropFyndr conversation, the answers given, and what our records hold on each project looked at, including what counts against it.
+                Every question from one RealtyAsk conversation, the answers given, and what our records hold on each project looked at, including what counts against it.
               </p>
             </div>
 
@@ -621,7 +621,7 @@ export default function DossierPage({ params }: { params?: { token?: string } })
                 Projects looked at
               </h2>
             </div>
-            <span className="text-xs text-[#86868b] font-normal">From PropFyndr's records for each project</span>
+            <span className="text-xs text-[#86868b] font-normal">From RealtyAsk's records for each project</span>
           </div>
 
           <div className={`grid ${gridColumnsClass} gap-5`}>
@@ -1082,10 +1082,10 @@ export default function DossierPage({ params }: { params?: { token?: string } })
         <footer className="pt-8 pb-12 border-t border-[#e5e5ea] dark:border-[#2c2c2e] text-center space-y-2 text-xs text-[#86868b]">
           <div className="flex items-center justify-center gap-2 font-medium text-[#1d1d1f] dark:text-[#f5f5f7]">
             <Award size={15} className="text-[#0066cc] dark:text-[#2997ff]" />
-            <span>PropFyndr</span>
+            <span>RealtyAsk</span>
           </div>
           <p className="max-w-2xl mx-auto leading-relaxed text-[11px] text-[#86868b]">
-            Built from one PropFyndr conversation and the project records we hold. Anyone with this link can view it. Where we hold no record, it says so; where a figure is assumed, it is marked. Check prices, dues and approvals with the builder and UP RERA before paying anything. Not an offer to sell.
+            Built from one RealtyAsk conversation and the project records we hold. Anyone with this link can view it. Where we hold no record, it says so; where a figure is assumed, it is marked. Check prices, dues and approvals with the builder and UP RERA before paying anything. Not an offer to sell.
           </p>
           <div className="text-[10px] font-mono text-[#86868b]">
             Prepared on {consultation.date} &bull; Link works until {new Date(dossier.expiresAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}

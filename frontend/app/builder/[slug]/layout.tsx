@@ -20,17 +20,17 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
 
   if (!b) {
     return {
-      title: 'Developer Profile | PropFyndr',
+      title: 'Developer Profile | RealtyAsk',
       description: 'Verified real estate developers, track record, delivery timelines, and project reviews in Noida & NCR.',
     }
   }
 
-  const title = `${b.name} — Track Record, Ongoing Projects & Delivery Due Diligence | PropFyndr`
+  const title = `${b.name} — Track Record, Ongoing Projects & Delivery Due Diligence | RealtyAsk`
   const deliveredClause = b.delivered_units ? ` ${b.delivered_units.toLocaleString()} units delivered.` : ''
   const credaiClause = b.credai_member ? ' CREDAI Member.' : ''
-  const description = `${b.name} profile on PropFyndr.${deliveredClause}${credaiClause} Track record, delivery timelines, and project reviews across Noida, Greater Noida, and Yamuna Expressway.`
+  const description = `${b.name} profile on RealtyAsk.${deliveredClause}${credaiClause} Track record, delivery timelines, and project reviews across Noida, Greater Noida, and Yamuna Expressway.`
 
-  const canonicalUrl = `https://propfyndr.in/builder/${slug}`
+  const canonicalUrl = `https://realtyask.in/builder/${slug}`
 
   return {
     title,
@@ -43,7 +43,7 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
       description,
       url: canonicalUrl,
       type: 'website',
-      siteName: 'PropFyndr',
+      siteName: 'RealtyAsk',
     },
     twitter: {
       card: 'summary_large_image',

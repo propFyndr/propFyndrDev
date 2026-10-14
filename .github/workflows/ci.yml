@@ -49,7 +49,7 @@ jobs:
         image: pgvector/pgvector:pg16
         env:
           POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: propfyndr_test
+          POSTGRES_DB: realtyask_test
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
@@ -87,14 +87,14 @@ jobs:
           cd ../backend && npm run db:generate
 
       - name: Enable pgvector extension
-        run: psql postgresql://postgres:postgres@localhost:5432/propfyndr_test -c "CREATE EXTENSION IF NOT EXISTS vector;"
+        run: psql postgresql://postgres:postgres@localhost:5432/realtyask_test -c "CREATE EXTENSION IF NOT EXISTS vector;"
 
       - name: Backend DB Push
         working-directory: ./backend
         run: npx prisma db push --schema=${{ github.workspace }}/frontend/prisma/schema.prisma --skip-generate
         env:
-          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/propfyndr_test
-          DIRECT_URL: postgresql://postgres:postgres@localhost:5432/propfyndr_test
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/realtyask_test
+          DIRECT_URL: postgresql://postgres:postgres@localhost:5432/realtyask_test
 
       # `npm test` is now a chain (jest, then the node:test suite), so extra argv
       # cannot be forwarded with `-- --passWithNoTests` — it would be appended to
@@ -109,7 +109,7 @@ jobs:
         run: cd backend && npm test
         env:
           NODE_ENV: test
-          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/propfyndr_test
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/realtyask_test
           REDIS_URL: redis://localhost:6379
           ADMIN_PASSWORD: test-admin-password
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}

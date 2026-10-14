@@ -4,7 +4,7 @@
  * Consoles that belong to someone else.
  *
  * A BUILDER or PARTNER session carries its own id, and the portal endpoints
- * read it from the session — those pages send nothing. A PropFyndr role
+ * read it from the session — those pages send nothing. A RealtyAsk role
  * (SUPER_ADMIN / ANALYST / SALES) has no such id, so to look at a builder's or
  * a partner's console it must name whose console it is: `?builder_id=…` /
  * `?partner_id=…`. The server still re-derives every row from that id; this is

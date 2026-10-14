@@ -2,7 +2,7 @@ import { MetadataRoute } from 'next'
 import { API_BASE } from '@/lib/env'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://propfyndr.in'
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://realtyask.in'
 
   // Static pages
   const staticPages: MetadataRoute.Sitemap = [

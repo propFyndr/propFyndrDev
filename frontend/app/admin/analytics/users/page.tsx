@@ -289,7 +289,7 @@ export default function UsersAnalytics() {
               />
             </h3>
             <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5 font-medium">
-              Stage-by-stage drop-off tracking across the PropFyndr discovery pipeline
+              Stage-by-stage drop-off tracking across the RealtyAsk discovery pipeline
             </p>
           </div>
 

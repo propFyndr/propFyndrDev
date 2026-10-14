@@ -170,11 +170,11 @@ export default function AcceptInvitePage() {
       <div className="relative w-full max-w-[380px]">
         <div className="flex flex-col items-center mb-8">
           <div className="w-14 h-14 rounded-2xl shadow-[var(--shadow-3)] flex items-center justify-center mb-4 bg-white dark:bg-surface-2 border border-[var(--color-border)]">
-            <Image src="/images/icons/logo-square-black.png" alt="PropFyndr" width={32} height={32} className="object-contain block dark:hidden" unoptimized />
-            <Image src="/images/icons/logo-square-white.png" alt="PropFyndr" width={32} height={32} className="object-contain hidden dark:block" unoptimized />
+            <Image src="/images/icons/logo-square-black.png" alt="RealtyAsk" width={32} height={32} className="object-contain block dark:hidden" unoptimized />
+            <Image src="/images/icons/logo-square-white.png" alt="RealtyAsk" width={32} height={32} className="object-contain hidden dark:block" unoptimized />
           </div>
           <h1 className="text-[15px] font-semibold text-[var(--color-text-primary)] tracking-tight">Set your admin password</h1>
-          <p className="text-[13px] text-[var(--color-text-muted)] mt-0.5">You've been invited to PropFyndr</p>
+          <p className="text-[13px] text-[var(--color-text-muted)] mt-0.5">You've been invited to RealtyAsk</p>
         </div>
 
         <Suspense

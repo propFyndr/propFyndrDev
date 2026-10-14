@@ -479,7 +479,7 @@ export default function BuilderRegistrationForm() {
               <ArrowLeft size={13} />
               <span>Back</span>
             </Link>
-            <Image src="/images/icons/logo-wordmark-black.png" alt="PropFyndr" width={58} height={26} className="object-contain opacity-90" unoptimized />
+            <Image src="/images/icons/logo-wordmark-black.png" alt="RealtyAsk" width={58} height={26} className="object-contain opacity-90" unoptimized />
           </div>
 
           <div className="flex items-center justify-between mb-2">
@@ -523,7 +523,7 @@ export default function BuilderRegistrationForm() {
         {/* Left Sidebar Stepper — Desktop Only (Visible on md+) */}
         <div className="hidden md:flex w-[340px] bg-zinc-50/80 border-r border-zinc-200/80 p-6 md:p-8 flex-col shrink-0 justify-between">
           <div>
-            <Image src="/images/icons/logo-wordmark-black.png" alt="PropFyndr" width={66} height={30} className="object-contain mb-6 opacity-90" unoptimized />
+            <Image src="/images/icons/logo-wordmark-black.png" alt="RealtyAsk" width={66} height={30} className="object-contain mb-6 opacity-90" unoptimized />
             
             <h1 className="text-[19px] font-bold text-zinc-900 tracking-tight leading-snug mb-1.5">
               Developer Onboarding

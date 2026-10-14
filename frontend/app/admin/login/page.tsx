@@ -75,10 +75,10 @@ export default function AdminLogin() {
       <div className="relative w-full max-w-[380px]">
         <div className="flex flex-col items-center mb-8">
           <div className="w-14 h-14 rounded-2xl shadow-[var(--shadow-3)] flex items-center justify-center mb-4 bg-white dark:bg-surface-2 border border-[var(--color-border)]">
-            <Image src="/images/icons/logo-square-black.png" alt="PropFyndr" width={32} height={32} className="object-contain block dark:hidden" unoptimized />
-            <Image src="/images/icons/logo-square-white.png" alt="PropFyndr" width={32} height={32} className="object-contain hidden dark:block" unoptimized />
+            <Image src="/images/icons/logo-square-black.png" alt="RealtyAsk" width={32} height={32} className="object-contain block dark:hidden" unoptimized />
+            <Image src="/images/icons/logo-square-white.png" alt="RealtyAsk" width={32} height={32} className="object-contain hidden dark:block" unoptimized />
           </div>
-          <h1 className="text-[15px] font-semibold text-[var(--color-text-primary)] tracking-tight">PropFyndr Admin</h1>
+          <h1 className="text-[15px] font-semibold text-[var(--color-text-primary)] tracking-tight">RealtyAsk Admin</h1>
           <p className="text-[13px] text-[var(--color-text-muted)] mt-0.5">Sign in to the internal dashboard</p>
         </div>
 
@@ -89,7 +89,7 @@ export default function AdminLogin() {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="you@propfyndr.in"
+              placeholder="you@realtyask.in"
               className="w-full bg-surface-2 dark:bg-surface-3 border border-[var(--color-border)] rounded-[var(--radius-md)] px-3.5 py-3 text-[14px] text-[var(--color-text-primary)] placeholder:text-[var(--color-text-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/30 focus:border-[var(--color-primary)] transition-all"
             />
           </div>

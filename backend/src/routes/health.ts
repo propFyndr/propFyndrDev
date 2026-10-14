@@ -11,9 +11,9 @@ router.get('/health', async (_req, res) => {
   try {
     const healthy = await isSystemHealthy()
     if (!healthy) {
-      return res.status(503).json({ status: 'unhealthy', service: 'propfyndr-backend', ts: new Date().toISOString() })
+      return res.status(503).json({ status: 'unhealthy', service: 'realtyask-backend', ts: new Date().toISOString() })
     }
-    res.json({ status: 'ok', service: 'propfyndr-backend', ts: new Date().toISOString() })
+    res.json({ status: 'ok', service: 'realtyask-backend', ts: new Date().toISOString() })
   } catch (err) {
     res.status(503).json({ status: 'unhealthy', error: 'Health check failed', ts: new Date().toISOString() })
   }

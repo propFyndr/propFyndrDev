@@ -222,7 +222,7 @@ export default function ProjectCard({ project, userId, sessionId, index = 0, isT
     e.stopPropagation()
     track('share_tapped', { project_slug: project.slug, project_name: project.name })
     const shareUrl = `${typeof window !== 'undefined' ? window.location.origin : ''}/property/${project.slug}?ref=share`
-    const text = `${project.name} · ${project.sector} — ${price}. Reviewed with PropFyndr AI:`
+    const text = `${project.name} · ${project.sector} — ${price}. Reviewed with RealtyAsk AI:`
     try {
       if (navigator.share) {
         await navigator.share({ title: project.name, text, url: shareUrl })
@@ -257,7 +257,7 @@ export default function ProjectCard({ project, userId, sessionId, index = 0, isT
     setAskMenuOpen(false)
     track('ask_ai_tapped', { project_slug: project.slug, prompt_type: type })
     if (autoSend) trackPropertyEvent(project.id, 'ask_ai', sessionId, userId).catch(() => {})
-    window.dispatchEvent(new CustomEvent('propfyndr:ask-ai', { detail: { text, autoSend } }))
+    window.dispatchEvent(new CustomEvent('realtyask:ask-ai', { detail: { text, autoSend } }))
     onAskAI?.(project)
   }
 

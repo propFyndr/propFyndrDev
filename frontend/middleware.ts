@@ -36,8 +36,8 @@ export async function middleware(request: NextRequest) {
   const rawHost = request.headers.get('host') || ''
   const host = rawHost.split(':')[0].trim().toLowerCase()
 
-  // App subdomain routing: app.propfyndr.in directly serves the discovery / chat app
-  if (host === 'app.propfyndr.in') {
+  // App subdomain routing: app.realtyask.in directly serves the discovery / chat app
+  if (host === 'app.realtyask.in') {
     if (pathname === '/') {
       const url = request.nextUrl.clone()
       url.pathname = '/discover'
@@ -45,7 +45,7 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // Apex domain routing: the buyer discovery/chat app lives on app.propfyndr.in,
+  // Apex domain routing: the buyer discovery/chat app lives on app.realtyask.in,
   // so an old bookmark or shared link to one of its routes on the marketing
   // domain still ends up there. Deliberately NOT a blanket "redirect everything
   // except a few pages" — /admin, /builder, /partner, /auth are separate apps,
@@ -54,21 +54,21 @@ export async function middleware(request: NextRequest) {
   // buyer-chat routes redirects.
   const APP_SUBDOMAIN_ROUTES = ['/discover', '/saved']
   if (
-    (host === 'propfyndr.in' || host === 'www.propfyndr.in') &&
+    (host === 'realtyask.in' || host === 'www.realtyask.in') &&
     APP_SUBDOMAIN_ROUTES.some(r => pathname === r || pathname.startsWith(`${r}/`))
   ) {
     const url = request.nextUrl.clone()
-    url.host = 'app.propfyndr.in'
+    url.host = 'app.realtyask.in'
     url.protocol = 'https:'
     return NextResponse.redirect(url)
   }
 
   /**
-   * Tenant subdomain routing. `lotus.propfyndr.in/` serves the portal entry
+   * Tenant subdomain routing. `lotus.realtyask.in/` serves the portal entry
    * instead of the buyer homepage.
    *
    * A rewrite, not a redirect: the address bar keeps saying
-   * `lotus.propfyndr.in`, which is the entire point of the feature.
+   * `lotus.realtyask.in`, which is the entire point of the feature.
    *
    * The subdomain is passed on as a header for BRANDING only. Nothing
    * downstream may treat it as proof of identity — scope comes from the

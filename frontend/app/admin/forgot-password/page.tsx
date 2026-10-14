@@ -60,7 +60,7 @@ export default function ForgotPasswordPage() {
           <>
             <AuthNotice message="If that email has an account, a reset link has been prepared for it." />
             <p className="text-[12px] text-[var(--color-text-muted)] leading-relaxed">
-              PropFyndr does not send email automatically yet — the team dispatches reset links by hand.
+              RealtyAsk does not send email automatically yet — the team dispatches reset links by hand.
               If you do not hear back shortly, contact whoever set up your account.
             </p>
           </>
@@ -75,7 +75,7 @@ export default function ForgotPasswordPage() {
                 autoFocus
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="you@propfyndr.in"
+                placeholder="you@realtyask.in"
                 className={AUTH_INPUT_CLASS}
               />
             </div>

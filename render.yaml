@@ -1,6 +1,105 @@
+x-backend-env: &backendEnvVars
+  - key: NODE_ENV
+    value: production
+  - key: PORT
+    value: 10000
+  - key: DATABASE_URL
+    sync: false
+  - key: DIRECT_URL
+    sync: false
+  - key: SUPABASE_URL
+    sync: false
+  - key: SUPABASE_SERVICE_ROLE_KEY
+    sync: false
+  # AI providers, in FALLBACK_CHAIN order (backend/src/lib/config.ts).
+  # GEMINI_API_KEY is tier 1 and was missing here, so a deploy provisioned
+  # purely from this file would silently start on a fallback provider.
+  - key: GEMINI_API_KEY
+    sync: false
+  # Gates tool calling for Gemini, which is tier 1 and therefore nearly all
+  # traffic. Drives both the tool definitions and the system prompt from one
+  # constant, so the two cannot disagree. Off means every lookup — floor
+  # plans, price history, cost sheets, builder records, RERA, the calculators
+  # — is unreachable and the model answers from the NO LIVE LOOKUPS branch.
+  - key: ENABLE_GEMINI_TOOLS
+    value: "true"
+  - key: GEMINI_LEG_MAX_DURATION_MS
+    value: "45000"
+  - key: FALLBACK_TURN_BUDGET_MS
+    value: "30000"
+  - key: GEMINI_API_KEY1
+    sync: false
+  - key: GROQ_API_KEY1
+    sync: false
+  - key: GROQ_API_KEY2
+    sync: false
+  - key: GROQ_API_KEY3
+    sync: false
+  - key: OPENAI_API_KEY1
+    sync: false
+  - key: OPENAI_API_KEY2
+    sync: false
+  - key: OPENAI_API_KEY3
+    sync: false
+  - key: CEREBRAS_API_KEY1
+    sync: false
+  - key: POSTHOG_API_KEY
+    sync: false
+  - key: POSTHOG_HOST
+    value: https://us.posthog.com
+  - key: MISTRAL_API_KEY
+    sync: false
+  - key: CEREBRAS_API_KEY
+    sync: false
+  - key: GROQ_API_KEY
+    sync: false
+  # Dedicated key for AI blog drafts so blog generation never spends the
+  # chat's Groq quota. Falls back to GROQ_API_KEY when unset.
+  - key: GROQ_BLOG_API_KEY
+    sync: false
+  - key: OPENAI_API_KEY
+    sync: false
+  - key: SENTRY_DSN
+    sync: false
+  - key: JINA_API_KEY
+    sync: false
+  - key: SERPER_API_KEY
+    sync: false
+  - key: ADMIN_SECRET
+    sync: false
+  - key: ADMIN_PASSWORD
+    sync: false
+  - key: FRONTEND_URL
+    sync: false
+  - key: UPSTASH_REDIS_REST_URL
+    sync: false
+  - key: UPSTASH_REDIS_REST_TOKEN
+    sync: false
+  - key: GOOGLE_MAPS_API_KEY
+    sync: false
+  - key: TAVILY_API_KEY
+    sync: false
+  - key: WEBHOOK_SECRET
+    sync: false
+  - key: WHATSAPP_PROVIDER
+    value: none
+  - key: META_WHATSAPP_TOKEN
+    sync: false
+  - key: META_PHONE_NUMBER_ID
+    sync: false
+  - key: META_RECIPIENT_NUMBER
+    sync: false
+  - key: RESEND_API_KEY
+    sync: false
+  - key: EMAIL_FROM
+    sync: false
+  - key: EMAIL_TO
+    sync: false
+
 services:
+  # Live — matches the existing Render dashboard service "propFyndrLive".
   - type: web
-    name: propfyndr-backend
+    name: propFyndrLive
     env: node
     nodeVersion: 22
     plan: starter
@@ -8,100 +107,16 @@ services:
     buildCommand: npm install --include=dev && npm run db:generate && npm run build
     startCommand: npm start
     healthCheckPath: /api/v1/health
-    envVars:
-      - key: NODE_ENV
-        value: production
-      - key: PORT
-        value: 10000
-      - key: DATABASE_URL
-        sync: false
-      - key: DIRECT_URL
-        sync: false
-      - key: SUPABASE_URL
-        sync: false
-      - key: SUPABASE_SERVICE_ROLE_KEY
-        sync: false
-      # AI providers, in FALLBACK_CHAIN order (backend/src/lib/config.ts).
-      # GEMINI_API_KEY is tier 1 and was missing here, so a deploy provisioned
-      # purely from this file would silently start on a fallback provider.
-      - key: GEMINI_API_KEY
-        sync: false
-      # Gates tool calling for Gemini, which is tier 1 and therefore nearly all
-      # traffic. Drives both the tool definitions and the system prompt from one
-      # constant, so the two cannot disagree. Off means every lookup — floor
-      # plans, price history, cost sheets, builder records, RERA, the calculators
-      # — is unreachable and the model answers from the NO LIVE LOOKUPS branch.
-      - key: ENABLE_GEMINI_TOOLS
-        value: "true"
-      - key: GEMINI_LEG_MAX_DURATION_MS
-        value: "45000"
-      - key: FALLBACK_TURN_BUDGET_MS
-        value: "30000"
-      - key: GEMINI_API_KEY1
-        sync: false
-      - key: GROQ_API_KEY1
-        sync: false
-      - key: GROQ_API_KEY2
-        sync: false
-      - key: GROQ_API_KEY3
-        sync: false
-      - key: OPENAI_API_KEY1
-        sync: false
-      - key: OPENAI_API_KEY2
-        sync: false
-      - key: OPENAI_API_KEY3
-        sync: false
-      - key: CEREBRAS_API_KEY1
-        sync: false
-      - key: POSTHOG_API_KEY
-        sync: false
-      - key: POSTHOG_HOST
-        value: https://us.posthog.com
-      - key: MISTRAL_API_KEY
-        sync: false
-      - key: CEREBRAS_API_KEY
-        sync: false
-      - key: GROQ_API_KEY
-        sync: false
-      # Dedicated key for AI blog drafts so blog generation never spends the
-      # chat's Groq quota. Falls back to GROQ_API_KEY when unset.
-      - key: GROQ_BLOG_API_KEY
-        sync: false
-      - key: OPENAI_API_KEY
-        sync: false
-      - key: SENTRY_DSN
-        sync: false
-      - key: JINA_API_KEY
-        sync: false
-      - key: SERPER_API_KEY
-        sync: false
-      - key: ADMIN_SECRET
-        sync: false
-      - key: ADMIN_PASSWORD
-        sync: false
-      - key: FRONTEND_URL
-        sync: false
-      - key: UPSTASH_REDIS_REST_URL
-        sync: false
-      - key: UPSTASH_REDIS_REST_TOKEN
-        sync: false
-      - key: GOOGLE_MAPS_API_KEY
-        sync: false
-      - key: TAVILY_API_KEY
-        sync: false
-      - key: WEBHOOK_SECRET
-        sync: false
-      - key: WHATSAPP_PROVIDER
-        value: none
-      - key: META_WHATSAPP_TOKEN
-        sync: false
-      - key: META_PHONE_NUMBER_ID
-        sync: false
-      - key: META_RECIPIENT_NUMBER
-        sync: false
-      - key: RESEND_API_KEY
-        sync: false
-      - key: EMAIL_FROM
-        sync: false
-      - key: EMAIL_TO
-        sync: false
+    envVars: *backendEnvVars
+
+  # Dev — matches the existing Render dashboard service "propFyndrDev".
+  - type: web
+    name: propFyndrDev
+    env: node
+    nodeVersion: 22
+    plan: starter
+    rootDir: backend
+    buildCommand: npm install --include=dev && npm run db:generate && npm run build
+    startCommand: npm start
+    healthCheckPath: /api/v1/health
+    envVars: *backendEnvVars

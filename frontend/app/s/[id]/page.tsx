@@ -60,13 +60,13 @@ export default function SharedShortlistPage() {
               className="inline-flex items-center gap-2 text-xs font-bold text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 mb-3 bg-white/80 dark:bg-slate-800/80 px-3 py-1.5 rounded-xl border border-slate-200/80 dark:border-slate-700/80 shadow-2xs transition-colors"
             >
               <ArrowLeft size={15} />
-              Back to PropFyndr
+              Back to RealtyAsk
             </a>
             <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
               Shared Property Shortlist
             </h1>
             <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
-              {projects.length} verified {projects.length === 1 ? 'property' : 'properties'} curated with PropFyndr AI
+              {projects.length} verified {projects.length === 1 ? 'property' : 'properties'} curated with RealtyAsk AI
             </p>
           </div>
           <a
@@ -121,7 +121,7 @@ export default function SharedShortlistPage() {
               href="/"
               className="inline-block px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-colors"
             >
-              Chat with PropFyndr AI
+              Chat with RealtyAsk AI
             </a>
           </div>
         )}

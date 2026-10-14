@@ -56,7 +56,7 @@ describe('root session revocation', () => {
       ip: '127.0.0.1',
       userAgent: 'test',
       adminUserId: 'c5c86456-052a-4d67-bef0-8353fab7e875',
-      email: 'analyst@propfyndr.in',
+      email: 'analyst@realtyask.in',
       role: 'ANALYST',
       builderId: null,
       partnerId: null,

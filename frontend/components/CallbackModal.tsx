@@ -312,7 +312,7 @@ export default function CallbackModal({ project, isDone, onClose }: CallbackModa
                     className="mt-0.5 w-4 h-4 rounded border-emerald-300 dark:border-emerald-600 text-emerald-600 dark:text-emerald-500 cursor-pointer accent-emerald-600"
                   />
                   <label htmlFor="consent" className="text-xs text-emerald-950 dark:text-emerald-100 cursor-pointer flex-1 leading-relaxed font-medium">
-                    Authorize PropFyndr advisor to connect regarding <strong className="font-bold">{project.name}</strong>.
+                    Authorize RealtyAsk advisor to connect regarding <strong className="font-bold">{project.name}</strong>.
                   </label>
                 </div>
 

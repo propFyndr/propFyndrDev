@@ -66,7 +66,7 @@ export async function rentalAnswer(message: string, city = 'Noida'): Promise<Ren
     sourced: true,
     text:
       `Indicative monthly rent for a ${config} in ${city} runs roughly ${inr(lowN)} to ${inr(highN)}. ` +
-      `That is a market range from public listings data, not a PropFyndr figure — we track ` +
+      `That is a market range from public listings data, not a RealtyAsk figure — we track ` +
       `new-construction sales, not rentals, so treat it as a ballpark rather than a quote. ${BRIDGE}`,
   }
 }

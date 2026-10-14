@@ -3,6 +3,7 @@ import { matchProjectInText } from '../../discovery/matchProjectInText'
 import { SECTOR_ADJACENCY } from '../../discovery/constants'
 import type { ChatTopicHandler } from '../handlerContext'
 import { ALL_IN_BUDGET, statutoryMultiplier } from './commuteShortlist'
+import { estimateFairPrice } from '../../pricingNegotiation'
 
 /**
  * "Sales guy quoted 1.9cr all inclusive for 3bhk in Gulshan Botnia. Fair or
@@ -70,7 +71,7 @@ export const priceFairnessHandler: ChatTopicHandler = {
 
     const project = await prisma.project.findUnique({
       where: { id: hit.id },
-      select: { name: true, sector: true, status: true, updated_at: true, unit_types: { where: bhk ? { bhk } : {}, select: unitSelect } },
+      select: { name: true, sector: true, status: true, updated_at: true, price_min_cr: true, builder: { select: { delayed_projects_count: true, average_delay_months: true } }, unit_types: { where: bhk ? { bhk } : {}, select: unitSelect } },
     })
     if (!project) return false
 
@@ -90,6 +91,26 @@ export const priceFairnessHandler: ChatTopicHandler = {
           ? `**Your quote:** ${cr(quote)} all-in. Taking out stamp duty${project.status === 'ready_to_move' ? ' and registration' : ', registration and GST'}, that is about **${cr(base)} as a base price** (developer charges inside it would lower that further).`
           : `**Your quote:** ${cr(quote)}, taken as a base price. If it includes taxes, tell me and I'll redo this.`)
         lines.push('', fairnessVerdict(base, own.lo, own.hi))
+
+        // Add builder track record negotiation points (Phase 8)
+        if (project.builder && project.price_min_cr) {
+          const builderHasDelays = (project.builder.delayed_projects_count ?? 0) > 2
+          const negAnalysis = estimateFairPrice({
+            listedPriceCr: quote,
+            sector: project.sector || '',
+            bhkConfig: bhk ? `${bhk}BHK` : 'unit',
+            superArea: own.perSqft ? Math.round(base / own.perSqft) : 0,
+            builderDelayHistory: builderHasDelays,
+            yearOfCompletion: new Date().getFullYear() + (project.status === 'ready_to_move' ? 0 : 2),
+          })
+
+          lines.push('')
+          if (negAnalysis.leverage.length > 0) {
+            lines.push('**Your negotiation leverage** (builder track record):')
+            negAnalysis.leverage.forEach(l => lines.push(`- ${l}`))
+            lines.push(`\nEstimated fair range: **${cr(negAnalysis.estimatedFairPrice)}** (${negAnalysis.priceDiscount}% discount room)`)
+          }
+        }
       }
     }
 

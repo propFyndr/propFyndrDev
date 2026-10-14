@@ -82,7 +82,7 @@ const STATUS_CONFIG: Record<BlogStatus, { label: string; bg: string; text: strin
 const SUGGESTIONS_SHOWN = 5
 
 /** The site's title template (app/layout.tsx) appends this to every article title. */
-const TITLE_SUFFIX = ' | PropFyndr'
+const TITLE_SUFFIX = ' | RealtyAsk'
 /** Google truncates titles at roughly 60 characters, suffix included. */
 const SERP_TITLE_LIMIT = 60
 
@@ -914,11 +914,11 @@ function BlogModal({
     status: item?.status || 'draft',
     meta_title: item?.meta_title || '',
     meta_description: item?.meta_description || '',
-    author_name: item?.author_name || 'PropFyndr Advisory Research',
+    author_name: item?.author_name || 'RealtyAsk Advisory Research',
   })
 
   // Search preview. Host is read after mount (no window on the server render),
-  // and the title is the one the page template renders: "<meta title> | PropFyndr".
+  // and the title is the one the page template renders: "<meta title> | RealtyAsk".
   const [siteHost, setSiteHost] = useState('')
   useEffect(() => setSiteHost(window.location.host), [])
   const serpTitle = `${formData.meta_title || formData.title || 'Article title'}${TITLE_SUFFIX}`
@@ -1111,7 +1111,7 @@ function BlogModal({
               )}
               <div className="flex items-center gap-3 text-xs text-zinc-400 border-y border-zinc-100 dark:border-zinc-800 py-3">
                 <span className="font-semibold text-zinc-700 dark:text-zinc-300">
-                  {formData.author_name || 'PropFyndr Advisory Research'}
+                  {formData.author_name || 'RealtyAsk Advisory Research'}
                 </span>
                 <span>·</span>
                 <span>Status: {formData.status.toUpperCase()}</span>
@@ -1155,7 +1155,7 @@ function BlogModal({
 
               {/* Slug line */}
               <div className="flex items-center gap-2 text-xs py-1 px-3 bg-zinc-50 dark:bg-zinc-800/50 rounded-xl border border-zinc-100 dark:border-zinc-800">
-                <span className="text-zinc-400 font-mono shrink-0">propfyndr.com/blog/</span>
+                <span className="text-zinc-400 font-mono shrink-0">realtyask.com/blog/</span>
                 <input
                   type="text"
                   value={formData.slug}
@@ -1232,7 +1232,7 @@ function BlogModal({
                     </div>
                     <input
                       type="text"
-                      placeholder="e.g. PropFyndr Advisory Research"
+                      placeholder="e.g. RealtyAsk Advisory Research"
                       value={formData.author_name}
                       onChange={e => setFormData({ ...formData, author_name: e.target.value })}
                       className="w-full px-3 py-1.5 bg-zinc-50 dark:bg-zinc-800/80 border border-zinc-200/90 dark:border-zinc-700/80 rounded-xl outline-none text-zinc-900 dark:text-white font-medium text-xs"

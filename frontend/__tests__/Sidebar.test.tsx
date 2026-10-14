@@ -81,7 +81,7 @@ describe('Sidebar Component', () => {
     
     expect(mockUseRouter.push).toHaveBeenCalledWith('/discover');
     expect(dispatchEventSpy).toHaveBeenCalledWith(expect.any(CustomEvent));
-    expect(dispatchEventSpy.mock.calls[0][0].type).toBe('propfyndr:new-chat');
+    expect(dispatchEventSpy.mock.calls[0][0].type).toBe('realtyask:new-chat');
   });
 
   it('renders login button when user is not logged in', () => {

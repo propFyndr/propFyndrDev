@@ -12,7 +12,7 @@ describe('only uploaded files count as documents', () => {
       '/images/properties/lotus-arena-sector-79-noida/hero.jpg',
       '',
       null,
-      'https://storage.propfyndr.com/documents/elite-x-brochure.pdf', // seed-script URL, no such storage
+      'https://storage.realtyask.com/documents/elite-x-brochure.pdf', // seed-script URL, no such storage
       'http://abc.supabase.co/storage/v1/object/public/project-docs/a.pdf',
     ]) assert.equal(isRealDocumentUrl(url), false, String(url))
   })

@@ -710,7 +710,7 @@ function MessageBubbleInner({
         <MobileCardShelf
           projects={shelfProjects}
           sector={shelfProjects[0]?.sector ?? null}
-          onMap={() => window.dispatchEvent(new CustomEvent('propfyndr:open-map'))}
+          onMap={() => window.dispatchEvent(new CustomEvent('realtyask:open-map'))}
           canCompare={shelfProjects.length >= 2}
           onOpenCompareOverlay={() => onOpenCompare(shelfProjects)}
           compareActive={comparingMessageId === message.id}
@@ -736,7 +736,7 @@ function MessageBubbleInner({
                   isTopPick={pi === 0 && shelfProjects === message.exactResults}
                   onDetailOpen={onDetailOpen}
                   onToast={onToast}
-                  onAskAI={() => { /* card dispatches its own propfyndr:ask-ai */ }}
+                  onAskAI={() => { /* card dispatches its own realtyask:ask-ai */ }}
                   onSetSiteVisit={onSetSiteVisit}
                   onCall={onCallback}
                 />
@@ -841,7 +841,7 @@ function MessageBubbleInner({
                         <div className="flex items-center gap-3 text-xs text-gray-500 dark:text-gray-400">
                           <span className="flex items-center gap-1 font-medium">
                             <ShieldCheck size={14} weight="fill" className="text-blue-600 dark:text-blue-400" />
-                            Verified by PropFyndr Data
+                            Verified by RealtyAsk Data
                           </span>
                         </div>
 
@@ -1290,7 +1290,7 @@ function MessageBubbleInner({
 
               <div className="flex items-center gap-2">
                 <button
-                  onClick={() => window.dispatchEvent(new CustomEvent('propfyndr:open-map'))}
+                  onClick={() => window.dispatchEvent(new CustomEvent('realtyask:open-map'))}
                   aria-pressed={showMap}
                   className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xs text-[12px] font-medium transition-colors cursor-pointer border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
                     showMap
@@ -1393,7 +1393,7 @@ function MessageBubbleInner({
                             onToggleSelect={() => onToggleCompareSelect?.(message.id, property)}
                             onDetailOpen={onDetailOpen}
                             onToast={onToast}
-                            onAskAI={() => { /* card dispatches its own propfyndr:ask-ai */ }}
+                            onAskAI={() => { /* card dispatches its own realtyask:ask-ai */ }}
                             onSetSiteVisit={onSetSiteVisit}
                             onCall={onCallback}
                           />
@@ -1435,7 +1435,7 @@ function MessageBubbleInner({
                             onToggleSelect={() => onToggleCompareSelect?.(message.id, property)}
                             onDetailOpen={onDetailOpen}
                             onToast={onToast}
-                            onAskAI={() => { /* card dispatches its own propfyndr:ask-ai */ }}
+                            onAskAI={() => { /* card dispatches its own realtyask:ask-ai */ }}
                             onSetSiteVisit={onSetSiteVisit}
                             onCall={onCallback}
                           />

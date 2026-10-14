@@ -95,7 +95,7 @@ export async function getCachedPrefix(
         systemInstruction: head,
         ...(tools && tools.length > 0 ? { tools: tools as never } : {}),
         ttl: `${TTL_SECONDS}s`,
-        displayName: 'propfyndr-system-prompt',
+        displayName: 'realtyask-system-prompt',
       },
     })
     if (!created?.name) return null

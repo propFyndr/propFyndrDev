@@ -2,7 +2,7 @@
 
 /**
  * A builder's own channel partners. The builder adds and switches them on or
- * off; PropFyndr approves. That split is enforced server-side — this page has
+ * off; RealtyAsk approves. That split is enforced server-side — this page has
  * no control that would set approval, because a builder cannot set it.
  */
 
@@ -59,7 +59,7 @@ export default function BuilderPartnersPage() {
   const [error, setError] = useState('')
   const [showForm, setShowForm] = useState(false)
   // Empty for a BUILDER session (the server reads the id off the session);
-  // set when a PropFyndr role is viewing this builder's console.
+  // set when a RealtyAsk role is viewing this builder's console.
   const scopeId = useScopeId('builder_id')
   const scoped = (path: string) => withScope(path, 'builder_id', scopeId)
 
@@ -165,7 +165,7 @@ export default function BuilderPartnersPage() {
             Channel partners
           </h1>
           <p className="mt-1 text-xs sm:text-sm text-zinc-500 dark:text-zinc-400 max-w-2xl leading-relaxed">
-            Brokers and distribution agencies authorized to sell your projects. PropFyndr verifies state RERA licenses before activation.
+            Brokers and distribution agencies authorized to sell your projects. RealtyAsk verifies state RERA licenses before activation.
           </p>
         </div>
 
@@ -218,7 +218,7 @@ export default function BuilderPartnersPage() {
             <div>
               <h2 className="text-sm font-bold text-zinc-900 dark:text-white">Affiliate Channel Partner</h2>
               <p className="text-[12px] text-zinc-500 dark:text-zinc-400">
-                Provide broker details for onboarding. PropFyndr will verify RERA credentials prior to dispatch.
+                Provide broker details for onboarding. RealtyAsk will verify RERA credentials prior to dispatch.
               </p>
             </div>
             <button
@@ -301,7 +301,7 @@ export default function BuilderPartnersPage() {
             </label>
             <div className="sm:col-span-2 flex items-center justify-between pt-2 border-t border-zinc-100 dark:border-zinc-800">
               <p className="text-[12px] text-zinc-500 dark:text-zinc-400">
-                Added partners will remain inactive until PropFyndr compliance team approves credentials.
+                Added partners will remain inactive until RealtyAsk compliance team approves credentials.
               </p>
               <button
                 type="submit"
@@ -320,7 +320,7 @@ export default function BuilderPartnersPage() {
         <EmptyState
           icon={<Handshake size={32} />}
           title="No channel partners yet"
-          body="Add the brokers and agencies who sell your projects, then route leads to them once PropFyndr approves."
+          body="Add the brokers and agencies who sell your projects, then route leads to them once RealtyAsk approves."
         />
       ) : (
         <Card className="divide-y divide-zinc-100 dark:divide-zinc-800/80 overflow-hidden shadow-2xs">
@@ -382,7 +382,7 @@ export default function BuilderPartnersPage() {
                     </div>
                     {p.status === 'rejected' && p.review_notes && (
                       <p className="text-[12px] text-rose-600 dark:text-rose-400 mt-1.5 font-medium">
-                        PropFyndr compliance note: {p.review_notes}
+                        RealtyAsk compliance note: {p.review_notes}
                       </p>
                     )}
                   </div>
@@ -399,7 +399,7 @@ export default function BuilderPartnersPage() {
                   <button
                     onClick={() => toggleActive(p)}
                     disabled={p.status !== 'approved'}
-                    title={p.status !== 'approved' ? 'PropFyndr has not approved this partner yet' : undefined}
+                    title={p.status !== 'approved' ? 'RealtyAsk has not approved this partner yet' : undefined}
                     className={`shrink-0 px-3.5 py-1.5 rounded-xl text-[12px] font-bold border cursor-pointer transition-all active:scale-95 ${
                       p.is_active
                         ? 'border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800'

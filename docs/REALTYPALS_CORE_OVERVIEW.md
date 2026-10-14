@@ -1,12 +1,12 @@
 ---
 
-## 1. What is RealtyPals?
+## 1. What is RealtyAsk?
 
-**RealtyPals** is an **intelligent real estate advisor** designed specifically for home buyers in **Noida, Greater Noida, and the Yamuna Expressway corridor**.
+**RealtyAsk** is an **intelligent real estate advisor** designed specifically for home buyers in **Noida, Greater Noida, and the Yamuna Expressway corridor**.
 
 Traditional property portals (like 99acres or MagicBricks) are advertising billboards that push sponsored listings and sell user phone numbers to cold-calling brokers. 
 
-**RealtyPals works like an objective, trusted private consultant**:
+**RealtyAsk works like an objective, trusted private consultant**:
 * It chats with the home buyer in plain English.
 * It answers deep, high-stakes questions about budget, floor plans, legal safety, and hidden costs.
 * It recommends homes based strictly on data and buyer fit, not broker commissions.
@@ -29,11 +29,11 @@ In real estate, being wrong about a payment schedule, price, or possession date 
 
 ### 1. The "True Cost" Trap (Hidden Charges)
 Builders advertise an attractive base rate (e.g., ₹7,000/sq.ft), but the buyer ends up paying for parking, club memberships, power backup, floor rise, PLC (park-facing fees), GST, and stamp duty.  
-**RealtyPals calculates the true, out-of-pocket, all-inclusive price** upfront.
+**RealtyAsk calculates the true, out-of-pocket, all-inclusive price** upfront.
 
 ### 2. Builder Reliability Risk
 Many projects in NCR have suffered from multi-year construction delays.  
-**RealtyPals tracks a builder score for every developer** based on actual past deliveries, delivery delays, financial strength, and pending litigations.
+**RealtyAsk tracks a builder score for every developer** based on actual past deliveries, delivery delays, financial strength, and pending litigations.
 
 ### 3. Information Overload & Sales Pressure
 Instead of decoding 40-page marketing brochures or dealing with pushy sales calls, buyers can ask direct questions:

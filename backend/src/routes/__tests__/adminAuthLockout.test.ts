@@ -7,7 +7,7 @@ import { revokeAllSessions, createIdentitySession } from '../../lib/adminIdentit
 
 describe('Phase 1.4: Admin Auth Lockout and Session Revocation', () => {
   const adminSrc = readFileSync(join(__dirname, '..', 'admin.ts'), 'utf8')
-  const testEmail = 'lockout-test@propfyndr.in'
+  const testEmail = 'lockout-test@realtyask.in'
 
   it('admin.ts enforces account lockout check before password verification', () => {
     assert.ok(adminSrc.includes('admin:lockout:'), 'admin.ts must check admin:lockout key')

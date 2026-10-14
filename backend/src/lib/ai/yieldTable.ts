@@ -317,7 +317,7 @@ export function asksAppreciation(message: string): boolean {
  *
  * `sector_intelligence` holds the figure honestly: all 65 rows carry
  * `price_5yr_cagr_pct` alongside `avg_price_per_sqft`, stamped
- * `verified_by: 'PropFyndr Research Desk'` with a `last_verified_at`. It is a
+ * `verified_by: 'RealtyAsk Research Desk'` with a `last_verified_at`. It is a
  * BACKWARD-LOOKING five-year figure on a row somebody signed for — a different
  * thing from the forward projection HARD RULE 20 forbids, and a different thing
  * again from a CAGR computed off the benchmark series, which would restate

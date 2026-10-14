@@ -567,7 +567,7 @@ export default function PartnerRegistrationForm() {
               className="flex-1 py-2.5 px-4 rounded-xl border border-zinc-200 text-zinc-700 hover:bg-zinc-50 text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer"
             >
               <Home size={14} />
-              <span>Back to PropFyndr</span>
+              <span>Back to RealtyAsk</span>
             </Link>
             <button
               onClick={handleResetForm}
@@ -604,7 +604,7 @@ export default function PartnerRegistrationForm() {
             </Link>
             <Image
               src="/images/icons/logo-wordmark-black.png"
-              alt="PropFyndr"
+              alt="RealtyAsk"
               width={58}
               height={26}
               className="object-contain opacity-90"
@@ -659,7 +659,7 @@ export default function PartnerRegistrationForm() {
           <div>
             <Image
               src="/images/icons/logo-wordmark-black.png"
-              alt="PropFyndr"
+              alt="RealtyAsk"
               width={66}
               height={30}
               className="object-contain mb-6 opacity-90"
@@ -670,7 +670,7 @@ export default function PartnerRegistrationForm() {
               Partner Onboarding
             </h1>
             <p className="text-[12px] text-zinc-500 leading-relaxed mb-6 font-medium">
-              For brokers and agencies selling a listed developer&apos;s projects. PropFyndr verifies the relationship
+              For brokers and agencies selling a listed developer&apos;s projects. RealtyAsk verifies the relationship
               before activating your account.
             </p>
 
@@ -872,7 +872,7 @@ export default function PartnerRegistrationForm() {
                       <div className="p-3.5 rounded-xl bg-blue-50/60 border border-blue-100 flex items-start gap-2.5">
                         <Handshake size={18} className="text-blue-600 shrink-0 mt-0.5" />
                         <p className="text-[12px] text-blue-900/80 leading-relaxed font-medium">
-                          PropFyndr channel partners belong to registered builders. Name the developer you represent —
+                          RealtyAsk channel partners belong to registered builders. Name the developer you represent —
                           our desk verifies this relationship before activating your portal.
                         </p>
                       </div>
@@ -983,7 +983,7 @@ export default function PartnerRegistrationForm() {
 
                       <div className="pt-2 text-center">
                         <p className="text-[11.5px] text-zinc-500">
-                          Builder not yet listed on PropFyndr?{' '}
+                          Builder not yet listed on RealtyAsk?{' '}
                           <Link href="/builder-register" className="font-bold text-zinc-900 hover:underline">
                             Register developer &rarr;
                           </Link>
@@ -1340,7 +1340,7 @@ export default function PartnerRegistrationForm() {
                         >
                           I certify that I am an authorized representative of{' '}
                           <strong className="text-zinc-900">{formData.name || 'this firm'}</strong> and that all
-                          information provided is accurate. I acknowledge that PropFyndr will confirm our partnership directly
+                          information provided is accurate. I acknowledge that RealtyAsk will confirm our partnership directly
                           with <strong className="text-zinc-900">{selectedBuilder?.name || 'the builder'}</strong> before
                           activating portal access.
                         </label>

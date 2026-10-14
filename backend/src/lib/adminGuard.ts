@@ -22,7 +22,7 @@ import { adminRolePolicy } from './adminPolicy'
 import { adminFieldRedaction } from './adminFieldRedaction'
 import { adminReadAudit } from './adminReadAudit'
 
-/** Roles that may reach the PropFyndr admin area at all. */
+/** Roles that may reach the RealtyAsk admin area at all. */
 const STAFF_ROLES = ['SUPER_ADMIN', 'ANALYST', 'SALES'] as const
 
 /**

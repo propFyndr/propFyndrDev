@@ -35,7 +35,7 @@ export default function NotFound() {
             RP
           </div>
           <span className="font-extrabold text-lg tracking-tight text-white group-hover:text-blue-400 transition-colors">
-            PropFyndr
+            RealtyAsk
           </span>
         </Link>
 
@@ -150,7 +150,7 @@ export default function NotFound() {
 
       {/* Footer */}
       <footer className="relative z-10 max-w-6xl mx-auto w-full px-6 py-4 border-t border-white/5 text-center text-[11px] text-zinc-600">
-        © {new Date().getFullYear()} PropFyndr · Verified Real Estate Intelligence
+        © {new Date().getFullYear()} RealtyAsk · Verified Real Estate Intelligence
       </footer>
     </div>
   )

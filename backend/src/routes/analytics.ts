@@ -1,6 +1,7 @@
 import express, { Request, Response } from 'express'
 import { prisma } from '../lib/db'
 import { z } from 'zod'
+import { getMarketSnapshot, getSectorTrends } from '../lib/marketAnalytics'
 
 const router = express.Router()
 
@@ -117,7 +118,7 @@ const PropertyEventSchema = z.object({
 router.post('/property-event', async (req: Request, res: Response) => {
   try {
     const data = PropertyEventSchema.parse(req.body)
-    
+
     // We only log if we have a session_id to associate it with
     if (data.session_id) {
       await prisma.propertyEvent.create({
@@ -130,11 +131,34 @@ router.post('/property-event', async (req: Request, res: Response) => {
         }
       })
     }
-    
+
     res.status(200).json({ success: true })
   } catch (err) {
     console.error('[analytics/property-event]', err)
     res.status(400).json({ error: 'Invalid payload' })
+  }
+})
+
+// GET /api/v1/analytics/market
+router.get('/market', async (req: Request, res: Response) => {
+  try {
+    const snapshot = await getMarketSnapshot()
+    res.status(200).json(snapshot)
+  } catch (err) {
+    console.error('[analytics/market]', err)
+    res.status(500).json({ error: 'Failed to fetch market snapshot' })
+  }
+})
+
+// GET /api/v1/analytics/sector/:sector
+router.get('/sector/:sector', async (req: Request, res: Response) => {
+  try {
+    const { sector } = req.params
+    const trends = await getSectorTrends(sector)
+    res.status(200).json(trends)
+  } catch (err) {
+    console.error('[analytics/sector]', err)
+    res.status(500).json({ error: 'Failed to fetch sector trends' })
   }
 })
 

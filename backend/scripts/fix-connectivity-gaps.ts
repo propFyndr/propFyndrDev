@@ -18,13 +18,16 @@ const SECTOR_METRO_DEFAULTS: Record<string, { metro_km: number; expressway_km: n
 }
 
 async function fixConnectivity() {
-  const lowHealth = await prisma.project.findMany({
-    where: {
-      coordinates: { not: null },
-      commute_matrix: null, // Missing commute data
-    },
-    select: { id: true, slug: true, sector: true, hospital_distance_km: true },
+  // Get all projects, filter in code
+  const allProjects = await prisma.project.findMany({
+    where: { city: { in: ['Noida', 'Greater Noida', 'Greater Noida West'] } },
+    select: { id: true, slug: true, sector: true, lat: true, lng: true, hospital_distance_km: true, commute_matrix: true },
   })
+
+  const lowHealth = allProjects.filter(p =>
+    p.lat && p.lng && // Has coordinates
+    !p.commute_matrix // Missing commute data
+  )
 
   console.log(`Found ${lowHealth.length} projects missing commute data`)
 

@@ -1,8 +1,8 @@
 // backend/src/routes/adminPartners.ts
 //
-// PropFyndr-side management of channel partners.
+// RealtyAsk-side management of channel partners.
 //
-// A channel partner belongs to a builder; PropFyndr approves, verifies and can
+// A channel partner belongs to a builder; RealtyAsk approves, verifies and can
 // switch one off. Three separate facts, kept separate on purpose:
 //   status      — our review decision on the application (new/approved/rejected/…)
 //   is_active   — whether the partner may sign into the portal at all

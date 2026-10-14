@@ -33,7 +33,7 @@ Expected output on pass:
 ### Staging / Production
 
 ```bash
-npm run eval:staging   # Against staging.propfyndr.com
+npm run eval:staging   # Against staging.realtyask.com
 npm run eval:prod      # Against production
 ```
 

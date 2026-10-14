@@ -3,7 +3,7 @@
 /**
  * The partner's working list: the leads their builder routed to them, with
  * the two writes a partner needs — move the status, leave a note the builder
- * and PropFyndr can both read.
+ * and RealtyAsk can both read.
  */
 
 import { useEffect, useMemo, useState } from 'react'
@@ -102,7 +102,7 @@ export default function PartnerLeadsPage() {
   const [savingId, setSavingId] = useState<string | null>(null)
   const [siteVisits, setSiteVisits] = useState<SiteVisit[]>([])
   const [briefFor, setBriefFor] = useState<Lead | null>(null)
-  // Empty for a PARTNER session; set when a PropFyndr role is viewing theirs.
+  // Empty for a PARTNER session; set when a RealtyAsk role is viewing theirs.
   const scopeId = useScopeId('partner_id')
   const scoped = (path: string) => withScope(path, 'partner_id', scopeId)
 

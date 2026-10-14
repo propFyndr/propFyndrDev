@@ -1,7 +1,7 @@
 'use client'
 
 /**
- * The one panel chrome, used by all three consoles: PropFyndr admin, the
+ * The one panel chrome, used by all three consoles: RealtyAsk admin, the
  * builder portal and the channel-partner portal. Extracted from the admin
  * layout so the builder and partner consoles look like the admin panel by
  * construction rather than by someone remembering to copy a class list.
@@ -112,7 +112,7 @@ interface Props {
   allowRoles: PortalRole[]
   /**
    * Set on a console that belongs to someone else (builder, partner). A
-   * PropFyndr role opening it must name whose console it is in the URL; without
+   * RealtyAsk role opening it must name whose console it is in the URL; without
    * that the portal endpoints have no scope and 400 on every call, which used
    * to surface as a bare "could not load". Owners of the console are unaffected
    * — their id comes from the session.
@@ -518,7 +518,7 @@ export default function PortalShell({ nav, rootHref, rootLabel, allowRoles, scop
 
   useEffect(() => {
     const active = crumbs.length > 1 ? crumbs.slice(1).map((c) => c.label).join(' | ') : 'Dashboard'
-    document.title = `${active} | ${rootLabel} PropFyndr`
+    document.title = `${active} | ${rootLabel} RealtyAsk`
     // crumbs is derived from pathname; tracking pathname is enough.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname, rootLabel])
@@ -578,7 +578,7 @@ export default function PortalShell({ nav, rootHref, rootLabel, allowRoles, scop
     router.push('/admin/login')
   }
 
-  // A console that belongs to someone else, opened by a PropFyndr role that has
+  // A console that belongs to someone else, opened by a RealtyAsk role that has
   // not said whose. Render the chrome and explain, rather than letting every
   // child page fire a request the server will reject for lack of scope.
   const scopeNeeded = Boolean(scopeParam) && role !== null && role !== ownRole && !scopeId
@@ -961,7 +961,7 @@ export default function PortalShell({ nav, rootHref, rootLabel, allowRoles, scop
                 <div className="w-8 h-8 rounded-lg overflow-hidden flex items-center justify-center shrink-0 shadow-2xs">
                   <Image
                     src="/images/icons/logo-square-black.png"
-                    alt="PropFyndr"
+                    alt="RealtyAsk"
                     width={32}
                     height={32}
                     className="object-contain block dark:hidden"
@@ -969,7 +969,7 @@ export default function PortalShell({ nav, rootHref, rootLabel, allowRoles, scop
                   />
                   <Image
                     src="/images/icons/logo-square-white.png"
-                    alt="PropFyndr"
+                    alt="RealtyAsk"
                     width={32}
                     height={32}
                     className="object-contain hidden dark:block"
@@ -977,7 +977,7 @@ export default function PortalShell({ nav, rootHref, rootLabel, allowRoles, scop
                   />
                 </div>
                 <span className="text-[15.5px] font-bold text-zinc-950 dark:text-white tracking-tight truncate leading-none group-hover/logo:text-blue-600 dark:group-hover/logo:text-blue-400 transition-colors">
-                  PropFyndr
+                  RealtyAsk
                 </span>
               </Link>
 
@@ -1006,7 +1006,7 @@ export default function PortalShell({ nav, rootHref, rootLabel, allowRoles, scop
                 <div className="w-8 h-8 rounded-lg overflow-hidden flex items-center justify-center shadow-2xs group-hover:hidden">
                   <Image
                     src="/images/icons/logo-square-black.png"
-                    alt="PropFyndr"
+                    alt="RealtyAsk"
                     width={32}
                     height={32}
                     className="object-contain block dark:hidden"
@@ -1014,7 +1014,7 @@ export default function PortalShell({ nav, rootHref, rootLabel, allowRoles, scop
                   />
                   <Image
                     src="/images/icons/logo-square-white.png"
-                    alt="PropFyndr"
+                    alt="RealtyAsk"
                     width={32}
                     height={32}
                     className="object-contain hidden dark:block"
@@ -1293,7 +1293,7 @@ export default function PortalShell({ nav, rootHref, rootLabel, allowRoles, scop
                       {displayName}
                     </p>
                     <p className="text-[11px] text-zinc-400 truncate">
-                      {userEmail || 'admin@propfyndr.in'}
+                      {userEmail || 'admin@realtyask.in'}
                     </p>
                     <div className="mt-1.5 flex items-center gap-1.5">
                       <span className="text-[9.5px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200/50 dark:border-blue-800/40">

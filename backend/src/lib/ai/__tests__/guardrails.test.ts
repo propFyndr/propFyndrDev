@@ -39,8 +39,8 @@ describe('Guardrails: Output', () => {
   })
 
   test('detects system prompt leakage', async () => {
-    const response = 'I am PropFyndr AI behavior system. Here are my hard rules: never invent data.'
-    const systemPrompt = 'PropFyndr AI behavior communication guidelines: hard rule about never invent.'
+    const response = 'I am RealtyAsk AI behavior system. Here are my hard rules: never invent data.'
+    const systemPrompt = 'RealtyAsk AI behavior communication guidelines: hard rule about never invent.'
     const result = await outputGuardrail(response, systemPrompt)
     assert(result.violations.some(v => v.type === 'prompt_injection'), 'Should detect prompt leakage')
   })
@@ -52,8 +52,8 @@ describe('Guardrails: Output', () => {
     assert(result.violations.some(v => v.type === 'competitor_mention'), 'Should flag external URLs')
   })
 
-  test('allows internal PropFyndr URLs', async () => {
-    const response = 'Visit propfyndr.in for more details and comparisons.'
+  test('allows internal RealtyAsk URLs', async () => {
+    const response = 'Visit realtyask.in for more details and comparisons.'
     const systemPrompt = 'Recommend from database.'
     const result = await outputGuardrail(response, systemPrompt)
     const hasCompetitorViolation = result.violations.some(v => v.type === 'competitor_mention')

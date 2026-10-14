@@ -959,7 +959,7 @@ export default function AdminDashboard() {
                 </button>
               )}
               <span className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500">
-                {bottomPaneTab === 'activity' ? `${recentLogs.length} Events` : 'propfyndr-server'}
+                {bottomPaneTab === 'activity' ? `${recentLogs.length} Events` : 'realtyask-server'}
               </span>
             </div>
           </div>

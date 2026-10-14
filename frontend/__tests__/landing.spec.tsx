@@ -45,7 +45,7 @@ describe('Spec 21: Landing Page (app/page.tsx)', () => {
     })
 
     it('highlights USP: not a listings portal', () => {
-      const usp = 'PropFyndr is your advisor, not a portal'
+      const usp = 'RealtyAsk is your advisor, not a portal'
       assert(usp.includes('advisor'))
     })
   })
@@ -105,7 +105,7 @@ describe('Spec 21: Landing Page (app/page.tsx)', () => {
 
   describe('Footer', () => {
     it('shows company info and links', () => {
-      const footer = { company: 'PropFyndr', year: 2024 }
+      const footer = { company: 'RealtyAsk', year: 2024 }
       assert(footer.company && footer.year)
     })
 

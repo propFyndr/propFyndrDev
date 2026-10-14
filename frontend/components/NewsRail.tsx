@@ -1,7 +1,7 @@
 'use client'
 
 /**
- * PropFyndr — live builder announcement ticker.
+ * RealtyAsk — live builder announcement ticker.
  *
  * A single rotating headline below the discovery prompt chips. Tapping it asks
  * the advisor about that announcement.
@@ -112,7 +112,7 @@ export default function NewsRail() {
     const question = `Tell me more about ${builderName}'s recent update: "${newsItem.title}". What does this mean for property buyers?`
 
     window.dispatchEvent(
-      new CustomEvent('propfyndr:ask-ai', {
+      new CustomEvent('realtyask:ask-ai', {
         detail: { text: question, autoSend: true },
       })
     )

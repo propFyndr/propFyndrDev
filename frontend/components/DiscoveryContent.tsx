@@ -159,7 +159,7 @@ export default function DiscoveryContent({ userId, guestToken, onSessionChange, 
   const router = useRouter();
   const [chatInput, setChatInput] = useState(() => {
     if (typeof window === 'undefined') return '';
-    return localStorage.getItem('propfyndr_draft') ?? '';
+    return localStorage.getItem('realtyask_draft') ?? '';
   });
   const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
   const [visibleCount, setVisibleCount] = useState(15);
@@ -205,15 +205,15 @@ export default function DiscoveryContent({ userId, guestToken, onSessionChange, 
   useEffect(() => {
     const newTitle = (() => {
       if (sessionTitle && sessionTitle.trim()) {
-        return `${sessionTitle.trim()} | PropFyndr`
+        return `${sessionTitle.trim()} | RealtyAsk`
       }
       const userMsg = chatHistory.find(m => m.type === 'user')?.content
       if (userMsg && userMsg.trim()) {
         const cleanMsg = userMsg.trim()
         const truncated = cleanMsg.length > 35 ? `${cleanMsg.slice(0, 35)}...` : cleanMsg
-        return `${truncated} | PropFyndr`
+        return `${truncated} | RealtyAsk`
       }
-      return `PropFyndr — AI Property Advisor for Noida`
+      return `RealtyAsk — AI Property Advisor for Noida`
     })()
     if (document.title !== newTitle) {
       document.title = newTitle
@@ -241,7 +241,7 @@ export default function DiscoveryContent({ userId, guestToken, onSessionChange, 
     setIsRenamingHeader(false);
     try {
       await renameSession(sessionId, newTitle);
-      window.dispatchEvent(new Event('propfyndr:session-updated'));
+      window.dispatchEvent(new Event('realtyask:session-updated'));
     } catch {
       setSessionTitle(oldTitle);
       setToast({ message: 'Failed to rename session' });
@@ -252,7 +252,7 @@ export default function DiscoveryContent({ userId, guestToken, onSessionChange, 
     if (!sessionId) return;
     try {
       await deleteSession(sessionId);
-      window.dispatchEvent(new Event('propfyndr:session-updated'));
+      window.dispatchEvent(new Event('realtyask:session-updated'));
       router.push('/discover');
     } catch {
       setToast({ message: 'Failed to delete session' });
@@ -262,7 +262,7 @@ export default function DiscoveryContent({ userId, guestToken, onSessionChange, 
 
   const resetToFreshChat = useCallback(() => {
     try {
-      localStorage.removeItem('propfyndr_draft');
+      localStorage.removeItem('realtyask_draft');
     } catch {}
     setChatInput('');
     setChatHistory([]);
@@ -284,7 +284,7 @@ export default function DiscoveryContent({ userId, guestToken, onSessionChange, 
 
   const handleNewChat = useCallback(() => {
     resetToFreshChat();
-    window.dispatchEvent(new CustomEvent('propfyndr:new-chat'));
+    window.dispatchEvent(new CustomEvent('realtyask:new-chat'));
     router.push('/discover');
   }, [resetToFreshChat, router]);
 
@@ -292,8 +292,8 @@ export default function DiscoveryContent({ userId, guestToken, onSessionChange, 
     const handleNewChatEvent = () => {
       resetToFreshChat();
     };
-    window.addEventListener('propfyndr:new-chat', handleNewChatEvent);
-    return () => window.removeEventListener('propfyndr:new-chat', handleNewChatEvent);
+    window.addEventListener('realtyask:new-chat', handleNewChatEvent);
+    return () => window.removeEventListener('realtyask:new-chat', handleNewChatEvent);
   }, [resetToFreshChat]);
 
   // Notify parent of session changes for sidebar highlighting
@@ -364,9 +364,9 @@ export default function DiscoveryContent({ userId, guestToken, onSessionChange, 
   useEffect(() => {
     const timeout = setTimeout(() => {
       if (chatInput) {
-        localStorage.setItem('propfyndr_draft', chatInput);
+        localStorage.setItem('realtyask_draft', chatInput);
       } else {
-        localStorage.removeItem('propfyndr_draft');
+        localStorage.removeItem('realtyask_draft');
       }
     }, 500);
     return () => clearTimeout(timeout);
@@ -506,7 +506,7 @@ export default function DiscoveryContent({ userId, guestToken, onSessionChange, 
   };
   const handleDossierWhatsApp = () => {
     trackDossierShared(dossierToken, { channel: 'whatsapp' });
-    const text = `My property research on PropFyndr — the questions I asked, the answers, and the projects side by side:\n${dossierFullUrl}`;
+    const text = `My property research on RealtyAsk — the questions I asked, the answers, and the projects side by side:\n${dossierFullUrl}`;
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
   };
 
@@ -1002,11 +1002,11 @@ export default function DiscoveryContent({ userId, guestToken, onSessionChange, 
                 body: JSON.stringify({ title: smartTitle }),
               })
             ).finally(() => {
-              window.dispatchEvent(new CustomEvent('propfyndr:session-updated'))
+              window.dispatchEvent(new CustomEvent('realtyask:session-updated'))
             }).catch(() => { })
           } else {
             // Every other turn: refresh immediately, no PATCH follows.
-            window.dispatchEvent(new CustomEvent('propfyndr:session-updated'));
+            window.dispatchEvent(new CustomEvent('realtyask:session-updated'));
           }
         }
       },
@@ -1051,15 +1051,15 @@ export default function DiscoveryContent({ userId, guestToken, onSessionChange, 
         setTimeout(() => chatInputRef.current?.focus(), 50);
       }
     };
-    window.addEventListener('propfyndr:ask-ai', handler);
-    return () => window.removeEventListener('propfyndr:ask-ai', handler);
+    window.addEventListener('realtyask:ask-ai', handler);
+    return () => window.removeEventListener('realtyask:ask-ai', handler);
   }, [dispatchAction, isSubmitting]);
 
   // ── Sidebar "New Chat" button triggers reset via CustomEvent ──
   useEffect(() => {
     const handler = () => performResetRef.current();
-    window.addEventListener('propfyndr:new-chat', handler);
-    return () => window.removeEventListener('propfyndr:new-chat', handler);
+    window.addEventListener('realtyask:new-chat', handler);
+    return () => window.removeEventListener('realtyask:new-chat', handler);
   }, []);
 
 
@@ -1336,10 +1336,14 @@ export default function DiscoveryContent({ userId, guestToken, onSessionChange, 
   }, []);
 
 
-  // Pick up prefill query from compare page (sessionStorage)
+  // Pick up prefill query from compare page or landing page (sessionStorage or URL param)
   useEffect(() => {
     if (!isInitialized) return;
-    const prefill = sessionStorage.getItem('rp_prefill_chat');
+    let prefill = sessionStorage.getItem('rp_prefill_chat');
+    if (!prefill && typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      prefill = params.get('q') || params.get('prompt') || null;
+    }
     if (prefill) {
       sessionStorage.removeItem('rp_prefill_chat');
       const timer = setTimeout(() => dispatchAction({ type: 'TEXT_MESSAGE', payload: { text: prefill } }), 200);
@@ -1612,8 +1616,8 @@ export default function DiscoveryContent({ userId, guestToken, onSessionChange, 
   // button was inert — `showMap` is already plumbed into MessageBubble and gates
   // the SectorMap render, so this is the only piece that was missing.
   useEffect(() => {
-    window.addEventListener('propfyndr:open-map', handleToggleMap);
-    return () => window.removeEventListener('propfyndr:open-map', handleToggleMap);
+    window.addEventListener('realtyask:open-map', handleToggleMap);
+    return () => window.removeEventListener('realtyask:open-map', handleToggleMap);
   }, [handleToggleMap]);
 
   const handleSetCarouselIndex = useCallback((msgIdx: number, imgIdx: number) => {
@@ -1938,7 +1942,7 @@ export default function DiscoveryContent({ userId, guestToken, onSessionChange, 
                 the logo artwork — keep the two in step. */}
             <div className="text-center mb-8 w-full max-w-[768px] animate-fade-in-up flex flex-col items-center select-none">
               <h1 className="text-[4.2rem] md:text-[5.5rem] font-bold italic tracking-tight leading-none text-zinc-900 dark:text-white font-[family-name:var(--font-afacad)]">
-                PropFyndr
+                RealtyAsk
               </h1>
               <p className="mt-3 text-[22px] md:text-[26px] font-normal tracking-[-0.01em] leading-tight text-zinc-700 dark:text-zinc-300 font-[family-name:var(--font-afacad)]">
                 Know before you buy
@@ -1993,7 +1997,7 @@ export default function DiscoveryContent({ userId, guestToken, onSessionChange, 
               // finished answer once instead of every token.
               aria-busy={isSubmitting}
               aria-relevant="additions text"
-              aria-label="Conversation with PropFyndr advisor"
+              aria-label="Conversation with RealtyAsk advisor"
               // The session-title pill floats over this feed at z-30, sitting
               // between 10px and 52px from the top. Top padding used to drop to
               // pt-2 (8px) as soon as an intent existed — which is exactly when

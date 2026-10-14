@@ -1,18 +1,18 @@
-PropFyndr
+RealtyAsk
 Product Blueprint (PRD v1.0)
 
 Version: 1.0
 Status: Active Development (MVP)
-Product: PropFyndr
+Product: RealtyAsk
 Category: AI-Powered Conversational Real Estate Advisor
 Primary Market: India
 Initial Launch City: Noida
 
 Executive Summary
 
-PropFyndr is an AI-powered conversational real estate advisor built to help homebuyers discover, evaluate, compare, and confidently choose the right home.
+RealtyAsk is an AI-powered conversational real estate advisor built to help homebuyers discover, evaluate, compare, and confidently choose the right home.
 
-Unlike traditional real estate portals that present hundreds of listings and leave users to filter through them, PropFyndr begins with a conversation. It understands a buyer's priorities, asks intelligent follow-up questions, evaluates available projects using structured property intelligence, and recommends the most suitable properties with clear reasoning, trade-offs, and supporting insights.
+Unlike traditional real estate portals that present hundreds of listings and leave users to filter through them, RealtyAsk begins with a conversation. It understands a buyer's priorities, asks intelligent follow-up questions, evaluates available projects using structured property intelligence, and recommends the most suitable properties with clear reasoning, trade-offs, and supporting insights.
 
 The platform is not designed to maximize the number of listings viewed. Its purpose is to maximize buyer confidence by providing personalized, transparent, and explainable recommendations.
 
@@ -25,13 +25,13 @@ To become the most trusted AI advisor for homebuyers, enabling every property pu
 
 Buying a home is one of the largest financial decisions most people make. Yet today's experience is fragmented across listing portals, builder websites, brokers, spreadsheets, calculators, and countless phone calls.
 
-PropFyndr aims to replace this fragmented journey with a single intelligent advisor that understands the buyer, explains the market, highlights trade-offs, and guides them confidently toward the right decision.
+RealtyAsk aims to replace this fragmented journey with a single intelligent advisor that understands the buyer, explains the market, highlights trade-offs, and guides them confidently toward the right decision.
 
 2. Mission
 
 Our mission is to make home buying simpler, more transparent, and more trustworthy through artificial intelligence.
 
-Rather than helping users browse more properties, PropFyndr helps them discover the right property.
+Rather than helping users browse more properties, RealtyAsk helps them discover the right property.
 
 Every recommendation should be:
 
@@ -100,11 +100,11 @@ future infrastructure uncertainty,
 investment considerations,
 alternative projects.
 
-PropFyndr addresses these gaps by shifting the focus from listings to intelligent decision support.
+RealtyAsk addresses these gaps by shifting the focus from listings to intelligent decision support.
 
 5. Our Solution
 
-PropFyndr combines structured property data, deterministic search, and artificial intelligence to create a conversational buying advisor.
+RealtyAsk combines structured property data, deterministic search, and artificial intelligence to create a conversational buying advisor.
 
 The platform understands user intent through conversation, retrieves relevant projects using structured filters, enriches recommendations with property intelligence, and explains why each recommendation fits the user's needs.
 
@@ -118,7 +118,7 @@ This transforms property discovery into a guided decision-making experience.
 
 6. Product Positioning
 
-PropFyndr is positioned as an AI-powered conversational advisor for homebuyers rather than a property listing platform.
+RealtyAsk is positioned as an AI-powered conversational advisor for homebuyers rather than a property listing platform.
 
 It does not aim to become another marketplace with millions of listings.
 
@@ -126,11 +126,11 @@ Instead, it focuses on helping buyers confidently select the right property from
 
 Positioning Statement
 
-PropFyndr is an AI-powered conversational real estate advisor that helps homebuyers discover, compare, and confidently choose the right home through personalized decision intelligence instead of traditional listing-based search.
+RealtyAsk is an AI-powered conversational real estate advisor that helps homebuyers discover, compare, and confidently choose the right home through personalized decision intelligence instead of traditional listing-based search.
 
-7. What PropFyndr Is
+7. What RealtyAsk Is
 
-PropFyndr is:
+RealtyAsk is:
 
 A conversational buying advisor.
 A personalized recommendation engine.
@@ -139,9 +139,9 @@ A builder research assistant.
 A financial planning companion.
 A decision intelligence platform.
 A trusted guide throughout the property discovery journey.
-8. What PropFyndr Is Not
+8. What RealtyAsk Is Not
 
-PropFyndr is not:
+RealtyAsk is not:
 
 A generic chatbot.
 A listings marketplace.
@@ -176,7 +176,7 @@ Artificial intelligence should explain information, not invent it.
 
 Verified structured data is always the source of truth.
 
-Whenever information is unavailable, PropFyndr should explicitly communicate that uncertainty instead of making assumptions.
+Whenever information is unavailable, RealtyAsk should explicitly communicate that uncertainty instead of making assumptions.
 
 9.4 Explain Every Recommendation
 
@@ -193,7 +193,7 @@ alternative considerations.
 
 No property is perfect.
 
-PropFyndr should proactively communicate both strengths and weaknesses so users can make informed decisions.
+RealtyAsk should proactively communicate both strengths and weaknesses so users can make informed decisions.
 
 9.6 Personalization Over Popularity
 
@@ -209,9 +209,9 @@ The platform should never recommend a property solely to increase conversions.
 
 10. Product Moat
 
-The competitive advantage of PropFyndr lies not in conversational AI alone, but in its proprietary decision intelligence system.
+The competitive advantage of RealtyAsk lies not in conversational AI alone, but in its proprietary decision intelligence system.
 
-While many products can generate conversational responses using large language models, PropFyndr combines verified property information with structured intelligence and deterministic recommendation logic to deliver explainable, personalized advice.
+While many products can generate conversational responses using large language models, RealtyAsk combines verified property information with structured intelligence and deterministic recommendation logic to deliver explainable, personalized advice.
 
 The platform's competitive advantage is built on five interconnected layers.
 
@@ -245,7 +245,7 @@ This ensures consistency, reliability, and explainability.
 
 Layer 4 — Decision Intelligence
 
-After candidate properties are identified, PropFyndr generates personalized decision support by explaining:
+After candidate properties are identified, RealtyAsk generates personalized decision support by explaining:
 
 Why each property matches.
 What compromises are involved.
@@ -272,7 +272,7 @@ The AI does not replace the recommendation engine; it makes the recommendation e
 
 11. Long-Term Product Scope
 
-PropFyndr supports buyers throughout the property evaluation journey while remaining focused on decision-making rather than transaction management.
+RealtyAsk supports buyers throughout the property evaluation journey while remaining focused on decision-making rather than transaction management.
 
 The intended experience is:
 
@@ -303,7 +303,7 @@ The platform intentionally concludes its primary role at the point where the buy
 
 12. Success Definition
 
-PropFyndr succeeds when users say:
+RealtyAsk succeeds when users say:
 
 "I understand why this property is right for me."
 
@@ -317,13 +317,13 @@ This distinction defines every future product decision.
 Part II — Users & Buying Psychology
 13. Target Audience
 
-PropFyndr is designed for individuals and families looking to purchase residential property in India. The initial launch focuses exclusively on buyers exploring new residential developments in Noida.
+RealtyAsk is designed for individuals and families looking to purchase residential property in India. The initial launch focuses exclusively on buyers exploring new residential developments in Noida.
 
 The platform primarily serves users who require guidance throughout the buying process rather than those who already know the exact property they wish to purchase.
 
 The product is built around the belief that most buyers begin with uncertainty rather than certainty.
 
-Instead of expecting users to search with precise filters, PropFyndr helps them discover what they actually need through conversation.
+Instead of expecting users to search with precise filters, RealtyAsk helps them discover what they actually need through conversation.
 
 Primary Audience
 First-Time Homebuyers
@@ -399,7 +399,7 @@ Future versions of the recommendation engine should recognize these intent patte
 
 15. Jobs To Be Done
 
-PropFyndr is not purchased because users want artificial intelligence.
+RealtyAsk is not purchased because users want artificial intelligence.
 
 It is used because buyers need help making better decisions.
 
@@ -443,11 +443,11 @@ Their family agrees.
 Their investment makes sense.
 They did not overlook something important.
 
-PropFyndr should provide enough reasoning that users feel comfortable discussing recommendations with family members and advisors.
+RealtyAsk should provide enough reasoning that users feel comfortable discussing recommendations with family members and advisors.
 
 16. Buyer Psychology
 
-Understanding buyer psychology is central to PropFyndr.
+Understanding buyer psychology is central to RealtyAsk.
 
 Unlike e-commerce purchases, buying a home involves uncertainty, emotion, financial commitment, and future planning.
 
@@ -473,7 +473,7 @@ The buyer begins identifying possible locations, budgets, and project types.
 
 Their priorities are still evolving.
 
-PropFyndr should ask clarifying questions rather than immediately recommending properties.
+RealtyAsk should ask clarifying questions rather than immediately recommending properties.
 
 Stage 3 — Evaluation
 
@@ -502,7 +502,7 @@ What am I missing?
 Is this builder reliable?
 Is the locality growing?
 
-PropFyndr should transition from discovery to advisor mode.
+RealtyAsk should transition from discovery to advisor mode.
 
 Stage 5 — Action
 
@@ -517,7 +517,7 @@ At this point, the platform should facilitate a smooth handoff without creating 
 
 17. User Personas
 
-Rather than static personas, PropFyndr uses behavioral personas.
+Rather than static personas, RealtyAsk uses behavioral personas.
 
 These represent decision-making styles rather than demographics.
 
@@ -612,7 +612,7 @@ Validate strengths.
 
 18. User Journey
 
-The ideal PropFyndr journey is intentionally conversational.
+The ideal RealtyAsk journey is intentionally conversational.
 
 Step 1 — Arrival
 
@@ -644,7 +644,7 @@ The objective is clarity, not interrogation.
 
 Step 3 — Recommendation
 
-Rather than displaying dozens of listings, PropFyndr recommends a small number of carefully selected projects.
+Rather than displaying dozens of listings, RealtyAsk recommends a small number of carefully selected projects.
 
 Each recommendation includes:
 
@@ -725,7 +725,7 @@ The objective is to identify the best property for that specific buyer.
 
 20. Product Principles for Human-Like Advice
 
-PropFyndr should behave like an experienced advisor rather than a search engine.
+RealtyAsk should behave like an experienced advisor rather than a search engine.
 
 When no property perfectly satisfies the user's requirements, the AI should never fabricate matches or simply state that no results exist.
 
@@ -749,7 +749,7 @@ This reflects the behavior of a knowledgeable human advisor: honest about limita
 Part III — Product Experience
 21. Product Experience Overview
 
-PropFyndr is designed around a single belief:
+RealtyAsk is designed around a single belief:
 
 The experience should feel like talking to the most knowledgeable real estate advisor, not using a search engine.
 
@@ -770,9 +770,9 @@ Every screen should help answer one question:
 22. Conversation Experience
 Purpose
 
-Conversation is the primary interface of PropFyndr.
+Conversation is the primary interface of RealtyAsk.
 
-Instead of asking users to complete dozens of filters before seeing properties, PropFyndr begins with a natural conversation that gradually uncovers buyer intent.
+Instead of asking users to complete dozens of filters before seeing properties, RealtyAsk begins with a natural conversation that gradually uncovers buyer intent.
 
 The conversation should feel collaborative rather than transactional.
 
@@ -851,7 +851,7 @@ The Discovery Engine converts buyer intent into a shortlist of genuinely suitabl
 
 Unlike traditional property search, discovery is not driven solely by filters.
 
-Instead, PropFyndr combines:
+Instead, RealtyAsk combines:
 
 conversation,
 structured search,
@@ -913,7 +913,7 @@ Community size
 Green spaces
 Intelligent Expansion
 
-When no exact matches exist, PropFyndr should intelligently expand the search.
+When no exact matches exist, RealtyAsk should intelligently expand the search.
 
 Possible expansion strategies include:
 
@@ -998,7 +998,7 @@ Possession
 Builder
 RERA
 Status
-Why PropFyndr Recommends It
+Why RealtyAsk Recommends It
 
 Generated recommendation summary.
 
@@ -1082,9 +1082,9 @@ Investment
 Appreciation
 Rental demand
 Future growth
-PropFyndr Opinion
+RealtyAsk Opinion
 
-Instead of leaving users to interpret the data, PropFyndr provides a structured comparison summary.
+Instead of leaving users to interpret the data, RealtyAsk provides a structured comparison summary.
 
 Example:
 
@@ -1099,7 +1099,7 @@ Builders significantly influence the buying experience.
 
 Most buyers research builders separately.
 
-PropFyndr integrates builder intelligence directly into property evaluation.
+RealtyAsk integrates builder intelligence directly into property evaluation.
 
 Builder Profile
 
@@ -1125,7 +1125,7 @@ Every insight should be backed by identifiable sources where possible.
 
 AI Builder Summary
 
-PropFyndr generates a concise summary describing:
+RealtyAsk generates a concise summary describing:
 
 strengths,
 weaknesses,
@@ -1139,7 +1139,7 @@ Purpose
 
 Investment quality is not determined solely by appreciation.
 
-PropFyndr evaluates multiple dimensions before presenting an investment outlook.
+RealtyAsk evaluates multiple dimensions before presenting an investment outlook.
 
 Investment Analysis
 
@@ -1155,7 +1155,7 @@ Builder stability.
 Price positioning.
 Investment Summary
 
-Instead of assigning arbitrary scores, PropFyndr explains:
+Instead of assigning arbitrary scores, RealtyAsk explains:
 
 Why the property may appreciate.
 Risks affecting returns.
@@ -1168,7 +1168,7 @@ Transparency is prioritized over prediction.
 
 Buying a property involves more than the listed price.
 
-PropFyndr should help buyers understand the complete financial picture.
+RealtyAsk should help buyers understand the complete financial picture.
 
 Initial Tools
 EMI Calculator.
@@ -1255,7 +1255,7 @@ Part IV — AI & Decision Intelligence
 
 Artificial Intelligence is not the product.
 
-Artificial Intelligence is the communication layer between the buyer and PropFyndr' intelligence platform.
+Artificial Intelligence is the communication layer between the buyer and RealtyAsk' intelligence platform.
 
 The responsibility of the AI is not to invent recommendations.
 
@@ -1272,7 +1272,7 @@ The AI should behave like an experienced advisor whose opinions are grounded in 
 
 Core Philosophy
 
-PropFyndr follows five principles when using AI.
+RealtyAsk follows five principles when using AI.
 
 1. Facts Before Language
 
@@ -1292,7 +1292,7 @@ The platform should never behave as a black box.
 
 3. Honesty Before Confidence
 
-When information is unavailable, uncertain, or outdated, PropFyndr should communicate that explicitly.
+When information is unavailable, uncertain, or outdated, RealtyAsk should communicate that explicitly.
 
 Saying
 
@@ -1314,7 +1314,7 @@ Long-term trust is considered a more valuable business asset than short-term lea
 
 33. Decision Intelligence Engine
 
-The Decision Intelligence Engine is the core intellectual property of PropFyndr.
+The Decision Intelligence Engine is the core intellectual property of RealtyAsk.
 
 It transforms structured real estate information into personalized buying advice.
 
@@ -1368,7 +1368,7 @@ The objective is to understand the buyer before searching.
 
 Stage 2 — Clarify
 
-If essential information is missing, PropFyndr asks focused follow-up questions.
+If essential information is missing, RealtyAsk asks focused follow-up questions.
 
 Clarification should continue only until sufficient confidence has been reached.
 
@@ -1390,7 +1390,7 @@ Projects failing hard constraints are excluded.
 
 Stage 4 — Expand
 
-If exact matches are unavailable, PropFyndr intelligently explores nearby alternatives.
+If exact matches are unavailable, RealtyAsk intelligently explores nearby alternatives.
 
 Expansion strategies include:
 
@@ -1491,7 +1491,7 @@ The objective is balanced guidance.
 
 Rule 4 — Recommend Against Projects When Necessary
 
-PropFyndr is allowed to advise users against a property if it believes the project does not align with their priorities.
+RealtyAsk is allowed to advise users against a property if it believes the project does not align with their priorities.
 
 For example:
 
@@ -1518,7 +1518,7 @@ ongoing comparisons,
 financial assumptions.
 37. Human-Like Advisory Principles
 
-PropFyndr is designed to behave like an experienced property consultant.
+RealtyAsk is designed to behave like an experienced property consultant.
 
 Principle 1
 
@@ -1550,7 +1550,7 @@ Never pressure users into a decision.
 
 38. Handling No Perfect Match
 
-One of PropFyndr' defining behaviors is how it responds when no property fully satisfies a buyer's requirements.
+One of RealtyAsk' defining behaviors is how it responds when no property fully satisfies a buyer's requirements.
 
 Traditional portals return:
 
@@ -1558,7 +1558,7 @@ Traditional portals return:
 
 Generic chatbots often fabricate or overextend recommendations.
 
-PropFyndr follows a different approach.
+RealtyAsk follows a different approach.
 
 Step 1
 
@@ -1600,14 +1600,14 @@ Why not another?
 Who is this ideal for?
 What should the buyer know before visiting?
 What compromises exist?
-How confident is PropFyndr?
+How confident is RealtyAsk?
 What alternatives deserve consideration?
 
 These questions define the structure of every recommendation generated by the platform.
 
 40. AI Safety & Trust
 
-Trust is the foundation of PropFyndr.
+Trust is the foundation of RealtyAsk.
 
 The AI should always:
 
@@ -1627,11 +1627,11 @@ exaggerate investment returns,
 guarantee appreciation,
 overstate confidence.
 
-Whenever uncertainty exists, PropFyndr should explain what is known, what is unknown, and why.
+Whenever uncertainty exists, RealtyAsk should explain what is known, what is unknown, and why.
 
 41. Learning & Continuous Improvement
 
-PropFyndr should improve through structured product learning rather than unsupervised AI behavior.
+RealtyAsk should improve through structured product learning rather than unsupervised AI behavior.
 
 Areas of continuous improvement include:
 
@@ -1648,7 +1648,7 @@ Learning should occur through product analytics, data enrichment, and model impr
 
 42. Intelligence Automation Vision
 
-The long-term goal is to automate the generation and maintenance of PropFyndr' intelligence layer while preserving human-level quality.
+The long-term goal is to automate the generation and maintenance of RealtyAsk' intelligence layer while preserving human-level quality.
 
 Phase 1 — Manual Curation (Current MVP)
 
@@ -1700,7 +1700,7 @@ Projects below defined confidence thresholds are queued for manual review.
 
 Phase 4 — Continuous Intelligence Updates
 
-Rather than regenerating all project data, PropFyndr updates only the sections affected by new information.
+Rather than regenerating all project data, RealtyAsk updates only the sections affected by new information.
 
 Examples include:
 
@@ -1717,21 +1717,21 @@ Every intelligence object is versioned to maintain traceability and allow rollba
 Part V — Data & Intelligence Models
 43. Introduction
 
-The quality of PropFyndr is directly determined by the quality of its underlying knowledge.
+The quality of RealtyAsk is directly determined by the quality of its underlying knowledge.
 
-Unlike traditional real estate platforms that primarily store listing information, PropFyndr maintains a structured knowledge system that combines verified facts with continuously evolving intelligence.
+Unlike traditional real estate platforms that primarily store listing information, RealtyAsk maintains a structured knowledge system that combines verified facts with continuously evolving intelligence.
 
 Every recommendation generated by the platform is ultimately derived from this knowledge base.
 
 The intelligence layer exists to transform raw data into actionable understanding.
 
-44. The PropFyndr Knowledge Model
+44. The RealtyAsk Knowledge Model
 
-PropFyndr organizes knowledge into multiple interconnected domains.
+RealtyAsk organizes knowledge into multiple interconnected domains.
 
 Each domain represents a different aspect of the buying decision.
 
-                         PropFyndr Knowledge Graph
+                         RealtyAsk Knowledge Graph
 
                                     Project
                                        │
@@ -1752,7 +1752,7 @@ Every recommendation ultimately originates from this graph.
 
 45. Knowledge Domains
 
-PropFyndr currently recognizes six primary intelligence domains.
+RealtyAsk currently recognizes six primary intelligence domains.
 
 Property Intelligence
 
@@ -1873,7 +1873,7 @@ Estimated Travel Time
 
 Builders significantly influence buyer confidence.
 
-PropFyndr maintains structured intelligence for every builder.
+RealtyAsk maintains structured intelligence for every builder.
 
 Builder Profile
 Company Name
@@ -1906,7 +1906,7 @@ These insights should always remain explainable.
 
 Customer Sentiment
 
-Rather than storing arbitrary ratings, PropFyndr summarizes recurring themes.
+Rather than storing arbitrary ratings, RealtyAsk summarizes recurring themes.
 
 Examples:
 
@@ -2038,7 +2038,7 @@ Example:
 
 50. User Intelligence
 
-PropFyndr gradually builds an understanding of every buyer.
+RealtyAsk gradually builds an understanding of every buyer.
 
 This information is used solely to improve recommendations.
 
@@ -2167,7 +2167,7 @@ Critical intelligence generated through AI should remain reviewable by humans, p
 
 55. Long-Term Knowledge Vision
 
-As PropFyndr expands, the knowledge graph should evolve beyond individual properties.
+As RealtyAsk expands, the knowledge graph should evolve beyond individual properties.
 
 Future entities may include:
 
@@ -2189,7 +2189,7 @@ This approach enables increasingly sophisticated reasoning while preserving cons
 Part VI — Functional Requirements
 56. Functional Requirements Overview
 
-This section defines the functional capabilities required to deliver the PropFyndr experience.
+This section defines the functional capabilities required to deliver the RealtyAsk experience.
 
 Each feature is described not only by what it does, but also by why it exists, how users interact with it, and how success is measured.
 
@@ -2353,7 +2353,7 @@ Schools.
 Hospitals.
 Shopping.
 Connectivity.
-PropFyndr Insights
+RealtyAsk Insights
 Why recommended.
 Things to consider.
 Investment view.
@@ -2570,7 +2570,7 @@ The notification framework should be designed now to avoid architectural changes
 
 70. Error Handling & Empty States
 
-PropFyndr should never leave users without guidance.
+RealtyAsk should never leave users without guidance.
 
 Examples
 
@@ -2641,11 +2641,11 @@ Repeat shortlist access.
 Part VII — Technical Architecture & Scalability
 73. Technical Philosophy
 
-The architecture of PropFyndr is designed around a single principle:
+The architecture of RealtyAsk is designed around a single principle:
 
 Every component should have one clear responsibility.
 
-Rather than relying on a single language model to perform every task, PropFyndr separates reasoning into specialized systems.
+Rather than relying on a single language model to perform every task, RealtyAsk separates reasoning into specialized systems.
 
 Each system is responsible for a specific stage of the recommendation process.
 
@@ -2803,7 +2803,7 @@ Callback management.
 CRM integration.
 76. Knowledge Graph Architecture
 
-One of the defining characteristics of PropFyndr is its transition from a traditional relational database to a semantic knowledge system.
+One of the defining characteristics of RealtyAsk is its transition from a traditional relational database to a semantic knowledge system.
 
 Conceptually, the platform is organized as follows:
 
@@ -2923,7 +2923,7 @@ This is intentional.
 
 Manual curation establishes the standard that future automation must achieve.
 
-As the platform grows, PropFyndr will progressively automate the intelligence pipeline while maintaining quality controls.
+As the platform grows, RealtyAsk will progressively automate the intelligence pipeline while maintaining quality controls.
 
 Phase 1 — Manual Intelligence (Current)
 
@@ -3021,7 +3021,7 @@ The team transitions from data entry to quality assurance.
 
 79. Intelligence Automation
 
-This section defines how PropFyndr scales without increasing headcount linearly.
+This section defines how RealtyAsk scales without increasing headcount linearly.
 
 Trigger Events
 
@@ -3147,7 +3147,7 @@ Performance targets should be monitored continuously.
 
 83. Reliability
 
-PropFyndr should remain functional even when individual components fail.
+RealtyAsk should remain functional even when individual components fail.
 
 Examples:
 
@@ -3230,7 +3230,7 @@ The guiding principle is that expansion should occur by adding modules rather th
 Part VIII — Product Strategy, Operations & Governance
 87. Product Success Metrics
 
-PropFyndr should measure success by the quality of buyer decisions, not by the volume of interactions.
+RealtyAsk should measure success by the quality of buyer decisions, not by the volume of interactions.
 
 Metrics are organized into four levels.
 
@@ -3248,7 +3248,7 @@ Collected through post-session feedback.
 
 Example:
 
-"After using PropFyndr, how confident do you feel about your property decision?"
+"After using RealtyAsk, how confident do you feel about your property decision?"
 
 Time to Shortlist
 
@@ -3266,7 +3266,7 @@ Percentage of conversations that successfully reach the recommendation stage.
 
 Level 2 — Product Quality
 
-These metrics evaluate the quality of PropFyndr itself.
+These metrics evaluate the quality of RealtyAsk itself.
 
 Recommendation Accuracy
 
@@ -3436,7 +3436,7 @@ Recommendations should always include an explanation.
 
 91. Operating Principles
 
-As PropFyndr grows, product decisions should continue to follow these principles.
+As RealtyAsk grows, product decisions should continue to follow these principles.
 
 Simplicity Over Complexity
 
@@ -3554,7 +3554,7 @@ Testing requirements.
 AI engineering guidelines.
 95. Closing Statement
 
-PropFyndr is not being built to become another real estate portal.
+RealtyAsk is not being built to become another real estate portal.
 
 It is being built to redefine how homebuyers make one of the most important financial decisions of their lives.
 
@@ -3572,5 +3572,5 @@ As the platform grows, its greatest asset will not be its user interface or the 
 
 Its greatest asset will be the trust earned through consistently helping buyers make better decisions.
 
-That trust, supported by a continuously evolving intelligence platform, is intended to become PropFyndr' enduring competitive advantage.
+That trust, supported by a continuously evolving intelligence platform, is intended to become RealtyAsk' enduring competitive advantage.
 

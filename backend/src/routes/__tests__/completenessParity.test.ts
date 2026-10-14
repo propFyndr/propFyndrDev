@@ -20,7 +20,7 @@ import assert from 'node:assert/strict'
  *
  *   MEASURE_DB_QUERIES=1 npm run dev
  *   PARITY_BASE_URL=http://localhost:3001/api/v1 \
- *   PARITY_EMAIL=analyst@propfyndr.in PARITY_PASSWORD=... npm test
+ *   PARITY_EMAIL=analyst@realtyask.in PARITY_PASSWORD=... npm test
  *
  * Skips loudly without those, rather than passing quietly — a skipped check that
  * looks green is worse than a missing one.

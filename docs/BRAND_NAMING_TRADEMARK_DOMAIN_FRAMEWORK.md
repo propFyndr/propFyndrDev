@@ -1,6 +1,6 @@
 # Brand Naming, Trademark, Domain & SEO Verification Framework
 
-> **Context**: This document recovers and consolidates the complete research, automated verification scripts, trademark legal analysis, and candidate brand pools developed for the PropFyndr rebranding initiative.
+> **Context**: This document recovers and consolidates the complete research, automated verification scripts, trademark legal analysis, and candidate brand pools developed for the RealtyAsk rebranding initiative.
 
 ---
 

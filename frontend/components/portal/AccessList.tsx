@@ -3,11 +3,11 @@
 /**
  * Who can sign in at this organisation, and the switch to stop them.
  *
- * A builder whose sales manager left had to email PropFyndr and wait for a
+ * A builder whose sales manager left had to email RealtyAsk and wait for a
  * super admin. That makes us a bottleneck on somebody else's staffing, and
  * leaves the person who actually knows someone has left unable to act.
  *
- * Revocation only, by design. Creating a login stays with PropFyndr — a builder
+ * Revocation only, by design. Creating a login stays with RealtyAsk — a builder
  * proposes a partner account and we approve it. The asymmetry is deliberate:
  * switching an account off is reversible and reduces access, while creating one
  * grants it.
@@ -98,7 +98,7 @@ export default function AccessList() {
         </h2>
         <p className="text-[13px] text-zinc-500 dark:text-zinc-400 mt-1">
           People who can sign in to your portal. Revoking takes effect immediately — any open
-          session ends with it. To add someone, ask PropFyndr; only they can create a login.
+          session ends with it. To add someone, ask RealtyAsk; only they can create a login.
         </p>
       </div>
 
@@ -111,7 +111,7 @@ export default function AccessList() {
         <EmptyState
           icon={<ShieldCheck size={32} />}
           title="No portal accounts yet"
-          body="When PropFyndr sets up a login for your organisation it appears here."
+          body="When RealtyAsk sets up a login for your organisation it appears here."
         />
       ) : (
         <Card className="divide-y divide-zinc-100 dark:divide-zinc-800 overflow-hidden">
@@ -138,7 +138,7 @@ export default function AccessList() {
                 {!a.can_manage ? (
                   // Shown rather than hidden: a row you cannot act on is still
                   // information about who has access.
-                  <span className="text-[12px] text-zinc-400 dark:text-zinc-500">Managed by PropFyndr</span>
+                  <span className="text-[12px] text-zinc-400 dark:text-zinc-500">Managed by RealtyAsk</span>
                 ) : a.is_active ? (
                   confirmId === a.id ? (
                     <div className="flex items-center gap-2">

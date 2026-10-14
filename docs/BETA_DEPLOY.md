@@ -8,20 +8,20 @@ deployed, and nothing can be: pushing is blocked by a permission guard only you 
 ## 1. The one thing I could not do
 
 ```bash
-cd /c/Users/Furqan/Desktop/RealtyPals
-git remote add propfyndr https://github.com/propFyndr/propFyndrDev.git
-git push propfyndr main
+cd /c/Users/Furqan/Desktop/RealtyAsk
+git remote add realtyask https://github.com/RealtyAsk/RealtyAskDev.git
+git push realtyask main
 ```
 
 Adding that remote and pushing was refused as potential data exfiltration — pushing a private
 codebase to a URL that arrived in a chat message is exactly the shape that guard exists to
 stop, so I did not work around it.
 
-**Check the target first.** If `propFyndrDev` already has a `main` with its own history you
+**Check the target first.** If `RealtyAskDev` already has a `main` with its own history you
 will hit the same non-fast-forward problem the `elite` remote has:
 
 ```bash
-git ls-remote --heads propfyndr
+git ls-remote --heads realtyask
 ```
 
 The `elite` remote is **not** a push target: local and remote diverged on 4 June, and the
@@ -38,7 +38,7 @@ set correctly in `backend/.env` locally; the deployed environment needs them too
 | Variable | Why it matters if missing |
 |---|---|
 | `RESEND_API_KEY` | No invite or password-reset email sends. Degrades rather than breaks — the UI reports `emailed:false` and hands over the link — but nobody gets an email |
-| `EMAIL_FROM` | Must be on a domain **verified in Resend**. `propfyndr.in` is verified; the current value `PropFyndr <noreply@propfyndr.in>` is correct. `onboarding@resend.dev` delivers only to the Resend account owner |
+| `EMAIL_FROM` | Must be on a domain **verified in Resend**. `realtyask.in` is verified; the current value `RealtyAsk <noreply@realtyask.in>` is correct. `onboarding@resend.dev` delivers only to the Resend account owner |
 | **`FRONTEND_URL`** | **The one that will bite you.** It is `http://localhost:3000` locally, and invite links are built from it. Deploy without changing it and every invite emails a localhost link |
 | `GEMINI_LEG_MAX_DURATION_MS` | Defaults to 45000. The cap that turned a 209-second query into 15 seconds |
 | `FALLBACK_TURN_BUDGET_MS` | Defaults to 30000 |
@@ -118,7 +118,7 @@ risk, because the prefix is identical on every turn, which is exactly what cachi
 - **No screen has been opened in a browser.** Every UI in this tree is verified by TypeScript,
   lint, a passing production build and backend tests. That is not the same as looking at it.
 - Six admin pages still hand-roll their stat tiles. Cosmetic, and a refactor that needs eyes.
-- `admin@propfyndr.in` does not use the shared password; I never had it. The other four
+- `admin@realtyask.in` does not use the shared password; I never had it. The other four
   accounts do.
 - The invite sent to `syedfurqaan83@gmail.com` points at `localhost:3000` — see `FRONTEND_URL`
   above. Resend accepted it; the link is only useful on this machine.
@@ -129,7 +129,7 @@ risk, because the prefix is identical on every turn, which is exactly what cachi
 
 ## 7. Suggested order in the morning
 
-1. `git ls-remote --heads propfyndr` — see what is there.
+1. `git ls-remote --heads realtyask` — see what is there.
 2. Push, or open a PR if it already has history.
 3. Set `FRONTEND_URL`, `RESEND_API_KEY`, `EMAIL_FROM` in the deploy environment.
 4. Deploy, then send yourself one invite and click it. That is the single check no test

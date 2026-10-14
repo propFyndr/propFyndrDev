@@ -268,7 +268,7 @@ function getNonMediaScore(p: Project): number {
  * through the optimizer (a 36px thumbnail instead of the full hero). Anything
  * else stays `unoptimized`, because next/image throws on an unlisted host.
  */
-const OPTIMIZABLE_IMAGE = /^(\/(?!\/)|https:\/\/([a-z0-9-]+\.)?(supabase\.co|supabase\.in|images\.unsplash\.com|plus\.unsplash\.com|storage\.propfyndr\.com)\/)/i
+const OPTIMIZABLE_IMAGE = /^(\/(?!\/)|https:\/\/([a-z0-9-]+\.)?(supabase\.co|supabase\.in|images\.unsplash\.com|plus\.unsplash\.com|storage\.realtyask\.com)\/)/i
 function isOptimizableImage(src: string): boolean {
   return OPTIMIZABLE_IMAGE.test(src)
 }
@@ -755,7 +755,7 @@ export default function AdminProjects() {
       }
 
       if (!issue && !status) {
-        const saved = sessionStorage.getItem('propfyndr_admin_projects_filters')
+        const saved = sessionStorage.getItem('realtyask_admin_projects_filters')
         if (saved) {
           const parsed = JSON.parse(saved)
           if (parsed.query !== undefined) setQuery(parsed.query)
@@ -774,7 +774,7 @@ export default function AdminProjects() {
   useEffect(() => {
     try {
       const stateToSave = { query, activeTokens, statusFilter, partialThreshold, healthFilter, priceFilter, sortField, sortOrder }
-      sessionStorage.setItem('propfyndr_admin_projects_filters', JSON.stringify(stateToSave))
+      sessionStorage.setItem('realtyask_admin_projects_filters', JSON.stringify(stateToSave))
     } catch { }
   }, [query, activeTokens, statusFilter, partialThreshold, healthFilter, priceFilter, sortField, sortOrder])
 
@@ -1032,7 +1032,7 @@ Provide structured JSON with the exact verified data for each project so it can 
     const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(targetAgentProjects, null, 2))
     const downloadAnchor = document.createElement('a')
     downloadAnchor.setAttribute("href", dataStr)
-    downloadAnchor.setAttribute("download", `propfyndr-enrichment-${targetAgentProjects.length}-projects.json`)
+    downloadAnchor.setAttribute("download", `realtyask-enrichment-${targetAgentProjects.length}-projects.json`)
     document.body.appendChild(downloadAnchor)
     downloadAnchor.click()
     downloadAnchor.remove()
@@ -1056,7 +1056,7 @@ Provide structured JSON with the exact verified data for each project so it can 
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = `propfyndr-enrichment-${targetAgentProjects.length}-projects.csv`
+    a.download = `realtyask-enrichment-${targetAgentProjects.length}-projects.csv`
     document.body.appendChild(a)
     a.click()
     document.body.removeChild(a)

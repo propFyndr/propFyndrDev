@@ -30,10 +30,10 @@ test('production refuses to boot without FRONTEND_URL', () => {
 
 test('production refuses a localhost FRONTEND_URL, even inside a list', () => {
   assert.equal(boot({ NODE_ENV: 'production', FRONTEND_URL: 'http://127.0.0.1:3000' }).status, 1)
-  assert.equal(boot({ NODE_ENV: 'production', FRONTEND_URL: 'https://propfyndr.in,http://localhost:3000' }).status, 1)
+  assert.equal(boot({ NODE_ENV: 'production', FRONTEND_URL: 'https://realtyask.in,http://localhost:3000' }).status, 1)
 })
 
 test('production boots with a real origin; dev keeps the localhost default', () => {
-  assert.equal(boot({ NODE_ENV: 'production', FRONTEND_URL: 'https://propfyndr.in' }).status, 0)
+  assert.equal(boot({ NODE_ENV: 'production', FRONTEND_URL: 'https://realtyask.in' }).status, 0)
   assert.equal(boot({ NODE_ENV: 'development' }).status, 0)
 })

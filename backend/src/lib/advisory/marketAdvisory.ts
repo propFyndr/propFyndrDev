@@ -159,7 +159,7 @@ export function formatRentalAdvisory(message: string): string {
   text +=
     `---\n\n` +
     `**Our Operational Focus & Advisory Bridge:**\n` +
-    `PropFyndr specializes **exclusively in direct primary developer sales** of new-construction homes across Noida and Greater Noida. We do not provide rental brokerage, landlord leasing, or rental listings.\n\n` +
+    `RealtyAsk specializes **exclusively in direct primary developer sales** of new-construction homes across Noida and Greater Noida. We do not provide rental brokerage, landlord leasing, or rental listings.\n\n` +
     `*Renting against buying:*\n` +
     `Rent builds no equity; an EMI of a similar size does, but buying also means a down payment, stamp duty, interest and maintenance. Which is cheaper depends mostly on how long you plan to stay.\n\n` +
     `**Next Step:** Are you renting for a short period while you look, or would you like to see what a similar monthly outgo looks like on a purchase in this area?`
@@ -198,7 +198,7 @@ export function formatResaleAdvisory(message: string): string {
   text +=
     `---\n\n` +
     `**Our Operational Focus & Advisory Bridge:**\n` +
-    `PropFyndr focuses **exclusively on primary developer sales and direct builder inventory** — we do not operate as an individual resale brokerage or hold private secondary market listings.\n\n` +
+    `RealtyAsk focuses **exclusively on primary developer sales and direct builder inventory** — we do not operate as an individual resale brokerage or hold private secondary market listings.\n\n` +
     `*Trade-offs between resale and new construction:*\n` +
     `Resale is ready now, but older societies can carry pending builder dues to the Authority that hold up registry, cash components in the asking price, and ageing lifts and DG sets. New construction comes with RERA escrow and fresh equipment warranties, but carries possession-delay risk.\n\n` +
     `**Next Step:** Tell me your budget ceiling and preferred sector and I will show you new-construction options with their RERA details. Title and registry eligibility still need an advocate's check before you pay a token.`
@@ -213,7 +213,7 @@ export function formatOutOfScopeCityAdvisory(message: string, city: string): str
   const capCity = city.charAt(0).toUpperCase() + city.slice(1).toLowerCase()
   return (
     `### Property Search Scope: ${capCity} vs Noida & Greater Noida\n\n` +
-    `PropFyndr is a specialized property intelligence platform focused exclusively on **Noida, Greater Noida, and Yamuna Expressway**.\n\n` +
+    `RealtyAsk is a specialized property intelligence platform focused exclusively on **Noida, Greater Noida, and Yamuna Expressway**.\n\n` +
     `**Why we limit our geographic footprint:**\n` +
     `We hold project data only for this region, so anything we said about individual projects in ${capCity} would be unverified.\n\n` +
     `*How Noida compares for buyers looking at ${capCity}:*\n` +
@@ -233,7 +233,7 @@ export function formatCommercialAdvisory(_message: string): string {
     `- **Risk & Tax Considerations:** Commercial property is taxed differently from residential (residential: 5% GST under construction, none once the OC is issued), so confirm the commercial GST position with your CA. Commercial also tends to see longer vacancies between leases and higher CAM overheads.\n\n` +
     `---\n\n` +
     `**Our Operational Focus:**\n` +
-    `PropFyndr covers residential homes for end users only. We do not broker commercial retail spaces, SCO plots, or office suites.\n\n` +
+    `RealtyAsk covers residential homes for end users only. We do not broker commercial retail spaces, SCO plots, or office suites.\n\n` +
     `If lower management effort matters more to you than yield, residential may suit you better.\n\n` +
     `**Next Step:** Would you like to look at residential options along the Expressway?`
   )
@@ -288,7 +288,7 @@ export function getSocietyFinancialHealthChecklist(_message?: string): string {
     `4. **Developer Handover & IFMS Status:** Confirm whether the builder has formally handed over the society to the elected AOA and transferred the **Interest-Free Maintenance Security (IFMS)** corpus (₹50–₹100/sqft; ${MARKET_QUALIFIER}). Withholding of IFMS by builders is a frequent source of litigation.\n` +
     `5. **Authority & Utility Liabilities:** Check if the society has pending electricity bills with PVVNL (single-point connection arrears) or water/sewer cess dues with the Authority.\n` +
     `6. **Active Society Litigation:** Inquire about pending disputes in NGT (environmental/STP complaints), consumer court, or disputes with adjacent village landholders.\n\n` +
-    `*Note: PropFyndr tracks developer track records and public RERA records, but internal society accounting ledgers are private. Buyers must request AGM minutes and audit reports directly from the seller or AOA executive committee.*`
+    `*Note: RealtyAsk tracks developer track records and public RERA records, but internal society accounting ledgers are private. Buyers must request AGM minutes and audit reports directly from the seller or AOA executive committee.*`
   )
 }
 
@@ -296,7 +296,7 @@ export function getNonObviousOwnerFactorsGuide(_message?: string): string {
   return (
     `### 5 Less-Obvious Factors That Materially Affect Ownership\n\n` +
     `While price, carpet area, and location dominate initial comparisons, these five structural factors govern long-term livability, daily operating costs, and resale liquidity in Noida & Greater Noida:\n\n` +
-    `| # | Critical Factor | How It Impacts Your Ownership | Evaluability in PropFyndr |\n` +
+    `| # | Critical Factor | How It Impacts Your Ownership | Evaluability in RealtyAsk |\n` +
     `| :--- | :--- | :--- | :--- |\n` +
     `| **1** | **Water Source & TDS Levels** | Projects relying purely on deep borewells supply hard water (>1,800–2,500 ppm TDS), accelerating pipe corrosion, bathroom fitting pitting, and RO membrane failure. Full municipal Ganga Jal supply (TDS 200–350 ppm) is easier on plumbing and water purifiers. | **Partially evaluable** (Where the project's water source is on record; otherwise ask the developer or test on a site visit) |\n` +
     `| **2** | **Dual-Meter Electricity vs Single-Point Prepaid** | Single-point builder meters allow developers to inflate common area maintenance (CAM) margins by bundling DG and grid tariffs. Direct multipoint PVVNL meters ensure transparent, regulated tariffs directly billed to the state discom. | **Partially evaluable** (Available where electricity infrastructure filing is on record) |\n` +

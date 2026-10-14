@@ -3,7 +3,7 @@ import "./globals.css";
 
 import { Outfit, Playfair_Display, Afacad, Inter } from "next/font/google";
 
-// PropFyndr App Root Layout — PostHog & Telemetry Enabled
+// RealtyAsk App Root Layout — PostHog & Telemetry Enabled
 import { PostHogProvider } from "@/components/PostHogProvider";
 import ThemedToaster from "@/components/ThemedToaster";
 import { PingBackend } from "@/components/PingBackend";
@@ -42,16 +42,16 @@ const afacad = Afacad({
 });
 
 export const metadata: Metadata = {
-  // TODO: confirm production domain — no NEXT_PUBLIC_SITE_URL/similar env var found in this codebase; using propfyndr.com as a placeholder (matches storage.propfyndr.com already referenced in next.config.js).
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://propfyndr.com'),
+  // TODO: confirm production domain — no NEXT_PUBLIC_SITE_URL/similar env var found in this codebase; using realtyask.com as a placeholder (matches storage.realtyask.com already referenced in next.config.js).
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://realtyask.com'),
   title: {
-    default: "PropFyndr — AI Property Advisor for Noida",
-    template: "%s | PropFyndr",
+    default: "RealtyAsk — AI Property Advisor for Noida",
+    template: "%s | RealtyAsk",
   },
   description: "Find, compare, and evaluate Noida real estate with AI. Get honest project analysis, EMI calculations, and builder track records — in plain language.",
   keywords: ["Noida real estate", "property advisor", "AI property search", "buy flat Noida", "Sector 150", "RERA registered"],
   openGraph: {
-    title: "PropFyndr — AI Property Advisor for Noida",
+    title: "RealtyAsk — AI Property Advisor for Noida",
     description: "Find, compare, and evaluate Noida real estate with AI.",
     type: "website",
   },
@@ -72,7 +72,7 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: 'black-translucent',
-    title: 'PropFyndr',
+    title: 'RealtyAsk',
   },
 };
 
@@ -108,7 +108,7 @@ export default function RootLayout({
         />
       </head>
       <body suppressHydrationWarning className="antialiased glass-app font-sans relative text-foreground bg-[#E4E4E5]">
-        <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:z-[9999] focus:p-4 focus:bg-white focus:text-blue-600 focus:font-bold">
+        <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[9999] focus:px-4 focus:py-2 focus:bg-zinc-900 focus:text-white focus:rounded-full focus:shadow-xl focus:text-xs focus:font-medium outline-none">
           Skip to main content
         </a>
         <ProgressBar />

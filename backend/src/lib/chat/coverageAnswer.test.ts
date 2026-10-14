@@ -6,7 +6,7 @@ import assert from 'node:assert/strict'
  * both of which turned a good answer into a confidently wrong one.
  */
 const NOT_A_BUILDER =
-  /^(the|new|best|top|all|any|noida|greater|delhi|ncr|sector|propfyndr|ready|under|luxury|premium|residential|commercial|upcoming|verified|bhk|flat|flats|apartment|apartments|house|home|homes|good|cheap|affordable|these|those|such|more|other)$/i
+  /^(the|new|best|top|all|any|noida|greater|delhi|ncr|sector|realtyask|ready|under|luxury|premium|residential|commercial|upcoming|verified|bhk|flat|flats|apartment|apartments|house|home|homes|good|cheap|affordable|these|those|such|more|other)$/i
 
 const BUILDER_QUESTION =
   /\b([a-z][a-z&.]{2,}(?:\s+[a-z][a-z&.]{2,})?)\s+(?:properties|projects|group|builders?|developers?|homes|infra|realty)\b/i

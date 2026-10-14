@@ -1,7 +1,7 @@
 import React from 'react'
 
 /**
- * PropFyndr — High-Fidelity Vector Email Client Logos
+ * RealtyAsk — High-Fidelity Vector Email Client Logos
  * Official authentic vector brand marks for Google Gmail, Microsoft Outlook, and Apple Mail.
  * Tuned for pixel-crisp display at micro sizes (12px-24px) with high color fidelity.
  */

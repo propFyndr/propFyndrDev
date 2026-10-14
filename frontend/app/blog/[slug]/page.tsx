@@ -91,7 +91,7 @@ export default async function BlogPostPage({ params }: { params: Promise<Params>
               href="/"
               className="text-xs font-semibold text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white transition-colors"
             >
-              PropFyndr
+              RealtyAsk
             </Link>
           </div>
         </div>
@@ -119,7 +119,7 @@ export default async function BlogPostPage({ params }: { params: Promise<Params>
               </div>
               <div>
                 <p className="text-xs font-semibold text-zinc-900 dark:text-zinc-100">
-                  {post.author_name || 'PropFyndr Advisory Research'}
+                  {post.author_name || 'RealtyAsk Advisory Research'}
                 </p>
                 <div className="flex items-center gap-2 text-[11px] text-zinc-500 dark:text-zinc-400 mt-0.5">
                   {displayDate && (

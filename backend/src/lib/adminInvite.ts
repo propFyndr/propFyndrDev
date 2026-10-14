@@ -20,14 +20,14 @@ import { enqueueAndSend } from './outboxDispatcher'
  * `FRONTEND_URL` is a comma-separated list (CORS reads it the same way in
  * index.ts) that carries the Vercel preview URL alongside the real domain.
  * Found live: taking the first entry handed back an invite link on
- * *-vercel.app instead of propfyndr.in. Prefer whichever entry is the real
+ * *-vercel.app instead of realtyask.in. Prefer whichever entry is the real
  * domain; fall back to the first entry only if none match.
  */
 export function preferredInviteOrigin(frontendUrlEnv: string | undefined): string {
   const sanitize = (url: string) =>
     url
       .trim()
-      .replace(/^https?:\/\/app\.propfyndr\.in/i, 'https://propfyndr.in')
+      .replace(/^https?:\/\/app\.realtyask\.in/i, 'https://realtyask.in')
       .replace(/\/+$/, '')
 
   const origins = (frontendUrlEnv || '')
@@ -36,15 +36,15 @@ export function preferredInviteOrigin(frontendUrlEnv: string | undefined): strin
     .filter(Boolean)
     .map(sanitize)
 
-  const propfyndr = origins.find((o) => o.includes('propfyndr.in'))
-  if (propfyndr) return sanitize(propfyndr)
+  const realtyask = origins.find((o) => o.includes('realtyask.in'))
+  if (realtyask) return sanitize(realtyask)
 
   if (process.env.NODE_ENV === 'production') {
     const nonLocal = origins.find((o) => !o.includes('localhost') && !o.includes('127.0.0.1'))
-    return nonLocal ? sanitize(nonLocal) : 'https://propfyndr.in'
+    return nonLocal ? sanitize(nonLocal) : 'https://realtyask.in'
   }
 
-  return origins[0] ? sanitize(origins[0]) : 'https://propfyndr.in'
+  return origins[0] ? sanitize(origins[0]) : 'https://realtyask.in'
 }
 
 /**
@@ -101,9 +101,9 @@ export async function sendInviteEmail(
   const { emailed } = await enqueueAndSend({
     toEmail: email,
     template: 'admin_invite',
-    subject: 'Your PropFyndr account',
+    subject: 'Your RealtyAsk account',
     body:
-      `You have been invited to PropFyndr as ${ROLE_LABEL[role] ?? 'a team member'}.\n\n` +
+      `You have been invited to RealtyAsk as ${ROLE_LABEL[role] ?? 'a team member'}.\n\n` +
       `Use the link below to choose your own password and sign in. It expires in seven days.\n\n` +
       `If you were not expecting this, ignore it — no account is active until the link is used.`,
     actionUrl: inviteUrl,

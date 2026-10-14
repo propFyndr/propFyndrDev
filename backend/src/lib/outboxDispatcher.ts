@@ -84,7 +84,7 @@ export function renderHtml(template: OutboxTemplate, body: string, actionUrl?: s
             ${button}
             <hr style="border:none;border-top:1px solid #e5e7eb;margin:32px 0 16px">
             <p style="margin:0;font-size:12px;color:#9ca3af">
-              PropFyndr — sent because someone requested it for this address.
+              RealtyAsk — sent because someone requested it for this address.
             </p>
           </div>`
 }
@@ -109,7 +109,7 @@ export async function dispatchOutboxMessage(id: string): Promise<boolean> {
 
   const result = await sendEmail({
     to: message.to_email,
-    subject: message.subject || 'PropFyndr',
+    subject: message.subject || 'RealtyAsk',
     html: renderHtml(message.template as OutboxTemplate, message.body, message.action_url),
     text: message.action_url ? `${message.body}\n\n${message.action_url}` : message.body,
     tags: [{ name: 'template', value: message.template }],

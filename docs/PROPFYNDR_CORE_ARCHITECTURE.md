@@ -1,15 +1,15 @@
-# PropFyndr — Core Architecture & Model Context Guide
+# RealtyAsk — Core Architecture & Model Context Guide
 
 > **Audience**: Engineering team, AI/ML engineers, prompt designers, and model context injectors.  
-> **Purpose**: Definitive operational guide explaining how the PropFyndr platform, database, data pipelines, retrieval engine, and AI orchestrator work together.
+> **Purpose**: Definitive operational guide explaining how the RealtyAsk platform, database, data pipelines, retrieval engine, and AI orchestrator work together.
 
 ---
 
 ## 1. Executive Overview
 
-**PropFyndr** is an intelligence-first real estate discovery and advisory platform focused on the **Delhi-NCR corridor (Noida, Greater Noida, Greater Noida West, and Yamuna Expressway)**.
+**RealtyAsk** is an intelligence-first real estate discovery and advisory platform focused on the **Delhi-NCR corridor (Noida, Greater Noida, Greater Noida West, and Yamuna Expressway)**.
 
-Unlike generic real estate portals that rely on marketing brochures, PropFyndr operates under a strict principle:
+Unlike generic real estate portals that rely on marketing brochures, RealtyAsk operates under a strict principle:
 > **"Verified DB facts only. Never guess, never hallucinate numbers, and never invent inventory or schedules."**
 
 If a financial number, possession schedule, or specification is not verified in the database, the system explicitly communicates this boundary to the user rather than allowing an LLM to generate plausible-sounding guesses.
@@ -50,7 +50,7 @@ If a financial number, possession schedule, or specification is not verified in 
 
 ## 3. Data Storage & Schema Architecture
 
-Data in PropFyndr does **not** rely on unstructured vector embeddings for core factual retrieval. It is deeply structured across a normalized relational schema.
+Data in RealtyAsk does **not** rely on unstructured vector embeddings for core factual retrieval. It is deeply structured across a normalized relational schema.
 
 ### Core Relational Entities
 
@@ -147,7 +147,7 @@ User Query: "Payment plans for Cleo County"
 
 ## 5. Anti-Hallucination & Verification Framework
 
-PropFyndr uses strict guardrails to prevent AI models from inventing data:
+RealtyAsk uses strict guardrails to prevent AI models from inventing data:
 
 * **The Grounding Check (`groundingCheck.ts`)**:
   Responses produced by external LLMs are checked against DB-known facts before reaching the client. Any factual claims made without backing data are flagged or stripped.

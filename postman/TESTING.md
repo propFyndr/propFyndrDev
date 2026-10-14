@@ -1,10 +1,10 @@
-# PropFyndr API — Postman Testing Guide
+# RealtyAsk API — Postman Testing Guide
 
 ## Setup
 
 1. Open Postman
-2. Click **Import** → select `postman/propfyndr.json`
-3. Collection **PropFyndr API** appears in sidebar
+2. Click **Import** → select `postman/realtyask.json`
+3. Collection **RealtyAsk API** appears in sidebar
 4. Make sure `npm run dev` is running at `http://localhost:3000`
 
 ## Collection Variables
