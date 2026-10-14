@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
-import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
+import { m, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { CaretLeft, CaretRight, ArrowUpRight } from '@phosphor-icons/react';
 
 export interface PropertyShowcaseItem {
@@ -118,23 +118,23 @@ export default function InvertedPerspectiveCarousel({
       <button
         type="button"
         onClick={() => onSelectPrompt(currentItem.prompt)}
-        className="group relative z-40 mb-4 flex items-center gap-3 max-w-[92%] pl-2 pr-4 py-2 bg-white/90 hover:bg-white backdrop-blur-xl border border-white/80 rounded-full shadow-[0_12px_36px_rgba(15,23,42,0.08)] hover:shadow-[0_16px_45px_rgba(29,99,237,0.14)] transition-[box-shadow,background-color,transform] duration-300 active:scale-[0.98] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1D63ED]/50"
+        className="group relative z-40 mb-4 flex items-center gap-3 max-w-[92%] pl-2 pr-4 py-2 bg-white/90 hover:bg-white dark:bg-zinc-900/85 dark:hover:bg-zinc-900 backdrop-blur-xl border border-white/80 dark:border-white/10 rounded-full shadow-[0_12px_36px_rgba(15,23,42,0.08)] hover:shadow-[0_16px_45px_rgba(29,99,237,0.14)] transition-[box-shadow,background-color,transform] duration-300 active:scale-[0.98] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1D63ED]/50"
       >
-        <span className="w-8 h-8 rounded-full bg-zinc-900 text-white shrink-0 flex items-center justify-center text-[11px] font-semibold">
+        <span className="w-8 h-8 rounded-full bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 shrink-0 flex items-center justify-center text-[11px] font-semibold">
           You
         </span>
         <span className="relative min-w-0 text-left" aria-live="polite">
           <AnimatePresence mode="wait" initial={false}>
-            <motion.span
+            <m.span
               key={currentItem.id}
               initial={{ opacity: 0, y: 4, filter: 'blur(3px)' }}
               animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
               exit={{ opacity: 0, y: -4, filter: 'blur(3px)' }}
               transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
-              className="block text-[13px] sm:text-[13.5px] font-medium text-zinc-800 leading-snug tracking-tight"
+              className="block text-[13px] sm:text-[13.5px] font-medium text-zinc-800 dark:text-zinc-100 leading-snug tracking-tight"
             >
               {currentItem.prompt}
-            </motion.span>
+            </m.span>
           </AnimatePresence>
         </span>
         <ArrowUpRight
@@ -157,7 +157,7 @@ export default function InvertedPerspectiveCarousel({
           const isLeft = offset === -1;
 
           return (
-            <motion.button
+            <m.button
               type="button"
               key={item.id}
               tabIndex={isCenter ? 0 : -1}
@@ -178,7 +178,7 @@ export default function InvertedPerspectiveCarousel({
               }}
               transition={{ type: 'spring', stiffness: 260, damping: 26, mass: 0.8 }}
               style={{ zIndex: isCenter ? 30 : 15, transformStyle: 'preserve-3d' }}
-              className={`group absolute top-0 w-[230px] sm:w-[256px] rounded-2xl overflow-hidden bg-white border border-white/90 cursor-pointer text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1D63ED]/60 ${
+              className={`group absolute top-0 w-[230px] sm:w-[256px] rounded-2xl overflow-hidden bg-white dark:bg-zinc-900 border border-white/90 dark:border-white/10 cursor-pointer text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1D63ED]/60 ${
                 isCenter
                   ? 'shadow-[0_24px_50px_-12px_rgba(15,23,42,0.28),0_4px_12px_rgba(15,23,42,0.05)]'
                   : 'shadow-[0_10px_28px_rgba(15,23,42,0.12)] brightness-95'
@@ -191,23 +191,23 @@ export default function InvertedPerspectiveCarousel({
                   fill
                   sizes="(max-width: 640px) 230px, 256px"
                   className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]"
-                  priority={isCenter}
+                  priority={index === 0}
                 />
               </div>
-              <div className="px-3.5 py-3 bg-white">
-                <p className="text-zinc-900 font-semibold text-[14px] sm:text-[14.5px] tracking-tight leading-snug truncate">
+              <div className="px-3.5 py-3 bg-white dark:bg-zinc-900">
+                <p className="text-zinc-900 dark:text-zinc-50 font-semibold text-[14px] sm:text-[14.5px] tracking-tight leading-snug truncate">
                   {item.projectName}
                 </p>
                 <div className="mt-0.5 flex items-center justify-between gap-2">
-                  <span className="text-zinc-500 text-[11.5px] sm:text-[12px] truncate">{item.location}</span>
+                  <span className="text-zinc-500 dark:text-zinc-400 text-[11.5px] sm:text-[12px] truncate">{item.location}</span>
                   {isCenter && (
-                    <span className="shrink-0 text-[11px] font-medium text-[#1D63ED] opacity-80 group-hover:opacity-100 transition-opacity">
+                    <span className="shrink-0 text-[11px] font-medium text-[#1D63ED] dark:text-[#6B9BFF] opacity-80 group-hover:opacity-100 transition-opacity">
                       Ask →
                     </span>
                   )}
                 </div>
               </div>
-            </motion.button>
+            </m.button>
           );
         })}
 
@@ -215,7 +215,7 @@ export default function InvertedPerspectiveCarousel({
         <button
           type="button"
           onClick={handlePrev}
-          className={`absolute -left-1 z-40 w-9 h-9 rounded-full bg-white/90 hover:bg-white text-zinc-700 shadow-md flex items-center justify-center backdrop-blur-md transition-all active:scale-90 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1D63ED]/50 ${isPaused ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+          className={`absolute -left-1 z-40 w-9 h-9 rounded-full bg-white/90 hover:bg-white dark:bg-zinc-800/90 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-200 shadow-md flex items-center justify-center backdrop-blur-md transition-all active:scale-90 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1D63ED]/50 ${isPaused ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
           aria-label="Previous project"
         >
           <CaretLeft size={16} weight="bold" />
@@ -223,7 +223,7 @@ export default function InvertedPerspectiveCarousel({
         <button
           type="button"
           onClick={handleNext}
-          className={`absolute -right-1 z-40 w-9 h-9 rounded-full bg-white/90 hover:bg-white text-zinc-700 shadow-md flex items-center justify-center backdrop-blur-md transition-all active:scale-90 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1D63ED]/50 ${isPaused ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+          className={`absolute -right-1 z-40 w-9 h-9 rounded-full bg-white/90 hover:bg-white dark:bg-zinc-800/90 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-200 shadow-md flex items-center justify-center backdrop-blur-md transition-all active:scale-90 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1D63ED]/50 ${isPaused ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
           aria-label="Next project"
         >
           <CaretRight size={16} weight="bold" />
@@ -235,7 +235,7 @@ export default function InvertedPerspectiveCarousel({
         {items.map((item, i) => (
           <span
             key={item.id}
-            className={`h-1 rounded-full transition-all duration-300 ${i === activeIndex ? 'w-5 bg-zinc-800' : 'w-1.5 bg-zinc-800/25'}`}
+            className={`h-1 rounded-full transition-all duration-300 ${i === activeIndex ? 'w-5 bg-zinc-800 dark:bg-zinc-100' : 'w-1.5 bg-zinc-800/25 dark:bg-white/25'}`}
           />
         ))}
       </div>
