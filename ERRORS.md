@@ -58,3 +58,8 @@
 **What didn't work:** `npm ci` inside `frontend/` of a workspace checkout reinstalled the shared root `node_modules` for the frontend only: `express` vanished (backend typecheck/tests failed with TS2307) and the generated Prisma client was replaced.
 **What worked:** `npm install` in `backend/` (adds, deletes nothing), `npx prisma generate` in `backend/`, then `git checkout -- package-lock.json` because install rewrote it.
 **Note for next time:** after installing either app in a workspace checkout, re-check the other (`test -e node_modules/express`) and regenerate the backend Prisma client.
+
+## 2026-10-14 — `git stash apply $(lookup)` with an empty lookup applied someone else's stash
+**What didn't work:** `git stash push -- <file>` on a file with no changes saves nothing, so the follow-up `git stash apply $(git stash list | grep <tag> …)` ran with an empty argument and applied the newest stash on the shared stack — another session's WIP. It conflicted on `.tokensave/tokensave.db`, which stopped the `&&` chain before the `drop` (which would also have dropped their stash).
+**What worked:** checking `git stash list` (their entry intact), confirming by mtime that the conflicted file was written by the apply, then `git rm --cached` + removing only that file.
+**Note for next time:** never pass a computed stash ref without checking it is non-empty (`[ -n "$S" ] || exit 1`). To compare old vs new code, copy the file aside instead of stashing.

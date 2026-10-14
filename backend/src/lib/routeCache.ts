@@ -16,7 +16,10 @@ export function routeCache(ttlSecs: number) {
     // Only cache GET requests with no auth (public data)
     if (req.method !== 'GET') { next(); return }
 
-    const cacheKey = `route:${req.path}:${JSON.stringify(req.query)}`
+    // baseUrl + path, not path alone: `req.path` is relative to the router, so
+    // every mounted router's GET / shared one key — /api/v1/sectors, /builders,
+    // /blog and /projects all served the sitemap's cached project list.
+    const cacheKey = `route:${req.baseUrl}${req.path}:${JSON.stringify(req.query)}`
     const cachedObj = await getCached<{ data: unknown; staleAt: number }>(cacheKey)
 
     // Intercept res.json to capture and cache the response
