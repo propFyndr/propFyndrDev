@@ -111,3 +111,28 @@ describe('withRequirementChecklist', () => {
     assert.equal(withRequirementChecklist(state({ unit: { bhk: [3] } }), list), list)
   })
 })
+
+describe('possession date already past on an unfinished project', () => {
+  // Seen live: Jun 2026 date, still under construction, ticked as "Meets" while
+  // the advisor's own answer said move-in within a year was not feasible.
+  const LATE = { ...PROJECT, possession_date: '2026-06-01T00:00:00Z', status: 'under_construction' }
+  const possession = (s: RequirementState, p: object) =>
+    buildRequirementChecklist(s, p, NOW)!.find((r) => /possession|ready/i.test(r.criterion))!
+
+  it('a deadline window is caution, not met: the revised date is unknown', () => {
+    const row = possession(FULL, LATE)
+    assert.equal(row.status, 'caution')
+    assert.match(row.note, /Due Jun 2026, still under construction/)
+  })
+
+  it('ready to move is unmet', () => {
+    const s = state({ budget: { maxCr: 1.5 }, location: { include: ['Sector 150'] }, unit: { bhk: [3], status: 'ready_to_move' } })
+    assert.equal(possession(s, LATE).status, 'unmet')
+  })
+
+  it('a past date on a ready project still counts as possession', () => {
+    const row = possession(FULL, { ...LATE, status: 'ready_to_move' })
+    assert.equal(row.status, 'met')
+    assert.match(row.note, /Possession Jun 2026/)
+  })
+})

@@ -358,8 +358,11 @@ export default function Sidebar({
               className={`flex items-center px-1.5 py-1 rounded-xs transition-opacity hover:opacity-85 cursor-pointer ${FOCUS}`}
               title="Start fresh discovery"
             >
-              <Image src="/images/icons/logo-wordmark-black.png" alt="RealtyAsk Logo" width={75} height={27} className="object-contain block dark:hidden" priority />
-              <Image src="/images/icons/logo-wordmark-white.png" alt="RealtyAsk Logo" width={75} height={25} className="object-contain hidden dark:block" priority />
+              {/* Same lockup as the landing header: pin + live text stays crisp at any size */}
+              <Image src="/images/icons/logo-mark.png" alt="" width={28} height={28} className="w-7 h-7 object-contain" priority />
+              <span className="ml-1.5 text-[19px] font-bold tracking-[-0.03em] text-zinc-900 dark:text-white">
+                Realty<span className="text-[#1D63ED] dark:text-[#6B9BFF]">Ask</span>
+              </span>
             </Link>
             <button
               type="button"

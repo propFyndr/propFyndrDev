@@ -32,20 +32,20 @@ interface HomeButtonsProps {
 export default function HomeButtons({ onButtonClick }: HomeButtonsProps) {
   return (
     <div className="w-full">
-      {/* 2-column compact grid on mobile; centered wrap on desktop */}
-      <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:justify-center w-full py-1">
+      {/* Centered wrap at every width: a fixed 2-column grid truncated the labels on phones */}
+      <div className="flex flex-wrap justify-center gap-2 w-full py-1">
         {HOME_BUTTON_GROUPS.map((group) => (
           <button
             key={group.id}
             type="button"
             onClick={() => onButtonClick(group.primaryPrompt)}
-            className="w-full sm:w-auto min-w-0 min-h-[40px] flex items-center justify-center sm:justify-start gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 rounded-full border border-border-heavy bg-surface dark:bg-surface-2 text-text-primary hover:bg-surface-3 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
+            className="max-w-full min-h-[40px] flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 rounded-full border border-border-heavy bg-surface dark:bg-surface-2 text-text-primary hover:bg-surface-3 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
             title={`Ask: "${group.primaryPrompt}"`}
           >
             <span className="shrink-0 text-text-muted">
               {iconMap[group.icon] || <Compass size={14} weight="bold" />}
             </span>
-            <span className="truncate font-medium text-[13px]">
+            <span className="whitespace-nowrap font-medium text-[13px]">
               {group.title}
             </span>
           </button>

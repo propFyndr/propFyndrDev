@@ -123,6 +123,14 @@ export default function NewsRail() {
   const current = items[index]
   if (!current) return null
 
+  // Builder announcements often open with the builder's own name, which is
+  // already shown beside the title; drop the repeat so the headline gets the room.
+  const builderName = current.builder?.name?.trim()
+  const shownTitle =
+    builderName && current.title.toLowerCase().startsWith(builderName.toLowerCase())
+      ? current.title.slice(builderName.length).replace(/^[\s:·\-–—,]+/, '') || current.title
+      : current.title
+
   const label = current.builder?.name
     ? `Ask the advisor about ${current.builder.name}: ${current.title}`
     : `Ask the advisor about this update: ${current.title}`
@@ -146,7 +154,7 @@ export default function NewsRail() {
       >
         {/* Plain label, not a pulsing "LIVE" badge — this is a builder's own
             announcement, and dressing it as breaking news oversells it. */}
-        <span aria-hidden="true" className="text-xs text-text-muted shrink-0">
+        <span aria-hidden="true" className="hidden sm:inline text-xs text-text-muted shrink-0">
           Builder update
         </span>
 
@@ -178,7 +186,7 @@ export default function NewsRail() {
               transition={{ duration: 0.26, ease: [0.16, 1, 0.3, 1] }}
               className="text-[13px] font-medium text-text-secondary group-hover:text-primary transition-colors truncate block"
             >
-              {current.title}
+              {shownTitle}
             </m.span>
           </AnimatePresence>
         </div>

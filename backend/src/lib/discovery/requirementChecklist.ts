@@ -25,6 +25,8 @@ export interface ChecklistProject {
   city?: string | null
   price_min_cr?: number | null
   possession_date?: Date | string | null
+  /** Construction status; a past date on an unfinished project means late, not ready. */
+  status?: string | null
   unit_types?: Array<{ bhk: number; price_min_cr?: number | null }> | null
   /** Card DTOs carry at most 10; `amenity_count` says whether that is all of them. */
   top_amenities?: Array<{ name: string }> | null
@@ -123,6 +125,14 @@ function possessionRow(s: RequirementState, p: ChecklistProject, now: Date): Che
   const date = p.possession_date ? new Date(p.possession_date) : undefined
   if (!date || isNaN(date.getTime())) return { criterion, status: 'unknown', note: 'Possession date not on record' }
   const when = date.toLocaleString('en-IN', { month: 'short', year: 'numeric', timeZone: 'Asia/Kolkata' })
+  // A date that has passed while the project is still being built is a missed
+  // date, not a handover. We hold no revised date, so a deadline can't be judged.
+  if (date <= now && (p.status === 'under_construction' || p.status === 'new_launch')) {
+    const note = `Due ${when}, still under construction`
+    if (status === 'ready_to_move') return { criterion, status: 'unmet', note }
+    if (status === 'under_construction') return { criterion, status: 'met', note }
+    return { criterion, status: years !== undefined ? 'caution' : 'met', note }
+  }
   const ready = date <= now
   let ok: boolean
   if (status === 'ready_to_move') ok = ready

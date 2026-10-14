@@ -54,12 +54,12 @@ export default function ReferralNotice() {
   return (
     <div
       role="status"
-      className="fixed bottom-2 left-2 right-2 sm:left-4 sm:right-auto sm:max-w-sm z-40 pointer-events-auto"
+      className="fixed bottom-2 left-2 right-2 sm:left-1/2 sm:right-auto sm:-translate-x-1/2 sm:w-max sm:max-w-md z-40 pointer-events-auto"
     >
       <div className="flex items-center gap-2 rounded-xl bg-[#0c0d14]/85 backdrop-blur-xl border border-white/10 shadow-lg px-3.5 py-2.5 text-white">
         <p className="text-[11px] text-zinc-300/90 leading-snug flex-1">
           Chats are stored and may be reviewed by the RealtyAsk team to improve answers.{' '}
-          <Link href="/privacy" className="underline underline-offset-2 text-blue-400 hover:text-blue-300">
+          <Link href="/privacy" prefetch={false} className="underline underline-offset-2 text-blue-400 hover:text-blue-300">
             Privacy policy
           </Link>
         </p>

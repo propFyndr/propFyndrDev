@@ -70,7 +70,7 @@ export default function CookiesBanner() {
               {/* Message */}
               <p className="text-xs text-zinc-300/90 leading-relaxed mb-4 font-normal">
                 We use essential cookies to analyze site performance and personalize your property discovery journey. Learn more in our{' '}
-                <Link href="/privacy" className="text-blue-400 underline underline-offset-2 hover:text-blue-300 font-medium transition-colors">
+                <Link href="/privacy" prefetch={false} className="text-blue-400 underline underline-offset-2 hover:text-blue-300 font-medium transition-colors">
                   Privacy Policy
                 </Link>.
               </p>
@@ -93,6 +93,7 @@ export default function CookiesBanner() {
 
                 <Link
                   href="/privacy"
+                  prefetch={false}
                   className="py-2 px-3 bg-white/5 hover:bg-white/10 text-zinc-400 hover:text-zinc-200 border border-white/10 text-xs font-medium rounded-xl transition-all duration-200 cursor-pointer text-center whitespace-nowrap"
                 >
                   Manage
