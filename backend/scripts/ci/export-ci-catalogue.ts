@@ -39,8 +39,11 @@ async function main() {
   }
   // Decimal and Date serialise via toJSON; BigInt has none.
   const json = JSON.stringify(out, (_k, v) => (typeof v === 'bigint' ? v.toString() : v))
-  writeFileSync(FIXTURE_PATH, gzipSync(json))
-  console.log(`wrote ${FIXTURE_PATH} (${(json.length / 1024 / 1024).toFixed(1)} MB raw)`)
+  // EXPORT_FIXTURE_PATH writes elsewhere (e.g. a one-off copy for the dev
+  // database) without touching the committed CI fixture.
+  const outPath = process.env.EXPORT_FIXTURE_PATH || FIXTURE_PATH
+  writeFileSync(outPath, gzipSync(json))
+  console.log(`wrote ${outPath} (${(json.length / 1024 / 1024).toFixed(1)} MB raw)`)
 }
 
 main().catch((err) => {

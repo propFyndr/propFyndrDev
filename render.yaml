@@ -7,7 +7,10 @@ services:
     rootDir: backend
     buildCommand: npm install --include=dev && npm run db:generate && npm run build
     startCommand: npm start
-    healthCheckPath: /api/v1/health
+    # /healthz answers without touching the database, so Render's frequent
+    # health checks do not keep a scale-to-zero database (Neon) awake.
+    # /api/v1/health still checks DB + Redis for humans and monitors.
+    healthCheckPath: /api/v1/healthz
     envVars:
       - key: NODE_ENV
         value: production
