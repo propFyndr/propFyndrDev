@@ -29,7 +29,7 @@ export const newcomerOrientationHandler: ChatTopicHandler = {
     const sectorsIntel = await prisma.sectorIntelligence.findMany({
       where: { city: { in: ['Noida', 'Greater Noida'] } },
       take: 8,
-      orderBy: { avg_price_per_sqft: 'desc' }
+      orderBy: { avg_price_per_sqft: { sort: 'desc', nulls: 'last' } }
     })
     // Projects for the sectors the table shows. This read the first 30 projects
     // in the catalogue, in no order, so a sector we hold projects in — Sector

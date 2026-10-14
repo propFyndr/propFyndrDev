@@ -65,7 +65,7 @@ export async function getCityMicroMarkets(city: string = 'Noida'): Promise<Micro
           }
         },
         orderBy: {
-          avg_price_per_sqft: 'desc'
+          avg_price_per_sqft: { sort: 'desc', nulls: 'last' }
         }
       })
     } catch {

@@ -103,7 +103,7 @@ async function buildSectorPricingContext(message: string, city: string): Promise
   // City-wide overview if no specific sector named
   const topSectors = await prisma.sectorIntelligence.findMany({
     where: { city: { in: [DEFAULT_CITY, ...SUPPORTED_CITIES] } },
-    orderBy: { avg_price_per_sqft: 'desc' },
+    orderBy: { avg_price_per_sqft: { sort: 'desc', nulls: 'last' } },
     take: 10,
     select: {
       sector: true,
