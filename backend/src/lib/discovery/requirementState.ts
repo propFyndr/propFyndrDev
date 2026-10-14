@@ -830,18 +830,24 @@ export function normalizeRequirementState(
   let possessionDeadlineYears: number | undefined = effectivePrevState?.unit?.possessionDeadlineYears
 
   const NO_UC_EXTENDED = /\b(?:don't\s+want|avoid|no|not|nothing|absolutely\s+nothing)\s+(?:anything\s+)?under\s+construction\b/i
-  const POSSESSION_WINDOW_REGEX = /possession\s+within\s+(\d+)\s+months?/i
+  // "possession within 18 months", "ready within a year", "move in in 2 years",
+  // "handover by 3 yrs". The verb is required so "within 2 km" or "20 years of
+  // delivery" never read as a deadline.
+  const POSSESSION_WINDOW_REGEX =
+    /\b(?:possession|ready|move[\s-]*in|handover|delivery)\s+(?:within|in|by)\s+(?:the\s+next\s+)?(\d+(?:\.\d+)?|an?|one|two|three|four|five)\s*(months?|mos?|years?|yrs?)\b/i
+  const WORD_NUMBER: Record<string, number> = { a: 1, an: 1, one: 1, two: 2, three: 3, four: 4, five: 5 }
+  const windowMatch = POSSESSION_WINDOW_REGEX.exec(text)
 
   if (forgetStatus) {
     status = 'any'
     isStatusHard = false
     possessionDeadlineYears = undefined
-  } else if (POSSESSION_WINDOW_REGEX.test(text)) {
-    const m = POSSESSION_WINDOW_REGEX.exec(text)!
-    const months = parseInt(m[1], 10)
+  } else if (windowMatch) {
+    const n = WORD_NUMBER[windowMatch[1].toLowerCase()] ?? parseFloat(windowMatch[1])
+    const months = /^mo/i.test(windowMatch[2]) ? n : n * 12
     status = 'possession_window'
     isStatusHard = false
-    possessionDeadlineYears = Math.ceil(months / 12)
+    possessionDeadlineYears = Math.max(1, Math.ceil(months / 12))
   } else if (NO_UC_EXTENDED.test(text) || READY_TO_MOVE_PHRASES.test(text) || /\b(?:ready\s+only|only\s+ready)\b/i.test(text)) {
     status = 'ready_to_move'
     isStatusHard = true

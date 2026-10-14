@@ -61,11 +61,11 @@ export function SiteHeader({ variant = 'nav' }: { variant?: 'nav' | 'back' }) {
         className="relative z-50 flex items-center gap-2 group shrink-0 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1D63ED]/50"
       >
         <Image
-          src="/images/icons/apple-icon.png"
+          src="/images/icons/logo-mark.png"
           alt=""
-          width={44}
-          height={44}
-          className="w-10 h-10 sm:w-11 sm:h-11 -mx-1 object-contain group-hover:scale-105 transition-transform duration-300"
+          width={36}
+          height={36}
+          className="w-8 h-8 sm:w-9 sm:h-9 object-contain group-hover:scale-105 transition-transform duration-300"
           priority
         />
         <span className="text-[22px] sm:text-[24px] font-bold tracking-[-0.03em] text-zinc-900 dark:text-white">

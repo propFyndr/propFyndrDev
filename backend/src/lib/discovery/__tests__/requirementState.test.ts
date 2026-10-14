@@ -148,3 +148,29 @@ describe('RequirementState Normalization & Constraint Classifier', () => {
     assert.equal(state.budget.isHardCeiling, true)
   })
 })
+
+describe('Possession window phrasing', () => {
+  // "ready within a year" used to fall through, so the checklist dropped the
+  // possession row and the card showed only ticks for a pick that failed it.
+  const cases: Array<[string, number]> = [
+    ['3BHK in Sector 150 under 2 Cr, ready within a year', 1],
+    ['possession within 18 months', 2],
+    ['possession within 6 months', 1],
+    ['need possession in 2 years', 2],
+    ['want to move in within one year', 1],
+    ['handover by 3 yrs max', 3],
+  ]
+  for (const [text, years] of cases) {
+    it(`"${text}" -> possession within ${years} yr`, () => {
+      const s = normalizeRequirementState(text)
+      assert.equal(s.unit.status, 'possession_window')
+      assert.equal(s.unit.possessionDeadlineYears, years)
+    })
+  }
+
+  it('a distance or a builder history is not a possession window', () => {
+    for (const text of ['3BHK within 2 km of the metro', 'builder with 20 years of delivery']) {
+      assert.equal(normalizeRequirementState(text).unit.possessionDeadlineYears, undefined, text)
+    }
+  })
+})

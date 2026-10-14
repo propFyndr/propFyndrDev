@@ -279,8 +279,13 @@ export default function ProjectCard({ project, userId, sessionId, index = 0, isT
     </button>
   )
 
+  // Ranked first is not the same as fitting: when the checklist shows a stated
+  // criterion this project fails, say so instead of calling it the best fit.
+  const missesBrief = project.requirement_checklist?.some((r) => r.status === 'unmet' || r.status === 'caution') ?? false
   const topPickEyebrow = isTopPick && !isSelectable
-    ? <p className="text-[11px] font-medium text-primary">Best fit for your brief</p>
+    ? missesBrief
+      ? <p className="text-[11px] font-medium text-amber-700 dark:text-amber-400">Closest match, not a full fit</p>
+      : <p className="text-[11px] font-medium text-primary">Best fit for your brief</p>
     : null
 
   // Reason and trade-off, at equal weight. Either line is omitted when the
