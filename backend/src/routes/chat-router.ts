@@ -94,7 +94,7 @@ import { getProjectDataForQuery, computeResponseConfidence } from '../lib/projec
 import { FEATURE_PROBES } from '../lib/featureProbes'
 import { unverified, unverifiedFeature, confidenceFor, headingFor, UP_STATUTORY, NOIDA_MARKET_RANGES, MARKET_QUALIFIER, type FactTier } from '../lib/factPresentation'
 import { redactProject, redactForResponse } from '../lib/projectExposure'
-import { buildProjectFacts, detectFactTopics, detectIntentSlice } from '../lib/projectFactsBlock'
+import { buildProjectFacts, detectFactTopics, detectIntentSlice, relationIncludesFor } from '../lib/projectFactsBlock'
 import { projectPriceNotes } from '../lib/projectPriceNote'
 import { UNDATED_NOTE } from '../lib/priceVerification'
 import { buildComponentResponse } from '../lib/discovery/componentSpec'
@@ -4122,24 +4122,9 @@ I can help you with:
               // Small on every project seen so far — a handful of partner rows
               // at most — so included unconditionally like builder, not gated.
               channel_partners: { include: { channel_partner: true } },
-              // Demand-driven, and bounded when taken.
-              ...(askedFactTopics.has('price_history')
-                ? { price_history: { take: 8, orderBy: { recorded_at: 'desc' as const } } }
-                : {}),
-              ...(askedFactTopics.has('construction')
-                ? { construction_milestones: { take: 10, orderBy: { sort_order: 'asc' as const } } }
-                : {}),
-              ...(askedFactTopics.has('specifications')
-                ? { spec_items: { take: 30, orderBy: [{ is_highlight: 'desc' as const }, { sort_order: 'asc' as const }] } }
-                : {}),
-              // `competitors` and `unit_inventory` were on ALLOWED_RELATIONS
-              // long before either was ever requested here — added 7 Sep 2026.
-              ...(askedFactTopics.has('deep_reasoning')
-                ? { competitors: { take: 5, orderBy: { sort_order: 'asc' as const } } }
-                : {}),
-              ...(askedFactTopics.has('availability')
-                ? { unit_inventory: { take: 60 } }
-                : {}),
+              // Demand-driven and bounded: which heavy relations a question needs is
+              // decided in one table next to the builder that reads them.
+              ...relationIncludesFor(askedFactTopics),
               // dna is deliberately absent.
             }
           })

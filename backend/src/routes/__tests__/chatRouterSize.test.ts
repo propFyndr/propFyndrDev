@@ -16,8 +16,8 @@ import { join } from 'path'
  * fails when a limit is more than SLACK lines above the real size, so the
  * ratchet tightens instead of leaving room for the file to grow back.
  */
-const MAX_FILE_LINES = 7400
-const MAX_POST_HANDLER_LINES = 6650
+const MAX_FILE_LINES = 7385
+const MAX_POST_HANDLER_LINES = 6635
 const SLACK = 50
 
 const source = readFileSync(join(__dirname, '..', 'chat-router.ts'), 'utf8').replace(/\r\n/g, '\n')

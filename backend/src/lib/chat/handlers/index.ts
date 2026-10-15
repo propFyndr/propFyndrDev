@@ -21,6 +21,7 @@ import { dossierHandler } from './dossierHandler'
 import { legalRiskHandler } from './legalRisk'
 import { projectCatchHandler } from './projectCatch'
 import { priceFairnessHandler } from './priceFairness'
+import { priceTrendHandler } from './priceTrend'
 import { loanEmiHandler } from './loanEmi'
 
 /**
@@ -85,6 +86,10 @@ export const CHAT_TOPIC_HANDLERS: readonly ChatTopicHandler[] = [
   // that BHK and same-sector comparables. Before costSheet, which "all
   // inclusive" alone used to hand the turn to.
   priceFairnessHandler,
+  // "Has the price of X changed over the last 12 months?": the recorded points,
+  // each labelled observed or benchmark. After fairness, so an explicit verdict
+  // request still gets its verdict; it declines when no project is named.
+  priceTrendHandler,
   builderReputationHandler,
   newcomerOrientationHandler,
   vicinityLookupHandler,

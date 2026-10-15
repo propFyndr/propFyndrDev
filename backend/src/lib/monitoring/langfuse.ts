@@ -185,7 +185,7 @@ export function recordChatTurn(params: {
  * unconfigured, and telemetry must never be the thing that fails a turn.
  */
 export function recordTableRendered(trace: LangfuseTraceClient | null | undefined, params: {
-  tableType: 'payment_plan' | 'cost_sheet' | 'micro_market' | 'comparison' | 'yield_table'
+  tableType: 'payment_plan' | 'cost_sheet' | 'micro_market' | 'comparison' | 'yield_table' | 'price_trend'
   projectName?: string
   rowCount: number
   characterLength: number

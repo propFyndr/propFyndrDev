@@ -23,8 +23,10 @@
  *     by being added to the schema later.
  */
 
+import type { Prisma } from '@prisma/client'
 import { airportDistances } from './discovery/airports'
 import { possessionDatePassed, DATE_PASSED_NOTE } from './possession'
+import { asksPriceMovement } from './priceMovement'
 import { redactProject, isPublicField, stripRelationInternals, isSchemaDefault, stripOpaqueScores } from './projectExposure'
 import { normalizeRera, RERA_AMBIGUOUS_NOTE } from './reraIntegrity'
 
@@ -110,7 +112,14 @@ function formatValue(key: string, value: unknown): string | null {
  * them. Measured on a fully-seeded record, these three were 2,857 of 8,201
  * characters — 35% of the block for detail almost no turn asks for.
  */
-export type FactTopic = 'price_history' | 'specifications' | 'construction' | 'deep_reasoning' | 'availability'
+export type FactTopic =
+  | 'price_history'
+  | 'specifications'
+  | 'construction'
+  | 'deep_reasoning'
+  | 'availability'
+  | 'updates'
+  | 'forward_looking'
 
 /**
  * Sub-fields of decision_profile that only a genuinely analytical turn needs.
@@ -131,9 +140,37 @@ const DEEP_NARRATIVE_KEYS = new Set([
  * A declarative table rather than an if-chain so the routing stays reviewable
  * and testable in one place, the same way FEATURE_PROBES works for amenities.
  */
-export const FACT_TOPIC_PATTERNS: ReadonlyArray<{ topic: FactTopic; pattern: RegExp }> = [
-  { topic: 'price_history', pattern: /price (trend|history|movement|change)|appreciat|how much has|gone up|risen|cagr|capital gain/i },
-  { topic: 'specifications', pattern: /spec|fitting|finish|flooring|brand|kitchen|bathroom|sanitary|fixture|modular|vitrified|marble|material|layout/i },
+export const FACT_TOPIC_PATTERNS: ReadonlyArray<{ topic: FactTopic; pattern: RegExp; test?: (message: string) => boolean }> = [
+  // `pattern` is the original wording; `test` reads the question the way a person
+  // asks it ("has the price of X changed over the last 12 months?"), which the
+  // adjacent-words pattern never matched. Either fires the topic.
+  {
+    topic: 'price_history',
+    pattern: /price (trend|history|movement|change)|appreciat|how much has|gone up|risen|cagr|capital gain/i,
+    test: asksPriceMovement,
+  },
+  // "structure and safety" is how the spec sections are named on the page, and the
+  // old pattern knew none of it: that question reached the model with no specs.
+  {
+    topic: 'specifications',
+    pattern: /spec|fitting|finish|flooring|brand|kitchen|bathroom|sanitary|fixture|modular|vitrified|marble|material|layout|\bstructur\w*|\bsafety\s+(?:feature|measure|standard|system)\w*|\bfire\b|seismic|earthquake|\brcc\b|waterproof\w*|insulat\w*|plumbing|electrical|wiring|\bpaint\w*|\bdoors?\b|\bwindows?\b|\btiles?\b|(?:lift|elevator)\s+brand|(?:build|construction)\s+quality/i,
+  },
+  // What has happened on the project lately. `lifecycle_updates` and
+  // `construction_updates` were never fetched at all, so "any recent updates?"
+  // could not be answered however it was worded.
+  {
+    topic: 'updates',
+    pattern: /\bupdates?\b|\bnews\b|\btimeline\b|what'?s\s+new|any\s+(?:news|development|change)s?|(?:latest|recent)\s+(?:update|news|development|progress|status|photo|information)|(?:construction|progress|handover)\s+(?:update|report|photo)|\bdelay(?:s|ed)?\b|on\s+schedule|behind\s+schedule/i,
+  },
+  // Questions whose honest answer is "we do not state that": rental yield, rental
+  // income, expected growth, and the analyst write-up (decision thesis, buyer
+  // persona, investment angle). The records exist or are withheld on purpose
+  // (INTERNAL_ONLY_FIELDS, and decision_profile is publish-gated), so the model
+  // must say that, not "that is not in our records".
+  {
+    topic: 'forward_looking',
+    pattern: /\byield\b|rental\s+(?:income|return|earning)s?|\broi\b|return\s+on\s+investment|investment\s+(?:insight|potential|return|angle|case|thesis|view)s?|good\s+investment|worth\s+(?:it|buying|investing)|should\s+i\s+(?:buy|invest)|decision\s+thesis|\bthesis\b|buyer\s+persona|\bpersona\b|best\s+suited|suited\s+for|expected\s+(?:growth|returns?|appreciation|rent)|future\s+(?:price|value)|(?:price|value)\s+(?:be\s+)?(?:in|after)\s+\d+\s+years?|(?:will|would|going\s+to)\s+(?:the\s+)?(?:price|value|rate)s?\s+(?:be|go|rise|increase|grow|reach|double)|appreciation\s+(?:potential|forecast|prospects?)/i,
+  },
   // "how far along", not a bare "how far" — "how far is the airport" is a
   // distance question and must not drag in the construction timeline.
   { topic: 'construction', pattern: /construction|progress|milestone|slab|superstructure|how far along|what stage|excavat|foundation|completion status|handover|delivery date|when.*(ready|delivered)/i },
@@ -156,11 +193,42 @@ export const FACT_TOPIC_PATTERNS: ReadonlyArray<{ topic: FactTopic; pattern: Reg
   },
 ]
 
+/**
+ * The relations a set of topics needs, as a Prisma include fragment.
+ *
+ * The one place that says which heavy relation a topic pulls in. It used to be a
+ * hand-written spread in the chat router, one block per relation, and it drifted:
+ * the builder was written to show price history on any pricing question while the
+ * router fetched it only for a narrow wording, and two relations (lifecycle and
+ * construction updates) were never fetched by anything. Every take is bounded.
+ */
+export function relationIncludesFor(topics: ReadonlySet<FactTopic>): Prisma.ProjectInclude {
+  const include: Prisma.ProjectInclude = {}
+  if (topics.has('price_history') || topics.has('forward_looking')) {
+    include.price_history = { take: 8, orderBy: { recorded_at: 'desc' } }
+  }
+  if (topics.has('construction') || topics.has('updates')) {
+    include.construction_milestones = { take: 10, orderBy: { sort_order: 'asc' } }
+  }
+  if (topics.has('updates')) {
+    include.construction_updates = { take: 4, orderBy: { update_date: 'desc' } }
+    include.lifecycle_updates = { take: 6, orderBy: { update_date: 'desc' } }
+  }
+  if (topics.has('specifications')) {
+    include.spec_items = { take: 30, orderBy: [{ is_highlight: 'desc' }, { sort_order: 'asc' }] }
+  }
+  // `competitors` and `unit_inventory` were on ALLOWED_RELATIONS long before
+  // either was ever requested — added 7 Sep 2026.
+  if (topics.has('deep_reasoning')) include.competitors = { take: 5, orderBy: { sort_order: 'asc' } }
+  if (topics.has('availability')) include.unit_inventory = { take: 60 }
+  return include
+}
+
 /** Topics the buyer's message is asking about. */
 export function detectFactTopics(message: string): Set<FactTopic> {
   const topics = new Set<FactTopic>()
-  for (const { topic, pattern } of FACT_TOPIC_PATTERNS) {
-    if (pattern.test(message)) topics.add(topic)
+  for (const { topic, pattern, test } of FACT_TOPIC_PATTERNS) {
+    if (pattern.test(message) || test?.(message)) topics.add(topic)
   }
   return topics
 }
@@ -369,6 +437,8 @@ interface RelationShapes {
   decision_profile?: Record<string, unknown> | null
   price_history?: Array<Record<string, unknown>> | null
   construction_milestones?: Array<Record<string, unknown>> | null
+  construction_updates?: Array<Record<string, unknown>> | null
+  lifecycle_updates?: Array<Record<string, unknown>> | null
   spec_items?: Array<Record<string, unknown>> | null
   competitors?: Array<Record<string, unknown>> | null
   unit_inventory?: Array<Record<string, unknown>> | null
@@ -524,7 +594,9 @@ export function buildProjectFacts(
 
   const topics = options.topics
 
-  if ((topics?.has('price_history') || isPricing) && row.price_history?.length && !isLegal && !isLivability) {
+  // forward_looking asks for something we do not state (yield, growth); the recorded
+  // price points are what we can offer instead, so they travel with the question.
+  if ((topics?.has('price_history') || topics?.has('forward_looking') || isPricing) && row.price_history?.length && !isLegal && !isLivability) {
     const series = row.price_history.slice(-maxItems)
     const OBSERVED = new Set(['market_verified_2026', 'active_market_listing', 'admin_update'])
     const observedPoints = series.filter(
@@ -535,14 +607,48 @@ export function buildProjectFacts(
     facts.price_history_basis =
       observedPoints >= 2
         ? `${observedPoints} of these price points are observed market prices, recorded on the dates shown.`
-        : 'These figures are internal benchmark records, not prices we observed being paid. They were generated on a fixed step and carry no market signal, so the interval between them does not measure anything.'
+        : 'These figures are internal benchmark records, not prices we observed being paid. They follow a growth pattern shared across projects, so they carry no signal about the market for this project itself and the interval between them does not measure anything.'
   }
 
-  if (topics?.has('construction') && row.construction_milestones?.length && !isPricing) {
+  if ((topics?.has('construction') || topics?.has('updates')) && row.construction_milestones?.length && !isPricing) {
     facts.construction_milestones = row.construction_milestones
       .slice(0, maxItems)
       .map(m => cleanRelation('construction_milestones', m))
       .filter(Boolean)
+  }
+
+  // What has happened lately: project and construction updates, newest first. Only
+  // the fields a buyer can use; the analyst flags on the row (affects_pricing,
+  // affects_recommendation, legal_flag_cleared) are not part of the answer.
+  if (topics?.has('updates') && !isPricing && !isLegal) {
+    const stamp = (v: unknown): number => {
+      const t = v instanceof Date ? v.getTime() : typeof v === 'string' ? Date.parse(v) : NaN
+      return Number.isNaN(t) ? 0 : t
+    }
+    const merged = [
+      ...(row.lifecycle_updates ?? []).map((u) => ({ at: stamp(u.update_date), kind: 'lifecycle' as const, u })),
+      ...(row.construction_updates ?? []).map((u) => ({ at: stamp(u.update_date), kind: 'construction' as const, u })),
+    ].sort((a, b) => b.at - a.at).slice(0, maxItems)
+
+    const updates = merged
+      .map(({ kind, u }) => {
+        const c = cleanRelation(kind === 'lifecycle' ? 'lifecycle_updates' : 'construction_updates', u)
+        if (!c) return null
+        const entry: Record<string, unknown> = {
+          type: kind === 'lifecycle' ? (c.update_type ?? 'project update') : 'construction update',
+          title: c.title,
+          details: c.description ?? c.note,
+          date: c.update_date,
+          impact: c.impact,
+          completion: c.completion_pct,
+          quarter: c.quarter_label,
+          source: c.source,
+        }
+        for (const k of Object.keys(entry)) if (entry[k] == null || entry[k] === '') delete entry[k]
+        return entry.title || entry.details ? entry : null
+      })
+      .filter((e): e is Record<string, unknown> => e !== null)
+    if (updates.length) facts.recent_updates = updates
   }
 
   if (topics?.has('specifications') && row.spec_items?.length && !isPricing && !isLegal) {
@@ -575,6 +681,26 @@ export function buildProjectFacts(
       .slice(0, maxItems)
       .map(u => cleanRelation('unit_inventory', u))
       .filter(Boolean)
+  }
+
+  // Said out loud when the question asks for something we do not state. Without
+  // this the model reads the absent key as "not in our records", which is false:
+  // yield and growth are withheld on purpose (INTERNAL_ONLY_FIELDS), and the
+  // analyst write-up exists but is a draft (decision_profile is publish-gated).
+  if (topics?.has('forward_looking')) {
+    const status = (row.decision_profile as { status?: unknown } | null | undefined)?.status
+    const withheld: Record<string, string> = {
+      projections:
+        'RealtyAsk does not state an expected rental yield, rental income, resale value or future price growth for a project: those are forward-looking estimates, not records. ' +
+        'When asked, say that plainly in one sentence, then offer what IS held: the recorded price points (with their basis), unit prices, the cost sheet and the possession status. ' +
+        'Never estimate, and never say this is missing from our records.',
+    }
+    if (row.decision_profile && status !== 'PUBLISHED') {
+      withheld.analyst_view =
+        'An analyst write-up of this project (decision thesis, buyer fit, investment angle) exists but is still a draft, so it is not published. ' +
+        'When asked for it, say RealtyAsk has not published its view of this project yet. Do not describe or paraphrase it.'
+    }
+    facts.withheld_by_policy = withheld
   }
 
   return facts

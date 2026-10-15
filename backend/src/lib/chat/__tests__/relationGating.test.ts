@@ -2,7 +2,7 @@ import { describe, it } from 'node:test'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
-import { detectFactTopics } from '../../projectFactsBlock'
+import { detectFactTopics, relationIncludesFor, type FactTopic } from '../../projectFactsBlock'
 import { substitutePointer } from '../resolvePointer'
 
 /**
@@ -49,19 +49,35 @@ describe('the chat detail query fetches only what the turn needs', () => {
     assert.equal(hits, 1, 'askedFactTopics should be computed once, above the query')
   })
 
-  for (const [topic, relation] of [
-    ['price_history', 'price_history'],
-    ['construction', 'construction_milestones'],
-    ['specifications', 'spec_items'],
+  it('the router takes its heavy relations from the topic table, not from a private copy', () => {
+    assert.match(detailIncludeBlock(), /\.\.\.relationIncludesFor\(askedFactTopics\)/)
+  })
+
+  // Which topic pulls which relation. Every relation is absent until a topic asks.
+  for (const [topic, relations] of [
+    ['price_history', ['price_history']],
+    ['forward_looking', ['price_history']],
+    ['construction', ['construction_milestones']],
+    ['updates', ['construction_milestones', 'construction_updates', 'lifecycle_updates']],
+    ['specifications', ['spec_items']],
+    ['deep_reasoning', ['competitors']],
+    ['availability', ['unit_inventory']],
   ] as const) {
-    it(`${relation} is fetched only when the '${topic}' topic fired`, () => {
-      const block = detailIncludeBlock()
-      const guarded = new RegExp(
-        `askedFactTopics\\.has\\('${topic}'\\)[\\s\\S]{0,120}${relation}:`,
-      )
-      assert.match(block, guarded, `${relation} must be conditional on askedFactTopics`)
+    it(`the '${topic}' topic fetches ${relations.join(' + ')}, and nothing else`, () => {
+      assert.deepEqual(Object.keys(relationIncludesFor(new Set<FactTopic>([topic]))).sort(), [...relations].sort())
     })
   }
+
+  it('no topic, no heavy relation', () => {
+    assert.deepEqual(relationIncludesFor(new Set<FactTopic>()), {})
+  })
+
+  it('every fetch is bounded', () => {
+    const all = relationIncludesFor(new Set<FactTopic>(['price_history', 'construction', 'updates', 'specifications', 'deep_reasoning', 'availability', 'forward_looking']))
+    for (const [relation, shape] of Object.entries(all)) {
+      assert.ok(typeof shape === 'object' && shape !== null && 'take' in shape, `${relation} has no take`)
+    }
+  })
 
   it('ProjectDna is never fetched for a buyer-facing turn', () => {
     const block = detailIncludeBlock()
