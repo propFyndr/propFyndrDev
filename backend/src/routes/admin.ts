@@ -10,6 +10,7 @@ import type { AdminIdentitySession } from '../lib/adminIdentity'
 import { computeCompleteness } from '../lib/completeness'
 import { computeCarpetToSuperRatio } from '../lib/calculators'
 import { normalisePortalSubdomain } from '../lib/portalSubdomain'
+import { PRICE_FIELDS, applyFactWrites, changedPriceFields, parsePriceVerification, priceFactWrites } from '../lib/priceVerification'
 import { checkRateLimit, resetRateLimit, getCached, setCached, deleteCached } from '../lib/cache'
 import { z } from 'zod'
 import { generateBlogDraft, prefetchBlogSources } from '../lib/blog/generateDraft'
@@ -1230,7 +1231,23 @@ router.patch('/projects/:id', async (req: Request, res: Response) => {
       return
     }
 
-    const { id: _, created_at: __, updated_at: ___, builder: ____, unit_types: _____, images: ______, ...validFields } = updates
+    const { id: _, created_at: __, updated_at: ___, builder: ____, unit_types: _____, images: ______, price_verification: rawVerification, ...validFields } = updates
+
+    // Who confirmed the price, and when. Not a Project column: it rides on FactVerification.
+    const verification = parsePriceVerification(rawVerification)
+    if (!verification.ok) {
+      res.status(400).json({ error: verification.error })
+      return
+    }
+    const adminEmail = (req as Request & { adminIdentity?: AdminIdentitySession }).adminIdentity?.email ?? null
+    const priceWrites = priceFactWrites({
+      entity: 'Project',
+      entityId: existing.id,
+      after: { ...existing, ...validFields },
+      changed: changedPriceFields('Project', existing as Record<string, unknown>, validFields),
+      verification: verification.value,
+      verifiedBy: adminEmail,
+    })
 
     if (validFields.possession_date) {
       validFields.possession_date = new Date(validFields.possession_date)
@@ -1260,14 +1277,19 @@ router.patch('/projects/:id', async (req: Request, res: Response) => {
 
     const diffs = computeFieldDiffs(existing as any, validFields)
 
-    const project = await prisma.project.update({
-      where: { id: existing.id },
-      data: validFields,
-      include: {
-        builder: { select: { id: true, name: true, slug: true } },
-        unit_types: true,
-        images: true,
-      },
+    // One transaction: a price and the date that vouches for it change together.
+    const project = await prisma.$transaction(async (tx) => {
+      const updated = await tx.project.update({
+        where: { id: existing.id },
+        data: validFields,
+        include: {
+          builder: { select: { id: true, name: true, slug: true } },
+          unit_types: true,
+          images: true,
+        },
+      })
+      await applyFactWrites(tx, priceWrites)
+      return updated
     })
 
     if (diffs.length > 0) {
@@ -3539,6 +3561,9 @@ router.post('/projects/:id/units', async (req: Request, res: Response) => {
     // same number) was dropped from the schema in the lean-schema migration.
     const ratio = computeCarpetToSuperRatio(carpetArea, superArea)
 
+    const verification = parsePriceVerification(data.price_verification)
+    if (!verification.ok) return res.status(400).json({ error: verification.error })
+
     const unit = await (prisma as any).unitType.create({
       data: {
         project_id: project.id,
@@ -3557,6 +3582,16 @@ router.post('/projects/:id/units', async (req: Request, res: Response) => {
         price_label: data.price_label || null,
       }
     })
+    // A new unit's prices get a row either way: attested if the admin said so,
+    // otherwise SCRAPED and undated, the same as the backfilled units.
+    await applyFactWrites(prisma, priceFactWrites({
+      entity: 'UnitType',
+      entityId: unit.id,
+      after: unit,
+      changed: PRICE_FIELDS.UnitType.filter((f) => unit[f] != null),
+      verification: verification.value,
+      verifiedBy: (req as Request & { adminIdentity?: AdminIdentitySession }).adminIdentity?.email ?? null,
+    }))
     res.json({ success: true, unit })
   } catch (err) {
     console.error('[admin] add unit failed:', err)
@@ -3587,9 +3622,15 @@ router.patch('/units/:id', async (req: Request, res: Response) => {
       ratio = computeCarpetToSuperRatio(effectiveCarpet, effectiveSuper)
     }
 
-    const unit = await (prisma as any).unitType.update({
+    const verification = parsePriceVerification(data.price_verification)
+    if (!verification.ok) return res.status(400).json({ error: verification.error })
+    const existingUnit = await (prisma as any).unitType.findUnique({
       where: { id },
-      data: {
+      select: { price_min_cr: true, price_max_cr: true, price_label: true },
+    })
+    if (!existingUnit) return res.status(404).json({ error: 'Unit type not found' })
+
+    const unitData = {
         ...(data.name !== undefined && { name: data.name }),
         ...(data.bhk !== undefined && { bhk: parseInt(data.bhk) }),
         ...(superArea !== undefined && { super_area_sqft: superArea }),
@@ -3604,7 +3645,18 @@ router.patch('/units/:id', async (req: Request, res: Response) => {
         ...(data.price_max_cr !== undefined && { price_max_cr: data.price_max_cr ? parseFloat(data.price_max_cr) : null }),
         ...(data.price_label !== undefined && { price_label: data.price_label }),
         ...(data.towers !== undefined && { towers: data.towers, tower_association: data.towers })
-      }
+    }
+    const unit = await prisma.$transaction(async (tx) => {
+      const updated = await (tx as any).unitType.update({ where: { id }, data: unitData })
+      await applyFactWrites(tx, priceFactWrites({
+        entity: 'UnitType',
+        entityId: id,
+        after: { ...existingUnit, ...unitData },
+        changed: changedPriceFields('UnitType', existingUnit, unitData),
+        verification: verification.value,
+        verifiedBy: (req as Request & { adminIdentity?: AdminIdentitySession }).adminIdentity?.email ?? null,
+      }))
+      return updated
     })
     res.json({ success: true, unit })
   } catch (err) {

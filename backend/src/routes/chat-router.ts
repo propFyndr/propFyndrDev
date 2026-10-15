@@ -95,6 +95,8 @@ import { FEATURE_PROBES } from '../lib/featureProbes'
 import { unverified, unverifiedFeature, confidenceFor, headingFor, UP_STATUTORY, NOIDA_MARKET_RANGES, MARKET_QUALIFIER, type FactTier } from '../lib/factPresentation'
 import { redactProject, redactForResponse } from '../lib/projectExposure'
 import { buildProjectFacts, detectFactTopics, detectIntentSlice } from '../lib/projectFactsBlock'
+import { projectPriceNotes } from '../lib/projectPriceNote'
+import { UNDATED_NOTE } from '../lib/priceVerification'
 import { buildComponentResponse } from '../lib/discovery/componentSpec'
 import { loadMentionedProjectCards } from '../lib/chat/mentionedProjectCards'
 import { buildUnknownProjectReply } from '../lib/chat/unknownProject'
@@ -4152,6 +4154,9 @@ I can help you with:
 
           const totalInquiries = Array.from(projectMentionCounts.values()).reduce((sum, item) => sum + item.count, 0)
 
+          // Who confirmed each project's price, and when — read from FactVerification.
+          const priceNotes = await projectPriceNotes(detailedTargetProjects.map(p => p.id))
+
           const dbFactsJson = JSON.stringify(detailedTargetProjects.map(p => {
             const mentions = projectMentionCounts.get(p.id)?.count || 1
             const weightagePct = totalInquiries > 0 ? Math.round((mentions / totalInquiries) * 100) : Math.round(100 / detailedTargetProjects.length)
@@ -4185,6 +4190,7 @@ I can help you with:
               }),
               location: `${p.sector}, ${p.city}`,
               status: p.status === 'ready_to_move' ? 'Ready to Move' : p.status === 'new_launch' ? 'New Launch' : 'Under Construction',
+              price_confirmation: `Say this beside any price you quote for this project: ${priceNotes.get(p.id) ?? UNDATED_NOTE}.`,
             }
             if (isSummaryRequest) {
               baseObj.session_inquiry_count = mentions

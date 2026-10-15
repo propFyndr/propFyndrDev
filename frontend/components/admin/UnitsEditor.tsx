@@ -126,6 +126,23 @@ export default function UnitsEditor({
   const [uploadingView, setUploadingView] = useState<string | null>(null)
   const [err, setErr]         = useState<string | null>(null)
   const [customTagInput, setCustomTagInput] = useState<{ [rowId: string]: string }>({})
+  // Who confirmed the prices being saved, and when. 'none' records nothing; a
+  // price that changes without a confirmation is stored as undated.
+  const [pv, setPv] = useState<{ tier: 'none' | 'BUILDER_ATTESTED' | 'VERIFIED'; date: string; source: string }>({
+    tier: 'none', date: new Date().toISOString().slice(0, 10), source: '',
+  })
+
+  function priceVerificationPayload() {
+    if (pv.tier === 'none') return {}
+    const source = pv.source.trim()
+    return {
+      price_verification: {
+        tier: pv.tier,
+        verified_at: pv.date,
+        ...(/^https?:\/\//i.test(source) ? { source_url: source } : source ? { source_doc: source } : {}),
+      },
+    }
+  }
 
   function patchRow(id: string, key: keyof LocalRow, val: any) {
     setRows(rs => rs.map(r => {
@@ -194,6 +211,7 @@ export default function UnitsEditor({
       layout_variant_name:       row._variant || 'Type A',
       towers:                    row._towers_str ? row._towers_str.split(',').map(s => s.trim()).filter(Boolean) : [],
       views:                     row._views,
+      ...priceVerificationPayload(),
     }
     const res = await fetch(`${API_BASE}/admin/units/${row.id}`, {
       method: 'PATCH',
@@ -285,6 +303,7 @@ export default function UnitsEditor({
       price_max_cr:              addForm.price_max_cr ? parseFloat(addForm.price_max_cr)   : null,
       price_label:               addForm.price_label || null,
       price_is_estimated:        addForm.price_is_estimated,
+      ...priceVerificationPayload(),
     }
     const res = await fetch(`${API_BASE}/admin/projects/${projectId}/units`, {
       method: 'POST',
@@ -335,6 +354,44 @@ export default function UnitsEditor({
           {err}
         </div>
       )}
+
+      {/* Who confirmed the prices on the next save. Buyers see this date beside the price. */}
+      <div className="p-3 rounded-xl border border-zinc-200/80 dark:border-zinc-800 bg-white dark:bg-[#121214] text-[13px] space-y-2">
+        <div className="font-semibold text-zinc-900 dark:text-zinc-100">Price confirmation for the next save</div>
+        <div className="flex flex-col sm:flex-row gap-2">
+          <select
+            value={pv.tier}
+            onChange={e => setPv(p => ({ ...p, tier: e.target.value as typeof pv.tier }))}
+            className="px-2.5 py-1.5 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-transparent"
+            aria-label="Who confirmed the price"
+          >
+            <option value="none">Don&apos;t record a confirmation</option>
+            <option value="BUILDER_ATTESTED">Builder confirmed it</option>
+            <option value="VERIFIED">Checked against a record we hold</option>
+          </select>
+          <input
+            type="date"
+            value={pv.date}
+            max={new Date().toISOString().slice(0, 10)}
+            disabled={pv.tier === 'none'}
+            onChange={e => setPv(p => ({ ...p, date: e.target.value }))}
+            className="px-2.5 py-1.5 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-transparent disabled:opacity-50"
+            aria-label="Date confirmed"
+          />
+          <input
+            type="text"
+            value={pv.source}
+            disabled={pv.tier === 'none'}
+            onChange={e => setPv(p => ({ ...p, source: e.target.value }))}
+            placeholder="Source: link or document name (optional)"
+            className="flex-1 px-2.5 py-1.5 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-transparent disabled:opacity-50"
+            aria-label="Source"
+          />
+        </div>
+        <p className="text-xs text-zinc-500 dark:text-zinc-400">
+          Applies to every unit you save or add while it is set. A price changed without a confirmation is stored as undated.
+        </p>
+      </div>
 
       {/* List of Units */}
       <div className="space-y-4">

@@ -6,6 +6,7 @@ import { confidenceFor, MARKET_QUALIFIER, NOIDA_MARKET_RANGES, UP_STATUTORY } fr
 import { recordTableRendered } from '../../monitoring/langfuse'
 import type { ChatTopicHandler } from '../handlerContext'
 import { statedBasePriceInr } from './totalOutflow'
+import { projectPriceNotes } from '../../projectPriceNote'
 
 /**
  * cost-sheet
@@ -98,8 +99,10 @@ Name a project and I'll pull whichever of these we hold verified for it.`
       price_range_label: costProject?.price_range_label,
       status: costProject?.status
     })
+    // Who confirmed the price, and when — or that no date is on record.
+    const priceNote = costProject ? (await projectPriceNotes([costProject.id])).get(costProject.id) : undefined
     if (costTable) {
-      const msg = `### Cost breakdown — ${costProject?.name}\n\n${costTable}\n\n`
+      const msg = `### Cost breakdown — ${costProject?.name}\n\n${costTable}\n\n${priceNote ? `*Prices: ${priceNote}.*\n\n` : ''}`
       ctx.send('token', { token: msg })
       recordTableRendered(ctx.trace, {
         tableType: 'cost_sheet',
@@ -113,6 +116,7 @@ Name a project and I'll pull whichever of these we hold verified for it.`
       projectName: costProject?.name,
       developer: costProject?.builder?.name,
       bsp_range: costProject?.price_range_label,
+      price_confirmation: priceNote,
       cost_sheet: costProject?.cost_sheet,
       unit_types: costProject?.unit_types.map(u => `${u.bhk} BHK (${u.super_area_sqft} sq ft): ₹${u.price_min_cr}–${u.price_max_cr} Cr`)
     }, null, 2)
