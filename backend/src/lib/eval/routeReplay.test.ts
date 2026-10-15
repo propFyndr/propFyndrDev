@@ -33,4 +33,10 @@ describe('route replay — the real chat route, model stubbed', () => {
     )
     assert.equal(f.length, 5)
   })
+
+  it('containsAny passes on one match and fails on none', () => {
+    const turn = { caseId: 'c', turn: 1, text: 't', lane: 'OPEN', usedLlm: false, answer: 'Price: confirmed by the builder on 2 Oct', intent: {}, ms: 0 }
+    assert.deepEqual(checkTurn({ containsAny: ['not on record', 'confirmed by the builder'] }, turn), [])
+    assert.equal(checkTurn({ containsAny: ['not on record', 'checked against'] }, turn).length, 1)
+  })
 })

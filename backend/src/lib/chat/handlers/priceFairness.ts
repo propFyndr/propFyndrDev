@@ -3,6 +3,8 @@ import { matchProjectInText } from '../../discovery/matchProjectInText'
 import { SECTOR_ADJACENCY } from '../../discovery/constants'
 import type { ChatTopicHandler } from '../handlerContext'
 import { ALL_IN_BUDGET, statutoryMultiplier } from './commuteShortlist'
+import { projectPriceNotes } from '../../projectPriceNote'
+import { summarisePriceNotes, UNDATED_NOTE } from '../../priceVerification'
 
 /**
  * "Sales guy quoted 1.9cr all inclusive for 3bhk in Gulshan Botnia. Fair or
@@ -70,9 +72,10 @@ export const priceFairnessHandler: ChatTopicHandler = {
 
     const project = await prisma.project.findUnique({
       where: { id: hit.id },
-      select: { name: true, sector: true, status: true, updated_at: true, unit_types: { where: bhk ? { bhk } : {}, select: unitSelect } },
+      select: { name: true, sector: true, status: true, unit_types: { where: bhk ? { bhk } : {}, select: unitSelect } },
     })
     if (!project) return false
+    const ownNote = (await projectPriceNotes([hit.id])).get(hit.id) ?? UNDATED_NOTE
 
     const own = range(project.unit_types as Unit[])
     const bhkLabel = bhk ? `${bhk} BHK` : 'unit'
@@ -82,7 +85,7 @@ export const priceFairnessHandler: ChatTopicHandler = {
       lines.push(`We hold no recorded price for a ${bhkLabel} in ${project.name}, so we can't judge this quote against it. Ask the sales team for an itemised cost sheet, and I can compare it with nearby projects once you have it.`)
     } else {
       const quote = quotedAmountCr(ctx.message)
-      lines.push(`**Our record** for a ${bhkLabel} here: ${cr(own.lo)}${own.hi > own.lo ? ` to ${cr(own.hi)}` : ''} base price${own.perSqft ? `, from ₹${Math.round(own.perSqft).toLocaleString('en-IN')}/sq.ft of super area` : ''}. Last updated in our records ${project.updated_at.toISOString().slice(0, 10)}.`)
+      lines.push(`**Our record** for a ${bhkLabel} here: ${cr(own.lo)}${own.hi > own.lo ? ` to ${cr(own.hi)}` : ''} base price${own.perSqft ? `, from ₹${Math.round(own.perSqft).toLocaleString('en-IN')}/sq.ft of super area` : ''}. Price: ${ownNote}.`)
       if (quote) {
         const allIn = ALL_IN_BUDGET.test(ctx.message)
         const base = allIn ? quote / statutoryMultiplier(project.status) : quote
@@ -98,7 +101,7 @@ export const priceFairnessHandler: ChatTopicHandler = {
       const sectors = [project.sector, ...(SECTOR_ADJACENCY[project.sector] ?? [])]
       const peers = await prisma.project.findMany({
         where: { id: { not: hit.id }, sector: { in: sectors }, unit_types: { some: { bhk, price_min_cr: { not: null } } } },
-        select: { name: true, sector: true, status: true, unit_types: { where: { bhk }, select: unitSelect } },
+        select: { id: true, name: true, sector: true, status: true, unit_types: { where: { bhk }, select: unitSelect } },
         take: 12,
       })
       const ranked = peers
@@ -107,7 +110,8 @@ export const priceFairnessHandler: ChatTopicHandler = {
         .sort((a, b) => sectors.indexOf(a.p.sector) - sectors.indexOf(b.p.sector) || a.r.lo - b.r.lo)
         .slice(0, 3)
       if (ranked.length) {
-        lines.push('', `**Comparable ${bhk} BHKs we hold nearby** (our recorded base prices):`)
+        const peerNote = summarisePriceNotes([...(await projectPriceNotes(ranked.map(({ p }) => p.id))).values()]) ?? UNDATED_NOTE
+        lines.push('', `**Comparable ${bhk} BHKs we hold nearby** (our recorded base prices; ${peerNote}):`)
         for (const { p, r } of ranked) {
           lines.push(`- ${p.name}, ${p.sector}: ${cr(r.lo)}${r.hi > r.lo ? `–${cr(r.hi)}` : ''}${r.perSqft ? ` (from ₹${Math.round(r.perSqft).toLocaleString('en-IN')}/sq.ft)` : ''}, ${p.status === 'ready_to_move' ? 'ready to move' : 'under construction'}`)
         }

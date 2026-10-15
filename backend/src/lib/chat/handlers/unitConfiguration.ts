@@ -2,6 +2,7 @@ import type { ChatTopicHandler } from '../handlerContext'
 import { prisma } from '../../db'
 import { unverified } from '../../factPresentation'
 import { isSchemaDefault } from '../../projectExposure'
+import { projectPriceNotes } from '../../projectPriceNote'
 
 /**
  * "What sizes / layouts / how many balconies does X have?"
@@ -186,11 +187,16 @@ export const unitConfigurationHandler: ChatTopicHandler = {
       }
     }
 
+    // Who confirmed the prices in the table, and when — only when it shows one.
+    const priceNote = units.some(u => u.price_min_cr != null)
+      ? (await projectPriceNotes([project.id])).get(project.id)
+      : undefined
+
     const text = `${lead}### All Configurations — ${project.name}
 
 | Layout | Carpet Area | Built-Up | Super Area | Baths / Balc. | Price Band |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-${rows}${auditSection}
+${rows}${priceNote ? `\n\n_Prices: ${priceNote}._` : ''}${auditSection}
 ${anyMissing ? '\n_A dash means we do not hold that measurement. Ask the builder for the RERA carpet area in writing._' : ''}`
 
     ctx.send('token', { token: text })

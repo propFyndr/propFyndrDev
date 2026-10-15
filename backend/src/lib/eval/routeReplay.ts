@@ -32,6 +32,8 @@ export interface ReplayExpect {
   llm?: boolean
   /** Case-insensitive substrings the streamed answer must contain. */
   contains?: string[]
+  /** At least one of these must appear (for text that varies with the data, e.g. a confirmation date). */
+  containsAny?: string[]
   /** Case-insensitive substrings it must not contain. */
   notContains?: string[]
   /** Intent fields after the turn, e.g. { budgetMax: 1.5 }. Compared loosely. */
@@ -92,6 +94,7 @@ export function checkTurn(expect: ReplayExpect | undefined, r: Omit<TurnResult, 
   if (expect.llm === true && !r.usedLlm) f.push('expected the model to answer; code did')
   if (expect.llm === false && r.usedLlm) f.push('expected code to answer; the model was asked')
   for (const s of expect.contains ?? []) if (!answer.includes(s.toLowerCase())) f.push(`answer lacks "${s}"`)
+  if (expect.containsAny && !expect.containsAny.some((s) => answer.includes(s.toLowerCase()))) f.push(`answer lacks any of ${expect.containsAny.map((s) => `"${s}"`).join(', ')}`)
   for (const s of expect.notContains ?? []) if (answer.includes(s.toLowerCase())) f.push(`answer contains "${s}"`)
   for (const [k, v] of Object.entries(expect.intent ?? {})) {
     if (!looseEqual(r.intent[k], v)) f.push(`intent.${k} = ${JSON.stringify(r.intent[k])}, expected ${JSON.stringify(v)}`)

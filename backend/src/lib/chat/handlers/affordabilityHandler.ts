@@ -1,6 +1,8 @@
 import { MARKET_QUALIFIER } from '../../factPresentation'
 import type { ChatTopicHandler } from '../handlerContext'
 import { prisma } from '../../db'
+import { projectPriceNotes } from '../../projectPriceNote'
+import { UNDATED_NOTE } from '../../priceVerification'
 
 const CRORE = 10_000_000
 const LAKH = 100_000
@@ -247,6 +249,12 @@ export const affordabilityHandler: ChatTopicHandler = {
       userMonthlyIncome,
     })
 
+    // The base price is the project's own row only when isProjectSpecific; then
+    // say who confirmed it and when. A buyer-stated figure has no such date.
+    const basePriceBasis = isProjectSpecific
+      ? `Developer quoted base — ${(await projectPriceNotes([project!.id])).get(project!.id) ?? UNDATED_NOTE}`
+      : 'Developer quoted base'
+
     const title = project && isProjectSpecific
       ? `Financial Reality & Cash-Flow Stress Test — ${project.name}`
       : `Home Financing Cash-Flow & Rate Shock Analysis (${inrCr(basePrice)}, your figure)`
@@ -266,7 +274,7 @@ ${calc.foirStatus === 'comfortable'
 
 | Financial Dimension | Benchmark / Breakdown | Impact on Monthly Outflow |
 | :--- | :--- | :--- |
-| **Headline Base Price** | ${inrCr(calc.basePrice)} | Developer quoted base |
+| **Headline Base Price** | ${inrCr(calc.basePrice)} | ${basePriceBasis} |
 | **True Landed Cost** | **${inrCr(calc.totalLandedCost)}** (+${Math.round((calc.landedMultiplier - 1) * 100)}%${multiplierOnRecord ? '' : `, estimate — ${MARKET_QUALIFIER}`}) | Stamp duty, GST, IFMS & club charges |
 | **Recommended Downpayment (20%)** | ${inrCr(calc.downpaymentAmount)} | Upfront equity needed |
 | **Home Loan Principal (80%)** | ${inrCr(calc.loanPrincipal)} | 20-year tenure at ${calc.baseInterestRatePct}% p.a. (assumed rate — your bank's offer will differ) |

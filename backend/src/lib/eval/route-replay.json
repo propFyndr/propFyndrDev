@@ -38,6 +38,12 @@
           "contains": [
             "Living near Sector 62",
             "All-in from"
+          ],
+          "containsAny": [
+            "confirmed by the builder",
+            "checked against records we hold",
+            "date of last confirmation not on record",
+            "confirmation dates differ by project"
           ]
         }
       }
@@ -57,8 +63,14 @@
             "Your quote",
             "Comparable 3 BHKs"
           ],
+          "containsAny": [
+            "confirmed by the builder",
+            "checked against records we hold",
+            "date of last confirmation not on record"
+          ],
           "notContains": [
-            "usually give"
+            "usually give",
+            "Last updated in our records"
           ],
           "intent": {
             "budgetMax": null
@@ -450,6 +462,11 @@
           "llm": false,
           "contains": [
             "All-in cost — Elite X"
+          ],
+          "containsAny": [
+            "confirmed by the builder",
+            "checked against records we hold",
+            "date of last confirmation not on record"
           ]
         }
       }
@@ -517,6 +534,11 @@
           "llm": false,
           "contains": [
             "3 BHK"
+          ],
+          "containsAny": [
+            "confirmed by the builder",
+            "checked against records we hold",
+            "date of last confirmation not on record"
           ]
         }
       }
@@ -770,6 +792,41 @@
         "expect": {
           "notContains": [
             "valuing a property you already own"
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "id": "oct15-price-date-affordability",
+    "source": "price verification 2026-10-15: a project's own base price states who confirmed it and when",
+    "turns": [
+      {
+        "text": "Can I afford Elite X in sector 10 greater noida west? My income is 2 lakh a month",
+        "expect": {
+          "lane": "topic:affordability_advisor",
+          "llm": false,
+          "containsAny": [
+            "confirmed by the builder",
+            "checked against records we hold",
+            "date of last confirmation not on record"
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "id": "oct15-price-date-cost-sheet",
+    "source": "price verification 2026-10-15: the cost-sheet table states who confirmed the prices and when",
+    "turns": [
+      {
+        "text": "Show me the cost sheet for Elite X in sector 10 greater noida west",
+        "expect": {
+          "lane": "topic:cost-sheet",
+          "containsAny": [
+            "confirmed by the builder",
+            "checked against records we hold",
+            "date of last confirmation not on record"
           ]
         }
       }

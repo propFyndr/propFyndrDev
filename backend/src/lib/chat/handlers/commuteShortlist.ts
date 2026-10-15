@@ -19,6 +19,8 @@ import type { ChatTopicHandler } from '../handlerContext'
 import { renderProjectTable } from '../../ai/marketTable'
 import { loadMentionedProjectCards } from '../mentionedProjectCards'
 import { UP_STATUTORY } from '../../factPresentation'
+import { projectPriceNotes } from '../../projectPriceNote'
+import { summarisePriceNotes } from '../../priceVerification'
 
 /**
  * "1.5 cr all inclusive" is a ceiling on what leaves the buyer's account, not
@@ -159,6 +161,12 @@ export const commuteShortlistHandler: ChatTopicHandler = {
     const shortlist = rows.slice(0, 6)
     const table = renderProjectTable(shortlist as never)
     if (table) lines.push('', table)
+
+    // Who confirmed the prices in the table, and when (or that the dates differ).
+    if (table && shortlist.some(p => p.price_min_cr != null)) {
+      const priceNote = summarisePriceNotes([...(await projectPriceNotes(shortlist.map(p => p.id))).values()])
+      if (priceNote) lines.push('', `_Prices: ${priceNote}._`)
+    }
 
     if (allIn) {
       const priced = shortlist.filter(p => p.allInFrom != null)

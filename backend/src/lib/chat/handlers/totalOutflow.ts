@@ -1,6 +1,8 @@
 import type { ChatTopicHandler } from '../handlerContext'
 import { prisma } from '../../db'
 import { UP_STATUTORY, NOIDA_MARKET_RANGES, MARKET_QUALIFIER, unverified } from '../../factPresentation'
+import { projectPriceNotes } from '../../projectPriceNote'
+import { UNDATED_NOTE } from '../../priceVerification'
 
 /**
  * "What will this actually cost me all-in?"
@@ -281,6 +283,8 @@ Name the project, or give me a budget and configuration, and I'll compute the fu
 
     const missingDeveloperCharges = developerLines.length === 0
 
+    const priceNote = (await projectPriceNotes([project.id])).get(project.id) ?? UNDATED_NOTE
+
     const nearestNote = !bhk && unit && unit === nearest && target != null
       ? `Priced on the ${config}, the configuration closest to your ₹${target} Cr.\n\n`
       : ''
@@ -290,6 +294,8 @@ ${nearestNote}| Component | Basis | Amount |
 | :--- | :--- | :--- |
 ${rows}
 | **Total** | | **₹${(total / CRORE).toFixed(2)} Cr** |
+
+_Base price: ${priceNote}._
 
 ${missingDeveloperCharges
   ? `This total covers the base price and statutory charges only. Parking, club membership and IFMS are not in our records for ${project.name} and vary by developer, so they are **not** included above — expect the final figure to be higher. Our advisory team can pull the official booking cost sheet.`
