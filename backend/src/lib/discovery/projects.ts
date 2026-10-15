@@ -6,6 +6,7 @@ import { getCached, setCached } from '../cache'
 import { gatePublished } from '../intelligenceGate'
 import { DISCOVERY } from '../config'
 import { Intent, ScoredProject, DiscoveryResult } from './types'
+import { ORIENTATION_IS_SOURCED } from './facing'
 import {
   buildDecisionIntelligence,
   buildIntelligenceCompleteness,
@@ -260,7 +261,7 @@ export function buildHardFilters(
   // faces east, not a project with a 3 BHK and, somewhere, an east-facing 2 BHK.
   // A project that lists no orientation at all is not shown for it: we cannot say
   // it faces east, and the answer says how many we hold no orientation for.
-  if (intent.facing?.length) {
+  if (intent.facing?.length && ORIENTATION_IS_SOURCED) {
     unitConditions.push({ unit_orientations: { hasSome: intent.facing } })
   }
   if (intent.budgetMax) {

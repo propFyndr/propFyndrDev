@@ -1,7 +1,7 @@
 // backend/src/lib/ai/prompts/blocks.ts
 import type { Intent, ScoredProject, SectorContext, SectorOverview, NearbyExpansion } from '../../discovery'
 import { possessionDatePassed } from '../../possession'
-import { facingList } from '../../discovery/facing'
+import { facingList, ORIENTATION_IS_SOURCED } from '../../discovery/facing'
 
 // ─── CONDITIONAL FORMAT BLOCKS ────────────────────────────────────────────────
 // Injected based on detected intent. Consumed by buildAdvisorSystemPrompt()
@@ -416,7 +416,11 @@ export function buildIntentSummary(intent: Intent): string {
   if (intent.builderName) parts.push(`Builder: ${intent.builderName}`)
   if (intent.lifestyleKeywords?.length) parts.push(`Lifestyle signals: ${intent.lifestyleKeywords.join(', ')}`)
   if (intent.facing?.length) {
-    parts.push(`Facing: ${facingList(intent.facing)} (orientation is recorded per configuration, never per tower or floor: say "configurations on record", never that a specific unit faces that way)`)
+    parts.push(
+      ORIENTATION_IS_SOURCED
+        ? `Facing: ${facingList(intent.facing)} (orientation is recorded per configuration, never per tower or floor: say "configurations on record", never that a specific unit faces that way)`
+        : `Facing: ${facingList(intent.facing)} (we hold no verified facing for any project: say it is not on record and the buyer should confirm it on the builder floor plan; never say a project or flat faces that way)`,
+    )
   }
   return parts.length ? `Detected intent: ${parts.join(' · ')}\n` : ''
 }

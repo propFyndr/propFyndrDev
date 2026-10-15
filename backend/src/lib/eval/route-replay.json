@@ -840,7 +840,7 @@
         "text": "Which flats in Ace Parkway face east?",
         "expect": {
           "lane": "topic:orientation",
-          "contains": ["2 BHK Classic", "4 BHK Penthouse Villa", "not per tower or floor"]
+          "contains": ["We hold no verified orientation", "floor plans"]
         }
       }
     ]

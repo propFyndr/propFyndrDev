@@ -45,7 +45,7 @@ describe('renderOrientation', () => {
   it('says when the project holds no orientation at all', () => {
     const r = renderOrientation('X', [{ name: '3 BHK', bhk: 3, orientations: [] }], ['east_facing'])
     assert.equal(r.withData, 0)
-    assert.match(r.text, /hold no orientation \(facing or view\) for any configuration of X/)
+    assert.match(r.text, /hold no verified orientation \(facing or view\) for any configuration of X/)
     assert.ok(!/\| Configuration/.test(r.text), 'no table of nothing')
   })
 

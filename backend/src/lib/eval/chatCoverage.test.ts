@@ -113,28 +113,28 @@ describe(`chat coverage: ${PROJECT}`, () => {
       assert.match(r.answer, /don't have the developer payment schedule/i)
     })
   })
-  describe('which way a flat faces is answered from the recorded orientation', () => {
+  describe('which way a flat faces: we hold no verified orientation, and say so', () => {
+    // unit_orientations is a function of BHK (4 sets over 592 units), written by a script.
+    // Until it is re-sourced the answer must not state a facing, for any direction.
     for (const q of [
       `Which flats in ${PROJECT} face east?`,
       `Is there a flat facing sunrise in ${PROJECT}?`,
       `${PROJECT} mein purab facing flat hai kya?`,
+      `Which flats in ${PROJECT} face west?`,
     ]) {
       it(q, async () => {
         const r = await ask(q)
         assert.equal(r.lane, 'topic:orientation')
         assert.equal(r.usedLlm, false)
-        assert.match(r.answer, /East-facing configurations on record/)
-        assert.match(r.answer, /2 BHK Classic/)
-        assert.match(r.answer, /4 BHK Penthouse Villa/)
-        assert.match(r.answer, /Not listed as east-facing: 3 BHK Premier/)
-        assert.match(r.answer, /not per tower or floor/)
+        assert.match(r.answer, /We hold no verified orientation/)
+        assert.match(r.answer, /floor plans/)
+        assert.ok(!/configurations on record|\| Configuration \|/.test(r.answer), 'no table or claim built from templated values')
       })
     }
 
-    it('says we hold none for a direction no project records', async () => {
-      const r = await ask(`Which flats in ${PROJECT} face west?`)
-      assert.equal(r.lane, 'topic:orientation')
-      assert.match(r.answer, /We do not record west-facing for any project/)
+    it('keeps the stored values out of the model prompt as facts', async () => {
+      const r = await ask(`Tell me about the unit configurations and availability of ${PROJECT}`)
+      assert.ok(!/east-facing|north-facing|golf view/i.test(r.prompt), 'templated orientation must not reach the model')
     })
   })
 })

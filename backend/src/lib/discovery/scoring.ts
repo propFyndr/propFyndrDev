@@ -1,7 +1,7 @@
 // backend/src/lib/discovery/scoring.ts
 import { Intent, BudgetStatus } from './types'
 import { possessionDatePassed } from '../possession'
-import { facingList, satisfiesFacing } from './facing'
+import { facingList, satisfiesFacing, recordedOrientations } from './facing'
 import { BUDGET_TOLERANCE_WARN, HEADROOM_CAP } from './constants'
 import { getMarketTier, getMarketTierBias } from './marketTiers'
 import { getTierBoost, type SectorTier } from './sectorTiers'
@@ -415,12 +415,13 @@ export function buildMatchSignals(
   // reason says "configurations on record" and the card never claims a unit faces east.
   if (intent.facing?.length) {
     const wanted = facingList(intent.facing)
-    if (p.unit_types.some((u) => satisfiesFacing(u.unit_orientations, intent.facing!))) {
+    const held = p.unit_types.map((u) => recordedOrientations(u.unit_orientations))
+    if (held.some((o) => satisfiesFacing(o, intent.facing!))) {
       matchReasons.push(`${wanted} configurations on record`)
-    } else if (p.unit_types.some((u) => (u.unit_orientations?.length ?? 0) > 0)) {
+    } else if (held.some((o) => o.length > 0)) {
       concerns.push(`No ${wanted} configuration on record`)
     } else {
-      concerns.push('Facing is not on record. Confirm it on the builder floor plan')
+      concerns.push(`${wanted} is not verified for this project. Confirm the facing on the builder floor plan`)
     }
   }
 

@@ -9,17 +9,15 @@ import type { Intent } from '../types'
 after(() => prisma.$disconnect())
 
 describe('facing search against the catalogue', () => {
-  it('"3 BHK facing east" returns only projects that list an east-facing configuration', async () => {
-    const r = await discoverProjects({ bhk: [3], facing: ['east_facing'] } as Intent)
-    assert.ok(r.exactResults.length > 0, 'the catalogue records east for 200 projects')
-    for (const p of r.exactResults as Array<{ name?: string; matchReason?: string; match_reason?: string }>) {
-      assert.match(String(p.matchReason ?? p.match_reason), /east-facing configurations on record/, `${p.name} is shown without an east-facing reason`)
+  // The stored orientation is templated by BHK, so it must not narrow a search: a card
+  // that says "east-facing" would be repeating a script's guess.
+  it('"3 BHK facing east" is not narrowed by templated orientation, and each card says it is unverified', async () => {
+    const east = await discoverProjects({ bhk: [3], facing: ['east_facing'] } as Intent)
+    const plain = await discoverProjects({ bhk: [3] } as Intent)
+    assert.ok(east.exactResults.length > 0)
+    assert.equal(east.totalCount, plain.totalCount, 'no orientation filter while the values are templated')
+    for (const p of east.exactResults as Array<{ name?: string; matchReason?: string; match_reason?: string; concerns?: string[] }>) {
+      assert.ok(!/east-facing configurations on record/.test(String(p.matchReason ?? p.match_reason)), `${p.name} claims east-facing`)
     }
-  })
-
-  it('a direction nobody records returns nothing, not a shelf of other projects', async () => {
-    const r = await discoverProjects({ bhk: [3], facing: ['west_facing'] } as Intent)
-    assert.equal(r.exactResults.length, 0)
-    assert.equal(r.nearbyResults.length, 0)
   })
 })

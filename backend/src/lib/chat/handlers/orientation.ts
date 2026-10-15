@@ -1,6 +1,6 @@
 import { matchProjectInText } from '../../discovery/matchProjectInText'
 import { prisma } from '../../db'
-import { readFacing } from '../../discovery/facing'
+import { readFacing, recordedOrientations } from '../../discovery/facing'
 import { renderOrientation } from '../../ai/orientationAnswer'
 import { confidenceFor } from '../../factPresentation'
 import type { ChatTopicHandler } from '../handlerContext'
@@ -45,7 +45,7 @@ export const orientationHandler: ChatTopicHandler = {
     const wanted = readFacing(ctx.message)
     const answer = renderOrientation(
       project.name,
-      project.unit_types.map(u => ({ name: u.name, bhk: u.bhk, orientations: u.unit_orientations ?? [] })),
+      project.unit_types.map(u => ({ name: u.name, bhk: u.bhk, orientations: recordedOrientations(u.unit_orientations) })),
       wanted,
       { sunrise: /sun\s?rise|rising\s+sun|morning\s+sun|purab|poorab/i.test(ctx.message) },
     )

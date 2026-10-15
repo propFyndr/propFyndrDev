@@ -158,6 +158,23 @@ export function clearsFacing(message: string): boolean {
   return /\b(?:any|no)\s+(?:particular\s+|specific\s+)?(?:facing|direction|orientation)\b|\b(?:facing|direction|orientation)\s+(?:doesn'?t|does\s+not|dont|don'?t)\s+matter\b|\bdirection\s+koi\s+bhi\b/i.test(message || '')
 }
 
+/**
+ * Orientation we may state to a buyer. Today: none.
+ *
+ * `unit_types.unit_orientations` is a function of BHK, not a record (audit 2026-10-15,
+ * 592 units, four distinct sets: 1-2 BHK east+road; 3 BHK north+pool or east+park+garden;
+ * 4+ BHK corner+east+park+golf). A script wrote it. A templated value is not data, so it
+ * is treated as missing: no filter, no "east-facing on record", and the answer says we
+ * hold no verified facing. Flip this only after the column is re-sourced per project.
+ */
+export const ORIENTATION_IS_SOURCED = false
+
+/** The orientation list of a unit as far as we may rely on it. */
+export function recordedOrientations(list: readonly unknown[] | null | undefined): string[] {
+  if (!ORIENTATION_IS_SOURCED || !Array.isArray(list)) return []
+  return list.filter((o): o is string => typeof o === 'string' && o !== '')
+}
+
 /** Does a unit's stored orientation list satisfy any wanted token? */
 export function satisfiesFacing(orientations: readonly string[] | null | undefined, wanted: readonly string[]): boolean {
   return Boolean(orientations?.some((o) => wanted.includes(o)))

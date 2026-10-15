@@ -5,6 +5,7 @@ import { extractDeterministic } from '../../ai/intentDeterministic'
 import { intentFingerprint } from '../../ai/semanticCache'
 import { buildHardFilters } from '../projects'
 import { buildMatchSignals } from '../scoring'
+import { ORIENTATION_IS_SOURCED, recordedOrientations } from '../facing'
 import type { Intent } from '../types'
 
 const lit = (msg: string, prev: Intent = {} as Intent) =>
@@ -30,9 +31,13 @@ describe('facing in intent', () => {
 
 describe('facing in filters', () => {
   const unitOr = (w: any) => JSON.stringify(w)
-  it('puts orientation on the same unit condition as BHK', () => {
-    const w = unitOr(buildHardFilters({ bhk: [3], facing: ['east_facing'] } as Intent))
-    assert.match(w, /"bhk":\{"in":\[3\]\}[^]*"unit_orientations":\{"hasSome":\["east_facing"\]\}/)
+  // The stored orientation is a function of BHK (4 distinct sets over 592 units), so it is
+  // not filterable data until it is re-sourced. If this fails because the gate was opened,
+  // restore the same-unit assertion that lived here (bhk + unit_orientations hasSome).
+  it('does not filter on orientation while the stored values are templated', () => {
+    assert.equal(ORIENTATION_IS_SOURCED, false)
+    assert.ok(!unitOr(buildHardFilters({ bhk: [3], facing: ['east_facing'] } as Intent)).includes('unit_orientations'))
+    assert.deepEqual(recordedOrientations(['east_facing', 'road_facing']), [])
   })
   it('adds nothing without a facing', () => {
     assert.ok(!unitOr(buildHardFilters({ bhk: [3] } as Intent)).includes('unit_orientations'))
@@ -43,14 +48,13 @@ describe('facing in match signals', () => {
   const base = { sector: 'Sector 150', status: 'under_construction' }
   const sig = (orient: string[] | null) =>
     buildMatchSignals({ ...base, unit_types: [{ bhk: 3, price_min_cr: 1, unit_orientations: orient }] } as any, { facing: ['east_facing'] } as Intent, 'WITHIN' as any)
-  it('reason when a configuration lists it', () => {
-    assert.ok(sig(['east_facing']).matchReasons.some((r: string) => /east-facing configurations on record/.test(r)))
+  it('never claims a facing from templated stored values', () => {
+    const s = sig(['east_facing'])
+    assert.ok(!s.matchReasons.some((r: string) => /east-facing/.test(r)))
+    assert.ok(s.concerns.some((c: string) => /east-facing is not verified for this project/.test(c)))
   })
-  it('concern when others are recorded but not this one', () => {
-    assert.ok(sig(['north_facing']).concerns.some((c: string) => /No east-facing configuration on record/.test(c)))
-  })
-  it('concern when nothing is recorded', () => {
-    assert.ok(sig([]).concerns.some((c: string) => /Facing is not on record/.test(c)))
+  it('says the same when nothing is stored', () => {
+    assert.ok(sig([]).concerns.some((c: string) => /not verified for this project/.test(c)))
   })
 })
 

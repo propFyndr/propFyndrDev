@@ -27,7 +27,7 @@ import type { Prisma } from '@prisma/client'
 import { airportDistances } from './discovery/airports'
 import { possessionDatePassed, DATE_PASSED_NOTE } from './possession'
 import { asksPriceMovement } from './priceMovement'
-import { facingLabel } from './discovery/facing'
+import { facingLabel, recordedOrientations, ORIENTATION_IS_SOURCED } from './discovery/facing'
 import { redactProject, isPublicField, stripRelationInternals, isSchemaDefault, stripOpaqueScores } from './projectExposure'
 import { normalizeRera, RERA_AMBIGUOUS_NOTE } from './reraIntegrity'
 
@@ -546,13 +546,15 @@ export function buildProjectFacts(
       const price = u.price_min_cr ? ` from ₹${u.price_min_cr} Cr` : ''
       // Which way it faces / what it overlooks, as recorded for the configuration. It
       // was in the row and never in the prompt, so "which flats face east?" had no answer.
-      const orientations = Array.isArray(u.unit_orientations) ? (u.unit_orientations as unknown[]).filter((o): o is string => typeof o === 'string' && o !== '') : []
+      const orientations = recordedOrientations(u.unit_orientations as unknown[] | null | undefined)
       const faces = orientations.length ? `, ${orientations.map(facingLabel).join(', ')}` : ''
       return `${bhk} BHK${area ? ` (${area} sq ft)` : ''}${price}${faces}`
     })
     // Said once, where it can be read next to the orientations, only when asked about.
-    if (options.topics?.has('availability') && row.unit_types.some(u => Array.isArray(u.unit_orientations) && u.unit_orientations.length > 0)) {
-      facts.unit_orientation_basis = 'Facing and views are recorded per configuration, never per tower or floor. Say "configurations on record"; never say that a specific unit faces a direction.'
+    if (options.topics?.has('availability')) {
+      facts.unit_orientation_basis = ORIENTATION_IS_SOURCED
+        ? 'Facing and views are recorded per configuration, never per tower or floor. Say "configurations on record"; never say that a specific unit faces a direction.'
+        : 'No verified facing or view is held for any unit (the catalogue values are generic by configuration). Never say which way a flat faces; say it is not on record and point to the builder floor plan.'
     }
   }
 

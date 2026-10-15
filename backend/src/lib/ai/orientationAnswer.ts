@@ -46,7 +46,7 @@ export function renderOrientation(projectName: string, configs: ConfigOrientatio
       matched: 0,
       withData: 0,
       text:
-        `${head}We hold no orientation (facing or view) for any configuration of ${projectName}, so I can't say which flats face ${wanted.length ? facingList(wanted, 'or').replace(/-facing/g, '') : 'which way'}. ` +
+        `${head}We hold no verified orientation (facing or view) for any configuration of ${projectName}, so I can't say which flats face ${wanted.length ? facingList(wanted, 'or').replace(/-facing/g, '') : 'which way'}. ` +
         `The builder's floor plans show it for each tower and floor, and our advisory team can request them.`,
     }
   }
