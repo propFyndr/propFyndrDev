@@ -145,7 +145,17 @@ const PREFERENCE_TO = /\b(?:closer|close|nearer|near|ideally|preferably|rather)\
  * at a clause break, so "₹90 lakh loan, budget 1.2 cr" marks the 90 and not
  * the 1.2.
  */
+/**
+ * A calculator question: "stamp duty for a woman buyer on a 1.2 crore flat".
+ * The amount is the subject of the sum, not the buyer's ceiling — it replaced a
+ * stated 1.5 Cr budget, and the next shortlist searched under 1.2. A budget cue
+ * in the same message ("budget 1.5, what's the stamp duty") keeps it a budget.
+ */
+const CALCULATOR_QUESTION = /\b(?:stamp\s*duty|registr(?:y|ation)\s*(?:fee|charge|cost)?s?|gst|tds|emi|interest|tax(?:es)?|calculat\w*)\b/i
+const BUDGET_CUE = /\b(?:budget|under(?!\s+construction)|below|within|upto|up\s*to|afford|looking\s+for|show\s+me|search|find|suggest|recommend)\b/i
+
 function isNonBudgetAmount(text: string, amounts: Amount[], i: number): boolean {
+  if (CALCULATOR_QUESTION.test(text) && !BUDGET_CUE.test(text)) return true
   const a = amounts[i]
   const from = Math.max(0, a.index - 18, i > 0 ? amounts[i - 1].end : 0)
   const to = Math.min(a.end + 16, i + 1 < amounts.length ? amounts[i + 1].index : text.length)

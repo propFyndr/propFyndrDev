@@ -2,7 +2,7 @@ import OpenAI from 'openai';
 import { MODELS, AI_CONFIG, OPENAI_BASE_URL as CONFIGURED_OPENAI_BASE_URL } from '../config'
 import { recordUsage } from './cost'
 import { toOpenAITools, validateToolArgs, capToolResult } from './tools'
-import { endsRagged } from './endsRagged'
+import { endsRagged, needsJoinSpace } from './endsRagged'
 
 interface ToolCall {
   id: string
@@ -343,7 +343,7 @@ export async function streamWithOpenAI(
           let content = delta.content;
           if (justContinued) {
             justContinued = false;
-            if (/\w$/.test(fullText) && /^\w/.test(content)) content = ' ' + content;
+            if (needsJoinSpace(fullText, content)) content = ' ' + content;
           }
           fullText += content;
           cycleText += content;

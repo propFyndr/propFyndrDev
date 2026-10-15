@@ -24,6 +24,7 @@
  */
 
 import { airportDistances } from './discovery/airports'
+import { possessionDatePassed, DATE_PASSED_NOTE } from './possession'
 import { redactProject, isPublicField, stripRelationInternals, isSchemaDefault, stripOpaqueScores } from './projectExposure'
 import { normalizeRera, RERA_AMBIGUOUS_NOTE } from './reraIntegrity'
 
@@ -336,6 +337,10 @@ export function projectScalarFacts(
       formatted = `<untrusted_source url="developer-listing">${formatted}</untrusted_source>`
     }
     out[key] = formatted
+  }
+
+  if (out.possession_label && possessionDatePassed(safe.status, safe.possession_date as Date | string | null)) {
+    out.possession_label = `${out.possession_label} (${DATE_PASSED_NOTE})`
   }
 
   // Both airports, computed from this project's own coordinates.

@@ -8,7 +8,7 @@ import { MODELS, GEMINI_TOOLS_ENABLED } from '../config'
 import { toGeminiTools, validateToolArgs, capToolResult } from './tools'
 import { INFERENCE_DEFAULTS, type InferenceConfig } from './openai'
 import { recordUsage } from './cost'
-import { endsRagged } from './endsRagged'
+import { endsRagged, needsJoinSpace } from './endsRagged'
 
 type Message = { role: 'system' | 'user' | 'assistant' | 'tool'; content: string | null }
 type SendFn = (event: string, data: Record<string, unknown>) => void
@@ -351,7 +351,7 @@ export async function streamWithGemini(
           // the buyer's screen — so the only fixable side is the join.
           if (justContinued) {
             justContinued = false
-            if (/\w$/.test(fullText) && /^\w/.test(textParts)) textParts = ' ' + textParts
+            if (needsJoinSpace(fullText, textParts)) textParts = ' ' + textParts
           }
           fullText += textParts
           cycleText += textParts

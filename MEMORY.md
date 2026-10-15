@@ -4754,6 +4754,11 @@ The page claimed "500+ projects", "10,000+ happy users" and "100% RERA verified"
 * **Runtime `opengraph-image.tsx` route:** ~500 KB PNG (WhatsApp drops previews over ~300 KB) and `@vercel/og` cannot render on Windows dev machines (`path.join` on a file URL).
 * **Merging `fix/analytics-coverage-gaps`:** 52 commits ahead / 112 behind main, carries schema changes, DB writes and an investment-advisory module that this CLAUDE.md lists as out of scope. Backed up to `origin/fix/analytics-coverage-gaps` (snapshot commit `46b556a6`) for review; not deployed.
 
+## 2026-10-14 — Precision fixes from the setup rating
+- **Decided:** calculator amounts (stamp duty/GST/EMI/tax) are never a budget unless the message also gives a budget cue; a passed possession date on an undelivered project reads "possession date passed — status unconfirmed" (`lib/possession.ts`) and is not a match for a stated possession window; unscoped searches default to `V1_DEFAULT_CITIES` (Noida, Greater Noida West); metro proximity is stated only from connectivity rows; U+FFFD is stripped (restored as ₹ before a digit) and continuations don't space-split numbers; the Hinglish normalizer runs at the top of `extractIntent`; the intent model walk is bounded by `INTENT_BUDGET_MS` (12 s).
+- **Why:** each was a live wrong answer in the rating review (1.2 Cr overwrote a 1.5 Cr budget, "June 2025" read as on schedule, Greater Noida "Mu 1" offered unasked, "₹8 0 lakh", 69 s turn ending in the outage notice).
+- **Rejected:** a hard metro filter (we hold no per-project operational-metro check); stripping "like"/"I mean" as fillers (content and budget corrections).
+
 ## 2026-10-15 — Persona review, scrub fix, builder lead alert, price confirmation dates
 Full review in `docs/reference/PERSONA_REVIEW_2026-10-15.md` (four personas, ranked top 10).
 

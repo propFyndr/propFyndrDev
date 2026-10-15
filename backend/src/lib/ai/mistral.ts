@@ -2,7 +2,7 @@
 import OpenAI from 'openai'
 import { recordUsage } from './cost'
 import { createInactivityGuard, type InactivityGuard } from './streamTimeout'
-import { endsRagged } from './endsRagged'
+import { endsRagged, needsJoinSpace } from './endsRagged'
 
 type Message = { role: 'user' | 'assistant'; content: string }
 type SendFn = (event: string, data: Record<string, unknown>) => void
@@ -124,7 +124,7 @@ export async function streamWithMistral(
           // buyer's screen — so the only fixable side is the join.
           if (justContinued) {
             justContinued = false
-            if (/\w$/.test(fullText) && /^\w/.test(token)) token = ' ' + token
+            if (needsJoinSpace(fullText, token)) token = ' ' + token
           }
           cycleText += token
           guard.markTokenSent()

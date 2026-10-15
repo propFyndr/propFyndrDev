@@ -187,3 +187,12 @@ describe('MessyLanguageNormalizer Comprehensive Suite', () => {
     })
   })
 })
+
+// The normalizer now runs before intent extraction, so it must not eat content.
+describe('content words are not fillers', () => {
+  it('keeps "like" without a comma and "I mean" corrections', () => {
+    assert.equal(prenormalizeRawText('I like the pool').normalized, 'I like the pool')
+    assert.equal(prenormalizeRawText('budget 1.5 cr, I mean 1.35 cr').normalized, 'budget 1.5 cr, I mean 1.35 cr')
+    assert.equal(prenormalizeRawText('like, 3bhk in S150').normalized, '3bhk in Sector 150')
+  })
+})

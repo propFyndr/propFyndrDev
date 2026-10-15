@@ -388,6 +388,10 @@ function normalizeCitations(input: string): { text: string; count: number } {
  */
 export function cleanDebris(text: string): string {
   return text
+    // U+FFFD is a byte a provider could not decode, never content. Measured
+    // live: "�8 0�" for "₹80". Before a figure it was the rupee sign.
+    .replace(/�+(?=\d)/g, '₹')
+    .replace(/�+/g, '')
     .replace(/\*{3,}/g, '**')
     .replace(/(\d),₹(\d)/g, '$1,$2')
     .replace(/\*{0,2}₹\s?\?\*{0,2}/g, "an amount we can't compute here")

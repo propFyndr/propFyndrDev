@@ -1,5 +1,6 @@
 // backend/src/lib/discovery/scoring.ts
 import { Intent, BudgetStatus } from './types'
+import { possessionDatePassed } from '../possession'
 import { BUDGET_TOLERANCE_WARN, HEADROOM_CAP } from './constants'
 import { getMarketTier, getMarketTierBias } from './marketTiers'
 import { getTierBoost, type SectorTier } from './sectorTiers'
@@ -138,6 +139,7 @@ export function scoreProject(
       carpet_area_sqft: number | null
     }>
     possession_date: Date | null
+    status?: string
     amenities: Array<{ name: string }>
     ai_search_keywords: string[]
     builder: {
@@ -163,7 +165,9 @@ export function scoreProject(
   let score = 0
 
   // ── Possession fit (max 20) ─────────────────────────────────────────
-  if (intent.possession && p.possession_date) {
+  if (intent.possession && p.possession_date && possessionDatePassed(p.status, p.possession_date)) {
+    score += 5 // a missed date with no revised one is unknown, not imminent
+  } else if (intent.possession && p.possession_date) {
     const months = (p.possession_date.getTime() - Date.now()) / (1000 * 60 * 60 * 24 * 30)
     if      (intent.possession === 'immediate' && months <= 3)  score += 20
     else if (intent.possession === '1year'     && months <= 12) score += 20
@@ -397,7 +401,7 @@ export function buildMatchSignals(
   // Possession / ready to move
   if (p.status === 'ready_to_move') {
     matchReasons.push('ready to move')
-  } else if (p.possession_date) {
+  } else if (p.possession_date && !possessionDatePassed(p.status, p.possession_date)) {
     const months = (p.possession_date.getTime() - Date.now()) / (1000 * 60 * 60 * 24 * 30)
     if (months <= 6)  matchReasons.push('possession in 6 months')
     else if (months <= 12) matchReasons.push('possession within a year')

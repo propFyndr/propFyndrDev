@@ -1,5 +1,6 @@
 // backend/src/lib/ai/prompts/blocks.ts
 import type { Intent, ScoredProject, SectorContext, SectorOverview, NearbyExpansion } from '../../discovery'
+import { possessionDatePassed } from '../../possession'
 
 // ─── CONDITIONAL FORMAT BLOCKS ────────────────────────────────────────────────
 // Injected based on detected intent. Consumed by buildAdvisorSystemPrompt()
@@ -177,7 +178,9 @@ function serializeProjects(projects: ScoredProject[]): string {
 
     // Derive possession status sentinel — makes provenance explicit to the AI.
     // RTM = OC already issued (fact). UC/new_launch = builder-claimed date only.
-    const possessionStatus = p.status === 'ready_to_move'
+    const possessionStatus = possessionDatePassed(p.status, p.possession_date)
+      ? 'DATE_PASSED — the builder possession date has passed and the project is still recorded as not delivered; we hold no revised date. Say the status is unconfirmed; never present it as on schedule or ready'
+      : p.status === 'ready_to_move'
       ? 'DELIVERED — occupancy certificate issued, project is handed over'
       : p.status === 'new_launch'
         ? 'SPECULATIVE — new launch, no confirmed possession date'
@@ -327,15 +330,23 @@ Then offer the one or two relaxations that would most likely produce results (fo
     // but a project above the buyer's budget is not an exact match and must not
     // be listed under that heading (red-team spec: hard-filter violation = P0).
     const isOver = (p: (typeof exactResults)[number]) => p.budgetStatus === 'slightly_over' || p.budgetStatus === 'over'
-    const within = exactResults.filter((p) => !isOver(p))
+    // A stated possession window is a requirement like the budget: a project
+    // that misses it (or whose date passed with no revised one) is not a match.
+    const offTimeline = exactResults.filter((p) => !isOver(p) && p.possessionOutsideTimeline)
+    const within = exactResults.filter((p) => !isOver(p) && !p.possessionOutsideTimeline)
     const over = exactResults.filter(isOver)
     if (within.length) {
-      block += `\n\n## Exact Matches — Use RESPONSE FORMAT — SEARCH RESULTS\n${serializeProjects(within)}`
+      // Metro is not a search filter (we hold no per-project metro check), so a
+      // "near a metro" request is only met where the connectivity list shows one.
+      block += `\n\n## Exact Matches — Use RESPONSE FORMAT — SEARCH RESULTS\nIf the buyer asked to be near a metro: give each project's metro station and distance only from its connectivity list; where none is listed, say metro proximity is not on record for that project. Never call a project near a metro otherwise.\n${serializeProjects(within)}`
     } else {
       block += `\n\n## No Exact Matches\nNothing we hold meets every requirement within the stated budget. Say so plainly before mentioning anything below.`
     }
     if (over.length) {
       block += `\n\n## Above the Stated Budget — NOT MATCHES. Label each as above budget, give its actual price and how far over it is, and ask whether the buyer would stretch. Never call these matches.\n${serializeProjects(over)}`
+    }
+    if (offTimeline.length) {
+      block += `\n\n## Outside the Stated Possession Timeline — NOT MATCHES. Label each as missing the buyer's possession window (or with a possession date that has passed and an unconfirmed status), give its possession on record, and ask whether the buyer would accept a later date. Never call these matches.\n${serializeProjects(offTimeline)}`
     }
   }
 

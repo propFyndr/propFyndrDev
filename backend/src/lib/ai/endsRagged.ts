@@ -17,3 +17,14 @@ export function endsRagged(text: string): boolean {
   if (last.startsWith('|') && last.endsWith('|')) return false
   return true
 }
+
+/**
+ * Does a continuation need a space where it joins the text before it? Two
+ * word characters meeting means the model restarted mid-sentence; two digits
+ * meeting means it was cut inside a number ("₹8" + "0 lakh"), and a space
+ * there showed the buyer "₹8 0 lakh".
+ */
+export function needsJoinSpace(before: string, next: string): boolean {
+  if (/\d$/.test(before) && /^\d/.test(next)) return false
+  return /\w$/.test(before) && /^\w/.test(next)
+}

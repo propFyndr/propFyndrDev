@@ -1,4 +1,5 @@
 import { Prisma } from '@prisma/client'
+import { possessionDisplay, possessionDatePassed } from '../possession'
 import crypto from 'crypto'
 import { prisma } from '../db'
 import { getCached, setCached } from '../cache'
@@ -37,7 +38,7 @@ import { isCityLevel } from './intent'
 import { normalizeBuilderSearchName } from '../builders'
 import { CITY_LEVEL_ALIASES } from './constants'
 import { resolveLocationTerm } from './locationResolver'
-import { SUPPORTED_CITIES } from '../config/cities'
+import { SUPPORTED_CITIES, V1_DEFAULT_CITIES } from '../config/cities'
 
 /** Bidirectional substring match — mirrors SQL ILIKE fallback used in discovery Branch 1. Safe against null/undefined. */
 export function matchesProjectName(term?: string | null, projectName?: string | null): boolean {
@@ -497,7 +498,7 @@ function mapToScored(raw: RawProject, intent: Intent): ScoredProject {
     total_towers: p.total_towers ?? null,
     status: String(p.status),
     launch_date: p.launch_date ? p.launch_date.toISOString() : null,
-    possession_label: p.possession_label ?? null,
+    possession_label: possessionDisplay(p.possession_label, String(p.status), p.possession_date),
     possession_date: p.possession_date ? p.possession_date.toISOString() : null,
     architect: p.architect ?? null,
     interior_designer: p.interior_designer ?? null,
@@ -546,7 +547,9 @@ function mapToScored(raw: RawProject, intent: Intent): ScoredProject {
     })),
     matchScore,
     matchReason: buildMatchReason(p, intent, budgetStatus),
-    possessionOutsideTimeline: possessionOutsideTimeline(intent.possession, p.possession_date),
+    // A missed date with no revised one cannot be said to meet "within a year".
+    possessionOutsideTimeline: possessionOutsideTimeline(intent.possession, p.possession_date)
+      || (!!intent.possession && intent.possession !== '3year+' && possessionDatePassed(String(p.status), p.possession_date)),
     distance_km: (p as any).distance_km ?? null,
     market_tier: marketTierValue, // Phase 5: market tier tag
     ...buildMatchSignals(
@@ -980,6 +983,8 @@ export async function discoverProjects(intent: Intent, offset: number = 0): Prom
       ? location.cities
       : cityNamedByBuyer
       ? [cityNamedByBuyer]
+      : !location?.sectors?.length && !effectiveIntent.sector && !effectiveIntent.builderName && !effectiveIntent.projectNames?.length
+      ? V1_DEFAULT_CITIES
       : undefined,
   )
 

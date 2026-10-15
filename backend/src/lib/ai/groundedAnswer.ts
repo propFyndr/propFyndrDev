@@ -11,6 +11,7 @@
  */
 
 import { prisma } from '../db'
+import { possessionDisplay } from '../possession'
 import { DEFAULT_CITY, SUPPORTED_CITIES } from '../config/cities'
 import { webSearch } from '../web'
 import { executeWithFallbackChain } from './fallbackChain'
@@ -171,6 +172,7 @@ const PROMPT_PROJECT_SELECT = {
   status: true,
   rera_number: true,
   possession_label: true,
+  possession_date: true,
 } as const
 
 for (const field of Object.keys(PROMPT_PROJECT_SELECT)) {
@@ -190,6 +192,7 @@ function projectLine(p: {
   status?: string | null
   rera_number?: string | null
   possession_label?: string | null
+  possession_date?: Date | string | null
   builder_name?: string | null
 }): string {
   const head = p.builder_name ? `${p.name} (${p.builder_name})` : p.name
@@ -199,7 +202,8 @@ function projectLine(p: {
   const price = p.price_range_label ?? (p.price_min_cr != null ? `from ₹${p.price_min_cr} Cr` : null)
   if (price) facts.push(price)
   if (p.status) facts.push(`status: ${p.status}`)
-  if (p.possession_label) facts.push(`possession: ${p.possession_label}`)
+  const possession = possessionDisplay(p.possession_label, p.status, p.possession_date)
+  if (possession) facts.push(`possession: ${possession}`)
   if (p.rera_number) facts.push(`RERA: ${p.rera_number}`)
 
   return `- ${head}${where}${facts.length ? ` — ${facts.join(', ')}` : ''}`

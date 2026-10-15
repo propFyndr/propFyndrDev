@@ -324,6 +324,34 @@ export function alternativeSectorCities(sectorName: string | null | undefined): 
 }
 
 /**
+ * When the buyer NAMES a city with a sector number that also exists in another
+ * city — "Noida Sector 1", "sector 1 not noida extension" — the sector they
+ * asked about and its namesake elsewhere. Null when no city was named or the
+ * number exists in only one place. The caller decides, from the catalogue,
+ * whether a note is due (see counterpartNote).
+ */
+export function sectorCounterpart(message: string): { sector: string; asked: NamedCity; other: NamedCity } | null {
+  const named = explicitCityIn(message)
+  if (!named) return null
+  const m = message.match(/\bsec(?:tor)?[\s-]*(\d{1,3})\b(?![a-z])/i)
+  if (!m) return null
+  const sector = `Sector ${m[1]}`
+  const asked = getSectorLocation(sector, named)
+  const mapped = SECTOR_CITY_MAP[sector]
+  if (!asked || !mapped) return null
+  const other = (asked.city === mapped.city ? 'Noida' : mapped.city) as NamedCity
+  if (other === asked.city) return null
+  return { sector, asked: asked.city as NamedCity, other }
+}
+
+/** The note for sectorCounterpart, given how many projects we hold in each. Null when none is due. */
+export function counterpartNote(c: { sector: string; asked: string; other: string }, askedCount: number, otherCount: number): string | null {
+  if (askedCount > 0 || otherCount === 0) return null
+  const otherLabel = c.other === 'Greater Noida West' ? `${c.sector}, Greater Noida West (Noida Extension)` : `${c.sector}, ${c.other}`
+  return `${c.asked} ${c.sector} and ${otherLabel} are different places. We hold no projects in ${c.asked} ${c.sector}; we hold ${otherCount} in ${otherLabel} — say if you would like to see those.`
+}
+
+/**
  * The note the advisor adds when a buyer named a sector number shared by two
  * cities without saying which, and every project shown is in one of them —
  * e.g. "Sector 1" answered from Greater Noida West while Noida has a Sector 1

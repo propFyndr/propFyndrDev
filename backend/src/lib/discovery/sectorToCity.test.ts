@@ -1,6 +1,6 @@
 import { describe, it } from 'node:test'
 import assert from 'node:assert/strict'
-import { getQualifiedSector, isSectorInCity, alternativeSectorCities, sectorAmbiguityNote } from './sectorToCity'
+import { getQualifiedSector, isSectorInCity, alternativeSectorCities, sectorAmbiguityNote, sectorCounterpart, counterpartNote } from './sectorToCity'
 
 // Noida numbers its sectors 1–168; GNW, Greater Noida and the Yamuna
 // Expressway reuse many of those numbers. Each row was resolved wrongly
@@ -69,5 +69,22 @@ describe('ambiguity note', () => {
     assert.equal(sectorAmbiguityNote('flats in sector 150', ['Noida']), null)
     assert.equal(sectorAmbiguityNote('flats in sector 1', ['Noida', 'Greater Noida West']), null)
     assert.equal(sectorAmbiguityNote('flats in sector 1', []), null)
+  })
+})
+
+describe('named sector with a namesake elsewhere', () => {
+  // ChatGPT drew this line ("Noida Sector 1 is not Noida Extension Sector 1");
+  // we answered "no verified data" and stopped.
+  it('detects the city the buyer named and the other place with that number', () => {
+    assert.deepEqual(sectorCounterpart('is there any project in noida sector 1 not noida extension 1?'), { sector: 'Sector 1', asked: 'Noida', other: 'Greater Noida West' })
+    assert.deepEqual(sectorCounterpart('flats in sector 1 greater noida west'), { sector: 'Sector 1', asked: 'Greater Noida West', other: 'Noida' })
+    assert.equal(sectorCounterpart('3bhk in sector 150 noida'), null)
+    assert.equal(sectorCounterpart('sector 1 flats'), null)
+  })
+  it('notes only when the named sector is empty and its namesake is not', () => {
+    const c = { sector: 'Sector 1', asked: 'Noida', other: 'Greater Noida West' }
+    assert.match(counterpartNote(c, 0, 36)!, /different places\. We hold no projects in Noida Sector 1; we hold 36 in Sector 1, Greater Noida West/)
+    assert.equal(counterpartNote(c, 2, 36), null)
+    assert.equal(counterpartNote(c, 0, 0), null)
   })
 })
