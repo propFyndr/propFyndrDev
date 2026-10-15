@@ -27,6 +27,7 @@ import type { Prisma } from '@prisma/client'
 import { airportDistances } from './discovery/airports'
 import { possessionDatePassed, DATE_PASSED_NOTE } from './possession'
 import { asksPriceMovement } from './priceMovement'
+import { facingLabel } from './discovery/facing'
 import { redactProject, isPublicField, stripRelationInternals, isSchemaDefault, stripOpaqueScores } from './projectExposure'
 import { normalizeRera, RERA_AMBIGUOUS_NOTE } from './reraIntegrity'
 
@@ -543,8 +544,16 @@ export function buildProjectFacts(
       const bhk = u.bhk ?? '?'
       const area = u.super_area_sqft ?? u.carpet_area_sqft
       const price = u.price_min_cr ? ` from ₹${u.price_min_cr} Cr` : ''
-      return `${bhk} BHK${area ? ` (${area} sq ft)` : ''}${price}`
+      // Which way it faces / what it overlooks, as recorded for the configuration. It
+      // was in the row and never in the prompt, so "which flats face east?" had no answer.
+      const orientations = Array.isArray(u.unit_orientations) ? (u.unit_orientations as unknown[]).filter((o): o is string => typeof o === 'string' && o !== '') : []
+      const faces = orientations.length ? `, ${orientations.map(facingLabel).join(', ')}` : ''
+      return `${bhk} BHK${area ? ` (${area} sq ft)` : ''}${price}${faces}`
     })
+    // Said once, where it can be read next to the orientations, only when asked about.
+    if (options.topics?.has('availability') && row.unit_types.some(u => Array.isArray(u.unit_orientations) && u.unit_orientations.length > 0)) {
+      facts.unit_orientation_basis = 'Facing and views are recorded per configuration, never per tower or floor. Say "configurations on record"; never say that a specific unit faces a direction.'
+    }
   }
 
   if (row.amenities?.length && !isPricing && !isLegal) {

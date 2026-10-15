@@ -62,6 +62,8 @@ const ANSWER_SHAPING_FIELDS = [
   'builderName',
   'projectNames',
   'lifestyleKeywords',
+  // Without it, a cached answer for "3 BHK in Noida" would be served to "3 BHK facing east".
+  'facing',
 ] as const
 
 /** Short, stable digest of the intent an answer was written under. */

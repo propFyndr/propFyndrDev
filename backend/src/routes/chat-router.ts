@@ -95,6 +95,7 @@ import { FEATURE_PROBES } from '../lib/featureProbes'
 import { unverified, unverifiedFeature, confidenceFor, headingFor, UP_STATUTORY, NOIDA_MARKET_RANGES, MARKET_QUALIFIER, type FactTier } from '../lib/factPresentation'
 import { redactProject, redactForResponse } from '../lib/projectExposure'
 import { buildProjectFacts, detectFactTopics, detectIntentSlice, relationIncludesFor } from '../lib/projectFactsBlock'
+import { facingLabel } from '../lib/discovery/facing'
 import { projectPriceNotes } from '../lib/projectPriceNote'
 import { UNDATED_NOTE } from '../lib/priceVerification'
 import { buildComponentResponse } from '../lib/discovery/componentSpec'
@@ -6127,6 +6128,7 @@ EXECUTIVE RESPONSE INSTRUCTIONS:
       if (hydratedIntent.sector) constraints.push(`${hydratedIntent.sector}`)
       if (hydratedIntent.possession) constraints.push(`Possession: ${hydratedIntent.possession}`)
       if (hydratedIntent.lifestyleKeywords?.length) constraints.push(`Lifestyle: ${hydratedIntent.lifestyleKeywords.join(', ')}`)
+      if (hydratedIntent.facing?.length) constraints.push(`Facing: ${hydratedIntent.facing.map(facingLabel).join(' or ')}`)
       if (hydratedIntent.purpose) constraints.push(`Purpose: ${hydratedIntent.purpose === 'endUse' ? 'Own Use' : 'Investment'}`)
 
       fullText = constraints.length > 0

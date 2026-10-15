@@ -831,5 +831,18 @@
         }
       }
     ]
+  },
+  {
+    "id": "oct15-orientation",
+    "source": "facing 2026-10-15: which configurations of a named project face a direction, as recorded",
+    "turns": [
+      {
+        "text": "Which flats in Ace Parkway face east?",
+        "expect": {
+          "lane": "topic:orientation",
+          "contains": ["2 BHK Classic", "4 BHK Penthouse Villa", "not per tower or floor"]
+        }
+      }
+    ]
   }
 ]

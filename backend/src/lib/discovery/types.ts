@@ -13,6 +13,13 @@ export interface Intent {
   purpose?: 'endUse' | 'investment'
   builderName?: string
   lifestyleKeywords?: string[]
+  /**
+   * Which way the flat faces, as the tokens we store (`UnitType.unit_orientations`):
+   * "facing sunrise" is `east_facing`. Read from the message by `discovery/facing.ts`,
+   * never by the model. A filter on the same unit as BHK and budget (a 3 BHK that faces
+   * east), so a project that lists no orientation is not shown for it.
+   */
+  facing?: string[]
   projectNames?: string[]
   riskProfile?: 'nri' | 'retiree' | 'risk_averse' | 'first_time_buyer'
   is_comparison_query?: boolean   // explicit: user asked to compare named projects

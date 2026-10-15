@@ -15,6 +15,7 @@ import { possessionStatusHandler } from './possessionStatus'
 import { connectivityHandler } from './connectivity'
 import { totalOutflowHandler } from './totalOutflow'
 import { unitConfigurationHandler } from './unitConfiguration'
+import { orientationHandler } from './orientation'
 import { authorityMechanicsHandler } from './authorityMechanics'
 import { affordabilityHandler } from './affordabilityHandler'
 import { dossierHandler } from './dossierHandler'
@@ -115,6 +116,9 @@ export const CHAT_TOPIC_HANDLERS: readonly ChatTopicHandler[] = [
   affordabilityHandler,
   dossierHandler,
   connectivityHandler,
+  // "Which flats in X face east?": which configurations list the direction, as
+  // recorded. Before unitConfiguration, whose table it would otherwise shadow.
+  orientationHandler,
   unitConfigurationHandler,
 ]
 

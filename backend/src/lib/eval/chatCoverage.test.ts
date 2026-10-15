@@ -113,4 +113,28 @@ describe(`chat coverage: ${PROJECT}`, () => {
       assert.match(r.answer, /don't have the developer payment schedule/i)
     })
   })
+  describe('which way a flat faces is answered from the recorded orientation', () => {
+    for (const q of [
+      `Which flats in ${PROJECT} face east?`,
+      `Is there a flat facing sunrise in ${PROJECT}?`,
+      `${PROJECT} mein purab facing flat hai kya?`,
+    ]) {
+      it(q, async () => {
+        const r = await ask(q)
+        assert.equal(r.lane, 'topic:orientation')
+        assert.equal(r.usedLlm, false)
+        assert.match(r.answer, /East-facing configurations on record/)
+        assert.match(r.answer, /2 BHK Classic/)
+        assert.match(r.answer, /4 BHK Penthouse Villa/)
+        assert.match(r.answer, /Not listed as east-facing: 3 BHK Premier/)
+        assert.match(r.answer, /not per tower or floor/)
+      })
+    }
+
+    it('says we hold none for a direction no project records', async () => {
+      const r = await ask(`Which flats in ${PROJECT} face west?`)
+      assert.equal(r.lane, 'topic:orientation')
+      assert.match(r.answer, /We do not record west-facing for any project/)
+    })
+  })
 })

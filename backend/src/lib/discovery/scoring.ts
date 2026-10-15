@@ -1,6 +1,7 @@
 // backend/src/lib/discovery/scoring.ts
 import { Intent, BudgetStatus } from './types'
 import { possessionDatePassed } from '../possession'
+import { facingList, satisfiesFacing } from './facing'
 import { BUDGET_TOLERANCE_WARN, HEADROOM_CAP } from './constants'
 import { getMarketTier, getMarketTierBias } from './marketTiers'
 import { getTierBoost, type SectorTier } from './sectorTiers'
@@ -355,7 +356,7 @@ export function buildMatchReason(
  */
 export function buildMatchSignals(
   p: {
-    unit_types: Array<{ bhk: number; price_min_cr: number | null }>
+    unit_types: Array<{ bhk: number; price_min_cr: number | null; unit_orientations?: string[] | null }>
     sector: string
     rera_number?: string | null
     possession_date?: Date | null
@@ -407,6 +408,19 @@ export function buildMatchSignals(
       else                   matchReasons.push('within your budget')
     } else {
       matchReasons.push('within your budget')
+    }
+  }
+
+  // Facing. Orientation is recorded per configuration, never per tower or floor, so a
+  // reason says "configurations on record" and the card never claims a unit faces east.
+  if (intent.facing?.length) {
+    const wanted = facingList(intent.facing)
+    if (p.unit_types.some((u) => satisfiesFacing(u.unit_orientations, intent.facing!))) {
+      matchReasons.push(`${wanted} configurations on record`)
+    } else if (p.unit_types.some((u) => (u.unit_orientations?.length ?? 0) > 0)) {
+      concerns.push(`No ${wanted} configuration on record`)
+    } else {
+      concerns.push('Facing is not on record. Confirm it on the builder floor plan')
     }
   }
 

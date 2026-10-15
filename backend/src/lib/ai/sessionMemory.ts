@@ -108,6 +108,9 @@ export async function hydrateIntentFromMemory(
     budgetHistory: currentIntent.budgetHistory ?? stored.budgetHistory,
     sectorHistory: currentIntent.sectorHistory ?? stored.sectorHistory,
     lifestyleKeywords: currentIntent.lifestyleKeywords ?? stored.lifestyleKeywords,
+    // Added to Intent without being added here, it would silently stop surviving a
+    // turn (the same way workplace and lifestyleKeywords once did).
+    facing: currentIntent.facing ?? stored.facing,
     areaMin: currentIntent.areaMin ?? stored.areaMin,
     areaMax: currentIntent.areaMax ?? stored.areaMax,
     riskProfile: currentIntent.riskProfile ?? stored.riskProfile,

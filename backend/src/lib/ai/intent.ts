@@ -11,6 +11,7 @@ import { IntentSchema } from '../discovery/intent'
 import { extractDeterministic, sectorNumberOf, nonBudgetAmounts, type DeterministicIntent } from './intentDeterministic'
 import { isLlmStubbed } from './llmStub'
 import { cityNamedIn } from '../discovery/constants'
+import { readFacing, clearsFacing } from '../discovery/facing'
 import { getSectorLocation, isSectorInCity } from '../discovery/sectorToCity'
 import { prisma } from '../db'
 import { prenormalizeRawText } from '../discovery/messyLanguageNormalizer'
@@ -505,6 +506,14 @@ export function applyLiterals(intent: Intent, deterministic: DeterministicIntent
     if (bigger && !smaller) out.bhk = [Math.min(6, Math.max(...out.bhk!) + 1)]
     else if (smaller && !bigger) out.bhk = [Math.max(1, Math.min(...out.bhk!) - 1)]
   }
+
+  // Which way the flat faces is a literal too: "facing sunrise" is east-facing, said
+  // by the buyer, not inferred by the model. A new mention replaces the old one (a
+  // correction); "any facing" lifts it. Without this the criterion was dropped and
+  // the answer was a generic list with a note to verify orientation.
+  const facing = readFacing(message)
+  if (facing.length > 0) out.facing = facing
+  else if (clearsFacing(message)) delete out.facing
 
   return out
 }

@@ -75,6 +75,8 @@ const PROJECT_INCLUDE = {
       price_min_cr: true,
       price_max_cr: true,
       price_label: true,
+      // Read by the facing filter's reasons and concerns.
+      unit_orientations: true,
     },
   },
   images: { take: 3, orderBy: { sort_order: 'asc' as const } },
@@ -253,6 +255,13 @@ export function buildHardFilters(
   const unitConditions: Prisma.UnitTypeWhereInput[] = []
   if (intent.bhk?.length) {
     unitConditions.push({ bhk: { in: intent.bhk } })
+  }
+  // Which way it faces, on the SAME unit as the BHK and the budget: a 3 BHK that
+  // faces east, not a project with a 3 BHK and, somewhere, an east-facing 2 BHK.
+  // A project that lists no orientation at all is not shown for it: we cannot say
+  // it faces east, and the answer says how many we hold no orientation for.
+  if (intent.facing?.length) {
+    unitConditions.push({ unit_orientations: { hasSome: intent.facing } })
   }
   if (intent.budgetMax) {
     // Include both priced units within budget AND unpriced units (price_min_cr: null)
@@ -1024,6 +1033,9 @@ export async function discoverProjects(intent: Intent, offset: number = 0): Prom
     !effectiveIntent.possession &&
     !effectiveIntent.builderName &&
     !effectiveIntent.exactOnly &&
+    // Nor a facing: "east-facing in Sector 150" answered with the sector's other
+    // projects is the same relaxation.
+    !effectiveIntent.facing?.length &&
     (spatialScope !== 'EXACT' || (!effectiveIntent.bhk?.length && !effectiveIntent.budgetMax))
   ) {
     console.log(`[DISCOVERY:B2-FALLBACK] No results with full filters. Trying sector-only query for "${effectiveIntent.sector}"`)
@@ -1256,7 +1268,9 @@ export async function discoverProjects(intent: Intent, offset: number = 0): Prom
     return res
   }
 
-  if (effectiveIntent.exactOnly) {
+  // A facing search that found nothing is answered as nothing. The band shelf below
+  // ignores facing, so reaching it would show a spread of projects as if they matched.
+  if (effectiveIntent.exactOnly || effectiveIntent.facing?.length) {
     const res: DiscoveryResult = {
       exactResults: [],
       nearbyResults: [],

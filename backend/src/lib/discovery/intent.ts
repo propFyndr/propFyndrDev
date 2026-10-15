@@ -15,6 +15,7 @@ export const IntentSchema = z.object({
   purpose: z.enum(['endUse', 'investment']).nullable().optional(),
   builderName: z.string().nullable().optional(),
   lifestyleKeywords: z.string().array().nullable().optional(),
+  facing: z.string().array().nullable().optional(),
   projectNames: z.string().array().nullable().optional(),
   riskProfile: z.enum(['nri', 'retiree', 'risk_averse', 'first_time_buyer']).nullable().optional(),
   is_comparison_query: z.boolean().nullable().optional(),
