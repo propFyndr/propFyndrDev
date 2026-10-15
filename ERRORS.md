@@ -68,3 +68,8 @@
 **What didn't work:** the first `compactStoredArtifacts` selected 300 rows' `artifacts` JSON in one query. Rows reach ~256 KB of JSON (p99 122 KB stored), several times that once parsed, so the job ran the dev instance out of memory ~60 s after every boot; dev restarted in a loop and a chat request got a 502. Live was untouched (not deployed there).
 **What worked:** query ids only, then read/compact/write one row at a time, batch 50, first run 5 min after boot. Measured locally: peak RSS +29 MB over baseline.
 **Note for next time:** before any background job that reads JSON columns, measure `max(length(col::text))` and multiply by the batch size — and run one batch locally with an RSS probe before deploying.
+
+## 2026-10-15 — Four false test failures from `--env-file=.env` on the full runner
+**What didn't work:** running `node --env-file=.env --require tsx/cjs src/test-runner.ts`. The flag put `PORT=3001` and other `.env` values into the environment, so `env.test.ts` (PORT default 3000) and three `guestRateLimiter` tests failed, none related to the change under test.
+**What worked:** running those two files alone without `--env-file` — 26/26 pass. A single DB-backed file (e.g. the route replay) needed `--env-file` to reach the dev database. I did not test the full runner without the flag, so how DB config reaches its child processes there is unverified.
+**Note for next time:** use `--env-file` only for one DB-backed file at a time, and blank the provider keys yourself when you do (`test-runner.ts` does it for you; a direct `node --test` does not). If a full run shows failures in unrelated config tests, re-run those files without the flag before suspecting the change.

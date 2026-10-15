@@ -4753,3 +4753,26 @@ The page claimed "500+ projects", "10,000+ happy users" and "100% RERA verified"
 ### What was rejected and why
 * **Runtime `opengraph-image.tsx` route:** ~500 KB PNG (WhatsApp drops previews over ~300 KB) and `@vercel/og` cannot render on Windows dev machines (`path.join` on a file URL).
 * **Merging `fix/analytics-coverage-gaps`:** 52 commits ahead / 112 behind main, carries schema changes, DB writes and an investment-advisory module that this CLAUDE.md lists as out of scope. Backed up to `origin/fix/analytics-coverage-gaps` (snapshot commit `46b556a6`) for review; not deployed.
+
+## 2026-10-15 — Persona review, scrub fix, builder lead alert, price confirmation dates
+Full review in `docs/reference/PERSONA_REVIEW_2026-10-15.md` (four personas, ranked top 10).
+
+### Competitor scrub (`lib/leadBrief.ts`)
+**Decided:** `scrubCompetitors` matches whole words only and tolerates spaces and hyphens inside a name ("SKA Green Arch" also catches "SKA Greenarch", "ska green-arch").
+**Why:** it had no word boundary, so a builder named "Ace" turned "nice place" into "nice planother project", and spacing variants of a catalogue name survived. Competitor identity is the one thing the brief promises never to leak.
+**Rejected:** typo tolerance (edit distance) — more code and it can scrub ordinary words; dropping free text from builder briefs — loses the "comparing on possession" signal. **Still open:** true typos ("Godrage") get through.
+**Correction to the review:** `ai_summary` is NOT LLM-written. `summarizeProfile()` composes it from stored fields and `UserMemory.summary_text` has no writer. The risk is latent only (`leads.ts` uses `profile.ai_summary ?? summarizeProfile(...)`).
+
+### Builder lead alert (`lib/leadBuilderAlert.ts`)
+**Decided:** link-only email to active BUILDER logins of the project's builder on every real callback — project name (from our row, not the form field), tier and timing, a link to `/builder/portal`. No buyer name, phone or brief text. Unawaited; failures stay queued in the outbox. **OFF unless `BUILDER_LEAD_EMAILS=on`**; test rows never send.
+**Why:** the brief was only visible after a builder logged in. The dev database is a copy of real data with real builder logins, so a switch is required to stop a dev callback emailing a real builder.
+**Rejected:** full brief in the email when `consent_given` (phone and brief text in an inbox are hard to retract); a daily digest (hot leads decay in hours); `Builder.email` as recipient (nullable, may be a shared inbox).
+**To go live:** `RESEND_API_KEY`/`EMAIL_FROM` on live, at least one BUILDER login on a project, set the flag, submit one supervised callback. Site visits do not alert.
+
+### Price confirmation dates (`lib/priceVerification.ts`, `lib/projectPriceNote.ts`)
+**Decided:** reuse the existing `FactVerification` table (tier BUILDER_ATTESTED or VERIFIED, `verifiedAt`, `verifiedBy`, source) for prices. Admin saves of unit prices (POST/PATCH units) and project prices (PATCH /projects/:id, API only) accept `price_verification`; it is written in the same transaction as the price. A price changed WITHOUT an attestation resets to SCRAPED and undated, because the old date described the old number. The advisor states the date, flags stale after 30 days, and says "date of last confirmation not on record" when there is none. A project's note is as fresh as its stalest priced part; a priced part with no row counts as undated.
+**Shown in:** cost-sheet table, unit configuration, total outflow, affordability (project's own base only), commute shortlist, price fairness, and the chat facts block (`price_confirmation`). Fixed on the way: `priceFairness` printed "Last updated in our records {project.updated_at}", an edit timestamp presented as price recency.
+**Why:** all 1,403 dev price rows are SCRAPED with no date; buyers could not tell a fresh price from a stale one.
+**Rejected:** new `price_verified_at` columns on Project/UnitType (duplicates FactVerification, needs a migration); admin edits always recorded as VERIFIED (implies we hold a record for every edit).
+**Not done:** inventory dates (`UnitInventory` has no write path), a project-level price control in the admin UI, `comparisonHandler` and project cards (frontend re-renders their payload), bulk import and `POST /projects` write no FactVerification rows. Until prices are confirmed, every price note reads "not on record".
+**Tests:** `priceVerification.test.ts`, `leadBuilderAlert.test.ts`, route-replay cases now accept `containsAny` and pin the date text on commute, fairness, total-outflow, unit-configuration, affordability and cost-sheet lanes.
