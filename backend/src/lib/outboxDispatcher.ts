@@ -25,7 +25,7 @@ import { prisma } from './db'
 import { sendEmail } from './emailService'
 
 /** Matches `NotificationOutbox.template`. Adding one here is a template decision. */
-export type OutboxTemplate = 'admin_invite' | 'password_reset' | 'partner_approved'
+export type OutboxTemplate = 'admin_invite' | 'password_reset' | 'partner_approved' | 'new_lead'
 
 export interface EnqueueOptions {
   toEmail: string
@@ -43,6 +43,7 @@ const ACTION_LABEL: Record<OutboxTemplate, string> = {
   admin_invite: 'Set your password',
   password_reset: 'Choose a new password',
   partner_approved: 'Open your portal',
+  new_lead: 'Open the lead',
 }
 
 /**

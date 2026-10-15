@@ -7,6 +7,7 @@ import { requireStaff } from '../lib/adminGuard'
 import { trackConversion } from '../lib/analytics/tracking'
 import { env } from '../lib/env'
 import { notifyLead } from '../lib/notify'
+import { notifyBuildersOfLead } from '../lib/leadBuilderAlert'
 import { checkRateLimit } from '../lib/cache'
 import { loadLeadProfile, scoreLead, summarizeProfile, loadRecentQuestions } from '../lib/leadProfile'
 import { fireWebhook, bhkLabel } from '../lib/webhook'
@@ -230,6 +231,10 @@ router.post('/callback', async (req: Request, res: Response) => {
     { userId, guestToken, sessionId: resolvedSessionId },
     project?.id ?? null,
   )
+
+  // Link-only email to the builder's portal logins. Unawaited and self-catching,
+  // like the attribution above: the buyer's response never waits on it.
+  void notifyBuildersOfLead(cb)
 
   // Read before the alert is composed so the buyer's response is not waiting on it.
   const recentQuestions = await loadRecentQuestions(resolvedSessionId)
