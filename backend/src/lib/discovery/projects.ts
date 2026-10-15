@@ -466,6 +466,7 @@ function mapToScored(raw: RawProject, intent: Intent): ScoredProject {
       {
         unit_types: p.unit_types,
         possession_date: p.possession_date,
+        status: String(p.status),
         amenities: p.amenities,
         ai_search_keywords: p.ai_search_keywords,
         builder: p.builder,

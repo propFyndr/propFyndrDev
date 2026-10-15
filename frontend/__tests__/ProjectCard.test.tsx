@@ -18,6 +18,10 @@ jest.mock('@/lib/analytics', () => ({
   track: jest.fn(),
 }));
 
+// Relative to today: a literal year goes stale and turns the "under construction" cases below
+// into "possession date already passed" ones.
+const NEXT_YEAR = new Date().getFullYear() + 1;
+
 const mockProject: ProjectCardType = {
   id: 'ace-hanei',
   slug: 'ace-hanei',
@@ -28,8 +32,8 @@ const mockProject: ProjectCardType = {
   price_max_cr: 5.70,
   price_range_label: '₹3.11–5.70Cr',
   status: 'under_construction',
-  possession_date: '2023-10-01',
-  possession_label: 'Expected October 2023',
+  possession_date: `${NEXT_YEAR}-10-01`,
+  possession_label: `Expected October ${NEXT_YEAR}`,
   builder: { name: 'ACE Group', slug: 'ace-group' },
   marketing_claims: [],
   unit_types: [
@@ -58,12 +62,12 @@ describe('ProjectCard Component', () => {
   it('renders the possession label for under construction projects', () => {
     render(<ProjectCard project={mockProject} userId={null} />);
     // Long month names are abbreviated so the label fits without truncating the year.
-    expect(screen.getAllByText(/Expected Oct 2023/)[0]).toBeInTheDocument();
+    expect(screen.getAllByText(new RegExp(`Expected Oct ${NEXT_YEAR}`))[0]).toBeInTheDocument();
   });
 
   it('never truncates the possession year away', () => {
     render(<ProjectCard project={mockProject} userId={null} />);
-    expect(screen.queryByText(/Expected Oct(ober)? 2…/)).not.toBeInTheDocument();
+    expect(screen.queryByText(new RegExp(`Expected Oct(ober)? ${String(NEXT_YEAR).slice(0, 1)}…`))).not.toBeInTheDocument();
   });
 
   it('renders Under Construction when possession_label is missing', () => {
@@ -76,7 +80,7 @@ describe('ProjectCard Component', () => {
     const rtmProject = { ...mockProject, status: 'ready_to_move' as const };
     render(<ProjectCard project={rtmProject} userId={null} />);
     expect(screen.getAllByText('Ready to Move')[0]).toBeInTheDocument();
-    expect(screen.queryByText('Expected October 2023')).not.toBeInTheDocument();
+    expect(screen.queryByText(`Expected October ${NEXT_YEAR}`)).not.toBeInTheDocument();
   });
 
   it('renders exactly two BHK rows by default and handles expand/collapse', () => {
@@ -84,5 +88,57 @@ describe('ProjectCard Component', () => {
     // Initial state: Only 3 BHK and 4 BHK should be grouped.
     expect(screen.getAllByText(/3 BHK/)[0]).toBeInTheDocument();
     expect(screen.getAllByText(/4 BHK/)[0]).toBeInTheDocument();
+  });
+  describe('a possession date that has already passed', () => {
+    const late = { ...mockProject, possession_date: '2023-10-01', possession_label: 'Expected October 2023' };
+
+    it('is said as passed, never as Ready to Move', () => {
+      render(<ProjectCard project={late} userId={null} />);
+      expect(screen.getAllByText('Was due Oct 2023')[0]).toBeInTheDocument();
+      expect(screen.queryByText('Ready to Move')).not.toBeInTheDocument();
+    });
+
+    it('still says Ready to Move when the status is ready_to_move', () => {
+      render(<ProjectCard project={{ ...late, status: 'ready_to_move' as const }} userId={null} />);
+      expect(screen.getAllByText('Ready to Move')[0]).toBeInTheDocument();
+      expect(screen.queryByText(/Was due/)).not.toBeInTheDocument();
+    });
+
+    it('works from the label the backend sends, without its note', () => {
+      const label = 'Q2 2019 (possession date passed — status unconfirmed)';
+      render(<ProjectCard project={{ ...late, possession_date: null, possession_label: label }} userId={null} />);
+      expect(screen.getAllByText('Was due Q2 2019')[0]).toBeInTheDocument();
+      expect(screen.queryByText(/status unconfirmed/)).not.toBeInTheDocument();
+    });
+
+    it('says only that the date passed when the label names none', () => {
+      render(<ProjectCard project={{ ...late, possession_label: undefined }} userId={null} />);
+      expect(screen.getAllByText('Date passed')[0]).toBeInTheDocument();
+    });
+
+    it('keeps a delayed project as Delayed', () => {
+      render(<ProjectCard project={{ ...late, possession_label: 'Delayed - Dec 2023' }} userId={null} />);
+      expect(screen.getAllByText('Delayed')[0]).toBeInTheDocument();
+    });
+  });
+
+  describe('stored flag tokens', () => {
+    it('never reach the trade-off line as written', () => {
+      render(<ProjectCard project={{ ...mockProject, concerns: ['moderate_risk'] }} userId={null} />);
+      expect(screen.queryByText('moderate_risk')).not.toBeInTheDocument();
+      expect(screen.getAllByText(/Risk flag on record: moderate risk/)[0]).toBeInTheDocument();
+    });
+
+    it('say a developer legal flag in words', () => {
+      render(<ProjectCard project={{ ...mockProject, concerns: ['NCLT_INSOLVENCY'] }} userId={null} />);
+      expect(screen.queryByText('NCLT_INSOLVENCY')).not.toBeInTheDocument();
+      expect(screen.getAllByText(/Flag on record: NCLT insolvency/)[0]).toBeInTheDocument();
+    });
+
+    it('"low_risk" is not a trade-off, and the next real concern is shown instead', () => {
+      render(<ProjectCard project={{ ...mockProject, concerns: ['low_risk', 'above your budget'] }} userId={null} />);
+      expect(screen.queryByText('low_risk')).not.toBeInTheDocument();
+      expect(screen.getAllByText(/above your budget/)[0]).toBeInTheDocument();
+    });
   });
 });

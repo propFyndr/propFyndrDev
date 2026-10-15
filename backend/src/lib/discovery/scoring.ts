@@ -130,6 +130,36 @@ export function possessionOutsideTimeline(
   return false
 }
 
+const NOT_A_CONCERN_FLAG = /^(?:none|low[_\s-]?risk)$/i
+const FLAG_ACRONYMS = new Set(['NCLT', 'SPV', 'RERA'])
+const FLAG_PROPER_NOUNS = new Set(['SUPREME', 'COURT', 'SURAKSHA'])
+
+/** `NCLT_INSOLVENCY` → "NCLT insolvency", `moderate_risk` → "moderate risk". */
+function humanFlag(token: string): string {
+  return token
+    .trim()
+    .split(/[_\s-]+/)
+    .filter(Boolean)
+    .map((part) => {
+      const upper = part.toUpperCase()
+      if (FLAG_ACRONYMS.has(upper)) return upper
+      const word = part.toLowerCase()
+      return FLAG_PROPER_NOUNS.has(upper) ? word[0].toUpperCase() + word.slice(1) : word
+    })
+    .join(' ')
+}
+
+/**
+ * A stored flag as a line a buyer can read, or null when it is not a concern.
+ * A value with spaces is already a sentence and passes through unchanged; a bare
+ * token gets the label, so "moderate_risk" never reaches a card as written.
+ */
+function flagConcern(raw: string | null | undefined, label: string): string | null {
+  const value = raw?.trim()
+  if (!value || NOT_A_CONCERN_FLAG.test(value)) return null
+  return /\s/.test(value) ? value : `${label}: ${humanFlag(value)}`
+}
+
 export function scoreProject(
   p: {
     unit_types: Array<{
@@ -347,10 +377,12 @@ export function buildMatchSignals(
     ai_search_keywords?: string[]
   },
   intent: Intent,
-  budgetStatus?: BudgetStatus
+  budgetStatus?: BudgetStatus,
+  now: Date = new Date(),
 ): { matchReasons: string[]; concerns: string[] } {
   const matchReasons: string[] = []
   const concerns:     string[] = []
+  const possessionPassed = possessionDatePassed(p.status, p.possession_date, now)
 
   // ── Match reasons ──────────────────────────────────────────────────────────
 
@@ -399,12 +431,16 @@ export function buildMatchSignals(
   if (p.rera_number) matchReasons.push('RERA registered')
 
   // Possession / ready to move
+  // A passed date on an unfinished project is a concern below, never a reason.
   if (p.status === 'ready_to_move') {
     matchReasons.push('ready to move')
-  } else if (p.possession_date && !possessionDatePassed(p.status, p.possession_date)) {
-    const months = (p.possession_date.getTime() - Date.now()) / (1000 * 60 * 60 * 24 * 30)
-    if (months <= 6)  matchReasons.push('possession in 6 months')
-    else if (months <= 12) matchReasons.push('possession within a year')
+  } else if (possessionPassed) {
+    // said under Concerns
+  } else if (p.possession_date) {
+    const months = (p.possession_date.getTime() - now.getTime()) / (1000 * 60 * 60 * 24 * 30)
+    // A negative value here means a passed date on a project of unknown status: say nothing.
+    if (months >= 0 && months <= 6) matchReasons.push('possession in 6 months')
+    else if (months > 6 && months <= 12) matchReasons.push('possession within a year')
   } else if (p.possession_label) {
     matchReasons.push(`possession ${p.possession_label}`)
   }
@@ -434,9 +470,18 @@ export function buildMatchSignals(
     concerns.push('above your budget')
   }
 
-  // Risk flags
-  if (p.project_risk_flag) concerns.push(p.project_risk_flag)
-  if (p.builder?.legal_flag) concerns.push(p.builder.legal_flag)
+  // Possession date already passed on a project still being built.
+  if (possessionPassed && p.possession_date) {
+    const when = p.possession_date.toLocaleString('en-IN', { month: 'short', year: 'numeric', timeZone: 'Asia/Kolkata' })
+    concerns.push(`Stated possession date (${when}) has passed. Confirm the current status`)
+  }
+
+  // Risk flags. Stored as enum tokens ('moderate_risk', 'NCLT_INSOLVENCY'): said in
+  // words, and 'low_risk' / 'none' are not concerns at all.
+  const riskFlag = flagConcern(p.project_risk_flag, 'Risk flag on record')
+  if (riskFlag) concerns.push(riskFlag)
+  const legalFlag = flagConcern(p.builder?.legal_flag, 'Developer legal flag on record')
+  if (legalFlag) concerns.push(legalFlag)
 
   // why_avoid signals (first entry only to keep cards clean)
   if (p.decision_profile?.why_avoid?.length) {

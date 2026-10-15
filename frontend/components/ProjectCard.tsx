@@ -17,6 +17,7 @@ import { authHeaders } from '@/lib/authedFetch'
 import { resolveImgUrl } from '@/lib/utils'
 import { usePreferredImages } from '@/lib/hooks'
 import { sanitizePriceLabel } from '@/lib/format'
+import { cleanConcern, isPossessionDatePassed, withoutPassedNote } from '@/lib/projectCardText'
 
 
 interface Props {
@@ -115,14 +116,25 @@ export default function ProjectCard({ project, userId, sessionId, index = 0, isT
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [askMenuOpen])
 
-  const isRTM = project.status === 'ready_to_move'
-  const isNew = project.status === 'new_launch'
   const isDelayed = project.possession_label ? (project.possession_label.toLowerCase().includes('delayed') || project.possession_label.toLowerCase().includes('disputed')) : false
+
+  // A date that has passed on a project still being built is a missed date, not
+  // a handover. It is never "Ready to Move": 16 of the 37 such projects in dev
+  // carry high-confidence dates between 2018 and 2026 and are genuinely late.
+  // Where the data is stale (status says building, source says delivered), the
+  // fix is the status in the database.
+  const isRTM = project.status === 'ready_to_move'
+  const isPastDue = !isRTM && !isDelayed && isPossessionDatePassed(project)
+  const isNew = project.status === 'new_launch' && !isPastDue
 
   // Format and shorten possession / status label for clean UI display without long overflow.
   // Abbreviate the month before ever truncating — a hard slice on "Expected October 2023"
   // eats the year, which is the single most decision-relevant token in the label.
-  const rawPossession = (project.possession_label || '').trim()
+  // The backend appends "(possession date passed — status unconfirmed)" to a missed date's
+  // label. The chip says it as "Was due …", so it works from the label without that note; the
+  // tooltip keeps the full text.
+  const fullPossession = (project.possession_label || '').trim()
+  const rawPossession = withoutPassedNote(fullPossession)
   const cleanPossession = rawPossession
     .replace(/^possession[:\s-]*/i, '')
     .replace(/under construction\s*\(([^)]+)\)/i, '$1')
@@ -130,11 +142,19 @@ export default function ProjectCard({ project, userId, sessionId, index = 0, isT
     .replace(/\b(January|February|August|September|October|November|December)\b/gi, m => m.slice(0, 3))
     .trim()
 
+  // "Was due Oct 2023": the stated date, said as passed. Without a date to name, just say it passed.
+  const dueText = /\d/.test(cleanPossession) ? cleanPossession.replace(/^(?:expected|by|due)[:\s-]*/i, '') : ''
+  const pastDueLabel = dueText
+    ? (`Was due ${dueText}`.length > 20 ? `Was due ${dueText}`.slice(0, 18) + '…' : `Was due ${dueText}`)
+    : 'Date passed'
+
   const statusLabel = isRTM
     ? 'Ready to Move'
     : isDelayed
       ? 'Delayed'
-      : isNew
+      : isPastDue
+        ? pastDueLabel
+        : isNew
         ? 'New Launch'
         : cleanPossession
           ? (cleanPossession.length > 20 ? cleanPossession.slice(0, 18) + '…' : cleanPossession)
@@ -148,12 +168,15 @@ export default function ProjectCard({ project, userId, sessionId, index = 0, isT
   ]
   // First, not last: the mobile menu shows three prompts, and the one about
   // this project's weaknesses is the one a trust-first advisor must not hide.
-  if (project.concerns && project.concerns.length > 0) {
+  // Concerns as a buyer can read them: stored tokens said in words, "low_risk"
+  // and "none" dropped (cards saved before the backend did this still carry them).
+  const concerns = (project.concerns ?? []).map(cleanConcern).filter((c): c is string => c !== null)
+  if (concerns.length > 0) {
     askPrompts.unshift({ icon: WarningCircle, label: 'Any concerns?', text: `What are the concerns or red flags with ${project.name}?`, type: 'concerns' })
   }
 
   const reason = buildReason(project)
-  const tradeoff = project.concerns?.find(c => c && c.trim()) ?? null
+  const tradeoff = concerns[0] ?? null
   const price = sanitizePriceLabel(project.price_range_label)
 
   // Ground-truth facts that used to be a row of pills. On mobile they are one
@@ -336,7 +359,7 @@ export default function ProjectCard({ project, userId, sessionId, index = 0, isT
                   : isDelayed
                     ? 'bg-rose-500/10 text-rose-700 dark:text-rose-300'
                     : 'bg-surface-3 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300'
-              }`} title={rawPossession || statusLabel}>
+              }`} title={fullPossession || statusLabel}>
                 <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${statusDot}`} />
                 <span className="truncate">{statusLabel}</span>
               </span>
@@ -598,7 +621,7 @@ export default function ProjectCard({ project, userId, sessionId, index = 0, isT
 
           {/* Status tag overlaid on image top-left */}
           <div className="absolute top-3 left-3 z-10">
-            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full backdrop-blur-md bg-black/50 text-white max-w-[170px]" title={rawPossession || statusLabel}>
+            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full backdrop-blur-md bg-black/50 text-white max-w-[170px]" title={fullPossession || statusLabel}>
               <div className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${statusDot}`} />
               <span className="text-[11px] font-medium truncate">
                 {statusLabel}

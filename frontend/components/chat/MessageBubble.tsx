@@ -1232,7 +1232,7 @@ function MessageBubbleInner({
         // NO-FALLBACK for EXACT scope: show error message if no results
         if (message.spatialContext?.spatialScope === 'EXACT' && totalCards === 0) {
           headerLabel = 'No inventory found in requested sector'
-        } else if (message.spatialContext?.spatialScope === 'PROXIMITY') {
+        } else if (message.spatialContext?.spatialScope === 'PROXIMITY' && message.spatialContext?.anchorSector) {
           headerLabel = hasExact && !hasNearby
             ? `${totalCards} ${totalCards === 1 ? 'property' : 'properties'} in ${message.spatialContext?.anchorSector}`
             : `${totalCards} ${totalCards === 1 ? 'property' : 'properties'} in & around ${message.spatialContext?.anchorSector}`
@@ -1252,16 +1252,16 @@ function MessageBubbleInner({
          * picking one of them.
          */
         const searchedSectors = expansion?.searchedSectors ?? []
+        const displayedList = useNewFormat ? (hasExact ? rawExactList : rawNearbyList) : rawLegacyList
+        const uniqueDisplayedSectors = [...new Set(displayedList.map(p => p.sector).filter(Boolean))]
         const headerSector =
           message.spatialContext?.anchorSector
           || (searchedSectors.length > 0
             ? searchedSectors.slice(0, 3).join(', ') + (searchedSectors.length > 3 ? '…' : '')
             : undefined)
-          || (new Set(rawExactList.map(p => p.sector)).size === 1
-            ? rawExactList[0]?.sector
+          || (uniqueDisplayedSectors.length === 1
+            ? uniqueDisplayedSectors[0]
             : undefined)
-          || (hasExact ? rawNearbyList[0]?.sector : undefined)
-          || (hasExact ? rawLegacyList[0]?.sector : undefined)
 
         return (
           <div className="hidden sm:block mt-2 w-full">
@@ -1284,7 +1284,8 @@ function MessageBubbleInner({
                   <span className="text-[13.5px] font-bold text-zinc-900 dark:text-zinc-100 tabular-nums">
                     {headerLabel}
                   </span>
-                  {headerSector && (
+                  {/* A proximity label already names its sector; say it once. */}
+                  {headerSector && !headerLabel.includes(headerSector) && (
                     <span className="text-[12px] font-medium text-zinc-500 dark:text-zinc-400 hidden sm:inline">
                       in {headerSector}
                     </span>
