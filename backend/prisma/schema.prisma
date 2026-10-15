@@ -133,6 +133,9 @@ model Project {
   // anything with an FK to this id stays valid. Every buyer-facing Project
   // query must filter archived_duplicate_of: null.
   archived_duplicate_of    String?
+  // Publish gate (migration 20261015130000). Every row starts as 'draft'; only
+  // a project that passes the completeness gate is promoted to 'live'.
+  publish_status           String                 @default("draft")
   launch_date              DateTime?
   possession_date          DateTime?
   possession_label         String?
@@ -280,6 +283,9 @@ model Project {
   chat_sessions            ChatSession[]          @relation("ProjectFocusedChats")
   spec_items               ProjectSpecItem[]
   property_feedback        PropertyFeedback[]     @relation("PropertyFeedback")
+  rera_registrations       ProjectReraRegistration[]
+  videos                   ProjectVideo[]
+  field_drafts             ProjectFieldDraft[]
 
   @@index([city, sector])
   @@index([status])
@@ -585,11 +591,74 @@ model ProjectImage {
   bhk        Int?
   size_sqft  Int?
   sort_order Int       @default(0)
+  // Provenance (migration 20261015120000). Images stay on their host (Drive,
+  // builder site); only the reference is stored here.
+  drive_file_id   String?
+  checksum_sha256 String?
+  source_url      String?
+  width           Int?
+  height          Int?
+  fetched_at      DateTime?
   project    Project   @relation(fields: [project_id], references: [id], onDelete: Cascade)
 
   @@index([project_id, type])
   @@index([project_id, source])
   @@map("project_images")
+}
+
+// One row per RERA registration. projects.rera_number stays as the legacy value.
+model ProjectReraRegistration {
+  id          String    @id @default(uuid())
+  project_id  String
+  rera_number String
+  format_ok   Boolean   @default(false)
+  rera_url    String?
+  source      String    @default("legacy_projects_column")
+  source_url  String?
+  verified_at DateTime?
+  verified_by String?
+  created_at  DateTime  @default(now())
+  project     Project   @relation(fields: [project_id], references: [id], onDelete: Cascade)
+
+  @@unique([project_id, rera_number], map: "project_rera_registrations_project_rera_key")
+  @@index([rera_number])
+  @@map("project_rera_registrations")
+}
+
+// Proposed value for one missing field, with its source. Promoted to the live
+// column only after review; never written to the project row directly.
+model ProjectFieldDraft {
+  id             String    @id @default(uuid())
+  project_id     String
+  field_name     String
+  proposed_value Json
+  source_url     String?
+  source_label   String
+  fetched_at     DateTime  @default(now())
+  status         String    @default("pending")
+  reviewed_by    String?
+  reviewed_at    DateTime?
+  created_at     DateTime  @default(now())
+  project        Project   @relation(fields: [project_id], references: [id], onDelete: Cascade)
+
+  @@index([project_id, status])
+  @@map("project_field_drafts")
+}
+
+model ProjectVideo {
+  id          String    @id @default(uuid())
+  project_id  String
+  provider    String
+  url         String
+  title       String?
+  channel     String?
+  source_url  String?
+  verified_at DateTime?
+  created_at  DateTime  @default(now())
+  project     Project   @relation(fields: [project_id], references: [id], onDelete: Cascade)
+
+  @@index([project_id])
+  @@map("project_videos")
 }
 
 model Amenity {

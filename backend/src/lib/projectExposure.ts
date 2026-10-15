@@ -29,7 +29,9 @@
  * Project relations that point at other users' data. Never selectable in any
  * query whose result reaches a prompt or a response body.
  */
-export const FORBIDDEN_RELATIONS = ['saved_by', 'chat_sessions', 'property_feedback'] as const
+// field_drafts holds proposed, unreviewed values with their sources. A draft is not a fact
+// until a person promotes it, so it must never reach a buyer or a prompt.
+export const FORBIDDEN_RELATIONS = ['saved_by', 'chat_sessions', 'property_feedback', 'field_drafts'] as const
 
 /**
  * Scalar columns that must never leave the server, with the reason. Kept as a
@@ -42,6 +44,7 @@ export const INTERNAL_ONLY_FIELDS: Record<string, string> = {
   builder_id: 'raw foreign key — the builder relation carries the usable data',
   created_at: 'row bookkeeping, not a project fact',
   updated_at: 'row bookkeeping, not a project fact',
+  publish_status: 'publish-gate lifecycle (draft/live), not a project fact a buyer asked about',
   archived_duplicate_of: 'record-lifecycle bookkeeping from the dedup migration, not a project fact a buyer asked about',
   market_demand_score: 'internal analyst score; V1 scope excludes investment analysis',
   appreciation_potential_5yr: 'forward-looking estimate — the prompt forbids presenting projections as fact',
@@ -251,6 +254,8 @@ const PUBLIC_FIELD_SET: ReadonlySet<string> = new Set(Object.keys(PROJECT_PUBLIC
  */
 export const ALLOWED_RELATIONS = [
   'builder',
+  'rera_registrations',
+  'videos',
   'amenities',
   'connectivity',
   'unit_types',
