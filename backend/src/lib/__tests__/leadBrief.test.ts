@@ -49,6 +49,24 @@ describe('competitor scrubbing', () => {
     assert.equal(scrubCompetitors(null, NAMES), null)
   })
 
+  it('does not scrub a name found inside a longer word', () => {
+    // "Ace" is a real builder-sized name; it must not eat "place" or "surface".
+    const text = 'A nice place near the metro, good surface parking.'
+    assert.equal(scrubCompetitors(text, ['Ace']), text)
+  })
+
+  it('still scrubs the name as a whole word, including next to punctuation', () => {
+    const out = scrubCompetitors('Looking at Ace, and (Ace) too.', ['Ace'])
+    assert.ok(!/\bace\b/i.test(out!), `got: ${out}`)
+  })
+
+  it('catches spacing and hyphen variants of a multi-word name', () => {
+    for (const variant of ['SKA Greenarch', 'ska green-arch', 'SKA  Green Arch']) {
+      const out = scrubCompetitors(`Also comparing ${variant} in Sector 1.`, ['SKA Green Arch'])
+      assert.ok(!/green/i.test(out!), `variant survived: ${out}`)
+    }
+  })
+
   it('is not fooled by regex characters in a builder name', () => {
     const out = scrubCompetitors('Looking at A+B (Developers) too.', ['A+B (Developers)'])
     assert.ok(!out!.includes('A+B'))

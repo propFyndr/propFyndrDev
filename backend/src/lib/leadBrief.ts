@@ -122,7 +122,11 @@ export function scrubCompetitors(text: string | null, names: readonly string[]):
   if (!text) return text
   let out = text
   for (const name of [...names].sort((a, b) => b.length - a.length)) {
-    out = out.replace(new RegExp(escapeRegExp(name), 'gi'), 'another project')
+    // Whole words only: "Ace" must not eat "place". Spaces and hyphens inside a
+    // name are optional, so "Green Arch" also catches "greenarch" and "green-arch".
+    const body = name.split(/[\s-]+/).filter(Boolean).map(escapeRegExp).join('[\\s-]*')
+    if (!body) continue
+    out = out.replace(new RegExp(`(?<![\\p{L}\\p{N}])${body}(?![\\p{L}\\p{N}])`, 'giu'), 'another project')
   }
   // A sentence that named three competitors now says it three times. Collapse.
   return out.replace(/(another project)(,?\s+(and\s+)?another project)+/gi, 'other projects')
@@ -151,7 +155,7 @@ export function suggestOpening(objections: readonly LeadBriefObjection[]): strin
 }
 
 /** Tier plus horizon, in a sentence a person can read at a glance. */
-function verdictLine(tier: string | null, intent: string | null, loan: boolean | null): string {
+export function verdictLine(tier: string | null, intent: string | null, loan: boolean | null): string {
   const horizon =
     intent === 'immediate' ? 'buying now'
       : intent === '1-3-months' ? 'buying within 3 months'
