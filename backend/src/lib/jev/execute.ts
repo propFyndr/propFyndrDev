@@ -31,6 +31,7 @@ import {
   getNonObviousOwnerFactorsGuide,
 } from '../advisory/marketAdvisory'
 import { matchesLegalRiskQuestion } from '../chat/handlers/legalRisk'
+import { matchesMessageOnlyTopic } from '../chat/handlers/messageOnlyTopics'
 import { statedBasePriceInr } from '../chat/handlers/totalOutflow'
 import { ASKS_FOR_THE_CATCH } from '../chat/handlers/projectCatch'
 import { ASKS_FAIRNESS } from '../chat/handlers/priceFairness'
@@ -45,7 +46,7 @@ import { MARKET_QUALIFIER } from '../factPresentation'
  */
 function ownedByDedicatedHandler(message: string): boolean {
   return matchesLegalRiskQuestion(message) || statedBasePriceInr(message) !== null ||
-    ASKS_FOR_THE_CATCH.test(message) || ASKS_FAIRNESS.test(message)
+    ASKS_FOR_THE_CATCH.test(message) || ASKS_FAIRNESS.test(message) || matchesMessageOnlyTopic(message)
 }
 
 /** "How does registry work", not "is registry safe in X". */

@@ -7,7 +7,42 @@ export interface MemoryContext {
   budget_max_cr?: number | null
   sector_preference?: string | null
   purpose?: string | null
+  work_location?: string | null
+  possession_pref?: string | null
   viewed_slugs: string[]
+}
+
+const POSSESSION_WORDS: Record<string, string> = {
+  immediate: 'ready to move',
+  '1year': 'possession within a year',
+  '2year': 'possession within two years',
+  '3year+': 'possession in three years or more',
+}
+
+/**
+ * What we hold about a buyer, one line per stored field. Only stored fields appear,
+ * so "what do you remember about me" can never say more than the row does.
+ */
+export function describeProfile(mem: MemoryContext): string[] {
+  const out: string[] = []
+  if (mem.bhk_preference) out.push(`${mem.bhk_preference} BHK`)
+  if (mem.budget_max_cr) out.push(`budget up to ₹${mem.budget_max_cr} Cr`)
+  if (mem.sector_preference) out.push(`interested in ${mem.sector_preference}`)
+  if (mem.work_location) out.push(`works near ${mem.work_location}`)
+  if (mem.possession_pref) out.push(POSSESSION_WORDS[mem.possession_pref] ?? mem.possession_pref)
+  if (mem.purpose) out.push(mem.purpose === 'investment' ? 'buying as an investment' : 'buying to live in')
+  return out
+}
+
+/** The same profile as a sentence the buyer can send back as their own requirements. */
+export function profileAsRequest(mem: MemoryContext): string | null {
+  const parts: string[] = []
+  parts.push(mem.bhk_preference ? `${mem.bhk_preference} BHK` : 'flats')
+  if (mem.budget_max_cr) parts.push(`under ₹${mem.budget_max_cr} Cr`)
+  if (mem.work_location) parts.push(`near my office in ${mem.work_location}`)
+  else if (mem.sector_preference) parts.push(`in ${mem.sector_preference}`)
+  if (mem.possession_pref) parts.push(POSSESSION_WORDS[mem.possession_pref] ?? '')
+  return parts.length > 1 ? `Show me ${parts.filter(Boolean).join(', ')}` : null
 }
 
 export async function getMemory(userId?: string, guestToken?: string): Promise<MemoryContext | null> {
@@ -22,6 +57,8 @@ export async function getMemory(userId?: string, guestToken?: string): Promise<M
       budget_max_cr: mem.budget_max_cr,
       sector_preference: mem.sector_preference,
       purpose: mem.purpose,
+      work_location: mem.work_location,
+      possession_pref: mem.possession_pref,
       viewed_slugs: (mem.viewed_slugs as string[]) ?? [],
     }
   } catch {
@@ -49,6 +86,10 @@ export async function upsertMemory(
     data.sector_preference = intent.sector
   }
   if (intent.purpose) data.purpose = intent.purpose
+  if (typeof intent.workplace === 'string' && intent.workplace.trim() && intent.workplace.length <= 60) {
+    data.work_location = intent.workplace.trim()
+  }
+  if (intent.possession) data.possession_pref = intent.possession
 
   try {
     if (existing) {

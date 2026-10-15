@@ -20,6 +20,11 @@ import { authorityMechanicsHandler } from './authorityMechanics'
 import { affordabilityHandler } from './affordabilityHandler'
 import { dossierHandler } from './dossierHandler'
 import { legalRiskHandler } from './legalRisk'
+import { resaleDealHandler } from './resaleDeal'
+import { pressureTacticsHandler, siteVisitChecklistHandler, compromiseOrderHandler } from './buyerSupport'
+import { investmentScenarioHandler } from './investmentScenario'
+import { savedProfileHandler } from './savedProfile'
+import { publicRecordLookupHandler } from './publicRecordLookup'
 import { projectCatchHandler } from './projectCatch'
 import { priceFairnessHandler } from './priceFairness'
 import { priceTrendHandler } from './priceTrend'
@@ -80,6 +85,18 @@ export const CHAT_TOPIC_HANDLERS: readonly ChatTopicHandler[] = [
   // -> amenities). Its matcher is narrow — EOI/pre-launch with money words,
   // resale without registry, Sports City with a registry/status word.
   legalRiskHandler,
+  // After legalRisk (an unregistered resale is a title question first) and before
+  // priceFairness, which would answer a resale quote with a new-launch price range.
+  resaleDealHandler,
+  // Explicit asks that need no catalogue row: the buyer's own saved profile, a
+  // "book today" deadline, a site-visit checklist, the order of trade-offs, and
+  // compound-growth arithmetic on rates the buyer chose. Narrow matchers, so none
+  // of them shadows a project or price question below.
+  savedProfileHandler,
+  pressureTacticsHandler,
+  siteVisitChecklistHandler,
+  compromiseOrderHandler,
+  investmentScenarioHandler,
   // "What's the catch with X": record-based negatives and gaps for one named
   // project. Narrow matcher (a catch/negatives phrase AND a project we hold).
   projectCatchHandler,
@@ -99,6 +116,9 @@ export const CHAT_TOPIC_HANDLERS: readonly ChatTopicHandler[] = [
   comparisonHandler,
   paymentPlansHandler,
   costSheetHandler,
+  // Before reraVerification: a project we do not hold has no rows to verify, so the
+  // generic RERA answer would be about nothing. This reads the official record.
+  publicRecordLookupHandler,
   reraVerificationHandler,
   dueDiligenceHandler,
   // Before statutoryTax deliberately. "What transfer charges do I pay on a

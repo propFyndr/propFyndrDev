@@ -6,6 +6,19 @@ Format: What was decided / Why / What was rejected and why.
 
 ---
 
+## Session 2026-10-15 — ChatGPT benchmark, resale-deal scope
+
+**Decided:** resale is in scope only for a flat the buyer has already found: document/dues checklist and arithmetic on the buyer's own numbers (`lib/chat/handlers/resaleDeal.ts`). Resale listings, resale price opinions and investment advice stay out of scope.
+**Why:** 7 real ChatGPT buyer chats (benchmark audit, CLAUDE.md § Benchmark) showed about half the queries were resale or investment-flavoured; declining them loses the buyer, but we hold no resale transaction prices, so we can't say a price is fair.
+**Rejected:** a separate resale lane (another gate in a ~7k-line cascade); removing the decline and letting the LLM answer (breaks deterministic-first, risks invented figures).
+**Wired at three points:** handler registry (after `legalRisk`, before `priceFairness`); the router's excluded-property-type gate; JEV `ownedByDedicatedHandler`. Tests: `handlers/__tests__/resaleDeal.test.ts`.
+**Step 0 re-audit:** several CLAUDE.md debts were already fixed; list corrected. Affordability now labels its 20% down payment as assumed. Open: 129-project heuristic columns, whole-prompt containment in `provenanceChecker.ts`, property-page cost sheet.
+**Later the same day, the rest of the benchmark gaps:** `buyerSupport.ts` (pressure, site visit, compromise), `investmentScenario.ts`, `savedProfile.ts` + PATCH on `/user/memory`, `publicRecord.ts` + `publicRecordLookup.ts` (new `public_record` tier), resale deal state carried from the transcript.
+**Decided: memory stays opt-in.** The router comment says a new chat that silently inherited the last budget/sector was a bug, and ChatGPT-style automatic recall would reverse that. Rejected: auto-hydrating `UserMemory` into every chat. Chosen: the buyer asks ("what do you remember about me"), we list stored fields, a chip sends them back as the buyer's own words.
+**Decided: no schema change.** `UserMemory` already had `work_location` and `possession_pref`; the buyer's deal lives in the transcript. Rejected: a `buyer_deal` JSON column (a migration for something the history already holds).
+**Decided: public records are official-only.** Rejected: reading listing portals (asking prices are not facts) and builder sites (no way to confirm the domain is the builder's).
+**Not built:** frontend presentation (map pins, charts, saved checklists); first-turn offer of the saved profile; builder-site reading; the 129-project column re-sourcing. Public-record answers were tested with an injected search, not against live Tavily.
+
 ## Session 2026-10-12 — referral test-campaign purge
 
 **What was decided:** Dev DB `ReferralLink` table had 93 rows, almost entirely test artifacts

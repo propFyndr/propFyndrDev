@@ -239,3 +239,16 @@ export const NOIDA_AUTHORITY = {
  */
 export const AUTHORITY_RATE_CAVEAT =
   'set by authority circular and revised periodically — confirm the current rate with the allotting authority before budgeting on it'
+
+/**
+ * Tier `public_record`: a fact read from an official public source (UP-RERA, a court
+ * or tribunal portal) for a project we do not hold.
+ *
+ * Not `verified`: no row of ours says it, and nobody here inspected anything. It is
+ * stated with where it came from and the day we read it, so the buyer can check it.
+ * It never feeds ranking and never replaces a `verified` row when we hold one.
+ */
+export function publicRecordQualifier(sourceHost: string, fetchedAt: Date): string {
+  const day = fetchedAt.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
+  return `public record from ${sourceHost}, read on ${day}; not verified by RealtyAsk`
+}

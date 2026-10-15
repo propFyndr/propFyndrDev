@@ -124,6 +124,8 @@ import {
 } from '../lib/chat/topicFlags'
 import { CHAT_TOPIC_HANDLERS } from '../lib/chat/handlers'
 import { matchesLegalRiskQuestion } from '../lib/chat/handlers/legalRisk'
+import { matchesResaleDealQuestion } from '../lib/chat/handlers/resaleDeal'
+import { matchesMessageOnlyTopic } from '../lib/chat/handlers/messageOnlyTopics'
 import { statedBasePriceInr } from '../lib/chat/handlers/totalOutflow'
 import { computePick, pickDirective, type PickCandidate } from '../lib/chat/pickOne'
 import { ASKS_FAIRNESS } from '../lib/chat/handlers/priceFairness'
@@ -501,7 +503,7 @@ router.post('/', async (req: Request, res: Response) => {
       // A resale question about a legal risk (no registry, builder "will
       // transfer later") is answered by legalRiskHandler; the resale pitch here
       // said nothing about the missing registry.
-      (/\b(resale|second[- ]?hand|pre[- ]?owned)\s+(flat|propert|apartment|home|house)/i.test(message) && !matchesLegalRiskQuestion(message)) ||
+      (/\b(resale|second[- ]?hand|pre[- ]?owned)\s+(flat|propert|apartment|home|house)/i.test(message) && !matchesLegalRiskQuestion(message) && !matchesResaleDealQuestion(message)) ||
       /\bcommercial\s+(propert|space|shop|office|showroom)/i.test(message) ||
       // A bare "tenant" is not a rental request: "society maintenance charges
       // tenants pay in Paras Tierea" is a buyer asking about a project's costs.
@@ -3257,6 +3259,9 @@ router.post('/', async (req: Request, res: Response) => {
       // EOI / unregistered resale / Sports City: answered from RERA law and our
       // registry rows by legalRiskHandler, never by the open lane's web search.
       !matchesLegalRiskQuestion(message) &&
+      // Resale deal, growth scenario, booking pressure, site visit, trade-offs, saved profile:
+      // answered by their handlers from the message alone.
+      !matchesMessageOnlyTopic(message) &&
       // "bsp 1.2 cr … total kitna padega": totalOutflowHandler computes it on
       // the buyer's own number; the open lane handed it to the model.
       statedBasePriceInr(message) === null &&
@@ -3656,7 +3661,7 @@ I can help you with:
      * to pay. A question about whether money or title is safe is never an
      * amenity, commute or configuration question, whatever nouns it contains.
      */
-    const isLegalRiskQuery = matchesLegalRiskQuestion(message)
+    const isLegalRiskQuery = matchesLegalRiskQuestion(message) || matchesMessageOnlyTopic(message)
     const isAmenityQuery = !isInventorySearch && !isLegalRiskQuery && // The short tokens carry word boundaries. Without them `spa` matched inside
 // "spacious", `park` inside "parking" and `court` inside "courtyard" — each
 // one turning an unrelated question into an amenity answer.
@@ -3854,6 +3859,7 @@ I can help you with:
             /\b(possession|handover|rera|specifications?|maintenance|price\s*per\s*sq|psf|unit\s*sizes?|floor\s*plans?)\b/i.test(topicText))
         const topicHandlerMatched = isAspectCompare ? false : await runTopicHandlers(CHAT_TOPIC_HANDLERS, {
           message,
+          priorUserMessages: chatHistory.filter((m) => m.role === 'user' && m.content !== message).map((m) => m.content).slice(-8),
           intent,
           sessionId: currentSessionId,
           userId,

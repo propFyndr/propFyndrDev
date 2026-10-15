@@ -184,7 +184,9 @@ When scoping a chat feature, ask: *would a power user notice we're worse at this
 
 **Supported:** Noida and Greater Noida West; new launch, under construction and ready to move; recommendations; comparison; builder track record; EMI, stamp duty, GST, registration; callbacks; site visits; WhatsApp handoff; partner/builder lead portal.
 
-**Out of scope:** rentals, resale, commercial, valuation, mortgage workflows, tenant/landlord tools, auctions, native apps, VR/AR, investment advice, broker CRM beyond lead handling. Other cities are not recommended as available inventory.
+**Out of scope:** rentals, resale *listings* and resale price opinions, commercial, valuation, mortgage workflows, tenant/landlord tools, auctions, native apps, VR/AR, investment advice, broker CRM beyond lead handling. Other cities are not recommended as available inventory.
+
+**In scope for a resale flat the buyer has already found (2026-10-15):** the document and dues checklist, and arithmetic on the buyer's own numbers (stamp duty, registration, renovation, total). `lib/chat/handlers/resaleDeal.ts`. It never states whether a resale price is fair, because we hold no resale transaction prices. "Show me resale flats" still gets the scope reply.
 
 ---
 
@@ -212,14 +214,12 @@ Every fact shown to a buyer belongs to exactly one tier. Reference `lib/factPres
 
 **Enforcement:** `dueDiligenceFabrication.test.ts`, `lib/ai/__tests__/answerIntegrity.test.ts`; `answerIntegrity.ts` runs before the buyer sees any answer.
 
-### Data Integrity Debts (launch blockers, 2026-10-05)
-* **Due-diligence columns on 129 projects were heuristic, not sourced** (`scripts/enrich-129-incomplete.ts`: `lift_act_compliant: true` everywhere, Ganga Jal TDS ranges, `all_in_cost_multiplier: 1.30`). Must be nulled (backup first) and re-sourced.
-* **Property-page cost sheet** (`CostSheetSection.tsx`) hardcodes PLC, parking, club, IFMS, legal charges and falls back to invented areas/prices. Must read the `CostSheet` table.
-* **Affordability handler** invents a ₹1.5 Cr benchmark when no price is known; assumes 20% down / 8.5% / 30% slab.
-* **JEV branches** (upgrade equity, yield) carry assumed rates without `MARKET_QUALIFIER`.
-* **Comparison** shows lift-registry status from the heuristic data and reports HIGH confidence on estimates.
-* **Price firewall** whitelists any number anywhere in a ~33k-char prompt; percentages are not checked.
-* `dueDiligenceFabrication.test.ts` passes vacuously when nothing is found — fix the test before trusting the gate.
+### Data Integrity Debts (launch blockers, re-audited 2026-10-15)
+* **Due-diligence columns on 129 projects were heuristic, not sourced** (`scripts/enrich-129-incomplete.ts`: `lift_act_compliant: true` everywhere, Ganga Jal TDS ranges, `all_in_cost_multiplier: 1.30`). Must be nulled (backup first) and re-sourced. Still open.
+* **Property-page cost sheet** (`CostSheetSection.tsx`) hardcodes PLC, parking, club, IFMS, legal charges and falls back to invented areas/prices. Must read the `CostSheet` table. Not re-checked 2026-10-15.
+* **Price firewall** (`lib/ai/provenanceChecker.ts`) checks crore, lakh, per-sq.ft and percentage figures, but a figure passes if it appears *anywhere* in the ~33k-char prompt, not only in the fact block for that project. Still open.
+* **Comparison** shows lift-registry status from the heuristic data and reports HIGH confidence on estimates. Not re-checked.
+* *Closed, verified 2026-10-15:* affordability no longer invents a price (it asks) and labels its rate, slab, landed-cost multiplier and 20% down payment as assumptions; JEV yield/upgrade branches carry `MARKET_QUALIFIER`; `dueDiligenceFabrication.test.ts` asserts `found === true`.
 
 ---
 
@@ -350,6 +350,23 @@ A ticked gate without these is worse than an unticked one: the next session trus
 * Routing is a gate cascade in `routes/chat-router.ts` (~7k lines): a failing query class is usually a routing bug, not a prompt bug.
 * No hardcoded answer branches for a named project or sector; resolve from the DB.
 * Frontend tests: `npx jest` (not vitest). Backend: `npx tsx --test <file>`; `npm test`.
+
+## Benchmark: What the ChatGPT Power-User Gets (audit 2026-10-15)
+
+Seven real ChatGPT buyer chats (`chatGPTnetwork*.md`, `chatGptNetwork1.md`) were read against our app, and the replayable queries are pinned as `bm-*` cases in `src/lib/eval/route-replay.json`. Where ChatGPT beat us, and what now answers it without losing neutrality:
+
+| Gap | Now |
+|---|---|
+| Live, cited public-record lookup | `lib/publicRecord.ts` + `handlers/publicRecordLookup.ts`. Only for a project we do not hold. Official sources only (UP-RERA, `*.gov.in`, `*.nic.in`); listing portals and builder sites are not read. New fact tier `public_record` (`publicRecordQualifier`): source host and read date on every figure, never `verified`, never feeds ranking. Cached by `web.ts`, 5 lookups per buyer per hour. Builder-site reading is not built. |
+| Cross-session memory | `UserMemory` now also stores workplace and possession horizon. **Memory is never read into a new chat on its own**: a silent carry-over of last week's budget was a bug, and that decision stands. `handlers/savedProfile.ts` is the explicit route: the buyer asks, we list only stored fields, and a chip sends them back as the buyer's own request. `PATCH /api/v1/user/memory` edits, `DELETE` forgets. Not built: a prompt on a new chat's first turn offering the saved profile. |
+| Buyer-found deals | `handlers/resaleDeal.ts` carries the latest price and renovation estimate across turns from the transcript (`ctx.priorUserMessages`). Nothing is stored. |
+| Scope vs real demand | Resale is in scope for a flat the buyer has already found (checklist, dues, arithmetic on their numbers). Never listings, never "is this price fair", because we hold no resale prices. `handlers/investmentScenario.ts` compounds rates the buyer supplies; it assumes none and is labelled arithmetic, not a forecast. Investment advice stays out of scope. |
+| Decision-support turns | `handlers/buyerSupport.ts`: booking-deadline pressure, site-visit checklist, order of trade-offs. Deterministic, no prices. |
+| Presentation (map pins, charts, tickable saved checklists) | Not built. Confirm what `frontend` already renders before starting. |
+
+**Where we must stay ahead** (do not trade away): statutory stamp duty/registration stated exactly instead of "7% provisional"; no unsourced market statistics; no asking-price-as-fact; partner payment never touches rank; Lead Brief without transcript.
+
+**Rule for new lanes:** every new data source gets a tier, a source, a date and a freshness window before it reaches a buyer; a test must fail if the label is dropped.
 
 ## Golden Rule
 When uncertain, choose the option that improves trust, improves decision quality, and reduces buyer effort — not the one that generates more clicks. The goal is not more listings viewed. The goal is a buyer who confidently buys a home.

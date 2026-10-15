@@ -84,6 +84,11 @@ export interface UiState {
 export interface ChatHandlerContext {
   /** Sanitised user message for this turn. */
   message: string
+  /**
+   * The buyer's earlier messages in this session, oldest first, this turn excluded.
+   * For a follow-up that only makes sense with the figure or flat they gave before.
+   */
+  priorUserMessages?: ReadonlyArray<string>
   /** Intent after hydration and post-processing. */
   intent: Intent
   /** Session id used for chip dedup and persistence — always present. */

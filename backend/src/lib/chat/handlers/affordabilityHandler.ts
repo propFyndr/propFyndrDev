@@ -276,8 +276,8 @@ ${calc.foirStatus === 'comfortable'
 | :--- | :--- | :--- |
 | **Headline Base Price** | ${inrCr(calc.basePrice)} | ${basePriceBasis} |
 | **True Landed Cost** | **${inrCr(calc.totalLandedCost)}** (+${Math.round((calc.landedMultiplier - 1) * 100)}%${multiplierOnRecord ? '' : `, estimate — ${MARKET_QUALIFIER}`}) | Stamp duty, GST, IFMS & club charges |
-| **Recommended Downpayment (20%)** | ${inrCr(calc.downpaymentAmount)} | Upfront equity needed |
-| **Home Loan Principal (80%)** | ${inrCr(calc.loanPrincipal)} | 20-year tenure at ${calc.baseInterestRatePct}% p.a. (assumed rate — your bank's offer will differ) |
+| **Downpayment (assumed 20%)** | ${inrCr(calc.downpaymentAmount)} | Upfront equity needed; your own figure will change the loan below |
+| **Home Loan Principal (assumed 80%)** | ${inrCr(calc.loanPrincipal)} | 20-year tenure at ${calc.baseInterestRatePct}% p.a. (assumed rate — your bank's offer will differ) |
 | **Standard Bank EMI** | **${inr(calc.standardEmi)} / month** | Contractual bank debit |
 | **Sec 24(b) Tax Shield** | **- ${inr(calc.monthlyTaxShieldSec24b)} / month** | ₹2L/yr interest deduction (assumes 30% slab + 4% cess) |
 | **Net Out-of-Pocket Outflow** | **${inr(calc.netMonthlyOutflow)} / month** | Real cost to household budget |
