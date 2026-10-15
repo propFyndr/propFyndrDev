@@ -4,6 +4,13 @@ import React, { useState, useEffect } from 'react'
 import { Brain, Trash, X, Check, Warning } from '@phosphor-icons/react'
 import { API_BASE } from '@/lib/env'
 
+const POSSESSION_LABEL: Record<string, string> = {
+  immediate: 'Ready to move',
+  '1year': 'Within a year',
+  '2year': 'Within two years',
+  '3year+': 'Three years or more',
+}
+
 export interface UserMemoryModalProps {
   isOpen: boolean
   onClose: () => void
@@ -89,6 +96,14 @@ export function UserMemoryModal({ isOpen, onClose, userId, guestToken }: UserMem
                 <span className="text-zinc-500">Preferred Sector</span>
                 <span className="font-semibold">{memory.sector_preference || 'Not set'}</span>
               </div>
+              <div className="flex justify-between py-1.5 border-b border-zinc-100 dark:border-zinc-800/60">
+                <span className="text-zinc-500">Works Near</span>
+                <span className="font-semibold">{memory.work_location || 'Not set'}</span>
+              </div>
+              <div className="flex justify-between py-1.5 border-b border-zinc-100 dark:border-zinc-800/60">
+                <span className="text-zinc-500">Possession</span>
+                <span className="font-semibold">{POSSESSION_LABEL[memory.possession_pref as string] ?? 'Not set'}</span>
+              </div>
               <div className="flex justify-between py-1.5">
                 <span className="text-zinc-500">Viewed Properties</span>
                 <span className="font-semibold">{memory.viewed_slugs?.length || 0} projects</span>
@@ -102,7 +117,7 @@ export function UserMemoryModal({ isOpen, onClose, userId, guestToken }: UserMem
         </div>
 
         <div className="flex items-center justify-between pt-3 border-t border-zinc-200 dark:border-zinc-800 gap-2">
-          <p className="text-[11px] text-zinc-500">GDPR Compliance • 1-Click Erasure</p>
+          <p className="text-[11px] text-zinc-500">Never applied to a new chat unless you ask: type &quot;use my saved preferences&quot;.</p>
           <button
             onClick={handleClearMemory}
             disabled={clearing || !memory}

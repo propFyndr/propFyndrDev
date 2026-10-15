@@ -16,6 +16,7 @@ import ReactMarkdown, { type Components } from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import rehypeRaw from 'rehype-raw'
 import rehypeSanitize, { defaultSchema } from 'rehype-sanitize'
+import { TaskListItem, taskParts } from './TaskListItem'
 
 const base = defaultSchema ?? { tagNames: [], attributes: {} }
 
@@ -94,7 +95,11 @@ export default function Markdown({ children, components, raw = false }: Markdown
           p: ({ children }) => <p className="my-3 max-w-[68ch] leading-[1.6]">{children}</p>,
           ul: ({ children }) => <ul className="my-3 max-w-[68ch] list-disc pl-5 marker:text-zinc-400">{children}</ul>,
           ol: ({ children }) => <ol className="my-3 max-w-[68ch] list-decimal pl-5 marker:text-zinc-400">{children}</ol>,
-          li: ({ children }) => <li className="my-1 pl-0 leading-[1.6]">{children}</li>,
+          // GFM task items ("- [ ] item") become tickable rows; any other item is unchanged.
+          li: ({ children }) => {
+            const task = taskParts(children)
+            return task ? <TaskListItem rest={task.rest} /> : <li className="my-1 pl-0 leading-[1.6]">{children}</li>
+          },
           h1: ({ children }) => <h2 className="max-w-[68ch] text-[17px] font-semibold text-zinc-900 dark:text-zinc-50 mt-5 mb-2">{children}</h2>,
           h2: ({ children }) => <h2 className="max-w-[68ch] text-[17px] font-semibold text-zinc-900 dark:text-zinc-50 mt-5 mb-2">{children}</h2>,
           h3: ({ children }) => <h3 className="max-w-[68ch] text-[15px] font-semibold text-zinc-900 dark:text-zinc-50 mt-4 mb-1.5">{children}</h3>,

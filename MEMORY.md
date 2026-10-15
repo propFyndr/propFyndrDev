@@ -18,6 +18,13 @@ Format: What was decided / Why / What was rejected and why.
 **Decided: no schema change.** `UserMemory` already had `work_location` and `possession_pref`; the buyer's deal lives in the transcript. Rejected: a `buyer_deal` JSON column (a migration for something the history already holds).
 **Decided: public records are official-only.** Rejected: reading listing portals (asking prices are not facts) and builder sites (no way to confirm the domain is the builder's).
 **Not built:** frontend presentation (map pins, charts, saved checklists); first-turn offer of the saved profile; builder-site reading; the 129-project column re-sourcing. Public-record answers were tested with an injected search, not against live Tavily.
+**Frontend presentation (2026-10-15, evening, pushed to `dev` only):**
+- Audit result: a project map with pins already existed (`SectorMap`, leaflet, behind the "map" toggle when 2+ cards) and so did recharts. Not rebuilt.
+- Added: office pin on that map from the stated workplace (`officeMarkers` in `SectorMap.tsx`). Only sectors in `SECTOR_CENTROIDS` get a pin; an unplaceable workplace gets none, never a guessed spot.
+- Added: tickable checklists. Backend emits GFM task items (`- [ ]`) for the resale checklist, the site-visit checklist and the "ask the seller for" list. `response/Markdown.tsx` renders task items through `TaskListItem`; ticks are kept in `localStorage` per chat (`ChecklistScope` provided in `MessageBubble`'s `renderMarkdown`). **Decided: device-local, not server-side.** Rejected: a server table for ticks (a migration for a convenience; a guest token is already browser-bound). Limit, stated: a signed-in buyer does not see ticks on another device.
+- Added: workplace and possession rows in the saved-preferences modal, and a line saying memory is applied only on request.
+- Verified: real react-markdown v10 output for task lists (checkbox is the first child of `li`, plain and raw+sanitize); jest mocks react-markdown, so the unit tests cover `TaskListItem` directly. Frontend jest 345/345, tsc and eslint clean.
+- Not built: editing saved preferences in the modal (the PATCH route exists); first-turn offer of the saved profile; charts for growth scenarios; builder-site reading.
 
 ## Session 2026-10-12 — referral test-campaign purge
 

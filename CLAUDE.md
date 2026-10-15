@@ -362,7 +362,7 @@ Seven real ChatGPT buyer chats (`chatGPTnetwork*.md`, `chatGptNetwork1.md`) were
 | Buyer-found deals | `handlers/resaleDeal.ts` carries the latest price and renovation estimate across turns from the transcript (`ctx.priorUserMessages`). Nothing is stored. |
 | Scope vs real demand | Resale is in scope for a flat the buyer has already found (checklist, dues, arithmetic on their numbers). Never listings, never "is this price fair", because we hold no resale prices. `handlers/investmentScenario.ts` compounds rates the buyer supplies; it assumes none and is labelled arithmetic, not a forecast. Investment advice stays out of scope. |
 | Decision-support turns | `handlers/buyerSupport.ts`: booking-deadline pressure, site-visit checklist, order of trade-offs. Deterministic, no prices. |
-| Presentation (map pins, charts, tickable saved checklists) | Not built. Confirm what `frontend` already renders before starting. |
+| Presentation (map pins, charts, tickable saved checklists) | Project map with pins and recharts already existed. Added an office pin (`officeMarkers`, only for sectors we hold coordinates for) and tickable checklists (`response/TaskListItem.tsx`: GFM `- [ ]` items, ticks in `localStorage` per chat, device-local). Growth-scenario charts not built. |
 
 **Where we must stay ahead** (do not trade away): statutory stamp duty/registration stated exactly instead of "7% provisional"; no unsourced market statistics; no asking-price-as-fact; partner payment never touches rank; Lead Brief without transcript.
 

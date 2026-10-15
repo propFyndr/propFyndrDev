@@ -52,6 +52,8 @@ import ContactButton from '@/components/ContactButton'
 import ProvenancePill from '@/components/chat/ProvenancePill'
 import RequirementChecklist from '@/components/chat/RequirementChecklist'
 import type { VerificationProofData } from '@/components/chat/VerificationProofDrawer'
+import { officeMarkers } from '@/components/SectorMap'
+import { ChecklistScope } from '@/components/response/TaskListItem'
 
 const VerificationProofDrawer = dynamic(() => import('@/components/chat/VerificationProofDrawer'), { ssr: false })
 
@@ -902,6 +904,7 @@ function MessageBubbleInner({
                   const withPills = streaming ? cleanDisplayContent : tagHeldReraNumbers(cleanDisplayContent, [...shelfProjects, ...lastShortlist])
                   const blocks = streaming ? null : parseResponseBlocks(withPills)
                   const renderMarkdown = (text: string) => (
+                    <ChecklistScope.Provider value={sessionId}>
                     <Markdown
                       raw
                       components={{
@@ -916,6 +919,7 @@ function MessageBubbleInner({
                     >
                       {text}
                     </Markdown>
+                    </ChecklistScope.Provider>
                   )
                   return (
                     <>
@@ -1455,7 +1459,7 @@ function MessageBubbleInner({
 
                 {showMap && primaryCards.length >= 2 && (
                   <div className="mt-3 rounded-2xl overflow-hidden border border-gray-200 dark:border-gray-700 shadow-md w-full">
-                    <SectorMap properties={primaryCards} />
+                    <SectorMap properties={primaryCards} extraMarkers={officeMarkers(currentIntent?.workplace)} />
                   </div>
                 )}
 

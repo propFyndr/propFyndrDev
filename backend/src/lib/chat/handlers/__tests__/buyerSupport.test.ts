@@ -28,4 +28,11 @@ describe('buyer support questions', () => {
     assert.match(PRESSURE_ANSWER, /10% of the cost as an advance/)
     assert.match(PRESSURE_ANSWER, /Section 13/)
   })
+
+  it('writes what to check as GFM task items, so the chat can render tickable boxes', () => {
+    const tasks = (a: string) => (a.match(/^- \[ \] /gm) ?? []).length
+    assert.ok(tasks(SITE_VISIT_ANSWER) >= 8)
+    assert.equal(tasks(PRESSURE_ANSWER), 5)
+    assert.equal(tasks(COMPROMISE_ANSWER), 0, 'an ordering of trade-offs is not a to-do list')
+  })
 })

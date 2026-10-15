@@ -109,19 +109,21 @@ ${renovation === null ? '- **Renovation:** you did not give an estimate, so none
 
 const CHECKLIST = `### Resale flat: what to verify before you pay
 
+Tick items off as you go; the ticks are kept on this device for this chat.
+
 **Documents that prove you can legally buy it**
-1. **Ownership chain:** the registered sub-lease deed or conveyance deed in the seller's name, and every earlier transfer back to the builder's allotment.
-2. **Authority permission:** the Transfer Memorandum or NOC from the Noida / Greater Noida Authority, where the land is Authority leasehold. A seller who says "it's not needed" is a red flag.
-3. **Occupancy and completion certificates** that cover this tower, not just the project.
-4. **Sanctioned plan against the flat:** unit number, area, balcony and parking as built versus as approved.
-5. **Encumbrance and litigation search:** no mortgage, attachment or court dispute. If the seller has a home loan, the bank holds the original papers; get the loan closure letter and the release of originals before the final payment.
-6. **RERA record,** if the project is registered: validity, complaints and orders.
+- [ ] **Ownership chain:** the registered sub-lease deed or conveyance deed in the seller's name, and every earlier transfer back to the builder's allotment.
+- [ ] **Authority permission:** the Transfer Memorandum or NOC from the Noida / Greater Noida Authority, where the land is Authority leasehold. A seller who says "it's not needed" is a red flag.
+- [ ] **Occupancy and completion certificates** that cover this tower, not just the project.
+- [ ] **Sanctioned plan against the flat:** unit number, area, balcony and parking as built versus as approved.
+- [ ] **Encumbrance and litigation search:** no mortgage, attachment or court dispute. If the seller has a home loan, the bank holds the original papers; get the loan closure letter and the release of originals before the final payment.
+- [ ] **RERA record,** if the project is registered: validity, complaints and orders.
 
 **Dues that become yours if you don't clear them first**
-- Authority dues: lease rent, transfer charges, any pending notice.
-- Society maintenance, sinking fund and club or parking charges, with a no-dues certificate from the RWA or maintenance company.
-- Electricity, water and piped gas, as final bills or no-dues letters.
-- Any stamp duty shortfall notice on an earlier registration.
+- [ ] Authority dues: lease rent, transfer charges, any pending notice.
+- [ ] Society maintenance, sinking fund and club or parking charges, with a no-dues certificate from the RWA or maintenance company.
+- [ ] Electricity, water and piped gas, as final bills or no-dues letters.
+- [ ] Any stamp duty shortfall notice on an earlier registration.
 
 **How to pay:** a small token first, then the balance against the executed registry, with dues deducted from the price or held back. Do not pay in cash and do not pay an individual other than the seller on title.
 

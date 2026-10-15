@@ -47,10 +47,26 @@ export const SECTOR_CENTROIDS: Record<string, [number, number]> = {
 
 export const NOIDA_CENTER: [number, number] = [28.535, 77.391]
 
-interface ExtraMarker {
+export interface ExtraMarker {
   name: string
   pos: [number, number]
   category: string
+}
+
+/**
+ * A pin for where the buyer works, from a stated workplace like "Sector 63".
+ *
+ * Only a sector we hold coordinates for gets a pin. A workplace we cannot place
+ * ("Okhla", "DLF Cyber Hub") returns nothing: a pin at a guessed spot would be worse
+ * than none.
+ */
+export function officeMarkers(workplace: unknown): ExtraMarker[] {
+  if (typeof workplace !== 'string') return []
+  const m = /\bsector\s*(\d{1,3})\s*([a-d])?\b/i.exec(workplace)
+  if (!m) return []
+  const key = `Sector ${m[1]}${(m[2] ?? '').toUpperCase()}`
+  const pos = SECTOR_CENTROIDS[key]
+  return pos ? [{ name: `Your office (${key})`, pos, category: 'Work' }] : []
 }
 
 interface Props {

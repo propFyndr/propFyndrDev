@@ -29,12 +29,12 @@ export const PRESSURE_ANSWER = `### A deadline from the seller is not evidence
 
 A price rise only matters if the flat is worth buying at today's price and the paperwork holds. I can't tell you whether a rise is coming: we hold the price on record and the date it was confirmed, not the builder's future revisions.
 
-**Ask for these, in writing, before you pay anything**
-1. The current price list with its effective date, and the date and size of the previous revision.
-2. A unit-wise cost sheet for the exact flat: base price, PLC, parking, club, IFMS and every other charge.
-3. The RERA registration number, so you can check it matches the project and tower.
-4. The draft agreement for sale and the construction-linked payment schedule, before the booking amount.
-5. The refund terms for the booking amount, in writing.
+**Ask for these, in writing, before you pay anything.** Tick items off as you go; the ticks are kept on this device for this chat.
+- [ ] The current price list with its effective date, and the date and size of the previous revision.
+- [ ] A unit-wise cost sheet for the exact flat: base price, PLC, parking, club, IFMS and every other charge.
+- [ ] The RERA registration number, so you can check it matches the project and tower.
+- [ ] The draft agreement for sale and the construction-linked payment schedule, before the booking amount.
+- [ ] The refund terms for the booking amount, in writing.
 
 **What RERA gives you:** a builder can't take more than 10% of the cost as an advance before a registered agreement for sale (Section 13). A "book today" demand that skips the agreement is asking you to give up that protection.
 
@@ -51,22 +51,24 @@ Which project is the salesperson pushing?`
 
 export const SITE_VISIT_ANSWER = `### What to inspect on the site visit
 
+Tick items off as you go; the ticks are kept on this device for this chat.
+
 **Before you go**
-- Ask which tower and floor your unit is in, and visit that tower, not only the sample flat.
-- Go at the time you would commute or come home. Light, noise, traffic and parking pressure change by hour.
+- [ ] Ask which tower and floor your unit is in, and visit that tower, not only the sample flat.
+- [ ] Go at the time you would commute or come home. Light, noise, traffic and parking pressure change by hour.
 
 **At the project**
-- **RERA board:** the registration number should be displayed and match the one you were given.
-- **Construction (if not complete):** compare the stage you see with the progress the builder has reported to RERA. A tower far behind its report is a possession risk.
-- **Sample flat versus your unit:** the sample is fitted out and staged. Ask for the real layout and the real carpet area.
-- **Structure:** cracks, damp patches, uneven finishing and exposed reinforcement in common areas.
-- **Basics:** lift count against tower height, water source and pressure, drainage, power backup, fire exits, parking you are actually allotted.
-- **Surroundings:** the real walk to the school, the road at peak hour, the nearest hospital, and what sits next to the plot.
+- [ ] **RERA board:** the registration number should be displayed and match the one you were given.
+- [ ] **Construction (if not complete):** compare the stage you see with the progress the builder has reported to RERA. A tower far behind its report is a possession risk.
+- [ ] **Sample flat versus your unit:** the sample is fitted out and staged. Ask for the real layout and the real carpet area.
+- [ ] **Structure:** cracks, damp patches, uneven finishing and exposed reinforcement in common areas.
+- [ ] **Basics:** lift count against tower height, water source and pressure, drainage, power backup, fire exits, parking you are actually allotted.
+- [ ] **Surroundings:** the real walk to the school, the road at peak hour, the nearest hospital, and what sits next to the plot.
 
 **If the project is ready to move**
-- A copy of the occupancy certificate for your tower.
-- A recent maintenance bill, and how many flats are occupied.
-- Talk to two residents away from the sales office.
+- [ ] A copy of the occupancy certificate for your tower.
+- [ ] A recent maintenance bill, and how many flats are occupied.
+- [ ] Talk to two residents away from the sales office.
 
 Take photos and write down every promise made verbally, then ask for it in the agreement.
 
