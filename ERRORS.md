@@ -71,5 +71,5 @@
 
 ## 2026-10-15 — Four false test failures from `--env-file=.env` on the full runner
 **What didn't work:** running `node --env-file=.env --require tsx/cjs src/test-runner.ts`. The flag put `PORT=3001` and other `.env` values into the environment, so `env.test.ts` (PORT default 3000) and three `guestRateLimiter` tests failed, none related to the change under test.
-**What worked:** running those two files alone without `--env-file` — 26/26 pass. A single DB-backed file (e.g. the route replay) needed `--env-file` to reach the dev database. I did not test the full runner without the flag, so how DB config reaches its child processes there is unverified.
+**What worked:** running those two files alone without `--env-file` — 26/26 pass. A single DB-backed file (e.g. the route replay) needed `--env-file` to reach the dev database. The full runner itself needs no flag: run as `node --require tsx/cjs src/test-runner.ts` (4,345 tests) it reached the dev database on its own.
 **Note for next time:** use `--env-file` only for one DB-backed file at a time, and blank the provider keys yourself when you do (`test-runner.ts` does it for you; a direct `node --test` does not). If a full run shows failures in unrelated config tests, re-run those files without the flag before suspecting the change.
