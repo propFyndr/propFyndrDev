@@ -14,7 +14,10 @@ import {
 describe('getBestValueProjects', () => {
   it('ranks ascending by rupees-per-sqft, never descending', async () => {
     const result = await getBestValueProjects({ city: 'Noida', limit: 10 })
-    if (result.found) {
+    // Real data: a miss must fail, not skip the assertions below.
+    assert.equal(result.found, true, "Noida has projects; a miss here is a failure, not a skip")
+    assert.ok((result.projects as unknown[]).length > 0)
+    {
       const rates = (result.projects as Array<{ rate_per_sqft_inr: number }>).map((p) => p.rate_per_sqft_inr)
       for (let i = 1; i < rates.length; i++) {
         assert.ok(rates[i] >= rates[i - 1], `rate at ${i} (${rates[i]}) should be >= previous (${rates[i - 1]})`)
@@ -30,7 +33,10 @@ describe('getBestValueProjects', () => {
 
   it('never returns an opaque quality score, only the price/area arithmetic', async () => {
     const result = await getBestValueProjects({ city: 'Noida', limit: 5 })
-    if (result.found) {
+    // Real data: a miss must fail, not skip the assertions below.
+    assert.equal(result.found, true, "Noida has projects; a miss here is a failure, not a skip")
+    assert.ok((result.projects as unknown[]).length > 0)
+    {
       for (const p of result.projects as Array<Record<string, unknown>>) {
         assert.equal('overall_score' in p, false)
         assert.equal('dna_score' in p, false)
@@ -43,7 +49,10 @@ describe('getBestValueProjects', () => {
 describe('getFastestPossessionProjects', () => {
   it('sorts every ready_to_move project before any under-construction one', async () => {
     const result = await getFastestPossessionProjects({ city: 'Noida', limit: 15 })
-    if (result.found) {
+    // Real data: a miss must fail, not skip the assertions below.
+    assert.equal(result.found, true, "Noida has projects; a miss here is a failure, not a skip")
+    assert.ok((result.projects as unknown[]).length > 0)
+    {
       const statuses = (result.projects as Array<{ status: string }>).map((p) => p.status)
       const firstNonReady = statuses.findIndex((s) => s !== 'ready_to_move')
       if (firstNonReady !== -1) {
@@ -59,7 +68,10 @@ describe('getFastestPossessionProjects', () => {
 describe('getBestForFamiliesProjects', () => {
   it('never invents a family-friendliness score — only real counts and bhk_available', async () => {
     const result = await getBestForFamiliesProjects({ city: 'Noida', limit: 5 })
-    if (result.found) {
+    // Real data: a miss must fail, not skip the assertions below.
+    assert.equal(result.found, true, "Noida has projects; a miss here is a failure, not a skip")
+    assert.ok((result.projects as unknown[]).length > 0)
+    {
       for (const p of result.projects as Array<Record<string, unknown>>) {
         assert.equal('family_score' in p, false)
         assert.ok(Array.isArray(p.bhk_available))

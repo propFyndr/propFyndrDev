@@ -3,6 +3,7 @@
 import { Router, Request, Response } from 'express'
 import { z } from 'zod'
 import { prisma } from '../lib/db'
+import { UP_STATUTORY } from '../lib/factPresentation'
 import { computeRecommendationScore } from '../lib/recommendation/score'
 import { gatePublished } from '../lib/intelligenceGate'
 import { routeCache } from '../lib/routeCache'
@@ -202,7 +203,8 @@ router.get('/:slug/cost-sheet', async (req: Request, res: Response) => {
   if (!sheet) {
     res.json({
       available: false,
-      message: 'Detailed cost sheet not yet verified. Typical costs: GST 5%, Stamp Duty 6%, Registration 1% on agreement value.',
+      // Statutory UP rates (same for every project), from the one place they live.
+      message: `We do not hold this project's cost sheet. Statutory charges: stamp duty ${UP_STATUTORY.stampDutyPct}% (${UP_STATUTORY.stampDutyFemalePct}% for a woman primary owner), registration ${UP_STATUTORY.registrationPct}%, GST ${UP_STATUTORY.gstUnderConstructionPct}% if under construction, on the agreement value or circle rate, whichever is higher.`,
     })
     return
   }

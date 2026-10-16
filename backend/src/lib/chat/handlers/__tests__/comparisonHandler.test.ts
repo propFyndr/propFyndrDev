@@ -1,7 +1,7 @@
 // backend/src/lib/chat/handlers/__tests__/comparisonHandler.test.ts
 import { describe, it } from 'node:test'
 import assert from 'node:assert/strict'
-import { buildForensicVectors, comparisonHandler } from '../comparisonHandler'
+import { buildForensicVectors, comparisonHandler, comparisonConfidence } from '../comparisonHandler'
 
 describe('Forensic Head-to-Head Comparison Engine (Battle Mode)', () => {
   const p1 = {
@@ -92,5 +92,21 @@ describe('Forensic Head-to-Head Comparison Engine (Battle Mode)', () => {
       intent: { projectNames: ['Godrej Woods'] },
     }
     assert.equal(comparisonHandler.matches(singleCtx as any), false)
+  })
+})
+
+describe('comparison confidence', () => {
+  const full = {
+    name: 'A', price_per_sqft: 10000, all_in_cost_multiplier: 1.2, amitabh_kant_clearance: true, oc_status: 'FULL_OC',
+    water_source_type: 'GANGA_JAL', water_tds_range: '150', shahdara_drain_impact: false, lift_act_compliant: true,
+    total_units: 500, land_area_acres: 10, builder: { average_delay_months: 0 },
+  }
+  it('is not HIGH when a row rests on an estimated multiplier', () => {
+    const v = buildForensicVectors(full, { ...full, name: 'B', all_in_cost_multiplier: null })
+    assert.ok(v.some(x => /estimated/.test(String(x.p2Value))))
+    assert.equal(comparisonConfidence(v), 'MEDIUM')
+  })
+  it('is not HIGH when a row is not on record', () => {
+    assert.equal(comparisonConfidence(buildForensicVectors(full, { ...full, name: 'B', lift_act_compliant: null })), 'MEDIUM')
   })
 })

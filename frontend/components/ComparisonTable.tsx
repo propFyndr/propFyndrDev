@@ -113,7 +113,7 @@ interface MatrixRow {
   winnerLabel: string
 }
 
-function buildMatrix(details: (ProjectDetail | null)[], projects: ProjectCard[]): MatrixRow[] {
+export function buildMatrix(details: (ProjectDetail | null)[], projects: ProjectCard[]): MatrixRow[] {
   const rows: MatrixRow[] = []
 
   // Advisor Rating, Builder, Delivery Risk, RERA Standing, Value, Location and
@@ -216,9 +216,9 @@ function buildMatrix(details: (ProjectDetail | null)[], projects: ProjectCard[])
   if (details.some(d => (d as any)?.water_source_type || (d as any)?.water_tds_range) || projects.some(p => (p as any)?.water_source_type)) {
     const waterScores = details.map((d, i) => {
       const src = (d as any)?.water_source_type || (projects[i] as any)?.water_source_type
+      // A missing source scores 0: it can never win the row.
       if (src === 'GANGA_JAL') return 2
-      if (src === 'BOREWELL') return 0
-      return 1
+      return src === 'MIXED' ? 1 : 0
     })
     rows.push({
       label: 'Water Reality (TDS)',
@@ -242,7 +242,7 @@ function buildMatrix(details: (ProjectDetail | null)[], projects: ProjectCard[])
   if (details.some(d => (d as any)?.lift_act_compliant !== undefined) || projects.some(p => (p as any)?.lift_act_compliant !== undefined)) {
     const liftScores = details.map((d, i) => {
       const compliant = (d as any)?.lift_act_compliant ?? (projects[i] as any)?.lift_act_compliant
-      return compliant === true ? 2 : compliant === false ? 0 : 1
+      return compliant === true ? 2 : 0 // not on record never wins over a recorded "pending"
     })
     rows.push({
       label: 'UP Lifts Act 2024',
@@ -254,7 +254,7 @@ function buildMatrix(details: (ProjectDetail | null)[], projects: ProjectCard[])
         if (compliant === false) {
           return <span key={i} className="text-[11px] font-bold text-amber-600 dark:text-amber-400">⚠ Registration Pending</span>
         }
-        return <span key={i} className="text-[11px] text-slate-500">Under Standard Audit</span>
+        return <span key={i} className="text-[11px] text-slate-500">Not on record</span>
       }),
       winners: winnerIdx(liftScores),
       winnerLabel: 'Certified Compliant',
@@ -265,7 +265,7 @@ function buildMatrix(details: (ProjectDetail | null)[], projects: ProjectCard[])
   if (details.some(d => (d as any)?.shahdara_drain_impact !== undefined) || projects.some(p => (p as any)?.shahdara_drain_impact !== undefined)) {
     const drainScores = details.map((d, i) => {
       const impact = (d as any)?.shahdara_drain_impact ?? (projects[i] as any)?.shahdara_drain_impact
-      return impact === false ? 2 : impact === true ? 0 : 1
+      return impact === false ? 2 : 0
     })
     rows.push({
       label: 'Drain Corridor Buffer',
@@ -277,7 +277,7 @@ function buildMatrix(details: (ProjectDetail | null)[], projects: ProjectCard[])
         if (impact === true) {
           return <span key={i} className="text-[11px] font-bold text-amber-600 dark:text-amber-400">⚠ &lt;500m Odor Corridor</span>
         }
-        return <span key={i} className="text-[11px] text-slate-500">Standard Buffer</span>
+        return <span key={i} className="text-[11px] text-slate-500">Not on record</span>
       }),
       winners: winnerIdx(drainScores),
       winnerLabel: 'Safe Green Buffer',

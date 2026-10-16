@@ -253,7 +253,7 @@ export const affordabilityHandler: ChatTopicHandler = {
     // say who confirmed it and when. A buyer-stated figure has no such date.
     const basePriceBasis = isProjectSpecific
       ? `Developer quoted base — ${(await projectPriceNotes([project!.id])).get(project!.id) ?? UNDATED_NOTE}`
-      : 'Developer quoted base'
+      : 'The price you gave'
 
     const title = project && isProjectSpecific
       ? `Financial Reality & Cash-Flow Stress Test — ${project.name}`

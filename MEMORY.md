@@ -4850,3 +4850,20 @@ Audit: ~60 questions covering every section of a project card, run through the r
 - `chatRouterSize.test.ts` already fails on HEAD: 7,393 lines vs a 7,387 limit, from d9299485. Not raised.
 - Astralis (Sector 94): our row says under construction, Q4 2027; ChatGPT and Perplexity cite UPRERAPRJ7263 with a 2018 completion date or delivery around 2020. Needs a source check.
 - The Supertech builder record lacks the 2024 NCLAT NBCC order and the 2026 Supreme Court ruling upholding it.
+
+## 2026-10-16 — Live outage: schema reached main before Neon was migrated
+**What happened:** 69cc1e04 (RERA registrations, videos, publish gate) went to main on 15 Oct, but its two migrations were applied to Supabase (dev) only. From ~17:10 UTC 15 Oct, every live project page, the project list and other `projects`/`project_images` reads returned 500 (`projects.publish_status does not exist`), because Prisma selects all columns by default.
+**Fixed 16 Oct (owner-approved):** Neon backup `C:\Users\Furqan\Desktop\RealtyPals-db-backups\neon-2026-10-16-pre-migration.dump` (pg_dump custom, 37 MB, 79 tables). Then `prisma migrate deploy` with DATABASE_URL = NEON_DB and DIRECT_URL = the non-pooler host; it applied exactly the 2 pending migrations. Project pages, the list, sectors and health are 200 again. `publish_status` defaults every row to 'draft', but nothing reads it yet.
+**Rule:** a commit that adds migrations is not mergeable to main until `prisma migrate status` against Neon shows them applied. Check both DBs; Supabase being current says nothing about live.
+
+## 2026-10-16 — Day 3: unsourced due-diligence data nulled, comparison and cost-sheet labels
+**Data (owner-approved):** the 129 projects matching all three enrich-129 fingerprints (template water TDS text, template OC text, multiplier 1.30) had `oc_status`, `oc_details`, `amitabh_kant_clearance`, `water_source_type`, `water_tds_range`, `power_supply_type`, `lift_act_compliant` and `all_in_cost_multiplier` set to NULL on Supabase, then Neon. Also nulled where they held the script defaults: `maintenance_per_sqft_monthly` = 2.85 (7 rows) and `dg_power_rate_per_unit` = 22.0 (3 rows). The 4 other `lift_act_compliant = true` rows have no fingerprint and were left alone. Template connectivity rows were already gone. Backups: `C:\Users\Furqan\Desktop\RealtyPals-db-backups\{neon,supabase}-2026-10-16-enrich129-columns.json`, plus the full Neon dump from the morning.
+**Code:**
+- `comparisonConfidence` gives HIGH only when no vector is estimated or not on record.
+- In ComparisonTable, a null scores 0 (never wins) and reads "Not on record".
+- The `/projects/:slug/cost-sheet` no-sheet message uses `UP_STATUTORY`; it said stamp duty 6%.
+- The assumed 12-month maintenance is labelled.
+- A buyer-stated price in the affordability answer reads "The price you gave".
+- `rankingTools.test.ts` asserts `found` instead of `if (found)`.
+**Rejected:** using `cost_sheets.stamp_duty_pct`/`registration_pct`/`gst_rate_pct` on the property page. Their DB defaults (6/1/5) are schema defaults, not data, and stamp duty is statutory (7% male).
+**Open:** re-sourcing the nulled columns; the per-row estimate flag for prices (`price_is_estimated` was dropped).

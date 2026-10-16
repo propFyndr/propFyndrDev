@@ -14,6 +14,11 @@ export interface ForensicComparisonVector {
 
 const NOT_ON_RECORD = 'Not on record'
 
+export function comparisonConfidence(vectors: ForensicComparisonVector[]): 'HIGH' | 'MEDIUM' {
+  const soft = (v: string) => /estimated/i.test(v) || v.includes(NOT_ON_RECORD)
+  return vectors.some(v => soft(String(v.p1Value)) || soft(String(v.p2Value))) ? 'MEDIUM' : 'HIGH'
+}
+
 export function buildForensicVectors(p1: any, p2: any): ForensicComparisonVector[] {
   const vectors: ForensicComparisonVector[] = []
 
@@ -204,7 +209,8 @@ Before a token deposit on either, compare landed cost (stamp duty, registration 
         { id: `chip_visit_${p1.slug}`, actionType: 'TEXT_MESSAGE', label: `Book Visit (${p1.name.slice(0, 14)})`, icon: 'calendar', analyticsId: 'chip_v1', priority: 2, payload: { text: `Schedule site visit for ${p1.name}` } },
         { id: `chip_visit_${p2.slug}`, actionType: 'TEXT_MESSAGE', label: `Book Visit (${p2.name.slice(0, 14)})`, icon: 'calendar', analyticsId: 'chip_v2', priority: 3, payload: { text: `Schedule site visit for ${p2.name}` } },
       ],
-      confidence: 'HIGH',
+      // HIGH only when no row rests on an estimate or a gap.
+      confidence: comparisonConfidence(vectors),
     })
 
     ctx.send('done', {

@@ -215,10 +215,11 @@ Every fact shown to a buyer belongs to exactly one tier. Reference `lib/factPres
 **Enforcement:** `dueDiligenceFabrication.test.ts`, `lib/ai/__tests__/answerIntegrity.test.ts`; `answerIntegrity.ts` runs before the buyer sees any answer.
 
 ### Data Integrity Debts (launch blockers, re-audited 2026-10-15)
-* **Due-diligence columns on 129 projects were heuristic, not sourced** (`scripts/enrich-129-incomplete.ts`: `lift_act_compliant: true` everywhere, Ganga Jal TDS ranges, `all_in_cost_multiplier: 1.30`). Must be nulled (backup first) and re-sourced. Still open.
-* **Property-page cost sheet** (`CostSheetSection.tsx`) hardcodes PLC, parking, club, IFMS, legal charges and falls back to invented areas/prices. Must read the `CostSheet` table. Not re-checked 2026-10-15.
+* **Due-diligence columns on 129 projects: nulled 2026-10-16** on Neon and Supabase (backups `RealtyPals-db-backups/*-2026-10-16-enrich129-columns.json`). Still open: re-sourcing them; until then they read "Not on record".
 * **Price firewall** (`lib/ai/provenanceChecker.ts`) checks crore, lakh, per-sq.ft and percentage figures, but a figure passes if it appears *anywhere* in the ~33k-char prompt, not only in the fact block for that project. Still open.
-* **Comparison** shows lift-registry status from the heuristic data and reports HIGH confidence on estimates. Not re-checked.
+* *Closed, verified 2026-10-16:*
+  * The property-page cost sheet reads `cost_sheet` or shows "Not on record" (86e0ddd0); its assumed 12-month maintenance advance is labelled.
+  * Comparison: confidence is HIGH only when no row is estimated or missing, a missing value never wins a row, and invented "Under Standard Audit"/"Standard Buffer" readings are gone.
 * *Closed, verified 2026-10-15:* affordability no longer invents a price (it asks) and labels its rate, slab, landed-cost multiplier and 20% down payment as assumptions; JEV yield/upgrade branches carry `MARKET_QUALIFIER`; `dueDiligenceFabrication.test.ts` asserts `found === true`.
 
 ---

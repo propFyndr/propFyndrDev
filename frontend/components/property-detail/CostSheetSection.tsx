@@ -351,7 +351,7 @@ export default function CostSheetSection({
               {money(ifmsAmount)}
             </div>
             <div className="flex justify-between items-center gap-3 text-gray-600 dark:text-gray-300">
-              <span>12 Months Maint.{monthlyMaintRate != null ? ` (₹${monthlyMaintRate}/sqft)` : ''}</span>
+              <span>{advanceMaintenanceMonths} months advance maint., assumed{monthlyMaintRate != null ? ` (₹${monthlyMaintRate}/sqft)` : ''}</span>
               {money(advanceMaintenanceAmount)}
             </div>
             <div className="flex justify-between items-center gap-3 text-gray-600 dark:text-gray-300">
