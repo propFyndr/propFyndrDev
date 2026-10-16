@@ -1,8 +1,9 @@
-import { MARKET_QUALIFIER } from '../../factPresentation'
+import { MARKET_QUALIFIER, UP_STATUTORY } from '../../factPresentation'
 import type { ChatTopicHandler } from '../handlerContext'
 import { prisma } from '../../db'
 import { projectPriceNotes } from '../../projectPriceNote'
 import { UNDATED_NOTE } from '../../priceVerification'
+import { statedMonthlyIncome, computeAffordability, renderAffordabilityTable } from '../../ai/affordability'
 
 const CRORE = 10_000_000
 const LAKH = 100_000
@@ -208,13 +209,46 @@ export const affordabilityHandler: ChatTopicHandler = {
     // 2. Price: the project's own row, else a figure the buyer stated (this
     // message, then the budget remembered in intent). No invented benchmark.
     const isProjectSpecific = !!(project?.price_min_cr && project.price_min_cr > 0)
-    const intentBudgetCr = typeof ctx.intent.budgetMax === 'number' && ctx.intent.budgetMax > 0 ? ctx.intent.budgetMax : undefined
+    // Under ₹10 L is a salary misread as a budget, not a flat price.
+    const intentBudgetCr = typeof ctx.intent.budgetMax === 'number' && ctx.intent.budgetMax >= 0.1 ? ctx.intent.budgetMax : undefined
     const basePrice = isProjectSpecific
       ? project!.price_min_cr! * CRORE
       : parseStatedPrice(ctx.message) ?? (intentBudgetCr != null ? intentBudgetCr * CRORE : undefined)
 
-    // 3. Parse user income if stated
-    const userMonthlyIncome = parseMonthlyIncome(ctx.message)
+    // 3. Income: this message, else the latest earlier turn that stated one.
+    const earlier = [...(ctx.priorUserMessages ?? [])].reverse().map(m => statedMonthlyIncome(m)).find(Boolean)
+    const userMonthlyIncome = parseMonthlyIncome(ctx.message) ?? earlier ?? undefined
+
+    // No price, but an income: what that income supports, computed here. The
+    // model wrote this as prose and gave a ₹75 L loan a "₹6.6 L" EMI, then
+    // "around ₹6 crore" under a table saying ₹1.02 Cr (stress runs, 16 Oct 2026).
+    if (basePrice == null && userMonthlyIncome) {
+      const a = computeAffordability(userMonthlyIncome)
+      const cr = (n: number) => `₹${n.toFixed(2)} Cr`
+      ctx.send('token', {
+        token: `### What ${inr(userMonthlyIncome)} a month supports
+
+${renderAffordabilityTable(a)}
+
+Banks keep the EMI within 40–50% of take-home pay and lend up to 80% of the price. Computed at ${a.rate}% over ${a.tenureYears} years — an assumed rate; your bank's sanction decides the real figure. Any car or personal loan EMI comes off the EMI line first.
+
+On top of the price: stamp duty ${UP_STATUTORY.stampDutyPct}% (${UP_STATUTORY.stampDutyFemalePct}% with a woman as primary owner) and registration ${UP_STATUTORY.registrationPct}%, plus ${UP_STATUTORY.gstUnderConstructionPct}% GST if the flat is under construction. Keep those in cash beside the down payment.
+
+Want me to show projects between ${cr(a.priceConservativeCr)} and ${cr(a.priceStretchedCr)}?`,
+      })
+      ctx.emitUiState({
+        stage: 'FINANCE',
+        thinking: 'What your income supports:',
+        chips: [
+          { id: `chip_afford_show_${Date.now()}`, actionType: 'TEXT_MESSAGE', label: `Projects up to ${cr(a.priceConservativeCr)}`, icon: 'search', analyticsId: 'chip_afford_reco', priority: 1, payload: { text: `Show me projects under ${a.priceConservativeCr.toFixed(2)} cr` } },
+        ],
+        missingFields: [],
+        confidence: 'MEDIUM',
+      })
+      ctx.send('done', { sessionId: ctx.sessionId, intentState: 'FINANCED', intent: ctx.intent, responseMode: 'chat' })
+      ctx.res.end()
+      return
+    }
 
     if (basePrice == null) {
       const incomeLine = userMonthlyIncome

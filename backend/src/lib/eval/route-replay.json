@@ -1598,14 +1598,19 @@
       {
         "text": "My salary is 1.8 lakh a month. How much home loan can I get?",
         "expect": {
+          "lane": "topic:affordability_advisor",
+          "llm": false,
           "contains": [
-            "Loan supported"
+            "Loan supported",
+            "₹72,000"
           ]
         }
       },
       {
         "text": "Ok so what can I actually afford then, roughly?",
         "expect": {
+          "lane": "topic:affordability_advisor",
+          "llm": false,
           "contains": [
             "Loan supported",
             "₹72,000"

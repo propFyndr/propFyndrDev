@@ -1,5 +1,6 @@
 // backend/src/lib/ai/semanticCache.ts
 
+import { isAffordabilityQuestion } from './affordability'
 import { createHash } from 'node:crypto'
 import { getRedis } from '../cache'
 
@@ -124,7 +125,10 @@ async function refreshCatalogStamp(): Promise<void> {
 
 function buildCacheKey(query: string, scope: string, fingerprint = 'anon'): string {
   const normalized = normalizeQueryKey(query)
-  if (!normalized || normalized.length < 3) return ''
+  // "What can I afford?" is answered from an income stated on an earlier turn,
+  // which the key does not carry: the stress rerun replayed an old model answer
+  // for it. Neither read nor written.
+  if (!normalized || normalized.length < 3 || isAffordabilityQuestion(query)) return ''
   return `${scope}::${catalogStamp}::${fingerprint}::${normalized}`
 }
 

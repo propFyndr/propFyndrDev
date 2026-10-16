@@ -126,8 +126,9 @@ const RANGE = /\b(between|from|range)\b|[-–]/i
  * Amounts that are not what the buyer will spend: cash in hand, a down
  * payment, a price someone else quoted. "40 lakh cash, finance the rest" set a
  * ₹40 L ceiling, and "sales guy quoted 1.9cr, fair?" searched under ₹1.9 Cr.
+ * An income is not one either: "salary is 1.8 lakh a month" set a ₹1.8 L ceiling.
  */
-const NOT_A_BUDGET = /\b(?:cash|saved|savings|down\s*-?\s*payments?|dp|quoted?|quoting|asking|bol\s+rah[ae]|eoi|token|booking\s+amount|loans?|emis?)\b/i
+const NOT_A_BUDGET = /\b(?:cash|saved|savings|down\s*-?\s*payments?|dp|quoted?|quoting|asking|bol\s+rah[ae]|eoi|token|booking\s+amount|loans?|emis?|salary|income|earn(?:s|ing)?|take[-\s]?home|in[-\s]?hand|ctc|package|lpa|a\s+month|per\s+month|monthly)\b/i
 /** "another ₹7 lakh", "₹8 lakh more": a top-up on top of something, not the ceiling. */
 const TOP_UP_BEFORE = /\b(?:another|additional|extra)\s*$/i
 const TOP_UP_AFTER = /^\s*(?:more|extra|additional)\b/i

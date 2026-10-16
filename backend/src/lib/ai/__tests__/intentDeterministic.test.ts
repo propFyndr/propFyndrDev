@@ -143,6 +143,8 @@ test('budget: cash in hand and a quoted price are not budget ceilings', () => {
   assert.equal(extractDeterministic('40 lakh cash, finance the rest').budgetMax, undefined)
   assert.equal(extractDeterministic('sales guy quoted 1.9cr for 3bhk in gulshan botnia. fair?').budgetMax, undefined)
   assert.equal(extractDeterministic('budget 1.5 cr, have 40 lakh cash').budgetMax, 1.5)
+  assert.equal(extractDeterministic('My salary is 1.8 lakh a month. How much home loan can I get?').budgetMax, undefined)
+  assert.equal(extractDeterministic('I earn 2 lakh monthly, budget 1.2 cr').budgetMax, 1.2)
 })
 test('sectors: a sector the buyer ruled out is never a search filter', () => {
   const r = extractDeterministic('3bhk not in Sector 150, avoid 137, sector 79 is fine')

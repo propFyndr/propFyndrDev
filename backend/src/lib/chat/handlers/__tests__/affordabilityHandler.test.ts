@@ -133,8 +133,28 @@ describe('affordabilityHandler with no price', () => {
     return { text: tokens.join(''), ui: ui[0] }
   }
 
-  it('asks for a price instead of inventing a benchmark', async () => {
+  it('with an income and no price, states what the income supports and invents no price', async () => {
     const { text, ui } = await run('can I afford this on 2.5L salary?', {})
+    assert.match(text, /₹2,50,000 a month supports/)
+    assert.match(text, /\| \*\*Loan supported\*\* \| ₹1\.13 Cr \| ₹1\.41 Cr \|/)
+    assert.match(text, /assumed rate/)
+    assert.doesNotMatch(text, /Benchmark|need a price/)
+    assert.equal(ui.affordabilityData, undefined)
+  })
+
+  it('reads the income from an earlier turn', async () => {
+    const tokens: string[] = []
+    await affordabilityHandler.handle({
+      message: 'Ok so what can I actually afford then, roughly?', intent: { type: 'QUERY' } as any, sessionId: 's-1',
+      send: (ev: string, data: any) => { if (ev === 'token') tokens.push(data.token) }, emitUiState: () => {}, res: { end: () => {} } as any,
+      cachedProjects: [], flags: {}, builders: [], catalog: [], intentState: 'START',
+      priorUserMessages: ['My salary is 1.8 lakh a month. How much home loan can I get?'],
+    } as any)
+    assert.match(tokens.join(''), /₹1,80,000 a month supports[\s\S]*₹72,000/)
+  })
+
+  it('asks for a price when it has neither price nor income', async () => {
+    const { text, ui } = await run('can I afford this?', {})
     assert.match(text, /need a price/)
     assert.doesNotMatch(text, /1\.50 Cr|Benchmark|EMI \*\*/)
     assert.equal(ui.affordabilityData, undefined)

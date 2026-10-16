@@ -3713,7 +3713,7 @@ I can help you with:
     ].filter(Boolean).length
     const singleTopic = topicFlagCount <= 1
 
-    if ((!isInventorySearch || isLegalRiskQuery || commuteAnchorJustStated) && (isLegalRiskQuery || commuteAnchorJustStated || asksProjectVerdict || activeProjectName || isSummaryRequest || isCompareRequest || isSectorCompare || isPaymentPlanRequest || isCostSheetRequest || isStatutoryTaxQuery || isReraCheckQuery || isBuilderReputationQuery || isNewcomerOrientation || isReadyToMoveQuery || isAmenityQuery || isConnectivityQuery || isConfigurationQuery || isTotalOutflowQuery || isDueDiligenceQuery || isLoanEmiQuery) && action.type === 'TEXT_MESSAGE') {
+    if ((!isInventorySearch || isLegalRiskQuery || commuteAnchorJustStated) && (isLegalRiskQuery || commuteAnchorJustStated || asksProjectVerdict || activeProjectName || isSummaryRequest || isCompareRequest || isSectorCompare || isPaymentPlanRequest || isCostSheetRequest || isStatutoryTaxQuery || isReraCheckQuery || isBuilderReputationQuery || isNewcomerOrientation || isReadyToMoveQuery || isAmenityQuery || isConnectivityQuery || isConfigurationQuery || isTotalOutflowQuery || isDueDiligenceQuery || isLoanEmiQuery || asksAffordability) && action.type === 'TEXT_MESSAGE') {
       try {
         console.log('[CHAT:GROUND_TRUTH_DB] Executing Ground Truth DB Pipeline...', { activeProjectName, isSummaryRequest, isCompareRequest, isSectorCompare, isPaymentPlanRequest, isCostSheetRequest, isStatutoryTaxQuery, isReraCheckQuery, isBuilderReputationQuery, isNewcomerOrientation, isReadyToMoveQuery, isAmenityQuery, isConnectivityQuery, isReraFactQuery, isDueDiligenceQuery, topicFlagCount, sectorMatches })
 
