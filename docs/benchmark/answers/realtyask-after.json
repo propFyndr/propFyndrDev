@@ -1,0 +1,151 @@
+[
+  {
+    "n": 1,
+    "turns": [
+      {
+        "q": "3BHK in Noida under 1.5 crore, possession within a year. What are my options?",
+        "lane": "main",
+        "firstMs": 39417,
+        "totalMs": 40282,
+        "chars": 339,
+        "cardEvents": 0,
+        "answer": "I couldn't get you a reliable answer just now — our AI service is briefly unavailable, and I'd rather say so than guess.\n\nAsk me again in a moment, or use **Book Site Visit** or **Callback** and our advisory team will pick it up directly.\n\nThey're on the cards above — tell me which one to open up, or what matters most and I'll narrow it."
+      }
+    ]
+  },
+  {
+    "n": 2,
+    "turns": [
+      {
+        "q": "2BHK in Greater Noida West around 80 lakh.",
+        "lane": "main",
+        "firstMs": 39725,
+        "totalMs": 47000,
+        "chars": 707,
+        "cardEvents": 0,
+        "answer": "Here are some 2BHK options in Greater Noida West around ₹80 lakh:\n\n- **Nirala Estate Phase 1**: Sector 16B, ready-to-move, ₹65–72 lakh, 595 sq. ft. carpet area.\n- **Panchsheel Greens 1 & 2**: Sector 16, ready-to-move, ₹68–78 lakh, 580 sq. ft. carpet area.\n- **SKA Greenarch**: Sector 16B, ready-to-move, ₹71–77 lakh, 650 sq. ft. carpet area.\n\nAll three projects are in well-connected sectors with good access to the upcoming metro and major roads. Nirala Estate Phase 1 and SKA Greenarch are in Sector 16B, known for its developing social infrastructure, while Panchsheel Greens is in Sector 16, close to the Noida-Greater Noida Expressway.\n\nDo you want me to share more details about any of these projects?"
+      },
+      {
+        "q": "Actually make that 1 crore, what changes?",
+        "lane": "main",
+        "firstMs": 21063,
+        "totalMs": 21999,
+        "chars": 525,
+        "cardEvents": 0,
+        "answer": "Increasing your budget to ₹1.0 crore opens up larger 2BHK configurations with enhanced carpet areas (around 700–800+ sq. ft.) and entry-level 3BHK options in established Greater Noida West societies like Ace Aspire in Techzone 4 or larger configurations in Nirala Estate and SKA Greenarch. You also gain access to properties with better open space ratios and more mature society amenities.\n\nWould you prefer to explore larger 2BHK layouts with more living space, or look at compact 3BHK options within this ₹1.0 crore budget?"
+      }
+    ]
+  },
+  {
+    "n": 3,
+    "turns": [
+      {
+        "q": "Is Supertech Supernova Astralis in Sector 94 on track for possession, and what is the risk if it slips?",
+        "lane": "ground-truth-db",
+        "firstMs": 25076,
+        "totalMs": 25318,
+        "chars": 739,
+        "cardEvents": 0,
+        "answer": "Supertech Supernova Astralis is scheduled for possession by Q4 2027, but the timeline carries elevated risk given the developer's corporate standing.\n\n- The official possession date on record is December 31, 2027 (Q4 2027).\n- The project status is currently under construction.\n- The developer, Supertech Limited, operates under NCLT insolvency supervision, making timeline adherence uncertain.\n\nWhat this means for you: Any delay in possession extends your capital lock-in, and the developer's insolvency status means our advisory team must confirm current construction continuity before any financial commitment.\n\nWould you like to review the construction-linked payment plan milestones to see how payments are tied to physical progress?"
+      }
+    ]
+  },
+  {
+    "n": 4,
+    "turns": [
+      {
+        "q": "I need to move in within 6 months. Which ready-to-move 3BHKs in Noida should I look at?",
+        "lane": "main",
+        "firstMs": 28293,
+        "totalMs": 37165,
+        "chars": 543,
+        "cardEvents": 0,
+        "answer": "For a 6-month move-in timeline, ready-to-move projects with verified occupancy and cleared registry pathways are your safest options, though you must account for developer insolvency histories and land due settlements in older expressway corridors. \n\nHere are the ready-to-move 3BHK options currently available across Noida:\n\nChoose Divine Meadows or Great Value Sharanam if your budget sits under ₹2 Cr for a straightforward move, or Mahagun Mezzaria if you require larger usable space in Central Noida. \n\nIs your budget ceiling around ₹2 Cr?"
+      }
+    ]
+  },
+  {
+    "n": 5,
+    "turns": [
+      {
+        "q": "Which projects near a metro station in Noida fit a 1.2 crore budget?",
+        "lane": "main",
+        "firstMs": 28509,
+        "totalMs": 29884,
+        "chars": 1080,
+        "cardEvents": 0,
+        "answer": "Prateek Laurel in Sector 120, AIMS Golf City in Sector 75, Divine Meadows in Sector 108, and Lotus Greens Yardscape in Sector 79 fall within a ₹1.2 crore budget and offer established connectivity near Noida's metro corridors. \n\n- **Prateek Laurel (Sector 120):** Offers 2 BHK options starting from ₹90 Lakhs with established residential density and ready-to-move occupancy. Trade-off: Higher unit density per acre.\n- **AIMS Golf City (Sector 75):** Features 2 BHK units from ₹79 Lakhs close to the Central Noida commercial hubs. Trade-off: Mixed delivery timelines across phases.\n- **Divine Meadows (Sector 108):** 2 BHK configurations begin around ₹95 Lakhs with strategic proximity to the Noida Expressway corridor. Trade-off: Premium pricing relative to carpet efficiency.\n- **Lotus Greens Yardscape (Sector 79):** Under-construction options starting at ₹97 Lakhs with modern club facilities. Trade-off: 5% GST applies on agreement value due to under-construction status.\n\nAre you looking specifically for ready-to-move options, or is an under-construction timeline acceptable?"
+      }
+    ]
+  },
+  {
+    "n": 6,
+    "turns": [
+      {
+        "q": "I work in Sector 62. Which sectors give me the shortest commute for a 2BHK under 1 crore?",
+        "lane": "topic:commute-shortlist",
+        "firstMs": 9834,
+        "totalMs": 9835,
+        "chars": 1375,
+        "cardEvents": 0,
+        "answer": "### Living near Sector 62\n\nSector 62 is a commercial sector, so the question is which residential belt gives you the shortest daily run into it. Ranked by commute convenience, with 2 BHK under ₹1 Cr we hold in each:\n\n**1. Sector 75** — 3 options on record: Panchsheel Pratishtha, AIMS Golf City, Golf Avenue II\n**2. Sector 76** — 3 options on record: Amrapali Silicon City Phase 1, Amrapali Princely Estate, Om Centrum Heights I\n**3. Sector 77** — 3 options on record: Express Zenith, Antriksh Kanball 3G, Antriksh Forest\n**4. Sector 78** — 3 options on record: Sikka Karmic Greens, Antriksh Golf View II, Sunshine Helios\n\n| Project | Builder | Sector | Price | Status |\n| :--- | :--- | :--- | :--- | :--- |\n| **Express Zenith** | Express Builders | Sector 77 | ₹0.55Cr+ | Ready to move |\n| **Panchsheel Pratishtha** | Panchsheel Buildtech | Sector 75 | ₹0.68Cr+ | Ready to move |\n| **AIMS Golf City** | AIMS Golf Developers | Sector 75 | ₹0.79Cr+ | Ready to move |\n| **Amrapali Silicon City Phase 1** | Amrapali Group (NBCC Supervised) | Sector 76 | ₹0.81Cr+ | Ready to move |\n| **Sikka Karmic Greens** | Sikka Group | Sector 78 | ₹0.85Cr+ | Ready to move |\n| **Antriksh Kanball 3G** | Antriksh Group | Sector 77 | ₹0.90Cr+ | Ready to move |\n\n_Prices: date of last confirmation not on record._\n\nWhich belt suits you — or shall I pull the full comparison for the closest one?"
+      }
+    ]
+  },
+  {
+    "n": 7,
+    "turns": [
+      {
+        "q": "Can I trust Supertech as a builder? What happened with their delayed projects?",
+        "lane": "main",
+        "firstMs": 13382,
+        "totalMs": 16941,
+        "chars": 1618,
+        "cardEvents": 0,
+        "answer": "No. Supertech Limited carries an active **NCLT Insolvency** legal flag, and fresh primary market bookings or investments with this developer must be strictly avoided. \n\nThe developer's downfall stems from aggressive over-leveraging, financial mismanagement, and severe regulatory non-compliance across NCR:\n\n* **Insolvency Proceedings (NCLT):** In March 2022, the National Company Law Tribunal (NCLT) admitted Supertech Limited into Corporate Insolvency Resolution Process (CIRP) following defaults on institutional loans. An Interim Resolution Professional (IRP) was appointed to manage operations and project completion under court supervision.\n* **The Apex Twin Towers Demolition:** The most prominent project setback occurred in August 2022, when Supertech's 40-storey Apex and Ceyane towers in Emerald Court (Sector 93A, Noida) were demolished by order of the Supreme Court of India due to illegal construction in violation of building norms and safety distances.\n* **Widespread Delivery Delays:** Multiple flagship projects—including Supertech Supernova (Sector 94), North Eye (Sector 74), and the Eco Village townships across Greater Noida West—suffered multi-year delays caused by cash flow diversion, unpaid land dues owed to local development authorities, and stalled registry processes.\n\nWhile interim project-wise resolution mechanisms (such as project-specific CIRP) continue under judicial oversight to hand over ready units to existing buyers, no fresh purchases should be considered with this developer.\n\nAre you looking for alternative, legally verified developers in a specific sector or budget band?"
+      }
+    ]
+  },
+  {
+    "n": 8,
+    "turns": [
+      {
+        "q": "Jaypee Klassic in Sector 134 vs Gulshan Ikebana in Sector 143: which builder is safer?",
+        "lane": "ground-truth-db",
+        "firstMs": 27866,
+        "totalMs": 28584,
+        "chars": 1547,
+        "cardEvents": 0,
+        "answer": "### Verdict\nGulshan Ikebana provides significantly superior builder safety, boasting zero delayed projects and a clean legal standing under Gulshan Homz. Conversely, Jaypee Klassic carries active insolvency history and legal restructuring under the Suraksha Group resolution process. The core trade-off is between Gulshan's unblemished execution record and Jaypee's lower entry price point, which comes with legacy NCLT oversight.\n\n| Builder & Legal Metric | Gulshan Ikebana (Gulshan Homz) | Jaypee Klassic (Suraksha Group Resolution) |\n| :--- | :--- | :--- |\n| **Builder Track Record** | 0 delayed projects | 8 delayed projects |\n| **Average Delay** | 0 months | 48 months |\n| **Insolvency History** | No | Yes (NCLT / Suraksha Group Resolution) |\n| **Litigation Count** | 0 ongoing / total | 10 total (3 ongoing) |\n| **Legal / RERA Flag** | Clear title and standing | Active legal restructuring supervision |\n\n### Watch-out\nJaypee Klassic carries active legal concerns under NCLT/NCLAT Suraksha Group resolution implementation. Treat any project-level clean or low-risk marker for this developer as unreliable—you must confirm the current legal and financial position with independent legal counsel before making any financial commitment.\n\n### Recommendation\nChoose **Gulshan Ikebana** if you prioritize zero-litigation peace of mind and a flawless delivery track record in your preferred Noida corridor; choose **Jaypee Klassic** only if you are fully prepared to navigate NCLT-managed township complexities in exchange for a lower entry price."
+      }
+    ]
+  },
+  {
+    "n": 9,
+    "turns": [
+      {
+        "q": "For a 1.4 crore flat in Noida, what is the total cost including stamp duty, registration and GST?",
+        "lane": "topic:statutory_tax",
+        "firstMs": 15441,
+        "totalMs": 15442,
+        "chars": 1755,
+        "cardEvents": 0,
+        "answer": "### On ₹1.40 Cr\n\n| Charge | Amount |\n| :--- | ---: |\n| Stamp duty (7%) | **₹9,80,000** |\n| Stamp duty if a woman is primary owner (6%) | ₹8,40,000 |\n| Registration (1%) | ₹1,40,000 |\n| GST if under construction (5%) | ₹7,00,000 |\n| GST if ready to move with OC | ₹0 |\n| **Total, ready to move** | **₹1,51,20,000** |\n| **Total, under construction** | **₹1,58,20,000** |\n\nStamp duty is charged on the agreement value or the circle rate, whichever is higher, so the figure above is the floor. You also deduct 1% TDS (₹1,40,000) from the payment to the seller and deposit it with Form 26QB.\n\n### Statutory taxes & registration charges (Uttar Pradesh)\n\nThese are set by law and are the same for every project.\n\n| Component | Rate | Nature | Paid when & to whom |\n| :--- | :--- | :--- | :--- |\n| **Stamp duty** | 7% of agreement or circle value, whichever is higher | Mandatory | At registry, to the UP Stamp & Registration Department |\n| **Stamp duty — female primary owner** | 6% | Concession | At registry |\n| **Registration fee** | 1% of value | Mandatory | At deed execution, to the Sub-Registrar |\n| **GST — under construction** | 5% (without input tax credit) | Statutory | Billed across construction milestones |\n| **GST — ready to move with OC** | 0% | Exempt | Not applicable once the Occupancy Certificate is granted |\n| **TDS (Section 194-IA)** | 1% of sale consideration | Mandatory | Deducted by the buyer when value exceeds ₹50 Lakh (Form 26QB) |\n\n### Budgeting\nAllow 12–14% above base price for an under-construction home, or 8–9% above base price for ready-to-move with OC, to cover statutory and possession charges — typical for Noida — not verified for this project.\n\nName a project and I'll use whichever of its own charges we hold verified."
+      }
+    ]
+  },
+  {
+    "n": 10,
+    "turns": [
+      {
+        "q": "If I take an 80% loan on a 1.5 crore flat, what is my EMI and how much cash do I need up front?",
+        "lane": "topic:loan_emi",
+        "firstMs": 16266,
+        "totalMs": 16267,
+        "chars": 996,
+        "cardEvents": 0,
+        "answer": "### EMI on a ₹1.20 Cr loan\n\n**₹1,04,139 a month** at 8.5% over 20 years.\n\n| | Amount |\n| :--- | ---: |\n| Loan | ₹1.20 Cr |\n| Total repaid | ₹2.50 Cr |\n| Total interest | ₹1.30 Cr |\n\nI assumed 8.5% interest (your bank's sanctioned rate decides the real figure) and a 20-year tenure.\n\nAt 9%, the same loan is ₹1,07,967 a month.\n\nThis is a reducing-balance EMI on the loan alone. A floating rate moves with the repo rate, so the EMI or the tenure changes over the loan's life.\n\n### Cash up front on a ₹1.50 Cr flat\n\n| | Amount |\n| :--- | ---: |\n| Down payment (20%) | ₹30,00,000 |\n| Stamp duty (7%) | ₹10,50,000 |\n| Registration (1%) | ₹1,50,000 |\n| **Cash up front, ready to move** | **₹42,00,000** |\n\nIf the flat is under construction, add 5% GST, ₹7,50,000, paid across construction milestones: ₹49,50,000 in all. Stamp duty is 6% if a woman is the primary owner, and it is charged on the circle rate if that is higher than the price. Banks also charge a processing fee; ask yours for the figure."
+      }
+    ]
+  }
+]

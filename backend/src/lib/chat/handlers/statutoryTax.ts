@@ -26,6 +26,12 @@ export function computedOnAmount(message: string): string {
     `| GST if under construction (${s.gstUnderConstructionPct}%) | ${inr(gstUc)} |`,
     `| GST if ready to move with OC | ₹0 |`,
   ]
+  // The total uses the stamp duty in bold above (female rate only when asked).
+  const total = v + (asksWoman ? stampFemale : stamp) + reg
+  rows.push(
+    `| **Total, ready to move** | **${inr(total)}** |`,
+    `| **Total, under construction** | **${inr(total + gstUc)}** |`,
+  )
   return `### On ₹${amountCr.toFixed(2)} Cr
 
 | Charge | Amount |

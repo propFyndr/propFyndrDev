@@ -1,5 +1,6 @@
 import type { ChatTopicHandler } from '../handlerContext'
 import { calculateEmi } from './affordabilityHandler'
+import { UP_STATUTORY } from '../../factPresentation'
 
 /**
  * "I can get a 90 lakh loan, what EMI at 8.5% for 20 years?"
@@ -10,29 +11,77 @@ import { calculateEmi } from './affordabilityHandler'
  * assumptions, never folded in silently.
  */
 const LOAN_AMOUNT = /(?:loan\s+(?:of|amount(?:\s+of)?)\s*(?:₹|rs\.?\s*)?(\d+(?:\.\d+)?)\s*(cr(?:ore)?s?|l(?:akh|ac|acs|akhs)?)\b)|(?:(?:₹|rs\.?\s*)?(\d+(?:\.\d+)?)\s*(cr(?:ore)?s?|l(?:akh|ac|acs|akhs)?)\s+(?:home\s+)?loan\b)/i
+// "80% loan on a 1.5 crore flat": the loan is a share of a stated price.
+const LOAN_SHARE = /(\d{1,3}(?:\.\d+)?)\s*%\s*(?:home\s+)?loan\s+on\s+(?:a\s+|the\s+)?(?:₹|rs\.?\s*)?(\d+(?:\.\d+)?)\s*(cr(?:ore)?s?|l(?:akh|ac|acs|akhs)?)\b/i
+// Hinglish order, price first: "1.5 crore ke flat pe 80% loan".
+const LOAN_SHARE_HI = /(?:₹|rs\.?\s*)?(\d+(?:\.\d+)?)\s*(cr(?:ore)?s?|l(?:akh|ac|acs|akhs)?)\s+(?:ke|ka|ki)\s+(?:flat|ghar|property)\s+(?:pe|par|pr)\s+(\d{1,3}(?:\.\d+)?)\s*%\s*(?:home\s+)?loan\b/i
 const RATE = /(\d{1,2}(?:\.\d{1,2})?)\s*%/
 const TENURE = /(\d{1,2})\s*(?:years?|yrs?|saal)\b/i
 
 const DEFAULT_RATE = 8.5
 const DEFAULT_TENURE = 20
 
-export function parseLoanEmiQuestion(message: string): { principal: number; rate: number | null; tenure: number | null } | null {
+type LoanQuestion = { principal: number; rate: number | null; tenure: number | null; price?: number }
+
+const rupees = (value: number, unit: string) => (/^c/i.test(unit) ? value * 10_000_000 : value * 100_000)
+
+export function parseLoanEmiQuestion(message: string): LoanQuestion | null {
   if (!/\bemi\b|\binstal+ment\b|\bkisht\b/i.test(message)) return null
-  const m = message.match(LOAN_AMOUNT)
-  if (!m) return null
-  const value = Number(m[1] ?? m[3])
-  const unit = m[2] ?? m[4]
-  if (!Number.isFinite(value) || value <= 0) return null
-  const principal = /^c/i.test(unit) ? value * 10_000_000 : value * 100_000
-  const rate = message.match(RATE) ? Number(message.match(RATE)![1]) : null
-  const tenure = message.match(TENURE) ? Number(message.match(TENURE)![1]) : null
-  return { principal, rate: rate && rate > 0 && rate < 30 ? rate : null, tenure: tenure && tenure > 0 && tenure <= 35 ? tenure : null }
+  let principal: number
+  let price: number | undefined
+  let rest = message
+  const en = message.match(LOAN_SHARE)
+  const hi = en ? null : message.match(LOAN_SHARE_HI)
+  // Normalised to [match, pct, value, unit] whichever order the buyer used.
+  const share = en ?? (hi ? [hi[0], hi[3], hi[1], hi[2]] : null)
+  if (share) {
+    const pct = Number(share[1])
+    price = rupees(Number(share[2]), share[3])
+    if (!(pct > 0 && pct <= 100) || !(price > 0)) return null
+    principal = Math.round((price * pct) / 100)
+    rest = message.replace(share[0], ' ') // the loan share is not the interest rate
+  } else {
+    const m = message.match(LOAN_AMOUNT)
+    if (!m) return null
+    const value = Number(m[1] ?? m[3])
+    if (!Number.isFinite(value) || value <= 0) return null
+    principal = rupees(value, m[2] ?? m[4])
+  }
+  const rate = rest.match(RATE) ? Number(rest.match(RATE)![1]) : null
+  const tenure = rest.match(TENURE) ? Number(rest.match(TENURE)![1]) : null
+  return {
+    principal,
+    rate: rate && rate > 0 && rate < 30 ? rate : null,
+    tenure: tenure && tenure > 0 && tenure <= 35 ? tenure : null,
+    ...(price ? { price } : {}),
+  }
+}
+
+/** Cash the buyer pays themselves: down payment plus the fixed UP charges on the price. */
+function upFrontCash(price: number, principal: number): string {
+  const down = price - principal
+  const stamp = (price * UP_STATUTORY.stampDutyPct) / 100
+  const reg = (price * UP_STATUTORY.registrationPct) / 100
+  const gst = (price * UP_STATUTORY.gstUnderConstructionPct) / 100
+  const pct = Math.round((down / price) * 100)
+  return `
+
+### Cash up front on a ${amount(price)} flat
+
+| | Amount |
+| :--- | ---: |
+| Down payment (${pct}%) | ${inr(down)} |
+| Stamp duty (${UP_STATUTORY.stampDutyPct}%) | ${inr(stamp)} |
+| Registration (${UP_STATUTORY.registrationPct}%) | ${inr(reg)} |
+| **Cash up front, ready to move** | **${inr(down + stamp + reg)}** |
+
+If the flat is under construction, add ${UP_STATUTORY.gstUnderConstructionPct}% GST, ${inr(gst)}, paid across construction milestones: ${inr(down + stamp + reg + gst)} in all. Stamp duty is ${UP_STATUTORY.stampDutyFemalePct}% if a woman is the primary owner, and it is charged on the circle rate if that is higher than the price. Banks also charge a processing fee; ask yours for the figure.`
 }
 
 const inr = (n: number) => `₹${Math.round(n).toLocaleString('en-IN')}`
 const amount = (n: number) => (n >= 10_000_000 ? `₹${(n / 10_000_000).toFixed(2)} Cr` : `₹${(n / 100_000).toFixed(2)} L`)
 
-export function loanEmiAnswer(q: { principal: number; rate: number | null; tenure: number | null }): string {
+export function loanEmiAnswer(q: LoanQuestion): string {
   const rate = q.rate ?? DEFAULT_RATE
   const tenure = q.tenure ?? DEFAULT_TENURE
   const emi = calculateEmi(q.principal, rate, tenure)
@@ -54,7 +103,7 @@ export function loanEmiAnswer(q: { principal: number; rate: number | null; tenur
 | Total interest | ${amount(total - q.principal)} |
 ${assumed.length ? `\nI assumed ${assumed.join(' and ')}.` : ''}${alt}
 
-This is a reducing-balance EMI on the loan alone. A floating rate moves with the repo rate, so the EMI or the tenure changes over the loan's life.`
+This is a reducing-balance EMI on the loan alone. A floating rate moves with the repo rate, so the EMI or the tenure changes over the loan's life.${q.price ? upFrontCash(q.price, q.principal) : ''}`
 }
 
 export const loanEmiHandler: ChatTopicHandler = {

@@ -3569,7 +3569,7 @@ I can help you with:
       .replace(/[-_/]+/g, ' ')
       .replace(/\s+/g, ' ')
       .trim()
-    const isSectorCompare = sectorMatches.length >= 2 && /compare|vs|versus|better|difference|which sector|between/i.test(topicText)
+    const isSectorCompare = sectorMatches.length >= 2 && (intent.projectNames?.length ?? 0) < 2 && !/\b(builders?|developers?)\b/i.test(topicText) && /compare|vs|versus|better|difference|which sector|between/i.test(topicText) // bm2-two-projects-builder-safety
     const isSummaryRequest = /summarize|summary|entire session|weightage/i.test(topicText)
     const isCompareRequest = (intent as any)?.is_comparison_query || (intent.projectNames && intent.projectNames.length >= 2) || /\bcompare\b/i.test(topicText) || isSectorCompare
     const isAdvisoryPhrasing = /\b(how\s+to|best\s+way|tips\s+(for|on|to)|advice|guide|save\s+money|saving|negotiat|hidden|mistakes?|checklist|process\s+of|rules?|steps?)\b/i.test(topicText)
@@ -3610,7 +3610,7 @@ I can help you with:
     const asksProjectVerdict = ASKS_FAIRNESS.test(topicText) || ASKS_FOR_THE_CATCH.test(topicText)
     const isInventorySearch = !asksProjectVerdict && (/\b(show\s+me|find\s+me|list\s+(all|the)?|options\s+in|available\s+in|looking\s+for|search\s+for)\b/i.test(topicText) ||
       // `under` is a budget word; "under construction" is a status.
-      (/\b(\d\s*bhk)\b/i.test(topicText) && /\b(sector|in|under(?!\s*[- ]?construction)|budget|crore|lakh)\b/i.test(topicText))) &&
+      ((/\b\d\s*bhk\b/i.test(topicText) || (/\b\d\s*bhks\b/i.test(topicText) && !(intent.projectNames?.length))) && /\b(sector|in|mein|under(?!\s*[- ]?construction)|budget|crore|lakh)\b/i.test(topicText))) && // plural only with no project named: bm2-rtm-plural-bhk vs oct4-sizes
       !isCompareRequest && !isSectorCompare && !isAdvisoryPhrasing && !asksForProjectArtefact && !statesOwnBasePrice
     // Plurals matter: `\bpayment plan\b` does not match "payment plans", which
     // is how buyers and our own chips write it. "Show payment plans for Nirala
@@ -3645,7 +3645,7 @@ I can help you with:
       /\b(builder|developer)\s*(track\s*record|reputation|credibility|delivery\s*score|ranking|reliability|history|score)\b|\b(which|best|top|reputable|reliable)\s*(builder|developer|company)\b|\b(developer\s*track|on.?time\s*delivery|delivery\s*track\s*record|safe\s*to\s*buy\s*from)\b/i.test(topicText) &&
       !isSectorCompare &&
       !isReraCheckQuery &&
-      (intent.projectNames?.length ?? 0) < 2
+      (intent.projectNames?.length ?? 0) < 2 && !(sectorMatches.length >= 2 && /\b(vs\.?|versus|compare|between)\b/i.test(topicText)) // two-sided: bm2-two-projects-builder-safety
     // "Best sector to put money for 10-year appreciation" is an appreciation
     // question, not orientation: it belongs to the recorded-appreciation and
     // what-if tables further down, which the orientation gate pre-empted.

@@ -4836,3 +4836,17 @@ Audit: ~60 questions covering every section of a project card, run through the r
 **Dev DB was 633 MB (over Supabase's 500 MB free limit):** compacted 1,850 messages + 1,363 idle chats with `scripts/compact-chat-storage.ts --target=DATABASE_URL` (the session pooler `DIRECT_URL` hit EMAXCONNSESSION at 16 parallel updates), then VACUUM FULL on chat tables: **209 MB**. Dev sleeps, so its in-process compaction job rarely runs; re-check size monthly.
 **Hinglish:** `messyLanguageNormalizer.ts` now turns "ek saal mein", "2 saal ke andar", "6 mahine mein" into "within N year(s)/months" (postposition required, so "65 saal ka" and "pichle saal" are untouched). 4 Hinglish cases (`hi-*`) pinned in `route-replay.json`; replay 70/70.
 **Found, not fixed (Day 2 task 4 candidates):** "ready-to-move" with hyphens is not read as immediate (`intent.ts:716`); "which builder is safer" between two named projects routes to sector comparison; EMI, builder-trust and named-project possession questions go to the LLM instead of their deterministic handlers.
+
+## 2026-10-16 — Day 2 benchmark: ChatGPT + Perplexity recorded, top 3 gaps fixed
+**Method:** logged-out ChatGPT and Perplexity were driven by Playwright (fresh chat per question, page text captured; the Network tab was not used). RealtyAsk ran via `backend/scripts/corpus/benchmark-day2.ts` (real model chain, dev DB, forces `REDIS_KEY_PREFIX=dev:`). Files: `docs/benchmark/` (questions, scorecard, raw answers).
+**Fixed:**
+- Plural "3BHKs" (and Hinglish "mein") now counts as an inventory search, unless a project is named (`oct4-sizes` keeps the unit-configuration lane).
+- Two sectors plus "builder"/"vs" is no longer a sector comparison, and no longer a one-builder scorecard.
+- `loanEmi` reads "N% loan on X" (and "X ke flat pe N% loan") and adds cash up front from `UP_STATUTORY`.
+- The statutory answer states the totals.
+- Replay 77/77; `chat-router.ts` line count unchanged.
+**Rejected:** fixing multi-project resolution at `chat-router.ts:1435` (keeps only one matched project). "Jaypee Klassic" covers 2/5 words of "Jaypee Klassic Block 6-10", below the 0.6 auto-resolve bar, and lowering that bar risks confident wrong projects.
+**Found:**
+- `chatRouterSize.test.ts` already fails on HEAD: 7,393 lines vs a 7,387 limit, from d9299485. Not raised.
+- Astralis (Sector 94): our row says under construction, Q4 2027; ChatGPT and Perplexity cite UPRERAPRJ7263 with a 2018 completion date or delivery around 2020. Needs a source check.
+- The Supertech builder record lacks the 2024 NCLAT NBCC order and the 2026 Supreme Court ruling upholding it.

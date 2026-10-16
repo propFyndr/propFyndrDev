@@ -1026,7 +1026,9 @@
         "expect": {
           "intent": {
             "budgetMax": 1.5,
-            "bhk": [3],
+            "bhk": [
+              3
+            ],
             "possession": "1year"
           }
         }
@@ -1074,6 +1076,104 @@
         "expect": {
           "lane": "topic:statutory_tax",
           "llm": false
+        }
+      }
+    ]
+  },
+  {
+    "id": "bm2-rtm-plural-bhk",
+    "turns": [
+      {
+        "text": "I need to move in within 6 months. Which ready-to-move 3BHKs in Noida should I look at?",
+        "expect": {
+          "laneNot": [
+            "topic:possession_status"
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "id": "bm2-two-projects-builder-safety",
+    "turns": [
+      {
+        "text": "Jaypee Klassic in Sector 134 vs Gulshan Ikebana in Sector 143: which builder is safer?",
+        "expect": {
+          "laneNot": [
+            "topic:sector-comparison"
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "id": "bm2-loan-share-emi",
+    "turns": [
+      {
+        "text": "If I take an 80% loan on a 1.5 crore flat, what is my EMI and how much cash do I need up front?",
+        "expect": {
+          "lane": "topic:loan_emi",
+          "llm": false,
+          "contains": [
+            "₹30,00,000",
+            "Cash up front"
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "id": "bm2-total-cost",
+    "turns": [
+      {
+        "text": "For a 1.4 crore flat in Noida, what is the total cost including stamp duty, registration and GST?",
+        "expect": {
+          "lane": "topic:statutory_tax",
+          "llm": false,
+          "contains": [
+            "Total, ready to move"
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "id": "hi-rtm-search",
+    "turns": [
+      {
+        "text": "6 mahine mein shift karna hai, ready to move 3BHK batao Noida mein",
+        "expect": {
+          "laneNot": [
+            "topic:possession_status"
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "id": "hi-loan-share-emi",
+    "turns": [
+      {
+        "text": "1.5 crore ke flat pe 80% loan liya to EMI kitni banegi?",
+        "expect": {
+          "lane": "topic:loan_emi",
+          "llm": false,
+          "contains": [
+            "₹30,00,000"
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "id": "hi-builder-safety",
+    "turns": [
+      {
+        "text": "Jaypee Klassic aur Gulshan Ikebana mein kaun sa builder better hai?",
+        "expect": {
+          "laneNot": [
+            "topic:sector-comparison"
+          ]
         }
       }
     ]

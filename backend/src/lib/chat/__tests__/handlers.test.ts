@@ -314,4 +314,16 @@ describe('statutory_tax answers the question, not just the topic', () => {
     assert.ok(!/^\*\*No —/.test(text), 'a plain rate question gets the rates')
     assert.match(text, /Statutory taxes & registration charges/)
   })
+
+  it('states the total when the buyer gives a price', async () => {
+    const { ctx, out } = makeContext({
+      message: 'For a 1.4 crore flat in Noida, what is the total cost including stamp duty, registration and GST?',
+      flags: { isStatutoryTaxQuery: true },
+    })
+    await statutoryTaxHandler.handle(ctx)
+    const text = tokenText(out)
+    // 1.4 Cr + 7% stamp + 1% registration; plus 5% GST when under construction.
+    assert.match(text, /\*\*Total, ready to move\*\* \| \*\*₹1,51,20,000\*\*/)
+    assert.match(text, /\*\*Total, under construction\*\* \| \*\*₹1,58,20,000\*\*/)
+  })
 })
