@@ -134,6 +134,14 @@ const CONTRADICTIONS: Array<{
     record: (f) => `${field(f, 'litigation_count')} litigation record(s) are on file`,
   },
   {
+    // "has an OC and Amitabh Kant registry clearance, so registry is possible"
+    // for Logix Blossom County, whose amitabh_kant_clearance is empty (stress
+    // re-run, 16 Oct 2026). A clearance is said only when the row holds one.
+    says: /\bamitabh\s+kant\b[^.]{0,40}\b(?:clearance|cleared|approved|relief)\b|\bregistry\s+(?:is\s+)?(?:possible|happening|open|cleared|going\s+on)\b/i,
+    when: (f) => !/^(?:true|yes|cleared|obtained|granted)$/i.test(field(f, 'amitabh_kant_clearance')),
+    record: () => 'no Amitabh Kant clearance or registry status is on record',
+  },
+  {
     says: /\b(?:not|isn'?t)\s+(?:RERA[- ])?registered\b|\bno\s+RERA\s+(?:number|registration)\b/i,
     when: (f) => /^UPRERA/i.test(field(f, 'rera_number')),
     record: (f) => `RERA ${field(f, 'rera_number')} is on record`,
@@ -233,8 +241,14 @@ export function unsourcedMarketStatistics(text: string, prompt: string): Integri
   const out: IntegrityViolation[] = []
   for (const m of text.matchAll(GROWTH_RATE)) {
     const digits = m[0].match(/\d+(?:\.\d+)?/g) ?? []
-    // Ours when every number in the claim is in the prompt (a computed CAGR from our price history).
-    if (digits.length && digits.every((d) => new RegExp(String.raw`(?<![\d.])${d.replace('.', '\.')}(?![\d])`).test(prompt))) continue
+    // Ours only when the prompt states each number AS a growth rate. A bare
+    // digit is not enough: 5 and 7 are in every prompt (GST, stamp duty), and
+    // "averaged 5%–7% annually" walked through on exactly that (stress re-run).
+    const asRate = (d: string) => {
+      const n = d.replace('.', '\\.')
+      return new RegExp(String.raw`(?<![\d.])${n}\s*%[^.\n]{0,40}(?:apprecia|growth|grew|cagr|annual|a\s+year|per\s+year|p\.?a)|(?:apprecia|growth|grew|cagr)[^.\n]{0,40}(?<![\d.])${n}(?![\d])`, 'i').test(prompt)
+    }
+    if (digits.length && digits.every(asRate)) continue
     out.push({ kind: 'fabrication', detail: `stated the market statistic "${m[0].trim()}", which no source in the prompt supports; answer without it` })
   }
   return out

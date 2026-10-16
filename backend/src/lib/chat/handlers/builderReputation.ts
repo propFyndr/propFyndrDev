@@ -109,9 +109,14 @@ export const builderReputationHandler: ChatTopicHandler = {
        * table — the exact behaviour this block exists to replace, one turn
        * later. The last single card shown is that project.
        */
-      const focusName = ctx.activeProjectName
+      // A builder named in this message beats a project carried from an earlier
+      // turn: "Supertech ke projects ka kya scene hai" after an Amrapali answer
+      // was answered about Amrapali (stress run, 16 Oct 2026).
+      const namedHere = builderNamedIn(ctx.message, ctx.builders)
+      const projectTypedHere = Boolean(ctx.activeProjectName && ctx.message.toLowerCase().includes(ctx.activeProjectName.toLowerCase()))
+      const focusName = namedHere && !projectTypedHere ? undefined : ctx.activeProjectName
       const focusId =
-        !focusName && ctx.cachedProjects.length === 1 ? ctx.cachedProjects[0]?.id : undefined
+        !focusName && !namedHere && ctx.cachedProjects.length === 1 ? ctx.cachedProjects[0]?.id : undefined
       const focusBuilder = focusName || focusId
         ? (await prisma.project.findFirst({
             where: focusId

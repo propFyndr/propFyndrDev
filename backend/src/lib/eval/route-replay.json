@@ -1301,7 +1301,9 @@
           "lane": "topic:loan_emi",
           "llm": false,
           "contains": [
-            "Godrej Palm Retreat"
+            "Godrej Palm Retreat",
+            "₹2.69 Cr",
+            "8.5%"
           ]
         }
       },
@@ -1492,7 +1494,9 @@
         "expect": {
           "lane": "topic:loan_emi",
           "contains": [
-            "Godrej Palm Retreat"
+            "Godrej Palm Retreat",
+            "₹2.69 Cr",
+            "8.5%"
           ]
         }
       }
@@ -1524,6 +1528,40 @@
         "text": "Compare Mahagun and Gaursons as builders",
         "expect": {
           "lane": "topic:builder-reputation",
+          "contains": [
+            "Mahagun Group",
+            "Gaursons"
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "id": "stress-named-builder-beats-focus",
+    "source": "stress final run 2026-10-16",
+    "turns": [
+      {
+        "text": "Tell me about Amrapali La Residentia"
+      },
+      {
+        "text": "Supertech ke projects ka kya scene hai, possession milega?",
+        "expect": {
+          "laneOneOf": [
+            "topic:builder-reputation",
+            "answer-cache"
+          ],
+          "contains": [
+            "Supertech Limited"
+          ]
+        }
+      },
+      {
+        "text": "Compare Mahagun and Gaursons as builders",
+        "expect": {
+          "laneOneOf": [
+            "topic:builder-reputation",
+            "answer-cache"
+          ],
           "contains": [
             "Mahagun Group",
             "Gaursons"

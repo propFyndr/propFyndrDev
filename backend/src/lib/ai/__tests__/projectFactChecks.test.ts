@@ -73,3 +73,15 @@ describe('market figures', () => {
     assert.ok(out.includes(MARKET_QUALIFIER))
   })
 })
+
+describe('stress re-run leftovers', () => {
+  it('rejects "5%–7% annually" even though 5 and 7 are in every prompt', () => {
+    const g7 = 'Historical appreciation in established Noida sectors has averaged 5%–7% annually.'
+    assert.ok(unsourcedMarketStatistics(g7, 'GST 5%. Stamp duty 7%. Registration 1%.').length >= 1)
+  })
+
+  it('rejects a registry clearance the row does not hold', () => {
+    const d5 = 'Logix Blossom County has an Occupancy Certificate (OC) and Amitabh Kant registry clearance, so registry is possible.'
+    assert.ok(recordContradictions(d5, LOGIX).length >= 1)
+  })
+})

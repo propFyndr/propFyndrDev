@@ -136,7 +136,9 @@ export const loanEmiHandler: ChatTopicHandler = {
       const focus = await focusProjectPrice(ctx.activeProjectName)
       if (!focus) return false
       const price = Math.round(focus.amountCr * 10_000_000)
-      const rest = ctx.message.replace(LOAN_SHARE_ONLY, ' ')
+      // The share is not the rate: "20% down" read as a 20% interest rate gave a
+      // ₹4.56 lakh EMI on Godrej Palm Retreat (stress run, 16 Oct 2026).
+      const rest = ctx.message.replace(LOAN_SHARE_ONLY, ' ').replace(DOWN_SHARE_ONLY, ' ')
       const rate = rest.match(RATE) ? Number(rest.match(RATE)![1]) : null
       const tenure = rest.match(TENURE) ? Number(rest.match(TENURE)![1]) : null
       q = { principal: Math.round((price * pct) / 100), price, rate: rate && rate > 0 && rate < 30 ? rate : null, tenure: tenure && tenure > 0 && tenure <= 35 ? tenure : null }

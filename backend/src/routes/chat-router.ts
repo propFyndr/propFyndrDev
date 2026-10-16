@@ -3735,7 +3735,7 @@ I can help you with:
           }
         })
         const matchedBuilders = buildersNamedIn(message, dbBuilders) // core names: "Mahagun" is Mahagun Group
-        const isBuilderCompare = matchedBuilders.length >= 2 && (intent.projectNames?.length ?? 0) === 0 && /compare|vs|versus|better|difference|track record|builder|developer/i.test(message) // "Compare Godrej Palm Retreat with ATS Destinaire" names projects
+        const isBuilderCompare = matchedBuilders.length >= 2 && !(intent.projectNames ?? []).some(n => typeof n === 'string' && message.toLowerCase().includes(n.toLowerCase())) && /compare|vs|versus|better|difference|track record|builder|developer/i.test(message) // "Compare Godrej Palm Retreat with ATS Destinaire" names projects
 
         // ─── PROJECT CARDS FOR THE TOPIC LANE ─────────────────────────────────────
         const topicCardId = typeof (intent as { targetProjectId?: unknown }).targetProjectId === 'string'
