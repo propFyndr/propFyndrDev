@@ -54,9 +54,13 @@ const NAMED_AIRPORT: Array<[RegExp, RegExp]> = [
 const landmarkKey = (type: string, name: string) =>
   `${type}:${name.toLowerCase().replace(/\(.*?\)/g, '').replace(/[^a-z0-9]+/g, ' ').trim()}`
 
-/** Words that make a question about the surroundings rather than the building. */
+/**
+ * Words that make a question about the surroundings rather than the building.
+ * "How far along is construction" is progress, not distance (followup-coverage
+ * 2026-10-16 answered it with a landmark table).
+ */
 const PROXIMITY =
-  /\b(near|nearby|near\s?by|around|close\s+to|closest|nearest|vicinity|walking\s+distance|how\s+far|distance\s+to|surrounding|next\s+to|adjacent|in\s+the\s+area|kitne\s+door)\b/i
+  /\b(near|nearby|near\s?by|around|close\s+to|closest|nearest|vicinity|walking\s+distance|how\s+far(?!\s+(?:along|ahead|behind|has|have|is\s+(?:the\s+)?(?:construction|work|project)))|distance\s+to|surrounding|next\s+to|adjacent|in\s+the\s+area|kitne\s+door)\b/i
 
 export const vicinityLookupHandler: ChatTopicHandler = {
   id: 'vicinity-lookup',

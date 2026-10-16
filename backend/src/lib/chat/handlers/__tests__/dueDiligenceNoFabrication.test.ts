@@ -97,7 +97,7 @@ describe('dueDiligenceHandler — never states an unfilled column as a finding',
   it('renders "Not verified" rather than a default for an unenriched project', async () => {
     const project = await prisma.project
       .findFirst({
-        where: { water_tds_range: null, all_in_cost_multiplier: null },
+        where: { water_tds_range: null, all_in_cost_multiplier: null, shahdara_drain_impact: null, lift_act_compliant: null },
         select: { name: true },
       })
       .catch(() => null)
@@ -122,7 +122,7 @@ describe('dueDiligenceHandler — never states an unfilled column as a finding',
     // The catalog lookup is how the handler resolves a name to an id; give it
     // the real row so the render path (not the general fallback) runs.
     const row = await prisma.project.findFirst({
-      where: { water_tds_range: null, all_in_cost_multiplier: null },
+      where: { water_tds_range: null, all_in_cost_multiplier: null, shahdara_drain_impact: null, lift_act_compliant: null },
       select: { id: true, name: true },
     })
     ctx.catalog = [row as { id: string; name: string }]

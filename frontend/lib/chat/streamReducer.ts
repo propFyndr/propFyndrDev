@@ -140,7 +140,9 @@ export function applyStreamEvent(
     }
 
     case 'token':
-      return { ...message, content: message.content + event.token, isSearching: false, lastSeq: nextSeq }
+      // `replace`: the backend retracts a half-written answer (every provider
+      // failed mid-reply) and sends the outage notice in its place.
+      return { ...message, content: (event as { replace?: boolean }).replace ? event.token : message.content + event.token, isSearching: false, lastSeq: nextSeq }
 
     case 'components':
       return {

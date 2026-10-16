@@ -2,14 +2,17 @@ import type { ChatTopicHandler } from '../handlerContext'
 import { UP_STATUTORY, NOIDA_MARKET_RANGES, MARKET_QUALIFIER } from '../../factPresentation'
 import { femaleStampDutySaving } from './totalOutflow'
 import { quotedAmountCr } from './priceFairness'
+import { prisma } from '../../db'
+import { projectPriceNotes } from '../../projectPriceNote'
+import { UNDATED_NOTE } from '../../priceVerification'
 
 /**
  * "How much stamp duty on a 1.5 cr flat for a woman buyer" got the rate table
  * and no number. When the buyer gives an amount, the arithmetic leads; these
  * are statutory rates, so computing on their figure is not a guess.
  */
-export function computedOnAmount(message: string): string {
-  const amountCr = quotedAmountCr(message)
+export function computedOnAmount(message: string, given?: { amountCr: number; heading: string }): string {
+  const amountCr = given?.amountCr ?? quotedAmountCr(message)
   if (!amountCr) return ''
   const s = UP_STATUTORY
   const v = Math.round(amountCr * 1_00_00_000)
@@ -32,7 +35,7 @@ export function computedOnAmount(message: string): string {
     `| **Total, ready to move** | **${inr(total)}** |`,
     `| **Total, under construction** | **${inr(total + gstUc)}** |`,
   )
-  return `### On ₹${amountCr.toFixed(2)} Cr
+  return `### ${given?.heading ?? `On ₹${amountCr.toFixed(2)} Cr`}
 
 | Charge | Amount |
 | :--- | ---: |
@@ -41,6 +44,24 @@ ${rows.join('\n')}
 Stamp duty is charged on the agreement value or the circle rate, whichever is higher, so the figure above is the floor.${v > s.tdsThresholdInr ? ` You also deduct ${s.tdsPct}% TDS (${inr(Math.round(v * s.tdsPct / 100))}) from the payment to the seller and deposit it with Form 26QB.` : ''}
 
 `
+}
+
+/**
+ * "What is the total cost of the cheapest flat?" on a follow-up names no
+ * amount, but the project in focus has one: its lowest listed unit price,
+ * stated with who confirmed it and when (followup-coverage 2026-10-16 got only
+ * the rate table).
+ */
+export async function focusProjectPrice(focus: string | null | undefined): Promise<{ amountCr: number; heading: string } | undefined> {
+  if (!focus) return undefined
+  const p = await prisma.project.findFirst({
+    where: { OR: [{ name: { equals: focus, mode: 'insensitive' } }, ...(focus.length === 36 ? [{ id: focus }] : [])] },
+    select: { id: true, name: true, unit_types: { where: { price_min_cr: { not: null } }, orderBy: { price_min_cr: 'asc' }, take: 1, select: { price_min_cr: true, bhk: true } } },
+  })
+  const unit = p?.unit_types[0]
+  if (!p || !unit?.price_min_cr) return undefined
+  const note = (await projectPriceNotes([p.id])).get(p.id) ?? UNDATED_NOTE
+  return { amountCr: unit.price_min_cr, heading: `On the lowest listed price at ${p.name}: ₹${unit.price_min_cr.toFixed(2)} Cr${unit.bhk ? ` (${unit.bhk} BHK)` : ''}, ${note}` }
 }
 
 /** ₹ with Indian digit grouping. */
@@ -99,7 +120,7 @@ What legitimately reduces the bill:
 `
       : ''
 
-    const text = `${avoidanceAnswer}${asksHowToAvoid ? '' : computedOnAmount(ctx.message)}### Statutory taxes & registration charges (Uttar Pradesh)
+    const text = `${avoidanceAnswer}${asksHowToAvoid ? '' : computedOnAmount(ctx.message, quotedAmountCr(ctx.message) ? undefined : await focusProjectPrice(ctx.activeProjectName))}### Statutory taxes & registration charges (Uttar Pradesh)
 
 These are set by law and are the same for every project.
 

@@ -1,0 +1,651 @@
+[
+  {
+    "project": "Prateek Laurel",
+    "slug": "prateek-laurel-sector-120-noida",
+    "turns": [
+      {
+        "domain": "opening",
+        "ask": "Tell me about Prateek Laurel",
+        "lane": "ground-truth-db",
+        "ms": 30779,
+        "verdict": "PASS",
+        "hits": [
+          "Prateek Laurel"
+        ],
+        "expectedSample": [
+          "Prateek Laurel"
+        ],
+        "uiEvents": [
+          "intent",
+          "ui_state",
+          "properties",
+          "token",
+          "done"
+        ],
+        "answer": "Prateek Laurel is a ready-to-move, 14-acre residential project by Prateek Group located in Sector 120, Noida, with prices ranging from ₹0.90 Cr to ₹1.45 Cr (date of last confirmation not on record).\n\n- Features 27 high-rise towers with 80% open landscaped greens and IGBC Green Certification.\n- Holds a full Occupancy Certificate (OC) with clear land title and zero ongoing litigation.\n- Situated 0.5 km from Parthala Flyover, providing direct connectivity to Sector 62 IT hub and Greater Noida West.\n\nFor a buyer, this means zero construction risk, no GST liability, and an established, fully operational community ready for immediate move-in.\n\nWould you like to review the specific 2 BHK and 3 BHK floor plan layouts or schedule a site visit?"
+      },
+      {
+        "domain": "payment_plans",
+        "ask": "What payment plans do they offer?",
+        "lane": "topic:payment-plans",
+        "ms": 2101,
+        "verdict": "MISS",
+        "hits": [],
+        "expectedSample": [
+          "Ready Resale Down Payment Plan",
+          "down_payment"
+        ],
+        "uiEvents": [
+          "intent",
+          "ui_state",
+          "token",
+          "done"
+        ],
+        "answer": "### Payment Plans in Noida & Greater Noida\n\nThese are the common structures in the Noida market (typical for Noida — not verified for any specific project):\n\n1. **Construction Linked Plan (CLP)**: ~10% booking, 80% across milestone slabs, 10% on handover (lowest upfront risk).\n2. **Down Payment Plan**: ~10% booking, 85% in 45 days, 5% on handover (often priced with a discount on the base selling price).\n3. **Flexi / Milestone Plan (30:70 / 20:80)**: 20–30% in first 90 days, balance upon superstructure or possession.\n\n*Which specific project would you like to view the detailed payment schedule for?*"
+      },
+      {
+        "domain": "cost_sheet",
+        "ask": "Show me the cost sheet. What are the extra charges?",
+        "lane": "main",
+        "ms": 30438,
+        "verdict": "PASS",
+        "hits": [
+          "3,25,000",
+          "1,50,000"
+        ],
+        "expectedSample": [
+          "3,25,000",
+          "3.25 lakh",
+          "3.25 L",
+          "1,50,000"
+        ],
+        "uiEvents": [
+          "intent",
+          "ui_state",
+          "status",
+          "token",
+          "properties",
+          "done"
+        ],
+        "answer": "The cost breakdown for Prateek Laurel consists of the base price along with mandatory development, maintenance, and government charges.\n\n| Cost Component | Rate / Amount | Details |\n| :--- | :--- | :--- |\n| **Base Sale Price (BSP)** | ₹6,913 / sq. ft. | Benchmark entry rate |\n| **Floor Rise** | ₹30 / sq. ft. per floor | Applicable above lower floors |\n| **Preferential Location (PLC)** | ₹100 – ₹200 / sq. ft. | Park facing, corner unit, pool view, or road facing |\n| **Covered Parking** | ₹3,25,000 | Mandatory allotment per vehicle |\n| **Club Membership** | ₹1,50,000 | Lifetime access to society recreational facilities |\n| **IFMS Deposit** | ₹50 / sq. ft. | Interest-Free Maintenance Security corpus |\n| **Statutory & Utility Charges** | ₹35,000 (Meter) + ₹18,500 (PNG) | Power infrastructure and piped gas setup |\n| **Legal & Documentation** | ₹25,000 | Administrative and execution fees |\n\n**Tax and Statutory Assumptions**:\n- **GST**: 0% (Project holds an Occupancy Certificate, making it ready-to-move).\n- **Stamp Duty & Registration**: 6% stamp duty (assuming female or joint registry discount) and 1% registration fee calculated on the total agreement value.\n\nWould you like to calculate the total landed cost for a specific BHK configuration with a home loan estimate?"
+      },
+      {
+        "domain": "location",
+        "ask": "How far is the nearest metro station?",
+        "lane": "coverage-lane",
+        "ms": 14321,
+        "verdict": "PASS",
+        "hits": [
+          "Sector",
+          "Metro"
+        ],
+        "expectedSample": [
+          "Sector 52 Metro Station",
+          "Sector",
+          "Metro"
+        ],
+        "uiEvents": [
+          "token",
+          "ui_state",
+          "done"
+        ],
+        "answer": "Projects we hold with the shortest road distance to a metro station:\n\n- **Gulshan Ikebana Towers A-F** (Sector 143): 0.1 km to Sector 142 Metro Interchange (Aqua Line)\n- **Logix Blossom Greens Phase 1** (Sector 143): 0.2 km to Sector 142 Metro Interchange (Aqua Line)\n- **Trecento Residencies by Gaurs** (Sector Jaypee Greens): 0.3 km to Sector 76 Metro Station (Aqua Line)\n- **Gaur Atulyam** (Sector Omicron 1): 0.3 km to Sector 76 Metro Station (Aqua Line)\n- **Purvanchal Silver City** (Sector Pari Chowk): 0.3 km to Sector 76 Metro Station (Aqua Line)\n- **Jaypee Klassic Block 6-10** (Sector 134): 0.4 km to Sector 76 Metro Station (Aqua Line)\n- **Jaypee Moon Court** (Sector Pari Chowk): 0.4 km to Sector 76 Metro Station (Aqua Line)\n- **Jaypee Kosmos** (Sector 134): 0.4 km to Sector 76 Metro Station (Aqua Line)\n\nSome of these distances come from builder brochures rather than a map measurement, so treat them as the builder's claim until checked on a visit. Want me to narrow this to a budget or BHK?"
+      },
+      {
+        "domain": "amenities",
+        "ask": "What amenities are there?",
+        "lane": "topic:amenity-lifestyle",
+        "ms": 2384,
+        "verdict": "PASS",
+        "hits": [
+          "Community Clubhouse & Social Gathering Room",
+          "Swimming Pool & Splash Pool for Kids",
+          "Outdoor Badminton Court",
+          "Fitness Gym with Basic Cardio & Dumbbell Setup"
+        ],
+        "expectedSample": [
+          "24/7 Gated Security with High-Definition CCTV & Boom Barriers",
+          "100% Dual-Meter DG Power Backup for Common Areas & Elevators",
+          "Reserved Covered Basement Parking with EV Charging Provision",
+          "High-Speed Automated Passenger & Stretcher Service Elevators"
+        ],
+        "uiEvents": [
+          "intent",
+          "ui_state",
+          "properties",
+          "token",
+          "done"
+        ],
+        "answer": "### Amenities & Lifestyle Guide — Sector 120, Noida\n\n| Society | Sector | Clubhouse & Community | Swimming Pool & Sports | Open Green Cover |\n| :--- | :--- | :--- | :--- | :--- |\n| **Prateek Laurel** | Sector 120 | Community Clubhouse & Social Gathering Room | Swimming Pool & Splash Pool for Kids, Outdoor Badminton Court, Fitness Gym with Basic Cardio & Dumbbell Setup | 80% open space |\n| **Amrapali Zodiac** | Sector 120 | Community Clubhouse & Multipurpose Party Hall | Swimming Pool & Toddler Pool, Badminton Court & Half Basketball Court, Modern Gymnasium & Fitness Center | 80% open space |\n| **RG Residency** | Sector 120 | Community Clubhouse & Multipurpose Party Hall | Swimming Pool & Toddler Pool, Badminton Court & Half Basketball Court, Modern Gymnasium & Fitness Center | 80% open space |\n| **Prateek Fedicia** | Sector 120 | Community Clubhouse & Multipurpose Party Hall | Swimming Pool & Toddler Pool, Badminton Court & Half Basketball Court, Modern Gymnasium & Fitness Center | 80% open space |\n\n*A dash means we hold no entry for that facility — the amenity lists we have are incomplete rather than confirmed-absent, so it is worth checking on a site visit.*\n\n*Would you like detailed unit floor plans, monthly maintenance charges, or price breakdowns for any of these societies?*"
+      },
+      {
+        "domain": "units",
+        "ask": "What sizes are the flats and what do they cost?",
+        "lane": "main",
+        "ms": 43584,
+        "verdict": "PASS",
+        "hits": [
+          "610",
+          "670",
+          "810",
+          "885"
+        ],
+        "expectedSample": [
+          "950",
+          "610",
+          "1,040",
+          "670"
+        ],
+        "uiEvents": [
+          "intent",
+          "ui_state",
+          "status",
+          "token",
+          "followup",
+          "done"
+        ],
+        "answer": "Prateek Laurel in Sector 120 offers two-bedroom and three-bedroom configurations:\n\n- **2 BHK**: Carpet area ranges from 610 sq.ft. to 670 sq.ft.\n- **3 BHK**: Carpet area ranges from 810 sq.ft. to 885 sq.ft.\n\n**Pricing**:\n\n90145The price range for Prateek Laurel is ₹.–. Cr. \n\nTo give you a better idea, here are some key highlights:\n\n80- The project is ready to move in, with an Occupancy Certificate (OC) issued.\n- The project has % open space, providing a green and serene environment.\n- The clubhouse and community amenities include a swimming pool, splash pool for kids, outdoor badminton court, and fitness gym.\n\n\n\n[Response truncated due to high traffic. Please ask me to continue.]"
+      },
+      {
+        "domain": "price_history",
+        "ask": "Has the price gone up over time?",
+        "lane": "main",
+        "ms": 47899,
+        "verdict": "OUTAGE",
+        "hits": [],
+        "expectedSample": [
+          "3,621",
+          "5,046",
+          "5,916",
+          "6,786"
+        ],
+        "uiEvents": [
+          "intent",
+          "ui_state",
+          "status",
+          "searching",
+          "token",
+          "done"
+        ],
+        "answer": "I couldn't get you a reliable answer just now — our AI service is briefly unavailable, and I'd rather say so than guess.\n\nAsk me again in a moment, or use **Book Site Visit** or **Callback** and our advisory team will pick it up directly."
+      },
+      {
+        "domain": "rera",
+        "ask": "Is it RERA registered?",
+        "lane": "ground-truth-db",
+        "ms": 14135,
+        "verdict": "PASS",
+        "hits": [
+          "UPRERAPRJ4522"
+        ],
+        "expectedSample": [
+          "UPRERAPRJ4522"
+        ],
+        "uiEvents": [
+          "intent",
+          "ui_state",
+          "properties",
+          "token",
+          "done"
+        ],
+        "answer": "Yes, Prateek Laurel is RERA registered.\n\nThe RERA registration number for the project is UPRERAPRJ4522.\nRegistration puts the project on record with the authority and gives you a route to complain; it is not a warranty on delivery, title or build quality. Would you like to review the litigation status for Prateek Laurel?"
+      },
+      {
+        "domain": "possession",
+        "ask": "When is possession, and how far along is construction?",
+        "lane": "topic:vicinity-lookup",
+        "ms": 3485,
+        "verdict": "MISS",
+        "hits": [],
+        "expectedSample": [
+          "Ready to Move",
+          "2015",
+          "RERA & Environmental Approvals",
+          "Excavation & Foundation Raft"
+        ],
+        "uiEvents": [
+          "intent",
+          "ui_state",
+          "properties",
+          "token",
+          "done"
+        ],
+        "answer": "### Near Prateek Laurel — Sector 120\n\n| Landmark | Type | Distance | Travel time |\n| :--- | :--- | ---: | ---: |\n| Parthala Flyover / FNG | road | 500 m | — |\n| Gaur City / Gr Noida West | road | 3.5 km | — |\n| Sector 52 Metro Station | road | 4.5 km | — |\n| Sector 62 IT Hub | road | 7.5 km | — |\n\nDistances are road distances from our records, not straight-line."
+      },
+      {
+        "domain": "builder",
+        "ask": "What is the builder's track record?",
+        "lane": "ground-truth-db",
+        "ms": 19540,
+        "verdict": "PASS",
+        "hits": [
+          "Prateek Group",
+          "Prateek Laurel"
+        ],
+        "expectedSample": [
+          "Prateek Group",
+          "Prateek Laurel",
+          "Prateek Wisteria",
+          "Prateek Stylome"
+        ],
+        "uiEvents": [
+          "intent",
+          "ui_state",
+          "properties",
+          "token",
+          "done"
+        ],
+        "answer": "Prateek Group is an established NCR developer with over two decades of market presence and a proven delivery record.\n\n- The developer has completed 20 residential projects, including Prateek Laurel, Wisteria, and Edifice.\n  - This demonstrates consistent execution capability in the Noida market.\n- The company maintains zero reported litigation and no insolvency history.\n  - This significantly lowers legal and financial risks for buyers.\n- They operate as a CREDAI member with ISO 9001:2015 quality certification.\n  - This indicates adherence to standard construction practices and regulatory compliance.\n\nWould you like to review the available floor plans and pricing for Prateek Laurel?"
+      },
+      {
+        "domain": "specs",
+        "ask": "What are the specifications, like flooring and fittings?",
+        "lane": "ground-truth-db",
+        "ms": 10354,
+        "verdict": "PASS",
+        "hits": [
+          "Floor",
+          "Tiles",
+          "Vitrified",
+          "600x1200mm"
+        ],
+        "expectedSample": [
+          "Heavy-Duty MS Powder Coated Designer Safety Railing with Anti-Skid Ceramic Floor Tiles",
+          "Saint-Gobain / Jindal Stainless",
+          "Heavy",
+          "Powder"
+        ],
+        "uiEvents": [
+          "intent",
+          "ui_state",
+          "properties",
+          "token",
+          "done"
+        ],
+        "answer": "Prateek Laurel offers premium material specifications across flooring, sanitaryware, and kitchen fittings.\n\n- Living and dining areas feature 600x1200mm vitrified tiles, while master bedrooms include anti-skid vitrified wooden-plank finish tiles.\n- Bathrooms are equipped with wall-hung or floor-mounted EWC, dual-flush cisterns, and Jaquar chrome-plated brass fittings.\n- Kitchens come with a polished jet-black granite countertop, stainless steel sink, and IGL piped gas connection provision.\n\nWould you like to schedule a site visit to inspect these finishes in person?"
+      },
+      {
+        "domain": "competitors",
+        "ask": "Which similar projects should I compare it with?",
+        "lane": "ground-truth-db",
+        "ms": 22654,
+        "verdict": "PASS",
+        "hits": [
+          "Nearby Micro-Market Development"
+        ],
+        "expectedSample": [
+          "Nearby Micro-Market Development"
+        ],
+        "uiEvents": [
+          "intent",
+          "ui_state",
+          "properties",
+          "token",
+          "done"
+        ],
+        "answer": "Prateek Laurel is situated alongside competitors in the Sector 120 and Greater Noida West micro-market that offer similar ready-to-move residential profiles.\n\n* **Nearby Micro-Market Development:** Offers a slightly lower entry price point, though with higher density.\n* **Prateek Laurel Advantage:** Features superior construction quality, lower project density, and an 80% open green ratio.\n* **Value Assessment:** A 5% to 10% price premium for Prateek Laurel is justified by its superior long-term livability and asset appreciation potential.\n\nThis higher green cover and lower density provide a significantly better quality of life and stronger resale value over time.\n\nWould you like a detailed breakdown of the exact unit pricing or a maintenance cost comparison with nearby projects?"
+      },
+      {
+        "domain": "total_cost",
+        "ask": "What is the total cost of the cheapest flat including stamp duty and registration?",
+        "lane": "topic:statutory_tax",
+        "ms": 19175,
+        "verdict": "PASS",
+        "hits": [
+          "stamp duty",
+          "Stamp duty"
+        ],
+        "expectedSample": [
+          "stamp duty",
+          "Stamp duty"
+        ],
+        "uiEvents": [
+          "intent",
+          "ui_state",
+          "token",
+          "done"
+        ],
+        "answer": "### Statutory taxes & registration charges (Uttar Pradesh)\n\nThese are set by law and are the same for every project.\n\n| Component | Rate | Nature | Paid when & to whom |\n| :--- | :--- | :--- | :--- |\n| **Stamp duty** | 7% of agreement or circle value, whichever is higher | Mandatory | At registry, to the UP Stamp & Registration Department |\n| **Stamp duty — female primary owner** | 6% | Concession | At registry |\n| **Registration fee** | 1% of value | Mandatory | At deed execution, to the Sub-Registrar |\n| **GST — under construction** | 5% (without input tax credit) | Statutory | Billed across construction milestones |\n| **GST — ready to move with OC** | 0% | Exempt | Not applicable once the Occupancy Certificate is granted |\n| **TDS (Section 194-IA)** | 1% of sale consideration | Mandatory | Deducted by the buyer when value exceeds ₹50 Lakh (Form 26QB) |\n\n### Budgeting\nAllow 12–14% above base price for an under-construction home, or 8–9% above base price for ready-to-move with OC, to cover statutory and possession charges — typical for Noida — not verified for this project.\n\nName a project and I'll use whichever of its own charges we hold verified."
+      },
+      {
+        "domain": "emi",
+        "ask": "What would the EMI be on that with an 80% loan?",
+        "lane": "ground-truth-db",
+        "ms": 54759,
+        "verdict": "OUTAGE",
+        "hits": [],
+        "expectedSample": [
+          "a month",
+          "/month",
+          "per month"
+        ],
+        "uiEvents": [
+          "intent",
+          "ui_state",
+          "properties",
+          "token",
+          "done"
+        ],
+        "answer": "I couldn't get you a reliable answer just now — our AI service is briefly unavailable, and I'd rather say so than guess.\n\nAsk me again in a moment, or use **Book Site Visit** or **Callback** and our advisory team will pick it up directly."
+      }
+    ]
+  },
+  {
+    "project": "ATS Pious Hideaways / Orchards",
+    "slug": "ats-pious-hideaways-sector-150",
+    "turns": [
+      {
+        "domain": "opening",
+        "ask": "Tell me about ATS Pious Hideaways / Orchards",
+        "lane": "ground-truth-db",
+        "ms": 36949,
+        "verdict": "PASS",
+        "hits": [
+          "ATS Pious Hideaways / Orchards"
+        ],
+        "expectedSample": [
+          "ATS Pious Hideaways / Orchards"
+        ],
+        "uiEvents": [
+          "intent",
+          "ui_state",
+          "properties",
+          "token",
+          "done"
+        ],
+        "answer": "ATS Pious Hideaways / Orchards is an 18-acre, IGBC Gold-rated Spanish-themed residential project located in low-density Sector 150, Noida.\n\n- Features 82% open green space across 12 towers, situated 2.2 km from Sector 148 Metro Station and 33 km from the upcoming Jewar Airport.\n- Unit configurations include 2 BHK (1150 sq ft) from ₹1.87 Cr and 3 BHK (1495 sq ft) from ₹2.48 Cr (date of last confirmation not on record).\n- Possesses a clear land title and RERA registration (UPRERAPRJ417136) with zero ongoing litigations.\n\nThis project offers exceptional green living and low-density spacing, making it ideal for end-use lifestyle buyers, though daily commercial retail in the immediate sector is still developing.\n\nWould you like to review the complete cost sheet breakdown or schedule a site visit?"
+      },
+      {
+        "domain": "payment_plans",
+        "ask": "What payment plans do they offer?",
+        "lane": "topic:payment-plans",
+        "ms": 2014,
+        "verdict": "PASS",
+        "hits": [
+          "flexi"
+        ],
+        "expectedSample": [
+          "Construction Linked Payment Plan (CLP)",
+          "construction_linked",
+          "Time Linked Flexi Payment Plan (30:40:30)",
+          "flexi"
+        ],
+        "uiEvents": [
+          "intent",
+          "ui_state",
+          "token",
+          "done"
+        ],
+        "answer": "### Payment Plans in Noida & Greater Noida\n\nThese are the common structures in the Noida market (typical for Noida — not verified for any specific project):\n\n1. **Construction Linked Plan (CLP)**: ~10% booking, 80% across milestone slabs, 10% on handover (lowest upfront risk).\n2. **Down Payment Plan**: ~10% booking, 85% in 45 days, 5% on handover (often priced with a discount on the base selling price).\n3. **Flexi / Milestone Plan (30:70 / 20:80)**: 20–30% in first 90 days, balance upon superstructure or possession.\n\n*Which specific project would you like to view the detailed payment schedule for?*"
+      },
+      {
+        "domain": "cost_sheet",
+        "ask": "Show me the cost sheet. What are the extra charges?",
+        "lane": "main",
+        "ms": 46460,
+        "verdict": "OUTAGE",
+        "hits": [],
+        "expectedSample": [
+          "4,50,000",
+          "4.5 lakh",
+          "4.5 L",
+          "2,25,000"
+        ],
+        "uiEvents": [
+          "intent",
+          "ui_state",
+          "status",
+          "token",
+          "done"
+        ],
+        "answer": "The cost sheet for ATS Pious Hideaways / Orchards breaks down into base pricing, location additions, parking, and statutory charges as follows:\n\nI couldn't get you a reliable answer just now — our AI service is briefly unavailable, and I'd rather say so than guess.\n\nAsk me again in a moment, or use **Book Site Visit** or **Callback** and our advisory team will pick it up directly."
+      },
+      {
+        "domain": "location",
+        "ask": "How far is the nearest metro station?",
+        "lane": "coverage-lane",
+        "ms": 21308,
+        "verdict": "PASS",
+        "hits": [
+          "Sector",
+          "Metro"
+        ],
+        "expectedSample": [
+          "Sector 148 Metro Station",
+          "Sector",
+          "Metro"
+        ],
+        "uiEvents": [
+          "token",
+          "ui_state",
+          "done"
+        ],
+        "answer": "Projects we hold with the shortest road distance to a metro station:\n\n- **Gulshan Ikebana Towers A-F** (Sector 143): 0.1 km to Sector 142 Metro Interchange (Aqua Line)\n- **Logix Blossom Greens Phase 1** (Sector 143): 0.2 km to Sector 142 Metro Interchange (Aqua Line)\n- **Trecento Residencies by Gaurs** (Sector Jaypee Greens): 0.3 km to Sector 76 Metro Station (Aqua Line)\n- **Gaur Atulyam** (Sector Omicron 1): 0.3 km to Sector 76 Metro Station (Aqua Line)\n- **Purvanchal Silver City** (Sector Pari Chowk): 0.3 km to Sector 76 Metro Station (Aqua Line)\n- **Jaypee Klassic Block 6-10** (Sector 134): 0.4 km to Sector 76 Metro Station (Aqua Line)\n- **Jaypee Moon Court** (Sector Pari Chowk): 0.4 km to Sector 76 Metro Station (Aqua Line)\n- **Jaypee Kosmos** (Sector 134): 0.4 km to Sector 76 Metro Station (Aqua Line)\n\nSome of these distances come from builder brochures rather than a map measurement, so treat them as the builder's claim until checked on a visit. Want me to narrow this to a budget or BHK?"
+      },
+      {
+        "domain": "amenities",
+        "ask": "What amenities are there?",
+        "lane": "topic:amenity-lifestyle",
+        "ms": 1981,
+        "verdict": "MISS",
+        "hits": [],
+        "expectedSample": [
+          "24/7 Gated Security with High-Definition CCTV & Boom Barriers",
+          "100% Dual-Meter DG Power Backup for Common Areas & Elevators",
+          "Reserved Covered Basement Parking with EV Charging Provision",
+          "High-Speed Automated Passenger & Stretcher Service Elevators"
+        ],
+        "uiEvents": [
+          "intent",
+          "ui_state",
+          "properties",
+          "token",
+          "done"
+        ],
+        "answer": "### Amenities & Lifestyle Guide — Sector 150, Noida\n\n| Society | Sector | Clubhouse & Community | Swimming Pool & Sports | Open Green Cover |\n| :--- | :--- | :--- | :--- | :--- |\n| **ACE Parkway** | Sector 150 | Grand 30,000+ sq.ft Clubhouse & Banquet | Olympic-Size Swimming Pool & Loungers, Badminton & Squash Courts, Lawn Tennis Arena & Basketball Half-Court | 80% open space |\n| **Samridhi Luxuriate** | Sector 150 | Grand 30,000+ sq.ft Clubhouse & Banquet | Olympic-Size Swimming Pool & Loungers, Badminton & Squash Courts, Lawn Tennis Arena & Basketball Half-Court | 75% open space |\n| **ATS Le Grandiose Phase 2** | Sector 150 | Multi-Tier Clubhouse with Banquet Hall & Party Lawn | Half-Olympic Size Swimming Pool with Sun Loungers & Toddler Splash Pool, Modern Air-Conditioned Gymnasium with Crossfit & Cardio Deck, Synthetic Lawn Tennis Court & Half Basketball Court | 75% open space |\n| **Mahagun Meadows** | Sector 150 | Grand 30,000+ sq.ft Clubhouse & Banquet | Olympic-Size Swimming Pool & Loungers, Badminton & Squash Courts, Lawn Tennis Arena & Basketball Half-Court | 80% open space |\n| **ATS Kingston Heath** | Sector 150 | Grand 30,000+ sq.ft Clubhouse & Banquet | Olympic-Size Swimming Pool & Loungers, Badminton & Squash Courts, Lawn Tennis Arena & Basketball Half-Court | 85% open space |\n\n*A dash means we hold no entry for that facility — the amenity lists we have are incomplete rather than confirmed-absent, so it is worth checking on a site visit.*\n\n*Would you like detailed unit floor plans, monthly maintenance charges, or price breakdowns for any of these societies?*"
+      },
+      {
+        "domain": "units",
+        "ask": "What sizes are the flats and what do they cost?",
+        "lane": "main",
+        "ms": 28446,
+        "verdict": "PASS",
+        "hits": [
+          "750"
+        ],
+        "expectedSample": [
+          "1,150",
+          "750",
+          "1,495",
+          "990"
+        ],
+        "uiEvents": [
+          "intent",
+          "ui_state",
+          "status",
+          "token",
+          "followup",
+          "done"
+        ],
+        "answer": "At ACE Parkway in Sector 150, the flat sizes and pricing span three configurations:\n\nACE Parkway in Sector 150, the flat sizes and pricing span three configurations:\n\n- **2 BHK**: 660 sq.ft. carpet area\n- **3 BHK**: 1,090 sq.ft. carpet area\n- **4 BHK**: 2,040 sq.ft. carpet area\n\n- **2 BHK Classic**: 660 sq.ft. carpet area (1,085 sq.ft. super area) priced from ₹1.55–1.75 Cr.\n- **3 BHK Premier**: 1,090 sq.ft. carpet area (1,750 sq.ft. super area) priced from ₹2.50–2.95 Cr.\n- **4 BHK Penthouse Villa**: 2,040 sq.ft. carpet area (3,225 sq.ft. super area) priced from ₹5.20–7.48 Cr.\n\nNote that these base prices exclude 5% GST (since it is under-construction), stamp duty, and registration charges. \n\nWould you like me to pull the full payment plan for ACE Parkway?"
+      },
+      {
+        "domain": "price_history",
+        "ask": "Has the price gone up over time?",
+        "lane": "main",
+        "ms": 46023,
+        "verdict": "OUTAGE",
+        "hits": [],
+        "expectedSample": [
+          "7,250",
+          "8,500",
+          "9,750",
+          "11,000"
+        ],
+        "uiEvents": [
+          "intent",
+          "ui_state",
+          "status",
+          "token",
+          "done"
+        ],
+        "answer": "Yes, prices at ACE Parkway have moved up steadily over the past few years, reflecting strong demand along the Sector 150 corridor. \n\nI couldn't get you a reliable answer just now — our AI service is briefly unavailable, and I'd rather say so than guess.\n\nAsk me again in a moment, or use **Book Site Visit** or **Callback** and our advisory team will pick it up directly."
+      },
+      {
+        "domain": "rera",
+        "ask": "Is it RERA registered?",
+        "lane": "ground-truth-db",
+        "ms": 23934,
+        "verdict": "MISS",
+        "hits": [],
+        "expectedSample": [
+          "UPRERAPRJ417136"
+        ],
+        "uiEvents": [
+          "intent",
+          "ui_state",
+          "properties",
+          "token",
+          "done"
+        ],
+        "answer": "Yes, ACE Parkway is a RERA-registered project under Uttar Pradesh RERA.\n\n* **RERA Registration Number:** UPRERAPRJ4510.\n* **Litigation Status:** Zero active or historical litigation cases on record.\nRegistration puts the project on record with the authority and gives you a route to complain; it is not a warranty on delivery, title or build quality. Would you like to review the project's possession details or legal land title status next?"
+      },
+      {
+        "domain": "possession",
+        "ask": "When is possession, and how far along is construction?",
+        "lane": "topic:vicinity-lookup",
+        "ms": 5372,
+        "verdict": "MISS",
+        "hits": [],
+        "expectedSample": [
+          "Under Construction (Finishing Stage)",
+          "2026",
+          "RERA & Environmental Approvals",
+          "Excavation & Foundation Raft"
+        ],
+        "uiEvents": [
+          "intent",
+          "ui_state",
+          "properties",
+          "token",
+          "done"
+        ],
+        "answer": "### Near ACE Parkway — Sector 150\n\n| Landmark | Type | Distance | Travel time |\n| :--- | :--- | ---: | ---: |\n| Knowledge Park II Metro Station | metro | 3.5 km | 8 min |\n| Pari Chowk Metro Station (Aqua Line) | metro | 5.9 km | 13 min |\n| Yamuna Expressway Toll Plaza | expressway | 10.5 km | 23 min |\n| Sector 142 Metro Interchange (Aqua Line) | metro | 11.6 km | 26 min |\n| Sector 137 Metro Station (Aqua Line) | metro | 14.1 km | 31 min |\n\nDistances are road distances from our records, not straight-line."
+      },
+      {
+        "domain": "builder",
+        "ask": "What is the builder's track record?",
+        "lane": "ground-truth-db",
+        "ms": 10900,
+        "verdict": "MISS",
+        "hits": [],
+        "expectedSample": [
+          "ATS Infrastructure",
+          "ATS Village",
+          "ATS One Hamlet",
+          "ATS Pristine"
+        ],
+        "uiEvents": [
+          "intent",
+          "ui_state",
+          "properties",
+          "token",
+          "done"
+        ],
+        "answer": "ACE Group has an established track record in Delhi-NCR with over 18 years of experience specializing in luxury residential developments.\n- They have successfully delivered multiple projects including ACE Platinum, ACE City, ACE Aspire, and ACE Parkway out of 24 total projects.\n- The builder currently records zero ongoing litigation and no history of insolvency.\n- They are backed by industry recognitions including the CNBC Awaaz Fastest Growing Real Estate Brand (2023) and ISO 9001:2015 certification.\nThis background indicates strong execution capability and financial stability, reducing delivery and legal risks for your investment.\n\nWould you like to review the specific unit configurations and pricing available at ACE Parkway?"
+      },
+      {
+        "domain": "specs",
+        "ask": "What are the specifications, like flooring and fittings?",
+        "lane": "ground-truth-db",
+        "ms": 11151,
+        "verdict": "PASS",
+        "hits": [
+          "Earthquake",
+          "Resistant",
+          "Construction",
+          "Premium"
+        ],
+        "expectedSample": [
+          "Monolithic Earthquake Resistant RCC Shear Wall Construction (Seismic Zone IV Compliant)",
+          "Mivan Aluminum Shuttering / Tata Tiscon Steel (Fe 550D)",
+          "Monolithic",
+          "Earthquake"
+        ],
+        "uiEvents": [
+          "intent",
+          "ui_state",
+          "properties",
+          "token",
+          "done"
+        ],
+        "answer": "ACE Parkway features premium interior specifications including large-format vitrified tiles, branded sanitaryware, and earthquake-resistant construction.\n\n- Living and dining areas feature 800x800mm large-format glazed vitrified tiles from brands like Kajaria or Somany.\nWhat this means for the buyer: Delivers a seamless, high-end aesthetic with easy-to-clean durability for high-traffic zones.\n- Master bathrooms are equipped with wall-hung EWCs, concealed cisterns, and single-lever diverters by Kohler, Jaquar, or Grohe.\nWhat this means for the buyer: Ensures long-term mechanical reliability and a modern, luxury finish in daily wet areas.\n- Main entrances feature 8-foot teak veneer flush doors paired with powder-coated aluminum or UPVC sliding windows.\nWhat this means for the buyer: Provides enhanced security, sound insulation, and a grand architectural entry feel.\n\nWould you like to schedule a site visit to inspect the construction quality and show apartment firsthand?"
+      },
+      {
+        "domain": "competitors",
+        "ask": "Which similar projects should I compare it with?",
+        "lane": "ground-truth-db",
+        "ms": 22958,
+        "verdict": "MISS",
+        "hits": [],
+        "expectedSample": [
+          "Nearby Micro-Market Development"
+        ],
+        "uiEvents": [
+          "intent",
+          "ui_state",
+          "properties",
+          "token",
+          "done"
+        ],
+        "answer": "You should compare ACE Parkway primarily with Godrej Palm Retreat and ATS Pristine in Sector 150.\n\n* Godrej Palm Retreat offers a slightly lower price point within the same sector.\n* ATS Pristine provides an established low-density option with comparable pricing.\n* ACE Parkway maintains an edge over both options with its 51 sports facilities and 80% open green footprint.\n\nWould you like a detailed price and layout comparison between ACE Parkway and Godrej Palm Retreat?"
+      },
+      {
+        "domain": "total_cost",
+        "ask": "What is the total cost of the cheapest flat including stamp duty and registration?",
+        "lane": "topic:statutory_tax",
+        "ms": 16400,
+        "verdict": "PASS",
+        "hits": [
+          "stamp duty",
+          "Stamp duty"
+        ],
+        "expectedSample": [
+          "stamp duty",
+          "Stamp duty"
+        ],
+        "uiEvents": [
+          "intent",
+          "ui_state",
+          "token",
+          "done"
+        ],
+        "answer": "### Statutory taxes & registration charges (Uttar Pradesh)\n\nThese are set by law and are the same for every project.\n\n| Component | Rate | Nature | Paid when & to whom |\n| :--- | :--- | :--- | :--- |\n| **Stamp duty** | 7% of agreement or circle value, whichever is higher | Mandatory | At registry, to the UP Stamp & Registration Department |\n| **Stamp duty — female primary owner** | 6% | Concession | At registry |\n| **Registration fee** | 1% of value | Mandatory | At deed execution, to the Sub-Registrar |\n| **GST — under construction** | 5% (without input tax credit) | Statutory | Billed across construction milestones |\n| **GST — ready to move with OC** | 0% | Exempt | Not applicable once the Occupancy Certificate is granted |\n| **TDS (Section 194-IA)** | 1% of sale consideration | Mandatory | Deducted by the buyer when value exceeds ₹50 Lakh (Form 26QB) |\n\n### Budgeting\nAllow 12–14% above base price for an under-construction home, or 8–9% above base price for ready-to-move with OC, to cover statutory and possession charges — typical for Noida — not verified for this project.\n\nName a project and I'll use whichever of its own charges we hold verified."
+      },
+      {
+        "domain": "emi",
+        "ask": "What would the EMI be on that with an 80% loan?",
+        "lane": "ground-truth-db",
+        "ms": 54830,
+        "verdict": "OUTAGE",
+        "hits": [
+          "per month"
+        ],
+        "expectedSample": [
+          "a month",
+          "/month",
+          "per month"
+        ],
+        "uiEvents": [
+          "intent",
+          "ui_state",
+          "properties",
+          "searching",
+          "token",
+          "done"
+        ],
+        "answer": "The EMI would be ₹1,02,108 per month.\n\nI couldn't get you a reliable answer just now — our AI service is briefly unavailable, and I'd rather say so than guess.\n\nAsk me again in a moment, or use **Book Site Visit** or **Callback** and our advisory team will pick it up directly."
+      }
+    ]
+  }
+]

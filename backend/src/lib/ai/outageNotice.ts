@@ -32,3 +32,12 @@ export function isOutageNotice(text: string | undefined | null): boolean {
   if (!text) return false
   return text.includes(OUTAGE_FINGERPRINT)
 }
+
+/**
+ * The token event that delivers the notice. When part of an answer is already
+ * on screen (a leg died mid-reply and no leg finished it), `replace` tells the
+ * client to swap that fragment for the notice instead of appending to it.
+ */
+export function outageTokenEvent(partialShown: boolean): { token: string; replace?: true } {
+  return partialShown ? { token: OUTAGE_NOTICE, replace: true } : { token: OUTAGE_NOTICE }
+}

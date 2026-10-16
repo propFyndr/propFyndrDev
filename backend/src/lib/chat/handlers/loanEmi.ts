@@ -1,6 +1,7 @@
 import type { ChatTopicHandler } from '../handlerContext'
 import { calculateEmi } from './affordabilityHandler'
 import { UP_STATUTORY } from '../../factPresentation'
+import { focusProjectPrice } from './statutoryTax'
 
 /**
  * "I can get a 90 lakh loan, what EMI at 8.5% for 20 years?"
@@ -15,7 +16,17 @@ const LOAN_AMOUNT = /(?:loan\s+(?:of|amount(?:\s+of)?)\s*(?:₹|rs\.?\s*)?(\d+(?
 const LOAN_SHARE = /(\d{1,3}(?:\.\d+)?)\s*%\s*(?:home\s+)?loan\s+on\s+(?:a\s+|the\s+)?(?:₹|rs\.?\s*)?(\d+(?:\.\d+)?)\s*(cr(?:ore)?s?|l(?:akh|ac|acs|akhs)?)\b/i
 // Hinglish order, price first: "1.5 crore ke flat pe 80% loan".
 const LOAN_SHARE_HI = /(?:₹|rs\.?\s*)?(\d+(?:\.\d+)?)\s*(cr(?:ore)?s?|l(?:akh|ac|acs|akhs)?)\s+(?:ke|ka|ki)\s+(?:flat|ghar|property)\s+(?:pe|par|pr)\s+(\d{1,3}(?:\.\d+)?)\s*%\s*(?:home\s+)?loan\b/i
+// "an 80% loan" with no price: the price comes from the project in focus.
+const LOAN_SHARE_ONLY = /(\d{1,3}(?:\.\d+)?)\s*%\s*(?:home\s+)?loan\b/i
 const RATE = /(\d{1,2}(?:\.\d{1,2})?)\s*%/
+
+/** The loan share of an EMI question that names no amount, or null. */
+export function loanShareOfFocus(message: string): number | null {
+  if (!/\bemi\b|\binstal+ment\b|\bkisht\b/i.test(message) || parseLoanEmiQuestion(message)) return null
+  const m = message.match(LOAN_SHARE_ONLY)
+  const pct = m ? Number(m[1]) : NaN
+  return pct > 0 && pct <= 100 ? pct : null
+}
 const TENURE = /(\d{1,2})\s*(?:years?|yrs?|saal)\b/i
 
 const DEFAULT_RATE = 8.5
@@ -110,12 +121,26 @@ export const loanEmiHandler: ChatTopicHandler = {
   id: 'loan_emi',
   description: 'EMI on a loan amount the buyer stated',
 
-  matches: ctx => parseLoanEmiQuestion(ctx.message) !== null,
+  matches: ctx => parseLoanEmiQuestion(ctx.message) !== null || (Boolean(ctx.activeProjectName) && loanShareOfFocus(ctx.message) !== null),
 
   handle: async ctx => {
-    const q = parseLoanEmiQuestion(ctx.message)
+    let q = parseLoanEmiQuestion(ctx.message)
+    let basis = ''
+    // "EMI on that with an 80% loan" after a project answer: the price is the
+    // project's lowest listed one, stated with its confirmation date.
+    const pct = q ? null : loanShareOfFocus(ctx.message)
+    if (!q && pct !== null) {
+      const focus = await focusProjectPrice(ctx.activeProjectName)
+      if (!focus) return false
+      const price = Math.round(focus.amountCr * 10_000_000)
+      const rest = ctx.message.replace(LOAN_SHARE_ONLY, ' ')
+      const rate = rest.match(RATE) ? Number(rest.match(RATE)![1]) : null
+      const tenure = rest.match(TENURE) ? Number(rest.match(TENURE)![1]) : null
+      q = { principal: Math.round((price * pct) / 100), price, rate: rate && rate > 0 && rate < 30 ? rate : null, tenure: tenure && tenure > 0 && tenure <= 35 ? tenure : null }
+      basis = `${focus.heading}.\n\n`
+    }
     if (!q) return false
-    ctx.send('token', { token: loanEmiAnswer(q) })
+    ctx.send('token', { token: basis + loanEmiAnswer(q) })
     ctx.emitUiState({
       stage: 'RESEARCH',
       thinking: 'EMI on your loan:',

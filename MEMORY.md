@@ -4867,3 +4867,20 @@ Audit: ~60 questions covering every section of a project card, run through the r
 - `rankingTools.test.ts` asserts `found` instead of `if (found)`.
 **Rejected:** using `cost_sheets.stamp_duty_pct`/`registration_pct`/`gst_rate_pct` on the property page. Their DB defaults (6/1/5) are schema defaults, not data, and stamp duty is statutory (7% male).
 **Open:** re-sourcing the nulled columns; the per-row estimate flag for prices (`price_is_estimated` was dropped).
+
+## 2026-10-16 — Follow-ups keep the project in focus (follow-up coverage 8/28 → 55/56)
+**Measured:** `backend/scripts/corpus/followup-coverage.ts` opens with "Tell me about X", then asks one follow-up per data domain without naming X, and checks each answer against X's own rows (it flags wrong-project and list answers). First run: about 8/28 right; the payment-plans question got generic Noida plans, nearest metro got a catalogue list, and after a sector table the ATS chat became ACE Parkway for every later turn. Final run on 4 projects: 55/56 right; the 56th was a provider outage.
+**Causes fixed:**
+- The follow-up word list missed plurals ("payment plans") and "they". It now lives in `lib/chat/followUp.ts` (tested).
+- The focus fell back to the first card of the last list. Now it falls back to the session's `focus_project_id`, or a single card only.
+- "How far along is construction" matched the distance checks (vicinity handler and router connectivity flag).
+- Total cost and "EMI with an 80% loan" on a follow-up had no price. They now use the focus project's lowest listed unit price, with its confirmation note (`focusProjectPrice`).
+- A half-written answer followed by the outage notice: the notice is now sent with `replace: true` (`outageTokenEvent`), and the frontend reducer swaps the text. The "cards above" closer is no longer added to an outage notice.
+**Rejected:** buffering the whole answer to avoid partial text (it loses streaming).
+**Open, data and wording:**
+- A passed possession date stated as "expected" in model answers (ATS: June 2026).
+- IBP Windsor Valley's possession_date (Dec 2027) contradicts expected_handover_quarter (Q4 2026).
+- A raw "legal flag: moderate_risk" token reaches buyers.
+- Placeholder competitor rows ("Nearby Micro-Market Development").
+- Identical row counts on 3 Sector 10 projects (likely templated).
+- p50 16 s / p90 38 s.

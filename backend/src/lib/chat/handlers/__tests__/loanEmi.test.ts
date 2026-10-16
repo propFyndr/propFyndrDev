@@ -1,6 +1,6 @@
 import { describe, it } from 'node:test'
 import assert from 'node:assert/strict'
-import { parseLoanEmiQuestion, loanEmiAnswer } from '../loanEmi'
+import { parseLoanEmiQuestion, loanEmiAnswer, loanShareOfFocus } from '../loanEmi'
 import { calculateEmi } from '../affordabilityHandler'
 
 describe('loan EMI', () => {
@@ -41,5 +41,15 @@ describe('loan EMI', () => {
     assert.match(text, /\*\*Cash up front, ready to move\*\* \| \*\*₹42,00,000\*\*/)
     assert.match(text, /under construction.*₹7,50,000/i)
     assert.doesNotMatch(loanEmiAnswer({ principal: 9_000_000, rate: null, tenure: null }), /Cash up front/)
+  })
+})
+
+describe('loan share with no amount (follow-up about the project in focus)', () => {
+  it('reads the share when no price is given', () => {
+    assert.equal(loanShareOfFocus('What would the EMI be on that with an 80% loan?'), 80)
+  })
+  it('leaves a question that names its own amount to the full parser', () => {
+    assert.equal(loanShareOfFocus('If I take an 80% loan on a 1.5 crore flat, what is my EMI?'), null)
+    assert.equal(loanShareOfFocus('80% loan possible?'), null)
   })
 })

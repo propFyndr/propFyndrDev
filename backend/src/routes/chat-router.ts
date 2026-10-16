@@ -67,7 +67,7 @@ import {
 } from '../lib/advisory/marketAdvisory'
 import { budgetCeilingStance, RequirementStateSchema, type RequirementState } from '../lib/discovery/requirementState'
 import { withRequirementChecklist } from '../lib/discovery/requirementChecklist'
-import { parseLoanEmiQuestion } from '../lib/chat/handlers/loanEmi'
+import { parseLoanEmiQuestion, loanShareOfFocus } from '../lib/chat/handlers/loanEmi'
 import { maybeCompressTopical, TopicSummaries } from '../lib/chat/summaryCompression'
 import { isSpecificUnknownProject, logCoverageGap, fetchUnknownProjectContext, unknownProjectDirective } from '../lib/chat/coverageGap'
 import { statedMonthlyIncome, isAffordabilityQuestion, computeAffordability, renderAffordabilityTable, affordabilityDirective } from '../lib/ai/affordability'
@@ -107,6 +107,7 @@ import { recordTurnTrace, type TurnTraceDraft } from '../lib/turnTrace'
 import { recordDemandSignal } from '../lib/demandSignal'
 import { scanDisclosure } from '../lib/ai/answerIntegrity'
 import { projectCatalog, catalogNamesSync } from '../lib/projectCatalog'
+import { asksAboutFocusAttribute, mentionsFocusPronoun, focusFallback } from '../lib/chat/followUp'
 import { matchProjectInText, fuzzyMatchProject, suggestProjects } from '../lib/discovery/matchProjectInText'
 import { parseAggregateQuestion, queryProjects, renderAggregateAnswer } from '../lib/chat/aggregateQuery'
 import { applyCommuteAnchor, beltFor } from '../lib/discovery/commuteAnchor'
@@ -1482,8 +1483,7 @@ router.post('/', async (req: Request, res: Response) => {
         /**
          * A pronoun is not a follow-up when the same sentence is a fresh search.
          */
-        const isExplicitFollowUp = /\b(this\s*project|the\s*project|payment\s*plan|floor\s*plan|cost\s*sheet|construction|rera|who\s*is|amenities|layout|bhk\s*sizes)\b/i.test(message);
-        const isBarePronounFollowUp = /\b(it|its|this|that)\b/i.test(message);
+        const isExplicitFollowUp = asksAboutFocusAttribute(message), isBarePronounFollowUp = mentionsFocusPronoun(message);
         isFreshSearch = isSectorOrLocationSearch || isDiscoveryQuery || isBuilderDiscovery || isAdvisoryQuery || isCityLevelGeneralQuery || isOpenAdvisoryQuery || isBroadSuperlativeQuery;
 
         /**
@@ -1603,11 +1603,11 @@ router.post('/', async (req: Request, res: Response) => {
           // reads it. Isolating the focus has to reach the column too.
           clearPersistedFocus = true;
         } else {
-          // Persist active project focus from previous turn / session only if user is asking follow-up detail query
-          const prevProjectName = (prevIntent as any)?.projectNames?.[0] || (hydratedIntent as any)?.projectNames?.[0] || cachedProjectsFromSession?.[0]?.name;
-          const prevProjectId = (prevIntent as any)?.targetProjectId || (hydratedIntent as any)?.targetProjectId || cachedProjectsFromSession?.[0]?.id;
+          const fallbackFocus = focusFallback(sessionData?.focus_project_id, await projectCatalog(), cachedProjectsFromSession) // saved focus, never a list's first card
+          const prevProjectName = (prevIntent as any)?.projectNames?.[0] || (hydratedIntent as any)?.projectNames?.[0] || fallbackFocus?.name;
+          const prevProjectId = (prevIntent as any)?.targetProjectId || (hydratedIntent as any)?.targetProjectId || fallbackFocus?.id;
 
-          if (prevProjectName && (isExplicitFollowUp || (!isFreshSearch && isBarePronounFollowUp))) {
+          if (prevProjectName && (isExplicitFollowUp || (!isFreshSearchThisTurn && isBarePronounFollowUp))) {
             console.log('[CHAT] Persisting active project focus for follow-up detail:', prevProjectName);
             intent.projectNames = [prevProjectName];
             if (prevProjectId) (intent as any).targetProjectId = prevProjectId;
@@ -3673,7 +3673,7 @@ I can help you with:
 // is the metro", and reached no handler — the connectivity table renders the
 // stored road distances and travel times, so the answer existed and the
 // matcher was the only thing missing.
-/(connectivity|distance to|how far|metro proximity|airport distance|jewar|expressway access|transit|commute|near(?:by|est)?\s+(?:a\s+|the\s+)?(?:metro|school|hospital|mall|airport))/i.test(topicText)
+/(connectivity|distance to|how far(?!\s+(?:along|ahead|behind|has|have))|metro proximity|airport distance|jewar|expressway access|transit|commute|near(?:by|est)?\s+(?:a\s+|the\s+)?(?:metro|school|hospital|mall|airport))/i.test(topicText)
       || /\b(what(?:'s| is| are)?\s+(?:all\s+)?(?:near|nearby|around|close to)|anything\s+near|nearby\s+(?:landmarks?|places?|amenities|schools?|hospitals?|malls?|metro)|what\s+surrounds)\b/i.test(topicText) && !isPaymentPlanRequest
     const isConfigurationQuery = !isInventorySearch && /(balcon|bedroom|bathroom|carpet area|super area|sqft|square feet|size of|\bsizes?\b|how big|how large|how many (balconies|rooms|bhk|bathrooms)|configuration|unit type|floor plan)/i.test(topicText) && !isPaymentPlanRequest && !isCostSheetRequest &&
       // "price per sqft" / "rate per sqft" is a price question; the configuration
@@ -3692,7 +3692,7 @@ I can help you with:
 
     const activeProjectName = intent.projectNames?.[0] || (intent as any)?.targetProjectId
     // "EMI on a 90 lakh loan" — arithmetic on the buyer's own figure (handlers/loanEmi.ts).
-    const isLoanEmiQuery = parseLoanEmiQuestion(message) !== null
+    const isLoanEmiQuery = parseLoanEmiQuestion(message) !== null || (Boolean(intent.projectNames?.length) && loanShareOfFocus(message) !== null)
 
 
     // A project-specific RERA number question ("what is X's RERA number") is a
@@ -6314,7 +6314,7 @@ EXECUTIVE RESPONSE INSTRUCTIONS:
       /**
        * The same deletion, one sentence further in.
        */
-      if (!closed && cardsAreRendering && wantsProjectList && cardsShownThisTurn > 0) {
+      if (!closed && cardsAreRendering && wantsProjectList && cardsShownThisTurn > 0 && !isOutageNotice(fullText)) {
         const shown = projects.slice(0, Math.max(cardsShownThisTurn, 1))
         const namesAny = shown.some((p) => p.name && fullText.includes(p.name))
         if (!namesAny) {

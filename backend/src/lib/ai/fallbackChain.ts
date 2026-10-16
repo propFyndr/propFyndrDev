@@ -2,7 +2,7 @@
 import { FALLBACK_CHAIN, FallbackKeyConfig, isFreeTierKey, vendorOf, groqReplyCeiling } from '../config'
 import { checkAnswerIntegrity, checkAnswerIntegritySync, rewriteFraming, qualifyMarketFigures } from './answerIntegrity'
 import { warmKnownNames } from './toolBlindGuard'
-import { OUTAGE_NOTICE } from './outageNotice'
+import { OUTAGE_NOTICE, outageTokenEvent } from './outageNotice'
 
 /**
  * Release each gated paragraph as it finishes instead of the whole answer at
@@ -1183,7 +1183,9 @@ export async function executeWithFallbackChain(options: FallbackChainOptions): P
   // shortcuts on an outage turn. See lib/ai/outageNotice.ts.
   const fallbackMessage = OUTAGE_NOTICE
 
-  send('token', { token: fallbackMessage })
+  // A leg that died mid-reply left part of an answer on screen ("The EMI would
+  // be ₹1,02,108 per month." then the notice). Nothing finished it, so retract it.
+  send('token', outageTokenEvent(Boolean(carryText)))
   // `is_verified: false`. Every leg failed; nothing about this reply was verified
   // against anything, and the flag travels — it is what made the answer cache log
   // an outage notice as a "verified advisory response" when it stored one.

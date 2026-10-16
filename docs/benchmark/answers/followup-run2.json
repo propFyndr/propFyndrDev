@@ -1,0 +1,1380 @@
+[
+  {
+    "project": "Prateek Laurel",
+    "slug": "prateek-laurel-sector-120-noida",
+    "turns": [
+      {
+        "domain": "opening",
+        "ask": "Tell me about Prateek Laurel",
+        "lane": "ground-truth-db",
+        "ms": 41213,
+        "verdict": "PASS",
+        "hits": [
+          "Prateek Laurel"
+        ],
+        "expectedSample": [
+          "Prateek Laurel"
+        ],
+        "uiEvents": [
+          "intent",
+          "ui_state",
+          "properties",
+          "token",
+          "done"
+        ],
+        "answer": "Prateek Laurel is a 14-acre ready-to-move residential project by Prateek Group, located in Sector 120, Noida.\n\n- Apartments range from 2 BHK to 3 BHK units priced between ₹0.90 Cr and ₹1.45 Cr (date of last confirmation not on record).\n- The gated community features 27 towers (G+18) with 80% open landscaped greens and a fully obtained Occupancy Certificate (OC).\n- It sits 0.5 km from the Parthala Flyover, offering direct road access to Sector 62 IT hub and Greater Noida West.\n\nThis allows immediate move-in or rental generation with zero GST applicability.\n\nWould you like to review the layout plans and detailed cost breakup for a 2 BHK or 3 BHK unit?"
+      },
+      {
+        "domain": "payment_plans",
+        "ask": "What payment plans do they offer?",
+        "lane": "topic:payment-plans",
+        "ms": 15103,
+        "verdict": "PASS",
+        "hits": [
+          "Ready Resale Down Payment Plan"
+        ],
+        "expectedSample": [
+          "Ready Resale Down Payment Plan",
+          "down_payment"
+        ],
+        "uiEvents": [
+          "intent",
+          "ui_state",
+          "properties",
+          "token",
+          "done"
+        ],
+        "answer": "### Payment Plans & Milestones — Prateek Laurel\n\n### Available Payment Schemes\n\n| Payment Scheme | Milestone Structure | Discount / Key Benefit | Watch out |\n| :--- | :--- | :--- | :--- |\n| **Ready Resale Down Payment Plan** | 10% : 80% : 10% | 10% Down Payment | Not recorded |\n\n#### Ready Resale Down Payment Plan\n\n| Stage / Milestone | Timeline / Trigger | Share | Amount |\n| :--- | :--- | ---: | ---: |\n| At Token & Initial Agreement | Not recorded | 10% | Not recorded |\n| Within 30–45 Days via Bank Disbursal | Not recorded | 80% | Not recorded |\n| At Sub-Registrar Lease Deed & Key Handover | Not recorded | 10% | Not recorded |\n\n_These are the standard schemes on file for this project and have not been confirmed against the developer's current terms. Treat the stage percentages as the shape to expect, and get the figures in writing before you pay._\n\nThe rendered schedule for Prateek Laurel illustrates a straightforward cash-flow trade-off centered around rapid capital deployment versus liquidity preservation. Because our verified data currently records only the Ready Resale Down Payment Plan for this property, we cannot compare it against a construction-linked alternative using verified figures. However, a down-payment structure demands heavy upfront funding within thirty to forty-five days, which minimizes long-term debt servicing costs but locks up substantial capital immediately. For a buyer at this price point, committing large sums upfront reduces short-term financial flexibility, making it crucial to weigh the opportunity cost of liquid cash against potential developer rebates.\n\nUltimately, your choice depends entirely on your current liquidity and earnings trajectory. Take the down-payment plan if you have the cash idle and want to clear your financial obligation swiftly without ongoing milestone tracking; take construction-linked if you are still saving and prefer to align your disbursements with physical progress on the ground. Since only the down-payment structure is currently held in our records, ensure you verify if a staged plan is available before finalizing your commitment."
+      },
+      {
+        "domain": "cost_sheet",
+        "ask": "Show me the cost sheet. What are the extra charges?",
+        "lane": "topic:cost-sheet",
+        "ms": 20399,
+        "verdict": "PASS",
+        "hits": [
+          "3.25 lakh",
+          "3.25 L",
+          "0 lakh",
+          "0 L"
+        ],
+        "expectedSample": [
+          "3,25,000",
+          "3.25 lakh",
+          "3.25 L",
+          "1,50,000"
+        ],
+        "uiEvents": [
+          "intent",
+          "ui_state",
+          "properties",
+          "token",
+          "done"
+        ],
+        "answer": "### Cost breakdown — Prateek Laurel\n\n| Cost Component | Rate / Amount | Details & Stage |\n| :--- | :--- | :--- |\n| **Base Selling Price (BSP)** | ₹6,913/sqft | Verified base rate |\n| **Covered Car Parking** | ₹3.25 lakh | Dedicated basement parking |\n| **Club Membership** | ₹1.50 lakh | Access to clubhouse & amenities |\n| **IFMS (Maintenance Security)** | ₹50/sqft | Interest-free refundable corpus, charged on area |\n| **Maintenance** | ₹2.38/sqft per month | Recurring, from possession |\n| **GST** | 0% (Exempt with OC) | Ready to move with OC |\n| **UP Stamp Duty** | 7% | At registration (6% for women) |\n| **Registration Fee** | 1% | State sub-registrar fee |\n\n*Prices: date of last confirmation not on record.*\n\nThe headline base rate for Prateek Laurel covers only the core apartment, leaving a wide gap before you reach the actual cheque amount. To arrive at the final payable figure, you must account for mandatory additions like parking, club membership, utility infrastructure, and government levies, notably the statutory six percent stamp duty and one percent registration fixed under Uttar Pradesh law.\n\nBefore booking, you should carefully check the specific Preferential Location Charges and floor rise increments listed in the developer's cost sheet. Because these variable charges depend entirely on your specific unit's orientation—such as park views or corner placement—they directly dictate the size of that gap and must be locked in writing to prevent last-minute cost escalations."
+      },
+      {
+        "domain": "location",
+        "ask": "How far is the nearest metro station?",
+        "lane": "topic:vicinity-lookup",
+        "ms": 10560,
+        "verdict": "PASS",
+        "hits": [
+          "Sector 52 Metro Station",
+          "Sector",
+          "Metro"
+        ],
+        "expectedSample": [
+          "Sector 52 Metro Station",
+          "Sector",
+          "Metro"
+        ],
+        "uiEvents": [
+          "intent",
+          "ui_state",
+          "properties",
+          "token",
+          "done"
+        ],
+        "answer": "We have not recorded a metro against Prateek Laurel, so I can't confirm one from our own data.\n\n**From public sources, not our records:** The Noida authority has a plan to build a 3.9km Metro line between Kalindi Kunj and the Botanical Garden crossing through Noida Expressway. However, the sources do not provide specific information about the proximity of Prateek Laurel Sector 120 Noida to this metro line.\n\nTreat that as unverified — worth confirming on the site visit or with the advisory team.\n\nWhat we do hold for Prateek Laurel:\n\n| Landmark | Type | Distance |\n| :--- | :--- | ---: |\n| Parthala Flyover / FNG | road | 500 m |\n| Gaur City / Gr Noida West | road | 3.5 km |\n| Sector 52 Metro Station | road | 4.5 km |\n| Sector 62 IT Hub | road | 7.5 km |"
+      },
+      {
+        "domain": "amenities",
+        "ask": "What amenities are there?",
+        "lane": "topic:amenity-lifestyle",
+        "ms": 3615,
+        "verdict": "PASS",
+        "hits": [
+          "24/7 Gated Security with High-Definition CCTV & Boom Barriers",
+          "100% Dual-Meter DG Power Backup for Common Areas & Elevators",
+          "Reserved Covered Basement Parking with EV Charging Provision",
+          "High-Speed Automated Passenger & Stretcher Service Elevators"
+        ],
+        "expectedSample": [
+          "24/7 Gated Security with High-Definition CCTV & Boom Barriers",
+          "100% Dual-Meter DG Power Backup for Common Areas & Elevators",
+          "Reserved Covered Basement Parking with EV Charging Provision",
+          "High-Speed Automated Passenger & Stretcher Service Elevators"
+        ],
+        "uiEvents": [
+          "intent",
+          "ui_state",
+          "properties",
+          "token",
+          "done"
+        ],
+        "answer": "### Verified Amenities & Lifestyle: Prateek Laurel (Sector 120)\n\n| Category | Amenities |\n| :--- | :--- |\n| **Security** | 24/7 Gated Security with High-Definition CCTV & Boom Barriers |\n| **Lifestyle** | 100% Dual-Meter DG Power Backup for Common Areas & Elevators · High-Speed Automated Passenger & Stretcher Service Elevators · Community Clubhouse & Social Gathering Room · Open Air Sit-Out Benches & Walking Track · On-Premises Daily Convenience & Grocery Store |\n| **Parking** | Reserved Covered Basement Parking with EV Charging Provision |\n| **Sports** | Landscaped Central Green Podium with Jogging & Reflexology Path · Swimming Pool & Splash Pool for Kids · Outdoor Badminton Court |\n| **Kids** | Children Dedicated Play Zone with Shock-Absorbent Turf & Swings |\n| **Wellness** | Fitness Gym with Basic Cardio & Dumbbell Setup |\n\n_12 amenities recorded for Prateek Laurel._\n\n**Open Space & Green Cover:**\n80% open space."
+      },
+      {
+        "domain": "units",
+        "ask": "What sizes are the flats and what do they cost?",
+        "lane": "topic:unit_configuration",
+        "ms": 3885,
+        "verdict": "PASS",
+        "hits": [
+          "950",
+          "610",
+          "1,040",
+          "670"
+        ],
+        "expectedSample": [
+          "950",
+          "610",
+          "1,040",
+          "670"
+        ],
+        "uiEvents": [
+          "intent",
+          "ui_state",
+          "properties",
+          "token",
+          "done"
+        ],
+        "answer": "### All Configurations — Prateek Laurel\n\n| Layout | Carpet Area | Built-Up | Super Area | Baths / Balc. | Price Band |\n| :--- | :--- | :--- | :--- | :--- | :--- |\n| 2 BHK Comfort Home | 610 sq.ft | — | 950 sq.ft | 2 / 2 | ₹0.9–0.97 Cr |\n| 2 BHK Comfort Home | 670 sq.ft | — | 1,040 sq.ft | 2 / 2 | ₹0.99–1.07 Cr |\n| 3 BHK Smart Living | 810 sq.ft | — | 1,250 sq.ft | 2 / 3 | ₹1.22–1.32 Cr |\n| 3 BHK Smart Living | 885 sq.ft | — | 1,370 sq.ft | 2 / 3 | ₹1.34–1.45 Cr |\n\n_Prices: date of last confirmation not on record._\n\n### Usable Space & Loading Audit — Prateek Laurel\n- **Loading Efficiency:** **36%** of super area is common space (lobbies, stairwells, shafts).\n- **Effective Usable Carpet Rate:** **₹14,754/sq.ft** (actual rate on carpet area inside your front door).\n- **Vertical Transit Index:** ~**56 units per lift** (High Density (Peak Rush Hour Delays Expected)).\n\n"
+      },
+      {
+        "domain": "price_history",
+        "ask": "Has the price gone up over time?",
+        "lane": "topic:price_trend",
+        "ms": 18373,
+        "verdict": "PASS",
+        "hits": [
+          "3,621",
+          "5,046",
+          "5,916",
+          "6,786"
+        ],
+        "expectedSample": [
+          "3,621",
+          "5,046",
+          "5,916",
+          "6,786"
+        ],
+        "uiEvents": [
+          "intent",
+          "ui_state",
+          "properties",
+          "token",
+          "done"
+        ],
+        "answer": "### Price movement — Prateek Laurel\n\n| Period | Price per sq ft | Basis |\n|:--- | ---: |:--- |\n| Q1 2021 | ₹3,621 | Automatic snapshot |\n| Q1 2021 | ₹5,046 | Internal benchmark estimate |\n| Q1 2022 | ₹4,147 | Automatic snapshot |\n| Q2 2022 | ₹5,916 | Internal benchmark estimate |\n| Q1 2023 | ₹4,871 | Automatic snapshot |\n| Q3 2023 | ₹6,786 | Internal benchmark estimate |\n| Q1 2024 | ₹5,596 | Automatic snapshot |\n| Q4 2024 | ₹7,656 | Internal benchmark estimate |\n| Q1 2025 | ₹6,188 | Automatic snapshot |\n| Q2 2025 | ₹8,265 | Internal benchmark estimate |\n| Q1 2026 | ₹6,583 | Automatic snapshot |\n| Q1 2026 | ₹8,700 | Observed (market data) |\n\nWe hold one observed price: ₹8,700 per sq ft (Q1 2026, recorded 15 Mar 2026). The other figures are internal benchmark estimates, not prices we saw being paid, so I won't state a rate of change from them or present them as what buyers paid. The developer's price lists for then and now would settle it; our advisory team can request them."
+      },
+      {
+        "domain": "rera",
+        "ask": "Is it RERA registered?",
+        "lane": "ground-truth-db",
+        "ms": 21466,
+        "verdict": "PASS",
+        "hits": [
+          "UPRERAPRJ4522"
+        ],
+        "expectedSample": [
+          "UPRERAPRJ4522"
+        ],
+        "uiEvents": [
+          "intent",
+          "ui_state",
+          "properties",
+          "token",
+          "done"
+        ],
+        "answer": "Prateek Laurel is officially registered with the RERA authority.\n\n- The RERA registration number for the project is UPRERAPRJ4522.\nRegistration puts the project on record with the authority and gives you a route to complain; it is not a warranty on delivery, title or build quality. Would you like to review the current occupancy certificate and litigation status for Prateek Laurel?"
+      },
+      {
+        "domain": "possession",
+        "ask": "When is possession, and how far along is construction?",
+        "lane": "topic:connectivity",
+        "ms": 2984,
+        "verdict": "MISS",
+        "hits": [],
+        "expectedSample": [
+          "Ready to Move",
+          "2015",
+          "RERA & Environmental Approvals",
+          "Excavation & Foundation Raft"
+        ],
+        "uiEvents": [
+          "intent",
+          "ui_state",
+          "properties",
+          "token",
+          "done"
+        ],
+        "answer": "### Connectivity — Prateek Laurel\n\n| Project | Metro | Road / expressway | Airport | Hospital | School |\n| :--- | :--- | :--- | :--- | :--- | :--- |\n| **Prateek Laurel** | Sector 52 Metro Station — 4.5 km | Parthala Flyover / FNG — 0.5 km | Airport — 58 km | Nearest — 2.5 km | Nearest — 1.8 km |\n\nDistances are road distances from our records, not straight-line. A dash means we do not hold that measurement for the project — it is not a claim that nothing is nearby."
+      },
+      {
+        "domain": "builder",
+        "ask": "What is the builder's track record?",
+        "lane": "ground-truth-db",
+        "ms": 10584,
+        "verdict": "LIST",
+        "hits": [
+          "Prateek Group",
+          "Prateek Laurel",
+          "Prateek Wisteria",
+          "Prateek Stylome"
+        ],
+        "expectedSample": [
+          "Prateek Group",
+          "Prateek Laurel",
+          "Prateek Wisteria",
+          "Prateek Stylome"
+        ],
+        "uiEvents": [
+          "intent",
+          "ui_state",
+          "properties",
+          "token",
+          "done"
+        ],
+        "answer": "Prateek Group has over 22 years of experience in the NCR real estate market with a portfolio of 20 projects.\n\n- They have delivered multiple residential communities including Prateek Laurel, Prateek Wisteria, Prateek Stylome, Prateek Edifice, and Prateek Fedicia.\n  This demonstrates a proven execution track record across completed high-rise societies in the region.\n- The developer's current litigation count stands at zero with no history of insolvency.\n  This indicates a clean legal standing and reduced execution risk for buyers.\n- They hold ISO 9001:2015 certification and maintain membership with CREDAI.\n  This assures adherence to standardized construction quality and industry compliance.\n\nWould you like to review the available unit configurations and pricing for Prateek Laurel?"
+      },
+      {
+        "domain": "specs",
+        "ask": "What are the specifications, like flooring and fittings?",
+        "lane": "ground-truth-db",
+        "ms": 11296,
+        "verdict": "PASS",
+        "hits": [
+          "Floor",
+          "Tiles",
+          "Vitrified",
+          "600x1200mm"
+        ],
+        "expectedSample": [
+          "Heavy-Duty MS Powder Coated Designer Safety Railing with Anti-Skid Ceramic Floor Tiles",
+          "Saint-Gobain / Jindal Stainless",
+          "Heavy",
+          "Powder"
+        ],
+        "uiEvents": [
+          "intent",
+          "ui_state",
+          "properties",
+          "token",
+          "done"
+        ],
+        "answer": "Prateek Laurel features durable and modern interior specifications across its living spaces, kitchens, and bathrooms.\n\n* Living and dining areas are finished with 600x1200mm vitrified tiles, while master bedrooms feature anti-skid wooden-plank finish tiles.\n  * This provides a sleek, low-maintenance aesthetic with good slip resistance in personal spaces.\n* Bathrooms come equipped with wall-hung or floor-mounted EWCs and Jaquar chrome-plated brass fittings.\n  * These branded fixtures offer reliable long-term durability and easy replacement availability.\n* Kitchens include a polished jet-black granite countertop, stainless steel sink, and piped gas connection provisions.\n  * The setup is ready for immediate daily use and standard modular kitchen customization.\n\nWould you like to review the current price sheet and cost breakdown for available configurations?"
+      },
+      {
+        "domain": "competitors",
+        "ask": "Which similar projects should I compare it with?",
+        "lane": "ground-truth-db",
+        "ms": 22561,
+        "verdict": "PASS",
+        "hits": [
+          "Nearby Micro-Market Development"
+        ],
+        "expectedSample": [
+          "Nearby Micro-Market Development"
+        ],
+        "uiEvents": [
+          "intent",
+          "ui_state",
+          "properties",
+          "token",
+          "done"
+        ],
+        "answer": "Prateek Laurel is best compared against nearby micro-market developments and regional sister projects like Prateek Wisteria in Noida.\n\n- Prateek Laurel offers an 80% open green ratio across its 14-acre ready community.\n- Alternative local developments in the micro-market often feature higher unit density with smaller central podium areas.\n- Prateek Group's delivery track record includes established regional benchmarks like Prateek Wisteria.\n\nComparing these options helps weigh headline entry pricing against long-term community spaciousness and construction quality.\n\nWould you like to arrange a site visit to evaluate Prateek Laurel's layout firsthand?"
+      },
+      {
+        "domain": "total_cost",
+        "ask": "What is the total cost of the cheapest flat including stamp duty and registration?",
+        "lane": "topic:statutory_tax",
+        "ms": 21940,
+        "verdict": "PASS",
+        "hits": [
+          "stamp duty",
+          "Stamp duty"
+        ],
+        "expectedSample": [
+          "stamp duty",
+          "Stamp duty"
+        ],
+        "uiEvents": [
+          "intent",
+          "ui_state",
+          "properties",
+          "token",
+          "done"
+        ],
+        "answer": "### On Prateek Laurel's lowest listed price: ₹0.90 Cr (2 BHK), date of last confirmation not on record\n\n| Charge | Amount |\n| :--- | ---: |\n| Stamp duty (7%) | **₹6,30,000** |\n| Stamp duty if a woman is primary owner (6%) | ₹5,40,000 |\n| Registration (1%) | ₹90,000 |\n| GST if under construction (5%) | ₹4,50,000 |\n| GST if ready to move with OC | ₹0 |\n| **Total, ready to move** | **₹97,20,000** |\n| **Total, under construction** | **₹1,01,70,000** |\n\nStamp duty is charged on the agreement value or the circle rate, whichever is higher, so the figure above is the floor. You also deduct 1% TDS (₹90,000) from the payment to the seller and deposit it with Form 26QB.\n\n### Statutory taxes & registration charges (Uttar Pradesh)\n\nThese are set by law and are the same for every project.\n\n| Component | Rate | Nature | Paid when & to whom |\n| :--- | :--- | :--- | :--- |\n| **Stamp duty** | 7% of agreement or circle value, whichever is higher | Mandatory | At registry, to the UP Stamp & Registration Department |\n| **Stamp duty — female primary owner** | 6% | Concession | At registry |\n| **Registration fee** | 1% of value | Mandatory | At deed execution, to the Sub-Registrar |\n| **GST — under construction** | 5% (without input tax credit) | Statutory | Billed across construction milestones |\n| **GST — ready to move with OC** | 0% | Exempt | Not applicable once the Occupancy Certificate is granted |\n| **TDS (Section 194-IA)** | 1% of sale consideration | Mandatory | Deducted by the buyer when value exceeds ₹50 Lakh (Form 26QB) |\n\n### Budgeting\nAllow 12–14% above base price for an under-construction home, or 8–9% above base price for ready-to-move with OC, to cover statutory and possession charges — typical for Noida — not verified for this project.\n\nName a project and I'll use whichever of its own charges we hold verified."
+      },
+      {
+        "domain": "emi",
+        "ask": "What would the EMI be on that with an 80% loan?",
+        "lane": "ground-truth-db",
+        "ms": 57912,
+        "verdict": "OUTAGE",
+        "hits": [],
+        "expectedSample": [
+          "a month",
+          "/month",
+          "per month"
+        ],
+        "uiEvents": [
+          "intent",
+          "ui_state",
+          "properties",
+          "token",
+          "done"
+        ],
+        "answer": "I couldn't get you a reliable answer just now — our AI service is briefly unavailable, and I'd rather say so than guess.\n\nAsk me again in a moment, or use **Book Site Visit** or **Callback** and our advisory team will pick it up directly."
+      }
+    ]
+  },
+  {
+    "project": "ATS Pious Hideaways / Orchards",
+    "slug": "ats-pious-hideaways-sector-150",
+    "turns": [
+      {
+        "domain": "opening",
+        "ask": "Tell me about ATS Pious Hideaways / Orchards",
+        "lane": "ground-truth-db",
+        "ms": 20559,
+        "verdict": "PASS",
+        "hits": [
+          "ATS Pious Hideaways / Orchards"
+        ],
+        "expectedSample": [
+          "ATS Pious Hideaways / Orchards"
+        ],
+        "uiEvents": [
+          "intent",
+          "ui_state",
+          "properties",
+          "token",
+          "done"
+        ],
+        "answer": "ATS Pious Hideaways / Orchards is an 18-acre Spanish-themed luxury residential development by ATS Infrastructure located in low-density Sector 150, Noida.\n\n- The project comprises 12 towers with 750 units, offering 82% open green space and an IGBC Gold rating (RERA: UPRERAPRJ417136).\n- Available configurations include 2 BHK and 3 BHK units, with pricing starting at ₹1.85 Cr (date of last confirmation not on record).\n- It is currently under construction with a scheduled possession date of June 30, 2026.\n\nThis offers a low-density, resort-style living environment with extensive green footprints, well-suited for buyers prioritizing open spaces and architectural design along the Noida Expressway.\n\nWould you like to review the detailed cost sheet breakdown or schedule a site visit?"
+      },
+      {
+        "domain": "payment_plans",
+        "ask": "What payment plans do they offer?",
+        "lane": "topic:payment-plans",
+        "ms": 10567,
+        "verdict": "PASS",
+        "hits": [
+          "Construction Linked Payment Plan (CLP)",
+          "Time Linked Flexi Payment Plan (30:40:30)",
+          "flexi"
+        ],
+        "expectedSample": [
+          "Construction Linked Payment Plan (CLP)",
+          "construction_linked",
+          "Time Linked Flexi Payment Plan (30:40:30)",
+          "flexi"
+        ],
+        "uiEvents": [
+          "intent",
+          "ui_state",
+          "properties",
+          "token",
+          "done"
+        ],
+        "answer": "### Payment Plans & Milestones — ATS Pious Hideaways / Orchards\n\n### Available Payment Schemes\n\n| Payment Scheme | Milestone Structure | Discount / Key Benefit | Watch out |\n| :--- | :--- | :--- | :--- |\n| **Construction Linked Payment Plan (CLP)** | 10% : 10% : 10% : 10% : 10% : 10% : 10% : 10% : 10% : 10% | 10% Down Payment | Not recorded |\n| **Time Linked Flexi Payment Plan (30:40:30)** | 30% : 40% : 30% | 30% Down Payment | Not recorded |\n\n#### Construction Linked Payment Plan (CLP)\n\n| Stage / Milestone | Timeline / Trigger | Share | Amount |\n| :--- | :--- | ---: | ---: |\n| At Booking & Allotment | Not recorded | 10% | Not recorded |\n| On Foundation / Raft Casting | Not recorded | 10% | Not recorded |\n| On Casting of Ground Basement Slab | Not recorded | 10% | Not recorded |\n| On Casting of 5th Floor Slab | Not recorded | 10% | Not recorded |\n| On Casting of 10th Floor Slab | Not recorded | 10% | Not recorded |\n| On Casting of 15th Floor Slab | Not recorded | 10% | Not recorded |\n| On Top Floor Roof Slab Casting | Not recorded | 10% | Not recorded |\n| On Internal Plastering of Unit | Not recorded | 10% | Not recorded |\n| On Flooring & Electrical Conduits | Not recorded | 10% | Not recorded |\n| On Notice of Possession & Key Handover | Not recorded | 10% | Not recorded |\n\n#### Time Linked Flexi Payment Plan (30:40:30)\n\n| Stage / Milestone | Timeline / Trigger | Share | Amount |\n| :--- | :--- | ---: | ---: |\n| Within 45 Days of Booking | Not recorded | 30% | Not recorded |\n| On Completion of Superstructure Casting | Not recorded | 40% | Not recorded |\n| On Offer of Possession & Final Registry | Not recorded | 30% | Not recorded |\n\n_These are the standard schemes on file for this project and have not been confirmed against the developer's current terms. Treat the stage percentages as the shape to expect, and get the figures in writing before you pay._\n\nThe construction-linked schedule distributes your financial commitment gradually across physical milestones, preserving higher liquidity in your bank accounts during the initial structural phases. In contrast, the flexi alternative requires much steeper capital deployment early on. Since we do not hold a recorded figure for total cost variations or developer discounts between these options, the trade-off purely concerns risk management and how comfortably you can service milestone demands as construction advances.\n\nWhen deciding between them, align the structure with your current liquidity profile. As a reliable rule for this investment, take the down-payment plan if you have the cash idle; take construction-linked if you are still saving. This safeguards your personal reserves while securing your asset in the region."
+      },
+      {
+        "domain": "cost_sheet",
+        "ask": "Show me the cost sheet. What are the extra charges?",
+        "lane": "topic:cost-sheet",
+        "ms": 9811,
+        "verdict": "PASS",
+        "hits": [
+          "2.25 lakh",
+          "2.25 L",
+          "0 lakh",
+          "0 L"
+        ],
+        "expectedSample": [
+          "4,50,000",
+          "4.5 lakh",
+          "4.5 L",
+          "2,25,000"
+        ],
+        "uiEvents": [
+          "intent",
+          "ui_state",
+          "properties",
+          "token",
+          "done"
+        ],
+        "answer": "### Cost breakdown — ATS Pious Hideaways / Orchards\n\n| Cost Component | Rate / Amount | Details & Stage |\n| :--- | :--- | :--- |\n| **Base Selling Price (BSP)** | ₹14,435/sqft | Verified base rate |\n| **Covered Car Parking** | ₹4.50 lakh | Dedicated basement parking |\n| **Club Membership** | ₹2.25 lakh | Access to clubhouse & amenities |\n| **IFMS (Maintenance Security)** | ₹75/sqft | Interest-free refundable corpus, charged on area |\n| **Maintenance** | ₹4.68/sqft per month | Recurring, from possession |\n| **GST** | 5% | Under-construction residential |\n| **UP Stamp Duty** | 7% | At registration (6% for women) |\n| **Registration Fee** | 1% | State sub-registrar fee |\n\n*Prices: date of last confirmation not on record.*\n\nThe headline base rate for ATS Pious Hideaways / Orchards creates a notable gap between advertised starting prices and the actual cheque you will write. Bridging this gap requires factoring in mandatory additions like floor rise, preferred location charges, parking, club membership, infrastructure fees, and government levies including 5 percent GST and UP's 7 percent stamp duty and registration. These variables collectively push your true acquisition cost well beyond the baseline quote.\n\nBefore booking, you must verify the exact preferential location charges and floor rise applicable to your specific unit. Because developers assign these based on orientation, park views, or vertical positioning, discrepancies here can materially alter your total payable amount. Confirming these line items upfront ensures your payment plan aligns with official calculations and prevents unexpected surprises during demand notes."
+      },
+      {
+        "domain": "location",
+        "ask": "How far is the nearest metro station?",
+        "lane": "topic:vicinity-lookup",
+        "ms": 15809,
+        "verdict": "PASS",
+        "hits": [
+          "Sector 148 Metro Station",
+          "Sector",
+          "Metro"
+        ],
+        "expectedSample": [
+          "Sector 148 Metro Station",
+          "Sector",
+          "Metro"
+        ],
+        "uiEvents": [
+          "intent",
+          "ui_state",
+          "properties",
+          "token",
+          "done"
+        ],
+        "answer": "ATS Pious Hideaways / Orchards (Sector 150) is the nearest metro is Sector 148 Metro Station (Aqua Line), about 3.2 km away.. Road distances from our records where held, sector-level otherwise."
+      },
+      {
+        "domain": "amenities",
+        "ask": "What amenities are there?",
+        "lane": "topic:amenity-lifestyle",
+        "ms": 3371,
+        "verdict": "PASS",
+        "hits": [
+          "24/7 Gated Security with High-Definition CCTV & Boom Barriers",
+          "100% Dual-Meter DG Power Backup for Common Areas & Elevators",
+          "Reserved Covered Basement Parking with EV Charging Provision",
+          "High-Speed Automated Passenger & Stretcher Service Elevators"
+        ],
+        "expectedSample": [
+          "24/7 Gated Security with High-Definition CCTV & Boom Barriers",
+          "100% Dual-Meter DG Power Backup for Common Areas & Elevators",
+          "Reserved Covered Basement Parking with EV Charging Provision",
+          "High-Speed Automated Passenger & Stretcher Service Elevators"
+        ],
+        "uiEvents": [
+          "intent",
+          "ui_state",
+          "properties",
+          "token",
+          "done"
+        ],
+        "answer": "### Verified Amenities & Lifestyle: ATS Pious Hideaways / Orchards (Sector 150)\n\n| Category | Amenities |\n| :--- | :--- |\n| **Security** | 24/7 Gated Security with High-Definition CCTV & Boom Barriers |\n| **Lifestyle** | 100% Dual-Meter DG Power Backup for Common Areas & Elevators · High-Speed Automated Passenger & Stretcher Service Elevators · Clubhouse with Multi-Purpose Community Banquet Hall · Convenience Shopping Kiosks & Pharmacy within Complex |\n| **Parking** | Reserved Covered Basement Parking with EV Charging Provision |\n| **Sports** | Landscaped Central Green Podium with Jogging & Reflexology Path · Outdoor Swimming Pool with Changing Rooms & Poolside Cabana · Badminton Court & Half Basketball Hoop · Indoor Games Room with Table Tennis & Carrom |\n| **Kids** | Children Dedicated Play Zone with Shock-Absorbent Turf & Swings |\n| **Wellness** | Modern Fitness Center with Cardio Equipment · Yoga Lawn with Shaded Pergolas |\n\n_13 amenities recorded for ATS Pious Hideaways / Orchards._\n\n**Open Space & Green Cover:**\n82% open space."
+      },
+      {
+        "domain": "units",
+        "ask": "What sizes are the flats and what do they cost?",
+        "lane": "topic:unit_configuration",
+        "ms": 4254,
+        "verdict": "PASS",
+        "hits": [
+          "1,150",
+          "750",
+          "1,495",
+          "990"
+        ],
+        "expectedSample": [
+          "1,150",
+          "750",
+          "1,495",
+          "990"
+        ],
+        "uiEvents": [
+          "intent",
+          "ui_state",
+          "properties",
+          "token",
+          "done"
+        ],
+        "answer": "### All Configurations — ATS Pious Hideaways / Orchards\n\n| Layout | Carpet Area | Built-Up | Super Area | Baths / Balc. | Price Band |\n| :--- | :--- | :--- | :--- | :--- | :--- |\n| 2 BHK Premium Apartment | 750 sq.ft | — | 1,150 sq.ft | 2 / 2 | ₹1.87–2.02 Cr |\n| 3 BHK Family Home | 990 sq.ft | — | 1,495 sq.ft | 3 / 3 | ₹2.48–2.68 Cr |\n\n_Prices: date of last confirmation not on record._\n\n### Usable Space & Loading Audit — ATS Pious Hideaways / Orchards\n- **Loading Efficiency:** **35%** of super area is common space (lobbies, stairwells, shafts).\n- **Effective Usable Carpet Rate:** **₹24,933/sq.ft** (actual rate on carpet area inside your front door).\n\n"
+      },
+      {
+        "domain": "price_history",
+        "ask": "Has the price gone up over time?",
+        "lane": "topic:price_trend",
+        "ms": 16736,
+        "verdict": "PASS",
+        "hits": [
+          "7,250",
+          "8,500",
+          "9,750",
+          "11,000"
+        ],
+        "expectedSample": [
+          "7,250",
+          "8,500",
+          "9,750",
+          "11,000"
+        ],
+        "uiEvents": [
+          "intent",
+          "ui_state",
+          "properties",
+          "token",
+          "done"
+        ],
+        "answer": "### Price movement — ATS Pious Hideaways / Orchards\n\n| Period | Price per sq ft | Basis |\n|:--- | ---: |:--- |\n| Q1 2021 | ₹7,250 | Internal benchmark estimate |\n| Q2 2022 | ₹8,500 | Internal benchmark estimate |\n| Q3 2023 | ₹9,750 | Internal benchmark estimate |\n| Q4 2024 | ₹11,000 | Internal benchmark estimate |\n| Q2 2025 | ₹11,875 | Internal benchmark estimate |\n| Q1 2026 | ₹12,500 | Observed (market data) |\n\nWe hold one observed price: ₹12,500 per sq ft (Q1 2026, recorded 15 Mar 2026). The other figures are internal benchmark estimates, not prices we saw being paid, so I won't state a rate of change from them or present them as what buyers paid. The developer's price lists for then and now would settle it; our advisory team can request them."
+      },
+      {
+        "domain": "rera",
+        "ask": "Is it RERA registered?",
+        "lane": "ground-truth-db",
+        "ms": 14425,
+        "verdict": "PASS",
+        "hits": [
+          "UPRERAPRJ417136"
+        ],
+        "expectedSample": [
+          "UPRERAPRJ417136"
+        ],
+        "uiEvents": [
+          "intent",
+          "ui_state",
+          "properties",
+          "token",
+          "done"
+        ],
+        "answer": "Yes, ATS Pious Hideaways / Orchards is officially RERA registered.\n\n- The assigned RERA registration number is UPRERAPRJ417136.\n- The project status is currently under construction.\n- There are zero recorded litigations against the project.\n\nRegistration puts the project on record with the authority and gives you a route to complain; it is not a warranty on delivery, title or build quality. Would you like to schedule a site visit to ATS Pious Hideaways / Orchards?"
+      },
+      {
+        "domain": "possession",
+        "ask": "When is possession, and how far along is construction?",
+        "lane": "topic:connectivity",
+        "ms": 3261,
+        "verdict": "MISS",
+        "hits": [],
+        "expectedSample": [
+          "Under Construction (Finishing Stage)",
+          "2026",
+          "RERA & Environmental Approvals",
+          "Excavation & Foundation Raft"
+        ],
+        "uiEvents": [
+          "intent",
+          "ui_state",
+          "properties",
+          "token",
+          "done"
+        ],
+        "answer": "### Connectivity — ATS Pious Hideaways / Orchards\n\n| Project | Metro | Road / expressway | Airport | Hospital | School |\n| :--- | :--- | :--- | :--- | :--- | :--- |\n| **ATS Pious Hideaways / Orchards** | Sector 148 Metro Station — 2.2 km | Sector 148 Metro Station — 2.2 km | Airport — 38.5 km | Nearest — 5.5 km | Nearest — 3 km |\n\nDistances are road distances from our records, not straight-line. A dash means we do not hold that measurement for the project — it is not a claim that nothing is nearby."
+      },
+      {
+        "domain": "builder",
+        "ask": "What is the builder's track record?",
+        "lane": "ground-truth-db",
+        "ms": 8956,
+        "verdict": "LIST",
+        "hits": [
+          "ATS Infrastructure",
+          "ATS Village",
+          "ATS One Hamlet",
+          "ATS Pristine"
+        ],
+        "expectedSample": [
+          "ATS Infrastructure",
+          "ATS Village",
+          "ATS One Hamlet",
+          "ATS Pristine"
+        ],
+        "uiEvents": [
+          "intent",
+          "ui_state",
+          "properties",
+          "token",
+          "done"
+        ],
+        "answer": "ATS Infrastructure has over 25 years of experience with 40 total projects and 3 delivered projects listed in what we hold, led by Chairman Getamber Anand.\n- They have delivered notable luxury developments such as ATS Village, ATS One Hamlet, and ATS Pristine.\n- Their ongoing projects include ATS Le Grandiose, ATS Pious Orchards, and ATS Knightsbridge.\n- They are backed by funding partnerships with major financial institutions including SBI, HDFC, and ICICI Bank.\nThis established track record indicates reliable construction quality and luxury execution, though buyers should note an average delay of 8.5 months across 3 delayed projects in their broader portfolio history (date of last confirmation not on record).\n\nWould you like to review the construction-linked payment plan or schedule a site visit for ATS Pious Hideaways / Orchards?"
+      },
+      {
+        "domain": "specs",
+        "ask": "What are the specifications, like flooring and fittings?",
+        "lane": "ground-truth-db",
+        "ms": 22390,
+        "verdict": "PASS",
+        "hits": [
+          "Premium",
+          "Glazed",
+          "Vitrified",
+          "Tiles"
+        ],
+        "expectedSample": [
+          "Monolithic Earthquake Resistant RCC Shear Wall Construction (Seismic Zone IV Compliant)",
+          "Mivan Aluminum Shuttering / Tata Tiscon Steel (Fe 550D)",
+          "Monolithic",
+          "Earthquake"
+        ],
+        "uiEvents": [
+          "intent",
+          "ui_state",
+          "properties",
+          "token",
+          "done"
+        ],
+        "answer": "ATS Pious Hideaways / Orchards features premium finishes including vitrified tiles, wooden flooring in the master bedroom, and branded sanitaryware.\n\n* Living and dining areas use 800x800mm glazed vitrified tiles while the master bedroom features wooden-finish laminated flooring.\n  *Meaning: Provides a durable, premium surface aesthetic for high-traffic zones and private areas.*\n* Bathrooms are equipped with wall-hung WCs, Jaquar single-lever CP fittings, and glass shower partitions.\n  *Meaning: Ensures modern water efficiency and a contemporary aesthetic.*\n* Kitchens come with a jet-black granite countertop, stainless steel sink, and piped gas connection provision.\n  *Meaning: Delivers immediate functional readiness for daily culinary use.*\n\nWould you like to review the complete cost sheet for this project next?"
+      },
+      {
+        "domain": "competitors",
+        "ask": "Which similar projects should I compare it with?",
+        "lane": "ground-truth-db",
+        "ms": 10470,
+        "verdict": "MISS",
+        "hits": [],
+        "expectedSample": [
+          "Nearby Micro-Market Development"
+        ],
+        "uiEvents": [
+          "intent",
+          "ui_state",
+          "properties",
+          "token",
+          "done"
+        ],
+        "answer": "ATS Pious Hideaways / Orchards can be compared against alternative high-density developments in Sector 150 that offer slightly lower entry pricing.\n\n- ATS Pious Hideaways / Orchards features a lower density layout with an 82% open green footprint.\n- Nearby micro-market alternatives may offer a slightly lower entry headline price with higher overall unit density.\n- ATS commands a +5% to +10% price premium justified by its superior construction quality and Spanish-themed architecture.\n\nChoosing ATS trades a slight price premium for significantly better long-term livability, open space, and asset appreciation.\n\nWould you like to review the specific unit configurations and pricing breakdown for ATS Pious Hideaways?"
+      },
+      {
+        "domain": "total_cost",
+        "ask": "What is the total cost of the cheapest flat including stamp duty and registration?",
+        "lane": "topic:statutory_tax",
+        "ms": 16335,
+        "verdict": "PASS",
+        "hits": [
+          "stamp duty",
+          "Stamp duty"
+        ],
+        "expectedSample": [
+          "stamp duty",
+          "Stamp duty"
+        ],
+        "uiEvents": [
+          "intent",
+          "ui_state",
+          "properties",
+          "token",
+          "done"
+        ],
+        "answer": "### On ATS Pious Hideaways / Orchards's lowest listed price: ₹1.87 Cr (2 BHK), date of last confirmation not on record\n\n| Charge | Amount |\n| :--- | ---: |\n| Stamp duty (7%) | **₹13,09,000** |\n| Stamp duty if a woman is primary owner (6%) | ₹11,22,000 |\n| Registration (1%) | ₹1,87,000 |\n| GST if under construction (5%) | ₹9,35,000 |\n| GST if ready to move with OC | ₹0 |\n| **Total, ready to move** | **₹2,01,96,000** |\n| **Total, under construction** | **₹2,11,31,000** |\n\nStamp duty is charged on the agreement value or the circle rate, whichever is higher, so the figure above is the floor. You also deduct 1% TDS (₹1,87,000) from the payment to the seller and deposit it with Form 26QB.\n\n### Statutory taxes & registration charges (Uttar Pradesh)\n\nThese are set by law and are the same for every project.\n\n| Component | Rate | Nature | Paid when & to whom |\n| :--- | :--- | :--- | :--- |\n| **Stamp duty** | 7% of agreement or circle value, whichever is higher | Mandatory | At registry, to the UP Stamp & Registration Department |\n| **Stamp duty — female primary owner** | 6% | Concession | At registry |\n| **Registration fee** | 1% of value | Mandatory | At deed execution, to the Sub-Registrar |\n| **GST — under construction** | 5% (without input tax credit) | Statutory | Billed across construction milestones |\n| **GST — ready to move with OC** | 0% | Exempt | Not applicable once the Occupancy Certificate is granted |\n| **TDS (Section 194-IA)** | 1% of sale consideration | Mandatory | Deducted by the buyer when value exceeds ₹50 Lakh (Form 26QB) |\n\n### Budgeting\nAllow 12–14% above base price for an under-construction home, or 8–9% above base price for ready-to-move with OC, to cover statutory and possession charges — typical for Noida — not verified for this project.\n\nName a project and I'll use whichever of its own charges we hold verified."
+      },
+      {
+        "domain": "emi",
+        "ask": "What would the EMI be on that with an 80% loan?",
+        "lane": "ground-truth-db",
+        "ms": 58043,
+        "verdict": "OUTAGE",
+        "hits": [],
+        "expectedSample": [
+          "a month",
+          "/month",
+          "per month"
+        ],
+        "uiEvents": [
+          "intent",
+          "ui_state",
+          "properties",
+          "token",
+          "done"
+        ],
+        "answer": "I couldn't get you a reliable answer just now — our AI service is briefly unavailable, and I'd rather say so than guess.\n\nAsk me again in a moment, or use **Book Site Visit** or **Callback** and our advisory team will pick it up directly."
+      }
+    ]
+  },
+  {
+    "project": "Gaur City 2 - 12th Avenue",
+    "slug": "gaur-city-2-12th-avenue-sector-16c",
+    "turns": [
+      {
+        "domain": "opening",
+        "ask": "Tell me about Gaur City 2 - 12th Avenue",
+        "lane": "ground-truth-db",
+        "ms": 44600,
+        "verdict": "PASS",
+        "hits": [
+          "Gaur City 2 - 12th Avenue"
+        ],
+        "expectedSample": [
+          "Gaur City 2 - 12th Avenue"
+        ],
+        "uiEvents": [
+          "intent",
+          "ui_state",
+          "properties",
+          "token",
+          "done"
+        ],
+        "answer": "Gaur City 2 - 12th Avenue is a ready-to-move residential township in Sector 16C, Greater Noida West, developed by Gaurs Group.\n\n* The project spans 12.5 acres across 9 towers with 1,500 units and has obtained its Occupancy Certificate (OC).\n * This means you can move in immediately without facing construction delay risks.\n* It holds RERA registration under the number UPRERAPRJ16C12.\nRegistration puts the project on record with the authority and gives you a route to complain; it is not a warranty on delivery, title or build quality. * The development offers 80% open landscaped spaces along with ready amenities like a clubhouse, swimming pool, and 24x7 security.\n * This provides an established, low-density living environment with active community infrastructure.\n\nWould you like to review the specific cost sheet and available configurations for 2 BHK and 3 BHK units?"
+      },
+      {
+        "domain": "payment_plans",
+        "ask": "What payment plans do they offer?",
+        "lane": "topic:payment-plans",
+        "ms": 22680,
+        "verdict": "PASS",
+        "hits": [
+          "Ready Resale Down Payment Plan"
+        ],
+        "expectedSample": [
+          "Ready Resale Down Payment Plan",
+          "down_payment"
+        ],
+        "uiEvents": [
+          "intent",
+          "ui_state",
+          "properties",
+          "token",
+          "done"
+        ],
+        "answer": "### Payment Plans & Milestones — Gaur City 2 - 12th Avenue\n\n### Available Payment Schemes\n\n| Payment Scheme | Milestone Structure | Discount / Key Benefit | Watch out |\n| :--- | :--- | :--- | :--- |\n| **Ready Resale Down Payment Plan** | 10% : 80% : 10% | 10% Down Payment | Not recorded |\n\n#### Ready Resale Down Payment Plan\n\n| Stage / Milestone | Timeline / Trigger | Share | Amount |\n| :--- | :--- | ---: | ---: |\n| At Token & Initial Agreement | Not recorded | 10% | Not recorded |\n| Within 30–45 Days via Bank Disbursal | Not recorded | 80% | Not recorded |\n| At Sub-Registrar Lease Deed & Key Handover | Not recorded | 10% | Not recorded |\n\n_These are the standard schemes on file for this project and have not been confirmed against the developer's current terms. Treat the stage percentages as the shape to expect, and get the figures in writing before you pay._\n\nThe ready resale down-payment structure requires immediate upfront liquidity through quick bank disbursal and booking funds, offering stronger deal leverage and a lower total outlay for a ready-to-move property. In contrast, spreading payments over construction phases keeps your capital liquid for longer, though it often lacks the cost advantages of an upfront settlement. For an immediate asset like this, paying quickly eliminates construction risk and ongoing rent, making immediate capital availability the core trade-off.\n\nSelect the payment structure that directly matches your current financial readiness and cash-flow predictability. Take the down-payment plan if you have the cash idle; take construction-linked if you are still saving."
+      },
+      {
+        "domain": "cost_sheet",
+        "ask": "Show me the cost sheet. What are the extra charges?",
+        "lane": "topic:cost-sheet",
+        "ms": 7685,
+        "verdict": "PASS",
+        "hits": [
+          "3.25 lakh",
+          "3.25 L",
+          "0 lakh",
+          "0 L"
+        ],
+        "expectedSample": [
+          "3,25,000",
+          "3.25 lakh",
+          "3.25 L",
+          "1,50,000"
+        ],
+        "uiEvents": [
+          "intent",
+          "ui_state",
+          "properties",
+          "token",
+          "done"
+        ],
+        "answer": "### Cost breakdown — Gaur City 2 - 12th Avenue\n\n| Cost Component | Rate / Amount | Details & Stage |\n| :--- | :--- | :--- |\n| **Base Selling Price (BSP)** | ₹6,620/sqft | Verified base rate |\n| **Covered Car Parking** | ₹3.25 lakh | Dedicated basement parking |\n| **Club Membership** | ₹1.50 lakh | Access to clubhouse & amenities |\n| **IFMS (Maintenance Security)** | ₹50/sqft | Interest-free refundable corpus, charged on area |\n| **Maintenance** | ₹2.38/sqft per month | Recurring, from possession |\n| **GST** | 0% (Exempt with OC) | Ready to move with OC |\n| **UP Stamp Duty** | 7% | At registration (6% for women) |\n| **Registration Fee** | 1% | State sub-registrar fee |\n\n*Prices: date of last confirmation not on record.*\n\nThe all-inclusive figure at Gaur City 2 - 12th Avenue extends significantly beyond the headline base rate of ₹6,620 per sq ft. While advertisements often highlight just the base cost, the actual cheque you write will incorporate mandatory additions such as covered parking, club membership, floor rises, and specific preferential location charges (PLC) for views or orientation. Furthermore, you must account for infrastructure installation fees, IFMS, legal documentation, and statutory Uttar Pradesh government levies including 6% stamp duty and 1% registration. \n\nBefore booking, you should carefully check the applicability and exact calculation of the preferential location charges and facing premiums with the developer. Because these PLC rates apply directly to your super area based on unit orientation—such as park views or corner placement—they represent the most variable component in the gap between the base price and your final payable amount."
+      },
+      {
+        "domain": "location",
+        "ask": "How far is the nearest metro station?",
+        "lane": "topic:vicinity-lookup",
+        "ms": 16280,
+        "verdict": "PASS",
+        "hits": [
+          "Sector 16C / Gaur City Proposed Metro Station",
+          "Sector",
+          "Proposed"
+        ],
+        "expectedSample": [
+          "Sector 16C / Gaur City Proposed Metro Station",
+          "Sector",
+          "Proposed"
+        ],
+        "uiEvents": [
+          "intent",
+          "ui_state",
+          "properties",
+          "token",
+          "done"
+        ],
+        "answer": "Gaur City 2 - 12th Avenue (Sector 16C) is 800 m from Sector 16C / Gaur City Proposed Metro Station (about 2 min by road). Road distances from our records where held, sector-level otherwise."
+      },
+      {
+        "domain": "amenities",
+        "ask": "What amenities are there?",
+        "lane": "topic:amenity-lifestyle",
+        "ms": 3017,
+        "verdict": "PASS",
+        "hits": [
+          "24/7 Gated Security with High-Definition CCTV & Boom Barriers",
+          "100% Dual-Meter DG Power Backup for Common Areas & Elevators",
+          "Reserved Covered Basement Parking with EV Charging Provision",
+          "High-Speed Automated Passenger & Stretcher Service Elevators"
+        ],
+        "expectedSample": [
+          "24/7 Gated Security with High-Definition CCTV & Boom Barriers",
+          "100% Dual-Meter DG Power Backup for Common Areas & Elevators",
+          "Reserved Covered Basement Parking with EV Charging Provision",
+          "High-Speed Automated Passenger & Stretcher Service Elevators"
+        ],
+        "uiEvents": [
+          "intent",
+          "ui_state",
+          "properties",
+          "token",
+          "done"
+        ],
+        "answer": "### Verified Amenities & Lifestyle: Gaur City 2 - 12th Avenue (Sector 16C)\n\n| Category | Amenities |\n| :--- | :--- |\n| **Security** | 24/7 Gated Security with High-Definition CCTV & Boom Barriers |\n| **Lifestyle** | 100% Dual-Meter DG Power Backup for Common Areas & Elevators · High-Speed Automated Passenger & Stretcher Service Elevators · Community Clubhouse & Social Gathering Room · Open Air Sit-Out Benches & Walking Track · On-Premises Daily Convenience & Grocery Store |\n| **Parking** | Reserved Covered Basement Parking with EV Charging Provision |\n| **Sports** | Landscaped Central Green Podium with Jogging & Reflexology Path · Swimming Pool & Splash Pool for Kids · Outdoor Badminton Court |\n| **Kids** | Children Dedicated Play Zone with Shock-Absorbent Turf & Swings |\n| **Wellness** | Fitness Gym with Basic Cardio & Dumbbell Setup |\n\n_12 amenities recorded for Gaur City 2 - 12th Avenue._\n\n**Open Space & Green Cover:**\n80% open space."
+      },
+      {
+        "domain": "units",
+        "ask": "What sizes are the flats and what do they cost?",
+        "lane": "topic:unit_configuration",
+        "ms": 4291,
+        "verdict": "PASS",
+        "hits": [
+          "1,040",
+          "670",
+          "1,370",
+          "885"
+        ],
+        "expectedSample": [
+          "1,040",
+          "670",
+          "1,370",
+          "885"
+        ],
+        "uiEvents": [
+          "intent",
+          "ui_state",
+          "properties",
+          "token",
+          "done"
+        ],
+        "answer": "### All Configurations — Gaur City 2 - 12th Avenue\n\n| Layout | Carpet Area | Built-Up | Super Area | Baths / Balc. | Price Band |\n| :--- | :--- | :--- | :--- | :--- | :--- |\n| 2 BHK Comfort Home | 670 sq.ft | — | 1,040 sq.ft | 2 / 2 | ₹0.77–0.84 Cr |\n| 3 BHK Smart Living | 885 sq.ft | — | 1,370 sq.ft | 2 / 3 | ₹1.05–1.13 Cr |\n\n_Prices: date of last confirmation not on record._\n\n### Usable Space & Loading Audit — Gaur City 2 - 12th Avenue\n- **Loading Efficiency:** **36%** of super area is common space (lobbies, stairwells, shafts).\n- **Effective Usable Carpet Rate:** **₹11,493/sq.ft** (actual rate on carpet area inside your front door).\n- **Vertical Transit Index:** ~**84 units per lift** (High Density (Peak Rush Hour Delays Expected)).\n\n"
+      },
+      {
+        "domain": "price_history",
+        "ask": "Has the price gone up over time?",
+        "lane": "topic:price_trend",
+        "ms": 25712,
+        "verdict": "PASS",
+        "hits": [
+          "4,118",
+          "4,828",
+          "5,609",
+          "6,248"
+        ],
+        "expectedSample": [
+          "4,118",
+          "4,828",
+          "5,609",
+          "6,248"
+        ],
+        "uiEvents": [
+          "intent",
+          "ui_state",
+          "properties",
+          "token",
+          "done"
+        ],
+        "answer": "### Price movement — Gaur City 2 - 12th Avenue\n\n| Period | Price per sq ft | Basis |\n| :--- | ---: | :--- |\n| Q1 2021 | ₹4,118 | Internal benchmark estimate |\n| Q2 2022 | ₹4,828 | Internal benchmark estimate |\n| Q3 2023 | ₹5,609 | Internal benchmark estimate |\n| Q1 2024 | ₹6,248 | Internal benchmark estimate |\n| Q3 2025 | ₹6,745 | Internal benchmark estimate |\n| Q1 2026 | ₹7,100 | Observed (market check) |\n\nWe hold one observed price: ₹7,100 per sq ft (Q1 2026, recorded 15 Feb 2026). The other figures are internal benchmark estimates, not prices we saw being paid, so I won't state a rate of change from them or present them as what buyers paid. The developer's price lists for then and now would settle it; our advisory team can request them."
+      },
+      {
+        "domain": "rera",
+        "ask": "Is it RERA registered?",
+        "lane": "ground-truth-db",
+        "ms": 18712,
+        "verdict": "PASS",
+        "hits": [
+          "UPRERAPRJ16C12"
+        ],
+        "expectedSample": [
+          "UPRERAPRJ16C12"
+        ],
+        "uiEvents": [
+          "intent",
+          "ui_state",
+          "properties",
+          "token",
+          "done"
+        ],
+        "answer": "Yes, Gaur City 2 - 12th Avenue is RERA registered.\n- The project holds the RERA registration number UPRERAPRJ16C12.\nRegistration puts the project on record with the authority and gives you a route to complain; it is not a warranty on delivery, title or build quality. Registration puts the project on record with the authority and gives you a route to complain; it is not a warranty on delivery, title or build quality. Would you like to schedule a site visit to Gaur City 2 - 12th Avenue?"
+      },
+      {
+        "domain": "possession",
+        "ask": "When is possession, and how far along is construction?",
+        "lane": "topic:connectivity",
+        "ms": 9644,
+        "verdict": "MISS",
+        "hits": [],
+        "expectedSample": [
+          "Ready to Move",
+          "2018",
+          "Land Acquisition & RERA Approval",
+          "Excavation & Foundation Complete"
+        ],
+        "uiEvents": [
+          "intent",
+          "ui_state",
+          "properties",
+          "token",
+          "done"
+        ],
+        "answer": "### Connectivity — Gaur City 2 - 12th Avenue\n\n| Project | Metro | Road / expressway | Airport | Hospital | School |\n| :--- | :--- | :--- | :--- | :--- | :--- |\n| **Gaur City 2 - 12th Avenue** | Sector 16C / Gaur City Proposed Metro Station — 0.8 km, 2 min | Noida-Greater Noida Link Road (130m Corridor) — 1.2 km, 3 min | Airport — 58 km | Nearest — 2.8 km | Nearest — 2.2 km |\n\nDistances are road distances from our records, not straight-line. A dash means we do not hold that measurement for the project — it is not a claim that nothing is nearby."
+      },
+      {
+        "domain": "builder",
+        "ask": "What is the builder's track record?",
+        "lane": "ground-truth-db",
+        "ms": 15577,
+        "verdict": "PASS",
+        "hits": [
+          "Gaurs Group"
+        ],
+        "expectedSample": [
+          "Gaurs Group",
+          "Gaur Grandeur",
+          "Gaur Sportswood",
+          "Gaurs Platinum Towers"
+        ],
+        "uiEvents": [
+          "intent",
+          "ui_state",
+          "properties",
+          "token",
+          "done"
+        ],
+        "answer": "Gaurs Group is a premier real estate conglomerate with over 28 years of experience, 80 total projects, and 65+ delivered landmark developments. (Date of last confirmation not on record.)\n\n- Gaursons India has delivered over 65 landmark residential and commercial projects without any reported delays or insolvency history.\n- The developer holds ISO 9001:2015 certification and is an active CREDAI Western UP member.\n- Recognized with industry awards including Times Realty Icons Mega Township Developer of the Year (2024).\n- What this means for the buyer: You are buying from a stable, highly experienced developer with a proven delivery record in Noida and Greater Noida.\n\nWould you like to review the current resale price range for 2 BHK and 3 BHK units in Gaur City 2 - 12th Avenue?"
+      },
+      {
+        "domain": "specs",
+        "ask": "What are the specifications, like flooring and fittings?",
+        "lane": "ground-truth-db",
+        "ms": 28851,
+        "verdict": "PASS",
+        "hits": [
+          "Vitrified",
+          "Tiles",
+          "600x1200mm",
+          "Finish"
+        ],
+        "expectedSample": [
+          "Earthquake Resistant Monolithic RCC Shear Wall Structure as per IS 1893:2016 (Zone IV)",
+          "RCC Frame Structure / Jindal Steel",
+          "Earthquake",
+          "Resistant"
+        ],
+        "uiEvents": [
+          "intent",
+          "ui_state",
+          "properties",
+          "token",
+          "done"
+        ],
+        "answer": "The interior specifications for Gaur City 2 - 12th Avenue feature contemporary vitrified flooring, branded bathroom fixtures, and durable structural engineering.\n\n- Living and dining spaces feature 600x1200mm vitrified tiles, with anti-skid wooden-plank finish tiles in the master bedroom.\nMeaning: This delivers a modern aesthetic with surfaces that handle high foot traffic easily.\n\n- Bathrooms are fitted with Jaquar chrome-plated brass fixtures and wall-hung or floor-mounted EWCs with dual-flush systems.\nMeaning: Branded fittings ensure long-term reliability and minimize plumbing maintenance issues.\n\n- The kitchen includes a polished jet-black granite countertop, stainless steel sink, and piped gas connection provision.\nMeaning: You get a functional cooking area ready for immediate use without requiring extra stone fabrication.\n\nWould you like to review the cost sheet breakdown and monthly maintenance charges?"
+      },
+      {
+        "domain": "competitors",
+        "ask": "Which similar projects should I compare it with?",
+        "lane": "ground-truth-db",
+        "ms": 11413,
+        "verdict": "PASS",
+        "hits": [
+          "Sector 16C Micro-Market Benchmark Society",
+          "Sector 16C Secondary Ready Enclave"
+        ],
+        "expectedSample": [
+          "Sector 16C Micro-Market Benchmark Society",
+          "Sector 16C Secondary Ready Enclave"
+        ],
+        "uiEvents": [
+          "intent",
+          "ui_state",
+          "properties",
+          "token",
+          "done"
+        ],
+        "answer": "Gaur City 2 - 12th Avenue can be compared with established ready-to-move enclaves within the Sector 16C micro-market.\n\n- Sector 16C Micro-Market Benchmark Society is priced at ₹7,455 per sq.ft with ready possession.\n- It represents a slightly higher-priced alternative with comparable ready status.\n- Sector 16C Secondary Ready Enclave is priced at ₹6,816 per sq.ft with ready possession.\n- It offers a closer entry price point within the same micro-market.\n\nWould you like to review a detailed cost sheet breakdown for Gaur City 2 - 12th Avenue?"
+      },
+      {
+        "domain": "total_cost",
+        "ask": "What is the total cost of the cheapest flat including stamp duty and registration?",
+        "lane": "topic:statutory_tax",
+        "ms": 5628,
+        "verdict": "PASS",
+        "hits": [
+          "stamp duty",
+          "Stamp duty"
+        ],
+        "expectedSample": [
+          "stamp duty",
+          "Stamp duty"
+        ],
+        "uiEvents": [
+          "intent",
+          "ui_state",
+          "properties",
+          "token",
+          "done"
+        ],
+        "answer": "### On Gaur City 2 - 12th Avenue's lowest listed price: ₹0.77 Cr (2 BHK), date of last confirmation not on record\n\n| Charge | Amount |\n| :--- | ---: |\n| Stamp duty (7%) | **₹5,39,000** |\n| Stamp duty if a woman is primary owner (6%) | ₹4,62,000 |\n| Registration (1%) | ₹77,000 |\n| GST if under construction (5%) | ₹3,85,000 |\n| GST if ready to move with OC | ₹0 |\n| **Total, ready to move** | **₹83,16,000** |\n| **Total, under construction** | **₹87,01,000** |\n\nStamp duty is charged on the agreement value or the circle rate, whichever is higher, so the figure above is the floor. You also deduct 1% TDS (₹77,000) from the payment to the seller and deposit it with Form 26QB.\n\n### Statutory taxes & registration charges (Uttar Pradesh)\n\nThese are set by law and are the same for every project.\n\n| Component | Rate | Nature | Paid when & to whom |\n| :--- | :--- | :--- | :--- |\n| **Stamp duty** | 7% of agreement or circle value, whichever is higher | Mandatory | At registry, to the UP Stamp & Registration Department |\n| **Stamp duty — female primary owner** | 6% | Concession | At registry |\n| **Registration fee** | 1% of value | Mandatory | At deed execution, to the Sub-Registrar |\n| **GST — under construction** | 5% (without input tax credit) | Statutory | Billed across construction milestones |\n| **GST — ready to move with OC** | 0% | Exempt | Not applicable once the Occupancy Certificate is granted |\n| **TDS (Section 194-IA)** | 1% of sale consideration | Mandatory | Deducted by the buyer when value exceeds ₹50 Lakh (Form 26QB) |\n\n### Budgeting\nAllow 12–14% above base price for an under-construction home, or 8–9% above base price for ready-to-move with OC, to cover statutory and possession charges — typical for Noida — not verified for this project.\n\nName a project and I'll use whichever of its own charges we hold verified."
+      },
+      {
+        "domain": "emi",
+        "ask": "What would the EMI be on that with an 80% loan?",
+        "lane": "ground-truth-db",
+        "ms": 45815,
+        "verdict": "OUTAGE",
+        "hits": [],
+        "expectedSample": [
+          "a month",
+          "/month",
+          "per month"
+        ],
+        "uiEvents": [
+          "intent",
+          "ui_state",
+          "properties",
+          "token",
+          "done"
+        ],
+        "answer": "Exact EMI calculations are not in what we hold as interest rates and loan tenures vary by lender, but we can determine the principal loan amount from the starting price.\n\nI couldn't get you a reliable answer just now — our AI service is briefly unavailable, and I'd rather say so than guess.\n\nAsk me again in a moment, or use **Book Site Visit** or **Callback** and our advisory team will pick it up directly."
+      }
+    ]
+  },
+  {
+    "project": "IBP Windsor Valley",
+    "slug": "ibp-windsor-valley-sector-10",
+    "turns": [
+      {
+        "domain": "opening",
+        "ask": "Tell me about IBP Windsor Valley",
+        "lane": "ground-truth-db",
+        "ms": 22473,
+        "verdict": "PASS",
+        "hits": [
+          "IBP Windsor Valley"
+        ],
+        "expectedSample": [
+          "IBP Windsor Valley"
+        ],
+        "uiEvents": [
+          "intent",
+          "ui_state",
+          "properties",
+          "token",
+          "done"
+        ],
+        "answer": "This property carries active legal concerns with a moderate risk flag, while IBP Windsor Valley itself is a 2.8-acre low-density residential development located in Sector 10, Greater Noida West. \n- You should have your legal counsel carefully review the project's title status and documentation before proceeding.\n\n- The project comprises 320 units across 3 towers under RERA number UPRERAPRJ721094.\n- This ensures a boutique community feel with lower overall resident density.\n\n- Units are priced starting from ₹0.83 Cr with possession slated for December 2027 (date of last confirmation not on record).\n- This offers an under-construction investment timeline aligned with phased milestone payments.\n\n- Essential infrastructure including top schools and hospitals are within 5 to 10 minutes of the site.\n- Daily commutes and access to social facilities remain convenient for resident families.\n\nWould you like to review the detailed cost sheet and payment plan for this project?"
+      },
+      {
+        "domain": "payment_plans",
+        "ask": "What payment plans do they offer?",
+        "lane": "topic:payment-plans",
+        "ms": 33019,
+        "verdict": "PASS",
+        "hits": [
+          "Flexi 30:40:30 Payment Plan",
+          "subvention"
+        ],
+        "expectedSample": [
+          "Flexi 30:40:30 Payment Plan",
+          "subvention"
+        ],
+        "uiEvents": [
+          "intent",
+          "ui_state",
+          "properties",
+          "token",
+          "done"
+        ],
+        "answer": "### Payment Plans & Milestones — IBP Windsor Valley\n\n### Available Payment Schemes\n\n| Payment Scheme | Milestone Structure | Discount / Key Benefit | Watch out |\n| :--- | :--- | :--- | :--- |\n| **Flexi 30:40:30 Payment Plan** | 3 Stages | Not recorded | Not recorded |\n\n#### Flexi 30:40:30 Payment Plan\n\n| Stage / Milestone | Timeline / Trigger | Share | Amount |\n| :--- | :--- | ---: | ---: |\n| Stage 1 | Day 30 | Not recorded | Not recorded |\n| Stage 2 | 16 Months | Not recorded | Not recorded |\n| Stage 3 | 24 Months | Not recorded | Not recorded |\n\n_These are the standard schemes on file for this project and have not been confirmed against the developer's current terms. Treat the stage percentages as the shape to expect, and get the figures in writing before you pay._\n\nThe Flexi 30:40:30 Payment Plan for IBP Windsor Valley is a subvention plan structured around three key milestones. Firstly, 30% is due within 30 days of booking, followed by 40% upon the completion of the superstructure (expected at the 16-month mark), and the remaining 30% is payable when possession is offered around 24 months.\n\nThis plan is suited for buyers who can mobilise a significant portion of funds upfront but prefer deferred payments linked to construction progress. It provides flexibility by spreading payments over key project stages, allowing buyers to align their cash flow with the development timeline. However, it requires a substantial initial outlay, which may not suit those with limited immediate liquidity."
+      },
+      {
+        "domain": "cost_sheet",
+        "ask": "Show me the cost sheet. What are the extra charges?",
+        "lane": "topic:cost-sheet",
+        "ms": 7461,
+        "verdict": "PASS",
+        "hits": [
+          "3.25 lakh",
+          "3.25 L",
+          "0 lakh",
+          "0 L"
+        ],
+        "expectedSample": [
+          "3,25,000",
+          "3.25 lakh",
+          "3.25 L",
+          "1,50,000"
+        ],
+        "uiEvents": [
+          "intent",
+          "ui_state",
+          "properties",
+          "token",
+          "done"
+        ],
+        "answer": "### Cost breakdown — IBP Windsor Valley\n\n| Cost Component | Rate / Amount | Details & Stage |\n| :--- | :--- | :--- |\n| **Base Selling Price (BSP)** | ₹7,061/sqft | Verified base rate |\n| **Covered Car Parking** | ₹3.25 lakh | Dedicated basement parking |\n| **Club Membership** | ₹1.50 lakh | Access to clubhouse & amenities |\n| **IFMS (Maintenance Security)** | ₹50/sqft | Interest-free refundable corpus, charged on area |\n| **Maintenance** | ₹2.38/sqft per month | Recurring, from possession |\n| **GST** | 5% | Under-construction residential |\n| **UP Stamp Duty** | 7% | At registration (6% for women) |\n| **Registration Fee** | 1% | State sub-registrar fee |\n| **Estimated All-Inclusive Total** | **₹1.06 Cr** | Including BSP, charges & taxes |\n\n*Prices: date of last confirmation not on record.*\n\nAt IBP Windsor Valley, the all-inclusive figure of ₹1.06 Cr bridges a noticeable gap against the headline base rate of ₹7,061 per sq ft. While advertisements highlight the bare skeleton cost, the actual cheque you write will factor in mandatory additions like covered parking, club membership, IFMS, infrastructure development, and standard 5% residential GST. Registration puts the project on record with the authority and gives you a route to complain; it is not a warranty on delivery, title or build quality. \nBefore booking, you should specifically verify the applicable Preferential Location Charges (PLC) with the developer. Because factors such as park views, corner placement, or floor rise are customized to your exact unit selection, they can alter the base calculation significantly and are the primary variable not fixed in the standard baseline figures."
+      },
+      {
+        "domain": "location",
+        "ask": "How far is the nearest metro station?",
+        "lane": "topic:vicinity-lookup",
+        "ms": 9643,
+        "verdict": "PASS",
+        "hits": [
+          "Sector 76 Metro Station (Aqua Line)",
+          "Sector",
+          "Metro"
+        ],
+        "expectedSample": [
+          "Sector 76 Metro Station (Aqua Line)",
+          "Sector",
+          "Metro",
+          "Sector 137 Metro Station (Aqua Line)"
+        ],
+        "uiEvents": [
+          "intent",
+          "ui_state",
+          "properties",
+          "token",
+          "done"
+        ],
+        "answer": "IBP Windsor Valley (Sector 10) is 11.9 km from Sector 76 Metro Station (Aqua Line) (about 26 min by road). Road distances from our records where held, sector-level otherwise."
+      },
+      {
+        "domain": "amenities",
+        "ask": "What amenities are there?",
+        "lane": "topic:amenity-lifestyle",
+        "ms": 3570,
+        "verdict": "PASS",
+        "hits": [
+          "Swimming Pool & Toddler Pool",
+          "Badminton Court & Half Basketball Court",
+          "Community Clubhouse & Multipurpose Party Hall",
+          "Modern Gymnasium & Fitness Center"
+        ],
+        "expectedSample": [
+          "Swimming Pool & Toddler Pool",
+          "Badminton Court & Half Basketball Court",
+          "Community Clubhouse & Multipurpose Party Hall",
+          "Modern Gymnasium & Fitness Center"
+        ],
+        "uiEvents": [
+          "intent",
+          "ui_state",
+          "properties",
+          "token",
+          "done"
+        ],
+        "answer": "### Verified Amenities & Lifestyle: IBP Windsor Valley (Sector 10)\n\n| Category | Amenities |\n| :--- | :--- |\n| **Sports** | Swimming Pool & Toddler Pool · Badminton Court & Half Basketball Court |\n| **Lifestyle** | Community Clubhouse & Multipurpose Party Hall |\n| **Wellness** | Modern Gymnasium & Fitness Center · Jogging Track & Landscaped Walking Path |\n| **Kids** | Children Play Park & Swings |\n| **Security** | 24/7 Multi-Tier Security & CCTV Surveillance |\n| **Parking** | Reserved Covered Basement Parking |\n\n_8 amenities recorded for IBP Windsor Valley._\n\n**Open Space & Green Cover:**\n70% open space."
+      },
+      {
+        "domain": "units",
+        "ask": "What sizes are the flats and what do they cost?",
+        "lane": "topic:unit_configuration",
+        "ms": 4154,
+        "verdict": "PASS",
+        "hits": [
+          "980",
+          "585",
+          "1,150",
+          "685"
+        ],
+        "expectedSample": [
+          "980",
+          "585",
+          "1,150",
+          "685"
+        ],
+        "uiEvents": [
+          "intent",
+          "ui_state",
+          "properties",
+          "token",
+          "done"
+        ],
+        "answer": "### All Configurations — IBP Windsor Valley\n\n| Layout | Carpet Area | Built-Up | Super Area | Baths / Balc. | Price Band |\n| :--- | :--- | :--- | :--- | :--- | :--- |\n| 2 BHK Executive + Study | 685 sq.ft | 978 sq.ft | 1,150 sq.ft | 2 / 2 | ₹0.98–1.04 Cr |\n| 2 BHK Compact | 585 sq.ft | 833 sq.ft | 980 sq.ft | 2 / 2 | ₹0.83–0.89 Cr |\n| 3 BHK Premium Standard | 880 sq.ft | 1,258 sq.ft | 1,480 sq.ft | 3 / 3 | ₹1.26–1.36 Cr |\n| 3 BHK Royal + Servant Room | 1,040 sq.ft | 1,488 sq.ft | 1,750 sq.ft | 4 / 3 | ₹1.49–1.6 Cr |\n\n_Prices: date of last confirmation not on record._\n\n### Usable Space & Loading Audit — IBP Windsor Valley\n- **Loading Efficiency:** **40%** of super area is common space (lobbies, stairwells, shafts).\n- **Effective Usable Carpet Rate:** **₹14,307/sq.ft** (actual rate on carpet area inside your front door).\n- **Vertical Transit Index:** ~**54 units per lift** (High Density (Peak Rush Hour Delays Expected)).\n\n"
+      },
+      {
+        "domain": "price_history",
+        "ask": "Has the price gone up over time?",
+        "lane": "topic:price_trend",
+        "ms": 24807,
+        "verdict": "PASS",
+        "hits": [
+          "4,930",
+          "5,780",
+          "6,715",
+          "7,480"
+        ],
+        "expectedSample": [
+          "4,930",
+          "5,780",
+          "6,715",
+          "7,480"
+        ],
+        "uiEvents": [
+          "intent",
+          "ui_state",
+          "properties",
+          "token",
+          "done"
+        ],
+        "answer": "### Price movement — IBP Windsor Valley\n\n| Period | Price per sq ft | Basis |\n| :--- | ---: | :--- |\n| Q1 2021 | ₹4,930 | Internal benchmark estimate |\n| Q2 2022 | ₹5,780 | Internal benchmark estimate |\n| Q3 2023 | ₹6,715 | Internal benchmark estimate |\n| Q1 2024 | ₹7,480 | Internal benchmark estimate |\n| Q3 2025 | ₹8,075 | Internal benchmark estimate |\n| Q1 2026 | ₹8,500 | Observed (market check) |\n\nWe hold one observed price: ₹8,500 per sq ft (Q1 2026, recorded 15 Feb 2026). The other figures are internal benchmark estimates, not prices we saw being paid, so I won't state a rate of change from them or present them as what buyers paid. The developer's price lists for then and now would settle it; our advisory team can request them."
+      },
+      {
+        "domain": "rera",
+        "ask": "Is it RERA registered?",
+        "lane": "ground-truth-db",
+        "ms": 23080,
+        "verdict": "PASS",
+        "hits": [
+          "UPRERAPRJ721094"
+        ],
+        "expectedSample": [
+          "UPRERAPRJ721094"
+        ],
+        "uiEvents": [
+          "intent",
+          "ui_state",
+          "properties",
+          "token",
+          "done"
+        ],
+        "answer": "Yes, IBP Windsor Valley is RERA registered under number UPRERAPRJ721094, though it currently carries a moderate legal risk flag.\n\n- The project is registered under UPRERAPRJ721094 with the Uttar Pradesh Real Estate Regulatory Authority, which means it operates under official regulatory oversight.\n\nWould you like to review the details of the legal risk or schedule a site visit?"
+      },
+      {
+        "domain": "possession",
+        "ask": "When is possession, and how far along is construction?",
+        "lane": "topic:connectivity",
+        "ms": 3659,
+        "verdict": "MISS",
+        "hits": [],
+        "expectedSample": [
+          "Dec 2027",
+          "2027",
+          "RERA & Environmental Approvals",
+          "Land Clearing & Excavation"
+        ],
+        "uiEvents": [
+          "intent",
+          "ui_state",
+          "properties",
+          "token",
+          "done"
+        ],
+        "answer": "### Connectivity — IBP Windsor Valley\n\n| Project | Metro | Road / expressway | Airport | Hospital | School |\n| :--- | :--- | :--- | :--- | :--- | :--- |\n| **IBP Windsor Valley** | Sector 76 Metro Station (Aqua Line) — 11.9 km, 26 min | FNG Expressway Corridor — 10.2 km, 22 min | Airport — 58 km | Nearest — 2.8 km | Nearest — 2.2 km |\n\nDistances are road distances from our records, not straight-line. A dash means we do not hold that measurement for the project — it is not a claim that nothing is nearby."
+      },
+      {
+        "domain": "builder",
+        "ask": "What is the builder's track record?",
+        "lane": "ground-truth-db",
+        "ms": 12670,
+        "verdict": "PASS",
+        "hits": [
+          "IBP Group"
+        ],
+        "expectedSample": [
+          "IBP Group"
+        ],
+        "uiEvents": [
+          "intent",
+          "ui_state",
+          "properties",
+          "token",
+          "done"
+        ],
+        "answer": "This property carries active legal concerns: Project legal flag: moderate_risk. IBP Group is a specialized NCR developer founded in 2016 with a portfolio of 20 projects.\n\n- IBP Group operates as an ISO 9001:2015 certified developer and an active member of CREDAI.\n- The builder's ongoing project, IBP Windsor Valley, currently maintains zero litigation cases on record.\n- Funding for their developments is backed by major institutional banks including SBI, HDFC, and ICICI.\n\nFor the buyer, this indicates an established regional track record with standard institutional backing, though the moderate risk flag requires thorough legal review of all documentation.\n\nWould you like to review the construction timeline and expected handover dates for IBP Windsor Valley?"
+      },
+      {
+        "domain": "specs",
+        "ask": "What are the specifications, like flooring and fittings?",
+        "lane": "ground-truth-db",
+        "ms": 34103,
+        "verdict": "PASS",
+        "hits": [
+          "Large Format Glazed Vitrified Tiles (800x800mm)",
+          "Kajaria / Somany / Equivalent",
+          "Large",
+          "Format"
+        ],
+        "expectedSample": [
+          "Large Format Glazed Vitrified Tiles (800x800mm)",
+          "Kajaria / Somany / Equivalent",
+          "Large",
+          "Format"
+        ],
+        "uiEvents": [
+          "intent",
+          "ui_state",
+          "properties",
+          "token",
+          "done"
+        ],
+        "answer": "The specifications for IBP Windsor Valley include:\n\n- Flooring: Living & Dining — Large Format Glazed Vitrified Tiles (800x800mm) (Kajaria / Somany / Equivalent)\n- Flooring: Master Bedroom — Laminated Wooden Flooring / Matte Finish Vitrified Tiles (Pergo / Greenlam / Equivalent)\n- Kitchen: Countertop & Sink — Polished Granite Countertop with Double Bowl Stainless Steel Sink (Franke / Nirali / Equivalent)\n- Bathrooms: Master Bathroom — Wall-Hung EWC with Concealed Cistern & Single Lever Diverter (Kohler / Jaquar / Grohe)\n- Doors & Windows: Main Door & Windows — 8-Foot Teak Veneer Flush Door & Powder Coated Aluminum / UPVC Sliding Windows (Fenesta / AIS / Equivalent)\n- Electrical: Wiring & Switches — Concealed Copper Wiring with Modular Switches & MCBs (Schneider / Legrand / Havells)\n- Structure: Earthquake Resistance — RCC Framed Structure compliant with Seismic Zone IV standards (Tata Tiscon / Jindal Steel / UltraTech)\n\nThese specifications indicate the use of high-quality materials and brands, ensuring a premium finish and durability.\n\nWould you like to know more about the amenities offered at IBP Windsor Valley?"
+      },
+      {
+        "domain": "competitors",
+        "ask": "Which similar projects should I compare it with?",
+        "lane": "ground-truth-db",
+        "ms": 12074,
+        "verdict": "PASS",
+        "hits": [
+          "Sector 10 Alternate Landmark I",
+          "Sector 10 Alternate Landmark II"
+        ],
+        "expectedSample": [
+          "Sector 10 Alternate Landmark I",
+          "Sector 10 Alternate Landmark II"
+        ],
+        "uiEvents": [
+          "intent",
+          "ui_state",
+          "properties",
+          "token",
+          "done"
+        ],
+        "answer": "[MANDATORY LEGAL DISCLOSURE] This property carries active legal concerns: Project legal flag: moderate_risk. You can effectively compare IBP Windsor Valley with two primary alternate landmarks in Sector 10, Greater Noida West.\n\n- Sector 10 Alternate Landmark I offers a slightly lower base entry price with a ₹200-400/sqft differential, though IBP Windsor Valley provides a higher open space percentage and superior floor height. What this means for the buyer: You can weigh initial cost savings against long-term space and ventilation benefits.\n- Sector 10 Alternate Landmark II provides closer proximity to commercial market plazas, while IBP Windsor Valley wins on builder track record and construction quality. What this means for the buyer: You can choose between immediate retail convenience and verified execution standards.\n\nWould you like to review the specific pricing differences for Sector 10 Alternate Landmark I?"
+      },
+      {
+        "domain": "total_cost",
+        "ask": "What is the total cost of the cheapest flat including stamp duty and registration?",
+        "lane": "topic:statutory_tax",
+        "ms": 19863,
+        "verdict": "PASS",
+        "hits": [
+          "stamp duty",
+          "Stamp duty"
+        ],
+        "expectedSample": [
+          "stamp duty",
+          "Stamp duty"
+        ],
+        "uiEvents": [
+          "intent",
+          "ui_state",
+          "properties",
+          "token",
+          "done"
+        ],
+        "answer": "### On IBP Windsor Valley's lowest listed price: ₹0.83 Cr (2 BHK), date of last confirmation not on record\n\n| Charge | Amount |\n| :--- | ---: |\n| Stamp duty (7%) | **₹5,81,000** |\n| Stamp duty if a woman is primary owner (6%) | ₹4,98,000 |\n| Registration (1%) | ₹83,000 |\n| GST if under construction (5%) | ₹4,15,000 |\n| GST if ready to move with OC | ₹0 |\n| **Total, ready to move** | **₹89,64,000** |\n| **Total, under construction** | **₹93,79,000** |\n\nStamp duty is charged on the agreement value or the circle rate, whichever is higher, so the figure above is the floor. You also deduct 1% TDS (₹83,000) from the payment to the seller and deposit it with Form 26QB.\n\n### Statutory taxes & registration charges (Uttar Pradesh)\n\nThese are set by law and are the same for every project.\n\n| Component | Rate | Nature | Paid when & to whom |\n| :--- | :--- | :--- | :--- |\n| **Stamp duty** | 7% of agreement or circle value, whichever is higher | Mandatory | At registry, to the UP Stamp & Registration Department |\n| **Stamp duty — female primary owner** | 6% | Concession | At registry |\n| **Registration fee** | 1% of value | Mandatory | At deed execution, to the Sub-Registrar |\n| **GST — under construction** | 5% (without input tax credit) | Statutory | Billed across construction milestones |\n| **GST — ready to move with OC** | 0% | Exempt | Not applicable once the Occupancy Certificate is granted |\n| **TDS (Section 194-IA)** | 1% of sale consideration | Mandatory | Deducted by the buyer when value exceeds ₹50 Lakh (Form 26QB) |\n\n### Budgeting\nAllow 12–14% above base price for an under-construction home, or 8–9% above base price for ready-to-move with OC, to cover statutory and possession charges — typical for Noida — not verified for this project.\n\nName a project and I'll use whichever of its own charges we hold verified."
+      },
+      {
+        "domain": "emi",
+        "ask": "What would the EMI be on that with an 80% loan?",
+        "lane": "ground-truth-db",
+        "ms": 70162,
+        "verdict": "OUTAGE",
+        "hits": [
+          "per month"
+        ],
+        "expectedSample": [
+          "a month",
+          "/month",
+          "per month"
+        ],
+        "uiEvents": [
+          "intent",
+          "ui_state",
+          "properties",
+          "searching",
+          "token",
+          "done"
+        ],
+        "answer": "The EMI for an 80% loan on IBP Windsor Valley would be ₹48,272 per month.\n\nI couldn't get you a reliable answer just now — our AI service is briefly unavailable, and I'd rather say so than guess.\n\nAsk me again in a moment, or use **Book Site Visit** or **Callback** and our advisory team will pick it up directly."
+      }
+    ]
+  }
+]
