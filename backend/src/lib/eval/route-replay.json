@@ -378,7 +378,11 @@
       {
         "text": "How reliable is Antriksh?",
         "expect": {
-          "lane": "OPEN"
+          "lane": "topic:builder-reputation",
+          "llm": false,
+          "contains": [
+            "Antriksh Group"
+          ]
         }
       }
     ]
@@ -1218,6 +1222,38 @@
         "text": "Noida mein metro ke paas koi project hai 1.2 crore tak?",
         "expect": {
           "lane": "main"
+        }
+      }
+    ]
+  },
+  {
+    "id": "bm2-builder-trust",
+    "turns": [
+      {
+        "text": "Can I trust Supertech as a builder? What happened with their delayed projects?",
+        "expect": {
+          "lane": "topic:builder-reputation",
+          "llm": false,
+          "contains": [
+            "Supertech Limited",
+            "36 months"
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "id": "hi-builder-trust",
+    "turns": [
+      {
+        "text": "Supertech pe bharosa kar sakte hain kya?",
+        "expect": {
+          "lane": "topic:builder-reputation",
+          "llm": false,
+          "contains": [
+            "Supertech Limited",
+            "36 months"
+          ]
         }
       }
     ]

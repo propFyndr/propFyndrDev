@@ -1,5 +1,7 @@
 import type { ChatTopicHandler } from '../handlerContext'
 import { prisma } from '../../db'
+import { builderNamedIn } from '../builderTrust'
+import { humanFlag, NOT_A_CONCERN_FLAG } from '../../discovery/scoring'
 
 /**
  * What the numbers in this table actually are.
@@ -39,6 +41,14 @@ const SCORE_BASIS =
  * It declines a builder-vs-builder message — that is a comparison, and the
  * comparison path owns it.
  */
+const BUILDER_RECORD = {
+  id: true, name: true, founded_year: true,
+  delivery_score: true, average_delay_months: true, delivered_units: true,
+  projects_delivered_count: true, total_projects_count: true,
+  construction_quality_score: true, rera_compliance_score: true,
+  litigation_count: true, insolvency_history: true, legal_flag: true,
+} as const
+
 export const builderReputationHandler: ChatTopicHandler = {
   id: 'builder-reputation',
   description: 'Developer delivery scorecard and track record',
@@ -80,17 +90,19 @@ export const builderReputationHandler: ChatTopicHandler = {
                 },
             select: {
               name: true,
-              builder: {
-                select: {
-                  id: true, name: true, founded_year: true,
-                  delivery_score: true, average_delay_months: true, delivered_units: true,
-                  projects_delivered_count: true, total_projects_count: true,
-                  construction_quality_score: true, rera_compliance_score: true,
-                  litigation_count: true, insolvency_history: true, legal_flag: true,
-                },
-              },
+              builder: { select: BUILDER_RECORD },
             },
           }))
+        : null
+
+      /**
+       * "Can I trust Supertech?" names a developer, not a building. With no
+       * project in focus, the developer the buyer named is the subject; the
+       * league table follows as context, as it does for a project's developer.
+       */
+      const namedBuilder = !focusBuilder ? builderNamedIn(ctx.message, ctx.builders) : null
+      const named = namedBuilder
+        ? await prisma.builder.findUnique({ where: { id: namedBuilder.id }, select: BUILDER_RECORD })
         : null
 
       const topBuilders = ctx.builders
@@ -132,7 +144,7 @@ export const builderReputationHandler: ChatTopicHandler = {
        * recorded, say that in words instead of printing an empty table.
        */
       const focusBlock = (() => {
-        const b = focusBuilder?.builder
+        const b = focusBuilder?.builder ?? named
         if (!b) return ''
         const rows: string[] = []
         const add = (metric: string, value: string | null, basis: string) => {
@@ -157,11 +169,13 @@ export const builderReputationHandler: ChatTopicHandler = {
         // filled, about the exact risk the buyer asked to assess.
         add('Litigation on record', b.litigation_count ? `${b.litigation_count} public record(s)` : null, 'Public court & UP RERA records')
         add('Insolvency / NCLT', b.insolvency_history ? 'Insolvency proceedings on record' : null, 'Insolvency & Bankruptcy Board of India')
-        if (b.legal_flag && b.legal_flag !== 'none') {
-          add('Legal status flag', b.legal_flag, 'Verified regulatory status')
+        if (b.legal_flag && !NOT_A_CONCERN_FLAG.test(b.legal_flag)) {
+          add('Legal status flag', humanFlag(b.legal_flag), 'Verified regulatory status')
         }
 
-        const head = `### ${b.name} — the developer behind ${focusBuilder?.name ?? focusName}\n\n`
+        const head = focusBuilder
+          ? `### ${b.name} — the developer behind ${focusBuilder.name ?? focusName}\n\n`
+          : `### ${b.name} — track record\n\n`
         if (rows.length === 0) {
           return `${head}We do not hold a scored track record for ${b.name}. That is a gap in our data, not a poor record — the advisory team can pull their delivery history directly.\n\n`
         }
@@ -194,6 +208,8 @@ Ordered by delivery record. "Not recorded" is a gap in our data, not a poor resu
             { id: `chip_br_${Date.now()}`, actionType: 'TEXT_MESSAGE', label: `Is ${focusProjectName} RERA clean?`, icon: 'shield-check', analyticsId: 'chip_b_rera', priority: 2, payload: { text: `Is ${focusProjectName} RERA registered?` } },
             { id: `chip_bd_${Date.now()}`, actionType: 'TEXT_MESSAGE', label: `Possession timeline`, icon: 'calendar', analyticsId: 'chip_b_poss', priority: 3, payload: { text: `When is possession for ${focusProjectName}?` } },
           ]
+        : named
+        ? [{ id: `chip_bn_${Date.now()}`, actionType: 'TEXT_MESSAGE', label: `Projects by ${named.name}`, icon: 'building', analyticsId: 'chip_b_named', priority: 1, payload: { text: `Show me projects by ${named.name}` } }]
         : topBuilders.slice(0, 3).map((b, i) => ({
             id: `chip_b_${i}_${Date.now()}`,
             actionType: 'TEXT_MESSAGE',

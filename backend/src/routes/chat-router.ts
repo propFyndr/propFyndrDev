@@ -123,7 +123,7 @@ import {
   isReraProcessQuestion as matchesReraProcessQuestion,
   isPaymentPlanRequest as matchesPaymentPlanRequest,
 } from '../lib/chat/topicFlags'
-import { CHAT_TOPIC_HANDLERS } from '../lib/chat/handlers'
+import { CHAT_TOPIC_HANDLERS, isBuilderTrustQuestion } from '../lib/chat/handlers'
 import { matchesLegalRiskQuestion } from '../lib/chat/handlers/legalRisk'
 import { matchesResaleDealQuestion } from '../lib/chat/handlers/resaleDeal'
 import { matchesMessageOnlyTopic } from '../lib/chat/handlers/messageOnlyTopics'
@@ -3253,7 +3253,7 @@ router.post('/', async (req: Request, res: Response) => {
       queryClassification.queryKind === 'OPEN' &&
       !(asksForInventory && intent.sector) &&
       !asksAffordability &&
-      !asksLegalSafety &&
+      !asksLegalSafety && !(await isBuilderTrustQuestion(message)) &&
       !asksOurOwnNumbers &&
       !resolvedFromShownList &&
       // EOI / unregistered resale / Sports City: answered from RERA law and our
@@ -3642,7 +3642,7 @@ I can help you with:
     const isSubventionQuery = /\b(subvention|20[:\s]*80|10[:\s]*90|80[:\s]*20|builder\s+subvention)\b/i.test(topicText)
     const isBuilderReputationQuery =
       !isSubventionQuery &&
-      /\b(builder|developer)\s*(track\s*record|reputation|credibility|delivery\s*score|ranking|reliability|history|score)\b|\b(which|best|top|reputable|reliable)\s*(builder|developer|company)\b|\b(developer\s*track|on.?time\s*delivery|delivery\s*track\s*record|safe\s*to\s*buy\s*from)\b/i.test(topicText) &&
+      (/\b(builder|developer)\s*(track\s*record|reputation|credibility|delivery\s*score|ranking|reliability|history|score)\b|\b(which|best|top|reputable|reliable)\s*(builder|developer|company)\b|\b(developer\s*track|on.?time\s*delivery|delivery\s*track\s*record|safe\s*to\s*buy\s*from)\b/i.test(topicText) || await isBuilderTrustQuestion(topicText)) &&
       !isSectorCompare &&
       !isReraCheckQuery &&
       (intent.projectNames?.length ?? 0) < 2 && !(sectorMatches.length >= 2 && /\b(vs\.?|versus|compare|between)\b/i.test(topicText)) // two-sided: bm2-two-projects-builder-safety
