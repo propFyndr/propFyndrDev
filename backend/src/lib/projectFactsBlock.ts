@@ -26,6 +26,15 @@
 import type { Prisma } from '@prisma/client'
 import { airportDistances } from './discovery/airports'
 import { possessionDatePassed, DATE_PASSED_NOTE } from './possession'
+import { humanFlag, NOT_A_CONCERN_FLAG } from './discovery/scoring'
+
+/**
+ * Competitor rows a script wrote with no real project behind them ("Nearby
+ * Micro-Market Development" on 90 projects, "Adjacent Premium Project in Sector
+ * 75"). A placeholder is not a competitor; it never reaches an answer.
+ */
+export const PLACEHOLDER_COMPETITOR =
+  /^(?:Nearby Micro-Market Development|Adjacent Premium Project in Sector\b|Sector \S+ (?:Alternate Landmark|Micro-Market Benchmark Society|Secondary Ready Enclave)\b)/i
 import { asksPriceMovement } from './priceMovement'
 import { facingLabel, recordedOrientations, ORIENTATION_IS_SOURCED } from './discovery/facing'
 import { redactProject, isPublicField, stripRelationInternals, isSchemaDefault, stripOpaqueScores } from './projectExposure'
@@ -408,8 +417,25 @@ export function projectScalarFacts(
     out[key] = formatted
   }
 
-  if (out.possession_label && possessionDatePassed(safe.status, safe.possession_date as Date | string | null)) {
-    out.possession_label = `${out.possession_label} (${DATE_PASSED_NOTE})`
+  // A passed date on an undelivered project is flagged on EVERY field that
+  // carries it. Flagging only the label left `possession_date` and
+  // `possession_confidence: high` to say "expected by June 2026, high
+  // confidence" in October 2026 (followup-coverage, ATS Pious Hideaways).
+  if (possessionDatePassed(safe.status, safe.possession_date as Date | string | null)) {
+    if (out.possession_label) out.possession_label = `${out.possession_label} (${DATE_PASSED_NOTE})`
+    if (out.possession_date) out.possession_date = `${out.possession_date} (${DATE_PASSED_NOTE})`
+    delete out.possession_confidence
+    delete out.possession_confidence_note
+    delete out.expected_handover_quarter
+  }
+
+  // Two possession figures that disagree are surfaced, never silently picked
+  // (IBP Windsor Valley: possession Dec 2027, expected handover Q4 2026).
+  const handover = typeof out.expected_handover_quarter === 'string' ? /Q([1-4])\D*(\d{4})/i.exec(out.expected_handover_quarter) : null
+  const pd = safe.possession_date ? new Date(safe.possession_date as string) : null
+  if (handover && pd && !isNaN(pd.getTime()) && `Q${handover[1]} ${handover[2]}` !== `Q${Math.ceil((pd.getUTCMonth() + 1) / 3)} ${pd.getUTCFullYear()}`) {
+    out.possession_conflict = `Our records disagree: the possession date is ${out.possession_date} but a separate handover estimate says ${out.expected_handover_quarter}. State both as a conflict, do not pick one, and tell the buyer to rely on the RERA-registered date in writing.`
+    delete out.expected_handover_quarter
   }
 
   // Both airports, computed from this project's own coordinates.
@@ -517,14 +543,16 @@ export function buildProjectFacts(
   const ncltActive = row.nclt_moratorium_active === true
   // authority_dues_cleared is dropped (lean-schema migration, 2026-10) — no
   // signal to derive a dues-pending disclosure from until re-sourced.
-  const projFlag = typeof row.project_risk_flag === 'string' && row.project_risk_flag !== 'none' ? row.project_risk_flag : null
+  // `low_risk` is not a legal concern: it used to trigger the mandatory legal
+  // disclosure on 62 projects. A real flag is said in words, never as a token.
+  const projFlag = typeof row.project_risk_flag === 'string' && !NOT_A_CONCERN_FLAG.test(row.project_risk_flag.trim()) ? row.project_risk_flag : null
 
   if (projLitigation > 0 || ongoingLitigation > 0 || builderLitigation > 0 || ncltActive || projFlag) {
     const issues: string[] = []
     if (projLitigation > 0) issues.push(`${projLitigation} project litigation record(s) (${ongoingLitigation} ongoing)`)
     if (builderLitigation > 0) issues.push(`${builderLitigation} builder litigation record(s)`)
     if (ncltActive) issues.push('ACTIVE NCLT insolvency moratorium')
-    if (projFlag) issues.push(`Project legal flag: ${projFlag}`)
+    if (projFlag) issues.push(/\s/.test(projFlag) ? projFlag : `project risk flag on record: ${humanFlag(projFlag)}`)
 
     facts.legal_risk_summary =
       `[MANDATORY LEGAL DISCLOSURE] This property carries active legal concerns: ${issues.join('; ')}. ` +
@@ -671,6 +699,7 @@ export function buildProjectFacts(
 
   if (topics?.has('deep_reasoning') && row.competitors?.length) {
     facts.competitors = row.competitors
+      .filter(c => !PLACEHOLDER_COMPETITOR.test(String(c.competitor_name ?? '')))
       .slice(0, 5)
       .map(c => cleanRelation('competitors', c))
       .filter(Boolean)

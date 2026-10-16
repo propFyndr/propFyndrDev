@@ -4884,3 +4884,12 @@ Audit: ~60 questions covering every section of a project card, run through the r
 - Placeholder competitor rows ("Nearby Micro-Market Development").
 - Identical row counts on 3 Sector 10 projects (likely templated).
 - p50 16 s / p90 38 s.
+
+## 2026-10-16 — Possession, legal-flag and competitor wording in the AI's facts
+**Decided (lib/projectFactsBlock.ts):**
+- A passed possession date on an undelivered project carries the "date passed" note on the date as well as the label, and drops `possession_confidence` and `expected_handover_quarter`. ATS had read "expected by June 2026, high confidence" in October 2026.
+- When `expected_handover_quarter` disagrees with `possession_date` (25 projects), the facts carry one `possession_conflict` note: state both, rely on the RERA date.
+- `low_risk` no longer triggers the mandatory legal disclosure; it had fired on 62 projects. A real flag is said in words ("project risk flag on record: moderate risk") via `humanFlag`/`NOT_A_CONCERN_FLAG`, now exported from discovery/scoring.ts.
+- Placeholder competitor rows (`PLACEHOLDER_COMPETITOR`) never reach the facts.
+**Data, approved but blocked by the permission classifier (bulk delete):** `backend/scripts/cleanup-placeholder-competitors-2026-10-16.ts --apply` backs up, then deletes 266 placeholder competitor rows (229 projects, none linked) and blanks `expected_handover_quarter = 'Q4 2026'` on 29 projects, on Supabase then Neon. The owner runs it.
+**Not fixable by code:** "date of last confirmation not on record" (needs the verified supply chain); speed (Day 5; the paid key).

@@ -196,7 +196,7 @@ describe('legal risk summary synthesis', () => {
     assert.ok((facts.legal_risk_summary as string).includes('[MANDATORY LEGAL DISCLOSURE]'))
     assert.ok((facts.legal_risk_summary as string).includes('5 project litigation record(s) (2 ongoing)'))
     assert.ok((facts.legal_risk_summary as string).includes('ACTIVE NCLT insolvency moratorium'))
-    assert.ok((facts.legal_risk_summary as string).includes('Project legal flag: under_review'))
+    assert.ok((facts.legal_risk_summary as string).includes('project risk flag on record: under review'))
   })
 
   it('omits legal_risk_summary when project has clean legal standing', () => {
@@ -208,5 +208,43 @@ describe('legal risk summary synthesis', () => {
     }) as never)
 
     assert.ok(!('legal_risk_summary' in facts))
+  })
+})
+
+describe('possession, legal flag and competitor wording (followup-coverage 2026-10-16)', () => {
+  it('a passed date on an undelivered project is flagged everywhere and loses its confidence', () => {
+    const out = projectScalarFacts(row({ possession_date: new Date('2026-06-30'), possession_label: 'June 2026', possession_confidence: 'high', expected_handover_quarter: 'Q4 2026' }))
+    assert.match(String(out.possession_date), /possession date passed/)
+    assert.match(String(out.possession_label), /possession date passed/)
+    assert.equal(out.possession_confidence, undefined)
+    assert.equal(out.expected_handover_quarter, undefined)
+  })
+
+  it('two possession figures that disagree become one conflict note', () => {
+    const out = projectScalarFacts(row({ possession_date: new Date('2027-12-31'), expected_handover_quarter: 'Q4 2026' }))
+    assert.match(String(out.possession_conflict), /disagree/)
+    assert.equal(out.expected_handover_quarter, undefined)
+    const same = projectScalarFacts(row({ possession_date: new Date('2027-12-31'), expected_handover_quarter: 'Q4 2027' }))
+    assert.equal(same.possession_conflict, undefined)
+  })
+
+  it('low_risk is not a legal disclosure; moderate_risk is said in words', () => {
+    assert.equal(buildProjectFacts(row({ project_risk_flag: 'low_risk' })).legal_risk_summary, undefined)
+    const summary = String(buildProjectFacts(row({ project_risk_flag: 'moderate_risk' })).legal_risk_summary)
+    assert.match(summary, /moderate risk/)
+    assert.doesNotMatch(summary, /moderate_risk/)
+  })
+
+  it('placeholder competitor rows never reach the answer', () => {
+    const facts = buildProjectFacts(row({
+      competitors: [
+        { competitor_name: 'Nearby Micro-Market Development', sort_order: 0 },
+        { competitor_name: 'Adjacent Premium Project in Sector 75', sort_order: 1 },
+        { competitor_name: 'Godrej Palm Retreat', sort_order: 2 },
+      ],
+    }), { topics: new Set(['deep_reasoning']) as any })
+    const text = JSON.stringify(facts.competitors)
+    assert.match(text, /Godrej Palm Retreat/)
+    assert.doesNotMatch(text, /Micro-Market Development|Adjacent Premium Project/)
   })
 })

@@ -168,7 +168,8 @@ describe('Real Estate Advisory Pipeline - Integration Tests', () => {
       }
       const facts = buildProjectFacts(projectWithFlag, 'Is this a good option?')
       assert.ok(facts.legal_risk_summary)
-      assert.match(facts.legal_risk_summary as string, /Project legal flag: under_review/)
+      // Said in words: the raw token used to reach buyers as written.
+      assert.match(facts.legal_risk_summary as string, /project risk flag on record: under review/)
     })
 
     it('does NOT synthesize legal_risk_summary for clean projects', () => {

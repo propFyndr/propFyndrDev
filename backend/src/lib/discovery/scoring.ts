@@ -131,12 +131,12 @@ export function possessionOutsideTimeline(
   return false
 }
 
-const NOT_A_CONCERN_FLAG = /^(?:none|low[_\s-]?risk)$/i
+export const NOT_A_CONCERN_FLAG = /^(?:none|low[_\s-]?risk)$/i
 const FLAG_ACRONYMS = new Set(['NCLT', 'SPV', 'RERA'])
 const FLAG_PROPER_NOUNS = new Set(['SUPREME', 'COURT', 'SURAKSHA'])
 
 /** `NCLT_INSOLVENCY` → "NCLT insolvency", `moderate_risk` → "moderate risk". */
-function humanFlag(token: string): string {
+export function humanFlag(token: string): string {
   return token
     .trim()
     .split(/[_\s-]+/)
