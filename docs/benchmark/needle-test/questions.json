@@ -1,0 +1,22 @@
+[
+  {"id":"1","turns":["3BHK in Noida under 1.5 crore, possession within a year. What are my options?"],"label":{"task":"search","bhk":3,"budgetMax":1.5,"possession":"1year","location":"Noida"}},
+  {"id":"2","turns":["2BHK in Greater Noida West around 80 lakh.","Actually make that 1 crore, what changes?"],"label":{"task":"search","bhk":2,"budgetMax":1.0,"location":"Greater Noida West"}},
+  {"id":"3","turns":["Is Supertech Supernova Astralis in Sector 94 on track for possession, and what is the risk if it slips?"],"label":{"task":"project_question","projects":["Supernova"],"location":"Sector 94"}},
+  {"id":"4","turns":["I need to move in within 6 months. Which ready-to-move 3BHKs in Noida should I look at?"],"label":{"task":"search","bhk":3,"possession":"immediate","location":"Noida"}},
+  {"id":"5","turns":["Which projects near a metro station in Noida fit a 1.2 crore budget?"],"label":{"task":"search","budgetMax":1.2,"metro":true,"location":"Noida"}},
+  {"id":"6","turns":["I work in Sector 62. Which sectors give me the shortest commute for a 2BHK under 1 crore?"],"label":{"task":"search","bhk":2,"budgetMax":1.0,"workplace":"Sector 62"}},
+  {"id":"7","turns":["Can I trust Supertech as a builder? What happened with their delayed projects?"],"label":{"task":"builder_trust","builder":"Supertech"}},
+  {"id":"8","turns":["Jaypee Klassic in Sector 134 vs Gulshan Ikebana in Sector 143: which builder is safer?"],"label":{"task":"compare","projects":["Klassic","Ikebana"]}},
+  {"id":"9","turns":["For a 1.4 crore flat in Noida, what is the total cost including stamp duty, registration and GST?"],"label":{"task":"total_cost","price":1.4}},
+  {"id":"10","turns":["If I take an 80% loan on a 1.5 crore flat, what is my EMI and how much cash do I need up front?"],"label":{"task":"emi","price":1.5,"loanPercent":80}},
+  {"id":"H1","turns":["3 BHK chahiye Noida mein, budget 1.5 crore, possession ek saal mein"],"label":{"task":"search","bhk":3,"budgetMax":1.5,"possession":"1year","location":"Noida"}},
+  {"id":"H2","turns":["Greater Noida West mein 2BHK 80 lakh tak.","Nahi, 1 crore kar do"],"label":{"task":"search","bhk":2,"budgetMax":1.0,"location":"Greater Noida West"}},
+  {"id":"H3","turns":["Supertech Supernova Astralis ka possession time pe milega kya?"],"label":{"task":"project_question","projects":["Supernova"]}},
+  {"id":"H4","turns":["6 mahine mein shift karna hai, ready to move 3BHK batao Noida mein"],"label":{"task":"search","bhk":3,"possession":"immediate","location":"Noida"}},
+  {"id":"H5","turns":["Metro ke paas koi project hai 1.2 crore tak?"],"label":{"task":"search","budgetMax":1.2,"metro":true}},
+  {"id":"H6","turns":["Mera office Sector 62 mein hai, 1 crore ke andar 2BHK kahan lu?"],"label":{"task":"search","bhk":2,"budgetMax":1.0,"workplace":"Sector 62"}},
+  {"id":"H7","turns":["Supertech pe bharosa kar sakte hain kya?"],"label":{"task":"builder_trust","builder":"Supertech"}},
+  {"id":"H8","turns":["Jaypee Klassic aur Gulshan Ikebana mein kaun sa builder better hai?"],"label":{"task":"compare","projects":["Klassic","Ikebana"]}},
+  {"id":"H9","turns":["1.4 crore ke flat pe stamp duty aur registration milake total kitna padega?"],"label":{"task":"total_cost","price":1.4}},
+  {"id":"H10","turns":["1.5 crore ke flat pe 80% loan liya to EMI kitni banegi?"],"label":{"task":"emi","price":1.5,"loanPercent":80}}
+]

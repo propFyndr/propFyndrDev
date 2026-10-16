@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Day 2 Results</title>
+<style>
+:root{--bg:#f6f4fb;--card:#fff;--ink:#1d1a26;--muted:#6b6578;--line:#e4dff0;--accent:#6b4fd8;--good:#1f7a4d;--goodbg:#e6f4ec;--bad:#b3261e;--badbg:#fbe9e7;--warn:#8a5a00;--warnbg:#fff4dc}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#15131b;--card:#1e1b27;--ink:#ece9f4;--muted:#a49db3;--line:#332e40;--accent:#a58cff;--good:#6fd39b;--goodbg:#173326;--bad:#ff8a80;--badbg:#3a1d1b;--warn:#f3c66b;--warnbg:#3a2f15}}
+:root[data-theme="dark"]{--bg:#15131b;--card:#1e1b27;--ink:#ece9f4;--muted:#a49db3;--line:#332e40;--accent:#a58cff;--good:#6fd39b;--goodbg:#173326;--bad:#ff8a80;--badbg:#3a1d1b;--warn:#f3c66b;--warnbg:#3a2f15}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;padding:24px 16px 64px}
+main{max-width:1040px;margin:0 auto}
+h1{font-size:26px;margin:0 0 4px}
+.sub{color:var(--muted);margin:0 0 24px}
+section{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px 22px;margin:0 0 22px}
+h2{font-size:19px;margin:0 0 2px;display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
+h2 .n{color:var(--accent);font-variant-numeric:tabular-nums}
+.goal{color:var(--muted);margin:0 0 14px;font-size:14px}
+.pill{display:inline-block;font-size:12px;font-weight:600;padding:2px 9px;border-radius:99px;white-space:nowrap}
+.done{background:var(--goodbg);color:var(--good)}.part{background:var(--warnbg);color:var(--warn)}.no{background:var(--badbg);color:var(--bad)}
+.wrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:13.5px}
+th,td{text-align:left;padding:7px 9px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:12px;text-transform:uppercase;letter-spacing:.03em;color:var(--muted);font-weight:600}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin:4px 0 14px}
+.kpi{border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.kpi b{display:block;font-size:22px;font-variant-numeric:tabular-nums}
+.kpi span{color:var(--muted);font-size:12.5px}
+.note{font-size:13px;color:var(--muted);margin:12px 0 0}
+.note b{color:var(--ink)}
+.g{color:var(--good);font-weight:600}.r{color:var(--bad);font-weight:600}.w{color:var(--warn);font-weight:600}
+ul{margin:6px 0 0;padding-left:20px}li{margin:3px 0}
+code{font-size:12.5px;background:var(--bg);padding:1px 5px;border-radius:5px}
+</style>
+</head>
+<body>
+<main>
+<h1>RealtyAsk: Day 2 results</h1>
+<p class="sub">16 Oct 2026 · How we answer compared with ChatGPT and Perplexity, plus Hinglish. Every number on this page comes from a saved run in <code>docs/benchmark/</code>.</p>
+
+<section>
+<h2><span class="n">1</span> Ten real buyer questions <span class="pill part">Done, waiting for team sign-off</span></h2>
+<p class="goal">Result wanted: a saved list the team agrees on. Saved in <code>DAY2_QUESTIONS_2026-10-16.md</code>; still marked DRAFT.</p>
+<div class="wrap"><table>
+<tr><th>#</th><th>Theme</th><th>Question</th></tr>
+<tr><td>1</td><td>Budget</td><td>3BHK in Noida under 1.5 crore, possession within a year. What are my options?</td></tr>
+<tr><td>2</td><td>Budget + correction</td><td>2BHK in Greater Noida West around 80 lakh. Actually make that 1 crore, what changes?</td></tr>
+<tr><td>3</td><td>Possession</td><td>Is Supertech Supernova Astralis in Sector 94 on track for possession, and what is the risk if it slips?</td></tr>
+<tr><td>4</td><td>Possession</td><td>I need to move in within 6 months. Which ready-to-move 3BHKs in Noida should I look at?</td></tr>
+<tr><td>5</td><td>Metro</td><td>Which projects near a metro station in Noida fit a 1.2 crore budget?</td></tr>
+<tr><td>6</td><td>Metro + commute</td><td>I work in Sector 62. Which sectors give me the shortest commute for a 2BHK under 1 crore?</td></tr>
+<tr><td>7</td><td>Builder trust</td><td>Can I trust Supertech as a builder? What happened with their delayed projects?</td></tr>
+<tr><td>8</td><td>Builder trust</td><td>Jaypee Klassic in Sector 134 vs Gulshan Ikebana in Sector 143: which builder is safer?</td></tr>
+<tr><td>9</td><td>Total cost</td><td>For a 1.4 crore flat in Noida, what is the total cost including stamp duty, registration and GST?</td></tr>
+<tr><td>10</td><td>Total cost + EMI</td><td>If I take an 80% loan on a 1.5 crore flat, what is my EMI and how much cash do I need up front?</td></tr>
+</table></div>
+</section>
+
+<section>
+<h2><span class="n">2</span> Reference answers from two assistants <span class="pill done">Done</span></h2>
+<p class="goal">Result wanted: two reference answers for each question.</p>
+<div class="kpis">
+<div class="kpi"><b>10 / 10</b><span>ChatGPT answers saved</span></div>
+<div class="kpi"><b>10 / 10</b><span>Perplexity answers saved</span></div>
+<div class="kpi"><b>10 / 10</b><span>RealtyAsk answers saved, before the fixes</span></div>
+</div>
+<ul>
+<li>Saved as <code>answers/chatgpt-raw.json</code>, <code>answers/perplexity-raw.json</code> and <code>answers/realtyask-before.json</code>.</li>
+<li>Both assistants were used on the logged-out free tier, each question in a fresh chat.</li>
+<li>RealtyAsk ran on current <code>dev</code> code, with the real AI providers, against the dev database.</li>
+</ul>
+<p class="note"><b>Different from the plan:</b> the answers were read from the page text by an automated browser (Playwright), not copied from the Network tab. The timings are what the browser saw. Logged-out ChatGPT may use a weaker model than a paid account.</p>
+</section>
+
+<section>
+<h2><span class="n">3</span> Where we are weaker <span class="pill done">Done</span></h2>
+<p class="goal">Result wanted: a gap list ranked by how many buyers it affects. Ranked here by how many of the 10 questions show the gap.</p>
+<div class="wrap"><table>
+<tr><th>Rank</th><th>Gap</th><th>Questions</th><th class="num">Count</th><th>Kind of fix</th></tr>
+<tr><td>1</td><td>Slow first word: 10–18 s for us, 2–7 s for them</td><td>1, 2, 3, 5, 9, 10</td><td class="num">6</td><td>Speed (Day 5)</td></tr>
+<tr><td>2</td><td>Doesn't answer the question asked (wrong path, or no answer)</td><td>2, 4, 8, 10</td><td class="num">4</td><td>Routing: fixable now</td></tr>
+<tr><td>3</td><td>Missing the headline number asked for (total cost, cash up front)</td><td>9, 10</td><td class="num">2</td><td>Existing calculators</td></tr>
+<tr><td>4</td><td>Missing evidence they give (metro distance, RERA number, latest court order)</td><td>3, 5, 7</td><td class="num">3</td><td>Data</td></tr>
+<tr><td>5</td><td>Short shortlist (0–3 projects)</td><td>1, 2, 4</td><td class="num">3</td><td>Partly on purpose: we don't list portal asking prices</td></tr>
+</table></div>
+<div class="wrap" style="margin-top:14px"><table>
+<tr><th>Q</th><th class="num">Us</th><th class="num">ChatGPT</th><th class="num">Perplexity</th><th>Where we were weaker (before the fixes)</th></tr>
+<tr><td>1</td><td class="num">18.2 s</td><td class="num">2.2 s</td><td class="num">6.0 s</td><td>Slow; only 2 projects; a price that contradicts itself</td></tr>
+<tr><td>2</td><td class="num">12.0 s</td><td class="num">2.1 s</td><td class="num">3.2 s</td><td>Turn 2 said "3 BHK", named no projects</td></tr>
+<tr><td>3</td><td class="num">16.3 s</td><td class="num">2.0 s</td><td class="num">6.7 s</td><td>No RERA number; our possession date disagrees with theirs</td></tr>
+<tr><td>4</td><td class="num">5.9 s</td><td class="num">2.2 s</td><td class="num">6.7 s</td><td class="r">Didn't answer (plural "3BHKs" wasn't read as a search)</td></tr>
+<tr><td>5</td><td class="num">11.7 s</td><td class="num">2.1 s</td><td class="num">9.3 s</td><td>No station name or distance</td></tr>
+<tr><td>6</td><td class="num">6.4 s</td><td class="num">2.2 s</td><td class="num">3.8 s</td><td>About level; no commute time per sector</td></tr>
+<tr><td>7</td><td class="num">9.6 s</td><td class="num">1.2 s</td><td class="num">5.2 s</td><td>Missing the 2024 NCLAT / 2026 Supreme Court NBCC update</td></tr>
+<tr><td>8</td><td class="num">7.7 s</td><td class="num">2.2 s</td><td class="num">5.3 s</td><td class="r">Compared sectors, not builders</td></tr>
+<tr><td>9</td><td class="num">12.9 s</td><td class="num">~2 s</td><td class="num">5.8 s</td><td>Never stated the total</td></tr>
+<tr><td>10</td><td class="num">12.7 s</td><td class="num">2.2 s</td><td class="num">5.6 s</td><td class="r">Failed with "AI service unavailable" after 39 s</td></tr>
+</table></div>
+<p class="note">Times are seconds to the first word of the answer.</p>
+</section>
+
+<section>
+<h2><span class="n">4</span> Top 3 gaps fixed and re-run <span class="pill done">Done</span> <span class="pill no">Speed got worse in the re-run</span></h2>
+<p class="goal">Result wanted: the same 10 questions re-run and compared. Re-run saved as <code>answers/realtyask-after.json</code>; code in commit <code>d54d4172</code>.</p>
+<div class="wrap"><table>
+<tr><th>Q</th><th>Fix</th><th>Before</th><th>After</th></tr>
+<tr><td>4</td><td>Plural "3BHKs" now counts as a search</td><td class="r">General explainer; asked for details the buyer had already given</td><td class="g">Ready-to-move search: names Divine Meadows, Great Value Sharanam, Mahagun Mezzaria</td></tr>
+<tr><td>8</td><td>Two named projects get a builder comparison</td><td class="r">Sector table full of "Not recorded"</td><td class="g">Builder vs builder: Gulshan Homz 0 delays; Jaypee 8 delayed projects, 48-month average delay</td></tr>
+<tr><td>9</td><td>Total line added</td><td class="r">Rates only, no total</td><td class="g">Total ₹1,51,20,000 ready to move / ₹1,58,20,000 under construction (same as ChatGPT and Perplexity)</td></tr>
+<tr><td>10</td><td>EMI reads "80% loan on 1.5 crore"</td><td class="r">Failed after 39 s</td><td class="g">EMI ₹1,04,139 (8.5%, 20 years, both labelled as assumptions); cash up front ₹42,00,000, or ₹49,50,000 with GST. No AI call.</td></tr>
+</table></div>
+<div class="wrap" style="margin-top:14px"><table>
+<tr><th>Seconds to first word</th><th class="num">Q1</th><th class="num">Q2</th><th class="num">Q3</th><th class="num">Q4</th><th class="num">Q5</th><th class="num">Q6</th><th class="num">Q7</th><th class="num">Q8</th><th class="num">Q9</th><th class="num">Q10</th></tr>
+<tr><td>Before</td><td class="num">18.2</td><td class="num">12.0</td><td class="num">16.3</td><td class="num">5.9</td><td class="num">11.7</td><td class="num">6.4</td><td class="num">9.6</td><td class="num">7.7</td><td class="num">12.9</td><td class="num">12.7</td></tr>
+<tr><td>After</td><td class="num r">39.4</td><td class="num r">39.7</td><td class="num r">25.1</td><td class="num r">28.3</td><td class="num r">28.5</td><td class="num r">9.8</td><td class="num r">13.4</td><td class="num r">27.9</td><td class="num r">15.4</td><td class="num r">16.3</td></tr>
+</table></div>
+<p class="note"><b>Not fixed:</b> in the re-run, Q1 failed with "AI service briefly unavailable" at 39 s, because the free-tier AI keys are unreliable. Every question got slower; speed is Day 5 work.</p>
+<p class="note"><b>Speed fix found and applied:</b> every typed message waited for an AI call that reads the buyer's intent, even when our own calculator writes the answer. Measured live, the intent step alone took <b>5.8 s</b> for Q9 and <b>18.1 s</b> for Q10. Calculator questions now skip that call: <b>0.017 s</b> for Q9 and <b>0.007 s</b> for Q10. A cap that let the step run past its 12 s limit is also fixed. Search questions (such as Q5) can still wait up to 12 s when the free AI keys are down.</p>
+</section>
+
+<section>
+<h2><span class="n">5</span> Hindi and Hinglish <span class="pill part">9 of 10 pass</span></h2>
+<p class="goal">Result wanted: 10 Hinglish questions pass. Each Hinglish question should take the same answer path as its English version.</p>
+<div class="kpis">
+<div class="kpi"><b>81 / 81</b><span>route-replay turns pass (whole suite, AI switched off)</span></div>
+<div class="kpi"><b>9 / 10</b><span>Hinglish questions locked in as automated tests, all passing</span></div>
+<div class="kpi"><b>1</b><span>open: builder trust (H7)</span></div>
+</div>
+<div class="wrap"><table>
+<tr><th>#</th><th>Hinglish</th><th>Answer path</th><th>Same as English?</th></tr>
+<tr><td>H1</td><td>3 BHK chahiye Noida mein, budget 1.5 crore, possession ek saal mein</td><td>main search</td><td class="g">Yes · tested</td></tr>
+<tr><td>H2</td><td>Greater Noida West mein 2BHK 80 lakh tak. → Nahi, 1 crore kar do</td><td>main search, both turns</td><td class="g">Yes · tested</td></tr>
+<tr><td>H3</td><td>Supertech Supernova Astralis ka possession time pe milega kya?</td><td>project facts</td><td class="g">Yes · tested</td></tr>
+<tr><td>H4</td><td>6 mahine mein shift karna hai, ready to move 3BHK batao Noida mein</td><td>main search</td><td class="g">Yes · tested</td></tr>
+<tr><td>H5</td><td>Noida mein metro ke paas koi project hai 1.2 crore tak?</td><td>main search</td><td class="g">Yes · tested (now says "Noida", like the English question)</td></tr>
+<tr><td>H6</td><td>Mera office Sector 62 mein hai, 1 crore ke andar 2BHK kahan lu?</td><td>commute shortlist</td><td class="g">Yes · tested</td></tr>
+<tr><td>H7</td><td>Supertech pe bharosa kar sakte hain kya?</td><td>open question (English: main)</td><td class="r">No · needs a decision: neither language reaches our builder-record answer</td></tr>
+<tr><td>H8</td><td>Jaypee Klassic aur Gulshan Ikebana mein kaun sa builder better hai?</td><td>project comparison</td><td class="g">Yes · tested</td></tr>
+<tr><td>H9</td><td>1.4 crore ke flat pe stamp duty aur registration milake total kitna padega?</td><td>stamp duty and taxes</td><td class="g">Yes · tested</td></tr>
+<tr><td>H10</td><td>1.5 crore ke flat pe 80% loan liya to EMI kitni banegi?</td><td>loan EMI</td><td class="g">Yes · tested</td></tr>
+</table></div>
+<p class="note">H7 isn't a Hinglish problem. The English version reaches the main answer path only by accident (the words "delayed projects"), and "How reliable is Antriksh?" is expected to take the open-question path. A fix means sending every "can I trust this builder" question, in either language, to the answer built from our builder records.</p>
+</section>
+
+<section>
+<h2><span class="n">+</span> Side test: can a small on-device model (Needle) read buyer requests? <span class="pill no">Not without training</span></h2>
+<p class="goal">The same 20 questions (10 English, 10 Hinglish), checked against hand-written correct readings. Needle 3 base model, no training, on a 16-core laptop CPU.</p>
+<div class="kpis">
+<div class="kpi"><b>27 / 32</b><span>search details our code reads correctly (BHK, budget, possession, place, metro, office)</span></div>
+<div class="kpi"><b>15 / 32</b><span>the same for Needle, untrained</span></div>
+<div class="kpi"><b>4 / 20</b><span>questions where Needle was sure enough to act; it held back the other 16</span></div>
+<div class="kpi"><b>0.59 s</b><span>Needle's median time per question (slowest 1.16 s)</span></div>
+</div>
+<p class="note">Needle got 14 of 20 question types right. On Hinglish it put Hindi words such as "kya" and "Ek" into the place and builder fields. It would need training on our own examples before it could be trusted.</p>
+</section>
+</main>
+</body>
+</html>

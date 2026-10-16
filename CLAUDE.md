@@ -131,7 +131,7 @@ Status is against live code as of 2026-10-05 (audits in MEMORY.md and `MASTER_EX
 | Shareable buyer dossier | Live | Anonymous; `dossiers` table; `dossier_shared` event |
 | Save, callback, site visit — as a guest | Live | Guest token is an identity |
 | Out-of-catalogue project answer with public-record badge | Partial | One path still prompt-only |
-| Hindi / Hinglish understanding | Partial | Normalizer exists, not run before intent |
+| Hindi / Hinglish understanding | Partial | Normalizer runs before intent (`lib/ai/intent.ts`); 9 of 10 Day-2 Hinglish questions pinned and passing; H7 (builder trust) open, no consistent lane in either language (2026-10-16) |
 | Session memory ("what have I told you?") | Partial | Rate lost between EMI turns |
 | Price freshness ("confirmed on …") | Not built | Depends on the verified supply chain |
 

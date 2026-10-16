@@ -1,0 +1,318 @@
+[
+ {
+  "id": "1",
+  "turns": [
+   {
+    "text": "3BHK in Noida under 1.5 crore, possession within a year. What are my options?",
+    "ms": 5.68,
+    "wouldCallModel": false
+   }
+  ],
+  "intent": {
+   "bhk": [
+    3
+   ],
+   "budgetMax": 1.5,
+   "possession": "1year",
+   "city": "Noida",
+   "spatialScope": "BROAD"
+  }
+ },
+ {
+  "id": "2",
+  "turns": [
+   {
+    "text": "2BHK in Greater Noida West around 80 lakh.",
+    "ms": 1.16,
+    "wouldCallModel": true
+   },
+   {
+    "text": "Actually make that 1 crore, what changes?",
+    "ms": 0.43,
+    "wouldCallModel": true
+   }
+  ],
+  "intent": {
+   "bhk": [
+    2
+   ],
+   "budgetMax": 1,
+   "city": "Greater Noida West",
+   "spatialScope": "BROAD"
+  }
+ },
+ {
+  "id": "3",
+  "turns": [
+   {
+    "text": "Is Supertech Supernova Astralis in Sector 94 on track for possession, and what is the risk if it slips?",
+    "ms": 0.56,
+    "wouldCallModel": true
+   }
+  ],
+  "intent": {
+   "sector": "Sector 94",
+   "spatialScope": "EXACT",
+   "sectorsMentioned": [
+    "Sector 94"
+   ]
+  }
+ },
+ {
+  "id": "4",
+  "turns": [
+   {
+    "text": "I need to move in within 6 months. Which ready-to-move 3BHKs in Noida should I look at?",
+    "ms": 0.14,
+    "wouldCallModel": true
+   }
+  ],
+  "intent": {
+   "bhk": [
+    3
+   ],
+   "possession": "1year",
+   "purpose": "endUse",
+   "city": "Noida",
+   "spatialScope": "BROAD"
+  }
+ },
+ {
+  "id": "5",
+  "turns": [
+   {
+    "text": "Which projects near a metro station in Noida fit a 1.2 crore budget?",
+    "ms": 0.17,
+    "wouldCallModel": true
+   }
+  ],
+  "intent": {
+   "budgetMax": 1.2,
+   "city": "Noida",
+   "spatialScope": "BROAD"
+  }
+ },
+ {
+  "id": "6",
+  "turns": [
+   {
+    "text": "I work in Sector 62. Which sectors give me the shortest commute for a 2BHK under 1 crore?",
+    "ms": 0.57,
+    "wouldCallModel": true
+   }
+  ],
+  "intent": {
+   "bhk": [
+    2
+   ],
+   "budgetMax": 1,
+   "sector": "Sector 62",
+   "spatialScope": "EXACT",
+   "sectorsMentioned": [
+    "Sector 62"
+   ]
+  }
+ },
+ {
+  "id": "7",
+  "turns": [
+   {
+    "text": "Can I trust Supertech as a builder? What happened with their delayed projects?",
+    "ms": 0.31,
+    "wouldCallModel": true
+   }
+  ],
+  "intent": {}
+ },
+ {
+  "id": "8",
+  "turns": [
+   {
+    "text": "Jaypee Klassic in Sector 134 vs Gulshan Ikebana in Sector 143: which builder is safer?",
+    "ms": 0.26,
+    "wouldCallModel": true
+   }
+  ],
+  "intent": {
+   "sector": "Sector 134",
+   "spatialScope": "EXACT",
+   "sectorsMentioned": [
+    "Sector 134",
+    "Sector 143"
+   ]
+  }
+ },
+ {
+  "id": "9",
+  "turns": [
+   {
+    "text": "For a 1.4 crore flat in Noida, what is the total cost including stamp duty, registration and GST?",
+    "ms": 0.49,
+    "wouldCallModel": true
+   }
+  ],
+  "intent": {
+   "city": "Noida",
+   "spatialScope": "BROAD"
+  }
+ },
+ {
+  "id": "10",
+  "turns": [
+   {
+    "text": "If I take an 80% loan on a 1.5 crore flat, what is my EMI and how much cash do I need up front?",
+    "ms": 0.31,
+    "wouldCallModel": true
+   }
+  ],
+  "intent": {}
+ },
+ {
+  "id": "H1",
+  "turns": [
+   {
+    "text": "3 BHK chahiye Noida mein, budget 1.5 crore, possession ek saal mein",
+    "ms": 0.25,
+    "wouldCallModel": false
+   }
+  ],
+  "intent": {
+   "bhk": [
+    3
+   ],
+   "budgetMax": 1.5,
+   "possession": "1year",
+   "city": "Noida",
+   "spatialScope": "BROAD"
+  }
+ },
+ {
+  "id": "H2",
+  "turns": [
+   {
+    "text": "Greater Noida West mein 2BHK 80 lakh tak.",
+    "ms": 0.18,
+    "wouldCallModel": true
+   },
+   {
+    "text": "Nahi, 1 crore kar do",
+    "ms": 0.27,
+    "wouldCallModel": false
+   }
+  ],
+  "intent": {
+   "bhk": [
+    2
+   ],
+   "budgetMax": 1,
+   "city": "Greater Noida West",
+   "spatialScope": "BROAD"
+  }
+ },
+ {
+  "id": "H3",
+  "turns": [
+   {
+    "text": "Supertech Supernova Astralis ka possession time pe milega kya?",
+    "ms": 0.71,
+    "wouldCallModel": true
+   }
+  ],
+  "intent": {}
+ },
+ {
+  "id": "H4",
+  "turns": [
+   {
+    "text": "6 mahine mein shift karna hai, ready to move 3BHK batao Noida mein",
+    "ms": 0.24,
+    "wouldCallModel": false
+   }
+  ],
+  "intent": {
+   "bhk": [
+    3
+   ],
+   "possession": "immediate",
+   "city": "Noida",
+   "spatialScope": "BROAD"
+  }
+ },
+ {
+  "id": "H5",
+  "turns": [
+   {
+    "text": "Metro ke paas koi project hai 1.2 crore tak?",
+    "ms": 0.11,
+    "wouldCallModel": true
+   }
+  ],
+  "intent": {
+   "budgetMax": 1.2
+  }
+ },
+ {
+  "id": "H6",
+  "turns": [
+   {
+    "text": "Mera office Sector 62 mein hai, 1 crore ke andar 2BHK kahan lu?",
+    "ms": 0.12,
+    "wouldCallModel": true
+   }
+  ],
+  "intent": {
+   "bhk": [
+    2
+   ],
+   "budgetMax": 1,
+   "sector": "Sector 62",
+   "sectorsMentioned": [
+    "Sector 62"
+   ]
+  }
+ },
+ {
+  "id": "H7",
+  "turns": [
+   {
+    "text": "Supertech pe bharosa kar sakte hain kya?",
+    "ms": 0.09,
+    "wouldCallModel": false
+   }
+  ],
+  "intent": {}
+ },
+ {
+  "id": "H8",
+  "turns": [
+   {
+    "text": "Jaypee Klassic aur Gulshan Ikebana mein kaun sa builder better hai?",
+    "ms": 0.1,
+    "wouldCallModel": true
+   }
+  ],
+  "intent": {}
+ },
+ {
+  "id": "H9",
+  "turns": [
+   {
+    "text": "1.4 crore ke flat pe stamp duty aur registration milake total kitna padega?",
+    "ms": 0.11,
+    "wouldCallModel": true
+   }
+  ],
+  "intent": {}
+ },
+ {
+  "id": "H10",
+  "turns": [
+   {
+    "text": "1.5 crore ke flat pe 80% loan liya to EMI kitni banegi?",
+    "ms": 0.11,
+    "wouldCallModel": true
+   }
+  ],
+  "intent": {}
+ }
+]

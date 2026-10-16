@@ -1,6 +1,8 @@
 import { describe, it, before, after } from 'node:test'
 import assert from 'node:assert/strict'
-import { mergeIntent, parseIntentJson, extractIntent } from '../intent'
+import { mergeIntent, parseIntentJson, extractIntent, deterministicCoversMessage } from '../intent'
+import { extractDeterministic } from '../intentDeterministic'
+import { prenormalizeRawText } from '../../discovery/messyLanguageNormalizer'
 import type { Intent } from '../../discovery'
 
 describe('Intent: mergeIntent', () => {
@@ -240,5 +242,31 @@ describe('Intent: extractIntent (with SDK mocking)', () => {
     const result = await extractIntent('test', previous)
     assert(result.intent !== undefined)
     assert(typeof result.degraded === 'boolean')
+  })
+})
+
+describe('Intent: calculator questions skip the model', () => {
+  // The same reading extractIntent does: normalize, then the deterministic pass.
+  const covers = (m: string, prev: Intent = {}) => {
+    const n = prenormalizeRawText(m).normalized || m
+    return deterministicCoversMessage(n, extractDeterministic(n, []), prev)
+  }
+
+  for (const q of [
+    'For a 1.4 crore flat in Noida, what is the total cost including stamp duty, registration and GST?',
+    'If I take an 80% loan on a 1.5 crore flat, what is my EMI and how much cash do I need up front?',
+    '1.4 crore ke flat pe stamp duty aur registration milake total kitna padega?',
+    '1.5 crore ke flat pe 80% loan liya to EMI kitni banegi?',
+  ]) {
+    it(`no model call: ${q.slice(0, 40)}`, () => assert.equal(covers(q), true))
+  }
+
+  it('a named project still goes to the model', () => {
+    assert.equal(covers('What is the EMI on Godrej Woods versus Gulshan Botnia?'), false)
+  })
+
+  it('a search that also mentions EMI is not treated as a calculator', () => {
+    assert.equal(covers('Which projects near a metro station in Noida fit a 1.2 crore budget?'), false)
+    assert.equal(covers('I work in Sector 62, need a 2BHK with a low EMI'), false)
   })
 })

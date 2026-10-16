@@ -1177,5 +1177,49 @@
         }
       }
     ]
+  },
+  {
+    "id": "bm2-project-possession",
+    "turns": [
+      {
+        "text": "Is Supertech Supernova Astralis in Sector 94 on track for possession, and what is the risk if it slips?",
+        "expect": {
+          "lane": "ground-truth-db"
+        }
+      }
+    ]
+  },
+  {
+    "id": "hi-project-possession",
+    "turns": [
+      {
+        "text": "Supertech Supernova Astralis ka possession time pe milega kya?",
+        "expect": {
+          "lane": "ground-truth-db"
+        }
+      }
+    ]
+  },
+  {
+    "id": "bm2-metro-budget",
+    "turns": [
+      {
+        "text": "Which projects near a metro station in Noida fit a 1.2 crore budget?",
+        "expect": {
+          "lane": "main"
+        }
+      }
+    ]
+  },
+  {
+    "id": "hi-metro-budget",
+    "turns": [
+      {
+        "text": "Noida mein metro ke paas koi project hai 1.2 crore tak?",
+        "expect": {
+          "lane": "main"
+        }
+      }
+    ]
   }
 ]

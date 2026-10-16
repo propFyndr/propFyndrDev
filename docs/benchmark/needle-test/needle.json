@@ -1,0 +1,580 @@
+{
+ "load_s": 15.548488899992662,
+ "rows": [
+  {
+   "id": "1",
+   "turns": [
+    {
+     "text": "3BHK in Noida under 1.5 crore, possession within a year. What are my options?",
+     "ms": 2191.7,
+     "confidence": 0.0051,
+     "suppressed": false,
+     "args": {},
+     "reasoning": "task 'emi' from 'crore'; budget_max 1.5 from '1.5 crore'; budget_unit 'crore' from 'crore'; location 'Noida' from 'Noida'; project_names omitted; buyer_name omitted; buyer_name omitted; project_names omitted; budget_unit omitted; location omitted; workplace omitted; project_names omitted; project_names omitted; buyer_name omitted; budget_max 1.5 from '1.5 crore'; price_unit omitted; loan_percent omitted; price_unit omitted; location omitted; workplace omitted; project_names omitted; project_names omitted; buyer_name omitted; budget_max 1.5 from '1.5 crore'; price_unit omitted; location omitted; workplace omitted; project_names omitted; project_names omitted; buyer_name omitted; budget_max 1.5 from '1.5 crore'; price_unit omitted; location omitted; workplace omitted; project_names omitted; buyer_name omitted; budget_max 1.5 from '1.5 crore'; price_unit omitted; location omitted; workplace omitted; project_names omitted; buyer_name omitted; budget_max 1.5 from '1.5 crore'; price_unit omitted; location omitted; workplace omitted; project_names omitted; buyer_name omitted; budget_max 1.5 from '1.5 crore'; price_unit omitted; location omitted; workplace omitted; project_names omitted; buyer_name omitted; budget_max 1.5 from '1.5 crore'; price_unit omitted; location omitted; workplace omitted; project_names omitted; buyer_name omitted; budget_max 1.5 from '1.5 crore'; price_unit omitted; location omitted; workplace omitted; project_names omitted; buyer_name omitted; budget_max 1.5 from '1.5 crore'; price_unit omitted; location omitted; workplace omitted; project_names omitted; buyer_name omitted; budget_max 1.5 from '1.5 crore'; price_unit omitted; location omitted; workplace omitted; project_names omitted; buyer_name omitted; budget_max 1.5"
+    }
+   ],
+   "args": {}
+  },
+  {
+   "id": "2",
+   "turns": [
+    {
+     "text": "2BHK in Greater Noida West around 80 lakh.",
+     "ms": 492.5,
+     "confidence": 0.0386,
+     "suppressed": true,
+     "args": {
+      "task": "emi",
+      "bhk": 2,
+      "budget_max": 80.0,
+      "location": "Greater Noida West"
+     },
+     "reasoning": "task 'emi' from '2BHK'; bhk 2 from '2BHK'; budget_max 80 from '80 lakh'; location 'Greater Noida West' from 'Greater Noida West'; project_names omitted."
+    },
+    {
+     "text": "Actually make that 1 crore, what changes?",
+     "ms": 498.3,
+     "confidence": 0.0254,
+     "suppressed": true,
+     "args": {
+      "task": "emi",
+      "bhk": 2,
+      "budget_unit": "lakh"
+     },
+     "reasoning": "Task 'emi' from 'make that 1 crore'. Budget_unit 'lakh' from '80 lakh'. Bhk 2 from '2BHK'. Budget_max 1 from '1 crore'."
+    }
+   ],
+   "args": {
+    "task": "emi",
+    "bhk": 2,
+    "budget_max": 80.0,
+    "location": "Greater Noida West",
+    "budget_unit": "lakh"
+   }
+  },
+  {
+   "id": "3",
+   "turns": [
+    {
+     "text": "Is Supertech Supernova Astralis in Sector 94 on track for possession, and what is the risk if it slips?",
+     "ms": 792.9,
+     "confidence": 0.0027,
+     "suppressed": true,
+     "args": {
+      "task": "project_question",
+      "location": "Sector 94",
+      "project_names": [
+       "Supertech Supernova Astralis"
+      ],
+      "budget_unit": "lakh"
+     },
+     "reasoning": "task 'project_question' from 'assurance'; bhk 2 from 'Supertech'; budget_max 2 from '2%'; location 'Sector 94'; project_names ['Supertech Supernova Astralis'] from query; project_names ['Supernova Astralis'] from query; budget_unit 'lakh' from 'slips'; location 'Sector 94' from query."
+    }
+   ],
+   "args": {
+    "task": "project_question",
+    "location": "Sector 94",
+    "project_names": [
+     "Supertech Supernova Astralis"
+    ],
+    "budget_unit": "lakh"
+   }
+  },
+  {
+   "id": "4",
+   "turns": [
+    {
+     "text": "I need to move in within 6 months. Which ready-to-move 3BHKs in Noida should I look at?",
+     "ms": 492.0,
+     "confidence": 0.0132,
+     "suppressed": true,
+     "args": {
+      "task": "emi",
+      "bhk": 3,
+      "budget_unit": "lakh",
+      "location": "Noida",
+      "budget_max": 6.0
+     },
+     "reasoning": "'3BHKs' -> budget_unit 'lakh'; 'Noida' -> location 'Noida'; 'move in within 6 months' -> budget_max 6; 'move' -> request."
+    }
+   ],
+   "args": {
+    "task": "emi",
+    "bhk": 3,
+    "budget_unit": "lakh",
+    "location": "Noida",
+    "budget_max": 6.0
+   }
+  },
+  {
+   "id": "5",
+   "turns": [
+    {
+     "text": "Which projects near a metro station in Noida fit a 1.2 crore budget?",
+     "ms": 492.2,
+     "confidence": 0.0196,
+     "suppressed": true,
+     "args": {
+      "task": "project_question",
+      "budget_unit": "crore",
+      "budget_max": 1.2
+     },
+     "reasoning": "'projects' -> project_question; 'Noida' -> location; '1.2 crore budget' -> budget_unit 'crore'; '1.2 crore' -> budget_max 1.2; no other params."
+    }
+   ],
+   "args": {
+    "task": "project_question",
+    "budget_unit": "crore",
+    "budget_max": 1.2
+   }
+  },
+  {
+   "id": "6",
+   "turns": [
+    {
+     "text": "I work in Sector 62. Which sectors give me the shortest commute for a 2BHK under 1 crore?",
+     "ms": 812.8,
+     "confidence": 0.0021,
+     "suppressed": true,
+     "args": {
+      "task": "project_question",
+      "bhk": 2,
+      "budget_unit": "crore",
+      "budget_max": 2.0,
+      "builder_name": "Sector 62",
+      "project_names": [
+       "2BHK"
+      ],
+      "location": "Sector 62",
+      "workplace": "Sector 62",
+      "loan_percent": 2.0
+     },
+     "reasoning": "'2BHK' -> budget_unit 'crore'; 'Sector 62' -> location 'Sector 62'; '2BHK' -> budget_max 2; '2BHK' -> budget_unit 'lakh'; '2BHK' -> project_names ['2BHK']."
+    }
+   ],
+   "args": {
+    "task": "project_question",
+    "bhk": 2,
+    "budget_unit": "crore",
+    "budget_max": 2.0,
+    "builder_name": "Sector 62",
+    "project_names": [
+     "2BHK"
+    ],
+    "location": "Sector 62",
+    "workplace": "Sector 62",
+    "loan_percent": 2.0
+   }
+  },
+  {
+   "id": "7",
+   "turns": [
+    {
+     "text": "Can I trust Supertech as a builder? What happened with their delayed projects?",
+     "ms": 514.8,
+     "confidence": 0.0032,
+     "suppressed": true,
+     "args": {
+      "task": "builder_trust",
+      "project_names": [
+       "Supertech"
+      ]
+     },
+     "reasoning": "Task 'builder_trust' from 'builder'; bhk 1 from 'Supertech'; budget_max 6 from '$6'; project_names ['Supertech'] from 'Supertech'."
+    }
+   ],
+   "args": {
+    "task": "builder_trust",
+    "project_names": [
+     "Supertech"
+    ]
+   }
+  },
+  {
+   "id": "8",
+   "turns": [
+    {
+     "text": "Jaypee Klassic in Sector 134 vs Gulshan Ikebana in Sector 143: which builder is safer?",
+     "ms": 988.8,
+     "confidence": 0.0039,
+     "suppressed": true,
+     "args": {
+      "task": "builder_trust",
+      "budget_unit": "lakh",
+      "location": "Sector 134",
+      "project_names": [
+       "Jaypee Klassic",
+       "Gulshan Ikebana"
+      ],
+      "price_unit": "lakh"
+     },
+     "reasoning": "task 'builder_trust' from 'Jaypee Klassic'; bhk 1 from 'Jaypee'; budget_unit 'lakh' from 'Sector 134'; location 'Sector 134' from 'Sector 134'; project_names ['Jaypee Klassic','Gulshan Ikebana'] from 'Jaypee Klassic in Sector 134 vs Gulshan Ikebana in Sector 143'; price_unit 'lakh' from 'Loan'."
+    }
+   ],
+   "args": {
+    "task": "builder_trust",
+    "budget_unit": "lakh",
+    "location": "Sector 134",
+    "project_names": [
+     "Jaypee Klassic",
+     "Gulshan Ikebana"
+    ],
+    "price_unit": "lakh"
+   }
+  },
+  {
+   "id": "9",
+   "turns": [
+    {
+     "text": "For a 1.4 crore flat in Noida, what is the total cost including stamp duty, registration and GST?",
+     "ms": 985.4,
+     "confidence": 0.0027,
+     "suppressed": true,
+     "args": {
+      "task": "total_cost",
+      "budget_max": 1.4,
+      "budget_unit": "crore",
+      "location": "Noida",
+      "project_names": [
+       "1.4 crore flat",
+       "1.4 crore flat",
+       "1.4 crore flat",
+       "1.4 crore flat",
+       "1.4 crore"
+      ],
+      "loan_percent": 1.4
+     },
+     "reasoning": "'1.4 crore flat' -> budget_unit 'crore', budget_max 1.4; 'Noida' -> location 'Noida'; 'total cost including stamp duty, registration and GST' -> project_names ['1.4 crore flat', '1.4 crore flat', '1.4 crore flat', '1.4 crore flat', '1.4 crore']."
+    }
+   ],
+   "args": {
+    "task": "total_cost",
+    "budget_max": 1.4,
+    "budget_unit": "crore",
+    "location": "Noida",
+    "project_names": [
+     "1.4 crore flat",
+     "1.4 crore flat",
+     "1.4 crore flat",
+     "1.4 crore flat",
+     "1.4 crore"
+    ],
+    "loan_percent": 1.4
+   }
+  },
+  {
+   "id": "10",
+   "turns": [
+    {
+     "text": "If I take an 80% loan on a 1.5 crore flat, what is my EMI and how much cash do I need up front?",
+     "ms": 1039.8,
+     "confidence": 0.0031,
+     "suppressed": true,
+     "args": {
+      "task": "emi",
+      "budget_max": 80.0,
+      "budget_unit": "crore"
+     },
+     "reasoning": "'EMI' -> project_names ['EMI']; '80%' -> budget_max 80; 'crore' -> budget_unit 'crore'; 'EMI' -> project_names ['EMI']; 'cash' -> budget_unit 'crore'."
+    }
+   ],
+   "args": {
+    "task": "emi",
+    "budget_max": 80.0,
+    "budget_unit": "crore"
+   }
+  },
+  {
+   "id": "H1",
+   "turns": [
+    {
+     "text": "3 BHK chahiye Noida mein, budget 1.5 crore, possession ek saal mein",
+     "ms": 792.1,
+     "confidence": 0.003,
+     "suppressed": true,
+     "args": {
+      "task": "project_question",
+      "bhk": 1,
+      "budget_unit": "crore"
+     },
+     "reasoning": "'3 BHK' -> bhk 3; 'chahiye Noida' -> bhk 1; 'mein' -> bhk 1; 'budget 1.5 crore' -> budget_unit crore; 'posession ek saal mein' -> project_names ['Ek']"
+    }
+   ],
+   "args": {
+    "task": "project_question",
+    "bhk": 1,
+    "budget_unit": "crore"
+   }
+  },
+  {
+   "id": "H2",
+   "turns": [
+    {
+     "text": "Greater Noida West mein 2BHK 80 lakh tak.",
+     "ms": 1214.8,
+     "confidence": 0.0009,
+     "suppressed": true,
+     "args": {
+      "task": "project_question",
+      "budget_unit": "lakh",
+      "location": "Noida West",
+      "project_names": [
+       "2BHK"
+      ]
+     },
+     "reasoning": "'Greater' -> budget_unit 'lakh'; 'Noida West' -> location 'Noida West'; '2BHK 80' -> budget_max 28; 'lakh' -> budget_unit 'lakh'; '2BHK' -> project_names ['2BHK']."
+    },
+    {
+     "text": "Nahi, 1 crore kar do",
+     "ms": 1554.6,
+     "confidence": 0.0005,
+     "suppressed": true,
+     "args": {
+      "task": "project_question",
+      "bhk": 2,
+      "budget_unit": "lakh",
+      "project_names": [
+       "2BHK"
+      ],
+      "builder_name": "Nahi",
+      "price_unit": "crore"
+     },
+     "reasoning": "'Greater' -> budget_unit 'lakh'; 'Noida West' -> location 'Noida West'; '2BHK 80' -> budget_max 28; 'lakh tak' -> budget_unit 'lakh'; '1 crore' -> budget_unit 'crore'; '2BHK' -> project_names ['2BHK']; 'Nahi' -> buyer_name 'Nahi'; '1 crore' -> price_unit 'crore'; '2BHK' -> project_names ['2BHK']"
+    }
+   ],
+   "args": {
+    "task": "project_question",
+    "budget_unit": "lakh",
+    "location": "Noida West",
+    "project_names": [
+     "2BHK"
+    ],
+    "bhk": 2,
+    "builder_name": "Nahi",
+    "price_unit": "crore"
+   }
+  },
+  {
+   "id": "H3",
+   "turns": [
+    {
+     "text": "Supertech Supernova Astralis ka possession time pe milega kya?",
+     "ms": 621.8,
+     "confidence": 0.0035,
+     "suppressed": true,
+     "args": {
+      "task": "project_question",
+      "budget_unit": "lakh",
+      "location": "kya"
+     },
+     "reasoning": "'Supertech' -> task 'project_question'; 'Supernova Astralis' -> task 'project_question'; 'ka possession time' -> project_question 'immediate'; 'kya' -> bhk 1; 'kya' -> budget_unit 'lakh'; 'kya' -> location 'Kya'"
+    }
+   ],
+   "args": {
+    "task": "project_question",
+    "budget_unit": "lakh",
+    "location": "kya"
+   }
+  },
+  {
+   "id": "H4",
+   "turns": [
+    {
+     "text": "6 mahine mein shift karna hai, ready to move 3BHK batao Noida mein",
+     "ms": 750.1,
+     "confidence": 0.0059,
+     "suppressed": true,
+     "args": {
+      "task": "emi",
+      "bhk": 3,
+      "budget_unit": "lakh",
+      "project_names": [
+       "3BHK"
+      ],
+      "budget_max": 3.0,
+      "location": "Noida"
+     },
+     "reasoning": "'3BHK' -> task 'emi'; 'batao Noida' -> bhk 3BHK; '3BHK' -> budget_unit 'lakh'; '3BHK' -> project_names ['3BHK']; 'batao' -> project_names ['batao']; 'Noida' -> location 'Noida'; '3BHK' -> budget_max 3"
+    }
+   ],
+   "args": {
+    "task": "emi",
+    "bhk": 3,
+    "budget_unit": "lakh",
+    "project_names": [
+     "3BHK"
+    ],
+    "budget_max": 3.0,
+    "location": "Noida"
+   }
+  },
+  {
+   "id": "H5",
+   "turns": [
+    {
+     "text": "Metro ke paas koi project hai 1.2 crore tak?",
+     "ms": 1812.7,
+     "confidence": 0.0,
+     "suppressed": true,
+     "args": {
+      "task": "project_question",
+      "budget_max": 1.2,
+      "budget_unit": "crore",
+      "location": "koi",
+      "project_names": [
+       "Paas",
+       "Koi",
+       "Project"
+      ],
+      "builder_name": "Project",
+      "property_price": 1.2,
+      "price_unit": "crore",
+      "loan_percent": 1.2
+     },
+     "reasoning": "'Metro ke' -> bhk 1.2; 'project_question' project_question; 'builder_trust' project_question; 'budget_max 1.2'; 'location' not stated; 'near_metro' true; 'project_names' not stated; 'project_names' not given."
+    }
+   ],
+   "args": {
+    "task": "project_question",
+    "budget_max": 1.2,
+    "budget_unit": "crore",
+    "location": "koi",
+    "project_names": [
+     "Paas",
+     "Koi",
+     "Project"
+    ],
+    "builder_name": "Project",
+    "property_price": 1.2,
+    "price_unit": "crore",
+    "loan_percent": 1.2
+   }
+  },
+  {
+   "id": "H6",
+   "turns": [
+    {
+     "text": "Mera office Sector 62 mein hai, 1 crore ke andar 2BHK kahan lu?",
+     "ms": 2106.0,
+     "confidence": 0.0,
+     "suppressed": true,
+     "args": {
+      "task": "project_question",
+      "bhk": 1,
+      "budget_max": 1.0,
+      "budget_unit": "crore"
+     },
+     "reasoning": "task 'project_question' from 'Mera'; bhk 1 from 'Mera'; budget_max 1 from '1 crore'; budget_unit 'lakh' from 'ke'; location 'Sector 62' from 'Sector 62'; project_names ['Mera', 'Hai', 'Kahan'] from 'Mera' and 'Hai', 'Kahan'; price_unit 'lakh' from '2BHK'; project_names ['Mera', 'Hai', 'Kahan'] from 'Mera' and 'Hai', 'Kahan'."
+    }
+   ],
+   "args": {
+    "task": "project_question",
+    "bhk": 1,
+    "budget_max": 1.0,
+    "budget_unit": "crore"
+   }
+  },
+  {
+   "id": "H7",
+   "turns": [
+    {
+     "text": "Supertech pe bharosa kar sakte hain kya?",
+     "ms": 660.1,
+     "confidence": 0.0047,
+     "suppressed": true,
+     "args": {
+      "task": "compare",
+      "budget_unit": "lakh",
+      "location": "hain kya"
+     },
+     "reasoning": "'Supertech pe' -> task 'compare'; 'kar sakte' -> task 'emi'; 'hain kya' -> budget_max 2; 'supertech' -> project_question 'compare'; 'kar sakte' -> budget_unit 'lakh'; 'hain kya' -> location 'hain kya'."
+    }
+   ],
+   "args": {
+    "task": "compare",
+    "budget_unit": "lakh",
+    "location": "hain kya"
+   }
+  },
+  {
+   "id": "H8",
+   "turns": [
+    {
+     "text": "Jaypee Klassic aur Gulshan Ikebana mein kaun sa builder better hai?",
+     "ms": 742.3,
+     "confidence": 0.0011,
+     "suppressed": true,
+     "args": {
+      "task": "project_question",
+      "project_names": [
+       "Kaun sa builder better"
+      ]
+     },
+     "reasoning": "'Jaypee Klassic' -> task 'project_question'; 'Gulshan Ikebana mein kaun sa builder better' -> task 'builder_trust'; 'japee' -> bhk 2; 'builder better' -> budget_max 2; 'kaun sa builder better' -> project_names ['Kaun sa builder better']"
+    }
+   ],
+   "args": {
+    "task": "project_question",
+    "project_names": [
+     "Kaun sa builder better"
+    ]
+   }
+  },
+  {
+   "id": "H9",
+   "turns": [
+    {
+     "text": "1.4 crore ke flat pe stamp duty aur registration milake total kitna padega?",
+     "ms": 3057.7,
+     "confidence": 0.001,
+     "suppressed": true,
+     "args": {
+      "task": "project_question",
+      "budget_max": 1.4,
+      "budget_unit": "crore",
+      "project_names": [
+       "stamp duty",
+       "total kitna"
+      ],
+      "property_price": 1.4,
+      "price_unit": "crore"
+     },
+     "reasoning": "'1.4 crore' -> budget_max 1.4; 'ke' -> budget_unit 'crore'; 'stamp duty' -> project_names ['stamp duty']; 'total kitna' -> project_names ['total kitna']; 'registration milake total' -> project_names ['total kitna']; 'padega' -> project_names ['padega']"
+    }
+   ],
+   "args": {
+    "task": "project_question",
+    "budget_max": 1.4,
+    "budget_unit": "crore",
+    "project_names": [
+     "stamp duty",
+     "total kitna"
+    ],
+    "property_price": 1.4,
+    "price_unit": "crore"
+   }
+  },
+  {
+   "id": "H10",
+   "turns": [
+    {
+     "text": "1.5 crore ke flat pe 80% loan liya to EMI kitni banegi?",
+     "ms": 1575.8,
+     "confidence": 0.001,
+     "suppressed": true,
+     "args": {
+      "task": "emi",
+      "budget_max": 1.5,
+      "budget_unit": "crore"
+     },
+     "reasoning": "'1.5 crore' -> budget_max 1.5; 'ke' -> budget_unit 'crore'; '80% loan' -> project_names ['80% loan']; 'liya' -> project_names ['liya']; 'kitni banegi' -> project_names ['kitni banegi']; 'banegi' -> project_names ['banegi']."
+    }
+   ],
+   "args": {
+    "task": "emi",
+    "budget_max": 1.5,
+    "budget_unit": "crore"
+   }
+  }
+ ]
+}

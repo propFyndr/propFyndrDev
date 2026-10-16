@@ -1,0 +1,372 @@
+[
+ {
+  "id": "1",
+  "ms": 521.7,
+  "confidence": 0.1216,
+  "calls": [
+   {
+    "name": "search_homes",
+    "arguments": {
+     "bhk": 3,
+     "budget_max": 1.5,
+     "budget_unit": "crore",
+     "location": "Noida"
+    }
+   }
+  ],
+  "suppressed": []
+ },
+ {
+  "id": "2",
+  "ms": 424.6,
+  "confidence": 0.0516,
+  "calls": [],
+  "suppressed": [
+   {
+    "name": "search_homes",
+    "arguments": {
+     "bhk": 2,
+     "budget_max": 80.0,
+     "budget_unit": "crore"
+    }
+   }
+  ]
+ },
+ {
+  "id": "3",
+  "ms": 839.9,
+  "confidence": 0.0182,
+  "calls": [],
+  "suppressed": [
+   {
+    "name": "search_homes",
+    "arguments": {
+     "budget_max": 94.0,
+     "location": "Sector 94",
+     "budget_unit": "lakh"
+    }
+   },
+   {
+    "name": "check_builder",
+    "arguments": {
+     "builder_name": "Supertech Supernova Astralis"
+    }
+   }
+  ]
+ },
+ {
+  "id": "4",
+  "ms": 529.1,
+  "confidence": 0.0221,
+  "calls": [],
+  "suppressed": [
+   {
+    "name": "search_homes",
+    "arguments": {
+     "bhk": 3,
+     "budget_max": 6.0,
+     "budget_unit": "lakh",
+     "location": "Noida"
+    }
+   }
+  ]
+ },
+ {
+  "id": "5",
+  "ms": 436.5,
+  "confidence": 0.0325,
+  "calls": [],
+  "suppressed": [
+   {
+    "name": "search_homes",
+    "arguments": {
+     "budget_unit": "crore",
+     "location": "Noida",
+     "budget_max": 1.2
+    }
+   }
+  ]
+ },
+ {
+  "id": "6",
+  "ms": 502.8,
+  "confidence": 0.0903,
+  "calls": [],
+  "suppressed": [
+   {
+    "name": "search_homes",
+    "arguments": {
+     "bhk": 2,
+     "budget_max": 1.0,
+     "budget_unit": "crore"
+    }
+   }
+  ]
+ },
+ {
+  "id": "7",
+  "ms": 324.0,
+  "confidence": 0.7036,
+  "calls": [
+   {
+    "name": "check_builder",
+    "arguments": {
+     "builder_name": "Supertech"
+    }
+   }
+  ],
+  "suppressed": []
+ },
+ {
+  "id": "8",
+  "ms": 591.5,
+  "confidence": 0.1066,
+  "calls": [
+   {
+    "name": "check_builder",
+    "arguments": {
+     "builder_name": "Jaypee Klassic"
+    }
+   },
+   {
+    "name": "check_builder",
+    "arguments": {
+     "builder_name": "Gulshan Ikebana"
+    }
+   }
+  ],
+  "suppressed": []
+ },
+ {
+  "id": "9",
+  "ms": 365.7,
+  "confidence": 0.3483,
+  "calls": [
+   {
+    "name": "total_cost",
+    "arguments": {
+     "price": 1.4,
+     "unit": "crore"
+    }
+   }
+  ],
+  "suppressed": []
+ },
+ {
+  "id": "10",
+  "ms": 504.6,
+  "confidence": 0.0266,
+  "calls": [],
+  "suppressed": [
+   {
+    "name": "loan_emi",
+    "arguments": {
+     "price": 100.0,
+     "unit": "crore"
+    }
+   },
+   {
+    "name": "total_cost",
+    "arguments": {
+     "price": 100.0,
+     "unit": "crore"
+    }
+   }
+  ]
+ },
+ {
+  "id": "H1",
+  "ms": 783.3,
+  "confidence": 0.0244,
+  "calls": [],
+  "suppressed": [
+   {
+    "name": "search_homes",
+    "arguments": {
+     "bhk": 3,
+     "budget_max": 3.0,
+     "budget_unit": "crore"
+    }
+   },
+   {
+    "name": "search_homes",
+    "arguments": {
+     "bhk": 1,
+     "budget_max": 1.5,
+     "budget_unit": "crore"
+    }
+   },
+   {
+    "name": "check_builder",
+    "arguments": {
+     "builder_name": "Ek"
+    }
+   }
+  ]
+ },
+ {
+  "id": "H2",
+  "ms": 643.0,
+  "confidence": 0.0187,
+  "calls": [],
+  "suppressed": [
+   {
+    "name": "search_homes",
+    "arguments": {
+     "bhk": 2,
+     "budget_max": 2.0,
+     "budget_unit": "lakh",
+     "location": "Noida West",
+     "possession": "immediate"
+    }
+   }
+  ]
+ },
+ {
+  "id": "H3",
+  "ms": 972.5,
+  "confidence": 0.0022,
+  "calls": [],
+  "suppressed": [
+   {
+    "name": "search_homes",
+    "arguments": {
+     "budget_unit": "lakh",
+     "location": "kya",
+     "possession": "immediate"
+    }
+   }
+  ]
+ },
+ {
+  "id": "H4",
+  "ms": 1162.2,
+  "confidence": 0.0095,
+  "calls": [],
+  "suppressed": [
+   {
+    "name": "search_homes",
+    "arguments": {
+     "bhk": 6,
+     "budget_max": 6.0,
+     "budget_unit": "lakh",
+     "location": "karna",
+     "workplace": "Noida"
+    }
+   }
+  ]
+ },
+ {
+  "id": "H5",
+  "ms": 969.2,
+  "confidence": 0.0039,
+  "calls": [],
+  "suppressed": [
+   {
+    "name": "search_homes",
+    "arguments": {
+     "budget_max": 1.2,
+     "budget_unit": "crore"
+    }
+   }
+  ]
+ },
+ {
+  "id": "H6",
+  "ms": 737.0,
+  "confidence": 0.0087,
+  "calls": [],
+  "suppressed": [
+   {
+    "name": "search_homes",
+    "arguments": {
+     "budget_max": 1.0,
+     "budget_unit": "crore"
+    }
+   },
+   {
+    "name": "search_homes",
+    "arguments": {
+     "bhk": 2,
+     "budget_max": 2.0,
+     "budget_unit": "crore"
+    }
+   }
+  ]
+ },
+ {
+  "id": "H7",
+  "ms": 750.6,
+  "confidence": 0.0015,
+  "calls": [],
+  "suppressed": [
+   {
+    "name": "search_homes",
+    "arguments": {
+     "budget_unit": "lakh",
+     "possession": "immediate",
+     "near_metro": false,
+     "workplace": "kya"
+    }
+   }
+  ]
+ },
+ {
+  "id": "H8",
+  "ms": 818.6,
+  "confidence": 0.0002,
+  "calls": [],
+  "suppressed": [
+   {
+    "name": "check_builder",
+    "arguments": {
+     "builder_name": "Jaypee Klassic"
+    }
+   },
+   {
+    "name": "loan_emi",
+    "arguments": {
+     "price": 95.0,
+     "unit": "crore"
+    }
+   }
+  ]
+ },
+ {
+  "id": "H9",
+  "ms": 580.4,
+  "confidence": 0.0057,
+  "calls": [],
+  "suppressed": [
+   {
+    "name": "total_cost",
+    "arguments": {
+     "price": 1.4,
+     "unit": "crore"
+    }
+   }
+  ]
+ },
+ {
+  "id": "H10",
+  "ms": 525.4,
+  "confidence": 0.0596,
+  "calls": [],
+  "suppressed": [
+   {
+    "name": "total_cost",
+    "arguments": {
+     "price": 1.5,
+     "unit": "crore"
+    }
+   },
+   {
+    "name": "loan_emi",
+    "arguments": {
+     "price": 80.0,
+     "unit": "crore"
+    }
+   }
+  ]
+ }
+]

@@ -530,13 +530,25 @@ export function applyLiterals(intent: Intent, deterministic: DeterministicIntent
 const NEEDS_INFERENCE =
   /\b(instead|actually|rather|change|make\s+that|update|bigger|smaller|larger|cheaper|costlier|pricier|closer|nearer|other|another|different|else|prefer|want|need|work|office|commute|school|metro|park|gym|invest|investment|rental|yield|resale|end[- ]use|family|kids|children|parents|elderly|pet)\b/i
 
-function deterministicCoversMessage(message: string, d: DeterministicIntent, previous: Intent): boolean {
+/**
+ * A calculator question: stamp duty, registration, GST, total cost, loan, EMI.
+ * Its amounts are never a budget (`nonBudgetAmounts`) and its handlers read the
+ * message themselves, so the model has nothing to add. Measured 16 Oct 2026:
+ * "80% loan on a 1.5 crore flat, what is my EMI" waited 18 s for an intent the
+ * EMI handler never used.
+ */
+const CALCULATOR_ONLY =
+  /\b(stamp\s*duty|registration\s+(?:charges?|fees?)|gst|emi|home\s+loan|loan|down\s*payment|total\s+cost|total\s+kitna|kitna\s+padega)\b/i
+
+export function deterministicCoversMessage(message: string, d: DeterministicIntent, previous: Intent): boolean {
+  // A capitalised run may be a project or builder; the model resolves those.
+  if (/\b[A-Z][a-z]{2,}\s+[A-Z][a-z]{2,}/.test(message)) return false
+  // A pure calculator question names no search constraint for the model to find.
+  if (d.literal.size === 0 && CALCULATOR_ONLY.test(message)) return true
   // A correction only means something against previous intent, and the model
   // is the only thing that can read one.
   if (Object.keys(previous ?? {}).length > 0 && NEEDS_INFERENCE.test(message)) return false
   if (NEEDS_INFERENCE.test(message)) return false
-  // A capitalised run may be a project or builder; the model resolves those.
-  if (/\b[A-Z][a-z]{2,}\s+[A-Z][a-z]{2,}/.test(message)) return false
   return d.literal.size > 0
 }
 
@@ -623,11 +635,14 @@ export async function extractIntent(message: string, previousIntent: Intent): Pr
     }
     const apiKey = process.env[config.envKey]
     if (!apiKey) continue
+    // A leg started just before the deadline used to run its full timeout past
+    // it (18 s on a 12 s budget, measured 16 Oct 2026); it gets what is left.
+    const timeout = Math.max(500, Math.min(config.timeout, deadline - Date.now()))
 
     try {
       if (config.provider === 'gemini') {
         console.log(`[INTENT] Trying Gemini (${config.model}) via ${config.envKey}`)
-        const client = meteredClient({ apiKey, endpoint: 'intent', timeoutMs: config.timeout })
+        const client = meteredClient({ apiKey, endpoint: 'intent', timeoutMs: timeout })
         const res = await client.models.generateContent({
           model: config.model || 'gemini-3.6-flash',
           contents: [{ role: 'user', parts: [{ text: `Previous intent: ${slimIntentForPrompt(previousIntent)}\n\nUser message: ${message}` }] }],
@@ -644,7 +659,7 @@ export async function extractIntent(message: string, previousIntent: Intent): Pr
       }
       if (config.provider === 'groq') {
         console.log(`[INTENT] Trying Groq (${config.model}) via ${config.envKey}`)
-        const result = await extractWithGroqKey(message, previousIntent, apiKey, config.timeout)
+        const result = await extractWithGroqKey(message, previousIntent, apiKey, timeout)
         if (result) return { intent: applyLiterals(result, deterministic, message, previousIntent), degraded: false }
       }
       if (config.provider === 'mistral') {
@@ -655,7 +670,7 @@ export async function extractIntent(message: string, previousIntent: Intent): Pr
       if (config.provider === 'openai') {
         console.log(`[INTENT] Trying OpenAI via ${config.envKey}`)
         const controller = new AbortController()
-        const timer = setTimeout(() => controller.abort(), config.timeout)
+        const timer = setTimeout(() => controller.abort(), timeout)
         try {
           const result = await extractWithOpenAIKey(message, previousIntent, apiKey, controller.signal, config.baseUrl, config.model)
           clearTimeout(timer)
