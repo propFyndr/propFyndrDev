@@ -1,6 +1,6 @@
 import { describe, it } from 'node:test'
 import assert from 'node:assert/strict'
-import { asksAboutFocusAttribute, mentionsFocusPronoun, focusFallback } from '../followUp'
+import { asksAboutFocusAttribute, mentionsFocusPronoun, focusFallback, asksMarketWide } from '../followUp'
 
 describe('follow-up about the project in focus', () => {
   for (const q of [
@@ -43,5 +43,13 @@ describe('focus fallback', () => {
   it('a list is never a focus; one card is', () => {
     assert.equal(focusFallback(null, catalog, [{ id: 'ace', name: 'ACE Parkway' }, { id: 'x', name: 'X' }]), null)
     assert.deepEqual(focusFallback(null, catalog, [{ id: 'ace', name: 'ACE Parkway' }]), { id: 'ace', name: 'ACE Parkway' })
+  })
+
+  it('a market-wide question carries no search; one that states its own does', () => {
+    assert.equal(asksMarketWide('Will property prices in Noida double in 5 years? Give me a number.'), true)
+    assert.equal(asksMarketWide('What is the average price per sq ft in Noida?'), true)
+    assert.equal(asksMarketWide('3bhk in Noida under 1.5 cr, what are prices like?'), false)
+    assert.equal(asksMarketWide('Show me flats in Noida with good appreciation'), false)
+    assert.equal(asksMarketWide('Is the price fair?'), false)
   })
 })

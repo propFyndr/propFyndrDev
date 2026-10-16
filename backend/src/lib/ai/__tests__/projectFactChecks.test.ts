@@ -59,6 +59,8 @@ describe('market figures', () => {
   it('catches a rate written before its word, inside bold', () => {
     const run2 = "Noida's residential prices grew at a **5-7% CAGR** over the past decade. A **60-70% appreciation** in 5 years is more realistic."
     assert.equal(unsourcedMarketStatistics(run2, 'GST 5%. Stamp duty 7%.').length, 2)
+    const run4 = 'Prices have appreciated at a compound annual growth rate (CAGR) of 6-8% over the past decade.'
+    assert.equal(unsourcedMarketStatistics(run4, 'GST 5%. Stamp duty 7%.').length, 1)
   })
 
   it('accepts a growth rate computed from our rows', () => {

@@ -1618,5 +1618,24 @@
         }
       }
     ]
+  },
+  {
+    "id": "stress-market-question-drops-carried-search",
+    "source": "stress run 3 2026-10-16",
+    "turns": [
+      {
+        "text": "I want a 4BHK ready to move in Sector 150 under 80 lakh"
+      },
+      {
+        "text": "Will property prices in Noida double in 5 years? Give me a number.",
+        "expect": {
+          "notContains": [
+            "No projects",
+            "4 BHK",
+            "80 L"
+          ]
+        }
+      }
+    ]
   }
 ]

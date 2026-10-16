@@ -23,6 +23,19 @@ const NEW_SUBJECT =
 const ATTRIBUTE =
   /\b(this\s+project|the\s+project|payment\s*plans?|floor\s*plans?|cost\s*sheets?|charges|construction|possession|handover|rera|who\s+is|amenit(?:y|ies)|layouts?|bhk\s*sizes|sizes?|carpet|super\s*area|configurations?|specifications?|specs|flooring|fittings|builder|developer|track\s*record|price\s+(?:history|trend)|prices?\s+(?:gone|go|went|increase|risen)|appreciation|nearest\s+metro|metro\s+station|connectivity|how\s+far\s+is|similar\s+projects?|competitors?|compare\s+it|total\s+cost|stamp\s+duty|emi|loan|catch|sales\s+team|price\s+fair|fair(?:ly)?\s+priced|over\s*priced|worth\s+(?:it|the\s+(?:money|price))|value\s+for\s+money|good\s+deal|litigation|legal|court|cases?|disputes?|nclt|insolvency|oc|occupancy|completion\s+certificate|registry|registration|sub[- ]?lease|payment\s+(?:options?|schedule|structure|terms)|down\s*payment|price\s+per\s+sq|per\s+sq\.?\s*ft|psf|rate\s+per|should\s+i\s+buy|buy\s+(?:here|it|this)|avoid\s+it|maintenance|water\s+(?:supply|source)|power\s+backup|parking|lifts?|delay(?:ed)?|on\s+track)\b/i
 
+/** A search the message states itself: a BHK, a sector, an amount, a list request. */
+const OWN_SEARCH = /\b\d\s*bhk\b|\bsector\s*\d|\d+(?:\.\d+)?\s*(?:cr|crores?|lakhs?|lacs?|l)\b|\b(?:show|find|list|suggest|recommend)\b/i
+
+/**
+ * A market-wide question with no search of its own: "Will property prices in
+ * Noida double in 5 years?". The search carried from earlier turns (4BHK,
+ * Sector 150, under ₹80 L) ran anyway, found nothing, and the answer ended with
+ * that no-match line (stress run 3, 16 Oct 2026).
+ */
+export function asksMarketWide(message: string): boolean {
+  return /\b(prices?|rates?|apprecia\w*|market|growth|returns?)\b/i.test(message) && NEW_SUBJECT.test(message) && !OWN_SEARCH.test(message)
+}
+
 /** Words that point at the project on screen. */
 const FOCUS_PRONOUN = /\b(it|its|this|that|they|them|their|here|there)\b/i
 

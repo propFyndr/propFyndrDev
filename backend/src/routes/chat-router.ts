@@ -107,7 +107,7 @@ import { recordTurnTrace, type TurnTraceDraft } from '../lib/turnTrace'
 import { recordDemandSignal } from '../lib/demandSignal'
 import { scanDisclosure } from '../lib/ai/answerIntegrity'
 import { projectCatalog, catalogNamesSync } from '../lib/projectCatalog'
-import { asksAboutFocusAttribute, mentionsFocusPronoun, focusFallback, parkFocus, parkedFocus } from '../lib/chat/followUp'
+import { asksAboutFocusAttribute, mentionsFocusPronoun, focusFallback, parkFocus, parkedFocus, asksMarketWide } from '../lib/chat/followUp'
 import { matchProjectInText, fuzzyMatchProject, suggestProjects } from '../lib/discovery/matchProjectInText'
 import { parseAggregateQuestion, queryProjects, renderAggregateAnswer } from '../lib/chat/aggregateQuery'
 import { applyCommuteAnchor, beltFor } from '../lib/discovery/commuteAnchor'
@@ -5216,7 +5216,7 @@ EXECUTIVE RESPONSE INSTRUCTIONS:
     // what moves a buyer out of GATHERING in the first place.
     const discoverySkipReason =
       asksToSeeInventoryHere || asksToSeeInventoryCitywide || asksForInventoryNow ? null :
-      needsClarification   ? 'needsClarification' :
+      needsClarification   ? 'needsClarification' : asksMarketWide(message ?? '') ? 'marketWide' :
       skipForCachedQuery   ? `cachedQuery=${cacheDecision?.reason ?? 'cached'}` :
       (intentState !== 'READY_TO_SEARCH' && intentState !== 'SHORTLISTED') ? `intentState=${intentState}` :
       null
@@ -6200,7 +6200,7 @@ EXECUTIVE RESPONSE INSTRUCTIONS:
     const inferenceConfig: InferenceConfig = {
       maxTokens: profile.maxTokens,
       model: modelRoute === 'cheap' || proseIsSecondary ? MODELS.GEMINI_LITE : profile.model,
-      thinkingBudget: Math.min(profile.thinkingBudget, proseIsSecondary ? 0 : 256),
+      thinkingBudget: Math.min(profile.thinkingBudget, proseIsSecondary ? 0 : 256), ...(asksMarketWide(message ?? '') ? { tools: false } : {}), // no carried search via a tool either
     }
     console.log(
       `[CHAT:PROFILE] shape=${profile.shape} model=${inferenceConfig.model} think=${profile.thinkingBudget} maxTokens=${profile.maxTokens}`,
