@@ -35,12 +35,26 @@ type HinglishRule = {
   flag?: string
 }
 
+const HINDI_NUM: Record<string, string> = { ek: '1', do: '2', teen: '3', chhe: '6', che: '6', nau: '9' }
+
 const HINGLISH_RULES: HinglishRule[] = [
   // Possession / RTM signals
   { pattern: /\bjaldi\s+chahiye\b/gi, replace: 'ready to move', flag: 'rtm' },
   { pattern: /\bjaldi\b(?!\s+(?:search|dikhao|bata|batao))/gi, replace: 'ready to move', flag: 'rtm' },
   { pattern: /\bturant\b/gi, replace: 'ready to move', flag: 'rtm' },
   { pattern: /\bjaldi\s+possession\b/gi, replace: 'ready to move possession', flag: 'rtm' },
+  // Timeline: "ek saal mein", "6 mahine ke andar". The postposition is required so
+  // an age ("65 saal ka") or a past year ("pichle saal") is never read as a deadline.
+  {
+    pattern: /\b(ek|do|teen|\d{1,2})\s+(?:saal|sal)\s+(?:mein|me|main|ke\s+andar|tak)\b/gi,
+    replace: (_: string, n: string) => { const v = HINDI_NUM[n.toLowerCase()] ?? n; return `within ${v} year${v === '1' ? '' : 's'}` },
+    flag: 'timeline',
+  },
+  {
+    pattern: /\b(ek|do|teen|chhe|che|nau|\d{1,2})\s+(?:mahine|mahino|mahinon|mahina)\s+(?:mein|me|main|ke\s+andar|tak)\b/gi,
+    replace: (_: string, n: string) => { const v = HINDI_NUM[n.toLowerCase()] ?? n; return `within ${v} month${v === '1' ? '' : 's'}` },
+    flag: 'timeline',
+  },
 
   // Quality preference
   { pattern: /\bdhang\s+ka\b/gi, replace: 'good quality society', flag: 'quality_preferred' },

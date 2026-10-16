@@ -124,6 +124,22 @@ describe('MessyLanguageNormalizer Comprehensive Suite', () => {
       assert.match(res.normalized, /direct from builder/i)
       assert.equal(res.hinglishFlags.direct_builder, true)
     })
+
+    it('18. normalizes "ek saal mein" / "2 saal ke andar" to within N year(s)', () => {
+      assert.match(prenormalizeRawText('possession ek saal mein chahiye').normalized, /within 1 year\b/)
+      assert.match(prenormalizeRawText('2 saal ke andar possession').normalized, /within 2 years/)
+      assert.equal(prenormalizeRawText('teen sal tak ruk sakta hun').hinglishFlags.timeline, true)
+    })
+
+    it('19. normalizes "6 mahine mein" to within 6 months', () => {
+      assert.match(prenormalizeRawText('6 mahine mein shift karna hai').normalized, /within 6 months/)
+      assert.match(prenormalizeRawText('chhe mahino ke andar').normalized, /within 6 months/)
+    })
+
+    it('20. leaves an age or a past year alone', () => {
+      assert.equal(prenormalizeRawText('main 65 saal ka hoon').normalized, 'main 65 saal ka hoon')
+      assert.equal(prenormalizeRawText('pichle saal price kitna tha').hinglishFlags.timeline, undefined)
+    })
   })
 
   describe('Pass 3: Abbreviations & Unit Conversions', () => {

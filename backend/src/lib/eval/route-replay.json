@@ -1017,5 +1017,65 @@
         }
       }
     ]
+  },
+  {
+    "id": "hi-budget-bhk-possession",
+    "turns": [
+      {
+        "text": "3 BHK chahiye Noida mein, budget 1.5 crore, possession ek saal mein",
+        "expect": {
+          "intent": {
+            "budgetMax": 1.5,
+            "bhk": [3],
+            "possession": "1year"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "id": "hi-budget-correction",
+    "turns": [
+      {
+        "text": "Greater Noida West mein 2BHK 80 lakh tak",
+        "expect": {
+          "intent": {
+            "budgetMax": 0.8
+          }
+        }
+      },
+      {
+        "text": "Nahi, 1 crore kar do",
+        "expect": {
+          "intent": {
+            "budgetMax": 1
+          }
+        }
+      }
+    ]
+  },
+  {
+    "id": "hi-commute",
+    "turns": [
+      {
+        "text": "Mera office Sector 62 mein hai, 1 crore ke andar 2BHK kahan lu?",
+        "expect": {
+          "lane": "topic:commute-shortlist",
+          "llm": false
+        }
+      }
+    ]
+  },
+  {
+    "id": "hi-total-cost",
+    "turns": [
+      {
+        "text": "1.4 crore ke flat pe stamp duty aur registration milake total kitna padega?",
+        "expect": {
+          "lane": "topic:statutory_tax",
+          "llm": false
+        }
+      }
+    ]
   }
 ]
