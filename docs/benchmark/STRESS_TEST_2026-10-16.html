@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chat Stress Test</title>
+<style>
+:root{--bg:#f6f4fb;--card:#fff;--ink:#1d1a26;--muted:#6b6578;--line:#e4dff0;--accent:#6b4fd8;--good:#1f7a4d;--goodbg:#e6f4ec;--bad:#b3261e;--badbg:#fbe9e7;--warn:#8a5a00;--warnbg:#fff4dc}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#15131b;--card:#1e1b27;--ink:#ece9f4;--muted:#a49db3;--line:#332e40;--accent:#a58cff;--good:#6fd39b;--goodbg:#173326;--bad:#ff8a80;--badbg:#3a1d1b;--warn:#f3c66b;--warnbg:#3a2f15}}
+:root[data-theme="dark"]{--bg:#15131b;--card:#1e1b27;--ink:#ece9f4;--muted:#a49db3;--line:#332e40;--accent:#a58cff;--good:#6fd39b;--goodbg:#173326;--bad:#ff8a80;--badbg:#3a1d1b;--warn:#f3c66b;--warnbg:#3a2f15}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;padding:24px 16px 64px}
+main{max-width:1040px;margin:0 auto}
+h1{font-size:26px;margin:0 0 4px}
+.sub{color:var(--muted);margin:0 0 24px}
+section{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px 22px;margin:0 0 22px}
+h2{font-size:19px;margin:0 0 10px}
+.wrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:13.5px}
+th,td{text-align:left;padding:7px 9px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:12px;text-transform:uppercase;letter-spacing:.03em;color:var(--muted);font-weight:600}
+td.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin:4px 0 4px}
+.kpi{border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.kpi b{display:block;font-size:22px;font-variant-numeric:tabular-nums}
+.kpi span{color:var(--muted);font-size:12.5px}
+.note{font-size:13px;color:var(--muted);margin:12px 0 0}
+.g{color:var(--good);font-weight:600}.r{color:var(--bad);font-weight:600}.w{color:var(--warn);font-weight:600}
+code{font-size:12.5px;background:var(--bg);padding:1px 5px;border-radius:5px}
+ol{margin:6px 0 0;padding-left:22px}li{margin:4px 0}
+</style>
+</head>
+<body>
+<main>
+<h1>RealtyAsk chat stress test</h1>
+<p class="sub">16 Oct 2026 · 7 chats, 54 turns, through the real chat route and AI providers, against the dev database. Every factual answer was checked against the database row it should come from. Raw answers: <code>docs/benchmark/answers/stress-2026-10-16.json</code>.</p>
+
+<section>
+<h2>At a glance</h2>
+<div class="kpis">
+<div class="kpi"><b>54</b><span>turns across 7 chats</span></div>
+<div class="kpi"><b class="r">14</b><span>answers with a wrong or invented fact</span></div>
+<div class="kpi"><b class="r">6</b><span>turns failed with "AI service unavailable" (11%)</span></div>
+<div class="kpi"><b>14.2 s</b><span>median wait for the first word (slowest 56 s)</span></div>
+<div class="kpi"><b class="g">9 / 9</b><span>edge cases handled (other city, rent, injection, typos, nonsense)</span></div>
+<div class="kpi"><b class="g">Yes</b><span>search kept through "by the way" detours, budget change applied</span></div>
+</div>
+</section>
+
+<section>
+<h2>Wrong or invented facts, checked against our rows</h2>
+<div class="wrap"><table>
+<tr><th>Chat · turn</th><th>We said</th><th>The database says</th></tr>
+<tr><td>Godrej Palm Retreat · RERA</td><td>"Valid until December 2031"</td><td class="r"><code>rera_valid_until</code> is empty. Invented.</td></tr>
+<tr><td>Godrej Palm Retreat · cost sheet</td><td>"the mandatory 6% stamp duty"</td><td class="r">7% (6% only for a woman owner); the table in the same answer says 7%</td></tr>
+<tr><td>Godrej Palm Retreat · "is the price fair"</td><td>Answered about Godrej Nest; said Palm Retreat is "priced slightly lower"</td><td class="r">Wrong project. Palm Retreat starts at ₹3.36 Cr, Nest at ₹2.2 Cr</td></tr>
+<tr><td>Godrej Palm Retreat · "compare with ATS Destinaire"</td><td>Compared two ATS Destinaire rows with each other</td><td class="r">Godrej left out; the catalogue holds ATS Destinaire twice</td></tr>
+<tr><td>Sector 150 search · budget 2.3 Cr</td><td>"3 BHK units starting around ₹1.76–1.80 Cr"</td><td class="r">Those are the 2 BHK prices; the 3 BHKs start at ₹2.26 and ₹2.25 Cr</td></tr>
+<tr><td>Sector 150 search · "which would you pick"</td><td>Picked Samridhi Luxuriya Avenue: "we hold no occupancy certificate"</td><td class="r">Never shown in this chat; its row has OC = yes</td></tr>
+<tr><td>Logix Blossom County · "buy or avoid"</td><td>"5% GST applies (under-construction)"; "no verified municipal water supply"</td><td class="r">Ready to move with OC (0% GST); water is the Ganga pipeline</td></tr>
+<tr><td>Logix Blossom County · registry</td><td>"Registration … remains on hold"</td><td class="w">Only a litigation type, "Authority Lease Premium Recovery", is on record. "On hold" is not.</td></tr>
+<tr><td>Builders · Hinglish Supertech</td><td>"Supertech ka data available nahi hai"</td><td class="r">We hold 15+ Supertech projects</td></tr>
+<tr><td>Builders · Mahagun vs Gaursons</td><td>"Gaur is not listed in our verified data"</td><td class="r">Gaursons is held, and was answered one turn earlier</td></tr>
+<tr><td>Builders · Gaursons</td><td>"Projects delivered: 8"</td><td class="r">8 is the same value on 25 builders: written by a script, not data</td></tr>
+<tr><td>First-time buyer · salary</td><td>"₹1.8 LPA gross salary"</td><td class="r">The buyer said 1.8 lakh a month</td></tr>
+<tr><td>First-time buyer · ready vs under construction</td><td>"Given your preference for immediate possession … our previous shortlist, such as Divine Meadows"</td><td class="r">Neither was said or shown in this chat (cause not yet traced)</td></tr>
+<tr><td>Godrej Palm Retreat · builder</td><td>"robust construction quality, transparent legal compliance, high long-term resale potential"</td><td class="w">Not on any row. A sales claim, not a fact.</td></tr>
+</table></div>
+<p class="note">Correct on the same check: Godrej Palm Retreat's size, price range, RERA number, possession date with the "date passed" note, and payment-plan milestones; Logix's litigation (6, 2 ongoing), metro distance, units and builder record; stamp-duty arithmetic; Spring Meadows and Hawelia RERA and prices; Gaursons' delivered-project list.</p>
+</section>
+
+<section>
+<h2>Where the chat lets the buyer down</h2>
+<ol>
+<li><b>Follow-ups about a project fall through to the AI.</b> "Is there any litigation on this project?", "how has the price moved?", "what's the catch?" and "EMI with 20% down" all have answers in our rows or our calculators. All four went to the AI path and failed with the outage message (4 of the 6 outages).</li>
+<li><b>Questions answered generically when we hold the answer.</b> "Has the OC been given?" (the row says yes) and "What are the payment options?" for Logix (a down-payment plan is on record).</li>
+<li><b>A Hinglish follow-up drops the search.</b> After "2BHK, Greater Noida West, 70 lakh", "Ready to move hona chahiye" listed under-construction projects of every size.</li>
+<li><b>Open questions get a data table.</b> "Where do I even start?" and "areas good for a family with kids" both got a micro-market table that is mostly "Not recorded".</li>
+<li><b>"What are you assuming about me?"</b> returns a cut-off quote of the first message, not the assumptions.</li>
+<li><b>Market figures without a label.</b> "5–7% a year, 8–12% near Jewar", "loan of ₹35–40 lakh", "25–35% loading" and NBCC figures were given with no source or date.</li>
+<li><b>Leftover text.</b> "They're on the cards above" appeared 4 times with no cards.</li>
+</ol>
+</section>
+
+<section>
+<h2>What held up</h2>
+<ol>
+<li>Other city, rent, prompt injection, heavy typos, an impossible budget, nonsense and "give me a number" were all handled honestly.</li>
+<li>Through three "by the way" detours, the search (3 BHK, Sector 150, under 2 Cr) was remembered and restated, and "make it 2.3 crore" was applied.</li>
+<li>"Can I trust Logix?" now leads with Logix's own record: 24 months' delay, NCLT proceedings.</li>
+<li>A passed possession date is said plainly: "The status is unconfirmed, as the possession date has passed."</li>
+</ol>
+</section>
+
+<section>
+<h2>Data problems behind the wrong answers (dev database)</h2>
+<div class="wrap"><table>
+<tr><th>Problem</th><th>Example</th></tr>
+<tr><td>Same project stored twice, with conflicting facts</td><td>ATS Destinaire: two builders, ₹1.30 vs ₹1.95 Cr, Dec 2027 vs Jun 2026. Also Hawelia Valencia Homes and Supertech Eco Village 1.</td></tr>
+<tr><td>Cost sheets that look templated</td><td>Godrej, Logix and ATS share the same PLC rows, parking ₹4.5 L, IFMS ₹75, club ₹2.25 L</td></tr>
+<tr><td>Builder figures that look templated</td><td><code>projects_delivered_count = 8</code> on 25 builders; <code>average_delay_months = 0</code> on about 50, shown as "On time"</td></tr>
+<tr><td>Price and cost sheet disagree</td><td>Godrej Palm Retreat 3 BHK: 1,750 sq ft × ₹14,028 ≈ ₹2.45 Cr, but the unit row says ₹3.36–3.62 Cr</td></tr>
+<tr><td>Templated marketing claims</td><td>"100% RERA compliant development with clear titles" on a project with 6 litigations</td></tr>
+<tr><td>Status contradictions</td><td>Godrej Palm Retreat is in the builder's delivered and ongoing lists; Supertech Supernova is under construction with OC = yes</td></tr>
+<tr><td>Malformed RERA numbers</td><td><code>UPRERAPRJ379836/06/2025</code>, <code>UPRERAPRJ794678/09/2024</code>, <code>UPRERAPRJ16BEV3</code></td></tr>
+</table></div>
+</section>
+</main>
+</body>
+</html>
