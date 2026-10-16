@@ -1569,5 +1569,49 @@
         }
       }
     ]
+  },
+  {
+    "id": "stress-focus-builder-track-record",
+    "source": "stress final run 2026-10-16",
+    "turns": [
+      {
+        "text": "Tell me about Godrej Palm Retreat"
+      },
+      {
+        "text": "Who is the builder and what is their track record?",
+        "expect": {
+          "laneOneOf": [
+            "topic:builder-reputation",
+            "answer-cache"
+          ],
+          "contains": [
+            "Godrej"
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "id": "stress-afford-follow-up",
+    "source": "stress final run 2026-10-16",
+    "turns": [
+      {
+        "text": "My salary is 1.8 lakh a month. How much home loan can I get?",
+        "expect": {
+          "contains": [
+            "Loan supported"
+          ]
+        }
+      },
+      {
+        "text": "Ok so what can I actually afford then, roughly?",
+        "expect": {
+          "contains": [
+            "Loan supported",
+            "₹72,000"
+          ]
+        }
+      }
+    ]
   }
 ]

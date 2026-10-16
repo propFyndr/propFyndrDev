@@ -47,7 +47,23 @@ export function statedMonthlyIncome(message: string): number | null {
  * going through the ordinary path so it can ask.
  */
 export function isAffordabilityQuestion(message: string): boolean {
-  return /\b(afford|budget|how much (can|should) i|what can i (buy|get)|eligib|loan amount|emi)\b/i.test(message ?? '')
+  return /\b(afford|budget|how much (can|should) i|how much (home )?loan|borrow|what can i (buy|get)|eligib|loan amount|emi)\b/i.test(message ?? '')
+}
+
+/**
+ * The income from this message, or from the latest earlier turn that stated one.
+ * "Ok so what can I actually afford then?" one turn after "My salary is 1.8 lakh
+ * a month" carried no number, so the model did the arithmetic and gave a ₹75 L
+ * loan an EMI of "₹6.6 L" (stress run, 16 Oct 2026).
+ */
+export function incomeInConversation(message: string, history: ReadonlyArray<{ role: string; content: string }>): number | null {
+  const own = statedMonthlyIncome(message)
+  if (own || !isAffordabilityQuestion(message)) return own
+  for (let i = history.length - 1; i >= 0; i--) {
+    const n = history[i].role === 'user' ? statedMonthlyIncome(history[i].content) : null
+    if (n) return n
+  }
+  return null
 }
 
 export interface Affordability {

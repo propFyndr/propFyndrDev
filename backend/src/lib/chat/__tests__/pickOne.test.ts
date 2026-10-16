@@ -24,6 +24,12 @@ describe('computePick', () => {
     assert.match(pick.drawback, /under construction/)
   })
 
+  it('an OC held in oc_obtained is not reported missing', () => {
+    const held = { ...rtm, oc_status: null, oc_obtained: true }
+    assert.doesNotMatch(computePick([held, over], 1.5)!.drawback, /no occupancy/)
+    assert.match(computePick([{ ...held, oc_obtained: null }, over], 1.5)!.drawback, /no occupancy/)
+  })
+
   it('needs at least two to choose between', () => {
     assert.equal(computePick([rtm], 1.5), null)
   })

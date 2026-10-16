@@ -1,7 +1,7 @@
 import { describe, it } from 'node:test'
 import assert from 'node:assert/strict'
 import {
-  statedMonthlyIncome, isAffordabilityQuestion, computeAffordability, renderAffordabilityTable,
+  statedMonthlyIncome, incomeInConversation, isAffordabilityQuestion, computeAffordability, renderAffordabilityTable,
 } from './affordability'
 
 describe('affordability — the arithmetic the model got wrong', () => {
@@ -45,6 +45,13 @@ describe('affordability — the arithmetic the model got wrong', () => {
     assert.equal(isAffordabilityQuestion('what can I afford in Noida?'), true)
     assert.equal(isAffordabilityQuestion('how much can I borrow'), true)
     assert.equal(isAffordabilityQuestion('does it have a gym'), false)
+    assert.equal(isAffordabilityQuestion('How much home loan can I get?'), true)
+  })
+
+  it('carries the income stated on an earlier turn', () => {
+    const history = [{ role: 'user', content: 'My salary is 1.8 lakh a month. How much home loan can I get?' }, { role: 'assistant', content: 'About 2 lakh EMI' }]
+    assert.equal(incomeInConversation('Ok so what can I actually afford then, roughly?', history), 180000)
+    assert.equal(incomeInConversation('does it have a gym', history), null)
   })
 
   it('renders every figure in Indian notation', () => {

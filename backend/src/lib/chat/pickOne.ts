@@ -15,6 +15,7 @@ export interface PickCandidate {
   possession_label?: string | null
   rera_number?: string | null
   oc_status?: string | null
+  oc_obtained?: boolean | null
   legal_flag?: string | null
   nclt_moratorium_active?: boolean | null
   location_concerns?: string[] | null
@@ -58,7 +59,9 @@ export function computePick(projects: readonly PickCandidate[], budgetMax?: numb
     ? `still under construction (possession on record: ${p.possession_label ?? String(p.possession_date).slice(0, 10)})`
     : 'still under construction, and we hold no possession date'
   else if (budgetMax != null && typeof p.price_min_cr === 'number' && p.price_min_cr > budgetMax) drawback = `starts above your budget at ₹${p.price_min_cr.toFixed(2)} Cr`
-  else if (!p.oc_status || p.oc_status === 'NONE') drawback = 'we hold no occupancy certificate for it — confirm it before paying'
+  // Either column may hold the OC: Samridhi Luxuriya Avenue has oc_obtained
+  // true and no oc_status, and was told it had none (stress run, 16 Oct 2026).
+  else if (p.oc_obtained !== true && (!p.oc_status || p.oc_status === 'NONE')) drawback = 'we hold no occupancy certificate for it — confirm it before paying'
   else if (p.location_concerns?.length) drawback = p.location_concerns[0].trim().replace(/\.+$/, '')
   else drawback = 'nothing adverse in our records — verify the OC and authority dues before you pay'
 

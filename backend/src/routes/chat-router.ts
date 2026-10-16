@@ -70,7 +70,7 @@ import { withRequirementChecklist } from '../lib/discovery/requirementChecklist'
 import { parseLoanEmiQuestion, loanShareOfFocus } from '../lib/chat/handlers/loanEmi'
 import { maybeCompressTopical, TopicSummaries } from '../lib/chat/summaryCompression'
 import { isSpecificUnknownProject, logCoverageGap, fetchUnknownProjectContext, unknownProjectDirective } from '../lib/chat/coverageGap'
-import { statedMonthlyIncome, isAffordabilityQuestion, computeAffordability, renderAffordabilityTable, affordabilityDirective } from '../lib/ai/affordability'
+import { statedMonthlyIncome, incomeInConversation, isAffordabilityQuestion, computeAffordability, renderAffordabilityTable, affordabilityDirective } from '../lib/ai/affordability'
 import { createChatTrace, recordChatTurn, startTraceSpan, endTraceSpan } from '../lib/monitoring/langfuse'
 import { classifyQueryLocal } from '../lib/jev/localClassifier'
 import { isOutageNotice } from '../lib/ai/outageNotice'
@@ -2979,7 +2979,7 @@ router.post('/', async (req: Request, res: Response) => {
     // and answered from web grounding: it talked about RENT, which is out of
     // scope entirely, and cited a Reddit thread. The affordability renderer
     // further down never ran, because this lane returns before reaching it.
-    const asksAffordability = Boolean(statedMonthlyIncome(message)) && isAffordabilityQuestion(message)
+    const asksAffordability = Boolean(incomeInConversation(message, chatHistory)) && isAffordabilityQuestion(message)
 
     /**
      * Rental yield and price history are answerable from our own rows, so the
@@ -3642,7 +3642,7 @@ I can help you with:
     const isSubventionQuery = /\b(subvention|20[:\s]*80|10[:\s]*90|80[:\s]*20|builder\s+subvention)\b/i.test(topicText)
     const isBuilderReputationQuery =
       !isSubventionQuery &&
-      (/\b(builder|developer)\s*(track\s*record|reputation|credibility|delivery\s*score|ranking|reliability|history|score)\b|\b(which|best|top|reputable|reliable)\s*(builder|developer|company)\b|\b(developer\s*track|on.?time\s*delivery|delivery\s*track\s*record|safe\s*to\s*buy\s*from)\b/i.test(topicText) || await isBuilderTrustQuestion(topicText, (intent.projectNames ?? []).some(n => typeof n === 'string' && message.toLowerCase().includes(n.toLowerCase())))) &&
+      (/\b(builder|developer)\s*(track\s*record|reputation|credibility|delivery\s*score|ranking|reliability|history|score)\b|\b(builder|developer)\b[^.?!]{0,30}\b(track\s*record|reputation)\b|\b(which|best|top|reputable|reliable)\s*(builder|developer|company)\b|\b(developer\s*track|on.?time\s*delivery|delivery\s*track\s*record|safe\s*to\s*buy\s*from)\b/i.test(topicText) || await isBuilderTrustQuestion(topicText, (intent.projectNames ?? []).some(n => typeof n === 'string' && message.toLowerCase().includes(n.toLowerCase())))) &&
       !isSectorCompare &&
       !isReraCheckQuery &&
       (intent.projectNames?.length ?? 0) < 2 && !(sectorMatches.length >= 2 && /\b(vs\.?|versus|compare|between)\b/i.test(topicText)) // two-sided: bm2-two-projects-builder-safety
@@ -5663,7 +5663,7 @@ EXECUTIVE RESPONSE INSTRUCTIONS:
     // ₹2 lakh income — a slipped digit between lakh notation and numerals, on a
     // figure a buyer would act on. It also spent 45 seconds deriving it.
     let affordabilityTail = ''
-    const statedIncome = statedMonthlyIncome(message ?? '')
+    const statedIncome = incomeInConversation(message ?? '', chatHistory)
     if (statedIncome && isAffordabilityQuestion(message ?? '')) {
       const a = computeAffordability(statedIncome)
       send('token', { token: `${renderAffordabilityTable(a)}\n\n` })
