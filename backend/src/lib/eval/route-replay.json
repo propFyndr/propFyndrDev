@@ -1453,5 +1453,19 @@
         }
       }
     ]
+  },
+  {
+    "id": "stress-project-compare-not-builders",
+    "source": "stress run 2026-10-16",
+    "turns": [
+      {
+        "text": "Compare Godrej Palm Retreat with ATS Destinaire",
+        "expect": {
+          "laneNot": [
+            "topic:builder-reputation"
+          ]
+        }
+      }
+    ]
   }
 ]
