@@ -232,14 +232,17 @@ export function unsourcedPeriods(text: string, prompt: string, userMessage = '',
 const GROWTH_RATE = new RegExp(
   [
     String.raw`\b\d+(?:\.\d+)?(?:\s*(?:%\s*)?(?:to|[–—-])\s*\d+(?:\.\d+)?)?\s*%\s*(?:a|per|each|every)?\s*(?:year|annum|annually|yearly|p\.?\s?a\.?)\b`,
-    String.raw`\b(?:apprecia\w*|grew|grown|growth|rose|risen|increased|returns?|cagr)\s+(?:of\s+|at\s+|by\s+|around\s+|about\s+){0,2}\d+(?:\.\d+)?(?:\s*(?:%\s*)?(?:to|[–—-])\s*\d+(?:\.\d+)?)?\s*%`,
+    String.raw`\b(?:apprecia\w*|grew|grown|growth|rose|risen|increased|returns?|cagr)\s+(?:(?:of|at|by|around|about|a|an)\s+){0,3}\d+(?:\.\d+)?(?:\s*(?:%\s*)?(?:to|[–—-])\s*\d+(?:\.\d+)?)?\s*%`,
+    // "a 5-7% CAGR", "a 60-70% appreciation" (stress run 2, 16 Oct 2026).
+    String.raw`\b\d+(?:\.\d+)?(?:\s*(?:%\s*)?(?:to|[–—-])\s*\d+(?:\.\d+)?)?\s*%\s*(?:cagr|apprecia\w*|growth|returns?|price\s+rise)\b`,
   ].join('|'),
   'gi',
 )
 
 export function unsourcedMarketStatistics(text: string, prompt: string): IntegrityViolation[] {
   const out: IntegrityViolation[] = []
-  for (const m of text.matchAll(GROWTH_RATE)) {
+  // Bold markers split "**5-7% CAGR**" from the words around it.
+  for (const m of text.replace(/\*\*/g, '').matchAll(GROWTH_RATE)) {
     const digits = m[0].match(/\d+(?:\.\d+)?/g) ?? []
     // Ours only when the prompt states each number AS a growth rate. A bare
     // digit is not enough: 5 and 7 are in every prompt (GST, stamp duty), and
