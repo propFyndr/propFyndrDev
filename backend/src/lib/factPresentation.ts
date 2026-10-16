@@ -252,3 +252,26 @@ export function publicRecordQualifier(sourceHost: string, fetchedAt: Date): stri
   const day = fetchedAt.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
   return `public record from ${sourceHost}, read on ${day}; not verified by RealtyAsk`
 }
+
+/**
+ * A cost sheet as a prompt may see it: without the tax columns.
+ *
+ * `stamp_duty_pct` defaults to 6.0 (the women's rate) and `registration_pct`
+ * and `gst_rate_pct` to 1 and 5 on every row, so a model handed the raw row
+ * wrote "the mandatory 6% stamp duty" for a male buyer (stress run, 16 Oct
+ * 2026). The rates are UP law and come from UP_STATUTORY, stated beside it.
+ */
+export function costSheetForPrompt<T extends Record<string, unknown>>(sheet: T | null | undefined): Record<string, unknown> | null {
+  if (!sheet) return null
+  const { stamp_duty_pct: _s, registration_pct: _r, gst_rate_pct: _g, ...rest } = sheet as Record<string, unknown>
+  return {
+    ...rest,
+    statutory_rates: {
+      stamp_duty_pct: UP_STATUTORY.stampDutyPct,
+      stamp_duty_female_owner_pct: UP_STATUTORY.stampDutyFemalePct,
+      registration_pct: UP_STATUTORY.registrationPct,
+      gst_under_construction_pct: UP_STATUTORY.gstUnderConstructionPct,
+      gst_ready_to_move_with_oc_pct: UP_STATUTORY.gstReadyToMovePct,
+    },
+  }
+}

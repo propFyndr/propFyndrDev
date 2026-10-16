@@ -1,6 +1,7 @@
 import { prisma } from '../../db'
 import { matchProjectInText } from '../../discovery/matchProjectInText'
 import type { ChatTopicHandler } from '../handlerContext'
+import { focusedProject } from '../handlerContext'
 
 /**
  * "What's the catch with X? What will the sales team not tell me?"
@@ -119,10 +120,10 @@ export const projectCatchHandler: ChatTopicHandler = {
   id: 'project_catch',
   description: 'The negatives and gaps on record for one named project',
 
-  matches: ctx => ASKS_FOR_THE_CATCH.test(ctx.message) && matchProjectInText(ctx.message, ctx.catalog) !== null,
+  matches: ctx => ASKS_FOR_THE_CATCH.test(ctx.message) && (matchProjectInText(ctx.message, ctx.catalog) ?? (ctx.flags.isCompareRequest === true ? null : focusedProject(ctx))) !== null,
 
   handle: async ctx => {
-    const hit = matchProjectInText(ctx.message, ctx.catalog)
+    const hit = matchProjectInText(ctx.message, ctx.catalog) ?? focusedProject(ctx)
     if (!hit) return false
     const row = await loadProject(hit.id)
     if (!row) return false

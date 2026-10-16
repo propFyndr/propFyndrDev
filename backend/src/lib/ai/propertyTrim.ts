@@ -1,3 +1,4 @@
+import { costSheetForPrompt } from '../factPresentation'
 /**
  * Trim property objects to the fields the system prompt actually renders.
  *
@@ -119,9 +120,8 @@ export interface TrimmedProperty {
   }[] | null;
   cost_sheet?: {
     base_price_per_sqft?: number | null;
-    gst_rate_pct?: number | null;
-    stamp_duty_pct?: number | null;
-    registration_pct?: number | null;
+    // UP law, from UP_STATUTORY; the row's tax columns are schema defaults.
+    statutory_rates?: Record<string, number>;
   } | null;
 }
 
@@ -215,9 +215,8 @@ export function trimPropertyForPrompt(project: any): TrimmedProperty {
     cost_sheet: project.cost_sheet
       ? {
           base_price_per_sqft: project.cost_sheet.base_price_per_sqft,
-          gst_rate_pct: project.cost_sheet.gst_rate_pct,
-          stamp_duty_pct: project.cost_sheet.stamp_duty_pct,
-          registration_pct: project.cost_sheet.registration_pct,
+          // The tax columns are schema defaults (stamp duty 6.0); see costSheetForPrompt.
+          statutory_rates: costSheetForPrompt({})!.statutory_rates as Record<string, number>,
         }
       : null,
   };

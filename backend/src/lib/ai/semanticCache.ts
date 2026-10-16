@@ -83,10 +83,49 @@ export function intentFingerprint(intent?: Record<string, unknown> | null): stri
   return createHash('sha256').update(canonical).digest('hex').slice(0, 12)
 }
 
+/**
+ * The catalogue's state, folded into every key, so no answer outlives the data
+ * it was written from.
+ *
+ * The key was the question alone, for 24 hours. A price corrected in /admin, a
+ * unit marked sold or a builder record cleaned kept being served from cache to
+ * every buyer who asked the same words until the entry expired. The stamp is
+ * the latest edit time across the catalogue, plus counts and sums for the two
+ * tables that carry no updated_at (unit types, builders); any edit changes it
+ * within STAMP_TTL_MS and every older entry stops matching.
+ */
+const STAMP_TTL_MS = 60 * 1000
+let catalogStamp = 'cold'
+let stampAt = 0
+let stampLoad: Promise<void> | null = null
+
+async function refreshCatalogStamp(): Promise<void> {
+  if (Date.now() - stampAt < STAMP_TTL_MS) return
+  stampLoad ??= (async () => {
+    try {
+      const { prisma } = await import('../db')
+      const [p, pp, cs, ph, u, b] = await Promise.all([
+        prisma.project.aggregate({ _max: { updated_at: true }, _count: true }),
+        prisma.paymentPlan.aggregate({ _max: { updated_at: true }, _count: true }),
+        prisma.costSheet.aggregate({ _max: { updated_at: true }, _count: true }),
+        prisma.priceHistory.aggregate({ _max: { recorded_at: true }, _count: true }),
+        prisma.unitType.aggregate({ _count: true, _sum: { price_min_cr: true, price_max_cr: true } }),
+        prisma.builder.aggregate({ _count: true, _sum: { average_delay_months: true, projects_delivered_count: true } }),
+      ])
+      catalogStamp = createHash('sha256').update(JSON.stringify([p, pp, cs, ph, u, b])).digest('hex').slice(0, 10)
+    } catch {
+      // Unreadable catalogue: a stamp nobody else holds, so nothing stale is read.
+      catalogStamp = `err${Date.now()}`
+    }
+    stampAt = Date.now()
+  })().finally(() => { stampLoad = null })
+  await stampLoad
+}
+
 function buildCacheKey(query: string, scope: string, fingerprint = 'anon'): string {
   const normalized = normalizeQueryKey(query)
   if (!normalized || normalized.length < 3) return ''
-  return `${scope}::${fingerprint}::${normalized}`
+  return `${scope}::${catalogStamp}::${fingerprint}::${normalized}`
 }
 
 /** L1 only. */
@@ -106,6 +145,7 @@ export async function getCachedResponse(
   scope: string = GLOBAL_SCOPE,
   fingerprint = 'anon',
 ): Promise<CachedEntry | null> {
+  await refreshCatalogStamp()
   const key = buildCacheKey(query, scope, fingerprint)
   if (!key) return null
 
@@ -193,7 +233,9 @@ function readLocal(key: string, countMiss = true): CachedEntry | null {
 // was that answer with its inventory removed — and it replayed for every buyer
 // who typed the same query. The write now refuses any turn that showed cards;
 // this bump drops the entries written before it.
-const REDIS_PREFIX = 'ac:v9:' // v8: v7 cached project-focused handler answers under project-free keys
+// v10 (16 Oct 2026): the catalogue stamp joined the key, and the routing and
+// integrity fixes of that day change what the same words are answered with.
+const REDIS_PREFIX = 'ac:v10:' // v8: v7 cached project-focused handler answers under project-free keys
 
 /** A read that takes longer than this is not worth waiting for — the LLM call it */
 const REDIS_READ_TIMEOUT_MS = Number(process.env.ANSWER_CACHE_READ_TIMEOUT_MS ?? 250)
@@ -294,4 +336,10 @@ export function getCacheStats(): CacheStats {
     maxSize: MAX_CACHE_ENTRIES,
     hitRate,
   }
+}
+
+/** Test seam: pin the catalogue stamp as if a refresh had just read it. */
+export function setCatalogStampForTest(stamp: string): void {
+  catalogStamp = stamp
+  stampAt = Date.now()
 }

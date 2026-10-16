@@ -1,6 +1,6 @@
 import type { ChatTopicHandler } from '../handlerContext'
 import { prisma } from '../../db'
-import { builderNamedIn } from '../builderTrust'
+import { builderNamedIn, buildersNamedIn } from '../builderTrust'
 import { humanFlag, NOT_A_CONCERN_FLAG } from '../../discovery/scoring'
 
 /**
@@ -54,9 +54,43 @@ export const builderReputationHandler: ChatTopicHandler = {
   description: 'Developer delivery scorecard and track record',
 
   matches: ctx =>
-    ctx.flags.isBuilderReputationQuery === true && ctx.flags.isBuilderCompare !== true,
+    ctx.flags.isBuilderReputationQuery === true || ctx.flags.isBuilderCompare === true,
 
   handle: async ctx => {
+      /**
+       * "Compare Mahagun and Gaursons as builders" had no handler: this one
+       * stepped aside for "the comparison path", which compares projects, so
+       * the turn got a Noida market table. Two builders we hold get their
+       * records side by side, read from the same columns as one builder's.
+       */
+      if (ctx.flags.isBuilderCompare === true) {
+        const pair = buildersNamedIn(ctx.message, ctx.builders).slice(0, 3)
+        if (pair.length >= 2) {
+          const rows = await prisma.builder.findMany({ where: { id: { in: pair.map(b => b.id) } }, select: { ...BUILDER_RECORD, _count: { select: { projects: true } } } })
+          const cell = {
+            delay: (b: typeof rows[number]) => b.average_delay_months == null ? 'Not recorded' : b.average_delay_months === 0 ? 'On time' : `${b.average_delay_months} months`,
+            delivered: (b: typeof rows[number]) => b.projects_delivered_count != null ? String(b.projects_delivered_count) : 'Not recorded',
+            since: (b: typeof rows[number]) => b.founded_year != null ? String(b.founded_year) : 'Not recorded',
+            legal: (b: typeof rows[number]) => b.insolvency_history ? 'Insolvency proceedings on record'
+              : b.legal_flag && !NOT_A_CONCERN_FLAG.test(b.legal_flag) ? humanFlag(b.legal_flag) : 'None on our record',
+          }
+          const head = `| | ${rows.map(b => `**${b.name}**`).join(' | ')} |\n| :--- | ${rows.map(() => ':---').join(' | ')} |`
+          const line = (label: string, f: (b: typeof rows[number]) => string) => `| ${label} | ${rows.map(f).join(' | ')} |`
+          const text = `### ${rows.map(b => b.name).join(' vs ')}\n\n${head}\n${[
+            line('Average handover delay', cell.delay),
+            line('Projects delivered', cell.delivered),
+            line('Projects we hold', b => String(b._count.projects)),
+            line('Operating since', cell.since),
+            line('Insolvency / legal flag', cell.legal),
+          ].join('\n')}\n\n"Not recorded" is a gap in our data, not a poor result. ${SCORE_BASIS}`
+          ctx.send('token', { token: text })
+          ctx.emitUiState({ stage: 'RESEARCH', thinking: 'Builder records side by side:', chips: rows.map((b, i) => ({ id: `chip_bc_${i}_${Date.now()}`, actionType: 'TEXT_MESSAGE', label: `Projects by ${b.name}`, icon: 'building', analyticsId: 'chip_b_compare', priority: i + 1, payload: { text: `Show me projects by ${b.name}` } })), missingFields: [], confidence: 'HIGH' })
+          ctx.send('done', { sessionId: ctx.sessionId, intentState: 'SHORTLISTED', intent: ctx.intent, responseMode: 'chat' })
+          ctx.res.end()
+          return true
+        }
+        if (ctx.flags.isBuilderReputationQuery !== true) return false
+      }
       /**
        * "What is the builder score for Ace Parkway?" is a question about ACE
        * Group. Measured in production, it was answered with a league table of
@@ -188,7 +222,32 @@ export const builderReputationHandler: ChatTopicHandler = {
       // tier-1 builders" — a recommendation with no referent, on the exact
       // question the buyer asked. It now only names builders we actually
       // scored, and says nothing when there are none.
-      const reputationText = `${focusBlock}### ${focusBlock ? 'How they compare' : 'Developer track record (Noida & Greater Noida)'}
+      /**
+       * "Supertech ke projects ka kya scene hai, possession milega?" asks about
+       * the builder's projects, and the answer said we hold no Supertech data
+       * while we hold fifteen. The builder's own rows, with each status and
+       * date as recorded; a passed date on an undelivered project says so.
+       */
+      const namedProjects = named
+        ? await prisma.project.findMany({
+            where: { builder_id: named.id },
+            select: { name: true, sector: true, status: true, possession_date: true, oc_obtained: true },
+            orderBy: { possession_date: 'desc' },
+            take: 20,
+          })
+        : []
+      const now = new Date()
+      const projectsBlock = namedProjects.length
+        ? `### ${named!.name} projects we hold (${namedProjects.length})\n\n| Project | Sector | Status | Possession on record |\n| :--- | :--- | :--- | :--- |\n${namedProjects.map(p => {
+            const ready = p.status === 'ready_to_move'
+            const date = p.possession_date ? p.possession_date.toLocaleDateString('en-IN', { month: 'short', year: 'numeric' }) : 'Not on record'
+            const passed = !ready && p.possession_date && p.possession_date < now ? ' (date passed, not delivered on our record)' : ''
+            const status = ready ? (p.oc_obtained ? 'Ready to move, OC on record' : 'Ready to move') : 'Under construction'
+            return `| ${p.name} | ${p.sector ?? 'Not on record'} | ${status} | ${date}${passed} |`
+          }).join('\n')}\n\n`
+        : ''
+
+      const reputationText = `${focusBlock}${projectsBlock}### ${focusBlock ? 'How they compare' : 'Developer track record (Noida & Greater Noida)'}
 
 | Developer | Projects delivered | Units delivered | Avg handover delay | Operating since |
 | :--- | :--- | :--- | :--- | :--- |

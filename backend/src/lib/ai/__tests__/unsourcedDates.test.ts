@@ -43,15 +43,11 @@ describe('a date in an answer must be sourced from the prompt', () => {
     }
   })
 
-  it('leaves years and month-years alone', () => {
-    // A bare year is general knowledge the prompt allows, and a month-year is
-    // how possession_label is written. Flagging either would fire on almost
-    // every answer, and neither is the failure: it is the DAY that cannot be
-    // inferred from a status and is never a coincidence.
+  it('leaves bare years alone', () => {
+    // A bare year is general knowledge the prompt allows.
     for (const answer of [
       'The UP Lifts and Escalators Act 2024 requires an ARD.',
-      'Possession is expected by December 2027.',
-      'The project launched in 2019 and RERA expires in 2027.',
+      'The project launched in 2019.',
       'Stamp duty in UP is 7%, registration 1%.',
     ]) {
       assert.deepEqual(
@@ -60,6 +56,17 @@ describe('a date in an answer must be sourced from the prompt', () => {
         `false positive on: ${answer}`,
       )
     }
+  })
+
+  it('checks month-years and validity years too (decision reversed 2026-10-16)', () => {
+    // These were left alone because possession_label is written as a month-year.
+    // A month the prompt carries (as text or as an ISO date) still passes; one
+    // nobody supplied is invented. Measured: "valid until December 2031" for a
+    // RERA registration whose validity is not on record.
+    const now = 'possession_label: December 2027; possession_date: 2027-12-31'
+    assert.deepEqual(kinds('Possession is expected by December 2027.', now).filter(k => k === 'unsourced_date'), [])
+    assert.ok(kinds('Possession is expected by December 2027.', 'nothing relevant here').includes('unsourced_date'))
+    assert.ok(kinds('RERA expires in 2027.', 'nothing relevant here').includes('unsourced_date'))
   })
 
   it('reports the date it objected to, so the log is actionable', () => {

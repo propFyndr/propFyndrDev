@@ -3,6 +3,8 @@ import { sectorWhereClause } from '../../discovery/normalize'
 import { prisma } from '../../db'
 import { UP_STATUTORY, unverified } from '../../factPresentation'
 import { matchProjectInText } from '../../discovery/matchProjectInText'
+import { focusedProject } from '../handlerContext'
+import { mentionsFocusPronoun } from '../followUp'
 
 /**
  * "Which of these are ready to move?" / "ready vs under construction"
@@ -37,19 +39,28 @@ export const possessionStatusHandler: ChatTopicHandler = {
      */
     // Named in this message only — a focus carried from an earlier turn must
     // not turn "ready to move flats in Sector 150" into one project's answer.
-    const named = matchProjectInText(ctx.message, ctx.catalog)
+    // "Is it ready to move? Has the OC been given?" points at the project on
+    // screen; a list or a sector in the message does not.
+    const pointsAtFocus = mentionsFocusPronoun(ctx.message) && !/\b(sector|flats|projects|options|societies|show|list)\b/i.test(ctx.message)
+    const named = matchProjectInText(ctx.message, ctx.catalog) ?? (pointsAtFocus ? focusedProject(ctx) : null)
     const one = named
       ? await prisma.project.findUnique({
           where: { id: named.id },
-          select: { name: true, status: true, possession_label: true, rera_number: true },
+          select: { name: true, status: true, possession_label: true, rera_number: true, oc_obtained: true },
         })
       : null
     if (one) {
       const ready = one.status === 'ready_to_move' || !!one.possession_label?.toLowerCase().includes('delivered')
       const when = one.possession_label ? `; possession is committed for ${one.possession_label}` : '; we do not hold a committed possession date'
       const rera = one.rera_number ? ` (UP-RERA ${one.rera_number})` : ''
+      // The project's own OC row, not the generic rule. Absent stays absent.
+      const oc = one.oc_obtained === true
+        ? ` Our record shows the Occupancy Certificate as granted, so GST is ${UP_STATUTORY.gstReadyToMovePct}%; ask for the copy for your tower before paying.`
+        : one.oc_obtained === false
+          ? ` Our record shows no Occupancy Certificate yet, so treat GST as ${UP_STATUTORY.gstUnderConstructionPct}% until the builder shows one.`
+          : ` We do not hold its Occupancy Certificate status; ask for it before paying: GST is ${UP_STATUTORY.gstReadyToMovePct}% only once OC is granted.`
       const text = ready
-        ? `**Yes — ${one.name} is ready to move**${rera}. Ask for the Occupancy Certificate for your tower before paying: GST is ${UP_STATUTORY.gstReadyToMovePct}% only once OC is granted.`
+        ? `**Yes — ${one.name} is ready to move**${rera}.${oc}`
         : `**No — ${one.name} is under construction**${when}${rera}. An under-construction purchase carries ${UP_STATUTORY.gstUnderConstructionPct}% GST, and the RERA date is the one the builder is legally held to.`
       ctx.send('token', { token: text })
       ctx.emitUiState({ stage: 'RESEARCH', thinking: `Move-in status for ${one.name}:`, chips: [], missingFields: [], confidence: 'HIGH' })

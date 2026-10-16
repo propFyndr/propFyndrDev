@@ -1,6 +1,6 @@
 import { matchesResaleDealQuestion } from './resaleDeal'
 import { matchesInvestmentScenario } from './investmentScenario'
-import { matchesPressureQuestion, matchesSiteVisitQuestion, matchesCompromiseQuestion } from './buyerSupport'
+import { matchesPressureQuestion, matchesSiteVisitQuestion, matchesCompromiseQuestion, matchesFirstStepsQuestion } from './buyerSupport'
 import { matchesSavedProfileQuestion } from './savedProfile'
 
 /**
@@ -12,5 +12,6 @@ import { matchesSavedProfileQuestion } from './savedProfile'
 export function matchesMessageOnlyTopic(message: string): boolean {
   return matchesResaleDealQuestion(message) || matchesInvestmentScenario(message) ||
     matchesPressureQuestion(message) || matchesSiteVisitQuestion(message) ||
-    matchesCompromiseQuestion(message) || matchesSavedProfileQuestion(message)
+    matchesCompromiseQuestion(message) || matchesSavedProfileQuestion(message) ||
+    matchesFirstStepsQuestion(message)
 }

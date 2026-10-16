@@ -123,7 +123,7 @@ import {
   isReraProcessQuestion as matchesReraProcessQuestion,
   isPaymentPlanRequest as matchesPaymentPlanRequest,
 } from '../lib/chat/topicFlags'
-import { CHAT_TOPIC_HANDLERS, isBuilderTrustQuestion } from '../lib/chat/handlers'
+import { CHAT_TOPIC_HANDLERS, isBuilderTrustQuestion, buildersNamedIn } from '../lib/chat/handlers'
 import { matchesLegalRiskQuestion } from '../lib/chat/handlers/legalRisk'
 import { matchesResaleDealQuestion } from '../lib/chat/handlers/resaleDeal'
 import { matchesMessageOnlyTopic } from '../lib/chat/handlers/messageOnlyTopics'
@@ -2117,7 +2117,7 @@ router.post('/', async (req: Request, res: Response) => {
      * sometimes hedge about it anyway.
      */
     const asksAboutHistory =
-      /\b(first|original|initial|earlier|previous|earliest)\b[^?.!]{0,24}\b(budget|price range|sector|area|location)\b/i.test(message) ||
+      (/\b(first(?![- ](?:time|home|flat|house))|original|initial|earlier|previous|earliest)\b[^?.!]{0,24}\b(budget|price range|sector|area|location)\b/i.test(message) && !/\b\d\s*bhk\b|\d+(?:\.\d+)?\s*(?:cr|crore|lakh)\b/i.test(message)) || // not "first time buyer, 3bhk in sector 150 under 2 cr"
       /\b(budget|sector|area)\b[^?.!]{0,20}\b(i (first|originally|initially) (said|gave|mentioned|wanted))\b/i.test(message) ||
       /\bwhat (was|were) my (first|original|initial)\b/i.test(message)
 
@@ -3253,7 +3253,7 @@ router.post('/', async (req: Request, res: Response) => {
       queryClassification.queryKind === 'OPEN' &&
       !(asksForInventory && intent.sector) &&
       !asksAffordability &&
-      !asksLegalSafety && !(await isBuilderTrustQuestion(message)) &&
+      !asksLegalSafety && !(await isBuilderTrustQuestion(message, (intent.projectNames?.length ?? 0) > 0)) &&
       !asksOurOwnNumbers &&
       !resolvedFromShownList &&
       // EOI / unregistered resale / Sports City: answered from RERA law and our
@@ -3642,7 +3642,7 @@ I can help you with:
     const isSubventionQuery = /\b(subvention|20[:\s]*80|10[:\s]*90|80[:\s]*20|builder\s+subvention)\b/i.test(topicText)
     const isBuilderReputationQuery =
       !isSubventionQuery &&
-      (/\b(builder|developer)\s*(track\s*record|reputation|credibility|delivery\s*score|ranking|reliability|history|score)\b|\b(which|best|top|reputable|reliable)\s*(builder|developer|company)\b|\b(developer\s*track|on.?time\s*delivery|delivery\s*track\s*record|safe\s*to\s*buy\s*from)\b/i.test(topicText) || await isBuilderTrustQuestion(topicText)) &&
+      (/\b(builder|developer)\s*(track\s*record|reputation|credibility|delivery\s*score|ranking|reliability|history|score)\b|\b(which|best|top|reputable|reliable)\s*(builder|developer|company)\b|\b(developer\s*track|on.?time\s*delivery|delivery\s*track\s*record|safe\s*to\s*buy\s*from)\b/i.test(topicText) || await isBuilderTrustQuestion(topicText, (intent.projectNames?.length ?? 0) > 0)) &&
       !isSectorCompare &&
       !isReraCheckQuery &&
       (intent.projectNames?.length ?? 0) < 2 && !(sectorMatches.length >= 2 && /\b(vs\.?|versus|compare|between)\b/i.test(topicText)) // two-sided: bm2-two-projects-builder-safety
@@ -3650,7 +3650,7 @@ I can help you with:
     // question, not orientation: it belongs to the recorded-appreciation and
     // what-if tables further down, which the orientation gate pre-empted.
     const isNewcomerOrientation = /(new to noida|new to (the )?city|don'?t know (this area|this city|the area)|which sector|best sector|where (should|to) (buy|look)|area guide|sector guide|best area for family|best area near)/i.test(topicText) && (sectorMatches.length === 0 || /which sector/i.test(topicText)) && !asksAppreciation(topicText)
-    const isReadyToMoveQuery = !isInventorySearch && /\b(ready to move|rtm|occupancy certificates?|which.*ready|ready propert(y|ies)|ready flats?)\b/i.test(topicText) && !isPaymentPlanRequest && !isCostSheetRequest
+    const isReadyToMoveQuery = !isInventorySearch && /\b(ready to move|rtm|occupancy certificates?|oc|which.*ready|ready propert(y|ies)|ready flats?)\b/i.test(topicText) && !isPaymentPlanRequest && !isCostSheetRequest && !(intent.bhk?.length && /\b(chahiye|hona\s+chahiye|only|should\s+be|must\s+be|needs?\s+to\s+be)\b/i.test(topicText)) // "Ready to move hona chahiye" mid-search narrows the search
     /**
      * Legal / money-at-risk questions outrank topic keywords.
      *
@@ -3734,7 +3734,7 @@ I can help you with:
             company_overview: true,
           }
         })
-        const matchedBuilders = dbBuilders.filter(b => message.toLowerCase().includes(b.name.toLowerCase()))
+        const matchedBuilders = buildersNamedIn(message, dbBuilders) // core names: "Mahagun" is Mahagun Group
         const isBuilderCompare = matchedBuilders.length >= 2 && /compare|vs|versus|better|difference|track record|builder|developer/i.test(message)
 
         // ─── PROJECT CARDS FOR THE TOPIC LANE ─────────────────────────────────────

@@ -311,6 +311,21 @@ function buildDynamicRules(
       })
     }
 
+    /**
+     * A BHK search carries that BHK's prices only.
+     *
+     * The project row's price_min_cr is the cheapest unit of ANY size. Sent
+     * beside a 3 BHK price label, Tata Eureka Park Phase 2's ₹1.76 Cr (a 2 BHK)
+     * was quoted to a buyer as "3 BHK units starting around ₹1.76 Cr" (stress
+     * run, 16 Oct 2026). With a BHK asked for, the floor and ceiling come from
+     * those unit rows, or are left out when the rows carry no price.
+     */
+    const askedBhk = Array.isArray(intent?.bhk) && intent.bhk.length ? new Set<number>(intent.bhk as number[]) : null
+    const bhkPrices = (p: any): { min?: number; max?: number } => {
+      const units = ((p.unit_types || []) as any[]).filter((u) => askedBhk!.has(u.bhk) && typeof u.price_min_cr === 'number')
+      if (!units.length) return {}
+      return { min: Math.min(...units.map((u) => u.price_min_cr)), max: Math.max(...units.map((u) => u.price_max_cr ?? u.price_min_cr)) }
+    }
     const optimizedProjects = prioritized.slice(0, projectLimit).map((p: any) => ({
       id: p.id,
       name: p.name,
@@ -319,8 +334,8 @@ function buildDynamicRules(
       status: p.status,
       possession_label: p.possession_label,
       price_range_label: p.price_range_label,
-      price_min_cr: p.price_min_cr,
-      price_max_cr: p.price_max_cr,
+      price_min_cr: askedBhk ? bhkPrices(p).min : p.price_min_cr,
+      price_max_cr: askedBhk ? bhkPrices(p).max : p.price_max_cr,
       price_per_sqft_all_inclusive: p.price_per_sqft_all_inclusive,
       open_space_pct: p.open_space_pct,
       rera_number: p.rera_number,

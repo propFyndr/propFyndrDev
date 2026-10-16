@@ -231,3 +231,17 @@ export async function runTopicHandlers(
   }
   return false
 }
+
+/**
+ * The project the conversation is on, when the message names none.
+ *
+ * "What's the catch?" one turn after "Tell me about Godrej Palm Retreat" is a
+ * question about Godrej Palm Retreat. Handlers that only read a name typed in
+ * the message sent that follow-up to the model lane, which answered about the
+ * wrong project or hit the outage notice (stress run, 16 Oct 2026).
+ */
+export function focusedProject(ctx: Pick<ChatHandlerContext, 'catalog' | 'activeProjectName'>): CatalogEntry | null {
+  const focus = ctx.activeProjectName?.toLowerCase()
+  if (!focus) return null
+  return ctx.catalog.find((p) => p.id === ctx.activeProjectName || p.name.toLowerCase() === focus) ?? null
+}

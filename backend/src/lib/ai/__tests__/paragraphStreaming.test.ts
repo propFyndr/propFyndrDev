@@ -38,7 +38,7 @@ describe('the synchronous gate', () => {
     // only correct answer is null - returning [] here would stream an invented
     // project name to the buyer on the first turn after a restart.
     const verdict = checkAnswerIntegritySync(
-      'ATS Pious Hideaways is in Sector 150 and possession is scheduled for June 2026.',
+      'ATS Pious Hideaways is in Sector 150 and is built by ATS Infrastructure.',
       PROMPT,
     )
     assert.equal(verdict, null)

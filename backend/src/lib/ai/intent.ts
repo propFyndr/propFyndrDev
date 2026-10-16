@@ -8,7 +8,7 @@ import { parseJevDecision, JEV_PROMPT_SECTION, type JevDecision } from '../jev/d
 import type { Intent } from '../discovery'
 import { MODELS, FALLBACK_CHAIN } from '../config'
 import { IntentSchema } from '../discovery/intent'
-import { extractDeterministic, sectorNumberOf, nonBudgetAmounts, type DeterministicIntent } from './intentDeterministic'
+import { extractDeterministic, sectorNumberOf, nonBudgetAmounts, WEIGHS_BOTH_STATUSES, type DeterministicIntent } from './intentDeterministic'
 import { isLlmStubbed } from './llmStub'
 import { cityNamedIn } from '../discovery/constants'
 import { readFacing, clearsFacing } from '../discovery/facing'
@@ -728,7 +728,9 @@ export function extractIntentHeuristic(message: string, previousIntent: Intent):
   }
 
   // Possession/timeline extraction
-  if (/ready\s*to\s*move|rtm|immediate|asap/i.test(message)) {
+  if (WEIGHS_BOTH_STATUSES.test(message)) {
+    // Weighing ready against under construction states no preference.
+  } else if (/ready\s*to\s*move|rtm|immediate|asap/i.test(message)) {
     fallback.possession = 'immediate'
   } else if (/\b(?:within|in)\s*(?:1|a|one)\s*year\b|\b(?:1|one)\s*year\b|\b(?:6|12)\s*months?\b|next\s*year/i.test(message)) {
     fallback.possession = '1year'

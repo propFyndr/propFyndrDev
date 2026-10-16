@@ -8,16 +8,23 @@
 // was not a pronoun it knew. The answer was generic Noida plans, though the
 // project's own plan is on record. Every attribute a buyer asks about on a
 // follow-up is listed here, plurals included.
+//
+// The stress run of 16 Oct 2026 added the verdict, legal, OC, registry and
+// price-per-sq-ft words: "What's the catch?" after "Tell me about Godrej Palm
+// Retreat" was answered about another project or not at all.
 
-/** A new subject in this message: a place, a builder search, or a list request. */
+/**
+ * A new subject in this message: a place, a builder search, a list request, or
+ * a market-wide question ("average price per sq ft in Noida").
+ */
 const NEW_SUBJECT =
-  /\b(sector\s*\d+|expressway|greater\s*noida|noida\s*extension|central\s*noida|projects\s*by|(?:show|find)\s+me\s+(?:\w+\s+){0,3}(?:projects|flats|apartments|options|societies)|list\s+(?:all|the)\s+projects|projects\s+(?:in|near)|flats\s+in|options\s+in)\b/i
+  /\b(sector\s*\d+|expressway|greater\s*noida|noida\s*extension|central\s*noida|in\s+noida|noida\s+(?:me|mein)|average|across|overall|market\s+rate|city[- ]wide|projects\s*by|(?:show|find)\s+me\s+(?:\w+\s+){0,3}(?:projects|flats|apartments|options|societies)|list\s+(?:all|the)\s+projects|projects\s+(?:in|near)|flats\s+in|options\s+in)\b/i
 
 const ATTRIBUTE =
-  /\b(this\s+project|the\s+project|payment\s*plans?|floor\s*plans?|cost\s*sheets?|charges|construction|possession|handover|rera|who\s+is|amenit(?:y|ies)|layouts?|bhk\s*sizes|sizes?|carpet|super\s*area|configurations?|specifications?|specs|flooring|fittings|builder|developer|track\s*record|price\s+(?:history|trend)|prices?\s+(?:gone|go|went|increase|risen)|appreciation|nearest\s+metro|metro\s+station|connectivity|how\s+far\s+is|similar\s+projects?|competitors?|compare\s+it|total\s+cost|stamp\s+duty|emi|loan)\b/i
+  /\b(this\s+project|the\s+project|payment\s*plans?|floor\s*plans?|cost\s*sheets?|charges|construction|possession|handover|rera|who\s+is|amenit(?:y|ies)|layouts?|bhk\s*sizes|sizes?|carpet|super\s*area|configurations?|specifications?|specs|flooring|fittings|builder|developer|track\s*record|price\s+(?:history|trend)|prices?\s+(?:gone|go|went|increase|risen)|appreciation|nearest\s+metro|metro\s+station|connectivity|how\s+far\s+is|similar\s+projects?|competitors?|compare\s+it|total\s+cost|stamp\s+duty|emi|loan|catch|sales\s+team|price\s+fair|fair(?:ly)?\s+priced|over\s*priced|worth\s+(?:it|the\s+(?:money|price))|value\s+for\s+money|good\s+deal|litigation|legal|court|cases?|disputes?|nclt|insolvency|oc|occupancy|completion\s+certificate|registry|registration|sub[- ]?lease|payment\s+(?:options?|schedule|structure|terms)|down\s*payment|price\s+per\s+sq|per\s+sq\.?\s*ft|psf|rate\s+per|should\s+i\s+buy|buy\s+(?:here|it|this)|avoid\s+it|maintenance|water\s+(?:supply|source)|power\s+backup|parking|lifts?|delay(?:ed)?|on\s+track)\b/i
 
-/** Pronouns that point at the project on screen. */
-const FOCUS_PRONOUN = /\b(it|its|this|that|they|them|their)\b/i
+/** Words that point at the project on screen. */
+const FOCUS_PRONOUN = /\b(it|its|this|that|they|them|their|here|there)\b/i
 
 /** An attribute question with no new subject: it is about the project in focus. */
 export function asksAboutFocusAttribute(message: string): boolean {

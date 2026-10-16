@@ -1257,5 +1257,201 @@
         }
       }
     ]
+  },
+  {
+    "id": "stress-project-followups",
+    "source": "stress run 2026-10-16",
+    "turns": [
+      {
+        "text": "Tell me about Godrej Palm Retreat in Sector 150"
+      },
+      {
+        "text": "What is the price per sq ft and how has it moved?",
+        "expect": {
+          "lane": "topic:price_trend",
+          "llm": false,
+          "contains": [
+            "Godrej Palm Retreat"
+          ]
+        }
+      },
+      {
+        "text": "What's the catch? What will the sales team not tell me?",
+        "expect": {
+          "lane": "topic:project_catch",
+          "llm": false,
+          "contains": [
+            "Godrej Palm Retreat"
+          ]
+        }
+      },
+      {
+        "text": "Is the price fair compared to nearby projects?",
+        "expect": {
+          "lane": "topic:price_fairness",
+          "llm": false,
+          "contains": [
+            "Godrej Palm Retreat"
+          ]
+        }
+      },
+      {
+        "text": "EMI for a 3BHK here with 20% down?",
+        "expect": {
+          "lane": "topic:loan_emi",
+          "llm": false,
+          "contains": [
+            "Godrej Palm Retreat"
+          ]
+        }
+      },
+      {
+        "text": "Compare it with ATS Destinaire",
+        "expect": {
+          "llm": false,
+          "contains": [
+            "Godrej Palm Retreat",
+            "ATS Destinaire"
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "id": "stress-project-oc-payment",
+    "source": "stress run 2026-10-16",
+    "turns": [
+      {
+        "text": "Tell me about Logix Blossom County"
+      },
+      {
+        "text": "Is it ready to move? Has the OC been given?",
+        "expect": {
+          "lane": "topic:possession_status",
+          "llm": false,
+          "contains": [
+            "Logix Blossom County",
+            "granted"
+          ]
+        }
+      },
+      {
+        "text": "What are the payment options?",
+        "expect": {
+          "lane": "topic:payment-plans",
+          "contains": [
+            "Logix Blossom County"
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "id": "stress-builder-projects-hinglish",
+    "source": "stress run 2026-10-16",
+    "turns": [
+      {
+        "text": "Supertech ke projects ka kya scene hai, possession milega?",
+        "expect": {
+          "lane": "topic:builder-reputation",
+          "llm": false,
+          "contains": [
+            "Supertech Limited projects we hold"
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "id": "stress-builder-compare",
+    "source": "stress run 2026-10-16",
+    "turns": [
+      {
+        "text": "Compare Mahagun and Gaursons as builders",
+        "expect": {
+          "lane": "topic:builder-reputation",
+          "llm": false,
+          "contains": [
+            "Mahagun Group",
+            "Gaursons"
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "id": "stress-builder-delivered",
+    "source": "stress run 2026-10-16",
+    "turns": [
+      {
+        "text": "What projects has Gaursons delivered?",
+        "expect": {
+          "lane": "topic:builder-reputation",
+          "llm": false,
+          "contains": [
+            "Gaursons projects we hold"
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "id": "stress-project-not-builder",
+    "source": "stress run 2026-10-16",
+    "turns": [
+      {
+        "text": "When is possession for Godrej Palm Retreat?",
+        "expect": {
+          "laneNot": [
+            "topic:builder-reputation"
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "id": "stress-first-steps",
+    "source": "stress run 2026-10-16",
+    "turns": [
+      {
+        "text": "I'm thinking of buying my first home in Noida. Where do I even start?",
+        "expect": {
+          "lane": "topic:first_steps",
+          "llm": false
+        }
+      }
+    ]
+  },
+  {
+    "id": "stress-first-time-search",
+    "source": "stress run 2026-10-16",
+    "turns": [
+      {
+        "text": "First time buyer, 3bhk in sector 150 under 2 cr",
+        "expect": {
+          "laneNot": [
+            "budget-history",
+            "topic:first_steps"
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "id": "stress-hinglish-rtm-narrows",
+    "source": "stress run 2026-10-16",
+    "turns": [
+      {
+        "text": "Bhai 2BHK chahiye Greater Noida West mein, 70 lakh tak"
+      },
+      {
+        "text": "Ready to move hona chahiye",
+        "expect": {
+          "laneNot": [
+            "topic:possession_status"
+          ]
+        }
+      }
+    ]
   }
 ]

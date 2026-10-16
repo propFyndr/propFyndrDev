@@ -226,7 +226,17 @@ function readBhk(text: string): number[] {
   return [...found].filter(n => n >= 1 && n <= 6).sort((a, b) => a - b)
 }
 
+/**
+ * "What's better for me, ready to move or under construction?" weighs the two;
+ * it states no preference. Read as one, it set `possession: immediate`, and the
+ * next answer opened "Given your preference for immediate possession" to a
+ * buyer who had said nothing of the kind (stress run, 16 Oct 2026).
+ */
+export const WEIGHS_BOTH_STATUSES =
+  /\b(?:ready[\s-]*to[\s-]*move|rtm|ready)\b[^.?!]{0,25}\b(?:or|vs\.?|versus|and)\b[^.?!]{0,12}\bunder[\s-]*construction\b|\bunder[\s-]*construction\b[^.?!]{0,25}\b(?:or|vs\.?|versus|and)\b[^.?!]{0,12}\b(?:ready|rtm)\b/i
+
 function readPossession(text: string): string | undefined {
+  if (WEIGHS_BOTH_STATUSES.test(text)) return undefined
   if (/\bready\s*to\s*move\b|\brtm\b|\bimmediate\b|\basap\b|\bmove[- ]in\s+ready\b/i.test(text)) return 'immediate'
   // "within a year", "in one year", "12 months" are the ways people say it;
   // missing them silently dropped the constraint from a four-fact one-liner.

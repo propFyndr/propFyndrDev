@@ -1,4 +1,5 @@
 import type { ChatTopicHandler, ChatHandlerContext } from '../handlerContext'
+import { UP_STATUTORY } from '../../factPresentation'
 
 /**
  * Three decision-support questions a buyer asks near the end of a search, none of
@@ -24,6 +25,17 @@ const COMPROMISE =
 export const matchesPressureQuestion = (m: string) => PRESSURE.test(m)
 export const matchesSiteVisitQuestion = (m: string) => SITE_VISIT.test(m)
 export const matchesCompromiseQuestion = (m: string) => COMPROMISE.test(m)
+
+/**
+ * "I'm thinking of buying my first home in Noida. Where do I even start?" got a
+ * table of twelve micro-markets, most of them "Not recorded" (stress run, 16 Oct
+ * 2026). The buyer asked for the order of steps. A message that already carries
+ * a BHK, a sector or a budget is a search and is left to the search.
+ */
+const FIRST_STEPS =
+  /\b(?:where\s+(?:do|should|can)\s+i\s+(?:even\s+)?(?:start|begin)|how\s+do\s+i\s+(?:start|begin|go\s+about\s+(?:it|this|buying))|first[- ]time\s+(?:home\s*)?buyer|steps\s+to\s+buy(?:ing)?|process\s+(?:of|for|to)\s+buy(?:ing)?\s+(?:a\s+)?(?:home|flat|house|property))\b/i
+const HAS_SEARCH = /\b\d\s*bhk|\bsector\s*\d|\d+(?:\.\d+)?\s*(?:cr|crore|lakh|lac|l)\b/i
+export const matchesFirstStepsQuestion = (m: string) => FIRST_STEPS.test(m) && !HAS_SEARCH.test(m)
 
 export const PRESSURE_ANSWER = `### A deadline from the seller is not evidence
 
@@ -95,6 +107,17 @@ Give up the things that change your daily comfort a little before the things tha
 
 The right order depends on what you can't live without. Which is hardest for you to bend: the budget ceiling, the size, the location or the possession date?`
 
+export const FIRST_STEPS_ANSWER = `### Buying your first home in Noida: the order that saves money
+
+1. **Fix the all-in ceiling, not the flat price.** Add stamp duty (${UP_STATUTORY.stampDutyPct}%, or ${UP_STATUTORY.stampDutyFemalePct}% with a woman as primary owner) and registration (${UP_STATUTORY.registrationPct}%) to every price, plus ${UP_STATUTORY.gstUnderConstructionPct}% GST if the flat is under construction. Parking, club and maintenance deposits come on top.
+2. **Get the loan sanction letter before you shortlist.** Your bank's figure, not a rule of thumb, sets what you can borrow.
+3. **Choose ready to move or under construction.** Ready means no GST once the OC is granted and no wait, at a higher price. Under construction is cheaper but carries delivery risk, so the builder's record matters more.
+4. **Shortlist by commute and possession date,** measured at the hour you actually travel.
+5. **Check each project's record:** RERA registration, the builder's delivery history, litigation, and OC status.
+6. **Visit the site, then ask for the written cost sheet** before paying any token.
+
+Tell me your budget, the BHK you need and where you work, and I'll show you what fits.`
+
 function respond(stage: string, thinking: string, text: string, chipLabel: string, chipText: string) {
   return async (ctx: ChatHandlerContext) => {
     ctx.send('token', { token: text })
@@ -129,4 +152,11 @@ export const compromiseOrderHandler: ChatTopicHandler = {
   description: 'What to give up first at a budget',
   matches: ctx => matchesCompromiseQuestion(ctx.message),
   handle: respond('DECISION', 'Ordering the trade-offs:', COMPROMISE_ANSWER, 'Show options within my budget', 'Show me what fits my budget'),
+}
+
+export const firstStepsHandler: ChatTopicHandler = {
+  id: 'first_steps',
+  description: 'Where a first-time buyer starts, in order',
+  matches: ctx => matchesFirstStepsQuestion(ctx.message),
+  handle: respond('DISCOVERY', 'Laying out the steps in order:', FIRST_STEPS_ANSWER, 'Help me set my budget', 'What can I afford? My monthly income is'),
 }

@@ -21,7 +21,7 @@ import { affordabilityHandler } from './affordabilityHandler'
 import { dossierHandler } from './dossierHandler'
 import { legalRiskHandler } from './legalRisk'
 import { resaleDealHandler } from './resaleDeal'
-import { pressureTacticsHandler, siteVisitChecklistHandler, compromiseOrderHandler } from './buyerSupport'
+import { pressureTacticsHandler, siteVisitChecklistHandler, compromiseOrderHandler, firstStepsHandler } from './buyerSupport'
 import { investmentScenarioHandler } from './investmentScenario'
 import { savedProfileHandler } from './savedProfile'
 import { publicRecordLookupHandler } from './publicRecordLookup'
@@ -96,6 +96,7 @@ export const CHAT_TOPIC_HANDLERS: readonly ChatTopicHandler[] = [
   pressureTacticsHandler,
   siteVisitChecklistHandler,
   compromiseOrderHandler,
+  firstStepsHandler,
   investmentScenarioHandler,
   // "What's the catch with X": record-based negatives and gaps for one named
   // project. Narrow matcher (a catch/negatives phrase AND a project we hold).
@@ -158,4 +159,4 @@ export {
   unitConfigurationHandler,
   comparisonHandler,
 }
-export { isBuilderTrustQuestion } from '../builderTrust'
+export { isBuilderTrustQuestion, buildersNamedIn } from '../builderTrust'

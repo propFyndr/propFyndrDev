@@ -23,6 +23,7 @@
  *     by being added to the schema later.
  */
 
+import { costSheetForPrompt } from './factPresentation'
 import type { Prisma } from '@prisma/client'
 import { airportDistances } from './discovery/airports'
 import { possessionDatePassed, DATE_PASSED_NOTE } from './possession'
@@ -614,7 +615,7 @@ export function buildProjectFacts(
   }
 
   if (!isLegal && !isLivability && !isOverview) {
-    const sheet = cleanRelation('cost_sheet', row.cost_sheet)
+    const sheet = cleanRelation('cost_sheet', costSheetForPrompt(row.cost_sheet as Record<string, unknown> | null))
     if (sheet) facts.cost_sheet = sheet
   }
 

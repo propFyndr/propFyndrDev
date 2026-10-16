@@ -11,7 +11,7 @@ import { prisma } from '../db'
  * track record, in either language.
  */
 const TRUST =
-  /\b(can\s+i\s+trust|should\s+i\s+trust|trust(?:worthy|ed)?|reliable|reliability|bharos[ae]|bharosemand|vishwas)\b/i
+  /\b(can\s+i\s+trust|should\s+i\s+trust|trust(?:worthy|ed)?|reliable|reliability|safe|bharos[ae]|bharosemand|vishwas)\b/i
 const BUILDER_WORD = /\b(builder|developer|promoter)s?\b/i
 
 // Words that name the kind of company, not which one. "Supertech Limited" is
@@ -60,13 +60,37 @@ async function builderNames(): Promise<{ name: string }[]> {
   return names
 }
 
-/** Pure: does this text ask whether a builder can be trusted? */
-export function asksBuilderTrust(text: string, builders: readonly { name: string }[]): boolean {
-  if (!TRUST.test(text)) return false
-  return BUILDER_WORD.test(text) || builderNamedIn(text, builders) !== null
+/** Every builder this text names, by core name, without one inside another. */
+export function buildersNamedIn<T extends { name: string }>(text: string, builders: readonly T[]): T[] {
+  const lower = ` ${text.toLowerCase().replace(/[^a-z0-9&\s]/g, ' ')} `
+  const hits = builders
+    .map((b) => ({ b, core: builderCore(b.name) }))
+    .filter(({ core }) => core.length >= 3 && !AMBIGUOUS.has(core) && lower.includes(` ${core} `))
+    .sort((x, y) => y.core.length - x.core.length)
+  const kept: { b: T; core: string }[] = []
+  for (const h of hits) if (!kept.some((k) => k.core.includes(h.core))) kept.push(h)
+  return kept.map((k) => k.b)
 }
 
-export async function isBuilderTrustQuestion(text: string): Promise<boolean> {
-  if (!TRUST.test(text)) return false
-  return asksBuilderTrust(text, await builderNames())
+/**
+ * Questions about a builder's record rather than a home search: "Supertech ke
+ * projects ka kya scene hai", "what has Gaursons delivered", "compare Mahagun
+ * and Gaursons". The full-name match ("Mahagun Group") missed every one of
+ * them, and the answer said we hold no data on builders we do.
+ */
+const RECORD =
+  /\b(scene|status|track\s*record|record|delivered|delivery|deliver|possession|delays?|delayed|history|reputation|kaisa|kaise|kaisi|projects?\s+(?:ka|ki|ke)|compare|vs|versus|better|behtar|accha)\b/i
+
+/** Pure: does this text ask about a builder's record (trust, delivery, comparison)? */
+export function asksBuilderTrust(text: string, builders: readonly { name: string }[], projectNamed = false): boolean {
+  if (TRUST.test(text)) return BUILDER_WORD.test(text) || builderNamedIn(text, builders) !== null
+  // A builder we hold, named with record words and no home-search shape.
+  // "Godrej Palm Retreat possession" names a project: that is the project's question.
+  if (projectNamed) return false
+  return RECORD.test(text) && builderNamedIn(text, builders) !== null && !/\b\d\s*bhk\b|\bsector\s*\d|\bunder\s+\d/i.test(text)
+}
+
+export async function isBuilderTrustQuestion(text: string, projectNamed = false): Promise<boolean> {
+  if (!TRUST.test(text) && !RECORD.test(text)) return false
+  return asksBuilderTrust(text, await builderNames(), projectNamed)
 }

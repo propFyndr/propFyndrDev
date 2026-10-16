@@ -2,6 +2,7 @@ import { prisma } from '../../db'
 import { matchProjectInText } from '../../discovery/matchProjectInText'
 import { SECTOR_ADJACENCY } from '../../discovery/constants'
 import type { ChatTopicHandler } from '../handlerContext'
+import { focusedProject } from '../handlerContext'
 import { ALL_IN_BUDGET, statutoryMultiplier } from './commuteShortlist'
 import { projectPriceNotes } from '../../projectPriceNote'
 import { summarisePriceNotes, UNDATED_NOTE } from '../../priceVerification'
@@ -62,10 +63,10 @@ export const priceFairnessHandler: ChatTopicHandler = {
   id: 'price_fairness',
   description: 'Is a quoted price fair: compared with our recorded unit prices and same-sector comparables',
 
-  matches: ctx => ASKS_FAIRNESS.test(ctx.message) && matchProjectInText(ctx.message, ctx.catalog) !== null,
+  matches: ctx => ASKS_FAIRNESS.test(ctx.message) && (matchProjectInText(ctx.message, ctx.catalog) ?? (ctx.flags.isCompareRequest === true ? null : focusedProject(ctx))) !== null,
 
   handle: async ctx => {
-    const hit = matchProjectInText(ctx.message, ctx.catalog)
+    const hit = matchProjectInText(ctx.message, ctx.catalog) ?? focusedProject(ctx)
     if (!hit) return false
     const bhk = bhkIn(ctx.message) ?? ctx.intent.bhk?.[0] ?? null
     const unitSelect = { bhk: true, price_min_cr: true, price_max_cr: true, price_per_sqft: true, super_area_sqft: true } as const

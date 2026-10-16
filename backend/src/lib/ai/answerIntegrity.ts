@@ -39,6 +39,7 @@
 import { checkToolBlindAnswer, checkToolBlindAnswerSync, type ToolBlindViolation } from './toolBlindGuard'
 import { MARKET_QUALIFIER } from '../factPresentation'
 import { verifyPriceProvenance } from './provenanceChecker'
+import { crossProjectFigures, recordContradictions, unsourcedPeriods, unsourcedMarketStatistics } from './projectFactChecks'
 
 export type IntegrityKind =
   | 'fabrication'
@@ -481,7 +482,18 @@ const MARKET_RATE_SHAPES: readonly RegExp[] = [
   // consumed so the qualifier lands before it rather than leaving ")., ".
   /₹\s?[\d,]+(?:\.\d+)?(?:\s*[–—-]\s*₹?\s?[\d,]+(?:\.\d+)?)?\s*(?:\/|per\s+)sq\.?\s?(?:ft|feet)\b(?:\.(?=\s*[,;:)]|\s+[a-z]))?/gi,
   /\b\d+(?:\.\d+)?\s*(?:%|per\s?cent)\s*(?:[a-z-]+\s+){0,2}?(?:appreciation|CAGR|growth|returns?|rental\s+yield|yield)\b/gi,
+  // "a 25% to 35% loading factor" (stress run, 16 Oct 2026): a market norm, stated flatly.
+  /\b\d+(?:\.\d+)?\s*%?\s*(?:to|[–—-])\s*\d+(?:\.\d+)?\s*%\s*(?:[a-z-]+\s+){0,2}?(?:loading(?:\s+factor)?|load\s+factor)\b/gi,
 ]
+
+/**
+ * A loan or budget range the prompt never gave: "a home loan in the range of
+ * ₹35–40 lakh" on a stated salary (stress run, 16 Oct 2026). It is arithmetic
+ * on assumed bank norms, so it says so.
+ */
+const LOAN_ESTIMATE = /₹\s?\d+(?:\.\d+)?\s*(?:[–—-]|to)\s*₹?\s?\d+(?:\.\d+)?\s*(?:lakhs?|lacs?|crores?|cr)\b/gi
+const LOAN_SENTENCE = /\b(?:loan|eligib\w*|qualify|afford\w*|budget|sanction)\b/i
+export const LOAN_ESTIMATE_QUALIFIER = 'a rough estimate on typical bank lending norms, not a sanction'
 
 /** Digits as they appear in a figure, for checking the number against the prompt. */
 function digitsOf(figure: string): string[] {
@@ -506,7 +518,7 @@ function digitsOf(figure: string): string[] {
 export function qualifyMarketFigures(text: string, prompt: string): { text: string; qualified: number } {
   if (!text) return { text, qualified: 0 }
   // Cheap reject: nothing to do for the large majority of answers.
-  if (!/sq\.?\s?(?:ft|feet)|appreciation|CAGR|yield|growth|returns?/i.test(text)) {
+  if (!/sq\.?\s?(?:ft|feet)|appreciation|CAGR|yield|growth|returns?|loading|load\s+factor|loan|eligib|afford|budget/i.test(text)) {
     return { text, qualified: 0 }
   }
 
@@ -532,6 +544,16 @@ export function qualifyMarketFigures(text: string, prompt: string): { text: stri
       return `${figure} (${MARKET_QUALIFIER})`
     })
   }
+
+  out = out.replace(LOAN_ESTIMATE, (match, offset: number, whole: string) => {
+    const start = Math.max(whole.lastIndexOf('.', offset), whole.lastIndexOf('\n', offset)) + 1
+    const sentence = whole.slice(start, offset + match.length + 60)
+    if (!LOAN_SENTENCE.test(sentence)) return match
+    if (sentence.includes(LOAN_ESTIMATE_QUALIFIER)) return match
+    if (digitsOf(match).every(d => promptDigits.includes(d))) return match
+    qualified++
+    return `${match} (${LOAN_ESTIMATE_QUALIFIER})`
+  })
 
   return { text: out, qualified }
 }
@@ -641,7 +663,11 @@ export function checkAnswerIntegritySync(text: string, prompt: string, userMessa
     ...scanDisclosure(body),
     ...unfoundedWarnings(body, prompt),
     ...unsourcedDates(body, prompt),
+    ...unsourcedPeriods(body, prompt, userMessage),
     ...verifyPriceProvenance(body, prompt, userMessage),
+    ...crossProjectFigures(body, prompt, userMessage),
+    ...recordContradictions(body, prompt),
+    ...unsourcedMarketStatistics(body, prompt),
     ...unlistedProprietaryViolations(body, prompt),
     ...ungroundedAreaViolations(body, prompt),
     ...detectBrokerHype(body, prompt),
@@ -665,7 +691,11 @@ export async function checkAnswerIntegrity(
     ...scanDisclosure(body),
     ...unfoundedWarnings(body, prompt),
     ...unsourcedDates(body, prompt),
+    ...unsourcedPeriods(body, prompt, userMessage),
     ...verifyPriceProvenance(body, prompt, userMessage),
+    ...crossProjectFigures(body, prompt, userMessage),
+    ...recordContradictions(body, prompt),
+    ...unsourcedMarketStatistics(body, prompt),
     ...unlistedProprietaryViolations(body, prompt),
     ...ungroundedAreaViolations(body, prompt),
     ...detectBrokerHype(body, prompt),

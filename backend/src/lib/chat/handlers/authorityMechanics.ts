@@ -1,4 +1,5 @@
 import type { ChatTopicHandler } from '../handlerContext'
+import { focusedProject } from '../handlerContext'
 import {
   NOIDA_AUTHORITY,
   AUTHORITY_RATE_CAVEAT,
@@ -50,7 +51,9 @@ export const authorityMechanicsHandler: ChatTopicHandler = {
   matches: ctx =>
     ASKS_TENURE.test(ctx.message) ||
     ASKS_TRANSFER.test(ctx.message) ||
-    ASKS_COMPLETION.test(ctx.message) ||
+    // "Has the OC been given?" about the project on screen is that project's
+    // record (possessionStatus), not the OC-vs-CC explainer.
+    (ASKS_COMPLETION.test(ctx.message) && !focusedProject(ctx)) ||
     ASKS_REGISTRY_STALL.test(ctx.message) ||
     ASKS_BANK.test(ctx.message) ||
     ASKS_JURISDICTION.test(ctx.message),

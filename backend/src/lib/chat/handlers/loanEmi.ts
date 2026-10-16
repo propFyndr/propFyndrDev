@@ -18,13 +18,16 @@ const LOAN_SHARE = /(\d{1,3}(?:\.\d+)?)\s*%\s*(?:home\s+)?loan\s+on\s+(?:a\s+|th
 const LOAN_SHARE_HI = /(?:₹|rs\.?\s*)?(\d+(?:\.\d+)?)\s*(cr(?:ore)?s?|l(?:akh|ac|acs|akhs)?)\s+(?:ke|ka|ki)\s+(?:flat|ghar|property)\s+(?:pe|par|pr)\s+(\d{1,3}(?:\.\d+)?)\s*%\s*(?:home\s+)?loan\b/i
 // "an 80% loan" with no price: the price comes from the project in focus.
 const LOAN_SHARE_ONLY = /(\d{1,3}(?:\.\d+)?)\s*%\s*(?:home\s+)?loan\b/i
+const DOWN_SHARE_ONLY = /(\d{1,2}(?:\.\d+)?)\s*%\s*(?:down(?:\s*payment)?|downpayment|upfront|margin)\b/i
 const RATE = /(\d{1,2}(?:\.\d{1,2})?)\s*%/
 
 /** The loan share of an EMI question that names no amount, or null. */
 export function loanShareOfFocus(message: string): number | null {
   if (!/\bemi\b|\binstal+ment\b|\bkisht\b/i.test(message) || parseLoanEmiQuestion(message)) return null
   const m = message.match(LOAN_SHARE_ONLY)
-  const pct = m ? Number(m[1]) : NaN
+  // "20% down" is the same question as "80% loan": the rest is the loan.
+  const down = m ? null : message.match(DOWN_SHARE_ONLY)
+  const pct = m ? Number(m[1]) : down ? 100 - Number(down[1]) : NaN
   return pct > 0 && pct <= 100 ? pct : null
 }
 const TENURE = /(\d{1,2})\s*(?:years?|yrs?|saal)\b/i

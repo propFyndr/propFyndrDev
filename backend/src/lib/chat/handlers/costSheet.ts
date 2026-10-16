@@ -2,7 +2,7 @@ import { matchProjectInText } from '../../discovery/matchProjectInText'
 import { prisma } from '../../db'
 import { renderCostSheetTable, type CostSheetRow } from '../../ai/marketTable'
 import { executeWithFallbackChain } from '../../ai/fallbackChain'
-import { confidenceFor, MARKET_QUALIFIER, NOIDA_MARKET_RANGES, UP_STATUTORY } from '../../factPresentation'
+import { confidenceFor, MARKET_QUALIFIER, NOIDA_MARKET_RANGES, UP_STATUTORY, costSheetForPrompt } from '../../factPresentation'
 import { recordTableRendered } from '../../monitoring/langfuse'
 import type { ChatTopicHandler } from '../handlerContext'
 import { statedBasePriceInr } from './totalOutflow'
@@ -117,7 +117,7 @@ Name a project and I'll pull whichever of these we hold verified for it.`
       developer: costProject?.builder?.name,
       bsp_range: costProject?.price_range_label,
       price_confirmation: priceNote,
-      cost_sheet: costProject?.cost_sheet,
+      cost_sheet: costSheetForPrompt(costProject?.cost_sheet as Record<string, unknown> | null | undefined),
       unit_types: costProject?.unit_types.map(u => `${u.bhk} BHK (${u.super_area_sqft} sq ft): ₹${u.price_min_cr}–${u.price_max_cr} Cr`)
     }, null, 2)
 
