@@ -94,3 +94,8 @@ export async function isBuilderTrustQuestion(text: string, projectNamed = false)
   if (!TRUST.test(text) && !RECORD.test(text)) return false
   return asksBuilderTrust(text, await builderNames(), projectNamed)
 }
+
+/** Does this text name a builder we hold, by core name ("Godrej", not "Godrej Properties")? */
+export async function namesHeldBuilder(text: string): Promise<boolean> {
+  return builderNamedIn(text, await builderNames()) !== null
+}

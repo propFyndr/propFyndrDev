@@ -1467,5 +1467,69 @@
         }
       }
     ]
+  },
+  {
+    "id": "stress-focus-survives-builder-question",
+    "source": "stress re-run 2026-10-16",
+    "turns": [
+      {
+        "text": "Tell me about Godrej Palm Retreat in Sector 150"
+      },
+      {
+        "text": "How many projects has Godrej delivered in Noida?"
+      },
+      {
+        "text": "What's the catch? What will the sales team not tell me?",
+        "expect": {
+          "lane": "topic:project_catch",
+          "contains": [
+            "Godrej Palm Retreat"
+          ]
+        }
+      },
+      {
+        "text": "EMI for a 3BHK here with 20% down?",
+        "expect": {
+          "lane": "topic:loan_emi",
+          "contains": [
+            "Godrej Palm Retreat"
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "id": "stress-builder-after-builder",
+    "source": "stress re-run 2026-10-16",
+    "turns": [
+      {
+        "text": "How reliable is Gaursons?"
+      },
+      {
+        "text": "Is Amrapali safe now that NBCC is completing their projects?"
+      },
+      {
+        "text": "Supertech ke projects ka kya scene hai, possession milega?",
+        "expect": {
+          "contains": [
+            "Supertech Limited projects we hold"
+          ],
+          "laneOneOf": [
+            "topic:builder-reputation",
+            "answer-cache"
+          ]
+        }
+      },
+      {
+        "text": "Compare Mahagun and Gaursons as builders",
+        "expect": {
+          "lane": "topic:builder-reputation",
+          "contains": [
+            "Mahagun Group",
+            "Gaursons"
+          ]
+        }
+      }
+    ]
   }
 ]

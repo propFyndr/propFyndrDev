@@ -107,7 +107,7 @@ import { recordTurnTrace, type TurnTraceDraft } from '../lib/turnTrace'
 import { recordDemandSignal } from '../lib/demandSignal'
 import { scanDisclosure } from '../lib/ai/answerIntegrity'
 import { projectCatalog, catalogNamesSync } from '../lib/projectCatalog'
-import { asksAboutFocusAttribute, mentionsFocusPronoun, focusFallback } from '../lib/chat/followUp'
+import { asksAboutFocusAttribute, mentionsFocusPronoun, focusFallback, parkFocus, parkedFocus } from '../lib/chat/followUp'
 import { matchProjectInText, fuzzyMatchProject, suggestProjects } from '../lib/discovery/matchProjectInText'
 import { parseAggregateQuestion, queryProjects, renderAggregateAnswer } from '../lib/chat/aggregateQuery'
 import { applyCommuteAnchor, beltFor } from '../lib/discovery/commuteAnchor'
@@ -123,7 +123,7 @@ import {
   isReraProcessQuestion as matchesReraProcessQuestion,
   isPaymentPlanRequest as matchesPaymentPlanRequest,
 } from '../lib/chat/topicFlags'
-import { CHAT_TOPIC_HANDLERS, isBuilderTrustQuestion, buildersNamedIn } from '../lib/chat/handlers'
+import { CHAT_TOPIC_HANDLERS, isBuilderTrustQuestion, buildersNamedIn, namesHeldBuilder } from '../lib/chat/handlers'
 import { matchesLegalRiskQuestion } from '../lib/chat/handlers/legalRisk'
 import { matchesResaleDealQuestion } from '../lib/chat/handlers/resaleDeal'
 import { matchesMessageOnlyTopic } from '../lib/chat/handlers/messageOnlyTopics'
@@ -1544,7 +1544,7 @@ router.post('/', async (req: Request, res: Response) => {
          * building on their screen.
          */
         const namesBuilderThisTurn =
-          Boolean((intent as any).builderName) || /\bprojects\s*by\b/i.test(message);
+          Boolean((intent as any).builderName) || /\bprojects\s*by\b/i.test(message) || await namesHeldBuilder(message);
         /**
          * A revised constraint is a new search too. "Actually make that 2
          * crore", "what about 3BHK?", "show me something bigger" restate the
@@ -1596,20 +1596,20 @@ router.post('/', async (req: Request, res: Response) => {
           (intent as any).targetProjectId = undefined;
         } else if (shouldClearProjectFocus) {
           console.log('[CHAT] Fresh discovery / advisory / sector query detected — isolating project focus.');
-          intent.projectNames = undefined;
+          parkFocus(intent as Record<string, unknown>, prevIntent as Record<string, unknown>, !(namesLocationThisTurn || (isDiscoveryQuery && !namesBuilderThisTurn) || revisesSearchThisTurn)); intent.projectNames = undefined;
           (intent as any).targetProjectId = undefined;
           // The in-memory clear above was undone on the very next turn, because
           // the session row still named the old project and ATTRIBUTE_FOLLOWUP
           // reads it. Isolating the focus has to reach the column too.
-          clearPersistedFocus = true;
+          clearPersistedFocus = namesLocationThisTurn || (isDiscoveryQuery && !namesBuilderThisTurn) || revisesSearchThisTurn; // a builder or market question steps aside for one turn; only a new search ends the focus
         } else {
           const fallbackFocus = focusFallback(sessionData?.focus_project_id, await projectCatalog(), cachedProjectsFromSession) // saved focus, never a list's first card
-          const prevProjectName = (prevIntent as any)?.projectNames?.[0] || (hydratedIntent as any)?.projectNames?.[0] || fallbackFocus?.name;
-          const prevProjectId = (prevIntent as any)?.targetProjectId || (hydratedIntent as any)?.targetProjectId || fallbackFocus?.id;
+          const prevProjectName = (prevIntent as any)?.projectNames?.[0] || (hydratedIntent as any)?.projectNames?.[0] || fallbackFocus?.name || parkedFocus(prevIntent as Record<string, unknown>).name;
+          const prevProjectId = (prevIntent as any)?.targetProjectId || (hydratedIntent as any)?.targetProjectId || fallbackFocus?.id || parkedFocus(prevIntent as Record<string, unknown>).id;
 
           if (prevProjectName && (isExplicitFollowUp || (!isFreshSearchThisTurn && isBarePronounFollowUp))) {
             console.log('[CHAT] Persisting active project focus for follow-up detail:', prevProjectName);
-            intent.projectNames = [prevProjectName];
+            intent.projectNames = [prevProjectName]; delete (intent as Record<string, unknown>).parkedFocus;
             if (prevProjectId) (intent as any).targetProjectId = prevProjectId;
           }
         }
@@ -3253,7 +3253,7 @@ router.post('/', async (req: Request, res: Response) => {
       queryClassification.queryKind === 'OPEN' &&
       !(asksForInventory && intent.sector) &&
       !asksAffordability &&
-      !asksLegalSafety && !(await isBuilderTrustQuestion(message, (intent.projectNames?.length ?? 0) > 0)) &&
+      !asksLegalSafety && !(await isBuilderTrustQuestion(message, (intent.projectNames ?? []).some(n => typeof n === 'string' && message.toLowerCase().includes(n.toLowerCase())))) &&
       !asksOurOwnNumbers &&
       !resolvedFromShownList &&
       // EOI / unregistered resale / Sports City: answered from RERA law and our
@@ -3642,7 +3642,7 @@ I can help you with:
     const isSubventionQuery = /\b(subvention|20[:\s]*80|10[:\s]*90|80[:\s]*20|builder\s+subvention)\b/i.test(topicText)
     const isBuilderReputationQuery =
       !isSubventionQuery &&
-      (/\b(builder|developer)\s*(track\s*record|reputation|credibility|delivery\s*score|ranking|reliability|history|score)\b|\b(which|best|top|reputable|reliable)\s*(builder|developer|company)\b|\b(developer\s*track|on.?time\s*delivery|delivery\s*track\s*record|safe\s*to\s*buy\s*from)\b/i.test(topicText) || await isBuilderTrustQuestion(topicText, (intent.projectNames?.length ?? 0) > 0)) &&
+      (/\b(builder|developer)\s*(track\s*record|reputation|credibility|delivery\s*score|ranking|reliability|history|score)\b|\b(which|best|top|reputable|reliable)\s*(builder|developer|company)\b|\b(developer\s*track|on.?time\s*delivery|delivery\s*track\s*record|safe\s*to\s*buy\s*from)\b/i.test(topicText) || await isBuilderTrustQuestion(topicText, (intent.projectNames ?? []).some(n => typeof n === 'string' && message.toLowerCase().includes(n.toLowerCase())))) &&
       !isSectorCompare &&
       !isReraCheckQuery &&
       (intent.projectNames?.length ?? 0) < 2 && !(sectorMatches.length >= 2 && /\b(vs\.?|versus|compare|between)\b/i.test(topicText)) // two-sided: bm2-two-projects-builder-safety

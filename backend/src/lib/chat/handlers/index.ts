@@ -159,4 +159,4 @@ export {
   unitConfigurationHandler,
   comparisonHandler,
 }
-export { isBuilderTrustQuestion, buildersNamedIn } from '../builderTrust'
+export { isBuilderTrustQuestion, buildersNamedIn, namesHeldBuilder } from '../builderTrust'

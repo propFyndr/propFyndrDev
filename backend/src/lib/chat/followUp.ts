@@ -52,3 +52,27 @@ export function focusFallback<T extends { id: string; name: string }>(
   if (saved) return { id: saved.id, name: saved.name }
   return lastCards && lastCards.length === 1 ? { id: lastCards[0].id, name: lastCards[0].name } : null
 }
+
+/**
+ * A focus set aside for one turn, not ended.
+ *
+ * "How many projects has Godrej delivered in Noida?" between two questions
+ * about Godrej Palm Retreat is a builder question; the next "what's the catch
+ * with this project?" is still about Palm Retreat. The step-aside cleared the
+ * project from the intent the next turn reads, and the follow-up went to the
+ * model with no project (stress re-run, 16 Oct 2026). Parked on the intent,
+ * restored by the next follow-up, dropped by a new search.
+ */
+export function parkFocus(intent: Record<string, unknown>, previous: Record<string, unknown> | null | undefined, keep: boolean): void {
+  const name = (previous?.projectNames as unknown[] | undefined)?.[0] ?? (previous?.parkedFocus as { name?: unknown } | undefined)?.name
+  if (keep && typeof name === 'string') {
+    intent.parkedFocus = { name, id: previous?.targetProjectId ?? (previous?.parkedFocus as { id?: unknown } | undefined)?.id }
+  } else {
+    delete intent.parkedFocus
+  }
+}
+
+export function parkedFocus(previous: Record<string, unknown> | null | undefined): { name?: string; id?: string } {
+  const p = previous?.parkedFocus as { name?: unknown; id?: unknown } | undefined
+  return { name: typeof p?.name === 'string' ? p.name : undefined, id: typeof p?.id === 'string' ? p.id : undefined }
+}
