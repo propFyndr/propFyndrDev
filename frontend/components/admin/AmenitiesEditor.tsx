@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Plus, Trash2, Save, Loader2 } from 'lucide-react'
+import { Plus, Trash, FloppyDisk, CircleNotch } from '@phosphor-icons/react'
 import { API_BASE } from '@/lib/env'
 import { adminAuthHeaders } from '@/lib/authedFetch'
 import CustomSelect from './CustomSelect'
@@ -121,7 +121,7 @@ export default function AmenitiesEditor({ amenities: initial, projectId, onSaved
             disabled={saving || !newRow.name.trim()}
             className="flex items-center gap-1.5 text-xs font-medium text-white bg-[#0066cc] hover:bg-[#0077ed] disabled:opacity-50 px-3.5 h-9 rounded-xl transition-all shadow-2xs cursor-pointer active:scale-[0.98]"
           >
-            {saving ? <Loader2 size={13} className="animate-spin" /> : <Save size={13} />}
+            {saving ? <CircleNotch size={13} className="animate-spin" /> : <FloppyDisk size={13} />}
             <span>Save</span>
           </button>
         </div>
@@ -144,7 +144,7 @@ export default function AmenitiesEditor({ amenities: initial, projectId, onSaved
                 className="opacity-0 group-hover:opacity-100 text-zinc-400 hover:text-rose-600 dark:hover:text-rose-400 transition-all cursor-pointer"
                 title="Delete amenity"
               >
-                <Trash2 size={12} />
+                <Trash size={12} />
               </button>
             </div>
           ))}

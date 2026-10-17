@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Image from 'next/image'
-import { Plus, Trash2, Pencil, Save, Loader2, CheckCircle2, GripVertical } from 'lucide-react'
+import { Plus, Trash, Pencil, FloppyDisk, CircleNotch, CheckCircle, DotsSixVertical } from '@phosphor-icons/react'
 import { API_BASE } from '@/lib/env'
 import { adminAuthHeaders } from '@/lib/authedFetch'
 import CustomSelect from './CustomSelect'
@@ -240,7 +240,7 @@ export default function ImagesEditor({ images: initial, projectId, slug, onSaved
             </>
           )}
           <label className="inline-flex items-center gap-1.5 text-xs font-medium text-white bg-[#0066cc] hover:bg-[#0077ed] px-3.5 h-9 rounded-xl transition-all cursor-pointer shadow-2xs active:scale-[0.98]">
-            {uploading ? <Loader2 size={13} className="animate-spin" /> : <Plus size={13} />}
+            {uploading ? <CircleNotch size={13} className="animate-spin" /> : <Plus size={13} />}
             <span>Upload Image</span>
             <input type="file" accept="image/*" className="hidden" onChange={handleUpload} disabled={uploading} />
           </label>
@@ -250,7 +250,7 @@ export default function ImagesEditor({ images: initial, projectId, slug, onSaved
       {error   && <p className="text-xs text-rose-600 dark:text-rose-400 mb-3">{error}</p>}
       {success && (
         <p className="flex items-center gap-1 text-xs text-emerald-600 dark:text-emerald-400 mb-3">
-          <CheckCircle2 size={13} className="fill-current" /> {success}
+          <CheckCircle size={13} weight="fill" /> {success}
         </p>
       )}
 
@@ -277,7 +277,7 @@ export default function ImagesEditor({ images: initial, projectId, slug, onSaved
             >
               {/* Drag handle */}
               <div className="absolute top-2 left-2 z-10 w-6 h-6 bg-black/40 backdrop-blur-sm rounded-md flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-grab active:cursor-grabbing">
-                <GripVertical size={12} className="text-white" />
+                <DotsSixVertical size={12} className="text-white" />
               </div>
 
               <div className="relative h-32 bg-slate-50">
@@ -322,7 +322,7 @@ export default function ImagesEditor({ images: initial, projectId, slug, onSaved
                       disabled={editState.saving}
                       className="flex-1 flex items-center justify-center gap-1 text-[11px] font-semibold text-white bg-blue-600 hover:bg-blue-500 disabled:opacity-50 py-1 rounded-lg"
                     >
-                      {editState.saving ? <Loader2 size={11} className="animate-spin" /> : <Save size={11} />}
+                      {editState.saving ? <CircleNotch size={11} className="animate-spin" /> : <FloppyDisk size={11} />}
                       Save
                     </button>
                     <button
@@ -353,7 +353,7 @@ export default function ImagesEditor({ images: initial, projectId, slug, onSaved
                       onClick={() => handleDelete(img.id)}
                       className="flex items-center justify-center gap-1.5 flex-1 bg-rose-50 hover:bg-rose-100 text-rose-600 text-[11px] font-bold py-1.5 rounded-lg transition-colors"
                     >
-                      <Trash2 size={12} /> Delete
+                      <Trash size={12} /> Delete
                     </button>
                   </div>
                 </div>

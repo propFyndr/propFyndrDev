@@ -1,6 +1,6 @@
 'use client'
 
-import { AlertCircle, CheckCircle2, X } from 'lucide-react'
+import { WarningCircle, CheckCircle, X } from '@phosphor-icons/react'
 
 interface CompletenessResult {
   score?: number
@@ -34,11 +34,11 @@ export default function CompletenessBar({ result, onClose }: CompletenessBarProp
           <h4 className="font-extrabold text-[13px] leading-tight flex items-center gap-1.5 text-gray-900 dark:text-white">
             {score >= 80 ? (
               <>
-                <CheckCircle2 size={15} className="text-emerald-500" /> High Data Quality &amp; Completeness
+                <CheckCircle size={15} className="text-emerald-500" /> High Data Quality &amp; Completeness
               </>
             ) : (
               <>
-                <AlertCircle size={15} className="text-amber-500" /> Data Completeness Needs Attention
+                <WarningCircle size={15} className="text-amber-500" /> Data Completeness Needs Attention
               </>
             )}
           </h4>

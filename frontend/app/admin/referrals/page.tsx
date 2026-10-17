@@ -8,29 +8,29 @@ import {
   Check,
   Plus,
   Link as LinkIcon,
-  Search,
-  ExternalLink,
-  Share2,
-  RotateCcw,
+  MagnifyingGlass,
+  ArrowSquareOut,
+  ShareNetwork,
+  ArrowCounterClockwise,
   X,
-  ArrowUpDown,
-  ChevronRight,
+  ArrowsDownUp,
+  CaretRight,
   Users,
-  Zap,
+  Lightning,
   GitBranch,
-  Sparkles,
-  AlertCircle,
-  MessageSquare,
-  Smartphone,
+  Sparkle,
+  WarningCircle,
+  ChatText,
+  DeviceMobile,
   Handshake,
   Briefcase,
-  Building2,
+  Buildings,
   GraduationCap,
   Target,
-  TrendingUp,
+  TrendUp,
   Trophy,
   Radio,
-} from 'lucide-react'
+} from '@phosphor-icons/react'
 import { AnimatePresence, m } from 'framer-motion'
 import { toast } from 'sonner'
 import DefinitionHint from '@/components/admin/referrals/DefinitionHint'
@@ -100,9 +100,9 @@ type MainTab = 'byLink' | 'byAdmin'
 
 const PRESET_LABELS = [
   { label: 'Friend & Family', icon: Handshake },
-  { label: 'WhatsApp Community', icon: MessageSquare },
+  { label: 'WhatsApp Community', icon: ChatText },
   { label: 'LinkedIn Post', icon: Briefcase },
-  { label: 'Channel Partner', icon: Building2 },
+  { label: 'Channel Partner', icon: Buildings },
   { label: 'Campus / Alumni', icon: GraduationCap },
   { label: 'Direct Buyer Lead', icon: Target },
 ]
@@ -447,7 +447,7 @@ export default function ReferralsAdminPage() {
             }}
             className="flex items-center gap-2 bg-[#0066cc] hover:bg-[#0055b3] text-white px-4 py-2.5 rounded-xl text-xs font-semibold transition-all active:scale-[0.98] cursor-pointer"
           >
-            {showGenerate ? <X size={15} strokeWidth={2.5} /> : <Plus size={15} strokeWidth={2.5} />}
+            {showGenerate ? <X size={15} weight="bold" /> : <Plus size={15} weight="bold" />}
             <span>{showGenerate ? 'Close' : 'Generate Link'}</span>
           </button>
         </div>
@@ -493,7 +493,7 @@ export default function ReferralsAdminPage() {
           label="Activated Users"
           value={metrics.totalActivated}
           tone={metrics.activationPct > 0 ? 'good' : 'neutral'}
-          icon={<Zap size={18} />}
+          icon={<Lightning size={18} />}
           hint={`${metrics.activationPct}% of devices activated`}
           loading={loading}
         />
@@ -504,7 +504,7 @@ export default function ReferralsAdminPage() {
         <div className="flex items-center justify-between pb-3.5 mb-3.5 border-b border-[#e5e5ea]/80 dark:border-[#2c2c2e]/80">
           <div className="flex items-center gap-2">
             <div className="w-7 h-7 rounded-lg bg-blue-50 dark:bg-blue-950/40 text-[#0066cc] dark:text-[#2997ff] flex items-center justify-center">
-              <TrendingUp size={15} />
+              <TrendUp size={15} />
             </div>
             <div>
               <div className="flex items-center gap-1">
@@ -597,7 +597,7 @@ export default function ReferralsAdminPage() {
                   </span>
                 </div>
                 <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-500/10 text-amber-700 dark:text-amber-300 text-[10px] font-semibold border border-amber-500/20">
-                  <Smartphone size={10} />
+                  <DeviceMobile size={10} />
                   <span>{growthMetrics.growthSummary.topAdmin.totalDevicesReached} devices</span>
                 </div>
               </div>
@@ -613,7 +613,7 @@ export default function ReferralsAdminPage() {
               <span className="text-[11px] font-semibold text-[#6e6e73] dark:text-[#98989d] uppercase tracking-wider">
                 Best Channel
               </span>
-              <Share2 size={13} className="text-[#0066cc] dark:text-[#2997ff]" />
+              <ShareNetwork size={13} className="text-[#0066cc] dark:text-[#2997ff]" />
             </div>
             <div className="text-sm font-bold text-[#1d1d1f] dark:text-[#f5f5f7] truncate py-1">
               {growthMetrics?.growthSummary.bestChannel ? (
@@ -862,7 +862,7 @@ export default function ReferralsAdminPage() {
             <div className="flex items-center justify-between border-b border-[#e5e5ea] dark:border-[#2c2c2e] pb-3.5 mb-5">
               <div className="flex items-center gap-2">
                 <div className="w-8 h-8 rounded-xl bg-[#0066cc]/10 text-[#0066cc] dark:text-[#2997ff] flex items-center justify-center">
-                  <Sparkles size={16} />
+                  <Sparkle size={16} />
                 </div>
                 <div>
                   <h3 className="text-sm font-bold text-[#1d1d1f] dark:text-[#f5f5f7]">
@@ -1019,7 +1019,7 @@ export default function ReferralsAdminPage() {
                       rel="noopener noreferrer"
                       className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold transition-all active:scale-[0.98] cursor-pointer"
                     >
-                      <Share2 size={14} />
+                      <ShareNetwork size={14} />
                       <span>WhatsApp</span>
                     </a>
 
@@ -1030,7 +1030,7 @@ export default function ReferralsAdminPage() {
                       title="Open safely without recording a visit or making you the holder device"
                       className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white dark:bg-[#242426] hover:bg-zinc-100 dark:hover:bg-[#38383a] text-zinc-700 dark:text-zinc-200 border border-zinc-200 dark:border-zinc-700 text-xs font-semibold transition-all active:scale-[0.98] cursor-pointer"
                     >
-                      <ExternalLink size={14} />
+                      <ArrowSquareOut size={14} />
                       <span>Safe Preview</span>
                     </a>
                   </div>
@@ -1131,7 +1131,7 @@ export default function ReferralsAdminPage() {
           <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
             {/* Search input with keyboard indicator */}
             <div className="relative flex-1 max-w-md">
-              <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#6e6e73] dark:text-[#98989d]" />
+              <MagnifyingGlass size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#6e6e73] dark:text-[#98989d]" />
               <input
                 ref={searchInputRef}
                 type="text"
@@ -1284,7 +1284,7 @@ export default function ReferralsAdminPage() {
             className="flex-1 flex items-center gap-1.5 hover:text-[#1d1d1f] dark:hover:text-white transition-colors active:scale-[0.98] cursor-pointer text-left"
           >
             <span>Campaign / Code</span>
-            <ArrowUpDown size={12} className={sortField === 'label' ? 'text-[#0066cc] dark:text-[#2997ff]' : 'text-[#6e6e73] dark:text-[#98989d]'} />
+            <ArrowsDownUp size={12} className={sortField === 'label' ? 'text-[#0066cc] dark:text-[#2997ff]' : 'text-[#6e6e73] dark:text-[#98989d]'} />
           </button>
 
           <div className="w-24 hidden xl:flex justify-center pr-4">14d trend</div>
@@ -1294,7 +1294,7 @@ export default function ReferralsAdminPage() {
             className="w-28 hidden sm:flex items-center justify-end gap-1.5 pr-4 hover:text-[#1d1d1f] dark:hover:text-white transition-colors active:scale-[0.98] cursor-pointer"
           >
             <span>Viral Reach</span>
-            <ArrowUpDown size={12} className={sortField === 'devicesReached' ? 'text-[#0066cc] dark:text-[#2997ff]' : 'text-[#6e6e73] dark:text-[#98989d]'} />
+            <ArrowsDownUp size={12} className={sortField === 'devicesReached' ? 'text-[#0066cc] dark:text-[#2997ff]' : 'text-[#6e6e73] dark:text-[#98989d]'} />
           </button>
 
           <button
@@ -1302,7 +1302,7 @@ export default function ReferralsAdminPage() {
             className="w-28 hidden md:flex items-center justify-end gap-1.5 pr-4 hover:text-[#1d1d1f] dark:hover:text-white transition-colors active:scale-[0.98] cursor-pointer"
           >
             <span>Deepest Gen</span>
-            <ArrowUpDown size={12} className={sortField === 'deepestGeneration' ? 'text-[#0066cc] dark:text-[#2997ff]' : 'text-[#6e6e73] dark:text-[#98989d]'} />
+            <ArrowsDownUp size={12} className={sortField === 'deepestGeneration' ? 'text-[#0066cc] dark:text-[#2997ff]' : 'text-[#6e6e73] dark:text-[#98989d]'} />
           </button>
 
           <button
@@ -1310,7 +1310,7 @@ export default function ReferralsAdminPage() {
             className="w-28 hidden sm:flex items-center justify-end gap-1.5 pr-4 hover:text-[#1d1d1f] dark:hover:text-white transition-colors active:scale-[0.98] cursor-pointer"
           >
             <span>Activated</span>
-            <ArrowUpDown size={12} className={sortField === 'activatedCount' ? 'text-[#0066cc] dark:text-[#2997ff]' : 'text-[#6e6e73] dark:text-[#98989d]'} />
+            <ArrowsDownUp size={12} className={sortField === 'activatedCount' ? 'text-[#0066cc] dark:text-[#2997ff]' : 'text-[#6e6e73] dark:text-[#98989d]'} />
           </button>
 
           <button
@@ -1318,7 +1318,7 @@ export default function ReferralsAdminPage() {
             className="w-32 hidden lg:flex items-center gap-1.5 pr-4 hover:text-[#1d1d1f] dark:hover:text-white transition-colors active:scale-[0.98] cursor-pointer"
           >
             <span>Last Activity</span>
-            <ArrowUpDown size={12} className={sortField === 'lastActivity' ? 'text-[#0066cc] dark:text-[#2997ff]' : 'text-[#6e6e73] dark:text-[#98989d]'} />
+            <ArrowsDownUp size={12} className={sortField === 'lastActivity' ? 'text-[#0066cc] dark:text-[#2997ff]' : 'text-[#6e6e73] dark:text-[#98989d]'} />
           </button>
 
           <div className="w-44 text-right pr-2">
@@ -1470,7 +1470,7 @@ export default function ReferralsAdminPage() {
                   <div className="w-28 hidden sm:flex items-center justify-end pr-4">
                     <div className="flex flex-col items-end">
                       <span className="text-xs font-mono font-bold text-[#1d1d1f] dark:text-[#f5f5f7] tabular-nums flex items-center gap-1.5">
-                        <Smartphone size={13} className="text-[#6e6e73] dark:text-[#98989d]" />
+                        <DeviceMobile size={13} className="text-[#6e6e73] dark:text-[#98989d]" />
                         {link.devicesReached}
                         <span className="text-[10px] font-sans font-normal text-[#6e6e73] dark:text-[#98989d]">dev</span>
                       </span>
@@ -1500,7 +1500,7 @@ export default function ReferralsAdminPage() {
                     >
                       {link.deepestGeneration > 1 ? (
                         <>
-                          <Sparkles size={11} className="text-emerald-500" />
+                          <Sparkle size={11} className="text-emerald-500" />
                           <span>Gen {link.deepestGeneration}</span>
                         </>
                       ) : link.deepestGeneration === 1 ? (
@@ -1521,7 +1521,7 @@ export default function ReferralsAdminPage() {
                             : 'text-[#6e6e73] dark:text-[#98989d]'
                         }`}
                       >
-                        {link.activatedCount > 0 && <Zap size={12} className="text-emerald-500 fill-emerald-500" />}
+                        {link.activatedCount > 0 && <Lightning size={12} weight="fill" className="text-emerald-500" />}
                         {link.activatedCount}
                         <span className="text-[10px] font-sans font-normal text-[#6e6e73] dark:text-[#98989d]">
                           ({link.devicesReached > 0 ? Math.round((link.activatedCount / link.devicesReached) * 100) : 0}%)
@@ -1557,7 +1557,7 @@ export default function ReferralsAdminPage() {
                       className="p-1.5 rounded-lg text-[#6e6e73] dark:text-[#98989d] hover:text-[#1d1d1f] dark:hover:text-white hover:bg-[#f5f5f7] dark:hover:bg-[#242426] transition-colors active:scale-95 cursor-pointer"
                       title="Safe preview link without recording visit"
                     >
-                      <ExternalLink size={14} />
+                      <ArrowSquareOut size={14} />
                     </a>
 
                     {/* View Tree button */}
@@ -1567,7 +1567,7 @@ export default function ReferralsAdminPage() {
                       title="Inspect referral tree"
                     >
                       <span>Tree</span>
-                      <ChevronRight size={13} className="text-[#6e6e73] dark:text-[#98989d]" />
+                      <CaretRight size={13} className="text-[#6e6e73] dark:text-[#98989d]" />
                     </Link>
 
                     {/* Holder reset button if bound */}
@@ -1578,7 +1578,7 @@ export default function ReferralsAdminPage() {
                         className="p-1.5 rounded-lg text-[#6e6e73] dark:text-[#98989d] hover:text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-950/30 transition-colors active:scale-95 cursor-pointer"
                         title="Reset holder device (clear test bindings)"
                       >
-                        <RotateCcw size={13} />
+                        <ArrowCounterClockwise size={13} />
                       </button>
                     )}
 
@@ -1622,7 +1622,7 @@ export default function ReferralsAdminPage() {
             >
               <div className="flex items-center gap-3 text-rose-600 mb-3">
                 <div className="w-10 h-10 rounded-2xl bg-rose-50 dark:bg-rose-950/40 flex items-center justify-center">
-                  <AlertCircle size={20} />
+                  <WarningCircle size={20} />
                 </div>
                 <div>
                   <h3 className="text-base font-bold text-[#1d1d1f] dark:text-[#f5f5f7]">
@@ -1680,7 +1680,7 @@ export default function ReferralsAdminPage() {
             >
               <div className="flex items-center gap-3 text-amber-600 mb-3">
                 <div className="w-10 h-10 rounded-2xl bg-amber-50 dark:bg-amber-950/40 flex items-center justify-center">
-                  <RotateCcw size={20} />
+                  <ArrowCounterClockwise size={20} />
                 </div>
                 <div>
                   <h3 className="text-base font-bold text-[#1d1d1f] dark:text-[#f5f5f7]">

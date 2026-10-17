@@ -5,7 +5,7 @@
 // used", nothing more. So the card never says "verified"; that word is reserved
 // for data read from a project's own records (CLAUDE.md, the four tiers).
 import { useState, useMemo } from 'react'
-import { ShieldAlert, AlertTriangle, CheckCircle2, ChevronDown, ChevronUp, FileText, Search } from 'lucide-react'
+import { ShieldWarning, Warning, CheckCircle, CaretDown, CaretUp, FileText, MagnifyingGlass } from '@phosphor-icons/react'
 import { parseReviewNotes } from '@/lib/reviewNotes'
 
 export default function DraftReviewAuditCard({ notes }: { notes: string }) {
@@ -31,7 +31,7 @@ export default function DraftReviewAuditCard({ notes }: { notes: string }) {
                 : 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/60 dark:text-emerald-300'
             }`}
           >
-            {flagged ? <ShieldAlert size={15} /> : <CheckCircle2 size={15} />}
+            {flagged ? <ShieldWarning size={15} /> : <CheckCircle size={15} />}
           </div>
           <div className="min-w-0">
             <div className="flex items-center gap-2">
@@ -64,7 +64,7 @@ export default function DraftReviewAuditCard({ notes }: { notes: string }) {
                   : 'bg-white dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border-zinc-200 dark:border-zinc-700'
               }`}
             >
-              <Search size={11} />
+              <MagnifyingGlass size={11} />
               {audit.sourcesCited}/{audit.sourcesFound} sources cited
             </span>
           )}
@@ -79,7 +79,7 @@ export default function DraftReviewAuditCard({ notes }: { notes: string }) {
 
       {audit.noSourceCited && (
         <div className="flex items-start gap-2.5 p-2.5 rounded-xl bg-amber-100/70 dark:bg-amber-950/60 border border-amber-300/80 dark:border-amber-800/80 text-amber-900 dark:text-amber-200 text-xs">
-          <AlertTriangle size={15} className="text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+          <Warning size={15} className="text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
           <p className="min-w-0">
             <span className="font-bold">No source is linked in this draft. </span>
             <span className="font-medium text-amber-800 dark:text-amber-300">
@@ -127,7 +127,7 @@ export default function DraftReviewAuditCard({ notes }: { notes: string }) {
         <ul className="space-y-1">
           {audit.otherFlags.map((flag, i) => (
             <li key={i} className="flex items-start gap-1.5 text-[11px] text-zinc-600 dark:text-zinc-400">
-              <AlertTriangle size={12} className="text-amber-500 shrink-0 mt-px" />
+              <Warning size={12} className="text-amber-500 shrink-0 mt-px" />
               <span>{flag}</span>
             </li>
           ))}
@@ -148,7 +148,7 @@ export default function DraftReviewAuditCard({ notes }: { notes: string }) {
           aria-expanded={showRaw}
           className="text-[11px] font-semibold text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-200 inline-flex items-center gap-1 cursor-pointer transition-colors"
         >
-          {showRaw ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
+          {showRaw ? <CaretUp size={13} /> : <CaretDown size={13} />}
           {showRaw ? 'Hide raw notes' : 'Show raw notes'}
         </button>
       </div>

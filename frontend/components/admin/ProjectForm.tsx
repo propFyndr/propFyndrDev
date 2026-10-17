@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
-import { Save, Loader2, Plus, X } from 'lucide-react'
+import { FloppyDisk, CircleNotch, Plus, X } from '@phosphor-icons/react'
 import { API_BASE } from '@/lib/env'
 import { adminAuthHeaders } from '@/lib/authedFetch'
 import CustomSelect from './CustomSelect'
@@ -739,7 +739,7 @@ export default function ProjectForm({ initialData, projectId, onFormChange, onSa
           disabled={saving}
           className="flex items-center gap-2 px-6 py-2.5 bg-[#0066cc] hover:bg-[#0077ed] text-white rounded-xl text-xs font-medium shadow-xs disabled:opacity-50 transition-all cursor-pointer active:scale-[0.98]"
         >
-          {saving ? <Loader2 size={15} className="animate-spin" /> : <Save size={15} />}
+          {saving ? <CircleNotch size={15} className="animate-spin" /> : <FloppyDisk size={15} />}
           <span>{saving ? 'Saving...' : projectId ? 'Save Changes' : 'Create Project'}</span>
         </button>
       </div>

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Save, TrendingUp, BarChart2 } from 'lucide-react'
+import { FloppyDisk, TrendUp, ChartBar } from '@phosphor-icons/react'
 import { API_BASE } from '@/lib/env'
 import { adminAuthHeaders } from '@/lib/authedFetch'
 import { toast } from 'sonner'
@@ -118,7 +118,7 @@ export default function InvestmentInsightsEditor({ projectId, initialData }: { p
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-zinc-100 dark:border-zinc-800/80 pb-4 mb-6">
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center border border-emerald-100 dark:border-emerald-900/40">
-            <TrendingUp size={17} />
+            <TrendUp size={17} />
           </div>
           <div>
             <h3 className="text-[15px] font-semibold text-zinc-900 dark:text-zinc-100 tracking-tight">Investment Insights</h3>
@@ -129,7 +129,7 @@ export default function InvestmentInsightsEditor({ projectId, initialData }: { p
           onClick={handleSave}
           className="bg-[#0066cc] hover:bg-[#0055b3] text-white px-4 py-2 rounded-xl text-[13px] font-medium flex items-center gap-2 transition-colors shadow-2xs"
         >
-          <Save size={14} /> Save Insights
+          <FloppyDisk size={14} /> Save Insights
         </button>
       </div>
 
@@ -161,7 +161,7 @@ export default function InvestmentInsightsEditor({ projectId, initialData }: { p
       <div className="mt-6 pt-6 border-t border-zinc-100 dark:border-zinc-800">
         <div className="flex items-center gap-3 mb-4">
           <div className="w-8 h-8 rounded-xl bg-blue-50 dark:bg-blue-950/60 text-[#0066cc] dark:text-blue-400 flex items-center justify-center border border-blue-100 dark:border-blue-900/40">
-            <BarChart2 size={16} />
+            <ChartBar size={16} />
           </div>
           <div>
             <h3 className="text-[14px] font-semibold text-zinc-900 dark:text-zinc-100">Advanced Investment Report</h3>
@@ -178,7 +178,7 @@ export default function InvestmentInsightsEditor({ projectId, initialData }: { p
 
       <div className="flex justify-end pt-5 mt-5 border-t border-zinc-100 dark:border-zinc-800">
         <button onClick={handleSave} className="bg-[#0066cc] hover:bg-[#0055b3] text-white px-5 py-2.5 rounded-xl text-[13px] font-medium flex items-center gap-2 transition-colors shadow-2xs">
-          <Save size={15} /> Save All Changes
+          <FloppyDisk size={15} /> Save All Changes
         </button>
       </div>
     </div>

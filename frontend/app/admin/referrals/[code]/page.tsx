@@ -6,19 +6,19 @@ import Link from 'next/link'
 import { adminFetch } from '@/lib/adminFetch'
 import {
   ArrowLeft,
-  Smartphone,
+  DeviceMobile,
   Copy,
   Check,
-  ExternalLink,
-  RotateCcw,
-  Zap,
+  ArrowSquareOut,
+  ArrowCounterClockwise,
+  Lightning,
   GitBranch,
-  MessageSquare,
+  ChatText,
   ShieldCheck,
   FileText,
   X,
-  Share2,
-} from 'lucide-react'
+  ShareNetwork,
+} from '@phosphor-icons/react'
 import { AnimatePresence, m } from 'framer-motion'
 import { toast } from 'sonner'
 import { StatCard } from '@/components/portal/ui'
@@ -289,7 +289,7 @@ export default function ReferralTreePage() {
               className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white dark:bg-[#1c1c1e] hover:bg-[#f5f5f7] dark:hover:bg-[#242426] text-[#1d1d1f] dark:text-[#f5f5f7] border border-[#e5e5ea] dark:border-[#2c2c2e] text-xs font-semibold transition-all active:scale-[0.98] cursor-pointer"
               title="Preview without recording visit"
             >
-              <ExternalLink size={14} />
+              <ArrowSquareOut size={14} />
               <span>Safe Preview</span>
             </a>
 
@@ -299,7 +299,7 @@ export default function ReferralTreePage() {
               className="disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5 px-3 py-2 rounded-xl bg-amber-50 dark:bg-amber-950/30 hover:bg-amber-100 dark:hover:bg-amber-950/50 text-amber-700 dark:text-amber-400 border border-amber-200/80 dark:border-amber-800/60 text-xs font-semibold transition-all active:scale-[0.98] cursor-pointer"
               title="Reset holder device"
             >
-              <RotateCcw size={14} />
+              <ArrowCounterClockwise size={14} />
               <span>Reset Holder</span>
             </button>
 
@@ -332,7 +332,7 @@ export default function ReferralTreePage() {
         <StatCard
           label="Total Devices"
           value={metrics.totalDevices}
-          icon={<Smartphone size={18} />}
+          icon={<DeviceMobile size={18} />}
           hint={`${metrics.directShares} direct · ${metrics.totalDevices - metrics.directShares} viral`}
           loading={loading}
         />
@@ -348,14 +348,14 @@ export default function ReferralTreePage() {
           label="Activated Visitors"
           value={metrics.activatedCount}
           tone={metrics.activatedCount > 0 ? 'good' : 'neutral'}
-          icon={<Zap size={18} />}
+          icon={<Lightning size={18} />}
           hint={metrics.totalDevices > 0 ? `${Math.round((metrics.activatedCount / metrics.totalDevices) * 100)}% of devices activated` : 'No visits'}
           loading={loading}
         />
         <StatCard
           label="Chat Messages"
           value={metrics.totalMessages}
-          icon={<MessageSquare size={18} />}
+          icon={<ChatText size={18} />}
           hint="Total across all chats"
           loading={loading}
         />
@@ -391,7 +391,7 @@ export default function ReferralTreePage() {
         ) : nodes.length === 0 ? (
           <div className="py-20 flex flex-col items-center justify-center text-center px-4">
             <div className="w-12 h-12 rounded-2xl bg-[#f5f5f7] dark:bg-[#242426] flex items-center justify-center text-[#6e6e73] dark:text-[#98989d] mb-3">
-              <Share2 size={24} />
+              <ShareNetwork size={24} />
             </div>
             <p className="text-sm font-bold text-[#1d1d1f] dark:text-[#f5f5f7]">
               No devices have arrived through this link yet
@@ -535,7 +535,7 @@ export default function ReferralTreePage() {
         <div className="flex items-center justify-between pb-3 mb-4 border-b border-[#e5e5ea]/80 dark:border-[#2c2c2e]/80">
           <div className="flex items-center gap-2">
             <div className="w-6 h-6 rounded-lg bg-blue-50 dark:bg-blue-950/40 text-[#0066cc] dark:text-[#2997ff] flex items-center justify-center">
-              <Share2 size={13} />
+              <ShareNetwork size={13} />
             </div>
             <div>
               <div className="flex items-center gap-1">
@@ -631,7 +631,7 @@ export default function ReferralTreePage() {
                 {/* Device & Client Profile */}
                 <div className="p-4 rounded-2xl bg-[#f5f5f7] dark:bg-[#242426] border border-[#e5e5ea] dark:border-[#38383a] mb-5">
                   <h3 className="text-xs font-bold text-[#1d1d1f] dark:text-[#f5f5f7] uppercase tracking-wider mb-2.5 flex items-center gap-1.5">
-                    <Smartphone size={14} className="text-[#0066cc] dark:text-[#2997ff]" />
+                    <DeviceMobile size={14} className="text-[#0066cc] dark:text-[#2997ff]" />
                     Device Profile
                   </h3>
                   <div className="grid grid-cols-2 gap-2 text-xs">
@@ -711,7 +711,7 @@ export default function ReferralTreePage() {
                 {/* Chat Sessions */}
                 <div>
                   <h3 className="text-xs font-bold text-[#1d1d1f] dark:text-[#f5f5f7] uppercase tracking-wider mb-2.5 flex items-center gap-1.5">
-                    <MessageSquare size={14} className="text-[#0066cc] dark:text-[#2997ff]" />
+                    <ChatText size={14} className="text-[#0066cc] dark:text-[#2997ff]" />
                     Chat History ({selectedNode.chats.length})
                   </h3>
                   <div className="space-y-2">
@@ -735,7 +735,7 @@ export default function ReferralTreePage() {
                           </div>
                           <span className="flex items-center gap-1 text-[10px] font-mono text-[#0066cc] dark:text-[#2997ff] truncate max-w-[110px]">
                             {chat.id.slice(0, 8)}…
-                            <ExternalLink size={10} />
+                            <ArrowSquareOut size={10} />
                           </span>
                         </Link>
                       ))
@@ -755,7 +755,7 @@ export default function ReferralTreePage() {
                   className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-[#0066cc] hover:bg-[#0055b3] text-white text-xs font-semibold transition-all cursor-pointer active:scale-[0.98]"
                 >
                   <span>Open in Conversations Dashboard</span>
-                  <ExternalLink size={13} />
+                  <ArrowSquareOut size={13} />
                 </Link>
               </div>
             </m.div>

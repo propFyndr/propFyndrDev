@@ -3,9 +3,23 @@
 import { useState } from 'react'
 import Image from 'next/image'
 import {
-  Plus, Trash2, Save, Loader2, Check, Compass, X,
-  Sun, ShieldCheck, Trees, Leaf, Waves, Flag, Maximize2, Sunset, Route
-} from 'lucide-react'
+  Plus,
+  Trash,
+  FloppyDisk,
+  CircleNotch,
+  Check,
+  Compass,
+  X,
+  Sun,
+  ShieldCheck,
+  Tree,
+  Leaf,
+  Waves,
+  Flag,
+  ArrowsOut,
+  SunHorizon,
+  Path,
+} from '@phosphor-icons/react'
 import { API_BASE } from '@/lib/env'
 import { adminAuthHeaders } from '@/lib/authedFetch'
 
@@ -13,13 +27,13 @@ const PRESET_ORIENTATIONS = [
   { id: 'east_facing', label: 'East Facing', icon: Sun },
   { id: 'north_facing', label: 'North Facing', icon: Compass },
   { id: 'north_east_facing', label: 'NE Facing (Vastu)', icon: ShieldCheck },
-  { id: 'park_facing', label: 'Park View', icon: Trees },
+  { id: 'park_facing', label: 'Park View', icon: Tree },
   { id: 'garden_view', label: 'Garden View', icon: Leaf },
   { id: 'pool_view', label: 'Pool View', icon: Waves },
   { id: 'golf_view', label: 'Golf View', icon: Flag },
-  { id: 'corner_unit', label: 'Corner Unit', icon: Maximize2 },
-  { id: 'wide_balcony', label: 'Wide Balcony', icon: Sunset },
-  { id: 'road_facing', label: 'Expressway View', icon: Route },
+  { id: 'corner_unit', label: 'Corner Unit', icon: ArrowsOut },
+  { id: 'wide_balcony', label: 'Wide Balcony', icon: SunHorizon },
+  { id: 'road_facing', label: 'Expressway View', icon: Path },
 ]
 
 interface UnitRow {
@@ -434,11 +448,11 @@ export default function UnitsEditor({
                     className="flex items-center gap-1.5 px-4 py-1.5 text-xs font-bold rounded-xl bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 hover:bg-black dark:hover:bg-zinc-100 disabled:opacity-40 transition-all shadow-xs cursor-pointer"
                   >
                     {saving.has(row.id) ? (
-                      <Loader2 size={13} className="animate-spin" />
+                      <CircleNotch size={13} className="animate-spin" />
                     ) : saved.has(row.id) ? (
                       <Check size={13} className="text-emerald-400" />
                     ) : (
-                      <Save size={13} />
+                      <FloppyDisk size={13} />
                     )}
                     {saved.has(row.id) ? 'Saved' : 'Save Changes'}
                   </button>
@@ -449,7 +463,7 @@ export default function UnitsEditor({
                     className="p-1.5 text-zinc-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30 rounded-lg transition-colors cursor-pointer"
                     title="Delete unit type"
                   >
-                    {deleting.has(row.id) ? <Loader2 size={15} className="animate-spin" /> : <Trash2 size={15} />}
+                    {deleting.has(row.id) ? <CircleNotch size={15} className="animate-spin" /> : <Trash size={15} />}
                   </button>
                 </div>
               </div>
@@ -666,12 +680,12 @@ export default function UnitsEditor({
                         onClick={() => removeView(row.id, idx)}
                         className="absolute inset-0 bg-black/60 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
                       >
-                        <Trash2 size={16} />
+                        <Trash size={16} />
                       </button>
                     </div>
                   ))}
                   <label className="flex flex-col items-center justify-center w-24 h-24 rounded-xl border-2 border-dashed border-zinc-200 hover:border-zinc-300 hover:bg-zinc-50 cursor-pointer flex-shrink-0 transition-all text-zinc-400 hover:text-zinc-600">
-                    {uploadingView === row.id ? <Loader2 size={16} className="animate-spin mb-1" /> : <Plus size={16} className="mb-1" />}
+                    {uploadingView === row.id ? <CircleNotch size={16} className="animate-spin mb-1" /> : <Plus size={16} className="mb-1" />}
                     <span className="text-[10px] font-bold">Add View</span>
                     <input type="file" accept="image/*" className="hidden" onChange={(e) => handleUploadView(e, row.id)} disabled={uploadingView === row.id} />
                   </label>
@@ -794,7 +808,7 @@ export default function UnitsEditor({
               disabled={addSaving || !addForm.name || !addForm.bhk}
               className="flex items-center gap-1.5 px-5 py-2 text-[13px] font-bold rounded-xl bg-purple-600 text-white hover:bg-purple-700 disabled:opacity-40 transition-all shadow-sm"
             >
-              {addSaving ? <Loader2 size={14} className="animate-spin" /> : <Plus size={14} />}
+              {addSaving ? <CircleNotch size={14} className="animate-spin" /> : <Plus size={14} />}
               Create Unit Configuration
             </button>
           </div>

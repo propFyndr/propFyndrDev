@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Plus, Trash2, Save, Loader2 } from 'lucide-react'
+import { Plus, Trash, FloppyDisk, CircleNotch } from '@phosphor-icons/react'
 import { API_BASE } from '@/lib/env'
 import { adminAuthHeaders } from '@/lib/authedFetch'
 import CustomSelect from './CustomSelect'
@@ -156,7 +156,7 @@ export default function ConnectivityEditor({ connectivity: initial, projectId, o
               disabled={saving || !newRow.name.trim()}
               className="flex items-center gap-1.5 text-[12.5px] font-medium text-white bg-[#0066cc] hover:bg-[#0055b3] disabled:opacity-50 px-4 py-2 rounded-xl transition-colors cursor-pointer shadow-2xs"
             >
-              {saving ? <Loader2 size={13} className="animate-spin" /> : <Save size={13} />}
+              {saving ? <CircleNotch size={13} className="animate-spin" /> : <FloppyDisk size={13} />}
               Save
             </button>
           </div>
@@ -182,7 +182,7 @@ export default function ConnectivityEditor({ connectivity: initial, projectId, o
                 onClick={() => handleDelete(c.id)}
                 className="opacity-0 group-hover:opacity-100 text-zinc-400 hover:text-rose-500 p-1.5 transition-all cursor-pointer"
               >
-                <Trash2 size={14} />
+                <Trash size={14} />
               </button>
             </div>
           ))}

@@ -1,25 +1,25 @@
 'use client'
 
 import { useEffect, useState, useCallback, useRef } from 'react'
-import { 
-  Users, 
-  Search, 
-  AlertCircle, 
-  TrendingUp, 
-  RotateCcw,
-  BarChart3,
-  Building2,
-  PieChart as PieChartIcon,
-  Layers,
+import {
+  Users,
+  MagnifyingGlass,
+  WarningCircle,
+  TrendUp,
+  ArrowCounterClockwise,
+  ChartBar,
+  Buildings,
+  ChartPie as PieChartIcon,
+  Stack,
   Cpu,
-  DollarSign,
+  CurrencyDollar,
   ShieldCheck,
-  Zap,
+  Lightning,
   Target,
-  FileQuestion,
+  FileDashed,
   ArrowDownRight,
-  ExternalLink,
-} from 'lucide-react'
+  ArrowSquareOut,
+} from '@phosphor-icons/react'
 import { formatDistanceToNow } from 'date-fns'
 import Link from 'next/link'
 import { adminFetch } from '@/lib/adminFetch'
@@ -246,7 +246,7 @@ export default function AnalyticsDashboard() {
             className="flex items-center gap-2 bg-white dark:bg-zinc-900 hover:bg-zinc-50 dark:hover:bg-zinc-800 text-zinc-900 dark:text-white border border-zinc-200/80 dark:border-zinc-800 px-3.5 py-2 rounded-xl text-xs font-bold transition-all shadow-2xs active:scale-[0.98] cursor-pointer disabled:opacity-60"
             title="Refresh analytics data"
           >
-            <RotateCcw size={14} className={isRefreshing ? 'animate-spin text-blue-600' : 'text-zinc-500'} />
+            <ArrowCounterClockwise size={14} className={isRefreshing ? 'animate-spin text-blue-600' : 'text-zinc-500'} />
             <span>{isRefreshing ? 'Refreshing...' : 'Refresh'}</span>
           </button>
         </div>
@@ -310,7 +310,7 @@ export default function AnalyticsDashboard() {
               sparkline="emerald"
               sparklineData={[12, 16, 14, 22, 19, 24, 28, 30]}
               contextText="Provider token ledger"
-              icon={DollarSign}
+              icon={CurrencyDollar}
               iconBgClass="bg-emerald-50 dark:bg-emerald-950/60"
               iconColorClass="text-emerald-600 dark:text-emerald-400"
               tooltip={<AdminInfoTooltip title="Total AI Spend" description="Cumulative LLM provider API token cost converted to INR." whyItMatters="Unit economic baseline." />}
@@ -347,7 +347,7 @@ export default function AnalyticsDashboard() {
               subBadgeVariant="amber"
               delta={{ value: 'Fast Path', direction: 'up', context: 'zero spend' }}
               contextText="PostgreSQL semantic fast-path"
-              icon={Zap}
+              icon={Lightning}
               iconBgClass="bg-amber-50 dark:bg-amber-950/60"
               iconColorClass="text-amber-600 dark:text-amber-400"
               tooltip={<AdminInfoTooltip title="Cache Hit Rate" description="Queries served instantly from in-memory cache with zero token spend." whyItMatters="Direct operational margin savings." />}
@@ -379,7 +379,7 @@ export default function AnalyticsDashboard() {
           sparkline="amber"
           sparklineData={[30, 42, 38, 55, 52, 68, 75, summary?.totalQueries || 80]}
           contextText="Filter & keyword executions"
-          icon={Search}
+          icon={MagnifyingGlass}
           iconBgClass="bg-purple-50 dark:bg-purple-950/60"
           iconColorClass="text-purple-600 dark:text-purple-400"
           tooltip={<AdminInfoTooltip title="Total Searches" description="Property search filters and queries run across all chats." whyItMatters="Exploration volume." />}
@@ -394,7 +394,7 @@ export default function AnalyticsDashboard() {
             context: 'unmet intent',
           }}
           contextText="Catalog acquisition leads"
-          icon={AlertCircle}
+          icon={WarningCircle}
           iconBgClass={Number(summary?.zeroResultSearches || 0) > 0 ? 'bg-amber-50 dark:bg-amber-950/60' : 'bg-zinc-100 dark:bg-zinc-800'}
           iconColorClass={Number(summary?.zeroResultSearches || 0) > 0 ? 'text-amber-600 dark:text-amber-400' : 'text-zinc-500'}
           tooltip={<AdminInfoTooltip title="Zero-Result Searches" description="Searches where no active listings matched buyer criteria." whyItMatters="Direct inventory acquisition signals." />}
@@ -406,7 +406,7 @@ export default function AnalyticsDashboard() {
           subBadgeVariant="emerald"
           delta={{ value: 'Strong', direction: 'up', context: 'lead pipeline' }}
           contextText="Discovery to inquiry ratio"
-          icon={TrendingUp}
+          icon={TrendUp}
           iconBgClass="bg-emerald-50 dark:bg-emerald-950/60"
           iconColorClass="text-emerald-600 dark:text-emerald-400"
           tooltip={<AdminInfoTooltip title="Conversion Rate" description="Percentage of chat discovery sessions leading to verified leads." whyItMatters="Commercial conversion funnel health." />}
@@ -419,7 +419,7 @@ export default function AnalyticsDashboard() {
         <div className="p-4 sm:p-6 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200/90 dark:border-zinc-800 shadow-xs space-y-4 min-w-0">
           <div className="flex items-center justify-between gap-2 min-w-0">
             <span className="text-sm font-semibold text-zinc-900 dark:text-white tracking-tight flex items-center gap-2 truncate">
-              <Layers className="w-4 h-4 text-[#0066cc] shrink-0" />
+              <Stack className="w-4 h-4 text-[#0066cc] shrink-0" />
               <span className="truncate">Complete Lead Journey Funnel</span>
               <AdminInfoTooltip
                 title="Complete Lead Journey Funnel"
@@ -481,7 +481,7 @@ export default function AnalyticsDashboard() {
         <div className="p-4 sm:p-6 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200/90 dark:border-zinc-800 shadow-xs space-y-4 min-w-0 overflow-hidden">
           <div className="flex items-center justify-between gap-2 min-w-0">
             <span className="text-sm font-semibold text-zinc-900 dark:text-white tracking-tight flex items-center gap-2 truncate">
-              <Building2 className="w-4 h-4 text-[#0066cc] shrink-0" />
+              <Buildings className="w-4 h-4 text-[#0066cc] shrink-0" />
               <span className="truncate">Top Searched Sectors</span>
               <AdminInfoTooltip
                 title="Top Searched Sectors"
@@ -539,7 +539,7 @@ export default function AnalyticsDashboard() {
             </div>
           ) : (
             <div className="h-64 flex flex-col items-center justify-center text-center p-6 bg-zinc-50 dark:bg-zinc-800/40 rounded-xl border border-zinc-200/60 dark:border-zinc-800">
-              <Building2 className="w-8 h-8 text-zinc-400 mb-2 opacity-50" />
+              <Buildings className="w-8 h-8 text-zinc-400 mb-2 opacity-50" />
               <p className="text-xs font-bold text-zinc-700 dark:text-zinc-300">No Sector Searches Yet</p>
               <p className="text-[11px] text-zinc-400 mt-0.5">Real search telemetry will populate here as users query the AI engine.</p>
             </div>
@@ -552,7 +552,7 @@ export default function AnalyticsDashboard() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 min-w-0">
           <div className="min-w-0">
             <h2 className="text-sm font-extrabold text-zinc-900 dark:text-white tracking-tight flex items-center gap-1.5 flex-wrap">
-              <BarChart3 className="w-4 h-4 text-purple-500 shrink-0" />
+              <ChartBar className="w-4 h-4 text-purple-500 shrink-0" />
               <span>Supply vs. Demand Matrix (Sector Catalog Coverage)</span>
               <AdminInfoTooltip
                 title="Supply vs. Demand Matrix"
@@ -568,7 +568,7 @@ export default function AnalyticsDashboard() {
             href="/admin/projects"
             className="text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1 shrink-0 self-start sm:self-auto"
           >
-            Manage Catalog <ExternalLink className="w-3 h-3" />
+            Manage Catalog <ArrowSquareOut className="w-3 h-3" />
           </Link>
         </div>
 
@@ -636,7 +636,7 @@ export default function AnalyticsDashboard() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 min-w-0">
           <div className="min-w-0">
             <h2 className="text-sm font-extrabold text-zinc-900 dark:text-white tracking-tight flex items-center gap-1.5 flex-wrap">
-              <FileQuestion className="w-4 h-4 text-rose-500 shrink-0" />
+              <FileDashed className="w-4 h-4 text-rose-500 shrink-0" />
               <span>Unmet Search Demand Ledger (Zero-Result Telemetry)</span>
               <AdminInfoTooltip
                 title="Unmet Search Demand Ledger"
@@ -808,7 +808,7 @@ export default function AnalyticsDashboard() {
         <div className="p-4 sm:p-6 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 shadow-2xs space-y-4 min-w-0">
           <div className="flex items-center justify-between gap-2 min-w-0">
             <span className="text-xs font-extrabold text-zinc-900 dark:text-white tracking-tight flex items-center gap-2 truncate">
-              <BarChart3 className="w-4 h-4 text-amber-500 shrink-0" />
+              <ChartBar className="w-4 h-4 text-amber-500 shrink-0" />
               <span className="truncate">Search Quality Diagnostics</span>
               <AdminInfoTooltip
                 title="Search Quality Diagnostics"

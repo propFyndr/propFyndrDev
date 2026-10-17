@@ -3,25 +3,25 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react'
 import {
   Plus,
-  Edit2,
-  Trash2,
-  CheckCircle2,
+  PencilSimple,
+  Trash,
+  CheckCircle,
   BookOpen,
-  RotateCcw,
-  Search,
+  ArrowCounterClockwise,
+  MagnifyingGlass,
   X,
-  AlertCircle,
+  WarningCircle,
   FileText,
   Archive,
-  ExternalLink,
-  Bot,
-  Loader2,
+  ArrowSquareOut,
+  Robot,
+  CircleNotch,
   Copy,
   Check,
-  Sparkles,
+  Sparkle,
   Clock,
   Globe,
-} from 'lucide-react'
+} from '@phosphor-icons/react'
 import { formatDistanceToNow } from 'date-fns'
 import { AnimatePresence, m } from 'framer-motion'
 import CustomSelect from '@/components/admin/CustomSelect'
@@ -406,7 +406,7 @@ export default function BlogAdminPage() {
             disabled={isRefreshing}
             className="flex items-center gap-2 bg-white dark:bg-zinc-900 hover:bg-zinc-50 dark:hover:bg-zinc-800 text-zinc-900 dark:text-white border border-zinc-200/80 dark:border-zinc-800 px-3.5 py-2 rounded-xl text-xs font-bold transition-all shadow-2xs active:scale-[0.98] cursor-pointer disabled:opacity-60"
           >
-            <RotateCcw size={14} className={isRefreshing ? 'animate-spin text-blue-600' : 'text-zinc-500'} />
+            <ArrowCounterClockwise size={14} className={isRefreshing ? 'animate-spin text-blue-600' : 'text-zinc-500'} />
             <span>{isRefreshing ? 'Refreshing...' : 'Refresh'}</span>
           </button>
 
@@ -417,9 +417,9 @@ export default function BlogAdminPage() {
             title="Generate AI Draft on next topic or custom prompt"
           >
             {generating ? (
-              <Loader2 size={14} className="animate-spin text-blue-600" />
+              <CircleNotch size={14} className="animate-spin text-blue-600" />
             ) : (
-              <Bot size={15} className="text-blue-600 dark:text-blue-400" />
+              <Robot size={15} className="text-blue-600 dark:text-blue-400" />
             )}
             <span>{generating ? 'Writing draft...' : 'Generate AI Draft'}</span>
           </button>
@@ -452,7 +452,7 @@ export default function BlogAdminPage() {
           <StatCard
             label="Published"
             value={loading ? '—' : stats.published}
-            icon={<CheckCircle2 className="w-4 h-4 text-emerald-500" />}
+            icon={<CheckCircle className="w-4 h-4 text-emerald-500" />}
             hint="Live on /blog"
             tone="good"
             loading={loading}
@@ -488,7 +488,7 @@ export default function BlogAdminPage() {
       {/* Control Toolbar */}
       <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
         <div className="group flex-1 w-full flex items-center gap-3 px-4 py-2.5 bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 rounded-2xl shadow-2xs focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20 transition-all">
-          <Search size={15} className="text-zinc-400 group-focus-within:text-blue-500 transition-colors" />
+          <MagnifyingGlass size={15} className="text-zinc-400 group-focus-within:text-blue-500 transition-colors" />
           <input
             type="text"
             placeholder="Search title, slug, excerpt..."
@@ -652,7 +652,7 @@ export default function BlogAdminPage() {
                         }}
                         className="px-3.5 py-1.5 rounded-xl bg-zinc-900 hover:bg-black dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-100 text-white text-xs font-bold transition-all shadow-2xs flex items-center gap-1.5 cursor-pointer active:scale-[0.98]"
                       >
-                        <Edit2 size={13} />
+                        <PencilSimple size={13} />
                         <span>Edit Article</span>
                       </button>
 
@@ -663,7 +663,7 @@ export default function BlogAdminPage() {
                           rel="noreferrer"
                           className="px-3 py-1.5 rounded-xl border border-zinc-200/80 dark:border-zinc-700/80 bg-white dark:bg-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-700/80 text-zinc-700 dark:text-zinc-200 text-xs font-semibold transition-all shadow-2xs flex items-center gap-1 cursor-pointer"
                         >
-                          <ExternalLink size={13} /> View Live
+                          <ArrowSquareOut size={13} /> View Live
                         </a>
                       )}
 
@@ -674,7 +674,7 @@ export default function BlogAdminPage() {
                           className="px-3 py-1.5 rounded-xl border border-emerald-200/80 dark:border-emerald-800/80 bg-emerald-50/60 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 text-xs font-semibold transition-all shadow-2xs flex items-center gap-1 cursor-pointer"
                           title={item.published_at ? 'Put it back on the public blog' : 'Back to drafts (it was never published)'}
                         >
-                          <CheckCircle2 size={13} /> {item.published_at ? 'Restore to Live' : 'Restore to Draft'}
+                          <CheckCircle size={13} /> {item.published_at ? 'Restore to Live' : 'Restore to Draft'}
                         </button>
                       ) : (
                         <button
@@ -692,7 +692,7 @@ export default function BlogAdminPage() {
                           className="px-3 py-1.5 rounded-xl border border-rose-200/80 dark:border-rose-900/40 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 text-xs font-semibold transition-all shadow-2xs flex items-center gap-1 cursor-pointer ml-auto"
                           title={item.status === 'draft' ? 'Delete this draft permanently' : 'Permanently delete (super admin)'}
                         >
-                          <Trash2 size={13} /> {item.status === 'draft' ? 'Delete Draft' : 'Delete'}
+                          <Trash size={13} /> {item.status === 'draft' ? 'Delete Draft' : 'Delete'}
                         </button>
                       )}
                     </div>
@@ -752,7 +752,7 @@ export default function BlogAdminPage() {
               <div className="flex items-start justify-between gap-4">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-violet-600 text-white flex items-center justify-center shrink-0 shadow-sm shadow-blue-500/20">
-                    <Sparkles size={20} />
+                    <Sparkle size={20} />
                   </div>
                   <div>
                     <h3 id="generate-dialog-title" className="text-base font-extrabold text-zinc-900 dark:text-white">
@@ -834,7 +834,7 @@ export default function BlogAdminPage() {
                     onClick={() => handleGenerate(customTopic.trim())}
                     className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-md transition-all active:scale-[0.98] cursor-pointer"
                   >
-                    <Bot size={14} />
+                    <Robot size={14} />
                     <span>Generate Custom Draft</span>
                   </button>
                 ) : (
@@ -843,7 +843,7 @@ export default function BlogAdminPage() {
                     onClick={() => handleGenerate()}
                     className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-zinc-900 dark:bg-white dark:text-zinc-900 text-white font-bold text-xs shadow-md transition-all active:scale-[0.98] cursor-pointer"
                   >
-                    <Bot size={14} />
+                    <Robot size={14} />
                     <span>Generate Next in Queue</span>
                   </button>
                 )}
@@ -860,7 +860,7 @@ export default function BlogAdminPage() {
         <div className={`fixed bottom-6 right-6 px-4 py-3 rounded-2xl text-white text-xs font-bold shadow-2xl transition-all flex items-center gap-3 z-50 ${
           toast.type === 'error' ? 'bg-rose-600' : 'bg-emerald-600'
         }`}>
-          {toast.type === 'error' ? <AlertCircle className="w-4 h-4" /> : <CheckCircle2 className="w-4 h-4" />}
+          {toast.type === 'error' ? <WarningCircle className="w-4 h-4" /> : <CheckCircle className="w-4 h-4" />}
           <span>{toast.message}</span>
         </div>
       )}
@@ -1056,7 +1056,7 @@ function BlogModal({
                 className="px-3 py-1.5 rounded-xl border border-rose-200/80 dark:border-rose-900/50 text-rose-600 dark:text-rose-400 font-bold text-xs hover:bg-rose-50 dark:hover:bg-rose-950/40 cursor-pointer flex items-center gap-1.5 transition-all"
                 title={`Permanently delete this ${item.status === 'draft' ? 'draft' : 'article'}`}
               >
-                <Trash2 size={13} />
+                <Trash size={13} />
                 <span className="hidden sm:inline">Delete {item.status === 'draft' ? 'Draft' : 'Article'}</span>
               </button>
             )}

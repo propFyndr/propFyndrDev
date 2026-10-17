@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Plus, Trash2, Save, Home, CheckCircle2, Shield, Calendar, Bell } from 'lucide-react'
+import { Plus, Trash, FloppyDisk, House, CheckCircle, Shield, Calendar, Bell } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import { adminAuthHeaders } from '@/lib/authedFetch'
 import { API_BASE } from '@/lib/env'
@@ -104,7 +104,7 @@ export default function LifecycleUpdatesEditor({ projectId }: { projectId: strin
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-xl bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-200 flex items-center justify-center shrink-0">
-            <Home size={18} />
+            <House size={18} />
           </div>
           <div>
             <div className="flex items-center gap-2">
@@ -125,7 +125,7 @@ export default function LifecycleUpdatesEditor({ projectId }: { projectId: strin
           disabled={saving}
           className="bg-[#0066cc] hover:bg-[#0055b3] text-white px-4 py-2 rounded-xl text-xs font-medium flex items-center gap-1.5 shadow-xs transition-colors disabled:opacity-50 shrink-0 self-start sm:self-auto"
         >
-          <Save size={14} />
+          <FloppyDisk size={14} />
           <span>{saving ? 'Saving...' : 'Save Society Updates'}</span>
         </button>
       </div>
@@ -162,7 +162,7 @@ export default function LifecycleUpdatesEditor({ projectId }: { projectId: strin
                   className="p-2 text-zinc-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-xl transition-colors self-end sm:self-center"
                   title="Delete Update"
                 >
-                  <Trash2 size={14} />
+                  <Trash size={14} />
                 </button>
               </div>
 

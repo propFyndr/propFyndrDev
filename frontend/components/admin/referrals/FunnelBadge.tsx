@@ -1,7 +1,7 @@
 // Funnel-stage badge — refined status-chip with Apple/Seline pill styling
 // Priority order: converted > activated > chatted_shallow > arrived_no_chat
 import type { ReactNode } from 'react'
-import { MessageCircle, Zap, Trophy, Footprints } from 'lucide-react'
+import { ChatCircle, Lightning, Trophy, Footprints } from '@phosphor-icons/react'
 
 export type FunnelStage = 'arrived_no_chat' | 'chatted_shallow' | 'activated' | 'converted'
 
@@ -14,12 +14,12 @@ const STYLES: Record<FunnelStage, { label: string; className: string; icon: Reac
   chatted_shallow: {
     label: 'Chatted',
     className: 'bg-blue-50/80 dark:bg-blue-950/40 text-[#0066cc] dark:text-[#2997ff] border-blue-200/70 dark:border-blue-800/60 shadow-2xs',
-    icon: <MessageCircle size={11} className="shrink-0" />,
+    icon: <ChatCircle size={11} className="shrink-0" />,
   },
   activated: {
     label: 'Activated',
     className: 'bg-emerald-50/80 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border-emerald-200/70 dark:border-emerald-800/60 shadow-2xs',
-    icon: <Zap size={11} className="fill-current shrink-0" />,
+    icon: <Lightning size={11} weight="fill" className="shrink-0" />,
   },
   converted: {
     label: 'Converted',

@@ -9,11 +9,42 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import {
-  Search, Plus, CheckCircle2, Clock, Zap, Trash2, Building2, ChevronRight, CornerDownLeft,
-  X, ArrowUpDown, ArrowUp, ArrowDown, MapPin, Layers, Filter, RefreshCw, ChevronDown, Check,
-  Download, Upload, AlertTriangle, AlertCircle, FileSpreadsheet, FileText, Copy, CheckCheck, FileJson, Sliders,
-  CheckSquare, Square, SlidersHorizontal, ArrowRight, ShieldAlert, Cpu
-} from 'lucide-react'
+  MagnifyingGlass,
+  Plus,
+  CheckCircle,
+  Clock,
+  Lightning,
+  Trash,
+  Buildings,
+  CaretRight,
+  ArrowElbowDownLeft,
+  X,
+  ArrowsDownUp,
+  ArrowUp,
+  ArrowDown,
+  MapPin,
+  Stack,
+  Funnel,
+  ArrowsClockwise,
+  CaretDown,
+  Check,
+  Download,
+  Upload,
+  Warning,
+  WarningCircle,
+  FileCsv,
+  FileText,
+  Copy,
+  Checks,
+  FileCode,
+  Sliders,
+  CheckSquare,
+  Square,
+  SlidersHorizontal,
+  ArrowRight,
+  ShieldWarning,
+  Cpu,
+} from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import { adminFetch } from '@/lib/adminFetch'
 import CustomSelect from '@/components/admin/CustomSelect'
@@ -278,7 +309,7 @@ function ProjectThumbnail({ src, alt }: { src?: string | null; alt: string }) {
   if (!src || error) {
     return (
       <div className="w-9 h-9 rounded-xl bg-zinc-100 dark:bg-zinc-800 border border-zinc-200/90 dark:border-zinc-700/80 flex items-center justify-center flex-shrink-0 text-zinc-400 shadow-2xs">
-        <Building2 size={15} />
+        <Buildings size={15} />
       </div>
     )
   }
@@ -338,12 +369,12 @@ function priceMinVal(units: UnitType[] = []): number {
   return mins.length ? Math.min(...mins) : 0
 }
 
-const STATUS_MAP: Record<string, { label: string; chip: string; dot: string; icon: typeof CheckCircle2 }> = {
+const STATUS_MAP: Record<string, { label: string; chip: string; dot: string; icon: typeof CheckCircle }> = {
   ready_to_move: {
     label: 'Ready to Move',
     chip: 'bg-emerald-50/80 text-emerald-800 border-emerald-200/80 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800/50',
     dot: 'bg-emerald-500',
-    icon: CheckCircle2,
+    icon: CheckCircle,
   },
   under_construction: {
     label: 'Under Construction',
@@ -355,7 +386,7 @@ const STATUS_MAP: Record<string, { label: string; chip: string; dot: string; ico
     label: 'New Launch',
     chip: 'bg-blue-50/80 text-blue-800 border-blue-200/80 dark:bg-blue-950/40 dark:text-blue-300 dark:border-blue-800/50',
     dot: 'bg-blue-500',
-    icon: Zap,
+    icon: Lightning,
   },
 }
 
@@ -475,7 +506,7 @@ function HealthBadgeWithTooltip({ project }: { project: Project }) {
             <div>
               <p className="text-[10px] uppercase font-black text-rose-400 tracking-wider mb-2 flex items-center justify-between">
                 <span className="flex items-center gap-1">
-                  <AlertCircle size={12} className="shrink-0" /> Incomplete Fields:
+                  <WarningCircle size={12} className="shrink-0" /> Incomplete Fields:
                 </span>
                 <span className="text-[9.5px] font-mono font-bold bg-rose-950/80 text-rose-300 px-1.5 py-0.2 rounded border border-rose-800/60">
                   {comp.allMissing.length} pending
@@ -497,7 +528,7 @@ function HealthBadgeWithTooltip({ project }: { project: Project }) {
             </div>
           ) : (
             <div className="flex items-center gap-2 text-emerald-400 font-bold text-[11.5px] py-1.5">
-              <CheckCircle2 size={15} className="shrink-0" />
+              <CheckCircle size={15} className="shrink-0" />
               <span>All 7 project tabs are 100% complete and verified!</span>
             </div>
           )}
@@ -585,7 +616,7 @@ function PartiallyFilledMyntraDropdown({
           }`}>
           {count}
         </span>
-        <ChevronDown size={13} className={`text-zinc-400 transition-transform duration-200 ${isOpen ? 'rotate-180 text-amber-600 dark:text-amber-400' : ''}`} />
+        <CaretDown size={13} className={`text-zinc-400 transition-transform duration-200 ${isOpen ? 'rotate-180 text-amber-600 dark:text-amber-400' : ''}`} />
       </button>
 
       {/* Expandable Popover Card */}
@@ -1144,7 +1175,7 @@ Provide structured JSON with the exact verified data for each project so it can 
             className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-zinc-700 dark:text-zinc-200 bg-white dark:bg-zinc-850 border border-zinc-200/90 dark:border-zinc-700/80 rounded-xl shadow-2xs hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-all cursor-pointer active:scale-[0.98]"
             title="Reload projects from database"
           >
-            <RefreshCw size={13} className={loading ? 'animate-spin text-blue-500' : 'text-zinc-400'} />
+            <ArrowsClockwise size={13} className={loading ? 'animate-spin text-blue-500' : 'text-zinc-400'} />
             <span>Reload</span>
           </button>
 
@@ -1197,7 +1228,7 @@ Provide structured JSON with the exact verified data for each project so it can 
       {/* ── Tokenized Intelligent Search Bar ───────────────────────────────── */}
       <div className="relative" ref={popoverRef}>
         <div className="group flex items-center flex-wrap gap-2 px-3 py-2 bg-white dark:bg-zinc-900 border border-zinc-200/90 dark:border-zinc-800 rounded-xl shadow-2xs focus-within:border-[#0066cc] focus-within:ring-2 focus-within:ring-[#0066cc]/10 transition-all">
-          <Search size={15} className="text-zinc-400 group-focus-within:text-[#0066cc] transition-colors shrink-0 ml-1" />
+          <MagnifyingGlass size={15} className="text-zinc-400 group-focus-within:text-[#0066cc] transition-colors shrink-0 ml-1" />
 
           {/* Active Token Chips */}
           {activeTokens.map(t => (
@@ -1205,7 +1236,7 @@ Provide structured JSON with the exact verified data for each project so it can 
               key={t.id}
               className="inline-flex items-center gap-1.5 px-2 py-0.5 text-xs font-medium rounded-lg bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200/80 dark:border-blue-800/60 animate-in fade-in zoom-in duration-150"
             >
-              {t.type === 'builder' && <Building2 size={12} className="text-blue-500" />}
+              {t.type === 'builder' && <Buildings size={12} className="text-blue-500" />}
               {t.type === 'sector' && <MapPin size={12} className="text-blue-500" />}
               <span>{t.label}</span>
               <button
@@ -1224,7 +1255,7 @@ Provide structured JSON with the exact verified data for each project so it can 
                 ? 'bg-amber-50 dark:bg-amber-950/60 text-amber-800 dark:text-amber-200 border-amber-300/80 dark:border-amber-800/80'
                 : 'bg-violet-50 dark:bg-violet-950/60 text-violet-800 dark:text-violet-200 border-violet-300/80 dark:border-violet-800/80'
             }`}>
-              <AlertTriangle size={12} className={issueFilter === 'no_image' ? 'text-amber-600 dark:text-amber-400' : 'text-violet-600 dark:text-violet-400'} />
+              <Warning size={12} className={issueFilter === 'no_image' ? 'text-amber-600 dark:text-amber-400' : 'text-violet-600 dark:text-violet-400'} />
               <span>{issueFilter === 'no_image' ? 'Issue: Missing Cover Photo' : 'Issue: Missing RERA Number'}</span>
               <button
                 type="button"
@@ -1276,7 +1307,7 @@ Provide structured JSON with the exact verified data for each project so it can 
                 className="w-full text-left px-3 py-2 rounded-xl text-xs font-semibold hover:bg-blue-50 dark:hover:bg-blue-950/50 hover:text-blue-700 dark:hover:text-blue-300 transition-colors flex items-center justify-between group cursor-pointer"
               >
                 <div className="flex items-center gap-2 text-zinc-700 dark:text-zinc-300 group-hover:text-blue-700 dark:group-hover:text-blue-300">
-                  {s.type === 'builder' && <Building2 size={13} className="text-zinc-400 group-hover:text-blue-500" />}
+                  {s.type === 'builder' && <Buildings size={13} className="text-zinc-400 group-hover:text-blue-500" />}
                   {s.type === 'sector' && <MapPin size={13} className="text-zinc-400 group-hover:text-blue-500" />}
                   <span>{s.label}</span>
                 </div>
@@ -1413,7 +1444,7 @@ Provide structured JSON with the exact verified data for each project so it can 
             {sortField === 'name' ? (
               sortOrder === 'asc' ? <ArrowUp size={12} className="text-blue-500" /> : <ArrowDown size={12} className="text-blue-500" />
             ) : (
-              <ArrowUpDown size={12} className="opacity-40" />
+              <ArrowsDownUp size={12} className="opacity-40" />
             )}
           </button>
 
@@ -1425,7 +1456,7 @@ Provide structured JSON with the exact verified data for each project so it can 
             {sortField === 'status' ? (
               sortOrder === 'asc' ? <ArrowUp size={12} className="text-blue-500" /> : <ArrowDown size={12} className="text-blue-500" />
             ) : (
-              <ArrowUpDown size={12} className="opacity-40" />
+              <ArrowsDownUp size={12} className="opacity-40" />
             )}
           </button>
 
@@ -1437,7 +1468,7 @@ Provide structured JSON with the exact verified data for each project so it can 
             {sortField === 'price' ? (
               sortOrder === 'asc' ? <ArrowUp size={12} className="text-blue-500" /> : <ArrowDown size={12} className="text-blue-500" />
             ) : (
-              <ArrowUpDown size={12} className="opacity-40" />
+              <ArrowsDownUp size={12} className="opacity-40" />
             )}
           </button>
 
@@ -1449,7 +1480,7 @@ Provide structured JSON with the exact verified data for each project so it can 
             {sortField === 'health' ? (
               sortOrder === 'asc' ? <ArrowUp size={12} className="text-blue-500" /> : <ArrowDown size={12} className="text-blue-500" />
             ) : (
-              <ArrowUpDown size={12} className="opacity-40" />
+              <ArrowsDownUp size={12} className="opacity-40" />
             )}
           </button>
 
@@ -1482,7 +1513,7 @@ Provide structured JSON with the exact verified data for each project so it can 
           ) : sortedAndFiltered.length === 0 ? (
             <div className="py-16 flex flex-col items-center justify-center text-center px-4">
               <div className="w-12 h-12 rounded-2xl bg-zinc-100 dark:bg-zinc-800 text-zinc-400 flex items-center justify-center mb-3">
-                <Building2 size={24} />
+                <Buildings size={24} />
               </div>
               <h3 className="text-sm font-bold text-zinc-800 dark:text-zinc-200">No properties found</h3>
               <p className="text-xs text-zinc-400 mt-1 max-w-sm">No properties match your current search and filter combination.</p>
@@ -1561,7 +1592,7 @@ Provide structured JSON with the exact verified data for each project so it can 
 
                     {/* Row Action Arrow */}
                     <div className="w-[60px] flex items-center justify-end">
-                      <ChevronRight size={14} className="text-zinc-300 dark:text-zinc-600 group-hover:text-[#0066cc] group-hover:translate-x-0.5 transition-all" />
+                      <CaretRight size={14} className="text-zinc-300 dark:text-zinc-600 group-hover:text-[#0066cc] group-hover:translate-x-0.5 transition-all" />
                     </div>
                   </div>
 
@@ -1592,7 +1623,7 @@ Provide structured JSON with the exact verified data for each project so it can 
                           </p>
                         </div>
                       </div>
-                      <ChevronRight size={15} className="text-zinc-400 shrink-0 mt-1" />
+                      <CaretRight size={15} className="text-zinc-400 shrink-0 mt-1" />
                     </div>
 
                     <div className="flex items-center justify-between pt-2 border-t border-zinc-100 dark:border-zinc-800/60">
@@ -1787,7 +1818,7 @@ Provide structured JSON with the exact verified data for each project so it can 
                           </span>
                           <div className={`w-4 h-4 rounded-md flex items-center justify-center text-[10px] ${isChecked ? 'bg-indigo-600 text-white' : 'border border-zinc-300 dark:border-zinc-600'
                             }`}>
-                            {isChecked && <Check size={11} strokeWidth={3} />}
+                            {isChecked && <Check size={11} weight="bold" />}
                           </div>
                         </div>
                         <p className="text-[10px] text-zinc-500 dark:text-zinc-400 line-clamp-2 leading-relaxed">
@@ -1852,7 +1883,7 @@ Provide structured JSON with the exact verified data for each project so it can 
                   className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-4 py-2.5 text-xs font-semibold text-zinc-700 dark:text-zinc-200 bg-white dark:bg-zinc-800 border border-zinc-200/80 dark:border-zinc-700/80 rounded-xl hover:bg-zinc-50 dark:hover:bg-zinc-700 transition-all cursor-pointer disabled:opacity-50 shadow-2xs"
                   title="Download structured JSON"
                 >
-                  <FileJson size={14} className="text-zinc-500" />
+                  <FileCode size={14} className="text-zinc-500" />
                   <span>Download JSON</span>
                 </button>
 
@@ -1863,7 +1894,7 @@ Provide structured JSON with the exact verified data for each project so it can 
                   className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-4 py-2.5 text-xs font-semibold text-zinc-700 dark:text-zinc-200 bg-white dark:bg-zinc-800 border border-zinc-200/80 dark:border-zinc-700/80 rounded-xl hover:bg-zinc-50 dark:hover:bg-zinc-700 transition-all cursor-pointer disabled:opacity-50 shadow-2xs"
                   title="Download spreadsheet CSV"
                 >
-                  <FileSpreadsheet size={14} className="text-zinc-500" />
+                  <FileCsv size={14} className="text-zinc-500" />
                   <span>Download CSV</span>
                 </button>
               </div>
@@ -1885,7 +1916,7 @@ Provide structured JSON with the exact verified data for each project so it can 
                 >
                   {copiedPrompt ? (
                     <>
-                      <CheckCheck size={14} className="text-white" />
+                      <Checks size={14} className="text-white" />
                       <span>Copied Prompt!</span>
                     </>
                   ) : (

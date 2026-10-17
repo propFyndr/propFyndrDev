@@ -1,28 +1,28 @@
 'use client'
 
 import { useEffect, useState, useRef, useCallback, useMemo } from 'react'
-import { 
-  Plus, 
-  Building2, 
-  Globe, 
-  CheckCircle2, 
-  X, 
-  Save, 
-  Loader2, 
-  Search, 
+import {
+  Plus,
+  Buildings,
+  Globe,
+  CheckCircle,
+  X,
+  FloppyDisk,
+  CircleNotch,
+  MagnifyingGlass,
   Calendar,
   MapPin,
   FileText,
   Link as LinkIcon,
   ShieldCheck,
-  ChevronRight,
-  ExternalLink,
-  Layers,
-  ArrowUpDown,
-  Trash2,
-  Award,
-  Mail,
-} from 'lucide-react'
+  CaretRight,
+  ArrowSquareOut,
+  Stack,
+  ArrowsDownUp,
+  Trash,
+  Medal,
+  Envelope,
+} from '@phosphor-icons/react'
 import { AnimatePresence, m } from 'framer-motion'
 import UniversalLoader from '@/components/ui/universal-loader'
 import { toast } from 'sonner'
@@ -769,7 +769,7 @@ export default function AdminBuilders() {
             onClick={() => { setShowAdd(!showAdd); setSelectedBuilder(null) }}
             className="flex items-center gap-2 bg-[#0066cc] hover:bg-[#0055b3] text-white px-4 py-2.5 rounded-xl text-xs font-semibold transition-all shadow-xs active:scale-[0.98] cursor-pointer"
           >
-            {showAdd ? <X size={15} strokeWidth={2.5} /> : <Plus size={15} strokeWidth={2.5} />}
+            {showAdd ? <X size={15} weight="bold" /> : <Plus size={15} weight="bold" />}
             <span>{showAdd ? 'Cancel' : 'New Builder'}</span>
           </button>
         )}
@@ -780,7 +780,7 @@ export default function AdminBuilders() {
         <StatCard
           label="Total Builders"
           value={metrics.total}
-          icon={<Building2 size={18} />}
+          icon={<Buildings size={18} />}
           loading={loading}
         />
         <StatCard
@@ -793,7 +793,7 @@ export default function AdminBuilders() {
         <StatCard
           label="Delivered Units"
           value={metrics.totalUnits.toLocaleString()}
-          icon={<Award size={18} />}
+          icon={<Medal size={18} />}
           loading={loading}
         />
         <StatCard
@@ -817,7 +817,7 @@ export default function AdminBuilders() {
           >
             <div className="flex items-center justify-between border-b border-[#e5e5ea] dark:border-[#2c2c2e] pb-3.5 mb-5">
               <h3 className="text-sm font-bold text-[#1d1d1f] dark:text-[#f5f5f7] flex items-center gap-2">
-                <Building2 className="w-4 h-4 text-[#86868b]" />
+                <Buildings className="w-4 h-4 text-[#86868b]" />
                 <span>New Builder Profile</span>
               </h3>
             </div>
@@ -828,7 +828,7 @@ export default function AdminBuilders() {
                 disabled={saving}
                 className="flex items-center gap-2 px-5 py-2.5 bg-[#0066cc] hover:bg-[#0055b3] text-white rounded-xl text-xs font-semibold disabled:opacity-40 transition-all shadow-xs active:scale-[0.98] cursor-pointer"
               >
-                {saving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
+                {saving ? <CircleNotch size={14} className="animate-spin" /> : <FloppyDisk size={14} />}
                 <span>{saving ? 'Saving...' : 'Save Profile'}</span>
               </button>
             </div>
@@ -840,7 +840,7 @@ export default function AdminBuilders() {
       <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
         {/* Search Input */}
         <div className="group flex-1 flex items-center gap-3 px-4 py-2.5 bg-white dark:bg-[#1c1c1e] border border-[#e5e5ea] dark:border-[#2c2c2e] rounded-2xl shadow-2xs focus-within:border-[#0066cc] focus-within:ring-4 focus-within:ring-[#0066cc]/10 transition-all">
-          <Search size={15} className="text-[#86868b] group-focus-within:text-[#0066cc] transition-colors shrink-0" />
+          <MagnifyingGlass size={15} className="text-[#86868b] group-focus-within:text-[#0066cc] transition-colors shrink-0" />
           <input
             ref={searchInputRef}
             type="text"
@@ -906,7 +906,7 @@ export default function AdminBuilders() {
             className="flex-1 flex items-center gap-1.5 hover:text-[#1d1d1f] dark:hover:text-white transition-colors cursor-pointer text-left"
           >
             <span>Builder Name</span>
-            <ArrowUpDown size={12} className={sortField === 'name' ? 'text-[#0066cc]' : 'text-[#86868b]'} />
+            <ArrowsDownUp size={12} className={sortField === 'name' ? 'text-[#0066cc]' : 'text-[#86868b]'} />
           </button>
 
           <button
@@ -914,7 +914,7 @@ export default function AdminBuilders() {
             className="w-24 hidden sm:flex items-center justify-end gap-1.5 pr-4 hover:text-[#1d1d1f] dark:hover:text-white transition-colors cursor-pointer"
           >
             <span>Founded</span>
-            <ArrowUpDown size={12} className={sortField === 'founded' ? 'text-[#0066cc]' : 'text-[#86868b]'} />
+            <ArrowsDownUp size={12} className={sortField === 'founded' ? 'text-[#0066cc]' : 'text-[#86868b]'} />
           </button>
 
           <button
@@ -922,7 +922,7 @@ export default function AdminBuilders() {
             className="w-44 hidden md:flex items-center gap-1.5 pr-4 hover:text-[#1d1d1f] dark:hover:text-white transition-colors cursor-pointer"
           >
             <span>Headquarters</span>
-            <ArrowUpDown size={12} className={sortField === 'hq' ? 'text-[#0066cc]' : 'text-[#86868b]'} />
+            <ArrowsDownUp size={12} className={sortField === 'hq' ? 'text-[#0066cc]' : 'text-[#86868b]'} />
           </button>
 
           <button
@@ -930,7 +930,7 @@ export default function AdminBuilders() {
             className="w-24 hidden sm:flex items-center justify-end gap-1.5 pr-4 hover:text-[#1d1d1f] dark:hover:text-white transition-colors cursor-pointer"
           >
             <span>Projects</span>
-            <ArrowUpDown size={12} className={sortField === 'projects' ? 'text-[#0066cc]' : 'text-[#86868b]'} />
+            <ArrowsDownUp size={12} className={sortField === 'projects' ? 'text-[#0066cc]' : 'text-[#86868b]'} />
           </button>
 
           {/* Outreach pitch column header */}
@@ -947,7 +947,7 @@ export default function AdminBuilders() {
             <div className="p-4"><UniversalLoader variant="skeleton-list" rows={8} /></div>
           ) : sortedAndFiltered.length === 0 ? (
             <div className="py-16 flex flex-col items-center justify-center text-center">
-              <Building2 size={32} className="text-[#86868b]/40 mb-3" />
+              <Buildings size={32} className="text-[#86868b]/40 mb-3" />
               <p className="text-sm font-bold text-[#1d1d1f] dark:text-[#f5f5f7]">No builders found</p>
               <p className="text-xs text-[#86868b] mt-1">Try adjusting your search query or filters.</p>
             </div>
@@ -979,7 +979,7 @@ export default function AdminBuilders() {
                     <span className="text-[11px] text-[#86868b] font-mono tracking-tight">{b.slug}</span>
                     {b.credai_member && (
                       <span className="flex items-center gap-1 text-[10px] text-emerald-700 dark:text-emerald-400 font-medium bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full">
-                        <CheckCircle2 size={10} className="text-emerald-500" /> CREDAI
+                        <CheckCircle size={10} className="text-emerald-500" /> CREDAI
                       </span>
                     )}
                     {b.rera_compliance_score !== null && (
@@ -1028,14 +1028,14 @@ export default function AdminBuilders() {
                     className="flex items-center gap-1 px-3 py-1 rounded-full bg-[#0066cc]/10 hover:bg-[#0066cc]/15 dark:bg-[#0066cc]/20 dark:hover:bg-[#0066cc]/30 text-[#0066cc] dark:text-[#2997ff] text-[11px] font-semibold transition-all active:scale-95 cursor-pointer"
                     title="Open Wispr Flow-style outreach preview"
                   >
-                    <Mail size={11} className="shrink-0" />
+                    <Envelope size={11} className="shrink-0" />
                     <span>Pitch</span>
                   </button>
                 </div>
 
                 {/* Chevron Indicator */}
                 <div className="w-8 flex items-center justify-end">
-                  <ChevronRight className="w-4 h-4 text-[#86868b] group-hover:text-[#1d1d1f] dark:group-hover:text-[#f5f5f7] group-hover:translate-x-0.5 transition-all" />
+                  <CaretRight className="w-4 h-4 text-[#86868b] group-hover:text-[#1d1d1f] dark:group-hover:text-[#f5f5f7] group-hover:translate-x-0.5 transition-all" />
                 </div>
               </div>
             ))
@@ -1086,7 +1086,7 @@ export default function AdminBuilders() {
                       </h3>
                       {selectedBuilder.credai_member && (
                         <span className="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-700 dark:text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full">
-                          <CheckCircle2 className="w-3 h-3 text-emerald-500" /> CREDAI Member
+                          <CheckCircle className="w-3 h-3 text-emerald-500" /> CREDAI Member
                         </span>
                       )}
                     </div>
@@ -1109,7 +1109,7 @@ export default function AdminBuilders() {
                           className="text-[#0066cc] dark:text-[#2997ff] hover:underline flex items-center gap-1 font-semibold"
                         >
                           <span>Website</span>
-                          <ExternalLink className="w-3 h-3" />
+                          <ArrowSquareOut className="w-3 h-3" />
                         </a>
                       )}
                     </div>
@@ -1124,7 +1124,7 @@ export default function AdminBuilders() {
                       className="flex items-center gap-1.5 px-3.5 py-1.5 bg-[#0066cc] hover:bg-[#0055b3] text-white rounded-full text-xs font-semibold transition-all shadow-xs cursor-pointer active:scale-95"
                       title="Draft Wispr Flow-style outreach email"
                     >
-                      <Mail size={13} />
+                      <Envelope size={13} />
                       <span>Pitch Developer</span>
                     </button>
                   )}
@@ -1157,7 +1157,7 @@ export default function AdminBuilders() {
                 <div className="pt-4 border-t border-[#e5e5ea] dark:border-[#2c2c2e] space-y-3">
                   <div className="flex items-center justify-between">
                     <span className="text-[11px] font-semibold text-[#86868b] uppercase tracking-wider flex items-center gap-2">
-                      <Layers className="w-4 h-4 text-[#86868b]" />
+                      <Stack className="w-4 h-4 text-[#86868b]" />
                       <span>Linked Real Estate Projects ({selectedBuilder.projects?.length ?? selectedBuilder._count?.projects ?? 0})</span>
                     </span>
                   </div>
@@ -1182,7 +1182,7 @@ export default function AdminBuilders() {
 
                           <span className="px-2.5 py-1 rounded-full text-[10px] font-medium bg-white dark:bg-[#1c1c1e] text-[#1d1d1f] dark:text-[#f5f5f7] border border-[#e5e5ea] dark:border-[#38383a] capitalize shrink-0 flex items-center gap-1">
                             <span>{proj.status || 'Active'}</span>
-                            <ExternalLink size={10} />
+                            <ArrowSquareOut size={10} />
                           </span>
                         </Link>
                       ))}
@@ -1221,7 +1221,7 @@ export default function AdminBuilders() {
                     onClick={() => setDeleteConfirming(true)}
                     className="px-3 py-2 rounded-xl text-[#86868b] hover:text-[#ff3b30] hover:bg-[#ff3b30]/10 text-xs font-medium transition-all cursor-pointer flex items-center gap-1.5"
                   >
-                    <Trash2 size={14} />
+                    <Trash size={14} />
                     <span>Delete</span>
                   </button>
                 ) : null}
@@ -1241,7 +1241,7 @@ export default function AdminBuilders() {
                       disabled={editSaving}
                       className="py-2 px-5 rounded-xl bg-[#0066cc] hover:bg-[#0055b3] text-white font-semibold text-xs flex items-center gap-2 shadow-xs transition-all active:scale-[0.98] cursor-pointer"
                     >
-                      {editSaving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
+                      {editSaving ? <CircleNotch size={14} className="animate-spin" /> : <FloppyDisk size={14} />}
                       <span>{editSaving ? 'Saving...' : 'Save Changes'}</span>
                     </button>
                   )}

@@ -30,7 +30,7 @@ import {
   LockKey,
   Eye
 } from '@phosphor-icons/react'
-import { RotateCcw } from 'lucide-react'
+import { ArrowCounterClockwise } from '@phosphor-icons/react'
 import { formatDistanceToNow } from 'date-fns'
 
 type Role = 'SUPER_ADMIN' | 'ANALYST' | 'SALES' | 'BUILDER' | 'PARTNER'
@@ -552,7 +552,7 @@ export default function AdminTeamPage() {
             className="flex items-center gap-1.5 bg-white dark:bg-zinc-900 hover:bg-zinc-50 dark:hover:bg-zinc-800 text-zinc-800 dark:text-zinc-200 border border-zinc-200/90 dark:border-zinc-800 px-3 py-2 rounded-xl text-xs font-bold transition-all shadow-2xs active:scale-[0.98] cursor-pointer disabled:opacity-60"
             title="Refresh administrator directory"
           >
-            <RotateCcw size={14} className={isRefreshing ? 'animate-spin text-[#0066cc]' : 'text-zinc-500'} />
+            <ArrowCounterClockwise size={14} className={isRefreshing ? 'animate-spin text-[#0066cc]' : 'text-zinc-500'} />
             <span className="hidden sm:inline">{isRefreshing ? 'Refreshing…' : 'Refresh'}</span>
           </button>
 
@@ -791,7 +791,7 @@ export default function AdminTeamPage() {
               {loading && (
                 <tr>
                   <td colSpan={6} className="py-12 text-center text-zinc-400">
-                    <RotateCcw className="animate-spin inline-block mr-2" size={16} />
+                    <ArrowCounterClockwise className="animate-spin inline-block mr-2" size={16} />
                     Loading administrator directory…
                   </td>
                 </tr>
@@ -915,7 +915,7 @@ export default function AdminTeamPage() {
                               </>
                             ) : fetchingInviteId === a.id ? (
                               <>
-                                <RotateCcw size={12} className="animate-spin" />
+                                <ArrowCounterClockwise size={12} className="animate-spin" />
                                 <span>Link…</span>
                               </>
                             ) : (
@@ -1430,7 +1430,7 @@ export default function AdminTeamPage() {
                 disabled={isDeleting}
                 className="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold transition-all shadow-sm flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
               >
-                {isDeleting ? <RotateCcw size={14} className="animate-spin" /> : <Trash size={14} weight="bold" />}
+                {isDeleting ? <ArrowCounterClockwise size={14} className="animate-spin" /> : <Trash size={14} weight="bold" />}
                 <span>{isDeleting ? 'Removing…' : 'Delete Administrator'}</span>
               </button>
             </div>

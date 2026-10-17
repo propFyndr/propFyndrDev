@@ -5,43 +5,44 @@ import { useSearchParams } from 'next/navigation'
 import { adminFetch } from '@/lib/adminFetch'
 import CustomSelect from '@/components/admin/CustomSelect'
 import { Skeleton } from '@/components/ui/skeleton'
-import { StatCard } from '@/components/portal/ui'
+import { StatCard, PageHeader } from '@/components/portal/ui'
 import { formatDistanceToNow } from 'date-fns'
 import {
-  MessageSquare,
+  ChatText,
   Users,
-  AlertTriangle,
+  Warning,
   Coins,
-  Search,
-  RotateCcw,
+  MagnifyingGlass,
+  ArrowCounterClockwise,
   Phone,
   User,
   ArrowRight,
-  ExternalLink,
+  ArrowSquareOut,
   Copy,
   Check,
-  CheckCircle2,
-  Building2,
+  CheckCircle,
+  Buildings,
   Calendar,
   Wallet,
   MapPin,
-  Bot,
-  Zap,
+  Robot,
+  Lightning,
   Tag,
-  Share2,
-  Layers,
+  ShareNetwork,
+  Stack,
   X,
-  MessageCircle,
+  ChatCircle,
   Compass,
   SlidersHorizontal,
-  ChevronDown,
-  ChevronUp,
+  CaretDown,
+  CaretUp,
   Flame,
   Clock,
   Briefcase,
-  Home,
+  House,
   CheckSquare,
-} from 'lucide-react'
+  FileText,
+} from '@phosphor-icons/react'
 
 export interface UserDossier {
   name: string | null
@@ -174,6 +175,57 @@ export interface IntelligenceData {
 }
 
 const inr = (usd: number) => `₹${(usd * 88).toFixed(2)}`
+
+const SCROLL =
+  '[&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-zinc-200 dark:[&::-webkit-scrollbar-thumb]:bg-zinc-700 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-zinc-300 dark:hover:[&::-webkit-scrollbar-thumb]:bg-zinc-600'
+
+const FOCUS = 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/60'
+
+/** "user" sessions carry a signed-in user id; anything else is a guest token. */
+const identityLabel = (kind: string) => (kind === 'user' ? 'User ID' : 'Guest token')
+
+const shortId = (id: string) => (id.length > 14 ? `${id.slice(0, 8)}…${id.slice(-4)}` : id)
+
+/** Copies the full id, whatever the surrounding UI shows of it. */
+function CopyIdButton({ id, label }: { id: string; label: string }) {
+  const [copied, setCopied] = useState(false)
+  return (
+    <button
+      type="button"
+      onClick={(e) => {
+        e.stopPropagation()
+        navigator.clipboard.writeText(id).then(
+          () => {
+            setCopied(true)
+            setTimeout(() => setCopied(false), 1500)
+          },
+          () => {},
+        )
+      }}
+      onKeyDown={(e) => e.stopPropagation()}
+      aria-label={copied ? `${label} copied` : `Copy ${label.toLowerCase()}`}
+      title={copied ? 'Copied' : `Copy ${label.toLowerCase()}: ${id}`}
+      className={`inline-flex items-center justify-center w-6 h-6 rounded-md text-zinc-400 hover:text-zinc-700 hover:bg-zinc-100 dark:hover:text-zinc-200 dark:hover:bg-zinc-800 transition-colors cursor-pointer shrink-0 ${FOCUS}`}
+    >
+      {copied ? <Check size={13} weight="bold" className="text-emerald-600" /> : <Copy size={13} />}
+    </button>
+  )
+}
+
+/** Kind label, the id as far as it fits, and a copy control for the whole id. */
+function IdentityTag({ kind, id }: { kind: string; id: string | null }) {
+  if (!id) return null
+  const label = identityLabel(kind)
+  return (
+    <span className="inline-flex items-center gap-1 min-w-0 text-[10.5px] text-zinc-400">
+      <span className="font-semibold shrink-0">{label}</span>
+      <span className="font-mono text-zinc-500 dark:text-zinc-400 truncate select-text" title={id}>
+        {shortId(id)}
+      </span>
+      <CopyIdButton id={id} label={label} />
+    </span>
+  )
+}
 
 export default function ConversationsPage() {
   const searchParams = useSearchParams()
@@ -472,62 +524,51 @@ export default function ConversationsPage() {
   }
 
   return (
-    <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-7 font-sans select-none min-w-0">
-      {/* ── Header Banner ────────────────────────────────────────────── */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-1 border-b border-zinc-200/80 dark:border-zinc-800">
-        <div>
-          <div className="flex items-center gap-3 mb-1">
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-zinc-900 dark:text-white tracking-tight">
-              Conversations Observatory
-            </h1>
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 border border-blue-200/80 dark:border-blue-800/80">
-              <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
-              Live Transcripts
-            </span>
-          </div>
-          <p className="text-xs text-zinc-500 dark:text-zinc-400 font-medium">
-            Inspect live buyer AI discovery dialogues, connected user dossiers, and search entity tracking across RealtyAsk.
-          </p>
-        </div>
+    <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6 font-sans min-w-0">
+      {/* ── Header ───────────────────────────────────────────────────── */}
+      <PageHeader
+        title="Conversations"
+        subtitle="Buyer sessions with the advisor. The list and open transcript refresh every 20 seconds while this tab is visible."
+        action={
+          <>
+            <button
+              type="button"
+              onClick={() => setShowIntelligence((prev) => !prev)}
+              aria-expanded={showIntelligence}
+              className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-colors border cursor-pointer ${FOCUS} ${
+                showIntelligence
+                  ? 'bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800/80'
+                  : 'bg-white dark:bg-zinc-900 text-zinc-700 dark:text-zinc-300 border-zinc-200 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-800'
+              }`}
+            >
+              <Compass size={14} />
+              <span>Entity Intelligence</span>
+              {showIntelligence ? <CaretUp size={13} /> : <CaretDown size={13} />}
+            </button>
 
-        {/* Action Controls */}
-        <div className="flex items-center gap-2.5 shrink-0">
-          <button
-            type="button"
-            onClick={() => setShowIntelligence((prev) => !prev)}
-            className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-all border cursor-pointer ${
-              showIntelligence
-                ? 'bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800/80'
-                : 'bg-white dark:bg-zinc-900 text-zinc-700 dark:text-zinc-300 border-zinc-200 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-800'
-            }`}
-          >
-            <Compass size={14} className={showIntelligence ? 'text-blue-600' : 'text-zinc-500'} />
-            <span>Entity Intelligence</span>
-            {showIntelligence ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
-          </button>
-
-          <button
-            type="button"
-            onClick={() => {
-              loadSessions(true)
-              loadIntelligence()
-            }}
-            disabled={isRefreshing}
-            className="flex items-center gap-2 bg-white dark:bg-zinc-900 hover:bg-zinc-50 dark:hover:bg-zinc-800 text-zinc-900 dark:text-white border border-zinc-200/90 dark:border-zinc-800 px-3.5 py-2 rounded-xl text-xs font-bold transition-all shadow-2xs active:scale-[0.98] cursor-pointer disabled:opacity-60"
-            title="Refresh conversations list"
-          >
-            <RotateCcw size={14} className={isRefreshing ? 'animate-spin text-blue-600' : 'text-zinc-500'} />
-            <span>{isRefreshing ? 'Refreshing…' : 'Refresh Feed'}</span>
-          </button>
-        </div>
-      </div>
+            <button
+              type="button"
+              onClick={() => {
+                loadSessions(true)
+                loadIntelligence()
+              }}
+              disabled={isRefreshing}
+              className={`flex items-center gap-2 bg-white dark:bg-zinc-900 hover:bg-zinc-50 dark:hover:bg-zinc-800 text-zinc-900 dark:text-white border border-zinc-200/90 dark:border-zinc-800 px-3.5 py-2 rounded-xl text-xs font-bold transition-colors shadow-2xs cursor-pointer disabled:opacity-60 ${FOCUS}`}
+              title="Refresh conversations list"
+            >
+              <ArrowCounterClockwise size={14} className={isRefreshing ? 'animate-spin text-blue-600' : 'text-zinc-500'} />
+              <span>{isRefreshing ? 'Refreshing…' : 'Refresh'}</span>
+            </button>
+          </>
+        }
+      />
 
       {/* ── KPI Stat Cards Grid ──────────────────────────────────────── */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <StatCard
           label="Total Dialogues"
           value={kpis.total}
-          icon={<MessageSquare size={16} />}
+          icon={<ChatText size={16} />}
           hint="Buyer sessions recorded"
           loading={loading}
         />
@@ -550,7 +591,7 @@ export default function ConversationsPage() {
           label="Active in 24h"
           value={kpis.activeToday}
           tone="hot"
-          icon={<Zap size={16} />}
+          icon={<Lightning size={16} />}
           hint="Recent buyer sessions"
           loading={loading}
         />
@@ -558,15 +599,14 @@ export default function ConversationsPage() {
 
       {/* ── Top Queries & Entity Intelligence Control Center ──────────── */}
       {showIntelligence && (
-        <div className="bg-white dark:bg-zinc-900 rounded-3xl border border-zinc-200/90 dark:border-zinc-800 p-5 sm:p-6 shadow-2xs space-y-4">
-          <div className="flex items-center justify-between pb-3 border-b border-zinc-100 dark:border-zinc-800">
-            <div className="flex items-center gap-2">
-              <Compass size={18} className="text-blue-600" />
+        <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200/80 dark:border-zinc-800 p-5 shadow-2xs space-y-4">
+          <div className="flex items-center justify-between gap-3 pb-3 border-b border-zinc-100 dark:border-zinc-800">
+            <div className="flex items-baseline gap-2 min-w-0 flex-wrap">
               <h2 className="text-sm font-extrabold text-zinc-900 dark:text-white tracking-tight">
                 Top Queries & Entity Intelligence
               </h2>
               <span className="text-[11px] font-medium text-zinc-400">
-                Tap any project, sector, or frequent query to instantly filter dialogues
+                Click a project, sector or query to filter the list
               </span>
             </div>
 
@@ -574,7 +614,7 @@ export default function ConversationsPage() {
               <button
                 type="button"
                 onClick={clearAllFilters}
-                className="text-xs font-bold text-rose-600 hover:text-rose-700 flex items-center gap-1 cursor-pointer"
+                className={`text-xs font-bold text-rose-600 hover:text-rose-700 flex items-center gap-1 cursor-pointer shrink-0 rounded-md ${FOCUS}`}
               >
                 <X size={13} />
                 <span>Reset Filters</span>
@@ -588,7 +628,7 @@ export default function ConversationsPage() {
               <div className="flex items-center justify-between pb-2.5 mb-2 border-b border-zinc-200/60 dark:border-zinc-700/60 shrink-0">
                 <div className="flex items-center gap-2 min-w-0">
                   <div className="p-1 rounded-lg bg-purple-100 dark:bg-purple-950/80 text-purple-700 dark:text-purple-300 shrink-0">
-                    <Building2 size={13} />
+                    <Buildings size={13} />
                   </div>
                   <div className="min-w-0">
                     <h3 className="text-xs font-bold text-zinc-900 dark:text-zinc-100 truncate">Top Mentioned Projects</h3>
@@ -600,7 +640,7 @@ export default function ConversationsPage() {
                 </span>
               </div>
 
-              <div className="flex-1 overflow-y-auto space-y-1.5 pr-1.5 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-zinc-200/40 dark:[&::-webkit-scrollbar-track]:bg-zinc-800/50 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-thumb]:bg-zinc-300 dark:[&::-webkit-scrollbar-thumb]:bg-zinc-600 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-zinc-400 dark:hover:[&::-webkit-scrollbar-thumb]:bg-zinc-500">
+              <div className={`flex-1 overflow-y-auto space-y-1.5 pr-1.5 ${SCROLL}`}>
                 {intelligenceLoading ? (
                   <div className="space-y-2 p-1">
                     {Array.from({ length: 4 }).map((_, i) => (
@@ -666,7 +706,7 @@ export default function ConversationsPage() {
                 </span>
               </div>
 
-              <div className="flex-1 overflow-y-auto space-y-1.5 pr-1.5 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-zinc-200/40 dark:[&::-webkit-scrollbar-track]:bg-zinc-800/50 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-thumb]:bg-zinc-300 dark:[&::-webkit-scrollbar-thumb]:bg-zinc-600 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-zinc-400 dark:hover:[&::-webkit-scrollbar-thumb]:bg-zinc-500">
+              <div className={`flex-1 overflow-y-auto space-y-1.5 pr-1.5 ${SCROLL}`}>
                 {intelligenceLoading ? (
                   <div className="space-y-2 p-1">
                     {Array.from({ length: 4 }).map((_, i) => (
@@ -709,7 +749,7 @@ export default function ConversationsPage() {
               <div className="flex items-center justify-between pb-2.5 mb-2 border-b border-zinc-200/60 dark:border-zinc-700/60 shrink-0">
                 <div className="flex items-center gap-2 min-w-0">
                   <div className="p-1 rounded-lg bg-amber-100 dark:bg-amber-950/80 text-amber-700 dark:text-amber-300 shrink-0">
-                    <MessageCircle size={13} />
+                    <ChatCircle size={13} />
                   </div>
                   <div className="min-w-0">
                     <h3 className="text-xs font-bold text-zinc-900 dark:text-zinc-100 truncate">Frequent Inquiries</h3>
@@ -721,7 +761,7 @@ export default function ConversationsPage() {
                 </span>
               </div>
 
-              <div className="flex-1 overflow-y-auto space-y-1.5 pr-1.5 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-zinc-200/40 dark:[&::-webkit-scrollbar-track]:bg-zinc-800/50 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-thumb]:bg-zinc-300 dark:[&::-webkit-scrollbar-thumb]:bg-zinc-600 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-zinc-400 dark:hover:[&::-webkit-scrollbar-thumb]:bg-zinc-500">
+              <div className={`flex-1 overflow-y-auto space-y-1.5 pr-1.5 ${SCROLL}`}>
                 {intelligenceLoading ? (
                   <div className="space-y-2 p-1">
                     {Array.from({ length: 4 }).map((_, i) => (
@@ -763,7 +803,8 @@ export default function ConversationsPage() {
               <button
                 type="button"
                 onClick={() => setSelectedProject('')}
-                className="hover:opacity-75 cursor-pointer ml-1"
+                aria-label="Remove project filter"
+                className={`hover:opacity-75 cursor-pointer ml-1 rounded ${FOCUS}`}
               >
                 <X size={12} />
               </button>
@@ -775,7 +816,8 @@ export default function ConversationsPage() {
               <button
                 type="button"
                 onClick={() => setSelectedSector('')}
-                className="hover:opacity-75 cursor-pointer ml-1"
+                aria-label="Remove sector filter"
+                className={`hover:opacity-75 cursor-pointer ml-1 rounded ${FOCUS}`}
               >
                 <X size={12} />
               </button>
@@ -787,7 +829,8 @@ export default function ConversationsPage() {
               <button
                 type="button"
                 onClick={() => setSearchQuery('')}
-                className="hover:opacity-75 cursor-pointer ml-1"
+                aria-label="Clear search"
+                className={`hover:opacity-75 cursor-pointer ml-1 rounded ${FOCUS}`}
               >
                 <X size={12} />
               </button>
@@ -799,7 +842,8 @@ export default function ConversationsPage() {
               <button
                 type="button"
                 onClick={() => setActiveTab('all')}
-                className="hover:opacity-75 cursor-pointer ml-1"
+                aria-label="Remove audience filter"
+                className={`hover:opacity-75 cursor-pointer ml-1 rounded ${FOCUS}`}
               >
                 <X size={12} />
               </button>
@@ -819,18 +863,21 @@ export default function ConversationsPage() {
       <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3 bg-white dark:bg-zinc-900 p-3 rounded-2xl border border-zinc-200/80 dark:border-zinc-800 shadow-2xs">
         {/* Search Input */}
         <div className="relative flex-1 min-w-[260px]">
-          <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400" />
+          <MagnifyingGlass size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400" />
           <input
             type="text"
             placeholder="Search query text, user name, phone, project, or session ID…"
+            aria-label="Search conversations"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full pl-9 pr-8 py-2 text-xs font-medium bg-zinc-50 dark:bg-zinc-800/60 border border-zinc-200/90 dark:border-zinc-700/80 rounded-xl text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 outline-none focus:border-blue-500 focus:bg-white dark:focus:bg-zinc-800 transition-all"
           />
           {searchQuery && (
             <button
+              type="button"
               onClick={() => setSearchQuery('')}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600 cursor-pointer"
+              aria-label="Clear search"
+              className={`absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600 cursor-pointer rounded ${FOCUS}`}
             >
               <X size={13} />
             </button>
@@ -870,47 +917,38 @@ export default function ConversationsPage() {
           />
 
           {/* Audience Filter Pills */}
-          <div className="flex items-center p-1 bg-zinc-100 dark:bg-zinc-800 rounded-xl border border-zinc-200/80 dark:border-zinc-700/80 text-xs font-semibold">
-            <button
-              onClick={() => setActiveTab('all')}
-              className={`px-3 py-1 text-xs font-bold rounded-lg transition-all cursor-pointer ${
-                activeTab === 'all'
-                  ? 'bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white shadow-2xs'
-                  : 'text-zinc-500 hover:text-zinc-900 dark:hover:text-white'
-              }`}
-            >
-              All {tabCounts.all !== undefined ? `(${tabCounts.all.toLocaleString()})` : ''}
-            </button>
-            <button
-              onClick={() => setActiveTab('leads')}
-              className={`px-3 py-1 text-xs font-bold rounded-lg transition-all cursor-pointer ${
-                activeTab === 'leads'
-                  ? 'bg-white dark:bg-zinc-900 text-emerald-600 dark:text-emerald-400 shadow-2xs'
-                  : 'text-zinc-500 hover:text-zinc-900 dark:hover:text-white'
-              }`}
-            >
-              Captured Leads {tabCounts.leads !== undefined ? `(${tabCounts.leads.toLocaleString()})` : ''}
-            </button>
-            <button
-              onClick={() => setActiveTab('users')}
-              className={`px-3 py-1 text-xs font-bold rounded-lg transition-all cursor-pointer ${
-                activeTab === 'users'
-                  ? 'bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white shadow-2xs'
-                  : 'text-zinc-500 hover:text-zinc-900 dark:hover:text-white'
-              }`}
-            >
-              Registered Users {tabCounts.users !== undefined ? `(${tabCounts.users.toLocaleString()})` : ''}
-            </button>
-            <button
-              onClick={() => setActiveTab('guests')}
-              className={`px-3 py-1 text-xs font-bold rounded-lg transition-all cursor-pointer ${
-                activeTab === 'guests'
-                  ? 'bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white shadow-2xs'
-                  : 'text-zinc-500 hover:text-zinc-900 dark:hover:text-white'
-              }`}
-            >
-              Guests {tabCounts.guests !== undefined ? `(${tabCounts.guests.toLocaleString()})` : ''}
-            </button>
+          <div
+            role="group"
+            aria-label="Audience"
+            className="flex items-center p-1 bg-zinc-100 dark:bg-zinc-800 rounded-xl border border-zinc-200/80 dark:border-zinc-700/80 text-xs font-semibold"
+          >
+            {(
+              [
+                ['all', 'All'],
+                ['leads', 'Captured Leads'],
+                ['users', 'Registered Users'],
+                ['guests', 'Guests'],
+              ] as const
+            ).map(([tab, label]) => {
+              const count = tabCounts[tab]
+              const active = activeTab === tab
+              return (
+                <button
+                  key={tab}
+                  type="button"
+                  onClick={() => setActiveTab(tab)}
+                  aria-pressed={active}
+                  className={`px-3 py-1 text-xs font-bold rounded-lg transition-colors cursor-pointer ${FOCUS} ${
+                    active
+                      ? `bg-white dark:bg-zinc-900 shadow-2xs ${tab === 'leads' ? 'text-emerald-600 dark:text-emerald-400' : 'text-zinc-900 dark:text-white'}`
+                      : 'text-zinc-500 hover:text-zinc-900 dark:hover:text-white'
+                  }`}
+                >
+                  {label}
+                  {count !== undefined && <span className="ml-1 font-mono font-medium opacity-70">{count.toLocaleString()}</span>}
+                </button>
+              )
+            })}
           </div>
 
           {/* Sort Dropdown */}
@@ -932,59 +970,65 @@ export default function ConversationsPage() {
       {error && (
         <div className="p-4 rounded-2xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/60 text-xs font-semibold text-rose-700 dark:text-rose-300 flex items-center justify-between gap-3 shadow-2xs">
           <div className="flex items-center gap-2">
-            <AlertTriangle size={16} className="text-rose-600 shrink-0" />
+            <Warning size={16} className="text-rose-600 shrink-0" />
             <span>Could not load conversations: {error}</span>
           </div>
           <button
+            type="button"
             onClick={() => loadSessions(false)}
-            className="px-3 py-1 rounded-lg bg-rose-600 text-white text-xs font-bold hover:bg-rose-700 cursor-pointer"
+            className={`px-3 py-1 rounded-lg bg-rose-600 text-white text-xs font-bold hover:bg-rose-700 cursor-pointer ${FOCUS}`}
           >
             Try Again
           </button>
         </div>
       )}
 
-      {/* ── Main Master-Detail Observatory Split ─────────────────────── */}
+      {/* ── Master / detail split ────────────────────────────────────── */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-        {/* Left Master List Column (5 cols) */}
-        <div className="lg:col-span-5 bg-white dark:bg-zinc-900 rounded-3xl border border-zinc-200/80 dark:border-zinc-800 shadow-xs p-4 flex flex-col h-[780px]">
-          <div className="flex items-center justify-between pb-3 px-2 border-b border-zinc-100 dark:border-zinc-800">
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-bold text-zinc-500 uppercase tracking-wider">
-                Conversations ({sessions.length})
+        {/* Left: conversation list (5 cols) */}
+        <div className="lg:col-span-5 bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200/80 dark:border-zinc-800 shadow-2xs flex flex-col h-[780px] overflow-hidden">
+          <div className="flex items-center justify-between gap-2 px-4 py-3 border-b border-zinc-100 dark:border-zinc-800 shrink-0">
+            <div className="flex items-center gap-2 min-w-0">
+              <h2 className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">Sessions</h2>
+              <span className="text-[11px] font-mono text-zinc-400">
+                {sessions.length.toLocaleString()}
+                {serverTotals?.total !== undefined && serverTotals.total > sessions.length
+                  ? ` of ${serverTotals.total.toLocaleString()}`
+                  : ''}
               </span>
               {(selectedProject || selectedSector || searchQuery) && (
-                <span className="px-2 py-0.5 rounded-md bg-blue-50 text-blue-600 dark:bg-blue-950/60 dark:text-blue-400 font-bold text-[10px]">
+                <span className="px-2 py-0.5 rounded-md bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300 font-bold text-[10px]">
                   Filtered
                 </span>
               )}
             </div>
-            <span className="text-[11px] font-medium text-zinc-400">Tap to inspect dialogue</span>
           </div>
 
-          <div className="flex-1 overflow-y-auto space-y-2.5 pt-3 pr-1.5 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-zinc-100 dark:[&::-webkit-scrollbar-track]:bg-zinc-800/50 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-thumb]:bg-zinc-300 dark:[&::-webkit-scrollbar-thumb]:bg-zinc-600 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-zinc-400 dark:hover:[&::-webkit-scrollbar-thumb]:bg-zinc-500">
+          <div className={`flex-1 overflow-y-auto p-2 space-y-1 ${SCROLL}`}>
             {loading && (
-              <div className="space-y-3 p-2">
+              <div className="space-y-2 p-1">
                 {Array.from({ length: 6 }).map((_, i) => (
-                  <Skeleton key={i} className="h-24 w-full rounded-2xl" />
+                  <Skeleton key={i} className="h-24 w-full rounded-xl" />
                 ))}
               </div>
             )}
 
             {!loading && sessions.length === 0 && (
-              <div className="text-center py-20 px-4 text-zinc-400">
-                <MessageSquare size={36} className="mx-auto mb-2 text-zinc-300 dark:text-zinc-600" />
-                <p className="font-bold text-zinc-700 dark:text-zinc-300 text-sm">No conversations match criteria</p>
-                <p className="text-xs text-zinc-400 mt-1 max-w-xs mx-auto">
-                  Try clearing active project or sector filters, or searching for broader terms.
+              <div className="text-center py-20 px-4">
+                <ChatText size={32} className="mx-auto mb-3 text-zinc-300 dark:text-zinc-600" />
+                <p className="font-semibold text-zinc-800 dark:text-zinc-200 text-sm">No conversations match</p>
+                <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1 max-w-xs mx-auto">
+                  {hasActiveFilters
+                    ? 'Clear a project or sector filter, or search for a broader term.'
+                    : 'Buyer sessions appear here once someone talks to the advisor.'}
                 </p>
                 {hasActiveFilters && (
                   <button
                     type="button"
                     onClick={clearAllFilters}
-                    className="mt-4 px-3 py-1.5 rounded-xl bg-blue-600 text-white font-bold text-xs cursor-pointer shadow-xs"
+                    className={`mt-4 px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs cursor-pointer shadow-2xs ${FOCUS}`}
                   >
-                    Reset All Filters
+                    Reset all filters
                   </button>
                 )}
               </div>
@@ -1000,109 +1044,113 @@ export default function ConversationsPage() {
                 return (
                   <div
                     key={s.id}
+                    role="button"
+                    tabIndex={0}
+                    aria-current={isSelected ? 'true' : undefined}
                     onClick={() => openSession(s.id)}
-                    className={`w-full p-4 rounded-2xl border text-left transition-all duration-150 cursor-pointer relative ${
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault()
+                        openSession(s.id)
+                      }
+                    }}
+                    className={`relative w-full px-3.5 py-3 rounded-xl border text-left transition-colors cursor-pointer ${FOCUS} ${
                       isSelected
-                        ? 'border-blue-500 ring-2 ring-blue-500/20 bg-blue-50/40 dark:bg-blue-950/40 shadow-xs'
-                        : 'border-zinc-200/80 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 hover:bg-zinc-50/80 dark:hover:bg-zinc-800/50 bg-white dark:bg-zinc-900'
+                        ? 'border-blue-200 dark:border-blue-900/70 bg-blue-50/60 dark:bg-blue-950/30'
+                        : 'border-transparent hover:bg-zinc-50 dark:hover:bg-zinc-800/50'
                     }`}
                   >
-                    {/* Top Row: User Identity Connection Badge & Dynamic Time */}
-                    <div className="flex items-center justify-between gap-2 mb-2 pb-1.5 border-b border-zinc-100 dark:border-zinc-800/80">
+                    {isSelected && <span aria-hidden className="absolute left-0 top-3 bottom-3 w-0.5 rounded-full bg-blue-600" />}
+
+                    {/* Who, and when */}
+                    <div className="flex items-center justify-between gap-2">
                       <div className="flex items-center gap-1.5 min-w-0">
                         {lead ? (
-                          <div className="flex items-center gap-1.5 min-w-0">
+                          <>
                             <span
-                              className={`px-2 py-0.5 rounded-md font-bold uppercase tracking-wider border text-[9px] shrink-0 ${getLeadTierStyle(
+                              className={`px-1.5 py-px rounded font-bold uppercase tracking-wider border text-[9px] shrink-0 ${getLeadTierStyle(
                                 lead.tier,
                               )}`}
                             >
-                              ★ {lead.tier ?? 'LEAD'}
+                              {lead.tier ?? 'Lead'}
                             </span>
                             <span className="text-xs font-bold text-zinc-900 dark:text-white truncate">
-                              {lead.name || 'Captured Contact'}
+                              {lead.name || 'Captured contact'}
                             </span>
                             {lead.phone && (
-                              <span className="text-[10px] font-mono text-emerald-600 dark:text-emerald-400 shrink-0 hidden sm:inline">
-                                · {lead.phone}
+                              <span className="text-[10.5px] font-mono text-zinc-500 dark:text-zinc-400 shrink-0 hidden sm:inline">
+                                {lead.phone}
                               </span>
                             )}
-                          </div>
+                          </>
                         ) : connectedUser?.isRegistered ? (
-                          <div className="flex items-center gap-1.5 text-zinc-700 dark:text-zinc-300">
-                            <User size={13} className="text-blue-500 shrink-0" />
-                            <span className="text-xs font-bold truncate">Registered User</span>
-                          </div>
+                          <>
+                            <User size={13} className="text-blue-600 dark:text-blue-400 shrink-0" />
+                            <span className="text-xs font-semibold text-zinc-800 dark:text-zinc-200 truncate">Registered user</span>
+                          </>
                         ) : (
-                          <div className="flex items-center gap-1.5 text-zinc-400">
-                            <User size={13} className="shrink-0" />
-                            <span className="text-[11px] font-medium truncate">Guest Visitor</span>
-                          </div>
+                          <>
+                            <User size={13} className="text-zinc-400 shrink-0" />
+                            <span className="text-xs font-medium text-zinc-500 dark:text-zinc-400 truncate">Guest visitor</span>
+                          </>
                         )}
                       </div>
 
-                      {/* Precise Wall-Clock & Dynamic Relative Time */}
-                      <div className="flex items-center gap-1.5 shrink-0 text-right">
-                        <span className="text-[11px] font-bold text-zinc-700 dark:text-zinc-200">
-                          {timeInfo.time}
-                        </span>
-                        <span className="text-zinc-300 dark:text-zinc-600">·</span>
-                        <span
-                          title={timeInfo.exact}
-                          className="text-[10px] font-medium text-zinc-500 dark:text-zinc-400 whitespace-nowrap bg-zinc-100/90 dark:bg-zinc-800/80 px-1.5 py-0.5 rounded"
-                        >
-                          {timeInfo.relative}
-                        </span>
-                      </div>
+                      <span
+                        title={timeInfo.exact}
+                        className="text-[10.5px] text-zinc-400 dark:text-zinc-500 whitespace-nowrap shrink-0 tabular-nums"
+                      >
+                        {timeInfo.time ? `${timeInfo.time} · ` : ''}
+                        {timeInfo.relative}
+                      </span>
                     </div>
 
-                    {/* Middle Row: Query & Multi-turn context */}
-                    <div className="space-y-1 mb-2.5">
-                      <h4 className="text-xs font-bold text-zinc-900 dark:text-zinc-100 line-clamp-2 leading-snug">
-                        {s.latestQuery?.content ? (
-                          highlightQuery(s.latestQuery.content)
-                        ) : s.openingQuestion ? (
-                          highlightQuery(s.openingQuestion)
-                        ) : (
-                          <span className="italic font-normal text-zinc-400">Initial exploratory search</span>
-                        )}
-                      </h4>
-
-                      {s.turns > 1 && s.latestQuery && s.openingQuestion && s.latestQuery.content !== s.openingQuestion && (
-                        <p className="text-[10.5px] text-zinc-400 dark:text-zinc-500 truncate flex items-center gap-1">
-                          <span className="font-semibold text-zinc-500 dark:text-zinc-400">Started:</span>
-                          <span className="truncate italic">&quot;{s.openingQuestion}&quot;</span>
-                        </p>
+                    {/* What they asked */}
+                    <p className="mt-1.5 text-[13px] font-medium text-zinc-800 dark:text-zinc-100 line-clamp-2 leading-snug">
+                      {s.latestQuery?.content ? (
+                        highlightQuery(s.latestQuery.content)
+                      ) : s.openingQuestion ? (
+                        highlightQuery(s.openingQuestion)
+                      ) : (
+                        <span className="italic font-normal text-zinc-400">Initial exploratory search</span>
                       )}
+                    </p>
 
-                      {s.statedRequirements && (
-                        <p className="text-[10.5px] text-zinc-500 dark:text-zinc-400 truncate flex items-center gap-1">
-                          <span className="font-semibold text-zinc-600 dark:text-zinc-300">Stated:</span>
-                          <span className="truncate">{s.statedRequirements}</span>
-                        </p>
-                      )}
-                    </div>
+                    {s.turns > 1 && s.latestQuery && s.openingQuestion && s.latestQuery.content !== s.openingQuestion && (
+                      <p className="mt-0.5 text-[11px] text-zinc-500 dark:text-zinc-400 truncate">
+                        <span className="font-semibold">Started:</span>{' '}
+                        <span className="italic">&ldquo;{s.openingQuestion}&rdquo;</span>
+                      </p>
+                    )}
 
-                    {/* Entity Tracking Pills (Project & Sector) */}
-                    <div className="flex flex-wrap items-center gap-1.5 text-[10.5px]">
+                    {s.statedRequirements && (
+                      <p className="mt-0.5 text-[11px] text-zinc-500 dark:text-zinc-400 truncate">
+                        <span className="font-semibold">Stated:</span> {s.statedRequirements}
+                      </p>
+                    )}
+
+                    {/* Entities and session stats */}
+                    <div className="mt-2 flex flex-wrap items-center gap-1.5 text-[10.5px]">
                       {s.focusProject && (
-                        <span className="px-2 py-0.5 rounded-md bg-purple-50 dark:bg-purple-950/50 text-purple-700 dark:text-purple-300 border border-purple-200/70 dark:border-purple-800/70 font-semibold text-[10px] truncate max-w-[150px]">
-                          🏢 {s.focusProject.name}
+                        <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-purple-50 dark:bg-purple-950/50 text-purple-700 dark:text-purple-300 font-semibold max-w-[150px]">
+                          <Buildings size={11} className="shrink-0" />
+                          <span className="truncate">{s.focusProject.name}</span>
                         </span>
                       )}
 
                       {s.summaryLocation && (
-                        <span className="px-2 py-0.5 rounded-md bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300 border border-blue-200/70 dark:border-blue-800/70 font-semibold text-[10px] truncate max-w-[140px]">
-                          📍 {s.summaryLocation}
+                        <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300 font-semibold max-w-[140px]">
+                          <MapPin size={11} className="shrink-0" />
+                          <span className="truncate">{s.summaryLocation}</span>
                         </span>
                       )}
 
-                      <span className="px-2 py-0.5 rounded-md bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 font-semibold text-[10px]">
-                        {s.turns} turns
-                      </span>
+                      <span className="text-zinc-500 dark:text-zinc-400">{s.turns} turns</span>
+                      <span className="text-zinc-300 dark:text-zinc-600" aria-hidden>·</span>
+                      <span className="font-mono text-zinc-500 dark:text-zinc-400">{inr(s.costUsd)}</span>
 
-                      <span className="px-2 py-0.5 rounded-md bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 font-mono font-medium text-[10px] ml-auto">
-                        {inr(s.costUsd)}
+                      <span className="ml-auto min-w-0">
+                        <IdentityTag kind={s.identity.kind} id={s.identity.id} />
                       </span>
                     </div>
                   </div>
@@ -1114,7 +1162,7 @@ export default function ConversationsPage() {
                 type="button"
                 onClick={() => loadSessions(true, true)}
                 disabled={loadingMore}
-                className="w-full py-2.5 rounded-xl border border-dashed border-zinc-300 dark:border-zinc-700 text-xs font-bold text-zinc-500 hover:text-zinc-900 dark:hover:text-white hover:border-zinc-400 dark:hover:border-zinc-600 transition-colors cursor-pointer disabled:opacity-60"
+                className={`w-full mt-1 py-2.5 rounded-xl border border-dashed border-zinc-300 dark:border-zinc-700 text-xs font-bold text-zinc-500 hover:text-zinc-900 dark:hover:text-white hover:border-zinc-400 dark:hover:border-zinc-600 transition-colors cursor-pointer disabled:opacity-60 ${FOCUS}`}
               >
                 {loadingMore
                   ? 'Loading…'
@@ -1124,20 +1172,20 @@ export default function ConversationsPage() {
           </div>
         </div>
 
-        {/* Right Transcript Detail Column (7 cols) */}
-        <div className="lg:col-span-7 bg-white dark:bg-zinc-900 rounded-3xl border border-zinc-200/80 dark:border-zinc-800 shadow-xs flex flex-col h-[780px] overflow-hidden">
+        {/* Right: transcript detail (7 cols) */}
+        <div className="lg:col-span-7 bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200/80 dark:border-zinc-800 shadow-2xs flex flex-col h-[780px] overflow-hidden">
           {!selected ? (
-            <div className="flex-1 flex flex-col items-center justify-center p-8 text-center text-zinc-400">
-              <div className="w-16 h-16 rounded-3xl bg-blue-50 dark:bg-blue-950/50 border border-blue-200/60 dark:border-blue-900/40 flex items-center justify-center text-blue-600 mb-4">
-                <MessageSquare size={28} />
+            <div className="flex-1 flex flex-col items-center justify-center p-8 text-center">
+              <div className="w-14 h-14 rounded-2xl bg-zinc-50 dark:bg-zinc-800/60 border border-zinc-200/80 dark:border-zinc-700/60 flex items-center justify-center text-zinc-400 mb-4">
+                <ChatText size={26} />
               </div>
-              <h3 className="text-base font-bold text-zinc-800 dark:text-zinc-200 mb-1">Select a Conversation</h3>
-              <p className="text-xs text-zinc-500 max-w-sm">
-                Choose any session on the left to read the full buyer transcript, inspect buyer intelligence dossier, and view recommended project cards.
+              <h3 className="text-sm font-bold text-zinc-800 dark:text-zinc-200 mb-1">Select a conversation</h3>
+              <p className="text-xs text-zinc-500 dark:text-zinc-400 max-w-sm">
+                Pick a session on the left to read the transcript, the buyer dossier and the projects the advisor showed.
               </p>
             </div>
           ) : detailLoading ? (
-            <div className="p-8 space-y-6">
+            <div className="p-6 space-y-6" aria-busy="true">
               <Skeleton className="h-32 w-full rounded-2xl" />
               <div className="space-y-4">
                 <Skeleton className="h-16 w-3/4 rounded-2xl" />
@@ -1147,33 +1195,38 @@ export default function ConversationsPage() {
             </div>
           ) : detail ? (
             <div className="flex-1 flex flex-col min-h-0">
-              {/* Top Dossier Card Header */}
-              <div className="p-5 border-b border-zinc-100 dark:border-zinc-800 bg-zinc-50/70 dark:bg-zinc-800/40 space-y-3.5 shrink-0">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
-                    <h3 className="text-sm font-extrabold text-zinc-900 dark:text-zinc-100">
-                      Buyer Dossier & Session Details
-                    </h3>
+              {/* Dossier header */}
+              <div className={`px-5 py-4 border-b border-zinc-100 dark:border-zinc-800 space-y-3 shrink-0 max-h-[340px] overflow-y-auto ${SCROLL}`}>
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <h3 className="text-sm font-extrabold text-zinc-900 dark:text-zinc-100">Session details</h3>
+                    <div className="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-1">
+                      <IdentityTag kind={detail.session.identity.kind} id={detail.session.identity.id} />
+                      <span className="inline-flex items-center gap-1 min-w-0 text-[10.5px] text-zinc-400">
+                        <span className="font-semibold shrink-0">Session</span>
+                        <span className="font-mono text-zinc-500 dark:text-zinc-400 truncate select-text" title={detail.session.id}>
+                          {shortId(detail.session.id)}
+                        </span>
+                        <CopyIdButton id={detail.session.id} label="Session ID" />
+                      </span>
+                    </div>
                   </div>
 
-                  <div className="flex items-center gap-2">
-                    <button
-                      type="button"
-                      onClick={copyTranscript}
-                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 text-xs font-bold transition-all shadow-2xs cursor-pointer"
-                    >
-                      {copiedText ? <Check size={13} className="text-emerald-600" /> : <Copy size={13} />}
-                      <span>{copiedText ? 'Copied' : 'Copy Dialogue'}</span>
-                    </button>
-                  </div>
+                  <button
+                    type="button"
+                    onClick={copyTranscript}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 text-xs font-bold transition-colors shadow-2xs cursor-pointer shrink-0 ${FOCUS}`}
+                  >
+                    {copiedText ? <Check size={13} weight="bold" className="text-emerald-600" /> : <Copy size={13} />}
+                    <span>{copiedText ? 'Copied' : 'Copy transcript'}</span>
+                  </button>
                 </div>
 
-                {/* Connected User Profile Banner */}
+                {/* Who this buyer is */}
                 {detail.lead ? (
-                  <div className="p-4 rounded-2xl bg-gradient-to-r from-emerald-50/90 to-teal-50/80 dark:from-emerald-950/50 dark:to-zinc-900 border border-emerald-200/90 dark:border-emerald-800/70 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-2xs">
-                    <div>
-                      <div className="flex items-center gap-2 mb-1">
+                  <div className="p-3.5 rounded-xl bg-emerald-50/70 dark:bg-emerald-950/30 border border-emerald-200/80 dark:border-emerald-900/60 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                    <div className="min-w-0">
+                      <div className="flex flex-wrap items-center gap-2 mb-1">
                         <span className="font-extrabold text-sm text-zinc-900 dark:text-zinc-100">
                           {detail.lead.name}
                         </span>
@@ -1185,58 +1238,52 @@ export default function ConversationsPage() {
                           {detail.lead.lead_tier ?? 'UNSCORED'}
                         </span>
                         {detail.lead.lead_score && (
-                          <span className="text-[10px] font-mono text-zinc-500">
-                            Score: {detail.lead.lead_score}/100
+                          <span className="text-[10.5px] font-mono text-emerald-800 dark:text-emerald-300">
+                            Score {detail.lead.lead_score}/100
                           </span>
                         )}
                       </div>
-                      <div className="flex flex-wrap items-center gap-3 text-xs text-zinc-600 dark:text-zinc-300">
-                        <span className="font-mono font-bold text-emerald-700 dark:text-emerald-400">
+                      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
+                        <span className="font-mono font-bold text-emerald-700 dark:text-emerald-400 select-text">
                           {detail.lead.phone}
                         </span>
                         {detail.lead.ai_summary && (
-                          <span className="text-[11px] text-zinc-600 dark:text-zinc-400 max-w-md line-clamp-1">
-                            • {detail.lead.ai_summary}
+                          <span className="text-[11px] text-emerald-900/80 dark:text-emerald-100/80 max-w-md line-clamp-1">
+                            {detail.lead.ai_summary}
                           </span>
                         )}
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-2 shrink-0">
-                      <a
-                        href={`https://wa.me/${detail.lead.phone.replace(/[^0-9]/g, '')}`}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-2xs transition-all cursor-pointer"
-                      >
-                        <MessageCircle size={13} />
-                        <span>WhatsApp Lead</span>
-                      </a>
-                    </div>
+                    <a
+                      href={`https://wa.me/${detail.lead.phone.replace(/[^0-9]/g, '')}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-2xs transition-colors cursor-pointer shrink-0 ${FOCUS}`}
+                    >
+                      <ChatCircle size={13} />
+                      <span>WhatsApp Lead</span>
+                    </a>
                   </div>
                 ) : detail.userDossier?.isRegistered ? (
-                  <div className="p-3.5 rounded-2xl bg-zinc-100/80 dark:bg-zinc-800/60 border border-zinc-200/80 dark:border-zinc-700 flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <User size={16} className="text-blue-500" />
-                      <div>
-                        <p className="text-xs font-bold text-zinc-900 dark:text-white">Registered User Profile</p>
-                        <p className="text-[10px] font-mono text-zinc-400">ID: {detail.session.identity.id}</p>
-                      </div>
+                  <div className="px-3.5 py-2.5 rounded-xl bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200/80 dark:border-zinc-700/70 flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <User size={15} className="text-blue-600 dark:text-blue-400 shrink-0" />
+                      <p className="text-xs font-bold text-zinc-900 dark:text-white">Registered user</p>
                     </div>
                     {detail.userDossier.phone && (
                       <a
                         href={`tel:${detail.userDossier.phone}`}
-                        className="text-xs font-mono font-bold text-blue-600 dark:text-blue-400"
+                        className={`text-xs font-mono font-bold text-blue-600 dark:text-blue-400 rounded ${FOCUS}`}
                       >
                         {detail.userDossier.phone}
                       </a>
                     )}
                   </div>
                 ) : (
-                  <div className="text-xs text-zinc-500 flex items-center gap-2 p-2 rounded-xl bg-zinc-100/50 dark:bg-zinc-800/40 border border-zinc-200/60 dark:border-zinc-800">
-                    <User size={14} className="text-zinc-400" />
-                    <span>Anonymous Visitor ({detail.session.identity.kind})</span>
-                    <span className="font-mono text-[10px] text-zinc-400">Token: {detail.session.identity.id?.slice(0, 16)}…</span>
+                  <div className="px-3.5 py-2.5 rounded-xl bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200/80 dark:border-zinc-700/70 flex items-center gap-2 text-xs text-zinc-600 dark:text-zinc-300">
+                    <User size={15} className="text-zinc-400 shrink-0" />
+                    <span>Anonymous visitor ({detail.session.identity.kind}), no contact captured</span>
                   </div>
                 )}
 
@@ -1245,8 +1292,8 @@ export default function ConversationsPage() {
                     eye. Only renders what the parser actually captured; an
                     empty snapshot renders nothing rather than an empty shell. */}
                 {detail.requirementSnapshot && (
-                  <div className="p-3.5 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 space-y-2">
-                    <p className="text-[10px] font-extrabold uppercase tracking-wider text-zinc-400">
+                  <div className="space-y-1.5">
+                    <p className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">
                       Buyer Requirements
                     </p>
                     <div className="flex flex-wrap items-center gap-1.5">
@@ -1256,8 +1303,9 @@ export default function ConversationsPage() {
                         </span>
                       )}
                       {detail.requirementSnapshot.sectors.map((sec) => (
-                        <span key={sec} className="px-2 py-0.5 rounded-md bg-purple-50 dark:bg-purple-950/50 text-purple-700 dark:text-purple-300 border border-purple-200/70 dark:border-purple-800/70 font-semibold text-[10.5px]">
-                          📍 {sec}
+                        <span key={sec} className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-purple-50 dark:bg-purple-950/50 text-purple-700 dark:text-purple-300 border border-purple-200/70 dark:border-purple-800/70 font-semibold text-[10.5px]">
+                          <MapPin size={11} />
+                          {sec}
                         </span>
                       ))}
                       {detail.requirementSnapshot.excludedSectors.map((sec) => (
@@ -1289,7 +1337,7 @@ export default function ConversationsPage() {
                 <div className="flex flex-wrap items-center gap-2 text-xs">
                   {detail.session.focusProject && (
                     <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-purple-50 dark:bg-purple-950/50 border border-purple-200/70 dark:border-purple-800/70 text-purple-700 dark:text-purple-300 font-bold text-[11px]">
-                      <Building2 size={12} />
+                      <Buildings size={12} />
                       <span>{detail.session.focusProject.name}</span>
                     </div>
                   )}
@@ -1315,23 +1363,23 @@ export default function ConversationsPage() {
                     </div>
                   )}
 
-                  <div className="ml-auto text-[11px] font-mono text-zinc-400">
-                    Cost: {inr(detail.cost.totalUsd)} ({detail.cost.calls.length} calls)
+                  <div className="ml-auto text-[11px] font-mono text-zinc-500 dark:text-zinc-400">
+                    {inr(detail.cost.totalUsd)} · {detail.cost.calls.length} calls
                   </div>
                 </div>
 
                 {/* Multi-Session User History Links (if user has past dialogues) */}
                 {detail.userDossier?.otherSessions && detail.userDossier.otherSessions.length > 0 && (
-                  <div className="pt-2 border-t border-zinc-100 dark:border-zinc-800 flex flex-wrap items-center gap-2 text-xs">
+                  <div className="pt-3 border-t border-zinc-100 dark:border-zinc-800 flex flex-wrap items-center gap-2 text-xs">
                     <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider shrink-0">
-                      User Past Chats ({detail.userDossier.otherSessions.length}):
+                      Past chats ({detail.userDossier.otherSessions.length})
                     </span>
                     {detail.userDossier.otherSessions.map((past) => (
                       <button
                         key={past.id}
                         type="button"
                         onClick={() => openSession(past.id)}
-                        className="px-2 py-0.5 rounded-lg bg-zinc-100 dark:bg-zinc-800 hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-blue-950/60 dark:hover:text-blue-300 text-[11px] font-semibold text-zinc-600 dark:text-zinc-300 transition-colors shrink-0 cursor-pointer border border-zinc-200/60 dark:border-zinc-700/60"
+                        className={`px-2 py-0.5 rounded-lg bg-zinc-100 dark:bg-zinc-800 hover:bg-blue-50 hover:text-blue-700 dark:hover:bg-blue-950/60 dark:hover:text-blue-300 text-[11px] font-semibold text-zinc-600 dark:text-zinc-300 transition-colors shrink-0 cursor-pointer border border-zinc-200/60 dark:border-zinc-700/60 ${FOCUS}`}
                       >
                         {formatDistanceToNow(new Date(past.lastActiveAt), { addSuffix: true })} ({past.turns}t)
                       </button>
@@ -1340,51 +1388,43 @@ export default function ConversationsPage() {
                 )}
               </div>
 
-              {/* Chat Transcript Feed */}
-              <div className="flex-1 overflow-y-auto p-6 space-y-4 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-zinc-100 dark:[&::-webkit-scrollbar-track]:bg-zinc-800/50 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-thumb]:bg-zinc-300 dark:[&::-webkit-scrollbar-thumb]:bg-zinc-600 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-zinc-400 dark:hover:[&::-webkit-scrollbar-thumb]:bg-zinc-500">
+              {/* Transcript */}
+              <div className={`flex-1 overflow-y-auto px-5 py-6 space-y-5 bg-zinc-50/50 dark:bg-zinc-950/20 ${SCROLL}`}>
                 {detail.turns.map((t) => {
                   const isUser = t.role === 'user'
+                  const at = new Date(t.at)
                   return (
-                    <div key={t.id} className={`flex flex-col ${isUser ? 'items-end' : 'items-start'} space-y-1.5`}>
-                      {/* Role and Time stamp */}
-                      <div className="flex items-center gap-2 px-1 text-[10px] font-semibold text-zinc-400 uppercase tracking-wider">
+                    <div key={t.id} className={`flex flex-col ${isUser ? 'items-end' : 'items-start'} gap-1`}>
+                      {/* Who spoke, and when */}
+                      <div className={`flex items-center gap-2 px-1 text-[11px] ${isUser ? 'flex-row-reverse' : ''}`}>
                         {isUser ? (
-                          <>
-                            <span
-                              className="font-mono text-zinc-500 dark:text-zinc-400"
-                              title={new Date(t.at).toLocaleString([], { dateStyle: 'medium', timeStyle: 'medium' })}
-                            >
-                              {new Date(t.at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true })}
-                            </span>
-                            <span className="text-zinc-700 dark:text-zinc-300 font-bold">Buyer</span>
-                          </>
+                          <span className="font-semibold text-zinc-700 dark:text-zinc-300">Buyer</span>
                         ) : (
-                          <>
-                            <span className="text-blue-600 dark:text-blue-400 flex items-center gap-1 font-bold">
-                              <Bot size={13} />
-                              RealtyAsk AI
-                            </span>
-                            <span
-                              className="font-mono text-zinc-500 dark:text-zinc-400"
-                              title={new Date(t.at).toLocaleString([], { dateStyle: 'medium', timeStyle: 'medium' })}
-                            >
-                              {new Date(t.at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true })}
-                            </span>
-                          </>
+                          <span className="inline-flex items-center gap-1 font-semibold text-blue-700 dark:text-blue-400">
+                            <Robot size={13} />
+                            RealtyAsk
+                          </span>
                         )}
+                        <time
+                          dateTime={t.at}
+                          className="text-zinc-400 dark:text-zinc-500 tabular-nums"
+                          title={at.toLocaleString([], { dateStyle: 'medium', timeStyle: 'medium' })}
+                        >
+                          {at.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true })}
+                        </time>
                         {t.flaggedCoverageGap && (
-                          <span className="px-2 py-0.5 rounded-full bg-rose-100 text-rose-700 font-bold dark:bg-rose-950/60 dark:text-rose-300 text-[9.5px]">
-                            Coverage Gap Flagged
+                          <span className="px-1.5 py-px rounded-md bg-rose-50 text-rose-700 border border-rose-200/80 dark:bg-rose-950/60 dark:text-rose-300 dark:border-rose-900/60 font-semibold text-[10px]">
+                            Coverage gap
                           </span>
                         )}
                       </div>
 
-                      {/* Chat Message Bubble */}
+                      {/* Message */}
                       <div
-                        className={`max-w-[88%] p-4 rounded-3xl text-[13.5px] leading-relaxed shadow-xs ${
+                        className={`max-w-[85%] px-4 py-3 rounded-2xl text-[13.5px] leading-relaxed ${
                           isUser
-                            ? 'bg-zinc-900 text-white dark:bg-blue-600 dark:text-white rounded-tr-xs'
-                            : 'bg-zinc-50 dark:bg-zinc-800/80 text-zinc-900 dark:text-zinc-100 border border-zinc-200/80 dark:border-zinc-700/60 rounded-tl-xs'
+                            ? 'bg-zinc-900 text-white dark:bg-blue-600 dark:text-white rounded-br-md'
+                            : 'bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 border border-zinc-200/80 dark:border-zinc-800 rounded-bl-md shadow-2xs'
                         }`}
                       >
                         {(() => {
@@ -1405,14 +1445,14 @@ export default function ConversationsPage() {
 
                                 if (clean.startsWith('### ')) {
                                   return (
-                                    <h4 key={idx} className="text-sm font-extrabold text-blue-600 dark:text-blue-400 mt-2 mb-1 flex items-center gap-1.5">
+                                    <h4 key={idx} className="text-sm font-bold text-zinc-900 dark:text-white mt-2 mb-1">
                                       {clean.replace(/^###\s+/, '')}
                                     </h4>
                                   )
                                 }
                                 if (clean.startsWith('#### ')) {
                                   return (
-                                    <h5 key={idx} className="text-[11px] font-black uppercase tracking-wider text-zinc-700 dark:text-zinc-300 mt-2 mb-0.5">
+                                    <h5 key={idx} className="text-[11px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 mt-2 mb-0.5">
                                       {clean.replace(/^####\s+/, '')}
                                     </h5>
                                   )
@@ -1441,15 +1481,15 @@ export default function ConversationsPage() {
 
                                 if (isBullet) {
                                   return (
-                                    <div key={idx} className="flex items-start gap-2 text-xs text-zinc-700 dark:text-zinc-300 pl-1">
-                                      <span className="text-blue-500 font-bold shrink-0 mt-0.5">&bull;</span>
+                                    <div key={idx} className="flex items-start gap-2 text-[13px] text-zinc-700 dark:text-zinc-300 pl-1">
+                                      <span aria-hidden className="text-zinc-400 shrink-0">&bull;</span>
                                       <span className="leading-relaxed">{renderedParts}</span>
                                     </div>
                                   )
                                 }
 
                                 return (
-                                  <p key={idx} className="text-xs leading-relaxed text-zinc-800 dark:text-zinc-200">
+                                  <p key={idx} className="text-[13px] leading-relaxed text-zinc-800 dark:text-zinc-200">
                                     {renderedParts}
                                   </p>
                                 )
@@ -1457,10 +1497,10 @@ export default function ConversationsPage() {
 
                               {/* Interactive Admin Dossier Action Box */}
                               {dossierToken && (
-                                <div className="mt-3 p-3.5 rounded-2xl bg-gradient-to-r from-blue-50 to-indigo-50/70 dark:from-zinc-900 dark:to-blue-950/40 border border-blue-200/90 dark:border-blue-900/60 flex flex-wrap items-center justify-between gap-3 shadow-2xs">
+                                <div className="mt-3 p-3 rounded-xl bg-blue-50/70 dark:bg-blue-950/30 border border-blue-200/80 dark:border-blue-900/60 flex flex-wrap items-center justify-between gap-3">
                                   <div className="flex items-center gap-2.5">
-                                    <div className="w-8 h-8 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-2xs">
-                                      📄
+                                    <div className="w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center shrink-0">
+                                      <FileText size={16} />
                                     </div>
                                     <div>
                                       <div className="text-xs font-bold text-zinc-900 dark:text-zinc-100 flex items-center gap-1.5">
@@ -1481,7 +1521,7 @@ export default function ConversationsPage() {
                                       className="px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold flex items-center gap-1.5 transition-all shadow-2xs cursor-pointer"
                                     >
                                       <span>View Dossier</span>
-                                      <ExternalLink size={12} />
+                                      <ArrowSquareOut size={12} />
                                     </a>
                                     <button
                                       type="button"
@@ -1517,7 +1557,7 @@ export default function ConversationsPage() {
                         {t.cardsShown.length > 0 && (
                           <div className="mt-3 pt-3 border-t border-zinc-200/60 dark:border-zinc-700 space-y-2">
                             <div className="text-[10.5px] font-bold uppercase tracking-wider text-zinc-400 flex items-center gap-1.5">
-                              <Building2 size={12} className="text-blue-500" />
+                              <Buildings size={12} className="text-blue-500" />
                               <span>Projects Presented ({t.cardsShown.length})</span>
                             </div>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -1541,7 +1581,7 @@ export default function ConversationsPage() {
                                     className="p-1 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-400 hover:text-zinc-700 cursor-pointer"
                                     title="View project in editor"
                                   >
-                                    <ExternalLink size={12} />
+                                    <ArrowSquareOut size={12} />
                                   </a>
                                 </div>
                               ))}

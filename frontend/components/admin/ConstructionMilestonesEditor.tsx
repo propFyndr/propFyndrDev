@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Plus, Trash2, Save, RefreshCw, CheckCircle2, Clock, Calendar, Eye, Activity, ShieldCheck } from 'lucide-react';
+import { Plus, Trash, FloppyDisk, ArrowsClockwise, CheckCircle, Clock, Calendar, Eye, Pulse, ShieldCheck } from '@phosphor-icons/react';
 import { toast } from 'sonner';
 import { adminAuthHeaders } from '@/lib/authedFetch';
 import { API_BASE } from '@/lib/env';
@@ -116,7 +116,7 @@ export default function ConstructionMilestonesEditor({ projectId }: Construction
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-zinc-100 dark:border-zinc-800/80 pb-4">
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-xl bg-blue-50 dark:bg-blue-950/60 text-[#0066cc] dark:text-blue-400 flex items-center justify-center border border-blue-100 dark:border-blue-900/40">
-            <Activity size={17} />
+            <Pulse size={17} />
           </div>
           <div>
             <h3 className="text-[15px] font-semibold text-zinc-900 dark:text-zinc-100 tracking-tight flex items-center gap-2">
@@ -140,7 +140,7 @@ export default function ConstructionMilestonesEditor({ projectId }: Construction
             disabled={saving}
             className="px-4 py-2 bg-[#0066cc] hover:bg-[#0055b3] text-white rounded-xl text-[13px] font-medium flex items-center gap-2 transition-colors disabled:opacity-50 shadow-2xs cursor-pointer"
           >
-            {saving ? <RefreshCw size={13} className="animate-spin" /> : <Save size={13} />}
+            {saving ? <ArrowsClockwise size={13} className="animate-spin" /> : <FloppyDisk size={13} />}
             <span>{saving ? 'Saving...' : 'Save Milestones'}</span>
           </button>
         </div>
@@ -177,7 +177,7 @@ export default function ConstructionMilestonesEditor({ projectId }: Construction
                   className="text-zinc-400 hover:text-rose-500 p-1 rounded transition-colors cursor-pointer"
                   title="Remove Phase"
                 >
-                  <Trash2 size={13} />
+                  <Trash size={13} />
                 </button>
               </div>
 

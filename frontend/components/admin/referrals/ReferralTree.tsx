@@ -1,7 +1,7 @@
 // Real nested referral tree with visual branch guides, telemetry cards,
 // and hierarchical generational navigation.
 import { useMemo, useState } from 'react'
-import { ChevronRight, ChevronDown, Smartphone, Monitor, Tablet, MessageSquare, Clock, ArrowUpRight } from 'lucide-react'
+import { CaretRight, CaretDown, DeviceMobile, Monitor, DeviceTablet, ChatText, Clock, ArrowUpRight } from '@phosphor-icons/react'
 import FunnelBadge, { type FunnelStage } from './FunnelBadge'
 
 export interface ReferralTreeNode {
@@ -22,8 +22,8 @@ export interface ReferralTreeNode {
 }
 
 function DeviceIcon({ deviceClass }: { deviceClass: string }) {
-  if (deviceClass === 'mobile') return <Smartphone size={14} />
-  if (deviceClass === 'tablet') return <Tablet size={14} />
+  if (deviceClass === 'mobile') return <DeviceMobile size={14} />
+  if (deviceClass === 'tablet') return <DeviceTablet size={14} />
   return <Monitor size={14} />
 }
 
@@ -88,7 +88,7 @@ function TreeRow({
             }}
             className="w-6 h-6 rounded-lg bg-zinc-100 dark:bg-zinc-800/80 hover:bg-zinc-200 dark:hover:bg-zinc-700 flex items-center justify-center text-zinc-500 hover:text-zinc-900 dark:hover:text-white transition-all active:scale-95 cursor-pointer shrink-0 shadow-2xs"
           >
-            {isExpanded ? <ChevronDown size={13} strokeWidth={2.5} /> : <ChevronRight size={13} strokeWidth={2.5} />}
+            {isExpanded ? <CaretDown size={13} weight="bold" /> : <CaretRight size={13} weight="bold" />}
           </button>
         ) : (
           <span className="w-6 flex items-center justify-center shrink-0">
@@ -127,7 +127,7 @@ function TreeRow({
           {/* Telemetry metadata */}
           <div className="flex items-center gap-3 shrink-0 text-zinc-500 dark:text-zinc-400 text-[11px]">
             <span className="flex items-center gap-1 font-mono tabular-nums">
-              <MessageSquare size={11} className="text-zinc-400" />
+              <ChatText size={11} className="text-zinc-400" />
               <strong className="text-zinc-700 dark:text-zinc-300 font-semibold">{node.messageCount}</strong>
             </span>
             <span className="flex items-center gap-1 font-mono text-[10.5px]">

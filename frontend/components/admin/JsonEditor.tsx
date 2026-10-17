@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { AlertCircle, Check } from 'lucide-react'
+import { WarningCircle, Check } from '@phosphor-icons/react'
 
 interface JsonEditorProps {
   value: any
@@ -52,7 +52,7 @@ export default function JsonEditor({ value, onChange, label, description, placeh
         />
         {error ? (
           <div className="absolute bottom-4 right-4 flex items-center gap-1.5 text-[11px] font-bold text-red-600 bg-red-50 px-3 py-1.5 rounded-full border border-red-100 shadow-sm">
-            <AlertCircle size={14} />
+            <WarningCircle size={14} />
             Invalid JSON
           </div>
         ) : text.trim() ? (

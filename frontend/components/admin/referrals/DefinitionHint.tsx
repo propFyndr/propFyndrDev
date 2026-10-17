@@ -1,7 +1,7 @@
 // Eye-icon hint: explains how a referral number is counted. Opens on hover
 // and on keyboard focus; the text is wired to the button via aria-describedby.
 import { useId, type ReactNode } from 'react'
-import { Eye } from 'lucide-react'
+import { Eye } from '@phosphor-icons/react'
 
 export default function DefinitionHint({
   label,

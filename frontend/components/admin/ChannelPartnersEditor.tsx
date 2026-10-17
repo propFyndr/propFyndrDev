@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Plus, Trash2, Save, ShieldCheck, Users, CheckCircle2 } from 'lucide-react'
+import { Plus, Trash, FloppyDisk, ShieldCheck, Users, CheckCircle } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import { adminAuthHeaders } from '@/lib/authedFetch'
 import { API_BASE } from '@/lib/env'
@@ -132,7 +132,7 @@ export default function ChannelPartnersEditor({ projectId, initialPartners = [],
           disabled={saving}
           className="bg-[#0066cc] hover:bg-[#0055b3] text-white font-medium rounded-xl text-xs px-4 py-2 flex items-center gap-1.5 shadow-xs transition-colors disabled:opacity-50 shrink-0 self-start sm:self-auto"
         >
-          <Save size={14} />
+          <FloppyDisk size={14} />
           <span>{saving ? 'Saving...' : 'Save Partners'}</span>
         </button>
       </div>
@@ -169,7 +169,7 @@ export default function ChannelPartnersEditor({ projectId, initialPartners = [],
                     <p className="text-xs font-semibold text-zinc-900 dark:text-zinc-100">{partner.name}</p>
                     {partner.is_verified && (
                       <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200/60 dark:border-emerald-800/60 px-1.5 py-0.2 rounded-md">
-                        <CheckCircle2 size={10} /> Verified
+                        <CheckCircle size={10} /> Verified
                       </span>
                     )}
                   </div>

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Trash2, Upload, Loader2, FileText, CheckCircle2 } from 'lucide-react'
+import { Trash, Upload, CircleNotch, FileText, CheckCircle } from '@phosphor-icons/react'
 import { API_BASE } from '@/lib/env'
 import { adminAuthHeaders } from '@/lib/authedFetch'
 import CustomSelect from './CustomSelect'
@@ -110,7 +110,7 @@ export default function DocumentsEditor({ documents: initial, projectId, slug, o
             className="w-40"
           />
           <label className="inline-flex items-center gap-1.5 text-xs font-medium text-white bg-[#0066cc] hover:bg-[#0077ed] px-3.5 h-9 rounded-xl transition-all cursor-pointer shadow-2xs active:scale-[0.98]">
-            {uploading ? <Loader2 size={13} className="animate-spin" /> : <Upload size={13} />}
+            {uploading ? <CircleNotch size={13} className="animate-spin" /> : <Upload size={13} />}
             <span>Upload Document</span>
             <input type="file" accept=".pdf,.doc,.docx" className="hidden" onChange={handleUpload} disabled={uploading} />
           </label>
@@ -120,7 +120,7 @@ export default function DocumentsEditor({ documents: initial, projectId, slug, o
       {error   && <p className="text-xs text-rose-600 dark:text-rose-400 mb-3">{error}</p>}
       {success && (
         <p className="flex items-center gap-1 text-xs text-emerald-600 dark:text-emerald-400 mb-3">
-          <CheckCircle2 size={13} className="fill-current" /> {success}
+          <CheckCircle size={13} weight="fill" /> {success}
         </p>
       )}
 
@@ -154,7 +154,7 @@ export default function DocumentsEditor({ documents: initial, projectId, slug, o
                 className="opacity-0 group-hover:opacity-100 w-8 h-8 flex items-center justify-center bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg text-zinc-400 hover:text-rose-600 dark:hover:text-rose-400 transition-all cursor-pointer shadow-2xs"
                 title="Delete document"
               >
-                <Trash2 size={13} />
+                <Trash size={13} />
               </button>
             </div>
           ))}

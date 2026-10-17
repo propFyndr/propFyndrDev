@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useRef, useEffect } from 'react'
-import { ChevronDown, Check } from 'lucide-react'
+import { CaretDown, Check } from '@phosphor-icons/react'
 
 export interface SelectOption<T extends string = string> {
   value: T
@@ -94,7 +94,7 @@ export default function CustomSelect<T extends string = string>({
             {selectedOption ? selectedOption.label : placeholder}
           </span>
         </span>
-        <ChevronDown
+        <CaretDown
           size={sizeClasses.chevron}
           className={`text-zinc-400 dark:text-zinc-400 shrink-0 transition-transform duration-200 ${
             isOpen ? 'rotate-180 text-blue-600 dark:text-blue-400' : ''

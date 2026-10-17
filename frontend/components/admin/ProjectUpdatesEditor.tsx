@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Plus, Trash2, Save, RefreshCw, CheckCircle2, Clock, Calendar, Rss } from 'lucide-react'
+import { Plus, Trash, FloppyDisk, ArrowsClockwise, CheckCircle, Clock, Calendar, Rss } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import { adminAuthHeaders } from '@/lib/authedFetch'
 import { API_BASE } from '@/lib/env'
@@ -133,7 +133,7 @@ export default function ProjectUpdatesEditor({ projectId, projectStatus = 'under
             disabled={saving}
             className="px-4 py-2 bg-[#0066cc] hover:bg-[#0055b3] text-white rounded-xl text-[13px] font-medium flex items-center gap-2 transition-colors disabled:opacity-50 shadow-2xs cursor-pointer"
           >
-            {saving ? <RefreshCw size={13} className="animate-spin" /> : <Save size={13} />}
+            {saving ? <ArrowsClockwise size={13} className="animate-spin" /> : <FloppyDisk size={13} />}
             <span>{saving ? 'Saving...' : 'Save Feed'}</span>
           </button>
         </div>
@@ -186,7 +186,7 @@ export default function ProjectUpdatesEditor({ projectId, projectStatus = 'under
               onClick={() => setUpdates(updates.filter((_, idx) => idx !== i))}
               className="p-1.5 text-zinc-400 hover:text-rose-500 rounded-lg transition-colors self-end sm:self-center cursor-pointer"
             >
-              <Trash2 size={14} />
+              <Trash size={14} />
             </button>
           </div>
         ))}

@@ -3,9 +3,22 @@
 import { use, useEffect, useState, useCallback } from 'react'
 import Link from 'next/link'
 import {
-  ArrowLeft, ChevronRight, Eye, LayoutPanelLeft, AlertCircle, CheckCircle2, Info,
-  Images, Cpu, Activity, IndianRupee, Users, ShieldCheck, Layers, History
-} from 'lucide-react'
+  ArrowLeft,
+  CaretRight,
+  Eye,
+  SidebarSimple,
+  WarningCircle,
+  CheckCircle,
+  Info,
+  Images,
+  Cpu,
+  Pulse,
+  CurrencyInr,
+  Users,
+  ShieldCheck,
+  Stack,
+  ClockCounterClockwise,
+} from '@phosphor-icons/react'
 import { adminFetch } from '@/lib/adminFetch'
 import ProjectForm from '@/components/admin/ProjectForm'
 import UnitsEditor from '@/components/admin/UnitsEditor'
@@ -223,7 +236,7 @@ function SectionAuditSidebar({
         {audit.missing.length > 0 ? (
           <div className="mb-4">
             <div className="flex items-center gap-1.5 text-xs font-semibold text-amber-700 dark:text-amber-400 mb-2">
-              <AlertCircle size={13} />
+              <WarningCircle size={13} />
               <span>Incomplete Fields ({audit.missing.length})</span>
             </div>
             <ul className="space-y-1.5 pl-0.5">
@@ -237,7 +250,7 @@ function SectionAuditSidebar({
           </div>
         ) : (
           <div className="mb-4 bg-emerald-50/60 dark:bg-emerald-950/30 border border-emerald-200/60 dark:border-emerald-800/40 p-3 rounded-xl flex items-center gap-2 text-xs font-medium text-emerald-800 dark:text-emerald-300">
-            <CheckCircle2 size={15} className="text-emerald-500 shrink-0" />
+            <CheckCircle size={15} className="text-emerald-500 shrink-0" />
             <span>All required fields in {tabLabel} are 100% verified</span>
           </div>
         )}
@@ -246,13 +259,13 @@ function SectionAuditSidebar({
         {audit.completed.length > 0 && (
           <div>
             <div className="flex items-center gap-1.5 text-xs font-semibold text-zinc-500 dark:text-zinc-400 mb-2">
-              <CheckCircle2 size={13} className="text-emerald-500" />
+              <CheckCircle size={13} className="text-emerald-500" />
               <span>Verified Sub-Sections ({audit.completed.length})</span>
             </div>
             <ul className="space-y-1 pl-0.5 max-h-60 overflow-y-auto pr-1">
               {audit.completed.map((item, idx) => (
                 <li key={idx} className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors">
-                  <CheckCircle2 size={13} className="text-emerald-500 shrink-0" />
+                  <CheckCircle size={13} className="text-emerald-500 shrink-0" />
                   <span className="font-normal truncate">{item}</span>
                 </li>
               ))}
@@ -430,7 +443,7 @@ export default function AdminProjectEditPage({
           Back to projects
         </Link>
         <div className="rounded-lg bg-red-50 dark:bg-red-900/20 p-6 flex gap-3">
-          <AlertCircle className="text-red-600 dark:text-red-400 shrink-0 mt-1" size={20} />
+          <WarningCircle className="text-red-600 dark:text-red-400 shrink-0 mt-1" size={20} />
           <div className="flex-1">
             <h3 className="font-semibold text-red-900 dark:text-red-300 mb-1">Error loading project</h3>
             <p className="text-red-800 dark:text-red-200 text-sm">{error || 'Project not found'}</p>
@@ -492,14 +505,14 @@ export default function AdminProjectEditPage({
   }
 
   const TAB_ITEMS: { id: AdminTab; label: string; icon: React.ElementType }[] = [
-    { id: 'core',         label: 'Core Info',            icon: LayoutPanelLeft },
-    { id: 'specs',        label: 'Specifications',       icon: Layers },
-    { id: 'pricing',      label: 'Pricing & Location',   icon: IndianRupee },
+    { id: 'core',         label: 'Core Info',            icon: SidebarSimple },
+    { id: 'specs',        label: 'Specifications',       icon: Stack },
+    { id: 'pricing',      label: 'Pricing & Location',   icon: CurrencyInr },
     { id: 'media',        label: 'Media',                icon: Images },
     { id: 'intelligence', label: 'Intelligence',         icon: Cpu },
-    { id: 'updates',      label: 'Updates & Timeline',   icon: Activity },
+    { id: 'updates',      label: 'Updates & Timeline',   icon: Pulse },
     { id: 'partners',     label: 'Channel Partners',     icon: Users },
-    { id: 'audit',        label: 'Changelog',            icon: History },
+    { id: 'audit',        label: 'Changelog',            icon: ClockCounterClockwise },
   ]
 
   // Pre-compute all tab audits once to avoid O(N) recalculation
@@ -673,7 +686,7 @@ export default function AdminProjectEditPage({
                   {isComplete ? (
                     <span className="flex items-center gap-1 text-[10.5px] font-mono text-zinc-400 dark:text-zinc-500 font-medium shrink-0">
                       {pct === 100 ? (
-                        <CheckCircle2 size={12} className="text-emerald-500/80 shrink-0" />
+                        <CheckCircle size={12} className="text-emerald-500/80 shrink-0" />
                       ) : (
                         <span>{pct}%</span>
                       )}

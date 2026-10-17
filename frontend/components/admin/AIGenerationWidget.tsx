@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { AnimatePresence, m } from 'framer-motion'
-import { Sparkles, Search, FileEdit, ShieldCheck, CheckCircle2, Loader2, Clock, Compass } from 'lucide-react'
+import { Sparkle, MagnifyingGlass, NotePencil, ShieldCheck, CheckCircle, CircleNotch, Clock, Compass } from '@phosphor-icons/react'
 
 interface Props {
   generating: boolean
@@ -18,8 +18,8 @@ interface Props {
 // not a fact-check; claiming either would be the overstatement the product
 // exists to avoid.
 const PIPELINE_STEPS = [
-  { step: 1, title: 'Sources', detail: 'Web search on the topic', icon: Search },
-  { step: 2, title: 'Writing', detail: 'Draft from those sources', icon: FileEdit },
+  { step: 1, title: 'Sources', detail: 'Web search on the topic', icon: MagnifyingGlass },
+  { step: 2, title: 'Writing', detail: 'Draft from those sources', icon: NotePencil },
   { step: 3, title: 'Checks', detail: 'Links, figures, structure, style', icon: ShieldCheck },
 ]
 
@@ -68,7 +68,7 @@ export default function AIGenerationWidget({ generating, progress }: Props) {
               <div className="flex items-center gap-3 min-w-0">
                 <div className="relative">
                   <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-violet-600 text-white flex items-center justify-center shrink-0 shadow-md shadow-blue-500/30 ring-2 ring-blue-500/20">
-                    <Sparkles size={18} className="motion-safe:animate-pulse" />
+                    <Sparkle size={18} className="motion-safe:animate-pulse" />
                   </div>
                   <span className="absolute -top-1 -right-1 flex h-3 w-3">
                     <span className="motion-safe:animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75" />
@@ -121,9 +121,9 @@ export default function AIGenerationWidget({ generating, progress }: Props) {
                   >
                     <div className="flex items-center gap-2 mb-1">
                       {isCompleted ? (
-                        <CheckCircle2 size={13} className="text-emerald-400 shrink-0" />
+                        <CheckCircle size={13} className="text-emerald-400 shrink-0" />
                       ) : isActive ? (
-                        <Loader2 size={13} className="motion-safe:animate-spin text-blue-400 shrink-0" />
+                        <CircleNotch size={13} className="motion-safe:animate-spin text-blue-400 shrink-0" />
                       ) : (
                         <IconComponent size={13} className="text-zinc-500 shrink-0" />
                       )}

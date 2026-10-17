@@ -31,7 +31,7 @@ import {
   Info,
   ArrowsClockwise
 } from '@phosphor-icons/react'
-import { RotateCcw, ArrowLeft } from 'lucide-react'
+import { ArrowCounterClockwise, ArrowLeft } from '@phosphor-icons/react'
 import { formatDistanceToNow } from 'date-fns'
 import { adminFetch } from '@/lib/adminFetch'
 import { MetricCard, MetricCardSkeleton } from '@/components/admin/ui/MetricCard'
@@ -282,7 +282,7 @@ export default function OutboxPage() {
             className="flex items-center gap-1.5 bg-white dark:bg-zinc-900 hover:bg-zinc-50 dark:hover:bg-zinc-800 text-zinc-800 dark:text-zinc-200 border border-zinc-200/90 dark:border-zinc-800 px-3.5 py-2 rounded-xl text-xs font-bold transition-all shadow-2xs active:scale-[0.98] cursor-pointer disabled:opacity-60"
             title="Refresh outbox queue"
           >
-            <RotateCcw size={14} className={isRefreshing ? 'animate-spin text-[#0066cc]' : 'text-zinc-500'} />
+            <ArrowCounterClockwise size={14} className={isRefreshing ? 'animate-spin text-[#0066cc]' : 'text-zinc-500'} />
             <span>{isRefreshing ? 'Refreshing…' : 'Refresh'}</span>
           </button>
 

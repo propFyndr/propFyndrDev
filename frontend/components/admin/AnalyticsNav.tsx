@@ -2,15 +2,15 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, Search, Building2, Users } from 'lucide-react'
+import { SquaresFour, MagnifyingGlass, Buildings, Users } from '@phosphor-icons/react'
 
 export default function AnalyticsNav() {
   const pathname = usePathname()
 
   const navs = [
-    { name: 'Dashboard', path: '/admin/analytics', icon: LayoutDashboard },
-    { name: 'Search Analytics', path: '/admin/analytics/search', icon: Search },
-    { name: 'Property Engagement', path: '/admin/analytics/properties', icon: Building2 },
+    { name: 'Dashboard', path: '/admin/analytics', icon: SquaresFour },
+    { name: 'Search Analytics', path: '/admin/analytics/search', icon: MagnifyingGlass },
+    { name: 'Property Engagement', path: '/admin/analytics/properties', icon: Buildings },
     { name: 'User Behavior', path: '/admin/analytics/users', icon: Users },
   ]
 

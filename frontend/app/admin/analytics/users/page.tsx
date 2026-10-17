@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback, useRef, useMemo } from 'react'
 import Link from 'next/link'
-import { ArrowLeft, RotateCcw } from 'lucide-react'
+import { ArrowLeft, ArrowCounterClockwise } from '@phosphor-icons/react'
 import {
   Users,
   ArrowsClockwise,
@@ -205,7 +205,7 @@ export default function UsersAnalytics() {
             className="flex items-center gap-2 bg-white dark:bg-zinc-900 hover:bg-zinc-50 dark:hover:bg-zinc-800 text-zinc-900 dark:text-white border border-zinc-200/80 dark:border-zinc-800 px-3.5 py-2 rounded-xl text-xs font-bold transition-all shadow-2xs active:scale-[0.98] cursor-pointer disabled:opacity-60"
             title="Refresh user behavior analytics"
           >
-            <RotateCcw size={14} className={isRefreshing ? 'animate-spin text-[#0066cc]' : 'text-zinc-500'} />
+            <ArrowCounterClockwise size={14} className={isRefreshing ? 'animate-spin text-[#0066cc]' : 'text-zinc-500'} />
             <span>{isRefreshing ? 'Refreshing...' : 'Refresh'}</span>
           </button>
         </div>

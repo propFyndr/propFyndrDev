@@ -4,42 +4,41 @@ import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import {
   X,
-  Smartphone,
+  DeviceMobile,
   Laptop,
   Copy,
   Check,
-  Share2,
-  Send,
-  MessageCircle,
+  ShareNetwork,
+  PaperPlaneTilt,
+  ChatCircle,
   Star,
-  CornerUpLeft,
+  ArrowBendUpLeft,
   Moon,
   Sun,
-  Loader2,
+  CircleNotch,
   Sliders,
-  Building2,
+  Buildings,
   Phone,
-  CheckCircle2,
-  AlertCircle,
-  Search,
+  CheckCircle,
+  WarningCircle,
+  MagnifyingGlass,
   Archive,
-  Trash2,
+  Trash,
   Clock,
-  Reply,
   Printer,
-  ExternalLink,
+  ArrowSquareOut,
   Tag,
-  Grid,
-  Menu,
-  ChevronDown,
-  Wifi,
-  Battery,
-  Mail,
+  GridFour,
+  List,
+  CaretDown,
+  WifiHigh,
+  BatteryFull,
+  Envelope,
   MapPin,
-  Layers,
+  Stack,
   ArrowUpRight,
-  Plus
-} from 'lucide-react'
+  Plus,
+} from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import { adminFetch } from '@/lib/adminFetch'
 import CustomSelect from '@/components/admin/CustomSelect'
@@ -974,7 +973,7 @@ ${senderPhone}`
         <div className="flex items-center justify-between px-5 sm:px-7 py-3.5 border-b border-[#e5e5ea] dark:border-[#27272a] bg-white/95 dark:bg-[#1c1c1f]/95 backdrop-blur-xl shrink-0">
           <div className="flex items-center gap-3.5">
             <div className="w-10 h-10 rounded-2xl bg-gradient-to-b from-[#0077ed] to-[#005bb5] text-white flex items-center justify-center shadow-[0_2px_8px_rgba(0,102,204,0.35)] shrink-0">
-              <Mail size={18} />
+              <Envelope size={18} />
             </div>
             <div>
               <div className="flex items-center gap-2.5 flex-wrap">
@@ -1006,17 +1005,17 @@ ${senderPhone}`
             >
               {isSending ? (
                 <>
-                  <Loader2 size={13} className="animate-spin" />
+                  <CircleNotch size={13} className="animate-spin" />
                   <span>Dispatching...</span>
                 </>
               ) : sentSuccessId ? (
                 <>
-                  <CheckCircle2 size={13} className="text-emerald-300" />
+                  <CheckCircle size={13} className="text-emerald-300" />
                   <span>Dispatched!</span>
                 </>
               ) : (
                 <>
-                  <Send size={13} />
+                  <PaperPlaneTilt size={13} />
                   <span>Send via Resend</span>
                 </>
               )}
@@ -1028,7 +1027,7 @@ ${senderPhone}`
               className="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white dark:bg-[#242428] hover:bg-[#f5f5f7] dark:hover:bg-[#2c2c30] text-zinc-700 dark:text-zinc-200 font-semibold text-xs transition-all active:scale-[0.98] border border-[#e5e5ea] dark:border-[#38383e] shadow-2xs"
               title="Open full-page Executive Studio"
             >
-              <ExternalLink size={13} />
+              <ArrowSquareOut size={13} />
               <span>Full Studio</span>
             </Link>
 
@@ -1100,7 +1099,7 @@ ${senderPhone}`
                   {/* Card 1: Target Entity & Direct Contacts */}
                   <div className="bg-white dark:bg-[#1e1e22] rounded-2xl p-4 border border-[#e5e5ea]/80 dark:border-[#2c2c30] shadow-[0_1px_3px_rgba(0,0,0,0.03)] space-y-3.5">
                     <div className="flex items-center gap-2 pb-2.5 border-b border-[#f0f0f2] dark:border-[#27272a]">
-                      <Building2 size={14} className="text-[#0071e3]" />
+                      <Buildings size={14} className="text-[#0071e3]" />
                       <span className="text-[11px] font-bold text-[#1d1d1f] dark:text-[#f5f5f7] uppercase tracking-wider">
                         Recipient Entity &amp; Contacts
                       </span>
@@ -1112,7 +1111,7 @@ ${senderPhone}`
                         Developer / Builder Firm Name <span className="text-[#ff3b30]">*</span>
                       </label>
                       <div className="relative">
-                        <Building2 size={14} className="text-[#86868b] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                        <Buildings size={14} className="text-[#86868b] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                         <input
                           type="text"
                           value={recipientName}
@@ -1129,7 +1128,7 @@ ${senderPhone}`
                         Recipient Executive Email <span className="text-[#ff3b30]">*</span>
                       </label>
                       <div className="relative">
-                        <Mail size={14} className="text-[#86868b] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                        <Envelope size={14} className="text-[#86868b] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                         <input
                           type="email"
                           value={recipientEmail}
@@ -1162,7 +1161,7 @@ ${senderPhone}`
                   <div className="bg-white dark:bg-[#1e1e22] rounded-2xl p-4 border border-[#e5e5ea]/80 dark:border-[#2c2c30] shadow-[0_1px_3px_rgba(0,0,0,0.03)] space-y-3.5">
                     <div className="flex items-center justify-between pb-2.5 border-b border-[#f0f0f2] dark:border-[#27272a]">
                       <div className="flex items-center gap-2">
-                        <Layers size={14} className="text-[#0071e3]" />
+                        <Stack size={14} className="text-[#0071e3]" />
                         <span className="text-[11px] font-bold text-[#1d1d1f] dark:text-[#f5f5f7] uppercase tracking-wider">
                           Portfolio Scope ({allProjects.length})
                         </span>
@@ -1362,7 +1361,7 @@ ${senderPhone}`
                   className="flex-1 flex items-center justify-center gap-2 py-2.5 px-3.5 rounded-xl bg-[#25D366] hover:bg-[#20bd5a] text-white text-xs font-semibold transition-all shadow-xs cursor-pointer active:scale-[0.98]"
                   title="Open WhatsApp chat with prefilled message"
                 >
-                  <MessageCircle size={15} />
+                  <ChatCircle size={15} />
                   <span>
                     {recipientPhone
                       ? `Open WhatsApp (${recipientPhone.slice(-10)})`
@@ -1396,7 +1395,7 @@ ${senderPhone}`
                 onClick={copyText}
                 className="w-full flex items-center justify-center gap-2 py-2.5 px-3.5 rounded-xl bg-[#f5f5f7] dark:bg-[#25252a] hover:bg-[#e5e5ea] dark:hover:bg-[#2c2c32] text-[#1d1d1f] dark:text-[#f5f5f7] border border-[#e5e5ea] dark:border-[#38383a] text-xs font-semibold transition-all shadow-2xs cursor-pointer active:scale-[0.98]"
               >
-                {copiedType === 'text' ? <Check size={14} /> : <Share2 size={14} />}
+                {copiedType === 'text' ? <Check size={14} /> : <ShareNetwork size={14} />}
                 <span>{copiedType === 'text' ? 'Plaintext Copied!' : 'Copy Plaintext'}</span>
               </button>
             </div>
@@ -1494,8 +1493,8 @@ ${senderPhone}`
                       <div className="w-full flex items-center justify-between px-7 pt-3.5 pb-2 text-[11px] font-bold shrink-0 bg-transparent z-10">
                         <span className="font-semibold tracking-tight">9:41</span>
                         <div className="flex items-center gap-1.5 opacity-80">
-                          <Wifi size={11} />
-                          <Battery size={13} />
+                          <WifiHigh size={11} />
+                          <BatteryFull size={13} />
                         </div>
                       </div>
 
@@ -1513,8 +1512,8 @@ ${senderPhone}`
                         </div>
                         <div className="flex items-center gap-3 text-zinc-400">
                           <Archive size={13} />
-                          <Trash2 size={13} />
-                          <Reply size={13} />
+                          <Trash size={13} />
+                          <ArrowBendUpLeft size={13} />
                         </div>
                       </div>
 
@@ -1595,7 +1594,7 @@ ${senderPhone}`
                             }`}
                           >
                             <div className="flex items-center gap-3">
-                              <Menu size={16} className="text-zinc-500 cursor-pointer" />
+                              <List size={16} className="text-zinc-500 cursor-pointer" />
                               <div className="flex items-center gap-2 font-semibold select-none">
                                 <GmailLogo className="w-5 h-5" />
                                 <span
@@ -1616,7 +1615,7 @@ ${senderPhone}`
                                   : 'bg-white border-zinc-200/80 text-zinc-700'
                               }`}
                             >
-                              <Search size={13} className="text-zinc-400" />
+                              <MagnifyingGlass size={13} className="text-zinc-400" />
                               <span className="text-xs text-zinc-400 flex-1">Search mail</span>
                               <Sliders size={12} className="text-zinc-400" />
                             </div>
@@ -1635,17 +1634,17 @@ ${senderPhone}`
                             }`}
                           >
                             <div className="flex items-center gap-3.5">
-                              <CornerUpLeft size={13} className="hover:text-zinc-800 dark:hover:text-zinc-200 cursor-pointer" />
+                              <ArrowBendUpLeft size={13} className="hover:text-zinc-800 dark:hover:text-zinc-200 cursor-pointer" />
                               <Archive size={13} className="hover:text-zinc-800 dark:hover:text-zinc-200 cursor-pointer" />
-                              <AlertCircle size={13} className="hover:text-zinc-800 dark:hover:text-zinc-200 cursor-pointer" />
-                              <Trash2 size={13} className="hover:text-zinc-800 dark:hover:text-zinc-200 cursor-pointer" />
+                              <WarningCircle size={13} className="hover:text-zinc-800 dark:hover:text-zinc-200 cursor-pointer" />
+                              <Trash size={13} className="hover:text-zinc-800 dark:hover:text-zinc-200 cursor-pointer" />
                               <Clock size={13} className="hover:text-zinc-800 dark:hover:text-zinc-200 cursor-pointer" />
                               <Tag size={13} className="hover:text-zinc-800 dark:hover:text-zinc-200 cursor-pointer" />
                             </div>
 
                             <div className="flex items-center gap-3">
                               <Printer size={13} className="hover:text-zinc-800 dark:hover:text-zinc-200 cursor-pointer" />
-                              <ExternalLink size={13} className="hover:text-zinc-800 dark:hover:text-zinc-200 cursor-pointer" />
+                              <ArrowSquareOut size={13} className="hover:text-zinc-800 dark:hover:text-zinc-200 cursor-pointer" />
                             </div>
                           </div>
 
@@ -1738,7 +1737,7 @@ ${senderPhone}`
                               </div>
                             </div>
                             <div className="hidden sm:flex items-center flex-1 max-w-xs mx-6 bg-white/20 hover:bg-white/25 rounded-md px-3 py-1 gap-2 text-white/90 text-xs transition-colors">
-                              <Search size={13} />
+                              <MagnifyingGlass size={13} />
                               <span className="text-white/70">Search</span>
                             </div>
                             <div className="flex items-center gap-2">

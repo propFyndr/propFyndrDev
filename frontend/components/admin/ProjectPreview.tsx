@@ -4,11 +4,26 @@ import { useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import {
-  CheckCircle2, Clock, Zap, Shield, MapPin, Building2,
-  BedDouble, ExternalLink, RefreshCw, Smartphone, Layers,
-  CalendarDays, FileText, IndianRupee, LineChart, Maximize2,
-  TrainFront, Leaf, Users
-} from 'lucide-react'
+  CheckCircle,
+  Clock,
+  Lightning,
+  Shield,
+  MapPin,
+  Buildings,
+  Bed,
+  ArrowSquareOut,
+  ArrowsClockwise,
+  DeviceMobile,
+  Stack,
+  CalendarDots,
+  FileText,
+  CurrencyInr,
+  ChartLine,
+  ArrowsOut,
+  Train,
+  Leaf,
+  Users,
+} from '@phosphor-icons/react'
 
 interface UnitType {
   bhk: number
@@ -43,10 +58,10 @@ interface ProjectData {
   images?: { url: string; type: string }[]
 }
 
-const STATUS_CFG: Record<string, { label: string; cls: string; icon: typeof CheckCircle2 }> = {
-  ready_to_move:      { label: 'Ready to Move',      cls: 'bg-emerald-500/90 text-white backdrop-blur-md shadow-xs', icon: CheckCircle2 },
+const STATUS_CFG: Record<string, { label: string; cls: string; icon: typeof CheckCircle }> = {
+  ready_to_move:      { label: 'Ready to Move',      cls: 'bg-emerald-500/90 text-white backdrop-blur-md shadow-xs', icon: CheckCircle },
   under_construction: { label: 'Under Construction', cls: 'bg-amber-500/90 text-white backdrop-blur-md shadow-xs',   icon: Clock },
-  new_launch:         { label: 'New Launch',         cls: 'bg-blue-600/90 text-white backdrop-blur-md shadow-xs',     icon: Zap },
+  new_launch:         { label: 'New Launch',         cls: 'bg-blue-600/90 text-white backdrop-blur-md shadow-xs',     icon: Lightning },
 }
 
 function priceRange(units: UnitType[]): string {
@@ -100,7 +115,7 @@ export default function ProjectPreview({ project, onRefresh, refreshing }: Props
       <div className="p-2.5 rounded-2xl bg-zinc-50 dark:bg-zinc-900/90 border border-zinc-200/80 dark:border-zinc-800 shadow-xs flex flex-wrap items-center justify-between gap-2.5">
         <div className="flex items-center gap-2.5">
           <div className="w-8 h-8 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center border border-blue-500/20 shadow-2xs shrink-0">
-            <Smartphone size={16} />
+            <DeviceMobile size={16} />
           </div>
           <div>
             <div className="flex items-center gap-1.5">
@@ -166,7 +181,7 @@ export default function ProjectPreview({ project, onRefresh, refreshing }: Props
               title="Refresh Preview Data"
               className="w-7 h-7 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700 flex items-center justify-center transition-all cursor-pointer shadow-2xs active:scale-95 disabled:opacity-50"
             >
-              <RefreshCw size={12} className={refreshing ? 'animate-spin text-blue-600' : ''} />
+              <ArrowsClockwise size={12} className={refreshing ? 'animate-spin text-blue-600' : ''} />
             </button>
           )}
 
@@ -176,7 +191,7 @@ export default function ProjectPreview({ project, onRefresh, refreshing }: Props
               target="_blank"
               className="flex items-center gap-1.5 text-xs font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/60 hover:bg-blue-100 dark:hover:bg-blue-900/60 border border-blue-200/80 dark:border-blue-800/80 px-2.5 py-1 rounded-xl transition-all shadow-2xs active:scale-95"
             >
-              <ExternalLink size={12} />
+              <ArrowSquareOut size={12} />
               <span>Public View</span>
             </Link>
           )}
@@ -264,10 +279,10 @@ export default function ProjectPreview({ project, onRefresh, refreshing }: Props
                   Builder: 'Docs'
                 }
                 const icons: Record<string, React.ReactNode> = {
-                  Overview: <Building2 size={15} />,
-                  Analysis: <LineChart size={15} />,
-                  'Floor Plans': <BedDouble size={15} />,
-                  Pricing: <IndianRupee size={15} />,
+                  Overview: <Buildings size={15} />,
+                  Analysis: <ChartLine size={15} />,
+                  'Floor Plans': <Bed size={15} />,
+                  Pricing: <CurrencyInr size={15} />,
                   Location: <MapPin size={15} />,
                   Builder: <FileText size={15} />
                 }
@@ -300,10 +315,10 @@ export default function ProjectPreview({ project, onRefresh, refreshing }: Props
                   <div className="grid grid-cols-3 gap-2">
                     {[
                       { value: project.open_space_pct ? `${project.open_space_pct}%` : '75%', sub: 'Open Green', icon: Leaf, color: 'bg-emerald-950 text-emerald-400' },
-                      { value: '3 mins', sub: 'Aqua Metro', icon: TrainFront, color: 'bg-blue-950 text-blue-400' },
+                      { value: '3 mins', sub: 'Aqua Metro', icon: Train, color: 'bg-blue-950 text-blue-400' },
                       { value: 'IGBC', sub: 'Gold Rated', icon: Leaf, color: 'bg-amber-950 text-amber-400' },
                       { value: 'Low', sub: 'Density Living', icon: Users, color: 'bg-purple-950 text-purple-400' },
-                      { value: 'Corner', sub: 'Smart Units', icon: Maximize2, color: 'bg-orange-950 text-orange-400' },
+                      { value: 'Corner', sub: 'Smart Units', icon: ArrowsOut, color: 'bg-orange-950 text-orange-400' },
                       { value: 'RERA', sub: 'Registered', icon: Shield, color: 'bg-teal-950 text-teal-400' }
                     ].map((item, idx) => {
                       const Icon = item.icon
@@ -394,7 +409,7 @@ export default function ProjectPreview({ project, onRefresh, refreshing }: Props
               <span className={`flex items-center gap-1 px-2.5 py-1 rounded-lg border ${
                 isDark ? 'bg-purple-950/40 text-purple-300 border-purple-800/60' : 'bg-purple-50 text-purple-700 border-purple-200/60'
               }`}>
-                <Building2 size={12} className="text-purple-500 shrink-0" /> {builderName}
+                <Buildings size={12} className="text-purple-500 shrink-0" /> {builderName}
               </span>
             )}
           </div>
@@ -406,7 +421,7 @@ export default function ProjectPreview({ project, onRefresh, refreshing }: Props
                 <span key={b} className={`flex items-center gap-1 text-[10px] font-bold px-2.5 py-1 rounded-lg border ${
                   isDark ? 'bg-blue-950/60 text-blue-300 border-blue-800/80' : 'bg-blue-50 text-blue-700 border-blue-200/70'
                 }`}>
-                  <BedDouble size={11} /> {b}
+                  <Bed size={11} /> {b}
                 </span>
               ))}
             </div>

@@ -2,28 +2,28 @@
 
 import { useEffect, useState, useMemo, useCallback } from 'react'
 import {
-  History,
-  Search,
-  Filter,
+  ClockCounterClockwise,
+  MagnifyingGlass,
+  Funnel,
   ArrowRight,
   Shield,
-  FileSpreadsheet,
+  FileCsv,
   Cpu,
   User,
   Clock,
   Calendar,
-  CheckCircle2,
-  AlertCircle,
-  ListFilter,
-  RefreshCw,
+  CheckCircle,
+  WarningCircle,
+  FunnelSimple,
+  ArrowsClockwise,
   SlidersHorizontal,
-  ChevronDown,
-  ChevronUp,
-  Layers,
-  IndianRupee,
-  Building2,
-  FileText
-} from 'lucide-react'
+  CaretDown,
+  CaretUp,
+  Stack,
+  CurrencyInr,
+  Buildings,
+  FileText,
+} from '@phosphor-icons/react'
 import { formatDistanceToNow, format } from 'date-fns'
 import { adminFetch } from '@/lib/adminFetch'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -166,7 +166,7 @@ export default function AuditChangelogTab({ projectId, projectName }: AuditChang
     if (actor.toLowerCase().includes('bulk') || actor.toLowerCase().includes('csv')) {
       return (
         <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border border-amber-200/80 dark:border-amber-800/60">
-          <FileSpreadsheet size={11} className="text-amber-600 dark:text-amber-400" />
+          <FileCsv size={11} className="text-amber-600 dark:text-amber-400" />
           <span>Bulk CSV</span>
         </span>
       )
@@ -209,7 +209,7 @@ export default function AuditChangelogTab({ projectId, projectName }: AuditChang
           <div>
             <div className="flex items-center gap-2.5">
               <div className="w-9 h-9 rounded-xl bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-200 flex items-center justify-center shrink-0">
-                <History size={18} />
+                <ClockCounterClockwise size={18} />
               </div>
               <h3 className="text-sm font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
                 Audit History & Changelog
@@ -235,7 +235,7 @@ export default function AuditChangelogTab({ projectId, projectName }: AuditChang
                     : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white'
                 }`}
               >
-                <ListFilter size={13} className={mode === 'precise' ? 'text-[#0066cc]' : ''} />
+                <FunnelSimple size={13} className={mode === 'precise' ? 'text-[#0066cc]' : ''} />
                 <span>Precise Log</span>
               </button>
               <button
@@ -258,7 +258,7 @@ export default function AuditChangelogTab({ projectId, projectName }: AuditChang
               className="p-2 text-zinc-600 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white bg-zinc-50 dark:bg-zinc-800 border border-zinc-200/80 dark:border-zinc-700/80 rounded-xl hover:bg-zinc-100 transition-all cursor-pointer"
               title="Refresh Logs"
             >
-              <RefreshCw size={14} className={loading ? 'animate-spin text-[#0066cc]' : ''} />
+              <ArrowsClockwise size={14} className={loading ? 'animate-spin text-[#0066cc]' : ''} />
             </button>
           </div>
         </div>
@@ -266,7 +266,7 @@ export default function AuditChangelogTab({ projectId, projectName }: AuditChang
         {/* Search & Filter Bar */}
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-2 border-t border-zinc-100 dark:border-zinc-800/80">
           <div className="relative flex-1 max-w-md">
-            <Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400" />
+            <MagnifyingGlass size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400" />
             <input
               type="text"
               value={searchQuery}
@@ -311,7 +311,7 @@ export default function AuditChangelogTab({ projectId, projectName }: AuditChang
         ) : filteredLogs.length === 0 ? (
           <div className="py-16 text-center space-y-3">
             <div className="w-12 h-12 rounded-2xl bg-zinc-100 dark:bg-zinc-800 text-zinc-400 flex items-center justify-center mx-auto">
-              <History size={24} />
+              <ClockCounterClockwise size={24} />
             </div>
             <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">No Changelog Entries Recorded Yet</p>
             <p className="text-xs text-zinc-500 dark:text-zinc-400 max-w-sm mx-auto">
@@ -367,7 +367,7 @@ export default function AuditChangelogTab({ projectId, projectName }: AuditChang
                               className="text-xs font-medium text-[#0066cc] hover:text-[#0055b3] dark:text-blue-400 hover:underline flex items-center gap-1 cursor-pointer"
                             >
                               <span>View Field Diffs</span>
-                              <ChevronDown size={13} />
+                              <CaretDown size={13} />
                             </button>
                           </div>
                         ) : (
@@ -383,7 +383,7 @@ export default function AuditChangelogTab({ projectId, projectName }: AuditChang
                                   className="text-xs font-bold text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200 flex items-center gap-1 cursor-pointer"
                                 >
                                   <span>Collapse</span>
-                                  <ChevronUp size={13} />
+                                  <CaretUp size={13} />
                                 </button>
                               )}
                             </div>

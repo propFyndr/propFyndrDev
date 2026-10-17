@@ -3,7 +3,7 @@
 // Topics the AI draft generator rotates through (least recently used first).
 // "Generate AI Draft" picks the least recently used active topic.
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
-import { Plus, Trash2, Tag, ChevronDown, Sparkles, Bot, Play, Pause, Search, X, Clock, Zap, RotateCcw } from 'lucide-react'
+import { Plus, Trash, Tag, CaretDown, Sparkle, Robot, Play, Pause, MagnifyingGlass, X, Clock, Lightning, ArrowCounterClockwise } from '@phosphor-icons/react'
 import { formatDistanceToNow } from 'date-fns'
 import { AnimatePresence, m } from 'framer-motion'
 import { adminFetch } from '@/lib/adminFetch'
@@ -156,7 +156,7 @@ export default function BlogKeywordsPanel({ onError: onErrorProp, onGenerate, ge
       >
         <div className="flex items-center gap-3.5 min-w-0">
           <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-violet-600 text-white flex items-center justify-center shrink-0 shadow-sm shadow-blue-500/20 ring-4 ring-blue-500/10">
-            <Sparkles size={18} />
+            <Sparkle size={18} />
           </div>
 
           <div className="min-w-0">
@@ -193,7 +193,7 @@ export default function BlogKeywordsPanel({ onError: onErrorProp, onGenerate, ge
             {keywords.length} {keywords.length === 1 ? 'topic' : 'topics'}
           </span>
           <div className={`w-8 h-8 rounded-xl flex items-center justify-center border border-zinc-200/70 dark:border-zinc-700/70 bg-zinc-50 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 transition-transform duration-200 ${open ? 'rotate-180 bg-zinc-100 dark:bg-zinc-700 text-zinc-900 dark:text-white' : ''}`}>
-            <ChevronDown size={16} />
+            <CaretDown size={16} />
           </div>
         </div>
       </button>
@@ -272,7 +272,7 @@ export default function BlogKeywordsPanel({ onError: onErrorProp, onGenerate, ge
 
                   {/* Search within topics */}
                   <div className="relative flex items-center min-w-[200px] sm:w-64">
-                    <Search size={14} className="absolute left-3 text-zinc-400 pointer-events-none" />
+                    <MagnifyingGlass size={14} className="absolute left-3 text-zinc-400 pointer-events-none" />
                     <input
                       type="text"
                       value={searchQuery}
@@ -298,7 +298,7 @@ export default function BlogKeywordsPanel({ onError: onErrorProp, onGenerate, ge
               {/* Keywords List */}
               {keywords.length === 0 ? (
                 <div className="py-10 text-center rounded-2xl border border-dashed border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/50">
-                  <Bot size={28} className="mx-auto text-zinc-400 mb-2 opacity-70" />
+                  <Robot size={28} className="mx-auto text-zinc-400 mb-2 opacity-70" />
                   <p className="text-xs font-bold text-zinc-700 dark:text-zinc-300">No rotation topics yet</p>
                   <p className="text-[11px] text-zinc-400 dark:text-zinc-500 mt-1 max-w-sm mx-auto">
                     Add topics above. Each draft is written from a web search on its topic, least recently used first.
@@ -340,7 +340,7 @@ export default function BlogKeywordsPanel({ onError: onErrorProp, onGenerate, ge
                           <div className="flex items-center gap-2 flex-wrap">
                             {isNextInQueue && (
                               <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-blue-600 text-white shadow-2xs">
-                                <Zap size={10} className="fill-white" /> Next in Queue
+                                <Lightning size={10} weight="fill" /> Next in Queue
                               </span>
                             )}
                             <span
@@ -382,9 +382,9 @@ export default function BlogKeywordsPanel({ onError: onErrorProp, onGenerate, ge
                             className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-white dark:bg-zinc-800 border border-blue-200 dark:border-blue-900/60 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/60 transition-all shadow-2xs cursor-pointer disabled:opacity-40 disabled:cursor-wait active:scale-[0.98]"
                           >
                             {isItemGenerating ? (
-                              <RotateCcw size={13} className="motion-safe:animate-spin text-blue-600" />
+                              <ArrowCounterClockwise size={13} className="motion-safe:animate-spin text-blue-600" />
                             ) : (
-                              <Bot size={13} />
+                              <Robot size={13} />
                             )}
                             <span>{isItemGenerating ? 'Writing…' : 'Generate'}</span>
                           </button>
@@ -406,7 +406,7 @@ export default function BlogKeywordsPanel({ onError: onErrorProp, onGenerate, ge
                             title="Remove from queue"
                             className="p-1.5 rounded-xl text-zinc-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/50 transition-colors cursor-pointer"
                           >
-                            <Trash2 size={14} />
+                            <Trash size={14} />
                           </button>
                         </div>
                       </div>

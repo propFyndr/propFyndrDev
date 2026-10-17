@@ -1,7 +1,7 @@
 // Arrival trend visualizer with Apple/Seline craft standards,
 // gradient bars, telemetry labels, and graceful empty/loading states.
 import { useMemo } from 'react'
-import { Activity } from 'lucide-react'
+import { Pulse } from '@phosphor-icons/react'
 
 export type Granularity = 'daily' | 'weekly' | 'all'
 
@@ -66,7 +66,7 @@ export default function TrendChart({
         </div>
       ) : buckets.length === 0 ? (
         <div className="h-32 rounded-xl bg-zinc-50/50 dark:bg-zinc-800/20 border border-dashed border-zinc-200 dark:border-zinc-800 flex flex-col items-center justify-center text-center p-4">
-          <Activity size={20} className="text-zinc-300 dark:text-zinc-600 mb-1.5" />
+          <Pulse size={20} className="text-zinc-300 dark:text-zinc-600 mb-1.5" />
           <p className="text-xs font-semibold text-zinc-700 dark:text-zinc-300">No arrivals recorded yet.</p>
           <p className="text-[10.5px] text-zinc-500 dark:text-zinc-400 mt-0.5 max-w-xs">
             As visitors arrive via this link, arrival velocity will chart here automatically.

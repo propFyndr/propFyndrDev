@@ -12,46 +12,46 @@ import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import {
   ArrowLeft,
-  Home,
-  Mail,
-  Send,
-  Building2,
+  House,
+  Envelope,
+  PaperPlaneTilt,
+  Buildings,
   Phone,
   MapPin,
   Flame,
   Check,
   Copy,
-  Share2,
-  ExternalLink,
-  MessageCircle,
+  ShareNetwork,
+  ArrowSquareOut,
+  ChatCircle,
   Laptop,
-  Smartphone,
+  DeviceMobile,
   Sun,
   Moon,
-  Loader2,
+  CircleNotch,
   Sliders,
-  Search,
-  Menu,
+  MagnifyingGlass,
+  List,
   Star,
   Printer,
   Archive,
-  AlertCircle,
-  Trash2,
+  WarningCircle,
+  Trash,
   Clock,
   Tag,
-  CornerUpLeft,
-  CheckCircle2,
+  ArrowBendUpLeft,
+  CheckCircle,
   Lightbulb,
   Cpu,
-  HelpCircle,
-  ChevronDown,
-  Wifi,
-  Battery,
+  Question,
+  CaretDown,
+  WifiHigh,
+  BatteryFull,
   ShieldCheck,
   UserCheck,
   Plus,
   X,
-} from 'lucide-react'
+} from '@phosphor-icons/react'
 import { adminFetch } from '@/lib/adminFetch'
 import { toast } from 'sonner'
 import { Iphone } from '@/components/ui/iphone'
@@ -863,11 +863,11 @@ function EmailPreviewStudioContent() {
               title="Admin Home"
               className="w-9 h-9 rounded-xl bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 text-zinc-600 dark:text-zinc-300 flex items-center justify-center hover:bg-zinc-50 dark:hover:bg-zinc-800 shadow-2xs active:scale-95 transition-all"
             >
-              <Home size={16} />
+              <House size={16} />
             </Link>
 
             <div className="w-10 h-10 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200/90 dark:border-zinc-800 text-zinc-700 dark:text-zinc-200 flex items-center justify-center shadow-2xs shrink-0">
-              <Mail size={18} />
+              <Envelope size={18} />
             </div>
 
             <div>
@@ -896,17 +896,17 @@ function EmailPreviewStudioContent() {
             >
               {isSending ? (
                 <>
-                  <Loader2 size={14} className="animate-spin" />
+                  <CircleNotch size={14} className="animate-spin" />
                   <span>Dispatching…</span>
                 </>
               ) : sentSuccessId ? (
                 <>
-                  <CheckCircle2 size={14} className="text-emerald-400" />
+                  <CheckCircle size={14} className="text-emerald-400" />
                   <span>Dispatched!</span>
                 </>
               ) : (
                 <>
-                  <Send size={13} />
+                  <PaperPlaneTilt size={13} />
                   <span>Send via Resend</span>
                 </>
               )}
@@ -999,7 +999,7 @@ function EmailPreviewStudioContent() {
             {/* Developer / Builder / Partner Firm Name */}
             <div>
               <label className="block text-[11px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
-                <Building2 size={13} />
+                <Buildings size={13} />
                 {template === 'partner_invite' ? 'Channel Partner / Agency Name *' : 'Developer / Builder Firm Name *'}
               </label>
               <input
@@ -1014,7 +1014,7 @@ function EmailPreviewStudioContent() {
             {/* Recipient Email */}
             <div>
               <label className="block text-[11px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
-                <Mail size={13} />
+                <Envelope size={13} />
                 Recipient Email *
               </label>
               <input
@@ -1165,9 +1165,9 @@ function EmailPreviewStudioContent() {
                 onClick={openWhatsAppChat}
                 className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-[#00a884] hover:bg-[#008f6f] text-white text-[13px] font-bold transition-all shadow-xs cursor-pointer active:scale-[0.98]"
               >
-                <MessageCircle size={17} />
+                <ChatCircle size={17} />
                 <span>Open in WhatsApp</span>
-                <ExternalLink size={13} className="ml-0.5 opacity-80" />
+                <ArrowSquareOut size={13} className="ml-0.5 opacity-80" />
               </button>
 
               {/* Royal Blue Copy Responsive HTML */}
@@ -1186,7 +1186,7 @@ function EmailPreviewStudioContent() {
                 onClick={copyText}
                 className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-800 dark:text-zinc-200 text-[12.5px] font-bold transition-all shadow-2xs cursor-pointer active:scale-[0.98]"
               >
-                {copiedType === 'text' ? <Check size={14} /> : <Share2 size={14} />}
+                {copiedType === 'text' ? <Check size={14} /> : <ShareNetwork size={14} />}
                 <span>{copiedType === 'text' ? 'Plaintext Copied!' : 'Copy Plaintext'}</span>
               </button>
             </div>
@@ -1285,8 +1285,8 @@ function EmailPreviewStudioContent() {
                       <div className="w-full flex items-center justify-between px-7 pt-3.5 pb-2 text-[11px] font-bold shrink-0 bg-transparent z-10">
                         <span className="font-semibold tracking-tight">9:41</span>
                         <div className="flex items-center gap-1.5 opacity-80">
-                          <Wifi size={11} />
-                          <Battery size={13} />
+                          <WifiHigh size={11} />
+                          <BatteryFull size={13} />
                         </div>
                       </div>
 
@@ -1304,8 +1304,8 @@ function EmailPreviewStudioContent() {
                         </div>
                         <div className="flex items-center gap-3 text-zinc-400">
                           <Archive size={13} />
-                          <Trash2 size={13} />
-                          <CornerUpLeft size={13} />
+                          <Trash size={13} />
+                          <ArrowBendUpLeft size={13} />
                         </div>
                       </div>
 
@@ -1370,7 +1370,7 @@ function EmailPreviewStudioContent() {
                             }`}
                           >
                             <div className="flex items-center gap-2.5">
-                              <Menu size={16} className="text-zinc-500 cursor-pointer" />
+                              <List size={16} className="text-zinc-500 cursor-pointer" />
                               <div className="flex items-center gap-2 font-semibold select-none">
                                 <GmailLogo className="w-5 h-5" />
                                 <span className={`font-medium text-[15px] tracking-tight ${isDarkPreview ? 'text-[#e3e3e3]' : 'text-[#444746]'}`}>
@@ -1380,7 +1380,7 @@ function EmailPreviewStudioContent() {
                             </div>
 
                             <div className="flex items-center flex-1 max-w-sm mx-4 px-3 py-1 rounded-full bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-500 text-xs gap-2">
-                              <Search size={13} className="text-zinc-400" />
+                              <MagnifyingGlass size={13} className="text-zinc-400" />
                               <span className="text-zinc-400 flex-1 text-[11.5px]">Search mail</span>
                               <Sliders size={12} className="text-zinc-400" />
                             </div>
@@ -1397,16 +1397,16 @@ function EmailPreviewStudioContent() {
                             }`}
                           >
                             <div className="flex items-center gap-3.5">
-                              <CornerUpLeft size={13} />
+                              <ArrowBendUpLeft size={13} />
                               <Archive size={13} />
-                              <AlertCircle size={13} />
-                              <Trash2 size={13} />
+                              <WarningCircle size={13} />
+                              <Trash size={13} />
                               <Clock size={13} />
                               <Tag size={13} />
                             </div>
                             <div className="flex items-center gap-2.5">
                               <Printer size={13} />
-                              <ExternalLink size={13} />
+                              <ArrowSquareOut size={13} />
                             </div>
                           </div>
 
@@ -1492,7 +1492,7 @@ function EmailPreviewStudioContent() {
                               </div>
                             </div>
                             <div className="hidden sm:flex items-center flex-1 max-w-xs mx-6 bg-white/20 hover:bg-white/25 rounded-md px-3 py-1 gap-2 text-white/90 text-xs transition-colors">
-                              <Search size={12} />
+                              <MagnifyingGlass size={12} />
                               <span className="text-white/70">Search</span>
                             </div>
                             <div className="flex items-center gap-2">
@@ -1661,7 +1661,7 @@ function EmailPreviewStudioContent() {
               }`}
             >
               <div className="w-11 h-11 rounded-2xl bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white flex items-center justify-center shrink-0">
-                <Smartphone size={20} />
+                <DeviceMobile size={20} />
               </div>
               <div>
                 <h3 className="text-sm font-bold text-zinc-900 dark:text-white">Mobile (iOS)</h3>
@@ -1703,7 +1703,7 @@ function EmailPreviewStudioContent() {
             {/* Need Help */}
             <div className="p-4 rounded-2xl bg-white/70 dark:bg-zinc-900/50 border border-zinc-200/70 dark:border-zinc-800 flex items-start gap-3.5">
               <div className="w-8 h-8 rounded-xl bg-blue-50 dark:bg-blue-950/40 text-[#0066cc] flex items-center justify-center shrink-0 mt-0.5">
-                <HelpCircle size={16} />
+                <Question size={16} />
               </div>
               <div>
                 <h4 className="text-xs font-bold text-zinc-900 dark:text-white">Need Help?</h4>

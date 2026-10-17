@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Plus, Trash2, Save, TrendingUp, Calendar, IndianRupee } from 'lucide-react'
+import { Plus, Trash, FloppyDisk, TrendUp, Calendar, CurrencyInr } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import { adminAuthHeaders } from '@/lib/authedFetch'
 import { API_BASE } from '@/lib/env'
@@ -82,7 +82,7 @@ export default function PriceHistoryEditor({ projectId }: { projectId: string })
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-zinc-100 dark:border-zinc-800/80 pb-4">
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center border border-emerald-100 dark:border-emerald-900/40">
-            <TrendingUp size={17} />
+            <TrendUp size={17} />
           </div>
           <div>
             <h3 className="text-[15px] font-semibold text-zinc-900 dark:text-zinc-100 tracking-tight">Price Appreciation History ({history.length} Points)</h3>
@@ -94,7 +94,7 @@ export default function PriceHistoryEditor({ projectId }: { projectId: string })
           disabled={saving}
           className="bg-[#0066cc] hover:bg-[#0055b3] text-white px-4 py-2 rounded-xl text-[13px] font-medium flex items-center gap-2 transition-colors shadow-2xs disabled:opacity-50"
         >
-          <Save size={14} /> {saving ? 'Saving...' : 'Save Price History'}
+          <FloppyDisk size={14} /> {saving ? 'Saving...' : 'Save Price History'}
         </button>
       </div>
 
@@ -126,7 +126,7 @@ export default function PriceHistoryEditor({ projectId }: { projectId: string })
               onClick={() => removePoint(i)}
               className="p-1.5 text-zinc-400 hover:text-rose-500 rounded-lg cursor-pointer transition-colors"
             >
-              <Trash2 size={15} />
+              <Trash size={15} />
             </button>
           </div>
         ))}

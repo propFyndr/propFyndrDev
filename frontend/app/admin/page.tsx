@@ -23,7 +23,7 @@ import {
   MapPin,
   MagnifyingGlass,
 } from '@phosphor-icons/react'
-import { Activity, FileSpreadsheet } from 'lucide-react'
+import { Pulse, FileCsv } from '@phosphor-icons/react'
 import AdminInfoTooltip from '@/components/admin/AdminInfoTooltip'
 import { adminFetch } from '@/lib/adminFetch'
 import { usePortalIdentity } from '@/components/portal/PortalShell'
@@ -291,7 +291,7 @@ export default function AdminDashboard() {
     if (actor.toLowerCase().includes('bulk') || actor.toLowerCase().includes('csv')) {
       return (
         <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[10px] font-semibold bg-purple-50 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 border border-purple-200/80 dark:border-purple-800/60">
-          <FileSpreadsheet size={10} className="text-purple-600 dark:text-purple-400" />
+          <FileCsv size={10} className="text-purple-600 dark:text-purple-400" />
           <span>Bulk CSV</span>
         </span>
       )
@@ -928,7 +928,7 @@ export default function AdminDashboard() {
                       : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200 font-medium'
                   }`}
                 >
-                  <Activity size={13} className={bottomPaneTab === 'activity' ? 'text-[#0066cc]' : ''} />
+                  <Pulse size={13} className={bottomPaneTab === 'activity' ? 'text-[#0066cc]' : ''} />
                   <span>Recent Activity</span>
                 </button>
                 <button

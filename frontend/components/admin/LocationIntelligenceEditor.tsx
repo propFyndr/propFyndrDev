@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Save, MapPin, Map } from 'lucide-react'
+import { FloppyDisk, MapPin, MapTrifold } from '@phosphor-icons/react'
 import { API_BASE } from '@/lib/env'
 import { adminAuthHeaders } from '@/lib/authedFetch'
 import { toast } from 'sonner'
@@ -151,7 +151,7 @@ export default function LocationIntelligenceEditor({ projectId, initialData }: {
           onClick={handleSave}
           className="bg-[#0066cc] hover:bg-[#0055b3] text-white px-4 py-2 rounded-xl text-[13px] font-medium flex items-center gap-2 transition-colors shadow-2xs cursor-pointer"
         >
-          <Save size={14} /> Save Factors
+          <FloppyDisk size={14} /> Save Factors
         </button>
       </div>
 
@@ -235,7 +235,7 @@ export default function LocationIntelligenceEditor({ projectId, initialData }: {
       <div className="pt-4 border-t border-zinc-100 dark:border-zinc-800">
         <div className="flex items-center gap-3 mb-4">
           <div className="w-8 h-8 rounded-xl bg-purple-50 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400 flex items-center justify-center border border-purple-100 dark:border-purple-900/40">
-            <Map size={16} />
+            <MapTrifold size={16} />
           </div>
           <div>
             <h3 className="text-[14px] font-semibold text-zinc-900 dark:text-zinc-100">Structured Micro-Market JSON</h3>
@@ -252,7 +252,7 @@ export default function LocationIntelligenceEditor({ projectId, initialData }: {
 
       <div className="flex justify-end pt-4 border-t border-zinc-100 dark:border-zinc-800">
         <button onClick={handleSave} className="bg-[#0066cc] hover:bg-[#0055b3] text-white px-5 py-2.5 rounded-xl text-[13px] font-medium flex items-center gap-2 transition-colors cursor-pointer shadow-2xs">
-          <Save size={14} /> Save All Changes
+          <FloppyDisk size={14} /> Save All Changes
         </button>
       </div>
     </div>

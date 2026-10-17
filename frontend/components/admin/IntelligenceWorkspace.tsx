@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useCallback } from 'react'
-import { Check, Loader2, AlertCircle, ChevronDown, ChevronUp, Plus, Trash2 } from 'lucide-react'
+import { Check, CircleNotch, WarningCircle, CaretDown, CaretUp, Plus, Trash } from '@phosphor-icons/react'
 import { API_BASE } from '@/lib/env'
 import { adminAuthHeaders } from '@/lib/authedFetch'
 import JsonEditor from './JsonEditor'
@@ -141,9 +141,9 @@ const selectCls = [
 function SaveBadge({ state }: { state: SaveState }) {
   if (state === 'idle') return null
   const cfg = {
-    saving: { icon: <Loader2 size={10} className="animate-spin" />, text: 'Saving…', cls: 'text-zinc-400' },
+    saving: { icon: <CircleNotch size={10} className="animate-spin" />, text: 'Saving…', cls: 'text-zinc-400' },
     saved:  { icon: <Check size={10} />,                            text: 'Saved',   cls: 'text-emerald-600 dark:text-emerald-400' },
-    error:  { icon: <AlertCircle size={10} />,                      text: 'Error',   cls: 'text-rose-500' },
+    error:  { icon: <WarningCircle size={10} />,                      text: 'Error',   cls: 'text-rose-500' },
   } as const
   const c = cfg[state as keyof typeof cfg]
   return (
@@ -183,7 +183,7 @@ function SecHead({ title, score, save: sv, collapsed, onToggle }: {
       <div className="flex items-center gap-2.5">
         <SaveBadge state={sv} />
         <div className="w-6 h-6 rounded-lg bg-zinc-100 dark:bg-zinc-800 group-hover:bg-white dark:group-hover:bg-zinc-700 border border-zinc-200/60 dark:border-zinc-700/60 flex items-center justify-center transition-all shadow-2xs">
-          <ChevronDown size={13} className={`text-zinc-500 dark:text-zinc-400 group-hover:text-zinc-800 dark:group-hover:text-zinc-100 transition-transform duration-200 ${!collapsed ? 'rotate-180' : ''}`} />
+          <CaretDown size={13} className={`text-zinc-500 dark:text-zinc-400 group-hover:text-zinc-800 dark:group-hover:text-zinc-100 transition-transform duration-200 ${!collapsed ? 'rotate-180' : ''}`} />
         </div>
       </div>
     </button>
@@ -614,7 +614,7 @@ export default function IntelligenceWorkspace({
                     onClick={() => deleteComp(idx)}
                     className="p-1 rounded text-zinc-400 hover:text-rose-500 transition-colors cursor-pointer"
                   >
-                    <Trash2 size={13} />
+                    <Trash size={13} />
                   </button>
                 </div>
 

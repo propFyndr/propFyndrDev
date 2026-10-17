@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Plus, X, Save, FileText, CheckCircle2, Award, Zap, Percent, Clock } from 'lucide-react'
+import { Plus, X, FloppyDisk, FileText, CheckCircle, Medal, Lightning, Percent, Clock } from '@phosphor-icons/react'
 import { API_BASE } from '@/lib/env'
 import { toast } from 'sonner'
 import { adminAuthHeaders } from '@/lib/authedFetch'
@@ -124,7 +124,7 @@ export default function PaymentPlanEditor({ projectId, initialData }: { projectI
           disabled={saving}
           className="bg-[#0066cc] hover:bg-[#0055b3] text-white px-4 py-2 rounded-xl text-[13px] font-medium flex items-center gap-2 transition-colors shadow-2xs disabled:opacity-50"
         >
-          <Save size={14} /> {saving ? 'Saving...' : 'Save All Plans'}
+          <FloppyDisk size={14} /> {saving ? 'Saving...' : 'Save All Plans'}
         </button>
       </div>
 
@@ -260,7 +260,7 @@ export default function PaymentPlanEditor({ projectId, initialData }: { projectI
                 onClick={() => updateMilestone(i, 'done', !m.done)}
                 className={`w-5 h-5 rounded-full border flex items-center justify-center cursor-pointer transition-colors ${m.done ? 'bg-emerald-500 border-emerald-500 text-white' : 'border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-800'}`}
               >
-                {m.done && <CheckCircle2 size={12} />}
+                {m.done && <CheckCircle size={12} />}
               </button>
               <input
                 value={m.milestone || m.stage || m.label || ''}

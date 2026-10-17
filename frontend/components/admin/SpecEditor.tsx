@@ -2,9 +2,18 @@
 
 import { useState, useEffect } from 'react'
 import {
-  Plus, Trash2, Save, CheckCircle2, AlertCircle,
-  Building2, Shield, Layers, Tag, ChevronDown, RefreshCw
-} from 'lucide-react'
+  Plus,
+  Trash,
+  FloppyDisk,
+  CheckCircle,
+  WarningCircle,
+  Buildings,
+  Shield,
+  Stack,
+  Tag,
+  CaretDown,
+  ArrowsClockwise,
+} from '@phosphor-icons/react'
 import { adminFetch } from '@/lib/adminFetch'
 import Toast from '@/components/Toast'
 import CustomSelect from './CustomSelect'
@@ -257,7 +266,7 @@ export default function SpecEditor({
         <div>
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-xl bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 flex items-center justify-center">
-              <Layers size={16} />
+              <Stack size={16} />
             </div>
             <h3 className="text-base font-black text-gray-900 dark:text-white">
               Construction &amp; Material Specifications
@@ -274,7 +283,7 @@ export default function SpecEditor({
             onClick={handleApplyPresets}
             className="px-3 py-1.5 rounded-xl border border-zinc-200/90 dark:border-zinc-700/80 bg-white dark:bg-zinc-850 hover:bg-zinc-50 dark:hover:bg-zinc-800 text-xs font-medium text-zinc-700 dark:text-zinc-300 transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs active:scale-[0.98]"
           >
-            <Layers size={13} className="text-[#0066cc]" />
+            <Stack size={13} className="text-[#0066cc]" />
             <span>Load Presets</span>
           </button>
           <button
@@ -325,7 +334,7 @@ export default function SpecEditor({
       {loading && (
         <div className="p-8 rounded-2xl border border-gray-200 dark:border-white/10 text-center space-y-3">
           <div className="flex justify-center">
-            <RefreshCw size={20} className="text-gray-400 dark:text-gray-600 animate-spin" />
+            <ArrowsClockwise size={20} className="text-gray-400 dark:text-gray-600 animate-spin" />
           </div>
           <p className="text-sm font-bold text-gray-500 dark:text-gray-400">Loading specifications...</p>
         </div>
@@ -406,7 +415,7 @@ export default function SpecEditor({
                       className="p-1 text-zinc-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30 rounded-lg transition-colors cursor-pointer"
                       title="Delete specification"
                     >
-                      <Trash2 size={14} />
+                      <Trash size={14} />
                     </button>
                   </div>
                 </div>
@@ -414,7 +423,7 @@ export default function SpecEditor({
                 {/* Validation Errors */}
                 {validationErrors[realIdx] && (
                   <div className="px-3 py-2 bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-800/40 rounded-xl flex items-start gap-2">
-                    <AlertCircle size={14} className="text-rose-600 dark:text-rose-400 mt-0.5 flex-shrink-0" />
+                    <WarningCircle size={14} className="text-rose-600 dark:text-rose-400 mt-0.5 flex-shrink-0" />
                     <div className="text-xs text-rose-700 dark:text-rose-300 space-y-0.5">
                       {validationErrors[realIdx].map((err, i) => <div key={i}>• {err}</div>)}
                     </div>
@@ -508,7 +517,7 @@ export default function SpecEditor({
           disabled={saving}
           className="px-6 py-2.5 bg-gray-900 dark:bg-white text-white dark:text-gray-900 hover:bg-black dark:hover:bg-gray-100 rounded-xl text-xs font-black transition-all flex items-center gap-2 shadow-xs cursor-pointer disabled:opacity-50"
         >
-          {saving ? <RefreshCw size={14} className="animate-spin" /> : <Save size={14} />}
+          {saving ? <ArrowsClockwise size={14} className="animate-spin" /> : <FloppyDisk size={14} />}
           <span>{saving ? 'Saving Specs...' : 'Save Specifications'}</span>
         </button>
       </div>

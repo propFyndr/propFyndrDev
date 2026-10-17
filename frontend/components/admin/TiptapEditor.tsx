@@ -3,20 +3,20 @@
 import { useEditor, EditorContent } from '@tiptap/react'
 import { useCallback } from 'react'
 import {
-  Bold,
-  Italic,
-  Strikethrough,
-  Heading2,
-  Heading3,
+  TextB,
+  TextItalic,
+  TextStrikethrough,
+  TextHTwo,
+  TextHThree,
   List,
-  ListOrdered,
-  Quote,
-  Link2,
-  Link2Off,
-  Undo2,
-  Redo2,
+  ListNumbers,
+  Quotes,
+  LinkSimple,
+  LinkBreak,
+  ArrowUUpLeft,
+  ArrowUUpRight,
   Code,
-} from 'lucide-react'
+} from '@phosphor-icons/react'
 import { getTiptapExtensions, EMPTY_DOC } from '@/lib/tiptapExtensions'
 
 interface TiptapEditorProps {
@@ -88,13 +88,13 @@ export default function TiptapEditor({ content, onChange, placeholder }: TiptapE
       {/* Toolbar */}
       <div className="flex items-center gap-0.5 flex-wrap px-2 py-1.5 border-b border-zinc-100 dark:border-zinc-800 bg-zinc-50/60 dark:bg-zinc-900/40">
         <ToolbarButton title="Bold" active={editor.isActive('bold')} onClick={() => editor.chain().focus().toggleBold().run()}>
-          <Bold size={14} />
+          <TextB size={14} />
         </ToolbarButton>
         <ToolbarButton title="Italic" active={editor.isActive('italic')} onClick={() => editor.chain().focus().toggleItalic().run()}>
-          <Italic size={14} />
+          <TextItalic size={14} />
         </ToolbarButton>
         <ToolbarButton title="Strikethrough" active={editor.isActive('strike')} onClick={() => editor.chain().focus().toggleStrike().run()}>
-          <Strikethrough size={14} />
+          <TextStrikethrough size={14} />
         </ToolbarButton>
         <ToolbarButton title="Inline code" active={editor.isActive('code')} onClick={() => editor.chain().focus().toggleCode().run()}>
           <Code size={14} />
@@ -103,10 +103,10 @@ export default function TiptapEditor({ content, onChange, placeholder }: TiptapE
         <span className="w-px h-5 bg-zinc-200 dark:bg-zinc-700 mx-1" />
 
         <ToolbarButton title="Heading 2" active={editor.isActive('heading', { level: 2 })} onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}>
-          <Heading2 size={14} />
+          <TextHTwo size={14} />
         </ToolbarButton>
         <ToolbarButton title="Heading 3" active={editor.isActive('heading', { level: 3 })} onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}>
-          <Heading3 size={14} />
+          <TextHThree size={14} />
         </ToolbarButton>
 
         <span className="w-px h-5 bg-zinc-200 dark:bg-zinc-700 mx-1" />
@@ -115,28 +115,28 @@ export default function TiptapEditor({ content, onChange, placeholder }: TiptapE
           <List size={14} />
         </ToolbarButton>
         <ToolbarButton title="Numbered list" active={editor.isActive('orderedList')} onClick={() => editor.chain().focus().toggleOrderedList().run()}>
-          <ListOrdered size={14} />
+          <ListNumbers size={14} />
         </ToolbarButton>
         <ToolbarButton title="Quote" active={editor.isActive('blockquote')} onClick={() => editor.chain().focus().toggleBlockquote().run()}>
-          <Quote size={14} />
+          <Quotes size={14} />
         </ToolbarButton>
 
         <span className="w-px h-5 bg-zinc-200 dark:bg-zinc-700 mx-1" />
 
         <ToolbarButton title="Add link" active={editor.isActive('link')} onClick={setLink}>
-          <Link2 size={14} />
+          <LinkSimple size={14} />
         </ToolbarButton>
         <ToolbarButton title="Remove link" disabled={!editor.isActive('link')} onClick={() => editor.chain().focus().unsetLink().run()}>
-          <Link2Off size={14} />
+          <LinkBreak size={14} />
         </ToolbarButton>
 
         <span className="w-px h-5 bg-zinc-200 dark:bg-zinc-700 mx-1" />
 
         <ToolbarButton title="Undo" disabled={!editor.can().undo()} onClick={() => editor.chain().focus().undo().run()}>
-          <Undo2 size={14} />
+          <ArrowUUpLeft size={14} />
         </ToolbarButton>
         <ToolbarButton title="Redo" disabled={!editor.can().redo()} onClick={() => editor.chain().focus().redo().run()}>
-          <Redo2 size={14} />
+          <ArrowUUpRight size={14} />
         </ToolbarButton>
       </div>
 

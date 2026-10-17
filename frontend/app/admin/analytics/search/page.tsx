@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback, useRef } from 'react'
 import Link from 'next/link'
-import { ArrowLeft, RotateCcw, Building2, Search, BarChart3, AlertCircle } from 'lucide-react'
+import { ArrowLeft, ArrowCounterClockwise, Buildings, MagnifyingGlass, ChartBar, WarningCircle } from '@phosphor-icons/react'
 import { formatDistanceToNow } from 'date-fns'
 import AnalyticsNav from '@/components/admin/AnalyticsNav'
 import AdminInfoTooltip from '@/components/admin/AdminInfoTooltip'
@@ -82,7 +82,7 @@ export default function SearchAnalytics() {
             className="flex items-center gap-2 bg-white dark:bg-zinc-900 hover:bg-zinc-50 dark:hover:bg-zinc-800 text-zinc-900 dark:text-white border border-zinc-200/80 dark:border-zinc-800 px-3.5 py-2 rounded-xl text-xs font-bold transition-all shadow-2xs active:scale-[0.98] cursor-pointer disabled:opacity-60"
             title="Refresh search analytics"
           >
-            <RotateCcw size={14} className={isRefreshing ? 'animate-spin text-blue-600' : 'text-zinc-500'} />
+            <ArrowCounterClockwise size={14} className={isRefreshing ? 'animate-spin text-blue-600' : 'text-zinc-500'} />
             <span>{isRefreshing ? 'Refreshing...' : 'Refresh'}</span>
           </button>
         </div>
@@ -107,7 +107,7 @@ export default function SearchAnalytics() {
             sparkline="blue"
             sparklineData={[40, 52, 48, 65, 70, 85, 92, data?.totalQueries || 100]}
             contextText="Property search intent volume"
-            icon={Search}
+            icon={MagnifyingGlass}
             iconBgClass="bg-blue-50 dark:bg-blue-950/60"
             iconColorClass="text-[#0066cc] dark:text-blue-400"
             tooltip={
@@ -128,7 +128,7 @@ export default function SearchAnalytics() {
             sparkline="emerald"
             sparklineData={[10, 14, 13, 18, 17, 22, 25, data?.topSectors?.length || 28]}
             contextText="Geographic distribution"
-            icon={Building2}
+            icon={Buildings}
             iconBgClass="bg-emerald-50 dark:bg-emerald-950/60"
             iconColorClass="text-emerald-600 dark:text-emerald-400"
             tooltip={
@@ -148,7 +148,7 @@ export default function SearchAnalytics() {
         <div className="p-4 sm:p-6 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200/90 dark:border-zinc-800 shadow-xs space-y-4 min-w-0 overflow-hidden">
           <div className="flex items-center justify-between gap-2 min-w-0">
             <span className="text-sm font-semibold text-zinc-900 dark:text-white tracking-tight flex items-center gap-2 truncate">
-              <BarChart3 className="w-4 h-4 text-[#0066cc] shrink-0" />
+              <ChartBar className="w-4 h-4 text-[#0066cc] shrink-0" />
               <span className="truncate">Top 10 Searched Sectors (Real DB Data)</span>
               <AdminInfoTooltip
                 title="Top 10 Searched Sectors"
@@ -217,7 +217,7 @@ export default function SearchAnalytics() {
             </div>
           ) : (
             <div className="h-80 flex flex-col items-center justify-center text-center p-6 bg-zinc-50 dark:bg-zinc-800/40 rounded-xl border border-zinc-200/60 dark:border-zinc-800">
-              <Building2 className="w-8 h-8 text-zinc-400 mb-2 opacity-50" />
+              <Buildings className="w-8 h-8 text-zinc-400 mb-2 opacity-50" />
               <p className="text-xs font-bold text-zinc-700 dark:text-zinc-300">No Sector Searches Logged</p>
             </div>
           )}
@@ -227,7 +227,7 @@ export default function SearchAnalytics() {
         <div className="p-4 sm:p-6 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200/90 dark:border-zinc-800 shadow-xs space-y-4 min-w-0">
           <div className="flex items-center justify-between gap-2 min-w-0">
             <span className="text-sm font-semibold text-zinc-900 dark:text-white tracking-tight flex items-center gap-2 truncate">
-              <Building2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+              <Buildings className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
               <span className="truncate">Top Searched Builders</span>
               <AdminInfoTooltip
                 title="Top Searched Builders"

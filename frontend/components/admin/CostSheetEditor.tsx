@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Plus, X, Save, IndianRupee, Layers, ShieldCheck, Zap, Info, Calculator } from 'lucide-react'
+import { Plus, X, FloppyDisk, CurrencyInr, Stack, ShieldCheck, Lightning, Info, Calculator } from '@phosphor-icons/react'
 import { API_BASE } from '@/lib/env'
 import { toast } from 'sonner'
 import { adminAuthHeaders } from '@/lib/authedFetch'
@@ -98,7 +98,7 @@ export default function CostSheetEditor({ projectId, initialData }: { projectId:
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-zinc-100 dark:border-zinc-800/80 pb-4">
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-xl bg-purple-50 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400 flex items-center justify-center border border-purple-100 dark:border-purple-900/40">
-            <IndianRupee size={17} />
+            <CurrencyInr size={17} />
           </div>
           <div>
             <h3 className="text-[15px] font-semibold text-zinc-900 dark:text-zinc-100 tracking-tight">All-Inclusive Cost Sheet Breakdown</h3>
@@ -110,7 +110,7 @@ export default function CostSheetEditor({ projectId, initialData }: { projectId:
           disabled={isSaving}
           className="bg-[#0066cc] hover:bg-[#0055b3] text-white px-4 py-2 rounded-xl text-[13px] font-medium flex items-center gap-2 transition-colors shadow-2xs disabled:opacity-50"
         >
-          <Save size={14} /> {isSaving ? 'Saving...' : 'Save Cost Sheet'}
+          <FloppyDisk size={14} /> {isSaving ? 'Saving...' : 'Save Cost Sheet'}
         </button>
       </div>
 
