@@ -6,6 +6,7 @@
 //   npx tsx scripts/corpus/route-replay.ts            # table + exit 1 on any failure
 //   npx tsx scripts/corpus/route-replay.ts --answers  # also print each answer
 //   npx tsx scripts/corpus/route-replay.ts q5-catch   # only cases whose id contains this
+//   npx tsx scripts/corpus/route-replay.ts --file=path/to/cases.json  # another case list
 
 import '../../src/lib/eval/replayEnv'
 import { readFileSync } from 'fs'
@@ -18,7 +19,8 @@ async function main() {
   const args = process.argv.slice(2)
   const showAnswers = args.includes('--answers')
   const filter = args.find((a) => !a.startsWith('--'))
-  const all = JSON.parse(readFileSync(join(__dirname, '../../src/lib/eval/route-replay.json'), 'utf8')) as ReplayCase[]
+  const file = args.find((a) => a.startsWith('--file='))?.slice(7) ?? join(__dirname, '../../src/lib/eval/route-replay.json')
+  const all = JSON.parse(readFileSync(file, 'utf8')) as ReplayCase[]
   const cases = filter ? all.filter((c) => c.id.includes(filter)) : all
 
   const results = await runReplay(app as never, cases)
