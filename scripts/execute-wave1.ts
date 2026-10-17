@@ -229,11 +229,11 @@ async function main() {
   // Generate outputs
   const timestamp = new Date().toISOString().split('T')[0]
 
-  const auditPath = `wave1-extraction-audit.json`
+  const auditPath = `docs/archive/wave-extraction/wave1-extraction-audit.json`
   fs.writeFileSync(auditPath, JSON.stringify(results, null, 2))
   console.log(`✓ Saved: ${auditPath}`)
 
-  const sqlPath = `wave1-upsert.sql`
+  const sqlPath = `docs/archive/wave-extraction/wave1-upsert.sql`
   fs.writeFileSync(sqlPath, generateUpsertSQL(results))
   console.log(`✓ Saved: ${sqlPath}`)
 
@@ -245,7 +245,7 @@ async function main() {
       conflicts: r.conflicts,
       notes: r.notes,
     }))
-  const conflictsPath = `wave1-conflicts.json`
+  const conflictsPath = `docs/archive/wave-extraction/wave1-conflicts.json`
   fs.writeFileSync(conflictsPath, JSON.stringify(conflicts, null, 2))
   console.log(`✓ Saved: ${conflictsPath}`)
 

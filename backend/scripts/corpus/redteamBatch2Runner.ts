@@ -2,7 +2,7 @@
 //
 // Authoritative RealtyPals Beta Red-Team Batch 2 Runner.
 // Executes and validates all 69 test cases across 5 passes (A–E) from
-// RealtyPals_Beta_RedTeam_Processing_Spec2.md with zero-tolerance acceptance criteria.
+// docs/archive/redteam/RealtyPals_Beta_RedTeam_Processing_Spec2.md with zero-tolerance acceptance criteria.
 //
 // Usage:
 //   npx tsx scripts/corpus/redteamBatch2Runner.ts

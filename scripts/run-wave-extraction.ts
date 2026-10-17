@@ -253,9 +253,9 @@ async function main() {
   }
 
   // Output results
-  const auditPath = 'wave1-extraction-audit.json'
-  const upsertPath = 'wave1-upsert.sql'
-  const conflictsPath = 'wave1-conflicts.json'
+  const auditPath = 'docs/archive/wave-extraction/wave1-extraction-audit.json'
+  const upsertPath = 'docs/archive/wave-extraction/wave1-upsert.sql'
+  const conflictsPath = 'docs/archive/wave-extraction/wave1-conflicts.json'
 
   fs.writeFileSync(auditPath, JSON.stringify(results, null, 2))
   fs.writeFileSync(upsertPath, generateUpsertSQL(results))

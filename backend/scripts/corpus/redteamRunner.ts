@@ -2,7 +2,7 @@
 //
 // Authoritative RealtyPals Beta Red-Team Test Battery Runner.
 // Executes and validates all 81 test cases across 7 batches from
-// RealtyPals_Beta_RedTeam_Processing_Spec.md with zero-tolerance acceptance criteria.
+// docs/archive/redteam/RealtyPals_Beta_RedTeam_Processing_Spec.md with zero-tolerance acceptance criteria.
 //
 // Usage:
 //   npx tsx scripts/corpus/redteamRunner.ts
@@ -48,7 +48,7 @@ interface TestResult {
 // ─── PARSE SPEC & EXTRACT TEST QUERIES ───────────────────────────────────────
 
 function loadSpecQueries(): Map<number, { title: string; query: string }> {
-  const specPath = path.resolve(__dirname, '../../../RealtyPals_Beta_RedTeam_Processing_Spec.md')
+  const specPath = path.resolve(__dirname, '../../../docs/archive/redteam/RealtyPals_Beta_RedTeam_Processing_Spec.md')
   const content = fs.readFileSync(specPath, 'utf8')
   const queryMap = new Map<number, { title: string; query: string }>()
 

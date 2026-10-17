@@ -2,7 +2,7 @@
 //
 // Authoritative RealtyPals Final Beta Run — Batch 3 Runner.
 // Executes and validates all 50 test cases across 5 passes from
-// RealtyPals_Beta_RedTeam_Processing_Spec3.md with zero-tolerance acceptance criteria.
+// docs/archive/redteam/RealtyPals_Beta_RedTeam_Processing_Spec3.md with zero-tolerance acceptance criteria.
 //
 // Usage:
 //   npx tsx scripts/corpus/redteamBatch3Runner.ts
@@ -870,7 +870,7 @@ async function main() {
     JSON.stringify(
       {
         batch: 3,
-        specification: 'RealtyPals_Beta_RedTeam_Processing_Spec3.md',
+        specification: 'docs/archive/redteam/RealtyPals_Beta_RedTeam_Processing_Spec3.md',
         timestamp: new Date().toISOString(),
         total: results.length,
         passed: totalPassed,

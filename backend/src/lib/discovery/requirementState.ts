@@ -3,7 +3,7 @@
 // Authoritative 38-parameter RequirementState engine.
 // Governs normalization, linguistic hard vs soft classification,
 // multi-turn state mutation, and exploratory intent detection.
-// Compliant with Section 1 of RealtyPals_Beta_RedTeam_Processing_Spec.md.
+// Compliant with Section 1 of docs/archive/redteam/RealtyPals_Beta_RedTeam_Processing_Spec.md.
 
 import { z } from 'zod'
 import { detectCommuteAnchor, beltFor } from './commuteAnchor'
