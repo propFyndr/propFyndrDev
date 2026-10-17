@@ -107,7 +107,7 @@ import { recordTurnTrace, type TurnTraceDraft } from '../lib/turnTrace'
 import { recordDemandSignal } from '../lib/demandSignal'
 import { scanDisclosure } from '../lib/ai/answerIntegrity'
 import { projectCatalog, catalogNamesSync } from '../lib/projectCatalog'
-import { asksAboutFocusAttribute, mentionsFocusPronoun, focusFallback, parkFocus, parkedFocus, asksMarketWide, expandAffirmation } from '../lib/chat/followUp'; import { isBuilderNameCandidate } from '../lib/builderNames'
+import { asksAboutFocusAttribute, mentionsFocusPronoun, focusFallback, parkFocus, parkedFocus, asksMarketWide, expandAffirmation } from '../lib/chat/followUp'; import { isBuilderNameCandidate } from '../lib/builderNames'; import { searchSummary } from '../lib/ai/searchSummary'
 import { matchProjectInText, fuzzyMatchProject, suggestProjects } from '../lib/discovery/matchProjectInText'
 import { parseAggregateQuestion, queryProjects, renderAggregateAnswer } from '../lib/chat/aggregateQuery'
 import { applyCommuteAnchor, beltFor } from '../lib/discovery/commuteAnchor'
@@ -6121,8 +6121,8 @@ EXECUTIVE RESPONSE INSTRUCTIONS:
 
     // Phase 5.4: Meta-awareness handler — user asking "what have you assumed about me?"
     const isMetaQuestion = /what.*(assum|remember|know).*about\s+me\b|what.*constraints.*\bi\b|what.*(my|our)\s+(filters|profile|preferences|requirements)|what.*have\s+i\s+told|what.*do you.*think.*about\s+me\b/i.test(message)
-
-
+    const searchAnswer = !isMetaQuestion && disambiguationText === null && discoverySkipReason === null && queryClassification.queryKind === 'DISCOVERY' && !reqState.control.hasExploratoryQuestion && isInventorySearch && topicFlagCount === 0 && !asksMarketWide(message ?? '') && !(intent as any).is_comparison_query && !(intent as any).lifestyleKeywords?.length && !renderedTable && renderTarget !== 'text' ? searchSummary({ intent: intent as any, exact: projects, nearby: nearbyProjects, shown: currentCardLimit }) : null; if (searchAnswer) { fullText += searchAnswer; send('token', { token: searchAnswer }); Object.assign(turnTrace, { lane: 'search', provider: 'code', answer_chars: searchAnswer.length }); console.log('[CHAT:SEARCH_IN_CODE]', { exact: projects.length, nearby: nearbyProjects.length }) }
+    // A plain search is answered from its rows (lib/ai/searchSummary): no model call, nothing to invent. A question riding on the search still goes to the model. const searchAnswer below.
     if (isMetaQuestion && hydratedIntent) {
       const constraints = []
       if (hydratedIntent.bhk?.length) constraints.push(`${hydratedIntent.bhk.join('/')} BHK`)
@@ -6147,7 +6147,7 @@ EXECUTIVE RESPONSE INSTRUCTIONS:
       send('token', { token: fullText })
     }
 
-    if (disambiguationText === null && !isMetaQuestion) {
+    if (disambiguationText === null && !isMetaQuestion && !searchAnswer) {
     // Tool dispatch lives in lib/ai/tools/handlers — shared across every
     // provider, so Gemini and OpenAI call into the exact same handlers.
     // Groq, Mistral and Cerebras get no tools (documented below).

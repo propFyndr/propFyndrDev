@@ -577,13 +577,14 @@
       {
         "text": "We currently rent in Indirapuram and want to buy a 3BHK in Noida under 1.5 cr",
         "expect": {
-          "lane": "main",
+          "lane": "search",
           "intent": {
             "bhk": [
               3
             ],
             "budgetMax": 1.5
-          }
+          },
+          "llm": false
         }
       }
     ]

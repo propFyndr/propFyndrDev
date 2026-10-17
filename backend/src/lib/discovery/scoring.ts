@@ -461,8 +461,10 @@ export function buildMatchSignals(
   }
 
   // Builder track record
-  if (p.builder?.credai_member)                    matchReasons.push('CREDAI member builder')
-  else if ((p.builder?.delivered_units ?? 0) > 0)  matchReasons.push('established builder')
+  // No "CREDAI member" reason: the flag is true on 120 of 134 builders (dev,
+  // 17 Oct 2026), the same seeded shape as the five-bank list on 104, and it was
+  // quoted to buyers as a verified credential. Delivered units are a record.
+  if ((p.builder?.delivered_units ?? 0) > 0)  matchReasons.push('established builder')
 
   // No recommendation-tier words here: a reason says why a project fits the
   // brief, and "strong buy" is an investment verdict (out of V1 scope).
