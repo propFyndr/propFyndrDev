@@ -9,15 +9,15 @@
 // airport" with the wrong airport for anyone flying today, because Jewar is
 // new and Delhi is where the flights are.
 //
-// Both distances are computed here from `lat`/`lng`, which every one of the
-// 280 projects has and which is the only geo signal in the database we trust
-// (the connectivity rows are synthetic — see MEMORY.md, 28 Aug).
+// Both distances are computed here from `lat`/`lng`, the only geo signal in the
+// database we trust (the connectivity rows are synthetic — see MEMORY.md, 28 Aug),
+// except a round-number placeholder point, which is treated as missing (geo.ts).
 //
 // Computed, not stored: a derived number in a column drifts from the
 // coordinates it came from the moment either is edited, and this costs
 // microseconds.
 
-import { calculateHaversineDistanceKm } from './geo'
+import { calculateHaversineDistanceKm, isPlaceholderCoordinate } from './geo'
 
 export interface Airport {
   key: 'delhi' | 'jewar'
@@ -39,7 +39,7 @@ export const AIRPORTS: readonly Airport[] = [
   {
     key: 'jewar',
     name: 'Noida International (Jewar)',
-    aliases: /\b(jewar|noida international|nia\b)/i,
+    aliases: /\b(jewar|noida international|noida airport|nia\b)/i,
     lat: 28.1667,
     lng: 77.6000,
   },
@@ -59,11 +59,11 @@ export interface AirportDistance {
  * buyer can read it for what it is.
  */
 export function airportDistances(lat: number | null, lng: number | null): AirportDistance[] {
-  if (lat === null || lat === undefined || lng === null || lng === undefined) return []
+  if (isPlaceholderCoordinate(lat, lng)) return []
   return AIRPORTS
     .map((a) => ({
       airport: a.name,
-      km: Math.round(calculateHaversineDistanceKm(lat, lng, a.lat, a.lng) * 10) / 10,
+      km: Math.round(calculateHaversineDistanceKm(lat!, lng!, a.lat, a.lng) * 10) / 10,
     }))
     .sort((x, y) => x.km - y.km)
 }

@@ -3401,17 +3401,17 @@ For legal statutory schedules (UP Stamp Duty, GST, TDS) or verified property che
     const isGreeting = isGreetingMessage(message);
 
     if (isGreeting && action.type === 'TEXT_MESSAGE') {
-      const welcomeText = `### Welcome to RealtyAsk AI Advisor
+      const welcomeText = chatHistory.some((m) => m.role === 'assistant') ? 'Still here. We can carry on from where we were, or tell me what you want to look at next.' : `### Welcome to RealtyAsk
 
-Hello! I'm your dedicated real estate intelligence assistant for **Noida, Greater Noida, and Yamuna Expressway**.
+Hello. I help home buyers in **Noida and Greater Noida West** decide what to buy, from the project records we hold.
 
-I can help you with:
-- **Project Discovery**: Finding verified 2, 3, & 4 BHK properties tailored to your budget and possession timeline.
-- **Deep Due Diligence**: UP-RERA registration, builder delivery history, litigation audits, and construction milestones.
-- **Financial Clarity**: Exact payment schedules, total outflow breakdowns, UP stamp duty, and EMI calculations.
-- **Micro-Market Comparisons**: Evaluating amenities, spatial efficiency, and connectivity tradeoffs between projects.
+I can help you:
+- **Find projects** by budget, sector, BHK, possession timeline and metro access.
+- **Check a project**: UP-RERA registration, possession date, the builder's delivery record, and what we don't hold.
+- **Work out the cost**: payment plans on record, stamp duty, registration, GST and EMI.
+- **Compare projects** side by side on price, size, possession, amenities and connectivity.
 
-*How can I assist your property search today?*`;
+*What are you looking for?*`;
 
       const welcomeChips = [
         { id: `chip_bhk3_${Date.now()}`, actionType: 'TEXT_MESSAGE', label: '3 BHK in Sector 150', icon: 'building', analyticsId: 'chip_w_150', priority: 1, payload: { text: 'Show 3 BHK flats in Sector 150 under ₹2.5 Cr' } },

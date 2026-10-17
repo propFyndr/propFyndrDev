@@ -100,9 +100,17 @@ describe('finding what is actually near a sector', () => {
   it('finds neighbours of a sector we are thin in', async () => {
     // The bug this handler exists for: "near Sector 62" was answered with
     // "we hold one project in Sector 62" and nothing about its neighbours.
+    // Sector 104 now, not 62: Sector 62's one project sits on the seeded point
+    // 28.4, 77.55 (Greater Noida), so its "neighbours" were 78 other seeded rows.
+    const anchor = await resolveNearbyAnchor('I want a property near Sector 104 Noida')
+    const out = await findNearby(anchor, 3.5)
+    assert.ok(out.projects.length > 1, `only ${out.projects.length} project(s) found near Sector 104`)
+  })
+
+  it('does not measure from a seeded placeholder point', async () => {
     const anchor = await resolveNearbyAnchor('I want a property near Sector 62 Noida')
     const out = await findNearby(anchor, 3.5)
-    assert.ok(out.projects.length > 1, `only ${out.projects.length} project(s) found near Sector 62`)
+    assert.ok(out.projects.every((p) => !/Stellar Kings Court|Ajnara The Belvedere/.test(p.name)), out.projects.map((p) => p.name).join(', '))
   })
 
   it('resolves to nothing rather than throwing when the anchor has no coordinates', async () => {

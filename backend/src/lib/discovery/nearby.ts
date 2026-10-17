@@ -26,7 +26,7 @@
 // every caller is expected to label it as such — 2 km across the Hindon is not
 // 2 km of driving.
 import { prisma } from '../db'
-import { calculateHaversineDistanceKm, getSectorCentroid, getProjectsWithinRadius } from './geo'
+import { calculateHaversineDistanceKm, getSectorCentroid, getProjectsWithinRadius, isPlaceholderCoordinate } from './geo'
 import { resolveLocationTerm } from './locationResolver'
 
 /** What the buyer anchored "near" to. */
@@ -248,6 +248,8 @@ export async function findNearby(
 ): Promise<NearbyResult> {
   const empty: NearbyResult = { anchor, radiusKm, projects: [], widened: false }
   if (anchor.lat == null || anchor.lng == null) return empty
+  // A project's seeded point is no anchor; a curated sector point may be round.
+  if (anchor.kind === 'project' && isPlaceholderCoordinate(anchor.lat, anchor.lng)) return empty
 
   const limit = opts.limit ?? 8
 

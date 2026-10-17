@@ -105,8 +105,11 @@ export const possessionStatusHandler: ChatTopicHandler = {
         ],
       },
       include: { builder: true },
-      take: 6,
+      take: 30,
     })
+    // The shortlist's own order, not the table's: "from these" means the list on screen.
+    const rank = (id: string) => { const i = cachedIds.indexOf(id); return i < 0 ? cachedIds.length : i }
+    projects.sort((a, b) => rank(a.id) - rank(b.id))
 
     const scope = sector ? ` (${sector})` : ''
 
@@ -128,26 +131,34 @@ export const possessionStatusHandler: ChatTopicHandler = {
       return
     }
 
-    const rows = projects.map(p => {
-      const isReady = p.status === 'ready_to_move' || !!p.possession_label?.toLowerCase().includes('delivered')
-      const moveStatus = isReady ? 'Ready to move' : (p.possession_label || 'Under construction')
-      const stage = isReady ? 'Delivered' : 'Under construction'
+    const isReady = (p: (typeof projects)[number]) => p.status === 'ready_to_move' || !!p.possession_label?.toLowerCase().includes('delivered')
+    const ready = projects.filter(isReady).slice(0, 8)
+    const building = projects.filter((p) => !isReady(p))
+    // Live chat 17 Oct 2026: "ready to move options from these" got a table with
+    // two under-construction projects in it. Ready ones go in the table; the rest
+    // are named with their dates, so nothing on the list silently disappears.
+    const rows = ready.map(p => {
       // Absent means absent — this used to read "Registered" for a project with
       // no RERA number on file, which asserts a compliance status we do not hold.
       const rera = p.rera_number ? `RERA ${p.rera_number}` : 'Not on record'
-      const gst = isReady
-        ? `${UP_STATUTORY.gstReadyToMovePct}% (with OC)`
-        : `${UP_STATUTORY.gstUnderConstructionPct}%`
-      return `| **${p.name}** | ${moveStatus} | ${stage} | ${rera} | ${gst} |`
+      const oc = p.oc_obtained === true ? 'Granted' : 'Not on record'
+      return `| **${p.name}** | ${p.sector ?? '—'} | ${rera} | ${oc} |`
     }).join('\n')
+    const stillBuilding = building.length
+      ? `\n\n**Still under construction${cachedIds.length ? ' on your list' : ''}:** ${building.slice(0, 8).map(p => `${p.name} (${p.possession_label ? `possession ${p.possession_label}` : 'no committed date on record'})`).join(', ')}. These carry ${UP_STATUTORY.gstUnderConstructionPct}% GST.`
+      : ''
 
-    const text = `### Move-in status${scope}
+    const text = ready.length
+      ? `### Ready to move${scope}
 
-| Project | Move-in status | Stage | RERA | GST |
-| :--- | :--- | :--- | :--- | :--- |
-${rows}
+| Project | Sector | RERA | Occupancy Certificate |
+| :--- | :--- | :--- | :--- |
+${rows}${stillBuilding}
 
-**On a ready-to-move purchase:** GST is ${UP_STATUTORY.gstReadyToMovePct}% only once the Occupancy Certificate has been granted — check the Verification panel on the project page before assuming it. For a resale unit, ask for the executed sub-lease deed or the builder's transfer NOC confirming no pending authority dues.`
+GST is ${UP_STATUTORY.gstReadyToMovePct}% on a ready flat only once the Occupancy Certificate is granted. Where we hold no OC record, ask the builder for the copy for your tower before paying.`
+      : `### Ready to move${scope}
+
+None of ${cachedIds.length ? 'the projects on your list' : 'the projects we hold here'} is ready to move yet.${stillBuilding}`
 
     ctx.send('token', { token: text })
     ctx.emitUiState({

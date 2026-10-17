@@ -25,6 +25,21 @@ const EARTH_RADIUS_KM = 6371
  * "which sectors are near this one".
  */
 /**
+ * A coordinate a script wrote, not a location anyone measured.
+ *
+ * 78 projects sat at exactly 28.4000, 77.5500 and two at 28.0000, 77.0000
+ * (dev, 17 Oct 2026): every one of them came out 26.4 km from Jewar, and the
+ * same point fed radius searches and the airport line in the facts block. A
+ * measured location almost never has both values at two decimals or fewer, so
+ * that shape is treated as missing.
+ */
+export function isPlaceholderCoordinate(lat: number | null | undefined, lng: number | null | undefined): boolean {
+  if (lat == null || lng == null) return true
+  const coarse = (v: number) => Math.abs(v * 100 - Math.round(v * 100)) < 1e-6
+  return coarse(lat) && coarse(lng)
+}
+
+/**
  * Calculate Haversine distance between two lat/lng points in kilometers
  */
 export function calculateHaversineDistanceKm(
@@ -61,6 +76,7 @@ export async function getSectorCentroid(
       WHERE sector ILIKE ${sector}
       ${city ? Prisma.sql`AND city ILIKE ${city}` : Prisma.empty}
       AND lat IS NOT NULL AND lng IS NOT NULL
+      AND NOT (lat = round(lat::numeric, 2) AND lng = round(lng::numeric, 2))
     `
 
     /**
@@ -137,7 +153,7 @@ export async function getProjectsWithinRadius(
 
     // Calculate distance and filter to radiusKm
     const withDistance = projects
-      .filter((p) => p.lat !== null && p.lng !== null)
+      .filter((p) => !isPlaceholderCoordinate(p.lat, p.lng))
       .map((p) => ({
         id: p.id,
         name: p.name,

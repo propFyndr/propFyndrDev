@@ -16,6 +16,18 @@ type SendFn = (event: string, data: Record<string, unknown>) => void;
 const MAX_TOOL_CYCLES = 3;
 
 /**
+ * A request with no user message is answered by the last system message turned
+ * into the user turn. Cohere's compatibility API rejects a system-only request
+ * with a bare "400 (no body)" (probed 17 Oct 2026), and the grounded lane sends
+ * exactly that: the whole leg was dead on every OPEN turn.
+ */
+export function withUserTurn(msgs: Message[]): Message[] {
+  if (msgs.some((m) => m.role === 'user')) return msgs;
+  const last = msgs.map((m) => m.role).lastIndexOf('system');
+  return last < 0 ? msgs : msgs.map((m, i) => (i === last ? { ...m, role: 'user' as const } : m));
+}
+
+/**
  * `finish_reason: 'length'` was never read here — a reply-ceiling cut looked
  * identical to a natural stop. On 'length', feed the partial answer back as
  * the model's own turn and ask it to continue, same recursion the tool-call
@@ -270,7 +282,7 @@ export async function streamWithOpenAI(
 
     const requestParams = {
       model,
-      messages: currentMsgs as any,
+      messages: withUserTurn(currentMsgs) as any,
       ...(allowTools ? { tools } : {}),
       stream: true as const,
       stream_options: { include_usage: true },

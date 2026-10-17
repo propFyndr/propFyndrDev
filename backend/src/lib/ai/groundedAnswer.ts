@@ -24,6 +24,7 @@ import { buildGeneralConversationalPrompt } from './prompts/generalPrompt'
 import { isPublicField } from '../projectExposure'
 import { findSectorsAsked } from '../discovery/proseEntities'
 import { PUBLIC_RECORD_NOTICE_BADGE } from '../chat/coverageGap'
+import { isOutageNotice } from './outageNotice'
 
 /** Cache scope. Open answers hold no session-specific facts, so they are shareable. */
 export const OPEN_CACHE_SCOPE = 'open'
@@ -688,11 +689,15 @@ export async function runGroundedAnswer(
 
   if (!text || text.length < 10) return null
 
-  if (fromWeb && (!fromDatabase || builderName) && !text.includes(PUBLIC_RECORD_NOTICE_BADGE)) {
+  // An outage is not a public-record answer, and must never be cached as one:
+  // live chat 17 Oct 2026 showed the notice under a "Sourced from live public
+  // filings" banner.
+  const outage = isOutageNotice(text)
+  if (!outage && fromWeb && (!fromDatabase || builderName) && !text.includes(PUBLIC_RECORD_NOTICE_BADGE)) {
     text = `${PUBLIC_RECORD_NOTICE_BADGE}\n\n${text}`
   }
 
-  if (shareable) {
+  if (shareable && !outage) {
     setCachedResponse(message, { token: text, responseMode: 'grounded' }, OPEN_CACHE_TTL_MS, OPEN_CACHE_SCOPE)
   }
 

@@ -1642,5 +1642,66 @@
         }
       }
     ]
+  },
+  {
+    "id": "live-2026-10-17-gnw-jewar",
+    "source": "live chat 2026-10-17 (admin conversations)",
+    "turns": [
+      {
+        "text": "I've made my mind to look for a 2 bak in greater noida"
+      },
+      {
+        "text": "Show me all the options within 1.2 cr"
+      },
+      {
+        "text": "ready to move in options from these",
+        "expect": {
+          "lane": "topic:possession_status",
+          "llm": false,
+          "contains": [
+            "### Ready to move"
+          ],
+          "notContains": [
+            "| Under construction |",
+            "sub-lease deed"
+          ]
+        }
+      },
+      {
+        "text": "What's the property closest to the Noida airport",
+        "expect": {
+          "lane": "topic:airport_proximity",
+          "llm": false,
+          "contains": [
+            "Noida International (Jewar)",
+            "straight-line"
+          ],
+          "notContains": [
+            "minutes"
+          ]
+        }
+      },
+      {
+        "text": "I want to know what's the closest to jewar airport between the shortlisted options",
+        "expect": {
+          "lane": "topic:airport_proximity",
+          "llm": false,
+          "contains": [
+            "straight-line"
+          ]
+        }
+      },
+      {
+        "text": "hi",
+        "expect": {
+          "contains": [
+            "Still here"
+          ],
+          "notContains": [
+            "Yamuna Expressway"
+          ]
+        }
+      }
+    ]
   }
 ]
