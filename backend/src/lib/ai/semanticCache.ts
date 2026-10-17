@@ -128,8 +128,20 @@ function buildCacheKey(query: string, scope: string, fingerprint = 'anon'): stri
   // "What can I afford?" is answered from an income stated on an earlier turn,
   // which the key does not carry: the stress rerun replayed an old model answer
   // for it. Neither read nor written.
-  if (!normalized || normalized.length < 3 || isAffordabilityQuestion(query)) return ''
+  if (!normalized || normalized.length < 3 || isAffordabilityQuestion(query) || dependsOnConversation(query)) return ''
   return `${scope}::${catalogStamp}::${fingerprint}::${normalized}`
+}
+
+/**
+ * A turn whose meaning is in the turns before it. "step 7?", "yes please",
+ * "show me the properties in these sectors" were served another conversation's
+ * answer (transcript rerun, 17 Oct 2026): the key carries the query and the intent,
+ * never the earlier turns those words point back to.
+ */
+const FOLLOW_UP = /^\s*(?:yes|yeah|yep|no|nope|ok(?:ay)?|sure|nice|great|perfect|alright|next|go on|continue|more|step\s*\d+)\b|\b(?:these|those|them|this one|that one|the same|above|shortlist(?:ed)?|each of|what about|how about|instead)\b/i
+
+export function dependsOnConversation(query: string): boolean {
+  return FOLLOW_UP.test(query ?? '')
 }
 
 /** L1 only. */
@@ -239,7 +251,8 @@ function readLocal(key: string, countMiss = true): CachedEntry | null {
 // this bump drops the entries written before it.
 // v10 (16 Oct 2026): the catalogue stamp joined the key, and the routing and
 // integrity fixes of that day change what the same words are answered with.
-const REDIS_PREFIX = 'ac:v10:' // v8: v7 cached project-focused handler answers under project-free keys
+const REDIS_PREFIX = 'ac:v11:' // v11: drops answers written before the 17 Oct transcript fixes (follow-ups served across chats, builder 'these').
+// v8: v7 cached project-focused handler answers under project-free keys
 
 /** A read that takes longer than this is not worth waiting for — the LLM call it */
 const REDIS_READ_TIMEOUT_MS = Number(process.env.ANSWER_CACHE_READ_TIMEOUT_MS ?? 250)

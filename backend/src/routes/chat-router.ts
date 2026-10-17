@@ -107,7 +107,7 @@ import { recordTurnTrace, type TurnTraceDraft } from '../lib/turnTrace'
 import { recordDemandSignal } from '../lib/demandSignal'
 import { scanDisclosure } from '../lib/ai/answerIntegrity'
 import { projectCatalog, catalogNamesSync } from '../lib/projectCatalog'
-import { asksAboutFocusAttribute, mentionsFocusPronoun, focusFallback, parkFocus, parkedFocus, asksMarketWide, expandAffirmation } from '../lib/chat/followUp'
+import { asksAboutFocusAttribute, mentionsFocusPronoun, focusFallback, parkFocus, parkedFocus, asksMarketWide, expandAffirmation } from '../lib/chat/followUp'; import { isBuilderNameCandidate } from '../lib/builderNames'
 import { matchProjectInText, fuzzyMatchProject, suggestProjects } from '../lib/discovery/matchProjectInText'
 import { parseAggregateQuestion, queryProjects, renderAggregateAnswer } from '../lib/chat/aggregateQuery'
 import { applyCommuteAnchor, beltFor } from '../lib/discovery/commuteAnchor'
@@ -1051,7 +1051,7 @@ router.post('/', async (req: Request, res: Response) => {
     // of intent extraction. Only the hydrate step genuinely depends on the intent.
     const baseIntent = rawIntentResult.intent
     const [, sessionData, firstUserMessage] = await Promise.all([
-      hydrateIntentFromMemory(sessionId ?? '', baseIntent).then(h => (hydratedIntent = h)),
+      hydrateIntentFromMemory(sessionId ?? '', baseIntent, message).then(h => (hydratedIntent = h)),
       sessionPromise,
       firstUserMessagePromise,
     ])
@@ -1478,7 +1478,7 @@ router.post('/', async (req: Request, res: Response) => {
 
         const isSectorOrLocationSearch = Boolean(intent.sector) || /\b(sector\s*\d+|expressway|greater\s*noida|noida\s*extension|central\s*noida)\b/i.test(message);
         const isDiscoveryQuery = intent.queryKind === 'DISCOVERY' || /\b(show\s*(me)?|find|list|projects\s*in|flats\s*in|apartments\s*in|options\s*in|best\s*projects|top\s*societies)\b/i.test(message);
-        const isBuilderDiscovery = Boolean((intent as any).builderName) || /\b(projects\s*by|builder|developer)\b/i.test(message);
+        const isBuilderDiscovery = isBuilderNameCandidate((intent as any).builderName) || /\b(projects\s*by|builder|developer)\b/i.test(message);
         const isAdvisoryQuery = intent.queryKind === 'ADVISORY' || intent.queryKind === 'OPEN' || /\b(save\s*money|negotiat|hidden\s*cost|average\s*price|market\s*rate|how\s*to)\b/i.test(message);
         /**
          * A pronoun is not a follow-up when the same sentence is a fresh search.
@@ -1544,7 +1544,7 @@ router.post('/', async (req: Request, res: Response) => {
          * building on their screen.
          */
         const namesBuilderThisTurn =
-          Boolean((intent as any).builderName) || /\bprojects\s*by\b/i.test(message) || await namesHeldBuilder(message);
+          isBuilderNameCandidate((intent as any).builderName) || /\bprojects\s*by\b/i.test(message) || await namesHeldBuilder(message);
         /**
          * A revised constraint is a new search too. "Actually make that 2
          * crore", "what about 3BHK?", "show me something bigger" restate the
@@ -3859,7 +3859,7 @@ I can help you:
             /\b(possession|handover|rera|specifications?|maintenance|price\s*per\s*sq|psf|unit\s*sizes?|floor\s*plans?)\b/i.test(topicText))
         const topicHandlerMatched = isAspectCompare ? false : await runTopicHandlers(CHAT_TOPIC_HANDLERS, {
           message,
-          priorUserMessages: chatHistory.filter((m) => m.role === 'user' && m.content !== message).map((m) => m.content).slice(-8),
+          priorUserMessages: chatHistory.filter((m) => m.role === 'user' && m.content !== message).map((m) => m.content).slice(-20),
           intent,
           sessionId: currentSessionId,
           userId,

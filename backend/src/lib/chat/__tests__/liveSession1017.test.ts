@@ -50,3 +50,29 @@ describe('a financing plan that mentions a bank is not a lender question', () =>
     assert.ok(matchesLoanBanks('which banks give home loans for these projects?'))
   })
 })
+
+import { isAffordabilityQuestion } from '../../ai/affordability'
+
+describe('a search that names a budget is a search', () => {
+  it('does not read "budget of 1.8 cr" as an affordability question', () => {
+    assert.ok(!isAffordabilityQuestion('alright so get me a property with a budget of 1.8 cr , that has spacious 3 bhk rooms'))
+    assert.ok(!isAffordabilityQuestion('show me the most recommended option for a 3 bhk in greater noida within 1.5cr budget!!'))
+    assert.ok(isAffordabilityQuestion('Help me work out a realistic budget and EMI.'))
+    assert.ok(isAffordabilityQuestion('what can I afford in Noida?'))
+  })
+})
+
+import { isBuilderNameCandidate } from '../../builderNames'
+import { dependsOnConversation } from '../../ai/semanticCache'
+
+describe('second transcript rerun', () => {
+  it('a pronoun is never a builder filter', () => {
+    for (const w of ['these', 'this', 'each', 'them', 'of each', 'the builder']) assert.ok(!isBuilderNameCandidate(w), w)
+    for (const w of ['ATS', 'Gaurs Group', 'Mahagun']) assert.ok(isBuilderNameCandidate(w), w)
+  })
+  it('follow-ups are not served from the answer cache', () => {
+    for (const q of ['step 7?', 'yes please', 'okay then show me the properties in these sectors', 'next'])
+      assert.ok(dependsOnConversation(q), q)
+    assert.ok(!dependsOnConversation('what is the stamp duty for a woman buyer in noida'))
+  })
+})

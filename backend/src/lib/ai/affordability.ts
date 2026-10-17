@@ -100,7 +100,11 @@ export function statesFinancing(message: string): boolean {
  * going through the ordinary path so it can ask.
  */
 export function isAffordabilityQuestion(message: string): boolean {
-  return /\b(afford|budget|how much (can|should) i|how much (home )?loan|borrow|what can i (buy|get)|eligib|loan amount|emi)\b/i.test(message ?? '')
+  // "budget" alone is a search constraint, not a question about affordability:
+  // "get me a property with a budget of 1.8 cr" with an income stated earlier got
+  // the affordability table stuck on top of a search, then the outage notice
+  // (transcript rerun, 17 Oct 2026). Only a question about the budget itself counts.
+  return /\b(afford|realistic budget|what (?:should )?(?:my |a )?budget|budget (?:should|can|do|would)|how much (can|should) i|how much (home )?loan|borrow|what can i (buy|get)|eligib|loan amount|emi)\b/i.test(message ?? '')
 }
 
 /**

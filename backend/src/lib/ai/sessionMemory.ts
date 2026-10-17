@@ -38,9 +38,19 @@ export async function getSessionMemory(sessionId: string) {
  * Hydrate intent from session memory
  * Used at turn start to restore user preferences
  */
+/**
+ * "in greater noida", "any area", "anywhere": the buyer widened the search to a
+ * whole area, so an old sector must not come back. Live session ed1ac3ff (17 Oct
+ * 2026): "3 bhk in greater noida within 1.5cr" kept "Sector 10" and a stale
+ * ₹2.5 Cr floor, returned no cards, and the model told the buyer we hold no 3 BHK
+ * under ₹1.5 Cr in Greater Noida - three times.
+ */
+const WHOLE_AREA = /\b(?:any\s*(?:area|where|sector|location|locality)|anywhere|all\s+(?:sectors|areas)|(?:in|across)\s+(?:greater\s+noida(?:\s+west)?|noida\s+extension|gnw|central\s+noida|noida)(?![\s,]+sector))\b/i
+
 export async function hydrateIntentFromMemory(
   sessionId: string,
-  currentIntent: Intent
+  currentIntent: Intent,
+  message = '',
 ): Promise<Intent> {
   const memory = await getSessionMemory(sessionId)
   if (!memory?.extracted_intent) return currentIntent
@@ -55,8 +65,11 @@ export async function hydrateIntentFromMemory(
     // spend, and dropping it made "still within your 1.5cr" impossible the
     // moment they looked elsewhere. A new figure this turn still overrides.
     bhk: currentIntent.bhk ?? stored.bhk,
-    sector: currentIntent.sector ?? stored.sector,
-    budgetMin: currentIntent.budgetMin ?? stored.budgetMin,
+    sector: currentIntent.sector ?? (WHOLE_AREA.test(message) ? undefined : stored.sector),
+    // A stored floor at or over this turn's ceiling is superseded, not restored
+    // (the session above ended with a 2.5 floor and a 1.5 ceiling at once).
+    budgetMin: currentIntent.budgetMin
+      ?? (currentIntent.budgetMax != null && stored.budgetMin != null && stored.budgetMin >= currentIntent.budgetMax ? undefined : stored.budgetMin),
     // A stored ceiling at or under this turn's floor ("2.5 cr+") is superseded, not restored.
     budgetMax: currentIntent.budgetMax
       ?? (currentIntent.budgetMin != null && stored.budgetMax != null && stored.budgetMax <= currentIntent.budgetMin ? undefined : stored.budgetMax),

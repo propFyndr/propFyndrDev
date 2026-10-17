@@ -48,3 +48,23 @@ export async function builderMentionedIn(message: string): Promise<string | null
       .sort((a, b) => b.length - a.length)[0] ?? null
   )
 }
+
+/**
+ * Words an extractor returns as a "builder name" that name no builder.
+ *
+ * Live transcript (17 Oct 2026): "banks … for these properties" left
+ * `builderName: 'these'` in the intent; every later search filtered on a builder
+ * called "these", returned nothing, and the buyer was told we hold no 3 BHK under
+ * ₹1.5 Cr in Greater Noida for the rest of the session.
+ */
+const NOT_A_BUILDER = new Set([
+  'these', 'this', 'those', 'them', 'that', 'it', 'its', 'each', 'all', 'any', 'every', 'same', 'their', 'the',
+  'of', 'one', 'ones', 'other', 'others', 'builder', 'builders', 'developer', 'developers', 'project', 'projects',
+  'property', 'properties', 'company', 'good', 'best', 'top', 'trusted', 'reputed', 'which', 'what', 'who',
+])
+
+/** False for a pronoun or generic word the extractor mistook for a builder name. */
+export function isBuilderNameCandidate(name: string | null | undefined): boolean {
+  const words = (name ?? '').toLowerCase().replace(/[^a-z0-9&\s]/g, ' ').split(/\s+/).filter(Boolean)
+  return words.some((w) => w.length >= 3 && !NOT_A_BUILDER.has(w))
+}

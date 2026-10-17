@@ -1,4 +1,5 @@
 import { Prisma } from '@prisma/client'
+import { isBuilderNameCandidate } from '../builderNames'
 import { possessionDisplay, possessionDatePassed } from '../possession'
 import crypto from 'crypto'
 import { prisma } from '../db'
@@ -305,7 +306,8 @@ export function buildHardFilters(
   }
 
   // Builder — fuzzy token match (e.g. "Purvanchal Projects" -> "Purvanchal")
-  if (intent.builderName) {
+  // A pronoun is not a builder: a filter on "these" emptied every later search.
+  if (intent.builderName && isBuilderNameCandidate(intent.builderName)) {
     const rawBuilder = intent.builderName.trim()
     const cleanBuilder = normalizeBuilderSearchName(rawBuilder)
     where.builder = {
