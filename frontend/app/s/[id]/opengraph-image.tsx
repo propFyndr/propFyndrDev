@@ -1,5 +1,6 @@
 import { ImageResponse } from 'next/og'
 import { BRAND_MARK_SRC } from '@/lib/brandMark'
+import { SITE_DOMAIN } from '@/lib/site'
 
 const API_BASE = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3001/api/v1'
 
@@ -98,7 +99,7 @@ export default async function OGImage({ params }: { params: { id: string } }) {
           }}
         >
           <div>Explore properties with AI-powered insights</div>
-          <div style={{ fontWeight: 'bold' }}>propfyndr.io</div>
+          <div style={{ fontWeight: 'bold' }}>{SITE_DOMAIN}</div>
         </div>
       </div>
     ),

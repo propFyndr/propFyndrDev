@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import Image from 'next/image';
 import { m, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { CaretLeft, CaretRight, ArrowUpRight } from '@phosphor-icons/react';
@@ -75,6 +75,7 @@ export default function InvertedPerspectiveCarousel({
 }: InvertedPerspectiveCarouselProps) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
+  const touchX = useRef<number | null>(null);
   const reduceMotion = useReducedMotion();
   const total = items.length;
   const currentItem = items[activeIndex];
@@ -147,8 +148,15 @@ export default function InvertedPerspectiveCarousel({
 
       {/* 3D inverted-perspective cards */}
       <div
-        className="relative w-full h-[218px] sm:h-[232px] [@media(max-height:780px)]:lg:h-[200px] flex items-center justify-center"
+        className="relative w-full h-[218px] sm:h-[232px] [@media(max-height:780px)]:lg:h-[200px] flex items-center justify-center touch-pan-y"
         style={{ perspective: 1000, transformStyle: 'preserve-3d' }}
+        onTouchStart={(e) => { touchX.current = e.touches[0].clientX; setIsPaused(true); }}
+        onTouchEnd={(e) => {
+          const dx = e.changedTouches[0].clientX - (touchX.current ?? e.changedTouches[0].clientX);
+          touchX.current = null;
+          if (dx <= -40) handleNext();
+          else if (dx >= 40) handlePrev();
+        }}
       >
         {items.map((item, index) => {
           const offset = getCardOffset(index);
@@ -211,11 +219,12 @@ export default function InvertedPerspectiveCarousel({
           );
         })}
 
-        {/* Prev / next — visible on hover and keyboard focus */}
+        {/* Prev / next: always shown on touch screens, which have no hover to reveal them;
+            on a mouse they appear on hover and keyboard focus. */}
         <button
           type="button"
           onClick={handlePrev}
-          className={`absolute -left-1 z-40 w-9 h-9 rounded-full bg-white/90 hover:bg-white dark:bg-zinc-800/90 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-200 shadow-md flex items-center justify-center backdrop-blur-md transition-all active:scale-90 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1D63ED]/50 ${isPaused ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+          className={`absolute -left-1 z-40 w-9 h-9 rounded-full bg-white/90 hover:bg-white dark:bg-zinc-800/90 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-200 shadow-md flex items-center justify-center backdrop-blur-md transition-all active:scale-90 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1D63ED]/50 ${isPaused ? 'opacity-100' : '[@media(hover:hover)]:opacity-0 [@media(hover:hover)]:pointer-events-none'}`}
           aria-label="Previous project"
         >
           <CaretLeft size={16} weight="bold" />
@@ -223,7 +232,7 @@ export default function InvertedPerspectiveCarousel({
         <button
           type="button"
           onClick={handleNext}
-          className={`absolute -right-1 z-40 w-9 h-9 rounded-full bg-white/90 hover:bg-white dark:bg-zinc-800/90 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-200 shadow-md flex items-center justify-center backdrop-blur-md transition-all active:scale-90 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1D63ED]/50 ${isPaused ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+          className={`absolute -right-1 z-40 w-9 h-9 rounded-full bg-white/90 hover:bg-white dark:bg-zinc-800/90 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-200 shadow-md flex items-center justify-center backdrop-blur-md transition-all active:scale-90 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1D63ED]/50 ${isPaused ? 'opacity-100' : '[@media(hover:hover)]:opacity-0 [@media(hover:hover)]:pointer-events-none'}`}
           aria-label="Next project"
         >
           <CaretRight size={16} weight="bold" />
@@ -231,12 +240,18 @@ export default function InvertedPerspectiveCarousel({
       </div>
 
       {/* Position dots */}
-      <div className="mt-3 flex items-center gap-1.5" aria-hidden>
+      <div className="mt-1 flex items-center">
         {items.map((item, i) => (
-          <span
+          <button
+            type="button"
             key={item.id}
-            className={`h-1 rounded-full transition-all duration-300 ${i === activeIndex ? 'w-5 bg-zinc-800 dark:bg-zinc-100' : 'w-1.5 bg-zinc-800/25 dark:bg-white/25'}`}
-          />
+            onClick={() => setActiveIndex(i)}
+            aria-label={`Show ${item.projectName}`}
+            aria-current={i === activeIndex ? 'true' : undefined}
+            className="h-8 px-1 flex items-center rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1D63ED]/50"
+          >
+            <span className={`block h-1 rounded-full transition-all duration-300 ${i === activeIndex ? 'w-5 bg-zinc-800 dark:bg-zinc-100' : 'w-1.5 bg-zinc-800/25 dark:bg-white/25'}`} />
+          </button>
         ))}
       </div>
     </div>

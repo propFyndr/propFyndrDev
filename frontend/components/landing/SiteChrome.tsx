@@ -40,6 +40,9 @@ const navLink =
 const pill =
   'min-h-[40px] inline-flex items-center gap-1.5 px-5 text-[13.5px] font-medium text-zinc-800 hover:text-zinc-950 bg-white/70 hover:bg-white border border-zinc-300/80 dark:text-zinc-100 dark:hover:text-white dark:bg-white/10 dark:hover:bg-white/15 dark:border-white/15 rounded-full shadow-sm backdrop-blur-md transition-all active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1D63ED]/50';
 
+const startPill =
+  'min-h-[40px] inline-flex items-center px-5 text-[13.5px] font-semibold text-white dark:text-zinc-900 bg-[#0B0F17] hover:bg-[#1D63ED] dark:bg-white dark:hover:bg-[#1D63ED] dark:hover:text-white rounded-full shadow-sm transition-all active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#1D63ED]';
+
 /** `variant="back"` swaps the nav for a single "Back to home" pill (auth). */
 export function SiteHeader({ variant = 'nav' }: { variant?: 'nav' | 'back' }) {
   const [open, setOpen] = useState(false);
@@ -91,12 +94,14 @@ export function SiteHeader({ variant = 'nav' }: { variant?: 'nav' | 'back' }) {
                 {n.label}
               </Link>
             ))}
-            <Link href="/auth" className={pill}>Sign In</Link>
+            <Link href="/auth" className={navLink}>Sign in</Link>
+            <Link href="/discover" className={startPill}>Start chatting</Link>
           </nav>
 
-          {/* Mobile: Sign In stays visible, the rest lives in the menu */}
+          {/* Mobile: the guest path stays visible; sign in lives in the menu.
+              "No signup" on the page and a lone Sign In button contradicted each other. */}
           <div className="relative z-50 flex md:hidden items-center gap-2">
-            <Link href="/auth" className={pill}>Sign In</Link>
+            <Link href="/discover" className={startPill}>Start chatting</Link>
             <button
               type="button"
               onClick={() => setOpen((o) => !o)}
@@ -133,6 +138,12 @@ export function SiteHeader({ variant = 'nav' }: { variant?: 'nav' | 'back' }) {
                     {n.label}
                   </Link>
                 ))}
+                <Link
+                  href="/auth"
+                  className="flex items-center min-h-[48px] px-4 rounded-xl text-[15px] font-medium text-zinc-800 dark:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-white/5 transition-colors focus-visible:outline-none focus-visible:bg-zinc-100 dark:focus-visible:bg-white/5"
+                >
+                  Sign in
+                </Link>
               </nav>
             </>
           )}
