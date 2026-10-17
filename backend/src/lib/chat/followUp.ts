@@ -89,3 +89,26 @@ export function parkedFocus(previous: Record<string, unknown> | null | undefined
   const p = previous?.parkedFocus as { name?: unknown; id?: unknown } | undefined
   return { name: typeof p?.name === 'string' ? p.name : undefined, id: typeof p?.id === 'string' ? p.id : undefined }
 }
+
+const BARE_YES = /^\s*(?:yes|yeah|yep|yup|sure|ok(?:ay)?|go on|go ahead|please do|do it|haan|ha)\b[\s,.!]*(?:(?:yes|please|sure|show(?: me| them)?|go ahead|do it|do that|now)[\s,.!]*){0,3}$/i
+const OFFER = /\b(?:would|do|shall|should) you (?:like|want) (?:me )?to ([^?]{4,160})\?|\bwant me to ([^?]{4,160})\?|\bshall i ([^?]{4,160})\?/gi
+
+/**
+ * "yes" after an offer means the offer.
+ *
+ * Live session ed1ac3ff (17 Oct 2026): "Would you like me to show you options in
+ * the ₹2.5 Cr+ range?" -> "yes please" -> the same no-match answer, four times,
+ * because "yes" reached the router with no subject. The buyer's word is kept and
+ * the offer appended, so the transcript still shows what they typed.
+ */
+export function expandAffirmation(message: string, history: ReadonlyArray<{ role: string; content: string }>): string {
+  if (!BARE_YES.test(message ?? '')) return message
+  const last = [...history].reverse().find((m) => m.role === 'assistant')?.content ?? ''
+  const offers = [...last.matchAll(OFFER)].map((m) => (m[1] ?? m[2] ?? m[3]).trim())
+  const offer = offers[offers.length - 1]
+  if (!offer) return message
+  // "show you X, or explore Y" -> the first option is what "yes" accepts.
+  const first = offer.split(/,?\s+or\s+/i)[0]
+    .replace(/\byou\b/gi, 'me').replace(/\byour\b/gi, 'my').trim()
+  return `${message.trim()} (${first})`
+}

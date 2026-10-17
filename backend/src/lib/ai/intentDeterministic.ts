@@ -118,8 +118,15 @@ function amountsIn(text: string): Amount[] {
 }
 
 /** Words that make an amount a floor rather than a ceiling. */
-const ABOVE = /\b(above|over|more\s+than|greater\s+than|starting\s+(?:at|from)|minimum|min|at\s+least|upwards\s+of|north\s+of)\b/i
+const ABOVE = /\b(above|over|more\s+than|greater\s+than|starting(?:\s+(?:at|from))?|minimum|min|at\s+least|upwards\s+of|north\s+of)\b/i
 const BELOW = /\b(under|below|within|upto|up\s*to|less\s+than|maximum|max|at\s+most|no\s+more\s+than|budget\s+(?:is|of)?|afford)\b/i
+/**
+ * A floor written after the amount: "2.5CR+", "2.5 cr and above", "2 cr
+ * onwards". Live 17 Oct 2026: "options in Rs. 2.5CR+ for 3bhk" searched UNDER
+ * ₹2.5 Cr four times. A "+" before another figure or a charge is addition
+ * ("1.2 cr + 20 lakh", "1.5 cr + GST"), and so is "plus" before anything.
+ */
+const ABOVE_AFTER = /^\s*(?:\+(?!\s*(?:\d|₹|rs\b|gst|registration|stamp|tax|charges))|plus\s*(?=$|[,.;!?]|for\b|budget\b|range\b)|(?:and|or|&)\s+(?:above|more|upwards?)\b|onwards?\b|upwards?\b|or\s+higher\b)/i
 const RANGE = /\b(between|from|range)\b|[-–]/i
 
 /**
@@ -128,12 +135,18 @@ const RANGE = /\b(between|from|range)\b|[-–]/i
  * ₹40 L ceiling, and "sales guy quoted 1.9cr, fair?" searched under ₹1.9 Cr.
  * An income is not one either: "salary is 1.8 lakh a month" set a ₹1.8 L ceiling.
  */
-const NOT_A_BUDGET = /\b(?:cash|saved|savings|down\s*-?\s*payments?|dp|quoted?|quoting|asking|bol\s+rah[ae]|eoi|token|booking\s+amount|loans?|emis?|salary|income|earn(?:s|ing)?|take[-\s]?home|in[-\s]?hand|ctc|package|lpa|a\s+month|per\s+month|monthly)\b/i
+const NOT_A_BUDGET = /\b(?:cash|saved|savings|down\s*-?\s*payments?|dp|quoted?|quoting|asking|bol\s+rah[ae]|eoi|token|booking\s+amount|loans?|emis?|salary|income|earn(?:s|ing)?|take[-\s]?home|in[-\s]?hand|ctc|package|lpa|a\s+month|per\s+month|monthly)\b|\/\s*month/i
+/**
+ * A down payment, loan or income named further back in the same clause: "my
+ * down payment capacity is 20 lakhs" set a ₹20 L ceiling (live, 17 Oct 2026),
+ * and the next "3bhk with this budget?" was answered as a ₹20 L search.
+ */
+const NOT_A_BUDGET_LEAD = /\b(?:down\s*-?\s*payments?|dp|loans?|salary|income)\b(?![^]*\bbudget\b)/i
 /** "another ₹7 lakh", "₹8 lakh more": a top-up on top of something, not the ceiling. */
 const TOP_UP_BEFORE = /\b(?:another|additional|extra)\s*$/i
 const TOP_UP_AFTER = /^\s*(?:more|extra|additional)\b/i
 /** A comma or sentence stop ends the clause an amount's qualifier can belong to. */
-const CLAUSE_BREAK = /[,;]|\.(?!\d)/
+const CLAUSE_BREAK = /[,;\n]|\.(?!\d)/
 
 /** "Sorry, I meant 1.35": the later figure replaces the earlier one. */
 const CORRECTION = /\b(?:meant|sorry|correction|i\s+mean|actually|make\s+(?:it|that)|change\s+(?:it|that)\s+to)\b/i
@@ -162,7 +175,8 @@ function isNonBudgetAmount(text: string, amounts: Amount[], i: number): boolean 
   const to = Math.min(a.end + 16, i + 1 < amounts.length ? amounts[i + 1].index : text.length)
   const before = text.slice(from, a.index).split(CLAUSE_BREAK).pop() ?? ''
   const after = text.slice(a.end, Math.max(a.end, to)).split(CLAUSE_BREAK)[0]
-  return NOT_A_BUDGET.test(`${before} ${after}`) || TOP_UP_BEFORE.test(before) || TOP_UP_AFTER.test(after)
+  const lead = text.slice(Math.max(0, a.index - 40, i > 0 ? amounts[i - 1].end : 0), a.index).split(CLAUSE_BREAK).pop() ?? ''
+  return NOT_A_BUDGET.test(`${before} ${after}`) || NOT_A_BUDGET_LEAD.test(lead) || TOP_UP_BEFORE.test(before) || TOP_UP_AFTER.test(after)
 }
 
 /**
@@ -198,6 +212,7 @@ function readBudget(text: string): { min?: number; max?: number } {
   const before = text.slice(Math.max(0, only.index - 30), only.index)
   if (/\b(?:not|no)\s+(?:more|greater|over|above)\b/i.test(before)) return { max: only.value }
   if (ABOVE.test(before)) return { min: only.value }
+  if (ABOVE_AFTER.test(text.slice(only.end, only.end + 20))) return { min: only.value }
   if (BELOW.test(before)) return { max: only.value }
   // Unqualified — "80 lakh", "my budget 1.5cr". A stated figure is a ceiling.
   return { max: only.value }

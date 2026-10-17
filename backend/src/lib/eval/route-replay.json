@@ -1743,5 +1743,181 @@
         }
       }
     ]
+  },
+  {
+    "id": "live-2026-10-17-ed1ac3ff-transcript",
+    "source": "live session ed1ac3ff 2026-10-17 (admin transcript)",
+    "turns": [
+      {
+        "text": "I've made my mind to look for a 2 bak in greater noida"
+      },
+      {
+        "text": "Show me all the options within 1.2 cr"
+      },
+      {
+        "text": "Alright now tell me the banks readily available to provide home loan for these properties",
+        "expect": {
+          "lane": "topic:loan_banks",
+          "llm": false,
+          "contains": [
+            "We don't hold which banks"
+          ],
+          "notContains": [
+            "pre-approved",
+            "tie-up"
+          ]
+        }
+      },
+      {
+        "text": "who is the developer of each?",
+        "expect": {
+          "lane": "topic:developer_of_each",
+          "llm": false,
+          "contains": [
+            "| Developer |"
+          ],
+          "notContains": [
+            "ISO",
+            "CREDAI"
+          ]
+        }
+      },
+      {
+        "text": "I want you to create a roadmap in order for a new buyer to easily confirm a property in greater noida.",
+        "expect": {
+          "lane": "topic:buyer_roadmap",
+          "llm": false
+        }
+      },
+      {
+        "text": "Next step?",
+        "expect": {
+          "lane": "topic:buyer_roadmap",
+          "llm": false,
+          "contains": [
+            "Step 2 of"
+          ]
+        }
+      },
+      {
+        "text": "next?",
+        "expect": {
+          "lane": "topic:buyer_roadmap",
+          "llm": false,
+          "contains": [
+            "Step 3 of"
+          ]
+        }
+      },
+      {
+        "text": "next",
+        "expect": {
+          "lane": "topic:buyer_roadmap",
+          "llm": false,
+          "contains": [
+            "Step 4 of"
+          ]
+        }
+      },
+      {
+        "text": "step 6",
+        "expect": {
+          "lane": "topic:buyer_roadmap",
+          "llm": false,
+          "contains": [
+            "Step 6 of"
+          ]
+        }
+      },
+      {
+        "text": "how many steps are there?",
+        "expect": {
+          "lane": "topic:buyer_roadmap",
+          "llm": false,
+          "contains": [
+            "8 steps"
+          ]
+        }
+      },
+      {
+        "text": "Okay show me the projects that are nearest to New Delhi",
+        "expect": {
+          "lane": "topic:airport_proximity",
+          "llm": false,
+          "contains": [
+            "Connaught Place",
+            "straight-line"
+          ],
+          "notContains": [
+            "minutes"
+          ]
+        }
+      },
+      {
+        "text": "okay now tell me what you can do for me",
+        "expect": {
+          "lane": "topic:capabilities",
+          "llm": false,
+          "notContains": [
+            "appreciation rates"
+          ]
+        }
+      },
+      {
+        "text": "okay tell me why should I trust the information provided by you?",
+        "expect": {
+          "lane": "topic:trust",
+          "llm": false
+        }
+      },
+      {
+        "text": "are there any user feedbacks provided by existing customers of any property that is listed?",
+        "expect": {
+          "lane": "topic:trust",
+          "llm": false
+        }
+      },
+      {
+        "text": "Tell me the properties in greater noida which has padel courts or football turfs nearby",
+        "expect": {
+          "lane": "topic:amenity_search",
+          "llm": false,
+          "notContains": [
+            "Yatharth"
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "id": "live-2026-10-17-ed1ac3ff-financing",
+    "source": "live session ed1ac3ff 2026-10-17 (admin transcript)",
+    "turns": [
+      {
+        "text": "monthly income is : 1,50,000/month\nexisting home loan tenure is 20 years\nmy down payment capacity is 20 lakhs.",
+        "expect": {
+          "lane": "topic:affordability_advisor",
+          "llm": false
+        }
+      },
+      {
+        "text": "what if I have a monthly income of 1.5L/MONTH and can do a down payment of 20 lakhs and take an 80 lakh loan from the bank?",
+        "expect": {
+          "lane": "topic:affordability_advisor",
+          "llm": false,
+          "contains": [
+            "₹1.00 Cr"
+          ]
+        }
+      },
+      {
+        "text": "yes show me options in Rs. 2.5CR+ for 3bhk",
+        "expect": {
+          "notContains": [
+            "under ₹2.5 Cr"
+          ]
+        }
+      }
+    ]
   }
 ]

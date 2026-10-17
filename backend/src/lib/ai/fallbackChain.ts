@@ -34,6 +34,13 @@ export interface FallbackChainOptions {
   buildSystemPrompt?: (supportsTools: boolean) => string
   projects?: ScoredProject[]
   userMessage?: string
+  /**
+   * Everything the buyer typed this session. Integrity checks accept a figure the
+   * buyer stated themselves: live session ed1ac3ff (17 Oct 2026) lost five turns
+   * to the outage notice because their own "₹1.2 Cr" budget and "₹20 lakh" down
+   * payment, typed earlier, were rejected as invented.
+   */
+  buyerStated?: string
   userId?: string | null
   sessionId?: string | null
   guestToken?: string | null
@@ -802,7 +809,7 @@ export async function executeWithFallbackChain(options: FallbackChainOptions): P
       options.suppressTables === true,
       PARAGRAPH_STREAMING,
       carryText,
-      options.userMessage,
+      [options.userMessage, options.buyerStated].filter(Boolean).join('\n'),
     )
 
     const effectiveConfig = options.config || { maxTokens: 3000 }
@@ -923,7 +930,7 @@ export async function executeWithFallbackChain(options: FallbackChainOptions): P
         // Scanned in the model's own words, before any rewriting. The raw text
         // is what it meant to say, and a rewrite could file the edge off the
         // very phrase the scan exists to catch.
-        const violations = await checkAnswerIntegrity(text, effectivePrompt, options.userMessage)
+        const violations = await checkAnswerIntegrity(text, effectivePrompt, [options.userMessage, options.buyerStated].filter(Boolean).join('\n'))
         if (violations.length > 0) {
           console.warn(
             `[FALLBACK:INTEGRITY] ${item.label} — discarding: ` +

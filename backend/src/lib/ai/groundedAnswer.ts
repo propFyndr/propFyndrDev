@@ -445,6 +445,8 @@ export interface GroundedAnswerInput {
    * Without it this lane answers every turn as though it were the first one.
    */
   stateBrief?: string
+  /** Everything the buyer typed this session; their own figures pass the integrity check. */
+  buyerStated?: string
   /**
    * A market question about a city we list no projects in (Phase 2 of
    * CHAT_INTELLIGENCE_ROADMAP.md). Our rows hold nothing for it, so the DB
@@ -620,6 +622,7 @@ export async function runGroundedAnswer(
       onToolCall: async () => ({}),
       groqFallbackSuffix: '',
       userMessage: message,
+      buyerStated: input.buyerStated,
       userId,
       sessionId,
       // Two fixes over `{ maxTokens: 600 }`:

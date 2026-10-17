@@ -105,7 +105,7 @@ test('the extractor is wired so a literal survives whatever the model returns', 
   assert.match(src, /const heuristicIntent = applyLiterals\(/)
 })
 
-import { applyLiterals } from '../intent'
+import { applyLiterals, extractIntentHeuristic } from '../intent'
 
 test('the four-fact one-liner keeps its possession constraint', () => {
   const d = extractDeterministic('3BHK, Sector 150, under 1.5cr, possession within a year')
@@ -250,4 +250,52 @@ test('budget: the amount in a calculator question is not a budget', () => {
     assert.equal(d.budgetMin, undefined, q)
   }
   assert.equal(extractDeterministic('budget 1.5 cr, what is the stamp duty').budgetMax, 1.5)
+})
+test('budget: a floor written before or after the amount is a minimum (live, 17 Oct 2026)', () => {
+  // "Rs. 2.5CR+" was searched as UNDER ₹2.5 Cr, four times in a row.
+  for (const q of [
+    'yes show me options in Rs. 2.5CR+ for 3bhk + servant rooms',
+    '2.5CR+', '2.5 cr+', 'above 2.5 cr', '2.5 cr and above', 'more than 2.5 crore',
+    'starting 2.5 cr', 'starting from 2.5 cr', 'minimum 2.5 cr', '2.5 crore onwards', 'budget is 2.5 cr+',
+  ]) {
+    const d = extractDeterministic(q)
+    assert.equal(d.budgetMin, 2.5, q)
+    assert.equal(d.budgetMax, undefined, q)
+  }
+  for (const q of ['under 2.5 cr', 'within 2.5 cr', 'upto 2.5 cr', 'below 2.5 cr']) {
+    const d = extractDeterministic(q)
+    assert.equal(d.budgetMin, undefined, q)
+    assert.equal(d.budgetMax, 2.5, q)
+  }
+  // A "+" before a charge or another figure is addition, not a floor.
+  assert.equal(extractDeterministic('1.5 cr + GST').budgetMin, undefined)
+  const band = extractDeterministic('between 2 and 3 cr')
+  assert.deepEqual([band.budgetMin, band.budgetMax], [2, 3])
+})
+test('budget: a floor clears the misread or older ceiling at or below it', () => {
+  const q = 'yes show me options in Rs. 2.5CR+ for 3bhk + servant rooms'
+  // The heuristic reader proposes 2.5 as a ceiling; an older turn had 2.
+  const out = applyLiterals({ budgetMax: 2.5 } as any, extractDeterministic(q), q, { budgetMax: 2 } as any)
+  assert.equal(out.budgetMin, 2.5)
+  assert.equal(out.budgetMax, undefined)
+  const kept = applyLiterals({ budgetMax: 4 } as any, extractDeterministic(q), q)
+  assert.equal(kept.budgetMax, 4)
+})
+test('budget: a down payment, loan or income is never the budget (live, 17 Oct 2026)', () => {
+  for (const q of [
+    'my down payment capacity is 20 lakhs.',
+    'can do a down payment of 20 lakhs',
+    'take an 80 lakh loan',
+    'monthly income is : 1,50,000/month\nexisting home loan tenure is 20 years\nmy down payment capacity is 20 lakhs.',
+    'what if I have a monthly income of 1.5L/MONTH and can do a down payment of 20 lakhs and take an 80 lakh loan from the bank?',
+  ]) {
+    const d = extractDeterministic(q)
+    assert.equal(d.budgetMax, undefined, q)
+    assert.equal(d.budgetMin, undefined, q)
+    // Whatever the heuristic reader proposed from those amounts is stripped.
+    const out = applyLiterals(extractIntentHeuristic(q, {}), d, q)
+    assert.equal(out.budgetMax, undefined, q)
+  }
+  // The follow-up names no figure; the 20 L down payment must not have become a ceiling.
+  assert.equal(extractDeterministic("what if I'd want a 3bhk with this budget?").budgetMax, undefined)
 })

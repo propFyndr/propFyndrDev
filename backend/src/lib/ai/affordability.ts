@@ -21,13 +21,23 @@
 import { FINANCIAL } from '../config'
 import { calcEmi, formatInr } from '../calculators'
 
+/** "1,50,000" -> "150000": Indian digit grouping broke every income pattern below. */
+function ungroup(text: string): string {
+  return text.replace(/(?<=\d),(?=\d{2,3}\b)/g, '')
+}
+
 /** A stated monthly income, in rupees, if the message contains one. */
 export function statedMonthlyIncome(message: string): number | null {
-  const m = (message ?? '').toLowerCase()
+  const m = ungroup((message ?? '').toLowerCase())
 
-  // "2 lakh a month", "₹1.5L per month", "earn 200000 monthly"
-  const lakh = /(?:earn|income|salary|make|take home|in hand)[^.]{0,30}?(\d+(?:\.\d+)?)\s*(?:lakh|lac|l\b)/i.exec(m)
-    ?? /(\d+(?:\.\d+)?)\s*(?:lakh|lac)\s*(?:a|per|\/)\s*month/i.exec(m)
+  // "15 LPA", "18 lakh per annum": annual, so a twelfth of it.
+  const annual = /(\d+(?:\.\d+)?)\s*(?:lpa\b|(?:lakhs?|lacs?|l)\s*(?:per\s+annum|p\.?a\.?(?![a-z])|a\s+year|per\s+year|annual(?:ly)?|yearly))/i.exec(m)
+  if (annual) return Math.round(Number(annual[1]) * 1_00_000 / 12)
+
+  // "2 lakh a month", "₹1.5L per month", "earn 200000 monthly". "make a down
+  // payment of 20 lakhs" is not an income.
+  const lakh = /(?:earn|income|salary|make(?!\s+(?:a\s+|the\s+)?(?:down|dp|payment))|take home|in hand)[^.]{0,30}?(\d+(?:\.\d+)?)\s*(?:lakh|lac|l\b)/i.exec(m)
+    ?? /(\d+(?:\.\d+)?)\s*(?:lakhs?|lacs?|l)\s*(?:a|per|\/)\s*month/i.exec(m)
   if (lakh) return Math.round(Number(lakh[1]) * 1_00_000)
 
   const plain = /(?:earn|income|salary|make)[^.]{0,30}?(?:₹|rs\.?\s*)?(\d{5,8})\b/i.exec(m)
@@ -37,6 +47,49 @@ export function statedMonthlyIncome(message: string): number | null {
     if (n >= 10_000 && n <= 50_00_000) return n
   }
   return null
+}
+
+const AMOUNT = String.raw`(?:₹|rs\.?|inr)?\s*(\d+(?:\.\d+)?)\s*(lakhs?|lacs?|l|cr|crores?)\b`
+const toRupees = (n: string, unit: string) => Math.round(Number(n) * (/^c/i.test(unit) ? 1_00_00_000 : 1_00_000))
+
+export interface FinancingStatement {
+  monthlyIncome?: number
+  downPayment?: number
+  loanAmount?: number
+  tenureYears?: number
+}
+
+/**
+ * Income, down payment, loan and tenure the buyer stated in this message.
+ * Live 17 Oct 2026: "monthly income is : 1,50,000/month … my down payment
+ * capacity is 20 lakhs" and "1.5L/MONTH … down payment of 20 lakhs and take an
+ * 80 lakh loan" both reached the model, which did the arithmetic, failed the
+ * integrity check, and ended on the outage notice.
+ */
+export function parseFinancingStatement(message: string): FinancingStatement {
+  const m = ungroup(message ?? '')
+  const out: FinancingStatement = {}
+  const income = statedMonthlyIncome(m)
+  if (income) out.monthlyIncome = income
+
+  const down = new RegExp(String.raw`\b(?:down\s*-?\s*payment|dp)\b(?:\s+(?:capacity|budget|amount))?[^\d₹\n]{0,20}?` + AMOUNT, 'i').exec(m)
+    ?? new RegExp(AMOUNT + String.raw`\s*(?:as|for|in|towards)?\s*(?:the\s+|a\s+)?(?:down\s*-?\s*payment|dp)\b`, 'i').exec(m)
+  if (down) out.downPayment = toRupees(down[1], down[2])
+
+  const loan = new RegExp(AMOUNT + String.raw`\s*(?:home\s+|bank\s+)?loan\b`, 'i').exec(m)
+    ?? new RegExp(String.raw`\bloan\s*(?:amount)?\s*(?:of|is|:|=)\s*` + AMOUNT, 'i').exec(m)
+  if (loan) out.loanAmount = toRupees(loan[1], loan[2])
+
+  const tenure = /\btenure[^\d\n]{0,20}(\d{1,2})\s*(?:years?|yrs?)\b|\b(\d{1,2})\s*(?:-\s*)?(?:years?|yrs?)\s*(?:tenure|loan)\b/i.exec(m)
+  const years = tenure ? Number(tenure[1] ?? tenure[2]) : NaN
+  if (years >= 5 && years <= 30) out.tenureYears = years
+  return out
+}
+
+/** An income plus a down payment or a loan: a financing plan for code to compute. */
+export function statesFinancing(message: string): boolean {
+  const f = parseFinancingStatement(message)
+  return f.monthlyIncome != null && (f.downPayment != null || f.loanAmount != null)
 }
 
 /**
@@ -58,7 +111,7 @@ export function isAffordabilityQuestion(message: string): boolean {
  * integrity check rightly rejected, and three turns ended on the outage notice.
  */
 export function asksBudgetPlan(message: string): boolean {
-  return /\b(realistic budget|budget\s*(?:and|&|\+)\s*emi|emi\s+(?:on|for)\s+(?:this|my|that|the)\s+budget|how much (?:should|must|would|do(?:es)?) (?:be |my |i |the )*(?:monthly |annual )?(?:salary|income|earn|take[- ]home)|(?:salary|income) (?:should|would|do i|must) (?:i |be |need)|(?:salary|income) (?:needed|required)|(?:secure|arrange|add|put in|have|get) (?:an?other|extra|additional|more) \d+(?:\.\d+)?\s*(?:l|lakhs?|lacs?|cr|crores?)\b)/i.test(message ?? '')
+  return statesFinancing(message) || /\b(realistic budget|budget\s*(?:and|&|\+)\s*emi|emi\s+(?:on|for)\s+(?:this|my|that|the)\s+budget|how much (?:should|must|would|do(?:es)?) (?:be |my |i |the )*(?:monthly |annual )?(?:salary|income|earn|take[- ]home)|(?:salary|income) (?:should|would|do i|must) (?:i |be |need)|(?:salary|income) (?:needed|required)|(?:secure|arrange|add|put in|have|get) (?:an?other|extra|additional|more) \d+(?:\.\d+)?\s*(?:l|lakhs?|lacs?|cr|crores?)\b)/i.test(message ?? '')
 }
 
 /** "another 20 lakhs" / "extra 0.5 cr" towards the purchase, in rupees, or null. */
@@ -106,14 +159,14 @@ export interface Affordability {
  * 40% is the conservative end and 50% the stretched one for a salaried buyer
  * with no other obligations; anything above that is not lent against.
  */
-const FOIR_CONSERVATIVE = 0.40
+export const FOIR_CONSERVATIVE = 0.40
 const FOIR_STRETCHED = 0.50
 
 /** Standard down payment. Banks fund up to 80% of value on most home loans. */
 const LTV = 0.80
 
 /** Principal an EMI supports — the EMI formula solved for P. */
-function loanForEmi(emi: number, annualRatePct: number, tenureYears: number): number {
+export function loanForEmi(emi: number, annualRatePct: number, tenureYears: number): number {
   const r = annualRatePct / 1200
   const n = tenureYears * 12
   if (r === 0) return emi * n

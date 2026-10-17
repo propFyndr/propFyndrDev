@@ -1,6 +1,7 @@
 import type { ChatTopicHandler } from '../handlerContext'
 import { prisma } from '../../db'
 import { tavilySearch } from '../../web'
+import { facilitiesAsked, isPluralProjectSearch } from './amenitySearch'
 
 /**
  * "Does Ace Parkway have a stadium or sports city nearby?"
@@ -69,6 +70,13 @@ export const vicinityLookupHandler: ChatTopicHandler = {
   matches: ctx =>
     ctx.flags.isCompareRequest !== true &&
     PROXIMITY.test(ctx.message) &&
+    // A padel court or football turf is an amenity, not a landmark: we hold
+    // no such connectivity rows, so "nearby" got the focused project's
+    // hospital/mall/metro table (live chat 17 Oct 2026). A stadium stays here.
+    (facilitiesAsked(ctx.message).length === 0 || /\b(?:stadium|sports\s+city|sports\s+complex)\b/i.test(ctx.message)) &&
+    // "Which properties have X nearby" searches across projects; this
+    // handler only knows the focused one.
+    !isPluralProjectSearch(ctx.message) &&
     // "What is near Elite X?" names no landmark kind and wants all of them.
     Boolean(ctx.activeProjectName),
 

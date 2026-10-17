@@ -4,7 +4,7 @@ import type { ChatTopicHandler } from '../handlerContext'
 import { prisma } from '../../db'
 import { projectPriceNotes } from '../../projectPriceNote'
 import { UNDATED_NOTE } from '../../priceVerification'
-import { statedMonthlyIncome, computeAffordability, renderAffordabilityTable, asksBudgetPlan, extraDownPayment } from '../../ai/affordability'
+import { statedMonthlyIncome, computeAffordability, renderAffordabilityTable, asksBudgetPlan, extraDownPayment, parseFinancingStatement, loanForEmi, FOIR_CONSERVATIVE, type FinancingStatement } from '../../ai/affordability'
 
 const CRORE = 10_000_000
 const LAKH = 100_000
@@ -134,11 +134,12 @@ const inrLakh = (n: number) => `₹${(n / LAKH).toFixed(2)} Lakhs`
  * anything smaller as monthly — how Indian buyers quote the two.
  */
 function matchIncome(message: string): RegExpExecArray | null {
-  const NUM = String.raw`(\d+(?:\.\d+)?)\s*(k|l|lakhs?|lacs?|lpa|cr|crores?)?`
+  // "1,50,000" (Indian grouping) as well as "150000" and "1.5".
+  const NUM = String.raw`(\d{1,3}(?:,\d{2,3})+|\d+(?:\.\d+)?)\s*(k|l|lakhs?|lacs?|lpa|cr|crores?)?`
   const PERIOD = String.raw`(pm|p\.m\.|per\s+month|a\s+month|monthly|\/\s*mo(?:nth)?|pa|p\.a\.|per\s+annum|a\s+year|per\s+year|annual(?:ly)?|yearly|\/\s*yr)?`
-  const WORD = String.raw`(?:salary|income|earn(?:ing)?s?|take[-\s]?home|in[-\s]?hand|ctc|package)`
+  const WORD = String.raw`(?:salary|income|make|earn(?:ing)?s?|take[-\s]?home|in[-\s]?hand|ctc|package)`
   const after = new RegExp(String.raw`\b${NUM}\s*${PERIOD}\s*(?:of\s+)?${WORD}`, 'i').exec(message)
-  return after ?? new RegExp(String.raw`${WORD}\s*(?:of|is|:)?\s*(?:rs\.?|inr|₹)?\s*${NUM}\s*${PERIOD}`, 'i').exec(message)
+  return after ?? new RegExp(String.raw`${WORD}(?:\s*(?:of|is|:))*\s*(?:rs\.?|inr|₹)?\s*${NUM}\s*${PERIOD}`, 'i').exec(message)
 }
 
 /**
@@ -159,7 +160,7 @@ export function parseStatedPrice(message: string): number | undefined {
 export function parseMonthlyIncome(message: string): number | undefined {
   const m = matchIncome(message)
   if (!m) return undefined
-  const value = parseFloat(m[1])
+  const value = parseFloat(m[1].replace(/,/g, ''))
   if (!Number.isFinite(value) || value <= 0) return undefined
   const unit = (m[2] || '').toLowerCase()
   const period = (m[3] || '').toLowerCase()
@@ -173,6 +174,94 @@ export function parseMonthlyIncome(message: string): number | undefined {
   if (annual) return Math.round(rupees / 12)
   if (monthly) return Math.round(rupees)
   return Math.round(rupees >= 10 * LAKH ? rupees / 12 : rupees)
+}
+
+export interface FinancingPlan {
+  monthlyIncome: number
+  downPayment: number
+  /** True when the buyer gave the down payment; false when 20% of the price is assumed. */
+  downPaymentStated: boolean
+  loan: number
+  /** 'stated' by the buyer, 'foir' from 40% of income, 'ltv' capped at 80% of the price. */
+  loanBasis: 'stated' | 'foir' | 'ltv'
+  price: number
+  emi: number
+  emiPctOfIncome: number
+  rate: number
+  tenureYears: number
+  stampDuty: number
+  registration: number
+  gstIfUnderConstruction: number
+}
+
+/**
+ * Income plus a down payment and/or a loan, worked into a price. With a loan
+ * stated, price = down payment + loan; without one, the loan is what 40% of
+ * income services at the assumed rate, capped at the 80% of the price banks
+ * lend. Rate and, unless stated, tenure are assumptions and labelled so.
+ */
+export function computeFinancingPlan(f: FinancingStatement & { monthlyIncome: number }): FinancingPlan | null {
+  if (f.downPayment == null && f.loanAmount == null) return null
+  const rate = FINANCIAL.EMI_RATE
+  const tenureYears = f.tenureYears ?? FINANCIAL.LOAN_TENURE_YEARS
+  let loan: number
+  let loanBasis: FinancingPlan['loanBasis'] = 'stated'
+  if (f.loanAmount != null) loan = f.loanAmount
+  else {
+    loan = Math.round(loanForEmi(f.monthlyIncome * FOIR_CONSERVATIVE, rate, tenureYears))
+    loanBasis = 'foir'
+    if (loan > f.downPayment! * 4) { loan = f.downPayment! * 4; loanBasis = 'ltv' }
+  }
+  const downPayment = f.downPayment ?? Math.round(loan / 4)
+  const price = downPayment + loan
+  const emi = calculateEmi(loan, rate, tenureYears)
+  return {
+    monthlyIncome: f.monthlyIncome,
+    downPayment,
+    downPaymentStated: f.downPayment != null,
+    loan,
+    loanBasis,
+    price,
+    emi,
+    emiPctOfIncome: Math.round((emi / f.monthlyIncome) * 100),
+    rate,
+    tenureYears,
+    stampDuty: Math.round(price * UP_STATUTORY.stampDutyPct / 100),
+    registration: Math.round(price * UP_STATUTORY.registrationPct / 100),
+    gstIfUnderConstruction: Math.round(price * UP_STATUTORY.gstUnderConstructionPct / 100),
+  }
+}
+
+/** Every figure in it comes from `computeFinancingPlan`; nothing for the model to redo. */
+export function renderFinancingPlan(p: FinancingPlan, tenureStated: boolean): string {
+  const amt = (n: number) => n >= CRORE ? inrCr(n) : `₹${(n / LAKH).toFixed(2)} L`
+  const loanLabel = p.loanBasis === 'stated' ? 'Home loan (your figure)'
+    : p.loanBasis === 'ltv' ? 'Home loan (capped at 80% of the price, the most banks lend)'
+    : `Home loan (largest EMI within ${Math.round(FOIR_CONSERVATIVE * 100)}% of income)`
+  const verdict = p.emiPctOfIncome <= 40
+    ? `An EMI at ${p.emiPctOfIncome}% of income sits inside the 40% banks approve without argument.`
+    : p.emiPctOfIncome <= 50
+      ? `An EMI at ${p.emiPctOfIncome}% of income is stretched: banks go to about 50% only with no other EMI and a stable income.`
+      : `An EMI at ${p.emiPctOfIncome}% of income is above the roughly 50% banks lend against, so expect a smaller sanction or a longer tenure.`
+  const ltvNote = p.loanBasis === 'stated' && p.downPaymentStated && p.loan > p.downPayment * 4
+    ? '\n\nThe loan is more than 80% of the price; banks usually fund up to 80%, so the down payment may need to rise.'
+    : ''
+  return `### Your financing plan, worked out
+
+| | |
+| :--- | ---: |
+| **Monthly income** | ${inr(p.monthlyIncome)} |
+| **Down payment${p.downPaymentStated ? ' (your figure)' : ' (assumed 20% of price)'}** | ${amt(p.downPayment)} |
+| **${loanLabel}** | ${amt(p.loan)} |
+| **Price this reaches (down payment + loan)** | **${amt(p.price)}** |
+| **EMI at ${p.rate}% over ${p.tenureYears} years** | ${inr(p.emi)} / month |
+| **EMI as share of income** | ${p.emiPctOfIncome}% |
+| **Cash on top: stamp duty ${UP_STATUTORY.stampDutyPct}% + registration ${UP_STATUTORY.registrationPct}%** | ${amt(p.stampDuty + p.registration)} |
+| **Plus GST ${UP_STATUTORY.gstUnderConstructionPct}% if under construction** | ${amt(p.gstIfUnderConstruction)} |
+
+${verdict}${ltvNote}
+
+The ${p.rate}% rate is an assumption; your bank's sanction letter decides the real EMI.${tenureStated ? '' : ` The ${p.tenureYears}-year tenure is assumed too.`} Stamp duty is ${UP_STATUTORY.stampDutyFemalePct}% with a woman as primary owner. Stamp duty, registration and GST are paid in cash, not from the loan, so keep them beside the down payment.`
 }
 
 export const affordabilityHandler: ChatTopicHandler = {
@@ -223,6 +312,27 @@ export const affordabilityHandler: ChatTopicHandler = {
     // 3. Income: this message, else the latest earlier turn that stated one.
     const earlier = [...(ctx.priorUserMessages ?? [])].reverse().map(m => statedMonthlyIncome(m)).find(Boolean)
     const userMonthlyIncome = parseMonthlyIncome(ctx.message) ?? earlier ?? undefined
+
+    // Income with a down payment and/or a loan: the price follows from those,
+    // computed here. The model did this sum itself and every attempt failed the
+    // integrity check (live, 17 Oct 2026).
+    const fin = parseFinancingStatement(ctx.message)
+    const plan = userMonthlyIncome ? computeFinancingPlan({ ...fin, monthlyIncome: userMonthlyIncome }) : null
+    if (plan) {
+      ctx.send('token', { token: `${renderFinancingPlan(plan, fin.tenureYears != null)}\n\nWant me to show projects up to ${inrCr(plan.price)}?` })
+      ctx.emitUiState({
+        stage: 'FINANCE',
+        thinking: 'Your financing plan:',
+        chips: [
+          { id: `chip_fin_show_${Date.now()}`, actionType: 'TEXT_MESSAGE', label: `Projects up to ${inrCr(plan.price)}`, icon: 'search', analyticsId: 'chip_afford_reco', priority: 1, payload: { text: `Show me projects under ${(plan.price / CRORE).toFixed(2)} cr` } },
+        ],
+        missingFields: [],
+        confidence: 'MEDIUM',
+      })
+      ctx.send('done', { sessionId: ctx.sessionId, intentState: 'FINANCED', intent: ctx.intent, responseMode: 'chat' })
+      ctx.res.end()
+      return
+    }
 
     // No price, but an income: what that income supports, computed here. The
     // model wrote this as prose and gave a ₹75 L loan a "₹6.6 L" EMI, then
@@ -289,6 +399,7 @@ Want me to show projects between ${cr(a.priceConservativeCr)} and ${cr(a.priceSt
       basePrice,
       multiplier,
       userMonthlyIncome,
+      ...(fin.tenureYears ? { tenureYears: fin.tenureYears } : {}),
       ...(extra ? { downpaymentPct: Math.min(0.9, 0.2 + extra / basePrice) } : {}),
     })
 

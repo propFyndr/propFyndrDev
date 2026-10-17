@@ -24,6 +24,9 @@ import { resaleDealHandler } from './resaleDeal'
 import { pressureTacticsHandler, siteVisitChecklistHandler, compromiseOrderHandler, firstStepsHandler } from './buyerSupport'
 import { investmentScenarioHandler, priceMultipleHandler } from './investmentScenario'
 import { airportProximityHandler } from './airportProximity'
+import { roadmapHandler, capabilitiesHandler, trustHandler } from './buyerGuide'
+import { amenitySearchHandler } from './amenitySearch'
+import { loanBanksHandler, developerOfEachHandler } from './shortlistFacts'
 import { savedProfileHandler } from './savedProfile'
 import { publicRecordLookupHandler } from './publicRecordLookup'
 import { projectCatchHandler } from './projectCatch'
@@ -97,10 +100,21 @@ export const CHAT_TOPIC_HANDLERS: readonly ChatTopicHandler[] = [
   pressureTacticsHandler,
   siteVisitChecklistHandler,
   compromiseOrderHandler,
+  // Before firstSteps: "roadmap" / "steps to buy" and their "next", "step 6"
+  // follow-ups get the fixed numbered roadmap, not a fresh essay each turn.
+  roadmapHandler,
   firstStepsHandler,
+  capabilitiesHandler,
+  trustHandler,
   investmentScenarioHandler,
   priceMultipleHandler,
   airportProximityHandler,
+  // Questions about the projects on screen (live session 17 Oct 2026): lenders and
+  // developers from their rows, sports facilities from the amenity records. Before
+  // vicinityLookup and amenityLifestyle, which answered padel with a landmark table.
+  loanBanksHandler,
+  developerOfEachHandler,
+  amenitySearchHandler,
   // "What's the catch with X": record-based negatives and gaps for one named
   // project. Narrow matcher (a catch/negatives phrase AND a project we hold).
   projectCatchHandler,

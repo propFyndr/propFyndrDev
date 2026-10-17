@@ -486,6 +486,11 @@ export function applyLiterals(intent: Intent, deterministic: DeterministicIntent
   if (lit.has('bhk')) out.bhk = deterministic.bhk
   if (lit.has('budgetMin')) out.budgetMin = deterministic.budgetMin
   if (lit.has('budgetMax')) out.budgetMax = deterministic.budgetMax
+  // "2.5 cr+" states a floor only. A ceiling at or under it — the heuristic
+  // reader's misread of the same figure, or an older budget — cannot stand.
+  if (lit.has('budgetMin') && !lit.has('budgetMax') && typeof out.budgetMax === 'number' && out.budgetMax <= deterministic.budgetMin!) {
+    delete out.budgetMax
+  }
   if (lit.has('possession')) out.possession = deterministic.possession as Intent['possession']
   if (lit.has('areaMin')) out.areaMin = deterministic.areaMin
   if (lit.has('areaMax')) out.areaMax = deterministic.areaMax

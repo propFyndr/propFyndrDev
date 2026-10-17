@@ -57,7 +57,9 @@ export async function hydrateIntentFromMemory(
     bhk: currentIntent.bhk ?? stored.bhk,
     sector: currentIntent.sector ?? stored.sector,
     budgetMin: currentIntent.budgetMin ?? stored.budgetMin,
-    budgetMax: currentIntent.budgetMax ?? stored.budgetMax,
+    // A stored ceiling at or under this turn's floor ("2.5 cr+") is superseded, not restored.
+    budgetMax: currentIntent.budgetMax
+      ?? (currentIntent.budgetMin != null && stored.budgetMax != null && stored.budgetMax <= currentIntent.budgetMin ? undefined : stored.budgetMax),
     purpose: currentIntent.purpose ?? stored.purpose,
     possession: currentIntent.possession ?? stored.possession,
     // The workplace is stated once and matters for the rest of the

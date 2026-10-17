@@ -107,7 +107,7 @@ import { recordTurnTrace, type TurnTraceDraft } from '../lib/turnTrace'
 import { recordDemandSignal } from '../lib/demandSignal'
 import { scanDisclosure } from '../lib/ai/answerIntegrity'
 import { projectCatalog, catalogNamesSync } from '../lib/projectCatalog'
-import { asksAboutFocusAttribute, mentionsFocusPronoun, focusFallback, parkFocus, parkedFocus, asksMarketWide } from '../lib/chat/followUp'
+import { asksAboutFocusAttribute, mentionsFocusPronoun, focusFallback, parkFocus, parkedFocus, asksMarketWide, expandAffirmation } from '../lib/chat/followUp'
 import { matchProjectInText, fuzzyMatchProject, suggestProjects } from '../lib/discovery/matchProjectInText'
 import { parseAggregateQuestion, queryProjects, renderAggregateAnswer } from '../lib/chat/aggregateQuery'
 import { applyCommuteAnchor, beltFor } from '../lib/discovery/commuteAnchor'
@@ -1090,7 +1090,7 @@ router.post('/', async (req: Request, res: Response) => {
     const chatHistory: Array<{ role: 'user' | 'assistant'; content: string }> = sortedRaw.map((m) => ({
       role: m.role as 'user' | 'assistant',
       content: m.content,
-    }))
+    })); message = expandAffirmation(message, chatHistory)
 
     if (action.type === 'INTENT_PATCH' || action.type === 'REMOVE_FILTER') {
       chatHistory.push({ role: 'user', content: message })
@@ -3050,7 +3050,7 @@ router.post('/', async (req: Request, res: Response) => {
         // Budget, sector, workplace, focused project and the ordered list just
         // shown. Without it this lane answered "tell me about the first one"
         // with an essay about Jewar Airport.
-        stateBrief,
+        stateBrief, buyerStated: chatHistory.filter((m) => m.role === 'user').map((m) => m.content).join(' | '),
       })
 
       const rawOpenText = grounded?.text ?? buildNoGroundingReply(openDetection)
@@ -3261,7 +3261,7 @@ router.post('/', async (req: Request, res: Response) => {
       !matchesLegalRiskQuestion(message) &&
       // Resale deal, growth scenario, booking pressure, site visit, trade-offs, saved profile:
       // answered by their handlers from the message alone.
-      !matchesMessageOnlyTopic(message) &&
+      !matchesMessageOnlyTopic(message, chatHistory.filter((m) => m.role === 'user' && m.content !== message).map((m) => m.content)) &&
       // "bsp 1.2 cr … total kitna padega": totalOutflowHandler computes it on
       // the buyer's own number; the open lane handed it to the model.
       statedBasePriceInr(message) === null &&
@@ -3661,7 +3661,7 @@ I can help you:
      * to pay. A question about whether money or title is safe is never an
      * amenity, commute or configuration question, whatever nouns it contains.
      */
-    const isLegalRiskQuery = matchesLegalRiskQuestion(message) || matchesMessageOnlyTopic(message)
+    const isLegalRiskQuery = matchesLegalRiskQuestion(message) || matchesMessageOnlyTopic(message, chatHistory.filter((m) => m.role === 'user' && m.content !== message).map((m) => m.content))
     const isAmenityQuery = !isInventorySearch && !isLegalRiskQuery && // The short tokens carry word boundaries. Without them `spa` matched inside
 // "spacious", `park` inside "parking" and `court` inside "courtyard" — each
 // one turning an unrelated question into an amenity answer.
@@ -4392,7 +4392,7 @@ USING THE FACTS:
               messages: systemMsgHistory,
               send,
               onToolCall: async () => ({}),
-              userMessage: message,
+              userMessage: message, buyerStated: chatHistory.filter((m) => m.role === 'user').map((m) => m.content).join(' | '),
               userId,
               sessionId: currentSessionId,
               guestToken,
@@ -4828,7 +4828,7 @@ EXECUTIVE RESPONSE INSTRUCTIONS:
           messages: [{ role: 'user', content: projectDataMsg }],
           send,
           onToolCall: async () => ({ error: 'No tools required for project detail' }),
-          userMessage: message,
+          userMessage: message, buyerStated: chatHistory.filter((m) => m.role === 'user').map((m) => m.content).join(' | '),
           userId,
           sessionId: currentSessionId,
           guestToken,
@@ -6249,7 +6249,7 @@ EXECUTIVE RESPONSE INSTRUCTIONS:
         onToolCall: handleToolCall,
         groqFallbackSuffix: '',
         projects,
-        userMessage: message,
+        userMessage: message, buyerStated: chatHistory.filter((m) => m.role === 'user').map((m) => m.content).join(' | '),
         userId,
         sessionId: currentSessionId,
         guestToken,

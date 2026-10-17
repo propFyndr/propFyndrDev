@@ -17,8 +17,19 @@ import { findProjectsMentioned } from '../../discovery/proseEntities'
 // connectivity question and stays with the connectivity lane.
 const CLOSEST = /\b(closest|nearest|nearer|closer)\b/i
 
+// "Nearest to New Delhi" (live session, 17 Oct 2026) got an invented "27 km, 45-50
+// minutes" for Sector 78, then "Sectors 14-16, 10 to 14 km". Connaught Place is
+// the reference point, stated in the answer.
+const CENTRAL_DELHI = { name: 'Central Delhi (Connaught Place)', lat: 28.6315, lng: 77.2167 }
+const NEW_DELHI = /\b(new delhi|central delhi|connaught place|delhi border)\b/i
+
+/** The place the buyer wants to be near, if it is one we can measure to. */
+export function proximityTarget(message: string): { name: string; lat: number; lng: number } | null {
+  return airportAskedAbout(message) ?? (NEW_DELHI.test(message) ? CENTRAL_DELHI : null)
+}
+
 export function matchesAirportProximity(message: string): boolean {
-  return CLOSEST.test(message) && airportAskedAbout(message) !== null
+  return CLOSEST.test(message) && proximityTarget(message) !== null
 }
 
 type Row = { id: string; name: string; sector: string | null; status: string | null; lat: number | null; lng: number | null }
@@ -54,7 +65,7 @@ export const airportProximityHandler: ChatTopicHandler = {
   matches: (ctx) => matchesAirportProximity(ctx.message),
 
   handle: async (ctx) => {
-    const airport = airportAskedAbout(ctx.message)!
+    const airport = proximityTarget(ctx.message)!
     // A pasted list or named projects first, then "these" from the last turn, then the catalogue.
     const named = await findProjectsMentioned(ctx.message, undefined, 12)
     const ids = named.length ? named.map((p) => p.id) : ctx.cachedProjects.map((p) => p.id)
