@@ -257,3 +257,36 @@ export function unsourcedMarketStatistics(text: string, prompt: string): Integri
   }
   return out
 }
+
+/**
+ * Sentences carrying a distance, travel time, floor area or land area that
+ * nothing we supplied supports are dropped, the rest of the answer kept.
+ *
+ * Live transcript rerun 4 (17 Oct 2026): "ATS Dolce… about 44 km, roughly 44
+ * minutes", "carpet areas between 590 and 690 sqft", "hospitals within a
+ * 15-minute radius", "5–7% UP stamp duty". Price checks never looked at these
+ * units. Dropping the sentence rather than discarding the answer keeps a model
+ * slip from becoming the outage notice; the figure still never reaches the buyer.
+ */
+const MEASURE = /(\d+(?:[.,]\d+)?)(?:\s*(?:-|–|to)\s*(\d+(?:[.,]\d+)?))?\s*(?:km|kms|kilomet\w*|min(?:ute)?s?\b|sq\.?\s*ft|sqft|square\s+feet|acres?)\b/gi
+const STAMP_DUTY_RATE = /stamp\s+duty[^.%\n]{0,40}?(\d+(?:\.\d+)?)\s*%(?:\s*(?:-|–|to)\s*(\d+(?:\.\d+)?)\s*%)?|(\d+(?:\.\d+)?)\s*%?\s*(?:-|–|to)\s*(\d+(?:\.\d+)?)\s*%\s*(?:up\s+)?stamp\s+duty/gi
+
+export function dropUnsourcedMeasurements(text: string, reference: string): { text: string; dropped: string[] } {
+  const known = [...(reference ?? '').matchAll(/\d+(?:\.\d+)?/g)].map((m) => Number(m[0]))
+  const supported = (raw: string) => {
+    const v = Number(raw.replace(',', '.'))
+    return known.some((k) => Math.abs(k - v) <= Math.max(0.6, v * 0.05))
+  }
+  const statutory = new Set([7, 6])
+  const dropped: string[] = []
+  const kept = text.split(/(?<=[.!?])(\s+)/).filter((part) => {
+    if (/^\s+$/.test(part)) return true
+    const measures = [...part.matchAll(MEASURE)].flatMap((m) => [m[1], m[2]].filter(Boolean) as string[])
+    const badMeasure = measures.some((n) => !supported(n))
+    const rates = [...part.matchAll(STAMP_DUTY_RATE)].flatMap((m) => [m[1], m[2], m[3], m[4]].filter(Boolean).map(Number))
+    const badStamp = rates.some((r) => !statutory.has(r))
+    if (badMeasure || badStamp) { dropped.push(part.trim()); return false }
+    return true
+  })
+  return { text: kept.join('').replace(/([.!?]) {2,}/g, '$1 ').replace(/\n{3,}/g, '\n\n').trim(), dropped }
+}

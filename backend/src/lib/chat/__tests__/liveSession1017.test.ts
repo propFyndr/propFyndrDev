@@ -95,3 +95,14 @@ describe('live rerun 3: the merged intent must be searchable', () => {
     assert.equal(reconcileIntent({ sector: 'Sector 150, Noida' } as any, '3bhk in sector 150 noida').sector, 'Sector 150, Noida')
   })
 })
+
+import { asksProjectPriceHistory } from '../handlers/priceTrend'
+
+describe('a backward-looking price question about the shortlist', () => {
+  it('is a project price-history question, not a market forecast', () => {
+    assert.ok(asksProjectPriceHistory('3 bhk + servant royale price trend in the last 12 months'))
+    assert.ok(!asksProjectPriceHistory('noida property price trends'))
+    assert.ok(!asksProjectPriceHistory('what will prices be in 5 years'))
+    assert.ok(!asksProjectPriceHistory('price trend in greater noida over the last year'))
+  })
+})

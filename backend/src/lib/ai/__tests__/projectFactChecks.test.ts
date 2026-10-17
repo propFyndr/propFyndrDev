@@ -92,3 +92,20 @@ describe('stress re-run leftovers', () => {
     assert.ok(recordContradictions(d5, LOGIX).length >= 1)
   })
 })
+
+import { dropUnsourcedMeasurements } from '../projectFactChecks'
+
+describe('measurements nobody supplied (live rerun 4, 17 Oct 2026)', () => {
+  it('drops the sentence with an invented distance, area or stamp-duty range, keeps the rest', () => {
+    const t = 'ATS Dolce is the closest. It is about 44 km away, roughly 44 minutes by road. Want the cost sheet?'
+    const r = dropUnsourcedMeasurements(t, 'ATS Dolce straight line 39.7 km')
+    assert.equal(r.text, 'ATS Dolce is the closest. Want the cost sheet?')
+    assert.equal(r.dropped.length, 1)
+    assert.equal(dropUnsourcedMeasurements('Carpet areas run 590 to 690 sqft here.', 'nothing').text, '')
+    assert.equal(dropUnsourcedMeasurements('Budget 5–7% UP stamp duty and 1% registration.', 'x').text, '')
+  })
+  it('keeps measurements and rates we supplied', () => {
+    const ok = 'Sector 76 metro is 12.1 km away (27 min). Stamp duty is 7% (6% for women).'
+    assert.equal(dropUnsourcedMeasurements(ok, 'metro 12.1 km 27 min').text, ok)
+  })
+})

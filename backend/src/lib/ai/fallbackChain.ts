@@ -115,6 +115,7 @@ import { estimateTokensReal } from './tokenizer'
 import { priceFor } from './cost'
 import { createTableStripper, stripTables } from './stripTables'
 import { checkToolBlindAnswer } from './toolBlindGuard'
+import { dropUnsourcedMeasurements } from './projectFactChecks'
 import { endCleanly } from './endCleanly'
 import { wouldExceed, recordAttempt, recordRateLimited, limitFor } from './rateBudget'
 import { sanitizeOutput } from './sanitizeOutput'
@@ -440,7 +441,9 @@ function createBufferedSend(
     // House style first, then the market-tier qualifier — the scan above read
     // the raw words, and both of these only ever add or reword a clause.
     const framedParagraph = rewriteFraming(complete).text
-    forwardToken(qualifyMarketFigures(framedParagraph, systemPrompt).text)
+    const measured = dropUnsourcedMeasurements(framedParagraph, `${systemPrompt}\n${userMessage}`)
+    if (measured.dropped.length) console.warn('[FALLBACK:MEASURE_DROPPED]', measured.dropped.map((d) => d.slice(0, 80)))
+    forwardToken(qualifyMarketFigures(measured.text, systemPrompt).text)
   }
 
   /**
@@ -943,6 +946,12 @@ export async function executeWithFallbackChain(options: FallbackChainOptions): P
           console.log(`[FALLBACK:REFRAMED] ${item.label} — ${framed.rewrites} house-style phrase(s) rewritten`)
           replaceBufferedText(framed.text)
           text = framed.text
+        }
+        const measured = dropUnsourcedMeasurements(text, [systemPrompt, options.userMessage, options.buyerStated].filter(Boolean).join('\n'))
+        if (measured.dropped.length) {
+          console.warn(`[FALLBACK:MEASURE_DROPPED] ${item.label}`, measured.dropped.map((d) => d.slice(0, 80)))
+          replaceBufferedText(measured.text)
+          text = measured.text
         }
         const qualified = qualifyMarketFigures(text, systemPrompt)
         if (qualified.qualified > 0) {

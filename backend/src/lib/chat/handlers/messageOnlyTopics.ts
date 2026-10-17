@@ -7,6 +7,7 @@ import { asksBudgetPlan } from '../../ai/affordability'
 import { matchesRoadmapQuestion, roadmapStepFor, matchesCapabilitiesQuestion, matchesTrustQuestion } from './buyerGuide'
 import { matchesAmenitySearch } from './amenitySearch'
 import { matchesLoanBanks, matchesDeveloperOfEach } from './shortlistFacts'
+import { asksProjectPriceHistory } from './priceTrend'
 
 /**
  * Topics whose handler is decided by the message alone, with no project, flag or
@@ -24,5 +25,5 @@ export function matchesMessageOnlyTopic(message: string, priorUserMessages: read
     matchesFirstStepsQuestion(message) ||
     matchesRoadmapQuestion(message) || roadmapStepFor(message, priorUserMessages) !== null ||
     matchesCapabilitiesQuestion(message) || matchesTrustQuestion(message) ||
-    matchesAmenitySearch(message) || matchesLoanBanks(message) || matchesDeveloperOfEach(message)
+    matchesAmenitySearch(message) || matchesLoanBanks(message) || matchesDeveloperOfEach(message) || asksProjectPriceHistory(message)
 }

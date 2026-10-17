@@ -21,6 +21,20 @@ import type { ChatTopicHandler } from '../handlerContext'
  * things at once: a sector-level question ("appreciation in Sector 150") is not
  * this handler's to answer.
  */
+/**
+ * "3 bhk + servant royale price trend in the last 12 months" named no project and
+ * none was in focus, so it fell to the main lane, which drew a forward what-if
+ * appreciation ladder on the buyer's budget and then hit the outage notice (live
+ * transcript, 17 Oct 2026). A backward-looking price question with a shortlist on
+ * screen is about those projects: answer for the one in focus, or ask which.
+ */
+const BACKWARD = /\b(?:last|past|previous|ago|history|since|over\s+the\s+(?:year|years|months))\b/i
+const AREA_WIDE = /\b(?:noida|greater\s+noida|market|city|sector\s*\d|area|corridor)\b/i
+
+export function asksProjectPriceHistory(message: string): boolean {
+  return asksPriceMovement(message) && BACKWARD.test(message) && !AREA_WIDE.test(message)
+}
+
 export const priceTrendHandler: ChatTopicHandler = {
   id: 'price_trend',
   description: "How a named project's price moved: recorded points, each labelled observed or benchmark",
@@ -28,13 +42,26 @@ export const priceTrendHandler: ChatTopicHandler = {
   matches: ctx =>
     asksPriceMovement(ctx.message) &&
     ctx.flags.isCompareRequest !== true &&
-    (matchProjectInText(ctx.message, ctx.catalog) !== null || Boolean(ctx.activeProjectName)),
+    (matchProjectInText(ctx.message, ctx.catalog) !== null || Boolean(ctx.activeProjectName) ||
+      (asksProjectPriceHistory(ctx.message) && ctx.cachedProjects.length > 0)),
 
   handle: async ctx => {
     const target =
       matchProjectInText(ctx.message, ctx.catalog) ??
       ctx.catalog.find(p => p.name.toLowerCase() === ctx.activeProjectName?.toLowerCase() || p.id === ctx.activeProjectName)
-    if (!target) return false
+    if (!target) {
+      const names = ctx.cachedProjects.map(c => ctx.catalog.find(p => p.id === c.id)?.name).filter(Boolean).slice(0, 6) as string[]
+      if (!names.length) return false
+      ctx.send('token', { token: `Price history is recorded per project, not per unit type. Which one should I check?
+
+${names.map(n => `- ${n}`).join('\n')}
+
+I'll show the recorded price points and say which are observed and which are benchmarks.` })
+      ctx.emitUiState({ stage: 'RESEARCH', thinking: 'Which project?', chips: names.slice(0, 3).map((n, i) => ({ id: `chip_pt_pick_${i}_${Date.now()}`, actionType: 'TEXT_MESSAGE', label: n, icon: 'trending-up', analyticsId: 'chip_pt_pick', priority: i + 1, payload: { text: `Price trend of ${n} in the last 12 months` } })), missingFields: ['project'], confidence: 'HIGH' })
+      ctx.send('done', { sessionId: ctx.sessionId, intentState: 'RESEARCH', intent: ctx.intent, responseMode: 'chat' })
+      ctx.res.end()
+      return
+    }
 
     const project = await prisma.project.findUnique({
       where: { id: target.id },
