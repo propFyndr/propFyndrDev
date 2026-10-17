@@ -98,3 +98,52 @@ export const investmentScenarioHandler: ChatTopicHandler = {
     ctx.res.end()
   },
 }
+
+/**
+ * "Will prices in Noida double in 5 years? Give me a number."
+ *
+ * Every provider answered with an invented growth rate, the integrity check
+ * blocked each one, and the buyer got the outage message (stress run G7,
+ * 17 Oct 2026). The honest answer is arithmetic: the yearly rate a doubling
+ * needs, and that we hold no verified Noida-wide growth series to compare it to.
+ */
+const MULTIPLE = /\b(double|doubled|doubles|doubling|triple|tripled|triples|tripling|twice|[23]\s*x)\b/i
+const MARKET_SUBJECT = /\b(prices?|propert(?:y|ies)|values?|investment|flats?|homes?|real\s+estate|rates?)\b/i
+
+export function matchesPriceMultiple(message: string): boolean {
+  return MULTIPLE.test(message) && MARKET_SUBJECT.test(message) && !/\d\s*%/.test(message) && yearsIn(message) !== null
+}
+
+export function priceMultipleAnswer(message: string): string {
+  const multiple = /tripl|3\s*x/i.test(message.match(MULTIPLE)![0]) ? 3 : 2
+  const word = multiple === 3 ? 'triple' : 'double'
+  const years = yearsIn(message) as number
+  const needed = (Math.pow(multiple, 1 / years) - 1) * 100
+  return `### What it takes for prices to ${word} in ${years} years
+
+To ${word} in ${years} years, prices have to rise about **${needed.toFixed(1)}% every year**, compounded, for all ${years} years.
+
+That is the only number I can give you honestly. Whether Noida reaches it is a forecast, and I don't make one: we hold no verified Noida-wide price series to measure past growth against, and any growth rate I quoted would be a guess presented as data. Growth also differs by sector and project, so a city-wide figure would not tell you much about one flat.
+
+If you give me a purchase price and the yearly rates you want to test, I will work out the value after ${years} years at each, after stamp duty and registration.`
+}
+
+export const priceMultipleHandler: ChatTopicHandler = {
+  id: 'price_multiple',
+  description: 'The yearly growth a doubling or tripling needs, with no forecast',
+
+  matches: ctx => matchesPriceMultiple(ctx.message),
+
+  handle: async ctx => {
+    ctx.send('token', { token: priceMultipleAnswer(ctx.message) })
+    ctx.emitUiState({
+      stage: 'FINANCE',
+      thinking: 'Working out the growth that would take:',
+      chips: [],
+      missingFields: [],
+      confidence: 'HIGH',
+    })
+    ctx.send('done', { sessionId: ctx.sessionId, intentState: 'FINANCE', intent: ctx.intent, responseMode: 'chat' })
+    ctx.res.end()
+  },
+}

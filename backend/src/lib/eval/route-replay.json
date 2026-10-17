@@ -1629,6 +1629,11 @@
       {
         "text": "Will property prices in Noida double in 5 years? Give me a number.",
         "expect": {
+          "lane": "topic:price_multiple",
+          "llm": false,
+          "contains": [
+            "14.9% every year"
+          ],
           "notContains": [
             "No projects",
             "4 BHK",
