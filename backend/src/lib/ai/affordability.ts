@@ -51,6 +51,24 @@ export function isAffordabilityQuestion(message: string): boolean {
 }
 
 /**
+ * Budget planning on a price the buyer already gave: "help me work out a
+ * realistic budget and EMI" (our own chip), "how much should my monthly salary
+ * be", "if I secure another 20 lakhs". Live session 17 Oct 2026: each of these
+ * reached the model, which did the EMI arithmetic itself, quoted figures the
+ * integrity check rightly rejected, and three turns ended on the outage notice.
+ */
+export function asksBudgetPlan(message: string): boolean {
+  return /\b(realistic budget|budget\s*(?:and|&|\+)\s*emi|emi\s+(?:on|for)\s+(?:this|my|that|the)\s+budget|how much (?:should|must|would|do(?:es)?) (?:be |my |i |the )*(?:monthly |annual )?(?:salary|income|earn|take[- ]home)|(?:salary|income) (?:should|would|do i|must) (?:i |be |need)|(?:salary|income) (?:needed|required)|(?:secure|arrange|add|put in|have|get) (?:an?other|extra|additional|more) \d+(?:\.\d+)?\s*(?:l|lakhs?|lacs?|cr|crores?)\b)/i.test(message ?? '')
+}
+
+/** "another 20 lakhs" / "extra 0.5 cr" towards the purchase, in rupees, or null. */
+export function extraDownPayment(message: string): number | null {
+  const m = /(?:an?other|extra|additional|more)\s+(\d+(?:\.\d+)?)\s*(l|lakhs?|lacs?|cr|crores?)\b/i.exec(message ?? '')
+  if (!m) return null
+  return Math.round(Number(m[1]) * (/^c/i.test(m[2]) ? 1_00_00_000 : 1_00_000))
+}
+
+/**
  * The income from this message, or from the latest earlier turn that stated one.
  * "Ok so what can I actually afford then?" one turn after "My salary is 1.8 lakh
  * a month" carried no number, so the model did the arithmetic and gave a ₹75 L

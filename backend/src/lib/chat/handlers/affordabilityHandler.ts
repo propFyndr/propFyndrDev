@@ -1,9 +1,10 @@
 import { MARKET_QUALIFIER, UP_STATUTORY } from '../../factPresentation'
+import { FINANCIAL } from '../../config'
 import type { ChatTopicHandler } from '../handlerContext'
 import { prisma } from '../../db'
 import { projectPriceNotes } from '../../projectPriceNote'
 import { UNDATED_NOTE } from '../../priceVerification'
-import { statedMonthlyIncome, computeAffordability, renderAffordabilityTable } from '../../ai/affordability'
+import { statedMonthlyIncome, computeAffordability, renderAffordabilityTable, asksBudgetPlan, extraDownPayment } from '../../ai/affordability'
 
 const CRORE = 10_000_000
 const LAKH = 100_000
@@ -55,12 +56,15 @@ export function calculateAffordabilityBreakdown(opts: {
   const basePrice = opts.basePrice
   const landedMultiplier = opts.multiplier ?? 1.30
   const totalLandedCost = Math.round(basePrice * landedMultiplier)
+  // Banks lend up to 80% of the agreement value, never on stamp duty, GST or
+  // club charges: those are paid in cash on top. The loan used to be 80% of the
+  // landed cost, so a ₹1.20 Cr flat got a ₹1.25 Cr loan (live session, 17 Oct 2026).
   const downpaymentPct = opts.downpaymentPct ?? 0.20
-  const downpaymentAmount = Math.round(totalLandedCost * downpaymentPct)
-  const loanPrincipal = totalLandedCost - downpaymentAmount
+  const downpaymentAmount = Math.round(basePrice * downpaymentPct)
+  const loanPrincipal = basePrice - downpaymentAmount
 
-  const tenureYears = opts.tenureYears ?? 20
-  const baseInterestRatePct = opts.baseRatePct ?? 8.5
+  const tenureYears = opts.tenureYears ?? FINANCIAL.LOAN_TENURE_YEARS
+  const baseInterestRatePct = opts.baseRatePct ?? FINANCIAL.EMI_RATE
   const shockInterestRatePct = baseInterestRatePct + ((opts.shockHikeBps ?? 150) / 100)
 
   const standardEmi = calculateEmi(loanPrincipal, baseInterestRatePct, tenureYears)
@@ -183,6 +187,7 @@ export const affordabilityHandler: ChatTopicHandler = {
       'tax saving', 'rate shock', 'stress test', 'can i buy'
     ]
     if (triggers.some(t => q.includes(t))) return true
+    if (asksBudgetPlan(ctx.message)) return true
     if (/\b(?:earn|income|salary)\s*(?:of|is)?\s*(?:rs\.?|inr|₹)?\s*\d+/i.test(q)) return true
     return ctx.flags.isAffordabilityQuery === true
   },
@@ -277,10 +282,14 @@ Want me to show projects between ${cr(a.priceConservativeCr)} and ${cr(a.priceSt
     // stated with the market qualifier whenever it is used.
     const multiplierOnRecord = project?.all_in_cost_multiplier != null
     const multiplier = project?.all_in_cost_multiplier ?? 1.30
+    // "If I secure another 20 lakhs": the extra cash goes into the down payment,
+    // on top of the assumed 20%, so the loan and EMI shrink by exactly that much.
+    const extra = extraDownPayment(ctx.message)
     const calc = calculateAffordabilityBreakdown({
       basePrice,
       multiplier,
       userMonthlyIncome,
+      ...(extra ? { downpaymentPct: Math.min(0.9, 0.2 + extra / basePrice) } : {}),
     })
 
     // The base price is the project's own row only when isProjectSpecific; then
@@ -309,9 +318,9 @@ ${calc.foirStatus === 'comfortable'
 | Financial Dimension | Benchmark / Breakdown | Impact on Monthly Outflow |
 | :--- | :--- | :--- |
 | **Headline Base Price** | ${inrCr(calc.basePrice)} | ${basePriceBasis} |
-| **True Landed Cost** | **${inrCr(calc.totalLandedCost)}** (+${Math.round((calc.landedMultiplier - 1) * 100)}%${multiplierOnRecord ? '' : `, estimate — ${MARKET_QUALIFIER}`}) | Stamp duty, GST, IFMS & club charges |
-| **Downpayment (assumed 20%)** | ${inrCr(calc.downpaymentAmount)} | Upfront equity needed; your own figure will change the loan below |
-| **Home Loan Principal (assumed 80%)** | ${inrCr(calc.loanPrincipal)} | 20-year tenure at ${calc.baseInterestRatePct}% p.a. (assumed rate — your bank's offer will differ) |
+| **True Landed Cost** | **${inrCr(calc.totalLandedCost)}** (+${Math.round((calc.landedMultiplier - 1) * 100)}%${multiplierOnRecord ? '' : `, estimate — ${MARKET_QUALIFIER}`}) | Stamp duty, GST, IFMS & club charges: ${inrCr(calc.totalLandedCost - calc.basePrice)} paid in cash, not lent |
+| **Downpayment (${extra ? `20% + your extra ${inrCr(extra)}` : 'assumed 20%'})** | ${inrCr(calc.downpaymentAmount)} | Upfront equity needed; your own figure will change the loan below |
+| **Home Loan Principal${extra ? '' : ' (assumed 80% of price)'}** | ${inrCr(calc.loanPrincipal)} | ${calc.tenureYears}-year tenure at ${calc.baseInterestRatePct}% p.a. (assumed rate — your bank's offer will differ) |
 | **Standard Bank EMI** | **${inr(calc.standardEmi)} / month** | Contractual bank debit |
 | **Sec 24(b) Tax Shield** | **- ${inr(calc.monthlyTaxShieldSec24b)} / month** | ₹2L/yr interest deduction (assumes 30% slab + 4% cess) |
 | **Net Out-of-Pocket Outflow** | **${inr(calc.netMonthlyOutflow)} / month** | Real cost to household budget |

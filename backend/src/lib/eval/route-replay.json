@@ -1703,5 +1703,45 @@
         }
       }
     ]
+  },
+  {
+    "id": "live-2026-10-17-budget-plan",
+    "source": "live session ed1ac3ff 2026-10-17 (Render logs)",
+    "turns": [
+      {
+        "text": "3bhk ready to move in sector 150 under 1.2 cr"
+      },
+      {
+        "text": "Help me work out a realistic budget and EMI.",
+        "expect": {
+          "lane": "topic:affordability_advisor",
+          "llm": false,
+          "contains": [
+            "Standard Bank EMI",
+            "₹1.20 Cr"
+          ]
+        }
+      },
+      {
+        "text": "so how much should be my monthly salary in order to match this EMI",
+        "expect": {
+          "lane": "topic:affordability_advisor",
+          "llm": false,
+          "contains": [
+            "Min. Safe Monthly Income"
+          ]
+        }
+      },
+      {
+        "text": "nice and now If I secure another 20 lakhs from personal savings",
+        "expect": {
+          "lane": "topic:affordability_advisor",
+          "llm": false,
+          "contains": [
+            "your extra ₹0.20 Cr"
+          ]
+        }
+      }
+    ]
   }
 ]

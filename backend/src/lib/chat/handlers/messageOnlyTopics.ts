@@ -3,6 +3,7 @@ import { matchesInvestmentScenario, matchesPriceMultiple } from './investmentSce
 import { matchesPressureQuestion, matchesSiteVisitQuestion, matchesCompromiseQuestion, matchesFirstStepsQuestion } from './buyerSupport'
 import { matchesSavedProfileQuestion } from './savedProfile'
 import { matchesAirportProximity } from './airportProximity'
+import { asksBudgetPlan } from '../../ai/affordability'
 
 /**
  * Topics whose handler is decided by the message alone, with no project, flag or
@@ -11,7 +12,7 @@ import { matchesAirportProximity } from './airportProximity'
  * the replay measured exactly that for every one of these.
  */
 export function matchesMessageOnlyTopic(message: string): boolean {
-  return matchesResaleDealQuestion(message) || matchesInvestmentScenario(message) || matchesPriceMultiple(message) || matchesAirportProximity(message) ||
+  return matchesResaleDealQuestion(message) || matchesInvestmentScenario(message) || matchesPriceMultiple(message) || matchesAirportProximity(message) || asksBudgetPlan(message) ||
     matchesPressureQuestion(message) || matchesSiteVisitQuestion(message) ||
     matchesCompromiseQuestion(message) || matchesSavedProfileQuestion(message) ||
     matchesFirstStepsQuestion(message)

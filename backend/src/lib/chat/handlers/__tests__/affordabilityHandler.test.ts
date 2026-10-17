@@ -31,14 +31,15 @@ describe('Affordability & Cash-Flow Advisor', () => {
 
     assert.strictEqual(breakdown.basePrice, 15_000_000)
     assert.strictEqual(breakdown.totalLandedCost, 19_500_000)
-    assert.strictEqual(breakdown.downpaymentAmount, 3_900_000)
-    assert.strictEqual(breakdown.loanPrincipal, 15_600_000)
+    // Banks lend 80% of the price, not of the landed cost: this used to read a
+    // ₹1.56 Cr loan on a ₹1.5 Cr flat. Charges on top are paid in cash.
+    assert.strictEqual(breakdown.downpaymentAmount, 3_000_000)
+    assert.strictEqual(breakdown.loanPrincipal, 12_000_000)
+    assert.ok(breakdown.loanPrincipal < breakdown.basePrice)
 
-    // Standard EMI on 1.56 Cr loan at 8.5%
-    assert.strictEqual(breakdown.standardEmi, 135380)
-
-    // Shock EMI at 10.0%
-    assert.strictEqual(breakdown.shockEmi, 150543)
+    // Standard EMI on 1.2 Cr loan at 8.5%, shock at 10.0%
+    assert.strictEqual(breakdown.standardEmi, calculateEmi(12_000_000, 8.5, 20))
+    assert.strictEqual(breakdown.shockEmi, calculateEmi(12_000_000, 10, 20))
     assert.strictEqual(breakdown.rateShockBufferMonthly, breakdown.shockEmi - breakdown.standardEmi)
 
     // Section 24b tax shield (~₹5,200/mo)
@@ -50,8 +51,8 @@ describe('Affordability & Cash-Flow Advisor', () => {
 
     // User FOIR evaluation
     assert.strictEqual(breakdown.userMonthlyIncome, 350_000)
-    assert.strictEqual(breakdown.userFoirPct, Math.round((breakdown.standardEmi / 350_000) * 100)) // 39%
-    assert.strictEqual(breakdown.foirStatus, 'manageable')
+    assert.strictEqual(breakdown.userFoirPct, Math.round((breakdown.standardEmi / 350_000) * 100)) // 30%
+    assert.strictEqual(breakdown.foirStatus, 'comfortable')
   })
 
   it('correctly matches natural financial queries and ignores unrelated ones', () => {
@@ -167,7 +168,7 @@ describe('affordabilityHandler with no price', () => {
     assert.match(text, /assumed rate/)
     assert.match(text, /assumes 30% slab/)
     assert.match(text, /typical for Noida — not verified/)
-    assert.match(text, /Rate Shock \(10\.0%\)/)
+    assert.match(text, /Rate Shock \(10\.[23]%\)/) // 8.75% assumed rate + 1.5
     assert.equal(ui.affordabilityData.userMonthlyIncome, 250000)
     assert.equal(ui.confidence, 'MEDIUM')
   })
