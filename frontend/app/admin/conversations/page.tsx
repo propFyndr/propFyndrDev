@@ -172,7 +172,18 @@ export interface IntelligenceData {
     capturedLeads: number
     leadConversionRate: number
   }
+  /** What buyers asked for, from the intent stored on each turn. */
+  topRequirements?: Record<'bhk' | 'budget' | 'possession', Array<{ label: string; count: number }>>
+  window?: { days: number; since: string | null; messagesScanned: number }
+  generatedAt?: string
 }
+
+/** Time windows the panel counts over; 0 is all time. */
+const INTEL_WINDOWS = [
+  { days: 7, label: '7 days' },
+  { days: 30, label: '30 days' },
+  { days: 0, label: 'All time' },
+] as const
 
 const inr = (usd: number) => `₹${(usd * 88).toFixed(2)}`
 
@@ -250,6 +261,7 @@ export default function ConversationsPage() {
   // Top Entities & Intelligence
   const [intelligence, setIntelligence] = useState<IntelligenceData | null>(null)
   const [intelligenceLoading, setIntelligenceLoading] = useState(false)
+  const [intelDays, setIntelDays] = useState<number>(30)
   const [showIntelligence, setShowIntelligence] = useState(true)
 
   const [serverTotals, setServerTotals] = useState<{ total?: number; totalLeads?: number; totalCostUsd?: number } | null>(null)
@@ -303,7 +315,7 @@ export default function ConversationsPage() {
   const loadIntelligence = useCallback(async () => {
     try {
       setIntelligenceLoading(true)
-      const res = await adminFetch('/admin/conversations/intelligence')
+      const res = await adminFetch(`/admin/conversations/intelligence?days=${intelDays}`)
       if (res.ok) {
         const data = await res.json()
         setIntelligence(data)
@@ -313,7 +325,15 @@ export default function ConversationsPage() {
     } finally {
       setIntelligenceLoading(false)
     }
-  }, [])
+  }, [intelDays])
+
+  // Recount when the window changes, and every minute while the page is open,
+  // so the panel follows new conversations (the endpoint caches for 60 s).
+  useEffect(() => {
+    loadIntelligence()
+    const t = setInterval(loadIntelligence, 60_000)
+    return () => clearInterval(t)
+  }, [loadIntelligence])
 
   // Fetch Conversations with query params. `append` pages in the next 100 past
   // whatever is already loaded instead of replacing the list — used by "Load
@@ -383,7 +403,6 @@ export default function ConversationsPage() {
 
   useEffect(() => {
     loadSessions()
-    loadIntelligence()
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Deep link support: /admin/conversations?sessionId=<id> opens that session
@@ -606,8 +625,28 @@ export default function ConversationsPage() {
                 Top Queries & Entity Intelligence
               </h2>
               <span className="text-[11px] font-medium text-zinc-400">
-                Click a project, sector or query to filter the list
+                Counted from real buyer conversations
+                {intelligence?.generatedAt && ` · updated ${new Date(intelligence.generatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`}
+                {intelligence?.window && ` · ${intelligence.window.messagesScanned.toLocaleString('en-IN')} messages`}
               </span>
+            </div>
+
+            <div role="group" aria-label="Time window" className="flex items-center gap-1 rounded-lg bg-zinc-100 dark:bg-zinc-800 p-0.5 shrink-0">
+              {INTEL_WINDOWS.map((w) => (
+                <button
+                  key={w.days}
+                  type="button"
+                  aria-pressed={intelDays === w.days}
+                  onClick={() => setIntelDays(w.days)}
+                  className={`px-2.5 py-1 rounded-md text-[11px] font-bold transition-colors cursor-pointer ${FOCUS} ${
+                    intelDays === w.days
+                      ? 'bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white shadow-2xs'
+                      : 'text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200'
+                  }`}
+                >
+                  {w.label}
+                </button>
+              ))}
             </div>
 
             {hasActiveFilters && (
@@ -632,7 +671,7 @@ export default function ConversationsPage() {
                   </div>
                   <div className="min-w-0">
                     <h3 className="text-xs font-bold text-zinc-900 dark:text-zinc-100 truncate">Top Mentioned Projects</h3>
-                    <p className="text-[10px] text-zinc-400 font-medium">Ranked by buyer frequency</p>
+                    <p className="text-[10px] text-zinc-400 font-medium">Conversations that named it</p>
                   </div>
                 </div>
                 <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-purple-50 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 border border-purple-200/60 dark:border-purple-800/60 shrink-0">
@@ -753,7 +792,7 @@ export default function ConversationsPage() {
                   </div>
                   <div className="min-w-0">
                     <h3 className="text-xs font-bold text-zinc-900 dark:text-zinc-100 truncate">Frequent Inquiries</h3>
-                    <p className="text-[10px] text-zinc-400 font-medium">Top recurring buyer queries</p>
+                    <p className="text-[10px] text-zinc-400 font-medium">Asked in more than one conversation</p>
                   </div>
                 </div>
                 <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border border-amber-200/60 dark:border-amber-800/60 shrink-0">
@@ -769,7 +808,7 @@ export default function ConversationsPage() {
                     ))}
                   </div>
                 ) : !intelligence?.topQueries.length ? (
-                  <p className="text-xs text-zinc-400 italic p-4 text-center">No repeated queries recorded.</p>
+                  <p className="text-xs text-zinc-400 italic p-4 text-center">No question repeated across conversations in this window.</p>
                 ) : (
                   intelligence.topQueries.map((q, idx) => (
                     <button
@@ -782,7 +821,7 @@ export default function ConversationsPage() {
                         &ldquo;{q.query}&rdquo;
                       </span>
                       <span className="text-[10px] font-mono font-bold bg-amber-100 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 px-1.5 py-0.5 rounded-md shrink-0">
-                        {q.count}x
+                        {q.count}
                       </span>
                     </button>
                   ))
@@ -790,6 +829,23 @@ export default function ConversationsPage() {
               </div>
             </div>
           </div>
+
+          {intelligence?.topRequirements && (
+            <div className="flex flex-wrap items-center gap-x-5 gap-y-2 pt-3 border-t border-zinc-100 dark:border-zinc-800 text-[11px]">
+              {([['bhk', 'Configuration'], ['budget', 'Budget'], ['possession', 'Possession']] as const).map(([k, title]) =>
+                intelligence.topRequirements![k].length ? (
+                  <div key={k} className="flex flex-wrap items-center gap-1.5 min-w-0">
+                    <span className="font-bold text-zinc-500 dark:text-zinc-400">{title}</span>
+                    {intelligence.topRequirements![k].map((r) => (
+                      <span key={r.label} className="px-2 py-0.5 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-200 font-semibold">
+                        {r.label} <span className="font-mono text-zinc-400">{r.count}</span>
+                      </span>
+                    ))}
+                  </div>
+                ) : null,
+              )}
+            </div>
+          )}
         </div>
       )}
 

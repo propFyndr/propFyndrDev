@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express'
 import { prisma } from '../lib/db'
 import { requireAdmin } from '../lib/adminAuth'
+import { computeEntityIntelligence } from '../lib/admin/entityIntelligence'
 
 /**
  * Reading the beta back.
@@ -42,164 +43,58 @@ interface SessionRow {
   focus_project?: { id: string; name: string; slug: string; sector: string } | null
 }
 
-// ── In-Memory Cached Intelligence for Instant Response (<10ms) ──────────────
-let cachedIntelligence: { data: any; timestamp: number } | null = null
+// ── Entity Intelligence: what buyers ask about, from real turns (60 s cache per window)
+const intelligenceCache = new Map<string, { data: unknown; timestamp: number }>()
 
 betaRouter.get(
   ['/intelligence', '/top-entities'],
   requireAdmin,
   asyncHandler(async (req, res) => {
-    // Return cached intelligence if under 60 seconds old
-    if (cachedIntelligence && Date.now() - cachedIntelligence.timestamp < 60_000) {
-      res.json(cachedIntelligence.data)
+    // ?days=7 | 30 (default) | 0 for all time
+    const daysRaw = Number(req.query.days ?? 30)
+    const days = Number.isFinite(daysRaw) && daysRaw >= 0 ? Math.min(Math.floor(daysRaw), 3650) : 30
+    const key = String(days)
+    const hit = intelligenceCache.get(key)
+    if (hit && Date.now() - hit.timestamp < 60_000) {
+      res.json(hit.data)
       return
     }
 
     try {
-      const [focusedAgg, topProjectsList, userMessages, totalSessions, totalLeads, dbSectorsList, sessionLocations] = await Promise.all([
-        prisma.chatSession.groupBy({
-          by: ['focus_project_id'],
-          where: { focus_project_id: { not: null }, is_bot: false },
-          _count: { _all: true },
-          orderBy: { _count: { focus_project_id: 'desc' } },
-          take: 20,
-        }),
-        prisma.project.findMany({
-          select: { id: true, name: true, slug: true, sector: true },
-          take: 120,
-        }),
+      const since = days > 0 ? new Date(Date.now() - days * 86_400_000) : undefined
+      const realUser = { is_bot: false }
+      const [messages, projects, focused, totalSessions, totalLeads] = await Promise.all([
         prisma.chatMessage.findMany({
-          where: {
-            role: 'user',
-            content: { notIn: ['test', 'Test', 'TEST', 'test.', 'Test.', 'testing', 'Testing'] },
-            session: { is_bot: false },
-          },
-          select: { content: true, session_id: true },
+          where: { role: 'user', session: realUser, ...(since ? { created_at: { gte: since } } : {}) },
+          select: { content: true, session_id: true, intent_snapshot: true },
           orderBy: { created_at: 'desc' },
-          take: 4000,
+          take: 20_000,
+        }),
+        prisma.project.findMany({ select: { id: true, name: true, slug: true, sector: true } }),
+        prisma.chatSession.findMany({
+          where: { ...realUser, focus_project_id: { not: null }, ...(since ? { messages: { some: { created_at: { gte: since } } } } : {}) },
+          select: { id: true, focus_project_id: true },
         }),
         prisma.chatSession.count({
-          where: {
-            message_count: { gt: 0 },
-            is_bot: false,
-            messages: {
-              some: {
-                role: 'user',
-                content: { notIn: ['test', 'Test', 'TEST', 'test.', 'Test.', 'testing', 'Testing'] },
-              },
-            },
-          },
+          where: { ...realUser, message_count: { gt: 0 }, ...(since ? { messages: { some: { created_at: { gte: since } } } } : {}) },
         }),
-        prisma.callbackRequest.count(),
-        prisma.project.findMany({
-          where: { sector: { not: '' } },
-          distinct: ['sector'],
-          select: { sector: true },
-        }),
-        prisma.chatSession.groupBy({
-          by: ['summary_location'],
-          where: { summary_location: { not: null }, is_bot: false },
-          _count: { _all: true },
-          orderBy: { _count: { summary_location: 'desc' } },
-          take: 40,
-        }),
+        prisma.callbackRequest.count(since ? { where: { created_at: { gte: since } } } : undefined),
       ])
 
-      const projectCountMap = new Map<string, { id: string; name: string; slug: string; sector: string; count: number }>()
-
-      // 1. Seed from focused project aggregations
-      const projectById = new Map(topProjectsList.map((p) => [p.id, p]))
-      for (const f of focusedAgg) {
-        if (!f.focus_project_id) continue
-        const proj = projectById.get(f.focus_project_id)
-        if (proj) {
-          projectCountMap.set(proj.name, {
-            id: proj.id,
-            name: proj.name,
-            slug: proj.slug,
-            sector: proj.sector,
-            count: f._count._all * 3, // Weighted priority
-          })
-        }
-      }
-
-      // 2. Scan recent user messages for project mentions
-      for (const p of topProjectsList) {
-        const pNameLower = p.name.toLowerCase()
-        let count = 0
-        for (const m of userMessages) {
-          if (m.content.toLowerCase().includes(pNameLower)) count++
-        }
-        if (count > 0 || projectCountMap.has(p.name)) {
-          const existing = projectCountMap.get(p.name)
-          const total = (existing?.count || 0) + count
-          projectCountMap.set(p.name, {
-            id: p.id,
-            name: p.name,
-            slug: p.slug,
-            sector: p.sector,
-            count: total,
-          })
-        }
-      }
-
-      const topProjects = Array.from(projectCountMap.values())
-        .sort((a, b) => b.count - a.count)
-        .slice(0, 20)
-
-      // 3. Scan Sector Mentions dynamically from database projects & session locations
-      const allDiscoveredSectors = new Set<string>()
-      for (const s of dbSectorsList) {
-        if (s.sector && s.sector.trim().length > 1) allDiscoveredSectors.add(s.sector.trim())
-      }
-      const locationCountMap = new Map<string, number>()
-      for (const loc of sessionLocations) {
-        if (loc.summary_location && loc.summary_location.trim().length > 1) {
-          allDiscoveredSectors.add(loc.summary_location.trim())
-          locationCountMap.set(loc.summary_location.trim().toLowerCase(), loc._count._all)
-        }
-      }
-
-      const sectorCounts: Array<{ sector: string; count: number }> = []
-      for (const sec of allDiscoveredSectors) {
-        const sLower = sec.toLowerCase()
-        let count = (locationCountMap.get(sLower) || 0) * 2
-        for (const m of userMessages) {
-          if (m.content.toLowerCase().includes(sLower)) count++
-        }
-        if (count > 0) {
-          sectorCounts.push({ sector: sec, count })
-        }
-      }
-      sectorCounts.sort((a, b) => b.count - a.count)
-      const topSectors = sectorCounts.slice(0, 20)
-
-      // 4. Extract Top Buyer Inquiry Questions
-      const queryMap = new Map<string, number>()
-      for (const m of userMessages) {
-        const text = m.content.replace(/[?!.]/g, '').trim()
-        if (text.length > 8 && text.length < 100) {
-          queryMap.set(text, (queryMap.get(text) || 0) + 1)
-        }
-      }
-      const topQueries = Array.from(queryMap.entries())
-        .sort((a, b) => b[1] - a[1])
-        .slice(0, 15)
-        .map(([query, count]) => ({ query, count }))
-
-      const responsePayload = {
-        topProjects,
-        topSectors,
-        topQueries,
+      const focusBySession = new Map(focused.map((s) => [s.id, s.focus_project_id as string]))
+      const intel = computeEntityIntelligence(messages, projects, focusBySession)
+      const payload = {
+        ...intel,
+        window: { days, since: since?.toISOString() ?? null, messagesScanned: messages.length },
+        generatedAt: new Date().toISOString(),
         userMetrics: {
           totalEngagedSessions: totalSessions,
           capturedLeads: totalLeads,
           leadConversionRate: totalSessions > 0 ? +((totalLeads / totalSessions) * 100).toFixed(1) : 0,
         },
       }
-
-      cachedIntelligence = { data: responsePayload, timestamp: Date.now() }
-      res.json(responsePayload)
+      intelligenceCache.set(key, { data: payload, timestamp: Date.now() })
+      res.json(payload)
     } catch (err) {
       console.error('[intelligence:ERROR]', err)
       res.status(500).json({ error: 'Failed to compute intelligence' })
