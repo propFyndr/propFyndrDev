@@ -115,7 +115,7 @@ import { estimateTokensReal } from './tokenizer'
 import { priceFor } from './cost'
 import { createTableStripper, stripTables } from './stripTables'
 import { checkToolBlindAnswer } from './toolBlindGuard'
-import { dropUnsourcedMeasurements } from './projectFactChecks'
+import { dropUnsourcedMeasurements, dropUnsourcedJudgements } from './projectFactChecks'
 import { endCleanly } from './endCleanly'
 import { wouldExceed, recordAttempt, recordRateLimited, limitFor } from './rateBudget'
 import { sanitizeOutput } from './sanitizeOutput'
@@ -441,7 +441,9 @@ function createBufferedSend(
     // House style first, then the market-tier qualifier — the scan above read
     // the raw words, and both of these only ever add or reword a clause.
     const framedParagraph = rewriteFraming(complete).text
-    const measured = dropUnsourcedMeasurements(framedParagraph, `${systemPrompt}\n${userMessage}`)
+    const measuredOnly = dropUnsourcedMeasurements(framedParagraph, `${systemPrompt}\n${userMessage}`)
+    const judged = dropUnsourcedJudgements(measuredOnly.text, systemPrompt)
+    const measured = { text: judged.text, dropped: [...measuredOnly.dropped, ...judged.dropped] }
     if (measured.dropped.length) console.warn('[FALLBACK:MEASURE_DROPPED]', measured.dropped.map((d) => d.slice(0, 80)))
     forwardToken(qualifyMarketFigures(measured.text, systemPrompt).text)
   }
@@ -947,7 +949,9 @@ export async function executeWithFallbackChain(options: FallbackChainOptions): P
           replaceBufferedText(framed.text)
           text = framed.text
         }
-        const measured = dropUnsourcedMeasurements(text, [systemPrompt, options.userMessage, options.buyerStated].filter(Boolean).join('\n'))
+        const measuredOnly = dropUnsourcedMeasurements(text, [systemPrompt, options.userMessage, options.buyerStated].filter(Boolean).join('\n'))
+        const judged = dropUnsourcedJudgements(measuredOnly.text, systemPrompt)
+        const measured = { text: judged.text, dropped: [...measuredOnly.dropped, ...judged.dropped] }
         if (measured.dropped.length) {
           console.warn(`[FALLBACK:MEASURE_DROPPED] ${item.label}`, measured.dropped.map((d) => d.slice(0, 80)))
           replaceBufferedText(measured.text)

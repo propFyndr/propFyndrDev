@@ -109,3 +109,30 @@ describe('measurements nobody supplied (live rerun 4, 17 Oct 2026)', () => {
     assert.equal(dropUnsourcedMeasurements(ok, 'metro 12.1 km 27 min').text, ok)
   })
 })
+
+import { dropUnsourcedJudgements } from '../projectFactChecks'
+
+describe('judgements nobody supplied (live rerun 4, 17 Oct 2026)', () => {
+  it('drops the sentence carrying an unsupported judgement, keeps the rest', () => {
+    const t = 'Migsun Ultima in Zeta 1 is ready to move. Its older delivery vintage requires factoring in renovation costs. Want the cost sheet?'
+    assert.equal(dropUnsourcedJudgements(t, 'Migsun Ultima ready_to_move').text, 'Migsun Ultima in Zeta 1 is ready to move. Want the cost sheet?')
+    const s = 'Aditya Urban Casa tends to have more settled maintenance committees and active resident welfare.'
+    assert.equal(dropUnsourcedJudgements(s, 'Aditya Urban Casa').text, '')
+  })
+  it('keeps a judgement whose words are in our rows, and ordinary advice', () => {
+    assert.equal(dropUnsourcedJudgements('The builder is known for timely delivery.', 'builder known for timely delivery').text, 'The builder is known for timely delivery.')
+    const advice = 'Ask the society for its maintenance charges before you book.'
+    assert.equal(dropUnsourcedJudgements(advice, '').text, advice)
+  })
+})
+
+describe('judgement wordings seen in live rerun 5', () => {
+  it('drops older construction vintage, Mivan and room-size judgements unless supplied', () => {
+    for (const t of [
+      'Omaxe Palm Greens carries an older construction vintage.',
+      'Developers deliver large-format residences featuring Mivan construction.',
+      'Migsun Villa features compact room dimensions relative to its super area.',
+    ]) assert.equal(dropUnsourcedJudgements(t, 'Omaxe Palm Greens Migsun Villa').text, '', t)
+    assert.equal(dropUnsourcedJudgements('Built with Mivan shuttering.', 'construction: mivan').text, 'Built with Mivan shuttering.')
+  })
+})

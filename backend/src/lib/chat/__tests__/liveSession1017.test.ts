@@ -106,3 +106,17 @@ describe('a backward-looking price question about the shortlist', () => {
     assert.ok(!asksProjectPriceHistory('price trend in greater noida over the last year'))
   })
 })
+
+import { matchesBareYes } from '../handlers/bareYes'
+
+describe('a yes the router could attach nothing to', () => {
+  it('carries the question it answers, or reaches the what-next handler', () => {
+    const q = [{ role: 'assistant', content: 'Panchsheel Greens 1 offers ready flats.\n\nAre you looking to move in immediately?' }]
+    assert.equal(expandAffirmation('yes', q), 'yes (answering: Are you looking to move in immediately?)')
+    const none = [{ role: 'assistant', content: '### Distance to Noida International (Jewar)\n\nATS Dolce is nearest.' }]
+    const still = expandAffirmation('yes', none)
+    assert.equal(still, 'yes')
+    assert.ok(matchesBareYes(still))
+    assert.ok(!matchesBareYes('yes please (show me options in the ₹2.5 Cr+ range)'))
+  })
+})

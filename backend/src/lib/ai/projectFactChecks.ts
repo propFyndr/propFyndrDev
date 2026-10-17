@@ -290,3 +290,39 @@ export function dropUnsourcedMeasurements(text: string, reference: string): { te
   })
   return { text: kept.join('').replace(/([.!?]) {2,}/g, '$1 ').replace(/\n{3,}/g, '\n\n').trim(), dropped }
 }
+
+/**
+ * Judgements about a project that no row supports: maintenance, residents, build
+ * quality, renovation, vintage, reputation, density. Live transcript rerun 4
+ * (17 Oct 2026): "societies like Aditya Urban Casa… have more settled maintenance
+ * committees and active resident welfare compared to older phases like Antriksh",
+ * "its older delivery vintage requires factoring in… renovation costs". A judgement
+ * stays only when the words for it are in what we supplied; otherwise the
+ * sentence is dropped like an unsourced figure.
+ */
+const UNSOURCED_JUDGEMENT = [
+  /\b(?:well|better|poorly|badly)[-\s]maintained\b/i,
+  /\b(?:settled|active|strong|engaged|responsive)\s+(?:maintenance|resident|rwa|community|society|welfare)\w*/i,
+  /\bresidents?\s+(?:are|feel|report|say|love|complain|praise)\b/i,
+  /\b(?:superior|excellent|premium|poor|good|great|solid|high)[-\s](?:build|construction)(?:\s+quality)?\b/i,
+  /\b(?:build|construction)\s+quality\s+(?:is|are|remains)\b/i,
+  /\brenovation\b/i,
+  /\bolder\s+(?:\w+\s+){0,2}(?:vintage|phases?|societies|towers|construction)\b/i,
+  // Construction method and layout quality are claims about the build, not rows.
+  /\bmivan\b/i,
+  /\bcompact\s+(?:room|layout|bedroom)s?\b|\b(?:spacious|cramped|efficient)\s+(?:room|layout|floor\s+plan)s?\b/i,
+  /\b(?:trusted|reputed|reliable|renowned|well-known)\s+(?:builder|developer|brand)\b/i,
+  /\bknown\s+for\b/i,
+]
+
+export function dropUnsourcedJudgements(text: string, reference: string): { text: string; dropped: string[] } {
+  const ref = (reference ?? '').toLowerCase()
+  const dropped: string[] = []
+  const kept = text.split(/(?<=[.!?])(\s+)/).filter((part) => {
+    if (/^\s+$/.test(part)) return true
+    const hit = UNSOURCED_JUDGEMENT.map((re) => re.exec(part)?.[0]).find((m): m is string => Boolean(m))
+    if (hit && !ref.includes(hit.toLowerCase())) { dropped.push(part.trim()); return false }
+    return true
+  })
+  return { text: kept.join('').replace(/([.!?]) {2,}/g, '$1 ').replace(/\n{3,}/g, '\n\n').trim(), dropped }
+}

@@ -90,7 +90,7 @@ export function parkedFocus(previous: Record<string, unknown> | null | undefined
   return { name: typeof p?.name === 'string' ? p.name : undefined, id: typeof p?.id === 'string' ? p.id : undefined }
 }
 
-const BARE_YES = /^\s*(?:yes|yeah|yep|yup|sure|ok(?:ay)?|go on|go ahead|please do|do it|haan|ha)\b[\s,.!]*(?:(?:yes|please|sure|show(?: me| them)?|go ahead|do it|do that|now)[\s,.!]*){0,3}$/i
+export const BARE_YES = /^\s*(?:yes|yeah|yep|yup|sure|ok(?:ay)?|go on|go ahead|please do|do it|haan|ha)\b[\s,.!]*(?:(?:yes|please|sure|show(?: me| them)?|go ahead|do it|do that|now)[\s,.!]*){0,3}$/i
 const OFFER = /\b(?:would|do|shall|should) you (?:like|want) (?:me )?to ([^?]{4,160})\?|\bwant me to ([^?]{4,160})\?|\bshall i ([^?]{4,160})\?/gi
 
 /**
@@ -106,7 +106,12 @@ export function expandAffirmation(message: string, history: ReadonlyArray<{ role
   const last = [...history].reverse().find((m) => m.role === 'assistant')?.content ?? ''
   const offers = [...last.matchAll(OFFER)].map((m) => (m[1] ?? m[2] ?? m[3]).trim())
   const offer = offers[offers.length - 1]
-  if (!offer) return message
+  if (!offer) {
+    // "Are you looking to move in immediately?" -> "yes": the question carries the
+    // meaning ("2 bhk… yes" was read with no subject and the model improvised).
+    const question = /([^.?!\n]{6,200}\?)[^?]*$/.exec(last.replace(/\*+/g, ''))?.[1]?.trim()
+    return question ? `${message.trim()} (answering: ${question})` : message
+  }
   // "show you X, or explore Y" -> the first option is what "yes" accepts.
   const first = offer.split(/,?\s+or\s+/i)[0]
     .replace(/\byou\b/gi, 'me').replace(/\byour\b/gi, 'my').trim()

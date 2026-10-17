@@ -27,6 +27,7 @@ import { airportProximityHandler } from './airportProximity'
 import { roadmapHandler, capabilitiesHandler, trustHandler } from './buyerGuide'
 import { amenitySearchHandler } from './amenitySearch'
 import { loanBanksHandler, developerOfEachHandler } from './shortlistFacts'
+import { bareYesHandler } from './bareYes'
 import { savedProfileHandler } from './savedProfile'
 import { publicRecordLookupHandler } from './publicRecordLookup'
 import { projectCatchHandler } from './projectCatch'
@@ -106,6 +107,9 @@ export const CHAT_TOPIC_HANDLERS: readonly ChatTopicHandler[] = [
   firstStepsHandler,
   capabilitiesHandler,
   trustHandler,
+  // After roadmap ("go on" there is the next step): a "yes" the router could
+  // attach no offer or question to is answered by asking what next.
+  bareYesHandler,
   investmentScenarioHandler,
   priceMultipleHandler,
   airportProximityHandler,
