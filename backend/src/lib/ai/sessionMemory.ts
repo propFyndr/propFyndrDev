@@ -58,7 +58,7 @@ export async function hydrateIntentFromMemory(
   const stored = memory.extracted_intent as Partial<Intent>
 
   // Merge: stored intent as fallback, current intent overrides
-  return {
+  return reconcileIntent({
     ...currentIntent,
     // Only fill gaps in current intent. The budget survives a sector change:
     // moving the search to another sector does not change what the buyer can
@@ -130,7 +130,30 @@ export async function hydrateIntentFromMemory(
     areaMax: currentIntent.areaMax ?? stored.areaMax,
     riskProfile: currentIntent.riskProfile ?? stored.riskProfile,
     journeyStage: currentIntent.journeyStage ?? stored.journeyStage,
+  }, message)
+}
+
+const FLOOR_PHRASE = /\d\s*(?:cr|crore|l|lakh)?\s*\+|\b(?:above|over|onwards|more than|at least|minimum|starting|and above|or more)\b/i
+
+/**
+ * The merged intent must be one a search can satisfy.
+ *
+ * The extractor carries earlier fields forward on its own, so restoring less
+ * from memory was not enough: live transcript rerun 3 (17 Oct 2026) still held a
+ * 2.5 floor with a 1.5 ceiling, "Sector 78" with Sector 78 also excluded and the
+ * buyer saying "in greater noida" - zero results, "no 3 BHK under 1.5 Cr", twice.
+ */
+export function reconcileIntent(intent: Intent, message = ''): Intent {
+  const out = { ...intent }
+  if (out.budgetMin != null && out.budgetMax != null && out.budgetMin > out.budgetMax) {
+    // Keep what this message asked for: a floor phrase keeps the floor, else the ceiling wins.
+    if (FLOOR_PHRASE.test(message)) out.budgetMax = undefined
+    else out.budgetMin = undefined
   }
+  const excluded = (out as { excludeSectors?: string[] }).excludeSectors ?? []
+  const sectorExcluded = typeof out.sector === 'string' && excluded.some((x) => out.sector!.toLowerCase().startsWith(x.toLowerCase()))
+  if (sectorExcluded || (WHOLE_AREA.test(message) && !/\bsector[\s-]*\d/i.test(message))) out.sector = undefined
+  return out
 }
 
 /**

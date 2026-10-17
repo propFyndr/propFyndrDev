@@ -76,3 +76,22 @@ describe('second transcript rerun', () => {
     assert.ok(!dependsOnConversation('what is the stamp duty for a woman buyer in noida'))
   })
 })
+
+import { reconcileIntent } from '../../ai/sessionMemory'
+
+describe('live rerun 3: the merged intent must be searchable', () => {
+  const stuck = { bhk: [3], budgetMin: 2.5, budgetMax: 1.5, sector: 'Sector 78, Noida', city: 'Greater Noida', excludeSectors: ['Sector 78'] } as any
+  it('a ceiling under a stale floor wins unless this message states a floor', () => {
+    const r = reconcileIntent(stuck, 'alright then, show me the most recommended option for a 3 bhk in greater noida within 1.5cr budget!!')
+    assert.equal(r.budgetMin, undefined)
+    assert.equal(r.budgetMax, 1.5)
+    const f = reconcileIntent({ budgetMin: 2.5, budgetMax: 1.5 } as any, 'yes show me options in Rs. 2.5CR+ for 3bhk')
+    assert.equal(f.budgetMax, undefined)
+    assert.equal(f.budgetMin, 2.5)
+  })
+  it('drops a sector the buyer excluded or widened away from', () => {
+    assert.equal(reconcileIntent(stuck, 'in greater noida within 1.5cr').sector, undefined)
+    assert.equal(reconcileIntent({ sector: 'Sector 78, Noida', excludeSectors: ['Sector 78'] } as any, 'show me more').sector, undefined)
+    assert.equal(reconcileIntent({ sector: 'Sector 150, Noida' } as any, '3bhk in sector 150 noida').sector, 'Sector 150, Noida')
+  })
+})
