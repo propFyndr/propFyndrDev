@@ -1,0 +1,2475 @@
+[
+  {
+    "id": "ed1ac3ff-rerun",
+    "theme": "live transcript rerun",
+    "turns": [
+      {
+        "q": "Hi",
+        "lane": "greeting",
+        "firstMs": 4185,
+        "totalMs": 4187,
+        "chars": 334,
+        "cards": [],
+        "intent": {
+          "queryKind": "OPEN",
+          "gathering_loop_count": 0
+        },
+        "answer": "### Welcome to RealtyAsk\n\nHello. I help home buyers in **Noida and Greater Noida West** decide what to buy, from the project records we hold.\n\nI can help you:\n- **Find projects** by budget, sector, BHK, possession timeline and metro access.\n- **Check a project**: UP-RERA registration, possession date, the builder's delivery record?*"
+      },
+      {
+        "q": "I've made my mind to look for a 2 bak in greater noida",
+        "lane": "OPEN",
+        "firstMs": 7349,
+        "totalMs": 7670,
+        "chars": 358,
+        "cards": [],
+        "intent": {
+          "gathering_loop_count": 0,
+          "queryKind": "OPEN",
+          "bhk": [
+            2
+          ],
+          "jev": {
+            "task": "discover",
+            "source": [
+              "db"
+            ],
+            "shape": "advisory",
+            "fields": [],
+            "clarify": null
+          },
+          "city": "Greater Noida"
+        },
+        "answer": "Greater Noida offers excellent connectivity and modern infrastructure, making it a solid choice for a 2 BHK. Our inventory across Noida and Greater Noida features options starting from ₹41 Lakhs upwards, catering to both ready-to-move and under-construction demands. \n\nTo help me pull the right shortlist for you, do you have a specific budget range in mind?"
+      },
+      {
+        "q": "Show me all the options within 1.2 cr",
+        "lane": "main",
+        "firstMs": 7541,
+        "totalMs": 8513,
+        "chars": 470,
+        "cards": [],
+        "intent": {
+          "bhk": [
+            2
+          ],
+          "city": "Greater Noida",
+          "gathering_loop_count": 0,
+          "queryKind": "DISCOVERY",
+          "jev": {
+            "task": "discover",
+            "source": [
+              "db"
+            ],
+            "shape": "advisory",
+            "fields": [],
+            "clarify": null
+          },
+          "budgetMax": 1.2,
+          "budgetHistory": [
+            1.2
+          ],
+          "budgetHard": true
+        },
+        "answer": "For a 2 BHK in Greater Noida under ₹1.2 Cr, options span from established ready-to-move societies to newer developments across sectors like Zeta 1, Eta 2, and Omicron. For instance, ATS Dolce in Zeta 1 offers ready possession, while projects like Migsun Vilaasa in Eta 2 provide competitive entry points around ₹75L–₹90L. \n\nAre you looking for a ready-to-move property?\n\nThey're on the cards above — tell me which one to open up, or what matters most and I'll narrow it."
+      },
+      {
+        "q": "ready to move in options from these",
+        "lane": "topic:possession_status",
+        "firstMs": 3412,
+        "totalMs": 3413,
+        "chars": 787,
+        "cards": [],
+        "intent": {
+          "bhk": [
+            2
+          ],
+          "budgetMax": 1.2,
+          "city": "Greater Noida",
+          "gathering_loop_count": 0,
+          "queryKind": "DISCOVERY",
+          "jev": {
+            "task": "discover",
+            "source": [
+              "db"
+            ],
+            "shape": "advisory",
+            "fields": [],
+            "clarify": null
+          },
+          "budgetHistory": [
+            1.2
+          ],
+          "budgetHard": true,
+          "possession": "immediate",
+          "purpose": "endUse",
+          "builderName": "these"
+        },
+        "answer": "### Ready to move\n\n| Project | Sector | RERA | Occupancy Certificate |\n| :--- | :--- | :--- | :--- |\n| **Omaxe Riviera** | Surajpur | RERA UPRERAPRJ2107 | Not on record |\n| **Migsun Wynn** | Eta 2 | RERA UPRERAPRJ2981 | Granted |\n| **Omaxe Palm Greens** | Mu 1 | RERA UPRERAPRJ2105 | Not on record |\n| **Migsun Villa** | Eta 2 | RERA UPRERAPRJ2983 | Granted |\n| **SKA Metro Ville** | Eta 2 | RERA UPRERAPRJ10875 | Granted |\n| **Stellar Kings Court** | Alpha 2 | RERA UPRERAPRJ3015 | Granted |\n| **Migsun Ultima** | Zeta 1 | RERA UPRERAPRJ2982 | Granted |\n| **Migsun Ultimo** | Omicron 3 | RERA UPRERAPRJ2491 | Not on record |\n\nGST is 0% on a ready flat only once the Occupancy Certificate is granted. Where we hold no OC record, ask the builder for the copy for your tower before paying."
+      },
+      {
+        "q": "What's the property closest to the Noida airport",
+        "lane": "topic:airport_proximity",
+        "firstMs": 3005,
+        "totalMs": 3006,
+        "chars": 632,
+        "cards": [],
+        "intent": {
+          "bhk": [
+            2
+          ],
+          "budgetMax": 1.2,
+          "possession": "immediate",
+          "city": "Noida",
+          "purpose": "endUse",
+          "builderName": "these",
+          "gathering_loop_count": 0,
+          "queryKind": "DISCOVERY",
+          "jev": {
+            "task": "discover",
+            "source": [
+              "db"
+            ],
+            "shape": "advisory",
+            "fields": [],
+            "clarify": null
+          },
+          "budgetHistory": [
+            1.2
+          ],
+          "budgetHard": true,
+          "spatialScope": "BROAD"
+        },
+        "answer": "### Distance to Noida International (Jewar)\n\nOf the 3 projects on your shortlist, **ATS Dolce** is nearest to Noida International (Jewar).\n\n| Project | Sector | Status | Straight-line distance |\n| :--- | :--- | :--- | ---: |\n| ATS Dolce | Zeta 1 | Ready to move | 39.7 km |\n| Stellar MI City Homes | Omicron 3 | Ready to move | 41.2 km |\n| Gaur Atulyam | Omicron 1 | Ready to move | 49.7 km |\n\nThese are straight-line distances from each project's map location. Road distance is longer, and I don't hold drive times, so check the route at your usual travel hour. 17 projects have no reliable map location on record and are left out."
+      },
+      {
+        "q": "yes",
+        "lane": "main",
+        "firstMs": 13045,
+        "totalMs": 13424,
+        "chars": 521,
+        "cards": [],
+        "intent": {
+          "bhk": [
+            2
+          ],
+          "budgetMax": 1.2,
+          "possession": "immediate",
+          "city": "Noida",
+          "purpose": "endUse",
+          "builderName": "these",
+          "gathering_loop_count": 0,
+          "queryKind": "DISCOVERY",
+          "spatialScope": "BROAD",
+          "jev": {
+            "task": "discover",
+            "source": [
+              "db"
+            ],
+            "shape": "advisory",
+            "fields": [],
+            "clarify": null
+          },
+          "budgetHistory": [
+            1.2
+          ],
+          "budgetHard": true
+        },
+        "answer": "Would you like me to pull up the floor plans and cost sheet for ATS Dolce, or would you prefer to explore one of the ready-to-move options in Zeta or Omicron...as you weigh proximity to the airport against your daily commute and budget. Would you like to review the floor plans and pricing for Migsun Wynn in Eta 2 Migsun Wynn in Eta 2 features 2 and 3 BHK configurations with carpet areas around 610 and 810 sq. ft., priced between ₹73 and ₹78 Lakhs. Would you like to see the unit layout breakdown for the 3 BHK option?"
+      },
+      {
+        "q": "I want to know what's the closest to jewar airport between the shortlisted options",
+        "lane": "topic:airport_proximity",
+        "firstMs": 6246,
+        "totalMs": 6247,
+        "chars": 632,
+        "cards": [],
+        "intent": {
+          "bhk": [
+            2
+          ],
+          "budgetMax": 1.2,
+          "possession": "immediate",
+          "city": "Noida",
+          "purpose": "endUse",
+          "builderName": "these",
+          "gathering_loop_count": 0,
+          "queryKind": "OPEN",
+          "spatialScope": "BROAD",
+          "jev": {
+            "task": "market_explain",
+            "source": [
+              "db",
+              "web"
+            ],
+            "shape": "advisory",
+            "fields": [
+              "location",
+              "connectivity"
+            ],
+            "clarify": null
+          },
+          "budgetHistory": [
+            1.2
+          ],
+          "budgetHard": true
+        },
+        "answer": "### Distance to Noida International (Jewar)\n\nOf the 3 projects on your shortlist, **ATS Dolce** is nearest to Noida International (Jewar).\n\n| Project | Sector | Status | Straight-line distance |\n| :--- | :--- | :--- | ---: |\n| ATS Dolce | Zeta 1 | Ready to move | 39.7 km |\n| Stellar MI City Homes | Omicron 3 | Ready to move | 41.2 km |\n| Gaur Atulyam | Omicron 1 | Ready to move | 49.7 km |\n\nThese are straight-line distances from each project's map location. Road distance is longer, and I don't hold drive times, so check the route at your usual travel hour. 17 projects have no reliable map location on record and are left out."
+      },
+      {
+        "q": "hi",
+        "lane": "greeting",
+        "firstMs": 3117,
+        "totalMs": 3117,
+        "chars": 89,
+        "cards": [],
+        "intent": {
+          "bhk": [
+            2
+          ],
+          "budgetMax": 1.2,
+          "possession": "immediate",
+          "city": "Noida",
+          "purpose": "endUse",
+          "builderName": "these",
+          "gathering_loop_count": 0,
+          "queryKind": "OPEN",
+          "spatialScope": "BROAD",
+          "jev": {
+            "task": "market_explain",
+            "source": [
+              "db",
+              "web"
+            ],
+            "shape": "advisory",
+            "fields": [
+              "location",
+              "connectivity"
+            ],
+            "clarify": null
+          },
+          "budgetHistory": [
+            1.2
+          ],
+          "budgetHard": true
+        },
+        "answer": "Still here. We can carry on from where we were, or tell me what you want to look at next."
+      },
+      {
+        "q": "Alright now tell me the banks readily available to provide home loan for these properties",
+        "lane": "topic:loan_banks",
+        "firstMs": 5723,
+        "totalMs": 5724,
+        "chars": 1065,
+        "cards": [],
+        "intent": {
+          "bhk": [
+            2
+          ],
+          "budgetMax": 1.2,
+          "possession": "immediate",
+          "city": "Noida",
+          "purpose": "endUse",
+          "builderName": "these",
+          "gathering_loop_count": 0,
+          "queryKind": "COMPARISON",
+          "spatialScope": "BROAD",
+          "jev": {
+            "task": "market_explain",
+            "source": [
+              "db",
+              "web"
+            ],
+            "shape": "advisory",
+            "fields": [
+              "location",
+              "connectivity"
+            ],
+            "clarify": null
+          },
+          "budgetHistory": [
+            1.2
+          ],
+          "budgetHard": true,
+          "projectNames": [
+            "Omaxe Riviera",
+            "Migsun Wynn",
+            "Omaxe Palm Greens"
+          ],
+          "is_comparison_query": true
+        },
+        "answer": "### Home loans for these projects\n\nWe don't hold which banks have approved these projects for home loans (the approved project finance list, or APF), so I won't name lenders for them.\n\n| Project | Escrow bank on the RERA record |\n| :--- | :--- |\n| Stellar Kings Court | Not on record |\n| Migsun Wynn | Not on record |\n| Migsun Ultimo | Not on record |\n| Gaur Atulyam | ALLAHABAD BANK |\n| Eldeco Green Meadows | Not on record |\n| Migsun Villa | Not on record |\n| Omaxe Palm Greens | Not on record |\n| Omaxe Riviera | Not on record |\n| Ace Platinum | Not on record |\n| SKA Metro Ville | Not on record |\n| Migsun Ultima | Not on record |\n| Stellar Mi City | Not on record |\n\nThe escrow bank is where the builder must deposit buyers' payments under RERA. It is not a lending approval, and you can take your loan from another bank.\n\nTo find out who lends on a project: ask the builder for its bank approval letters, and ask your own bank whether the project is on its approved list. Your bank checks the project's title and approvals itself before it sanctions the loan."
+      },
+      {
+        "q": "who is the developer of each?",
+        "lane": "topic:developer_of_each",
+        "firstMs": 4219,
+        "totalMs": 4220,
+        "chars": 687,
+        "cards": [],
+        "intent": {
+          "bhk": [
+            2
+          ],
+          "budgetMax": 1.2,
+          "possession": "immediate",
+          "city": "Noida",
+          "purpose": "endUse",
+          "builderName": "these",
+          "projectNames": [
+            "Omaxe Riviera"
+          ],
+          "is_comparison_query": true,
+          "gathering_loop_count": 0,
+          "queryKind": "COMPARISON",
+          "spatialScope": "BROAD",
+          "jev": {
+            "task": "market_explain",
+            "source": [
+              "db",
+              "web"
+            ],
+            "shape": "advisory",
+            "fields": [
+              "location",
+              "connectivity"
+            ],
+            "clarify": null
+          },
+          "budgetHistory": [
+            1.2
+          ],
+          "budgetHard": true
+        },
+        "answer": "### Developer of each project\n\n| Project | Sector | Developer |\n| :--- | :--- | :--- |\n| Stellar Kings Court | Alpha 2 | Stellar Group |\n| Migsun Wynn | Eta 2 | Migsun Group |\n| Migsun Ultimo | Omicron 3 | Migsun Group |\n| Gaur Atulyam | Omicron 1 | Gaursons |\n| Eldeco Green Meadows | Pi 1 | Eldeco Group |\n| Migsun Villa | Eta 2 | Migsun Group |\n| Omaxe Palm Greens | Mu 1 | Omaxe Limited |\n| Omaxe Riviera | Surajpur | Omaxe Limited |\n| Ace Platinum | Zeta 1 | ACE Group |\n| SKA Metro Ville | Eta 2 | SKA Group |\n| Migsun Ultima | Zeta 1 | Migsun Group |\n| Stellar Mi City | Zeta 1 | Stellar Group |\n\nAsk me about any one developer's delivery record and I'll show what we hold for it."
+      },
+      {
+        "q": "I want you to create a roadmap in order for a new buyer to easily confirm a property in greater noida.",
+        "lane": "topic:buyer_roadmap",
+        "firstMs": 3739,
+        "totalMs": 3740,
+        "chars": 1112,
+        "cards": [],
+        "intent": {
+          "bhk": [
+            2
+          ],
+          "budgetMax": 1.2,
+          "possession": "immediate",
+          "city": "Greater Noida",
+          "purpose": "endUse",
+          "builderName": "these",
+          "gathering_loop_count": 0,
+          "queryKind": "COMPARISON",
+          "spatialScope": "BROAD",
+          "jev": {
+            "task": "legal_process",
+            "source": [
+              "knowledge",
+              "statutory"
+            ],
+            "shape": "advisory",
+            "fields": [
+              "legal"
+            ],
+            "clarify": null
+          },
+          "budgetHistory": [
+            1.2
+          ],
+          "budgetHard": true
+        },
+        "answer": "### Buying a flat in Noida or Greater Noida West: 8 steps\n\nThat lowers the risk without removing it. I'll go one step at a time.\n\n1. Fix your all-in budget and get a loan sanction\n2. Shortlist by commute, possession date and size\n3. Check the RERA registration and the builder record\n4. Visit the site\n5. Get the written cost sheet and payment plan\n6. Book and sign the agreement for sale\n7. Loan disbursal and paying by stage\n8. Possession: OC, snagging and registry\n\n### Step 1 of 8: Fix your all-in budget and get a loan sanction\n\n- Your ceiling is the all-in cost, not the flat price. Add stamp duty (7%, or 6% with a woman as primary owner) and registration (1%) to every price.\n- Add GST of 5% if the flat is under construction; a ready flat with its OC carries 0%.\n- Parking, club, maintenance deposit and other charges come on top. Their amounts vary by project, so ask each builder for the figure.\n- Get an in-principle loan sanction from your bank. Its figure, not a rule of thumb, sets what you can borrow.\n\nNext is Step 2: Shortlist by commute, possession date and size. Say \"next\" when you're ready."
+      },
+      {
+        "q": "Next step?",
+        "lane": "topic:buyer_roadmap",
+        "firstMs": 1942,
+        "totalMs": 1942,
+        "chars": 493,
+        "cards": [],
+        "intent": {
+          "bhk": [
+            2
+          ],
+          "budgetMax": 1.2,
+          "possession": "immediate",
+          "city": "Greater Noida",
+          "purpose": "endUse",
+          "builderName": "these",
+          "gathering_loop_count": 0,
+          "queryKind": "COMPARISON",
+          "spatialScope": "BROAD",
+          "jev": {
+            "task": "legal_process",
+            "source": [
+              "knowledge",
+              "statutory"
+            ],
+            "shape": "advisory",
+            "fields": [
+              "legal"
+            ],
+            "clarify": null
+          },
+          "budgetHistory": [
+            1.2
+          ],
+          "budgetHard": true
+        },
+        "answer": "### Step 2 of 8: Shortlist by commute, possession date and size\n\n- Decide ready to move or under construction. Ready means no wait and no GST once the OC is granted; under construction means a lower entry price and delivery risk.\n- Measure the commute at the hour you actually travel.\n- Compare carpet area, not super area.\n- Keep the shortlist to three or four projects you can check properly.\n\nNext is Step 3: Check the RERA registration and the builder record. Say \"next\" when you're ready."
+      },
+      {
+        "q": "next?",
+        "lane": "topic:buyer_roadmap",
+        "firstMs": 2253,
+        "totalMs": 2253,
+        "chars": 573,
+        "cards": [],
+        "intent": {
+          "bhk": [
+            2
+          ],
+          "budgetMax": 1.2,
+          "possession": "immediate",
+          "city": "Greater Noida",
+          "purpose": "endUse",
+          "builderName": "these",
+          "gathering_loop_count": 0,
+          "queryKind": "COMPARISON",
+          "spatialScope": "BROAD",
+          "jev": {
+            "task": "legal_process",
+            "source": [
+              "knowledge",
+              "statutory"
+            ],
+            "shape": "advisory",
+            "fields": [
+              "legal"
+            ],
+            "clarify": null
+          },
+          "budgetHistory": [
+            1.2
+          ],
+          "budgetHard": true
+        },
+        "answer": "### Step 3 of 8: Check the RERA registration and the builder record\n\n- Get the UP-RERA registration number for the exact tower or phase, and check it matches the project. Ask me and I'll show the RERA record we hold.\n- Compare the possession date registered with RERA against the date the salesperson gives you.\n- Look at the builder's delivered projects: were they handed over on time?\n- Ask about litigation or complaints against the project; I'll tell you what our record shows, or that it is not on record.\n\nNext is Step 4: Visit the site. Say \"next\" when you're ready."
+      },
+      {
+        "q": "next",
+        "lane": "topic:buyer_roadmap",
+        "firstMs": 1983,
+        "totalMs": 1984,
+        "chars": 481,
+        "cards": [],
+        "intent": {
+          "bhk": [
+            2
+          ],
+          "budgetMax": 1.2,
+          "possession": "immediate",
+          "city": "Greater Noida",
+          "purpose": "endUse",
+          "builderName": "these",
+          "gathering_loop_count": 0,
+          "queryKind": "COMPARISON",
+          "spatialScope": "BROAD",
+          "jev": {
+            "task": "legal_process",
+            "source": [
+              "knowledge",
+              "statutory"
+            ],
+            "shape": "advisory",
+            "fields": [
+              "legal"
+            ],
+            "clarify": null
+          },
+          "budgetHistory": [
+            1.2
+          ],
+          "budgetHard": true
+        },
+        "answer": "### Step 4 of 8: Visit the site\n\n- Visit your tower, not only the sample flat, at the hour you would commute.\n- Compare construction on the ground with the progress reported to RERA.\n- Check water source, lifts, power backup, drainage and the parking you would actually be allotted.\n- For a ready project, ask for the occupancy certificate and talk to residents away from the sales office.\n\nNext is Step 5: Get the written cost sheet and payment plan. Say \"next\" when you're ready."
+      },
+      {
+        "q": "next",
+        "lane": "topic:buyer_roadmap",
+        "firstMs": 2110,
+        "totalMs": 2111,
+        "chars": 481,
+        "cards": [],
+        "intent": {
+          "bhk": [
+            2
+          ],
+          "budgetMax": 1.2,
+          "possession": "immediate",
+          "city": "Greater Noida",
+          "purpose": "endUse",
+          "builderName": "these",
+          "gathering_loop_count": 0,
+          "queryKind": "COMPARISON",
+          "spatialScope": "BROAD",
+          "jev": {
+            "task": "legal_process",
+            "source": [
+              "knowledge",
+              "statutory"
+            ],
+            "shape": "advisory",
+            "fields": [
+              "legal"
+            ],
+            "clarify": null
+          },
+          "budgetHistory": [
+            1.2
+          ],
+          "budgetHard": true
+        },
+        "answer": "### Step 4 of 8: Visit the site\n\n- Visit your tower, not only the sample flat, at the hour you would commute.\n- Compare construction on the ground with the progress reported to RERA.\n- Check water source, lifts, power backup, drainage and the parking you would actually be allotted.\n- For a ready project, ask for the occupancy certificate and talk to residents away from the sales office.\n\nNext is Step 5: Get the written cost sheet and payment plan. Say \"next\" when you're ready."
+      },
+      {
+        "q": "step 4?",
+        "lane": "topic:buyer_roadmap",
+        "firstMs": 3836,
+        "totalMs": 3837,
+        "chars": 481,
+        "cards": [],
+        "intent": {
+          "bhk": [
+            2
+          ],
+          "budgetMax": 1.2,
+          "possession": "immediate",
+          "city": "Greater Noida",
+          "purpose": "endUse",
+          "builderName": "these",
+          "gathering_loop_count": 0,
+          "queryKind": "COMPARISON",
+          "spatialScope": "BROAD",
+          "jev": {
+            "task": "meta",
+            "source": [
+              "general"
+            ],
+            "shape": "lookup",
+            "fields": [],
+            "clarify": null
+          },
+          "budgetHistory": [
+            1.2
+          ],
+          "budgetHard": true
+        },
+        "answer": "### Step 4 of 8: Visit the site\n\n- Visit your tower, not only the sample flat, at the hour you would commute.\n- Compare construction on the ground with the progress reported to RERA.\n- Check water source, lifts, power backup, drainage and the parking you would actually be allotted.\n- For a ready project, ask for the occupancy certificate and talk to residents away from the sales office.\n\nNext is Step 5: Get the written cost sheet and payment plan. Say \"next\" when you're ready."
+      },
+      {
+        "q": "step 5",
+        "lane": "jev_live",
+        "firstMs": 2011,
+        "totalMs": 2011,
+        "chars": 73,
+        "cards": [],
+        "intent": {
+          "bhk": [
+            2
+          ],
+          "budgetMax": 1.2,
+          "possession": "immediate",
+          "city": "Greater Noida",
+          "purpose": "endUse",
+          "builderName": "these",
+          "gathering_loop_count": 0,
+          "queryKind": "COMPARISON",
+          "spatialScope": "BROAD",
+          "jev": {
+            "task": "meta",
+            "source": [
+              "general"
+            ],
+            "shape": "lookup",
+            "fields": [],
+            "clarify": "Could you please specify what step 5 refers to in your property search?"
+          },
+          "budgetHistory": [
+            1.2
+          ],
+          "budgetHard": true
+        },
+        "answer": "Could you please specify what step 5 refers to in your property search?\n\n"
+      },
+      {
+        "q": "next step?",
+        "lane": "topic:buyer_roadmap",
+        "firstMs": 2418,
+        "totalMs": 2419,
+        "chars": 553,
+        "cards": [],
+        "intent": {
+          "bhk": [
+            2
+          ],
+          "budgetMax": 1.2,
+          "possession": "immediate",
+          "city": "Greater Noida",
+          "purpose": "endUse",
+          "builderName": "these",
+          "gathering_loop_count": 0,
+          "queryKind": "COMPARISON",
+          "spatialScope": "BROAD",
+          "jev": {
+            "task": "meta",
+            "source": [
+              "general"
+            ],
+            "shape": "lookup",
+            "fields": [],
+            "clarify": "Could you please specify what step 5 refers to in your property search?"
+          },
+          "budgetHistory": [
+            1.2
+          ],
+          "budgetHard": true
+        },
+        "answer": "### Step 6 of 8: Book and sign the agreement for sale\n\n- Under RERA (Section 13) a builder can't take more than 10% of the cost as an advance before a registered agreement for sale.\n- Read the draft agreement before you pay the booking amount: possession date, delay compensation, carpet area, cancellation and refund terms.\n- Pay only by cheque or bank transfer to the project's account, never in cash or to an individual.\n- Have a lawyer read the agreement if you can.\n\nNext is Step 7: Loan disbursal and paying by stage. Say \"next\" when you're ready."
+      },
+      {
+        "q": "step 6",
+        "lane": "topic:buyer_roadmap",
+        "firstMs": 3283,
+        "totalMs": 3284,
+        "chars": 553,
+        "cards": [],
+        "intent": {
+          "bhk": [
+            2
+          ],
+          "budgetMax": 1.2,
+          "possession": "immediate",
+          "city": "Greater Noida",
+          "purpose": "endUse",
+          "builderName": "these",
+          "gathering_loop_count": 0,
+          "queryKind": "COMPARISON",
+          "spatialScope": "BROAD",
+          "jev": {
+            "task": "meta",
+            "source": [
+              "general"
+            ],
+            "shape": "lookup",
+            "fields": [],
+            "clarify": null
+          },
+          "budgetHistory": [
+            1.2
+          ],
+          "budgetHard": true
+        },
+        "answer": "### Step 6 of 8: Book and sign the agreement for sale\n\n- Under RERA (Section 13) a builder can't take more than 10% of the cost as an advance before a registered agreement for sale.\n- Read the draft agreement before you pay the booking amount: possession date, delay compensation, carpet area, cancellation and refund terms.\n- Pay only by cheque or bank transfer to the project's account, never in cash or to an individual.\n- Have a lawyer read the agreement if you can.\n\nNext is Step 7: Loan disbursal and paying by stage. Say \"next\" when you're ready."
+      },
+      {
+        "q": "step 7?",
+        "lane": "answer-cache",
+        "firstMs": 457,
+        "totalMs": 737,
+        "chars": 642,
+        "cards": [],
+        "intent": {
+          "bhk": [
+            2
+          ],
+          "budgetMax": 1.2,
+          "possession": "immediate",
+          "city": "Greater Noida",
+          "purpose": "endUse",
+          "builderName": "these",
+          "gathering_loop_count": 0,
+          "queryKind": "COMPARISON",
+          "spatialScope": "BROAD",
+          "jev": {
+            "task": "meta",
+            "source": [
+              "general"
+            ],
+            "shape": "lookup",
+            "fields": [],
+            "clarify": null
+          },
+          "budgetHistory": [
+            1.2
+          ],
+          "budgetHard": true
+        },
+        "answer": "### Step 7 of 8: Loan disbursal and stage-wise payment\n\n- If you are using a home loan, the bank will disburse funds directly to the developer based on the verified construction milestones achieved on site.\n- Ensure you receive a demand letter from the builder for each stage and verify that the construction milestone has been reached before instructing your bank to release the tranche.\n- Keep copies of all payment receipts, bank transfer proofs, and tax deductions (TDS, if applicable) for your financial and legal records.\n\nNext is Step 8: Final possession, OC verification, and sub-lease deed registration. Say \"next\" when you're ready."
+      },
+      {
+        "q": "step 8?",
+        "lane": "answer-cache",
+        "firstMs": 315,
+        "totalMs": 602,
+        "chars": 670,
+        "cards": [],
+        "intent": {
+          "bhk": [
+            2
+          ],
+          "budgetMax": 1.2,
+          "possession": "immediate",
+          "city": "Greater Noida",
+          "purpose": "endUse",
+          "builderName": "these",
+          "gathering_loop_count": 0,
+          "queryKind": "COMPARISON",
+          "spatialScope": "BROAD",
+          "jev": {
+            "task": "meta",
+            "source": [
+              "general"
+            ],
+            "shape": "lookup",
+            "fields": [],
+            "clarify": null
+          },
+          "budgetHistory": [
+            1.2
+          ],
+          "budgetHard": true
+        },
+        "answer": "### Step 8 of 8: Final possession, OC verification, and registry\n\n- Verify that the Occupancy Certificate (OC) has been officially issued by the development authority before accepting possession.\n- Inspect your unit thoroughly for any finishing defects or snagging issues and have the builder resolve them before taking the keys.\n- Clear all remaining dues, including one-time maintenance security (IFMS), lease rent, and stamp duty plus registration charges.\n- Execute and register the sub-lease deed at the sub-registrar office to officially transfer legal ownership to your name.\n\nWould you like to review verified ready-to-move properties within your ₹1.2 Cr budget?"
+      },
+      {
+        "q": "step 9",
+        "lane": "answer-cache",
+        "firstMs": 373,
+        "totalMs": 679,
+        "chars": 314,
+        "cards": [],
+        "intent": {
+          "bhk": [
+            2
+          ],
+          "budgetMax": 1.2,
+          "possession": "immediate",
+          "city": "Greater Noida",
+          "purpose": "endUse",
+          "builderName": "these",
+          "gathering_loop_count": 0,
+          "queryKind": "COMPARISON",
+          "spatialScope": "BROAD",
+          "jev": {
+            "task": "meta",
+            "source": [
+              "general"
+            ],
+            "shape": "lookup",
+            "fields": [],
+            "clarify": null
+          },
+          "budgetHistory": [
+            1.2
+          ],
+          "budgetHard": true
+        },
+        "answer": "You have completed all 8 steps of the home-buying process, moving from initial shortlisting to final registry. \n\nSince your budget is up to ₹1.2 Cr and you are looking for ready-to-move properties with immediate possession, shall we review verified options in corridors like Noida Sector 168 or Greater Noida West?"
+      },
+      {
+        "q": "how many steps are there?",
+        "lane": "answer-cache",
+        "firstMs": 344,
+        "totalMs": 618,
+        "chars": 172,
+        "cards": [],
+        "intent": {
+          "bhk": [
+            2
+          ],
+          "budgetMax": 1.2,
+          "possession": "immediate",
+          "city": "Greater Noida",
+          "purpose": "endUse",
+          "builderName": "these",
+          "gathering_loop_count": 0,
+          "queryKind": "COMPARISON",
+          "spatialScope": "BROAD",
+          "jev": {
+            "task": "meta",
+            "source": [
+              "general"
+            ],
+            "shape": "lookup",
+            "fields": [],
+            "clarify": null
+          },
+          "budgetHistory": [
+            1.2
+          ],
+          "budgetHard": true
+        },
+        "answer": "There are 8 core steps in the home-buying process, which we have now fully covered. \n\nWould you like to review verified ready-to-move properties within your ₹1.2 Cr budget?"
+      },
+      {
+        "q": "Show me ready-to-move projects in Sector 78, Noida.",
+        "lane": "main",
+        "firstMs": 8377,
+        "totalMs": 16764,
+        "chars": 556,
+        "cards": [],
+        "intent": {
+          "bhk": [
+            2
+          ],
+          "budgetMax": 1.2,
+          "possession": "immediate",
+          "city": "Noida",
+          "purpose": "endUse",
+          "builderName": "these",
+          "gathering_loop_count": 0,
+          "queryKind": "DISCOVERY",
+          "spatialScope": "EXACT",
+          "jev": {
+            "task": "meta",
+            "source": [
+              "general"
+            ],
+            "shape": "lookup",
+            "fields": [],
+            "clarify": null
+          },
+          "budgetHistory": [
+            1.2
+          ],
+          "budgetHard": true,
+          "sector": "Sector 78, Noida",
+          "sectorsMentioned": [
+            "Sector 78"
+          ],
+          "sectorHistory": [
+            "Sector 78, Noida"
+          ]
+        },
+        "answer": "Sector 78 has several ready-to-move residential communities well-connected by the Noida Sector 76 metro station and major arterial roads. \n\nKey options include Sikka Karmic Greens, Antriksh Golf View, and Nimbus The Hyde Park, offering ready-to-move 2 and 3 BHK configurations within proximity to the Sector 76 metro station. Note that Hyde Park by The 3C Company carries active NCLT insolvency proceedings, so verify title clearance carefully before proceeding.\n\nWould you like to narrow these down to societies fitting within your ₹1.2 Cr budget ceiling?"
+      },
+      {
+        "q": "Okay show me the projects that are nearest to New Delhi",
+        "lane": "topic:airport_proximity",
+        "firstMs": 4180,
+        "totalMs": 4180,
+        "chars": 755,
+        "cards": [],
+        "intent": {
+          "bhk": [
+            2
+          ],
+          "budgetMax": 1.2,
+          "possession": "immediate",
+          "sector": "Sector 78, Noida",
+          "city": "Noida",
+          "purpose": "endUse",
+          "builderName": "these",
+          "gathering_loop_count": 0,
+          "queryKind": "DISCOVERY",
+          "spatialScope": "PROXIMITY",
+          "jev": {
+            "task": "discover",
+            "source": [
+              "db"
+            ],
+            "shape": "advisory",
+            "fields": [
+              "location",
+              "connectivity"
+            ],
+            "clarify": null
+          },
+          "budgetHistory": [
+            1.2
+          ],
+          "budgetHard": true,
+          "sectorsMentioned": [
+            "Sector 78"
+          ],
+          "sectorHistory": [
+            "Sector 78, Noida"
+          ],
+          "radiusKm": 3.5
+        },
+        "answer": "### Distance to Central Delhi (Connaught Place)\n\nOf the projects we hold, these are nearest to Central Delhi (Connaught Place):\n\n| Project | Sector | Status | Straight-line distance |\n| :--- | :--- | :--- | ---: |\n| Devika Gold Homz | Sector 1 | Ready to move | 14.3 km |\n| Supertech Supernova Astralis | Sector 94 | Under construction | 14.5 km |\n| Prateek Stylome | Sector 45 | Ready to move | 15.1 km |\n| ATS Greens 2 | Sector 50 | Ready to move | 15.9 km |\n| ATS Greens 1 | Sector 50 | Ready to move | 15.9 km |\n\nThese are straight-line distances from each project's map location. Road distance is longer, and I don't hold drive times, so check the route at your usual travel hour. 83 projects have no reliable map location on record and are left out."
+      },
+      {
+        "q": "not sector 78. tell me the sector that's nearest to New Delhi",
+        "lane": "topic:airport_proximity",
+        "firstMs": 3663,
+        "totalMs": 3663,
+        "chars": 755,
+        "cards": [],
+        "intent": {
+          "bhk": [
+            2
+          ],
+          "budgetMax": 1.2,
+          "possession": "immediate",
+          "sector": "Sector 1, Noida",
+          "city": "Noida",
+          "purpose": "endUse",
+          "builderName": "these",
+          "gathering_loop_count": 0,
+          "queryKind": "DISCOVERY",
+          "spatialScope": "PROXIMITY",
+          "radiusKm": 3.5,
+          "jev": {
+            "task": "market_explain",
+            "source": [
+              "db",
+              "web"
+            ],
+            "shape": "advisory",
+            "fields": [
+              "location"
+            ],
+            "clarify": null
+          },
+          "budgetHistory": [
+            1.2
+          ],
+          "budgetHard": true,
+          "sectorsMentioned": [],
+          "sectorHistory": [
+            "Sector 78, Noida",
+            "Sector 1, Noida"
+          ],
+          "excludeSectors": [
+            "Sector 78"
+          ]
+        },
+        "answer": "### Distance to Central Delhi (Connaught Place)\n\nOf the projects we hold, these are nearest to Central Delhi (Connaught Place):\n\n| Project | Sector | Status | Straight-line distance |\n| :--- | :--- | :--- | ---: |\n| Devika Gold Homz | Sector 1 | Ready to move | 14.3 km |\n| Supertech Supernova Astralis | Sector 94 | Under construction | 14.5 km |\n| Prateek Stylome | Sector 45 | Ready to move | 15.1 km |\n| ATS Greens 2 | Sector 50 | Ready to move | 15.9 km |\n| ATS Greens 1 | Sector 50 | Ready to move | 15.9 km |\n\nThese are straight-line distances from each project's map location. Road distance is longer, and I don't hold drive times, so check the route at your usual travel hour. 83 projects have no reliable map location on record and are left out."
+      },
+      {
+        "q": "okay then show me the properties in these sectors",
+        "lane": "main",
+        "firstMs": 37509,
+        "totalMs": 37798,
+        "chars": 123,
+        "cards": [],
+        "intent": {
+          "bhk": [
+            2
+          ],
+          "budgetMax": 1.2,
+          "possession": "immediate",
+          "sector": "Sector 1, Noida",
+          "city": "Noida",
+          "purpose": "endUse",
+          "builderName": "these",
+          "gathering_loop_count": 0,
+          "queryKind": "DISCOVERY",
+          "spatialScope": "EXACT",
+          "radiusKm": 3.5,
+          "jev": {
+            "task": "market_explain",
+            "source": [
+              "db",
+              "web"
+            ],
+            "shape": "advisory",
+            "fields": [
+              "location"
+            ],
+            "clarify": null
+          },
+          "budgetHistory": [
+            1.2
+          ],
+          "budgetHard": true,
+          "sectorsMentioned": [],
+          "sectorHistory": [
+            "Sector 78, Noida",
+            "Sector 1, Noida"
+          ],
+          "excludeSectors": [
+            "Sector 78"
+          ]
+        },
+        "answer": "No projects in our verified data are located in Sector 1, Noida. If you’d like alternatives in nearby sectors, let me know."
+      },
+      {
+        "q": "okay go on",
+        "lane": "main",
+        "firstMs": 7439,
+        "totalMs": 8162,
+        "chars": 278,
+        "cards": [],
+        "intent": {
+          "bhk": [
+            2
+          ],
+          "budgetMax": 1.2,
+          "possession": "immediate",
+          "sector": "Sector 1, Noida",
+          "city": "Noida",
+          "purpose": "endUse",
+          "builderName": "these",
+          "gathering_loop_count": 0,
+          "queryKind": "DISCOVERY",
+          "spatialScope": "EXACT",
+          "radiusKm": 3.5,
+          "jev": {
+            "task": "market_explain",
+            "source": [
+              "db",
+              "web"
+            ],
+            "shape": "advisory",
+            "fields": [
+              "location"
+            ],
+            "clarify": null
+          },
+          "budgetHistory": [
+            1.2
+          ],
+          "budgetHard": true,
+          "sectorsMentioned": [],
+          "sectorHistory": [
+            "Sector 78, Noida",
+            "Sector 1, Noida"
+          ],
+          "excludeSectors": [
+            "Sector 78"
+          ]
+        },
+        "answer": "Sector 78 offers several ready-to-move societies close to the Sector 76 metro station, with entry prices starting around ₹95L for 2 and 3 BHK configurations. \n\nWould you like to focus on mid-segment options like Sikka Karmic Greens or established projects like Nimbus Hyde Park?"
+      },
+      {
+        "q": "Help me work out a realistic budget and EMI.",
+        "lane": "topic:affordability_advisor",
+        "firstMs": 2363,
+        "totalMs": 2363,
+        "chars": 1382,
+        "cards": [],
+        "intent": {
+          "bhk": [
+            2
+          ],
+          "budgetMax": 1.2,
+          "possession": "immediate",
+          "sector": "Sector 1, Noida",
+          "city": "Noida",
+          "purpose": "endUse",
+          "builderName": "these",
+          "gathering_loop_count": 0,
+          "queryKind": "DISCOVERY",
+          "spatialScope": "EXACT",
+          "radiusKm": 3.5,
+          "jev": {
+            "task": "market_explain",
+            "source": [
+              "db",
+              "web"
+            ],
+            "shape": "advisory",
+            "fields": [
+              "location"
+            ],
+            "clarify": null
+          },
+          "budgetHistory": [
+            1.2
+          ],
+          "budgetHard": true,
+          "sectorsMentioned": [],
+          "sectorHistory": [
+            "Sector 78, Noida",
+            "Sector 1, Noida"
+          ],
+          "excludeSectors": [
+            "Sector 78"
+          ]
+        },
+        "answer": "### Home Financing Cash-Flow & Rate Shock Analysis (₹1.20 Cr, your figure)\n\n| Financial Dimension | Benchmark / Breakdown | Impact on Monthly Outflow |\n| :--- | :--- | :--- |\n| **Headline Base Price** | ₹1.20 Cr | The price you gave |\n| **True Landed Cost** | **₹1.56 Cr** (+30%, estimate — typical for Noida — not verified for this project) | Stamp duty, GST, IFMS & club charges: ₹0.36 Cr paid in cash, not lent |\n| **Downpayment (assumed 20%)** | ₹0.24 Cr | Upfront equity needed; your own figure will change the loan below |\n| **Home Loan Principal (assumed 80% of price)** | ₹0.96 Cr | 20-year tenure at 8.75% p.a. (assumed rate — your bank's offer will differ) |\n| **Standard Bank EMI** | **₹84,836 / month** | Contractual bank debit |\n| **Sec 24(b) Tax Shield** | **- ₹5,200 / month** | ₹2L/yr interest deduction (assumes 30% slab + 4% cess) |\n| **Net Out-of-Pocket Outflow** | **₹79,636 / month** | Real cost to household budget |\n| **+1.5% Rate Shock (10.3%)** | **₹94,238 / month** | **+₹9,402 / month buffer needed** |\n| **Min. Safe Monthly Income (40% FOIR)** | **₹2,12,090 / month** | Recommended take-home (~₹25.45 Lakhs gross/yr) |\n\n> **Advisor Strategy Note:** Banks typically calculate eligibility purely on standard EMI (₹84,836/mo), but smart buyers budget for the **Rate Shock EMI (₹94,238/mo)** to survive RBI repo rate hiking cycles without liquidity distress."
+      },
+      {
+        "q": "monthly income is : 1,50,000/month\nexisting home loan tenure is 20 years\nmy down payment capacity is 20 lakhs.",
+        "lane": "topic:affordability_advisor",
+        "firstMs": 2240,
+        "totalMs": 2241,
+        "chars": 831,
+        "cards": [],
+        "intent": {
+          "bhk": [
+            2
+          ],
+          "budgetMax": 1.2,
+          "possession": "immediate",
+          "sector": "Sector 1, Noida",
+          "city": "Noida",
+          "purpose": "endUse",
+          "builderName": "these",
+          "gathering_loop_count": 0,
+          "queryKind": "OPEN",
+          "spatialScope": "EXACT",
+          "radiusKm": 3.5,
+          "jev": {
+            "task": "market_explain",
+            "source": [
+              "db",
+              "web"
+            ],
+            "shape": "advisory",
+            "fields": [
+              "location"
+            ],
+            "clarify": null
+          },
+          "budgetHistory": [
+            1.2
+          ],
+          "budgetHard": true,
+          "sectorsMentioned": [],
+          "sectorHistory": [
+            "Sector 78, Noida",
+            "Sector 1, Noida"
+          ],
+          "excludeSectors": [
+            "Sector 78"
+          ]
+        },
+        "answer": "### Your financing plan, worked out\n\n| | |\n| :--- | ---: |\n| **Monthly income** | ₹1,50,000 |\n| **Down payment (your figure)** | ₹20.00 L |\n| **Home loan (largest EMI within 40% of income)** | ₹67.90 L |\n| **Price this reaches (down payment + loan)** | **₹87.90 L** |\n| **EMI at 8.75% over 20 years** | ₹60,000 / month |\n| **EMI as share of income** | 40% |\n| **Cash on top: stamp duty 7% + registration 1%** | ₹7.03 L |\n| **Plus GST 5% if under construction** | ₹4.39 L |\n\nAn EMI at 40% of income sits inside the 40% banks approve without argument.\n\nThe 8.75% rate is an assumption; your bank's sanction letter decides the real EMI. Stamp duty is 6% with a woman as primary owner. Stamp duty, registration and GST are paid in cash, not from the loan, so keep them beside the down payment.\n\nWant me to show projects up to ₹0.88 Cr?"
+      },
+      {
+        "q": "what if I'd want a 3bhk with this budget?",
+        "lane": "main",
+        "firstMs": 19501,
+        "totalMs": 20094,
+        "chars": 689,
+        "cards": [],
+        "intent": {
+          "bhk": [
+            3
+          ],
+          "budgetMax": 1.2,
+          "possession": "immediate",
+          "sector": "Sector 1, Noida",
+          "city": "Noida",
+          "purpose": "endUse",
+          "builderName": "these",
+          "gathering_loop_count": 0,
+          "queryKind": "DISCOVERY",
+          "spatialScope": "EXACT",
+          "radiusKm": 3.5,
+          "jev": {
+            "task": "discover",
+            "source": [
+              "db"
+            ],
+            "shape": "advisory",
+            "fields": [],
+            "clarify": null
+          },
+          "budgetHistory": [
+            1.2
+          ],
+          "budgetHard": true,
+          "sectorsMentioned": [],
+          "sectorHistory": [
+            "Sector 78, Noida",
+            "Sector 1, Noida"
+          ],
+          "excludeSectors": [
+            "Sector 78"
+          ]
+        },
+        "answer": "A 3 BHK at an eighty-eight lakh total budget is not available in Noida proper or Central Noida, where 3 BHK units start around one-and-a-half crores. \n\nTo secure a 3 BHK within your budget and down payment, your search shifts squarely to **Greater Noida West (Noida Extension)**, where 3 BHK configurations are available in the seventy-five to ninety-lakh range. \n\nThe trade-off is location and density: you get the third bedroom you want within your financial limits, but you trade away proximity to Central Noida and face longer peak-hour commutes toward Delhi.\n\nAre you open to exploring Greater Noida West for a 3 BHK, or would you prefer to stick closer to Central Noida with a 2 BHK?"
+      },
+      {
+        "q": "what if I have a monthly income of 1.5L/MONTH and can do a down payment of 20 lakhs and take an 80 lakh loan from the bank?",
+        "lane": "topic:affordability_advisor",
+        "firstMs": 2027,
+        "totalMs": 2027,
+        "chars": 873,
+        "cards": [],
+        "intent": {
+          "bhk": [
+            3
+          ],
+          "budgetMax": 1.2,
+          "possession": "immediate",
+          "sector": "Sector 1, Noida",
+          "city": "Noida",
+          "purpose": "endUse",
+          "builderName": "these",
+          "gathering_loop_count": 0,
+          "queryKind": "OPEN",
+          "spatialScope": "EXACT",
+          "radiusKm": 3.5,
+          "jev": {
+            "task": "discover",
+            "source": [
+              "db"
+            ],
+            "shape": "advisory",
+            "fields": [],
+            "clarify": null
+          },
+          "budgetHistory": [
+            1.2
+          ],
+          "budgetHard": true,
+          "sectorsMentioned": [],
+          "sectorHistory": [
+            "Sector 78, Noida",
+            "Sector 1, Noida"
+          ],
+          "excludeSectors": [
+            "Sector 78"
+          ]
+        },
+        "answer": "### Your financing plan, worked out\n\n| | |\n| :--- | ---: |\n| **Monthly income** | ₹1,50,000 |\n| **Down payment (your figure)** | ₹20.00 L |\n| **Home loan (your figure)** | ₹80.00 L |\n| **Price this reaches (down payment + loan)** | **₹1.00 Cr** |\n| **EMI at 8.75% over 20 years** | ₹70,697 / month |\n| **EMI as share of income** | 47% |\n| **Cash on top: stamp duty 7% + registration 1%** | ₹8.00 L |\n| **Plus GST 5% if under construction** | ₹5.00 L |\n\nAn EMI at 47% of income is stretched: banks go to about 50% only with no other EMI and a stable income.\n\nThe 8.75% rate is an assumption; your bank's sanction letter decides the real EMI. The 20-year tenure is assumed too. Stamp duty is 6% with a woman as primary owner. Stamp duty, registration and GST are paid in cash, not from the loan, so keep them beside the down payment.\n\nWant me to show projects up to ₹1.00 Cr?"
+      },
+      {
+        "q": "so how much should be my monthly salary in order to match the EMI requirements?",
+        "lane": "topic:affordability_advisor",
+        "firstMs": 1629,
+        "totalMs": 1630,
+        "chars": 1672,
+        "cards": [],
+        "intent": {
+          "bhk": [
+            3
+          ],
+          "budgetMax": 1.2,
+          "possession": "immediate",
+          "sector": "Sector 1, Noida",
+          "city": "Noida",
+          "purpose": "endUse",
+          "builderName": "these",
+          "gathering_loop_count": 0,
+          "queryKind": "OPEN",
+          "spatialScope": "EXACT",
+          "radiusKm": 3.5,
+          "jev": {
+            "task": "discover",
+            "source": [
+              "db"
+            ],
+            "shape": "advisory",
+            "fields": [],
+            "clarify": null
+          },
+          "budgetHistory": [
+            1.2
+          ],
+          "budgetHard": true,
+          "sectorsMentioned": [],
+          "sectorHistory": [
+            "Sector 78, Noida",
+            "Sector 1, Noida"
+          ],
+          "excludeSectors": [
+            "Sector 78"
+          ]
+        },
+        "answer": "### Home Financing Cash-Flow & Rate Shock Analysis (₹1.20 Cr, your figure)\n\n| Financial Dimension | Benchmark / Breakdown | Impact on Monthly Outflow |\n|:--- |:--- |:--- |\n| **Headline Base Price** | ₹1.20 Cr | The price you gave |\n| **True Landed Cost** | **₹1.56 Cr** (+30%, estimate — typical for Noida — not verified for this project) | Stamp duty, GST, IFMS & club charges: ₹0.36 Cr paid in cash, not lent |\n| **Downpayment (assumed 20%)** | ₹0.24 Cr | Upfront equity needed; your own figure will change the loan below |\n| **Home Loan Principal (assumed 80% of price)** | ₹0.96 Cr | 20-year tenure at 8.75% p.a. (assumed rate — your bank's offer will differ) |\n| **Standard Bank EMI** | **₹84,836 / month** | Contractual bank debit |\n| **Sec 24(b) Tax Shield** | **- ₹5,200 / month** | ₹2L/yr interest deduction (assumes 30% slab + 4% cess) |\n| **Net Out-of-Pocket Outflow** | **₹79,636 / month** | Real cost to household budget |\n| **+1.5% Rate Shock (10.3%)** | **₹94,238 / month** | **+₹9,402 / month buffer needed** |\n| **Min. Safe Monthly Income (40% FOIR)** | **₹2,12,090 / month** | Recommended take-home (~₹25.45 Lakhs gross/yr) |\n\n### Household Affordability Verdict\n- **Your Monthly Income:** ₹1,50,000\n- **Debt-to-Income (FOIR):** **57%** of your monthly income goes toward this loan.\n **Over-Leveraged Alert:** Exceeds the recommended 40% FOIR ceiling. Consider increasing down payment or targeting a lower ticket size.\n\n> **Advisor Strategy Note:** Banks typically calculate eligibility purely on standard EMI (₹84,836/mo), but smart buyers budget for the **Rate Shock EMI (₹94,238/mo)** to survive RBI repo rate hiking cycles without liquidity distress."
+      },
+      {
+        "q": "nice and now If I secure another 20 lakhs from personal savings, how much should be my EMI now with a 1.5 lakh/month salary",
+        "lane": "topic:affordability_advisor",
+        "firstMs": 1822,
+        "totalMs": 1823,
+        "chars": 1638,
+        "cards": [],
+        "intent": {
+          "bhk": [
+            3
+          ],
+          "budgetMax": 1.2,
+          "possession": "immediate",
+          "sector": "Sector 1, Noida",
+          "city": "Noida",
+          "purpose": "endUse",
+          "builderName": "these",
+          "gathering_loop_count": 0,
+          "queryKind": "OPEN",
+          "spatialScope": "EXACT",
+          "radiusKm": 3.5,
+          "jev": {
+            "task": "discover",
+            "source": [
+              "db"
+            ],
+            "shape": "advisory",
+            "fields": [],
+            "clarify": null
+          },
+          "budgetHistory": [
+            1.2
+          ],
+          "budgetHard": true,
+          "sectorsMentioned": [],
+          "sectorHistory": [
+            "Sector 78, Noida",
+            "Sector 1, Noida"
+          ],
+          "excludeSectors": [
+            "Sector 78"
+          ]
+        },
+        "answer": "### Home Financing Cash-Flow & Rate Shock Analysis (₹1.20 Cr, your figure)\n\n| Financial Dimension | Benchmark / Breakdown | Impact on Monthly Outflow |\n|:--- |:--- |:--- |\n| **Headline Base Price** | ₹1.20 Cr | The price you gave |\n| **True Landed Cost** | **₹1.56 Cr** (+30%, estimate — typical for Noida — not verified for this project) | Stamp duty, GST, IFMS & club charges: ₹0.36 Cr paid in cash, not lent |\n| **Downpayment (20% + your extra ₹0.20 Cr)** | ₹0.44 Cr | Upfront equity needed; your own figure will change the loan below |\n| **Home Loan Principal** | ₹0.76 Cr | 20-year tenure at 8.75% p.a. (assumed rate — your bank's offer will differ) |\n| **Standard Bank EMI** | **₹67,162 / month** | Contractual bank debit |\n| **Sec 24(b) Tax Shield** | **- ₹5,200 / month** | ₹2L/yr interest deduction (assumes 30% slab + 4% cess) |\n| **Net Out-of-Pocket Outflow** | **₹61,962 / month** | Real cost to household budget |\n| **+1.5% Rate Shock (10.3%)** | **₹74,605 / month** | **+₹7,443 / month buffer needed** |\n| **Min. Safe Monthly Income (40% FOIR)** | **₹1,67,905 / month** | Recommended take-home (~₹20.15 Lakhs gross/yr) |\n\n### Household Affordability Verdict\n- **Your Monthly Income:** ₹1,50,000\n- **Debt-to-Income (FOIR):** **45%** of your monthly income goes toward this loan.\n **Moderate Stress:** Between 36%–45% FOIR. Manageable if you have minimal existing personal or car loan EMIs.\n\n> **Advisor Strategy Note:** Banks typically calculate eligibility purely on standard EMI (₹67,162/mo), but smart buyers budget for the **Rate Shock EMI (₹74,605/mo)** to survive RBI repo rate hiking cycles without liquidity distress."
+      },
+      {
+        "q": "do you recommend renting instead?",
+        "lane": "coverage-lane",
+        "firstMs": 2399,
+        "totalMs": 2399,
+        "chars": 241,
+        "cards": [],
+        "intent": {
+          "bhk": [
+            3
+          ],
+          "budgetMax": 1.2,
+          "possession": "immediate",
+          "sector": "Sector 1, Noida",
+          "city": "Noida",
+          "purpose": "endUse",
+          "builderName": "these",
+          "gathering_loop_count": 0,
+          "queryKind": "OPEN",
+          "spatialScope": "EXACT",
+          "radiusKm": 3.5,
+          "jev": {
+            "task": "market_explain",
+            "source": [
+              "db",
+              "web"
+            ],
+            "shape": "advisory",
+            "fields": [],
+            "clarify": null
+          },
+          "budgetHistory": [
+            1.2
+          ],
+          "budgetHard": true,
+          "sectorsMentioned": [],
+          "sectorHistory": [
+            "Sector 78, Noida",
+            "Sector 1, Noida"
+          ],
+          "excludeSectors": [
+            "Sector 78"
+          ]
+        },
+        "answer": "We track new-construction sales rather than rentals, so I do not hold a verified rent figure for a 2-3 BHK in Noida. If you are weighing renting against buying, I can show you what the monthly outgo looks like on a purchase in the same area."
+      },
+      {
+        "q": "alright so get me a property with a budget of 1.8 cr , that has spacious 3 bhk rooms, 2 lifts on each floor, personal parking area as well as swimming pool, gym, high rise, grocery store, hospitals nearby, malls, cinema theatre",
+        "lane": "main",
+        "firstMs": 9766,
+        "totalMs": 14117,
+        "chars": 994,
+        "cards": [],
+        "intent": {
+          "bhk": [
+            3
+          ],
+          "budgetMax": 1.8,
+          "possession": "immediate",
+          "sector": "Sector 1, Noida",
+          "city": "Noida",
+          "purpose": "endUse",
+          "builderName": "these",
+          "gathering_loop_count": 0,
+          "queryKind": "DRILLDOWN",
+          "spatialScope": "EXACT",
+          "radiusKm": 3.5,
+          "jev": {
+            "task": "discover",
+            "source": [
+              "db"
+            ],
+            "shape": "advisory",
+            "fields": [
+              "amenities",
+              "price",
+              "location"
+            ],
+            "clarify": null
+          },
+          "budgetHistory": [
+            1.2,
+            1.8
+          ],
+          "budgetHard": true,
+          "sectorsMentioned": [],
+          "sectorHistory": [
+            "Sector 78, Noida",
+            "Sector 1, Noida"
+          ],
+          "excludeSectors": [
+            "Sector 78"
+          ],
+          "lifestyleKeywords": [
+            "pool",
+            "gym",
+            "fitness",
+            "parking",
+            "hospital"
+          ]
+        },
+        "answer": "ACE City (Sector 1, Greater Noida West) fits your ₹1.8 Cr budget for a 3 BHK, offering high-rise living with a gym, swimming pool, in-society grocery store, and dedicated parking. However, as noted in our legal checks, **Ajnara** projects carry legal flags, so stick with vetted developers like ACE. \n\nFor hospitals, malls, and cinema theatres, Greater Noida West / Techzone 4 provides strong social infrastructure along the Noida-Greater Noida Link Road, though 2 lifts per floor and exact lift counts require checking individual tower floor plans.\n\nFor medical care, Yatharth Hospital is roughly 10 minutes away, and Gaur City Mall houses both a major retail hub and a multiplex cinema within the micro-market. ACE City is an established, delivered option where you avoid construction delays, though you will want to verify specific tower lift counts directly from the floor plans before finalizing.\n\nWould you like me to pull up the exact 3 BHK configuration and cost breakdown for ACE City?"
+      },
+      {
+        "q": "What's around ATS Happy Trails in Sector 10? Metro, schools, malls, hospitals.",
+        "lane": "topic:vicinity-lookup",
+        "firstMs": 4672,
+        "totalMs": 4673,
+        "chars": 440,
+        "cards": [],
+        "intent": {
+          "bhk": [
+            3
+          ],
+          "budgetMax": 1.8,
+          "possession": "immediate",
+          "sector": "Sector 10",
+          "city": "Noida",
+          "purpose": "endUse",
+          "builderName": "these",
+          "lifestyleKeywords": [
+            "metro",
+            "school",
+            "hospital"
+          ],
+          "gathering_loop_count": 0,
+          "queryKind": "DRILLDOWN",
+          "spatialScope": "EXACT",
+          "radiusKm": 3.5,
+          "jev": {
+            "task": "project_fact",
+            "source": [
+              "db",
+              "web"
+            ],
+            "shape": "factual",
+            "fields": [
+              "location",
+              "connectivity",
+              "amenities"
+            ],
+            "clarify": null
+          },
+          "budgetHistory": [
+            1.2,
+            1.8
+          ],
+          "budgetHard": true,
+          "sectorsMentioned": [
+            "Sector 10"
+          ],
+          "sectorHistory": [
+            "Sector 78, Noida",
+            "Sector 1, Noida",
+            "Sector 10"
+          ],
+          "excludeSectors": [
+            "Sector 78"
+          ],
+          "projectNames": [
+            "ATS Happy Trails"
+          ],
+          "targetProjectId": "6e7aeac6-64e5-4a1d-b629-9519ae11ff6c"
+        },
+        "answer": "### Near ATS Happy Trails — Sector 10\n\n| Landmark | Type | Distance | Travel time |\n| :--- | :--- | ---: | ---: |\n| Gaur City Mall (Greno West) | mall | 8.1 km | 18 min |\n| Sector 76 Metro Station (Aqua Line) | metro | 12.1 km | 27 min |\n| Sector 137 Metro Station (Aqua Line) | metro | 12.9 km | 28 min |\n| Yatharth Super Speciality Hospital | hospital | 5.3 km | 12 min |\n\nDistances are road distances from our records, not straight-line."
+      },
+      {
+        "q": "is there a paddle playing area around or in this property?",
+        "lane": "topic:amenity_search",
+        "firstMs": 4179,
+        "totalMs": 4179,
+        "chars": 303,
+        "cards": [],
+        "intent": {
+          "bhk": [
+            3
+          ],
+          "budgetMax": 1.8,
+          "possession": "immediate",
+          "sector": "Sector 10, Noida",
+          "city": "Noida",
+          "purpose": "endUse",
+          "builderName": "these",
+          "lifestyleKeywords": [
+            "sports"
+          ],
+          "projectNames": [
+            "ATS Happy Trails"
+          ],
+          "gathering_loop_count": 0,
+          "queryKind": "DRILLDOWN",
+          "spatialScope": "EXACT",
+          "radiusKm": 3.5,
+          "jev": {
+            "task": "project_fact",
+            "source": [
+              "db"
+            ],
+            "shape": "lookup",
+            "fields": [
+              "amenities"
+            ],
+            "clarify": null
+          },
+          "budgetHistory": [
+            1.2,
+            1.8
+          ],
+          "budgetHard": true,
+          "sectorsMentioned": [
+            "Sector 10"
+          ],
+          "sectorHistory": [
+            "Sector 78, Noida",
+            "Sector 1, Noida",
+            "Sector 10",
+            "Sector 10, Noida"
+          ],
+          "excludeSectors": [
+            "Sector 78"
+          ],
+          "parkedFocus": {
+            "name": "ATS Happy Trails",
+            "id": "6e7aeac6-64e5-4a1d-b629-9519ae11ff6c"
+          },
+          "targetProjectId": "6e7aeac6-64e5-4a1d-b629-9519ae11ff6c"
+        },
+        "answer": "A padel court is not on record for ATS Happy Trails. That is not a no: amenity lists we hold are incomplete, so ask on a site visit.\n\nWe don't hold sports facilities outside projects. Our landmark records cover metro, roads, hospitals, malls and schools, so I can't tell you whether there is one nearby."
+      },
+      {
+        "q": "I'm asking about padel",
+        "lane": "topic:amenity_search",
+        "firstMs": 2939,
+        "totalMs": 2939,
+        "chars": 132,
+        "cards": [],
+        "intent": {
+          "bhk": [
+            3
+          ],
+          "budgetMax": 1.8,
+          "possession": "immediate",
+          "sector": "Sector 10, Noida",
+          "city": "Noida",
+          "purpose": "endUse",
+          "builderName": "these",
+          "lifestyleKeywords": [
+            "sports"
+          ],
+          "projectNames": [
+            "ATS Happy Trails"
+          ],
+          "gathering_loop_count": 0,
+          "queryKind": "DRILLDOWN",
+          "spatialScope": "EXACT",
+          "radiusKm": 3.5,
+          "jev": {
+            "task": "project_fact",
+            "source": [
+              "db"
+            ],
+            "shape": "lookup",
+            "fields": [
+              "amenities"
+            ],
+            "clarify": null
+          },
+          "budgetHistory": [
+            1.2,
+            1.8
+          ],
+          "budgetHard": true,
+          "sectorsMentioned": [
+            "Sector 10"
+          ],
+          "sectorHistory": [
+            "Sector 78, Noida",
+            "Sector 1, Noida",
+            "Sector 10",
+            "Sector 10, Noida"
+          ],
+          "excludeSectors": [
+            "Sector 78"
+          ],
+          "parkedFocus": {
+            "name": "ATS Happy Trails",
+            "id": "6e7aeac6-64e5-4a1d-b629-9519ae11ff6c"
+          },
+          "targetProjectId": "6e7aeac6-64e5-4a1d-b629-9519ae11ff6c"
+        },
+        "answer": "A padel court is not on record for ATS Happy Trails. That is not a no: amenity lists we hold are incomplete, so ask on a site visit."
+      },
+      {
+        "q": "Tell me the properties which has padel courts or football turfs nearby",
+        "lane": "topic:amenity_search",
+        "firstMs": 4012,
+        "totalMs": 4013,
+        "chars": 299,
+        "cards": [],
+        "intent": {
+          "bhk": [
+            3
+          ],
+          "budgetMax": 1.8,
+          "possession": "immediate",
+          "sector": "Sector 10, Noida",
+          "city": "Noida",
+          "purpose": "endUse",
+          "builderName": "these",
+          "lifestyleKeywords": [
+            "sports"
+          ],
+          "projectNames": [
+            "ATS Happy Trails"
+          ],
+          "gathering_loop_count": 0,
+          "queryKind": "DISCOVERY",
+          "spatialScope": "EXACT",
+          "radiusKm": 3.5,
+          "jev": {
+            "task": "discover",
+            "source": [
+              "db"
+            ],
+            "shape": "advisory",
+            "fields": [
+              "amenities"
+            ],
+            "clarify": null
+          },
+          "budgetHistory": [
+            1.2,
+            1.8
+          ],
+          "budgetHard": true,
+          "sectorsMentioned": [
+            "Sector 10"
+          ],
+          "sectorHistory": [
+            "Sector 78, Noida",
+            "Sector 1, Noida",
+            "Sector 10",
+            "Sector 10, Noida"
+          ],
+          "excludeSectors": [
+            "Sector 78"
+          ],
+          "parkedFocus": {
+            "name": "ATS Happy Trails",
+            "id": "6e7aeac6-64e5-4a1d-b629-9519ae11ff6c"
+          },
+          "targetProjectId": "6e7aeac6-64e5-4a1d-b629-9519ae11ff6c"
+        },
+        "answer": "None of the projects we hold lists a padel court or football turf. Amenity lists we hold are incomplete, so ask on a site visit.\n\nWe don't hold sports facilities outside projects. Our landmark records cover metro, roads, hospitals, malls and schools, so I can't tell you whether there is one nearby."
+      },
+      {
+        "q": "Tell me the properties in greater noida which has padel courts or football turfs nearby",
+        "lane": "topic:amenity_search",
+        "firstMs": 3376,
+        "totalMs": 3377,
+        "chars": 339,
+        "cards": [],
+        "intent": {
+          "bhk": [
+            3
+          ],
+          "budgetMax": 1.8,
+          "possession": "immediate",
+          "sector": "Sector 10, Greater Noida West",
+          "city": "Greater Noida",
+          "purpose": "endUse",
+          "builderName": "these",
+          "lifestyleKeywords": [
+            "sports"
+          ],
+          "gathering_loop_count": 0,
+          "queryKind": "DISCOVERY",
+          "spatialScope": "EXACT",
+          "radiusKm": 3.5,
+          "jev": {
+            "task": "discover",
+            "source": [
+              "db"
+            ],
+            "shape": "advisory",
+            "fields": [
+              "amenities",
+              "location"
+            ],
+            "clarify": null
+          },
+          "budgetHistory": [
+            1.2,
+            1.8
+          ],
+          "budgetHard": true,
+          "sectorsMentioned": [
+            "Sector 10"
+          ],
+          "sectorHistory": [
+            "Sector 78, Noida",
+            "Sector 1, Noida",
+            "Sector 10",
+            "Sector 10, Noida",
+            "Sector 10, Greater Noida West"
+          ],
+          "excludeSectors": [
+            "Sector 78"
+          ]
+        },
+        "answer": "None of the projects we hold in Greater Noida and Greater Noida West lists a padel court or football turf. Amenity lists we hold are incomplete, so ask on a site visit.\n\nWe don't hold sports facilities outside projects. Our landmark records cover metro, roads, hospitals, malls and schools, so I can't tell you whether there is one nearby."
+      },
+      {
+        "q": "okay now tell me what all flat options do these property provide",
+        "lane": "main",
+        "firstMs": 6634,
+        "totalMs": 7243,
+        "chars": 426,
+        "cards": [],
+        "intent": {
+          "bhk": [
+            3
+          ],
+          "budgetMax": 1.8,
+          "possession": "immediate",
+          "sector": "Sector 10, Greater Noida West",
+          "city": "Greater Noida",
+          "purpose": "endUse",
+          "builderName": "these",
+          "lifestyleKeywords": [
+            "sports"
+          ],
+          "gathering_loop_count": 0,
+          "queryKind": "DISCOVERY",
+          "spatialScope": "EXACT",
+          "radiusKm": 3.5,
+          "jev": {
+            "task": "discover",
+            "source": [
+              "db"
+            ],
+            "shape": "advisory",
+            "fields": [
+              "amenities",
+              "location"
+            ],
+            "clarify": null
+          },
+          "budgetHistory": [
+            1.2,
+            1.8
+          ],
+          "budgetHard": true,
+          "sectorsMentioned": [
+            "Sector 10"
+          ],
+          "sectorHistory": [
+            "Sector 78, Noida",
+            "Sector 1, Noida",
+            "Sector 10",
+            "Sector 10, Noida",
+            "Sector 10, Greater Noida West"
+          ],
+          "excludeSectors": [
+            "Sector 78"
+          ]
+        },
+        "answer": "The Greater Noida projects listed above offer 2 BHK and 3 BHK apartment configurations, with select societies also including 4 BHK options. \n\nUnitech Horizon is under Supreme Court management (so approach with caution), while builders like SKA, Stellar, and Gaursons provide standard configurations ranging from compact 2 BHK layouts to larger 3 BHK units.\n\nAre you looking for a specific BHK size or budget range among these?"
+      },
+      {
+        "q": "3 bhk + servant royale price trend in the last 12 months",
+        "lane": "main",
+        "firstMs": 3091,
+        "totalMs": 17821,
+        "chars": 1376,
+        "cards": [],
+        "intent": {
+          "bhk": [
+            3
+          ],
+          "budgetMax": 1.8,
+          "possession": "1year",
+          "sector": "Sector 10, Greater Noida West",
+          "city": "Greater Noida",
+          "purpose": "endUse",
+          "builderName": "these",
+          "lifestyleKeywords": [
+            "sports"
+          ],
+          "gathering_loop_count": 0,
+          "queryKind": "DISCOVERY",
+          "spatialScope": "EXACT",
+          "radiusKm": 3.5,
+          "jev": {
+            "task": "discover",
+            "source": [
+              "db"
+            ],
+            "shape": "advisory",
+            "fields": [
+              "amenities",
+              "location"
+            ],
+            "clarify": null
+          },
+          "budgetHistory": [
+            1.2,
+            1.8
+          ],
+          "budgetHard": true,
+          "sectorsMentioned": [
+            "Sector 10"
+          ],
+          "sectorHistory": [
+            "Sector 78, Noida",
+            "Sector 1, Noida",
+            "Sector 10",
+            "Sector 10, Noida",
+            "Sector 10, Greater Noida West"
+          ],
+          "excludeSectors": [
+            "Sector 78"
+          ]
+        },
+        "answer": "| If prices rise by… | Value after 5 years | Value after 10 years |\n| :--- | :--- | :--- |\n| 0% a year (flat) | ₹1.8 crore | ₹1.8 crore |\n| 4% a year | ₹2.19 crore | ₹2.66 crore |\n| 6% a year | ₹2.41 crore | ₹3.22 crore |\n| 8% a year | ₹2.64 crore | ₹3.89 crore |\n| 10% a year | ₹2.9 crore | ₹4.67 crore |\n\n**Break-even first:** stamp duty (7%) and registration (1%) cost ₹14 lakh on ₹1.8 crore the day you buy (7% in total if a woman is the primary owner). The price has to rise 8% just to get that back — about 2.0 years at 4% a year, 1.3 at 6%, and never if prices stay flat.\n\nThis table runs on your stated budget of ₹1.8 crore. It is arithmetic, not a forecast: the rates are a ladder of what-ifs, and none of them is our view of Noida or of any project — we do not publish one. It leaves out GST on under-construction property, loan interest, maintenance, tax on the gain, selling costs, rent and inflation. A fairly priced flat in a settled sector can beat an overpriced one in a \"high-growth\" sector, so compare actual resale transactions before you decide.\n\nI want to ensure I give you precise figures. Which specific project or society are you referring to as \"Royale\" (for example, Apex Royale or Eldeco Royale...or another specific society? Once you confirm the exact project name, I can check our recorded price trends for that specific 3 BHK plus servant layout."
+      },
+      {
+        "q": "so which property offers \"3 bhk + servant royale\"",
+        "lane": "answer-cache",
+        "firstMs": 602,
+        "totalMs": 871,
+        "chars": 273,
+        "cards": [],
+        "intent": {
+          "bhk": [
+            3
+          ],
+          "budgetMax": 1.8,
+          "possession": "1year",
+          "sector": "Sector 10, Greater Noida West",
+          "city": "Greater Noida",
+          "purpose": "endUse",
+          "builderName": "these",
+          "lifestyleKeywords": [
+            "sports"
+          ],
+          "gathering_loop_count": 0,
+          "queryKind": "DISCOVERY",
+          "spatialScope": "EXACT",
+          "radiusKm": 3.5,
+          "jev": {
+            "task": "discover",
+            "source": [
+              "db"
+            ],
+            "shape": "advisory",
+            "fields": [
+              "amenities",
+              "location"
+            ],
+            "clarify": null
+          },
+          "budgetHistory": [
+            1.2,
+            1.8
+          ],
+          "budgetHard": true,
+          "sectorsMentioned": [
+            "Sector 10"
+          ],
+          "sectorHistory": [
+            "Sector 78, Noida",
+            "Sector 1, Noida",
+            "Sector 10",
+            "Sector 10, Noida",
+            "Sector 10, Greater Noida West"
+          ],
+          "excludeSectors": [
+            "Sector 78"
+          ]
+        },
+        "answer": "I'd want to be completely accurate on that for you. Please connect with our team directly via the contact button, and we'll fetch those exact details for you on-demand.\n\nAre you looking for this configuration in a specific micro-market like Central Noida or the Expressway?"
+      },
+      {
+        "q": "central noida, high-end premium projects",
+        "lane": "answer-cache",
+        "firstMs": 295,
+        "totalMs": 569,
+        "chars": 377,
+        "cards": [],
+        "intent": {
+          "bhk": [
+            3
+          ],
+          "budgetMax": 1.8,
+          "possession": "1year",
+          "sector": "Sector 10, Greater Noida West",
+          "city": "Greater Noida",
+          "purpose": "endUse",
+          "builderName": "these",
+          "lifestyleKeywords": [
+            "sports"
+          ],
+          "gathering_loop_count": 0,
+          "queryKind": "DISCOVERY",
+          "spatialScope": "EXACT",
+          "radiusKm": 3.5,
+          "jev": {
+            "task": "discover",
+            "source": [
+              "db"
+            ],
+            "shape": "advisory",
+            "fields": [
+              "amenities",
+              "location"
+            ],
+            "clarify": null
+          },
+          "budgetHistory": [
+            1.2,
+            1.8
+          ],
+          "budgetHard": true,
+          "sectorsMentioned": [
+            "Sector 10"
+          ],
+          "sectorHistory": [
+            "Sector 78, Noida",
+            "Sector 1, Noida",
+            "Sector 10",
+            "Sector 10, Noida",
+            "Sector 10, Greater Noida West"
+          ],
+          "excludeSectors": [
+            "Sector 78"
+          ]
+        },
+        "answer": "I couldn't find any 3 BHK properties in Central Noida within your budget of ₹1.2 Cr. Central Noida typically features higher-end projects with larger configurations, often starting above ₹1.5 Cr for 3 BHK units.\n\nWould you like me to suggest options in nearby micro-markets like Noida Expressway or Greater Noida West, where 3 BHK units are more prevalent in your budget range?"
+      },
+      {
+        "q": "yes please",
+        "lane": "main",
+        "firstMs": 20526,
+        "totalMs": 21321,
+        "chars": 363,
+        "cards": [],
+        "intent": {
+          "bhk": [
+            3
+          ],
+          "budgetMax": 1.8,
+          "possession": "1year",
+          "sector": "Sector 10, Greater Noida West",
+          "city": "Greater Noida",
+          "purpose": "endUse",
+          "builderName": "these",
+          "lifestyleKeywords": [
+            "sports"
+          ],
+          "gathering_loop_count": 0,
+          "queryKind": "DISCOVERY",
+          "spatialScope": "EXACT",
+          "radiusKm": 3.5,
+          "jev": {
+            "task": "discover",
+            "source": [
+              "db"
+            ],
+            "shape": "advisory",
+            "fields": [
+              "amenities",
+              "location"
+            ],
+            "clarify": null
+          },
+          "budgetHistory": [
+            1.2,
+            1.8
+          ],
+          "budgetHard": true,
+          "sectorsMentioned": [
+            "Sector 10"
+          ],
+          "sectorHistory": [
+            "Sector 78, Noida",
+            "Sector 1, Noida",
+            "Sector 10",
+            "Sector 10, Noida",
+            "Sector 10, Greater Noida West"
+          ],
+          "excludeSectors": [
+            "Sector 78"
+          ]
+        },
+        "answer": "I couldn't find any 3 BHK properties in Noida Expressway within your budget of ₹1.2 Cr. Noida Expressway typically features higher-end projects with larger configurations, often starting above ₹1.5 Cr for 3 BHK units.\n\nWould you like me to suggest options in nearby micro-markets like Greater Noida West, where 3 BHK units are more prevalent in your budget range?"
+      },
+      {
+        "q": "yes show me options in Rs. 2.5CR+ for 3bhk + servant rooms",
+        "lane": "main",
+        "firstMs": 11082,
+        "totalMs": 14083,
+        "chars": 666,
+        "cards": [],
+        "intent": {
+          "bhk": [
+            3
+          ],
+          "possession": "1year",
+          "sector": "Sector 10, Greater Noida West",
+          "city": "Greater Noida",
+          "purpose": "endUse",
+          "builderName": "these",
+          "lifestyleKeywords": [
+            "sports"
+          ],
+          "gathering_loop_count": 0,
+          "queryKind": "DISCOVERY",
+          "spatialScope": "EXACT",
+          "radiusKm": 3.5,
+          "jev": {
+            "task": "discover",
+            "source": [
+              "db"
+            ],
+            "shape": "advisory",
+            "fields": [
+              "amenities",
+              "location"
+            ],
+            "clarify": null
+          },
+          "budgetHistory": [
+            1.2,
+            1.8
+          ],
+          "budgetHard": true,
+          "sectorsMentioned": [
+            "Sector 10"
+          ],
+          "sectorHistory": [
+            "Sector 78, Noida",
+            "Sector 1, Noida",
+            "Sector 10",
+            "Sector 10, Noida",
+            "Sector 10, Greater Noida West"
+          ],
+          "excludeSectors": [
+            "Sector 78"
+          ],
+          "budgetMin": 2.5
+        },
+        "answer": "A budget of ₹2.5 Cr+ for a 3 BHK with a servant room opens up established, premium corridors along the Noida Expressway—such as Sectors 93, 128, and low-density sectors like Sector 150. At this price point, you can expect spacious floor plans ranging from 2,000 to 2,450 sq.ft., Mivan construction quality, and advanced club infrastructure. \n\nThe primary trade-off in these prime stretches is a higher entry price and maintenance outlays, balanced against superior build quality and immediate social infrastructure. \n\nWould you prefer a ready-to-move society in an established sector like...Sector 93, or would you prefer a low-density green sanctuary in Sector 150?"
+      },
+      {
+        "q": "okay tell me why should I trust the information provided by you?",
+        "lane": "topic:trust",
+        "firstMs": 2440,
+        "totalMs": 2441,
+        "chars": 1265,
+        "cards": [],
+        "intent": {
+          "bhk": [
+            3
+          ],
+          "budgetMin": 2.5,
+          "possession": "1year",
+          "sector": "Sector 10, Greater Noida West",
+          "city": "Greater Noida",
+          "purpose": "endUse",
+          "builderName": "these",
+          "lifestyleKeywords": [
+            "sports"
+          ],
+          "gathering_loop_count": 0,
+          "queryKind": "DISCOVERY",
+          "spatialScope": "EXACT",
+          "radiusKm": 3.5,
+          "jev": {
+            "task": "discover",
+            "source": [
+              "db"
+            ],
+            "shape": "advisory",
+            "fields": [
+              "amenities",
+              "location"
+            ],
+            "clarify": null
+          },
+          "budgetHistory": [
+            1.2,
+            1.8
+          ],
+          "budgetHard": true,
+          "sectorsMentioned": [
+            "Sector 10"
+          ],
+          "sectorHistory": [
+            "Sector 78, Noida",
+            "Sector 1, Noida",
+            "Sector 10",
+            "Sector 10, Noida",
+            "Sector 10, Greater Noida West"
+          ],
+          "excludeSectors": [
+            "Sector 78"
+          ]
+        },
+        "answer": "### Where my answers come from, and their limits\n\n**Sources**\n- Project records we hold: RERA numbers, possession dates, builder history, payment plans, amenities, unit sizes.\n- UP-RERA registration numbers, where we hold them, shown with the project so you can match them to the project and tower.\n- Stamp duty, registration and GST from UP and central law, which are the same for every project.\n\n**Every figure is labelled** as one of: from our record for that project, statutory, computed from our records (with how many projects it rests on), or not on record. If we don't hold something, I say so instead of filling in a typical value.\n\n**What we have not done**\n- We have not inspected the sites.\n- We do not independently verify title, land dues or authority approvals. Ask the builder for the documents and have a lawyer check them.\n\n**Resident reviews:** we do not hold feedback from existing buyers or residents. For any project I'll say \"not on record\" rather than guess. Talking to residents on a site visit is the better source.\n\n**Neutrality:** a builder or partner paying us never changes how projects are ranked.\n\nThe two checks worth doing: ask me for the RERA record we hold for the project, and visit the site. Which project do you want to check?"
+      },
+      {
+        "q": "are there any user feedbacks provided by existing customers of any property that is listed?",
+        "lane": "topic:trust",
+        "firstMs": 3445,
+        "totalMs": 3446,
+        "chars": 1265,
+        "cards": [],
+        "intent": {
+          "bhk": [
+            3
+          ],
+          "budgetMin": 2.5,
+          "possession": "1year",
+          "sector": "Sector 10, Greater Noida West",
+          "city": "Greater Noida",
+          "purpose": "endUse",
+          "builderName": "these",
+          "lifestyleKeywords": [
+            "sports"
+          ],
+          "gathering_loop_count": 0,
+          "queryKind": "DISCOVERY",
+          "spatialScope": "EXACT",
+          "radiusKm": 3.5,
+          "jev": {
+            "task": "project_fact",
+            "source": [
+              "db",
+              "web"
+            ],
+            "shape": "factual",
+            "fields": [],
+            "clarify": null
+          },
+          "budgetHistory": [
+            1.2,
+            1.8
+          ],
+          "budgetHard": true,
+          "sectorsMentioned": [
+            "Sector 10"
+          ],
+          "sectorHistory": [
+            "Sector 78, Noida",
+            "Sector 1, Noida",
+            "Sector 10",
+            "Sector 10, Noida",
+            "Sector 10, Greater Noida West"
+          ],
+          "excludeSectors": [
+            "Sector 78"
+          ]
+        },
+        "answer": "### Where my answers come from, and their limits\n\n**Sources**\n- Project records we hold: RERA numbers, possession dates, builder history, payment plans, amenities, unit sizes.\n- UP-RERA registration numbers, where we hold them, shown with the project so you can match them to the project and tower.\n- Stamp duty, registration and GST from UP and central law, which are the same for every project.\n\n**Every figure is labelled** as one of: from our record for that project, statutory, computed from our records (with how many projects it rests on), or not on record. If we don't hold something, I say so instead of filling in a typical value.\n\n**What we have not done**\n- We have not inspected the sites.\n- We do not independently verify title, land dues or authority approvals. Ask the builder for the documents and have a lawyer check them.\n\n**Resident reviews:** we do not hold feedback from existing buyers or residents. For any project I'll say \"not on record\" rather than guess. Talking to residents on a site visit is the better source.\n\n**Neutrality:** a builder or partner paying us never changes how projects are ranked.\n\nThe two checks worth doing: ask me for the RERA record we hold for the project, and visit the site. Which project do you want to check?"
+      },
+      {
+        "q": "alright then, show me the most recommended option for a 3 bhk in greater noida within 1.5cr budget!!",
+        "lane": "main",
+        "firstMs": 12661,
+        "totalMs": 14484,
+        "chars": 175,
+        "cards": [],
+        "intent": {
+          "bhk": [
+            3
+          ],
+          "budgetMin": 2.5,
+          "possession": "1year",
+          "sector": "Sector 10, Greater Noida West",
+          "city": "Greater Noida",
+          "purpose": "endUse",
+          "builderName": "these",
+          "lifestyleKeywords": [
+            "sports"
+          ],
+          "gathering_loop_count": 0,
+          "queryKind": "RANKING",
+          "spatialScope": "EXACT",
+          "radiusKm": 3.5,
+          "jev": {
+            "task": "project_fact",
+            "source": [
+              "db",
+              "web"
+            ],
+            "shape": "factual",
+            "fields": [],
+            "clarify": null
+          },
+          "budgetHistory": [
+            1.2,
+            1.8,
+            1.5
+          ],
+          "budgetHard": true,
+          "sectorsMentioned": [
+            "Sector 10"
+          ],
+          "sectorHistory": [
+            "Sector 78, Noida",
+            "Sector 1, Noida",
+            "Sector 10",
+            "Sector 10, Noida",
+            "Sector 10, Greater Noida West"
+          ],
+          "excludeSectors": [
+            "Sector 78"
+          ],
+          "budgetMax": 1.5
+        },
+        "answer": "None of the projects we hold in Greater Noida meet every requirement you mentioned.\n\nWould you like to relax any of these filters — the budget, the configuration, or the area?"
+      },
+      {
+        "q": "yes",
+        "lane": "main",
+        "firstMs": 10496,
+        "totalMs": 11375,
+        "chars": 175,
+        "cards": [],
+        "intent": {
+          "bhk": [
+            3
+          ],
+          "budgetMin": 2.5,
+          "budgetMax": 1.5,
+          "possession": "1year",
+          "sector": "Sector 10, Greater Noida West",
+          "city": "Greater Noida",
+          "purpose": "endUse",
+          "builderName": "these",
+          "lifestyleKeywords": [
+            "sports"
+          ],
+          "gathering_loop_count": 0,
+          "queryKind": "RANKING",
+          "spatialScope": "EXACT",
+          "radiusKm": 3.5,
+          "jev": {
+            "task": "project_fact",
+            "source": [
+              "db",
+              "web"
+            ],
+            "shape": "factual",
+            "fields": [],
+            "clarify": null
+          },
+          "budgetHistory": [
+            1.2,
+            1.8,
+            1.5
+          ],
+          "budgetHard": true,
+          "sectorsMentioned": [
+            "Sector 10"
+          ],
+          "sectorHistory": [
+            "Sector 78, Noida",
+            "Sector 1, Noida",
+            "Sector 10",
+            "Sector 10, Noida",
+            "Sector 10, Greater Noida West"
+          ],
+          "excludeSectors": [
+            "Sector 78"
+          ]
+        },
+        "answer": "None of the projects we hold in Greater Noida meet every requirement you mentioned.\n\nWould you like to relax any of these filters — the budget, the configuration, or the area?"
+      },
+      {
+        "q": "yes look for options in a nearby sector or adjust the budget",
+        "lane": "jev_live",
+        "firstMs": 2435,
+        "totalMs": 2436,
+        "chars": 88,
+        "cards": [],
+        "intent": {
+          "bhk": [
+            3
+          ],
+          "budgetMin": 2.5,
+          "budgetMax": 1.5,
+          "possession": "1year",
+          "sector": "Sector 10, Greater Noida West",
+          "city": "Greater Noida",
+          "purpose": "endUse",
+          "builderName": "these",
+          "lifestyleKeywords": [
+            "sports"
+          ],
+          "gathering_loop_count": 0,
+          "queryKind": "RANKING",
+          "spatialScope": "PROXIMITY",
+          "radiusKm": 3.5,
+          "jev": {
+            "task": "discover",
+            "source": [
+              "db"
+            ],
+            "shape": "advisory",
+            "fields": [],
+            "clarify": "Would you prefer to explore properties in a nearby sector or adjust your budget range?"
+          },
+          "budgetHistory": [
+            1.2,
+            1.8,
+            1.5
+          ],
+          "budgetHard": true,
+          "sectorsMentioned": [
+            "Sector 10"
+          ],
+          "sectorHistory": [
+            "Sector 78, Noida",
+            "Sector 1, Noida",
+            "Sector 10",
+            "Sector 10, Noida",
+            "Sector 10, Greater Noida West"
+          ],
+          "excludeSectors": [
+            "Sector 78"
+          ]
+        },
+        "answer": "Would you prefer to explore properties in a nearby sector or adjust your budget range?\n\n"
+      },
+      {
+        "q": "okay now tell me what you can do for me",
+        "lane": "topic:capabilities",
+        "firstMs": 2838,
+        "totalMs": 2839,
+        "chars": 946,
+        "cards": [],
+        "intent": {
+          "bhk": [
+            3
+          ],
+          "budgetMin": 2.5,
+          "budgetMax": 1.5,
+          "possession": "1year",
+          "sector": "Sector 10, Greater Noida West",
+          "city": "Greater Noida",
+          "purpose": "endUse",
+          "builderName": "these",
+          "lifestyleKeywords": [
+            "sports"
+          ],
+          "gathering_loop_count": 0,
+          "queryKind": "RANKING",
+          "spatialScope": "PROXIMITY",
+          "radiusKm": 3.5,
+          "jev": {
+            "task": "discover",
+            "source": [
+              "db"
+            ],
+            "shape": "advisory",
+            "fields": [],
+            "clarify": "Would you prefer to explore properties in a nearby sector or adjust your budget range?"
+          },
+          "budgetHistory": [
+            1.2,
+            1.8,
+            1.5
+          ],
+          "budgetHard": true,
+          "sectorsMentioned": [
+            "Sector 10"
+          ],
+          "sectorHistory": [
+            "Sector 78, Noida",
+            "Sector 1, Noida",
+            "Sector 10",
+            "Sector 10, Noida",
+            "Sector 10, Greater Noida West"
+          ],
+          "excludeSectors": [
+            "Sector 78"
+          ]
+        },
+        "answer": "### What I can do for you\n\n- **Search** projects in Noida and Greater Noida West by budget, sector, BHK, possession date and metro access.\n- **Project facts from the records we hold:** RERA registration, possession date, builder delivery record, payment plans, amenities and unit sizes where we have them. If we don't hold something, I'll say \"not on record\".\n- **Compare** two to four projects side by side, with the trade-off in each.\n- **True cost:** stamp duty, registration and GST at the UP statutory rates, and EMI and affordability arithmetic on the numbers you give me.\n- **A human when you need one:** a callback or a site visit with our team.\n\n**What I don't do**\n- Forecast prices or predict appreciation.\n- Rental listings, resale listings, or opinions on whether a resale price is fair.\n- Investment advice.\n- Inspect sites. What I tell you comes from records, not a visit.\n\nWhat are you looking for: budget, BHK and where you work?"
+      },
+      {
+        "q": "perfect then tell me the best few options under 1.6 cr for a 3 bhk in any area.",
+        "lane": "main",
+        "firstMs": 34794,
+        "totalMs": 35043,
+        "chars": 238,
+        "cards": [],
+        "intent": {
+          "bhk": [
+            3
+          ],
+          "budgetMin": 2.5,
+          "budgetMax": 1.6,
+          "possession": "1year",
+          "sector": "Sector 10, Greater Noida West",
+          "city": "Greater Noida",
+          "purpose": "endUse",
+          "builderName": "these",
+          "lifestyleKeywords": [
+            "sports"
+          ],
+          "gathering_loop_count": 0,
+          "queryKind": "RANKING",
+          "spatialScope": "PROXIMITY",
+          "radiusKm": 3.5,
+          "jev": {
+            "task": "discover",
+            "source": [
+              "db"
+            ],
+            "shape": "advisory",
+            "fields": [],
+            "clarify": "Would you prefer to explore properties in a nearby sector or adjust your budget range?"
+          },
+          "budgetHistory": [
+            1.2,
+            1.8,
+            1.5,
+            1.6
+          ],
+          "budgetHard": true,
+          "sectorsMentioned": [
+            "Sector 10"
+          ],
+          "sectorHistory": [
+            "Sector 78, Noida",
+            "Sector 1, Noida",
+            "Sector 10",
+            "Sector 10, Noida",
+            "Sector 10, Greater Noida West"
+          ],
+          "excludeSectors": [
+            "Sector 78"
+          ]
+        },
+        "answer": "I couldn't get you a reliable answer just now — our AI service is briefly unavailable, and I'd rather say so than guess.\n\nAsk me again in a moment, or use **Book Site Visit** or **Callback** and our advisory team will pick it up directly."
+      }
+    ]
+  }
+]
