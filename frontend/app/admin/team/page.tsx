@@ -4,6 +4,7 @@ import React, { useEffect, useState, useCallback, useMemo } from 'react'
 import { adminFetch } from '@/lib/adminFetch'
 import CustomSelect, { SelectOption } from '@/components/admin/CustomSelect'
 import EmailPreviewModal from '@/components/admin/EmailPreviewModal'
+import StaffMailboxes from '@/components/admin/StaffMailboxes'
 import { MetricCard, MetricCardSkeleton } from '@/components/admin/ui/MetricCard'
 import AdminInfoTooltip from '@/components/admin/AdminInfoTooltip'
 import {
@@ -1437,6 +1438,8 @@ export default function AdminTeamPage() {
           </div>
         </div>
       )}
+
+      <StaffMailboxes />
     </div>
   )
 }

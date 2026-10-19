@@ -125,6 +125,8 @@ const READ_REGISTRY: Record<string, Record<Role, boolean>> = {
   '/team': OWNER_ONLY,
   // Lists registered buyers' emails and phones to promote one — buyer PII.
   '/team/search-users': OWNER_ONLY,
+  // Staff mailbox list (names and addresses on the company mail domain). Covered by the /team rule.
+  '/team/mailboxes': OWNER_ONLY,
   '/outbox': OWNER_ONLY,
   // Referral link stats and holder resets. SUPER_ADMIN only — see adminPolicy.ts.
   '/referrals': OWNER_ONLY,

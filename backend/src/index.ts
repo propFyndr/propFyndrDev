@@ -39,6 +39,7 @@ import builderApplicationsRouter from './routes/builderApplications'
 import analyticsRouter from './routes/analytics'
 import adminIntelligenceRouter from './routes/admin-intelligence'
 import adminTeamRouter from './routes/adminTeam'
+import adminStaffMailRouter from './routes/adminStaffMail'
 import promotionalsRouter from './routes/promotionals'
 import sitemapRouter from './routes/sitemap'
 import { queryCountingMiddleware } from './lib/queryCounter'
@@ -305,6 +306,7 @@ app.use('/api/admin', adminAreaGuard)
 // admin router would otherwise claim /beta or /team before either ever sees it.
 app.use('/api/v1/admin/conversations', betaRouter)
 app.use('/api/v1/admin/beta', betaRouter)
+app.use('/api/v1/admin/team/mailboxes', adminStaffMailRouter)
 app.use('/api/v1/admin/team', adminTeamRouter)
 app.use('/api/v1/admin/email', adminEmailRouter)
 // Mounted before the catch-all admin router so this one serves

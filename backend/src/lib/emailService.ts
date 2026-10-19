@@ -54,7 +54,9 @@ export async function sendEmail({
       html,
     }
     if (text) payload.text = text
-    if (replyTo) payload.reply_to = replyTo
+    // Replies to invites and alerts should reach a human inbox, not the no-reply address.
+    const reply = replyTo || process.env.EMAIL_REPLY_TO
+    if (reply) payload.reply_to = reply
     if (tags && tags.length > 0) payload.tags = tags
 
     const response = await fetch(RESEND_API_URL, {
