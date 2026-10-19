@@ -777,7 +777,7 @@ export default function AdminTeamPage() {
       {/* ── Administrators Table ─────────────────────────────────────── */}
       <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200/80 dark:border-zinc-800 shadow-2xs overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs border-collapse">
+          <table className="w-full min-w-[1010px] text-left text-xs border-collapse">
             <thead className="bg-zinc-50/75 dark:bg-zinc-800/40 border-b border-zinc-200/80 dark:border-zinc-800 text-zinc-400 dark:text-zinc-500 font-bold uppercase tracking-wider text-[10px]">
               <tr>
                 <th className="py-3.5 px-6 min-w-[220px]">Administrator</th>
@@ -785,7 +785,7 @@ export default function AdminTeamPage() {
                 <th className="py-3.5 px-4 min-w-[180px]">Organization Scope</th>
                 <th className="py-3.5 px-4 min-w-[110px]">Status</th>
                 <th className="py-3.5 px-4 min-w-[110px]">Last Activity</th>
-                <th className="py-3.5 px-6 text-right min-w-[180px]">Actions</th>
+                <th className="py-3.5 px-6 text-right min-w-[260px] w-[260px]">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800/60 font-medium">
@@ -898,8 +898,8 @@ export default function AdminTeamPage() {
                     </td>
 
                     {/* Actions column: Compact, elegant Apple HIG buttons */}
-                    <td className="py-3.5 px-6 text-right">
-                      <div className="flex items-center justify-end gap-1.5">
+                    <td className="py-3.5 px-6 text-right whitespace-nowrap min-w-[260px] w-[260px]">
+                      <div className="flex items-center justify-end gap-1.5 shrink-0">
                         {/* Copy live invite link for pending accounts */}
                         {a.invite_pending && (
                           <button
