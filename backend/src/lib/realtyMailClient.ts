@@ -9,8 +9,9 @@
 // manage accounts that same owner created (RealtyMail enforces this), so listing
 // returns "the accounts this key can manage", not every mailbox on the domain.
 //
-// RealtyMail's admin API has no delete. Offboarding is disable + password reset,
-// which also signs the person out everywhere. Deleting stays a manual step there.
+// Offboarding is disable + password reset, which also signs the person out everywhere.
+// Delete is a soft delete in RealtyMail: the account is restorable from its dashboard
+// for 20 days, then purged with its mail. Pending-deletion accounts carry `deletedAt`.
 import { randomBytes } from 'node:crypto'
 
 export class RealtyMailError extends Error {
@@ -24,8 +25,10 @@ export interface MailAccount {
   email: string
   name: string
   role: 'admin' | 'user'
+  isPrimaryAdmin: boolean
   disabled: boolean
   lastSignInAt: string | null
+  deletedAt: string | null
 }
 
 /** A trailing dot ("mail.example.in.") is a valid FQDN but breaks TLS and routing, so strip it. */
@@ -73,8 +76,10 @@ function toAccount(raw: Record<string, unknown>): MailAccount {
     email: String(raw.email),
     name: String(raw.name ?? ''),
     role: raw.role === 'admin' ? 'admin' : 'user',
+    isPrimaryAdmin: Boolean(raw.isPrimaryAdmin),
     disabled: Boolean(raw.disabled),
     lastSignInAt: raw.lastSignInAt ? String(raw.lastSignInAt) : null,
+    deletedAt: raw.deletedAt ? String(raw.deletedAt) : null,
   }
 }
 
@@ -83,8 +88,22 @@ export async function listAccounts(): Promise<MailAccount[]> {
   return (data.accounts ?? []).map(toAccount)
 }
 
+/**
+ * Prefer REALTYMAIL_DOMAIN_ID: looking it up needs the key's `domains` scope, which also
+ * lets the key delete the domain, so a least-privilege key carries `accounts` only.
+ */
 async function domainIdFor(hostname: string): Promise<string> {
-  const data = await call<{ domains?: Array<{ id: string; hostname: string }> }>('/api/v1/domains')
+  const fromEnv = process.env.REALTYMAIL_DOMAIN_ID?.trim()
+  if (fromEnv) return fromEnv
+  let data: { domains?: Array<{ id: string; hostname: string }> }
+  try {
+    data = await call('/api/v1/domains')
+  } catch (err) {
+    if (err instanceof RealtyMailError && err.message === 'Unauthorized') {
+      throw new RealtyMailError('Set REALTYMAIL_DOMAIN_ID (the key has no domains scope)', 503)
+    }
+    throw err
+  }
   const found = data.domains?.find((d) => d.hostname === hostname)
   if (!found) throw new RealtyMailError(`Domain ${hostname} is not connected in RealtyMail`, 404)
   return found.id
@@ -99,7 +118,8 @@ export async function createAccount(opts: { username: string; name?: string; hos
   const password = generatePassword()
   const created = await call<{ account: Record<string, unknown> }>('/api/v1/accounts', {
     method: 'POST',
-    body: { username: opts.username, domainId: await domainIdFor(opts.hostname), password, role: 'user' },
+    // useAllDomains defaults to true there, which would give staff an address on every domain.
+    body: { username: opts.username, domainId: await domainIdFor(opts.hostname), password, role: 'user', useAllDomains: false },
   })
   let account = toAccount(created.account)
   // The create endpoint has no name field; it defaults to the username.
@@ -129,15 +149,24 @@ async function patchAccount(id: string, change: { name?: string; disabled?: bool
 }
 
 /**
- * Disabling also sets a throwaway password nobody sees: RealtyMail signs an account out
- * only when its password changes, and an offboarded person must not keep a live session.
+ * Both directions set a new password. Disabling: RealtyMail signs an account out only when its
+ * password changes, and an offboarded person must not keep a live session. Re-enabling: the
+ * password disable left is one nobody knows, so return a fresh one for the handover.
  */
-export const setDisabled = (id: string, disabled: boolean) =>
-  patchAccount(id, disabled ? { disabled, password: generatePassword() } : { disabled })
+export async function setDisabled(id: string, disabled: boolean): Promise<string | null> {
+  const password = generatePassword()
+  await patchAccount(id, { disabled, password })
+  return disabled ? null : password
+}
 
 /** Setting a password revokes every session of that account in RealtyMail. */
 export async function resetPassword(id: string): Promise<string> {
   const password = generatePassword()
   await patchAccount(id, { password })
   return password
+}
+
+/** Soft-delete: RealtyMail disables and signs the account out; restorable there for 20 days, then purged. */
+export async function deleteAccount(id: string): Promise<void> {
+  await call(`/api/v1/accounts/${encodeURIComponent(id)}`, { method: 'DELETE' })
 }

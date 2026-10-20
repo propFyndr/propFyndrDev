@@ -14,7 +14,7 @@ import type { AdminIdentitySession } from '../lib/adminIdentity'
 import { checkRateLimit } from '../lib/cache'
 import { clientIp } from '../lib/request'
 import {
-  RealtyMailError, isRealtyMailConfigured, listAccounts, createAccount, resetPassword, setDisabled,
+  RealtyMailError, isRealtyMailConfigured, listAccounts, createAccount, resetPassword, setDisabled, deleteAccount,
 } from '../lib/realtyMailClient'
 
 const router = Router()
@@ -107,8 +107,20 @@ router.patch('/:id', async (req: Request, res: Response) => {
     return
   }
   try {
-    await setDisabled(req.params.id, parsed.data.disabled)
+    const password = await setDisabled(req.params.id, parsed.data.disabled)
     await audit(req, req.params.id, req.params.id, 'UPDATE', parsed.data.disabled ? 'Disabled a staff mailbox' : 'Re-enabled a staff mailbox')
+    res.json(password ? { ok: true, password } : { ok: true })
+  } catch (err) {
+    fail(res, err)
+  }
+})
+
+// DELETE /api/v1/admin/team/mailboxes/:id — soft delete; restorable in RealtyMail for 20 days, then purged.
+router.delete('/:id', async (req: Request, res: Response) => {
+  if (await throttled(req, res)) return
+  try {
+    await deleteAccount(req.params.id)
+    await audit(req, req.params.id, req.params.id, 'DELETE', 'Deleted a staff mailbox (restorable in RealtyMail for 20 days)')
     res.json({ ok: true })
   } catch (err) {
     fail(res, err)
