@@ -35,7 +35,8 @@ function flush() {
 function load(): Promise<void> | null {
   if (client || loading) return loading
   if (typeof window === 'undefined' || process.env.NODE_ENV === 'test') return null
-  const key = process.env.NEXT_PUBLIC_POSTHOG_KEY || (process.env.NODE_ENV === 'production' ? 'phc_CxNVfVHUhdM7q8cQjUaRWcGBPHsY9JVfYdsZvUqJsbjV' : '')
+  // The key lives only in env (Vercel project settings); no fallback in code.
+  const key = process.env.NEXT_PUBLIC_POSTHOG_KEY
   if (!key) return null
 
   loading = import('posthog-js')

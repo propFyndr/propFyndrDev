@@ -129,7 +129,7 @@ Status is against live code as of 2026-10-05 (audits in MEMORY.md and `MASTER_EX
 | Carpet vs super area visualizer | Live (2026-10-05) | Only with both areas measured |
 | RERA provenance pill + record drawer | Live (2026-10-05) | Only for RERA numbers we hold |
 | Shareable buyer dossier | Live | Anonymous; `dossiers` table; `dossier_shared` event |
-| Save, callback, site visit — as a guest | Live | Guest token is an identity |
+| Save, callback, site visit — as a guest | Live | Guest token is an identity. Guest *save* was a silent no-op in `ProjectCard` until 2026-10-23 (1 save in the DB); fix not yet deployed |
 | Out-of-catalogue project answer with public-record badge | Partial | One path still prompt-only |
 | Hindi / Hinglish understanding | Partial | Normalizer runs before intent (`lib/ai/intent.ts`); 9 of 10 Day-2 Hinglish questions pinned and passing; H7 (builder trust) open, no consistent lane in either language (2026-10-16) |
 | Session memory ("what have I told you?") | Partial | Rate lost between EMI turns |

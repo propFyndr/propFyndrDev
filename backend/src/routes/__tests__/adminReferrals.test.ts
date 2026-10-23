@@ -1,4 +1,4 @@
-import { describe, it } from 'node:test'
+import { describe, it, after } from 'node:test'
 import assert from 'node:assert/strict'
 import express, { Request, Response, NextFunction } from 'express'
 import request from 'supertest'
@@ -18,6 +18,21 @@ function buildApp() {
   app.use('/api/v1/admin/referrals', adminReferralsRouter)
   return app
 }
+
+// Every run used to leave its links, visits and a "Test Buyer" site visit in
+// the database. Links this file creates carry the stub admin id above.
+const startedAt = new Date()
+after(async () => {
+  const links = await prisma.referralLink.findMany({
+    where: { created_by_admin_id: 'admin-1', created_at: { gte: startedAt } },
+    select: { code: true },
+  })
+  const codes = links.map(l => l.code)
+  const visits = await prisma.referralVisit.findMany({ where: { root_code: { in: codes } }, select: { guest_token: true } })
+  await prisma.siteVisitRequest.deleteMany({ where: { guest_token: { in: visits.map(v => v.guest_token) } } })
+  await prisma.referralVisit.deleteMany({ where: { root_code: { in: codes } } })
+  await prisma.referralLink.deleteMany({ where: { code: { in: codes } } })
+})
 
 describe('POST /api/v1/admin/referrals', () => {
   it('creates a ROOT link with a label and greeting name', async () => {

@@ -8,6 +8,7 @@ import { requireAdmin, destroyAdminSession } from '../lib/adminAuth'
 import { createIdentitySession, verifyPassword, requireIdentity, requireRole, sessionTtlForRole, recordAudit } from '../lib/adminIdentity'
 import type { AdminIdentitySession } from '../lib/adminIdentity'
 import { computeCompleteness } from '../lib/completeness'
+import { buyerJourney } from '../lib/analytics/buyerJourney'
 import { computeCarpetToSuperRatio } from '../lib/calculators'
 import { normalisePortalSubdomain } from '../lib/portalSubdomain'
 import { PRICE_FIELDS, applyFactWrites, changedPriceFields, parsePriceVerification, priceFactWrites } from '../lib/priceVerification'
@@ -3123,38 +3124,20 @@ router.get('/analytics/unmet-demand', async (req: Request, res: Response) => {
   }
 })
 
-// GET /api/v1/admin/analytics/funnel — 5-stage conversion funnel
+// GET /api/v1/admin/analytics/funnel — buyer journey, per person (lib/analytics/buyerJourney.ts)
 router.get('/analytics/funnel', async (req: Request, res: Response) => {
   try {
     const isRefresh = req.query.refresh === 'true'
-    const cacheKey = 'admin:analytics:funnel'
+    const days = Math.min(Math.max(Number(req.query.days) || 30, 1), 365)
+    const cacheKey = `admin:analytics:journey:${days}`
     if (!isRefresh) {
       const cached = await getCached<object>(cacheKey)
       if (cached) return res.json(cached)
     }
 
-    const [totalSessions, totalSearches, viewClicks, saves, totalCallbacks, totalSiteVisits] = await Promise.all([
-      prisma.chatSession.count({ where: { is_bot: false } }).catch(() => 0),
-      prisma.queryMetrics.count().catch(() => 0),
-      prisma.propertyEvent.count({ where: { action: { in: ['view', 'click', 'brochure'] } } }).catch(() => 0),
-      prisma.propertyEvent.count({ where: { action: 'save' } }).catch(() => 0),
-      prisma.callbackRequest.count().catch(() => 0),
-      prisma.siteVisitRequest.count().catch(() => 0),
-    ])
-
-    const leads = totalCallbacks + totalSiteVisits
-    const stages = [
-      { id: 'sessions', label: '1. Chat Discovery Sessions', count: totalSessions, dropOffPct: totalSessions > 0 ? Math.round(Math.max(0, 100 - (totalSearches / totalSessions) * 100)) : 0 },
-      { id: 'searches', label: '2. Filtered Searches Executed', count: totalSearches, dropOffPct: totalSearches > 0 ? Math.round(Math.max(0, 100 - (viewClicks / totalSearches) * 100)) : 0 },
-      { id: 'engagements', label: '3. Property Card Views & Clicks', count: viewClicks, dropOffPct: viewClicks > 0 ? Math.round(Math.max(0, 100 - (saves / viewClicks) * 100)) : 0 },
-      { id: 'shortlists', label: '4. Shortlisted & Saved', count: saves, dropOffPct: saves > 0 ? Math.round(Math.max(0, 100 - (leads / saves) * 100)) : 0 },
-      { id: 'leads', label: '5. High-Intent Verified Leads', count: leads, dropOffPct: 0 },
-    ]
-
-    const overallConversionRate = totalSessions > 0 ? `${((leads / totalSessions) * 100).toFixed(2)}%` : '0.00%'
-
-    const responseData = { stages, overallConversionRate, totalLeads: leads }
-    await setCached(cacheKey, responseData, 60)
+    const stages = await buyerJourney(prisma, new Date(Date.now() - days * 86_400_000))
+    const responseData = { stages, windowDays: days }
+    await setCached(cacheKey, responseData, 300)
     res.json(responseData)
   } catch (err) {
     console.error('[admin] analytics funnel failed:', err)

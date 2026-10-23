@@ -17,7 +17,6 @@ import {
   Lightning,
   Target,
   FileDashed,
-  ArrowDownRight,
   ArrowSquareOut,
 } from '@phosphor-icons/react'
 import { formatDistanceToNow } from 'date-fns'
@@ -120,11 +119,13 @@ interface UnmetDemandItem {
   lastSearched: string
 }
 
+/** One buyer-journey stage, counted per person (backend lib/analytics/buyerJourney.ts). */
 interface FunnelStage {
   id: string
   label: string
   count: number
-  dropOffPct: number
+  pctOfStarters: number
+  outsideCohort: number
 }
 
 export default function AnalyticsDashboard() {
@@ -420,24 +421,23 @@ export default function AnalyticsDashboard() {
           <div className="flex items-center justify-between gap-2 min-w-0">
             <span className="text-sm font-semibold text-zinc-900 dark:text-white tracking-tight flex items-center gap-2 truncate">
               <Stack className="w-4 h-4 text-[#0066cc] shrink-0" />
-              <span className="truncate">Complete Lead Journey Funnel</span>
+              <span className="truncate">Buyer Journey</span>
               <AdminInfoTooltip
-                title="Complete Lead Journey Funnel"
-                description="Step-by-step buyer pipeline from session start to verified lead."
-                whyItMatters="Pinpoints exact drop-off stages in buyer conversion."
+                title="Buyer Journey"
+                description="People who started a chat in the last 30 days, and how many of them went on to each step. Stages are not nested: a buyer can request a callback without saving. 'Dossier created' is a share link made; whether it was sent is in PostHog (dossier_shared)."
+                whyItMatters="Shows where buyers stop, counting the same people at every step."
               />
             </span>
             <span className="text-[11px] font-semibold text-[#0066cc] dark:text-blue-400 bg-blue-50 dark:bg-blue-950/80 px-2.5 py-0.5 rounded-lg border border-blue-200/60 dark:border-blue-800/60 shrink-0">
-              Full Pipeline
+              Last 30 days
             </span>
           </div>
 
           <div className="space-y-3 pt-1">
             {funnelStages.length > 0 ? (
               (() => {
-                const maxFunnelCount = Math.max(...funnelStages.map((s) => s.count), 1)
                 return funnelStages.map((stage, idx) => {
-                  const pct = Math.max(Math.round((stage.count / maxFunnelCount) * 100), stage.count > 0 ? 4 : 0)
+                  const pct = Math.max(stage.pctOfStarters, stage.count > 0 ? 4 : 0)
                   return (
                     <div
                       key={stage.id}
@@ -448,10 +448,9 @@ export default function AnalyticsDashboard() {
                           {stage.label}
                         </span>
                         <div className="flex items-center gap-2 shrink-0">
-                          {idx < funnelStages.length - 1 && stage.dropOffPct > 0 && (
-                            <span className="text-[10px] font-medium text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/60 px-1.5 sm:px-2 py-0.5 rounded-md border border-rose-200/60 flex items-center gap-0.5">
-                              <ArrowDownRight className="w-2.5 h-2.5 shrink-0" />
-                              <span>{stage.dropOffPct}% drop</span>
+                          {idx > 0 && (
+                            <span className="text-[10px] font-medium text-zinc-600 dark:text-zinc-300 bg-zinc-100 dark:bg-zinc-800 px-1.5 sm:px-2 py-0.5 rounded-md border border-zinc-200/60 dark:border-zinc-700/60">
+                              {stage.pctOfStarters}% of chat starters
                             </span>
                           )}
                           <span className="text-xs font-mono font-bold text-zinc-900 dark:text-white">
@@ -467,6 +466,11 @@ export default function AnalyticsDashboard() {
                           style={{ width: `${pct}%` }}
                         />
                       </div>
+                      {stage.outsideCohort > 0 && (
+                        <p className="text-[10px] text-zinc-500 dark:text-zinc-400">
+                          +{stage.outsideCohort.toLocaleString()} more from people with no chat in this window or no identity on record
+                        </p>
+                      )}
                     </div>
                   )
                 })

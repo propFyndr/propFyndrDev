@@ -206,7 +206,8 @@ export default function ProjectCard({ project, userId, sessionId, index = 0, isT
 
   const handleSave = async (e: React.MouseEvent) => {
     e.stopPropagation()
-    if (!userId || saving) return
+    // Guests save too: authHeaders() sends X-Guest-Token, and routes/saved.ts accepts it.
+    if (saving) return
     setSaving(true)
     const wasSaved = saved
     setSaved(!wasSaved)
