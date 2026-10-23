@@ -11,8 +11,8 @@
  * - Langfuse off: a replay turn's answer is `[[LLM_STUB_ANSWER]]`, not
  *   something a reviewer should ever find mixed into real buyer traces.
  *   Previously unset, so every replay and corpus run wrote its stub turns
- *   straight into the production Langfuse project — `getLangfuse()` only
- *   returns null when the key is genuinely absent, and `.env` supplies one.
+ *   straight into the production Langfuse project — tracing (monitoring/langfuse.ts) only
+ *   switches off when the key is genuinely absent, and `.env` supplies one.
  */
 process.env.NODE_ENV = 'test'
 process.env.LLM_STUB = '1'

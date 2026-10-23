@@ -731,7 +731,7 @@ router.post('/', async (req: Request, res: Response) => {
   const turnTrace: TurnTraceDraft = { lane: 'unlabelled' }
   res.on('finish', () => recordTurnTrace(turnTrace, timer.elapsed()))
   const langfuseTraceId = `chat-${turnId}`
-  res.on('finish', () => recordChatTurn({
+  res.on('close', () => recordChatTurn({
     id: langfuseTraceId,
     sessionId: turnTrace.session_id,
     userId: userId || guestToken,

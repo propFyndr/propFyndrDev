@@ -106,7 +106,7 @@ export interface FallbackChainResult {
 
 import { validateAgainstFactsSync } from './guardrails-v2'
 import { trackEvent } from '../monitoring/posthog'
-import { getLangfuse } from '../monitoring/langfuse'
+import { turnTrace } from '../monitoring/langfuse'
 import { isCoolingDown, cooldownReason, recordFailure, recordSuccess } from './providerCooldown'
 import { env } from '../env'
 import { adaptiveCapMessages, CONTEXT_TOKEN_CEILING } from './adaptiveMessaging'
@@ -637,29 +637,27 @@ export async function executeWithFallbackChain(options: FallbackChainOptions): P
     'Do NOT restart from the beginning, do NOT redraw any table you already started (a partial row is still your table — extend it, never rebuild it), ' +
     'do not repeat anything already written, do not restate the question, and do not mention that you were interrupted.'
 
-  const lf = getLangfuse()
-  const rootTrace = lf && sessionId
-    ? lf.trace({
-        // Same id as `recordChatTurn` writes to when `traceId` is supplied —
-        // the router always supplies it. The two calls upsert the same
-        // Langfuse trace: this one attaches the model legs and tool spans as
-        // it runs, `recordChatTurn` lands the final answer on it afterwards.
-        // Without this they were two disconnected traces, and the one with
-        // the generation spans never carried the answer at all.
-        id: traceId ?? `chat-${sessionId}-${turnStartedAt}`,
-        sessionId,
-        userId: userId || undefined,
-        name: 'llm_chain',
-        // No input here: recordChatTurn puts the buyer's message on this same
-        // trace once. Sending it from every layer stored it four times a turn.
-        tags: ['fallback_chain'],
-        metadata: {
-          messagesCount: messages.length,
-          chat_session_id: sessionId,
-          guest_token: guestToken || undefined,
-          focus_project_id: focusProjectId || undefined,
+  const rootTrace = sessionId
+    ? turnTrace(
+        // Same id as `recordChatTurn` closes when `traceId` is supplied —
+        // the router always supplies it. This attaches the model legs and tool
+        // spans to the turn as it runs; `recordChatTurn` lands the final answer
+        // on the same trace afterwards.
+        traceId ?? `chat-${sessionId}-${turnStartedAt}`,
+        {
+          sessionId,
+          userId: userId || undefined,
+          // No input here: recordChatTurn puts the buyer's message on this same
+          // trace once. Sending it from every layer stored it four times a turn.
+          tags: ['fallback_chain'],
+          metadata: {
+            messagesCount: messages.length,
+            chat_session_id: sessionId,
+            guest_token: guestToken || undefined,
+            focus_project_id: focusProjectId || undefined,
+          },
         },
-      })
+      )
     : null
 
   const wrappedOnToolCall: ToolCallFn = async (name: string, args: Record<string, unknown>) => {
@@ -1059,14 +1057,6 @@ export async function executeWithFallbackChain(options: FallbackChainOptions): P
           })
         } catch (e) {
           console.warn('[FALLBACK:TRACKING_ERROR]', e)
-        }
-
-        try {
-          if (lf) {
-            lf.flushAsync().catch(() => {})
-          }
-        } catch (e) {
-          // never block execution on tracing
         }
       }
 

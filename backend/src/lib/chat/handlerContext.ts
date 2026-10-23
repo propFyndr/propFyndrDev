@@ -18,7 +18,7 @@
  */
 
 import type { Response } from 'express'
-import type { LangfuseTraceClient } from 'langfuse'
+import type { TurnTrace } from '../monitoring/langfuse'
 import type { Intent } from '../discovery'
 
 /** The catalogue columns the router caches. Structural, so handlers stay decoupled. */
@@ -160,7 +160,7 @@ export interface ChatHandlerContext {
    * the trace for model-answered turns, so these turns need their own or they
    * have none at all.
    */
-  trace?: LangfuseTraceClient | null
+  trace?: TurnTrace | null
 
   /** Sectors named in the message, in order. Empty when none were. */
   sectorMatches: ReadonlyArray<string>

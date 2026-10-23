@@ -60,22 +60,33 @@ function text(v: unknown, keys: string[]): string {
 }
 
 async function main(): Promise<void> {
+  // v2 observations API: the v1 /api/public/traces read API is removed on
+  // Langfuse Cloud on 2026-11-16. Each turn is one `chat_turn` root observation
+  // (lib/monitoring/langfuse.ts); traces written by the v3 SDK before the
+  // switch may not appear here.
   const traces: any[] = []
-  for (let page = 1; traces.length < LIMIT; page++) {
-    const qs = new URLSearchParams({ page: String(page), limit: String(Math.min(100, LIMIT - traces.length)) })
+  let cursor: string | undefined
+  do {
+    const qs = new URLSearchParams({
+      name: 'chat_turn',
+      fields: 'core,basic,io,metrics,trace_context',
+      limit: String(Math.min(1000, LIMIT - traces.length)),
+      fromStartTime: new Date(SINCE ?? Date.now() - 30 * 86_400_000).toISOString(),
+      toStartTime: new Date().toISOString(),
+    })
     if (SESSION) qs.set('sessionId', SESSION)
-    if (SINCE) qs.set('fromTimestamp', new Date(SINCE).toISOString())
-    const res = await get(`/api/public/traces?${qs}`)
+    if (cursor) qs.set('cursor', cursor)
+    const res = await get(`/api/public/v2/observations?${qs}`)
     traces.push(...(res.data ?? []))
-    if (!res.data?.length || page >= (res.meta?.totalPages ?? page)) break
-  }
+    cursor = res.meta?.cursor ?? undefined
+  } while (cursor && traces.length < LIMIT)
 
   const rows = traces
     .map(t => {
       const query = text(t.input, ['userMessage', 'message', 'query']).trim()
       const answer = text(t.output, ['response', 'text', 'answer']).trim()
       const flags = SUSPECT.filter(([, re]) => re.test(answer)).map(([k]) => k)
-      return { id: t.id, timestamp: t.timestamp, sessionId: t.sessionId, name: t.name, tags: t.tags, latency: t.latency, query, answer, flags }
+      return { id: t.traceId, timestamp: t.startTime, sessionId: t.sessionId, name: t.traceName ?? t.name, tags: t.tags, latency: t.latency, query, answer, flags }
     })
     .filter(r => r.query && r.query !== '{}')
     .sort((a, b) => String(a.timestamp).localeCompare(String(b.timestamp)))
