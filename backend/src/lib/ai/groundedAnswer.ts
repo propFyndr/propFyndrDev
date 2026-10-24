@@ -15,10 +15,10 @@ import { possessionDisplay } from '../possession'
 import { DEFAULT_CITY, SUPPORTED_CITIES } from '../config/cities'
 import { webSearch } from '../web'
 import { executeWithFallbackChain } from './fallbackChain'
-import { profileFor } from './inferenceProfile'
+import { profileFor, classifyShape } from './inferenceProfile'
 import { MODELS } from '../config'
 import { builderMentionedIn } from '../builderNames'
-import { getCachedResponse, setCachedResponse } from './semanticCache'
+import { getCachedResponse, setCachedResponse, GLOBAL_SCOPE } from './semanticCache'
 import type { OpenQueryDetection } from '../discovery/openQuery'
 import { buildGeneralConversationalPrompt } from './prompts/generalPrompt'
 import { isPublicField } from '../projectExposure'
@@ -702,6 +702,15 @@ export async function runGroundedAnswer(
 
   if (shareable && !outage) {
     setCachedResponse(message, { token: text, responseMode: 'grounded' }, OPEN_CACHE_TTL_MS, OPEN_CACHE_SCOPE)
+    // Also where the router reads before routing (no buyer state = 'anon'): the
+    // same factual question in other words is often routed to another lane and
+    // never reaches this scope (Day 5 run: "best areas in Noida for families?"
+    // went to main after "Which areas of Noida are best for families?" went here).
+    // Not a public-record answer: that read labels its replay verified and HIGH.
+    const shape = classifyShape(message)
+    if (!fromWeb && (shape === 'lookup' || shape === 'factual')) {
+      setCachedResponse(message, { token: text, responseMode: 'grounded' }, OPEN_CACHE_TTL_MS, GLOBAL_SCOPE)
+    }
   }
 
   return {

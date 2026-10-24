@@ -545,6 +545,8 @@ const NEEDS_INFERENCE =
 const CALCULATOR_ONLY =
   /\b(stamp\s*duty|registration\s+(?:charges?|fees?)|gst|emi|home\s+loan|loan|down\s*payment|total\s+cost|total\s+kitna|kitna\s+padega)\b/i
 
+const AGGREGATE_ONLY = /\b(?:average|avg|median|how\s+many|number\s+of)\b.*\b(?:price|cost|rate|sq\.?\s*ft|sqft|maintenance|projects?|societies)\b/i
+
 export function deterministicCoversMessage(message: string, d: DeterministicIntent, previous: Intent): boolean {
   // A capitalised run may be a project or builder; the model resolves those.
   if (/\b[A-Z][a-z]{2,}\s+[A-Z][a-z]{2,}/.test(message)) return false
@@ -554,6 +556,10 @@ export function deterministicCoversMessage(message: string, d: DeterministicInte
   // is the only thing that can read one.
   if (Object.keys(previous ?? {}).length > 0 && NEEDS_INFERENCE.test(message)) return false
   if (NEEDS_INFERENCE.test(message)) return false
+  // Arithmetic over the catalogue (lib/chat/aggregateQuery) reads its place and
+  // field from the message; "average price per sq ft in Noida" waited 5–10 s on
+  // the intent model for a city the literals already pin (Day 5 run).
+  if (AGGREGATE_ONLY.test(message)) return true
   return d.literal.size > 0
 }
 

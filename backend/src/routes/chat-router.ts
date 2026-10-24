@@ -2682,13 +2682,20 @@ router.post('/', async (req: Request, res: Response) => {
           metric: aggregate.metric, field: aggregate.field, matched: aggregateResult.matched, used: aggregateResult.used,
         })
         send('token', { token: aggregateText })
+        const aggregateConfidence = aggregateResult.used >= 3 || aggregate.metric === 'count' || aggregate.metric === 'list' ? 'HIGH' : 'MEDIUM'
         emitUiState({
           stage: 'RESEARCH',
           thinking: 'Computed from the projects we hold:',
           chips: [],
           missingFields: [],
-          confidence: aggregateResult.used >= 3 || aggregate.metric === 'count' || aggregate.metric === 'list' ? 'HIGH' : 'MEDIUM',
+          confidence: aggregateConfidence,
         }, { skipDedup: true })
+        // Computed from the message and the catalogue alone (the key carries the
+        // catalogue stamp), so a repeat skips the intent model that runs before
+        // this lane. Only a HIGH one: a cache hit is replayed as HIGH.
+        if (aggregateConfidence === 'HIGH') {
+          setCachedResponse(message, { token: aggregateText, intentState, responseMode: 'chat' }, undefined, GLOBAL_SCOPE, intentFingerprint(prevIntent))
+        }
         send('done', { sessionId: currentSessionId, intentState, intent, responseMode: 'chat' })
         persistEarlyTurn('aggregate', aggregateText)
         res.end()
@@ -3609,6 +3616,8 @@ I can help you:
     // and locked the turn out of the handlers that answer it.
     const asksProjectVerdict = ASKS_FAIRNESS.test(topicText) || ASKS_FOR_THE_CATCH.test(topicText)
     const isInventorySearch = !asksProjectVerdict && (/\b(show\s+me|find\s+me|list\s+(all|the)?|options\s+in|available\s+in|looking\s+for|search\s+for)\b/i.test(topicText) ||
+      // A head term that is only a listing: "properties in greater noida west" waited on the model for 55 s and got the outage notice (Day 5 run).
+      /^(?:\d\s*bhk\s+)?(?:properties|flats|apartments|homes|houses|projects)\s+(?:in|near|for\s+sale)\b[^?]*$/i.test(topicText) ||
       // `under` is a budget word; "under construction" is a status.
       ((/\b\d\s*bhk\b/i.test(topicText) || (/\b\d\s*bhks\b/i.test(topicText) && !(intent.projectNames?.length))) && /\b(sector|in|mein|under(?!\s*[- ]?construction)|budget|crore|lakh)\b/i.test(topicText))) && // plural only with no project named: bm2-rtm-plural-bhk vs oct4-sizes
       !isCompareRequest && !isSectorCompare && !isAdvisoryPhrasing && !asksForProjectArtefact && !statesOwnBasePrice
@@ -3897,6 +3906,9 @@ I can help you:
            * It also cached the answers this session was in the middle of
            * fixing, which is how a redeployed league table kept coming back at
            * 1.6 seconds.
+           *
+           * Fingerprinted on the intent carried into the turn, as the read is:
+           * this turn's own facts are in its words.
            */
           setCachedResponse: (key, payload) => {
             if ((intent.projectNames?.length ?? 0) > 0) return
@@ -3905,7 +3917,7 @@ I can help you:
               payload,
               undefined,
               GLOBAL_SCOPE,
-              intentFingerprint(intent as Record<string, unknown>),
+              intentFingerprint(prevIntent),
             )
           },
           catalog: allDbProjects,
@@ -6370,12 +6382,16 @@ EXECUTIVE RESPONSE INSTRUCTIONS:
       // corridor holding eighteen projects.
       cardsShownThisTurn === 0
     ) {
+      // Keyed as the read at the top of this route keys it: on the intent the
+      // turn arrived with. Keyed on `intent` (after extraction), a new buyer's
+      // question naming a sector was written under that sector and read under
+      // 'anon', so it never hit (Day 5 baseline, 24 Oct 2026).
       setCachedResponse(
         message,
         { token: fullText, intentState, responseMode: 'chat' },
         undefined,
         GLOBAL_SCOPE,
-        intentFingerprint(intent as Record<string, unknown>),
+        intentFingerprint(prevIntent),
       )
     }
 

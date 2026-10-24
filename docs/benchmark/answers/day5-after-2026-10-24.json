@@ -1,0 +1,531 @@
+{
+  "summary": {
+    "label": "day5-after-2026-10-24",
+    "sha": "74c4958b",
+    "dirtyTree": [
+      "M backend/src/lib/ai/__tests__/intent.test.ts",
+      " M backend/src/lib/ai/fallbackChain.ts",
+      " M backend/src/lib/ai/groundedAnswer.ts",
+      " M backend/src/lib/ai/intent.ts",
+      " M backend/src/lib/ai/projectFactChecks.ts",
+      " M backend/src/lib/ai/prompts/base.ts",
+      " M backend/src/lib/ai/prompts/playbooks.ts",
+      " M backend/src/lib/ai/semanticCache.ts",
+      " M backend/src/lib/eval/route-replay.json",
+      " M backend/src/routes/chat-router.ts",
+      " M frontend/app/admin/team/page.tsx"
+    ],
+    "at": "2026-10-24T07:26:54.552Z",
+    "db": "postgresql://***@aws-1-ap-south-1.pooler.supabase.com:6543/postgres",
+    "questions": 30,
+    "totalMs": {
+      "median": 5906,
+      "p90": 19383,
+      "max": 34933
+    },
+    "firstTokenMs": {
+      "median": 5229,
+      "p90": 14376,
+      "max": 34504
+    },
+    "answerCacheHits": 3,
+    "noModelCall": 16,
+    "noModelCallExcludingCache": 13,
+    "outages": [
+      "q13"
+    ],
+    "slowest": [
+      {
+        "id": "q13",
+        "lane": "OPEN",
+        "totalMs": 34933
+      },
+      {
+        "id": "q08",
+        "lane": "main",
+        "totalMs": 25930
+      },
+      {
+        "id": "q29",
+        "lane": "main",
+        "totalMs": 19478
+      },
+      {
+        "id": "q07",
+        "lane": "main",
+        "totalMs": 19383
+      },
+      {
+        "id": "q21",
+        "lane": "main",
+        "totalMs": 19379
+      }
+    ]
+  },
+  "turns": [
+    {
+      "id": "q01",
+      "q": "3BHK in Noida under 1.5 crore, possession within a year. What are my options?",
+      "source": "day2-q1",
+      "lane": "search",
+      "firstMs": 11653,
+      "totalMs": 13109,
+      "modelCalls": 0,
+      "modelCallsAfter": 0,
+      "hosts": [],
+      "outage": false,
+      "chars": 796,
+      "answer": "**16 projects match** 3 BHK in Noida up to ₹1.5 Cr. Prices run ₹1.08 Cr to ₹1.95 Cr. 13 ready to move, the rest under construction.\n\n- **AIMS Golf City**, Sector 75: ₹1.08 Cr–₹1.17 Cr for 3 BHK, ready to move\n- **Divine Meadows**, Sector 108: ₹1.36 Cr–₹1.48 Cr for 3 BHK, ready to move\n- **Prateek Laurel**, Sector 120: ₹1.22 Cr–₹1.45 Cr for 3 BHK, ready to move\n- **Jaypee Garden Isles**, Sector 133: ₹1.17 Cr–₹1.27 Cr for 3 BHK, possession Q3 2024\n- **Sethi Max Royal**, Sector 76: ₹1.41 Cr–₹1.52 Cr for 3 BHK, ready to move\n- **Lotus Greens Yardscape**, Sector 79: ₹1.46 Cr–₹1.9 Cr for 3 BHK, possession Q4 2026 · legal flag on record, ask me about it\n\nOpen a card for the cost sheet and RERA record, or tell me what matters most (possession, metro, builder record) and I'll narrow these down."
+    },
+    {
+      "id": "q02",
+      "q": "Which projects near a metro station in Noida fit a 1.2 crore budget?",
+      "source": "day2-q5",
+      "lane": "main",
+      "firstMs": 10656,
+      "totalMs": 12543,
+      "modelCalls": 3,
+      "modelCallsAfter": 0,
+      "hosts": [
+        "generativelanguage.googleapis.com"
+      ],
+      "outage": false,
+      "chars": 883,
+      "answer": "For a ₹1.2 crore budget, Noida offers ready-to-move options within established sectors that feature metro access. \n\nAmong verified inventory matching your budget and connectivity criteria:- **AIMS Golf City** in Sector 75 offers 2 and 3 BHK configurations starting at ₹0.79 Cr, positioned in Central Noida's transit-accessible hub near metro links.\n- **Prateek Laurel** in Sector 120 features ready-to-move 2 and 3 BHK units from ₹0.90 Cr, providing established community infrastructure with metro proximity.\n- **Divine Meadows** in Sector 108 lists ready-to-move 2 and 3 BHK homes starting from ₹0.95 Cr close to expressway transit corridors.\n- **Lotus Greens Yardscape** in Sector 79 provides under-construction 2 and 3 BHK options starting at ₹0.97 Cr (note: 5% GST applies on under-construction agreements).Would you prefer to focus on ready-to-move projects like Prateek Laurel?"
+    },
+    {
+      "id": "q03",
+      "q": "Can I trust Supertech as a builder? What happened with their delayed projects?",
+      "source": "day2-q7",
+      "lane": "topic:builder-reputation",
+      "firstMs": 5229,
+      "totalMs": 5230,
+      "modelCalls": 1,
+      "modelCallsAfter": 0,
+      "hosts": [
+        "generativelanguage.googleapis.com"
+      ],
+      "outage": false,
+      "chars": 2702,
+      "answer": "### Supertech Limited — track record\n\n| Metric | Supertech Limited | What it is based on |\n| :--- | :--- | :--- |\n| Average handover delay | 36 months | Mean slippage across delivered projects |\n| Operating since | 1995 | Year founded |\n| Insolvency / NCLT | Insolvency proceedings on record | Insolvency & Bankruptcy Board of India |\n| Legal status flag | NCLT insolvency | Verified regulatory status |\n\n**How to read this.** Every figure here is a count or a date from completed projects — homes actually handed over, and how far past the committed date they went. Nothing here is a rating we assigned. Treat it as a record of past projects, not a guarantee about this one.\n\n### Supertech Limited projects we hold (15)\n\n| Project | Sector | Status | Possession on record |\n| :--- | :--- | :--- | :--- |\n| Supertech Supernova Astralis | Sector 94 | Under construction | Dec 2027 |\n| Supertech Supernova | Sector 94 | Under construction | Dec 2026 |\n| Supertech North Eye | Sector 74 | Under construction | Dec 2026 |\n| Supertech Golf Country | Sector 22D | Under construction | Sept 2026 (date passed, not delivered on our record) |\n| Supertech Eco City | Sector 137 | Ready to move, OC on record | Dec 2023 |\n| Supertech Eco Village 1 | Sector 1 | Ready to move, OC on record | Dec 2023 |\n| Supertech Orb | Sector 74 | Ready to move, OC on record | Dec 2022 |\n| Supertech Eco Village 3 | Sector 16B | Under construction | Aug 2019 (date passed, not delivered on our record) |\n| Supertech Upcountry (Golf Village) | Sector 17A | Ready to move | Jun 2019 |\n| Supertech Ecociti | Sector 137 | Ready to move, OC on record | Apr 2018 |\n| Supertech Eco Village 2 | Sector 16B | Ready to move, OC on record | Mar 2018 |\n| Supertech Eco Suites | Sector 137 | Ready to move, OC on record | Dec 2017 |\n| Supertech Eco Village 1 | Sector 16B | Ready to move, OC on record | Jun 2017 |\n| Supertech Capetown | Sector 74 | Ready to move, OC on record | Dec 2016 |\n| Supertech Emerald Court | Sector 93A | Ready to move, OC on record | Jun 2015 |\n\n### How they compare\n\n| Developer | Projects delivered | Units delivered | Avg handover delay | Operating since |\n| :--- | :--- | :--- | :--- | :--- |\n| **Purvanchal Projects** | Not recorded | Not recorded | On time | 1994 |\n| **Laureate Buildwell** | Not recorded | Not recorded | On time | 2018 |\n| **ATS Infrastructure** | Not recorded | Not recorded | 8.5 months | 1998 |\n| **Stellar Group** | Not recorded | Not recorded | On time | 1996 |\n| **Gulshan Group** | Not recorded | Not recorded | On time | 2009 |\n| **Gulshan Homz** | Not recorded | Not recorded | On time | 1989 |\n\nOrdered by delivery record. \"Not recorded\" is a gap in our data, not a poor result."
+    },
+    {
+      "id": "q04",
+      "q": "For a 1.4 crore flat in Noida, what is the total cost including stamp duty, registration and GST?",
+      "source": "day2-q9",
+      "lane": "topic:statutory_tax",
+      "firstMs": 3163,
+      "totalMs": 3164,
+      "modelCalls": 0,
+      "modelCallsAfter": 0,
+      "hosts": [],
+      "outage": false,
+      "chars": 1755,
+      "answer": "### On ₹1.40 Cr\n\n| Charge | Amount |\n| :--- | ---: |\n| Stamp duty (7%) | **₹9,80,000** |\n| Stamp duty if a woman is primary owner (6%) | ₹8,40,000 |\n| Registration (1%) | ₹1,40,000 |\n| GST if under construction (5%) | ₹7,00,000 |\n| GST if ready to move with OC | ₹0 |\n| **Total, ready to move** | **₹1,51,20,000** |\n| **Total, under construction** | **₹1,58,20,000** |\n\nStamp duty is charged on the agreement value or the circle rate, whichever is higher, so the figure above is the floor. You also deduct 1% TDS (₹1,40,000) from the payment to the seller and deposit it with Form 26QB.\n\n### Statutory taxes & registration charges (Uttar Pradesh)\n\nThese are set by law and are the same for every project.\n\n| Component | Rate | Nature | Paid when & to whom |\n| :--- | :--- | :--- | :--- |\n| **Stamp duty** | 7% of agreement or circle value, whichever is higher | Mandatory | At registry, to the UP Stamp & Registration Department |\n| **Stamp duty — female primary owner** | 6% | Concession | At registry |\n| **Registration fee** | 1% of value | Mandatory | At deed execution, to the Sub-Registrar |\n| **GST — under construction** | 5% (without input tax credit) | Statutory | Billed across construction milestones |\n| **GST — ready to move with OC** | 0% | Exempt | Not applicable once the Occupancy Certificate is granted |\n| **TDS (Section 194-IA)** | 1% of sale consideration | Mandatory | Deducted by the buyer when value exceeds ₹50 Lakh (Form 26QB) |\n\n### Budgeting\nAllow 12–14% above base price for an under-construction home, or 8–9% above base price for ready-to-move with OC, to cover statutory and possession charges — typical for Noida — not verified for this project.\n\nName a project and I'll use whichever of its own charges we hold verified."
+    },
+    {
+      "id": "q05",
+      "q": "If I take an 80% loan on a 1.5 crore flat, what is my EMI and how much cash do I need up front?",
+      "source": "day2-q10",
+      "lane": "topic:loan_emi",
+      "firstMs": 5906,
+      "totalMs": 5906,
+      "modelCalls": 0,
+      "modelCallsAfter": 0,
+      "hosts": [],
+      "outage": false,
+      "chars": 996,
+      "answer": "### EMI on a ₹1.20 Cr loan\n\n**₹1,04,139 a month** at 8.5% over 20 years.\n\n| | Amount |\n| :--- | ---: |\n| Loan | ₹1.20 Cr |\n| Total repaid | ₹2.50 Cr |\n| Total interest | ₹1.30 Cr |\n\nI assumed 8.5% interest (your bank's sanctioned rate decides the real figure) and a 20-year tenure.\n\nAt 9%, the same loan is ₹1,07,967 a month.\n\nThis is a reducing-balance EMI on the loan alone. A floating rate moves with the repo rate, so the EMI or the tenure changes over the loan's life.\n\n### Cash up front on a ₹1.50 Cr flat\n\n| | Amount |\n| :--- | ---: |\n| Down payment (20%) | ₹30,00,000 |\n| Stamp duty (7%) | ₹10,50,000 |\n| Registration (1%) | ₹1,50,000 |\n| **Cash up front, ready to move** | **₹42,00,000** |\n\nIf the flat is under construction, add 5% GST, ₹7,50,000, paid across construction milestones: ₹49,50,000 in all. Stamp duty is 6% if a woman is the primary owner, and it is charged on the circle rate if that is higher than the price. Banks also charge a processing fee; ask yours for the figure."
+    },
+    {
+      "id": "q06",
+      "q": "3 BHK chahiye Noida mein, budget 1.5 crore, possession ek saal mein",
+      "source": "day2-h1",
+      "lane": "search",
+      "firstMs": 3626,
+      "totalMs": 5319,
+      "modelCalls": 0,
+      "modelCallsAfter": 0,
+      "hosts": [],
+      "outage": false,
+      "chars": 796,
+      "answer": "**16 projects match** 3 BHK in Noida up to ₹1.5 Cr. Prices run ₹1.08 Cr to ₹1.95 Cr. 13 ready to move, the rest under construction.\n\n- **AIMS Golf City**, Sector 75: ₹1.08 Cr–₹1.17 Cr for 3 BHK, ready to move\n- **Divine Meadows**, Sector 108: ₹1.36 Cr–₹1.48 Cr for 3 BHK, ready to move\n- **Prateek Laurel**, Sector 120: ₹1.22 Cr–₹1.45 Cr for 3 BHK, ready to move\n- **Jaypee Garden Isles**, Sector 133: ₹1.17 Cr–₹1.27 Cr for 3 BHK, possession Q3 2024\n- **Sethi Max Royal**, Sector 76: ₹1.41 Cr–₹1.52 Cr for 3 BHK, ready to move\n- **Lotus Greens Yardscape**, Sector 79: ₹1.46 Cr–₹1.9 Cr for 3 BHK, possession Q4 2026 · legal flag on record, ask me about it\n\nOpen a card for the cost sheet and RERA record, or tell me what matters most (possession, metro, builder record) and I'll narrow these down."
+    },
+    {
+      "id": "q07",
+      "q": "Is Sector 150 good for families?",
+      "source": "langfuse-live-chats-12-14-16",
+      "lane": "main",
+      "firstMs": 13000,
+      "totalMs": 19383,
+      "modelCalls": 5,
+      "modelCallsAfter": 0,
+      "hosts": [
+        "generativelanguage.googleapis.com"
+      ],
+      "outage": false,
+      "chars": 1278,
+      "answer": "Yes, Sector 150 is one of the most family-friendly residential sectors in Noida.It was master-planned as a low-density \"Sports City\" with extensive green cover, overhead wiring free roads, and strict limits on commercial land use inside residential zones. For raising kids, it offers proximity to prominent schools along the Noida-Greater Noida Expressway corridor—including Shiv Nadar School, Delhi Public School, and Genesis Global School—alongside major sporting and recreational parks within walking distance.The main tradeoff for families today is that the sector is still maturing. While internal parks, sports complexes, and residential societies are well-developed, daily neighborhood retail is still establishing, meaning primary grocery runs or hospital visits (such as Jaypee Hospital, roughly 15 minutes away) require driving down the expressway. Additionally, public transport relies on the Sector 148 Aqua Line Metro station, which typically requires a quick auto or feeder ride from most project gates.If your primary focus is a clean environment with low congestion and space for children to play, Sector 150 is a strong fit.Are you looking for a ready-to-move project where families are already living, or an under-construction project with a flexible timeline?"
+    },
+    {
+      "id": "q08",
+      "q": "Is 2 crore too much for a 3 BHK in Noida right now?",
+      "source": "langfuse-live-chat-20",
+      "lane": "main",
+      "firstMs": 11837,
+      "totalMs": 25930,
+      "modelCalls": 4,
+      "modelCallsAfter": 0,
+      "hosts": [
+        "generativelanguage.googleapis.com"
+      ],
+      "outage": false,
+      "chars": 894,
+      "answer": "No, two crore is not too much for a 3 BHK in Noida; it is the benchmark entry point for established, ready-to-move societies in well-connected sectors along the expressway and central corridors.At this price point in mature micro-markets like Sector 93A, Sector 104, or Sector 107, you are securing ready-to-move inventory with established community infrastructure, operational clubhouses, and zero construction risk. Established societies like Eldeco Utopia and ATS One Hamlet demonstrate that ₹2 Cr reliably commands a functional 3 BHK with predictable maintenance and verified occupancy certificates.However, you should evaluate the carpet-to-super area efficiency and society maintenance charges, as older premium developments often provide more generous room dimensions than newer compact builds.Would you like to explore available 3 BHK options within a ₹2 Cr budget in a specific sector?"
+    },
+    {
+      "id": "q09",
+      "q": "best locations to invest in greater noida",
+      "source": "langfuse-live-chat-2",
+      "lane": "main",
+      "firstMs": 14376,
+      "totalMs": 15147,
+      "modelCalls": 2,
+      "modelCallsAfter": 0,
+      "hosts": [
+        "generativelanguage.googleapis.com"
+      ],
+      "outage": false,
+      "chars": 906,
+      "answer": "Investing in Greater Noida offers strong infrastructure growth, particularly around the Noida-Greater Noida Expressway, the upcoming Jewar International Airport corridor along the Yamuna Expressway, and established institutional hubs like Pari Chowk and Knowledge Park.When evaluating these micro-markets, focus primarily on statutory clarity (cleared authority dues and active registry status) and ready infrastructure rather than speculative appreciation forecasts. For family living and end-use stability, established sectors near Pari Chowk and Greater Noida West offer better immediate livability with operational schools, hospitals, and retail hubs, whereas the Yamuna Expressway corridor is closely tied to the long-term execution of the airport and industrial clusters.Are you looking for ready-to-move properties for immediate rental yield, or under-construction options along a specific corridor?"
+    },
+    {
+      "id": "q10",
+      "q": "give me an area guide for noida",
+      "source": "langfuse-live-chip",
+      "lane": "topic:newcomer-orientation",
+      "firstMs": 3735,
+      "totalMs": 3736,
+      "modelCalls": 0,
+      "modelCallsAfter": 0,
+      "hosts": [],
+      "outage": false,
+      "chars": 1478,
+      "answer": "### 5 micro-markets we track, highest average rate first\n\n| Micro-Market / Sector | Price Spectrum | Locality Highlights | Top Listed Projects |\n| :--- | :--- | :--- | :--- |\n| **Sector 107** (Noida) | ₹18,500/sq.ft | Rapid access to both Sector 76 metro and Expressway | 3C [Lotus 300](#entity:cf21147d-b183-484c-9dbc-4b001fbdb5f5), Ace Mahagun Medalleo, [County 107](#entity:8285b164-67cd-4831-89a0-c015df2878f6) |\n| **Sector 128** (Noida) | ₹15,800/sq.ft | Direct expressway access without internal signals | [Jaypee Greens Kalypso Court](#entity:36320546-8a3d-4d87-94bc-6c53df6bd641), Jaypee Greens Pavilion Court, Jaypee Imperial Court |\n| **Sector 150** (Noida) | ₹14,500/sq.ft | 80% green mandatory footprint | ACE Arte, [ACE Parkway](#entity:147ee95e-d3a8-490e-b1ca-ff148089fd92), ATS Kingston Heath |\n| **Sector 79** (Noida) | ₹12,800/sq.ft | Low density compared to Sector 75/76 | [Ajnara The Belvedere](#entity:0794fc2d-8f0c-47ad-ac2a-6f6d81378f56), Ashiana Amaltas, [Civitech Stadia](#entity:8e3670ab-ae14-4a85-b8f8-88322426c5e9) |\n| **Sector 78** (Noida) | ₹12,200/sq.ft | Expansive clubhouses and sports facilities inside societies | Aditya Urban Casa, [Antriksh Golf View](#entity:5bb536ad-aecf-4595-9c4b-6e638f707211), [Antriksh Golf View I](#entity:5bb536ad-aecf-4595-9c4b-6e638f707211) |\n\n### To narrow this down\nTell me your **budget**, the **sector you commute to**, and **BHK** — I'll shortlist 2–3 sectors from what we hold and give the trade-off for each."
+    },
+    {
+      "id": "q11",
+      "q": "How do I verify whether a Noida property project is RERA compliant?",
+      "source": "top50",
+      "lane": "topic:rera_verification",
+      "firstMs": 3735,
+      "totalMs": 3738,
+      "modelCalls": 0,
+      "modelCallsAfter": 0,
+      "hosts": [],
+      "outage": false,
+      "chars": 884,
+      "answer": "### How we verify a project\n\nEvery project on RealtyAsk is screened against four records before it is listed, and each one is shown on the project page:\n\n- **UP RERA registration** — the registration number, its validity date, and whether it has lapsed.\n- **Promoter standing** — whether the developer carries pending recovery certificates or a revoked registration.\n- **Insolvency status** — whether the builder's corporate entity is under an active NCLT process.\n- **Registry standing** — whether transfers are clear or under embargo, and why.\n\nOpen any project and check the **Verification & risk** panel: what we hold is stated plainly, and anything we do not hold is marked as such rather than assumed clear.\n\nIf you want the underlying filing for a specific project, our advisory team can pull the verified documents for you — you should not have to run a title search yourself."
+    },
+    {
+      "id": "q12",
+      "q": "What is the average property price per sq ft in Noida right now?",
+      "source": "top50",
+      "lane": "aggregate",
+      "firstMs": 4065,
+      "totalMs": 4066,
+      "modelCalls": 0,
+      "modelCallsAfter": 0,
+      "hosts": [],
+      "outage": false,
+      "chars": 441,
+      "answer": "Average price per sq.ft: **₹11,918/sq.ft**\n\n| | Value | Project |\n| :--- | :--- | :--- |\n| Average | ₹11,918/sq.ft | |\n| Median | ₹10,000/sq.ft | |\n| Lowest | ₹5,296/sq.ft | 3C Lotus Panache (Sector 110) |\n| Highest | ₹30,374/sq.ft | Supertech Supernova Astralis (Sector 94) |\n\nProjects in Noida — computed over 188 projects we hold, not a market-wide survey. 4 of the 192 matching projects have no recorded price per sq.ft and are left out."
+    },
+    {
+      "id": "q13",
+      "q": "Which areas of Noida are best for families?",
+      "source": "top50",
+      "lane": "OPEN",
+      "firstMs": 34504,
+      "totalMs": 34933,
+      "modelCalls": 4,
+      "modelCallsAfter": 0,
+      "hosts": [
+        "generativelanguage.googleapis.com"
+      ],
+      "outage": true,
+      "chars": 238,
+      "answer": "I couldn't get you a reliable answer just now — our AI service is briefly unavailable, and I'd rather say so than guess.\n\nAsk me again in a moment, or use **Book Site Visit** or **Callback** and our advisory team will pick it up directly."
+    },
+    {
+      "id": "q14",
+      "q": "What are the biggest risks I should check before buying a flat in Noida?",
+      "source": "top50",
+      "lane": "OPEN",
+      "firstMs": 14490,
+      "totalMs": 15330,
+      "modelCalls": 3,
+      "modelCallsAfter": 0,
+      "hosts": [
+        "generativelanguage.googleapis.com"
+      ],
+      "outage": false,
+      "chars": 932,
+      "answer": "When buying a flat in Noida, the biggest risks stem from land titles, builder financial health, and legal clearances. Always verify these critical points:* **Authority Dues vs. Society NDC:** Ensure the builder has cleared all land installment dues and lease rent with the local authority (NOIDA/GNIDA). A standard RWA/Society NDC only covers maintenance and does not guarantee you can register your sub-lease deed.\n* **Occupancy Certificate (OC):** Confirm the project has received its OC. Buying without it blocks registry and incurs a 5% GST if under construction.\n* **Developer Track Record:** Review historical delivery timelines to mitigate the risk of prolonged construction delays.\n* **Landed Cost Stack:** Account for hidden expenses beyond the base price, including 7% UP stamp duty, lease rent, parking, and maintenance charges.Are you currently exploring ready-to-move properties or under-construction projects in Noida?"
+    },
+    {
+      "id": "q15",
+      "q": "are all properties in noida leasehold",
+      "source": "top50",
+      "lane": "OPEN",
+      "firstMs": 7195,
+      "totalMs": 7532,
+      "modelCalls": 1,
+      "modelCallsAfter": 0,
+      "hosts": [
+        "generativelanguage.googleapis.com"
+      ],
+      "outage": false,
+      "chars": 677,
+      "answer": "Yes, virtually all land and property in Noida is leasehold, typically on a 90 to 99-year lease granted by the Noida Authority. The Authority retains underlying ownership of the land, while property buyers hold a registered tripartite sub-lease deed for their superstructure. Blanket freehold conversion remains deferred under Uttar Pradesh state policy.When buying or reselling, this means transactions require a Transfer Memorandum (TM) from the Authority, and you must verify that all historical land dues are cleared by the developer to ensure smooth sub-lease registration.Are you currently exploring properties in a specific micro-market like Sector 150 or the Expressway?"
+    },
+    {
+      "id": "q16",
+      "q": "properties in greater noida west",
+      "source": "top50",
+      "lane": "search",
+      "firstMs": 7319,
+      "totalMs": 9204,
+      "modelCalls": 0,
+      "modelCallsAfter": 0,
+      "hosts": [],
+      "outage": false,
+      "chars": 557,
+      "answer": "**17 projects match** homes in Greater Noida West. Prices run ₹65 L to ₹5.82 Cr. 8 ready to move, the rest under construction.\n\n- **Nirala Trio**, Sector 2: ₹1.05 Cr–₹1.46 Cr, possession Possession Dec 2026\n- **Panchsheel Greens 1 & 2**, Sector 16: ₹68 L–₹1.35 Cr, ready to move\n- **Mahagun Mywoods**, Sector 16C: ₹80 L–₹1.17 Cr, ready to move\n- **Gaur City 1 - 1st Avenue**, Sector 4: ₹73 L–₹1.07 Cr, ready to move\n\nOpen a card for the cost sheet and RERA record, or tell me what matters most (possession, metro, builder record) and I'll narrow these down."
+    },
+    {
+      "id": "q17",
+      "q": "3 BHK in Sector 150 under 1.5 crore",
+      "source": "week-plan-5.3-example",
+      "lane": "search",
+      "firstMs": 5055,
+      "totalMs": 5401,
+      "modelCalls": 0,
+      "modelCallsAfter": 0,
+      "hosts": [],
+      "outage": false,
+      "chars": 193,
+      "answer": "None of the projects we hold match 3 BHK in Sector 150 up to ₹1.5 Cr. I can raise the budget above ₹1.5 Cr, or search all of Noida instead of Sector 150, or look at 2 BHK: which would you like?"
+    },
+    {
+      "id": "q18",
+      "q": "What is the average price per sq ft in Sector 150?",
+      "source": "top50-sector-variant",
+      "lane": "aggregate",
+      "firstMs": 2753,
+      "totalMs": 2755,
+      "modelCalls": 0,
+      "modelCallsAfter": 0,
+      "hosts": [],
+      "outage": false,
+      "chars": 373,
+      "answer": "Average price per sq.ft: **₹15,477/sq.ft**\n\n| | Value | Project |\n| :--- | :--- | :--- |\n| Average | ₹15,477/sq.ft | |\n| Median | ₹15,264/sq.ft | |\n| Lowest | ₹9,343/sq.ft | Samridhi Daksh Avenue (Sector 150) |\n| Highest | ₹22,996/sq.ft | ATS Pristine Golf Villas Phase 1 (Sector 150) |\n\nProjects in Sector 150 — computed over 25 projects we hold, not a market-wide survey."
+    },
+    {
+      "id": "q19",
+      "q": "How do I check if a project in Noida is RERA registered?",
+      "sameAs": "q11",
+      "source": "paraphrase",
+      "lane": "topic:rera_verification",
+      "firstMs": 3645,
+      "totalMs": 3646,
+      "modelCalls": 0,
+      "modelCallsAfter": 0,
+      "hosts": [],
+      "outage": false,
+      "chars": 884,
+      "answer": "### How we verify a project\n\nEvery project on RealtyAsk is screened against four records before it is listed, and each one is shown on the project page:\n\n- **UP RERA registration** — the registration number, its validity date, and whether it has lapsed.\n- **Promoter standing** — whether the developer carries pending recovery certificates or a revoked registration.\n- **Insolvency status** — whether the builder's corporate entity is under an active NCLT process.\n- **Registry standing** — whether transfers are clear or under embargo, and why.\n\nOpen any project and check the **Verification & risk** panel: what we hold is stated plainly, and anything we do not hold is marked as such rather than assumed clear.\n\nIf you want the underlying filing for a specific project, our advisory team can pull the verified documents for you — you should not have to run a title search yourself."
+    },
+    {
+      "id": "q20",
+      "q": "average per sq ft rate of property in Noida currently?",
+      "sameAs": "q12",
+      "source": "paraphrase",
+      "lane": "answer-cache",
+      "firstMs": 962,
+      "totalMs": 1557,
+      "modelCalls": 0,
+      "modelCallsAfter": 0,
+      "hosts": [],
+      "outage": false,
+      "chars": 441,
+      "answer": "Average price per sq.ft: **₹11,918/sq.ft**\n\n| | Value | Project |\n| :--- | :--- | :--- |\n| Average | ₹11,918/sq.ft | |\n| Median | ₹10,000/sq.ft | |\n| Lowest | ₹5,296/sq.ft | 3C Lotus Panache (Sector 110) |\n| Highest | ₹30,374/sq.ft | Supertech Supernova Astralis (Sector 94) |\n\nProjects in Noida — computed over 188 projects we hold, not a market-wide survey. 4 of the 192 matching projects have no recorded price per sq.ft and are left out."
+    },
+    {
+      "id": "q21",
+      "q": "best areas in Noida for families?",
+      "sameAs": "q13",
+      "source": "paraphrase",
+      "lane": "main",
+      "firstMs": 3564,
+      "totalMs": 19379,
+      "modelCalls": 2,
+      "modelCallsAfter": 0,
+      "hosts": [
+        "generativelanguage.googleapis.com"
+      ],
+      "outage": false,
+      "chars": 2055,
+      "answer": "| Micro-market | Sectors | Avg rate | Range | Character |\n| :--- | :--- | ---: | :--- | :--- |\n| **Greater Noida Institutional & Residential Hub** | Omicron 1, Zeta 2, Pari Chowk, Omega 1, Eta 2, Beta 2, Sector 27, Chi 5, Pi 1, Chi 4, Zeta 1, Omicron 3 | Not recorded | Not recorded | Residential High Rise |\n| **Established Urban Hub** | Sector 93B, Sector 94, Sector 43, Sector 45, Sector 50, Sector 46, Sector 93A, Sector 70, Sector 74, Sector 62 | Not recorded | Not recorded | Residential High Rise |\n| **Gateway Sector to Gr. Noida West** | Sector 119, Sector 121, Sector 100, Sector 146, Sector 144, Sector 16, Sector 151, Sector 1, Sector 108, Sector 124, Sector 104, Sector 110, Sector 10, Sector 120, Sector 168, Sector 16B, Sector 12, Sector 16C, Sector 152, Sector 134 | Not recorded | Not recorded | Mid-to-Luxury Residential |\n| **Greater Noida West Growth Corridor** | Sector 2, Sector 4 | Not recorded | Not recorded | Residential High Rise |\n| **General Corridor** | Sector 99 | ₹7,100/sqft | ₹7,100 | Residential |\n| **IT & Institutional Revival Hub** | Techzone 4 | ₹7,900/sqft | ₹7,900 | Value & Mid-Premium |\n\nFor families prioritizing established infrastructure, metro connectivity, and top-tier schooling access, the Central 7X core (Sectors 74 through 79) and the Expressway corridor (Sector 137) offer the most balanced ecosystem. These mature micro-markets feature high-density high-rises with expansive clubhouses, active family communities, and operational Aqua Line metro stations.If your priority shifts toward low-density living and massive green footprints rather than immediate commercial density, Sector 150 stands out with its mandatory 80 percent green cover and sports-centric master plan.The trade-off is straightforward: Central 7X brings peak-hour traffic congestion along internal access roads, while Sector 150 requires a short drive to reach major multi-specialty hospitals and commercial hubs.Are you leaning toward the established convenience of Central Noida, or a quieter, low-density layout like Sector 150?"
+    },
+    {
+      "id": "q22",
+      "q": "Is Sector 150 good for families?",
+      "sameAs": "q07",
+      "source": "exact-repeat (live chats 12/14/16 repeated it)",
+      "lane": "main",
+      "firstMs": 15495,
+      "totalMs": 17142,
+      "modelCalls": 4,
+      "modelCallsAfter": 0,
+      "hosts": [
+        "generativelanguage.googleapis.com"
+      ],
+      "outage": false,
+      "chars": 1155,
+      "answer": "Yes, Sector 150 is one of the strongest low-density residential sectors in Noida for families, provided you are prepared for a developing retail and social infrastructure.Designed as a dedicated green and sports-centric hub under the NOIDA Authority, it offers a healthier environment for children and seniors, characterized by low construction density, expansive park layouts, and wider internal sector roads. Sector 150 is geographically situated strictly in NOIDA at the southern end of the Noida-Greater Noida Expressway, offering quick transit to office hubs along the expressway as well as easy access to the Aqua Line Metro via Sector 148 station.The primary trade-off for families today is livability maturity. While high-end residential societies are delivering rapidly, nearby commercial retail centers, walk-in healthcare, and operational daily convenience markets are still catching up compared to mature central sectors like Sector 75 or 78. Most families currently rely on delivery services or travel short distances up the expressway for major commercial needs.Are you looking for ready-to-move options where families have already moved in?"
+    },
+    {
+      "id": "q23",
+      "q": "give me an area guide for noida",
+      "sameAs": "q10",
+      "source": "exact-repeat (live)",
+      "lane": "answer-cache",
+      "firstMs": 1440,
+      "totalMs": 2054,
+      "modelCalls": 0,
+      "modelCallsAfter": 0,
+      "hosts": [],
+      "outage": false,
+      "chars": 1478,
+      "answer": "### 5 micro-markets we track, highest average rate first\n\n| Micro-Market / Sector | Price Spectrum | Locality Highlights | Top Listed Projects |\n| :--- | :--- | :--- | :--- |\n| **Sector 107** (Noida) | ₹18,500/sq.ft | Rapid access to both Sector 76 metro and Expressway | 3C [Lotus 300](#entity:cf21147d-b183-484c-9dbc-4b001fbdb5f5), Ace Mahagun Medalleo, [County 107](#entity:8285b164-67cd-4831-89a0-c015df2878f6) |\n| **Sector 128** (Noida) | ₹15,800/sq.ft | Direct expressway access without internal signals | [Jaypee Greens Kalypso Court](#entity:36320546-8a3d-4d87-94bc-6c53df6bd641), Jaypee Greens Pavilion Court, Jaypee Imperial Court |\n| **Sector 150** (Noida) | ₹14,500/sq.ft | 80% green mandatory footprint | ACE Arte, [ACE Parkway](#entity:147ee95e-d3a8-490e-b1ca-ff148089fd92), ATS Kingston Heath |\n| **Sector 79** (Noida) | ₹12,800/sq.ft | Low density compared to Sector 75/76 | [Ajnara The Belvedere](#entity:0794fc2d-8f0c-47ad-ac2a-6f6d81378f56), Ashiana Amaltas, [Civitech Stadia](#entity:8e3670ab-ae14-4a85-b8f8-88322426c5e9) |\n| **Sector 78** (Noida) | ₹12,200/sq.ft | Expansive clubhouses and sports facilities inside societies | Aditya Urban Casa, [Antriksh Golf View](#entity:5bb536ad-aecf-4595-9c4b-6e638f707211), [Antriksh Golf View I](#entity:5bb536ad-aecf-4595-9c4b-6e638f707211) |\n\n### To narrow this down\nTell me your **budget**, the **sector you commute to**, and **BHK** — I'll shortlist 2–3 sectors from what we hold and give the trade-off for each."
+    },
+    {
+      "id": "q24",
+      "q": "Sector 150 3bhk flats below 1.5 cr",
+      "sameAs": "q17",
+      "source": "paraphrase",
+      "lane": "search",
+      "firstMs": 4362,
+      "totalMs": 4705,
+      "modelCalls": 0,
+      "modelCallsAfter": 0,
+      "hosts": [],
+      "outage": false,
+      "chars": 193,
+      "answer": "None of the projects we hold match 3 BHK in Sector 150 up to ₹1.5 Cr. I can raise the budget above ₹1.5 Cr, or search all of Noida instead of Sector 150, or look at 2 BHK: which would you like?"
+    },
+    {
+      "id": "q25",
+      "q": "average price per sq ft in sector 150 noida",
+      "sameAs": "q18",
+      "source": "paraphrase",
+      "lane": "answer-cache",
+      "firstMs": 955,
+      "totalMs": 1553,
+      "modelCalls": 0,
+      "modelCallsAfter": 0,
+      "hosts": [],
+      "outage": false,
+      "chars": 373,
+      "answer": "Average price per sq.ft: **₹15,477/sq.ft**\n\n| | Value | Project |\n| :--- | :--- | :--- |\n| Average | ₹15,477/sq.ft | |\n| Median | ₹15,264/sq.ft | |\n| Lowest | ₹9,343/sq.ft | Samridhi Daksh Avenue (Sector 150) |\n| Highest | ₹22,996/sq.ft | ATS Pristine Golf Villas Phase 1 (Sector 150) |\n\nProjects in Sector 150 — computed over 25 projects we hold, not a market-wide survey."
+    },
+    {
+      "id": "q26",
+      "q": "what risks should I check before buying a flat in noida",
+      "sameAs": "q14",
+      "source": "paraphrase",
+      "lane": "main",
+      "firstMs": 10833,
+      "totalMs": 13662,
+      "modelCalls": 1,
+      "modelCallsAfter": 0,
+      "hosts": [
+        "generativelanguage.googleapis.com"
+      ],
+      "outage": false,
+      "chars": 1254,
+      "answer": "When buying a flat in Noida, your primary focus must be on statutory compliance, title safety, and project execution risks rather than surface-level amenities.First, verify the builder's financial standing and check whether the project is facing NCLT insolvency proceedings or active litigation. Stalled projects and developers under NCLT supervision or receivership (such as Supertech, Amrapali, or Unitech) pose severe possession delays and registration blocks.Second, confirm the land title status and check if the developer has cleared all authority land dues. Under the Amitabh Kant committee guidelines, clearance of land dues is mandatory before the Noida or Greater Noida Authority will permit execution of sub-lease deeds, without which you cannot legally register the property in your name.Finally, inspect the occupancy certificate (OC) status for your specific tower. Ready-to-move projects with an issued OC are exempt from the 5% GST and offer immediate legal safety, whereas under-construction properties carry execution timelines and 5% GST on the agreement value.Are you currently evaluating a specific project or micro-market in Noida?\n\nThey're on the cards above — tell me which one to open up, or what matters most and I'll narrow it."
+    },
+    {
+      "id": "q27",
+      "q": "What is the average price per sq ft in Sector 137?",
+      "differsFrom": "q18",
+      "differs": "sector",
+      "source": "near-miss",
+      "lane": "aggregate",
+      "firstMs": 4443,
+      "totalMs": 4444,
+      "modelCalls": 0,
+      "modelCallsAfter": 0,
+      "hosts": [],
+      "outage": false,
+      "chars": 350,
+      "answer": "Average price per sq.ft: **₹9,615/sq.ft**\n\n| | Value | Project |\n| :--- | :--- | :--- |\n| Average | ₹9,615/sq.ft | |\n| Median | ₹9,370/sq.ft | |\n| Lowest | ₹8,478/sq.ft | Supertech Eco City (Sector 137) |\n| Highest | ₹12,397/sq.ft | Gulshan Vivante (Sector 137) |\n\nProjects in Sector 137 — computed over 11 projects we hold, not a market-wide survey."
+    },
+    {
+      "id": "q28",
+      "q": "Is Sector 137 good for families?",
+      "differsFrom": "q07",
+      "differs": "sector",
+      "source": "near-miss",
+      "lane": "main",
+      "firstMs": 10390,
+      "totalMs": 11827,
+      "modelCalls": 3,
+      "modelCallsAfter": 0,
+      "hosts": [
+        "generativelanguage.googleapis.com"
+      ],
+      "outage": false,
+      "chars": 977,
+      "answer": "Yes, Sector 137 is a practical and highly livable choice for families seeking established high-rise apartment living at accessible price points.Its strongest advantage for families is direct infrastructure and operational convenience. The sector features an active Aqua Line metro station right at its doorstep, immediate access to the Noida-Expressway for commuting, and fully functional internal retail hubs, daycare centers, and nearby schools (such as Shiv Nadar and DPS Expressway).However, families must account for two key ground trade-offs. First, Sector 137 is an exceptionally high-density residential pocket, meaning high vehicle volume during peak hours and packed common amenities in larger societies. Second, the sector's close proximity to the Shahdara drain can cause occasional odor issues and faster wear on household electronics (like AC cooling coils) depending on the specific tower placement.Are you looking for a specific configuration like a 2 or 3 BHK?"
+    },
+    {
+      "id": "q29",
+      "q": "Is 1.5 crore too much for a 3 BHK in Noida right now?",
+      "differsFrom": "q08",
+      "differs": "budget",
+      "source": "near-miss",
+      "lane": "main",
+      "firstMs": 13295,
+      "totalMs": 19478,
+      "modelCalls": 2,
+      "modelCallsAfter": 0,
+      "hosts": [
+        "generativelanguage.googleapis.com"
+      ],
+      "outage": false,
+      "chars": 924,
+      "answer": "No, 1.5 crore is not too much for a 3 BHK in Noida, but it places you firmly in the mid-segment market rather than luxury corridors.In established and semi-mature micro-markets like Central Noida and Sector 120 (such as Prateek Laurel), a budget around ₹1.5 crore comfortably secures a practical 3 BHK with ready-to-move status. However, if you look at premium sanctuaries like Sector 150 or low-density expressway clusters, 3 BHK configurations typically start closer to ₹2 crore and scale upward.At this price point, verify whether the unit is ready-to-move with an Occupancy Certificate (0% GST) or under construction (attracting 5% GST on the agreement value). Also factor in the 7% UP stamp duty (6% for female primary owners) and 1% registration charges. Ensure you examine the net usable carpet area rather than the gross super built-up area to confirm space efficiency.Are you leaning toward a specific micro-market?"
+    },
+    {
+      "id": "q30",
+      "q": "What is the possession status of projects in Sector 150?",
+      "differsFrom": "q18",
+      "differs": "topic",
+      "source": "near-miss",
+      "lane": "main",
+      "firstMs": 13309,
+      "totalMs": 15617,
+      "modelCalls": 1,
+      "modelCallsAfter": 0,
+      "hosts": [
+        "generativelanguage.googleapis.com"
+      ],
+      "outage": false,
+      "chars": 542,
+      "answer": "Sector 150 includes a mix of ready-to-move and under-construction developments. Mahagun Meadows is ready to move, while Samridhi Luxuriate indicates a ready status with possession unconfirmed. Among under-construction options, ACE Parkway's builder-claimed timeline of Q2 2025 has passed with status unconfirmed, and ATS Le Grandiose Phase 2 targets Q4 2027. \n\nFor under-construction properties, confirm the RERA-registered timeline before booking.Would you like to review the construction progress or floor plans for a specific project here?"
+    }
+  ]
+}

@@ -1920,5 +1920,61 @@
         }
       }
     ]
+  },
+  {
+    "id": "day5-listing-head-term",
+    "source": "Day 5 run 2026-10-24: waited 55 s on the model and got the outage notice",
+    "turns": [
+      {
+        "text": "properties in greater noida west",
+        "expect": {
+          "lane": "search",
+          "llm": false
+        }
+      }
+    ]
+  },
+  {
+    "id": "day5-cache-a-writes",
+    "source": "Day 5 run 2026-10-24: a new buyer asks; run with day5-cache-b and -c (same process, in this order)",
+    "turns": [
+      {
+        "text": "What is the average price per sq ft in Sector 150?",
+        "expect": {
+          "lane": "aggregate",
+          "llm": false
+        }
+      }
+    ]
+  },
+  {
+    "id": "day5-cache-b-same-meaning",
+    "source": "Day 5 run 2026-10-24: a second new buyer, other words, same meaning: served the saved answer",
+    "turns": [
+      {
+        "text": "average price per sq ft in sector 150 noida",
+        "expect": {
+          "lane": "answer-cache",
+          "llm": false
+        }
+      }
+    ]
+  },
+  {
+    "id": "day5-cache-c-other-sector",
+    "source": "Day 5 run 2026-10-24: same words, another sector: never the saved answer",
+    "turns": [
+      {
+        "text": "What is the average price per sq ft in Sector 137?",
+        "expect": {
+          "laneNot": [
+            "answer-cache"
+          ],
+          "notContains": [
+            "Sector 150"
+          ]
+        }
+      }
+    ]
   }
 ]

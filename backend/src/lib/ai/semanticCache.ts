@@ -1,6 +1,7 @@
 // backend/src/lib/ai/semanticCache.ts
 
 import { isAffordabilityQuestion } from './affordability'
+import { classifyShape } from './inferenceProfile'
 import { createHash } from 'node:crypto'
 import { getRedis } from '../cache'
 
@@ -47,6 +48,54 @@ export function normalizeQueryKey(query: string): string {
     .replace(/\b(please|can you|could you|tell me|explain to me|i want to know|what is|what are|how to|how do i)\b/g, '')
     .replace(/\s+/g, ' ')
     .trim()
+}
+
+/**
+ * Week plan Day 5.3: what a factual question means, as a key, so the same
+ * question in different words shares one entry.
+ *
+ * Every number stays bound to its unit (3bhk, 1.5cr, sector150), so "2 bhk under
+ * 3 cr" and "3 bhk under 2 cr" never meet. A ceiling and a floor are two words
+ * (under, over), and negations are kept. What is dropped is only what changes no
+ * answer: function words, politeness, time fillers ("right now"), intensifiers
+ * ("biggest risks"), plural endings, and word order. Bare "noida" is dropped
+ * beside a sector, which is a Noida sector unless the question says Greater Noida.
+ */
+const MEANING_STOP = new Set([
+  'a', 'an', 'the', 'is', 'are', 'am', 'was', 'were', 'be', 'been', 'do', 'does', 'did', 'i', 'me', 'my', 'we', 'our', 'you', 'your', 'u',
+  'to', 'of', 'in', 'on', 'at', 'for', 'from', 'by', 'about', 'and', 'or', 'as', 'it', 'its', 'what', 'which', 'whats',
+  'please', 'kindly', 'tell', 'explain', 'know', 'currently', 'now', 'nowadays', 'presently', 'today',
+  'biggest', 'important', 'really', 'actually', 'exactly', 'rs', 'inr',
+])
+const MEANING_SAME: Record<string, string> = { apartment: 'flat' }
+
+export function meaningKey(query: string): string {
+  const s = ` ${query.toLowerCase()} `
+    .replace(/₹/g, ' ')
+    .replace(/\b(\d+(?:\.\d+)?)\s*-?\s*(?:crores?|cr)\b\.?/g, ' $1cr ')
+    .replace(/\b(\d+(?:\.\d+)?)\s*-?\s*(?:lakhs?|lacs?|l)\b/g, ' $1lakh ')
+    .replace(/\b(\d)\s*-?\s*bhks?\b/g, ' $1bhk ')
+    .replace(/\b(?:sector|sec)\.?\s*-?\s*(\d+[a-z]?)\b/g, ' sector$1 ')
+    .replace(/\bsq(?:uare)?\.?\s*(?:ft|feet|foot)\b\.?|\bsqft\b/g, ' sqft ')
+    .replace(/\b(?:not|no)\s+more\s+than\b/g, ' under ')
+    .replace(/\b(?:(?:not|no)\s+less\s+than|at\s+least)\b/g, ' over ')
+    .replace(/\b(?:less\s+than|up\s*to|below|within|max(?:imum)?)\b/g, ' under ')
+    .replace(/\b(?:more\s+than|above|min(?:imum)?)\b/g, ' over ')
+    .replace(/\b(?:right\s+now|at\s+the\s+moment|as\s+of\s+now)\b/g, ' ')
+    .replace(/(?<!\d)\.|\.(?!\d)/g, ' ')
+    .replace(/[^\w.\s]/g, ' ')
+  const words = new Set<string>()
+  for (const raw of s.split(/\s+/)) {
+    if (!raw || MEANING_STOP.has(raw)) continue
+    let w = raw
+    if (!/\d/.test(w) && w.length > 3 && !w.endsWith('ss')) w = w.replace(/ies$/, 'y').replace(/s$/, '')
+    words.add(MEANING_SAME[w] ?? w)
+  }
+  if ([...words].some((w) => w.startsWith('sector')) && !words.has('greater') && !words.has('extension')) words.delete('noida')
+  // "Per sq ft rate" is the price per sq ft; a bare "rate" is not ("average rate"
+  // is per sq ft, "average price" the ticket price: lib/chat/aggregateQuery.ts).
+  if (words.has('sqft') && words.delete('rate')) words.add('price')
+  return [...words].sort().join(' ')
 }
 
 /** Scope for a cache entry. */
@@ -129,6 +178,10 @@ function buildCacheKey(query: string, scope: string, fingerprint = 'anon'): stri
   // which the key does not carry: the stress rerun replayed an old model answer
   // for it. Neither read nor written.
   if (!normalized || normalized.length < 3 || isAffordabilityQuestion(query) || dependsOnConversation(query)) return ''
+  // Only a factual question is matched on meaning. A judgement ("is Sector 150
+  // good for families") keeps its exact words.
+  const shape = classifyShape(query)
+  if (shape === 'lookup' || shape === 'factual') return `${scope}::${catalogStamp}::${fingerprint}::m:${meaningKey(query)}`
   return `${scope}::${catalogStamp}::${fingerprint}::${normalized}`
 }
 
@@ -251,7 +304,9 @@ function readLocal(key: string, countMiss = true): CachedEntry | null {
 // this bump drops the entries written before it.
 // v10 (16 Oct 2026): the catalogue stamp joined the key, and the routing and
 // integrity fixes of that day change what the same words are answered with.
-const REDIS_PREFIX = 'ac:v11:' // v11: drops answers written before the 17 Oct transcript fixes (follow-ups served across chats, builder 'these').
+// v12 (24 Oct 2026): factual questions keyed on meaning, and entries written under the
+// intent carried into the turn (as they are read), not the intent after it.
+const REDIS_PREFIX = 'ac:v12:' // v11: drops answers written before the 17 Oct transcript fixes (follow-ups served across chats, builder 'these').
 // v8: v7 cached project-focused handler answers under project-free keys
 
 /** A read that takes longer than this is not worth waiting for — the LLM call it */

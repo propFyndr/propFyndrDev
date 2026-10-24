@@ -270,3 +270,23 @@ describe('Intent: calculator questions skip the model', () => {
     assert.equal(covers('I work in Sector 62, need a 2BHK with a low EMI'), false)
   })
 })
+
+describe('Intent: catalogue arithmetic skips the model', () => {
+  const covers = (m: string, prev: Intent = {}) => {
+    const n = prenormalizeRawText(m).normalized || m
+    return deterministicCoversMessage(n, extractDeterministic(n, []), prev)
+  }
+
+  // Day 5 run, 24 Oct 2026: both waited on the intent model before the aggregate lane.
+  for (const q of [
+    'What is the average property price per sq ft in Noida right now?',
+    'average per sq ft rate of property in Noida currently?',
+    'how many projects are there in greater noida west',
+  ]) {
+    it(`no model call: ${q.slice(0, 40)}`, () => assert.equal(covers(q), true))
+  }
+
+  it('a question needing inference still goes to the model', () => {
+    assert.equal(covers('average price near my office for a family'), false)
+  })
+})
