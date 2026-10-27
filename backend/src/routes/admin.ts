@@ -2856,6 +2856,10 @@ router.get('/analytics/users', async (req: Request, res: Response) => {
   }
 })
 
+// The website's guest token: `guest-` + crypto.randomUUID() (frontend/lib/guestToken.ts).
+// Scripts used look-alikes such as "guest-stress_1_…", so the format is matched exactly.
+const WEBSITE_GUEST_TOKEN = '^guest-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'
+
 // GET /api/v1/admin/analytics/user-counts — visitors, active buyers and signups for the dashboard.
 // A visitor is a signed-in account or a website guest token that opened a chat. The website
 // always sends `guest-<uuid>` (frontend/lib/guestToken.ts); any other token is a script
@@ -2880,14 +2884,14 @@ router.get('/analytics/user-counts', async (_req: Request, res: Response) => {
         COALESCE(SUM(message_count), 0)::int AS messages
       FROM chat_sessions
       WHERE is_bot = false
-        AND (user_id IS NOT NULL OR guest_token LIKE 'guest-%')
+        AND (user_id IS NOT NULL OR guest_token ~ ${WEBSITE_GUEST_TOKEN})
     `
     // Per person: number of sessions and the month of the first one.
     const people = await prisma.$queryRaw<Array<{ month: string; sessions: number }>>`
       SELECT to_char(MIN(created_at), 'YYYY-MM') AS month, COUNT(*)::int AS sessions
       FROM chat_sessions
       WHERE is_bot = false
-        AND (user_id IS NOT NULL OR guest_token LIKE 'guest-%')
+        AND (user_id IS NOT NULL OR guest_token ~ ${WEBSITE_GUEST_TOKEN})
       GROUP BY COALESCE(user_id, guest_token)
     `
     const newByMonth = Object.entries(

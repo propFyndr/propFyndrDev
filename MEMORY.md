@@ -289,10 +289,19 @@ Add new decisions under the right topic, not as a session diary. When one replac
     - Supabase: 23 fake accounts deleted.
     - Backups: `backend/backups/live-test-traffic-live-2026-10-27T07-50-04-070Z.json`, `backend/backups/live-fake-users-2026-10-27T07-59-24-358Z.json`.
     - Scripts: `scripts/clean-live-test-traffic-2026-10-27.ts`, `scripts/clean-live-fake-users-2026-10-27.ts`.
+  - The token rule matches `guest-` + UUID exactly. 54 sessions from 42 look-alike script tokens (guest-stress_…, guest-journey_…, guest-audit) were flagged too: `scripts/flag-live-script-guests-2026-10-27.ts`.
   - Result, all time (7 Aug–27 Oct):
-    - 119 people: 114 website guests and 5 signed-in.
-    - 363 sessions, 1,724 messages.
+    - 78 people: 73 website guests and 5 signed-in (one is Raghav).
+    - 310 sessions, 1,410 messages.
     - 11 accounts; 0 leads.
+    - Founders' guest browsing can't be told apart without their guest IDs.
+- **Dev chat history emptied (10-27, owner-approved).**
+  - Supabase dev went from 258 MB to 61 MB.
+  - Only the 2,878 dev-only sessions were backed up (`backend/backups/dev-chat-history-2026-10-27T08-20-28-376Z.json`); the rest are already on Neon.
+  - Script: `scripts/clear-dev-chat-history-2026-10-27.ts`.
+  - VACUUM FULL needs `DIRECT_URL`, because the pooler refuses it.
+  - The block was egress, not space, so deleting data doesn't lift it.
+  - Live sign-in still uses this Supabase project; noted for the owner.
   - Rejected:
     - counting only from the 15 Oct split, because the token rule makes earlier data separable;
     - deleting old chats, because that loses real buyers.
