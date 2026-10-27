@@ -1208,7 +1208,11 @@ export default function AdminDashboard() {
               <AdminInfoTooltip
                 title="Visitors"
                 description="Distinct signed-in users and guests who started at least one chat. Bots excluded."
-                details={['Someone who browsed but never chatted is not counted']}
+                details={[
+                  'Someone who browsed but never chatted is not counted',
+                  'Our own verifier, probe and smoke-test guests are excluded',
+                  'Aug–Sep 2026 includes automated load runs that used normal guest tokens',
+                ]}
                 whyItMatters="Top of the funnel."
               />
             }

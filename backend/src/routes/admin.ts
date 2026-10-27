@@ -2875,6 +2875,9 @@ router.get('/analytics/user-counts', async (_req: Request, res: Response) => {
         COUNT(DISTINCT user_id)::int AS "chattedSignedIn"
       FROM chat_sessions
       WHERE is_bot = false
+        -- Our own harness runs: verifier, probe, smoke and red-team guests, and "test" chats.
+        AND COALESCE(guest_token, '') !~ '^(verify|probe-|smoke-|test|adv_)'
+        AND COALESCE(title, '') <> 'test'
     `
 
     let signedUp: number | null = null
