@@ -2856,34 +2856,29 @@ router.get('/analytics/users', async (req: Request, res: Response) => {
   }
 })
 
-// Live got its own database on this day (Neon). Before it, live and test runs shared one
-// database and ~5,500 of those sessions can't be told apart, so counts start here.
-const USER_COUNTS_SINCE = new Date('2026-10-15T00:00:00Z')
-
 // GET /api/v1/admin/analytics/user-counts — visitors, active buyers and signups for the dashboard.
-// A visitor is a distinct signed-in user, guest token or (failing both) chat session that
-// opened a chat since USER_COUNTS_SINCE; nobody who never chatted is counted. Signups are
-// Supabase Auth accounts created since then, minus accounts linked to our own team.
-// `signedUp` is null when Auth can't be read.
+// A visitor is a signed-in account or a website guest token that opened a chat. The website
+// always sends `guest-<uuid>` (frontend/lib/guestToken.ts); any other token is a script
+// (the server mints `guest_…` when none is sent), so it is not a person. Signups are Supabase
+// Auth accounts minus accounts linked to our own team. `signedUp` is null when Auth can't be read.
 router.get('/analytics/user-counts', async (_req: Request, res: Response) => {
   try {
     const cacheKey = 'admin:analytics:user-counts'
     const cached = await getCached<object>(cacheKey)
     if (cached) return res.json(cached)
 
-    const [row] = await prisma.$queryRaw<Array<{ visitors: number; d1: number; d7: number; d30: number; chattedSignedIn: number }>>`
+    const [row] = await prisma.$queryRaw<Array<{ visitors: number; guests: number; d1: number; d7: number; d30: number; chattedSignedIn: number; firstSeen: Date | null }>>`
       SELECT
-        COUNT(DISTINCT COALESCE(user_id, guest_token, id))::int AS visitors,
-        COUNT(DISTINCT COALESCE(user_id, guest_token, id)) FILTER (WHERE last_active > now() - interval '1 day')::int AS d1,
-        COUNT(DISTINCT COALESCE(user_id, guest_token, id)) FILTER (WHERE last_active > now() - interval '7 days')::int AS d7,
-        COUNT(DISTINCT COALESCE(user_id, guest_token, id)) FILTER (WHERE last_active > now() - interval '30 days')::int AS d30,
-        COUNT(DISTINCT user_id)::int AS "chattedSignedIn"
+        COUNT(DISTINCT COALESCE(user_id, guest_token))::int AS visitors,
+        COUNT(DISTINCT guest_token) FILTER (WHERE user_id IS NULL)::int AS guests,
+        COUNT(DISTINCT COALESCE(user_id, guest_token)) FILTER (WHERE last_active > now() - interval '1 day')::int AS d1,
+        COUNT(DISTINCT COALESCE(user_id, guest_token)) FILTER (WHERE last_active > now() - interval '7 days')::int AS d7,
+        COUNT(DISTINCT COALESCE(user_id, guest_token)) FILTER (WHERE last_active > now() - interval '30 days')::int AS d30,
+        COUNT(DISTINCT user_id)::int AS "chattedSignedIn",
+        MIN(created_at) AS "firstSeen"
       FROM chat_sessions
       WHERE is_bot = false
-        AND created_at >= ${USER_COUNTS_SINCE}
-        -- Our own harness runs: verifier, probe, smoke and red-team guests, and "test" chats.
-        AND COALESCE(guest_token, '') !~ '^(verify|probe-|smoke-|test|adv_)'
-        AND COALESCE(title, '') <> 'test'
+        AND (user_id IS NOT NULL OR guest_token LIKE 'guest-%')
     `
 
     let signedUp: number | null = null
@@ -2895,7 +2890,7 @@ router.get('/analytics/user-counts', async (_req: Request, res: Response) => {
       for (let page = 1; ; page++) {
         const { data, error } = await supabaseAdmin.auth.admin.listUsers({ page, perPage: 1000 })
         if (error) throw error
-        count += data.users.filter((u) => !teamIds.has(u.id) && new Date(u.created_at) >= USER_COUNTS_SINCE).length
+        count += data.users.filter((u) => !teamIds.has(u.id)).length
         if (data.users.length < 1000) break
       }
       signedUp = count
@@ -2905,8 +2900,9 @@ router.get('/analytics/user-counts', async (_req: Request, res: Response) => {
     }
 
     const responseData = {
-      since: USER_COUNTS_SINCE.toISOString(),
+      firstSeen: row.firstSeen,
       visitors: row.visitors,
+      guests: row.guests,
       active: { day: row.d1, week: row.d7, month: row.d30 },
       chattedSignedIn: row.chattedSignedIn,
       signedUp,

@@ -280,18 +280,23 @@ Add new decisions under the right topic, not as a session diary. When one replac
 - **Don't pipe gate commands through `tail`** (it swallows the exit code). Keep `npm run build` in the gate.
 - **The backend suite is load-sensitive**; re-run before believing a failure. `chatRouterSize.test.ts` fails on HEAD (7,404 lines).
 - **Buyer-vocabulary regexes need inflections** (`refund\w*`).
-- **Live user numbers count from 2026-10-15 (decided 10-27).**
-  - What: the dashboard's user counts (`/admin/analytics/user-counts`) start on 15 Oct, when live got its own Neon database.
+- **Live user numbers count only website guests and real accounts (decided 10-27).**
+  - What: `/admin/analytics/user-counts` counts a person only when the session has a signed-in account or a `guest-<uuid>` token. The website has sent that token since June. Any other token is a script; the server mints `guest_…` when no token is sent.
   - Neon cleanup:
-    - 40,258 pre-split sessions that are provably tests (a `chat.test.ts` opener, no messages, or a test token/title) set to `is_bot=true`.
-    - 1,529 dummy-number (9876543210) callbacks deleted.
-    - Backup: `backend/backups/live-test-traffic-live-2026-10-27T07-50-04-070Z.json`.
-    - Script: `scripts/clean-live-test-traffic-2026-10-27.ts`.
-  - Why: before the split, tests and buyers shared one database. About 5,500 old sessions can't be told apart, so counting from the split is the only precise baseline.
+    - 40,258 provable test sessions flagged `is_bot` (`chat.test.ts` openers, no messages, test tokens).
+    - Another 5,205 script/fake-account sessions flagged.
+    - All 1,531 callbacks deleted: 1,529 dummy 9876543210 plus the owner's 2 tests.
+    - Supabase: 23 fake accounts deleted.
+    - Backups: `backend/backups/live-test-traffic-live-2026-10-27T07-50-04-070Z.json`, `backend/backups/live-fake-users-2026-10-27T07-59-24-358Z.json`.
+    - Scripts: `scripts/clean-live-test-traffic-2026-10-27.ts`, `scripts/clean-live-fake-users-2026-10-27.ts`.
+  - Result, all time (7 Aug–27 Oct):
+    - 119 people: 114 website guests and 5 signed-in.
+    - 363 sessions, 1,724 messages.
+    - 11 accounts; 0 leads.
   - Rejected:
-    - deleting all pre-15-Oct chats, because it loses real buyers' early chats;
-    - a code-only date filter, because the other admin pages would stay polluted.
-  - `npm test` now refuses to run when `DATABASE_URL` points at Neon.
+    - counting only from the 15 Oct split, because the token rule makes earlier data separable;
+    - deleting old chats, because that loses real buyers.
+  - `npm test` refuses to run when `DATABASE_URL` points at Neon.
 
 ## Process
 
