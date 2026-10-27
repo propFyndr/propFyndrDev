@@ -2192,5 +2192,52 @@
         }
       }
     ]
+  },
+  {
+    "id": "oct27-budget-check-2cr-3bhk",
+    "source": "live gaps, 30 days to 2026-10-27: generic 23-64 s model answers",
+    "turns": [
+      {
+        "text": "Is 2 crore too much for a 3 BHK in Noida right now?",
+        "expect": {
+          "lane": "budget-check",
+          "llm": false,
+          "contains": [
+            "on record start at or under",
+            "middle starting price"
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "id": "oct27-budget-check-reasonable",
+    "source": "live gaps, 30 days to 2026-10-27: generic 23-64 s model answers",
+    "turns": [
+      {
+        "text": "What is a reasonable budget for a 3 BHK flat?",
+        "expect": {
+          "lane": "budget-check",
+          "llm": false,
+          "contains": [
+            "middle starting price"
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "id": "oct27-budget-check-not-salary",
+    "source": "a salary question belongs to the affordability lane",
+    "turns": [
+      {
+        "text": "my salary is 1.5 lakh a month, is that enough for a 3bhk",
+        "expect": {
+          "laneNot": [
+            "budget-check"
+          ]
+        }
+      }
+    ]
   }
 ]

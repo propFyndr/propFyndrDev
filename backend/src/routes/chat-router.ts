@@ -110,6 +110,7 @@ import { projectCatalog, catalogNamesSync } from '../lib/projectCatalog'
 import { asksAboutFocusAttribute, mentionsFocusPronoun, focusFallback, parkFocus, parkedFocus, asksMarketWide, expandAffirmation } from '../lib/chat/followUp'; import { isBuilderNameCandidate } from '../lib/builderNames'; import { searchSummary } from '../lib/ai/searchSummary'
 import { matchProjectInText, fuzzyMatchProject, suggestProjects } from '../lib/discovery/matchProjectInText'
 import { parseAggregateQuestion, queryProjects, renderAggregateAnswer } from '../lib/chat/aggregateQuery'
+import { parseBudgetCheck, budgetQuery, renderBudgetCheck } from '../lib/chat/budgetCheck'
 import { applyCommuteAnchor, beltFor } from '../lib/discovery/commuteAnchor'
 import { resolveOrdinalReference, resolveOrdinalPair, resolveSuperlativeReference, needsShownContext, resolveSectorReference, sectorsShownIn, resolveShownSet, asksForSinglePick } from '../lib/discovery/reference'
 import { cardBudgetFor, capCards, MAX_CARDS } from '../lib/discovery/cardBudget'
@@ -2716,6 +2717,26 @@ router.post('/', async (req: Request, res: Response) => {
         }
         send('done', { sessionId: currentSessionId, intentState, intent, responseMode: 'chat' })
         persistEarlyTurn('aggregate', aggregateText)
+        res.end()
+        return
+      }
+
+      // "Is 2 crore too much for a 3 BHK?" answered from our unit prices (lib/chat/budgetCheck.ts).
+      const budget = parseBudgetCheck(message)
+      const budgetResult = budget ? await queryProjects(budgetQuery(budget)).catch(() => null) : null
+      const budgetText = budget && budgetResult ? renderBudgetCheck(budget, budgetResult) : null
+      if (budgetText) {
+        console.log('[CHAT:BUDGET_CHECK]', { ...budget, used: budgetResult?.used })
+        send('token', { token: budgetText })
+        emitUiState({
+          stage: 'RESEARCH',
+          thinking: 'Computed from the unit prices we hold:',
+          chips: [],
+          missingFields: [],
+          confidence: 'HIGH',
+        }, { skipDedup: true })
+        send('done', { sessionId: currentSessionId, intentState, intent, responseMode: 'chat' })
+        persistEarlyTurn('budget-check', budgetText)
         res.end()
         return
       }
