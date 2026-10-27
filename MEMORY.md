@@ -18,7 +18,7 @@ Add new decisions under the right topic, not as a session diary. When one replac
 - **Off-topic policy.** The current rule declines in one sentence for eating out/nightlife, live traffic, school admissions and valuing an owned property (narrow by design). Wider topics (jokes, IPOs, other cities) are undecided.
 - **Billed Gemini key** returned 402 "credits depleted" on 09-24, 09-26 and 10-17. Topping it up is the biggest quality lever.
 - **Rate limits on the real IP (5.5).** Needs a proxy-secret env var on Vercel and Render.
-- **Secrets leaked in git history (10-02).** Rotate the `admin@propfyndr.in` password, the Langfuse key pair and the shared staff passwords. The Claude Code Langfuse MCP key (`pk-lf-91f4…`, stored in `~/.claude.json`) is revoked and returns 401 on both US and EU hosts (checked 10-27). The app's own key pair (US region) works, and live traces arrive.
+- **Secrets leaked in git history (10-02).** Rotate the `admin@propfyndr.in` password, the Langfuse key pair and the shared staff passwords. The Claude Code Langfuse MCP key was replaced on 10-27 with a new US key pair, verified against the API and MCP. The app's own key pair (US region) works, and live traces arrive.
 - **Templated-data pass 3** (`scripts/fix-templated-data-pass3.ts`) is applied on dev only. The owner runs `--db=live` on Neon.
 - **Referral reset** to one "Furqan Arth" root: `scripts/reset-referral-tree.ts` (dry run by default, JSON backup). Blocked until `furqan@realtyask.in` is an admin on dev.
 - **Other open data calls:**
@@ -34,6 +34,8 @@ Add new decisions under the right topic, not as a session diary. When one replac
 - **PostHog privacy (09-13, verify).** Chat text was sent verbatim (`trackSearch(userText)`) with session recording on and `maskAllInputs:false`. Settle before beta.
 - **Callback and site-visit endpoints** have rate limiting only, no captcha. `WebhookDeadLetter` replay needs a scheduler.
 - **Old Langfuse readers.** The 4 `scripts/*langfuse*` scripts stop working on 2026-11-16. Deleting them needs the owner.
+- **Supabase project `eargxntetfmtdpwedjbd` restricted (10-27).** Auth returns 402 `exceed_egress_quota`, so the dashboard's Signed Up card shows "—". Upgrade the plan or remove the spend cap (owner).
+- **Junk Supabase accounts (10-27).** About 23 of the 34 Auth accounts are keyboard-mash or test emails from June–Aug. Deleting them needs the owner's list, and Auth must work first.
 
 ---
 
@@ -278,6 +280,18 @@ Add new decisions under the right topic, not as a session diary. When one replac
 - **Don't pipe gate commands through `tail`** (it swallows the exit code). Keep `npm run build` in the gate.
 - **The backend suite is load-sensitive**; re-run before believing a failure. `chatRouterSize.test.ts` fails on HEAD (7,404 lines).
 - **Buyer-vocabulary regexes need inflections** (`refund\w*`).
+- **Live user numbers count from 2026-10-15 (decided 10-27).**
+  - What: the dashboard's user counts (`/admin/analytics/user-counts`) start on 15 Oct, when live got its own Neon database.
+  - Neon cleanup:
+    - 40,258 pre-split sessions that are provably tests (a `chat.test.ts` opener, no messages, or a test token/title) set to `is_bot=true`.
+    - 1,529 dummy-number (9876543210) callbacks deleted.
+    - Backup: `backend/backups/live-test-traffic-live-2026-10-27T07-50-04-070Z.json`.
+    - Script: `scripts/clean-live-test-traffic-2026-10-27.ts`.
+  - Why: before the split, tests and buyers shared one database. About 5,500 old sessions can't be told apart, so counting from the split is the only precise baseline.
+  - Rejected:
+    - deleting all pre-15-Oct chats, because it loses real buyers' early chats;
+    - a code-only date filter, because the other admin pages would stay polluted.
+  - `npm test` now refuses to run when `DATABASE_URL` points at Neon.
 
 ## Process
 

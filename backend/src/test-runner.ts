@@ -17,13 +17,21 @@ async function runTests() {
     process.exit(1)
   }
 
+  // Tests never write to live. Until 15 Oct they shared live's database, and 40,258
+  // test sessions plus 1,529 dummy leads had to be cleaned out of Neon (2026-10-27).
+  const envFile = path.join(process.cwd(), '.env')
+  const dbUrl = process.env.DATABASE_URL ?? (existsSync(envFile) ? parseEnv(readFileSync(envFile)).DATABASE_URL : undefined)
+  if (dbUrl?.includes('neon.tech')) {
+    console.error('Refusing to run tests: DATABASE_URL points at Neon (live). Use the dev database.')
+    process.exit(1)
+  }
+
   // Tests never spend model quota unless asked to. Blank every provider key the
   // app's .env would supply (dotenv never overrides a variable that is already
   // set), so a test that reaches a live provider is refused (401) instead
   // of burning the free tiers the product runs on. LIVE_LLM_TESTS=1 opts back in.
   const offlineEnv: Record<string, string> = {}
   if (process.env.LIVE_LLM_TESTS !== '1') {
-    const envFile = path.join(process.cwd(), '.env')
     const names = existsSync(envFile) ? Object.keys(parseEnv(readFileSync(envFile))) : []
     for (const name of [...names, ...Object.keys(process.env)]) {
       if (PROVIDER_KEY.test(name)) offlineEnv[name] = 'offline-test-key-not-a-real-credential'

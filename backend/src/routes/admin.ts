@@ -2856,10 +2856,15 @@ router.get('/analytics/users', async (req: Request, res: Response) => {
   }
 })
 
+// Live got its own database on this day (Neon). Before it, live and test runs shared one
+// database and ~5,500 of those sessions can't be told apart, so counts start here.
+const USER_COUNTS_SINCE = new Date('2026-10-15T00:00:00Z')
+
 // GET /api/v1/admin/analytics/user-counts — visitors, active buyers and signups for the dashboard.
 // A visitor is a distinct signed-in user, guest token or (failing both) chat session that
-// opened a chat; nobody who never chatted is counted. Signups are Supabase Auth accounts,
-// minus accounts linked to our own team. `signedUp` is null when Auth can't be read.
+// opened a chat since USER_COUNTS_SINCE; nobody who never chatted is counted. Signups are
+// Supabase Auth accounts created since then, minus accounts linked to our own team.
+// `signedUp` is null when Auth can't be read.
 router.get('/analytics/user-counts', async (_req: Request, res: Response) => {
   try {
     const cacheKey = 'admin:analytics:user-counts'
@@ -2875,6 +2880,7 @@ router.get('/analytics/user-counts', async (_req: Request, res: Response) => {
         COUNT(DISTINCT user_id)::int AS "chattedSignedIn"
       FROM chat_sessions
       WHERE is_bot = false
+        AND created_at >= ${USER_COUNTS_SINCE}
         -- Our own harness runs: verifier, probe, smoke and red-team guests, and "test" chats.
         AND COALESCE(guest_token, '') !~ '^(verify|probe-|smoke-|test|adv_)'
         AND COALESCE(title, '') <> 'test'
@@ -2889,7 +2895,7 @@ router.get('/analytics/user-counts', async (_req: Request, res: Response) => {
       for (let page = 1; ; page++) {
         const { data, error } = await supabaseAdmin.auth.admin.listUsers({ page, perPage: 1000 })
         if (error) throw error
-        count += data.users.filter((u) => !teamIds.has(u.id)).length
+        count += data.users.filter((u) => !teamIds.has(u.id) && new Date(u.created_at) >= USER_COUNTS_SINCE).length
         if (data.users.length < 1000) break
       }
       signedUp = count
@@ -2899,6 +2905,7 @@ router.get('/analytics/user-counts', async (_req: Request, res: Response) => {
     }
 
     const responseData = {
+      since: USER_COUNTS_SINCE.toISOString(),
       visitors: row.visitors,
       active: { day: row.d1, week: row.d7, month: row.d30 },
       chattedSignedIn: row.chattedSignedIn,

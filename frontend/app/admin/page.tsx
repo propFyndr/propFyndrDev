@@ -68,6 +68,7 @@ interface AuditLogEntry {
 }
 
 interface UserCounts {
+  since: string
   visitors: number
   active: { day: number; week: number; month: number }
   chattedSignedIn: number
@@ -1197,7 +1198,13 @@ export default function AdminDashboard() {
 
       {/* ── Users: visitors, active, signed up ─────────────────────────────── */}
       {userCounts && (
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+        <div className="space-y-2">
+          <p className="text-xs text-zinc-500 dark:text-zinc-400">
+            Users since{' '}
+            {new Date(userCounts.since).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}, when
+            live got its own database. Our test runs are excluded.
+          </p>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
           <MetricCard
             title="Visitors"
             value={userCounts.visitors}
@@ -1210,8 +1217,8 @@ export default function AdminDashboard() {
                 description="Distinct signed-in users and guests who started at least one chat. Bots excluded."
                 details={[
                   'Someone who browsed but never chatted is not counted',
-                  'Our own verifier, probe and smoke-test guests are excluded',
-                  'Aug–Sep 2026 includes automated load runs that used normal guest tokens',
+                  'Our own test runs are excluded',
+                  'Counted from 15 Oct 2026; earlier data mixed tests with buyers',
                 ]}
                 whyItMatters="Top of the funnel."
               />
@@ -1240,7 +1247,7 @@ export default function AdminDashboard() {
             tooltip={
               <AdminInfoTooltip
                 title="Signed up"
-                description="Accounts created through sign-up, excluding our own team's logins."
+                description="Accounts created through sign-up since 15 Oct 2026, excluding our own team's logins."
                 details={userCounts.signupError ? [userCounts.signupError] : ['Read from Supabase Auth']}
                 whyItMatters="Guests can do everything except see builder phone numbers, so this stays small."
               />
@@ -1252,6 +1259,7 @@ export default function AdminDashboard() {
             contextText="Signed-up users who also chatted"
             icon={UsersThree}
           />
+          </div>
         </div>
       )}
     </div>
