@@ -22,6 +22,9 @@ import {
   ArrowSquareOut,
   MapPin,
   MagnifyingGlass,
+  TrendUp,
+  TrendDown,
+  Sparkle,
 } from '@phosphor-icons/react'
 import { Pulse, FileCsv } from '@phosphor-icons/react'
 import AdminInfoTooltip from '@/components/admin/AdminInfoTooltip'
@@ -269,6 +272,52 @@ export default function AdminDashboard() {
     ].filter((d) => d.value > 0)
   }, [stats])
 
+  // Enriched monthly cohort data for new people chart & breakdown.
+  // The first month (counting started mid-month) and the current month are partial, so a
+  // month-on-month change is only shown between two complete months.
+  const monthlyEnrichedData = useMemo(() => {
+    const months = userCounts?.newByMonth ?? []
+    if (!months.length) return []
+    const total = months.reduce((sum, item) => sum + item.people, 0)
+    const max = Math.max(...months.map((item) => item.people), 1)
+    const currentMonth = new Date().toISOString().slice(0, 7)
+    const isPartial = (index: number) => index === 0 || months[index].month === currentMonth
+
+    return months.map((item, index) => {
+      const prev = index > 0 ? months[index - 1].people : null
+      const momChange =
+        prev !== null && prev > 0 && !isPartial(index) && !isPartial(index - 1)
+          ? Math.round(((item.people - prev) / prev) * 100)
+          : null
+      const date = new Date(`${item.month}-01T00:00:00Z`)
+      return {
+        month: item.month,
+        monthLabel: date.toLocaleDateString('en-IN', { month: 'short', year: 'numeric', timeZone: 'UTC' }),
+        monthFull: date.toLocaleDateString('en-IN', { month: 'long', year: 'numeric', timeZone: 'UTC' }),
+        people: item.people,
+        pctOfTotal: total > 0 ? ((item.people / total) * 100).toFixed(1) : '0.0',
+        momChange,
+        partial: isPartial(index),
+        isPeak: item.people === max,
+      }
+    })
+  }, [userCounts?.newByMonth])
+
+  // Aggregated cohort KPIs, from the rows above rather than computed a second time.
+  const monthlyMetrics = useMemo(() => {
+    if (!monthlyEnrichedData.length) return null
+    const total = monthlyEnrichedData.reduce((sum, m) => sum + m.people, 0)
+    const peak = monthlyEnrichedData.find((m) => m.isPeak)
+    return {
+      total,
+      max: peak?.people ?? 0,
+      peakMonth: peak?.monthLabel ?? '',
+      peakCount: peak?.people ?? 0,
+      avg: Math.round(total / monthlyEnrichedData.length),
+      latestGrowth: monthlyEnrichedData[monthlyEnrichedData.length - 1].momChange,
+    }
+  }, [monthlyEnrichedData])
+
   // Current formatted date for header
   const todayLabel = useMemo(() => {
     try {
@@ -487,17 +536,13 @@ export default function AdminDashboard() {
         <MetricCardSkeleton />
       ) : stats ? (
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
-          {/* Card 1: Total Properties (Hero Anchor) */}
-          {/* Card 1: Total Properties (Hero Anchor) */}
+          {/* Card 1: Total Properties. No sparkline: there is no stored time series behind it. */}
           <MetricCard
             title="Total Properties"
             value={stats.total}
             isHero
-            sparkline="blue"
-            sparklineData={[24, 28, 26, 32, 30, 36, 40, stats.total || 44]}
-            subBadge={timeRange === 'all' ? '100% Catalog Live' : `${timeRange.toUpperCase()} Range`}
-            subBadgeVariant="emerald"
-            delta={{ value: '100% Live', direction: 'up', context: 'catalog coverage' }}
+            subBadge={timeRange === 'all' ? undefined : `${timeRange.toUpperCase()} Range`}
+            subBadgeVariant="zinc"
             contextText="Active listings across catalog"
             icon={Buildings}
             iconBgClass="bg-blue-50 dark:bg-blue-950/60"
@@ -513,24 +558,19 @@ export default function AdminDashboard() {
             }
           />
 
-          {/* Card 2: Partner Builders */}
+          {/* Card 2: Builders. A count of builders with a project in the catalogue, not partners. */}
           <MetricCard
-            title="Partner Builders"
+            title="Builders"
             value={stats.builders}
-            sparkline="emerald"
-            sparklineData={[6, 9, 11, 10, 14, 15, 17, stats.builders || 18]}
-            subBadge="Verified Partners"
-            subBadgeVariant="violet"
-            delta={{ value: 'Active', direction: 'up', context: 'onboarded' }}
-            contextText="Verified developer groups"
+            contextText="Developers with a project in the catalogue"
             icon={UsersThree}
             iconBgClass="bg-violet-50 dark:bg-violet-950/60"
             iconColorClass="text-violet-600 dark:text-violet-400"
             href="/admin/builders"
             tooltip={
               <AdminInfoTooltip
-                title="Partner Builders"
-                description="Verified real estate developers registered on the platform."
+                title="Builders"
+                description="Distinct builders that have at least one project in the catalogue for this time range."
                 whyItMatters="Tracks builder partnership depth and portfolio coverage."
               />
             }
@@ -540,16 +580,9 @@ export default function AdminDashboard() {
           <MetricCard
             title="Ready To Move"
             value={stats.ready}
-            sparkline="emerald"
-            sparklineData={[10, 12, 11, 15, 14, 18, 19, stats.ready || 20]}
             subBadge={`${stats.total ? Math.round((stats.ready / stats.total) * 100) : 0}% of Total`}
             subBadgeVariant="emerald"
-            delta={{
-              value: `${stats.total ? Math.round((stats.ready / stats.total) * 100) : 0}%`,
-              direction: 'up',
-              context: 'of catalog',
-            }}
-            contextText="Immediate possession units"
+            contextText="Projects with status ready to move"
             icon={CheckCircle}
             iconBgClass="bg-emerald-50 dark:bg-emerald-950/60"
             iconColorClass="text-emerald-600 dark:text-emerald-400"
@@ -557,7 +590,7 @@ export default function AdminDashboard() {
             tooltip={
               <AdminInfoTooltip
                 title="Ready To Move"
-                description="Listings with possession certificates available immediately."
+                description="Projects whose status is ready to move. This is the listed status, not a check of the occupancy certificate."
                 whyItMatters="Measures supply of zero-possession-risk inventory."
               />
             }
@@ -567,8 +600,6 @@ export default function AdminDashboard() {
           <MetricCard
             title="Data Alerts"
             value={stats.no_image + stats.no_rera}
-            sparkline={stats.no_image + stats.no_rera > 0 ? 'amber' : 'emerald'}
-            sparklineData={[8, 10, 7, 6, 5, 4, 3, stats.no_image + stats.no_rera || 1]}
             warning={stats.no_image > 0 || stats.no_rera > 0}
             delta={{
               value: stats.no_image + stats.no_rera > 0 ? 'Action Needed' : 'Clean',
@@ -580,10 +611,10 @@ export default function AdminDashboard() {
               stats.no_image > 0 && stats.no_rera > 0
                 ? 'Images & RERA'
                 : stats.no_image > 0
-                ? 'Images missing'
-                : stats.no_rera > 0
-                ? 'RERA missing'
-                : 'All verified'
+                  ? 'Images missing'
+                  : stats.no_rera > 0
+                    ? 'RERA missing'
+                    : 'None missing'
             }
             subBadgeVariant={stats.no_image > 0 || stats.no_rera > 0 ? 'amber' : 'zinc'}
             icon={WarningCircle}
@@ -946,11 +977,10 @@ export default function AdminDashboard() {
                 <button
                   type="button"
                   onClick={() => setBottomPaneTab('activity')}
-                  className={`flex items-center gap-1.5 px-3 py-1 text-xs rounded-lg transition-all cursor-pointer ${
-                    bottomPaneTab === 'activity'
+                  className={`flex items-center gap-1.5 px-3 py-1 text-xs rounded-lg transition-all cursor-pointer ${bottomPaneTab === 'activity'
                       ? 'bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white shadow-xs font-semibold'
                       : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200 font-medium'
-                  }`}
+                    }`}
                 >
                   <Pulse size={13} className={bottomPaneTab === 'activity' ? 'text-[#0066cc]' : ''} />
                   <span>Recent Activity</span>
@@ -958,11 +988,10 @@ export default function AdminDashboard() {
                 <button
                   type="button"
                   onClick={() => setBottomPaneTab('cli')}
-                  className={`flex items-center gap-1.5 px-3 py-1 text-xs rounded-lg transition-all cursor-pointer ${
-                    bottomPaneTab === 'cli'
+                  className={`flex items-center gap-1.5 px-3 py-1 text-xs rounded-lg transition-all cursor-pointer ${bottomPaneTab === 'cli'
                       ? 'bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white shadow-xs font-semibold'
                       : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200 font-medium'
-                  }`}
+                    }`}
                 >
                   <TerminalWindow size={13} className={bottomPaneTab === 'cli' ? 'text-[#0066cc]' : ''} />
                   <span>CLI Tools</span>
@@ -997,11 +1026,10 @@ export default function AdminDashboard() {
                   <button
                     type="button"
                     onClick={() => handleFilterChange('all')}
-                    className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-all cursor-pointer ${
-                      activityFilter === 'all'
+                    className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-all cursor-pointer ${activityFilter === 'all'
                         ? 'bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 shadow-2xs font-semibold'
                         : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800'
-                    }`}
+                      }`}
                   >
                     All ({counts.all})
                   </button>
@@ -1009,11 +1037,10 @@ export default function AdminDashboard() {
                   <button
                     type="button"
                     onClick={() => handleFilterChange('demand')}
-                    className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-all flex items-center gap-1.5 cursor-pointer ${
-                      activityFilter === 'demand'
+                    className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-all flex items-center gap-1.5 cursor-pointer ${activityFilter === 'demand'
                         ? 'bg-amber-600 text-white shadow-2xs font-semibold'
                         : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800'
-                    }`}
+                      }`}
                   >
                     <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
                     <span>Demand Signals ({counts.demand})</span>
@@ -1022,11 +1049,10 @@ export default function AdminDashboard() {
                   <button
                     type="button"
                     onClick={() => handleFilterChange('catalog')}
-                    className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-all flex items-center gap-1.5 cursor-pointer ${
-                      activityFilter === 'catalog'
+                    className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-all flex items-center gap-1.5 cursor-pointer ${activityFilter === 'catalog'
                         ? 'bg-[#0066cc] text-white shadow-2xs font-semibold'
                         : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800'
-                    }`}
+                      }`}
                   >
                     <span className="w-1.5 h-1.5 rounded-full bg-blue-400" />
                     <span>Catalog & Admin ({counts.catalog})</span>
@@ -1063,17 +1089,17 @@ export default function AdminDashboard() {
                     {activitySearchQuery
                       ? 'No matching activities found'
                       : activityFilter === 'demand'
-                      ? 'No buyer search gaps detected'
-                      : activityFilter === 'catalog'
-                      ? 'No catalog updates recorded'
-                      : 'No recent events recorded'}
+                        ? 'No buyer search gaps detected'
+                        : activityFilter === 'catalog'
+                          ? 'No catalog updates recorded'
+                          : 'No recent events recorded'}
                   </p>
                   <p className="text-[11px] text-zinc-400 max-w-sm mx-auto">
                     {activitySearchQuery
                       ? 'Try adjusting your search query or clear the filter.'
                       : activityFilter === 'demand'
-                      ? 'Whenever a buyer inquires about a sector with no catalog inventory, it surfaces here.'
-                      : 'Real-time project modifications and team audit logs will appear here.'}
+                        ? 'Whenever a buyer inquires about a sector with no catalog inventory, it surfaces here.'
+                        : 'Real-time project modifications and team audit logs will appear here.'}
                   </p>
                 </div>
               ) : (
@@ -1207,7 +1233,7 @@ export default function AdminDashboard() {
 
       {/* ── Users: visitors, active, signed up ─────────────────────────────── */}
       {userCounts && (
-        <div className="space-y-2">
+        <div className="space-y-4">
           <p className="text-xs text-zinc-500 dark:text-zinc-400">
             All time
             {userCounts.firstSeen &&
@@ -1217,104 +1243,375 @@ export default function AdminDashboard() {
               ` ${userCounts.team} team ${userCounts.team === 1 ? 'member is' : 'members are'} left out (marked in Analytics → User behavior).`}
           </p>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
-          <MetricCard
-            title="Visitors"
-            value={userCounts.visitors}
-            contextText={`${userCounts.guests} guests · ${userCounts.chattedSignedIn} signed in`}
-            icon={UsersThree}
-            href="/admin/analytics/users"
-            tooltip={
-              <AdminInfoTooltip
-                title="Visitors"
-                description="Distinct signed-in users and guests who started at least one chat. Bots excluded."
-                details={[
-                  'Someone who browsed but never chatted is not counted',
-                  'Scripts and test runs are excluded',
-                  'One person on two browsers counts twice',
-                ]}
-                whyItMatters="Top of the funnel."
-              />
-            }
-          />
-          <MetricCard
-            title="Active (7 days)"
-            value={userCounts.active.week}
-            contextText={`${userCounts.active.day} today · ${userCounts.active.month} in 30 days`}
-            icon={Pulse}
-            tooltip={
-              <AdminInfoTooltip
-                title="Active users"
-                description="Distinct visitors with a chat active in the last 7 days."
-                details={['Today = last 24 hours', '30 days = last 30 days']}
-                whyItMatters="Shows whether people come back, not just arrive."
-              />
-            }
-          />
-          <MetricCard
-            title="Signed Up"
-            value={userCounts.signedUp ?? '—'}
-            warning={userCounts.signedUp === null}
-            contextText={userCounts.signedUp === null ? 'Sign-up service unreachable' : 'Buyer accounts (team excluded)'}
-            icon={CheckCircle}
-            tooltip={
-              <AdminInfoTooltip
-                title="Signed up"
-                description="Accounts created through sign-up, excluding our own team's logins."
-                details={userCounts.signupError ? [userCounts.signupError] : ['Read from Supabase Auth']}
-                whyItMatters="Guests can do everything except see builder phone numbers, so this stays small."
-              />
-            }
-          />
-          <MetricCard
-            title="Signed-in Chatters"
-            value={userCounts.chattedSignedIn}
-            contextText="Signed-up users who also chatted"
-            icon={UsersThree}
-          />
-          <MetricCard
-            title="Returning"
-            value={userCounts.returning}
-            contextText="People with 2 or more chat sessions"
-            icon={ArrowClockwise}
-          />
-          <MetricCard
-            title="Chat Sessions"
-            value={userCounts.sessions.toLocaleString('en-IN')}
-            contextText={`${userCounts.messages.toLocaleString('en-IN')} messages`}
-            icon={Pulse}
-          />
-          <MetricCard
-            title="Saved Properties"
-            value={userCounts.savedProperties}
-            contextText="Saves by guests and signed-in users"
-            icon={CheckCircle}
-          />
-          <MetricCard
-            title="Callback Requests"
-            value={userCounts.callbacks}
-            warning={userCounts.callbacks === 0}
-            contextText={userCounts.callbacks === 0 ? 'No buyer has asked for a callback yet' : 'From buyers'}
-            icon={Clock}
-          />
+            <MetricCard
+              title="Visitors"
+              value={userCounts.visitors}
+              contextText={`${userCounts.guests} guests · ${userCounts.chattedSignedIn} signed in`}
+              icon={UsersThree}
+              href="/admin/analytics/users"
+              tooltip={
+                <AdminInfoTooltip
+                  title="Visitors"
+                  description="Distinct signed-in users and guests who started at least one chat. Bots excluded."
+                  details={[
+                    'Someone who browsed but never chatted is not counted',
+                    'Scripts and test runs are excluded',
+                    'One person on two browsers counts twice',
+                  ]}
+                  whyItMatters="Top of the funnel."
+                />
+              }
+            />
+            <MetricCard
+              title="Active (7 days)"
+              value={userCounts.active.week}
+              contextText={`${userCounts.active.day} today · ${userCounts.active.month} in 30 days`}
+              icon={Pulse}
+              tooltip={
+                <AdminInfoTooltip
+                  title="Active users"
+                  description="Distinct visitors with a chat active in the last 7 days."
+                  details={['Today = last 24 hours', '30 days = last 30 days']}
+                  whyItMatters="Shows whether people come back, not just arrive."
+                />
+              }
+            />
+            <MetricCard
+              title="Signed Up"
+              value={userCounts.signedUp ?? '—'}
+              warning={userCounts.signedUp === null}
+              contextText={userCounts.signedUp === null ? 'Sign-up service unreachable' : 'Buyer accounts (team excluded)'}
+              icon={CheckCircle}
+              tooltip={
+                <AdminInfoTooltip
+                  title="Signed up"
+                  description="Accounts created through sign-up, excluding our own team's logins."
+                  details={userCounts.signupError ? [userCounts.signupError] : ['Read from Supabase Auth']}
+                  whyItMatters="Guests can do everything except see builder phone numbers, so this stays small."
+                />
+              }
+            />
+            <MetricCard
+              title="Signed-in Chatters"
+              value={userCounts.chattedSignedIn}
+              contextText="Signed-up users who also chatted"
+              icon={UsersThree}
+            />
+            <MetricCard
+              title="Returning"
+              value={userCounts.returning}
+              contextText="People with 2 or more chat sessions"
+              icon={ArrowClockwise}
+            />
+            <MetricCard
+              title="Chat Sessions"
+              value={userCounts.sessions.toLocaleString('en-IN')}
+              contextText={`${userCounts.messages.toLocaleString('en-IN')} messages`}
+              icon={Pulse}
+            />
+            <MetricCard
+              title="Saved Properties"
+              value={userCounts.savedProperties}
+              contextText="Saves by guests and signed-in users"
+              icon={CheckCircle}
+            />
+            <MetricCard
+              title="Callback Requests"
+              value={userCounts.callbacks}
+              warning={userCounts.callbacks === 0}
+              contextText={userCounts.callbacks === 0 ? 'No buyer has asked for a callback yet' : 'From buyers'}
+              icon={Clock}
+            />
           </div>
           {userCounts.newByMonth.length > 0 && (
-            <div className="rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-4 space-y-2">
-              <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">New people by month</p>
-              <p className="text-xs text-zinc-500 dark:text-zinc-400">A person counts in the month of their first chat.</p>
-              <ul className="space-y-1.5">
-                {userCounts.newByMonth.map((m) => {
-                  const max = Math.max(...userCounts.newByMonth.map((x) => x.people))
-                  return (
-                    <li key={m.month} className="flex items-center gap-3 text-xs">
-                      <span className="w-20 shrink-0 text-zinc-500 dark:text-zinc-400">
-                        {new Date(`${m.month}-01T00:00:00Z`).toLocaleDateString('en-IN', { month: 'short', year: 'numeric', timeZone: 'UTC' })}
+            <div className="rounded-2xl border border-zinc-200/80 dark:border-zinc-800/80 bg-white dark:bg-zinc-900/90 shadow-sm backdrop-blur-sm p-5 md:p-6 transition-all relative overflow-hidden">
+              {/* Subtle ambient accent glow */}
+              <div className="absolute -top-20 -right-20 w-56 h-56 bg-gradient-to-br from-blue-500/10 via-sky-400/5 to-transparent rounded-full blur-3xl pointer-events-none" />
+
+              {/* Card Header with KPIs */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-zinc-100 dark:border-zinc-800/80 relative">
+                <div className="flex items-start gap-3">
+                  <div className="p-2.5 rounded-xl bg-blue-50 dark:bg-blue-950/60 text-[#0066cc] dark:text-blue-400 ring-1 ring-blue-500/15 shadow-sm mt-0.5 shrink-0">
+                    <TrendUp size={20} weight="bold" />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <h3 className="text-sm md:text-base font-semibold text-zinc-900 dark:text-zinc-100 tracking-tight">
+                        New People by Month
+                      </h3>
+                      <span className="text-[11px] font-medium px-2 py-0.5 rounded-md bg-blue-50 dark:bg-blue-950/60 text-[#0066cc] dark:text-blue-400 border border-blue-200/50 dark:border-blue-800/50">
+                        Acquisition Cohort
                       </span>
-                      <span className="h-2 rounded-full bg-[#0066cc] dark:bg-blue-400" style={{ width: `${(m.people / max) * 60}%` }} />
-                      <span className="tabular-nums text-zinc-900 dark:text-zinc-100">{m.people}</span>
-                    </li>
-                  )
-                })}
-              </ul>
+                    </div>
+                    <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
+                      A person is counted in the month of their first recorded chat interaction.
+                    </p>
+                  </div>
+                </div>
+
+                {/* KPI pills on header right */}
+                {monthlyMetrics && (
+                  <div className="flex flex-wrap items-center gap-2 text-xs">
+                    <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-zinc-50 dark:bg-zinc-800/70 border border-zinc-200/70 dark:border-zinc-700/60 shadow-xs">
+                      <span className="text-zinc-500 dark:text-zinc-400 font-medium">Total:</span>
+                      <span className="font-semibold text-zinc-900 dark:text-zinc-100 tabular-nums">
+                        {monthlyMetrics.total.toLocaleString('en-IN')}
+                      </span>
+                    </div>
+
+                    <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-zinc-50 dark:bg-zinc-800/70 border border-zinc-200/70 dark:border-zinc-700/60 shadow-xs">
+                      <span className="text-zinc-500 dark:text-zinc-400 font-medium">Avg:</span>
+                      <span className="font-semibold text-zinc-900 dark:text-zinc-100 tabular-nums">
+                        ~{monthlyMetrics.avg}/mo
+                      </span>
+                    </div>
+
+                    {monthlyMetrics.latestGrowth !== null && (
+                      <div
+                        className={`flex items-center gap-1 px-2.5 py-1.5 rounded-xl border font-medium text-xs shadow-xs ${monthlyMetrics.latestGrowth >= 0
+                            ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200/60 dark:border-emerald-800/50 text-emerald-700 dark:text-emerald-300'
+                            : 'bg-amber-50 dark:bg-amber-950/40 border-amber-200/60 dark:border-amber-800/50 text-amber-700 dark:text-amber-300'
+                          }`}
+                      >
+                        {monthlyMetrics.latestGrowth >= 0 ? (
+                          <TrendUp size={13} weight="bold" />
+                        ) : (
+                          <TrendDown size={13} weight="bold" />
+                        )}
+                        <span>
+                          {monthlyMetrics.latestGrowth >= 0
+                            ? `+${monthlyMetrics.latestGrowth}%`
+                            : `${monthlyMetrics.latestGrowth}%`}{' '}
+                          MoM
+                        </span>
+                      </div>
+                    )}
+
+                    <div className="hidden md:flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-blue-50/70 dark:bg-blue-950/40 border border-blue-200/60 dark:border-blue-800/50 text-blue-700 dark:text-blue-300 text-xs font-medium shadow-xs">
+                      <Sparkle size={13} weight="fill" />
+                      <span>
+                        Peak: {monthlyMetrics.peakMonth} ({monthlyMetrics.peakCount})
+                      </span>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Responsive Layout: Visual Chart (Left) + Cohort Progress Rows (Right) */}
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 pt-5 items-stretch relative">
+                {/* Left: Recharts Bar Chart */}
+                <div className="lg:col-span-7 flex flex-col justify-between">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs font-semibold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider">
+                      Monthly Inflow Volume
+                    </span>
+                    <span className="text-[11px] text-zinc-400 dark:text-zinc-500 font-medium">
+                      First-time chatters
+                    </span>
+                  </div>
+
+                  <div className="h-[210px] w-full pt-1">
+                    {mounted ? (
+                      <ResponsiveContainer width="100%" height="100%">
+                        <BarChart
+                          data={monthlyEnrichedData}
+                          margin={{ top: 12, right: 12, left: -20, bottom: 4 }}
+                        >
+                          <defs>
+                            <linearGradient id="newPeopleBarGrad" x1="0" y1="0" x2="0" y2="1">
+                              <stop offset="0%" stopColor="#0066cc" stopOpacity={0.92} />
+                              <stop offset="100%" stopColor="#38bdf8" stopOpacity={0.65} />
+                            </linearGradient>
+                            <linearGradient id="newPeopleBarGradPeak" x1="0" y1="0" x2="0" y2="1">
+                              <stop offset="0%" stopColor="#2563eb" stopOpacity={1} />
+                              <stop offset="100%" stopColor="#0284c7" stopOpacity={0.88} />
+                            </linearGradient>
+                          </defs>
+                          <CartesianGrid
+                            strokeDasharray="3 3"
+                            vertical={false}
+                            stroke="#f4f4f5"
+                            className="dark:opacity-10"
+                          />
+                          <XAxis
+                            dataKey="monthLabel"
+                            axisLine={false}
+                            tickLine={false}
+                            tick={{ fill: '#71717a', fontSize: 11, fontWeight: 500 }}
+                            dy={6}
+                          />
+                          <YAxis
+                            axisLine={false}
+                            tickLine={false}
+                            tick={{ fill: '#71717a', fontSize: 11, fontWeight: 500 }}
+                            allowDecimals={false}
+                          />
+                          <RechartsTooltip
+                            cursor={{ fill: 'rgba(0, 102, 204, 0.05)', radius: 8 }}
+                            content={({ active, payload }) => {
+                              if (active && payload && payload.length) {
+                                const data = payload[0].payload
+                                return (
+                                  <div className="bg-zinc-950/95 backdrop-blur-md border border-zinc-800 text-white px-3.5 py-2.5 rounded-xl shadow-2xl z-50">
+                                    <div className="flex items-center justify-between gap-3 mb-1">
+                                      <p className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">
+                                        {data.monthFull}
+                                        {data.partial && ' (partial month)'}
+                                      </p>
+                                      {data.isPeak && (
+                                        <span className="text-[10px] bg-blue-500/20 text-blue-300 border border-blue-400/30 px-1.5 py-0.5 rounded font-medium">
+                                          Peak Month
+                                        </span>
+                                      )}
+                                    </div>
+                                    <div className="flex items-baseline gap-2">
+                                      <span className="w-2 h-2 rounded-full bg-[#0066cc] mt-1 shrink-0" />
+                                      <div>
+                                        <p className="text-xs font-semibold text-white">
+                                          {data.people}{' '}
+                                          <span className="text-zinc-400 font-normal">
+                                            new users ({data.pctOfTotal}%)
+                                          </span>
+                                        </p>
+                                        {data.momChange !== null && (
+                                          <p
+                                            className={`text-[11px] font-medium mt-0.5 ${data.momChange >= 0
+                                                ? 'text-emerald-400'
+                                                : 'text-amber-400'
+                                              }`}
+                                          >
+                                            {data.momChange >= 0
+                                              ? `▲ +${data.momChange}%`
+                                              : `▼ ${data.momChange}%`}{' '}
+                                            vs previous month
+                                          </p>
+                                        )}
+                                      </div>
+                                    </div>
+                                  </div>
+                                )
+                              }
+                              return null
+                            }}
+                          />
+                          <Bar dataKey="people" radius={[6, 6, 2, 2]} maxBarSize={48}>
+                            {monthlyEnrichedData.map((entry, index) => (
+                              <Cell
+                                key={`cell-${index}`}
+                                fill={
+                                  entry.isPeak
+                                    ? 'url(#newPeopleBarGradPeak)'
+                                    : 'url(#newPeopleBarGrad)'
+                                }
+                              />
+                            ))}
+                          </Bar>
+                        </BarChart>
+                      </ResponsiveContainer>
+                    ) : (
+                      <div className="w-full h-full flex items-end justify-between gap-4 pb-4 px-2 animate-pulse">
+                        <div className="flex-1 bg-zinc-100 dark:bg-zinc-800 rounded-t h-2/3" />
+                        <div className="flex-1 bg-zinc-100 dark:bg-zinc-800 rounded-t h-1/2" />
+                        <div className="flex-1 bg-zinc-100 dark:bg-zinc-800 rounded-t h-full" />
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Right: Cohort Progress Rows with Share % & Growth Badges */}
+                <div className="lg:col-span-5 flex flex-col justify-between border-t lg:border-t-0 lg:border-l border-zinc-100 dark:border-zinc-800/80 pt-4 lg:pt-0 lg:pl-6">
+                  <div>
+                    <div className="flex items-center justify-between mb-2.5">
+                      <span className="text-xs font-semibold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider">
+                        Cohort Breakdown
+                      </span>
+                      <span className="text-[11px] text-zinc-400 dark:text-zinc-500 font-medium">
+                        Share of Total
+                      </span>
+                    </div>
+
+                    <div className="space-y-2.5 max-h-[220px] overflow-y-auto pr-0.5">
+                      {monthlyEnrichedData.map((m) => {
+                        const max = monthlyMetrics?.max || 1
+                        const widthPct = Math.max(Math.round((m.people / max) * 100), 5)
+
+                        return (
+                          <div
+                            key={m.month}
+                            className="group p-2.5 rounded-xl border border-zinc-100 dark:border-zinc-800/70 bg-zinc-50/60 dark:bg-zinc-800/30 hover:bg-zinc-100/70 dark:hover:bg-zinc-800/60 transition-all"
+                          >
+                            <div className="flex items-center justify-between text-xs mb-1.5">
+                              <div className="flex items-center gap-1.5">
+                                <span className="font-medium text-zinc-800 dark:text-zinc-200">
+                                  {m.monthLabel}
+                                  {m.partial && <span className="text-zinc-400 font-normal"> (partial)</span>}
+                                </span>
+                                {m.isPeak && (
+                                  <span className="inline-flex items-center gap-0.5 text-[10px] font-semibold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/50 px-1.5 py-0.5 rounded border border-blue-200/50 dark:border-blue-800/50">
+                                    <Sparkle size={10} weight="fill" />
+                                    Peak
+                                  </span>
+                                )}
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <span className="font-bold text-zinc-900 dark:text-zinc-100 tabular-nums">
+                                  {m.people}
+                                </span>
+                                <span className="text-[11px] text-zinc-400 dark:text-zinc-500 font-medium w-11 text-right">
+                                  {m.pctOfTotal}%
+                                </span>
+                              </div>
+                            </div>
+
+                            {/* Progress bar with smooth background track */}
+                            <div className="h-2 w-full rounded-full bg-zinc-200/70 dark:bg-zinc-700/50 overflow-hidden flex">
+                              <div
+                                className={`h-full rounded-full transition-all duration-500 ${m.isPeak
+                                    ? 'bg-gradient-to-r from-blue-600 via-sky-500 to-cyan-400'
+                                    : 'bg-gradient-to-r from-[#0066cc] to-sky-400 dark:from-blue-500 dark:to-sky-400'
+                                  }`}
+                                style={{ width: `${widthPct}%` }}
+                              />
+                            </div>
+
+                            {/* Extra sub-row for MoM velocity */}
+                            <div className="flex items-center justify-between text-[11px] text-zinc-400 dark:text-zinc-500 mt-1">
+                              <span>First chat cohort</span>
+                              {m.momChange !== null ? (
+                                <span
+                                  className={`font-medium ${m.momChange >= 0
+                                      ? 'text-emerald-600 dark:text-emerald-400'
+                                      : 'text-amber-600 dark:text-amber-400'
+                                    }`}
+                                >
+                                  {m.momChange >= 0 ? `+${m.momChange}%` : `${m.momChange}%`} vs prev
+                                </span>
+                              ) : (
+                                <span className="text-zinc-400 dark:text-zinc-500 text-[10px]">
+                                  Baseline
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </div>
+
+                  <div className="mt-3 pt-2.5 border-t border-zinc-100 dark:border-zinc-800/80 flex items-center justify-between text-xs text-zinc-500 dark:text-zinc-400">
+                    <Link
+                      href="/admin/analytics/users"
+                      className="inline-flex items-center gap-1 font-medium text-[#0066cc] dark:text-blue-400 hover:underline text-xs"
+                    >
+                      <span>Explore user retention & funnel</span>
+                      <ArrowRight size={12} weight="bold" />
+                    </Link>
+                    <span className="text-[11px] text-zinc-400 dark:text-zinc-500">
+                      Cohort tracking
+                    </span>
+                  </div>
+                </div>
+              </div>
             </div>
           )}
         </div>
