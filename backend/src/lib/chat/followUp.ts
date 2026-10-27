@@ -91,7 +91,10 @@ export function parkedFocus(previous: Record<string, unknown> | null | undefined
 }
 
 export const BARE_YES = /^\s*(?:yes|yeah|yep|yup|sure|ok(?:ay)?|go on|go ahead|please do|do it|haan|ha)\b[\s,.!]*(?:(?:yes|please|sure|show(?: me| them)?|go ahead|do it|do that|now)[\s,.!]*){0,3}$/i
-const OFFER = /\b(?:would|do|shall|should) you (?:like|want) (?:me )?to ([^?]{4,160})\?|\bwant me to ([^?]{4,160})\?|\bshall i ([^?]{4,160})\?/gi
+// The last alternative is our own either/or prompt: "I can search all of Noida instead of
+// Sector 10, or look at 1 BHK: which would you like?" (live, 27 Oct 2026). "Okay" to it re-ran
+// the same Sector 10 search because no offer was found, so the reply looped.
+const OFFER = /\b(?:would|do|shall|should) you (?:like|want) (?:me )?to ([^?]{4,160})\?|\bwant me to ([^?]{4,160})\?|\bshall i ([^?]{4,160})\?|\bi can ([^?:]{4,160}?)\s*[:?]\s*which (?:would you like|do you prefer|one)/gi
 
 /**
  * "yes" after an offer means the offer.
@@ -104,7 +107,7 @@ const OFFER = /\b(?:would|do|shall|should) you (?:like|want) (?:me )?to ([^?]{4,
 export function expandAffirmation(message: string, history: ReadonlyArray<{ role: string; content: string }>): string {
   if (!BARE_YES.test(message ?? '')) return message
   const last = [...history].reverse().find((m) => m.role === 'assistant')?.content ?? ''
-  const offers = [...last.matchAll(OFFER)].map((m) => (m[1] ?? m[2] ?? m[3]).trim())
+  const offers = [...last.matchAll(OFFER)].map((m) => (m[1] ?? m[2] ?? m[3] ?? m[4]).trim())
   const offer = offers[offers.length - 1]
   if (!offer) {
     // "Are you looking to move in immediately?" -> "yes": the question carries the

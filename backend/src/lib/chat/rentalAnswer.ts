@@ -96,5 +96,23 @@ const RENT_AS_CONTEXT = new RegExp(
 export function isRentalQuestion(message: string): boolean {
   const m = (message || '').toLowerCase()
   if (RENT_AS_CONTEXT.test(m)) return false
-  return /\brent(?:s|al|als|ing)?\b|\bto[ -]let\b|\bkira(?:a)?y[ae]\b/.test(m)
+  return /\brent(?:s|al|als|ing)?\b|\bto[ -]let\b|\bkira(?:a)?y[ae]\b/.test(m) || hasMonthlyBudget(m)
+}
+
+/**
+ * "2 BHK in Noida under 30k": a flat with a budget only a month's rent could be.
+ *
+ * Live, 27 Oct 2026: two buyers asked this. One was shown flats from ₹93 L; the other was told
+ * none of our 17 Sector 10 projects matched, because ₹30,000 was read as a purchase ceiling.
+ * A figure of ₹3,000–₹1,00,000 with no lakh/crore/sq ft unit, beside a flat, is a monthly rent.
+ * Income, salary and EMI talk is excluded: those are a buyer's own monthly numbers.
+ */
+function hasMonthlyBudget(m: string): boolean {
+  if (!/\b(?:\d\s?bhk|bhk|flat|apartment|house|room|studio)\b/.test(m)) return false
+  if (/\b(?:income|salary|earn\w*|emi|loan|lakh|lac|crore|cr|sq\.?\s?ft|sqft|per\s+sq)\b/.test(m)) return false
+  const figures = [
+    ...[...m.matchAll(/(?:₹|rs\.?|inr)?\s?(\d{1,3})\s?k\b/g)].map((x) => Number(x[1]) * 1000),
+    ...[...m.matchAll(/(?:under|below|within|upto|up to|around|budget|max|for)\s*(?:₹|rs\.?|inr)?\s?(\d{1,2},?\d{3})\b/g)].map((x) => Number(x[1].replace(',', ''))),
+  ]
+  return figures.some((n) => n >= 3000 && n <= 100000)
 }

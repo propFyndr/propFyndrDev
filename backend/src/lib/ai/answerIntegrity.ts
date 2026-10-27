@@ -564,14 +564,31 @@ export function qualifyMarketFigures(text: string, prompt: string): { text: stri
  * Exported because it is pure and is the half worth pinning with real strings.
  * The fabrication half needs the database and is covered by toolBlindGuard.
  */
-export function scanDisclosure(text: string): IntegrityViolation[] {
+export function scanDisclosure(text: string, prompt?: string): IntegrityViolation[] {
   return [
     ...scan(text, META_LEAK, 'meta_leak'),
     ...scan(text, INVENTORY_SIZE, 'inventory_size'),
     ...scan(text, RAW_PAYLOAD, 'raw_payload'),
-    ...scan(text, OPAQUE_SCORE, 'opaque_score'),
+    ...scanScores(text, prompt),
     ...scan(text, INTERNAL_IDENTIFIER, 'meta_leak'),
   ]
+}
+
+/**
+ * A score the model made up is still caught. A score whose number is in the facts the model
+ * was given is the project's stored value, and is stated (owner policy 2026-10-27).
+ */
+function scanScores(text: string, prompt?: string): IntegrityViolation[] {
+  const found: IntegrityViolation[] = []
+  for (const [pattern, detail] of OPAQUE_SCORE) {
+    const m = pattern.exec(text)
+    if (!m) continue
+    // The "/100" denominator is the scale, not a stored figure.
+    const numbers = m[0].replace(/\/\s*100\b/, '').match(/\d+(?:\.\d+)?/g) ?? []
+    if (prompt && numbers.length && numbers.every((n) => new RegExp(`(?<![\\d.])${n.replace('.', '\\.')}(?![\\d])`).test(prompt))) continue
+    found.push({ kind: 'opaque_score', detail: `${detail}: "${m[0].slice(0, 60)}"` })
+  }
+  return found
 }
 
 function scan(text: string, table: Array<[RegExp, string]>, kind: IntegrityKind): IntegrityViolation[] {
@@ -660,7 +677,7 @@ export function checkAnswerIntegritySync(text: string, prompt: string, userMessa
   if (!body) return []
 
   const violations: IntegrityViolation[] = [
-    ...scanDisclosure(body),
+    ...scanDisclosure(body, prompt),
     ...unfoundedWarnings(body, prompt),
     ...unsourcedDates(body, prompt),
     ...unsourcedPeriods(body, prompt, userMessage),
@@ -688,7 +705,7 @@ export async function checkAnswerIntegrity(
   if (!body) return []
 
   const violations: IntegrityViolation[] = [
-    ...scanDisclosure(body),
+    ...scanDisclosure(body, prompt),
     ...unfoundedWarnings(body, prompt),
     ...unsourcedDates(body, prompt),
     ...unsourcedPeriods(body, prompt, userMessage),

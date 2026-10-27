@@ -209,10 +209,27 @@ Every fact shown to a buyer belongs to exactly one tier. Reference `lib/factPres
 * No hardcoded figures in routers or components. If a constant is a market assumption (an interest rate, a tax slab), it is labelled as one where the buyer sees it.
 * `verified` and `confidence: 'HIGH'` are reserved for answers from the project's own rows.
 * An absent field is absent. No UI default (`superArea = 1000`), no `?? 1.30`, no `|| 8.5` reaching a buyer unlabelled.
-* A **schema default is not data.** Columns whose value is identical on every row (`SCHEMA_DEFAULT_SENTINELS` in `projectExposure.ts`) are treated as missing.
-* A **templated value is not data.** If the same value appears on many projects because a script wrote it, it is cleared (`npm run fix:templated`), not labelled.
-* *Owner exception (2026-10-26):* amenities are stated as the project lists them, with no "may be a template" note. The fix for shared amenity text is cleaning the data.
-* *Owner exception (2026-10-27):* cost-sheet charges (parking, club, IFMS, maintenance, PLC, floor rise, electricity, water, other charges) and payment plans are answered from the rows we hold, whoever wrote them, with no template caveat. Do not clear or hide them on live without the owner's say-so. On live they are still the seed-script values (3 tiers; one schedule per plan type); dev had them cleared on 16 Oct, so dev answers "Not on record" where live states a figure.
+* **Owner policy (2026-10-27): every project fact we hold is answered from the database as stored, whoever wrote it, with no template or "may be a template" caveat.**
+  * **Covered:**
+    * amenities;
+    * cost-sheet charges and payment plans;
+    * schema-default values (`SCHEMA_DEFAULT_SENTINELS` is now empty);
+    * the formerly templated columns (`nclt_status`, `approvals_status`, nearby counts, noise, ratings, lock-ins);
+    * analyst scores (`BUYER_OPAQUE_SCORES` is now empty);
+    * forward-looking figures (`appreciation_potential_5yr`, `rental_yield_annual_percent`, `market_demand_score`);
+    * builder corporate detail (`cin`, `legal_entities`, `executives`, `outstanding_dues_cr`);
+    * `marketing_claims` (wrapped as developer copy).
+  * **Still withheld** (privacy and process, not data quality):
+    * other users' rows (`FORBIDDEN_RELATIONS`);
+    * `embedding`, `ai_search_keywords`, `builder_theme`, raw ids and timestamps;
+    * `publish_status`, `archived_duplicate_of`;
+    * analyst notes, our own verification and process fields, channel-partner commercial terms, `portal_subdomain`;
+    * drafts (`field_drafts`, unpublished `decision_profile`).
+  * **Not to be undone without the owner.** Do not clear, hide or caveat stored values (no `fix:templated` on live).
+  * **Known risk the owner accepted:** `nclt_status` and `approvals_status` read "Clean" / "Fully approved" even on Amrapali and Jaypee projects.
+  * **Still in place:**
+    * The integrity checks still reject figures that are not in the facts given to the model. A score is let through only when its number is in those facts.
+    * A value that is genuinely absent is still "not on record", never a typical figure.
 
 **Enforcement:** `dueDiligenceFabrication.test.ts`, `lib/ai/__tests__/answerIntegrity.test.ts`; `answerIntegrity.ts` runs before the buyer sees any answer.
 

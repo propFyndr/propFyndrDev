@@ -138,8 +138,12 @@ async function pingProvider(item: (typeof FALLBACK_CHAIN)[number]): Promise<{ ok
     }
 
     // Everything else speaks the OpenAI chat-completions shape.
+    // A leg's own baseUrl first, as fallbackChain.ts uses it: Cohere, NVIDIA and Cloudflare are
+    // `provider: 'openai'` legs with a baseUrl, and probing api.openai.com with their keys
+    // reported every one of them as a bad key (27 Oct 2026).
     const baseUrl =
-      item.provider === 'groq' ? 'https://api.groq.com/openai/v1'
+      item.baseUrl ? item.baseUrl
+      : item.provider === 'groq' ? 'https://api.groq.com/openai/v1'
       : item.provider === 'mistral' ? 'https://api.mistral.ai/v1'
       : item.provider === 'cerebras' ? 'https://api.cerebras.ai/v1'
       : process.env.OPENAI_BASE_URL || 'https://api.openai.com/v1'

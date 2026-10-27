@@ -288,6 +288,9 @@ export const PRICING_FACT_FIELDS = new Set([
   'maintenance_per_sqft_monthly', 'gst_pass_through',
   'dg_power_rate_per_unit', 'all_in_cost_multiplier', 'launch_date',
   'unit_types',
+  // Stated as stored (owner policy 2026-10-27).
+  'appreciation_potential_5yr', 'rental_yield_annual_percent', 'market_demand_score',
+  'expected_handover_quarter',
 ])
 
 export const LEGAL_FACT_FIELDS = new Set([
@@ -300,6 +303,9 @@ export const LEGAL_FACT_FIELDS = new Set([
   'legal_risk_summary', 'developer_legal_standing',
   'oc_status', 'oc_details', 'amitabh_kant_clearance', 'registry_status',
   'possession_confidence', 'lift_act_compliant', 'flood_zone',
+  // Stated as stored (owner policy 2026-10-27).
+  'nclt_status', 'approvals_status', 'resale_lock_in_months', 'nri_approval_months',
+  'rera_compliance_score',
 ])
 
 export const LIVABILITY_FACT_FIELDS = new Set([
@@ -314,6 +320,11 @@ export const LIVABILITY_FACT_FIELDS = new Set([
   'shahdara_drain_impact', 'commute_matrix', 'floors', 'lift_act_compliant',
   'power_supply_type', 'green_rating',
   'description', 'amenities', 'unit_types',
+  // Stated as stored (owner policy 2026-10-27).
+  'noise_level_db', 'college_distance_km', 'proximity_to_industrial', 'women_safety_score',
+  'shared_walls_type', 'schools_nearby_count', 'hospitals_nearby_count', 'restaurants_nearby_count',
+  'it_parks_nearby_count', 'banks_nearby_count', 'shopping_nearby_count', 'handover_defect_rate',
+  'construction_quality_rating', 'buyer_satisfaction_rating', 'lifts_per_tower',
 ])
 
 export const OVERVIEW_FACT_FIELDS = new Set([
@@ -322,6 +333,7 @@ export const OVERVIEW_FACT_FIELDS = new Set([
   'price_min_cr', 'price_max_cr', 'price_range_label', 'price_per_sqft',
   'rera_number', 'rera_number_status', 'total_units', 'total_towers',
   'open_space_pct', 'land_area_acres', 'tagline', 'location_concerns',
+  'competing_projects_nearby', 'expected_handover_quarter',
 ])
 
 /**
@@ -372,7 +384,8 @@ export function detectIntentSlice(message: string): IntentSlice | null {
  * Trimming these is also what keeps the block inside its token budget without
  * raising the budget, which masterDataCoverage.test.ts deliberately makes hard.
  */
-export const PROMPT_EXCLUDED_FIELDS = new Set(['rera_url', 'hero_image_url', 'marketing_claims'])
+// marketing_claims is no longer excluded (owner policy 2026-10-27); it is wrapped as developer copy below.
+export const PROMPT_EXCLUDED_FIELDS = new Set(['rera_url', 'hero_image_url'])
 
 export function projectScalarFacts(
   row: Record<string, unknown>,
@@ -409,7 +422,7 @@ export function projectScalarFacts(
     if (sliceFields && !sliceFields.has(key)) continue
     let formatted = formatValue(key, value)
     if (formatted === null) continue
-    if (key === 'description' || key === 'long_description' || key === 'tagline') {
+    if (key === 'description' || key === 'long_description' || key === 'tagline' || key === 'marketing_claims') {
       if (formatted.length > maxDescription) formatted = `${formatted.slice(0, maxDescription)}…`
       // Marketing copy written by or for the developer. "Metro confirmed 2028"
       // or "verified safest project" in here is a claim, not a fact we hold.
@@ -732,9 +745,9 @@ export function buildProjectFacts(
     const status = (row.decision_profile as { status?: unknown } | null | undefined)?.status
     const withheld: Record<string, string> = {
       projections:
-        'RealtyAsk does not state an expected rental yield, rental income, resale value or future price growth for a project: those are forward-looking estimates, not records. ' +
-        'When asked, say that plainly in one sentence, then offer what IS held: the recorded price points (with their basis), unit prices, the cost sheet and the possession status. ' +
-        'Never estimate, and never say this is missing from our records.',
+        'If appreciation_potential_5yr, rental_yield_annual_percent or market_demand_score is in this project\'s facts, state it as the figure on record for the project. ' +
+        'If it is not there, say we do not hold one for this project, then offer what IS held: price points, unit prices, the cost sheet and the possession status. ' +
+        'Never estimate a figure that is not in the facts.',
     }
     if (row.decision_profile && status !== 'PUBLISHED') {
       withheld.analyst_view =

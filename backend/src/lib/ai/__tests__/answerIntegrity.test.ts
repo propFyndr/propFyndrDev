@@ -394,3 +394,10 @@ test('ungroundedAreaViolations flags unverified super built-up area derivations'
   const violations = await checkAnswerIntegrity(text, prompt)
   assert.ok(violations.some((v) => v.detail.includes('ungrounded calculation or assumption of super built-up area')))
 })
+
+test("a stored score is stated; an invented one is still caught (owner policy 2026-10-27)", () => {
+  const answer = "The developer scores 87/100 on our delivery assessment."
+  const prompt = "builder: { name: B, delivery_score: 87 }"
+  assert.deepEqual(scanDisclosure(answer, prompt).filter(v => v.kind === "opaque_score"), [])
+  assert.ok(scanDisclosure(answer, "builder: { name: B }").some(v => v.kind === "opaque_score"))
+})

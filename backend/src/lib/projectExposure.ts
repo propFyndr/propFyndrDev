@@ -46,67 +46,8 @@ export const INTERNAL_ONLY_FIELDS: Record<string, string> = {
   updated_at: 'row bookkeeping, not a project fact',
   publish_status: 'publish-gate lifecycle (draft/live), not a project fact a buyer asked about',
   archived_duplicate_of: 'record-lifecycle bookkeeping from the dedup migration, not a project fact a buyer asked about',
-  market_demand_score: 'internal analyst score; V1 scope excludes investment analysis',
-  appreciation_potential_5yr: 'forward-looking estimate — the prompt forbids presenting projections as fact',
-  rental_yield_annual_percent: 'forward-looking estimate — same rule',
-  competing_projects_nearby: 'internal ranking input',
-  rera_compliance_score:
-    'analyst-set 0-100 number — a buyer cannot check it and reads it as the regulator’s verdict; ' +
-    'rera_number and rera_url are the checkable facts. See BUYER_OPAQUE_SCORES.',
-
-  // ─── Batch-templated columns, found by `npm run audit:synthetic` ─────────
-  //
-  // Every entry below carries one value across effectively every populated row.
-  // A column that does not vary is not a measurement, whatever its name says,
-  // and rendering one hands a buyer a specific figure nobody took.
-  //
-  // The first two are the reason this sweep exists at all, and they are legal
-  // claims rather than conveniences:
-  nclt_status:
-    'reads "Clean - No NCLT Moratorium" on 100% of the 94 populated rows — INCLUDING Amrapali projects, ' +
-    'whose own builder record in this database says "Amrapali Group (NBCC Supervised)". The Supreme Court ' +
-    'cancelled Amrapali\'s RERA registrations in 2019 and handed the projects to NBCC. Measured live before ' +
-    'withholding: the chat told a buyer Amrapali Crystal Homes "has a clean legal standing with no active ' +
-    'NCLT insolvency proceedings". `nclt_moratorium_active` is the real column and stays exposed.',
-  approvals_status:
-    'reads "Fully RERA & Authority Approved" on 100% of the 207 populated rows, Amrapali and Jaypee included. ' +
-    'A blanket approval claim across two thirds of inventory is not an approval record.',
-
-  // Physical and environmental measurements nobody took:
-  handover_defect_rate: 'exactly 1.2 on all 91 populated rows — one value, so not a measurement',
-  noise_level_db: '48 dB on 93 of 95 populated rows — a specific acoustic reading, taken once and copied',
-  construction_quality_rating: '4.6 on 92 of 94 populated rows — the same shape as buyer_satisfaction_rating',
-  college_distance_km: 'exactly 5 km on all 91 populated rows',
-  proximity_to_industrial: '"Clean Zone (3+ km from industrial belt)" on all 91 populated rows',
-  shared_walls_type: 'one layout claim on 91% of all 280 rows',
-  women_safety_score: 'two values across all 280 rows (85 and 90) — a score with two possible values is not a score',
-
-  // Contractual terms nobody checked:
-  resale_lock_in_months: 'exactly 36 on all 95 populated rows',
-  occupancy_restriction_months: 'exactly 0 on all 91 populated rows',
-  nri_approval_months: 'exactly 1 on all 91 populated rows',
-
-  // The nearby counts are one import repeated: 81 of the 91 populated rows
-  // carry the identical set — 8 schools, 5 hospitals, 20 restaurants, 10 IT
-  // parks, 12 banks, 4 shopping. The `connectivity` relation holds the real,
-  // per-project landmarks with distances and is unaffected.
-  schools_nearby_count: 'value 8 on 81 of 91 populated rows — one import repeated',
-  hospitals_nearby_count: 'value 5 on 81 of 91 populated rows — one import repeated',
-  restaurants_nearby_count: 'value 20 on 81 of 91 populated rows — one import repeated',
-  it_parks_nearby_count: 'value 10 on 81 of 91 populated rows — one import repeated',
-  banks_nearby_count: 'value 12 on 81 of 91 populated rows — one import repeated',
-  shopping_nearby_count: 'value 4 on 81 of 91 populated rows — one import repeated',
-  //
-  // DELIBERATELY NOT WITHHELD, and the distinction is the point:
-  //   ongoing_litigation_count  0×239, 3×19, 5×11, 6×8, 2×2, 4×1
-  //   litigation_count          same shape
-  //   average_builder_delay_months  0×62, 3×29
-  // Concentrated because most projects genuinely have no litigation and most
-  // builders genuinely deliver on time. Withholding those would hide good news
-  // a buyer is entitled to, which is the opposite error and just as real.
-  buyer_satisfaction_rating:
-    'batch-templated default, not a survey — 92 of the 94 populated rows are exactly 4.7 ' +
-    '(measured 4 Sep 2026). Presenting it implies buyer research we never did. See SYNTHETIC_FIELDS.',
+  // Everything else that used to sit here (templated columns, analyst scores, forward-looking
+  // estimates) is now public: owner policy 2026-10-27, see PROJECT_PUBLIC_SELECT.
 }
 
 /**
@@ -166,7 +107,7 @@ export const PROJECT_PUBLIC_SELECT = {
    * Set back to `true` once the values are real; `npm run audit:data` fails
    * while any of them still disagree.
    */
-  expected_handover_quarter: false,
+  expected_handover_quarter: true,
   foundation_stone_date: true,
 
   // Legal, compliance, disclosure — buyers are entitled to all of this
@@ -241,6 +182,33 @@ export const PROJECT_PUBLIC_SELECT = {
   lift_act_compliant: true,
   power_supply_type: true,
   all_in_cost_multiplier: true,
+
+  // Owner policy (2026-10-27): every project fact we hold is answered as stored, whoever wrote
+  // it. These were withheld as templated, analyst-set or forward-looking; they are stated now.
+  market_demand_score: true,
+  appreciation_potential_5yr: true,
+  rental_yield_annual_percent: true,
+  competing_projects_nearby: true,
+  rera_compliance_score: true,
+  nclt_status: true,
+  approvals_status: true,
+  handover_defect_rate: true,
+  noise_level_db: true,
+  construction_quality_rating: true,
+  college_distance_km: true,
+  proximity_to_industrial: true,
+  shared_walls_type: true,
+  women_safety_score: true,
+  resale_lock_in_months: true,
+  occupancy_restriction_months: true,
+  nri_approval_months: true,
+  schools_nearby_count: true,
+  hospitals_nearby_count: true,
+  restaurants_nearby_count: true,
+  it_parks_nearby_count: true,
+  banks_nearby_count: true,
+  shopping_nearby_count: true,
+  buyer_satisfaction_rating: true,
 } as const
 
 export type PublicProjectField = keyof typeof PROJECT_PUBLIC_SELECT
@@ -424,7 +392,7 @@ export const RELATION_INTERNAL_FIELDS: Record<string, readonly string[]> = {
    * developer.
    */
   builder: [
-    'cin', 'legal_entities', 'executives', 'outstanding_dues_cr',
+    // cin, legal_entities, executives and outstanding_dues_cr are stated (owner policy 2026-10-27).
     'audit_flags_log', 'verification_level', 'data_source', 'intelligence_completeness',
     // Same rule as decision_profile / recommendation_profile / persona_profile
     // above: when we last checked a record is our own process detail, not a
@@ -579,20 +547,9 @@ export const SYNTHETIC_FIELDS: readonly string[] = []
  * true fact. Saying "not recorded" about something true is recoverable on the
  * site visit; asserting a specific wrong measurement is not.
  */
-export const SCHEMA_DEFAULT_SENTINELS: Record<string, number | boolean | string> = {
-  ceiling_height_ft: 10.2,
-  lifts_per_tower: 3,
-  /**
-   * `Boolean @default(false)`, not nullable, so false cannot tell "checked: no
-   * insolvency" from "never researched". Antriksh carried it while it was being
-   * answered as "clean NCLT/insolvency standing". Only `true` carries information.
-   */
-  insolvency_history: false,
-  // mobile_network_rating, authority_dues_cleared, land_tenure, pet_friendly,
-  // bachelor_tenants_allowed, has_png_gas_pipeline and has_service_lift were
-  // dropped entirely (lean-schema migration, 2026-10) rather than left as
-  // columns a sentinel could mask — see the migration's cutover audit.
-}
+// Owner policy (2026-10-27): a stored value is stated even when it equals the column default
+// (ceiling_height_ft 10.2, lifts_per_tower 3, insolvency_history false). Kept as the hook.
+export const SCHEMA_DEFAULT_SENTINELS: Record<string, number | boolean | string> = {}
 
 /**
  * True when this value carries no provenance beyond a schema default.
@@ -627,20 +584,8 @@ export function isSchemaDefault(field: string, value: unknown): boolean {
  * average handover delay, litigation count, RERA promoter id, legal flag —
  * are what a buyer can actually check, and they stay.
  */
-export const BUYER_OPAQUE_SCORES = [
-  'delivery_score',
-  'construction_quality_score',
-  'after_sales_score',
-  'buyer_satisfaction_score',
-  'rera_compliance_score',
-  'overall_score',
-  'internal_confidence',
-  // Builder-level, added 7 Sep 2026 alongside RELATION_INTERNAL_FIELDS.builder —
-  // same class as rera_compliance_score above: an analyst-set 0-100 number
-  // about the exact developer a buyer is trying to assess, with nothing a
-  // buyer can check behind it.
-  'financial_hygiene_score',
-] as const
+// Owner policy (2026-10-27): analyst scores are stated as stored. Kept as the hook.
+export const BUYER_OPAQUE_SCORES: readonly string[] = []
 
 /** Drops every opaque score from an object bound for a prompt or a response. */
 export function stripOpaqueScores<T extends Record<string, unknown>>(row: T): Partial<T> {

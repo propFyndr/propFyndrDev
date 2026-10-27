@@ -221,7 +221,8 @@ BUYER ASKS FOR A VERDICT: The buyer is asking you to choose ONE of these shortli
  * Shared with the open lane, which sits earlier and was answering "hi" and
  * "thanks" with a model call before these lanes were ever reached.
  */
-const GREETING = /^(hi|hello|hey|good\s+(morning|afternoon|evening)|namaste|hola|what's\s+up|help|start)\b[\s!.]*$/i
+// "whatsup" (live, 27 Oct 2026) missed "what's up" and paid 7.5 s for a model greeting.
+const GREETING = /^(hi+|hello|hey+|good\s+(morning|afternoon|evening)|namaste|hola|what'?s\s*up|wh?ass?up|sup|yo|help|start)\b[\s!.?]*$/i
 const GREETING_META = /^(who\s+are\s+you|what\s+can\s+you\s+do|what\s+is\s+(?:propfyndr|realtyask)|how\s+can\s+you\s+help(\s+me)?)\??$/i
 const THANKS = /^(thank\s+you|thanks|thanks\s+a\s+lot|thx|great|awesome|helpful|ok\s+thanks)\b[\s!.]*$/i
 function isGreetingMessage(m: string): boolean { return GREETING.test(m.trim()) || GREETING_META.test(m.trim()) }
@@ -507,6 +508,9 @@ router.post('/', async (req: Request, res: Response) => {
       // transfer later") is answered by legalRiskHandler; the resale pitch here
       // said nothing about the missing registry.
       (/\b(resale|second[- ]?hand|pre[- ]?owned)\s+(flat|propert|apartment|home|house)/i.test(message) && !matchesLegalRiskQuestion(message) && !matchesResaleDealQuestion(message)) ||
+      // "Share the properties for resale under 5cr" (live, 27 Oct 2026) reached the model and
+      // came back as an echo of its own prompt.
+      (/\b(?:propert\w*|flats?|apartments?|homes?|houses?|units?)\s+(?:for|on|in|up\s+for)\s+resale\b/i.test(message) && !matchesLegalRiskQuestion(message) && !matchesResaleDealQuestion(message)) ||
       /\bcommercial\s+(propert|space|shop|office|showroom)/i.test(message) ||
       // A bare "tenant" is not a rental request: "society maintenance charges
       // tenants pay in Paras Tierea" is a buyer asking about a project's costs.

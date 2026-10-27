@@ -124,7 +124,9 @@ describe('withheld_by_policy in the facts block', () => {
     const facts = buildProjectFacts(draft as never, { topics: detectFactTopics('What is the decision thesis?') })
     const w = facts.withheld_by_policy as Record<string, string>
     assert.match(w.analyst_view, /still a draft, so it is not published/)
-    assert.match(w.projections, /does not state an expected rental yield/)
+    // Owner policy 2026-10-27: a stored projection is stated; an absent one is never estimated.
+    assert.match(w.projections, /state it as the figure on record/)
+    assert.match(w.projections, /Never estimate/)
     assert.ok(!JSON.stringify(facts).includes('internal draft text'), 'the draft itself must never reach the prompt')
   })
 

@@ -121,7 +121,14 @@ describe('projectExposure — schema coverage', () => {
     }
   })
 
-  it('withholds the two legal SUMMARY strings that contradict those fields', () => {
+  it('states the two legal SUMMARY strings as stored (owner policy 2026-10-27)', () => {
+    // The owner chose to answer every stored value, these included, knowing the history below.
+    for (const f of ['nclt_status', 'approvals_status']) {
+      assert.equal(isPublicField(f), true, `${f} must be answered as stored`)
+    }
+  })
+
+  it.skip('withholds the two legal SUMMARY strings that contradict those fields (superseded 2026-10-27)', () => {
     /**
      * `nclt_status` used to be in the list above, and the principle that put it
      * there is right — a buyer is entitled to know a project's legal standing.
@@ -230,18 +237,15 @@ describe('the forward-projection columns cannot reach a buyer', () => {
     'rental_yield_annual_percent',
     'market_demand_score',
   ]) {
-    it(`${field} is classified internal-only, with a stated reason`, () => {
-      assert.ok(field in INTERNAL_ONLY_FIELDS, `${field} is no longer classified internal`)
-      assert.ok(
-        INTERNAL_ONLY_FIELDS[field].length > 10,
-        `${field} is internal but nothing says why`,
-      )
+    // Owner policy 2026-10-27: stated as stored. The history above is why it used to be withheld.
+    it(`${field} is not internal-only any more`, () => {
+      assert.ok(!(field in INTERNAL_ONLY_FIELDS), `${field} is still classified internal`)
     })
 
-    it(`${field} is absent from the public select`, () => {
+    it(`${field} is in the public select`, () => {
       assert.ok(
-        !(field in (PROJECT_PUBLIC_SELECT as Record<string, unknown>)),
-        `${field} reached PROJECT_PUBLIC_SELECT`,
+        field in (PROJECT_PUBLIC_SELECT as Record<string, unknown>),
+        `${field} is missing from PROJECT_PUBLIC_SELECT`,
       )
     })
   }
@@ -302,6 +306,10 @@ describe('Builder exposure — schema coverage', () => {
     'funding_banks', 'luxury_specialization', 'township_specialization',
     'affordable_specialization', 'average_project_size', 'awards',
     'awards_count', 'certifications', 'credai_member', 'iso_certified',
+    // Stated as stored (owner policy 2026-10-27): corporate-registry detail and analyst scores.
+    'cin', 'legal_entities', 'executives', 'outstanding_dues_cr',
+    'delivery_score', 'construction_quality_score', 'after_sales_score', 'buyer_satisfaction_score',
+    'rera_compliance_score', 'overall_score', 'internal_confidence', 'financial_hygiene_score',
   ])
 
   it('classifies every scalar column as public, opaque-score, or relation-internal', () => {
@@ -334,14 +342,17 @@ describe('Builder exposure — schema coverage', () => {
     assert.deepEqual(both, [], `Column(s) in both lists: ${both.join(', ')}`)
   })
 
-  it('keeps the opaque analyst scores out of the facts block', () => {
+  it('states the analyst scores as stored (owner policy 2026-10-27)', () => {
     for (const f of ['delivery_score', 'construction_quality_score', 'rera_compliance_score', 'financial_hygiene_score']) {
-      assert.ok((BUYER_OPAQUE_SCORES as readonly string[]).includes(f), `${f} must stay an opaque score`)
+      assert.ok(!(BUYER_OPAQUE_SCORES as readonly string[]).includes(f), `${f} is still withheld`)
     }
   })
 
-  it('keeps the corporate-registry and process fields out of the facts block', () => {
-    for (const f of ['cin', 'legal_entities', 'executives', 'outstanding_dues_cr', 'audit_flags_log', 'verification_level', 'data_source', 'intelligence_completeness']) {
+  it('states corporate-registry detail but keeps our process fields internal', () => {
+    for (const f of ['cin', 'legal_entities', 'executives', 'outstanding_dues_cr']) {
+      assert.ok(!(RELATION_INTERNAL_FIELDS.builder ?? []).includes(f), `${f} is still withheld`)
+    }
+    for (const f of ['audit_flags_log', 'verification_level', 'data_source', 'intelligence_completeness', 'portal_subdomain']) {
       assert.ok((RELATION_INTERNAL_FIELDS.builder ?? []).includes(f), `${f} must stay relation-internal`)
     }
   })
@@ -369,14 +380,15 @@ describe('relations are cleaned on the way out, not passed through', () => {
     it(`${label} strips relation internals`, () => {
       const out = fn(row as any) as any
       assert.equal(out.embedding, undefined)
-      assert.equal(out.buyer_satisfaction_rating, undefined)
+      // Stated as stored (owner policy 2026-10-27).
+      assert.equal(out.buyer_satisfaction_rating, 4.7)
       assert.equal(out.dna, undefined)
       assert.equal(out.recommendation_profile, undefined)
       assert.equal(out.saved_by, undefined)
       assert.equal(out.builder.name, 'B')
-      assert.equal(out.builder.outstanding_dues_cr, undefined)
+      assert.equal(out.builder.outstanding_dues_cr, 12)
       assert.equal(out.builder.portal_subdomain, undefined)
-      assert.equal(out.builder.financial_hygiene_score, undefined)
+      assert.equal(out.builder.financial_hygiene_score, 80)
       assert.equal(out.decision_profile, null)
       assert.equal(out.channel_partners[0].channel_partner.commission_rate_pct, undefined)
     })

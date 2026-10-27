@@ -2129,5 +2129,68 @@
         }
       }
     ]
+  },
+  {
+    "id": "oct27-rent-budget-30k",
+    "source": "live 2026-10-27: a monthly budget was read as a purchase ceiling",
+    "turns": [
+      {
+        "text": "look for a 2 bhk in noida under 30k",
+        "expect": {
+          "laneNot": [
+            "main",
+            "search"
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "id": "oct27-rent-budget-relocating",
+    "source": "live 2026-10-27: told none of 17 Sector 10 projects matched",
+    "turns": [
+      {
+        "text": "I'm relocating at Sector 10 Gr. Noida, find me some spacious 2BHK under 30k.",
+        "expect": {
+          "laneNot": [
+            "main",
+            "search"
+          ],
+          "notContains": [
+            "None of the projects we hold match"
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "id": "oct27-resale-listing",
+    "source": "live 2026-10-27: answered with an echo of the prompt",
+    "turns": [
+      {
+        "text": "Share the properties for resale under 5cr",
+        "expect": {
+          "laneNot": [
+            "main"
+          ],
+          "notContains": [
+            "boilerplate"
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "id": "oct27-whatsup",
+    "source": "live 2026-10-27: a greeting paid 7.5 s for the model",
+    "turns": [
+      {
+        "text": "whatsup",
+        "expect": {
+          "lane": "greeting",
+          "llm": false
+        }
+      }
+    ]
   }
 ]

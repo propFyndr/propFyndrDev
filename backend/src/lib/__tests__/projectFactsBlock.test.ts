@@ -47,10 +47,8 @@ describe('projectScalarFacts', () => {
     assert.equal(facts.top_school_distance_km, '1.2 km')
     // 4 is a real figure — not the schema default of 3 — so it survives.
     assert.equal(facts.lifts_per_tower, '4')
-    // The fixture's 10.2 IS the old schema default, and 190 of 280 live rows
-    // carried exactly it. A value whose only provenance is a schema line is
-    // withheld — see SCHEMA_DEFAULT_SENTINELS.
-    assert.ok(!('ceiling_height_ft' in facts), 'a schema-default ceiling height reached the prompt')
+    // The fixture's 10.2 is the old schema default. Owner policy 2026-10-27: stated as stored.
+    assert.equal(facts.ceiling_height_ft, '10.2 ft')
     assert.equal(facts.water_source, 'Ganga jal + borewell')
     assert.equal(facts.registry_status, 'open')
     assert.equal(facts.flood_waterlogging_risk, 'low')
@@ -120,7 +118,8 @@ describe('buildProjectFacts — relations', () => {
       cost_sheet: { id: 'cs1', project_id: 'p1', base_price_per_sqft: 10800, created_at: new Date() },
     }) as never)
 
-    assert.deepEqual(facts.builder, { name: 'ACE Group', founded_year: '2005' })
+    // Owner policy 2026-10-27: analyst scores and the CIN are stated as stored.
+    assert.deepEqual(facts.builder, { name: 'ACE Group', founded_year: '2005', delivery_score: '88', cin: 'U45201DL2005PLC123456' })
     assert.deepEqual(facts.unit_types, ['3 BHK (1420 sq ft) from ₹3.11 Cr'])
     assert.deepEqual(facts.amenities, ['Swimming Pool', 'Gym'])
     assert.deepEqual(facts.connectivity, ['Sector 148 Metro — 2.1 km, 7 min'])
@@ -159,18 +158,14 @@ describe('buildProjectFacts — relations', () => {
 })
 
 describe('schema-default sentinels', () => {
-  it('withholds a value that is only there because Postgres wrote it', () => {
-    // Measured 4 Sep 2026 across 280 live projects: ceiling_height_ft was
-    // exactly 10.2 on 190 of them, and lifts_per_tower exactly 3 on 166 — the
-    // schema defaults. Roughly a third of each column is real, which is why
-    // they are withheld per-row rather than dropped from the select.
+  it('states a value even when it equals the schema default (owner policy 2026-10-27)', () => {
+    // These used to be withheld (190 of 280 rows carried exactly 10.2, 166 exactly 3).
     const facts = projectScalarFacts(row({
       ceiling_height_ft: 10.2,
       lifts_per_tower: 3,
     }) as never)
-    for (const f of ['ceiling_height_ft', 'lifts_per_tower']) {
-      assert.ok(!(f in facts), `${f} reached the prompt carrying only a schema default`)
-    }
+    assert.equal(facts.ceiling_height_ft, '10.2 ft')
+    assert.equal(facts.lifts_per_tower, '3')
   })
 
   it('keeps a researched value that differs from the default', () => {
@@ -246,5 +241,25 @@ describe('possession, legal flag and competitor wording (followup-coverage 2026-
     const text = JSON.stringify(facts.competitors)
     assert.match(text, /Godrej Palm Retreat/)
     assert.doesNotMatch(text, /Micro-Market Development|Adjacent Premium Project/)
+  })
+})
+
+describe("owner policy 2026-10-27: every stored project fact reaches the prompt", () => {
+  it("states the columns that used to be withheld as templated, scored or forward-looking", () => {
+    const facts = projectScalarFacts(row({
+      nclt_status: "Clean - No NCLT Moratorium",
+      approvals_status: "Fully RERA & Authority Approved",
+      appreciation_potential_5yr: 48.5,
+      rental_yield_annual_percent: 3.2,
+      schools_nearby_count: 8,
+      buyer_satisfaction_rating: 4.7,
+      noise_level_db: 48,
+      resale_lock_in_months: 36,
+      marketing_claims: ["Ultra-Luxury"],
+    }) as never)
+    for (const f of ["nclt_status", "approvals_status", "appreciation_potential_5yr", "rental_yield_annual_percent",
+      "schools_nearby_count", "buyer_satisfaction_rating", "noise_level_db", "resale_lock_in_months", "marketing_claims"]) {
+      assert.ok(f in facts, `${f} did not reach the prompt`)
+    }
   })
 })

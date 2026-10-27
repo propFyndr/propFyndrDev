@@ -36,3 +36,19 @@ describe('isRentalQuestion', () => {
     it(`does not match: ${q}`, () => assert.equal(isRentalQuestion(q), false))
   }
 })
+
+describe("a monthly budget beside a flat is a rental ask (live, 27 Oct 2026)", () => {
+  for (const q of [
+    "look for a 2 bhk in noida under 30k",
+    "I'm relocating at Sector 10 Gr. Noida, find me some spacious 2BHK under 30k.",
+    "1bhk flat within 18,000 in sector 62",
+  ]) it(`matches: ${q}`, () => assert.equal(isRentalQuestion(q), true))
+
+  for (const q of [
+    "3bhk under 1.5 cr in sector 150",
+    "2bhk under 90 lakh",
+    "flat at 9,500 per sq ft is that fair",
+    "my salary is 80k, which 2bhk can I afford",
+    "emi of 45k on a 2bhk",
+  ]) it(`does not match: ${q}`, () => assert.equal(isRentalQuestion(q), false))
+})

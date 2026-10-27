@@ -53,3 +53,13 @@ describe('focus fallback', () => {
     assert.equal(asksMarketWide('Is the price fair?'), false)
   })
 })
+
+import { expandAffirmation } from "../followUp"
+describe("okay to our own either/or prompt takes its first option (live, 27 Oct 2026)", () => {
+  it("expands to the first option instead of repeating the question", () => {
+    const history = [{ role: "assistant", content: "None of the projects we hold match 2 BHK in Sector 10. I can search all of Noida instead of Sector 10, or look at 1 BHK: which would you like?" }]
+    const out = expandAffirmation("Okay", history)
+    assert.match(out, /search all of Noida instead of Sector 10/)
+    assert.ok(!/1 BHK/.test(out), out)
+  })
+})
