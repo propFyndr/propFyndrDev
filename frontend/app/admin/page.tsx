@@ -67,6 +67,14 @@ interface AuditLogEntry {
   created_at: string
 }
 
+interface UserCounts {
+  visitors: number
+  active: { day: number; week: number; month: number }
+  chattedSignedIn: number
+  signedUp: number | null
+  signupError: string | null
+}
+
 type TimeRange = 'all' | '30d' | '90d' | 'year'
 
 const TIME_RANGE_OPTIONS: DropdownOption<TimeRange>[] = [
@@ -94,9 +102,15 @@ export default function AdminDashboard() {
   })
 
   const [activitySearchQuery, setActivitySearchQuery] = useState('')
+  const [userCounts, setUserCounts] = useState<UserCounts | null>(null)
 
   useEffect(() => {
     setMounted(true)
+    // Roles without analytics access get a 403; the section then stays hidden.
+    adminFetch('/admin/analytics/user-counts')
+      .then((res) => (res.ok ? res.json() : null))
+      .then(setUserCounts)
+      .catch(() => setUserCounts(null))
   }, [])
 
   const load = useCallback(async () => {
@@ -1180,6 +1194,62 @@ export default function AdminDashboard() {
           )}
         </div>
       </div>
+
+      {/* ── Users: visitors, active, signed up ─────────────────────────────── */}
+      {userCounts && (
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+          <MetricCard
+            title="Visitors"
+            value={userCounts.visitors}
+            contextText="Distinct people who opened a chat"
+            icon={UsersThree}
+            href="/admin/analytics/users"
+            tooltip={
+              <AdminInfoTooltip
+                title="Visitors"
+                description="Distinct signed-in users and guests who started at least one chat. Bots excluded."
+                details={['Someone who browsed but never chatted is not counted']}
+                whyItMatters="Top of the funnel."
+              />
+            }
+          />
+          <MetricCard
+            title="Active (7 days)"
+            value={userCounts.active.week}
+            contextText={`${userCounts.active.day} today · ${userCounts.active.month} in 30 days`}
+            icon={Pulse}
+            tooltip={
+              <AdminInfoTooltip
+                title="Active users"
+                description="Distinct visitors with a chat active in the last 7 days."
+                details={['Today = last 24 hours', '30 days = last 30 days']}
+                whyItMatters="Shows whether people come back, not just arrive."
+              />
+            }
+          />
+          <MetricCard
+            title="Signed Up"
+            value={userCounts.signedUp ?? '—'}
+            warning={userCounts.signedUp === null}
+            contextText={userCounts.signedUp === null ? 'Sign-up service unreachable' : 'Buyer accounts (team excluded)'}
+            icon={CheckCircle}
+            tooltip={
+              <AdminInfoTooltip
+                title="Signed up"
+                description="Accounts created through sign-up, excluding our own team's logins."
+                details={userCounts.signupError ? [userCounts.signupError] : ['Read from Supabase Auth']}
+                whyItMatters="Guests can do everything except see builder phone numbers, so this stays small."
+              />
+            }
+          />
+          <MetricCard
+            title="Signed-in Chatters"
+            value={userCounts.chattedSignedIn}
+            contextText="Signed-up users who also chatted"
+            icon={UsersThree}
+          />
+        </div>
+      )}
     </div>
   )
 }

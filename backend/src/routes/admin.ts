@@ -14,6 +14,7 @@ import { normalisePortalSubdomain } from '../lib/portalSubdomain'
 import { PRICE_FIELDS, applyFactWrites, changedPriceFields, parsePriceVerification, priceFactWrites } from '../lib/priceVerification'
 import { checkRateLimit, resetRateLimit, getCached, setCached, deleteCached } from '../lib/cache'
 import { z } from 'zod'
+import { supabaseAdmin } from '../lib/supabase'
 import { generateBlogDraft, prefetchBlogSources } from '../lib/blog/generateDraft'
 
 /**
@@ -2852,6 +2853,61 @@ router.get('/analytics/users', async (req: Request, res: Response) => {
   } catch (err) {
     console.error('[admin] analytics users failed:', err)
     res.status(500).json({ error: 'Failed to fetch users analytics' })
+  }
+})
+
+// GET /api/v1/admin/analytics/user-counts — visitors, active buyers and signups for the dashboard.
+// A visitor is a distinct signed-in user, guest token or (failing both) chat session that
+// opened a chat; nobody who never chatted is counted. Signups are Supabase Auth accounts,
+// minus accounts linked to our own team. `signedUp` is null when Auth can't be read.
+router.get('/analytics/user-counts', async (_req: Request, res: Response) => {
+  try {
+    const cacheKey = 'admin:analytics:user-counts'
+    const cached = await getCached<object>(cacheKey)
+    if (cached) return res.json(cached)
+
+    const [row] = await prisma.$queryRaw<Array<{ visitors: number; d1: number; d7: number; d30: number; chattedSignedIn: number }>>`
+      SELECT
+        COUNT(DISTINCT COALESCE(user_id, guest_token, id))::int AS visitors,
+        COUNT(DISTINCT COALESCE(user_id, guest_token, id)) FILTER (WHERE last_active > now() - interval '1 day')::int AS d1,
+        COUNT(DISTINCT COALESCE(user_id, guest_token, id)) FILTER (WHERE last_active > now() - interval '7 days')::int AS d7,
+        COUNT(DISTINCT COALESCE(user_id, guest_token, id)) FILTER (WHERE last_active > now() - interval '30 days')::int AS d30,
+        COUNT(DISTINCT user_id)::int AS "chattedSignedIn"
+      FROM chat_sessions
+      WHERE is_bot = false
+    `
+
+    let signedUp: number | null = null
+    let signupError: string | null = null
+    try {
+      const team = await prisma.adminUser.findMany({ select: { linked_supabase_user_id: true } })
+      const teamIds = new Set(team.map((t) => t.linked_supabase_user_id).filter(Boolean))
+      let count = 0
+      for (let page = 1; ; page++) {
+        const { data, error } = await supabaseAdmin.auth.admin.listUsers({ page, perPage: 1000 })
+        if (error) throw error
+        count += data.users.filter((u) => !teamIds.has(u.id)).length
+        if (data.users.length < 1000) break
+      }
+      signedUp = count
+    } catch (err) {
+      signupError = err instanceof Error ? err.message : String(err)
+      console.warn('[admin] user-counts: Supabase Auth unreadable:', signupError)
+    }
+
+    const responseData = {
+      visitors: row.visitors,
+      active: { day: row.d1, week: row.d7, month: row.d30 },
+      chattedSignedIn: row.chattedSignedIn,
+      signedUp,
+      signupError,
+    }
+    // Don't cache a failed Auth read, so the next load retries it.
+    if (signedUp !== null) await setCached(cacheKey, responseData, 300)
+    res.json(responseData)
+  } catch (err) {
+    console.error('[admin] user-counts failed:', err)
+    res.status(500).json({ error: 'Failed to fetch user counts' })
   }
 })
 
