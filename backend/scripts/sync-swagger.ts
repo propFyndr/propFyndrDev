@@ -30,7 +30,7 @@ import { betaRouter } from '../src/routes/betaObservability';
 import partnerRegistrationRouter from '../src/routes/partnerRegistration';
 import portalRouter from '../src/routes/portal';
 
-const swaggerPath = path.resolve(__dirname, '../../swagger.json');
+const swaggerPath = path.resolve(__dirname, '../../docs/api/swagger.json');
 const swagger = JSON.parse(fs.readFileSync(swaggerPath, 'utf8'));
 
 const routes: { method: string; path: string }[] = [];

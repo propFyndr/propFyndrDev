@@ -7,7 +7,7 @@
 // rows in router-labels.json — whether today's router sent each question to a
 // lane that serves its labelled task.
 //
-// Every later phase of CHAT_INTELLIGENCE_ROADMAP.md cites its delta against the
+// Every later phase of docs/archive/plans/CHAT_INTELLIGENCE_ROADMAP.md cites its delta against the
 // scorecard this writes. Reads files only; no network, no database.
 //
 // The lane → task map below is deliberately a SET per lane: today's lanes are

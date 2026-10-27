@@ -449,7 +449,7 @@ export interface GroundedAnswerInput {
   buyerStated?: string
   /**
    * A market question about a city we list no projects in (Phase 2 of
-   * CHAT_INTELLIGENCE_ROADMAP.md). Our rows hold nothing for it, so the DB
+   * docs/archive/plans/CHAT_INTELLIGENCE_ROADMAP.md). Our rows hold nothing for it, so the DB
    * step is skipped and the web is always consulted; the answer is market-tier.
    */
   outOfCoverage?: { city: string }

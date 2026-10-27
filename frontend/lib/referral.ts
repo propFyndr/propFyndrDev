@@ -2,7 +2,7 @@
 // Client-side half of referral tracking: stores this device's own referral
 // code, calls the arrive endpoint once, and appends the code to any URL this
 // device shares onward (dossier, shortlist, the share button). See
-// docs/superpowers/specs/2026-10-11-referral-tracking-design.md.
+// docs/archive/superpowers/specs/2026-10-11-referral-tracking-design.md.
 import { API_BASE } from './env'
 import { readSharedCookie, writeSharedCookie } from './sharedIdentity'
 

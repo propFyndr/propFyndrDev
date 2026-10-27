@@ -885,7 +885,7 @@ export default function ProjectDetailPanel({ project, onClose, inline, initialDe
 
         {/* AI Score badge removed (2026-10-10): recommendation_score is a weighted
             composite of ProjectDna fields that are unsourced heuristics, not
-            verified facts. See docs/superpowers/specs/2026-10-10-intelligence-trust-leak-design.md. */}
+            verified facts. See docs/archive/superpowers/specs/2026-10-10-intelligence-trust-leak-design.md. */}
 
         {/* Middle: Title, Builder, and Location */}
         <div className="absolute bottom-[86px] left-3.5 right-3.5 z-10 space-y-1">

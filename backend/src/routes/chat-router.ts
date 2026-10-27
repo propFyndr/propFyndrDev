@@ -1338,7 +1338,7 @@ router.post('/', async (req: Request, res: Response) => {
     // the prior call here (`parseRequirementState(message, intent)`) only
     // ever passed 2 of the function's 4 parameters, so every turn parsed from
     // a blank slate and a terse follow-up like "what about elite x?" lost
-    // every previously-stated constraint. See docs/planning/
+    // every previously-stated constraint. See docs/archive/planning/
     // 2026-10-11-chatgpt-parity-implementation-plan.md, Phase 2.
     reqState = await hydrateRequirementStateFromMemory(currentSessionId, message, intent)
     const ceilingStance = reqState.budget?.isHardCeiling ? true : budgetCeilingStance(message)

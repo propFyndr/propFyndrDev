@@ -1,5 +1,5 @@
 /**
- * Regressions from the 2026-09-26 buyer test run (docs/reference/claudeQueries.md).
+ * Regressions from the 2026-09-26 buyer test run (docs/archive/reference/claudeQueries.md).
  * Each case is a message that was misrouted or mis-answered on that run.
  */
 import { describe, it } from 'node:test'

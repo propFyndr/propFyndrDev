@@ -4968,3 +4968,18 @@ Audit: ~60 questions covering every section of a project card, run through the r
 **5.1–5.3 (`docs/benchmark/DAY5_SPEED_CACHE_2026-10-24.md`, harness `scripts/corpus/day5-speed.ts`, set `scripts/corpus/day5-30.json`):** baseline median 6.0 s, slowest 55.5 s; live cache hit rate 6/237 (3 of them wrong cross-chat "next" hits, fixed 17 Oct). **Found:** cache written under the post-turn intent fingerprint, read under the carried one, so a new buyer naming a sector never hit. **Decided (owner chose "meaning key" over fingerprint-only and embeddings):** factual/lookup questions keyed on a content-word set with numbers bound to units; read and write both fingerprint `prevIntent`; stateless factual OPEN answers and HIGH-confidence aggregate answers also written to the global scope; namespace `ac:v12`. **Rejected:** embeddings (paid call per turn, own-first, threshold can match Sector 150 to 151); mapping bare "rate" to "price" (aggregate parser reads them as per-sq-ft vs ticket price — would be a wrong match). Result: cache hits 1→3; no-model turns 13→16 of 30 (+1 from 5.3, +2 from the 5.4 fixes); 0 wrong matches (baseline answers of each matched pair, computed without cache, were identical). OPEN answers from the web (public record) are not written to the global scope: the cache-hit path labels replays verified/HIGH.
 **5.4:** "properties in <place>" head terms answered from rows (was 13 model calls + outage); aggregate questions skip the intent model. Open: builder trust (q03), sector possession (q30), metro+budget (q02), leasehold (q15).
 **5.5 not done:** needs a proxy secret env var on Vercel and Render (frontend middleware forwards client IP + secret; `lib/request.ts` trusts it only with the secret). Owner decision.
+
+## 2026-10-27 — Repo cleanup and the 27 Oct – 2 Nov plan
+**What was decided:** the new week plan is `docs/WEEK_PLAN_2026-10-27.md` (same format as 15 Oct). Owner approved this cleanup:
+- **Archived** to `docs/archive/` (kept): the root plans (`MASTER_EXECUTION_ROADMAP*.md`, `CHAT_INTELLIGENCE_ROADMAP.md`, `RESPONSE_QUALITY_PLAN.md`, now in `archive/plans/`), and `docs/planning`, `docs/superpowers`, `docs/ideas`, `docs/reference`. Code comments that cited them now carry the new path; `prisma/migrations/*.sql` and `schema.prisma` comments were left alone.
+- **Moved:** the ChatGPT chats to `docs/benchmark/chatgpt-chats/`, and the 272-project CSV to `docs/enrichment/`. `sync-swagger.ts` now writes to `docs/api/swagger.json`, not the root.
+- **Deleted:**
+  - `design/` (old PropFyndr logos), `mySkills/`, `postman/` and `ai-context/`.
+  - 11 one-off scripts in the root `scripts/`.
+  - In `docs/`: the copies of the design-skill prompts, the old overviews, `BETA_DEPLOY`, the brand framework, `readiness-audit`, `master_vs_db_brief`, `db.sql` and `docs/research/`.
+  - 14 intermediate benchmark re-run files and the root PNG screenshot.
+  - Tracked files are in git history. Untracked ones are gone: transcript re-runs 6–8, `docs/research/responses.md` and the PNG.
+- **Kept, because code reads them:** `QueriesAndKeywords/`, `Projects/`, `newProj/` (its three backups too, which the owner chose to keep), `docs/ground-truth`, `docs/enrichment`, `tests/e2e`.
+
+**Why:** the owner wants a root and `docs/` holding only what is used, and one plan the team can read each day.
+**Rejected:** deleting the `newProj` backups (the owner declined; one of them is not in git).

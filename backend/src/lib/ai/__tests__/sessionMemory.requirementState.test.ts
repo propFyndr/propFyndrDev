@@ -1,7 +1,7 @@
 // backend/src/lib/ai/__tests__/sessionMemory.requirementState.test.ts
 //
 // Covers the Phase 1 "Done When" criteria from
-// docs/planning/2026-10-11-chatgpt-parity-implementation-plan.md, Task 1.2:
+// docs/archive/planning/2026-10-11-chatgpt-parity-implementation-plan.md, Task 1.2:
 // RequirementState must survive a terse follow-up turn that restates nothing,
 // a corrected turn must still override the carried-forward value, and a
 // malformed/legacy stored snapshot must not crash hydration.

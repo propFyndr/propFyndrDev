@@ -403,7 +403,7 @@ async function main() {
     },
   })
 
-  // Which lane answered each turn (turn_traces, Phase 0 of CHAT_INTELLIGENCE_ROADMAP.md).
+  // Which lane answered each turn (turn_traces, Phase 0 of docs/archive/plans/CHAT_INTELLIGENCE_ROADMAP.md).
   const traces = await prisma.turnTrace.findMany({
     where: { created_at: { gte: runStart } },
     select: { session_id: true, lane: true, query_kind: true, jev_shadow: true },

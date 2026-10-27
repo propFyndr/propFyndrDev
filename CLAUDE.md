@@ -114,7 +114,7 @@ Why this order (partner → builder → us): the builder is the only party that 
 
 ## V1 MVP — the Hero Product
 
-Status is against live code as of 2026-10-05 (audits in MEMORY.md and `MASTER_EXECUTION_ROADMAP_V2.md`). "Live" means wired into the real request path, not "a file exists".
+Status is against live code as of 2026-10-05 (audits in MEMORY.md and `docs/archive/plans/MASTER_EXECUTION_ROADMAP_V2.md`). "Live" means wired into the real request path, not "a file exists".
 
 ### Buyer side
 | Feature | Status | Notes |
@@ -355,7 +355,7 @@ A ticked gate without these is worse than an unticked one: the next session trus
 
 ## Benchmark: What the ChatGPT Power-User Gets (audit 2026-10-15)
 
-Seven real ChatGPT buyer chats (`chatGPTnetwork*.md`, `chatGptNetwork1.md`) were read against our app, and the replayable queries are pinned as `bm-*` cases in `src/lib/eval/route-replay.json`. Where ChatGPT beat us, and what now answers it without losing neutrality:
+Seven real ChatGPT buyer chats (`docs/benchmark/chatgpt-chats/`) were read against our app, and the replayable queries are pinned as `bm-*` cases in `src/lib/eval/route-replay.json`. Where ChatGPT beat us, and what now answers it without losing neutrality:
 
 | Gap | Now |
 |---|---|
@@ -376,6 +376,6 @@ When uncertain, choose the option that improves trust, improves decision quality
 ---
 
 ## Reference
-MEMORY.md (repo root) for dated decisions and audits. Memory notes: ai-provider-chain, admin-panel-reference, engineering-standards, project-structure, database-rules, ai-prompting-rules, success-metrics, roadmap-future. Roadmaps: `MASTER_EXECUTION_ROADMAP.md` (V1), `MASTER_EXECUTION_ROADMAP_V2.md`.
+MEMORY.md (repo root) for dated decisions and audits. Memory notes: ai-provider-chain, admin-panel-reference, engineering-standards, project-structure, database-rules, ai-prompting-rules, success-metrics, roadmap-future. Current plan: the newest `docs/WEEK_PLAN_*.md`; last week in the newest `docs/WEEKLY_REPORT_*.md`. Older roadmaps (`MASTER_EXECUTION_ROADMAP*.md` and others) are in `docs/archive/plans/`.
 
 **Last Updated:** 2026-10-05 — full rewrite: verified supply chain, three-sided product, V1 MVP status, data-integrity debts, definition of done.

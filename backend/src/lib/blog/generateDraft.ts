@@ -103,7 +103,7 @@ export const STATUTORY = `STATUTORY FACTS (fixed by Uttar Pradesh law and verifi
 - GST: ${GST_UC}% on under-construction flats; ${GST_AFFORDABLE}% on affordable housing (under ₹45 lakh with carpet area up to 60 sq m); none on ready-to-move flats with an occupancy certificate.`
 
 /**
- * Words that mark text as machine-written (docs/reference/AIslopReduct.md, the house style
+ * Words that mark text as machine-written (docs/archive/reference/AIslopReduct.md, the house style
  * guide). Banned in the prompt and counted by checkDraftQuality, so a slip
  * shows up in the reviewer notes.
  */
@@ -232,7 +232,7 @@ export function checkDraftQuality(d: Draft): { hard: string[]; soft: string[] } 
   const longParas = b.filter(x => x.type === 'p' && wordCount(spanText(x.spans)) > 110).length
   if (longParas) soft.push(`${longParas} paragraph(s) over 110 words; split them for readability.`)
 
-  // House style (docs/reference/AIslopReduct.md). Notes only: each is a one-word edit for the reviewer.
+  // House style (docs/archive/reference/AIslopReduct.md). Notes only: each is a one-word edit for the reviewer.
   const text = `${d.title}\n${d.excerpt}\n${blockText(b)}`
   const aiWords = AI_WORDS.filter(w => new RegExp(`\\b${w}`, 'i').test(text))
   if (aiWords.length) soft.push(`Template vocabulary to replace: ${aiWords.join(', ')}.`)

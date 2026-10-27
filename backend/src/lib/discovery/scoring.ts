@@ -272,7 +272,7 @@ export function scoreProject(
   // Audit (2026-10-10) found every project seeded with tier STRONG_BUY and a
   // templated persona — both constants that reward every project equally
   // while LOOKING like a real signal. Scoring only the fields above, which
-  // come from the project's own rows. See docs/superpowers/specs/2026-10-10-intelligence-trust-leak-design.md.
+  // come from the project's own rows. See docs/archive/superpowers/specs/2026-10-10-intelligence-trust-leak-design.md.
 
   // ── Risk penalties ───────────────────────────────────────────────────
   if (p.project_risk_flag) {

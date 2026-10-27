@@ -2,7 +2,7 @@
  * Answer rules shared by the main advisor prompt and the open lane.
  *
  * Each rule is a failure measured on one 10-question buyer test run
- * (docs/reference/claudeQueries.md, 2026-09-26). They live in one place so the two lanes
+ * (docs/archive/reference/claudeQueries.md, 2026-09-26). They live in one place so the two lanes
  * cannot drift. A rule written into only one prompt is a rule half the buyers
  * never get.
  *

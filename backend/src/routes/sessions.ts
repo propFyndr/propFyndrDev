@@ -51,7 +51,7 @@ router.post('/migrate', async (req: Request, res: Response) => {
 
     // Attach this device's referral visit to the now-identified user, so the
     // admin tree can show "possibly the same person" across devices once a
-    // phone number or sign-in links them. See docs/superpowers/specs/2026-10-11-referral-tracking-design.md.
+    // phone number or sign-in links them. See docs/archive/superpowers/specs/2026-10-11-referral-tracking-design.md.
     await prisma.referralVisit.updateMany({
       where: { guest_token: guestToken, user_id: null },
       data: { user_id: userId },

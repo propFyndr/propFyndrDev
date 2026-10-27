@@ -1,7 +1,7 @@
 # Day 2 benchmark questions (16 Oct 2026): DRAFT, for team sign-off
 
 Ask each one in a **fresh chat** in ChatGPT, in the second assistant, and in RealtyAsk (live).
-Save each answer's Network-tab payload as `docs/benchmark/answers/<assistant>-q<N>.md`, the way `chatGPTnetwork*.md` were captured.
+Save each answer's Network-tab payload as `docs/benchmark/answers/<assistant>-q<N>.md`, the way the files in `docs/benchmark/chatgpt-chats/` were captured.
 
 Projects named here are in our live catalogue, so we can be scored on facts we hold.
 

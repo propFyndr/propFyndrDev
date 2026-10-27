@@ -861,7 +861,7 @@
   },
   {
     "id": "bm-resale-checklist",
-    "source": "ChatGPT benchmark 2026-10-15 (chatGPTnetwork*.md)",
+    "source": "ChatGPT benchmark 2026-10-15 (docs/benchmark/chatgpt-chats/)",
     "turns": [
       {
         "text": "What documents and outstanding charges should I check for the resale flat?",
@@ -878,7 +878,7 @@
   },
   {
     "id": "bm-resale-deal-recalc",
-    "source": "ChatGPT benchmark 2026-10-15 (chatGPTnetwork*.md)",
+    "source": "ChatGPT benchmark 2026-10-15 (docs/benchmark/chatgpt-chats/)",
     "turns": [
       {
         "text": "The seller has now reduced the price to ₹1.58 crore, but the flat needs renovation. Recalculate the total cost and tell me if the deal is worth pursuing.",
@@ -898,7 +898,7 @@
   },
   {
     "id": "bm-resale-followup-keeps-price",
-    "source": "ChatGPT benchmark 2026-10-15 (chatGPTnetwork*.md)",
+    "source": "ChatGPT benchmark 2026-10-15 (docs/benchmark/chatgpt-chats/)",
     "turns": [
       {
         "text": "I found a resale flat for ₹1.65 crore. What documents should I check before paying?",
@@ -925,7 +925,7 @@
   },
   {
     "id": "bm-pressure-book-today",
-    "source": "ChatGPT benchmark 2026-10-15 (chatGPTnetwork*.md)",
+    "source": "ChatGPT benchmark 2026-10-15 (docs/benchmark/chatgpt-chats/)",
     "turns": [
       {
         "text": "The salesperson says prices will rise soon and I should book today. What evidence should I ask for, and what would make you advise me to walk away?",
@@ -942,7 +942,7 @@
   },
   {
     "id": "bm-site-visit",
-    "source": "ChatGPT benchmark 2026-10-15 (chatGPTnetwork*.md)",
+    "source": "ChatGPT benchmark 2026-10-15 (docs/benchmark/chatgpt-chats/)",
     "turns": [
       {
         "text": "What should I inspect during a site visit before deciding?",
@@ -958,7 +958,7 @@
   },
   {
     "id": "bm-compromise-order",
-    "source": "ChatGPT benchmark 2026-10-15 (chatGPTnetwork*.md)",
+    "source": "ChatGPT benchmark 2026-10-15 (docs/benchmark/chatgpt-chats/)",
     "turns": [
       {
         "text": "What should I compromise on at this budget?",
@@ -974,7 +974,7 @@
   },
   {
     "id": "bm-investment-scenario",
-    "source": "ChatGPT benchmark 2026-10-15 (chatGPTnetwork*.md)",
+    "source": "ChatGPT benchmark 2026-10-15 (docs/benchmark/chatgpt-chats/)",
     "turns": [
       {
         "text": "I have ₹1.5 crore. What if prices grow by 5%, 8% or 12% annually over 10 years? What could it be worth?",
@@ -991,7 +991,7 @@
   },
   {
     "id": "bm-investment-no-rate",
-    "source": "ChatGPT benchmark 2026-10-15 (chatGPTnetwork*.md)",
+    "source": "ChatGPT benchmark 2026-10-15 (docs/benchmark/chatgpt-chats/)",
     "turns": [
       {
         "text": "Will my property value grow over the next 10 years?",
@@ -1005,7 +1005,7 @@
   },
   {
     "id": "bm-public-record-unheld",
-    "source": "ChatGPT benchmark 2026-10-15 (chatGPTnetwork*.md)",
+    "source": "ChatGPT benchmark 2026-10-15 (docs/benchmark/chatgpt-chats/)",
     "turns": [
       {
         "text": "Check the RERA registration of Zyxxon Quillpark in Sector 10",

@@ -1,7 +1,7 @@
 import { z } from 'zod'
 
 /**
- * JEV — RealtyAsk's own decision layer (CHAT_INTELLIGENCE_ROADMAP.md, Phase 3).
+ * JEV — RealtyAsk's own decision layer (docs/archive/plans/CHAT_INTELLIGENCE_ROADMAP.md, Phase 3).
  *
  * One structured decision per turn: what the buyer wants, which data answers
  * it, and in what shape. It rides on the intent-extraction call the router

@@ -2,7 +2,7 @@
 // Pure growth-analytics logic for the referral tree. No Prisma/Express
 // dependency, mirroring referralAttribution.ts's shape so it's fully
 // unit-testable without a database. See
-// docs/superpowers/specs/2026-10-12-referral-growth-analytics-design.md.
+// docs/archive/superpowers/specs/2026-10-12-referral-growth-analytics-design.md.
 
 export function computeKFactor(
   generations: { generation: number; activatedCount: number }[],
