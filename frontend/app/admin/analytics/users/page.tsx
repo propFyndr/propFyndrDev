@@ -23,6 +23,7 @@ import AdminInfoTooltip from '@/components/admin/AdminInfoTooltip'
 import { MetricCard, MetricCardSkeleton } from '@/components/admin/ui/MetricCard'
 import { Skeleton } from '@/components/ui/skeleton'
 import { adminFetch } from '@/lib/adminFetch'
+import PeopleChatLog from '@/components/admin/PeopleChatLog'
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip,
   ResponsiveContainer
@@ -61,8 +62,6 @@ export default function UsersAnalytics() {
   const [loading, setLoading] = useState(true)
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [lastRefreshedAt, setLastRefreshedAt] = useState<Date>(new Date())
-  const [sessionSearch, setSessionSearch] = useState('')
-  const [sessionPage, setSessionPage] = useState(1)
 
   const isFetchingRef = useRef(false)
 
@@ -98,23 +97,6 @@ export default function UsersAnalytics() {
     loadData()
   }, [loadData])
 
-  // Debounce search, and reset to page 1 whenever the term changes.
-  useEffect(() => {
-    const handle = setTimeout(() => {
-      setSessionPage(1)
-      loadData(false, 1, sessionSearch)
-    }, 300)
-    return () => clearTimeout(handle)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sessionSearch])
-
-  const goToPage = useCallback(
-    (page: number) => {
-      setSessionPage(page)
-      loadData(false, page, sessionSearch)
-    },
-    [loadData, sessionSearch],
-  )
 
   const funnelSteps = useMemo(() => {
     if (!data?.conversionFunnel) return []
@@ -166,10 +148,6 @@ export default function UsersAnalytics() {
     return Math.max(...data.mostActiveSectors.map(s => s.searches), 1)
   }, [data])
 
-  // The backend now does the filtering (search term + page hit the DB
-  // directly), so this is just the current page as returned.
-  const sessions = data?.users ?? []
-  const pagination = data?.usersPagination
 
   return (
     <div className="space-y-6 pb-16 font-sans select-none max-w-[1400px] mx-auto px-3.5 sm:px-6 lg:px-8 py-4 sm:py-8 min-w-0 overflow-x-hidden">
@@ -200,7 +178,7 @@ export default function UsersAnalytics() {
           </span>
 
           <button
-            onClick={() => loadData(true, sessionPage, sessionSearch)}
+            onClick={() => loadData(true)}
             disabled={isRefreshing}
             className="flex items-center gap-2 bg-white dark:bg-zinc-900 hover:bg-zinc-50 dark:hover:bg-zinc-800 text-zinc-900 dark:text-white border border-zinc-200/80 dark:border-zinc-800 px-3.5 py-2 rounded-xl text-xs font-bold transition-all shadow-2xs active:scale-[0.98] cursor-pointer disabled:opacity-60"
             title="Refresh user behavior analytics"
@@ -529,157 +507,7 @@ export default function UsersAnalytics() {
         </div>
       </div>
 
-      {/* Live User Chat Sessions Table */}
-      <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200/80 dark:border-zinc-800 overflow-hidden shadow-2xs">
-        {/* Toolbar */}
-        <div className="p-5 sm:p-6 border-b border-zinc-100 dark:border-zinc-800/80 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div>
-            <h3 className="text-sm font-extrabold text-zinc-900 dark:text-white tracking-tight uppercase inline-flex items-center gap-2">
-              <ChatCircleDots size={16} weight="bold" className="text-[#0066cc]" />
-              Live User Chat Sessions (Real Database Sessions)
-              <AdminInfoTooltip
-                title="Live User Chat Sessions"
-                description="Live buyer discovery chat logs from the database, including search queries, message counts, and timestamps."
-              />
-            </h3>
-            <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5 font-medium">
-              Real-time audit log of buyer discovery interactions and conversation states
-            </p>
-          </div>
-
-          {/* Session Search */}
-          <div className="relative min-w-[220px]">
-            <MagnifyingGlass size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
-            <input
-              type="text"
-              placeholder="Search user or topic..."
-              value={sessionSearch}
-              onChange={(e) => setSessionSearch(e.target.value)}
-              className="w-full pl-8 pr-3 py-1.5 rounded-xl bg-zinc-50 dark:bg-zinc-800/60 border border-zinc-200/80 dark:border-zinc-700/60 text-xs text-zinc-900 dark:text-white placeholder:text-zinc-400 focus:outline-none focus:ring-1 focus:ring-[#0066cc] focus:border-[#0066cc] transition-all"
-            />
-          </div>
-        </div>
-
-        {/* Table */}
-        {loading ? (
-          <div className="p-6 space-y-3">
-            {Array.from({ length: 4 }).map((_, i) => (
-              <Skeleton key={i} className="h-12 w-full rounded-xl" />
-            ))}
-          </div>
-        ) : sessions.length > 0 ? (
-          <div className="overflow-x-auto w-full">
-            <table className="w-full text-left border-collapse text-xs min-w-[700px]">
-              <thead>
-                <tr className="bg-zinc-50/75 dark:bg-zinc-800/40 border-b border-zinc-200/80 dark:border-zinc-800 text-[11px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">
-                  <th className="py-3.5 px-6">User Session</th>
-                  <th className="py-3.5 px-5">Discovery Topic / Intent</th>
-                  <th className="py-3.5 px-4 text-center">Messages</th>
-                  <th className="py-3.5 px-4 text-center">Queries</th>
-                  <th className="py-3.5 px-4 text-center">Phase</th>
-                  <th className="py-3.5 px-6 text-right">Last Active</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800/60 font-medium">
-                {sessions.map((u) => {
-                  const lastActiveDate = new Date(u.lastActive)
-                  const isValidDate = !isNaN(lastActiveDate.getTime())
-                  const isRecent = isValidDate && (Date.now() - lastActiveDate.getTime() < 30 * 60 * 1000)
-
-                  return (
-                    <tr key={u.id} className="hover:bg-zinc-50/80 dark:hover:bg-zinc-800/40 transition-colors">
-                      {/* User Token */}
-                      <td className="py-4 px-6">
-                        <div className="flex items-center gap-2">
-                          <span className="relative flex h-2 w-2 shrink-0">
-                            {isRecent && (
-                              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                            )}
-                            <span className={`relative inline-flex rounded-full h-2 w-2 ${
-                              isRecent ? 'bg-emerald-500' : 'bg-zinc-300 dark:bg-zinc-600'
-                            }`} />
-                          </span>
-                          <span className="font-mono font-bold text-[#0066cc] dark:text-blue-400">
-                            {u.userLabel}
-                          </span>
-                        </div>
-                      </td>
-
-                      {/* Topic */}
-                      <td className="py-4 px-5">
-                        <span className="font-bold text-zinc-900 dark:text-white truncate block max-w-[280px]" title={u.title}>
-                          {u.title || 'General Discovery'}
-                        </span>
-                      </td>
-
-                      {/* Messages */}
-                      <td className="py-4 px-4 text-center">
-                        <span className="font-mono font-bold text-zinc-700 dark:text-zinc-300 bg-zinc-100 dark:bg-zinc-800 px-2 py-0.5 rounded-md border border-zinc-200/50 dark:border-zinc-700/50">
-                          {u.messageCount}
-                        </span>
-                      </td>
-
-                      {/* Queries */}
-                      <td className="py-4 px-4 text-center">
-                        <span className="font-mono font-bold text-zinc-700 dark:text-zinc-300 bg-zinc-100 dark:bg-zinc-800 px-2 py-0.5 rounded-md border border-zinc-200/50 dark:border-zinc-700/50">
-                          {u.queriesCount}
-                        </span>
-                      </td>
-
-                      {/* Phase */}
-                      <td className="py-4 px-4 text-center">
-                        <span className="text-[10px] font-mono font-semibold uppercase px-2 py-0.5 rounded-md bg-blue-50 dark:bg-blue-950/60 text-[#0066cc] dark:text-blue-400 border border-blue-200/60 dark:border-blue-800/60">
-                          {u.phase || 'DISCOVERY'}
-                        </span>
-                      </td>
-
-                      {/* Last Active */}
-                      <td className="py-4 px-6 text-right font-medium text-zinc-500 dark:text-zinc-400 text-xs">
-                        <span className="inline-flex items-center gap-1.5 justify-end">
-                          <Clock size={12} className="text-zinc-400" />
-                          {isValidDate ? formatDistanceToNow(lastActiveDate, { addSuffix: true }) : '—'}
-                        </span>
-                      </td>
-                    </tr>
-                  )
-                })}
-              </tbody>
-            </table>
-          </div>
-        ) : (
-          <div className="p-12 text-center text-xs text-zinc-400 italic">
-            {sessionSearch ? `No sessions matching "${sessionSearch}"` : 'No user chat sessions logged yet'}
-          </div>
-        )}
-
-        {/* Pagination */}
-        {pagination && pagination.total > pagination.pageSize && (
-          <div className="flex items-center justify-between px-5 sm:px-6 py-3.5 border-t border-zinc-100 dark:border-zinc-800/80 text-xs font-medium text-zinc-500 dark:text-zinc-400">
-            <span>
-              Showing {(pagination.page - 1) * pagination.pageSize + 1}
-              –{Math.min(pagination.page * pagination.pageSize, pagination.total)} of {pagination.total.toLocaleString()}
-            </span>
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={() => goToPage(sessionPage - 1)}
-                disabled={pagination.page <= 1 || loading}
-                className="px-3 py-1.5 rounded-lg border border-zinc-200 dark:border-zinc-700 font-bold text-zinc-700 dark:text-zinc-200 hover:bg-zinc-50 dark:hover:bg-zinc-800 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
-              >
-                Prev
-              </button>
-              <button
-                type="button"
-                onClick={() => goToPage(sessionPage + 1)}
-                disabled={pagination.page * pagination.pageSize >= pagination.total || loading}
-                className="px-3 py-1.5 rounded-lg border border-zinc-200 dark:border-zinc-700 font-bold text-zinc-700 dark:text-zinc-200 hover:bg-zinc-50 dark:hover:bg-zinc-800 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
-              >
-                Next
-              </button>
-            </div>
-          </div>
-        )}
-      </div>
+      <PeopleChatLog />
     </div>
   )
 }

@@ -2943,6 +2943,99 @@ router.get('/analytics/user-counts', async (_req: Request, res: Response) => {
   }
 })
 
+// Sessions of real people only: not a bot, and an account or the website's guest token.
+const realPeopleSessions = Prisma.sql`
+  SELECT id, user_id, COALESCE(user_id, guest_token) AS person, created_at, last_active
+  FROM chat_sessions
+  WHERE is_bot = false AND (user_id IS NOT NULL OR guest_token ~ ${WEBSITE_GUEST_TOKEN})`
+
+// GET /api/v1/admin/analytics/people?search=&page=&pageSize= — one row per person (account or
+// website guest), newest activity first. `search` matches the person's id or any question they asked.
+router.get('/analytics/people', async (req: Request, res: Response) => {
+  try {
+    const search = typeof req.query.search === 'string' ? req.query.search.trim() : ''
+    const page = Math.max(1, Number(req.query.page) || 1)
+    const pageSize = Math.min(100, Math.max(1, Number(req.query.pageSize) || 25))
+    const like = `%${search}%`
+    const match = search
+      ? Prisma.sql`WHERE s.person ILIKE ${like} OR EXISTS (
+          SELECT 1 FROM chat_messages q JOIN chat_sessions qs ON qs.id = q.session_id
+          WHERE COALESCE(qs.user_id, qs.guest_token) = s.person AND q.role = 'user' AND q.content ILIKE ${like})`
+      : Prisma.empty
+
+    const [rows, [{ total }]] = await Promise.all([
+      prisma.$queryRaw<Array<{ person: string; userId: string | null; sessions: number; questions: number; firstSeen: Date; lastActive: Date }>>`
+        WITH s AS (${realPeopleSessions})
+        SELECT s.person, MAX(s.user_id) AS "userId", COUNT(DISTINCT s.id)::int AS sessions,
+          COUNT(m.id)::int AS questions, MIN(s.created_at) AS "firstSeen", MAX(s.last_active) AS "lastActive"
+        FROM s LEFT JOIN chat_messages m ON m.session_id = s.id AND m.role = 'user'
+        ${match}
+        GROUP BY s.person
+        ORDER BY MAX(s.last_active) DESC
+        LIMIT ${pageSize} OFFSET ${(page - 1) * pageSize}`,
+      prisma.$queryRaw<Array<{ total: number }>>`
+        WITH s AS (${realPeopleSessions})
+        SELECT COUNT(DISTINCT s.person)::int AS total FROM s ${match}`,
+    ])
+
+    // Accounts are shown by email when Auth answers; otherwise by a short id.
+    const emails = new Map<string, string>()
+    if (rows.some((r) => r.userId)) {
+      try {
+        const { data, error } = await supabaseAdmin.auth.admin.listUsers({ page: 1, perPage: 1000 })
+        if (error) throw error
+        for (const u of data.users) if (u.email) emails.set(u.id, u.email)
+      } catch (err) {
+        console.warn('[admin] people: Supabase Auth unreadable, showing account ids:', err instanceof Error ? err.message : err)
+      }
+    }
+
+    res.json({
+      people: rows.map((r) => ({
+        key: r.person,
+        kind: r.userId ? 'account' : 'guest',
+        label: r.userId ? emails.get(r.userId) ?? `Account #${r.userId.slice(0, 8)}` : `Guest #${r.person.slice(6, 14)}`,
+        sessions: r.sessions,
+        questions: r.questions,
+        firstSeen: r.firstSeen,
+        lastActive: r.lastActive,
+      })),
+      pagination: { page, pageSize, total },
+    })
+  } catch (err) {
+    console.error('[admin] people failed:', err)
+    res.status(500).json({ error: 'Failed to fetch people' })
+  }
+})
+
+// GET /api/v1/admin/analytics/people/questions?key=&limit=&offset= — one person's questions, newest first.
+router.get('/analytics/people/questions', async (req: Request, res: Response) => {
+  try {
+    const key = typeof req.query.key === 'string' ? req.query.key : ''
+    if (!key) return res.status(400).json({ error: 'key is required' })
+    const limit = Math.min(500, Math.max(1, Number(req.query.limit) || 10))
+    const offset = Math.max(0, Number(req.query.offset) || 0)
+
+    const [questions, [{ total }]] = await Promise.all([
+      prisma.$queryRaw<Array<{ sessionId: string; text: string; at: Date }>>`
+        WITH s AS (${realPeopleSessions})
+        SELECT m.session_id AS "sessionId", m.content AS text, m.created_at AS at
+        FROM chat_messages m JOIN s ON s.id = m.session_id
+        WHERE s.person = ${key} AND m.role = 'user'
+        ORDER BY m.created_at DESC
+        LIMIT ${limit} OFFSET ${offset}`,
+      prisma.$queryRaw<Array<{ total: number }>>`
+        WITH s AS (${realPeopleSessions})
+        SELECT COUNT(*)::int AS total FROM chat_messages m JOIN s ON s.id = m.session_id
+        WHERE s.person = ${key} AND m.role = 'user'`,
+    ])
+    res.json({ questions, total })
+  } catch (err) {
+    console.error('[admin] people questions failed:', err)
+    res.status(500).json({ error: 'Failed to fetch questions' })
+  }
+})
+
 // GET /api/v1/admin/analytics/properties — properties analytics
 router.get('/analytics/properties', async (_req: Request, res: Response) => {
   try {
