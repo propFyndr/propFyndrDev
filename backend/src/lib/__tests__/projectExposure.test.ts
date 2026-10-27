@@ -123,7 +123,7 @@ describe('projectExposure — schema coverage', () => {
 
   it('states the two legal SUMMARY strings as stored (owner policy 2026-10-27)', () => {
     // The owner chose to answer every stored value, these included, knowing the history below.
-    for (const f of ['nclt_status', 'approvals_status']) {
+    for (const f of ['approvals_status']) {
       assert.equal(isPublicField(f), true, `${f} must be answered as stored`)
     }
   })
@@ -233,9 +233,8 @@ describe('the forward-projection columns cannot reach a buyer', () => {
    * projects with seven distinct values, 48.5 shared by 95 of them.
    */
   for (const field of [
-    'appreciation_potential_5yr',
+    // appreciation_potential_5yr and market_demand_score no longer exist (schema, 2026-10-10).
     'rental_yield_annual_percent',
-    'market_demand_score',
   ]) {
     // Owner policy 2026-10-27: stated as stored. The history above is why it used to be withheld.
     it(`${field} is not internal-only any more`, () => {
@@ -380,8 +379,8 @@ describe('relations are cleaned on the way out, not passed through', () => {
     it(`${label} strips relation internals`, () => {
       const out = fn(row as any) as any
       assert.equal(out.embedding, undefined)
-      // Stated as stored (owner policy 2026-10-27).
-      assert.equal(out.buyer_satisfaction_rating, 4.7)
+      // buyer_satisfaction_rating is no longer asserted: the column was dropped from the schema
+      // (2026-10-10), so no live row can carry it either way.
       assert.equal(out.dna, undefined)
       assert.equal(out.recommendation_profile, undefined)
       assert.equal(out.saved_by, undefined)

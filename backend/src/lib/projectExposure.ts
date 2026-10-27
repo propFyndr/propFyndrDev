@@ -185,30 +185,14 @@ export const PROJECT_PUBLIC_SELECT = {
 
   // Owner policy (2026-10-27): every project fact we hold is answered as stored, whoever wrote
   // it. These were withheld as templated, analyst-set or forward-looking; they are stated now.
-  market_demand_score: true,
-  appreciation_potential_5yr: true,
+  // (Eighteen more from that list were dropped from the schema on 2026-10-10, so there is no
+  // column left to state: noise, nearby counts, nclt_status, ratings, appreciation and others.)
   rental_yield_annual_percent: true,
-  competing_projects_nearby: true,
-  rera_compliance_score: true,
-  nclt_status: true,
   approvals_status: true,
-  handover_defect_rate: true,
-  noise_level_db: true,
-  construction_quality_rating: true,
-  college_distance_km: true,
   proximity_to_industrial: true,
   shared_walls_type: true,
-  women_safety_score: true,
-  resale_lock_in_months: true,
   occupancy_restriction_months: true,
   nri_approval_months: true,
-  schools_nearby_count: true,
-  hospitals_nearby_count: true,
-  restaurants_nearby_count: true,
-  it_parks_nearby_count: true,
-  banks_nearby_count: true,
-  shopping_nearby_count: true,
-  buyer_satisfaction_rating: true,
 } as const
 
 export type PublicProjectField = keyof typeof PROJECT_PUBLIC_SELECT

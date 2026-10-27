@@ -247,18 +247,12 @@ describe('possession, legal flag and competitor wording (followup-coverage 2026-
 describe("owner policy 2026-10-27: every stored project fact reaches the prompt", () => {
   it("states the columns that used to be withheld as templated, scored or forward-looking", () => {
     const facts = projectScalarFacts(row({
-      nclt_status: "Clean - No NCLT Moratorium",
       approvals_status: "Fully RERA & Authority Approved",
-      appreciation_potential_5yr: 48.5,
       rental_yield_annual_percent: 3.2,
-      schools_nearby_count: 8,
-      buyer_satisfaction_rating: 4.7,
-      noise_level_db: 48,
-      resale_lock_in_months: 36,
+      nri_approval_months: 1,
       marketing_claims: ["Ultra-Luxury"],
     }) as never)
-    for (const f of ["nclt_status", "approvals_status", "appreciation_potential_5yr", "rental_yield_annual_percent",
-      "schools_nearby_count", "buyer_satisfaction_rating", "noise_level_db", "resale_lock_in_months", "marketing_claims"]) {
+    for (const f of ["approvals_status", "rental_yield_annual_percent", "nri_approval_months", "marketing_claims"]) {
       assert.ok(f in facts, `${f} did not reach the prompt`)
     }
   })

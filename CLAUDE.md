@@ -214,9 +214,9 @@ Every fact shown to a buyer belongs to exactly one tier. Reference `lib/factPres
     * amenities;
     * cost-sheet charges and payment plans;
     * schema-default values (`SCHEMA_DEFAULT_SENTINELS` is now empty);
-    * the formerly templated columns (`nclt_status`, `approvals_status`, nearby counts, noise, ratings, lock-ins);
+    * the formerly templated columns that still exist (`approvals_status`, `proximity_to_industrial`, `shared_walls_type`, `occupancy_restriction_months`, `nri_approval_months`, `expected_handover_quarter`). Eighteen others named in the old list (noise, nearby counts, `nclt_status`, ratings, `appreciation_potential_5yr`) were dropped from the schema on 2026-10-10, so there is nothing to state;
     * analyst scores (`BUYER_OPAQUE_SCORES` is now empty);
-    * forward-looking figures (`appreciation_potential_5yr`, `rental_yield_annual_percent`, `market_demand_score`);
+    * forward-looking figures that exist (`rental_yield_annual_percent`);
     * builder corporate detail (`cin`, `legal_entities`, `executives`, `outstanding_dues_cr`);
     * `marketing_claims` (wrapped as developer copy).
   * **Still withheld** (privacy and process, not data quality):
@@ -226,7 +226,7 @@ Every fact shown to a buyer belongs to exactly one tier. Reference `lib/factPres
     * analyst notes, our own verification and process fields, channel-partner commercial terms, `portal_subdomain`;
     * drafts (`field_drafts`, unpublished `decision_profile`).
   * **Not to be undone without the owner.** Do not clear, hide or caveat stored values (no `fix:templated` on live).
-  * **Known risk the owner accepted:** `nclt_status` and `approvals_status` read "Clean" / "Fully approved" even on Amrapali and Jaypee projects.
+  * **Known risk the owner accepted:** `approvals_status` reads "Fully approved" even on Amrapali and Jaypee projects.
   * **Still in place:**
     * The integrity checks still reject figures that are not in the facts given to the model. A score is let through only when its number is in those facts.
     * A value that is genuinely absent is still "not on record", never a typical figure.

@@ -297,7 +297,7 @@ Add new decisions under the right topic, not as a session diary. When one replac
     - Founders' guest browsing can't be told apart without their guest IDs.
 - **Every stored project fact is answered as stored (owner policy, 10-27; widens the entry below).**
   - What changed in code:
-    - `projectExposure.ts`: about 25 formerly templated, scored or forward-looking columns made public; sentinels and opaque-score lists emptied; builder `cin`, `legal_entities`, `executives` and `outstanding_dues_cr` stated.
+    - `projectExposure.ts`: the 7 formerly withheld columns that still exist made public (18 more had been dropped from the schema on 10-10); sentinels and opaque-score lists emptied; builder `cin`, `legal_entities`, `executives` and `outstanding_dues_cr` stated.
     - `projectFactsBlock.ts`: the topic slices carry the new fields; `marketing_claims` is included as developer copy; forward-looking questions state the stored figure.
     - `answerIntegrity.ts`: a score is let through when its number is in the prompt.
   - The owner chose this knowing `nclt_status`/`approvals_status` are false on Amrapali/Jaypee ("Everything, A and B too").

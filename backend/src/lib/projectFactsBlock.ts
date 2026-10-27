@@ -289,7 +289,7 @@ export const PRICING_FACT_FIELDS = new Set([
   'dg_power_rate_per_unit', 'all_in_cost_multiplier', 'launch_date',
   'unit_types',
   // Stated as stored (owner policy 2026-10-27).
-  'appreciation_potential_5yr', 'rental_yield_annual_percent', 'market_demand_score',
+  'rental_yield_annual_percent',
   'expected_handover_quarter',
 ])
 
@@ -304,8 +304,8 @@ export const LEGAL_FACT_FIELDS = new Set([
   'oc_status', 'oc_details', 'amitabh_kant_clearance', 'registry_status',
   'possession_confidence', 'lift_act_compliant', 'flood_zone',
   // Stated as stored (owner policy 2026-10-27).
-  'nclt_status', 'approvals_status', 'resale_lock_in_months', 'nri_approval_months',
-  'rera_compliance_score',
+  'approvals_status', 'nri_approval_months',
+ 
 ])
 
 export const LIVABILITY_FACT_FIELDS = new Set([
@@ -321,10 +321,10 @@ export const LIVABILITY_FACT_FIELDS = new Set([
   'power_supply_type', 'green_rating',
   'description', 'amenities', 'unit_types',
   // Stated as stored (owner policy 2026-10-27).
-  'noise_level_db', 'college_distance_km', 'proximity_to_industrial', 'women_safety_score',
-  'shared_walls_type', 'schools_nearby_count', 'hospitals_nearby_count', 'restaurants_nearby_count',
-  'it_parks_nearby_count', 'banks_nearby_count', 'shopping_nearby_count', 'handover_defect_rate',
-  'construction_quality_rating', 'buyer_satisfaction_rating', 'lifts_per_tower',
+  'proximity_to_industrial',
+  'shared_walls_type',
+ 
+  'lifts_per_tower',
 ])
 
 export const OVERVIEW_FACT_FIELDS = new Set([
@@ -333,7 +333,7 @@ export const OVERVIEW_FACT_FIELDS = new Set([
   'price_min_cr', 'price_max_cr', 'price_range_label', 'price_per_sqft',
   'rera_number', 'rera_number_status', 'total_units', 'total_towers',
   'open_space_pct', 'land_area_acres', 'tagline', 'location_concerns',
-  'competing_projects_nearby', 'expected_handover_quarter',
+  'expected_handover_quarter',
 ])
 
 /**
@@ -545,7 +545,7 @@ export function buildProjectFacts(
       `Treat any project-level "clean" or "low risk" marker for this developer as unreliable — ` +
       `say plainly that the developer is under insolvency or legal supervision and that the ` +
       `advisory team should confirm the current position before any commitment.`
-    for (const contradicted of ['legal_flag', 'project_risk_flag', 'nclt_moratorium_active', 'nclt_status', 'approvals_status']) {
+    for (const contradicted of ['legal_flag', 'project_risk_flag', 'nclt_moratorium_active', 'approvals_status']) {
       delete facts[contradicted]
     }
   }
