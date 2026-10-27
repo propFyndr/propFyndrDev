@@ -2867,7 +2867,7 @@ router.get('/analytics/user-counts', async (_req: Request, res: Response) => {
     const cached = await getCached<object>(cacheKey)
     if (cached) return res.json(cached)
 
-    const [row] = await prisma.$queryRaw<Array<{ visitors: number; guests: number; d1: number; d7: number; d30: number; chattedSignedIn: number; firstSeen: Date | null }>>`
+    const [row] = await prisma.$queryRaw<Array<{ visitors: number; guests: number; d1: number; d7: number; d30: number; chattedSignedIn: number; firstSeen: Date | null; sessions: number; messages: number }>>`
       SELECT
         COUNT(DISTINCT COALESCE(user_id, guest_token))::int AS visitors,
         COUNT(DISTINCT guest_token) FILTER (WHERE user_id IS NULL)::int AS guests,
@@ -2875,11 +2875,27 @@ router.get('/analytics/user-counts', async (_req: Request, res: Response) => {
         COUNT(DISTINCT COALESCE(user_id, guest_token)) FILTER (WHERE last_active > now() - interval '7 days')::int AS d7,
         COUNT(DISTINCT COALESCE(user_id, guest_token)) FILTER (WHERE last_active > now() - interval '30 days')::int AS d30,
         COUNT(DISTINCT user_id)::int AS "chattedSignedIn",
-        MIN(created_at) AS "firstSeen"
+        MIN(created_at) AS "firstSeen",
+        COUNT(*)::int AS sessions,
+        COALESCE(SUM(message_count), 0)::int AS messages
       FROM chat_sessions
       WHERE is_bot = false
         AND (user_id IS NOT NULL OR guest_token LIKE 'guest-%')
     `
+    // Per person: number of sessions and the month of the first one.
+    const people = await prisma.$queryRaw<Array<{ month: string; sessions: number }>>`
+      SELECT to_char(MIN(created_at), 'YYYY-MM') AS month, COUNT(*)::int AS sessions
+      FROM chat_sessions
+      WHERE is_bot = false
+        AND (user_id IS NOT NULL OR guest_token LIKE 'guest-%')
+      GROUP BY COALESCE(user_id, guest_token)
+    `
+    const newByMonth = Object.entries(
+      people.reduce<Record<string, number>>((acc, p) => ({ ...acc, [p.month]: (acc[p.month] ?? 0) + 1 }), {}),
+    )
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([month, count]) => ({ month, people: count }))
+    const [savedProperties, callbacks] = await Promise.all([prisma.savedProperty.count(), prisma.callbackRequest.count()])
 
     let signedUp: number | null = null
     let signupError: string | null = null
@@ -2903,6 +2919,12 @@ router.get('/analytics/user-counts', async (_req: Request, res: Response) => {
       firstSeen: row.firstSeen,
       visitors: row.visitors,
       guests: row.guests,
+      returning: people.filter((p) => p.sessions > 1).length,
+      sessions: row.sessions,
+      messages: row.messages,
+      newByMonth,
+      savedProperties,
+      callbacks,
       active: { day: row.d1, week: row.d7, month: row.d30 },
       chattedSignedIn: row.chattedSignedIn,
       signedUp,

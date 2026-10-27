@@ -75,6 +75,12 @@ interface UserCounts {
   chattedSignedIn: number
   signedUp: number | null
   signupError: string | null
+  returning: number
+  sessions: number
+  messages: number
+  newByMonth: { month: string; people: number }[]
+  savedProperties: number
+  callbacks: number
 }
 
 type TimeRange = 'all' | '30d' | '90d' | 'year'
@@ -1261,7 +1267,52 @@ export default function AdminDashboard() {
             contextText="Signed-up users who also chatted"
             icon={UsersThree}
           />
+          <MetricCard
+            title="Returning"
+            value={userCounts.returning}
+            contextText="People with 2 or more chat sessions"
+            icon={ArrowClockwise}
+          />
+          <MetricCard
+            title="Chat Sessions"
+            value={userCounts.sessions.toLocaleString('en-IN')}
+            contextText={`${userCounts.messages.toLocaleString('en-IN')} messages`}
+            icon={Pulse}
+          />
+          <MetricCard
+            title="Saved Properties"
+            value={userCounts.savedProperties}
+            contextText="Saves by guests and signed-in users"
+            icon={CheckCircle}
+          />
+          <MetricCard
+            title="Callback Requests"
+            value={userCounts.callbacks}
+            warning={userCounts.callbacks === 0}
+            contextText={userCounts.callbacks === 0 ? 'No buyer has asked for a callback yet' : 'From buyers'}
+            icon={Clock}
+          />
           </div>
+          {userCounts.newByMonth.length > 0 && (
+            <div className="rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-4 space-y-2">
+              <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">New people by month</p>
+              <p className="text-xs text-zinc-500 dark:text-zinc-400">A person counts in the month of their first chat.</p>
+              <ul className="space-y-1.5">
+                {userCounts.newByMonth.map((m) => {
+                  const max = Math.max(...userCounts.newByMonth.map((x) => x.people))
+                  return (
+                    <li key={m.month} className="flex items-center gap-3 text-xs">
+                      <span className="w-20 shrink-0 text-zinc-500 dark:text-zinc-400">
+                        {new Date(`${m.month}-01T00:00:00Z`).toLocaleDateString('en-IN', { month: 'short', year: 'numeric', timeZone: 'UTC' })}
+                      </span>
+                      <span className="h-2 rounded-full bg-[#0066cc] dark:bg-blue-400" style={{ width: `${(m.people / max) * 60}%` }} />
+                      <span className="tabular-nums text-zinc-900 dark:text-zinc-100">{m.people}</span>
+                    </li>
+                  )
+                })}
+              </ul>
+            </div>
+          )}
         </div>
       )}
     </div>
