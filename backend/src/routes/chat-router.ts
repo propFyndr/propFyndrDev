@@ -3655,6 +3655,8 @@ I can help you:
     // is reaching it, not writing a second one.
     const isCostSheetRequest =
       /\b(cost sheets?|price breakdowns?|cost breakdowns?|all inclusive|other charges|possession charges|car parking charge|maintenance\s*(?:charges?|costs?|fees?)?|floor\s*rise|plc\s*(?:charges?)?|parking\s*(?:charges?|costs?)?)\b/i.test(topicText) ||
+      // Each charge line a cost sheet carries, asked about on its own ("club membership at X").
+      /\b(club\s*(?:membership|charges?|fees?)|ifms|interest[- ]free maintenance|electricity\s*(?:connection|charges?)|power\s*back[- ]?up\s*(?:charges?|cost)|water\s*(?:and\s*sewer\s*)?connection|sewer\s*connection|edc|idc|lease\s*rent)\b/i.test(topicText) ||
       /\b(hidden|extra|additional|unexpected|out[- ]of[- ]pocket|real|true|actual)\s+(costs?|charges?|fees?|expenses?|pricing)\b/i.test(topicText) ||
       /\b(?:costs?|charges?|fees?|expenses?)\s+(?:beyond|besides|apart\s+from|other\s+than|over\s+and\s+above|on\s+top\s+of|of\s+beyond)\b/i.test(topicText) ||
       /\b(?:beyond|on\s+top\s+of|over\s+and\s+above)\s+(?:the\s+)?(?:sticker|base|quoted|listed|ticket|builder'?s?)?\s*(?:price|rate)\b/i.test(topicText) ||

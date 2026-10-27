@@ -216,6 +216,22 @@ describe('rendered cost sheet', () => {
     assert.ok(!/Parking/.test(t), 'a charge with no figure was still given a row')
   })
 
+  it('shows every stored charge line, so a direct question is answered from the row', () => {
+    // Shapes as stored on live (Neon), 2026-10-27.
+    const t = renderCostSheetTable({
+      base_price_per_sqft: 11500,
+      floor_rise_per_floor: 30,
+      electricity_connection: 35000,
+      plc_charges: [{ type: 'Park / Green Central Lawn Facing PLC', rate_psf: 200, description: 'x' }],
+      other_charges: [{ name: 'IGL Piped Natural Gas Connection', type: 'mandatory_fixed', amount: 18500 }],
+    })
+    assert.match(t, /Park \/ Green Central Lawn Facing PLC\** \| ₹200\/sqft/)
+    assert.match(t, /IGL Piped Natural Gas Connection\** \| ₹18,500/)
+    assert.match(t, /Floor Rise\** \| ₹30\/sqft per floor/)
+    assert.match(t, /Electricity Connection\** \| ₹35,000/)
+    assert.ok(!/mandatory_fixed/.test(t), 'an item type was shown as its label')
+  })
+
   it('renders nothing when there is barely anything to show', () => {
     assert.equal(renderCostSheetTable({ base_price_per_sqft: 11500 }), '')
     assert.equal(renderCostSheetTable(null), '')

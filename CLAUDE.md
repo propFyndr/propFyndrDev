@@ -212,6 +212,7 @@ Every fact shown to a buyer belongs to exactly one tier. Reference `lib/factPres
 * A **schema default is not data.** Columns whose value is identical on every row (`SCHEMA_DEFAULT_SENTINELS` in `projectExposure.ts`) are treated as missing.
 * A **templated value is not data.** If the same value appears on many projects because a script wrote it, it is cleared (`npm run fix:templated`), not labelled.
 * *Owner exception (2026-10-26):* amenities are stated as the project lists them, with no "may be a template" note. The fix for shared amenity text is cleaning the data.
+* *Owner exception (2026-10-27):* cost-sheet charges (parking, club, IFMS, maintenance, PLC, floor rise, electricity, water, other charges) and payment plans are answered from the rows we hold, whoever wrote them, with no template caveat. Do not clear or hide them on live without the owner's say-so. On live they are still the seed-script values (3 tiers; one schedule per plan type); dev had them cleared on 16 Oct, so dev answers "Not on record" where live states a figure.
 
 **Enforcement:** `dueDiligenceFabrication.test.ts`, `lib/ai/__tests__/answerIntegrity.test.ts`; `answerIntegrity.ts` runs before the buyer sees any answer.
 

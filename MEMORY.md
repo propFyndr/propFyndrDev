@@ -295,6 +295,12 @@ Add new decisions under the right topic, not as a session diary. When one replac
     - 310 sessions, 1,410 messages.
     - 11 accounts; 0 leads.
     - Founders' guest browsing can't be told apart without their guest IDs.
+- **Cost sheets and payment plans are answered from the DB as stored (owner decision, 10-27).**
+  - What: whatever the row holds is stated, with no template caveat.
+  - Why: the owner wants every property question answered from the database ("it doesn't matter even if any script wrote them").
+  - Rejected: running `fix-templated-data-pass3.ts --db=live` to clear them, and hiding payment schedules until a builder confirms.
+  - Known: live IFMS, parking, club and electricity sit in 3 tiers (286/74/22 projects); PLC text is identical on 360 projects; each plan type has one schedule. Dev was cleared on 10-16.
+  - The cost table (`renderCostSheetTable`) now also lists floor rise, electricity, water/sewer, each PLC line and other charges. "Club membership", "IFMS", "electricity connection" and similar now route to the cost sheet.
 - **People tracking (10-27, owner-approved, schema additive).**
   - A person is `realPeopleSessions` in `routes/admin.ts`:
     - a signed-in account, or a website guest token;

@@ -2069,5 +2069,65 @@
         }
       }
     ]
+  },
+  {
+    "id": "oct27-club-membership-charge",
+    "source": "property probe 2026-10-27: a single cost-sheet charge asked on its own went to the amenities lane",
+    "turns": [
+      {
+        "text": "How much is the club membership at Antriksh Forest?",
+        "expect": {
+          "lane": "topic:cost-sheet"
+        }
+      }
+    ]
+  },
+  {
+    "id": "oct27-ifms-parking",
+    "source": "property probe 2026-10-27",
+    "turns": [
+      {
+        "text": "What are the IFMS and parking charges at Elite X?",
+        "expect": {
+          "lane": "topic:cost-sheet"
+        }
+      }
+    ]
+  },
+  {
+    "id": "oct27-maintenance-hinglish",
+    "source": "property probe 2026-10-27",
+    "turns": [
+      {
+        "text": "ACE Parkway mein maintenance kitna hai?",
+        "expect": {
+          "lane": "topic:cost-sheet"
+        }
+      }
+    ]
+  },
+  {
+    "id": "oct27-clp-offered",
+    "source": "property probe 2026-10-27",
+    "turns": [
+      {
+        "text": "Does ACE Parkway offer a CLP plan?",
+        "expect": {
+          "lane": "topic:payment-plans"
+        }
+      }
+    ]
+  },
+  {
+    "id": "oct27-nearby",
+    "source": "property probe 2026-10-27",
+    "turns": [
+      {
+        "text": "What is near ACE Parkway?",
+        "expect": {
+          "lane": "topic:vicinity-lookup"
+        }
+      }
+    ]
   }
 ]

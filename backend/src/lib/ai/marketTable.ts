@@ -497,6 +497,31 @@ export interface CostSheetRow {
   all_inclusive_price_cr?: number | null
   /** ₹ per sq.ft per month — recurring, so it is a rate, never a total. */
   maintenance_psf_monthly?: number | null
+  /** ₹ per sq.ft per floor. */
+  floor_rise_per_floor?: number | null
+  /** Rupees, one-time. */
+  electricity_connection?: number | null
+  water_sewer_connection?: number | null
+  /** [{ type, rate_psf, description }] as the row stores it. */
+  plc_charges?: unknown
+  /** [{ name, type, amount, rate_per_sqft? }] as the row stores it. */
+  other_charges?: unknown
+}
+
+/** One label and one figure per stored charge item; items without both are skipped. */
+function chargeItems(raw: unknown): Array<{ label: string; figure: string }> {
+  if (!Array.isArray(raw)) return []
+  return raw.flatMap((item) => {
+    if (!item || typeof item !== 'object') return []
+    const o = item as Record<string, unknown>
+    // `name` first: other_charges items carry a name plus a type such as "mandatory_fixed";
+    // PLC items carry only `type`, which is then the label.
+    const label = [o.name, o.label, o.type].find((v): v is string => typeof v === 'string' && v.trim() !== '')
+    if (!label) return []
+    if (typeof o.rate_psf === 'number' && o.rate_psf > 0) return [{ label, figure: `${rupees(o.rate_psf)}/sqft` }]
+    const amount = [o.amount, o.value].find((v): v is number => typeof v === 'number' && v > 0)
+    return amount ? [{ label, figure: fromRupees(amount) }] : []
+  })
 }
 
 /** Rupee amounts stored raw, shown at whatever scale reads naturally. */
@@ -574,6 +599,23 @@ export function renderCostSheetTable(
   // table never had: "maintenance charges at X" drew a cost sheet without it.
   if (typeof sheet?.maintenance_psf_monthly === 'number' && sheet.maintenance_psf_monthly > 0) {
     lines.push(['Maintenance', `₹${sheet.maintenance_psf_monthly}/sqft per month`, 'Recurring, from possession'])
+    projectSpecificFigures += 1
+  }
+
+  // The rest of the sheet, so a direct question ("PLC for park facing?", "electricity
+  // connection charges?") is answered from the row rather than left to the prose.
+  if (typeof sheet?.floor_rise_per_floor === 'number' && sheet.floor_rise_per_floor > 0) {
+    lines.push(['Floor Rise', `${rupees(sheet.floor_rise_per_floor)}/sqft per floor`, 'Higher floors cost more'])
+    projectSpecificFigures += 1
+  }
+  charge('Electricity Connection', sheet?.electricity_connection, 'One-time')
+  charge('Water & Sewer Connection', sheet?.water_sewer_connection, 'One-time')
+  for (const plc of chargeItems(sheet?.plc_charges)) {
+    lines.push([plc.label, plc.figure, 'Preferential location charge, if the unit has it'])
+    projectSpecificFigures += 1
+  }
+  for (const other of chargeItems(sheet?.other_charges)) {
+    lines.push([other.label, other.figure, 'As listed'])
     projectSpecificFigures += 1
   }
 
