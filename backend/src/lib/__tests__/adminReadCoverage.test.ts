@@ -123,6 +123,8 @@ const READ_REGISTRY: Record<string, Record<Role, boolean>> = {
   // One row per person, opening to their questions: transcript content, like /conversations.
   '/analytics/people': OWNER_ONLY,
   '/analytics/people/:key/questions': OWNER_ONLY,
+  // Buyers' questions and our answers, grouped by gap: transcript content.
+  '/analytics/answer-gaps': OWNER_ONLY,
   '/analytics/ai-costs': OWNER_ONLY,
 
   // ── Oversight. Not read by the people it covers. ──

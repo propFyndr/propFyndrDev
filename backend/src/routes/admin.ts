@@ -16,6 +16,7 @@ import { checkRateLimit, resetRateLimit, getCached, setCached, deleteCached } fr
 import { z } from 'zod'
 import { supabaseAdmin } from '../lib/supabase'
 import { WEBSITE_GUEST_TOKEN } from '../lib/botDetection'
+import { classifyTurn, normaliseSector, GAP_KINDS, type GapKind } from '../lib/analytics/answerGaps'
 import { generateBlogDraft, prefetchBlogSources } from '../lib/blog/generateDraft'
 
 /**
@@ -3102,6 +3103,104 @@ router.delete('/analytics/people/:key/team', requireIdentity, requireRole('SUPER
     actorLabel: identity?.email ?? 'unknown', summary: `Removed team mark from ${key}`,
   })
   res.json({ key, removed: true })
+})
+
+// GET /api/v1/admin/analytics/answer-gaps?days=30 — where the chat fell short for real buyers:
+// failed or slow answers, searches with no match, "not on record" answers, out-of-scope asks,
+// projects we do not hold and sectors we have nothing in. Each group lists its newest questions
+// with a link to the chat. Read-only, from what is already stored (lib/analytics/answerGaps.ts).
+router.get('/analytics/answer-gaps', async (req: Request, res: Response) => {
+  try {
+    const days = Math.min(365, Math.max(1, Number(req.query.days) || 30))
+    const since = new Date(Date.now() - days * 86_400_000)
+
+    const [turns, searches, heldSectors, projectGaps] = await Promise.all([
+      prisma.$queryRaw<Array<{ sessionId: string; at: Date; question: string; answer: string | null; lane: string | null; latencyMs: number | null; degraded: boolean | null }>>`
+        WITH s AS (${realPeopleSessions})
+        SELECT m.session_id AS "sessionId", m.created_at AS at, m.content AS question,
+          (SELECT a.content FROM chat_messages a WHERE a.session_id = m.session_id AND a.role = 'assistant'
+             AND a.created_at >= m.created_at ORDER BY a.created_at LIMIT 1) AS answer,
+          t.lane, t.latency_ms AS "latencyMs", t.degraded
+        FROM chat_messages m
+        JOIN s ON s.id = m.session_id
+        LEFT JOIN LATERAL (SELECT lane, latency_ms, degraded FROM turn_traces
+          WHERE session_id = m.session_id AND created_at >= m.created_at - interval '2 seconds'
+          ORDER BY created_at LIMIT 1) t ON true
+        WHERE m.role = 'user' AND m.created_at >= ${since}
+        ORDER BY m.created_at DESC`,
+      prisma.$queryRaw<Array<{ sessionId: string; sector: string | null; at: Date; query: string }>>`
+        WITH s AS (${realPeopleSessions})
+        SELECT q.session_id AS "sessionId", q.sector, q.created_at AS at, q.query_text AS query
+        FROM query_metrics q JOIN s ON s.id = q.session_id
+        WHERE q.created_at >= ${since} AND q.sector IS NOT NULL`,
+      prisma.project.findMany({ where: { archived_duplicate_of: null }, select: { sector: true } }),
+      prisma.$queryRaw<Array<{ sessionId: string; name: string | null; at: Date; query: string | null }>>`
+        WITH s AS (${realPeopleSessions})
+        SELECT l.entity_id AS "sessionId", l.entity_name AS name, l.created_at AS at, l.changes->>'query' AS query
+        FROM audit_logs l JOIN s ON s.id = l.entity_id
+        WHERE l.entity_type = 'coverage_gap' AND l.created_at >= ${since}`,
+    ])
+
+    type Item = { question: string; answer: string | null; at: Date; sessionId: string; lane: string | null; seconds: number | null }
+    const groups = new Map<GapKind, Item[]>()
+    for (const t of turns) {
+      for (const kind of classifyTurn(t)) {
+        const list = groups.get(kind) ?? []
+        list.push({
+          question: t.question.slice(0, 300),
+          answer: t.answer ? t.answer.replace(/\s+/g, ' ').slice(0, 240) : null,
+          at: t.at,
+          sessionId: t.sessionId,
+          lane: t.lane,
+          seconds: t.latencyMs != null ? Math.round(t.latencyMs / 100) / 10 : null,
+        })
+        groups.set(kind, list)
+      }
+    }
+
+    // Sectors buyers searched that we hold no project in.
+    const held = new Set(heldSectors.map((p) => normaliseSector(p.sector)))
+    const sectorAsks = new Map<string, { sector: string; asks: number; lastAsked: Date; sessionId: string; query: string }>()
+    for (const q of searches) {
+      const key = normaliseSector(q.sector)
+      if (!key || held.has(key)) continue
+      const hit = sectorAsks.get(key)
+      if (hit) {
+        hit.asks++
+        if (q.at > hit.lastAsked) Object.assign(hit, { lastAsked: q.at, sessionId: q.sessionId, query: q.query })
+      } else sectorAsks.set(key, { sector: q.sector!, asks: 1, lastAsked: q.at, sessionId: q.sessionId, query: q.query })
+    }
+
+    // Projects asked by name that we do not hold.
+    const projectAsks = new Map<string, { name: string; asks: number; lastAsked: Date; sessionId: string; query: string | null }>()
+    for (const g of projectGaps) {
+      const key = (g.name ?? '').toLowerCase().trim()
+      if (!key) continue
+      const hit = projectAsks.get(key)
+      if (hit) {
+        hit.asks++
+        if (g.at > hit.lastAsked) Object.assign(hit, { lastAsked: g.at, sessionId: g.sessionId, query: g.query })
+      } else projectAsks.set(key, { name: g.name!, asks: 1, lastAsked: g.at, sessionId: g.sessionId, query: g.query })
+    }
+
+    const byAsks = <T extends { asks: number; lastAsked: Date }>(a: T, b: T) => b.asks - a.asks || +b.lastAsked - +a.lastAsked
+    res.json({
+      windowDays: days,
+      turnsChecked: turns.length,
+      turnsWithAGap: turns.filter((t) => classifyTurn(t).length > 0).length,
+      kinds: (Object.keys(GAP_KINDS) as GapKind[]).map((id) => ({
+        id,
+        label: GAP_KINDS[id],
+        count: groups.get(id)?.length ?? 0,
+        items: (groups.get(id) ?? []).slice(0, 15),
+      })),
+      missingSectors: [...sectorAsks.values()].sort(byAsks).slice(0, 30),
+      missingProjects: [...projectAsks.values()].sort(byAsks).slice(0, 30),
+    })
+  } catch (err) {
+    console.error('[admin] answer-gaps failed:', err)
+    res.status(500).json({ error: 'Failed to fetch answer gaps' })
+  }
 })
 
 // GET /api/v1/admin/analytics/properties — properties analytics

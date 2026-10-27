@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { SquaresFour, MagnifyingGlass, Buildings, Users } from '@phosphor-icons/react'
+import { SquaresFour, MagnifyingGlass, Buildings, Users, WarningCircle } from '@phosphor-icons/react'
 
 export default function AnalyticsNav() {
   const pathname = usePathname()
@@ -12,6 +12,7 @@ export default function AnalyticsNav() {
     { name: 'Search Analytics', path: '/admin/analytics/search', icon: MagnifyingGlass },
     { name: 'Property Engagement', path: '/admin/analytics/properties', icon: Buildings },
     { name: 'User Behavior', path: '/admin/analytics/users', icon: Users },
+    { name: 'Gaps', path: '/admin/analytics/gaps', icon: WarningCircle },
   ]
 
   return (

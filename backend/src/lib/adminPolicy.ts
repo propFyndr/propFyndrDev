@@ -121,6 +121,8 @@ const ANALYST_READ_DENIED: readonly RegExp[] = [
   /^\/referrals\b/,
   // One row per person, each opening to their questions: transcript content by person.
   /^\/analytics\/people\b/,
+  // Buyers' own questions and our answers, grouped by what went wrong.
+  /^\/analytics\/answer-gaps\b/,
 ]
 
 /**
