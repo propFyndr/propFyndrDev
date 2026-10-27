@@ -7,11 +7,16 @@ import { formatDistanceToNow, format } from 'date-fns'
 import AdminInfoTooltip from '@/components/admin/AdminInfoTooltip'
 import { Skeleton } from '@/components/ui/skeleton'
 import { adminFetch } from '@/lib/adminFetch'
+import { usePortalIdentity } from '@/components/portal/PortalShell'
 
 interface Person {
   key: string
   kind: 'account' | 'guest'
   label: string
+  /** Team member's name when this person is marked as team. */
+  team: string | null
+  device: string | null
+  source: string | null
   sessions: number
   questions: number
   firstSeen: string
@@ -24,9 +29,16 @@ interface Question {
   at: string
 }
 
+interface Action {
+  kind: string
+  project: string | null
+  at: string
+}
+
 interface Expanded {
   items: Question[]
   total: number
+  actions: Action[]
   loading: boolean
 }
 
@@ -39,6 +51,9 @@ const MORE_BATCH = 50
  * Data: GET /admin/analytics/people and /admin/analytics/people/questions.
  */
 export default function PeopleChatLog() {
+  const { role } = usePortalIdentity()
+  const [teamDraft, setTeamDraft] = useState<Record<string, string>>({})
+  const [teamError, setTeamError] = useState<string | null>(null)
   const [search, setSearch] = useState('')
   const [page, setPage] = useState(1)
   const [people, setPeople] = useState<Person[]>([])
@@ -80,19 +95,41 @@ export default function PeopleChatLog() {
   }
 
   const loadQuestions = async (key: string, offset: number, limit: number) => {
-    setExpanded((e) => ({ ...e, [key]: { items: e[key]?.items ?? [], total: e[key]?.total ?? 0, loading: true } }))
+    const keep = (e: Record<string, Expanded>) => ({ items: e[key]?.items ?? [], total: e[key]?.total ?? 0, actions: e[key]?.actions ?? [] })
+    setExpanded((e) => ({ ...e, [key]: { ...keep(e), loading: true } }))
     try {
-      const params = new URLSearchParams({ key, offset: String(offset), limit: String(limit) })
-      const res = await adminFetch(`/admin/analytics/people/questions?${params}`)
+      const params = new URLSearchParams({ offset: String(offset), limit: String(limit) })
+      const res = await adminFetch(`/admin/analytics/people/${encodeURIComponent(key)}/questions?${params}`)
       if (!res.ok) throw new Error(`HTTP ${res.status}`)
       const data = await res.json()
       setExpanded((e) => ({
         ...e,
-        [key]: { items: [...(offset ? e[key]?.items ?? [] : []), ...(data.questions ?? [])], total: data.total ?? 0, loading: false },
+        [key]: {
+          items: [...(offset ? e[key]?.items ?? [] : []), ...(data.questions ?? [])],
+          total: data.total ?? 0,
+          // Only the first page carries actions.
+          actions: offset ? e[key]?.actions ?? [] : data.actions ?? [],
+          loading: false,
+        },
       }))
     } catch (err) {
       console.error('Questions load failed:', err)
-      setExpanded((e) => ({ ...e, [key]: { items: e[key]?.items ?? [], total: e[key]?.total ?? 0, loading: false } }))
+      setExpanded((e) => ({ ...e, [key]: { ...keep(e), loading: false } }))
+    }
+  }
+
+  const setTeam = async (key: string, name: string | null) => {
+    setTeamError(null)
+    try {
+      const res = await adminFetch(`/admin/analytics/people/${encodeURIComponent(key)}/team`, {
+        method: name ? 'PUT' : 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        ...(name ? { body: JSON.stringify({ name }) } : {}),
+      })
+      if (!res.ok) throw new Error(res.status === 403 ? 'Only a super admin can mark team members.' : `Could not save (HTTP ${res.status}).`)
+      setPeople((ps) => ps.map((p) => (p.key === key ? { ...p, team: name } : p)))
+    } catch (err) {
+      setTeamError(err instanceof Error ? err.message : 'Could not save.')
     }
   }
 
@@ -150,6 +187,7 @@ export default function PeopleChatLog() {
                 <th className="py-3.5 px-6">Person</th>
                 <th className="py-3.5 px-4 text-center">Chats</th>
                 <th className="py-3.5 px-4 text-center">Questions</th>
+                <th className="py-3.5 px-4">Device · Source</th>
                 <th className="py-3.5 px-4">First Seen</th>
                 <th className="py-3.5 px-6 text-right">Last Active</th>
               </tr>
@@ -183,6 +221,11 @@ export default function PeopleChatLog() {
                             />
                           </span>
                           <span className="font-mono font-bold text-[#0066cc] dark:text-blue-400">{p.label}</span>
+                          {p.team && (
+                            <span className="text-[10px] font-semibold uppercase px-1.5 py-0.5 rounded bg-violet-50 dark:bg-violet-950/50 text-violet-700 dark:text-violet-300">
+                              Team · {p.team}
+                            </span>
+                          )}
                           {p.kind === 'account' && (
                             <span className="text-[10px] font-semibold uppercase px-1.5 py-0.5 rounded bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400">
                               Signed in
@@ -196,6 +239,9 @@ export default function PeopleChatLog() {
                       <td className="py-3.5 px-4 text-center font-mono font-bold text-zinc-700 dark:text-zinc-300 tabular-nums">
                         {p.questions}
                       </td>
+                      <td className="py-3.5 px-4 text-zinc-500 dark:text-zinc-400">
+                        {[p.device, p.source && `from ${p.source}`].filter(Boolean).join(' · ') || '—'}
+                      </td>
                       <td className="py-3.5 px-4 text-zinc-500 dark:text-zinc-400">{format(new Date(p.firstSeen), 'd MMM yyyy')}</td>
                       <td className="py-3.5 px-6 text-right text-zinc-500 dark:text-zinc-400">
                         <span className="inline-flex items-center gap-1.5 justify-end">
@@ -207,7 +253,24 @@ export default function PeopleChatLog() {
 
                     {open && (
                       <tr className="bg-zinc-50/60 dark:bg-zinc-800/30">
-                        <td colSpan={5} className="px-6 py-3">
+                        <td colSpan={6} className="px-6 py-3 space-y-3">
+                          {open.actions.length > 0 && (
+                            <div className="pl-5">
+                              <p className="text-[11px] font-bold uppercase tracking-wider text-zinc-400 mb-1">Actions</p>
+                              <ul className="space-y-1">
+                                {open.actions.map((a, i) => (
+                                  <li key={`${a.kind}-${a.at}-${i}`} className="flex items-start gap-3">
+                                    <span className="w-24 shrink-0 text-zinc-400 tabular-nums">{format(new Date(a.at), 'd MMM, HH:mm')}</span>
+                                    <span className="text-zinc-800 dark:text-zinc-200">
+                                      {a.kind}
+                                      {a.project ? ` · ${a.project}` : ''}
+                                    </span>
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
+                          <p className="pl-5 text-[11px] font-bold uppercase tracking-wider text-zinc-400">Questions</p>
                           {open.items.length === 0 && open.loading ? (
                             <Skeleton className="h-8 w-full rounded-lg" />
                           ) : open.items.length === 0 ? (
@@ -243,6 +306,43 @@ export default function PeopleChatLog() {
                                 ? 'Loading…'
                                 : `Show ${Math.min(MORE_BATCH, open.total - open.items.length)} more of ${open.total - open.items.length} left`}
                             </button>
+                          )}
+                          {role === 'SUPER_ADMIN' && (
+                            <div className="pl-5 flex flex-wrap items-center gap-2 pt-1 border-t border-zinc-200/70 dark:border-zinc-700/60">
+                              {p.team ? (
+                                <button
+                                  type="button"
+                                  onClick={() => setTeam(p.key, null)}
+                                  className="mt-2 px-3 py-1 rounded-lg border border-zinc-200 dark:border-zinc-700 font-bold text-zinc-700 dark:text-zinc-200 hover:bg-white dark:hover:bg-zinc-800 cursor-pointer"
+                                >
+                                  Remove team mark ({p.team})
+                                </button>
+                              ) : (
+                                <>
+                                  <label htmlFor={`team-${p.key}`} className="mt-2 text-zinc-500 dark:text-zinc-400">
+                                    Team member?
+                                  </label>
+                                  <input
+                                    id={`team-${p.key}`}
+                                    type="text"
+                                    placeholder="Name, e.g. Furqan"
+                                    value={teamDraft[p.key] ?? ''}
+                                    onChange={(e) => setTeamDraft((d) => ({ ...d, [p.key]: e.target.value }))}
+                                    className="mt-2 px-2 py-1 rounded-lg bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-[#0066cc]"
+                                  />
+                                  <button
+                                    type="button"
+                                    disabled={!(teamDraft[p.key] ?? '').trim()}
+                                    onClick={() => setTeam(p.key, (teamDraft[p.key] ?? '').trim())}
+                                    className="mt-2 px-3 py-1 rounded-lg border border-zinc-200 dark:border-zinc-700 font-bold text-zinc-700 dark:text-zinc-200 hover:bg-white dark:hover:bg-zinc-800 disabled:opacity-40 cursor-pointer"
+                                  >
+                                    Mark as team
+                                  </button>
+                                  <span className="mt-2 text-zinc-400">Team members are named here and left out of the dashboard counts.</span>
+                                </>
+                              )}
+                              {teamError && <span className="mt-2 text-rose-600 dark:text-rose-400">{teamError}</span>}
+                            </div>
                           )}
                         </td>
                       </tr>

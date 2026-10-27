@@ -13,6 +13,7 @@ describe('which reads get audited', () => {
     assert.equal(isAuditedRead('GET', '/conversations/sess-1'), true)
     assert.equal(isAuditedRead('GET', '/beta/sessions/sess-1'), true)
     assert.equal(isAuditedRead('GET', '/referrals/nodes/guest-1'), true)
+    assert.equal(isAuditedRead('GET', '/analytics/people/guest-75430cc8-b296-400b-ba86-0794dbb2a3ba/questions'), true)
   })
 
   it('does not audit list views', () => {
@@ -22,6 +23,7 @@ describe('which reads get audited', () => {
     assert.equal(isAuditedRead('GET', '/leads'), false)
     assert.equal(isAuditedRead('GET', '/conversations'), false)
     assert.equal(isAuditedRead('GET', '/referrals'), false)
+    assert.equal(isAuditedRead('GET', '/analytics/people'), false)
   })
 
   it('does not audit the catalogue', () => {

@@ -88,7 +88,7 @@ import { inventoryEnvelope, renderEnvelope } from '../lib/ai/inventoryEnvelope'
 import { extractSectorMentions } from '../lib/discovery/sectorMentions'
 import { verifyUser } from '../lib/auth'
 import { clientIp } from '../lib/request'
-import { isBotRequest } from '../lib/botDetection'
+import { isBotRequest, isWebsiteGuestToken, deviceFromUserAgent } from '../lib/botDetection'
 import { getChipInventory } from '../lib/discovery/chipInventory'
 import { getProjectDataForQuery, computeResponseConfidence } from '../lib/projectDataGateway'
 import { FEATURE_PROBES } from '../lib/featureProbes'
@@ -259,6 +259,8 @@ const BodySchema = z.object({
   sessionId: z.string().nullable().optional(),
   turnId: z.string().optional(),
   guestToken: z.string().optional(),
+  /** Where the visit came from: the referring site's host or utm_source (see sessionFields). */
+  source: z.string().max(200).optional(),
   intent: IntentSchema.optional(),
   offset: z.number().int().min(0).default(0).optional(),
 })
@@ -621,7 +623,16 @@ router.post('/', async (req: Request, res: Response) => {
   // Create session for new guest users (no sessionId + guest token)
   // Crawlers, uptime checks and our own corpus runs are answered exactly as
   // before — this only marks the session so metrics can exclude them.
-  const requestIsBot = isBotRequest(req)
+  // A guest whose token isn't one the website mints is a script (the server mints guest_…
+  // when no token is sent), so its session is marked at creation, not filtered later.
+  const requestIsBot = isBotRequest(req) || (!userId && !isWebsiteGuestToken(guestToken))
+  // Fields every new session starts with, wherever in this turn it is created.
+  const sessionFields = {
+    is_bot: requestIsBot,
+    device: deviceFromUserAgent(req.get('user-agent') ?? undefined),
+    // Only a host name or utm token is kept, never a full URL (query strings can carry personal data).
+    source: /^[a-z0-9][a-z0-9._-]{0,79}$/i.test(parsed.data.source ?? '') ? parsed.data.source!.toLowerCase() : null,
+  }
 
   // DEFENSIVE: Ensure session exists before any child operations (FK constraints)
   if (!sessionId && !userId && guestToken) {
@@ -631,7 +642,7 @@ router.post('/', async (req: Request, res: Response) => {
           guest_token: guestToken,
           title: 'Chat',
           chat_phase: 'GATHERING',
-          is_bot: requestIsBot,
+          ...sessionFields,
         },
       })
       sessionId = newSession.id
@@ -675,7 +686,7 @@ router.post('/', async (req: Request, res: Response) => {
           user_id: userId,
           title: 'Chat',
           chat_phase: 'GATHERING',
-          is_bot: requestIsBot,
+          ...sessionFields,
         },
       })
       sessionId = newSession.id
@@ -866,6 +877,7 @@ router.post('/', async (req: Request, res: Response) => {
         sessionId,
         userId,
         guestToken,
+        sessionFields,
         turnTrace,
         timer,
         receivedAt,
@@ -1170,6 +1182,7 @@ router.post('/', async (req: Request, res: Response) => {
             data: {
               id: currentSessionId,
               ...(userId ? { user_id: userId } : { guest_token: guestToken }),
+              ...sessionFields,
               title: message.slice(0, 60),
               chat_phase: phase,
               message_count: 2,
@@ -6642,6 +6655,7 @@ EXECUTIVE RESPONSE INSTRUCTIONS:
           data: {
             id: newId,
             ...(userId ? { user_id: userId } : { guest_token: guestToken }),
+            ...sessionFields,
             title: message.slice(0, 60),
             chat_phase: intentState,
             message_count: 2,

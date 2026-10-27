@@ -15,6 +15,7 @@ import { PRICE_FIELDS, applyFactWrites, changedPriceFields, parsePriceVerificati
 import { checkRateLimit, resetRateLimit, getCached, setCached, deleteCached } from '../lib/cache'
 import { z } from 'zod'
 import { supabaseAdmin } from '../lib/supabase'
+import { WEBSITE_GUEST_TOKEN } from '../lib/botDetection'
 import { generateBlogDraft, prefetchBlogSources } from '../lib/blog/generateDraft'
 
 /**
@@ -2856,56 +2857,63 @@ router.get('/analytics/users', async (req: Request, res: Response) => {
   }
 })
 
-// The website's guest token: `guest-` + crypto.randomUUID() (frontend/lib/guestToken.ts).
-// Scripts used look-alikes such as "guest-stress_1_…", so the format is matched exactly.
-const WEBSITE_GUEST_TOKEN = '^guest-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'
+// A person: a signed-in account, or a website guest. A guest who later signed in on that device
+// counts as their account (referral_visits records the link at sign-in, routes/sessions.ts).
+// Only real people: not a bot, and an account or a token the website mints (botDetection.ts).
+const realPeopleSessions = Prisma.sql`
+  SELECT cs.id, cs.user_id, cs.created_at, cs.last_active, cs.device, cs.source, cs.message_count,
+    COALESCE(cs.user_id,
+      (SELECT rv.user_id FROM referral_visits rv WHERE rv.guest_token = cs.guest_token AND rv.user_id IS NOT NULL LIMIT 1),
+      cs.guest_token) AS person
+  FROM chat_sessions cs
+  WHERE cs.is_bot = false AND (cs.user_id IS NOT NULL OR cs.guest_token ~ ${WEBSITE_GUEST_TOKEN})`
+const USER_COUNTS_CACHE = 'admin:analytics:user-counts'
 
 // GET /api/v1/admin/analytics/user-counts — visitors, active buyers and signups for the dashboard.
-// A visitor is a signed-in account or a website guest token that opened a chat. The website
-// always sends `guest-<uuid>` (frontend/lib/guestToken.ts); any other token is a script
-// (the server mints `guest_…` when none is sent), so it is not a person. Signups are Supabase
-// Auth accounts minus accounts linked to our own team. `signedUp` is null when Auth can't be read.
+// Counts real people (see realPeopleSessions) and leaves out anyone marked as team.
+// Signups are Supabase Auth accounts minus team accounts. `signedUp` is null when Auth can't be read.
 router.get('/analytics/user-counts', async (_req: Request, res: Response) => {
   try {
-    const cacheKey = 'admin:analytics:user-counts'
-    const cached = await getCached<object>(cacheKey)
+    const cached = await getCached<object>(USER_COUNTS_CACHE)
     if (cached) return res.json(cached)
 
-    const [row] = await prisma.$queryRaw<Array<{ visitors: number; guests: number; d1: number; d7: number; d30: number; chattedSignedIn: number; firstSeen: Date | null; sessions: number; messages: number }>>`
+    const [row] = await prisma.$queryRaw<Array<{ visitors: number; guests: number; d1: number; d7: number; d30: number; chattedSignedIn: number; firstSeen: Date | null; sessions: number; messages: number; team: number }>>`
+      WITH s AS (${realPeopleSessions}),
+      p AS (SELECT * FROM s WHERE person NOT IN (SELECT key FROM team_identities))
       SELECT
-        COUNT(DISTINCT COALESCE(user_id, guest_token))::int AS visitors,
-        COUNT(DISTINCT guest_token) FILTER (WHERE user_id IS NULL)::int AS guests,
-        COUNT(DISTINCT COALESCE(user_id, guest_token)) FILTER (WHERE last_active > now() - interval '1 day')::int AS d1,
-        COUNT(DISTINCT COALESCE(user_id, guest_token)) FILTER (WHERE last_active > now() - interval '7 days')::int AS d7,
-        COUNT(DISTINCT COALESCE(user_id, guest_token)) FILTER (WHERE last_active > now() - interval '30 days')::int AS d30,
-        COUNT(DISTINCT user_id)::int AS "chattedSignedIn",
+        COUNT(DISTINCT person)::int AS visitors,
+        COUNT(DISTINCT person) FILTER (WHERE person LIKE 'guest-%')::int AS guests,
+        COUNT(DISTINCT person) FILTER (WHERE last_active > now() - interval '1 day')::int AS d1,
+        COUNT(DISTINCT person) FILTER (WHERE last_active > now() - interval '7 days')::int AS d7,
+        COUNT(DISTINCT person) FILTER (WHERE last_active > now() - interval '30 days')::int AS d30,
+        COUNT(DISTINCT person) FILTER (WHERE person NOT LIKE 'guest-%')::int AS "chattedSignedIn",
         MIN(created_at) AS "firstSeen",
         COUNT(*)::int AS sessions,
-        COALESCE(SUM(message_count), 0)::int AS messages
-      FROM chat_sessions
-      WHERE is_bot = false
-        AND (user_id IS NOT NULL OR guest_token ~ ${WEBSITE_GUEST_TOKEN})
+        COALESCE(SUM(message_count), 0)::int AS messages,
+        (SELECT COUNT(*) FROM team_identities)::int AS team
+      FROM p
     `
     // Per person: number of sessions and the month of the first one.
     const people = await prisma.$queryRaw<Array<{ month: string; sessions: number }>>`
+      WITH s AS (${realPeopleSessions})
       SELECT to_char(MIN(created_at), 'YYYY-MM') AS month, COUNT(*)::int AS sessions
-      FROM chat_sessions
-      WHERE is_bot = false
-        AND (user_id IS NOT NULL OR guest_token ~ ${WEBSITE_GUEST_TOKEN})
-      GROUP BY COALESCE(user_id, guest_token)
+      FROM s WHERE person NOT IN (SELECT key FROM team_identities)
+      GROUP BY person
     `
-    const newByMonth = Object.entries(
-      people.reduce<Record<string, number>>((acc, p) => ({ ...acc, [p.month]: (acc[p.month] ?? 0) + 1 }), {}),
-    )
-      .sort(([a], [b]) => a.localeCompare(b))
-      .map(([month, count]) => ({ month, people: count }))
-    const [savedProperties, callbacks] = await Promise.all([prisma.savedProperty.count(), prisma.callbackRequest.count()])
+    const monthCounts = new Map<string, number>()
+    for (const p of people) monthCounts.set(p.month, (monthCounts.get(p.month) ?? 0) + 1)
+    const newByMonth = [...monthCounts].sort(([a], [b]) => a.localeCompare(b)).map(([month, count]) => ({ month, people: count }))
+    const [savedProperties, callbacks, teamRows] = await Promise.all([
+      prisma.savedProperty.count(),
+      prisma.callbackRequest.count({ where: { is_test: false } }),
+      prisma.teamIdentity.findMany({ select: { key: true } }),
+    ])
 
     let signedUp: number | null = null
     let signupError: string | null = null
     try {
-      const team = await prisma.adminUser.findMany({ select: { linked_supabase_user_id: true } })
-      const teamIds = new Set(team.map((t) => t.linked_supabase_user_id).filter(Boolean))
+      const admins = await prisma.adminUser.findMany({ select: { linked_supabase_user_id: true } })
+      const teamIds = new Set([...admins.map((t) => t.linked_supabase_user_id), ...teamRows.map((t) => t.key)].filter(Boolean))
       let count = 0
       for (let page = 1; ; page++) {
         const { data, error } = await supabaseAdmin.auth.admin.listUsers({ page, perPage: 1000 })
@@ -2929,13 +2937,14 @@ router.get('/analytics/user-counts', async (_req: Request, res: Response) => {
       newByMonth,
       savedProperties,
       callbacks,
+      team: row.team,
       active: { day: row.d1, week: row.d7, month: row.d30 },
       chattedSignedIn: row.chattedSignedIn,
       signedUp,
       signupError,
     }
     // Don't cache a failed Auth read, so the next load retries it.
-    if (signedUp !== null) await setCached(cacheKey, responseData, 300)
+    if (signedUp !== null) await setCached(USER_COUNTS_CACHE, responseData, 300)
     res.json(responseData)
   } catch (err) {
     console.error('[admin] user-counts failed:', err)
@@ -2943,14 +2952,8 @@ router.get('/analytics/user-counts', async (_req: Request, res: Response) => {
   }
 })
 
-// Sessions of real people only: not a bot, and an account or the website's guest token.
-const realPeopleSessions = Prisma.sql`
-  SELECT id, user_id, COALESCE(user_id, guest_token) AS person, created_at, last_active
-  FROM chat_sessions
-  WHERE is_bot = false AND (user_id IS NOT NULL OR guest_token ~ ${WEBSITE_GUEST_TOKEN})`
-
-// GET /api/v1/admin/analytics/people?search=&page=&pageSize= — one row per person (account or
-// website guest), newest activity first. `search` matches the person's id or any question they asked.
+// GET /api/v1/admin/analytics/people?search=&page=&pageSize= — one row per person, newest activity
+// first, team included and named. `search` matches the person's id or any question they asked.
 router.get('/analytics/people', async (req: Request, res: Response) => {
   try {
     const search = typeof req.query.search === 'string' ? req.query.search.trim() : ''
@@ -2959,15 +2962,18 @@ router.get('/analytics/people', async (req: Request, res: Response) => {
     const like = `%${search}%`
     const match = search
       ? Prisma.sql`WHERE s.person ILIKE ${like} OR EXISTS (
-          SELECT 1 FROM chat_messages q JOIN chat_sessions qs ON qs.id = q.session_id
-          WHERE COALESCE(qs.user_id, qs.guest_token) = s.person AND q.role = 'user' AND q.content ILIKE ${like})`
+          SELECT 1 FROM s q_s JOIN chat_messages q ON q.session_id = q_s.id
+          WHERE q_s.person = s.person AND q.role = 'user' AND q.content ILIKE ${like})`
       : Prisma.empty
 
     const [rows, [{ total }]] = await Promise.all([
-      prisma.$queryRaw<Array<{ person: string; userId: string | null; sessions: number; questions: number; firstSeen: Date; lastActive: Date }>>`
+      prisma.$queryRaw<Array<{ person: string; sessions: number; questions: number; firstSeen: Date; lastActive: Date; device: string | null; source: string | null; team: string | null }>>`
         WITH s AS (${realPeopleSessions})
-        SELECT s.person, MAX(s.user_id) AS "userId", COUNT(DISTINCT s.id)::int AS sessions,
-          COUNT(m.id)::int AS questions, MIN(s.created_at) AS "firstSeen", MAX(s.last_active) AS "lastActive"
+        SELECT s.person, COUNT(DISTINCT s.id)::int AS sessions, COUNT(m.id)::int AS questions,
+          MIN(s.created_at) AS "firstSeen", MAX(s.last_active) AS "lastActive",
+          (array_agg(s.device ORDER BY s.created_at DESC) FILTER (WHERE s.device IS NOT NULL))[1] AS device,
+          (array_agg(s.source ORDER BY s.created_at ASC) FILTER (WHERE s.source IS NOT NULL))[1] AS source,
+          (SELECT t.name FROM team_identities t WHERE t.key = s.person) AS team
         FROM s LEFT JOIN chat_messages m ON m.session_id = s.id AND m.role = 'user'
         ${match}
         GROUP BY s.person
@@ -2980,7 +2986,7 @@ router.get('/analytics/people', async (req: Request, res: Response) => {
 
     // Accounts are shown by email when Auth answers; otherwise by a short id.
     const emails = new Map<string, string>()
-    if (rows.some((r) => r.userId)) {
+    if (rows.some((r) => !r.person.startsWith('guest-'))) {
       try {
         const { data, error } = await supabaseAdmin.auth.admin.listUsers({ page: 1, perPage: 1000 })
         if (error) throw error
@@ -2991,15 +2997,21 @@ router.get('/analytics/people', async (req: Request, res: Response) => {
     }
 
     res.json({
-      people: rows.map((r) => ({
-        key: r.person,
-        kind: r.userId ? 'account' : 'guest',
-        label: r.userId ? emails.get(r.userId) ?? `Account #${r.userId.slice(0, 8)}` : `Guest #${r.person.slice(6, 14)}`,
-        sessions: r.sessions,
-        questions: r.questions,
-        firstSeen: r.firstSeen,
-        lastActive: r.lastActive,
-      })),
+      people: rows.map((r) => {
+        const isGuest = r.person.startsWith('guest-')
+        return {
+          key: r.person,
+          kind: isGuest ? 'guest' : 'account',
+          label: isGuest ? `Guest #${r.person.slice(6, 14)}` : emails.get(r.person) ?? `Account #${r.person.slice(0, 8)}`,
+          team: r.team,
+          sessions: r.sessions,
+          questions: r.questions,
+          firstSeen: r.firstSeen,
+          lastActive: r.lastActive,
+          device: r.device,
+          source: r.source,
+        }
+      }),
       pagination: { page, pageSize, total },
     })
   } catch (err) {
@@ -3008,15 +3020,16 @@ router.get('/analytics/people', async (req: Request, res: Response) => {
   }
 })
 
-// GET /api/v1/admin/analytics/people/questions?key=&limit=&offset= — one person's questions, newest first.
-router.get('/analytics/people/questions', async (req: Request, res: Response) => {
+// GET /api/v1/admin/analytics/people/:key/questions?limit=&offset= — one person's questions, newest
+// first; the first page also carries what they did (saves, callbacks, site visits, dossiers).
+// Audited as a read of one person's data (lib/adminReadAudit.ts).
+router.get('/analytics/people/:key/questions', async (req: Request, res: Response) => {
   try {
-    const key = typeof req.query.key === 'string' ? req.query.key : ''
-    if (!key) return res.status(400).json({ error: 'key is required' })
+    const key = req.params.key
     const limit = Math.min(500, Math.max(1, Number(req.query.limit) || 10))
     const offset = Math.max(0, Number(req.query.offset) || 0)
 
-    const [questions, [{ total }]] = await Promise.all([
+    const [questions, [{ total }], actions] = await Promise.all([
       prisma.$queryRaw<Array<{ sessionId: string; text: string; at: Date }>>`
         WITH s AS (${realPeopleSessions})
         SELECT m.session_id AS "sessionId", m.content AS text, m.created_at AS at
@@ -3028,12 +3041,67 @@ router.get('/analytics/people/questions', async (req: Request, res: Response) =>
         WITH s AS (${realPeopleSessions})
         SELECT COUNT(*)::int AS total FROM chat_messages m JOIN s ON s.id = m.session_id
         WHERE s.person = ${key} AND m.role = 'user'`,
+      offset > 0
+        ? Promise.resolve([])
+        : prisma.$queryRaw<Array<{ kind: string; project: string | null; at: Date }>>`
+          WITH ids AS (
+            SELECT ${key}::text AS k
+            UNION SELECT guest_token FROM referral_visits WHERE user_id = ${key} AND guest_token IS NOT NULL
+          )
+          SELECT * FROM (
+            SELECT 'Saved' AS kind, p.name AS project, sp.saved_at AS at
+              FROM saved_properties sp LEFT JOIN projects p ON p.id = sp.project_id
+              WHERE sp.user_id IN (SELECT k FROM ids) OR sp.user_id IN (SELECT 'guest_' || k FROM ids)
+            UNION ALL
+            SELECT 'Callback requested', cr.project_name, cr.created_at FROM callback_requests cr
+              WHERE cr.is_test = false AND (cr.user_id IN (SELECT k FROM ids) OR cr.guest_token IN (SELECT k FROM ids))
+            UNION ALL
+            SELECT 'Site visit requested', sv.project_name, sv.created_at FROM site_visit_requests sv
+              WHERE sv.user_id IN (SELECT k FROM ids) OR sv.guest_token IN (SELECT k FROM ids)
+            UNION ALL
+            SELECT 'Dossier created', NULL, d.created_at FROM dossiers d
+              WHERE d.user_id IN (SELECT k FROM ids) OR d.guest_token IN (SELECT k FROM ids)
+          ) a ORDER BY at DESC LIMIT 50`,
     ])
-    res.json({ questions, total })
+    res.json({ questions, total, actions })
   } catch (err) {
     console.error('[admin] people questions failed:', err)
     res.status(500).json({ error: 'Failed to fetch questions' })
   }
+})
+
+// PUT /api/v1/admin/analytics/people/:key/team { name } — mark a person as team (named, and left
+// out of the dashboard's counts). DELETE removes the mark. Super admins only; both are audited.
+router.put('/analytics/people/:key/team', requireIdentity, requireRole('SUPER_ADMIN'), async (req: Request, res: Response) => {
+  const name = typeof req.body?.name === 'string' ? req.body.name.trim().slice(0, 60) : ''
+  if (!name) return res.status(400).json({ error: 'name is required' })
+  const identity = (req as Request & { adminIdentity?: AdminIdentitySession }).adminIdentity
+  const key = req.params.key
+  await prisma.teamIdentity.upsert({
+    where: { key },
+    create: { key, name, marked_by: identity?.email ?? null },
+    update: { name, marked_by: identity?.email ?? null },
+  })
+  await deleteCached(USER_COUNTS_CACHE)
+  await recordAudit({
+    entityType: 'team_identity', entityId: key, entityName: name, action: 'UPDATE',
+    actorAdminId: identity?.adminUserId === 'root' ? null : identity?.adminUserId ?? null,
+    actorLabel: identity?.email ?? 'unknown', summary: `Marked ${key} as team: ${name}`,
+  })
+  res.json({ key, name })
+})
+
+router.delete('/analytics/people/:key/team', requireIdentity, requireRole('SUPER_ADMIN'), async (req: Request, res: Response) => {
+  const identity = (req as Request & { adminIdentity?: AdminIdentitySession }).adminIdentity
+  const key = req.params.key
+  await prisma.teamIdentity.deleteMany({ where: { key } })
+  await deleteCached(USER_COUNTS_CACHE)
+  await recordAudit({
+    entityType: 'team_identity', entityId: key, action: 'DELETE',
+    actorAdminId: identity?.adminUserId === 'root' ? null : identity?.adminUserId ?? null,
+    actorLabel: identity?.email ?? 'unknown', summary: `Removed team mark from ${key}`,
+  })
+  res.json({ key, removed: true })
 })
 
 // GET /api/v1/admin/analytics/properties — properties analytics

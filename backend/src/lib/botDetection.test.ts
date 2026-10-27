@@ -1,6 +1,6 @@
 import { describe, it } from 'node:test'
 import assert from 'node:assert/strict'
-import { isBotUserAgent, isBotRequest } from './botDetection'
+import { isBotUserAgent, isBotRequest, isWebsiteGuestToken, deviceFromUserAgent } from './botDetection'
 
 const REAL_BROWSERS = [
   // Chrome on Windows
@@ -78,5 +78,30 @@ describe('bot detection', () => {
     } finally {
       process.env.NODE_ENV = prevEnv
     }
+  })
+})
+
+describe('isWebsiteGuestToken', () => {
+  it('accepts both shapes the website mints', () => {
+    assert.equal(isWebsiteGuestToken('guest-75430cc8-b296-400b-ba86-0794dbb2a3ba'), true)
+    // crypto.randomUUID missing: random base36 + Date.now() base36
+    assert.equal(isWebsiteGuestToken('guest-' + 'k3j9x2m1q8z0a' + Date.now().toString(36)), true)
+  })
+
+  it('rejects script and server-minted tokens', () => {
+    for (const t of ['guest_k3j9x2m1q8z0a_1788202450161', 'guest-stress_1_1788201939092', 'guest-audit', 'guest-123',
+      'guest-1786871282650', 'guest-migrate-test-1791736017744', 'verify-g1-1791792699802', '', null, undefined]) {
+      assert.equal(isWebsiteGuestToken(t), false, String(t))
+    }
+  })
+})
+
+describe('deviceFromUserAgent', () => {
+  it('classifies phone, tablet and desktop', () => {
+    assert.equal(deviceFromUserAgent('Mozilla/5.0 (iPhone; CPU iPhone OS 18_2 like Mac OS X) AppleWebKit/605.1.15 Mobile/15E148 Safari/604.1'), 'phone')
+    assert.equal(deviceFromUserAgent('Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 Chrome/140.0 Mobile Safari/537.36'), 'phone')
+    assert.equal(deviceFromUserAgent('Mozilla/5.0 (iPad; CPU OS 17_0 like Mac OS X) AppleWebKit/605.1.15'), 'tablet')
+    assert.equal(deviceFromUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/140.0 Safari/537.36'), 'desktop')
+    assert.equal(deviceFromUserAgent(undefined), null)
   })
 })

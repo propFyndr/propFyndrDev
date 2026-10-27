@@ -3,6 +3,7 @@
 
 import { authHeaders } from '@/lib/authedFetch'
 import type { ConversationAction, ConversationStage, ChipAction } from '@/components/chat/types'
+import { visitSource } from '@/lib/visitSource'
 import type { ComponentResponse } from '@/types/property'
 
 // Default aligned with backend/.env (PORT=3001). Override via NEXT_PUBLIC_BACKEND_URL.
@@ -128,6 +129,7 @@ export function streamChat(
           sessionId: options.sessionId,
           turnId,
           guestToken: options.guestToken,
+          source: visitSource(),
           intent: options.intent,
           currentSessionViewed: options.currentSessionViewed,
         }),

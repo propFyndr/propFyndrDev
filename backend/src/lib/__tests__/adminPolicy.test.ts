@@ -42,6 +42,8 @@ const MATRIX: Array<[string, string, Record<Role, boolean>]> = [
   //    before dialling is exploiting a confidence given to someone else, and
   //    an analyst maintaining price rows has no use for it at all.
   ['GET', '/conversations', { SUPER_ADMIN: true, ANALYST: false, SALES: false }],
+  ['GET', '/analytics/people', { SUPER_ADMIN: true, ANALYST: false, SALES: false }],
+  ['GET', '/analytics/people/guest-1/questions', { SUPER_ADMIN: true, ANALYST: false, SALES: false }],
   ['GET', '/beta', { SUPER_ADMIN: true, ANALYST: false, SALES: false }],
 
   // ── Referral tracking: founders only. Not a catalogue, lead or marketing

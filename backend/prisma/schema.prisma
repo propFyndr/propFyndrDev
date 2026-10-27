@@ -708,6 +708,10 @@ model ChatSession {
   // Never blocks the turn; it keeps the session out of product metrics, which
   // 40,790 one-message sessions in thirty days had made unreadable.
   is_bot           Boolean       @default(false)
+  // Visit context, set once when the session is created. `device` is phone | tablet | desktop
+  // from the user agent; `source` is the referring site's host or utm_source, never a full URL.
+  device           String?
+  source           String?
   last_projects    Json?
   shown_chip_ids   Json?         @default("[]")
   summary          String?
@@ -2297,3 +2301,14 @@ model StatutoryRate {
 }
 
 
+
+/// A person on the team (founders, staff), so analytics can name them and leave them out.
+/// `key` is what analytics calls a person: a signed-in user id or a website guest token.
+model TeamIdentity {
+  key        String   @id
+  name       String
+  marked_by  String?
+  created_at DateTime @default(now())
+
+  @@map("team_identities")
+}

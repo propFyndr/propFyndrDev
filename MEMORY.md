@@ -295,6 +295,21 @@ Add new decisions under the right topic, not as a session diary. When one replac
     - 310 sessions, 1,410 messages.
     - 11 accounts; 0 leads.
     - Founders' guest browsing can't be told apart without their guest IDs.
+- **People tracking (10-27, owner-approved, schema additive).**
+  - A person is `realPeopleSessions` in `routes/admin.ts`:
+    - a signed-in account, or a website guest token;
+    - a guest who later signed in is merged into their account via `referral_visits`.
+  - Token rule: `WEBSITE_GUEST_TOKEN` / `isWebsiteGuestToken` in `lib/botDetection.ts`, accepting `guest-` + UUID or `guest-` + 16–22 base36 (the browser fallback).
+  - Every chat session create site now takes `sessionFields`:
+    - `is_bot`, also true when a guest token isn't website-format;
+    - `device` from the user agent;
+    - `source` as a host or `utm_source` only, never a URL.
+  - The fact-router create path and two chat-router create paths had never set `is_bot`.
+  - `team_identities` holds people marked as team: named in User behavior, left out of the dashboard counts. Marking is SUPER_ADMIN only and audited.
+  - The questions endpoint is `/analytics/people/:key/questions`. Reads are audited, and ANALYST and SALES are refused it (transcript content).
+  - The dashboard counts callbacks with `is_test = false` only.
+  - DDL is in `prisma/migrations/add_people_tracking`, applied to Supabase and Neon before the code shipped. Render does not run migrations.
+  - Rejected: keeping `guest_token` on an adopted session. The chat ownership check grants access by guest token, so anyone holding the token could open the account's chats.
 - **Dev chat history emptied (10-27, owner-approved).**
   - Supabase dev went from 258 MB to 61 MB.
   - Only the 2,878 dev-only sessions were backed up (`backend/backups/dev-chat-history-2026-10-27T08-20-28-376Z.json`); the rest are already on Neon.

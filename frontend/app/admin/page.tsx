@@ -81,6 +81,8 @@ interface UserCounts {
   newByMonth: { month: string; people: number }[]
   savedProperties: number
   callbacks: number
+  /** People marked as team, left out of every count here. */
+  team: number
 }
 
 type TimeRange = 'all' | '30d' | '90d' | 'year'
@@ -1211,6 +1213,8 @@ export default function AdminDashboard() {
             {userCounts.firstSeen &&
               ` since ${new Date(userCounts.firstSeen).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}`}
             . Only people on the website or signed in are counted; scripts and test accounts are not.
+            {userCounts.team > 0 &&
+              ` ${userCounts.team} team ${userCounts.team === 1 ? 'member is' : 'members are'} left out (marked in Analytics → User behavior).`}
           </p>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
           <MetricCard

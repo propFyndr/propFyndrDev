@@ -58,3 +58,26 @@ export function isBotRequest(req: Pick<Request, 'get'>): boolean {
   if (process.env.NODE_ENV === 'test') return true
   return isBotUserAgent(req.get('user-agent') ?? undefined)
 }
+
+/**
+ * The website's guest token: `guest-` + crypto.randomUUID(), or, in a browser without it,
+ * `guest-` + 16–22 base36 characters (frontend/lib/guestToken.ts). Scripts used look-alikes
+ * ("guest-stress_1_…", "guest-audit") and the server mints `guest_…` when none is sent, so a
+ * token in any other shape is not a person. Exported as a string for SQL (`guest_token ~ …`).
+ */
+export const WEBSITE_GUEST_TOKEN =
+  '^guest-([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|[a-z0-9]{16,22})$'
+const WEBSITE_GUEST_TOKEN_RE = new RegExp(WEBSITE_GUEST_TOKEN)
+
+export function isWebsiteGuestToken(token: string | null | undefined): boolean {
+  return !!token && WEBSITE_GUEST_TOKEN_RE.test(token)
+}
+
+/** Device class from the user agent, for analytics only. */
+export function deviceFromUserAgent(userAgent: string | undefined): 'phone' | 'tablet' | 'desktop' | null {
+  if (!userAgent) return null
+  const ua = userAgent.toLowerCase()
+  if (/ipad|tablet|(android(?!.*mobile))/.test(ua)) return 'tablet'
+  if (/iphone|ipod|android.*mobile|mobile/.test(ua)) return 'phone'
+  return 'desktop'
+}

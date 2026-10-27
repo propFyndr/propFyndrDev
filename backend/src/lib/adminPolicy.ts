@@ -119,6 +119,8 @@ const ANALYST_READ_DENIED: readonly RegExp[] = [
   // whole reason that test walks the routers instead of trusting a list.
   /^\/boards\/queue\b/,
   /^\/referrals\b/,
+  // One row per person, each opening to their questions: transcript content by person.
+  /^\/analytics\/people\b/,
 ]
 
 /**

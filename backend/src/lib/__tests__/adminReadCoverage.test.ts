@@ -118,6 +118,11 @@ const READ_REGISTRY: Record<string, Record<Role, boolean>> = {
   '/analytics/quality': EDITORS,
   '/analytics/unmet-demand': EDITORS,
   '/analytics/users': EDITORS,
+  // Counts only; no person is named.
+  '/analytics/user-counts': EDITORS,
+  // One row per person, opening to their questions: transcript content, like /conversations.
+  '/analytics/people': OWNER_ONLY,
+  '/analytics/people/:key/questions': OWNER_ONLY,
   '/analytics/ai-costs': OWNER_ONLY,
 
   // ── Oversight. Not read by the people it covers. ──

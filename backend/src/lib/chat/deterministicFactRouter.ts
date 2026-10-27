@@ -116,6 +116,8 @@ export interface FactDispatchContext {
   sessionId?: string | null
   userId?: string | null
   guestToken?: string | null
+  /** Bot flag, device and source for a session this turn creates (chat-router's sessionFields). */
+  sessionFields?: { is_bot: boolean; device: string | null; source: string | null }
   turnTrace?: TurnTraceDraft
   timer?: TurnTimer
   /** When the buyer's message reached the server; stamped on the saved user row. */
@@ -378,6 +380,7 @@ We do **not hold a verified UP-RERA registration number** on record for **${proj
       const created = await prisma.chatSession.create({
         data: {
           ...(ctx.userId ? { user_id: ctx.userId } : { guest_token: ctx.guestToken }),
+          ...ctx.sessionFields,
           title: message.slice(0, 60),
           chat_phase: 'SHORTLISTED',
           message_count: 0,
