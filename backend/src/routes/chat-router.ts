@@ -2348,6 +2348,7 @@ router.post('/', async (req: Request, res: Response) => {
               city: PILOT_SCOPE_LABEL,
               userId,
               sessionId: currentSessionId,
+              traceId: langfuseTraceId,
               stream: send,
               outOfCoverage: { city: coverage.city },
             })
@@ -3050,6 +3051,7 @@ router.post('/', async (req: Request, res: Response) => {
         city: DEFAULT_CITY,
         userId,
         sessionId: currentSessionId,
+        traceId: langfuseTraceId,
         // Streams when the answer carries none of our own figures, which is
         // most of this lane. Time-to-first-token was the whole generation
         // before this, because the lane buffered every reply.
@@ -3884,6 +3886,7 @@ I can help you:
            * catalog spans above land on the same trace instead of three.
            */
           trace: chatTrace,
+          traceId: langfuseTraceId,
           send,
           emitUiState,
           res,

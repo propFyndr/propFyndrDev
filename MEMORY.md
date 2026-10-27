@@ -18,7 +18,7 @@ Add new decisions under the right topic, not as a session diary. When one replac
 - **Off-topic policy.** The current rule declines in one sentence for eating out/nightlife, live traffic, school admissions and valuing an owned property (narrow by design). Wider topics (jokes, IPOs, other cities) are undecided.
 - **Billed Gemini key** returned 402 "credits depleted" on 09-24, 09-26 and 10-17. Topping it up is the biggest quality lever.
 - **Rate limits on the real IP (5.5).** Needs a proxy-secret env var on Vercel and Render.
-- **Secrets leaked in git history (10-02).** Rotate the `admin@propfyndr.in` password, the Langfuse key pair and the shared staff passwords. The Langfuse MCP key returned 401 on 10-26.
+- **Secrets leaked in git history (10-02).** Rotate the `admin@propfyndr.in` password, the Langfuse key pair and the shared staff passwords. The Claude Code Langfuse MCP key (`pk-lf-91f4…`, stored in `~/.claude.json`) is revoked and returns 401 on both US and EU hosts (checked 10-27). The app's own key pair (US region) works, and live traces arrive.
 - **Templated-data pass 3** (`scripts/fix-templated-data-pass3.ts`) is applied on dev only. The owner runs `--db=live` on Neon.
 - **Referral reset** to one "Furqan Arth" root: `scripts/reset-referral-tree.ts` (dry run by default, JSON backup). Blocked until `furqan@realtyask.in` is an admin on dev.
 - **Other open data calls:**

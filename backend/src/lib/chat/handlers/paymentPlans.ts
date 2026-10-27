@@ -147,6 +147,8 @@ Verified Payment Plan Database Facts: ${planFactsJson}`
         suppressTables: Boolean(planTable),
         groqFallbackSuffix: '',
         userMessage: ctx.message,
+        sessionId: ctx.sessionId,
+        traceId: ctx.traceId,
       })
       proseText = fallbackResult.text || ''
     } catch {

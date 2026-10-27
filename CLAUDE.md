@@ -129,7 +129,7 @@ Status is against live code as of 2026-10-05 (audits in `docs/archive/MEMORY_ful
 | Carpet vs super area visualizer | Live (2026-10-05) | Only with both areas measured |
 | RERA provenance pill + record drawer | Live (2026-10-05) | Only for RERA numbers we hold |
 | Shareable buyer dossier | Live | Anonymous; `dossiers` table; `dossier_shared` event |
-| Save, callback, site visit — as a guest | Live | Guest token is an identity. Guest *save* was a silent no-op in `ProjectCard` until 2026-10-23 (1 save in the DB); fix not yet deployed |
+| Save, callback, site visit — as a guest | Live | Guest token is an identity. Guest *save* was a silent no-op in `ProjectCard` until 2026-10-23; fixed and deployed |
 | Out-of-catalogue project answer with public-record badge | Partial | One path still prompt-only |
 | Hindi / Hinglish understanding | Partial | Normalizer runs before intent (`lib/ai/intent.ts`); 9 of 10 Day-2 Hinglish questions pinned and passing; H7 (builder trust) open, no consistent lane in either language (2026-10-16) |
 | Session memory ("what have I told you?") | Partial | Rate lost between EMI turns |
@@ -211,10 +211,12 @@ Every fact shown to a buyer belongs to exactly one tier. Reference `lib/factPres
 * An absent field is absent. No UI default (`superArea = 1000`), no `?? 1.30`, no `|| 8.5` reaching a buyer unlabelled.
 * A **schema default is not data.** Columns whose value is identical on every row (`SCHEMA_DEFAULT_SENTINELS` in `projectExposure.ts`) are treated as missing.
 * A **templated value is not data.** If the same value appears on many projects because a script wrote it, it is cleared (`npm run fix:templated`), not labelled.
+* *Owner exception (2026-10-26):* amenities are stated as the project lists them, with no "may be a template" note. The fix for shared amenity text is cleaning the data.
 
 **Enforcement:** `dueDiligenceFabrication.test.ts`, `lib/ai/__tests__/answerIntegrity.test.ts`; `answerIntegrity.ts` runs before the buyer sees any answer.
 
-### Data Integrity Debts (launch blockers, re-audited 2026-10-15)
+### Data Integrity Debts (launch blockers, re-audited 2026-10-15, prices added 2026-10-26)
+* **Unit prices written by a seed script.** `scripts/seed-and-enrich-all-projects.cjs` generated prices from a base rate (max = min × 1.08): 754 of 1,021 priced unit rows, 310 of 381 projects on dev (live not yet checked). Every price card reads them. Payment plans are templated too (608 of 620 `inferred_default`). Owner decision pending: clear and re-source from builders.
 * **Due-diligence columns on 129 projects: nulled 2026-10-16** on Neon and Supabase (backups `RealtyPals-db-backups/*-2026-10-16-enrich129-columns.json`). Still open: re-sourcing them; until then they read "Not on record".
 * **Price firewall** (`lib/ai/provenanceChecker.ts`) checks crore, lakh, per-sq.ft and percentage figures against the whole prompt. Since 2026-10-16 `lib/ai/projectFactChecks.ts` adds: a figure beside one project's name that is another project's is rejected; month/quarter/validity dates must be in the prompt; claims contradicting the named project's row (GST/status, OC, water, litigation, RERA) are rejected; growth rates nobody supplied are removed. Still open: a figure in a sentence that names no project is still checked only against the whole prompt.
 * **Templated data, pass 3 (2026-10-16):** `scripts/fix-templated-data-pass3.ts` applied on **Supabase (dev)**, backup `backend/backups/templated-pass3-dev-*.json`: 1 duplicate archived (`archived_duplicate_of`), every cost-sheet charge (3-tier template) cleared, 111 inconsistent base rates, templated builder counts, 291 projects' templated marketing/location text, 16 OC-on-unready contradictions, 1,108 impossible "snapshots" relabelled. **Neon (live) not yet run.** Four same-name/different-RERA pairs are listed, not merged.
@@ -300,7 +302,14 @@ High-intent events (track all): save property; callback request; site visit requ
 
 ## Infrastructure, Cost & Latency
 
+**Environments:**
+* **Live:** Neon Postgres (Singapore), Render service on `main`, Vercel frontend.
+* **Dev:** Supabase Postgres, Render service on `dev`, Redis prefix `dev:`.
+* Supabase Auth and Storage serve both. A test never points at Neon. The owner runs data writes on live, always after a backup.
+
 **Provider chain** (`lib/config.ts`, `lib/ai/fallbackChain.ts`): free Gemini Flash Lite keys → billed Gemini → Cohere → Groq → NVIDIA → Cloudflare. Cash spend is near zero because the billed key is depleted; the real cost is **quality** — turns land on weaker free models. Topping up the billed key is the single largest quality lever.
+
+**Known outage (2026-10-26):** Gemini's first token now takes 17–20 s against an 8 s first-chunk timeout. All Gemini legs stall, the 35 s turn budget runs out, and later legs never run. About 1 in 7 live answers is the outage notice. A fix to the chain order or timeouts is pending.
 
 **Budgets:** `GEMINI_DAILY_BUDGET_USD` (default $10, `geminiMeter.ts`), per-user $0.50/day (`cost.ts`). Prompt head ~7.7k tokens; average input ~13k per turn.
 
@@ -313,7 +322,7 @@ High-intent events (track all): save property; callback request; site visit requ
 
 **Rate limiting** (`lib/cache.ts`, `index.ts`, `routes/admin.ts`, `chat-router.ts`): limits key on guest token → auth → client IP. **The client IP must be the buyer's, not the proxy's** — `lib/request.ts` trusts `CF-Connecting-IP`, which behind the Vercel rewrite is Vercel's egress IP. Resolve before launch (see `docs/archive/MEMORY_full_2026-10-27.md`, 2026-10-05).
 
-**Health:** `/api/v1/health` touches DB and Redis; keep-alive pings should hit a cheap endpoint.
+**Health:** `/api/v1/health` touches DB and Redis; the keep-alive ping (cron-job.org) hits `/api/v1/healthz`, which touches neither.
 
 ---
 
@@ -378,4 +387,4 @@ When uncertain, choose the option that improves trust, improves decision quality
 ## Reference
 MEMORY.md (repo root) for dated decisions and audits. Memory notes: ai-provider-chain, admin-panel-reference, engineering-standards, project-structure, database-rules, ai-prompting-rules, success-metrics, roadmap-future. Current plan: the newest `docs/WEEK_PLAN_*.md`; last week in the newest `docs/WEEKLY_REPORT_*.md`. Older roadmaps (`MASTER_EXECUTION_ROADMAP*.md` and others) are in `docs/archive/plans/`.
 
-**Last Updated:** 2026-10-05 — full rewrite: verified supply chain, three-sided product, V1 MVP status, data-integrity debts, definition of done.
+**Last Updated:** 2026-10-27 — environments, the provider outage, generated unit prices as a launch blocker, the amenity exception, new file locations. (2026-10-05: full rewrite.)

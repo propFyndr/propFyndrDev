@@ -184,6 +184,8 @@ Verified Sector Database Facts: ${sectorFactsJson}`
       suppressTables: Boolean(comparisonTable),
       groqFallbackSuffix: '',
       userMessage: ctx.message,
+      sessionId: ctx.sessionId,
+      traceId: ctx.traceId,
     })
 
     const sectorChips = [

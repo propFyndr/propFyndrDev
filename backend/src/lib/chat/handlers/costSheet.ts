@@ -148,6 +148,8 @@ Verified Pricing & Cost Sheet Facts: ${costFactsJson}`
       suppressTables: Boolean(costTable),
       groqFallbackSuffix: '',
       userMessage: ctx.message,
+      sessionId: ctx.sessionId,
+      traceId: ctx.traceId,
     })
 
     const costChips = [

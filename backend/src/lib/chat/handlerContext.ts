@@ -162,6 +162,9 @@ export interface ChatHandlerContext {
    */
   trace?: TurnTrace | null
 
+  /** The id of `trace`. A handler that calls the model chain passes it, or the model legs start a second trace. */
+  traceId?: string
+
   /** Sectors named in the message, in order. Empty when none were. */
   sectorMatches: ReadonlyArray<string>
 

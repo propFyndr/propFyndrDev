@@ -430,6 +430,8 @@ export interface GroundedAnswerInput {
   city: string
   userId?: string | null
   sessionId?: string | null
+  /** The turn's Langfuse trace id, so the model legs land on the turn's trace, not a second one. */
+  traceId?: string
   /**
    * The caller's SSE `send`, to stream the answer as it is generated.
    *
@@ -625,6 +627,7 @@ export async function runGroundedAnswer(
       buyerStated: input.buyerStated,
       userId,
       sessionId,
+      traceId: input.traceId,
       // Two fixes over `{ maxTokens: 600 }`:
       //
       // `tools: false` — CLAUDE.md is explicit that a caller passing a stub
