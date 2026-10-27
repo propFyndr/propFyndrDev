@@ -63,3 +63,16 @@ describe('buildHardFilters — Noida / Greater Noida / Greater Noida West region
     assert.ok(Array.isArray(where.OR) && where.OR.length > 0)
   })
 })
+
+// Live 26 Oct: "only show me above 3.8 cr" listed ₹1.25 Cr projects through unpriced units.
+describe('buildHardFilters — budget floor', () => {
+  const floorOf = (intent: Partial<Intent>) => JSON.stringify(buildHardFilters(intent as Intent))
+  it('needs a priced unit reaching the floor; exact when the floor is hard', () => {
+    const f = floorOf({ budgetMin: 3.8, budgetHard: true })
+    assert.match(f, /"price_max_cr":\{"gte":3\.8\}/)
+    assert.doesNotMatch(f, /"price_min_cr":null/)
+  })
+  it('keeps the tolerance on a soft floor', () => {
+    assert.doesNotMatch(floorOf({ budgetMin: 3.8 }), /"gte":3\.8\}/)
+  })
+})

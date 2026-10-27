@@ -1976,5 +1976,98 @@
         }
       }
     ]
+  },
+  {
+    "id": "live-1026-premium-chat",
+    "source": "Live chat 6ce3380f, 26 Oct 2026: most-expensive, a 3.8 Cr floor, then one project's amenities and 4 BHK price",
+    "turns": [
+      {
+        "text": "can you check what's the price of the most expensive property in greater noida?",
+        "expect": {
+          "lane": "aggregate",
+          "llm": false,
+          "contains": [
+            "Most expensive"
+          ]
+        }
+      },
+      {
+        "text": "only show me above 3.8 cr+ projects",
+        "expect": {
+          "lane": "search",
+          "llm": false,
+          "notContains": [
+            "NRI City Township",
+            "Omaxe Palm Greens"
+          ]
+        }
+      },
+      {
+        "text": "just the ones above 3.8 cr",
+        "expect": {
+          "laneNot": [
+            "topic:forensic_comparison"
+          ]
+        }
+      },
+      {
+        "text": "what are the amenities in the 4bhk of NRI city township?",
+        "expect": {
+          "laneNot": [
+            "OPEN"
+          ],
+          "contains": [
+            "Badminton"
+          ]
+        }
+      },
+      {
+        "text": "is there a badminton court there?",
+        "expect": {
+          "lane": "topic:amenity_search",
+          "llm": false,
+          "contains": [
+            "Yes."
+          ],
+          "notContains": [
+            "template"
+          ]
+        }
+      },
+      {
+        "text": "so what may be the round about price for  4BHK there?",
+        "expect": {
+          "laneNot": [
+            "OPEN"
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "id": "live-1009-identity",
+    "source": "Live chat c7a159e4, 9 Oct 2026: answered \"GPT-4o mini, fine-tuned\" and \"rigorously vetted by our expert team\"",
+    "turns": [
+      {
+        "text": "does all of yours properties are manually verified by you or not",
+        "expect": {
+          "lane": "topic:trust",
+          "llm": false,
+          "notContains": [
+            "rigorously vetted"
+          ]
+        }
+      },
+      {
+        "text": "which reasoning model you are using",
+        "expect": {
+          "lane": "topic:trust",
+          "llm": false,
+          "notContains": [
+            "GPT-4"
+          ]
+        }
+      }
+    ]
   }
 ]

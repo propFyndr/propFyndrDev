@@ -170,7 +170,12 @@ export function classifyQueryDeterministic(
   const namesAreRealProjects =
     (intentObj.projectNames?.length ?? 0) > 0 && (opts.hasVerifiedProjectNames ?? true)
   const projectReferenced = opts.projectReferenced ?? namesAreRealProjects
-  const openDetection = detectOpenQuery(userMessage, namesAreRealProjects, projectReferenced)
+  // A project's own name is not a topic word: "amenities in the 4bhk of NRI City
+  // Township" read `nri` as an NRI tax question and went to the open lane (live 26 Oct).
+  const openText = namesAreRealProjects
+    ? (intentObj.projectNames ?? []).reduce((t, n) => t.split(new RegExp(n.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i')).join(' '), userMessage)
+    : userMessage
+  const openDetection = detectOpenQuery(openText, namesAreRealProjects, projectReferenced)
   if (openDetection) {
     return {
       queryKind: 'OPEN',

@@ -65,7 +65,6 @@ export function isServiceFailureReply(text: string): boolean {
 export type CacheDecision = {
   reuse: boolean
   reason: 'CACHE_REUSED' | 'CACHE_REJECTED' | 'CACHE_PROJECT_MISS' | 'CACHE_SECTOR_MISS'
-  budgetOnly: boolean
 }
 
 // ── Fix 9: centralized cache validation — priority: project > sector > builder > BHK > budget > reuse
@@ -82,7 +81,7 @@ export function canReuseCache(
       (n) => !cached.some((p) => matchesProjectName(n, p.name)),
     )
     if (missing.length > 0) {
-      return { reuse: false, reason: 'CACHE_PROJECT_MISS', budgetOnly: false }
+      return { reuse: false, reason: 'CACHE_PROJECT_MISS' }
     }
   }
 
@@ -93,22 +92,24 @@ export function canReuseCache(
     intent.sector !== prev.sector &&
     !isCityLevel(intent.sector)
   ) {
-    return { reuse: false, reason: 'CACHE_SECTOR_MISS', budgetOnly: false }
+    return { reuse: false, reason: 'CACHE_SECTOR_MISS' }
   }
   if (intent.builderName !== undefined && intent.builderName !== prev.builderName) {
-    return { reuse: false, reason: 'CACHE_REJECTED', budgetOnly: false }
+    return { reuse: false, reason: 'CACHE_REJECTED' }
   }
   // Fix 8: order-independent BHK comparison
   if ((intent.bhk?.length ?? 0) > 0 && !sameSet(intent.bhk!, (prev.bhk as number[] | undefined) ?? [])) {
-    return { reuse: false, reason: 'CACHE_REJECTED', budgetOnly: false }
+    return { reuse: false, reason: 'CACHE_REJECTED' }
   }
 
-  // Budget changed → filter existing set, no re-discovery
+  // Budget changed → re-discover. The cache holds only what the last query
+  // returned, so a raised floor or ceiling cannot be served by filtering it:
+  // live 26 Oct, "only show me above 3.8 cr" got the 16 cached projects from ₹70 L.
   const budgetChanged = intent.budgetMax !== prev.budgetMax || intent.budgetMin !== prev.budgetMin
-  if (budgetChanged) return { reuse: true, reason: 'CACHE_REUSED', budgetOnly: true }
+  if (budgetChanged) return { reuse: false, reason: 'CACHE_REJECTED' }
 
   // No search-signal change → safe to reuse (reasoning, follow-ups, etc.)
-  return { reuse: true, reason: 'CACHE_REUSED', budgetOnly: false }
+  return { reuse: true, reason: 'CACHE_REUSED' }
 }
 
 // ── Issue 4: Token budget protection — prevent OpenAI 413 ────────────────────

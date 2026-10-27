@@ -54,7 +54,8 @@ function line(p: ScoredProject): string {
   const price = bounds ? (bounds[0] === bounds[1] ? cr(bounds[0]) : `${cr(bounds[0])}–${cr(bounds[1])}`) : 'price not on record'
   const forBhk = p.price_for_bhk ? ` for ${p.price_for_bhk}` : ''
   // "Ready to move" alone: some ready rows still carry an old possession label.
-  const status = p.status === 'ready_to_move' ? 'ready to move' : p.possession_label ? `possession ${p.possession_label}` : 'under construction, no committed date on record'
+  // Some labels already start with "Possession" ("possession Possession Dec 2026", 26 Oct).
+  const status = p.status === 'ready_to_move' ? 'ready to move' : p.possession_label ? `possession ${p.possession_label.replace(/^possession\s*/i, '')}` : 'under construction, no committed date on record'
   const flag = p.project_risk_flag && !/low/i.test(String(p.project_risk_flag)) ? ' · legal flag on record, ask me about it' : ''
   return `- **${p.name}**, ${p.sector}: ${price}${forBhk}, ${status}${flag}`
 }

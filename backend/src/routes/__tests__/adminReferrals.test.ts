@@ -119,6 +119,24 @@ describe('GET /api/v1/admin/referrals/nodes/:guestToken', () => {
     const res = await request(buildApp()).get('/api/v1/admin/referrals/nodes/never-seen-guest')
     assert.equal(res.status, 404)
   })
+
+  // The tree marks a site-visit-only node "converted"; the drawer must show why.
+  it('counts site visits in the node actions', async () => {
+    const createRes = await request(buildApp()).post('/api/v1/admin/referrals').send({ label: 'Node site-visit test' })
+    const guestToken = `guest-node-sv-${Date.now()}`
+    await prisma.referralVisit.create({
+      data: { guest_token: guestToken, own_code: `NSV${Date.now()}`, root_code: createRes.body.code, generation: 1, device_class: 'mobile', os: 'ios', app_guess: 'unknown' },
+    })
+    await prisma.siteVisitRequest.create({
+      data: {
+        project_id: 'test-project', project_slug: 'test-project', project_name: 'Test Project',
+        name: 'Test Buyer', phone: '9999999999', visit_date: new Date(), time_slot: 'morning', guest_token: guestToken,
+      },
+    })
+    const res = await request(buildApp()).get(`/api/v1/admin/referrals/nodes/${guestToken}`)
+    assert.equal(res.status, 200)
+    assert.equal(res.body.node.actions.siteVisits, 1)
+  })
 })
 
 describe('POST /api/v1/admin/referrals/:code/revoke', () => {

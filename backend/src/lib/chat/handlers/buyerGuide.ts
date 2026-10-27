@@ -195,7 +195,25 @@ The two checks worth doing: ask me for the RERA record we hold for the project, 
 export const matchesCapabilitiesQuestion = (m: string) =>
   /\bwhat\s+(?:all\s+)?you\s+(?:can|could)\s+do\b|\bwhat\s+(?:all\s+)?(?:can|could|do)\s+you\s+(?:do|help\s+(?:me\s+)?with|offer)\b|\bwhat\s+are\s+(?:your\s+)?(?:capabilities|features)\b|\bhow\s+can\s+you\s+help\s+me\b/i.test(m)
 
+/**
+ * "Which reasoning model are you, 4o or 4o mini?" (live 9 Oct) got "GPT-4o mini,
+ * fine-tuned for real estate": invented. The chain is in lib/config.ts.
+ */
+export const MODEL_ANSWER = `I'm RealtyAsk's advisor. I'm not one model, and none is fine-tuned by us.
+
+- **Facts about projects, prices and costs** (RERA, possession, unit sizes, stamp duty, EMI) are read from the records we hold and computed by our own code. No language model writes those figures.
+- **Wording and open questions** go to general-purpose language models from several providers (Google Gemini, Cohere and open-weight models), picked per question by availability.
+- Every answer is checked against our records before you see it, and a figure we don't hold is shown as "not on record".
+
+So the question that matters is where a figure comes from, and I label that on every answer. Which project do you want to check?`
+
+export const matchesModelQuestion = (m: string) =>
+  /\b(?:which|what)\s+(?:ai\s+|llm\s+|language\s+|reasoning\s+|gpt\s+)?(?:model|llm)\b|\bare\s+(?:you|u)\s+(?:gpt|chatgpt|gemini|claude|llama|4o)\b|\bgpt[\s-]?4o?\b|\b4o\s+(?:or|mini)\b|\bpowered\s+by\s+(?:what|which)\b/i.test(m)
+
 export const matchesTrustQuestion = (m: string) =>
+  matchesModelQuestion(m) ||
+  // "does all of yours properties are manually verified by you or not" (live 9 Oct)
+  /\b(?:are|is|do|does|have|has)\b[^.?]{0,40}\b(?:your|yours)\b[^.?]{0,30}\b(?:properties|listings|projects|data)\b[^.?]{0,30}\bverif|\bverif\w*\s+by\s+(?:you|your\s+team)\b/i.test(m) ||
   /\bwhy\s+should\s+i\s+(?:trust|believe|rely\s+on)\b|\bcan\s+i\s+trust\s+(?:you|this|your)\b|\bhow\s+(?:reliable|accurate)\s+(?:is|are)\s+(?:you|your|this)\b|\bwhere\s+(?:does|do)\s+(?:your|this)\s+(?:data|information|info)\s+come\s+from\b|\b(?:user|customer|resident|buyer|owner)s?\s+(?:feedbacks?|reviews?|testimonials?)\b|\b(?:feedbacks?|reviews?)\s+(?:from|by)\s+(?:existing\s+)?(?:customers?|residents?|buyers?|owners?|users?)\b/i.test(m)
 
 function emit(ctx: ChatHandlerContext, stage: string, thinking: string, text: string, chip: { label: string; text: string }) {
@@ -238,5 +256,5 @@ export const trustHandler: ChatTopicHandler = {
   id: 'trust',
   description: 'Where the data comes from, its limits, and resident reviews',
   matches: ctx => matchesTrustQuestion(ctx.message),
-  handle: async ctx => emit(ctx, 'DISCOVERY', 'Explaining where the data comes from:', TRUST_ANSWER, { label: 'Check a project\'s RERA record', text: 'Check the RERA registration of the project I am looking at' }),
+  handle: async ctx => emit(ctx, 'DISCOVERY', 'Explaining where the data comes from:', matchesModelQuestion(ctx.message) ? MODEL_ANSWER : TRUST_ANSWER,{ label: 'Check a project\'s RERA record', text: 'Check the RERA registration of the project I am looking at' }),
 }

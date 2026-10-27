@@ -39,7 +39,7 @@ interface NodeDrawerData {
   depthInferred: boolean
   firstSeenAt: string
   summary: { location: string | null; financial: string | null; timeline: string | null } | null
-  actions: { callbacks: number; dossiersMade: number }
+  actions: { callbacks: number; dossiersMade: number; siteVisits: number }
   chats: Array<{ id: string; messageCount: number; lastActive: string }>
 }
 
@@ -704,6 +704,12 @@ export default function ReferralTreePage() {
                         {selectedNode.actions.dossiersMade}
                       </span>
                       <span className="text-[10px] text-[#6e6e73] dark:text-[#98989d] block mt-0.5">Dossiers Generated</span>
+                    </div>
+                    <div className="p-2.5 rounded-xl bg-white dark:bg-[#1c1c1e] border border-[#e5e5ea] dark:border-[#38383a] text-center">
+                      <span className="text-xl font-bold font-mono text-[#1d1d1f] dark:text-[#f5f5f7]">
+                        {selectedNode.actions.siteVisits ?? 0}
+                      </span>
+                      <span className="text-[10px] text-[#6e6e73] dark:text-[#98989d] block mt-0.5">Site Visits Requested</span>
                     </div>
                   </div>
                 </div>

@@ -285,14 +285,17 @@ export function buildHardFilters(
    * A buyer who says "between 1 and 2" and is shown an 82-lakh flat concludes
    * we did not read the question, and they are right.
    *
-   * Symmetrical with the ceiling: the same tolerance, and unpriced units still
-   * pass, because an absent price is not evidence of a cheap one.
+   * A unit meets the floor when its price range reaches it. Unlike the
+   * ceiling, an unpriced unit does not pass: "only above 3.8 cr" (live 26 Oct)
+   * asks for homes we can say cost that much, and listing unpriced ones under
+   * that heading printed ₹1.25 Cr projects. Tolerance only when the floor is soft.
    */
   if (intent.budgetMin) {
+    const floor = intent.budgetMin / (intent.budgetHard ? 1 : BUDGET_TOLERANCE_MAX)
     unitConditions.push({
       OR: [
-        { price_min_cr: { gte: intent.budgetMin / BUDGET_TOLERANCE_MAX } },
-        { price_min_cr: null },
+        { price_max_cr: { gte: floor } },
+        { price_min_cr: { gte: floor } },
       ],
     })
   }
@@ -401,9 +404,12 @@ function mapToScored(raw: RawProject, intent: Intent): ScoredProject {
 
   // For budget status: use only units matching the BHK filter (if set) to get
   // the most relevant price signal for the user's actual configuration.
-  const relevantUnits = intent.bhk?.length
-    ? p.unit_types.filter((u) => intent.bhk!.includes(u.bhk))
-    : p.unit_types
+  // A stated floor narrows the same way: the price shown is that of the units
+  // that reach it, not the project's cheapest (same rule as buildHardFilters).
+  const budgetFloor = intent.budgetMin ? intent.budgetMin / (intent.budgetHard ? 1 : BUDGET_TOLERANCE_MAX) : 0
+  const relevantUnits = p.unit_types.filter((u) =>
+    (!intent.bhk?.length || intent.bhk.includes(u.bhk)) &&
+    (!budgetFloor || Math.max(u.price_min_cr ?? 0, u.price_max_cr ?? 0) >= budgetFloor))
 
   const budgetStatus = computeBudgetStatus(
     relevantUnits.length ? relevantUnits : p.unit_types,
@@ -425,7 +431,7 @@ function mapToScored(raw: RawProject, intent: Intent): ScoredProject {
    */
   const askedBhk = intent.bhk?.length ? [...new Set(intent.bhk)].sort((a, b) => a - b) : []
   const bhkPricing = ((): { price_range_label: string; price_for_bhk?: string; missing_bhk?: number[] } => {
-    if (askedBhk.length === 0) return { price_range_label: buildPriceRangeLabel(minP, maxP) }
+    if (askedBhk.length === 0 && !budgetFloor) return { price_range_label: buildPriceRangeLabel(minP, maxP) }
 
     const offered = new Set(p.unit_types.map((u) => u.bhk))
     const missing = askedBhk.filter((b) => !offered.has(b))

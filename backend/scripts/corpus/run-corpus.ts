@@ -269,7 +269,7 @@ async function askOnce(message: string, guestToken: string): Promise<Turn> {
       try {
         const ev = JSON.parse(body)
         const piece = ev.token ?? ev.content ?? ev.text
-        if (typeof piece === 'string') text += piece
+        if (typeof piece === 'string') text = ev.replace ? piece : text + piece // as the client renders it
         if (ev.sessionId) sessionId = ev.sessionId
         // The last ui_state wins: chips are re-emitted as the turn progresses
         // and only the final set is what the buyer is left looking at.

@@ -230,3 +230,10 @@ describe('tax concepts stay general even when the message points at a project', 
     assert.equal(r.queryKind, 'OPEN')
   })
 })
+
+// Live 26 Oct: `nri` inside "NRI City Township" sent an amenity question to the open lane.
+test('a project name is not read for topic words', () => {
+  const r = classifyQueryDeterministic('what are the amenities in the 4bhk of NRI city township?', { projectNames: ['NRI City Township'] })
+  assert.notEqual(r?.queryKind, 'OPEN')
+  assert.equal(classifyQueryDeterministic('how does an NRI pay stamp duty?', {})?.queryKind, 'OPEN')
+})

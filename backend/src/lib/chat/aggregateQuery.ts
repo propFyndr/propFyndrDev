@@ -96,7 +96,7 @@ export async function queryProjects(q: ProjectQuery): Promise<ProjectQueryResult
       price_min_cr: true,
       possession_label: true,
       maintenance_per_sqft_monthly: true,
-      unit_types: { select: { bhk: true, price_min_cr: true, price_per_sqft: true } },
+      unit_types: { select: { bhk: true, price_min_cr: true, price_max_cr: true, price_per_sqft: true } },
     },
     orderBy: { name: 'asc' },
   })
@@ -105,7 +105,11 @@ export async function queryProjects(q: ProjectQuery): Promise<ProjectQueryResult
   const rows: Row[] = projects.map((p) => {
     const units = p.unit_types.filter((u) => !q.bhk || u.bhk === q.bhk)
     let value: number | null = null
-    if (q.field === 'price') {
+    if (q.field === 'price' && q.metric === 'max') {
+      // "Most expensive" asks for the dearest home, so each project counts at its top listed price.
+      const tops = units.map((u) => u.price_max_cr ?? u.price_min_cr).filter((v): v is number => typeof v === 'number' && v > 0)
+      value = tops.length ? Math.max(...tops) : null
+    } else if (q.field === 'price') {
       const unitPrices = units.map((u) => u.price_min_cr).filter((v): v is number => typeof v === 'number' && v > 0)
       value = unitPrices.length ? Math.min(...unitPrices) : (!q.bhk && typeof p.price_min_cr === 'number' && p.price_min_cr > 0 ? p.price_min_cr : null)
     } else if (q.field === 'price_per_sqft') {
@@ -203,8 +207,12 @@ export async function parseAggregateQuestion(message: string): Promise<ProjectQu
   // Advice, not arithmetic.
   if (/\b(should\s+i|recommend|suggest|worth\s+it|good\s+(?:for|investment)|better)\b/.test(m)) return null
 
+  // "Most expensive property in Greater Noida" (live 26 Oct) went to the
+  // budget-band ranking table; it is a max over our price rows.
+  const dearest = /\b(most\s+expensive|costliest|priciest|highest[\s-]+priced)\b/.test(m)
   const field: AggregateField | null =
-    /\bmaintenance\b/.test(m) ? 'maintenance'
+    dearest ? 'price'
+      : /\bmaintenance\b/.test(m) ? 'maintenance'
       : /\bper\s*sq|\bpsf\b|\bsq\.?\s*ft\b|\bsqft\b|\brate\b/.test(m) ? 'price_per_sqft'
       : /\b(price|cost|prices|ticket\s+size)\b/.test(m) ? 'price'
       : /\b(projects?|societies|society|developments?|properties)\b/.test(m) ? 'projects'
@@ -212,7 +220,8 @@ export async function parseAggregateQuestion(message: string): Promise<ProjectQu
   if (!field) return null
 
   let metric: AggregateMetric | null = null
-  if (/\b(average|avg|mean)\b/.test(m)) metric = 'avg'
+  if (dearest) metric = 'max'
+  else if (/\b(average|avg|mean)\b/.test(m)) metric = 'avg'
   else if (/\bmedian\b/.test(m)) metric = 'median'
   else if (/\b(lowest|minimum)\b/.test(m) && field !== 'projects') metric = 'min'
   else if (/\b(highest|maximum)\b/.test(m) && field !== 'projects') metric = 'max'
@@ -248,7 +257,8 @@ export async function parseAggregateQuestion(message: string): Promise<ProjectQu
   // An average needs a place or a builder. "Average price in Delhi" names
   // neither (Delhi is not a city we tag), and must not quietly become the
   // average of our whole catalogue.
-  if (['avg', 'median', 'min', 'max'].includes(metric) && !sectors.length && !city && !builder) return null
+  // The dearest home we hold is a fair question with no place named.
+  if (['avg', 'median', 'min', 'max'].includes(metric) && !sectors.length && !city && !builder && !dearest) return null
 
   return {
     metric,
@@ -318,6 +328,16 @@ export function renderAggregateAnswer(r: ProjectQueryResult): string {
   }
 
   const s = r.stats
+  if (q.metric === 'max' && q.field === 'price') {
+    const top = r.rows.filter((x) => x.value !== null).sort((a, b) => b.value! - a.value!).slice(0, 5)
+    return `Most expensive of the ${scope} we hold: **${fmt('price', s.max.value)}** at ${s.max.name} (${s.max.sector}).
+
+| Project | Sector | Up to |
+| :--- | :--- | :--- |
+${top.map((x) => `| ${x.name.replace(/\|/g, '/')} | ${x.sector} | ${fmt('price', x.value!)} |`).join('\n')}
+
+Each figure is the top of the project's listed price range. Want me to show the homes above a price you have in mind?`
+  }
   const headline = q.metric === 'min' ? `Lowest ${FIELD_LABEL[q.field]}: **${fmt(q.field, s.min.value)}** at ${s.min.name} (${s.min.sector})`
     : q.metric === 'max' ? `Highest ${FIELD_LABEL[q.field]}: **${fmt(q.field, s.max.value)}** at ${s.max.name} (${s.max.sector})`
     : q.metric === 'median' ? `Median ${FIELD_LABEL[q.field]}: **${fmt(q.field, s.median)}**`

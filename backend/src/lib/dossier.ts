@@ -118,6 +118,7 @@ const PROJECT_SELECT = {
   oc_status: true,
   all_in_cost_multiplier: true,
   builder: { select: { name: true, average_delay_months: true } },
+  unit_types: { select: { bhk: true, price_min_cr: true } },
 } as const
 
 type ProjectRow = {
@@ -140,6 +141,7 @@ type ProjectRow = {
   oc_status: string | null
   all_in_cost_multiplier: number | null
   builder: { name: string; average_delay_months: number | null } | null
+  unit_types?: Array<{ bhk: number; price_min_cr: number | null }>
 }
 
 export const sectorLabel = (s: string) => (/^sector\b/i.test(s.trim()) ? s.trim() : `Sector ${s.trim()}`)
@@ -208,14 +210,27 @@ export function buildSiteVisitChecklist(p: ProjectRow): string[] {
   return checklist
 }
 
-function buildFinancials(p: ProjectRow): DossierProjectItem['financials'] {
+/**
+ * The base price for the size the buyer asked for. Day 7 (26 Oct): a 3 BHK
+ * buyer's dossier priced ACE Parkway on its 2 BHK floor (₹1.55 Cr against
+ * ₹2.50 Cr), so landed cost and EMI were ~40% low. A project with no priced
+ * unit in that size gets no financials, never another size's.
+ */
+function basePriceFor(p: ProjectRow, bhk?: number[] | null): number | null {
+  if (!bhk?.length || !p.unit_types?.length) return p.price_min_cr
+  const prices = p.unit_types.filter(u => bhk.includes(u.bhk) && u.price_min_cr).map(u => u.price_min_cr as number)
+  return prices.length ? Math.min(...prices) : null
+}
+
+function buildFinancials(p: ProjectRow, bhk?: number[] | null): DossierProjectItem['financials'] {
   // No price on record, no financials: never price a building we do not hold a figure for.
-  if (!p.price_min_cr) return null
+  const base = basePriceFor(p, bhk)
+  if (!base) return null
   const assumed = p.all_in_cost_multiplier == null
   const multiplier = p.all_in_cost_multiplier ?? ASSUMED_LANDED_MULTIPLIER
-  const fin = calculateAffordabilityBreakdown({ basePrice: p.price_min_cr * CRORE, multiplier })
+  const fin = calculateAffordabilityBreakdown({ basePrice: base * CRORE, multiplier })
   return {
-    basePriceCr: p.price_min_cr,
+    basePriceCr: base,
     landedCostCr: parseFloat((fin.totalLandedCost / CRORE).toFixed(2)),
     landedMultiplier: multiplier,
     landedCostAssumed: assumed,
@@ -229,7 +244,7 @@ function buildFinancials(p: ProjectRow): DossierProjectItem['financials'] {
   }
 }
 
-export function toDossierProject(p: ProjectRow): DossierProjectItem {
+export function toDossierProject(p: ProjectRow, bhk?: number[] | null): DossierProjectItem {
   return {
     id: p.id,
     name: p.name,
@@ -247,7 +262,7 @@ export function toDossierProject(p: ProjectRow): DossierProjectItem {
     heroImageUrl: p.hero_image_url || null,
     strengths: extractStrengths(p),
     redFlags: extractRedFlags(p),
-    financials: buildFinancials(p),
+    financials: buildFinancials(p, bhk),
     siteVisitChecklist: buildSiteVisitChecklist(p),
   }
 }
@@ -466,7 +481,7 @@ export async function buildDossier(input: BuildDossierInput): Promise<BuildDossi
     },
     consultationTrail: narrative.consultationTrail,
     tradeOffDilemma: narrative.tradeOffDilemma,
-    projects: rows.map(toDossierProject),
+    projects: rows.map(p => toDossierProject(p, criteria.bhk)),
     reactions: {},
   }
 

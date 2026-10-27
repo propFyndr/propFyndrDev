@@ -182,7 +182,8 @@ export function resolveShownSet(message: string, shown: readonly ShownProject[])
   const top = text.match(/\b(?:top|first)\s+(two|three|four|five|[2-5])\b/i)
   const pointsAtShown =
     /\b(?:you|u)\s+(?:showed|shown|listed|suggested|recommended|gave|mentioned)\b/i.test(text) ||
-    /\bthe\s+ones\s+(?:you|above|shown|listed)\b/i.test(text) ||
+    // "the ones above 3.8 cr" is a price filter, not the list above (live 26 Oct).
+    /\bthe\s+ones\s+(?:you|above(?!\s*(?:rs\.?|₹)?\s*\d)|shown|listed)\b/i.test(text) ||
     /\b(?:these|those)\s+(?:options|projects|societies|properties|two|three|four)\b/i.test(text) ||
     /\bwhich\s+(?:of\s+)?(?:these|those|them)\b/i.test(text)
   if (!top && !pointsAtShown) return []

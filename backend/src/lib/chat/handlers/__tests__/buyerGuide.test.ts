@@ -3,7 +3,7 @@ import assert from 'node:assert/strict'
 import { UP_STATUTORY } from '../../../factPresentation'
 import {
   matchesRoadmapQuestion, roadmapStepFor, stepAnswer, ROADMAP_STEPS, ROADMAP_OPENING, ROADMAP_COUNT,
-  matchesCapabilitiesQuestion, matchesTrustQuestion, CAPABILITIES_ANSWER, TRUST_ANSWER,
+  matchesCapabilitiesQuestion, matchesTrustQuestion, matchesModelQuestion, CAPABILITIES_ANSWER, TRUST_ANSWER, MODEL_ANSWER,
   roadmapHandler,
 } from '../buyerGuide'
 import type { ChatHandlerContext } from '../../handlerContext'
@@ -103,5 +103,27 @@ describe('no invented figures', () => {
     assert.doesNotMatch(all, /CAGR|\byield\b|\brents?\b|apprecia\w+ (?:of|at|rate)|!/i)
     const rupees = all.match(/₹\s*\d+[^\s]*(?:\s+lakh)?/g) ?? []
     assert.deepEqual([...new Set(rupees)], [`₹${UP_STATUTORY.tdsThresholdInr / 100_000} lakh`])
+  })
+})
+
+// Live 9 Oct: "GPT-4o mini, fine-tuned" and "rigorously vetted by our expert team", both invented.
+describe('model identity and verification questions', () => {
+  for (const q of ['which reasoning model you are using', 'more specifically are you 4o or 4o mini', 'what llm powers you']) {
+    it(`"${q}" gets the fixed model answer`, () => {
+      assert.ok(matchesTrustQuestion(q))
+      assert.ok(matchesModelQuestion(q))
+    })
+  }
+  it('the model answer names no fine-tune and no single model', () => {
+    assert.doesNotMatch(MODEL_ANSWER, /gpt-?4|fine-tuned for/i)
+  })
+  it('"are your properties manually verified" gets the trust answer', () => {
+    assert.ok(matchesTrustQuestion('does all of yours properties are manually verified by you or not'))
+    assert.ok(!matchesModelQuestion('does all of yours properties are manually verified by you or not'))
+    assert.match(TRUST_ANSWER, /not inspected the sites/)
+  })
+  it('leaves a search alone', () => {
+    assert.ok(!matchesTrustQuestion('show me verified 3bhk in sector 150'))
+    assert.ok(!matchesTrustQuestion('show your projects in sector 150 with verified OC'))
   })
 })

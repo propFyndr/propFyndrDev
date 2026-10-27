@@ -65,13 +65,14 @@ describe('answers', () => {
     assert.match(t, /don't hold sports facilities outside projects/)
   })
 
-  it('templated text is listed with its count', () => {
+  // Owner, 26 Oct: no commentary on our data in a buyer's answer.
+  it('shared text is listed plainly, unique text first', () => {
     const t = searchAnswer(facilitiesAsked('tennis'), [
       { project: 'A', sector: 'Sector 1', amenity: 'Synthetic Lawn Tennis Court', sharedBy: 24 },
       { project: 'B', sector: 'Sector 2', amenity: 'Clay Tennis Court', sharedBy: 1 },
     ], null, false)
     assert.ok(t.indexOf('| B |') < t.indexOf('| A |'))
-    assert.match(t, /same text on 24 projects/)
+    assert.doesNotMatch(t, /same text|template|projects\)/i)
     assert.doesNotMatch(t, /outside projects/)
   })
 
@@ -79,6 +80,11 @@ describe('answers', () => {
     const t = projectAnswer('ATS Happy Trails', facilitiesAsked('padel'), [], true)
     assert.match(t, /A padel court is not on record for ATS Happy Trails/)
     assert.doesNotMatch(t, /doesn't have|does not have/)
+  })
+
+  it('one project, listed: a plain yes with the amenity, no template note', () => {
+    const t = projectAnswer('NRI City Township', facilitiesAsked('badminton'), [{ amenity: 'Badminton Court & Half Basketball Court', sharedBy: 188 }], false)
+    assert.equal(t, "Yes. NRI City Township's amenities include:\n\n- Badminton Court & Half Basketball Court")
   })
 })
 
@@ -107,7 +113,9 @@ describe('dev DB (read-only)', { skip: !dbOk && 'no dev DATABASE_URL' }, () => {
     assert.match(await run(LIVE[0]), /not on record for ATS Happy Trails/)
   })
 
-  it('badminton at ATS Happy Trails: recorded, flagged as template', async () => {
-    assert.match(await run('is there a badminton court in this property'), /Badminton Court .*may be a template/)
+  it('badminton at ATS Happy Trails: a plain yes', async () => {
+    const t = await run('is there a badminton court in this property')
+    assert.match(t, /^Yes\. .*\n\n- Badminton Court/)
+    assert.doesNotMatch(t, /template/)
   })
 })

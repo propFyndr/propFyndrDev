@@ -38,6 +38,23 @@ export function isOutageNotice(text: string | undefined | null): boolean {
  * on screen (a leg died mid-reply and no leg finished it), `replace` tells the
  * client to swap that fragment for the notice instead of appending to it.
  */
+/**
+ * What to show instead of the notice when code already answered the turn.
+ *
+ * Day 7 corpus (26 Oct): 21 of 23 failures were "best …" questions where the
+ * ranking table or the cards were already on screen, and the stalled model
+ * chain appended "our AI service is briefly unavailable" under them. The rows
+ * were the answer; only the prose failed. Null when nothing was shown.
+ */
+export function outageOverShownAnswer(shownBefore: string, cardsShown: number, rowsAnswer = ''): string | null {
+  // With cards, the row-written search summary (searchSummary) is the answer a plain search gets.
+  if (cardsShown > 0)
+    return `${shownBefore}${rowsAnswer || "The projects that match are on the cards above. Tell me which one to open up, or what matters most (budget, possession, metro) and I'll narrow them down."}`
+  if (shownBefore.trim())
+    return `${shownBefore}Ask me about any project in this table, or tell me your budget and BHK and I'll narrow it down.`
+  return null
+}
+
 export function outageTokenEvent(partialShown: boolean): { token: string; replace?: true } {
   return partialShown ? { token: OUTAGE_NOTICE, replace: true } : { token: OUTAGE_NOTICE }
 }

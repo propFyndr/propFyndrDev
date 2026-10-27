@@ -108,3 +108,32 @@ describe('no match is said plainly', () => {
     } finally { restore() }
   })
 })
+
+// Live 26 Oct: "the most expensive property in greater noida" got the
+// budget-band ranking table, topped by a ₹3.8 Cr Noida project.
+describe('most expensive is a max over each project\'s top listed price', () => {
+  it('parses with or without a place', async () => {
+    const restore = stub('builder', { findMany: async () => [] })
+    try {
+      const q = await parseAggregateQuestion("can you check what's the price of the most expensive property in greater noida?")
+      assert.equal(q?.metric, 'max')
+      assert.equal(q?.field, 'price')
+      assert.equal(q?.city, 'Greater Noida')
+      assert.equal((await parseAggregateQuestion('which is the costliest project you have'))?.metric, 'max')
+    } finally { restore() }
+  })
+
+  it('ranks by the dearest unit, not the entry price', async () => {
+    const restore = stub('project', { findMany: async () => [
+      { name: 'Cheap entry, dear top', sector: 'Pari Chowk', price_min_cr: 1.3, possession_label: null, maintenance_per_sqft_monthly: null,
+        unit_types: [{ bhk: 3, price_min_cr: 1.3, price_max_cr: 1.5, price_per_sqft: null }, { bhk: 4, price_min_cr: 6.36, price_max_cr: 6.86, price_per_sqft: null }] },
+      { name: 'Dear entry', sector: 'Sector 27', price_min_cr: 3.95, possession_label: null, maintenance_per_sqft_monthly: null,
+        unit_types: [{ bhk: 4, price_min_cr: 3.95, price_max_cr: 4.5, price_per_sqft: null }] },
+    ] })
+    try {
+      const text = renderAggregateAnswer(await queryProjects({ metric: 'max', field: 'price', city: 'Greater Noida' }))
+      assert.match(text, /\*\*₹6\.86 Cr\*\* at Cheap entry, dear top/)
+      assert.match(text, /\| Dear entry \| Sector 27 \| ₹4\.50 Cr \|/)
+    } finally { restore() }
+  })
+})

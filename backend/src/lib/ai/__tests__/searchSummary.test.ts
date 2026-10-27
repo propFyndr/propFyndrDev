@@ -44,3 +44,10 @@ describe('a plain search is answered from its rows', () => {
     assert.equal(describeSearch({ bhk: [3], budgetMin: 2.5 }), '3 BHK from ₹2.5 Cr')
   })
 })
+
+// Day 7 corpus, 26 Oct: "possession Possession Dec 2026".
+it('does not repeat "possession" when the label already says it', () => {
+  const t = searchSummary({ intent: { bhk: [2] }, exact: [p({ name: 'Nirala Trio', possession_label: 'Possession Dec 2026', price_range_label: '₹1.05–1.13Cr' })], nearby: [], shown: 6 })
+  assert.match(t, /possession Dec 2026/)
+  assert.doesNotMatch(t, /possession Possession/i)
+})

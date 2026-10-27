@@ -364,6 +364,8 @@ adminReferralsRouter.get('/nodes/:guestToken', async (req: Request, res: Respons
 
     const callbacks = await prisma.callbackRequest.count({ where: { guest_token: guestToken } })
     const dossiersMade = await prisma.dossier.count({ where: { guest_token: guestToken } })
+    // The tree counts a site visit as a conversion, so the drawer must show it.
+    const siteVisits = await prisma.siteVisitRequest.count({ where: { guest_token: guestToken } })
 
     const latest = sessions[0]
 
@@ -387,6 +389,7 @@ adminReferralsRouter.get('/nodes/:guestToken', async (req: Request, res: Respons
         actions: {
           callbacks,
           dossiersMade,
+          siteVisits,
         },
         chats: sessions.map((s) => ({ id: s.id, messageCount: s.message_count, lastActive: s.last_active })),
       },

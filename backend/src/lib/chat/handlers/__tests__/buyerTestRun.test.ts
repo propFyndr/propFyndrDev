@@ -67,4 +67,11 @@ describe('shown-set references', () => {
     assert.deepEqual(resolveShownSet('compare noida and gurgaon', shown), [])
     assert.deepEqual(resolveShownSet(q, shown.slice(0, 1)), [])
   })
+
+  // Live 26 Oct: compared the first two shown instead of filtering by price.
+  it('reads "the ones above 3.8 cr" as a price filter, "the ones above" as the list', () => {
+    assert.deepEqual(resolveShownSet('just the ones above 3.8 cr', shown), [])
+    assert.deepEqual(resolveShownSet('just the ones above ₹4 Cr', shown), [])
+    assert.equal(resolveShownSet('compare the ones above', shown).length, 3)
+  })
 })

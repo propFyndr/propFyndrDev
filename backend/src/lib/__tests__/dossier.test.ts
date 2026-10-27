@@ -76,3 +76,17 @@ describe('shared-dossier feedback in the state brief', () => {
     assert.strictEqual(buildStateBrief({ sharedFeedback: [] }), '')
   })
 })
+
+// Day 7, 26 Oct: a 3 BHK buyer's dossier priced ACE Parkway on its 2 BHK floor.
+describe('dossier financials use the buyer\'s BHK', () => {
+  const units = [{ bhk: 2, price_min_cr: 1.55 }, { bhk: 3, price_min_cr: 2.5 }]
+  it('prices the asked size, not the cheapest unit', () => {
+    assert.strictEqual(toDossierProject(row({ price_min_cr: 1.55, unit_types: units }), [3]).financials!.basePriceCr, 2.5)
+  })
+  it('no unit in that size: no financials', () => {
+    assert.strictEqual(toDossierProject(row({ price_min_cr: 1.55, unit_types: units }), [4]).financials, null)
+  })
+  it('no size asked: the project floor, as before', () => {
+    assert.strictEqual(toDossierProject(row({ price_min_cr: 1.55, unit_types: units })).financials!.basePriceCr, 1.55)
+  })
+})

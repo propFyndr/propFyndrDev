@@ -114,7 +114,7 @@ Why this order (partner → builder → us): the builder is the only party that 
 
 ## V1 MVP — the Hero Product
 
-Status is against live code as of 2026-10-05 (audits in MEMORY.md and `docs/archive/plans/MASTER_EXECUTION_ROADMAP_V2.md`). "Live" means wired into the real request path, not "a file exists".
+Status is against live code as of 2026-10-05 (audits in `docs/archive/MEMORY_full_2026-10-27.md` and `docs/archive/plans/MASTER_EXECUTION_ROADMAP_V2.md`). "Live" means wired into the real request path, not "a file exists".
 
 ### Buyer side
 | Feature | Status | Notes |
@@ -140,7 +140,7 @@ Status is against live code as of 2026-10-05 (audits in MEMORY.md and `docs/arch
 |---|---|
 | Builder / partner portal, role-scoped | Live |
 | Lead Brief (no transcript, competitors scrubbed) | Live |
-| Lead objections (abstract competitor pressure) | Live |
+| Lead objections (abstract competitor pressure) | Partial: brief and report are wired, but nothing writes `LeadObjection`, so they are always empty (found 2026-10-26) |
 | Partner approval by RealtyAsk; builder proposes partner logins | Live |
 | Lead assignment to partners, site-visit status updates | Live |
 | **Partner submits listing → builder approves → live** | **Not built** |
@@ -311,7 +311,7 @@ High-intent events (track all): save property; callback request; site visit requ
 * Never regenerate a whole answer blind on an integrity failure; state the violation to the retry.
 * Every external paid call (Maps, Tavily/Serper, embeddings) is cached and rate-limited.
 
-**Rate limiting** (`lib/cache.ts`, `index.ts`, `routes/admin.ts`, `chat-router.ts`): limits key on guest token → auth → client IP. **The client IP must be the buyer's, not the proxy's** — `lib/request.ts` trusts `CF-Connecting-IP`, which behind the Vercel rewrite is Vercel's egress IP. Resolve before launch (see MEMORY.md 2026-10-05).
+**Rate limiting** (`lib/cache.ts`, `index.ts`, `routes/admin.ts`, `chat-router.ts`): limits key on guest token → auth → client IP. **The client IP must be the buyer's, not the proxy's** — `lib/request.ts` trusts `CF-Connecting-IP`, which behind the Vercel rewrite is Vercel's egress IP. Resolve before launch (see `docs/archive/MEMORY_full_2026-10-27.md`, 2026-10-05).
 
 **Health:** `/api/v1/health` touches DB and Redis; keep-alive pings should hit a cheap endpoint.
 

@@ -73,7 +73,7 @@ import { isSpecificUnknownProject, logCoverageGap, fetchUnknownProjectContext, u
 import { statedMonthlyIncome, incomeInConversation, isAffordabilityQuestion, computeAffordability, renderAffordabilityTable, affordabilityDirective } from '../lib/ai/affordability'
 import { createChatTrace, recordChatTurn, startTraceSpan, endTraceSpan } from '../lib/monitoring/langfuse'
 import { classifyQueryLocal } from '../lib/jev/localClassifier'
-import { isOutageNotice } from '../lib/ai/outageNotice'
+import { isOutageNotice, outageOverShownAnswer } from '../lib/ai/outageNotice'
 import { shouldCarryFocus } from '../lib/chat/focusCarry'
 import { scorePropertyEngagement } from '../lib/chat/propertyEngagement'
 import { detectPropertyReactions, PropertyReaction } from '../lib/chat/reactionDetector'
@@ -1554,7 +1554,7 @@ router.post('/', async (req: Request, res: Response) => {
          * against a figure ("is it under 2 crore?", "can I afford it?") keeps it.
          */
         const asksAboutFocusAgainstFigure =
-          /\b(is|does|can|will|would|could)\s+(it|this|that|they)\b|\bafford\b|\bfor\s+(it|this|that)\b/i.test(message);
+          /\b(is|does|can|will|would|could)\s+(it|this|that|they)\b|\bafford\b|\bfor\s+(it|this|that)\b|\b(there|in\s+it|of\s+it|in\s+this\s+(project|society))\s*[?.!]?\s*$/i.test(message); // "price for 4BHK there" (live 26 Oct)
         const revisesSearchThisTurn = !asksAboutFocusAgainstFigure && (
           messageHasBudget || messageHasBhk ||
           /\b(bigger|larger|smaller|more\s+spacious|more\s+options|other\s+options|something\s+else|alternatives?)\b/i.test(message)
@@ -5044,7 +5044,7 @@ EXECUTIVE RESPONSE INSTRUCTIONS:
     }
 
     if (skipForCachedQuery) {
-      logRouting(cacheDecision!.reason, { budgetOnly: cacheDecision!.budgetOnly, cachedCount: cachedProjectsFromSession!.length })
+      logRouting(cacheDecision!.reason, { cachedCount: cachedProjectsFromSession!.length })
     } else if (cacheDecision && !cacheDecision.reuse) {
       logRouting('DISCOVERY_TRIGGERED', { reason: cacheDecision.reason })
     }
@@ -5243,16 +5243,9 @@ EXECUTIVE RESPONSE INSTRUCTIONS:
       const cachedExact = allCached.filter((p) => p.cacheSource !== 'nearby')
       const cachedNearby = allCached.filter((p) => p.cacheSource === 'nearby')
 
-      if (cacheDecision!.budgetOnly && intent.budgetMax) {
-        // Filter to new budget with 10% tolerance
-        projects = cachedExact.filter((p) => (p.price_min_cr ?? 0) <= intent.budgetMax! * 1.1)
-        nearbyProjects = cachedNearby.filter((p) => (p.price_min_cr ?? 0) <= intent.budgetMax! * 1.1)
-        logRouting('CACHE_REUSED', { budgetFilter: intent.budgetMax, exact: projects.length, nearby: nearbyProjects.length })
-      } else {
-        projects = cachedExact
-        nearbyProjects = cachedNearby
-        logRouting('CACHE_REUSED', { exact: projects.length, nearby: nearbyProjects.length })
-      }
+      projects = cachedExact
+      nearbyProjects = cachedNearby
+      logRouting('CACHE_REUSED', { exact: projects.length, nearby: nearbyProjects.length })
 
       // If user specified specific project names, filter cached results to match
       if (intent.projectNames?.length && intent.projectNames.length <= 2) {
@@ -6285,7 +6278,9 @@ EXECUTIVE RESPONSE INSTRUCTIONS:
       // Keep what was already sent ahead of the model (the sector note and any
       // table rendered in code): it was assigned over, so saved history — and a
       // reopened chat — lost the appreciation, yield and micro-market tables.
-      fullText = `${fullText}${fallbackResult.text}`
+      const instead = isOutageNotice(fallbackResult.text) ? outageOverShownAnswer(fullText, cardsAreRendering ? cardsShownThisTurn : 0, cardsAreRendering && cardsShownThisTurn > 0 && !renderedTable ? searchSummary({ intent: intent as any, exact: projects, nearby: nearbyProjects, shown: cardsShownThisTurn }) : '') : null
+      if (instead) send('token', { token: instead, replace: true }) // the rows already answered; only the prose failed
+      fullText = instead ?? `${fullText}${fallbackResult.text}`
       usedProvider = { provider: fallbackResult.provider, envKey: fallbackResult.envKey }
       Object.assign(turnTrace, {
         lane: 'main',
@@ -6315,7 +6310,7 @@ EXECUTIVE RESPONSE INSTRUCTIONS:
       // A lead-in can end on an opened-but-empty emphasis ("micro-markets are: **")
       // when the list after it was stripped. The colon test must see through it.
       const trimmed = fullText.trimEnd().replace(/\s*(?:\*\*|__|\*|_)\s*$/, '')
-      let closed = false
+      let closed = Boolean(instead) // the replacement already closes the turn
       if (/[:：]$/.test(trimmed) && cardsAreRendering && cardsShownThisTurn > 0) {
         send('token', { token: closer })
         fullText = `${trimmed}${closer}`
@@ -6370,7 +6365,7 @@ EXECUTIVE RESPONSE INSTRUCTIONS:
       fullText &&
       // Not `startsWith` on one of the two outage strings — that missed the
       // other one, and an outage got cached and replayed as a verified answer.
-      !isServiceFailureReply(fullText) &&
+      !isServiceFailureReply(fullText) && !isOutageNotice(fallbackResult?.text) && // a table kept over a failed model (outageOverShownAnswer) is not the answer to replay
       (classifyShape(message) === 'lookup' || classifyShape(message) === 'factual') &&
       (intent.projectNames?.length ?? 0) === 0 &&
       // A cache entry is text and nothing else. Cache a turn that also rendered

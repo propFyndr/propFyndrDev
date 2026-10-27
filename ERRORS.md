@@ -73,3 +73,16 @@
 **What didn't work:** running `node --env-file=.env --require tsx/cjs src/test-runner.ts`. The flag put `PORT=3001` and other `.env` values into the environment, so `env.test.ts` (PORT default 3000) and three `guestRateLimiter` tests failed, none related to the change under test.
 **What worked:** running those two files alone without `--env-file` — 26/26 pass. A single DB-backed file (e.g. the route replay) needed `--env-file` to reach the dev database. The full runner itself needs no flag: run as `node --require tsx/cjs src/test-runner.ts` (4,345 tests) it reached the dev database on its own.
 **Note for next time:** use `--env-file` only for one DB-backed file at a time, and blank the provider keys yourself when you do (`test-runner.ts` does it for you; a direct `node --test` does not). If a full run shows failures in unrelated config tests, re-run those files without the flag before suspecting the change.
+
+## 2026-10-26 — `next dev` for a phone test died three times: the host was out of commit memory
+**What didn't work:** starting `frontend` `next dev -p 3010` (own `NEXT_DIST_DIR`) next to the running backend, a corpus run and other projects' dev servers. Free virtual memory was 1.3 GB of 48.8 GB, with 1.1 GB physical free. Default heap: "semi space commit failed" on the first compile of `/`. `--max-old-space-size=4096` didn't help, because it was the OS refusing, not V8: a 107 KB native allocation failed. A third run died with "Zone Allocation failed" at a 450 MB heap. Jest workers and an esbuild spawn failed the same way.
+**What worked:** nothing for the UI. The buyer flow was driven against the backend API with the same headers and bodies as the components send, and `jest -i` (in-band) ran.
+**Note for next time:** check `FreeVirtualMemory` from `Get-CimInstance Win32_OperatingSystem` before starting `next dev`. Below about 4 GB free, close other dev servers first rather than tuning heap flags. Next also adds the new dist dir to `frontend/tsconfig.json`, so revert that file afterwards.
+
+## 2026-10-26 — Four corpus runs to get one honest Day 7 scorecard
+**What didn't work:**
+- Stopping a backgrounded `npx tsx src/index.ts` with TaskStop. It killed the npx wrapper; the node child kept listening, and the next "restart" tested old code.
+- `run-corpus.ts` concatenated every token event and ignored `replace: true`. A turn the app shows as clean read as "outage notice + answer".
+- A third server, a corpus run and an agent's `next dev` together ran the host out of memory, and the memory guard killed the last run.
+**What worked:** kill by the `"pid"` in the server's JSON log (`Stop-Process -Id <pid>`), then confirm the port with curl. The corpus client now renders `replace` as `streamReducer.ts` does.
+**Note for next time:** check free memory first. Run one server at a time. Grade what the buyer sees, not the raw stream.

@@ -104,18 +104,17 @@ export function searchAnswer(facilities: Facility[], hits: AmenityHit[], areaLab
     return `None of the projects we hold${where} lists ${withArticle(asked)}. ${INCOMPLETE_LINE}${tail}`
 
   const projects = new Set(hits.map(h => h.project))
-  // Text unique to a project first; a template is weaker evidence.
+  // Text unique to a project first: it says more about that project.
   const shown = [...hits].sort((a, b) => a.sharedBy - b.sharedBy || a.project.localeCompare(b.project)).slice(0, 10)
-  const rows = shown.map(h => `| ${h.project} | ${h.sector ?? '—'} | ${h.amenity}${h.sharedBy > 3 ? ` (same text on ${h.sharedBy} projects)` : ''} |`)
-  const templated = shown.some(h => h.sharedBy > 3)
-  return `### Projects${where} that list ${withArticle(asked)}
+  const rows = shown.map(h => `| ${h.project} | ${h.sector ?? '—'} | ${h.amenity} |`)
+  return `### Projects${where} with ${withArticle(asked)}
 
-${projects.size} project${projects.size === 1 ? '' : 's'} we hold list${projects.size === 1 ? 's' : ''} it${projects.size > shown.length ? `; showing ${shown.length}` : ''}.
+${projects.size} project${projects.size === 1 ? '' : 's'} list${projects.size === 1 ? 's' : ''} it${projects.size > shown.length ? `; showing ${shown.length}` : ''}.
 
-| Project | Sector | Amenity as recorded |
+| Project | Sector | Amenity |
 | :--- | :--- | :--- |
 ${rows.join('\n')}
-${templated ? '\nWhere the same text appears on many projects it was probably copied from a template, so treat it as unconfirmed.\n' : ''}
+
 ${INCOMPLETE_LINE}${tail}`
 }
 
@@ -125,8 +124,10 @@ export function projectAnswer(projectName: string, facilities: Facility[], match
   const tail = askedAround ? `\n\n${NEARBY_LINE}` : ''
   if (matched.length === 0)
     return `${withArticle(asked)[0].toUpperCase()}${withArticle(asked).slice(1)} is not on record for ${projectName}. That is not a no: ${INCOMPLETE_LINE[0].toLowerCase()}${INCOMPLETE_LINE.slice(1)}${tail}`
-  const lines = matched.map(m => `- ${m.amenity}${m.sharedBy > 3 ? ` (this exact text is on ${m.sharedBy} projects, so it may be a template; confirm on a site visit)` : ''}`)
-  return `${projectName}'s amenity list on record includes:\n\n${lines.join('\n')}${tail}`
+  // Owner, 26 Oct: answer from the project's list as it stands, with no
+  // commentary on our data (a "may be a template" note reached a buyer).
+  const lines = matched.map(m => `- ${m.amenity}`)
+  return `Yes. ${projectName}'s amenities include:\n\n${lines.join('\n')}${tail}`
 }
 
 async function sharedCounts(names: string[]): Promise<Map<string, number>> {
