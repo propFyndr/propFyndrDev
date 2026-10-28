@@ -51,6 +51,9 @@ const textOf = (html: string) => {
 async function main() {
   const out: Record<string, any[]> = hasFile('portal-pages-4.json') ? readJson<{ pages: Record<string, any[]> }>('portal-pages-4.json').pages : {};
   const builders = (await prisma.builder.findMany({ select: { id: true, name: true, website: true, projects: { where: { archived_duplicate_of: null }, select: { id: true, name: true } } } })).filter((b) => b.website && b.projects.length).slice(0, LIMIT_B);
+  // Addresses that stage 26 tested and accepted replace the stored (invented) ones, and those builders' projects are retried.
+  const override: Record<string, { website: string }> = hasFile('builder-websites-override.json') ? readJson<{ accepted: Record<string, { website: string }> }>('builder-websites-override.json').accepted : {};
+  for (const b of builders) if (override[b.name]) for (const p of b.projects) delete out[p.id];
   const stats = { builders: builders.length, resolved: 0, repaired: 0, robots_blocked: 0, with_pages: 0, projects_matched: 0, pages_saved: 0, unreachable: [] as string[] };
   let idx = 0;
   const worker = async () => {
@@ -59,7 +62,7 @@ async function main() {
       if (b.projects.every((p) => out[p.id] !== undefined)) continue;
       // 1. a working origin
       let home: { s: number; url: string; t: string } | null = null, repaired = false;
-      for (const [i, v] of variants(b.website!).entries()) { const h = await get(v); await sleep(400); if (h.s === 200 && h.t) { home = h; repaired = i > 0; break; } }
+      for (const [i, v] of variants(override[b.name]?.website ?? b.website!).entries()) { const h = await get(v); await sleep(400); if (h.s === 200 && h.t) { home = h; repaired = i > 0; break; } }
       if (!home) { stats.unreachable.push(b.name); for (const p of b.projects) out[p.id] = []; continue; }
       stats.resolved++; if (repaired) stats.repaired++;
       const origin = new URL(home.url).origin;
