@@ -96,13 +96,14 @@ async function buildPlan(): Promise<Plan[]> {
 
   const projects = await prisma.project.findMany({
     where: { archived_duplicate_of: null },
-    select: { id: true, name: true, slug: true, rera_number: true, rera_url: true, rera_valid_until: true, lat: true, lng: true, status: true, possession_label: true, possession_date: true, hospital_distance_km: true, police_station_distance_km: true, launch_date: true, hero_image_url: true, airport_distance_km: true, expected_handover_quarter: true, images: { select: { url: true, type: true, sort_order: true }, orderBy: { sort_order: 'asc' } }, total_units: true, total_towers: true, land_area_acres: true, floors: true, architect: true, price_min_cr: true },
+    select: { id: true, name: true, slug: true, rera_number: true, rera_url: true, rera_valid_until: true, lat: true, lng: true, status: true, possession_label: true, possession_date: true, hospital_distance_km: true, police_station_distance_km: true, launch_date: true, hero_image_url: true, airport_distance_km: true, expected_handover_quarter: true, commute_matrix: true, occupancy_certificate_status: true, oc_details: true, legal_flag_detail: true, interior_designer: true, images: { select: { url: true, type: true, sort_order: true }, orderBy: { sort_order: 'asc' } }, total_units: true, total_towers: true, land_area_acres: true, floors: true, architect: true, price_min_cr: true },
   });
 
   const geo: Record<string, any> = hasFile('geocode-results.json') ? readJson<{ results: Record<string, any> }>('geocode-results.json').results : {};
   const poss: Record<string, any> = Object.fromEntries((hasFile('possession-proposals.json') ? readJson<{ proposals: any[] }>('possession-proposals.json').proposals : []).map((x) => [x.project_id, x]));
   const near: Record<string, any> = hasFile('nearby-results.json') ? readJson<{ results: Record<string, any> }>('nearby-results.json').results : {};
   const rpRes: Record<string, any> = hasFile('routes-places-results.json') ? readJson<{ results: Record<string, any> }>('routes-places-results.json').results : {};
+  const commuteRes: Record<string, any> = hasFile('commute-results.json') ? readJson<{ results: Record<string, any> }>('commute-results.json').results : {};
   const plans: Plan[] = [];
   for (const p of projects as any[]) {
     const plan: Plan = { project_id: p.id, name: p.name, slug: p.slug, changes: [] };
@@ -164,6 +165,26 @@ async function buildPlan(): Promise<Plan[]> {
     // Airport road distance (stage 21), to Noida International Airport via Google Routes; empty values only.
     const rp = rpRes[p.id];
     if (rp?.airport_km && p.airport_distance_km == null) plan.changes.push({ field: 'airport_distance_km', old: null, new: rp.airport_km, source: 'Google Routes (driving km to Noida International Airport)', url: '', quote: `${rp.airport_km} km by road` });
+    // Legal and status statements (stage 22): the source's own words, empty fields only, each with where it was read.
+    if (hasFile(`research-legal/${p.id}.json`)) {
+      const lf = readJson<any>(`research-legal/${p.id}.json`).fields ?? {};
+      const host = (u: string) => { try { return new URL(u).host.replace(/^www\./, ''); } catch { return u; } };
+      const first = (k: string, ok: (c: any) => boolean) => (lf[k] ?? []).find(ok);
+      // An OC status needs a verb that states one, not marketing ("OC ensures reduced risk").
+      const oc = first('oc_status', (c) => /received|obtained|granted|issued|awaited|applied for|pending/i.test(c.quote) && !/ensure|advantage|reduced risk/i.test(c.quote));
+      if (oc && p.occupancy_certificate_status == null) plan.changes.push({ field: 'occupancy_certificate_status', old: null, new: oc.quote.replace(/\s+/g, ' ').slice(0, 150), source: `web page (${host(oc.source_url)})`, url: oc.source_url, quote: oc.quote });
+      if (oc && p.oc_details == null) plan.changes.push({ field: 'oc_details', old: null, new: `${oc.quote.replace(/\s+/g, ' ').slice(0, 200)} (read on ${host(oc.source_url)})`, source: `web page (${host(oc.source_url)})`, url: oc.source_url, quote: oc.quote });
+      // Insolvency and court statements both go to legal_flag_detail; the topic must be in the quote itself.
+      const legal = first('nclt_insolvency', (c) => /insolven|CIRP|NCLT|receiver|NBCC|resolution/i.test(c.quote) && /insolven|CIRP|NCLT|receiver|NBCC|resolution/i.test(String(c.value)) && !/free from|not under|no insolvency|safe hands|unaffected|without any/i.test(c.quote)) ?? first('litigation', (c) => /court|petition|stay|order|litigation/i.test(c.quote));
+      if (legal && p.legal_flag_detail == null) plan.changes.push({ field: 'legal_flag_detail', old: null, new: `${legal.quote.replace(/\s+/g, ' ').slice(0, 240)} (read on ${host(legal.source_url)})`, source: `web page (${host(legal.source_url)})`, url: legal.source_url, quote: legal.quote });
+      const dsg = first('interior_designer', (c) => /interior(s)? (by|designed by)|designed interiors/i.test(c.quote) && String(c.value).length <= 60 && !/\d/.test(String(c.value)));
+      if (dsg && p.interior_designer == null) plan.changes.push({ field: 'interior_designer', old: null, new: String(dsg.value), source: `web page (${host(dsg.source_url)})`, url: dsg.source_url, quote: dsg.quote });
+    }
+
+    // Commute matrix (stage 23): real routing distances and times, only for a project that has none.
+    const cm = commuteRes[p.id]?.matrix;
+    if (p.commute_matrix == null && Array.isArray(cm) && cm.length) plan.changes.push({ field: 'commute_matrix', old: null, new: cm, source: 'Google Routes (driving; peak = weekday 09:00 IST)', url: '', quote: `${cm.length} destinations` });
+
     // expected_handover_quarter is deliberately NOT derived from possession_date: most stored dates are year-end placeholders
     // (2027-12-31) or already past on projects still marked under construction, so a derived quarter would copy a stale value.
 
