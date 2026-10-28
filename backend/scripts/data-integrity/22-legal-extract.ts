@@ -52,7 +52,7 @@ async function ask(project: string, pages: { url: string; text: string }[]) {
 
 async function main() {
   const names = new Map<string, string>(readJson<{ results: any[] }>('match.json').results.map((m) => [m.project_id, m.name]));
-  const sets = ['portal-pages.json', 'portal-pages-2.json'].filter(hasFile).map((f) => readJson<{ pages: Record<string, any[]> }>(f).pages);
+  const sets = ['portal-pages.json', 'portal-pages-2.json', 'portal-pages-4.json'].filter(hasFile).map((f) => readJson<{ pages: Record<string, any[]> }>(f).pages);
   const work: { id: string; pages: { url: string; text: string }[] }[] = [];
   for (const [id, name] of names) {
     const urls = new Set<string>(sets.flatMap((s) => (s[id] ?? []).filter((x: any) => x.ok).map((x: any) => x.url)));

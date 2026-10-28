@@ -104,6 +104,7 @@ async function buildPlan(): Promise<Plan[]> {
   const near: Record<string, any> = hasFile('nearby-results.json') ? readJson<{ results: Record<string, any> }>('nearby-results.json').results : {};
   const rpRes: Record<string, any> = hasFile('routes-places-results.json') ? readJson<{ results: Record<string, any> }>('routes-places-results.json').results : {};
   const commuteRes: Record<string, any> = hasFile('commute-results.json') ? readJson<{ results: Record<string, any> }>('commute-results.json').results : {};
+  const ncltRes: Record<string, any> = hasFile('nclt-matches.json') ? readJson<{ matches: Record<string, any> }>('nclt-matches.json').matches : {};
   const plans: Plan[] = [];
   for (const p of projects as any[]) {
     const plan: Plan = { project_id: p.id, name: p.name, slug: p.slug, changes: [] };
@@ -179,6 +180,13 @@ async function buildPlan(): Promise<Plan[]> {
       if (legal && p.legal_flag_detail == null) plan.changes.push({ field: 'legal_flag_detail', old: null, new: `${legal.quote.replace(/\s+/g, ' ').slice(0, 240)} (read on ${host(legal.source_url)})`, source: `web page (${host(legal.source_url)})`, url: legal.source_url, quote: legal.quote });
       const dsg = first('interior_designer', (c) => /interior(s)? (by|designed by)|designed interiors/i.test(c.quote) && String(c.value).length <= 60 && !/\d/.test(String(c.value)));
       if (dsg && p.interior_designer == null) plan.changes.push({ field: 'interior_designer', old: null, new: String(dsg.value), source: `web page (${host(dsg.source_url)})`, url: dsg.source_url, quote: dsg.quote });
+    }
+
+    // Official insolvency listing (stage 25): UP-RERA's "Project(s) under NCLT" list, stated as a listing and dated. No true/false
+    // moratorium flag is set from it: a listing does not say whether the moratorium is still active.
+    const nm = ncltRes[p.id];
+    if (nm && p.legal_flag_detail == null && !plan.changes.some((c) => c.field === 'legal_flag_detail')) {
+      plan.changes.push({ field: 'legal_flag_detail', old: null, new: `UP-RERA lists this project under NCLT proceedings (registration ${nm.reg}; promoter ${nm.promoter}; resolution professional ${nm.irp}). Read on up-rera.in/Frm_view_NCLT_Projectlist.aspx, 28 Oct 2026.`, source: 'UP-RERA NCLT projects list', url: 'https://up-rera.in/Frm_view_NCLT_Projectlist.aspx', quote: `${nm.reg} ${nm.project} | ${nm.promoter} | ${nm.irp}` });
     }
 
     // Commute matrix (stage 23): real routing distances and times, only for a project that has none.

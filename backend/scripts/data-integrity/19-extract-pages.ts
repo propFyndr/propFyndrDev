@@ -17,6 +17,7 @@ const LIMIT = Number(arg('limit', '100000'));
 const MODEL = process.env.GEMINI_LITE_MODEL || 'gemini-3.5-flash-lite';
 const KEYS = ['GEMINI_API_KEY1', 'GEMINI_API_KEY2', 'GEMINI_API_KEY'].map((k) => process.env[k]).filter(Boolean) as string[];
 let llmCalls = 0, keyIdx = 0;
+const BUILDER_URLS = new Set<string>();
 
 const FACT_LINE = /rera|unit|tower|acre|possess|handover|hand over|launch|floor|storey|architect|₹|\bcr\b|crore|lakh|bhk|sq\.?\s?ft|sqft|payment|ready to move|under construction|new launch|status|completion|JSON-LD/i;
 /** Keep JSON-LD and only the lines that can state a fact; cap the size. */
@@ -69,7 +70,7 @@ function verify(field: string, f: any, pages: { url: string; text: string }[]) {
   if (MUST_NAME[field] && !MUST_NAME[field].test(f.quote)) return { reject: `${field}: quote does not name the field` };
   const q = squash(f.quote).replace(/,/g, '');
   for (const n of nums(f.value)) if (!q.includes(n)) return { reject: `${field}: ${n} not in quote` };
-  return { ok: { value: f.value, quote: f.quote, source_url: page.url, tier: 'portal' } };
+  return { ok: { value: f.value, quote: f.quote, source_url: page.url, tier: BUILDER_URLS.has(page.url) ? 'builder' : 'portal' } };
 }
 
 async function one(id: string, name: string, urls: string[]) {
@@ -98,17 +99,19 @@ async function one(id: string, name: string, urls: string[]) {
     const inPage = page && !thin ? squash(page.text).includes(squash(c.quote)) : false;
     const qn = squash(c.quote ?? '').replace(/,/g, '');
     const vals = [c.super_sqft_min, c.super_sqft_max, c.carpet_sqft_min, c.carpet_sqft_max, c.price_cr_min, c.price_cr_max];
-    if (inPage && vals.filter((x) => x != null).every((x) => nums(x).every((n) => qn.includes(n)))) { const { quote, page: _p, ...rest } = c; r.configs.push({ ...rest, quote, source_url: page.url, tier: 'portal' }); }
+    if (inPage && vals.filter((x) => x != null).every((x) => nums(x).every((n) => qn.includes(n)))) { const { quote, page: _p, ...rest } = c; r.configs.push({ ...rest, quote, source_url: page.url, tier: BUILDER_URLS.has(page.url) ? 'builder' : 'portal' }); }
     else r.rejected.push(`config ${c.bhk}: failed quote check`);
   }
-  r.sources.push(...pages.map((p) => ({ url: p.url, tier: 'portal', chars: p.text.length })));
+  r.sources.push(...pages.map((p) => ({ url: p.url, tier: BUILDER_URLS.has(p.url) ? 'builder' : 'portal', chars: p.text.length })));
   r.merged_pages.push(...pages.map((p) => p.url));
   writeJson(file, r);
   return pages.length;
 }
 
 async function main() {
-  const sets = ['portal-pages.json', 'portal-pages-2.json'].filter(hasFile).map((f) => readJson<{ pages: Record<string, any[]> }>(f).pages);
+  const sets = ['portal-pages.json', 'portal-pages-2.json', 'portal-pages-4.json'].filter(hasFile).map((f) => readJson<{ pages: Record<string, any[]> }>(f).pages);
+  // pages read on a builder's own site are the seller's claim: label them 'builder', not 'portal'
+  if (hasFile('portal-pages-4.json')) for (const rows of Object.values(readJson<{ pages: Record<string, any[]> }>('portal-pages-4.json').pages)) for (const r of rows) if (r.ok && r.builder) BUILDER_URLS.add(r.url);
   const names = new Map<string, string>(readJson<{ results: any[] }>('match.json').results.map((m) => [m.project_id, m.name]));
   const work: { id: string; urls: string[] }[] = [];
   for (const id of names.keys()) {

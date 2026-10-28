@@ -142,9 +142,14 @@ export function parseListPage(html: string, list: string): ReraRow[] {
  * saved page head (or, if no copy was saved, in the quote). "ATS Dolce sits on 14 acres" read for
  * ATS Sovereign fails: "sovereign" is nowhere.
  */
+// A builder with projects in several cities reuses names ("Omaxe Riviera" in Rudrapur). A page whose address names another
+// city that our project's name does not contain is about a different project.
+const OTHER_CITY = /rudrapur|lucknow|kolkata|chandigarh|indore|jaipur|agra|varanasi|bhiwadi|panipat|sonipat|gurgaon|gurugram|faridabad|mumbai|pune|bangalore|bengaluru|hyderabad|chennai|kanpur|ludhiana|amritsar|dehradun|haridwar|nainital|ranchi|bhopal|nagpur|ahmedabad|surat|patna|goa|mohali|zirakpur|manesar|bahadurgarh|rohtak|meerut|bareilly|gorakhpur|prayagraj|allahabad|jhansi|mathura/i;
+
 export function pageIsAbout(url: string, projectName: string, quote: string): boolean {
   const toks = normName(projectName).split(' ').filter(Boolean);
   if (!toks.length) return false;
+  if (OTHER_CITY.test(url) && !OTHER_CITY.test(projectName)) return false;
   let head = '';
   try {
     head = readFileSync(workPath(`pages/${createHash('sha1').update(url).digest('hex')}.txt`), 'utf8').slice(0, 3000);
