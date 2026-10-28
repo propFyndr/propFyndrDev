@@ -87,11 +87,12 @@ async function buildPlan(): Promise<Plan[]> {
 
   const projects = await prisma.project.findMany({
     where: { archived_duplicate_of: null },
-    select: { id: true, name: true, slug: true, rera_number: true, rera_url: true, rera_valid_until: true, lat: true, lng: true, status: true, possession_label: true, possession_date: true, total_units: true, total_towers: true, land_area_acres: true, floors: true, architect: true, price_min_cr: true },
+    select: { id: true, name: true, slug: true, rera_number: true, rera_url: true, rera_valid_until: true, lat: true, lng: true, status: true, possession_label: true, possession_date: true, hospital_distance_km: true, police_station_distance_km: true, total_units: true, total_towers: true, land_area_acres: true, floors: true, architect: true, price_min_cr: true },
   });
 
   const geo: Record<string, any> = hasFile('geocode-results.json') ? readJson<{ results: Record<string, any> }>('geocode-results.json').results : {};
   const poss: Record<string, any> = Object.fromEntries((hasFile('possession-proposals.json') ? readJson<{ proposals: any[] }>('possession-proposals.json').proposals : []).map((x) => [x.project_id, x]));
+  const near: Record<string, any> = hasFile('nearby-results.json') ? readJson<{ results: Record<string, any> }>('nearby-results.json').results : {};
   const plans: Plan[] = [];
   for (const p of projects as any[]) {
     const plan: Plan = { project_id: p.id, name: p.name, slug: p.slug, changes: [] };
@@ -144,6 +145,11 @@ async function buildPlan(): Promise<Plan[]> {
       plan.changes.push({ field: 'lat', old: null, new: g.lat, source: src, url: '', quote: g.address });
       plan.changes.push({ field: 'lng', old: null, new: g.lng, source: src, url: '', quote: g.address });
     }
+
+    // Nearest hospital / police station (stage 13): straight-line km from the project's coordinates, empty values only.
+    const nb = near[p.id];
+    if (nb?.hospital && p.hospital_distance_km == null) plan.changes.push({ field: 'hospital_distance_km', old: null, new: nb.hospital.km, source: 'Google Places (nearest hospital, straight-line)', url: '', quote: nb.hospital.name });
+    if (nb?.police && p.police_station_distance_km == null) plan.changes.push({ field: 'police_station_distance_km', old: null, new: nb.police.km, source: 'Google Places (nearest police station, straight-line)', url: '', quote: nb.police.name });
 
     // Possession bundle (stage 12): status, label and date move together, from a builder quote or two agreeing sources.
     const pp = poss[p.id];
