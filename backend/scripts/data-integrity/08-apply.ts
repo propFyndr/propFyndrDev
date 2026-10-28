@@ -104,6 +104,7 @@ async function buildPlan(): Promise<Plan[]> {
   const near: Record<string, any> = hasFile('nearby-results.json') ? readJson<{ results: Record<string, any> }>('nearby-results.json').results : {};
   const rpRes: Record<string, any> = hasFile('routes-places-results.json') ? readJson<{ results: Record<string, any> }>('routes-places-results.json').results : {};
   const commuteRes: Record<string, any> = hasFile('commute-results.json') ? readJson<{ results: Record<string, any> }>('commute-results.json').results : {};
+  const naRes: Record<string, any> = hasFile('noida-authority-matches.json') ? readJson<{ matches: Record<string, any> }>('noida-authority-matches.json').matches : {};
   const ncltRes: Record<string, any> = hasFile('nclt-matches.json') ? readJson<{ matches: Record<string, any> }>('nclt-matches.json').matches : {};
   const plans: Plan[] = [];
   for (const p of projects as any[]) {
@@ -180,6 +181,15 @@ async function buildPlan(): Promise<Plan[]> {
       if (legal && p.legal_flag_detail == null) plan.changes.push({ field: 'legal_flag_detail', old: null, new: `${legal.quote.replace(/\s+/g, ' ').slice(0, 240)} (read on ${host(legal.source_url)})`, source: `web page (${host(legal.source_url)})`, url: legal.source_url, quote: legal.quote });
       const dsg = first('interior_designer', (c) => /interior(s)? (by|designed by)|designed interiors/i.test(c.quote) && String(c.value).length <= 60 && !/\d/.test(String(c.value)));
       if (dsg && p.interior_designer == null) plan.changes.push({ field: 'interior_designer', old: null, new: String(dsg.value), source: `web page (${host(dsg.source_url)})`, url: dsg.source_url, quote: dsg.quote });
+    }
+
+    // Noida Authority group-housing record (stage 27): official, plot-level (it can cover several phases), dated, empty fields only.
+    const na = naRes[p.id];
+    if (na?.d) {
+      const d = na.d, t = (x: unknown) => String(x ?? '').replace(/&amp;/g, '&').replace(/\s+/g, ' ').trim();
+      const ocTowers = t(d.OCIssuedNumberOfTower);
+      if (ocTowers && p.occupancy_certificate_status == null) plan.changes.push({ field: 'occupancy_certificate_status', old: null, new: /no oc/i.test(ocTowers) ? 'Noida Authority: no OC issued yet' : `Noida Authority: OC issued for ${/^\d+$/.test(ocTowers) ? ocTowers + ' towers' : ocTowers.replace(/^all\s+/i, 'all ')}`, source: 'Noida Authority group-housing record', url: 'https://pims.mynoida.org.in/GroupHousing/GroupHousingProjectDetail/' + na.PID, quote: `OC Issued For Towers: ${ocTowers}` });
+      if (p.oc_details == null) plan.changes.push({ field: 'oc_details', old: null, new: `Noida Authority record for plot ${t(na.Location)} (${t(na.ProjectName)}), plot-level: ${t(d.Sanctioned)} flats sanctioned; ${t(d.TowerSanctioned)} towers sanctioned, ${t(d.TowerContracted) || 'n/a'} constructed; OC issued for ${/^\d+$/.test(ocTowers) ? ocTowers + ' towers' : ocTowers || 'n/a'}; OC/CC issued for ${t(d.OCissued)} units; ${t(d.TotalSubExecuted)} sub-leases executed; dues to the Authority ₹${t(d.Dues)} Cr; defaulter status ${t(d.DefaulterStatus)}. Read on pims.mynoida.org.in, 28 Oct 2026.`, source: 'Noida Authority group-housing record', url: 'https://pims.mynoida.org.in/GroupHousing/GroupHousingProjectDetail/' + na.PID, quote: `${t(na.ProjectName)} | ${t(na.Location)}` });
     }
 
     // Official insolvency listing (stage 25): UP-RERA's "Project(s) under NCLT" list, stated as a listing and dated. No true/false
