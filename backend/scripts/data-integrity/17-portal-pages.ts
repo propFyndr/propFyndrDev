@@ -62,7 +62,7 @@ async function main() {
   const out: Record<string, any[]> = hasFile('portal-pages.json') ? readJson<{ pages: Record<string, any[]> }>('portal-pages.json').pages : {};
   const projects = await prisma.project.findMany({ where: { archived_duplicate_of: null }, select: { id: true, name: true, builder: { select: { name: true } } }, orderBy: { name: 'asc' } });
   const disc: Record<string, { squareyards?: string | null; magicbricks?: string | null }> = {};
-  if (DISC) for (const f of readdirSync(workPath('discovery')).filter((x) => /^out-d+.json$/.test(x))) Object.assign(disc, readJson<Record<string, any>>(`discovery/${f}`));
+  if (DISC) for (const f of readdirSync(workPath('discovery')).filter((x) => /^out-\d+\.json$/.test(x))) Object.assign(disc, readJson<Record<string, any>>(`discovery/${f}`));
   if (DISC) console.log(`discovery URLs for ${Object.keys(disc).length} projects`);
   let n = 0;
   const lastHit: Record<string, number> = {};
