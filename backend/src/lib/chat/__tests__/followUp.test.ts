@@ -63,3 +63,20 @@ describe("okay to our own either/or prompt takes its first option (live, 27 Oct 
     assert.ok(!/1 BHK/.test(out), out)
   })
 })
+
+import { isBareRefinement } from '../followUp'
+describe('a bare revised slot re-runs the search (live, Oct 2026)', () => {
+  it('reads a lone budget, sector or BHK as a refinement', () => {
+    for (const m of ['1 cr', 'Budget -2 cr', 'what about Sector 150?', 'just the ones above 3.8 cr', 'make it 2-3 cr', 'and a 4 BHK?', '80 lakh'])
+      assert.ok(isBareRefinement(m), m)
+  })
+  it('leaves questions, unitless numbers and named projects alone', () => {
+    for (const m of ['30000', 'is 2 cr enough for a 3 bhk?', 'what is the price of 3 bhk', 'yes', 'step 5', 'price for 3 bhk at elite x', 'emi on 1 cr'])
+      assert.ok(!isBareRefinement(m), m)
+  })
+  it('an amount answering our own ask for a price belongs to that check', () => {
+    const ask = 'To run the EMI and cash-flow check I need a price to work from. Tell me the property price or your budget (e.g. "1.5 cr").'
+    assert.ok(!isBareRefinement('1.5 cr', ask))
+    assert.ok(isBareRefinement('1.5 cr', '**14 projects match** 3 BHK in Noida up to ₹2 Cr.'))
+  })
+})

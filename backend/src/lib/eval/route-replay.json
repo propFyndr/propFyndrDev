@@ -2239,5 +2239,156 @@
         }
       }
     ]
+  },
+  {
+    "id": "oct28-refine-bare-budget",
+    "source": "live follow-ups, Oct 2026: a bare revised slot went to the model (20-50 s)",
+    "turns": [
+      {
+        "text": "3 bhk in sector 150"
+      },
+      {
+        "text": "1 cr",
+        "expect": {
+          "lane": "search",
+          "llm": false,
+          "intent": {
+            "budgetMax": 1
+          }
+        }
+      }
+    ]
+  },
+  {
+    "id": "oct28-refine-what-about-sector",
+    "source": "live follow-ups, Oct 2026: a bare revised slot went to the model (20-50 s)",
+    "turns": [
+      {
+        "text": "3 BHK in Noida under 2 cr"
+      },
+      {
+        "text": "what about Sector 150?",
+        "expect": {
+          "lane": "search",
+          "llm": false,
+          "intent": {
+            "budgetMax": 2
+          }
+        }
+      }
+    ]
+  },
+  {
+    "id": "oct28-refine-budget-dash",
+    "source": "live follow-ups, Oct 2026: a bare revised slot went to the model (20-50 s)",
+    "turns": [
+      {
+        "text": "looking for a 3 bhk in noida"
+      },
+      {
+        "text": "Budget -2 cr",
+        "expect": {
+          "lane": "search",
+          "llm": false,
+          "intent": {
+            "budgetMax": 2
+          }
+        }
+      }
+    ]
+  },
+  {
+    "id": "oct28-refine-above",
+    "source": "live follow-ups, Oct 2026: a bare revised slot went to the model (20-50 s)",
+    "turns": [
+      {
+        "text": "3 BHK in Sector 150 under 4 cr"
+      },
+      {
+        "text": "just the ones above 3.8 cr",
+        "expect": {
+          "lane": "search",
+          "llm": false,
+          "intent": {
+            "budgetMin": 3.8
+          }
+        }
+      }
+    ]
+  },
+  {
+    "id": "oct28-refine-not-after-emi-ask",
+    "source": "an amount answering our EMI check's ask for a price stays with the check",
+    "turns": [
+      {
+        "text": "Help me work out a realistic budget and EMI."
+      },
+      {
+        "text": "1.5 cr",
+        "expect": {
+          "laneNot": [
+            "search"
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "id": "oct28-budget-carries-into-search",
+    "source": "budget stated alone carries into the next search",
+    "turns": [
+      {
+        "text": "my budget is 1.5 cr"
+      },
+      {
+        "text": "3 bhk in sector 150",
+        "expect": {
+          "intent": {
+            "budgetMax": 1.5
+          }
+        }
+      }
+    ]
+  },
+  {
+    "id": "oct28-budget-check-yes",
+    "source": "budget check offer, then yes, runs the search in code",
+    "turns": [
+      {
+        "text": "Is 2 crore too much for a 3 BHK in Noida?",
+        "expect": {
+          "lane": "budget-check"
+        }
+      },
+      {
+        "text": "yes",
+        "expect": {
+          "lane": "search",
+          "llm": false,
+          "intent": {
+            "budgetMax": 2
+          }
+        }
+      }
+    ]
+  },
+  {
+    "id": "oct28-budget-check-then-bhk",
+    "source": "budget check, then a bare BHK change keeps the budget",
+    "turns": [
+      {
+        "text": "Is 2 crore enough for a 3 BHK in Noida?"
+      },
+      {
+        "text": "and a 4 BHK?",
+        "expect": {
+          "lane": "search",
+          "llm": false,
+          "intent": {
+            "budgetMax": 2
+          }
+        }
+      }
+    ]
   }
 ]

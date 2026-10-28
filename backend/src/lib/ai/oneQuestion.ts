@@ -68,7 +68,7 @@ export interface OneQuestionResult {
 }
 
 /**
- * Keeps the first question and drops every ask after it.
+ * Keeps the first question of the closing run and drops every ask after it.
  *
  * Trailing questions go whole. A second ask joined onto the first with ", and"
  * is cut at the join, which is safe because everything before the join is
@@ -95,18 +95,31 @@ export function oneQuestion(input: string): OneQuestionResult {
 
   let trimmed = 0
 
-  // 1. Drop everything after the first question mark, when what follows
-  //    contains another one. Anything after a question is either a second ask
-  //    or a trailing pleasantry, and both are better gone.
-  const first = text.indexOf('?')
-  const rest = text.slice(first + 1)
-  let out = rest.includes('?') ? text.slice(0, first + 1) : text
-  if (out !== text) trimmed += rest.split('?').length - 1
+  // 1. The turn's ask is the run of questions the reply closes on. Keep the
+  //    first of that run and drop the rest, plus any pleasantry after it.
+  //    A question followed by prose ("Looking for ready-to-move? Here are…",
+  //    a question as a heading) is not part of the run and stays: cutting at
+  //    the first question mark took the whole answer with it.
+  const marks = [...text.matchAll(/\?/g)].map((m) => m.index!)
+  let runStart = marks.length - 1
+  // A sentence end (". " / "! "), a blank line, or a whole line of its own (a
+  // list item with no full stop) between two questions means prose sits between
+  // them, so the earlier one is not part of the closing run.
+  while (runStart > 0 && !/[.!](?=\s)|\n\s*\n|\n[^\n]*\S[^\n]*\n/.test(text.slice(marks[runStart - 1] + 1, marks[runStart]))) runStart--
+  let out = text
+  if (runStart < marks.length - 1) {
+    out = text.slice(0, marks[runStart] + 1)
+    trimmed += marks.length - 1 - runStart
+  }
 
   // 2. Cut a second ask hung off the first with ", and …" or ", or do you …".
   const q = out.lastIndexOf('?')
   if (q > -1) {
-    const question = out.slice(0, q)
+    // Only the question's own sentence: ", and is on track" in the body before it
+    // is prose, and matching there cut the answer down to its first clause.
+    const head = out.slice(0, q)
+    const start = Math.max(0, ...[...head.matchAll(/[.!?](?=\s)|\n/g)].map((m) => m.index! + 1))
+    const question = head.slice(start)
     // Earliest join wins: cutting at the later one would leave the earlier
     // second ask standing, which is the whole problem.
     const joins = [SECOND_ASK.exec(question), SECOND_ASK_AFTER_OR.exec(question)]
@@ -114,7 +127,7 @@ export function oneQuestion(input: string): OneQuestionResult {
       .sort((a, b) => a.index - b.index)
     const join = joins[0]
     if (join) {
-      out = `${question.slice(0, join.index).trimEnd()}?${out.slice(q + 1)}`
+      out = `${head.slice(0, start + join.index).trimEnd()}?${out.slice(q + 1)}`
       trimmed += 1
     }
   }

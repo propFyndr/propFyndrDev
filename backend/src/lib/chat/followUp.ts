@@ -36,6 +36,24 @@ export function asksMarketWide(message: string): boolean {
   return /\b(prices?|rates?|apprecia\w*|market|growth|returns?)\b/i.test(message) && NEW_SUBJECT.test(message) && !OWN_SEARCH.test(message)
 }
 
+const SLOT = /\bsector\s*\d+[a-z]?\b|\b\d\s*bhks?\b|\d(?:\.\d+)?\s*(?:cr|crores?|lakhs?|lacs?|l)\b/gi
+const REFINE_FILLER = /\b(?:a|an|and|or|ok(?:ay)?|actually|then|what|how|about|in|budget|make|it|that|just|only|the|ones|show|me|under|below|above|over|upto|up|to|within|max(?:imum)?|min(?:imum)?|around|between|rs|inr)\b/gi
+
+/**
+ * Nothing but a revised slot: "1 cr", "Budget -2 cr", "what about Sector 150?",
+ * "just the ones above 3.8 cr". The search the intent carries is the answer;
+ * live (Oct 2026) each of these went to the model and waited 20–50 s.
+ * A bare number with no unit ("30000") is not a slot: it may be rent or an EMI.
+ * Nor is an amount answering our own ask for a price ("Tell me the property
+ * price or your budget" from the EMI check): that figure belongs to the check.
+ */
+export function isBareRefinement(message: string, previousReply = ''): boolean {
+  const text = message ?? ''
+  if (!text.match(SLOT)) return false
+  if (/\b(?:emi|cash[- ]flow|income|salary|rent|loan|quoted|asking|property price|seller|per sq)/i.test(previousReply)) return false
+  return text.replace(SLOT, ' ').replace(REFINE_FILLER, ' ').replace(/[\s\d.,:?!₹\-–]+/g, '') === ''
+}
+
 /** Words that point at the project on screen. */
 const FOCUS_PRONOUN = /\b(it|its|this|that|they|them|their|here|there)\b/i
 

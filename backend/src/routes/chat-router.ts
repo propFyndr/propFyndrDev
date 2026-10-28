@@ -107,7 +107,7 @@ import { recordTurnTrace, type TurnTraceDraft } from '../lib/turnTrace'
 import { recordDemandSignal } from '../lib/demandSignal'
 import { scanDisclosure } from '../lib/ai/answerIntegrity'
 import { projectCatalog, catalogNamesSync } from '../lib/projectCatalog'
-import { asksAboutFocusAttribute, mentionsFocusPronoun, focusFallback, parkFocus, parkedFocus, asksMarketWide, expandAffirmation } from '../lib/chat/followUp'; import { isBuilderNameCandidate } from '../lib/builderNames'; import { searchSummary } from '../lib/ai/searchSummary'
+import { asksAboutFocusAttribute, mentionsFocusPronoun, focusFallback, parkFocus, parkedFocus, asksMarketWide, expandAffirmation, isBareRefinement } from '../lib/chat/followUp'; import { isBuilderNameCandidate } from '../lib/builderNames'; import { searchSummary } from '../lib/ai/searchSummary'
 import { matchProjectInText, fuzzyMatchProject, suggestProjects } from '../lib/discovery/matchProjectInText'
 import { parseAggregateQuestion, queryProjects, renderAggregateAnswer } from '../lib/chat/aggregateQuery'
 import { parseBudgetCheck, budgetQuery, renderBudgetCheck } from '../lib/chat/budgetCheck'
@@ -3656,6 +3656,8 @@ I can help you:
     // and locked the turn out of the handlers that answer it.
     const asksProjectVerdict = ASKS_FAIRNESS.test(topicText) || ASKS_FOR_THE_CATCH.test(topicText)
     const isInventorySearch = !asksProjectVerdict && (/\b(show\s+me|find\s+me|list\s+(all|the)?|options\s+in|available\s+in|looking\s+for|search\s+for)\b/i.test(topicText) ||
+      // "1 cr", "what about Sector 150?": a revised slot on the search the intent already carries.
+      isBareRefinement(topicText, [...chatHistory].reverse().find((m) => m.role === 'assistant')?.content) ||
       // A head term that is only a listing: "properties in greater noida west" waited on the model for 55 s and got the outage notice (Day 5 run).
       /^(?:\d\s*bhk\s+)?(?:properties|flats|apartments|homes|houses|projects)\s+(?:in|near|for\s+sale)\b[^?]*$/i.test(topicText) ||
       // `under` is a budget word; "under construction" is a status.

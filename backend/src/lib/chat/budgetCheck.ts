@@ -61,8 +61,6 @@ export function renderBudgetCheck(b: BudgetCheck, r: ProjectQueryResult): string
   if (b.budgetCr) {
     const within = prices.filter((p) => p <= b.budgetCr!).length
     const pct = Math.round((within / prices.length) * 100)
-    // Not a question: sanitizeOutput keeps one question per answer and cuts after the first,
-    // so a question heading took the whole body with it.
     lines.push(`### ${cr(b.budgetCr)} for a ${what}`)
     // Worded as a filtered count. "Of the 186 projects we hold…" reads as a statement of our
     // inventory size, which answerIntegrity strips, and the rest of the answer went with it.
