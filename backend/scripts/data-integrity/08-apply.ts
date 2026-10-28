@@ -8,7 +8,7 @@ import 'dotenv/config';
 import { PrismaClient } from '@prisma/client';
 import { mkdirSync, writeFileSync } from 'fs';
 import { dirname } from 'path';
-import { BASE, assertDevDb, hasFile, idsContradict, pageIsAbout, readJson, writeJson, type ReraRow } from './lib';
+import { BASE, assertDevDb, hasFile, idTokens, idsContradict, pageIsAbout, readJson, writeJson, type ReraRow } from './lib';
 
 const arg = (n: string) => process.argv.includes(`--${n}`);
 const val = (n: string) => process.argv[process.argv.indexOf(`--${n}`) + 1];
@@ -43,6 +43,9 @@ interface Plan {
 
 // Dates compare as ISO strings (a DB Date and the plan's JSON string are the same instant).
 const iso = (v: unknown) => (v instanceof Date ? v.toISOString() : v);
+// A quote about "Sun Court III" is not evidence for a project called "Sun Court": a Roman-numeral phase the project's own name lacks.
+const ROMAN = /^(i|ii|iii|iv|v|vi|vii|viii|ix|x)$/;
+const foreignPhase = (quote: string, name: string) => { const mine = idTokens(name); return [...idTokens(quote)].some((t) => ROMAN.test(t) && !mine.has(t)); };
 const eq = (a: unknown, b: unknown) => (iso(a) ?? null) === (iso(b) ?? null) || String(iso(a) ?? '') === String(iso(b) ?? '');
 const DATE_FIELDS = new Set(['rera_valid_until', 'possession_date']);
 
@@ -52,7 +55,7 @@ function clean(field: string, value: unknown, quote: string): unknown | null {
   switch (field) {
     case 'total_units': return Number.isInteger(num) && num >= 20 && num <= 15000 ? num : null;
     case 'total_towers': return Number.isInteger(num) && num >= 1 && num <= 80 ? num : null;
-    case 'land_area_acres': return num >= 0.3 && num <= 600 ? num : null;
+    case 'land_area_acres': return num >= 0.3 && num <= 60 ? num : null; // above that a page is quoting the whole township, not this project
     case 'price_min_cr': return num >= 0.2 && num <= 40 ? num : null;
     case 'floors': {
       if (/floor\s*plan/i.test(quote)) return null; // a heading, not a floor count
@@ -165,7 +168,8 @@ async function buildPlan(): Promise<Plan[]> {
       const r = readJson<any>(`research/${p.id}.json`);
       for (const f of FACT_FIELDS) {
         const raw = r.fields?.[f]?.candidates ?? [];
-        const cands = raw.filter((c: any) => pageIsAbout(c.source_url, p.name, c.quote)).filter((c: any) => clean(f, c.value, c.quote) !== null);
+        const cands = raw.filter((c: any) => pageIsAbout(c.source_url, p.name, c.quote)).filter((c: any) => clean(f, c.value, c.quote) !== null)
+          .filter((c: any) => !(['total_units', 'total_towers', 'land_area_acres'].includes(f) && foreignPhase(c.quote, p.name)));
         const chosen = pick(cands);
         if (!chosen) continue;
         const v = clean(f, chosen.value, chosen.quote);

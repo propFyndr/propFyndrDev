@@ -17,7 +17,8 @@ const LIMIT = Number(arg('limit', '100000'));
 const DELAY = Number(arg('delay-ms', '3000'));
 const UA = 'RealtyAsk-data-integrity/1.0 (+furqan.workk@gmail.com)';
 // --urls-from discovery: take page URLs from discovery/out-*.json (found by a search outside this script) and make no search call at all.
-const DISC = arg('urls-from', '') === 'discovery';
+const DISC_DIR = arg('urls-from', ''); // a folder of out-*.json files under the work dir: discovery, discovery2, ...
+const DISC = DISC_DIR !== '';
 
 // A project page on each site; listing, locality and search pages are skipped.
 const SITES: Record<string, RegExp> = {
@@ -62,7 +63,7 @@ async function main() {
   const out: Record<string, any[]> = hasFile('portal-pages.json') ? readJson<{ pages: Record<string, any[]> }>('portal-pages.json').pages : {};
   const projects = await prisma.project.findMany({ where: { archived_duplicate_of: null }, select: { id: true, name: true, builder: { select: { name: true } } }, orderBy: { name: 'asc' } });
   const disc: Record<string, { squareyards?: string | null; magicbricks?: string | null }> = {};
-  if (DISC) for (const f of readdirSync(workPath('discovery')).filter((x) => /^out-\d+\.json$/.test(x))) Object.assign(disc, readJson<Record<string, any>>(`discovery/${f}`));
+  if (DISC) for (const f of readdirSync(workPath(DISC_DIR)).filter((x) => /^out-\d+\.json$/.test(x))) Object.assign(disc, readJson<Record<string, any>>(`${DISC_DIR}/${f}`));
   if (DISC) console.log(`discovery URLs for ${Object.keys(disc).length} projects`);
   let n = 0;
   const lastHit: Record<string, number> = {};
