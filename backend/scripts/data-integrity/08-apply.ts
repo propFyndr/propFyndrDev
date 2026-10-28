@@ -170,6 +170,8 @@ async function buildPlan(): Promise<Plan[]> {
         if (!chosen) continue;
         const v = clean(f, chosen.value, chosen.quote);
         if (v === null || eq(p[f], v)) continue;
+        // An architect is a claim two portals can contradict each other on, and ours may be the right one: fill empty values only.
+        if (f === 'architect' && p.architect != null) continue;
         plan.changes.push({ field: f, old: p[f], new: v, source: chosen.tier === 'builder' ? 'builder website (seller claim)' : 'listing portal (advertised)', url: chosen.source_url, quote: chosen.quote });
       }
     }
