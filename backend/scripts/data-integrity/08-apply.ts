@@ -41,7 +41,10 @@ interface Plan {
   rera?: { old: string | null; new: string; summary_url: string; how: string; replace_number: boolean; score: number };
 }
 
-const eq = (a: unknown, b: unknown) => (a ?? null) === (b ?? null) || String(a ?? '') === String(b ?? '');
+// Dates compare as ISO strings (a DB Date and the plan's JSON string are the same instant).
+const iso = (v: unknown) => (v instanceof Date ? v.toISOString() : v);
+const eq = (a: unknown, b: unknown) => (iso(a) ?? null) === (iso(b) ?? null) || String(iso(a) ?? '') === String(iso(b) ?? '');
+const DATE_FIELDS = new Set(['rera_valid_until']);
 
 // ── sanity bounds & normalisation for web facts ─────────────────────────────
 function clean(field: string, value: unknown, quote: string): unknown | null {
@@ -84,9 +87,10 @@ async function buildPlan(): Promise<Plan[]> {
 
   const projects = await prisma.project.findMany({
     where: { archived_duplicate_of: null },
-    select: { id: true, name: true, slug: true, rera_number: true, rera_url: true, total_units: true, total_towers: true, land_area_acres: true, floors: true, architect: true, price_min_cr: true },
+    select: { id: true, name: true, slug: true, rera_number: true, rera_url: true, rera_valid_until: true, lat: true, lng: true, total_units: true, total_towers: true, land_area_acres: true, floors: true, architect: true, price_min_cr: true },
   });
 
+  const geo: Record<string, any> = hasFile('geocode-results.json') ? readJson<{ results: Record<string, any> }>('geocode-results.json').results : {};
   const plans: Plan[] = [];
   for (const p of projects as any[]) {
     const plan: Plan = { project_id: p.id, name: p.name, slug: p.slug, changes: [] };
@@ -117,6 +121,27 @@ async function buildPlan(): Promise<Plan[]> {
     if (plan.rera) {
       if (plan.rera.replace_number) plan.changes.push({ field: 'rera_number', old: p.rera_number, new: plan.rera.new, source: 'UP-RERA registry', url: plan.rera.summary_url, quote: plan.rera.how });
       if (plan.rera.replace_number || genericUrl) plan.changes.push({ field: 'rera_url', old: p.rera_url, new: plan.rera.summary_url, source: 'UP-RERA registry', url: plan.rera.summary_url, quote: 'direct registry record link' });
+    }
+
+    // RERA validity: the registry's declared completion date for this project's verified registration.
+    if (plan.rera) {
+      const row = byReg.get(plan.rera.new);
+      const dm = row?.end_date ? /^(\d{2})-(\d{2})-(\d{4})$/.exec(row.end_date) : null;
+      if (dm) {
+        const when = new Date(Date.UTC(+dm[3], +dm[2] - 1, +dm[1]) - 5.5 * 3600 * 1000); // IST midnight, the way dates are stored today
+        // Fill empty values only: the summary shows the originally declared date, and a granted extension would make an existing value the later, truer one.
+        if (p.rera_valid_until == null) {
+          plan.changes.push({ field: 'rera_valid_until', old: iso(p.rera_valid_until) ?? null, new: when.toISOString(), source: 'UP-RERA registry (declared completion date)', url: plan.rera.summary_url, quote: `Declared Date Of Completion | ${row!.end_date}` });
+        }
+      }
+    }
+
+    // Coordinates (stage 11): only for projects that have none, and only a result that passed the area and name checks.
+    const g = geo[p.id];
+    if (g?.accepted && p.lat == null && p.lng == null) {
+      const src = 'Google Places text search (' + g.place + ')';
+      plan.changes.push({ field: 'lat', old: null, new: g.lat, source: src, url: '', quote: g.address });
+      plan.changes.push({ field: 'lng', old: null, new: g.lng, source: src, url: '', quote: g.address });
     }
 
     // Web facts
@@ -160,7 +185,7 @@ const tally = (plans: Plan[]) => {
 
 async function applyPlan(plans: Plan[]) {
   const ids = plans.map((p) => p.project_id);
-  const before = await prisma.project.findMany({ where: { id: { in: ids } }, select: { id: true, name: true, slug: true, rera_number: true, rera_url: true, total_units: true, total_towers: true, land_area_acres: true, floors: true, architect: true, price_min_cr: true, rera_registrations: true } });
+  const before = await prisma.project.findMany({ where: { id: { in: ids } }, select: { id: true, name: true, slug: true, rera_number: true, rera_url: true, rera_valid_until: true, total_units: true, total_towers: true, land_area_acres: true, floors: true, architect: true, price_min_cr: true, rera_registrations: true } });
   const bPath = `${BACKUP_DIR}/backup-${TARGET}-${Date.now()}.json`;
   mkdirSync(dirname(bPath), { recursive: true });
   writeFileSync(bPath, JSON.stringify(before, null, 2)); // before any write
@@ -175,7 +200,7 @@ async function applyPlan(plans: Plan[]) {
     const done: Change[] = [];
     for (const c of plan.changes) {
       if (!eq(now[c.field], c.old)) { result.skipped_changed.push(`${plan.name}.${c.field}: now ${JSON.stringify(now[c.field])}, plan expected ${JSON.stringify(c.old)}`); continue; }
-      data[c.field] = c.new;
+      data[c.field] = DATE_FIELDS.has(c.field) ? new Date(c.new as string) : c.new;
       done.push(c);
     }
     try {
