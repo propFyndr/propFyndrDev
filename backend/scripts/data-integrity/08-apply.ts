@@ -47,7 +47,13 @@ const iso = (v: unknown) => (v instanceof Date ? v.toISOString() : v);
 const ROMAN = /^(i|ii|iii|iv|v|vi|vii|viii|ix|x)$/;
 const foreignPhase = (quote: string, name: string) => { const mine = idTokens(name); return [...idTokens(quote)].some((t) => ROMAN.test(t) && !mine.has(t)); };
 const eq = (a: unknown, b: unknown) => (iso(a) ?? null) === (iso(b) ?? null) || String(iso(a) ?? '') === String(iso(b) ?? '');
-const DATE_FIELDS = new Set(['rera_valid_until', 'possession_date']);
+const DATE_FIELDS = new Set(['rera_valid_until', 'possession_date', 'launch_date']);
+const MON = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
+/** "Feb 2013", "September 2017", "Mar'11" -> "YYYY-MM"; anything vaguer -> null. */
+function parseMonthYear(v: string): string | null {
+  const m = /\b(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\.?[\s,'-]*((?:20)?\d{2})\b/i.exec(v);
+  return m ? `${m[2].length === 2 ? '20' + m[2] : m[2]}-${String(MON.indexOf(m[1].toLowerCase()) + 1).padStart(2, '0')}` : null;
+}
 
 // ── sanity bounds & normalisation for web facts ─────────────────────────────
 function clean(field: string, value: unknown, quote: string): unknown | null {
@@ -90,7 +96,7 @@ async function buildPlan(): Promise<Plan[]> {
 
   const projects = await prisma.project.findMany({
     where: { archived_duplicate_of: null },
-    select: { id: true, name: true, slug: true, rera_number: true, rera_url: true, rera_valid_until: true, lat: true, lng: true, status: true, possession_label: true, possession_date: true, hospital_distance_km: true, police_station_distance_km: true, total_units: true, total_towers: true, land_area_acres: true, floors: true, architect: true, price_min_cr: true },
+    select: { id: true, name: true, slug: true, rera_number: true, rera_url: true, rera_valid_until: true, lat: true, lng: true, status: true, possession_label: true, possession_date: true, hospital_distance_km: true, police_station_distance_km: true, launch_date: true, hero_image_url: true, images: { select: { url: true, type: true, sort_order: true }, orderBy: { sort_order: 'asc' } }, total_units: true, total_towers: true, land_area_acres: true, floors: true, architect: true, price_min_cr: true },
   });
 
   const geo: Record<string, any> = hasFile('geocode-results.json') ? readJson<{ results: Record<string, any> }>('geocode-results.json').results : {};
@@ -153,6 +159,19 @@ async function buildPlan(): Promise<Plan[]> {
     const nb = near[p.id];
     if (nb?.hospital && p.hospital_distance_km == null) plan.changes.push({ field: 'hospital_distance_km', old: null, new: nb.hospital.km, source: 'Google Places (nearest hospital, straight-line)', url: '', quote: nb.hospital.name });
     if (nb?.police && p.police_station_distance_km == null) plan.changes.push({ field: 'police_station_distance_km', old: null, new: nb.police.km, source: 'Google Places (nearest police station, straight-line)', url: '', quote: nb.police.name });
+
+    // Hero image: a project with none uses the first real image of its own gallery, never a stock photo.
+    if (!p.hero_image_url) {
+      const real = (p.images as any[]).filter((i) => !/unsplash\.com|pexels\.com|pixabay\.com/i.test(i.url));
+      const own = real.find((i) => i.type === 'hero') ?? real[0];
+      if (own) plan.changes.push({ field: 'hero_image_url', old: null, new: own.url, source: "the project's own gallery", url: '', quote: 'first real image in the project gallery' });
+    }
+    // Launch date, month precision: only when the project has none and every page agrees on the month.
+    if (p.launch_date == null && hasFile(`research/${p.id}.json`)) {
+      const cands = (readJson<any>(`research/${p.id}.json`).fields?.launch_date?.candidates ?? []).filter((c: any) => pageIsAbout(c.source_url, p.name, c.quote));
+      const months = new Set(cands.map((c: any) => parseMonthYear(String(c.value))).filter(Boolean));
+      if (months.size === 1) plan.changes.push({ field: 'launch_date', old: null, new: `${[...months][0]}-01T00:00:00.000Z`, source: 'listing portal or builder (month precision)', url: cands[0].source_url, quote: cands[0].quote });
+    }
 
     // Possession bundle (stage 12): status, label and date move together, from a builder quote or two agreeing sources.
     const pp = poss[p.id];

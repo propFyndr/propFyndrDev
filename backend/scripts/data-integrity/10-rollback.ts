@@ -35,7 +35,7 @@ async function main() {
     const restore: Record<string, unknown> = {};
     for (const c of plan.changes) {
       // Dates travel as ISO strings in the backup file and the plan; the database wants a Date.
-      const asDb = (v: unknown) => (['rera_valid_until', 'possession_date'].includes(c.field) && typeof v === 'string' ? new Date(v) : v);
+      const asDb = (v: unknown) => (['rera_valid_until', 'possession_date', 'launch_date'].includes(c.field) && typeof v === 'string' ? new Date(v) : v);
       const same = (x: unknown, y: unknown) => String(x instanceof Date ? x.toISOString() : x ?? '') === String(y instanceof Date ? y.toISOString() : y ?? '');
       if (same(cur[c.field], c.new)) restore[c.field] = asDb(c.old); // the plan records the value it replaced; older backup files lack some columns
       else out.conflicts.push(`${plan.name}.${c.field}: now ${JSON.stringify(cur[c.field])}, pass wrote ${JSON.stringify(c.new)}`);
