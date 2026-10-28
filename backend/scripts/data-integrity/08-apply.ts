@@ -44,7 +44,7 @@ interface Plan {
 // Dates compare as ISO strings (a DB Date and the plan's JSON string are the same instant).
 const iso = (v: unknown) => (v instanceof Date ? v.toISOString() : v);
 const eq = (a: unknown, b: unknown) => (iso(a) ?? null) === (iso(b) ?? null) || String(iso(a) ?? '') === String(iso(b) ?? '');
-const DATE_FIELDS = new Set(['rera_valid_until']);
+const DATE_FIELDS = new Set(['rera_valid_until', 'possession_date']);
 
 // ── sanity bounds & normalisation for web facts ─────────────────────────────
 function clean(field: string, value: unknown, quote: string): unknown | null {
@@ -87,10 +87,11 @@ async function buildPlan(): Promise<Plan[]> {
 
   const projects = await prisma.project.findMany({
     where: { archived_duplicate_of: null },
-    select: { id: true, name: true, slug: true, rera_number: true, rera_url: true, rera_valid_until: true, lat: true, lng: true, total_units: true, total_towers: true, land_area_acres: true, floors: true, architect: true, price_min_cr: true },
+    select: { id: true, name: true, slug: true, rera_number: true, rera_url: true, rera_valid_until: true, lat: true, lng: true, status: true, possession_label: true, possession_date: true, total_units: true, total_towers: true, land_area_acres: true, floors: true, architect: true, price_min_cr: true },
   });
 
   const geo: Record<string, any> = hasFile('geocode-results.json') ? readJson<{ results: Record<string, any> }>('geocode-results.json').results : {};
+  const poss: Record<string, any> = Object.fromEntries((hasFile('possession-proposals.json') ? readJson<{ proposals: any[] }>('possession-proposals.json').proposals : []).map((x) => [x.project_id, x]));
   const plans: Plan[] = [];
   for (const p of projects as any[]) {
     const plan: Plan = { project_id: p.id, name: p.name, slug: p.slug, changes: [] };
@@ -144,6 +145,15 @@ async function buildPlan(): Promise<Plan[]> {
       plan.changes.push({ field: 'lng', old: null, new: g.lng, source: src, url: '', quote: g.address });
     }
 
+    // Possession bundle (stage 12): status, label and date move together, from a builder quote or two agreeing sources.
+    const pp = poss[p.id];
+    if (pp) {
+      const src = `possession per ${pp.basis}`, url = pp.evidence[0].url, quote = pp.evidence[0].quote;
+      if (p.status !== pp.new.status) plan.changes.push({ field: 'status', old: p.status, new: pp.new.status, source: src, url, quote });
+      if ((p.possession_label ?? '') !== pp.new.label) plan.changes.push({ field: 'possession_label', old: p.possession_label ?? null, new: pp.new.label, source: src, url, quote });
+      if (pp.new.date && !eq(p.possession_date, pp.new.date)) plan.changes.push({ field: 'possession_date', old: iso(p.possession_date) ?? null, new: pp.new.date, source: src, url, quote });
+    }
+
     // Web facts
     if (hasFile(`research/${p.id}.json`)) {
       const r = readJson<any>(`research/${p.id}.json`);
@@ -185,7 +195,11 @@ const tally = (plans: Plan[]) => {
 
 async function applyPlan(plans: Plan[]) {
   const ids = plans.map((p) => p.project_id);
-  const before = await prisma.project.findMany({ where: { id: { in: ids } }, select: { id: true, name: true, slug: true, rera_number: true, rera_url: true, rera_valid_until: true, total_units: true, total_towers: true, land_area_acres: true, floors: true, architect: true, price_min_cr: true, rera_registrations: true } });
+  // Select exactly the columns the plans touch, so the guard compares real values (and the backup holds them for rollback).
+  const cols = new Set(plans.flatMap((p) => p.changes.map((c) => c.field)));
+  const select: Record<string, unknown> = { id: true, name: true, slug: true, rera_number: true, rera_url: true, rera_registrations: true };
+  for (const c of cols) select[c] = true;
+  const before = await prisma.project.findMany({ where: { id: { in: ids } }, select: select as any });
   const bPath = `${BACKUP_DIR}/backup-${TARGET}-${Date.now()}.json`;
   mkdirSync(dirname(bPath), { recursive: true });
   writeFileSync(bPath, JSON.stringify(before, null, 2)); // before any write
