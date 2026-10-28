@@ -102,7 +102,11 @@ async function buildPlan(): Promise<Plan[]> {
       // The same sentence listing several numbers is a guess unless the name is an exact match.
       const multi = (r.sources as any[]).some((s) => new Set(String(s.quote).match(/UPRERAPRJ\d+(?:\/\d{2}\/\d{4})?/g) ?? []).size > 1);
       // Below 0.5 the registry name is a different product or a tower-split registration (A-F vs L-Q): a guess.
-      const rejected = idsContradict(p.name, r.registry.name) || (multi && r.name_score < 1) || r.name_score < 0.5;
+      // A weak name match needs a second leg: the builder in the promoter name, or a second source page.
+      const bToks = String(r.builder).toLowerCase().replace(/\(.*?\)|group|infra\w*|developers?|builders?|properties|realty|homes|limited|private|pvt|ltd/g, ' ').split(/[^a-z]+/).filter((t) => t.length >= 4);
+      const builderLinked = bToks.some((t) => String(r.registry.promoter).toLowerCase().includes(t));
+      const weak = r.name_score < 0.6 && !builderLinked && new Set((r.sources as any[]).map((s) => s.url)).size < 2;
+      const rejected = idsContradict(p.name, r.registry.name) || (multi && r.name_score < 1) || r.name_score < 0.5 || weak;
       if (row?.summary_path && !rejected) plan.rera = { old: p.rera_number, new: r.new, summary_url: link(row), how: `portal/search stated, registry-checked (${r.confidence})`, replace_number: r.new !== p.rera_number, score: r.name_score };
     } else if (m?.method === 'name_unique' && m.score >= 0.99 && m.registry?.summary_path) {
       const toks = String(m.builder).toLowerCase().replace(/group|infra\w*|developers?|builders?|properties|realty|homes|limited|private|pvt|ltd/g, ' ').split(/[^a-z]+/).filter((t) => t.length >= 4);
