@@ -96,12 +96,13 @@ async function buildPlan(): Promise<Plan[]> {
 
   const projects = await prisma.project.findMany({
     where: { archived_duplicate_of: null },
-    select: { id: true, name: true, slug: true, rera_number: true, rera_url: true, rera_valid_until: true, lat: true, lng: true, status: true, possession_label: true, possession_date: true, hospital_distance_km: true, police_station_distance_km: true, launch_date: true, hero_image_url: true, images: { select: { url: true, type: true, sort_order: true }, orderBy: { sort_order: 'asc' } }, total_units: true, total_towers: true, land_area_acres: true, floors: true, architect: true, price_min_cr: true },
+    select: { id: true, name: true, slug: true, rera_number: true, rera_url: true, rera_valid_until: true, lat: true, lng: true, status: true, possession_label: true, possession_date: true, hospital_distance_km: true, police_station_distance_km: true, launch_date: true, hero_image_url: true, airport_distance_km: true, expected_handover_quarter: true, images: { select: { url: true, type: true, sort_order: true }, orderBy: { sort_order: 'asc' } }, total_units: true, total_towers: true, land_area_acres: true, floors: true, architect: true, price_min_cr: true },
   });
 
   const geo: Record<string, any> = hasFile('geocode-results.json') ? readJson<{ results: Record<string, any> }>('geocode-results.json').results : {};
   const poss: Record<string, any> = Object.fromEntries((hasFile('possession-proposals.json') ? readJson<{ proposals: any[] }>('possession-proposals.json').proposals : []).map((x) => [x.project_id, x]));
   const near: Record<string, any> = hasFile('nearby-results.json') ? readJson<{ results: Record<string, any> }>('nearby-results.json').results : {};
+  const rpRes: Record<string, any> = hasFile('routes-places-results.json') ? readJson<{ results: Record<string, any> }>('routes-places-results.json').results : {};
   const plans: Plan[] = [];
   for (const p of projects as any[]) {
     const plan: Plan = { project_id: p.id, name: p.name, slug: p.slug, changes: [] };
@@ -159,6 +160,12 @@ async function buildPlan(): Promise<Plan[]> {
     const nb = near[p.id];
     if (nb?.hospital && p.hospital_distance_km == null) plan.changes.push({ field: 'hospital_distance_km', old: null, new: nb.hospital.km, source: 'Google Places (nearest hospital, straight-line)', url: '', quote: nb.hospital.name });
     if (nb?.police && p.police_station_distance_km == null) plan.changes.push({ field: 'police_station_distance_km', old: null, new: nb.police.km, source: 'Google Places (nearest police station, straight-line)', url: '', quote: nb.police.name });
+
+    // Airport road distance (stage 21), to Noida International Airport via Google Routes; empty values only.
+    const rp = rpRes[p.id];
+    if (rp?.airport_km && p.airport_distance_km == null) plan.changes.push({ field: 'airport_distance_km', old: null, new: rp.airport_km, source: 'Google Routes (driving km to Noida International Airport)', url: '', quote: `${rp.airport_km} km by road` });
+    // expected_handover_quarter is deliberately NOT derived from possession_date: most stored dates are year-end placeholders
+    // (2027-12-31) or already past on projects still marked under construction, so a derived quarter would copy a stale value.
 
     // Hero image: a project with none uses the first real image of its own gallery, never a stock photo.
     if (!p.hero_image_url) {
