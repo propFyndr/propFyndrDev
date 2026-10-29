@@ -207,3 +207,12 @@ describe('session titles', () => {
     expect(title.endsWith('...')).toBe(true)
   })
 })
+
+describe('server status line', () => {
+  it('shows the status only until the answer starts', () => {
+    const waiting = applyStreamEvent(base(), { type: 'status', status: 'reading', message: 'Checking Sector 150 projects…' } as SSEEvent)
+    expect(waiting.streamingStatus).toBe('Checking Sector 150 projects…')
+    const answering = applyStreamEvent(base({ content: 'Three projects match.' }), { type: 'status', status: 'thinking', message: 'Searching…' } as SSEEvent)
+    expect(answering.streamingStatus).toBeUndefined()
+  })
+})

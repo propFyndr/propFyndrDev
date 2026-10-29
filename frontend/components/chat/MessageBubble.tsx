@@ -814,6 +814,7 @@ function MessageBubbleInner({
                         startedAt={message.streamingStartedAt ?? null}
                         elapsedSeconds={message.streamingElapsedSeconds ?? null}
                         isStreaming={true}
+                        statusLine={message.streamingStatus ?? null}
                         queryType={message.responseMode === 'comparison' ? 'comparison' : 'discovery'}
                         defaultExpanded={false}
                       />

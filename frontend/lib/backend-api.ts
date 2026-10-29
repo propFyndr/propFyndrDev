@@ -82,6 +82,7 @@ export interface NearbyExpansion {
 
 export type SSEEvent =
   | { type: 'heartbeat'; ts: number }
+  | { type: 'status'; status: string; message: string; seq?: number }
   | { type: 'intent'; intent: Record<string, unknown>; intentState: string; seq?: number }
   | { type: 'properties'; exactResults: ScoredProject[]; nearbyResults: ScoredProject[]; expansion: NearbyExpansion | null; seq?: number }
   | { type: 'token'; token: string; seq?: number }

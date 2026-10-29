@@ -107,7 +107,7 @@ import { recordTurnTrace, type TurnTraceDraft } from '../lib/turnTrace'
 import { recordDemandSignal } from '../lib/demandSignal'
 import { scanDisclosure } from '../lib/ai/answerIntegrity'
 import { projectCatalog, catalogNamesSync } from '../lib/projectCatalog'
-import { asksAboutFocusAttribute, mentionsFocusPronoun, focusFallback, parkFocus, parkedFocus, asksMarketWide, expandAffirmation, isBareRefinement } from '../lib/chat/followUp'; import { isBuilderNameCandidate } from '../lib/builderNames'; import { searchSummary } from '../lib/ai/searchSummary'
+import { asksAboutFocusAttribute, mentionsFocusPronoun, focusFallback, parkFocus, parkedFocus, asksMarketWide, expandAffirmation, isBareRefinement } from '../lib/chat/followUp'; import { answerFromRows } from '../lib/chat/rowsAnswer'; import { firstStatusLine } from '../lib/chat/statusLine'; import { isBuilderNameCandidate } from '../lib/builderNames'; import { searchSummary } from '../lib/ai/searchSummary'
 import { matchProjectInText, fuzzyMatchProject, suggestProjects } from '../lib/discovery/matchProjectInText'
 import { parseAggregateQuestion, queryProjects, renderAggregateAnswer } from '../lib/chat/aggregateQuery'
 import { parseBudgetCheck, budgetQuery, renderBudgetCheck } from '../lib/chat/budgetCheck'
@@ -842,6 +842,9 @@ router.post('/', async (req: Request, res: Response) => {
   res.on('finish', () => clearInterval(keepAliveTimer))
   res.on('close', () => clearInterval(keepAliveTimer))
 
+  // A sign of life before any lookup or model call (Day 0 item 4).
+  if (message) send('status', { status: 'reading', message: firstStatusLine(message) })
+
   const guardrailCheck = await inputGuardrail(message || JSON.stringify(action.payload));
   if (guardrailCheck.blocked) {
     send('token', { token: `I'm not able to help with that. I'm here to assist with ${PILOT_SCOPE_LABEL} real estate — property search, builder info, and home-buying decisions.` });
@@ -986,6 +989,8 @@ router.post('/', async (req: Request, res: Response) => {
           intentState: cached.intentState ?? 'SHORTLISTED',
           intent: prevIntent,
           responseMode: cached.responseMode ?? 'chat',
+          // Read by scripts/health-chat.ts, which reports cached and fresh turns apart.
+          cached: true,
         })
         res.end()
         return
@@ -4455,6 +4460,10 @@ USING THE FACTS:
               guestToken,
               focusProjectId,
               traceId: langfuseTraceId,
+              // Every provider down: price, possession, RERA and payment plan still come from this project's rows.
+              answerFromRows: () => detailedTargetProjects.length === 1
+                ? answerFromRows(detailedTargetProjects[0], message, priceNotes.get(detailedTargetProjects[0].id) ?? null)
+                : null,
               // See InferenceConfig.tools: a stub handler must not be paired
               // with a tool catalogue, or the model loops and returns nothing.
               // Raised from 1500 — measured live 8 Sep 2026: a comparison

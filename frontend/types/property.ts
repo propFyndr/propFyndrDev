@@ -225,6 +225,8 @@ export interface ChatMessage {
   chatResponse?: import('./chat').ChatResponse;
   // Inline thinking UI — tracks which phase the streaming message is in
   streamingPhase?: 'extracting' | 'searching' | 'generating' | null;
+  /** The server's own line for what it is doing now, e.g. "Checking Sector 150 projects…". */
+  streamingStatus?: string | null;
   streamingIntent?: Record<string, unknown> | null;
   streamingIntentState?: string | null;
   streamingResultCount?: number | null;

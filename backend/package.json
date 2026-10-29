@@ -30,6 +30,7 @@
     "corpus": "tsx scripts/corpus/run-corpus.ts",
     "check-all": "npm run lint && npm run typecheck && npm test",
     "health": "tsx scripts/health-check.ts",
+    "health:chat": "tsx scripts/health-chat.ts",
     "verify:services": "tsx scripts/verify-services.ts",
     "smoke": "tsx scripts/smoke-queries.ts",
     "smoke:roles": "tsx scripts/smoke-roles.ts",

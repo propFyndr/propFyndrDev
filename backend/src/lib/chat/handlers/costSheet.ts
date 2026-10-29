@@ -146,6 +146,8 @@ Verified Pricing & Cost Sheet Facts: ${costFactsJson}`
       onToolCall: async () => ({}),
       config: { maxTokens: 1500, tools: false },
       suppressTables: Boolean(costTable),
+      // Every provider down: the table on screen is the answer, no outage notice under it.
+      answerFromRows: () => (costTable ? '' : null),
       groqFallbackSuffix: '',
       userMessage: ctx.message,
       sessionId: ctx.sessionId,

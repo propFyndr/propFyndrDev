@@ -145,6 +145,8 @@ Verified Payment Plan Database Facts: ${planFactsJson}`
         onToolCall: async () => ({}),
         config: { maxTokens: 1500, tools: false },
         suppressTables: Boolean(planTable),
+        // Every provider down: the plans on screen are the answer; the checklist below still follows.
+        answerFromRows: () => (planTable ? '' : null),
         groqFallbackSuffix: '',
         userMessage: ctx.message,
         sessionId: ctx.sessionId,

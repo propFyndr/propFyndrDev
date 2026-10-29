@@ -139,6 +139,10 @@ export function applyStreamEvent(
       }
     }
 
+    // The server's sign of life before the answer: shown only while nothing has been written.
+    case 'status':
+      return message.content ? { ...message, lastSeq: nextSeq } : { ...message, streamingStatus: event.message, lastSeq: nextSeq }
+
     case 'token':
       // `replace`: the backend retracts a half-written answer (every provider
       // failed mid-reply) and sends the outage notice in its place.

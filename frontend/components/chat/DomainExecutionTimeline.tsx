@@ -23,6 +23,8 @@ export interface DomainExecutionTimelineProps {
   /** Seconds the turn actually took, once known. */
   elapsedSeconds?: number | null;
   queryType?: 'discovery' | 'analysis' | 'comparison' | 'locality' | 'builder';
+  /** The server's line for what it is doing now; replaces the generic label while streaming. */
+  statusLine?: string | null;
   className?: string;
   defaultExpanded?: boolean;
 }
@@ -36,6 +38,7 @@ export function DomainExecutionTimeline({
   startedAt = null,
   elapsedSeconds = null,
   queryType = 'discovery',
+  statusLine = null,
   className = '',
   defaultExpanded = false,
 }: DomainExecutionTimelineProps) {
@@ -94,6 +97,7 @@ export function DomainExecutionTimeline({
       return [durationLabel, evaluated].filter(Boolean).join(' · ') || 'Done';
     }
 
+    if (isStreaming && statusLine && (phase === 'extracting' || !phase)) return statusLine;
     if (phase === 'extracting') {
       return intentSummary ? `Thinking about criteria (${intentSummary})...` : 'Thinking about requirements...';
     }
@@ -104,7 +108,7 @@ export function DomainExecutionTimeline({
       return count > 0 ? `Comparing ${count} ${count === 1 ? 'project' : 'projects'}…` : 'Writing the answer…';
     }
     return 'Thinking...';
-  }, [isStreaming, phase, count, intentSummary, targetSector, durationLabel]);
+  }, [isStreaming, phase, count, intentSummary, targetSector, durationLabel, statusLine]);
 
   /**
    * What we actually did this turn - nothing else.
