@@ -232,6 +232,14 @@ const BENCH_ONLY_LEG = process.env.NODE_ENV === 'test' ? process.env.BENCH_ONLY_
 const HEDGE_MS = Number(process.env.FALLBACK_HEDGE_MS ?? 5_000)
 
 /**
+ * Fault injection for the Day 0 race check: every leg of this vendor accepts the
+ * request and never speaks, as Gemini did in the 26 Oct outage, until its first-
+ * token timeout. Needs ALLOW_FAULT_INJECTION=1 as well, so a stray variable on a
+ * server does nothing.
+ */
+const FAULT_BLOCK_VENDOR = process.env.ALLOW_FAULT_INJECTION === '1' ? process.env.FALLBACK_BLOCK_VENDOR : undefined
+
+/**
  * How the answer reaches the buyer while still being gated.
  *
  * Full buffering was the price of the integrity gate: the whole answer has to
@@ -847,6 +855,14 @@ export async function executeWithFallbackChain(options: FallbackChainOptions): P
     } satisfies LegEvent)
 
     const call = async (abortSignal?: AbortSignal): Promise<string> => {
+      if (FAULT_BLOCK_VENDOR && vendorOf(leg) === FAULT_BLOCK_VENDOR) {
+        return new Promise<string>((_, reject) => {
+          const stop = () => reject(new Error(`${leg.label} blocked by fault injection`))
+          if (abortSignal?.aborted) return stop()
+          abortSignal?.addEventListener('abort', stop, { once: true })
+          setTimeout(stop, Number(process.env.OPENAI_INITIAL_TOKEN_TIMEOUT_MS ?? 8_000))
+        })
+      }
       if (process.env.DEBUG_FALLBACK) {
         console.log(`[FALLBACK:TRY] → ${leg.label} | Model: ${effectiveModel} | Tools: ${leg.supportsTools}`)
       }

@@ -43,6 +43,8 @@ async function runOneLeg(label: string): Promise<Row> {
   process.env.NODE_ENV = 'test'
   process.env.BENCH_ONLY_LEG = label
   process.env.STREAM_FIRST_TOKEN_MS = '60000'
+  process.env.GEMINI_INITIAL_TOKEN_TIMEOUT_MS = '60000'
+  process.env.OPENAI_INITIAL_TOKEN_TIMEOUT_MS = '60000'
   process.env.FALLBACK_TURN_BUDGET_MS = '120000'
   for (const k of ['UPSTASH_REDIS_REST_URL', 'UPSTASH_REDIS_REST_TOKEN', 'UPSTASH_REDIS_URL', 'UPSTASH_REDIS_TOKEN', 'LANGFUSE_SECRET_KEY', 'LANGFUSE_PUBLIC_KEY', 'LANGFUSE_BASE_URL']) process.env[k] = ''
   process.env.TURN_TRACE = 'off'
