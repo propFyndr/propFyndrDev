@@ -2390,5 +2390,103 @@
         }
       }
     ]
+  },
+  {
+    "id": "oct29-rtm-or-within-a-year",
+    "source": "live audit 29 Oct: \"ready to move or ...\" read as the GST question, outage notice twice",
+    "turns": [
+      {
+        "text": "3BHK in Noida with a budget of ₹1.5 crore, preferably ready to move or available for possession within one year.",
+        "expect": {
+          "lane": "search",
+          "llm": false
+        }
+      }
+    ]
+  },
+  {
+    "id": "oct29-find-rtm-or-within-a-year",
+    "source": "live audit 29 Oct",
+    "turns": [
+      {
+        "text": "Find a 3BHK in Noida under ₹1.5 crore, preferably ready to move or possession within a year.",
+        "expect": {
+          "lane": "search",
+          "llm": false
+        }
+      }
+    ]
+  },
+  {
+    "id": "oct29-rtm-vs-uc-still-general",
+    "source": "live audit 29 Oct: the real comparison stays general",
+    "turns": [
+      {
+        "text": "ready to move or under construction, which is better for gst?",
+        "expect": {
+          "laneNot": [
+            "search"
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "id": "oct29-bare-3bhk",
+    "source": "live audit 29 Oct: bare size got an essay of unsourced figures",
+    "turns": [
+      {
+        "text": "3bhk",
+        "expect": {
+          "lane": "budget-check",
+          "llm": false,
+          "contains": [
+            "What a 3 BHK costs"
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "id": "oct29-shortlist-total-cost",
+    "source": "live audit 29 Oct: priced a different ₹4.3 Cr project; upper two lost; typo said not in records",
+    "turns": [
+      {
+        "text": "I'm looking for a 3 BHK in Noida with a budget of ₹1 crore. Suggest suitable projects.",
+        "expect": {
+          "lane": "search"
+        }
+      },
+      {
+        "text": "What is the catch with ATS Kingston Heath?"
+      },
+      {
+        "text": "Compare two suitable projects and tell me which has the lower total cost.",
+        "expect": {
+          "lane": "topic:total_outflow",
+          "llm": false,
+          "contains": [
+            "Express Zenith",
+            "Panchsheel Pratishtha",
+            "lower all-in"
+          ],
+          "notContains": [
+            "Kingston"
+          ]
+        }
+      },
+      {
+        "text": "No from the upper two properties",
+        "expect": {
+          "contains": [
+            "Panchsheel Pratishtha"
+          ],
+          "notContains": [
+            "nothing we can measure",
+            "Kingston"
+          ]
+        }
+      }
+    ]
   }
 ]

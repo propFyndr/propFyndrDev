@@ -22,6 +22,24 @@ export function comparisonConfidence(vectors: ForensicComparisonVector[]): 'HIGH
 export function buildForensicVectors(p1: any, p2: any): ForensicComparisonVector[] {
   const vectors: ForensicComparisonVector[] = []
 
+  // 0. Entry price. Without it, a project ₹17 L cheaper "led on nothing we can
+  // measure" (live 29 Oct). The lowest recorded configuration price; a lead only
+  // when the gap is at least ₹5 L.
+  const entry = (p: any): number | null => {
+    const v = (p.unit_types ?? []).map((u: any) => u.price_min_cr).filter((n: unknown): n is number => typeof n === 'number' && n > 0)
+    return v.length ? Math.min(...v) : null
+  }
+  const cr = (n: number) => (n >= 1 ? `₹${Number(n.toFixed(2))} Cr` : `₹${Math.round(n * 100)} L`)
+  const e1 = entry(p1)
+  const e2 = entry(p2)
+  vectors.push({
+    vector: 'entry_price',
+    label: 'Entry Price',
+    p1Value: e1 != null ? cr(e1) : NOT_ON_RECORD,
+    p2Value: e2 != null ? cr(e2) : NOT_ON_RECORD,
+    winner: e1 != null && e2 != null && Math.abs(e1 - e2) >= 0.05 ? (e1 < e2 ? 'p1' : 'p2') : 'tie',
+  })
+
   // 1. True Landed Cost Rate
   const mult1 = p1.all_in_cost_multiplier || 1.30
   const mult2 = p2.all_in_cost_multiplier || 1.30
@@ -155,6 +173,8 @@ export const comparisonHandler: ChatTopicHandler = {
     // "just tell me which one you'd buy" wants a verdict; a head-to-head table
     // is the pros/cons dump the buyer explicitly declined.
     if (ctx.flags.pickOneFromShown) return false
+    // "Which has the lower total cost?" is the all-in arithmetic (totalOutflow), side by side.
+    if (ctx.flags.isTotalOutflowQuery) return false
     if (ctx.flags.isCompareRequest) return true
     const q = ctx.message.toLowerCase()
     return /\b(compare|versus|\bvs\b|difference between)\b/i.test(q) && (ctx.intent.projectNames?.length ?? 0) >= 2
@@ -171,12 +191,12 @@ export const comparisonHandler: ChatTopicHandler = {
     const resolve = async (raw: string) =>
       (await prisma.project.findFirst({
         where: { name: { equals: raw, mode: 'insensitive' } },
-        include: { builder: true, unit_types: { take: 3 } },
+        include: { builder: true, unit_types: { where: { price_min_cr: { not: null } }, orderBy: { price_min_cr: 'asc' }, take: 3 } },
       })) ??
       prisma.project.findFirst({
         where: { OR: [{ name: { contains: raw, mode: 'insensitive' } }, { slug: { contains: raw, mode: 'insensitive' } }] },
         orderBy: { name: 'asc' },
-        include: { builder: true, unit_types: { take: 3 } },
+        include: { builder: true, unit_types: { where: { price_min_cr: { not: null } }, orderBy: { price_min_cr: 'asc' }, take: 3 } },
       })
     const [p1, p2] = await Promise.all([resolve(p1Raw), resolve(p2Raw)])
 
@@ -192,7 +212,7 @@ export const comparisonHandler: ChatTopicHandler = {
      */
     const leads = (side: 'p1' | 'p2') => vectors.filter(v => v.winner === side).map(v => v.label.toLowerCase())
     const leadLine = (name: string, labels: string[]) =>
-      labels.length ? `**${name}** leads on ${labels.join(', ')}.` : `**${name}** leads on nothing we can measure from our records.`
+      labels.length ? `**${name}** leads on ${labels.join(', ')}.` : `**${name}** leads on none of the measures below.`
     const summaryText = `### ${p1.name} vs ${p2.name}
 
 ${leadLine(p1.name, leads('p1'))} ${leadLine(p2.name, leads('p2'))} The full side-by-side is below.

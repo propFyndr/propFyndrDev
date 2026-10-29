@@ -114,6 +114,101 @@ ${ready ? 'Ready to move with OC, so GST is nil.' : /\b(under\s*construction|uc|
 Name the project and I'll replace the typical ranges with its recorded cost sheet.`
 }
 
+type OutflowProject = {
+  id: string
+  name: string
+  sector: string | null
+  status: string | null
+  possession_label: string | null
+  price_min_cr: number | null
+  unit_types: Array<{ bhk: number; price_min_cr: number | null; super_area_sqft: number | null }>
+  cost_sheet: { parking_cost: number | null; club_membership: number | null; electricity_connection: number | null; water_sewer_connection: number | null; ifms: number | null } | null
+}
+
+/** One project's all-in figure: base price, statutory charges, and the developer charges it records. */
+function computeOutflow(project: OutflowProject, bhk: number | null, target: number | null | undefined) {
+  // No BHK named: price the configuration nearest the figure the buyer gave
+  // ("total cost if I buy at 1.5 cr", then "its elite x") — not the cheapest.
+  const nearest = target != null
+    ? [...project.unit_types].filter(u => u.price_min_cr != null)
+        .sort((a, b) => Math.abs(a.price_min_cr! - target) - Math.abs(b.price_min_cr! - target))[0]
+    : undefined
+  const unit = bhk ? project.unit_types.find(u => u.bhk === bhk) : (nearest ?? project.unit_types[0])
+  const basePriceCr = unit?.price_min_cr ?? project.price_min_cr
+  if (basePriceCr == null) return null
+
+  const base = basePriceCr * CRORE
+  const isReady = project.status === 'ready_to_move' || !!project.possession_label?.toLowerCase().includes('delivered')
+  const stampDuty = Math.round(base * (UP_STATUTORY.stampDutyPct / 100))
+  const registration = Math.round(base * (UP_STATUTORY.registrationPct / 100))
+  const gstPct = isReady ? UP_STATUTORY.gstReadyToMovePct : UP_STATUTORY.gstUnderConstructionPct
+  const gst = Math.round(base * (gstPct / 100))
+
+  // Developer charges come from this project's own cost sheet. The flat
+  // ₹2,50,000 the previous version added has no basis for any given project.
+  const sheet = project.cost_sheet
+  const developerLines: Array<{ label: string; amount: number }> = []
+  if (sheet?.parking_cost) developerLines.push({ label: 'Covered parking', amount: sheet.parking_cost })
+  if (sheet?.club_membership) developerLines.push({ label: 'Club membership', amount: sheet.club_membership })
+  if (sheet?.electricity_connection) developerLines.push({ label: 'Electricity connection', amount: sheet.electricity_connection })
+  if (sheet?.water_sewer_connection) developerLines.push({ label: 'Water & sewer connection', amount: sheet.water_sewer_connection })
+  if (sheet?.ifms && unit?.super_area_sqft) {
+    developerLines.push({ label: `IFMS (${inr(sheet.ifms)}/sq.ft, refundable)`, amount: sheet.ifms * unit.super_area_sqft })
+  }
+  const developerTotal = developerLines.reduce((sum, l) => sum + l.amount, 0)
+  const total = base + stampDuty + registration + gst + developerTotal
+  const config = bhk ? `${bhk} BHK` : (unit?.bhk ? `${unit.bhk} BHK` : 'unit')
+  return { unit, nearest, basePriceCr, base, isReady, stampDuty, registration, gstPct, gst, developerLines, developerTotal, total, config }
+}
+
+const OUTFLOW_INCLUDE = { unit_types: { orderBy: { bhk: 'asc' as const } }, cost_sheet: true } as const
+
+/**
+ * "Compare two suitable projects and tell me which has the lower total cost"
+ * (live 29 Oct): priced one project, a different one, at ₹4.3 Cr. Two or more
+ * named projects get the same all-in arithmetic side by side, and a verdict
+ * only when both totals carry the same kind of charges.
+ */
+async function renderOutflowComparison(names: string[], bhk: number | null, target: number | null | undefined): Promise<string | null> {
+  const projects: OutflowProject[] = []
+  for (const n of names.slice(0, 3)) {
+    const p = (await prisma.project.findFirst({ where: { name: { equals: n, mode: 'insensitive' } }, include: OUTFLOW_INCLUDE }))
+      ?? (await prisma.project.findFirst({ where: { name: { contains: n, mode: 'insensitive' } }, include: OUTFLOW_INCLUDE }))
+    if (p && !projects.some(x => x.id === p.id)) projects.push(p as unknown as OutflowProject)
+  }
+  if (projects.length < 2) return null
+  const priced = projects.map(p => ({ p, o: computeOutflow(p, bhk, target) }))
+  const notes = await projectPriceNotes(projects.map(p => p.id))
+  const cell = (fn: (o: NonNullable<ReturnType<typeof computeOutflow>>) => string) => priced.map(({ o }) => (o ? fn(o) : 'Not on record')).join(' | ')
+  const header = `| | ${priced.map(({ p }) => `**${p.name}**`).join(' | ')} |\n| :--- |${priced.map(() => ' ---: |').join('')}`
+  const rows = [
+    `| Base price | ${cell(o => `₹${o.basePriceCr.toFixed(2)} Cr (${o.config})`)} |`,
+    `| Stamp duty + registration (${UP_STATUTORY.stampDutyPct + UP_STATUTORY.registrationPct}%, statutory) | ${cell(o => lakh(o.stampDuty + o.registration))} |`,
+    `| GST | ${cell(o => (o.gstPct === 0 ? '₹0 (ready, OC)' : `${lakh(o.gst)} (${o.gstPct}%)`))} |`,
+    `| Developer charges on record | ${cell(o => (o.developerLines.length ? lakh(o.developerTotal) : 'None on record'))} |`,
+    `| **All-in** | ${cell(o => `**₹${(o.total / CRORE).toFixed(2)} Cr**`)} |`,
+  ]
+  const done = priced.filter((x): x is { p: OutflowProject; o: NonNullable<ReturnType<typeof computeOutflow>> } => x.o != null)
+  let verdict = ''
+  if (done.length >= 2) {
+    const sorted = [...done].sort((a, b) => a.o.total - b.o.total)
+    const sameBasis = done.every(d => d.o.developerLines.length > 0) || done.every(d => d.o.developerLines.length === 0)
+    const gap = sorted[1].o.total - sorted[0].o.total
+    verdict = sameBasis
+      ? `**${sorted[0].p.name}** is lower all-in, by ${lakh(gap)}.`
+      : `**${sorted[0].p.name}** shows the lower total, but the two are not like for like: only one has developer charges on record, so the other's real total is higher than shown.`
+  }
+  const dates = priced.map(({ p }) => `${p.name}: ${notes.get(p.id) ?? UNDATED_NOTE}`).join('; ')
+  return `### All-in cost — ${priced.map(({ p }) => p.name).join(' vs ')}
+
+${header}
+${rows.join('\n')}
+
+${verdict}
+
+_Base prices: ${dates}._ Developer charges are each project's recorded cost sheet; confirm against the booking document before paying.`
+}
+
 export const totalOutflowHandler: ChatTopicHandler = {
   id: 'total_outflow',
   description: 'All-inclusive purchase cost including statutory charges',
@@ -140,6 +235,19 @@ export const totalOutflowHandler: ChatTopicHandler = {
       ctx.send('done', { sessionId: ctx.sessionId, intentState: 'RESEARCH', intent: ctx.intent, responseMode: 'chat' })
       ctx.res.end()
       return
+    }
+
+    const bhkAsked = ctx.message.match(/(\d)\s*bhk/i)
+    const names = (ctx.intent.projectNames ?? []).filter((n): n is string => typeof n === 'string' && n.length > 2)
+    if (names.length >= 2) {
+      const text = await renderOutflowComparison(names, bhkAsked ? Number(bhkAsked[1]) : null, ctx.intent.budgetMax)
+      if (text) {
+        ctx.send('token', { token: text })
+        ctx.emitUiState({ stage: 'RESEARCH', thinking: 'All-in cost, side by side:', chips: [], missingFields: [], confidence: 'MEDIUM' })
+        ctx.send('done', { sessionId: ctx.sessionId, intentState: 'SHORTLISTED', intent: ctx.intent, responseMode: 'chat' })
+        ctx.res.end()
+        return
+      }
     }
 
     const named = (Array.isArray(ctx.intent.projectNames) && ctx.intent.projectNames[0])
@@ -223,17 +331,10 @@ Name the project, or give me a budget and configuration, and I'll compute the fu
 
     const bhkMatch = ctx.message.match(/(\d)\s*bhk/i)
     const bhk = bhkMatch ? Number(bhkMatch[1]) : null
-    // No BHK named: price the configuration nearest the figure the buyer gave
-    // ("total cost if I buy at 1.5 cr", then "its elite x") — not the cheapest.
     const target = ctx.intent.budgetMax
-    const nearest = target != null
-      ? [...project.unit_types].filter(u => u.price_min_cr != null)
-          .sort((a, b) => Math.abs(a.price_min_cr! - target) - Math.abs(b.price_min_cr! - target))[0]
-      : undefined
-    const unit = bhk ? project.unit_types.find(u => u.bhk === bhk) : (nearest ?? project.unit_types[0])
-    const basePriceCr = unit?.price_min_cr ?? project.price_min_cr
+    const o = computeOutflow(project as unknown as OutflowProject, bhk, target)
 
-    if (basePriceCr == null) {
+    if (!o) {
       ctx.send('token', {
         token: `### All-in cost — ${project.name}\n\n${unverified('base price', project.name)}\n\nWithout it every figure below would be arithmetic on a guess.`,
       })
@@ -249,30 +350,7 @@ Name the project, or give me a budget and configuration, and I'll compute the fu
       return
     }
 
-    const base = basePriceCr * CRORE
-    const isReady = project.status === 'ready_to_move' || !!project.possession_label?.toLowerCase().includes('delivered')
-
-    const stampDuty = Math.round(base * (UP_STATUTORY.stampDutyPct / 100))
-    const registration = Math.round(base * (UP_STATUTORY.registrationPct / 100))
-    const gstPct = isReady ? UP_STATUTORY.gstReadyToMovePct : UP_STATUTORY.gstUnderConstructionPct
-    const gst = Math.round(base * (gstPct / 100))
-
-    // Developer charges come from this project's own cost sheet. The flat
-    // ₹2,50,000 the previous version added has no basis for any given project.
-    const sheet = project.cost_sheet
-    const developerLines: Array<{ label: string; amount: number }> = []
-    if (sheet?.parking_cost) developerLines.push({ label: 'Covered parking', amount: sheet.parking_cost })
-    if (sheet?.club_membership) developerLines.push({ label: 'Club membership', amount: sheet.club_membership })
-    if (sheet?.electricity_connection) developerLines.push({ label: 'Electricity connection', amount: sheet.electricity_connection })
-    if (sheet?.water_sewer_connection) developerLines.push({ label: 'Water & sewer connection', amount: sheet.water_sewer_connection })
-    if (sheet?.ifms && unit?.super_area_sqft) {
-      developerLines.push({ label: `IFMS (${inr(sheet.ifms)}/sq.ft, refundable)`, amount: sheet.ifms * unit.super_area_sqft })
-    }
-
-    const developerTotal = developerLines.reduce((sum, l) => sum + l.amount, 0)
-    const total = base + stampDuty + registration + gst + developerTotal
-    const config = bhk ? `${bhk} BHK` : (unit?.bhk ? `${unit.bhk} BHK` : 'unit')
-
+    const { unit, nearest, basePriceCr, base, isReady, stampDuty, registration, gstPct, gst, developerLines, total, config } = o
     const rows = [
       `| **Base price (${config})** | Recorded | **₹${basePriceCr.toFixed(2)} Cr** |`,
       `| Stamp duty | ${UP_STATUTORY.stampDutyPct}% statutory | ${lakh(stampDuty)} |`,
@@ -286,7 +364,9 @@ Name the project, or give me a budget and configuration, and I'll compute the fu
     const priceNote = (await projectPriceNotes([project.id])).get(project.id) ?? UNDATED_NOTE
 
     const nearestNote = !bhk && unit && unit === nearest && target != null
-      ? `Priced on the ${config}, the configuration closest to your ₹${target} Cr.\n\n`
+      ? basePriceCr > target * 1.1
+        ? `Priced on the ${config}, its configuration closest to your ₹${target} Cr; even that is above your budget.\n\n`
+        : `Priced on the ${config}, the configuration closest to your ₹${target} Cr.\n\n`
       : ''
     const text = `### All-in cost — ${project.name} (${project.sector})
 

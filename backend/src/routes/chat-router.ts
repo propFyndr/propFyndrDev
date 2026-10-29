@@ -108,11 +108,11 @@ import { recordDemandSignal } from '../lib/demandSignal'
 import { scanDisclosure } from '../lib/ai/answerIntegrity'
 import { projectCatalog, catalogNamesSync } from '../lib/projectCatalog'
 import { asksAboutFocusAttribute, mentionsFocusPronoun, focusFallback, parkFocus, parkedFocus, asksMarketWide, expandAffirmation, isBareRefinement } from '../lib/chat/followUp'; import { answerFromRows } from '../lib/chat/rowsAnswer'; import { firstStatusLine } from '../lib/chat/statusLine'; import { isBuilderNameCandidate } from '../lib/builderNames'; import { searchSummary } from '../lib/ai/searchSummary'
-import { matchProjectInText, fuzzyMatchProject, suggestProjects } from '../lib/discovery/matchProjectInText'
+import { matchProjectInText, fuzzyMatchProject, suggestProjects, looseProjectMatches } from '../lib/discovery/matchProjectInText'
 import { parseAggregateQuestion, queryProjects, renderAggregateAnswer } from '../lib/chat/aggregateQuery'
 import { parseBudgetCheck, budgetQuery, renderBudgetCheck } from '../lib/chat/budgetCheck'
 import { applyCommuteAnchor, beltFor } from '../lib/discovery/commuteAnchor'
-import { resolveOrdinalReference, resolveOrdinalPair, resolveSuperlativeReference, needsShownContext, resolveSectorReference, sectorsShownIn, resolveShownSet, asksForSinglePick } from '../lib/discovery/reference'
+import { resolveOrdinalReference, resolveOrdinalPair, resolveSuperlativeReference, needsShownContext, resolveSectorReference, sectorsShownIn, resolveShownSet, asksForSinglePick, lastListedProjects } from '../lib/discovery/reference'
 import { cardBudgetFor, capCards, MAX_CARDS } from '../lib/discovery/cardBudget'
 import { chipsAreWelcome, chipIsRelevant, chipIsActionable } from '../lib/discovery/chipPolicy'
 import { generateProjectChips } from '../lib/discovery/deterministicChips'
@@ -1793,7 +1793,10 @@ router.post('/', async (req: Request, res: Response) => {
           resolved: resolved.name,
         })
       } else {
-        const shownSet = resolveShownSet(message, shownProjects)
+        let shownSet = resolveShownSet(message, shownProjects)
+        if (shownSet.length < 2 && shownProjects.length < 2) {
+          shownSet = resolveShownSet(message, lastListedProjects(chatHistory, await projectCatalog()))
+        }
         if (shownSet.length >= 2) {
           intent.projectNames = shownSet.map(p => p.name)
           pickOneFromShown = asksForSinglePick(message)
@@ -2727,7 +2730,7 @@ router.post('/', async (req: Request, res: Response) => {
       }
 
       // "Is 2 crore too much for a 3 BHK?" answered from our unit prices (lib/chat/budgetCheck.ts).
-      const budget = parseBudgetCheck(message)
+      const budget = parseBudgetCheck(message, { searchRunning: Boolean(prevIntent.sector || prevIntent.city || prevIntent.budgetMax || prevIntent.budgetMin) })
       const budgetResult = budget ? await queryProjects(budgetQuery(budget)).catch(() => null) : null
       const budgetText = budget && budgetResult ? renderBudgetCheck(budget, budgetResult) : null
       if (budgetText) {
@@ -4102,6 +4105,13 @@ I can help you:
                 matchedProjects.push(p)
               }
             })
+            // A misspelt name ("Panchsheel Prastishtha", live 29 Oct) was answered as
+            // "not in our records". Every distinctive word present, within an edit or two.
+            if (matchedProjects.length < 2) {
+              for (const hit of looseProjectMatches(message, allDbProjects)) {
+                if (hit.coverage === 1 && hit.specific && !matchedProjects.some(mp => mp.id === hit.project.id)) matchedProjects.push(hit.project)
+              }
+            }
           }
 
           /**

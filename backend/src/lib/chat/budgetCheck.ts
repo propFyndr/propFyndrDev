@@ -19,10 +19,20 @@ export interface BudgetCheck {
 const ASKS_ABOUT_BUDGET = /\b(?:too\s+(?:much|high|expensive|low|little)|enough|sufficient|reasonable|realistic|affordable\s+budget|minimum\s+budget|what\s+budget|how\s+much\s+budget|budget\s+should\s+i|good\s+budget|right\s+budget)\b/i
 const BUYER_FINANCES = /\b(?:income|salary|earn\w*|emi|loan|down\s*payment)\b/i
 
-/** A budget question about a BHK or an area, or null. Questions about one project or money in/out are not this. */
-export function parseBudgetCheck(message: string): BudgetCheck | null {
+/** A first message that is only a size: "3bhk", "2 bhk flat in noida". */
+const BARE_BHK = /^\s*\d\s?bhks?\s*(?:flats?|apartments?|homes?)?\s*(?:in\s+(?:noida|greater\s+noida(?:\s+west)?))?\s*[?.!]*\s*$/i
+
+/**
+ * A budget question about a BHK or an area, or null. Questions about one project or money in/out are not this.
+ *
+ * A bare size on a fresh search ("3bhk", live 29 Oct) is answered the same way, as what that size
+ * costs across what we hold: the model wrote it as an essay of figures we do not hold. With a search
+ * already running, "3bhk" revises that search instead (followUp.isBareRefinement).
+ */
+export function parseBudgetCheck(message: string, opts: { searchRunning?: boolean } = {}): BudgetCheck | null {
   const m = message.toLowerCase()
-  if (!ASKS_ABOUT_BUDGET.test(m) || BUYER_FINANCES.test(m) || isRentalQuestion(m)) return null
+  const bareSize = !opts.searchRunning && BARE_BHK.test(m)
+  if (!bareSize && (!ASKS_ABOUT_BUDGET.test(m) || BUYER_FINANCES.test(m) || isRentalQuestion(m))) return null
 
   const out: BudgetCheck = {}
   const bhk = m.match(/\b(\d)\s?bhk\b/)
@@ -80,7 +90,7 @@ export function renderBudgetCheck(b: BudgetCheck, r: ProjectQueryResult): string
   lines.push(
     b.budgetCr
       ? `Want me to show the ${what} options within ${cr(b.budgetCr)}?`
-      : `Want me to show ${what} options in a budget you have in mind?`,
+      : `Tell me your budget or the area you have in mind, and I'll list the ${what} options that fit.`,
   )
   return lines.join('\n\n')
 }

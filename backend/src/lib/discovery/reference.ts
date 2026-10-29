@@ -179,17 +179,47 @@ const COUNT_WORDS: Record<string, number> = { two: 2, three: 3, four: 4, five: 5
 export function resolveShownSet(message: string, shown: readonly ShownProject[]): ShownProject[] {
   if (shown.length < 2) return []
   const text = message ?? ''
-  const top = text.match(/\b(?:top|first)\s+(two|three|four|five|[2-5])\b/i)
+  // "the upper two properties" (live 29 Oct): the same list, read from the top.
+  const top = text.match(/\b(?:top|first|upper|above)\s+(two|three|four|five|[2-5])\b(?![.\d])(?!\s*(?:cr|crores?|lakhs?|l)\b)/i)
   const pointsAtShown =
     /\b(?:you|u)\s+(?:showed|shown|listed|suggested|recommended|gave|mentioned)\b/i.test(text) ||
     // "the ones above 3.8 cr" is a price filter, not the list above (live 26 Oct).
     /\bthe\s+ones\s+(?:you|above(?!\s*(?:rs\.?|₹)?\s*\d)|shown|listed)\b/i.test(text) ||
     /\b(?:these|those)\s+(?:options|projects|societies|properties|two|three|four)\b/i.test(text) ||
-    /\bwhich\s+(?:of\s+)?(?:these|those|them)\b/i.test(text)
+    /\bwhich\s+(?:of\s+)?(?:these|those|them)\b/i.test(text) ||
+    // "Compare two suitable projects" right after a two-project list (live 29 Oct).
+    /\b(?:both\s+(?:of\s+)?(?:them|these|those|projects|options|properties)|the\s+two\s+(?:projects|options|properties)|two\s+suitable)\b/i.test(text)
   if (!top && !pointsAtShown) return []
   const n = top ? COUNT_WORDS[top[1].toLowerCase()] : Math.min(3, shown.length)
   const set = shown.slice(0, Math.min(n, shown.length))
   return set.length >= 2 ? set : []
+}
+
+/**
+ * The projects the most recent list-shaped answer named, in order, when the
+ * stored card list no longer holds them.
+ *
+ * Live 29 Oct: a two-project shortlist, then "what's the catch with ATS
+ * Kingston Heath?" (one card), then "No, from the upper two properties". The
+ * stored list was that one card by then, so "the upper two" found nothing and
+ * the answer stayed on Kingston Heath. Bold names in our own earlier answers,
+ * checked against the catalogue, are the list the buyer is looking at.
+ */
+export function lastListedProjects<T extends { id: string; name: string }>(
+  history: ReadonlyArray<{ role: string; content: string }>,
+  catalog: readonly T[],
+): T[] {
+  const byName = new Map(catalog.map((p) => [p.name.toLowerCase(), p]))
+  for (const m of [...history].reverse()) {
+    if (m.role !== 'assistant') continue
+    const found: T[] = []
+    for (const hit of m.content.matchAll(/\*\*([^*\n]{3,80})\*\*/g)) {
+      const p = byName.get(hit[1].trim().toLowerCase())
+      if (p && !found.some((f) => f.id === p.id)) found.push(p)
+    }
+    if (found.length >= 2) return found
+  }
+  return []
 }
 
 /** "just tell me which one you'd buy" — a verdict, not a comparison table. */
