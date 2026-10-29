@@ -2,10 +2,11 @@
 //   npx tsx scripts/data-integrity/09-verify.ts [--target live]
 import 'dotenv/config';
 import { PrismaClient } from '@prisma/client';
+import { isLiveDatabase } from '../../src/lib/liveDatabase'
 
 const live = process.argv.includes('--target') && process.argv[process.argv.indexOf('--target') + 1] === 'live';
 if (live && !process.env.NEON_DB) throw new Error('NEON_DB is not set');
-if (!live && (process.env.DATABASE_URL ?? '').includes('neon.tech')) throw new Error('DATABASE_URL is Neon; refusing');
+if (!live && isLiveDatabase(process.env.DATABASE_URL)) throw new Error('DATABASE_URL is Neon; refusing');
 const prisma = live ? new PrismaClient({ datasources: { db: { url: process.env.NEON_DB! } } }) : new PrismaClient();
 
 async function main() {

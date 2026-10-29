@@ -10,9 +10,10 @@
 import assert from 'node:assert/strict'
 import { prisma } from '../src/lib/db'
 import { propose, approve, reject } from '../src/lib/listingChanges'
+import { isLiveDatabase } from '../src/lib/liveDatabase'
 
 async function main() {
-  if (/neon/i.test(process.env.DATABASE_URL ?? '')) throw new Error('Refusing: DATABASE_URL points at Neon (live)')
+  if (isLiveDatabase(process.env.DATABASE_URL)) throw new Error('Refusing: DATABASE_URL points at Neon (live)')
 
   const unit = await prisma.unitType.findFirst({
     where: { availability: 'available', price_min_cr: { not: null } },

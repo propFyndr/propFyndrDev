@@ -1,10 +1,11 @@
 import 'dotenv/config';
 import { PrismaClient } from '@prisma/client';
 import { writeFileSync } from 'fs';
+import { isLiveDatabase } from '../src/lib/liveDatabase'
 
 // Read-only. Dev (Supabase) only.
 const url = process.env.DATABASE_URL ?? '';
-if (!url || url.includes('neon.tech')) {
+if (!url || isLiveDatabase(url)) {
   throw new Error('Refusing: DATABASE_URL is missing or points at Neon (live).');
 }
 

@@ -10,9 +10,10 @@ import 'dotenv/config'
 import fs from 'fs'
 import path from 'path'
 import { PrismaClient } from '@prisma/client'
+import { isLiveDatabase } from '../src/lib/liveDatabase'
 
 const APPLY = process.argv.includes('--apply')
-if (!process.env.DATABASE_URL || process.env.DATABASE_URL.includes('neon.tech')) {
+if (!process.env.DATABASE_URL || isLiveDatabase(process.env.DATABASE_URL)) {
   console.error('DATABASE_URL must be the dev (Supabase) database.')
   process.exit(1)
 }

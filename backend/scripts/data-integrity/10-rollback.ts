@@ -7,6 +7,7 @@ import 'dotenv/config';
 import { PrismaClient } from '@prisma/client';
 import { readFileSync } from 'fs';
 import { readJson, writeJson } from './lib';
+import { isLiveDatabase } from '../../src/lib/liveDatabase'
 
 const arg = (n: string) => process.argv.includes(`--${n}`);
 const val = (n: string) => process.argv[process.argv.indexOf(`--${n}`) + 1];
@@ -16,7 +17,7 @@ if (!arg('backup') || !arg('plan')) throw new Error('--backup <file> and --plan 
 if (TARGET === 'live') {
   if (APPLY && !arg('confirm-live')) throw new Error('rolling back live needs --confirm-live');
   if (!process.env.NEON_DB) throw new Error('NEON_DB is not set');
-} else if (TARGET !== 'dev' || (process.env.DATABASE_URL ?? '').includes('neon.tech')) throw new Error('target must be dev (DATABASE_URL must not be Neon) or live');
+} else if (TARGET !== 'dev' || isLiveDatabase(process.env.DATABASE_URL)) throw new Error('target must be dev (DATABASE_URL must not be Neon) or live');
 
 const prisma = TARGET === 'live' ? new PrismaClient({ datasources: { db: { url: process.env.NEON_DB! } } }) : new PrismaClient();
 const eq = (a: unknown, b: unknown) => (a ?? null) === (b ?? null) || String(a ?? '') === String(b ?? '');

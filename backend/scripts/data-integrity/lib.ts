@@ -3,6 +3,7 @@ import 'dotenv/config';
 import { mkdirSync, readFileSync, writeFileSync, existsSync } from 'fs';
 import { createHash } from 'crypto';
 import { dirname, join } from 'path';
+import { isLiveDatabase } from '../../src/lib/liveDatabase'
 
 export const BASE = 'https://up-rera.in';
 const UA = 'Mozilla/5.0 (RealtyAsk data-integrity crawler; contact: furqan.workk@gmail.com)';
@@ -22,7 +23,7 @@ export const hasFile = (name: string) => existsSync(workPath(name));
 // Dev (Supabase) only. The live Neon host must never be reached from here.
 export function assertDevDb() {
   const url = process.env.DATABASE_URL ?? '';
-  if (!url || url.includes('neon.tech')) {
+  if (!url || isLiveDatabase(url)) {
     throw new Error('Refusing: DATABASE_URL is missing or points at Neon (live).');
   }
 }

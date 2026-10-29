@@ -3,6 +3,7 @@ import { spawnSync } from 'child_process'
 import path from 'path'
 import { existsSync, readFileSync } from 'fs'
 import { parse as parseEnv } from 'dotenv'
+import { isLiveDatabase } from './lib/liveDatabase'
 
 const PROVIDER_KEY = /^(GEMINI|GOOGLE_AI|GROQ|OPENAI|AZURE_OPENAI|MISTRAL|COHERE|CEREBRAS|NVIDIA|ANTHROPIC|OPENROUTER|TOGETHER|DEEPSEEK|TAVILY|SERPER|JINA|CLOUDFLARE)_API_KEY\w*$/
 
@@ -21,7 +22,7 @@ async function runTests() {
   // test sessions plus 1,529 dummy leads had to be cleaned out of Neon (2026-10-27).
   const envFile = path.join(process.cwd(), '.env')
   const dbUrl = process.env.DATABASE_URL ?? (existsSync(envFile) ? parseEnv(readFileSync(envFile)).DATABASE_URL : undefined)
-  if (dbUrl?.includes('neon.tech')) {
+  if (isLiveDatabase(dbUrl)) {
     console.error('Refusing to run tests: DATABASE_URL points at Neon (live). Use the dev database.')
     process.exit(1)
   }
