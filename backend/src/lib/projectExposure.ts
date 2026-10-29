@@ -31,7 +31,8 @@
  */
 // field_drafts holds proposed, unreviewed values with their sources. A draft is not a fact
 // until a person promotes it, so it must never reach a buyer or a prompt.
-export const FORBIDDEN_RELATIONS = ['saved_by', 'chat_sessions', 'property_feedback', 'field_drafts'] as const
+// listing_changes holds a builder's pending proposals and the submitter's login: same reason.
+export const FORBIDDEN_RELATIONS = ['saved_by', 'chat_sessions', 'property_feedback', 'field_drafts', 'listing_changes'] as const
 
 /**
  * Scalar columns that must never leave the server, with the reason. Kept as a

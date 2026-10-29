@@ -847,7 +847,8 @@ router.get('/projects/:id', async (req: Request, res: Response) => {
       },
       include: {
         builder: { select: { id: true, name: true, slug: true, logo_url: true } },
-        unit_types: true,
+        // Sold-out types included: this is the editor's view, not a buyer's.
+        unit_types: { where: { availability: undefined } },
         images: true,
         amenities: true,
         connectivity: true,

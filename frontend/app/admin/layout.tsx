@@ -57,6 +57,7 @@ const NAV: PortalNavItem[] = [
       { href: '/admin/projects', label: 'All Projects', roles: [...EDITORS] },
       { href: '/admin/projects/new', label: 'New Project', roles: [...EDITORS] },
       { href: '/admin/quality', label: 'Data Quality', roles: [...EDITORS] },
+      { href: '/admin/listing-changes', label: 'Builder Price Changes', roles: [...EDITORS] },
       { href: '/admin/lookup', label: 'Fact Lookup' },
     ],
   },

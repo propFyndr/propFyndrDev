@@ -45,6 +45,7 @@ import sitemapRouter from './routes/sitemap'
 import { queryCountingMiddleware } from './lib/queryCounter'
 import adminBoardsRouter from './routes/adminBoards'
 import adminPartnersRouter from './routes/adminPartners'
+import adminListingChangesRouter from './routes/adminListingChanges'
 import adminAuthFlowsRouter from './routes/adminAuthFlows'
 import adminOutboxRouter from './routes/adminOutbox'
 import partnerRegistrationRouter from './routes/partnerRegistration'
@@ -317,6 +318,7 @@ app.use('/api/v1/admin/outbox', adminOutboxRouter)
 // route there cannot claim /boards first.
 app.use('/api/v1/admin/boards', adminBoardsRouter)
 app.use('/api/v1/admin/channel-partners', adminPartnersRouter)
+app.use('/api/v1/admin/listing-changes', adminListingChangesRouter)
 app.use('/api/v1/admin/referrals', adminReferralsRouter)
 app.use('/api/v1/admin/promotions', adminPromotionsRouter)
 app.use('/api/admin/promotions', adminPromotionsRouter)

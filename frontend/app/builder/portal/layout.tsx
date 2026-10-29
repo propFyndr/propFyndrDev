@@ -1,11 +1,12 @@
 'use client'
 
-import { Gauge, Buildings, PhoneCall, Handshake, UserCircle } from '@phosphor-icons/react'
+import { Gauge, Buildings, PhoneCall, Handshake, UserCircle, CurrencyInr } from '@phosphor-icons/react'
 import PortalShell, { PortalNavItem } from '@/components/portal/PortalShell'
 
 const NAV: PortalNavItem[] = [
   { href: '/builder/portal',          label: 'Dashboard', icon: Gauge },
   { href: '/builder/portal/projects', label: 'Projects',  icon: Buildings },
+  { href: '/builder/portal/prices',   label: 'Prices',    icon: CurrencyInr },
   { href: '/builder/portal/leads',    label: 'Leads',     icon: PhoneCall },
   { href: '/builder/portal/partners', label: 'Partners',  icon: Handshake },
   { href: '/builder/portal/account',  label: 'Account',   icon: UserCircle },

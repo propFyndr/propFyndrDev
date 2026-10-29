@@ -286,6 +286,7 @@ model Project {
   rera_registrations       ProjectReraRegistration[]
   videos                   ProjectVideo[]
   field_drafts             ProjectFieldDraft[]
+  listing_changes          ListingChange[]
 
   @@index([city, sector])
   @@index([status])
@@ -409,9 +410,13 @@ model UnitType {
   tower_association      String[] @default(["Tower A"])
   built_up_area_sqft     Int?
   common_area_shaft_sqft Int?
+  // "available" | "sold_out". A sold-out type is hidden from every buyer read
+  // by lib/excludeSoldOutUnitTypes.ts; set only through an approved ListingChange.
+  availability       String   @default("available")
   project            Project  @relation(fields: [project_id], references: [id], onDelete: Cascade)
   unit_inventory     UnitInventory[]
   spec_items         ProjectSpecItem[]
+  listing_changes    ListingChange[]
 
   @@index([project_id, bhk])
   @@index([project_id, price_min_cr, price_max_cr])
@@ -427,11 +432,45 @@ model PriceHistory {
   price_per_sqft Float?
   total_price_cr Float?
   event_note     String?  // e.g. "Metro line opened" — explains a jump
-  source         String   @default("monthly_auto_snapshot") // "admin_update" | "monthly_auto_snapshot"
+  source         String   @default("monthly_auto_snapshot") // "admin_update" | "monthly_auto_snapshot" | "builder_portal"
+  // Set on rows written by an approved builder change; older rows carry only `source`.
+  unit_type_id       String?
+  total_price_max_cr Float?
+  submitted_by       String?
+  approved_by        String?
   project        Project  @relation(fields: [project_id], references: [id], onDelete: Cascade)
 
   @@index([project_id, recorded_at])
+  @@index([unit_type_id, recorded_at])
   @@map("price_history")
+}
+
+// A builder's proposed change to one flat type. Never a write: the UnitType
+// row changes only when RealtyAsk approves (lib/listingChanges.ts), in one
+// transaction with a PriceHistory, FactVerification and AuditLog row.
+// Status leaves room for partners: pending_builder -> pending_realtyask.
+model ListingChange {
+  id            String    @id @default(uuid())
+  project_id    String
+  unit_type_id  String
+  kind          String    // "price" | "sold_out" | "available"
+  old_value     Json      // the row as the builder saw it: { price_min_cr, price_max_cr } or { availability }
+  new_value     Json
+  source_note   String?
+  status        String    @default("pending_realtyask") // "pending_realtyask" | "approved" | "rejected"
+  submitted_by  String
+  submitted_role String
+  reviewed_by   String?
+  reviewed_at   DateTime?
+  reject_reason String?
+  created_at    DateTime  @default(now())
+  project       Project   @relation(fields: [project_id], references: [id], onDelete: Cascade)
+  unit_type     UnitType  @relation(fields: [unit_type_id], references: [id], onDelete: Cascade)
+
+  @@index([status, created_at])
+  @@index([unit_type_id, status])
+  @@index([project_id])
+  @@map("listing_changes")
 }
 
 model ConstructionMilestone {

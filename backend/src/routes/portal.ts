@@ -13,6 +13,7 @@ import { createAdminInvite } from '../lib/adminInvite'
 import { eligiblePartners, nextInRotation, pickPartnerForBuilder } from '../lib/leadAssignment'
 import { buildLeadBrief, competitorNames, scrubCompetitors } from '../lib/leadBrief'
 import { canManageAccess } from '../lib/accessHierarchy'
+import { ProposalSchema, builderUnitTypes, propose } from '../lib/listingChanges'
 
 const router = Router()
 
@@ -102,6 +103,27 @@ router.get('/builder/projects', requireIdentity, requireRole('BUILDER', 'SUPER_A
     orderBy: { created_at: 'desc' },
   })
   res.json({ projects })
+})
+
+// GET /api/v1/portal/builder/unit-types — this builder's flat types, sold-out
+// ones included, each with its recent proposals and their review outcome.
+router.get('/builder/unit-types', requireIdentity, requireRole('BUILDER', 'SUPER_ADMIN', 'ANALYST'), async (req: Request, res: Response) => {
+  const builderId = builderScope(req)
+  if (!builderId) { res.status(400).json({ error: 'No builder scope — pass builder_id' }); return }
+  res.json({ projects: await builderUnitTypes(builderId) })
+})
+
+// POST /api/v1/portal/builder/listing-changes — propose a price or availability
+// change. Nothing goes live: it waits for RealtyAsk (routes/adminListingChanges.ts).
+// Only a BUILDER session proposes; our own roles approve, never propose.
+router.post('/builder/listing-changes', requireIdentity, requireRole('BUILDER'), async (req: Request, res: Response) => {
+  const identity = identityOf(req)
+  if (!identity.builderId) { res.status(403).json({ error: 'No builder on this login' }); return }
+  const parsed = ProposalSchema.safeParse(req.body)
+  if (!parsed.success) { res.status(400).json({ error: parsed.error.issues[0]?.message ?? 'Invalid proposal' }); return }
+  const r = await propose(parsed.data, identity.builderId, { email: identity.email, role: identity.role })
+  if (!r.ok) { res.status(r.status).json({ error: r.error }); return }
+  res.status(201).json({ id: r.value.id, status: 'pending_realtyask' })
 })
 
 // GET /api/v1/portal/builder/leads — leads on THIS builder's own projects.
