@@ -3947,7 +3947,7 @@ router.patch('/units/:id', async (req: Request, res: Response) => {
     let ratio: number | null | undefined
     if (superArea !== undefined || carpetArea !== undefined) {
       const existing = (superArea === undefined || carpetArea === undefined)
-        ? await (prisma as any).unitType.findUnique({ where: { id }, select: { super_area_sqft: true, carpet_area_sqft: true } })
+        ? await (prisma as any).unitType.findUnique({ where: { id, availability: undefined }, select: { super_area_sqft: true, carpet_area_sqft: true } })
         : null
       const effectiveSuper = superArea !== undefined ? superArea : existing?.super_area_sqft ?? null
       const effectiveCarpet = carpetArea !== undefined ? carpetArea : existing?.carpet_area_sqft ?? null
@@ -3957,7 +3957,7 @@ router.patch('/units/:id', async (req: Request, res: Response) => {
     const verification = parsePriceVerification(data.price_verification)
     if (!verification.ok) return res.status(400).json({ error: verification.error })
     const existingUnit = await (prisma as any).unitType.findUnique({
-      where: { id },
+      where: { id, availability: undefined },
       select: { price_min_cr: true, price_max_cr: true, price_label: true },
     })
     if (!existingUnit) return res.status(404).json({ error: 'Unit type not found' })

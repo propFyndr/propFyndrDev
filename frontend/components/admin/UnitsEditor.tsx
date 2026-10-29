@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Image from 'next/image'
+import PriceHistory from './PriceHistory'
 import {
   Plus,
   Trash,
@@ -48,6 +49,7 @@ interface UnitRow {
   balconies: number | null
   balcony_area_sqft: number | null
   bathrooms: number | null
+  availability?: string
   price_min_cr: number | null
   price_max_cr: number | null
   price_label: string | null
@@ -134,6 +136,7 @@ export default function UnitsEditor({
   const [saving, setSaving]   = useState<Set<string>>(new Set())
   const [saved, setSaved]     = useState<Set<string>>(new Set())
   const [deleting, setDeleting] = useState<Set<string>>(new Set())
+  const [historyOpen, setHistoryOpen] = useState<string | null>(null)
   const [showAdd, setShowAdd] = useState(false)
   const [addForm, setAddForm] = useState(EMPTY_ADD)
   const [addSaving, setAddSaving] = useState(false)
@@ -442,6 +445,16 @@ export default function UnitsEditor({
                 </div>
 
                 <div className="flex items-center gap-2">
+                  {unitTypes.find(u => u.id === row.id)?.availability === 'sold_out' && (
+                    <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300" title="Hidden from buyers (approved builder change)">Sold out</span>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => setHistoryOpen(o => (o === row.id ? null : row.id))}
+                    className="px-3 py-1.5 text-xs font-bold rounded-xl text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/30 transition-colors cursor-pointer"
+                  >
+                    {historyOpen === row.id ? 'Hide price history' : 'Price history'}
+                  </button>
                   <button
                     onClick={() => saveRow(row)}
                     disabled={!dirty.has(row.id) || saving.has(row.id)}
@@ -467,6 +480,7 @@ export default function UnitsEditor({
                   </button>
                 </div>
               </div>
+              {historyOpen === row.id && <PriceHistory unitTypeId={row.id} />}
 
               {/* Core Attributes Grid */}
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3.5">

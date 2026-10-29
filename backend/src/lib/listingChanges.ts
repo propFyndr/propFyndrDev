@@ -17,6 +17,7 @@ import { z } from 'zod'
 import { prisma } from './db'
 import { applyFactWrites, priceFactWrites } from './priceVerification'
 import { buildPriceRangeLabel } from './discovery/scoring'
+import { invalidateAllChipCaches } from './discovery/chipInventory'
 
 export const KINDS = ['price', 'sold_out', 'available'] as const
 export type ListingChangeKind = (typeof KINDS)[number]
@@ -129,7 +130,7 @@ function sameValue(current: Record<string, unknown>, stored: Record<string, unkn
 }
 
 export async function approve(id: string, approver: { email: string; adminId: string | null }): Promise<Result<{ id: string }>> {
-  return prisma.$transaction(async (tx) => {
+  const result = await prisma.$transaction(async (tx): Promise<Result<{ id: string }>> => {
     const change = await tx.listingChange.findUnique({ where: { id } })
     if (!change) return { ok: false, status: 404, error: 'Proposal not found' }
     if (change.status !== 'pending_realtyask') return { ok: false, status: 409, error: `Already ${change.status}` }
@@ -214,6 +215,10 @@ export async function approve(id: string, approver: { email: string; adminId: st
     })
     return { ok: true, value: { id } }
   })
+  // Budget and BHK chips are cached for 10 minutes; the answer cache keys on the
+  // catalogue (unit counts and price sums) and moves on its own.
+  if (result.ok) invalidateAllChipCaches()
+  return result
 }
 
 /**
