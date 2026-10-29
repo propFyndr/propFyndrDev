@@ -217,6 +217,8 @@ export async function streamWithGemini(
 
     // The timer must abort the request, not just flip a flag: the flag was only
     const abortController = new AbortController()
+    if (config.abortSignal?.aborted) abortController.abort()
+    config.abortSignal?.addEventListener('abort', () => abortController.abort(), { once: true })
 
     /**
      * The hard ceiling. Set once per leg and never reset, which is the whole

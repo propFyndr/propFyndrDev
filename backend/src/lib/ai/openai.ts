@@ -87,6 +87,8 @@ function getOpenAIProvider(apiKeyOverride?: string, baseUrlOverride?: string): O
 // the cap prevents runaway generation and unexpected billing surprises.
 export interface InferenceConfig {
   maxTokens: number
+  /** Cancels the call from outside: the chain's race aborts the provider that lost. */
+  abortSignal?: AbortSignal
   model?: string
   /**
    * Whether this call may be offered the tool catalogue. Defaults to on.
@@ -224,6 +226,8 @@ export async function streamWithOpenAI(
     // and the body/chunk phase (for-await loop). A single timer reset on each chunk
     // ensures a stall at any point — pre-first-chunk or mid-stream — is caught.
     const inactivityController = new AbortController();
+    if (config.abortSignal?.aborted) inactivityController.abort();
+    config.abortSignal?.addEventListener('abort', () => inactivityController.abort(), { once: true });
     let inactivityFired = false;
     let inactivityTimer: NodeJS.Timeout | null = null;
 

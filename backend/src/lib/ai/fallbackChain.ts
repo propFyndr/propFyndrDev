@@ -3,6 +3,7 @@ import { FALLBACK_CHAIN, FallbackKeyConfig, isFreeTierKey, vendorOf, groqReplyCe
 import { checkAnswerIntegrity, checkAnswerIntegritySync, rewriteFraming, qualifyMarketFigures } from './answerIntegrity'
 import { warmKnownNames } from './toolBlindGuard'
 import { OUTAGE_NOTICE, outageTokenEvent } from './outageNotice'
+import { EventEmitter } from 'events'
 
 /**
  * Release each gated paragraph as it finishes instead of the whole answer at
@@ -57,6 +58,12 @@ export interface FallbackChainOptions {
    * caller outside the router (tests, scripts) is unaffected.
    */
   traceId?: string
+  /**
+   * Called when every leg has failed, before the outage notice. Text is sent in
+   * the notice's place (a stored-rows answer); '' means the answer already on
+   * screen is complete; null keeps the notice. See lib/chat/rowsAnswer.ts.
+   */
+  answerFromRows?: () => Promise<string | null> | string | null
 }
 
 /**
@@ -195,6 +202,34 @@ const STREAM_TAIL_HOLD_CHARS = Number(process.env.STREAM_TAIL_HOLD_CHARS ?? 180)
  * a turn makes, not how long a working answer may take.
  */
 const TURN_BUDGET_MS = Number(process.env.FALLBACK_TURN_BUDGET_MS ?? 30_000)
+
+/** One event per leg attempt, success or failure. Read by scripts/bench-providers.ts. */
+export interface LegEvent {
+  label: string
+  ok: boolean
+  /** Ms from the leg's start to the provider's first text chunk; null when none arrived. */
+  firstChunkMs: number | null
+  totalMs: number
+  error?: string
+}
+export const legEvents = new EventEmitter()
+
+/**
+ * Benchmark only (scripts/bench-providers.ts): run a single leg, by label, with
+ * no cooldown or rate-budget skips, so a failing leg is measured, not skipped.
+ * Ignored outside NODE_ENV=test.
+ */
+const BENCH_ONLY_LEG = process.env.NODE_ENV === 'test' ? process.env.BENCH_ONLY_LEG : undefined
+
+/**
+ * The race (Day 0 item 2). When a leg has not produced its first chunk after
+ * this long, the next eligible leg from a DIFFERENT vendor starts alongside it;
+ * whichever speaks first is shown and the other is aborted. A different vendor,
+ * because the outage this answers (Gemini's first token at 17-20 s) hits every
+ * Gemini leg at once, so racing two Gemini keys buys nothing.
+ * 0 turns it off.
+ */
+const HEDGE_MS = Number(process.env.FALLBACK_HEDGE_MS ?? 5_000)
 
 /**
  * How the answer reaches the buyer while still being gated.
@@ -592,6 +627,8 @@ function createBufferedSend(
 export async function executeWithFallbackChain(options: FallbackChainOptions): Promise<FallbackChainResult> {
   if (isLlmStubbed()) {
     emitStubbedModelCall({ systemPrompt: options.systemPrompt, messages: options.messages })
+    // Replay only: every provider down, so the turn takes the real no-model path.
+    if (process.env.LLM_STUB_MODE === 'outage') return endWithoutModel(options, '')
     options.send('token', { token: LLM_STUB_ANSWER })
     return { text: LLM_STUB_ANSWER, provider: 'stub', model: 'stub', envKey: 'LLM_STUB', is_verified: false }
   }
@@ -613,9 +650,11 @@ export async function executeWithFallbackChain(options: FallbackChainOptions): P
 
   // Feature flag: disable Gemini fallback if disabled (defaults to enabled)
   const enableGeminiFallback = env.ENABLE_GEMINI_FALLBACK === 'true'
-  const effectiveChainConfig = enableGeminiFallback
-    ? chainConfig
-    : chainConfig.filter(item => item.provider !== 'gemini')
+  const effectiveChainConfig = BENCH_ONLY_LEG
+    ? chainConfig.filter(item => item.label === BENCH_ONLY_LEG)
+    : enableGeminiFallback
+      ? chainConfig
+      : chainConfig.filter(item => item.provider !== 'gemini')
 
   // Adaptive message capping: keep as many messages as fit within the INPUT
   const systemPromptTokens = estimateTokensReal(systemPrompt)
@@ -725,8 +764,229 @@ export async function executeWithFallbackChain(options: FallbackChainOptions): P
     }
   }
 
+  /** Leg indexes already started by a race, so the loop does not start them again. */
+  const usedLegs = new Set<number>()
+
+  /**
+   * Everything one provider attempt needs, self-contained so two can run at
+   * once. Output goes through `gate`, which a race narrows to its winner.
+   */
+  const openLeg = (leg: FallbackKeyConfig, legIdx: number) => {
+    const legApiKey = process.env[leg.envKey] as string
+    const prompt = options.buildSystemPrompt
+      ? stripMarker(options.buildSystemPrompt(leg.supportsTools))
+      : leg.supportsTools
+        ? stripMarker(systemPrompt)
+        : applyNoToolsBlock(systemPrompt, groqFallbackSuffix)
+    warmKnownNames()
+    warmProjectPrices()
+    let gate: SendFn = send
+    const buffered = createBufferedSend(
+      (event, data) => gate(event, data),
+      prompt,
+      Number.MAX_SAFE_INTEGER,
+      options.suppressTables === true,
+      PARAGRAPH_STREAMING,
+      carryText,
+      [options.userMessage, options.buyerStated].filter(Boolean).join('\n'),
+    )
+
+    const effectiveConfig = options.config || { maxTokens: 3000 }
+    // Gemini ignores its FALLBACK_CHAIN item.model unless we thread it through here.
+    const legMaxTokens =
+      isFreeTierKey(leg.envKey)
+        ? Math.min(effectiveConfig.maxTokens ?? 1500, FREE_TIER_MAX_TOKENS)
+        : effectiveConfig.maxTokens
+    // The profile's model only applies to the provider it was chosen for.
+    const profileModel =
+      effectiveConfig.model && /^gemini/i.test(effectiveConfig.model) ? effectiveConfig.model : undefined
+    /** Filled by streamWithGemini with the counts the provider reported. */
+    const legUsage = { promptTokens: 0, completionTokens: 0, cachedTokens: 0 }
+    const geminiConfig = {
+      ...effectiveConfig,
+      model: profileModel ?? leg.model,
+      ...(leg.apiVersion ? { apiVersion: leg.apiVersion } : {}),
+      usageOut: legUsage,
+    }
+    // A free-tier key is limited by tokens per minute and requests per day.
+    if (isFreeTierKey(leg.envKey)) {
+      geminiConfig.thinkingBudget = 0
+      geminiConfig.maxTokens = Math.min(geminiConfig.maxTokens ?? 1500, FREE_TIER_MAX_TOKENS)
+    }
+    const effectiveModel = leg.provider === 'gemini' ? geminiConfig.model : leg.model
+    const legStart = Date.now()
+    let legSpan: any = null
+    if (rootTrace) {
+      try {
+        legSpan = rootTrace.generation({
+          name: `llm_call:${leg.provider}:${effectiveModel}`,
+          model: effectiveModel,
+          // The buyer's message is on the trace; the leg records only its shape.
+          input: { messagesCount: turnMessages.length },
+          metadata: { provider: leg.provider, envKey: leg.envKey, supportsTools: leg.supportsTools, turnIndex: legIdx },
+        })
+      } catch {
+        // Telemetry only. A Langfuse span that fails to open must never
+        // interrupt the answer the buyer is waiting on.
+      }
+    }
+
+    /** The provider's first text chunk: Langfuse's time to first token, the bench's, and the race's winner. */
+    let firstChunkAt: number | null = null
+    const onFirstChunk: Array<() => void> = []
+    const legSend: SendFn = (event, data) => {
+      if (firstChunkAt == null && event === 'token') {
+        firstChunkAt = Date.now()
+        try { legSpan?.update({ completionStartTime: new Date(firstChunkAt) }) } catch { /* telemetry only */ }
+        for (const f of onFirstChunk) f()
+      }
+      return buffered.bufferedSend(event, data)
+    }
+    const emitLeg = (ok: boolean, error?: string) => legEvents.emit('leg', {
+      label: leg.label, ok, firstChunkMs: firstChunkAt == null ? null : firstChunkAt - legStart, totalMs: Date.now() - legStart, error,
+    } satisfies LegEvent)
+
+    const call = async (abortSignal?: AbortSignal): Promise<string> => {
+      if (process.env.DEBUG_FALLBACK) {
+        console.log(`[FALLBACK:TRY] → ${leg.label} | Model: ${effectiveModel} | Tools: ${leg.supportsTools}`)
+      }
+      let text = ''
+      if (leg.provider === 'mistral') {
+        text = await streamWithMistral(prompt, turnMessages, legSend, legApiKey, userId, sessionId, legMaxTokens)
+      } else if (leg.provider === 'gemini') {
+        text = await streamWithGemini(prompt, turnMessages, legSend, wrappedOnToolCall, { ...geminiConfig, abortSignal }, legApiKey, userId, sessionId)
+        if (!text.trim() && !buffered.getTokensSent() && geminiConfig.tools !== false && !abortSignal?.aborted) {
+          console.warn(`[FALLBACK:RETRY_NO_TOOLS] ${leg.label} returned no text with tools — retrying the same key without them`)
+          text = await streamWithGemini(prompt, turnMessages, legSend, wrappedOnToolCall, { ...geminiConfig, tools: false, abortSignal }, legApiKey, userId, sessionId)
+        }
+      } else if (leg.provider === 'openai') {
+        text = await streamWithOpenAI(
+          prompt,
+          turnMessages,
+          legSend,
+          wrappedOnToolCall,
+          {
+            ...effectiveConfig,
+            model: leg.model,
+            abortSignal,
+            ...(vendorOf(leg) === 'groq' ? { maxTokens: groqReplyCeiling(effectiveConfig.maxTokens) } : {}),
+          },
+          userId,
+          sessionId,
+          legApiKey,
+          leg.baseUrl,
+        )
+      } else if (leg.provider === 'groq') {
+        text = await streamWithGroq(prompt, turnMessages, legSend, userId, sessionId, legApiKey, legMaxTokens)
+      }
+      return text
+    }
+
+    return {
+      item: leg, idx: legIdx, effectivePrompt: prompt, legUsage, effectiveModel, legStart,
+      get legSpan() { return legSpan },
+      ...buffered, emitLeg, call, onFirstChunk,
+      hasSpoken: () => firstChunkAt != null,
+      setGate: (g: SendFn) => { gate = g },
+    }
+  }
+  type Leg = ReturnType<typeof openLeg>
+
+  /** The next leg a race may start: another vendor, a key, not cooling, within budget. */
+  const pickHedge = (fromIdx: number, primary: FallbackKeyConfig): number | null => {
+    if (!(HEDGE_MS > 0) || BENCH_ONLY_LEG) return null
+    for (let j = fromIdx + 1; j < effectiveChainConfig.length; j++) {
+      const leg = effectiveChainConfig[j]
+      if (usedLegs.has(j) || vendorOf(leg) === vendorOf(primary)) continue
+      if (needsALookup && !leg.supportsTools) continue
+      if (emptyVendors.has(vendorOf(leg)) || !process.env[leg.envKey]) continue
+      if (isCoolingDown(`${leg.envKey}:${leg.model}`) || wouldExceed(leg.envKey, vendorOf(leg))) continue
+      return j
+    }
+    return null
+  }
+
+  /**
+   * Runs the primary leg; if it has not spoken after HEDGE_MS, starts the hedge
+   * leg too. The first to speak wins: its output reaches the buyer, the other is
+   * aborted and its output dropped. Nothing is forwarded before a first chunk,
+   * so the loser has shown nothing. Resolves with the winning leg and its text;
+   * rejects with the primary's error when it fails before the hedge starts (the
+   * loop then rolls over as before), or when both fail.
+   */
+  const raceLegs = (primary: Leg, hedgeIdx: number) => new Promise<{ leg: Leg; text: string }>((resolve, reject) => {
+    let winner: Leg | null = null
+    let hedge: Leg | null = null
+    let primaryErr: unknown = null
+    let hedgeErr: unknown = null
+    let settled = false
+    const primaryAbort = new AbortController()
+    const hedgeAbort = new AbortController()
+    const finish = (fn: () => void) => { if (!settled) { settled = true; fn() } }
+    const lose = (leg: Leg, abort: AbortController) => {
+      abort.abort()
+      leg.emitLeg(false, 'lost the race')
+      try { leg.legSpan?.end({ statusMessage: 'lost the race', metadata: { latency_ms: Date.now() - leg.legStart } }) } catch { /* telemetry only */ }
+    }
+    const win = (leg: Leg) => {
+      if (winner) return
+      winner = leg
+      if (leg === primary && hedge) lose(hedge, hedgeAbort)
+      if (leg !== primary) {
+        console.warn(`[FALLBACK:RACE] ${leg.item.label} spoke first; aborting ${primary.item.label}`)
+        lose(primary, primaryAbort)
+      }
+    }
+    // Before a winner the primary's non-text events (status) still pass; the hedge's never do.
+    primary.setGate((e, d) => (winner === primary || (winner === null && e !== 'token') ? send(e, d) : undefined))
+    primary.onFirstChunk.push(() => win(primary))
+
+    const startHedge = () => {
+      if (hedge || winner || settled) return
+      const leg = effectiveChainConfig[hedgeIdx]
+      usedLegs.add(hedgeIdx)
+      recordAttempt(leg.envKey)
+      const h = openLeg(leg, hedgeIdx)
+      hedge = h
+      console.warn(`[FALLBACK:RACE] ${primary.item.label} silent after ${HEDGE_MS}ms; starting ${leg.label} alongside`)
+      h.setGate((e, d) => (winner === h ? send(e, d) : undefined))
+      h.onFirstChunk.push(() => win(h))
+      h.call(hedgeAbort.signal).then(
+        (text) => {
+          if (winner === h || (winner === null && primaryErr)) { win(h); finish(() => resolve({ leg: h, text })) }
+          else if (winner === null && !text.trim()) hedgeErr = new Error(`${leg.label} returned no text`)
+        },
+        (err) => {
+          hedgeErr = err
+          if (winner === h) finish(() => reject(err))
+          else if (winner === null && primaryErr) finish(() => reject(primaryErr))
+        },
+      )
+    }
+    const timer = setTimeout(startHedge, HEDGE_MS)
+
+    primary.call(primaryAbort.signal).then(
+      (text) => {
+        clearTimeout(timer)
+        if (winner && winner !== primary) return
+        // Silent and empty while the hedge is still going: let the hedge answer.
+        if (!winner && !text.trim() && hedge && !hedgeErr) { primaryErr = new Error(`${primary.item.label} returned no text`); return }
+        win(primary)
+        finish(() => resolve({ leg: primary, text }))
+      },
+      (err) => {
+        clearTimeout(timer)
+        primaryErr = err
+        if (winner === primary || !hedge) return finish(() => reject(err))
+        if (hedgeErr) finish(() => reject(err))
+        // else: the hedge is still running; it settles the race.
+      },
+    )
+  })
+
   for (let chainIdx = 0; chainIdx < effectiveChainConfig.length; chainIdx++) {
-    const item = effectiveChainConfig[chainIdx]
+    if (usedLegs.has(chainIdx)) continue
+    let item = effectiveChainConfig[chainIdx]
     // Checked before the key and the cooldown, because it is a property of the
     // question rather than of this leg's configuration.
     if (needsALookup && !item.supportsTools) {
@@ -761,9 +1021,9 @@ export async function executeWithFallbackChain(options: FallbackChainOptions): P
     }
 
     // Skip a leg that recently failed for a reason retrying cannot fix — an
-    const cooldownKey = `${item.envKey}:${item.model}`
-    if (isCoolingDown(cooldownKey)) {
-      console.log(`[FALLBACK:COOLDOWN] ${item.label} — skipping: ${cooldownReason(cooldownKey)}`)
+    const skipKey = `${item.envKey}:${item.model}`
+    if (!BENCH_ONLY_LEG && isCoolingDown(skipKey)) {
+      console.log(`[FALLBACK:COOLDOWN] ${item.label} — skipping: ${cooldownReason(skipKey)}`)
       continue
     }
 
@@ -777,7 +1037,7 @@ export async function executeWithFallbackChain(options: FallbackChainOptions): P
     // therefore one allowance, and counting them separately would authorise
     // twice the requests the key actually has.
     const vendor = vendorOf(item)
-    if (wouldExceed(item.envKey, vendor)) {
+    if (!BENCH_ONLY_LEG && wouldExceed(item.envKey, vendor)) {
       console.log(
         `[FALLBACK:RATE_BUDGET] ${item.label} — skipping: ${limitFor(vendor)} req/min already used on ${item.envKey}`,
       )
@@ -785,149 +1045,30 @@ export async function executeWithFallbackChain(options: FallbackChainOptions): P
     }
     recordAttempt(item.envKey)
 
-    const effectivePrompt = options.buildSystemPrompt
-      ? stripMarker(options.buildSystemPrompt(item.supportsTools))
-      : item.supportsTools
-        ? stripMarker(systemPrompt)
-        : applyNoToolsBlock(systemPrompt, groqFallbackSuffix)
-    // Validate against the prompt this provider actually received, not the
-    // pre-variant one — otherwise the fact-check reads a different tool section.
-    /**
-     * Every leg is held back now, not only the tool-blind ones.
-     *
-     * The old split gave tool-capable legs a 250-char failover window and let
-     * the rest of the answer stream straight through, on the reasoning that a
-     * leg which CAN look something up will. Measured: the tool-capable Gemini
-     * leg answered a question about a project that does not exist with "a
-     * prominent high-rise residential development in Noida, crafted by
-     * **Supertech Limited**", and no guard ran, because the leg had tools.
-     * Having a tool is not the same as using it.
-     *
-     * So the whole answer is held until `checkAnswerIntegrity` has read it.
-     *
-     * "A second or two" was optimistic, and the measurement says so: advisory
-     * and comparison turns run on the smart model with the largest reply
-     * ceiling and have no cards or rendered table to stream ahead of the prose,
-     * so the buyer watches an empty screen for five to twenty seconds and then
-     * receives everything at once. That is the whole answer arriving as a
-     * block, which is the opposite of how every assistant these buyers already
-     * use behaves.
-     *
-     * `releaseByParagraph` keeps the gate and gives back the streaming: each
-     * finished paragraph is checked and forwarded, the last partial one is
-     * held so `endCleanly` still has something to repair, and a violation
-     * before anything has left still rolls the turn to the next leg. See
-     * `createBufferedSend` for what that trades.
-     *
-     * `warmKnownNames` matters here: the sync check refuses to judge on a cold
-     * cache, so without it the first turn after a restart would buffer whole
-     * and look like a regression rather than a cold start.
-     */
-    const bufferLimit = Number.MAX_SAFE_INTEGER
-    warmKnownNames()
-    warmProjectPrices()
-    const { bufferedSend, getTokensSent, getReleasedText, getPoisoned, flushRemaining, replaceBufferedText, drainPending } = createBufferedSend(
-      send,
-      effectivePrompt,
-      bufferLimit,
-      options.suppressTables === true,
-      PARAGRAPH_STREAMING,
-      carryText,
-      [options.userMessage, options.buyerStated].filter(Boolean).join('\n'),
-    )
-
-    const effectiveConfig = options.config || { maxTokens: 3000 }
-    // Gemini ignores its FALLBACK_CHAIN item.model unless we thread it through here — without
-    const legMaxTokens =
-      isFreeTierKey(item.envKey)
-        ? Math.min(effectiveConfig.maxTokens ?? 1500, FREE_TIER_MAX_TOKENS)
-        : effectiveConfig.maxTokens
-
-    // The profile's model only applies to the provider it was chosen for.
-    // `effectiveConfig` is shared by every leg, so a name from one vendor's
-    // catalogue reaching another's is a 404 — see the note on the OpenAI leg.
-    const profileModel =
-      effectiveConfig.model && /^gemini/i.test(effectiveConfig.model) ? effectiveConfig.model : undefined
-    /** Filled by streamWithGemini with the counts the provider reported. */
-    const legUsage = { promptTokens: 0, completionTokens: 0, cachedTokens: 0 }
-    const geminiConfig = {
-      ...effectiveConfig,
-      model: profileModel ?? item.model,
-      ...(item.apiVersion ? { apiVersion: item.apiVersion } : {}),
-      usageOut: legUsage,
-    }
-
-    // A free-tier key is limited by tokens per minute and requests per day, not
-    if (isFreeTierKey(item.envKey)) {
-      geminiConfig.thinkingBudget = 0
-      geminiConfig.maxTokens = Math.min(geminiConfig.maxTokens ?? 1500, FREE_TIER_MAX_TOKENS)
-    }
-
-    const effectiveModel = item.provider === 'gemini' ? geminiConfig.model : item.model
-    const legStart = Date.now()
-    let legSpan: any = null
-    if (rootTrace) {
-      try {
-        legSpan = rootTrace.generation({
-          name: `llm_call:${item.provider}:${effectiveModel}`,
-          model: effectiveModel,
-          // The buyer's message is on the trace; the leg records only its shape.
-          input: { messagesCount: turnMessages.length },
-          metadata: {
-            provider: item.provider,
-            envKey: item.envKey,
-            supportsTools: item.supportsTools,
-            turnIndex: chainIdx,
-          },
-        })
-      } catch {
-              // Telemetry only. A Langfuse span that fails to open must never
-              // interrupt the answer the buyer is waiting on.
-            }
-    }
+    // Every leg is held back until checkAnswerIntegrity has read each paragraph
+    // (see createBufferedSend); openLeg builds that buffer for one attempt.
+    let leg = openLeg(item, chainIdx)
+    let { effectivePrompt, getTokensSent, getReleasedText, getPoisoned, flushRemaining, replaceBufferedText, drainPending, legUsage, effectiveModel, legStart, emitLeg } = leg
+    let legSpan = leg.legSpan
+    let cooldownKey = `${item.envKey}:${item.model}`
 
     try {
-      if (process.env.DEBUG_FALLBACK) {
-        console.log(`[FALLBACK:TRY] → ${item.label} | Model: ${effectiveModel} | Tools: ${item.supportsTools}`)
-      }
-
       let text = ''
-      if (item.provider === 'mistral') {
-        text = await streamWithMistral(effectivePrompt, turnMessages, bufferedSend, apiKey, userId, sessionId, legMaxTokens)
-      } else if (item.provider === 'gemini') {
-        text = await streamWithGemini(effectivePrompt, turnMessages, bufferedSend, wrappedOnToolCall, geminiConfig, apiKey, userId, sessionId)
-
-        if (!text.trim() && !getTokensSent() && geminiConfig.tools !== false) {
-          console.warn(`[FALLBACK:RETRY_NO_TOOLS] ${item.label} returned no text with tools — retrying the same key without them`)
-          text = await streamWithGemini(
-            effectivePrompt,
-            turnMessages,
-            bufferedSend,
-            wrappedOnToolCall,
-            { ...geminiConfig, tools: false },
-            apiKey,
-            userId,
-            sessionId,
-          )
+      const hedgeIdx = pickHedge(chainIdx, item)
+      if (hedgeIdx == null) {
+        text = await leg.call()
+      } else {
+        const won = await raceLegs(leg, hedgeIdx)
+        text = won.text
+        if (won.leg !== leg) {
+          // The rest of this leg's handling (integrity gate, flush, success
+          // bookkeeping, a mid-stream hand-off) now belongs to the winner.
+          leg = won.leg
+          item = leg.item
+          ;({ effectivePrompt, getTokensSent, getReleasedText, getPoisoned, flushRemaining, replaceBufferedText, drainPending, legUsage, effectiveModel, legStart, emitLeg } = leg)
+          legSpan = leg.legSpan
+          cooldownKey = `${item.envKey}:${item.model}`
         }
-      } else if (item.provider === 'openai') {
-        text = await streamWithOpenAI(
-          effectivePrompt,
-          turnMessages,
-          bufferedSend,
-          wrappedOnToolCall,
-          {
-            ...effectiveConfig,
-            model: item.model,
-            ...(vendorOf(item) === 'groq' ? { maxTokens: groqReplyCeiling(effectiveConfig.maxTokens) } : {}),
-          },
-          userId,
-          sessionId,
-          apiKey,
-          item.baseUrl,
-        )
-      } else if (item.provider === 'groq') {
-        text = await streamWithGroq(effectivePrompt, turnMessages, bufferedSend, userId, sessionId, apiKey, legMaxTokens)
       }
 
       // The generation is closed once: on success below (with the provider's
@@ -1097,6 +1238,7 @@ export async function executeWithFallbackChain(options: FallbackChainOptions): P
       // by `looksLikeRestart` inside `createBufferedSend`: a restart is
       // poisoned the same way an integrity violation is, so the buyer sees
       // the answer stop cleanly rather than a duplicated, confusing table.
+      emitLeg(true)
       return {
         text: carryText ? carryText + beautified : beautified,
         provider: item.provider,
@@ -1108,6 +1250,7 @@ export async function executeWithFallbackChain(options: FallbackChainOptions): P
       const error = err instanceof Error ? err : new Error(String(err))
       const tokensSent = getTokensSent() || (err as any)?.tokensSent === true
       const errMsg = error.message || String(err)
+      emitLeg(false, errMsg.slice(0, 200))
 
       if (legSpan) {
         try {
@@ -1220,6 +1363,20 @@ export async function executeWithFallbackChain(options: FallbackChainOptions): P
    */
   // Shared with chipPolicy, which has to recognise this text to suppress
   // shortcuts on an outage turn. See lib/ai/outageNotice.ts.
+  return endWithoutModel(options, carryText)
+}
+
+/** Every leg failed (or the stub says so): the stored-rows answer when there is one, else the notice. */
+async function endWithoutModel(options: FallbackChainOptions, carryText: string): Promise<FallbackChainResult> {
+  const { send } = options
+  const fromRows = options.answerFromRows ? await Promise.resolve(options.answerFromRows()).catch(() => null) : null
+  if (fromRows != null) {
+    console.warn(`[FALLBACK:ROWS_ANSWER] every leg failed; answered from stored rows (${fromRows.length} chars)`)
+    // A half-written model reply is replaced, exactly as the notice would replace it.
+    if (fromRows) send('token', carryText ? { token: fromRows, replace: true } : { token: fromRows })
+    // Degraded all the same: no model read the question, so it is never cached as an advisory answer.
+    return { text: fromRows, provider: 'database', model: 'rows', envKey: 'ROWS_FALLBACK', is_verified: false, degraded: true }
+  }
   const fallbackMessage = OUTAGE_NOTICE
 
   // A leg that died mid-reply left part of an answer on screen ("The EMI would
