@@ -279,7 +279,7 @@ export function dropUnsourcedMeasurements(text: string, reference: string): { te
   }
   const statutory = new Set([7, 6])
   const dropped: string[] = []
-  const kept = text.split(/(?<=[.!?])(\s+)/).filter((part) => {
+  const kept = splitClauses(text).filter((part) => {
     if (/^\s+$/.test(part)) return true
     const measures = [...part.matchAll(MEASURE)].flatMap((m) => [m[1], m[2]].filter(Boolean) as string[])
     const badMeasure = measures.some((n) => !supported(n))
@@ -318,11 +318,41 @@ const UNSOURCED_JUDGEMENT = [
 export function dropUnsourcedJudgements(text: string, reference: string): { text: string; dropped: string[] } {
   const ref = (reference ?? '').toLowerCase()
   const dropped: string[] = []
-  const kept = text.split(/(?<=[.!?])(\s+)/).filter((part) => {
+  const kept = splitClauses(text).filter((part) => {
     if (/^\s+$/.test(part)) return true
     const hit = UNSOURCED_JUDGEMENT.map((re) => re.exec(part)?.[0]).find((m): m is string => Boolean(m))
     if (hit && !ref.includes(hit.toLowerCase())) { dropped.push(part.trim()); return false }
     return true
+  })
+  return { text: kept.join('').replace(/([.!?]) {2,}/g, '$1 ').replace(/\n{3,}/g, '\n\n').trim(), dropped }
+}
+
+/**
+ * Sentences, and lines. A list item has no full stop of its own, so splitting at
+ * ".!?" alone made a header and every bullet under it one "sentence": one bad
+ * figure dropped correct lines with it and left fragments (transcript rerun 7,
+ * 17 Oct 2026). Separators are kept so the text rejoins exactly.
+ */
+export function splitClauses(text: string): string[] {
+  return text.split(/((?<=[.!?])[ \t]+|\n+)/)
+}
+
+/**
+ * Model output that is broken, not wrong: a long run of digits, a rupee sign
+ * with its number missing, or our own prompt's section labels. Live rerun 7
+ * (17 Oct 2026), after five hand-offs down to the weakest legs: "₹ L–₹. Cr for
+ * BHK" with the digits emitted as "9511926295119…" ahead of the list, and
+ * "## MATCHED PROJECTS IN our verified data (GROUND TRUTH - CITE UNIT
+ * CONFIGURATION PRICES ONLY)". Such a line never reaches the buyer.
+ */
+const GARBLED = /\d{14,}|₹\s*(?:L|Cr|lakh|crore)\b|₹\s*\.\s*\d*\s*(?:L|Cr)\b|₹\s*[–-]|\bfor\s{2,}BHK\b|MATCHED PROJECTS|GROUND TRUTH|CITE UNIT CONFIGURATION|PROMPT FACTS|SYSTEM PROMPT/i
+
+export function dropGarbled(text: string): { text: string; dropped: string[] } {
+  const dropped: string[] = []
+  const kept = splitClauses(text).filter((part) => {
+    if (/^\s+$/.test(part) || !GARBLED.test(part)) return true
+    dropped.push(part.trim())
+    return false
   })
   return { text: kept.join('').replace(/([.!?]) {2,}/g, '$1 ').replace(/\n{3,}/g, '\n\n').trim(), dropped }
 }

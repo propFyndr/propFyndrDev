@@ -287,3 +287,13 @@ describe('looksLikeRestart does not depend on ### Recommendation having been sep
     assert.strictEqual(looksLikeRestart(finalChunk, releasedSoFar), true)
   })
 })
+
+describe('looksLikeRestart: prose (transcript rerun 5, 17 Oct 2026)', () => {
+  const prior = 'Prateek Laurel in Sector 120 sits close to daily needs, with convenience stores within walking distance. '
+  it('a paragraph opening with a sentence already shown is a restart', () => {
+    assert.strictEqual(looksLikeRestart('Prateek Laurel in Sector 120 sits close to daily needs, with convenience stores within walking distance. It also has a clubhouse.', prior), true)
+  })
+  it('a short or new opening is a continuation', () => {
+    assert.strictEqual(looksLikeRestart('It also has a clubhouse and a pool.', prior), false)
+  })
+})

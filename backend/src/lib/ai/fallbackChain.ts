@@ -115,7 +115,8 @@ import { estimateTokensReal } from './tokenizer'
 import { priceFor } from './cost'
 import { createTableStripper, stripTables } from './stripTables'
 import { checkToolBlindAnswer } from './toolBlindGuard'
-import { dropUnsourcedMeasurements, dropUnsourcedJudgements } from './projectFactChecks'
+import { dropUnsourcedMeasurements, dropUnsourcedJudgements, dropGarbled } from './projectFactChecks'
+import { dropMisattributedPrices, warmProjectPrices } from './projectPriceGuard'
 import { endCleanly } from './endCleanly'
 import { wouldExceed, recordAttempt, recordRateLimited, limitFor } from './rateBudget'
 import { sanitizeOutput } from './sanitizeOutput'
@@ -252,6 +253,12 @@ export function looksLikeRestart(paragraph: string, priorText: string): boolean 
     const match = paragraph.match(pattern)
     if (match && priorText.includes(match[0].trim())) return true
   }
+  // Prose restarts too: live transcript rerun 5 (17 Oct 2026) showed
+  // "Prateek Laurel in Sector 120… convenience stores." twice in a row after a
+  // hand-off, glued together, then the outage notice. A paragraph opening with a
+  // sentence the buyer has already read is a restart, not a continuation.
+  const first = trimmed.split(/(?<=[.!?])\s/)[0].replace(/\s+/g, ' ').trim()
+  if (first.length >= 40 && priorText.replace(/\s+/g, ' ').includes(first)) return true
   return false
 }
 
@@ -441,9 +448,11 @@ function createBufferedSend(
     // House style first, then the market-tier qualifier — the scan above read
     // the raw words, and both of these only ever add or reword a clause.
     const framedParagraph = rewriteFraming(complete).text
-    const measuredOnly = dropUnsourcedMeasurements(framedParagraph, `${systemPrompt}\n${userMessage}`)
+    const ungarbled = dropGarbled(framedParagraph)
+    const measuredOnly = dropUnsourcedMeasurements(ungarbled.text, `${systemPrompt}\n${userMessage}`)
     const judged = dropUnsourcedJudgements(measuredOnly.text, systemPrompt)
-    const measured = { text: judged.text, dropped: [...measuredOnly.dropped, ...judged.dropped] }
+    const priced = dropMisattributedPrices(judged.text, userMessage)
+    const measured = { text: priced.text, dropped: [...ungarbled.dropped, ...measuredOnly.dropped, ...judged.dropped, ...priced.dropped] }
     if (measured.dropped.length) console.warn('[FALLBACK:MEASURE_DROPPED]', measured.dropped.map((d) => d.slice(0, 80)))
     forwardToken(qualifyMarketFigures(measured.text, systemPrompt).text)
   }
@@ -539,8 +548,10 @@ function createBufferedSend(
 
   // The stripper holds a partial line, and possibly a heading it has not yet
   // decided about. Without this they never reach the buyer at all.
+  let stripperEnded = false
   function endStripper() {
-    if (!stripper) return
+    if (!stripper || stripperEnded) return
+    stripperEnded = true
     stripper.end()
     if (stripper.droppedAnything()) {
       console.log('[CHAT:TABLE_SUPPRESSED] model drew a table we had already rendered')
@@ -567,6 +578,14 @@ function createBufferedSend(
     getPoisoned: () => poisoned,
     flushRemaining,
     replaceBufferedText,
+    /**
+     * Sends what the table stripper still holds. `totalForwarded` counts text
+     * from the moment it enters the stripper, so a leg that failed before its
+     * stream ended left that text unsent while the next leg continued from it:
+     * the buyer read an answer starting mid-sentence ("bottlenecks.", transcript
+     * rerun 5, 17 Oct 2026).
+     */
+    drainPending: endStripper,
   }
 }
 
@@ -629,6 +648,7 @@ export async function executeWithFallbackChain(options: FallbackChainOptions): P
    * `tokensSent` catch branch below.
    */
   let carryText = ''
+  let continuations = 0
   /** Mutated when a mid-stream failure hands off to the next leg. */
   let turnMessages = cappedMessages
   const MID_STREAM_CONTINUE_INSTRUCTION =
@@ -805,7 +825,8 @@ export async function executeWithFallbackChain(options: FallbackChainOptions): P
      */
     const bufferLimit = Number.MAX_SAFE_INTEGER
     warmKnownNames()
-    const { bufferedSend, getTokensSent, getReleasedText, getPoisoned, flushRemaining, replaceBufferedText } = createBufferedSend(
+    warmProjectPrices()
+    const { bufferedSend, getTokensSent, getReleasedText, getPoisoned, flushRemaining, replaceBufferedText, drainPending } = createBufferedSend(
       send,
       effectivePrompt,
       bufferLimit,
@@ -947,9 +968,11 @@ export async function executeWithFallbackChain(options: FallbackChainOptions): P
           replaceBufferedText(framed.text)
           text = framed.text
         }
-        const measuredOnly = dropUnsourcedMeasurements(text, [systemPrompt, options.userMessage, options.buyerStated].filter(Boolean).join('\n'))
+        const ungarbled = dropGarbled(text)
+        const measuredOnly = dropUnsourcedMeasurements(ungarbled.text, [systemPrompt, options.userMessage, options.buyerStated].filter(Boolean).join('\n'))
         const judged = dropUnsourcedJudgements(measuredOnly.text, systemPrompt)
-        const measured = { text: judged.text, dropped: [...measuredOnly.dropped, ...judged.dropped] }
+        const priced = dropMisattributedPrices(judged.text, [options.userMessage, options.buyerStated].filter(Boolean).join(' '))
+        const measured = { text: priced.text, dropped: [...ungarbled.dropped, ...measuredOnly.dropped, ...judged.dropped, ...priced.dropped] }
         if (measured.dropped.length) {
           console.warn(`[FALLBACK:MEASURE_DROPPED] ${item.label}`, measured.dropped.map((d) => d.slice(0, 80)))
           replaceBufferedText(measured.text)
@@ -1130,9 +1153,15 @@ export async function executeWithFallbackChain(options: FallbackChainOptions): P
       // where the dead leg left off. The buyer sees one answer keep typing,
       // not a stall followed by an apology.
       if (tokensSent) {
+        // What this leg released must be on screen before anyone continues it.
+        drainPending()
         const releasedSoFar = getReleasedText()
         const hasMoreLegs = chainIdx < effectiveChainConfig.length - 1
-        if (hasMoreLegs && releasedSoFar.trim()) {
+        // Two hand-offs at most: each passes a half-answer to a weaker leg, and after
+        // five in transcript rerun 7 (17 Oct 2026) the last legs emitted digit-
+        // scrambled prices and our own prompt labels. Stop on the clean text.
+        if (hasMoreLegs && releasedSoFar.trim() && continuations < 2) {
+          continuations++
           console.warn(
             `[FALLBACK:MID_STREAM_CONTINUE] ${item.label} failed after ${releasedSoFar.length} chars sent — ` +
             `handing off to the next leg to finish this answer`,
