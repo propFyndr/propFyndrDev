@@ -1,11 +1,28 @@
 'use client'
 
 import 'leaflet/dist/leaflet.css'
-import { useMemo } from 'react'
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
+import { useEffect, useMemo } from 'react'
+import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet'
 import L from 'leaflet'
 import type { ProjectCard } from '@/types/project'
 import { SECTOR_CENTROIDS, NOIDA_CENTER } from './SectorMap'
+
+/**
+ * Leaflet measures its box once, at creation. Created inside a shelf that is
+ * still expanding, it measured nothing and drew grey tiles until the window was
+ * resized (tester report, 29 Oct). Re-measure whenever the box changes.
+ */
+function KeepSized() {
+  const map = useMap()
+  useEffect(() => {
+    const el = map.getContainer()
+    const ro = new ResizeObserver(() => map.invalidateSize())
+    ro.observe(el)
+    const t = setTimeout(() => map.invalidateSize(), 400)
+    return () => { ro.disconnect(); clearTimeout(t) }
+  }, [map])
+  return null
+}
 
 interface ExtraMarker {
   name: string
@@ -74,6 +91,7 @@ export default function SectorMapInner({ properties, extraMarkers = [] }: Props)
 
       scrollWheelZoom={false}
     >
+      <KeepSized />
       <TileLayer
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"

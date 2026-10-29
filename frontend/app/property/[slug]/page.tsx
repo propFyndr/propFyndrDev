@@ -12,6 +12,7 @@ import PropertyDetailThemed from '@/components/PropertyDetailThemed'
 import StickyMobileCta from '@/components/property-detail/StickyMobileCta'
 import CallbackModal from '@/components/CallbackModal'
 import { API_BASE } from '@/lib/env'
+import { getGuestToken } from '@/lib/guestToken'
 import { applyTheme, DEFAULT_THEME, type BuilderTheme } from '@/lib/builderTheme'
 
 
@@ -20,6 +21,9 @@ export default function PropertyDetailPage() {
   const router = useRouter()
   const [detail, setDetail] = useState<ProjectDetail | null>(null)
   const [notFound, setNotFound] = useState(false)
+  // Any other failure (rate limit, timeout, server error) is not "not found": say so and offer a retry.
+  const [loadFailed, setLoadFailed] = useState(false)
+  const [attempt, setAttempt] = useState(0)
   const [userId, setUserId] = useState<string | null>(null)
   const [theme, setTheme] = useState<BuilderTheme>(DEFAULT_THEME)
   const [showCallbackModal, setShowCallbackModal] = useState(false)
@@ -52,8 +56,17 @@ export default function PropertyDetailPage() {
 
     const loadProject = async () => {
       try {
-        const res = await fetch(`${API_BASE}/projects/${slug}`)
-        if (!res.ok) throw new Error(`HTTP ${res.status}`)
+        // The guest token keys the rate limit to this buyer. Without it every visitor
+        // shared the proxy's IP, and a 429 under load was shown as "Property Not Found".
+        const token = getGuestToken()
+        let res: Response | null = null
+        for (let i = 0; i < 3; i++) {
+          if (i) await new Promise((r) => setTimeout(r, 800 * i))
+          res = await fetch(`${API_BASE}/projects/${slug}`, token ? { headers: { 'x-guest-token': token } } : undefined).catch(() => null)
+          if (res && (res.ok || res.status === 404)) break
+        }
+        if (res?.status === 404) { setNotFound(true); return }
+        if (!res?.ok) throw new Error(`HTTP ${res?.status ?? 'network'}`)
         const d = await res.json()
         setDetail(d.project ?? null)
 
@@ -68,12 +81,13 @@ export default function PropertyDetailPage() {
         setTheme(selectedTheme)
         applyTheme(selectedTheme)
       } catch (err) {
-        setNotFound(true)
+        setLoadFailed(true)
       }
     }
 
+    setLoadFailed(false)
     loadProject()
-  }, [slug])
+  }, [slug, attempt])
 
   const [copied, setCopied] = useState(false)
 
@@ -154,7 +168,20 @@ export default function PropertyDetailPage() {
 
       {/* Main Luxury Container with Optimal Proportions */}
       <main className="max-w-6xl xl:max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-6 sm:py-8 pb-28 md:pb-8">
-        {notFound ? (
+        {loadFailed && !notFound ? (
+          <div className="text-center py-24 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm my-6 p-8">
+            <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Couldn&apos;t load this property just now</h2>
+            <p className="text-slate-500 dark:text-slate-400 text-sm mb-6 max-w-md mx-auto">
+              The request didn&apos;t complete. Try again in a moment.
+            </p>
+            <button
+              onClick={() => setAttempt((a) => a + 1)}
+              className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold tracking-wide transition-all shadow-sm active:scale-95 cursor-pointer"
+            >
+              Try again
+            </button>
+          </div>
+        ) : notFound ? (
           <div className="text-center py-24 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm my-6 p-8">
             <p className="text-4xl mb-3">🏚️</p>
             <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Property Not Found</h2>

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import {  m, AnimatePresence  } from 'framer-motion'
 import { Calendar, Clock, User, X } from 'lucide-react'
 
@@ -111,10 +112,13 @@ export default function SiteVisitScheduler({ projectId, projectSlug, projectName
     }
   }
 
-  return (
+  // Rendered on <body>, above every drawer: opened from a project drawer (z-[80]) it
+  // sat behind it and no date could be picked (tester report, 29 Oct).
+  if (typeof document === 'undefined') return null
+  return createPortal(
     <>
     <div
-      className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm"
+      className="fixed inset-0 z-[120] flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm"
       onClick={onClose}
     >
       <m.div
@@ -313,6 +317,7 @@ export default function SiteVisitScheduler({ projectId, projectSlug, projectName
         onClose={() => { setSuccessData(null); onClose() }}
       />
     )}
-    </>
+    </>,
+    document.body,
   )
 }

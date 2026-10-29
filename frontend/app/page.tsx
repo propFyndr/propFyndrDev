@@ -156,7 +156,7 @@ export default function LandingPage() {
                   placeholder={PLACEHOLDERS[placeholderIndex]}
                   autoComplete="off"
                   enterKeyHint="send"
-                  className="flex-1 min-w-0 bg-transparent text-[16px] sm:text-[15px] text-zinc-900 dark:text-zinc-50 placeholder:text-zinc-400 dark:placeholder:text-zinc-500 outline-none h-11"
+                  className="flex-1 min-w-0 text-ellipsis overflow-hidden bg-transparent text-[16px] sm:text-[15px] text-zinc-900 dark:text-zinc-50 placeholder:text-zinc-400 dark:placeholder:text-zinc-500 outline-none h-11"
                 />
                 <button
                   type="submit"
