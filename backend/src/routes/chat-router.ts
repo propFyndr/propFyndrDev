@@ -3663,11 +3663,14 @@ I can help you:
     // catch with X") mentions a BHK and "in", which read as an inventory search
     // and locked the turn out of the handlers that answer it.
     const asksProjectVerdict = ASKS_FAIRNESS.test(topicText) || ASKS_FOR_THE_CATCH.test(topicText)
+    const BARE_PLACE_RE = /^(?:near|around|close\s+to|nearby)\s+(?:(?:greater\s+)?noida\s+)?sec(?:tor)?\.?\s*\d+[a-z]?(?:\s+metro(?:\s+station)?)?\s*$/i
     const isInventorySearch = !asksProjectVerdict && (/\b(show\s+me|find\s+me|list\s+(all|the)?|options\s+in|available\s+in|looking\s+for|search\s+for)\b/i.test(topicText) ||
       // "1 cr", "what about Sector 150?": a revised slot on the search the intent already carries.
       isBareRefinement(topicText, [...chatHistory].reverse().find((m) => m.role === 'assistant')?.content) ||
       // A head term that is only a listing: "properties in greater noida west" waited on the model for 55 s and got the outage notice (Day 5 run).
       /^(?:\d\s*bhk\s+)?(?:properties|flats|apartments|homes|houses|projects)\s+(?:in|near|for\s+sale)\b[^?]*$/i.test(topicText) ||
+      // A bare place with no noun: "near noida sector 15 metro" (live 29 Oct) went to the model, which described the sector from memory.
+      /^(?:near|around|close\s+to|nearby)\s+(?:(?:greater\s+)?noida\s+)?sec(?:tor)?\.?\s*\d+[a-z]?(?:\s+metro(?:\s+station)?)?\s*$/i.test(topicText) ||
       // `under` is a budget word; "under construction" is a status.
       ((/\b\d\s*bhk\b/i.test(topicText) || (/\b\d\s*bhks\b/i.test(topicText) && !(intent.projectNames?.length))) && /\b(sector|in|mein|under(?!\s*[- ]?construction)|budget|crore|lakh)\b/i.test(topicText))) && // plural only with no project named: bm2-rtm-plural-bhk vs oct4-sizes
       !isCompareRequest && !isSectorCompare && !isAdvisoryPhrasing && !asksForProjectArtefact && !statesOwnBasePrice
@@ -5244,7 +5247,7 @@ EXECUTIVE RESPONSE INSTRUCTIONS:
      */
     const asksForInventoryNow =
       !reqState.control.hasExploratoryQuestion &&
-      namesInventory && (asksToBeShown || Boolean(intent.sector) || Boolean(intent.city))
+      (namesInventory && (asksToBeShown || Boolean(intent.sector) || Boolean(intent.city))) || BARE_PLACE_RE.test((message ?? "").trim())
 
     // Single-signal with no geographic or lifestyle context → ask rather than guess.
     // Covers: BHK-only, budget-only, sector-only. Takes priority over isAdvisoryQuery.

@@ -110,12 +110,12 @@ describe('Sales-OS Market Advisory & Zero-Project-Name Invariant (Phase 6)', () 
   })
 
   describe('Zero-Project-Name Invariant & Range Accuracy (Resale)', () => {
-    it('resale response provides rate bands and transfer friction without project names', () => {
+    it('resale response states no resale price or rate, and explains transfer friction without project names', () => {
       const output = formatResaleAdvisory('resale 3bhk in central noida')
 
-      // Rate per sqft and typical capital outlay
-      assert.ok(/₹\d{1,2},\d{3}/.test(output), 'Must contain rate per sqft')
-      assert.ok(/typical\s+capital\s+outlay/i.test(output), 'Must provide capital outlay')
+      // We hold no resale transaction prices, so no rate or typical outlay may appear.
+      assert.equal(/₹/.test(output), false, 'No resale rate or price band')
+      assert.ok(/no resale listings or resale prices/i.test(output), 'Must say we hold no resale prices')
       assert.ok(/transfer\s+(?:memorandum|tm|charges)/i.test(output), 'Must explain transfer friction')
 
       // Transparent positioning

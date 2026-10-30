@@ -177,7 +177,7 @@ export function formatResaleAdvisory(message: string): string {
   const bench = RESALE_BENCHMARKS[clusterKey] ?? RESALE_BENCHMARKS['central-noida']
   const isTenure = /\b(?:leasehold|freehold|tenure|land\s+authority|ownership\s+nature)\b/i.test(message)
 
-  let text = `### Resale Market Intelligence & Legal Overview (${bench.cluster})\n\n`
+  let text = `### Resale: what we cover and what we don't\n\n`
 
   if (isTenure) {
     text +=
@@ -188,9 +188,9 @@ export function formatResaleAdvisory(message: string): string {
   }
 
   text +=
-    `**Indicative Resale Rate Benchmarks:**\n` +
-    `- **Prevailing Resale Rates:** ${bench.ratePerSqft}, depending on maintenance state, floor and tower age (${MARKET_QUALIFIER}).\n` +
-    `- **Typical Capital Outlay:** 2BHK: ${bench.typical2BhkCr} | 3BHK: ${bench.typical3BhkCr} (${MARKET_QUALIFIER}).\n` +
+    // No resale rate or typical price here: we hold no resale transaction prices (CLAUDE.md § V1 Scope).
+    `**What a resale purchase involves:**\n` +
+    `- **We hold no resale listings or resale prices.** Ask a registered broker or the society office for those.\n` +
     `- **Resale Transaction Friction:** ${bench.frictionNote}\n` +
     `- **Statutory costs:** stamp duty (7% general, 6% female) and sub-registrar registration (1%) apply on the higher of the circle rate or agreement value.\n\n`
 

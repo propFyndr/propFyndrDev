@@ -2488,5 +2488,40 @@
         }
       }
     ]
+  },
+  {
+    "id": "live30oct-resale-no-invented-rates",
+    "source": "live audit 29 Oct — resale listing ask answered with hardcoded per-sq.ft rates",
+    "turns": [
+      {
+        "text": "Share the properties for resale under 5cr",
+        "expect": {
+          "contains": [
+            "We hold no resale listings or resale prices"
+          ],
+          "notContains": [
+            "/sqft",
+            "Prevailing Resale",
+            "Typical Capital Outlay"
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "id": "live30oct-near-sector-metro-bare",
+    "source": "live audit 29 Oct — bare place phrase went to the model",
+    "turns": [
+      {
+        "text": "near noida sector 15 metro",
+        "expect": {
+          "llm": false,
+          "lane": "search",
+          "contains": [
+            "Sector 15"
+          ]
+        }
+      }
+    ]
   }
 ]
