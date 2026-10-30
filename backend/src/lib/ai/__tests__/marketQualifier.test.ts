@@ -92,3 +92,17 @@ describe('costs nothing on ordinary answers', () => {
     })
   }
 })
+
+describe('a rate the model re-derived from our own row', () => {
+  it('is restated as the stored figure, with no market label', () => {
+    const prompt = 'VERIFIED FACTS\nDivine Meadows price_per_sqft: 9600\n'
+    const out = qualifyMarketFigures('Divine Meadows is at a rate of ₹9,577.46/sq.ft for the 2 BHK.', prompt)
+    assert.match(out.text, /₹9,600\/sq\.ft/)
+    assert.doesNotMatch(out.text, /typical for Noida/)
+    assert.equal(out.qualified, 0)
+  })
+  it('still qualifies a figure no row is near', () => {
+    const out = qualifyMarketFigures('Rates run ₹14,000/sq.ft here.', 'VERIFIED FACTS\nprice_per_sqft: 9600\n')
+    assert.match(out.text, new RegExp(MARKET_QUALIFIER))
+  })
+})

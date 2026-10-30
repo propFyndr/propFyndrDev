@@ -501,6 +501,20 @@ function digitsOf(figure: string): string[] {
 }
 
 /**
+ * A single per-sq.ft figure within 1% of a number the prompt carries is that row's own rate,
+ * re-derived with different rounding. Returns the prompt's figure, or null when none is near.
+ */
+function ownRowRate(match: string, promptDigits: string[]): string | null {
+  if (!/sq\.?\s?(?:ft|feet)/i.test(match)) return null
+  const mine = digitsOf(match)
+  if (mine.length !== 1) return null
+  const n = Number(mine[0])
+  if (!(n >= 1000)) return null
+  const near = promptDigits.map(Number).find((p) => p >= 1000 && p !== n && Math.abs(p - n) / n <= 0.01)
+  return near === undefined ? null : `₹${Math.round(near).toLocaleString('en-IN')}/sq.ft`
+}
+
+/**
  * Attach the market qualifier to rate claims the prompt does not support.
  *
  * Measured live on a beta pass: "How will the Jewar airport impact property
@@ -532,6 +546,10 @@ export function qualifyMarketFigures(text: string, prompt: string): { text: stri
       if (whole.slice(offset, offset + match.length + 80).includes(MARKET_QUALIFIER)) return match
       // Ours: the number came from the rows we handed the model.
       if (digitsOf(match).some(d => promptDigits.includes(d))) return match
+      // A per-project rate the model worked out itself (price ÷ area gives 9,577.46 where the row
+      // holds 9,600): ours, not a Noida-wide norm. Say the stored figure, with no market label.
+      const own = ownRowRate(match, promptDigits)
+      if (own !== null) return own
       qualified++
       const figure = match.replace(/\.$/, '')
       // Inside an open parenthesis a second "(…)" nests and reads as debris —

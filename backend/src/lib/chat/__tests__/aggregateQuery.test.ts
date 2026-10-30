@@ -41,7 +41,6 @@ describe('parseAggregateQuestion', () => {
 
   for (const msg of [
     'i want a house in noida around 3BHK sector 128',
-    'cheapest 3bhk in greater noida west',
     'should I buy in sector 150, what is the average price',
     'what is the rate of interest on a home loan',
     'compare average price in sector 150 and sector 128',
@@ -52,6 +51,24 @@ describe('parseAggregateQuestion', () => {
       assert.equal(await parseAggregateQuestion(msg), null)
     })
   }
+})
+
+describe('cheapest is a sort over our price rows', () => {
+  it('parses place, configuration and status', async () => {
+    const q = await parseAggregateQuestion('cheapest 2bhk ready to move in greater noida west')
+    assert.equal(q?.metric, 'cheapest')
+    assert.equal(q?.field, 'price')
+    assert.equal(q?.bhk, 2)
+    assert.equal(q?.status, 'ready_to_move')
+    assert.equal(q?.city, 'Greater Noida West')
+  })
+  it('renders ascending with the count it rests on', () => {
+    const rows = [{ name: 'B', sector: 'S2', value: 0.6, possession: null }, { name: 'A', sector: 'S1', value: 0.52, possession: 'Q1 2026' }, { name: 'C', sector: 'S3', value: 0.9, possession: null }]
+    const text = renderAggregateAnswer({ found: true, query: { metric: 'cheapest', field: 'price', bhk: 2 }, matched: 3, used: 3, excludedEstimated: 0, rows, stats: { avg: 0.67, median: 0.6, min: { value: 0.52, name: 'A', sector: 'S1' }, max: { value: 0.9, name: 'C', sector: 'S3' }, modeShare: 0.34 } })
+    assert.ok(text.indexOf('| A |') < text.indexOf('| B |') && text.indexOf('| B |') < text.indexOf('| C |'))
+    assert.match(text, /₹52 lakh/)
+    assert.match(text, /3 projects/)
+  })
 })
 
 describe('queryProjects + renderAggregateAnswer', () => {

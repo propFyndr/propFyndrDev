@@ -305,6 +305,16 @@ export function looksLikeRestart(paragraph: string, priorText: string): boolean 
   return false
 }
 
+/**
+ * The sentence filters (dropGarbled, dropUnsourced*) return trimmed text, so a released paragraph
+ * lost its closing blank line and the next one was glued to it ("…litigation.The RERA…", live 30 Oct).
+ * Gives the edited paragraph back the whitespace the original ended with.
+ */
+export function keepTrailingWhitespace(original: string, edited: string): string {
+  if (!edited.trim()) return edited
+  return edited.replace(/\s+$/, '') + (original.match(/\s*$/)?.[0] ?? '')
+}
+
 function createBufferedSend(
   originalSend: SendFn,
   systemPrompt: string,
@@ -497,7 +507,7 @@ function createBufferedSend(
     const priced = dropMisattributedPrices(judged.text, userMessage)
     const measured = { text: priced.text, dropped: [...ungarbled.dropped, ...measuredOnly.dropped, ...judged.dropped, ...priced.dropped] }
     if (measured.dropped.length) console.warn('[FALLBACK:MEASURE_DROPPED]', measured.dropped.map((d) => d.slice(0, 80)))
-    forwardToken(qualifyMarketFigures(measured.text, systemPrompt).text)
+    forwardToken(keepTrailingWhitespace(complete, qualifyMarketFigures(measured.text, systemPrompt).text))
   }
 
   /**

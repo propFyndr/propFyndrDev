@@ -20,7 +20,7 @@ import { builderNames } from '../builderNames'
 import { computedQualifier } from '../factPresentation'
 import { outOfScopeCity } from '../config/cities'
 
-export type AggregateMetric = 'avg' | 'median' | 'min' | 'max' | 'count' | 'list'
+export type AggregateMetric = 'avg' | 'median' | 'min' | 'max' | 'count' | 'list' | 'cheapest'
 export type AggregateField = 'price' | 'price_per_sqft' | 'maintenance' | 'projects'
 type Status = 'under_construction' | 'ready_to_move' | 'new_launch'
 
@@ -210,8 +210,11 @@ export async function parseAggregateQuestion(message: string): Promise<ProjectQu
   // "Most expensive property in Greater Noida" (live 26 Oct) went to the
   // budget-band ranking table; it is a max over our price rows.
   const dearest = /\b(most\s+expensive|costliest|priciest|highest[\s-]+priced)\b/.test(m)
+  // "Cheapest 2BHK ready to move in GNW" (live 30 Oct) was ranked by the model from the few rows in its
+  // prompt and led with a project that is not the cheapest. It is a sort over our price rows.
+  const cheapest = /\b(cheapest|least\s+expensive|most\s+affordable|lowest[\s-]+priced)\b/.test(m)
   const field: AggregateField | null =
-    dearest ? 'price'
+    dearest || (cheapest && !/\bper\s*sq|\bpsf\b|\bsq\.?\s*ft\b|\bsqft\b/.test(m)) ? 'price'
       : /\bmaintenance\b/.test(m) ? 'maintenance'
       : /\bper\s*sq|\bpsf\b|\bsq\.?\s*ft\b|\bsqft\b|\brate\b/.test(m) ? 'price_per_sqft'
       : /\b(price|cost|prices|ticket\s+size)\b/.test(m) ? 'price'
@@ -221,6 +224,7 @@ export async function parseAggregateQuestion(message: string): Promise<ProjectQu
 
   let metric: AggregateMetric | null = null
   if (dearest) metric = 'max'
+  else if (cheapest && field === 'price') metric = 'cheapest'
   else if (/\b(average|avg|mean)\b/.test(m)) metric = 'avg'
   else if (/\bmedian\b/.test(m)) metric = 'median'
   else if (/\b(lowest|minimum)\b/.test(m) && field !== 'projects') metric = 'min'
@@ -258,7 +262,7 @@ export async function parseAggregateQuestion(message: string): Promise<ProjectQu
   // neither (Delhi is not a city we tag), and must not quietly become the
   // average of our whole catalogue.
   // The dearest home we hold is a fair question with no place named.
-  if (['avg', 'median', 'min', 'max'].includes(metric) && !sectors.length && !city && !builder && !dearest) return null
+  if (['avg', 'median', 'min', 'max', 'cheapest'].includes(metric) && !sectors.length && !city && !builder && !dearest) return null
 
   return {
     metric,
@@ -318,6 +322,17 @@ export function renderAggregateAnswer(r: ProjectQueryResult): string {
       ...shown.map((p) => `| ${p.name.replace(/\|/g, '/')} | ${p.sector} | ${p.possession ?? 'Not recorded'} |`)].join('\n')
     const more = r.matched > shown.length ? `\n\n${r.matched - shown.length} more match. Narrow it by sector or budget to see them.` : ''
     return `We hold **${r.matched}** ${scope}.\n\n${table}${more}`
+  }
+
+  if (q.metric === 'cheapest' && r.stats) {
+    const low = r.rows.filter((x) => x.value !== null).sort((a, b) => a.value! - b.value! || a.name.localeCompare(b.name)).slice(0, 5)
+    return `Cheapest of the ${scope} we hold, by entry price:
+
+| Project | Sector | From | Possession |
+| :--- | :--- | :--- | :--- |
+${low.map((x) => `| ${x.name.replace(/\|/g, '/')} | ${x.sector} | ${fmt('price', x.value!)} | ${x.possession ?? 'Not recorded'} |`).join('\n')}
+
+${computedQualifier(r.used).replace(/^./, (c) => c.toUpperCase())}. Each figure is the lowest ${q.bhk ? `${q.bhk} BHK` : ''} price recorded for the project.`
   }
 
   if (!r.stats) {

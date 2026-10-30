@@ -73,3 +73,14 @@ describe('a violation is contained in one paragraph', () => {
     )
   })
 })
+
+describe('a released paragraph keeps the blank line that ends it', () => {
+  it('survives the sentence filters, which trim', async () => {
+    const { keepTrailingWhitespace } = await import('../fallbackChain')
+    const { dropGarbled } = await import('../projectFactChecks')
+    const para = 'It carries a moderate risk. Good schools are everywhere here.\n\n'
+    assert.equal(dropGarbled(para).text.endsWith('\n\n'), false, 'precondition: the filter trims')
+    assert.ok(keepTrailingWhitespace(para, dropGarbled(para).text).endsWith('\n\n'))
+    assert.equal(keepTrailingWhitespace('A.\n\n', ''), '', 'a fully dropped paragraph stays empty')
+  })
+})

@@ -313,6 +313,11 @@ const UNSOURCED_JUDGEMENT = [
   /\bcompact\s+(?:room|layout|bedroom)s?\b|\b(?:spacious|cramped|efficient)\s+(?:room|layout|floor\s+plan)s?\b/i,
   /\b(?:trusted|reputed|reliable|renowned|well-known)\s+(?:builder|developer|brand)\b/i,
   /\bknown\s+for\b/i,
+  // Day-to-day living claims no row holds (live 30 Oct: "visitor parking can get constrained during peak evening hours").
+  /\b(?:visitor\s+)?parking\s+(?:can|may|gets?|is|tends?\s+to)\s+(?:be\s+|get\s+)?(?:constrained|tight|limited|scarce|crowded|congested)\b/i,
+  /\bfootfall\b/i,
+  /\b(?:peak|evening|weekend)\s+(?:hours?|evenings?|days?)\b/i,
+  /\b(?:crowded|congested|busier|busy)\s+(?:common|amenit|club|lift|tower)\w*/i,
 ]
 
 export function dropUnsourcedJudgements(text: string, reference: string): { text: string; dropped: string[] } {

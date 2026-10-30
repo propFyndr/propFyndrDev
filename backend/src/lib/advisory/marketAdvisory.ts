@@ -136,23 +136,17 @@ export function formatRentalAdvisory(message: string): string {
   const bench = RENTAL_BENCHMARKS[clusterKey] ?? RENTAL_BENCHMARKS['central-noida']
   const isTenantDemand = /\b(?:tenant\s+demand|tenant\s+profile|who\s+rents|rent\s+out)\b/i.test(message)
 
-  let text = `### Indicative Market Rental Overview (${bench.cluster})\n\n`
+  let text = `### Renting: what we cover and what we don't\n\n`
 
   if (isTenantDemand) {
     text +=
       `**Tenant Demand:**\n` +
       `- **What we do not track:** who rents here, how fast units let, or vacancy. We cannot describe the tenant profile with any confidence; a local leasing broker or the society RWA will have a better read.\n` +
-      `- ${marketFigure('2BHK rent', bench.bhk2Range)}\n` +
-      `- ${marketFigure('3BHK rent', bench.bhk3Range)}\n` +
-      `- ${marketFigure('Gross yield', bench.grossYield)}\n\n`
+      `- **We hold no rent or yield figures**, so I will not quote one.\n\n`
   } else {
     text +=
-      `Indicative market rent for this corridor:\n\n` +
-      `| Unit Type | Indicative Monthly Rent | Gross Rental Yield | Basis |\n` +
-      `| :--- | :--- | :--- | :--- |\n` +
-      `| **2 BHK** | ${bench.bhk2Range} | ${bench.grossYield} | ${MARKET_QUALIFIER} |\n` +
-      `| **3 BHK** | ${bench.bhk3Range} | ${bench.grossYield} | ${MARKET_QUALIFIER} |\n\n` +
-      `*Context: ${bench.commentary}*\n\n`
+      // No rent or yield here: rentals are out of scope and we hold no rental prices (CLAUDE.md § V1 Scope).
+      `**We hold no rental listings, rents or yields**, so I will not quote a figure for 2 or 3 BHK rent. A local leasing broker or the society RWA can tell you what flats are letting for.\n\n`
   }
 
   // Transparent positioning + Hormozi / Brunson Sales-OS Bridge

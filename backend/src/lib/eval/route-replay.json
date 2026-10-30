@@ -2523,5 +2523,42 @@
         }
       }
     ]
+  },
+  {
+    "id": "live30oct-cheapest-ranked-from-rows",
+    "source": "live audit 30 Oct — cheapest 2BHK ranked by the model, led with a project that was not the cheapest",
+    "turns": [
+      {
+        "text": "cheapest 2bhk ready to move in greater noida west",
+        "expect": {
+          "lane": "aggregate",
+          "llm": false,
+          "contains": [
+            "Cheapest of the 2BHK",
+            "We hold",
+            "projects we hold"
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "id": "live30oct-rent-no-invented-rents",
+    "source": "live audit 30 Oct — rent ask answered with a hardcoded rent and yield table",
+    "turns": [
+      {
+        "text": "i want to rent a 2bhk in noida",
+        "expect": {
+          "contains": [
+            "hold no rental listings, rents or yields"
+          ],
+          "notContains": [
+            "₹22,000",
+            "Gross Rental Yield",
+            "2.5%"
+          ]
+        }
+      }
+    ]
   }
 ]

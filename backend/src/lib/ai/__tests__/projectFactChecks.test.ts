@@ -136,3 +136,14 @@ describe('judgement wordings seen in live rerun 5', () => {
     assert.equal(dropUnsourcedJudgements('Built with Mivan shuttering.', 'construction: mivan').text, 'Built with Mivan shuttering.')
   })
 })
+
+describe('day-to-day living claims no row supports', () => {
+  it('drops the sentence, keeps the rest', async () => {
+    const { dropUnsourcedJudgements } = await import('../projectFactChecks')
+    const t = 'Exotica Fresco has 2 to 4 BHK layouts. Trade-off: Visitor parking can get constrained during peak evening hours. Possession is ready to move.'
+    const out = dropUnsourcedJudgements(t, 'Exotica Fresco ready_to_move 2 to 4 BHK').text
+    assert.doesNotMatch(out, /parking|peak/i)
+    assert.match(out, /2 to 4 BHK layouts/)
+    assert.match(out, /ready to move/)
+  })
+})

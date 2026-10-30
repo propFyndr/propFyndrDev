@@ -67,13 +67,13 @@ describe('Sales-OS Market Advisory & Zero-Project-Name Invariant (Phase 6)', () 
     ]
 
     for (const tc of testCases) {
-      it(`rental response for "${tc.msg}" delivers numbers without mentioning project names`, () => {
+      it(`rental response for "${tc.msg}" quotes no rent or yield and mentions no project names`, () => {
         const output = formatRentalAdvisory(tc.msg)
 
-        // Grounded numbers must be present
-        assert.ok(/₹\d{2},\d{3}/.test(output), 'Must contain rupee rental figures')
-        assert.ok(/\d\.\d%/.test(output), 'Must contain yield percentages')
-        assert.ok(/2\s*BHK/i.test(output), 'Must contain BHK breakdown')
+        // We hold no rental prices, so no rupee figure or yield may appear.
+        assert.equal(/₹/.test(output), false, 'No rental figure')
+        assert.equal(/\d\.\d%/.test(output), false, 'No yield percentage')
+        assert.ok(/hold no rental listings, rents or yields/i.test(output), 'Must say we hold no rents')
 
         // Transparent positioning statement must be present
         assert.ok(
@@ -274,7 +274,7 @@ describe('Sales-OS Market Advisory & Zero-Project-Name Invariant (Phase 6)', () 
 
       assert.equal(handled, true)
       assert.equal(state.ended, true)
-      assert.ok(events.some(e => e.event === 'token' && e.data.token.includes('Indicative Market Rental Overview')))
+      assert.ok(events.some(e => e.event === 'token' && e.data.token.includes('We hold no rental listings, rents or yields')))
       assert.ok(events.some(e => e.event === 'token' && e.data.token.includes('RealtyAsk specializes')))
     })
 
