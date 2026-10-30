@@ -306,7 +306,8 @@ function readLocal(key: string, countMiss = true): CachedEntry | null {
 // integrity fixes of that day change what the same words are answered with.
 // v12 (24 Oct 2026): factual questions keyed on meaning, and entries written under the
 // intent carried into the turn (as they are read), not the intent after it.
-const REDIS_PREFIX = 'ac:v12:' // v11: drops answers written before the 17 Oct transcript fixes (follow-ups served across chats, builder 'these').
+// v13 (30 Oct 2026): live answers cached for 24 h before the resale and bare-place routing fixes ("near noida sector 15 metro" kept replaying the model's prose).
+const REDIS_PREFIX = 'ac:v13:' // v11: drops answers written before the 17 Oct transcript fixes (follow-ups served across chats, builder 'these').
 // v8: v7 cached project-focused handler answers under project-free keys
 
 /** A read that takes longer than this is not worth waiting for — the LLM call it */
