@@ -229,6 +229,8 @@ export interface BuilderDetail {
 }
 
 export interface ProjectDetail extends ProjectCard {
+  /** Who confirmed the price and when, or that no date is on record (backend projectPriceNotes). */
+  price_note?: string | null
   long_description: string | null
   design_theme: string | null
   total_units: number | null

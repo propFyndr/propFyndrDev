@@ -97,6 +97,7 @@ import { redactProject, redactForResponse } from '../lib/projectExposure'
 import { buildProjectFacts, detectFactTopics, detectIntentSlice, relationIncludesFor } from '../lib/projectFactsBlock'
 import { facingLabel } from '../lib/discovery/facing'
 import { projectPriceNotes } from '../lib/projectPriceNote'
+import { summarisePriceNotes } from '../lib/priceVerification'
 import { UNDATED_NOTE } from '../lib/priceVerification'
 import { buildComponentResponse } from '../lib/discovery/componentSpec'
 import { loadMentionedProjectCards } from '../lib/chat/mentionedProjectCards'
@@ -6193,7 +6194,13 @@ EXECUTIVE RESPONSE INSTRUCTIONS:
 
     // Phase 5.4: Meta-awareness handler — user asking "what have you assumed about me?"
     const isMetaQuestion = /what.*(assum|remember|know).*about\s+me\b|what.*constraints.*\bi\b|what.*(my|our)\s+(filters|profile|preferences|requirements)|what.*have\s+i\s+told|what.*do you.*think.*about\s+me\b/i.test(message)
-    const searchAnswer = !isMetaQuestion && disambiguationText === null && discoverySkipReason === null && queryClassification.queryKind === 'DISCOVERY' && !reqState.control.hasExploratoryQuestion && isInventorySearch && topicFlagCount === 0 && !asksMarketWide(message ?? '') && !(intent as any).is_comparison_query && !(intent as any).lifestyleKeywords?.length && !renderedTable && renderTarget !== 'text' ? searchSummary({ intent: intent as any, exact: projects, nearby: nearbyProjects, shown: currentCardLimit }) : null; if (searchAnswer) { fullText += searchAnswer; send('token', { token: searchAnswer }); Object.assign(turnTrace, { lane: 'search', provider: 'code', answer_chars: searchAnswer.length }); console.log('[CHAT:SEARCH_IN_CODE]', { exact: projects.length, nearby: nearbyProjects.length }) }
+    // Who confirmed the listed prices and when; a date is an annotation, so a failed read says "not on record".
+    let searchPriceNote: string | null = null
+    if (isInventorySearch && discoverySkipReason === null) {
+      const listed = (projects.length ? projects : nearbyProjects).slice(0, 6)
+      if (listed.length) searchPriceNote = summarisePriceNotes([...(await projectPriceNotes(listed.map((p) => p.id))).values()])
+    }
+    const searchAnswer = !isMetaQuestion && disambiguationText === null && discoverySkipReason === null && queryClassification.queryKind === 'DISCOVERY' && !reqState.control.hasExploratoryQuestion && isInventorySearch && topicFlagCount === 0 && !asksMarketWide(message ?? '') && !(intent as any).is_comparison_query && !(intent as any).lifestyleKeywords?.length && !renderedTable && renderTarget !== 'text' ? searchSummary({ intent: intent as any, exact: projects, nearby: nearbyProjects, shown: currentCardLimit, priceNote: searchPriceNote }) : null; if (searchAnswer) { fullText += searchAnswer; send('token', { token: searchAnswer }); Object.assign(turnTrace, { lane: 'search', provider: 'code', answer_chars: searchAnswer.length }); console.log('[CHAT:SEARCH_IN_CODE]', { exact: projects.length, nearby: nearbyProjects.length }) }
     // A plain search is answered from its rows (lib/ai/searchSummary): no model call, nothing to invent. A question riding on the search still goes to the model. const searchAnswer below.
     if (isMetaQuestion && hydratedIntent) {
       const constraints = []
@@ -6345,7 +6352,7 @@ EXECUTIVE RESPONSE INSTRUCTIONS:
       // Keep what was already sent ahead of the model (the sector note and any
       // table rendered in code): it was assigned over, so saved history — and a
       // reopened chat — lost the appreciation, yield and micro-market tables.
-      const instead = isOutageNotice(fallbackResult.text) ? outageOverShownAnswer(fullText, cardsAreRendering ? cardsShownThisTurn : 0, cardsAreRendering && cardsShownThisTurn > 0 && !renderedTable ? searchSummary({ intent: intent as any, exact: projects, nearby: nearbyProjects, shown: cardsShownThisTurn }) : '') : null
+      const instead = isOutageNotice(fallbackResult.text) ? outageOverShownAnswer(fullText, cardsAreRendering ? cardsShownThisTurn : 0, cardsAreRendering && cardsShownThisTurn > 0 && !renderedTable ? searchSummary({ intent: intent as any, exact: projects, nearby: nearbyProjects, shown: cardsShownThisTurn, priceNote: searchPriceNote }) : '') : null
       if (instead) send('token', { token: instead, replace: true }) // the rows already answered; only the prose failed
       fullText = instead ?? `${fullText}${fallbackResult.text}`
       usedProvider = { provider: fallbackResult.provider, envKey: fallbackResult.envKey }

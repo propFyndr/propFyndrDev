@@ -67,8 +67,11 @@ export function searchSummary(opts: {
   exact: ScoredProject[]
   nearby: ScoredProject[]
   shown: number
+  /** One clause on who confirmed the listed prices and when (projectPriceNotes), or null. */
+  priceNote?: string | null
 }): string {
   const { intent, exact, nearby } = opts
+  const note = opts.priceNote ? `\n\n_Prices: ${opts.priceNote}._` : ''
   const shown = Math.max(1, Math.min(opts.shown || 6, 6))
   const asked = describeSearch(intent)
   const matches = exact.filter((p) => !isOver(p))
@@ -87,7 +90,7 @@ export function searchSummary(opts: {
       : ''
     return `**${count} project${matches.length === 1 ? '' : 's'} match** ${asked}.${range}${mix}
 
-${matches.slice(0, shown).map(line).join('\n')}${aboveBlock}
+${matches.slice(0, shown).map(line).join('\n')}${aboveBlock}${note}
 
 Open a card for the cost sheet and RERA record, or tell me what matters most (possession, metro, builder record) and I'll narrow these down.`
   }
@@ -95,7 +98,7 @@ Open a card for the cost sheet and RERA record, or tell me what matters most (po
   if (nearby.length) {
     return `None of the projects we hold match ${asked} exactly. These are the closest:
 
-${nearby.slice(0, shown).map(line).join('\n')}
+${nearby.slice(0, shown).map(line).join('\n')}${note}
 
 Tell me which constraint to relax, or open a card for its details.`
   }

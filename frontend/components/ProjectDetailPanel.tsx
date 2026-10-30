@@ -770,6 +770,9 @@ export default function ProjectDetailPanel({ project, onClose, inline, initialDe
             <p className="text-[20px] sm:text-[24px] md:text-[26px] xl:text-[28px] font-black tracking-tighter text-gray-900 dark:text-white leading-tight break-words">
               {displayPrice}
             </p>
+            {(d as any)?.price_note && (
+              <p className={`text-[11px] font-medium mt-1 ${/may have changed/.test((d as any).price_note) ? 'text-amber-600 dark:text-amber-400' : 'text-gray-500 dark:text-gray-400'}`}>Price: {(d as any).price_note}</p>
+            )}
             {/* This line read "ALL INCLUSIVE" unconditionally, regardless of the
                 project's own price_includes_plc / _club / _taxes flags — so the
                 page asserted a claim the database frequently contradicted. It now
@@ -907,6 +910,7 @@ export default function ProjectDetailPanel({ project, onClose, inline, initialDe
         <div className="absolute bottom-2.5 left-2.5 right-2.5 z-10 bg-black/50 backdrop-blur-md border border-white/15 rounded-2xl p-3 flex items-center justify-between shadow-xl">
           <div className="min-w-0 pr-2">
             <p className="text-base sm:text-lg font-black text-white leading-tight truncate">{displayPrice}</p>
+            {(d as any)?.price_note && <p className={`text-[9.5px] font-semibold mt-0.5 ${/may have changed/.test((d as any).price_note) ? 'text-amber-300' : 'text-gray-300'}`}>Price: {(d as any).price_note}</p>}
             {perSqftRate && <p className="text-[9.5px] text-gray-300 font-semibold mt-0.5 truncate">Starts ₹{perSqftRate}/sqft</p>}
           </div>
           <div className="text-right flex-shrink-0">

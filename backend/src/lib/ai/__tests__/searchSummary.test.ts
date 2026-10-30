@@ -51,3 +51,20 @@ it('does not repeat "possession" when the label already says it', () => {
   assert.match(t, /possession Dec 2026/)
   assert.doesNotMatch(t, /possession Possession/i)
 })
+
+describe('a shortlist says who confirmed its prices and when', () => {
+  it('carries a 31-day-old confirmation with its warning, and nothing when no note is given', async () => {
+    const { projectPriceNotes } = await import('../../projectPriceNote')
+    const { summarisePriceNotes } = await import('../../priceVerification')
+    const now = new Date('2026-10-30T00:00:00Z')
+    const verifiedAt = new Date(now.getTime() - 31 * 86_400_000)
+    const notes = await projectPriceNotes(['p1'], now, async () => ({
+      projects: [{ id: 'p1' }], units: [],
+      rows: [{ entityType: 'Project', entityId: 'p1', tier: 'BUILDER_ATTESTED', verifiedAt }],
+    }))
+    const args = { intent: { bhk: [3], city: 'Noida' }, exact: [p({ name: 'Omaxe Riviera', price_range_label: '₹1.2–1.4Cr', price_for_bhk: '3 BHK' })], nearby: [], shown: 6 }
+    const withNote = searchSummary({ ...args, priceNote: summarisePriceNotes([...notes.values()]) })
+    assert.match(withNote, /_Prices: last confirmed by the builder on 29 Sep(?:t)? 2026 \(31 days ago\), so it may have changed\._/)
+    assert.doesNotMatch(searchSummary(args), /_Prices:/)
+  })
+})

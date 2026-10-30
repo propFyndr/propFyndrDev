@@ -10,6 +10,7 @@ import { routeCache } from '../lib/routeCache'
 import { computeLiveActivity } from '../lib/liveActivity'
 import { computeOnTimeDeliveryPct } from '../lib/builderDelivery'
 import { REAL_DOCUMENT_WHERE } from '../lib/realDocuments'
+import { projectPriceNotes } from '../lib/projectPriceNote'
 
 const router = Router()
 
@@ -141,13 +142,16 @@ router.get('/:slug', routeCache(900), async (req: Request, res: Response) => {
 
   const reportUrl = `/api/projects/${gated.slug}/report`;
 
+  // Who confirmed the price and when, or that no date is on record (CLAUDE.md: price freshness).
+  const price_note = (await projectPriceNotes([project.id])).get(project.id) ?? null
+
   // The include above has no `select`, so the row carries every column and the
   // spread below ships all of them. ai_search_keywords is the internal retrieval
   // vocabulary — publishing it hands anyone reading the network tab a map of how
   // matching and ranking work. builder_theme stays: the page uses it to theme.
   const { ai_search_keywords: _internalKeywords, ...publicProject } = gated
 
-  res.json({ project: { ...publicProject, builder_detail: gated.builder, recommendation_score, reportUrl, all_amenities: gated.amenities, all_connectivity: gated.connectivity } })
+  res.json({ project: { ...publicProject, builder_detail: gated.builder, price_note, recommendation_score, reportUrl, all_amenities: gated.amenities, all_connectivity: gated.connectivity } })
 })
 
 router.get('/:slug/documents', async (req: Request, res: Response) => {
