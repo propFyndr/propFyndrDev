@@ -298,8 +298,20 @@ const MONEY_ASSURANCE =
 const MONEY_HONEST =
   "I can't see the status of your payment from here — a relationship manager can pull the record and tell you exactly where it sits."
 
-/** Softens any guarantee we cannot make, and counts what it softened. */
+/**
+ * Softens any guarantee we cannot make, and counts what it softened.
+ *
+ * The sentence rewrites cut at the first full stop, so "per sq. ft" ended a
+ * sentence mid-clause: a Q8 answer lost "...per sq. ft is a good sign" and gained
+ * the registration disclaimer in its place (31 Oct 2026). The dot of an area
+ * abbreviation is hidden for the passes and put back after.
+ */
 function softenOverPromises(input: string): { text: string; count: number } {
+  const r = softenOverPromisesRaw(input.replace(/\b(sq)\.(\s?)(ft|feet|m|mtr|yd)\b/gi, '$1\u0001$2$3'))
+  return { text: r.text.replace(/\u0001/g, '.'), count: r.count }
+}
+
+function softenOverPromisesRaw(input: string): { text: string; count: number } {
   let count = 0
 
   // The money-assurance sentence goes whole, before the word-level passes —

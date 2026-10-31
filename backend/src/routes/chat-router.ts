@@ -109,6 +109,7 @@ import { recordDemandSignal } from '../lib/demandSignal'
 import { scanDisclosure } from '../lib/ai/answerIntegrity'
 import { projectCatalog, catalogNamesSync } from '../lib/projectCatalog'
 import { asksAboutFocusAttribute, mentionsFocusPronoun, focusFallback, parkFocus, parkedFocus, asksMarketWide, expandAffirmation, isBareRefinement } from '../lib/chat/followUp'; import { answerFromRows } from '../lib/chat/rowsAnswer'; import { firstStatusLine } from '../lib/chat/statusLine'; import { isBuilderNameCandidate } from '../lib/builderNames'; import { searchSummary } from '../lib/ai/searchSummary'
+import { statedSectors } from '../lib/discovery/projectRowRank'
 import { matchProjectInText, fuzzyMatchProject, suggestProjects, looseProjectMatches } from '../lib/discovery/matchProjectInText'
 import { parseAggregateQuestion, queryProjects, renderAggregateAnswer } from '../lib/chat/aggregateQuery'
 import { parseBudgetCheck, budgetQuery, renderBudgetCheck } from '../lib/chat/budgetCheck'
@@ -2388,15 +2389,8 @@ router.post('/', async (req: Request, res: Response) => {
             }
           }
         }
-        const envelope = answered ? null : renderEnvelope(await inventoryEnvelope())
         if (!answered) send('token', {
-          token:
-            `We're only serviceable in ${PILOT_SCOPE_LABEL} right now, so I can't shortlist anything in ${coverage.city} — ` +
-            `I'd be guessing, and you'd find out on the site visit. ${coverage.city} is on the roadmap.\n\n` +
-            (envelope ? `${envelope}\n\n` : '') +
-            `If Noida is at all open to you, I can do this properly: what's genuinely available in a sector, ` +
-            `what a project costs all-in after stamp duty and GST, and how each builder has actually delivered. ` +
-            `Is Noida worth a look for you?`,
+          token: `We only cover ${PILOT_SCOPE_LABEL}, so I can't shortlist anything in ${coverage.city}. Would a home in Noida work for you?`,
         })
         emitUiState({
           stage: 'GATHERING',
@@ -4349,6 +4343,10 @@ WHAT TO COMPARE:
 
 OUTPUT STRUCTURE:
 
+STAY INSIDE WHAT WAS SAID AND WHAT WE HOLD:
+- A buyer profile in the Verdict or Recommendation may rest only on what the buyer wrote in this conversation or on a fact in the block above. Never attribute a preference, sector, budget or goal the buyer did not state (no "your Sector 78 preference" unless they said it). Do not write "your focus", "your preference", "your search", "your area" or "your Sector N" (no sector is the buyer's unless they wrote it in this conversation, and a project's own sector is not one). Describe each profile by facts (ready or under construction, price, delay record, legal standing), never by a location the buyer is assumed to want; naming the two projects' own sectors as facts is fine.
+- We do not give investment advice and we do not forecast returns. If the buyer asks which is better "for investment", compare only the recorded facts that bear on it (entry price, price per sq ft, delay history, legal standing) and say in one clause that we do not forecast returns or recommend an investment. Do not call either project "good for investors" or "a good investment".
+
 ### Verdict
 2-3 direct sentences: which project suits which buyer, and the single trade-off that decides it between ${projectHeaders}.
 
@@ -4464,7 +4462,12 @@ USING THE FACTS:
           } else {
             const systemMsgHistory = [{ role: 'user' as const, content: modelMessage }]
             const fallbackResult = await executeWithFallbackChain({
-              systemPrompt: buyerBrief ? `${systemPrompt}\n\n${buyerBrief}` : systemPrompt,
+              systemPrompt: promptBrief ? `${systemPrompt}\n\n${promptBrief}` : systemPrompt,
+            // A comparison of named projects must not inherit a sector the intent pass guessed from one
+            // of them: the model wrote "your Sector 78 search" for a buyer who never typed one.
+            const promptBrief = isCompareRequest && targetProjects.length >= 2 && statedSectors(message).size === 0
+              ? buildStateBrief({ ...stateArgs, inventoryEnvelope: null, sector: null, sectorHistory: null, summaryLocation: null })
+              : buyerBrief
               messages: systemMsgHistory,
               send,
               onToolCall: async () => ({}),

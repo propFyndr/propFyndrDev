@@ -58,6 +58,7 @@ function extract(raw, q) {
       rec.raw_tail = (await body(page)).slice(-6000);
       rec.before_len = before;
     } catch (e) { rec.error = String(e).slice(0, 300); }
+    if (/free search limit/i.test(rec.text || '')) { console.log(site, item.id, 'FREE LIMIT REACHED, stopping'); if (!pctx) await ctx.close(); else await page.close(); break; }
     results[item.id] = rec;
     fs.writeFileSync(outFile, JSON.stringify(results, null, 1));
     console.log(site, item.id, rec.error || `${rec.first_ms}ms ${rec.text?.length}ch`);

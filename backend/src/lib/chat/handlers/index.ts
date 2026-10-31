@@ -34,6 +34,7 @@ import { projectCatchHandler } from './projectCatch'
 import { priceFairnessHandler } from './priceFairness'
 import { sectorRateCheckHandler } from './sectorRateCheck'
 import { priceTrendHandler } from './priceTrend'
+import { offTopicHandler } from './offTopic'
 import { loanEmiHandler } from './loanEmi'
 
 /**
@@ -111,6 +112,8 @@ export const CHAT_TOPIC_HANDLERS: readonly ChatTopicHandler[] = [
   // After roadmap ("go on" there is the next step): a "yes" the router could
   // attach no offer or question to is answered by asking what next.
   bareYesHandler,
+  // Jokes, markets, weather, sports, code, "which model": one short reply, before the trust essay.
+  offTopicHandler,
   investmentScenarioHandler,
   priceMultipleHandler,
   airportProximityHandler,
