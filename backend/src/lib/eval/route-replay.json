@@ -2771,6 +2771,52 @@
     ]
   },
   {
+    "id": "hard43-q1-two-sided-choice",
+    "source": "hard-43 benchmark 31 Oct 2026: 2BHK ready in Noida vs 3BHK under construction in Greater Noida West answered as one Greater Noida West search",
+    "turns": [
+      {
+        "text": "I have 1.3 crore. Should I take a 2BHK ready to move in Noida or a 3BHK under construction in Greater Noida West?",
+        "expect": {
+          "lane": "topic:alternatives_choice",
+          "llm": false,
+          "contains": [
+            "2 BHK, ready to move, Noida",
+            "3 BHK, under construction, Greater Noida West",
+            "What each choice costs",
+            "not ranking"
+          ],
+          "notContains": [
+            "project match",
+            "projects match"
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "id": "hard43-h1-two-sided-choice-hinglish",
+    "source": "hard-43 benchmark 31 Oct 2026: Hinglish version of Q1, answered in English as one search",
+    "turns": [
+      {
+        "text": "1.3 crore hai mere paas. Noida mein ready 2BHK lun ya Greater Noida West mein under-construction 3BHK?",
+        "expect": {
+          "lane": "topic:alternatives_choice",
+          "llm": false,
+          "contains": [
+            "hamare rows",
+            "Trade-off",
+            "timeline"
+          ],
+          "notContains": [
+            "project match",
+            "projects match",
+            "What each choice costs"
+          ]
+        }
+      }
+    ]
+  },
+  {
     "id": "off-joke",
     "source": "task 5, 31 Oct 2026: off-topic, one short reply and one property question",
     "turns": [
@@ -2939,6 +2985,40 @@
           "contains": [
             "I can't help with that",
             "What kind of home are you looking for?"
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "id": "corpus-q005-sector-run",
+    "source": "corpus60 q005, 31 Oct 2026: 'sector 74 75 76' read as Sector 74 alone and answered none match",
+    "turns": [
+      {
+        "text": "2 bhk flats in sector 74 75 76 noida for sale",
+        "expect": {
+          "notContains": [
+            "match 2 BHK in Sector 74."
+          ],
+          "contains": [
+            "Sector 75"
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "id": "corpus-q002-other-configurations",
+    "source": "corpus60 q002, 31 Oct 2026: no 1 BHK in Sector 75 answered with a question and no data",
+    "turns": [
+      {
+        "text": "1 bhk flats in sector 75 noida",
+        "expect": {
+          "contains": [
+            "other configurations"
+          ],
+          "notContains": [
+            "which would you like"
           ]
         }
       }

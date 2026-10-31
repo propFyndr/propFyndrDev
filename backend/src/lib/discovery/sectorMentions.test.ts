@@ -137,3 +137,14 @@ test('a single bare digit stays ambiguous even with a signal word', () => {
   // too easily the BHK count or a budget digit rather than a sector.
   assert.deepEqual(extractSectorMentions('2 bhk near sector', HELD), [])
 })
+
+test('a run of bare numbers after "sector" is a list of sectors (corpus q005)', () => {
+  assert.deepEqual(extractSectorMentions('2 bhk flats in sector 74 75 76 noida for sale', HELD), ['Sector 74', 'Sector 75', 'Sector 76'])
+  assert.deepEqual(extractSectorMentions('flats in sector 74 75', HELD), ['Sector 74', 'Sector 75'])
+})
+
+test('a number with its own unit after a sector is not another sector', () => {
+  assert.deepEqual(extractSectorMentions('sector 150 2 crore budget', HELD), ['Sector 150'])
+  assert.deepEqual(extractSectorMentions('sector 62 2 3 bhk', HELD), ['Sector 62'])
+  assert.deepEqual(extractSectorMentions('sector 150 1500 sq ft', HELD), ['Sector 150'])
+})

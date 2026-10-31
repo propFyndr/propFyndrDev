@@ -1,0 +1,108 @@
+{
+  "summary": {
+    "label": "hard43-q5q11c",
+    "sha": "a475e9e6",
+    "dirtyTree": [
+      "M CLAUDE.md",
+      " M ERRORS.md",
+      " M backend/scripts/corpus/day5-speed.ts",
+      " M backend/src/lib/ai/__tests__/searchSummary.test.ts",
+      " M backend/src/lib/ai/prompts/base.ts",
+      " M backend/src/lib/ai/prompts/playbooks.ts",
+      " M backend/src/lib/ai/searchSummary.ts",
+      " M backend/src/lib/chat/handlers/index.ts",
+      " M backend/src/lib/chat/handlers/sectorComparison.ts",
+      " M backend/src/lib/discovery/projects.ts",
+      " M backend/src/lib/discovery/sectorMentions.test.ts",
+      " M backend/src/lib/discovery/sectorMentions.ts",
+      " M backend/src/lib/eval/route-replay.json",
+      " M backend/src/routes/chat-router.ts",
+      " M docs/WEEK_PLAN_2026-10-27.md",
+      " M frontend/app/admin/team/page.tsx"
+    ],
+    "at": "2026-10-31T09:15:54.615Z",
+    "db": "postgresql://***@ep-odd-bar-az91o2md-pooler.c-3.ap-southeast-1.aws.neon.tech/neondb",
+    "questions": 3,
+    "totalMs": {
+      "median": 20111,
+      "p90": 26133,
+      "max": 26133
+    },
+    "firstTokenMs": {
+      "median": 13267,
+      "p90": 25337,
+      "max": 25337
+    },
+    "answerCacheHits": 0,
+    "noModelCall": 0,
+    "noModelCallExcludingCache": 0,
+    "outages": [],
+    "slowest": [
+      {
+        "id": "5",
+        "lane": "ground-truth-db",
+        "totalMs": 26133
+      },
+      {
+        "id": "11",
+        "lane": "topic:sector-comparison",
+        "totalMs": 20111
+      },
+      {
+        "id": "8",
+        "lane": "ground-truth-db",
+        "totalMs": 13976
+      }
+    ]
+  },
+  "turns": [
+    {
+      "id": "5",
+      "q": "Supertech Supernova Astralis vs Mahagun Mezzaria: which is the safer buy and why?",
+      "lane": "ground-truth-db",
+      "firstMs": 25337,
+      "totalMs": 26133,
+      "modelCalls": 4,
+      "modelCallsAfter": 0,
+      "hosts": [
+        "generativelanguage.googleapis.com",
+        "api.cohere.ai"
+      ],
+      "outage": false,
+      "chars": 1783,
+      "answer": "### Verdict\nMahagun Mezzaria suits buyers prioritizing ready-to-move status and an unblemished insolvency record, while Supertech Supernova Astralis suits buyers seeking an under-construction ultra-luxury asset in Sector 94. The core trade-off between the two rests on delivery status and developer financial standing: Mahagun Mezzaria is delivered and ready with no insolvency history on record, whereas Supertech Supernova Astralis involves an under-construction timeline managed under NCLT insolvency supervision.\n\n| Checkable Safety Marker | Supertech Supernova Astralis | Mahagun Mezzaria |\n| :--- | :--- | :--- |\n| **Construction & Possession Status** | Under Construction (Q4 2027) | Ready to Move (Delivered & Ready) |\n| **Builder Average Delay** | 36 months | 0 months |\n| **Developer Legal Standing** | Under NCLT insolvency supervision | No insolvency history on record |\n| **Occupancy Certificate** | Not applicable (Under Construction) | Delivered & Ready (OC status to be verified) |\n\n### Watch-out\nOur record shows that Supertech Limited carries an active legal flag for NCLT insolvency supervision alongside a recorded average project delay of 36 months, meaning buyers must independently verify current legal and financial clearances. For Mahagun Mezzaria, our record indicates a delivered status with zero recorded delays, but buyers should still confirm all original title deeds and occupancy certificate documentation directly with legal counsel.\n\n### Recommendation\nChoose **Mahagun Mezzaria** if you require a ready-to-move residence with a historical track record of zero recorded delays; choose **Supertech Supernova Astralis** if you prefer an under-construction ultra-luxury property in Sector 94 despite the developer's ongoing NCLT insolvency proceedings."
+    },
+    {
+      "id": "8",
+      "q": "Out of Mahagun Mezzaria, Divine Meadows and Great Value Sharanam, which is cheapest per sq ft and is that a good sign?",
+      "lane": "ground-truth-db",
+      "firstMs": 13267,
+      "totalMs": 13976,
+      "modelCalls": 4,
+      "modelCallsAfter": 0,
+      "hosts": [
+        "generativelanguage.googleapis.com",
+        "api.cohere.ai"
+      ],
+      "outage": false,
+      "chars": 1761,
+      "answer": "### Verdict\nDivine Meadows is the cheapest per sq ft at 9,577.46/sq.ft (date of last confirmation not on record), followed by Great Value Sharanam at 14,285.71/sq.ft (date of last confirmation not on record) and Mahagun Mezzaria at 15,105.26/sq.ft (date of last confirmation not on record). A lower rate sits beside an older delivery year, another sector, a different status or unit size, and a lower price alone does not show quality or value. The primary trade-off rests between a lower entry cost in Sector 108 versus mid-to-high segment positioning in Sectors 107 and 78.\n\n| Project Name | Location / Sector | Base Price per sq.ft | Computed Price per sq.ft | Status |\n| :--- | :--- | :--- | :--- | :--- |\n| **Divine Meadows** | Sector 108 | ₹6,913 (date of last confirmation not on record) | 9,577.46/sq.ft (date of last confirmation not on record) | Ready to Move |\n| **Great Value Sharanam** | Sector 107 | ₹13,096 (date of last confirmation not on record) | 14,285.71/sq.ft (date of last confirmation not on record) | Ready to Move |\n| **Mahagun Mezzaria** | Sector 78 | ₹10,759 (date of last confirmation not on record) | 15,105.26/sq.ft (date of last confirmation not on record) | Ready to Move |\n\n### Watch-out\nDivine Meadows notes that the proposed Greater Noida West Metro extension is currently in the planning/transit stage, and the Parthala flyover entry point experiences slow vehicle movement during evening peak return commutes. Verify current RERA compliance and occupancy certificates directly on the UP-RERA portal before committing funds.\n\n### Recommendation\nChoose **Great Value Sharanam** if you want a delivered mid-segment property in Sector 107; choose **Divine Meadows** if you prioritize a lower per-sq-ft entry cost in Sector 108."
+    },
+    {
+      "id": "11",
+      "q": "Why do prices in Sector 150 look higher than Sector 78 for similar flats?",
+      "lane": "topic:sector-comparison",
+      "firstMs": 4737,
+      "totalMs": 20111,
+      "modelCalls": 3,
+      "modelCallsAfter": 0,
+      "hosts": [
+        "generativelanguage.googleapis.com",
+        "api.cohere.ai"
+      ],
+      "outage": false,
+      "chars": 1998,
+      "answer": "### Sector 150 vs Sector 78\n\n| | Sector 150 | Sector 78 |\n| :--- | :--- | :--- |\n| **Strengths** | 80% green mandatory footprint; Direct confluence of Noida-Gr. Noida & Yamuna Expressways; Underground electrical and fiber cabling | Expansive clubhouses and sports facilities inside societies; Proximity to Sector 76 metro |\n| **Watch-outs** | Social retail centers currently maturing | Secondary market resale pricing has escalated sharply |\n| **Nearest metro** | Sector 148 Metro Station (Aqua Line), 3.2 km | Sector 76 Metro Station (Aqua Line), 0.7 km |\n| **Average rate** | ₹14,500/sq.ft | ₹12,200/sq.ft |\n| **Price band** | ₹1.45–9.28 Cr | ₹0.49–4.2 Cr |\n| **Landmark societies** | ATS Pristine Phase 2, ATS Le Grandiose Phase 2, Eldeco Live By The Greens Phase 2, Tata Eureka Park Phase 2 | IITL Nimbus The Hyde Park, Mahagun Mezzaria, Antriksh Golf View, Nimbus The Hyde Park |\n| **Suits** | Luxury end-users, senior executives, and airport-linked long-term capital appreciation investors. | Buyers wanting full luxury amenities within the heart of Noida city. |\n| **Not for** | Buyers seeking immediate walkable daily grocery retail or dense public transit on foot. | Budget buyers looking under ₹1.2 Cr. |\n\nSector 150 registers a rate of ₹14,500 per sq ft with a price range of ₹1.45–9.28 Cr across 25 total projects with 10 ready, while Sector 78 lists a rate of ₹12,200 per sq ft spanning ₹0.49–4.2 Cr across 13 total projects with all 13 ready.\n\nIn Sector 150, buyers trade away immediate dense social retail and closer public transit access, given that the Sector 148 Metro Station is 3.2 km away. In Sector 78, buyers trade away the specific infrastructure features of Sector 150, including its 80% green mandatory footprint and underground electrical and fiber cabling.\n\nChoose Sector 150 if your budget fits ₹1.45–9.28 Cr and you prefer the 80% green mandatory footprint; choose Sector 78 if you prefer being 0.7 km from the Sector 76 Metro Station and a starting price of ₹0.49 Cr."
+    }
+  ]
+}

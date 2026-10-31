@@ -21,6 +21,8 @@ type SearchIntent = {
   sector?: string | null
   city?: string | null
   possession?: string | null
+  /** Every sector the buyer named; more than one means a list, not a single sector. */
+  sectorsMentioned?: string[] | null
 }
 
 const cr = (n: number) => (n >= 1 ? `₹${n.toFixed(2).replace(/\.?0+$/, '')} Cr` : `₹${Math.round(n * 100)} L`)
@@ -41,7 +43,9 @@ export function priceBounds(label: string | null | undefined, fallbackMin?: numb
 
 export function describeSearch(i: SearchIntent): string {
   const bhk = i.bhk?.length ? `${[...i.bhk].sort().join(' or ')} BHK` : 'homes'
-  const where = i.sector ? ` in ${i.sector.split(',')[0]}` : i.city ? ` in ${i.city}` : ''
+  const named = (i.sectorsMentioned ?? []).map((x) => x.replace(/^sector\s*/i, '').trim()).filter(Boolean)
+  const where = named.length > 1 ? ` in Sectors ${named.slice(0, -1).join(', ')} and ${named[named.length - 1]}`
+    : i.sector ? ` in ${i.sector.split(',')[0]}` : i.city ? ` in ${i.city}` : ''
   const budget = i.budgetMin && i.budgetMax ? ` between ${cr(i.budgetMin)} and ${cr(i.budgetMax)}`
     : i.budgetMax ? ` up to ${cr(i.budgetMax)}`
     : i.budgetMin ? ` from ${cr(i.budgetMin)}` : ''
@@ -96,6 +100,16 @@ Open a card for the cost sheet and RERA record, or tell me what matters most (po
   }
 
   if (nearby.length) {
+    // Same sector, other configuration: say so, rather than calling it a near match.
+    const sectorName = intent.sector ? intent.sector.split(',')[0].trim().toLowerCase() : null
+    const sameSector = !!sectorName && !exact.length && nearby.every((p) => (p.sector ?? '').toLowerCase() === sectorName)
+    if (sameSector) {
+      return `We hold no ${asked}. The same sector has these in other configurations:
+
+${nearby.slice(0, shown).map(line).join('\n')}${note}
+
+Tell me if you want one of these sizes, or I can look at ${intent.city ?? 'Noida'} for ${asked.split(' in ')[0]}.`
+    }
     return `None of the projects we hold match ${asked} exactly. These are the closest:
 
 ${nearby.slice(0, shown).map(line).join('\n')}${note}

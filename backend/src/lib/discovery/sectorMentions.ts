@@ -134,6 +134,23 @@ export function extractSectorMentions(msg: string, knownSectorNumbers: Iterable<
     }
   }
 
+  /**
+   * 2b. A run of bare numbers after "sector": "sector 74 75 76".
+   *
+   * Only connectors ("and", ",") continued a list, so "2 bhk flats in sector 74 75
+   * 76 noida" extracted Sector 74 alone and answered "none match 2 BHK in Sector 74"
+   * while we hold 2 BHK in all three (corpus q005, 31 Oct 2026). The run is read as
+   * sectors only when every number in it is a plausible sector and none carries a
+   * unit of its own, so "sector 62 2 3 bhk" and "sector 150 2 crore" stay one sector.
+   */
+  for (const m of normalized.matchAll(/\b(?:sectors?|secs?)\.?\s*\d{1,3}[a-z]?((?:\s+\d{1,3}[a-z]?(?![\d.]))+)/gi)) {
+    const tokens = [...(m[1] ?? '').matchAll(/(\d{1,3}[a-z]?)/gi)].map(t => t[1])
+    const from = (m.index ?? 0) + m[0].length - (m[1] ?? '').length
+    if (tokens.length && tokens.every(t => isPlausibleSectorToken(t, known) && !carriesUnit(t, from))) {
+      for (const t of tokens) found.add(`Sector ${t.toUpperCase()}`)
+    }
+  }
+
   // 3. A bare number is a sector only alongside a sector we already named.
   //
   // Without that anchor this scanned every 1–3 digit token in any message

@@ -90,7 +90,9 @@ async function main() {
       if (!ev || !data) return []
       try { return [{ event: ev[1], data: JSON.parse(data[1]) }] } catch { return [] }
     })
-    const answer = events.filter((e) => e.event === 'token').map((e) => String(e.data.token ?? '')).join('')
+    // A token event with `replace: true` swaps the whole text, as the client renders it; joining them all
+    // showed a failed provider leg's partial sentence in front of the answer the buyer actually saw.
+    const answer = events.filter((e) => e.event === 'token').reduce((text, e) => (e.data.replace ? String(e.data.token ?? '') : text + String(e.data.token ?? '')), '')
     const outage = /briefly unavailable|rather say so than guess|high traffic/i.test(answer)
     turns.push({
       ...item, lane, firstMs, totalMs, modelCalls: before, modelCallsAfter: calls.length - before,

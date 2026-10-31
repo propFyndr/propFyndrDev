@@ -1150,7 +1150,10 @@ export async function discoverProjects(intent: Intent, offset: number = 0): Prom
         rawProjects = rawProjects.filter(p => p.sector === exactMatch)
       }
 
-      if (distinctSectors.length > 1) {
+      // "sector 74 75 76": the buyer named every one of these, so spanning them is the answer, not an ambiguity.
+      const namedSectors = new Set((effectiveIntent.sectorsMentioned ?? []).map((s) => s.toLowerCase().trim()))
+      const allNamed = namedSectors.size > 1 && distinctSectors.every((s) => namedSectors.has(s.toLowerCase().trim()))
+      if (distinctSectors.length > 1 && !allNamed) {
         console.log(`[DISCOVERY:B2] SECTOR MULTI-MATCH: "${effectiveIntent.sector}" matched ${distinctSectors.length} distinct sectors:`, distinctSectors)
         const res: DiscoveryResult = {
           exactResults: [],
@@ -1256,9 +1259,17 @@ export async function discoverProjects(intent: Intent, offset: number = 0): Prom
     console.warn(
       `[DISCOVERY:NO_SILENT_FALLBACK] Query for "${effectiveIntent.sector}" yielded no matching results — refusing citywide fallback per trust policy`
     )
+    // Nothing in this sector at the BHK asked: the same sector's other configurations, within the
+    // same budget, shown as the closest and labelled so by searchSummary. Results first, not a question.
+    let otherConfigs: ScoredProject[] = []
+    if (effectiveIntent.bhk?.length) {
+      const relaxed = { ...effectiveIntent, bhk: undefined }
+      const rows = await prisma.project.findMany({ where: buildHardFilters(relaxed), include: PROJECT_INCLUDE, take: RESULTS_PER_PAGE })
+      otherConfigs = scoreAndSort(rows, relaxed, SCORE_THRESHOLD)
+    }
     const res: DiscoveryResult = {
       exactResults: [],
-      nearbyResults: [],
+      nearbyResults: otherConfigs,
       expansion: {
         requestedSector: effectiveIntent.sector,
         searchedSectors: [effectiveIntent.sector],

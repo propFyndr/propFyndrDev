@@ -21,6 +21,7 @@ import { affordabilityHandler } from './affordabilityHandler'
 import { dossierHandler } from './dossierHandler'
 import { legalRiskHandler } from './legalRisk'
 import { resaleDealHandler } from './resaleDeal'
+import { alternativesChoiceHandler } from './alternativesChoice'
 import { pressureTacticsHandler, siteVisitChecklistHandler, compromiseOrderHandler, firstStepsHandler } from './buyerSupport'
 import { investmentScenarioHandler, priceMultipleHandler } from './investmentScenario'
 import { airportProximityHandler } from './airportProximity'
@@ -95,6 +96,9 @@ export const CHAT_TOPIC_HANDLERS: readonly ChatTopicHandler[] = [
   // After legalRisk (an unregistered resale is a title question first) and before
   // priceFairness, which would answer a resale quote with a new-launch price range.
   resaleDealHandler,
+  // "2BHK ready in Noida or 3BHK under construction in Greater Noida West?": each side
+  // from our rows with the trade-off, no verdict. Narrow: two sides, each with its own BHK.
+  alternativesChoiceHandler,
   // Explicit asks that need no catalogue row: the buyer's own saved profile, a
   // "book today" deadline, a site-visit checklist, the order of trade-offs, and
   // compound-growth arithmetic on rates the buyer chose. Narrow matchers, so none

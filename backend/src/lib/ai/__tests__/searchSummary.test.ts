@@ -68,3 +68,36 @@ describe('a shortlist says who confirmed its prices and when', () => {
     assert.doesNotMatch(searchSummary(args), /_Prices:/)
   })
 })
+
+describe('a list of sectors and a sector with no flat of that size', () => {
+  it('names every sector the buyer listed, not only the first', () => {
+    assert.equal(
+      describeSearch({ bhk: [2], sector: 'Sector 74, Noida', sectorsMentioned: ['Sector 74', 'Sector 75', 'Sector 76'] }),
+      '2 BHK in Sectors 74, 75 and 76',
+    )
+    assert.equal(describeSearch({ bhk: [2], sector: 'Sector 74', sectorsMentioned: ['Sector 74'] }), '2 BHK in Sector 74')
+  })
+
+  it('says the same sector has other configurations instead of calling them a near match', () => {
+    const t = searchSummary({
+      intent: { bhk: [1], sector: 'Sector 75, Noida', city: 'Noida' },
+      exact: [],
+      nearby: [p({ name: 'AIMS Golf City', sector: 'Sector 75', status: 'ready_to_move', price_range_label: '₹0.79–1.17Cr' })],
+      shown: 6,
+    })
+    assert.ok(t.startsWith('We hold no 1 BHK in Sector 75.'))
+    assert.ok(t.includes('other configurations'))
+    assert.ok(t.includes('**AIMS Golf City**, Sector 75'))
+    assert.ok(!t.includes('These are the closest'))
+  })
+
+  it('keeps the closest-matches wording when the nearby projects are in other sectors', () => {
+    const t = searchSummary({
+      intent: { bhk: [1], sector: 'Sector 75' },
+      exact: [],
+      nearby: [p({ name: 'Elsewhere', sector: 'Sector 76', price_range_label: '₹0.9–1.0Cr' })],
+      shown: 6,
+    })
+    assert.ok(t.includes('These are the closest'))
+  })
+})

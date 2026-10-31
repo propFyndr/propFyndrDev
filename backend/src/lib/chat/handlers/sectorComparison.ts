@@ -166,9 +166,11 @@ A comparison of the two sectors named in the verified facts below has just been 
 Always write both sectors by their full names exactly as the facts spell them. Never call them "the first" or "the second".
 
 Write three short paragraphs and nothing else:
-1. The verdict. Which of the two, and the single distinction that decides it.
-2. What the buyer trades away by taking that one. Every choice here costs something; name it.
-3. The condition that flips the answer, in the form "Choose X if … choose Y if …", where X and Y are the two sector names.
+1. The difference that matters most, read off the table above, quoting its figures. State it as a fact about the two sectors; do not name a winner.
+2. What the buyer trades away with each. Every choice here costs something; name it for both.
+3. The condition that decides it, in the form "Choose X if … choose Y if …", where X and Y are the two sector names and the conditions are things the buyer can check (commute, metro distance, budget, possession).
+
+We do not give investment advice and we do not forecast. Never call either sector "superior", "the better choice" or good for "capital deployment", "appreciation" or "returns", and never say which will grow faster. Use only figures that appear in the facts below. Do not say a sector is walkable, quiet or green unless the facts say so.
 
 Rows reading "Not recorded" are gaps in our data, not zeros. You may say so; never fill one. No headings, no emoji, around 140 words.
 

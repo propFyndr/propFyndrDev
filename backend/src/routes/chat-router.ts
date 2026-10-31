@@ -108,7 +108,7 @@ import { recordTurnTrace, type TurnTraceDraft } from '../lib/turnTrace'
 import { recordDemandSignal } from '../lib/demandSignal'
 import { scanDisclosure } from '../lib/ai/answerIntegrity'
 import { projectCatalog, catalogNamesSync } from '../lib/projectCatalog'
-import { asksAboutFocusAttribute, mentionsFocusPronoun, focusFallback, parkFocus, parkedFocus, asksMarketWide, expandAffirmation, isBareRefinement } from '../lib/chat/followUp'; import { answerFromRows } from '../lib/chat/rowsAnswer'; import { firstStatusLine } from '../lib/chat/statusLine'; import { isBuilderNameCandidate } from '../lib/builderNames'; import { searchSummary } from '../lib/ai/searchSummary'
+import { asksAboutFocusAttribute, mentionsFocusPronoun, focusFallback, parkFocus, parkedFocus, asksMarketWide, expandAffirmation, isBareRefinement } from '../lib/chat/followUp'; import { answerFromRows } from '../lib/chat/rowsAnswer'; import { firstStatusLine } from '../lib/chat/statusLine'; import { isBuilderNameCandidate } from '../lib/builderNames'; import { searchSummary } from '../lib/ai/searchSummary'; import { parseAlternatives } from '../lib/chat/handlers/alternativesChoice'
 import { statedSectors } from '../lib/discovery/projectRowRank'
 import { matchProjectInText, fuzzyMatchProject, suggestProjects, looseProjectMatches } from '../lib/discovery/matchProjectInText'
 import { parseAggregateQuestion, queryProjects, renderAggregateAnswer } from '../lib/chat/aggregateQuery'
@@ -3772,7 +3772,9 @@ I can help you:
     ].filter(Boolean).length
     const singleTopic = topicFlagCount <= 1
 
-    if ((!isInventorySearch || isLegalRiskQuery || commuteAnchorJustStated) && (isLegalRiskQuery || commuteAnchorJustStated || asksProjectVerdict || activeProjectName || isSummaryRequest || isCompareRequest || isSectorCompare || isPaymentPlanRequest || isCostSheetRequest || isStatutoryTaxQuery || isReraCheckQuery || isBuilderReputationQuery || isNewcomerOrientation || isReadyToMoveQuery || isAmenityQuery || isConnectivityQuery || isConfigurationQuery || isTotalOutflowQuery || isDueDiligenceQuery || isLoanEmiQuery || asksAffordability) && action.type === 'TEXT_MESSAGE') {
+    // "2BHK ready in Noida or 3BHK under construction in Greater Noida West?" reads as an inventory search; the choice handler needs the turn.
+    const isAlternativesChoice = parseAlternatives(message) !== null
+    if ((!isInventorySearch || isLegalRiskQuery || commuteAnchorJustStated || isAlternativesChoice) && (isLegalRiskQuery || commuteAnchorJustStated || isAlternativesChoice || asksProjectVerdict || activeProjectName || isSummaryRequest || isCompareRequest || isSectorCompare || isPaymentPlanRequest || isCostSheetRequest || isStatutoryTaxQuery || isReraCheckQuery || isBuilderReputationQuery || isNewcomerOrientation || isReadyToMoveQuery || isAmenityQuery || isConnectivityQuery || isConfigurationQuery || isTotalOutflowQuery || isDueDiligenceQuery || isLoanEmiQuery || asksAffordability) && action.type === 'TEXT_MESSAGE') {
       try {
         console.log('[CHAT:GROUND_TRUTH_DB] Executing Ground Truth DB Pipeline...', { activeProjectName, isSummaryRequest, isCompareRequest, isSectorCompare, isPaymentPlanRequest, isCostSheetRequest, isStatutoryTaxQuery, isReraCheckQuery, isBuilderReputationQuery, isNewcomerOrientation, isReadyToMoveQuery, isAmenityQuery, isConnectivityQuery, isReraFactQuery, isDueDiligenceQuery, topicFlagCount, sectorMatches })
 
@@ -4341,11 +4343,14 @@ WHAT TO COMPARE:
 - If the buyer named a specific aspect — payment plans, cost sheet or all-in pricing, connectivity or commute, construction/possession status, builder track record, RERA or legal standing, specifications, amenities, or anything else the facts block holds for both projects — answer THAT aspect, and you may draw one small Markdown table for it, with rows drawn from the real fields in the facts block (e.g. a payment-plan comparison rows on booking %, construction-linked milestones, subvention terms).
 - For a general "which is better" / "compare these two" question, write no table.
 
-OUTPUT STRUCTURE:
-
 STAY INSIDE WHAT WAS SAID AND WHAT WE HOLD:
 - A buyer profile in the Verdict or Recommendation may rest only on what the buyer wrote in this conversation or on a fact in the block above. Never attribute a preference, sector, budget or goal the buyer did not state (no "your Sector 78 preference" unless they said it). Do not write "your focus", "your preference", "your search", "your area" or "your Sector N" (no sector is the buyer's unless they wrote it in this conversation, and a project's own sector is not one). Describe each profile by facts (ready or under construction, price, delay record, legal standing), never by a location the buyer is assumed to want; naming the two projects' own sectors as facts is fine.
 - We do not give investment advice and we do not forecast returns. If the buyer asks which is better "for investment", compare only the recorded facts that bear on it (entry price, price per sq ft, delay history, legal standing) and say in one clause that we do not forecast returns or recommend an investment. Do not call either project "good for investors" or "a good investment".
+- A "safer", "better" or "which should I buy" question gets the checkable markers side by side (ready or under construction, occupancy certificate, RERA validity, legal flags, builder delay history), not a ruling. Never write "objectively", "clearly", "clean" (as in "clean track record" or "clean legal standing"), "safe" or "zero delay" as a conclusion: say what the record shows, in the form "our record shows ...".
+- An empty field is "not on record", never a good sign. Say an occupancy certificate is held only if a field in the block says so; if it is empty, write "occupancy certificate not on record". Ready-to-move or delivered status is not an occupancy certificate, so never put "Delivered" or "Ready" in an occupancy certificate row or sentence. If a RERA validity date in the block is already in the past, say the date and that the buyer must check the current status on the UP-RERA portal. A recorded delay of 0 months means our record shows none, not that none occurred.
+- A price-per-sq-ft comparison ("which is cheapest", "is that a good sign") answers from the figures. For "good sign", say only what the recorded facts allow: a lower rate sits beside an older delivery year, another sector, a different status or unit size, and a lower price alone does not show quality or value. Do not say what a registration or approval guarantees, and do not mention returns or yields.
+
+OUTPUT STRUCTURE:
 
 ### Verdict
 2-3 direct sentences: which project suits which buyer, and the single trade-off that decides it between ${projectHeaders}.
@@ -4461,13 +4466,13 @@ USING THE FACTS:
             }
           } else {
             const systemMsgHistory = [{ role: 'user' as const, content: modelMessage }]
-            const fallbackResult = await executeWithFallbackChain({
-              systemPrompt: promptBrief ? `${systemPrompt}\n\n${promptBrief}` : systemPrompt,
             // A comparison of named projects must not inherit a sector the intent pass guessed from one
             // of them: the model wrote "your Sector 78 search" for a buyer who never typed one.
             const promptBrief = isCompareRequest && targetProjects.length >= 2 && statedSectors(message).size === 0
               ? buildStateBrief({ ...stateArgs, inventoryEnvelope: null, sector: null, sectorHistory: null, summaryLocation: null })
               : buyerBrief
+            const fallbackResult = await executeWithFallbackChain({
+              systemPrompt: promptBrief ? `${systemPrompt}\n\n${promptBrief}` : systemPrompt,
               messages: systemMsgHistory,
               send,
               onToolCall: async () => ({}),

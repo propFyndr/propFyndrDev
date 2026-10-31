@@ -86,3 +86,10 @@
 - A third server, a corpus run and an agent's `next dev` together ran the host out of memory, and the memory guard killed the last run.
 **What worked:** kill by the `"pid"` in the server's JSON log (`Stop-Process -Id <pid>`), then confirm the port with curl. The corpus client now renders `replace` as `streamReducer.ts` does.
 **Note for next time:** check free memory first. Run one server at a time. Grade what the buyer sees, not the raw stream.
+
+## 2026-10-31 — A sector-run regex that could never match, and two replays that deleted each other's sessions
+**What didn't work:**
+- Patching `sectorMentions.ts` from a Python heredoc: a double backslash before `b` reached Python as a single `\b` (a backspace character, 0x08), so the new regex needed a backspace in the message and never matched. The function printed no debug output and every test failed with no error, which cost about ten steps.
+- Running three `route-replay.ts` processes at once next to the full replay: each deletes its guest sessions on exit, so the full run lost multi-turn state (a resale follow-up and a roadmap `next` failed, and passed alone).
+**What worked:** `python3 -c "print(open(f,newline='').read().count(chr(8)))"` found the stray byte; patches that need a backslash now use `chr(92)`, or the Edit tool. One replay at a time.
+**Note for next time:** after any scripted edit that contains a regex, grep the file for `chr(8)` and run the unit test first. Never start a second replay while one is running. The roadmap `next` cases in `live-2026-10-17-ed1ac3ff-transcript` also flip between runs on their own (a different turn fails each time, then 18/18 on the third run), so a single failure there is a race in step persistence, not a regression.
