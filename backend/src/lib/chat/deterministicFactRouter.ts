@@ -172,6 +172,8 @@ export async function tryDeterministicFactBypass(
       oc_details: true,
       possession_date: true,
       possession_label: true,
+      rera_valid_until: true,
+      dg_power_rate_per_unit: true,
       water_source: true,
       water_source_type: true,
       water_tds_range: true,
@@ -221,6 +223,7 @@ ${RERA_AMBIGUOUS_NOTE}`
 | :--- | :--- | :--- |
 | **Project** | **${project.name}**${builderName} | ${project.sector}, ${project.city} |
 | **UP-RERA Registration ID** | \`${project.rera_number}\` | Registered with UP-RERA |
+| **Registration valid until** | ${project.rera_valid_until ? project.rera_valid_until.toISOString().slice(0, 10) : 'Not on record'} | ${project.rera_valid_until ? 'From our project record' : 'Check the validity on the UP-RERA portal'} |
 | **Possession Timeline** | ${project.possession_label ?? UNVERIFIED} | ${project.status ? project.status.replace(/_/g, ' ') : UNVERIFIED} |
 
 > This registration number is from our project record. Confirm it on the UP-RERA portal before paying any booking amount.`
@@ -282,6 +285,10 @@ We do **not hold a verified UP-RERA registration number** on record for **${proj
 | **Tested TDS Level** | **${tdsRange}** | ${tdsRange === UNVERIFIED ? (unbuilt ? 'Nothing to test until the society is occupied' : 'Ask for a recent lab TDS report') : /(?:[6-9]\d{2}|\d{4})/.test(tdsRange) ? 'High TDS on record: plan for a multi-stage RO' : 'TDS on record is within the usual drinking range'} |
 
 > Supply in a Noida society is often a blend of authority Ganga Jal and borewell water (${MARKET_QUALIFIER}). The society's own test report is the record that counts.`
+      // "water source and DG power backup rate": the second half was dropped.
+      if (/\b(?:dg|d\.g\.|power\s*back-?up|generator|diesel)\b/i.test(message)) {
+        responseMarkdown += `\n\n**DG power backup rate:** ${project.dg_power_rate_per_unit != null ? `₹${project.dg_power_rate_per_unit} per unit (from our project record)` : UNVERIFIED}`
+      }
       break
     }
 

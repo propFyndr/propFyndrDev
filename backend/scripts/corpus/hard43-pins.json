@@ -1,0 +1,28 @@
+[
+  { "id": "hard43-f10-exact-name-vicinity", "source": "hard-43 benchmark 31 Oct 2026: 'Great Value Sharanam' answered with the Sector 1 Greno row", "turns": [
+    { "text": "What are the nearest schools, hospitals and airport to Great Value Sharanam?", "expect": { "contains": ["Sector 107"], "notContains": ["Greno"] } } ] },
+  { "id": "hard43-f16-exact-name-amenity", "source": "hard-43 benchmark 31 Oct 2026", "turns": [
+    { "text": "Is Great Value Sharanam safe for kids? Security, CCTV, parks", "expect": { "contains": ["Sector 107"], "notContains": ["Greno"] } } ] },
+  { "id": "hard43-f19-stated-sector-row", "source": "hard-43 benchmark 31 Oct 2026: Sector 134 typed, Sector 128 row answered", "turns": [
+    { "text": "When will I get possession of Jaypee Klassic in Sector 134, and is the OC obtained?", "expect": { "contains": ["Block 6-10"] } } ] },
+  { "id": "hard43-q8-named-three-cheapest", "source": "hard-43 benchmark 31 Oct 2026: three named projects answered 'I've lost track'", "turns": [
+    { "text": "Out of Mahagun Mezzaria, Divine Meadows and Great Value Sharanam, which is cheapest per sq ft and is that a good sign?", "expect": { "notContains": ["lost track"] } } ] },
+  { "id": "hard43-q9-sector-rate-no-verdict", "source": "hard-43 benchmark 31 Oct 2026: 'Yes, fair' beside a recorded sector average of 14,500", "turns": [
+    { "text": "Is 8,500 per sq ft a fair price in Sector 150?", "expect": { "lane": "topic:sector_rate_check", "llm": false, "contains": ["per sq ft in Sector 150", "not a verdict"], "notContains": ["Yes,", "typical for Noida"] } } ] },
+  { "id": "hard43-h3-sector-rate-hinglish", "source": "hard-43 benchmark 31 Oct 2026", "turns": [
+    { "text": "Sector 150 mein 8,500 per sq ft ka rate theek hai ya mehenga?", "expect": { "lane": "topic:sector_rate_check", "llm": false, "notContains": ["typical for Noida"] } } ] },
+  { "id": "hard43-q11-two-sector-price-why", "source": "hard-43 benchmark 31 Oct 2026: answered 'Did you mean: Sector 78, Sector 150?'", "turns": [
+    { "text": "Why do prices in Sector 150 look higher than Sector 78 for similar flats?", "expect": { "notContains": ["Did you mean"] } } ] },
+  { "id": "hard43-q6-two-projects-not-sector-table", "source": "hard-43 benchmark 31 Oct 2026: Day-2 fix regressed on a second wording", "turns": [
+    { "text": "Jaypee Klassic in Sector 134 vs Gulshan Ikebana in Sector 143: which one for end-use, which for investment?", "expect": { "laneNot": ["topic:sector-comparison"] } } ] },
+  { "id": "hard43-f2-pool-and-jacuzzi", "source": "hard-43 benchmark 31 Oct 2026: jacuzzi ignored, 192 pool projects listed", "turns": [
+    { "text": "Which projects in Noida have a swimming pool and a jacuzzi?", "expect": { "contains": ["Astralis"], "notContains": ["We hold **192**"] } } ] },
+  { "id": "hard43-f3-snooker-billiards", "source": "hard-43 benchmark 31 Oct 2026: generic 'most societies have it' claim", "turns": [
+    { "text": "I want a society with a snooker or billiards room. Which ones have it?", "expect": { "contains": ["Mezzaria"], "notContains": ["Most modern"] } } ] },
+  { "id": "hard43-f14-rera-validity-line", "source": "hard-43 benchmark 31 Oct 2026: validity asked, not answered or declared missing", "turns": [
+    { "text": "What is the RERA number and validity for Supertech Supernova Astralis?", "expect": { "llm": false, "contains": ["Registration valid until"] } } ] },
+  { "id": "hard43-f17-maintenance-sum", "source": "hard-43 benchmark 31 Oct 2026: 1,500 sq ft sum never done", "turns": [
+    { "text": "What is the monthly maintenance at Mahagun Mezzaria for a 1,500 sq ft flat?", "expect": { "contains": ["₹5,445 a month"] } } ] },
+  { "id": "hard43-f20-dg-rate", "source": "hard-43 benchmark 31 Oct 2026: DG rate held but not given", "turns": [
+    { "text": "What is the water source and DG power backup rate at Mahagun Mezzaria?", "expect": { "llm": false, "contains": ["DG power backup rate", "19.5"] } } ] }
+]

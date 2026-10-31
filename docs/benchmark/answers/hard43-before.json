@@ -1,0 +1,696 @@
+{
+  "summary": {
+    "label": "hard43-before",
+    "sha": "7ef5bfd5",
+    "dirtyTree": [
+      "M CLAUDE.md",
+      " M backend/src/lib/ai/prompts/base.ts",
+      " M backend/src/lib/ai/prompts/playbooks.ts",
+      " M docs/WEEK_PLAN_2026-10-27.md",
+      " M frontend/app/admin/team/page.tsx"
+    ],
+    "at": "2026-10-31T06:37:46.826Z",
+    "db": "postgresql://***@ep-odd-bar-az91o2md-pooler.c-3.ap-southeast-1.aws.neon.tech/neondb",
+    "questions": 43,
+    "totalMs": {
+      "median": 6806,
+      "p90": 14368,
+      "max": 17390
+    },
+    "firstTokenMs": {
+      "median": 6077,
+      "p90": 11510,
+      "max": 17155
+    },
+    "answerCacheHits": 0,
+    "noModelCall": 5,
+    "noModelCallExcludingCache": 5,
+    "outages": [],
+    "slowest": [
+      {
+        "id": "F11",
+        "lane": "ground-truth-db",
+        "totalMs": 17390
+      },
+      {
+        "id": "1",
+        "lane": "search",
+        "totalMs": 15097
+      },
+      {
+        "id": "H4",
+        "lane": "main",
+        "totalMs": 14866
+      },
+      {
+        "id": "5",
+        "lane": "ground-truth-db",
+        "totalMs": 14761
+      },
+      {
+        "id": "13",
+        "lane": "main",
+        "totalMs": 14368
+      }
+    ]
+  },
+  "turns": [
+    {
+      "id": "1",
+      "q": "I have 1.3 crore. Should I take a 2BHK ready to move in Noida or a 3BHK under construction in Greater Noida West?",
+      "lane": "search",
+      "firstMs": 13538,
+      "totalMs": 15097,
+      "modelCalls": 1,
+      "modelCallsAfter": 0,
+      "hosts": [
+        "generativelanguage.googleapis.com"
+      ],
+      "outage": false,
+      "chars": 937,
+      "answer": "**20+ projects match** 2 or 3 BHK in Greater Noida West between ₹1.3 Cr and ₹1.3 Cr. Prices run ₹1.05 Cr to ₹2.07 Cr. 9 ready to move, the rest under construction.\n\n- **Eros Sampoornam**, Sector 2: ₹1.25 Cr–₹1.35 Cr for 3 BHK, possession Q2 2024 (possession date passed — status unconfirmed)\n- **Panchsheel Greens 1 & 2**, Sector 16: ₹1.05 Cr–₹1.35 Cr for 3 BHK, ready to move\n- **RG Luxury Homes**, Sector 16B: ₹1.08 Cr–₹1.35 Cr for 3 BHK, possession Ready to Move (possession date passed — status unconfirmed)\n- **Arihant Arden**, Sector 1: ₹1.25 Cr–₹1.45 Cr for 3 BHK, ready to move\n- **Saviour Greenarch**, Techzone 4: ₹1.18 Cr–₹1.45 Cr for 3 BHK, ready to move\n- **Mahagun Mantra I**, Sector 10: ₹1.22 Cr–₹1.32 Cr for 3 BHK, ready to move\n\n_Prices: date of last confirmation not on record._\n\nOpen a card for the cost sheet and RERA record, or tell me what matters most (possession, metro, builder record) and I'll narrow these down."
+    },
+    {
+      "id": "2",
+      "q": "Is it worth paying more for a project near the metro if possession is 2 years later than one that is 3 km away?",
+      "lane": "PROJECT_DETAIL_NO_PROJECT",
+      "firstMs": 10357,
+      "totalMs": 11064,
+      "modelCalls": 3,
+      "modelCallsAfter": 0,
+      "hosts": [
+        "generativelanguage.googleapis.com"
+      ],
+      "outage": false,
+      "chars": 638,
+      "answer": "Paying a premium for metro proximity makes sense for long-term capital appreciation and higher rental yields, but a two-year possession gap carries real costs. You must weigh the price premium and 24 months of additional rent or delayed move-in against the convenience of transit-oriented living. \n\nIf the project 3 km away offers reliable last-mile connectivity like e-rickshaw feeds and aligns with your preference for a shorter wait, it often delivers stronger practical value, especially for an end-use home where avoiding construction delay is a priority. \n\nAre you evaluating this for a primary residence or an investment portfolio?"
+    },
+    {
+      "id": "3",
+      "q": "Bigger flat further out, or smaller flat in a better sector: how do I decide on 1.2 crore?",
+      "lane": "main",
+      "firstMs": 3803,
+      "totalMs": 12091,
+      "modelCalls": 4,
+      "modelCallsAfter": 0,
+      "hosts": [
+        "generativelanguage.googleapis.com"
+      ],
+      "outage": false,
+      "chars": 1369,
+      "answer": "| Micro-market | Sectors | Avg rate | Range | Character |\n| :--- | :--- | ---: | :--- | :--- |\n| **Central Luxury Enclave** | Sector 107 | ₹18,500/sqft | ₹18,500 | Ultra-Luxury |\n| **Jaypee Wish Town Golf Corridor** | Sector 128 | ₹15,800/sqft | ₹15,800 | Ultra-Luxury & Golf Residences |\n| **Expressway Sports City Corridor** | Sector 150 | ₹14,500/sqft | ₹14,500 | Luxury & Ultra-Luxury |\n| **Central 7X Core** | Sector 79, Sector 78, Sector 75, Sector 77, Sector 76 | ₹11,660/sqft | ₹10,800 – ₹12,800 | Luxury & Sports Themed |\n| **Expressway Transit Hub** | Sector 137, Sector 143 | ₹10,000/sqft | ₹9,800 – ₹10,200 | Mid-to-Premium High Rise |\n| **Mid-Premium Transit Nexus** | Sector 143B | ₹9,800/sqft | ₹9,800 | Mid-to-Premium |\n\nAt ₹1.2 crore, this is the defining trade-off in Noida real estate: trading daily commuting time for interior breathing room. \n\nChoosing a larger 3 BHK further out in Greater Noida West gives you 1,400 to 1,600 sq.ft. of living space and a modern society, but adds 30 to 45 minutes to a central office commute. Opting for a smaller 2 BHK in Central Noida trades square footage for a shorter daily drive and established civic infrastructure. \n\nBase this strictly on your daily travel tolerance and whether your family needs the extra bedroom immediately. \n\nAre your daily commutes anchored to the Expressway, Central Noida, or Delhi?"
+    },
+    {
+      "id": "4",
+      "q": "Builder pays pre-EMI till possession vs a 10% cheaper price with no subvention. Which is better for me?",
+      "lane": "OPEN",
+      "firstMs": 6805,
+      "totalMs": 6806,
+      "modelCalls": 2,
+      "modelCallsAfter": 0,
+      "hosts": [
+        "generativelanguage.googleapis.com"
+      ],
+      "outage": false,
+      "chars": 746,
+      "answer": "The 10% cheaper price with no subvention is almost always mathematically superior. With a subvention scheme, the \"free\" pre-EMI is typically baked into an inflated base price. This artificially raises your property cost, which in turn inflates your stamp duty, GST, and total principal loan amount. Furthermore, if the builder faces cash-flow issues and defaults on the pre-EMI payments during construction, your CIBIL score takes the hit, not theirs. Choosing the direct discount reduces your overall debt burden and lowers upfront transactional taxes, saving you substantial capital over the property's lifecycle. Are you currently comparing this financing structure across a specific project in Noida, or evaluating your overall budget limits?"
+    },
+    {
+      "id": "5",
+      "q": "Supertech Supernova Astralis vs Mahagun Mezzaria: which is the safer buy and why?",
+      "lane": "ground-truth-db",
+      "firstMs": 14524,
+      "totalMs": 14761,
+      "modelCalls": 3,
+      "modelCallsAfter": 0,
+      "hosts": [
+        "generativelanguage.googleapis.com"
+      ],
+      "outage": false,
+      "chars": 913,
+      "answer": "### Verdict\nMahagun Mezzaria is unquestionably the safer buy, offering ready-to-move status with a 0-month builder delay history and no insolvency risk. In contrast, Supertech Supernova Astralis is developed by Supertech Limited, which operates under NCLT insolvency supervision and carries an average builder delay of 36 months.\n\n### Watch-out\nSupertech Supernova Astralis carries a formal legal flag of NCLT insolvency; the developer is under legal and financial restructuring. Buyers must verify the current project-level standing and tribunal orders with legal counsel before making any financial commitment.\n\n### Recommendation\nChoose **Mahagun Mezzaria** if you prioritize immediate possession, financial security, and a proven delivery track record; choose **Supertech Supernova Astralis** only if you have high risk tolerance and specifically require an under-construction ultra-luxury asset in Sector 94."
+    },
+    {
+      "id": "6",
+      "q": "Jaypee Klassic in Sector 134 vs Gulshan Ikebana in Sector 143: which one for end-use, which for investment?",
+      "lane": "topic:sector-comparison",
+      "firstMs": 6998,
+      "totalMs": 11187,
+      "modelCalls": 2,
+      "modelCallsAfter": 0,
+      "hosts": [
+        "generativelanguage.googleapis.com"
+      ],
+      "outage": false,
+      "chars": 1506,
+      "answer": "### Sector 134 vs Sector 143\n\n| | Sector 134 | Sector 143 |\n| :--- | :--- | :--- |\n| **Strengths** | Not recorded | Dual connectivity via Expressway and FNG corridor; Operational Sector 143 metro |\n| **Watch-outs** | Not recorded | Commercial high-street retail is still developing |\n| **Nearest metro** | Not recorded | Sector 143 Metro Station (Aqua Line), 0.4 km |\n| **Average rate** | Not recorded | ₹9,800/sq.ft |\n| **Price band** | ₹0.86–1.28 Cr | ₹0.95–1.91 Cr |\n| **Landmark societies** | Jaypee Kosmos, Jaypee Klassic Block 6-10 | Gulshan Ikebana Towers A-F, Sikka Kaamna Greens, Gulshan Ikebana |\n| **Suits** | Not recorded | IT workforce and value-conscious families seeking expressway addresses. |\n| **Not for** | Not recorded | Buyers demanding immediate ready multiplexes within walking distance. |\n\nBetween Sector 134 and Sector 143, Sector 143 is the superior choice for end-use, decided entirely by its established project readiness and operational metro connectivity. \n\nBy taking Sector 143, you trade away lower entry pricing and absorb a higher initial capital outlay. Conversely, Sector 134 presents substantial gaps in our verified data—with unrecorded ready counts, missing metro data, and blank strength metrics—which introduces considerable blind spots for a buyer. \n\nChoose Sector 134 if your strategy banks on lower entry tickets and long-term speculative turnaround, choose Sector 143 if you require immediate livability, proven transit access, and transparent project delivery."
+    },
+    {
+      "id": "7",
+      "q": "Divine Meadows vs Great Value Sharanam: compare total cost including stamp duty, registration and GST for a 3BHK",
+      "lane": "topic:statutory_tax",
+      "firstMs": 6419,
+      "totalMs": 6419,
+      "modelCalls": 1,
+      "modelCallsAfter": 0,
+      "hosts": [
+        "generativelanguage.googleapis.com"
+      ],
+      "outage": false,
+      "chars": 1853,
+      "answer": "### On the lowest listed price at Great Value Sharanam: ₹1.40 Cr (2 BHK), date of last confirmation not on record\n\n| Charge | Amount |\n| :--- | ---: |\n| Stamp duty (7%) | **₹9,80,000** |\n| Stamp duty if a woman is primary owner (6%) | ₹8,40,000 |\n| Registration (1%) | ₹1,40,000 |\n| GST if under construction (5%) | ₹7,00,000 |\n| GST if ready to move with OC | ₹0 |\n| **Total, ready to move** | **₹1,51,20,000** |\n| **Total, under construction** | **₹1,58,20,000** |\n\nStamp duty is charged on the agreement value or the circle rate, whichever is higher, so the figure above is the floor. You also deduct 1% TDS (₹1,40,000) from the payment to the seller and deposit it with Form 26QB.\n\n### Statutory taxes & registration charges (Uttar Pradesh)\n\nThese are set by law and are the same for every project.\n\n| Component | Rate | Nature | Paid when & to whom |\n| :--- | :--- | :--- | :--- |\n| **Stamp duty** | 7% of agreement or circle value, whichever is higher | Mandatory | At registry, to the UP Stamp & Registration Department |\n| **Stamp duty — female primary owner** | 6% | Concession | At registry |\n| **Registration fee** | 1% of value | Mandatory | At deed execution, to the Sub-Registrar |\n| **GST — under construction** | 5% (without input tax credit) | Statutory | Billed across construction milestones |\n| **GST — ready to move with OC** | 0% | Exempt | Not applicable once the Occupancy Certificate is granted |\n| **TDS (Section 194-IA)** | 1% of sale consideration | Mandatory | Deducted by the buyer when value exceeds ₹50 Lakh (Form 26QB) |\n\n### Budgeting\nAllow 12–14% above base price for an under-construction home, or 8–9% above base price for ready-to-move with OC, to cover statutory and possession charges — typical for Noida — not verified for this project.\n\nName a project and I'll use whichever of its own charges we hold verified."
+    },
+    {
+      "id": "8",
+      "q": "Out of Mahagun Mezzaria, Divine Meadows and Great Value Sharanam, which is cheapest per sq ft and is that a good sign?",
+      "lane": "unresolved-pointer",
+      "firstMs": 2513,
+      "totalMs": 2513,
+      "modelCalls": 1,
+      "modelCallsAfter": 0,
+      "hosts": [
+        "generativelanguage.googleapis.com"
+      ],
+      "outage": false,
+      "chars": 253,
+      "answer": "I want to make sure I answer about the right one — I've lost track of which options you mean, so I'd rather ask than guess.\n\nTell me the project or sector by name and I'll pull what we hold on it, or say the word and I'll put a fresh shortlist together."
+    },
+    {
+      "id": "9",
+      "q": "Is 8,500 per sq ft a fair price in Sector 150?",
+      "lane": "main",
+      "firstMs": 9381,
+      "totalMs": 10427,
+      "modelCalls": 3,
+      "modelCallsAfter": 0,
+      "hosts": [
+        "generativelanguage.googleapis.com",
+        "api.cohere.ai"
+      ],
+      "outage": false,
+      "chars": 936,
+      "answer": "Yes, ₹8,500 per sq. ft (typical for Noida — not verified for this project) is generally a fair and competitive entry price for Sector 150 in Noida, sitting near the baseline for quality developments in this low-density corridor. \n\nSector 150 is positioned as a low-density green sanctuary along the Noida-Greater Noida Expressway, governed strictly by the Noida Authority with a mandate for extensive open spaces and sports infrastructure. At ₹8,500 per sq. ft (typical for Noida — not verified for this project) on super area, you are typically looking at under-construction or newly delivered stock from established developers in the area. \n\nHowever, evaluate this rate against the net usable carpet area efficiency rather than the builder's super built-up figure, as low-density projects often carry higher circulation charges.\n\nAre you evaluating a specific under-construction project or a ready-to-move society at this price point?"
+    },
+    {
+      "id": "10",
+      "q": "A broker quoted me 1.1 crore for a 2BHK in Greater Noida West. Is that reasonable?",
+      "lane": "budget-check",
+      "firstMs": 2945,
+      "totalMs": 2945,
+      "modelCalls": 1,
+      "modelCallsAfter": 0,
+      "hosts": [
+        "generativelanguage.googleapis.com"
+      ],
+      "outage": false,
+      "chars": 492,
+      "answer": "### ₹1.1 Cr for a 2 BHK in Greater Noida West\n\n**111 of 127** projects with a 2 BHK in Greater Noida West on record start at or under ₹1.1 Cr (87%).\n\nThe middle starting price is **₹77 L**. The lowest is ₹52 L at Amrapali Enchante (Techzone 4), the highest ₹2.32 Cr at CRC Maesta (Sector 1).\n\n*Starting prices, computed over 127 projects we hold, not a market-wide survey. Stamp duty, registration and GST come on top.*\n\nWant me to show the 2 BHK in Greater Noida West options within ₹1.1 Cr?"
+    },
+    {
+      "id": "11",
+      "q": "Why do prices in Sector 150 look higher than Sector 78 for similar flats?",
+      "lane": "unlabelled",
+      "firstMs": 4785,
+      "totalMs": 4873,
+      "modelCalls": 0,
+      "modelCallsAfter": 0,
+      "hosts": [],
+      "outage": false,
+      "chars": 36,
+      "answer": "Did you mean: Sector 78, Sector 150?"
+    },
+    {
+      "id": "12",
+      "q": "What could go wrong if I book in an under-construction project today?",
+      "lane": "OPEN",
+      "firstMs": 7478,
+      "totalMs": 8394,
+      "modelCalls": 2,
+      "modelCallsAfter": 0,
+      "hosts": [
+        "generativelanguage.googleapis.com"
+      ],
+      "outage": false,
+      "chars": 969,
+      "answer": "Booking an under-construction property offers lower entry prices and staggered payment plans, but it carries distinct risks:\n\n*   **Execution Delays:** Possession can run past the RERA-mandated timeline, leaving you paying both rent and home loan EMIs simultaneously.\n*   **Developer Default:** Financial distress can stall construction indefinitely, especially if land dues with local authorities remain uncleared.\n*   **Tax Impact:** Non-affordable under-construction flats attract a 5% GST (without Input Tax Credit), whereas ready-to-move homes with an Occupancy Certificate attract 0%.\n*   **Specification Variance:** The final delivered unit may occasionally differ from early brochure promises regarding materials or tower placement.\n\nMitigating these risks requires partnering with developers who have a proven delivery track record. Are you currently evaluating under-construction options in a specific micro-market, such as Sector 150 or the Noida Expressway?"
+    },
+    {
+      "id": "13",
+      "q": "The builder says possession in 12 months. How do I check if that is believable?",
+      "lane": "main",
+      "firstMs": 11510,
+      "totalMs": 14368,
+      "modelCalls": 2,
+      "modelCallsAfter": 0,
+      "hosts": [
+        "generativelanguage.googleapis.com"
+      ],
+      "outage": false,
+      "chars": 1014,
+      "answer": "A 12-month possession claim for an under-construction project requires rigorous verification against statutory and physical milestones, as builder timelines are frequently optimistic. \n\nFirst, check the RERA-registered completion date on file. If the official RERA deadline extends far beyond 12 months, the builder's verbal or marketing timeline holds no legal enforceability. \n\nSecond, inspect physical site progress. If interior finishing — such as plastering, electrical wiring, plumbing, and flooring — is not already well underway, structural completion alone makes a 12-month turnaround unrealistic, as MEP (mechanical, electrical, plumbing) work and interior finishing typically require 12 to 18 months of uninterrupted execution even after the concrete structure is fully complete. \n\nVerify whether finishing materials are already on-site and whether an active labor force is deployed across all towers rather than just the entrance lobby. \n\nWhich specific project's timeline are you evaluating right now?"
+    },
+    {
+      "id": "14",
+      "q": "If the builder gets delayed by 2 years, what do I lose and what are my rights?",
+      "lane": "main",
+      "firstMs": 6177,
+      "totalMs": 13262,
+      "modelCalls": 3,
+      "modelCallsAfter": 0,
+      "hosts": [
+        "generativelanguage.googleapis.com"
+      ],
+      "outage": false,
+      "chars": 1261,
+      "answer": "If a builder delays possession by two years, your financial losses include ongoing rental outgo, blocked capital, and delayed moving plans, while your statutory protections under UP-RERA secure specific remedies.\n\nWhat you lose:\n* Rental expenses paid out of pocket while waiting for your home to be delivered.\n* The opportunity cost of capital locked in a non-yielding asset without appreciation realization or occupancy.\n\nYour rights under UP-RERA:\n* **Right to Withdraw and Full Refund (Section 18):** You can legally exit the project and demand a 100% refund of all amounts paid, plus interest calculated at the prescribed rate (SBI MCLR +1%) from the promised delivery date until the actual date of possession or refund.\n\nIf you choose to stay invested rather than withdraw, you retain the **right to monthly delay interest**. Under Section 18(1) of UP-RERA, even if you keep the allotment, the developer is legally mandated to pay interest for every month of delay beyond the agreed possession date...until handover is completed. Additionally, you are entitled to approach the UP-RERA forum for formal compensation if the developer fails to honor these statutory interest payouts.\n\nAre you currently dealing with a delayed handover on an existing booking?"
+    },
+    {
+      "id": "15",
+      "q": "I found a resale flat for 95 lakh. What documents and dues should I check before paying the token?",
+      "lane": "topic:resale_deal",
+      "firstMs": 3100,
+      "totalMs": 3101,
+      "modelCalls": 1,
+      "modelCallsAfter": 0,
+      "hosts": [
+        "generativelanguage.googleapis.com"
+      ],
+      "outage": false,
+      "chars": 2970,
+      "answer": "### What this costs you, on the numbers you gave\n\n| Price | Stamp duty (7%) | Registration (1%) | Renovation | Total |\n| :--- | :--- | :--- | :--- | :--- |\n| ₹0.95 Cr | ₹6,65,000 | ₹95,000 | not given | **₹1,02,60,000** |\n\n- **GST:** 0% on a completed flat bought from an individual. Confirm with your CA.\n- **Stamp duty basis:** it is charged on the higher of the agreement value and the Authority circle rate, so if the circle rate is higher your duty is higher than shown.\n- **If the primary owner is a woman,** stamp duty is 6%, which saves about ₹95,000.\n- **Not in the total:** the Authority's transfer charges, any society transfer fee, brokerage and pending dues. Ask for each amount in writing. We don't hold them for this flat, so they are left out, not guessed.\n- **Renovation:** you did not give an estimate, so none is included. Send a contractor quote and I will add it.\n\n**Is it a fair price?** I can't say. We hold no resale transaction prices, only builder-side rows, and asking prices are not sale prices. Compare it with recent registered sales in the same society and tower from the seller's broker or the sub-registrar, and check the carpet area rather than the super area.\n\n---\n\n### Resale flat: what to verify before you pay\n\nTick items off as you go; the ticks are kept on this device for this chat.\n\n**Documents that prove you can legally buy it**\n- [ ] **Ownership chain:** the registered sub-lease deed or conveyance deed in the seller's name, and every earlier transfer back to the builder's allotment.\n- [ ] **Authority permission:** the Transfer Memorandum or NOC from the Noida / Greater Noida Authority, where the land is Authority leasehold. A seller who says \"it's not needed\" is a red flag.\n- [ ] **Occupancy and completion certificates** that cover this tower, not just the project.\n- [ ] **Sanctioned plan against the flat:** unit number, area, balcony and parking as built versus as approved.\n- [ ] **Encumbrance and litigation search:** no mortgage, attachment or court dispute. If the seller has a home loan, the bank holds the original papers; get the loan closure letter and the release of originals before the final payment.\n- [ ] **RERA record,** if the project is registered: validity, complaints and orders.\n\n**Dues that become yours if you don't clear them first**\n- [ ] Authority dues: lease rent, transfer charges, any pending notice.\n- [ ] Society maintenance, sinking fund and club or parking charges, with a no-dues certificate from the RWA or maintenance company.\n- [ ] Electricity, water and piped gas, as final bills or no-dues letters.\n- [ ] Any stamp duty shortfall notice on an earlier registration.\n\n**How to pay:** a small token first, then the balance against the executed registry, with dues deducted from the price or held back. Do not pay in cash and do not pay an individual other than the seller on title.\n\nThis is a checklist, not legal advice. Have a property lawyer read the documents before you sign."
+    },
+    {
+      "id": "H1",
+      "q": "1.3 crore hai mere paas. Noida mein ready 2BHK lun ya Greater Noida West mein under-construction 3BHK?",
+      "lane": "search",
+      "firstMs": 5793,
+      "totalMs": 7115,
+      "modelCalls": 1,
+      "modelCallsAfter": 0,
+      "hosts": [
+        "generativelanguage.googleapis.com"
+      ],
+      "outage": false,
+      "chars": 937,
+      "answer": "**20+ projects match** 2 or 3 BHK in Greater Noida West between ₹1.3 Cr and ₹1.3 Cr. Prices run ₹1.05 Cr to ₹2.07 Cr. 9 ready to move, the rest under construction.\n\n- **Eros Sampoornam**, Sector 2: ₹1.25 Cr–₹1.35 Cr for 3 BHK, possession Q2 2024 (possession date passed — status unconfirmed)\n- **Panchsheel Greens 1 & 2**, Sector 16: ₹1.05 Cr–₹1.35 Cr for 3 BHK, ready to move\n- **RG Luxury Homes**, Sector 16B: ₹1.08 Cr–₹1.35 Cr for 3 BHK, possession Ready to Move (possession date passed — status unconfirmed)\n- **Arihant Arden**, Sector 1: ₹1.25 Cr–₹1.45 Cr for 3 BHK, ready to move\n- **Saviour Greenarch**, Techzone 4: ₹1.18 Cr–₹1.45 Cr for 3 BHK, ready to move\n- **Mahagun Mantra I**, Sector 10: ₹1.22 Cr–₹1.32 Cr for 3 BHK, ready to move\n\n_Prices: date of last confirmation not on record._\n\nOpen a card for the cost sheet and RERA record, or tell me what matters most (possession, metro, builder record) and I'll narrow these down."
+    },
+    {
+      "id": "H2",
+      "q": "Supertech Supernova Astralis ya Mahagun Mezzaria, dono mein se kaun sa safe hai?",
+      "lane": "topic:builder-reputation",
+      "firstMs": 6624,
+      "totalMs": 6625,
+      "modelCalls": 1,
+      "modelCallsAfter": 0,
+      "hosts": [
+        "generativelanguage.googleapis.com"
+      ],
+      "outage": false,
+      "chars": 1381,
+      "answer": "### Supertech Limited — the developer behind Supertech Supernova Astralis\n\n| Metric | Supertech Limited | What it is based on |\n| :--- | :--- | :--- |\n| Average handover delay | 36 months | Mean slippage across delivered projects |\n| Operating since | 1995 | Year founded |\n| Insolvency / NCLT | Insolvency proceedings on record | Insolvency & Bankruptcy Board of India |\n| Legal status flag | NCLT insolvency | Verified regulatory status |\n\n**How to read this.** Every figure here is a count or a date from completed projects — homes actually handed over, and how far past the committed date they went. Nothing here is a rating we assigned. Treat it as a record of past projects, not a guarantee about this one.\n\n### How they compare\n\n| Developer | Projects delivered | Units delivered | Avg handover delay | Operating since |\n| :--- | :--- | :--- | :--- | :--- |\n| **Purvanchal Projects** | Not recorded | Not recorded | On time | 1994 |\n| **Laureate Buildwell** | Not recorded | Not recorded | On time | 2018 |\n| **ATS Infrastructure** | Not recorded | Not recorded | 8.5 months | 1998 |\n| **Stellar Group** | Not recorded | Not recorded | On time | 1996 |\n| **Gulshan Group** | Not recorded | Not recorded | On time | 2009 |\n| **Gulshan Homz** | Not recorded | Not recorded | On time | 1989 |\n\nOrdered by delivery record. \"Not recorded\" is a gap in our data, not a poor result."
+    },
+    {
+      "id": "H3",
+      "q": "Sector 150 mein 8,500 per sq ft ka rate theek hai ya mehenga?",
+      "lane": "main",
+      "firstMs": 9943,
+      "totalMs": 10677,
+      "modelCalls": 2,
+      "modelCallsAfter": 0,
+      "hosts": [
+        "generativelanguage.googleapis.com"
+      ],
+      "outage": false,
+      "chars": 553,
+      "answer": "At ₹8,500 per sq ft (typical for Noida — not verified for this project), the rate sits on the competitive end for primary inventory in Sector 150, where established developments typically range higher...range higher, though you must verify whether it is a bare base price or an all-inclusive rate loaded with floor rise, preferential location charges, and mandatory parking. Always review the full cost sheet for additional extras like lease rent, maintenance advances, and club membership fees.\n\nWhich specific project in Sector 150 are you evaluating?"
+    },
+    {
+      "id": "H4",
+      "q": "Under-construction flat abhi book karu to kya risk hai?",
+      "lane": "main",
+      "firstMs": 11891,
+      "totalMs": 14866,
+      "modelCalls": 3,
+      "modelCallsAfter": 0,
+      "hosts": [
+        "generativelanguage.googleapis.com",
+        "api.cohere.ai"
+      ],
+      "outage": false,
+      "chars": 914,
+      "answer": "Under-construction (UC) flats carry execution risk: the builder may delay possession or deviate from promised specifications. Registration puts the project on record with the authority and gives you a route to complain; it is not a warranty on delivery, title or build quality. The Real Estate (Regulation and Development) Act, 2016 (RERA) mandates that builders deposit 70% of booking amounts in an escrow account, limiting fund diversion. Buyers can claim a refund with interest or seek compensation for delays, but this process can be lengthy.\n\nAdditionally, UC flats attract **5% GST** on the agreement value, adding to the cost. Ready-to-move flats with an Occupancy Certificate (OC) are GST-exempt.\n\nBefore booking, verify the project's RERA registration, the builder's track record, and the construction timeline. Ensure all promises are documented in the agreement.\n\nDo you have a specific project in mind?"
+    },
+    {
+      "id": "H5",
+      "q": "Builder 2 saal late ho gaya to mera kitna nuksaan hoga aur mere paas kya options hain?",
+      "lane": "OPEN",
+      "firstMs": 7523,
+      "totalMs": 7900,
+      "modelCalls": 3,
+      "modelCallsAfter": 0,
+      "hosts": [
+        "generativelanguage.googleapis.com"
+      ],
+      "outage": false,
+      "chars": 765,
+      "answer": "A 2-year builder delay causes direct financial damage: continuous out-of-pocket rent, paying EMIs on a property you don't live in, and the opportunity cost of your locked-up capital. \n\nUnder UP RERA, you have two primary legal options:\n\n*   **Exit with Full Refund:** You can withdraw from the project under Section 18 and demand a complete refund of your principal paid, plus statutory interest (typically SBI MCLR + 1%).\n*   **Stay and Claim Compensation:** You can choose to stay invested while legally claiming delayed possession charges (monthly interest penalty) for every month the project overrun continues.\n\nAre you looking to exit this project for a refund, or considering shifting your capital to a ready-to-move property to avoid further delivery risks?"
+    },
+    {
+      "id": "F1",
+      "q": "What amenities does Supertech Supernova Astralis have?",
+      "lane": "topic:amenity-lifestyle",
+      "firstMs": 6533,
+      "totalMs": 6534,
+      "modelCalls": 1,
+      "modelCallsAfter": 0,
+      "hosts": [
+        "generativelanguage.googleapis.com"
+      ],
+      "outage": false,
+      "chars": 1333,
+      "answer": "### Verified Amenities & Lifestyle: Supertech Supernova Astralis (Sector 94)\n\n| Category | Amenities |\n| :--- | :--- |\n| **Security** | 24/7 Gated Security with High-Definition CCTV & Boom Barriers |\n| **Lifestyle** | 100% Dual-Meter DG Power Backup for Common Areas & Elevators · High-Speed Automated Passenger & Stretcher Service Elevators · Exclusive Resident Sky Lounge & Panoramic Sun Deck · Private Concierge Desk & Grand Double-Height Air-Conditioned Lobby · Private Screening Mini-Theatre with Dolby Atmos Acoustic Setup · Co-Working Business Executive Lounge with Video Conference Facilities |\n| **Parking** | Reserved Covered Basement Parking with EV Charging Provision · EV Superchargers (150 kW DC Fast Charging Stations) |\n| **Sports** | Landscaped Central Green Podium with Jogging & Reflexology Path · Temperature-Controlled Indoor Heated Lap Swimming Pool & Jacuzzi · International Standard Squash Court & Indoor Badminton Arena · Virtual Golf Simulator & Professional Billiards Lounge |\n| **Kids** | Children Dedicated Play Zone with Shock-Absorbent Turf & Swings |\n| **Wellness** | Wellness Spa, Steam, Sauna & Cold Plunge Therapy Center · Fully Equipped Technogym Fitness Suite with Cardio & Strength Zones |\n\n_16 amenities recorded for Supertech Supernova Astralis._\n\n**Open Space & Green Cover:**\n82% open space."
+    },
+    {
+      "id": "F2",
+      "q": "Which projects in Noida have a swimming pool and a jacuzzi?",
+      "lane": "aggregate",
+      "firstMs": 2412,
+      "totalMs": 2414,
+      "modelCalls": 0,
+      "modelCallsAfter": 0,
+      "hosts": [],
+      "outage": false,
+      "chars": 865,
+      "answer": "We hold **192** projects with a pool in Noida.\n\n| Project | Sector | Possession |\n| :--- | :--- | :--- |\n| 3C Lotus 300 | Sector 107 | Ready to Move |\n| 3C Lotus Panache | Sector 110 | Ready to Move |\n| ABA Cleo County | Sector 121 | Q1 2024 |\n| ACE Arte | Sector 150 | Q1 2026 |\n| ACE Parkway | Sector 150 | Ready to Move |\n| AIMS Golf Avenue I | Sector 75 | Q2 2024 |\n| AIMS Golf Avenue I & II | Sector 75 | Delivered |\n| AIMS Golf City | Sector 75 | Ready to Move |\n| ATS Greens 1 | Sector 50 | Delivered & Ready |\n| ATS Greens 2 | Sector 50 | Delivered & Ready |\n| ATS Greens Village | Sector 93A | Q4 2025 |\n| ATS Kingston Heath | Sector 150 | Q2 2027 |\n| ATS Knightsbridge | Sector 124 | Ready to Move |\n| ATS Le Grandiose | Sector 150 | Q2 2025 |\n| ATS Le Grandiose Phase 2 | Sector 150 | Q4 2027 |\n\n177 more match. Narrow it by sector or budget to see them."
+    },
+    {
+      "id": "F3",
+      "q": "I want a society with a snooker or billiards room. Which ones have it?",
+      "lane": "OPEN",
+      "firstMs": 6077,
+      "totalMs": 6338,
+      "modelCalls": 2,
+      "modelCallsAfter": 0,
+      "hosts": [
+        "generativelanguage.googleapis.com"
+      ],
+      "outage": false,
+      "chars": 607,
+      "answer": "Most modern mid-to-luxury residential societies across Noida and Greater Noida feature fully equipped clubhouses with dedicated indoor games rooms, which typically include snooker, billiards, pool, and table tennis facilities. \n\nWhile expansive clubhouses are standard in premium gated communities, exact recreational allocations can vary by specific phases and developers. Across our inventory—spanning from ₹41 Lakhs to ₹12.5 Cr across 1 to 6 BHK configurations—many partnered high-rises integrate these active lifestyle and clubhouse spaces. \n\nWhich micro-market in Noida are you focusing your search on?"
+    },
+    {
+      "id": "F4",
+      "q": "Is there a squash court or golf simulator in any project in Noida?",
+      "lane": "topic:amenity_search",
+      "firstMs": 4011,
+      "totalMs": 4012,
+      "modelCalls": 1,
+      "modelCallsAfter": 0,
+      "hosts": [
+        "generativelanguage.googleapis.com"
+      ],
+      "outage": false,
+      "chars": 1180,
+      "answer": "### Projects in Noida with a squash court or golf facility\n\n26 projects list it; showing 10.\n\n| Project | Sector | Amenity |\n| :--- | :--- | :--- |\n| Ace Mahagun Medalleo | Sector 107 | International Standard Squash Court & Indoor Badminton Arena |\n| Ace Mahagun Medalleo | Sector 107 | Virtual Golf Simulator & Professional Billiards Lounge |\n| ATS Pristine Golf Villas Phase 1 | Sector 150 | International Standard Squash Court & Indoor Badminton Arena |\n| ATS Pristine Golf Villas Phase 1 | Sector 150 | Virtual Golf Simulator & Professional Billiards Lounge |\n| County 107 | Sector 107 | International Standard Squash Court & Indoor Badminton Arena |\n| County 107 | Sector 107 | Virtual Golf Simulator & Professional Billiards Lounge |\n| Gulshan Dynasty | Sector 144 | International Standard Squash Court & Indoor Badminton Arena |\n| Gulshan Dynasty | Sector 144 | Virtual Golf Simulator & Professional Billiards Lounge |\n| Mahagun Manorialle | Sector 128 | International Standard Squash Court & Indoor Badminton Arena |\n| Mahagun Manorialle | Sector 128 | Virtual Golf Simulator & Professional Billiards Lounge |\n\nAmenity lists we hold are incomplete, so ask on a site visit."
+    },
+    {
+      "id": "F5",
+      "q": "What is the payment plan for Supertech Supernova Astralis?",
+      "lane": "topic:payment-plans",
+      "firstMs": 5197,
+      "totalMs": 8165,
+      "modelCalls": 3,
+      "modelCallsAfter": 0,
+      "hosts": [
+        "generativelanguage.googleapis.com"
+      ],
+      "outage": false,
+      "chars": 2671,
+      "answer": "### Payment Plans & Milestones — Supertech Supernova Astralis\n\n### Available Payment Schemes\n\n| Payment Scheme | Milestone Structure | Discount / Key Benefit | Watch out |\n| :--- | :--- | :--- | :--- |\n| **Construction Linked Payment Plan (CLP)** | 10% : 10% : 10% : 10% : 10% : 10% : 10% : 10% : 10% : 10% | 10% Down Payment | Not recorded |\n| **Time Linked Flexi Payment Plan (30:40:30)** | 30% : 40% : 30% | 30% Down Payment | Not recorded |\n\n#### Construction Linked Payment Plan (CLP)\n\n| Stage / Milestone | Timeline / Trigger | Share | Amount |\n| :--- | :--- | ---: | ---: |\n| At Booking & Allotment | Not recorded | 10% | Not recorded |\n| On Foundation / Raft Casting | Not recorded | 10% | Not recorded |\n| On Casting of Ground Basement Slab | Not recorded | 10% | Not recorded |\n| On Casting of 5th Floor Slab | Not recorded | 10% | Not recorded |\n| On Casting of 10th Floor Slab | Not recorded | 10% | Not recorded |\n| On Casting of 15th Floor Slab | Not recorded | 10% | Not recorded |\n| On Top Floor Roof Slab Casting | Not recorded | 10% | Not recorded |\n| On Internal Plastering of Unit | Not recorded | 10% | Not recorded |\n| On Flooring & Electrical Conduits | Not recorded | 10% | Not recorded |\n| On Notice of Possession & Key Handover | Not recorded | 10% | Not recorded |\n\n#### Time Linked Flexi Payment Plan (30:40:30)\n\n| Stage / Milestone | Timeline / Trigger | Share | Amount |\n| :--- | :--- | ---: | ---: |\n| Within 45 Days of Booking | Not recorded | 30% | Not recorded |\n| On Completion of Superstructure Casting | Not recorded | 40% | Not recorded |\n| On Offer of Possession & Final Registry | Not recorded | 30% | Not recorded |\n\n_These are the standard schemes on file for this project and have not been confirmed against the developer's current terms. Treat the stage percentages as the shape to expect, and get the figures in writing before you pay._\n\nThe construction-linked plan spreads your capital across ten equal stages tied to physical milestones, keeping your liquidity free as construction progresses. In contrast, the flexi payment plan demands heavier upfront and mid-term outlays before tying the final share to possession. For a commercial asset at this price point, the construction-linked option protects your cash flow against project delays, whereas a front-loaded schedule requires immediate capital commitment without necessarily securing faster delivery. \n\nTake the down-payment plan if you have the cash idle; take construction-linked if you are still saving. If the database does not record specific developer rebates for the upfront option, evaluate whether retaining your liquidity outperforms any unstated discount."
+    },
+    {
+      "id": "F6",
+      "q": "What is the payment plan for Divine Meadows?",
+      "lane": "topic:payment-plans",
+      "firstMs": 4911,
+      "totalMs": 4911,
+      "modelCalls": 1,
+      "modelCallsAfter": 0,
+      "hosts": [
+        "generativelanguage.googleapis.com"
+      ],
+      "outage": false,
+      "chars": 541,
+      "answer": "### Payment Plans: Divine Meadows\n\nWe don't have the developer payment schedule for Divine Meadows verified in our records yet. Our advisory team can pull the developer's official figures — want me to arrange that?\n\nWhat I can tell you now: most Noida developers offer some combination of a construction-linked plan, a down-payment plan (usually carrying an upfront discount on base price), and a flexi/milestone split — but which of those Divine Meadows actually offers, and on what percentages, is exactly the part we would be guessing at."
+    },
+    {
+      "id": "F7",
+      "q": "Give me the cost sheet for Mahagun Mezzaria: base price, PLC, parking, club and maintenance",
+      "lane": "topic:cost-sheet",
+      "firstMs": 6304,
+      "totalMs": 8638,
+      "modelCalls": 3,
+      "modelCallsAfter": 0,
+      "hosts": [
+        "generativelanguage.googleapis.com"
+      ],
+      "outage": false,
+      "chars": 2624,
+      "answer": "### Cost breakdown — Mahagun Mezzaria\n\n| Cost Component | Rate / Amount | Details & Stage |\n| :--- | :--- | :--- |\n| **Base Selling Price (BSP)** | ₹10,759/sqft | Verified base rate |\n| **Covered Car Parking** | ₹4.50 lakh | Dedicated basement parking |\n| **Club Membership** | ₹2.25 lakh | Access to clubhouse & amenities |\n| **IFMS (Maintenance Security)** | ₹75/sqft | Interest-free refundable corpus, charged on area |\n| **Maintenance** | ₹3.63/sqft per month | Recurring, from possession |\n| **Floor Rise** | ₹45/sqft per floor | Higher floors cost more |\n| **Electricity Connection** | ₹45,000 | One-time |\n| **Water & Sewer Connection** | ₹30,000 | One-time |\n| **Corner Unit PLC** | ₹150/sqft | Preferential location charge, if the unit has it |\n| **Park / Green Central Lawn Facing PLC** | ₹200/sqft | Preferential location charge, if the unit has it |\n| **Clubhouse / Swimming Pool View PLC** | ₹175/sqft | Preferential location charge, if the unit has it |\n| **Wide Master Sector Road Facing PLC** | ₹100/sqft | Preferential location charge, if the unit has it |\n| **Dual Meter & Power Infrastructure Charge** | ₹45,000 | As listed |\n| **IGL Piped Natural Gas Connection** | ₹18,500 | As listed |\n| **Power Backup Installation (1 KVA / BHK)** | ₹30,000 | As listed |\n| **Sinking Fund / Society Corpus Deposit** | ₹90,000 | As listed |\n| **Legal & Administrative Documentation** | ₹25,000 | As listed |\n| **Labour Welfare Cess & Fire Fighting System** | ₹35,000 | As listed |\n| **GST** | 0% (Exempt with OC) | Ready to move with OC |\n| **UP Stamp Duty** | 7% | At registration (6% for women) |\n| **Registration Fee** | 1% | State sub-registrar fee |\n\n*Prices: date of last confirmation not on record.*\n\nAt Mahagun Mezzaria, the gap between the advertised base rate and your final cheque is driven by essential additions like floor rise, preferential location charges, parking, infrastructure, and statutory dues. While developers heavily market the starting base price, your actual financial commitment expands significantly once you factor in mandatory fixed charges, club membership, power backup, and government-mandated stamp duty and registration fees fixed under Uttar Pradesh law. \n\nBefore signing the booking form, you should carefully check the specific Preferential Location Charges and floor rise increments applied to your chosen unit. Because views, orientation, and vertical stacking can substantially alter the per-square-foot calculation, clarifying these variables upfront ensures your final cost sheet aligns precisely with your expectations without unexpected surprises at the time of allotment."
+    },
+    {
+      "id": "F8",
+      "q": "What are the hidden charges apart from the base price in Gulshan Ikebana?",
+      "lane": "topic:cost-sheet",
+      "firstMs": 5393,
+      "totalMs": 8251,
+      "modelCalls": 3,
+      "modelCallsAfter": 0,
+      "hosts": [
+        "generativelanguage.googleapis.com"
+      ],
+      "outage": false,
+      "chars": 2662,
+      "answer": "### Cost breakdown — Gulshan Ikebana\n\n| Cost Component | Rate / Amount | Details & Stage |\n| :--- | :--- | :--- |\n| **Base Selling Price (BSP)** | ₹8,280/sqft | Verified base rate |\n| **Covered Car Parking** | ₹3.25 lakh | Dedicated basement parking |\n| **Club Membership** | ₹1.50 lakh | Access to clubhouse & amenities |\n| **IFMS (Maintenance Security)** | ₹50/sqft | Interest-free refundable corpus, charged on area |\n| **Maintenance** | ₹2.85/sqft per month | Recurring, from possession |\n| **Floor Rise** | ₹30/sqft per floor | Higher floors cost more |\n| **Electricity Connection** | ₹35,000 | One-time |\n| **Water & Sewer Connection** | ₹25,000 | One-time |\n| **Corner Unit PLC** | ₹150/sqft | Preferential location charge, if the unit has it |\n| **Park / Green Central Lawn Facing PLC** | ₹200/sqft | Preferential location charge, if the unit has it |\n| **Clubhouse / Swimming Pool View PLC** | ₹175/sqft | Preferential location charge, if the unit has it |\n| **Wide Master Sector Road Facing PLC** | ₹100/sqft | Preferential location charge, if the unit has it |\n| **Dual Meter & Power Infrastructure Charge** | ₹35,000 | As listed |\n| **IGL Piped Natural Gas Connection** | ₹18,500 | As listed |\n| **Power Backup Installation (1 KVA / BHK)** | ₹30,000 | As listed |\n| **Sinking Fund / Society Corpus Deposit** | ₹60,000 | As listed |\n| **Legal & Administrative Documentation** | ₹25,000 | As listed |\n| **Labour Welfare Cess & Fire Fighting System** | ₹35,000 | As listed |\n| **GST** | 0% (Exempt with OC) | Ready to move with OC |\n| **UP Stamp Duty** | 7% | At registration (6% for women) |\n| **Registration Fee** | 1% | State sub-registrar fee |\n\n*Prices: date of last confirmation not on record.*\n\nThe all-inclusive financial commitment for Gulshan Ikebana extends notably beyond the headline base rate of ₹8,280 per sq. ft. While advertised prices focus purely on the foundational cost, your actual final cheque will incorporate mandatory additions including covered parking allotments, club membership, infrastructure connection fees, and corpus deposits. Furthermore, because this project holds an Occupancy Certificate, buyers benefit from 0% GST, though statutory UP stamp duty of 7% (or 6% for female co-owners) and a 1% registration fee still apply at the time of registry.\n\nBefore finalizing your booking, you must carefully verify the specific Preferential Location Charges (PLC) applicable to your chosen unit with the developer. Depending on whether your apartment features a park view, pool view, corner orientation, or wide road access, these PLC rates add incremental per-sq.-ft. costs that directly alter your total acquisition price."
+    },
+    {
+      "id": "F9",
+      "q": "Where exactly is Mahagun Mezzaria and what is around it?",
+      "lane": "topic:vicinity-lookup",
+      "firstMs": 4678,
+      "totalMs": 4682,
+      "modelCalls": 1,
+      "modelCallsAfter": 0,
+      "hosts": [
+        "generativelanguage.googleapis.com"
+      ],
+      "outage": false,
+      "chars": 527,
+      "answer": "### Near Mahagun Mezzaria — Sector 78\n\n| Landmark | Type | Distance | Travel time |\n| :--- | :--- | ---: | ---: |\n| Sector 76 Metro Station (Aqua Line) | metro | 2.1 km | 5 min |\n| Sector 50 Metro Station (Aqua Line) | metro | 4 km | 9 min |\n| Noida City Centre / Sector 52 Metro (Blue Line) | metro | 5.3 km | 12 min |\n| Jaypee Multispeciality Hospital (Sec 128) | hospital | 5.5 km | 12 min |\n| Noida-Greater Noida Expressway | expressway | 5.9 km | 13 min |\n\nDistances are road distances from our records, not straight-line."
+    },
+    {
+      "id": "F10",
+      "q": "What are the nearest schools, hospitals and airport to Great Value Sharanam?",
+      "lane": "topic:vicinity-lookup",
+      "firstMs": 5142,
+      "totalMs": 5143,
+      "modelCalls": 1,
+      "modelCallsAfter": 0,
+      "hosts": [
+        "generativelanguage.googleapis.com"
+      ],
+      "outage": false,
+      "chars": 255,
+      "answer": "### Near Great Value Sharanam Greno — Sector 1\n\n| Landmark | Type | Distance | Travel time |\n| :--- | :--- | ---: | ---: |\n| Yatharth Super Speciality Hospital | hospital | 900 m | 2 min |\n\nDistances are road distances from our records, not straight-line."
+    },
+    {
+      "id": "F11",
+      "q": "How long does it take from Gulshan Ikebana to Connaught Place and to Sector 62?",
+      "lane": "ground-truth-db",
+      "firstMs": 17155,
+      "totalMs": 17390,
+      "modelCalls": 3,
+      "modelCallsAfter": 0,
+      "hosts": [
+        "generativelanguage.googleapis.com"
+      ],
+      "outage": false,
+      "chars": 574,
+      "answer": "Traveling to Sector 62 takes 22 to 30 minutes, while the exact transit time to Connaught Place is not recorded in our verified data.\n\nMeaning: This ensures a manageable daily commute for professionals heading to Noida's established eastern IT hubs.\n\n- Travel duration to Connaught Place isn't in what we hold for this project, our advisory team can confirm it.\nMeaning: You should test-drive the DND Flyway route during morning hours to evaluate the central Delhi commute accurately.\n\nWould you like to schedule a site visit to test the actual drive times from the location?"
+    },
+    {
+      "id": "F12",
+      "q": "Which sectors are next to Sector 78 and how do they compare for a family?",
+      "lane": "coverage-lane",
+      "firstMs": 5685,
+      "totalMs": 5695,
+      "modelCalls": 1,
+      "modelCallsAfter": 0,
+      "hosts": [
+        "generativelanguage.googleapis.com"
+      ],
+      "outage": false,
+      "chars": 1049,
+      "answer": "Everything we hold within 3.5 km of Sector 78, nearest first:\n\n| Project | Sector | Distance | Price from | Status |\n| :--- | :--- | ---: | :--- | :--- |\n| **Mahagun Moderne** | Sector 78 | 0.1 km | from ₹1.25 Cr | ready to move |\n| **Mahagun Mezzaria** | Sector 78 | 0.2 km | from ₹2.72 Cr | ready to move |\n| **Prateek Wisteria** | Sector 77 | 0.2 km | from ₹1.06 Cr | ready to move |\n| **Lotus Greens Arena** | Sector 79 | 0.3 km | from ₹1.01 Cr | ready to move |\n| **Antriksh Golf View** | Sector 78 | 0.3 km | from ₹1.55 Cr | ready to move |\n| **Lotus Greens Arena II** | Sector 79 | 0.3 km | from ₹0.98 Cr | under construction |\n| **Lotus Greens Yardscape** | Sector 79 | 0.3 km | from ₹1.15 Cr | under construction |\n| **Mahagun Marvella** | Sector 78 | 0.3 km | from ₹2.12 Cr | ready to move |\n\nThese sit across Sector 78, Sector 77, Sector 79.\n\n**Distances are straight-line**, measured between the coordinates we hold — not driving distance and not commute time. Ask me about any of these and I'll pull its full cost and possession detail."
+    },
+    {
+      "id": "F13",
+      "q": "How far is the nearest metro station from Mahagun Mezzaria?",
+      "lane": "topic:vicinity-lookup",
+      "firstMs": 7062,
+      "totalMs": 7064,
+      "modelCalls": 1,
+      "modelCallsAfter": 0,
+      "hosts": [
+        "generativelanguage.googleapis.com"
+      ],
+      "outage": false,
+      "chars": 170,
+      "answer": "Mahagun Mezzaria (Sector 78) is 2.1 km from Sector 76 Metro Station (Aqua Line) (about 5 min by road). Road distances from our records where held, sector-level otherwise."
+    },
+    {
+      "id": "F14",
+      "q": "What is the RERA number and validity for Supertech Supernova Astralis?",
+      "lane": "deterministic-fact",
+      "firstMs": 1257,
+      "totalMs": 1905,
+      "modelCalls": 0,
+      "modelCallsAfter": 0,
+      "hosts": [],
+      "outage": false,
+      "chars": 484,
+      "answer": "### UP-RERA Registration Details — Supertech Supernova Astralis\n\n| Parameter | Official Record | Status / Link |\n| :--- | :--- | :--- |\n| **Project** | **Supertech Supernova Astralis** by Supertech Limited | Sector 94, Noida |\n| **UP-RERA Registration ID** | `UPRERAPRJ4017` | Registered with UP-RERA |\n| **Possession Timeline** | Q4 2027 | under construction |\n\n> This registration number is from our project record. Confirm it on the UP-RERA portal before paying any booking amount."
+    },
+    {
+      "id": "F15",
+      "q": "Who is the builder of Divine Meadows and what else have they delivered?",
+      "lane": "topic:developer_of_each",
+      "firstMs": 7203,
+      "totalMs": 7205,
+      "modelCalls": 1,
+      "modelCallsAfter": 0,
+      "hosts": [
+        "generativelanguage.googleapis.com"
+      ],
+      "outage": false,
+      "chars": 224,
+      "answer": "### Developer of each project\n\n| Project | Sector | Developer |\n| :--- | :--- | :--- |\n| Divine Meadows | Sector 108 | Divine India Group |\n\nAsk me about any one developer's delivery record and I'll show what we hold for it."
+    },
+    {
+      "id": "F16",
+      "q": "Is Great Value Sharanam safe for kids? Security, CCTV, parks",
+      "lane": "topic:amenity-lifestyle",
+      "firstMs": 5654,
+      "totalMs": 5656,
+      "modelCalls": 1,
+      "modelCallsAfter": 0,
+      "hosts": [
+        "generativelanguage.googleapis.com"
+      ],
+      "outage": false,
+      "chars": 1116,
+      "answer": "### Verified Amenities & Lifestyle: Great Value Sharanam Greno (Sector 1)\n\n**Yes**, Great Value Sharanam Greno is equipped with **Children Dedicated Play Zone with Shock-Absorbent Turf & Swings**, **Swimming Pool & Splash Pool for Kids**.\n\n| Category | Amenities |\n| :--- | :--- |\n| **Security** | 24/7 Gated Security with High-Definition CCTV & Boom Barriers |\n| **Lifestyle** | 100% Dual-Meter DG Power Backup for Common Areas & Elevators · High-Speed Automated Passenger & Stretcher Service Elevators · Community Clubhouse & Social Gathering Room · Open Air Sit-Out Benches & Walking Track · On-Premises Daily Convenience & Grocery Store |\n| **Parking** | Reserved Covered Basement Parking with EV Charging Provision |\n| **Sports** | Landscaped Central Green Podium with Jogging & Reflexology Path · Swimming Pool & Splash Pool for Kids · Outdoor Badminton Court |\n| **Kids** | Children Dedicated Play Zone with Shock-Absorbent Turf & Swings |\n| **Wellness** | Fitness Gym with Basic Cardio & Dumbbell Setup |\n\n_12 amenities recorded for Great Value Sharanam Greno._\n\n**Open Space & Green Cover:**\n75% open space."
+    },
+    {
+      "id": "F17",
+      "q": "What is the monthly maintenance at Mahagun Mezzaria for a 1,500 sq ft flat?",
+      "lane": "topic:cost-sheet",
+      "firstMs": 7494,
+      "totalMs": 12419,
+      "modelCalls": 2,
+      "modelCallsAfter": 0,
+      "hosts": [
+        "generativelanguage.googleapis.com"
+      ],
+      "outage": false,
+      "chars": 2672,
+      "answer": "### Cost breakdown — Mahagun Mezzaria\n\n| Cost Component | Rate / Amount | Details & Stage |\n| :--- | :--- | :--- |\n| **Base Selling Price (BSP)** | ₹10,759/sqft | Verified base rate |\n| **Covered Car Parking** | ₹4.50 lakh | Dedicated basement parking |\n| **Club Membership** | ₹2.25 lakh | Access to clubhouse & amenities |\n| **IFMS (Maintenance Security)** | ₹75/sqft | Interest-free refundable corpus, charged on area |\n| **Maintenance** | ₹3.63/sqft per month | Recurring, from possession |\n| **Floor Rise** | ₹45/sqft per floor | Higher floors cost more |\n| **Electricity Connection** | ₹45,000 | One-time |\n| **Water & Sewer Connection** | ₹30,000 | One-time |\n| **Corner Unit PLC** | ₹150/sqft | Preferential location charge, if the unit has it |\n| **Park / Green Central Lawn Facing PLC** | ₹200/sqft | Preferential location charge, if the unit has it |\n| **Clubhouse / Swimming Pool View PLC** | ₹175/sqft | Preferential location charge, if the unit has it |\n| **Wide Master Sector Road Facing PLC** | ₹100/sqft | Preferential location charge, if the unit has it |\n| **Dual Meter & Power Infrastructure Charge** | ₹45,000 | As listed |\n| **IGL Piped Natural Gas Connection** | ₹18,500 | As listed |\n| **Power Backup Installation (1 KVA / BHK)** | ₹30,000 | As listed |\n| **Sinking Fund / Society Corpus Deposit** | ₹90,000 | As listed |\n| **Legal & Administrative Documentation** | ₹25,000 | As listed |\n| **Labour Welfare Cess & Fire Fighting System** | ₹35,000 | As listed |\n| **GST** | 0% (Exempt with OC) | Ready to move with OC |\n| **UP Stamp Duty** | 7% | At registration (6% for women) |\n| **Registration Fee** | 1% | State sub-registrar fee |\n\n*Prices: date of last confirmation not on record.*\n\nAt Mahagun Mezzaria, the gap between the advertised headline base rate and the actual cheque you write encompasses several mandatory additions. While the base price covers the core apartment area, the all-inclusive figure integrates floor rises, preferred location charges, covered parking, club membership, and essential utility infrastructure. Since this ready-to-move project has an Occupancy Certificate, zero GST applies, leaving state-fixed statutory costs like stamp duty and registration as the primary government outlays.\n\nBefore signing, you must carefully verify the exact preferred location charges and floor rise applicable to your chosen unit with the developer. These variables cause the most significant variance from the starting ticket size and are frequently excluded from initial headline promotions. Clarifying these specific line items upfront ensures your financial planning aligns precisely with the official cost sheet before booking."
+    },
+    {
+      "id": "F18",
+      "q": "What flat sizes and layouts are available at Gulshan Ikebana?",
+      "lane": "topic:unit_configuration",
+      "firstMs": 5972,
+      "totalMs": 5975,
+      "modelCalls": 1,
+      "modelCallsAfter": 0,
+      "hosts": [
+        "generativelanguage.googleapis.com"
+      ],
+      "outage": false,
+      "chars": 754,
+      "answer": "### All Configurations — Gulshan Ikebana Towers A-F\n\n| Layout | Carpet Area | Built-Up | Super Area | Baths / Balc. | Price Band |\n| :--- | :--- | :--- | :--- | :--- | :--- |\n| 2 BHK Premium Apartment | 790 sq.ft | — | 1,220 sq.ft | 2 / 2 | ₹1.48–1.6 Cr |\n| 3 BHK Family Home | 1,020 sq.ft | — | 1,540 sq.ft | 3 / 3 | ₹1.91–2.06 Cr |\n\n_Prices: date of last confirmation not on record._\n\n### Usable Space & Loading Audit — Gulshan Ikebana Towers A-F\n- **Loading Efficiency:** **35%** of super area is common space (lobbies, stairwells, shafts).\n- **Effective Usable Carpet Rate:** **₹18,734/sq.ft** (actual rate on carpet area inside your front door).\n- **Vertical Transit Index:** ~**57 units per lift** (High Density (Peak Rush Hour Delays Expected)).\n\n"
+    },
+    {
+      "id": "F19",
+      "q": "When will I get possession of Jaypee Klassic in Sector 134, and is the OC obtained?",
+      "lane": "deterministic-fact",
+      "firstMs": 852,
+      "totalMs": 1682,
+      "modelCalls": 0,
+      "modelCallsAfter": 0,
+      "hosts": [],
+      "outage": false,
+      "chars": 598,
+      "answer": "### Occupancy Certificate (OC) Status — Jaypee Klassic\n\n| Checkpoint | Status for this Project | Legal & Living Impact |\n|:--- |:--- |:--- |\n| **Occupancy Certificate (OC)** | **Not verified** | Registry cannot complete without a full OC |\n| **Current Project Stage** | ready to move | Possession marker: Ready to Move |\n| **Authority Registry Standing** | Not verified | From our project record |\n\n> ℹ **Registry Notice:** In Noida and Greater Noida, authority registry requires both the final Occupancy Certificate and developer land dues clearance. We never invent or approximate OC grant dates."
+    },
+    {
+      "id": "F20",
+      "q": "What is the water source and DG power backup rate at Mahagun Mezzaria?",
+      "lane": "deterministic-fact",
+      "firstMs": 972,
+      "totalMs": 1649,
+      "modelCalls": 0,
+      "modelCallsAfter": 0,
+      "hosts": [],
+      "outage": false,
+      "chars": 544,
+      "answer": "### Water Source & Quality — Mahagun Mezzaria (Sector 78, Noida)\n\n| Parameter | Our Record | Practical Ground Reality |\n| :--- | :--- | :--- |\n| **Primary Water Supply** | **Ganga Water Pipeline (Authority Supply)** | Ask the society for its latest water test report |\n| **Tested TDS Level** | **Not verified** | Ask for a recent lab TDS report |\n\n> Supply in a Noida society is often a blend of authority Ganga Jal and borewell water (typical for Noida — not verified for this project). The society's own test report is the record that counts."
+    },
+    {
+      "id": "FH1",
+      "q": "Astralis mein swimming pool aur gym hai kya? Aur kaun kaun si facilities hain?",
+      "lane": "topic:amenity-lifestyle",
+      "firstMs": 5432,
+      "totalMs": 5433,
+      "modelCalls": 1,
+      "modelCallsAfter": 0,
+      "hosts": [
+        "generativelanguage.googleapis.com"
+      ],
+      "outage": false,
+      "chars": 1532,
+      "answer": "### Verified Amenities & Lifestyle: Supertech Supernova Astralis (Sector 94)\n\n**Yes**, Supertech Supernova Astralis is equipped with **Temperature-Controlled Indoor Heated Lap Swimming Pool & Jacuzzi**, **Fully Equipped Technogym Fitness Suite with Cardio & Strength Zones**.\n\n| Category | Amenities |\n| :--- | :--- |\n| **Security** | 24/7 Gated Security with High-Definition CCTV & Boom Barriers |\n| **Lifestyle** | 100% Dual-Meter DG Power Backup for Common Areas & Elevators · High-Speed Automated Passenger & Stretcher Service Elevators · Exclusive Resident Sky Lounge & Panoramic Sun Deck · Private Concierge Desk & Grand Double-Height Air-Conditioned Lobby · Private Screening Mini-Theatre with Dolby Atmos Acoustic Setup · Co-Working Business Executive Lounge with Video Conference Facilities |\n| **Parking** | Reserved Covered Basement Parking with EV Charging Provision · EV Superchargers (150 kW DC Fast Charging Stations) |\n| **Sports** | Landscaped Central Green Podium with Jogging & Reflexology Path · Temperature-Controlled Indoor Heated Lap Swimming Pool & Jacuzzi · International Standard Squash Court & Indoor Badminton Arena · Virtual Golf Simulator & Professional Billiards Lounge |\n| **Kids** | Children Dedicated Play Zone with Shock-Absorbent Turf & Swings |\n| **Wellness** | Wellness Spa, Steam, Sauna & Cold Plunge Therapy Center · Fully Equipped Technogym Fitness Suite with Cardio & Strength Zones |\n\n_16 amenities recorded for Supertech Supernova Astralis._\n\n**Open Space & Green Cover:**\n82% open space."
+    },
+    {
+      "id": "FH2",
+      "q": "Divine Meadows ka payment plan kya hai?",
+      "lane": "topic:payment-plans",
+      "firstMs": 5204,
+      "totalMs": 5206,
+      "modelCalls": 1,
+      "modelCallsAfter": 0,
+      "hosts": [
+        "generativelanguage.googleapis.com"
+      ],
+      "outage": false,
+      "chars": 541,
+      "answer": "### Payment Plans: Divine Meadows\n\nWe don't have the developer payment schedule for Divine Meadows verified in our records yet. Our advisory team can pull the developer's official figures — want me to arrange that?\n\nWhat I can tell you now: most Noida developers offer some combination of a construction-linked plan, a down-payment plan (usually carrying an upfront discount on base price), and a flexi/milestone split — but which of those Divine Meadows actually offers, and on what percentages, is exactly the part we would be guessing at."
+    },
+    {
+      "id": "FH3",
+      "q": "Mahagun Mezzaria ke paas metro, school aur hospital kitni door hai?",
+      "lane": "ground-truth-db",
+      "firstMs": 11507,
+      "totalMs": 11735,
+      "modelCalls": 3,
+      "modelCallsAfter": 0,
+      "hosts": [
+        "generativelanguage.googleapis.com"
+      ],
+      "outage": false,
+      "chars": 507,
+      "answer": "Mahagun Mezzaria is located close to key transit, education, and healthcare infrastructure.\n\n- Sector 76 Metro Station (Aqua Line) is 2.1 km away. \nThis ensures quick and easy daily commuting via public transit.\n- The nearest school is 1.5 km away. \nThis provides short and convenient daily travel times for children.\n- Jaypee Multispeciality Hospital is 5.5 km away. \nThis guarantees reliable healthcare access within a short drive.\n\nWould you like to schedule a site visit to check the location firsthand?"
+    }
+  ]
+}

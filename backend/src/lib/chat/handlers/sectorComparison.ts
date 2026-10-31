@@ -3,6 +3,7 @@ import { sectorWhereClause } from '../../discovery/normalize'
 import { renderSectorComparisonTable } from '../../ai/marketTable'
 import { executeWithFallbackChain } from '../../ai/fallbackChain'
 import type { ChatTopicHandler } from '../handlerContext'
+import { matchProjectsInText } from '../../discovery/matchProjectInText'
 
 /**
  * sector-comparison
@@ -34,7 +35,10 @@ export const sectorComparisonHandler: ChatTopicHandler = {
    * path, which sees the whole intent rather than the first two regex hits.
    */
   matches: ctx =>
-    ctx.flags.isSectorCompare === true && ctx.sectorMatches.length === 2,
+    ctx.flags.isSectorCompare === true && ctx.sectorMatches.length === 2 &&
+    // "Jaypee Klassic in Sector 134 vs Gulshan Ikebana in Sector 143" names two
+    // projects; the sectors are only where they sit. Compare the projects.
+    matchProjectsInText(ctx.message, ctx.catalog).length < 2,
 
   handle: async ctx => {
     // ─── SECTOR VS SECTOR COMPARISON ──────────────────────────────────────────

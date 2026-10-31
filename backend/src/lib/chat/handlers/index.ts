@@ -32,6 +32,7 @@ import { savedProfileHandler } from './savedProfile'
 import { publicRecordLookupHandler } from './publicRecordLookup'
 import { projectCatchHandler } from './projectCatch'
 import { priceFairnessHandler } from './priceFairness'
+import { sectorRateCheckHandler } from './sectorRateCheck'
 import { priceTrendHandler } from './priceTrend'
 import { loanEmiHandler } from './loanEmi'
 
@@ -125,6 +126,8 @@ export const CHAT_TOPIC_HANDLERS: readonly ChatTopicHandler[] = [
   // "Quoted X for Y, fair? how much can I negotiate": our recorded price for
   // that BHK and same-sector comparables. Before costSheet, which "all
   // inclusive" alone used to hand the turn to.
+  // A per-sq-ft quote with a sector and no project: placed against our rows, no verdict.
+  sectorRateCheckHandler,
   priceFairnessHandler,
   // "Has the price of X changed over the last 12 months?": the recorded points,
   // each labelled observed or benchmark. After fairness, so an explicit verdict

@@ -5,6 +5,7 @@ import { prisma } from '../../db'
 import { projectPriceNotes } from '../../projectPriceNote'
 import { UNDATED_NOTE } from '../../priceVerification'
 import { statedMonthlyIncome, computeAffordability, renderAffordabilityTable, asksBudgetPlan, extraDownPayment, parseFinancingStatement, loanForEmi, FOIR_CONSERVATIVE, type FinancingStatement } from '../../ai/affordability'
+import { namedProjectWhere } from '../../discovery/pickProjectRow'
 
 const CRORE = 10_000_000
 const LAKH = 100_000
@@ -290,12 +291,7 @@ export const affordabilityHandler: ChatTopicHandler = {
 
     const project = named
       ? await prisma.project.findFirst({
-          where: {
-            OR: [
-              { name: { contains: String(named), mode: 'insensitive' } },
-              { slug: { contains: String(named), mode: 'insensitive' } },
-            ],
-          },
+          where: await namedProjectWhere(String(named), ctx.message),
           include: { unit_types: { orderBy: { price_min_cr: 'asc' } } },
         })
       : null

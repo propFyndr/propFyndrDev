@@ -2,6 +2,7 @@ import type { ChatTopicHandler } from '../handlerContext'
 import { sectorWhereClause } from '../../discovery/normalize'
 import { prisma } from '../../db'
 import { unverified } from '../../factPresentation'
+import { namedProjectWhere } from '../../discovery/pickProjectRow'
 
 /**
  * "How far is the metro / the airport / what's the connectivity like?"
@@ -70,12 +71,7 @@ export const connectivityHandler: ChatTopicHandler = {
 
     const projects = await prisma.project.findMany({
       where: focusName
-        ? {
-            OR: [
-              { name: { contains: focusName, mode: 'insensitive' as const } },
-              { slug: { contains: focusName, mode: 'insensitive' as const } },
-            ],
-          }
+        ? await namedProjectWhere(focusName, ctx.message)
         : {
             OR: [
               ...sectorWhereClause(sector ?? ''),

@@ -2,6 +2,7 @@ import type { ChatTopicHandler } from '../handlerContext'
 import { prisma } from '../../db'
 import { tavilySearch } from '../../web'
 import { facilitiesAsked, isPluralProjectSearch } from './amenitySearch'
+import { namedProjectWhere } from '../../discovery/pickProjectRow'
 
 /**
  * "Does Ace Parkway have a stadium or sports city nearby?"
@@ -83,13 +84,7 @@ export const vicinityLookupHandler: ChatTopicHandler = {
   handle: async ctx => {
     const named = String(ctx.activeProjectName ?? '')
     const project = await prisma.project.findFirst({
-      where: {
-        OR: [
-          { name: { contains: named, mode: 'insensitive' } },
-          { slug: { contains: named, mode: 'insensitive' } },
-          ...(named.length === 36 ? [{ id: named }] : []),
-        ],
-      },
+      where: await namedProjectWhere(named, ctx.message),
       select: {
         name: true, sector: true, city: true,
         connectivity: {
@@ -166,7 +161,12 @@ export const vicinityLookupHandler: ChatTopicHandler = {
       body =
         `### Near ${project.name} — ${project.sector}\n\n` +
         `| Landmark | Type | Distance | Travel time |\n| :--- | :--- | ---: | ---: |\n${rows}\n\n` +
-        `Distances are road distances from our records, not straight-line.`
+        `Distances are road distances from our records, not straight-line.` +
+        // "schools, hospitals and airport" with one hospital row held: say what is not held.
+        (() => {
+          const missing = askedKinds.filter(([, , types]) => ofKind(types).length === 0).map(([, label]) => label)
+          return missing.length ? `\n\nNot on record for ${project.name}: ${missing.join(', ')}. Our advisory team can confirm them.` : ''
+        })()
     } else {
       tier = 'missing'
       /**

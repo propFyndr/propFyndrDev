@@ -1884,7 +1884,7 @@ router.post('/', async (req: Request, res: Response) => {
         }
       }
 
-      if (!isFreshSearch && !resolved && !resolvedSector && needsShownContext(message) && shownProjects.length === 0 && shownSectors.length === 0) {
+      if (!isFreshSearch && !resolved && !resolvedSector && needsShownContext(message) && shownProjects.length === 0 && shownSectors.length === 0 && !matchProjectInText(message, await projectCatalog())) {
         console.log('[CHAT:REFERENT_UNRESOLVED]', { q: message.slice(0, 60) })
         send('token', {
           token:
@@ -3625,7 +3625,7 @@ I can help you:
       .replace(/[-_/]+/g, ' ')
       .replace(/\s+/g, ' ')
       .trim()
-    const isSectorCompare = sectorMatches.length >= 2 && (intent.projectNames?.length ?? 0) < 2 && !/\b(builders?|developers?)\b/i.test(topicText) && /compare|vs|versus|better|difference|which sector|between/i.test(topicText) // bm2-two-projects-builder-safety
+    const isSectorCompare = sectorMatches.length >= 2 && (intent.projectNames?.length ?? 0) < 2 && !/\b(builders?|developers?)\b/i.test(topicText) && /compare|vs|versus|better|difference|which sector|between|(?:higher|lower|cheaper|costlier|pricier|more\s+expensive)\s+than/i.test(topicText) // bm2-two-projects-builder-safety
     const isSummaryRequest = /summarize|summary|entire session|weightage/i.test(topicText)
     const isCompareRequest = (intent as any)?.is_comparison_query || (intent.projectNames && intent.projectNames.length >= 2) || /\bcompare\b/i.test(topicText) || isSectorCompare
     const isAdvisoryPhrasing = /\b(how\s+to|best\s+way|tips\s+(for|on|to)|advice|guide|save\s+money|saving|negotiat|hidden|mistakes?|checklist|process\s+of|rules?|steps?)\b/i.test(topicText)

@@ -3,6 +3,7 @@ import { prisma } from '../../db'
 import { unverified } from '../../factPresentation'
 import { isSchemaDefault } from '../../projectExposure'
 import { projectPriceNotes } from '../../projectPriceNote'
+import { namedProjectWhere } from '../../discovery/pickProjectRow'
 
 /**
  * "What sizes / layouts / how many balconies does X have?"
@@ -87,12 +88,7 @@ export const unitConfigurationHandler: ChatTopicHandler = {
     if (!named) return false
 
     const project = await prisma.project.findFirst({
-      where: {
-        OR: [
-          { name: { contains: named, mode: 'insensitive' } },
-          { slug: { contains: named, mode: 'insensitive' } },
-        ],
-      },
+      where: await namedProjectWhere(named, ctx.message),
       include: { unit_types: { orderBy: { bhk: 'asc' } } },
     })
 

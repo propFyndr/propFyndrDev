@@ -2,6 +2,7 @@ import type { ChatTopicHandler } from '../handlerContext'
 import { prisma } from '../../db'
 import { builderNamedIn, buildersNamedIn } from '../builderTrust'
 import { humanFlag, NOT_A_CONCERN_FLAG } from '../../discovery/scoring'
+import { namedProjectWhere } from '../../discovery/pickProjectRow'
 
 /**
  * What the numbers in this table actually are.
@@ -121,12 +122,7 @@ export const builderReputationHandler: ChatTopicHandler = {
         ? (await prisma.project.findFirst({
             where: focusId
               ? { id: focusId }
-              : {
-                  OR: [
-                    { name: { contains: focusName as string, mode: 'insensitive' } },
-                    { slug: { contains: focusName as string, mode: 'insensitive' } },
-                  ],
-                },
+              : await namedProjectWhere(focusName as string, ctx.message),
             select: {
               name: true,
               builder: { select: BUILDER_RECORD },

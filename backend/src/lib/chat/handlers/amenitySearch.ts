@@ -1,6 +1,7 @@
 import { prisma } from '../../db'
 import { sectorWhereClause } from '../../discovery/normalize'
 import type { ChatTopicHandler } from '../handlerContext'
+import { namedProjectWhere } from '../../discovery/pickProjectRow'
 
 /**
  * "Tell me the properties which has padel courts or football turfs nearby."
@@ -40,6 +41,9 @@ const FACILITIES: Facility[] = [
   { label: 'basketball court', asks: /\bbasket\s*ball\b/i, names: /basket\s*ball/i, contains: ['basket'] },
   { label: 'volleyball court', asks: /\bvolley\s*ball\b/i, names: /volley\s*ball/i, contains: ['volley'] },
   { label: 'golf facility', asks: /\bgolf\b/i, names: /\bgolf\b/i, contains: ['golf'] },
+  { label: 'snooker or billiards table', asks: /\b(?:snooker|billiards?)\b/i, names: /\b(?:snooker|billiards?)\b/i, contains: ['snooker', 'billiard'] },
+  { label: 'jacuzzi', asks: /\bjacuzzi\b/i, names: /\bjacuzzi\b/i, contains: ['jacuzzi'] },
+  { label: 'swimming pool', asks: /\bswimming\s*pool\b/i, names: /\bswimming\s*pool\b/i, contains: ['swimming'] },
   { label: 'skating rink', asks: /\bskating\b/i, names: /\bskating\b/i, contains: ['skating'] },
 ]
 
@@ -153,13 +157,7 @@ export const amenitySearchHandler: ChatTopicHandler = {
     let text: string
     if (oneProject) {
       const project = await prisma.project.findFirst({
-        where: {
-          OR: [
-            { name: { contains: named, mode: 'insensitive' } },
-            { slug: { contains: named, mode: 'insensitive' } },
-            ...(named.length === 36 ? [{ id: named }] : []),
-          ],
-        },
+        where: await namedProjectWhere(named, ctx.message),
         select: { name: true, amenities: { select: { name: true } } },
       })
       if (!project) return false
@@ -175,7 +173,16 @@ export const amenitySearchHandler: ChatTopicHandler = {
         },
         select: { name: true, project: { select: { name: true, sector: true } } },
       })
-      const matched = rows.filter(r => facilities.some(f => f.names.test(r.name)))
+      let matched = rows.filter(r => facilities.some(f => f.names.test(r.name)))
+      // 'a swimming pool and a jacuzzi' wants both in one project; 'squash or golf' wants either.
+      if (facilities.length > 1 && /\band\b/i.test(ctx.message) && !/\bor\b/i.test(ctx.message)) {
+        const hasAll = new Set(
+          [...new Set(matched.map(r => r.project.name))].filter(p =>
+            facilities.every(f => matched.some(r => r.project.name === p && f.names.test(r.name))),
+          ),
+        )
+        matched = matched.filter(r => hasAll.has(r.project.name))
+      }
       const counts = await sharedCounts([...new Set(matched.map(r => r.name))])
       text = searchAnswer(
         facilities,

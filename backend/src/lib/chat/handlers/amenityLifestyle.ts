@@ -4,6 +4,7 @@ import { FEATURE_PROBES } from '../../featureProbes'
 import { unverified, unverifiedFeature, confidenceFor, headingFor } from '../../factPresentation'
 import type { FactTier } from '../../factPresentation'
 import type { ChatTopicHandler } from '../handlerContext'
+import { namedProjectWhere } from '../../discovery/pickProjectRow'
 
 /**
  * Does this building have a gym, a pool, a creche.
@@ -36,13 +37,7 @@ export const amenityLifestyleHandler: ChatTopicHandler = {
   handle: async ctx => {
     if (ctx.activeProjectName) {
       const targetProject = await prisma.project.findFirst({
-        where: {
-          OR: [
-            { name: { contains: ctx.activeProjectName, mode: 'insensitive' } },
-            { slug: { contains: ctx.activeProjectName, mode: 'insensitive' } },
-            { id: ctx.activeProjectName.length === 36 ? ctx.activeProjectName : undefined }
-          ]
-        },
+        where: await namedProjectWhere(ctx.activeProjectName, ctx.message),
         include: { amenities: true, builder: true }
       })
       if (targetProject) {

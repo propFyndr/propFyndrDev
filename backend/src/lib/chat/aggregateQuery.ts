@@ -240,6 +240,8 @@ export async function parseAggregateQuestion(message: string): Promise<ProjectQu
     ? new Date(Date.UTC(Number(possession[2]) + (possession[1] === 'before' ? 0 : 1), 0, 1))
     : undefined
   const amenity = AMENITIES.find(([re]) => re.test(m))?.[1]
+  // A facility the single-amenity filter cannot express (or that needs two at once) belongs to the amenity search.
+  if (/\b(?:jacuzzi|snooker|billiards?)\b/.test(m)) return null
 
   // "Which projects have a clubhouse and possession before 2027": a filter
   // discovery cannot apply, so it is answered as a list here.

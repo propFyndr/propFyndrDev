@@ -102,7 +102,13 @@ Name a project and I'll pull whichever of these we hold verified for it.`
     // Who confirmed the price, and when — or that no date is on record.
     const priceNote = costProject ? (await projectPriceNotes([costProject.id])).get(costProject.id) : undefined
     if (costTable) {
-      const msg = `### Cost breakdown — ${costProject?.name}\n\n${costTable}\n\n${priceNote ? `*Prices: ${priceNote}.*\n\n` : ''}`
+      // "Monthly maintenance for a 1,500 sq ft flat": the sum the buyer asked for, from the recorded rate.
+      const areaAsked = /(\d[\d,]{2,5})\s*(?:sq\.?\s*ft|sqft|square\s*f\w+)/i.exec(ctx.message)
+      const sqft = areaAsked ? Number(areaAsked[1].replace(/,/g, '')) : 0
+      const sum = maintenance != null && sqft >= 100 && /\bmaintenance\b/i.test(ctx.message)
+        ? `**Maintenance for ${sqft.toLocaleString('en-IN')} sq ft:** ₹${maintenance}/sq ft a month × ${sqft.toLocaleString('en-IN')} = **₹${Math.round(maintenance * sqft).toLocaleString('en-IN')} a month** (computed from the recorded rate; confirm whether it is billed on super or carpet area).\n\n`
+        : ''
+      const msg = `### Cost breakdown — ${costProject?.name}\n\n${sum}${costTable}\n\n${priceNote ? `*Prices: ${priceNote}.*\n\n` : ''}`
       ctx.send('token', { token: msg })
       recordTableRendered(ctx.trace, {
         tableType: 'cost_sheet',

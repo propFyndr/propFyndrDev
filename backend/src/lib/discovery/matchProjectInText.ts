@@ -33,6 +33,8 @@
 // being more specific, and the most specific name they matched is the one they
 // meant.
 
+import { statedSectors, sectorKey } from './projectRowRank'
+
 export interface CatalogEntry {
   id: string
   name: string
@@ -67,7 +69,27 @@ export function matchProjectInText<T extends CatalogEntry>(
   }
   // No exact name in the text: fall back to the strict loose match below, so a
   // typo or a dropped word still reaches the row instead of "we don't hold it".
-  return best ?? fuzzyMatchProject(haystack, catalog)
+  return refineBySector(best ?? fuzzyMatchProject(haystack, catalog), haystack, catalog)
+}
+
+/**
+ * "Jaypee Klassic in Sector 134" names the Sector 128 row by its exact name, but
+ * the buyer typed a sector that only an extension row ("Jaypee Klassic Block
+ * 6-10") holds. Follow the stated sector, and only when exactly one extension
+ * fits: two would be a guess.
+ */
+function refineBySector<T extends CatalogEntry>(hit: T | null, haystack: string, catalog: readonly T[]): T | null {
+  if (!hit) return hit
+  const stated = statedSectors(haystack)
+  const sectorOf = (p: CatalogEntry) => (p as { sector?: string | null }).sector
+  const own = sectorOf(hit)
+  if (stated.size === 0 || !own || stated.has(sectorKey(own))) return hit
+  const base = hit.name.toLowerCase()
+  const fits = catalog.filter(p => {
+    const s = sectorOf(p)
+    return p.id !== hit.id && p.name.toLowerCase().startsWith(base) && !!s && stated.has(sectorKey(s))
+  })
+  return fits.length === 1 ? fits[0] : hit
 }
 
 /**
