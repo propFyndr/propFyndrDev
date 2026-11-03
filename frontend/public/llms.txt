@@ -1,0 +1,30 @@
+# RealtyAsk
+
+> RealtyAsk is a chat-first advisor for people buying a new home in Noida and Greater Noida West, India. A buyer describes what they want in their own words, in English, Hindi or Hinglish, and gets a short list of projects with the reason for each and its main trade-off.
+
+## What it covers
+
+- New-launch, under-construction and ready-to-move apartment projects in Noida, Greater Noida and Greater Noida West.
+- Project facts held in our records: price range by configuration, possession status, UP-RERA registration, builder, amenities, payment plans and cost sheets.
+- Purchase costs set by Uttar Pradesh law: stamp duty (7%, or 6% with a woman as primary owner), registration (1%), GST (5% under construction, 0% ready to move with an occupancy certificate).
+- EMI and affordability arithmetic on the buyer's own figures, with the interest rate stated as an assumption.
+
+## How it answers
+
+- A fact is stated from the project's own record, or as a UP statutory figure, or as arithmetic over the projects we hold with the number of projects it rests on. What we do not hold is said to be not on record, never filled with a typical figure.
+- It does not forecast prices or rental returns, give investment advice, or say whether a price is fair.
+- It does not inspect sites. A registration or approval is reported as recorded, not as a guarantee.
+- A builder or partner paying RealtyAsk does not change what is recommended.
+
+## Out of scope
+
+Rentals, resale listings and resale price opinions, commercial property, and cities other than Noida and Greater Noida.
+
+## Pages
+
+- [Ask the advisor](https://realtyask.in/discover): the chat.
+- [Sectors](https://realtyask.in/sectors): sector pages for Noida and Greater Noida.
+- [How it works](https://realtyask.in/how-it-works)
+- [Guides](https://realtyask.in/blog)
+- Project pages: https://realtyask.in/property/{project-slug}, for example [JM Orchid, Sector 76](https://realtyask.in/property/jm-orchid-sector-76). The full list is in the [sitemap](https://realtyask.in/sitemap.xml).
+- [Privacy](https://realtyask.in/privacy) · [Terms](https://realtyask.in/terms)

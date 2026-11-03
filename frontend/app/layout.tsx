@@ -121,6 +121,24 @@ export default function RootLayout({
             __html: `try{if(localStorage.getItem('theme')==='dark'){document.documentElement.classList.add('dark')}}catch(e){}`,
           }}
         />
+        {/* Who we are, for search engines and AI answer engines. Static facts only. */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify([
+              {
+                '@context': 'https://schema.org',
+                '@type': 'Organization',
+                name: 'RealtyAsk',
+                url: SITE_URL,
+                logo: `${SITE_URL}/images/icons/apple-icon.png`,
+                description: 'A chat-first home-buying advisor for new homes in Noida and Greater Noida West.',
+                areaServed: [{ '@type': 'City', name: 'Noida' }, { '@type': 'City', name: 'Greater Noida' }],
+              },
+              { '@context': 'https://schema.org', '@type': 'WebSite', name: 'RealtyAsk', url: SITE_URL },
+            ]),
+          }}
+        />
       </head>
       <body suppressHydrationWarning className="antialiased glass-app font-sans relative text-foreground bg-[#E4E4E5]">
         <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:z-[9999] focus:p-4 focus:bg-white focus:text-blue-600 focus:font-bold">
