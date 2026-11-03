@@ -351,12 +351,17 @@ export async function streamWithOpenAI(
 
         const delta = chunk.choices[0]?.delta;
 
-        if (delta?.content) {
+        // Cloudflare Workers AI streams a digit token as a JSON number ("content": 2). fullText
+        // coerced it, so traces held "₹2.72 Cr", but the number token was dropped downstream
+        // (every consumer reads string tokens) and a 0 was falsy here: buyers saw "₹. Cr" and
+        // "June  for Phase ," (live, 3 Nov). Always a string, and "0" counts.
+        const rawContent: unknown = delta?.content
+        if (rawContent != null && rawContent !== '') {
           // A continuation resumes on a fresh request, so its first token can
           // land directly against whatever the cut-off cycle ended on. Cannot
           // be trimmed after the fact — the cut-off half is already on the
           // buyer's screen — so the only fixable side is the join.
-          let content = delta.content;
+          let content = String(rawContent);
           if (justContinued) {
             justContinued = false;
             if (needsJoinSpace(fullText, content)) content = ' ' + content;

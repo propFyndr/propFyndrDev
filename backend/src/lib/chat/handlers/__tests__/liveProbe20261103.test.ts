@@ -88,3 +88,13 @@ describe('a portal is recognised in the question', () => {
     assert.equal(mentionsPortal('what do you hold on Gaur City prices?'), false)
   })
 })
+
+describe('a numeric stream token keeps its digits', () => {
+  it('the OpenAI-compatible adapter turns every content delta into a string, 0 included', () => {
+    // Cloudflare sends digit tokens as JSON numbers; dropping them showed buyers "₹. Cr".
+    const src = require('fs').readFileSync(require('path').join(__dirname, '../../../ai/openai.ts'), 'utf8') as string
+    assert.match(src, /rawContent != null && rawContent !== ''/)
+    assert.match(src, /let content = String\(rawContent\)/)
+    assert.doesNotMatch(src, /if \(delta\?\.content\) \{/)
+  })
+})
