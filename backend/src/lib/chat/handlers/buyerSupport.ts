@@ -24,6 +24,11 @@ const COMPROMISE =
 
 export const matchesPressureQuestion = (m: string) => PRESSURE.test(m)
 export const matchesSiteVisitQuestion = (m: string) => SITE_VISIT.test(m)
+
+/** "I want to visit X this weekend", "Schedule a site visit for X": a booking, not a checklist ask. */
+const BOOK_VISIT =
+  /\b(?:want|wanna|like|plan(?:ning)?|can\s+i|could\s+i|let\s+me|book|schedule|arrange|fix|set\s+up)\b[^.?!]{0,30}\b(?:site\s+)?visits?\b|\bvisit\s+(?:karna|karni|karwa\w*)\b/i
+export const wantsToBookVisit = (m: string) => BOOK_VISIT.test(m) && !SITE_VISIT.test(m)
 export const matchesCompromiseQuestion = (m: string) => COMPROMISE.test(m)
 
 /**

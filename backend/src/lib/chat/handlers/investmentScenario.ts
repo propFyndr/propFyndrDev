@@ -1,5 +1,6 @@
 import type { ChatTopicHandler } from '../handlerContext'
 import { UP_STATUTORY } from '../../factPresentation'
+import { asksPriceMovement } from '../../priceMovement'
 
 /**
  * "If prices grow 5%, 8% or 12% a year, what is my ₹1.5 Cr worth after ten years?"
@@ -114,7 +115,31 @@ export function matchesPriceMultiple(message: string): boolean {
   return MULTIPLE.test(message) && MARKET_SUBJECT.test(message) && !/\d\s*%/.test(message) && yearsIn(message) !== null
 }
 
+/**
+ * "Will property prices in Noida Extension go up in the next 3 years?"
+ *
+ * Live 3 Nov: answered as a search, and the model wrote "Yes, prices are positioned for
+ * steady, moderate appreciation" over the cards. We do not forecast (CLAUDE.md § AI
+ * Assistant Rules), and a prompt rule did not hold, so the forward question is
+ * decided here. Past movement ("has the price gone up since 2023") stays with priceTrend;
+ * an interest-rate or EMI question is not a property-price forecast.
+ */
+const FORWARD = /\b(will|would|going\s+to|gonna|next|coming|future|expected\s+to|predict\w*|forecast\w*|outlook)\b/i
+const NOT_A_PROPERTY_PRICE = /\b(emi|loan|interest|repo|gst|stamp|tax|rent\w*)\b/i
+
+export function matchesPriceForecast(message: string): boolean {
+  return asksPriceMovement(message) && FORWARD.test(message) && !NOT_A_PROPERTY_PRICE.test(message) &&
+    !/\d\s*%/.test(message) && !MULTIPLE.test(message)
+}
+
+export const PRICE_FORECAST_ANSWER = `I don't forecast prices. We hold no verified Noida-wide price series to measure growth against, so any figure I gave for the next few years would be a guess presented as data, and growth differs by sector and project anyway.
+
+What I can do is the arithmetic: give me a purchase price and the yearly rates you want to test, and I will work out the value at each, after stamp duty and registration. Or name a project and I will show the price history we hold for it.
+
+Which would help?`
+
 export function priceMultipleAnswer(message: string): string {
+  if (!MULTIPLE.test(message)) return PRICE_FORECAST_ANSWER
   const multiple = /tripl|3\s*x/i.test(message.match(MULTIPLE)![0]) ? 3 : 2
   const word = multiple === 3 ? 'triple' : 'double'
   const years = yearsIn(message) as number
@@ -132,7 +157,7 @@ export const priceMultipleHandler: ChatTopicHandler = {
   id: 'price_multiple',
   description: 'The yearly growth a doubling or tripling needs, with no forecast',
 
-  matches: ctx => matchesPriceMultiple(ctx.message),
+  matches: ctx => matchesPriceMultiple(ctx.message) || matchesPriceForecast(ctx.message),
 
   handle: async ctx => {
     ctx.send('token', { token: priceMultipleAnswer(ctx.message) })

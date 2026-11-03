@@ -71,6 +71,43 @@ export function parseLoanEmiQuestion(message: string): LoanQuestion | null {
   }
 }
 
+/**
+ * "What if the rate goes to 9.5%?" after an EMI answer.
+ *
+ * Live 3 Nov: the follow-up named no EMI and no loan, so it reached the model, which gave
+ * generic advice instead of the new figure. A short turn that changes only the rate or the
+ * tenure re-runs the newest stated loan, carrying any earlier changes forward.
+ */
+const RATE_OR_TENURE_CHANGE = /\b(rate|interest|tenure|years?|yrs?|saal|what\s+if|instead|at)\b/i
+
+export function loanEmiFollowUp(message: string, prior: readonly string[] = []): LoanQuestion | null {
+  if (message.length > 120 || parseLoanEmiQuestion(message) || LOAN_AMOUNT.test(message)) return null
+  const change = (m: string) => {
+    if (!RATE_OR_TENURE_CHANGE.test(m)) return null
+    const rate = m.match(RATE) ? Number(m.match(RATE)![1]) : null
+    const tenure = m.match(TENURE) ? Number(m.match(TENURE)![1]) : null
+    const r = rate && rate > 0 && rate < 30 ? rate : null
+    const t = tenure && tenure > 0 && tenure <= 35 ? tenure : null
+    // A bare "in 2 years" is a possession or holding period, not a loan tenure.
+    if (!r && !(t && /\b(tenure|loan|what\s+if|instead|over)\b/i.test(m))) return null
+    if (/\b(possession|handover|ready|rent\w*|appreciat\w*|gst)\b/i.test(m)) return null
+    return { rate: r, tenure: t }
+  }
+  const now = change(message)
+  if (!now) return null
+  // Only the last few turns: an EMI question from much earlier is not what "that" means.
+  const recent = prior.slice(-4)
+  let base = -1
+  for (let i = recent.length - 1; i >= 0; i--) if (parseLoanEmiQuestion(recent[i])) { base = i; break }
+  if (base < 0) return null
+  let q = parseLoanEmiQuestion(recent[base]) as LoanQuestion
+  for (const m of [...recent.slice(base + 1), message]) {
+    const c = change(m)
+    if (c) q = { ...q, rate: c.rate ?? q.rate, tenure: c.tenure ?? q.tenure }
+  }
+  return q
+}
+
 /** Cash the buyer pays themselves: down payment plus the fixed UP charges on the price. */
 function upFrontCash(price: number, principal: number): string {
   const down = price - principal
@@ -124,10 +161,13 @@ export const loanEmiHandler: ChatTopicHandler = {
   id: 'loan_emi',
   description: 'EMI on a loan amount the buyer stated',
 
-  matches: ctx => parseLoanEmiQuestion(ctx.message) !== null || (Boolean(ctx.activeProjectName) && loanShareOfFocus(ctx.message) !== null),
+  matches: ctx =>
+    parseLoanEmiQuestion(ctx.message) !== null ||
+    loanEmiFollowUp(ctx.message, ctx.priorUserMessages) !== null ||
+    (Boolean(ctx.activeProjectName) && loanShareOfFocus(ctx.message) !== null),
 
   handle: async ctx => {
-    let q = parseLoanEmiQuestion(ctx.message)
+    let q = parseLoanEmiQuestion(ctx.message) ?? loanEmiFollowUp(ctx.message, ctx.priorUserMessages)
     let basis = ''
     // "EMI on that with an 80% loan" after a project answer: the price is the
     // project's lowest listed one, stated with its confirmation date.

@@ -456,7 +456,6 @@ export default function ProjectDetailPanel({ project, onClose, inline, initialDe
             <div className="relative group hidden md:inline-block">
               <button
                 onClick={() => onReraClick(d.rera_number!, d.rera_url)}
-                title="Click to copy RERA No & Verify"
                 aria-label={`RERA Number ${d.rera_number}. Click to copy and verify`}
                 className="p-1 bg-blue-50 dark:bg-blue-950/60 border border-blue-200 dark:border-blue-800 rounded-full text-blue-700 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-all flex items-center justify-center cursor-pointer shadow-2xs"
               >
@@ -655,23 +654,17 @@ export default function ProjectDetailPanel({ project, onClose, inline, initialDe
                         <p className="font-bold text-emerald-400 flex items-center gap-1">
                           ✓ RERA No: {d.rera_number}
                         </p>
-                        <p className="text-gray-300 text-[10px]">Click to copy RERA ID and verify official registration details.</p>
                       </div>
                     )}
                   </div>
                 )}
               </div>
 
-              {/* Title & Tagline */}
+              {/* Title */}
               <div className="space-y-1">
                 <h1 className="text-[36px] md:text-[48px] font-black font-sans tracking-tighter leading-none text-gray-900 dark:text-white">
                   {d?.name}
                 </h1>
-                {d?.tagline && (
-                  <p className="text-[16px] md:text-[18px] text-gray-500 dark:text-gray-400 font-medium tracking-tight">
-                    {d.tagline}
-                  </p>
-                )}
               </div>
 
               {/* Builder & Location Subtitle with Builder Hover Popover */}
@@ -693,7 +686,6 @@ export default function ProjectDetailPanel({ project, onClose, inline, initialDe
                     {/* Builder Info Hover Popover */}
                     {showBuilderPopover && (
                       <div className="absolute top-full left-0 mt-2 z-30 w-80 bg-white dark:bg-[#181614] text-gray-900 dark:text-gray-100 p-4 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-800 text-[12px] space-y-2.5">
-                        <p className="font-black text-[14px] text-gray-900 dark:text-white">Built by {builderName}</p>
                         <p className="text-[11.5px] text-gray-600 dark:text-gray-300 leading-relaxed">
                           {detail?.builder_detail?.company_overview || 'Company information not available'}
                         </p>

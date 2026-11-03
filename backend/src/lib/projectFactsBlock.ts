@@ -568,9 +568,10 @@ export function buildProjectFacts(
     if (ncltActive) issues.push('ACTIVE NCLT insolvency moratorium')
     if (projFlag) issues.push(/\s/.test(projFlag) ? projFlag : `project risk flag on record: ${humanFlag(projFlag)}`)
 
-    facts.legal_risk_summary =
-      `[MANDATORY LEGAL DISCLOSURE] This property carries active legal concerns: ${issues.join('; ')}. ` +
-      `HARD RULE 6f REQUIRES you to state this upfront in your opening sentence before evaluating any amenities, layouts, or pricing.`
+    // The model copied a bracketed "[MANDATORY LEGAL DISCLOSURE]" tag into answers (live, 3 Nov), and
+    // called 9 records with 0 ongoing "active legal concerns". The value is the record, in words a
+    // buyer can read; the opening-sentence rule lives in the prompt (HARD RULE 6f).
+    facts.legal_risk_summary = `Legal record on file: ${issues.join('; ')}. State it in the opening sentence, before amenities, layouts or pricing.`
   }
 
   // Maintenance charges and loading ratio unknowns

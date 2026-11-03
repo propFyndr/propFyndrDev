@@ -58,7 +58,7 @@ function paymentBlock(p: RowsProject): string {
 }
 
 /** The stored answer for this question, or null when no row answers it. */
-export function answerFromRows(p: RowsProject, message: string, priceNote: string | null = null): string | null {
+export function answerFromRows(p: RowsProject, message: string, priceNote: string | null = null, outage = true): string | null {
   const text = message ?? ''
   const asked = (Object.keys(TOPICS) as Array<keyof typeof TOPICS>).filter((k) => TOPICS[k].test(text))
   if (!asked.length) return null
@@ -67,5 +67,5 @@ export function answerFromRows(p: RowsProject, message: string, priceNote: strin
       : k === 'possession' ? possessionBlock(p)
         : k === 'rera' ? `**RERA:** ${p.rera_number ?? `not on record for ${p.name}`}.`
           : paymentBlock(p))
-  return `### ${p.name}: from our records\n\n${blocks.join('\n\n')}\n\n_Our advisor's written view is unavailable for a moment, so this is the record as stored. Ask again shortly for the full answer._`
+  return `### ${p.name}: from our records\n\n${blocks.join('\n\n')}${outage ? "\n\n_Our advisor's written view is unavailable for a moment, so this is the record as stored. Ask again shortly for the full answer._" : ''}`
 }

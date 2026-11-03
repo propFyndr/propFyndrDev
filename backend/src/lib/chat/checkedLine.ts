@@ -57,13 +57,14 @@ export function checkedSources(text: string, opts: { cardsShown: number; names: 
 
   if (text.includes(MARKET_QUALIFIER)) out.push('Noida-wide figures, not verified for this project')
 
+  const dated = text.split(UNDATED_NOTE).join('')
   const gaps = new Set<string>()
-  for (const m of text.matchAll(MISSING_ROW)) gaps.add(m[1].replace(/\*+/g, '').trim())
-  for (const m of text.matchAll(MISSING_SENTENCE)) gaps.add(m[1].trim())
+  for (const m of dated.matchAll(MISSING_ROW)) gaps.add(m[1].replace(/\*+/g, '').trim())
+  for (const m of dated.matchAll(MISSING_SENTENCE)) gaps.add(m[1].trim())
   if (gaps.size) {
     const list = [...gaps].slice(0, 4)
     out.push(`Not on record: ${list.join(', ')}${gaps.size > 4 ? ` and ${gaps.size - 4} more` : ''}`)
-  } else if (/\bnot on record\b/i.test(text.split(UNDATED_NOTE).join(''))) {
+  } else if (/\bnot on record\b/i.test(dated)) {
     out.push('Some details are not on record')
   }
 

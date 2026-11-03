@@ -149,15 +149,8 @@ export default function NewsRail() {
         onTouchEnd={() => setPaused(false)}
         onTouchCancel={() => setPaused(false)}
         aria-label={label}
-        title="Ask the AI advisor about this update"
         className="group relative inline-flex items-center gap-2 sm:gap-2.5 py-1.5 px-3 sm:px-3.5 rounded-full bg-transparent hover:bg-surface-3 dark:hover:bg-zinc-800 transition-colors duration-150 cursor-pointer max-w-full w-full sm:w-auto text-left min-h-[38px] sm:min-h-[32px]"
       >
-        {/* Plain label, not a pulsing "LIVE" badge — this is a builder's own
-            announcement, and dressing it as breaking news oversells it. */}
-        <span aria-hidden="true" className="hidden sm:inline text-xs text-text-muted shrink-0">
-          Builder update
-        </span>
-
         {current.builder?.name && (
           <span
             aria-hidden="true"

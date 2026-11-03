@@ -18,7 +18,10 @@ import type { ChatTopicHandler } from '../handlerContext'
  * priceFairness instead.
  */
 const RATE_ASK =
-  /\b(?:fair|reasonable|overpriced|over\s*priced|expensive|cheap|mehenga|mahenga|sasta|theek|thik|sahi|zyada|good\s+(?:deal|price|rate)|worth|too\s+(?:high|much))\b/i
+  /\b(?:fair|reasonable|overpriced|over\s*priced|expensive|cheap|mehenga|mahenga|sasta|theek|thik|sahi|zyada|good\s+(?:deal|price|rate)|worth|too\s+(?:high|much)|ok(?:ay)?|fine|alright|acceptable|normal)\b/i
+
+/** A quoted per-sq-ft rate with a "is that okay / fair" ask: decided by the message alone. */
+export const matchesSectorRateQuote = (message: string): boolean => ratePerSqftIn(message) !== null && RATE_ASK.test(message)
 
 /** A per-sq-ft rate in rupees: "8,500 per sq ft", "₹9500/sqft". */
 export function ratePerSqftIn(message: string): number | null {
@@ -41,8 +44,7 @@ export const sectorRateCheckHandler: ChatTopicHandler = {
   description: "A buyer's per-sq-ft rate against the rates on our rows in the sector it names",
 
   matches: ctx =>
-    ratePerSqftIn(ctx.message) !== null &&
-    RATE_ASK.test(ctx.message) &&
+    matchesSectorRateQuote(ctx.message) &&
     ctx.sectorMatches.length === 1 &&
     matchProjectInText(ctx.message, ctx.catalog) === null,
 

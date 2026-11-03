@@ -152,11 +152,10 @@ export function formatRentalAdvisory(message: string): string {
   // Transparent positioning + Hormozi / Brunson Sales-OS Bridge
   text +=
     `---\n\n` +
-    `**Our Operational Focus & Advisory Bridge:**\n` +
     `RealtyAsk specializes **exclusively in direct primary developer sales** of new-construction homes across Noida and Greater Noida. We do not provide rental brokerage, landlord leasing, or rental listings.\n\n` +
     `*Renting against buying:*\n` +
     `Rent builds no equity; an EMI of a similar size does, but buying also means a down payment, stamp duty, interest and maintenance. Which is cheaper depends mostly on how long you plan to stay.\n\n` +
-    `**Next Step:** Are you renting for a short period while you look, or would you like to see what a similar monthly outgo looks like on a purchase in this area?`
+    `Are you renting for a short period while you look, or would you like to see what a similar monthly outgo looks like on a purchase in this area?`
 
   return text
 }
@@ -185,17 +184,16 @@ export function formatResaleAdvisory(message: string): string {
     // No resale rate or typical price here: we hold no resale transaction prices (CLAUDE.md § V1 Scope).
     `**What a resale purchase involves:**\n` +
     `- **We hold no resale listings or resale prices.** Ask a registered broker or the society office for those.\n` +
-    `- **Resale Transaction Friction:** ${bench.frictionNote}\n` +
+    `- **Transfer costs:** ${bench.frictionNote}\n` +
     `- **Statutory costs:** stamp duty (7% general, 6% female) and sub-registrar registration (1%) apply on the higher of the circle rate or agreement value.\n\n`
 
   // Transparent positioning + Hormozi / Brunson Sales-OS Bridge
   text +=
     `---\n\n` +
-    `**Our Operational Focus & Advisory Bridge:**\n` +
     `RealtyAsk focuses **exclusively on primary developer sales and direct builder inventory** — we do not operate as an individual resale brokerage or hold private secondary market listings.\n\n` +
     `*Trade-offs between resale and new construction:*\n` +
     `Resale is ready now, but older societies can carry pending builder dues to the Authority that hold up registry, cash components in the asking price, and ageing lifts and DG sets. New construction comes with RERA escrow and fresh equipment warranties, but carries possession-delay risk.\n\n` +
-    `**Next Step:** Tell me your budget ceiling and preferred sector and I will show you new-construction options with their RERA details. Title and registry eligibility still need an advocate's check before you pay a token.`
+    `Tell me your budget ceiling and preferred sector and I will show you new-construction options with their RERA details. Title and registry eligibility still need an advocate's check before you pay a token.`
 
   return text
 }
@@ -212,7 +210,7 @@ export function formatOutOfScopeCityAdvisory(message: string, city: string): str
     `We hold project data only for this region, so anything we said about individual projects in ${capCity} would be unverified.\n\n` +
     `*How Noida compares for buyers looking at ${capCity}:*\n` +
     `Buyers comparing ${capCity} with Noida often look at the Noida Expressway and Sector 150 for planned road access, the upcoming Jewar airport, and entry pricing: Noida Expressway at ₹9,000–₹15,000/sqft (${MARKET_QUALIFIER}); prime Gurgaon is commonly quoted at ₹18,000–₹35,000/sqft, which we do not track.\n\n` +
-    `**Next Step:** If you are open to Noida options within your budget, tell me your target BHK and budget ceiling.`
+    `If you are open to Noida options within your budget, tell me your target BHK and budget ceiling.`
   )
 }
 
@@ -226,10 +224,9 @@ export function formatCommercialAdvisory(_message: string): string {
     `- **Yield Benchmark:** Grade-A retail shops and pre-leased office spaces along Noida Expressway are often quoted at 6.0%–8.5% gross yield, against 2.5%–3.2% for residential apartments (${MARKET_QUALIFIER}).\n` +
     `- **Risk & Tax Considerations:** Commercial property is taxed differently from residential (residential: 5% GST under construction, none once the OC is issued), so confirm the commercial GST position with your CA. Commercial also tends to see longer vacancies between leases and higher CAM overheads.\n\n` +
     `---\n\n` +
-    `**Our Operational Focus:**\n` +
     `RealtyAsk covers residential homes for end users only. We do not broker commercial retail spaces, SCO plots, or office suites.\n\n` +
     `If lower management effort matters more to you than yield, residential may suit you better.\n\n` +
-    `**Next Step:** Would you like to look at residential options along the Expressway?`
+    `Would you like to look at residential options along the Expressway?`
   )
 }
 

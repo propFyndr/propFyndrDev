@@ -40,7 +40,6 @@ export default function HomeButtons({ onButtonClick }: HomeButtonsProps) {
             type="button"
             onClick={() => onButtonClick(group.primaryPrompt)}
             className="max-w-full min-h-[40px] flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 rounded-full border border-border-heavy bg-surface dark:bg-surface-2 text-text-primary hover:bg-surface-3 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
-            title={`Ask: "${group.primaryPrompt}"`}
           >
             <span className="shrink-0 text-text-muted">
               {iconMap[group.icon] || <Compass size={14} weight="bold" />}

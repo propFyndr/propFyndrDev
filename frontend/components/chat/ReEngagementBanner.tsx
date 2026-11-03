@@ -34,7 +34,6 @@ export default function ReEngagementBanner({ userId, guestToken, onResume, onDis
       toast.custom((t) => (
         <div className="flex items-center gap-4 px-4 py-3 bg-surface dark:bg-surface-2 border border-border-heavy rounded-sm shadow-md pointer-events-auto max-w-sm w-full">
           <div className="flex-1 min-w-0 flex flex-col justify-center gap-0.5">
-            <span className="text-[12px] text-text-muted">Previous search</span>
             <p className="text-[13px] font-medium text-text-primary truncate">
               {session.title || 'Continue your last search'}
             </p>

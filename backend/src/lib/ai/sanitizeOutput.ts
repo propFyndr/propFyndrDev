@@ -10,6 +10,9 @@ const EMOJI =
 const PLATFORMS =
   /\b(99acres|magicbricks|magic bricks|nobroker|no broker|housing\.com|proptiger|square ?yards|makaan|commonfloor|olx|quikr|zillow|realtor\.com)\b/gi
 
+/** Does the text name a portal? (Not the global regex above, whose lastIndex carries between calls.) */
+export const mentionsPortal = (text: string): boolean => new RegExp(PLATFORMS.source, 'i').test(text)
+
 /**
  * A whole sentence that sends the buyer off the platform to verify something.
  *
@@ -419,6 +422,10 @@ export function cleanDebris(text: string): string {
     .replace(/\*{3,}/g, '**')
     .replace(/(\d),₹(\d)/g, '$1,$2')
     .replace(/\*{0,2}₹\s?\?\*{0,2}/g, "an amount we can't compute here")
+    // A prompt marker copied into the answer ("[MANDATORY LEGAL DISCLOSURE] ATS…", live 3 Nov).
+    .replace(/\[(?:MANDATORY|HARD RULE|INTERNAL|SYSTEM)\b[A-Z0-9 _-]*\]\s*/g, '')
+    // A heading glued to the sentence before it ("build quality. ### Recommendation") renders as text.
+    .replace(/([.!?])[ \t]+(#{2,4} )/g, '$1\n\n$2')
 }
 
 /** Strips emoji, third-party platform names, and off-platform referrals. */

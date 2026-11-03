@@ -190,7 +190,7 @@ describe('Phase 2.2 — Intent-Scoped JIT Fact Projection (Field-Diet Engine)', 
     )
     assert.match(
       pricingFacts.legal_risk_summary as string,
-      /MANDATORY LEGAL DISCLOSURE/,
+      /Legal record on file:/,
       'Must contain mandatory legal disclosure banner',
     )
 

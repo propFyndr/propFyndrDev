@@ -84,7 +84,7 @@ const median = (ns: number[]): number => {
  */
 export async function computeSectorYields(
   cities: string[],
-  opts: { minSample?: number; limit?: number } = {},
+  opts: { minSample?: number; limit?: number; include?: string[] } = {},
 ): Promise<SectorYield[]> {
   /**
    * Three, not two. A sector represented by two priced units heading a "best
@@ -153,7 +153,32 @@ export async function computeSectorYields(
     })
   }
 
-  return out.sort((a, b) => b.grossYieldPct - a.grossYieldPct).slice(0, limit)
+  // A sector the buyer named stays in the table even when it is not among the top yields:
+  // "what yield in Sector 150?" listed eight other sectors and the model filled the gap with
+  // a "typical" range (live, 3 Nov).
+  const wanted = new Set((opts.include ?? []).map(sectorKey))
+  const sorted = out.sort((a, b) => b.grossYieldPct - a.grossYieldPct)
+  const named = sorted.filter((r) => wanted.has(sectorKey(r.sector)))
+  return [...named, ...sorted.filter((r) => !wanted.has(sectorKey(r.sector)))].slice(0, Math.max(limit, named.length + 1))
+}
+
+const sectorKey = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/g, '')
+
+/** "Sector 150", "sector 16B" as written in a message. */
+export function sectorsNamedIn(message: string): string[] {
+  return [...message.matchAll(/\bsector\s*-?\s*(\d{1,3}[a-z]?)\b/gi)].map((m) => `Sector ${m[1].toUpperCase()}`)
+}
+
+/**
+ * The line for a named sector the table cannot carry: no recorded rent, or fewer priced
+ * 3BHK units than the table needs. Said in code so the gap is never filled with a typical figure.
+ */
+export function missingYieldNote(asked: string[], rows: SectorYield[]): string {
+  const have = new Set(rows.map((r) => sectorKey(r.sector)))
+  const missing = asked.filter((a) => !have.has(sectorKey(a)))
+  return missing.length
+    ? `\n\nWe can't place a yield for ${missing.join(' or ')}: we hold no recorded 3BHK rent there, or too few priced 3BHK units to take a median. I won't quote a typical figure in its place.`
+    : ''
 }
 
 /** The yield table, or '' when fewer than two sectors qualify. */

@@ -16,7 +16,7 @@ const CASES: Array<{ id: string; re: RegExp; reply: string }> = [
   {
     id: 'model',
     re: /\b(?:which|what|kaun\s+sa|konsa)\s+(?:ai\s+)?(?:model|llm|gpt)\s+(?:are\s+you|is\s+this|hai|ho)\b|\bare\s+you\s+(?:chatgpt|gpt|gemini|claude|openai|an?\s+ai)\b/i,
-    reply: "I'm RealtyAsk's property advisor. More than one language model can answer behind the scenes, so I can't give you a single name; every project figure comes from our own records. Which project or sector would you like me to check?",
+    reply: "I'm RealtyAsk's property advisor. More than one system can answer, so I can't give you a single name. Every project figure comes from our own records. Which project or sector would you like me to check?",
   },
   {
     id: 'joke',

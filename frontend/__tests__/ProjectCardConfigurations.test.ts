@@ -67,7 +67,7 @@ describe('project card layout', () => {
     // Growing the card would push its grid row taller than its neighbours,
     // which is exactly what the fixed slot exists to prevent, so the full
     // list overlays the slot and scrolls.
-    const idx = SRC.indexOf('All configurations')
+    const idx = SRC.indexOf('{bhkGroups.map(g => (')
     expect(idx).toBeGreaterThan(-1)
     const panel = SRC.slice(Math.max(0, idx - 600), idx)
     expect(panel).toContain('absolute')

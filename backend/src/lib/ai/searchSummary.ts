@@ -87,12 +87,14 @@ export function searchSummary(opts: {
     const high = bounds.length ? Math.max(...bounds.map((b) => b[1])) : null
     const ready = matches.filter((p) => p.status === 'ready_to_move').length
     const count = `${matches.length}${matches.length >= 20 ? '+' : ''}`
-    const range = low != null && high != null ? ` Prices run ${cr(low)} to ${cr(high)}.` : ''
-    const mix = ready === matches.length ? ' All are ready to move.' : ready ? ` ${ready} ready to move, the rest under construction.` : ' All are under construction.'
+    // One match: its bullet already carries the price and status, so the summary line does not repeat them.
+    const one = matches.length === 1
+    const range = one || low == null || high == null ? '' : low === high ? ` All at ${cr(low)}.` : ` Prices run ${cr(low)} to ${cr(high)}.`
+    const mix = one ? '' : ready === matches.length ? ' All are ready to move.' : ready ? ` ${ready} ready to move, the rest under construction.` : ' All are under construction.'
     const aboveBlock = above.length
       ? `\n\n**Above your budget (not matches):** ${above.slice(0, 3).map((p) => `${p.name} (${p.price_range_label ?? 'price not on record'})`).join(', ')}.`
       : ''
-    return `**${count} project${matches.length === 1 ? '' : 's'} match** ${asked}.${range}${mix}
+    return `**${count} project${one ? ' matches' : 's match'}** ${asked}.${range}${mix}
 
 ${matches.slice(0, shown).map(line).join('\n')}${aboveBlock}${note}
 

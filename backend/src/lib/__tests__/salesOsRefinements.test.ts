@@ -82,7 +82,7 @@ describe('Sales-OS Market Advisory & Zero-Project-Name Invariant (Phase 6)', () 
         )
 
         // Bridge to primary ownership must be present
-        assert.ok(/Next Step:/i.test(output), 'Must include calibrated next step')
+        assert.ok(output.trimEnd().endsWith('?'), 'Must close on one next-step question')
 
         // ZERO PROJECT NAMES INVARIANT
         // Must not contain common project marketing identifiers

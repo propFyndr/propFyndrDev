@@ -1,4 +1,4 @@
-import type { ChatTopicHandler, ChatHandlerContext } from '../handlerContext'
+import { focusedProject, type ChatTopicHandler, type ChatHandlerContext } from '../handlerContext'
 import { prisma } from '../../db'
 import { findProjectsMentioned } from '../../discovery/proseEntities'
 import { statesFinancing } from '../../ai/affordability'
@@ -34,6 +34,11 @@ const TEMPLATE_SHARE = 20
 async function projectsInScope(ctx: ChatHandlerContext): Promise<string[]> {
   const named = await findProjectsMentioned(ctx.message, undefined, 12)
   if (named.length) return named.map((p) => p.id)
+  // "Who is the builder?" right after "Tell me about Eureka Park": the project in focus, unless
+  // the buyer means the whole shortlist ("each", "these"). Live 3 Nov, it found no project at all.
+  // Only for "what else have they built": a track-record ask about the focus belongs to builder reputation.
+  const focus = !asksOtherWork(ctx.message) || /\b(each|these|them|all|both|every)\b/i.test(ctx.message) ? undefined : focusedProject(ctx)
+  if (focus) return [focus.id]
   return ctx.cachedProjects.map((p) => p.id).slice(0, 12)
 }
 

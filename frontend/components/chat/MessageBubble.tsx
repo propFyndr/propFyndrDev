@@ -11,7 +11,6 @@ import {
   ThumbsUp,
   ThumbsDown,
   PencilSimple,
-  ShieldCheck,
   CheckCircle,
   MapPin,
   Scales,
@@ -187,7 +186,6 @@ function DossierCta({ onAction }: { onAction: MessageBubbleProps['onAction'] }) 
         </span>
         <div>
           <div className="text-[13px] font-semibold text-zinc-900 dark:text-zinc-50">Share your research</div>
-          <div className="text-[12px] text-zinc-500 dark:text-zinc-400">A link anyone can open: your questions, the answers, and the projects side by side.</div>
         </div>
       </div>
       <button
@@ -841,14 +839,6 @@ function MessageBubbleInner({
                           </div>
                         )}
 
-                        {/* Metadata badge */}
-                        <div className="flex items-center gap-3 text-xs text-gray-500 dark:text-gray-400">
-                          <span className="flex items-center gap-1 font-medium">
-                            <ShieldCheck size={14} weight="fill" className="text-blue-600 dark:text-blue-400" />
-                            Verified by RealtyAsk Data
-                          </span>
-                        </div>
-
                         {/* Formatted details: confidence, freshness, warnings */}
                         <ResponseFormatter response={message.chatResponse} />
                       </m.div>
@@ -861,9 +851,6 @@ function MessageBubbleInner({
                   const { summary, components, sources } = message.componentResponse
                   return (
                     <>
-                      <div className="flex items-center gap-2 mb-2 pb-2 border-b border-gray-200/60 dark:border-zinc-800">
-                        <span className="text-[10px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-widest">Verified Data</span>
-                      </div>
                       <m.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
@@ -996,7 +983,6 @@ function MessageBubbleInner({
         {isUser && displayContent && !inlineEdit.isEditing && (
           <button
             onClick={() => inlineEdit.setIsEditing(true)}
-            title="Edit message"
             className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-blue-50/80 dark:bg-blue-950/40 hover:bg-blue-100/80 dark:hover:bg-blue-900/50 text-blue-700 dark:text-blue-300 border border-blue-200/60 dark:border-blue-800/50 text-[11px] font-semibold transition-colors active:scale-95 cursor-pointer"
             disabled={inlineEdit.isLoading}
           >
@@ -1079,9 +1065,6 @@ function MessageBubbleInner({
               </div>
             )}
           </div>
-          {message.images.length > 1 && (
-            <p className="text-xs text-gray-400 mt-1.5 text-center">{carouselIndex + 1} / {message.images.length}</p>
-          )}
         </div>
       )}
 
@@ -1089,7 +1072,6 @@ function MessageBubbleInner({
       {message.highlights && message.highlights.length > 0 && (
         <div className="mt-3 max-w-[90%] md:max-w-[80%] bg-surface dark:bg-zinc-900 border border-border rounded-2xl px-5 py-4">
 
-          <p className="text-sm font-semibold text-gray-900 dark:text-white mb-2">Key Highlights</p>
           <ul className="space-y-2">
             {message.highlights.map((h, hIdx) => (
               <li key={hIdx} className="flex items-start gap-2.5 text-sm text-gray-700 dark:text-gray-300">
@@ -1164,9 +1146,6 @@ function MessageBubbleInner({
                   <div className="flex items-center gap-2">
                     <span className="text-[13.5px] font-bold text-zinc-900 dark:text-zinc-100 tabular-nums">
                       Comparing {compProjects.length} Properties
-                    </span>
-                    <span className="hidden sm:inline text-[11px] font-medium text-zinc-400 dark:text-zinc-500">
-                      Side-by-Side
                     </span>
                   </div>
                 </div>
@@ -1300,9 +1279,6 @@ function MessageBubbleInner({
                       in {headerSector}
                     </span>
                   )}
-                  <span className="hidden sm:inline text-[11px] font-medium text-zinc-400 dark:text-zinc-500">
-                    Ranked by fit
-                  </span>
                 </div>
               </div>
 
@@ -1364,11 +1340,6 @@ function MessageBubbleInner({
                 <div>
                   <p className="text-[13px] font-semibold text-amber-800 dark:text-amber-300">
                     We couldn&apos;t find an exact match in {String(expansion.requestedSector)}
-                  </p>
-                  <p className="text-[12px] text-amber-700 dark:text-amber-400 mt-0.5 font-medium">
-                    {expansion.searchedSectors?.length
-                      ? `Showing verified alternatives from ${expansion.searchedSectors.join(', ')}.`
-                      : 'Showing verified alternatives nearby.'}
                   </p>
                 </div>
               </m.div>

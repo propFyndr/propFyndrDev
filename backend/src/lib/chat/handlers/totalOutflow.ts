@@ -298,7 +298,7 @@ For the actual number I need a specific project — the all-in figure turns on t
 | GST, under construction | ${s.gstUnderConstructionPct}% |
 | GST, ready to move with OC | ${s.gstReadyToMovePct}% |
 
-**Typical developer charges in Noida** — ${MARKET_QUALIFIER}:
+**Developer charges** — ${MARKET_QUALIFIER}:
 
 - Covered car parking: ${NOIDA_MARKET_RANGES.coveredParkingInr}
 - Club membership: ${NOIDA_MARKET_RANGES.clubMembershipInr}

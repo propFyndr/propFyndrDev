@@ -93,8 +93,7 @@ export function DomainExecutionTimeline({
 
   const triggerLabel = useMemo(() => {
     if (!isStreaming && phase === 'completed') {
-      const evaluated = count > 0 ? `Evaluated ${count} ${count === 1 ? 'project' : 'projects'}` : null;
-      return [durationLabel, evaluated].filter(Boolean).join(' · ') || 'Done';
+      return durationLabel || 'Done';
     }
 
     if (isStreaming && statusLine && (phase === 'extracting' || !phase)) return statusLine;

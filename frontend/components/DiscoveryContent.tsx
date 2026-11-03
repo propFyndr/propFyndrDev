@@ -1452,11 +1452,13 @@ export default function DiscoveryContent({ userId, guestToken, onSessionChange, 
 
     if (action.actionType === 'BOOK_VISIT') {
       if (action.payload.mode === 'single') {
+        // Opens the visit form for the picked project. As a non-modal 'visit' pick it only posted
+        // "Schedule a site visit for X" back into the chat, where nothing could book it.
         setChipPicker({
           mode: 'single',
-          action: 'visit',
+          action: 'site_visit',
           label: 'Book Visit',
-          isModal: false,
+          isModal: true,
           selected: []
         });
         return;
@@ -1659,11 +1661,7 @@ export default function DiscoveryContent({ userId, guestToken, onSessionChange, 
           </div>
 
           {/* Integrated Bento Bottom Action Strip */}
-          <div className="flex items-center justify-between pt-1 px-2 border-t border-border mt-1">
-            {/* Left is empty on purpose. The tagline that sat here moved to the
-                hero; the filter dock sits on its own row below the input. */}
-            <div className="min-w-0 flex-1" />
-
+          <div className="flex items-center justify-end pt-1 px-2 border-t border-border mt-1">
             {/* Right: Voice Input + Send/Stop Controls */}
             <div className="flex items-center gap-1.5 shrink-0">
               {/* Voice button with live waveform state */}
@@ -1676,7 +1674,6 @@ export default function DiscoveryContent({ userId, guestToken, onSessionChange, 
                     ? 'bg-danger text-white'
                     : 'bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-600 dark:text-zinc-300'
                 }`}
-                title={isTranscribing ? 'Transcribing…' : isListening ? 'Stop listening' : 'Voice search'}
                 aria-label={isTranscribing ? 'Transcribing your recording' : isListening ? 'Stop listening' : 'Voice search'}
               >
                 {isTranscribing ? (
@@ -1696,7 +1693,6 @@ export default function DiscoveryContent({ userId, guestToken, onSessionChange, 
                 ) : (
                   <>
                     <Microphone size={14} weight="bold" />
-                    <span className="hidden sm:inline text-xs">Voice</span>
                   </>
                 )}
               </button>
@@ -1707,7 +1703,6 @@ export default function DiscoveryContent({ userId, guestToken, onSessionChange, 
                   type="button"
                   onClick={() => abortControllerRef.current?.abort()}
                   className="tap-target-y size-9 rounded-full flex items-center justify-center transition-colors bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 hover:bg-zinc-800 dark:hover:bg-white active:scale-95 cursor-pointer"
-                  title="Stop generating"
                   aria-label="Stop generating"
                 >
                   <span className="w-2.5 h-2.5 rounded-[2px] bg-white dark:bg-zinc-900" />
@@ -1726,7 +1721,7 @@ export default function DiscoveryContent({ userId, guestToken, onSessionChange, 
                       ? 'bg-primary hover:bg-primary-dark text-white cursor-pointer'
                       : 'bg-zinc-200 dark:bg-zinc-800 text-zinc-400 dark:text-zinc-600 cursor-not-allowed'
                   }`}
-                  title={isOnline ? 'Send message' : 'You\'re offline'}
+                  title={isOnline ? undefined : 'You\'re offline'}
                   aria-label="Send message"
                 >
                   <ArrowUp size={15} weight="bold" />
@@ -1794,7 +1789,6 @@ export default function DiscoveryContent({ userId, guestToken, onSessionChange, 
                     aria-haspopup="menu"
                     aria-expanded={showHeaderDropdown}
                     className="inline-flex items-center gap-1.5 h-10 px-3.5 rounded-full bg-surface/90 dark:bg-surface-2/90 backdrop-blur-md border border-border-heavy hover:bg-surface-3 dark:hover:bg-zinc-800 transition-colors text-text-primary group cursor-pointer active:scale-95"
-                    title="Conversation options"
                   >
                     <span className="text-[13px] font-semibold tracking-tight truncate max-w-[155px] sm:max-w-md">{sessionTitle || 'Conversation'}</span>
                     <CaretDown size={13} weight="bold" className="text-text-muted group-hover:text-text-secondary shrink-0" />
@@ -1839,7 +1833,6 @@ export default function DiscoveryContent({ userId, guestToken, onSessionChange, 
                   ? setShowDossierMenu(v => !v)
                   : handleChipAction({ id: 'gen_dossier', actionType: 'TEXT_MESSAGE', label: 'Create a shareable dossier', payload: { text: 'Create a shareable dossier of this chat' } } as any)}
                 className="flex items-center justify-center gap-1.5 h-10 px-3 sm:px-3.5 rounded-full bg-surface/90 dark:bg-surface-2/90 backdrop-blur-md border border-border-heavy hover:bg-surface-3 dark:hover:bg-zinc-800 text-text-primary text-[13px] font-medium transition-colors cursor-pointer active:scale-95"
-                title={dossierHref ? 'Share your dossier' : 'Share your research'}
                 aria-label={dossierHref ? 'Share dossier' : 'Share research'}
                 aria-haspopup={dossierHref ? 'menu' : undefined}
                 aria-expanded={dossierHref ? showDossierMenu : undefined}
@@ -1883,7 +1876,6 @@ export default function DiscoveryContent({ userId, guestToken, onSessionChange, 
                 // md:hidden — at md+ the sidebar carries its own "New chat";
                 // two side by side read as two different actions.
                 className="md:hidden flex items-center justify-center gap-1.5 h-10 px-3 sm:px-3.5 rounded-full bg-surface/90 dark:bg-surface-2/90 backdrop-blur-md border border-border-heavy hover:bg-surface-3 dark:hover:bg-zinc-800 text-text-primary text-[13px] font-medium transition-colors cursor-pointer active:scale-95"
-                title="Start new conversation"
                 aria-label="New chat"
               >
                 <NotePencil size={18} weight="bold" className="text-text-secondary" />
@@ -1921,7 +1913,7 @@ export default function DiscoveryContent({ userId, guestToken, onSessionChange, 
             </div>
             <div>
               <p className="font-semibold text-text-primary mb-1">Could not load this conversation</p>
-              <p className="text-[13px] text-text-secondary max-w-xs">This session may have expired or been deleted. Start a new chat below.</p>
+              <p className="text-[13px] text-text-secondary max-w-xs">This session may have expired or been deleted.</p>
             </div>
             <button
               onClick={() => {
@@ -1939,16 +1931,10 @@ export default function DiscoveryContent({ userId, guestToken, onSessionChange, 
           <div className="flex-1 flex flex-col items-center [justify-content:safe_center] px-4 sm:px-6 pt-16 pb-8 sm:py-8 relative z-10 overflow-y-auto">
             {/* Brand hero. The wordmark is set in Afacad bold italic to match
                 the logo artwork — keep the two in step. */}
-            <div className="text-center mb-8 w-full max-w-[768px] animate-fade-in-up flex flex-col items-center select-none">
+            <div className="text-center mb-6 w-full max-w-[768px] animate-fade-in-up flex flex-col items-center select-none">
               <h1 className="text-[4.2rem] md:text-[5.5rem] font-bold italic tracking-tight leading-none text-zinc-900 dark:text-white font-[family-name:var(--font-afacad)]">
                 RealtyAsk
               </h1>
-              <p className="mt-3 text-[22px] md:text-[26px] font-normal tracking-[-0.01em] leading-tight text-zinc-700 dark:text-zinc-300 font-[family-name:var(--font-afacad)]">
-                Know before you buy
-              </p>
-              <p className="mt-3 text-[14px] md:text-[15px] leading-relaxed text-zinc-500 dark:text-zinc-400 max-w-[480px] text-balance select-text">
-                Ask about any home in Noida, in your own words.
-              </p>
             </div>
 
             {showReEngagement && !hasUserReplied && (
@@ -2223,9 +2209,6 @@ export default function DiscoveryContent({ userId, guestToken, onSessionChange, 
               </div>
               <div>
                 <p className="text-[13px] font-semibold text-text-primary">Select 2–4 to compare</p>
-                <p className="text-xs text-text-muted">
-                  {selectedCompareProjects.size} of 4 selected
-                </p>
               </div>
             </div>
 

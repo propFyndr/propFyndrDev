@@ -32,6 +32,8 @@ describe('the "what I checked" line', () => {
   it('says nothing for an answer with no sources, and treats an undated price as no gap', () => {
     assert.deepEqual(checkedSources('Happy to help. What budget are you working with?', { cardsShown: 0, names: NAMES }), [])
     assert.deepEqual(checkedSources('On ₹1.40 Cr, date of last confirmation not on record.', { cardsShown: 0, names: NAMES }), [])
+    // Live 3 Nov: a price cell carrying the undated note was listed as "Not on record: Starting Price".
+    assert.deepEqual(checkedSources('| **Starting Price** | ₹2.72 Cr (date of last confirmation not on record) |', { cardsShown: 0, names: NAMES }), [])
   })
 
   it('falls back to the cards when the prose names no project', () => {

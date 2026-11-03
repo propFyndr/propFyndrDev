@@ -32,6 +32,19 @@ describe('a plain search is answered from its rows', () => {
     assert.doesNotMatch(t, /CREDAI|we hold no|couldn't find/i)
   })
 
+  it('does not repeat a single match\'s price and status above its own bullet', () => {
+    // Live 3 Nov: "**1 project match** … Prices run ₹1.85 Cr to ₹1.85 Cr. All are under construction."
+    const t = searchSummary({
+      intent: { bhk: [3], budgetMax: 2, sector: 'Sector 150, Noida', city: 'Noida' },
+      exact: [p({ name: 'Samridhi Daksh Avenue', sector: 'Sector 150', price_range_label: '₹1.85Cr', price_for_bhk: '3 BHK' })],
+      nearby: [],
+      shown: 6,
+    })
+    assert.match(t, /^\*\*1 project matches\*\* 3 BHK in Sector 150 up to ₹2 Cr\.\n/)
+    assert.doesNotMatch(t, /Prices run|All are/)
+    assert.match(t, /\*\*Samridhi Daksh Avenue\*\*, Sector 150: ₹1\.85 Cr for 3 BHK/)
+  })
+
   it('says plainly when nothing matches and offers what to relax', () => {
     const t = searchSummary({ intent: { bhk: [3], budgetMax: 0.5, sector: 'Sector 150, Noida', city: 'Noida', possession: 'immediate' }, exact: [], nearby: [], shown: 6 })
     assert.match(t, /^None of the projects we hold match 3 BHK in Sector 150 up to ₹50 L, ready to move\./)

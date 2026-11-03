@@ -1,5 +1,5 @@
 import { matchesResaleDealQuestion } from './resaleDeal'
-import { matchesInvestmentScenario, matchesPriceMultiple } from './investmentScenario'
+import { matchesInvestmentScenario, matchesPriceMultiple, matchesPriceForecast } from './investmentScenario'
 import { matchesPressureQuestion, matchesSiteVisitQuestion, matchesCompromiseQuestion, matchesFirstStepsQuestion } from './buyerSupport'
 import { matchesSavedProfileQuestion } from './savedProfile'
 import { matchesAirportProximity } from './airportProximity'
@@ -10,6 +10,8 @@ import { matchesLoanBanks, matchesDeveloperOfEach } from './shortlistFacts'
 import { asksProjectPriceHistory } from './priceTrend'
 import { matchesBareYes } from './bareYes'
 import { offTopicReply } from './offTopic'
+import { matchesSectorRateQuote } from './sectorRateCheck'
+import { loanEmiFollowUp } from './loanEmi'
 
 /**
  * Topics whose handler is decided by the message alone, with no project, flag or
@@ -27,5 +29,6 @@ export function matchesMessageOnlyTopic(message: string, priorUserMessages: read
     matchesFirstStepsQuestion(message) ||
     matchesRoadmapQuestion(message) || roadmapStepFor(message, priorUserMessages) !== null ||
     matchesCapabilitiesQuestion(message) || matchesTrustQuestion(message) ||
-    offTopicReply(message) !== null || matchesAmenitySearch(message) || matchesLoanBanks(message) || matchesDeveloperOfEach(message) || asksProjectPriceHistory(message) || matchesBareYes(message)
+    offTopicReply(message) !== null || matchesAmenitySearch(message) || matchesLoanBanks(message) || matchesDeveloperOfEach(message) || asksProjectPriceHistory(message) || matchesBareYes(message) ||
+    matchesSectorRateQuote(message) || matchesPriceForecast(message) || loanEmiFollowUp(message, priorUserMessages) !== null
 }

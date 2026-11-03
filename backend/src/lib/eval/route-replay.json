@@ -3068,11 +3068,165 @@
   {
     "id": "hard43-q7-two-projects-cost-at-asked-bhk",
     "source": "hard-43 benchmark 31 Oct 2026: two projects and a 3BHK asked, one project's cheapest 2 BHK answered",
-    "turns": [{"text": "Divine Meadows vs Great Value Sharanam: compare total cost including stamp duty, registration and GST for a 3BHK", "expect": {"contains": ["Divine Meadows", "Great Value Sharanam", "3 BHK"], "notContains": ["(2 BHK)"]}}]
+    "turns": [
+      {
+        "text": "Divine Meadows vs Great Value Sharanam: compare total cost including stamp duty, registration and GST for a 3BHK",
+        "expect": {
+          "contains": [
+            "Divine Meadows",
+            "Great Value Sharanam",
+            "3 BHK"
+          ],
+          "notContains": [
+            "(2 BHK)"
+          ]
+        }
+      }
+    ]
   },
   {
     "id": "hard43-f15-builder-other-projects",
     "source": "hard-43 benchmark 31 Oct 2026: 'what else have they delivered' got the builder's name only",
-    "turns": [{"text": "Who is the builder of Divine Meadows and what else have they delivered?", "expect": {"contains": ["Divine Meadows", "not an occupancy certificate"]}}]
+    "turns": [
+      {
+        "text": "Who is the builder of Divine Meadows and what else have they delivered?",
+        "expect": {
+          "contains": [
+            "Divine Meadows",
+            "not an occupancy certificate"
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "id": "live1103-rate-quote-okay",
+    "source": "live probe of realtyask.in, 2026-11-03",
+    "turns": [
+      {
+        "text": "builder quoted 9500 per sq ft in sector 150, is that okay?",
+        "expect": {
+          "lane": "topic:sector_rate_check",
+          "llm": false
+        }
+      }
+    ]
+  },
+  {
+    "id": "live1103-price-forecast-declined",
+    "source": "live probe of realtyask.in, 2026-11-03",
+    "turns": [
+      {
+        "text": "will property prices in Noida Extension go up in the next 3 years?",
+        "expect": {
+          "lane": "topic:price_multiple",
+          "llm": false,
+          "contains": [
+            "I don't forecast prices"
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "id": "live1103-emi-rate-follow-up",
+    "source": "live probe of realtyask.in, 2026-11-03",
+    "turns": [
+      {
+        "text": "EMI on a 90 lakh loan for 20 years at 8.5%",
+        "expect": {
+          "lane": "topic:loan_emi",
+          "llm": false
+        }
+      },
+      {
+        "text": "what if the rate goes to 9.5%?",
+        "expect": {
+          "lane": "topic:loan_emi",
+          "llm": false,
+          "contains": [
+            "at 9.5% over 20 years"
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "id": "live1103-overview-not-amenities",
+    "source": "live probe of realtyask.in, 2026-11-03",
+    "turns": [
+      {
+        "text": "Tell me about Eureka Park",
+        "expect": {
+          "laneNot": "topic:amenity_lifestyle"
+        }
+      }
+    ]
+  },
+  {
+    "id": "live1103-builder-of-focus",
+    "source": "live probe of realtyask.in, 2026-11-03",
+    "turns": [
+      {
+        "text": "Tell me about Eureka Park",
+        "expect": {}
+      },
+      {
+        "text": "who is the builder and what else have they built?",
+        "expect": {
+          "lane": "topic:developer_of_each",
+          "llm": false
+        }
+      }
+    ]
+  },
+  {
+    "id": "live1103-portal-answered-from-rows",
+    "source": "live probe of realtyask.in, 2026-11-03",
+    "turns": [
+      {
+        "text": "what does 99acres say about Mahagun Mezzaria prices?",
+        "expect": {
+          "lane": "ground-truth-db",
+          "llm": false,
+          "contains": [
+            "I don't relay other sites"
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "id": "live1103-visit-booking",
+    "source": "live probe of realtyask.in, 2026-11-03",
+    "turns": [
+      {
+        "text": "I want to visit Mahagun Mezzaria this weekend",
+        "expect": {
+          "lane": "ground-truth-db",
+          "llm": false,
+          "contains": [
+            "Book a site visit"
+          ],
+          "notContains": [
+            "channel partner"
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "id": "live1103-yield-named-sector",
+    "source": "live probe of realtyask.in, 2026-11-03",
+    "turns": [
+      {
+        "text": "what rental yield can I expect in Sector 150?",
+        "expect": {
+          "contains": [
+            "Sector 150"
+          ]
+        }
+      }
+    ]
   }
 ]

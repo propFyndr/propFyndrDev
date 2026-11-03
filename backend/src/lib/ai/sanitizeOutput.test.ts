@@ -220,3 +220,10 @@ describe('the model does not narrate its own provenance', () => {
     }
   })
 })
+
+describe('prompt debris in an answer', () => {
+  it('drops a copied prompt tag and puts a glued heading on its own line', () => {
+    const out = sanitizeOutput('[MANDATORY LEGAL DISCLOSURE] ATS Destinaire has 2 litigation records. It is not a warranty on build quality. ### Recommendation\nChoose A.').text
+    assert.equal(out, 'ATS Destinaire has 2 litigation records. It is not a warranty on build quality.\n\n### Recommendation\nChoose A.')
+  })
+})

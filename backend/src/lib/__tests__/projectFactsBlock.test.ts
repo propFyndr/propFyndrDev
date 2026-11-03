@@ -188,7 +188,7 @@ describe('legal risk summary synthesis', () => {
     }) as never)
 
     assert.ok(typeof facts.legal_risk_summary === 'string')
-    assert.ok((facts.legal_risk_summary as string).includes('[MANDATORY LEGAL DISCLOSURE]'))
+    assert.ok((facts.legal_risk_summary as string).includes('Legal record on file:'))
     assert.ok((facts.legal_risk_summary as string).includes('5 project litigation record(s) (2 ongoing)'))
     assert.ok((facts.legal_risk_summary as string).includes('ACTIVE NCLT insolvency moratorium'))
     assert.ok((facts.legal_risk_summary as string).includes('project risk flag on record: under review'))

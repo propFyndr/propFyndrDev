@@ -104,7 +104,6 @@ export default function Sidebar({
   const router = useRouter();
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [leadsToday, setLeadsToday] = useState<number | null>(null);
   const [userInitial, setUserInitial] = useState("U");
   const [isNavigating, setIsNavigating] = useState(false);
   const [isMemoryModalOpen, setIsMemoryModalOpen] = useState(false);
@@ -140,15 +139,6 @@ export default function Sidebar({
     setIsMac(/Mac|iPhone|iPad/.test(navigator.platform));
     return () => mq.removeEventListener('change', sync);
   }, []);
-
-  useEffect(() => {
-    if (!userId) return;
-    authHeaders()
-      .then((headers) => fetch(`${API_BASE}/leads/count`, { headers }))
-      .then((r) => r.json())
-      .then((d: { count: number }) => setLeadsToday(d.count ?? null))
-      .catch(() => {});
-  }, [userId]);
 
   useEffect(() => {
     if (!userId) return;
@@ -356,7 +346,6 @@ export default function Sidebar({
               href="/discover"
               onClick={handleFreshDiscovery}
               className={`flex items-center px-1.5 py-1 rounded-xs transition-opacity hover:opacity-85 cursor-pointer ${FOCUS}`}
-              title="Start fresh discovery"
             >
               {/* Same lockup as the landing header: pin + live text stays crisp at any size */}
               <Image src="/images/icons/logo-mark.png" alt="" width={28} height={28} className="w-7 h-7 object-contain" priority />
@@ -517,15 +506,8 @@ export default function Sidebar({
                 </button>
               </div>
             ) : grouped.length === 0 ? (
-              <div className="px-2.5 py-2 space-y-1.5">
+              <div className="px-2.5 py-2">
                 <p className="text-[13px] text-zinc-500 dark:text-zinc-400">Your conversations will appear here</p>
-                <button
-                  type="button"
-                  onClick={startNewChat}
-                  className={`-ml-2 rounded-xs px-2 h-6 text-[11px] font-medium text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/40 transition-colors ${FOCUS}`}
-                >
-                  Start a chat
-                </button>
               </div>
             ) : (
               <div className="space-y-2">
@@ -556,12 +538,6 @@ export default function Sidebar({
         {!collapsed ? (
           <div className={`mt-auto px-2 py-2 border-t ${EDGE} shrink-0 w-full`}>
             <div className="space-y-0.5 pb-1">
-              {leadsToday !== null && leadsToday > 0 && (
-                <div className="px-2.5 py-1 text-[11px] font-medium text-emerald-700 dark:text-emerald-400 tabular-nums">
-                  {leadsToday} lead{leadsToday !== 1 ? 's' : ''} captured today
-                </div>
-              )}
-
               <details className="group/builders">
                 <summary className={`list-none [&::-webkit-details-marker]:hidden flex items-center justify-between h-9 px-2.5 rounded-xs text-[13px] cursor-pointer transition-colors ${ROW_IDLE} ${FOCUS}`}>
                   <span className="flex items-center gap-2.5">
@@ -591,7 +567,6 @@ export default function Sidebar({
               <button
                 type="button"
                 onClick={() => setIsMemoryModalOpen(true)}
-                title="See and clear what the advisor remembers about your budget, BHK and sector across chats"
                 className={`w-full flex items-center gap-2.5 h-9 px-2.5 rounded-xs text-[13px] cursor-pointer transition-colors ${ROW_IDLE} ${FOCUS}`}
               >
                 <Sparkles size={16} strokeWidth={1.8} className="shrink-0 text-zinc-400 dark:text-zinc-500" />

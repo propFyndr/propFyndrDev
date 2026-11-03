@@ -799,9 +799,6 @@ export default function ProjectCard({ project, userId, sessionId, index = 0, isT
                   className="absolute inset-x-0 -top-1 z-20 max-h-[128px] overflow-y-auto overscroll-contain rounded-sm border border-border bg-surface dark:bg-zinc-900 shadow-md p-2.5"
                   onClick={e => e.stopPropagation()}
                 >
-                  <p className="text-[11px] font-semibold text-zinc-500 mb-1.5">
-                    All configurations
-                  </p>
                   {bhkGroups.map(g => (
                     <div key={g.bhk} className="flex items-center text-[12px] py-0.5">
                       <span className="font-medium text-zinc-800 dark:text-zinc-200 shrink-0">{g.bhk} BHK</span>
