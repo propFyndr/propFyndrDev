@@ -30,7 +30,8 @@ test('a non-Gemini leg is never asked for the profile model', () => {
   // actually cares about is that `model` is set to the literal `item.model`,
   // spread after `...effectiveConfig` so the spread cannot silently reintroduce
   // effectiveConfig's own `model` key afterwards.
-  assert.match(chainSource, /\.\.\.effectiveConfig,\s*\r?\n?\s*model: item\.model,?\s*\r?\n?/)
+  // Since the 29 Oct race refactor the leg variable is `leg`, not `item`.
+  assert.match(chainSource, /\.\.\.effectiveConfig,\s*\r?\n?\s*model: (?:item|leg)\.model,?\s*\r?\n?/)
 })
 
 test('the Gemini leg only accepts a Gemini model name from the profile', () => {

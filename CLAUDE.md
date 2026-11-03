@@ -19,10 +19,11 @@
 * **Complex problems.** For architecture, hard debugging or non-trivial features: reason step by step, name the uncertainty, then implement.
 
 ## Memory and Persistence
-* **MEMORY.md** (repo root): record significant decisions as What was decided / Why / What was rejected and why. Read it at session start. Never contradict a logged decision without flagging it.
+* **MEMORY.md** (repo root): standing decisions by topic, as What was decided / Why / What was rejected. Read it at session start. Never contradict a logged decision without flagging it. When a decision is replaced, edit its line; do not append a diary.
 * **Session summaries:** on "session end" or "wrapping up", append Worked on / Completed / In progress / Decisions made / Next session priorities.
 * **ERRORS.md:** when an approach takes more than 2 attempts, log what failed, what worked, and a note for next time. Check it before suggesting a similar approach.
 * **Extended thinking** for architecture, performance trade-offs, database design and long-term decisions.
+* **Archives:** earlier versions of this file and MEMORY.md are in `docs/archive/` (`CLAUDE_2026-11-03.md`, `MEMORY_2026-11-03.md`, `MEMORY_full_2026-10-27.md`).
 
 ---
 
@@ -91,7 +92,10 @@ A partner paying us never buys rank. Promotion decides what a buyer is *invited 
 
 ## The Verified Supply Chain — how a listing goes live
 
-This is the core supply-side promise. **Status (2026-10-05): not built.** Today every catalogue write is a direct edit by our own team in `/admin` (`routes/admin.ts`: `POST /projects`, `PATCH /projects/:id`, units, cost sheets, payment plans, price history). Builders and partners have read-only project access in `/portal`. Until the chain below exists, do not market "builder-verified" to buyers.
+This is the core supply-side promise. **Status (2026-11-03): one leg built, on dev only.**
+
+* **Built (dev, 2026-10-29):** a builder proposes a price or a sold-out change per flat type in `/builder/portal/prices`; our admin approves it in `/admin/listing-changes`. Proposals sit in `listing_changes`; approval (`lib/listingChanges.ts`) writes the flat type, a `price_history` row, builder-attested `FactVerification` rows, an `AuditLog` row and the recomputed project price, in one transaction. Sold-out flat types are hidden from every read by `lib/excludeSoldOutUnitTypes.ts`. The migration `builder_listing_changes` is applied on dev; live needs it and an explicit OK.
+* **Not built:** partner submissions (`pending_builder`), builder approval of a partner's change, inventory per unit, and all other fields. Every other catalogue write is still a direct edit by our team in `/admin` (`routes/admin.ts`). Until the full chain exists, do not market "builder-verified" to buyers.
 
 **Target flow:**
 ```
@@ -100,11 +104,11 @@ Partner / broker submits a change ─▶ PENDING_BUILDER ─▶ builder team app
 Builder submits its own change ──────────────────────────────────────────────────▶ PENDING_REALTYASK
 ```
 
-**Rules for whoever builds it:**
-* **A submission is a proposed diff, never a write.** Store field-level changes (`entity`, `entity_id`, `field`, `old_value`, `new_value`, `submitted_by`, `source_document`) in a submissions table. The live `Project`/`UnitType`/`PaymentPlan`/`CostSheet` rows change only on final approval, in one transaction, with an `AuditLog` row.
-* **Scope comes from the session, server-side.** A partner can submit only for projects linked to them via `ProjectChannelPartner`; a builder can approve only its own `builder_id`. Never trust an id in the body.
-* **Price and inventory carry a freshness date.** Every price or availability change records `verified_at` and who verified it. The advisor states the date ("price as confirmed by the builder on 2 Oct") and treats anything older than the freshness window (proposed: 30 days for price, 7 for inventory) as *stale* — stated with its date, never as current.
-* **"Builder-verified" is a new fact tier label, not a synonym for `verified`.** It means "the seller attested this", which is not the same as "we inspected it". Never imply site inspection.
+**Rules for whoever extends it:**
+* **A submission is a proposed diff, never a write.** Field-level changes (`entity`, `entity_id`, `field`, `old_value`, `new_value`, `submitted_by`, `source_document`). Live rows change only on final approval, in one transaction, with an `AuditLog` row. If the row changed after the proposal, approval is refused and both values are shown.
+* **Scope comes from the session, server-side.** A partner can submit only for projects linked via `ProjectChannelPartner`; a builder can approve only its own `builder_id`. Never trust an id in the body.
+* **Price and inventory carry a freshness date** through `FactVerification` (tier, date, who). The advisor states the date ("price as confirmed by the builder on 2 Oct") and treats anything older than the window (30 days for price, 7 for inventory) as *stale* — stated with its date, never as current.
+* **"Builder-attested" is a label on `verified`, not a synonym for it.** It means "the seller said so", not "we inspected it". Never imply site inspection.
 * **Conflicts surface, never silently resolve.** If a submission contradicts a RERA filing we hold, the approver sees both.
 * **Approvals are logged per field**, so "who said this price?" always has an answer.
 
@@ -114,51 +118,61 @@ Why this order (partner → builder → us): the builder is the only party that 
 
 ## V1 MVP — the Hero Product
 
-Status is against live code as of 2026-10-05 (audits in `docs/archive/MEMORY_full_2026-10-27.md` and `docs/archive/plans/MASTER_EXECUTION_ROADMAP_V2.md`). "Live" means wired into the real request path, not "a file exists".
+Status against live code as of 2026-11-03. `origin/main` and `origin/dev` are the same commit (`3e6003a2`), so "Live" means wired into the request path on both. Dated decisions behind each row are in MEMORY.md.
 
 ### Buyer side
 | Feature | Status | Notes |
 |---|---|---|
-| Conversational discovery (budget, sector, BHK, possession, metro) | Live | Deterministic intent covers most turns; LLM intent as fallback |
-| One-line multi-fact parsing, correction without restart | Partial | `RequirementState` (BACKTRACK, trade-offs) computed but not used live |
-| Project Q&A from our rows (amenities, payment plans, possession, RERA, builder) | Live | Deterministic fact bypass + topic handlers |
+| Conversational discovery (budget, sector, BHK, possession, metro) | Live | Deterministic intent covers most turns; LLM intent as fallback. A run of sector numbers is a list, not an ambiguity |
+| One-line multi-fact parsing, correction without restart | Partial | Bare refinements ("1 cr", "what about Sector 150?") re-run the search in code (`isBareRefinement`). `RequirementState` (BACKTRACK, trade-offs) still not used live |
+| Project Q&A from our rows (amenities, payment plans, possession, RERA, builder, cost sheet) | Live | Deterministic fact bypass + topic handlers; row choice by `pickProjectRow.ts` (stated sector beats exact name) |
 | Honest recommendation: reason + trade-off per pick | Live | See § Recommendation Framework |
-| Comparison (2–4 projects) | Partial | Frontend re-derives rows; some inputs were templated |
-| True cost: stamp duty, registration, GST (statutory) | Live | UP statutory constants in one place |
+| "X or Y" choice (e.g. ready 2BHK vs under-construction 3BHK) | Live | `handlers/alternativesChoice.ts`: both sides from rows, no ranking |
+| Comparison (2–4 projects, two sectors) | Partial | Prompts forbid a winner and investment framing; model still adds reasons the table doesn't support |
+| "What could go wrong" / "is X safe" | Partial (dev data only) | `handlers/projectCatch.ts`: lapsed RERA validity, approved UP-RERA complaint counts. 127 complaint drafts pending on dev, none approved; none on live |
+| True cost: stamp duty, registration, GST (statutory) | Live | `UP_STATUTORY`, one place |
 | EMI / affordability with sliders, rate shock | Live | Rate and tax regime shown as assumptions |
-| Carpet vs super area visualizer | Live (2026-10-05) | Only with both areas measured |
-| RERA provenance pill + record drawer | Live (2026-10-05) | Only for RERA numbers we hold |
+| Quoted per-sq-ft rate vs our rows | Live | `handlers/sectorRateCheck.ts`: range, median, count, no "fair" verdict |
+| Carpet vs super area visualizer | Live | Only with both areas measured |
+| RERA provenance pill + record drawer | Live | Only for RERA numbers we hold |
 | Shareable buyer dossier | Live | Anonymous; `dossiers` table; `dossier_shared` event |
-| Save, callback, site visit — as a guest | Live | Guest token is an identity. Guest *save* was a silent no-op in `ProjectCard` until 2026-10-23; fixed and deployed |
+| Save, callback, site visit — as a guest | Live | Guest token is an identity |
 | Out-of-catalogue project answer with public-record badge | Partial | One path still prompt-only |
-| Hindi / Hinglish understanding | Partial | Normalizer runs before intent (`lib/ai/intent.ts`); 9 of 10 Day-2 Hinglish questions pinned and passing; H7 (builder trust) open, no consistent lane in either language (2026-10-16) |
+| Off-topic and other-city asks | Live | `handlers/offTopic.ts`: one code-built line and a property question, no model call |
+| Hindi / Hinglish | Partial | Understanding works; most code-built lanes reply in English (H2–H5, FH1–FH3 of hard-43). Not this cycle |
 | Session memory ("what have I told you?") | Partial | Rate lost between EMI turns |
-| Price freshness ("confirmed on …") | Not built | Depends on the verified supply chain |
+| Answers when every AI provider fails | Live | Project-fact lanes answer from rows (`lib/chat/rowsAnswer.ts`), marked `degraded`; open questions get the outage notice |
+| Price freshness ("confirmed on …") | Partial | Works for builder-approved prices (dev only); nothing else carries a date yet |
 
 ### Supply side
 | Feature | Status |
 |---|---|
 | Builder / partner portal, role-scoped | Live |
 | Lead Brief (no transcript, competitors scrubbed) | Live |
-| Lead objections (abstract competitor pressure) | Partial: brief and report are wired, but nothing writes `LeadObjection`, so they are always empty (found 2026-10-26) |
+| Lead objections (abstract competitor pressure) | Partial: brief and report are wired, but nothing writes `LeadObjection`, so they are always empty |
 | Partner approval by RealtyAsk; builder proposes partner logins | Live |
 | Lead assignment to partners, site-visit status updates | Live |
-| **Partner submits listing → builder approves → live** | **Not built** |
-| Inventory updates by builder (units available / booked) | Not built (table `UnitInventory` exists, no write path) |
-| Brief delivered on WhatsApp / email at lead time | Not built (notifications are queued, never sent, until a provider exists) |
+| Builder proposes price / sold-out → we approve | Dev only (migration not on live) |
+| Partner submits listing → builder approves → live | Not built |
+| Inventory updates by unit | Not built (`UnitInventory` exists, no write path, no project has unit rows) |
+| Brief delivered on WhatsApp / email at lead time | Not built (link-only email behind `BUILDER_LEAD_EMAILS=on`; notifications queued, never sent) |
 
 ### Us
 | Feature | Status |
 |---|---|
 | Admin catalogue, leads queue, role matrix, read audit | Live |
+| Real-people counts and team marking (`realPeopleSessions`, `team_identities`) | Live |
 | Cost metering (`AiUsageEvent`), daily budget caps | Live |
-| Corpus / red-team evaluation against the real router | Partial — runners exercise paths the live router doesn't use; port to `src/lib/eval/route-replay.json` |
+| Data-integrity pipeline (UP-RERA crawl, portal research → `project_field_drafts`) | Live as scripts; promotion is a person's call |
+| Route replay (225 cases), 60-question corpus, hard-43 benchmark | Live on dev; last full results 225/225 and 60/60 (31 Oct) |
+| Release check before push | Live (`scripts/release-check.cjs` via `.githooks/pre-push`) |
 
 ### What V1 must reach before we call it launched
 1. **No invented figure reaches a buyer.** The open debts are listed in § Data Integrity Debts; each is a launch blocker.
-2. **The verified supply chain exists for price and inventory** (the two facts buyers act on).
+2. **The verified supply chain exists for price and inventory** (the two facts buyers act on), on live.
 3. **Rate limits key on the real buyer, not a proxy IP** (§ Infrastructure).
 4. **A live corpus run** on the billed provider with a committed scorecard — not a copied one.
+5. **Sign-in works on live** and is checked automatically (it failed on 29 Oct when Supabase's egress allowance ran out).
 
 ---
 
@@ -172,9 +186,11 @@ Target buyers already live inside ChatGPT/Claude. If the chat feels dumber than 
 4. **Meta-awareness.** "What are you assuming about me?" is answered honestly from `IntentState`.
 5. **Any DB-backed fact, answered directly.** "I don't have that" only when literally true, never as a stand-in for "not wired up".
 6. **Reasoning shown, not asserted.** Every recommendation carries a reason and a trade-off.
-7. **Proactive.** End with the next useful question.
+7. **Proactive.** End with one next useful question (`oneQuestion()` enforces one).
 8. **Escalation is a favour, not a funnel.** When the advisor can't go further (site visit, live negotiation), say so and offer a human.
-9. **Tone: capable peer, not sales rep.** No exclamation marks, no "Great choice!".
+9. **Tone: capable peer, not sales rep.** No exclamation marks, no "Great choice!", no "objectively".
+10. **Fast first word.** A status line shows within a second (`lib/chat/statusLine.ts`); the target for the first answer word is 3 s. Measured median is ~10 s on the free chain (31 Oct).
+11. **Sources shown.** A finished answer carries a "What I checked" line in our tier words (`lib/chat/checkedLine.ts`), built in code from what the answer says, never by the model, never naming a portal.
 
 When scoping a chat feature, ask: *would a power user notice we're worse at this than their default assistant?* If yes, that gap comes first.
 
@@ -184,9 +200,9 @@ When scoping a chat feature, ask: *would a power user notice we're worse at this
 
 **Supported:** Noida and Greater Noida West; new launch, under construction and ready to move; recommendations; comparison; builder track record; EMI, stamp duty, GST, registration; callbacks; site visits; WhatsApp handoff; partner/builder lead portal.
 
-**Out of scope:** rentals, resale *listings* and resale price opinions, commercial, valuation, mortgage workflows, tenant/landlord tools, auctions, native apps, VR/AR, investment advice, broker CRM beyond lead handling. Other cities are not recommended as available inventory.
+**Out of scope:** rentals, resale *listings* and resale price opinions, commercial, valuation, mortgage workflows, tenant/landlord tools, auctions, native apps, VR/AR, investment advice and appreciation forecasts, broker CRM beyond lead handling. Other cities are not recommended as available inventory.
 
-**In scope for a resale flat the buyer has already found (2026-10-15):** the document and dues checklist, and arithmetic on the buyer's own numbers (stamp duty, registration, renovation, total). `lib/chat/handlers/resaleDeal.ts`. It never states whether a resale price is fair, because we hold no resale transaction prices. "Show me resale flats" still gets the scope reply.
+**In scope for a resale flat the buyer has already found:** the document and dues checklist, and arithmetic on the buyer's own numbers (stamp duty, registration, renovation, total). `lib/chat/handlers/resaleDeal.ts`. It never states whether a resale price is fair, because we hold no resale transaction prices. "Show me resale flats" still gets the scope reply.
 
 ---
 
@@ -197,61 +213,49 @@ Every fact shown to a buyer belongs to exactly one tier. Reference `lib/factPres
 | Tier | Means | How it may be stated |
 |---|---|---|
 | `verified` | Read from **this project's** own rows | Plainly |
-| `statutory` | Fixed by UP law, identical for every project (stamp duty, registration, GST) | Plainly |
+| `statutory` | Fixed by UP law, identical for every project (stamp duty 7%, 6% for a woman primary owner; registration 1%; GST 5% under construction, 0% ready with OC) | Plainly |
 | `market` | Genuinely Noida-wide, **not** verified for this project | Only with `MARKET_QUALIFIER`, every time |
 | `computed` | Arithmetic over our own rows (average, median, count) — `lib/chat/aggregateQuery.ts` | Only with `computedQualifier(n)`: states how many projects it rests on; estimated prices excluded |
+| `public_record` | Read from an official source for a project or fact (UP-RERA, `*.gov.in`, `*.nic.in`) | With source and read date (`publicRecordQualifier`); never `verified`, never feeds ranking |
 | `missing` | We do not hold it | Say so and offer the advisory handoff. Never substitute a typical value |
 
-(When the supply chain ships, `builder-attested` joins as a label on `verified` facts, always with its date.)
+(`builder-attested` is a label on `verified` facts, always with its date.)
 
 **Rules:**
 * A project-specific fact has no market tier.
-* No hardcoded figures in routers or components. If a constant is a market assumption (an interest rate, a tax slab), it is labelled as one where the buyer sees it.
+* No hardcoded figures in routers, components or prompts. If a constant is a market assumption (an interest rate, a tax slab), it is labelled as one where the buyer sees it. Prompts carry no remembered corridor prices, yields, densities or growth rates.
 * `verified` and `confidence: 'HIGH'` are reserved for answers from the project's own rows.
-* An absent field is absent. No UI default (`superArea = 1000`), no `?? 1.30`, no `|| 8.5` reaching a buyer unlabelled.
+* An absent field is absent. No UI default, no `?? 1.30`, no `|| 8.5` reaching a buyer unlabelled.
+* **A rule the model keeps breaking becomes code.** Verdict words ("objectively", "unblemished", "clean legal standing", "zero-delay", "risk-free", "superior choice", "capital deployment") are dropped by `dropUnsourcedJudgements` unless our facts carry them (`falseReassurance.test.ts`). Prompt-only rules did not hold on 31 Oct.
 * **Owner policy (2026-10-27): every project fact we hold is answered from the database as stored, whoever wrote it, with no template or "may be a template" caveat.**
-  * **Covered:**
-    * amenities;
-    * cost-sheet charges and payment plans;
-    * schema-default values (`SCHEMA_DEFAULT_SENTINELS` is now empty);
-    * the formerly templated columns that still exist (`approvals_status`, `proximity_to_industrial`, `shared_walls_type`, `occupancy_restriction_months`, `nri_approval_months`, `expected_handover_quarter`). Eighteen others named in the old list (noise, nearby counts, `nclt_status`, ratings, `appreciation_potential_5yr`) were dropped from the schema on 2026-10-10, so there is nothing to state;
-    * analyst scores (`BUYER_OPAQUE_SCORES` is now empty);
-    * forward-looking figures that exist (`rental_yield_annual_percent`);
-    * builder corporate detail (`cin`, `legal_entities`, `executives`, `outstanding_dues_cr`);
-    * `marketing_claims` (wrapped as developer copy).
-  * **Still withheld** (privacy and process, not data quality):
-    * other users' rows (`FORBIDDEN_RELATIONS`);
-    * `embedding`, `ai_search_keywords`, `builder_theme`, raw ids and timestamps;
-    * `publish_status`, `archived_duplicate_of`;
-    * analyst notes, our own verification and process fields, channel-partner commercial terms, `portal_subdomain`;
-    * drafts (`field_drafts`, unpublished `decision_profile`).
+  * **Covered:** amenities; cost-sheet charges and payment plans; schema-default values (`SCHEMA_DEFAULT_SENTINELS` is empty); the formerly templated columns that still exist (`approvals_status`, `proximity_to_industrial`, `shared_walls_type`, `occupancy_restriction_months`, `nri_approval_months`, `expected_handover_quarter`); analyst scores (`BUYER_OPAQUE_SCORES` is empty); stored forward-looking figures (`rental_yield_annual_percent`); builder corporate detail (`cin`, `legal_entities`, `executives`, `outstanding_dues_cr`); `marketing_claims` (wrapped as developer copy).
+  * **Still withheld** (privacy and process, not data quality): other users' rows (`FORBIDDEN_RELATIONS`); `embedding`, `ai_search_keywords`, `builder_theme`, raw ids and timestamps; `publish_status`, `archived_duplicate_of`; analyst notes, our own verification and process fields, channel-partner commercial terms, `portal_subdomain`; drafts (`field_drafts`, unpublished `decision_profile`).
   * **Not to be undone without the owner.** Do not clear, hide or caveat stored values (no `fix:templated` on live).
   * **Known risk the owner accepted:** `approvals_status` reads "Fully approved" even on Amrapali and Jaypee projects.
-  * **Still in place:**
-    * The integrity checks still reject figures that are not in the facts given to the model. A score is let through only when its number is in those facts.
-    * A value that is genuinely absent is still "not on record", never a typical figure.
+  * **Still in place:** the integrity checks reject figures that are not in the facts given to the model (a score passes only when its number is in those facts), and a genuinely absent value is "not on record", never a typical figure.
 
-**Enforcement:** `dueDiligenceFabrication.test.ts`, `lib/ai/__tests__/answerIntegrity.test.ts`; `answerIntegrity.ts` runs before the buyer sees any answer.
+**Enforcement:** `dueDiligenceFabrication.test.ts`, `falseReassurance.test.ts`, `lib/ai/__tests__/answerIntegrity.test.ts`; `answerIntegrity.ts` runs on every provider leg before the buyer sees an answer. `sanitizeOutput.ts` runs after it: a code-built sentence that carries a source must be checked through the real route, because the sanitizer rewrites citation-shaped parentheses and deletes sentences that name an outside site (ERRORS.md, 2026-11-03).
 
-### Data Integrity Debts (launch blockers, re-audited 2026-10-15, prices added 2026-10-26)
-* **Unit prices written by a seed script.** `scripts/seed-and-enrich-all-projects.cjs` generated prices from a base rate (max = min × 1.08): 754 of 1,021 priced unit rows, 310 of 381 projects on dev (live not yet checked). Every price card reads them. Payment plans are templated too (608 of 620 `inferred_default`). Owner decision pending: clear and re-source from builders.
-* **Due-diligence columns on 129 projects: nulled 2026-10-16** on Neon and Supabase (backups `RealtyPals-db-backups/*-2026-10-16-enrich129-columns.json`). Still open: re-sourcing them; until then they read "Not on record".
-* **Price firewall** (`lib/ai/provenanceChecker.ts`) checks crore, lakh, per-sq.ft and percentage figures against the whole prompt. Since 2026-10-16 `lib/ai/projectFactChecks.ts` adds: a figure beside one project's name that is another project's is rejected; month/quarter/validity dates must be in the prompt; claims contradicting the named project's row (GST/status, OC, water, litigation, RERA) are rejected; growth rates nobody supplied are removed. Still open: a figure in a sentence that names no project is still checked only against the whole prompt.
-* **Templated data, pass 3 (2026-10-16):** `scripts/fix-templated-data-pass3.ts` applied on **Supabase (dev)**, backup `backend/backups/templated-pass3-dev-*.json`: 1 duplicate archived (`archived_duplicate_of`), every cost-sheet charge (3-tier template) cleared, 111 inconsistent base rates, templated builder counts, 291 projects' templated marketing/location text, 16 OC-on-unready contradictions, 1,108 impossible "snapshots" relabelled. **Neon (live) not yet run.** Four same-name/different-RERA pairs are listed, not merged.
-* *Closed, verified 2026-10-16:*
-  * The property-page cost sheet reads `cost_sheet` or shows "Not on record" (86e0ddd0); its assumed 12-month maintenance advance is labelled.
-  * Comparison: confidence is HIGH only when no row is estimated or missing, a missing value never wins a row, and invented "Under Standard Audit"/"Standard Buffer" readings are gone.
-* *Closed, verified 2026-10-15:* affordability no longer invents a price (it asks) and labels its rate, slab, landed-cost multiplier and 20% down payment as assumptions; JEV yield/upgrade branches carry `MARKET_QUALIFIER`; `dueDiligenceFabrication.test.ts` asserts `found === true`.
+### Data Integrity Debts (launch blockers, re-checked 2026-11-03)
+* **Unit prices written by a seed script.** `scripts/seed-and-enrich-all-projects.cjs` generated prices (max = min × 1.08): 754 of 1,021 priced unit rows, 310 of 381 projects (dev). Every price card reads them. Payment plans: 608 of 620 `inferred_default`. Re-sourcing needs builder price lists; a partial rebuild from portals was rejected (79 projects only). Owner decision pending.
+* **RERA numbers.** The 2026-10-28 pipeline replaced 74 stored numbers (36 had belonged to a different project) and wrote 150 registry-verified registration rows on dev and live. Still open: 162 projects with no usable number, 16 numbers shared by different projects, 57 malformed, 4 same-name/different-RERA pairs.
+* **Due-diligence columns on 129 projects: nulled 2026-10-16** on both databases; they read "Not on record" until re-sourced.
+* **Suspect defaults:** 18 "delivered" projects with no OC, 226 clear-title/zero-litigation rows, 39 zero-delay builders, 80 placeholder coordinates, possession status/label/date that contradict each other on most projects.
+* **Known row conflicts** (`docs/benchmark/C1_DAY6_ROWCHECK_2026-10-31.md`): duplicate Mahagun Meadow (and a duplicate ATS Destinaire on live), Eureka Park status and metro rows, Astralis RERA and type, Mezzaria rate and metro distance, cost-sheet base rate vs computed rate shown side by side.
+* **Price firewall** (`lib/ai/provenanceChecker.ts`, `lib/ai/projectFactChecks.ts`): a figure beside one project's name that is another project's is rejected; dates must be in the prompt; claims contradicting the named project's row are rejected; a bullet or table row inherits the project named on the line above it (2026-11-03). Distances, travel times (km, metres, minutes, hours of travel), floor and land areas that nothing supplied supports are dropped sentence by sentence (`dropUnsourcedMeasurements`). Still open: a figure in a plain sentence that names no project is checked only against the whole prompt.
+* **All 382 live projects are `draft`** and nothing uses that label to hide them. Owner decides what it means.
+* *Decided, not a debt:* templated-data pass 3 is applied on dev only, and the owner chose (2026-10-27) not to run it on live; stored values are answered as stored.
 
 ---
 
 ## Field Exposure — Adding a Column is a Disclosure Decision
 
 `lib/projectExposure.ts` is policy for `Project` data leaving the server.
-* `Project` relations to other users' rows (`saved_by`, `chat_sessions`, `property_feedback`) are in `FORBIDDEN_RELATIONS` and never selected into a prompt or response.
+* `Project` relations to other users' rows (`saved_by`, `chat_sessions`, `property_feedback`) and drafts (`field_drafts`) are in `FORBIDDEN_RELATIONS` and never selected into a prompt or response.
 * Internal columns (`embedding`, `ai_search_keywords`, `builder_theme`) and analyst-only fields never reach a buyer.
 * `DecisionProfile` / `RecommendationProfile` carry `IntelligenceStatus`; only `PUBLISHED` is buyer-facing.
 * `ProjectDna` scores stay internal.
+* A pending draft is read by a buyer path only after a named person approves it, through one function (e.g. `loadComplaints` in `handlers/projectCatch.ts`).
 
 **Adding a column to `schema.prisma` does not expose it.** It is absent from `PROJECT_PUBLIC_SELECT` until classified, and `projectExposure.test.ts` fails on anything unclassified.
 
@@ -262,13 +266,13 @@ Every fact shown to a buyer belongs to exactly one tier. Reference `lib/factPres
 | Audience | Roles | Surface |
 |---|---|---|
 | Us | `SUPER_ADMIN`, `ANALYST`, `SALES` | `/admin` |
-| Supply | `BUILDER`, `PARTNER` | `/portal`, tenant subdomains |
+| Supply | `BUILDER`, `PARTNER` | `/portal`, `/builder/portal`, tenant subdomains |
 | Demand | Supabase users + guest tokens | the main app |
 
 **ANALYST is ours, not a builder's** — the catalogue role. The builder-side equivalent is `BUILDER`.
 
 **Non-negotiable:**
-* **A builder never receives a chat transcript.** The conversation contains this buyer comparing this builder against competitors and our advisor naming this builder's trade-offs. Builders and partners receive a **Lead Brief** (`lib/leadBrief.ts`): one project, competitor names scrubbed, every field read from a stored column. Competitor *pressure* may be stated abstractly; competitor *identity* never.
+* **A builder never receives a chat transcript.** Builders and partners receive a **Lead Brief** (`lib/leadBrief.ts`): one project, competitor names scrubbed, every field read from a stored column. Competitor *pressure* may be stated abstractly; competitor *identity* never.
 * **A promoted project is never ranked higher.** The news rail (`routes/promotionals.ts`, `components/NewsRail.tsx`) decides what a buyer is invited to ask about, never what is recommended.
 * **A tenant subdomain is addressing, never authorisation.** Scope comes from the session, server-side, on every request.
 * **Only RealtyAsk mints identities.** A builder may propose a partner login; our approval creates it.
@@ -280,7 +284,7 @@ Every fact shown to a buyer belongs to exactly one tier. Reference `lib/factPres
 What a portal gives: name, phone, project. What we give, all from stored columns:
 * Requirement: configuration, budget band, timeline, sectors considered
 * Readiness: saved, compared, dossier generated, site visit requested
-* Objections in the buyer's own framing (`LeadObjection`): possession risk, price, builder history — competitors abstracted
+* Objections in the buyer's own framing (`LeadObjection`, no writer yet): possession risk, price, builder history — competitors abstracted
 * Questions already answered, so the caller doesn't repeat them
 * Best time / channel to call, if the buyer gave one
 
@@ -290,7 +294,7 @@ Never in a brief: the transcript, competitor names, other buyers' data, anything
 
 ## AI Assistant Rules
 Must: be honest; explain recommendations and trade-offs; show RERA information; remember context; handle follow-ups; escalate when needed.
-Must never: invent data; guess unavailable information; use fake confidence scores; claim certainty when uncertain; recommend unsupported cities as inventory; present builder-attested data as independently inspected.
+Must never: invent data; guess unavailable information; use fake confidence scores or star ratings; claim certainty when uncertain; recommend unsupported cities as inventory; present builder-attested data as independently inspected; forecast appreciation or quote typical yields; name another assistant or a listing portal as a source.
 
 ## Recommendation Framework
 Rank by: 1. Budget fit 2. Location fit 3. Possession timeline fit 4. Builder track record 5. Stated preferences 6. Nearby infrastructure.
@@ -300,7 +304,7 @@ Every recommendation includes: property name, reason, primary trade-off.
 Reason: Matches your budget and is 10 minutes from Sector 62 metro.
 Trade-off: Possession expected in 2027.
 ```
-Rows retrieved above a stated budget (up to 10%) go in an "Above the Stated Budget — NOT MATCHES" block; zero tolerance when the buyer says the ceiling is hard. An honest "no match" plus a choice of what to relax beats a padded list.
+Rows retrieved above a stated budget (up to 10%) go in an "Above the Stated Budget — NOT MATCHES" block; zero tolerance when the buyer says the ceiling is hard. An honest "no match" plus a choice of what to relax beats a padded list. A comparison names no winner: it states the difference that matters and "choose X if … choose Y if …".
 
 ---
 
@@ -313,6 +317,8 @@ Signup required for: builder phone access.
 
 **A guest still owes us:** a phone number on a lead; rate limiting by guest token then IP. If a row can be created without naming who created it, that is a bug.
 
+**Counting people:** a person is a signed-in account or a website guest token (`guest-` + UUID, or the browser fallback), per `isWebsiteGuestToken` in `lib/botDetection.ts` and `realPeopleSessions` in `routes/admin.ts`. Everything else is a script (`is_bot`, flagged, never blocked). Team members are excluded via `team_identities`.
+
 ## Lead Qualification
 High-intent events (track all): save property; callback request; site visit request; builder contact access; dossier generated (`dossiers` row) and shared (`dossier_shared`).
 
@@ -320,27 +326,32 @@ High-intent events (track all): save property; callback request; site visit requ
 
 ## Infrastructure, Cost & Latency
 
-**Environments:**
-* **Live:** Neon Postgres (Singapore), Render service on `main`, Vercel frontend.
-* **Dev:** Supabase Postgres, Render service on `dev`, Redis prefix `dev:`.
-* Supabase Auth and Storage serve both. A test never points at Neon. The owner runs data writes on live, always after a backup.
+**Environments** (full map: `docs/ENVIRONMENTS.md`):
+* **Live:** Neon Postgres (Singapore, endpoint `ep-super-water-aof3o8gy`), Render service `realtypalsdev` on `main` (the name is historical), Vercel `realtyask.in`.
+* **Dev:** its own Neon project (endpoint `ep-odd-bar-az91o2md`, since 2026-10-29), Render service `propfyndrdev` on `dev`, Vercel Preview `dev.realtyask.in`, Redis prefix `dev:`.
+* **Shared:** Supabase Auth and Storage serve both (project `eargxn…`; never delete it). One Upstash Redis.
+* `src/lib/liveDatabase.ts` identifies live by endpoint. A test never points at **live** Neon. The owner runs data writes on live, always after a backup. Neon keeps 6 hours of restore history.
+* **Node 22** everywhere (`.nvmrc`, CI, Render).
+* **Release check:** `.githooks/pre-push` runs `scripts/release-check.cjs` (compiles the committed tree in a clean copy). A 31 Oct push with six compile errors was refused by Render, not caught by us.
 
-**Provider chain** (`lib/config.ts`, `lib/ai/fallbackChain.ts`): free Gemini Flash Lite keys → billed Gemini → Cohere → Groq → NVIDIA → Cloudflare. Cash spend is near zero because the billed key is depleted; the real cost is **quality** — turns land on weaker free models. Topping up the billed key is the single largest quality lever.
+**Provider chain** (`lib/config.ts`, `lib/ai/fallbackChain.ts`): free Gemini 3.5 Flash Lite keys (2) → billed Gemini → Cohere Command A → Groq gpt-oss (4 keys) → NVIDIA → Cloudflare. The billed Gemini key is depleted (402/429 "credits depleted"), so turns land on free and weaker models. **Topping up the billed key is the single largest quality lever.**
+* **Race:** if a leg has not spoken after `FALLBACK_HEDGE_MS` (5 s), the next leg from a different vendor starts alongside it; the first to speak is shown, the other aborted. `FALLBACK_TURN_BUDGET_MS` (30 s) stops new legs, never one that is streaming.
+* **Integrity retry:** a discarded answer's reasons go to the next leg as a `## CORRECTION` block; checks never read it. Groq legs are skipped when the request exceeds Groq's 8k tokens per minute (they returned 413 on every long turn).
+* **Full failure:** project-fact lanes answer from rows; other turns get the outage notice with `replace: true`.
+* 29 Oct local bench (`docs/PROVIDER_BENCH_2026-10-29.md`): free Gemini first chunk p50 ~4 s with 17–39% failures; every non-Gemini leg failed with "Connection error" from the laptop. Not yet re-measured on Render.
 
-**Known outage (2026-10-26):** Gemini's first token now takes 17–20 s against an 8 s first-chunk timeout. All Gemini legs stall, the 35 s turn budget runs out, and later legs never run. About 1 in 7 live answers is the outage notice. A fix to the chain order or timeouts is pending.
-
-**Budgets:** `GEMINI_DAILY_BUDGET_USD` (default $10, `geminiMeter.ts`), per-user $0.50/day (`cost.ts`). Prompt head ~7.7k tokens; average input ~13k per turn.
+**Budgets:** `GEMINI_DAILY_BUDGET_USD` (default $10, `geminiMeter.ts`), per-user $0.50/day (`cost.ts`). Prompt head ~7.7k tokens; average input ~13k per turn. Gemini rates double on 2027-01-01.
 
 **Cost rules for new work:**
 * Deterministic first. A fact we hold is answered from rows, with 0 LLM tokens.
 * The prompt head must stay byte-identical across lanes (`promptPrefixStability.test.ts`); variable content goes after it, so provider prefix caching works.
 * Send only the fields the question needs (field diet, `fieldDietProjection`).
 * Never regenerate a whole answer blind on an integrity failure; state the violation to the retry.
-* Every external paid call (Maps, Tavily/Serper, embeddings) is cached and rate-limited.
+* Every external paid call (Maps, Tavily/Serper, embeddings) is cached and rate-limited. Both Tavily keys are over their plan limit (2026-10-28).
 
-**Rate limiting** (`lib/cache.ts`, `index.ts`, `routes/admin.ts`, `chat-router.ts`): limits key on guest token → auth → client IP. **The client IP must be the buyer's, not the proxy's** — `lib/request.ts` trusts `CF-Connecting-IP`, which behind the Vercel rewrite is Vercel's egress IP. Resolve before launch (see `docs/archive/MEMORY_full_2026-10-27.md`, 2026-10-05).
+**Rate limiting** (`lib/cache.ts`, `index.ts`, `routes/admin.ts`, `chat-router.ts`): limits key on guest token → auth → client IP. **The client IP must be the buyer's, not the proxy's** — `lib/request.ts` trusts `CF-Connecting-IP`, which behind the Vercel rewrite is Vercel's egress IP. Needs a proxy-secret env var on Vercel and Render. Resolve before launch.
 
-**Health:** `/api/v1/health` touches DB and Redis; the keep-alive ping (cron-job.org) hits `/api/v1/healthz`, which touches neither.
+**Health:** `/api/v1/health` touches DB and Redis; the keep-alive ping (cron-job.org) hits `/api/v1/healthz` on live only (Render's 750 free hours cover one always-on service; dev sleeps). Render has no health check configured on either service.
 
 ---
 
@@ -352,6 +363,7 @@ A roadmap gate is ticked only when:
 3. No figure it shows a buyer is invented, defaulted or unlabelled.
 4. Any measured target (latency, cost, pass rate) has a committed measurement from a real run.
 5. MEMORY.md has the entry.
+6. The week plan's proof file exists (`docs/benchmark/C2_DAY<n>_<topic>.md`) when the task is from a plan.
 
 A ticked gate without these is worse than an unticked one: the next session trusts it.
 
@@ -362,7 +374,7 @@ A ticked gate without these is worse than an unticked one: the next session trus
 * **Live price and inventory are only as fresh as the partner keeps them.** Show the date; never imply real-time.
 * **We cannot negotiate or guarantee a price.** That is the human handoff.
 * **Tax and loan figures are illustrative.** Slab, regime and bank rate are the buyer's; we state our assumptions.
-* **Legal status** (title, litigation) is what public records and filings show, not legal advice.
+* **Legal status** (title, litigation, complaints) is what public records and filings show, not legal advice. A complaint count is not a ruling.
 * **Coverage is Noida/GNW.** Outside it, the advisor says so.
 
 ## What Drives Adoption
@@ -374,26 +386,21 @@ A ticked gate without these is worse than an unticked one: the next session trus
 ---
 
 ## Code Organization
-* Don't redesign visual components, inputs or chat styling unless asked. Keep the discovery brand atmosphere (lavender hue background, Afacad wordmark).
+* Don't redesign visual components, inputs or chat styling unless asked. Keep the discovery brand atmosphere (lavender `.discover-canvas`, Afacad "RealtyAsk" wordmark). The landing page is the dark one restored on 2026-10-31; which landing page stays is an owner decision on real numbers.
 * No unrequested features, no unrelated refactors, no new dependencies without justification.
-* Routing is a gate cascade in `routes/chat-router.ts` (~7k lines): a failing query class is usually a routing bug, not a prompt bug.
+* Routing is a gate cascade in `routes/chat-router.ts` (~7.5k lines): a failing query class is usually a routing bug, not a prompt bug. Topic handlers live in `lib/chat/handlers/` (registry `CHAT_TOPIC_HANDLERS` in `handlers/index.ts`; order matters).
 * No hardcoded answer branches for a named project or sector; resolve from the DB.
-* Frontend tests: `npx jest` (not vitest). Backend: `npx tsx --test <file>`; `npm test`.
+* Every routing fix adds a case to `src/lib/eval/route-replay.json`.
+* Frontend tests: `npx jest` (not vitest). Backend: `npx tsx --test <file>`; `npm test` (offline, fake keys; real-model tests need `RUN_LIVE_LLM_TESTS=1`).
+* Many files are CRLF. Write regexes with Write/Edit, never through a shell heredoc.
 
-## Benchmark: What the ChatGPT Power-User Gets (audit 2026-10-15)
+## Benchmarks: where we stand against ChatGPT and Perplexity
 
-Seven real ChatGPT buyer chats (`docs/benchmark/chatgpt-chats/`) were read against our app, and the replayable queries are pinned as `bm-*` cases in `src/lib/eval/route-replay.json`. Where ChatGPT beat us, and what now answers it without losing neutrality:
+* **2026-10-15:** seven real ChatGPT buyer chats (`docs/benchmark/chatgpt-chats/`), pinned as `bm-*` cases in `route-replay.json`. Closed with `publicRecord.ts`, `savedProfile.ts`, `resaleDeal.ts`, `investmentScenario.ts` (arithmetic on the buyer's own rates, not a forecast), `buyerSupport.ts`, office pin and tickable checklists.
+* **2026-10-31, hard-43:** 43 questions against ChatGPT (43/43) and Perplexity (Q1–Q12). Scorecards `docs/benchmark/HARD43_SCORECARD_2026-10-31.md` and `HARD43_SCORECARD_AFTER_2026-10-31.md`. Fixed: two-sided choices, quoted-rate checks, wrong-project rows, multi-part amenity asks, off-topic. Still open: Q3, Q7, F13/F15 (builder's other deliveries), Hinglish replies, comparison reasons that contradict the table, first word ~10 s.
+* **Competitor teardown and prompt guide:** `docs/COMPETITOR_TEARDOWN_2026-10-29.md`, `docs/COMPETITOR_PROMPT_GUIDE_2026-10-31.md`. We copy patterns (answer first, trade-off per option, one closing question, "what I checked"), never facts.
 
-| Gap | Now |
-|---|---|
-| Live, cited public-record lookup | `lib/publicRecord.ts` + `handlers/publicRecordLookup.ts`. Only for a project we do not hold. Official sources only (UP-RERA, `*.gov.in`, `*.nic.in`); listing portals and builder sites are not read. New fact tier `public_record` (`publicRecordQualifier`): source host and read date on every figure, never `verified`, never feeds ranking. Cached by `web.ts`, 5 lookups per buyer per hour. Builder-site reading is not built. |
-| Cross-session memory | `UserMemory` now also stores workplace and possession horizon. **Memory is never read into a new chat on its own**: a silent carry-over of last week's budget was a bug, and that decision stands. `handlers/savedProfile.ts` is the explicit route: the buyer asks, we list only stored fields, and a chip sends them back as the buyer's own request. `PATCH /api/v1/user/memory` edits, `DELETE` forgets. Not built: a prompt on a new chat's first turn offering the saved profile. |
-| Buyer-found deals | `handlers/resaleDeal.ts` carries the latest price and renovation estimate across turns from the transcript (`ctx.priorUserMessages`). Nothing is stored. |
-| Scope vs real demand | Resale is in scope for a flat the buyer has already found (checklist, dues, arithmetic on their numbers). Never listings, never "is this price fair", because we hold no resale prices. `handlers/investmentScenario.ts` compounds rates the buyer supplies; it assumes none and is labelled arithmetic, not a forecast. Investment advice stays out of scope. |
-| Decision-support turns | `handlers/buyerSupport.ts`: booking-deadline pressure, site-visit checklist, order of trade-offs. Deterministic, no prices. |
-| Presentation (map pins, charts, tickable saved checklists) | Project map with pins and recharts already existed. Added an office pin (`officeMarkers`, only for sectors we hold coordinates for) and tickable checklists (`response/TaskListItem.tsx`: GFM `- [ ]` items, ticks in `localStorage` per chat, device-local). Growth-scenario charts not built. |
-
-**Where we must stay ahead** (do not trade away): statutory stamp duty/registration stated exactly instead of "7% provisional"; no unsourced market statistics; no asking-price-as-fact; partner payment never touches rank; Lead Brief without transcript.
+**Where we must stay ahead** (do not trade away): statutory stamp duty/registration stated exactly instead of "7% provisional"; no unsourced market statistics; no asking-price-as-fact; no "fair price" verdict; partner payment never touches rank; Lead Brief without transcript.
 
 **Rule for new lanes:** every new data source gets a tier, a source, a date and a freshness window before it reaches a buyer; a test must fail if the label is dropped.
 
@@ -403,6 +410,6 @@ When uncertain, choose the option that improves trust, improves decision quality
 ---
 
 ## Reference
-MEMORY.md (repo root) for dated decisions and audits. Memory notes: ai-provider-chain, admin-panel-reference, engineering-standards, project-structure, database-rules, ai-prompting-rules, success-metrics, roadmap-future. Current plan: the newest `docs/WEEK_PLAN_*.md`; last week in the newest `docs/WEEKLY_REPORT_*.md`. Older roadmaps (`MASTER_EXECUTION_ROADMAP*.md` and others) are in `docs/archive/plans/`.
+MEMORY.md (repo root) for standing decisions; ERRORS.md for approaches that failed. Current plan: the newest `docs/WEEK_PLAN_*.md` (now `WEEK_PLAN_2026-11-03.md`, cycle 2); last report in the newest `docs/WEEKLY_REPORT_*.md`. Environments: `docs/ENVIRONMENTS.md`. Older roadmaps are in `docs/archive/plans/`.
 
-**Last Updated:** 2026-10-27 — environments, the provider outage, generated unit prices as a launch blocker, the amenity exception, new file locations. (2026-10-05: full rewrite.)
+**Last Updated:** 2026-11-03 — full rewrite against live code: dev on its own Neon, provider race and rows answers, builder price proposals (dev), risk record and verdict-word guard, off-topic and two-sided-choice lanes, release check, data-integrity pipeline results, hard-43 benchmark. Previous version: `docs/archive/CLAUDE_2026-11-03.md`.

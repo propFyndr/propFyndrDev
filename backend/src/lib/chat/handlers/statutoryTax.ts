@@ -5,6 +5,7 @@ import { quotedAmountCr } from './priceFairness'
 import { prisma } from '../../db'
 import { projectPriceNotes } from '../../projectPriceNote'
 import { UNDATED_NOTE } from '../../priceVerification'
+import { findProjectsMentioned } from '../../discovery/proseEntities'
 
 /**
  * "How much stamp duty on a 1.5 cr flat for a woman buyer" got the rate table
@@ -52,16 +53,41 @@ Stamp duty is charged on the agreement value or the circle rate, whichever is hi
  * stated with who confirmed it and when (followup-coverage 2026-10-16 got only
  * the rate table).
  */
-export async function focusProjectPrice(focus: string | null | undefined): Promise<{ amountCr: number; heading: string } | undefined> {
+export async function focusProjectPrice(focus: string | null | undefined, bhk?: number): Promise<{ amountCr: number; heading: string } | undefined> {
   if (!focus) return undefined
   const p = await prisma.project.findFirst({
     where: { OR: [{ name: { equals: focus, mode: 'insensitive' } }, ...(focus.length === 36 ? [{ id: focus }] : [])] },
-    select: { id: true, name: true, unit_types: { where: { price_min_cr: { not: null } }, orderBy: { price_min_cr: 'asc' }, take: 1, select: { price_min_cr: true, bhk: true } } },
+    select: { id: true, name: true, unit_types: { where: { price_min_cr: { not: null }, ...(bhk ? { bhk } : {}) }, orderBy: { price_min_cr: 'asc' }, take: 1, select: { price_min_cr: true, bhk: true } } },
   })
   const unit = p?.unit_types[0]
   if (!p || !unit?.price_min_cr) return undefined
   const note = (await projectPriceNotes([p.id])).get(p.id) ?? UNDATED_NOTE
-  return { amountCr: unit.price_min_cr, heading: `On the lowest listed price at ${p.name}: ₹${unit.price_min_cr.toFixed(2)} Cr${unit.bhk ? ` (${unit.bhk} BHK)` : ''}, ${note}` }
+  return { amountCr: unit.price_min_cr, heading: `On the lowest listed ${bhk ? `${bhk} BHK ` : ''}price at ${p.name}: ₹${unit.price_min_cr.toFixed(2)} Cr${unit.bhk && !bhk ? ` (${unit.bhk} BHK)` : ''}, ${note}` }
+}
+
+/** "for a 3BHK", "3 bhk", "3-BHK": the size the buyer asked about. */
+export function askedBhk(message: string): number | undefined {
+  const m = /\b([1-5])\s*-?\s*bhk\b/i.exec(message)
+  return m ? Number(m[1]) : undefined
+}
+
+/**
+ * "Divine Meadows vs Great Value Sharanam: compare total cost including stamp
+ * duty, registration and GST for a 3BHK" (hard-43 Q7, 31 Oct 2026) got one
+ * project's cheapest 2 BHK. Every project the message names is priced, at the
+ * size asked; a project with no price for that size says so instead.
+ */
+export async function namedProjectsCost(message: string, projects: Array<{ id: string; name: string }>): Promise<string> {
+  const bhk = askedBhk(message)
+  const parts = await Promise.all(projects.map(async (p) => {
+    const given = await focusProjectPrice(p.id, bhk)
+    return given ? computedOnAmount(message, given) : `### ${p.name}\n\nNo ${bhk ? `${bhk} BHK ` : ''}price is on record for ${p.name}, so I can't total it.\n\n`
+  }))
+  // Said once, not on every heading, when more than one price is undated.
+  const joined = parts.join('')
+  const undated = `, ${UNDATED_NOTE}`
+  if (joined.split(undated).length <= 2) return joined
+  return `${joined.split(undated).join('')}Prices above: ${UNDATED_NOTE}.\n\n`
 }
 
 /** ₹ with Indian digit grouping. */
@@ -120,7 +146,15 @@ What legitimately reduces the bill:
 `
       : ''
 
-    const text = `${avoidanceAnswer}${asksHowToAvoid ? '' : computedOnAmount(ctx.message, quotedAmountCr(ctx.message) ? undefined : await focusProjectPrice(ctx.activeProjectName))}### Statutory taxes & registration charges (Uttar Pradesh)
+    const named = asksHowToAvoid || quotedAmountCr(ctx.message) ? [] : await findProjectsMentioned(ctx.message, undefined, 4)
+    const computed = asksHowToAvoid
+      ? ''
+      : quotedAmountCr(ctx.message)
+        ? computedOnAmount(ctx.message)
+        : named.length
+          ? await namedProjectsCost(ctx.message, named)
+          : computedOnAmount(ctx.message, await focusProjectPrice(ctx.activeProjectName, askedBhk(ctx.message)))
+    const text = `${avoidanceAnswer}${computed}### Statutory taxes & registration charges (Uttar Pradesh)
 
 These are set by law and are the same for every project.
 

@@ -106,6 +106,12 @@ describe('rebuilding a message from its artifacts', () => {
     expect(restoreMessage({ id: 'x', role: 'user', content: 'hi', created_at: '' }).type).toBe('user')
   })
 
+  it('brings back the "What I checked" line stored with the answer', () => {
+    const m = restoreMessage(stored([{ type: 'checked', labels: ['RealtyAsk records: A', 7, 'UP law: GST'] }]))
+    expect(m.checked).toEqual(['RealtyAsk records: A', 'UP law: GST'])
+    expect(restoreMessage(stored([{ type: 'checked', labels: 'nope' }])).checked).toBeUndefined()
+  })
+
   it('handles a message with no artifacts at all', () => {
     const m = restoreMessage({ id: 'x', role: 'assistant', content: 'plain', created_at: '' })
     expect(m.content).toBe('plain')

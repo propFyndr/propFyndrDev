@@ -87,6 +87,17 @@ const ONPLATFORM_REFERRAL =
 const ALLOWED_CITATION_RE =
   /^\s*(?:(?:propfyndr|realtyask)(?:\s+data)?|our\s+data|verified(?:\s+data)?|market\s+data|rera|up-?rera)\s*$/i
 
+/**
+ * A parenthetical that names one of our own fact tiers and no outside source:
+ * "(Source: project records)", "(source: UP-RERA registry, read 27 Oct 2026)",
+ * "(UP law, statutory)", "(confirmed by the builder on 2 Oct)". Collapsing these
+ * to "(market data)" put a project's own or an official fact in the market tier.
+ */
+const OWN_SOURCE_RE =
+  /\b(?:realtyask|propfyndr|our\s+(?:records?|data)|project(?:'s)?\s+(?:records?|rows?|data)|statutory|up\s+law|up-?rera|rera\s+(?:records?|filings?|registry|registration)|builder[- ](?:attested|confirmed)|confirmed\s+by\s+the\s+builder|computed)\b/i
+const OUTSIDE_SOURCE_RE =
+  /[\w-]+\.(?:com|in|org|net|co\.in)\b|\b(?:web|websites?|listings?|blogs?|forums?|reddit|quora|youtube|twitter|news|newspapers?|articles?|reviews?|portals?|media|press|magazines?|internet|online|search)\b/i
+
 /** The label an outside source collapses to. */
 const MARKET_CITATION = '(market data)'
 
@@ -379,6 +390,7 @@ function normalizeCitations(input: string): { text: string; count: number } {
     // A parenthetical naming one of our own sources keeps its label as written.
     const inner = match.slice(1, -1)
     if (ALLOWED_CITATION_RE.test(inner)) return match
+    if (OWN_SOURCE_RE.test(inner) && !OUTSIDE_SOURCE_RE.test(inner)) return match
     count += 1
     return MARKET_CITATION
   })

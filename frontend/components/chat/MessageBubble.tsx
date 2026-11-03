@@ -974,6 +974,11 @@ function MessageBubbleInner({
 
                 return null
               })()}
+              {!isStreamingActive && message.checked && message.checked.length > 0 && (
+                <p className="pt-1 text-[12px] leading-snug text-slate-500 dark:text-zinc-400" aria-label="What this answer is based on">
+                  <span className="font-medium">What I checked:</span> {message.checked.join(' · ')}
+                </p>
+              )}
             </div>
           ) : (
             <p className="whitespace-pre-wrap break-words text-[14.5px] sm:text-[15px] font-medium leading-relaxed text-white select-text font-[family-name:var(--font-inter)] tracking-normal">{displayContent}</p>

@@ -67,6 +67,7 @@ const sentences = (text: string) => text.split(/(?<=[.!?])\s+|\n+/).filter(Boole
 const MONEY = /₹\s*(\d+(?:\.\d+)?)\s*(Cr|Crore|crores?|cr\b|Lakh|Lakhs|lakh|lakhs|Lac|Lacs|lac\b|L\b)/gi
 
 const near = (a: number, b: number) => Math.abs(a - b) < 0.011
+const LIST_LINE = /^\s*(?:[-*•]|\d+[.)]|\|)/
 
 /**
  * A rupee figure written beside one project's name that belongs only to
@@ -78,9 +79,21 @@ export function crossProjectFigures(text: string, prompt: string, userMessage = 
   if (projects.length < 2) return []
   const userNumbers = (userMessage.match(/\d+(?:\.\d+)?/g) ?? []).map(Number)
   const out: IntegrityViolation[] = []
-  for (const sentence of sentences(text)) {
-    const lower = sentence.toLowerCase()
-    const mentioned = projects.filter((p) => lower.includes(p.name.toLowerCase()))
+  const named = (s: string) => projects.filter((p) => s.toLowerCase().includes(p.name.toLowerCase()))
+  // A bullet or table row under a line naming a project is about that project
+  // ("**X**" then "- 3 BHK from ₹1.85 Cr"); a plain line naming none ends the carry.
+  let carried: PromptProject[] = []
+  const checks: Array<[string, PromptProject[]]> = []
+  for (const line of text.split(/\n+/)) {
+    const lineNamed = named(line)
+    const context = lineNamed.length ? lineNamed : LIST_LINE.test(line) ? carried : []
+    carried = context
+    for (const sentence of sentences(line)) {
+      const own = named(sentence)
+      checks.push([sentence, own.length ? own : context])
+    }
+  }
+  for (const [sentence, mentioned] of checks) {
     if (mentioned.length === 0) continue
     for (const m of sentence.matchAll(MONEY)) {
       const v = Number(m[1])
@@ -148,6 +161,16 @@ const CONTRADICTIONS: Array<{
   },
 ]
 
+function subjectOf(lower: string, named: PromptProject[], at: number): PromptProject {
+  const positions = named.map((p) => {
+    const n = p.name.toLowerCase()
+    const before = lower.lastIndexOf(n, at)
+    return { p, before, after: before >= 0 ? -1 : lower.indexOf(n, at) }
+  })
+  const prior = positions.filter((x) => x.before >= 0).sort((a, b) => b.before - a.before)[0]
+  return (prior ?? positions.filter((x) => x.after >= 0).sort((a, b) => a.after - b.after)[0] ?? positions[0]).p
+}
+
 export function recordContradictions(text: string, prompt: string): IntegrityViolation[] {
   const projects = promptProjects(prompt)
   if (projects.length === 0) return []
@@ -157,9 +180,15 @@ export function recordContradictions(text: string, prompt: string): IntegrityVio
     const named = projects.filter((p) => lower.includes(p.name.toLowerCase()))
     // With one project in the prompt, an unnamed sentence is about it.
     const subjects = named.length ? named : projects.length === 1 ? projects : []
-    for (const p of subjects) {
-      for (const c of CONTRADICTIONS) {
-        if (c.says.test(sentence) && c.when(p.facts)) {
+    for (const c of CONTRADICTIONS) {
+      const hit = c.says.exec(sentence)
+      if (!hit) continue
+      // Two projects in one sentence ("Choose Gulshan Ikebana if you want litigation-free;
+      // choose Jaypee Klassic if…", live 29 Oct): the claim is about the project named
+      // nearest before it, else the first after it, not about every project named.
+      const about = subjects.length > 1 ? [subjectOf(lower, subjects, hit.index)] : subjects
+      for (const p of about) {
+        if (c.when(p.facts)) {
           out.push({ kind: 'fabrication', detail: `said "${sentence.trim().slice(0, 90)}" about ${p.name}, but ${c.record(p.facts)}` })
         }
       }
@@ -268,21 +297,26 @@ export function unsourcedMarketStatistics(text: string, prompt: string): Integri
  * units. Dropping the sentence rather than discarding the answer keeps a model
  * slip from becoming the outage notice; the figure still never reaches the buyer.
  */
-const MEASURE = /(\d+(?:[.,]\d+)?)(?:\s*(?:-|–|to)\s*(\d+(?:[.,]\d+)?))?\s*(?:km|kms|kilomet\w*|min(?:ute)?s?\b|sq\.?\s*ft|sqft|square\s+feet|acres?)\b/gi
+// Metres and hours are also matched against the km and minutes we supplied ("800 m" for 0.8 km).
+const MEASURE = /(\d+(?:[.,]\d+)?)(?:\s*(?:-|–|to)\s*(\d+(?:[.,]\d+)?))?\s*(km|kms|kilomet\w*|min(?:ute)?s?\b|sq\.?\s*ft|sqft|square\s+feet|acres?|met(?:re|er)s?|mtrs?|m(?=\s+(?:from|away|walk|of)\b)|(?:hours?|hrs?)(?=\s+(?:drive|by|away|commute|journey|ride|from)\b))\b/gi
+const SCALE: Array<[RegExp, number]> = [[/^(?:met|mtr|m$)/i, 1 / 1000], [/^h/i, 60]]
 const STAMP_DUTY_RATE = /stamp\s+duty[^.%\n]{0,40}?(\d+(?:\.\d+)?)\s*%(?:\s*(?:-|–|to)\s*(\d+(?:\.\d+)?)\s*%)?|(\d+(?:\.\d+)?)\s*%?\s*(?:-|–|to)\s*(\d+(?:\.\d+)?)\s*%\s*(?:up\s+)?stamp\s+duty/gi
 
 export function dropUnsourcedMeasurements(text: string, reference: string): { text: string; dropped: string[] } {
   const known = [...(reference ?? '').matchAll(/\d+(?:\.\d+)?/g)].map((m) => Number(m[0]))
-  const supported = (raw: string) => {
+  const near = (v: number) => known.some((k) => Math.abs(k - v) <= Math.max(0.05, v * 0.1))
+  const supported = (raw: string, unit: string) => {
     const v = Number(raw.replace(',', '.'))
-    return known.some((k) => Math.abs(k - v) <= Math.max(0.6, v * 0.05))
+    if (known.some((k) => Math.abs(k - v) <= Math.max(0.6, v * 0.05))) return true
+    const scale = SCALE.find(([re]) => re.test(unit))?.[1]
+    return scale !== undefined && near(v * scale)
   }
   const statutory = new Set([7, 6])
   const dropped: string[] = []
   const kept = splitClauses(text).filter((part) => {
     if (/^\s+$/.test(part)) return true
-    const measures = [...part.matchAll(MEASURE)].flatMap((m) => [m[1], m[2]].filter(Boolean) as string[])
-    const badMeasure = measures.some((n) => !supported(n))
+    const measures = [...part.matchAll(MEASURE)].flatMap((m) => [m[1], m[2]].filter(Boolean).map((n) => [n as string, m[3]] as const))
+    const badMeasure = measures.some(([n, unit]) => !supported(n, unit))
     const rates = [...part.matchAll(STAMP_DUTY_RATE)].flatMap((m) => [m[1], m[2], m[3], m[4]].filter(Boolean).map(Number))
     const badStamp = rates.some((r) => !statutory.has(r))
     if (badMeasure || badStamp) { dropped.push(part.trim()); return false }

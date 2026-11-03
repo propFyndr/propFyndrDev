@@ -21,6 +21,8 @@ import { compactArtifacts } from '../lib/chatStorage'
 import { computeConfidence, buildClarificationOptions } from '../lib/discovery/confidence'
 import { getMultiDimensionalRecommendations } from '../lib/discovery/multiDimensionalIntegration'
 import { planProjectDetailQuery, isActionable, getClarificationMessage } from '../lib/discovery/queryPlanner'
+// Static: a dynamic import('…/queryPlanner.guards') fails under tsx (".guards" reads as an extension).
+import { validateUserMessage, sanitizeMessage, getMissingProjectClarification, createFallbackResponse } from '../lib/discovery/queryPlanner.guards'
 import {
   getFloorPlans,
   getPriceHistory,
@@ -108,6 +110,9 @@ import { recordTurnTrace, type TurnTraceDraft } from '../lib/turnTrace'
 import { recordDemandSignal } from '../lib/demandSignal'
 import { scanDisclosure } from '../lib/ai/answerIntegrity'
 import { projectCatalog, catalogNamesSync } from '../lib/projectCatalog'
+import { createCheckedTracker } from '../lib/chat/checkedLine'
+/** `{ artifacts }` for a message row, or nothing when there is none to store. */
+const artifactsField = (a: unknown) => (Array.isArray(a) && a.length > 0 ? { artifacts: a as Prisma.InputJsonValue } : {})
 import { asksAboutFocusAttribute, mentionsFocusPronoun, focusFallback, parkFocus, parkedFocus, asksMarketWide, expandAffirmation, isBareRefinement } from '../lib/chat/followUp'; import { answerFromRows } from '../lib/chat/rowsAnswer'; import { firstStatusLine } from '../lib/chat/statusLine'; import { isBuilderNameCandidate } from '../lib/builderNames'; import { searchSummary } from '../lib/ai/searchSummary'; import { parseAlternatives } from '../lib/chat/handlers/alternativesChoice'
 import { statedSectors } from '../lib/discovery/projectRowRank'
 import { matchProjectInText, fuzzyMatchProject, suggestProjects, looseProjectMatches } from '../lib/discovery/matchProjectInText'
@@ -750,6 +755,7 @@ router.post('/', async (req: Request, res: Response) => {
    * through, whatever produced it.
    */
   let lastAnswerText = ''
+  const checkedLine = createCheckedTracker(() => ({ cardsShown: cardsShownThisTurn, names: catalogNamesSync() })) // "what I checked", lib/chat/checkedLine.ts
 
   /** Cards actually rendered this turn — drives chip actionability. */
   let cardsShownThisTurn = 0
@@ -848,9 +854,10 @@ router.post('/', async (req: Request, res: Response) => {
       }
       if (!clean.text) return
       if (lastAnswerText.length < 4000) lastAnswerText += clean.text
+      checkedLine.onToken(clean.text, data.replace === true)
       return writeBuffered(res, event, { ...data, token: clean.text }, turnSeq)
     }
-    return writeBuffered(res, event, data, turnSeq)
+    return writeBuffered(res, event, event === 'done' ? checkedLine.attach(data) : data, turnSeq)
   }
 
   // 12-second silent keep-alive comment ping to keep Cloudflare / Render reverse proxies open
@@ -993,6 +1000,7 @@ router.post('/', async (req: Request, res: Response) => {
                   session_id: sessionId,
                   role: 'assistant',
                   content: cached.token,
+                  ...artifactsField(checkedLine.withChecked(undefined)),
                 },
               ],
             })
@@ -1207,7 +1215,7 @@ router.post('/', async (req: Request, res: Response) => {
     ): void => {
       turnTrace.lane = lane
       const phase = opts.phase ?? intentState
-      const artifacts = opts.artifacts ?? (cardsSentThisTurn ? [cardsSentThisTurn] : undefined)
+      const artifacts = checkedLine.withChecked(opts.artifacts ?? (cardsSentThisTurn ? [cardsSentThisTurn] : undefined))
       const early = (async () => {
         if (isNewSession) {
           await prisma.chatSession.create({
@@ -4691,7 +4699,6 @@ USING THE FACTS:
 
     if (classification.category === 'project_detail' && classification.projectDetail && action.type === 'TEXT_MESSAGE') {
       // EDGE CASE: Validate input message (Phase 8)
-      const { validateUserMessage, sanitizeMessage, getMissingProjectClarification, createFallbackResponse } = await import('../lib/discovery/queryPlanner.guards')
       const inputError = validateUserMessage(message)
       if (inputError) {
         console.log('[CHAT:PROJECT_DETAIL:INPUT_ERROR]', inputError.type, inputError.message)
@@ -4728,7 +4735,6 @@ USING THE FACTS:
           error: err instanceof Error ? err.message : 'Unknown error',
         })
         captureException(err, { stage: 'query_planning', intent: 'project_detail' })
-        const { createFallbackResponse } = await import('../lib/discovery/queryPlanner.guards')
         send('token', { token: createFallbackResponse(err as Error) })
         send('done', { sessionId: currentSessionId, intentState: 'GATHERING', intent })
         res.end()
@@ -5127,7 +5133,7 @@ EXECUTIVE RESPONSE INSTRUCTIONS:
                 session_id: currentSessionId,
                 role: 'assistant',
                 content: componentSummary,
-                artifacts: validatedArtifacts,
+                artifacts: checkedLine.withChecked(validatedArtifacts) as Prisma.InputJsonValue | undefined,
               }
             })
           }
@@ -6769,9 +6775,7 @@ EXECUTIVE RESPONSE INSTRUCTIONS:
                 session_id: newId,
                 role: 'assistant',
                 content: fullText || '[streamed]',
-                ...(messageArtifacts.length > 0
-                  ? { artifacts: compactArtifacts(messageArtifacts) as unknown as Prisma.InputJsonValue }
-                  : {}),
+                ...artifactsField(compactArtifacts(checkedLine.withChecked(messageArtifacts))),
               },
             ],
           })
@@ -6887,9 +6891,7 @@ EXECUTIVE RESPONSE INSTRUCTIONS:
               session_id: currentSessionId!,
               role: 'assistant',
               content: assistantTextToPersist || '[streamed]',
-              ...(messageArtifacts.length > 0
-                ? { artifacts: compactArtifacts(messageArtifacts) as unknown as Prisma.InputJsonValue }
-                : {}),
+              ...artifactsField(compactArtifacts(checkedLine.withChecked(messageArtifacts))),
             },
           ],
         })

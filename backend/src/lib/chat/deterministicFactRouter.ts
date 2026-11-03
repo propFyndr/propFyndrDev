@@ -11,7 +11,8 @@
 
 import type { Response } from 'express'
 import { prisma } from '../db'
-import { projectCatalog, type DbCatalogEntry } from '../projectCatalog'
+import { projectCatalog, catalogNamesSync, type DbCatalogEntry } from '../projectCatalog'
+import { checkedSources } from './checkedLine'
 import { matchProjectInText } from '../discovery/matchProjectInText'
 import { ambiguousReraNumbers, normalizeRera, RERA_AMBIGUOUS_NOTE } from '../reraIntegrity'
 import { MARKET_QUALIFIER } from '../factPresentation'
@@ -400,6 +401,8 @@ We do **not hold a verified UP-RERA registration number** on record for **${proj
       console.warn('[DETERMINISTIC_FACT:SESSION_CREATE_ERROR]', (e as Error).message)
     }
   }
+  // The "What I checked" line, stored with the answer and sent at done, so a reopened chat shows the same one.
+  const checked = checkedSources(responseMarkdown, { cardsShown: 0, names: catalogNamesSync() })
   if (sessionId) {
     try {
       await prisma.chatMessage.createMany({
@@ -414,6 +417,7 @@ We do **not hold a verified UP-RERA registration number** on record for **${proj
             session_id: sessionId,
             role: 'assistant',
             content: responseMarkdown,
+            ...(checked.length ? { artifacts: [{ type: 'checked', labels: checked }] } : {}),
           },
         ],
       })
@@ -430,6 +434,7 @@ We do **not hold a verified UP-RERA registration number** on record for **${proj
 
   ctx.send('done', {
     sessionId,
+    ...(checked.length ? { checked } : {}),
     intentState: 'SHORTLISTED',
     intent: { projectNames: [project.name], sector: project.sector },
     responseMode: 'chat',

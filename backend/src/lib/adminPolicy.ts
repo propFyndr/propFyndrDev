@@ -95,6 +95,8 @@ const SALES_READ_DENIED: readonly RegExp[] = [
   /^\/promotions\b/,
   /^\/referrals\b/,
   /^\/analytics\/(?!summary\b)/,
+  // Builder price proposals awaiting approval: the approvers' queue (route requires SUPER_ADMIN or ANALYST).
+  /^\/listing-changes\b/,
 ]
 
 /**

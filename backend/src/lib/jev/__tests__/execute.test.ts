@@ -73,6 +73,7 @@ describe('JEV Live Dispatcher (executeJevDecision)', () => {
     assert.ok(events.some((e) => e.event === 'token' && /assist|help|hello/i.test(e.data.token)))
   })
 
+  // Weather moved to the off-topic handler (31 Oct), which JEV defers to; this is a message no handler owns.
   it('handles out of scope query cleanly', async () => {
     const decision: JevDecision = {
       task: 'out_of_scope',
@@ -83,7 +84,7 @@ describe('JEV Live Dispatcher (executeJevDecision)', () => {
       via: 'llm',
     }
 
-    const { ctx, events, state } = createMockContext('What is the weather in Delhi?')
+    const { ctx, events, state } = createMockContext('Can you help me with my car insurance claim?')
     const handled = await executeJevDecision(decision, ctx)
 
     assert.equal(handled, true)

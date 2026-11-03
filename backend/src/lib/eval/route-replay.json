@@ -3064,5 +3064,15 @@
         }
       }
     ]
+  },
+  {
+    "id": "hard43-q7-two-projects-cost-at-asked-bhk",
+    "source": "hard-43 benchmark 31 Oct 2026: two projects and a 3BHK asked, one project's cheapest 2 BHK answered",
+    "turns": [{"text": "Divine Meadows vs Great Value Sharanam: compare total cost including stamp duty, registration and GST for a 3BHK", "expect": {"contains": ["Divine Meadows", "Great Value Sharanam", "3 BHK"], "notContains": ["(2 BHK)"]}}]
+  },
+  {
+    "id": "hard43-f15-builder-other-projects",
+    "source": "hard-43 benchmark 31 Oct 2026: 'what else have they delivered' got the builder's name only",
+    "turns": [{"text": "Who is the builder of Divine Meadows and what else have they delivered?", "expect": {"contains": ["Divine Meadows", "not an occupancy certificate"]}}]
   }
 ]

@@ -119,6 +119,13 @@ describe('applyStreamEvent', () => {
     expect(m.isSearching).toBe(false)
   })
 
+  it('keeps the server\'s "what I checked" labels, strings only, and none when absent', () => {
+    const m = applyStreamEvent(base(), { type: 'done', sessionId: 's1', checked: ['RealtyAsk records: A', 42, 'UP law: GST'] } as unknown as SSEEvent)
+    expect(m.checked).toEqual(['RealtyAsk records: A', 'UP law: GST'])
+    const none = applyStreamEvent(base(), { type: 'done', sessionId: 's1' } as unknown as SSEEvent)
+    expect(none.checked).toBeUndefined()
+  })
+
   it('takes the response mode from the backend, not from what it can see', () => {
     const m = applyStreamEvent(
       base(),

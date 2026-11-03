@@ -234,6 +234,8 @@ export interface ChatMessage {
   streamingStartedAt?: number | null;
   /** Seconds the turn took, fixed at `done`. Absent means never measured. */
   streamingElapsedSeconds?: number | null;
+  /** Kinds of source the answer rests on, in our own tier words; set by the server at `done`. */
+  checked?: string[];
   lastSeq?: number;
   turnId?: string;
   missingDimension?: 'budget' | 'bhk' | 'location' | null;

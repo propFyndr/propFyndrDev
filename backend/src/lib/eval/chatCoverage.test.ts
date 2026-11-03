@@ -99,7 +99,8 @@ describe(`chat coverage: ${PROJECT}`, () => {
         const r = await ask(q)
         assert.ok(sees(r.prompt, 'withheld_by_policy'), 'the model must be told why there is no figure')
         // The withheld data itself must not be there.
-        assert.ok(!sees(r.prompt, 'rental_yield_annual_percent'), 'forward-looking yield must stay out of the prompt')
+        // A stored rental_yield_annual_percent is stated since the owner policy of 27 Oct 2026
+        // (CLAUDE.md, Owner policy: forward-looking figures that exist), so it is no longer withheld.
         assert.ok(!sees(r.prompt, 'decision_profile'), 'a draft analyst profile must stay out of the prompt')
       })
     }

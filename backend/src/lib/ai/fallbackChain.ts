@@ -203,6 +203,16 @@ const STREAM_TAIL_HOLD_CHARS = Number(process.env.STREAM_TAIL_HOLD_CHARS ?? 180)
  */
 const TURN_BUDGET_MS = Number(process.env.FALLBACK_TURN_BUDGET_MS ?? 30_000)
 
+/** Groq free tier tokens per minute; a single request above it is refused outright. */
+const GROQ_TPM_LIMIT = Number(process.env.GROQ_TPM_LIMIT ?? 8_000)
+export const exceedsGroqRequestLimit = (requestTokens: number): boolean => GROQ_TPM_LIMIT > 0 && requestTokens > GROQ_TPM_LIMIT
+
+/** The correction a discarded answer leaves for the next leg. Details are already written as instructions. */
+export function retryNoteFor(violations: ReadonlyArray<{ kind: string; detail: string }>): string {
+  const lines = [...new Set(violations.map((v) => v.detail))].slice(0, 3).map((d) => `- ${d}`)
+  return `## CORRECTION\nA draft of this answer was rejected before the buyer saw it. Do not repeat these errors:\n${lines.join('\n')}`
+}
+
 /** One event per leg attempt, success or failure. Read by scripts/bench-providers.ts. */
 export interface LegEvent {
   label: string
@@ -684,6 +694,11 @@ export async function executeWithFallbackChain(options: FallbackChainOptions): P
     responseReserve,
   )
   const cappedMessages = adaptiveResult.messages
+  // Groq's free tier refuses a request larger than its per-minute allowance with
+  // a 413 (live, 27 and 29 Oct: "Limit 8000, Requested 15750" on all four keys).
+  // Skip those legs instead of spending a round trip on each.
+  const groqRequestTokens = systemPromptTokens + adaptiveResult.estimatedTokens + groqReplyCeiling(options.config?.maxTokens)
+  const tooBigForGroq = exceedsGroqRequestLimit(groqRequestTokens)
 
   // Log chain initiation at info level
   if (process.env.DEBUG_FALLBACK) {
@@ -784,6 +799,12 @@ export async function executeWithFallbackChain(options: FallbackChainOptions): P
 
   /** Leg indexes already started by a race, so the loop does not start them again. */
   const usedLegs = new Set<number>()
+  /**
+   * Why the last leg's answer was discarded, stated to the next one (CLAUDE.md:
+   * "never regenerate a whole answer blind on an integrity failure"). Appended
+   * after the prompt, so the cached prefix is unchanged.
+   */
+  let retryNote = ''
 
   /**
    * Everything one provider attempt needs, self-contained so two can run at
@@ -796,6 +817,9 @@ export async function executeWithFallbackChain(options: FallbackChainOptions): P
       : leg.supportsTools
         ? stripMarker(systemPrompt)
         : applyNoToolsBlock(systemPrompt, groqFallbackSuffix)
+    // What the provider reads. The integrity checks keep reading `prompt`, so a
+    // figure named in the retry note never counts as one we supplied.
+    const modelPrompt = retryNote ? `${prompt}\n\n${retryNote}` : prompt
     warmKnownNames()
     warmProjectPrices()
     let gate: SendFn = send
@@ -878,16 +902,16 @@ export async function executeWithFallbackChain(options: FallbackChainOptions): P
       }
       let text = ''
       if (leg.provider === 'mistral') {
-        text = await streamWithMistral(prompt, turnMessages, legSend, legApiKey, userId, sessionId, legMaxTokens)
+        text = await streamWithMistral(modelPrompt, turnMessages, legSend, legApiKey, userId, sessionId, legMaxTokens)
       } else if (leg.provider === 'gemini') {
-        text = await streamWithGemini(prompt, turnMessages, legSend, wrappedOnToolCall, { ...geminiConfig, abortSignal }, legApiKey, userId, sessionId)
+        text = await streamWithGemini(modelPrompt, turnMessages, legSend, wrappedOnToolCall, { ...geminiConfig, abortSignal }, legApiKey, userId, sessionId)
         if (!text.trim() && !buffered.getTokensSent() && geminiConfig.tools !== false && !abortSignal?.aborted) {
           console.warn(`[FALLBACK:RETRY_NO_TOOLS] ${leg.label} returned no text with tools — retrying the same key without them`)
-          text = await streamWithGemini(prompt, turnMessages, legSend, wrappedOnToolCall, { ...geminiConfig, tools: false, abortSignal }, legApiKey, userId, sessionId)
+          text = await streamWithGemini(modelPrompt, turnMessages, legSend, wrappedOnToolCall, { ...geminiConfig, tools: false, abortSignal }, legApiKey, userId, sessionId)
         }
       } else if (leg.provider === 'openai') {
         text = await streamWithOpenAI(
-          prompt,
+          modelPrompt,
           turnMessages,
           legSend,
           wrappedOnToolCall,
@@ -903,7 +927,7 @@ export async function executeWithFallbackChain(options: FallbackChainOptions): P
           leg.baseUrl,
         )
       } else if (leg.provider === 'groq') {
-        text = await streamWithGroq(prompt, turnMessages, legSend, userId, sessionId, legApiKey, legMaxTokens)
+        text = await streamWithGroq(modelPrompt, turnMessages, legSend, userId, sessionId, legApiKey, legMaxTokens)
       }
       return text
     }
@@ -927,6 +951,7 @@ export async function executeWithFallbackChain(options: FallbackChainOptions): P
       if (needsALookup && !leg.supportsTools) continue
       if (emptyVendors.has(vendorOf(leg)) || !process.env[leg.envKey]) continue
       if (isCoolingDown(`${leg.envKey}:${leg.model}`) || wouldExceed(leg.envKey, vendorOf(leg))) continue
+      if (vendorOf(leg) === 'groq' && tooBigForGroq) continue
       return j
     }
     return null
@@ -1063,6 +1088,10 @@ export async function executeWithFallbackChain(options: FallbackChainOptions): P
     // therefore one allowance, and counting them separately would authorise
     // twice the requests the key actually has.
     const vendor = vendorOf(item)
+    if (!BENCH_ONLY_LEG && vendor === 'groq' && tooBigForGroq) {
+      console.log(`[FALLBACK:REQUEST_SIZE] ${item.label} — skipping: ~${groqRequestTokens} tokens against Groq's ${GROQ_TPM_LIMIT} per minute`)
+      continue
+    }
     if (!BENCH_ONLY_LEG && wouldExceed(item.envKey, vendor)) {
       console.log(
         `[FALLBACK:RATE_BUDGET] ${item.label} — skipping: ${limitFor(vendor)} req/min already used on ${item.envKey}`,
@@ -1127,6 +1156,7 @@ export async function executeWithFallbackChain(options: FallbackChainOptions): P
             `[FALLBACK:INTEGRITY] ${item.label} — discarding: ` +
             violations.map(v => `${v.kind}(${v.detail})`).join(', '),
           )
+          retryNote = retryNoteFor(violations)
           throw new Error(`${item.label} failed integrity: ${violations[0].kind} — ${violations[0].detail}`)
         }
         const framed = rewriteFraming(text)

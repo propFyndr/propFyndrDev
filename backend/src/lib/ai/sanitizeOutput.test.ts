@@ -151,6 +151,20 @@ describe('citation scaffolding is collapsed to two labels', () => {
     assert.equal(normalizedCitations, 0)
   })
 
+  it('keeps a source that is one of our own tiers instead of calling it market data', () => {
+    for (const input of [
+      'Possession is Dec 2027 (Source: project records).',
+      'It lists 53 complaints (source: UP-RERA registry, read 27 Oct 2026).',
+      'Stamp duty is 7% (source: UP law, statutory).',
+      'The price is ₹1.4 Cr (source: confirmed by the builder on 2 Oct).',
+    ]) assert.equal(sanitizeOutput(input).text, input)
+  })
+
+  it('still collapses an own-sounding label that names an outside site', () => {
+    assert.equal(sanitizeOutput('It lists 53 complaints (source: up-rera.in news report).').text, 'It lists 53 complaints (market data).')
+    assert.equal(sanitizeOutput('Rated well (sources: project reviews on Reddit).').text, 'Rated well (market data).')
+  })
+
   it('keeps a parenthetical that is an aside, not a source', () => {
     const input = 'Three towers are complete (Ground floor units only) and two are not.'
     assert.equal(sanitizeOutput(input).text, input)

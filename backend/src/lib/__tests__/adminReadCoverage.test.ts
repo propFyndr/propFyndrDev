@@ -59,6 +59,10 @@ const READ_REGISTRY: Record<string, Record<Role, boolean>> = {
   '/projects/export': ALL,
   // Dashboard counts: presence booleans, unit count, builder name. No buyer in it.
   '/projects/summary': ALL,
+  // Builder price and sold-out proposals awaiting approval (2026-10-29). The
+  // approvers' queue; the route itself requires SUPER_ADMIN or ANALYST.
+  '/listing-changes': EDITORS,
+  '/listing-changes/unit-types/:id/price-history': EDITORS,
   '/builders': ALL,
   '/sectors': ALL,
   '/sector-tiers': ALL,

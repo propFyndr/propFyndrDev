@@ -308,7 +308,8 @@ function readLocal(key: string, countMiss = true): CachedEntry | null {
 // intent carried into the turn (as they are read), not the intent after it.
 // v13 (30 Oct 2026): live answers cached for 24 h before the resale and bare-place routing fixes ("near noida sector 15 metro" kept replaying the model's prose).
 // v14 (30 Oct 2026): v13 was refilled by live turns that the model-intent path sent to the model ("near noida sector 15 metro"); the search answer now holds for them.
-const REDIS_PREFIX = 'ac:v14:' // v11: drops answers written before the 17 Oct transcript fixes (follow-ups served across chats, builder 'these').
+// v15 (3 Nov 2026): two-project cost at the asked BHK, builder's other projects, heading-carried price check.
+const REDIS_PREFIX = 'ac:v15:' // v11: drops answers written before the 17 Oct transcript fixes (follow-ups served across chats, builder 'these').
 // v8: v7 cached project-focused handler answers under project-free keys
 
 /** A read that takes longer than this is not worth waiting for — the LLM call it */

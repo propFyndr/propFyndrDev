@@ -74,6 +74,27 @@ ${rows.map((r) => `| ${r.name} | ${r.sector ?? '—'} | ${r.builder?.name ?? 'No
 Ask me about any one developer's delivery record and I'll show what we hold for it.`
 }
 
+/**
+ * "Who is the builder of Divine Meadows and what else have they delivered?"
+ * (hard-43 F15, 31 Oct 2026) got the builder's name and an offer. The other
+ * projects are rows we hold, so they are listed, status as stored. A status is
+ * not an occupancy certificate and our list is not the builder's full history.
+ */
+const OTHER_WORK = /\bwhat\s+else\b|\bother\s+(?:projects|properties|developments|societies)\b|\b(?:also|previously|already|ever)\s+(?:built|delivered|completed|developed)\b|\b(?:past|previous|earlier)\s+projects\b|\bportfolio\b/i
+
+export function asksOtherWork(message: string): boolean {
+  return OTHER_WORK.test(message)
+}
+
+const STATUS_LABEL: Record<string, string> = { ready_to_move: 'Ready to move', under_construction: 'Under construction', new_launch: 'New launch' }
+
+export function otherProjectsAnswer(groups: Array<{ builder: string; projects: Array<{ name: string; sector: string | null; status: string }> }>): string {
+  const blocks = groups.map((g) => g.projects.length
+    ? `**${g.builder}: other projects we hold**\n\n| Project | Sector | Status on our record |\n| :--- | :--- | :--- |\n${g.projects.map((p) => `| ${p.name} | ${p.sector ?? '—'} | ${STATUS_LABEL[p.status] ?? p.status} |`).join('\n')}`
+    : `**${g.builder}:** we hold no other projects by this developer.`)
+  return `${blocks.join('\n\n')}\n\nThis is what we hold in Noida and Greater Noida West, not the developer's full history. "Ready to move" is the status on our record, not an occupancy certificate or a delivery date.`
+}
+
 export const loanBanksHandler: ChatTopicHandler = {
   id: 'loan_banks',
   description: 'Which banks lend on the shortlisted projects: escrow bank on record, no invented tie-ups',
@@ -96,7 +117,13 @@ export const developerOfEachHandler: ChatTopicHandler = {
   handle: async (ctx) => {
     const ids = await projectsInScope(ctx)
     if (!ids.length) return false
-    const rows = await prisma.project.findMany({ where: { id: { in: ids } }, select: { name: true, sector: true, builder: { select: { name: true } } } })
-    finish(ctx, developersAnswer(rows), 'Developers on record:')
+    const rows = await prisma.project.findMany({ where: { id: { in: ids } }, select: { name: true, sector: true, builder_id: true, builder: { select: { name: true } } } })
+    if (!asksOtherWork(ctx.message)) return finish(ctx, developersAnswer(rows), 'Developers on record:')
+    const builders = [...new Map(rows.filter((r) => r.builder).map((r) => [r.builder_id, r.builder!.name])).entries()].slice(0, 3)
+    const groups = await Promise.all(builders.map(async ([builderId, builder]) => ({
+      builder,
+      projects: await prisma.project.findMany({ where: { builder_id: builderId, id: { notIn: ids } }, select: { name: true, sector: true, status: true }, orderBy: { name: 'asc' }, take: 15 }),
+    })))
+    finish(ctx, `${developersAnswer(rows).replace(/\n\nAsk me about any one developer's[^\n]*$/, '')}\n\n${otherProjectsAnswer(groups)}`, 'Developers and their other projects on record:')
   },
 }

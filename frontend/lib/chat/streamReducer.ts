@@ -31,6 +31,7 @@ interface DoneExtras {
   comparisonProjects?: unknown[]
   chatResponse?: { chips?: unknown[] } & Record<string, unknown>
   chips?: unknown[]
+  checked?: string[]
 }
 
 /**
@@ -193,6 +194,9 @@ export function applyStreamEvent(
           ? { chatResponse: extras.chatResponse, chips: extras.chatResponse.chips ?? message.chips }
           : {}),
         chips: message.chips || extras.chips || ctx.fallbackChips || [],
+        ...(Array.isArray(extras.checked) && extras.checked.length > 0
+          ? { checked: extras.checked.filter((c): c is string => typeof c === 'string').slice(0, 6) }
+          : {}),
         streamingPhase: null,
         streamingIntent: null,
         streamingResultCount: null,

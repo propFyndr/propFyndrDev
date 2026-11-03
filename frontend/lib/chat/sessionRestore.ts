@@ -29,6 +29,8 @@ export interface StoredArtifact {
   right?: unknown
   chips?: unknown
   ui_state?: { chips?: unknown }
+  /** type 'checked': the "What I checked" labels stored with the answer. */
+  labels?: unknown
 }
 
 /**
@@ -88,6 +90,10 @@ export function restoreMessage(stored: StoredMessage): ChatMessage {
       } else if (artifact.left && artifact.right) {
         base.comparisonProjects = [artifact.left as ProjectCardType, artifact.right as ProjectCardType]
       }
+    }
+    if (artifact.type === 'checked' && Array.isArray(artifact.labels)) {
+      const labels = artifact.labels.filter((l): l is string => typeof l === 'string').slice(0, 6)
+      if (labels.length) base.checked = labels
     }
     if (artifact.type === 'ui_state' || artifact.chips) {
       base.chips = (artifact.chips ?? artifact.ui_state?.chips) as ChatMessage['chips']

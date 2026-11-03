@@ -18,6 +18,36 @@ describe('answer checked against the project it names', () => {
     assert.equal(crossProjectFigures('Tata Eureka Park Phase 2 starts at ₹2.26 Cr.', SEARCH).length, 0)
   })
 
+  it('checks a bullet against the project named on the heading above it', () => {
+    const v = crossProjectFigures('**Tata Eureka Park Phase 2**\n- 3 BHK from ₹1.85 Cr\n- Possession 2027', SEARCH)
+    assert.equal(v.length, 1)
+    assert.match(v[0].detail, /Samridhi Daksh Avenue/)
+  })
+
+  it('accepts a bullet carrying the heading project\'s own figure', () => {
+    assert.equal(crossProjectFigures('**Tata Eureka Park Phase 2**\n- 3 BHK from ₹2.26 Cr', SEARCH).length, 0)
+  })
+
+  it('does not carry a project into a plain summary line after the list', () => {
+    const t = '**Tata Eureka Park Phase 2**\n- 3 BHK from ₹2.26 Cr\nAcross the two, entry starts at ₹1.85 Cr.'
+    assert.equal(crossProjectFigures(t, SEARCH).length, 0)
+  })
+
+  it('accepts either project\'s figure on table rows under a header naming both', () => {
+    const t = '| | Tata Eureka Park Phase 2 | Samridhi Daksh Avenue |\n|---|---|---|\n| 3 BHK from | ₹2.26 Cr | ₹1.85 Cr |'
+    assert.equal(crossProjectFigures(t, SEARCH).length, 0)
+  })
+
+  it('attributes a claim in a two-project sentence to the project it is about (live 29 Oct)', () => {
+    const JAYPEE = '{"id":"j1","name":"Jaypee Klassic","litigation_count":"10"}'
+    const GULSHAN = '{"id":"g2","name":"Gulshan Ikebana","litigation_count":"0"}'
+    const prompt = `${JAYPEE} ${GULSHAN}`
+    const fine = 'Choose Gulshan Ikebana if you prioritize a litigation-free purchase; choose Jaypee Klassic if you want the lower entry price.'
+    assert.equal(recordContradictions(fine, prompt).length, 0)
+    const wrong = 'Jaypee Klassic is litigation-free, unlike Gulshan Ikebana.'
+    assert.equal(recordContradictions(wrong, prompt).length, 1)
+  })
+
   it('rejects "5% GST applies" and "no water supply" for a ready project with water on record', () => {
     const v = recordContradictions('5% GST applies (under-construction status). No verified municipal water supply.', LOGIX)
     assert.equal(v.length, 2)
@@ -107,6 +137,15 @@ describe('measurements nobody supplied (live rerun 4, 17 Oct 2026)', () => {
   it('keeps measurements and rates we supplied', () => {
     const ok = 'Sector 76 metro is 12.1 km away (27 min). Stamp duty is 7% (6% for women).'
     assert.equal(dropUnsourcedMeasurements(ok, 'metro 12.1 km 27 min').text, ok)
+  })
+  it('checks metres and hours too, converting from the km and minutes we supplied', () => {
+    assert.equal(dropUnsourcedMeasurements('The metro is 800 m from the gate.', 'nothing').text, '')
+    assert.equal(dropUnsourcedMeasurements('It is a 1.5 hour drive to the airport.', 'nothing').text, '')
+    const ok = 'The metro is 800 m away. The airport is about 1.5 hours by road.'
+    assert.equal(dropUnsourcedMeasurements(ok, 'metro 0.8 km, airport 90 min').text, ok)
+    assert.equal(dropUnsourcedMeasurements('A 2 BHK on the 12th floor.', 'nothing').text, 'A 2 BHK on the 12th floor.')
+    assert.equal(dropUnsourcedMeasurements('Power backup runs 24 hours a day.', 'nothing').text, 'Power backup runs 24 hours a day.')
+    assert.equal(dropUnsourcedMeasurements('The metro is 300 m away.', 'metro 0.8 km').text, '')
   })
 })
 

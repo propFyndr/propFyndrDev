@@ -1,439 +1,261 @@
 # MEMORY.md
 
-Decisions still in force, grouped by topic. Each line: **what was decided** (date), why, and what was rejected.
-The full session-by-session log up to 27 Oct 2026 is in `docs/archive/MEMORY_full_2026-10-27.md` (git history has older versions).
+Decisions still in force, grouped by topic. Each entry: **what was decided** (date), why, and what was rejected.
+Rewritten 2026-11-03 against live code. Previous version: `docs/archive/MEMORY_2026-11-03.md`; the session-by-session log up to 27 Oct is `docs/archive/MEMORY_full_2026-10-27.md`.
 Add new decisions under the right topic, not as a session diary. When one replaces another, edit the old line.
 
 ---
 
 ## Open: owner decisions and launch blockers
 
-- **AI outages (10-26).** Gemini 3.5 Flash Lite takes 17–20 s to its first token, but the first-chunk timeout is 8 s. Four Gemini legs stall, the 35 s turn budget is spent, and Cohere/Groq never run. About 1 in 7 live answers is the outage notice. Options:
-  - (a) skip the remaining Gemini legs after the first stall;
-  - (b) raise the timeout to about 22 s;
-  - (c) put Groq/Cohere first.
-  - `fallbackChain.ts` holds uncommitted owner work. A Groq paid tier is also the owner's call (the free tier allows 8k tokens/min against ~6.2k-token requests).
-- **Generated unit prices (10-26).** `seed-and-enrich-all-projects.cjs` wrote max = min × 1.08: 754 of 1,021 priced unit rows, 310 of 381 projects (dev; live not checked). Payment plans are templated too: 608 of 620 are `source='inferred_default'`. Decision needed: clear them and re-source.
+- **Billed Gemini key depleted** (402/429 on 09-24, 09-26, 10-17, 10-29). Topping it up is the biggest quality and speed lever. Provider order and a Groq paid tier are also the owner's call (Groq free allows 8k tokens/min against ~6.2k-token requests).
+- **First word is slow.** Median ~10 s on the free chain (31 Oct), target 3 s. Nobody has measured which step costs it (week plan Day 5).
+- **Generated unit prices (10-26).** `seed-and-enrich-all-projects.cjs` wrote max = min × 1.08: 754 of 1,021 priced unit rows, 310 of 381 projects (dev; live not checked). Payment plans: 608 of 620 `inferred_default`. Needs builder price lists; partial portal rebuild rejected (10-28, only 79 projects have priced portal configs).
+- **Builder price proposals on live (10-29).** Migration `builder_listing_changes` is on dev only. Live needs it and an explicit OK. One real builder submitting one real price is not done.
+- **Risk record (11-03).** 127 UP-RERA complaint counts are pending drafts on dev; none approved, none on live. Owner decides the wording of complaint counts and who approves.
 - **`LeadObjection` has no writer (10-26).** Builder briefs never show objections. Build or drop?
-- **Off-topic policy.** The current rule declines in one sentence for eating out/nightlife, live traffic, school admissions and valuing an owned property (narrow by design). Wider topics (jokes, IPOs, other cities) are undecided.
-- **Billed Gemini key** returned 402 "credits depleted" on 09-24, 09-26 and 10-17. Topping it up is the biggest quality lever.
-- **Rate limits on the real IP (5.5).** Needs a proxy-secret env var on Vercel and Render.
-- **Secrets leaked in git history (10-02).** Rotate the `admin@propfyndr.in` password, the Langfuse key pair and the shared staff passwords. The Claude Code Langfuse MCP key was replaced on 10-27 with a new US key pair, verified against the API and MCP. The app's own key pair (US region) works, and live traces arrive.
-- **Templated-data pass 3** (`scripts/fix-templated-data-pass3.ts`) is applied on dev only. The owner runs `--db=live` on Neon.
-- **Referral reset** to one "Furqan Arth" root: `scripts/reset-referral-tree.ts` (dry run by default, JSON backup). Blocked until `furqan@realtyask.in` is an admin on dev.
-- **Other open data calls:**
-  - 16 RERA numbers shared by different projects. These are withheld, never guessed; only the UP-RERA record resolves them.
-  - 57 malformed RERA numbers.
-  - 18 projects `delivered` with no OC.
-  - `land_title_clear`/`litigation_count=0` on 226 rows look templated.
-  - 80 projects with placeholder coordinates.
-  - `average_delay_months=0` on 39 builders.
-  - 4 same-name/different-RERA pairs.
-  - IFMS is stored per sq.ft against a schema comment that says rupees.
-  - Whether the 1% stamp concession applies above ₹1 Cr needs a CA.
+- **Sign-in on live (10-27/29).** Supabase project `eargxntetfmtdpwedjbd` hit `exceed_egress_quota`; live login failed. Upgrade, remove the spend cap, or move login (week plan Day 3 decides; nothing moves before that).
+- **Junk Supabase accounts.** About 23 of 34 Auth accounts are test emails; deletion needs the owner's list and working Auth.
+- **Rate limits on the real IP.** Needs a proxy-secret env var on Vercel and Render.
+- **Secrets leaked in git history (10-02).** Rotate the `admin@propfyndr.in` password, the app's Langfuse key pair, shared staff passwords, and both Neon passwords (shared in a chat, 10-29). The Claude Code Langfuse MCP key was replaced on 10-27.
 - **PostHog privacy (09-13, verify).** Chat text was sent verbatim (`trackSearch(userText)`) with session recording on and `maskAllInputs:false`. Settle before beta.
 - **Callback and site-visit endpoints** have rate limiting only, no captcha. `WebhookDeadLetter` replay needs a scheduler.
+- **31 security warnings in backend packages** on Render's install (1 critical, 6 high).
+- **All 382 live projects are `draft`**; nothing uses the label to hide them. Owner decides what it means.
+- **Data calls** (week plan Day 4):
+  - Row conflicts in `docs/benchmark/C1_DAY6_ROWCHECK_2026-10-31.md`: duplicate Mahagun Meadow (and ATS Destinaire on live), Eureka Park status and metro, Astralis RERA and type, Mezzaria rate and metro distance, cost-sheet base rate vs computed rate.
+  - 16 RERA numbers shared by different projects (withheld, never guessed); 57 malformed; 4 same-name/different-RERA pairs; 162 projects with no usable number.
+  - 18 `delivered` with no OC; `land_title_clear`/`litigation_count=0` on 226 rows; `average_delay_months=0` on 39 builders; 80 placeholder coordinates.
+  - IFMS is stored per sq.ft against a schema comment that says rupees. Whether the 1% stamp concession applies above ₹1 Cr needs a CA.
+- **Referral reset** to one "Furqan Arth" root: `scripts/reset-referral-tree.ts` (dry run by default). Blocked until `furqan@realtyask.in` is an admin on dev.
 - **Old Langfuse readers.** The 4 `scripts/*langfuse*` scripts stop working on 2026-11-16. Deleting them needs the owner.
-- **Supabase project `eargxntetfmtdpwedjbd` restricted (10-27).** Auth returns 402 `exceed_egress_quota`, so the dashboard's Signed Up card shows "—". Upgrade the plan or remove the spend cap (owner).
-- **Junk Supabase accounts (10-27).** About 23 of the 34 Auth accounts are keyboard-mash or test emails from June–Aug. Deleting them needs the owner's list, and Auth must work first.
+- **Neon restore window** is 6 hours on both databases; no off-site daily copy yet. Live DB is 230 MB of 1 GB.
+- **Supabase dev tables.** After a week on dev Neon (from 10-29), decide whether to delete dev's old tables from Supabase.
+- **Landing page.** Dark landing restored 10-31 (revamp reverted). Keep dark, revamp or both is decided on visitor numbers (week plan Day 7).
 
 ---
 
 ## AI providers and cost
 
-- **Chain order follows tool capability, never speed or billing** (08-30). The current chain is in CLAUDE.md § Infrastructure.
-- **Models are picked by live probe, not by catalogue** (08-30). Use `npm run health` and `scripts/verify-services.ts`, and probe the exact endpoint you claim is healthy.
+- **Chain order follows tool capability, never speed or billing** (08-30). Current chain: CLAUDE.md § Infrastructure.
+- **Race instead of a shorter timeout (10-29).** If a leg has not spoken after `FALLBACK_HEDGE_MS` (5 s), the next eligible leg from a different vendor starts alongside it; the first to speak is shown, the other aborted. Nothing is forwarded before a first chunk. `FALLBACK_TURN_BUDGET_MS` is 30 s.
+  - Why: the 10-26 outage (Gemini first token 17–20 s) stalled every Gemini leg and 1 in 7 live answers were the outage notice.
+  - Rejected: a plain shorter first-token timeout (loses when the first leg would answer at 6 s and the next takes 8 s); racing two Gemini keys (the outage hits all at once); a fake provider inside production code for tests (the race test uses a local OpenAI-protocol server).
+- **Answers from rows when every provider fails (10-29).** `executeWithFallbackChain({ answerFromRows })`; the project-fact lane renders price, possession, RERA and payment plan from rows (`lib/chat/rowsAnswer.ts`). Marked `degraded`, never cached. Open questions still get the notice. `LLM_STUB_MODE=outage` simulates it.
+- **Status line within a second (10-29).** `lib/chat/statusLine.ts`, sent when the stream opens; names only a sector or area the buyer typed, never a project.
+- **Models are picked by live probe, not by catalogue** (08-30). `npm run health`, `scripts/verify-services.ts`, `scripts/bench-providers.ts` (times each leg on the real route via `legEvents`).
   - Rejected: NVIDIA gpt-oss-120b (latency variance); Cohere command-a-plus (dropped a tool argument); llama-3.3-70b and nemotron-49b (end of life).
-- **GitHub Models / OpenAI keys are retired for good** (08-30). The host (`models.inference.ai.azure.com`) is dead. Never re-add it.
-- **Cohere and NVIDIA run as `provider:'openai'` legs with a `baseUrl`** (08-30). Rejected: a native Cohere adapter (twice the code, no gain).
-- **Cooldown keys on env key + model.** Only lasting failures (quota, auth, retired) cool down, for 5 min; timeouts and 5xx never do (08-27). `rateBudget.ts` keeps a sliding 1-minute window per key (08-31).
-- **Fallback-chain rules (09-05/06):**
-  - OpenAI-compatible legs use `item.model`.
-  - flash-lite rejects `thinkingBudget:0` (the floor is 128).
-  - The turn budget stops new legs but never interrupts one that is streaming.
-  - If a vendor returned empty, skip its sibling legs.
-- **Turns where prose is secondary** (cards or a table already rendered) go to the lite model with thinking 0. Discovery thinking is capped at 256 (09-03).
-- **Integrity guard** (`answerIntegrity.ts`) runs on every leg (09-05).
-  - Discard classes: fabrication, META_LEAK, INVENTORY_SIZE, unfounded_warning, raw_payload. The scan runs on raw text before any rewrite.
-  - Its reference set is the DB, not the prompt.
-  - Verify: the 09-05 note says every leg is buffered with nothing streamed; the 10-26 outage work treats answers as streamed.
-- **Prompt caching** (09-24/25):
-  - The prompt head is fixed content first. A lane-gated block may only go at the END, so a shorter head is an exact prefix of a longer one.
-  - Gates may only read keys of `getCachedBasePrompt`.
-  - Per-turn content (playbooks, facts, per-message `answerRules.ts`) goes below `SYSTEM_PROMPT_BOUNDARY`, with `## THIS ANSWER` last.
-  - Pinned by `promptPrefixStability.test.ts` and `promptHeadSize.test.ts`.
-  - Explicit caching fails on free keys (`limit=0`); only the implicit prefix cache works.
-  - Rejected: the 1,800-token head target (it would delete the honesty rules; the measured head is ~7.8k–9.5k tokens); a compact prompt for small models.
-- **Playbooks:** at most 2 per turn, none on a greeting. `SELECTION_ORDER` ranks factual playbooks above persona ones. Shortlist facts are capped (relations 4, amenities 8) (09-03/13).
-- **Cost records** (09-11b):
-  - `AiUsageEvent.prompt_tokens` stores raw counts, and the discount is applied in `priceFor`.
-  - Rows with a NULL `pricing_version` are legacy; never sum their tokens with new rows.
-  - `cost.test.ts` fails on an unpriced model.
-  - Gemini rates double on 2027-01-01.
-- **Tests that call a real model are opt-in** (`RUN_LIVE_LLM_TESTS=1`); `npm test` runs offline with fake keys. A key in `.env` is not consent to spend.
-- **Stream reconnect never re-runs a turn.** It replays the buffered output (`tailBufferedEvents`) (10-02). A re-run billed the turn twice.
-- **Embeddings: Cohere `embed-english-light-v3.0`, 384 dims, no fallback** (09-25).
-  - Corpus text uses `search_document`, queries use `search_query`. Batch size up to 96.
-  - Rejected: running embeddings in-process (420–530 MB on a 512 MB Render plan).
-- **Intent** (10-16):
-  - Pure calculator questions skip the intent model (`deterministicCoversMessage`). `INTENT_BUDGET_MS` is 12 s; lowering it to ~5 s is pending.
-  - Rejected: Needle 3 for intent (15/32 against 27/32 for our deterministic reader); fine-tuning.
-- **Langfuse runs on SDK v6 (OpenTelemetry)** with its own always-sample tracer, never registered globally, because Sentry samples 10% (10-23). There is one `chat_turn` span per turn. Sentry is on v10.
+- **GitHub Models / OpenAI keys are retired for good** (08-30). Never re-add `models.inference.ai.azure.com`.
+- **Cohere, NVIDIA and Cloudflare run as `provider:'openai'` legs with a `baseUrl`** (08-30). Rejected: a native Cohere adapter.
+- **Cooldown keys on env key + model.** Only lasting failures (quota, auth, retired) cool down, for 5 min; timeouts and 5xx never do (08-27). `rateBudget.ts` keeps a sliding 1-minute window per key.
+- **Fallback-chain rules (09-05/06):** OpenAI-compatible legs use `item.model`; flash-lite rejects `thinkingBudget:0` (floor 128); a leg that is streaming is never interrupted; if a vendor returned empty, skip its sibling legs.
+- **A discarded answer tells the next leg why (11-03).** `retryNoteFor` appends a `## CORRECTION` block (up to 3 violation details) to the next leg's prompt only (`modelPrompt`); every check keeps reading `prompt`, so a rejected figure never counts as supplied. Why: live 27–29 Oct, free key 1 and free key 2 invented the same kind of price in one turn. Appended at the end, so the cached prefix is unchanged.
+- **Groq legs are skipped when the request exceeds its per-minute allowance (11-03).** `exceedsGroqRequestLimit` (`GROQ_TPM_LIMIT`, default 8,000) on system prompt + capped messages + reply ceiling, in the loop and in `pickHedge`. Why: live 27 and 29 Oct, all four Groq keys returned 413 "Requested 15750" on the same turn. Rejected: trimming the prompt for Groq only (a second prompt shape breaks the prefix-cache rule).
+- **Turns where prose is secondary** (cards or a table already shown) go to the lite model with thinking 0. Discovery thinking is capped at 256 (09-03).
+- **Integrity guard** (`answerIntegrity.ts`) runs on every leg (09-05). Discard classes: fabrication, META_LEAK, INVENTORY_SIZE, unfounded_warning, raw_payload, broker_hype. Scan runs on raw text before any rewrite; its reference set is the DB, not the prompt.
+- **Prompt caching** (09-24/25): fixed head first; a lane-gated block only at the END; gates read only keys of `getCachedBasePrompt`; per-turn content below `SYSTEM_PROMPT_BOUNDARY` with `## THIS ANSWER` last. Pinned by `promptPrefixStability.test.ts` and `promptHeadSize.test.ts`. Only the implicit prefix cache works on free keys. Rejected: the 1,800-token head target; a compact prompt for small models.
+- **Playbooks:** at most 2 per turn, none on a greeting; `SELECTION_ORDER` ranks factual above persona. Shortlist facts capped (relations 4, amenities 8).
+- **Cost records** (09-11b): `AiUsageEvent.prompt_tokens` raw, discount in `priceFor`; NULL `pricing_version` rows are legacy, never summed with new ones; `cost.test.ts` fails on an unpriced model. Gemini rates double on 2027-01-01.
+- **Real-model tests are opt-in** (`RUN_LIVE_LLM_TESTS=1`); `npm test` runs offline. A key in `.env` is not consent to spend.
+- **Stream reconnect never re-runs a turn**; it replays buffered output (`tailBufferedEvents`) (10-02).
+- **Embeddings: Cohere `embed-english-light-v3.0`, 384 dims, no fallback** (09-25). `search_document` / `search_query`; batch ≤ 96. Rejected: in-process embeddings (420–530 MB on 512 MB Render).
+- **Intent** (10-16): pure calculator questions skip the intent model (`deterministicCoversMessage`). `INTENT_BUDGET_MS` 12 s; lowering to ~5 s pending. Rejected: Needle 3 (15/32 vs 27/32 deterministic); fine-tuning.
+- **Langfuse on SDK v6 (OpenTelemetry)** with its own always-sample tracer, never global, because Sentry samples 10% (10-23). One `chat_turn` span per turn; `completionStartTime` records first chunk. Sentry v10.
 - **`maybeCompress`** has a 4 s deadline and honours the chain's cooldown (09-06).
+
+## Prompts
+
+- **No remembered market figures in prompts (11-03, uncommitted at time of writing).** `prompts/base.ts` and `playbooks.ts` drop corridor price bands, typical yields, densities, appreciation tiers, TDS and tariff figures; added rules 22 ("nothing from memory") and 23 ("a price belongs to its project"); no star ratings. Statutory rates stated exactly (7% stamp, 6% woman primary owner, 1% registration); builder charges only from the cost sheet.
+  - Why: those figures had no tier, and the model quoted them as fact.
+  - Must pass `promptPrefixStability.test.ts`, route replay and the 60-question corpus before commit.
+- **Comparison prompts never rule (10-31).** Sector and project comparisons: no winner, no "superior", "capital deployment", "appreciation", "returns"; "the difference that matters most" and "choose X if … choose Y if …"; an empty field is "not on record"; ready status is not an OC; a past RERA validity date is named. A comparison of named projects does not inherit a sector the intent pass guessed.
+- **A prompt rule the model keeps breaking becomes code (11-03).** See `dropUnsourcedJudgements` under Answers.
 
 ## Chat routing
 
-- **Regex gate cascade stays** (09-02/04). Failures were gates defeating a correct resolution, not classification misses.
-  - Rejected: routing by LLM tool calls, and the full dispatcher rewrite (deferred). Retire topic handlers one at a time, each backed by a corpus run.
-  - `answerAsGeneralQuestion` is the floor; nothing below it may refuse.
-- **A literally stated fact is not the model's to overrule** (09-06). `intentDeterministic.ts` and `applyLiterals` run at every exit of `extractIntent`; the model may only add.
-- **A handler matches on what was ASKED in this message, never on sticky intent** (09-02/04).
-  - `purpose`, `workplace` and `sector` carry over between turns, so they must not decide the topic.
-  - A guard that runs on the raw message must be told what an earlier stage resolved.
+- **Regex gate cascade stays** (09-02/04). Failures were gates defeating a correct resolution, not classification misses. Rejected: routing by LLM tool calls; the full dispatcher rewrite. `answerAsGeneralQuestion` is the floor; nothing below it may refuse.
+- **A literally stated fact is not the model's to overrule** (09-06). `intentDeterministic.ts` and `applyLiterals` run at every exit of `extractIntent`.
+- **A handler matches on what was ASKED in this message, never on sticky intent** (09-02/04). `purpose`, `workplace`, `sector` carry over, so they must not decide the topic.
 - **DISCOVERY needs a property-search signal** (`hasPropertySearchSignal`); **DRILLDOWN needs a project in scope** (09-02).
-- **Focus:**
-  - A follow-up keeps the focused project by default (`focusCarry.ts`, 09-25).
-  - Focus is cleared only when THIS message names a project, sector or location, or starts a fresh search.
-  - A carried focus is not a referenced project (`projectReferenced`) (09-26).
-  - When focus is lost, fall back to `focus_project_id` or a single shown card, never the first card of a list (10-16).
-  - "Price for 4BHK there" keeps focus (10-26).
-  - Rejected: judging the referent with the LLM.
-- **Fresh search** (09-26, 10-26):
-  - A revised budget, BHK or "bigger" counts as a fresh search.
-  - Any budget change re-runs discovery (`canReuseCache` rejects it).
-  - Budget survives a sector change.
-  - Excluded sectors are a hard DB filter that carries across turns.
-- **Name and sector matching** (09-04/06):
-  - Project names go through `matchProjectInText`/`matchProjectsInText` (longest match wins). Never use `.includes` over the catalogue.
-  - `topicText` strips project names before topic regexes run, and known names are stripped before the NRI check (10-26).
-  - Sectors go through `sectorWhereClause()` and `sectorMentions.ts`, never `contains`.
-  - A bare number shared with another city resolves to GNW if it is a GNW sector, else Noida, with `sectorAmbiguityNote` (10-13).
+- **Focus:** a follow-up keeps the focused project (`focusCarry.ts`); cleared only when THIS message names a project, sector or location, or starts a fresh search; a carried focus is not a referenced project; when focus is lost fall back to `focus_project_id` or a single shown card, never the first card of a list. Rejected: judging the referent with the LLM.
+- **Fresh search** (09-26, 10-26): a revised budget, BHK or "bigger" is a fresh search; any budget change re-runs discovery; budget survives a sector change; excluded sectors are a hard filter that carries across turns.
+- **Bare refinements are searches (10-28).** A message that is only a revised slot ("1 cr", "Budget -2 cr", "what about Sector 150?", "just the ones above 3.8 cr") is answered in code from the carried intent (`isBareRefinement`, `lib/chat/followUp.ts`). Rejected: a bare number without a unit ("30000" may be rent or EMI); an amount right after our own ask for a price (it stays with the EMI check).
+- **Row choice (10-31).** `discovery/pickProjectRow.ts` and `projectRowRank.ts` replace first-row-wins in seven handlers: a stated sector beats an exact name, an exact name beats a longer one. Rejected: `orderBy name` at each site; resolving once in the router.
+- **Name and sector matching:** names via `matchProjectInText`/`matchProjectsInText` (longest match), never `.includes`; `topicText` strips names before topic regexes; sectors via `sectorWhereClause()` and `sectorMentions.ts`, never `contains`. A run of plain numbers after "sector" is a list and is searched across all (10-31). A bare number shared with another city resolves to GNW if it is a GNW sector, else Noida, with `sectorAmbiguityNote`.
 - **Not a budget** (10-02/14): amounts tied to cash, a quoted or asking price, a down payment or a calculator question.
-- **Location phrases resolve from the DB** (`locationResolver.ts`) (08-28). A corridor is a line with a 2 km half-width.
-  - Rejected: a hardcoded alias list and LLM resolution.
-  - To extend the corridor, tag sectors with `micro_market` in the data, not in code.
-- **Every lane that answers persists through `persistEarlyTurn`**, including `focus_project_id` (09-03).
-- **The unknown-project check** runs right after `resolveProjectNames`, only for a name in this message (09-05/06).
-- **The OPEN lane checks the `CHAT_TOPIC_HANDLERS` registry** (09-24). Rejected: moving the handler flags up (a ~2,600-line reorder).
-- **Every routing fix adds a case to `src/lib/eval/route-replay.json`.** Known gaps are pinned as "(known gap: …)" (10-02).
+- **Location phrases resolve from the DB** (`locationResolver.ts`); a corridor is a line with a 2 km half-width. Extend it by tagging `micro_market` in data. Rejected: a hardcoded alias list; LLM resolution.
+- **Topic lanes added 10-31 to 11-03:** `offTopic.ts` (jokes, markets, weather, sports, code, "which model": one code line plus a property question, no model call; other cities: one sentence plus "Would a home in Noida work for you?"); `alternativesChoice.ts` ("X or Y", both sides from rows, no ranking); `sectorRateCheck.ts` (quoted rate vs our range, no verdict); `projectCatch.ts` ("what could go wrong", "risks of X", "is X safe / the safer buy"). "Higher/lower/cheaper than" between two sectors goes to the sector comparison; two named projects never get the sector table.
+- **Persistence:** every lane that answers persists through `persistEarlyTurn`, including `focus_project_id`. The next turn of a session waits for the previous turn's rows (`trackPersist`/`waitForPersist`, max 4 s) on both persist paths (11-03; follow-ups had read a history missing the last turn).
+- **The unknown-project check** runs right after `resolveProjectNames`, only for a name in this message.
+- **The OPEN lane checks the `CHAT_TOPIC_HANDLERS` registry** (09-24). Order matters: `offTopicHandler` sits before `trustHandler`.
+- **Every routing fix adds a case to `src/lib/eval/route-replay.json`.** Known gaps pinned as "(known gap: …)".
 
 ## Answers
 
-- **One question per answer, closing with the next step in the funnel** (09-03). It is enforced in code (`oneQuestion()`). This reverses the "factual answers end flat" rule; do not restore it.
-- **Card budget** (`cardBudget.ts`, 09-03): 0 stated constraints gives 0 cards plus a question; 1 gives 4; 2 or more gives 6; a project in focus gives 3.
-- **Prompt top-N** is 12 projects on DISCOVERY and 5 otherwise (08-31). The prompt block and the renderer share one scope.
-- **The shown list is written to `last_projects`, and ordinals index it** (09-03, `reference.ts`). "The ones above 3.8 cr" is a filter, not a pointer to that list (10-26).
-- **Never size the database to a buyer, including sector-scoped counts** (HARD RULE 7, 09-05). Counting what is on screen is fine. Our own strings obey this too.
-- **Over-budget results** (10-05):
-  - Retrieval allows up to +10%, but those rows go in an "Above the Stated Budget — NOT MATCHES" block.
-  - A hard ceiling (`budgetHard`) has zero tolerance.
-  - An honest "no match" beats padding.
-  - A budget floor needs a priced unit that reaches it (10-26).
-- **Computed in code; the model writes only the judgement:**
-  - affordability and market tables (`ai/affordability.ts`);
-  - "most expensive" (`aggregateQuery.ts`, 10-26);
-  - appreciation what-if tables at 0/4/6/8/10%, labelled "arithmetic, not a forecast" (10-13). `RECORDED_SECTOR_CAGR_TRUSTED = false`.
-- **Dates and possession** (10-14/16):
-  - A date shown to a buyer must be in the prompt (`unsourcedDates`, `projectFactChecks.ts`).
-  - A passed possession date on an undelivered project reads "was due, status unconfirmed", never "ready".
-  - Rejected: `db:fix-statuses`, which hardcodes statuses from memory.
-- **Price trend:** a rate is given only between two observed points. Benchmark points are labelled and never turned into a rate (10-15).
-- **Wording of withheld facts:** policy-withheld facts say "not published", never "not in our records" (10-15). `ORIENTATION_IS_SOURCED = false`, because the stored facing is templated.
-- **Fixed answers** (10-26): `MODEL_ANSWER` for "which model are you" (we name no single or fine-tuned model). The trust answer for "are listings verified" says we have not inspected the sites.
-- **Amenities (owner, 10-26):** answer what the project lists, with no "template" caveat. This overrides the CLAUDE.md labelling habit for amenities. The fix is cleaning the data.
-- **Outage handling** (10-26): when the chain fails after code already showed cards or a table, keep them and close in code (`outageOverShownAnswer`). Otherwise send the outage notice with `replace: true`. On a full failure, name no project and set `degraded:true`.
-- **No off-platform referrals.** No outside phone numbers; ask for the buyer's number and keep the lead. `rera_url`, `hero_image_url` and `marketing_claims` are excluded from prompts (08-31).
-- **Unclear referent:** reply "I'd rather ask than guess". `resolvePointer.ts` rewrites only the model's copy of the message (09-03).
-- **Grievance and money-assurance sentences are replaced whole**, not verb-swapped (09-04).
-- **Chips** (`chipPolicy`, 09-03): no chips on grievance, refund, ID, probe, decline or outage turns, and never a generic set. A chip must be actionable.
-- **Answer cache** (10-24):
-  - It matches factual questions on meaning: content words, and numbers bound to their units. The key carries a catalogue stamp; namespace `ac:v12`.
-  - Bump the version after any behaviour fix.
-  - Handler writes refuse when a project is in focus. Stateful answers and web public-record answers are never cached.
-  - Rejected: embeddings (a paid call per turn, and they can match Sector 150 to 151).
-- **News lane:** never adds a cross-builder project list to the prompt, so a promotion cannot seed recommendations (09-25).
+- **One question per answer, closing with the next step** (09-03), enforced by `oneQuestion()`. It keeps the run of questions the reply closes on, not text after the first `?` (10-28). Do not restore "factual answers end flat".
+- **Card budget** (`cardBudget.ts`): 0 stated constraints → 0 cards plus a question; 1 → 4; 2+ → 6; a project in focus → 3.
+- **Prompt top-N** is 12 projects on DISCOVERY, 5 otherwise; prompt block and renderer share one scope.
+- **The shown list is `last_projects`; ordinals index it** (`reference.ts`). "The ones above 3.8 cr" is a filter.
+- **Never size the database to a buyer**, including sector-scoped counts (HARD RULE 7). Counting what is on screen is fine.
+- **Over-budget results** (10-05): retrieval up to +10% in an "Above the Stated Budget — NOT MATCHES" block; `budgetHard` has zero tolerance; a floor needs a priced unit that reaches it; honest "no match" beats padding.
+- **A searched size that the sector lacks** lists the same sector's other configurations, labelled so (10-31). Rejected: a citywide fallback.
+- **Computed in code; the model writes only the judgement:** affordability and market tables (`ai/affordability.ts`); "most expensive" (`aggregateQuery.ts`); appreciation what-if at 0/4/6/8/10%, labelled "arithmetic, not a forecast" (`RECORDED_SECTOR_CAGR_TRUSTED = false`); two-sided choices; quoted-rate checks; maintenance rate × area; DG rate beside water source.
+- **Verdict words dropped in code (11-03).** `dropUnsourcedJudgements` removes "objectively", "zero-delay", "clean legal standing", "unblemished", "risk-free", "superior choice", "capital deployment", and an OC row that reads Delivered or Ready, unless our own facts carry the words (`falseReassurance.test.ts`). Why: hard-43 Q5 called Mezzaria objectively safer while UP-RERA lists 53 complaints and our own row shows lapsed validity. Rejected: a longer prompt rule.
+- **Integrity checks tightened (11-03), `projectFactChecks.ts`:**
+  - `crossProjectFigures`: a bullet or table line inherits the project named on the line above; a plain line naming none ends the carry. Why: "**X**" then "- from ₹1.85 Cr" was never checked.
+  - `dropUnsourcedMeasurements`: metres ("800 m from") and travel hours ("1.5 hours by road") are checked, matched against our km/minutes after conversion. Hours only before drive/by/away/commute/journey/ride/from, so "24 hours power backup" stays.
+  - `recordContradictions`: in a sentence naming two projects, a claim belongs to the project named nearest before it (else first after). Why: live 29 Oct, "Choose Gulshan Ikebana if you prioritize litigation-free…" was discarded as a claim about Jaypee Klassic (10 litigation records), three legs in a row.
+- **Own-tier citations are kept (11-03).** `sanitizeOutput` no longer collapses "(Source: project records)", "(source: UP-RERA registry, read <date>)", "(UP law, statutory)", "(confirmed by the builder on <date>)" to "(market data)", unless the bracket also names an outside site (`OWN_SOURCE_RE`/`OUTSIDE_SOURCE_RE`). Why: it put our own and official facts in the market tier.
+- **Cost totals for named projects at the asked size (11-03).** `namedProjectsCost` in `statutoryTax.ts`: every project the message names, at the BHK asked; "No 3 BHK price is on record for X" when absent; an undated-price note said once. Why: hard-43 Q7 got one project's cheapest 2 BHK.
+- **A builder's other projects (11-03).** `developer_of_each` answers "what else have they delivered" with the builder's other projects we hold, status as stored, and says the list is not their history and "Ready to move" is not an OC. Why: hard-43 F15.
+- **"What I checked" line (11-03, owner asked).** `lib/chat/checkedLine.ts` builds it in code from the text the buyer received, at `done`, in the router's one `send` wrapper (so every lane and cached replays get it); the frontend shows it as one muted line under a finished answer (`message.checked`, `MessageBubble.tsx`). Labels only from markers in the answer: catalogue project names or cards ("RealtyAsk records"), statutory levies ("UP law"), `computedQualifier`, `publicRecordQualifier`, "We read UP-RERA's registry", `MARKET_QUALIFIER`, and "not on record" gaps (the undated-price note is not a gap). No line when nothing matches. A lane may set its own `checked`.
+  - Why: Perplexity-style "what I checked" is the strongest trust pattern in the teardown; tier words only, no outside site named.
+  - Rejected: a model-written sources line (it would cite what it did not use); naming portals.
+  - Stored with the answer (owner asked, 11-03) as a `{ type: 'checked', labels }` entry in `chat_messages.artifacts` (JSON already there, no migration), at every chat-router write site via `checkedLine.withChecked`; `restoreMessage` in `frontend/lib/chat/sessionRestore.ts` reads it back. `deterministicFactRouter.ts` writes its row before `done`, so it computes the labels once, stores them and sends the same list as `checked` (a lane's own `checked` wins in the tracker). Guarded by a source test in `checkedLine.test.ts`.
+- **Not done, on purpose (11-03):** rewriting a possession label that contradicts its status (owner policy: no caveat on stored values; Day 4 data decision); a code check of comparison wording against the table (too many false positives for a discard); Hinglish replies (not this cycle); lowering `INTENT_BUDGET_MS` (Day 5 measures first).
+- **Complaint counts (11-03).** Staged as pending `project_field_drafts` (`rera_complaints`, URL, read date) by `scripts/data-integrity/28-complaints-drafts.ts`; approved by a named person (`29-approve-complaints.ts`); read only by `loadComplaints` in `handlers/projectCatch.ts` as one fixed sentence ("We read UP-RERA's registry page for this project on <date>: it lists N complaints…, not a ruling"). Rejected: a new `Project` column; reading drafts in the prompt path; naming the portal's address (the sanitizer deletes that sentence).
+- **Dates and possession:** a date shown must be in the prompt (`unsourcedDates`, `projectFactChecks.ts`); a passed possession date on an undelivered project reads "was due, status unconfirmed"; a passed RERA validity is "on record" with the extension caveat. Rejected: `db:fix-statuses`.
+- **Price trend:** a rate only between two observed points; benchmark points labelled, never turned into a rate.
+- **Withheld facts say "not published"**, never "not in our records". `ORIENTATION_IS_SOURCED = false` (stored facing is templated).
+- **Fixed answers:** `MODEL_ANSWER` for "which model are you" (no vendor named; more than one serves a turn); "are listings verified" says we have not inspected the sites.
+- **Every stored project fact is answered as stored (owner, 10-27).** Scope and the still-withheld list: CLAUDE.md § Owner policy. In code: `projectExposure.ts` (7 formerly withheld columns public, sentinels and opaque-score lists empty, builder corporate detail stated), `projectFactsBlock.ts` (topic slices, `marketing_claims` as developer copy), `answerIntegrity.ts` (a score passes when its number is in the prompt). The owner accepted that `nclt_status`/`approvals_status` are false on Amrapali/Jaypee.
+- **Cost sheets and payment plans answered as stored (owner, 10-27).** Rejected: running pass 3 on live; hiding schedules until a builder confirms. `renderCostSheetTable` lists floor rise, electricity, water/sewer, each PLC line, other charges; "club membership", "IFMS", "electricity connection" route to the cost sheet.
+- **Outage over a shown answer:** keep cards or a table already shown and close in code (`outageOverShownAnswer`); otherwise the notice with `replace: true`; on full failure name no project, `degraded:true`.
+- **No off-platform referrals.** No outside phone numbers; ask for the buyer's. `rera_url`, `hero_image_url`, `marketing_claims` excluded from prompts except as stated above. No competitor or listing portal named to a buyer.
+- **Unclear referent:** "I'd rather ask than guess". `resolvePointer.ts` rewrites only the model's copy.
+- **Grievance and money-assurance sentences are replaced whole.**
+- **Chips** (`chipPolicy`): none on grievance, refund, ID, probe, decline or outage turns; never a generic set; actionable only.
+- **Sanitizer (`sanitizeOutput.ts`)** collapses citation-shaped parentheses to "(market data)" and deletes whole sentences that name an outside site (`OFFPLATFORM_REFERRAL`). A code-built sentence with a source must be checked through the real route. It no longer cuts a sentence at "per sq. ft".
+- **Answer cache** (10-24): matches factual questions on content words and numbers bound to units; key carries a catalogue stamp; namespace `REDIS_PREFIX` in `ai/semanticCache.ts` (`ac:v15` on 11-03), bump after any behaviour fix. No writes with a project in focus; stateful and public-record answers never cached. Rejected: embeddings.
+- **News lane** never adds a cross-builder project list to the prompt.
 
 ## Data integrity and catalogue
 
 - **Fact tiers** (`factPresentation.ts`): confidence follows the weakest tier used. Rejected: a "typical value" fallback.
-- **`null` means "not checked"; never coerce it to `0`/`'LOW'`** (08-30). A `0` litigation count is a claim that the record is clean.
-- **Fix scripts clear bad values and never invent replacements** (08-31).
-- **A schema default or templated value is not data: clear it, don't label it** (10-05).
-  - A value shared by more than 3 rows is a template.
-  - Duplicates are archived (`archived_duplicate_of`), never deleted.
-  - Same name with a different RERA number is reported to a person.
-  - Rejected: labelling templated rows "estimated".
-- **Measure a column's distribution (`GROUP BY`) before trusting it** (09-04, `npm run audit:synthetic`).
-  - Withheld for that reason: `recommendation_profile.tier`, `buyer_satisfaction_rating`, `nclt_status`, `approvals_status`, `handover_defect_rate`, `women_safety_score`.
-- **Opaque 0–100 analyst scores are never shown to buyers**; they are used for ranking only (owner, 09-06, `opaqueScores.test.ts`).
-- **Builder insolvency (`legal_flag`) is surfaced first**, and contradicting project markers are suppressed (09-04).
-- **Geography** (08-28/31, 09-03, 10-17):
-  - Stored connectivity distances are synthetic; lat/lng is the only trustworthy geo.
-  - No synthetic sector centroids.
-  - Coordinates with 2 or fewer decimals are placeholders.
-- **Freshness** (`dataFreshness.ts`):
-  - Construction data is hidden after 30/90 days.
-  - Compliance data is never hidden.
-  - Price confirmation uses the `FactVerification` table (BUILDER_ATTESTED/VERIFIED, date, who) and goes stale after 30 days (10-15). Rejected: new `price_verified_at` columns.
-- **Statutory figures:** never use the `cost_sheets` stamp/registration/GST columns (they hold schema defaults); use `UP_STATUTORY` (10-16). Women's stamp duty is 6% with no cap; registration is a flat 1% with no cap.
+- **`null` means "not checked"; never coerce it to `0`/`'LOW'`.** A `0` litigation count is a claim that the record is clean.
+- **Fix scripts clear bad values and never invent replacements.** A value shared by more than 3 rows is a template. Duplicates archived (`archived_duplicate_of`), never deleted. Same name with a different RERA number goes to a person.
+- **Measure a column's distribution before trusting it** (`npm run audit:synthetic`).
+- **Builder insolvency (`legal_flag`) is surfaced first**; contradicting project markers suppressed.
+- **Geography:** stored connectivity distances are synthetic; lat/lng is the only trustworthy geo; coordinates with ≤ 2 decimals are placeholders; no synthetic sector centroids.
+- **Freshness** (`dataFreshness.ts`): construction data hidden after 30/90 days; compliance never hidden; price confirmation via `FactVerification` (BUILDER_ATTESTED/VERIFIED, date, who), stale after 30 days. Rejected: new `price_verified_at` columns.
+- **Statutory figures** come from `UP_STATUTORY`, never the `cost_sheets` stamp/registration/GST columns (schema defaults). Women's stamp duty 6%, no cap; registration flat 1%, no cap.
 - **Placeholder documents are hidden** (`realDocuments.ts`: only files in the `project-docs` bucket).
-- **Document extraction is a local Python batch** (pypdf, OCRmyPDF/Tesseract, MarkItDown; pdfplumber for price tables), and a person checks prices (10-02). Rejected: ScrapeGraphAI and Gemini PDF reading.
-- **The UP-RERA portal is a form postback.** Don't build on fetching it by URL (09-04).
-- **Field exposure:** `projectExposure.test.ts` fails on any unclassified column. `portal_subdomain` and `rera_compliance_score` are never public.
-- **Backups:**
-  - `backend/backups/templated-data-2026-10-05T*.json`
-  - `backups/sector_intelligence_full_2026-10-14.json`
-  - `backups/live-public-2026-10-14.dump`
-  - `RealtyPals-db-backups/supabase-2026-10-15-snapshot/`
-  - `neon-2026-10-16-pre-migration.dump`
-  - `{neon,supabase}-2026-10-16-enrich129-columns.json` (due-diligence columns on 129 projects, nulled)
-  - `backend/backups/templated-pass3-dev-*.json`
+- **Document extraction is local** (10-28): `backend/scripts/doc-ingest/extract_pdf.py` in a gitignored `.venv`: `pypdfium2` for digital pages, RapidOCR (ONNX, CPU) for image pages, one page at a time, stops below 1 GB free RAM. 12-page digital brochure 1.4 s / 48 MB; image pages ~11 s each. pdfplumber off by default (69 s, 943 MB). Rejected: Docling (torch), MinerU/Surya/olmOCR (GPU), PyMuPDF (AGPL), ScrapeGraphAI, Gemini PDF reading. Brochures give areas, towers, RERA; not prices or payment plans.
+- **Field exposure:** `projectExposure.test.ts` fails on any unclassified column; `portal_subdomain`, `rera_compliance_score` never public.
+
+### Data-integrity pipeline (10-28)
+
+- **What:** `backend/scripts/data-integrity/` crawls UP-RERA (plain HTTP postback, no captcha, no browser) and researches builder sites and portals per project. Every finding is a pending `project_field_drafts` row (in `FORBIDDEN_RELATIONS`); promotion is a person's call, field by field.
+- **Why:** 36 of 119 "exact" stored RERA numbers belonged to a different project; the first 96 researched projects disagreed with our unit, tower, area and price values in ~80% of comparisons.
+- **Owner override (10-28, "for once"):** portal and builder-site facts written to project columns, applied via `08-apply.ts` with per-field guards and an `AuditLog` row each, dev first, then live in the same order. These are portal advertisements or the seller's claim, not inspected facts.
+  - Batches 1–3: 74 RERA number replacements, 150 registry-verified registration rows (`project_rera_registrations.source = up_rera_registry`), direct registry links, `total_units`, `total_towers`, `land_area_acres`, `architect`, `floors`. Both DBs verified at 150 registry rows, 214 audit rows.
+  - Batch 4: 87 empty `rera_valid_until` from the registry's declared completion date (empty only).
+  - Batch 5: lat/lng for 50 of 57 projects via Google Places text search (`11-geocode.ts`).
+  - Batch 6: possession bundle for 16 projects (`12-possession.ts`; builder-site quote or two agreeing pages; never flattens an informative label).
+  - Batch 7: nearest listed hospital (78) and police station (111), straight-line km (`13-nearby.ts`; a hospital must say hospital/nursing home/medical centre and have 10+ ratings).
+  - Batch 8: land area 54, units 47, towers 46, floors 13, possession label 35, date 9, status 12 from extra portals. Architect is fill-empty only.
+  - Stock photos: 70 Unsplash heroes replaced with the project's own first real gallery image; 46 stock-only gallery rows deleted (`14-stock-images.ts --restore <backup>` puts them back).
+  - Videos: 27 official-channel videos inserted, unverified (`15-videos.ts`, whole-word 80% title match).
+  - Rollback: `10-rollback.ts` (dry run by default) restores each plan's recorded old value.
+- **Rules kept:** a RERA match with name score < 0.5 dropped; < 0.6 with no builder link and one source page rejected; number claims shared by several projects dropped; ordinal mismatches ("2nd Avenue" vs "7th Avenue") dropped; a trailing date in a RERA number is valid (774 of 3,842), never "cleaned". `price_min_cr` and `possession_label` held back (coupled fields). `registry_status` holds internal sales states, not RERA status.
+- **Portals:** plain request, client string `RealtyAsk-data-integrity/1.0`, `robots.txt` first. Used: Square Yards, MagicBricks, Whitehat Realty, Realty Assistant, Investors Clinic. Refused or forbidden, never worked around: 99acres, Housing.com, Proptiger, CommonFloor, IndiaProperty. Not tested: NoBroker, Zricks, Makaan, PropertyWala.
+- **Rejected:** auto-writing to live overnight; rebuilding unit prices from portals (79 projects only, templated unit rows can't take a per-BHK range).
+- **Open:** 163 projects with no confident registry match; UP-RERA Completed, NCLT, Abeyance and Withdrawn lists not crawled; 846 drafts on dev; 149 source conflicts; search budget exhausted (both Tavily keys over limit). `has_security_24x7`/`has_cctv`, airport and school distance not filled (templated or ambiguous).
+- **Backups:** `RealtyPals-data-integrity-2026-10-28/backup-{dev,live}-*.json`.
+
+### Earlier backups
+
+`backend/backups/templated-data-2026-10-05T*.json`; `backups/sector_intelligence_full_2026-10-14.json`; `backups/live-public-2026-10-14.dump`; `RealtyPals-db-backups/supabase-2026-10-15-snapshot/`; `neon-2026-10-16-pre-migration.dump`; `{neon,supabase}-2026-10-16-enrich129-columns.json` (129 projects' due-diligence columns, nulled); `backend/backups/templated-pass3-dev-*.json`; `backups/dev-before-restore-2026-10-27T11-18-53-082Z.json`.
 
 ## Buyer features
 
-- **A guest token is an identity.** A guest session is adopted on login (08-18). Bot sessions are flagged (`is_bot`), never blocked (09-15).
-- **Dossier:** built in one place (`lib/dossier.ts`), stored in Postgres, shareable by guests (09-26). It prices the buyer's BHK (10-26). No "verified" or "forensic" copy. Rejected: storing it in Redis.
+- **A guest token is an identity.** Adopted on login (08-18). Bot sessions flagged (`is_bot`), never blocked (09-15).
+- **Dossier:** `lib/dossier.ts`, Postgres, shareable by guests, prices the buyer's BHK. No "verified" or "forensic" copy. Rejected: Redis.
 - **Memory is opt-in.** `UserMemory` is never loaded into a new chat on its own; the route is `savedProfile.ts` plus a chip (10-15).
-- **Resale:** only for a flat the buyer already found, with a checklist and arithmetic on their numbers. Never listings or "is this price fair" (10-15).
-- **Public records:** official sources only. Rejected: listing portals and builder sites (10-15).
-- **Checklist ticks are stored on the device** (`localStorage`) (10-15). Rejected: a server table.
+- **Resale:** only for a flat the buyer already found: checklist and arithmetic on their numbers. Never listings or "is this price fair".
+- **Public records:** official sources only. Rejected: listing portals and builder sites.
+- **Checklist ticks are stored on the device** (`localStorage`).
 - **Office map pin** only for sectors in `SECTOR_CENTROIDS`.
 - **The buyer journey funnel is one SQL query** (10-23).
 
 ## Supply side, leads and roles
 
-- **Admin access:**
-  - The gate sits on the path prefix (`adminAreaGuard`), with exactly two exemptions: `/auth` and `/team/accept-invite` (09-11b).
-  - The role matrix is `adminPolicy.ts decide(role, method, path)`, pinned as a table (09-13b).
-  - Rejected: per-route `requireRole` on about 130 routes.
-- **Roles:**
-  - SALES reads everything and writes only leads and callbacks.
-  - ANALYST edits data and content, but cannot delete projects or builders, bulk import, or read leads (09-24).
-  - SUPER_ADMIN alone gets audit logs, AI spend, team and outbox.
-  - Unlisted reads are open by default and unlisted writes are closed.
+- **Builder price and sold-out proposals (10-29, dev only).** `/builder/portal/prices` → `/admin/listing-changes`; `listing_changes` table; approval (`lib/listingChanges.ts`) writes the flat type, `price_history` (with `unit_type_id`, `submitted_by`, `approved_by`), builder-attested `FactVerification`, `AuditLog`, and recomputes `price_min_cr`/`price_range_label`, in one transaction; refused if the row changed since. `UnitType.availability` ('available' | 'sold_out') is hidden from every read by `lib/excludeSoldOutUnitTypes.ts`; admin, portal and approval code opt out with `availability: undefined`. `scripts/verify-listing-changes.ts` runs the flow on dev and restores it.
+  - Rejected: reusing `project_field_drafts` (project-level, no submitter); deriving sold out from `unit_inventory` (no project has unit rows); partner submissions for now (status leaves room for `pending_builder`).
+- **Admin access:** gate on the path prefix (`adminAreaGuard`), exemptions `/auth` and `/team/accept-invite`; role matrix `adminPolicy.ts decide(role, method, path)`, pinned as a table. Rejected: per-route `requireRole`.
+- **Roles:** SALES reads everything, writes only leads and callbacks. ANALYST edits data and content, cannot delete projects or builders, bulk import, or read leads. SUPER_ADMIN alone gets audit logs, AI spend, team, outbox and team marking. Unlisted reads open, unlisted writes closed.
 - **`requireAdmin` is authentication only.** Routers outside the admin area use `requireStaff` (`guardsOutsideAdminArea.test.ts`).
-- **Invites:** invitees set their own password; `resend-invite` is idempotent.
-  - A password change revokes all sessions.
-  - Forgot/reset always return the same response.
-  - Rejected: issuing passwords.
-- **Tenant subdomains are addressing, never authorisation.** Partner subdomains are flat (09-11b).
-- **Leads:**
-  - `CallbackRequest` is the one lead table, routed by `assigned_partner_id`. `BuilderLead` and `ChannelLead` are dead (09-11).
-  - A channel partner belongs to a builder, and we approve it.
-  - Distribution is equal round-robin (owner) via `nextInRotation()`. Change it once conversion data exists.
-- **Lead Brief:** no transcript ever (rejected: a filtered transcript). `scrubCompetitors` matches whole words only.
-- **Builder lead alert:** a link-only email, OFF unless `BUILDER_LEAD_EMAILS=on`, because dev holds real builder logins (10-15). Rejected: the full brief in the email.
-- **Webhook:** `lib/webhook.ts` is the only outbound lead webhook (09-15). Failures are parked in `WebhookDeadLetter`; `routes/internal.ts` uses `INTERNAL_API_KEY` and returns 503 when the key is unset.
-- **Notifications** are queued in `NotificationOutbox` and never sent until a provider exists.
-- **Blog and news:** SUPER_ADMIN and ANALYST only (10-02).
-  - Anything ever published is archived, never deleted.
-  - Drafts are generated manually only, by Groq gpt-oss-120b. Rejected: 20b, which invents figures.
-  - A link is kept only if Tavily returned that exact URL.
-- **RealtyMail key:** `accounts` scope only (10-19). Rejected: the `domains` scope, which can delete the mail domain.
+- **Invites:** invitees set their own password; `resend-invite` idempotent; a password change revokes all sessions; forgot/reset return the same response.
+- **Tenant subdomains are addressing, never authorisation.** Partner subdomains are flat.
+- **Leads:** `CallbackRequest` is the one lead table, routed by `assigned_partner_id` (`BuilderLead`, `ChannelLead` dead). A channel partner belongs to a builder, and we approve it. Equal round-robin via `nextInRotation()` until conversion data exists.
+- **Lead Brief:** no transcript ever (rejected: a filtered transcript). `scrubCompetitors` matches whole words.
+- **Builder lead alert:** link-only email, OFF unless `BUILDER_LEAD_EMAILS=on` (dev holds real builder logins).
+- **Webhook:** `lib/webhook.ts` is the only outbound lead webhook; failures parked in `WebhookDeadLetter`; `routes/internal.ts` needs `INTERNAL_API_KEY` (503 when unset).
+- **Notifications** are queued in `NotificationOutbox`, never sent until a provider exists.
+- **Blog and news:** SUPER_ADMIN and ANALYST only; published items archived, never deleted; drafts generated manually by Groq gpt-oss-120b (20b rejected, invents figures); a link kept only if Tavily returned that exact URL.
+- **RealtyMail key:** `accounts` scope only (the `domains` scope can delete the mail domain).
 - **Logo uploads:** no SVG.
+
+## Analytics and people counts
+
+- **A person is `realPeopleSessions` in `routes/admin.ts` (10-27):** a signed-in account, or a website guest token (`isWebsiteGuestToken` in `lib/botDetection.ts`: `guest-` + UUID, or `guest-` + 16–22 base36). A guest who later signed in is merged via `referral_visits`. Anything else is a script.
+- **Every chat session create site takes `sessionFields`:** `is_bot` (also when the token isn't website-format), `device` from the user agent, `source` as a host or `utm_source` only.
+- **`team_identities`** marks team people: named in User behavior, excluded from counts. SUPER_ADMIN only, audited.
+- **Questions endpoint** `/analytics/people/:key/questions`: audited; ANALYST and SALES refused (transcript content).
+- **Dashboard counts callbacks with `is_test = false`.**
+- **Rejected:** keeping `guest_token` on an adopted session (anyone holding the token could open the account's chats).
+- **Neon live cleanup (10-27):** 40,258 test sessions and 5,205 script/fake-account sessions flagged `is_bot`; 54 look-alike script guests flagged; all 1,531 callbacks deleted (1,529 dummy 9876543210, 2 owner tests); 23 fake Supabase accounts deleted. Backups `backend/backups/live-test-traffic-live-2026-10-27T07-50-04-070Z.json`, `live-fake-users-2026-10-27T07-59-24-358Z.json`.
+- **All-time result at 10-27 (7 Aug–27 Oct):** 78 people (73 guests, 5 signed in), 310 sessions, 1,410 messages, 11 accounts, 0 leads.
+- **Health-check traffic** uses `healthcheck-<uuid>` tokens, kept out of real-people counts.
 
 ## Referrals
 
-- **The first ROOT holder is claimed by a conditional update in one transaction**; the losers attach as generation 2 (10-13).
-  - Metrics are computed in Postgres.
-  - Revoking a ROOT stops new attribution into its whole tree.
-  - Open: "activated = 3+ messages" also counts the assistant's replies.
+- **The first ROOT holder is claimed by a conditional update in one transaction**; losers attach as generation 2 (10-13). Metrics in Postgres. Revoking a ROOT stops new attribution into its tree. Open: "activated = 3+ messages" also counts assistant replies.
 
 ## Infrastructure
 
-- **Databases (10-14):**
-  - Live is Neon (Singapore), using the pooled URL with `pgbouncer=true&connection_limit=5`.
-  - Dev is Supabase Postgres.
-  - Supabase Auth and Storage still serve live; never delete that project.
-- **Migrations:**
-  - Never merge migrations to main until `prisma migrate status` against Neon shows them applied (10-16, after an outage).
-  - Never run `prisma migrate deploy` blindly on Supabase: it has pending migrations, one of which drops a table (09-24).
-  - Migrations and data writes need the owner. The owner runs live data writes, always after a backup.
-- **Render (10-14):**
-  - Live is `srv-d94csqsvikkc73c4lqi0` (branch main).
-  - Dev is `srv-dauhdddg1s2s73cutjo0` (branch dev, `REDIS_KEY_PREFIX=dev:`; local `.env` needs it too).
-  - cron-job.org pings `/api/v1/healthz`.
-  - Dev and live share one Upstash quota.
-- **Chat cards are stored compact** (`chatStorage.ts`). Re-check the dev DB size against 500 MB each month.
-- **`app.realtyask.in` is the buyer host.** URLs come from `frontend/lib/site.ts`. Open: wildcard DNS for partners.
-- **PostHog key lives only in env.** Check `NEXT_PUBLIC_POSTHOG_KEY` on Vercel before a frontend deploy (10-23).
-- **Rejected:** Prisma `relationJoins` (it changes every query) (10-08); new migrations for a log line (use `AuditLog`).
+- **Databases (10-29):** live is Neon project endpoint `ep-super-water-aof3o8gy` (pooled URL, `pgbouncer=true&connection_limit=5`); dev is its own Neon project `ep-odd-bar-az91o2md`, copied from Supabase dev with `pg_dump`/`pg_restore` (75 tables, 75,586 rows, migration ledger included). Supabase keeps login and file storage for both; never delete that project. `src/lib/liveDatabase.ts` identifies live by endpoint. Map: `docs/ENVIRONMENTS.md`.
+  - Why: dev test traffic used Supabase's egress allowance and live login failed (`exceed_egress_quota`).
+  - Rejected: moving login to Neon now; a Neon branch of live (shares compute and transfer); keeping dev on Supabase with lighter testing.
+  - Rule: a test never points at **live** Neon. `npm test` refuses a live `DATABASE_URL`.
+- **Migrations:** never merge migrations to main until `prisma migrate status` against live Neon shows them applied (Render does not run migrations). Never run `prisma migrate deploy` blindly on Supabase (a pending migration drops a table). Migrations and data writes need the owner; the owner runs live writes after a backup.
+- **Render:** live `srv-d94csqsvikkc73c4lqi0` (named `realtypalsdev`, branch main); dev `srv-dauhdddg1s2s73cutjo0` (`propfyndrdev`, branch dev, `REDIS_KEY_PREFIX=dev:`; local `.env` needs it). cron-job.org pings `/api/v1/healthz` on live only; dev sleeps (750 free hours cover one service). No Render health check on either. Dev and live share one Upstash quota.
+- **Node 22 pinned** (`.nvmrc`, CI) to match Render (11-03).
+- **No dynamic import of a `.guards`-style path (11-03).** `chat-router.ts` imported `queryPlanner.guards` with `await import(...)`: fine under compiled CommonJS on Render, `ERR_MODULE_NOT_FOUND` under tsx (local runs and tests), because ".guards" reads as an extension. Now a static import.
+- **Release check (11-03):** `scripts/release-check.cjs` compiles the committed tree in a clean copy; `.githooks/pre-push` runs it. `core.hooksPath` had pointed at a missing folder, so no hook had ever run. Why: a 31 Oct push with six compile errors reached Render, which refused the build.
+- **Chat cards are stored compact** (`chatStorage.ts`). Re-check DB size monthly (live 230 MB of 1 GB).
+- **`app.realtyask.in` is the buyer host.** URLs from `frontend/lib/site.ts`. Open: wildcard DNS for partners.
+- **PostHog key lives only in env.** Check `NEXT_PUBLIC_POSTHOG_KEY` on Vercel before a frontend deploy.
+- **Rejected:** Prisma `relationJoins` (changes every query); new migrations for a log line (use `AuditLog`).
 
 ## Design and brand
 
 - **Brand is RealtyAsk; lowercase `propfyndr` identifiers stay** (10-12). Brand regexes match `(?:propfyndr|realtyask)`.
-- **Discovery keeps the lavender `.discover-canvas` and the Afacad "RealtyAsk" wordmark** (owner, 09-26). The light theme is the default, and the radius scale is not remapped globally.
-- **No verdict words for buyers** (STRONG BUY, "% confident"). Cards show a reason and a trade-off. Price format is "₹1.09 – 1.83 Cr" (09-26).
-- **No invented counts on the landing page.** The share preview is a static JPG under 300 KB (10-14).
-- **RERA pills appear only for numbers we hold.** The drawer says we have not inspected the site (10-05).
+- **Discovery keeps the lavender `.discover-canvas` and the Afacad "RealtyAsk" wordmark** (owner, 09-26). Light theme default; radius scale not remapped globally.
+- **Landing page:** the dark landing from before the 14 Oct revamp is restored (10-31, `4bafed7b`). Final choice on visitor numbers.
+- **No verdict words for buyers** (STRONG BUY, "% confident", stars). Cards show a reason and a trade-off. Price format "₹1.09 – 1.83 Cr".
+- **No invented counts on the landing page.** Share preview is a static JPG under 300 KB.
+- **RERA pills only for numbers we hold.** The drawer says we have not inspected the site.
 
 ## Testing and evaluation
 
-- **Route replay** (`LLM_STUB=1`, `src/lib/eval/route-replay.json`) is the offline gate. `npm run verify:chat -- --endpoint=<url>` is the multi-turn deploy check; assert on the `done` payload, not the prose.
-- **No vacuous tests:**
-  - no `200||400||500` checks;
-  - no `if (found)` guards;
-  - no hardcoded "≥75%" banners;
-  - placebo tests are marked `todo`, not deleted;
-  - exemptions use a named allowlist with a reason.
-- **Write the over-correction test in the same commit as the guard.** A guard's first firings are evidence to check, not wins.
-- **Don't pipe gate commands through `tail`** (it swallows the exit code). Keep `npm run build` in the gate.
-- **The backend suite is load-sensitive**; re-run before believing a failure. `chatRouterSize.test.ts` fails on HEAD (7,404 lines).
+- **Route replay** (`LLM_STUB=1`, `src/lib/eval/route-replay.json`, 225 cases) is the offline gate. `npm run verify:chat -- --endpoint=<url>` is the multi-turn deploy check; assert on the `done` payload, not prose. Run one replay at a time (needs ~2.5 GB free).
+- **60-question corpus** (`scripts/corpus/run-corpus.ts`): 60/60 on dev, 31 Oct. **Hard-43** (`scripts/corpus/hard43.json`, `day5-speed.ts`): scorecards in `docs/benchmark/`. Grade what the buyer sees: harnesses render `replace: true` as the client does.
+- **Health check:** `npm run health:chat -- --base <url>` (30 questions × 3); `done.cached` separates cache hits.
+- **No vacuous tests:** no `200||400||500`; no `if (found)` guards; no hardcoded "≥75%"; placebo tests marked `todo`; exemptions via a named allowlist with a reason.
+- **Write the over-correction test in the same commit as the guard.**
+- **Don't pipe gate commands through `tail`** (swallows the exit code). Keep `npm run build` in the gate.
+- **The backend suite is load-sensitive**; re-run before believing a failure. `chatRouterSize.test.ts` fails on HEAD (router ~7.5k lines). `comparisonHandler.test.ts` failed 9 !== 8 before the 10-31 work.
 - **Buyer-vocabulary regexes need inflections** (`refund\w*`).
-- **Live user numbers count only website guests and real accounts (decided 10-27).**
-  - What: `/admin/analytics/user-counts` counts a person only when the session has a signed-in account or a `guest-<uuid>` token. The website has sent that token since June. Any other token is a script; the server mints `guest_…` when no token is sent.
-  - Neon cleanup:
-    - 40,258 provable test sessions flagged `is_bot` (`chat.test.ts` openers, no messages, test tokens).
-    - Another 5,205 script/fake-account sessions flagged.
-    - All 1,531 callbacks deleted: 1,529 dummy 9876543210 plus the owner's 2 tests.
-    - Supabase: 23 fake accounts deleted.
-    - Backups: `backend/backups/live-test-traffic-live-2026-10-27T07-50-04-070Z.json`, `backend/backups/live-fake-users-2026-10-27T07-59-24-358Z.json`.
-    - Scripts: `scripts/clean-live-test-traffic-2026-10-27.ts`, `scripts/clean-live-fake-users-2026-10-27.ts`.
-  - The token rule matches `guest-` + UUID exactly. 54 sessions from 42 look-alike script tokens (guest-stress_…, guest-journey_…, guest-audit) were flagged too: `scripts/flag-live-script-guests-2026-10-27.ts`.
-  - Result, all time (7 Aug–27 Oct):
-    - 78 people: 73 website guests and 5 signed-in (one is Raghav).
-    - 310 sessions, 1,410 messages.
-    - 11 accounts; 0 leads.
-    - Founders' guest browsing can't be told apart without their guest IDs.
-- **Every stored project fact is answered as stored (owner policy, 10-27; widens the entry below).**
-  - What changed in code:
-    - `projectExposure.ts`: the 7 formerly withheld columns that still exist made public (18 more had been dropped from the schema on 10-10); sentinels and opaque-score lists emptied; builder `cin`, `legal_entities`, `executives` and `outstanding_dues_cr` stated.
-    - `projectFactsBlock.ts`: the topic slices carry the new fields; `marketing_claims` is included as developer copy; forward-looking questions state the stored figure.
-    - `answerIntegrity.ts`: a score is let through when its number is in the prompt.
-  - The owner chose this knowing `nclt_status`/`approvals_status` are false on Amrapali/Jaypee ("Everything, A and B too").
-  - Still withheld: privacy, process and draft fields (see CLAUDE.md, Owner policy).
-  - Prompt rules in `prompts/base.ts` (owner WIP, not edited) still say "never project future percentage gains" and "never generate numerical scores". These may make the model hedge on stored appreciation figures and scores.
-  - Dev restored from the pass-3 backup with `scripts/restore-dev-templated-2026-10-27.ts`: 786 rows. Pre-restore values are in `backups/dev-before-restore-2026-10-27T11-18-53-082Z.json`.
-  - Due-diligence columns nulled on 10-16 (129 projects, both DBs) are still gone; they exist only in backups.
-- **Cost sheets and payment plans are answered from the DB as stored (owner decision, 10-27).**
-  - What: whatever the row holds is stated, with no template caveat.
-  - Why: the owner wants every property question answered from the database ("it doesn't matter even if any script wrote them").
-  - Rejected: running `fix-templated-data-pass3.ts --db=live` to clear them, and hiding payment schedules until a builder confirms.
-  - Known: live IFMS, parking, club and electricity sit in 3 tiers (286/74/22 projects); PLC text is identical on 360 projects; each plan type has one schedule. Dev was cleared on 10-16.
-  - The cost table (`renderCostSheetTable`) now also lists floor rise, electricity, water/sewer, each PLC line and other charges. "Club membership", "IFMS", "electricity connection" and similar now route to the cost sheet.
-- **People tracking (10-27, owner-approved, schema additive).**
-  - A person is `realPeopleSessions` in `routes/admin.ts`:
-    - a signed-in account, or a website guest token;
-    - a guest who later signed in is merged into their account via `referral_visits`.
-  - Token rule: `WEBSITE_GUEST_TOKEN` / `isWebsiteGuestToken` in `lib/botDetection.ts`, accepting `guest-` + UUID or `guest-` + 16–22 base36 (the browser fallback).
-  - Every chat session create site now takes `sessionFields`:
-    - `is_bot`, also true when a guest token isn't website-format;
-    - `device` from the user agent;
-    - `source` as a host or `utm_source` only, never a URL.
-  - The fact-router create path and two chat-router create paths had never set `is_bot`.
-  - `team_identities` holds people marked as team: named in User behavior, left out of the dashboard counts. Marking is SUPER_ADMIN only and audited.
-  - The questions endpoint is `/analytics/people/:key/questions`. Reads are audited, and ANALYST and SALES are refused it (transcript content).
-  - The dashboard counts callbacks with `is_test = false` only.
-  - DDL is in `prisma/migrations/add_people_tracking`, applied to Supabase and Neon before the code shipped. Render does not run migrations.
-  - Rejected: keeping `guest_token` on an adopted session. The chat ownership check grants access by guest token, so anyone holding the token could open the account's chats.
-- **Dev chat history emptied (10-27, owner-approved).**
-  - Supabase dev went from 258 MB to 61 MB.
-  - Only the 2,878 dev-only sessions were backed up (`backend/backups/dev-chat-history-2026-10-27T08-20-28-376Z.json`); the rest are already on Neon.
-  - Script: `scripts/clear-dev-chat-history-2026-10-27.ts`.
-  - VACUUM FULL needs `DIRECT_URL`, because the pooler refuses it.
-  - The block was egress, not space, so deleting data doesn't lift it.
-  - Live sign-in still uses this Supabase project; noted for the owner.
-  - Rejected:
-    - counting only from the 15 Oct split, because the token rule makes earlier data separable;
-    - deleting old chats, because that loses real buyers.
-  - `npm test` refuses to run when `DATABASE_URL` points at Neon.
 
 ## Process
 
-- **Instrument before optimising** (`turnTimer.ts`); every unmeasured latency theory was wrong. Debug by running locally, reading the log and reading the DB row.
-- **Before concluding a fix failed,** check that port 3001 is really your server.
-- **Data-quality reverts are the owner's call.** Surface conflicts; don't resolve them silently. Record the problem rather than patch it when the cause is unknown.
-- **Write regexes with Write/Edit, never through a shell heredoc** (it drops `\b`). The `rg` proxy's zero-result output is unreliable.
-- **Before moving or deleting files, grep for whatever reads them.** Never delete gitignored corpus `results-*.json` files.
-- **Repo layout (owner, 10-27):**
-  - Old roadmaps are in `docs/archive/plans/`; the current plan is the newest `docs/WEEK_PLAN_*.md`.
-  - Deleted: `design/`, `mySkills/`, `postman/`, `ai-context/`, the one-off root scripts and `docs/research`.
-  - Kept because code reads them: `QueriesAndKeywords/`, `Projects/`, `newProj/` (backups kept by the owner), `docs/ground-truth`, `docs/enrichment`.
-
-## Data-integrity pipeline (2026-10-28)
-
-- **What was decided:** `backend/scripts/data-integrity/` crawls UP-RERA (plain HTTP postback, no captcha, no browser) and researches builder sites and portals per project. Every finding is a pending row in `project_field_drafts` (withheld from buyers by `FORBIDDEN_RELATIONS`). No project column is written by the pipeline; promotion is a person's call, field by field.
-- **Why:** the audit found 36 of 119 "exact" stored RERA numbers belong to a different project (e.g. Amrapali Eden Park holds AASTHA GREENS' number), and the first 96 researched projects disagreed with our unit, tower, area and price values in about 80% of comparisons. Portal and builder figures are an advertisement and the seller's claim; with no "builder-attested" tier yet, writing them to a verified column would present them to buyers as ours.
-- **What was rejected:** auto-writing to live Neon (the owner delegated "make it live" overnight; held back because stage 4 was incomplete, the matches were unreviewed, and unverified values would reach buyers as `verified`). Also rejected: "cleaning" RERA numbers, since a trailing date (`UPRERAPRJ528653/07/2026`) is a valid format in 774 of 3,842 registry numbers.
-- **Open:** 163 projects have no confident registry match; stage 4 yield is uneven (portals block the reader); UP-RERA's Completed, NCLT, Abeyance and Withdrawn lists are not crawled.
-- **Owner override (2026-10-28, later the same day):** the owner allowed portal and builder-site facts to be written to project columns "for once", and asked for the 36 wrong-project RERA numbers to be resolved, not cleared. Written to dev (Supabase) via `08-apply.ts` in two batches (`apply-plan-1.json`, `apply-plan-2.json`; replay both in order on live): 73 RERA number replacements (65 + 8 after the Tavily quota reset, new key `TAVILY_NEW`), 149 registry-verified registration rows (`project_rera_registrations.source = up_rera_registry`, `verified_by = di-pipeline 2026-10-28`), direct registry links, and `total_units` 130, `total_towers` 108, `land_area_acres` 124, `architect` 12, `floors` 5, each with an `AuditLog` row. These values are portal advertisements or the seller's claim, not inspected facts. Backup of every touched row: `RealtyPals-data-integrity-2026-10-28/backup-dev-*.json`.
-- **Held back even under the override:** `possession_label` (coupled to `possession_date` and status) and `price_min_cr` (shown beside `price_range_label` and unit rows). Price needs label and unit rows rebuilt together from the portal configs. Also dropped: RERA matches with name score below 0.5, number claims shared by several of our projects, and ordinal mismatches ("2nd Avenue" vs "7th Avenue").
-- **Live (Neon) written, 2026-10-28:** both batches replayed with the same plan files and per-field guards. 0 skipped, 0 errors; live then verified: 149 registry-verified registration rows, 213 `AuditLog` rows (`Data-integrity pass 2026-10-28`), no project number without a matching registration row. Backups of every touched live row: `RealtyPals-data-integrity-2026-10-28/backup-live-*.json`. Live has 382 projects against dev's 381: a duplicate `ATS Destinaire` row on live was not covered by this work.
-- **Batch 3 (dev and live, both verified):** a portal-targeted RERA pass (`07 --variant portal`) resolved 17 more numbers; after the rules only 1 replacement survived (Gaur City 2 - 14th Avenue `UPRERAPRJ16C14` -> `UPRERAPRJ6742`). Applied to dev and then to live (0 skipped, 0 errors); both verified at 150 registry-verified rows and 214 audit rows. Live and dev now hold the same three batches. Rule added: a name score under 0.6 with no builder link and one source page is rejected. `10-rollback.ts` undoes a batch from its backup (dry run by default).
-- **More portals (2026-10-28), what was tested and decided:** plain request, honest client string `RealtyAsk-data-integrity/1.0`, `robots.txt` read first. Usable and used: Square Yards, MagicBricks (stage 17), Whitehat Realty (273 project pages, 101 of ours), Realty Assistant (52), Investors Clinic (18) via their sitemaps (stage 18). Skipped: HouseEazy (800-char developer pages, unit-level listings), HexaHome (1 project, listing pages disallowed). Refused or forbidden, not worked around: 99acres (Access Denied even for robots.txt; also the Jina browser-engine attempt was blocked as bot-check circumvention), Housing.com and Proptiger (406), CommonFloor and IndiaProperty (robots disallow all). Not yet tested: NoBroker, Zricks, Makaan, PropertyWala. `19-extract-pages.ts` trims each page to fact lines, makes one Gemini call per project, and merges candidates into `research/<id>.json` under the same quote and agreement rules.
-- **OCR / brochure tooling (2026-10-28), built and measured:** `backend/scripts/doc-ingest/extract_pdf.py` in an isolated `.venv` (327 MB, gitignored): `pypdfium2` native text for digital pages, RapidOCR (PaddleOCR models on ONNX Runtime, CPU, no torch) for image-only pages, one page at a time, stops if free RAM < 1 GB. Measured on this laptop (15.7 GB total, about 3.5 GB free with Comet, Antigravity and Wispr Flow open; no GPU): a 12-page digital brochure took 1.4 s and 48 MB (pdfplumber took 69 s and 943 MB, so it is off by default); two image-only pages took 22 s and 153 MB, and read the super/built-up/carpet areas exactly. Rejected: Docling (pulls torch, 2-4 GB), MinerU/Surya/olmOCR (GPU), PyMuPDF (AGPL). OCR costs no tokens (local CPU). `20-brochures.ts` automates derive-address, download, extract, save for stage 19, but derived Square Yards brochure addresses hit 1 of 37 (the one found by search), so PDF discovery needs the search budget. A marketing brochure gave unit areas, acres, towers and RERA, but no payment plan or price.
-- **Search budget:** both Tavily keys (`TAVILY_NEW`, `TAVILY_API_KEY`) are over their plan limit, and Claude Code's WebSearch is capped at 200 calls per session (about 100 an hour). Seven Haiku URL-discovery agents covered only 6 to 20 projects each; nearly all hits were Square Yards, and MagicBricks project pages almost never appear in search results. `17-portal-pages.ts --urls-from discovery` fetches the URLs they found with no search.
-- **Batch 8 (dev and live):** from the extra portals: land area 54, units 47, towers 46, floors 13, possession label 35, possession date 9, status 12 (0 skipped). Architect is now fill-empty-only: portals contradict each other and our stored value may be right. Videos (`15-videos.ts`): 27 official-channel videos inserted on dev and live, unverified; a loose title match put wrong videos on 4 projects (a digit matched inside "Mar'25") until the rule became whole words at 80%.
-- **Batch 7, nearest hospital / police station (dev and live):** `13-nearby.ts`, Google Places Nearby from each project's coordinates, straight-line km, empty values only: 78 hospital and 111 police distances. A hospital must say hospital, nursing home or medical centre in its name and have 10+ ratings (Google's `hospital` type includes diagnostic labs; the first test returned a CT-scan centre). Results are the nearest *listed* facility, often a small nursing home, not a major hospital. Not filled: `has_security_24x7`/`has_cctv` (the amenity rows they would come from are templated: the same "24/7 Multi-Tier Security & CCTV Surveillance" string on 187 projects), airport and school distance (ambiguous meaning).
-- **Stock photos (dev and live), `14-stock-images.ts`:** 70 heroes that were Unsplash stock replaced with the project's own first real gallery image; 46 stock-only `project_images` rows deleted (full rows backed up, `--restore <backup>` puts them back). Those 46 projects now show the same placeholder the 189 empty heroes show.
-- **agent-reach checked, not used:** Twitter, Reddit, Xiaohongshu, YouTube (`yt-dlp`) and Exa (`mcporter`) are not installed or need a login; web reading and search are already covered by Jina and Tavily. The gaps left are missing sources, not tooling. Project videos (none for any project) could be sourced with a Tavily YouTube search; not done.
-- **Batch 6, possession bundle (dev and live):** `12-possession.ts` proposes status + label + date together; a proposal needs a builder-site quote or two agreeing pages, a possession word in the quote, and never flattens an informative label ("Delivered (May 2019)"). 16 projects: 16 labels, 7 dates, 6 status changes (5 to `ready_to_move`, 1 to `under_construction`). 92 single-source and 32 conflicting stay drafts; 10 past dates skipped. The possession columns already contradicted each other before this (e.g. `under_construction` with label "Delivered & Ready"; 267 of 381 flagged `ready_to_move`), so most projects are still unresolved.- **Script fixes found while doing it:** the apply guard only selected some columns, so a non-null old value of status/label/date would have been skipped (it skipped all 29 changes, safely, the first time); it now selects exactly the columns each plan touches. Rollback now restores the plan's recorded old value, since earlier backups lack some columns.
-- **Batches 4 and 5 (dev and live, verified):** batch 4 fills 87 empty `rera_valid_until` from the registry's declared completion date (empty values only: the summary shows the original date and an extension would make an existing value truer). Batch 5 adds lat/lng for 50 of 57 projects without coordinates via Google Places text search (`11-geocode.ts`; inside the Noida area and place name resembles the project; 7 rejected). Replay on live in order: `--plan apply-plan-4.json`, then `apply-plan-5.json`.
-- **Found, not fixed:** 70 projects use Unsplash stock photos as `hero_image_url` and 46 gallery images are stock (189 heroes are null, 122 are local paths). `registry_status` holds internal sales states (`open`, `subvention_restricted`), not RERA registration, so RERA data is not written to it.
-- **Price, decided not to rewrite unit rows:** our unit rows are templated ("2 BHK Comfort Home") with several rows per bedroom count; portals give one range per bedroom count, which cannot be assigned to a specific row, and some portal configs are internally odd. Needs builder price lists.
-- **Not done, decided to leave:** rebuilding price. Only 79 of 381 projects have priced portal configs (280 rows), and a unit row carries dependent fields (`price_per_sqft`, `price_label`, carpet ratio), so a partial rebuild would put 79 projects on portal prices beside 300 on seeded ones. 49 `price_min_cr` findings stay as drafts on dev. Still open: 162 projects with no usable RERA number (21 of the 36 wrong-project numbers among them), 188 on the generic registry link, 149 source conflicts, 846 drafts (dev only).
-
-## Follow-ups and the one-question cutter (2026-10-28)
-
-- **What was decided:** (1) `oneQuestion.ts` keeps the run of questions a reply closes on, not the first question mark. A question followed by prose (a heading, "Looking for ready-to-move? Here are…", a list) stays, and the ", and …" second-ask cut looks only at the closing question's own sentence. (2) A message that is nothing but a revised slot ("1 cr", "Budget -2 cr", "what about Sector 150?", "just the ones above 3.8 cr") counts as an inventory search (`isBareRefinement` in `lib/chat/followUp.ts`), so the search is answered in code from the carried intent.
-- **Why:** the old cutter took everything after the first `?`, so the budget answer lost its body, and ", and is on track" in prose cut a reply to its first clause. Bare refinements updated the intent correctly but went to the model (live, last 30 days), taking 20–50 s and sometimes ending in the outage notice.
-- **What was rejected:** cutting a bare number without a unit ("30000" may be rent or an EMI); treating an amount as a refinement right after our own ask for a price (the EMI check's "Tell me the property price or your budget"). That amount stays with the check.
-- **Already working before this, verified by replay:** "yes" after an offer (`expandAffirmation`), "step N", "next" and "how many steps" (`buyerGuide`), and the budget carried into the next search. Pinned as `oct28-*` cases in `route-replay.json`.
-
-## Builder price and availability changes (2026-10-29, dev only)
-
-- **What was decided:** builders propose a price or sold-out change per flat type in the portal (`/builder/portal/prices`); nothing goes live until our admin approves it (`/admin/listing-changes`). Proposals sit in a new `listing_changes` table. Approval (`lib/listingChanges.ts`) writes the flat type, a `price_history` row (now with `unit_type_id`, `submitted_by`, `approved_by`), builder-attested `FactVerification` rows dated when the builder sent it, an `AuditLog` row, and recomputes `Project.price_min_cr`/`price_range_label` from the flat types still offered, all in one transaction. If the row changed after the proposal, approval is refused and both values are shown. `UnitType.availability` ('available' | 'sold_out') is hidden from every read by the client extension `lib/excludeSoldOutUnitTypes.ts`; admin, portal and approval code opt out with `availability: undefined`, same as `excludeArchivedProjects`.
-- **Why:** CLAUDE.md § The Verified Supply Chain. A filter on the client, because about 50 reads load `unit_types` and one forgotten filter would offer a sold-out flat. Freshness reuses the existing `FactVerification`/`priceVerification.ts` instead of new date columns.
-- **What was rejected:** reusing `project_field_drafts` (project-level, no submitter, mixed with 846 data-integrity drafts); deriving sold out from `unit_inventory` (no project has unit rows); partner submissions for now (the status leaves room for `pending_builder`).
-- **State:** migration `builder_listing_changes` applied on dev (Supabase) only. `scripts/verify-listing-changes.ts` runs the full flow on dev and restores what it touched. Live (Neon) needs the migration and an explicit OK. Day 2 item 5 (one real builder, one real price) is not done: it needs a builder login and the owner.
-
-## Day 0 speed work (2026-10-29)
-
-- **What was decided:**
-  - `npm run health:chat -- --base <url>` is the one repeatable check (`scripts/health-chat.ts`, 30 real questions × 3, `healthcheck-<uuid>` tokens kept out of real-people counts). Results go in `docs/C1_DAY1_health.md`. `done.cached` marks answer-cache hits, so fresh and cached turns are reported apart.
-  - The server sends a `status` line the moment the stream opens (`lib/chat/statusLine.ts`; it names only a sector or area the buyer typed, never a project), and the frontend shows it in the timeline until the answer starts.
-  - When every provider fails, `executeWithFallbackChain({ answerFromRows })` sends a stored-rows answer instead of the outage notice. The project-fact lane renders price, possession, RERA and payment plan from the project's rows (`lib/chat/rowsAnswer.ts`); the cost-sheet and payment-plan handlers end on the table already shown. Open-ended questions still get the notice. Rows answers are `degraded`, so they are never cached as advisory answers. `LLM_STUB_MODE=outage` simulates a total outage in replay (`outageReplay.test.ts`).
-  - Race: if a leg has not spoken after `FALLBACK_HEDGE_MS` (5 s), the next eligible leg from a different vendor starts alongside it; the first to speak is shown and the other is aborted. Nothing is forwarded before a first chunk, so the loser has shown nothing. Each attempt is self-contained (`openLeg`).
-  - `legEvents` and Langfuse `completionStartTime` now record each leg's time to first chunk; `scripts/bench-providers.ts` uses them to time each leg on the real route.
-- **Why:** the local baseline put the median first word at 6.3 s (target 3 s), with nothing on screen before it. Live Langfuse (14 days) showed Gemini Flash Lite failing on 73 of 128 calls.
-- **What was rejected:** a plain shorter first-token timeout instead of a race (it loses whenever the first leg would have answered at 6 s and the next takes 8 s); racing two Gemini keys (the outage hits all of them at once); a fake provider inside production code for tests (the race test uses a local OpenAI-protocol server instead).
-
-## Dev database moved from Supabase to its own Neon project (2026-10-29)
-
-- **What was decided:** dev's database is a separate Neon project (endpoint `ep-odd-bar-az91o2md`, Singapore), copied from Supabase dev with `pg_dump`/`pg_restore` (public schema only, `extensions` schema with `vector`, `pgcrypto`, `uuid-ossp` as on live): 75 tables, 75,586 rows, identical per-table counts, migration ledger included. Supabase keeps login and file storage for both sites. Scripts and the test runner no longer treat "any neon.tech address" as live: `src/lib/liveDatabase.ts` identifies live by its endpoint (`ep-super-water-aof3o8gy`, plus whatever `NEON_DB` names). Full map of hosts, settings and free-tier rules: `docs/ENVIRONMENTS.md`.
-- **Why:** one Supabase project held live login and the dev database; dev test traffic used up its monthly data allowance and live login failed with `exceed_egress_quota` (29 Oct).
-- **What was rejected:** moving login to Neon (Neon is only a database; Neon Auth would change sign-in code on both sites); a Neon branch of the live project (it would share live's compute and transfer allowance); keeping dev on Supabase with lighter testing (the coupling stays).
-- **Rule change:** "a test never points at Neon" now means never at **live** Neon. Render free hours (750 a month per workspace) cover one always-on service: the keep-alive ping is for live only, and dev sleeps when idle.
-- **Open (owner):** Render dev service and Vercel Preview settings switched to dev Neon; Vercel Production `DATABASE_URL` checked to be live Neon; both Neon passwords reset (they were shared in a chat); Supabase upgrade or cycle reset to restore live login; after a week, decide whether to delete dev's old tables from Supabase.
-
-## Hard-43 benchmark and the first three fixes (2026-10-31)
-
-- **What was decided:** 43 buyer questions (15 hard, 5 Hinglish, 23 field coverage) run against ChatGPT (logged-out, 43 of 43), Perplexity (logged-in free tier, Q1–Q8 only; the free-search limit ended the run) and RealtyAsk on dev, before and after. Scorecard: `docs/benchmark/HARD43_SCORECARD_2026-10-31.md`; raw answers `docs/benchmark/hard43/` and `answers/hard43-{before,after}.json`. Fixes shipped:
-  - **Row choice:** `discovery/pickProjectRow.ts` and `projectRowRank.ts` replace the first-row-wins `name contains` filter in seven handlers. A sector the buyer typed beats an exact name, an exact name beats a longer one. `matchProjectInText` follows a stated sector to a single extension row.
-  - **Price and comparison lanes:** `handlers/sectorRateCheck.ts` places a quoted per-sq-ft rate against our rows with a project count and no verdict. A message that names a project no longer gets "I've lost track". Two named projects no longer get the sector table. "Higher/lower/cheaper than" between two sectors goes to the sector comparison.
-  - **Multi-part answers:** snooker, billiards, jacuzzi and swimming pool in the amenity search (AND for "pool and jacuzzi"); RERA validity row; DG rate beside the water source; maintenance rate × area; vicinity says which asked landmark kinds are not held.
-- **Why:** the 31 Oct run showed wrong-project rows (F10, F16, F19), two non-answers (Q8, Q11) and a "Yes, fair" at ₹8,500 beside our own Sector 150 range of ₹9,343–₹24,091.
-- **What was rejected:** `orderBy name` at each site (leaves the stated sector ignored); resolving a project id once in the router (7k-line gate cascade); a prompt-only "never say fair" rule; a model call on every turn to check that all parts were answered.
-- **Open:** Q8 invents "your Sector 78 preference" and Q6 gives investment guidance (both from the prompt files); Hinglish questions get English answers; Astralis RERA number and project type and the Mezzaria metro distance conflict with the rivals (data check); `comparisonHandler.test.ts` fails 9 !== 8 (before this work); median first token 11.6 s in the after run on the free chain. The 60-question corpus and the 10 off-topic cases were not finished when this was committed.
-
-### Hard-43 follow-up, same day (2026-10-31)
-- **What was decided:** off-topic asks (jokes, IPOs, bitcoin or gold, weather, match results, code and poems, "which model") get one short code-built reply and one property question, no model call (`handlers/offTopic.ts`, listed in `messageOnlyTopics.ts` so the router reaches it before the OPEN lane). Other-city asks get one sentence plus "Would a home in Noida work for you?"; the unsupported "is on the roadmap" is gone. The comparison prompt in `chat-router.ts` now forbids attributing a preference, sector or goal the buyer did not state and states that we give no investment advice; a comparison of named projects no longer inherits a sector the intent pass guessed (it produced "your Sector 78 search"). `sanitizeOutput.ts` no longer cuts a sentence at the full stop in "per sq. ft".
-- **Why:** the 31 Oct run showed 6 of 10 off-topic asks reaching the model, a four-paragraph trust essay for "which model", an invented buyer sector in Q8, investment guidance in Q6, and a registration disclaimer welded into the middle of a Q8 sentence.
-- **What was rejected:** editing `prompts/base.ts` or `playbooks.ts` (the causes were in the router and the sanitizer, not those files); a vendor name for "which model" (more than one provider serves a turn); a post-filter that deletes "your focus" phrases (the model rephrases, and the real fault was the guessed sector).
-- **State:** 60-question corpus 58 of 60 on dev (the two non-passes are the honest "no match" cases from 26 Oct); full replay 221 of 224 with three multi-turn follow-ups that each pass alone and differ from run to run. Perplexity covers Q1–Q12 only; ChatGPT 43 of 43.
-
-## Two-sided choice, sector lists and comparison prompts (2026-10-31)
-
-- **What was decided:** (1) `handlers/alternativesChoice.ts` answers "X or Y" decisions (e.g. 2BHK ready in Noida vs 3BHK under construction in Greater Noida West) with each side searched from rows, a trade-off block from statutory GST constants and row dates, and no ranking; English and Hinglish. The router's inventory-search gate (`chat-router.ts`) lets it through. (2) `extractSectorMentions` reads a run of plain numbers after "sector" as a list, and discovery treats a list the buyer named as a search across all of them, not an ambiguity. (3) A search with no flat of the asked size in the sector lists the same sector's other configurations, labelled so. (4) The sector and project comparison prompts no longer rule: no winner, no investment framing, an empty field is "not on record", ready status is not an occupancy certificate.
-- **Why:** hard-43 Q1/H1 ignored half the question; corpus q002 and q005 asked a question instead of showing data; Q11 called Sector 150 "superior for capital deployment"; Q5 said "objectively the safer buy" from rows that contradict the public record.
-- **What was rejected:** a model-composed answer for Q1 (cost, and the integrity check cannot approve a verdict); a citywide fallback for q002 (breaks the no-silent-fallback rule); more sanitizer rewrites (they leave unrelated canned sentences in the answer).
-- **Evidence:** `docs/benchmark/HARD43_SCORECARD_AFTER_2026-10-31.md`, `C1_DAY6_ROWCHECK_2026-10-31.md`; full route replay 225/225; corpus 60/60 (`results-day7-after-q11q5.json`).
-- **Open:** median first token 9.8 s in the after run (free chain); Q5 still shows "Delivered & Ready" in an occupancy certificate row; Hinglish answers from other code lanes are English; roadmap "next" cases flip between replay runs; seeded prices, the duplicate Mahagun Meadow row, Eureka Park status and metro rows, and the Astralis and Mezzaria data conflicts need your decision.
-
-## Risk record: complaints and false reassurance (2026-11-03, dev only)
-
-- **What was decided:** (1) UP-RERA complaint counts, already read on 27 Oct for the 127 registry-matched projects (`rera-evidence.json`, outside git), are staged as pending `project_field_drafts` rows, field `rera_complaints`, with the page URL and read date (`scripts/data-integrity/28-complaints-drafts.ts`, dry run by default). A named person approves them (`29-approve-complaints.ts`); only an approved row is read, by one function, `loadComplaints` in `handlers/projectCatch.ts`, as one fixed sentence ("We read UP-RERA's registry page for this project on <date>: it lists N complaints…, not a ruling"). No schema change. (2) "What could go wrong", "risks of X" and "is X safe or the safer buy" now route to `projectCatch`, which also states a RERA validity date that has passed as "on record" with the extension caveat. (3) Verdict words are dropped in code, not prompted away: `dropUnsourcedJudgements` removes "objectively", "zero-delay", "clean legal standing", "unblemished", "risk-free", "superior choice", "capital deployment" and an occupancy-certificate row that reads Delivered or Ready, unless our own facts carry the words (`falseReassurance.test.ts`).
-- **Why:** hard-43 Q5 ("is Mezzaria the safer buy") called the project objectively safer, with a clean legal standing and an unblemished insolvency record, while UP-RERA shows 53 complaints and a lapsed validity in our own row.
-- **What was rejected:** a new `Project` column for the count (a migration on dev and live for one figure); reading drafts in the prompt path (`field_drafts` stays in `FORBIDDEN_RELATIONS`); a longer prompt rule (it did not hold on 31 Oct); naming the portal's address in the sentence (the sanitizer deletes the sentence).
-- **State:** 127 pending rows on dev, none approved (Mezzaria was approved, answered and reverted as an end-to-end check). Not done: orders, abeyance and withdrawn lists (static HTML returns little, see the pipeline README); the 40-question real-model before/after; live.
-- **Also (2026-11-03):** the next turn of a session waits for the previous turn's rows (`trackPersist`/`waitForPersist` in `chat-router.ts`), fixing follow-ups ("next step?", "yes") that read a history missing the last turn. `scripts/release-check.cjs` compiles the committed tree in a clean copy; `.githooks/pre-push` runs it (`core.hooksPath` had pointed at a folder that does not exist, so no hook ever ran). Node 22 pinned (`.nvmrc`, CI).
+- **Instrument before optimising** (`turnTimer.ts`); every unmeasured latency theory was wrong. Debug locally: read the log and the DB row.
+- **Before concluding a fix failed,** check that port 3001 is really your server; kill a server by the `pid` in its JSON log.
+- **Check free memory before `next dev` or a full replay** (ERRORS.md 10-26, 11-03).
+- **Data-quality reverts are the owner's call.** Surface conflicts; don't resolve them silently.
+- **Write regexes with Write/Edit, never through a shell heredoc.** After a scripted regex edit, grep for `chr(8)`.
+- **Before moving or deleting files, grep for whatever reads them.** Never delete gitignored corpus `results-*.json`.
+- **Competitor answers teach patterns, never facts** (10-31, `docs/COMPETITOR_PROMPT_GUIDE_2026-10-31.md`). No competitor or portal named on the platform; nothing from their answers goes into the DB unverified.
+- **Week plans:** a task is ticked only with its proof file in `docs/benchmark/` (cycle 2: `C2_DAY<n>_<topic>.md`). Unfinished tasks go to the top of the next cycle with a reason.
+- **Repo layout (owner, 10-27):** old roadmaps in `docs/archive/plans/`; current plan is the newest `docs/WEEK_PLAN_*.md`. Kept because code reads them: `QueriesAndKeywords/`, `Projects/`, `newProj/`, `docs/ground-truth`, `docs/enrichment`.
