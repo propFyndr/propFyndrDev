@@ -9,6 +9,8 @@ import { createIdentitySession, verifyPassword, requireIdentity, requireRole, se
 import type { AdminIdentitySession } from '../lib/adminIdentity'
 import { computeCompleteness } from '../lib/completeness'
 import { buyerJourney } from '../lib/analytics/buyerJourney'
+import { siteVisitsQuery, leadPatchAudit, SITE_VISIT_STATUSES, type SiteVisitStatusFilter } from '../lib/adminLeadTracking'
+import { LEAD_BRIEF_READ_SUMMARY } from '../lib/adminReadAudit'
 import { computeCarpetToSuperRatio } from '../lib/calculators'
 import { normalisePortalSubdomain } from '../lib/portalSubdomain'
 import { PRICE_FIELDS, applyFactWrites, changedPriceFields, parsePriceVerification, priceFactWrites } from '../lib/priceVerification'
@@ -2017,12 +2019,62 @@ router.get('/leads', async (req: Request, res: Response) => {
       prisma.callbackRequest.count({ where }),
     ])
 
-    res.json({ leads, total })
+    // First time a staff member opened each lead's brief (adminReadAudit READ rows).
+    // Portal (builder/partner) brief opens are not audited, so this is staff only.
+    const briefReads = leads.length === 0 ? [] : await prisma.auditLog.groupBy({
+      by: ['entity_id'],
+      where: {
+        entity_type: 'callback_request', action: 'READ', summary: LEAD_BRIEF_READ_SUMMARY,
+        entity_id: { in: leads.map((l) => l.id) },
+      },
+      _min: { created_at: true },
+    })
+    const openedAt = new Map(briefReads.map((r) => [r.entity_id, r._min.created_at]))
+
+    res.json({ leads: leads.map((l) => ({ ...l, briefOpenedAt: openedAt.get(l.id) ?? null })), total })
   } catch (err) {
     // Do not swallow: an empty list here is indistinguishable from a broken query,
     // which is exactly how the missing lead columns stayed hidden.
     console.error('[admin] leads query failed:', err)
     res.status(500).json({ error: 'Failed to fetch leads' })
+  }
+})
+
+// GET /api/v1/admin/site-visits — site visit requests, real leads only (?includeTeam=1 keeps team rows)
+// Status is changed through PATCH /api/v1/portal/builder/site-visits/:id?builder_id=… (portal.ts).
+router.get('/site-visits', async (req: Request, res: Response) => {
+  const status = typeof req.query.status === 'string' && req.query.status !== 'all' ? req.query.status : undefined
+  if (status && !(SITE_VISIT_STATUSES as readonly string[]).includes(status)) {
+    return res.status(400).json({ error: `status must be one of ${SITE_VISIT_STATUSES.join(', ')}` })
+  }
+  const limit = Math.min(Math.max(parseInt(String(req.query.limit ?? '50'), 10) || 50, 1), 200)
+  const offset = Math.max(parseInt(String(req.query.offset ?? '0'), 10) || 0, 0)
+  try {
+    const q = siteVisitsQuery({
+      status: status as SiteVisitStatusFilter | undefined,
+      includeTeam: req.query.includeTeam === '1',
+      limit,
+      offset,
+    })
+    const [rows, [{ total }]] = await Promise.all([
+      prisma.$queryRaw<Array<{
+        id: string; name: string; phone: string; project_name: string; project_slug: string; builder_id: string | null
+        visit_date: Date; time_slot: string; status: string; created_at: Date; assigned_partner_id: string | null
+      }>>(q.list),
+      prisma.$queryRaw<Array<{ total: number }>>(q.count),
+    ])
+    res.json({
+      siteVisits: rows.map(({ project_name, project_slug, builder_id, ...r }) => ({
+        ...r,
+        project: { name: project_name, slug: project_slug, builder_id },
+      })),
+      total,
+      limit,
+      offset,
+    })
+  } catch (err) {
+    console.error('[admin] site visits query failed:', err)
+    res.status(500).json({ error: 'Failed to fetch site visits' })
   }
 })
 
@@ -2051,8 +2103,12 @@ router.get('/leads/:id/brief', async (req: Request, res: Response) => {
 router.patch('/leads/:id', async (req: Request, res: Response) => {
   const { id } = req.params
   const { status, lead_tier } = req.body
+  const identity = (req as Request & { adminIdentity?: AdminIdentitySession }).adminIdentity
 
   try {
+    // Old status, for the audit summary's old → new.
+    const before = await prisma.callbackRequest.findUnique({ where: { id }, select: { status: true, name: true } })
+    let stampedFirstContact = false
     /**
      * Stamp the first time this lead was worked.
      *
@@ -2062,10 +2118,12 @@ router.patch('/leads/:id', async (req: Request, res: Response) => {
      * measure the most recent touch instead.
      */
     if (status && status !== 'new') {
-      await prisma.callbackRequest.updateMany({
+      // count === 1 only for the request that wrote the stamp: race-safe "who contacted first".
+      const stamped = await prisma.callbackRequest.updateMany({
         where: { id, first_contacted_at: null },
         data: { first_contacted_at: new Date() },
       })
+      stampedFirstContact = stamped.count === 1
     }
 
     const lead = await prisma.callbackRequest.update({
@@ -2075,6 +2133,21 @@ router.patch('/leads/:id', async (req: Request, res: Response) => {
         ...(lead_tier && { lead_tier }),
       },
     })
+
+    // Who worked the lead: the CONTACTED rows feed responseBySalesperson on /boards/queue.
+    const audit = leadPatchAudit(before?.status ?? null, status, stampedFirstContact)
+    if (audit) {
+      await recordAudit({
+        entityType: 'callback_request',
+        entityId: id,
+        entityName: before?.name,
+        action: audit.action,
+        actorAdminId: identity?.adminUserId ?? null,
+        actorLabel: identity?.email ?? 'unknown',
+        ipAddress: req.ip,
+        summary: audit.summary,
+      })
+    }
 
     res.json(lead)
   } catch (err) {

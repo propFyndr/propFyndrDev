@@ -58,8 +58,9 @@ export function realPeoplePropertyEvents(): Prisma.Sql {
  * Real leads: callbacks not marked is_test, and site visits (no is_test column),
  * neither from a team identity. kind is 'callback' | 'site_visit'.
  * A lead with no identity at all is kept: it is not ours, only unattributed.
+ * `includeTeam` keeps team identities (a debugging escape, as in realPeopleSessions).
  */
-export function realLeads(): Prisma.Sql {
+export function realLeads(opts: { includeTeam?: boolean } = {}): Prisma.Sql {
   return Prisma.sql`
     SELECT * FROM (
       SELECT cr.id, 'callback'::text AS kind, cr.created_at, cr.user_id, cr.guest_token, cr.status::text AS status,
@@ -70,7 +71,7 @@ export function realLeads(): Prisma.Sql {
         sv.assigned_partner_id, sv.project_slug, ${personOf('sv.user_id', 'sv.guest_token')}
       FROM site_visit_requests sv
     ) rl
-    WHERE ${notTeam('rl')}`
+    ${opts.includeTeam ? Prisma.empty : Prisma.sql`WHERE ${notTeam('rl')}`}`
 }
 
 /**

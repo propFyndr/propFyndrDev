@@ -27,6 +27,7 @@ const MATRIX: Array<[string, string, Record<Role, boolean>]> = [
   //    they are not allowed to see.
   ['GET', '/leads', { SUPER_ADMIN: true, ANALYST: false, SALES: true }],
   ['PATCH', '/leads/abc-123', { SUPER_ADMIN: true, ANALYST: false, SALES: true }],
+  ['GET', '/site-visits', { SUPER_ADMIN: true, ANALYST: false, SALES: true }],
   ['GET', '/callbacks', { SUPER_ADMIN: true, ANALYST: false, SALES: true }],
   ['PATCH', '/callbacks/abc-123', { SUPER_ADMIN: true, ANALYST: false, SALES: true }],
 

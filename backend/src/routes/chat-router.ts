@@ -2542,7 +2542,7 @@ router.post('/', async (req: Request, res: Response) => {
           }
         })
         if (!existingLead) {
-          await prisma.callbackRequest.create({
+          const created = await prisma.callbackRequest.create({
             data: {
               name: nameStr,
               phone: phone,
@@ -2567,6 +2567,7 @@ router.post('/', async (req: Request, res: Response) => {
               is_test: process.env.NODE_ENV === 'test',
             }
           })
+          if (!userId && !guestToken) console.warn(`[LEADS:NO_IDENTITY] chat callback ${created.id} kept with no user_id and no guest_token (counted on /admin/boards/queue)`)
           const redactedPhone = phone.length > 4 ? `${phone.slice(0, 2)}******${phone.slice(-2)}` : '***'
           console.log('[LEAD:CAPTURED]', { name: nameStr, phone: redactedPhone, targetProj: targetProj?.name })
         }

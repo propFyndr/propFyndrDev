@@ -120,6 +120,8 @@ const ANALYST_READ_DENIED: readonly RegExp[] = [
   // adminReadCoverage.test.ts on the day the board was added, which is the
   // whole reason that test walks the routers instead of trusting a list.
   /^\/boards\/queue\b/,
+  // Site visit requests: a buyer's name, phone and appointment.
+  /^\/site-visits\b/,
   /^\/referrals\b/,
   // One row per person, each opening to their questions: transcript content by person.
   /^\/analytics\/people\b/,
@@ -149,6 +151,7 @@ const ANALYST_WRITE_DENIED: readonly RegExp[] = [
   /^\/leads\b/,
   /^\/callbacks\b/,
   /^\/boards\/queue\b/,
+  /^\/site-visits\b/,
   /^\/referrals\b/,
 ]
 

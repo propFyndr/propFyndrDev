@@ -2,6 +2,7 @@ import { describe, it, after } from 'node:test'
 import assert from 'node:assert/strict'
 import { prisma } from '../../db'
 import { buyerJourney, type JourneyStage } from '../buyerJourney'
+import { LEAD_BRIEF_READ_SUMMARY } from '../../adminReadAudit'
 
 // Runs against the configured database (dev). Counts are window-wide, so each
 // case asserts the change its own fixture rows make, then deletes them.
@@ -12,6 +13,7 @@ const since = new Date(Date.now() - 60_000)
 const sessionIds: string[] = []
 const callbackIds: string[] = []
 const savedIds: string[] = []
+const auditIds: string[] = []
 
 const stage = (s: JourneyStage[], id: JourneyStage['id']) => s.find(x => x.id === id)!
 
@@ -21,6 +23,7 @@ async function chat(guestToken: string, isBot = false) {
 }
 
 after(async () => {
+  await prisma.auditLog.deleteMany({ where: { id: { in: auditIds } } })
   await prisma.savedProperty.deleteMany({ where: { id: { in: savedIds } } })
   await prisma.callbackRequest.deleteMany({ where: { id: { in: callbackIds } } })
   await prisma.chatSession.deleteMany({ where: { id: { in: sessionIds } } })
@@ -55,6 +58,26 @@ describe('buyerJourney', () => {
     const after_ = await buyerJourney(prisma, since)
     assert.equal(stage(after_, 'callback').count - stage(before, 'callback').count, 1)
     assert.equal(stage(after_, 'saved').count, stage(before, 'saved').count)
+  })
+
+  it('a contacted callback whose brief was opened counts as lead, brief_opened and contacted', async () => {
+    const before = await buyerJourney(prisma, since)
+    const token = tok('worked')
+    await chat(token)
+    const cb = await prisma.callbackRequest.create({
+      data: { name: 'Journey Fixture', phone: '+910000000000', guest_token: token, status: 'contacted', first_contacted_at: new Date() },
+    })
+    callbackIds.push(cb.id)
+    const audit = await prisma.auditLog.create({
+      data: { entity_type: 'callback_request', entity_id: cb.id, action: 'READ', summary: LEAD_BRIEF_READ_SUMMARY },
+    })
+    auditIds.push(audit.id)
+
+    const after_ = await buyerJourney(prisma, since)
+    for (const id of ['lead', 'callback', 'brief_opened', 'contacted'] as const) {
+      assert.equal(stage(after_, id).count - stage(before, id).count, 1, id)
+    }
+    assert.equal(stage(after_, 'cards_shown').count, stage(before, 'cards_shown').count)
   })
 
   it('a bot session is not a chat starter, so its callback falls outside the cohort', async () => {

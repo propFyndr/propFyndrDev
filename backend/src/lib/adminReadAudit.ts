@@ -45,6 +45,9 @@ const AUDITED_READS: ReadonlyArray<{ pattern: RegExp; entityType: string; what: 
   { pattern: /^\/analytics\/people\/([^/]+)\/questions$/, entityType: 'chat_person', what: "person's chat questions" },
 ]
 
+/** The summary a Lead Brief open is logged with; read back as "brief opened" (leads list, funnel). */
+export const LEAD_BRIEF_READ_SUMMARY = 'Viewed lead brief'
+
 function matchAudited(path: string): { entityType: string; what: string; entityId: string } | null {
   for (const rule of AUDITED_READS) {
     const m = rule.pattern.exec(path)

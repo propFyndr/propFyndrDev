@@ -466,7 +466,7 @@ export default function AnalyticsDashboard() {
               <span className="truncate">Buyer Journey</span>
               <AdminInfoTooltip
                 title="Buyer Journey"
-                description="People who started a chat in the last 30 days, and how many of them went on to each step. Stages are not nested: a buyer can request a callback without saving. 'Dossier created' is a share link made; whether it was sent is in PostHog (dossier_shared)."
+                description="People who started a chat in the last 30 days, and how many of them went on to each step. Stages are not nested: a buyer can request a callback without saving. 'Lead brief opened' and 'Contacted' are our team's actions on that buyer's callback. 'Dossier created' is a share link made; whether it was sent is in PostHog (dossier_shared)."
                 whyItMatters="Shows where buyers stop, counting the same people at every step."
               />
             </span>

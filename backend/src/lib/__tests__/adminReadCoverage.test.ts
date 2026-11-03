@@ -81,6 +81,8 @@ const READ_REGISTRY: Record<string, Record<Role, boolean>> = {
   '/boards/queue': LEAD_WORKERS,
   '/leads': LEAD_WORKERS,
   '/leads/:id/brief': LEAD_WORKERS,
+  // Site visit requests (2026-11-04): name, phone and the date the buyer asked for.
+  '/site-visits': LEAD_WORKERS,
   '/callbacks': LEAD_WORKERS,
   '/callbacks/:id': LEAD_WORKERS,
 

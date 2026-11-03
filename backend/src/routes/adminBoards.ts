@@ -21,6 +21,7 @@ import { prisma } from '../lib/db'
 import { loadScoreMap } from '../lib/completenessCache'
 import { realLeads } from '../lib/analytics/cohort'
 import { startOfIstDay } from '../lib/istTime'
+import { medianOrNull } from '../lib/adminLeadTracking'
 
 const router = Router()
 
@@ -45,11 +46,14 @@ router.get('/queue', async (_req: Request, res: Response) => {
   // the list below still include them (a Prisma where cannot express the team join).
   const open = { is_test: false, status: { notIn: ['converted', 'lost'] } }
 
-  const [[leadCounts], hot, warm, cold, stale, contacted, queue] = await Promise.all([
+  const since30d = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
+  const [[leadCounts], hot, warm, cold, stale, contacted, queue, contactAudits] = await Promise.all([
     // Real leads only (lib/analytics/cohort.ts): callbacks not marked test and site visits,
     // neither from a team identity. A site visit is open until cancelled or completed.
-    prisma.$queryRaw<Array<{ todayCallbacks: number; todaySiteVisits: number; openSiteVisits: number; unassignedCallbacks: number; unassignedSiteVisits: number }>>`
+    prisma.$queryRaw<Array<{ todayCallbacks: number; todaySiteVisits: number; openSiteVisits: number; unassignedCallbacks: number; unassignedSiteVisits: number; noIdentity: number }>>`
       SELECT
+        -- All time, callbacks and site visits: leads that name no account and no guest ([LEADS:NO_IDENTITY]).
+        COUNT(*) FILTER (WHERE user_id IS NULL AND guest_token IS NULL)::int AS "noIdentity",
         COUNT(*) FILTER (WHERE kind = 'callback' AND created_at >= ${startOfToday})::int AS "todayCallbacks",
         COUNT(*) FILTER (WHERE kind = 'site_visit' AND created_at >= ${startOfToday})::int AS "todaySiteVisits",
         COUNT(*) FILTER (WHERE kind = 'site_visit' AND status IN ('pending', 'confirmed'))::int AS "openSiteVisits",
@@ -74,7 +78,7 @@ router.get('/queue', async (_req: Request, res: Response) => {
       where: {
         is_test: false,
         first_contacted_at: { not: null },
-        created_at: { gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) },
+        created_at: { gte: since30d },
       },
       select: { created_at: true, first_contacted_at: true },
     }),
@@ -91,6 +95,14 @@ router.get('/queue', async (_req: Request, res: Response) => {
       orderBy: [{ lead_score: 'desc' }, { created_at: 'desc' }],
       take: 100,
     }),
+    // Who made first contact, from the CONTACTED audit rows PATCH /admin/leads/:id writes.
+    // Joined to real callbacks so test and team leads drop out.
+    prisma.$queryRaw<Array<{ actorAdminId: string | null; actorLabel: string; minutes: number }>>`
+      SELECT a.actor_admin_id AS "actorAdminId", a.actor AS "actorLabel",
+             EXTRACT(EPOCH FROM (a.created_at - l.created_at)) / 60 AS minutes
+      FROM audit_logs a
+      JOIN (${realLeads()}) l ON l.id = a.entity_id AND l.kind = 'callback'
+      WHERE a.entity_type = 'callback_request' AND a.action = 'CONTACTED' AND a.created_at >= ${since30d}`,
   ])
 
   /**
@@ -105,6 +117,27 @@ router.get('/queue', async (_req: Request, res: Response) => {
   const medianMinutes = waits.length >= 5
     ? Math.round(waits[Math.floor(waits.length / 2)] / 60000)
     : null
+
+  // Per salesperson over the last 30 days: contacts made and median minutes from lead to contact.
+  const byActor = new Map<string, { actorAdminId: string | null; actorLabel: string; minutes: number[] }>()
+  for (const a of contactAudits) {
+    const key = a.actorAdminId ?? a.actorLabel
+    const entry = byActor.get(key) ?? { actorAdminId: a.actorAdminId, actorLabel: a.actorLabel, minutes: [] }
+    entry.minutes.push(Number(a.minutes))
+    byActor.set(key, entry)
+  }
+  const responseBySalesperson = [...byActor.values()]
+    .map((e) => {
+      const valid = e.minutes.filter((m) => m >= 0)
+      const median = medianOrNull(valid)
+      return {
+        actorAdminId: e.actorAdminId,
+        actorLabel: e.actorLabel,
+        contacted: e.minutes.length,
+        median_response_minutes: median === null ? null : Math.round(median),
+      }
+    })
+    .sort((a, b) => b.contacted - a.contacted)
 
   const unassigned = leadCounts.unassignedCallbacks + leadCounts.unassignedSiteVisits
   res.json({
@@ -121,7 +154,9 @@ router.get('/queue', async (_req: Request, res: Response) => {
       // measured yet" rather than showing a confident zero.
       median_response_minutes: medianMinutes,
       contacted_sample: waits.length,
+      noIdentity: leadCounts.noIdentity,
     },
+    responseBySalesperson,
     /** Milliseconds, so the client can label "going cold" with the same rule. */
     stale_after_ms: STALE_AFTER_MS,
     queue,

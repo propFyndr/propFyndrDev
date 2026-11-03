@@ -177,6 +177,9 @@ router.post('/callback', async (req: Request, res: Response) => {
 
   // Persist the qualified lead. Previously the score was computed and forwarded to
   // the webhook only, so the admin lead views and /admin/stats had nothing to read.
+  // Kept, not rejected: a lead with a phone number and no identity is still a lead.
+  // Counted as stats.noIdentity on /admin/boards/queue (no column to mark it with).
+  const noIdentity = !userId && !guestToken
   const cb = await prisma.callbackRequest.create({
     data: {
       name,
@@ -206,6 +209,8 @@ router.post('/callback', async (req: Request, res: Response) => {
       ai_summary: profile.ai_summary ?? summarizeProfile(profile),
     },
   })
+
+  if (noIdentity) console.warn(`[LEADS:NO_IDENTITY] callback ${cb.id} saved with no user_id and no guest_token`)
 
   /**
    * Credit the news item that started this, if there was one.

@@ -64,6 +64,159 @@ interface Lead {
   budget_max_cr?: number | null
   ai_summary?: string | null
   created_at: string
+  /** First time our team opened this lead's brief (audit log); null if never. */
+  briefOpenedAt?: string | null
+}
+
+type SiteVisitStatus = 'pending' | 'confirmed' | 'cancelled' | 'completed'
+
+interface SiteVisit {
+  id: string
+  name: string
+  phone: string
+  project: { name: string; slug: string; builder_id: string | null }
+  visit_date: string
+  time_slot: string
+  status: SiteVisitStatus
+  created_at: string
+  assigned_partner_id: string | null
+}
+
+const SITE_VISIT_OPTIONS: SelectOption[] = [
+  { value: 'pending', label: 'Pending', dotColor: 'bg-blue-500' },
+  { value: 'confirmed', label: 'Confirmed', dotColor: 'bg-emerald-500' },
+  { value: 'completed', label: 'Completed', dotColor: 'bg-teal-500' },
+  { value: 'cancelled', label: 'Cancelled', dotColor: 'bg-zinc-400' },
+]
+
+/**
+ * Site visit requests (GET /admin/site-visits, real leads only). Status changes go
+ * through the builder-portal route, which needs the project's builder id.
+ */
+function SiteVisitsSection({ onToast }: { onToast: (message: string, type?: 'success' | 'error') => void }) {
+  const [visits, setVisits] = useState<SiteVisit[]>([])
+  const [total, setTotal] = useState<number | null>(null)
+  const [statusFilter, setStatusFilter] = useState<'all' | SiteVisitStatus>('all')
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    let cancelled = false
+    setLoading(true)
+    adminFetch(`/admin/site-visits?status=${statusFilter}`)
+      .then(async (res) => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`)
+        const data = await res.json()
+        if (cancelled) return
+        setVisits(data.siteVisits || [])
+        setTotal(typeof data.total === 'number' ? data.total : null)
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setTotal(null)
+          onToast('Failed to fetch site visits', 'error')
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false)
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [statusFilter, onToast])
+
+  const updateStatus = async (visit: SiteVisit, status: SiteVisitStatus) => {
+    if (!visit.project.builder_id) return
+    try {
+      const res = await adminFetch(
+        `/portal/builder/site-visits/${visit.id}?builder_id=${encodeURIComponent(visit.project.builder_id)}`,
+        { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status }) }
+      )
+      if (!res.ok) throw new Error('Update failed')
+      setVisits((prev) => prev.map((v) => (v.id === visit.id ? { ...v, status } : v)))
+      onToast('Site visit updated', 'success')
+    } catch {
+      onToast('Could not update site visit', 'error')
+    }
+  }
+
+  return (
+    <Card className="overflow-hidden">
+      <div className="px-5 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-zinc-200/80 dark:border-zinc-800">
+        <div>
+          <h2 className="text-sm font-bold text-zinc-900 dark:text-white">Site visits</h2>
+          <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
+            {total === null ? '—' : total.toLocaleString()} {statusFilter === 'all' ? 'requested' : statusFilter}
+            {total !== null && total > visits.length ? ` · showing latest ${visits.length}` : ''}
+          </p>
+        </div>
+        <div className="w-full sm:w-44 shrink-0">
+          <CustomSelect
+            value={statusFilter}
+            onChange={(v) => setStatusFilter(v as 'all' | SiteVisitStatus)}
+            options={[{ value: 'all', label: 'All Statuses' }, ...SITE_VISIT_OPTIONS]}
+            size="md"
+          />
+        </div>
+      </div>
+      {loading ? (
+        <div className="p-6 space-y-4">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <Skeleton key={i} className="h-8 w-full" />
+          ))}
+        </div>
+      ) : visits.length === 0 ? (
+        <p className="py-10 text-center text-xs text-zinc-500 dark:text-zinc-400">No site visit requests for this filter.</p>
+      ) : (
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="bg-zinc-50/70 dark:bg-zinc-800/40 border-b border-zinc-200/80 dark:border-zinc-800 text-[11px] font-bold text-zinc-400 uppercase tracking-wider">
+                <th className="px-5 py-3.5">Buyer</th>
+                <th className="px-5 py-3.5">Project</th>
+                <th className="px-5 py-3.5">Visit asked for</th>
+                <th className="px-5 py-3.5">Requested</th>
+                <th className="px-5 py-3.5">Status</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800/60 text-xs">
+              {visits.map((v) => (
+                <tr key={v.id} className="hover:bg-zinc-50/60 dark:hover:bg-zinc-800/40 transition-colors">
+                  <td className="px-5 py-4">
+                    <p className="font-bold text-zinc-900 dark:text-white text-[13px]">{v.name}</p>
+                    <p className="font-mono text-[11px] text-zinc-400 mt-0.5">{formatPhone(v.phone)}</p>
+                  </td>
+                  <td className="px-5 py-4 text-zinc-800 dark:text-zinc-200 font-medium">
+                    <span className="truncate max-w-[200px] inline-block">{v.project.name}</span>
+                    {v.assigned_partner_id && <p className="text-[11px] text-zinc-400">Assigned to a partner</p>}
+                  </td>
+                  <td className="px-5 py-4 text-zinc-700 dark:text-zinc-300 whitespace-nowrap">
+                    {format(new Date(v.visit_date), 'PPP')} · {v.time_slot}
+                  </td>
+                  <td className="px-5 py-4 text-zinc-500 dark:text-zinc-400 whitespace-nowrap">
+                    <span title={format(new Date(v.created_at), 'PPP p')}>
+                      {formatDistanceToNow(new Date(v.created_at), { addSuffix: true })}
+                    </span>
+                  </td>
+                  <td className="px-5 py-4 w-[160px]">
+                    {v.project.builder_id ? (
+                      <CustomSelect
+                        value={v.status}
+                        onChange={(val) => void updateStatus(v, val as SiteVisitStatus)}
+                        options={SITE_VISIT_OPTIONS}
+                        size="sm"
+                      />
+                    ) : (
+                      <span className="capitalize text-zinc-600 dark:text-zinc-400">{v.status}</span>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </Card>
+  )
 }
 
 type StatusType = 'new' | 'contacted' | 'qualified' | 'converted' | 'lost'
@@ -524,6 +677,14 @@ export default function BuilderLeadsPage() {
                       <span title={format(new Date(lead.created_at), 'PPP p')}>
                         {formatDistanceToNow(new Date(lead.created_at), { addSuffix: true })}
                       </span>
+                      {lead.briefOpenedAt && (
+                        <p
+                          className="text-[11px] font-semibold text-zinc-600 dark:text-zinc-300 mt-0.5"
+                          title={format(new Date(lead.briefOpenedAt), 'PPP p')}
+                        >
+                          Brief opened
+                        </p>
+                      )}
                     </td>
 
                     {/* Status Dropdown */}
@@ -572,6 +733,8 @@ export default function BuilderLeadsPage() {
           </div>
         </Card>
       )}
+
+      <SiteVisitsSection onToast={showToast} />
 
       {/* ELEVATED LEAD DOSSIER REVIEW DIALOG */}
       <AnimatePresence>

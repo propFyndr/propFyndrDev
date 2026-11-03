@@ -18,10 +18,17 @@
 // PostHog event (dossier_shared), not a database row.
 import { Prisma } from '@prisma/client'
 import type { PrismaClient } from '@prisma/client'
-import { realPeopleSessions, realLeads, realSaves, personOf, notTeam } from './cohort'
+import { realPeopleSessions, realLeads, realSaves, personOf, notTeam, EVENT_ACTIONS } from './cohort'
+import { LEAD_BRIEF_READ_SUMMARY } from '../adminReadAudit'
+
+/** Stage order as shown. The buyer path is chat → cards → project → saved → lead → brief → contacted. */
+export const STAGE_ORDER = [
+  'chat_started', 'cards_shown', 'project_opened', 'saved',
+  'lead', 'callback', 'site_visit', 'brief_opened', 'contacted', 'dossier',
+] as const
 
 export interface JourneyStage {
-  id: 'chat_started' | 'saved' | 'callback' | 'site_visit' | 'dossier'
+  id: (typeof STAGE_ORDER)[number]
   label: string
   /** People among chat starters who did this. */
   count: number
@@ -33,9 +40,14 @@ export interface JourneyStage {
 
 const LABELS: Record<JourneyStage['id'], string> = {
   chat_started: 'Chat started',
+  cards_shown: 'Shown project cards',
+  project_opened: 'Opened a project',
   saved: 'Project saved',
+  lead: 'Became a lead (callback or site visit)',
   callback: 'Callback requested',
   site_visit: 'Site visit requested',
+  brief_opened: 'Lead brief opened by our team',
+  contacted: 'Contacted by our team',
   dossier: 'Dossier created',
 }
 
@@ -56,12 +68,37 @@ export async function buyerJourney(db: PrismaClient, since: Date): Promise<Journ
         UNION ALL SELECT guest_token, person FROM s WHERE guest_token IS NOT NULL
       ) x
     ),
+    leads AS (SELECT * FROM (${realLeads()}) l WHERE created_at >= ${since}),
     actions AS (
-      SELECT 'saved' AS stage, id AS action_id, user_id, guest_token, person
+      -- Cards and project opens are counted per session (action_id), so outsideCohort is sessions.
+      -- Assistant artifacts are an array of {type, ...} (chat-router persist); cards are type property_results.
+      SELECT DISTINCT 'cards_shown' AS stage, r.id AS action_id, r.user_id, r.guest_token, r.person
+        FROM chat_messages m JOIN (${realPeopleSessions()}) r ON r.id = m.session_id
+       WHERE m.role = 'assistant' AND m.created_at >= ${since}
+         AND m.artifacts @> '[{"type":"property_results"}]'::jsonb
+      UNION ALL
+      SELECT DISTINCT 'project_opened', r.id, r.user_id, r.guest_token, r.person
+        FROM property_events pe JOIN (${realPeopleSessions()}) r ON r.id = pe.session_id
+       WHERE pe.created_at >= ${since} AND pe.action IN (${Prisma.join([...EVENT_ACTIONS.view, ...EVENT_ACTIONS.click])})
+      UNION ALL
+      SELECT 'saved', id, user_id, guest_token, person
         FROM (${realSaves()}) sv WHERE saved_at >= ${since}
       UNION ALL
+      SELECT 'lead', id, user_id, guest_token, person FROM leads
+      UNION ALL
       SELECT CASE WHEN kind = 'callback' THEN 'callback' ELSE 'site_visit' END, id, user_id, guest_token, person
-        FROM (${realLeads()}) l WHERE created_at >= ${since}
+        FROM leads
+      UNION ALL
+      -- A brief is a callback's; opened = a staff READ logged by adminReadAudit (any time).
+      SELECT 'brief_opened', l.id, l.user_id, l.guest_token, l.person FROM leads l
+       WHERE l.kind = 'callback' AND EXISTS (
+         SELECT 1 FROM audit_logs a WHERE a.entity_type = 'callback_request' AND a.entity_id = l.id
+            AND a.action = 'READ' AND a.summary = ${LEAD_BRIEF_READ_SUMMARY})
+      UNION ALL
+      -- Only callbacks carry first_contacted_at.
+      SELECT 'contacted', l.id, l.user_id, l.guest_token, l.person FROM leads l
+        JOIN callback_requests cr ON cr.id = l.id
+       WHERE l.kind = 'callback' AND cr.first_contacted_at IS NOT NULL
       UNION ALL
       SELECT 'dossier', token, user_id, guest_token, person FROM (
         SELECT d.token, d.user_id, d.guest_token, ${personOf('d.user_id', 'd.guest_token')} AS person
@@ -93,7 +130,7 @@ export async function buyerJourney(db: PrismaClient, since: Date): Promise<Journ
 
   const byStage = new Map(rows.map(r => [r.stage, r]))
   const starters = byStage.get('chat_started')?.people ?? 0
-  return (Object.keys(LABELS) as JourneyStage['id'][]).map(id => {
+  return STAGE_ORDER.map(id => {
     const count = byStage.get(id)?.people ?? 0
     return {
       id,
