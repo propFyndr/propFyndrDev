@@ -166,6 +166,7 @@ import { buildTopicChips } from '../lib/discovery/topicChips'
 import { buildCityMicroMarketsContext, getCityMicroMarkets } from '../lib/discovery/sectorDataGateway'
 import { sanitizeOutput, mentionsPortal } from '../lib/ai/sanitizeOutput'
 import { wantsToBookVisit } from '../lib/chat/handlers/buyerSupport'
+import { recordLeadObjections } from '../lib/leadObjections'
 import { stripInternalFields } from '../lib/projectRepository'
 import { builderCoverage, sectorCoverage, sectorPinCode } from '../lib/chat/coverageAnswer'
 import { rentalAnswer, isRentalQuestion } from '../lib/chat/rentalAnswer'
@@ -2568,6 +2569,7 @@ router.post('/', async (req: Request, res: Response) => {
             }
           })
           if (!userId && !guestToken) console.warn(`[LEADS:NO_IDENTITY] chat callback ${created.id} kept with no user_id and no guest_token (counted on /admin/boards/queue)`)
+          void recordLeadObjections({ id: created.id, projectSlug: targetProj?.slug, projectName: targetProj?.name, sessionId: currentSessionId })
           const redactedPhone = phone.length > 4 ? `${phone.slice(0, 2)}******${phone.slice(-2)}` : '***'
           console.log('[LEAD:CAPTURED]', { name: nameStr, phone: redactedPhone, targetProj: targetProj?.name })
         }

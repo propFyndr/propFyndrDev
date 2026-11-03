@@ -32,7 +32,8 @@ export async function findGhostBuyers(projectId: string): Promise<GhostBuyer[]> 
     select: { session_id: true },
   })
 
-  const sessionIds = sessionsWithProjectEvents.map((e) => e.session_id)
+  // Session-less events (a person who never chatted) have no session to inspect here.
+  const sessionIds = sessionsWithProjectEvents.map((e) => e.session_id).filter((id): id is string => id !== null)
 
   if (sessionIds.length === 0) return []
 

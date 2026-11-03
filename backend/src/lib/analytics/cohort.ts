@@ -49,9 +49,20 @@ export function realPeopleQueryMetrics(): Prisma.Sql {
   return Prisma.sql`SELECT q.* FROM query_metrics q JOIN (${realPeopleSessions()}) rqs ON rqs.id = q.session_id`
 }
 
-/** property_events rows that belong to a real person's session (team excluded). */
+/**
+ * property_events rows of real people (team excluded): through a real session, or, for a person
+ * who never chatted (session_id null), by the row's own account / website guest token.
+ */
 export function realPeoplePropertyEvents(): Prisma.Sql {
-  return Prisma.sql`SELECT pe.* FROM property_events pe JOIN (${realPeopleSessions()}) rpe ON rpe.id = pe.session_id`
+  return Prisma.sql`
+    SELECT pe.id, pe.session_id, pe.user_id, pe.guest_token, pe.project_id, pe.action, pe.created_at
+    FROM property_events pe JOIN (${realPeopleSessions()}) rpe ON rpe.id = pe.session_id
+    UNION ALL
+    SELECT y.id, y.session_id, y.user_id, y.guest_token, y.project_id, y.action, y.created_at FROM (
+      SELECT pe.*, ${personOf('pe.user_id', 'pe.guest_token')} AS person FROM property_events pe
+      WHERE pe.session_id IS NULL AND (pe.user_id IS NOT NULL OR pe.guest_token ~ ${WEBSITE_GUEST_TOKEN})
+    ) y
+    WHERE ${notTeam('y')}`
 }
 
 /**
@@ -72,6 +83,16 @@ export function realLeads(opts: { includeTeam?: boolean } = {}): Prisma.Sql {
       FROM site_visit_requests sv
     ) rl
     ${opts.includeTeam ? Prisma.empty : Prisma.sql`WHERE ${notTeam('rl')}`}`
+}
+
+/**
+ * Ids of callbacks raised by a team identity. For Prisma reads (tier counts, the queue
+ * list) that cannot express the team join: pass as `id: { notIn: ids }`. Small by nature.
+ */
+export function teamCallbackIds(): Prisma.Sql {
+  return Prisma.sql`
+    SELECT a.id FROM (${realLeads({ includeTeam: true })}) a
+    WHERE a.kind = 'callback' AND NOT (${notTeam('a')})`
 }
 
 /**

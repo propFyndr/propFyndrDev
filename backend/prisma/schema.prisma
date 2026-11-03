@@ -1295,7 +1295,8 @@ model WeeklyMetricsSummary {
 
 model PropertyEvent {
   id                String   @id @default(uuid())
-  session_id        String
+  /// Null for a person who has never chatted: the event is kept by user_id / guest_token.
+  session_id        String?
   user_id           String?
   guest_token       String?
   project_id        String
@@ -1304,7 +1305,7 @@ model PropertyEvent {
   action            String
 
   created_at        DateTime @default(now())
-  session           ChatSession @relation(fields: [session_id], references: [id], onDelete: Cascade)
+  session           ChatSession? @relation(fields: [session_id], references: [id], onDelete: Cascade)
 
   @@index([session_id])
   @@index([project_id])

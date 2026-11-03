@@ -132,9 +132,9 @@ router.post('/property-event', async (req: Request, res: Response) => {
     const header = req.headers['x-guest-token']
     const guestToken = !userId && typeof header === 'string' && isWebsiteGuestToken(header.trim()) ? header.trim() : null
 
-    // property_events.session_id is a required foreign key (schema unchanged), so an event
-    // is attached to the session it names when that session exists, else to this person's
-    // latest real session. A person who has never chatted has no session and is not logged.
+    // Attached to the session it names when that session is the caller's, else to this person's
+    // latest real session. A person who has never chatted is still recorded, by identity, with
+    // no session (property_events.session_id is optional since migration 20261104_…).
     let sessionId: string | null = null
     if (data.session_id && (userId || guestToken)) {
       // The body's session id is accepted only when it belongs to the caller.
@@ -150,7 +150,7 @@ router.post('/property-event', async (req: Request, res: Response) => {
       sessionId = s?.id ?? null
     }
 
-    if (sessionId) {
+    if (sessionId || userId || guestToken) {
       await prisma.propertyEvent.create({
         data: {
           session_id: sessionId,

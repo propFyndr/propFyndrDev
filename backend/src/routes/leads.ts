@@ -5,6 +5,7 @@ import { prisma } from '../lib/db'
 import { verifyUser } from '../lib/auth'
 import { requireStaff, requireStaffRole } from '../lib/adminGuard'
 import { adminReadAudit } from '../lib/adminReadAudit'
+import { recordLeadObjections } from '../lib/leadObjections'
 import { trackConversion } from '../lib/analytics/tracking'
 import { env } from '../lib/env'
 import { notifyLead } from '../lib/notify'
@@ -211,6 +212,8 @@ router.post('/callback', async (req: Request, res: Response) => {
   })
 
   if (noIdentity) console.warn(`[LEADS:NO_IDENTITY] callback ${cb.id} saved with no user_id and no guest_token`)
+  // The buyer's stated concerns, for the Lead Brief. Fire and forget: never delays or fails the lead.
+  void recordLeadObjections({ id: cb.id, projectSlug: finalProjectSlug, projectName: finalProjectName, sessionId: resolvedSessionId })
 
   /**
    * Credit the news item that started this, if there was one.

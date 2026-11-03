@@ -19,7 +19,7 @@
 import { Router, Request, Response } from 'express'
 import { prisma } from '../lib/db'
 import { loadScoreMap } from '../lib/completenessCache'
-import { realLeads } from '../lib/analytics/cohort'
+import { realLeads, teamCallbackIds } from '../lib/analytics/cohort'
 import { startOfIstDay } from '../lib/istTime'
 import { medianOrNull } from '../lib/adminLeadTracking'
 
@@ -35,16 +35,15 @@ const STALE_AFTER_MS = 48 * 60 * 60 * 1000
  * from this morning outranks a COLD one from last week, and a lead already
  * marked `converted` or `lost` is finished work and does not appear at all.
  */
-router.get('/queue', async (_req: Request, res: Response) => {
+router.get('/queue', async (req: Request, res: Response) => {
   // "Today" is the India day: the sales floor works in IST, not the server's zone.
   const startOfToday = startOfIstDay()
   const staleBefore = new Date(Date.now() - STALE_AFTER_MS)
 
   // "Open" is the whole queue concept: anything not yet resolved.
-  // Test callbacks are not leads (excludeTestLeads covers Prisma reads elsewhere; this is explicit).
-  // Team-identity callbacks are excluded from today/unassigned via realLeads; the tier counts and
-  // the list below still include them (a Prisma where cannot express the team join).
-  const open = { is_test: false, status: { notIn: ['converted', 'lost'] } }
+  // Real leads only, as in realLeads: no test callbacks, none raised by a team identity.
+  const teamIds = (await prisma.$queryRaw<Array<{ id: string }>>`${teamCallbackIds()}`).map((r) => r.id)
+  const open = { is_test: false, ...(teamIds.length ? { id: { notIn: teamIds } } : {}), status: { notIn: ['converted', 'lost'] } }
 
   const since30d = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
   const [[leadCounts], hot, warm, cold, stale, contacted, queue, contactAudits] = await Promise.all([
@@ -138,6 +137,11 @@ router.get('/queue', async (_req: Request, res: Response) => {
       }
     })
     .sort((a, b) => b.contacted - a.contacted)
+  // A super admin sees every salesperson; a salesperson sees only their own row.
+  const viewer = (req as Request & { adminIdentity?: { adminUserId?: string; role?: string } }).adminIdentity
+  const visibleResponse = viewer?.role === 'SUPER_ADMIN'
+    ? responseBySalesperson
+    : responseBySalesperson.filter((r) => viewer?.adminUserId && r.actorAdminId === viewer.adminUserId)
 
   const unassigned = leadCounts.unassignedCallbacks + leadCounts.unassignedSiteVisits
   res.json({
@@ -156,7 +160,7 @@ router.get('/queue', async (_req: Request, res: Response) => {
       contacted_sample: waits.length,
       noIdentity: leadCounts.noIdentity,
     },
-    responseBySalesperson,
+    responseBySalesperson: visibleResponse,
     /** Milliseconds, so the client can label "going cold" with the same rule. */
     stale_after_ms: STALE_AFTER_MS,
     queue,

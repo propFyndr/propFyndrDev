@@ -40,4 +40,7 @@ test('saves split the guest_ prefix before the person and team checks', () => {
 test('query metrics and property events join the cohort on session id', () => {
   assert.match(flat(realPeopleQueryMetrics()), /FROM query_metrics q JOIN \(.*\) rqs ON rqs\.id = q\.session_id/)
   assert.match(flat(realPeoplePropertyEvents()), /FROM property_events pe JOIN \(.*\) rpe ON rpe\.id = pe\.session_id/)
+  // A person who never chatted: kept by identity, still team-excluded.
+  assert.match(flat(realPeoplePropertyEvents()), /pe\.session_id IS NULL AND \(pe\.user_id IS NOT NULL OR pe\.guest_token ~/)
+  assert.match(flat(realPeoplePropertyEvents()), /NOT EXISTS \(SELECT 1 FROM team_identities/)
 })
