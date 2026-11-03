@@ -14,13 +14,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       
+      # Node 22 = what Render builds and runs the backend on (backend/package.json engines).
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '24'
+          node-version: '22'
           cache: 'npm'
           cache-dependency-path: 'package-lock.json'
-          
+
       - name: Install dependencies (Root)
         run: npm ci
 
@@ -76,7 +77,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '24'
+          node-version: '22'
           cache: 'npm'
           cache-dependency-path: 'package-lock.json'
 

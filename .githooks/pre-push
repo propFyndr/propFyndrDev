@@ -1,0 +1,4 @@
+#!/bin/sh
+# Refuses a push whose commit does not compile. See scripts/release-check.cjs.
+# Enable once per clone: git config core.hooksPath .githooks
+exec node "$(git rev-parse --show-toplevel)/scripts/release-check.cjs"

@@ -32,6 +32,44 @@ describe('project catch', () => {
     assert.doesNotMatch(text, /dues (?:cleared|in good standing)/i)
   })
 
+  it('recognises "what could go wrong" and "is it safe" as the same question', () => {
+    for (const q of [
+      'what could go wrong with mahagun mezzaria?',
+      'What can go wrong if I buy in Ace Parkway',
+      'what are the risks of buying Godrej Woods',
+      'is mahagun mezzaria safe to buy',
+      'is mezzaria the safer buy?',
+    ]) assert.ok(ASKS_FOR_THE_CATCH.test(q), q)
+    assert.ok(!ASKS_FOR_THE_CATCH.test('what is the safety deposit for ace parkway'))
+    // hard-43 bm2: a possession-timeline question that mentions risk is not a "catch" question.
+    assert.ok(!ASKS_FOR_THE_CATCH.test('Is Supertech Supernova Astralis on track for possession, and what is the risk if it slips?'))
+  })
+
+  it('names a RERA validity date that has passed, as our record, not as a ruling', () => {
+    const now = new Date('2026-11-03')
+    const text = catchAnswer({ ...base, rera_valid_until: new Date('2021-09-28') }, null, now)
+    assert.match(text, /UP-RERA validity on record: 28 Sep 2021, which has passed/)
+    assert.match(text, /extension/i)
+    assert.doesNotMatch(catchAnswer({ ...base, rera_valid_until: new Date('2028-01-01') }, null, now), /validity on record/)
+    assert.doesNotMatch(catchAnswer({ ...base, rera_valid_until: null }, null, now), /validity on record/)
+  })
+
+  it('states an approved UP-RERA complaint count with its source and read date, and says it is not a ruling', () => {
+    const record = { project: 53, promoter: 59, readAt: new Date('2026-10-27T19:14:42Z') }
+    const text = catchAnswer(base, record)
+    assert.match(text, /53 complaints/)
+    assert.match(text, /59 against the promoter/)
+    assert.match(text, /We read UP-RERA's registry page for this project on 27 Oct 2026/)
+    // The portal's address in a sentence makes the sanitizer delete that sentence, figures included.
+    assert.doesNotMatch(text, /up-rera\.in/i)
+    assert.match(text, /not a ruling/i)
+    assert.doesNotMatch(text, /number of complaints against the project/i, 'must not also list it as a gap')
+  })
+
+  it('lists the complaint count as a gap when we hold no approved record', () => {
+    assert.match(catchAnswer(base, null), /complaints against the project on the UP-RERA portal/i)
+  })
+
   it('surfaces a missing RERA number and disagreeing price rows', () => {
     const text = catchAnswer({
       ...base,

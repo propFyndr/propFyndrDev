@@ -3023,5 +3023,46 @@
         }
       }
     ]
+  },
+  {
+    "id": "day1-risk-what-could-go-wrong",
+    "turns": [
+      {
+        "text": "What could go wrong with Mahagun Mezzaria?",
+        "expect": {
+          "lane": "topic:project_catch",
+          "llm": false,
+          "contains": [
+            "Mahagun Mezzaria",
+            "What our records show"
+          ],
+          "notContains": [
+            "unblemished",
+            "objectively",
+            "clean legal"
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "id": "day1-risk-is-it-safe",
+    "turns": [
+      {
+        "text": "Is Mahagun Mezzaria the safer buy?",
+        "expect": {
+          "lane": "topic:project_catch",
+          "llm": false,
+          "contains": [
+            "Mahagun Mezzaria"
+          ],
+          "notContains": [
+            "unblemished",
+            "objectively",
+            "zero-delay"
+          ]
+        }
+      }
+    ]
   }
 ]

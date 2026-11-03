@@ -200,6 +200,25 @@ import { appendStreamEvent, claimTurn, tailBufferedEvents } from '../lib/chat/st
 /** Buffer scope for stream replay: keyed by the client's turn id alone (see the reconnect interceptor). */
 const STREAM_BUFFER_SCOPE = 'turn'
 
+/**
+ * A turn's rows are written after its reply has been sent. A buyer's next message
+ * ("next step?", "yes") can arrive before that write lands and then reads a history
+ * with the last turn missing. The next turn of the same session waits for the write.
+ * In-process only: the live service runs one instance.
+ */
+const persistInFlight = new Map<string, Promise<unknown>>()
+function trackPersist(sessionId: string, work: Promise<unknown>): void {
+  persistInFlight.set(sessionId, work)
+  void work.catch(() => {}).finally(() => {
+    if (persistInFlight.get(sessionId) === work) persistInFlight.delete(sessionId)
+  })
+}
+async function waitForPersist(sessionId: string | null | undefined, maxMs = 4000): Promise<void> {
+  const work = sessionId ? persistInFlight.get(sessionId) : undefined
+  if (!work) return
+  await Promise.race([work.catch(() => {}), new Promise<void>((r) => setTimeout(r, maxMs))])
+}
+
 
 /**
  * Placeholder RequirementState for the window before a turn's real one is
@@ -1020,6 +1039,7 @@ router.post('/', async (req: Request, res: Response) => {
         })
       : Promise.resolve(null)
     ).catch(() => null)
+    await waitForPersist(sessionId)
     const sessionPromise = (sessionId
       ? prisma.chatSession.findUnique({
           where: { id: sessionId },
@@ -1188,7 +1208,7 @@ router.post('/', async (req: Request, res: Response) => {
       turnTrace.lane = lane
       const phase = opts.phase ?? intentState
       const artifacts = opts.artifacts ?? (cardsSentThisTurn ? [cardsSentThisTurn] : undefined)
-      void (async () => {
+      const early = (async () => {
         if (isNewSession) {
           await prisma.chatSession.create({
             data: {
@@ -1237,6 +1257,8 @@ router.post('/', async (req: Request, res: Response) => {
         // The turn is already answered and the stream closed. Never fail it here.
         console.warn('[CHAT:EARLY_PERSIST]', lane, (e as Error).message),
       )
+      // The buyer's next message waits for these rows (see waitForPersist).
+      if (currentSessionId) trackPersist(currentSessionId, early)
     }
 
     /** Single exit for every ui_state this handler emits. */
@@ -6897,7 +6919,9 @@ EXECUTIVE RESPONSE INSTRUCTIONS:
     console.log('[CHAT] AFTER send(done)', Date.now())
 
     // ── Background persistence & observability (fire-and-forget) ──
-    Promise.all(persistPromises)
+    const persisted = Promise.all(persistPromises)
+    if (currentSessionId) trackPersist(currentSessionId, persisted)
+    persisted
       .then(() => {
         if (currentSessionId) {
           try {

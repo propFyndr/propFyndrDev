@@ -13,11 +13,11 @@ import { focusedProject } from '../handlerContext'
  * as the questions to put to the sales team in writing. Nothing is inferred.
  */
 export const ASKS_FOR_THE_CATCH =
-  /\b(?:catch|downsides?|negatives?|cons\b|red\s*flags?|what(?:'s| is)\s+wrong|hidden\s+(?:issues?|problems?)|(?:sales|builder)[^?]{0,30}\b(?:not|never|won'?t|wont)\s+tell|kya\s+(?:dikkat|problem|kami))\b/i
+  /\b(?:catch|downsides?|negatives?|cons\b|red\s*flags?|what(?:'s| is)\s+wrong|what\s+(?:could|can|might)\s+go\s+wrong|what\s+(?:are|is)\s+the\s+risks?\s+(?:of|in|with)\b|risks?\s+of\s+(?:buying|booking|investing)\b|safe(?:r)?\s+(?:to\s+buy|buy|bet)|hidden\s+(?:issues?|problems?)|(?:sales|builder)[^?]{0,30}\b(?:not|never|won'?t|wont)\s+tell|kya\s+(?:dikkat|problem|kami))\b/i
 
 const select = {
   name: true, status: true, possession_date: true, possession_label: true,
-  oc_status: true, rera_number: true, project_risk_flag: true, litigation_count: true,
+  oc_status: true, rera_number: true, rera_valid_until: true, project_risk_flag: true, litigation_count: true,
   ongoing_litigation_count: true, nclt_moratorium_active: true, location_concerns: true,
   flood_waterlogging_risk: true, amitabh_kant_clearance: true,
   registry_status: true, maintenance_per_sqft_monthly: true, water_source_type: true,
@@ -52,7 +52,35 @@ function priceInconsistency(row: Row): string | null {
   return null
 }
 
-export function catchAnswer(row: Row): string {
+/**
+ * UP-RERA's own complaint counts for a project, as read from its summary page and APPROVED by a
+ * person. Drafts are never read here (project_field_drafts is withheld, see projectExposure.ts):
+ * only the row a reviewer marked approved, one field, one fixed sentence. Nothing is inferred.
+ */
+export interface ComplaintsRecord {
+  project: number | null
+  promoter: number | null
+  readAt: Date
+}
+
+export async function loadComplaints(projectId: string): Promise<ComplaintsRecord | null> {
+  const draft = await prisma.projectFieldDraft.findFirst({
+    where: { project_id: projectId, field_name: 'rera_complaints', status: 'approved' },
+    orderBy: { fetched_at: 'desc' },
+    select: { proposed_value: true, fetched_at: true },
+  })
+  const v = draft?.proposed_value as { project_complaints?: unknown; promoter_complaints_total?: unknown } | undefined
+  if (!draft || !v) return null
+  const num = (x: unknown) => (typeof x === 'number' && Number.isFinite(x) ? x : null)
+  const project = num(v.project_complaints)
+  if (project === null) return null
+  return { project, promoter: num(v.promoter_complaints_total), readAt: draft.fetched_at }
+}
+
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+const day = (d: Date) => `${d.getUTCDate()} ${MONTHS[d.getUTCMonth()]} ${d.getUTCFullYear()}`
+
+export function catchAnswer(row: Row, complaints: ComplaintsRecord | null = null, now: Date = new Date()): string {
   const found: string[] = []
   const gaps: string[] = []
   const underConstruction = row.status !== 'ready_to_move'
@@ -76,6 +104,17 @@ export function catchAnswer(row: Row): string {
   }
 
   if (!row.rera_number) found.push('We hold no UP-RERA registration number for it. Do not pay any amount until you have seen one.')
+  if (row.rera_valid_until && row.rera_valid_until.getTime() < now.getTime()) {
+    found.push(`UP-RERA validity on record: ${day(row.rera_valid_until)}, which has passed. The registry may hold an extension we have not read; ask the builder for the current registration or the extension order.`)
+  }
+  if (complaints && complaints.project !== null) {
+    const promoter = complaints.promoter !== null ? ` and ${complaints.promoter} against the promoter` : ''
+    const n = complaints.project
+    // Source and date sit in the sentence, not in a parenthetical (sanitizeOutput collapses any
+    // citation-shaped parenthetical to "(market data)"), and the sentence must not carry the portal's
+    // address: OFFPLATFORM_REFERRAL deletes a whole sentence that names it, figures included.
+    found.push(`We read UP-RERA's registry page for this project on ${day(complaints.readAt)}: it lists ${n} complaint${n === 1 ? '' : 's'} in respect of this project${promoter}. A count is not a ruling: ask what they were about and how many are resolved.`)
+  }
   if (isFlag(row.project_risk_flag)) found.push(`Risk flag on record: ${humanFlag(row.project_risk_flag)}.`)
   const litigation = row.ongoing_litigation_count ?? row.litigation_count
   if (typeof litigation === 'number' && litigation > 0) found.push(`${litigation} litigation case${litigation === 1 ? '' : 's'} on record against the project.`)
@@ -92,6 +131,7 @@ export function catchAnswer(row: Row): string {
   const price = priceInconsistency(row)
   if (price) found.push(price)
 
+  if (!complaints) gaps.push('The number of complaints against the project on the UP-RERA portal, and what they were about')
   if (row.maintenance_per_sqft_monthly == null) gaps.push('The monthly maintenance (CAM) rate, and whether it is charged on super or carpet area')
   if (!row.water_source_type) gaps.push('The water source, and a recent TDS test report')
   if (row.amitabh_kant_clearance == null) gaps.push('Whether the developer has cleared the authority land dues (Amitabh Kant 25% clearance)')
@@ -128,7 +168,7 @@ export const projectCatchHandler: ChatTopicHandler = {
     const row = await loadProject(hit.id)
     if (!row) return false
 
-    ctx.send('token', { token: catchAnswer(row) })
+    ctx.send('token', { token: catchAnswer(row, await loadComplaints(hit.id)) })
     ctx.emitUiState({
       stage: 'RESEARCH',
       thinking: `Checking ${row.name}'s records for negatives and gaps:`,

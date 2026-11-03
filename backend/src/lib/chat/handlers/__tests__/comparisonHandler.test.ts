@@ -36,9 +36,13 @@ describe('Forensic Head-to-Head Comparison Engine (Battle Mode)', () => {
     builder: { average_delay_months: 8 },
   }
 
-  it('builds 8 forensic comparison vectors and computes advantages correctly', () => {
+  it('builds the 9 forensic comparison vectors and computes advantages correctly', () => {
     const vectors = buildForensicVectors(p1, p2)
-    assert.equal(vectors.length, 8, 'Must evaluate exactly 8 forensic vectors')
+    // The exact set, not a bare count: adding or dropping a vector must be a deliberate edit here.
+    assert.deepEqual(
+      vectors.map(v => v.vector).sort(),
+      ['delivery', 'density', 'entry_price', 'environment', 'landed_cost', 'lifts', 'loading', 'registry', 'water'],
+    )
 
     // Vector 1: Landed Cost (p2 is cheaper per sqft -> p2 advantage)
     const costVec = vectors.find(v => v.vector === 'landed_cost')!

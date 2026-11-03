@@ -318,6 +318,19 @@ const UNSOURCED_JUDGEMENT = [
   /\bfootfall\b/i,
   /\b(?:peak|evening|weekend)\s+(?:hours?|evenings?|days?)\b/i,
   /\b(?:crowded|congested|busier|busy)\s+(?:common|amenit|club|lift|tower)\w*/i,
+  // Reassurance no record supports (hard-43 Q5, 31 Oct 2026: "objectively the safer buy… a zero-delay
+  // builder track record, and a clean legal standing", "unblemished insolvency record", beside a
+  // registration that had lapsed and 53 UP-RERA complaints). A verdict, never a row.
+  /\bobjectively\b/i,
+  /\bzero[-\s]delay\b/i,
+  /\bclean\s+(?:legal\s+)?(?:standing|record|title|slate)\b/i,
+  /\bunblemished\b/i,
+  /\brisk[-\s]free\b|\b(?:completely|totally|absolutely|100%)\s+safe\b/i,
+  // Investment framing (Q11: "the superior choice for forward-looking capital deployment"); out of scope.
+  /\bsuperior\s+choice\b|\bcapital\s+deployment\b/i,
+  // An occupancy-certificate row that reads Delivered or Ready is a status, not a certificate
+  // ("Delivered & Ready (OC status to be verified)" for a project whose row holds no certificate).
+  /occupancy\s+certificate[^\n]*\b(?:delivered|ready)\b(?![^\n]*\b(?:received|obtained|issued|granted)\b)/i,
 ]
 
 export function dropUnsourcedJudgements(text: string, reference: string): { text: string; dropped: string[] } {
