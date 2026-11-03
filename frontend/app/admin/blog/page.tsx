@@ -151,6 +151,9 @@ function CopySlugButton({ slug }: { slug: string }) {
 
 export default function BlogAdminPage() {
   const [posts, setPosts] = useState<BlogPost[]>([])
+  /** Server total; the list is capped (50 by default), so counts over `posts` may be a sample. */
+  const [serverTotal, setServerTotal] = useState<number | null>(null)
+  const [loadFailed, setLoadFailed] = useState(false)
   const [loading, setLoading] = useState(true)
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [lastRefreshedAt, setLastRefreshedAt] = useState<Date>(new Date())
@@ -218,9 +221,12 @@ export default function BlogAdminPage() {
       if (!res.ok) throw new Error(`HTTP ${res.status}`)
       const data = await res.json()
       setPosts(data.posts || [])
+      setServerTotal(typeof data.total === 'number' ? data.total : null)
+      setLoadFailed(false)
       setLastRefreshedAt(new Date())
       if (isManualRefresh) showToast('Blog posts refreshed', 'success')
     } catch {
+      setLoadFailed(true)
       showToast('Failed to fetch blog posts', 'error')
     } finally {
       setLoading(false)
@@ -376,6 +382,9 @@ export default function BlogAdminPage() {
     const archived = posts.filter(p => p.status === 'archived').length
     return { total, published, draft, archived }
   }, [posts])
+  const blogCapped = serverTotal !== null && serverTotal > posts.length
+  const capNote = blogCapped ? ` (latest ${posts.length})` : ''
+  const shown = (n: number) => (loading || loadFailed ? '—' : n)
 
   return (
     <div className="space-y-6 pb-16 font-sans select-none max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-8 min-w-0">
@@ -442,16 +451,16 @@ export default function BlogAdminPage() {
         <div onClick={() => setFilter('all')} className="cursor-pointer transition-transform hover:scale-[1.01]">
           <StatCard
             label="Total Posts"
-            value={loading ? '—' : stats.total}
+            value={loading || loadFailed ? '—' : serverTotal ?? stats.total}
             icon={<BookOpen className="w-4 h-4 text-blue-500" />}
-            hint={`${stats.draft} in draft`}
+            hint={loadFailed ? undefined : `${stats.draft} in draft${capNote}`}
             loading={loading}
           />
         </div>
         <div onClick={() => setFilter('published')} className="cursor-pointer transition-transform hover:scale-[1.01]">
           <StatCard
-            label="Published"
-            value={loading ? '—' : stats.published}
+            label={`Published${capNote}`}
+            value={shown(stats.published)}
             icon={<CheckCircle className="w-4 h-4 text-emerald-500" />}
             hint="Live on /blog"
             tone="good"
@@ -460,8 +469,8 @@ export default function BlogAdminPage() {
         </div>
         <div onClick={() => setFilter('draft')} className="cursor-pointer transition-transform hover:scale-[1.01]">
           <StatCard
-            label="Drafts"
-            value={loading ? '—' : stats.draft}
+            label={`Drafts${capNote}`}
+            value={shown(stats.draft)}
             icon={<FileText className="w-4 h-4 text-amber-500" />}
             hint="Not yet live"
             loading={loading}
@@ -469,8 +478,8 @@ export default function BlogAdminPage() {
         </div>
         <div onClick={() => setFilter('archived')} className="cursor-pointer transition-transform hover:scale-[1.01]">
           <StatCard
-            label="Archived"
-            value={loading ? '—' : stats.archived}
+            label={`Archived${capNote}`}
+            value={shown(stats.archived)}
             icon={<Archive className="w-4 h-4 text-zinc-400" />}
             hint="Hidden from index"
             loading={loading}

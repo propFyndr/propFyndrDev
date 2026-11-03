@@ -142,6 +142,13 @@ const PHOTO_PRESETS = [
 
 export default function BuilderNewsPage() {
   const [news, setNews] = useState<BuilderNewsItem[]>([])
+  /**
+   * The stat cards read the unfiltered (include_archived) fetch only. The
+   * archived tab fetches archived posts alone, which used to zero every
+   * other card.
+   */
+  const [statsNews, setStatsNews] = useState<BuilderNewsItem[] | null>(null)
+  const [statsServerTotal, setStatsServerTotal] = useState<number | null>(null)
   const [builders, setBuilders] = useState<BuilderOption[]>([])
   const [loading, setLoading] = useState(true)
   const [isRefreshing, setIsRefreshing] = useState(false)
@@ -200,6 +207,10 @@ export default function BuilderNewsPage() {
       if (!res.ok) throw new Error(`HTTP ${res.status}`)
       const data = await res.json()
       setNews(data.news || [])
+      if (filter !== 'archived') {
+        setStatsNews(data.news || [])
+        setStatsServerTotal(typeof data.total === 'number' ? data.total : null)
+      }
       setLastRefreshedAt(new Date())
 
       if (isManualRefresh) {
@@ -303,14 +314,20 @@ export default function BuilderNewsPage() {
 
   // Calculated Stats
   const stats = useMemo(() => {
-    const active = news.filter(n => !n.archived_at && n.status !== 'archived')
+    if (!statsNews) {
+      return { total: '—', published: '—', pending: '—', promos: '—', archived: '—', capped: false }
+    }
+    const active = statsNews.filter(n => !n.archived_at && n.status !== 'archived')
     const total = active.length
     const published = active.filter(n => n.status === 'published').length
     const pending = active.filter(n => n.status === 'pending_approval').length
     const promos = active.filter(n => n.run_as_promo).length
-    const archived = news.filter(n => Boolean(n.archived_at) || n.status === 'archived').length
-    return { total, published, pending, promos, archived }
-  }, [news])
+    const archived = statsNews.filter(n => Boolean(n.archived_at) || n.status === 'archived').length
+    // The list is capped (50 by default); say so when the server holds more.
+    const capped = statsServerTotal !== null && statsServerTotal > statsNews.length
+    return { total, published, pending, promos, archived, capped }
+  }, [statsNews, statsServerTotal])
+  const capNote = stats.capped && statsNews ? ` (latest ${statsNews.length})` : ''
 
   const handleExportNewsCSV = () => {
     const headers = ['ID', 'Title', 'Status', 'Builder', 'Is Promo', 'Link Type', 'Link Target', 'Created At']
@@ -384,28 +401,28 @@ export default function BuilderNewsPage() {
         {/* Executive KPI Metric Row */}
         <div className="grid grid-cols-2 lg:grid-cols-5 gap-3.5">
           <StatCard
-            label="Total Active"
+            label={`Total Active${capNote}`}
             value={stats.total}
             icon={<Newspaper className="w-4 h-4 text-blue-600 dark:text-blue-400" />}
             loading={loading}
             hint={<span className="text-xs font-semibold text-blue-600 dark:text-blue-400">{stats.pending} under review</span>}
           />
           <StatCard
-            label="Published"
+            label={`Published${capNote}`}
             value={stats.published}
             icon={<CheckCircle className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />}
             loading={loading}
             hint={<span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">Live across portal</span>}
           />
           <StatCard
-            label="Under Review"
+            label={`Under Review${capNote}`}
             value={stats.pending}
             icon={<Clock className="w-4 h-4 text-amber-600 dark:text-amber-400" />}
             loading={loading}
             hint={<span className="text-xs font-semibold text-amber-600 dark:text-amber-400">Awaiting editorial check</span>}
           />
           <StatCard
-            label="Promotions"
+            label={`Promotions${capNote}`}
             value={stats.promos}
             icon={<Megaphone className="w-4 h-4 text-purple-600 dark:text-purple-400" />}
             loading={loading}
@@ -416,7 +433,7 @@ export default function BuilderNewsPage() {
             className="cursor-pointer transition-all hover:scale-[1.01]"
           >
             <StatCard
-              label="Archived"
+              label={`Archived${capNote}`}
               value={stats.archived}
               icon={<Archive className="w-4 h-4 text-zinc-500" />}
               loading={loading}

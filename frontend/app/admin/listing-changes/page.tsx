@@ -129,7 +129,7 @@ export default function ListingChangesPage() {
     adminFetch(`/admin/listing-changes?status=${tab}`)
       .then((r) => (r.ok ? r.json() : Promise.reject(r.status)))
       .then((d) => { setChanges(d.changes ?? []); setError('') })
-      .catch(() => setError('Could not load proposals.'))
+      .catch(() => { setChanges([]); setError('Could not load proposals.') })
       .finally(() => setLoading(false))
   }, [tab])
 
@@ -147,7 +147,7 @@ export default function ListingChangesPage() {
         ))}
       </div>
       {error && <ErrorNote message={error} />}
-      {loading ? <Spinner /> : changes.length === 0 ? (
+      {loading ? <Spinner /> : error ? null : changes.length === 0 ? (
         <EmptyState icon={<CurrencyInr size={32} />} title="Nothing here" body={tab === 'pending_realtyask' ? 'No builder changes are waiting for review.' : undefined} />
       ) : (
         <Card className="divide-y divide-zinc-100 dark:divide-zinc-800/80 overflow-hidden">

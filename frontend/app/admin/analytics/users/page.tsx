@@ -81,6 +81,7 @@ export default function UsersAnalytics() {
       if (page > 1) params.set('page', String(page))
       const qs = params.toString()
       const res = await adminFetch(`/admin/analytics/users${qs ? `?${qs}` : ''}`)
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
       const users = await res.json()
       setData(users)
       setLastRefreshedAt(new Date())
@@ -200,11 +201,9 @@ export default function UsersAnalytics() {
           <MetricCard
             title="Total Users"
             value={data.totalUsers}
-            subBadge="Discovery sessions"
+            subBadge="People who chatted"
             subBadgeVariant="blue"
-            sparkline="blue"
-            sparklineData={[15, 22, 19, 30, 28, 38, 42, data.totalUsers || 45]}
-            contextText="Unique buyer identities"
+            contextText="Account or guest token; a session with neither counts once"
             icon={Users}
             iconColorClass="text-[#0066cc] dark:text-blue-400"
             iconBgClass="bg-blue-50 dark:bg-blue-950/60"
@@ -218,13 +217,8 @@ export default function UsersAnalytics() {
           <MetricCard
             title="Repeat Visitors"
             value={data.repeatedVisitors}
-            delta={{
-              value: data.totalUsers > 0 ? `${((data.repeatedVisitors / data.totalUsers) * 100).toFixed(1)}%` : '0%',
-              direction: 'up',
-              context: 'retention rate',
-            }}
-            sparkline="violet"
-            sparklineData={[2, 4, 3, 7, 6, 9, 11, data.repeatedVisitors || 12]}
+            subBadge={data.totalUsers > 0 ? `${((data.repeatedVisitors / data.totalUsers) * 100).toFixed(1)}% of people` : undefined}
+            subBadgeVariant="violet"
             contextText="Multi-session buyers"
             icon={ArrowsClockwise}
             iconColorClass="text-violet-600 dark:text-violet-400"
@@ -238,8 +232,7 @@ export default function UsersAnalytics() {
           />
           <MetricCard
             title="Avg Searches / User"
-            value={Number((data.avgQueriesPerUser || 0).toFixed(1))}
-            delta={{ value: 'Active', direction: 'up', context: 'query depth' }}
+            value={typeof data.avgQueriesPerUser === 'number' ? Number(data.avgQueriesPerUser.toFixed(1)) : null}
             contextText="Filter adjustments per chat"
             icon={MagnifyingGlass}
             iconColorClass="text-amber-600 dark:text-amber-400"
@@ -254,21 +247,16 @@ export default function UsersAnalytics() {
           <MetricCard
             title="Total Conversions"
             value={data.totalConversions}
-            delta={{
-              value: data.totalUsers > 0 ? `${((data.totalConversions / data.totalUsers) * 100).toFixed(1)}%` : '0%',
-              direction: 'up',
-              context: 'conversion rate',
-            }}
-            sparkline="emerald"
-            sparklineData={[1, 2, 2, 4, 3, 6, 8, data.totalConversions || 10]}
-            contextText="Verified callback leads"
+            subBadge={data.totalUsers > 0 ? `${((data.totalConversions / data.totalUsers) * 100).toFixed(1)}% of people` : undefined}
+            subBadgeVariant="emerald"
+            contextText="Callback requests"
             icon={Target}
             iconColorClass="text-emerald-600 dark:text-emerald-400"
             iconBgClass="bg-emerald-50 dark:bg-emerald-950/60"
             tooltip={
               <AdminInfoTooltip
                 title="Total Conversions"
-                description="Total verified lead submissions, WhatsApp inquiries, and scheduled site visits produced."
+                description="Callback requests on record (all time)."
               />
             }
           />
@@ -368,7 +356,7 @@ export default function UsersAnalytics() {
           <div className="flex items-center justify-between">
             <span className="text-xs font-extrabold text-zinc-900 dark:text-white tracking-tight uppercase flex items-center gap-2">
               <BarChart className="w-4 h-4 text-[#0066cc]" />
-              Funnel Stage Volumes (Log Scaled Distribution)
+              Funnel Stage Volumes
               <AdminInfoTooltip
                 title="Funnel Stage Volumes"
                 description="Comparative volume counts across every milestone in the conversion funnel."
@@ -411,7 +399,7 @@ export default function UsersAnalytics() {
                               <span className="w-2 h-2 rounded-full" style={{ backgroundColor: d.color || '#0066cc' }} />
                               <p className="text-xs font-semibold text-white">
                                 {Number(payload[0].value).toLocaleString()}{' '}
-                                <span className="text-zinc-400 font-normal">Users ({d.pctOfTotal}%)</span>
+                                <span className="text-zinc-400 font-normal">counted ({d.pctOfTotal}% of chat sessions)</span>
                               </p>
                             </div>
                           </div>

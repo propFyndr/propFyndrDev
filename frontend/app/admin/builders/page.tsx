@@ -567,7 +567,7 @@ export default function AdminBuilders() {
     const isoCount = builders.filter(b => b.iso_certified).length
     const totalUnits = builders.reduce((acc, b) => acc + (b.delivered_units || 0), 0)
     const validReraScores = builders.map(b => b.rera_compliance_score).filter((s): s is number => s !== null)
-    const avgRera = validReraScores.length > 0 ? Math.round(validReraScores.reduce((a, b) => a + b, 0) / validReraScores.length) : 92
+    const avgRera = validReraScores.length > 0 ? Math.round(validReraScores.reduce((a, b) => a + b, 0) / validReraScores.length) : null
     return { total, credaiCount, isoCount, totalUnits, avgRera }
   }, [builders])
 
@@ -761,7 +761,7 @@ export default function AdminBuilders() {
             Builders
           </h1>
           <p className="text-xs font-medium text-[#86868b] mt-1">
-            {builders.length} registered partner developers
+            {builders.length} builders
           </p>
         </div>
         {mayEdit && (
@@ -798,7 +798,7 @@ export default function AdminBuilders() {
         />
         <StatCard
           label="Avg RERA Score"
-          value={`${metrics.avgRera}/100`}
+          value={metrics.avgRera === null ? '—' : `${metrics.avgRera}/100`}
           icon={<ShieldCheck size={18} />}
           loading={loading}
         />

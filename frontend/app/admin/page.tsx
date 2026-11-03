@@ -53,6 +53,8 @@ interface Stats {
   new_launch: number
   no_image: number
   no_rera: number
+  /** Projects missing an image or a RERA number (a project missing both counts once). */
+  data_gaps: number
   builders: number
   topBuilders: { name: string; projects: number }[]
   readinessPct: number
@@ -81,6 +83,8 @@ interface UserCounts {
   returning: number
   sessions: number
   messages: number
+  /** Buyer questions (sent by newer backends). */
+  questions?: number
   newByMonth: { month: string; people: number }[]
   savedProperties: number
   callbacks: number
@@ -94,13 +98,14 @@ const TIME_RANGE_OPTIONS: DropdownOption<TimeRange>[] = [
   { value: 'all', label: 'All Time' },
   { value: '30d', label: 'Past 30 Days' },
   { value: '90d', label: 'Past 90 Days' },
-  { value: 'year', label: 'This Year' },
+  { value: 'year', label: 'Last 365 days' },
 ]
 
 export default function AdminDashboard() {
   const { displayName, orgName } = usePortalIdentity()
   const [allProjects, setAllProjects] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const [loadFailed, setLoadFailed] = useState(false)
   const [mounted, setMounted] = useState(false)
   const [copiedCmd, setCopiedCmd] = useState<string | null>(null)
   const [timeRange, setTimeRange] = useState<TimeRange>('all')
@@ -108,11 +113,8 @@ export default function AdminDashboard() {
   const [logsLoading, setLogsLoading] = useState(false)
   const [bottomPaneTab, setBottomPaneTab] = useState<'activity' | 'cli'>('activity')
   const [activityFilter, setActivityFilter] = useState<'all' | 'demand' | 'catalog'>('all')
-  const [counts, setCounts] = useState<{ all: number; demand: number; catalog: number }>({
-    all: 0,
-    demand: 0,
-    catalog: 0,
-  })
+  // null until the audit log answers: a failed fetch shows "—", not 0.
+  const [counts, setCounts] = useState<{ all: number; demand: number; catalog: number } | null>(null)
 
   const [activitySearchQuery, setActivitySearchQuery] = useState('')
   const [userCounts, setUserCounts] = useState<UserCounts | null>(null)
@@ -130,11 +132,14 @@ export default function AdminDashboard() {
     setLoading(true)
     try {
       const res = await adminFetch('/admin/projects/summary')
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
       const data = await res.json()
       const projects = data.projects ?? []
       setAllProjects(projects)
+      setLoadFailed(false)
     } catch (err) {
       console.error('[AdminDashboard] Failed to load stats:', err)
+      setLoadFailed(true)
     } finally {
       setLoading(false)
     }
@@ -148,12 +153,13 @@ export default function AdminDashboard() {
       if (res.ok) {
         const data = await res.json()
         setRecentLogs(data.logs || [])
-        if (data.counts) {
-          setCounts(data.counts)
-        }
+        setCounts(data.counts ?? null)
+      } else {
+        setCounts(null)
       }
     } catch (err) {
       console.error('[AdminDashboard] Failed to load audit logs:', err)
+      setCounts(null)
     } finally {
       setLogsLoading(false)
     }
@@ -199,7 +205,7 @@ export default function AdminDashboard() {
 
   // Compute aggregated stats from filtered projects
   const stats: Stats | null = useMemo(() => {
-    if (!mounted && loading) return null
+    if ((!mounted && loading) || loadFailed) return null
 
     const projects = filteredProjects
     const totalCount = projects.length
@@ -235,11 +241,12 @@ export default function AdminDashboard() {
       new_launch: projects.filter((p: any) => p.status === 'new_launch').length,
       no_image: projects.filter((p: any) => !p.has_image).length,
       no_rera: projects.filter((p: any) => !p.has_rera).length,
+      data_gaps: projects.filter((p: any) => !p.has_image || !p.has_rera).length,
       builders: new Set(projects.map((p: any) => p.builder_id).filter(Boolean)).size,
       topBuilders,
       readinessPct,
     }
-  }, [filteredProjects, mounted, loading])
+  }, [filteredProjects, mounted, loading, loadFailed])
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text)
@@ -280,7 +287,8 @@ export default function AdminDashboard() {
     if (!months.length) return []
     const total = months.reduce((sum, item) => sum + item.people, 0)
     const max = Math.max(...months.map((item) => item.people), 1)
-    const currentMonth = new Date().toISOString().slice(0, 7)
+    // Business month in IST, not the browser's or UTC's.
+    const currentMonth = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Kolkata' }).format(new Date()).slice(0, 7)
     const isPartial = (index: number) => index === 0 || months[index].month === currentMonth
 
     return months.map((item, index) => {
@@ -322,10 +330,11 @@ export default function AdminDashboard() {
   const todayLabel = useMemo(() => {
     try {
       const d = new Date()
-      return d.toLocaleDateString('en-US', {
+      return d.toLocaleDateString('en-IN', {
         weekday: 'short',
         day: 'numeric',
         month: 'short',
+        timeZone: 'Asia/Kolkata',
       })
     } catch {
       return 'Today'
@@ -344,7 +353,7 @@ export default function AdminDashboard() {
       const days = Math.floor(hours / 24)
       if (days === 1) return 'Yesterday'
       if (days < 7) return `${days}d ago`
-      return new Date(dateStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+      return new Date(dateStr).toLocaleDateString('en-IN', { month: 'short', day: 'numeric', timeZone: 'Asia/Kolkata' })
     } catch {
       return 'recently'
     }
@@ -460,14 +469,6 @@ export default function AdminDashboard() {
                 <span>{orgName}</span>
               </span>
             )}
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-semibold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200/80 dark:border-emerald-800/60 rounded-full shadow-2xs">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
-              </span>
-              <span>System Healthy</span>
-            </span>
-
             {/* Catalog Readiness Gauge */}
             {stats && (
               <div className="hidden sm:inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-zinc-100 dark:bg-zinc-800/80 border border-zinc-200/80 dark:border-zinc-700/60 text-xs">
@@ -534,24 +535,28 @@ export default function AdminDashboard() {
       {/* ── KPI Metric Grid (Zero-CLS Architecture) ────────────────────────── */}
       {loading ? (
         <MetricCardSkeleton />
+      ) : loadFailed ? (
+        <p className="text-xs font-medium text-rose-600 dark:text-rose-400">
+          Could not load the catalogue summary. Try Refresh.
+        </p>
       ) : stats ? (
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
           {/* Card 1: Total Properties. No sparkline: there is no stored time series behind it. */}
           <MetricCard
-            title="Total Properties"
+            title="Projects"
             value={stats.total}
             isHero
             subBadge={timeRange === 'all' ? undefined : `${timeRange.toUpperCase()} Range`}
             subBadgeVariant="zinc"
-            contextText="Active listings across catalog"
+            contextText="Projects in the catalogue (any publish status)"
             icon={Buildings}
             iconBgClass="bg-blue-50 dark:bg-blue-950/60"
             iconColorClass="text-[#0066cc] dark:text-blue-400"
             href="/admin/projects"
             tooltip={
               <AdminInfoTooltip
-                title="Total Properties"
-                description="Total active property listings in the database catalog."
+                title="Projects"
+                description="Projects in the catalogue for this time range, whatever their publish status."
                 details={['Covers Ready to Move, Under Construction & New Launch']}
                 whyItMatters="Defines total inventory available for AI recommendations."
               />
@@ -599,23 +604,10 @@ export default function AdminDashboard() {
           {/* Card 4: Data Alerts */}
           <MetricCard
             title="Data Alerts"
-            value={stats.no_image + stats.no_rera}
-            warning={stats.no_image > 0 || stats.no_rera > 0}
-            delta={{
-              value: stats.no_image + stats.no_rera > 0 ? 'Action Needed' : 'Clean',
-              direction: stats.no_image + stats.no_rera > 0 ? 'down' : 'neutral',
-              context: 'quality audit',
-            }}
-            contextText="Pending image/RERA check"
-            subBadge={
-              stats.no_image > 0 && stats.no_rera > 0
-                ? 'Images & RERA'
-                : stats.no_image > 0
-                  ? 'Images missing'
-                  : stats.no_rera > 0
-                    ? 'RERA missing'
-                    : 'None missing'
-            }
+            value={stats.data_gaps}
+            warning={stats.data_gaps > 0}
+            contextText="Projects missing an image or RERA number"
+            subBadge={`${stats.no_image} no image · ${stats.no_rera} no RERA`}
             subBadgeVariant={stats.no_image > 0 || stats.no_rera > 0 ? 'amber' : 'zinc'}
             icon={WarningCircle}
             iconBgClass={
@@ -1031,7 +1023,7 @@ export default function AdminDashboard() {
                         : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800'
                       }`}
                   >
-                    All ({counts.all})
+                    All ({counts?.all ?? '—'})
                   </button>
 
                   <button
@@ -1043,7 +1035,7 @@ export default function AdminDashboard() {
                       }`}
                   >
                     <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
-                    <span>Demand Signals ({counts.demand})</span>
+                    <span>Demand Signals ({counts?.demand ?? '—'})</span>
                   </button>
 
                   <button
@@ -1055,7 +1047,7 @@ export default function AdminDashboard() {
                       }`}
                   >
                     <span className="w-1.5 h-1.5 rounded-full bg-blue-400" />
-                    <span>Catalog & Admin ({counts.catalog})</span>
+                    <span>Catalog & Admin ({counts?.catalog ?? '—'})</span>
                   </button>
                 </div>
               </div>
@@ -1237,21 +1229,21 @@ export default function AdminDashboard() {
           <p className="text-xs text-zinc-500 dark:text-zinc-400">
             All time
             {userCounts.firstSeen &&
-              ` since ${new Date(userCounts.firstSeen).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}`}
+              ` since ${new Date(userCounts.firstSeen).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'Asia/Kolkata' })}`}
             . Only people on the website or signed in are counted; scripts and test accounts are not.
             {userCounts.team > 0 &&
               ` ${userCounts.team} team ${userCounts.team === 1 ? 'member is' : 'members are'} left out (marked in Analytics → User behavior).`}
           </p>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
             <MetricCard
-              title="Visitors"
+              title="People who chatted"
               value={userCounts.visitors}
               contextText={`${userCounts.guests} guests · ${userCounts.chattedSignedIn} signed in`}
               icon={UsersThree}
               href="/admin/analytics/users"
               tooltip={
                 <AdminInfoTooltip
-                  title="Visitors"
+                  title="People who chatted"
                   description="Distinct signed-in users and guests who started at least one chat. Bots excluded."
                   details={[
                     'Someone who browsed but never chatted is not counted',
@@ -1265,13 +1257,13 @@ export default function AdminDashboard() {
             <MetricCard
               title="Active (7 days)"
               value={userCounts.active.week}
-              contextText={`${userCounts.active.day} today · ${userCounts.active.month} in 30 days`}
+              contextText={`${userCounts.active.day} last 24h · ${userCounts.active.month} in 30 days`}
               icon={Pulse}
               tooltip={
                 <AdminInfoTooltip
                   title="Active users"
                   description="Distinct visitors with a chat active in the last 7 days."
-                  details={['Today = last 24 hours', '30 days = last 30 days']}
+                  details={['24h = the last 24 hours, not the calendar day', '30 days = last 30 days']}
                   whyItMatters="Shows whether people come back, not just arrive."
                 />
               }
@@ -1306,7 +1298,7 @@ export default function AdminDashboard() {
             <MetricCard
               title="Chat Sessions"
               value={userCounts.sessions.toLocaleString('en-IN')}
-              contextText={`${userCounts.messages.toLocaleString('en-IN')} messages`}
+              contextText={`${userCounts.messages.toLocaleString('en-IN')} messages${typeof userCounts.questions === 'number' ? ` · ${userCounts.questions.toLocaleString('en-IN')} questions` : ''}`}
               icon={Pulse}
             />
             <MetricCard

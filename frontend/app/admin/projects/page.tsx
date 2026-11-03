@@ -284,7 +284,8 @@ function computeProjectCompleteness(data: any): {
 }
 
 function getProjectHealth(p: Project): number {
-  if (typeof p.completenessScore === 'number' && p.completenessScore > 0) {
+  // The server score wins whenever it is a number, 0 included: a real 0 is not "unknown".
+  if (typeof p.completenessScore === 'number') {
     return p.completenessScore
   }
   return computeProjectCompleteness(p).overallHealth

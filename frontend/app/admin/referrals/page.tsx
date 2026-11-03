@@ -570,7 +570,7 @@ export default function ReferralsAdminPage() {
               </span>
             </div>
             <div className="text-2xl font-black tracking-tight text-[#1d1d1f] dark:text-[#f5f5f7] tabular-nums font-mono">
-              {growthMetrics?.growthSummary.totalActiveReach ?? 0}
+              {growthMetrics?.growthSummary.totalActiveReach ?? '—'}
             </div>
             <p className="text-[10px] text-[#6e6e73] dark:text-[#98989d] mt-1">Non-revoked links combined</p>
           </div>
@@ -642,7 +642,7 @@ export default function ReferralsAdminPage() {
             </div>
             <div className="flex items-baseline gap-2">
               <span className="text-2xl font-black tracking-tight text-[#1d1d1f] dark:text-[#f5f5f7] tabular-nums font-mono">
-                {growthMetrics?.growthSummary.broadcastFlaggedCount ?? 0}
+                {growthMetrics?.growthSummary.broadcastFlaggedCount ?? '—'}
               </span>
               <span
                 className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full border ${
@@ -651,7 +651,9 @@ export default function ReferralsAdminPage() {
                     : 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800/60'
                 }`}
               >
-                {(growthMetrics?.growthSummary.broadcastFlaggedCount ?? 0) > 0 ? 'High Spike' : 'Normal Flow'}
+                {typeof growthMetrics?.growthSummary.broadcastFlaggedCount !== 'number'
+                  ? '—'
+                  : growthMetrics.growthSummary.broadcastFlaggedCount > 0 ? 'High Spike' : 'No spike'}
               </span>
             </div>
             <p className="text-[10px] text-[#6e6e73] dark:text-[#98989d] mt-1">≥10 arrivals/hr spike monitor</p>
@@ -693,13 +695,14 @@ export default function ReferralsAdminPage() {
                     Activation-rate difference
                   </span>
                   <span className="text-xs font-mono font-bold text-[#0066cc] dark:text-[#2997ff]">
-                    {growthMetrics.comparison.referred.activationRate >= growthMetrics.comparison.organic.activationRate
-                      ? `+${Math.round(
-                          (growthMetrics.comparison.referred.activationRate -
-                            growthMetrics.comparison.organic.activationRate) *
-                            100
-                        )} pts activation lift`
-                      : 'Parity / Baseline Track'}
+                    {(() => {
+                      const pts = Math.round(
+                        (growthMetrics.comparison.referred.activationRate -
+                          growthMetrics.comparison.organic.activationRate) *
+                          100
+                      )
+                      return pts > 0 ? `+${pts} pts vs organic` : pts < 0 ? `${pts} pts vs organic` : '0 pts (same as organic)'
+                    })()}
                   </span>
                 </div>
               )}

@@ -146,7 +146,7 @@ export default function UnitsEditor({
   // Who confirmed the prices being saved, and when. 'none' records nothing; a
   // price that changes without a confirmation is stored as undated.
   const [pv, setPv] = useState<{ tier: 'none' | 'BUILDER_ATTESTED' | 'VERIFIED'; date: string; source: string }>({
-    tier: 'none', date: new Date().toISOString().slice(0, 10), source: '',
+    tier: 'none', date: new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Kolkata' }).format(new Date()), source: '',
   })
 
   function priceVerificationPayload() {
@@ -389,7 +389,7 @@ export default function UnitsEditor({
           <input
             type="date"
             value={pv.date}
-            max={new Date().toISOString().slice(0, 10)}
+            max={new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Kolkata' }).format(new Date())}
             disabled={pv.tier === 'none'}
             onChange={e => setPv(p => ({ ...p, date: e.target.value }))}
             className="px-2.5 py-1.5 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-transparent disabled:opacity-50"

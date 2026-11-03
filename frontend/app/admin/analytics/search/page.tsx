@@ -23,6 +23,7 @@ interface DashboardStats {
 export default function SearchAnalytics() {
   const [data, setData] = useState<DashboardStats | null>(null)
   const [loading, setLoading] = useState(true)
+  const [loadFailed, setLoadFailed] = useState(false)
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [lastRefreshedAt, setLastRefreshedAt] = useState<Date>(new Date())
 
@@ -36,11 +37,14 @@ export default function SearchAnalytics() {
 
     try {
       const res = await adminFetch('/admin/analytics/summary')
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
       const summary = await res.json()
       setData(summary)
+      setLoadFailed(false)
       setLastRefreshedAt(new Date())
     } catch (err) {
       console.error('Search analytics load failed:', err)
+      setLoadFailed(true)
     } finally {
       setLoading(false)
       setIsRefreshing(false)
@@ -101,11 +105,9 @@ export default function SearchAnalytics() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <MetricCard
             title="Total Search Telemetry"
-            value={data?.totalQueries || 0}
+            value={data?.totalQueries ?? null}
             subBadge="Logged queries"
             subBadgeVariant="blue"
-            sparkline="blue"
-            sparklineData={[40, 52, 48, 65, 70, 85, 92, data?.totalQueries || 100]}
             contextText="Property search intent volume"
             icon={MagnifyingGlass}
             iconBgClass="bg-blue-50 dark:bg-blue-950/60"
@@ -120,21 +122,18 @@ export default function SearchAnalytics() {
           />
 
           <MetricCard
-            title="Active Sectors Queried"
-            value={data?.topSectors?.length || 0}
-            subBadge="Unique localities"
+            title="Top sectors shown"
+            value={data?.topSectors?.length ?? null}
+            subBadge="Capped at 10"
             subBadgeVariant="emerald"
-            delta={{ value: 'Broad Reach', direction: 'up', context: 'Noida & GNW' }}
-            sparkline="emerald"
-            sparklineData={[10, 14, 13, 18, 17, 22, 25, data?.topSectors?.length || 28]}
-            contextText="Geographic distribution"
+            contextText="Not the total number of sectors searched"
             icon={Buildings}
             iconBgClass="bg-emerald-50 dark:bg-emerald-950/60"
             iconColorClass="text-emerald-600 dark:text-emerald-400"
             tooltip={
               <AdminInfoTooltip
-                title="Active Sectors Queried"
-                description="Count of distinct sectors buyers have searched for."
+                title="Top sectors shown"
+                description="How many sectors the summary returns. The list is capped at the top 10, so this is not a count of every sector searched."
                 whyItMatters="Shows geographic breadth of buyer interest."
               />
             }
@@ -149,9 +148,9 @@ export default function SearchAnalytics() {
           <div className="flex items-center justify-between gap-2 min-w-0">
             <span className="text-sm font-semibold text-zinc-900 dark:text-white tracking-tight flex items-center gap-2 truncate">
               <ChartBar className="w-4 h-4 text-[#0066cc] shrink-0" />
-              <span className="truncate">Top 10 Searched Sectors (Real DB Data)</span>
+              <span className="truncate">Top 8 Searched Sectors</span>
               <AdminInfoTooltip
-                title="Top 10 Searched Sectors"
+                title="Top 8 Searched Sectors"
                 description="Bar chart ranking top sectors in Noida & Greater Noida."
                 whyItMatters="Reveals localities with highest real-estate demand."
               />
@@ -303,10 +302,10 @@ export default function SearchAnalytics() {
       {/* All Sectors Ledger Table */}
       <div className="p-4 sm:p-6 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 shadow-2xs space-y-4 min-w-0">
         <h3 className="text-xs font-extrabold text-zinc-900 dark:text-white tracking-tight uppercase inline-flex items-center gap-1.5">
-          <span>Detailed Sector Query Ledger</span>
+          <span>Sector Query Ledger — Top 10</span>
           <AdminInfoTooltip
             title="Sector Query Ledger"
-            description="Complete list of all searched sectors and their exact query counts."
+            description="The 10 most-searched sectors and their query counts. Sectors outside the top 10 are not listed."
           />
         </h3>
         {loading ? (
@@ -335,7 +334,7 @@ export default function SearchAnalytics() {
             </table>
           </div>
         ) : (
-          <p className="text-xs text-zinc-400 text-center py-8">No search telemetry recorded yet</p>
+          <p className="text-xs text-zinc-400 text-center py-8">{loadFailed ? 'Could not load search analytics. Try Refresh.' : 'No search telemetry recorded yet'}</p>
         )}
       </div>
     </div>

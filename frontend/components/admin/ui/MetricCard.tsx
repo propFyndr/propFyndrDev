@@ -12,7 +12,8 @@ export interface MetricDelta {
 
 interface MetricCardProps {
   title: string
-  value: number | string
+  /** null / undefined renders "—": a missing figure is never shown as 0. */
+  value: number | string | null | undefined
   subBadge?: string
   subBadgeVariant?: 'emerald' | 'violet' | 'amber' | 'blue' | 'zinc'
   delta?: MetricDelta
@@ -25,14 +26,15 @@ interface MetricCardProps {
   isHero?: boolean
   warning?: boolean
   sparkline?: 'emerald' | 'rose' | 'blue' | 'amber' | 'violet'
+  /** Real series only. Without at least two points no sparkline is drawn. */
   sparklineData?: number[]
 }
 
 function MiniSparkline({
-  data = [10, 18, 14, 22, 19, 28, 24, 32],
+  data,
   variant = 'emerald',
 }: {
-  data?: number[]
+  data: number[]
   variant?: 'emerald' | 'rose' | 'blue' | 'amber' | 'violet'
 }) {
   const gradientId = useId()
@@ -133,33 +135,29 @@ export function MetricCard({
   sparkline,
   sparklineData,
 }: MetricCardProps) {
-  const [displayValue, setDisplayValue] = useState<number | string>(value)
+  const [displayValue, setDisplayValue] = useState<number | string>(value ?? '—')
   const prevNumericValueRef = useRef<number | null>(null)
-  const isMountedRef = useRef(false)
 
-  // Master Skill Section 36.7: Smooth ticker interpolation from prev -> next
+  // Smooth ticker from the previous real value to the next. No count-up from
+  // 0 on mount: a 0 on screen before the real figure arrives is an invented number.
   useEffect(() => {
-    // If string value (like "₹42.50" or "98.2%"), parse or display directly
     if (typeof value !== 'number') {
-      setDisplayValue(value)
+      prevNumericValueRef.current = null
+      setDisplayValue(value ?? '—')
       return
     }
 
     const target = value
-    const start = isMountedRef.current && prevNumericValueRef.current !== null
-      ? prevNumericValueRef.current
-      : 0
-
+    const prev = prevNumericValueRef.current
     prevNumericValueRef.current = target
-    isMountedRef.current = true
 
-    if (start === target) {
+    if (prev === null || prev === target) {
       setDisplayValue(target)
       return
     }
+    const start: number = prev
 
-    // Skill 36.7: 500ms duration for updates, 700ms for initial count
-    const duration = start === 0 ? 700 : 450
+    const duration = 450
     const startTime = performance.now()
 
     let animationFrameId: number
@@ -255,7 +253,7 @@ export function MetricCard({
         </div>
 
         <div className="flex items-center gap-1.5 shrink-0 max-w-full">
-          {sparkline && (
+          {sparkline && sparklineData && sparklineData.length >= 2 && (
             <MiniSparkline
               variant={sparkline}
               data={sparklineData}
@@ -279,7 +277,7 @@ export function MetricCard({
             </span>
           )}
 
-          {!delta && subBadge && (
+          {subBadge && (
             <span
               className={`text-[9.5px] sm:text-[10px] md:text-[11px] font-semibold px-1.5 sm:px-2 py-0.5 rounded-md border truncate max-w-full ${badgeStyles}`}
             >

@@ -59,6 +59,8 @@ export default function PeopleChatLog() {
   const [people, setPeople] = useState<Person[]>([])
   const [pagination, setPagination] = useState<{ page: number; pageSize: number; total: number } | null>(null)
   const [loading, setLoading] = useState(true)
+  /** Why the list is empty when it is not "nobody chatted": 'forbidden' (403) or 'failed'. */
+  const [loadError, setLoadError] = useState<'forbidden' | 'failed' | null>(null)
   const [expanded, setExpanded] = useState<Record<string, Expanded>>({})
 
   const load = useCallback(async (p: number, q: string) => {
@@ -67,12 +69,20 @@ export default function PeopleChatLog() {
       const params = new URLSearchParams({ page: String(p) })
       if (q.trim()) params.set('search', q.trim())
       const res = await adminFetch(`/admin/analytics/people?${params}`)
+      if (res.status === 403) {
+        setLoadError('forbidden')
+        setPeople([])
+        setPagination(null)
+        return
+      }
       if (!res.ok) throw new Error(`HTTP ${res.status}`)
       const data = await res.json()
       setPeople(data.people ?? [])
       setPagination(data.pagination ?? null)
+      setLoadError(null)
     } catch (err) {
       console.error('People chat log load failed:', err)
+      setLoadError('failed')
       setPeople([])
       setPagination(null)
     } finally {
@@ -355,7 +365,13 @@ export default function PeopleChatLog() {
         </div>
       ) : (
         <div className="p-12 text-center text-xs text-zinc-400 italic">
-          {search ? `No people matching "${search}"` : 'No chats recorded yet'}
+          {loadError === 'forbidden'
+            ? 'Owner only'
+            : loadError === 'failed'
+              ? 'Could not load the people list.'
+              : search
+                ? `No people matching "${search}"`
+                : 'No chats recorded yet'}
         </div>
       )}
 

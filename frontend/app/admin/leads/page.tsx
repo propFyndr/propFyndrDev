@@ -141,7 +141,7 @@ function renderTierBadge(tier: string | null, score: number | null) {
     return (
       <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 border border-rose-200/80 dark:border-rose-800/80">
         <Fire size={13} weight="fill" className="text-rose-500" />
-        <span>HOT · {score ?? 0}</span>
+        <span>HOT · {score ?? '—'}</span>
       </span>
     )
   }
@@ -149,7 +149,7 @@ function renderTierBadge(tier: string | null, score: number | null) {
     return (
       <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border border-amber-200/80 dark:border-amber-800/80">
         <Flame size={13} weight="fill" className="text-amber-500" />
-        <span>WARM · {score ?? 0}</span>
+        <span>WARM · {score ?? '—'}</span>
       </span>
     )
   }
@@ -157,7 +157,7 @@ function renderTierBadge(tier: string | null, score: number | null) {
     return (
       <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-sky-50 dark:bg-sky-950/40 text-sky-700 dark:text-sky-300 border border-sky-200/80 dark:border-sky-800/80">
         <Snowflake size={13} weight="fill" className="text-sky-500" />
-        <span>COLD · {score ?? 0}</span>
+        <span>COLD · {score ?? '—'}</span>
       </span>
     )
   }
@@ -170,6 +170,8 @@ function renderTierBadge(tier: string | null, score: number | null) {
 
 export default function BuilderLeadsPage() {
   const [leads, setLeads] = useState<Lead[]>([])
+  /** Server count for the current tab; the list itself is capped at 50. */
+  const [serverTotal, setServerTotal] = useState<number | null>(null)
   const [loading, setLoading] = useState(true)
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [lastRefreshedAt, setLastRefreshedAt] = useState<Date>(new Date())
@@ -213,12 +215,14 @@ export default function BuilderLeadsPage() {
         if (!res.ok) throw new Error(`HTTP ${res.status}`)
         const data = await res.json()
         setLeads(data.leads || [])
+        setServerTotal(typeof data.total === 'number' ? data.total : null)
         setLastRefreshedAt(new Date())
 
         if (isManualRefresh) {
           showToast('Leads pipeline refreshed', 'success')
         }
       } catch {
+        setServerTotal(null)
         showToast('Failed to fetch lead pipeline', 'error')
       } finally {
         setLoading(false)
@@ -291,7 +295,7 @@ export default function BuilderLeadsPage() {
     const avgScore =
       scoredLeads.length > 0
         ? Math.round(scoredLeads.reduce((acc, curr) => acc + (curr.lead_score ?? 0), 0) / scoredLeads.length)
-        : 0
+        : null
 
     const hotPercentage = total > 0 ? Math.round((hotCount / total) * 100) : 0
 
@@ -329,14 +333,14 @@ export default function BuilderLeadsPage() {
       {/* KPI StatCards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
-          label="Total Inquiries"
-          value={stats.total}
+          label={statusFilter === 'all' ? 'Total Inquiries' : `${STATUS_CONFIG[statusFilter].label} Inquiries`}
+          value={serverTotal ?? '—'}
           icon={<Users size={17} weight="bold" />}
           loading={loading}
           hint={
             stats.uncontacted > 0 ? (
               <span className="text-xs font-semibold text-blue-600 dark:text-blue-400">
-                {stats.uncontacted} uncontacted
+                {stats.uncontacted} uncontacted in latest {stats.total}
               </span>
             ) : undefined
           }
@@ -347,7 +351,7 @@ export default function BuilderLeadsPage() {
           icon={<Fire size={17} weight="bold" />}
           loading={loading}
           tone={stats.hotCount > 0 ? 'hot' : 'neutral'}
-          hint={<span>{stats.hotPercentage}% of total</span>}
+          hint={<span>{stats.hotPercentage}% of latest {stats.total} loaded</span>}
         />
         <StatCard
           label="Qualified Leads"
@@ -355,14 +359,14 @@ export default function BuilderLeadsPage() {
           icon={<SealCheck size={17} weight="bold" />}
           loading={loading}
           tone="good"
-          hint={<span>{stats.warmCount} warm in pipeline</span>}
+          hint={<span>{stats.warmCount} warm · of latest {stats.total} loaded</span>}
         />
         <StatCard
           label="Avg Qualification"
-          value={`${stats.avgScore}/100`}
+          value={stats.avgScore === null ? '—' : `${stats.avgScore}/100`}
           icon={<Target size={17} weight="bold" />}
           loading={loading}
-          hint={<span>AI Intent Score</span>}
+          hint={<span>Of latest {stats.total} loaded</span>}
         />
       </div>
 

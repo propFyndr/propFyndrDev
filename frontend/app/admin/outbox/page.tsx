@@ -59,7 +59,7 @@ const FILTERS = ['queued', 'sent', 'failed', 'cancelled', 'ALL'] as const
 export default function OutboxPage() {
   const [messages, setMessages] = useState<Message[]>([])
   const [allMessages, setAllMessages] = useState<Message[]>([])
-  const [queuedCount, setQueuedCount] = useState(0)
+  const [queuedCount, setQueuedCount] = useState<number | null>(null)
   const [loading, setLoading] = useState(true)
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [lastRefreshedAt, setLastRefreshedAt] = useState<Date>(new Date())
@@ -95,7 +95,7 @@ export default function OutboxPage() {
       if (!filterRes.ok) throw new Error('Could not load the outbox queue.')
       const d = await filterRes.json()
       setMessages(d.messages ?? [])
-      setQueuedCount(d.queuedCount ?? 0)
+      setQueuedCount(typeof d.queuedCount === 'number' ? d.queuedCount : null)
 
       if (allRes && allRes.ok) {
         const allData = await allRes.json()
@@ -141,7 +141,7 @@ export default function OutboxPage() {
       )
       setAllMessages((prev) => prev.map((m) => (m.id === id ? d.message : m)))
 
-      if (status !== 'queued') setQueuedCount((c) => Math.max(0, c - 1))
+      if (status !== 'queued') setQueuedCount((c) => (c === null ? null : Math.max(0, c - 1)))
     } catch (e: any) {
       setError(e instanceof Error ? e.message : 'Update failed')
     } finally {
@@ -352,8 +352,8 @@ export default function OutboxPage() {
           <MetricCard
             title="Awaiting Dispatch"
             value={summaryCounts.queued}
-            subBadge={summaryCounts.queued > 0 ? 'Pending send' : 'Queue clear'}
-            subBadgeVariant={summaryCounts.queued > 0 ? 'amber' : 'emerald'}
+            subBadge={summaryCounts.queued === null ? undefined : summaryCounts.queued > 0 ? 'Pending send' : 'Queue clear'}
+            subBadgeVariant={summaryCounts.queued !== null && summaryCounts.queued > 0 ? 'amber' : 'emerald'}
             icon={Clock}
             iconColorClass="text-amber-600 dark:text-amber-400"
             iconBgClass="bg-amber-50 dark:bg-amber-950/60"
@@ -367,7 +367,7 @@ export default function OutboxPage() {
           <MetricCard
             title="Delivered Sends"
             value={summaryCounts.sent}
-            subBadge="Verified delivery"
+            subBadge="Of latest 200"
             subBadgeVariant="emerald"
             icon={PaperPlaneTilt}
             iconColorClass="text-emerald-600 dark:text-emerald-400"
@@ -382,7 +382,7 @@ export default function OutboxPage() {
           <MetricCard
             title="Delivery Failures"
             value={summaryCounts.failed}
-            subBadge={summaryCounts.failed > 0 ? 'Requires attention' : 'Zero failures'}
+            subBadge="Of latest 200"
             subBadgeVariant={summaryCounts.failed > 0 ? 'amber' : 'zinc'}
             icon={Warning}
             iconColorClass="text-rose-600 dark:text-rose-400"
@@ -397,7 +397,7 @@ export default function OutboxPage() {
           <MetricCard
             title="Total Dispatches"
             value={summaryCounts.total}
-            subBadge="Audit log records"
+            subBadge="Latest 200 at most"
             subBadgeVariant="blue"
             icon={EnvelopeSimple}
             iconColorClass="text-[#0066cc] dark:text-blue-400"
@@ -405,7 +405,7 @@ export default function OutboxPage() {
             tooltip={
               <AdminInfoTooltip
                 title="Total Dispatches"
-                description="Total notification events logged in the outbox database."
+                description="Messages in the newest 200 loaded from the outbox, not every message ever logged. Sent, failed and cancelled are counted over the same 200; queued is the server's true count."
               />
             }
           />

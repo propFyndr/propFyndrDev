@@ -533,7 +533,7 @@ export default function AdminProjectEditPage({
     return Math.round((audit.completed.length / total) * 100)
   }
 
-  const tabScores: Record<AdminTab, number> = {
+  const tabScores: Record<Exclude<AdminTab, 'audit'>, number> = {
     core: computeTabScore(tabAudits.core),
     specs: computeTabScore(tabAudits.specs),
     pricing: computeTabScore(tabAudits.pricing),
@@ -541,18 +541,12 @@ export default function AdminProjectEditPage({
     intelligence: computeTabScore(tabAudits.intelligence),
     updates: computeTabScore(tabAudits.updates),
     partners: computeTabScore(tabAudits.partners),
-    audit: 100,
   }
 
-  const overallHealth = Math.round(
-    (tabScores.core * 0.15) +
-    (tabScores.specs * 0.15) +
-    (tabScores.pricing * 0.20) +
-    (tabScores.media * 0.15) +
-    (tabScores.intelligence * 0.15) +
-    (tabScores.updates * 0.10) +
-    (tabScores.partners * 0.10)
-  )
+  // One health figure: the server's completeness score, the same one the
+  // CompletenessBar shows. A second client formula here used to disagree with it.
+  const rawServerScore = completeness?.percentage ?? completeness?.score
+  const serverScore: number | null = typeof rawServerScore === 'number' ? rawServerScore : null
 
 
   return (
@@ -594,13 +588,15 @@ export default function AdminProjectEditPage({
                   {data.status?.replace('_', ' ')}
                 </span>
                 <span className={`px-2.5 py-0.5 text-[10.5px] font-mono font-medium rounded-full border shadow-2xs flex-shrink-0 ${
-                  overallHealth >= 90
+                  serverScore === null
+                    ? 'bg-zinc-100 text-zinc-600 border-zinc-200 dark:bg-zinc-800 dark:text-zinc-400 dark:border-zinc-700'
+                    : serverScore >= 90
                     ? 'bg-emerald-50/80 text-emerald-800 border-emerald-200/80 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800/50'
-                    : overallHealth >= 70
+                    : serverScore >= 70
                     ? 'bg-blue-50/80 text-blue-800 border-blue-200/80 dark:bg-blue-950/40 dark:text-blue-300 dark:border-blue-800/50'
                     : 'bg-rose-50/80 text-rose-800 border-rose-200/80 dark:bg-rose-950/40 dark:text-rose-300 dark:border-rose-800/50'
                 }`}>
-                  {overallHealth}% Health
+                  {serverScore === null ? '—' : `${serverScore}%`} Health
                 </span>
               </div>
             </div>
@@ -621,13 +617,15 @@ export default function AdminProjectEditPage({
                   {data.status?.replace('_', ' ')}
                 </span>
                 <span className={`px-2 py-0.5 text-[10.5px] font-mono font-medium rounded-full border shadow-2xs flex-shrink-0 ${
-                  overallHealth >= 90
+                  serverScore === null
+                    ? 'bg-zinc-100 text-zinc-600 border-zinc-200 dark:bg-zinc-800 dark:text-zinc-400 dark:border-zinc-700'
+                    : serverScore >= 90
                     ? 'bg-emerald-50/80 text-emerald-800 border-emerald-200/80 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800/50'
-                    : overallHealth >= 70
+                    : serverScore >= 70
                     ? 'bg-blue-50/80 text-blue-800 border-blue-200/80 dark:bg-blue-950/40 dark:text-blue-300 dark:border-blue-800/50'
                     : 'bg-rose-50/80 text-rose-800 border-rose-200/80 dark:bg-rose-950/40 dark:text-rose-300 dark:border-rose-800/50'
                 }`}>
-                  {overallHealth}% Health
+                  {serverScore === null ? '—' : `${serverScore}%`} Health
                 </span>
               </div>
 
@@ -656,8 +654,8 @@ export default function AdminProjectEditPage({
           <nav className="grid grid-cols-2 sm:grid-cols-4 lg:flex lg:flex-wrap items-center gap-1.5 p-1 bg-zinc-100/90 dark:bg-zinc-800/80 rounded-2xl border border-zinc-200/80 dark:border-zinc-700/70 shadow-2xs w-full">
             {TAB_ITEMS.map(({ id: tabId, label, icon: Icon }) => {
               const isActive = adminTab === tabId
-              const pct = tabScores[tabId] ?? 100
-              const isComplete = pct >= 90
+              const pct: number | null = tabId === 'audit' ? null : tabScores[tabId]
+              const isComplete = pct !== null && pct >= 90
 
               return (
                 <button
@@ -683,7 +681,9 @@ export default function AdminProjectEditPage({
                   </div>
 
                   {/* Calm completion status: only highlight if incomplete */}
-                  {isComplete ? (
+                  {pct === null ? (
+                    <span className="text-[10.5px] font-mono text-zinc-400 dark:text-zinc-500 font-medium shrink-0">—</span>
+                  ) : isComplete ? (
                     <span className="flex items-center gap-1 text-[10.5px] font-mono text-zinc-400 dark:text-zinc-500 font-medium shrink-0">
                       {pct === 100 ? (
                         <CheckCircle size={12} className="text-emerald-500/80 shrink-0" />

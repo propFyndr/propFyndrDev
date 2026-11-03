@@ -39,6 +39,7 @@ interface PropertyEngagement {
 export default function PropertiesAnalytics() {
   const [properties, setProperties] = useState<PropertyEngagement[]>([])
   const [loading, setLoading] = useState(true)
+  const [loadFailed, setLoadFailed] = useState(false)
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [lastRefreshedAt, setLastRefreshedAt] = useState<Date>(new Date())
   const [filterMode, setFilterMode] = useState<'active' | 'all'>('active')
@@ -54,11 +55,14 @@ export default function PropertiesAnalytics() {
 
     try {
       const res = await adminFetch('/admin/analytics/properties')
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
       const data = await res.json()
       setProperties(data.properties || [])
+      setLoadFailed(false)
       setLastRefreshedAt(new Date())
     } catch (err) {
       console.error('Properties analytics load failed:', err)
+      setLoadFailed(true)
     } finally {
       setLoading(false)
       setIsRefreshing(false)
@@ -187,11 +191,9 @@ export default function PropertiesAnalytics() {
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4 min-w-0">
           <MetricCard
             title="Total Views"
-            value={totals.views}
+            value={loadFailed ? null : totals.views}
             subBadge="Project page visits"
             subBadgeVariant="blue"
-            sparkline="blue"
-            sparklineData={[35, 48, 42, 58, 62, 75, 80, totals.views || 90]}
             contextText="Catalog impressions"
             icon={Eye}
             iconColorClass="text-[#0066cc] dark:text-blue-400"
@@ -205,11 +207,9 @@ export default function PropertiesAnalytics() {
           />
           <MetricCard
             title="Saved Properties"
-            value={totals.saves}
+            value={loadFailed ? null : totals.saves}
             subBadge="Buyer bookmarks"
             subBadgeVariant="amber"
-            sparkline="amber"
-            sparklineData={[12, 18, 15, 24, 22, 30, 34, totals.saves || 40]}
             contextText="Shortlisted developments"
             icon={BookmarkSimple}
             iconColorClass="text-amber-600 dark:text-amber-400"
@@ -223,11 +223,9 @@ export default function PropertiesAnalytics() {
           />
           <MetricCard
             title="Comparisons"
-            value={totals.comparisons}
+            value={loadFailed ? null : totals.comparisons}
             subBadge="Side-by-side analysis"
             subBadgeVariant="violet"
-            sparkline="blue"
-            sparklineData={[8, 14, 11, 19, 18, 26, 28, totals.comparisons || 32]}
             contextText="Deep feature matrix reviews"
             icon={Scales}
             iconColorClass="text-violet-600 dark:text-violet-400"
@@ -240,19 +238,16 @@ export default function PropertiesAnalytics() {
             }
           />
           <MetricCard
-            title="WhatsApp Leads"
-            value={totals.whatsapp}
-            delta={{ value: 'High Intent', direction: 'up', context: 'verified pipeline' }}
-            sparkline="emerald"
-            sparklineData={[4, 7, 6, 12, 11, 18, 22, totals.whatsapp || 25]}
-            contextText="Direct buyer callbacks"
+            title="WhatsApp taps"
+            value={loadFailed ? null : totals.whatsapp}
+            contextText="Taps on the WhatsApp button"
             icon={WhatsappLogo}
             iconColorClass="text-emerald-600 dark:text-emerald-400"
             iconBgClass="bg-emerald-50 dark:bg-emerald-950/60"
             tooltip={
               <AdminInfoTooltip
-                title="WhatsApp Inquiries"
-                description="Direct lead callback or site visit inquiries initiated via WhatsApp with full project metadata."
+                title="WhatsApp taps"
+                description="Times a buyer tapped the WhatsApp button on a project. A tap is not a confirmed message or lead."
               />
             }
           />

@@ -54,7 +54,13 @@ interface PromotionStats {
   clicks: number
   conversions: number
   ctr: number
+  /** Sent by newer backends. */
+  scheduled?: number
+  expired?: number
 }
+
+/** YYYY-MM-DD of an instant, in IST (the business day), not UTC. */
+const istDate = (d: Date) => new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Kolkata' }).format(d)
 
 export default function PromotionsAdminPage() {
   const [promotions, setPromotions] = useState<Promotion[]>([])
@@ -183,7 +189,7 @@ export default function PromotionsAdminPage() {
                 </h1>
                 <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 text-xs font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200/80 dark:border-emerald-800/60 rounded-full">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                  <span>{stats?.active ?? 0} Live Now</span>
+                  <span>{stats?.active ?? '—'} Live Now</span>
                 </span>
               </div>
               <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5 font-medium">
@@ -227,10 +233,12 @@ export default function PromotionsAdminPage() {
           </div>
           <div className="mt-3 flex items-baseline justify-between gap-2">
             <span className="text-2xl sm:text-3xl font-extrabold text-zinc-900 dark:text-white tabular-nums tracking-tight">
-              {loading ? '—' : stats?.active ?? 0}
+              {loading ? '—' : stats?.active ?? '—'}
             </span>
             <span className="text-xs font-semibold text-zinc-400 dark:text-zinc-500">
-              of {stats?.total ?? 0} total
+              of {stats?.total ?? '—'} total
+              {typeof stats?.scheduled === 'number' ? ` · ${stats.scheduled} scheduled` : ''}
+              {typeof stats?.expired === 'number' ? ` · ${stats.expired} expired` : ''}
             </span>
           </div>
         </button>
@@ -247,7 +255,7 @@ export default function PromotionsAdminPage() {
           </div>
           <div className="mt-3 flex items-baseline justify-between gap-2">
             <span className="text-2xl sm:text-3xl font-extrabold text-zinc-900 dark:text-white tabular-nums tracking-tight">
-              {loading ? '—' : (stats?.impressions ?? 0).toLocaleString()}
+              {loading || typeof stats?.impressions !== 'number' ? '—' : stats.impressions.toLocaleString('en-IN')}
             </span>
             <span className="text-xs font-semibold text-zinc-400 dark:text-zinc-500">Logged buyer views</span>
           </div>
@@ -265,7 +273,7 @@ export default function PromotionsAdminPage() {
           </div>
           <div className="mt-3 flex items-baseline justify-between gap-2">
             <span className="text-2xl sm:text-3xl font-extrabold text-zinc-900 dark:text-white tabular-nums tracking-tight">
-              {loading ? '—' : (stats?.clicks ?? 0).toLocaleString()}
+              {loading || typeof stats?.clicks !== 'number' ? '—' : stats.clicks.toLocaleString('en-IN')}
             </span>
             <span className="text-xs font-semibold text-zinc-400 dark:text-zinc-500">Direct buyer interactions</span>
           </div>
@@ -283,7 +291,7 @@ export default function PromotionsAdminPage() {
           </div>
           <div className="mt-3 flex items-baseline justify-between gap-2">
             <span className="text-2xl sm:text-3xl font-extrabold text-zinc-900 dark:text-white tabular-nums tracking-tight">
-              {loading ? '—' : `${stats?.ctr ?? 0}%`}
+              {loading || typeof stats?.ctr !== 'number' ? '—' : `${stats.ctr}%`}
             </span>
             <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 font-medium">
               Conversion efficiency
@@ -681,11 +689,11 @@ function PromotionModal({
     link_target: promo?.link_target || '',
     image_url: promo?.image_url || '',
     starts_at: promo?.starts_at
-      ? new Date(promo.starts_at).toISOString().split('T')[0]
-      : new Date().toISOString().split('T')[0],
+      ? istDate(new Date(promo.starts_at))
+      : istDate(new Date()),
     ends_at: promo?.ends_at
-      ? new Date(promo.ends_at).toISOString().split('T')[0]
-      : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      ? istDate(new Date(promo.ends_at))
+      : istDate(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)),
     is_active: promo ? promo.is_active : true,
     target_sectors_str: promo?.target_sectors ? promo.target_sectors.join(', ') : '',
   })

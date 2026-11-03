@@ -185,7 +185,16 @@ const INTEL_WINDOWS = [
   { days: 0, label: 'All time' },
 ] as const
 
-const inr = (usd: number) => `₹${(usd * 88).toFixed(2)}`
+/**
+ * Cost at the rate the response sent (`usdToInr`); without one, USD. A
+ * hardcoded rate here once disagreed with the analytics page's.
+ */
+const formatCost = (usd: number | null | undefined, rate: number | null) =>
+  typeof usd !== 'number' || !Number.isFinite(usd)
+    ? '—'
+    : rate && rate > 0
+      ? `₹${(usd * rate).toFixed(2)}`
+      : `$${usd.toFixed(4)}`
 
 const SCROLL =
   '[&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-zinc-200 dark:[&::-webkit-scrollbar-thumb]:bg-zinc-700 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-zinc-300 dark:hover:[&::-webkit-scrollbar-thumb]:bg-zinc-600'
@@ -264,6 +273,7 @@ export default function ConversationsPage() {
   const [intelDays, setIntelDays] = useState<number>(30)
   const [showIntelligence, setShowIntelligence] = useState(true)
 
+  const [usdToInr, setUsdToInr] = useState<number | null>(null)
   const [serverTotals, setServerTotals] = useState<{ total?: number; totalLeads?: number; totalCostUsd?: number } | null>(null)
   const [tabCounts, setTabCounts] = useState<{ all?: number; leads?: number; users?: number; guests?: number }>({})
 
@@ -365,6 +375,7 @@ export default function ConversationsPage() {
         const fetchedSessions: SessionSummary[] = data.sessions ?? []
         setSessions((prev) => (append ? [...prev, ...fetchedSessions] : fetchedSessions))
 
+        if (typeof data.usdToInr === 'number') setUsdToInr(data.usdToInr)
         if (data.total !== undefined) {
           setServerTotals({
             total: data.total,
@@ -483,10 +494,10 @@ export default function ConversationsPage() {
     return {
       total,
       totalLeads,
-      totalCostInr: inr(totalCostUsd),
+      totalCostInr: formatCost(totalCostUsd, usdToInr),
       activeToday,
     }
-  }, [sessions, serverTotals])
+  }, [sessions, serverTotals, usdToInr])
 
   const copyTranscript = () => {
     if (!detail) return
@@ -611,7 +622,7 @@ export default function ConversationsPage() {
           value={kpis.activeToday}
           tone="hot"
           icon={<Lightning size={16} />}
-          hint="Recent buyer sessions"
+          hint="Among sessions loaded below"
           loading={loading}
         />
       </div>
@@ -1203,7 +1214,7 @@ export default function ConversationsPage() {
 
                       <span className="text-zinc-500 dark:text-zinc-400">{s.turns} turns</span>
                       <span className="text-zinc-300 dark:text-zinc-600" aria-hidden>·</span>
-                      <span className="font-mono text-zinc-500 dark:text-zinc-400">{inr(s.costUsd)}</span>
+                      <span className="font-mono text-zinc-500 dark:text-zinc-400">{formatCost(s.costUsd, usdToInr)}</span>
 
                       <span className="ml-auto min-w-0">
                         <IdentityTag kind={s.identity.kind} id={s.identity.id} />
@@ -1420,7 +1431,7 @@ export default function ConversationsPage() {
                   )}
 
                   <div className="ml-auto text-[11px] font-mono text-zinc-500 dark:text-zinc-400">
-                    {inr(detail.cost.totalUsd)} · {detail.cost.calls.length} calls
+                    {formatCost(detail.cost.totalUsd, usdToInr)} · {detail.cost.calls.length} calls
                   </div>
                 </div>
 

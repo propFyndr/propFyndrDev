@@ -151,12 +151,16 @@ export default function DataQualityPage() {
 
   if (!data && !error) return <Spinner />
 
-  const totalProjects = data?.stats.total ?? 382
-  const enrichmentQueueCount = data?.thinnest.length ?? 0
+  const totalProjects: number | null = typeof data?.stats.total === 'number' ? data.stats.total : null
+  const enrichmentQueueCount = data?.thinnest.length ?? null
   const avgCompleteness =
     data?.thinnest && data.thinnest.length > 0
       ? Math.round(data.thinnest.reduce((acc, curr) => acc + curr.score, 0) / data.thinnest.length)
-      : 59
+      : null
+  const completePct =
+    data && totalProjects && totalProjects > 0 ? Math.round((data.stats.complete / totalProjects) * 100) : null
+  const incomplete = data && totalProjects !== null ? totalProjects - data.stats.complete : null
+  const standardsWithGaps = data ? CORE_STANDARDS.filter(({ key }) => data.stats[key] > 0).length : 0
 
   return (
     <PageShell>
@@ -209,7 +213,7 @@ export default function DataQualityPage() {
             <div className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-[#18181b] border border-zinc-200/80 dark:border-zinc-800 shadow-2xs flex flex-col justify-between">
               <div className="flex items-center justify-between">
                 <span className="text-[10.5px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">
-                  Total Catalogue
+                  Projects in catalogue
                 </span>
                 <div className="w-7 h-7 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 flex items-center justify-center">
                   <Buildings size={15} weight="bold" />
@@ -217,10 +221,10 @@ export default function DataQualityPage() {
               </div>
               <div className="mt-3">
                 <span className="text-3xl font-extrabold text-[#1d1d1f] dark:text-white tracking-tight">
-                  {totalProjects}
+                  {totalProjects ?? '—'}
                 </span>
                 <p className="text-[11.5px] font-medium text-zinc-400 dark:text-zinc-500 mt-0.5">
-                  Published residential projects
+                  Any publish status
                 </p>
               </div>
             </div>
@@ -231,22 +235,24 @@ export default function DataQualityPage() {
                 <span className="text-[10.5px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">
                   Core Legal & Commercial
                 </span>
-                <div className="w-7 h-7 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+                <div className={`w-7 h-7 rounded-full flex items-center justify-center ${incomplete ? 'bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400' : 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400'}`}>
                   <SealCheck size={16} weight="fill" />
                 </div>
               </div>
               <div className="mt-3 flex items-baseline justify-between">
                 <div>
-                  <span className="text-3xl font-extrabold text-emerald-600 dark:text-emerald-400 tracking-tight">
-                    100%
+                  <span className={`text-3xl font-extrabold tracking-tight ${incomplete ? 'text-amber-600 dark:text-amber-400' : 'text-emerald-600 dark:text-emerald-400'}`}>
+                    {completePct === null ? '—' : `${completePct}%`}
                   </span>
                   <p className="text-[11.5px] font-medium text-zinc-400 dark:text-zinc-500 mt-0.5">
-                    {data.stats.complete} / {totalProjects} fully compliant
+                    {data.stats.complete} / {totalProjects ?? '—'} have all six core fields
                   </p>
                 </div>
-                <span className="text-[10.5px] font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 rounded-full border border-emerald-200/60">
-                  Verified
-                </span>
+                {incomplete !== null && incomplete > 0 && (
+                  <span className="text-[10.5px] font-bold text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/40 px-2 py-0.5 rounded-full border border-amber-200/60">
+                    {incomplete} incomplete
+                  </span>
+                )}
               </div>
             </div>
 
@@ -263,14 +269,14 @@ export default function DataQualityPage() {
               <div className="mt-3 flex items-baseline justify-between">
                 <div>
                   <span className="text-3xl font-extrabold text-[#1d1d1f] dark:text-white tracking-tight">
-                    {enrichmentQueueCount}
+                    {enrichmentQueueCount ?? '—'}
                   </span>
                   <p className="text-[11.5px] font-medium text-amber-600 dark:text-amber-400 mt-0.5">
-                    Projects below 75 score
+                    Lowest 25 by score
                   </p>
                 </div>
                 <span className="text-[10.5px] font-bold text-zinc-600 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-800 px-2 py-0.5 rounded-full">
-                  Avg {avgCompleteness}/100
+                  Avg {avgCompleteness ?? '—'}/100
                 </span>
               </div>
             </div>
@@ -292,9 +298,15 @@ export default function DataQualityPage() {
                   </p>
                 </div>
               </div>
-              <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 px-2.5 py-0.5 rounded-full border border-emerald-200/60 self-start sm:self-auto">
-                <Check size={11} weight="bold" /> 100% Passed
-              </span>
+              {standardsWithGaps === 0 ? (
+                <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 px-2.5 py-0.5 rounded-full border border-emerald-200/60 self-start sm:self-auto">
+                  <Check size={11} weight="bold" /> None missing
+                </span>
+              ) : (
+                <span className="inline-flex items-center gap-1 text-[11px] font-bold text-rose-700 dark:text-rose-300 bg-rose-50 dark:bg-rose-950/40 px-2.5 py-0.5 rounded-full border border-rose-200/60 self-start sm:self-auto">
+                  <Warning size={11} weight="bold" /> {standardsWithGaps} of {CORE_STANDARDS.length} have gaps
+                </span>
+              )}
             </div>
 
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 pt-3">
@@ -311,13 +323,17 @@ export default function DataQualityPage() {
                         <span className="text-[12px] font-bold text-zinc-800 dark:text-zinc-200 truncate">
                           {label}
                         </span>
-                        <Check size={11} weight="bold" className="text-emerald-600 dark:text-emerald-400 shrink-0" />
+                        {isZero ? (
+                          <Check size={11} weight="bold" className="text-emerald-600 dark:text-emerald-400 shrink-0" />
+                        ) : (
+                          <Warning size={11} weight="bold" className="text-rose-600 dark:text-rose-400 shrink-0" />
+                        )}
                       </div>
                       <p className="text-[10px] text-zinc-400 dark:text-zinc-500 mt-0.5 line-clamp-1">
                         {detail}
                       </p>
                     </div>
-                    <span className="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400 mt-1.5">
+                    <span className={`text-[10px] font-semibold mt-1.5 ${isZero ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`}>
                       {isZero ? '0 missing' : `${missing} missing`}
                     </span>
                   </div>

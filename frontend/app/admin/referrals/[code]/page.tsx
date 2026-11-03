@@ -548,7 +548,7 @@ export default function ReferralTreePage() {
             </div>
           </div>
           <span className="text-[10px] font-mono text-[#6e6e73] dark:text-[#98989d] bg-[#f5f5f7] dark:bg-[#242426] px-2.5 py-0.5 rounded-full border border-[#e5e5ea] dark:border-[#38383a]">
-            {channelBreakdown.reduce((sum, c) => sum + c.total, 0)} total sessions
+            {channelBreakdown.reduce((sum, c) => sum + c.total, 0)} devices
           </span>
         </div>
 
@@ -707,7 +707,7 @@ export default function ReferralTreePage() {
                     </div>
                     <div className="p-2.5 rounded-xl bg-white dark:bg-[#1c1c1e] border border-[#e5e5ea] dark:border-[#38383a] text-center">
                       <span className="text-xl font-bold font-mono text-[#1d1d1f] dark:text-[#f5f5f7]">
-                        {selectedNode.actions.siteVisits ?? 0}
+                        {selectedNode.actions.siteVisits ?? '—'}
                       </span>
                       <span className="text-[10px] text-[#6e6e73] dark:text-[#98989d] block mt-0.5">Site Visits Requested</span>
                     </div>

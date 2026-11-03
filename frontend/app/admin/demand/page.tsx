@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { adminFetch } from '@/lib/adminFetch'
 
 interface DemandSignalSummary {
   city: string
@@ -12,7 +13,7 @@ interface DemandSignalSummary {
 
 export default function AdminDemandPage() {
   const [demandSignals, setDemandSignals] = useState<DemandSignalSummary[]>([])
-  const [totalCities, setTotalCities] = useState(0)
+  const [totalCities, setTotalCities] = useState<number | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [sortBy, setSortBy] = useState<'count' | 'budget' | 'date'>('count')
@@ -25,15 +26,17 @@ export default function AdminDemandPage() {
     setLoading(true)
     setError(null)
     try {
-      const res = await fetch(`/api/v1/admin/demand?sortBy=${sort}`)
+      const res = await adminFetch(`/admin/demand?sortBy=${sort}`)
       if (!res.ok) {
         throw new Error(`Failed to fetch demand signals (status: ${res.status})`)
       }
       const data = await res.json()
       setDemandSignals(data.demandSignals || [])
-      setTotalCities(data.totalCities || 0)
+      setTotalCities(typeof data.totalCities === 'number' ? data.totalCities : null)
     } catch (err) {
       setError((err as Error).message)
+      setDemandSignals([])
+      setTotalCities(null)
     } finally {
       setLoading(false)
     }
@@ -47,7 +50,7 @@ export default function AdminDemandPage() {
       d.inquiryCount,
       d.medianBudgetCr !== null ? `₹${d.medianBudgetCr} Cr` : 'N/A',
       d.topBhk ? `${d.topBhk} BHK` : 'N/A',
-      new Date(d.lastInquiryAt).toLocaleDateString(),
+      new Date(d.lastInquiryAt).toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata' }),
     ])
 
     const csvContent = [headers.join(','), ...rows.map((r) => r.join(','))].join('\n')
@@ -55,14 +58,17 @@ export default function AdminDemandPage() {
     const url = URL.createObjectURL(blob)
     const link = document.createElement('a')
     link.href = url
-    link.setAttribute('download', `propfyndr_demand_intelligence_${new Date().toISOString().slice(0, 10)}.csv`)
+    link.setAttribute('download', `propfyndr_demand_intelligence_${new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Kolkata' }).format(new Date())}.csv`)
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
   }
 
   const totalInquiries = demandSignals.reduce((acc, curr) => acc + curr.inquiryCount, 0)
-  const topCity = demandSignals.length > 0 ? demandSignals[0].city : 'N/A'
+  // Max by count whatever the current sort; row 0 is only the top under "count".
+  const topCity = demandSignals.length > 0
+    ? demandSignals.reduce((best, d) => (d.inquiryCount > best.inquiryCount ? d : best)).city
+    : '—'
 
   return (
     <div className="p-6 max-w-7xl mx-auto space-y-6">
@@ -87,11 +93,11 @@ export default function AdminDemandPage() {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-5">
           <p className="text-xs uppercase tracking-wider font-semibold text-zinc-400">Total Unserved Queries</p>
-          <p className="text-3xl font-bold text-white mt-2">{totalInquiries.toLocaleString()}</p>
+          <p className="text-3xl font-bold text-white mt-2">{error ? '—' : totalInquiries.toLocaleString('en-IN')}</p>
         </div>
         <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-5">
           <p className="text-xs uppercase tracking-wider font-semibold text-zinc-400">Tracked Unserved Cities</p>
-          <p className="text-3xl font-bold text-emerald-400 mt-2">{totalCities}</p>
+          <p className="text-3xl font-bold text-emerald-400 mt-2">{totalCities ?? '—'}</p>
         </div>
         <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-5">
           <p className="text-xs uppercase tracking-wider font-semibold text-zinc-400">#1 Demanded Market</p>
@@ -166,7 +172,8 @@ export default function AdminDemandPage() {
                     </td>
                     <td className="py-3.5 px-4">{item.topBhk ? `${item.topBhk} BHK` : '—'}</td>
                     <td className="py-3.5 px-4 text-xs text-zinc-400">
-                      {new Date(item.lastInquiryAt).toLocaleDateString(undefined, {
+                      {new Date(item.lastInquiryAt).toLocaleDateString('en-IN', {
+                        timeZone: 'Asia/Kolkata',
                         month: 'short',
                         day: 'numeric',
                         year: 'numeric',

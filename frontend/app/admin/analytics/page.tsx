@@ -26,7 +26,6 @@ import { Skeleton } from '@/components/ui/skeleton'
 import AnalyticsNav from '@/components/admin/AnalyticsNav'
 import AdminInfoTooltip from '@/components/admin/AdminInfoTooltip'
 import { MetricCard } from '@/components/admin/ui/MetricCard'
-import { useAdminRole, isOwner } from '@/lib/adminRole'
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip,
   ResponsiveContainer, PieChart, Pie, Cell
@@ -42,6 +41,8 @@ interface DashboardStats {
   avgClarifications: number | string
   topSectors: Array<{ sector: string; count: number }>
   topBuilders: Array<{ builder: string; count: number }>
+  /** Where the summary was counted from (sent by the backend when known). */
+  source?: string
 }
 
 interface QualityMetrics {
@@ -96,7 +97,26 @@ interface AiCostMetrics {
     maxSize: number
     hitRate: string
   }
+  /** Rate the backend used for INR figures. Absent → show USD only, never a guessed rate. */
+  usdToInr?: number
+  /** All providers, India day. */
+  todayUsd?: number
+  /** Gemini-only cap; compare with budgetWindowSpentUsd (the meter's own window), not todayUsd. */
+  dailyBudgetUsd?: number
+  budgetWindowSpentUsd?: number | null
+  last30dUsd?: number
+  /** Degraded turns / turns that reached a provider, last 7 days, as a 0–1 fraction. */
+  providerFailureRate?: number | null
+  costByEndpoint?: Array<{ endpoint?: string; costUsd?: number; calls?: number }>
 }
+
+/** USD amount in INR at the response's own rate, or in USD when no rate was sent. */
+function money(usd: number | null | undefined, rate: number | undefined, digits = 2): string {
+  if (typeof usd !== 'number' || !Number.isFinite(usd)) return '—'
+  if (typeof rate === 'number' && rate > 0) return `₹${(usd * rate).toFixed(digits)}`
+  return `$${usd.toFixed(Math.max(digits, 2))}`
+}
+
 
 interface MarketDemandItem {
   sector: string
@@ -139,11 +159,12 @@ export default function AnalyticsDashboard() {
    * a confident ₹0 burn rate instead of being told it is not theirs to see.
    */
   const [costsRestricted, setCostsRestricted] = useState(false)
-  const maySeeCosts = isOwner(useAdminRole())
   const [marketDemand, setMarketDemand] = useState<MarketDemandItem[]>([])
   const [unmetDemand, setUnmetDemand] = useState<UnmetDemandItem[]>([])
   const [funnelStages, setFunnelStages] = useState<FunnelStage[]>([])
-  
+  /** Which sections failed to load, so an empty list is not read as "nothing happened". */
+  const [failed, setFailed] = useState<{ funnel: boolean; unmet: boolean; demand: boolean }>({ funnel: false, unmet: false, demand: false })
+
   const [loading, setLoading] = useState(true)
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [lastRefreshedAt, setLastRefreshedAt] = useState<Date>(new Date())
@@ -162,8 +183,10 @@ export default function AnalyticsDashboard() {
         adminFetch(`/admin/analytics/summary${refreshParam}`),
         adminFetch(`/admin/analytics/quality${refreshParam}`),
         adminFetch(`/admin/analytics/users${refreshParam}`),
-        // Spend is super-admin only; asking anyway just buys a guaranteed 403.
-        maySeeCosts ? adminFetch(`/admin/analytics/ai-costs${refreshParam}`) : Promise.resolve(new Response(null, { status: 403 })),
+        // Spend is super-admin only. Always asked: the server's 403 is the
+        // authority, and a role read from localStorage after mount was stale
+        // (null) when this callback was first created, so the block never loaded.
+        adminFetch(`/admin/analytics/ai-costs${refreshParam}`),
         adminFetch(`/admin/analytics/market-demand${refreshParam}`),
         adminFetch(`/admin/analytics/unmet-demand${refreshParam}`),
         adminFetch(`/admin/analytics/funnel${refreshParam}`),
@@ -178,13 +201,13 @@ export default function AnalyticsDashboard() {
         unmetData,
         funnelData,
       ] = await Promise.all([
-        summaryRes.json().catch(() => null),
-        qualityRes.json().catch(() => null),
-        usersRes.json().catch(() => null),
+        summaryRes.ok ? summaryRes.json().catch(() => null) : Promise.resolve(null),
+        qualityRes.ok ? qualityRes.json().catch(() => null) : Promise.resolve(null),
+        usersRes.ok ? usersRes.json().catch(() => null) : Promise.resolve(null),
         costsRes.ok ? costsRes.json().catch(() => null) : Promise.resolve(null),
-        demandRes.json().catch(() => ({ matrix: [] })),
-        unmetRes.json().catch(() => ({ ledger: [] })),
-        funnelRes.json().catch(() => ({ stages: [] })),
+        demandRes.ok ? demandRes.json().catch(() => null) : Promise.resolve(null),
+        unmetRes.ok ? unmetRes.json().catch(() => null) : Promise.resolve(null),
+        funnelRes.ok ? funnelRes.json().catch(() => null) : Promise.resolve(null),
       ])
 
       setSummary(summaryData)
@@ -192,12 +215,14 @@ export default function AnalyticsDashboard() {
       setUsers(usersData)
       setCostsRestricted(costsRes.status === 403)
       setAiCosts(costsData)
-      setMarketDemand(demandData.matrix || [])
-      setUnmetDemand(unmetData.ledger || [])
-      setFunnelStages(funnelData.stages || [])
+      setMarketDemand(demandData?.matrix || [])
+      setUnmetDemand(unmetData?.ledger || [])
+      setFunnelStages(funnelData?.stages || [])
+      setFailed({ funnel: !funnelData, unmet: !unmetData, demand: !demandData })
       setLastRefreshedAt(new Date())
     } catch (err) {
       console.error('Analytics load failed:', err)
+      setFailed({ funnel: true, unmet: true, demand: true })
     } finally {
       setLoading(false)
       setIsRefreshing(false)
@@ -225,10 +250,6 @@ export default function AnalyticsDashboard() {
             <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-zinc-900 dark:text-white tracking-tight">
               Enterprise Market Intelligence
             </h1>
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10.5px] sm:text-[11px] font-semibold bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 border border-emerald-200/80 dark:border-emerald-800/80 shrink-0">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              Live DB Telemetry
-            </span>
           </div>
           <p className="text-xs sm:text-sm font-medium text-zinc-500 dark:text-zinc-400 leading-relaxed">
             Real-time buyer demand, AI unit economics, supply-demand matrix, and conversion funnels
@@ -239,6 +260,7 @@ export default function AnalyticsDashboard() {
         <div className="flex items-center gap-3 shrink-0 self-start md:self-auto">
           <span className="text-[11px] font-medium text-zinc-400 dark:text-zinc-500 hidden sm:inline-block">
             Updated {formatDistanceToNow(lastRefreshedAt, { addSuffix: true })}
+            {summary?.source ? ` · Source: ${summary.source}` : ''}
           </span>
 
           <button
@@ -277,9 +299,11 @@ export default function AnalyticsDashboard() {
               </p>
             </div>
           </div>
-          <span className="text-[11px] font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/80 px-2.5 py-1 rounded-lg border border-blue-200/60 dark:border-blue-800/60 shrink-0 self-start sm:self-auto whitespace-nowrap">
-            ~80% Token Savings
-          </span>
+          {aiCosts && (
+            <span className="text-[11px] font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/80 px-2.5 py-1 rounded-lg border border-blue-200/60 dark:border-blue-800/60 shrink-0 self-start sm:self-auto whitespace-nowrap">
+              {typeof aiCosts.usdToInr === 'number' ? `₹ at ${aiCosts.usdToInr}/USD` : 'USD (no INR rate sent)'}
+            </span>
+          )}
         </div>
 
         {costsRestricted ? (
@@ -302,15 +326,14 @@ export default function AnalyticsDashboard() {
             </span>
           </div>
         ) : (
+          <>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-4 min-w-0">
             <MetricCard
               title="Total AI Spend"
-              value={`₹${aiCosts?.totalCostInr ?? 0}`}
-              subBadge={`₹${((aiCosts?.avgCostPerQueryUsd ?? 0) * 87).toFixed(2)}/query`}
+              value={money(aiCosts?.totalCostUsd, aiCosts?.usdToInr, 0)}
+              subBadge={aiCosts ? `${money(aiCosts.avgCostPerQueryUsd, aiCosts.usdToInr, 4)}/query` : undefined}
               subBadgeVariant="emerald"
-              sparkline="emerald"
-              sparklineData={[12, 16, 14, 22, 19, 24, 28, 30]}
-              contextText="Provider token ledger"
+              contextText="All metered usage events"
               icon={CurrencyDollar}
               iconBgClass="bg-emerald-50 dark:bg-emerald-950/60"
               iconColorClass="text-emerald-600 dark:text-emerald-400"
@@ -318,11 +341,10 @@ export default function AnalyticsDashboard() {
             />
             <MetricCard
               title="Cost Per Lead"
-              value={`₹${aiCosts?.costPerLeadInr ?? '0.00'}`}
-              subBadge="Per verified lead"
+              value={aiCosts && aiCosts.costPerLeadUsd > 0 ? money(aiCosts.costPerLeadUsd, aiCosts.usdToInr) : '—'}
+              subBadge="Per callback request"
               subBadgeVariant="blue"
-              delta={{ value: 'Efficient', direction: 'up', context: 'vs industry avg' }}
-              contextText="CAC efficiency marker"
+              contextText="AI spend ÷ callback requests"
               icon={Target}
               iconBgClass="bg-blue-50 dark:bg-blue-950/60"
               iconColorClass="text-[#0066cc] dark:text-blue-400"
@@ -330,11 +352,9 @@ export default function AnalyticsDashboard() {
             />
             <MetricCard
               title="Queries Tracked"
-              value={aiCosts?.totalQueriesTracked ?? 0}
+              value={aiCosts?.totalQueriesTracked ?? null}
               subBadge="Metered calls"
               subBadgeVariant="violet"
-              sparkline="blue"
-              sparklineData={[45, 60, 55, 78, 70, 92, 105, 120]}
               contextText="Metered AI completions"
               icon={ShieldCheck}
               iconBgClass="bg-purple-50 dark:bg-purple-950/60"
@@ -343,17 +363,47 @@ export default function AnalyticsDashboard() {
             />
             <MetricCard
               title="FAQ Cache Rate"
-              value={aiCosts?.cache?.hitRate ?? '0.0%'}
-              subBadge={`${aiCosts?.cache?.size ?? 0} keys`}
+              value={aiCosts?.cache?.hitRate ?? null}
+              subBadge={typeof aiCosts?.cache?.size === 'number' ? `${aiCosts.cache.size} keys` : undefined}
               subBadgeVariant="amber"
-              delta={{ value: 'Fast Path', direction: 'up', context: 'zero spend' }}
-              contextText="PostgreSQL semantic fast-path"
+              contextText="This server process, since restart"
               icon={Lightning}
               iconBgClass="bg-amber-50 dark:bg-amber-950/60"
               iconColorClass="text-amber-600 dark:text-amber-400"
-              tooltip={<AdminInfoTooltip title="Cache Hit Rate" description="Queries served instantly from in-memory cache with zero token spend." whyItMatters="Direct operational margin savings." />}
+              tooltip={<AdminInfoTooltip title="Cache Hit Rate" description="Queries served from the in-memory cache of this server process with zero token spend. Resets when the server restarts." whyItMatters="Direct operational margin savings." />}
             />
           </div>
+          {aiCosts && (typeof aiCosts.todayUsd === 'number' || typeof aiCosts.last30dUsd === 'number' || aiCosts.providerFailureRate !== undefined || (aiCosts.costByEndpoint?.length ?? 0) > 0) && (
+            <div className="flex flex-wrap gap-2 text-[11px] font-semibold text-zinc-600 dark:text-zinc-300">
+              {typeof aiCosts.todayUsd === 'number' && (
+                <span className="px-2.5 py-1 rounded-md border border-zinc-200/80 dark:border-zinc-700 bg-white dark:bg-zinc-900">
+                  Today (IST), all providers: {money(aiCosts.todayUsd, aiCosts.usdToInr)}
+                </span>
+              )}
+              {typeof aiCosts.dailyBudgetUsd === 'number' && (
+                <span className="px-2.5 py-1 rounded-md border border-zinc-200/80 dark:border-zinc-700 bg-white dark:bg-zinc-900">
+                  Gemini daily cap: {typeof aiCosts.budgetWindowSpentUsd === 'number' ? money(aiCosts.budgetWindowSpentUsd, aiCosts.usdToInr) : '—'} of {money(aiCosts.dailyBudgetUsd, aiCosts.usdToInr)}
+                </span>
+              )}
+              {typeof aiCosts.last30dUsd === 'number' && (
+                <span className="px-2.5 py-1 rounded-md border border-zinc-200/80 dark:border-zinc-700 bg-white dark:bg-zinc-900">
+                  Last 30 days: {money(aiCosts.last30dUsd, aiCosts.usdToInr)}
+                </span>
+              )}
+              {aiCosts.providerFailureRate !== undefined && (
+                <span className="px-2.5 py-1 rounded-md border border-zinc-200/80 dark:border-zinc-700 bg-white dark:bg-zinc-900">
+                  Turns that fell back to rows or the outage notice, last 7 days: {typeof aiCosts.providerFailureRate === 'number' ? `${(aiCosts.providerFailureRate * 100).toFixed(1)}%` : '—'}
+                </span>
+              )}
+              {aiCosts.costByEndpoint?.map((e, i) => (
+                <span key={i} className="px-2.5 py-1 rounded-md border border-zinc-200/80 dark:border-zinc-700 bg-white dark:bg-zinc-900">
+                  {e.endpoint ?? 'unknown'}: {money(e.costUsd, aiCosts.usdToInr)}
+                  {typeof e.calls === 'number' ? ` · ${e.calls.toLocaleString('en-IN')} calls` : ''}
+                </span>
+              ))}
+            </div>
+          )}
+          </>
         )}
       </div>
 
@@ -361,12 +411,10 @@ export default function AnalyticsDashboard() {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4 min-w-0">
         <MetricCard
           title="Total Chats"
-          value={summary?.totalChats ?? 0}
-          subBadge="Active sessions"
+          value={summary?.totalChats ?? null}
+          subBadge="All time, sessions"
           subBadgeVariant="blue"
-          sparkline="blue"
-          sparklineData={[18, 24, 22, 35, 30, 42, 48, summary?.totalChats || 50]}
-          contextText="Across discovery engine"
+          contextText="Chat sessions, not people"
           icon={Users}
           iconBgClass="bg-blue-50 dark:bg-blue-950/60"
           iconColorClass="text-[#0066cc] dark:text-blue-400"
@@ -374,11 +422,9 @@ export default function AnalyticsDashboard() {
         />
         <MetricCard
           title="Total Searches"
-          value={summary?.totalQueries ?? 0}
-          subBadge={`${summary?.avgQueriesPerChat ?? 0} / chat`}
+          value={summary?.totalQueries ?? null}
+          subBadge={summary?.avgQueriesPerChat != null ? `${summary.avgQueriesPerChat} / chat` : undefined}
           subBadgeVariant="violet"
-          sparkline="amber"
-          sparklineData={[30, 42, 38, 55, 52, 68, 75, summary?.totalQueries || 80]}
           contextText="Filter & keyword executions"
           icon={MagnifyingGlass}
           iconBgClass="bg-purple-50 dark:bg-purple-950/60"
@@ -387,13 +433,10 @@ export default function AnalyticsDashboard() {
         />
         <MetricCard
           title="Zero-Result Searches"
-          value={summary?.zeroResultSearches ?? 0}
+          value={summary?.zeroResultSearches ?? null}
           warning={Number(summary?.zeroResultSearches || 0) > 0}
-          delta={{
-            value: `${summary?.zeroResultSearchRate ?? '0%'} rate`,
-            direction: Number(summary?.zeroResultSearches || 0) > 0 ? 'down' : 'neutral',
-            context: 'unmet intent',
-          }}
+          subBadge={summary?.zeroResultSearchRate ? `${summary.zeroResultSearchRate} rate` : undefined}
+          subBadgeVariant={Number(summary?.zeroResultSearches || 0) > 0 ? 'amber' : 'zinc'}
           contextText="Catalog acquisition leads"
           icon={WarningCircle}
           iconBgClass={Number(summary?.zeroResultSearches || 0) > 0 ? 'bg-amber-50 dark:bg-amber-950/60' : 'bg-zinc-100 dark:bg-zinc-800'}
@@ -402,10 +445,9 @@ export default function AnalyticsDashboard() {
         />
         <MetricCard
           title="Conversion Rate"
-          value={summary?.conversionRate ?? '0%'}
+          value={summary?.conversionRate ?? null}
           subBadge="Callback leads"
           subBadgeVariant="emerald"
-          delta={{ value: 'Strong', direction: 'up', context: 'lead pipeline' }}
           contextText="Discovery to inquiry ratio"
           icon={TrendUp}
           iconBgClass="bg-emerald-50 dark:bg-emerald-950/60"
@@ -476,7 +518,9 @@ export default function AnalyticsDashboard() {
                 })
               })()
             ) : (
-              <div className="h-44 flex items-center justify-center text-xs text-zinc-400">Loading funnel events...</div>
+              <div className="h-44 flex items-center justify-center text-xs text-zinc-400">
+                {loading ? 'Loading funnel events...' : failed.funnel ? 'Could not load the buyer journey. Try Refresh.' : 'No chat starters in the last 30 days.'}
+              </div>
             )}
           </div>
         </div>
@@ -626,7 +670,7 @@ export default function AnalyticsDashboard() {
               ) : (
                 <tr>
                   <td colSpan={6} className="py-8 text-center text-zinc-400">
-                    No search demand logged yet. Demand matrix populates automatically from chat sessions.
+                    {loading ? 'Loading…' : failed.demand ? 'Could not load the demand matrix. Try Refresh.' : 'No search demand logged yet. Demand matrix populates automatically from chat sessions.'}
                   </td>
                 </tr>
               )}
@@ -653,7 +697,7 @@ export default function AnalyticsDashboard() {
             </p>
           </div>
           <span className="text-[10px] font-bold text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/80 px-2.5 py-1 rounded-md border border-rose-200/60 shrink-0 self-start sm:self-auto">
-            {unmetDemand.length} Unmet Opportunities
+            {failed.unmet ? '—' : unmetDemand.length} Unmet Opportunities
           </span>
         </div>
 
@@ -697,7 +741,7 @@ export default function AnalyticsDashboard() {
               ) : (
                 <tr>
                   <td colSpan={6} className="py-8 text-center text-zinc-400">
-                    Zero unmet queries logged. Catalog currently fulfills all incoming search requirements.
+                    {loading ? 'Loading…' : failed.unmet ? 'Could not load the unmet-demand ledger. Try Refresh.' : 'No zero-result queries logged.'}
                   </td>
                 </tr>
               )}
@@ -829,23 +873,23 @@ export default function AnalyticsDashboard() {
           <div className="space-y-3 text-xs">
             <div className="flex items-center justify-between p-3 rounded-xl bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200/60 dark:border-zinc-800">
               <span className="font-bold text-zinc-700 dark:text-zinc-300">Total Telemetry Queries</span>
-              <span className="font-mono font-extrabold text-zinc-900 dark:text-white">{quality?.totalSearches || 0}</span>
+              <span className="font-mono font-extrabold text-zinc-900 dark:text-white">{quality?.totalSearches ?? '—'}</span>
             </div>
 
             <div className="flex items-center justify-between p-3 rounded-xl bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200/60 dark:border-zinc-800">
               <span className="font-bold text-zinc-700 dark:text-zinc-300">Avg Results Per Search</span>
-              <span className="font-mono font-extrabold text-zinc-900 dark:text-white">{quality?.avgResultsCount || 0}</span>
+              <span className="font-mono font-extrabold text-zinc-900 dark:text-white">{quality?.avgResultsCount ?? '—'}</span>
             </div>
 
             <div className="flex items-center justify-between p-3 rounded-xl bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200/60 dark:border-zinc-800">
               <span className="font-bold text-zinc-700 dark:text-zinc-300">Avg Clarification Questions</span>
-              <span className="font-mono font-extrabold text-zinc-900 dark:text-white">{quality?.avgClarifications || 0}</span>
+              <span className="font-mono font-extrabold text-zinc-900 dark:text-white">{quality?.avgClarifications ?? '—'}</span>
             </div>
 
             <div className="flex items-center justify-between p-3 rounded-xl bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200/60 dark:border-zinc-800">
               <span className="font-bold text-zinc-700 dark:text-zinc-300">Database Completeness Score</span>
               <span className="font-mono font-extrabold text-emerald-600 dark:text-emerald-400">
-                {quality?.quality?.completenessScore ?? 100}%
+                {typeof quality?.quality?.completenessScore === 'number' ? `${quality.quality.completenessScore}%` : '—'}
               </span>
             </div>
           </div>
