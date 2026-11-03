@@ -3,7 +3,8 @@ import { z } from 'zod'
 import { timingSafeEqual } from 'crypto'
 import { prisma } from '../lib/db'
 import { verifyUser } from '../lib/auth'
-import { requireStaff } from '../lib/adminGuard'
+import { requireStaff, requireStaffRole } from '../lib/adminGuard'
+import { adminReadAudit } from '../lib/adminReadAudit'
 import { trackConversion } from '../lib/analytics/tracking'
 import { env } from '../lib/env'
 import { notifyLead } from '../lib/notify'
@@ -17,20 +18,6 @@ import { analyzeGhostPoolByProject } from '../lib/ghostPool'
 import { analyzeProjectDemand, getDemandSnapshot } from '../lib/demandIntelligence'
 
 const router = Router()
-
-// GET /count — must be registered BEFORE any /:id route to avoid param collision.
-router.get('/count', async (req: Request, res: Response) => {
-  const userId = await verifyUser(req)
-  if (!userId) { res.status(401).json({ error: 'Unauthorized' }); return }
-
-  const startOfDay = new Date()
-  startOfDay.setHours(0, 0, 0, 0)
-
-  const count = await prisma.siteVisitRequest.count({
-    where: { created_at: { gte: startOfDay } },
-  })
-  res.json({ count })
-})
 
 const CallbackSchema = z.object({
   name: z.string().min(1),
@@ -523,7 +510,9 @@ router.get('/metrics', requireStaff, async (req: Request, res: Response) => {
 // read this endpoint for an arbitrary lead and got the buyer's phone number.
 // `requireStaff` is the identity migration arriving here. A builder's own
 // leads remain available, scoped, at /portal/builder/leads.
-router.get('/callback/:leadId/dossier', requireStaff, async (req: Request, res: Response) => {
+// SUPER_ADMIN and SALES only, as the policy allows for every lead path under /admin (an
+// ANALYST read buyer PII here), and the read is recorded like /admin/leads/:id.
+router.get('/callback/:leadId/dossier', requireStaffRole('SUPER_ADMIN', 'SALES'), adminReadAudit, async (req: Request, res: Response) => {
   try {
     const { leadId } = req.params
 

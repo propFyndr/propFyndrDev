@@ -101,6 +101,25 @@ export function requireStaff(req: Request, res: Response, next: NextFunction): v
   })
 }
 
+/**
+ * A narrower staff floor for a privileged route outside /admin, where adminRolePolicy does
+ * not run. `/leads/callback/:id/dossier` used `requireStaff`, so an ANALYST read a buyer's
+ * name and phone there while the policy denies that role every lead path under /admin.
+ */
+export function requireStaffRole(...roles: Array<(typeof STAFF_ROLES)[number]>) {
+  const gate = requireRole(...roles)
+  return (req: Request, res: Response, next: NextFunction): void => {
+    void requireIdentity(req, res, (err?: unknown) => {
+      if (err) {
+        next(err as Error)
+        return
+      }
+      if (res.headersSent) return
+      gate(req, res, next)
+    })
+  }
+}
+
 /** Mount with `app.use('/api/v1/admin', adminAreaGuard)` BEFORE the admin routers. */
 export function adminAreaGuard(req: Request, res: Response, next: NextFunction): void {
   if (isPublicAdminPath(req.path)) {

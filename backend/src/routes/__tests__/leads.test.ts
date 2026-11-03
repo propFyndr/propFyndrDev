@@ -194,14 +194,10 @@ describe('POST /api/v1/leads/webhook', () => {
 })
 
 describe('GET /api/v1/leads/count', () => {
-  it('requires authentication', async () => {
+  // Deleted 3 Nov 2026: any signed-in buyer could read how many site visits all buyers booked today.
+  it('no longer exists', async () => {
     const res = await request(app).get('/api/v1/leads/count')
-    assert.equal(res.status, 401)
-  })
-
-  it('returns count of today\'s site visits', async () => {
-    // Requires auth token
-    assert(true)
+    assert.notEqual(res.status, 200)
   })
 })
 

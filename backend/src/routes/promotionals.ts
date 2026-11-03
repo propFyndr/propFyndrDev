@@ -21,6 +21,7 @@ import { Router, Request, Response } from 'express'
 import { z } from 'zod'
 import { prisma } from '../lib/db'
 import { verifyUser } from '../lib/auth'
+import { isBotRequest, isWebsiteGuestToken } from '../lib/botDetection'
 
 const router = Router()
 
@@ -88,8 +89,13 @@ router.get('/active', async (req: Request, res: Response) => {
   res.json({ promotionals: visible })
 })
 
+/**
+ * Impressions and clicks only. A conversion is written by attributeCallbackToPromotional when a
+ * callback follows a click, deduped per buyer; accepting 'conversion' here let anyone increment
+ * the number a builder is sold on, with no login and no limit.
+ */
 const InteractionSchema = z.object({
-  interaction_type: z.enum(['impression', 'click', 'conversion']),
+  interaction_type: z.enum(['impression', 'click']),
   session_id: z.string().optional(),
   converted_project_id: z.string().optional(),
 }).strict()
@@ -118,7 +124,28 @@ router.post('/:id/interaction', async (req: Request, res: Response) => {
   const guestHeader = req.headers['x-guest-token']
   const guestToken = typeof guestHeader === 'string' && guestHeader.trim() ? guestHeader.trim() : null
 
+  // Counted only for a person (an account or the website's guest token), never a bot, and once
+  // per promotion per person per half hour, so a script or a reload loop cannot move the numbers.
+  if (isBotRequest(req) || (!userId && !isWebsiteGuestToken(guestToken))) {
+    res.status(202).json({ ok: false })
+    return
+  }
+
   try {
+    const recent = await prisma.promotionalInteraction.findFirst({
+      where: {
+        promotional_id: req.params.id,
+        interaction_type,
+        created_at: { gte: new Date(Date.now() - 30 * 60 * 1000) },
+        ...(userId ? { user_id: userId } : { guest_token: guestToken }),
+      },
+      select: { id: true },
+    })
+    if (recent) {
+      res.status(202).json({ ok: true, deduped: true })
+      return
+    }
+
     const promo = await prisma.promotional.findUnique({
       where: { id: req.params.id },
       select: { id: true },
@@ -143,10 +170,7 @@ router.post('/:id/interaction', async (req: Request, res: Response) => {
       // aggregate the interaction table to show a number.
       prisma.promotional.update({
         where: { id: promo.id },
-        data:
-          interaction_type === 'impression' ? { impressions: { increment: 1 } }
-          : interaction_type === 'click' ? { clicks: { increment: 1 } }
-          : { conversions: { increment: 1 } },
+        data: interaction_type === 'impression' ? { impressions: { increment: 1 } } : { clicks: { increment: 1 } },
       }),
     ])
 

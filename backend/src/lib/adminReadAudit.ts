@@ -33,6 +33,12 @@ import { recordAudit } from './adminIdentity'
 const AUDITED_READS: ReadonlyArray<{ pattern: RegExp; entityType: string; what: string }> = [
   { pattern: /^\/conversations\/([^/]+)$/, entityType: 'chat_session', what: 'chat transcript' },
   { pattern: /^\/beta\/sessions\/([^/]+)$/, entityType: 'chat_session', what: 'chat transcript' },
+  // The path the admin client actually uses for a transcript; it was not logged.
+  { pattern: /^\/beta\/conversations\/([^/]+)$/, entityType: 'chat_session', what: 'chat transcript' },
+  // Opening a Lead Brief: also the "brief opened" signal for the lead funnel.
+  { pattern: /^\/leads\/([^/]+)\/brief$/, entityType: 'callback_request', what: 'lead brief' },
+  // Mounted on /api/v1/leads, outside /admin (routes/leads.ts).
+  { pattern: /^\/callback\/([^/]+)\/dossier$/, entityType: 'callback_request', what: 'lead dossier' },
   { pattern: /^\/callbacks\/([^/]+)$/, entityType: 'callback_request', what: 'lead contact details' },
   { pattern: /^\/leads\/([^/]+)$/, entityType: 'callback_request', what: 'lead contact details' },
   { pattern: /^\/referrals\/nodes\/([^/]+)$/, entityType: 'referral_node', what: 'referral person summary' },

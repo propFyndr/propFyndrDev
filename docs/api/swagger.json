@@ -4175,37 +4175,6 @@
         }
       }
     },
-    "/api/v1/leads/count": {
-      "get": {
-        "tags": [
-          "Leads"
-        ],
-        "summary": "Get lead count metrics",
-        "description": "GET endpoint for /api/v1/leads/count",
-        "responses": {
-          "200": {
-            "description": "Successful operation",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "additionalProperties": true
-                }
-              }
-            }
-          },
-          "400": {
-            "$ref": "#/components/responses/BadRequest"
-          },
-          "401": {
-            "$ref": "#/components/responses/Unauthorized"
-          },
-          "500": {
-            "$ref": "#/components/responses/InternalError"
-          }
-        }
-      }
-    },
     "/api/v1/leads/webhook": {
       "post": {
         "tags": [
