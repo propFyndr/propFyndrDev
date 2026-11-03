@@ -15,7 +15,13 @@ import { PRICE_FIELDS, applyFactWrites, changedPriceFields, parsePriceVerificati
 import { checkRateLimit, resetRateLimit, getCached, setCached, deleteCached } from '../lib/cache'
 import { z } from 'zod'
 import { supabaseAdmin } from '../lib/supabase'
-import { WEBSITE_GUEST_TOKEN } from '../lib/botDetection'
+import {
+  realPeopleSessions as realPeopleSessionsSql, realPeopleQueryMetrics, realPeoplePropertyEvents,
+  realLeads, realSaves, EVENT_ACTIONS,
+} from '../lib/analytics/cohort'
+import { startOfIstDay } from '../lib/istTime'
+import { geminiBudgetStatus } from '../lib/ai/geminiMeter'
+import { spentTodayUsd, USD_TO_INR } from '../lib/ai/cost'
 import { classifyTurn, normaliseSector, GAP_KINDS, type GapKind } from '../lib/analytics/answerGaps'
 import { generateBlogDraft, prefetchBlogSources } from '../lib/blog/generateDraft'
 
@@ -824,15 +830,124 @@ router.get('/projects/summary', async (_req: Request, res: Response) => {
              NULLIF(p.hero_image_url, '') IS NOT NULL AS has_image,
              NULLIF(p.rera_number, '') IS NOT NULL AS has_rera,
              NULLIF(p.description, '') IS NOT NULL AS has_description,
-             (SELECT COUNT(*)::int FROM unit_types u WHERE u.project_id = p.id) AS unit_count,
+             (SELECT COUNT(*)::int FROM unit_types u WHERE u.project_id = p.id AND u.availability <> 'sold_out') AS unit_count,
              b.id AS builder_id, b.name AS builder_name
       FROM projects p
       LEFT JOIN builders b ON b.id = p.builder_id
+      -- Raw SQL skips the client extensions: archived duplicates and sold-out types are dropped here.
+      WHERE p.archived_duplicate_of IS NULL
     `
     res.json({ projects: rows })
   } catch (err) {
     console.error('[admin] project summary failed:', err)
     res.status(500).json({ error: 'Failed to fetch project summary' })
+  }
+})
+
+// GET /api/v1/admin/projects/export — export projects as CSV or JSON
+router.get('/projects/export', async (req: Request, res: Response) => {
+  const { filter = 'all', format = 'json' } = req.query
+  try {
+    const projects = await prisma.project.findMany({
+      include: {
+        builder: { select: { id: true, name: true } },
+        unit_types: true,
+        images: true,
+        amenities: true,
+        connectivity: true,
+        decision_profile: true,
+        competitors: true,
+        cost_sheet: true,
+        payment_plans: true,
+        construction_milestones: true,
+        construction_updates: true,
+        lifecycle_updates: true,
+        price_history: true,
+        channel_partners: true,
+      },
+      orderBy: { name: 'asc' },
+    })
+
+    const mapped = projects.map((p) => {
+      const completeness = computeCompleteness(p as any)
+      // Non-media completeness: weighted average excluding media tab
+      const tabScores = completeness.tabScores
+      const nonMediaScore = Math.round(
+        (tabScores.core * 0.20) +
+        (tabScores.pricing * 0.25) +
+        (tabScores.intelligence * 0.25) +
+        (tabScores.updates * 0.15) +
+        (tabScores.partners * 0.15)
+      )
+
+      const allMissing = [
+        ...completeness.missing.overview,
+        ...completeness.missing.units,
+        ...completeness.missing.builder,
+        ...completeness.missing.intelligence,
+        ...completeness.missing.competitors,
+        ...completeness.missing.updates,
+        ...completeness.missing.partners,
+      ]
+
+      return {
+        id: p.id,
+        slug: p.slug,
+        name: p.name,
+        builder: p.builder?.name || '',
+        sector: p.sector,
+        city: p.city,
+        status: p.status,
+        price_min_cr: p.price_min_cr,
+        price_range_label: p.price_range_label,
+        rera_number: p.rera_number || '',
+        possession_date: p.possession_date ? p.possession_date.toISOString().split('T')[0] : '',
+        possession_label: p.possession_label || '',
+        total_units: p.total_units || 0,
+        total_towers: p.total_towers || 0,
+        land_area_acres: p.land_area_acres || 0,
+        unit_types_count: p.unit_types.length,
+        images_count: p.images.length,
+        completeness_score: completeness.totalScore,
+        non_media_score: nonMediaScore,
+        is_partially_filled: nonMediaScore < 70,
+        missing_fields: allMissing.join('; '),
+      }
+    })
+
+    let result = mapped
+    if (filter === 'partially_filled') {
+      result = mapped.filter(p => p.is_partially_filled)
+    }
+
+    if (format === 'csv') {
+      const headers = [
+        'id', 'slug', 'name', 'builder', 'sector', 'city', 'status',
+        'price_min_cr', 'price_range_label', 'rera_number', 'possession_date', 'possession_label',
+        'total_units', 'total_towers', 'land_area_acres', 'unit_types_count',
+        'completeness_score', 'non_media_score', 'is_partially_filled', 'missing_fields'
+      ]
+
+      const csvRows = [headers.join(',')]
+      for (const r of result) {
+        const row = headers.map(h => {
+          const val = (r as any)[h] ?? ''
+          const escaped = String(val).replace(/"/g, '""')
+          return `"${escaped}"`
+        })
+        csvRows.push(row.join(','))
+      }
+
+      res.setHeader('Content-Type', 'text/csv')
+      res.setHeader('Content-Disposition', `attachment; filename="propfyndr-projects-${filter}-${Date.now()}.csv"`)
+      res.send(csvRows.join('\n'))
+      return
+    }
+
+    res.json({ projects: result, total: result.length })
+  } catch (err) {
+    console.error('[admin] export projects failed:', err)
+    res.status(500).json({ error: 'Failed to export projects' })
   }
 })
 
@@ -968,16 +1083,44 @@ router.get('/audit-logs', async (req: Request, res: Response) => {
     if (entity_id && entity_id !== 'all') where.entity_id = entity_id as string
 
     const take = Math.min(parseInt(limit as string) || 50, 100)
-    const skip = parseInt(offset as string) || 0
+    const skip = Math.max(0, parseInt(offset as string) || 0)
+
+    // mode=precise and field= filter on the JSON `changes` array. They used to run on the
+    // page after pagination, so `total` counted rows the page then hid. Now they are in the
+    // database query, and total is what pagination walks.
+    const precise = mode === 'precise'
+    const fieldTerm = field && typeof field === 'string' && field !== 'all' ? field.toLowerCase() : null
+    let filteredTotal: number | undefined
+    if (precise || fieldTerm) {
+      const elems = Prisma.sql`jsonb_array_elements(CASE WHEN jsonb_typeof(l.changes) = 'array' THEN l.changes ELSE '[]'::jsonb END) c`
+      const highImpact = Prisma.sql`(c->>'is_high_impact' = 'true' OR c->>'field' = ANY(${[...HIGH_IMPACT_FIELDS]}))`
+      const conds: Prisma.Sql[] = []
+      if (category === 'demand') conds.push(Prisma.sql`l.entity_type IN ('sector_gap', 'coverage_gap')`)
+      else if (category === 'catalog') conds.push(Prisma.sql`l.entity_type NOT IN ('sector_gap', 'coverage_gap')`)
+      else if (entity_type && entity_type !== 'all') conds.push(Prisma.sql`l.entity_type = ${entity_type as string}`)
+      if (entity_id && entity_id !== 'all') conds.push(Prisma.sql`l.entity_id = ${entity_id as string}`)
+      if (precise) conds.push(Prisma.sql`(l.action <> 'UPDATE' OR EXISTS (SELECT 1 FROM ${elems} WHERE ${highImpact}))`)
+      // With precise, the field must match one of the high-impact changes the page shows.
+      if (fieldTerm) {
+        conds.push(Prisma.sql`EXISTS (SELECT 1 FROM ${elems} WHERE lower(c->>'field') LIKE ${`%${fieldTerm}%`} ${precise ? Prisma.sql`AND ${highImpact}` : Prisma.empty})`)
+      }
+      const whereSql = Prisma.join(conds, ' AND ')
+      const [idRows, [{ count }]] = await Promise.all([
+        prisma.$queryRaw<Array<{ id: string }>>`
+          SELECT l.id FROM audit_logs l WHERE ${whereSql} ORDER BY l.created_at DESC, l.id DESC LIMIT ${take} OFFSET ${skip}`,
+        prisma.$queryRaw<Array<{ count: number }>>`SELECT COUNT(*)::int AS count FROM audit_logs l WHERE ${whereSql}`,
+      ])
+      where.id = { in: idRows.map((r) => r.id) }
+      filteredTotal = count
+    }
 
     const [logs, total, demandCount, catalogCount, allCount] = await Promise.all([
       (prisma as any).auditLog.findMany({
         where,
-        orderBy: { created_at: 'desc' },
-        take,
-        skip,
+        orderBy: [{ created_at: 'desc' }, { id: 'desc' }],
+        ...(filteredTotal === undefined ? { take, skip } : {}),
       }),
-      (prisma as any).auditLog.count({ where }),
+      filteredTotal ?? (prisma as any).auditLog.count({ where }),
       (prisma as any).auditLog.count({ where: { entity_type: { in: ['sector_gap', 'coverage_gap'] } } }),
       (prisma as any).auditLog.count({ where: { entity_type: { notIn: ['sector_gap', 'coverage_gap'] } } }),
       (prisma as any).auditLog.count(),
@@ -1017,113 +1160,6 @@ router.get('/audit-logs', async (req: Request, res: Response) => {
   } catch (err) {
     console.error('[admin] audit-logs failed:', err)
     res.status(500).json({ error: 'Failed to fetch audit logs' })
-  }
-})
-
-// GET /api/v1/admin/projects/export — export projects as CSV or JSON
-router.get('/projects/export', async (req: Request, res: Response) => {
-  const { filter = 'all', format = 'json' } = req.query
-  try {
-    const projects = await prisma.project.findMany({
-      include: {
-        builder: { select: { id: true, name: true } },
-        unit_types: true,
-        images: true,
-        amenities: true,
-        connectivity: true,
-        decision_profile: true,
-        competitors: true,
-        cost_sheet: true,
-        payment_plans: true,
-        construction_milestones: true,
-        construction_updates: true,
-        lifecycle_updates: true,
-        price_history: true,
-        channel_partners: true,
-      },
-      orderBy: { name: 'asc' },
-    })
-
-    const mapped = projects.map((p) => {
-      const completeness = computeCompleteness(p as any)
-      // Non-media completeness: weighted average excluding media tab
-      const tabScores = completeness.tabScores
-      const nonMediaScore = Math.round(
-        (tabScores.core * 0.20) +
-        (tabScores.pricing * 0.25) +
-        (tabScores.intelligence * 0.25) +
-        (tabScores.updates * 0.15) +
-        (tabScores.partners * 0.15)
-      )
-
-      const allMissing = [
-        ...completeness.missing.overview,
-        ...completeness.missing.units,
-        ...completeness.missing.builder,
-        ...completeness.missing.intelligence,
-        ...completeness.missing.competitors,
-        ...completeness.missing.updates,
-        ...completeness.missing.partners,
-      ]
-
-      return {
-        id: p.id,
-        slug: p.slug,
-        name: p.name,
-        builder: p.builder?.name || '',
-        sector: p.sector,
-        city: p.city,
-        status: p.status,
-        price_min_cr: p.price_min_cr,
-        price_range_label: p.price_range_label,
-        rera_number: p.rera_number || '',
-        possession_date: p.possession_date ? p.possession_date.toISOString().split('T')[0] : '',
-        possession_label: p.possession_label || '',
-        total_units: p.total_units || 0,
-        total_towers: p.total_towers || 0,
-        land_area_acres: p.land_area_acres || 0,
-        unit_types_count: p.unit_types.length,
-        images_count: p.images.length,
-        completeness_score: completeness.totalScore,
-        non_media_score: nonMediaScore,
-        is_partially_filled: nonMediaScore < 70,
-        missing_fields: allMissing.join('; '),
-      }
-    })
-
-    let result = mapped
-    if (filter === 'partially_filled') {
-      result = mapped.filter(p => p.is_partially_filled)
-    }
-
-    if (format === 'csv') {
-      const headers = [
-        'id', 'slug', 'name', 'builder', 'sector', 'city', 'status',
-        'price_min_cr', 'price_range_label', 'rera_number', 'possession_date', 'possession_label',
-        'total_units', 'total_towers', 'land_area_acres', 'unit_types_count',
-        'completeness_score', 'non_media_score', 'is_partially_filled', 'missing_fields'
-      ]
-
-      const csvRows = [headers.join(',')]
-      for (const r of result) {
-        const row = headers.map(h => {
-          const val = (r as any)[h] ?? ''
-          const escaped = String(val).replace(/"/g, '""')
-          return `"${escaped}"`
-        })
-        csvRows.push(row.join(','))
-      }
-
-      res.setHeader('Content-Type', 'text/csv')
-      res.setHeader('Content-Disposition', `attachment; filename="propfyndr-projects-${filter}-${Date.now()}.csv"`)
-      res.send(csvRows.join('\n'))
-      return
-    }
-
-    res.json({ projects: result, total: result.length })
-  } catch (err) {
-    console.error('[admin] export projects failed:', err)
-    res.status(500).json({ error: 'Failed to export projects' })
   }
 })
 
@@ -1618,12 +1654,17 @@ router.get('/builders', async (req: Request, res: Response) => {
       ]
     }
 
+    const take = Math.min(500, Math.max(1, parseInt(limit as string, 10) || 100))
+    const skip = Math.max(0, parseInt(offset as string, 10) || 0)
+    // Nested relation reads skip the archived-project extension, so the filter is explicit.
+    const liveProjects = { archived_duplicate_of: null }
     const [builders, total] = await Promise.all([
       prisma.builder.findMany({
         where,
         include: {
-          _count: { select: { projects: true } },
+          _count: { select: { projects: { where: liveProjects } } },
           projects: {
+            where: liveProjects,
             select: {
               id: true,
               name: true,
@@ -1636,13 +1677,13 @@ router.get('/builders', async (req: Request, res: Response) => {
           },
         },
         orderBy: { name: 'asc' },
-        take: parseInt(limit as string),
-        skip: parseInt(offset as string),
+        take,
+        skip,
       }),
       prisma.builder.count({ where }),
     ])
 
-    res.json({ builders, total, limit: parseInt(limit as string), offset: parseInt(offset as string) })
+    res.json({ builders, total, limit: take, offset: skip })
   } catch (err) {
     console.error('[admin] builders query failed:', err)
     res.status(500).json({ error: 'Failed to fetch builders' })
@@ -1876,43 +1917,48 @@ router.get('/coverage-gaps', async (req: Request, res: Response) => {
     : ['coverage_gap', 'sector_gap']
 
   try {
-    const rows = await prisma.auditLog.findMany({
-      where: { entity_type: { in: types }, created_at: { gte: since } },
-      orderBy: { created_at: 'desc' },
-      take: 1000,
-      select: { entity_type: true, entity_name: true, summary: true, changes: true, created_at: true },
-    })
+    // Counts come from the database over the whole window; the capped row read only
+    // supplies up to five example queries per gap.
+    const [groups, rows] = await Promise.all([
+      prisma.$queryRaw<Array<{ entity_type: string; k: string; name: string; asks: number; firstAsked: Date; lastAsked: Date }>>`
+        SELECT entity_type, lower(COALESCE(entity_name, '(unnamed)')) AS k,
+               (array_agg(COALESCE(entity_name, '(unnamed)') ORDER BY created_at DESC))[1] AS name,
+               COUNT(*)::int AS asks, MIN(created_at) AS "firstAsked", MAX(created_at) AS "lastAsked"
+        FROM audit_logs
+        WHERE entity_type = ANY(${types}) AND created_at >= ${since}
+        GROUP BY 1, 2`,
+      prisma.auditLog.findMany({
+        where: { entity_type: { in: types }, created_at: { gte: since } },
+        orderBy: { created_at: 'desc' },
+        take: 1000,
+        select: { entity_type: true, entity_name: true, changes: true },
+      }),
+    ])
 
     // Grouped by what was asked for, not by when — the same project asked
     // about forty times is one thing to add, not forty rows to read.
-    const byName = new Map<string, {
-      name: string; kind: string; asks: number; firstAsked: Date; lastAsked: Date; queries: string[]
-    }>()
+    const queriesByKey = new Map<string, string[]>()
     for (const r of rows) {
-      const name = r.entity_name ?? '(unnamed)'
-      const key = `${r.entity_type}::${name.toLowerCase()}`
+      const key = `${r.entity_type}::${(r.entity_name ?? '(unnamed)').toLowerCase()}`
       const q = (r.changes as { query?: string } | null)?.query
-      const hit = byName.get(key)
-      if (hit) {
-        hit.asks++
-        hit.firstAsked = r.created_at < hit.firstAsked ? r.created_at : hit.firstAsked
-        if (q && hit.queries.length < 5 && !hit.queries.includes(q)) hit.queries.push(q)
-      } else {
-        byName.set(key, {
-          name,
-          kind: r.entity_type === 'sector_gap' ? 'sector' : 'project',
-          asks: 1,
-          firstAsked: r.created_at,
-          lastAsked: r.created_at,
-          queries: q ? [q] : [],
-        })
-      }
+      const list = queriesByKey.get(key) ?? []
+      if (q && list.length < 5 && !list.includes(q)) list.push(q)
+      queriesByKey.set(key, list)
     }
 
-    const gaps = [...byName.values()].sort((a, b) => b.asks - a.asks || +b.lastAsked - +a.lastAsked)
+    const gaps = groups
+      .map((g) => ({
+        name: g.name,
+        kind: g.entity_type === 'sector_gap' ? 'sector' : 'project',
+        asks: g.asks,
+        firstAsked: g.firstAsked,
+        lastAsked: g.lastAsked,
+        queries: queriesByKey.get(`${g.entity_type}::${g.k}`) ?? [],
+      }))
+      .sort((a, b) => b.asks - a.asks || +b.lastAsked - +a.lastAsked)
     res.json({
       windowDays: days,
-      totalAsks: rows.length,
+      totalAsks: gaps.reduce((n, g) => n + g.asks, 0),
       distinct: gaps.length,
       projects: gaps.filter((g) => g.kind === 'project'),
       sectors: gaps.filter((g) => g.kind === 'sector'),
@@ -2532,77 +2578,45 @@ router.post('/blog/:id/restore', async (req: Request, res: Response) => {
 router.get('/analytics/summary', async (req: Request, res: Response) => {
   try {
     const isRefresh = req.query.refresh === 'true'
-    const cacheKey = 'admin:analytics:summary'
+    const cacheKey = 'admin:analytics:summary:v2'
     if (!isRefresh) {
       const cached = await getCached<object>(cacheKey)
       if (cached) return res.json(cached)
     }
 
-    const [
-      totalChats, totalQueries, zeroResultSearches, totalCallbacks, totalProjects, totalBuilders,
-      avgClarificationsAgg, sectorGroups, builderGroups,
-    ] = await Promise.all([
-      prisma.chatSession.count({ where: { is_bot: false } }),
-      prisma.queryMetrics.count(),
-      prisma.queryMetrics.count({ where: { had_results: false } }),
-      prisma.callbackRequest.count(),
+    // Every figure is over real people (lib/analytics/cohort.ts); no catalogue fallback.
+    const [[c], totalProjects, totalBuilders, sectorGroups, builderGroups] = await Promise.all([
+      prisma.$queryRaw<Array<{ people: number; sessions: number; queries: number; zero: number; avgClar: number | null; converted: number; callbacks: number; leads: number }>>`
+        WITH s AS (${realPeopleSessions}),
+        q AS (SELECT q.* FROM query_metrics q JOIN s ON s.id = q.session_id),
+        l AS (${realLeads()})
+        SELECT
+          (SELECT COUNT(DISTINCT person) FROM s)::int AS people,
+          (SELECT COUNT(*) FROM s)::int AS sessions,
+          (SELECT COUNT(*) FROM q)::int AS queries,
+          (SELECT COUNT(*) FROM q WHERE had_results = false)::int AS zero,
+          (SELECT AVG(clarification_count) FROM q)::float AS "avgClar",
+          (SELECT COUNT(DISTINCT person) FROM l WHERE person IN (SELECT person FROM s))::int AS converted,
+          (SELECT COUNT(*) FROM l WHERE kind = 'callback')::int AS callbacks,
+          (SELECT COUNT(*) FROM l)::int AS leads`,
       prisma.project.count(),
       prisma.builder.count(),
-      prisma.queryMetrics.aggregate({ _avg: { clarification_count: true } }),
-      prisma.queryMetrics.groupBy({
-        by: ['sector'],
-        _count: { sector: true },
-        where: { sector: { not: null } },
-        orderBy: { _count: { sector: 'desc' } },
-        take: 10,
-      }),
-      prisma.queryMetrics.groupBy({
-        by: ['builder'],
-        _count: { builder: true },
-        where: { builder: { not: null } },
-        orderBy: { _count: { builder: 'desc' } },
-        take: 10,
-      }),
+      prisma.$queryRaw<Array<{ sector: string; count: number }>>`
+        SELECT q.sector, COUNT(*)::int AS count FROM (${realPeopleQueryMetrics()}) q
+        WHERE q.sector IS NOT NULL GROUP BY q.sector ORDER BY count DESC LIMIT 10`,
+      prisma.$queryRaw<Array<{ builder: string; count: number }>>`
+        SELECT q.builder, COUNT(*)::int AS count FROM (${realPeopleQueryMetrics()}) q
+        WHERE q.builder IS NOT NULL GROUP BY q.builder ORDER BY count DESC LIMIT 10`,
     ])
+    const totalChats = c.sessions
+    const totalQueries = c.queries
+    const zeroResultSearches = c.zero
 
     const avgQueriesPerChat = totalChats > 0 ? (totalQueries / totalChats).toFixed(1) : '0.0'
     const zeroResultSearchRate = totalQueries > 0 ? `${((zeroResultSearches / totalQueries) * 100).toFixed(1)}%` : '0.0%'
-    const effectiveConversions = Math.min(totalCallbacks, totalChats)
-    const conversionRate = totalChats > 0 ? `${((effectiveConversions / totalChats) * 100).toFixed(1)}%` : totalCallbacks > 0 ? '100.0%' : '0.0%'
-    const avgClarifications = (avgClarificationsAgg._avg.clarification_count || 0).toFixed(1)
-
-    let topSectors = sectorGroups.map(g => ({ sector: g.sector || 'Unknown', count: g._count.sector }))
-
-    if (topSectors.length === 0) {
-      const projSectors = await prisma.project.findMany({
-        select: { sector: true },
-      })
-      const counts: Record<string, number> = {}
-      for (const p of projSectors) {
-        if (p.sector) {
-          counts[p.sector] = (counts[p.sector] || 0) + 1
-        }
-      }
-      topSectors = Object.entries(counts)
-        .map(([sector, count]) => ({ sector, count }))
-        .sort((a, b) => b.count - a.count)
-        .slice(0, 10)
-    }
-
-    // Top Searched Builders: Query Metrics first, fallback to Builder table
-    let topBuilders = builderGroups.map(g => ({ builder: g.builder || 'Unknown', count: g._count.builder }))
-
-    if (topBuilders.length === 0) {
-      const builders = await prisma.builder.findMany({
-        take: 10,
-        select: { name: true, projects: { select: { id: true } } },
-        orderBy: { name: 'asc' },
-      })
-      topBuilders = builders
-        .map(b => ({ builder: b.name, count: b.projects.length }))
-        .filter(b => b.count > 0)
-        .sort((a, b) => b.count - a.count)
-    }
+    // People with at least one real lead (callback or site visit) / people.
+    const conversionRate = c.people > 0 ? `${((c.converted / c.people) * 100).toFixed(1)}%` : '0.0%'
+    const avgClarifications = (c.avgClar ?? 0).toFixed(1)
 
     const responseData = {
       totalChats,
@@ -2612,13 +2626,17 @@ router.get('/analytics/summary', async (req: Request, res: Response) => {
       zeroResultSearchRate,
       conversionRate,
       avgClarifications,
-      topSectors,
-      topBuilders,
+      topSectors: sectorGroups,
+      topBuilders: builderGroups,
+      /** topSectors / topBuilders are buyer searches only; empty when nobody searched. */
+      source: 'searches' as const,
+      peopleWithLead: c.converted,
       summary: {
         totalProjects,
         totalBuilders,
-        totalCallbacks,
-        totalUsers: totalChats,
+        totalCallbacks: c.callbacks,
+        totalLeads: c.leads,
+        totalUsers: c.people,
       }
     }
 
@@ -2634,30 +2652,35 @@ router.get('/analytics/summary', async (req: Request, res: Response) => {
 router.get('/analytics/quality', async (req: Request, res: Response) => {
   try {
     const isRefresh = req.query.refresh === 'true'
-    const cacheKey = 'admin:analytics:quality'
+    const cacheKey = 'admin:analytics:quality:v2'
     if (!isRefresh) {
       const cached = await getCached<object>(cacheKey)
       if (cached) return res.json(cached)
     }
 
-    const [totalSearches, zeroResultSearches, searchWithResults, totalProjects, withImage, withRera] = await Promise.all([
-      prisma.queryMetrics.count(),
-      prisma.queryMetrics.count({ where: { had_results: false } }),
-      prisma.queryMetrics.count({ where: { had_results: true } }),
+    // Searches by real people only (lib/analytics/cohort.ts).
+    const [[q], totalProjects, withImage, withRera] = await Promise.all([
+      prisma.$queryRaw<Array<{ total: number; zero: number; withResults: number; avgClar: number | null; avgResults: number | null }>>`
+        SELECT COUNT(*)::int AS total,
+          COUNT(*) FILTER (WHERE q.had_results = false)::int AS zero,
+          COUNT(*) FILTER (WHERE q.had_results = true)::int AS "withResults",
+          AVG(q.clarification_count)::float AS "avgClar",
+          AVG(q.results_count)::float AS "avgResults"
+        FROM (${realPeopleQueryMetrics()}) q`,
       prisma.project.count(),
       prisma.project.count({ where: { hero_image_url: { not: null } } }),
       prisma.project.count({ where: { rera_number: { not: null } } }),
     ])
+    const totalSearches = q.total
+    const zeroResultSearches = q.zero
+    const searchWithResults = q.withResults
 
     const searchWithoutResults = zeroResultSearches
     const zeroResultRate = totalSearches > 0 ? `${((zeroResultSearches / totalSearches) * 100).toFixed(1)}%` : '0.0%'
     const completenessScore = totalProjects > 0 ? Math.round(((withImage + withRera) / (totalProjects * 2)) * 100) : 100
 
-    const aggregates = await prisma.queryMetrics.aggregate({
-      _avg: { clarification_count: true, results_count: true },
-    })
-    const avgClarifications = aggregates._avg.clarification_count ? Math.round(aggregates._avg.clarification_count * 10) / 10 : 0
-    const avgResultsCount = aggregates._avg.results_count ? Math.round(aggregates._avg.results_count * 10) / 10 : 0
+    const avgClarifications = q.avgClar ? Math.round(q.avgClar * 10) / 10 : 0
+    const avgResultsCount = q.avgResults ? Math.round(q.avgResults * 10) / 10 : 0
 
     const responseData = {
       totalSearches,
@@ -2696,65 +2719,40 @@ router.get('/analytics/users', async (req: Request, res: Response) => {
     const isDefaultSessionQuery = !sessionSearch && sessionPage === 1
 
     const isRefresh = req.query.refresh === 'true'
-    const cacheKey = 'admin:analytics:users'
+    const cacheKey = 'admin:analytics:users:v2'
     if (!isRefresh && isDefaultSessionQuery) {
       const cached = await getCached<object>(cacheKey)
       if (cached) return res.json(cached)
     }
 
-    let totalChats = 0
-    let totalQueries = 0
-    let totalClicks = 0
-    let totalSaves = 0
-    let totalConversions = 0
-
-    try {
-      totalChats = await prisma.chatSession.count({ where: { is_bot: false } })
-      totalQueries = await prisma.queryMetrics.count()
-      totalClicks = await prisma.propertyEvent.count({ where: { action: { in: ['click', 'view'] } } })
-      totalSaves = await prisma.propertyEvent.count({ where: { action: 'save' } })
-      totalConversions = await prisma.callbackRequest.count()
-    } catch (countErr) {
-      console.warn('[admin] analytics/users count warning (pool pressure, using defaults):', countErr)
-    }
-
-    // Accurate buyer user counting across signed-in and guest sessions
-    const userCountRes = await prisma.$queryRaw<Array<{ count: number }>>`
-      SELECT COUNT(DISTINCT COALESCE(user_id, guest_token, id))::int as count
-      FROM chat_sessions
-      WHERE is_bot = false
-    `.catch(() => [{ count: totalChats }])
-    const totalUsers = userCountRes[0]?.count ?? Math.max(totalChats, 1)
-
-    // Repeat visitors: distinct buyers with > 1 session
-    const repeatRes = await prisma.$queryRaw<Array<{ count: number }>>`
-      SELECT COUNT(*)::int as count FROM (
-        SELECT COALESCE(user_id, guest_token) as uid
-        FROM chat_sessions
-        WHERE is_bot = false AND COALESCE(user_id, guest_token) IS NOT NULL
-        GROUP BY COALESCE(user_id, guest_token)
-        HAVING COUNT(*) > 1
-      ) r
-    `.catch(() => [{ count: 0 }])
-    const repeatedVisitors = repeatRes[0]?.count ?? 0
+    // All over real people (lib/analytics/cohort.ts). A failed read is a 500, never zeros.
+    // Clicks: card clicks and detail-panel opens (the frontend's 'card_click' and 'view').
+    const clickActions = [...EVENT_ACTIONS.click, ...EVENT_ACTIONS.view]
+    const [u] = await prisma.$queryRaw<Array<{ users: number; sessions: number; repeated: number; queries: number; clicks: number; saves: number; leads: number; avgDuration: number | null; durationSample: number }>>`
+        WITH s AS (${realPeopleSessions})
+        SELECT
+          (SELECT COUNT(DISTINCT person) FROM s)::int AS users,
+          (SELECT COUNT(*) FROM s)::int AS sessions,
+          (SELECT COUNT(*) FROM (SELECT person FROM s GROUP BY person HAVING COUNT(*) > 1) r)::int AS repeated,
+          (SELECT COUNT(*) FROM query_metrics q JOIN s ON s.id = q.session_id)::int AS queries,
+          (SELECT COUNT(*) FROM property_events pe JOIN s ON s.id = pe.session_id WHERE pe.action = ANY(${clickActions}))::int AS clicks,
+          (SELECT COUNT(*) FROM (${realSaves()}) sv)::int AS saves,
+          (SELECT COUNT(*) FROM (${realLeads()}) l)::int AS leads,
+          -- Seconds from first to last activity, sessions started in the last 30 days that lasted at all.
+          (SELECT ROUND(AVG(EXTRACT(EPOCH FROM (last_active - created_at)))) FROM s
+            WHERE created_at >= now() - interval '30 days' AND last_active > created_at)::float AS "avgDuration",
+          (SELECT COUNT(*) FROM s WHERE created_at >= now() - interval '30 days' AND last_active > created_at)::int AS "durationSample"`
+    const totalChats = u.sessions
+    const totalQueries = u.queries
+    const totalClicks = u.clicks
+    const totalSaves = u.saves
+    const totalConversions = u.leads
+    const totalUsers = u.users
+    const repeatedVisitors = u.repeated
     const avgQueriesPerUser = totalUsers > 0 ? parseFloat((totalQueries / totalUsers).toFixed(1)) : 0
-
-    // Compute real dynamic avg session duration from DB (created_at vs last_active)
-    const sessionsForDuration = await prisma.chatSession.findMany({
-      take: 100,
-      where: { is_bot: false },
-      select: { created_at: true, last_active: true },
-    })
-    let totalDurationSeconds = 0
-    let validDurationCount = 0
-    for (const s of sessionsForDuration) {
-      const dur = (new Date(s.last_active).getTime() - new Date(s.created_at).getTime()) / 1000
-      if (dur > 0) {
-        totalDurationSeconds += dur
-        validDurationCount++
-      }
-    }
-    const avgSessionDuration = validDurationCount > 0 ? Math.round(totalDurationSeconds / validDurationCount) : 0
+    // Null when no session in the window lasted long enough to measure.
+    const avgSessionDuration = u.avgDuration
+    const avgSessionDurationSample = u.durationSample
 
     // Dynamic, searchable, paginated list of active user chat sessions from DB.
     // Previously hardcoded to the newest 25 with no way to reach anything
@@ -2800,47 +2798,28 @@ router.get('/analytics/users', async (req: Request, res: Response) => {
       lastActive: s.last_active,
     }))
 
-    // Most Searched Sectors: Query metrics first, fallback to Project sectors
-    const sectorGroups = await prisma.queryMetrics.groupBy({
-      by: ['sector'],
-      _count: { sector: true },
-      where: { sector: { not: null } },
-      orderBy: { _count: { sector: 'desc' } },
-      take: 5,
-    })
-
-    let mostActiveSectors = sectorGroups.map(g => ({ sector: g.sector || 'Unknown', searches: g._count.sector }))
-
-    if (mostActiveSectors.length === 0) {
-      const projSectors = await prisma.project.findMany({
-        select: { sector: true },
-      })
-      const counts: Record<string, number> = {}
-      for (const p of projSectors) {
-        if (p.sector) {
-          counts[p.sector] = (counts[p.sector] || 0) + 1
-        }
-      }
-      mostActiveSectors = Object.entries(counts)
-        .map(([sector, searches]) => ({ sector, searches }))
-        .sort((a, b) => b.searches - a.searches)
-        .slice(0, 5)
-    }
+    // Most searched sectors, by real people. Empty when nobody searched — no catalogue fallback.
+    const mostActiveSectors = await prisma.$queryRaw<Array<{ sector: string; searches: number }>>`
+      SELECT q.sector, COUNT(*)::int AS searches FROM (${realPeopleQueryMetrics()}) q
+      WHERE q.sector IS NOT NULL GROUP BY q.sector ORDER BY searches DESC LIMIT 5`
 
     const responseData = {
       totalUsers,
       repeatedVisitors,
       totalConversions,
       avgSessionDuration,
+      avgSessionDurationWindowDays: 30,
+      avgSessionDurationSample,
       avgQueriesPerUser,
       conversionFunnel: {
         chats: totalChats,
         searches: totalQueries,
         clicks: totalClicks,
         saves: totalSaves,
-        conversions: totalChats > 0 ? Math.min(totalConversions, totalChats) : totalConversions,
+        conversions: totalConversions,
       },
       mostActiveSectors,
+      mostActiveSectorsSource: 'searches' as const,
       users: activeUserList,
       usersPagination: {
         page: sessionPage,
@@ -2859,17 +2838,11 @@ router.get('/analytics/users', async (req: Request, res: Response) => {
   }
 })
 
-// A person: a signed-in account, or a website guest. A guest who later signed in on that device
-// counts as their account (referral_visits records the link at sign-in, routes/sessions.ts).
-// Only real people: not a bot, and an account or a token the website mints (botDetection.ts).
-const realPeopleSessions = Prisma.sql`
-  SELECT cs.id, cs.user_id, cs.created_at, cs.last_active, cs.device, cs.source, cs.message_count,
-    COALESCE(cs.user_id,
-      (SELECT rv.user_id FROM referral_visits rv WHERE rv.guest_token = cs.guest_token AND rv.user_id IS NOT NULL LIMIT 1),
-      cs.guest_token) AS person
-  FROM chat_sessions cs
-  WHERE cs.is_bot = false AND (cs.user_id IS NOT NULL OR cs.guest_token ~ ${WEBSITE_GUEST_TOKEN})`
-const USER_COUNTS_CACHE = 'admin:analytics:user-counts'
+// A person and a real lead are defined once, in lib/analytics/cohort.ts. Team is excluded
+// everywhere except the People list and one person's questions, which name team on purpose.
+const realPeopleSessions = realPeopleSessionsSql()
+const peopleSessionsWithTeam = realPeopleSessionsSql({ includeTeam: true })
+const USER_COUNTS_CACHE = 'admin:analytics:user-counts:v2'
 
 // GET /api/v1/admin/analytics/user-counts — visitors, active buyers and signups for the dashboard.
 // Counts real people (see realPeopleSessions) and leaves out anyone marked as team.
@@ -2879,9 +2852,8 @@ router.get('/analytics/user-counts', async (_req: Request, res: Response) => {
     const cached = await getCached<object>(USER_COUNTS_CACHE)
     if (cached) return res.json(cached)
 
-    const [row] = await prisma.$queryRaw<Array<{ visitors: number; guests: number; d1: number; d7: number; d30: number; chattedSignedIn: number; firstSeen: Date | null; sessions: number; messages: number; team: number }>>`
-      WITH s AS (${realPeopleSessions}),
-      p AS (SELECT * FROM s WHERE person NOT IN (SELECT key FROM team_identities))
+    const [row] = await prisma.$queryRaw<Array<{ visitors: number; guests: number; d1: number; d7: number; d30: number; chattedSignedIn: number; firstSeen: Date | null; sessions: number; messages: number; questions: number; team: number }>>`
+      WITH p AS (${realPeopleSessions})
       SELECT
         COUNT(DISTINCT person)::int AS visitors,
         COUNT(DISTINCT person) FILTER (WHERE person LIKE 'guest-%')::int AS guests,
@@ -2892,22 +2864,25 @@ router.get('/analytics/user-counts', async (_req: Request, res: Response) => {
         MIN(created_at) AS "firstSeen",
         COUNT(*)::int AS sessions,
         COALESCE(SUM(message_count), 0)::int AS messages,
+        (SELECT COUNT(*) FROM chat_messages m JOIN p p2 ON p2.id = m.session_id WHERE m.role = 'user')::int AS questions,
         (SELECT COUNT(*) FROM team_identities)::int AS team
       FROM p
     `
-    // Per person: number of sessions and the month of the first one.
+    // Per person: number of sessions and the month (India time) of the first one.
+    // Columns are timestamp without time zone holding UTC, hence the double AT TIME ZONE.
     const people = await prisma.$queryRaw<Array<{ month: string; sessions: number }>>`
       WITH s AS (${realPeopleSessions})
-      SELECT to_char(MIN(created_at), 'YYYY-MM') AS month, COUNT(*)::int AS sessions
-      FROM s WHERE person NOT IN (SELECT key FROM team_identities)
+      SELECT to_char((MIN(created_at) AT TIME ZONE 'UTC') AT TIME ZONE 'Asia/Kolkata', 'YYYY-MM') AS month, COUNT(*)::int AS sessions
+      FROM s
       GROUP BY person
     `
     const monthCounts = new Map<string, number>()
     for (const p of people) monthCounts.set(p.month, (monthCounts.get(p.month) ?? 0) + 1)
     const newByMonth = [...monthCounts].sort(([a], [b]) => a.localeCompare(b)).map(([month, count]) => ({ month, people: count }))
-    const [savedProperties, callbacks, teamRows] = await Promise.all([
-      prisma.savedProperty.count(),
-      prisma.callbackRequest.count({ where: { is_test: false } }),
+    const [[{ savedProperties, callbacks }], teamRows] = await Promise.all([
+      prisma.$queryRaw<Array<{ savedProperties: number; callbacks: number }>>`
+        SELECT (SELECT COUNT(*) FROM (${realSaves()}) sv)::int AS "savedProperties",
+               (SELECT COUNT(*) FROM (${realLeads()}) l WHERE l.kind = 'callback')::int AS callbacks`,
       prisma.teamIdentity.findMany({ select: { key: true } }),
     ])
 
@@ -2936,6 +2911,7 @@ router.get('/analytics/user-counts', async (_req: Request, res: Response) => {
       returning: people.filter((p) => p.sessions > 1).length,
       sessions: row.sessions,
       messages: row.messages,
+      questions: row.questions,
       newByMonth,
       savedProperties,
       callbacks,
@@ -2970,7 +2946,7 @@ router.get('/analytics/people', async (req: Request, res: Response) => {
 
     const [rows, [{ total }]] = await Promise.all([
       prisma.$queryRaw<Array<{ person: string; sessions: number; questions: number; firstSeen: Date; lastActive: Date; device: string | null; source: string | null; team: string | null }>>`
-        WITH s AS (${realPeopleSessions})
+        WITH s AS (${peopleSessionsWithTeam})
         SELECT s.person, COUNT(DISTINCT s.id)::int AS sessions, COUNT(m.id)::int AS questions,
           MIN(s.created_at) AS "firstSeen", MAX(s.last_active) AS "lastActive",
           (array_agg(s.device ORDER BY s.created_at DESC) FILTER (WHERE s.device IS NOT NULL))[1] AS device,
@@ -2982,7 +2958,7 @@ router.get('/analytics/people', async (req: Request, res: Response) => {
         ORDER BY MAX(s.last_active) DESC
         LIMIT ${pageSize} OFFSET ${(page - 1) * pageSize}`,
       prisma.$queryRaw<Array<{ total: number }>>`
-        WITH s AS (${realPeopleSessions})
+        WITH s AS (${peopleSessionsWithTeam})
         SELECT COUNT(DISTINCT s.person)::int AS total FROM s ${match}`,
     ])
 
@@ -3033,14 +3009,14 @@ router.get('/analytics/people/:key/questions', async (req: Request, res: Respons
 
     const [questions, [{ total }], actions] = await Promise.all([
       prisma.$queryRaw<Array<{ sessionId: string; text: string; at: Date }>>`
-        WITH s AS (${realPeopleSessions})
+        WITH s AS (${peopleSessionsWithTeam})
         SELECT m.session_id AS "sessionId", m.content AS text, m.created_at AS at
         FROM chat_messages m JOIN s ON s.id = m.session_id
         WHERE s.person = ${key} AND m.role = 'user'
         ORDER BY m.created_at DESC
         LIMIT ${limit} OFFSET ${offset}`,
       prisma.$queryRaw<Array<{ total: number }>>`
-        WITH s AS (${realPeopleSessions})
+        WITH s AS (${peopleSessionsWithTeam})
         SELECT COUNT(*)::int AS total FROM chat_messages m JOIN s ON s.id = m.session_id
         WHERE s.person = ${key} AND m.role = 'user'`,
       offset > 0
@@ -3207,33 +3183,33 @@ router.get('/analytics/answer-gaps', async (req: Request, res: Response) => {
 // GET /api/v1/admin/analytics/properties — properties analytics
 router.get('/analytics/properties', async (_req: Request, res: Response) => {
   try {
+    // Every non-archived project (the client extension drops archived duplicates).
     const projects = await prisma.project.findMany({
-      take: 50,
       select: { id: true, name: true, slug: true, status: true, sector: true, price_range_label: true },
       orderBy: { name: 'asc' },
     })
 
-    const events = await (prisma.propertyEvent as any).groupBy({
-      by: ['project_id', 'action'],
-      _count: { action: true },
-      orderBy: { _count: { action: 'desc' } },
-      take: 1000,
-    })
+    // Uncapped, real people only.
+    const events = await prisma.$queryRaw<Array<{ project_id: string; action: string; count: number }>>`
+      SELECT pe.project_id, pe.action, COUNT(*)::int AS count
+      FROM (${realPeoplePropertyEvents()}) pe GROUP BY pe.project_id, pe.action`
 
     const eventMap: Record<string, Record<string, number>> = {}
     for (const ev of events) {
       if (!eventMap[ev.project_id]) eventMap[ev.project_id] = {}
-      eventMap[ev.project_id][ev.action] = ev._count.action
+      eventMap[ev.project_id][ev.action] = ev.count
     }
+    const sum = (e: Record<string, number>, names: readonly string[]) => names.reduce((n, a) => n + (e[a] || 0), 0)
 
     const propertyEngagements = projects
       .map((p) => {
         const pEvents = eventMap[p.id] || {}
-        const views = pEvents['view'] || 0
-        const saves = pEvents['save'] || 0
-        const comparisons = pEvents['compare'] || 0
-        const shares = pEvents['share'] || 0
-        const whatsappInquiries = pEvents['whatsapp'] || 0
+        const views = sum(pEvents, EVENT_ACTIONS.view)
+        const saves = sum(pEvents, EVENT_ACTIONS.save)
+        const comparisons = sum(pEvents, EVENT_ACTIONS.compare)
+        const shares = sum(pEvents, EVENT_ACTIONS.share)
+        const whatsappInquiries = sum(pEvents, EVENT_ACTIONS.whatsapp)
+        const cardClicks = sum(pEvents, EVENT_ACTIONS.click)
         const total = views + saves + comparisons + shares + whatsappInquiries
         return {
           projectId: p.id,
@@ -3243,6 +3219,7 @@ router.get('/analytics/properties', async (_req: Request, res: Response) => {
           comparisons,
           shares,
           whatsappInquiries,
+          cardClicks,
           total,
           slug: p.slug,
           sector: p.sector,
@@ -3257,8 +3234,7 @@ router.get('/analytics/properties', async (_req: Request, res: Response) => {
   }
 })
 
-// USD→INR is not fetched live; this is a fixed approximation for display only.
-const USD_TO_INR_APPROX = 87
+const USD_TO_INR_APPROX = USD_TO_INR
 
 // GET /api/v1/admin/analytics/ai-costs — enterprise AI token & unit economics
 router.get('/analytics/ai-costs', async (_req: Request, res: Response) => {
@@ -3279,7 +3255,11 @@ router.get('/analytics/ai-costs', async (_req: Request, res: Response) => {
      * here is real; the absence of a row before metering existed is not
      * evidence no money was spent.
      */
-    const [totals, byProvider, totalLeads] = await Promise.all([
+    const now = Date.now()
+    const since30d = new Date(now - 30 * 86_400_000)
+    const since7d = new Date(now - 7 * 86_400_000)
+    const todayIst = startOfIstDay()
+    const [totals, byProvider, byEndpoint, last30, today, [buyer], [leads30], [traces], geminiWindowSpent] = await Promise.all([
       prisma.aiUsageEvent.aggregate({
         _sum: { cost_usd: true, prompt_tokens: true, completion_tokens: true },
         _count: true,
@@ -3289,16 +3269,40 @@ router.get('/analytics/ai-costs', async (_req: Request, res: Response) => {
         _sum: { cost_usd: true, prompt_tokens: true, completion_tokens: true },
         _count: true,
       }),
-      prisma.callbackRequest.count().catch(() => 0),
+      prisma.aiUsageEvent.groupBy({
+        by: ['endpoint'],
+        _sum: { cost_usd: true, prompt_tokens: true, completion_tokens: true },
+        _count: true,
+      }),
+      prisma.aiUsageEvent.aggregate({ _sum: { cost_usd: true }, where: { created_at: { gte: since30d } } }),
+      prisma.aiUsageEvent.aggregate({ _sum: { cost_usd: true }, where: { created_at: { gte: todayIst } } }),
+      // Buyer turns: questions (user messages) in real people's sessions, and the spend on those sessions.
+      prisma.$queryRaw<Array<{ questions: number; spend: number | null }>>`
+        WITH s AS (${realPeopleSessions})
+        SELECT (SELECT COUNT(*) FROM chat_messages m JOIN s ON s.id = m.session_id WHERE m.role = 'user')::int AS questions,
+               (SELECT SUM(e.cost_usd) FROM ai_usage_events e JOIN s ON s.id = e.session_id)::float AS spend`,
+      prisma.$queryRaw<Array<{ count: number }>>`
+        SELECT COUNT(*)::int AS count FROM (${realLeads()}) l WHERE l.created_at >= ${since30d}`,
+      // A degraded turn is one every AI provider failed (answered from rows or the outage notice).
+      // Base: turns that reached a provider, or failed trying — deterministic lanes have no provider.
+      prisma.$queryRaw<Array<{ failed: number; base: number }>>`
+        SELECT COUNT(*) FILTER (WHERE degraded)::int AS failed,
+               COUNT(*) FILTER (WHERE provider IS NOT NULL OR degraded)::int AS base
+        FROM turn_traces WHERE created_at >= ${since7d}`,
+      spentTodayUsd('gemini'),
     ])
 
     const totalCostUsd = Number(totals._sum.cost_usd || 0)
     const totalPromptTokens = totals._sum.prompt_tokens || 0
     const totalCompletionTokens = totals._sum.completion_tokens || 0
     const totalQueries = totals._count
+    const last30dUsd = Number(last30._sum.cost_usd || 0)
 
-    const costPerLeadUsd = totalLeads > 0 && totalCostUsd > 0 ? (totalCostUsd / totalLeads).toFixed(3) : '0.00'
-    const costPerLeadInr = (Number(costPerLeadUsd) * USD_TO_INR_APPROX).toFixed(2)
+    // Spend in the last 30 days / real leads (callbacks + site visits) in the same 30 days.
+    const costPerLeadUsd = leads30.count > 0 ? Number((last30dUsd / leads30.count).toFixed(3)) : null
+    const costPerLeadInr = costPerLeadUsd === null ? null : Number((costPerLeadUsd * USD_TO_INR_APPROX).toFixed(2))
+    // Spend on real people's sessions / their questions, all time.
+    const avgCostPerQueryUsd = buyer.questions > 0 ? Number(((buyer.spend ?? 0) / buyer.questions).toFixed(5)) : null
 
     res.json({
       totalInputTokens: totalPromptTokens,
@@ -3306,9 +3310,23 @@ router.get('/analytics/ai-costs', async (_req: Request, res: Response) => {
       totalCostUsd: Number(totalCostUsd.toFixed(4)),
       totalCostInr: Math.round(totalCostUsd * USD_TO_INR_APPROX),
       totalQueriesTracked: totalQueries,
-      avgCostPerQueryUsd: totalQueries > 0 ? Number((totalCostUsd / totalQueries).toFixed(5)) : 0,
-      costPerLeadUsd: Number(costPerLeadUsd),
-      costPerLeadInr: Number(costPerLeadInr),
+      avgCostPerQueryUsd,
+      avgCostPerQueryBasis: 'spend on real people\'s sessions / their questions, all time',
+      buyerQuestions: buyer.questions,
+      costPerLeadUsd,
+      costPerLeadInr,
+      costPerLeadWindowDays: 30,
+      leadsLast30d: leads30.count,
+      last30dUsd: Number(last30dUsd.toFixed(4)),
+      todayUsd: Number(Number(today._sum.cost_usd || 0).toFixed(4)),
+      todayStartsAt: todayIst.toISOString(),
+      // The Gemini cap (GEMINI_DAILY_BUDGET_USD) counts Gemini spend over the UTC day
+      // (lib/ai/geminiMeter.ts), not the IST day of todayUsd — compare it with budgetWindowSpentUsd.
+      dailyBudgetUsd: geminiBudgetStatus().budgetUsd,
+      budgetWindowSpentUsd: Number.isFinite(geminiWindowSpent) ? Number(geminiWindowSpent.toFixed(4)) : null,
+      providerFailureRate: traces.base > 0 ? Number((traces.failed / traces.base).toFixed(4)) : null,
+      providerFailureBasis: { windowDays: 7, failedTurns: traces.failed, providerTurns: traces.base },
+      usdToInr: USD_TO_INR_APPROX,
       costByProvider: byProvider.map((p) => ({
         provider: p.provider || 'unknown',
         costUsd: Number((p._sum.cost_usd || 0).toFixed(4)),
@@ -3316,6 +3334,14 @@ router.get('/analytics/ai-costs', async (_req: Request, res: Response) => {
         queries: p._count,
         totalTokens: (p._sum.prompt_tokens || 0) + (p._sum.completion_tokens || 0),
       })),
+      costByEndpoint: byEndpoint
+        .map((p) => ({
+          endpoint: p.endpoint,
+          costUsd: Number(Number(p._sum.cost_usd || 0).toFixed(4)),
+          calls: p._count,
+          totalTokens: (p._sum.prompt_tokens || 0) + (p._sum.completion_tokens || 0),
+        }))
+        .sort((a, b) => b.costUsd - a.costUsd),
       cache: cacheStats,
       // `groundTruthDbHitRate` used to sit here as a hardcoded '78.5%' string
       // with nothing computing it — a fabricated metric, removed rather than
@@ -3331,18 +3357,17 @@ router.get('/analytics/ai-costs', async (_req: Request, res: Response) => {
 router.get('/analytics/market-demand', async (req: Request, res: Response) => {
   try {
     const isRefresh = req.query.refresh === 'true'
-    const cacheKey = 'admin:analytics:market-demand'
+    const cacheKey = 'admin:analytics:market-demand:v2'
     if (!isRefresh) {
       const cached = await getCached<object>(cacheKey)
       if (cached) return res.json(cached)
     }
 
-    const [searches, projects] = await Promise.all([
-      prisma.queryMetrics.findMany({
-        where: { sector: { not: null } },
-        select: { sector: true, bhk: true, budget_min_cr: true, budget_max_cr: true, had_results: true },
-        take: 1000,
-      }),
+    // Demand: every search by a real person, grouped in the database (no sample cap).
+    const [searchGroups, projects] = await Promise.all([
+      prisma.$queryRaw<Array<{ sector: string; bhk: number | null; searches: number; zero: number }>>`
+        SELECT q.sector, q.bhk, COUNT(*)::int AS searches, COUNT(*) FILTER (WHERE q.had_results = false)::int AS zero
+        FROM (${realPeopleQueryMetrics()}) q WHERE q.sector IS NOT NULL GROUP BY q.sector, q.bhk`,
       prisma.project.findMany({
         select: { sector: true, price_min_cr: true, name: true, unit_types: { select: { bhk: true, price_min_cr: true, price_max_cr: true } } },
       }),
@@ -3353,29 +3378,32 @@ router.get('/analytics/market-demand', async (req: Request, res: Response) => {
       const sec = p.sector.replace(/^Sector\s*/i, 'Sec ')
       if (!supplyBySector[sec]) supplyBySector[sec] = { projectCount: 0, unitsCount: 0, projects: [] }
       supplyBySector[sec].projectCount += 1
-      supplyBySector[sec].unitsCount += p.unit_types.length || 1
+      supplyBySector[sec].unitsCount += p.unit_types.length
       if (supplyBySector[sec].projects.length < 3) supplyBySector[sec].projects.push(p.name)
     }
 
-    const demandBySector: Record<string, { totalSearches: number; zeroResults: number; bhk2: number; bhk3: number; bhk4: number }> = {}
-    for (const s of searches) {
-      if (!s.sector) continue
-      const sec = s.sector.replace(/^Sector\s*/i, 'Sec ')
-      if (!demandBySector[sec]) demandBySector[sec] = { totalSearches: 0, zeroResults: 0, bhk2: 0, bhk3: 0, bhk4: 0 }
-      demandBySector[sec].totalSearches += 1
-      if (s.had_results === false) demandBySector[sec].zeroResults += 1
-      if (s.bhk === 2) demandBySector[sec].bhk2 += 1
-      if (s.bhk === 3) demandBySector[sec].bhk3 += 1
-      if (s.bhk === 4) demandBySector[sec].bhk4 += 1
+    const demandBySector: Record<string, { totalSearches: number; zeroResults: number; byBhk: Map<number, number> }> = {}
+    let totalDemandQueries = 0
+    for (const g of searchGroups) {
+      const sec = g.sector.replace(/^Sector\s*/i, 'Sec ')
+      if (!demandBySector[sec]) demandBySector[sec] = { totalSearches: 0, zeroResults: 0, byBhk: new Map() }
+      demandBySector[sec].totalSearches += g.searches
+      demandBySector[sec].zeroResults += g.zero
+      if (g.bhk != null) demandBySector[sec].byBhk.set(g.bhk, (demandBySector[sec].byBhk.get(g.bhk) ?? 0) + g.searches)
+      totalDemandQueries += g.searches
+    }
+    // The most searched configuration across every BHK; null when no search named one.
+    const topConfiguration = (byBhk: Map<number, number>): string | null => {
+      const top = [...byBhk].sort((a, b) => b[1] - a[1] || a[0] - b[0])[0]
+      return top ? `${top[0]} BHK` : null
     }
 
     const allSectors = Array.from(new Set([...Object.keys(supplyBySector), ...Object.keys(demandBySector)]))
-    const totalSearches = searches.length || 1
 
     const matrix = allSectors.map((sector) => {
       const sup = supplyBySector[sector] || { projectCount: 0, unitsCount: 0, projects: [] }
-      const dem = demandBySector[sector] || { totalSearches: 0, zeroResults: 0, bhk2: 0, bhk3: 0, bhk4: 0 }
-      const demandPct = Math.round((dem.totalSearches / totalSearches) * 100)
+      const dem = demandBySector[sector] || { totalSearches: 0, zeroResults: 0, byBhk: new Map<number, number>() }
+      const demandPct = totalDemandQueries > 0 ? Math.round((dem.totalSearches / totalDemandQueries) * 100) : 0
       
       let gapLevel: 'covered' | 'thin' | 'critical_gap' = 'covered'
       if (sup.projectCount === 0 && dem.totalSearches > 0) {
@@ -3392,12 +3420,12 @@ router.get('/analytics/market-demand', async (req: Request, res: Response) => {
         searchDemandCount: dem.totalSearches,
         searchDemandPct: demandPct,
         unmetSearches: dem.zeroResults,
-        topConfigurations: dem.bhk3 >= dem.bhk2 ? '3 BHK' : '2 BHK',
+        topConfigurations: topConfiguration(dem.byBhk),
         gapLevel,
       }
     }).sort((a, b) => b.searchDemandCount - a.searchDemandCount)
 
-    const responseData = { matrix, totalDemandQueries: searches.length, totalCatalogProjects: projects.length }
+    const responseData = { matrix, totalDemandQueries, totalCatalogProjects: projects.length }
     await setCached(cacheKey, responseData, 60)
     res.json(responseData)
   } catch (err) {
@@ -3410,61 +3438,47 @@ router.get('/analytics/market-demand', async (req: Request, res: Response) => {
 router.get('/analytics/unmet-demand', async (req: Request, res: Response) => {
   try {
     const isRefresh = req.query.refresh === 'true'
-    const cacheKey = 'admin:analytics:unmet-demand'
+    const cacheKey = 'admin:analytics:unmet-demand:v2'
     if (!isRefresh) {
       const cached = await getCached<object>(cacheKey)
       if (cached) return res.json(cached)
     }
 
-    const unmetQueries = await prisma.queryMetrics.findMany({
-      where: {
-        OR: [
-          { had_results: false },
-          { results_count: 0 },
-        ],
-        query_text: { not: '' },
-      },
-      orderBy: { created_at: 'desc' },
-      take: 200,
-      select: {
-        query_text: true,
-        sector: true,
-        bhk: true,
-        budget_min_cr: true,
-        budget_max_cr: true,
-        created_at: true,
+    // Grouped over every unmet search by a real person; the newest row of each group names it.
+    const unmet = Prisma.sql`
+      SELECT q.* FROM (${realPeopleQueryMetrics()}) q
+      WHERE (q.had_results = false OR q.results_count = 0) AND q.query_text <> ''`
+    const [groups, [{ total }]] = await Promise.all([
+      prisma.$queryRaw<Array<{ query_text: string; sector: string | null; bhk: number | null; budget_min_cr: number | null; budget_max_cr: number | null; count: number; lastSearched: Date }>>`
+        SELECT (array_agg(u.query_text ORDER BY u.created_at DESC))[1] AS query_text,
+               (array_agg(u.sector ORDER BY u.created_at DESC))[1] AS sector,
+               (array_agg(u.bhk ORDER BY u.created_at DESC))[1] AS bhk,
+               (array_agg(u.budget_min_cr ORDER BY u.created_at DESC))[1] AS budget_min_cr,
+               (array_agg(u.budget_max_cr ORDER BY u.created_at DESC))[1] AS budget_max_cr,
+               COUNT(*)::int AS count, MAX(u.created_at) AS "lastSearched"
+        FROM (${unmet}) u
+        GROUP BY COALESCE(NULLIF(lower(trim(u.query_text)), ''), COALESCE(u.sector, 'Noida') || '_' || COALESCE(u.bhk, 0)::text)
+        ORDER BY count DESC, "lastSearched" DESC
+        LIMIT 15`,
+      prisma.$queryRaw<Array<{ total: number }>>`SELECT COUNT(*)::int AS total FROM (${unmet}) u`,
+    ])
+
+    const ledger = groups.map((q) => {
+      let budgetStr = 'Any Budget'
+      if (q.budget_min_cr && q.budget_max_cr) budgetStr = `₹${q.budget_min_cr}–${q.budget_max_cr} Cr`
+      else if (q.budget_max_cr) budgetStr = `< ₹${q.budget_max_cr} Cr`
+      else if (q.budget_min_cr) budgetStr = `> ₹${q.budget_min_cr} Cr`
+      return {
+        query: q.query_text || `${q.bhk ? q.bhk + ' BHK in ' : ''}${q.sector || 'Noida'}`,
+        sector: q.sector || 'Noida',
+        bhk: q.bhk,
+        budget: budgetStr,
+        count: q.count,
+        lastSearched: q.lastSearched,
       }
     })
 
-    const queryCounts: Record<string, { query: string; sector: string; bhk: number | null; budget: string; count: number; lastSearched: Date }> = {}
-    for (const q of unmetQueries) {
-      const key = q.query_text.toLowerCase().trim() || `${q.sector || 'Noida'}_${q.bhk || 0}`
-      if (!queryCounts[key]) {
-        let budgetStr = 'Any Budget'
-        if (q.budget_min_cr && q.budget_max_cr) budgetStr = `₹${q.budget_min_cr}–${q.budget_max_cr} Cr`
-        else if (q.budget_max_cr) budgetStr = `< ₹${q.budget_max_cr} Cr`
-        else if (q.budget_min_cr) budgetStr = `> ₹${q.budget_min_cr} Cr`
-
-        queryCounts[key] = {
-          query: q.query_text || `${q.bhk ? q.bhk + ' BHK in ' : ''}${q.sector || 'Noida'}`,
-          sector: q.sector || 'Noida',
-          bhk: q.bhk,
-          budget: budgetStr,
-          count: 0,
-          lastSearched: q.created_at,
-        }
-      }
-      queryCounts[key].count += 1
-      if (q.created_at > queryCounts[key].lastSearched) {
-        queryCounts[key].lastSearched = q.created_at
-      }
-    }
-
-    const ledger = Object.values(queryCounts)
-      .sort((a, b) => b.count - a.count)
-      .slice(0, 15)
-
-    const responseData = { ledger, totalUnmetLogged: unmetQueries.length }
+    const responseData = { ledger, totalUnmetLogged: total }
     await setCached(cacheKey, responseData, 60)
     res.json(responseData)
   } catch (err) {

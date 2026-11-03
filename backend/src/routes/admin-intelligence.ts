@@ -1,5 +1,6 @@
 // Phase 5: Admin endpoints for intelligence management
 import { Router, Request, Response } from 'express'
+import { Prisma } from '@prisma/client'
 import { prisma } from '../lib/db'
 import { generateAllIntelligence, ProjectDataForIntelligence } from '../lib/ai/generateIntelligence'
 import { requireAdmin } from '../lib/adminAuth'
@@ -145,49 +146,47 @@ router.patch('/:projectId', async (req: Request, res: Response) => {
 // Intelligence completion status across projects
 router.get('/status/summary', async (req: Request, res: Response) => {
   try {
-    const total = await prisma.project.count()
-    const withIntelligence = await prisma.decisionProfile.count()
-
-    const byStatus = await prisma.decisionProfile.groupBy({
-      by: ['status'],
-      _count: true
-    })
-
-    const missingFields = await prisma.decisionProfile.findMany({
-      select: {
-        id: true,
-        project_id: true,
-        financial_intelligence: true,
-        market_intelligence: true,
-        builder_intelligence: true,
-        property_intelligence: true,
-        comparative_analysis: true,
-        resources_documents: true
-      },
-      take: 100
-    })
-
-    const incomplete = missingFields.filter((d: any) => {
-      return !(
-        d.financial_intelligence &&
-        d.market_intelligence &&
-        d.builder_intelligence &&
-        d.property_intelligence &&
-        d.comparative_analysis &&
-        d.resources_documents
-      )
-    })
+    // project.count() drops archived duplicates via the client extension; a relation
+    // filter does not, so profiles of archived projects are excluded explicitly.
+    const live = { project: { archived_duplicate_of: null } }
+    // A profile is incomplete when any of its six sections is empty (SQL or JSON null).
+    const incompleteWhere = {
+      ...live,
+      OR: (['financial_intelligence', 'market_intelligence', 'builder_intelligence', 'property_intelligence', 'comparative_analysis', 'resources_documents'] as const)
+        .map((f) => ({ [f]: { equals: Prisma.AnyNull } })),
+    }
+    const [total, withIntelligence, byStatus, incompleteCount, incompleteSample] = await Promise.all([
+      prisma.project.count(),
+      prisma.decisionProfile.count({ where: live }),
+      prisma.decisionProfile.groupBy({ by: ['status'], where: live, _count: true }),
+      prisma.decisionProfile.count({ where: incompleteWhere }),
+      prisma.decisionProfile.findMany({
+        where: incompleteWhere,
+        select: {
+          id: true,
+          project_id: true,
+          financial_intelligence: true,
+          market_intelligence: true,
+          builder_intelligence: true,
+          property_intelligence: true,
+          comparative_analysis: true,
+          resources_documents: true
+        },
+        take: 10
+      }),
+    ])
 
     res.json({
       total_projects: total,
       with_intelligence: withIntelligence,
-      coverage_percent: Math.round((withIntelligence / total) * 100),
+      // Null, not NaN, when the catalogue is empty.
+      coverage_percent: total > 0 ? Math.round((withIntelligence / total) * 100) : null,
       by_status: byStatus.reduce(
         (acc: any, s: any) => ({ ...acc, [s.status]: s._count }),
         {}
       ),
-      incomplete_count: incomplete.length,
-      incomplete_sample: incomplete.slice(0, 10)
+      incomplete_count: incompleteCount,
+      incomplete_sample: incompleteSample
     })
   } catch (error) {
     console.error('Status summary error:', error)

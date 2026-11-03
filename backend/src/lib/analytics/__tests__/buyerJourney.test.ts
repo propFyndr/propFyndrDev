@@ -5,7 +5,9 @@ import { buyerJourney, type JourneyStage } from '../buyerJourney'
 
 // Runs against the configured database (dev). Counts are window-wide, so each
 // case asserts the change its own fixture rows make, then deletes them.
-const run = `bj-${Date.now()}`
+const run = `bj${Date.now().toString(36)}`
+// The cohort counts only website-shaped guest tokens (botDetection.ts WEBSITE_GUEST_TOKEN).
+const tok = (suffix: string) => `guest-${(run + suffix + '0000000000').slice(0, 20)}`
 const since = new Date(Date.now() - 60_000)
 const sessionIds: string[] = []
 const callbackIds: string[] = []
@@ -30,7 +32,7 @@ describe('buyerJourney', () => {
     assert.ok(project, 'needs one project in the database')
     const before = await buyerJourney(prisma, since)
 
-    const token = `guest_${run}-saver`
+    const token = tok('saver')
     await chat(token)
     const saved = await prisma.savedProperty.create({ data: { user_id: `guest_${token}`, project_id: project.id } })
     savedIds.push(saved.id)
@@ -43,7 +45,7 @@ describe('buyerJourney', () => {
 
   it('a callback without a save still counts, once per person', async () => {
     const before = await buyerJourney(prisma, since)
-    const token = `guest_${run}-caller`
+    const token = tok('caller')
     await chat(token)
     for (let i = 0; i < 2; i++) {
       const cb = await prisma.callbackRequest.create({ data: { name: 'Journey Fixture', phone: '+910000000000', guest_token: token } })
@@ -57,7 +59,7 @@ describe('buyerJourney', () => {
 
   it('a bot session is not a chat starter, so its callback falls outside the cohort', async () => {
     const before = await buyerJourney(prisma, since)
-    const token = `guest_${run}-bot`
+    const token = tok('bot')
     await chat(token, true)
     const cb = await prisma.callbackRequest.create({ data: { name: 'Journey Fixture', phone: '+910000000000', guest_token: token } })
     callbackIds.push(cb.id)

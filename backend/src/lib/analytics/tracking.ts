@@ -144,14 +144,23 @@ export async function trackResultsShown(
       }
     })
 
-    // Update latest query metrics with result count
-    await prisma.queryMetrics.updateMany({
+    // Update only the session's latest query with this result count. This used to be
+    // updateMany over the session, which rewrote every earlier query with the newest
+    // count. Ids are UUIDs, so "latest" is by created_at, id as the tie-break.
+    const latest = await prisma.queryMetrics.findFirst({
       where: { session_id: sessionId },
-      data: {
-        results_count: projectCount,
-        had_results: projectCount > 0,
-      }
+      orderBy: [{ created_at: 'desc' }, { id: 'desc' }],
+      select: { id: true },
     })
+    if (latest) {
+      await prisma.queryMetrics.update({
+        where: { id: latest.id },
+        data: {
+          results_count: projectCount,
+          had_results: projectCount > 0,
+        }
+      })
+    }
 
     console.log('[ANALYTICS] Results shown:', { session_id: sessionId, count: projectCount })
   } catch (err) {

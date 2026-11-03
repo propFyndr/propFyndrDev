@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express'
 import { prisma } from '../lib/db'
 import { requireAdmin } from '../lib/adminAuth'
 import { computeEntityIntelligence } from '../lib/admin/entityIntelligence'
+import { realPeopleSessions, realLeads } from '../lib/analytics/cohort'
 
 /**
  * Reading the beta back.
@@ -80,6 +81,16 @@ betaRouter.get(
         }),
         prisma.callbackRequest.count(since ? { where: { created_at: { gte: since } } } : undefined),
       ])
+      // Conversion is per person (lib/analytics/cohort.ts): real people who chatted in the
+      // window, and how many of them made a real lead (callback or site visit) in it.
+      const sinceSql = since ?? new Date(0)
+      const [people] = await prisma.$queryRaw<Array<{ engaged: number; withLead: number }>>`
+        WITH s AS (${realPeopleSessions()}),
+        active AS (SELECT DISTINCT s.person FROM s WHERE s.message_count > 0
+                   AND EXISTS (SELECT 1 FROM chat_messages m WHERE m.session_id = s.id AND m.created_at >= ${sinceSql}))
+        SELECT (SELECT COUNT(*) FROM active)::int AS engaged,
+               (SELECT COUNT(DISTINCT l.person) FROM (${realLeads()}) l
+                 WHERE l.created_at >= ${sinceSql} AND l.person IN (SELECT person FROM active))::int AS "withLead"`
 
       const focusBySession = new Map(focused.map((s) => [s.id, s.focus_project_id as string]))
       const intel = computeEntityIntelligence(messages, projects, focusBySession)
@@ -90,7 +101,10 @@ betaRouter.get(
         userMetrics: {
           totalEngagedSessions: totalSessions,
           capturedLeads: totalLeads,
-          leadConversionRate: totalSessions > 0 ? +((totalLeads / totalSessions) * 100).toFixed(1) : 0,
+          // People with a real lead / real people who chatted, in the window (was leads / sessions).
+          leadConversionRate: people.engaged > 0 ? +((people.withLead / people.engaged) * 100).toFixed(1) : 0,
+          engagedPeople: people.engaged,
+          peopleWithLead: people.withLead,
         },
       }
       intelligenceCache.set(key, { data: payload, timestamp: Date.now() })
@@ -115,9 +129,11 @@ betaRouter.get(
     const sortBy = typeof req.query.sort === 'string' ? req.query.sort.trim() : 'recent'
 
     const includeTests = req.query.includeTests === 'true'
+    // A relation filter skips the excludeTestLeads extension, so is_test is stated here.
+    const realLead = includeTests ? { some: {} } : { some: { is_test: false } }
     const notTestCondition: any = {
       OR: [
-        { callback_requests: { some: {} } },
+        { callback_requests: realLead },
         {
           messages: {
             some: {
@@ -135,7 +151,7 @@ betaRouter.get(
     const where: any = {}
 
     if (tab === 'leads') {
-      where.callback_requests = { some: {} }
+      where.callback_requests = realLead
     } else if (tab === 'users') {
       where.user_id = { not: null }
     } else if (tab === 'guests') {
@@ -227,23 +243,39 @@ betaRouter.get(
     } as const
 
     // "Highest AI Cost" has no column on ChatSession to order by — cost lives on
-    // aiUsageEvent, summed per session. Fetch every matching id, rank by its
-    // summed spend (sessions with no usage events cost 0), then slice the page.
+    // aiUsageEvent, summed per session, with no relation to ChatSession. Walk the
+    // sessions by spend, highest first, in batches, keeping those that match
+    // `where`, until the page is full. Only sessions with recorded spend are
+    // ranked; when the page runs past them it is filled with zero-cost matches
+    // by recency. Bounded by offset + limit, never every session id.
     let sessions: SessionRow[]
     let totalSessions: number
     if (sortBy === 'cost') {
-      const matchingIds = await prisma.chatSession.findMany({ where, select: { id: true } })
-      const idList = matchingIds.map((s) => s.id)
-      totalSessions = idList.length
-      const costSums = await prisma.aiUsageEvent.groupBy({
-        by: ['session_id'],
-        where: { session_id: { in: idList } },
-        _sum: { cost_usd: true },
-      })
-      const costBySessionId = new Map(costSums.map((c) => [c.session_id, Number(c._sum.cost_usd ?? 0)]))
-      const orderedIds = idList
-        .sort((a, b) => (costBySessionId.get(b) ?? 0) - (costBySessionId.get(a) ?? 0))
-        .slice(offset, offset + limit)
+      totalSessions = await prisma.chatSession.count({ where })
+      const want = offset + limit
+      const ranked: string[] = []
+      const BATCH = 500
+      for (let skip = 0; ranked.length < want; skip += BATCH) {
+        const batch = await prisma.$queryRaw<Array<{ session_id: string }>>`
+          SELECT session_id FROM ai_usage_events WHERE session_id IS NOT NULL
+          GROUP BY session_id ORDER BY SUM(cost_usd) DESC, session_id LIMIT ${BATCH} OFFSET ${skip}`
+        if (batch.length === 0) break
+        const ids = batch.map((b) => b.session_id)
+        const hits = new Set((await prisma.chatSession.findMany({ where: { AND: [where, { id: { in: ids } }] }, select: { id: true } })).map((r) => r.id))
+        for (const id of ids) if (hits.has(id)) ranked.push(id)
+        if (batch.length < BATCH) break
+      }
+      if (ranked.length < want) {
+        // Spend exhausted: top up with zero-spend matches, newest first.
+        const zero = await prisma.chatSession.findMany({
+          where: { AND: [where, { id: { notIn: ranked } }] },
+          orderBy: { last_active: 'desc' },
+          take: want - ranked.length,
+          select: { id: true },
+        })
+        ranked.push(...zero.map((z) => z.id))
+      }
+      const orderedIds = ranked.slice(offset, offset + limit)
       const rows = (await prisma.chatSession.findMany({
         where: { id: { in: orderedIds } },
         select: sessionSelect,
@@ -274,7 +306,7 @@ betaRouter.get(
       prisma.callbackRequest.count(),
       prisma.aiUsageEvent.aggregate({ _sum: { cost_usd: true } }),
       prisma.chatSession.count({ where: includeTests ? {} : { is_bot: false, ...notTestCondition } }),
-      prisma.chatSession.count({ where: { callback_requests: { some: {} } } }),
+      prisma.chatSession.count({ where: { callback_requests: realLead, ...(includeTests ? {} : { is_bot: false }) } }),
       prisma.chatSession.count({ where: { user_id: { not: null }, ...(includeTests ? {} : { is_bot: false, ...notTestCondition }) } }),
       prisma.chatSession.count({ where: { user_id: null, ...(includeTests ? {} : { is_bot: false, ...notTestCondition }) } }),
     ])
@@ -453,6 +485,114 @@ betaRouter.get(
       total: totalSessions,
       totalLeads: totalLeadsCount,
       totalCostUsd: Number(totalCostAgg._sum.cost_usd || 0),
+    })
+  }),
+)
+
+betaRouter.get(
+  '/metrics',
+  requireAdmin,
+  asyncHandler(async (req, res) => {
+    const days = Math.min(Number(req.query.days ?? 7), 90)
+    const since = new Date(Date.now() - days * 86_400_000)
+
+    // Aggregated in the database: no message content is loaded except the 40 gap
+    // examples and the top-query groups. `[^\w\s]` and `\s` mean the same in Postgres
+    // and JS regexes for ASCII text, so the normalisation matches the earlier JS one.
+    const [sessions, [turnRow], topQueryRows, [gapRow], gapQueryRows, leads, usage] = await Promise.all([
+      // Sessions with no messages are excluded from every denominator here.
+      // A guest session is created on the first request, before we know a
+      // message will follow, so 6,452 of 14,762 rows had zero turns — 44% — and
+      // they dragged turns-per-session to 0.58 and the conversion rate to
+      // almost nothing. They are connection attempts, not conversations.
+      prisma.chatSession.findMany({
+        where: { created_at: { gte: since }, message_count: { gt: 0 }, is_bot: false },
+        select: { id: true, message_count: true },
+      }),
+      prisma.$queryRaw<Array<{ turns: number }>>`
+        SELECT COUNT(*)::int AS turns FROM chat_messages m JOIN chat_sessions s ON s.id = m.session_id
+        WHERE m.created_at >= ${since} AND m.role = 'user' AND s.is_bot = false`,
+      // What they actually typed, normalised so casing and spacing do not split
+      // one question into five.
+      prisma.$queryRaw<Array<{ query: string; count: number }>>`
+        SELECT k AS query, COUNT(*)::int AS count FROM (
+          SELECT trim(regexp_replace(regexp_replace(lower(m.content), ${'[^\\w\\s]'}, ' ', 'g'), ${'\\s+'}, ' ', 'g')) AS k
+          FROM chat_messages m JOIN chat_sessions s ON s.id = m.session_id
+          WHERE m.created_at >= ${since} AND m.role = 'user' AND s.is_bot = false
+        ) n WHERE length(k) >= 3 GROUP BY k ORDER BY count DESC, k LIMIT 30`,
+      // Coverage gaps our own answers admitted to (COVERAGE_GAP, same pattern in SQL).
+      prisma.$queryRaw<Array<{ sessions: number }>>`
+        SELECT COUNT(DISTINCT m.session_id)::int AS sessions FROM chat_messages m JOIN chat_sessions s ON s.id = m.session_id
+        WHERE m.created_at >= ${since} AND m.role = 'assistant' AND s.is_bot = false AND m.content ~* ${COVERAGE_GAP.source}`,
+      prisma.$queryRaw<Array<{ content: string }>>`
+        SELECT m.content FROM chat_messages m JOIN chat_sessions s ON s.id = m.session_id
+        WHERE m.created_at >= ${since} AND m.role = 'user' AND s.is_bot = false
+          AND m.session_id IN (SELECT a.session_id FROM chat_messages a WHERE a.created_at >= ${since}
+                               AND a.role = 'assistant' AND a.content ~* ${COVERAGE_GAP.source})
+        ORDER BY m.created_at DESC LIMIT 40`,
+      prisma.callbackRequest.findMany({
+        where: { created_at: { gte: since } },
+        select: { chat_session_id: true, lead_tier: true },
+      }),
+      prisma.aiUsageEvent.aggregate({
+        where: { created_at: { gte: since } },
+        _sum: { cost_usd: true },
+        _count: { _all: true },
+      }),
+    ])
+    const userTurns = turnRow.turns
+
+    // Where conversations end. A one-turn session is a bounce; the shape of
+    // this histogram is the clearest read on whether the product holds anyone.
+    const turnHistogram = new Map<number, number>()
+    for (const s of sessions) {
+      const turns = Math.min(Math.floor(s.message_count / 2), 10)
+      turnHistogram.set(turns, (turnHistogram.get(turns) ?? 0) + 1)
+    }
+
+    const gapSessionCount = gapRow.sessions
+    const gapQueries = gapQueryRows.map((m) => m.content)
+
+    const emptySessions = await prisma.chatSession.count({
+      where: { created_at: { gte: since }, message_count: 0, is_bot: false },
+    })
+    const totalCost = Number(usage._sum.cost_usd ?? 0)
+    const leadSessions = new Set(leads.map((l) => l.chat_session_id).filter(Boolean))
+
+    res.json({
+      window: { days, since },
+      volume: {
+        sessions: sessions.length,
+        emptySessionsExcluded: emptySessions,
+        turns: userTurns,
+        turnsPerSession: sessions.length ? +(userTurns / sessions.length).toFixed(2) : 0,
+      },
+      funnel: {
+        started: sessions.length,
+        engaged: sessions.filter((s) => s.message_count >= 4).length,
+        leads: leadSessions.size,
+        conversionPct: sessions.length ? +((leadSessions.size / sessions.length) * 100).toFixed(1) : 0,
+        byTier: leads.reduce<Record<string, number>>((acc, l) => {
+          const t = l.lead_tier ?? 'UNSCORED'
+          acc[t] = (acc[t] ?? 0) + 1
+          return acc
+        }, {}),
+      },
+      cost: {
+        totalUsd: +totalCost.toFixed(4),
+        modelCalls: usage._count._all,
+        perSessionUsd: sessions.length ? +(totalCost / sessions.length).toFixed(5) : 0,
+        perLeadUsd: leadSessions.size ? +(totalCost / leadSessions.size).toFixed(4) : null,
+      },
+      dropOff: [...turnHistogram.entries()]
+        .sort((a, b) => a[0] - b[0])
+        .map(([turns, count]) => ({ turns, sessions: count })),
+      topQueries: topQueryRows,
+      coverageGaps: {
+        affectedSessions: gapSessionCount,
+        pctOfSessions: sessions.length ? +((gapSessionCount / sessions.length) * 100).toFixed(1) : 0,
+        queries: gapQueries,
+      },
     })
   }),
 )
@@ -665,116 +805,6 @@ betaRouter.get(
           usd: Number(u.cost_usd),
           at: u.created_at,
         })),
-      },
-    })
-  }),
-)
-
-betaRouter.get(
-  '/metrics',
-  requireAdmin,
-  asyncHandler(async (req, res) => {
-    const days = Math.min(Number(req.query.days ?? 7), 90)
-    const since = new Date(Date.now() - days * 86_400_000)
-
-    const [sessions, userMessages, assistantMessages, leads, usage] = await Promise.all([
-      // Sessions with no messages are excluded from every denominator here.
-      // A guest session is created on the first request, before we know a
-      // message will follow, so 6,452 of 14,762 rows had zero turns — 44% — and
-      // they dragged turns-per-session to 0.58 and the conversion rate to
-      // almost nothing. They are connection attempts, not conversations.
-      prisma.chatSession.findMany({
-        where: { created_at: { gte: since }, message_count: { gt: 0 }, is_bot: false },
-        select: { id: true, message_count: true, created_at: true, last_active: true },
-      }),
-      prisma.chatMessage.findMany({
-        where: { created_at: { gte: since }, role: 'user', session: { is_bot: false } },
-        select: { session_id: true, content: true },
-      }),
-      prisma.chatMessage.findMany({
-        where: { created_at: { gte: since }, role: 'assistant', session: { is_bot: false } },
-        select: { session_id: true, content: true },
-      }),
-      prisma.callbackRequest.findMany({
-        where: { created_at: { gte: since } },
-        select: { chat_session_id: true, lead_tier: true },
-      }),
-      prisma.aiUsageEvent.aggregate({
-        where: { created_at: { gte: since } },
-        _sum: { cost_usd: true },
-        _count: { _all: true },
-      }),
-    ])
-
-    // What they actually typed, normalised so casing and spacing do not split
-    // one question into five.
-    const queryCounts = new Map<string, number>()
-    for (const m of userMessages) {
-      const k = m.content.toLowerCase().replace(/[^\w\s]/g, ' ').replace(/\s+/g, ' ').trim()
-      if (k.length < 3) continue
-      queryCounts.set(k, (queryCounts.get(k) ?? 0) + 1)
-    }
-
-    // Where conversations end. A one-turn session is a bounce; the shape of
-    // this histogram is the clearest read on whether the product holds anyone.
-    const turnHistogram = new Map<number, number>()
-    for (const s of sessions) {
-      const turns = Math.min(Math.floor(s.message_count / 2), 10)
-      turnHistogram.set(turns, (turnHistogram.get(turns) ?? 0) + 1)
-    }
-
-    // Coverage gaps our own answers admitted to. Real users find holes the
-    // curated corpus never touches, and this is the list worth seeding from.
-    const gapSessions = new Set<string>()
-    for (const m of assistantMessages) {
-      if (COVERAGE_GAP.test(m.content)) gapSessions.add(m.session_id)
-    }
-    const gapQueries = userMessages
-      .filter((m) => gapSessions.has(m.session_id))
-      .map((m) => m.content)
-
-    const emptySessions = await prisma.chatSession.count({
-      where: { created_at: { gte: since }, message_count: 0, is_bot: false },
-    })
-    const totalCost = Number(usage._sum.cost_usd ?? 0)
-    const leadSessions = new Set(leads.map((l) => l.chat_session_id).filter(Boolean))
-
-    res.json({
-      window: { days, since },
-      volume: {
-        sessions: sessions.length,
-        emptySessionsExcluded: emptySessions,
-        turns: userMessages.length,
-        turnsPerSession: sessions.length ? +(userMessages.length / sessions.length).toFixed(2) : 0,
-      },
-      funnel: {
-        started: sessions.length,
-        engaged: sessions.filter((s) => s.message_count >= 4).length,
-        leads: leadSessions.size,
-        conversionPct: sessions.length ? +((leadSessions.size / sessions.length) * 100).toFixed(1) : 0,
-        byTier: leads.reduce<Record<string, number>>((acc, l) => {
-          const t = l.lead_tier ?? 'UNSCORED'
-          acc[t] = (acc[t] ?? 0) + 1
-          return acc
-        }, {}),
-      },
-      cost: {
-        totalUsd: +totalCost.toFixed(4),
-        modelCalls: usage._count._all,
-        perSessionUsd: sessions.length ? +(totalCost / sessions.length).toFixed(5) : 0,
-        perLeadUsd: leadSessions.size ? +(totalCost / leadSessions.size).toFixed(4) : null,
-      },
-      dropOff: [...turnHistogram.entries()]
-        .sort((a, b) => a[0] - b[0])
-        .map(([turns, count]) => ({ turns, sessions: count })),
-      topQueries: [...queryCounts.entries()]
-        .sort((a, b) => b[1] - a[1])
-        .slice(0, 30)
-        .map(([query, count]) => ({ query, count })),
-      coverageGaps: {
-        affectedSessions: gapSessions.size,
-        pctOfSessions: sessions.length ? +((gapSessions.size / sessions.length) * 100).toFixed(1) : 0,
-        queries: gapQueries.slice(0, 40),
       },
     })
   }),

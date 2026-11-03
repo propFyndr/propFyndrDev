@@ -19,6 +19,8 @@
 import { Router, Request, Response } from 'express'
 import { prisma } from '../lib/db'
 import { loadScoreMap } from '../lib/completenessCache'
+import { realLeads } from '../lib/analytics/cohort'
+import { startOfIstDay } from '../lib/istTime'
 
 const router = Router()
 
@@ -33,22 +35,33 @@ const STALE_AFTER_MS = 48 * 60 * 60 * 1000
  * marked `converted` or `lost` is finished work and does not appear at all.
  */
 router.get('/queue', async (_req: Request, res: Response) => {
-  const startOfToday = new Date()
-  startOfToday.setHours(0, 0, 0, 0)
+  // "Today" is the India day: the sales floor works in IST, not the server's zone.
+  const startOfToday = startOfIstDay()
   const staleBefore = new Date(Date.now() - STALE_AFTER_MS)
 
   // "Open" is the whole queue concept: anything not yet resolved.
-  const open = { status: { notIn: ['converted', 'lost'] } }
+  // Test callbacks are not leads (excludeTestLeads covers Prisma reads elsewhere; this is explicit).
+  // Team-identity callbacks are excluded from today/unassigned via realLeads; the tier counts and
+  // the list below still include them (a Prisma where cannot express the team join).
+  const open = { is_test: false, status: { notIn: ['converted', 'lost'] } }
 
-  const [todayCount, hot, warm, cold, stale, unassigned, contacted, queue] = await Promise.all([
-    prisma.callbackRequest.count({ where: { created_at: { gte: startOfToday } } }),
+  const [[leadCounts], hot, warm, cold, stale, contacted, queue] = await Promise.all([
+    // Real leads only (lib/analytics/cohort.ts): callbacks not marked test and site visits,
+    // neither from a team identity. A site visit is open until cancelled or completed.
+    prisma.$queryRaw<Array<{ todayCallbacks: number; todaySiteVisits: number; openSiteVisits: number; unassignedCallbacks: number; unassignedSiteVisits: number }>>`
+      SELECT
+        COUNT(*) FILTER (WHERE kind = 'callback' AND created_at >= ${startOfToday})::int AS "todayCallbacks",
+        COUNT(*) FILTER (WHERE kind = 'site_visit' AND created_at >= ${startOfToday})::int AS "todaySiteVisits",
+        COUNT(*) FILTER (WHERE kind = 'site_visit' AND status IN ('pending', 'confirmed'))::int AS "openSiteVisits",
+        COUNT(*) FILTER (WHERE kind = 'callback' AND status NOT IN ('converted', 'lost') AND assigned_partner_id IS NULL)::int AS "unassignedCallbacks",
+        COUNT(*) FILTER (WHERE kind = 'site_visit' AND status IN ('pending', 'confirmed') AND assigned_partner_id IS NULL)::int AS "unassignedSiteVisits"
+      FROM (${realLeads()}) l`,
     prisma.callbackRequest.count({ where: { ...open, lead_tier: 'HOT' } }),
     prisma.callbackRequest.count({ where: { ...open, lead_tier: 'WARM' } }),
     prisma.callbackRequest.count({ where: { ...open, lead_tier: 'COLD' } }),
     prisma.callbackRequest.count({
       where: { ...open, status: 'new', created_at: { lt: staleBefore } },
     }),
-    prisma.callbackRequest.count({ where: { ...open, assigned_partner_id: null } }),
     /**
      * Time to first contact, over the last 30 days.
      *
@@ -59,6 +72,7 @@ router.get('/queue', async (_req: Request, res: Response) => {
      */
     prisma.callbackRequest.findMany({
       where: {
+        is_test: false,
         first_contacted_at: { not: null },
         created_at: { gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) },
       },
@@ -92,9 +106,17 @@ router.get('/queue', async (_req: Request, res: Response) => {
     ? Math.round(waits[Math.floor(waits.length / 2)] / 60000)
     : null
 
+  const unassigned = leadCounts.unassignedCallbacks + leadCounts.unassignedSiteVisits
   res.json({
     stats: {
-      today: todayCount, hot, warm, cold, stale, unassigned,
+      // today and unassigned now cover callbacks AND site visits (real leads, team excluded).
+      today: leadCounts.todayCallbacks + leadCounts.todaySiteVisits,
+      todayCallbacks: leadCounts.todayCallbacks,
+      todaySiteVisits: leadCounts.todaySiteVisits,
+      openSiteVisits: leadCounts.openSiteVisits,
+      hot, warm, cold, stale,
+      unassigned,
+      unassignedToPartner: unassigned,
       // Null when nothing has been contacted yet — the client says "not
       // measured yet" rather than showing a confident zero.
       median_response_minutes: medianMinutes,

@@ -1,4 +1,5 @@
 import { prisma } from '../db'
+import { startOfIstDay } from '../istTime'
 
 /**
  * Bump when any rate below changes, or when the meaning of a stored token
@@ -164,10 +165,13 @@ export async function spentTodayUsd(provider?: string): Promise<number> {
 
 const DAILY_USER_LIMIT_USD = Number(process.env.DAILY_USER_LIMIT_USD ?? '0.50')
 
+/** USD→INR for display only; a fixed approximation, not fetched live. One place, sent to the admin UI. */
+export const USD_TO_INR = 87
+
 export async function isOverDailyBudget(userId: string | null): Promise<boolean> {
   if (!userId) return false // anonymous users are already IP-rate-limited globally
-  const since = new Date()
-  since.setHours(0, 0, 0, 0)
+  // The buyer's day: midnight India time, not the server's local midnight.
+  const since = startOfIstDay()
   try {
     const aiUsageEventModel = (prisma as any).aiUsageEvent
     if (!aiUsageEventModel) return false

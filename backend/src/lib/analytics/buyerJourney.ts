@@ -18,6 +18,7 @@
 // PostHog event (dossier_shared), not a database row.
 import { Prisma } from '@prisma/client'
 import type { PrismaClient } from '@prisma/client'
+import { realPeopleSessions, realLeads, realSaves, personOf, notTeam } from './cohort'
 
 export interface JourneyStage {
   id: 'chat_started' | 'saved' | 'callback' | 'site_visit' | 'dossier'
@@ -39,38 +40,46 @@ const LABELS: Record<JourneyStage['id'], string> = {
 }
 
 export async function buyerJourney(db: PrismaClient, since: Date): Promise<JourneyStage[]> {
+  // The cohort is real people (lib/analytics/cohort.ts): an account or a website guest
+  // token, not a bot, not team. Actions are real ones only (no test leads, no team), so a
+  // team member's save or site visit is neither counted nor reported as outside the cohort.
   const rows = await db.$queryRaw<Array<{ stage: string; people: number; outside: number }>>(Prisma.sql`
-    WITH cohort AS (
-      SELECT DISTINCT CASE WHEN user_id IS NOT NULL THEN 'u:' || user_id ELSE 'g:' || guest_token END AS k
-      FROM chat_sessions
-      WHERE is_bot = false AND created_at >= ${since}
-        AND (user_id IS NOT NULL OR guest_token IS NOT NULL)
+    WITH s AS (
+      SELECT * FROM (${realPeopleSessions()}) rp WHERE rp.created_at >= ${since}
+    ),
+    cohort AS (SELECT DISTINCT person FROM s),
+    -- Every key a cohort person is known by: the resolved person, the account, the raw guest token.
+    cohort_keys AS (
+      SELECT DISTINCT k, person FROM (
+        SELECT person AS k, person FROM s
+        UNION ALL SELECT user_id, person FROM s WHERE user_id IS NOT NULL
+        UNION ALL SELECT guest_token, person FROM s WHERE guest_token IS NOT NULL
+      ) x
     ),
     actions AS (
-      SELECT 'saved' AS stage, id AS action_id,
-             CASE WHEN user_id LIKE 'guest\\_%' THEN 'g:' || substr(user_id, 7) ELSE 'u:' || user_id END AS k1,
-             NULL::text AS k2
-        FROM saved_properties WHERE saved_at >= ${since}
+      SELECT 'saved' AS stage, id AS action_id, user_id, guest_token, person
+        FROM (${realSaves()}) sv WHERE saved_at >= ${since}
       UNION ALL
-      SELECT 'callback', id, 'u:' || user_id, 'g:' || guest_token
-        FROM callback_requests WHERE created_at >= ${since} AND is_test = false
+      SELECT CASE WHEN kind = 'callback' THEN 'callback' ELSE 'site_visit' END, id, user_id, guest_token, person
+        FROM (${realLeads()}) l WHERE created_at >= ${since}
       UNION ALL
-      SELECT 'site_visit', id, 'u:' || user_id, 'g:' || guest_token
-        FROM site_visit_requests WHERE created_at >= ${since}
-      UNION ALL
-      SELECT 'dossier', token, 'u:' || user_id, 'g:' || guest_token
-        FROM dossiers WHERE created_at >= ${since}
+      SELECT 'dossier', token, user_id, guest_token, person FROM (
+        SELECT d.token, d.user_id, d.guest_token, ${personOf('d.user_id', 'd.guest_token')} AS person
+          FROM dossiers d WHERE d.created_at >= ${since}
+      ) dd WHERE ${notTeam('dd')}
     ),
     -- One key per row so the cohort join is an equality (hash) join, not an OR.
     action_keys AS (
-      SELECT stage, action_id, k1 AS k FROM actions WHERE k1 IS NOT NULL
+      SELECT stage, action_id, person AS k FROM actions WHERE person IS NOT NULL
       UNION ALL
-      SELECT stage, action_id, k2 FROM actions WHERE k2 IS NOT NULL
+      SELECT stage, action_id, user_id FROM actions WHERE user_id IS NOT NULL
+      UNION ALL
+      SELECT stage, action_id, guest_token FROM actions WHERE guest_token IS NOT NULL
     ),
-    -- An action carrying both a user id and a guest token counts its person once.
+    -- An action carrying several keys counts its person once.
     matched AS (
-      SELECT ak.stage, ak.action_id, min(c.k) AS person
-        FROM action_keys ak JOIN cohort c ON c.k = ak.k
+      SELECT ak.stage, ak.action_id, min(c.person) AS person
+        FROM action_keys ak JOIN cohort_keys c ON c.k = ak.k
        GROUP BY ak.stage, ak.action_id
     )
     SELECT 'chat_started' AS stage, (SELECT count(*) FROM cohort)::int AS people, 0 AS outside

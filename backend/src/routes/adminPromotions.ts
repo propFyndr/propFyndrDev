@@ -46,13 +46,19 @@ adminPromotionsRouter.get('/', requireAdmin, async (req: Request, res: Response)
       ]
     }
 
-    const [promotions, totalCount, activeCount, aggregates] = await Promise.all([
+    // "Live" means what a buyer can see right now — the same rule as routes/promotionals.ts:
+    // switched on AND inside its start/end window. A switched-on promotion outside it is
+    // scheduled (not started) or expired (ended), and is not counted as active.
+    const now = new Date()
+    const [promotions, totalCount, activeCount, scheduledCount, expiredCount, aggregates] = await Promise.all([
       prisma.promotional.findMany({
         where,
         orderBy: { created_at: 'desc' },
       }),
       prisma.promotional.count(),
-      prisma.promotional.count({ where: { is_active: true } }),
+      prisma.promotional.count({ where: { is_active: true, starts_at: { lte: now }, ends_at: { gte: now } } }),
+      prisma.promotional.count({ where: { is_active: true, starts_at: { gt: now } } }),
+      prisma.promotional.count({ where: { is_active: true, ends_at: { lt: now } } }),
       prisma.promotional.aggregate({
         _sum: {
           impressions: true,
@@ -72,6 +78,9 @@ adminPromotionsRouter.get('/', requireAdmin, async (req: Request, res: Response)
       stats: {
         total: totalCount,
         active: activeCount,
+        live: activeCount,
+        scheduled: scheduledCount,
+        expired: expiredCount,
         inactive: totalCount - activeCount,
         impressions: totalImpressions,
         clicks: totalClicks,
