@@ -1,0 +1,4596 @@
+{
+  "summary": {
+    "label": "c2d5-dev",
+    "target": "local app, dev DB",
+    "sha": "728483d0",
+    "dirty": [
+      "M backend/src/lib/ai/__tests__/falseReassurance.test.ts",
+      " M backend/src/lib/ai/projectFactChecks.ts",
+      " M backend/src/lib/ai/prompts/base.ts",
+      " M backend/src/lib/ai/prompts/playbooks.ts",
+      " M backend/src/lib/chat/handlers/__tests__/projectCatch.test.ts",
+      " M backend/src/lib/chat/handlers/projectCatch.ts",
+      " M backend/src/lib/eval/route-replay.json",
+      " M backend/src/lib/turnTimer.ts",
+      " M backend/src/routes/chat-router.ts",
+      " M backend/src/routes/projects.ts",
+      " M docs/WEEK_PLAN_2026-10-27.md",
+      " M frontend/app/admin/team/page.tsx",
+      " M frontend/app/property/[slug]/page.tsx"
+    ],
+    "at": "2026-11-04T09:01:37.989Z",
+    "db": "postgresql://***@ep-odd-bar-az91o2md-pooler.c-3.ap-southeast-1.aws.neon.tech/neondb",
+    "errors": [],
+    "outages": [
+      "tq108",
+      "tq116",
+      "tq128"
+    ],
+    "serverTimingSeen": 95,
+    "all": {
+      "turns": 100,
+      "client": {
+        "firstByteMs": {
+          "n": 100,
+          "median": 252,
+          "p90": 392,
+          "max": 1463
+        },
+        "firstStatusMs": {
+          "n": 95,
+          "median": 257,
+          "p90": 428,
+          "max": 1463
+        },
+        "firstTokenMs": {
+          "n": 100,
+          "median": 4982,
+          "p90": 10859,
+          "max": 33746
+        },
+        "totalMs": {
+          "n": 100,
+          "median": 6042,
+          "p90": 15399,
+          "max": 64195
+        }
+      },
+      "serverStages": {
+        "cacheRead": {
+          "n": 95,
+          "median": 40,
+          "p90": 281,
+          "max": 972
+        },
+        "setup": {
+          "n": 93,
+          "median": 0,
+          "p90": 0,
+          "max": 0
+        },
+        "intentExtract": {
+          "n": 93,
+          "median": 1,
+          "p90": 1336,
+          "max": 1853
+        },
+        "sessionMemory": {
+          "n": 93,
+          "median": 171,
+          "p90": 348,
+          "max": 1116
+        },
+        "intent": {
+          "n": 93,
+          "median": 1,
+          "p90": 1,
+          "max": 5
+        },
+        "routing": {
+          "n": 85,
+          "median": 365,
+          "p90": 499,
+          "max": 23283
+        },
+        "projectCatalog": {
+          "n": 72,
+          "median": 48,
+          "p90": 69,
+          "max": 135
+        },
+        "discoverProjects": {
+          "n": 37,
+          "median": 1984,
+          "p90": 2706,
+          "max": 4082
+        },
+        "dataAndContext": {
+          "n": 58,
+          "median": 347,
+          "p90": 2752,
+          "max": 3581
+        },
+        "promptBuild": {
+          "n": 58,
+          "median": 0,
+          "p90": 1,
+          "max": 31
+        },
+        "postLlm": {
+          "n": 58,
+          "median": 819,
+          "p90": 1576,
+          "max": 2294
+        },
+        "preLlm": {
+          "n": 44,
+          "median": 51,
+          "p90": 451,
+          "max": 548
+        },
+        "llm": {
+          "n": 44,
+          "median": 4022,
+          "p90": 20095,
+          "max": 59672
+        }
+      },
+      "serverPoints": {
+        "firstToken": {
+          "n": 95,
+          "median": 4894,
+          "p90": 11020,
+          "max": 33335
+        },
+        "aiStart": {
+          "n": 44,
+          "median": 3313,
+          "p90": 7967,
+          "max": 32678
+        },
+        "aiFirstToken": {
+          "n": 44,
+          "median": 6900,
+          "p90": 13568,
+          "max": 36857
+        }
+      }
+    },
+    "byLane": {
+      "search": {
+        "turns": 14,
+        "client": {
+          "firstByteMs": {
+            "n": 14,
+            "median": 287,
+            "p90": 799,
+            "max": 1463
+          },
+          "firstStatusMs": {
+            "n": 14,
+            "median": 287,
+            "p90": 799,
+            "max": 1463
+          },
+          "firstTokenMs": {
+            "n": 14,
+            "median": 4391,
+            "p90": 5459,
+            "max": 9892
+          },
+          "totalMs": {
+            "n": 14,
+            "median": 5022,
+            "p90": 6042,
+            "max": 11713
+          }
+        },
+        "serverStages": {
+          "cacheRead": {
+            "n": 14,
+            "median": 40,
+            "p90": 47,
+            "max": 319
+          },
+          "setup": {
+            "n": 14,
+            "median": 0,
+            "p90": 0,
+            "max": 0
+          },
+          "intentExtract": {
+            "n": 14,
+            "median": 1,
+            "p90": 20,
+            "max": 971
+          },
+          "sessionMemory": {
+            "n": 14,
+            "median": 192,
+            "p90": 419,
+            "max": 421
+          },
+          "intent": {
+            "n": 14,
+            "median": 1,
+            "p90": 2,
+            "max": 3
+          },
+          "routing": {
+            "n": 14,
+            "median": 345,
+            "p90": 598,
+            "max": 1637
+          },
+          "projectCatalog": {
+            "n": 14,
+            "median": 48,
+            "p90": 73,
+            "max": 115
+          },
+          "discoverProjects": {
+            "n": 10,
+            "median": 1928,
+            "p90": 2402,
+            "max": 3634
+          },
+          "dataAndContext": {
+            "n": 14,
+            "median": 469,
+            "p90": 1232,
+            "max": 1561
+          },
+          "promptBuild": {
+            "n": 14,
+            "median": 0,
+            "p90": 1,
+            "max": 19
+          },
+          "postLlm": {
+            "n": 14,
+            "median": 1000,
+            "p90": 1776,
+            "max": 2294
+          }
+        },
+        "serverPoints": {
+          "firstToken": {
+            "n": 14,
+            "median": 4049,
+            "p90": 5161,
+            "max": 8436
+          }
+        }
+      },
+      "main": {
+        "turns": 44,
+        "client": {
+          "firstByteMs": {
+            "n": 44,
+            "median": 244,
+            "p90": 392,
+            "max": 1042
+          },
+          "firstStatusMs": {
+            "n": 44,
+            "median": 244,
+            "p90": 392,
+            "max": 1042
+          },
+          "firstTokenMs": {
+            "n": 44,
+            "median": 6906,
+            "p90": 13746,
+            "max": 33746
+          },
+          "totalMs": {
+            "n": 44,
+            "median": 9850,
+            "p90": 25144,
+            "max": 64195
+          }
+        },
+        "serverStages": {
+          "cacheRead": {
+            "n": 44,
+            "median": 40,
+            "p90": 73,
+            "max": 931
+          },
+          "setup": {
+            "n": 44,
+            "median": 0,
+            "p90": 0,
+            "max": 0
+          },
+          "intentExtract": {
+            "n": 44,
+            "median": 1,
+            "p90": 1395,
+            "max": 1628
+          },
+          "sessionMemory": {
+            "n": 44,
+            "median": 166,
+            "p90": 343,
+            "max": 1116
+          },
+          "intent": {
+            "n": 44,
+            "median": 0,
+            "p90": 1,
+            "max": 5
+          },
+          "routing": {
+            "n": 44,
+            "median": 352,
+            "p90": 453,
+            "max": 23283
+          },
+          "projectCatalog": {
+            "n": 44,
+            "median": 44,
+            "p90": 69,
+            "max": 96
+          },
+          "discoverProjects": {
+            "n": 27,
+            "median": 2007,
+            "p90": 2706,
+            "max": 4082
+          },
+          "dataAndContext": {
+            "n": 44,
+            "median": 324,
+            "p90": 2762,
+            "max": 3581
+          },
+          "promptBuild": {
+            "n": 44,
+            "median": 0,
+            "p90": 1,
+            "max": 31
+          },
+          "postLlm": {
+            "n": 44,
+            "median": 623,
+            "p90": 1260,
+            "max": 1943
+          },
+          "preLlm": {
+            "n": 44,
+            "median": 51,
+            "p90": 451,
+            "max": 548
+          },
+          "llm": {
+            "n": 44,
+            "median": 4022,
+            "p90": 20095,
+            "max": 59672
+          }
+        },
+        "serverPoints": {
+          "firstToken": {
+            "n": 44,
+            "median": 6648,
+            "p90": 13568,
+            "max": 33335
+          },
+          "aiStart": {
+            "n": 44,
+            "median": 3313,
+            "p90": 7967,
+            "max": 32678
+          },
+          "aiFirstToken": {
+            "n": 44,
+            "median": 6900,
+            "p90": 13568,
+            "max": 36857
+          }
+        }
+      },
+      "topic:builder-reputation": {
+        "turns": 4,
+        "client": {
+          "firstByteMs": {
+            "n": 4,
+            "median": 256,
+            "p90": 435,
+            "max": 435
+          },
+          "firstStatusMs": {
+            "n": 4,
+            "median": 256,
+            "p90": 435,
+            "max": 435
+          },
+          "firstTokenMs": {
+            "n": 4,
+            "median": 3533,
+            "p90": 11666,
+            "max": 11666
+          },
+          "totalMs": {
+            "n": 4,
+            "median": 3591,
+            "p90": 11718,
+            "max": 11718
+          }
+        },
+        "serverStages": {
+          "cacheRead": {
+            "n": 4,
+            "median": 48,
+            "p90": 972,
+            "max": 972
+          },
+          "setup": {
+            "n": 4,
+            "median": 0,
+            "p90": 0,
+            "max": 0
+          },
+          "intentExtract": {
+            "n": 4,
+            "median": 1,
+            "p90": 1853,
+            "max": 1853
+          },
+          "sessionMemory": {
+            "n": 4,
+            "median": 213,
+            "p90": 658,
+            "max": 658
+          },
+          "intent": {
+            "n": 4,
+            "median": 0,
+            "p90": 1,
+            "max": 1
+          },
+          "routing": {
+            "n": 4,
+            "median": 430,
+            "p90": 9617,
+            "max": 9617
+          },
+          "projectCatalog": {
+            "n": 4,
+            "median": 52,
+            "p90": 135,
+            "max": 135
+          }
+        },
+        "serverPoints": {
+          "firstToken": {
+            "n": 4,
+            "median": 3319,
+            "p90": 11378,
+            "max": 11378
+          }
+        }
+      },
+      "topic:statutory_tax": {
+        "turns": 1,
+        "client": {
+          "firstByteMs": {
+            "n": 1,
+            "median": 217,
+            "p90": 217,
+            "max": 217
+          },
+          "firstStatusMs": {
+            "n": 1,
+            "median": 217,
+            "p90": 217,
+            "max": 217
+          },
+          "firstTokenMs": {
+            "n": 1,
+            "median": 1762,
+            "p90": 1762,
+            "max": 1762
+          },
+          "totalMs": {
+            "n": 1,
+            "median": 1823,
+            "p90": 1823,
+            "max": 1823
+          }
+        },
+        "serverStages": {
+          "cacheRead": {
+            "n": 1,
+            "median": 52,
+            "p90": 52,
+            "max": 52
+          },
+          "setup": {
+            "n": 1,
+            "median": 0,
+            "p90": 0,
+            "max": 0
+          },
+          "intentExtract": {
+            "n": 1,
+            "median": 2,
+            "p90": 2,
+            "max": 2
+          },
+          "sessionMemory": {
+            "n": 1,
+            "median": 405,
+            "p90": 405,
+            "max": 405
+          },
+          "intent": {
+            "n": 1,
+            "median": 1,
+            "p90": 1,
+            "max": 1
+          },
+          "routing": {
+            "n": 1,
+            "median": 508,
+            "p90": 508,
+            "max": 508
+          },
+          "projectCatalog": {
+            "n": 1,
+            "median": 56,
+            "p90": 56,
+            "max": 56
+          }
+        },
+        "serverPoints": {
+          "firstToken": {
+            "n": 1,
+            "median": 1515,
+            "p90": 1515,
+            "max": 1515
+          }
+        }
+      },
+      "topic:loan_emi": {
+        "turns": 1,
+        "client": {
+          "firstByteMs": {
+            "n": 1,
+            "median": 206,
+            "p90": 206,
+            "max": 206
+          },
+          "firstStatusMs": {
+            "n": 1,
+            "median": 206,
+            "p90": 206,
+            "max": 206
+          },
+          "firstTokenMs": {
+            "n": 1,
+            "median": 1566,
+            "p90": 1566,
+            "max": 1566
+          },
+          "totalMs": {
+            "n": 1,
+            "median": 1628,
+            "p90": 1628,
+            "max": 1628
+          }
+        },
+        "serverStages": {
+          "cacheRead": {
+            "n": 1,
+            "median": 0,
+            "p90": 0,
+            "max": 0
+          },
+          "setup": {
+            "n": 1,
+            "median": 0,
+            "p90": 0,
+            "max": 0
+          },
+          "intentExtract": {
+            "n": 1,
+            "median": 14,
+            "p90": 14,
+            "max": 14
+          },
+          "sessionMemory": {
+            "n": 1,
+            "median": 340,
+            "p90": 340,
+            "max": 340
+          },
+          "intent": {
+            "n": 1,
+            "median": 0,
+            "p90": 0,
+            "max": 0
+          },
+          "routing": {
+            "n": 1,
+            "median": 483,
+            "p90": 483,
+            "max": 483
+          },
+          "projectCatalog": {
+            "n": 1,
+            "median": 57,
+            "p90": 57,
+            "max": 57
+          }
+        },
+        "serverPoints": {
+          "firstToken": {
+            "n": 1,
+            "median": 1351,
+            "p90": 1351,
+            "max": 1351
+          }
+        }
+      },
+      "budget-check": {
+        "turns": 3,
+        "client": {
+          "firstByteMs": {
+            "n": 3,
+            "median": 274,
+            "p90": 312,
+            "max": 312
+          },
+          "firstStatusMs": {
+            "n": 3,
+            "median": 274,
+            "p90": 312,
+            "max": 312
+          },
+          "firstTokenMs": {
+            "n": 3,
+            "median": 1582,
+            "p90": 1749,
+            "max": 1749
+          },
+          "totalMs": {
+            "n": 3,
+            "median": 1634,
+            "p90": 1805,
+            "max": 1805
+          }
+        },
+        "serverStages": {
+          "cacheRead": {
+            "n": 3,
+            "median": 33,
+            "p90": 290,
+            "max": 290
+          },
+          "setup": {
+            "n": 3,
+            "median": 0,
+            "p90": 0,
+            "max": 0
+          },
+          "intentExtract": {
+            "n": 3,
+            "median": 1,
+            "p90": 4,
+            "max": 4
+          },
+          "sessionMemory": {
+            "n": 3,
+            "median": 165,
+            "p90": 314,
+            "max": 314
+          },
+          "intent": {
+            "n": 3,
+            "median": 0,
+            "p90": 1,
+            "max": 1
+          }
+        },
+        "serverPoints": {
+          "firstToken": {
+            "n": 3,
+            "median": 1390,
+            "p90": 1459,
+            "max": 1459
+          }
+        }
+      },
+      "topic:newcomer-orientation": {
+        "turns": 1,
+        "client": {
+          "firstByteMs": {
+            "n": 1,
+            "median": 233,
+            "p90": 233,
+            "max": 233
+          },
+          "firstStatusMs": {
+            "n": 1,
+            "median": 233,
+            "p90": 233,
+            "max": 233
+          },
+          "firstTokenMs": {
+            "n": 1,
+            "median": 1727,
+            "p90": 1727,
+            "max": 1727
+          },
+          "totalMs": {
+            "n": 1,
+            "median": 1780,
+            "p90": 1780,
+            "max": 1780
+          }
+        },
+        "serverStages": {
+          "cacheRead": {
+            "n": 1,
+            "median": 31,
+            "p90": 31,
+            "max": 31
+          },
+          "setup": {
+            "n": 1,
+            "median": 0,
+            "p90": 0,
+            "max": 0
+          },
+          "intentExtract": {
+            "n": 1,
+            "median": 4,
+            "p90": 4,
+            "max": 4
+          },
+          "sessionMemory": {
+            "n": 1,
+            "median": 145,
+            "p90": 145,
+            "max": 145
+          },
+          "intent": {
+            "n": 1,
+            "median": 0,
+            "p90": 0,
+            "max": 0
+          },
+          "routing": {
+            "n": 1,
+            "median": 310,
+            "p90": 310,
+            "max": 310
+          },
+          "projectCatalog": {
+            "n": 1,
+            "median": 38,
+            "p90": 38,
+            "max": 38
+          }
+        },
+        "serverPoints": {
+          "firstToken": {
+            "n": 1,
+            "median": 1482,
+            "p90": 1482,
+            "max": 1482
+          }
+        }
+      },
+      "topic:rera_verification": {
+        "turns": 2,
+        "client": {
+          "firstByteMs": {
+            "n": 2,
+            "median": 324,
+            "p90": 362,
+            "max": 362
+          },
+          "firstStatusMs": {
+            "n": 2,
+            "median": 324,
+            "p90": 362,
+            "max": 362
+          },
+          "firstTokenMs": {
+            "n": 2,
+            "median": 1736,
+            "p90": 1880,
+            "max": 1880
+          },
+          "totalMs": {
+            "n": 2,
+            "median": 1789,
+            "p90": 1934,
+            "max": 1934
+          }
+        },
+        "serverStages": {
+          "cacheRead": {
+            "n": 2,
+            "median": 39,
+            "p90": 40,
+            "max": 40
+          },
+          "setup": {
+            "n": 2,
+            "median": 0,
+            "p90": 0,
+            "max": 0
+          },
+          "intentExtract": {
+            "n": 2,
+            "median": 1,
+            "p90": 1,
+            "max": 1
+          },
+          "sessionMemory": {
+            "n": 2,
+            "median": 164,
+            "p90": 173,
+            "max": 173
+          },
+          "intent": {
+            "n": 2,
+            "median": 1,
+            "p90": 2,
+            "max": 2
+          },
+          "routing": {
+            "n": 2,
+            "median": 366,
+            "p90": 384,
+            "max": 384
+          },
+          "projectCatalog": {
+            "n": 2,
+            "median": 49,
+            "p90": 51,
+            "max": 51
+          }
+        },
+        "serverPoints": {
+          "firstToken": {
+            "n": 2,
+            "median": 1408,
+            "p90": 1507,
+            "max": 1507
+          }
+        }
+      },
+      "aggregate": {
+        "turns": 3,
+        "client": {
+          "firstByteMs": {
+            "n": 3,
+            "median": 192,
+            "p90": 359,
+            "max": 359
+          },
+          "firstStatusMs": {
+            "n": 3,
+            "median": 192,
+            "p90": 359,
+            "max": 359
+          },
+          "firstTokenMs": {
+            "n": 3,
+            "median": 1791,
+            "p90": 2047,
+            "max": 2047
+          },
+          "totalMs": {
+            "n": 3,
+            "median": 1847,
+            "p90": 2111,
+            "max": 2111
+          }
+        },
+        "serverStages": {
+          "cacheRead": {
+            "n": 3,
+            "median": 42,
+            "p90": 43,
+            "max": 43
+          },
+          "setup": {
+            "n": 3,
+            "median": 0,
+            "p90": 0,
+            "max": 0
+          },
+          "intentExtract": {
+            "n": 3,
+            "median": 1,
+            "p90": 1,
+            "max": 1
+          },
+          "sessionMemory": {
+            "n": 3,
+            "median": 175,
+            "p90": 180,
+            "max": 180
+          },
+          "intent": {
+            "n": 3,
+            "median": 1,
+            "p90": 1,
+            "max": 1
+          }
+        },
+        "serverPoints": {
+          "firstToken": {
+            "n": 3,
+            "median": 1543,
+            "p90": 1844,
+            "max": 1844
+          }
+        }
+      },
+      "OPEN": {
+        "turns": 10,
+        "client": {
+          "firstByteMs": {
+            "n": 10,
+            "median": 211,
+            "p90": 320,
+            "max": 428
+          },
+          "firstStatusMs": {
+            "n": 10,
+            "median": 211,
+            "p90": 320,
+            "max": 428
+          },
+          "firstTokenMs": {
+            "n": 10,
+            "median": 7716,
+            "p90": 14698,
+            "max": 18571
+          },
+          "totalMs": {
+            "n": 10,
+            "median": 8375,
+            "p90": 14752,
+            "max": 34689
+          }
+        },
+        "serverStages": {
+          "cacheRead": {
+            "n": 10,
+            "median": 43,
+            "p90": 310,
+            "max": 340
+          },
+          "setup": {
+            "n": 10,
+            "median": 0,
+            "p90": 0,
+            "max": 0
+          },
+          "intentExtract": {
+            "n": 10,
+            "median": 1,
+            "p90": 948,
+            "max": 1063
+          },
+          "sessionMemory": {
+            "n": 10,
+            "median": 156,
+            "p90": 387,
+            "max": 407
+          },
+          "intent": {
+            "n": 10,
+            "median": 0,
+            "p90": 1,
+            "max": 1
+          },
+          "routing": {
+            "n": 10,
+            "median": 381,
+            "p90": 422,
+            "max": 428
+          }
+        },
+        "serverPoints": {
+          "firstToken": {
+            "n": 10,
+            "median": 7533,
+            "p90": 14396,
+            "max": 18145
+          }
+        }
+      },
+      "answer-cache": {
+        "turns": 2,
+        "client": {
+          "firstByteMs": {
+            "n": 2,
+            "median": 152,
+            "p90": 302,
+            "max": 302
+          },
+          "firstStatusMs": {
+            "n": 2,
+            "median": 152,
+            "p90": 302,
+            "max": 302
+          },
+          "firstTokenMs": {
+            "n": 2,
+            "median": 224,
+            "p90": 413,
+            "max": 413
+          },
+          "totalMs": {
+            "n": 2,
+            "median": 732,
+            "p90": 1100,
+            "max": 1100
+          }
+        },
+        "serverStages": {
+          "cacheRead": {
+            "n": 2,
+            "median": 0,
+            "p90": 2,
+            "max": 2
+          }
+        },
+        "serverPoints": {
+          "firstToken": {
+            "n": 2,
+            "median": 72,
+            "p90": 105,
+            "max": 105
+          }
+        }
+      },
+      "coverage": {
+        "turns": 2,
+        "client": {
+          "firstByteMs": {
+            "n": 2,
+            "median": 254,
+            "p90": 328,
+            "max": 328
+          },
+          "firstStatusMs": {
+            "n": 2,
+            "median": 254,
+            "p90": 328,
+            "max": 328
+          },
+          "firstTokenMs": {
+            "n": 2,
+            "median": 1817,
+            "p90": 2682,
+            "max": 2682
+          },
+          "totalMs": {
+            "n": 2,
+            "median": 1871,
+            "p90": 2738,
+            "max": 2738
+          }
+        },
+        "serverStages": {
+          "cacheRead": {
+            "n": 2,
+            "median": 3,
+            "p90": 823,
+            "max": 823
+          },
+          "setup": {
+            "n": 2,
+            "median": 0,
+            "p90": 0,
+            "max": 0
+          },
+          "intentExtract": {
+            "n": 2,
+            "median": 0,
+            "p90": 1726,
+            "max": 1726
+          },
+          "sessionMemory": {
+            "n": 2,
+            "median": 89,
+            "p90": 192,
+            "max": 192
+          },
+          "intent": {
+            "n": 2,
+            "median": 1,
+            "p90": 1,
+            "max": 1
+          }
+        },
+        "serverPoints": {
+          "firstToken": {
+            "n": 2,
+            "median": 1482,
+            "p90": 2433,
+            "max": 2433
+          }
+        }
+      },
+      "unknown": {
+        "turns": 5,
+        "client": {
+          "firstByteMs": {
+            "n": 5,
+            "median": 6,
+            "p90": 55,
+            "max": 55
+          },
+          "firstStatusMs": {
+            "n": 0,
+            "median": null,
+            "p90": null,
+            "max": null
+          },
+          "firstTokenMs": {
+            "n": 5,
+            "median": 6,
+            "p90": 55,
+            "max": 55
+          },
+          "totalMs": {
+            "n": 5,
+            "median": 64,
+            "p90": 116,
+            "max": 116
+          }
+        },
+        "serverStages": {},
+        "serverPoints": {}
+      },
+      "topic:resale_deal": {
+        "turns": 1,
+        "client": {
+          "firstByteMs": {
+            "n": 1,
+            "median": 274,
+            "p90": 274,
+            "max": 274
+          },
+          "firstStatusMs": {
+            "n": 1,
+            "median": 274,
+            "p90": 274,
+            "max": 274
+          },
+          "firstTokenMs": {
+            "n": 1,
+            "median": 2198,
+            "p90": 2198,
+            "max": 2198
+          },
+          "totalMs": {
+            "n": 1,
+            "median": 2253,
+            "p90": 2253,
+            "max": 2253
+          }
+        },
+        "serverStages": {
+          "cacheRead": {
+            "n": 1,
+            "median": 38,
+            "p90": 38,
+            "max": 38
+          },
+          "setup": {
+            "n": 1,
+            "median": 0,
+            "p90": 0,
+            "max": 0
+          },
+          "intentExtract": {
+            "n": 1,
+            "median": 911,
+            "p90": 911,
+            "max": 911
+          },
+          "sessionMemory": {
+            "n": 1,
+            "median": 99,
+            "p90": 99,
+            "max": 99
+          },
+          "intent": {
+            "n": 1,
+            "median": 1,
+            "p90": 1,
+            "max": 1
+          },
+          "routing": {
+            "n": 1,
+            "median": 392,
+            "p90": 392,
+            "max": 392
+          },
+          "projectCatalog": {
+            "n": 1,
+            "median": 41,
+            "p90": 41,
+            "max": 41
+          }
+        },
+        "serverPoints": {
+          "firstToken": {
+            "n": 1,
+            "median": 1919,
+            "p90": 1919,
+            "max": 1919
+          }
+        }
+      },
+      "coverage-lane": {
+        "turns": 3,
+        "client": {
+          "firstByteMs": {
+            "n": 3,
+            "median": 192,
+            "p90": 1071,
+            "max": 1071
+          },
+          "firstStatusMs": {
+            "n": 3,
+            "median": 192,
+            "p90": 1071,
+            "max": 1071
+          },
+          "firstTokenMs": {
+            "n": 3,
+            "median": 2062,
+            "p90": 3157,
+            "max": 3157
+          },
+          "totalMs": {
+            "n": 3,
+            "median": 2117,
+            "p90": 3209,
+            "max": 3209
+          }
+        },
+        "serverStages": {
+          "cacheRead": {
+            "n": 3,
+            "median": 29,
+            "p90": 32,
+            "max": 32
+          },
+          "setup": {
+            "n": 3,
+            "median": 0,
+            "p90": 0,
+            "max": 0
+          },
+          "intentExtract": {
+            "n": 3,
+            "median": 1,
+            "p90": 1,
+            "max": 1
+          },
+          "sessionMemory": {
+            "n": 3,
+            "median": 337,
+            "p90": 346,
+            "max": 346
+          },
+          "intent": {
+            "n": 3,
+            "median": 1,
+            "p90": 1,
+            "max": 1
+          },
+          "routing": {
+            "n": 3,
+            "median": 293,
+            "p90": 436,
+            "max": 436
+          }
+        },
+        "serverPoints": {
+          "firstToken": {
+            "n": 3,
+            "median": 1883,
+            "p90": 2068,
+            "max": 2068
+          }
+        }
+      },
+      "topic:price_multiple": {
+        "turns": 1,
+        "client": {
+          "firstByteMs": {
+            "n": 1,
+            "median": 377,
+            "p90": 377,
+            "max": 377
+          },
+          "firstStatusMs": {
+            "n": 1,
+            "median": 377,
+            "p90": 377,
+            "max": 377
+          },
+          "firstTokenMs": {
+            "n": 1,
+            "median": 3146,
+            "p90": 3146,
+            "max": 3146
+          },
+          "totalMs": {
+            "n": 1,
+            "median": 3196,
+            "p90": 3196,
+            "max": 3196
+          }
+        },
+        "serverStages": {
+          "cacheRead": {
+            "n": 1,
+            "median": 1,
+            "p90": 1,
+            "max": 1
+          },
+          "setup": {
+            "n": 1,
+            "median": 0,
+            "p90": 0,
+            "max": 0
+          },
+          "intentExtract": {
+            "n": 1,
+            "median": 1424,
+            "p90": 1424,
+            "max": 1424
+          },
+          "sessionMemory": {
+            "n": 1,
+            "median": 179,
+            "p90": 179,
+            "max": 179
+          },
+          "intent": {
+            "n": 1,
+            "median": 0,
+            "p90": 0,
+            "max": 0
+          },
+          "routing": {
+            "n": 1,
+            "median": 380,
+            "p90": 380,
+            "max": 380
+          },
+          "projectCatalog": {
+            "n": 1,
+            "median": 51,
+            "p90": 51,
+            "max": 51
+          }
+        },
+        "serverPoints": {
+          "firstToken": {
+            "n": 1,
+            "median": 2759,
+            "p90": 2759,
+            "max": 2759
+          }
+        }
+      },
+      "topic:commute-shortlist": {
+        "turns": 2,
+        "client": {
+          "firstByteMs": {
+            "n": 2,
+            "median": 309,
+            "p90": 316,
+            "max": 316
+          },
+          "firstStatusMs": {
+            "n": 2,
+            "median": 309,
+            "p90": 316,
+            "max": 316
+          },
+          "firstTokenMs": {
+            "n": 2,
+            "median": 4389,
+            "p90": 5247,
+            "max": 5247
+          },
+          "totalMs": {
+            "n": 2,
+            "median": 4448,
+            "p90": 5303,
+            "max": 5303
+          }
+        },
+        "serverStages": {
+          "cacheRead": {
+            "n": 2,
+            "median": 31,
+            "p90": 42,
+            "max": 42
+          },
+          "setup": {
+            "n": 2,
+            "median": 0,
+            "p90": 0,
+            "max": 0
+          },
+          "intentExtract": {
+            "n": 2,
+            "median": 1109,
+            "p90": 1159,
+            "max": 1159
+          },
+          "sessionMemory": {
+            "n": 2,
+            "median": 87,
+            "p90": 91,
+            "max": 91
+          },
+          "intent": {
+            "n": 2,
+            "median": 0,
+            "p90": 0,
+            "max": 0
+          },
+          "routing": {
+            "n": 2,
+            "median": 297,
+            "p90": 602,
+            "max": 602
+          },
+          "projectCatalog": {
+            "n": 2,
+            "median": 30,
+            "p90": 33,
+            "max": 33
+          }
+        },
+        "serverPoints": {
+          "firstToken": {
+            "n": 2,
+            "median": 4056,
+            "p90": 4928,
+            "max": 4928
+          }
+        }
+      },
+      "topic:sector-comparison": {
+        "turns": 1,
+        "client": {
+          "firstByteMs": {
+            "n": 1,
+            "median": 193,
+            "p90": 193,
+            "max": 193
+          },
+          "firstStatusMs": {
+            "n": 1,
+            "median": 193,
+            "p90": 193,
+            "max": 193
+          },
+          "firstTokenMs": {
+            "n": 1,
+            "median": 3724,
+            "p90": 3724,
+            "max": 3724
+          },
+          "totalMs": {
+            "n": 1,
+            "median": 11129,
+            "p90": 11129,
+            "max": 11129
+          }
+        },
+        "serverStages": {
+          "cacheRead": {
+            "n": 1,
+            "median": 43,
+            "p90": 43,
+            "max": 43
+          },
+          "setup": {
+            "n": 1,
+            "median": 0,
+            "p90": 0,
+            "max": 0
+          },
+          "intentExtract": {
+            "n": 1,
+            "median": 1059,
+            "p90": 1059,
+            "max": 1059
+          },
+          "sessionMemory": {
+            "n": 1,
+            "median": 109,
+            "p90": 109,
+            "max": 109
+          },
+          "intent": {
+            "n": 1,
+            "median": 0,
+            "p90": 0,
+            "max": 0
+          },
+          "routing": {
+            "n": 1,
+            "median": 408,
+            "p90": 408,
+            "max": 408
+          },
+          "projectCatalog": {
+            "n": 1,
+            "median": 52,
+            "p90": 52,
+            "max": 52
+          }
+        },
+        "serverPoints": {
+          "firstToken": {
+            "n": 1,
+            "median": 3517,
+            "p90": 3517,
+            "max": 3517
+          }
+        }
+      }
+    },
+    "slowest": [
+      {
+        "id": "tq147",
+        "lane": "main",
+        "firstTokenMs": 33746,
+        "totalMs": 64195,
+        "stages": {
+          "cacheRead": 41,
+          "setup": 0,
+          "intentExtract": 1139,
+          "sessionMemory": 185,
+          "intent": 1,
+          "routing": 23283,
+          "projectCatalog": 56,
+          "discoverProjects": 2259,
+          "dataAndContext": 290,
+          "promptBuild": 0,
+          "preLlm": 21,
+          "llm": 29492,
+          "postLlm": 918
+        }
+      },
+      {
+        "id": "dq28",
+        "lane": "main",
+        "firstTokenMs": 25642,
+        "totalMs": 61622,
+        "stages": {
+          "cacheRead": 39,
+          "setup": 0,
+          "intentExtract": 1,
+          "sessionMemory": 175,
+          "intent": 0,
+          "routing": 340,
+          "projectCatalog": 53,
+          "dataAndContext": 138,
+          "promptBuild": 0,
+          "preLlm": 73,
+          "llm": 59672,
+          "postLlm": 260
+        }
+      },
+      {
+        "id": "tq116",
+        "lane": "main",
+        "firstTokenMs": 4169,
+        "totalMs": 41956,
+        "stages": {
+          "cacheRead": 0,
+          "setup": 0,
+          "intentExtract": 1254,
+          "sessionMemory": 90,
+          "intent": 1,
+          "routing": 318,
+          "projectCatalog": 36,
+          "discoverProjects": 682,
+          "dataAndContext": 60,
+          "promptBuild": 0,
+          "preLlm": 37,
+          "llm": 38768,
+          "postLlm": 134
+        }
+      },
+      {
+        "id": "tq128",
+        "lane": "main",
+        "firstTokenMs": 33605,
+        "totalMs": 34777,
+        "stages": {
+          "cacheRead": 376,
+          "setup": 0,
+          "intentExtract": 1,
+          "sessionMemory": 208,
+          "intent": 0,
+          "routing": 364,
+          "projectCatalog": 43,
+          "dataAndContext": 163,
+          "promptBuild": 1,
+          "preLlm": 47,
+          "llm": 31462,
+          "postLlm": 1100
+        }
+      },
+      {
+        "id": "tq108",
+        "lane": "OPEN",
+        "firstTokenMs": 18571,
+        "totalMs": 34689,
+        "stages": {
+          "cacheRead": 42,
+          "setup": 0,
+          "intentExtract": 3,
+          "sessionMemory": 387,
+          "intent": 1,
+          "routing": 413
+        }
+      },
+      {
+        "id": "cq040",
+        "lane": "main",
+        "firstTokenMs": 16432,
+        "totalMs": 25144,
+        "stages": {
+          "cacheRead": 37,
+          "setup": 0,
+          "intentExtract": 0,
+          "sessionMemory": 193,
+          "intent": 0,
+          "routing": 297,
+          "projectCatalog": 37,
+          "dataAndContext": 2788,
+          "promptBuild": 0,
+          "preLlm": 419,
+          "llm": 20095,
+          "postLlm": 810
+        }
+      },
+      {
+        "id": "tq119",
+        "lane": "main",
+        "firstTokenMs": 7155,
+        "totalMs": 23297,
+        "stages": {
+          "cacheRead": 41,
+          "setup": 0,
+          "intentExtract": 1,
+          "sessionMemory": 175,
+          "intent": 5,
+          "routing": 359,
+          "projectCatalog": 49,
+          "discoverProjects": 1509,
+          "dataAndContext": 189,
+          "promptBuild": 0,
+          "preLlm": 62,
+          "llm": 19084,
+          "postLlm": 884
+        }
+      },
+      {
+        "id": "tq111",
+        "lane": "main",
+        "firstTokenMs": 8732,
+        "totalMs": 18712,
+        "stages": {
+          "cacheRead": 27,
+          "setup": 0,
+          "intentExtract": 1050,
+          "sessionMemory": 215,
+          "intent": 0,
+          "routing": 392,
+          "projectCatalog": 68,
+          "discoverProjects": 2662,
+          "dataAndContext": 3286,
+          "promptBuild": 1,
+          "preLlm": 69,
+          "llm": 9251,
+          "postLlm": 736
+        }
+      }
+    ]
+  },
+  "turns": [
+    {
+      "id": "dq01",
+      "q": "3BHK in Noida under 1.5 crore, possession within a year. What are my options?",
+      "source": "day5-30",
+      "lane": "search",
+      "firstByteMs": 1463,
+      "firstStatusMs": 1463,
+      "firstTokenMs": 9892,
+      "totalMs": 11713,
+      "server": {
+        "stages": {
+          "cacheRead": 319,
+          "setup": 0,
+          "intentExtract": 20,
+          "sessionMemory": 301,
+          "intent": 2,
+          "routing": 1637,
+          "projectCatalog": 73,
+          "discoverProjects": 3634,
+          "dataAndContext": 589,
+          "promptBuild": 19,
+          "postLlm": 2294
+        },
+        "points": {
+          "firstToken": 8436
+        },
+        "total": 10174
+      },
+      "outage": false
+    },
+    {
+      "id": "dq02",
+      "q": "Which projects near a metro station in Noida fit a 1.2 crore budget?",
+      "source": "day5-30",
+      "lane": "main",
+      "firstByteMs": 376,
+      "firstStatusMs": 376,
+      "firstTokenMs": 8466,
+      "totalMs": 10822,
+      "server": {
+        "stages": {
+          "cacheRead": 30,
+          "setup": 0,
+          "intentExtract": 1477,
+          "sessionMemory": 171,
+          "intent": 1,
+          "routing": 477,
+          "projectCatalog": 75,
+          "discoverProjects": 2033,
+          "dataAndContext": 347,
+          "promptBuild": 0,
+          "preLlm": 37,
+          "llm": 3915,
+          "postLlm": 909
+        },
+        "points": {
+          "aiStart": 5545,
+          "aiFirstToken": 8088,
+          "firstToken": 8088
+        },
+        "total": 10372
+      },
+      "outage": false
+    },
+    {
+      "id": "dq03",
+      "q": "Can I trust Supertech as a builder? What happened with their delayed projects?",
+      "source": "day5-30",
+      "lane": "topic:builder-reputation",
+      "firstByteMs": 256,
+      "firstStatusMs": 256,
+      "firstTokenMs": 3704,
+      "totalMs": 3756,
+      "server": {
+        "stages": {
+          "cacheRead": 48,
+          "setup": 0,
+          "intentExtract": 1853,
+          "sessionMemory": 87,
+          "intent": 1,
+          "routing": 492,
+          "projectCatalog": 52
+        },
+        "points": {
+          "firstToken": 3414
+        },
+        "total": 3428
+      },
+      "outage": false
+    },
+    {
+      "id": "dq04",
+      "q": "For a 1.4 crore flat in Noida, what is the total cost including stamp duty, registration and GST?",
+      "source": "day5-30",
+      "lane": "topic:statutory_tax",
+      "firstByteMs": 217,
+      "firstStatusMs": 217,
+      "firstTokenMs": 1762,
+      "totalMs": 1823,
+      "server": {
+        "stages": {
+          "cacheRead": 52,
+          "setup": 0,
+          "intentExtract": 2,
+          "sessionMemory": 405,
+          "intent": 1,
+          "routing": 508,
+          "projectCatalog": 56
+        },
+        "points": {
+          "firstToken": 1515
+        },
+        "total": 1530
+      },
+      "outage": false
+    },
+    {
+      "id": "dq05",
+      "q": "If I take an 80% loan on a 1.5 crore flat, what is my EMI and how much cash do I need up front?",
+      "source": "day5-30",
+      "lane": "topic:loan_emi",
+      "firstByteMs": 206,
+      "firstStatusMs": 206,
+      "firstTokenMs": 1566,
+      "totalMs": 1628,
+      "server": {
+        "stages": {
+          "cacheRead": 0,
+          "setup": 0,
+          "intentExtract": 14,
+          "sessionMemory": 340,
+          "intent": 0,
+          "routing": 483,
+          "projectCatalog": 57
+        },
+        "points": {
+          "firstToken": 1351
+        },
+        "total": 1354
+      },
+      "outage": false
+    },
+    {
+      "id": "dq06",
+      "q": "3 BHK chahiye Noida mein, budget 1.5 crore, possession ek saal mein",
+      "source": "day5-30",
+      "lane": "search",
+      "firstByteMs": 799,
+      "firstStatusMs": 799,
+      "firstTokenMs": 2574,
+      "totalMs": 3736,
+      "server": {
+        "stages": {
+          "cacheRead": 42,
+          "setup": 0,
+          "intentExtract": 2,
+          "sessionMemory": 192,
+          "intent": 0,
+          "routing": 366,
+          "projectCatalog": 53,
+          "dataAndContext": 347,
+          "promptBuild": 1,
+          "postLlm": 1576
+        },
+        "points": {
+          "firstToken": 1770
+        },
+        "total": 2857
+      },
+      "outage": false
+    },
+    {
+      "id": "dq07",
+      "q": "Is Sector 150 good for families?",
+      "source": "day5-30",
+      "lane": "main",
+      "firstByteMs": 437,
+      "firstStatusMs": 437,
+      "firstTokenMs": 6791,
+      "totalMs": 8270,
+      "server": {
+        "stages": {
+          "cacheRead": 61,
+          "setup": 0,
+          "intentExtract": 63,
+          "sessionMemory": 176,
+          "intent": 3,
+          "routing": 402,
+          "projectCatalog": 69,
+          "dataAndContext": 157,
+          "promptBuild": 9,
+          "preLlm": 126,
+          "llm": 5867,
+          "postLlm": 155
+        },
+        "points": {
+          "aiStart": 1730,
+          "aiFirstToken": 6351,
+          "firstToken": 6352
+        },
+        "total": 7755
+      },
+      "outage": false
+    },
+    {
+      "id": "dq08",
+      "q": "Is 2 crore too much for a 3 BHK in Noida right now?",
+      "source": "day5-30",
+      "lane": "budget-check",
+      "firstByteMs": 190,
+      "firstStatusMs": 190,
+      "firstTokenMs": 1582,
+      "totalMs": 1634,
+      "server": {
+        "stages": {
+          "cacheRead": 33,
+          "setup": 0,
+          "intentExtract": 4,
+          "sessionMemory": 314,
+          "intent": 1
+        },
+        "points": {
+          "firstToken": 1390
+        },
+        "total": 1392
+      },
+      "outage": false
+    },
+    {
+      "id": "dq09",
+      "q": "best locations to invest in greater noida",
+      "source": "day5-30",
+      "lane": "main",
+      "firstByteMs": 158,
+      "firstStatusMs": 158,
+      "firstTokenMs": 6294,
+      "totalMs": 6648,
+      "server": {
+        "stages": {
+          "cacheRead": 40,
+          "setup": 0,
+          "intentExtract": 1423,
+          "sessionMemory": 93,
+          "intent": 1,
+          "routing": 334,
+          "projectCatalog": 50,
+          "dataAndContext": 155,
+          "promptBuild": 0,
+          "preLlm": 68,
+          "llm": 4024,
+          "postLlm": 56
+        },
+        "points": {
+          "aiStart": 2339,
+          "aiFirstToken": 6133,
+          "firstToken": 6135
+        },
+        "total": 6421
+      },
+      "outage": false
+    },
+    {
+      "id": "dq10",
+      "q": "give me an area guide for noida",
+      "source": "day5-30",
+      "lane": "topic:newcomer-orientation",
+      "firstByteMs": 233,
+      "firstStatusMs": 233,
+      "firstTokenMs": 1727,
+      "totalMs": 1780,
+      "server": {
+        "stages": {
+          "cacheRead": 31,
+          "setup": 0,
+          "intentExtract": 4,
+          "sessionMemory": 145,
+          "intent": 0,
+          "routing": 310,
+          "projectCatalog": 38
+        },
+        "points": {
+          "firstToken": 1482
+        },
+        "total": 1487
+      },
+      "outage": false
+    },
+    {
+      "id": "dq11",
+      "q": "How do I verify whether a Noida property project is RERA compliant?",
+      "source": "day5-30",
+      "lane": "topic:rera_verification",
+      "firstByteMs": 324,
+      "firstStatusMs": 324,
+      "firstTokenMs": 1736,
+      "totalMs": 1789,
+      "server": {
+        "stages": {
+          "cacheRead": 40,
+          "setup": 0,
+          "intentExtract": 1,
+          "sessionMemory": 164,
+          "intent": 2,
+          "routing": 384,
+          "projectCatalog": 49
+        },
+        "points": {
+          "firstToken": 1408
+        },
+        "total": 1411
+      },
+      "outage": false
+    },
+    {
+      "id": "dq12",
+      "q": "What is the average property price per sq ft in Noida right now?",
+      "source": "day5-30",
+      "lane": "aggregate",
+      "firstByteMs": 168,
+      "firstStatusMs": 168,
+      "firstTokenMs": 1727,
+      "totalMs": 1806,
+      "server": {
+        "stages": {
+          "cacheRead": 43,
+          "setup": 0,
+          "intentExtract": 1,
+          "sessionMemory": 170,
+          "intent": 1
+        },
+        "points": {
+          "firstToken": 1543
+        },
+        "total": 1548
+      },
+      "outage": false
+    },
+    {
+      "id": "dq13",
+      "q": "Which areas of Noida are best for families?",
+      "source": "day5-30",
+      "lane": "OPEN",
+      "firstByteMs": 211,
+      "firstStatusMs": 211,
+      "firstTokenMs": 5014,
+      "totalMs": 5885,
+      "server": {
+        "stages": {
+          "cacheRead": 42,
+          "setup": 0,
+          "intentExtract": 1,
+          "sessionMemory": 171,
+          "intent": 0,
+          "routing": 422
+        },
+        "points": {
+          "firstToken": 4804
+        },
+        "total": 5603
+      },
+      "outage": false
+    },
+    {
+      "id": "dq14",
+      "q": "What are the biggest risks I should check before buying a flat in Noida?",
+      "source": "day5-30",
+      "lane": "OPEN",
+      "firstByteMs": 187,
+      "firstStatusMs": 187,
+      "firstTokenMs": 11197,
+      "totalMs": 11883,
+      "server": {
+        "stages": {
+          "cacheRead": 41,
+          "setup": 0,
+          "intentExtract": 948,
+          "sessionMemory": 104,
+          "intent": 0,
+          "routing": 416
+        },
+        "points": {
+          "firstToken": 11020
+        },
+        "total": 11637
+      },
+      "outage": false
+    },
+    {
+      "id": "dq15",
+      "q": "are all properties in noida leasehold",
+      "source": "day5-30",
+      "lane": "OPEN",
+      "firstByteMs": 307,
+      "firstStatusMs": 307,
+      "firstTokenMs": 3797,
+      "totalMs": 4103,
+      "server": {
+        "stages": {
+          "cacheRead": 281,
+          "setup": 0,
+          "intentExtract": 0,
+          "sessionMemory": 145,
+          "intent": 1,
+          "routing": 313
+        },
+        "points": {
+          "firstToken": 3499
+        },
+        "total": 3733
+      },
+      "outage": false
+    },
+    {
+      "id": "dq16",
+      "q": "properties in greater noida west",
+      "source": "day5-30",
+      "lane": "search",
+      "firstByteMs": 188,
+      "firstStatusMs": 188,
+      "firstTokenMs": 3652,
+      "totalMs": 4626,
+      "server": {
+        "stages": {
+          "cacheRead": 40,
+          "setup": 0,
+          "intentExtract": 1,
+          "sessionMemory": 168,
+          "intent": 0,
+          "routing": 339,
+          "projectCatalog": 41,
+          "discoverProjects": 1799,
+          "dataAndContext": 242,
+          "promptBuild": 0,
+          "postLlm": 1202
+        },
+        "points": {
+          "firstToken": 3466
+        },
+        "total": 4323
+      },
+      "outage": false
+    },
+    {
+      "id": "dq17",
+      "q": "3 BHK in Sector 150 under 1.5 crore",
+      "source": "day5-30",
+      "lane": "search",
+      "firstByteMs": 287,
+      "firstStatusMs": 287,
+      "firstTokenMs": 5459,
+      "totalMs": 5585,
+      "server": {
+        "stages": {
+          "cacheRead": 31,
+          "setup": 0,
+          "intentExtract": 2,
+          "sessionMemory": 318,
+          "intent": 3,
+          "routing": 336,
+          "projectCatalog": 33,
+          "discoverProjects": 2402,
+          "dataAndContext": 894,
+          "promptBuild": 1,
+          "postLlm": 521
+        },
+        "points": {
+          "firstToken": 5161
+        },
+        "total": 5220
+      },
+      "outage": false
+    },
+    {
+      "id": "dq18",
+      "q": "What is the average price per sq ft in Sector 150?",
+      "source": "day5-30",
+      "lane": "aggregate",
+      "firstByteMs": 192,
+      "firstStatusMs": 192,
+      "firstTokenMs": 2047,
+      "totalMs": 2111,
+      "server": {
+        "stages": {
+          "cacheRead": 40,
+          "setup": 0,
+          "intentExtract": 1,
+          "sessionMemory": 175,
+          "intent": 1
+        },
+        "points": {
+          "firstToken": 1844
+        },
+        "total": 1847
+      },
+      "outage": false
+    },
+    {
+      "id": "dq19",
+      "q": "How do I check if a project in Noida is RERA registered?",
+      "source": "day5-30",
+      "lane": "topic:rera_verification",
+      "firstByteMs": 362,
+      "firstStatusMs": 362,
+      "firstTokenMs": 1880,
+      "totalMs": 1934,
+      "server": {
+        "stages": {
+          "cacheRead": 39,
+          "setup": 0,
+          "intentExtract": 1,
+          "sessionMemory": 173,
+          "intent": 1,
+          "routing": 366,
+          "projectCatalog": 51
+        },
+        "points": {
+          "firstToken": 1507
+        },
+        "total": 1511
+      },
+      "outage": false
+    },
+    {
+      "id": "dq20",
+      "q": "average per sq ft rate of property in Noida currently?",
+      "source": "day5-30",
+      "lane": "answer-cache",
+      "firstByteMs": 152,
+      "firstStatusMs": 152,
+      "firstTokenMs": 224,
+      "totalMs": 732,
+      "server": {
+        "stages": {
+          "cacheRead": 0
+        },
+        "points": {
+          "firstToken": 72
+        },
+        "total": 514
+      },
+      "outage": false
+    },
+    {
+      "id": "dq21",
+      "q": "best areas in Noida for families?",
+      "source": "day5-30",
+      "lane": "main",
+      "firstByteMs": 247,
+      "firstStatusMs": 247,
+      "firstTokenMs": 1850,
+      "totalMs": 5902,
+      "server": {
+        "stages": {
+          "cacheRead": 32,
+          "setup": 0,
+          "intentExtract": 1,
+          "sessionMemory": 157,
+          "intent": 1,
+          "routing": 323,
+          "projectCatalog": 33,
+          "dataAndContext": 745,
+          "promptBuild": 0,
+          "preLlm": 63,
+          "llm": 4025,
+          "postLlm": 57
+        },
+        "points": {
+          "firstToken": 1513,
+          "aiStart": 1513,
+          "aiFirstToken": 5303
+        },
+        "total": 5599
+      },
+      "outage": false
+    },
+    {
+      "id": "dq24",
+      "q": "Sector 150 3bhk flats below 1.5 cr",
+      "source": "day5-30",
+      "lane": "search",
+      "firstByteMs": 323,
+      "firstStatusMs": 323,
+      "firstTokenMs": 5368,
+      "totalMs": 5511,
+      "server": {
+        "stages": {
+          "cacheRead": 43,
+          "setup": 0,
+          "intentExtract": 2,
+          "sessionMemory": 166,
+          "intent": 1,
+          "routing": 341,
+          "projectCatalog": 54,
+          "discoverProjects": 1928,
+          "dataAndContext": 1232,
+          "promptBuild": 0,
+          "postLlm": 534
+        },
+        "points": {
+          "firstToken": 5016
+        },
+        "total": 5123
+      },
+      "outage": false
+    },
+    {
+      "id": "dq25",
+      "q": "average price per sq ft in sector 150 noida",
+      "source": "day5-30",
+      "lane": "answer-cache",
+      "firstByteMs": 302,
+      "firstStatusMs": 302,
+      "firstTokenMs": 413,
+      "totalMs": 1100,
+      "server": {
+        "stages": {
+          "cacheRead": 2
+        },
+        "points": {
+          "firstToken": 105
+        },
+        "total": 730
+      },
+      "outage": false
+    },
+    {
+      "id": "dq26",
+      "q": "what risks should I check before buying a flat in noida",
+      "source": "day5-30",
+      "lane": "main",
+      "firstByteMs": 200,
+      "firstStatusMs": 200,
+      "firstTokenMs": 5151,
+      "totalMs": 6543,
+      "server": {
+        "stages": {
+          "cacheRead": 41,
+          "setup": 0,
+          "intentExtract": 3,
+          "sessionMemory": 180,
+          "intent": 1,
+          "routing": 439,
+          "projectCatalog": 56,
+          "discoverProjects": 1246,
+          "dataAndContext": 169,
+          "promptBuild": 1,
+          "preLlm": 41,
+          "llm": 3238,
+          "postLlm": 512
+        },
+        "points": {
+          "aiStart": 2511,
+          "aiFirstToken": 4952,
+          "firstToken": 4952
+        },
+        "total": 6263
+      },
+      "outage": false
+    },
+    {
+      "id": "dq27",
+      "q": "What is the average price per sq ft in Sector 137?",
+      "source": "day5-30",
+      "lane": "aggregate",
+      "firstByteMs": 359,
+      "firstStatusMs": 359,
+      "firstTokenMs": 1791,
+      "totalMs": 1847,
+      "server": {
+        "stages": {
+          "cacheRead": 42,
+          "setup": 0,
+          "intentExtract": 1,
+          "sessionMemory": 180,
+          "intent": 0
+        },
+        "points": {
+          "firstToken": 1429
+        },
+        "total": 1432
+      },
+      "outage": false
+    },
+    {
+      "id": "dq28",
+      "q": "Is Sector 137 good for families?",
+      "source": "day5-30",
+      "lane": "main",
+      "firstByteMs": 174,
+      "firstStatusMs": 174,
+      "firstTokenMs": 25642,
+      "totalMs": 61622,
+      "server": {
+        "stages": {
+          "cacheRead": 39,
+          "setup": 0,
+          "intentExtract": 1,
+          "sessionMemory": 175,
+          "intent": 0,
+          "routing": 340,
+          "projectCatalog": 53,
+          "dataAndContext": 138,
+          "promptBuild": 0,
+          "preLlm": 73,
+          "llm": 59672,
+          "postLlm": 260
+        },
+        "points": {
+          "aiStart": 1456,
+          "aiFirstToken": 25469,
+          "firstToken": 25470
+        },
+        "total": 61390
+      },
+      "outage": false
+    },
+    {
+      "id": "dq29",
+      "q": "Is 1.5 crore too much for a 3 BHK in Noida right now?",
+      "source": "day5-30",
+      "lane": "budget-check",
+      "firstByteMs": 274,
+      "firstStatusMs": 274,
+      "firstTokenMs": 1749,
+      "totalMs": 1805,
+      "server": {
+        "stages": {
+          "cacheRead": 290,
+          "setup": 0,
+          "intentExtract": 1,
+          "sessionMemory": 161,
+          "intent": 0
+        },
+        "points": {
+          "firstToken": 1459
+        },
+        "total": 1462
+      },
+      "outage": false
+    },
+    {
+      "id": "dq30",
+      "q": "What is the possession status of projects in Sector 150?",
+      "source": "day5-30",
+      "lane": "main",
+      "firstByteMs": 175,
+      "firstStatusMs": 175,
+      "firstTokenMs": 6640,
+      "totalMs": 7872,
+      "server": {
+        "stages": {
+          "cacheRead": 45,
+          "setup": 0,
+          "intentExtract": 0,
+          "sessionMemory": 176,
+          "intent": 0,
+          "routing": 411,
+          "projectCatalog": 44,
+          "discoverProjects": 1714,
+          "dataAndContext": 648,
+          "promptBuild": 1,
+          "preLlm": 51,
+          "llm": 3046,
+          "postLlm": 958
+        },
+        "points": {
+          "aiStart": 3603,
+          "aiFirstToken": 6466,
+          "firstToken": 6466
+        },
+        "total": 7609
+      },
+      "outage": false
+    },
+    {
+      "id": "tq122",
+      "q": "Is Noida still affordable compared with Gurgaon for residential property?",
+      "source": "top50:budget_personal",
+      "lane": "main",
+      "firstByteMs": 184,
+      "firstStatusMs": 184,
+      "firstTokenMs": 8583,
+      "totalMs": 9850,
+      "server": {
+        "stages": {
+          "cacheRead": 49,
+          "setup": 0,
+          "intentExtract": 1628,
+          "sessionMemory": 89,
+          "intent": 1,
+          "routing": 382,
+          "projectCatalog": 39,
+          "discoverProjects": 1922,
+          "dataAndContext": 232,
+          "promptBuild": 0,
+          "preLlm": 154,
+          "llm": 3889,
+          "postLlm": 576
+        },
+        "points": {
+          "aiStart": 5113,
+          "aiFirstToken": 8400,
+          "firstToken": 8400
+        },
+        "total": 9580
+      },
+      "outage": false
+    },
+    {
+      "id": "tq127",
+      "q": "Is Sector 75 Noida a good place to buy a 3 BHK for my own use?",
+      "source": "top50:sector",
+      "lane": "search",
+      "firstByteMs": 342,
+      "firstStatusMs": 342,
+      "firstTokenMs": 4391,
+      "totalMs": 5022,
+      "server": {
+        "stages": {
+          "cacheRead": 45,
+          "setup": 0,
+          "intentExtract": 2,
+          "sessionMemory": 171,
+          "intent": 0,
+          "routing": 353,
+          "projectCatalog": 40,
+          "discoverProjects": 1549,
+          "dataAndContext": 814,
+          "promptBuild": 1,
+          "postLlm": 935
+        },
+        "points": {
+          "firstToken": 4049
+        },
+        "total": 4592
+      },
+      "outage": false
+    },
+    {
+      "id": "tq270",
+      "q": "Should I buy an under-construction property or a ready-to-move property in Noida if my goal is investment?",
+      "source": "top50:other",
+      "lane": "OPEN",
+      "firstByteMs": 320,
+      "firstStatusMs": 320,
+      "firstTokenMs": 6054,
+      "totalMs": 6653,
+      "server": {
+        "stages": {
+          "cacheRead": 44,
+          "setup": 0,
+          "intentExtract": 1063,
+          "sessionMemory": 85,
+          "intent": 1,
+          "routing": 428
+        },
+        "points": {
+          "firstToken": 5754
+        },
+        "total": 6291
+      },
+      "outage": false
+    },
+    {
+      "id": "tq321",
+      "q": "Would you invest ₹1 crore in Noida today, or would you choose Gurgaon instead? Explain your reasoning.",
+      "source": "top50:budget_personal",
+      "lane": "coverage",
+      "firstByteMs": 254,
+      "firstStatusMs": 254,
+      "firstTokenMs": 2682,
+      "totalMs": 2738,
+      "server": {
+        "stages": {
+          "cacheRead": 3,
+          "setup": 0,
+          "intentExtract": 1726,
+          "sessionMemory": 89,
+          "intent": 1
+        },
+        "points": {
+          "firstToken": 2433
+        },
+        "total": 2438
+      },
+      "outage": false
+    },
+    {
+      "id": "tq119",
+      "q": "is it safe to buy property in noida",
+      "source": "top50:risk_legal",
+      "lane": "main",
+      "firstByteMs": 197,
+      "firstStatusMs": 197,
+      "firstTokenMs": 7155,
+      "totalMs": 23297,
+      "server": {
+        "stages": {
+          "cacheRead": 41,
+          "setup": 0,
+          "intentExtract": 1,
+          "sessionMemory": 175,
+          "intent": 5,
+          "routing": 359,
+          "projectCatalog": 49,
+          "discoverProjects": 1509,
+          "dataAndContext": 189,
+          "promptBuild": 0,
+          "preLlm": 62,
+          "llm": 19084,
+          "postLlm": 884
+        },
+        "points": {
+          "aiStart": 3061,
+          "aiFirstToken": 6958,
+          "firstToken": 6958
+        },
+        "total": 23031
+      },
+      "outage": false
+    },
+    {
+      "id": "tq120",
+      "q": "is noida extension good for investment",
+      "source": "top50:sector",
+      "lane": "main",
+      "firstByteMs": 277,
+      "firstStatusMs": 277,
+      "firstTokenMs": 6669,
+      "totalMs": 7990,
+      "server": {
+        "stages": {
+          "cacheRead": 42,
+          "setup": 0,
+          "intentExtract": 1395,
+          "sessionMemory": 84,
+          "intent": 0,
+          "routing": 347,
+          "projectCatalog": 84,
+          "dataAndContext": 175,
+          "promptBuild": 0,
+          "preLlm": 70,
+          "llm": 5144,
+          "postLlm": 118
+        },
+        "points": {
+          "aiStart": 2378,
+          "aiFirstToken": 6393,
+          "firstToken": 6393
+        },
+        "total": 7644
+      },
+      "outage": false
+    },
+    {
+      "id": "tq288",
+      "q": "What is the average rent for a 2 BHK in Noida?",
+      "source": "top50:out_of_scope",
+      "lane": "unknown",
+      "firstByteMs": 55,
+      "firstStatusMs": null,
+      "firstTokenMs": 55,
+      "totalMs": 116,
+      "server": null,
+      "outage": false
+    },
+    {
+      "id": "tq282",
+      "q": "What are the advantages and disadvantages of buying a flat in Sector 150 Noida?",
+      "source": "top50:sector",
+      "lane": "OPEN",
+      "firstByteMs": 168,
+      "firstStatusMs": 168,
+      "firstTokenMs": 10658,
+      "totalMs": 11493,
+      "server": {
+        "stages": {
+          "cacheRead": 212,
+          "setup": 0,
+          "intentExtract": 1,
+          "sessionMemory": 156,
+          "intent": 1,
+          "routing": 330
+        },
+        "points": {
+          "firstToken": 10491
+        },
+        "total": 11267
+      },
+      "outage": false
+    },
+    {
+      "id": "tq283",
+      "q": "What are the best sectors to buy a 2 BHK apartment in Noida under ₹1 crore?",
+      "source": "top50:budget_personal",
+      "lane": "main",
+      "firstByteMs": 244,
+      "firstStatusMs": 244,
+      "firstTokenMs": 7121,
+      "totalMs": 9997,
+      "server": {
+        "stages": {
+          "cacheRead": 32,
+          "setup": 0,
+          "intentExtract": 2,
+          "sessionMemory": 164,
+          "intent": 1,
+          "routing": 319,
+          "projectCatalog": 38,
+          "discoverProjects": 2485,
+          "dataAndContext": 2742,
+          "promptBuild": 31,
+          "preLlm": 539,
+          "llm": 2437,
+          "postLlm": 506
+        },
+        "points": {
+          "firstToken": 6751,
+          "aiStart": 6751,
+          "aiFirstToken": 8549
+        },
+        "total": 9695
+      },
+      "outage": false
+    },
+    {
+      "id": "tq286",
+      "q": "What has changed in the Noida property market in the last 12 months, and how has it affected buyers?",
+      "source": "top50:temporal",
+      "lane": "main",
+      "firstByteMs": 203,
+      "firstStatusMs": 203,
+      "firstTokenMs": 6846,
+      "totalMs": 7652,
+      "server": {
+        "stages": {
+          "cacheRead": 42,
+          "setup": 0,
+          "intentExtract": 1,
+          "sessionMemory": 166,
+          "intent": 0,
+          "routing": 437,
+          "projectCatalog": 52,
+          "discoverProjects": 1597,
+          "dataAndContext": 193,
+          "promptBuild": 1,
+          "preLlm": 73,
+          "llm": 3955,
+          "postLlm": 523
+        },
+        "points": {
+          "aiStart": 2897,
+          "aiFirstToken": 6648,
+          "firstToken": 6648
+        },
+        "total": 7377
+      },
+      "outage": false
+    },
+    {
+      "id": "tq289",
+      "q": "What is the current price difference between Sector 75 and Sector 137 Noida?",
+      "source": "top50:comparison",
+      "lane": "OPEN",
+      "firstByteMs": 301,
+      "firstStatusMs": 301,
+      "firstTokenMs": 14698,
+      "totalMs": 14752,
+      "server": {
+        "stages": {
+          "cacheRead": 43,
+          "setup": 0,
+          "intentExtract": 2,
+          "sessionMemory": 178,
+          "intent": 1,
+          "routing": 379
+        },
+        "points": {
+          "firstToken": 14396
+        },
+        "total": 14398
+      },
+      "outage": false
+    },
+    {
+      "id": "tq290",
+      "q": "What legal documents should I check before buying a resale apartment in Noida?",
+      "source": "top50:risk_legal",
+      "lane": "topic:resale_deal",
+      "firstByteMs": 274,
+      "firstStatusMs": 274,
+      "firstTokenMs": 2198,
+      "totalMs": 2253,
+      "server": {
+        "stages": {
+          "cacheRead": 38,
+          "setup": 0,
+          "intentExtract": 911,
+          "sessionMemory": 99,
+          "intent": 1,
+          "routing": 392,
+          "projectCatalog": 41
+        },
+        "points": {
+          "firstToken": 1919
+        },
+        "total": 1921
+      },
+      "outage": false
+    },
+    {
+      "id": "tq293",
+      "q": "What upcoming infrastructure projects around Noida could affect property prices over the next 3–5 years?",
+      "source": "top50:temporal",
+      "lane": "main",
+      "firstByteMs": 189,
+      "firstStatusMs": 189,
+      "firstTokenMs": 4920,
+      "totalMs": 8253,
+      "server": {
+        "stages": {
+          "cacheRead": 48,
+          "setup": 0,
+          "intentExtract": 1279,
+          "sessionMemory": 103,
+          "intent": 1,
+          "routing": 404,
+          "projectCatalog": 44,
+          "discoverProjects": 1400,
+          "dataAndContext": 228,
+          "promptBuild": 0,
+          "preLlm": 88,
+          "llm": 2382,
+          "postLlm": 966
+        },
+        "points": {
+          "firstToken": 4642,
+          "aiStart": 4642,
+          "aiFirstToken": 6151
+        },
+        "total": 7994
+      },
+      "outage": false
+    },
+    {
+      "id": "tq294",
+      "q": "Where can I find a good 3 BHK in Noida under ₹1.5 crore?",
+      "source": "top50:budget_personal",
+      "lane": "main",
+      "firstByteMs": 270,
+      "firstStatusMs": 270,
+      "firstTokenMs": 3525,
+      "totalMs": 13097,
+      "server": {
+        "stages": {
+          "cacheRead": 42,
+          "setup": 0,
+          "intentExtract": 1,
+          "sessionMemory": 202,
+          "intent": 0,
+          "routing": 365,
+          "projectCatalog": 48,
+          "discoverProjects": 1510,
+          "dataAndContext": 175,
+          "promptBuild": 1,
+          "preLlm": 499,
+          "llm": 7740,
+          "postLlm": 1862
+        },
+        "points": {
+          "firstToken": 3157,
+          "aiStart": 3157,
+          "aiFirstToken": 5848
+        },
+        "total": 12760
+      },
+      "outage": false
+    },
+    {
+      "id": "tq295",
+      "q": "Which are the best residential projects currently available in Noida for a 3 BHK under ₹1.5 crore?",
+      "source": "top50:budget_personal",
+      "lane": "main",
+      "firstByteMs": 831,
+      "firstStatusMs": 831,
+      "firstTokenMs": 10847,
+      "totalMs": 12926,
+      "server": {
+        "stages": {
+          "cacheRead": 931,
+          "setup": 0,
+          "intentExtract": 1,
+          "sessionMemory": 334,
+          "intent": 1,
+          "routing": 453,
+          "projectCatalog": 50,
+          "discoverProjects": 2632,
+          "dataAndContext": 2762,
+          "promptBuild": 0,
+          "preLlm": 383,
+          "llm": 2815,
+          "postLlm": 1160
+        },
+        "points": {
+          "aiStart": 8053,
+          "aiFirstToken": 10018,
+          "firstToken": 10018
+        },
+        "total": 12030
+      },
+      "outage": false
+    },
+    {
+      "id": "tq195",
+      "q": "properties on rent in noida",
+      "source": "top50:out_of_scope",
+      "lane": "unknown",
+      "firstByteMs": 12,
+      "firstStatusMs": null,
+      "firstTokenMs": 12,
+      "totalMs": 64,
+      "server": null,
+      "outage": false
+    },
+    {
+      "id": "tq254",
+      "q": "rental properties in noida",
+      "source": "top50:out_of_scope",
+      "lane": "unknown",
+      "firstByteMs": 5,
+      "firstStatusMs": null,
+      "firstTokenMs": 5,
+      "totalMs": 64,
+      "server": null,
+      "outage": false
+    },
+    {
+      "id": "tq099",
+      "q": "godrej properties in noida",
+      "source": "top50:brand_probe",
+      "lane": "coverage-lane",
+      "firstByteMs": 1071,
+      "firstStatusMs": 1071,
+      "firstTokenMs": 3157,
+      "totalMs": 3209,
+      "server": {
+        "stages": {
+          "cacheRead": 27,
+          "setup": 0,
+          "intentExtract": 0,
+          "sessionMemory": 182,
+          "intent": 1,
+          "routing": 436
+        },
+        "points": {
+          "firstToken": 2068
+        },
+        "total": 2074
+      },
+      "outage": false
+    },
+    {
+      "id": "tq175",
+      "q": "properties in noida for sale",
+      "source": "top50:navigational",
+      "lane": "search",
+      "firstByteMs": 202,
+      "firstStatusMs": 202,
+      "firstTokenMs": 2328,
+      "totalMs": 3479,
+      "server": {
+        "stages": {
+          "cacheRead": 40,
+          "setup": 0,
+          "intentExtract": 2,
+          "sessionMemory": 419,
+          "intent": 1,
+          "routing": 469,
+          "projectCatalog": 58,
+          "dataAndContext": 431,
+          "promptBuild": 0,
+          "postLlm": 1540
+        },
+        "points": {
+          "firstToken": 2125
+        },
+        "total": 3197
+      },
+      "outage": false
+    },
+    {
+      "id": "tq169",
+      "q": "properties in noida",
+      "source": "top50:navigational",
+      "lane": "search",
+      "firstByteMs": 438,
+      "firstStatusMs": 438,
+      "firstTokenMs": 2742,
+      "totalMs": 4055,
+      "server": {
+        "stages": {
+          "cacheRead": 39,
+          "setup": 0,
+          "intentExtract": 1,
+          "sessionMemory": 421,
+          "intent": 1,
+          "routing": 499,
+          "projectCatalog": 47,
+          "dataAndContext": 469,
+          "promptBuild": 0,
+          "postLlm": 1776
+        },
+        "points": {
+          "firstToken": 2305
+        },
+        "total": 3551
+      },
+      "outage": false
+    },
+    {
+      "id": "tq171",
+      "q": "properties in noida extension",
+      "source": "top50:sector",
+      "lane": "search",
+      "firstByteMs": 352,
+      "firstStatusMs": 352,
+      "firstTokenMs": 5094,
+      "totalMs": 5665,
+      "server": {
+        "stages": {
+          "cacheRead": 30,
+          "setup": 0,
+          "intentExtract": 971,
+          "sessionMemory": 87,
+          "intent": 0,
+          "routing": 319,
+          "projectCatalog": 48,
+          "discoverProjects": 1984,
+          "dataAndContext": 247,
+          "promptBuild": 1,
+          "postLlm": 1000
+        },
+        "points": {
+          "firstToken": 4742
+        },
+        "total": 5242
+      },
+      "outage": false
+    },
+    {
+      "id": "tq166",
+      "q": "properties in greater noida for sale",
+      "source": "top50:sector",
+      "lane": "search",
+      "firstByteMs": 257,
+      "firstStatusMs": 257,
+      "firstTokenMs": 4227,
+      "totalMs": 5240,
+      "server": {
+        "stages": {
+          "cacheRead": 39,
+          "setup": 0,
+          "intentExtract": 1,
+          "sessionMemory": 217,
+          "intent": 1,
+          "routing": 345,
+          "projectCatalog": 49,
+          "discoverProjects": 2265,
+          "dataAndContext": 176,
+          "promptBuild": 0,
+          "postLlm": 1344
+        },
+        "points": {
+          "firstToken": 3969
+        },
+        "total": 4914
+      },
+      "outage": false
+    },
+    {
+      "id": "tq260",
+      "q": "sarthi properties in noida",
+      "source": "top50:brand_probe",
+      "lane": "main",
+      "firstByteMs": 355,
+      "firstStatusMs": 355,
+      "firstTokenMs": 4020,
+      "totalMs": 4905,
+      "server": {
+        "stages": {
+          "cacheRead": 39,
+          "setup": 0,
+          "intentExtract": 0,
+          "sessionMemory": 159,
+          "intent": 0,
+          "routing": 413,
+          "projectCatalog": 35,
+          "dataAndContext": 221,
+          "promptBuild": 1,
+          "preLlm": 40,
+          "llm": 1863,
+          "postLlm": 819
+        },
+        "points": {
+          "aiStart": 1802,
+          "aiFirstToken": 3665,
+          "firstToken": 3665
+        },
+        "total": 4485
+      },
+      "outage": false
+    },
+    {
+      "id": "tq097",
+      "q": "godrej properties in greater noida",
+      "source": "top50:brand_probe",
+      "lane": "coverage-lane",
+      "firstByteMs": 192,
+      "firstStatusMs": 192,
+      "firstTokenMs": 1556,
+      "totalMs": 1607,
+      "server": {
+        "stages": {
+          "cacheRead": 29,
+          "setup": 0,
+          "intentExtract": 1,
+          "sessionMemory": 337,
+          "intent": 1,
+          "routing": 240
+        },
+        "points": {
+          "firstToken": 1350
+        },
+        "total": 1357
+      },
+      "outage": false
+    },
+    {
+      "id": "tq117",
+      "q": "If I buy a ₹1.2 crore apartment in Noida, what rental yield can I realistically expect?",
+      "source": "top50:budget_personal",
+      "lane": "main",
+      "firstByteMs": 358,
+      "firstStatusMs": 358,
+      "firstTokenMs": 6571,
+      "totalMs": 11268,
+      "server": {
+        "stages": {
+          "cacheRead": 32,
+          "setup": 0,
+          "intentExtract": 1317,
+          "sessionMemory": 85,
+          "intent": 0,
+          "routing": 260,
+          "projectCatalog": 34,
+          "discoverProjects": 1270,
+          "dataAndContext": 801,
+          "promptBuild": 1,
+          "preLlm": 54,
+          "llm": 3645,
+          "postLlm": 1043
+        },
+        "points": {
+          "firstToken": 6156,
+          "aiStart": 6156,
+          "aiFirstToken": 9584
+        },
+        "total": 10845
+      },
+      "outage": false
+    },
+    {
+      "id": "tq078",
+      "q": "Compare Sector 75, Sector 78, Sector 137 and Sector 150 and tell me which one you would personally choose for a 5-year investment.",
+      "source": "top50:comparison",
+      "lane": "main",
+      "firstByteMs": 179,
+      "firstStatusMs": 179,
+      "firstTokenMs": 2528,
+      "totalMs": 7328,
+      "server": {
+        "stages": {
+          "cacheRead": 30,
+          "setup": 0,
+          "intentExtract": 989,
+          "sessionMemory": 81,
+          "intent": 0,
+          "routing": 257,
+          "projectCatalog": 33,
+          "dataAndContext": 355,
+          "promptBuild": 0,
+          "preLlm": 32,
+          "llm": 4590,
+          "postLlm": 176
+        },
+        "points": {
+          "firstToken": 2327,
+          "aiStart": 2327,
+          "aiFirstToken": 6416
+        },
+        "total": 7095
+      },
+      "outage": false
+    },
+    {
+      "id": "tq079",
+      "q": "Compare the best 3 BHK projects in Sector 75 and tell me which one offers the best value for money.",
+      "source": "top50:comparison",
+      "lane": "main",
+      "firstByteMs": 392,
+      "firstStatusMs": 392,
+      "firstTokenMs": 9856,
+      "totalMs": 14987,
+      "server": {
+        "stages": {
+          "cacheRead": 30,
+          "setup": 0,
+          "intentExtract": 1,
+          "sessionMemory": 153,
+          "intent": 0,
+          "routing": 285,
+          "projectCatalog": 32,
+          "discoverProjects": 2224,
+          "dataAndContext": 3581,
+          "promptBuild": 0,
+          "preLlm": 44,
+          "llm": 6511,
+          "postLlm": 567
+        },
+        "points": {
+          "aiStart": 7454,
+          "aiFirstToken": 9464,
+          "firstToken": 9465
+        },
+        "total": 14533
+      },
+      "outage": false
+    },
+    {
+      "id": "tq105",
+      "q": "How should I compare two Noida projects when one has a lower price but the other has a better location and builder reputation?",
+      "source": "top50:comparison",
+      "lane": "topic:builder-reputation",
+      "firstByteMs": 205,
+      "firstStatusMs": 205,
+      "firstTokenMs": 3533,
+      "totalMs": 3591,
+      "server": {
+        "stages": {
+          "cacheRead": 972,
+          "setup": 0,
+          "intentExtract": 975,
+          "sessionMemory": 213,
+          "intent": 0,
+          "routing": 430,
+          "projectCatalog": 56
+        },
+        "points": {
+          "firstToken": 3319
+        },
+        "total": 3323
+      },
+      "outage": false
+    },
+    {
+      "id": "tq106",
+      "q": "I am buying my first home in Noida. Give me 5 options and rank them based on price, connectivity, livability and future appreciation.",
+      "source": "top50:market_fact",
+      "lane": "topic:price_multiple",
+      "firstByteMs": 377,
+      "firstStatusMs": 377,
+      "firstTokenMs": 3146,
+      "totalMs": 3196,
+      "server": {
+        "stages": {
+          "cacheRead": 1,
+          "setup": 0,
+          "intentExtract": 1424,
+          "sessionMemory": 179,
+          "intent": 0,
+          "routing": 380,
+          "projectCatalog": 51
+        },
+        "points": {
+          "firstToken": 2759
+        },
+        "total": 2761
+      },
+      "outage": false
+    },
+    {
+      "id": "tq107",
+      "q": "I am considering buying a flat from a relatively unknown builder in Noida because it is 20% cheaper than comparable projects. Should I do it?",
+      "source": "top50:project_builder",
+      "lane": "main",
+      "firstByteMs": 345,
+      "firstStatusMs": 345,
+      "firstTokenMs": 7227,
+      "totalMs": 10771,
+      "server": {
+        "stages": {
+          "cacheRead": 41,
+          "setup": 0,
+          "intentExtract": 1283,
+          "sessionMemory": 107,
+          "intent": 0,
+          "routing": 395,
+          "projectCatalog": 54,
+          "discoverProjects": 2219,
+          "dataAndContext": 276,
+          "promptBuild": 1,
+          "preLlm": 37,
+          "llm": 3709,
+          "postLlm": 1775
+        },
+        "points": {
+          "aiStart": 4874,
+          "aiFirstToken": 6883,
+          "firstToken": 6883
+        },
+        "total": 10359
+      },
+      "outage": false
+    },
+    {
+      "id": "tq108",
+      "q": "I earn ₹1.5 lakh per month and have ₹25 lakh available for a down payment. What type of property should I realistically consider in Noida?",
+      "source": "top50:financial",
+      "lane": "OPEN",
+      "firstByteMs": 428,
+      "firstStatusMs": 428,
+      "firstTokenMs": 18571,
+      "totalMs": 34689,
+      "server": {
+        "stages": {
+          "cacheRead": 42,
+          "setup": 0,
+          "intentExtract": 3,
+          "sessionMemory": 387,
+          "intent": 1,
+          "routing": 413
+        },
+        "points": {
+          "firstToken": 18145
+        },
+        "total": 34192
+      },
+      "outage": true
+    },
+    {
+      "id": "tq109",
+      "q": "I found a 3 BHK in Noida that is ₹25 lakh cheaper than similar apartments nearby. What could explain the price difference, and what should I investigate before buying it?",
+      "source": "top50:budget_personal",
+      "lane": "main",
+      "firstByteMs": 268,
+      "firstStatusMs": 268,
+      "firstTokenMs": 5633,
+      "totalMs": 12280,
+      "server": {
+        "stages": {
+          "cacheRead": 36,
+          "setup": 0,
+          "intentExtract": 1205,
+          "sessionMemory": 103,
+          "intent": 1,
+          "routing": 339,
+          "projectCatalog": 50,
+          "discoverProjects": 2301,
+          "dataAndContext": 390,
+          "promptBuild": 1,
+          "preLlm": 441,
+          "llm": 6521,
+          "postLlm": 139
+        },
+        "points": {
+          "firstToken": 5283,
+          "aiStart": 5283,
+          "aiFirstToken": 10363
+        },
+        "total": 11947
+      },
+      "outage": false
+    },
+    {
+      "id": "tq110",
+      "q": "I have ₹1 crore to invest in Noida. Where should I invest it for the best risk-adjusted return over the next 5 years?",
+      "source": "top50:budget_personal",
+      "lane": "OPEN",
+      "firstByteMs": 252,
+      "firstStatusMs": 252,
+      "firstTokenMs": 7002,
+      "totalMs": 11261,
+      "server": {
+        "stages": {
+          "cacheRead": 340,
+          "setup": 0,
+          "intentExtract": 782,
+          "sessionMemory": 91,
+          "intent": 0,
+          "routing": 278
+        },
+        "points": {
+          "firstToken": 6750
+        },
+        "total": 10952
+      },
+      "outage": false
+    },
+    {
+      "id": "tq111",
+      "q": "I have ₹1.25 crore and want a 3 BHK. Compare my best options across Noida and Greater Noida West.",
+      "source": "top50:comparison",
+      "lane": "main",
+      "firstByteMs": 163,
+      "firstStatusMs": 163,
+      "firstTokenMs": 8732,
+      "totalMs": 18712,
+      "server": {
+        "stages": {
+          "cacheRead": 27,
+          "setup": 0,
+          "intentExtract": 1050,
+          "sessionMemory": 215,
+          "intent": 0,
+          "routing": 392,
+          "projectCatalog": 68,
+          "discoverProjects": 2662,
+          "dataAndContext": 3286,
+          "promptBuild": 1,
+          "preLlm": 69,
+          "llm": 9251,
+          "postLlm": 736
+        },
+        "points": {
+          "firstToken": 8489,
+          "aiStart": 8489,
+          "aiFirstToken": 12900
+        },
+        "total": 18478
+      },
+      "outage": false
+    },
+    {
+      "id": "tq112",
+      "q": "I have ₹1.25 crore. I work near Sector 62, my wife works near Sector 135, we have one child, we need a 3 BHK, want a metro within reasonable reach, don't want a long daily commute, want good schools nearby, and may sell the property in 5 years. Compare Sector 75, Sector 78, Sector 137 and Sector 150 and tell me where I should buy, including the trade-offs.",
+      "source": "top50:comparison",
+      "lane": "topic:commute-shortlist",
+      "firstByteMs": 309,
+      "firstStatusMs": 309,
+      "firstTokenMs": 5247,
+      "totalMs": 5303,
+      "server": {
+        "stages": {
+          "cacheRead": 31,
+          "setup": 0,
+          "intentExtract": 1109,
+          "sessionMemory": 91,
+          "intent": 0,
+          "routing": 602,
+          "projectCatalog": 33
+        },
+        "points": {
+          "firstToken": 4928
+        },
+        "total": 4931
+      },
+      "outage": false
+    },
+    {
+      "id": "tq113",
+      "q": "I have ₹1.5 crore available today and am deciding between a ready-to-move 3 BHK in Sector 75, a newer 3 BHK in Sector 150, and a larger 3 BHK in Noida Extension. I care about resale liquidity, rental yield, appreciation, commute, infrastructure, builder reputation and overall livability. Analyze all three, identify the biggest risks in each, and give me one final recommendation with the reasoning and data behind it.",
+      "source": "top50:risk_legal",
+      "lane": "main",
+      "firstByteMs": 212,
+      "firstStatusMs": 212,
+      "firstTokenMs": 7200,
+      "totalMs": 16018,
+      "server": {
+        "stages": {
+          "cacheRead": 40,
+          "setup": 0,
+          "intentExtract": 1431,
+          "sessionMemory": 109,
+          "intent": 1,
+          "routing": 388,
+          "projectCatalog": 50,
+          "discoverProjects": 2706,
+          "dataAndContext": 1262,
+          "promptBuild": 1,
+          "preLlm": 451,
+          "llm": 8655,
+          "postLlm": 128
+        },
+        "points": {
+          "firstToken": 6954,
+          "aiStart": 6954,
+          "aiFirstToken": 13392
+        },
+        "total": 15740
+      },
+      "outage": false
+    },
+    {
+      "id": "tq114",
+      "q": "I have ₹2 crore and want a premium 3 or 4 BHK in Noida. Which sectors should I shortlist?",
+      "source": "top50:budget_personal",
+      "lane": "main",
+      "firstByteMs": 188,
+      "firstStatusMs": 188,
+      "firstTokenMs": 7134,
+      "totalMs": 9649,
+      "server": {
+        "stages": {
+          "cacheRead": 0,
+          "setup": 0,
+          "intentExtract": 1068,
+          "sessionMemory": 115,
+          "intent": 0,
+          "routing": 369,
+          "projectCatalog": 51,
+          "discoverProjects": 1717,
+          "dataAndContext": 2752,
+          "promptBuild": 0,
+          "preLlm": 504,
+          "llm": 1988,
+          "postLlm": 516
+        },
+        "points": {
+          "firstToken": 6888,
+          "aiStart": 6888,
+          "aiFirstToken": 8243
+        },
+        "total": 9394
+      },
+      "outage": false
+    },
+    {
+      "id": "tq115",
+      "q": "I have ₹80 lakh. I need a 2 BHK for my family, good metro connectivity, low traffic and decent schools nearby. Where should I look in Noida?",
+      "source": "top50:budget_personal",
+      "lane": "main",
+      "firstByteMs": 180,
+      "firstStatusMs": 180,
+      "firstTokenMs": 8211,
+      "totalMs": 11082,
+      "server": {
+        "stages": {
+          "cacheRead": 274,
+          "setup": 0,
+          "intentExtract": 1377,
+          "sessionMemory": 117,
+          "intent": 1,
+          "routing": 797,
+          "projectCatalog": 96,
+          "discoverProjects": 4082,
+          "dataAndContext": 268,
+          "promptBuild": 0,
+          "preLlm": 548,
+          "llm": 1821,
+          "postLlm": 1051
+        },
+        "points": {
+          "firstToken": 7967,
+          "aiStart": 7967,
+          "aiFirstToken": 9554
+        },
+        "total": 10842
+      },
+      "outage": false
+    },
+    {
+      "id": "tq116",
+      "q": "I want to buy a ₹1 crore flat but I don't want to spend more than ₹30,000 per month on EMI. Is that realistic?",
+      "source": "top50:financial",
+      "lane": "main",
+      "firstByteMs": 202,
+      "firstStatusMs": 202,
+      "firstTokenMs": 4169,
+      "totalMs": 41956,
+      "server": {
+        "stages": {
+          "cacheRead": 0,
+          "setup": 0,
+          "intentExtract": 1254,
+          "sessionMemory": 90,
+          "intent": 1,
+          "routing": 318,
+          "projectCatalog": 36,
+          "discoverProjects": 682,
+          "dataAndContext": 60,
+          "promptBuild": 0,
+          "preLlm": 37,
+          "llm": 38768,
+          "postLlm": 134
+        },
+        "points": {
+          "aiStart": 2788,
+          "aiFirstToken": 3968,
+          "firstToken": 3968
+        },
+        "total": 41691
+      },
+      "outage": true
+    },
+    {
+      "id": "tq118",
+      "q": "If I work near Sector 62, which nearby sectors should I consider for buying a 2 BHK?",
+      "source": "top50:sector",
+      "lane": "topic:commute-shortlist",
+      "firstByteMs": 316,
+      "firstStatusMs": 316,
+      "firstTokenMs": 4389,
+      "totalMs": 4448,
+      "server": {
+        "stages": {
+          "cacheRead": 42,
+          "setup": 0,
+          "intentExtract": 1159,
+          "sessionMemory": 87,
+          "intent": 0,
+          "routing": 297,
+          "projectCatalog": 30
+        },
+        "points": {
+          "firstToken": 4056
+        },
+        "total": 4062
+      },
+      "outage": false
+    },
+    {
+      "id": "tq124",
+      "q": "Is Sector 137 Noida better than Sector 75 for property investment?",
+      "source": "top50:comparison",
+      "lane": "topic:sector-comparison",
+      "firstByteMs": 193,
+      "firstStatusMs": 193,
+      "firstTokenMs": 3724,
+      "totalMs": 11129,
+      "server": {
+        "stages": {
+          "cacheRead": 43,
+          "setup": 0,
+          "intentExtract": 1059,
+          "sessionMemory": 109,
+          "intent": 0,
+          "routing": 408,
+          "projectCatalog": 52
+        },
+        "points": {
+          "firstToken": 3517
+        },
+        "total": 10873
+      },
+      "outage": false
+    },
+    {
+      "id": "tq128",
+      "q": "Is Sector 78 Noida better for living or investing?",
+      "source": "top50:sector",
+      "lane": "main",
+      "firstByteMs": 268,
+      "firstStatusMs": 268,
+      "firstTokenMs": 33605,
+      "totalMs": 34777,
+      "server": {
+        "stages": {
+          "cacheRead": 376,
+          "setup": 0,
+          "intentExtract": 1,
+          "sessionMemory": 208,
+          "intent": 0,
+          "routing": 364,
+          "projectCatalog": 43,
+          "dataAndContext": 163,
+          "promptBuild": 1,
+          "preLlm": 47,
+          "llm": 31462,
+          "postLlm": 1100
+        },
+        "points": {
+          "aiStart": 1874,
+          "aiFirstToken": 33335,
+          "firstToken": 33335
+        },
+        "total": 34438
+      },
+      "outage": true
+    },
+    {
+      "id": "tq147",
+      "q": "Noida Extension vs Noida: where should a first-time homebuyer buy a 2 BHK?",
+      "source": "top50:comparison",
+      "lane": "main",
+      "firstByteMs": 1042,
+      "firstStatusMs": 1042,
+      "firstTokenMs": 33746,
+      "totalMs": 64195,
+      "server": {
+        "stages": {
+          "cacheRead": 41,
+          "setup": 0,
+          "intentExtract": 1139,
+          "sessionMemory": 185,
+          "intent": 1,
+          "routing": 23283,
+          "projectCatalog": 56,
+          "discoverProjects": 2259,
+          "dataAndContext": 290,
+          "promptBuild": 0,
+          "preLlm": 21,
+          "llm": 29492,
+          "postLlm": 918
+        },
+        "points": {
+          "firstToken": 32678,
+          "aiStart": 32678,
+          "aiFirstToken": 36857
+        },
+        "total": 63089
+      },
+      "outage": false
+    },
+    {
+      "id": "tq150",
+      "q": "Noida vs Gurgaon: which is better for buying a ₹1.5 crore apartment?",
+      "source": "top50:comparison",
+      "lane": "coverage",
+      "firstByteMs": 328,
+      "firstStatusMs": 328,
+      "firstTokenMs": 1817,
+      "totalMs": 1871,
+      "server": {
+        "stages": {
+          "cacheRead": 823,
+          "setup": 0,
+          "intentExtract": 0,
+          "sessionMemory": 192,
+          "intent": 1
+        },
+        "points": {
+          "firstToken": 1482
+        },
+        "total": 1488
+      },
+      "outage": false
+    },
+    {
+      "id": "cq024",
+      "q": "ace properties in noida",
+      "source": "corpus:brand_probe",
+      "lane": "main",
+      "firstByteMs": 312,
+      "firstStatusMs": 312,
+      "firstTokenMs": 6209,
+      "totalMs": 8259,
+      "server": {
+        "stages": {
+          "cacheRead": 28,
+          "setup": 0,
+          "intentExtract": 0,
+          "sessionMemory": 343,
+          "intent": 1,
+          "routing": 336,
+          "projectCatalog": 33,
+          "dataAndContext": 324,
+          "promptBuild": 0,
+          "preLlm": 21,
+          "llm": 4079,
+          "postLlm": 1943
+        },
+        "points": {
+          "aiStart": 1857,
+          "aiFirstToken": 5896,
+          "firstToken": 5897
+        },
+        "total": 7880
+      },
+      "outage": false
+    },
+    {
+      "id": "cq025",
+      "q": "affordable properties in noida",
+      "source": "corpus:budget_personal",
+      "lane": "main",
+      "firstByteMs": 271,
+      "firstStatusMs": 271,
+      "firstTokenMs": 12684,
+      "totalMs": 13972,
+      "server": {
+        "stages": {
+          "cacheRead": 42,
+          "setup": 0,
+          "intentExtract": 1,
+          "sessionMemory": 348,
+          "intent": 0,
+          "routing": 424,
+          "projectCatalog": 49,
+          "discoverProjects": 2332,
+          "dataAndContext": 2791,
+          "promptBuild": 0,
+          "preLlm": 19,
+          "llm": 6061,
+          "postLlm": 1164
+        },
+        "points": {
+          "aiStart": 6419,
+          "aiFirstToken": 12415,
+          "firstToken": 12415
+        },
+        "total": 13644
+      },
+      "outage": false
+    },
+    {
+      "id": "cq037",
+      "q": "best 2 bhk in noida",
+      "source": "corpus:discovery",
+      "lane": "main",
+      "firstByteMs": 149,
+      "firstStatusMs": 149,
+      "firstTokenMs": 10384,
+      "totalMs": 16720,
+      "server": {
+        "stages": {
+          "cacheRead": 30,
+          "setup": 0,
+          "intentExtract": 1,
+          "sessionMemory": 1116,
+          "intent": 1,
+          "routing": 361,
+          "projectCatalog": 31,
+          "discoverProjects": 1104,
+          "dataAndContext": 2687,
+          "promptBuild": 0,
+          "preLlm": 401,
+          "llm": 8063,
+          "postLlm": 1063
+        },
+        "points": {
+          "aiStart": 7386,
+          "aiFirstToken": 10235,
+          "firstToken": 10235
+        },
+        "total": 16513
+      },
+      "outage": false
+    },
+    {
+      "id": "cq199",
+      "q": "properties_in_noida_extension",
+      "source": "corpus:malformed",
+      "lane": "OPEN",
+      "firstByteMs": 162,
+      "firstStatusMs": 162,
+      "firstTokenMs": 8079,
+      "totalMs": 8375,
+      "server": {
+        "stages": {
+          "cacheRead": 28,
+          "setup": 0,
+          "intentExtract": 0,
+          "sessionMemory": 407,
+          "intent": 0,
+          "routing": 381
+        },
+        "points": {
+          "firstToken": 7917
+        },
+        "total": 8159
+      },
+      "outage": false
+    },
+    {
+      "id": "cq010",
+      "q": "2 bhk in noida",
+      "source": "corpus:navigational",
+      "lane": "budget-check",
+      "firstByteMs": 312,
+      "firstStatusMs": 312,
+      "firstTokenMs": 1556,
+      "totalMs": 1608,
+      "server": {
+        "stages": {
+          "cacheRead": 28,
+          "setup": 0,
+          "intentExtract": 1,
+          "sessionMemory": 165,
+          "intent": 0
+        },
+        "points": {
+          "firstToken": 1240
+        },
+        "total": 1242
+      },
+      "outage": false
+    },
+    {
+      "id": "cq076",
+      "q": "cheap properties in noida",
+      "source": "corpus:other",
+      "lane": "main",
+      "firstByteMs": 160,
+      "firstStatusMs": 160,
+      "firstTokenMs": 6529,
+      "totalMs": 7921,
+      "server": {
+        "stages": {
+          "cacheRead": 27,
+          "setup": 0,
+          "intentExtract": 0,
+          "sessionMemory": 165,
+          "intent": 1,
+          "routing": 280,
+          "projectCatalog": 34,
+          "discoverProjects": 1931,
+          "dataAndContext": 237,
+          "promptBuild": 0,
+          "preLlm": 22,
+          "llm": 3267,
+          "postLlm": 1260
+        },
+        "points": {
+          "aiStart": 3174,
+          "aiFirstToken": 6370,
+          "firstToken": 6370
+        },
+        "total": 7701
+      },
+      "outage": false
+    },
+    {
+      "id": "cq001",
+      "q": "1 bhk flats in sector 74 75 76 noida for rent",
+      "source": "corpus:out_of_scope",
+      "lane": "unknown",
+      "firstByteMs": 4,
+      "firstStatusMs": null,
+      "firstTokenMs": 4,
+      "totalMs": 65,
+      "server": null,
+      "outage": false
+    },
+    {
+      "id": "cq041",
+      "q": "best builder in noida",
+      "source": "corpus:project_builder",
+      "lane": "topic:builder-reputation",
+      "firstByteMs": 435,
+      "firstStatusMs": 435,
+      "firstTokenMs": 1806,
+      "totalMs": 1862,
+      "server": {
+        "stages": {
+          "cacheRead": 40,
+          "setup": 0,
+          "intentExtract": 1,
+          "sessionMemory": 348,
+          "intent": 0,
+          "routing": 305,
+          "projectCatalog": 47
+        },
+        "points": {
+          "firstToken": 1366
+        },
+        "total": 1368
+      },
+      "outage": false
+    },
+    {
+      "id": "cq002",
+      "q": "1 bhk flats in sector 75 noida",
+      "source": "corpus:sector",
+      "lane": "search",
+      "firstByteMs": 169,
+      "firstStatusMs": 169,
+      "firstTokenMs": 4484,
+      "totalMs": 4589,
+      "server": {
+        "stages": {
+          "cacheRead": 40,
+          "setup": 0,
+          "intentExtract": 0,
+          "sessionMemory": 200,
+          "intent": 1,
+          "routing": 447,
+          "projectCatalog": 41,
+          "discoverProjects": 1722,
+          "dataAndContext": 780,
+          "promptBuild": 0,
+          "postLlm": 476
+        },
+        "points": {
+          "firstToken": 4313
+        },
+        "total": 4356
+      },
+      "outage": false
+    },
+    {
+      "id": "cq279",
+      "q": "upcoming properties in greater noida",
+      "source": "corpus:temporal",
+      "lane": "main",
+      "firstByteMs": 451,
+      "firstStatusMs": 451,
+      "firstTokenMs": 3343,
+      "totalMs": 4412,
+      "server": {
+        "stages": {
+          "cacheRead": 251,
+          "setup": 0,
+          "intentExtract": 1,
+          "sessionMemory": 175,
+          "intent": 0,
+          "routing": 307,
+          "projectCatalog": 41,
+          "dataAndContext": 345,
+          "promptBuild": 0,
+          "preLlm": 15,
+          "llm": 1847,
+          "postLlm": 604
+        },
+        "points": {
+          "aiStart": 1455,
+          "aiFirstToken": 2892,
+          "firstToken": 2892
+        },
+        "total": 3907
+      },
+      "outage": false
+    },
+    {
+      "id": "cq027",
+      "q": "amrapali properties in noida",
+      "source": "corpus:brand_probe",
+      "lane": "coverage-lane",
+      "firstByteMs": 176,
+      "firstStatusMs": 176,
+      "firstTokenMs": 2062,
+      "totalMs": 2117,
+      "server": {
+        "stages": {
+          "cacheRead": 32,
+          "setup": 0,
+          "intentExtract": 1,
+          "sessionMemory": 346,
+          "intent": 0,
+          "routing": 293
+        },
+        "points": {
+          "firstToken": 1883
+        },
+        "total": 1885
+      },
+      "outage": false
+    },
+    {
+      "id": "cq038",
+      "q": "best 2 bhk under 1 crore in noida",
+      "source": "corpus:budget_personal",
+      "lane": "main",
+      "firstByteMs": 178,
+      "firstStatusMs": 178,
+      "firstTokenMs": 13746,
+      "totalMs": 15399,
+      "server": {
+        "stages": {
+          "cacheRead": 41,
+          "setup": 0,
+          "intentExtract": 1,
+          "sessionMemory": 168,
+          "intent": 0,
+          "routing": 304,
+          "projectCatalog": 40,
+          "discoverProjects": 3903,
+          "dataAndContext": 2693,
+          "promptBuild": 0,
+          "preLlm": 448,
+          "llm": 6413,
+          "postLlm": 677
+        },
+        "points": {
+          "aiStart": 8070,
+          "aiFirstToken": 13568,
+          "firstToken": 13568
+        },
+        "total": 15161
+      },
+      "outage": false
+    },
+    {
+      "id": "cq039",
+      "q": "best 3 bhk in noida",
+      "source": "corpus:discovery",
+      "lane": "main",
+      "firstByteMs": 257,
+      "firstStatusMs": 257,
+      "firstTokenMs": 10859,
+      "totalMs": 12946,
+      "server": {
+        "stages": {
+          "cacheRead": 38,
+          "setup": 0,
+          "intentExtract": 0,
+          "sessionMemory": 171,
+          "intent": 1,
+          "routing": 329,
+          "projectCatalog": 39,
+          "discoverProjects": 2007,
+          "dataAndContext": 2704,
+          "promptBuild": 1,
+          "preLlm": 369,
+          "llm": 4022,
+          "postLlm": 1486
+        },
+        "points": {
+          "aiStart": 7116,
+          "aiFirstToken": 10603,
+          "firstToken": 10603
+        },
+        "total": 12625
+      },
+      "outage": false
+    },
+    {
+      "id": "cq200",
+      "q": "properties.in.noida",
+      "source": "corpus:malformed",
+      "lane": "main",
+      "firstByteMs": 174,
+      "firstStatusMs": 174,
+      "firstTokenMs": 7077,
+      "totalMs": 8061,
+      "server": {
+        "stages": {
+          "cacheRead": 73,
+          "setup": 0,
+          "intentExtract": 0,
+          "sessionMemory": 186,
+          "intent": 0,
+          "routing": 352,
+          "projectCatalog": 32,
+          "dataAndContext": 290,
+          "promptBuild": 0,
+          "preLlm": 18,
+          "llm": 5667,
+          "postLlm": 856
+        },
+        "points": {
+          "aiStart": 1285,
+          "aiFirstToken": 6900,
+          "firstToken": 6902
+        },
+        "total": 7809
+      },
+      "outage": false
+    },
+    {
+      "id": "cq248",
+      "q": "property rates in noida",
+      "source": "corpus:market_fact",
+      "lane": "main",
+      "firstByteMs": 301,
+      "firstStatusMs": 301,
+      "firstTokenMs": 1606,
+      "totalMs": 4853,
+      "server": {
+        "stages": {
+          "cacheRead": 29,
+          "setup": 0,
+          "intentExtract": 1,
+          "sessionMemory": 155,
+          "intent": 0,
+          "routing": 271,
+          "projectCatalog": 34,
+          "dataAndContext": 489,
+          "promptBuild": 0,
+          "preLlm": 47,
+          "llm": 2745,
+          "postLlm": 484
+        },
+        "points": {
+          "firstToken": 1253,
+          "aiStart": 1254,
+          "aiFirstToken": 3783
+        },
+        "total": 4485
+      },
+      "outage": false
+    },
+    {
+      "id": "cq012",
+      "q": "2 bhk properties in noida",
+      "source": "corpus:navigational",
+      "lane": "search",
+      "firstByteMs": 177,
+      "firstStatusMs": 177,
+      "firstTokenMs": 5072,
+      "totalMs": 5623,
+      "server": {
+        "stages": {
+          "cacheRead": 47,
+          "setup": 0,
+          "intentExtract": 1,
+          "sessionMemory": 171,
+          "intent": 0,
+          "routing": 304,
+          "projectCatalog": 47,
+          "discoverProjects": 2144,
+          "dataAndContext": 201,
+          "promptBuild": 0,
+          "postLlm": 879
+        },
+        "points": {
+          "firstToken": 4894
+        },
+        "total": 5380
+      },
+      "outage": false
+    },
+    {
+      "id": "cq121",
+      "q": "is noida good for property investment",
+      "source": "corpus:other",
+      "lane": "main",
+      "firstByteMs": 174,
+      "firstStatusMs": 174,
+      "firstTokenMs": 6925,
+      "totalMs": 10245,
+      "server": {
+        "stages": {
+          "cacheRead": 41,
+          "setup": 0,
+          "intentExtract": 1336,
+          "sessionMemory": 116,
+          "intent": 0,
+          "routing": 357,
+          "projectCatalog": 37,
+          "discoverProjects": 2687,
+          "dataAndContext": 1819,
+          "promptBuild": 0,
+          "preLlm": 21,
+          "llm": 2248,
+          "postLlm": 1029
+        },
+        "points": {
+          "firstToken": 6726,
+          "aiStart": 6726,
+          "aiFirstToken": 8483
+        },
+        "total": 10006
+      },
+      "outage": false
+    },
+    {
+      "id": "cq003",
+      "q": "1 bhk flats in sector 75 noida for rent",
+      "source": "corpus:out_of_scope",
+      "lane": "unknown",
+      "firstByteMs": 6,
+      "firstStatusMs": null,
+      "firstTokenMs": 6,
+      "totalMs": 61,
+      "server": null,
+      "outage": false
+    },
+    {
+      "id": "cq042",
+      "q": "best builder in noida for apartments",
+      "source": "corpus:project_builder",
+      "lane": "topic:builder-reputation",
+      "firstByteMs": 281,
+      "firstStatusMs": 281,
+      "firstTokenMs": 11666,
+      "totalMs": 11718,
+      "server": {
+        "stages": {
+          "cacheRead": 333,
+          "setup": 0,
+          "intentExtract": 1,
+          "sessionMemory": 658,
+          "intent": 0,
+          "routing": 9617,
+          "projectCatalog": 135
+        },
+        "points": {
+          "firstToken": 11378
+        },
+        "total": 11381
+      },
+      "outage": false
+    },
+    {
+      "id": "cq005",
+      "q": "2 bhk flats in sector 74 75 76 noida for sale",
+      "source": "corpus:sector",
+      "lane": "search",
+      "firstByteMs": 307,
+      "firstStatusMs": 307,
+      "firstTokenMs": 4982,
+      "totalMs": 6042,
+      "server": {
+        "stages": {
+          "cacheRead": 38,
+          "setup": 0,
+          "intentExtract": 1,
+          "sessionMemory": 202,
+          "intent": 1,
+          "routing": 598,
+          "projectCatalog": 115,
+          "discoverProjects": 1840,
+          "dataAndContext": 786,
+          "promptBuild": 0,
+          "postLlm": 1370
+        },
+        "points": {
+          "firstToken": 4674
+        },
+        "total": 5673
+      },
+      "outage": false
+    },
+    {
+      "id": "cq280",
+      "q": "upcoming properties in noida",
+      "source": "corpus:temporal",
+      "lane": "main",
+      "firstByteMs": 371,
+      "firstStatusMs": 371,
+      "firstTokenMs": 8748,
+      "totalMs": 9500,
+      "server": {
+        "stages": {
+          "cacheRead": 41,
+          "setup": 0,
+          "intentExtract": 1,
+          "sessionMemory": 183,
+          "intent": 1,
+          "routing": 534,
+          "projectCatalog": 87,
+          "dataAndContext": 292,
+          "promptBuild": 0,
+          "preLlm": 20,
+          "llm": 7011,
+          "postLlm": 610
+        },
+        "points": {
+          "aiStart": 1447,
+          "aiFirstToken": 8377,
+          "firstToken": 8377
+        },
+        "total": 9069
+      },
+      "outage": false
+    },
+    {
+      "id": "cq032",
+      "q": "ats properties in greater noida",
+      "source": "corpus:brand_probe",
+      "lane": "main",
+      "firstByteMs": 311,
+      "firstStatusMs": 311,
+      "firstTokenMs": 6906,
+      "totalMs": 7633,
+      "server": {
+        "stages": {
+          "cacheRead": 27,
+          "setup": 0,
+          "intentExtract": 1,
+          "sessionMemory": 350,
+          "intent": 0,
+          "routing": 284,
+          "projectCatalog": 50,
+          "dataAndContext": 269,
+          "promptBuild": 0,
+          "preLlm": 21,
+          "llm": 3326,
+          "postLlm": 623
+        },
+        "points": {
+          "aiStart": 3313,
+          "aiFirstToken": 6596,
+          "firstToken": 6596
+        },
+        "total": 7262
+      },
+      "outage": false
+    },
+    {
+      "id": "cq040",
+      "q": "best 3 bhk under 1.5 crore in Noida",
+      "source": "corpus:budget_personal",
+      "lane": "main",
+      "firstByteMs": 220,
+      "firstStatusMs": 220,
+      "firstTokenMs": 16432,
+      "totalMs": 25144,
+      "server": {
+        "stages": {
+          "cacheRead": 37,
+          "setup": 0,
+          "intentExtract": 0,
+          "sessionMemory": 193,
+          "intent": 0,
+          "routing": 297,
+          "projectCatalog": 37,
+          "dataAndContext": 2788,
+          "promptBuild": 0,
+          "preLlm": 419,
+          "llm": 20095,
+          "postLlm": 810
+        },
+        "points": {
+          "aiStart": 3957,
+          "aiFirstToken": 16213,
+          "firstToken": 16213
+        },
+        "total": 24862
+      },
+      "outage": false
+    },
+    {
+      "id": "cq044",
+      "q": "best investment properties in noida",
+      "source": "corpus:discovery",
+      "lane": "main",
+      "firstByteMs": 257,
+      "firstStatusMs": 257,
+      "firstTokenMs": 5491,
+      "totalMs": 6553,
+      "server": {
+        "stages": {
+          "cacheRead": 39,
+          "setup": 0,
+          "intentExtract": 1335,
+          "sessionMemory": 89,
+          "intent": 1,
+          "routing": 321,
+          "projectCatalog": 50,
+          "discoverProjects": 1368,
+          "dataAndContext": 202,
+          "promptBuild": 1,
+          "preLlm": 23,
+          "llm": 2023,
+          "postLlm": 481
+        },
+        "points": {
+          "aiStart": 3730,
+          "aiFirstToken": 5234,
+          "firstToken": 5234
+        },
+        "total": 6235
+      },
+      "outage": false
+    },
+    {
+      "id": "cq201",
+      "q": "propertiesin_noida",
+      "source": "corpus:malformed",
+      "lane": "OPEN",
+      "firstByteMs": 184,
+      "firstStatusMs": 184,
+      "firstTokenMs": 7716,
+      "totalMs": 8244,
+      "server": {
+        "stages": {
+          "cacheRead": 310,
+          "setup": 0,
+          "intentExtract": 1,
+          "sessionMemory": 179,
+          "intent": 0,
+          "routing": 381
+        },
+        "points": {
+          "firstToken": 7533
+        },
+        "total": 8001
+      },
+      "outage": false
+    },
+    {
+      "id": "cq306",
+      "q": "which noida sector has best rental yield",
+      "source": "corpus:market_fact",
+      "lane": "main",
+      "firstByteMs": 366,
+      "firstStatusMs": 366,
+      "firstTokenMs": 3243,
+      "totalMs": 7280,
+      "server": {
+        "stages": {
+          "cacheRead": 42,
+          "setup": 0,
+          "intentExtract": 1321,
+          "sessionMemory": 85,
+          "intent": 0,
+          "routing": 329,
+          "projectCatalog": 38,
+          "dataAndContext": 728,
+          "promptBuild": 0,
+          "preLlm": 22,
+          "llm": 3945,
+          "postLlm": 44
+        },
+        "points": {
+          "firstToken": 2859,
+          "aiStart": 2859,
+          "aiFirstToken": 6750
+        },
+        "total": 6849
+      },
+      "outage": false
+    },
+    {
+      "id": "cq013",
+      "q": "2bhk properties in noida",
+      "source": "corpus:navigational",
+      "lane": "search",
+      "firstByteMs": 225,
+      "firstStatusMs": 225,
+      "firstTokenMs": 3073,
+      "totalMs": 3623,
+      "server": {
+        "stages": {
+          "cacheRead": 41,
+          "setup": 0,
+          "intentExtract": 0,
+          "sessionMemory": 179,
+          "intent": 0,
+          "routing": 336,
+          "projectCatalog": 51,
+          "dataAndContext": 1561,
+          "promptBuild": 0,
+          "postLlm": 983
+        },
+        "points": {
+          "firstToken": 2850
+        },
+        "total": 3337
+      },
+      "outage": false
+    },
+    {
+      "id": "cq131",
+      "q": "low rise properties in noida",
+      "source": "corpus:other",
+      "lane": "main",
+      "firstByteMs": 184,
+      "firstStatusMs": 184,
+      "firstTokenMs": 3946,
+      "totalMs": 4630,
+      "server": {
+        "stages": {
+          "cacheRead": 39,
+          "setup": 0,
+          "intentExtract": 0,
+          "sessionMemory": 347,
+          "intent": 1,
+          "routing": 349,
+          "projectCatalog": 42,
+          "dataAndContext": 405,
+          "promptBuild": 1,
+          "preLlm": 23,
+          "llm": 1562,
+          "postLlm": 606
+        },
+        "points": {
+          "aiStart": 2221,
+          "aiFirstToken": 3763,
+          "firstToken": 3764
+        },
+        "total": 4390
+      },
+      "outage": false
+    }
+  ]
+}

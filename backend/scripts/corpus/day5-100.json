@@ -1,0 +1,502 @@
+[
+  {
+    "id": "dq01",
+    "q": "3BHK in Noida under 1.5 crore, possession within a year. What are my options?",
+    "source": "day5-30"
+  },
+  {
+    "id": "dq02",
+    "q": "Which projects near a metro station in Noida fit a 1.2 crore budget?",
+    "source": "day5-30"
+  },
+  {
+    "id": "dq03",
+    "q": "Can I trust Supertech as a builder? What happened with their delayed projects?",
+    "source": "day5-30"
+  },
+  {
+    "id": "dq04",
+    "q": "For a 1.4 crore flat in Noida, what is the total cost including stamp duty, registration and GST?",
+    "source": "day5-30"
+  },
+  {
+    "id": "dq05",
+    "q": "If I take an 80% loan on a 1.5 crore flat, what is my EMI and how much cash do I need up front?",
+    "source": "day5-30"
+  },
+  {
+    "id": "dq06",
+    "q": "3 BHK chahiye Noida mein, budget 1.5 crore, possession ek saal mein",
+    "source": "day5-30"
+  },
+  {
+    "id": "dq07",
+    "q": "Is Sector 150 good for families?",
+    "source": "day5-30"
+  },
+  {
+    "id": "dq08",
+    "q": "Is 2 crore too much for a 3 BHK in Noida right now?",
+    "source": "day5-30"
+  },
+  {
+    "id": "dq09",
+    "q": "best locations to invest in greater noida",
+    "source": "day5-30"
+  },
+  {
+    "id": "dq10",
+    "q": "give me an area guide for noida",
+    "source": "day5-30"
+  },
+  {
+    "id": "dq11",
+    "q": "How do I verify whether a Noida property project is RERA compliant?",
+    "source": "day5-30"
+  },
+  {
+    "id": "dq12",
+    "q": "What is the average property price per sq ft in Noida right now?",
+    "source": "day5-30"
+  },
+  {
+    "id": "dq13",
+    "q": "Which areas of Noida are best for families?",
+    "source": "day5-30"
+  },
+  {
+    "id": "dq14",
+    "q": "What are the biggest risks I should check before buying a flat in Noida?",
+    "source": "day5-30"
+  },
+  {
+    "id": "dq15",
+    "q": "are all properties in noida leasehold",
+    "source": "day5-30"
+  },
+  {
+    "id": "dq16",
+    "q": "properties in greater noida west",
+    "source": "day5-30"
+  },
+  {
+    "id": "dq17",
+    "q": "3 BHK in Sector 150 under 1.5 crore",
+    "source": "day5-30"
+  },
+  {
+    "id": "dq18",
+    "q": "What is the average price per sq ft in Sector 150?",
+    "source": "day5-30"
+  },
+  {
+    "id": "dq19",
+    "q": "How do I check if a project in Noida is RERA registered?",
+    "source": "day5-30"
+  },
+  {
+    "id": "dq20",
+    "q": "average per sq ft rate of property in Noida currently?",
+    "source": "day5-30"
+  },
+  {
+    "id": "dq21",
+    "q": "best areas in Noida for families?",
+    "source": "day5-30"
+  },
+  {
+    "id": "dq24",
+    "q": "Sector 150 3bhk flats below 1.5 cr",
+    "source": "day5-30"
+  },
+  {
+    "id": "dq25",
+    "q": "average price per sq ft in sector 150 noida",
+    "source": "day5-30"
+  },
+  {
+    "id": "dq26",
+    "q": "what risks should I check before buying a flat in noida",
+    "source": "day5-30"
+  },
+  {
+    "id": "dq27",
+    "q": "What is the average price per sq ft in Sector 137?",
+    "source": "day5-30"
+  },
+  {
+    "id": "dq28",
+    "q": "Is Sector 137 good for families?",
+    "source": "day5-30"
+  },
+  {
+    "id": "dq29",
+    "q": "Is 1.5 crore too much for a 3 BHK in Noida right now?",
+    "source": "day5-30"
+  },
+  {
+    "id": "dq30",
+    "q": "What is the possession status of projects in Sector 150?",
+    "source": "day5-30"
+  },
+  {
+    "id": "tq122",
+    "q": "Is Noida still affordable compared with Gurgaon for residential property?",
+    "source": "top50:budget_personal"
+  },
+  {
+    "id": "tq127",
+    "q": "Is Sector 75 Noida a good place to buy a 3 BHK for my own use?",
+    "source": "top50:sector"
+  },
+  {
+    "id": "tq270",
+    "q": "Should I buy an under-construction property or a ready-to-move property in Noida if my goal is investment?",
+    "source": "top50:other"
+  },
+  {
+    "id": "tq321",
+    "q": "Would you invest ₹1 crore in Noida today, or would you choose Gurgaon instead? Explain your reasoning.",
+    "source": "top50:budget_personal"
+  },
+  {
+    "id": "tq119",
+    "q": "is it safe to buy property in noida",
+    "source": "top50:risk_legal"
+  },
+  {
+    "id": "tq120",
+    "q": "is noida extension good for investment",
+    "source": "top50:sector"
+  },
+  {
+    "id": "tq288",
+    "q": "What is the average rent for a 2 BHK in Noida?",
+    "source": "top50:out_of_scope"
+  },
+  {
+    "id": "tq282",
+    "q": "What are the advantages and disadvantages of buying a flat in Sector 150 Noida?",
+    "source": "top50:sector"
+  },
+  {
+    "id": "tq283",
+    "q": "What are the best sectors to buy a 2 BHK apartment in Noida under ₹1 crore?",
+    "source": "top50:budget_personal"
+  },
+  {
+    "id": "tq286",
+    "q": "What has changed in the Noida property market in the last 12 months, and how has it affected buyers?",
+    "source": "top50:temporal"
+  },
+  {
+    "id": "tq289",
+    "q": "What is the current price difference between Sector 75 and Sector 137 Noida?",
+    "source": "top50:comparison"
+  },
+  {
+    "id": "tq290",
+    "q": "What legal documents should I check before buying a resale apartment in Noida?",
+    "source": "top50:risk_legal"
+  },
+  {
+    "id": "tq293",
+    "q": "What upcoming infrastructure projects around Noida could affect property prices over the next 3–5 years?",
+    "source": "top50:temporal"
+  },
+  {
+    "id": "tq294",
+    "q": "Where can I find a good 3 BHK in Noida under ₹1.5 crore?",
+    "source": "top50:budget_personal"
+  },
+  {
+    "id": "tq295",
+    "q": "Which are the best residential projects currently available in Noida for a 3 BHK under ₹1.5 crore?",
+    "source": "top50:budget_personal"
+  },
+  {
+    "id": "tq195",
+    "q": "properties on rent in noida",
+    "source": "top50:out_of_scope"
+  },
+  {
+    "id": "tq254",
+    "q": "rental properties in noida",
+    "source": "top50:out_of_scope"
+  },
+  {
+    "id": "tq099",
+    "q": "godrej properties in noida",
+    "source": "top50:brand_probe"
+  },
+  {
+    "id": "tq175",
+    "q": "properties in noida for sale",
+    "source": "top50:navigational"
+  },
+  {
+    "id": "tq169",
+    "q": "properties in noida",
+    "source": "top50:navigational"
+  },
+  {
+    "id": "tq171",
+    "q": "properties in noida extension",
+    "source": "top50:sector"
+  },
+  {
+    "id": "tq166",
+    "q": "properties in greater noida for sale",
+    "source": "top50:sector"
+  },
+  {
+    "id": "tq260",
+    "q": "sarthi properties in noida",
+    "source": "top50:brand_probe"
+  },
+  {
+    "id": "tq097",
+    "q": "godrej properties in greater noida",
+    "source": "top50:brand_probe"
+  },
+  {
+    "id": "tq117",
+    "q": "If I buy a ₹1.2 crore apartment in Noida, what rental yield can I realistically expect?",
+    "source": "top50:budget_personal"
+  },
+  {
+    "id": "tq078",
+    "q": "Compare Sector 75, Sector 78, Sector 137 and Sector 150 and tell me which one you would personally choose for a 5-year investment.",
+    "source": "top50:comparison"
+  },
+  {
+    "id": "tq079",
+    "q": "Compare the best 3 BHK projects in Sector 75 and tell me which one offers the best value for money.",
+    "source": "top50:comparison"
+  },
+  {
+    "id": "tq105",
+    "q": "How should I compare two Noida projects when one has a lower price but the other has a better location and builder reputation?",
+    "source": "top50:comparison"
+  },
+  {
+    "id": "tq106",
+    "q": "I am buying my first home in Noida. Give me 5 options and rank them based on price, connectivity, livability and future appreciation.",
+    "source": "top50:market_fact"
+  },
+  {
+    "id": "tq107",
+    "q": "I am considering buying a flat from a relatively unknown builder in Noida because it is 20% cheaper than comparable projects. Should I do it?",
+    "source": "top50:project_builder"
+  },
+  {
+    "id": "tq108",
+    "q": "I earn ₹1.5 lakh per month and have ₹25 lakh available for a down payment. What type of property should I realistically consider in Noida?",
+    "source": "top50:financial"
+  },
+  {
+    "id": "tq109",
+    "q": "I found a 3 BHK in Noida that is ₹25 lakh cheaper than similar apartments nearby. What could explain the price difference, and what should I investigate before buying it?",
+    "source": "top50:budget_personal"
+  },
+  {
+    "id": "tq110",
+    "q": "I have ₹1 crore to invest in Noida. Where should I invest it for the best risk-adjusted return over the next 5 years?",
+    "source": "top50:budget_personal"
+  },
+  {
+    "id": "tq111",
+    "q": "I have ₹1.25 crore and want a 3 BHK. Compare my best options across Noida and Greater Noida West.",
+    "source": "top50:comparison"
+  },
+  {
+    "id": "tq112",
+    "q": "I have ₹1.25 crore. I work near Sector 62, my wife works near Sector 135, we have one child, we need a 3 BHK, want a metro within reasonable reach, don't want a long daily commute, want good schools nearby, and may sell the property in 5 years. Compare Sector 75, Sector 78, Sector 137 and Sector 150 and tell me where I should buy, including the trade-offs.",
+    "source": "top50:comparison"
+  },
+  {
+    "id": "tq113",
+    "q": "I have ₹1.5 crore available today and am deciding between a ready-to-move 3 BHK in Sector 75, a newer 3 BHK in Sector 150, and a larger 3 BHK in Noida Extension. I care about resale liquidity, rental yield, appreciation, commute, infrastructure, builder reputation and overall livability. Analyze all three, identify the biggest risks in each, and give me one final recommendation with the reasoning and data behind it.",
+    "source": "top50:risk_legal"
+  },
+  {
+    "id": "tq114",
+    "q": "I have ₹2 crore and want a premium 3 or 4 BHK in Noida. Which sectors should I shortlist?",
+    "source": "top50:budget_personal"
+  },
+  {
+    "id": "tq115",
+    "q": "I have ₹80 lakh. I need a 2 BHK for my family, good metro connectivity, low traffic and decent schools nearby. Where should I look in Noida?",
+    "source": "top50:budget_personal"
+  },
+  {
+    "id": "tq116",
+    "q": "I want to buy a ₹1 crore flat but I don't want to spend more than ₹30,000 per month on EMI. Is that realistic?",
+    "source": "top50:financial"
+  },
+  {
+    "id": "tq118",
+    "q": "If I work near Sector 62, which nearby sectors should I consider for buying a 2 BHK?",
+    "source": "top50:sector"
+  },
+  {
+    "id": "tq124",
+    "q": "Is Sector 137 Noida better than Sector 75 for property investment?",
+    "source": "top50:comparison"
+  },
+  {
+    "id": "tq128",
+    "q": "Is Sector 78 Noida better for living or investing?",
+    "source": "top50:sector"
+  },
+  {
+    "id": "tq147",
+    "q": "Noida Extension vs Noida: where should a first-time homebuyer buy a 2 BHK?",
+    "source": "top50:comparison"
+  },
+  {
+    "id": "tq150",
+    "q": "Noida vs Gurgaon: which is better for buying a ₹1.5 crore apartment?",
+    "source": "top50:comparison"
+  },
+  {
+    "id": "cq024",
+    "q": "ace properties in noida",
+    "source": "corpus:brand_probe"
+  },
+  {
+    "id": "cq025",
+    "q": "affordable properties in noida",
+    "source": "corpus:budget_personal"
+  },
+  {
+    "id": "cq037",
+    "q": "best 2 bhk in noida",
+    "source": "corpus:discovery"
+  },
+  {
+    "id": "cq199",
+    "q": "properties_in_noida_extension",
+    "source": "corpus:malformed"
+  },
+  {
+    "id": "cq010",
+    "q": "2 bhk in noida",
+    "source": "corpus:navigational"
+  },
+  {
+    "id": "cq076",
+    "q": "cheap properties in noida",
+    "source": "corpus:other"
+  },
+  {
+    "id": "cq001",
+    "q": "1 bhk flats in sector 74 75 76 noida for rent",
+    "source": "corpus:out_of_scope"
+  },
+  {
+    "id": "cq041",
+    "q": "best builder in noida",
+    "source": "corpus:project_builder"
+  },
+  {
+    "id": "cq002",
+    "q": "1 bhk flats in sector 75 noida",
+    "source": "corpus:sector"
+  },
+  {
+    "id": "cq279",
+    "q": "upcoming properties in greater noida",
+    "source": "corpus:temporal"
+  },
+  {
+    "id": "cq027",
+    "q": "amrapali properties in noida",
+    "source": "corpus:brand_probe"
+  },
+  {
+    "id": "cq038",
+    "q": "best 2 bhk under 1 crore in noida",
+    "source": "corpus:budget_personal"
+  },
+  {
+    "id": "cq039",
+    "q": "best 3 bhk in noida",
+    "source": "corpus:discovery"
+  },
+  {
+    "id": "cq200",
+    "q": "properties.in.noida",
+    "source": "corpus:malformed"
+  },
+  {
+    "id": "cq248",
+    "q": "property rates in noida",
+    "source": "corpus:market_fact"
+  },
+  {
+    "id": "cq012",
+    "q": "2 bhk properties in noida",
+    "source": "corpus:navigational"
+  },
+  {
+    "id": "cq121",
+    "q": "is noida good for property investment",
+    "source": "corpus:other"
+  },
+  {
+    "id": "cq003",
+    "q": "1 bhk flats in sector 75 noida for rent",
+    "source": "corpus:out_of_scope"
+  },
+  {
+    "id": "cq042",
+    "q": "best builder in noida for apartments",
+    "source": "corpus:project_builder"
+  },
+  {
+    "id": "cq005",
+    "q": "2 bhk flats in sector 74 75 76 noida for sale",
+    "source": "corpus:sector"
+  },
+  {
+    "id": "cq280",
+    "q": "upcoming properties in noida",
+    "source": "corpus:temporal"
+  },
+  {
+    "id": "cq032",
+    "q": "ats properties in greater noida",
+    "source": "corpus:brand_probe"
+  },
+  {
+    "id": "cq040",
+    "q": "best 3 bhk under 1.5 crore in Noida",
+    "source": "corpus:budget_personal"
+  },
+  {
+    "id": "cq044",
+    "q": "best investment properties in noida",
+    "source": "corpus:discovery"
+  },
+  {
+    "id": "cq201",
+    "q": "propertiesin_noida",
+    "source": "corpus:malformed"
+  },
+  {
+    "id": "cq306",
+    "q": "which noida sector has best rental yield",
+    "source": "corpus:market_fact"
+  },
+  {
+    "id": "cq013",
+    "q": "2bhk properties in noida",
+    "source": "corpus:navigational"
+  },
+  {
+    "id": "cq131",
+    "q": "low rise properties in noida",
+    "source": "corpus:other"
+  }
+]

@@ -20,9 +20,16 @@ export interface TurnTimer {
   time: <T>(stage: string, fn: () => Promise<T>) => Promise<T>
   /** Stage durations in call order, milliseconds. */
   readonly stages: Record<string, number>
+  /**
+   * Milliseconds from the request arriving to a moment (first token to the buyer,
+   * first token from the model). Kept once: the first occurrence is the one the
+   * buyer waits for. Cycle 2 Day 5.
+   */
+  point: (name: string) => void
+  readonly points: Record<string, number>
   /** Total elapsed since the timer was created. */
   elapsed: () => number
-  /** One log line, slowest stage first. */
+  /** One log line, slowest stage first, then the moments. */
   summary: () => string
 }
 
@@ -30,6 +37,7 @@ export function createTurnTimer(): TurnTimer {
   const t0 = Date.now()
   let last = t0
   const stages: Record<string, number> = {}
+  const points: Record<string, number> = {}
 
   const mark = (stage: string): void => {
     const now = Date.now()
@@ -53,6 +61,8 @@ export function createTurnTimer(): TurnTimer {
     mark,
     time,
     stages,
+    points,
+    point: (name: string) => { if (!(name in points)) points[name] = Date.now() - t0 },
     elapsed: () => Date.now() - t0,
     summary: () => {
       const total = Date.now() - t0
@@ -61,7 +71,8 @@ export function createTurnTimer(): TurnTimer {
         .sort((a, b) => b[1] - a[1])
         .map(([k, ms]) => `${k}=${ms}`)
         .join(' ')
-      return `total=${total} ${ranked}`
+      const at = Object.entries(points).map(([k, ms]) => `@${k}=${ms}`).join(' ')
+      return `total=${total} ${ranked}${at ? ` ${at}` : ''}`
     },
   }
 }

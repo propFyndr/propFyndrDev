@@ -775,6 +775,19 @@ router.post('/', async (req: Request, res: Response) => {
   /** This turn's telemetry row, filled as the turn runs and written once when the response closes. */
   const turnTrace: TurnTraceDraft = { lane: 'unlabelled' }
   res.on('finish', () => recordTurnTrace(turnTrace, timer.elapsed()))
+  // One line per turn, every lane (the early exits never reached the old log at the end of the main lane).
+  res.on('finish', () => console.log('[CHAT:TIMING]', `lane=${turnTrace.lane}`, timer.summary(), '|', String(message ?? '').slice(0, 50)))
+  /** Step marks go to the client only when a measuring script asks for them; the app never sends this header. */
+  // Written just before the response ends. Topic handlers name their lane only after they end the
+  // response, so the matched handler's id stands in (timing only; the telemetry row is untouched).
+  let timingLaneHint = 'unlabelled'
+  if (req.headers['x-realtyask-timing'] === '1') {
+    const end = res.end.bind(res) as (...a: unknown[]) => Response
+    res.end = ((...args: unknown[]) => {
+      if (!res.writableEnded) sseWrite(res, 'timing', { lane: turnTrace.lane !== 'unlabelled' ? turnTrace.lane : timingLaneHint, stages: { ...timer.stages }, points: { ...timer.points }, total: timer.elapsed() }, turnSeq)
+      return end(...args)
+    }) as typeof res.end
+  }
   const langfuseTraceId = `chat-${turnId}`
   res.on('close', () => recordChatTurn({
     id: langfuseTraceId,
@@ -855,6 +868,7 @@ router.post('/', async (req: Request, res: Response) => {
         )
       }
       if (!clean.text) return
+      timer.point('firstToken')
       if (lastAnswerText.length < 4000) lastAnswerText += clean.text
       checkedLine.onToken(clean.text, data.replace === true)
       return writeBuffered(res, event, { ...data, token: clean.text }, turnSeq)
@@ -1028,6 +1042,7 @@ router.post('/', async (req: Request, res: Response) => {
       }
     }
 
+    timer.mark('setup')
     console.log('[CHAT] START intent/memory/session', Date.now(), { action: action.type })
 
     // Neither of these reads depends on the extracted intent, so start them now.
@@ -1110,6 +1125,7 @@ router.post('/', async (req: Request, res: Response) => {
       firstUserMessagePromise,
     ])
     if (sessionReadError) throw sessionReadError
+    timer.mark('sessionMemory')
     console.log('[CHAT] END intent/memory/session', Date.now())
 
     // Ownership check — prevent resuming/poisoning another user's conversation (IDOR).
@@ -1389,6 +1405,7 @@ router.post('/', async (req: Request, res: Response) => {
       !hydratedIntent.purpose &&
       (hydratedIntent.riskProfile === 'retiree' || hydratedIntent.riskProfile === 'first_time_buyer')
     ) ? { ...hydratedIntent, purpose: 'endUse' } : hydratedIntent
+    timer.mark('intent')
     console.log('[CHAT] END extractIntent', Date.now(), { intent })
 
     // Carries RequirementState (sector/budget/BHK/amenities) across turns —
@@ -2798,6 +2815,7 @@ router.post('/', async (req: Request, res: Response) => {
     }
     intent.queryKind = queryClassification.queryKind
     renderTarget = queryClassification.renderTarget
+    timer.mark('routing')
     console.log('[CHAT] Query classification', Date.now(), {
       queryKind: queryClassification.queryKind,
       renderTarget: queryClassification.renderTarget,
@@ -4044,7 +4062,7 @@ I can help you:
             // handler cannot claim every later turn off a sticky field.
             commuteAnchorJustStated,
           },
-        }, (id) => { topicHandlerId = id })
+        }, (id) => { topicHandlerId = id; timingLaneHint = `topic:${id}` })
         endTraceSpan(topicHandlerSpan, { matched: topicHandlerMatched, handlerId: topicHandlerId })
         if (topicHandlerMatched) {
           /**
@@ -6256,8 +6274,10 @@ EXECUTIVE RESPONSE INSTRUCTIONS:
       )
 
     // Tool-less is the common path (Gemini is tier 1) — size and fact-check against it.
+    timer.mark('dataAndContext')
     const systemPrompt = buildPromptForProvider(false)
     promptForGrounding = systemPrompt
+    timer.mark('promptBuild')
 
     // Issue 4: trim message history if total token estimate exceeds safe ceiling
     // Phase 1: Aggressive trimming based on intent type (search=3, advisory=8)
@@ -6398,11 +6418,14 @@ EXECUTIVE RESPONSE INSTRUCTIONS:
     send('status', { status: 'thinking', message: 'Searching verified properties and analyzing your requirements...' })
 
       timer.mark('preLlm')
+      timer.point('aiStart')
       fallbackResult = await executeWithFallbackChain({
         systemPrompt,
         buildSystemPrompt: buildPromptForProvider,
         messages,
-        send,
+        // The first token the chain hands back. The chain may hold a leg's text for its checks, so
+        // this is "first usable model text", not the provider's first byte (fallbackChain is not touched).
+        send: (event: string, data: Record<string, unknown>) => { if (event === 'token') timer.point('aiFirstToken'); send(event, data) },
         onToolCall: handleToolCall,
         groqFallbackSuffix: '',
         projects,
@@ -6957,7 +6980,6 @@ EXECUTIVE RESPONSE INSTRUCTIONS:
 
     // ── Emit done & close SSE connection immediately (0ms blocking wait) ──
     timer.mark('postLlm')
-    console.log('[CHAT:TIMING]', timer.summary(), '|', message.slice(0, 50))
     send('done', { sessionId: currentSessionId, intentState, intent, responseMode, timings: { ...timer.stages, total: timer.elapsed() } })
     res.end()
     console.log('[CHAT] AFTER send(done)', Date.now())
