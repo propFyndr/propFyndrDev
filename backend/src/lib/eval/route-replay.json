@@ -128,7 +128,7 @@
           "lane": "topic:project_catch",
           "llm": false,
           "contains": [
-            "What our records show",
+            "What could go wrong, from our records and UP-RERA",
             "What we do not hold"
           ],
           "notContains": [
@@ -3034,7 +3034,13 @@
           "llm": false,
           "contains": [
             "Mahagun Mezzaria",
-            "What our records show"
+            "What could go wrong, from our records and UP-RERA",
+            "**Registration:**",
+            "**Complaints:**",
+            "**Delays:**",
+            "**Occupancy certificate:**",
+            "**Court cases:**",
+            "**Abeyance:**"
           ],
           "notContains": [
             "unblemished",
@@ -3224,6 +3230,138 @@
         "expect": {
           "contains": [
             "Sector 150"
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "id": "safety40-complaints",
+    "source": "safety40 before-run 2026-11-04",
+    "turns": [
+      {
+        "text": "How many UP-RERA complaints are there against Mahagun Mezzaria?",
+        "expect": {
+          "lane": "topic:project_catch",
+          "llm": false,
+          "contains": [
+            "**Complaints:**",
+            "**Court cases:**",
+            "**Abeyance:**"
+          ],
+          "notContains": [
+            "unblemished",
+            "clean legal",
+            "no litigation"
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "id": "safety40-oc-and-court",
+    "source": "safety40 before-run 2026-11-04",
+    "turns": [
+      {
+        "text": "Does Mahagun Mezzaria have an occupancy certificate, and are there any court cases against it?",
+        "expect": {
+          "lane": "topic:project_catch",
+          "llm": false,
+          "contains": [
+            "**Complaints:**",
+            "**Court cases:**",
+            "**Abeyance:**"
+          ],
+          "notContains": [
+            "unblemished",
+            "clean legal",
+            "no litigation"
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "id": "safety40-court-not-amenity",
+    "source": "safety40 before-run 2026-11-04",
+    "turns": [
+      {
+        "text": "Are there any court cases against Jaypee Klassic?",
+        "expect": {
+          "lane": "topic:project_catch",
+          "llm": false,
+          "contains": [
+            "**Complaints:**",
+            "**Court cases:**",
+            "**Abeyance:**"
+          ],
+          "notContains": [
+            "unblemished",
+            "clean legal",
+            "no litigation"
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "id": "safety40-abeyance",
+    "source": "safety40 before-run 2026-11-04",
+    "turns": [
+      {
+        "text": "Is Migsun Wynn on the UP-RERA abeyance list?",
+        "expect": {
+          "lane": "topic:project_catch",
+          "llm": false,
+          "contains": [
+            "**Complaints:**",
+            "**Court cases:**",
+            "**Abeyance:**"
+          ],
+          "notContains": [
+            "unblemished",
+            "clean legal",
+            "no litigation"
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "id": "safety40-q5-two-records",
+    "source": "hard-43 Q5, re-score 2026-11-04",
+    "turns": [
+      {
+        "text": "Supertech Supernova Astralis vs Mahagun Mezzaria: which is the safer buy and why?",
+        "expect": {
+          "lane": "topic:project_catch",
+          "llm": false,
+          "contains": [
+            "#### Supertech Supernova Astralis",
+            "#### Mahagun Mezzaria",
+            "We do not rank them",
+            "28 Sep 2021, which has passed"
+          ],
+          "notContains": [
+            "unblemished",
+            "objectively",
+            "clean legal",
+            "safer buy is"
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "id": "safety40-water-complaint-not-risk",
+    "source": "review 2026-11-04: broadened risk matcher",
+    "turns": [
+      {
+        "text": "any complaints about water supply in Gulshan Botnia",
+        "expect": {
+          "notContains": [
+            "**Abeyance:**",
+            "The catch with"
           ]
         }
       }

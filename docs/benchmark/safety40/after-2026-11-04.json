@@ -1,0 +1,702 @@
+{
+  "label": "after-2026-11-04",
+  "endpoint": "http://localhost:3202/api/v1/chat",
+  "ranAt": "2026-11-04T09:23:24.408Z",
+  "totals": {
+    "sourced": 104,
+    "unsourced": 48,
+    "reassurance": 0,
+    "notOnRecord": 208,
+    "answersWithReassurance": 0
+  },
+  "rows": [
+    {
+      "id": "s1.1",
+      "project": "Mahagun Mezzaria",
+      "q": "Is Mahagun Mezzaria safe to buy?",
+      "answer": "### The catch with Mahagun Mezzaria\n\n**What could go wrong, from our records and UP-RERA:**\n- **Registration:** UP-RERA validity on record: 28 Sep 2021, which has passed. The registry may hold an extension we have not read; ask the builder for the current registration or the extension order.\n- **Complaints:** Not on record.\n- **Delays:** Not on record.\n- **Occupancy certificate:** Listed as ready to move, but we hold no occupancy certificate for it. Registry cannot complete without one.\n- **Court cases:** Not on record.\n- **Abeyance:** Not on record.\n\n**What we do not hold — ask the sales team for these in writing:**\n- The number of complaints against the project on the UP-RERA portal, and what they were about\n- The water source, and a recent TDS test report\n- Whether the developer has cleared the authority land dues (Amitabh Kant 25% clearance)\n- The carpet area of your exact unit, in writing, next to the super area\n- Every charge beyond the base price: PLC, parking, club, IFMS, power backup\n\nGet every answer on paper before you pay a booking amount. A verbal assurance from a sales team is not enforceable.",
+      "totalMs": 7857,
+      "score": {
+        "sourced": 1,
+        "unsourced": 1,
+        "reassurance": 0,
+        "notOnRecord": 6,
+        "reassuranceLines": [],
+        "unsourcedLines": [
+          "- Whether the developer has cleared the authority land dues (Amitabh Kant 25% clearance)"
+        ]
+      }
+    },
+    {
+      "id": "s1.2",
+      "project": "Mahagun Mezzaria",
+      "q": "What could go wrong if I buy in Mahagun Mezzaria?",
+      "answer": "### The catch with Mahagun Mezzaria\n\n**What could go wrong, from our records and UP-RERA:**\n- **Registration:** UP-RERA validity on record: 28 Sep 2021, which has passed. The registry may hold an extension we have not read; ask the builder for the current registration or the extension order.\n- **Complaints:** Not on record.\n- **Delays:** Not on record.\n- **Occupancy certificate:** Listed as ready to move, but we hold no occupancy certificate for it. Registry cannot complete without one.\n- **Court cases:** Not on record.\n- **Abeyance:** Not on record.\n\n**What we do not hold — ask the sales team for these in writing:**\n- The number of complaints against the project on the UP-RERA portal, and what they were about\n- The water source, and a recent TDS test report\n- Whether the developer has cleared the authority land dues (Amitabh Kant 25% clearance)\n- The carpet area of your exact unit, in writing, next to the super area\n- Every charge beyond the base price: PLC, parking, club, IFMS, power backup\n\nGet every answer on paper before you pay a booking amount. A verbal assurance from a sales team is not enforceable.",
+      "totalMs": 5789,
+      "score": {
+        "sourced": 1,
+        "unsourced": 1,
+        "reassurance": 0,
+        "notOnRecord": 6,
+        "reassuranceLines": [],
+        "unsourcedLines": [
+          "- Whether the developer has cleared the authority land dues (Amitabh Kant 25% clearance)"
+        ]
+      }
+    },
+    {
+      "id": "s1.3",
+      "project": "Mahagun Mezzaria",
+      "q": "How many UP-RERA complaints are there against Mahagun Mezzaria?",
+      "answer": "### The catch with Mahagun Mezzaria\n\n**What could go wrong, from our records and UP-RERA:**\n- **Registration:** UP-RERA validity on record: 28 Sep 2021, which has passed. The registry may hold an extension we have not read; ask the builder for the current registration or the extension order.\n- **Complaints:** Not on record.\n- **Delays:** Not on record.\n- **Occupancy certificate:** Listed as ready to move, but we hold no occupancy certificate for it. Registry cannot complete without one.\n- **Court cases:** Not on record.\n- **Abeyance:** Not on record.\n\n**What we do not hold — ask the sales team for these in writing:**\n- The number of complaints against the project on the UP-RERA portal, and what they were about\n- The water source, and a recent TDS test report\n- Whether the developer has cleared the authority land dues (Amitabh Kant 25% clearance)\n- The carpet area of your exact unit, in writing, next to the super area\n- Every charge beyond the base price: PLC, parking, club, IFMS, power backup\n\nGet every answer on paper before you pay a booking amount. A verbal assurance from a sales team is not enforceable.",
+      "totalMs": 4148,
+      "score": {
+        "sourced": 1,
+        "unsourced": 1,
+        "reassurance": 0,
+        "notOnRecord": 6,
+        "reassuranceLines": [],
+        "unsourcedLines": [
+          "- Whether the developer has cleared the authority land dues (Amitabh Kant 25% clearance)"
+        ]
+      }
+    },
+    {
+      "id": "s1.4",
+      "project": "Mahagun Mezzaria",
+      "q": "Does Mahagun Mezzaria have an occupancy certificate, and are there any court cases against it?",
+      "answer": "### The catch with Mahagun Mezzaria\n\n**What could go wrong, from our records and UP-RERA:**\n- **Registration:** UP-RERA validity on record: 28 Sep 2021, which has passed. The registry may hold an extension we have not read; ask the builder for the current registration or the extension order.\n- **Complaints:** Not on record.\n- **Delays:** Not on record.\n- **Occupancy certificate:** Listed as ready to move, but we hold no occupancy certificate for it. Registry cannot complete without one.\n- **Court cases:** Not on record.\n- **Abeyance:** Not on record.\n\n**What we do not hold — ask the sales team for these in writing:**\n- The number of complaints against the project on the UP-RERA portal, and what they were about\n- The water source, and a recent TDS test report\n- Whether the developer has cleared the authority land dues (Amitabh Kant 25% clearance)\n- The carpet area of your exact unit, in writing, next to the super area\n- Every charge beyond the base price: PLC, parking, club, IFMS, power backup\n\nGet every answer on paper before you pay a booking amount. A verbal assurance from a sales team is not enforceable.",
+      "totalMs": 6851,
+      "score": {
+        "sourced": 1,
+        "unsourced": 1,
+        "reassurance": 0,
+        "notOnRecord": 6,
+        "reassuranceLines": [],
+        "unsourcedLines": [
+          "- Whether the developer has cleared the authority land dues (Amitabh Kant 25% clearance)"
+        ]
+      }
+    },
+    {
+      "id": "s2.1",
+      "project": "Supertech Supernova Astralis",
+      "q": "Is Supertech Supernova Astralis safe to buy?",
+      "answer": "### The catch with Supertech Supernova Astralis\n\n**What could go wrong, from our records and UP-RERA:**\n- **Registration:** UPRERAPRJ4017 on our record; its validity is not on record.\n- **Complaints:** Not on record.\n- **Delays:** Supertech Limited has 12 delayed projects on record.\n- **Occupancy certificate:** Not on record.\n- **Court cases:** Not on record.\n- **Abeyance:** Not on record.\n\n**Also on record:**\n- Still under construction. Possession on record: 2027-12. Ask what the builder-buyer agreement says if that date slips.\n- Supertech Limited has insolvency history on record.\n- Legal flag on the developer, Supertech Limited: nclt insolvency.\n\n**What we do not hold — ask the sales team for these in writing:**\n- Which towers have an occupancy certificate, and when the rest are expected\n- The number of complaints against the project on the UP-RERA portal, and what they were about\n- The water source, and a recent TDS test report\n- Whether the developer has cleared the authority land dues (Amitabh Kant 25% clearance)\n- The carpet area of your exact unit, in writing, next to the super area\n- Every charge beyond the base price: PLC, parking, club, IFMS, power backup\n\nGet every answer on paper before you pay a booking amount. A verbal assurance from a sales team is not enforceable.",
+      "totalMs": 5156,
+      "score": {
+        "sourced": 3,
+        "unsourced": 1,
+        "reassurance": 0,
+        "notOnRecord": 6,
+        "reassuranceLines": [],
+        "unsourcedLines": [
+          "- Whether the developer has cleared the authority land dues (Amitabh Kant 25% clearance)"
+        ]
+      }
+    },
+    {
+      "id": "s2.2",
+      "project": "Supertech Supernova Astralis",
+      "q": "What could go wrong if I buy in Supertech Supernova Astralis?",
+      "answer": "### The catch with Supertech Supernova Astralis\n\n**What could go wrong, from our records and UP-RERA:**\n- **Registration:** UPRERAPRJ4017 on our record; its validity is not on record.\n- **Complaints:** Not on record.\n- **Delays:** Supertech Limited has 12 delayed projects on record.\n- **Occupancy certificate:** Not on record.\n- **Court cases:** Not on record.\n- **Abeyance:** Not on record.\n\n**Also on record:**\n- Still under construction. Possession on record: 2027-12. Ask what the builder-buyer agreement says if that date slips.\n- Supertech Limited has insolvency history on record.\n- Legal flag on the developer, Supertech Limited: nclt insolvency.\n\n**What we do not hold — ask the sales team for these in writing:**\n- Which towers have an occupancy certificate, and when the rest are expected\n- The number of complaints against the project on the UP-RERA portal, and what they were about\n- The water source, and a recent TDS test report\n- Whether the developer has cleared the authority land dues (Amitabh Kant 25% clearance)\n- The carpet area of your exact unit, in writing, next to the super area\n- Every charge beyond the base price: PLC, parking, club, IFMS, power backup\n\nGet every answer on paper before you pay a booking amount. A verbal assurance from a sales team is not enforceable.",
+      "totalMs": 4252,
+      "score": {
+        "sourced": 3,
+        "unsourced": 1,
+        "reassurance": 0,
+        "notOnRecord": 6,
+        "reassuranceLines": [],
+        "unsourcedLines": [
+          "- Whether the developer has cleared the authority land dues (Amitabh Kant 25% clearance)"
+        ]
+      }
+    },
+    {
+      "id": "s2.3",
+      "project": "Supertech Supernova Astralis",
+      "q": "How many UP-RERA complaints are there against Supertech Supernova Astralis?",
+      "answer": "### The catch with Supertech Supernova Astralis\n\n**What could go wrong, from our records and UP-RERA:**\n- **Registration:** UPRERAPRJ4017 on our record; its validity is not on record.\n- **Complaints:** Not on record.\n- **Delays:** Supertech Limited has 12 delayed projects on record.\n- **Occupancy certificate:** Not on record.\n- **Court cases:** Not on record.\n- **Abeyance:** Not on record.\n\n**Also on record:**\n- Still under construction. Possession on record: 2027-12. Ask what the builder-buyer agreement says if that date slips.\n- Supertech Limited has insolvency history on record.\n- Legal flag on the developer, Supertech Limited: nclt insolvency.\n\n**What we do not hold — ask the sales team for these in writing:**\n- Which towers have an occupancy certificate, and when the rest are expected\n- The number of complaints against the project on the UP-RERA portal, and what they were about\n- The water source, and a recent TDS test report\n- Whether the developer has cleared the authority land dues (Amitabh Kant 25% clearance)\n- The carpet area of your exact unit, in writing, next to the super area\n- Every charge beyond the base price: PLC, parking, club, IFMS, power backup\n\nGet every answer on paper before you pay a booking amount. A verbal assurance from a sales team is not enforceable.",
+      "totalMs": 4524,
+      "score": {
+        "sourced": 3,
+        "unsourced": 1,
+        "reassurance": 0,
+        "notOnRecord": 6,
+        "reassuranceLines": [],
+        "unsourcedLines": [
+          "- Whether the developer has cleared the authority land dues (Amitabh Kant 25% clearance)"
+        ]
+      }
+    },
+    {
+      "id": "s2.4",
+      "project": "Supertech Supernova Astralis",
+      "q": "Does Supertech Supernova Astralis have an occupancy certificate, and are there any court cases against it?",
+      "answer": "### The catch with Supertech Supernova Astralis\n\n**What could go wrong, from our records and UP-RERA:**\n- **Registration:** UPRERAPRJ4017 on our record; its validity is not on record.\n- **Complaints:** Not on record.\n- **Delays:** Supertech Limited has 12 delayed projects on record.\n- **Occupancy certificate:** Not on record.\n- **Court cases:** Not on record.\n- **Abeyance:** Not on record.\n\n**Also on record:**\n- Still under construction. Possession on record: 2027-12. Ask what the builder-buyer agreement says if that date slips.\n- Supertech Limited has insolvency history on record.\n- Legal flag on the developer, Supertech Limited: nclt insolvency.\n\n**What we do not hold — ask the sales team for these in writing:**\n- Which towers have an occupancy certificate, and when the rest are expected\n- The number of complaints against the project on the UP-RERA portal, and what they were about\n- The water source, and a recent TDS test report\n- Whether the developer has cleared the authority land dues (Amitabh Kant 25% clearance)\n- The carpet area of your exact unit, in writing, next to the super area\n- Every charge beyond the base price: PLC, parking, club, IFMS, power backup\n\nGet every answer on paper before you pay a booking amount. A verbal assurance from a sales team is not enforceable.",
+      "totalMs": 3699,
+      "score": {
+        "sourced": 3,
+        "unsourced": 1,
+        "reassurance": 0,
+        "notOnRecord": 6,
+        "reassuranceLines": [],
+        "unsourcedLines": [
+          "- Whether the developer has cleared the authority land dues (Amitabh Kant 25% clearance)"
+        ]
+      }
+    },
+    {
+      "id": "s3.1",
+      "project": "Godrej Tropical Isle",
+      "q": "Is Godrej Tropical Isle safe to buy?",
+      "answer": "### The catch with Godrej Tropical Isle\n\n**What could go wrong, from our records and UP-RERA:**\n- **Registration:** UPRERAPRJ303390, valid until 6 Jun 2028 on our record.\n- **Complaints:** Not on record.\n- **Delays:** Possession date on record: Jul 2028.\n- **Occupancy certificate:** Not on record.\n- **Court cases:** None on record: our stored count is 0. A count we hold is not a court search.\n- **Abeyance:** Not on record.\n\n**Also on record:**\n- Still under construction. Possession on record: 2028-07. Ask what the builder-buyer agreement says if that date slips.\n- Location concern on record: Proposed Greater Noida West Metro extension is currently in planning/tender stage; transit currently relies on road transport.\n- Location concern on record: Parthala flyover entry point experiences slow vehicle movement during evening peak return commute.\n- Our 4 BHK rows for this project disagree on price: ₹15,552 to ₹20,000 per sq.ft. Ask which rate is current and get it on the cost sheet.\n\n**What we do not hold — ask the sales team for these in writing:**\n- Which towers have an occupancy certificate, and when the rest are expected\n- The number of complaints against the project on the UP-RERA portal, and what they were about\n- The water source, and a recent TDS test report\n- Whether the developer has cleared the authority land dues (Amitabh Kant 25% clearance)\n- The carpet area of your exact unit, in writing, next to the super area\n- Every charge beyond the base price: PLC, parking, club, IFMS, power backup\n\nGet every answer on paper before you pay a booking amount. A verbal assurance from a sales team is not enforceable.",
+      "totalMs": 3797,
+      "score": {
+        "sourced": 4,
+        "unsourced": 2,
+        "reassurance": 0,
+        "notOnRecord": 4,
+        "reassuranceLines": [],
+        "unsourcedLines": [
+          "- Our 4 BHK rows for this project disagree on price: ₹15,552 to ₹20,000 per sq.",
+          "- Whether the developer has cleared the authority land dues (Amitabh Kant 25% clearance)"
+        ]
+      }
+    },
+    {
+      "id": "s3.2",
+      "project": "Godrej Tropical Isle",
+      "q": "What could go wrong if I buy in Godrej Tropical Isle?",
+      "answer": "### The catch with Godrej Tropical Isle\n\n**What could go wrong, from our records and UP-RERA:**\n- **Registration:** UPRERAPRJ303390, valid until 6 Jun 2028 on our record.\n- **Complaints:** Not on record.\n- **Delays:** Possession date on record: Jul 2028.\n- **Occupancy certificate:** Not on record.\n- **Court cases:** None on record: our stored count is 0. A count we hold is not a court search.\n- **Abeyance:** Not on record.\n\n**Also on record:**\n- Still under construction. Possession on record: 2028-07. Ask what the builder-buyer agreement says if that date slips.\n- Location concern on record: Proposed Greater Noida West Metro extension is currently in planning/tender stage; transit currently relies on road transport.\n- Location concern on record: Parthala flyover entry point experiences slow vehicle movement during evening peak return commute.\n- Our 4 BHK rows for this project disagree on price: ₹15,552 to ₹20,000 per sq.ft. Ask which rate is current and get it on the cost sheet.\n\n**What we do not hold — ask the sales team for these in writing:**\n- Which towers have an occupancy certificate, and when the rest are expected\n- The number of complaints against the project on the UP-RERA portal, and what they were about\n- The water source, and a recent TDS test report\n- Whether the developer has cleared the authority land dues (Amitabh Kant 25% clearance)\n- The carpet area of your exact unit, in writing, next to the super area\n- Every charge beyond the base price: PLC, parking, club, IFMS, power backup\n\nGet every answer on paper before you pay a booking amount. A verbal assurance from a sales team is not enforceable.",
+      "totalMs": 4659,
+      "score": {
+        "sourced": 4,
+        "unsourced": 2,
+        "reassurance": 0,
+        "notOnRecord": 4,
+        "reassuranceLines": [],
+        "unsourcedLines": [
+          "- Our 4 BHK rows for this project disagree on price: ₹15,552 to ₹20,000 per sq.",
+          "- Whether the developer has cleared the authority land dues (Amitabh Kant 25% clearance)"
+        ]
+      }
+    },
+    {
+      "id": "s3.3",
+      "project": "Godrej Tropical Isle",
+      "q": "How many UP-RERA complaints are there against Godrej Tropical Isle?",
+      "answer": "### The catch with Godrej Tropical Isle\n\n**What could go wrong, from our records and UP-RERA:**\n- **Registration:** UPRERAPRJ303390, valid until 6 Jun 2028 on our record.\n- **Complaints:** Not on record.\n- **Delays:** Possession date on record: Jul 2028.\n- **Occupancy certificate:** Not on record.\n- **Court cases:** None on record: our stored count is 0. A count we hold is not a court search.\n- **Abeyance:** Not on record.\n\n**Also on record:**\n- Still under construction. Possession on record: 2028-07. Ask what the builder-buyer agreement says if that date slips.\n- Location concern on record: Proposed Greater Noida West Metro extension is currently in planning/tender stage; transit currently relies on road transport.\n- Location concern on record: Parthala flyover entry point experiences slow vehicle movement during evening peak return commute.\n- Our 4 BHK rows for this project disagree on price: ₹15,552 to ₹20,000 per sq.ft. Ask which rate is current and get it on the cost sheet.\n\n**What we do not hold — ask the sales team for these in writing:**\n- Which towers have an occupancy certificate, and when the rest are expected\n- The number of complaints against the project on the UP-RERA portal, and what they were about\n- The water source, and a recent TDS test report\n- Whether the developer has cleared the authority land dues (Amitabh Kant 25% clearance)\n- The carpet area of your exact unit, in writing, next to the super area\n- Every charge beyond the base price: PLC, parking, club, IFMS, power backup\n\nGet every answer on paper before you pay a booking amount. A verbal assurance from a sales team is not enforceable.",
+      "totalMs": 4582,
+      "score": {
+        "sourced": 4,
+        "unsourced": 2,
+        "reassurance": 0,
+        "notOnRecord": 4,
+        "reassuranceLines": [],
+        "unsourcedLines": [
+          "- Our 4 BHK rows for this project disagree on price: ₹15,552 to ₹20,000 per sq.",
+          "- Whether the developer has cleared the authority land dues (Amitabh Kant 25% clearance)"
+        ]
+      }
+    },
+    {
+      "id": "s3.4",
+      "project": "Godrej Tropical Isle",
+      "q": "Does Godrej Tropical Isle have an occupancy certificate, and are there any court cases against it?",
+      "answer": "### The catch with Godrej Tropical Isle\n\n**What could go wrong, from our records and UP-RERA:**\n- **Registration:** UPRERAPRJ303390, valid until 6 Jun 2028 on our record.\n- **Complaints:** Not on record.\n- **Delays:** Possession date on record: Jul 2028.\n- **Occupancy certificate:** Not on record.\n- **Court cases:** None on record: our stored count is 0. A count we hold is not a court search.\n- **Abeyance:** Not on record.\n\n**Also on record:**\n- Still under construction. Possession on record: 2028-07. Ask what the builder-buyer agreement says if that date slips.\n- Location concern on record: Proposed Greater Noida West Metro extension is currently in planning/tender stage; transit currently relies on road transport.\n- Location concern on record: Parthala flyover entry point experiences slow vehicle movement during evening peak return commute.\n- Our 4 BHK rows for this project disagree on price: ₹15,552 to ₹20,000 per sq.ft. Ask which rate is current and get it on the cost sheet.\n\n**What we do not hold — ask the sales team for these in writing:**\n- Which towers have an occupancy certificate, and when the rest are expected\n- The number of complaints against the project on the UP-RERA portal, and what they were about\n- The water source, and a recent TDS test report\n- Whether the developer has cleared the authority land dues (Amitabh Kant 25% clearance)\n- The carpet area of your exact unit, in writing, next to the super area\n- Every charge beyond the base price: PLC, parking, club, IFMS, power backup\n\nGet every answer on paper before you pay a booking amount. A verbal assurance from a sales team is not enforceable.",
+      "totalMs": 3323,
+      "score": {
+        "sourced": 4,
+        "unsourced": 2,
+        "reassurance": 0,
+        "notOnRecord": 4,
+        "reassuranceLines": [],
+        "unsourcedLines": [
+          "- Our 4 BHK rows for this project disagree on price: ₹15,552 to ₹20,000 per sq.",
+          "- Whether the developer has cleared the authority land dues (Amitabh Kant 25% clearance)"
+        ]
+      }
+    },
+    {
+      "id": "s4.1",
+      "project": "ACE Parkway",
+      "q": "Is ACE Parkway safe to buy?",
+      "answer": "### The catch with ACE Parkway\n\n**What could go wrong, from our records and UP-RERA:**\n- **Registration:** UP-RERA validity on record: 28 Jun 2023, which has passed. The registry may hold an extension we have not read; ask the builder for the current registration or the extension order.\n- **Complaints:** Not on record.\n- **Delays:** Not on record.\n- **Occupancy certificate:** Listed as ready to move, but we hold no occupancy certificate for it. Registry cannot complete without one.\n- **Court cases:** None on record: our stored count is 0. A count we hold is not a court search.\n- **Abeyance:** Not on record.\n\n**Also on record:**\n- Location concern on record: Social and daily convenience retail is in the developing stage; major commercial malls are 10-15 minutes away.\n- Location concern on record: Nearest operational Aqua Line metro station (Sector 148) is ~3.2 km; feeder shuttles or personal transport recommended.\n\n**What we do not hold — ask the sales team for these in writing:**\n- The number of complaints against the project on the UP-RERA portal, and what they were about\n- The water source, and a recent TDS test report\n- Whether the developer has cleared the authority land dues (Amitabh Kant 25% clearance)\n- The carpet area of your exact unit, in writing, next to the super area\n- Every charge beyond the base price: PLC, parking, club, IFMS, power backup\n\nGet every answer on paper before you pay a booking amount. A verbal assurance from a sales team is not enforceable.",
+      "totalMs": 5216,
+      "score": {
+        "sourced": 4,
+        "unsourced": 2,
+        "reassurance": 0,
+        "notOnRecord": 5,
+        "reassuranceLines": [],
+        "unsourcedLines": [
+          "2 km; feeder shuttles or personal transport recommended.",
+          "- Whether the developer has cleared the authority land dues (Amitabh Kant 25% clearance)"
+        ]
+      }
+    },
+    {
+      "id": "s4.2",
+      "project": "ACE Parkway",
+      "q": "What could go wrong if I buy in ACE Parkway?",
+      "answer": "### The catch with ACE Parkway\n\n**What could go wrong, from our records and UP-RERA:**\n- **Registration:** UP-RERA validity on record: 28 Jun 2023, which has passed. The registry may hold an extension we have not read; ask the builder for the current registration or the extension order.\n- **Complaints:** Not on record.\n- **Delays:** Not on record.\n- **Occupancy certificate:** Listed as ready to move, but we hold no occupancy certificate for it. Registry cannot complete without one.\n- **Court cases:** None on record: our stored count is 0. A count we hold is not a court search.\n- **Abeyance:** Not on record.\n\n**Also on record:**\n- Location concern on record: Social and daily convenience retail is in the developing stage; major commercial malls are 10-15 minutes away.\n- Location concern on record: Nearest operational Aqua Line metro station (Sector 148) is ~3.2 km; feeder shuttles or personal transport recommended.\n\n**What we do not hold — ask the sales team for these in writing:**\n- The number of complaints against the project on the UP-RERA portal, and what they were about\n- The water source, and a recent TDS test report\n- Whether the developer has cleared the authority land dues (Amitabh Kant 25% clearance)\n- The carpet area of your exact unit, in writing, next to the super area\n- Every charge beyond the base price: PLC, parking, club, IFMS, power backup\n\nGet every answer on paper before you pay a booking amount. A verbal assurance from a sales team is not enforceable.",
+      "totalMs": 3752,
+      "score": {
+        "sourced": 4,
+        "unsourced": 2,
+        "reassurance": 0,
+        "notOnRecord": 5,
+        "reassuranceLines": [],
+        "unsourcedLines": [
+          "2 km; feeder shuttles or personal transport recommended.",
+          "- Whether the developer has cleared the authority land dues (Amitabh Kant 25% clearance)"
+        ]
+      }
+    },
+    {
+      "id": "s4.3",
+      "project": "ACE Parkway",
+      "q": "How many UP-RERA complaints are there against ACE Parkway?",
+      "answer": "### The catch with ACE Parkway\n\n**What could go wrong, from our records and UP-RERA:**\n- **Registration:** UP-RERA validity on record: 28 Jun 2023, which has passed. The registry may hold an extension we have not read; ask the builder for the current registration or the extension order.\n- **Complaints:** Not on record.\n- **Delays:** Not on record.\n- **Occupancy certificate:** Listed as ready to move, but we hold no occupancy certificate for it. Registry cannot complete without one.\n- **Court cases:** None on record: our stored count is 0. A count we hold is not a court search.\n- **Abeyance:** Not on record.\n\n**Also on record:**\n- Location concern on record: Social and daily convenience retail is in the developing stage; major commercial malls are 10-15 minutes away.\n- Location concern on record: Nearest operational Aqua Line metro station (Sector 148) is ~3.2 km; feeder shuttles or personal transport recommended.\n\n**What we do not hold — ask the sales team for these in writing:**\n- The number of complaints against the project on the UP-RERA portal, and what they were about\n- The water source, and a recent TDS test report\n- Whether the developer has cleared the authority land dues (Amitabh Kant 25% clearance)\n- The carpet area of your exact unit, in writing, next to the super area\n- Every charge beyond the base price: PLC, parking, club, IFMS, power backup\n\nGet every answer on paper before you pay a booking amount. A verbal assurance from a sales team is not enforceable.",
+      "totalMs": 5045,
+      "score": {
+        "sourced": 4,
+        "unsourced": 2,
+        "reassurance": 0,
+        "notOnRecord": 5,
+        "reassuranceLines": [],
+        "unsourcedLines": [
+          "2 km; feeder shuttles or personal transport recommended.",
+          "- Whether the developer has cleared the authority land dues (Amitabh Kant 25% clearance)"
+        ]
+      }
+    },
+    {
+      "id": "s4.4",
+      "project": "ACE Parkway",
+      "q": "Does ACE Parkway have an occupancy certificate, and are there any court cases against it?",
+      "answer": "### The catch with ACE Parkway\n\n**What could go wrong, from our records and UP-RERA:**\n- **Registration:** UP-RERA validity on record: 28 Jun 2023, which has passed. The registry may hold an extension we have not read; ask the builder for the current registration or the extension order.\n- **Complaints:** Not on record.\n- **Delays:** Not on record.\n- **Occupancy certificate:** Listed as ready to move, but we hold no occupancy certificate for it. Registry cannot complete without one.\n- **Court cases:** None on record: our stored count is 0. A count we hold is not a court search.\n- **Abeyance:** Not on record.\n\n**Also on record:**\n- Location concern on record: Social and daily convenience retail is in the developing stage; major commercial malls are 10-15 minutes away.\n- Location concern on record: Nearest operational Aqua Line metro station (Sector 148) is ~3.2 km; feeder shuttles or personal transport recommended.\n\n**What we do not hold — ask the sales team for these in writing:**\n- The number of complaints against the project on the UP-RERA portal, and what they were about\n- The water source, and a recent TDS test report\n- Whether the developer has cleared the authority land dues (Amitabh Kant 25% clearance)\n- The carpet area of your exact unit, in writing, next to the super area\n- Every charge beyond the base price: PLC, parking, club, IFMS, power backup\n\nGet every answer on paper before you pay a booking amount. A verbal assurance from a sales team is not enforceable.",
+      "totalMs": 3740,
+      "score": {
+        "sourced": 4,
+        "unsourced": 2,
+        "reassurance": 0,
+        "notOnRecord": 5,
+        "reassuranceLines": [],
+        "unsourcedLines": [
+          "2 km; feeder shuttles or personal transport recommended.",
+          "- Whether the developer has cleared the authority land dues (Amitabh Kant 25% clearance)"
+        ]
+      }
+    },
+    {
+      "id": "s5.1",
+      "project": "Gulshan Botnia",
+      "q": "Is Gulshan Botnia safe to buy?",
+      "answer": "### The catch with Gulshan Botnia\n\n**What could go wrong, from our records and UP-RERA:**\n- **Registration:** UP-RERA validity on record: 28 Feb 2024, which has passed. The registry may hold an extension we have not read; ask the builder for the current registration or the extension order.\n- **Complaints:** Not on record.\n- **Delays:** Not on record.\n- **Occupancy certificate:** Listed as ready to move, but we hold no occupancy certificate for it. Registry cannot complete without one.\n- **Court cases:** None on record: our stored count is 0. A count we hold is not a court search.\n- **Abeyance:** Not on record.\n\n**Also on record:**\n- Location concern on record: Proposed Greater Noida West Metro extension is currently in planning/tender stage; transit currently relies on road transport.\n- Location concern on record: Parthala flyover entry point experiences slow vehicle movement during evening peak return commute.\n\n**What we do not hold — ask the sales team for these in writing:**\n- The number of complaints against the project on the UP-RERA portal, and what they were about\n- The water source, and a recent TDS test report\n- Whether the developer has cleared the authority land dues (Amitabh Kant 25% clearance)\n- The carpet area of your exact unit, in writing, next to the super area\n- Every charge beyond the base price: PLC, parking, club, IFMS, power backup\n\nGet every answer on paper before you pay a booking amount. A verbal assurance from a sales team is not enforceable.",
+      "totalMs": 3643,
+      "score": {
+        "sourced": 2,
+        "unsourced": 1,
+        "reassurance": 0,
+        "notOnRecord": 5,
+        "reassuranceLines": [],
+        "unsourcedLines": [
+          "- Whether the developer has cleared the authority land dues (Amitabh Kant 25% clearance)"
+        ]
+      }
+    },
+    {
+      "id": "s5.2",
+      "project": "Gulshan Botnia",
+      "q": "What could go wrong if I buy in Gulshan Botnia?",
+      "answer": "### The catch with Gulshan Botnia\n\n**What could go wrong, from our records and UP-RERA:**\n- **Registration:** UP-RERA validity on record: 28 Feb 2024, which has passed. The registry may hold an extension we have not read; ask the builder for the current registration or the extension order.\n- **Complaints:** Not on record.\n- **Delays:** Not on record.\n- **Occupancy certificate:** Listed as ready to move, but we hold no occupancy certificate for it. Registry cannot complete without one.\n- **Court cases:** None on record: our stored count is 0. A count we hold is not a court search.\n- **Abeyance:** Not on record.\n\n**Also on record:**\n- Location concern on record: Proposed Greater Noida West Metro extension is currently in planning/tender stage; transit currently relies on road transport.\n- Location concern on record: Parthala flyover entry point experiences slow vehicle movement during evening peak return commute.\n\n**What we do not hold — ask the sales team for these in writing:**\n- The number of complaints against the project on the UP-RERA portal, and what they were about\n- The water source, and a recent TDS test report\n- Whether the developer has cleared the authority land dues (Amitabh Kant 25% clearance)\n- The carpet area of your exact unit, in writing, next to the super area\n- Every charge beyond the base price: PLC, parking, club, IFMS, power backup\n\nGet every answer on paper before you pay a booking amount. A verbal assurance from a sales team is not enforceable.",
+      "totalMs": 4135,
+      "score": {
+        "sourced": 2,
+        "unsourced": 1,
+        "reassurance": 0,
+        "notOnRecord": 5,
+        "reassuranceLines": [],
+        "unsourcedLines": [
+          "- Whether the developer has cleared the authority land dues (Amitabh Kant 25% clearance)"
+        ]
+      }
+    },
+    {
+      "id": "s5.3",
+      "project": "Gulshan Botnia",
+      "q": "How many UP-RERA complaints are there against Gulshan Botnia?",
+      "answer": "### The catch with Gulshan Botnia\n\n**What could go wrong, from our records and UP-RERA:**\n- **Registration:** UP-RERA validity on record: 28 Feb 2024, which has passed. The registry may hold an extension we have not read; ask the builder for the current registration or the extension order.\n- **Complaints:** Not on record.\n- **Delays:** Not on record.\n- **Occupancy certificate:** Listed as ready to move, but we hold no occupancy certificate for it. Registry cannot complete without one.\n- **Court cases:** None on record: our stored count is 0. A count we hold is not a court search.\n- **Abeyance:** Not on record.\n\n**Also on record:**\n- Location concern on record: Proposed Greater Noida West Metro extension is currently in planning/tender stage; transit currently relies on road transport.\n- Location concern on record: Parthala flyover entry point experiences slow vehicle movement during evening peak return commute.\n\n**What we do not hold — ask the sales team for these in writing:**\n- The number of complaints against the project on the UP-RERA portal, and what they were about\n- The water source, and a recent TDS test report\n- Whether the developer has cleared the authority land dues (Amitabh Kant 25% clearance)\n- The carpet area of your exact unit, in writing, next to the super area\n- Every charge beyond the base price: PLC, parking, club, IFMS, power backup\n\nGet every answer on paper before you pay a booking amount. A verbal assurance from a sales team is not enforceable.",
+      "totalMs": 4783,
+      "score": {
+        "sourced": 2,
+        "unsourced": 1,
+        "reassurance": 0,
+        "notOnRecord": 5,
+        "reassuranceLines": [],
+        "unsourcedLines": [
+          "- Whether the developer has cleared the authority land dues (Amitabh Kant 25% clearance)"
+        ]
+      }
+    },
+    {
+      "id": "s5.4",
+      "project": "Gulshan Botnia",
+      "q": "Does Gulshan Botnia have an occupancy certificate, and are there any court cases against it?",
+      "answer": "### The catch with Gulshan Botnia\n\n**What could go wrong, from our records and UP-RERA:**\n- **Registration:** UP-RERA validity on record: 28 Feb 2024, which has passed. The registry may hold an extension we have not read; ask the builder for the current registration or the extension order.\n- **Complaints:** Not on record.\n- **Delays:** Not on record.\n- **Occupancy certificate:** Listed as ready to move, but we hold no occupancy certificate for it. Registry cannot complete without one.\n- **Court cases:** None on record: our stored count is 0. A count we hold is not a court search.\n- **Abeyance:** Not on record.\n\n**Also on record:**\n- Location concern on record: Proposed Greater Noida West Metro extension is currently in planning/tender stage; transit currently relies on road transport.\n- Location concern on record: Parthala flyover entry point experiences slow vehicle movement during evening peak return commute.\n\n**What we do not hold — ask the sales team for these in writing:**\n- The number of complaints against the project on the UP-RERA portal, and what they were about\n- The water source, and a recent TDS test report\n- Whether the developer has cleared the authority land dues (Amitabh Kant 25% clearance)\n- The carpet area of your exact unit, in writing, next to the super area\n- Every charge beyond the base price: PLC, parking, club, IFMS, power backup\n\nGet every answer on paper before you pay a booking amount. A verbal assurance from a sales team is not enforceable.",
+      "totalMs": 3729,
+      "score": {
+        "sourced": 2,
+        "unsourced": 1,
+        "reassurance": 0,
+        "notOnRecord": 5,
+        "reassuranceLines": [],
+        "unsourcedLines": [
+          "- Whether the developer has cleared the authority land dues (Amitabh Kant 25% clearance)"
+        ]
+      }
+    },
+    {
+      "id": "s6.1",
+      "project": "Migsun Wynn",
+      "q": "Is Migsun Wynn safe to buy?",
+      "answer": "### The catch with Migsun Wynn\n\n**What could go wrong, from our records and UP-RERA:**\n- **Registration:** UPRERAPRJ2981 on our record; its validity is not on record.\n- **Complaints:** Not on record.\n- **Delays:** Not on record.\n- **Occupancy certificate:** Listed as ready to move, but we hold no occupancy certificate for it. Registry cannot complete without one.\n- **Court cases:** Not on record.\n- **Abeyance:** Not on record.\n\n**What we do not hold — ask the sales team for these in writing:**\n- The number of complaints against the project on the UP-RERA portal, and what they were about\n- The water source, and a recent TDS test report\n- Whether the developer has cleared the authority land dues (Amitabh Kant 25% clearance)\n- The carpet area of your exact unit, in writing, next to the super area\n- Every charge beyond the base price: PLC, parking, club, IFMS, power backup\n\nGet every answer on paper before you pay a booking amount. A verbal assurance from a sales team is not enforceable.",
+      "totalMs": 3433,
+      "score": {
+        "sourced": 1,
+        "unsourced": 1,
+        "reassurance": 0,
+        "notOnRecord": 7,
+        "reassuranceLines": [],
+        "unsourcedLines": [
+          "- Whether the developer has cleared the authority land dues (Amitabh Kant 25% clearance)"
+        ]
+      }
+    },
+    {
+      "id": "s6.2",
+      "project": "Migsun Wynn",
+      "q": "What could go wrong if I buy in Migsun Wynn?",
+      "answer": "### The catch with Migsun Wynn\n\n**What could go wrong, from our records and UP-RERA:**\n- **Registration:** UPRERAPRJ2981 on our record; its validity is not on record.\n- **Complaints:** Not on record.\n- **Delays:** Not on record.\n- **Occupancy certificate:** Listed as ready to move, but we hold no occupancy certificate for it. Registry cannot complete without one.\n- **Court cases:** Not on record.\n- **Abeyance:** Not on record.\n\n**What we do not hold — ask the sales team for these in writing:**\n- The number of complaints against the project on the UP-RERA portal, and what they were about\n- The water source, and a recent TDS test report\n- Whether the developer has cleared the authority land dues (Amitabh Kant 25% clearance)\n- The carpet area of your exact unit, in writing, next to the super area\n- Every charge beyond the base price: PLC, parking, club, IFMS, power backup\n\nGet every answer on paper before you pay a booking amount. A verbal assurance from a sales team is not enforceable.",
+      "totalMs": 9483,
+      "score": {
+        "sourced": 1,
+        "unsourced": 1,
+        "reassurance": 0,
+        "notOnRecord": 7,
+        "reassuranceLines": [],
+        "unsourcedLines": [
+          "- Whether the developer has cleared the authority land dues (Amitabh Kant 25% clearance)"
+        ]
+      }
+    },
+    {
+      "id": "s6.3",
+      "project": "Migsun Wynn",
+      "q": "How many UP-RERA complaints are there against Migsun Wynn?",
+      "answer": "### The catch with Migsun Wynn\n\n**What could go wrong, from our records and UP-RERA:**\n- **Registration:** UPRERAPRJ2981 on our record; its validity is not on record.\n- **Complaints:** Not on record.\n- **Delays:** Not on record.\n- **Occupancy certificate:** Listed as ready to move, but we hold no occupancy certificate for it. Registry cannot complete without one.\n- **Court cases:** Not on record.\n- **Abeyance:** Not on record.\n\n**What we do not hold — ask the sales team for these in writing:**\n- The number of complaints against the project on the UP-RERA portal, and what they were about\n- The water source, and a recent TDS test report\n- Whether the developer has cleared the authority land dues (Amitabh Kant 25% clearance)\n- The carpet area of your exact unit, in writing, next to the super area\n- Every charge beyond the base price: PLC, parking, club, IFMS, power backup\n\nGet every answer on paper before you pay a booking amount. A verbal assurance from a sales team is not enforceable.",
+      "totalMs": 3565,
+      "score": {
+        "sourced": 1,
+        "unsourced": 1,
+        "reassurance": 0,
+        "notOnRecord": 7,
+        "reassuranceLines": [],
+        "unsourcedLines": [
+          "- Whether the developer has cleared the authority land dues (Amitabh Kant 25% clearance)"
+        ]
+      }
+    },
+    {
+      "id": "s6.4",
+      "project": "Migsun Wynn",
+      "q": "Does Migsun Wynn have an occupancy certificate, and are there any court cases against it?",
+      "answer": "### The catch with Migsun Wynn\n\n**What could go wrong, from our records and UP-RERA:**\n- **Registration:** UPRERAPRJ2981 on our record; its validity is not on record.\n- **Complaints:** Not on record.\n- **Delays:** Not on record.\n- **Occupancy certificate:** Listed as ready to move, but we hold no occupancy certificate for it. Registry cannot complete without one.\n- **Court cases:** Not on record.\n- **Abeyance:** Not on record.\n\n**What we do not hold — ask the sales team for these in writing:**\n- The number of complaints against the project on the UP-RERA portal, and what they were about\n- The water source, and a recent TDS test report\n- Whether the developer has cleared the authority land dues (Amitabh Kant 25% clearance)\n- The carpet area of your exact unit, in writing, next to the super area\n- Every charge beyond the base price: PLC, parking, club, IFMS, power backup\n\nGet every answer on paper before you pay a booking amount. A verbal assurance from a sales team is not enforceable.",
+      "totalMs": 3440,
+      "score": {
+        "sourced": 1,
+        "unsourced": 1,
+        "reassurance": 0,
+        "notOnRecord": 7,
+        "reassuranceLines": [],
+        "unsourcedLines": [
+          "- Whether the developer has cleared the authority land dues (Amitabh Kant 25% clearance)"
+        ]
+      }
+    },
+    {
+      "id": "s7.1",
+      "project": "Sikka Karmic Greens",
+      "q": "Is Sikka Karmic Greens safe to buy?",
+      "answer": "### The catch with Sikka Karmic Greens\n\n**What could go wrong, from our records and UP-RERA:**\n- **Registration:** UPRERAPRJ4452, valid until 30 Dec 2026 on our record.\n- **Complaints:** Not on record.\n- **Delays:** Not on record.\n- **Occupancy certificate:** Listed as ready to move, but we hold no occupancy certificate for it. Registry cannot complete without one.\n- **Court cases:** None on record: our stored count is 0. A count we hold is not a court search.\n- **Abeyance:** Not on record.\n\n**Also on record:**\n- Risk flag on record: low risk.\n- Location concern on record: Resale inventory focus.\n\n**What we do not hold — ask the sales team for these in writing:**\n- The number of complaints against the project on the UP-RERA portal, and what they were about\n- The water source, and a recent TDS test report\n- Whether the developer has cleared the authority land dues (Amitabh Kant 25% clearance)\n- The carpet area of your exact unit, in writing, next to the super area\n- Every charge beyond the base price: PLC, parking, club, IFMS, power backup\n\nGet every answer on paper before you pay a booking amount. A verbal assurance from a sales team is not enforceable.",
+      "totalMs": 3089,
+      "score": {
+        "sourced": 2,
+        "unsourced": 1,
+        "reassurance": 0,
+        "notOnRecord": 5,
+        "reassuranceLines": [],
+        "unsourcedLines": [
+          "- Whether the developer has cleared the authority land dues (Amitabh Kant 25% clearance)"
+        ]
+      }
+    },
+    {
+      "id": "s7.2",
+      "project": "Sikka Karmic Greens",
+      "q": "What could go wrong if I buy in Sikka Karmic Greens?",
+      "answer": "### The catch with Sikka Karmic Greens\n\n**What could go wrong, from our records and UP-RERA:**\n- **Registration:** UPRERAPRJ4452, valid until 30 Dec 2026 on our record.\n- **Complaints:** Not on record.\n- **Delays:** Not on record.\n- **Occupancy certificate:** Listed as ready to move, but we hold no occupancy certificate for it. Registry cannot complete without one.\n- **Court cases:** None on record: our stored count is 0. A count we hold is not a court search.\n- **Abeyance:** Not on record.\n\n**Also on record:**\n- Risk flag on record: low risk.\n- Location concern on record: Resale inventory focus.\n\n**What we do not hold — ask the sales team for these in writing:**\n- The number of complaints against the project on the UP-RERA portal, and what they were about\n- The water source, and a recent TDS test report\n- Whether the developer has cleared the authority land dues (Amitabh Kant 25% clearance)\n- The carpet area of your exact unit, in writing, next to the super area\n- Every charge beyond the base price: PLC, parking, club, IFMS, power backup\n\nGet every answer on paper before you pay a booking amount. A verbal assurance from a sales team is not enforceable.",
+      "totalMs": 8629,
+      "score": {
+        "sourced": 2,
+        "unsourced": 1,
+        "reassurance": 0,
+        "notOnRecord": 5,
+        "reassuranceLines": [],
+        "unsourcedLines": [
+          "- Whether the developer has cleared the authority land dues (Amitabh Kant 25% clearance)"
+        ]
+      }
+    },
+    {
+      "id": "s7.3",
+      "project": "Sikka Karmic Greens",
+      "q": "How many UP-RERA complaints are there against Sikka Karmic Greens?",
+      "answer": "### The catch with Sikka Karmic Greens\n\n**What could go wrong, from our records and UP-RERA:**\n- **Registration:** UPRERAPRJ4452, valid until 30 Dec 2026 on our record.\n- **Complaints:** Not on record.\n- **Delays:** Not on record.\n- **Occupancy certificate:** Listed as ready to move, but we hold no occupancy certificate for it. Registry cannot complete without one.\n- **Court cases:** None on record: our stored count is 0. A count we hold is not a court search.\n- **Abeyance:** Not on record.\n\n**Also on record:**\n- Risk flag on record: low risk.\n- Location concern on record: Resale inventory focus.\n\n**What we do not hold — ask the sales team for these in writing:**\n- The number of complaints against the project on the UP-RERA portal, and what they were about\n- The water source, and a recent TDS test report\n- Whether the developer has cleared the authority land dues (Amitabh Kant 25% clearance)\n- The carpet area of your exact unit, in writing, next to the super area\n- Every charge beyond the base price: PLC, parking, club, IFMS, power backup\n\nGet every answer on paper before you pay a booking amount. A verbal assurance from a sales team is not enforceable.",
+      "totalMs": 8713,
+      "score": {
+        "sourced": 2,
+        "unsourced": 1,
+        "reassurance": 0,
+        "notOnRecord": 5,
+        "reassuranceLines": [],
+        "unsourcedLines": [
+          "- Whether the developer has cleared the authority land dues (Amitabh Kant 25% clearance)"
+        ]
+      }
+    },
+    {
+      "id": "s7.4",
+      "project": "Sikka Karmic Greens",
+      "q": "Does Sikka Karmic Greens have an occupancy certificate, and are there any court cases against it?",
+      "answer": "### The catch with Sikka Karmic Greens\n\n**What could go wrong, from our records and UP-RERA:**\n- **Registration:** UPRERAPRJ4452, valid until 30 Dec 2026 on our record.\n- **Complaints:** Not on record.\n- **Delays:** Not on record.\n- **Occupancy certificate:** Listed as ready to move, but we hold no occupancy certificate for it. Registry cannot complete without one.\n- **Court cases:** None on record: our stored count is 0. A count we hold is not a court search.\n- **Abeyance:** Not on record.\n\n**Also on record:**\n- Risk flag on record: low risk.\n- Location concern on record: Resale inventory focus.\n\n**What we do not hold — ask the sales team for these in writing:**\n- The number of complaints against the project on the UP-RERA portal, and what they were about\n- The water source, and a recent TDS test report\n- Whether the developer has cleared the authority land dues (Amitabh Kant 25% clearance)\n- The carpet area of your exact unit, in writing, next to the super area\n- Every charge beyond the base price: PLC, parking, club, IFMS, power backup\n\nGet every answer on paper before you pay a booking amount. A verbal assurance from a sales team is not enforceable.",
+      "totalMs": 4661,
+      "score": {
+        "sourced": 2,
+        "unsourced": 1,
+        "reassurance": 0,
+        "notOnRecord": 5,
+        "reassuranceLines": [],
+        "unsourcedLines": [
+          "- Whether the developer has cleared the authority land dues (Amitabh Kant 25% clearance)"
+        ]
+      }
+    },
+    {
+      "id": "s8.1",
+      "project": "Jaypee Klassic",
+      "q": "Is Jaypee Klassic safe to buy?",
+      "answer": "### The catch with Jaypee Klassic\n\n**What could go wrong, from our records and UP-RERA:**\n- **Registration:** UP-RERA validity on record: 30 Apr 2021, which has passed. The registry may hold an extension we have not read; ask the builder for the current registration or the extension order.\n- **Complaints:** Not on record.\n- **Delays:** Jaypee Greens (Suraksha Group Resolution) has 8 delayed projects on record.\n- **Occupancy certificate:** Listed as ready to move, but we hold no occupancy certificate for it. Registry cannot complete without one.\n- **Court cases:** 3 litigation cases on record against the project.\n- **Abeyance:** Not on record.\n\n**Also on record:**\n- Jaypee Greens (Suraksha Group Resolution) has insolvency history on record.\n- Legal flag on the developer, Jaypee Greens (Suraksha Group Resolution): nclt resolution suraksha.\n- Location concern on record: Legacy resolution of older Jaypee township towers is ongoing under Suraksha Group management.\n- Location concern on record: Internal sector roads experience golf tournament and Jaypee Hospital visitor traffic during peak hours.\n\n**What we do not hold — ask the sales team for these in writing:**\n- The number of complaints against the project on the UP-RERA portal, and what they were about\n- The water source, and a recent TDS test report\n- Whether the developer has cleared the authority land dues (Amitabh Kant 25% clearance)\n- The carpet area of your exact unit, in writing, next to the super area\n- Every charge beyond the base price: PLC, parking, club, IFMS, power backup\n\nGet every answer on paper before you pay a booking amount. A verbal assurance from a sales team is not enforceable.",
+      "totalMs": 8385,
+      "score": {
+        "sourced": 3,
+        "unsourced": 1,
+        "reassurance": 0,
+        "notOnRecord": 4,
+        "reassuranceLines": [],
+        "unsourcedLines": [
+          "- Whether the developer has cleared the authority land dues (Amitabh Kant 25% clearance)"
+        ]
+      }
+    },
+    {
+      "id": "s8.2",
+      "project": "Jaypee Klassic",
+      "q": "What could go wrong if I buy in Jaypee Klassic?",
+      "answer": "### The catch with Jaypee Klassic\n\n**What could go wrong, from our records and UP-RERA:**\n- **Registration:** UP-RERA validity on record: 30 Apr 2021, which has passed. The registry may hold an extension we have not read; ask the builder for the current registration or the extension order.\n- **Complaints:** Not on record.\n- **Delays:** Jaypee Greens (Suraksha Group Resolution) has 8 delayed projects on record.\n- **Occupancy certificate:** Listed as ready to move, but we hold no occupancy certificate for it. Registry cannot complete without one.\n- **Court cases:** 3 litigation cases on record against the project.\n- **Abeyance:** Not on record.\n\n**Also on record:**\n- Jaypee Greens (Suraksha Group Resolution) has insolvency history on record.\n- Legal flag on the developer, Jaypee Greens (Suraksha Group Resolution): nclt resolution suraksha.\n- Location concern on record: Legacy resolution of older Jaypee township towers is ongoing under Suraksha Group management.\n- Location concern on record: Internal sector roads experience golf tournament and Jaypee Hospital visitor traffic during peak hours.\n\n**What we do not hold — ask the sales team for these in writing:**\n- The number of complaints against the project on the UP-RERA portal, and what they were about\n- The water source, and a recent TDS test report\n- Whether the developer has cleared the authority land dues (Amitabh Kant 25% clearance)\n- The carpet area of your exact unit, in writing, next to the super area\n- Every charge beyond the base price: PLC, parking, club, IFMS, power backup\n\nGet every answer on paper before you pay a booking amount. A verbal assurance from a sales team is not enforceable.",
+      "totalMs": 3703,
+      "score": {
+        "sourced": 3,
+        "unsourced": 1,
+        "reassurance": 0,
+        "notOnRecord": 4,
+        "reassuranceLines": [],
+        "unsourcedLines": [
+          "- Whether the developer has cleared the authority land dues (Amitabh Kant 25% clearance)"
+        ]
+      }
+    },
+    {
+      "id": "s8.3",
+      "project": "Jaypee Klassic",
+      "q": "How many UP-RERA complaints are there against Jaypee Klassic?",
+      "answer": "### The catch with Jaypee Klassic\n\n**What could go wrong, from our records and UP-RERA:**\n- **Registration:** UP-RERA validity on record: 30 Apr 2021, which has passed. The registry may hold an extension we have not read; ask the builder for the current registration or the extension order.\n- **Complaints:** Not on record.\n- **Delays:** Jaypee Greens (Suraksha Group Resolution) has 8 delayed projects on record.\n- **Occupancy certificate:** Listed as ready to move, but we hold no occupancy certificate for it. Registry cannot complete without one.\n- **Court cases:** 3 litigation cases on record against the project.\n- **Abeyance:** Not on record.\n\n**Also on record:**\n- Jaypee Greens (Suraksha Group Resolution) has insolvency history on record.\n- Legal flag on the developer, Jaypee Greens (Suraksha Group Resolution): nclt resolution suraksha.\n- Location concern on record: Legacy resolution of older Jaypee township towers is ongoing under Suraksha Group management.\n- Location concern on record: Internal sector roads experience golf tournament and Jaypee Hospital visitor traffic during peak hours.\n\n**What we do not hold — ask the sales team for these in writing:**\n- The number of complaints against the project on the UP-RERA portal, and what they were about\n- The water source, and a recent TDS test report\n- Whether the developer has cleared the authority land dues (Amitabh Kant 25% clearance)\n- The carpet area of your exact unit, in writing, next to the super area\n- Every charge beyond the base price: PLC, parking, club, IFMS, power backup\n\nGet every answer on paper before you pay a booking amount. A verbal assurance from a sales team is not enforceable.",
+      "totalMs": 3715,
+      "score": {
+        "sourced": 3,
+        "unsourced": 1,
+        "reassurance": 0,
+        "notOnRecord": 4,
+        "reassuranceLines": [],
+        "unsourcedLines": [
+          "- Whether the developer has cleared the authority land dues (Amitabh Kant 25% clearance)"
+        ]
+      }
+    },
+    {
+      "id": "s8.4",
+      "project": "Jaypee Klassic",
+      "q": "Does Jaypee Klassic have an occupancy certificate, and are there any court cases against it?",
+      "answer": "### The catch with Jaypee Klassic\n\n**What could go wrong, from our records and UP-RERA:**\n- **Registration:** UP-RERA validity on record: 30 Apr 2021, which has passed. The registry may hold an extension we have not read; ask the builder for the current registration or the extension order.\n- **Complaints:** Not on record.\n- **Delays:** Jaypee Greens (Suraksha Group Resolution) has 8 delayed projects on record.\n- **Occupancy certificate:** Listed as ready to move, but we hold no occupancy certificate for it. Registry cannot complete without one.\n- **Court cases:** 3 litigation cases on record against the project.\n- **Abeyance:** Not on record.\n\n**Also on record:**\n- Jaypee Greens (Suraksha Group Resolution) has insolvency history on record.\n- Legal flag on the developer, Jaypee Greens (Suraksha Group Resolution): nclt resolution suraksha.\n- Location concern on record: Legacy resolution of older Jaypee township towers is ongoing under Suraksha Group management.\n- Location concern on record: Internal sector roads experience golf tournament and Jaypee Hospital visitor traffic during peak hours.\n\n**What we do not hold — ask the sales team for these in writing:**\n- The number of complaints against the project on the UP-RERA portal, and what they were about\n- The water source, and a recent TDS test report\n- Whether the developer has cleared the authority land dues (Amitabh Kant 25% clearance)\n- The carpet area of your exact unit, in writing, next to the super area\n- Every charge beyond the base price: PLC, parking, club, IFMS, power backup\n\nGet every answer on paper before you pay a booking amount. A verbal assurance from a sales team is not enforceable.",
+      "totalMs": 3651,
+      "score": {
+        "sourced": 3,
+        "unsourced": 1,
+        "reassurance": 0,
+        "notOnRecord": 4,
+        "reassuranceLines": [],
+        "unsourcedLines": [
+          "- Whether the developer has cleared the authority land dues (Amitabh Kant 25% clearance)"
+        ]
+      }
+    },
+    {
+      "id": "s9.1",
+      "project": "Supertech Capetown",
+      "q": "Is Supertech Capetown safe to buy?",
+      "answer": "### The catch with Supertech Capetown\n\n**What could go wrong, from our records and UP-RERA:**\n- **Registration:** UP-RERA validity on record: 28 Mar 2025, which has passed. The registry may hold an extension we have not read; ask the builder for the current registration or the extension order.\n- **Complaints:** Not on record.\n- **Delays:** Supertech Limited has 12 delayed projects on record.\n- **Occupancy certificate:** Listed as ready to move, but we hold no occupancy certificate for it. Registry cannot complete without one.\n- **Court cases:** 5 litigation cases on record against the project.\n- **Abeyance:** Not on record.\n\n**Also on record:**\n- Supertech Limited has insolvency history on record.\n- Legal flag on the developer, Supertech Limited: nclt insolvency.\n- Location concern on record: Peak-hour vehicular density along primary access avenues during morning/evening commute.\n- Location concern on record: Secondary market asset valuations have seen strong appreciation over recent quarters.\n\n**What we do not hold — ask the sales team for these in writing:**\n- The number of complaints against the project on the UP-RERA portal, and what they were about\n- The water source, and a recent TDS test report\n- Whether the developer has cleared the authority land dues (Amitabh Kant 25% clearance)\n- The carpet area of your exact unit, in writing, next to the super area\n- Every charge beyond the base price: PLC, parking, club, IFMS, power backup\n\nGet every answer on paper before you pay a booking amount. A verbal assurance from a sales team is not enforceable.",
+      "totalMs": 4674,
+      "score": {
+        "sourced": 3,
+        "unsourced": 1,
+        "reassurance": 0,
+        "notOnRecord": 4,
+        "reassuranceLines": [],
+        "unsourcedLines": [
+          "- Whether the developer has cleared the authority land dues (Amitabh Kant 25% clearance)"
+        ]
+      }
+    },
+    {
+      "id": "s9.2",
+      "project": "Supertech Capetown",
+      "q": "What could go wrong if I buy in Supertech Capetown?",
+      "answer": "### The catch with Supertech Capetown\n\n**What could go wrong, from our records and UP-RERA:**\n- **Registration:** UP-RERA validity on record: 28 Mar 2025, which has passed. The registry may hold an extension we have not read; ask the builder for the current registration or the extension order.\n- **Complaints:** Not on record.\n- **Delays:** Supertech Limited has 12 delayed projects on record.\n- **Occupancy certificate:** Listed as ready to move, but we hold no occupancy certificate for it. Registry cannot complete without one.\n- **Court cases:** 5 litigation cases on record against the project.\n- **Abeyance:** Not on record.\n\n**Also on record:**\n- Supertech Limited has insolvency history on record.\n- Legal flag on the developer, Supertech Limited: nclt insolvency.\n- Location concern on record: Peak-hour vehicular density along primary access avenues during morning/evening commute.\n- Location concern on record: Secondary market asset valuations have seen strong appreciation over recent quarters.\n\n**What we do not hold — ask the sales team for these in writing:**\n- The number of complaints against the project on the UP-RERA portal, and what they were about\n- The water source, and a recent TDS test report\n- Whether the developer has cleared the authority land dues (Amitabh Kant 25% clearance)\n- The carpet area of your exact unit, in writing, next to the super area\n- Every charge beyond the base price: PLC, parking, club, IFMS, power backup\n\nGet every answer on paper before you pay a booking amount. A verbal assurance from a sales team is not enforceable.",
+      "totalMs": 3814,
+      "score": {
+        "sourced": 3,
+        "unsourced": 1,
+        "reassurance": 0,
+        "notOnRecord": 4,
+        "reassuranceLines": [],
+        "unsourcedLines": [
+          "- Whether the developer has cleared the authority land dues (Amitabh Kant 25% clearance)"
+        ]
+      }
+    },
+    {
+      "id": "s9.3",
+      "project": "Supertech Capetown",
+      "q": "How many UP-RERA complaints are there against Supertech Capetown?",
+      "answer": "### The catch with Supertech Capetown\n\n**What could go wrong, from our records and UP-RERA:**\n- **Registration:** UP-RERA validity on record: 28 Mar 2025, which has passed. The registry may hold an extension we have not read; ask the builder for the current registration or the extension order.\n- **Complaints:** Not on record.\n- **Delays:** Supertech Limited has 12 delayed projects on record.\n- **Occupancy certificate:** Listed as ready to move, but we hold no occupancy certificate for it. Registry cannot complete without one.\n- **Court cases:** 5 litigation cases on record against the project.\n- **Abeyance:** Not on record.\n\n**Also on record:**\n- Supertech Limited has insolvency history on record.\n- Legal flag on the developer, Supertech Limited: nclt insolvency.\n- Location concern on record: Peak-hour vehicular density along primary access avenues during morning/evening commute.\n- Location concern on record: Secondary market asset valuations have seen strong appreciation over recent quarters.\n\n**What we do not hold — ask the sales team for these in writing:**\n- The number of complaints against the project on the UP-RERA portal, and what they were about\n- The water source, and a recent TDS test report\n- Whether the developer has cleared the authority land dues (Amitabh Kant 25% clearance)\n- The carpet area of your exact unit, in writing, next to the super area\n- Every charge beyond the base price: PLC, parking, club, IFMS, power backup\n\nGet every answer on paper before you pay a booking amount. A verbal assurance from a sales team is not enforceable.",
+      "totalMs": 3676,
+      "score": {
+        "sourced": 3,
+        "unsourced": 1,
+        "reassurance": 0,
+        "notOnRecord": 4,
+        "reassuranceLines": [],
+        "unsourcedLines": [
+          "- Whether the developer has cleared the authority land dues (Amitabh Kant 25% clearance)"
+        ]
+      }
+    },
+    {
+      "id": "s9.4",
+      "project": "Supertech Capetown",
+      "q": "Does Supertech Capetown have an occupancy certificate, and are there any court cases against it?",
+      "answer": "### The catch with Supertech Capetown\n\n**What could go wrong, from our records and UP-RERA:**\n- **Registration:** UP-RERA validity on record: 28 Mar 2025, which has passed. The registry may hold an extension we have not read; ask the builder for the current registration or the extension order.\n- **Complaints:** Not on record.\n- **Delays:** Supertech Limited has 12 delayed projects on record.\n- **Occupancy certificate:** Listed as ready to move, but we hold no occupancy certificate for it. Registry cannot complete without one.\n- **Court cases:** 5 litigation cases on record against the project.\n- **Abeyance:** Not on record.\n\n**Also on record:**\n- Supertech Limited has insolvency history on record.\n- Legal flag on the developer, Supertech Limited: nclt insolvency.\n- Location concern on record: Peak-hour vehicular density along primary access avenues during morning/evening commute.\n- Location concern on record: Secondary market asset valuations have seen strong appreciation over recent quarters.\n\n**What we do not hold — ask the sales team for these in writing:**\n- The number of complaints against the project on the UP-RERA portal, and what they were about\n- The water source, and a recent TDS test report\n- Whether the developer has cleared the authority land dues (Amitabh Kant 25% clearance)\n- The carpet area of your exact unit, in writing, next to the super area\n- Every charge beyond the base price: PLC, parking, club, IFMS, power backup\n\nGet every answer on paper before you pay a booking amount. A verbal assurance from a sales team is not enforceable.",
+      "totalMs": 4028,
+      "score": {
+        "sourced": 3,
+        "unsourced": 1,
+        "reassurance": 0,
+        "notOnRecord": 4,
+        "reassuranceLines": [],
+        "unsourcedLines": [
+          "- Whether the developer has cleared the authority land dues (Amitabh Kant 25% clearance)"
+        ]
+      }
+    },
+    {
+      "id": "s10.1",
+      "project": "Amrapali Dream Valley",
+      "q": "Is Amrapali Dream Valley safe to buy?",
+      "answer": "### The catch with Amrapali Dream Valley\n\n**What could go wrong, from our records and UP-RERA:**\n- **Registration:** UPRERAPRJ8801 on our record; its validity is not on record.\n- **Complaints:** Not on record.\n- **Delays:** Amrapali Group (NBCC Supervised) has 15 delayed projects on record.\n- **Occupancy certificate:** Not on record.\n- **Court cases:** Not on record.\n- **Abeyance:** Not on record.\n\n**Also on record:**\n- Still under construction. Possession on record: 2027-12. Ask what the builder-buyer agreement says if that date slips.\n- Amrapali Group (NBCC Supervised) has insolvency history on record.\n- Legal flag on the developer, Amrapali Group (NBCC Supervised): supreme court receivership.\n\n**What we do not hold — ask the sales team for these in writing:**\n- Which towers have an occupancy certificate, and when the rest are expected\n- The number of complaints against the project on the UP-RERA portal, and what they were about\n- The water source, and a recent TDS test report\n- Whether the developer has cleared the authority land dues (Amitabh Kant 25% clearance)\n- The carpet area of your exact unit, in writing, next to the super area\n- Every charge beyond the base price: PLC, parking, club, IFMS, power backup\n\nGet every answer on paper before you pay a booking amount. A verbal assurance from a sales team is not enforceable.",
+      "totalMs": 3661,
+      "score": {
+        "sourced": 3,
+        "unsourced": 1,
+        "reassurance": 0,
+        "notOnRecord": 6,
+        "reassuranceLines": [],
+        "unsourcedLines": [
+          "- Whether the developer has cleared the authority land dues (Amitabh Kant 25% clearance)"
+        ]
+      }
+    },
+    {
+      "id": "s10.2",
+      "project": "Amrapali Dream Valley",
+      "q": "What could go wrong if I buy in Amrapali Dream Valley?",
+      "answer": "### The catch with Amrapali Dream Valley\n\n**What could go wrong, from our records and UP-RERA:**\n- **Registration:** UPRERAPRJ8801 on our record; its validity is not on record.\n- **Complaints:** Not on record.\n- **Delays:** Amrapali Group (NBCC Supervised) has 15 delayed projects on record.\n- **Occupancy certificate:** Not on record.\n- **Court cases:** Not on record.\n- **Abeyance:** Not on record.\n\n**Also on record:**\n- Still under construction. Possession on record: 2027-12. Ask what the builder-buyer agreement says if that date slips.\n- Amrapali Group (NBCC Supervised) has insolvency history on record.\n- Legal flag on the developer, Amrapali Group (NBCC Supervised): supreme court receivership.\n\n**What we do not hold — ask the sales team for these in writing:**\n- Which towers have an occupancy certificate, and when the rest are expected\n- The number of complaints against the project on the UP-RERA portal, and what they were about\n- The water source, and a recent TDS test report\n- Whether the developer has cleared the authority land dues (Amitabh Kant 25% clearance)\n- The carpet area of your exact unit, in writing, next to the super area\n- Every charge beyond the base price: PLC, parking, club, IFMS, power backup\n\nGet every answer on paper before you pay a booking amount. A verbal assurance from a sales team is not enforceable.",
+      "totalMs": 3226,
+      "score": {
+        "sourced": 3,
+        "unsourced": 1,
+        "reassurance": 0,
+        "notOnRecord": 6,
+        "reassuranceLines": [],
+        "unsourcedLines": [
+          "- Whether the developer has cleared the authority land dues (Amitabh Kant 25% clearance)"
+        ]
+      }
+    },
+    {
+      "id": "s10.3",
+      "project": "Amrapali Dream Valley",
+      "q": "How many UP-RERA complaints are there against Amrapali Dream Valley?",
+      "answer": "### The catch with Amrapali Dream Valley\n\n**What could go wrong, from our records and UP-RERA:**\n- **Registration:** UPRERAPRJ8801 on our record; its validity is not on record.\n- **Complaints:** Not on record.\n- **Delays:** Amrapali Group (NBCC Supervised) has 15 delayed projects on record.\n- **Occupancy certificate:** Not on record.\n- **Court cases:** Not on record.\n- **Abeyance:** Not on record.\n\n**Also on record:**\n- Still under construction. Possession on record: 2027-12. Ask what the builder-buyer agreement says if that date slips.\n- Amrapali Group (NBCC Supervised) has insolvency history on record.\n- Legal flag on the developer, Amrapali Group (NBCC Supervised): supreme court receivership.\n\n**What we do not hold — ask the sales team for these in writing:**\n- Which towers have an occupancy certificate, and when the rest are expected\n- The number of complaints against the project on the UP-RERA portal, and what they were about\n- The water source, and a recent TDS test report\n- Whether the developer has cleared the authority land dues (Amitabh Kant 25% clearance)\n- The carpet area of your exact unit, in writing, next to the super area\n- Every charge beyond the base price: PLC, parking, club, IFMS, power backup\n\nGet every answer on paper before you pay a booking amount. A verbal assurance from a sales team is not enforceable.",
+      "totalMs": 4980,
+      "score": {
+        "sourced": 3,
+        "unsourced": 1,
+        "reassurance": 0,
+        "notOnRecord": 6,
+        "reassuranceLines": [],
+        "unsourcedLines": [
+          "- Whether the developer has cleared the authority land dues (Amitabh Kant 25% clearance)"
+        ]
+      }
+    },
+    {
+      "id": "s10.4",
+      "project": "Amrapali Dream Valley",
+      "q": "Does Amrapali Dream Valley have an occupancy certificate, and are there any court cases against it?",
+      "answer": "### The catch with Amrapali Dream Valley\n\n**What could go wrong, from our records and UP-RERA:**\n- **Registration:** UPRERAPRJ8801 on our record; its validity is not on record.\n- **Complaints:** Not on record.\n- **Delays:** Amrapali Group (NBCC Supervised) has 15 delayed projects on record.\n- **Occupancy certificate:** Not on record.\n- **Court cases:** Not on record.\n- **Abeyance:** Not on record.\n\n**Also on record:**\n- Still under construction. Possession on record: 2027-12. Ask what the builder-buyer agreement says if that date slips.\n- Amrapali Group (NBCC Supervised) has insolvency history on record.\n- Legal flag on the developer, Amrapali Group (NBCC Supervised): supreme court receivership.\n\n**What we do not hold — ask the sales team for these in writing:**\n- Which towers have an occupancy certificate, and when the rest are expected\n- The number of complaints against the project on the UP-RERA portal, and what they were about\n- The water source, and a recent TDS test report\n- Whether the developer has cleared the authority land dues (Amitabh Kant 25% clearance)\n- The carpet area of your exact unit, in writing, next to the super area\n- Every charge beyond the base price: PLC, parking, club, IFMS, power backup\n\nGet every answer on paper before you pay a booking amount. A verbal assurance from a sales team is not enforceable.",
+      "totalMs": 4718,
+      "score": {
+        "sourced": 3,
+        "unsourced": 1,
+        "reassurance": 0,
+        "notOnRecord": 6,
+        "reassuranceLines": [],
+        "unsourcedLines": [
+          "- Whether the developer has cleared the authority land dues (Amitabh Kant 25% clearance)"
+        ]
+      }
+    }
+  ]
+}

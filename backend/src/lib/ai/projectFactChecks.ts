@@ -367,6 +367,27 @@ const UNSOURCED_JUDGEMENT = [
   /occupancy\s+certificate[^\n]*\b(?:delivered|ready)\b(?![^\n]*\b(?:received|obtained|issued|granted)\b)/i,
 ]
 
+/**
+ * Reassurance whose wording a row never carries, so the word-in-facts test above
+ * cannot gate it: a status row reads "Delivered" even with no certificate (18 such
+ * projects), and a litigation count is a number, not the phrase "no litigation".
+ * Each claim stays only when the facts we supplied hold its evidence. Cycle 2, Day 1.
+ */
+const EVIDENCE_GATED: Array<{ claim: RegExp; evidence: RegExp }> = [
+  {
+    claim: /\b(?:has|have|had|was|were|been|is|are|got)\s+(?:been\s+)?(?:fully\s+)?(?:delivered|handed\s+over)\b/i,
+    // Rows reach the guard as JSON in the system prompt ("oc_status":"FULL_OC") or as key: value.
+    evidence: /full_oc|full\s+oc\b|oc_obtained["']?\s*:\s*["']?(?:true|yes|obtained|granted)\b|occupancy_certificate_status["']?\s*:\s*["']?(?:obtained|granted|issued|received)\b|occupancy\s+certificate[^\n.]{0,40}\b(?:received|obtained|issued|granted)\b/i,
+  },
+  {
+    claim: /\bno\s+(?:pending\s+|ongoing\s+|known\s+)?(?:litigation|court\s+cases?|legal\s+(?:disputes?|cases?|issues?))\b|\blitigation[-\s]free\b/i,
+    evidence: /litigation_count["']?\s*:\s*["']?0\b|litigation(?:\s+count)?:\s*(?:0|none)\b/i,
+  },
+]
+
+/** An honest gap ("we hold no litigation record") is not reassurance. */
+const HONEST_GAP = /\bnot\s+on\s+record\b|\bwe\s+hold\s+no\b|\bno\s+record\s+of\b|\bnot\s+the\s+same\s+as\s+none\b/i
+
 export function dropUnsourcedJudgements(text: string, reference: string): { text: string; dropped: string[] } {
   const ref = (reference ?? '').toLowerCase()
   const dropped: string[] = []
@@ -374,6 +395,7 @@ export function dropUnsourcedJudgements(text: string, reference: string): { text
     if (/^\s+$/.test(part)) return true
     const hit = UNSOURCED_JUDGEMENT.map((re) => re.exec(part)?.[0]).find((m): m is string => Boolean(m))
     if (hit && !ref.includes(hit.toLowerCase())) { dropped.push(part.trim()); return false }
+    if (!HONEST_GAP.test(part) && EVIDENCE_GATED.some((g) => g.claim.test(part) && !g.evidence.test(ref))) { dropped.push(part.trim()); return false }
     return true
   })
   return { text: kept.join('').replace(/([.!?]) {2,}/g, '$1 ').replace(/\n{3,}/g, '\n\n').trim(), dropped }

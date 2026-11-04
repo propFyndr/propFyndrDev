@@ -16,6 +16,7 @@ import { checkedSources } from './checkedLine'
 import { matchProjectInText } from '../discovery/matchProjectInText'
 import { ambiguousReraNumbers, normalizeRera, RERA_AMBIGUOUS_NOTE } from '../reraIntegrity'
 import { MARKET_QUALIFIER } from '../factPresentation'
+import { ASKS_FOR_THE_CATCH } from './handlers/projectCatch'
 import { isSchemaDefault } from '../projectExposure'
 import type { TurnTraceDraft } from '../turnTrace'
 import type { TurnTimer } from '../turnTimer'
@@ -86,7 +87,9 @@ const NOT_A_SINGLE_LOOKUP =
  */
 export function detectFactualAttribute(message: string): { attribute: FactAttribute; subjectHint: string } | null {
   const trimmed = message.trim()
-  if (trimmed.length > 140 || NOT_A_SINGLE_LOOKUP.test(trimmed)) return null
+  // "How many RERA complaints…", "OC and any court cases…": a risk question, answered by the
+  // six-line record in handlers/projectCatch.ts, not by one attribute's table (safety40, 4 Nov 2026).
+  if (trimmed.length > 140 || NOT_A_SINGLE_LOOKUP.test(trimmed) || ASKS_FOR_THE_CATCH.test(trimmed)) return null
 
   // 1. RERA Check
   let m = trimmed.match(RERA_PATTERN) || trimmed.match(RERA_FOR_PATTERN) || trimmed.match(RERA_POSTFIX_PATTERN) || trimmed.match(RERA_APPROVAL_PATTERN)

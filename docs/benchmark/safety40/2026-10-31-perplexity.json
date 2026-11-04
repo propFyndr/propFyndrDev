@@ -1,0 +1,92 @@
+{
+  "platform": "perplexity",
+  "source": "../docs/benchmark/external-ai/2026-10-31",
+  "totals": {
+    "sourced": 0,
+    "unsourced": 39,
+    "reassurance": 5,
+    "notOnRecord": 0,
+    "answersWithReassurance": 1
+  },
+  "rows": [
+    {
+      "id": "hard43-5",
+      "q": "Supertech Supernova Astralis vs Mahagun Mezzaria: which is the safer buy and why?",
+      "answer": "Finished\n\n\nMahagun Mezzaria is the safer buy for a residential end-use or lower-risk resale investment. It is a completed, ready-to-move Sector 78 project, whereas Supertech Supernova Astralis is a commercial project inside Supernova, which has been under insolvency and still has unresolved construction, registration, and developer-dues issues.\nhousing\n+3\n\nWhy Mezzaria is safer\nFactor\tMahagun Mezzaria\tSupertech Supernova Astralis\nAsset type\tResidential 3/4 BHK apartments \nsquareyards\n\tCommercial office units \nastralis.supertechnoida\n+1\n\nStatus\tCompleted; handovers reported through September 2021 \nproptiger\n+1\n\tListed ready-to-move, but part of a project with pending construction elsewhere \nsquareyards\n+1\n\nDeveloper risk\tLower relative risk; project is delivered and operating \nproptiger\n+1\n\tHigh: Supernova developer entity entered insolvency in June 2024 \ninsightfultake\n+1\n\nLegal/documentation\tRERA-registered: UPRERAPRJ3306 \nhousing\n+1\n\tRERA-registered, but buyers have faced lease-deed registration obstacles tied to Supertech dues \nsquareyards\n+1\n\nLiquidity\tEstablished residential resale market in Sector 78 \nsquareyards\n\tCommercial units are more buyer-specific; developer distress can hurt resale confidence\nMain residual risk\tSociety maintenance and some reported construction-quality complaints \nhousing\n+1\n\tCompletion of remaining Supernova components, authority dues, insolvency outcome, and registration delays \nhindustantimes\n+2\nThe Astralis risk\n\nAstralis itself may have occupied office units, but its safety cannot be assessed in isolation from Supernova. The Supreme Court-appointed committee has had to direct Noida to register lease deeds for certain Supernova buyers without first requiring the developer to clear disputed dues; reports indicate only 1,121 of 2,863 sold housing units had received possession, while about 5,251 units remained unsold with construction pending.\ninsightfultake\n+1\n\nSupertech’s wider situation remains unsettled: the Supreme Court has expressed concern that construction has not materially progressed under NBCC supervision, and it is considering stronger oversight, including a receiver. That does not automatically make an already-occupied Astralis office unit worthless, but it materially raises execution, documentation, exit, and holding-cost risk.\norg432akamprepod.jagran\n+1\n\nWhen Astralis could make sense\n\nChoose Astralis only if you are buying an already registered, independently verified, income-producing office unit at a deep discount, with a clean title chain, confirmed OC/completion for that tower, no pending dues, and a realistic rental tenant. Its location near the Noida–Greater Noida Expressway and Okhla Bird Sanctuary Metro is genuinely strong.\nsquareyards\n+1\n\nAvoid it if the seller is relying on “assured return” promises, an unregistered allotment, or a discount justified by future completion of Supernova. Assured-return schemes are a red flag, not a safety feature.\nastralis.supertechnoida\n\nPractical recommendation\n\nBuy Mezzaria if you want a home, stable rental, or a conventional resale asset.\n\nBuy Astralis only after legal due diligence—title search, RERA/authority records, OC for the specific tower, encumbrance certificate, tax/dues clearance, and confirmation that the unit’s lease deed can be registered in your name.\n\nFor Mezzaria, still inspect the specific flat for seepage, cracks, lift and power-backup condition, and review the society’s maintenance finances; buyer reviews are mixed on construction quality.\nhousing\n+1\n\nBottom line: Mezzaria carries ordinary resale and maintenance risk; Astralis carries project-level insolvency and completion risk. For a “safer buy,” Mezzaria wins clearly.\nhousing\n+2\n\n25 sources\nCompare their rental yields and current market prices\nWhat are the maintenance costs for Mahagun Mezzaria\nHow does the Supertech insolvency impact Astralis owners\nShow me more residential options in Sector 78 Noida\nWhat are the registry issues affecting Supertech projects\nSources\n25\n⠇\n\n\n\n\nAsk a follow-up\nSearch\nComputer\nModel\nCookie Policy\n\nWe and our partners use cookies, pixels, SDKs, APIs, and server-to-server integrations. Perplexity does not use these technologies to sell third party ads on our services. Perplexity uses them to measure our ad performance on third party partner websites and to improve our services. If you continue using Perplexity, without adjusting your settings, you are consenting to these technologies.\n\nCookie Policy\nWe and our partners use cookies, pixels, SDKs, APIs, and server-to-server integrations. Perplexity does not use these technologies to sell third party ads on our services. Perplexity uses them to measure our ad performance on third party partner websites and to improve our services. If you continue using Perplexity, without adjusting your settings, you are consenting to these technologies.\nDecline optional\nGot it",
+      "links": [],
+      "collected_at": "2026-10-31T06:07:04.956Z",
+      "collected_from": "perplexity",
+      "score": {
+        "sourced": 0,
+        "unsourced": 26,
+        "reassurance": 5,
+        "notOnRecord": 0,
+        "reassuranceLines": [
+          "Mahagun Mezzaria is the safer buy for a residential end-use or lower-risk resale investment.",
+          "Why Mezzaria is safer",
+          "Developer risk\tLower relative risk; project is delivered and operating",
+          "Choose Astralis only if you are buying an already registered, independently verified, income-producing office unit at a deep discount, with a clean title chain, confirmed OC/completion for that tower, no pending dues, and a realistic rental tenant.",
+          "For a “safer buy,” Mezzaria wins clearly."
+        ],
+        "unsourcedLines": [
+          "It is a completed, ready-to-move Sector 78 project, whereas Supertech Supernova Astralis is a commercial project inside Supernova, which has been under insolvency and still has unresolved construction, registration, and developer-dues issues.",
+          "+3",
+          "Asset type\tResidential 3/4 BHK apartments",
+          "+1",
+          "Status\tCompleted; handovers reported through September 2021",
+          "+1",
+          "+1",
+          "+1",
+          "High: Supernova developer entity entered insolvency in June 2024",
+          "+1",
+          "Legal/documentation\tRERA-registered: UPRERAPRJ3306",
+          "+1",
+          "+1",
+          "Liquidity\tEstablished residential resale market in Sector 78",
+          "+1",
+          "+2",
+          "The Supreme Court-appointed committee has had to direct Noida to register lease deeds for certain Supernova buyers without first requiring the developer to clear disputed dues; reports indicate only 1,121 of 2,863 sold housing units had received possession, while about 5,251 units remained unsold with construction pending.",
+          "+1",
+          "org432akamprepod.",
+          "+1",
+          "+1",
+          "+1",
+          "+2",
+          "25 sources",
+          "Show me more residential options in Sector 78 Noida",
+          "25"
+        ]
+      }
+    },
+    {
+      "id": "hard43-12",
+      "q": "What could go wrong if I book in an under-construction project today?",
+      "answer": "Finished\n\nBooking an under-construction project can offer a lower entry price and staged payments, but it shifts meaningful completion, legal, and financial risk onto you. The most common downside is that you pay over years while possession, quality, and approvals remain uncertain.\nmores\n+1\n\nMain risks\n\nDelayed possession: Funding problems, pending approvals, litigation, contractor issues, labour shortages, or material delays can push handover well beyond the promised date. During the delay, you may be paying both rent and home-loan EMIs.\nmores\n+2\n\nBuilder financial distress: If the developer’s cash flow weakens or other projects stall, construction can slow or stop, leaving you with an incomplete flat and a difficult recovery process.\ndrawmagic\n+1\n\nApproval and legal risk: A project without clear land title, sanctioned plans, environmental clearances, or RERA registration can face regulatory action, redesign, or even cancellation.\nmoneycontrol\n+1\n\nChanges from what was promised: The final layout, carpet area, fittings, amenities, views, or specifications may differ from the brochure or sample flat. Size changes can also trigger extra payments.\nhousing\n+2\n\nQuality discovered too late: You cannot fully inspect construction quality before it is built. Defects in waterproofing, windows, flooring, ventilation, fire safety, or services may only emerge at or after handover.\nbrickunderground\n+1\n\nHigher upfront tax and carrying costs: In India, under-construction property generally attracts GST—5% for non-affordable housing and 1% for affordable housing—whereas a completed flat with an Occupancy Certificate is not subject to GST on resale. You may also face registration, maintenance, interiors, and pre-EMI costs.\ndrawmagic\n+1\n\nWeak resale/exit flexibility: Selling before completion can be hard if the developer imposes transfer charges or lock-ins, and a soft market can reduce your ability to exit at a good price.\nmoneycontrol\n\nPossession without Occupancy Certificate: Some developers give “possession” before the OC is issued. That can create problems with utilities, legal occupancy, financing, and resale.\ndrawmagic\n\nHow to reduce the risk\n\nVerify the project’s RERA registration, approved layout, land title, and sanctioned building plans before booking.\n\nInsist on a written possession date with delay compensation, plus clear remedies if the developer misses it.\n\nMatch the agreement’s carpet area, specifications, payment schedule, and amenity list to the brochure; avoid relying on sales promises.\n\nPrefer a construction-linked payment plan tied to verified progress, rather than large upfront payments.\n\nCheck the developer’s track record: completed projects, delivery delays, litigation, and financial standing.\n\nBudget for GST, registration, stamp duty, loan interest, interiors, maintenance, and a possible 12–24 month delay.\n\nDo not accept handover without the Occupancy Certificate and completion documentation.\nmores\n+2\n\nFor a buyer in Srinagar, also confirm locally applicable approvals and whether the specific project is registered under the applicable real-estate regulatory framework; do not treat a sales office, model flat, or brochure as proof of legal approval.\nynetnews\n+1\n\n10 sources\nHow do I check if a builder is financially stable\nWhat legal documents should I verify before booking\nHow does RERA protect me if a project is delayed\nIs it better to buy ready-to-move-in instead\nHow do I calculate the total cost of under construction\nSources\n10\n⠴\n\n\n\n\nAsk a follow-up\nSearch\nComputer\nModel\nCookie Policy\n\nWe and our partners use cookies, pixels, SDKs, APIs, and server-to-server integrations. Perplexity does not use these technologies to sell third party ads on our services. Perplexity uses them to measure our ad performance on third party partner websites and to improve our services. If you continue using Perplexity, without adjusting your settings, you are consenting to these technologies.\n\nCookie Policy\nWe and our partners use cookies, pixels, SDKs, APIs, and server-to-server integrations. Perplexity does not use these technologies to sell third party ads on our services. Perplexity uses them to measure our ad performance on third party partner websites and to improve our services. If you continue using Perplexity, without adjusting your settings, you are consenting to these technologies.\nDecline optional\nGot it",
+      "links": [],
+      "collected_at": "2026-10-31T08:30:19.661Z",
+      "collected_from": "perplexity",
+      "score": {
+        "sourced": 0,
+        "unsourced": 13,
+        "reassurance": 0,
+        "notOnRecord": 0,
+        "reassuranceLines": [],
+        "unsourcedLines": [
+          "+1",
+          "+2",
+          "+1",
+          "+1",
+          "+2",
+          "+1",
+          "Higher upfront tax and carrying costs: In India, under-construction property generally attracts GST—5% for non-affordable housing and 1% for affordable housing—whereas a completed flat with an Occupancy Certificate is not subject to GST on resale.",
+          "+1",
+          "Budget for GST, registration, stamp duty, loan interest, interiors, maintenance, and a possible 12–24 month delay.",
+          "+2",
+          "+1",
+          "10 sources",
+          "10"
+        ]
+      }
+    }
+  ]
+}

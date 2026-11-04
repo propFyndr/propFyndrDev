@@ -1,0 +1,21 @@
+{
+  "note": "Cycle 2 Day 1: 40 safety questions. 10 projects x 4 phrasings. Projects: the ones buyers and the hard-43 / ChatGPT benchmarks asked about most, plus the two with a published UP-RERA order (Migsun Wynn, Sikka Karmic Greens). All exist on dev (checked 4 Nov 2026).",
+  "projects": [
+    "Mahagun Mezzaria",
+    "Supertech Supernova Astralis",
+    "Godrej Tropical Isle",
+    "ACE Parkway",
+    "Gulshan Botnia",
+    "Migsun Wynn",
+    "Sikka Karmic Greens",
+    "Jaypee Klassic",
+    "Supertech Capetown",
+    "Amrapali Dream Valley"
+  ],
+  "phrasings": [
+    "Is {p} safe to buy?",
+    "What could go wrong if I buy in {p}?",
+    "How many UP-RERA complaints are there against {p}?",
+    "Does {p} have an occupancy certificate, and are there any court cases against it?"
+  ]
+}

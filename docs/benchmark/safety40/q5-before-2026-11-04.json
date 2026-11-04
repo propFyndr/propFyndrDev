@@ -1,0 +1,65 @@
+{
+  "label": "q5-before-2026-11-04",
+  "endpoint": "http://localhost:3201/api/v1/chat",
+  "ranAt": "2026-11-04T09:15:59.077Z",
+  "totals": {
+    "sourced": 6,
+    "unsourced": 3,
+    "reassurance": 0,
+    "notOnRecord": 3,
+    "answersWithReassurance": 0
+  },
+  "rows": [
+    {
+      "id": "s1.1",
+      "project": "x",
+      "q": "Supertech Supernova Astralis vs Mahagun Mezzaria: which is the safer buy and why?",
+      "answer": "### The catch with Supertech Supernova Astralis\n\n**What our records show** (from this project's own rows):\n- Still under construction. Possession on record: 2027-12. Ask what the builder-buyer agreement says if that date slips.\n- Supertech Limited has insolvency history on record.\n- Legal flag on the developer, Supertech Limited: nclt insolvency.\n- Supertech Limited has 12 delayed projects on record.\n\n**What we do not hold — ask the sales team for these in writing:**\n- Which towers have an occupancy certificate, and when the rest are expected\n- The number of complaints against the project on the UP-RERA portal, and what they were about\n- The water source, and a recent TDS test report\n- Whether the developer has cleared the authority land dues (Amitabh Kant 25% clearance)\n- The carpet area of your exact unit, in writing, next to the super area\n- Every charge beyond the base price: PLC, parking, club, IFMS, power backup\n\nGet every answer on paper before you pay a booking amount. A verbal assurance from a sales team is not enforceable.",
+      "totalMs": 14809,
+      "score": {
+        "sourced": 2,
+        "unsourced": 1,
+        "reassurance": 0,
+        "notOnRecord": 1,
+        "reassuranceLines": [],
+        "unsourcedLines": [
+          "- Whether the developer has cleared the authority land dues (Amitabh Kant 25% clearance)"
+        ]
+      }
+    },
+    {
+      "id": "s2.1",
+      "project": "y",
+      "q": "Supertech Supernova Astralis vs Mahagun Mezzaria: which is the safer buy and why?",
+      "answer": "### The catch with Supertech Supernova Astralis\n\n**What our records show** (from this project's own rows):\n- Still under construction. Possession on record: 2027-12. Ask what the builder-buyer agreement says if that date slips.\n- Supertech Limited has insolvency history on record.\n- Legal flag on the developer, Supertech Limited: nclt insolvency.\n- Supertech Limited has 12 delayed projects on record.\n\n**What we do not hold — ask the sales team for these in writing:**\n- Which towers have an occupancy certificate, and when the rest are expected\n- The number of complaints against the project on the UP-RERA portal, and what they were about\n- The water source, and a recent TDS test report\n- Whether the developer has cleared the authority land dues (Amitabh Kant 25% clearance)\n- The carpet area of your exact unit, in writing, next to the super area\n- Every charge beyond the base price: PLC, parking, club, IFMS, power backup\n\nGet every answer on paper before you pay a booking amount. A verbal assurance from a sales team is not enforceable.",
+      "totalMs": 5405,
+      "score": {
+        "sourced": 2,
+        "unsourced": 1,
+        "reassurance": 0,
+        "notOnRecord": 1,
+        "reassuranceLines": [],
+        "unsourcedLines": [
+          "- Whether the developer has cleared the authority land dues (Amitabh Kant 25% clearance)"
+        ]
+      }
+    },
+    {
+      "id": "s3.1",
+      "project": "z",
+      "q": "Supertech Supernova Astralis vs Mahagun Mezzaria: which is the safer buy and why?",
+      "answer": "### The catch with Supertech Supernova Astralis\n\n**What our records show** (from this project's own rows):\n- Still under construction. Possession on record: 2027-12. Ask what the builder-buyer agreement says if that date slips.\n- Supertech Limited has insolvency history on record.\n- Legal flag on the developer, Supertech Limited: nclt insolvency.\n- Supertech Limited has 12 delayed projects on record.\n\n**What we do not hold — ask the sales team for these in writing:**\n- Which towers have an occupancy certificate, and when the rest are expected\n- The number of complaints against the project on the UP-RERA portal, and what they were about\n- The water source, and a recent TDS test report\n- Whether the developer has cleared the authority land dues (Amitabh Kant 25% clearance)\n- The carpet area of your exact unit, in writing, next to the super area\n- Every charge beyond the base price: PLC, parking, club, IFMS, power backup\n\nGet every answer on paper before you pay a booking amount. A verbal assurance from a sales team is not enforceable.",
+      "totalMs": 9825,
+      "score": {
+        "sourced": 2,
+        "unsourced": 1,
+        "reassurance": 0,
+        "notOnRecord": 1,
+        "reassuranceLines": [],
+        "unsourcedLines": [
+          "- Whether the developer has cleared the authority land dues (Amitabh Kant 25% clearance)"
+        ]
+      }
+    }
+  ]
+}

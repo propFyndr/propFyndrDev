@@ -11,6 +11,7 @@ import ProjectDetailPanel from '@/components/ProjectDetailPanel'
 import PropertyDetailThemed from '@/components/PropertyDetailThemed'
 import StickyMobileCta from '@/components/property-detail/StickyMobileCta'
 import CallbackModal from '@/components/CallbackModal'
+import RiskRecordBox from '@/components/property-detail/RiskRecordBox'
 import { API_BASE } from '@/lib/env'
 import { getGuestToken } from '@/lib/guestToken'
 import { applyTheme, DEFAULT_THEME, type BuilderTheme } from '@/lib/builderTheme'
@@ -206,6 +207,7 @@ export default function PropertyDetailPage() {
                 inline
               />
             </div>
+            {detail && <RiskRecordBox slug={slug} />}
           </PropertyDetailThemed>
         )}
       </main>

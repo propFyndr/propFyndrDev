@@ -11,6 +11,7 @@ import { computeLiveActivity } from '../lib/liveActivity'
 import { computeOnTimeDeliveryPct } from '../lib/builderDelivery'
 import { REAL_DOCUMENT_WHERE } from '../lib/realDocuments'
 import { projectPriceNotes } from '../lib/projectPriceNote'
+import { loadRiskRecord } from '../lib/chat/handlers/projectCatch'
 
 const router = Router()
 
@@ -163,6 +164,13 @@ router.get('/:slug/documents', async (req: Request, res: Response) => {
     orderBy: { created_at: 'desc' },
   })
   res.json({ documents })
+})
+
+// "What could go wrong": the six lines the chat's catch answer shows (handlers/projectCatch.ts).
+router.get('/:slug/risk-record', routeCache(900), async (req: Request, res: Response) => {
+  const project = await prisma.project.findUnique({ where: { slug: req.params.slug }, select: { id: true } })
+  if (!project) { res.status(404).json({ error: 'Not found' }); return }
+  res.json({ lines: await loadRiskRecord(project.id) })
 })
 
 router.get('/:slug/payment-plan', async (req: Request, res: Response) => {

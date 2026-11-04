@@ -1,0 +1,59 @@
+{
+  "label": "q5-after-2026-11-04",
+  "endpoint": "http://localhost:3202/api/v1/chat",
+  "ranAt": "2026-11-04T09:23:55.481Z",
+  "totals": {
+    "sourced": 12,
+    "unsourced": 0,
+    "reassurance": 0,
+    "notOnRecord": 33,
+    "answersWithReassurance": 0
+  },
+  "rows": [
+    {
+      "id": "s1.1",
+      "project": "x",
+      "q": "Supertech Supernova Astralis vs Mahagun Mezzaria: which is the safer buy and why?",
+      "answer": "### What could go wrong: Supertech Supernova Astralis and Mahagun Mezzaria\n\nWe do not rank them. Each line comes from a record or says \"Not on record\"; weigh the lines that matter to you.\n\n#### Supertech Supernova Astralis\n- **Registration:** UPRERAPRJ4017 on our record; its validity is not on record.\n- **Complaints:** Not on record.\n- **Delays:** Supertech Limited has 12 delayed projects on record.\n- **Occupancy certificate:** Not on record.\n- **Court cases:** Not on record.\n- **Abeyance:** Not on record.\n\n**Also on record:**\n- Still under construction. Possession on record: Dec 2027.\n- Supertech Limited has insolvency history on record.\n- Legal flag on the developer, Supertech Limited: nclt insolvency.\n\n#### Mahagun Mezzaria\n- **Registration:** UP-RERA validity on record: 28 Sep 2021, which has passed. The registry may hold an extension we have not read; ask the builder for the current registration or the extension order.\n- **Complaints:** Not on record.\n- **Delays:** Not on record.\n- **Occupancy certificate:** Listed as ready to move, but we hold no occupancy certificate for it. Registry cannot complete without one.\n- **Court cases:** Not on record.\n- **Abeyance:** Not on record.\n\n**Ask both sales teams for these in writing:** the UP-RERA complaints against the project and what they were about, which towers have an occupancy certificate, the carpet area of your exact unit, and every charge beyond the base price.\n\nGet every answer on paper before you pay a booking amount. A verbal assurance from a sales team is not enforceable.",
+      "totalMs": 8093,
+      "score": {
+        "sourced": 4,
+        "unsourced": 0,
+        "reassurance": 0,
+        "notOnRecord": 11,
+        "reassuranceLines": [],
+        "unsourcedLines": []
+      }
+    },
+    {
+      "id": "s2.1",
+      "project": "y",
+      "q": "Supertech Supernova Astralis vs Mahagun Mezzaria: which is the safer buy and why?",
+      "answer": "### What could go wrong: Supertech Supernova Astralis and Mahagun Mezzaria\n\nWe do not rank them. Each line comes from a record or says \"Not on record\"; weigh the lines that matter to you.\n\n#### Supertech Supernova Astralis\n- **Registration:** UPRERAPRJ4017 on our record; its validity is not on record.\n- **Complaints:** Not on record.\n- **Delays:** Supertech Limited has 12 delayed projects on record.\n- **Occupancy certificate:** Not on record.\n- **Court cases:** Not on record.\n- **Abeyance:** Not on record.\n\n**Also on record:**\n- Still under construction. Possession on record: Dec 2027.\n- Supertech Limited has insolvency history on record.\n- Legal flag on the developer, Supertech Limited: nclt insolvency.\n\n#### Mahagun Mezzaria\n- **Registration:** UP-RERA validity on record: 28 Sep 2021, which has passed. The registry may hold an extension we have not read; ask the builder for the current registration or the extension order.\n- **Complaints:** Not on record.\n- **Delays:** Not on record.\n- **Occupancy certificate:** Listed as ready to move, but we hold no occupancy certificate for it. Registry cannot complete without one.\n- **Court cases:** Not on record.\n- **Abeyance:** Not on record.\n\n**Ask both sales teams for these in writing:** the UP-RERA complaints against the project and what they were about, which towers have an occupancy certificate, the carpet area of your exact unit, and every charge beyond the base price.\n\nGet every answer on paper before you pay a booking amount. A verbal assurance from a sales team is not enforceable.",
+      "totalMs": 6656,
+      "score": {
+        "sourced": 4,
+        "unsourced": 0,
+        "reassurance": 0,
+        "notOnRecord": 11,
+        "reassuranceLines": [],
+        "unsourcedLines": []
+      }
+    },
+    {
+      "id": "s3.1",
+      "project": "z",
+      "q": "Supertech Supernova Astralis vs Mahagun Mezzaria: which is the safer buy and why?",
+      "answer": "### What could go wrong: Supertech Supernova Astralis and Mahagun Mezzaria\n\nWe do not rank them. Each line comes from a record or says \"Not on record\"; weigh the lines that matter to you.\n\n#### Supertech Supernova Astralis\n- **Registration:** UPRERAPRJ4017 on our record; its validity is not on record.\n- **Complaints:** Not on record.\n- **Delays:** Supertech Limited has 12 delayed projects on record.\n- **Occupancy certificate:** Not on record.\n- **Court cases:** Not on record.\n- **Abeyance:** Not on record.\n\n**Also on record:**\n- Still under construction. Possession on record: Dec 2027.\n- Supertech Limited has insolvency history on record.\n- Legal flag on the developer, Supertech Limited: nclt insolvency.\n\n#### Mahagun Mezzaria\n- **Registration:** UP-RERA validity on record: 28 Sep 2021, which has passed. The registry may hold an extension we have not read; ask the builder for the current registration or the extension order.\n- **Complaints:** Not on record.\n- **Delays:** Not on record.\n- **Occupancy certificate:** Listed as ready to move, but we hold no occupancy certificate for it. Registry cannot complete without one.\n- **Court cases:** Not on record.\n- **Abeyance:** Not on record.\n\n**Ask both sales teams for these in writing:** the UP-RERA complaints against the project and what they were about, which towers have an occupancy certificate, the carpet area of your exact unit, and every charge beyond the base price.\n\nGet every answer on paper before you pay a booking amount. A verbal assurance from a sales team is not enforceable.",
+      "totalMs": 6639,
+      "score": {
+        "sourced": 4,
+        "unsourced": 0,
+        "reassurance": 0,
+        "notOnRecord": 11,
+        "reassuranceLines": [],
+        "unsourcedLines": []
+      }
+    }
+  ]
+}

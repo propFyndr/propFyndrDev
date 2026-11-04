@@ -178,11 +178,13 @@ function serializeProjects(projects: ScoredProject[]): string {
     ).join(', ') || 'N/A'
 
     // Derive possession status sentinel — makes provenance explicit to the AI.
-    // RTM = OC already issued (fact). UC/new_launch = builder-claimed date only.
+    // RTM = listed as ready (a status, not an OC). UC/new_launch = builder-claimed date only.
     const possessionStatus = possessionDatePassed(p.status, p.possession_date)
       ? 'DATE_PASSED — the builder possession date has passed and the project is still recorded as not delivered; we hold no revised date. Say the status is unconfirmed; never present it as on schedule or ready'
       : p.status === 'ready_to_move'
-      ? 'DELIVERED — occupancy certificate issued, project is handed over'
+      // Was "DELIVERED — occupancy certificate issued" for every ready-to-move row, but `status` is not a
+      // certificate: on 4 Nov 2026 no project on dev held an oc_status. Cycle 2 Day 1, task 5.
+      ? 'READY_TO_MOVE — listed as ready to move on our record. This is a status, not an occupancy certificate: never say an OC was issued or that the project is delivered'
       : p.status === 'new_launch'
         ? 'SPECULATIVE — new launch, no confirmed possession date'
         : p.possession_label

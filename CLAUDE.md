@@ -129,7 +129,7 @@ Status against live code as of 2026-11-03. `origin/main` and `origin/dev` are th
 | Honest recommendation: reason + trade-off per pick | Live | See § Recommendation Framework |
 | "X or Y" choice (e.g. ready 2BHK vs under-construction 3BHK) | Live | `handlers/alternativesChoice.ts`: both sides from rows, no ranking |
 | Comparison (2–4 projects, two sectors) | Partial | Prompts forbid a winner and investment framing; model still adds reasons the table doesn't support |
-| "What could go wrong" / "is X safe" | Partial (dev data only) | `handlers/projectCatch.ts`: lapsed RERA validity, approved UP-RERA complaint counts. 127 complaint drafts pending on dev, none approved; none on live |
+| "What could go wrong" / "is X safe" | Partial (dev data only) | `riskRecord()` in `handlers/projectCatch.ts`: six lines (registration, complaints, delays, OC, court cases, abeyance), each from a record or "Not on record", in chat and on the project page (`RiskRecordBox`). Two named projects get two records, no winner. 127 complaint and 2 order drafts pending on dev, none approved; none on live. Abeyance: UP-RERA's list errored on 4 Nov |
 | True cost: stamp duty, registration, GST (statutory) | Live | `UP_STATUTORY`, one place |
 | EMI / affordability with sliders, rate shock | Live | Rate and tax regime shown as assumptions |
 | Quoted per-sq-ft rate vs our rows | Live | `handlers/sectorRateCheck.ts`: range, median, count, no "fair" verdict |
