@@ -27,30 +27,29 @@ Decision (Furqan, 5 Nov): buyer sign-in moves to Better Auth on our own Neon dat
 
 ## Live cutover: every step needs Furqan's yes, in this order
 
-Live is at risk only at steps 4–7. Steps 1–3 do not change what buyers see.
+**Decision (Furqan, 5 Nov): the existing Supabase accounts are NOT moved.** Every account from now on is created on Neon. No export, no import. The import script stays in the repo, unused.
 
-1. **Export the 11 Supabase accounts (Furqan, 2 minutes).** In the Supabase dashboard SQL editor run:
-   `select id, email, encrypted_password, email_confirmed_at, created_at, raw_user_meta_data->>'name' as name from auth.users;`
-   Download the result as JSON to a folder **outside the repo**. Do not paste it in chat: it holds password hashes. Delete it after step 5.
-2. **Create the live storage credentials (Neon).** Enable Object Storage on the live branch (`ep-super-water`, Singapore is supported), create the buckets `property-images` and `project-docs` as public-read, create a credential with `storage:read` + `storage:write`.
-3. **Set environment variables before the push** (Render service `realtypalsdev`, and Vercel):
-   - `BETTER_AUTH_SECRET` (32+ random characters, new for live), `BETTER_AUTH_URL=https://realtyask.in`, `AUTH_COOKIE_DOMAIN=.realtyask.in`, `AUTH_COOKIE_PREFIX=ra`
-   - `STORAGE_S3_ENDPOINT`, `STORAGE_S3_REGION=ap-southeast-1`, `STORAGE_ACCESS_KEY_ID`, `STORAGE_SECRET_ACCESS_KEY`
-   - `FRONTEND_URL` already exists; `RESEND_API_KEY` and `EMAIL_FROM` already exist.
+Live is at risk only at steps 3-5. Steps 1-2 do not change what buyers see.
+
+1. **Live storage (Neon, Singapore, already enabled).** The live branch has two empty private buckets: `property-images` and `propety-docs` (misspelled). The code needs **public-read** buckets named `property-images` and `project-docs`. Neon changes the access level only in its Console or API, so create (or re-create) them as public-read, then create one credential with `storage:read` + `storage:write`.
+2. **Set environment variables before the push** (Render service `realtypalsdev`, and Vercel):
+   - `BETTER_AUTH_SECRET` (32+ random characters, new for live), `BETTER_AUTH_URL=https://realtyask.in`, `AUTH_COOKIE_DOMAIN=.realtyask.in`, `AUTH_COOKIE_PREFIX=ra`, `AUTH_TRUSTED_ORIGINS=https://app.realtyask.in` (no trailing slash; `FRONTEND_URL` already lists the others)
+   - `STORAGE_S3_ENDPOINT=https://br-quiet-hat-ao8bib8n.storage.c-2.ap-southeast-1.aws.neon.tech`, `STORAGE_S3_REGION=ap-southeast-1`, `STORAGE_ACCESS_KEY_ID`, `STORAGE_SECRET_ACCESS_KEY`
+   - `FRONTEND_URL`, `RESEND_API_KEY`, `EMAIL_FROM` already exist.
    If these are missing when the new code starts, the backend **refuses to boot** in production (by design: `lib/env.ts`).
-4. **Create the live tables (DDL, additive, 4 new tables):** `npx tsx scripts/auth/apply-better-auth-tables.ts --live`. Safe to run before the push: nothing reads them yet.
-5. **Import the live users, after a backup:** `npx tsx scripts/auth/import-supabase-users.ts <export.json> --live` (dry run), then `--apply`. Writes a backup first, never prints a hash. Re-export and re-run just before step 7 so anyone who signed up in between is not lost.
-6. **Copy the files and rewrite the URLs (live bulk write):** `npx tsx scripts/storage/migrate-supabase-storage.ts --live` (dry run), then `--apply`. Copies 142 objects and rewrites 13 URLs; it stops before any rewrite if a copy is incomplete.
-7. **Push `dev` to `main`** (carries the property-page fixes, price-history, outage and journey fixes too). Render and Vercel deploy.
-8. **Smoke test on live:** sign in with an existing account, save a project, request a callback, upload a document in admin, open an image. Check Render logs for `[auth]` errors.
+3. **Create the live tables (DDL, additive, 4 new tables):** `npx tsx scripts/auth/apply-better-auth-tables.ts --live`. Safe before the push: nothing reads them yet.
+4. **Copy the files and rewrite the URLs (live bulk write):** `npx tsx scripts/storage/migrate-supabase-storage.ts --live` (dry run), then `--apply`. Copies 142 objects and rewrites 13 URLs; stops before any rewrite if a copy is incomplete. Needs the live `STORAGE_*` env and `NEON_DB`.
+5. **Push `dev` to `main`** (also carries the property-page fixes, price-history, outage and journey fixes). Render and Vercel deploy.
+6. **Smoke test on live:** sign up a new test account, confirm by email, sign in, save a project, request a callback, upload a document in admin, open an image. Check Render logs for `[auth]` errors. Then delete the test account.
 
-**Roll back:** the Supabase project and buckets are untouched, so redeploying the previous commit restores the old behaviour (old code reads Supabase, whose users and files are intact). New live sign-ups made after the cutover would exist only in the new tables.
+**Roll back:** redeploy the previous commit. Supabase and its buckets are untouched, so the old code works as before; accounts created on the new system after the cutover would exist only in the new tables.
 
 ## What buyers will notice
 
-- Everyone signed in today is signed out once and signs in again (new session type). Their password is unchanged.
+- **Everyone with a Supabase account has to sign up again** (same email works). There are 11 such accounts, about 7 with any activity. Their old chats, saves and preferences stay in the database but are no longer linked to them: on live, 105 chat sessions, 1 saved property and 4 saved preference rows (read 5 Nov). A buyer who signs up again starts empty.
+- Everyone signed in today is signed out once.
 - Dev and live accounts are separate from now on.
-- Anyone who signed up on Supabase after the export in step 1 and before the re-export is missed: re-export right before step 7.
+- Optional: send the active accounts one line ("we moved sign-in; please sign up again with the same email").
 
 ## Still on Supabase after this
 
