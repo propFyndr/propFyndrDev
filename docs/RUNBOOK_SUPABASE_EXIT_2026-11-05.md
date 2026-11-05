@@ -33,6 +33,10 @@ Order actually run: storage buckets and credential, Render variables (live and d
 
 **Live smoke test, 5 Nov 12:43 UTC** (throwaway address on Resend's test domain, row deleted afterwards): sign-up 200, sign-in before verifying 403 `EMAIL_NOT_VERIFIED`, sign-in 200 after verifying, cookie `__Secure-ra.session_token` on `.realtyask.in` (Secure, HttpOnly), session returned with the cookie and `null` without. Live auth tables hold 0 rows.
 
+**Admins:** the 4 live admin accounts (all super admins) were never in Supabase Auth: they use their own passwords in `admin_users` (`lib/adminIdentity.ts`), 0 are linked to Supabase and none of their emails has a Supabase account, so nothing needed re-adding. Builder and partner logins use the same separate system.
+
+**Follow-ups done:** the 13 dead photo links were removed (live and dev, backups saved); the stray QA account was deleted from Supabase; Resend shows the live sign-up email as delivered from the verified `realtyask.in` domain.
+
 **Found on the way**
 - Better Auth could not see the visitor's IP behind the Vercel proxy, so its default limits would have been shared by all buyers. Fixed in `3b8c78bb` (session checks unlimited; sign-in and sign-up 10 per minute shared).
 - The 13 stored `construction_updates` photo links were already dead on Supabase (files never uploaded).
