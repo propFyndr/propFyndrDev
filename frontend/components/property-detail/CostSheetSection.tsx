@@ -87,7 +87,8 @@ export default function CostSheetSection({
 
   // Status & Statutory Schedule — rates from lib/calculators (UP statutory)
   const isReadyToMove = detail?.status === 'ready_to_move'
-  const hasOc = detail?.oc_status === 'FULL_OC' || isReadyToMove
+  // GST 0% needs an occupancy certificate on record; ready to move is a status, not a certificate.
+  const hasOc = detail?.oc_status === 'FULL_OC'
 
   const stamp = agreementValue != null ? calculateStampDuty(agreementValue / 10000000, buyerGender) : null
   const gst = agreementValue != null
@@ -235,12 +236,12 @@ export default function CostSheetSection({
             {hasOc ? (
               <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 font-bold text-[11px] border border-emerald-500/30">
                 <CheckCircle2 size={13} />
-                OC Received / Ready: 0% GST Exempt
+                OC on record: 0% GST
               </span>
             ) : (
               <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-300 font-bold text-[11px] border border-amber-500/30">
                 <AlertTriangle size={13} />
-                Under-Construction: {gst?.gst_rate ?? 5}% GST Applicable{gstAmount != null ? ` (${fmtRs(gstAmount)})` : ''}
+                {isReadyToMove ? 'OC not on record' : 'Under-Construction'}: {gst?.gst_rate ?? 5}% GST Applicable{gstAmount != null ? ` (${fmtRs(gstAmount)})` : ''}
               </span>
             )}
           </div>

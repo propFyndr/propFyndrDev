@@ -43,7 +43,7 @@ export default function PriceHistoryEditor({ projectId }: { projectId: string })
   }, [projectId])
 
   const addPoint = () => {
-    setHistory([...history, { quarter_label: 'Q1 2025', price_per_sqft: 7200, event_note: '' }])
+    setHistory([...history, { quarter_label: '', price_per_sqft: '', event_note: '' }])
   }
 
   const updatePoint = (i: number, key: string, val: any) => {
@@ -64,8 +64,11 @@ export default function PriceHistoryEditor({ projectId }: { projectId: string })
         headers: adminAuthHeaders({ 'Content-Type': 'application/json' }),
         body: JSON.stringify({ price_history: history }),
       })
-      if (!res.ok) throw new Error('Failed to save price history')
-      toast.success('Price history saved successfully')
+      const d = await res.json().catch(() => ({}))
+      if (!res.ok) throw new Error(d.error || 'Failed to save price history')
+      // Saved points come back with ids, so the next save does not append them again.
+      if (Array.isArray(d.price_history)) setHistory(d.price_history)
+      toast.success('Price history saved')
     } catch (err: any) {
       toast.error(err.message || 'Error saving price history')
     } finally {
@@ -86,7 +89,7 @@ export default function PriceHistoryEditor({ projectId }: { projectId: string })
           </div>
           <div>
             <h3 className="text-[15px] font-semibold text-zinc-900 dark:text-zinc-100 tracking-tight">Price Appreciation History ({history.length} Points)</h3>
-            <p className="text-[12.5px] text-zinc-500 dark:text-zinc-400">Track quarterly price-per-sqft growth and market milestones.</p>
+            <p className="text-[12.5px] text-zinc-500 dark:text-zinc-400">Saved points are kept as recorded; add a new point for a new price.</p>
           </div>
         </div>
         <button
@@ -105,6 +108,7 @@ export default function PriceHistoryEditor({ projectId }: { projectId: string })
               type="text"
               placeholder="Q1 2025"
               value={point.quarter_label}
+              readOnly={!!point.id}
               onChange={(e) => updatePoint(i, 'quarter_label', e.target.value)}
               className="w-28 px-3 py-1.5 text-[12.5px] font-semibold font-mono border border-zinc-200/90 dark:border-zinc-700/80 rounded-lg bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 focus:border-[#0066cc] outline-none shadow-2xs"
             />
@@ -112,6 +116,7 @@ export default function PriceHistoryEditor({ projectId }: { projectId: string })
               type="number"
               placeholder="Price/Sqft (₹)"
               value={point.price_per_sqft}
+              readOnly={!!point.id}
               onChange={(e) => updatePoint(i, 'price_per_sqft', e.target.value)}
               className="w-36 px-3 py-1.5 text-[12.5px] font-semibold font-mono border border-zinc-200/90 dark:border-zinc-700/80 rounded-lg bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 focus:border-[#0066cc] outline-none shadow-2xs"
             />
@@ -119,15 +124,16 @@ export default function PriceHistoryEditor({ projectId }: { projectId: string })
               type="text"
               placeholder="Event Note (e.g. Metro Line Opened, Slab Cast)"
               value={point.event_note || ''}
+              readOnly={!!point.id}
               onChange={(e) => updatePoint(i, 'event_note', e.target.value)}
               className="flex-1 px-3 py-1.5 text-[12.5px] border border-zinc-200/90 dark:border-zinc-700/80 rounded-lg bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 focus:border-[#0066cc] outline-none shadow-2xs"
             />
-            <button
+            {!point.id && <button
               onClick={() => removePoint(i)}
               className="p-1.5 text-zinc-400 hover:text-rose-500 rounded-lg cursor-pointer transition-colors"
             >
               <Trash size={15} />
-            </button>
+            </button>}
           </div>
         ))}
       </div>

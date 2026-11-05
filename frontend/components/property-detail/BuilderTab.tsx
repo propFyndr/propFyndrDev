@@ -74,8 +74,8 @@ export default function BuilderTab({ builder, project, documents = [], loading }
     project?.builder_name ||
     (typeof project?.builder === 'string' ? project.builder : project?.builder?.name) ||
     'Developer'
-  const foundedYear = builder?.founded_year ?? project?.builder_founded_year ?? 2012
-  const legacyYears = foundedYear ? Math.max(1, new Date().getFullYear() - foundedYear) : 12
+  const foundedYear: number | null = builder?.founded_year ?? project?.builder_founded_year ?? null
+  const legacyYears: number | null = foundedYear ? Math.max(1, new Date().getFullYear() - foundedYear) : null
   const builderSlug = builder?.slug || (builderName ? builderName.toLowerCase().replace(/[^a-z0-9]+/g, '-') : 'developer')
 
   // ── Channel Partners: No fallback to fake data ──
@@ -169,7 +169,7 @@ export default function BuilderTab({ builder, project, documents = [], loading }
             </h1>
 
             <p className="text-[12.5px] text-gray-500 dark:text-gray-400 font-semibold leading-relaxed">
-              {builder?.company_overview || builder?.description || `Building Trust. Creating Landmarks. ${builderName} is a leading real estate developer with a legacy of delivering high-quality residential, commercial, and mixed-use projects across India.`}
+              {builder?.company_overview || builder?.description || `We hold no company overview for ${builderName}.`}
             </p>
 
             <div className="flex flex-wrap items-center gap-3 pt-2">
@@ -207,7 +207,7 @@ export default function BuilderTab({ builder, project, documents = [], loading }
       {/* ── 2. LEGACY & DELIVERED STAT METRICS BANNER (Dynamically fits valid stats only) ── */}
       {(() => {
         const stats = [
-          { title: `${legacyYears}+`, label: 'Years of Legacy', icon: Clock, color: 'text-blue-600 bg-blue-50' },
+          legacyYears != null ? { title: `${legacyYears}+`, label: 'Years of Legacy', icon: Clock, color: 'text-blue-600 bg-blue-50' } : null,
           (builder?.projects_delivered_count && Number(builder.projects_delivered_count) > 0) ? { title: `${builder.projects_delivered_count}+`, label: 'Projects Delivered', icon: Buildings, color: 'text-purple-600 bg-purple-50' } : null,
           (builder?.delivered_units && Number(builder.delivered_units) >= 10000) ? { title: `${(Number(builder.delivered_units) >= 100000 ? (Number(builder.delivered_units) / 1000000).toFixed(1) + 'M+' : Number(builder.delivered_units).toLocaleString() + '+')}`, label: 'Sq. Ft. Delivered', icon: Medal, color: 'text-amber-600 bg-amber-50' } : null,
           (Number((builder as any)?.ongoing_projects) > 0 || Number((builder as any)?.ongoing_projects_count) > 0) ? { title: `${(builder as any)?.ongoing_projects || (builder as any)?.ongoing_projects_count}+`, label: 'Ongoing Projects', icon: TrendUp, color: 'text-emerald-600 bg-emerald-50' } : null
@@ -249,31 +249,10 @@ export default function BuilderTab({ builder, project, documents = [], loading }
             <div>
               <h2 className="text-[18px] sm:text-[20px] font-black text-gray-900 dark:text-white tracking-tight">About {builderName}</h2>
               <p className="text-[12px] sm:text-[12.5px] text-gray-500 font-medium mt-1 leading-relaxed">
-                Founded in {foundedYear}, {builderName} has grown into one of India&apos;s most trusted real estate brands. Our vision is to craft spaces that combine innovation, quality, and sustainability to enhance lifestyles and communities.
+                {foundedYear ? `${builderName} was founded in ${foundedYear}.` : `Founding year not on record for ${builderName}.`}
               </p>
             </div>
 
-            <div className="grid grid-cols-2 gap-2.5 sm:gap-3 pt-2">
-              {[
-                { title: 'Customer-Centric', desc: 'Putting customers at the heart of everything.', icon: UsersThree, color: 'bg-blue-50 text-blue-600' },
-                { title: 'Quality & Integrity', desc: 'Uncompromised quality with complete transparency.', icon: ShieldCheck, color: 'bg-emerald-50 text-emerald-600' },
-                { title: 'Timely Delivery', desc: 'Strong track record of delivering projects on time.', icon: Clock, color: 'bg-amber-50 text-amber-600' },
-                { title: 'Sustainable Dev', desc: 'Building responsibly for a better tomorrow.', icon: Leaf, color: 'bg-rose-50 text-rose-600' }
-              ].map((item, idx) => {
-                const Icon = item.icon
-                return (
-                  <div key={idx} className="flex flex-col justify-between space-y-1.5 p-3 rounded-2xl bg-gray-50/70 dark:bg-white/5 border border-gray-100/80 dark:border-white/5 hover:border-gray-200 transition-colors min-h-[90px]">
-                    <div className={`w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${item.color}`}>
-                      <Icon size={14} />
-                    </div>
-                    <div>
-                      <h4 className="text-[12px] sm:text-[13px] font-black text-gray-900 dark:text-white leading-tight">{item.title}</h4>
-                      <p className="text-[10px] sm:text-[11px] text-gray-400 font-semibold mt-0.5 leading-snug line-clamp-2">{item.desc}</p>
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
           </div>
 
           <button
@@ -358,15 +337,17 @@ export default function BuilderTab({ builder, project, documents = [], loading }
         {(() => {
           const deliveredSqftVal = (builder as any)?.delivered_sqft
             ? `${((builder as any).delivered_sqft / 1000000).toFixed(1)}M+`
-            : builder?.delivered_units
-            ? `${((builder.delivered_units * 1450) / 1000000).toFixed(1)}M+`
-            : '3.5M+'
+            : null
 
           const impactItems = [
-            { val: `${legacyYears}+`, label: 'Years of Legacy', icon: CalendarCheck, color: 'bg-amber-500/10 text-amber-600 dark:bg-amber-500/20 dark:text-amber-400 border-amber-500/20' },
-            { val: `${builder?.projects_delivered_count || 3}+`, label: 'Projects Delivered', icon: Buildings, color: 'bg-blue-500/10 text-blue-600 dark:bg-blue-500/20 dark:text-blue-400 border-blue-500/20' },
-            { val: deliveredSqftVal, label: 'Sq. Ft. Delivered', icon: Ruler, color: 'bg-emerald-500/10 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-400 border-emerald-500/20' }
-          ]
+            legacyYears != null && { val: `${legacyYears}+`, label: 'Years of Legacy', icon: CalendarCheck, color: 'bg-amber-500/10 text-amber-600 dark:bg-amber-500/20 dark:text-amber-400 border-amber-500/20' },
+            !!builder?.projects_delivered_count && { val: `${builder.projects_delivered_count}+`, label: 'Projects Delivered', icon: Buildings, color: 'bg-blue-500/10 text-blue-600 dark:bg-blue-500/20 dark:text-blue-400 border-blue-500/20' },
+            deliveredSqftVal != null && { val: deliveredSqftVal, label: 'Sq. Ft. Delivered', icon: Ruler, color: 'bg-emerald-500/10 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-400 border-emerald-500/20' }
+          ].filter((x): x is Exclude<typeof x, false> => !!x)
+
+          if (impactItems.length === 0) {
+            return <p className="text-[12px] text-gray-500 font-medium">No delivery figures on record for {builderName}.</p>
+          }
 
           return (
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 sm:gap-4">
@@ -582,36 +563,6 @@ export default function BuilderTab({ builder, project, documents = [], loading }
           )}
         </div>
       )}
-
-      {/* ── 8. WHY CHOOSE BUILDER? GRID ── */}
-      <div className="bg-white dark:bg-[#111] ring-1 ring-inset ring-black/5 dark:ring-white/10 rounded-[24px] p-5 sm:p-6 shadow-[0_2px_12px_rgba(0,0,0,0.03)] space-y-4 sm:space-y-5">
-        <div>
-          <h2 className="text-[18px] sm:text-[20px] font-black text-gray-900 dark:text-white tracking-tight">Why Choose {builderName}?</h2>
-        </div>
-
-        <div className="grid grid-cols-2 lg:grid-cols-5 gap-2.5 sm:gap-4">
-          {[
-            { icon: Clock, title: 'Timely Delivery', desc: 'Track record of on-time project completion.', color: 'bg-blue-500/10 text-blue-600 dark:bg-blue-500/20 dark:text-blue-400 border border-blue-500/20' },
-            { icon: ShieldCheck, title: 'Superior Quality', desc: 'Premium materials and international standards.', color: 'bg-indigo-500/10 text-indigo-600 dark:bg-indigo-500/20 dark:text-indigo-400 border border-indigo-500/20' },
-            { icon: MapPin, title: 'Prime Locations', desc: 'Projects in high-growth corridors with connectivity.', color: 'bg-purple-500/10 text-purple-600 dark:bg-purple-500/20 dark:text-purple-400 border border-purple-500/20' },
-            { icon: Buildings, title: 'Innovative Design', desc: 'Thoughtfully designed spaces for modern living.', color: 'bg-emerald-500/10 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-400 border border-emerald-500/20' },
-            { icon: UsersThree, title: 'Support & Care', desc: 'Dedicated support before & after possession.', color: 'bg-amber-500/10 text-amber-600 dark:bg-amber-500/20 dark:text-amber-400 border border-amber-500/20' }
-          ].map((card, i) => {
-            const Icon = card.icon
-            return (
-              <div key={i} className="p-3.5 sm:p-4 rounded-2xl bg-gray-50/60 dark:bg-white/5 border border-gray-100 dark:border-white/5 space-y-2">
-                <div className={`w-8 h-8 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center ${card.color}`}>
-                  <Icon size={18} weight="duotone" />
-                </div>
-                <div>
-                  <h4 className="text-[12.5px] sm:text-[13px] font-black text-gray-900 dark:text-white leading-tight">{card.title}</h4>
-                  <p className="text-[10px] sm:text-[11px] text-gray-400 font-semibold mt-0.5 leading-snug">{card.desc}</p>
-                </div>
-              </div>
-            )
-          })}
-        </div>
-      </div>
 
       {/* ── 9. DARK BLUE BOTTOM CTA FOOTER ── */}
       <div className="relative overflow-hidden bg-[#1E293B] dark:bg-black rounded-[24px] p-6 md:p-8 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-xl">

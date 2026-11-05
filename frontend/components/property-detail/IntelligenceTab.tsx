@@ -282,7 +282,8 @@ export default function IntelligenceTab({
     // Group unit types by BHK
     const bhkGroups: Record<number, number> = {}
     unitTypes.forEach((u: UnitTypeSummary) => {
-      const bhkVal = u.bhk || 2
+      if (!u.bhk) return
+      const bhkVal = u.bhk
       bhkGroups[bhkVal] = (bhkGroups[bhkVal] || 0) + 1
     })
 

@@ -143,7 +143,7 @@ export default function PricingCharts({ priceHistory, unitPriceCr, otherCharges,
               </div>
             </div>
             <div className="text-right hidden sm:block">
-              <span className="text-[20px] font-black text-gray-900 dark:text-white block">₹{(unitPriceCr || 0).toFixed(2)} Cr</span>
+              <span className="text-[20px] font-black text-gray-900 dark:text-white block">{unitPriceCr ? `₹${unitPriceCr.toFixed(2)} Cr` : 'Price on request'}</span>
               <span className="text-[11px] text-gray-400 font-bold uppercase">Reference Price</span>
             </div>
           </div>

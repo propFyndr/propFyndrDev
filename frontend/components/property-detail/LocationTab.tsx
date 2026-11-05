@@ -7,7 +7,7 @@ import {
   Shield, Wind, Volume2, Leaf
 } from 'lucide-react'
 import type { ProjectCard as ProjectCardType, ProjectDetail } from '@/types/project'
-import SectorMap, { SECTOR_CENTROIDS } from '@/components/SectorMap'
+import SectorMap from '@/components/SectorMap'
 import { buildWhatsAppUrl, trackWhatsAppHandoff } from '@/lib/whatsapp'
 import { LocationTabSkeleton } from '@/components/skeletons'
 
@@ -43,9 +43,6 @@ export default function LocationTab({ project, detail, d, projectAddress, loadin
   }
   const waUrl = d ? buildWhatsAppUrl(d, 'panel') : 'https://wa.me/'
 
-  // Coordinates
-  const projectLat = project?.lat || SECTOR_CENTROIDS[project?.sector || '']?.[0] || 28.535
-  const projectLng = project?.lng || SECTOR_CENTROIDS[project?.sector || '']?.[1] || 77.391
 
   // Connectivity: No fake data fallback
   const connectivity = detail?.all_connectivity || []

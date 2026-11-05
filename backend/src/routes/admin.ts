@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express'
 import { Prisma } from '@prisma/client'
 import { prisma } from '../lib/db'
 import { buildLeadBrief } from '../lib/leadBrief'
+import { newPricePoints } from '../lib/priceHistoryAppend'
 import { loadScoreState, missingFrom, saveScoreMap } from '../lib/completenessCache'
 import type { ScoreMap } from '../lib/completenessCache'
 import { requireAdmin, destroyAdminSession } from '../lib/adminAuth'
@@ -3752,25 +3753,10 @@ router.put('/projects/:id/cost-sheet', async (req: Request, res: Response) => {
     })
     if (!project) return res.status(404).json({ error: 'Project not found' })
 
-    const bsp = data.base_price_per_sqft || 6500
-    const parking = data.parking_cost || 350000
-    const club = data.club_membership || 150000
-    const ifms = data.ifms || 50
-    const gstRate = (data.gst_rate_pct ?? 5) / 100
-    const stampRate = (data.stamp_duty_pct ?? 7) / 100
-    const regRate = (data.registration_pct ?? 1) / 100
-    const avgSqft = 1350
-    const baseTotal = (bsp * avgSqft) + parking + club + (ifms * avgSqft)
-    const taxes = baseTotal * (gstRate + stampRate + regRate)
-    const calculatedAllIncCr = Math.round(((baseTotal + taxes) / 10000000) * 100) / 100
-    const calculatedAllIncPsf = Math.round((baseTotal + taxes) / avgSqft)
-
-    const payload = {
-      ...data,
-      all_inclusive_price_cr: data.all_inclusive_price_cr ?? calculatedAllIncCr,
-      all_inclusive_per_sqft: data.all_inclusive_per_sqft ?? calculatedAllIncPsf,
-      updated_at: new Date()
-    }
+    // Stored as entered. The all-inclusive figures used to be computed here from
+    // defaults (₹6,500/sq ft, ₹3.5 L parking, ₹1.5 L club, a 1,350 sq ft flat)
+    // whenever a field was blank, which wrote an invented price into the row.
+    const payload = { ...data, updated_at: new Date() }
 
     const updated = await (prisma as any).costSheet.upsert({
       where: { project_id: project.id },
@@ -3941,20 +3927,15 @@ router.put('/projects/:id/price-history', async (req: Request, res: Response) =>
     })
     if (!project) return res.status(404).json({ error: 'Project not found' })
 
-    await (prisma as any).priceHistory.deleteMany({ where: { project_id: project.id } })
-    if (Array.isArray(price_history) && price_history.length > 0) {
-      await (prisma as any).priceHistory.createMany({
-        data: price_history.map((ph: any) => ({
-          project_id: project.id,
-          quarter_label: ph.quarter_label || 'Q1 2025',
-          price_per_sqft: ph.price_per_sqft ? parseFloat(ph.price_per_sqft) : null,
-          total_price_cr: ph.total_price_cr ? parseFloat(ph.total_price_cr) : null,
-          event_note: ph.event_note || null,
-          source: 'admin_update'
-        }))
+    // Append-only: saved points stay as they are (lib/priceHistoryAppend.ts).
+    const parsed = newPricePoints(price_history)
+    if ('error' in parsed) return res.status(400).json({ error: parsed.error })
+    if (parsed.rows.length > 0) {
+      await prisma.priceHistory.createMany({
+        data: parsed.rows.map((ph) => ({ ...ph, project_id: project.id, source: 'admin_update' })),
       })
     }
-    const fresh = await (prisma as any).priceHistory.findMany({ where: { project_id: project.id } })
+    const fresh = await prisma.priceHistory.findMany({ where: { project_id: project.id }, orderBy: { recorded_at: 'asc' } })
     res.json({ success: true, price_history: fresh })
   } catch (err) {
     console.error('[admin] save price history failed:', err)
@@ -3983,16 +3964,19 @@ router.post('/projects/:id/units', async (req: Request, res: Response) => {
     const verification = parsePriceVerification(data.price_verification)
     if (!verification.ok) return res.status(400).json({ error: verification.error })
 
+    const bhk = data.bhk ? parseInt(data.bhk) : NaN
+    if (!Number.isFinite(bhk) || bhk < 1) return res.status(400).json({ error: 'bhk is required' })
+
     const unit = await (prisma as any).unitType.create({
       data: {
         project_id: project.id,
-        name: data.name || `${data.bhk || 2} BHK Unit`,
-        bhk: data.bhk ? parseInt(data.bhk) : 2,
+        name: data.name || `${bhk} BHK Unit`,
+        bhk,
         super_area_sqft: superArea,
         carpet_area_sqft: carpetArea,
         carpet_to_super_ratio_pct: ratio,
-        built_up_area_sqft: data.built_up_area_sqft ? parseInt(data.built_up_area_sqft) : (carpetArea ? Math.round(carpetArea * 1.15) : null),
-        unit_orientations: Array.isArray(data.unit_orientations) ? data.unit_orientations : ['east_facing', 'north_facing'],
+        built_up_area_sqft: data.built_up_area_sqft ? parseInt(data.built_up_area_sqft) : null,
+        unit_orientations: Array.isArray(data.unit_orientations) ? data.unit_orientations : [],
         balconies: data.balconies ? parseInt(data.balconies) : null,
         balcony_area_sqft: data.balcony_area_sqft ? parseInt(data.balcony_area_sqft) : null,
         bathrooms: data.bathrooms ? parseInt(data.bathrooms) : null,

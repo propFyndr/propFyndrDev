@@ -140,7 +140,7 @@ export default function ProjectPricingTab({ unitTypes, detail, loading, onGoToCo
 
   const waUrl = detail ? buildWhatsAppUrl(detail, 'panel') : null
   const reraNum = detail?.rera_number ?? null
-  const possessionLabel = detail?.possession_label ?? (isRTM ? 'Delivered & Ready' : null)
+  const possessionLabel = detail?.possession_label ?? (isRTM ? 'Ready to move' : null)
   const pricePsf: number | null = unitMinCr && unitAreaSqft ? Math.round((unitMinCr * 10000000) / unitAreaSqft) : null
 
   const dbPlansList = Array.isArray(detail?.payment_plans) ? detail.payment_plans : (dbPaymentPlan ? [dbPaymentPlan] : [])
@@ -155,52 +155,16 @@ export default function ProjectPricingTab({ unitTypes, detail, loading, onGoToCo
   const findPlanByType = (typeKey: string): PaymentPlan | undefined =>
     dbPlansList.find((p) => p.plan_type === typeKey || PLAN_TYPE_ALIASES[typeKey]?.includes(p.plan_type))
 
-  const getMilestonesForType = (typeKey: string, fallback: MilestoneItem[]): MilestoneItem[] => {
-    const matchedPlan = findPlanByType(typeKey)
-    return matchedPlan?.milestones?.length ? matchedPlan.milestones : fallback
-  }
+  // Only the milestones stored on this project's plans. A plan we do not hold
+  // is shown as "not on record", never as a template schedule.
+  const getMilestonesForType = (typeKey: string): MilestoneItem[] =>
+    findPlanByType(typeKey)?.milestones ?? []
 
-  // Dynamic payment plan milestones derived from DB or structured templates
   const paymentPlanMilestones: Record<PlanTypeKey, MilestoneItem[]> = {
-    clp: getMilestonesForType('clp', isRTM ? [
-      { milestone: 'Booking Amount', due: 'At the time of booking token', pct: 10 },
-      { milestone: 'Within 30 Days of Booking', due: 'Agreement execution & bank sanction', pct: 15 },
-      { milestone: 'At Key Handover & Possession', due: 'Immediate OC occupancy & key transfer', pct: 75 }
-    ] : [
-      { milestone: 'At the Time of Booking', due: 'Within 15 days of booking token', pct: 10 },
-      { milestone: 'Within 30 Days of Booking', due: 'Agreement execution & stamp registration', pct: 10 },
-      { milestone: 'On Excavation & Substructure', due: 'Substructure & basement raft completion', pct: 15 },
-      { milestone: 'On Completion of Superstructure', due: 'Top slab casting across core towers', pct: 25 },
-      { milestone: 'On External Facade & Plaster', due: 'Exterior double-glazed glass & painting', pct: 20 },
-      { milestone: 'At the Time of Offer of Possession', due: 'Final keys handover & registry execution', pct: 20 }
-    ]),
-    investor: getMilestonesForType('investor', isRTM ? [
-      { milestone: 'Token Booking Amount', due: 'At booking time', pct: 10 },
-      { milestone: 'Within 45 Days', due: 'Agreement execution & allotment', pct: 20 },
-      { milestone: 'On Handover & Registry', due: 'Final key handover & instant registry', pct: 70 }
-    ] : [
-      { milestone: 'Booking Amount', due: 'At the time of booking', pct: 20 },
-      { milestone: 'Within 60 Days', due: 'Allotment & agreement execution', pct: 30 },
-      { milestone: 'On Completion of Superstructure', due: 'Tower roof slab completion', pct: 30 },
-      { milestone: 'At the Time of Possession', due: 'Keys handover & registry', pct: 20 }
-    ]),
-    flexi: getMilestonesForType('flexi', isRTM ? [
-      { milestone: 'Booking Token Amount', due: 'Immediate token payment', pct: 10 },
-      { milestone: 'Bank Loan / Flexi Disbursal', due: 'Sanction from ICICI/HDFC/SBI', pct: 80 },
-      { milestone: 'On Keys Handover', due: 'Final occupancy & unit handover', pct: 10 }
-    ] : [
-      { milestone: 'Booking Token Amount', due: 'Immediate token payment', pct: 10 },
-      { milestone: 'Flexi Bullet Installments', due: 'Quarterly milestone bullet payments', pct: 50 },
-      { milestone: 'On Finishing & Fit-outs', due: 'Pre-handover audit check', pct: 20 },
-      { milestone: 'On Offer of Possession', due: 'Final keys & registry execution', pct: 20 }
-    ]),
-    full: getMilestonesForType('full', isRTM ? [
-      { milestone: 'Booking Token Amount', due: 'At booking time', pct: 10 },
-      { milestone: 'Full Settlement & Handover', due: 'Within 30 days (Instant Possession & Registry)', pct: 90 }
-    ] : [
-      { milestone: 'Booking Token Amount', due: 'At booking time', pct: 10 },
-      { milestone: 'Down Payment Balance', due: 'Within 45 days of booking', pct: 90 }
-    ])
+    clp: getMilestonesForType('clp'),
+    investor: getMilestonesForType('investor'),
+    flexi: getMilestonesForType('flexi'),
+    full: getMilestonesForType('full'),
   }
 
   const matchedPlanEntries = (['clp', 'investor', 'flexi', 'full'] as const)
@@ -249,7 +213,7 @@ export default function ProjectPricingTab({ unitTypes, detail, loading, onGoToCo
     flexi: { label: 'Flexi Plan', color: 'text-purple-600', bestFor: 'Lower Initial Outgo' },
     full: { label: 'Full Payment', color: 'text-amber-600', bestFor: 'Max Discount Buyers' }
   }
-  const planCompareRows = (['clp', 'investor', 'flexi', 'full'] as const).map((typeKey) => {
+  const planCompareRows = (['clp', 'investor', 'flexi', 'full'] as const).filter((typeKey) => paymentPlanMilestones[typeKey].length > 0).map((typeKey) => {
     const milestones = paymentPlanMilestones[typeKey] || []
     const bookingPct = milestones.length > 0 ? getMilestonePct(milestones[0]) : 0
     const possessionPct = milestones.length > 0 ? getMilestonePct(milestones[milestones.length - 1]) : 0
@@ -272,20 +236,17 @@ export default function ProjectPricingTab({ unitTypes, detail, loading, onGoToCo
   // from the row — the CostSheet column defaults to 6.0 and printed 6% stamp
   // duty for a male buyer when UP charges 7% (6% applies to women owners).
   const stampDutyPct = 7
-  const isStampEstimated = false
   const regPct = 1
-  const isRegEstimated = false
-  const gstPct = dbCostSheet?.gst_rate_pct ?? 5.0
-  const isGstEstimated = dbCostSheet?.gst_rate_pct == null
-  const clubAmt = dbCostSheet?.club_membership ?? 200000
-  const isClubEstimated = dbCostSheet?.club_membership == null
-  const ifmsAmt = dbCostSheet?.ifms ?? 75000
-  const isIfmsEstimated = dbCostSheet?.ifms == null
+  // GST is statutory: 0% only with an occupancy certificate on record, else 5%.
+  // "Ready to move" is a status, not a certificate.
+  const hasOcOnRecord = detail?.oc_status === 'FULL_OC'
+  const gstPct = dbCostSheet?.gst_rate_pct ?? (hasOcOnRecord ? 0 : 5)
+  const clubAmt: number | null = dbCostSheet?.club_membership ?? null
+  const ifmsAmt: number | null = dbCostSheet?.ifms ?? null
   const utilFieldsAllMissing = dbCostSheet?.electricity_connection == null && dbCostSheet?.water_sewer_connection == null && dbCostSheet?.maintenance_psf_monthly == null
-  const utilAmt = utilFieldsAllMissing
-    ? 125000
+  const utilAmt: number | null = utilFieldsAllMissing
+    ? null
     : (dbCostSheet?.electricity_connection ?? 0) + (dbCostSheet?.water_sewer_connection ?? 0) + (dbCostSheet?.maintenance_psf_monthly ?? 0)
-  const isUtilEstimated = utilFieldsAllMissing
 
   const baseCostVal = propertyPrice
 
@@ -297,8 +258,7 @@ export default function ProjectPricingTab({ unitTypes, detail, loading, onGoToCo
     else if (typeof item.percent === 'number') calcPlcVal += Math.round(baseCostVal * (item.percent / 100))
   }
   const hasPlcData = rawPlcArray.length > 0
-  const plcCostVal = hasPlcData ? calcPlcVal : Math.round(baseCostVal * 0.02)
-  const isPlcEstimated = !hasPlcData
+  const plcCostVal: number | null = hasPlcData ? calcPlcVal : null
 
   // Sum Other charges from dbCostSheet.other_charges JSON array if present
   const rawOtherArray = dbCostSheet?.other_charges ?? []
@@ -308,18 +268,25 @@ export default function ProjectPricingTab({ unitTypes, detail, loading, onGoToCo
     else if (typeof item.percent === 'number') calcOtherVal += Math.round(baseCostVal * (item.percent / 100))
   }
   const hasOtherData = rawOtherArray.length > 0
-  const otherCostVal = hasOtherData ? calcOtherVal : 125000
-  const isOtherEstimated = !hasOtherData
+  const otherCostVal: number | null = hasOtherData ? calcOtherVal : null
 
   const clubCostVal = clubAmt
   const ifmsCostVal = ifmsAmt
-  const constructionTotalCost = baseCostVal + plcCostVal + clubCostVal + ifmsCostVal + otherCostVal
+  // Totals add only what we hold; the charges we do not hold are named under the total.
+  const constructionTotalCost = baseCostVal + (plcCostVal ?? 0) + (clubCostVal ?? 0) + (ifmsCostVal ?? 0) + (otherCostVal ?? 0)
+  const chargesNotOnRecord = [
+    plcCostVal == null && 'PLC',
+    clubCostVal == null && 'club membership',
+    ifmsCostVal == null && 'IFMS',
+    otherCostVal == null && 'other charges',
+  ].filter((x): x is string => !!x)
 
   const stampDutyCost = Math.round(baseCostVal * (stampDutyPct / 100))
   const regCost = Math.round(baseCostVal * (regPct / 100))
   const gstCost = Math.round(baseCostVal * (gstPct / 100))
   const utilitiesCost = utilAmt
-  const totalPossessionAdditions = stampDutyCost + regCost + gstCost + utilitiesCost
+  const totalPossessionAdditions = stampDutyCost + regCost + gstCost + (utilitiesCost ?? 0)
+  const possessionChargesNotOnRecord = utilitiesCost == null ? [...chargesNotOnRecord, 'utilities'] : chargesNotOnRecord
   const grandTotalAtPossession = constructionTotalCost + totalPossessionAdditions
 
   useEffect(() => {
@@ -340,25 +307,25 @@ export default function ProjectPricingTab({ unitTypes, detail, loading, onGoToCo
   }
 
   // Adaptive breakdown components based on Stage Toggle (At Booking vs At Possession)
-  const breakdownComponents = !unitAreaSqft ? [] : costBreakdownStage === 'construction' ? [
-    { id: 'base', name: `Base Price (${unitAreaSqft.toLocaleString('en-IN')} sq.ft)`, amount: baseCostVal, pct: ((baseCostVal / constructionTotalCost) * 100).toFixed(1) + '%', color: 'bg-[#2563EB]', stroke: '#2563EB', estimated: false },
-    { id: 'plc', name: 'PLC Charges', amount: plcCostVal, pct: ((plcCostVal / constructionTotalCost) * 100).toFixed(1) + '%', color: 'bg-indigo-500', stroke: '#6366F1', estimated: isPlcEstimated },
-    { id: 'club', name: 'Club Membership', amount: clubCostVal, pct: ((clubCostVal / constructionTotalCost) * 100).toFixed(1) + '%', color: 'bg-amber-400', stroke: '#FBBF24', estimated: isClubEstimated },
-    { id: 'ifms', name: 'IFMS (Advance)', amount: ifmsCostVal, pct: ((ifmsCostVal / constructionTotalCost) * 100).toFixed(1) + '%', color: 'bg-orange-500', stroke: '#F97316', estimated: isIfmsEstimated },
-    { id: 'other', name: 'Other Charges', amount: otherCostVal, pct: ((otherCostVal / constructionTotalCost) * 100).toFixed(1) + '%', color: 'bg-pink-500', stroke: '#EC4899', estimated: isOtherEstimated }
-  ] : [
-    { id: 'base', name: `Base Price (${unitAreaSqft.toLocaleString('en-IN')} sq.ft)`, amount: baseCostVal, pct: ((baseCostVal / grandTotalAtPossession) * 100).toFixed(1) + '%', color: 'bg-[#2563EB]', stroke: '#2563EB', estimated: false },
-    { id: 'plc', name: 'PLC Charges', amount: plcCostVal, pct: ((plcCostVal / grandTotalAtPossession) * 100).toFixed(1) + '%', color: 'bg-indigo-500', stroke: '#6366F1', estimated: isPlcEstimated },
-    { id: 'club', name: 'Club Membership', amount: clubCostVal, pct: ((clubCostVal / grandTotalAtPossession) * 100).toFixed(1) + '%', color: 'bg-amber-400', stroke: '#FBBF24', estimated: isClubEstimated },
-    { id: 'ifms', name: 'IFMS (Advance)', amount: ifmsCostVal, pct: ((ifmsCostVal / grandTotalAtPossession) * 100).toFixed(1) + '%', color: 'bg-orange-500', stroke: '#F97316', estimated: isIfmsEstimated },
-    { id: 'other', name: 'Other Charges', amount: otherCostVal, pct: ((otherCostVal / grandTotalAtPossession) * 100).toFixed(1) + '%', color: 'bg-pink-500', stroke: '#EC4899', estimated: isOtherEstimated },
-    { id: 'stamp', name: `Stamp Duty (${stampDutyPct}%)`, amount: stampDutyCost, pct: ((stampDutyCost / grandTotalAtPossession) * 100).toFixed(1) + '%', color: 'bg-emerald-500', stroke: '#10B981', estimated: isStampEstimated },
-    { id: 'reg', name: `Registration (${regPct}%)`, amount: regCost, pct: ((regCost / grandTotalAtPossession) * 100).toFixed(1) + '%', color: 'bg-teal-500', stroke: '#14B8A6', estimated: isRegEstimated },
-    { id: 'gst', name: `GST (${gstPct}%)`, amount: gstCost, pct: ((gstCost / grandTotalAtPossession) * 100).toFixed(1) + '%', color: 'bg-purple-500', stroke: '#A855F7', estimated: isGstEstimated },
-    { id: 'util', name: 'Utilities & Charges', amount: utilitiesCost, pct: ((utilitiesCost / grandTotalAtPossession) * 100).toFixed(1) + '%', color: 'bg-rose-500', stroke: '#F43F5E', estimated: isUtilEstimated }
-  ]
-
   const activeTotalVal = costBreakdownStage === 'construction' ? constructionTotalCost : grandTotalAtPossession
+  const activeNotOnRecord = costBreakdownStage === 'construction' ? chargesNotOnRecord : possessionChargesNotOnRecord
+  const row = (id: string, name: string, amount: number | null, color: string, stroke: string) =>
+    amount == null ? null : { id, name, amount, pct: ((amount / activeTotalVal) * 100).toFixed(1) + '%', color, stroke, estimated: false }
+  // No breakdown on a price we do not hold (propertyPrice falls back to a slider default).
+  const breakdownComponents = !unitAreaSqft || unitMinCr == null ? [] : [
+    row('base', `Base Price (${unitAreaSqft.toLocaleString('en-IN')} sq.ft)`, baseCostVal, 'bg-[#2563EB]', '#2563EB'),
+    row('plc', 'PLC Charges', plcCostVal, 'bg-indigo-500', '#6366F1'),
+    row('club', 'Club Membership', clubCostVal, 'bg-amber-400', '#FBBF24'),
+    row('ifms', 'IFMS (Advance)', ifmsCostVal, 'bg-orange-500', '#F97316'),
+    row('other', 'Other Charges', otherCostVal, 'bg-pink-500', '#EC4899'),
+    ...(costBreakdownStage === 'construction' ? [] : [
+      row('stamp', `Stamp Duty (${stampDutyPct}%)`, stampDutyCost, 'bg-emerald-500', '#10B981'),
+      row('reg', `Registration (${regPct}%)`, regCost, 'bg-teal-500', '#14B8A6'),
+      row('gst', `GST (${gstPct}%)`, gstCost, 'bg-purple-500', '#A855F7'),
+      row('util', 'Utilities & Charges', utilitiesCost, 'bg-rose-500', '#F43F5E'),
+    ]),
+  ].filter((x): x is NonNullable<typeof x> => x !== null)
+
 
   const downloadScheduleCSV = () => {
     const activeMilestones = paymentPlanMilestones[selectedPlanTab]
@@ -824,9 +791,9 @@ export default function ProjectPricingTab({ unitTypes, detail, loading, onGoToCo
 
               return (
                 <>
-                  {!isSelectedPlanFromDb && (
+                  {allItems.length === 0 && (
                     <p className="text-[10.5px] text-amber-700 dark:text-amber-400 font-bold flex items-center gap-1 mb-1 bg-amber-50/80 dark:bg-amber-950/20 p-2 rounded-xl border border-amber-200/60 dark:border-amber-900/40">
-                      <Info size={13} className="shrink-0" /> Illustrative schedule — confirm exact milestones with developer booking sheet.
+                      <Info size={13} className="shrink-0" /> This payment plan is not on record for this project. Ask the builder for the booking sheet.
                     </p>
                   )}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -1060,13 +1027,18 @@ export default function ProjectPricingTab({ unitTypes, detail, loading, onGoToCo
 
             <div className="flex items-center justify-between text-[14px] font-black p-3.5 bg-gray-50/80 dark:bg-white/5 rounded-xl border border-gray-200/60 dark:border-white/10 mt-3">
               <span className="text-gray-900 dark:text-white">
-                {costBreakdownStage === 'construction' ? 'Total (Till Possession)' : 'Grand Total (All Inclusive at Possession)'}
+                {costBreakdownStage === 'construction' ? 'Total (Till Possession)' : (activeNotOnRecord.length ? 'Total at Possession (charges on record)' : 'Grand Total (All Inclusive at Possession)')}
               </span>
               <div className="flex items-center gap-12">
                 <span className="text-gray-900 dark:text-white text-[15px]">{fmtRs(activeTotalVal)}</span>
                 <span className="text-gray-900 dark:text-white w-16 text-right">100%</span>
               </div>
             </div>
+            {activeNotOnRecord.length > 0 && (
+              <p className="text-[11px] text-gray-500 dark:text-gray-400 font-semibold px-3">
+                Not on record for this project: {activeNotOnRecord.join(', ')}. The total excludes them; ask the builder for the cost sheet.
+              </p>
+            )}
           </div>
 
         </div>
