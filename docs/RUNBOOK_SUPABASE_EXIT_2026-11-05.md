@@ -25,6 +25,30 @@ Decision (Furqan, 5 Nov): buyer sign-in moves to Better Auth on our own Neon dat
 
 **Not proven yet:** a real browser sign-in against the local app (the test calls the backend directly), a real email delivered, and the live steps below.
 
+## DONE on 5 Nov 2026: live and dev are on the new setup
+
+Order actually run: storage buckets and credential, Render variables (live and dev), live tables, file copy and 13 link rewrites, push `dev` then `main`, smoke test. Commits `458dde2d` and `3b8c78bb`. Nothing from Supabase is read or written at runtime any more; the Supabase project is untouched and is the rollback.
+
+**Decision (Furqan, 5 Nov): the existing Supabase accounts were not moved.** Every account from now on is created on Neon, and the 11 old ones sign up again with the same email.
+
+**Live smoke test, 5 Nov 12:43 UTC** (throwaway address on Resend's test domain, row deleted afterwards): sign-up 200, sign-in before verifying 403 `EMAIL_NOT_VERIFIED`, sign-in 200 after verifying, cookie `__Secure-ra.session_token` on `.realtyask.in` (Secure, HttpOnly), session returned with the cookie and `null` without. Live auth tables hold 0 rows.
+
+**Found on the way**
+- Better Auth could not see the visitor's IP behind the Vercel proxy, so its default limits would have been shared by all buyers. Fixed in `3b8c78bb` (session checks unlimited; sign-in and sign-up 10 per minute shared).
+- The 13 stored `construction_updates` photo links were already dead on Supabase (files never uploaded).
+- Live `propety-docs` (misspelled, empty, private) is unused and left alone.
+
+**Environment now set**
+- Render live (`propFyndrLive`): `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL=https://realtyask.in`, `AUTH_COOKIE_DOMAIN=.realtyask.in`, `AUTH_COOKIE_PREFIX=ra`, `AUTH_TRUSTED_ORIGINS`, `STORAGE_*` (live branch).
+- Render dev (`propFyndrDev`): same names, dev values (`ra-dev` prefix, dev storage branch).
+- Vercel: unchanged. The site proxies `/api/*` to the backend, so no variable is needed.
+
+**Roll back:** redeploy commit `40960462` (the previous `main`). Supabase and its buckets are intact, so the old code works as before. Accounts created on the new system would exist only in the new tables.
+
+**Later cleanup (not urgent):** after a week of stable running, remove `@supabase/supabase-js` from `backend/package.json`, the `NEXT_PUBLIC_SUPABASE_*` variables on Vercel and the `SUPABASE_*` ones on Render, then the owner decides about pausing the Supabase project.
+
+Original plan and reasoning (kept for reference):
+
 ## Live cutover: every step needs Furqan's yes, in this order
 
 **Decision (Furqan, 5 Nov): the existing Supabase accounts are NOT moved.** Every account from now on is created on Neon. No export, no import. The import script stays in the repo, unused.
