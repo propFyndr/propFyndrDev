@@ -14,7 +14,7 @@ import Toast from '@/components/Toast';
 import {  m  } from 'framer-motion';
 import dynamic from 'next/dynamic';
 
-import { getSupabaseClient } from '@/lib/supabase';
+import { getAuthClient } from '@/lib/buyerAuth';
 
 const ThemeToggle = dynamic(() => import('@/components/ThemeToggle'), { ssr: false });
 // ProjectDetailPanel calls useSearchParams, which cannot be prerendered without a
@@ -44,8 +44,8 @@ export default function SavedPropertiesPage() {
 
         if (!uid) {
           try {
-            const supabase = await getSupabaseClient();
-            const { data } = await supabase.auth.getSession();
+            const client = await getAuthClient();
+            const { data } = await client.auth.getSession();
             if (data?.session?.user) {
               uid = data.session.user.id;
               localStorage.setItem('user_id', uid);

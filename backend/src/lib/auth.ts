@@ -1,64 +1,49 @@
 // backend/src/lib/auth.ts
 // Server-side identity verification. We NEVER trust a client-supplied user id.
-// A logged-in client sends `Authorization: Bearer <supabase access token>`; we
-// verify it against Supabase's auth REST endpoint and derive the user id from
-// the verified token. Guests have no token and are scoped to their guestToken.
+// A signed-in buyer carries a Better Auth session (lib/betterAuth.ts): the
+// httpOnly session cookie on our domain, or the same token as
+// `Authorization: Bearer <token>`. We look the session up in our own database
+// and derive the user id from it. Guests have no session and are scoped to
+// their guestToken. (Supabase Auth was replaced on 5 Nov 2026.)
 import type { Request } from 'express'
+import { fromNodeHeaders } from 'better-auth/node'
+import { auth } from './betterAuth'
 
-const SUPABASE_URL = process.env.SUPABASE_URL ?? process.env.NEXT_PUBLIC_SUPABASE_URL
-const SUPABASE_KEY =
-  process.env.SUPABASE_ANON_KEY ??
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ??
-  process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ??
-  process.env.SUPABASE_SERVICE_ROLE_KEY
-
-// Insecure backdoors have been permanently removed per security audit.
-
-// Small in-memory cache so we don't hit Supabase on every request in a burst.
-const tokenCache = new Map<string, { userId: string; exp: number }>()
+// Small in-memory cache so a burst of requests does not re-read the session.
+const sessionCache = new Map<string, { userId: string; exp: number }>()
 const CACHE_TTL_MS = 60_000
 
-function bearer(req: Request): string | null {
+/** The credential this request carries, or null for a guest. */
+export function sessionKey(req: Pick<Request, 'headers'>): string | null {
   const h = req.headers['authorization']
-  if (typeof h !== 'string') return null
-  const m = h.match(/^Bearer\s+(.+)$/i)
-  return m ? m[1].trim() : null
+  const bearer = typeof h === 'string' ? h.match(/^Bearer\s+(.+)$/i)?.[1]?.trim() : undefined
+  if (bearer) return `b:${bearer}`
+  const cookie = typeof req.headers.cookie === 'string' ? req.headers.cookie : ''
+  const m = cookie.match(/(?:^|;\s*)(?:__Secure-)?[\w-]+\.session_token=([^;]+)/)
+  return m ? `c:${m[1]}` : null
 }
 
 /**
  * Returns a VERIFIED user id, or null if the caller is not an authenticated user.
- * - Valid token  → user id (string)
- * - No token     → null (caller is a guest; use guestToken for scoping)
- * - Bad token    → null (treated as unauthenticated)
+ * - Valid session → user id (string)
+ * - No session    → null (caller is a guest; use guestToken for scoping)
+ * - Bad session   → null (treated as unauthenticated)
  */
 export async function verifyUser(req: Request): Promise<string | null> {
-  const token = bearer(req)
+  const key = sessionKey(req)
+  if (!key) return null
 
-  if (!token) {
-    // No token. We no longer honour any legacy x-user-id headers.
-    return null
-  }
-
-  const cached = tokenCache.get(token)
+  const cached = sessionCache.get(key)
   if (cached && cached.exp > Date.now()) return cached.userId
 
-  if (!SUPABASE_URL || !SUPABASE_KEY) {
-    console.error('[auth] SUPABASE_URL / key not configured — cannot verify tokens')
-    return null
-  }
-
   try {
-    const res = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
-      headers: { Authorization: `Bearer ${token}`, apikey: SUPABASE_KEY },
-      signal: AbortSignal.timeout(4000),
-    })
-    if (!res.ok) return null
-    const user = (await res.json()) as { id?: string }
-    if (!user?.id) return null
-    tokenCache.set(token, { userId: user.id, exp: Date.now() + CACHE_TTL_MS })
-    return user.id
-  } catch (err) {
-    // Silently fail. Invalid/expired tokens are expected; logging per-request auth failures is noise.
+    const result = await auth.api.getSession({ headers: fromNodeHeaders(req.headers) })
+    const userId = result?.user?.id
+    if (!userId) return null
+    sessionCache.set(key, { userId, exp: Date.now() + CACHE_TTL_MS })
+    return userId
+  } catch {
+    // Invalid/expired sessions are expected; logging each one is noise.
     return null
   }
 }

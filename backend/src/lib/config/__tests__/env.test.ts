@@ -70,7 +70,7 @@ describe('Environment: Feature flags', () => {
   })
 
   it('enables image upload when storage configured', () => {
-    const hasStorage = Boolean(process.env.SUPABASE_URL && process.env.SUPABASE_KEY)
+    const hasStorage = Boolean(process.env.STORAGE_S3_ENDPOINT && process.env.STORAGE_ACCESS_KEY_ID)
     assert(typeof hasStorage === 'boolean')
   })
 })

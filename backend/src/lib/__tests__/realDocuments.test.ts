@@ -4,7 +4,7 @@ import { isRealDocumentUrl } from '../realDocuments'
 
 describe('only uploaded files count as documents', () => {
   it('accepts a file in our project-docs bucket', () => {
-    assert.equal(isRealDocumentUrl('https://abc.supabase.co/storage/v1/object/public/project-docs/documents/x/1.pdf'), true)
+    assert.equal(isRealDocumentUrl('https://br-dry-scene-azm6zcgp.storage.c-3.ap-southeast-1.aws.neon.tech/project-docs/documents/x/1.pdf'), true)
   })
   it('rejects every placeholder shape seen in the live table', () => {
     for (const url of [

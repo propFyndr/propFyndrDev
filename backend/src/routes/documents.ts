@@ -8,7 +8,7 @@ import { z } from 'zod'
 import multer from 'multer'
 import type { ChatCompletionContentPart } from 'groq-sdk/resources/chat/completions'
 import { prisma } from '../lib/db'
-import { supabaseAdmin } from '../lib/supabase'
+import { putObject, removeObjects } from '../lib/objectStorage'
 import { GoogleGenAI } from '@google/genai'
 import { getGroq } from '../lib/ai/groq'
 import { MODELS } from '../lib/config'
@@ -147,25 +147,18 @@ router.post('/', requireStaff, requireRole('SUPER_ADMIN', 'ANALYST'), upload.sin
     return
   }
 
-  // Upload to Supabase Storage
+  // Upload to our object storage (lib/objectStorage.ts, Neon).
   const ext = (file.originalname.split('.').pop() ?? 'pdf').toLowerCase()
   const storagePath = `documents/${project_slug}/${Date.now()}.${ext}`
 
-  const { error: uploadError } = await supabaseAdmin.storage
-    .from('project-docs')
-    .upload(storagePath, file.buffer, { contentType: file.mimetype, upsert: false })
-
-  if (uploadError) {
-    console.error('[documents] storage upload failed:', uploadError.message)
+  let publicUrl: string
+  try {
+    publicUrl = await putObject('project-docs', storagePath, file.buffer, file.mimetype)
+  } catch (uploadError) {
+    console.error('[documents] storage upload failed:', uploadError instanceof Error ? uploadError.message : uploadError)
     res.status(500).json({ error: 'Storage upload failed' })
     return
   }
-
-  const { data: urlData } = supabaseAdmin.storage
-    .from('project-docs')
-    .getPublicUrl(storagePath)
-
-  const publicUrl = urlData.publicUrl
 
   // Extract text using Groq vision for images; PDFs stored as-is (no OCR here)
   let content_text: string | null = null
@@ -226,7 +219,7 @@ router.post('/', requireStaff, requireRole('SUPER_ADMIN', 'ANALYST'), upload.sin
     })
   } catch (dbError) {
     console.error('[docs] prisma create failed — removing orphaned file:', dbError)
-    await supabaseAdmin.storage.from('project-docs').remove([storagePath])
+    await removeObjects('project-docs', [storagePath]).catch((e) => console.error('[docs] orphan cleanup failed:', e))
     res.status(500).json({ error: 'Failed to save document record' })
     return
   }

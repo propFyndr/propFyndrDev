@@ -9,29 +9,9 @@ export async function middleware(request: NextRequest) {
   // Strip x-user-id to prevent spoofing
   requestHeaders.delete('x-user-id')
 
-  // Derive access token from the Supabase auth cookie dynamically. A session
-  // past ~3.1KB (a JWT carrying extra claims) is chunked by @supabase/ssr into
-  // sb-<ref>-auth-token.0, .1, .2… — matching only the bare name silently drops
-  // the token for any such session, forwarding no Authorization header at all.
-  const authCookieParts = request.cookies.getAll()
-    .filter(c => /^sb-.+-auth-token(\.\d+)?$/.test(c.name))
-    .sort((a, b) => {
-      const ai = Number(a.name.match(/\.(\d+)$/)?.[1] ?? -1)
-      const bi = Number(b.name.match(/\.(\d+)$/)?.[1] ?? -1)
-      return ai - bi
-    })
-  const supabaseToken = authCookieParts.length ? authCookieParts.map(c => c.value).join('') : undefined
-  if (supabaseToken) {
-    try {
-      const parsed = JSON.parse(supabaseToken)
-      const accessToken: string | undefined = Array.isArray(parsed) ? parsed[0] : parsed?.access_token
-      if (accessToken) {
-        requestHeaders.set('Authorization', `Bearer ${accessToken}`)
-      }
-    } catch {
-      // Ignore parse errors, the backend will just see no Authorization header
-    }
-  }
+  // A signed-in buyer's session is an httpOnly cookie on our domain
+  // (Better Auth, backend lib/betterAuth.ts). /api/* is rewritten to the
+  // backend with the cookie attached, so nothing is copied into a header here.
 
   const rawHost = request.headers.get('host') || ''
   const host = rawHost.split(':')[0].trim().toLowerCase()

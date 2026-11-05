@@ -2,7 +2,7 @@
 import { Router, Request, Response } from 'express'
 import { z } from 'zod'
 import { prisma } from '../lib/db'
-import { supabaseAdmin } from '../lib/supabase'
+import { putObject } from '../lib/objectStorage'
 import { checkRateLimit } from '../lib/cache'
 import { validateUploadedFile } from '../lib/uploadValidator'
 import { fireWebhook } from '../lib/webhook'
@@ -97,20 +97,7 @@ async function uploadLogoToSupabase(
     const path = `builder-logos/${sanitizedFilename}`
     const contentType = `image/${normalizedExt}`
 
-    const { data, error } = await supabaseAdmin.storage
-      .from('property-images')
-      .upload(path, buffer, { contentType, upsert: true })
-
-    if (error) {
-      console.error('[builderRegistration] Upload failed:', error)
-      return null
-    }
-
-    const { data: publicUrl } = supabaseAdmin.storage
-      .from('property-images')
-      .getPublicUrl(path)
-
-    return publicUrl.publicUrl
+    return await putObject('property-images', path, buffer, contentType, { overwrite: true })
   } catch (err) {
     console.error('[builderRegistration] Logo upload error:', err)
     return null

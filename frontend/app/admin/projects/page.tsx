@@ -300,7 +300,7 @@ function getNonMediaScore(p: Project): number {
  * through the optimizer (a 36px thumbnail instead of the full hero). Anything
  * else stays `unoptimized`, because next/image throws on an unlisted host.
  */
-const OPTIMIZABLE_IMAGE = /^(\/(?!\/)|https:\/\/([a-z0-9-]+\.)?(supabase\.co|supabase\.in|images\.unsplash\.com|plus\.unsplash\.com|storage\.propfyndr\.com)\/)/i
+const OPTIMIZABLE_IMAGE = /^(\/(?!\/)|https:\/\/([a-z0-9-]+\.storage\.[a-z0-9-]+\.[a-z0-9-]+\.aws\.neon\.tech|([a-z0-9-]+\.)?(images\.unsplash\.com|plus\.unsplash\.com|storage\.propfyndr\.com))\/)/i
 function isOptimizableImage(src: string): boolean {
   return OPTIMIZABLE_IMAGE.test(src)
 }

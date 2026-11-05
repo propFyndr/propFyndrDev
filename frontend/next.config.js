@@ -39,12 +39,9 @@ const nextConfig = {
         hostname: 'unpkg.com',
       },
       {
+        // Neon Object Storage (backend lib/objectStorage.ts): property images and documents.
         protocol: 'https',
-        hostname: '*.supabase.co',
-      },
-      {
-        protocol: 'https',
-        hostname: '*.supabase.in',
+        hostname: '*.storage.**.aws.neon.tech',
       },
       {
         protocol: 'https',
@@ -172,7 +169,7 @@ const nextConfig = {
                   .filter(Boolean),
               )
               // PostHog's asset and ingestion hosts are separate from the app host.
-              const connectSrc = `'self' ${[...origins].join(' ')} https://*.supabase.co https://*.supabase.in https://*.posthog.com https://*.i.posthog.com https://us.posthog.com https://app.posthog.com https://maps.googleapis.com https://*.onrender.com https://*.vercel.app https: wss:`
+              const connectSrc = `'self' ${[...origins].join(' ')} https://*.posthog.com https://*.i.posthog.com https://us.posthog.com https://app.posthog.com https://maps.googleapis.com https://*.onrender.com https://*.vercel.app https: wss:`
               const scriptSrc = "'self' 'unsafe-inline' 'unsafe-eval' blob: https://www.google-analytics.com https://maps.googleapis.com https://*.posthog.com https://us.posthog.com https://app.posthog.com https://us-assets.i.posthog.com https://*.i.posthog.com"
               const fontSrc = "'self' https://fonts.gstatic.com https://fonts.googleapis.com data: https:"
               return `default-src 'self'; script-src ${scriptSrc}; worker-src 'self' blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src ${fontSrc}; img-src 'self' data: blob: https:; connect-src ${connectSrc}; frame-ancestors 'none';`

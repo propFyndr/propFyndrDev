@@ -19,8 +19,13 @@ const EnvSchema = z.object({
   OPENAI_API_KEY3: z.string().optional(),
   GROQ_API_KEY3: z.string().optional(),
 
-  // Admin & Database secrets — required in production
-  SUPABASE_SERVICE_ROLE_KEY: z.string().optional(),
+  // Object storage (Neon, lib/objectStorage.ts) — required in production.
+  STORAGE_S3_ENDPOINT: z.string().optional(),
+  STORAGE_ACCESS_KEY_ID: z.string().optional(),
+  STORAGE_SECRET_ACCESS_KEY: z.string().optional(),
+
+  // Buyer sign-in (lib/betterAuth.ts): signs session cookies. 32+ random characters.
+  BETTER_AUTH_SECRET: z.string().min(32).optional(),
 
   // WhatsApp (Meta Cloud API or Twilio — set WHATSAPP_PROVIDER)
   WHATSAPP_PROVIDER: z.enum(['meta', 'twilio', 'none']).default('none'),
@@ -66,9 +71,14 @@ if (envParsed.NODE_ENV === 'production') {
     missingKeys.push('At least one of: GEMINI_API_KEY, OPENAI_API_KEY, GROQ_API_KEY')
   }
 
-  // Supabase service role required
-  if (!envParsed.SUPABASE_SERVICE_ROLE_KEY) {
-    missingKeys.push('SUPABASE_SERVICE_ROLE_KEY')
+  // Buyer sign-in cannot sign sessions without it.
+  if (!envParsed.BETTER_AUTH_SECRET) {
+    missingKeys.push('BETTER_AUTH_SECRET')
+  }
+
+  // Document and logo uploads need object storage.
+  for (const k of ['STORAGE_S3_ENDPOINT', 'STORAGE_ACCESS_KEY_ID', 'STORAGE_SECRET_ACCESS_KEY'] as const) {
+    if (!envParsed[k]) missingKeys.push(k)
   }
 
   // Read the raw value: the schema default is localhost, which in production

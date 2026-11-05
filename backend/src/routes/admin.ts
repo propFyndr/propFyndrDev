@@ -17,7 +17,6 @@ import { normalisePortalSubdomain } from '../lib/portalSubdomain'
 import { PRICE_FIELDS, applyFactWrites, changedPriceFields, parsePriceVerification, priceFactWrites } from '../lib/priceVerification'
 import { checkRateLimit, resetRateLimit, getCached, setCached, deleteCached } from '../lib/cache'
 import { z } from 'zod'
-import { supabaseAdmin } from '../lib/supabase'
 import {
   realPeopleSessions as realPeopleSessionsSql, realPeopleQueryMetrics, realPeoplePropertyEvents,
   realLeads, realSaves, EVENT_ACTIONS,
@@ -2965,17 +2964,10 @@ router.get('/analytics/user-counts', async (_req: Request, res: Response) => {
     try {
       const admins = await prisma.adminUser.findMany({ select: { linked_supabase_user_id: true } })
       const teamIds = new Set([...admins.map((t) => t.linked_supabase_user_id), ...teamRows.map((t) => t.key)].filter(Boolean))
-      let count = 0
-      for (let page = 1; ; page++) {
-        const { data, error } = await supabaseAdmin.auth.admin.listUsers({ page, perPage: 1000 })
-        if (error) throw error
-        count += data.users.filter((u) => !teamIds.has(u.id)).length
-        if (data.users.length < 1000) break
-      }
-      signedUp = count
+      signedUp = await prisma.authUser.count({ where: { id: { notIn: [...teamIds] as string[] } } })
     } catch (err) {
       signupError = err instanceof Error ? err.message : String(err)
-      console.warn('[admin] user-counts: Supabase Auth unreadable:', signupError)
+      console.warn('[admin] user-counts: auth_user unreadable:', signupError)
     }
 
     const responseData = {
@@ -3040,11 +3032,10 @@ router.get('/analytics/people', async (req: Request, res: Response) => {
     const emails = new Map<string, string>()
     if (rows.some((r) => !r.person.startsWith('guest-'))) {
       try {
-        const { data, error } = await supabaseAdmin.auth.admin.listUsers({ page: 1, perPage: 1000 })
-        if (error) throw error
-        for (const u of data.users) if (u.email) emails.set(u.id, u.email)
+        const ids = rows.filter((r) => !r.person.startsWith('guest-')).map((r) => r.person)
+        for (const u of await prisma.authUser.findMany({ where: { id: { in: ids } }, select: { id: true, email: true } })) emails.set(u.id, u.email)
       } catch (err) {
-        console.warn('[admin] people: Supabase Auth unreadable, showing account ids:', err instanceof Error ? err.message : err)
+        console.warn('[admin] people: auth_user unreadable, showing account ids:', err instanceof Error ? err.message : err)
       }
     }
 

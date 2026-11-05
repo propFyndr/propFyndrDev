@@ -11,7 +11,10 @@ function boot(extra: Record<string, string | undefined>) {
   const env: Record<string, string | undefined> = {
     ...process.env,
     GEMINI_API_KEY: 'x',
-    SUPABASE_SERVICE_ROLE_KEY: 'x',
+    BETTER_AUTH_SECRET: 'x'.repeat(32),
+    STORAGE_S3_ENDPOINT: 'https://example.invalid',
+    STORAGE_ACCESS_KEY_ID: 'x',
+    STORAGE_SECRET_ACCESS_KEY: 'x',
     FRONTEND_URL: undefined,
     ...extra,
   }
@@ -26,6 +29,14 @@ test('production refuses to boot without FRONTEND_URL', () => {
   const r = boot({ NODE_ENV: 'production' })
   assert.equal(r.status, 1)
   assert.match(r.stderr, /FRONTEND_URL/)
+})
+
+test('production refuses to boot without the sign-in secret or storage credentials', () => {
+  for (const missing of ['BETTER_AUTH_SECRET', 'STORAGE_S3_ENDPOINT', 'STORAGE_ACCESS_KEY_ID', 'STORAGE_SECRET_ACCESS_KEY']) {
+    const r = boot({ NODE_ENV: 'production', FRONTEND_URL: 'https://propfyndr.in', [missing]: undefined })
+    assert.equal(r.status, 1, missing)
+    assert.match(r.stderr, new RegExp(missing))
+  }
 })
 
 test('production refuses a localhost FRONTEND_URL, even inside a list', () => {

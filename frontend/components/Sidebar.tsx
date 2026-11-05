@@ -17,7 +17,7 @@ import { resetAnalyticsUser } from "@/lib/analytics";
 import { useRouter, usePathname } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { getSupabaseClient } from "@/lib/supabase";
+import { getAuthClient } from "@/lib/buyerAuth";
 import { ChatSidebarGroupedSkeleton } from "@/components/skeletons";
 import { API_BASE } from "@/lib/env";
 import { useSessions, Session } from "@/hooks/useSessions";
@@ -142,8 +142,8 @@ export default function Sidebar({
 
   useEffect(() => {
     if (!userId) return;
-    getSupabaseClient()
-      .then((supabase) => supabase.auth.getUser())
+    getAuthClient()
+      .then((client) => client.auth.getUser())
       .then(({ data }) => {
         const name = data.user?.user_metadata?.full_name as string | undefined;
         const source = name || data.user?.email || "";
@@ -165,8 +165,8 @@ export default function Sidebar({
   const handleLogout = () => {
     localStorage.removeItem("user_id");
     resetAnalyticsUser();
-    getSupabaseClient()
-      .then((supabase) => supabase.auth.signOut())
+    getAuthClient()
+      .then((client) => client.auth.signOut())
       .catch(() => {});
     router.replace("/auth");
   };

@@ -3,7 +3,7 @@
 import { useEffect } from 'react'
 import { getOrCreateGuestToken } from '@/lib/guestToken'
 import { getStoredReferralCode, storeReferralCode } from '@/lib/referral'
-import { appHostTarget, migrateAuthCookiesToSharedDomain } from '@/lib/sharedIdentity'
+import { appHostTarget } from '@/lib/sharedIdentity'
 
 /**
  * realtyask.in/discover and /saved belong on app.realtyask.in. Before moving,
@@ -19,7 +19,6 @@ export default function AppHostRedirect(): null {
     getOrCreateGuestToken()
     const code = getStoredReferralCode()
     if (code) storeReferralCode(code)
-    migrateAuthCookiesToSharedDomain()
     window.location.replace(target)
   }, [])
 

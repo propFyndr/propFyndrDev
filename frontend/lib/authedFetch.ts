@@ -1,29 +1,36 @@
 // frontend/lib/authedFetch.ts
-// Client-side helper: attaches the verified Supabase access token to backend
-// requests as `Authorization: Bearer <token>`. We send the TOKEN, never a raw
-// user id — the server derives identity from the verified token.
-import { getSupabaseClient } from '@/lib/supabase'
+// Client-side helper: attaches the signed-in buyer's session token (Better Auth,
+// lib/buyerAuth.ts) as `Authorization: Bearer <token>`, so calls to the
+// backend's absolute URL are identified too. We send the TOKEN, never a raw
+// user id: the server looks the session up. A guest sends its guest token.
+import { getAuthClient } from '@/lib/buyerAuth'
 
-let cachedToken: { value: string; exp: number } | null = null
+let cachedToken: { value: string | null; exp: number } | null = null
 
 export async function getAccessToken(): Promise<string | null> {
   if (cachedToken && cachedToken.exp > Date.now()) return cachedToken.value
   try {
-    const supabase = await getSupabaseClient()
-    const { data } = await supabase.auth.getSession()
-    const token = data.session?.access_token ?? null
-    // Short cache to avoid hitting Supabase on every call in a burst.
-    if (token) cachedToken = { value: token, exp: Date.now() + 30_000 }
-    else cachedToken = null
+    const { auth } = await getAuthClient()
+    const { data } = await auth.getSession()
+    const token = data.session?.access_token || null
+    // Short cache so a burst of calls does not re-read the session.
+    cachedToken = { value: token, exp: Date.now() + 30_000 }
     return token
   } catch {
     return null
   }
 }
 
+/** Forget the cached token (after sign-in or sign-out). */
+export function clearAccessTokenCache(): void {
+  cachedToken = null
+}
+// buyerAuth announces sign-in and sign-out; the next call re-reads the session.
+if (typeof window !== 'undefined') window.addEventListener('ra-auth-change', clearAccessTokenCache)
+
 import { getGuestToken } from '@/lib/guestToken'
 
-/** Merge an Authorization header (when logged in) and X-Guest-Token into an existing headers object. */
+/** Merge an Authorization header (when signed in) and X-Guest-Token into an existing headers object. */
 export async function authHeaders(base: Record<string, string> = {}): Promise<Record<string, string>> {
   const token = await getAccessToken()
   const guestToken = getGuestToken()

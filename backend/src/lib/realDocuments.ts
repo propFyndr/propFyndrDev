@@ -11,7 +11,10 @@
 // Admin reads stay unfiltered so the team can see and clean up the rest.
 import type { Prisma } from '@prisma/client'
 
-export const REAL_DOCUMENT_URL_MARKER = '/storage/v1/object/public/project-docs/'
+// Our object storage (Neon, lib/objectStorage.ts) serves the bucket at
+// https://<branch>.storage.<cell>.<region>.aws.neon.tech/project-docs/<key>.
+// (Supabase Storage until 5 Nov 2026; no stored document row pointed there.)
+export const REAL_DOCUMENT_URL_MARKER = '.aws.neon.tech/project-docs/'
 
 export const REAL_DOCUMENT_WHERE = {
   storage_url: { startsWith: 'https://', contains: REAL_DOCUMENT_URL_MARKER },

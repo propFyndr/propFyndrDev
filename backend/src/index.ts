@@ -97,6 +97,8 @@ const VERSION = process.env.npm_package_version ?? '1.0.0'
 const startTime = Date.now()
 
 import { clientIp } from './lib/request'
+import { toNodeHandler } from 'better-auth/node'
+import { auth } from './lib/betterAuth'
 
 export const app = express()
 
@@ -168,6 +170,8 @@ app.use(cors({
   ],
   exposedHeaders: ['X-RateLimit-Limit', 'X-RateLimit-Remaining', 'X-Request-ID'],
 }))
+// Buyer sign-in (lib/betterAuth.ts). Before express.json: the handler reads the raw body.
+app.all('/api/auth/*', toNodeHandler(auth))
 app.use(express.json({ limit: '10mb' }))
 app.use(express.urlencoded({ limit: '10mb', extended: true }))
 app.use(cookieParser())
@@ -431,7 +435,8 @@ async function startup() {
       CLOUDFLARE_API_KEY:       !!process.env.CLOUDFLARE_API_KEY,
       GOOGLE_MAPS_API_KEY:      !!process.env.GOOGLE_MAPS_API_KEY,
       TAVILY_API_KEY:           !!process.env.TAVILY_API_KEY,
-      SUPABASE_SERVICE_ROLE_KEY: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
+      STORAGE_S3_ENDPOINT:      !!process.env.STORAGE_S3_ENDPOINT,
+      BETTER_AUTH_SECRET:       !!process.env.BETTER_AUTH_SECRET,
       SENTRY_DSN:               !!process.env.SENTRY_DSN,
       POSTHOG_API_KEY:          !!process.env.POSTHOG_API_KEY,
     }

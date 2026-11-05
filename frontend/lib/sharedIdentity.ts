@@ -56,30 +56,6 @@ export function appHostTarget(loc: { hostname: string; pathname: string; search:
   return `https://${APP_HOST}${loc.pathname}${loc.search}${loc.hash}`
 }
 
-const AUTH_MIGRATED_KEY = 'ra_auth_cookie_domain_v1'
-
-/**
- * Supabase auth cookies written before the shared domain existed are
- * host-only. Re-write each one on `.realtyask.in` once, removing the host-only
- * copy first — two cookies with the same name would leave the client reading
- * whichever the browser lists first, possibly the stale one.
- */
-export function migrateAuthCookiesToSharedDomain(): void {
-  const domain = currentSharedDomain()
-  if (!domain) return
-  try {
-    if (localStorage.getItem(AUTH_MIGRATED_KEY)) return
-    const authCookies = document.cookie
-      .split('; ')
-      .filter((c) => /^sb-.+-auth-token(\.\d+)?=/.test(c))
-    for (const c of authCookies) {
-      const name = c.slice(0, c.indexOf('='))
-      const value = c.slice(name.length + 1)
-      document.cookie = `${name}=; Path=/; Max-Age=0`
-      document.cookie = `${name}=${value}; Domain=${domain}; Path=/; Max-Age=${ONE_YEAR_S}; SameSite=Lax; Secure`
-    }
-    localStorage.setItem(AUTH_MIGRATED_KEY, '1')
-  } catch {
-    // storage blocked: the buyer signs in once more on the app host
-  }
-}
+// The buyer's sign-in cookie is set by the backend (Better Auth) on
+// AUTH_COOKIE_DOMAIN (.realtyask.in), so it already crosses hosts; the
+// Supabase cookie migration that lived here is gone.

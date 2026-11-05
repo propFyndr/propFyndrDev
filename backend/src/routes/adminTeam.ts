@@ -13,7 +13,6 @@ import { prisma } from '../lib/db'
 import { requireIdentity, requireRole, hashPassword, generateInviteToken, recordAudit, revokeAllSessions } from '../lib/adminIdentity'
 import type { AdminIdentitySession } from '../lib/adminIdentity'
 import { preferredInviteOrigin, sendInviteEmail, INVITE_TTL_MS } from '../lib/adminInvite'
-import { supabaseAdmin } from '../lib/supabase'
 
 const router = Router()
 
@@ -153,16 +152,13 @@ router.get('/search-users', requireIdentity, requireRole('SUPER_ADMIN'), async (
   try {
     const q = typeof req.query.q === 'string' ? req.query.q.trim().toLowerCase() : ''
 
-    const { data: supaData, error: supaErr } = await supabaseAdmin.auth.admin.listUsers({
-      page: 1,
-      perPage: 100,
+    // Registered buyers (Better Auth, lib/betterAuth.ts). Newest first, as before.
+    const accounts = await prisma.authUser.findMany({
+      where: q ? { OR: [{ email: { contains: q, mode: 'insensitive' } }, { name: { contains: q, mode: 'insensitive' } }] } : undefined,
+      orderBy: { createdAt: 'desc' },
+      take: 100,
+      select: { id: true, email: true, name: true, createdAt: true, sessions: { select: { createdAt: true }, orderBy: { createdAt: 'desc' }, take: 1 } },
     })
-
-    if (supaErr) {
-      console.error('[adminTeam] listUsers error:', supaErr)
-      res.status(500).json({ error: 'Could not fetch registered users' })
-      return
-    }
 
     const allAdmins = await prisma.adminUser.findMany({
       select: { email: true, linked_supabase_user_id: true, role: true },
@@ -172,14 +168,9 @@ router.get('/search-users', requireIdentity, requireRole('SUPER_ADMIN'), async (
       allAdmins.filter((a) => a.linked_supabase_user_id).map((a) => [a.linked_supabase_user_id as string, a.role])
     )
 
-    const rawUsers = supaData?.users || []
-    const results = rawUsers
+    const results = accounts
       .map((u) => {
-        const fullName =
-          (u.user_metadata?.full_name ||
-            u.user_metadata?.name ||
-            u.user_metadata?.first_name ||
-            '') as string
+        const fullName = u.name || ''
         const email = (u.email || '').trim().toLowerCase()
         const existingRole = adminByEmail.get(email) || adminByUid.get(u.id) || null
 
@@ -188,9 +179,9 @@ router.get('/search-users', requireIdentity, requireRole('SUPER_ADMIN'), async (
           email,
           // No name on the account means no name: the console shows the email.
           name: fullName || email.split('@')[0] || null,
-          phone: u.phone || null,
-          created_at: u.created_at,
-          last_sign_in_at: u.last_sign_in_at || null,
+          phone: null,
+          created_at: u.createdAt.toISOString(),
+          last_sign_in_at: u.sessions[0]?.createdAt.toISOString() ?? null,
           is_already_admin: Boolean(existingRole),
           current_role: existingRole,
         }
@@ -243,13 +234,12 @@ router.post('/promote', requireIdentity, requireRole('SUPER_ADMIN'), async (req:
   // Auto-resolve Supabase User ID from email if not provided directly
   if (!supabase_user_id) {
     try {
-      const { data: supaUsers } = await supabaseAdmin.auth.admin.listUsers({ page: 1, perPage: 1000 })
-      const matched = supaUsers?.users?.find((u) => u.email?.toLowerCase().trim() === email)
+      const matched = await prisma.authUser.findUnique({ where: { email }, select: { id: true } })
       if (matched) {
         supabase_user_id = matched.id
       }
     } catch (err) {
-      console.warn('[adminTeam] could not lookup supabase user by email:', err)
+      console.warn('[adminTeam] could not look up the buyer account by email:', err)
     }
   }
 

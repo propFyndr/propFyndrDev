@@ -902,18 +902,6 @@ export default function AdminDashboard() {
                       <span>Review</span>
                       <ArrowRight size={10} weight="bold" />
                     </Link>
-                    <button
-                      type="button"
-                      onClick={() => copyToClipboard('npm run db:seed-images')}
-                      className="p-1.5 text-amber-700 dark:text-amber-300 hover:bg-amber-200/50 dark:hover:bg-amber-900/40 rounded-lg transition-colors cursor-pointer"
-                      title="Copy CLI command: npm run db:seed-images"
-                    >
-                      {copiedCmd === 'npm run db:seed-images' ? (
-                        <Check size={12} weight="bold" className="text-emerald-600" />
-                      ) : (
-                        <Copy size={12} weight="bold" />
-                      )}
-                    </button>
                   </div>
                 </div>
               )}
@@ -1182,7 +1170,6 @@ export default function AdminDashboard() {
           {bottomPaneTab === 'cli' && (
             <div className="bg-zinc-950 p-4 space-y-2 text-xs font-mono text-zinc-300 overflow-x-auto selection:bg-[#0066cc] selection:text-white flex-1">
               {[
-                { cmd: 'npm run db:seed-images', desc: 'Upload property hero/gallery assets to Supabase' },
                 { cmd: 'npm run db:enrich-ai', desc: 'Auto-fill missing decision profiles & completeness' },
                 { cmd: 'npm run db:fix-statuses', desc: 'Sync construction status & delivery timelines' },
                 { cmd: 'npm run db:re-embed', desc: 'Refresh semantic AI vector search embeddings' },
@@ -1278,7 +1265,7 @@ export default function AdminDashboard() {
                 <AdminInfoTooltip
                   title="Signed up"
                   description="Accounts created through sign-up, excluding our own team's logins."
-                  details={userCounts.signupError ? [userCounts.signupError] : ['Read from Supabase Auth']}
+                  details={userCounts.signupError ? [userCounts.signupError] : ['Read from buyer accounts (auth_user)']}
                   whyItMatters="Guests can do everything except see builder phone numbers, so this stays small."
                 />
               }

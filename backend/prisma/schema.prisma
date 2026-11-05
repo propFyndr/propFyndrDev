@@ -2352,3 +2352,68 @@ model TeamIdentity {
 
   @@map("team_identities")
 }
+
+// ── Buyer sign-in (Better Auth 1.7 on Neon; replaced Supabase Auth 5 Nov 2026) ──
+// lib/betterAuth.ts. Migration 20261105120000_better_auth. AuthUser.id keeps the
+// Supabase user id for imported buyers, so every user_id column above still
+// points at the same person. Admin/builder/partner logins are AdminUser, not this.
+model AuthUser {
+  id            String        @id
+  name          String
+  email         String        @unique(map: "auth_user_email_key")
+  emailVerified Boolean       @default(false) @map("email_verified")
+  image         String?
+  createdAt     DateTime      @default(now()) @map("created_at")
+  updatedAt     DateTime      @default(now()) @updatedAt @map("updated_at")
+  sessions      AuthSession[]
+  accounts      AuthAccount[]
+
+  @@map("auth_user")
+}
+
+model AuthSession {
+  id        String   @id
+  expiresAt DateTime @map("expires_at")
+  token     String   @unique(map: "auth_session_token_key")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+  ipAddress String?  @map("ip_address")
+  userAgent String?  @map("user_agent")
+  userId    String   @map("user_id")
+  user      AuthUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId], map: "auth_session_user_id_idx")
+  @@map("auth_session")
+}
+
+model AuthAccount {
+  id                    String    @id
+  accountId             String    @map("account_id")
+  providerId            String    @map("provider_id")
+  userId                String    @map("user_id")
+  user                  AuthUser  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?   @map("access_token")
+  refreshToken          String?   @map("refresh_token")
+  idToken               String?   @map("id_token")
+  accessTokenExpiresAt  DateTime? @map("access_token_expires_at")
+  refreshTokenExpiresAt DateTime? @map("refresh_token_expires_at")
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now()) @map("created_at")
+  updatedAt             DateTime  @default(now()) @updatedAt @map("updated_at")
+
+  @@index([userId], map: "auth_account_user_id_idx")
+  @@map("auth_account")
+}
+
+model AuthVerification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime @map("expires_at")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @default(now()) @updatedAt @map("updated_at")
+
+  @@index([identifier], map: "auth_verification_identifier_idx")
+  @@map("auth_verification")
+}

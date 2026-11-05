@@ -19,7 +19,7 @@ import {
   Phone,
   X,
 } from '@phosphor-icons/react';
-import { getSupabaseClient } from '@/lib/supabase'
+import { getAuthClient } from '@/lib/buyerAuth'
 import { track, identifyUser } from '@/lib/analytics';
 import Toast from '@/components/Toast';
 import { API_BASE } from '@/lib/env';
@@ -63,7 +63,7 @@ export default function AuthPage() {
 
   useEffect(() => {
     let cancelled = false;
-    getSupabaseClient().then((supabase) => supabase.auth.getSession()).then(({ data }) => {
+    getAuthClient().then((client) => client.auth.getSession()).then(({ data }) => {
       if (cancelled) return;
       if (data.session?.user) {
         localStorage.setItem('user_id', data.session.user.id);
@@ -81,9 +81,9 @@ export default function AuthPage() {
     setLoading(true);
     setError('');
 
-    // Shared by sign-in and by sign-up when the project auto-confirms email
-    // (Supabase then returns a live session straight from signUp).
-    const finishSignIn = async (userId: string, accessToken: string) => {
+    // After a successful sign-in. The session is an httpOnly cookie on our
+    // domain, so the migrate call carries it without a token.
+    const finishSignIn = async (userId: string) => {
       localStorage.setItem('user_id', userId);
       // No email trait: the user id is enough to join events, and PostHog
       // need not hold the address.
@@ -94,10 +94,8 @@ export default function AuthPage() {
         try {
           const migrateRes = await fetch(`${API_BASE}/chat/sessions/migrate`, {
             method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${accessToken}`
-            },
+            credentials: 'include',
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ guestToken })
           });
 
@@ -113,10 +111,10 @@ export default function AuthPage() {
     };
 
     try {
-      const supabase = await getSupabaseClient();
+      const client = await getAuthClient();
 
       if (mode === 'login') {
-        const { data, error: authError } = await supabase.auth.signInWithPassword({
+        const { data, error: authError } = await client.auth.signInWithPassword({
           email: email.trim().toLowerCase(),
           password,
         });
@@ -131,11 +129,11 @@ export default function AuthPage() {
           return;
         }
         if (data.user && data.session) {
-          await finishSignIn(data.user.id, data.session.access_token);
+          await finishSignIn(data.user.id);
         }
       } else {
         track('signup_started', { mode })
-        const { data, error: authError } = await supabase.auth.signUp({
+        const { data, error: authError } = await client.auth.signUp({
           email: email.trim().toLowerCase(),
           password,
           options: { data: { name: name.trim() || email.split('@')[0] } },
@@ -149,7 +147,7 @@ export default function AuthPage() {
           track('signup_completed')
           if (data.user && data.session) {
             // Email confirmation is off: the account is already signed in.
-            await finishSignIn(data.user.id, data.session.access_token);
+            await finishSignIn(data.user.id);
           } else {
             setConfirmSentTo(email.trim().toLowerCase());
             setPassword('');

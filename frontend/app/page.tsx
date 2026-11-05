@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
 import { ArrowRight, ShieldCheck, Scales, Compass } from '@phosphor-icons/react'
-import { getSupabaseClient } from '@/lib/supabase'
+import { getAuthClient } from '@/lib/buyerAuth'
 
 export default function LandingPage() {
   const router = useRouter()
@@ -24,7 +24,7 @@ export default function LandingPage() {
         const timeoutPromise = new Promise<{ data: { session: null } }>((resolve) =>
           setTimeout(() => resolve({ data: { session: null } }), 1000)
         )
-        const sessionPromise = getSupabaseClient().then((supabase) => supabase.auth.getSession())
+        const sessionPromise = getAuthClient().then((client) => client.auth.getSession())
         const res = await Promise.race([sessionPromise, timeoutPromise])
 
         if (cancelled) return
