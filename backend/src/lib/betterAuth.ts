@@ -45,6 +45,25 @@ export function trustedOrigins(): string[] {
   ])]
 }
 
+// Behind the Vercel proxy the buyer's IP is not reliably known (CLAUDE.md,
+// Infrastructure: rate limits need a proxy secret), so Better Auth keys its
+// limits on one shared bucket per path. Its defaults (100 per 10 s for every
+// path, 3 per 10 s for sign-in) would then apply to ALL buyers together and make
+// signed-in buyers look signed out under load. Session checks are cheap and
+// unlimited; the credential paths get a shared ceiling per minute, which still
+// stops password guessing.
+export const AUTH_RATE_LIMIT = {
+  window: 60,
+  max: 600,
+  customRules: {
+    '/get-session': false as const,
+    '/sign-in/email': { window: 60, max: 10 },
+    '/sign-up/email': { window: 60, max: 10 },
+    '/request-password-reset': { window: 60, max: 5 },
+    '/send-verification-email': { window: 60, max: 5 },
+  },
+}
+
 function emailHtml(heading: string, body: string, url: string, cta: string): string {
   return `<div style="font-family:Arial,sans-serif;max-width:480px"><h2>${heading}</h2><p>${body}</p><p><a href="${url}" style="display:inline-block;padding:10px 18px;background:#111827;color:#fff;border-radius:8px;text-decoration:none">${cta}</a></p><p style="color:#6b7280;font-size:12px">If you did not ask for this, ignore this email.</p></div>`
 }
@@ -86,5 +105,6 @@ export const auth = betterAuth({
       ? { enabled: true, domain: process.env.AUTH_COOKIE_DOMAIN }
       : undefined,
   },
+  rateLimit: AUTH_RATE_LIMIT,
   plugins: [bearer()],
 })

@@ -2,7 +2,7 @@ import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import bcrypt from 'bcryptjs'
 import { hashPassword } from 'better-auth/crypto'
-import { verifyAnyPassword, trustedOrigins } from '../betterAuth'
+import { verifyAnyPassword, trustedOrigins, AUTH_RATE_LIMIT } from '../betterAuth'
 import { parseExport } from '../../../scripts/auth/import-supabase-users'
 
 // Supabase stored bcrypt ($2a$10$…). An imported buyer must sign in with the
@@ -39,4 +39,10 @@ test('the export keeps ids, lowercases emails and drops what it cannot import', 
 
 test('trusted origins are an explicit list, never a wildcard', () => {
   for (const o of trustedOrigins()) assert.ok(!o.includes('*'), o)
+})
+
+test('behind the proxy the limits are shared, so session checks are unlimited and credential paths have a ceiling', () => {
+  assert.equal(AUTH_RATE_LIMIT.customRules['/get-session'], false)
+  const signIn = AUTH_RATE_LIMIT.customRules['/sign-in/email']
+  assert.ok(signIn.max >= 10 && signIn.max <= 30, 'sign-in: enough for real buyers, still stops guessing')
 })
