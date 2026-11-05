@@ -154,7 +154,7 @@ export default function OverviewTab({
     const metroVal = (metroConn as any)?.travel_time_mins != null
       ? `${(metroConn as any).travel_time_mins} mins`
       : metroConn?.distance_km != null
-        ? `${Math.ceil(metroConn.distance_km * 2.5)} mins`
+        ? `${metroConn.distance_km} km` // distance as stored; a travel time is never derived from it
         : null
     if (metroVal) {
       const cleanMetroName = (metroConn.name || 'Nearest')
@@ -373,7 +373,8 @@ export default function OverviewTab({
           <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
             {unitTypes.slice(0, 4).map((opt, i) => {
               const startsAt = opt.super_area_sqft && opt.price_min_cr ? `₹${Math.round((opt.price_min_cr * 10000000) / opt.super_area_sqft).toLocaleString('en-IN')}/sqft` : null;
-              const badgeLabel = i === 0 ? 'MOST POPULAR' : i === 1 ? 'BEST VALUE' : i === 2 ? 'PREMIUM' : null
+              // No rank badges: a label chosen by list position is an invented claim (and a winner).
+              const badgeLabel: string | null = null
               const badgeColor = i === 0 ? 'bg-purple-100 text-purple-800 dark:bg-purple-950 dark:text-purple-300' : i === 1 ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300' : 'bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300'
 
               return (
@@ -399,7 +400,7 @@ export default function OverviewTab({
                   <div className="pt-2 border-t border-gray-100 dark:border-white/5">
                     <p className="text-[14px] sm:text-[17px] font-black text-gray-900 dark:text-white leading-none">
                       {opt.price_min_cr != null
-                        ? (opt.price_min_cr === opt.price_max_cr ? `₹${opt.price_min_cr.toFixed(2)} Cr` : `₹${opt.price_min_cr.toFixed(2)} - ${opt.price_max_cr?.toFixed(2)} Cr`)
+                        ? (opt.price_max_cr == null || opt.price_min_cr === opt.price_max_cr ? `₹${opt.price_min_cr.toFixed(2)} Cr` : `₹${opt.price_min_cr.toFixed(2)} - ${opt.price_max_cr.toFixed(2)} Cr`)
                         : 'Price on Request'}
                     </p>
                     {startsAt && <p className="text-[10px] text-gray-400 font-medium mt-1">{startsAt}</p>}
@@ -433,7 +434,7 @@ export default function OverviewTab({
               <h2 className="text-[18px] font-black text-gray-900 dark:text-white tracking-tight">
                 Channel Partners
               </h2>
-              <p className="text-[12px] text-gray-500 font-medium mt-0.5">Connect with our authorized channel partners for best offers & site visit assistance.</p>
+              <p className="text-[12px] text-gray-500 font-medium mt-0.5">Channel partners listed for this project in our records.</p>
             </div>
             {channelPartners.length > 4 && (
               <button onClick={onGoToDocuments} className="text-[12.5px] font-extrabold text-blue-600 hover:text-blue-700 flex items-center gap-1">
@@ -497,7 +498,7 @@ export default function OverviewTab({
             ))}
           </div>
           <p className="text-[11px] text-gray-400 font-semibold pt-1">
-            All channel partners are RERA registered & verified by {devName}.
+            A RERA number is shown only where one is on record for the partner.
           </p>
         </div>
       )}
@@ -649,7 +650,7 @@ export default function OverviewTab({
 
           <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
             {[
-              { title: 'RERA Certificate', sub: 'Verified', bg: 'bg-emerald-50 text-emerald-600' },
+              { title: 'RERA Certificate', sub: 'Download', bg: 'bg-emerald-50 text-emerald-600' },
               { title: 'Brochure', sub: 'Download', bg: 'bg-blue-50 text-blue-600' },
               { title: 'Master Plan', sub: 'Download', bg: 'bg-teal-50 text-teal-600' },
               { title: 'Price List', sub: 'Download', bg: 'bg-purple-50 text-purple-600' }
@@ -687,8 +688,8 @@ export default function OverviewTab({
       {/* 10. BOOK SITE VISIT CTA */}
       <div className="bg-gradient-to-r from-gray-900 to-black dark:from-[#1c1815] dark:to-[#0f0e0d] text-white rounded-[24px] p-6 md:p-8 shadow-xl flex flex-col md:flex-row items-center justify-between gap-6">
         <div className="space-y-1.5 text-center md:text-left">
-          <h3 className="text-[20px] md:text-[24px] font-black tracking-tight">Book an Exclusive Site Visit</h3>
-          <p className="text-[13px] text-gray-300 font-medium">Get complimentary door-to-door cab pickup & live sample flat walkthrough.</p>
+          <h3 className="text-[20px] md:text-[24px] font-black tracking-tight">Request a Site Visit</h3>
+          <p className="text-[13px] text-gray-300 font-medium">Pick a date and time; the project team will call to confirm a slot.</p>
         </div>
         <button
           onClick={onGoToPricing}

@@ -367,12 +367,14 @@ export default function DiscoveryContent({ userId, guestToken, onSessionChange, 
     const timeout = setTimeout(() => {
       if (chatInput) {
         localStorage.setItem('propfyndr_draft', chatInput);
-      } else {
+      } else if (!isSubmitting) {
+        // While a turn is in flight the sent text stays as the draft, so a reload
+        // before the session URL exists does not lose it (cleared once the turn ends).
         localStorage.removeItem('propfyndr_draft');
       }
     }, 500);
     return () => clearTimeout(timeout);
-  }, [chatInput]);
+  }, [chatInput, isSubmitting]);
   const [detailProject, setDetailProject] = useState<ProjectCardType | null>(null);
   const openDetailProject = useCallback((project: ProjectCardType | null) => {
     setDetailProject(project)
@@ -1357,8 +1359,11 @@ export default function DiscoveryContent({ userId, guestToken, onSessionChange, 
       abortControllerRef.current?.abort();
     }
     // message_sent is tracked once, in dispatchAction.
+    if (!sessionId && !initialSessionId) {
+      try { localStorage.setItem('propfyndr_draft', text) } catch { /* storage blocked */ }
+    }
     dispatchAction({ type: 'TEXT_MESSAGE', payload: { text } });
-  }, [chatInput, dispatchAction, isSubmitting]);
+  }, [chatInput, dispatchAction, isSubmitting, sessionId, initialSessionId]);
 
   // ── Regenerate: re-send the last user message ──
   const handleRegenerate = useCallback((aiMsgIndex: number) => {
@@ -1758,7 +1763,7 @@ export default function DiscoveryContent({ userId, guestToken, onSessionChange, 
     >
       {/* Seamless Floating Header (Container is 100% transparent; only individual pills have frosted blur) */}
       <div className="absolute top-2.5 sm:top-3 left-0 right-0 z-30 flex items-center justify-between px-3 sm:px-6 pointer-events-none">
-        <div className="flex items-center justify-start pl-12 md:pl-0 relative pointer-events-auto" ref={headerDropdownRef}>
+        <div className="flex items-center justify-start pl-12 md:pl-0 relative pointer-events-auto min-w-0" ref={headerDropdownRef}>
           <AnimatePresence>
             {hasUserReplied && (
               <m.div
@@ -1790,7 +1795,7 @@ export default function DiscoveryContent({ userId, guestToken, onSessionChange, 
                     aria-expanded={showHeaderDropdown}
                     className="inline-flex items-center gap-1.5 h-10 px-3.5 rounded-full bg-surface/90 dark:bg-surface-2/90 backdrop-blur-md border border-border-heavy hover:bg-surface-3 dark:hover:bg-zinc-800 transition-colors text-text-primary group cursor-pointer active:scale-95"
                   >
-                    <span className="text-[13px] font-semibold tracking-tight truncate max-w-[155px] sm:max-w-md">{sessionTitle || 'Conversation'}</span>
+                    <span className="text-[13px] font-semibold tracking-tight truncate max-w-[96px] min-[400px]:max-w-[155px] sm:max-w-md">{sessionTitle || 'Conversation'}</span>
                     <CaretDown size={13} weight="bold" className="text-text-muted group-hover:text-text-secondary shrink-0" />
                   </button>
                 )}
@@ -1820,7 +1825,7 @@ export default function DiscoveryContent({ userId, guestToken, onSessionChange, 
           </AnimatePresence>
         </div>
 
-        <div className="flex items-center justify-end gap-2 pointer-events-auto">
+        <div className="flex items-center justify-end gap-1.5 sm:gap-2 pointer-events-auto shrink-0">
           {/* Quiet, persistent dossier entry point. The inline offer appears
               once (on the Nth answer); after that, this is where it lives.
               Two states, one control: before a dossier exists, it creates
@@ -1863,7 +1868,8 @@ export default function DiscoveryContent({ userId, guestToken, onSessionChange, 
               )}
             </div>
           )}
-          <ReferralShareButton />
+          {/* Hidden on narrow phones so New chat and the theme toggle stay on screen. */}
+          <div className="hidden min-[420px]:block"><ReferralShareButton /></div>
           {/* Individual Frosted Pill New Chat Button */}
           <AnimatePresence>
             {hasUserReplied && (

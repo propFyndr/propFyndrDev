@@ -61,12 +61,12 @@ export default function LeadSuccessModal({ type, projectName, name, visitDate, t
             transition={{ delay: 0.2 }}
           >
             <h2 className="text-2xl font-black text-gray-900 mb-1">
-              {type === 'site_visit' ? 'Visit Booked!' : 'Request Sent!'}
+              {type === 'site_visit' ? 'Request received' : 'Request sent'}
             </h2>
             <p className="text-gray-500 text-sm mb-5">
               {type === 'site_visit'
-                ? `Your site visit for ${projectName} is confirmed.`
-                : `Our team will call ${name} within 2 hours.`}
+                ? `We have your site visit request for ${projectName}. The team will call to confirm a slot.`
+                : `We have passed your request to the team, ${name}. They will call you.`}
             </p>
 
             {type === 'site_visit' && visitDate && (
@@ -90,12 +90,11 @@ export default function LeadSuccessModal({ type, projectName, name, visitDate, t
               <div className="bg-emerald-50 rounded-2xl p-4 mb-5 text-left">
                 <div className="flex items-center gap-2 text-sm text-emerald-800">
                   <Phone size={14} />
-                  <span>Calling <strong>{name}</strong> within 2 business hours</span>
+                  <span>The team will call <strong>{name}</strong></span>
                 </div>
               </div>
             )}
 
-            <p className="text-xs text-gray-400 mb-5">You&apos;ll receive a confirmation shortly</p>
 
             <div className="flex flex-col gap-2">
               <button

@@ -663,13 +663,10 @@ export default function ProjectPricingTab({ unitTypes, detail, loading, onGoToCo
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <div>
             <h2 className="text-[18px] sm:text-[20px] font-black text-gray-900 dark:text-white tracking-tight flex items-center gap-2">
-              <Landmark size={20} className="text-blue-600 dark:text-blue-400" /> Bank APF Loan Approvals
+              <Landmark size={20} className="text-blue-600 dark:text-blue-400" /> Banks on record
             </h2>
-            <p className="text-[11.5px] sm:text-[12px] text-gray-500 font-medium mt-0.5">Pre-approved project sanction codes (APF) available from major institutional lenders.</p>
+            <p className="text-[11.5px] sm:text-[12px] text-gray-500 font-medium mt-0.5">Banks listed against this builder in our records. Confirm loan approval for this project with the bank.</p>
           </div>
-          <span className="self-start sm:self-auto px-3 py-1 bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 font-black text-[11px] rounded-full border border-emerald-200/60 dark:border-emerald-800/40 flex items-center gap-1">
-            <ShieldCheck size={14} /> Clear Title Verified
-          </span>
         </div>
 
         {detail?.builder_detail?.funding_banks && detail.builder_detail.funding_banks.length > 0 ? (
@@ -680,19 +677,15 @@ export default function ProjectPricingTab({ unitTypes, detail, loading, onGoToCo
                   <div className="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 dark:bg-indigo-950/50 dark:text-indigo-400 flex items-center justify-center font-black text-[12px]">
                     🏛️
                   </div>
-                  <span className="text-[9.5px] font-black text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/50 px-2 py-0.5 rounded-full">
-                    Approved
-                  </span>
                 </div>
                 <div>
                   <h4 className="text-[12.5px] font-black text-gray-900 dark:text-white leading-tight">{bankName}</h4>
-                  <p className="text-[9.5px] text-gray-400 font-semibold mt-0.5">APF Sanctioned • Fast Track</p>
                 </div>
               </div>
             ))}
           </div>
         ) : (
-          <p className="text-[12px] text-gray-400 font-semibold pt-1">Bank approval details not available.</p>
+          <p className="text-[12px] text-gray-400 font-semibold pt-1">Not on record.</p>
         )}
       </div>
 
@@ -1071,8 +1064,8 @@ export default function ProjectPricingTab({ unitTypes, detail, loading, onGoToCo
 
           offers.push({
             tag: 'Bank Tie-up',
-            title: escrowBank ? `Approved by ${escrowBank}` : 'Pre-approved Loans',
-            desc: 'Seamless home loan processing & fast approval',
+            title: escrowBank ? `Escrow bank: ${escrowBank}` : 'Home loan',
+            desc: 'Confirm loan eligibility and terms with the lender',
             icon: Landmark,
             bg: 'bg-blue-50 text-blue-600 dark:bg-blue-950/40 dark:text-blue-400'
           })

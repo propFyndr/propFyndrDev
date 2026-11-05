@@ -88,7 +88,7 @@ export const dossierHandler: ChatTopicHandler = {
     if (priced.length > 0) {
       lines.push(
         `- Landed cost and EMI estimates for ${priced.length === dossier.projects.length ? (priced.length === 1 ? 'it' : 'all of them') : priced.map(p => p.name).join(', ')}.` +
-          (assumed.length ? ` For ${assumed.join(', ')} we hold no all-in cost, so the landed cost uses a Noida-typical 30% and is labelled as an assumption.` : ''),
+          (assumed.length ? ` For ${assumed.join(', ')} we hold no all-in cost, so the landed cost is shown as not on record (EMI is worked from the base price).` : ''),
       )
     }
     if (priced.length < dossier.projects.length) {

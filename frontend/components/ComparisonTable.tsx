@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo } from 'react'
 import Image from 'next/image'
 import { m } from 'framer-motion'
-import { TrendingUp, Users, Zap, ChevronDown, IndianRupee, HeartHandshake, Building2 } from 'lucide-react'
+import { TrendingUp, Users, ChevronDown, IndianRupee, HeartHandshake, Building2 } from 'lucide-react'
 import type { ProjectCard, ProjectDetail } from '@/types/project'
 import { API_BASE } from '@/lib/env'
 import { usePreferredImages } from '@/lib/hooks'
@@ -85,23 +85,9 @@ function winnerIdx(scores: number[]): number[] {
   return max === 0 ? [] : scores.map((s, i) => (s === max ? i : -1)).filter(i => i >= 0)
 }
 
-// ProjectDna and PersonaProfile are dropped (lean-schema migration, 2026-10)
-// — 'overall'/'risk'/'family'/'investor'/'luxury' categories had no signal
-// besides those two models, so only the price-based 'value' category remains.
-function categoryWinner(
-  details: (ProjectDetail | null)[],
-  projects: ProjectCard[],
-  cat: string,
-): number | null {
-  switch (cat) {
-    case 'value': {
-      const prices = projects.map(p => p.price_min_cr ?? Infinity)
-      const min = Math.min(...prices)
-      const idx = prices.indexOf(min)
-      return min < Infinity ? idx : null
-    }
-    default: return null
-  }
+/** Full name plus sector, so two phases of one project never read as the same column. */
+export function columnName(p: Pick<ProjectCard, 'name' | 'sector'>): string {
+  return p.sector && !p.name.includes(p.sector) ? `${p.name} · ${p.sector}` : p.name
 }
 
 // ── Matrix row builder ────────────────────────────────────────────────────────
@@ -502,11 +488,6 @@ export default function ComparisonTable({ projects }: { projects: ProjectCard[] 
     })
   }, [matrixRows, onlyDifferences, projects.length])
 
-  // ProjectDna/RecommendationProfile dropped (lean-schema migration, 2026-10)
-  // — 'overall'/'risk'/'family'/'investor'/'luxury' had no honest signal left.
-  const EXEC_CATS = [
-    { key: 'value', label: 'Best Value' },
-  ] as const
 
 
   return (
@@ -543,33 +524,6 @@ export default function ComparisonTable({ projects }: { projects: ProjectCard[] 
             </div>
           )}
 
-          {/* ── Executive Summary ────────────────────────────────────────── */}
-          <Section title="Decision Summary" icon={Zap}>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-              {EXEC_CATS.map(cat => {
-                const idx = categoryWinner(details, projects, cat.key)
-                const w = idx !== null ? projects[idx] : null
-                return (
-                  <div
-                    key={cat.key}
-                    className={`rounded-xl px-3 py-2.5 border transition-colors ${w
-                        ? 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700'
-                        : 'bg-gray-50/60 dark:bg-gray-800/30 border-gray-100 dark:border-gray-700/40 opacity-60'
-                      }`}
-                  >
-
-                    <span className="text-[9px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wide block">
-                      {cat.label}
-                    </span>
-                    <span className="text-[11px] font-black text-gray-900 dark:text-gray-100 block mt-0.5 line-clamp-1">
-                      {w ? w.name : 'Tied'}
-                    </span>
-                  </div>
-                )
-              })}
-            </div>
-          </Section>
-
           {/* ── Decision Matrix ──────────────────────────────────────────── */}
           <div className="space-y-2.5">
             <div className="flex items-center justify-between">
@@ -601,14 +555,11 @@ export default function ComparisonTable({ projects }: { projects: ProjectCard[] 
                       {projects.map((p) => (
                         <th
                           key={p.id}
-                          className="px-4 py-3 text-[11px] font-bold tracking-wide text-center w-[160px] text-slate-700 dark:text-slate-300"
+                          className="px-4 py-3 text-[11px] font-bold tracking-wide text-center w-[160px] min-w-[140px] whitespace-normal break-words text-slate-700 dark:text-slate-300"
                         >
-                          {p.name.split(' ').slice(0, 2).join(' ')}
+                          {columnName(p)}
                         </th>
                       ))}
-                      <th className="px-4 py-3 text-[10px] font-semibold text-slate-400 uppercase tracking-wider text-center border-l border-slate-100 dark:border-slate-800/50 bg-slate-50/50 dark:bg-slate-900/50">
-                        Winner
-                      </th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60 bg-white dark:bg-[#111]">
@@ -620,32 +571,15 @@ export default function ComparisonTable({ projects }: { projects: ProjectCard[] 
                         {row.values.map((val, i) => (
                           <td
                             key={i}
-                            className={`px-4 py-3.5 text-center transition-colors ${row.winners.includes(i)
-                                ? 'bg-emerald-50/50 dark:bg-emerald-900/10'
-                                : ''
-                              }`}
+                            className="px-4 py-3.5 text-center transition-colors"
                           >
                             {typeof val === 'string' ? (
-                              <span className={`text-[12px] ${row.winners.includes(i)
-                                  ? 'font-semibold text-emerald-700 dark:text-emerald-400'
-                                  : 'text-slate-700 dark:text-slate-300'
-                                }`}>
+                              <span className="text-[12px] text-slate-700 dark:text-slate-300">
                                 {val}
                               </span>
                             ) : val}
                           </td>
                         ))}
-                        <td className="px-3 py-2.5 text-center">
-                          {row.winners.length === 1 ? (
-                            <span className="text-[9px] font-black text-emerald-700 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-900/40 px-1.5 py-0.5 rounded-full whitespace-nowrap">
-                              {row.winnerLabel}
-                            </span>
-                          ) : row.winners.length > 1 ? (
-                            <span className="text-[9px] text-gray-400">Tie</span>
-                          ) : (
-                            <span className="text-gray-200 dark:text-gray-700 text-[10px]">—</span>
-                          )}
-                        </td>
                       </tr>
                     ))}
                   </tbody>
@@ -654,64 +588,28 @@ export default function ComparisonTable({ projects }: { projects: ProjectCard[] 
             ) : (
               // 2 projects: center-label layout
               <div className="space-y-2">
-                {visibleMatrixRows.map(row => {
-                  const leftWins = row.winners.includes(0)
-                  const rightWins = row.winners.includes(1)
-                  const tied = leftWins && rightWins
-                  return (
-                    <div
-                      key={row.label}
-                      className="flex items-stretch rounded-xl overflow-hidden border border-slate-200 dark:border-slate-800 shadow-sm"
-                    >
-                      {/* Left cell */}
-                      <div className={`flex-1 px-4 py-3.5 flex items-center gap-2 min-w-0 ${leftWins && !tied
-                          ? 'bg-emerald-50/50 dark:bg-emerald-900/10'
-                          : 'bg-white dark:bg-[#111]'
-                        }`}>
-                        {leftWins && !tied && (
-                          <span className="text-[10px] font-semibold text-emerald-700 dark:text-emerald-400 bg-emerald-100/50 dark:bg-emerald-900/40 px-2 py-1 rounded-md flex-shrink-0 whitespace-nowrap">
-                            {row.winnerLabel}
-                          </span>
-                        )}
-                        <div className={`min-w-0 ${leftWins && !tied
-                            ? 'text-emerald-700 dark:text-emerald-400 font-medium'
-                            : 'text-slate-700 dark:text-slate-300'
-                          }`}>
-                          {typeof row.values[0] === 'string' ? (
-                            <span className="text-[12px] truncate block">{row.values[0]}</span>
-                          ) : row.values[0]}
-                        </div>
-                      </div>
-
-                      {/* Center label */}
-                      <div className="flex items-center justify-center px-4 bg-slate-50/80 dark:bg-slate-900/50 border-x border-slate-200 dark:border-slate-800 flex-shrink-0">
-                        <span className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider whitespace-nowrap">
-                          {row.label}
-                        </span>
-                      </div>
-
-                      {/* Right cell */}
-                      <div className={`flex-1 px-4 py-3.5 flex items-center justify-end gap-2 min-w-0 ${rightWins && !tied
-                          ? 'bg-emerald-50/50 dark:bg-emerald-900/10'
-                          : 'bg-white dark:bg-[#111]'
-                        }`}>
-                        <div className={`min-w-0 text-right ${rightWins && !tied
-                            ? 'text-emerald-700 dark:text-emerald-400 font-medium'
-                            : 'text-slate-700 dark:text-slate-300'
-                          }`}>
-                          {typeof row.values[1] === 'string' ? (
-                            <span className="text-[12px] truncate block">{row.values[1]}</span>
-                          ) : row.values[1]}
-                        </div>
-                        {rightWins && !tied && (
-                          <span className="text-[10px] font-semibold text-emerald-700 dark:text-emerald-400 bg-emerald-100/50 dark:bg-emerald-900/40 px-2 py-1 rounded-md flex-shrink-0 whitespace-nowrap">
-                            {row.winnerLabel}
-                          </span>
-                        )}
-                      </div>
+                {visibleMatrixRows.map(row => (
+                  <div
+                    key={row.label}
+                    className="flex items-stretch rounded-xl overflow-hidden border border-slate-200 dark:border-slate-800 shadow-sm"
+                  >
+                    <div className="flex-1 px-4 py-3.5 flex items-center gap-2 min-w-0 bg-white dark:bg-[#111] text-slate-700 dark:text-slate-300">
+                      {typeof row.values[0] === 'string' ? (
+                        <span className="text-[12px] block">{row.values[0]}</span>
+                      ) : row.values[0]}
                     </div>
-                  )
-                })}
+                    <div className="flex items-center justify-center px-4 bg-slate-50/80 dark:bg-slate-900/50 border-x border-slate-200 dark:border-slate-800 flex-shrink-0">
+                      <span className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider whitespace-nowrap">
+                        {row.label}
+                      </span>
+                    </div>
+                    <div className="flex-1 px-4 py-3.5 flex items-center justify-end gap-2 min-w-0 bg-white dark:bg-[#111] text-right text-slate-700 dark:text-slate-300">
+                      {typeof row.values[1] === 'string' ? (
+                        <span className="text-[12px] block">{row.values[1]}</span>
+                      ) : row.values[1]}
+                    </div>
+                  </div>
+                ))}
               </div>
             )}
           </div>

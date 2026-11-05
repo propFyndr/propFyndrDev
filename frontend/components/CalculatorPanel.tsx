@@ -22,7 +22,7 @@ export default function CalculatorPanel({ onClose, defaultPriceCr = 1.5 }: Props
   const [rate, setRate]               = useState('8.5')
   const [tenure, setTenure]           = useState('20')
   const [stampPrice, setStampPrice]   = useState(String(defaultPriceCr))
-  const [gender, setGender]           = useState<'male' | 'female' | 'joint'>('male')
+  const [gender, setGender]           = useState<'male' | 'female'>('male')
   const [gstPrice, setGstPrice]       = useState(String(defaultPriceCr))
   const [gstStatus, setGstStatus]     = useState<'under_construction' | 'ready_to_move'>('under_construction')
   const [carpetSqm, setCarpetSqm]     = useState('')
@@ -153,12 +153,11 @@ export default function CalculatorPanel({ onClose, defaultPriceCr = 1.5 }: Props
                   <label className={labelCls}>Buyer</label>
                   <CustomSelect
                     value={gender}
-                    onChange={(val) => setGender(val as 'male' | 'female' | 'joint')}
+                    onChange={(val) => setGender(val as 'male' | 'female')}
                     options={[
                       { value: 'male', label: 'Male (7%)' },
-                      { value: 'female', label: 'Female (6%)' },
-                      { value: 'joint', label: 'Joint (6.5%)' },
-                    ]}
+                      { value: 'female', label: 'Woman primary owner (6%)' },
+                                    ]}
                     size="sm"
                     className="w-full"
                   />

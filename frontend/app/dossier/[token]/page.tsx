@@ -51,8 +51,8 @@ interface TradeOffDilemma {
 
 interface DossierFinancials {
   basePriceCr: number
-  landedCostCr: number
-  landedMultiplier: number
+  landedCostCr: number | null
+  landedMultiplier: number | null
   landedCostAssumed: boolean
   landedCostQualifier: string | null
   downpaymentCr: number
@@ -168,7 +168,7 @@ export default function DossierPage({ params }: { params?: { token?: string } })
         .join('\n')
 
       const projectSummary = dossier.projects
-        .map(p => `• *${p.name}* (${locationLabel(p)}): ${priceLabel(p)}${p.financials ? ` | est. landed ₹${p.financials.landedCostCr} Cr${p.financials.landedCostAssumed ? ' (assumed)' : ''}` : ''}`)
+        .map(p => `• *${p.name}* (${locationLabel(p)}): ${priceLabel(p)}${p.financials?.landedCostCr != null ? ` | est. landed ₹${p.financials.landedCostCr} Cr` : ''}`)
         .join('\n')
 
       const firstCaution = dossier.projects.flatMap(p => p.redFlags.map(f => `${p.name}: ${f}`))[0]
@@ -719,7 +719,7 @@ export default function DossierPage({ params }: { params?: { token?: string } })
                           </span>
                         </div>
                         <span className="text-base font-bold text-[#1d1d1f] dark:text-white whitespace-nowrap">
-                          {p.financials ? `₹${p.financials.landedCostCr} Cr${p.financials.landedCostAssumed ? '*' : ''}` : 'No price on record'}
+                          {p.financials ? (p.financials.landedCostCr != null ? `₹${p.financials.landedCostCr} Cr` : 'Not on record') : 'No price on record'}
                         </span>
                       </div>
                     </div>
@@ -955,7 +955,7 @@ export default function DossierPage({ params }: { params?: { token?: string } })
                         ₹{p.financials.basePriceCr} Cr
                       </td>
                       <td className="p-4 font-semibold text-[#1d1d1f] dark:text-white whitespace-nowrap">
-                        ₹{p.financials.landedCostCr} Cr{p.financials.landedCostAssumed ? '*' : ''}
+                        {p.financials.landedCostCr != null ? `₹${p.financials.landedCostCr} Cr` : 'Not on record'}
                       </td>
                       <td className="p-4 text-[#1d1d1f] dark:text-[#f5f5f7] whitespace-nowrap">
                         ₹{p.financials.downpaymentCr} Cr
@@ -985,7 +985,7 @@ export default function DossierPage({ params }: { params?: { token?: string } })
               <Info size={16} className="text-[#0066cc] dark:text-[#2997ff] shrink-0 mt-0.5" />
               <div className="leading-relaxed">
                 <strong className="text-[#1d1d1f] dark:text-white font-medium">How these are worked out:</strong> Landed cost is the lowest base price we hold × the project&apos;s recorded all-in cost multiplier (stamp duty, registration, GST and builder charges).
-                {anyAssumedLanded && <> <strong className="text-[#1d1d1f] dark:text-white font-medium">*</strong> No multiplier is on record for this project, so 1.30 is used — typical for Noida, not verified for this project.</>}
+                {anyAssumedLanded && <> Where no all-in cost multiplier is on record, the landed cost is shown as not on record; we do not substitute a typical one.</>}
                 {' '}The tax saving assumes the old tax regime, the 30% slab and the full ₹2 lakh Section 24(b) interest deduction. Take-home needed keeps the EMI at 40% of monthly income. These are estimates for comparing projects, not a quote: confirm the cost sheet with the builder.
               </div>
             </div>

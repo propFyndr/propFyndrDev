@@ -315,7 +315,7 @@ export default function ResidencesTab({
           <div className="grid grid-cols-1 gap-3">
             {filteredUnits.map((unit, idx) => {
               const isSelected = activeUnit?.id === unit.id
-              const badgeLabel = unit.category_badge || (idx === 0 ? 'BEST VALUE' : idx === 1 ? 'MOST POPULAR' : idx === 2 ? 'PREMIUM CHOICE' : 'LUXURY')
+              const badgeLabel = unit.category_badge || null
               const badgeBg = idx === 0 ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300' : idx === 1 ? 'bg-purple-100 text-purple-800 dark:bg-purple-950 dark:text-purple-300' : 'bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300'
 
               return (
@@ -329,9 +329,11 @@ export default function ResidencesTab({
                   }`}
                 >
                   <div className="flex items-center justify-between">
-                    <span className={`text-[9px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-md ${badgeBg}`}>
-                      {badgeLabel}
-                    </span>
+                    {badgeLabel ? (
+                      <span className={`text-[9px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-md ${badgeBg}`}>
+                        {badgeLabel}
+                      </span>
+                    ) : <span />}
                     {isSelected && (
                       <span className="text-[10px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-wider flex items-center gap-0.5">
                         <CheckCircle2 size={11} /> Selected
@@ -379,9 +381,11 @@ export default function ResidencesTab({
                 <div>
                   <div className="flex items-center gap-2">
                     <h2 className="text-[26px] font-black text-gray-900 dark:text-white tracking-tight">{activeUnit.name}</h2>
-                    <span className="text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
-                      {activeUnit.category_badge || 'BEST VALUE'}
-                    </span>
+                    {activeUnit.category_badge && (
+                      <span className="text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
+                        {activeUnit.category_badge}
+                      </span>
+                    )}
                   </div>
                   <div className="flex items-center gap-4 mt-2 text-[12.5px] text-gray-500 font-bold">
                     <span className="flex items-center gap-1.5"><Bed size={14} className="text-gray-400" /> {activeUnit.bhk} Bedrooms</span>

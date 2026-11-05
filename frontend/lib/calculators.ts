@@ -41,21 +41,21 @@ export interface StampDutyResult {
   registration: number
   total_charges: number
   stamp_duty_rate: number
-  buyer_gender: 'male' | 'female' | 'joint'
+  buyer_gender: 'male' | 'female'
   note: string
 }
 
 /**
  * UP stamp duty (2024).
- * Men: 7%, Women: 6% (1% concession), Joint: 6.5%.
+ * 7% for every buyer; 6% when the primary owner is a woman. No "joint" rate: it is not a statutory rate.
  * Registration: 1%.
  */
 export function calculateStampDuty(
   price_cr: number,
-  buyer_gender: 'male' | 'female' | 'joint' = 'male',
+  buyer_gender: 'male' | 'female' = 'male',
 ): StampDutyResult {
   const value = price_cr * 1e7
-  const rate = buyer_gender === 'female' ? 6 : buyer_gender === 'joint' ? 6.5 : 7
+  const rate = buyer_gender === 'female' ? 6 : 7
   const stamp_duty = Math.round(value * rate / 100)
   const registration = Math.round(value * 1 / 100)
   return {

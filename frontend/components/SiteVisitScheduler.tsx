@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { createPortal } from 'react-dom'
 import {  m, AnimatePresence  } from 'framer-motion'
 import { Calendar, Clock, User, X } from 'lucide-react'
@@ -9,6 +9,7 @@ import { API_BASE } from '@/lib/env'
 import { trackSiteVisitBooked } from '@/lib/analytics'
 import { authHeaders } from '@/lib/authedFetch'
 import LeadSuccessModal from '@/components/LeadSuccessModal'
+import { useDialogA11y } from '@/hooks/useDialogA11y'
 
 interface Props {
   projectId: string
@@ -50,6 +51,12 @@ export default function SiteVisitScheduler({ projectId, projectSlug, projectName
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [successData, setSuccessData] = useState<{ name: string; visitDate: string; timeSlot: string } | null>(null)
+
+  const onCloseRef = useRef(onClose)
+  onCloseRef.current = onClose
+  const stableClose = useCallback(() => onCloseRef.current(), [])
+  // Paused while the success modal is up, so Tab stays inside whichever is on top.
+  const dialogRef = useDialogA11y<HTMLDivElement>(!successData, stableClose)
 
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
@@ -122,6 +129,10 @@ export default function SiteVisitScheduler({ projectId, projectSlug, projectName
       onClick={onClose}
     >
       <m.div
+        ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="site-visit-dialog-title"
         initial={{ y: 60, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         exit={{ y: 60, opacity: 0 }}
@@ -131,10 +142,10 @@ export default function SiteVisitScheduler({ projectId, projectSlug, projectName
         {/* Header */}
         <div className="flex items-center justify-between p-5 border-b border-gray-100 dark:border-gray-700">
           <div>
-            <h3 className="text-base font-bold text-gray-900 dark:text-white">Book Site Visit</h3>
+            <h3 id="site-visit-dialog-title" className="text-base font-bold text-gray-900 dark:text-white">Request a Site Visit</h3>
             <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">{projectName}</p>
           </div>
-          <button onClick={onClose} className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 dark:text-gray-300">
+          <button onClick={onClose} aria-label="Close" className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 dark:text-gray-300">
             <X size={16} />
           </button>
         </div>
@@ -297,7 +308,7 @@ export default function SiteVisitScheduler({ projectId, projectSlug, projectName
                     disabled={!form.name.trim() || !/^[6-9]\d{9}$/.test(form.phone) || submitting}
                     className="flex-1 py-3 bg-blue-500 text-white text-sm font-semibold rounded-xl disabled:opacity-40"
                   >
-                    {submitting ? 'Booking...' : 'Confirm Visit'}
+                    {submitting ? 'Sending...' : 'Request Visit'}
                   </button>
                 </div>
               </m.div>

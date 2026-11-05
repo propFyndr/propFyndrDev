@@ -20,18 +20,10 @@ import {
   type ConsultationStep,
   type TradeOffDilemma,
 } from './chat/dossierNarrativeExtractor'
-import { MARKET_QUALIFIER } from './factPresentation'
 
 const CRORE = 10_000_000
 export const DOSSIER_TTL_DAYS = 30
 export const MAX_DOSSIER_PROJECTS = 5
-
-/**
- * Used only when a project holds no all-in cost multiplier, and always shown
- * with MARKET_QUALIFIER beside it. Same figure calculateAffordabilityBreakdown
- * defaults to.
- */
-export const ASSUMED_LANDED_MULTIPLIER = 1.30
 
 export type Reactions = Record<string, { likes: number; concerns: string[] }>
 
@@ -52,10 +44,11 @@ export interface DossierProjectItem {
   redFlags: string[]
   financials: null | {
     basePriceCr: number
-    landedCostCr: number
-    /** The multiplier used. */
-    landedMultiplier: number
-    /** True when the project holds no multiplier and ASSUMED_LANDED_MULTIPLIER was used. */
+    /** Null when the project holds no all-in cost multiplier: we never apply a typical one. */
+    landedCostCr: number | null
+    /** The recorded multiplier; null when none is on record. */
+    landedMultiplier: number | null
+    /** True when no all-in cost is on record (so landedCostCr is null). Name kept for the dossier page. */
     landedCostAssumed: boolean
     /** Set when landedCostAssumed — the words to show beside the figure. */
     landedCostQualifier: string | null
@@ -226,15 +219,15 @@ function buildFinancials(p: ProjectRow, bhk?: number[] | null): DossierProjectIt
   // No price on record, no financials: never price a building we do not hold a figure for.
   const base = basePriceFor(p, bhk)
   if (!base) return null
-  const assumed = p.all_in_cost_multiplier == null
-  const multiplier = p.all_in_cost_multiplier ?? ASSUMED_LANDED_MULTIPLIER
-  const fin = calculateAffordabilityBreakdown({ basePrice: base * CRORE, multiplier })
+  const multiplier = p.all_in_cost_multiplier ?? null
+  const assumed = multiplier == null
+  const fin = calculateAffordabilityBreakdown({ basePrice: base * CRORE, multiplier: multiplier ?? undefined })
   return {
     basePriceCr: base,
-    landedCostCr: parseFloat((fin.totalLandedCost / CRORE).toFixed(2)),
+    landedCostCr: assumed ? null : parseFloat((fin.totalLandedCost / CRORE).toFixed(2)),
     landedMultiplier: multiplier,
     landedCostAssumed: assumed,
-    landedCostQualifier: assumed ? `assumes ${Math.round((multiplier - 1) * 100)}% over base price, ${MARKET_QUALIFIER}` : null,
+    landedCostQualifier: assumed ? 'All-in cost not on record for this project' : null,
     downpaymentCr: parseFloat((fin.downpaymentAmount / CRORE).toFixed(2)),
     loanCr: parseFloat((fin.loanPrincipal / CRORE).toFixed(2)),
     standardEmi: fin.standardEmi,

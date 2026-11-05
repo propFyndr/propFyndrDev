@@ -46,7 +46,7 @@ export default function CostSheetSection({
   const [selectedBhk, setSelectedBhk] = useState<string>(
     initialBhk || availableBhks[0] || '3 BHK'
   )
-  const [buyerGender, setBuyerGender] = useState<'male' | 'female' | 'joint'>('joint')
+  const [buyerGender, setBuyerGender] = useState<'male' | 'female'>('male')
   const [customArea, setCustomArea] = useState<number | null>(null)
   const [customBspRate, setCustomBspRate] = useState<number | null>(null)
 
@@ -213,7 +213,7 @@ export default function CostSheetSection({
               UP Stamp Duty Buyer Category:
             </span>
             <div className="flex items-center gap-1">
-              {(['male', 'female', 'joint'] as const).map((gender) => (
+              {(['male', 'female'] as const).map((gender) => (
                 <button
                   key={gender}
                   onClick={() => setBuyerGender(gender)}
@@ -223,7 +223,7 @@ export default function CostSheetSection({
                       : 'text-white/80 hover:bg-white/10'
                   }`}
                 >
-                  {`${gender === 'joint' ? 'Joint' : gender === 'female' ? 'Sole Female' : 'Male'} (${calculateStampDuty(0, gender).stamp_duty_rate}%)`}
+                  {`${gender === 'female' ? 'Woman primary owner' : 'Other buyers'} (${calculateStampDuty(0, gender).stamp_duty_rate}%)`}
                 </button>
               ))}
             </div>

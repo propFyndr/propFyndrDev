@@ -37,9 +37,9 @@ describe('calculateStampDuty', () => {
     expect(r.stamp_duty).toBe(1200000)
   })
 
-  it('applies 6.5% for joint buyer', () => {
-    const r = calculateStampDuty(2, 'joint')
-    expect(r.stamp_duty).toBe(1300000)
+  it('has no non-statutory joint rate', () => {
+    // @ts-expect-error 'joint' is not a UP statutory category
+    expect(calculateStampDuty(2, 'joint').stamp_duty_rate).toBe(7)
   })
 
   it('defaults to male if gender omitted', () => {

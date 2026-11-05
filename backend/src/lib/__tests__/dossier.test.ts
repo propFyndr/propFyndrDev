@@ -48,11 +48,13 @@ describe('dossier builder', () => {
     assert.ok(list.some(q => /which source/i.test(q)))
   })
 
-  it('prices nothing without a price, and labels an assumed landed cost', () => {
+  it('prices nothing without a price, and never applies a typical landed multiplier', () => {
     assert.strictEqual(toDossierProject(row()).financials, null)
     const f = toDossierProject(row({ price_min_cr: 1 })).financials!
     assert.strictEqual(f.landedCostAssumed, true)
-    assert.match(f.landedCostQualifier!, /not verified for this project/)
+    assert.strictEqual(f.landedCostCr, null)
+    assert.strictEqual(f.landedMultiplier, null)
+    assert.match(f.landedCostQualifier!, /not on record/)
     const recorded = toDossierProject(row({ price_min_cr: 1, all_in_cost_multiplier: 1.12 })).financials!
     assert.strictEqual(recorded.landedCostAssumed, false)
     assert.strictEqual(recorded.landedCostQualifier, null)

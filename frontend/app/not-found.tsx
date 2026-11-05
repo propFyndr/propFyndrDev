@@ -69,10 +69,10 @@ export default function NotFound() {
 
         {/* Title & Description */}
         <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight mb-3">
-          Listing Not Found
+          Page not found
         </h1>
         <p className="text-sm text-zinc-400 max-w-md mb-8 leading-relaxed font-normal">
-          The property listing or page you are looking for does not exist, may have been renamed, or is temporarily unlisted.
+          The page you are looking for does not exist or may have been moved. Try a search, or ask the advisor.
         </p>
 
         {/* Search Bar */}

@@ -78,6 +78,10 @@ export default function ConstructionTimeline({
   const inProgressCount = list.filter((m: any) => m.status === 'in_progress').length
   const totalCount = list.length || 1
 
+  // Every stored milestone is marked complete but the project is not marked ready to move:
+  // the two records disagree, so we show the disagreement, not a 100% / handover claim.
+  const recordsConflict = !isRTM && list.length > 0 && completedCount === list.length
+
   const calculatedPct = isRTM ? 100 : Math.min(100, Math.round(((completedCount + inProgressCount * 0.5) / totalCount) * 100))
   const progressPct = calculatedPct
 
@@ -118,7 +122,7 @@ export default function ConstructionTimeline({
           <p className="text-[12px] text-gray-500 dark:text-gray-400 font-medium mt-0.5">
             {isRTM 
               ? 'Occupancy Certificate (OC) granted • Active RWA governance & operational resident amenities' 
-              : 'Real-time site velocity & milestone tracking from official RERA filings'}
+              : 'Milestones as recorded for this project'}
           </p>
         </div>
 
@@ -194,17 +198,30 @@ export default function ConstructionTimeline({
               <div>
                 <span className="text-[13px] font-black text-gray-900 dark:text-white">Overall Construction Progress</span>
                 <p className="text-[10.5px] text-gray-400 font-semibold">
-                  {completedCount} of {list.length || 6} milestones completed
+                  {list.length > 0 ? `${completedCount} of ${list.length} milestones recorded complete` : 'No milestones on record'}
                   {onTimeDeliveryPct != null && ` • Builder's on-time delivery record: ${onTimeDeliveryPct}%`}
                 </p>
               </div>
             </div>
-            <div className="text-right">
-              <span className="text-[18px] sm:text-[20px] font-black text-[#00875A] dark:text-emerald-400">{progressPct}%</span>
-              <span className="text-[10px] text-gray-400 font-bold block">Completed</span>
-            </div>
+            {!recordsConflict && list.length > 0 && (
+              <div className="text-right">
+                <span className="text-[18px] sm:text-[20px] font-black text-[#00875A] dark:text-emerald-400">{progressPct}%</span>
+                <span className="text-[10px] text-gray-400 font-bold block">milestone progress</span>
+              </div>
+            )}
           </div>
 
+          {recordsConflict && (
+            <p className="text-[11.5px] text-amber-700 dark:text-amber-300 font-semibold leading-relaxed">
+              Milestone records mark every stage complete, but this project is not marked ready to move or delivered. Confirm the current stage with the builder before relying on either.
+            </p>
+          )}
+          {list.length === 0 && (
+            <p className="text-[11.5px] text-gray-500 dark:text-gray-400 font-semibold">Construction milestones: not on record.</p>
+          )}
+
+          {!recordsConflict && list.length > 0 && (
+            <>
           {/* Custom Track Bar with Glowing Gradient & Pin Indicator */}
           <div className="w-full bg-gray-200/80 dark:bg-gray-800/80 h-3 rounded-full relative overflow-visible flex items-center shadow-inner">
             <div
@@ -219,12 +236,8 @@ export default function ConstructionTimeline({
               <div className="w-1.5 h-1.5 rounded-full bg-white dark:bg-gray-900" />
             </div>
           </div>
-
-          <div className="flex items-center justify-between text-[11px] font-bold text-gray-500 dark:text-gray-400 pt-0.5">
-            <span>Site Excavation</span>
-            <span className="text-blue-600 dark:text-blue-400">Finishing &amp; MEP</span>
-            <span>Key Handover</span>
-          </div>
+            </>
+          )}
         </div>
       )}
 
@@ -288,7 +301,7 @@ export default function ConstructionTimeline({
                       {isDone ? 'Delivered' : isInProgress ? 'Active' : 'Upcoming'}
                     </span>
                     <span className="text-[10px] font-bold text-gray-500 dark:text-gray-400">
-                      {m.date_label || m.date || 'Completed'}
+                      {m.date_label || m.date || ''}
                     </span>
                   </div>
                 </div>
@@ -316,7 +329,7 @@ export default function ConstructionTimeline({
                 <div className="flex items-center gap-3 flex-shrink-0 self-end sm:self-center">
                   <div className="text-right text-[11px]">
                     <p className="text-gray-400 font-medium">Timeline Status</p>
-                    <p className="font-black text-gray-900 dark:text-white">{selectedPhase.date_label || 'Completed'}</p>
+                    <p className="font-black text-gray-900 dark:text-white">{selectedPhase.date_label || 'Date not on record'}</p>
                   </div>
                   <button
                     onClick={() => setSelectedPhaseIndex(null)}

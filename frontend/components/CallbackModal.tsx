@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { AnimatePresence, m } from 'framer-motion';
 import { 
   PhoneCall, 
@@ -11,7 +11,6 @@ import {
   CheckCircle2, 
   Loader2, 
   Building2,
-  Clock,
   ArrowRight,
   Check
 } from 'lucide-react';
@@ -19,6 +18,7 @@ import { API_BASE } from '@/lib/env';
 import { track } from '@/lib/analytics';
 import { authHeaders } from '@/lib/authedFetch';
 import { getGuestToken } from '@/lib/guestToken';
+import { useDialogA11y } from '@/hooks/useDialogA11y';
 import type { ProjectCard } from '@/types/project';
 
 interface CallbackModalProps {
@@ -37,6 +37,11 @@ export default function CallbackModal({ project, isDone, onClose }: CallbackModa
   const [submitting, setSubmitting] = useState(false);
   const [submittedSuccess, setSubmittedSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
+  const stableClose = useCallback(() => onCloseRef.current(), []);
+  const dialogRef = useDialogA11y<HTMLDivElement>(!!project && !isDone, stableClose);
 
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
@@ -112,7 +117,7 @@ export default function CallbackModal({ project, isDone, onClose }: CallbackModa
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/65 backdrop-blur-md p-4 font-sans select-none"
+        className="fixed inset-0 z-[120] flex items-center justify-center bg-slate-950/65 backdrop-blur-md p-4 font-sans select-none"
         onClick={onClose}
       >
         <m.div
@@ -120,6 +125,10 @@ export default function CallbackModal({ project, isDone, onClose }: CallbackModa
           animate={{ y: 0, scale: 1, opacity: 1 }}
           exit={{ y: 16, scale: 0.96, opacity: 0 }}
           transition={{ type: 'spring', damping: 26, stiffness: 350 }}
+          ref={dialogRef}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="callback-dialog-title"
           className="w-full max-w-md rounded-[28px] bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 shadow-2xl overflow-hidden relative font-sans z-10"
           onClick={(e) => e.stopPropagation()}
         >
@@ -133,11 +142,11 @@ export default function CallbackModal({ project, isDone, onClose }: CallbackModa
                       <PhoneCall className="w-5 h-5" />
                     </div>
                     <div>
-                      <h3 className="text-lg font-black text-slate-900 dark:text-white tracking-tight">
+                      <h3 id="callback-dialog-title" className="text-lg font-black text-slate-900 dark:text-white tracking-tight">
                         Request VIP Callback
                       </h3>
                       <p className="text-xs text-slate-500 dark:text-slate-400 font-medium mt-0.5">
-                        Direct priority connection with verified advisor
+                        The project team calls you back
                       </p>
                     </div>
                   </div>
@@ -338,7 +347,7 @@ export default function CallbackModal({ project, isDone, onClose }: CallbackModa
                 {/* Trust Footer */}
                 <div className="flex items-center justify-center gap-1.5 text-[11px] text-slate-400 dark:text-slate-500 font-semibold mt-4">
                   <ShieldCheck className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
-                  <span>Guaranteed 0 Spam · Official Developer Desk</span>
+                  <span>We pass your request to the project team</span>
                 </div>
               </>
             ) : (
@@ -349,12 +358,12 @@ export default function CallbackModal({ project, isDone, onClose }: CallbackModa
                   <CheckCircle2 className="w-8 h-8" />
                 </div>
 
-                <h4 className="text-xl font-black text-slate-900 dark:text-white mb-1.5 tracking-tight">
-                  Callback Scheduled!
+                <h4 id="callback-dialog-title" className="text-xl font-black text-slate-900 dark:text-white mb-1.5 tracking-tight">
+                  Request received
                 </h4>
                 
                 <p className="text-xs text-slate-500 dark:text-slate-400 max-w-xs mx-auto mb-5 leading-relaxed font-medium">
-                  Your inquiry has been routed to the official developer representative for <strong className="text-slate-800 dark:text-slate-200 font-bold">{project.name}</strong>.
+                  Your request has been passed to the project team for <strong className="text-slate-800 dark:text-slate-200 font-bold">{project.name}</strong>.
                 </p>
 
                 {/* Confirmation Details Card */}
@@ -374,15 +383,6 @@ export default function CallbackModal({ project, isDone, onClose }: CallbackModa
                     </span>
                     <span className="font-mono font-bold text-slate-900 dark:text-white bg-white dark:bg-slate-900 px-2.5 py-1 rounded-lg border border-slate-200/60 dark:border-slate-800 text-[11px]">
                       +91 {form.phone}
-                    </span>
-                  </div>
-
-                  <div className="flex items-center justify-between text-xs pt-2.5 border-t border-slate-200/60 dark:border-slate-800">
-                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                      Response Window
-                    </span>
-                    <span className="inline-flex items-center gap-1.5 text-[11px] font-bold text-emerald-600 dark:text-emerald-400">
-                      <Clock className="w-3.5 h-3.5" /> Within 30 Minutes
                     </span>
                   </div>
                 </div>

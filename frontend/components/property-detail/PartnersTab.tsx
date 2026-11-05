@@ -28,7 +28,7 @@ export default function PartnersTab({ partners = [], projectName = 'this project
         </div>
         <h3 className="text-base font-black text-gray-900 dark:text-white">Authorized Channel Partners</h3>
         <p className="text-xs text-gray-500 max-w-md mx-auto">
-          Authorized sales partners and channel brokers for {projectName} will appear here. Contact support to get connected with verified agents.
+          Channel partners for {projectName} will appear here when we hold them on record.
         </p>
       </div>
     )
@@ -38,15 +38,15 @@ export default function PartnersTab({ partners = [], projectName = 'this project
     <div className="space-y-6 pb-12 pt-4 px-4 md:px-0">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 bg-gradient-to-r from-blue-900 to-indigo-900 text-white rounded-3xl p-6 shadow-md">
         <div>
-          <span className="text-[10px] font-black uppercase tracking-widest text-blue-300">Verified Network</span>
+          <span className="text-[10px] font-black uppercase tracking-widest text-blue-300">Partner Network</span>
           <h2 className="text-xl font-black tracking-tight mt-1">Authorized Channel Partners</h2>
           <p className="text-xs text-blue-200 mt-1">
-            Connect directly with verified RERA-registered sales partners for {projectName}
+            Channel partners listed for {projectName} in our records
           </p>
         </div>
         <div className="self-start sm:self-center px-3 py-1.5 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full text-xs font-bold text-white flex items-center gap-1.5">
           <ShieldCheck size={14} className="text-emerald-400" />
-          {partners.length} RERA Verified Partners
+          {partners.length} {partners.length === 1 ? 'Partner' : 'Partners'} on record
         </div>
       </div>
 
@@ -74,7 +74,7 @@ export default function PartnersTab({ partners = [], projectName = 'this project
                   {partner.rera_registration && (
                     <div className="flex items-center gap-1 text-[11px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-2.5 py-1 rounded-full border border-emerald-200/50 dark:border-emerald-800/40 flex-shrink-0">
                       <ShieldCheck size={13} />
-                      <span>RERA Verified</span>
+                      <span>RERA number on record</span>
                     </div>
                   )}
                 </div>
