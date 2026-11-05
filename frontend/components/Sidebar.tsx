@@ -579,13 +579,13 @@ export default function Sidebar({
               <div className="w-full flex items-center justify-between rounded-xs p-1 hover:bg-black/[0.04] dark:hover:bg-white/[0.05] transition-colors">
                 <button
                   type="button"
-                  onClick={() => { router.push('/account'); closeMobile(); }}
+                  onClick={() => { router.push('/saved'); closeMobile(); }}
                   className={`flex-1 min-w-0 flex items-center gap-2.5 h-8 px-1.5 rounded-xs cursor-pointer ${FOCUS}`}
                 >
                   <span className="size-[26px] flex items-center justify-center shrink-0 rounded-full bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 font-semibold text-[11px]">
                     {userInitial}
                   </span>
-                  <span className="text-[13px] font-medium text-zinc-800 dark:text-zinc-200 truncate">My Account</span>
+                  <span className="text-[13px] font-medium text-zinc-800 dark:text-zinc-200 truncate">Saved homes</span>
                 </button>
                 <button
                   type="button"
@@ -614,12 +614,12 @@ export default function Sidebar({
             {userId ? (
               <button
                 type="button"
-                onClick={() => { router.push('/account'); closeMobile(); }}
-                aria-label="My account"
+                onClick={() => { router.push('/saved'); closeMobile(); }}
+                aria-label="Saved homes"
                 className={`group relative w-9 h-9 flex items-center justify-center rounded-xs bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 font-semibold text-[11px] hover:opacity-90 transition-opacity cursor-pointer ${FOCUS}`}
               >
                 {userInitial}
-                <span className={TOOLTIP}>My Account</span>
+                <span className={TOOLTIP}>Saved homes</span>
               </button>
             ) : (
               <button

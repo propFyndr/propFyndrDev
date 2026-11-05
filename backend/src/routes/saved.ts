@@ -115,7 +115,7 @@ router.post('/', async (req: Request, res: Response) => {
     // Log engagement event for admin analytics
     await prisma.propertyEvent.create({
       data: {
-        session_id: req.cookies?.sessionId || 'unknown',
+        session_id: req.cookies?.sessionId || null,
         user_id: userId,
         project_id,
         action: 'save',
@@ -162,7 +162,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
   // Log engagement event for admin analytics
   await prisma.propertyEvent.create({
     data: {
-      session_id: req.cookies?.sessionId || 'unknown',
+      session_id: req.cookies?.sessionId || null,
       user_id: userId,
       project_id: req.params.id,
       action: 'remove_saved',

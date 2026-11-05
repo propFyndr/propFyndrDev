@@ -92,7 +92,7 @@ export default function AuthPage() {
       const guestToken = getGuestToken();
       if (guestToken) {
         try {
-          const migrateRes = await fetch(`${API_BASE}/chat/sessions/migrate`, {
+          const migrateRes = await fetch(`${API_BASE}/sessions/migrate`, {
             method: 'POST',
             credentials: 'include',
             headers: { 'Content-Type': 'application/json' },
@@ -138,10 +138,10 @@ export default function AuthPage() {
           password,
           options: { data: { name: name.trim() || email.split('@')[0] } },
         });
-        // Auto-confirm projects reject a duplicate with an error; confirm-email
-        // projects return a user with no identities. Same message either way.
+        // Better Auth answers a sign-up for an existing address exactly like a new
+        // one (so addresses cannot be probed); the notice below covers both.
         if (authError && !authError.message.includes('already registered')) throw authError;
-        if (authError || data.user?.identities?.length === 0) {
+        if (authError) {
           setError('An account with this email already exists. Sign in instead.');
         } else {
           track('signup_completed')
@@ -237,7 +237,7 @@ export default function AuthPage() {
                     <div className="min-w-0">
                       <p className="text-[14px] font-semibold text-zinc-900 dark:text-zinc-50">Check your inbox</p>
                       <p className="mt-0.5 text-[13px] leading-snug text-zinc-600 dark:text-zinc-300">
-                        We sent a confirmation link to <span className="font-medium text-zinc-900 dark:text-zinc-100 break-all">{confirmSentTo}</span>. Open it, then sign in here.
+                        If <span className="font-medium text-zinc-900 dark:text-zinc-100 break-all">{confirmSentTo}</span> is new, we sent it a confirmation link: open it, then sign in here. If you already have an account with this address, just sign in.
                       </p>
                     </div>
                     <button

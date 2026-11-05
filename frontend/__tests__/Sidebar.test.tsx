@@ -62,7 +62,7 @@ describe('Sidebar Component', () => {
     // comparison lives in chat. Neither dead entry should come back.
     expect(screen.queryByText('Compare')).not.toBeInTheDocument();
     expect(screen.getByText('Saved')).toBeInTheDocument();
-    expect(screen.getByText('My Account')).toBeInTheDocument();
+    expect(screen.getByText('Saved homes')).toBeInTheDocument();
     
     // Group headers should be rendered based on dates
     expect(screen.getByText('Today')).toBeInTheDocument();
@@ -89,7 +89,7 @@ describe('Sidebar Component', () => {
     render(<Sidebar userId={null} />);
     
     expect(screen.getByText('Sign in')).toBeInTheDocument();
-    expect(screen.queryByText('My Account')).not.toBeInTheDocument();
+    expect(screen.queryByText('Saved homes')).not.toBeInTheDocument();
   });
 });
 
@@ -171,14 +171,14 @@ describe('Sidebar Identity Display', () => {
     render(<Sidebar userId="user-123" />);
 
     // Should show account/identity section
-    expect(screen.getByText('My Account')).toBeInTheDocument();
+    expect(screen.getByText('Saved homes')).toBeInTheDocument();
   });
 
   it('hides account menu when not logged in', () => {
     render(<Sidebar userId={null} />);
 
     // Account option should not be visible
-    expect(screen.queryByText('My Account')).not.toBeInTheDocument();
+    expect(screen.queryByText('Saved homes')).not.toBeInTheDocument();
   });
 
   it('shows login button when user not authenticated', () => {
@@ -188,13 +188,13 @@ describe('Sidebar Identity Display', () => {
     expect(loginButton).toBeInTheDocument();
   });
 
-  it('navigates to account page on account click', () => {
+  it('opens the saved homes (there is no /account page) on the account click', () => {
     render(<Sidebar userId="user-123" />);
 
-    const accountLink = screen.getByText('My Account');
+    const accountLink = screen.getByText('Saved homes');
     fireEvent.click(accountLink);
 
-    expect(mockUseRouter.push).toHaveBeenCalledWith(expect.stringContaining('account'));
+    expect(mockUseRouter.push).toHaveBeenCalledWith(expect.stringContaining('/saved'));
   });
 
   it('handles logout action', async () => {

@@ -82,8 +82,9 @@ const auth = {
     const callbackURL = typeof window !== 'undefined' ? `${window.location.origin}/discover` : undefined
     const r = await call('/sign-up/email', { email, password, name: options?.data?.name || email.split('@')[0], callbackURL })
     if (!r.ok) return { data: { user: null, session: null }, error: authErrorFrom(r.status, r.data) }
-    // Email confirmation is required, so sign-up returns no session.
-    return { data: { user: r.data?.user ? { ...toUser(r.data.user), identities: [{}] } : null, session: null }, error: null }
+    // Email confirmation is required, so sign-up returns no session. The same
+    // answer comes back for an address that already has an account.
+    return { data: { user: r.data?.user ? toUser(r.data.user) : null, session: null }, error: null }
   },
   async signOut() {
     await call('/sign-out', {}).catch(() => null)
