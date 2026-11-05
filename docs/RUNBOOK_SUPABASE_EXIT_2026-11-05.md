@@ -31,7 +31,7 @@ Decision (Furqan, 5 Nov): buyer sign-in moves to Better Auth on our own Neon dat
 
 Live is at risk only at steps 3-5. Steps 1-2 do not change what buyers see.
 
-1. **Live storage (Neon, Singapore, already enabled).** The live branch has two empty private buckets: `property-images` and `propety-docs` (misspelled). The code needs **public-read** buckets named `property-images` and `project-docs`. Neon changes the access level only in its Console or API, so create (or re-create) them as public-read, then create one credential with `storage:read` + `storage:write`.
+1. **Live storage: DONE 5 Nov.** Public-read buckets `property-images` and `project-docs` created on the live branch (`br-quiet-hat-ao8bib8n`, Singapore) and a `storage:read`+`storage:write` credential. Proven with a real upload, list, anonymous read and delete on both (`scripts/storage/probe-live-storage.ts`). The credential is in `C:UsersFurqanealtyask-live-storage.env` (outside the repo). The old misspelled `propety-docs` bucket is unused and left alone.
 2. **Set environment variables before the push** (Render service `realtypalsdev`, and Vercel):
    - `BETTER_AUTH_SECRET` (32+ random characters, new for live), `BETTER_AUTH_URL=https://realtyask.in`, `AUTH_COOKIE_DOMAIN=.realtyask.in`, `AUTH_COOKIE_PREFIX=ra`, `AUTH_TRUSTED_ORIGINS=https://app.realtyask.in` (no trailing slash; `FRONTEND_URL` already lists the others)
    - `STORAGE_S3_ENDPOINT=https://br-quiet-hat-ao8bib8n.storage.c-2.ap-southeast-1.aws.neon.tech`, `STORAGE_S3_REGION=ap-southeast-1`, `STORAGE_ACCESS_KEY_ID`, `STORAGE_SECRET_ACCESS_KEY`
