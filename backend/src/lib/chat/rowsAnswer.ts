@@ -67,5 +67,16 @@ export function answerFromRows(p: RowsProject, message: string, priceNote: strin
       : k === 'possession' ? possessionBlock(p)
         : k === 'rera' ? `**RERA:** ${p.rera_number ?? `not on record for ${p.name}`}.`
           : paymentBlock(p))
-  return `### ${p.name}: from our records\n\n${blocks.join('\n\n')}${outage ? "\n\n_Our advisor's written view is unavailable for a moment, so this is the record as stored. Ask again shortly for the full answer._" : ''}`
+  return `### ${p.name}: from our records\n\n${blocks.join('\n\n')}${outage ? OUTAGE_LINE : ''}`
+}
+
+const OUTAGE_LINE = "\n\n_Our advisor's written view is unavailable for a moment, so this is the record as stored. Ask again shortly for the full answer._"
+
+/**
+ * A cost-sheet question with every provider down and no cost sheet on record:
+ * say so from the record instead of the outage notice. When we hold a cost
+ * sheet, its code-built table is already on screen and is the answer.
+ */
+export function costSheetNotOnRecord(name: string, outage = true): string {
+  return `### ${name}: from our records\n\n**Cost sheet:** not on record for ${name}. The builder's charges are in its booking cost sheet; ask for it before paying a booking amount.${outage ? OUTAGE_LINE : ''}`
 }

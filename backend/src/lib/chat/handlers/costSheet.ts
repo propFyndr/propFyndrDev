@@ -7,6 +7,7 @@ import { recordTableRendered } from '../../monitoring/langfuse'
 import type { ChatTopicHandler } from '../handlerContext'
 import { statedBasePriceInr } from './totalOutflow'
 import { projectPriceNotes } from '../../projectPriceNote'
+import { costSheetNotOnRecord } from '../rowsAnswer'
 
 /**
  * cost-sheet
@@ -153,7 +154,7 @@ Verified Pricing & Cost Sheet Facts: ${costFactsJson}`
       config: { maxTokens: 1500, tools: false },
       suppressTables: Boolean(costTable),
       // Every provider down: the table on screen is the answer, no outage notice under it.
-      answerFromRows: () => (costTable ? '' : null),
+      answerFromRows: () => (costTable ? '' : costSheetNotOnRecord(costProject?.name ?? 'this project')),
       groqFallbackSuffix: '',
       userMessage: ctx.message,
       sessionId: ctx.sessionId,
