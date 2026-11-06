@@ -1,0 +1,6 @@
+[release-check] Node 26.13.0: Render builds on Node 22 (backend/package.json engines). Results may differ from the live build.
+[release-check] checking commit 55a7248a in a clean copy (your uncommitted files are not in it)
+
+[release-check] commit 55a7248a compiles.
+(node:24072) [DEP0190] DeprecationWarning: Passing args to a child process with shell option true can lead to security vulnerabilities, as the arguments are not escaped, only concatenated.
+(Use `node --trace-deprecation ...` to show where the warning was created)

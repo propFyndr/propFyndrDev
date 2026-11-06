@@ -236,26 +236,8 @@ async function auditAllKeys() {
     results.push({ category: 'Email Outreach', keyName: 'RESEND_API_KEY', preview: 'NOT_SET', status: 'NOT_SET', detail: 'Key missing in .env' })
   }
 
-  // ── 10. SUPABASE AUTH & DB ────────────────────────────────────────────────────────────────
-  const supaUrl = process.env.SUPABASE_URL
-  const supaKey = process.env.SUPABASE_SERVICE_ROLE_KEY
-  if (supaUrl && supaKey) {
-    const preview = `${supaKey.slice(0, 8)}...${supaKey.slice(-4)}`
-    const { res, err, latency } = await timeCall(async () => {
-      const resp = await fetch(`${supaUrl}/rest/v1/`, {
-        headers: { apikey: supaKey, Authorization: `Bearer ${supaKey}` },
-      })
-      if (!resp.ok && resp.status !== 200) throw new Error(`HTTP ${resp.status}`)
-      return true
-    })
-    if (res) {
-      results.push({ category: 'Database & Auth', keyName: 'SUPABASE_SERVICE_ROLE_KEY', preview, status: 'WORKING', latencyMs: latency, detail: 'Supabase REST API & auth verified' })
-    } else {
-      results.push({ category: 'Database & Auth', keyName: 'SUPABASE_SERVICE_ROLE_KEY', preview, status: 'FAILING', latencyMs: latency, detail: String(err?.message).slice(0, 80) })
-    }
-  } else {
-    results.push({ category: 'Database & Auth', keyName: 'SUPABASE_SERVICE_ROLE_KEY', preview: 'NOT_SET', status: 'NOT_SET', detail: 'URL or Key missing' })
-  }
+  // ── 10. (Supabase check removed 6 Nov 2026) ────────────────────────────────────────────────────────────────
+  // (nothing to check: sign-in and storage run on Neon; DATABASE_URL is covered by health-check.ts)
 
   // Print Complete Table
   for (const r of results) {

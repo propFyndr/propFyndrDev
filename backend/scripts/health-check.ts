@@ -278,28 +278,6 @@ async function checkMaps() {
   })
 }
 
-async function checkSupabase() {
-  const url = process.env.SUPABASE_URL
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY
-  if (!url || !key) {
-    record({ group: 'svc', name: 'Supabase auth', status: 'unset', detail: 'required — sign-in and saved properties break', required: true })
-    return
-  }
-  const r = await timed(async () => {
-    const res = await fetch(`${url}/auth/v1/settings`, {
-      headers: { apikey: key, Authorization: `Bearer ${key}` },
-      signal: AbortSignal.timeout(10_000),
-    })
-    if (!res.ok) throw new Error(`HTTP ${res.status}`)
-    return true
-  })
-  record({
-    group: 'svc', name: 'Supabase auth', required: true, ms: r.ms,
-    status: r.error ? 'fail' : 'ok',
-    detail: r.error ?? 'reachable',
-  })
-}
-
 async function checkObservability() {
   group('Observability')
 
@@ -391,7 +369,6 @@ async function main() {
   await checkRedis()
   await checkTavily()
   await checkMaps()
-  await checkSupabase()
   await checkObservability()
   await checkAdmin()
 

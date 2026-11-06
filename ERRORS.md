@@ -103,3 +103,18 @@
 **What didn't work:** "(read 27 Oct 2026 from up-rera.in)". `sanitizeOutput` collapses any citation-shaped parenthetical to "(market data)". Moving it into the sentence with the portal's address was worse: `OFFPLATFORM_REFERRAL` deletes a whole sentence that names `up-rera.in`, figures included, and swaps in a generic referral line.
 **What worked:** "We read UP-RERA's registry page for this project on 27 Oct 2026: it lists 53 complaints…", no parenthesis and no address. A test fails if the address returns.
 **Note for next time:** after adding any code-built buyer sentence that carries a source, run it through the real route (route replay with `--answers`), not just the unit test. The sanitizer sits between a handler and the buyer.
+
+## 2026-11-06 — Local load test froze the server: it was my harness, not the app
+**What didn't work:** four local A/B runs (pool 3 vs 15) showed a server that stopped answering even `/healthz` after ~100 s, with 55-75 of ~100 turns timing out. I read it as an app bug (event-loop block, then pool size). A single turn blocks the loop for at most 66 ms, a 25-parallel burst finished in 5 s, and 71 questions asked one by one never froze it.
+**What worked:** `ab-pool.cjs` ran the load with `execSync` (blocks the parent) while the server's stdout was a pipe the parent no longer read. Once the pipe buffer filled, the server blocked inside `console.log` and everything stalled. With `stdio: 'ignore'` the same 25 buyers ran 642 turns, 0 errors, 1.1 s first word.
+**Note for next time:** never `execSync` while a child's stdout/stderr is piped to you. Use `stdio: 'ignore'` or a file, or keep the parent async. If a local server "freezes" under a harness, rule the harness out first (does `/healthz` answer when you drive it from a different process?).
+
+## 2026-11-06 — Failure drills passed because a zombie server answered
+**What didn't work:** all five drill scenarios returned healthy answers (a model answer with every AI key "blank", real payment plans with a dead database).
+**What worked:** `child.kill()` on a `shell: true` child only kills the shell, so the baseline server stayed on port 3055 and every later scenario spoke to it. Fix: `taskkill /T /F /PID`, and refuse to start a scenario if the port already answers. Also: the app refuses to boot with NO AI key, so "providers off" must mean keys the providers reject.
+**Note for next time:** a chaos test must prove the broken thing is the thing answering (port free before start, scenario-specific symptom after).
+
+## 2026-11-06 — Python heredoc edit broke a `\n\n` again (repeat of 2026-09-26)
+**What didn't work:** moving the SSE judge into `judge.ts` with a `python - <<'EOF'` script turned `split('\n\n')` into a literal line break; esbuild said "Unterminated string literal".
+**What worked:** one Edit-tool fix. Same lesson as the 2026-09-26 entry: no backslash-bearing code through a Python string.
+**Note for next time:** for a code move, use the Write tool for the whole file, not a scripted slice.

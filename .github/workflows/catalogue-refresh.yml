@@ -98,8 +98,6 @@ jobs:
           NODE_ENV: test
           ADMIN_PASSWORD: test-admin-password
           GEMINI_API_KEY: ci-dummy-not-a-real-key
-          SUPABASE_URL: http://localhost:54321
-          SUPABASE_SERVICE_ROLE_KEY: dummy-service-role-key
         run: |
           psql "$DATABASE_URL" -c "CREATE EXTENSION IF NOT EXISTS vector;"
           npx prisma db push --skip-generate

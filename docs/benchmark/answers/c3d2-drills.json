@@ -1,0 +1,251 @@
+[
+  {
+    "name": "baseline",
+    "started": true,
+    "log": "] CLARIFYING stage: {\n  missingFields: [ 'sector', 'bhk', 'budget', 'purpose' ],\n  preCapChips: 3,\n  postCapChips: 3,\n  labels: [ 'Sector 150', 'Sector 75', 'Sector 79' ]\n}\n127.0.0.1 - - [06/Nov/2026:14:18:40 +0000] \"POST /api/v1/chat HTTP/1.1\" 200 - \"-\" \"RealtyAsk-loadtest/1.0 (bot; drill)\"\n[CHAT:TIMING] lane=greeting total=969 sessionMemory=334 routing=325 projectCatalog=50 @firstToken=964 | Hi\n",
+    "turns": [
+      {
+        "q": "What are the payment plans for ATS Destinaire in Sector 1?",
+        "status": 200,
+        "verdict": "ok",
+        "flags": [],
+        "lane": null,
+        "firstTokenMs": 5716,
+        "totalMs": 11457,
+        "chars": 2830,
+        "answer": "### Payment Plans & Milestones — ATS Destinaire\n\n### Available Payment Schemes\n\n| Payment Scheme | Milestone Structure | Discount / Key Benefit | Watch out |\n| :--- | :--- | :--- | :--- |\n| **Construction Linked Payment Plan (CLP)** | 10% : 10% : 10% : 10% : 10% : 10% : 10% : 10% : 10% : 10% | 10% Down Payment | Not recorded |\n| **Time Linked Flexi Payment Plan (30:40:30)** | 30% : 40% : 30% | 30% Down Payment | Not recorded |\n\n#### Construction Linked Payment Plan (CLP)\n\n| Stage / Milestone | Timeline / Trigger | Share | Amount |\n| :--- | :--- | ---: | ---: |\n| At Booking & Allotment | Not recorded | 10% | Not recorded |\n| On Foundation / Raft Casting | Not recorded | 10% | Not recorded |\n| On Casting of Ground Basement Slab | Not recorded | 10% | Not recorded |\n| On Casting of 5th Floor Slab | Not recorded | 10% | Not recorded |\n| On Casting of 10th Floor Slab | Not recorded | 10% | Not recorded |\n| On Casting of 15th Floor Slab | Not recorded | 10% | Not recorded |\n| On Top Floor Roof Slab Casting | Not recorded | 10% | Not recorded |\n| On Internal Plastering of Unit | Not recorded | 10% | Not recorded |\n| On Flooring & Electrical Conduits | Not recorded | 10% | Not recorded |\n| On Notice of Possession & Key Handover | Not recorded | 10% | Not recorded |\n\n#### Time Linked Flexi Payment Plan (30:40:30)\n\n| Stage / Milestone | Timeline / Trigger | Share | Amount |\n| :--- | :--- | ---: | ---: |\n| Within 45 Days of Booking | Not recorded | 30% | Not recorded |\n| On Completion of Superstructure Casting | Not recorded | 40% | Not recorded |\n| On Offer of Possession & Final Registry | Not recorded | 30% | Not recorded |\n\n_These are the standard schemes on file for this project and have not been confirmed against the developer's current terms. Treat the stage percentages as the shape to expect, and get the figures in writing before you pay._\n\nThe construction-linked plan spreads your capital evenly across ten distinct building milestones, keeping liquidity free in your hands as actual site progress dictates each outflow. Conversely, the time-linked flexi plan demands heavier capital concentration upfront within forty-five days and upon superstructure completion, fastening the payment velocity. For a high-value asset at this price, the construction-linked structure shields you from developer delays and preserves working capital, whereas the flexi schedule accelerates your financial commitment significantly before final possession.\n\nEvaluating your liquidity will determine the ideal path forward for securing your unit in this project. To decide between the available structures, take the down-payment plan if you have the cash idle; take construction-linked if you are still saving. This ensures your personal financial stability remains intact while meeting developer milestones comfortably."
+      },
+      {
+        "q": "Is Greater Noida West a good area for a family with two kids?",
+        "status": 200,
+        "verdict": "ok",
+        "flags": [],
+        "lane": null,
+        "firstTokenMs": 29077,
+        "totalMs": 32166,
+        "chars": 1175,
+        "answer": "Greater Noida West is frequently chosen by families because it offers larger 3 BHK + configurations at a lower price‑per‑sqft compared with central Noida or the Expressway corridor. The micro‑market provides more space per rupee, which can be advantageous for a family of four, but several practical factors affect day‑to‑day livability:\n\nNo metro connectivity is currently available, so daily driving is the norm.\n- **Schools & hospitals:** A growing number of schools and medical facilities have opened in the sector, but the density varies by project. Families prioritizing immediate school proximity may need to verify the nearest options for their chosen sector.\n- **Water & power:** Projects record a mix of borewell and Ganga Jal supplies; power‑backup rates and lift‑act compliance differ tower‑by‑tower. \n- **Ready‑to‑move vs. under‑construction:** Many offerings are still under construction (5 % GST applies), so possession timelines and occupancy‑certificate status should be verified before booking.\n\nBecause the “goodness” of the area hinges on your family’s daily rhythm, I’ll ask one question to narrow the advice:\n\n**Where is your primary daily commute (e.g."
+      },
+      {
+        "q": "What would the monthly EMI be on a 75 lakh loan at 8.5% for 20 years?",
+        "status": 200,
+        "verdict": "ok",
+        "flags": [],
+        "lane": null,
+        "firstTokenMs": 2187,
+        "totalMs": 2187,
+        "chars": 327,
+        "answer": "### EMI on a ₹75.00 L loan\n\n**₹65,087 a month** at 8.5% over 20 years.\n\n| | Amount |\n| :--- | ---: |\n| Loan | ₹75.00 L |\n| Total repaid | ₹1.56 Cr |\n| Total interest | ₹81.21 L |\n\n\nThis is a reducing-balance EMI on the loan alone. A floating rate moves with the repo rate, so the EMI or the tenure changes over the loan's life."
+      },
+      {
+        "q": "How much stamp duty do I pay on a 90 lakh flat if my wife is the primary owner?",
+        "status": 200,
+        "verdict": "ok",
+        "flags": [],
+        "lane": null,
+        "firstTokenMs": 1312,
+        "totalMs": 1312,
+        "chars": 1770,
+        "answer": "### On ₹0.90 Cr\n\n| Charge | Amount |\n| :--- | ---: |\n| Stamp duty, female primary owner (6%) | **₹5,40,000** |\n| Stamp duty, male owner (7%) for comparison | ₹6,30,000 |\n| Registration (1%) | ₹90,000 |\n| GST if under construction (5%) | ₹4,50,000 |\n| GST if ready to move with OC | ₹0 |\n| **Total, ready to move** | **₹96,30,000** |\n| **Total, under construction** | **₹1,00,80,000** |\n\nStamp duty is charged on the agreement value or the circle rate, whichever is higher, so the figure above is the floor. You also deduct 1% TDS (₹90,000) from the payment to the seller and deposit it with Form 26QB.\n\n### Statutory taxes & registration charges (Uttar Pradesh)\n\nThese are set by law and are the same for every project.\n\n| Component | Rate | Nature | Paid when & to whom |\n| :--- | :--- | :--- | :--- |\n| **Stamp duty** | 7% of agreement or circle value, whichever is higher | Mandatory | At registry, to the UP Stamp & Registration Department |\n| **Stamp duty — female primary owner** | 6% | Concession | At registry |\n| **Registration fee** | 1% of value | Mandatory | At deed execution, to the Sub-Registrar |\n| **GST — under construction** | 5% (without input tax credit) | Statutory | Billed across construction milestones |\n| **GST — ready to move with OC** | 0% | Exempt | Not applicable once the Occupancy Certificate is granted |\n| **TDS (Section 194-IA)** | 1% of sale consideration | Mandatory | Deducted by the buyer when value exceeds ₹50 Lakh (Form 26QB) |\n\n### Budgeting\nAllow 12–14% above base price for an under-construction home, or 8–9% above base price for ready-to-move with OC, to cover statutory and possession charges — typical for Noida — not verified for this project.\n\nName a project and I'll use whichever of its own charges we hold verified."
+      },
+      {
+        "q": "What is the weather in Paris today?",
+        "status": 200,
+        "verdict": "ok",
+        "flags": [],
+        "lane": null,
+        "firstTokenMs": 3122,
+        "totalMs": 3123,
+        "chars": 110,
+        "answer": "I don't have weather data; I only cover Noida and Greater Noida property. Which sector are you thinking about?"
+      },
+      {
+        "q": "Hi",
+        "status": 200,
+        "verdict": "ok",
+        "flags": [],
+        "lane": null,
+        "firstTokenMs": 1237,
+        "totalMs": 1237,
+        "chars": 567,
+        "answer": "### Welcome to RealtyAsk\n\nHello. I help home buyers in **Noida and Greater Noida West** decide what to buy, from the project records we hold.\n\nI can help you:\n- **Find projects** by budget, sector, BHK, possession timeline and metro access.\n- **Check a project**: UP-RERA registration, possession date, the builder's delivery record, and what we don't hold.\n- **Work out the cost**: payment plans on record, stamp duty, registration, GST and EMI.\n- **Compare projects** side by side on price, size, possession, amenities and connectivity.\n\n*What are you looking for?*"
+      }
+    ],
+    "pass": true
+  },
+  {
+    "name": "providers-off",
+    "started": true,
+    "log": "] CLARIFYING stage: {\n  missingFields: [ 'sector', 'bhk', 'budget', 'purpose' ],\n  preCapChips: 3,\n  postCapChips: 3,\n  labels: [ 'Sector 150', 'Sector 75', 'Sector 79' ]\n}\n127.0.0.1 - - [06/Nov/2026:14:19:07 +0000] \"POST /api/v1/chat HTTP/1.1\" 200 - \"-\" \"RealtyAsk-loadtest/1.0 (bot; drill)\"\n[CHAT:TIMING] lane=greeting total=878 routing=344 sessionMemory=296 projectCatalog=51 @firstToken=871 | Hi\n",
+    "turns": [
+      {
+        "q": "What are the payment plans for ATS Destinaire in Sector 1?",
+        "status": 200,
+        "verdict": "ok",
+        "flags": [],
+        "lane": null,
+        "firstTokenMs": 5179,
+        "totalMs": 7797,
+        "chars": 2283,
+        "answer": "### Payment Plans & Milestones — ATS Destinaire\n\n### Available Payment Schemes\n\n| Payment Scheme | Milestone Structure | Discount / Key Benefit | Watch out |\n| :--- | :--- | :--- | :--- |\n| **Construction Linked Payment Plan (CLP)** | 10% : 10% : 10% : 10% : 10% : 10% : 10% : 10% : 10% : 10% | 10% Down Payment | Not recorded |\n| **Time Linked Flexi Payment Plan (30:40:30)** | 30% : 40% : 30% | 30% Down Payment | Not recorded |\n\n#### Construction Linked Payment Plan (CLP)\n\n| Stage / Milestone | Timeline / Trigger | Share | Amount |\n| :--- | :--- | ---: | ---: |\n| At Booking & Allotment | Not recorded | 10% | Not recorded |\n| On Foundation / Raft Casting | Not recorded | 10% | Not recorded |\n| On Casting of Ground Basement Slab | Not recorded | 10% | Not recorded |\n| On Casting of 5th Floor Slab | Not recorded | 10% | Not recorded |\n| On Casting of 10th Floor Slab | Not recorded | 10% | Not recorded |\n| On Casting of 15th Floor Slab | Not recorded | 10% | Not recorded |\n| On Top Floor Roof Slab Casting | Not recorded | 10% | Not recorded |\n| On Internal Plastering of Unit | Not recorded | 10% | Not recorded |\n| On Flooring & Electrical Conduits | Not recorded | 10% | Not recorded |\n| On Notice of Possession & Key Handover | Not recorded | 10% | Not recorded |\n\n#### Time Linked Flexi Payment Plan (30:40:30)\n\n| Stage / Milestone | Timeline / Trigger | Share | Amount |\n| :--- | :--- | ---: | ---: |\n| Within 45 Days of Booking | Not recorded | 30% | Not recorded |\n| On Completion of Superstructure Casting | Not recorded | 40% | Not recorded |\n| On Offer of Possession & Final Registry | Not recorded | 30% | Not recorded |\n\n_These are the standard schemes on file for this project and have not been confirmed against the developer's current terms. Treat the stage percentages as the shape to expect, and get the figures in writing before you pay._\n\n\n\n**What to check before choosing a plan:**\n- **Construction-Linked Plans (CLP)** tie each payment to a construction milestone, so money moves only as the building does.\n- **Down Payment Plans** ask for most of the price up front; weigh any discount offered against the risk of paying before delivery.\n- Ask for the bank APF (Advance Processing Facility) tie-ups and the RERA escrow account details before signing."
+      },
+      {
+        "q": "Is Greater Noida West a good area for a family with two kids?",
+        "status": 200,
+        "verdict": "notice",
+        "flags": [],
+        "lane": null,
+        "firstTokenMs": 5155,
+        "totalMs": 5231,
+        "chars": 238,
+        "answer": "I couldn't get you a reliable answer just now — our AI service is briefly unavailable, and I'd rather say so than guess.\n\nAsk me again in a moment, or use **Book Site Visit** or **Callback** and our advisory team will pick it up directly."
+      },
+      {
+        "q": "What would the monthly EMI be on a 75 lakh loan at 8.5% for 20 years?",
+        "status": 200,
+        "verdict": "ok",
+        "flags": [],
+        "lane": null,
+        "firstTokenMs": 2550,
+        "totalMs": 2550,
+        "chars": 327,
+        "answer": "### EMI on a ₹75.00 L loan\n\n**₹65,087 a month** at 8.5% over 20 years.\n\n| | Amount |\n| :--- | ---: |\n| Loan | ₹75.00 L |\n| Total repaid | ₹1.56 Cr |\n| Total interest | ₹81.21 L |\n\n\nThis is a reducing-balance EMI on the loan alone. A floating rate moves with the repo rate, so the EMI or the tenure changes over the loan's life."
+      },
+      {
+        "q": "How much stamp duty do I pay on a 90 lakh flat if my wife is the primary owner?",
+        "status": 200,
+        "verdict": "ok",
+        "flags": [],
+        "lane": null,
+        "firstTokenMs": 2056,
+        "totalMs": 2056,
+        "chars": 1770,
+        "answer": "### On ₹0.90 Cr\n\n| Charge | Amount |\n| :--- | ---: |\n| Stamp duty, female primary owner (6%) | **₹5,40,000** |\n| Stamp duty, male owner (7%) for comparison | ₹6,30,000 |\n| Registration (1%) | ₹90,000 |\n| GST if under construction (5%) | ₹4,50,000 |\n| GST if ready to move with OC | ₹0 |\n| **Total, ready to move** | **₹96,30,000** |\n| **Total, under construction** | **₹1,00,80,000** |\n\nStamp duty is charged on the agreement value or the circle rate, whichever is higher, so the figure above is the floor. You also deduct 1% TDS (₹90,000) from the payment to the seller and deposit it with Form 26QB.\n\n### Statutory taxes & registration charges (Uttar Pradesh)\n\nThese are set by law and are the same for every project.\n\n| Component | Rate | Nature | Paid when & to whom |\n| :--- | :--- | :--- | :--- |\n| **Stamp duty** | 7% of agreement or circle value, whichever is higher | Mandatory | At registry, to the UP Stamp & Registration Department |\n| **Stamp duty — female primary owner** | 6% | Concession | At registry |\n| **Registration fee** | 1% of value | Mandatory | At deed execution, to the Sub-Registrar |\n| **GST — under construction** | 5% (without input tax credit) | Statutory | Billed across construction milestones |\n| **GST — ready to move with OC** | 0% | Exempt | Not applicable once the Occupancy Certificate is granted |\n| **TDS (Section 194-IA)** | 1% of sale consideration | Mandatory | Deducted by the buyer when value exceeds ₹50 Lakh (Form 26QB) |\n\n### Budgeting\nAllow 12–14% above base price for an under-construction home, or 8–9% above base price for ready-to-move with OC, to cover statutory and possession charges — typical for Noida — not verified for this project.\n\nName a project and I'll use whichever of its own charges we hold verified."
+      },
+      {
+        "q": "What is the weather in Paris today?",
+        "status": 200,
+        "verdict": "ok",
+        "flags": [],
+        "lane": null,
+        "firstTokenMs": 2384,
+        "totalMs": 2384,
+        "chars": 110,
+        "answer": "I don't have weather data; I only cover Noida and Greater Noida property. Which sector are you thinking about?"
+      },
+      {
+        "q": "Hi",
+        "status": 200,
+        "verdict": "ok",
+        "flags": [],
+        "lane": null,
+        "firstTokenMs": 1094,
+        "totalMs": 1094,
+        "chars": 567,
+        "answer": "### Welcome to RealtyAsk\n\nHello. I help home buyers in **Noida and Greater Noida West** decide what to buy, from the project records we hold.\n\nI can help you:\n- **Find projects** by budget, sector, BHK, possession timeline and metro access.\n- **Check a project**: UP-RERA registration, possession date, the builder's delivery record, and what we don't hold.\n- **Work out the cost**: payment plans on record, stamp duty, registration, GST and EMI.\n- **Compare projects** side by side on price, size, possession, amenities and connectivity.\n\n*What are you looking for?*"
+      }
+    ],
+    "pass": true
+  },
+  {
+    "name": "cache-off",
+    "started": true,
+    "log": "LD' }\n[CONV_ENGINE] CLARIFYING stage: {\n  missingFields: [ 'sector', 'bhk', 'budget', 'purpose' ],\n  preCapChips: 3,\n  postCapChips: 3,\n  labels: [ 'Sector 150', 'Sector 75', 'Sector 79' ]\n}\n127.0.0.1 - - [06/Nov/2026:14:19:38 +0000] \"POST /api/v1/chat HTTP/1.1\" 200 - \"-\" \"RealtyAsk-loadtest/1.0 (bot; drill)\"\n[CHAT:TIMING] lane=greeting total=855 sessionMemory=372 routing=190 @firstToken=850 | Hi\n",
+    "turns": [
+      {
+        "q": "What are the payment plans for ATS Destinaire in Sector 1?",
+        "status": 200,
+        "verdict": "ok",
+        "flags": [],
+        "lane": null,
+        "firstTokenMs": 4677,
+        "totalMs": 9484,
+        "chars": 2841,
+        "answer": "### Payment Plans & Milestones — ATS Destinaire\n\n### Available Payment Schemes\n\n| Payment Scheme | Milestone Structure | Discount / Key Benefit | Watch out |\n| :--- | :--- | :--- | :--- |\n| **Construction Linked Payment Plan (CLP)** | 10% : 10% : 10% : 10% : 10% : 10% : 10% : 10% : 10% : 10% | 10% Down Payment | Not recorded |\n| **Time Linked Flexi Payment Plan (30:40:30)** | 30% : 40% : 30% | 30% Down Payment | Not recorded |\n\n#### Construction Linked Payment Plan (CLP)\n\n| Stage / Milestone | Timeline / Trigger | Share | Amount |\n| :--- | :--- | ---: | ---: |\n| At Booking & Allotment | Not recorded | 10% | Not recorded |\n| On Foundation / Raft Casting | Not recorded | 10% | Not recorded |\n| On Casting of Ground Basement Slab | Not recorded | 10% | Not recorded |\n| On Casting of 5th Floor Slab | Not recorded | 10% | Not recorded |\n| On Casting of 10th Floor Slab | Not recorded | 10% | Not recorded |\n| On Casting of 15th Floor Slab | Not recorded | 10% | Not recorded |\n| On Top Floor Roof Slab Casting | Not recorded | 10% | Not recorded |\n| On Internal Plastering of Unit | Not recorded | 10% | Not recorded |\n| On Flooring & Electrical Conduits | Not recorded | 10% | Not recorded |\n| On Notice of Possession & Key Handover | Not recorded | 10% | Not recorded |\n\n#### Time Linked Flexi Payment Plan (30:40:30)\n\n| Stage / Milestone | Timeline / Trigger | Share | Amount |\n| :--- | :--- | ---: | ---: |\n| Within 45 Days of Booking | Not recorded | 30% | Not recorded |\n| On Completion of Superstructure Casting | Not recorded | 40% | Not recorded |\n| On Offer of Possession & Final Registry | Not recorded | 30% | Not recorded |\n\n_These are the standard schemes on file for this project and have not been confirmed against the developer's current terms. Treat the stage percentages as the shape to expect, and get the figures in writing before you pay._\n\nThe construction-linked plan spreads your capital evenly across ten distinct building milestones, keeping your liquidity high as funds are deployed strictly alongside actual site progress. Conversely, the flexi schedule demands heavier upfront and mid-stage capital commitments before shifting the final balance to possession. This trade-off dictates your immediate liquidity exposure; tying up larger sums early reduces your short-term cash availability, which matters significantly when managing overall financial flexibility at this property valuation.\n\nDeciding between these structures depends entirely on your current liquidity position and capital deployment strategy. As a general rule for this asset, take the down-payment plan if you have the cash idle; take construction-linked if you are still saving. If your funds are currently generating higher returns elsewhere, preserving cash flow via milestone-based disbursements remains the more prudent path forward."
+      },
+      {
+        "q": "Is Greater Noida West a good area for a family with two kids?",
+        "status": 200,
+        "verdict": "ok",
+        "flags": [],
+        "lane": null,
+        "firstTokenMs": 7306,
+        "totalMs": 8152,
+        "chars": 938,
+        "answer": "Yes, Greater Noida West is a strong option for a family with two kids, particularly if maximizing indoor space on a balanced budget is your priority. \n\nThe micro-market stands out for offering spacious 3BHK and 4BHK configurations within an accessible budget tier, allowing growing children dedicated rooms rather than cramped quarters. Over the last few years, social infrastructure has caught up significantly, with established school branches, daily-need retail, and multi-specialty clinics operating directly within or adjacent to the sector clusters.\n\nThe main trade-off is high density and peak-hour congestion on arterial stretches like the Greater Noida West Link Road, alongside varying delivery timelines across older stalled projects. Choosing a ready-to-move or late-stage society with verified occupancy and established facility management mitigates most construction and civic risks.\n\nWhat is your daily commute destination?"
+      },
+      {
+        "q": "What would the monthly EMI be on a 75 lakh loan at 8.5% for 20 years?",
+        "status": 200,
+        "verdict": "ok",
+        "flags": [],
+        "lane": null,
+        "firstTokenMs": 2253,
+        "totalMs": 2253,
+        "chars": 327,
+        "answer": "### EMI on a ₹75.00 L loan\n\n**₹65,087 a month** at 8.5% over 20 years.\n\n| | Amount |\n| :--- | ---: |\n| Loan | ₹75.00 L |\n| Total repaid | ₹1.56 Cr |\n| Total interest | ₹81.21 L |\n\n\nThis is a reducing-balance EMI on the loan alone. A floating rate moves with the repo rate, so the EMI or the tenure changes over the loan's life."
+      },
+      {
+        "q": "How much stamp duty do I pay on a 90 lakh flat if my wife is the primary owner?",
+        "status": 200,
+        "verdict": "ok",
+        "flags": [],
+        "lane": null,
+        "firstTokenMs": 1213,
+        "totalMs": 1213,
+        "chars": 1770,
+        "answer": "### On ₹0.90 Cr\n\n| Charge | Amount |\n| :--- | ---: |\n| Stamp duty, female primary owner (6%) | **₹5,40,000** |\n| Stamp duty, male owner (7%) for comparison | ₹6,30,000 |\n| Registration (1%) | ₹90,000 |\n| GST if under construction (5%) | ₹4,50,000 |\n| GST if ready to move with OC | ₹0 |\n| **Total, ready to move** | **₹96,30,000** |\n| **Total, under construction** | **₹1,00,80,000** |\n\nStamp duty is charged on the agreement value or the circle rate, whichever is higher, so the figure above is the floor. You also deduct 1% TDS (₹90,000) from the payment to the seller and deposit it with Form 26QB.\n\n### Statutory taxes & registration charges (Uttar Pradesh)\n\nThese are set by law and are the same for every project.\n\n| Component | Rate | Nature | Paid when & to whom |\n| :--- | :--- | :--- | :--- |\n| **Stamp duty** | 7% of agreement or circle value, whichever is higher | Mandatory | At registry, to the UP Stamp & Registration Department |\n| **Stamp duty — female primary owner** | 6% | Concession | At registry |\n| **Registration fee** | 1% of value | Mandatory | At deed execution, to the Sub-Registrar |\n| **GST — under construction** | 5% (without input tax credit) | Statutory | Billed across construction milestones |\n| **GST — ready to move with OC** | 0% | Exempt | Not applicable once the Occupancy Certificate is granted |\n| **TDS (Section 194-IA)** | 1% of sale consideration | Mandatory | Deducted by the buyer when value exceeds ₹50 Lakh (Form 26QB) |\n\n### Budgeting\nAllow 12–14% above base price for an under-construction home, or 8–9% above base price for ready-to-move with OC, to cover statutory and possession charges — typical for Noida — not verified for this project.\n\nName a project and I'll use whichever of its own charges we hold verified."
+      },
+      {
+        "q": "What is the weather in Paris today?",
+        "status": 200,
+        "verdict": "ok",
+        "flags": [],
+        "lane": null,
+        "firstTokenMs": 2506,
+        "totalMs": 2506,
+        "chars": 110,
+        "answer": "I don't have weather data; I only cover Noida and Greater Noida property. Which sector are you thinking about?"
+      },
+      {
+        "q": "Hi",
+        "status": 200,
+        "verdict": "ok",
+        "flags": [],
+        "lane": null,
+        "firstTokenMs": 1243,
+        "totalMs": 1243,
+        "chars": 567,
+        "answer": "### Welcome to RealtyAsk\n\nHello. I help home buyers in **Noida and Greater Noida West** decide what to buy, from the project records we hold.\n\nI can help you:\n- **Find projects** by budget, sector, BHK, possession timeline and metro access.\n- **Check a project**: UP-RERA registration, possession date, the builder's delivery record, and what we don't hold.\n- **Work out the cost**: payment plans on record, stamp duty, registration, GST and EMI.\n- **Compare projects** side by side on price, size, possession, amenities and connectivity.\n\n*What are you looking for?*"
+      }
+    ],
+    "pass": true
+  },
+  {
+    "name": "database-off",
+    "started": false,
+    "log": "ny()` invocation in\nC:\\Users\\Furqan\\Desktop\\RealtyPals\\backend\\src\\lib\\tax\\taxEngine.ts:43:48\n\n  40 }\n  41 \n  42 try {\n→ 43   const dbRates = await prisma.statutoryRate.findMany(\nCan't reach database server at `127.0.0.1:1`\n\nPlease make sure your database server is running at `127.0.0.1:1`.\nprisma:error \nInvalid `prisma.statutoryRate.findMany()` invocation in\nC:\\Users\\Furqan\\Desktop\\RealtyPals\\backend\\src\\lib\\tax\\taxEngine.ts:43:48\n\n  40 }\n  41 \n  42 try {\n→ 43   const dbRates = await prisma.statutoryRate.findMany(\nCan't reach database server at `127.0.0.1:1`\n\nPlease make sure your database server is running at `127.0.0.1:1`.\n{\"level\":60,\"time\":1793974786713,\"pid\":21920,\"hostname\":\"Furqan\",\"err\":\"\\nInvalid `prisma.$queryRaw()` invocation:\\n\\n\\nCan't reach database server at `127.0.0.1:1`\\n\\nPlease make sure your database server is running at `127.0.0.1:1`.\",\"msg\":\"database unreachable\"}\n",
+    "turns": [],
+    "pass": false
+  },
+  {
+    "name": "server-killed",
+    "started": true,
+    "log": "56 { fullTextLen: 25 }\n[OPENAI] chunk #630 cycle=0 1793974837434 { fullTextLen: 73 }\n[OPENAI] chunk #640 cycle=0 1793974837512 { fullTextLen: 118 }\n[OPENAI] chunk #650 cycle=0 1793974837587 { fullTextLen: 161 }\n[OPENAI] chunk #660 cycle=0 1793974837693 { fullTextLen: 221 }\n[OPENAI] chunk #670 cycle=0 1793974837769 { fullTextLen: 263 }\n[OPENAI] chunk #680 cycle=0 1793974837844 { fullTextLen: 299 }\n",
+    "turns": [
+      {
+        "q": "Is Greater Noida West a good area for a family with two kids?",
+        "status": 200,
+        "verdict": "error",
+        "flags": [],
+        "lane": null,
+        "firstTokenMs": 41597,
+        "totalMs": 41861,
+        "chars": 188,
+        "answer": "Greater Noida West (Noida Extension) is a viable option for a family with two kids, but the fit depends on your budget, commute, and lifestyle priorities. Here's the practical breakdown:\n\n",
+        "error": "terminated"
+      }
+    ],
+    "pass": false
+  }
+]

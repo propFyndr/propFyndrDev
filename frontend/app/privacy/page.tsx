@@ -198,8 +198,8 @@ export default function PrivacyPolicy() {
           </p>
           <div className="grid sm:grid-cols-2 gap-3 mt-3">
             <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-800">
-              <span className="font-bold text-slate-900 dark:text-white text-xs block">Supabase / PostgreSQL Cloud</span>
-              <span className="text-xs text-slate-600 dark:text-slate-400 mt-1 block">Encrypted at rest (AES-256) with strict Row-Level Security (RLS) policies.</span>
+              <span className="font-bold text-slate-900 dark:text-white text-xs block">Neon / PostgreSQL Cloud</span>
+              <span className="text-xs text-slate-600 dark:text-slate-400 mt-1 block">Encrypted at rest and in transit by our database provider.</span>
             </div>
             <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-800">
               <span className="font-bold text-slate-900 dark:text-white text-xs block">Vercel &amp; Edge Delivery</span>

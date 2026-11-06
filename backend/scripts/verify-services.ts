@@ -96,14 +96,6 @@ async function main() {
     return `PING -> ${j.result}`
   })
 
-  await check('Supabase', ['SUPABASE_URL', 'SUPABASE_SERVICE_ROLE_KEY'], async () => {
-    const r = await must(await fetch(`${process.env.SUPABASE_URL}/rest/v1/`, {
-      headers: { apikey: process.env.SUPABASE_SERVICE_ROLE_KEY as string },
-      signal: t(15_000),
-    }))
-    return `REST reachable (${r.status})`
-  })
-
   await check('Database (Prisma)', ['DATABASE_URL'], async () => {
     const { PrismaClient } = await import('@prisma/client')
     const p = new PrismaClient()
@@ -230,7 +222,7 @@ async function auditEnvCoverage(): Promise<void> {
   const verifiedHere = new Set([
     'CLOUDFLARE_API_KEY', 'CLOUDFLARE_ACCOUNT_ID', 'TAVILY_API_KEY', 'GOOGLE_MAPS_API_KEY',
     'GOOGLE_PLACES_API_KEY', 'UPSTASH_REDIS_REST_URL', 'UPSTASH_REDIS_REST_TOKEN',
-    'SUPABASE_URL', 'SUPABASE_SERVICE_ROLE_KEY', 'DATABASE_URL', 'POSTHOG_API_KEY',
+    'DATABASE_URL', 'POSTHOG_API_KEY',
     'POSTHOG_HOST', 'SENTRY_DSN', 'WEBHOOK_URL',
   ])
   // Verified by `npm run verify:chain`, one live call per leg.

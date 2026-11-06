@@ -20,10 +20,6 @@ services:
         sync: false
       - key: DIRECT_URL
         sync: false
-      - key: SUPABASE_URL
-        sync: false
-      - key: SUPABASE_SERVICE_ROLE_KEY
-        sync: false
       # AI providers, in FALLBACK_CHAIN order (backend/src/lib/config.ts).
       # GEMINI_API_KEY is tier 1 and was missing here, so a deploy provisioned
       # purely from this file would silently start on a fallback provider.

@@ -1,0 +1,7 @@
+[release-check] Node 26.13.0: Render builds on Node 22 (backend/package.json engines). Results may differ from the live build.
+[release-check] checking commit 520de9c2 in a clean copy (your uncommitted files are not in it)
+backend/src/lib/ai/outageNotice.ts(62,14): error TS2322: Type 'string' is not assignable to type 'number'.
+
+[release-check] FAILED: backend does not compile at 520de9c2
+
+[release-check] commit 520de9c2 is NOT safe to push.

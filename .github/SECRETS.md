@@ -6,7 +6,7 @@ Go to: GitHub repo → Settings → Secrets and variables → Actions → New re
 
 | Secret | Value | Where to get |
 |--------|-------|--------------|
-| `DATABASE_URL` | Your Supabase transaction pooler URL | Already in `frontend/.env.local` |
+| `DATABASE_URL` | Your Neon pooled URL (host contains `-pooler`) | Already in `frontend/.env.local` |
 
 ## Frontend deploy (deploy-frontend.yml)
 

@@ -1,0 +1,9 @@
+[
+  {
+    "name": "providers-off",
+    "started": false,
+    "log": "npm notice run npx\nnpm notice run tsx src/index.ts\n{\"level\":60,\"time\":1793974507199,\"pid\":5092,\"hostname\":\"Furqan\",\"expected\":[\"GEMINI_API_KEY1\",\"GEMINI_API_KEY2\",\"GEMINI_API_KEY\",\"COHERE_API_KEY\",\"GROQ_API_KEY\",\"GROQ_API_KEY1\",\"GROQ_API_KEY2\",\"GROQ_API_KEY3\",\"NVIDIA_API_KEY\",\"CLOUDFLARE_API_KEY\"],\"msg\":\"No AI provider key is configured. At least one entry of FALLBACK_CHAIN must have its key set. Refusing to start.\"}\n",
+    "turns": [],
+    "pass": false
+  }
+]

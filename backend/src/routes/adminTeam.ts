@@ -4,9 +4,10 @@
 // what builder or channel partner. Two ways to add someone, both here:
 //  - Invite by email — creates an AdminUser with an invite token; the invitee
 //    sets their own password via POST /accept-invite.
-//  - Promote an existing buyer by their Supabase user id — no separate
-//    password; they log into the admin panel with the Supabase session their
-//    buyer account already has (see verifyUser in lib/auth.ts).
+//  - Promote an existing buyer by their account id (the Better Auth user id; the
+//    column is still named linked_supabase_user_id) — no separate password;
+//    they log into the admin panel with the session their buyer account
+//    already has (see verifyUser in lib/auth.ts).
 import { Router, Request, Response } from 'express'
 import { z } from 'zod'
 import { prisma } from '../lib/db'
@@ -208,7 +209,7 @@ const promoteSchema = z.object({
 })
 
 // POST /api/v1/admin/team/promote — grant admin access to an existing buyer
-// account. Automatically resolves the Supabase User ID from email if omitted,
+// account. Automatically resolves the buyer account id from email if omitted,
 // eliminating the need for administrators to look up raw UUIDs.
 router.post('/promote', requireIdentity, requireRole('SUPER_ADMIN'), async (req: Request, res: Response) => {
   const parsed = promoteSchema.safeParse(req.body)
@@ -231,7 +232,7 @@ router.post('/promote', requireIdentity, requireRole('SUPER_ADMIN'), async (req:
     return
   }
 
-  // Auto-resolve Supabase User ID from email if not provided directly
+  // Auto-resolve the buyer account id from email if not provided directly
   if (!supabase_user_id) {
     try {
       const matched = await prisma.authUser.findUnique({ where: { email }, select: { id: true } })

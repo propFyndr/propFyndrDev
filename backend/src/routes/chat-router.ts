@@ -75,7 +75,7 @@ import { isSpecificUnknownProject, logCoverageGap, fetchUnknownProjectContext, u
 import { statedMonthlyIncome, incomeInConversation, isAffordabilityQuestion, computeAffordability, renderAffordabilityTable, affordabilityDirective } from '../lib/ai/affordability'
 import { createChatTrace, recordChatTurn, startTraceSpan, endTraceSpan } from '../lib/monitoring/langfuse'
 import { classifyQueryLocal } from '../lib/jev/localClassifier'
-import { isOutageNotice, outageOverShownAnswer } from '../lib/ai/outageNotice'
+import { isOutageNotice, outageOverShownAnswer, DATABASE_NOTICE, isDatabaseUnavailable } from '../lib/ai/outageNotice'
 import { shouldCarryFocus } from '../lib/chat/focusCarry'
 import { scorePropertyEngagement } from '../lib/chat/propertyEngagement'
 import { detectPropertyReactions, PropertyReaction } from '../lib/chat/reactionDetector'
@@ -7018,7 +7018,11 @@ EXECUTIVE RESPONSE INSTRUCTIONS:
       errMsg.toLowerCase().includes('tpm') ||
       errMsg.toLowerCase().includes('capacity')
     const loadedProjects = [...(projects ?? []), ...(nearbyProjects ?? [])].slice(0, 5)
-    if (isRateLimit && loadedProjects.length > 0) {
+    if (isDatabaseUnavailable(err)) {
+      // Not traffic and not the AI: say what failed (pool timeout, unreachable database).
+      send('token', { token: DATABASE_NOTICE })
+      send('done', { sessionId: sessionId ?? null, intentState, intent, responseMode: 'chat' })
+    } else if (isRateLimit && loadedProjects.length > 0) {
       const projectList = loadedProjects.map((p) => `• ${p.name}`).join('\n')
       const fallback = `I've temporarily hit capacity limits.\n\nCurrent matches already loaded:\n\n${projectList}\n\nYou can continue exploring these results. Capacity typically resets in seconds — try your question again shortly.`
       send('token', { token: fallback })

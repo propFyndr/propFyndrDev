@@ -39,7 +39,7 @@ const BuilderApplicationSchema = z.object({
   delivery_track: z.string().optional(),
 }).strict()
 
-async function uploadLogoToSupabase(
+async function uploadLogo(
   base64orUrl: string | undefined,
   applicationId: string
 ): Promise<string | null> {
@@ -165,7 +165,7 @@ router.post('/', async (req: Request, res: Response) => {
 
     // Upload logo if provided
     if (logo_url) {
-      const logoUrl = await uploadLogoToSupabase(logo_url, application.id)
+      const logoUrl = await uploadLogo(logo_url, application.id)
       if (logoUrl) {
         await prisma.builderApplicationForm.update({
           where: { id: application.id },

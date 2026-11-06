@@ -58,3 +58,28 @@ export function outageOverShownAnswer(shownBefore: string, cardsShown: number, r
 export function outageTokenEvent(partialShown: boolean): { token: string; replace?: true } {
   return partialShown ? { token: OUTAGE_NOTICE, replace: true } : { token: OUTAGE_NOTICE }
 }
+
+/**
+ * The reply when the turn failed because the database could not be reached or no
+ * connection came free in time. It keeps OUTAGE_FINGERPRINT, so `isOutageNotice`
+ * still treats it as a failure (never cached, no chips on top of it).
+ *
+ * Why it exists: on 6 Nov a 25-buyer load test hit Prisma's pool of 3 connections
+ * (P2024 "Timed out fetching a new connection"), and the chat's catch block told
+ * every one of those buyers "we are experiencing high traffic". That was true of
+ * the symptom and wrong about the cause, and it hid the real fault in the logs.
+ */
+export const DATABASE_NOTICE =
+  "I couldn't get you a reliable answer just now — our database is briefly unreachable, " +
+  "and I'd rather say so than guess.\n\n" +
+  'Ask me again in a moment, or use **Book Site Visit** or **Callback** and our advisory team ' +
+  'will pick it up directly.'
+
+// P2024 pool timeout, P1001/P1002 unreachable, P1008 operation timeout, P1017 server closed the connection, P2037 too many connections.
+const DATABASE_UNAVAILABLE_CODES = new Set(['P2024', 'P1001', 'P1002', 'P1008', 'P1017', 'P2037'])
+
+/** True when `err` is Prisma telling us the database is unreachable or the pool is exhausted. */
+export function isDatabaseUnavailable(err: unknown): boolean {
+  const e = err as { code?: unknown; name?: unknown } | null | undefined
+  return (typeof e?.code === 'string' && DATABASE_UNAVAILABLE_CODES.has(e.code)) || e?.name === 'PrismaClientInitializationError'
+}
